@@ -1,0 +1,28 @@
+# install dependencies
+# for any tasks run in production, a specific commit should be used for each dep.
+install-contracts:
+  #!/usr/bin/env bash
+  cd ../..
+  echo 'deleting lib folder'
+  rm -rf lib
+  forge install --no-git foundry-rs/forge-std
+  forge install --no-git safe-global/safe-contracts@v1.3.0
+  forge install --no-git base-org/contracts
+  forge install --no-git ethereum-optimism/optimism
+  echo 'renaming lib/contracts to the more descriptive lib/base-contracts'
+  mv lib/contracts lib/base-contracts
+
+install-eip712sign:
+  go install github.com/base-org/eip712sign@v0.0.3
+
+# todo find an RPC url we can distribute publicly
+sign hdPath='0':
+  #!/usr/bin/env bash
+  here=$(pwd)
+  cd ../..
+  echo "getting signer address..."
+  echo "If this hangs make sure your ledger is unlocked, the ethereum app is open, and no other signatures are pending on the ledger."
+  signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  echo "Signing with: ${signer}"
+  eip712sign --ledger --hd-paths "m/44'/60'/0'/0/0" -- \
+  forge script SignFromJson --via-ir --rpc-url https://eth-mainnet.g.alchemy.com/v2/xs6fOA9axQtr6xxN0cvaeBruNrpZhrqo --sig "signJson(string)" "${here}/hello-world.json"

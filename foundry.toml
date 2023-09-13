@@ -1,0 +1,15 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+optimizer = true
+optimizer_runs = 999999
+solc_version = "0.8.15"
+via_ir = true
+broadcast = 'records'
+fs_permissions = [ {access = "read-write", path = "./"} ]
+
+remappings = [
+  "@base-contracts/=lib/base-contracts/",
+  "@eth-optimism-bedrock/=lib/optimism/packages/contracts-bedrock/"
+]
