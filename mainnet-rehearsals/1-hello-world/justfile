@@ -8,5 +8,5 @@ sign hdPath='0':
   echo "If this hangs make sure your ledger is unlocked, the ethereum app is open, and no other signatures are pending on the ledger."
   signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   echo "Signing with: ${signer}"
-  eip712sign --ledger --hd-paths "m/44'/60'/0'/0/0" -- \
+  eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
   forge script SignFromJson --via-ir --rpc-url ${rpcUrl} --sig "signJson(string)" "${here}/hello-world.json"
