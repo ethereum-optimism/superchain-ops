@@ -39,9 +39,5 @@ contract SignFromJson is MultisigBuilder {
         return 0x176b52B74eb7b02B069F3e7A2d14c454E23BC0E4;
     }
 
-    function _postCheck() internal view override {
-        // perform post execution checks
-        // ProxyAdmin proxyAdmin = ProxyAdmin(PROXY_ADMIN);
-        // require(proxyAdmin.owner() == NEW_OWNER, "Deploy: proxyAdmin owner is incorrect");
-    }
+    function _postCheck() internal view override {}
 }
