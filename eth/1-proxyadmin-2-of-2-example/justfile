@@ -13,4 +13,4 @@ sign hdPath='0':
 
 execute:
 	forge script --rpc-url ${rpcUrl} SignFromJson \
-	--sig "run()" --ledger --hd-paths "m/44'/60'/$(LEDGER_ACCOUNT)'/0/0" --sender $(SENDER) --broadcast "${here}/hello-world.json"
+	--sig "run()" --ledger --hd-paths "m/44'/60'/$(LEDGER_ACCOUNT)'/0/0" --sender $(SENDER) --broadcast "${here}/proxyadmin.json"
