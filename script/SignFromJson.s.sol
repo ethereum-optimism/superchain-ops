@@ -22,6 +22,18 @@ contract SignFromJson is MultisigBuilder {
         sign();
     }
 
+    function runJson(string memory _path, bytes memory _signatures) public {
+        console.log("Reading transaction bundle %s", _path);
+        try vm.readFile(_path) returns (string memory data) {
+            json = data;
+        } catch {
+            console.log("Error: unable to transaction bundle.");
+            return;
+        }
+
+        run(_signatures);
+    }
+
     function _buildCalls() internal view override returns (IMulticall3.Call3[] memory) {
         IMulticall3.Call3[] memory calls = new IMulticall3.Call3[](1);
 
@@ -34,8 +46,8 @@ contract SignFromJson is MultisigBuilder {
         return calls;
     }
 
-    // todo: update the parent to allow passing this as a script argument.
-    function _ownerSafe() internal view override returns (address) {
+    // todo: allow passing this as a script argument.
+    function _ownerSafe() internal pure override returns (address) {
         return 0x176b52B74eb7b02B069F3e7A2d14c454E23BC0E4;
     }
 
