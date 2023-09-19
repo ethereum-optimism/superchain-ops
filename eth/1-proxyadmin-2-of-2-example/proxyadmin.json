@@ -1,0 +1,30 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "meta": {
+    "name": "ProxAdmin 2-of-2 Example",
+    "description": "",
+    "txBuilderVersion": "1.16.2"
+  },
+  "transactions": [
+    {
+      "to": "0x543bA4AADBAb8f9025686Bd03993043599c6fB04",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "newOwner",
+            "type": "address"
+          }
+        ],
+        "name": "transferOwnership",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "newOwner": "0xdc53B1d440b8a56dd50A6D69312DAC903d3Aa48b"
+      }
+    }
+  ]
+}
