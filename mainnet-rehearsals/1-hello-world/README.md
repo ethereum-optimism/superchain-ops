@@ -60,17 +60,17 @@ Click “Simulate Transaction”.
 
 Now, in order to verify the result of executing this transaction, you’ll need to validate the following items in the simulation:
 
-1. The domain hash (item 4 in the signing output above) should match the Tenderly `domainSeparator`.
+#### 6.1. The domain hash (item 4 in the signing output above) should match the Tenderly `domainSeparator`.
 
 Example where the hash is 0xf347c…:
 
 ![](../../images/tenderly-separator.png)
 
-2. The data to sign (item 3 in the signing output) should match the data field when checking the signatures. Example where data is 0x1901f3…:
+#### 6.2. The data to sign (item 3 in the signing output) should match the data field when checking the signatures. Example where data is 0x1901f3…:
 
 ![](../../images/tenderly-data.png)
 
-3. The state changes
+#### 6.3. The state changes
 
 Now click on the ‘State’ tab. Verify that the ‘Before’ and ‘After’ values under ‘State Changes’ match what is shown below. This change from 0 to 1 is setting the boolean value to true in the HelloWorld contract.
 ‘
@@ -86,9 +86,9 @@ These values should match those shown in item 4:
 
 This is how it will look on your ledger:
 
-![](../../images/ledger1.jpeg)
-![](../../images/ledger2.jpeg)
-![](../../images/ledger3.jpeg)
+<img src="../../images/ledger1.jpeg" width="300"><br/>
+<img src="../../images/ledger2.jpeg" width="300"><br/>
+<img src="../../images/ledger3.jpeg" width="300">
 
 ### 8. Send the output to Facilitator(s)
 
