@@ -1,6 +1,12 @@
 export rpcUrl := env_var_or_default('ETH_RPC_URL', "https://ethereum.publicnode.com")
 export signatures := env_var_or_default('SIGNATURES', '')
 
+simulate:
+  #!/usr/bin/env bash
+  here=$(pwd)
+  cd ../..
+  forge script SignFromJson --via-ir --rpc-url ${rpcUrl} --sig "signJson(string)" "${here}/input.json"
+
 sign hdPath='0':
   #!/usr/bin/env bash
   here=$(pwd)
