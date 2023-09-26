@@ -70,17 +70,17 @@ you’ll need to validate the following items in the simulation:
 
 The domain hash (item 4 in the signing output above) should match the Tenderly `domainSeparator`.
 
-Example where the hash is 0xf347c…:
+For this ceremony, the hash should be 0x462891ca8f7777ee79e5fe4366d0577864fdf00769c59e345303b084bf0cf38d:
 
-![](../../images/tenderly-separator.png)
+![](./images/domain-hash.png)
 
-#### 6.2. The data hash
+#### 6.2. The message hash
 
 The data hash to sign (item 3 in the signing output) should match the
 data field when checking the signatures. Example where data is
-0x1901f3…:
+0xbd19b32a5cbf3cdb557327bd20851b9de8232ab4353f5911bac6b7d95724b700:
 
-![](../../images/tenderly-data.png)
+![](./images/message-hash.png)
 
 #### 6.3. The state changes
 
@@ -88,21 +88,14 @@ Now click on the ‘State’ tab. Verify that the ‘Before’ and ‘After’
 values under ‘State Changes’ implements the Objective above and no
 other changes are made.
 
-![](../../images/tenderly-state-changes.png)
+![](./images/state-diff.png)
 
 If all the validations check out, sign the payload with your ledger.
 
 ### 7. Approve the signature on your ledger
 
-These values should match those shown in item 4:
-
-![](../../images/domain-hash.png)
-
-This is how it will look on your ledger:
-
-<img src="../../images/ledger1.jpeg" width="300"><br/>
-<img src="../../images/ledger2.jpeg" width="300"><br/>
-<img src="../../images/ledger3.jpeg" width="300">
+Make sure the domain and message hashes on the ledger matches what you
+see in Tenderly.
 
 ### 8. Send the output to Facilitator(s)
 
