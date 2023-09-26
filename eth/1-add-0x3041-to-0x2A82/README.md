@@ -54,7 +54,7 @@ derive the address using m/44'/60'/1'/0/0 instead.
 Following the previous output, a tenderly simulation link will also be
 printed.
 
-![](../../tenderly-url.jpg)
+![](../../images/tenderly-url.jpg)
 
 Paste this URL in your browser. A prompt may ask you to choose a
 project, any project will do. You can create one if necessary.
