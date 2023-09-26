@@ -30,7 +30,7 @@ Initiate the Signing:
 
 Make sure your ledger is still unlocked and run the following.
 
-`just sign``
+``just sign``
 
 You will see the following output.
 
