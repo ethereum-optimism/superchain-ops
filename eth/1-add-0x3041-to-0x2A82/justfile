@@ -10,7 +10,7 @@ sign hdPath='0':
   echo "Signing with: ${signer}"
   echo ""
   $(go env GOPATH)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
-  forge script SignFromJson --via-ir --rpc-url ${rpcUrl} --sig "signJson(string)" "${here}/hello-world.json"
+  forge script SignFromJson --via-ir --rpc-url ${rpcUrl} --sig "signJson(string)" "${here}/input.json"
 
 execute hdPath='0':
   #!/usr/bin/env bash
@@ -18,6 +18,6 @@ execute hdPath='0':
   cd ../..
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge script --fork-url ${rpcUrl} SignFromJson \
-  --sig "runJson(string,bytes)" ${here}/hello-world.json ${signatures} \
+  --sig "runJson(string,bytes)" ${here}/input.json ${signatures} \
   --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
   --sender ${sender}
