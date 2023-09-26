@@ -1,0 +1,23 @@
+export rpcUrl := env_var_or_default('ETH_RPC_URL', "https://ethereum.publicnode.com")
+export signatures := env_var_or_default('SIGNATURES', '')
+
+sign hdPath='0':
+  #!/usr/bin/env bash
+  here=$(pwd)
+  cd ../..
+  echo "getting signer address..."
+  signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  echo "Signing with: ${signer}"
+  echo ""
+  $(go env GOPATH)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
+  forge script SignFromJson --via-ir --rpc-url ${rpcUrl} --sig "signJson(string)" "${here}/hello-world.json"
+
+execute hdPath='0':
+  #!/usr/bin/env bash
+  here=$(pwd)
+  cd ../..
+  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  forge script --fork-url ${rpcUrl} SignFromJson \
+  --sig "runJson(string,bytes)" ${here}/hello-world.json ${signatures} \
+  --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
+  --sender ${sender}
