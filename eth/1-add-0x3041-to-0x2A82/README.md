@@ -1,5 +1,7 @@
 # Add 0x3041 to the 0x2A82 multisig
 
+Status: DRAFT, NOT_READY_TO_SIGN
+
 ## Objective
 
 This ceremony aims to add
