@@ -1,5 +1,6 @@
 export rpcUrl := env_var_or_default('ETH_RPC_URL', "https://ethereum.publicnode.com")
 export signatures := env_var_or_default('SIGNATURES', '')
+export TOP_LEVEL_SAFE := "0x176b52B74eb7b02B069F3e7A2d14c454E23BC0E4"
 
 sign hdPath='0':
   #!/usr/bin/env bash
