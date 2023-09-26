@@ -47,8 +47,8 @@ contract SignFromJson is MultisigBuilder {
     }
 
     // todo: allow passing this as a script argument.
-    function _ownerSafe() internal pure override returns (address) {
-        return 0x176b52B74eb7b02B069F3e7A2d14c454E23BC0E4;
+    function _ownerSafe() internal view override returns (address) {
+        return vm.envAddress("TOP_LEVEL_SAFE");
     }
 
     function _postCheck() internal view override {}
