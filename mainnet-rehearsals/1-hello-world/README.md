@@ -26,12 +26,9 @@ Your Ledger needs to be connected and unlocked. The Ethereum application needs t
 
 ### 3. Initiate the Signing:
 
-Initiate the Signing:
-
-
 Make sure your ledger is still unlocked and run the following.
 
-`just sign``
+`just sign`
 
 You will see the following output.
 
@@ -47,9 +44,7 @@ Verify that the address shown is your signer account. If not, you will need to d
 
 ### 5. Validate the simulation
 
-Following the previous output, a tenderly simulation link will also be printed.
-
-![](../../tenderly-simulation-link.jpg)
+A tenderly simulation link was printed in the output above.
 
 Paste this URL in your browser.
 A prompt may ask you to choose a project, any project will do. You can create one if necessary.
