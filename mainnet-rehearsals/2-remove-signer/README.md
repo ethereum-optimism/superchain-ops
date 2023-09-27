@@ -2,9 +2,11 @@
 
 ## Objective
 
-This rehearsal is intended simply to ensure that all the signers feel confident running the tooling and performing the validations required to execute an onchain action.
+In this rehearsal we will be removing one of the owners of the Safe.
 
-Once completed, the HelloWorld contract will return true from its `helloed()` method.
+Once completed:
+- There will be 1 fewer owner
+- The threshold should be unchanged
 
 The call that will be executed by the Safe contract is defined in a json file. This will be the standard approach for all transactions.
 
