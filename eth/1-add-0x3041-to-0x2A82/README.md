@@ -86,7 +86,7 @@ data field when checking the signatures. Example where data is
 
 Now click on the ‘State’ tab. Verify that the ‘Before’ and ‘After’
 values under ‘State Changes’ implements the Objective above and no
-other changes are made.
+other changes are made. Note that it will appear as if the threshold is currently `1`, this is a side effect of the state overrides which are necessary to simulate the transaction. The important thing is that the new threshold matches the updated value of `3`.
 
 ![](./images/state-diff.png)
 
