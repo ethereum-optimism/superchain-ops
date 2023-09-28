@@ -1,6 +1,6 @@
 # Add 0x3041 to the 0x2A82 multisig
 
-Status: DRAFT, NOT_READY_TO_SIGN
+Status: READY_TO_SIGN
 
 ## Objective
 
@@ -96,6 +96,11 @@ If all the validations check out, sign the payload with your ledger.
 
 Make sure the domain and message hashes on the ledger matches what you
 see in Tenderly.
+
+![](./images/ledger-domain-hash.jpg)
+
+![](./images/ledger-message-hash.jpg)
+
 
 ### 8. Send the output to Facilitator(s)
 
