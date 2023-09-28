@@ -1,10 +1,12 @@
-# Rehearsal 1 - Hello World
+# Rehearsal 2 - Signer Removal
 
 ## Objective
 
-This rehearsal is intended simply to ensure that all the signers feel confident running the tooling and performing the validations required to execute an onchain action.
+In this rehearsal we will be removing one of the owners of the Safe.
 
-Once completed, the HelloWorld contract will return true from its `helloed()` method.
+Once completed:
+- There will be 1 fewer owner
+- The threshold should be unchanged
 
 The call that will be executed by the Safe contract is defined in a json file. This will be the standard approach for all transactions.
 
@@ -17,7 +19,7 @@ Execution can be finalized by anyone once a threshold of signatures are collecte
 ### 1. Move to the appropriate folder for this rehearsal task:
 
 ```
-cd superchain-ops/mainnet-rehearsals/1-hello-world
+cd superchain-ops/mainnet-rehearsals/2-remove-signer
 ```
 
 ### 2. Setup Ledger
@@ -46,8 +48,7 @@ Verify that the address shown is your signer account. If not, you will need to d
 
 A tenderly simulation link was printed in the output above.
 
-Paste this URL in your browser.
-A prompt may ask you to choose a project, any project will do. You can create one if necessary.
+Paste this URL in your browser. A prompt may ask you to choose a project, any project will do. You can create one if necessary.
 
 Click “Simulate Transaction”.
 
@@ -68,8 +69,8 @@ Example where the hash is 0xf347c…:
 #### 6.3. The state changes
 
 Now click on the ‘State’ tab. Verify that the ‘Before’ and ‘After’ values under ‘State Changes’ match what is shown below. This change from 0 to 1 is setting the boolean value to true in the HelloWorld contract.
-‘
-![](../../images/tenderly-state-changes.png)
+
+![](../../images/tenderly-state-changes-rehearsal2.png)
 
 If all the validations check out, sign the payload with your ledger.
 
