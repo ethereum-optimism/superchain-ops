@@ -1,0 +1,46 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": 1695771812448,
+  "meta": {
+    "name": "Transactions Batch",
+    "description": "",
+    "txBuilderVersion": "1.16.3",
+    "createdFromSafeAddress": "0x176b52B74eb7b02B069F3e7A2d14c454E23BC0E4",
+    "createdFromOwnerAddress": "",
+    "checksum": "0xd6e4a731b364e61ce1e7e6a46fd75fbcd3b0c294dda96de225fb7c71b3f45348"
+  },
+  "transactions": [
+    {
+      "to": "0x176b52B74eb7b02B069F3e7A2d14c454E23BC0E4",
+      "value": "0",
+      "data": "0xf8dc5dd9000000000000000000000000a3b151645cf672f8f5183b20b8c592a4b1b33461000000000000000000000000a31736eba9e1f3638eb7c14dada6b794e1146cd30000000000000000000000000000000000000000000000000000000000000005",
+      "contractMethod": {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "prevOwner",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_threshold",
+            "type": "uint256"
+          }
+        ],
+        "name": "removeOwner",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "prevOwner": "0xA3b151645cF672f8F5183B20b8C592A4B1b33461",
+        "owner": "0xA31736eBA9e1F3638Eb7C14dAda6b794E1146cD3",
+        "_threshold": "5"
+      }
+    }
+  ]
+}
