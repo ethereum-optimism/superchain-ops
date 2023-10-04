@@ -1,6 +1,6 @@
 export rpcUrl := env_var_or_default('ETH_RPC_URL', "https://ethereum.publicnode.com")
 export signatures := env_var_or_default('SIGNATURES', '')
-export bundle := "remove-signer"
+export bundle := "input"
 export location := `pwd`
 
 sign hdPath='0':
