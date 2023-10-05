@@ -1,7 +1,11 @@
 # dev-superchain-upgrade
 
-This call upgrades the dev superchain target on Goerli to the latest
-implementations at the time. The implementation versions are as follows:
+This upgrades the chaosnet chain on the goerli dev superchain target.
+It skips the internal devnet chain because it is still owned by an
+unknown EOA and the internal devnet artifacts that were in the monorepo
+are not the correct artifacts.
+
+The implementation versions are as follows:
 
 ```
 l1_cross_domain_messenger: 1.7.0
@@ -15,7 +19,6 @@ system_config: 1.10.0
 
 The included chains are:
 - op-labs-chaosnet-0
-- op-labs-devnet-0
 
 This particular upgrade does not include a `justfile` as it should be executed
 via the Safe UI.
