@@ -23,8 +23,8 @@ execute hdPath='0':
   #!/usr/bin/env bash
   here=$(pwd)
   cd ../..
-  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  sender=$(cast wallet address --trezor --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge script --fork-url ${rpcUrl} SignFromJson \
   --sig "runJson(string,bytes)" ${here}/input.json ${signatures} \
-  --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
+  --trezor --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
   --sender ${sender}
