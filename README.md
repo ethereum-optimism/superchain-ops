@@ -14,6 +14,8 @@ Effectively any significant change to the state of the network, requiring author
 
 ## Directory structure
 
+Top level direct names should be the [EIP 3770](https://eips.ethereum.org/EIPS/eip-3770) short name for the network (see [shortNameMapping.json](https://chainid.network/shortNameMapping.json))
+
 Each task will have a directory structure similar to the following:
 
 - `task-name.json`: A json file which defines the task to be executed. This file may either be generated automatically or manually created.
