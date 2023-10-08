@@ -33,7 +33,7 @@
       },
       "contractInputsValues": {
         "_data": "0xc4d66de80000000000000000000000005086d1eef304eb5284a0f6720f79403b4e9be294",
-        "_implementation": "0xdeadbeef",
+        "_implementation": "0x3311aC7F72bb4108d9f4D5d50E7623B1498A9eC0",
         "_proxy": "0x5a7749f83b81B301cAb5f48EB8516B986DAef23D"
       }
     },
