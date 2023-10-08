@@ -3,7 +3,7 @@
   "chainId": "1",
   "meta": {
     "name": "Upgrade OP Mainnet",
-    "description": "",
+    "description": ""
   },
   "transactions": [
     {
@@ -21,19 +21,13 @@
             "internalType": "address",
             "name": "_implementation",
             "type": "address"
-          },
-          {
-            "internalType": "bytes",
-            "name": "_data",
-            "type": "bytes"
           }
         ],
-        "name": "upgradeAndCall",
+        "name": "upgrade",
         "payable": false
       },
       "description": "Update L1ERC721Bridge from 1.0.0 to 1.1.1.",
       "contractInputsValues": {
-        "_data": "0xc4d66de80000000000000000000000005086d1eef304eb5284a0f6720f79403b4e9be294",
         "_implementation": "0x3311aC7F72bb4108d9f4D5d50E7623B1498A9eC0",
         "_proxy": "0x5a7749f83b81B301cAb5f48EB8516B986DAef23D"
       }
@@ -63,10 +57,10 @@
         "name": "upgradeAndCall",
         "payable": false
       },
-      "description": "Update OptimismPortalProxy from 1.6.0 to 1.7.0.",
+      "description": "Update OptimismPortalProxy from 1.6.0 to 1.10.0.",
       "contractInputsValues": {
         "_data": "0xfecf9734000000000000000000000000e6dfba0953616bacab0c9a8ecb3a9bba77fc15c0000000000000000000000000bc1233d0c3e6b5d53ab455cf65a6623f6dcd7e4f000000000000000000000000ae851f927ee40de99aabb7461c00f9622ab91d600000000000000000000000000000000000000000000000000000000000000000",
-        "_implementation": "0x5FB30336A8d0841cf15d452afA297cB6D10877D7",
+        "_implementation": "0xdeadbeef",
         "_proxy": "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed"
       }
     }
