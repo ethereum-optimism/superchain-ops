@@ -1,7 +1,19 @@
+set dotenv-load
+
 export rpcUrl := env_var_or_default('ETH_RPC_URL', "https://ethereum.publicnode.com")
 export signatures := env_var_or_default('SIGNATURES', '')
 export bundle := "input"
 export location := `pwd`
+export vitalik.eth := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+
+simulate hdPath='0':
+  #!/usr/bin/env bash
+  echo "running simulation..."
+  forge script NestedSignFromJson \
+    --rpc-url ${rpcUrl} \
+    --sender "0xD52FCd0F86bAb7bFA70F0A33f9c90D3afE87d675" \
+    --sig "signJson(string)" \
+    "${location}/${bundle}.json"
 
 sign hdPath='0':
   #!/usr/bin/env bash
@@ -10,17 +22,14 @@ sign hdPath='0':
   echo "Signing with: ${signer}"
   echo ""
   $(go env GOPATH)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
-  forge script SignFromJson \
+  forge script NestSignFromJson \
     --rpc-url ${rpcUrl} \
     --sig "signJson(string)" \
     "${location}/${bundle}.json"
 
-execute hdPath='0':
+simulated-execute hdPath='0':
   #!/usr/bin/env bash
-  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-  forge script SignFromJson \
+  forge script NestedSignFromJson \
     --fork-url ${rpcUrl} \
-    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
-    --broadcast \
-    --sender ${sender} \
+    --sender ${vitalik.eth} \
     --sig "runJson(string,bytes)" ${location}/${bundle}.json ${signatures}
