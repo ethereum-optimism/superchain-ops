@@ -15,3 +15,10 @@ install-contracts:
 
 install-eip712sign:
   go install github.com/base-org/eip712sign@v0.0.3
+
+install-dev-contracts:
+  #!/usr/bin/env bash
+  rm -fr lib/openzeppelin-contracts
+  forge install --no-git OpenZeppelin/openzeppelin-contracts@v4.9.3
+  rm -fr lib/solmate
+  forge install --no-git transmissions11/solmate@v7

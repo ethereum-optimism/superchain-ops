@@ -10,6 +10,9 @@ broadcast = 'records'
 fs_permissions = [ {access = "read-write", path = "./"} ]
 
 remappings = [
-  "@base-contracts/=lib/base-contracts/",
-  "@eth-optimism-bedrock/=lib/optimism/packages/contracts-bedrock/"
+  '@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts',
+  '@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts',    
+  '@base-contracts/=lib/base-contracts/',
+  '@eth-optimism-bedrock/=lib/optimism/packages/contracts-bedrock/',
+  '@rari-capital/solmate/=lib/solmate'
 ]
