@@ -10,7 +10,7 @@ import {console} from "forge-std/Console.sol";
 contract NestedSignFromJson is NestedMultisigBuilder {
     string json;
 
-    function signJson(string memory _path) public {
+    function _loadJson(string memory _path) internal {
         console.log("Reading transaction bundle %s", _path);
         try vm.readFile(_path) returns (string memory data) {
             json = data;
@@ -18,20 +18,21 @@ contract NestedSignFromJson is NestedMultisigBuilder {
             console.log("Error: unable to transaction bundle.");
             return;
         }
-
-        sign();
     }
 
-    function runJson(string memory _path, bytes memory _signatures) public {
-        console.log("Reading transaction bundle %s", _path);
-        try vm.readFile(_path) returns (string memory data) {
-            json = data;
-        } catch {
-            console.log("Error: unable to transaction bundle.");
-            return;
-        }
+    function signJson(string memory _path, address _signerSafe) public {
+        _loadJson(_path);
+        sign(_signerSafe);
+    }
 
-        run(_signatures);
+    function approveJson(string memory _path, address _signerSafe, bytes memory _signatures) public {
+        _loadJson(_path);
+        approve(_signerSafe, _signatures);
+    }
+
+    function runJson(string memory _path) public {
+        _loadJson(_path);
+        run();
     }
 
     function _buildCalls() internal view override returns (IMulticall3.Call3[] memory) {
@@ -46,9 +47,8 @@ contract NestedSignFromJson is NestedMultisigBuilder {
         return calls;
     }
 
-    // todo: allow passing this as a script argument.
     function _ownerSafe() internal view override returns (address) {
-        return vm.envAddress("TOP_LEVEL_SAFE");
+        return vm.envAddress("OWNER_SAFE");
     }
 
     function _postCheck() internal view override {}
