@@ -38,3 +38,11 @@ simulated-approve-council hdPath='0':
     ${location}/${bundle}.json \
     "$COUNCIL_SAFE" \
     ${signatures}
+
+simulated-run hdPath='0':
+  #!/usr/bin/env bash
+  forge script NestedSignFromJson \
+    --fork-url ${rpcUrl} \
+    --sender ${randomPersonEoa} \
+    --sig "runJson(string)" \
+    ${location}/${bundle}.json
