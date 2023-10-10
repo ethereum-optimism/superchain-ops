@@ -44,6 +44,7 @@ contract DeployRehearsalContracts is Deployer {
         deployL1ERC721BridgeProxy();
         deployOptimismPortalProxy();
         transferProxyAdmin();
+	sync();
     }
 
     function deployProxyAdmin() public broadcast {
