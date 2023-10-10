@@ -7,7 +7,7 @@ Superchain.
 
 Once Completed:
 1. The L1ERC721BridgeProxy contract will be upgraded to a new
-   implemenation.
+   implementation.
 2. The OptimismPortalProxy contract will be upgraded to a new
    implementation and reinitialized.
 
