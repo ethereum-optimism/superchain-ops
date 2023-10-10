@@ -139,8 +139,29 @@ following:
 just sign-council # or just sign-council <hdPath>
 ```
 
-Make sure the domain hash and message hash on your Ledger matches the
-ones you find in the simulation, and sign the transaction.
+!!! IMPORTANT: This is the most security critical part of the
+playbook: make sure the domain hash and message hash in the following
+two places match:
+
+1. on your Ledger screen.
+2. in the Tenderly simulation. You should use the same Tenderly
+   simulation as the one you used to verify the state diffs, instead
+   of opening the new one printed in the console.
+
+There is no need to verify anything printed in the console. There is
+no need to open the new Tenderly simulation link either.
+
+After verification, sign the transaction. You will see the `Data`,
+`Signer` and `Signature` printed in the console. Format should be
+something like this:
+
+```
+Data:  <DATA>
+Signer: <ADDRESS>
+Signature: <SIGNATURE>
+```
+
+Double check the signer address is the right one.
 
 ### 5. Send the output to Facilitator(s)
 
@@ -149,12 +170,5 @@ will be collected by Facilitators for execution. Execution can occur
 by anyone once a threshold of signatures are collected, so a
 Facilitator will do the final execution for convenience.
 
-Format should be something like this:
-
-```
-Data:  <DATA>
-Signer: <ADDRESS>
-Signature: <SIGNATURE>
-```
-
-Congrats, you are done!
+Share the `Data`, `Signer` and `Signature` with the Facilitator, and
+congrats, you are done!
