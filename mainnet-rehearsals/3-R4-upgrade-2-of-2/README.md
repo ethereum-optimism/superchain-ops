@@ -93,15 +93,15 @@ Now click on the "State" tab. Verify that:
    2. storage slot `0x0` (`_initialized`) is set to `0x2`.
    3. storage slot `0x1` (ResourceParams) set to
       `0x000000000117814800000000000000000000000000000000000000003b9aca00`,
-      which means prevBlockNum is set to 0x1178148 or larger since the
-      initialization logic always read the latest block number at init
-      time, prevBoughtGas is set to 0, and prevBaseFee is set to
-      0x3b9aca00.
+      which means prevBlockNum is set to `0x1178148` or larger since
+      the initialization logic always read the latest block number at
+      init time, prevBoughtGas is set to 0, and prevBaseFee is set to
+      `0x3b9aca00`.
    4. storage slot `0x32` (`l2Sender`) set to `0xdead`.
    5. storage slot `0x35` (Packed `l2Oracle` and `paused`) set to
       `0xdfe97868233d1aa22e815a266982f2cf17685a2700`, which means
       l2Oracle is set to
-      [0xdfe97868233d1aa22e815a266982f2cf17685a27](https://etherscan.io/address/0xdfe97868233d1aa22e815a266982f2cf17685a27#readProxyContract)
+      [`0xdfe97868233d1aa22e815a266982f2cf17685a27`](https://etherscan.io/address/0xdfe97868233d1aa22e815a266982f2cf17685a27#readProxyContract)
       and paused is set to false.
    6. storage slot `0x36` (`systemConfig`) set to
       [`0x229047fed2591dbec1ef1118d64f7af3db9eb290`](https://etherscan.io/address/0x229047fed2591dbec1ef1118d64f7af3db9eb290#readProxyContract).
