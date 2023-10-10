@@ -88,12 +88,12 @@ Now click on the "State" tab. Verify that
    (0xDd3840F548Bd8fA41421050ed7C28753B494734c) is changed to
    0x0A9d47e531825FaaA2863D4d10DC8E5E0B91BfB0.
 3. The `OptimismPortalProxy` contract is being reinitialized with
-   1. storage slot `0x0` (???) set to `0x2`.
-   2. storage slot `0x1` (???) set to `0x000000000117814800000000000000000000000000000000000000003b9aca00`.
-   3. storage slot `0x32` (l2Sender) set to `0xdead`.
-   4. storage slot `0x35` (l2Oracle) set to `0x0000000000000000000000dfe97868233d1aa22e815a266982f2cf17685a2700`.
-   5. storage slot `0x36` (systemConfig) set to `0x000000000000000000000000229047fed2591dbec1ef1118d64f7af3db9eb290`.
-   6. storage slot `0x37` (guardian) set to `0x0000000000000000000000009ba6e03d8b90de867373db8cf1a58d2f7f006b3a`.
+    1. storage slot `0x0` (???) set to `0x2`.
+    2. storage slot `0x1` (???) set to `0x000000000117814800000000000000000000000000000000000000003b9aca00`.
+    3. storage slot `0x32` (l2Sender) set to `0xdead`.
+    4. storage slot `0x35` (l2Oracle) set to `0x0000000000000000000000dfe97868233d1aa22e815a266982f2cf17685a2700`.
+    5. storage slot `0x36` (systemConfig) set to `0x000000000000000000000000229047fed2591dbec1ef1118d64f7af3db9eb290`.
+    6. storage slot `0x37` (guardian) set to `0x0000000000000000000000009ba6e03d8b90de867373db8cf1a58d2f7f006b3a`.
 
 
 All of these addresses should be part of the Optimism Governance vote
