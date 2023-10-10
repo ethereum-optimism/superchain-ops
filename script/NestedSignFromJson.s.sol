@@ -36,14 +36,24 @@ contract NestedSignFromJson is NestedMultisigBuilder {
     }
 
     function _buildCalls() internal view override returns (IMulticall3.Call3[] memory) {
-        // TODO: DO NOT MERGE without implementing support multiple transactions.
-        IMulticall3.Call3[] memory calls = new IMulticall3.Call3[](1);
+        // This is a hack.
+        uint transaction_count = 9999;
+        for(uint i = 0; transaction_count == 9999; i++) {
+            try vm.parseJsonAddress(json, string(abi.encodePacked("$.transactions[", vm.toString(i), "].to"))) returns (address) {
+            } catch {
+                transaction_count = i;
+            }
+        }
 
-        calls[0] = IMulticall3.Call3({
-            target: stdJson.readAddress(json, "$.transactions[0].to"),
-            allowFailure: false,
-            callData: stdJson.readBytes(json, "$.transactions[0].data")
-        });
+        IMulticall3.Call3[] memory calls = new IMulticall3.Call3[](transaction_count);
+
+        for (uint i = 0; i < transaction_count; i++) {
+            calls[i] = IMulticall3.Call3({
+                target: stdJson.readAddress(json, string(abi.encodePacked("$.transactions[", vm.toString(i), "].to"))),
+                allowFailure: false,
+                callData: stdJson.readBytes(json, string(abi.encodePacked("$.transactions[", vm.toString(i), "].data")))
+                });
+        }
 
         return calls;
     }
