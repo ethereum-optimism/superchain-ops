@@ -139,9 +139,9 @@ following:
 just sign-council # or just sign-council <hdPath>
 ```
 
-> [!IMPORTANT] This is the most security critical part of the
-> playbook: make sure the domain hash and message hash in the
-> following two places match:
+> [!IMPORTANT]
+> This is the most security critical part of the playbook: make sure
+> the domain hash and message hash in the following two places match:
 
 1. on your Ledger screen.
 2. in the Tenderly simulation. You should use the same Tenderly
