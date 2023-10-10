@@ -76,31 +76,37 @@ validate integrity of the simulation, we need to
 
 #### 3.2. Validate correctness of the state diff.
 
-Now click on the "State" tab. Verify that
+Now click on the "State" tab. Verify that:
 
-1. The implementation (storage key
-    [0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc](https://github.com/ethereum-optimism/optimism/blob/cb42a6108d780451f6cecceff8182e11aa6a0490/packages/contracts-bedrock/src/libraries/Constants.sol#L27C9-L27C75))
-    of the `L1ERC721BridgeProxy` contract
-    (0xce479c1299adbe12f34a479f404937151af19d92) is changed to
-    0x3311aC7F72bb4108d9f4D5d50E7623B1498A9eC0.
-2. The implementation (storage key is the same as above) of the
-   `OptimismPortalProxy` contract
-   (0xDd3840F548Bd8fA41421050ed7C28753B494734c) is changed to
-   0x0A9d47e531825FaaA2863D4d10DC8E5E0B91BfB0 ([source
-   code](https://github.com/ethereum-optimism/optimism/blob/716f81a6fc4ef125364b95a799474082ea3eb062/packages/contracts-bedrock/src/L1/OptimismPortal.sol)).
-3. The `OptimismPortalProxy` contract is being reinitialized with
-    1. storage slot `0x0` (_initialized) set to `0x2`.
-    2. storage slot `0x1` (ResourceParams) set to
-       `0x000000000117814800000000000000000000000000000000000000003b9aca00`,
-       which means prevBlockNum is set to 0x1178148 or larger since
-       the initialization logic always read the latest block number at
-       init time, prevBoughtGas is set to 0, and prevBaseFee is set to
-       0x3b9aca00.
-    3. storage slot `0x32` (l2Sender) set to `0xdead`.
-    4. storage slot `0x35` (l2Oracle) set to `0x0000000000000000000000dfe97868233d1aa22e815a266982f2cf17685a2700`.
-    5. storage slot `0x36` (systemConfig) set to `0x000000000000000000000000229047fed2591dbec1ef1118d64f7af3db9eb290`.
-    6. storage slot `0x37` (guardian) set to `0x0000000000000000000000009ba6e03d8b90de867373db8cf1a58d2f7f006b3a`.
-
+1. In `0xce479c1299adbe12f34a479f404937151af19d92` (the
+   `L1ERC721BridgeProxy` contract):
+   1. The implementation of the `L1ERC721BridgeProxy` contract
+      (storage key
+      [0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc](https://github.com/ethereum-optimism/optimism/blob/cb42a6108d780451f6cecceff8182e11aa6a0490/packages/contracts-bedrock/src/libraries/Constants.sol#L27C9-L27C75))
+      (`0xce479c1299adbe12f34a479f404937151af19d92`) is changed to
+      `0x3311aC7F72bb4108d9f4D5d50E7623B1498A9eC0`.
+2. In `0xDd3840F548Bd8fA41421050ed7C28753B494734c` (the
+   `OptimismPortalProxy` contract):
+   1. The implementation (storage key is the same as above) is changed
+      to `0x0A9d47e531825FaaA2863D4d10DC8E5E0B91BfB0` ([source
+      code](https://github.com/ethereum-optimism/optimism/blob/716f81a6fc4ef125364b95a799474082ea3eb062/packages/contracts-bedrock/src/L1/OptimismPortal.sol)).
+   2. storage slot `0x0` (`_initialized`) is set to `0x2`.
+   3. storage slot `0x1` (ResourceParams) set to
+      `0x000000000117814800000000000000000000000000000000000000003b9aca00`,
+      which means prevBlockNum is set to 0x1178148 or larger since the
+      initialization logic always read the latest block number at init
+      time, prevBoughtGas is set to 0, and prevBaseFee is set to
+      0x3b9aca00.
+   4. storage slot `0x32` (`l2Sender`) set to `0xdead`.
+   5. storage slot `0x35` (Packed `l2Oracle` and `paused`) set to
+      `0xdfe97868233d1aa22e815a266982f2cf17685a2700`, which means
+      l2Oracle is set to
+      [0xdfe97868233d1aa22e815a266982f2cf17685a27](https://etherscan.io/address/0xdfe97868233d1aa22e815a266982f2cf17685a27#readProxyContract)
+      and paused is set to false.
+   6. storage slot `0x36` (`systemConfig`) set to
+      [`0x229047fed2591dbec1ef1118d64f7af3db9eb290`](https://etherscan.io/address/0x229047fed2591dbec1ef1118d64f7af3db9eb290#readProxyContract).
+   7. storage slot `0x37` (`guardian`) set to
+      [`0x9ba6e03d8b90de867373db8cf1a58d2f7f006b3a`](https://app.safe.global/settings/setup?safe=eth:0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A).
 
 All of these addresses should be part of the Optimism Governance vote
 that approves this upgrade if this is a [Normal
