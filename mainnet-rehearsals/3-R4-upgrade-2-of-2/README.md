@@ -112,13 +112,13 @@ hash to approve.
 Go back to the "Overview" tab, and find the first
 `GnosisSafe.domainSeparator` call. This call's return value will be
 the domain hash that will show up in your Ledger:
-0xdbf84cb7cfac409dddf2f9e1e3dec451e4fb9a7abe42d83ef279baff12b1d730.
+`0xdbf84cb7cfac409dddf2f9e1e3dec451e4fb9a7abe42d83ef279baff12b1d730`.
 
 Right before this `GnosisSafe.domainSeparator` call, you will see a
 call to `GnosisSafe.encodeTransactionData`. Its return value will be a
 concatnation of `0x1901`, the domain hash, and the message hash:
 `0x1901[domain hash][message hash]`, which is
-`0x1901dbf84cb7cfac409dddf2f9e1e3dec451e4fb9a7abe42d83ef279baff12b1d73066b46f8bf806832cc437386048bc1dcda035573b7df40d0e7d029d99f752bdfa`
+`0x1901dbf84cb7cfac409dddf2f9e1e3dec451e4fb9a7abe42d83ef279baff12b1d730d042638edac0888e1c73d74fb5e53185278005b41bd8d43804d0423cce0f0ea1`
 in this case.
 
 ![](./images/tenderly-hashes-1.png)
