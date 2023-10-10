@@ -87,13 +87,15 @@ Now click on the "State" tab. Verify that
    `OptimismPortalProxy` contract
    (0xDd3840F548Bd8fA41421050ed7C28753B494734c) is changed to
    0x0A9d47e531825FaaA2863D4d10DC8E5E0B91BfB0 ([source
-   code](https://github.com/ethereum-optimism/optimism/blob/716f81a6fc4ef125364b95a799474082ea3eb062/packages/contracts-bedrock/src/L1/OptimismPortal.sol#L123)).
+   code](https://github.com/ethereum-optimism/optimism/blob/716f81a6fc4ef125364b95a799474082ea3eb062/packages/contracts-bedrock/src/L1/OptimismPortal.sol)).
 3. The `OptimismPortalProxy` contract is being reinitialized with
     1. storage slot `0x0` (_initialized) set to `0x2`.
     2. storage slot `0x1` (ResourceParams) set to
        `0x000000000117814800000000000000000000000000000000000000003b9aca00`,
-       which means prevBlockNum is set to 0x1178148, prevBoughtGas is
-       set to 0, and prevBaseFee is set to 0x3b9aca00.
+       which means prevBlockNum is set to 0x1178148 or larger since
+       the initialization logic always read the latest block number at
+       init time, prevBoughtGas is set to 0, and prevBaseFee is set to
+       0x3b9aca00.
     3. storage slot `0x32` (l2Sender) set to `0xdead`.
     4. storage slot `0x35` (l2Oracle) set to `0x0000000000000000000000dfe97868233d1aa22e815a266982f2cf17685a2700`.
     5. storage slot `0x36` (systemConfig) set to `0x000000000000000000000000229047fed2591dbec1ef1118d64f7af3db9eb290`.
