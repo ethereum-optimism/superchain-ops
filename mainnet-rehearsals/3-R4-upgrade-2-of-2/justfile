@@ -7,16 +7,18 @@ export foundationSafe := env_var('FOUNDATION_SAFE')
 export ownerSafe := env_var('OWNER_SAFE')
 export bundle := "input"
 export location := `pwd`
-export exampleCouncilSignerAddress := "0xD52FCd0F86bAb7bFA70F0A33f9c90D3afE87d675"
 export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 
 simulate-council hdPath='0':
   #!/usr/bin/env bash
   cd ../..
-  echo "running simulation..."
+  echo "getting signer address..."
+  signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  echo "Simulating with: ${signer}"
+  echo ""
   forge script NestedSignFromJson \
     --rpc-url ${rpcUrl} \
-    --sender "${exampleCouncilSignerAddress}" \
+    --sender ${signer} \
     --sig "signJson(string,address)" \
     "${location}/${bundle}.json" \
     "${councilSafe}"
@@ -35,7 +37,7 @@ sign-council hdPath='0':
     "${location}/${bundle}.json" \
     "${councilSafe}"
 
-approve-council hdPath='0':
+execute-council hdPath='0':
   #!/usr/bin/env bash
   cd ../..
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
