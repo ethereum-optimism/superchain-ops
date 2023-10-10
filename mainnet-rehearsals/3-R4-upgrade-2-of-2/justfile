@@ -69,10 +69,4 @@ deploy-contracts hdPath='0':
     --trezor --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
     --broadcast \
     --sender ${sender}
-  forge script DeployRehearsalContracts \
-    --fork-url ${rpcUrl} \
-    --trezor --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
-    --broadcast \
-    --sender ${sender} \
-    --sig 'sync()'
   
