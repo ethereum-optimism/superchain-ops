@@ -72,6 +72,8 @@ validate integrity of the simulation, we need to
    `just simulate-council 1` it will derive the address using
    m/44'/60'/1'/0/0 instead.
 
+![](./images/tenderly-overview-network.png)
+
 #### 3.2. Validate correctness of the state diff.
 
 Now click on the "State" tab. Verify that
@@ -90,6 +92,9 @@ All of these addresses should be part of the Optimism Governance vote
 that approves this upgrade if this is a [Normal
 Operation](https://github.com/ethereum-optimism/OPerating-manual/blob/1f42a3766d084864a818b93ce7ba0857a4a846ea/Security%20Council%20Charter%20v0.1.md#normal-operation).
 
+![](./images/tenderly-state-diff.png)
+
+
 #### 3.3. Validate and extract domain hash and message hash to approve.
 
 Now that we have verified the transaction performs the right
@@ -107,6 +112,10 @@ concatnation of `0x1901`, the domain hash, and the message hash:
 `0x1901[domain hash][message hash]`, which is
 `0x1901dbf84cb7cfac409dddf2f9e1e3dec451e4fb9a7abe42d83ef279baff12b1d73066b46f8bf806832cc437386048bc1dcda035573b7df40d0e7d029d99f752bdfa`
 in this case.
+
+![](./images/tenderly-hashes-1.png)
+
+![](./images/tenderly-hashes-2.png)
 
 ### 4. Approve the signature on your ledger
 
