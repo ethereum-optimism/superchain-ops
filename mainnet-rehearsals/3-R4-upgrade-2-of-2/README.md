@@ -85,8 +85,7 @@ Now click on the "State" tab. Verify that:
    1. The implementation of the `L1ERC721BridgeProxy` contract
       (storage key
       [0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc](https://github.com/ethereum-optimism/optimism/blob/cb42a6108d780451f6cecceff8182e11aa6a0490/packages/contracts-bedrock/src/libraries/Constants.sol#L27C9-L27C75))
-      (`0xce479c1299adbe12f34a479f404937151af19d92`) is changed to
-      `0x3311aC7F72bb4108d9f4D5d50E7623B1498A9eC0`.
+      is changed to `0x3311aC7F72bb4108d9f4D5d50E7623B1498A9eC0`.
 2. In `0xDd3840F548Bd8fA41421050ed7C28753B494734c` (the
    `OptimismPortalProxy` contract):
    1. The implementation (storage key is the same as above) is changed
