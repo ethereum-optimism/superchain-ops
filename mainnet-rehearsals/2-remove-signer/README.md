@@ -100,3 +100,31 @@ Signature: <SIGNATURE>
 
 Congrats, you are done! 🔐
 
+### 9. [For Facilitator ONLY] Execute the output
+
+1. Collect outputs from all participating signers.
+2. Concatenate all signatures and export it as the `SIGNATURES`
+   environment variable, i.e. `export
+   SIGNATURES="0x[SIGNATURE1][SIGNATURE2]..."`.
+3. Run `just execute 0 # or 1 or ...` to execute the transaction onchain.
+
+For example, if the quorum is 2 and you get the following outputs:
+
+``` shell
+Data:  0xDEADBEEF
+Signer: 0xC0FFEE01
+Signature: AAAA
+```
+
+``` shell
+Data:  0xDEADBEEF
+Signer: 0xC0FFEE02
+Signature: BBBB
+```
+
+Then you should run
+
+``` shell
+export SIGNATURES="0xAAAABBBB"
+just execute 0 # or 1 or ...
+```
