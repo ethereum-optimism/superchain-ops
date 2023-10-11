@@ -5,7 +5,7 @@ import {JsonTxBuilderBase} from "src/JsonTxBuilderBase.sol";
 import {NestedMultisigBuilder} from "@base-contracts/script/universal/NestedMultisigBuilder.sol";
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {stdJson} from "forge-std/StdJson.sol";
-import {console} from "forge-std/Console.sol";
+import {console} from "forge-std/console.sol";
 
 contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
 

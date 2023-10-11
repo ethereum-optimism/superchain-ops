@@ -5,7 +5,7 @@ import {JsonTxBuilderBase} from "src/JsonTxBuilderBase.sol";
 import {MultisigBuilder} from "@base-contracts/script/universal/MultisigBuilder.sol";
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {stdJson} from "forge-std/StdJson.sol";
-import {console} from "forge-std/Console.sol";
+import {console} from "forge-std/console.sol";
 
 contract SignFromJson is MultisigBuilder, JsonTxBuilderBase {
 
