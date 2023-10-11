@@ -26,7 +26,7 @@ submit all signatures and perform the execution onchain.
 ### 1. Move to the appropriate folder for this rehearsal task:
 
 ```
-cd superchain-ops/mainnet-rehearsals/4-upgrade-2-of-2
+cd superchain-ops/mainnet-rehearsals/3-R4-upgrade-2-of-2
 ```
 
 ### 2. Setup Ledger
@@ -38,6 +38,8 @@ is ready".
 ### 3. Simulate and validate the transaction
 
 Make sure your ledger is still unlocked and run the following.
+
+Remember that by default just is running with the address derived from `/0` (first nonce). If you wish to use a different account, run `just simulate-council [X]`, where X is the derivation path of the address that you want to use.
 
 ``` shell
 just simulate-council
