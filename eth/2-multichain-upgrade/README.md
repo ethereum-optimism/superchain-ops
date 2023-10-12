@@ -36,12 +36,92 @@ The following table includes the new implementation addresses and the implementa
 
 ##### `0x0000000000000000000000000000000000000000000000000000000000000000`
 
-| Before                                                               | After                                                                |
-|----------------------------------------------------------------------|----------------------------------------------------------------------|
-| `0x0000000000000000000000000000000000000000000000000000000000000001` | `0x0000000000000000000000000000000000000000000000000000000000000003` |
-
 | Before | `0x0000000000000000000000000000000000000000000000000000000000000001` |
 |--------|----------------------------------------------------------------------|
 | After  | `0x0000000000000000000000000000000000000000000000000000000000000003` |
 
 The `initialized` storage slot was updated from 1 to 3
+
+##### `0x000000000000000000000000000000000000000000000000000000000000006a`
+
+| Before | `0x0000000000000000000000000000000000000000000000000000000000000000` |
+|--------|----------------------------------------------------------------------|
+| After  | `0x0000000000000000000000000000000000000000000000000000000001177f75` |
+
+##### `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+
+| Before | `0x0000000000000000000000005efa852e92800d1c982711761e45c3fe39a2b6d8` |
+|--------|----------------------------------------------------------------------|
+| After  | `0x0000000000000000000000003b6090d4ba84b94c20a789436b9010f340aaac70` |
+
+##### `0x383f291819e6d54073bc9a648251d97421076bdd101933c0c022219ce9580636`
+
+| Before | `0x0000000000000000000000000000000000000000000000000000000000000000` |
+|--------|----------------------------------------------------------------------|
+| After  | `0x00000000000000000000000025ace71c97b33cc4729cf772ae268934f7ab5fa1` |
+
+This is the `L1_CROSS_DOMAIN_MESSENGER_SLOT`. The address of the `L1CrossDomainMessengerProxy`
+should be right aligned in the storage slot. It is a net new storage slot so it should
+start at `bytes32(0)`.
+
+##### `0x46adcbebc6be8ce551740c29c47c8798210f23f7f4086c41752944352568d5a7`
+
+| Before | `0x0000000000000000000000000000000000000000000000000000000000000000` |
+|--------|----------------------------------------------------------------------|
+| After  | `0x0000000000000000000000005a7749f83b81b301cab5f48eb8516b986daef23d` |
+
+This is the `L1_ERC_721_BRIDGE_SLOT`. The address of the `L1ERC721BridgeProxy` should be right
+aligned in the storage slot. It is a net new storage slot so it should start at `bytes32(0)`.
+
+##### `0x4b6c74f9e688cb39801f2112c14a8c57232a3fc5202e1444126d4bce86eb19ac`
+
+| Before | `0x0000000000000000000000000000000000000000000000000000000000000000` |
+|--------|----------------------------------------------------------------------|
+| After  | `0x000000000000000000000000beb5fc579115071764c7423a4f12edde41f106ed` |
+
+This is the `OPTIMISM_PORTAL_SLOT`. The address of the `OptimismPortalProxy` should be right
+aligned in the storage slot. It is a net new storage slot so it should start at `bytes32(0)`.
+
+##### `0x71ac12829d66ee73d8d95bff50b3589745ce57edae70a3fb111a2342464dc597`
+
+| Before | `0x0000000000000000000000000000000000000000000000000000000000000000` |
+|--------|----------------------------------------------------------------------|
+| After  | `0x000000000000000000000000ff00000000000000000000000000000000000010` |
+
+##### `0x9904ba90dde5696cda05c9e0dab5cbaa0fea005ace4d11218a02ac668dad6376`
+
+| Before | `0x0000000000000000000000000000000000000000000000000000000000000000` |
+|--------|----------------------------------------------------------------------|
+| After  | `0x00000000000000000000000099c9fc46f92e8a1c0dec1b1747d010903e884be1` |
+
+This is the `L1_STANDARD_BRIDGE_SLOT`. The address of the `L1StandardBridgeProxy` should be
+right aligned in the storage slot. It is a net new storage slot so it should start at
+`bytes32(0)`.
+
+##### `0xa04c5bb938ca6fc46d95553abf0a76345ce3e722a30bf4f74928b8e7d852320c`
+
+| Before | `0x0000000000000000000000000000000000000000000000000000000000000000` |
+|--------|----------------------------------------------------------------------|
+| After  | `0x00000000000000000000000075505a97bd334e7bd3c476893285569c4136fa0f` |
+
+This is the `OPTIMISM_MINTABLE_ERC20_FACTORY_SLOT`. The address of the `OptimismMintableERC20FactoryProxy`
+should be right aligned in the storage slot. It is a net new storage slot so it should start
+with `bytes32(0)`.
+
+##### `0xe52a667f71ec761b9b381c7b76ca9b852adf7e8905da0e0ad49986a0a6871815`
+
+| Before | `0x0000000000000000000000000000000000000000000000000000000000000000` |
+|--------|----------------------------------------------------------------------|
+| After  | `0x000000000000000000000000dfe97868233d1aa22e815a266982f2cf17685a27` |
+
+This is the `L2_OUTPUT_ORACLE_SLOT`. The address of the `L2OutputOracleProxy` should be
+right aligned in the storage slot. It is a net new storage slot so it should start at
+`bytes32(0)`.
+
+
+
+##### ``
+
+| Before | `` |
+|--------|----------------------------------------------------------------------|
+| After  | `` |
