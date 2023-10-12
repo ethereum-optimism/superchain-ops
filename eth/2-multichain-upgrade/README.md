@@ -36,8 +36,7 @@ The following table includes the new implementation addresses and the implementa
 
 <details>
 <summary>Storage Layout</summary>
-<br>
-```json
+<code>
 {
   "storage": [
     {
@@ -239,7 +238,7 @@ The following table includes the new implementation addresses and the implementa
     }
   }
 }
-```
+</code>
 </details>
 
 ##### `0x0000000000000000000000000000000000000000000000000000000000000000`
