@@ -34,6 +34,214 @@ The following table includes the new implementation addresses and the implementa
 
 #### SystemConfig
 
+<details>
+<summary>Storage Layout</summary>
+<br>
+```json
+{
+  "storage": [
+    {
+      "astId": 29536,
+      "contract": "src/L1/SystemConfig.sol:SystemConfig",
+      "label": "_initialized",
+      "offset": 0,
+      "slot": "0",
+      "type": "t_uint8"
+    },
+    {
+      "astId": 29539,
+      "contract": "src/L1/SystemConfig.sol:SystemConfig",
+      "label": "_initializing",
+      "offset": 1,
+      "slot": "0",
+      "type": "t_bool"
+    },
+    {
+      "astId": 31067,
+      "contract": "src/L1/SystemConfig.sol:SystemConfig",
+      "label": "__gap",
+      "offset": 0,
+      "slot": "1",
+      "type": "t_array(t_uint256)50_storage"
+    },
+    {
+      "astId": 29408,
+      "contract": "src/L1/SystemConfig.sol:SystemConfig",
+      "label": "_owner",
+      "offset": 0,
+      "slot": "51",
+      "type": "t_address"
+    },
+    {
+      "astId": 29528,
+      "contract": "src/L1/SystemConfig.sol:SystemConfig",
+      "label": "__gap",
+      "offset": 0,
+      "slot": "52",
+      "type": "t_array(t_uint256)49_storage"
+    },
+    {
+      "astId": 61692,
+      "contract": "src/L1/SystemConfig.sol:SystemConfig",
+      "label": "overhead",
+      "offset": 0,
+      "slot": "101",
+      "type": "t_uint256"
+    },
+    {
+      "astId": 61695,
+      "contract": "src/L1/SystemConfig.sol:SystemConfig",
+      "label": "scalar",
+      "offset": 0,
+      "slot": "102",
+      "type": "t_uint256"
+    },
+    {
+      "astId": 61698,
+      "contract": "src/L1/SystemConfig.sol:SystemConfig",
+      "label": "batcherHash",
+      "offset": 0,
+      "slot": "103",
+      "type": "t_bytes32"
+    },
+    {
+      "astId": 61701,
+      "contract": "src/L1/SystemConfig.sol:SystemConfig",
+      "label": "gasLimit",
+      "offset": 0,
+      "slot": "104",
+      "type": "t_uint64"
+    },
+    {
+      "astId": 61705,
+      "contract": "src/L1/SystemConfig.sol:SystemConfig",
+      "label": "_resourceConfig",
+      "offset": 0,
+      "slot": "105",
+      "type": "t_struct(ResourceConfig)61230_storage"
+    },
+    {
+      "astId": 61718,
+      "contract": "src/L1/SystemConfig.sol:SystemConfig",
+      "label": "startBlock",
+      "offset": 0,
+      "slot": "106",
+      "type": "t_uint256"
+    }
+  ],
+  "types": {
+    "t_address": {
+      "encoding": "inplace",
+      "label": "address",
+      "numberOfBytes": "20"
+    },
+    "t_array(t_uint256)49_storage": {
+      "encoding": "inplace",
+      "label": "uint256[49]",
+      "numberOfBytes": "1568",
+      "base": "t_uint256"
+    },
+    "t_array(t_uint256)50_storage": {
+      "encoding": "inplace",
+      "label": "uint256[50]",
+      "numberOfBytes": "1600",
+      "base": "t_uint256"
+    },
+    "t_bool": {
+      "encoding": "inplace",
+      "label": "bool",
+      "numberOfBytes": "1"
+    },
+    "t_bytes32": {
+      "encoding": "inplace",
+      "label": "bytes32",
+      "numberOfBytes": "32"
+    },
+    "t_struct(ResourceConfig)61230_storage": {
+      "encoding": "inplace",
+      "label": "struct ResourceMetering.ResourceConfig",
+      "numberOfBytes": "32",
+      "members": [
+        {
+          "astId": 61219,
+          "contract": "src/L1/SystemConfig.sol:SystemConfig",
+          "label": "maxResourceLimit",
+          "offset": 0,
+          "slot": "0",
+          "type": "t_uint32"
+        },
+        {
+          "astId": 61221,
+          "contract": "src/L1/SystemConfig.sol:SystemConfig",
+          "label": "elasticityMultiplier",
+          "offset": 4,
+          "slot": "0",
+          "type": "t_uint8"
+        },
+        {
+          "astId": 61223,
+          "contract": "src/L1/SystemConfig.sol:SystemConfig",
+          "label": "baseFeeMaxChangeDenominator",
+          "offset": 5,
+          "slot": "0",
+          "type": "t_uint8"
+        },
+        {
+          "astId": 61225,
+          "contract": "src/L1/SystemConfig.sol:SystemConfig",
+          "label": "minimumBaseFee",
+          "offset": 6,
+          "slot": "0",
+          "type": "t_uint32"
+        },
+        {
+          "astId": 61227,
+          "contract": "src/L1/SystemConfig.sol:SystemConfig",
+          "label": "systemTxMaxGas",
+          "offset": 10,
+          "slot": "0",
+          "type": "t_uint32"
+        },
+        {
+          "astId": 61229,
+          "contract": "src/L1/SystemConfig.sol:SystemConfig",
+          "label": "maximumBaseFee",
+          "offset": 14,
+          "slot": "0",
+          "type": "t_uint128"
+        }
+      ]
+    },
+    "t_uint128": {
+      "encoding": "inplace",
+      "label": "uint128",
+      "numberOfBytes": "16"
+    },
+    "t_uint256": {
+      "encoding": "inplace",
+      "label": "uint256",
+      "numberOfBytes": "32"
+    },
+    "t_uint32": {
+      "encoding": "inplace",
+      "label": "uint32",
+      "numberOfBytes": "4"
+    },
+    "t_uint64": {
+      "encoding": "inplace",
+      "label": "uint64",
+      "numberOfBytes": "8"
+    },
+    "t_uint8": {
+      "encoding": "inplace",
+      "label": "uint8",
+      "numberOfBytes": "1"
+    }
+  }
+}
+```
+</details>
+
 ##### `0x0000000000000000000000000000000000000000000000000000000000000000`
 
 | Before | `0x0000000000000000000000000000000000000000000000000000000000000001` |
@@ -48,11 +256,19 @@ The `initialized` storage slot was updated from 1 to 3
 |--------|----------------------------------------------------------------------|
 | After  | `0x0000000000000000000000000000000000000000000000000000000001177f75` |
 
+
+This seems like the start block
+
+
+
 ##### `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
 
 | Before | `0x0000000000000000000000005efa852e92800d1c982711761e45c3fe39a2b6d8` |
 |--------|----------------------------------------------------------------------|
 | After  | `0x0000000000000000000000003b6090d4ba84b94c20a789436b9010f340aaac70` |
+
+This is the ERC 1967 proxy implementation slot. It should contain an address and
+be set to the old implementation and then updated to the new implementation.
 
 ##### `0x383f291819e6d54073bc9a648251d97421076bdd101933c0c022219ce9580636`
 
@@ -87,6 +303,10 @@ aligned in the storage slot. It is a net new storage slot so it should start at 
 | Before | `0x0000000000000000000000000000000000000000000000000000000000000000` |
 |--------|----------------------------------------------------------------------|
 | After  | `0x000000000000000000000000ff00000000000000000000000000000000000010` |
+
+This is the `BATCH_INBOX_SLOT`. The canonical address that the batcher sends data to
+should be right aligned in the storage slot. It is a net new storage slot so it should
+start at `bytes32(0)`.
 
 ##### `0x9904ba90dde5696cda05c9e0dab5cbaa0fea005ace4d11218a02ac668dad6376`
 
