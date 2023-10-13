@@ -941,15 +941,474 @@ This storage slot should be the address of the `L1CrossDomainMessengerProxy`.
 
 TODO
 
--------------
-#### 
+#### Safe Multisig
 
 | Address                                      | Proxy Type       |
 |----------------------------------------------|------------------|
-| `` | |
+| `0x9ba6e03d8b90de867373db8cf1a58d2f7f006b3a` | Safe Clone       |
 
-##### ``
+##### `0x0000000000000000000000000000000000000000000000000000000000000005`
 
-| Before | `` |
+| Before | `0x0000000000000000000000000000000000000000000000000000000000000056` |
 |--------|----------------------------------------------------------------------|
-| After  | `` |
+| After  | `0x0000000000000000000000000000000000000000000000000000000000000057` |
+
+The `nonce` increased from 87 to 88. The only storage slot change that is safe
+to the Safe multisig is the nonce incrementing. There should be no other storage
+slots that change.
+
+#### OptimismPortal
+
+| Address                                      | Proxy Type       |
+|----------------------------------------------|------------------|
+| `0xbEb5Fc579115071764c7423A4f12eDde41f106Ed` | 1967             |
+
+<details>
+<summary>Storage Layout</summary>
+<code>{
+  "storage": [
+    {
+      "astId": 32100,
+      "contract": "src/L1/OptimismPortal.sol:OptimismPortal",
+      "label": "_initialized",
+      "offset": 0,
+      "slot": "0",
+      "type": "t_uint8"
+    },
+    {
+      "astId": 32103,
+      "contract": "src/L1/OptimismPortal.sol:OptimismPortal",
+      "label": "_initializing",
+      "offset": 1,
+      "slot": "0",
+      "type": "t_bool"
+    },
+    {
+      "astId": 61234,
+      "contract": "src/L1/OptimismPortal.sol:OptimismPortal",
+      "label": "params",
+      "offset": 0,
+      "slot": "1",
+      "type": "t_struct(ResourceParams)61217_storage"
+    },
+    {
+      "astId": 61239,
+      "contract": "src/L1/OptimismPortal.sol:OptimismPortal",
+      "label": "__gap",
+      "offset": 0,
+      "slot": "2",
+      "type": "t_array(t_uint256)48_storage"
+    },
+    {
+      "astId": 60270,
+      "contract": "src/L1/OptimismPortal.sol:OptimismPortal",
+      "label": "l2Sender",
+      "offset": 0,
+      "slot": "50",
+      "type": "t_address"
+    },
+    {
+      "astId": 60275,
+      "contract": "src/L1/OptimismPortal.sol:OptimismPortal",
+      "label": "finalizedWithdrawals",
+      "offset": 0,
+      "slot": "51",
+      "type": "t_mapping(t_bytes32,t_bool)"
+    },
+    {
+      "astId": 60281,
+      "contract": "src/L1/OptimismPortal.sol:OptimismPortal",
+      "label": "provenWithdrawals",
+      "offset": 0,
+      "slot": "52",
+      "type": "t_mapping(t_bytes32,t_struct(ProvenWithdrawal)60259_storage)"
+    },
+    {
+      "astId": 60284,
+      "contract": "src/L1/OptimismPortal.sol:OptimismPortal",
+      "label": "paused",
+      "offset": 0,
+      "slot": "53",
+      "type": "t_bool"
+    },
+    {
+      "astId": 60288,
+      "contract": "src/L1/OptimismPortal.sol:OptimismPortal",
+      "label": "l2Oracle",
+      "offset": 1,
+      "slot": "53",
+      "type": "t_contract(L2OutputOracle)60219"
+    },
+    {
+      "astId": 60292,
+      "contract": "src/L1/OptimismPortal.sol:OptimismPortal",
+      "label": "systemConfig",
+      "offset": 0,
+      "slot": "54",
+      "type": "t_contract(SystemConfig)62340"
+    },
+    {
+      "astId": 60295,
+      "contract": "src/L1/OptimismPortal.sol:OptimismPortal",
+      "label": "guardian",
+      "offset": 0,
+      "slot": "55",
+      "type": "t_address"
+    }
+  ],
+  "types": {
+    "t_address": {
+      "encoding": "inplace",
+      "label": "address",
+      "numberOfBytes": "20"
+    },
+    "t_array(t_uint256)48_storage": {
+      "encoding": "inplace",
+      "label": "uint256[48]",
+      "numberOfBytes": "1536",
+      "base": "t_uint256"
+    },
+    "t_bool": {
+      "encoding": "inplace",
+      "label": "bool",
+      "numberOfBytes": "1"
+    },
+    "t_bytes32": {
+      "encoding": "inplace",
+      "label": "bytes32",
+      "numberOfBytes": "32"
+    },
+    "t_contract(L2OutputOracle)60219": {
+      "encoding": "inplace",
+      "label": "contract L2OutputOracle",
+      "numberOfBytes": "20"
+    },
+    "t_contract(SystemConfig)62340": {
+      "encoding": "inplace",
+      "label": "contract SystemConfig",
+      "numberOfBytes": "20"
+    },
+    "t_mapping(t_bytes32,t_bool)": {
+      "encoding": "mapping",
+      "key": "t_bytes32",
+      "label": "mapping(bytes32 => bool)",
+      "numberOfBytes": "32",
+      "value": "t_bool"
+    },
+    "t_mapping(t_bytes32,t_struct(ProvenWithdrawal)60259_storage)": {
+      "encoding": "mapping",
+      "key": "t_bytes32",
+      "label": "mapping(bytes32 => struct OptimismPortal.ProvenWithdrawal)",
+      "numberOfBytes": "32",
+      "value": "t_struct(ProvenWithdrawal)60259_storage"
+    },
+    "t_struct(ProvenWithdrawal)60259_storage": {
+      "encoding": "inplace",
+      "label": "struct OptimismPortal.ProvenWithdrawal",
+      "numberOfBytes": "64",
+      "members": [
+        {
+          "astId": 60254,
+          "contract": "src/L1/OptimismPortal.sol:OptimismPortal",
+          "label": "outputRoot",
+          "offset": 0,
+          "slot": "0",
+          "type": "t_bytes32"
+        },
+        {
+          "astId": 60256,
+          "contract": "src/L1/OptimismPortal.sol:OptimismPortal",
+          "label": "timestamp",
+          "offset": 0,
+          "slot": "1",
+          "type": "t_uint128"
+        },
+        {
+          "astId": 60258,
+          "contract": "src/L1/OptimismPortal.sol:OptimismPortal",
+          "label": "l2OutputIndex",
+          "offset": 16,
+          "slot": "1",
+          "type": "t_uint128"
+        }
+      ]
+    },
+    "t_struct(ResourceParams)61217_storage": {
+      "encoding": "inplace",
+      "label": "struct ResourceMetering.ResourceParams",
+      "numberOfBytes": "32",
+      "members": [
+        {
+          "astId": 61212,
+          "contract": "src/L1/OptimismPortal.sol:OptimismPortal",
+          "label": "prevBaseFee",
+          "offset": 0,
+          "slot": "0",
+          "type": "t_uint128"
+        },
+        {
+          "astId": 61214,
+          "contract": "src/L1/OptimismPortal.sol:OptimismPortal",
+          "label": "prevBoughtGas",
+          "offset": 16,
+          "slot": "0",
+          "type": "t_uint64"
+        },
+        {
+          "astId": 61216,
+          "contract": "src/L1/OptimismPortal.sol:OptimismPortal",
+          "label": "prevBlockNum",
+          "offset": 24,
+          "slot": "0",
+          "type": "t_uint64"
+        }
+      ]
+    },
+    "t_uint128": {
+      "encoding": "inplace",
+      "label": "uint128",
+      "numberOfBytes": "16"
+    },
+    "t_uint256": {
+      "encoding": "inplace",
+      "label": "uint256",
+      "numberOfBytes": "32"
+    },
+    "t_uint64": {
+      "encoding": "inplace",
+      "label": "uint64",
+      "numberOfBytes": "8"
+    },
+    "t_uint8": {
+      "encoding": "inplace",
+      "label": "uint8",
+      "numberOfBytes": "1"
+    }
+  }
+}</code>
+</details>
+
+##### `0x0000000000000000000000000000000000000000000000000000000000000000`
+
+| Before | `0x0000000000000000000000000000000000000000000000000000000000000001` |
+|--------|----------------------------------------------------------------------|
+| After  | `0x0000000000000000000000000000000000000000000000000000000000000003` |
+
+##### `0x0000000000000000000000000000000000000000000000000000000000000001`
+
+| Before | `0x0000000001177f550000000000077d2e0000000000000000000000003b9aca00` |
+|--------|----------------------------------------------------------------------|
+| After  | `0x0000000001177f7500000000000000000000000000000000000000003b9aca00` |
+
+##### `0x0000000000000000000000000000000000000000000000000000000000000035`
+
+| Before | `0x0000000000000000000000000000000000000000000000000000000000000000` |
+|--------|----------------------------------------------------------------------|
+| After  | `0x0000000000000000000000dfe97868233d1aa22e815a266982f2cf17685a2700` |
+
+##### `0x0000000000000000000000000000000000000000000000000000000000000036`
+
+| Before | `0x0000000000000000000000000000000000000000000000000000000000000000` |
+|--------|----------------------------------------------------------------------|
+| After  | `0x000000000000000000000000229047fed2591dbec1ef1118d64f7af3db9eb290` |
+
+##### `0x0000000000000000000000000000000000000000000000000000000000000037`
+
+| Before | `0x0000000000000000000000000000000000000000000000000000000000000000` |
+|--------|----------------------------------------------------------------------|
+| After  | `0x0000000000000000000000009ba6e03d8b90de867373db8cf1a58d2f7f006b3a` |
+
+##### `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+
+| Before | `0x00000000000000000000000028a55488fef40005309e2da0040dbe9d300a64ab` |
+|--------|----------------------------------------------------------------------|
+| After  | `0x000000000000000000000000d14aa6c7b6d92803f3910ec1dadccd0757341862` |
+
+#### AddressManager
+
+| Address                                      | Proxy Type       |
+|----------------------------------------------|------------------|
+| `0xde1fcfb0851916ca5101820a69b13a4e276bd81f` | none             |
+
+##### `0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e`
+
+| Before | `0x0000000000000000000000002150bc3c64cbfddbac9815ef615d6ab8671bfe43` |
+|--------|----------------------------------------------------------------------|
+| After  | `0x000000000000000000000000da2332d0a7608919cd331b1304cd179129a90495` |
+
+#### L2OutputORacleProxy
+
+| Address                                      | Proxy Type       |
+|----------------------------------------------|------------------|
+| `0xdfe97868233d1aa22e815a266982f2cf17685a27` | 1967             |
+
+<details>
+<summary>Storage Layout</summary>
+<code>{
+  "storage": [
+    {
+      "astId": 32100,
+      "contract": "src/L1/L2OutputOracle.sol:L2OutputOracle",
+      "label": "_initialized",
+      "offset": 0,
+      "slot": "0",
+      "type": "t_uint8"
+    },
+    {
+      "astId": 32103,
+      "contract": "src/L1/L2OutputOracle.sol:L2OutputOracle",
+      "label": "_initializing",
+      "offset": 1,
+      "slot": "0",
+      "type": "t_bool"
+    },
+    {
+      "astId": 59733,
+      "contract": "src/L1/L2OutputOracle.sol:L2OutputOracle",
+      "label": "startingBlockNumber",
+      "offset": 0,
+      "slot": "1",
+      "type": "t_uint256"
+    },
+    {
+      "astId": 59736,
+      "contract": "src/L1/L2OutputOracle.sol:L2OutputOracle",
+      "label": "startingTimestamp",
+      "offset": 0,
+      "slot": "2",
+      "type": "t_uint256"
+    },
+    {
+      "astId": 59741,
+      "contract": "src/L1/L2OutputOracle.sol:L2OutputOracle",
+      "label": "l2Outputs",
+      "offset": 0,
+      "slot": "3",
+      "type": "t_array(t_struct(OutputProposal)71472_storage)dyn_storage"
+    },
+    {
+      "astId": 59744,
+      "contract": "src/L1/L2OutputOracle.sol:L2OutputOracle",
+      "label": "challenger",
+      "offset": 0,
+      "slot": "4",
+      "type": "t_address"
+    },
+    {
+      "astId": 59747,
+      "contract": "src/L1/L2OutputOracle.sol:L2OutputOracle",
+      "label": "proposer",
+      "offset": 0,
+      "slot": "5",
+      "type": "t_address"
+    }
+  ],
+  "types": {
+    "t_address": {
+      "encoding": "inplace",
+      "label": "address",
+      "numberOfBytes": "20"
+    },
+    "t_array(t_struct(OutputProposal)71472_storage)dyn_storage": {
+      "encoding": "dynamic_array",
+      "label": "struct Types.OutputProposal[]",
+      "numberOfBytes": "32",
+      "base": "t_struct(OutputProposal)71472_storage"
+    },
+    "t_bool": {
+      "encoding": "inplace",
+      "label": "bool",
+      "numberOfBytes": "1"
+    },
+    "t_bytes32": {
+      "encoding": "inplace",
+      "label": "bytes32",
+      "numberOfBytes": "32"
+    },
+    "t_struct(OutputProposal)71472_storage": {
+      "encoding": "inplace",
+      "label": "struct Types.OutputProposal",
+      "numberOfBytes": "64",
+      "members": [
+        {
+          "astId": 71467,
+          "contract": "src/L1/L2OutputOracle.sol:L2OutputOracle",
+          "label": "outputRoot",
+          "offset": 0,
+          "slot": "0",
+          "type": "t_bytes32"
+        },
+        {
+          "astId": 71469,
+          "contract": "src/L1/L2OutputOracle.sol:L2OutputOracle",
+          "label": "timestamp",
+          "offset": 0,
+          "slot": "1",
+          "type": "t_uint128"
+        },
+        {
+          "astId": 71471,
+          "contract": "src/L1/L2OutputOracle.sol:L2OutputOracle",
+          "label": "l2BlockNumber",
+          "offset": 16,
+          "slot": "1",
+          "type": "t_uint128"
+        }
+      ]
+    },
+    "t_uint128": {
+      "encoding": "inplace",
+      "label": "uint128",
+      "numberOfBytes": "16"
+    },
+    "t_uint256": {
+      "encoding": "inplace",
+      "label": "uint256",
+      "numberOfBytes": "32"
+    },
+    "t_uint8": {
+      "encoding": "inplace",
+      "label": "uint8",
+      "numberOfBytes": "1"
+    }
+  }
+}</code>
+</details>
+
+##### `0x0000000000000000000000000000000000000000000000000000000000000000`
+
+| Before | `0x0000000000000000000000000000000000000000000000000000000000000001` |
+|--------|----------------------------------------------------------------------|
+| After  | `0x0000000000000000000000000000000000000000000000000000000000000003` |
+
+##### `0x0000000000000000000000000000000000000000000000000000000000000004`
+
+| Before | `0x0000000000000000000000000000000000000000000000000000000000000000` |
+|--------|----------------------------------------------------------------------|
+| After  | `0x0000000000000000000000009ba6e03d8b90de867373db8cf1a58d2f7f006b3a` |
+
+##### `0x0000000000000000000000000000000000000000000000000000000000000005`
+
+| Before | `0x0000000000000000000000000000000000000000000000000000000000000000` |
+|--------|----------------------------------------------------------------------|
+| After  | `0x000000000000000000000000473300df21d047806a082244b417f96b32f13a33` |
+
+##### `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+
+| Before | `0x000000000000000000000000d2e67b6a032f0a9b1f569e63ad6c38f7342c2e00` |
+|--------|----------------------------------------------------------------------|
+| After  | `0x000000000000000000000000b48b1827bc7218b1ab7b000b4f0416df8f14b16a` |
+
+#### Safe Proxy
+
+| Address                                      | Proxy Type       |
+|----------------------------------------------|------------------|
+| `0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64` | ?                |
+
+##### `nonce`
+
+| Before | `1` |
+|--------|----------------------------------------------------------------------|
+| After  | `2` |
+
+TODO: figure this out
