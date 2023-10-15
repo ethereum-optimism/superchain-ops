@@ -25,7 +25,7 @@ contract SignFromJson is MultisigBuilder, JsonTxBuilderBase {
 
     // todo: allow passing this as a script argument.
     function _ownerSafe() internal view override returns (address) {
-        return vm.envAddress("TOP_LEVEL_SAFE");
+        return vm.envAddress("OWNER_SAFE");
     }
 
     function _postCheck() internal view override {}
