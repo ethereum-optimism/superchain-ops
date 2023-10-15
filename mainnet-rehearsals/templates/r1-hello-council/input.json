@@ -4,19 +4,13 @@
   "meta": {
     "name": "Hello World Rehearsal",
     "description": "",
-    "txBuilderVersion": "1.16.2",
+    "txBuilderVersion": "1.16.2"
   },
   "transactions": [
     {
-      "to": "0x0",
+      "to": "0x73E2bc4ad747e5DA21Ec771c1a7D84B18ca4686f",
       "value": "0",
-      "data": "0xc605f76c",
-      "contractMethod": {
-        "inputs": [],
-        "name": "helloWorld",
-        "payable": false
-      },
-      "contractInputsValues": null
+      "data": "0xc605f76c"
     }
   ]
 }

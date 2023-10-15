@@ -1,8 +1,17 @@
 set dotenv-load
 
-export rpcUrl := env_var_or_default('ETH_RPC_URL', "https://ethereum.publicnode.com")
-export signatures := env_var_or_default('SIGNATURES', '')
-export TOP_LEVEL_SAFE := "0x176b52B74eb7b02B069F3e7A2d14c454E23BC0E4"
+simulate hdPath='0':
+  #!/usr/bin/env bash
+  here=$(pwd)
+  cd ../..
+  echo "getting signer address..."
+  signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  echo "Simulating with: ${signer}"
+  echo ""
+  OWNER_SAFE=$COUNCIL_SAFE
+  forge script SignFromJson --via-ir --rpc-url ${ETH_RPC_URL} \
+    --sig "signJson(string)" "${here}/input.json" \
+    --sender ${signer}
 
 sign hdPath='0':
   #!/usr/bin/env bash
@@ -12,23 +21,28 @@ sign hdPath='0':
   signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   echo "Signing with: ${signer}"
   echo ""
+  OWNER_SAFE=${COUNCIL_SAFE}
   $(go env GOPATH)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
-  forge script SignFromJson --via-ir --rpc-url ${rpcUrl} --sig "signJson(string)" "${here}/hello-world.json"
+    forge script SignFromJson --via-ir --rpc-url ${ETH_RPC_URL} \
+    --sig "signJson(string)" "${here}/input.json"
 
 execute hdPath='0':
   #!/usr/bin/env bash
   here=$(pwd)
   cd ../..
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-  forge script --fork-url ${rpcUrl} SignFromJson \
-  --sig "runJson(string,bytes)" ${here}/hello-world.json ${signatures} \
+  OWNER_SAFE=${COUNCIL_SAFE}
+  forge script --fork-url ${ETH_RPC_URL} SignFromJson \
+  --sig "runJson(string,bytes)" ${here}/input.json ${SIGNATURES} \
   --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
   --sender ${sender}
 
-prepare:
+prepare hdPath='0':
   #!/usr/bin/env bash
-  forge script DeploySafe \
-    --sig 'run(address[],uint256,string,string)' \
-    $ADDRESSES $THRESHOLD $NAME $(pwd)/safes
-  forge script DeployHelloWorld \
-    --sig 'run(address)' $SAFE_ADDRESS
+  here=$(pwd)
+  cd ../..
+  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  forge script DeployHelloWorld --rpc-url ${ETH_RPC_URL} \
+    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
+    --sig 'run(address)' $COUNCIL_SAFE \
+    --sender ${sender}

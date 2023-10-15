@@ -126,4 +126,42 @@ Congrats, you are done!
 
 ## [For Facilitator ONLY] How to prepare and execute the rehearsal
 
-This
+### [Before the rehearsal] Install contracts onchain
+
+1. Create Gnosis Safe: https://app.safe.global/new-safe/create?chain=eth
+2. Modify the `COUNCIL_SAFE` address in `.env` to the one just created.
+3. Run `just prepare` to deploy the `HelloWorld` contract.
+4. Set the `.transactions[0].to`'s value in `input.json` to be the
+   address of the `HelloWorld` contract just created.
+5. Verify the newly created rehearsal by following the security
+   council steps above.
+6. Commit the newly created folder to Github.
+
+### [After the rehearsal] Execute the output
+
+1. Collect outputs from all participating signers.
+2. Concatenate all signatures and export it as the `SIGNATURES`
+   environment variable, i.e. `export
+   SIGNATURES="0x[SIGNATURE1][SIGNATURE2]..."`.
+3. Run `just execute 0 # or 1 or ...` to execute the transaction onchain.
+
+For example, if the quorum is 2 and you get the following outputs:
+
+``` shell
+Data:  0xDEADBEEF
+Signer: 0xC0FFEE01
+Signature: AAAA
+```
+
+``` shell
+Data:  0xDEADBEEF
+Signer: 0xC0FFEE02
+Signature: BBBB
+```
+
+Then you should run
+
+``` shell
+export SIGNATURES="0xAAAABBBB"
+just execute 0 # or 1 or ...
+```
