@@ -1,0 +1,19 @@
+version: 2.1
+
+orbs:
+  go: circleci/go@1.8.0
+
+jobs:
+  sc-rehearsal-test:
+    working_directory: ~/superchain-ops
+    docker:
+      - image: cimg/base:2023.09
+    steps:
+      - checkout
+          path: ~/superchain-ops
+      - run: just install-contracts
+
+workflows:
+  main:
+    jobs:
+      - sc-rehearsal-test
