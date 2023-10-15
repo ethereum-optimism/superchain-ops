@@ -12,12 +12,7 @@ abstract contract JsonTxBuilderBase is CommonBase {
 
     function _loadJson(string memory _path) internal {
         console.log("Reading transaction bundle %s", _path);
-        try vm.readFile(_path) returns (string memory data) {
-            json = data;
-        } catch {
-            console.log("Error: unable to transaction bundle.");
-            return;
-        }
+        json = vm.readFile(_path);
     }
 
     function _buildCallsFromJson() internal view returns (IMulticall3.Call3[] memory) {
