@@ -1,3 +1,5 @@
+set dotenv-load
+
 export rpcUrl := env_var_or_default('ETH_RPC_URL', "https://ethereum.publicnode.com")
 export signatures := env_var_or_default('SIGNATURES', '')
 export TOP_LEVEL_SAFE := "0x176b52B74eb7b02B069F3e7A2d14c454E23BC0E4"
@@ -22,3 +24,11 @@ execute hdPath='0':
   --sig "runJson(string,bytes)" ${here}/hello-world.json ${signatures} \
   --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
   --sender ${sender}
+
+prepare:
+  #!/usr/bin/env bash
+  forge script DeploySafe \
+    --sig 'run(address[],uint256,string,string)' \
+    $ADDRESSES $THRESHOLD $NAME $(pwd)/safes
+  forge script DeployHelloWorld \
+    --sig 'run(address)' $SAFE_ADDRESS
