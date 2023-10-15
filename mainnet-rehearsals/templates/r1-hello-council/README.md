@@ -123,3 +123,7 @@ Signature: <SIGNATURE>
 ```
 
 Congrats, you are done!
+
+## [For Facilitator ONLY] How to prepare and execute the rehearsal
+
+This

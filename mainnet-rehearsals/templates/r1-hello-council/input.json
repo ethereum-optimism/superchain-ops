@@ -1,18 +1,14 @@
 {
   "version": "1.0",
   "chainId": "1",
-  "createdAt": 1694529034078,
   "meta": {
     "name": "Hello World Rehearsal",
     "description": "",
     "txBuilderVersion": "1.16.2",
-    "createdFromSafeAddress": "0x176b52B74eb7b02B069F3e7A2d14c454E23BC0E4",
-    "createdFromOwnerAddress": "",
-    "checksum": ""
   },
   "transactions": [
     {
-      "to": "0x0970A9520c676BbA55031f7a63F7E0Ecc989F3E3",
+      "to": "0x0",
       "value": "0",
       "data": "0xc605f76c",
       "contractMethod": {
