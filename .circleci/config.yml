@@ -7,11 +7,12 @@ jobs:
   sc-rehearsal-test:
     working_directory: ~/superchain-ops
     docker:
-      - image: cimg/base:2023.09
+      - image: cimg/rust:1.73
     steps:
-      - checkout
+      - checkout:
           path: ~/superchain-ops
-      - run: just install-contracts
+      - run: cargo install just
+      - run: just install-foundry
 
 workflows:
   main:
