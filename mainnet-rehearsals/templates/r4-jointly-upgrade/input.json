@@ -9,7 +9,7 @@
     {
       "to": "0xEA91B6491c4c8E6168D96176005Cea0133fD0FC0",
       "value": "0",
-      "data": "",
+      "data": "0x99a88ec4000000000000000000000000ce479c1299adbe12f34a479f404937151af19d920000000000000000000000003311ac7f72bb4108d9f4d5d50e7623b1498a9ec0",
       "contractMethod": {
         "inputs": [
           {
