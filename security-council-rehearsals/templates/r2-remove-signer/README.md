@@ -28,8 +28,8 @@ convenience.
 ```
 cd superchain-ops
 git pull
-just install-contracts
-cd mainnet-rehearsals/$(REPLACE_WITH_REHEARSAL_FOLDER)
+just install
+cd security-council-rehearsals/$(REPLACE_WITH_REHEARSAL_FOLDER)
 ```
 
 ### 2. Setup Ledger
@@ -38,70 +38,142 @@ Your Ledger needs to be connected and unlocked. The Ethereum
 application needs to be opened on Ledger with the message “Application
 is ready”.
 
-### 3. Initiate the Signing:
+### 3. Simulate and validate the transaction
 
 Make sure your ledger is still unlocked and run the following.
 
-`just sign`
+Remember that by default `just` is running with the address derived
+from `/0` (first nonce). If you wish to use a different account, run
+`just simulate [X]`, where X is the derivation path of the address
+that you want to use.
 
-You will see the following output.
+``` shell
+just simulate
+```
 
-There are 4 key pieces of information here we’ll use for the
-validation process that we’ll walk through in the subsequent steps.
+You will see a "Simulation link" from the output.
 
-![](./images/signing-output.jpg)
+Paste this URL in your browser. A prompt may ask you to choose a
+project, any project will do. You can create one if necessary.
 
-### 4. Validate the address
+Click "Simulate Transaction".
 
-![](./images/signing-with.jpg)
+We will be performing 3 validations and ensure the domain hash and
+message hash are the same between the Tenderly simulation and your
+Ledger:
 
-Verify that the address shown is your signer account. If not, you will need to determine which “number” it is in the list of addresses on your ledger. By default the script will assume the derivation path is m/44'/60'/0'/0/0. By calling the script with just sign 1 it will derive the address using m/44'/60'/1'/0/0 instead.
+1. Validate integrity of the simulation.
+2. Validate correctness of the state diff.
+3. Validate and extract domain hash and message hash to approve.
 
-### 5. Validate the simulation
+#### 3.1. Validate integrity of the simulation.
 
-A tenderly simulation link was printed in the output above.
+Make sure you are on the "Overview" tab of the tenderly simulation, to
+validate integrity of the simulation, we need to
 
-Paste this URL in your browser. A prompt may ask you to choose a project, any project will do. You can create one if necessary.
+1. "Network": Check the network is Ethereum Mainnet.
+2. "Timestamp": Check the simulation is performed on a block with a
+   recent timestamp (i.e. close to when you run the script).
+3. "Sender": Check the address shown is your signer account. If not,
+   you will need to determine which “number” it is in the list of
+   addresses on your ledger. By default the script will assume the
+   derivation path is m/44'/60'/0'/0/0. By calling the script with
+   `just simulate 1` it will derive the address using
+   m/44'/60'/1'/0/0 instead.
 
-Click “Simulate Transaction”.
+Here is an example screenshot, note that the Timestamp and Sender
+might be different in your simulation:
 
-### 6. Items to validate in the Simulation
+![](./images/tenderly-overview-network.png)
 
-Now, in order to verify the result of executing this transaction, you’ll need to validate the following items in the simulation:
+#### 3.2. Validate correctness of the state diff.
 
-#### 6.1. The domain hash (item 4 in the signing output above) should match the Tenderly `domainSeparator`.
+Now click on the "State" tab. Verify that:
 
-Example where the hash is 0xf347c…:
+1. The rehearsal Safe's `ownerCount` is reduced by one, and a signer
+   is being removed from the `owners` mapping.
+2. You will see a `threshold` change from `1` to a new value. This
+   only exists in the simulation and is safe to ignore as long as the
+   new value is equal to the actual threshold of the Safe.
+3. There are no other significant state changes except for 2 nonce
+   changes from the Safe and the signer address.
+4. You will see a state override (not a state change). This is
+   expected and its purpose is to generate a successful Safe execution
+   simulation without collecting any signatures.
 
-![](./images/tenderly-separator.png)
+Here is an example screenshot. Note that the addresses may be
+different:
 
-#### 6.2. The data to sign (item 3 in the signing output) should match the data field when checking the signatures. Example where data is 0x1901f3…:
+![](./images/tenderly-state-changes.png)
 
-![](./images/tenderly-data.png)
+#### 3.3. Extract the domain hash and the message hash to approve.
 
-#### 6.3. The state changes
+Now that we have verified the transaction performs the right
+operation, we need to extract the domain hash and the message hash to
+approve.
 
-Now click on the ‘State’ tab. Verify that the ‘Before’ and ‘After’ values under ‘State Changes’ match what is shown below. This change from 0 to 1 is setting the boolean value to true in the HelloWorld contract.
+Go back to the "Overview" tab, and find the first
+`GnosisSafe.domainSeparator` call. This call's return value will be
+the domain hash that will show up in your Ledger.
 
-![](./images/tenderly-state-changes-rehearsal2.png)
+Here is an example screenshot. Note that the hash value may be
+different:
 
-If all the validations check out, sign the payload with your ledger.
+![](./images/tenderly-hashes-1.png)
 
-### 7. Approve the signature on your ledger
+Right before the `GnosisSafe.domainSeparator` call, you will see a
+call to `GnosisSafe.encodeTransactionData`. Its return value will be a
+concatenation of `0x1901`, the domain hash, and the message hash:
+`0x1901[domain hash][message hash]`.
 
-These values should match those shown in item 4:
+Here is an example screenshot. Note that the hash value may be
+different:
 
-![](./images/domain-hash.png)
+![](./images/tenderly-hashes-2.png)
 
-This is how it will look on your ledger:
+Note down both the domain hash and the message hash. You will need to
+compare them with the ones displayed on the Ledger screen at signing.
 
-<img src="./images/ledger1.jpeg" width="300"><br/>
-<img src="./images/ledger2.jpeg" width="300"><br/>
-<img src="./images/ledger3.jpeg" width="300">
+### 4. Approve the signature on your ledger
 
-### 8. Send the output to Facilitator(s)
+Once the validations are done, it's time to actually sign the
+transaction. Make sure your ledger is still unlocked and run the
+following:
 
-Nothing has occurred onchain - these are offchain signatures which will be collected by Facilitators for execution. Execution can occur by anyone once a threshold of signatures are collected, so a Facilitator will do the final execution for convenience.
+``` shell
+just sign # or just sign <hdPath>
+```
+
+> [!IMPORTANT] This is the most security critical part of the
+> playbook: make sure the domain hash and message hash in the
+> following two places match:
+
+1. on your Ledger screen.
+2. in the Tenderly simulation. You should use the same Tenderly
+   simulation as the one you used to verify the state diffs, instead
+   of opening the new one printed in the console.
+
+There is no need to verify anything printed in the console. There is
+no need to open the new Tenderly simulation link either.
+
+After verification, sign the transaction. You will see the `Data`,
+`Signer` and `Signature` printed in the console. Format should be
+something like this:
+
+```
+Data:  <DATA>
+Signer: <ADDRESS>
+Signature: <SIGNATURE>
+```
+
+Double check the signer address is the right one.
+
+### 5. Send the output to Facilitator(s)
+
+Nothing has occurred onchain - these are offchain signatures which
+will be collected by Facilitators for execution. Execution can occur
+by anyone once a threshold of signatures are collected, so a
+Facilitator will do the final execution for convenience.
 
 Format should be something like this:
 
@@ -111,16 +183,14 @@ Signer: <ADDRESS>
 Signature: <SIGNATURE>
 ```
 
-Congrats, you are done!
+Share the `Data`, `Signer` and `Signature` with the Facilitator, and
+congrats, you are done!
 
 ## [For Facilitator ONLY] How to prepare and execute the rehearsal
-
 
 ### [Before the rehearsal] Prepare the rehearsal
 
 #### 1. Update .env file
-
-
 
 1. Set the `COUNCIL_SAFE` address in `.env` to the same one used in
    `r1-hello-council`.
@@ -141,7 +211,6 @@ Congrats, you are done!
    addresses in the `3.2. Validate correctness of the state diff`
    section above.
 7. Commit the newly created files to Github.
-
 
 #### 3. Update input.json
 
