@@ -10,3 +10,4 @@ setup rehearsal suffix="rehearsal":
   destination_folder="${prefix}-${rehearsal}-${suffix}"
   rm -rf "${template_folder}/{cache,lib,out}"
   cp -r "${template_folder}" "${destination_folder}"
+  git add "${destination_folder}"
