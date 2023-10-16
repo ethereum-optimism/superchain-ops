@@ -35,7 +35,7 @@ sign hdPath='0':
 execute hdPath='0':
   #!/usr/bin/env bash
   cd ../..
-  sender=0xa67399981087005085e632a02F49Eb73dD0AC54A # $(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge script SignFromJson \
     --fork-url ${rpcUrl} \
     --sender ${sender} \
