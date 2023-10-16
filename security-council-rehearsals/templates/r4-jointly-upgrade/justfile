@@ -60,7 +60,7 @@ simulated-run hdPath='0':
     --sig "runJson(string)" \
     ${location}/${bundle}.json
 
-prepare-1 hdPath='0':
+deploy-contracts hdPath='0':
   #!/usr/bin/env bash
   cd ../..
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
@@ -70,7 +70,7 @@ prepare-1 hdPath='0':
     --broadcast \
     --sender ${sender}
 
-prepare-2:
+prepare-json:
   #!/usr/bin/env bash
 
   implementation_0="0x3311aC7F72bb4108d9f4D5d50E7623B1498A9eC0"

@@ -126,11 +126,27 @@ Congrats, you are done!
 
 ## [For Facilitator ONLY] How to prepare and execute the rehearsal
 
-### [Before the rehearsal] Install contracts onchain
+### [Before the rehearsal] Prepare the rehearsal
 
-1. Create Gnosis Safe: https://app.safe.global/new-safe/create?chain=eth
-2. Modify the `COUNCIL_SAFE` address in `.env` to the one just created.
-3. Run `just prepare` to deploy the `HelloWorld` contract.
+#### 1. Create the Council Safe
+
+The first step of preparing the rehearsal is creating a multisig for
+the participants using the [Safe
+UI](https://app.safe.global/new-safe/create?chain=eth).
+
+To make the prepartion and coordination of the ceremonies easier, we
+recommend setting the threshold of the multisig to be equal to the
+number of participants, and add an equal amount of additional signers
+using keys owned by the Facilitator. For example, if there are 3
+participants, we recommend creating a 3 of 6 multisig with 3
+additional keys owned by the Facilitator.
+
+#### 2. Create the HelloWorld contract
+
+1. Set the `COUNCIL_SAFE` address in `.env` to the newly-created Safe
+   address.
+2. Make sure your Ledger is connected and run `just prepare` to deploy
+   the `HelloWorld` contract.
 4. Set the `.transactions[0].to`'s value in `input.json` to be the
    address of the `HelloWorld` contract just created.
 5. Verify the newly created rehearsal by following the security
