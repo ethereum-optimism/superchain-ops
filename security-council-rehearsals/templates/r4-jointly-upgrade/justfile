@@ -63,7 +63,7 @@ deploy-contracts hdPath='0':
   #!/usr/bin/env bash
   cd ../..
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-  forge script DeployRehearsalContracts \
+  forge script DeployRehearsalContracts --ffi \
     --fork-url ${rpcUrl} \
     --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
     --broadcast \
