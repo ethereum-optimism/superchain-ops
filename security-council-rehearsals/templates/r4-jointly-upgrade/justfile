@@ -53,9 +53,12 @@ approve-council hdPath='0':
 execute-all hdPath='0':
   #!/usr/bin/env bash
   cd ../..
+  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge script NestedSignFromJson \
     --fork-url ${rpcUrl} \
-    --sender ${randomPersonEoa} \
+    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
+    --broadcast \
+    --sender ${sender} \
     --sig "runJson(string)" \
     ${location}/${bundle}.json
 
