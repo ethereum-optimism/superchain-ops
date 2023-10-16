@@ -3,7 +3,6 @@ set dotenv-load
 export rpcUrl := env_var_or_default('ETH_RPC_URL', "https://ethereum.publicnode.com")
 export signatures := env_var_or_default('SIGNATURES', '')
 export councilSafe := env_var('COUNCIL_SAFE')
-export foundationSafe := env_var('FOUNDATION_SAFE')
 export ownerSafe := env_var('OWNER_SAFE')
 export bundle := "input"
 export location := `pwd`
@@ -37,7 +36,7 @@ sign-council hdPath='0':
     "${location}/${bundle}.json" \
     "${councilSafe}"
 
-execute-council hdPath='0':
+approve-council hdPath='0':
   #!/usr/bin/env bash
   cd ../..
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
@@ -51,7 +50,7 @@ execute-council hdPath='0':
     "${councilSafe}" \
     ${signatures}
 
-simulated-run hdPath='0':
+execute-all hdPath='0':
   #!/usr/bin/env bash
   cd ../..
   forge script NestedSignFromJson \
