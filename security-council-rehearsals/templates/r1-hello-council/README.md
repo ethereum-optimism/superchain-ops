@@ -217,6 +217,8 @@ additional keys owned by the Facilitator.
    to deploy the `HelloWorld` contract.
 3. Set the `HelloWorld_ADDRESS` in `.env` to the newly-created
    HelloWorld contract address.
+4. Update the address in the `3.2. Validate correctness of the state
+   diff` section above.
 
 #### 3. Update input.json
 
