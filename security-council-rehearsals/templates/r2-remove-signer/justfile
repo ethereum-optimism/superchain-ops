@@ -41,6 +41,10 @@ execute hdPath='0':
     --sender ${sender} \
     --sig "runJson(string,bytes)" ${location}/${bundle}.json ${signatures}
 
+get-owners:
+  #!/usr/bin/env bash
+  cast call -r ${rpcUrl} ${COUNCIL_SAFE} "getOwners()(address[])"
+
 prepare:
   #!/usr/bin/env bash
   threshold=$(cast call -r ${rpcUrl} ${COUNCIL_SAFE} "getThreshold()(uint256)")

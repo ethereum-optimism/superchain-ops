@@ -115,16 +115,45 @@ Congrats, you are done!
 
 ## [For Facilitator ONLY] How to prepare and execute the rehearsal
 
-### [Before the rehearsal] Install contracts onchain
 
-1. Go to etherscan to figure out the "previous owner" of the signer to
-   remove.
-2. Update the `COUNCIL_SAFE`, `SIGNER_TO_REMOVE` and `PREVIOUS_OWNER`
-   addresses in `.env`.
+### [Before the rehearsal] Prepare the rehearsal
+
+#### 1. Update .env file
+
+
+
+1. Set the `COUNCIL_SAFE` address in `.env` to the same one used in
+   `r1-hello-council`.
+2. The `removeOwner` method on the multisig requires three parameters:
+   the `preOwner` address, the `owner` address to remove, and the new
+   `_threshold`. To find out the right `preOwner` address, run `just
+   get-owners` to get the list of owners. The address before the owner
+   to remove should be the right `preOwner` to use in the call. If the
+   owner to remove is the first one in the list, use
+   `0x0000000000000000000000000000000000000001`.
+3. Update the `SIGNER_TO_REMOVE` and `PREVIOUS_OWNER` addresses in
+   `.env`.
 4. Run `just prepare`.
-5. Verify the newly created rehearsal by following the security
-   council steps above.
-6. Commit the newly created folder to Github.
+5. Test the newly created rehearsal by following the security council
+   steps in the `Approving the transaction` section above.
+6. Update the rehearsal folder name in the `1. Update repo and move to
+   the appropriate folder for this rehearsal task` section and the
+   addresses in the `3.2. Validate correctness of the state diff`
+   section above.
+7. Commit the newly created files to Github.
+
+
+#### 3. Update input.json
+
+1. Make sure the `HelloWorld_ADDRESS` has been updated, then run `just
+   prepare-json` to update the `input.json` file.
+2. Test the newly created rehearsal by following the security council
+   steps in the `Approving the transaction` section above.
+3. Update the rehearsal folder name in the `1. Update repo and move to
+   the appropriate folder for this rehearsal task` section and the
+   address in the `3.2. Validate correctness of the state diff`
+   section above.
+4. Commit the newly created files to Github.
 
 ### [After the rehearsal] Execute the output
 
