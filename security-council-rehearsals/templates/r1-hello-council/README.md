@@ -145,13 +145,18 @@ additional keys owned by the Facilitator.
 
 1. Set the `COUNCIL_SAFE` address in `.env` to the newly-created Safe
    address.
-2. Make sure your Ledger is connected and run `just prepare` to deploy
-   the `HelloWorld` contract.
-4. Set the `.transactions[0].to`'s value in `input.json` to be the
-   address of the `HelloWorld` contract just created.
-5. Verify the newly created rehearsal by following the security
-   council steps above.
-6. Commit the newly created folder to Github.
+2. Make sure your Ledger is connected and run `just deploy-contracts`
+   to deploy the `HelloWorld` contract.
+3. Set the `HelloWorld_ADDRESS` in `.env` to the newly-created
+   HelloWorld contract address.
+
+#### 3. Update input.json
+
+1. Make sure the `HelloWorld_ADDRESS` has been updated, then run `just
+   prepare-json` to update the `input.json` file.
+2. Test the newly created rehearsal by following the security council
+   steps in the `Approving the transaction` section above.
+3. Commit the newly created files to Github.
 
 ### [After the rehearsal] Execute the output
 
