@@ -29,7 +29,7 @@ convenience.
 ```
 cd superchain-ops
 git pull
-just install-contracts
+just install
 cd security-council-rehearsals/$(REPLACE_WITH_REHEARSAL_FOLDER)
 ```
 
@@ -43,7 +43,10 @@ is ready”.
 
 Make sure your ledger is still unlocked and run the following.
 
-Remember that by default just is running with the address derived from `/0` (first nonce). If you wish to use a different account, run `just simulate-council [X]`, where X is the derivation path of the address that you want to use.
+Remember that by default `just` is running with the address derived
+from `/0` (first nonce). If you wish to use a different account, run
+`just simulate [X]`, where X is the derivation path of the address
+that you want to use.
 
 ``` shell
 just simulate
@@ -172,16 +175,6 @@ will be collected by Facilitators for execution. Execution can occur
 by anyone once a threshold of signatures are collected, so a
 Facilitator will do the final execution for convenience.
 
-Share the `Data`, `Signer` and `Signature` with the Facilitator, and
-congrats, you are done!
-
-### 8. Send the output to Facilitator(s)
-
-Nothing has occurred onchain - these are offchain signatures which
-will be collected by Facilitators for execution. Execution can occur
-by anyone once a threshold of signatures are collected, so a
-Facilitator will do the final execution for convenience.
-
 Format should be something like this:
 
 ```
@@ -190,7 +183,8 @@ Signer: <ADDRESS>
 Signature: <SIGNATURE>
 ```
 
-Congrats, you are done!
+Share the `Data`, `Signer` and `Signature` with the Facilitator, and
+congrats, you are done!
 
 ## [For Facilitator ONLY] How to prepare and execute the rehearsal
 
