@@ -1,13 +1,9 @@
-set dotenv-load
-
 install: install-contracts install-eip712sign
 
 # install dependencies
 # for any tasks run in production, a specific commit should be used for each dep.
 install-contracts:
   #!/usr/bin/env bash
-
-  echo $PATH
 
   echo 'deleting lib folder'
   rm -rf lib
@@ -25,8 +21,3 @@ install-contracts:
 
 install-eip712sign:
   go install github.com/base-org/eip712sign@v0.0.3
-
-install-foundry:
-  #!/usr/bin/env bash
-  curl -L https://foundry.paradigm.xyz | bash
-  ~/.foundry/bin/foundryup
