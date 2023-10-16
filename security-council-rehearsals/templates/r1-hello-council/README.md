@@ -217,8 +217,6 @@ additional keys owned by the Facilitator.
    to deploy the `HelloWorld` contract.
 3. Set the `HelloWorld_ADDRESS` in `.env` to the newly-created
    HelloWorld contract address.
-4. Update the address in the `3.2. Validate correctness of the state
-   diff` section above.
 
 #### 3. Update input.json
 
@@ -226,7 +224,11 @@ additional keys owned by the Facilitator.
    prepare-json` to update the `input.json` file.
 2. Test the newly created rehearsal by following the security council
    steps in the `Approving the transaction` section above.
-3. Commit the newly created files to Github.
+3. Update the rehearsal folder name in the `1. Update repo and move to
+   the appropriate folder for this rehearsal task` section and the
+   address in the `3.2. Validate correctness of the state diff`
+   section above.
+4. Commit the newly created files to Github.
 
 ### [After the rehearsal] Execute the output
 
