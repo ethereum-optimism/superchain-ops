@@ -30,7 +30,7 @@ convenience.
 cd superchain-ops
 git pull
 just install-contracts
-cd mainnet-rehearsals/$(REPLACE_WITH_REHEARSAL_FOLDER)
+cd security-council-rehearsals/$(REPLACE_WITH_REHEARSAL_FOLDER)
 ```
 
 ### 2. Setup Ledger
@@ -39,73 +39,141 @@ Your Ledger needs to be connected and unlocked. The Ethereum
 application needs to be opened on Ledger with the message “Application
 is ready”.
 
-### 3. Initiate the Signing:
+### 3. Simulate and validate the transaction
 
 Make sure your ledger is still unlocked and run the following.
 
-`just sign`
+Remember that by default just is running with the address derived from `/0` (first nonce). If you wish to use a different account, run `just simulate-council [X]`, where X is the derivation path of the address that you want to use.
 
-You will see the following output.
+``` shell
+just simulate
+```
 
-There are 4 key pieces of information here we’ll use for the
-validation process that we’ll walk through in the subsequent steps.
-
-![](./images/signing-output.jpg)
-
-### 4. Validate the address
-
-![](./images/signing-with.jpg)
-
-Verify that the address shown is your signer account. If not, you will
-need to determine which “number” it is in the list of addresses on
-your ledger. By default the script will assume the derivation path is
-m/44'/60'/0'/0/0. By calling the script with just sign 1 it will
-derive the address using m/44'/60'/1'/0/0 instead.
-
-### 5. Validate the simulation
-
-A tenderly simulation link was printed in the output above.
+You will see a "Simulation link" from the output.
 
 Paste this URL in your browser. A prompt may ask you to choose a
 project, any project will do. You can create one if necessary.
 
-Click “Simulate Transaction”.
+Click "Simulate Transaction".
 
-### 6. Items to validate in the Simulation
+We will be performing 3 validations and ensure the domain hash and
+message hash are the same between the Tenderly simulation and your
+Ledger:
 
-Now, in order to verify the result of executing this transaction,
-you’ll need to validate the following items in the simulation:
+1. Validate integrity of the simulation.
+2. Validate correctness of the state diff.
+3. Validate and extract domain hash and message hash to approve.
 
-#### 6.1. The domain hash (item 4 in the signing output above) should match the Tenderly `domainSeparator`.
+#### 3.1. Validate integrity of the simulation.
 
-Example where the hash is 0xf347c…:
+Make sure you are on the "Overview" tab of the tenderly simulation, to
+validate integrity of the simulation, we need to
 
-![](./images/tenderly-separator.png)
+1. "Network": Check the network is Ethereum Mainnet.
+2. "Timestamp": Check the simulation is performed on a block with a
+   recent timestamp (i.e. close to when you run the script).
+3. "Sender": Check the address shown is your signer account. If not,
+   you will need to determine which “number” it is in the list of
+   addresses on your ledger. By default the script will assume the
+   derivation path is m/44'/60'/0'/0/0. By calling the script with
+   `just simulate 1` it will derive the address using
+   m/44'/60'/1'/0/0 instead.
 
-#### 6.2. The data to sign (item 3 in the signing output) should match the data field when checking the signatures. Example where data is 0x1901f3…:
+Here is an example screenshot, note that the Timestamp and Sender
+might be different in your simulation:
 
-![](./images/tenderly-data.png)
+![](./images/tenderly-overview-network.png)
 
-#### 6.3. The state changes
+#### 3.2. Validate correctness of the state diff.
 
-Now click on the ‘State’ tab. Verify that the ‘Before’ and ‘After’
-values under ‘State Changes’ match what is shown below. This change
-from 0 to 1 is setting the boolean value to true in the HelloWorld
-contract.  ‘ ![](./images/tenderly-state-changes.png)
+Now click on the "State" tab. Verify that:
 
-If all the validations check out, sign the payload with your ledger.
+1. Under address `0x73E2bc4ad747e5DA21Ec771c1a7D84B18ca4686f`, the
+   storage key `0x0`'s value's last byte is changed from `0x00` to
+   `0x01`. This is indicating that the `HelloWorld.helloed` variable
+   is successfully changed from `false` to `true`.
+2. There are no other significant state changes except for 2 nonce
+   changes from the Safe and the signer address.
+3. You will see a state override (not a state chagne). This is
+   expected and its purpose is to generate a successful Safe execution
+   simulation without collecting any signatures.
 
-### 7. Approve the signature on your ledger
+Here is an example screenshot. Note that the addresses may be
+different:
 
-These values should match those shown in item 4:
+![](./images/tenderly-state-changes.png)
 
-![](./images/domain-hash.png)
+#### 3.3. Extract the domain hash and the message hash to approve.
 
-This is how it will look on your ledger:
+Now that we have verified the transaction performs the right
+operation, we need to extract the domain hash and the message hash to
+approve.
 
-<img src="./images/ledger1.jpeg" width="300"><br/>
-<img src="./images/ledger2.jpeg" width="300"><br/>
-<img src="./images/ledger3.jpeg" width="300">
+Go back to the "Overview" tab, and find the first
+`GnosisSafe.domainSeparator` call. This call's return value will be
+the domain hash that will show up in your Ledger.
+
+Here is an example screenshot. Note that the hash value may be
+different:
+
+![](./images/tenderly-hashes-1.png)
+
+Right before the `GnosisSafe.domainSeparator` call, you will see a
+call to `GnosisSafe.encodeTransactionData`. Its return value will be a
+concatenation of `0x1901`, the domain hash, and the message hash:
+`0x1901[domain hash][message hash]`.
+
+Here is an example screenshot. Note that the hash value may be
+different:
+
+![](./images/tenderly-hashes-2.png)
+
+Note down both the domain hash and the message hash. You will need to
+compare them with the ones displayed on the Ledger screen at signing.
+
+### 4. Approve the signature on your ledger
+
+Once the validations are done, it's time to actually sign the
+transaction. Make sure your ledger is still unlocked and run the
+following:
+
+``` shell
+just sign # or just sign <hdPath>
+```
+
+> [!IMPORTANT] This is the most security critical part of the
+> playbook: make sure the domain hash and message hash in the
+> following two places match:
+
+1. on your Ledger screen.
+2. in the Tenderly simulation. You should use the same Tenderly
+   simulation as the one you used to verify the state diffs, instead
+   of opening the new one printed in the console.
+
+There is no need to verify anything printed in the console. There is
+no need to open the new Tenderly simulation link either.
+
+After verification, sign the transaction. You will see the `Data`,
+`Signer` and `Signature` printed in the console. Format should be
+something like this:
+
+```
+Data:  <DATA>
+Signer: <ADDRESS>
+Signature: <SIGNATURE>
+```
+
+Double check the signer address is the right one.
+
+### 5. Send the output to Facilitator(s)
+
+Nothing has occurred onchain - these are offchain signatures which
+will be collected by Facilitators for execution. Execution can occur
+by anyone once a threshold of signatures are collected, so a
+Facilitator will do the final execution for convenience.
+
+Share the `Data`, `Signer` and `Signature` with the Facilitator, and
+congrats, you are done!
 
 ### 8. Send the output to Facilitator(s)
 
