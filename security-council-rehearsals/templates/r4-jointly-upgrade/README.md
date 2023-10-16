@@ -23,10 +23,13 @@ submit all signatures and perform the execution onchain.
 
 ## Approving the transaction
 
-### 1. Move to the appropriate folder for this rehearsal task:
+### 1. Update repo and move to the appropriate folder for this rehearsal task:
 
 ```
-cd superchain-ops/mainnet-rehearsals/3-R4-upgrade-2-of-2
+cd superchain-ops
+git pull
+just install
+cd security-council-rehearsals/$(REPLACE_WITH_REHEARSAL_FOLDER)
 ```
 
 ### 2. Setup Ledger
@@ -39,7 +42,10 @@ is ready".
 
 Make sure your ledger is still unlocked and run the following.
 
-Remember that by default just is running with the address derived from `/0` (first nonce). If you wish to use a different account, run `just simulate-council [X]`, where X is the derivation path of the address that you want to use.
+Remember that by default just is running with the address derived from
+`/0` (first nonce). If you wish to use a different account, run `just
+simulate-council [X]`, where X is the derivation path of the address
+that you want to use.
 
 ``` shell
 just simulate-council
@@ -116,27 +122,33 @@ Operation](https://github.com/ethereum-optimism/OPerating-manual/blob/1f42a3766d
 ![](./images/tenderly-state-diff.png)
 
 
-#### 3.3. Validate and extract domain hash and message hash to approve.
+#### 3.3. Extract the domain hash and the message hash to approve.
 
 Now that we have verified the transaction performs the right
-operation, we need to validate and extract domain hash and message
-hash to approve.
+operation, we need to extract the domain hash and the message hash to
+approve.
 
 Go back to the "Overview" tab, and find the first
 `GnosisSafe.domainSeparator` call. This call's return value will be
-the domain hash that will show up in your Ledger:
-`0xdbf84cb7cfac409dddf2f9e1e3dec451e4fb9a7abe42d83ef279baff12b1d730`.
+the domain hash that will show up in your Ledger.
 
-Right before this `GnosisSafe.domainSeparator` call, you will see a
-call to `GnosisSafe.encodeTransactionData`. Its return value will be a
-concatenation of `0x1901`, the domain hash, and the message hash:
-`0x1901[domain hash][message hash]`, which is
-`0x1901dbf84cb7cfac409dddf2f9e1e3dec451e4fb9a7abe42d83ef279baff12b1d730d042638edac0888e1c73d74fb5e53185278005b41bd8d43804d0423cce0f0ea1`
-in this case.
+Here is an example screenshot. Note that the hash value may be
+different:
 
 ![](./images/tenderly-hashes-1.png)
 
+Right before the `GnosisSafe.domainSeparator` call, you will see a
+call to `GnosisSafe.encodeTransactionData`. Its return value will be a
+concatenation of `0x1901`, the domain hash, and the message hash:
+`0x1901[domain hash][message hash]`.
+
+Here is an example screenshot. Note that the hash value may be
+different:
+
 ![](./images/tenderly-hashes-2.png)
+
+Note down both the domain hash and the message hash. You will need to
+compare them with the ones displayed on the Ledger screen at signing.
 
 ### 4. Approve the signature on your ledger
 
@@ -184,16 +196,48 @@ congrats, you are done!
 
 ## [For Facilitator ONLY] How to prepare and execute the rehearsal
 
-### [Before the rehearsal] Install contracts onchain
+### [Before the rehearsal] Prepare the rehearsal
 
-1. Create Gnosis Safe: https://app.safe.global/new-safe/create?chain=eth
-2. Modify the `OWNER_SAFE` address in `.env` to the one just created.
-3. Run `just prepare` to deploy the `HelloWorld` contract.
-4. Set the `.transactions[0].to`'s value in `input.json` to be the
-   address of the `HelloWorld` contract just created.
-5. Verify the newly created rehearsal by following the security
-   council steps above.
-6. Commit the newly created folder to Github.
+#### 1. Create the Council Safe
+
+In [Phase
+0](https://gov.optimism.io/t/intro-to-optimisms-security-council/6885)
+of the Superchain's Security Council, OP Mainnet's upgrade key is
+going to be shared between the Optimism Foundation and the Security
+Council using a nested 2-of-2 multisig. To simulate that, we need to
+create another Safe where the Council Safe is one of its owners. You
+should leverage the [Safe
+UI](https://app.safe.global/new-safe/create?chain=eth) to do that.
+
+To make the prepartion and coordination of the ceremonies easier, we
+recommend setting the threshold of the new multisig to 1, and add an
+additional key controled by the Facilitator as the second owner.
+
+#### 2. Create the rehearsal contracts
+
+1. Set the `OWNER_SAFE` address in `.env` to the newly-created Safe
+   address.
+2. Set the `COUNCIL_SAFE` address in `.env` to the same one used in
+   previous rehearsals.
+2. Make sure your Ledger is connected and run `just deploy-contracts`
+   to deploy the rehearsal contract. There will be three contracts
+   deployed: the `L1ERC721BridgeProxy`, the `OptimismPortalProxy` and
+   the `ProxyAdmin` as their admin.
+3. Update the `L1ERC721BridgeProxy_ADDRESS`, the
+   `OptimismPortalProxy_ADDRESS` and the `ProxyAdmin_ADDRESS`
+   variables in `.env` to the newly-created contracts' addresses.
+
+#### 3. Update input.json
+
+1. Make sure the variables in the `.env` file have been updated, then
+   run `just prepare-json` to update the `input.json` file.
+2. Test the newly created rehearsal by following the security council
+   steps in the `Approving the transaction` section above.
+3. Update the rehearsal folder name in the `1. Update repo and move to
+   the appropriate folder for this rehearsal task` section and the
+   address in the `3.2. Validate correctness of the state diff`
+   section above.
+4. Commit the newly created files to Github.
 
 ### [After the rehearsal] Execute the output
 
@@ -201,7 +245,10 @@ congrats, you are done!
 2. Concatenate all signatures and export it as the `SIGNATURES`
    environment variable, i.e. `export
    SIGNATURES="0x[SIGNATURE1][SIGNATURE2]..."`.
-3. Run `just execute-council 0 # or 1 or ...` to execute the transaction onchain.
+3. Run `just approve-council 0 # or 1 or ...` to execute a transaction
+   onchain to approve the upgrade transaction.
+4. Run `just execute-all 0 # or 1 or...` to execute the actual upgrade
+   transaction.
 
 For example, if the quorum is 2 and you get the following outputs:
 
