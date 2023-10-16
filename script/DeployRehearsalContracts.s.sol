@@ -15,7 +15,6 @@ contract DeployRehearsalContracts is Deployer {
 
     GnosisSafe owner_safe;
     GnosisSafe council_safe;
-    GnosisSafe foundation_safe;
     ProxyAdmin proxy_admin;
 
     /// @notice The name of the script, used to ensure the right deploy artifacts
@@ -29,10 +28,8 @@ contract DeployRehearsalContracts is Deployer {
 
         owner_safe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
         council_safe = GnosisSafe(payable(vm.envAddress("COUNCIL_SAFE")));
-        foundation_safe = GnosisSafe(payable(vm.envAddress("FOUNDATION_SAFE")));
 
         require(owner_safe.isOwner(address(council_safe)));
-        require(owner_safe.isOwner(address(foundation_safe)));
 
         console.log("Deploying from %s", deployScript);
         console.log("Deployment context: %s", deploymentContext);
