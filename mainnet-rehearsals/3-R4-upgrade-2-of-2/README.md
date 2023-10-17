@@ -184,3 +184,45 @@ Facilitator will do the final execution for convenience.
 
 Share the `Data`, `Signer` and `Signature` with the Facilitator, and
 congrats, you are done!
+
+
+## Execution Summary
+
+1. Between Oct 13 and Oct 15 2023, participants of the rehearsal
+   completed signing of the simulated upgrade (see ./input.json). The
+   transaction would be able to successfully execute if we execute it
+   immediately on Oct 15.
+2. However, on Oct 15 and 16, Kz performed 3 onchain transactions
+   ([1](https://etherscan.io/tx/0xff15744af0af09ef7ed428229e1b835a9b1fe7cf4a09ea90bb770c89e8a719d0),
+   [2](https://etherscan.io/tx/0x5ef217ee8cf7fb29547bc890c6c6793f66e668c4ae00db9fb3e08f1a29a7692b),
+   [3](https://etherscan.io/tx/0xa2d0fdcda8b05216c3a41e1f2411c516ea8982033c26a89412852f923cc4a09d))
+   to add additonal signers and lower the threshold of the OWNER_SAFE
+   from 2 to 1, this was intended to make the Facilitator's execution
+   easier, but it also bumped the nonce of this Safe 3 times.
+3. Nonce of a safe is
+   [part](https://github.com/safe-global/safe-contracts/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/GnosisSafe.sol#L143)
+   of the `txHashData` to be approved using the `approveHash` call,
+   and because the nonce changed, we need to approve a new hash in
+   order to execute the upgrade at the new nonce.
+4. Two transactions are needed in order to fully execute this upgrade:
+   1. `approveHash` transaction: an `execTransaction` call on the
+      `COUNCIL_SAFE` which will result in a call to the
+      `OWNER_SAFE.approveHash` to approve the second transaction.
+   2. `upgrade` transaction: an `execTransaction` call on the
+      `OWNER_SAFE` which will actually perform the upgrade.
+5. As a result of the nonce change in 2, the `upgrade` transaction is
+   no longer possible using the existing signed approvals, but we can
+   still perform the `approveHash` transaction to verify that the
+   participants successfully performed the signing. However, because
+   our script will automatically get the latest nonce to use and
+   automatically calculate the hash to approve, we can't use `just
+   execute-council` to do this any more. We have to do this more
+   manually, e.g. using the ./approveHash.json on the Safe
+   UI. [Here](https://etherscan.io/tx/0xb4fead12cfd07253a5553d01d098eead3ec00a4225a094491b4e17c433ed8594#eventlog)
+   is the executed `approveHash` transaction.
+6. As mentioned in 3, we can't execute the `upgrade` transaction in
+   the same way (i.e. ./performUpgrade.json), because the nonce has
+   increased from 0 to 3, however, we can still simulate and verify
+   the upgrade will be successfully performed if the nonce were 0,
+   using state overrides ([tenderly
+   simulation](https://dashboard.tenderly.co/k-oplabs/project/simulator/b7aa392c-e62d-43c7-a54f-0dedbea45dd6/state-diff)).
