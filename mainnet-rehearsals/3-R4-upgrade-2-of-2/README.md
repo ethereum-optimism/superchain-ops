@@ -189,9 +189,9 @@ congrats, you are done!
 ## Execution Summary
 
 1. Between Oct 13 and Oct 15 2023, participants of the rehearsal
-   completed signing of the simulated upgrade (see ./input.json). The
-   transaction would be able to successfully execute if we execute it
-   immediately on Oct 15.
+   completed signing of the simulated upgrade (see
+   [./input.json](./input.json)). The transaction would be able to
+   successfully execute if we execute it immediately on Oct 15.
 2. However, on Oct 15 and 16, Kz performed 3 onchain transactions
    ([1](https://etherscan.io/tx/0xff15744af0af09ef7ed428229e1b835a9b1fe7cf4a09ea90bb770c89e8a719d0),
    [2](https://etherscan.io/tx/0x5ef217ee8cf7fb29547bc890c6c6793f66e668c4ae00db9fb3e08f1a29a7692b),
@@ -217,12 +217,13 @@ congrats, you are done!
    our script will automatically get the latest nonce to use and
    automatically calculate the hash to approve, we can't use `just
    execute-council` to do this any more. We have to do this more
-   manually, e.g. using the ./approveHash.json on the Safe
+   manually, e.g. using the [./approveHash.json](./approveHash.json)
+   on the Safe
    UI. [Here](https://etherscan.io/tx/0xb4fead12cfd07253a5553d01d098eead3ec00a4225a094491b4e17c433ed8594#eventlog)
    is the executed `approveHash` transaction.
 6. As mentioned in 3, we can't execute the `upgrade` transaction in
-   the same way (i.e. ./performUpgrade.json), because the nonce has
-   increased from 0 to 3, however, we can still simulate and verify
-   the upgrade will be successfully performed if the nonce were 0,
-   using state overrides ([tenderly
+   the same way (i.e. [./performUpgrade.json](./performUpgrade.json)),
+   because the nonce has increased from 0 to 3, however, we can still
+   simulate and verify the upgrade will be successfully performed if
+   the nonce were 0, using state overrides ([tenderly
    simulation](https://dashboard.tenderly.co/k-oplabs/project/simulator/b7aa392c-e62d-43c7-a54f-0dedbea45dd6/state-diff)).
