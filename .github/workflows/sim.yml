@@ -1,0 +1,48 @@
+name: Simulate upgrades
+
+on:
+  # TODO: configurable network for sim test
+  workflow_dispatch:
+    inputs:
+      safe:
+        description: 'Address of Gnosis safe'
+        required: true
+        type: string
+      bundle:
+        description: 'Safe bundle transaction JSON'
+        required: true
+        type: string
+      rpc:
+        description: 'ETH L1 RPC'
+        required: true # for now. TODO: hardcode rpc in gh secrets
+        type: string
+
+job:
+  sim:
+    name: Simulate upgrade on Goerli
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+      - uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Run sim
+        shell: bash
+        env:
+          ETH_RPC_URL: ${{ github.event.inputs.rpc }}
+          SAFE: ${{ github.event.inputs.safe }}
+          BUNDLE: ${{ github.event.inputs.bundle }}
+        run: |
+          FORK_BLOCK_NUM=$(cast block safe -f number --rpc-url $ETH_RPC_URL)
+
+          SIGNATURES=$(forge script NestedSignFromJson --fork-url \
+            --fork-block-number $FORK_BLOCK_NUM \
+            --sig "signJson(string,address)" "$BUNDLE" "$SAFE" | grep 'Signature:' | cut -d':' -f2')
+
+          forge script NestedSignFromJson --fork-url "$ETH_RPC_URL" \
+            --fork-block-number $FORK_BLOCK_NUM \
+            --skip-simulation \
+            --sender ${sender} \
+            --sig "offchainSim(string,address,bytes)" "$BUNDLE" "$SAFE" "$SIGNATURES"
