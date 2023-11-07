@@ -17,13 +17,13 @@ on:
         required: true # for now. TODO: hardcode rpc in gh secrets
         type: string
 
-job:
+jobs:
   sim:
     name: Simulate upgrade on Goerli
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-      - uses: actions/checkout@v4
+        uses: actions/checkout@v4
 
       - name: Setup
         uses: ./.github/actions/setup
@@ -37,12 +37,12 @@ job:
         run: |
           FORK_BLOCK_NUM=$(cast block safe -f number --rpc-url $ETH_RPC_URL)
 
-          SIGNATURES=$(forge script NestedSignFromJson --fork-url \
+          SIGNATURES=$(forge script NestedSignFromJson --fork-url $ETH_RPC_URL \
             --fork-block-number $FORK_BLOCK_NUM \
-            --sig "signJson(string,address)" "$BUNDLE" "$SAFE" | grep 'Signature:' | cut -d':' -f2')
+            --sig "signJson(string,address)" "$BUNDLE" "$SAFE" | grep 'Signature:' | cut -d':' -f2)
 
           forge script NestedSignFromJson --fork-url "$ETH_RPC_URL" \
             --fork-block-number $FORK_BLOCK_NUM \
-            --skip-simulation \
+            --skip-simulation \ # on-chain sim will fail due to cheats on the safe signing threshold
             --sender ${sender} \
             --sig "offchainSim(string,address,bytes)" "$BUNDLE" "$SAFE" "$SIGNATURES"
