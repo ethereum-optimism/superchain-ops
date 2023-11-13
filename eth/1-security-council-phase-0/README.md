@@ -118,7 +118,7 @@ in your Ledger.
 Here is an example screenshot. Note that the hash value may be
 different:
 
-![](./images/tenderly-hashes.png)
+![](./images/tenderly-hash.png)
 
 It will be a concatenation of `0x1901`, the domain hash, and the
 message hash: `0x1901[domain hash][message hash]`.
