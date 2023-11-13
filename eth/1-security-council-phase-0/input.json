@@ -2,7 +2,7 @@
   "version": "1.0",
   "chainId": "1",
   "meta": {
-    "name": "ProxAdmin 2-of-2 Example",
+    "name": "Share OP Mainnet ProxyAdmin key with Security Council",
     "description": "",
     "txBuilderVersion": "1.16.2"
   },
