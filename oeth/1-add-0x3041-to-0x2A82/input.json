@@ -1,0 +1,36 @@
+{
+  "version": "1.0",
+  "chainId": "10",
+  "meta": {
+    "name": "addOwnerWithThreshold",
+    "description": "",
+    "txBuilderVersion": "1.16.3"
+  },
+  "transactions": [
+    {
+      "to": "0x2A82Ae142b2e62Cb7D10b55E323ACB1Cab663a26",
+      "value": "0",
+      "data": "0x0d582f130000000000000000000000003041ba32f451f5850c147805f5521ac2064216230000000000000000000000000000000000000000000000000000000000000003",
+      "contractMethod": {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_threshold",
+            "type": "uint256"
+          }
+        ],
+        "name": "addOwnerWithThreshold",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "owner": "0x3041BA32f451F5850c147805F5521AC206421623",
+        "_threshold": "3"
+      }
+    }
+  ]
+}
