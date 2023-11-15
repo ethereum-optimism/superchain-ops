@@ -3,22 +3,22 @@ version: 2.1
 parameters:
   l1_mainnet_rpc_url:
     type: string
-    default: "https://proxyd-l1-consensus.primary.mainnet.prod.oplabs.cloud"
+    default: "https://ci-mainnet-l1.optimism.io"
   l1_goerli_rpc_url:
     type: string
-    default: "https://proxyd-l1-consensus.primary.goerli.prod.oplabs.cloud"
+    default: "https://ci-goerli-l1.optimism.io"
   l1_sepolia_rpc_url:
     type: string
-    default: "https://proxyd-l1-consensus.primary.sepolia.prod.oplabs.cloud"
+    default: "https://ci-sepolia-l1.optimism.io"
   l2_mainnet_rpc_url:
     type: string
-    default: "https://proxyd-l2-consensus.primary.mainnet.prod.oplabs.cloud"
+    default: "https://mainnet.optimism.io"
   l2_goerli_rpc_url:
     type: string
-    default: "https://proxyd-l2-consensus.primary.goerli.prod.oplabs.cloud"
+    default: "https://goerli.optimism.io"
   l2_sepolia_rpc_url:
     type: string
-    default: "https://proxyd-l2-consensus.primary.sepolia.prod.oplabs.cloud"
+    default: "https://sepolia.optimism.io"
   time_diff_threshold:
     type: integer
     default: 5
