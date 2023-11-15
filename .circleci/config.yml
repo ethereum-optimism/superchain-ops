@@ -121,7 +121,7 @@ jobs:
       - run:
           name: Use RPC URLs
           command: |
-            if [ -z "$L1_RPC_MAINNET" ] || [ -z "$L1_RPC_MAINNET" ]; then
+            if [ -z "$L1_RPC_MAINNET" ] || [ -z "$L2_RPC_MAINNET" ]; then
                 echo "Required RPC URLs are not available."
             fi
               L1_RPC_URL=$L1_RPC_MAINNET
