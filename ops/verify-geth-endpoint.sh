@@ -1,7 +1,6 @@
 #!/bin/bash
 
 set -euo pipefail
-# Script to check the syncing status and block timestamp of an Ethereum RPC endpoint
 
 URL=$1
 
