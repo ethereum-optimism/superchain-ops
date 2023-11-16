@@ -136,8 +136,6 @@ jobs:
     steps:
       - attach_workspace:
           at: .
-      - run: |
-          cat bash.env >> $BASH_ENV
       - run:
           name: just simulate
           command: |
