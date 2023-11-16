@@ -8,8 +8,6 @@ install-contracts:
   echo 'deleting lib folder'
   rm -rf lib
 
-  forge clean
-
   forge install --no-git foundry-rs/forge-std
   forge install --no-git safe-global/safe-contracts@v1.3.0
 
@@ -20,6 +18,8 @@ install-contracts:
   forge install --no-git ethereum-optimism/optimism
   forge install --no-git OpenZeppelin/openzeppelin-contracts@v4.9.3
   forge install --no-git transmissions11/solmate@v7
+
+  forge clean
 
 install-eip712sign:
   go install github.com/base-org/eip712sign@v0.0.3
