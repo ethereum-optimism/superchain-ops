@@ -159,4 +159,6 @@ workflows:
           - example_mainnet_job:
               requires:
                 - check_mainnet_rpc_endpoints
+    check_just_simulate:
+        jobs:
           - just_simulate_active_ceremonies
