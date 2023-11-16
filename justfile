@@ -8,6 +8,8 @@ install-contracts:
   echo 'deleting lib folder'
   rm -rf lib
 
+  forge clean
+
   forge install --no-git foundry-rs/forge-std
   forge install --no-git safe-global/safe-contracts@v1.3.0
 
