@@ -10,7 +10,12 @@ simulate hdPath='0':
   #!/usr/bin/env bash
   cd ../..
   echo "getting signer address..."
-  signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
+  then
+    signer="0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64"
+  else
+    signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  fi
   echo "Simulating with: ${signer}"
   echo ""
   forge script SignFromJson \

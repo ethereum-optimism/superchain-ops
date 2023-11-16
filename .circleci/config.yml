@@ -143,6 +143,7 @@ jobs:
           command: |
             just install
             cd eth/1-security-council-phase-0
+            export SIMULATE_WITHOUT_LEDGER=1
             just simulate
 
 
