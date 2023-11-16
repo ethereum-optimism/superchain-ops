@@ -1,0 +1,142 @@
+version: 2.1
+
+parameters:
+  l1_mainnet_rpc_url:
+    type: string
+    default: "https://ci-mainnet-l1.optimism.io"
+  l1_goerli_rpc_url:
+    type: string
+    default: "https://ci-goerli-l1.optimism.io"
+  l1_sepolia_rpc_url:
+    type: string
+    default: "https://ci-sepolia-l1.optimism.io"
+  l2_mainnet_rpc_url:
+    type: string
+    default: "https://mainnet.optimism.io"
+  l2_goerli_rpc_url:
+    type: string
+    default: "https://goerli.optimism.io"
+  l2_sepolia_rpc_url:
+    type: string
+    default: "https://sepolia.optimism.io"
+  time_diff_threshold:
+    type: integer
+    default: 5
+
+jobs:
+  check_sepolia_rpc_endpoints:
+    circleci_ip_ranges: true
+    docker:
+      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:latest
+    steps:
+      - checkout
+      - run:
+          name: Check Sepolia RPC Endpoints
+          command: |
+            if ./ops/verify-geth-endpoint.sh "<< pipeline.parameters.l1_sepolia_rpc_url >>"; then
+              if ops/verify-geth-endpoint.sh "<< pipeline.parameters.l2_sepolia_rpc_url >>"; then
+                echo "Both RPC endpoints are up to date and not syncing."
+                echo "L1_RPC_SEPOLIA=<< pipeline.parameters.l1_sepolia_rpc_url >>" >> $BASH_ENV
+                echo "L2_RPC_SEPOLIA=<< pipeline.parameters.l2_sepolia_rpc_url >>" >> $BASH_ENV
+              else
+                echo "L2 RPC endpoint failed the checks."
+                exit 1
+              fi
+            else
+              echo "L1 RPC endpoint failed the checks."
+              exit 1
+            fi
+      - run: |
+          cp $BASH_ENV bash.env
+      - persist_to_workspace:
+          root: .
+          paths:
+            - bash.env
+  check_goerli_rpc_endpoints:
+    circleci_ip_ranges: true
+    docker:
+      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:latest
+    steps:
+      - checkout
+      - run:
+          name: Check Goerli RPC Endpoints
+          command: |
+            if ./ops/verify-geth-endpoint.sh "<< pipeline.parameters.l1_goerli_rpc_url >>"; then
+             if ./ops/verify-geth-endpoint.sh "<< pipeline.parameters.l2_goerli_rpc_url >>"; then
+                echo "Both RPC endpoints are up to date and not syncing."
+                echo "L1_RPC_GOERLI=<< pipeline.parameters.l1_goerli_rpc_url >>" >> $BASH_ENV
+                echo "L2_RPC_GOERLI=<< pipeline.parameters.l2_goerli_rpc_url >>" >> $BASH_ENV
+              else
+                echo "L2 RPC endpoint failed the checks."
+                exit 1
+              fi
+            else
+              echo "L1 RPC endpoint failed the checks."
+              exit 1
+            fi
+      - run: |
+          cp $BASH_ENV bash.env
+      - persist_to_workspace:
+          root: .
+          paths:
+            - bash.env
+  check_mainnet_rpc_endpoints:
+    circleci_ip_ranges: true
+    docker:
+      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:latest
+    steps:
+      - checkout
+      - run:
+          name: Check Mainnet RPC Endpoints
+          command: |
+            if ops/verify-geth-endpoint.sh "<< pipeline.parameters.l1_mainnet_rpc_url >>";then
+             if ops/verify-geth-endpoint.sh "<< pipeline.parameters.l2_mainnet_rpc_url >>"; then
+                echo "Both RPC endpoints are up to date and not syncing."
+                echo "L1_RPC_MAINNET=<< pipeline.parameters.l1_mainnet_rpc_url >>" >> $BASH_ENV
+                echo "L2_RPC_MAINNET=<< pipeline.parameters.l2_mainnet_rpc_url >>" >> $BASH_ENV
+              else
+                echo "L2 RPC endpoint failed the checks."
+                exit 1
+              fi
+            else
+              echo "L1 RPC endpoint failed the checks."
+              exit 1
+            fi
+      - run: |
+          cp $BASH_ENV bash.env
+      - persist_to_workspace:
+          root: .
+          paths:
+            - bash.env
+  # TODO: remove/replace when there are real consumers of the RPC URLs
+  example_mainnet_job:
+    circleci_ip_ranges: true
+    docker:
+      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:latest
+    steps:
+      - attach_workspace:
+          at: .
+      - run: |
+          cat bash.env >> $BASH_ENV
+      - run:
+          name: Use RPC URLs
+          command: |
+            if [ -z "$L1_RPC_MAINNET" ] || [ -z "$L2_RPC_MAINNET" ]; then
+                echo "Required RPC URLs are not available."
+            fi
+              L1_RPC_URL=$L1_RPC_MAINNET
+              L2_RPC_URL=$L2_RPC_MAINNET
+              echo "L1 RPC URL: $L1_RPC_URL"
+              echo "L2 RPC URL: $L2_RPC_URL"
+              # Use L1_RPC_URL and L2_RPC_URL here.
+
+workflows:
+    version: 2
+    check_rpc_endpoints:
+        jobs:
+          - check_sepolia_rpc_endpoints
+          - check_goerli_rpc_endpoints
+          - check_mainnet_rpc_endpoints
+          - example_mainnet_job:
+              requires:
+                - check_mainnet_rpc_endpoints
