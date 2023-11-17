@@ -19,7 +19,5 @@ install-contracts:
   forge install --no-git OpenZeppelin/openzeppelin-contracts@v4.9.3
   forge install --no-git transmissions11/solmate@v7
 
-  forge clean
-
 install-eip712sign:
   go install github.com/base-org/eip712sign@v0.0.3

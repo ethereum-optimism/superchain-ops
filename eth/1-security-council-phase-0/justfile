@@ -18,6 +18,7 @@ simulate hdPath='0':
   fi
   echo "Simulating with: ${signer}"
   echo ""
+  forge build
   forge script SignFromJson \
     --rpc-url ${rpcUrl} \
     --sig "signJson(string)" \
