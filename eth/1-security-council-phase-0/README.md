@@ -65,7 +65,7 @@ message hash to approve on your Ledger:
 #### 3.1. Validate integrity of the simulation.
 
 Make sure you are on the "Overview" tab of the tenderly simulation, to
-validate integrity of the simulation, we need to
+validate integrity of the simulation, we need to check the following:
 
 1. "Network": Check the network is Ethereum Mainnet.
 2. "Timestamp": Check the simulation is performed on a block with a
