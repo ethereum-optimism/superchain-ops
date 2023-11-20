@@ -16,7 +16,7 @@ this:
 2. [Security Council Membership Ratification](https://link.to/be/determined).
 
 Both of them should be treated as the source of truth and used by the
-multisig signers to verify the correctness of the onchain operatins.
+multisig signers to verify the correctness of the onchain operations.
 
 ## Approving the transaction
 
