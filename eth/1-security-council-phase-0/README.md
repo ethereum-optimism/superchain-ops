@@ -9,7 +9,7 @@ Status: DRAFT, NOT READY TO SIGN
 ## Objective
 
 This is the playbook for executing the Security Council Phase 0 as
-approved by Governance. There are two govenance proposals related to
+approved by Governance. There are two governance proposals related to
 this:
 
 1. [Security Council: Vote #1](https://vote.optimism.io/proposals/27439950952007920118525230291344523079212068327713298769307857575418374325849).
