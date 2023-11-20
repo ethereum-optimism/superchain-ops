@@ -1,0 +1,30 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "meta": {
+    "name": "Share OP Mainnet ProxyAdmin key with Security Council",
+    "description": "",
+    "txBuilderVersion": "1.16.2"
+  },
+  "transactions": [
+    {
+      "to": "0x543bA4AADBAb8f9025686Bd03993043599c6fB04",
+      "value": "0",
+      "data": "0xf2fde38b000000000000000000000000dc53b1d440b8a56dd50a6d69312dac903d3aa48b",
+      "contractMethod": {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "newOwner",
+            "type": "address"
+          }
+        ],
+        "name": "transferOwnership",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "newOwner": "0xdc53B1d440b8a56dd50A6D69312DAC903d3Aa48b"
+      }
+    }
+  ]
+}
