@@ -197,11 +197,11 @@ the participants using the [Safe
 UI](https://app.safe.global/new-safe/create?chain=eth).
 
 To make the prepartion and coordination of the ceremonies easier, we
-recommend setting the threshold of the multisig to be equal to the
-number of participants, and add an equal amount of additional signers
-using keys owned by the Facilitator. For example, if there are 3
-participants, we recommend creating a 3 of 6 multisig with 3
-additional keys owned by the Facilitator.
+recommend setting the threshold (M) of the multisig to be equal to the
+number of participants, and add M+1 additional signers
+using keys owned by the Facilitator, to make it a M-of-2M+1 multisig. 
+For example, if there are 3 participants, we recommend creating a 3 of 7
+multisig with 4 additional keys owned by the Facilitator.
 
 #### 2. Create the HelloWorld contract
 
