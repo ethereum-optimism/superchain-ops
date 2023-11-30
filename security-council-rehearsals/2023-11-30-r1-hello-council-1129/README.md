@@ -30,7 +30,7 @@ convenience.
 cd superchain-ops
 git pull
 just install
-cd security-council-rehearsals/$(REPLACE_WITH_REHEARSAL_FOLDER)
+cd security-council-rehearsals/2023-11-30-r1-hello-council-1129
 ```
 
 ### 2. Setup Ledger
@@ -91,7 +91,7 @@ might be different in your simulation:
 
 Now click on the "State" tab. Verify that:
 
-1. Under address `0x73E2bc4ad747e5DA21Ec771c1a7D84B18ca4686f`, the
+1. Under address `0x67b0b432838539BD469b3DD097242C290ce2F7F0`, the
    storage key `0x0`'s value's last byte is changed from `0x00` to
    `0x01`. This is indicating that the `HelloWorld.helloed` variable
    is successfully changed from `false` to `true`.
