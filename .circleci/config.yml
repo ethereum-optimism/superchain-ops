@@ -167,8 +167,8 @@ jobs:
           command: |
             just install
             cd security-council-rehearsals
-            just setup r1-hello-council tmp-ci
-            cd *r1-hello-council-tmp-ci
+            just setup r2-remove-signer tmp-ci
+            cd *r2-remove-signer-tmp-ci
             export SIMULATE_WITHOUT_LEDGER=1
             just simulate
             just get-owners
@@ -184,8 +184,8 @@ jobs:
           command: |
             just install
             cd security-council-rehearsals
-            just setup r1-hello-council tmp-ci
-            cd *r1-hello-council-tmp-ci
+            just setup r4-jointly-upgrade tmp-ci
+            cd *r4-jointly-upgrade-tmp-ci
             export SIMULATE_WITHOUT_LEDGER=1
             just simulate-council
             just prepare-json
