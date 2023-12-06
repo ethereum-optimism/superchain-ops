@@ -141,6 +141,55 @@ jobs:
             cd eth/1-security-council-phase-0
             export SIMULATE_WITHOUT_LEDGER=1
             just simulate
+  just_simulate_sc_rehearsal_1:
+    docker:
+      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:latest
+    steps:
+      - checkout
+      - run:
+          name: just simulate r1-hello-council
+          command: |
+            just install
+            cd security-council-rehearsals
+            just setup r1-hello-council tmp-ci
+            cd *r1-hello-council-tmp-ci
+            export SIMULATE_WITHOUT_LEDGER=1
+            just simulate
+            just prepare-json
+            just simulate # simulate again to make sure the json is still valid
+  just_simulate_sc_rehearsal_2:
+    docker:
+      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:latest
+    steps:
+      - checkout
+      - run:
+          name: just simulate r2-remove-signer
+          command: |
+            just install
+            cd security-council-rehearsals
+            just setup r2-remove-signer tmp-ci
+            cd *r2-remove-signer-tmp-ci
+            export SIMULATE_WITHOUT_LEDGER=1
+            just simulate
+            just get-owners
+            just prepare
+            just simulate # simulate again to make sure the json is still valid
+  just_simulate_sc_rehearsal_4:
+    docker:
+      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:latest
+    steps:
+      - checkout
+      - run:
+          name: just simulate r4-jointly-upgrade
+          command: |
+            just install
+            cd security-council-rehearsals
+            just setup r4-jointly-upgrade tmp-ci
+            cd *r4-jointly-upgrade-tmp-ci
+            export SIMULATE_WITHOUT_LEDGER=1
+            just simulate-council
+            just prepare-json
+            just simulate-council # simulate again to make sure the json is still valid
 
 workflows:
     version: 2
@@ -160,3 +209,6 @@ workflows:
         # the ceremony is for historical archive only (e.g. the
         # ceremony is done).
           - just_simulate_sc_phase_0
+          - just_simulate_sc_rehearsal_1
+          - just_simulate_sc_rehearsal_2
+          - just_simulate_sc_rehearsal_4
