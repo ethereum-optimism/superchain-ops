@@ -1,22 +1,8 @@
-# Security Council Phase 0 Multisig Ceremony.
-
-Status: DRAFT, NOT READY TO SIGN
-
-> [!IMPORTANT] !!! DO NOT SIGN using this playbook yet, as the
-> Security Council membership ratification proposal is not passed, and
-> the final multisig is not set up yet.
+# Sepolia Extended Pause Upgrade
 
 ## Objective
 
-This is the playbook for executing the Security Council Phase 0 as
-approved by Governance. There are two governance proposals related to
-this:
-
-1. [Security Council: Vote #1](https://vote.optimism.io/proposals/27439950952007920118525230291344523079212068327713298769307857575418374325849).
-2. [Security Council Membership Ratification](https://link.to/be/determined).
-
-Both of them should be treated as the source of truth and used by the
-multisig signers to verify the correctness of the onchain operations.
+This is the playbook for executing the Extended Pause upgrade ceremony on Sepolia.
 
 ## Approving the transaction
 
@@ -26,7 +12,7 @@ multisig signers to verify the correctness of the onchain operations.
 cd superchain-ops
 git pull
 just install
-cd eth/1-security-council-phase-0
+cd sep/1-extended-pause-upgrade
 ```
 
 ### 2. Setup Ledger
@@ -67,7 +53,7 @@ message hash to approve on your Ledger:
 Make sure you are on the "Overview" tab of the tenderly simulation, to
 validate integrity of the simulation, we need to check the following:
 
-1. "Network": Check the network is Ethereum Mainnet.
+1. "Network": Check the network is Sepolia.
 2. "Timestamp": Check the simulation is performed on a block with a
    recent timestamp (i.e. close to when you run the script).
 3. "Sender": Check the address shown is your signer account. If not,
@@ -84,22 +70,12 @@ validate integrity of the simulation, we need to check the following:
 Now click on the "State" tab. Verify that:
 
 1. There is only a single state override at address
-   `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`, which overrides
+   `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`, which overrides
    storage slot `0x4` to new value `0x1`. This override is only
    intended to change the Foundation multisig's quorum threshold to 1
    so we can perform a tenderly simulation of the execution,
-2. The `ProxyAdmin` contract at
-   `0x543ba4aadbab8f9025686bd03993043599c6fb04`'s `_owner` is changed
-   to a new multisig, and the configuration of this new multisig
-   correctly implements the two approved proposals:
-   1. [Security Council: Vote #1](https://vote.optimism.io/proposals/27439950952007920118525230291344523079212068327713298769307857575418374325849).
-   2. [Security Council Membership Ratification](https://link.to/be/determined).
-3. Both of the other state changes are nonce changes only.
-
-
-All of these addresses should be part of the Optimism Governance vote
-that approves this upgrade if this is a [Normal
-Operation](https://github.com/ethereum-optimism/OPerating-manual/blob/1f42a3766d084864a818b93ce7ba0857a4a846ea/Security%20Council%20Charter%20v0.1.md#normal-operation).
+1. Any state changes not listed below are nonce changes only.
+1. TODO enumerate state changes.
 
 ![](./images/tenderly-state-diff.png)
 
