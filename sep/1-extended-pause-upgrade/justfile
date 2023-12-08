@@ -5,6 +5,8 @@ export signatures := env_var_or_default('SIGNATURES', '')
 export network := env_var('NETWORK')
 export location := `pwd`
 export OWNER_SAFE := '0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B'
+export DEPLOYMENT_CONTEXT := 'sepolia'
+export CHAIN_ID := '11155111'
 
 simulate hdPath='0':
   #!/usr/bin/env bash
