@@ -30,8 +30,10 @@ Remember that by default just is running with the address derived from
 simulate [X]`, where X is the derivation path of the address
 that you want to use.
 
+You'll need to repeat this process for each network.
+
 ``` shell
-just simulate
+just simulate network=base
 ```
 
 You will see a "Simulation link" from the output.
