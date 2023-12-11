@@ -42,7 +42,7 @@ project, any project will do. You can create one if necessary.
 
 Click "Simulate Transaction". If you can not successfully generate a
 tenderly diff, use [this
-link](https://dashboard.tenderly.co/public/safe/safe-apps/simulator/40393fa5-580b-4a65-a664-6ae9443ba7d6/state-diff)
+link](https://dashboard.tenderly.co/k-oplabs/project/simulator/80d31bc0-6af4-4ab9-8455-eb9fbf36998d/state-diff)
 instead. This is safe to do because we will verify the diff and only
 sign the hashes derived from the same tenderly simulation.
 
