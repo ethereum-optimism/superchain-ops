@@ -13,7 +13,7 @@ approved by Governance. There are two governance proposals related to
 this:
 
 1. [Security Council: Vote #1](https://vote.optimism.io/proposals/27439950952007920118525230291344523079212068327713298769307857575418374325849).
-2. [Security Council Membership Ratification]([https://link.to/be/determined](https://vote.optimism.io/proposals/85591583404433237270543189567126336043697987369929953414380041066767718361144).
+2. [Security Council Membership Ratification](https://vote.optimism.io/proposals/85591583404433237270543189567126336043697987369929953414380041066767718361144).
 
 Both of them should be treated as the source of truth and used by the
 multisig signers to verify the correctness of the onchain operations.
