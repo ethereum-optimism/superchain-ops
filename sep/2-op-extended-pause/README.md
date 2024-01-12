@@ -72,18 +72,7 @@ Now click on the "State" tab. Verify that:
    so we can perform a tenderly simulation of the execution,
 1. Any state changes not listed below are nonce changes only.
 1. The Address Manager (at `0x9bfe9c5609311df1c011c47642253b78a4f33f4b`) has the address of the L1CrossDomainMessenger (at key `0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e`) updated to `0x7c9b3a3455714f25525f31e91412715f06062fd`.
-1. The implementation slot (`0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`) for
-   each of the following addresses is updated such that the new implementation is:
-
-| Name                              | Proxy Address                              | New Implementation Address                 |
-| --------------------------------- | ------------------------------------------ | ------------------------------------------ |
-| SystemConfigProxy                 | 0x034edD2A225f7f429A63E0f1D2084B9E0A93b538 | 0xDcDbe0A5fb83f0D59959A9eb13c4061173E4c602 |
-| OptimismPortalProxy               | 0x16Fc5058F25648194471939df75CF27A2fdC48BC | 0x9e714EF35d8E9a44a509ebf40924EeD8E7dE461B |
-| OptimismMintableERC20FactoryProxy | 0x868D59fF9710159C2B330Cc0fBDF57144dD7A13b | 0x122F08d07037f706CCf546b7d0B81A97097D4E08 |
-| L2OutputOracleProxy               | 0x90E9c4f8a994a250F6aEfd61CAFb4F2e895D458F | 0xA98Bb793B451F7bCcFFb8d09E53dB74a448200B4 |
-| L1ERC721BridgeProxy               | 0xd83e03D576d23C9AEab8cC44Fa98d058D2176D1f | 0x0ba60F74Ac6F5D0ED35884a7d64B4536E4194Ba8 |
-| L1StandardBridgeProxy             | 0xFBb0621E0B23b5478B630BD55a5f21f67730B0F1 | 0x462765817deB624731BF118A27Ce83c3FfAa405c |
-
+1. The `OptimismPortalProxy` (at `0x16fc5058f25648194471939df75cf27a2fdc48bc`) has its implementation slot (`0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`) updated to `0x9e714EF35d8E9a44a509ebf40924EeD8E7dE461B`.
 
 #### 3.3. Extract the domain hash and the message hash to approve.
 
