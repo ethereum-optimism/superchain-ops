@@ -138,19 +138,7 @@ jobs:
           name: just simulate 1-security-council-phase-0
           command: |
             just install
-            cd eth/1-security-council-phase-0
-            export SIMULATE_WITHOUT_LEDGER=1
-            just simulate
-  just_simulate_op_extended_pause:
-    docker:
-      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:latest
-    steps:
-      - checkout
-      - run:
-          name: just simulate 1-op-extended-pause
-          command: |
-            just install
-            cd sep/1-op-extended-pause
+            cd tasks/eth/1-security-council-phase-0
             export SIMULATE_WITHOUT_LEDGER=1
             just simulate
   just_simulate_sc_rehearsal_1:
@@ -221,7 +209,6 @@ workflows:
         # the ceremony is for historical archive only (e.g. the
         # ceremony is done).
           - just_simulate_sc_phase_0
-          - just_simulate_op_extended_pause
           - just_simulate_sc_rehearsal_1
           - just_simulate_sc_rehearsal_2
           - just_simulate_sc_rehearsal_4

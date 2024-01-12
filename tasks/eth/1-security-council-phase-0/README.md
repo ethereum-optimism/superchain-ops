@@ -26,7 +26,7 @@ multisig signers to verify the correctness of the onchain operations.
 cd superchain-ops
 git pull
 just install
-cd eth/1-security-council-phase-0
+cd task/eth/1-security-council-phase-0
 ```
 
 ### 2. Setup Ledger
