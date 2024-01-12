@@ -2,9 +2,27 @@ set dotenv-load
 
 export rpcUrl := env_var('ETH_RPC_URL')
 export signatures := env_var_or_default('SIGNATURES', '')
-export bundle := "inputs/op"
+export network := "op"
 export location := `pwd`
 export OWNER_SAFE := env_var('PROXY_ADMIN_OWNER')
+test hdPath='0':
+  #!/usr/bin/env bash
+  cd ../..
+  echo "getting signer address..."
+  if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
+  then
+    signer="0x1084092Ac2f04c866806CF3d4a385Afa4F6A6C97"
+  else
+    signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  fi
+  echo "Simulating with: ${signer}"
+  echo ""
+  forge build
+  forge script SignAndCheck \
+    --rpc-url ${rpcUrl} \
+    --sig "testJson(string)" \
+    "${location}/inputs/${network}.json" \
+    --sender ${signer}
 
 simulate hdPath='0':
   #!/usr/bin/env bash
@@ -19,10 +37,10 @@ simulate hdPath='0':
   echo "Simulating with: ${signer}"
   echo ""
   forge build
-  forge script SignFromJson \
+  forge script SignAndCheck \
     --rpc-url ${rpcUrl} \
     --sig "signJson(string)" \
-    "${location}/${bundle}.json" \
+    "${location}/inputs/${network}.json" \
     --sender ${signer}
 
 sign hdPath='0':
@@ -34,17 +52,17 @@ sign hdPath='0':
   echo ""
   forge build
   $(go env GOPATH)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
-  forge script SignFromJson \
+  forge script SignAndCheck \
     --rpc-url ${rpcUrl} \
     --sig "signJson(string)" \
-    "${location}/${bundle}.json"
+    "${location}/inputs/${network}.json"
 
 execute hdPath='0':
   #!/usr/bin/env bash
   cd ../..
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge build
-  forge script --fork-url ${ETH_RPC_URL} SignFromJson \
-    --sig "runJson(string,bytes)" "${location}/${bundle}.json" ${SIGNATURES} \
+  forge script --fork-url ${ETH_RPC_URL} SignAndCheck \
+    --sig "runJson(string,bytes)" "${location}/inputs/${network}.json" ${SIGNATURES} \
     --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
     --sender ${sender}
