@@ -138,7 +138,7 @@ jobs:
           name: just simulate 1-security-council-phase-0
           command: |
             just install
-            cd eth/1-security-council-phase-0
+            cd tasks/eth/1-security-council-phase-0
             export SIMULATE_WITHOUT_LEDGER=1
             just simulate
   just_simulate_op_extended_pause:
@@ -150,7 +150,7 @@ jobs:
           name: just simulate 1-op-extended-pause
           command: |
             just install
-            cd sep/1-op-extended-pause
+            cd tasks/sep/1-op-extended-pause
             export SIMULATE_WITHOUT_LEDGER=1
             just simulate
   just_simulate_sc_rehearsal_1:
@@ -162,7 +162,7 @@ jobs:
           name: just simulate r1-hello-council
           command: |
             just install
-            cd security-council-rehearsals
+            cd tasks/security-council-rehearsals
             just setup r1-hello-council tmp-ci
             cd *r1-hello-council-tmp-ci
             export SIMULATE_WITHOUT_LEDGER=1
@@ -178,7 +178,7 @@ jobs:
           name: just simulate r2-remove-signer
           command: |
             just install
-            cd security-council-rehearsals
+            cd tasks/security-council-rehearsals
             just setup r2-remove-signer tmp-ci
             cd *r2-remove-signer-tmp-ci
             export SIMULATE_WITHOUT_LEDGER=1
@@ -195,7 +195,7 @@ jobs:
           name: just simulate r4-jointly-upgrade
           command: |
             just install
-            cd security-council-rehearsals
+            cd tasks/security-council-rehearsals
             just setup r4-jointly-upgrade tmp-ci
             cd *r4-jointly-upgrade-tmp-ci
             export SIMULATE_WITHOUT_LEDGER=1
