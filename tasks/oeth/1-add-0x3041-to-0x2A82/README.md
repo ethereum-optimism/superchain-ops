@@ -37,11 +37,11 @@ You will see the following output.
 There are 4 key pieces of information here we’ll use for the
 validation process that we’ll walk through in the subsequent steps.
 
-![](../../images/signing-output.jpg)
+![](../../../images/signing-output.jpg)
 
 ### 4. Validate the address
 
-![](../../images/signing-with.jpg)
+![](../../../images/signing-with.jpg)
 
 Verify that the address shown is your signer account. If not, you will
 need to determine which “number” it is in the list of addresses on
@@ -54,7 +54,7 @@ derive the address using m/44'/60'/1'/0/0 instead.
 Following the previous output, a tenderly simulation link will also be
 printed.
 
-![](../../images/tenderly-url.jpg)
+![](../../../images/tenderly-url.jpg)
 
 Paste this URL in your browser. A prompt may ask you to choose a
 project, any project will do. You can create one if necessary.
