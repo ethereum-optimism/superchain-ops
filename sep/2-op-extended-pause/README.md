@@ -71,8 +71,10 @@ Now click on the "State" tab. Verify that:
    intended to change the Foundation multisig's quorum threshold to 1
    so we can perform a tenderly simulation of the execution,
 1. Any state changes not listed below are nonce changes only.
-1. The Address Manager (at `0x9bfe9c5609311df1c011c47642253b78a4f33f4b`) has the address of the L1CrossDomainMessenger (at key `0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e`) updated to `0x7c9b3a3455714f25525f31e91412715f06062fd`.
+1. The Address Manager (at `0x9bfe9c5609311df1c011c47642253b78a4f33f4b`) has the address of the `L1CrossDomainMessenger` (at key `0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e`) updated to `0x7c9b3a3455714f25525f31e91412715f06062fd`.
 1. The `OptimismPortalProxy` (at `0x16fc5058f25648194471939df75cf27a2fdc48bc`) has its implementation slot (`0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`) updated to `0x9e714EF35d8E9a44a509ebf40924EeD8E7dE461B`.
+
+The changes to the `L1CrossDomainMessenger` and `OptimismPortal` were made in [this PR](https://github.com/ethereum-optimism/optimism/pull/8864).
 
 #### 3.3. Extract the domain hash and the message hash to approve.
 
