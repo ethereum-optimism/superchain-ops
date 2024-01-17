@@ -1,0 +1,16 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "meta": {
+    "name": "Hello World Rehearsal",
+    "description": "",
+    "txBuilderVersion": "1.16.2"
+  },
+  "transactions": [
+    {
+      "to": "0x3bA771Bbe1e9B3D064d2a7b2ab05ff95712043BB",
+      "value": "0",
+      "data": "0xc605f76c"
+    }
+  ]
+}
