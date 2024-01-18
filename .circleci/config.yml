@@ -27,7 +27,8 @@ jobs:
   check_sepolia_rpc_endpoints:
     circleci_ip_ranges: true
     docker:
-      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:latest
+      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
+
     steps:
       - checkout
       - run:
@@ -55,7 +56,8 @@ jobs:
   check_goerli_rpc_endpoints:
     circleci_ip_ranges: true
     docker:
-      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:latest
+      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
+
     steps:
       - checkout
       - run:
@@ -83,7 +85,8 @@ jobs:
   check_mainnet_rpc_endpoints:
     circleci_ip_ranges: true
     docker:
-      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:latest
+      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
+
     steps:
       - checkout
       - run:
@@ -112,7 +115,8 @@ jobs:
   example_mainnet_job:
     circleci_ip_ranges: true
     docker:
-      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:latest
+      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
+
     steps:
       - attach_workspace:
           at: .
@@ -131,7 +135,8 @@ jobs:
               # Use L1_RPC_URL and L2_RPC_URL here.
   just_simulate_sc_phase_0:
     docker:
-      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:latest
+      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
+
     steps:
       - checkout
       - run:
@@ -143,7 +148,8 @@ jobs:
             just simulate
   just_simulate_sc_rehearsal_1:
     docker:
-      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:latest
+      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
+
     steps:
       - checkout
       - run:
@@ -159,7 +165,8 @@ jobs:
             just simulate # simulate again to make sure the json is still valid
   just_simulate_sc_rehearsal_2:
     docker:
-      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:latest
+      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
+
     steps:
       - checkout
       - run:
@@ -176,7 +183,8 @@ jobs:
             just simulate # simulate again to make sure the json is still valid
   just_simulate_sc_rehearsal_4:
     docker:
-      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:latest
+      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
+
     steps:
       - checkout
       - run:
