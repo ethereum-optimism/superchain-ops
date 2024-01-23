@@ -212,10 +212,9 @@ congrats, you are done!
    section above.
 7. Commit the newly created files to Github.
 
-#### 3. Update input.json
+#### 2. Update input.json
 
-1. Make sure the `HelloWorld_ADDRESS` has been updated, then run `just
-   prepare-json` to update the `input.json` file.
+1. Run `just prepare-json` to update the `input.json` file.
 2. Test the newly created rehearsal by following the security council
    steps in the `Approving the transaction` section above.
 3. Update the rehearsal folder name in the `1. Update repo and move to
