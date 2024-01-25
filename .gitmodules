@@ -4,6 +4,10 @@
 [submodule "lib/safe-contracts"]
 	path = lib/safe-contracts
 	url = https://github.com/safe-global/safe-contracts
+[submodule "lib/optimism"]
+	path = lib/optimism
+	url = /Users/maurelian/Projects/O/mono.1
+	branch = vendor-multisig-scripts
 [submodule "lib/openzeppelin-contracts"]
 	path = lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
