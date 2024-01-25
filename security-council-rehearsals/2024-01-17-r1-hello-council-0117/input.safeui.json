@@ -1,12 +1,10 @@
 {
   "version": "1.0",
   "chainId": "1",
-  "createdAt": 1706194320408,
   "meta": {
     "name": "Transactions Batch",
     "description": "",
-    "txBuilderVersion": "1.16.3",
-    "createdFromSafeAddress": "0x9CBE77e47DCba9033359c25871d3adEE702657E3",
+    "txBuilderVersion": "1.16.3"
   },
   "transactions": [
     {
