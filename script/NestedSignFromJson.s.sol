@@ -2,13 +2,12 @@
 pragma solidity ^0.8.15;
 
 import {JsonTxBuilderBase} from "src/JsonTxBuilderBase.sol";
-import {NestedMultisigBuilder} from "@base-contracts/script/universal/NestedMultisigBuilder.sol";
+import {NestedMultisigBuilder} from "@eth-optimism-bedrock/scripts/multisig/NestedMultisigBuilder.sol";
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {console} from "forge-std/console.sol";
 
 contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
-
     function signJson(string memory _path, address _signerSafe) public {
         _loadJson(_path);
         sign(_signerSafe);

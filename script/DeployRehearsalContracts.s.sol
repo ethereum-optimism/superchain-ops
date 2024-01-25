@@ -5,14 +5,14 @@ import {Deployer} from "@eth-optimism-bedrock/scripts/Deployer.sol";
 import {GnosisSafe} from "safe-contracts/GnosisSafe.sol";
 import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
 import {Proxy} from "@eth-optimism-bedrock/src/universal/Proxy.sol";
+import {EIP1967Helper} from "@eth-optimism-bedrock/test/mocks/EIP1967Helper.sol";
 import {Script} from "forge-std/Script.sol";
 
-import { console2 as console } from "forge-std/console2.sol";
+import {console2 as console} from "forge-std/console2.sol";
 
 // forge script scripts/Deploy.s.sol:Deploy --private-key $PRIVATE_KEY --broadcast --rpc-url $ETH_RPC_URL
 // forge script scripts/Deploy.s.sol:Deploy --sig 'sync()' --private-key $PRIVATE_KEY --broadcast --rpc-url $ETH_RPC_URL
 contract DeployRehearsalContracts is Deployer {
-
     GnosisSafe owner_safe;
     GnosisSafe council_safe;
     ProxyAdmin proxy_admin;
@@ -41,13 +41,12 @@ contract DeployRehearsalContracts is Deployer {
         deployL1ERC721BridgeProxy();
         deployOptimismPortalProxy();
         transferProxyAdmin();
-	sync();
+        // todo: ensure that the necessary artifacts are still saved.
+        // sync();
     }
 
     function deployProxyAdmin() public broadcast {
-        ProxyAdmin admin = new ProxyAdmin({
-            _owner: msg.sender
-            });
+        ProxyAdmin admin = new ProxyAdmin({_owner: msg.sender});
         require(admin.owner() == msg.sender);
         save("ProxyAdmin", address(admin));
         console.log("ProxyAdmin deployed at %s", address(admin));
@@ -55,11 +54,8 @@ contract DeployRehearsalContracts is Deployer {
     }
 
     function deployL1ERC721BridgeProxy() public broadcast {
-        Proxy proxy = new Proxy({
-            _admin: address(proxy_admin)
-            });
-        address admin = address(uint160(uint256(vm.load(address(proxy), OWNER_KEY))));
-        require(admin == address(proxy_admin));
+        Proxy proxy = new Proxy({_admin: address(proxy_admin)});
+        require(EIP1967Helper.getAdmin(address(proxy)) == address(proxy_admin));
 
         address reusedOldL1ERC721Bridge = 0x3268Ed09f76e619331528270B6267D4d2C5Ab5C2;
         proxy_admin.upgrade(payable(proxy), reusedOldL1ERC721Bridge);
@@ -69,11 +65,8 @@ contract DeployRehearsalContracts is Deployer {
     }
 
     function deployOptimismPortalProxy() public broadcast {
-        Proxy proxy = new Proxy({
-            _admin: address(proxy_admin)
-            });
-        address admin = address(uint160(uint256(vm.load(address(proxy), OWNER_KEY))));
-        require(admin == address(proxy_admin));
+        Proxy proxy = new Proxy({_admin: address(proxy_admin)});
+        require(EIP1967Helper.getAdmin(address(proxy)) == address(proxy_admin));
 
         address reusedOldOptimismPortal = 0x28a55488fef40005309e2DA0040DbE9D300a64AB;
         proxy_admin.upgrade(payable(proxy), reusedOldOptimismPortal);
