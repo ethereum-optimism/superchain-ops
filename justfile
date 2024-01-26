@@ -7,4 +7,9 @@ install-contracts:
   forge install
 
 install-eip712sign:
-  go install github.com/base-org/eip712sign@v0.0.3
+  #!/usr/bin/env bash
+  cd ~
+  git clone https://github.com/ethereum-optimism/eip712sign.git
+  cd eip712sign
+  go build
+  go install
