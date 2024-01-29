@@ -23,21 +23,7 @@ convenience.
 ### 1. Install tools
 
 ```
-cd ~
-git clone https://github.com/ethereum-optimism/eip712sign.git
-cd eip712sign
-go build
-go install
-
-cd ~
-git clone https://github.com/ethereum-optimism/presigner.git
-cd presigner
-make clean-lib forge-deps
-go build
-go install
-go install tools/onepass/1p.go
-
-export PATH=$PATH:~/go/bin
+just install
 ```
 
 ### 2. Setup Ledger
