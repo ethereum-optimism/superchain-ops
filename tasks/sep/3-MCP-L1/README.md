@@ -21,7 +21,7 @@ correctness of the onchain operations.
 cd superchain-ops
 git pull
 just install
-cd task/sep/3-reMCP-L1S
+cd tasks/sep/3-MCP-L1
 ```
 
 ### 2. Setup Ledger
