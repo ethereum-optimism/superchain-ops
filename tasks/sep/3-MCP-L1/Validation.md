@@ -22,7 +22,7 @@ There should also be a single 'State Override' in the Foundation Safe contract
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000007` <br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000008` <br/>
   **Meaning:** The Safe nonce is updated.<br/>
-  **Additional Note:** This number may be slightly different if other transactions have recently
+  **Additional Note:** Nonce bump from 7 to 8. This number may be slightly different if other transactions have recently
   been executed. The important thing is that it should change by 1.
 
 
@@ -80,10 +80,6 @@ these should all match what’s in the deploy config file
 - `CrossDomainMessenger messenger` should be set to the Proxy above (`58cc85b8d04ea49cc6dbd3cbffd00b4b8d6cb3ef`)
 - `StandardBridge otherBridge` should be set to the predeploy at `0x4200...0014`
 - Implementation slot was properly changed to the new implementation above
-
-##### `0xdee57160aafcf04c34c887b5962d0a69676d3c8b` (`GnosisSafeProxy`)
-
-- Nonce bump from 7 to 8
 
 ##### `0xfbb0621e0b23b5478b630bd55a5f21f67730b0f1` (`L1StandardBridge`)
 
