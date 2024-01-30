@@ -4,7 +4,7 @@ export rpcUrl := env_var('ETH_RPC_URL')
 export signatures := env_var_or_default('SIGNATURES', '')
 export bundle := "input"
 export location := `pwd`
-export OWNER_SAFE := env_var('FOUNDATION_SAFE')
+export OWNER_SAFE := env_var('PROXY_ADMIN_OWNER')
 
 simulate hdPath='0':
   #!/usr/bin/env bash
