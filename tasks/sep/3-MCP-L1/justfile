@@ -12,7 +12,7 @@ simulate hdPath='0':
   echo "getting signer address..."
   if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
   then
-    signer="0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64"
+    signer="0x1084092Ac2f04c866806CF3d4a385Afa4F6A6C97"
   else
     signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   fi
