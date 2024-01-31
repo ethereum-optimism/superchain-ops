@@ -17,3 +17,9 @@
 [submodule "lib/base-contracts"]
 	path = lib/base-contracts
 	url = https://github.com/base-org/contracts
+[submodule "lib/presigner"]
+	path = lib/presigner
+	url = https://github.com/ethereum-optimism/presigner.git
+[submodule "lib/eip712sign"]
+	path = lib/eip712sign
+	url = https://github.com/ethereum-optimism/eip712sign.git

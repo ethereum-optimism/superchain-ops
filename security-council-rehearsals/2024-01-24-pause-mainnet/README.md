@@ -31,8 +31,10 @@ is ready”.
 Check your address is correct by running the following command
 
 ```
-eip712sign --address --hd-paths "m/44'/60'/0'/0/0" --ledger
+just whoami 0
 ```
+
+Where `0` is the index of the address you want to use in the derivation path.
 
 You should see the output similar to the following:
 
@@ -41,7 +43,11 @@ Signer: 0x8C835568fE7Eea01B6DCD79214aB5BCe5E1759B0
 ``` 
 
 If this is not the address you are expecting,
-you can change the `hd-paths` parameter, i.e. `--hd-paths "m/44'/60'/1'/0/0"`.
+you can change the index of the address you want to use, i.e. 
+
+```
+just whoami 1
+```
 
 ### 3. Sign the transactions
 
@@ -51,8 +57,6 @@ We currently have 5 transactions to be signed inside the `tx` folder:
 - `draft-88.json`
 - `draft-89.json`
 - `draft-90.json`
-
-Copy them to `~/presigner/tx` folder.
 
 You can sign them one by one by running the following commands:
 

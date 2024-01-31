@@ -11,36 +11,54 @@ install: install-presigner
 
 install-presigner:
   #!/usr/bin/env bash
-  cd ~
-  git clone https://github.com/ethereum-optimism/presigner.git
-  cd presigner
+  REPO_ROOT=`git rev-parse --show-toplevel`
+  cd $REPO_ROOT
+  mkdir -p bin || true
+  cd lib/presigner
   make clean-lib forge-deps
   go build
-  go install
-  go install tools/onepass/1p.go
-  export PATH=$PATH:~/go/bin
+  cp presigner ../../bin
+  go build tools/onepass/1p.go
+  cp 1p ../../bin
+  cd $REPO_ROOT
+  cd lib/eip712sign
+  go build
+  cp eip712sign ../../bin
+
+whoami hdPath='0':
+    #!/usr/bin/env bash
+    ../../bin/eip712sign --address --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --ledger
 
 simulate jsonFile='':
   #!/usr/bin/env bash
+  REPO_ROOT=`git rev-parse --show-toplevel`
+  JSON_FILE=`realpath {{jsonFile}}`
+  cd $REPO_ROOT/lib/presigner
   presigner \
     --rpc-url ${rpcUrl} \
-    --json-file {{jsonFile}} \
+    --json-file $JSON_FILE \
     simulate
 
 sign hdPath='0' jsonFile='':
   #!/usr/bin/env bash
+  REPO_ROOT=`git rev-parse --show-toplevel`
+  JSON_FILE=`realpath {{jsonFile}}`
+  cd $REPO_ROOT/lib/presigner
   presigner \
     --rpc-url ${rpcUrl} \
-    --json-file {{jsonFile}} \
+    --json-file $JSON_FILE \
     --ledger \
     --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
     sign
 
 execute hdPath='0':
   #!/usr/bin/env bash
+  REPO_ROOT=`git rev-parse --show-toplevel`
+  JSON_FILE=`realpath {{jsonFile}}`
+  cd $REPO_ROOT/lib/presigner
   presigner \
     --rpc-url ${rpcUrl} \
-    --json-file {{jsonFile}} \
+    --json-file $JSON_FILE \
     --ledger \
     --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
     execute
@@ -51,9 +69,10 @@ get-owners:
 
 prepare:
   #!/usr/bin/env bash
+  REPO_ROOT=`git rev-parse --show-toplevel`
+  cd $REPO_ROOT/lib/presigner
   echo creating 5 tx...
   echo
-  cd ~/presigner
   presigner \
       --chain 1 \
       --rpc-url ${rpcUrl} \

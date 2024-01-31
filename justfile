@@ -8,8 +8,8 @@ install-contracts:
 
 install-eip712sign:
   #!/usr/bin/env bash
-  cd ~
-  git clone https://github.com/ethereum-optimism/eip712sign.git
-  cd eip712sign
+  REPO_ROOT=`git rev-parse --show-toplevel`
+  cd $REPO_ROOT
+  cd lib/eip712sign
   go build
-  go install
+  cp eip712sign ../../bin
