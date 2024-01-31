@@ -10,13 +10,9 @@ json file. This will be the standard approach for all transactions.
 
 Note that no onchain actions will be taking place during this
 signing. You won’t be submitting a transaction and your address
-doesn’t even need to be funded. These are offchain signatures produced
-with your wallet which will be collected by a Facilitator will execute
-the contract, submitting all signatures for its execution.
+doesn’t even need to be funded. These are offchain signatures. 
 
-Execution can be finalized by anyone once a threshold of signatures
-are collected, so a Facilitator will do the final execution for
-convenience.
+A Facilitator will collect the signatures and execute the contract.
 
 ## Approving the transaction
 
