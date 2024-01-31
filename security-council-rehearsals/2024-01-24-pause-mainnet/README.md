@@ -94,7 +94,7 @@ presigner \
         sign
 ```
 
-For each transaction  we will be performing 3 validations
+For each transaction we will be performing 3 validations
 and ensure the domain hash and  message hash are the same
 between the Tenderly simulation and your
 Ledger:
