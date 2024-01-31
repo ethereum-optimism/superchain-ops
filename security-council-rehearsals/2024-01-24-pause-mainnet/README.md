@@ -57,38 +57,14 @@ Copy them to `~/presigner/tx` folder.
 You can sign them one by one by running the following commands:
 
 ```
-cd ~/presigner
-
-presigner \
-        --json-file tx/draft-86.json \
-        --ledger \
-        --hd-paths "m/44'/60'/0'/0/0" \
-        sign
-
-presigner \
-        --json-file tx/draft-unpause-87.json \
-        --ledger \
-        --hd-paths "m/44'/60'/0'/0/0" \
-        sign
-
-presigner \
-        --json-file tx/draft-88.json \
-        --ledger \
-        --hd-paths "m/44'/60'/0'/0/0" \
-        sign
-
-presigner \
-        --json-file tx/draft-89.json \
-        --ledger \
-        --hd-paths "m/44'/60'/0'/0/0" \
-        sign
-
-presigner \
-        --json-file tx/draft-90.json \
-        --ledger \
-        --hd-paths "m/44'/60'/0'/0/0" \
-        sign
+just sign 0 tx/draft-86.json
+just sign 0 tx/draft-unpause-87.json
+just sign 0 tx/draft-88.json
+just sign 0 tx/draft-89.json
+just sign 0 tx/draft-90.json
 ```
+
+The first parameter is the index of the address you want to use in the derivation path.
 
 For each transaction we will be performing 3 validations
 and ensure the domain hash and  message hash are the same
