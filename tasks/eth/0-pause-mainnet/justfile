@@ -17,17 +17,18 @@ install-presigner:
   cd lib/presigner
   make clean-lib forge-deps
   go build
-  cp presigner ../../bin
+  cp presigner $REPO_ROOT/bin
   go build tools/onepass/1p.go
-  cp 1p ../../bin
+  cp 1p $REPO_ROOT/bin
   cd $REPO_ROOT
   cd lib/eip712sign
   go build
-  cp eip712sign ../../bin
+  cp eip712sign $REPO_ROOT/bin
 
 whoami hdPath='0':
     #!/usr/bin/env bash
-    ../../bin/eip712sign --address --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --ledger
+    REPO_ROOT=`git rev-parse --show-toplevel`
+    $REPO_ROOT/bin/eip712sign --address --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --ledger
 
 simulate jsonFile='':
   #!/usr/bin/env bash

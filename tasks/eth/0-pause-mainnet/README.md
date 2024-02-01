@@ -2,7 +2,7 @@
 
 ## Objective
 
-This rehearsal is intended to generate pre-signed transactions
+This task is intended to generate pre-signed transactions
 to pause OP Mainnet.
 
 The call that will be executed by the Safe contract is defined in a
@@ -94,7 +94,7 @@ validate integrity of the simulation, we need to
 Here is an example screenshot, note that the Timestamp and Sender
 might be different in your simulation:
 
-![](./images/tenderly-overview-network.png)
+![](imagesenderly-overview-network.png)
 
 #### 3.2. Validate correctness of the state diff.
 
@@ -113,7 +113,7 @@ Now click on the "State" tab. Verify that:
 Here is an example screenshot. Note that the addresses may be
 different:
 
-![](./images/tenderly-state-changes.png)
+![](imagesenderly-state-changes.png)
 
 #### 3.3. Extract the domain hash and the message hash to approve.
 
@@ -128,7 +128,7 @@ the domain hash that will show up in your Ledger.
 Here is an example screenshot. Note that the hash value may be
 different:
 
-![](./images/tenderly-hashes-1.png)
+![](imagesenderly-hashes-1.png)
 
 Right before the `GnosisSafe.domainSeparator` call, you will see a
 call to `GnosisSafe.encodeTransactionData`. Its return value will be a
@@ -138,7 +138,7 @@ concatenation of `0x1901`, the domain hash, and the message hash:
 Here is an example screenshot. Note that the hash value may be
 different:
 
-![](./images/tenderly-hashes-2.png)
+![](imagesenderly-hashes-2.png)
 
 Note down both the domain hash and the message hash. You will need to
 compare them with the ones displayed on the Ledger screen at signing.
