@@ -10,6 +10,7 @@ install-eip712sign:
   #!/usr/bin/env bash
   REPO_ROOT=`git rev-parse --show-toplevel`
   cd $REPO_ROOT
+  mkdir -p bin || true
   cd lib/eip712sign
   go build
   cp eip712sign ../../bin
