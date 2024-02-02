@@ -6,7 +6,9 @@ install-contracts:
   #!/usr/bin/env bash
   forge install
 
-install-eip712sign:
+# install-eip712sign depends on install-contracts because the
+# lib/eip712sign submodule needs to be installed by forge install.
+install-eip712sign: install-contracts
   #!/usr/bin/env bash
   REPO_ROOT=`git rev-parse --show-toplevel`
   cd $REPO_ROOT
