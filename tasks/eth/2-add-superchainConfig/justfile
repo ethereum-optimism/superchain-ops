@@ -8,7 +8,7 @@ export OWNER_SAFE := env_var('FOUNDATION_SAFE')
 
 simulate hdPath='0':
   #!/usr/bin/env bash
-  cd ../..
+  cd ../../..
   echo "getting signer address..."
   if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
   then
@@ -27,7 +27,7 @@ simulate hdPath='0':
 
 sign hdPath='0':
   #!/usr/bin/env bash
-  cd ../..
+  cd ../../..
   echo "getting signer address..."
   signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   echo "Signing with: ${signer}"
@@ -36,12 +36,12 @@ sign hdPath='0':
   $(go env GOPATH)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
   forge script SignFromJson \
     --rpc-url ${rpcUrl} \
-    --sig "signJson(string)" \
+    --sig "signJson(string)"
     "${location}/${bundle}.json"
 
 execute hdPath='0':
   #!/usr/bin/env bash
-  cd ../..
+  cd ../../..
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge build
   forge script --fork-url ${ETH_RPC_URL} SignFromJson \
