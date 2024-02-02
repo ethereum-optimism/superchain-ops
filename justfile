@@ -7,4 +7,10 @@ install-contracts:
   forge install
 
 install-eip712sign:
-  go install github.com/base-org/eip712sign@v0.0.3
+  #!/usr/bin/env bash
+  REPO_ROOT=`git rev-parse --show-toplevel`
+  cd $REPO_ROOT
+  mkdir -p bin || true
+  cd lib/eip712sign
+  go build
+  cp eip712sign ../../bin
