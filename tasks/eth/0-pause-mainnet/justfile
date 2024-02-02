@@ -26,14 +26,15 @@ install-presigner:
   cp eip712sign $REPO_ROOT/bin
 
 whoami hdPath='0':
-    #!/usr/bin/env bash
-    REPO_ROOT=`git rev-parse --show-toplevel`
-    $REPO_ROOT/bin/eip712sign --address --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --ledger
+  #!/usr/bin/env bash
+  REPO_ROOT=`git rev-parse --show-toplevel`
+  $REPO_ROOT/bin/eip712sign --address --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --ledger
 
 simulate jsonFile='':
   #!/usr/bin/env bash
   REPO_ROOT=`git rev-parse --show-toplevel`
   JSON_FILE=`realpath {{jsonFile}}`
+  PATH="$REPO_ROOT/bin:$PATH"
   cd $REPO_ROOT/lib/presigner
   presigner \
     --rpc-url ${rpcUrl} \
@@ -44,6 +45,7 @@ sign hdPath='0' jsonFile='':
   #!/usr/bin/env bash
   REPO_ROOT=`git rev-parse --show-toplevel`
   JSON_FILE=`realpath {{jsonFile}}`
+  PATH="$REPO_ROOT/bin:$PATH"
   cd $REPO_ROOT/lib/presigner
   presigner \
     --rpc-url ${rpcUrl} \
@@ -56,6 +58,7 @@ execute hdPath='0':
   #!/usr/bin/env bash
   REPO_ROOT=`git rev-parse --show-toplevel`
   JSON_FILE=`realpath {{jsonFile}}`
+  PATH="$REPO_ROOT/bin:$PATH"
   cd $REPO_ROOT/lib/presigner
   presigner \
     --rpc-url ${rpcUrl} \
@@ -71,6 +74,7 @@ get-owners:
 prepare:
   #!/usr/bin/env bash
   REPO_ROOT=`git rev-parse --show-toplevel`
+  PATH="$REPO_ROOT/bin:$PATH"
   cd $REPO_ROOT/lib/presigner
   echo creating 5 tx...
   echo
