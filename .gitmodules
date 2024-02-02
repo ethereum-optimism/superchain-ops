@@ -17,3 +17,6 @@
 [submodule "lib/base-contracts"]
 	path = lib/base-contracts
 	url = https://github.com/base-org/contracts
+[submodule "eip712sign"]
+	path = lib/eip712sign
+	url = https://github.com/ethereum-optimism/eip712sign.git

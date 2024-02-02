@@ -1,3 +1,6 @@
+# Binaries
+bin/
+
 # Compiler files
 cache/
 out/
