@@ -36,7 +36,7 @@ sign-council hdPath='0':
   echo "Signing with: ${signer}"
   echo ""
   forge build
-  $(go env GOPATH)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
+  ../../bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
   forge script NestedSignFromJson \
     --rpc-url ${rpcUrl} \
     --sig "signJson(string,address)" \

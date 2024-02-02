@@ -29,7 +29,7 @@ sign hdPath='0':
   echo ""
   export OWNER_SAFE=${COUNCIL_SAFE}
   forge build
-  $(go env GOPATH)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
+  ../../bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
     forge script SignFromJson --via-ir --rpc-url ${ETH_RPC_URL} \
     --sig "signJson(string)" "${here}/input.json"
 
