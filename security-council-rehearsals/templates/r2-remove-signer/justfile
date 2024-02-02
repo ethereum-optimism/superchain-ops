@@ -33,7 +33,7 @@ sign hdPath='0':
   echo "Signing with: ${signer}"
   echo ""
   forge build
-  ../../bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
+  ./bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
   forge script SignFromJson \
     --rpc-url ${rpcUrl} \
     --sig "signJson(string)" \
