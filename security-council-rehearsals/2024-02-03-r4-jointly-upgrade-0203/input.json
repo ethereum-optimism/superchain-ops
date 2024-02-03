@@ -1,0 +1,68 @@
+{
+  "version": "",
+  "chainId": "1",
+  "meta": {
+    "name": "Upgrade OP Mainnet",
+    "description": ""
+  },
+  "transactions": [
+    {
+      "to": "0x3Aa7ed7F622FaE87Da980f97162A03788F5d29aA",
+      "value": "0",
+      "data": "0x99a88ec4000000000000000000000000321938c3ad93f12ff0001fa3ad8903a1f5fe98080000000000000000000000003311ac7f72bb4108d9f4d5d50e7623b1498a9ec0",
+      "contractMethod": {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_proxy",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "_implementation",
+            "type": "address"
+          }
+        ],
+        "name": "upgrade",
+        "payable": false
+      },
+      "description": "Update L1ERC721BridgeProxy from 1.0.0 to 1.1.1.",
+      "contractInputsValues": {
+        "_implementation": "0x3311aC7F72bb4108d9f4D5d50E7623B1498A9eC0",
+        "_proxy": "0x321938C3AD93F12Ff0001FA3ad8903A1f5FE9808"
+      }
+    },
+    {
+      "to": "0x3Aa7ed7F622FaE87Da980f97162A03788F5d29aA",
+      "value": "0",
+      "data": "0x9623609d0000000000000000000000002d92e47419403204afe585a29a9e47a843227c710000000000000000000000000a9d47e531825faaa2863d4d10dc8e5e0b91bfb000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000084fecf9734000000000000000000000000dfe97868233d1aa22e815a266982f2cf17685a270000000000000000000000009ba6e03d8b90de867373db8cf1a58d2f7f006b3a000000000000000000000000229047fed2591dbec1ef1118d64f7af3db9eb290000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "contractMethod": {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_proxy",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "_implementation",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes",
+            "name": "_data",
+            "type": "bytes"
+          }
+        ],
+        "name": "upgradeAndCall",
+        "payable": false
+      },
+      "description": "Update OptimismPortalProxy from 1.6.0 to 1.8.1.",
+      "contractInputsValues": {
+        "_data": "0xfecf9734000000000000000000000000dfe97868233d1aa22e815a266982f2cf17685a270000000000000000000000009BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A000000000000000000000000229047fed2591dbec1eF1118d64F7aF3dB9EB2900000000000000000000000000000000000000000000000000000000000000000",
+        "_implementation": "0x0A9d47e531825FaaA2863D4d10DC8E5E0B91BfB0",
+        "_proxy": "0x2D92E47419403204afE585A29A9E47A843227c71"
+      }
+    }
+  ]
+}
