@@ -40,8 +40,11 @@ contract StateDiffChecker_Test is Test {
         assertEq(specs.length, 1);
         assertEq(specs[0].account, stdJson.readAddress(json, "$.[0].account"));
         assertEq(specs[0].storageAccesses.length, 3);
+        assertEq(specs[0].storageAccesses[0].slot, bytes32(0));
         assertEq(specs[0].storageAccesses[0].newValue, bytes32(0));
+        assertEq(specs[0].storageAccesses[1].slot, bytes32(uint256(1)));
         assertEq(specs[0].storageAccesses[1].newValue, bytes32(uint256(uint160(address(0xabba)))));
+        assertEq(specs[0].storageAccesses[2].slot, keccak256(abi.encodePacked(uint256(1), uint256(2))));
         assertEq(specs[0].storageAccesses[2].newValue, hex"acdc");
     }
 
