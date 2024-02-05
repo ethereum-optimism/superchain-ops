@@ -213,7 +213,7 @@ jobs:
             just simulate-council # simulate again to make sure the json is still valid
   just_simulate_sc_rehearsal_2_0122:
     docker:
-      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:latest
+      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
     steps:
       - checkout
       - run:
