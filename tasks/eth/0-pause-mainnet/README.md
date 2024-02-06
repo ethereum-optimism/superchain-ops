@@ -182,3 +182,81 @@ The tx files now should have been updated with the signature.
 
 Share these 5 files with the Facilitator, and
 congrats, you are done!
+
+
+## Instructions for the facilitator
+
+The Facilitator will collect the signatures, merge the signatures, verify, simulate and execute the contract.
+
+### 1. Collect the signatures
+
+The signed transactions are in the `tx` folder.
+They will be named according to the address used to sign, i.e.
+`/tx/draft-86.signer-0x8c78B948Cdd64812993398b4B51ed2603b3543A6.json`
+was signed by `0x8c78B948Cdd64812993398b4B51ed2603b3543A6`.
+
+All signatures should be present in the same transaction file before execution,
+so next we'll merge them.
+
+### 2. Merge the signatures
+
+To merge the signatures, run the following command:
+
+```
+just merge tx/draft-86.json tx/draft-86*
+```
+
+Where `tx/draft-86.json` is the resulting transaction file with all the signatures, and
+the `tx/draft-86*` is the pattern to match the signature files.
+
+Repeat for each of the transactions. 
+
+This will overwrite the original `draft-86.json` file with the all merged signatures.
+
+You can check the file contents with the following command:
+```
+cat tx/draft-86.json | jq
+```
+
+### 3. Verify the signatures
+
+To verify the signatures, run the following command:
+
+```
+just verify tx/draft-86.json
+```
+
+Where `tx/draft-86.json` is the transaction file with all the signatures.
+
+Repeat for each of the transactions.
+
+### 4. Simulate the transaction
+
+To simulate the transaction, run the following command:
+
+```
+just simulate tx/draft-86.json
+```
+
+Where `tx/draft-86.json` is the transaction file with all the signatures.
+
+Repeat for each of the transactions.
+
+The simulate command will output the Tenderly simulation link and the oneliner for further execution.
+
+
+### 5. Execute the transaction
+
+You can use the oneliner to execute the transaction:
+
+```
+/bin/bash <(base64 -d -i tx/ready-86.sh.b64) \ 
+    --rpc-url https://ethereum-goerli.publicnode.com
+```
+
+Where `tx/ready-86.sh.b64` is the oneliner file for the transaction to be executed.
+
+Any parameter passed to the oneliner will be handled by `cast` .
+
+You can use extra parameters to override the RPC URL with `--rpc-url <endpoint>`,
+and to provide the executor signature with `--ledger` or `--private-key <key>` .
