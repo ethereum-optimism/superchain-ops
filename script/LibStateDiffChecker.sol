@@ -27,7 +27,7 @@ library LibStateDiffChecker {
 
     struct StateDiffSpec {
         uint256 chainId;
-        StorageDiffSpec[] storageAccesses;
+        StorageDiffSpec[] storageSpecs;
     }
 
     error StateDiffMismatch(string field, bytes32 expected, bytes32 actual);
@@ -40,20 +40,104 @@ library LibStateDiffChecker {
     }
 
     /// @notice Filters account accesses to return only those that modified storage.
-    /// @param accesses An array of account accesses recorded by the EVM.
+    /// @param accountAccesses An array of account accesses recorded by the EVM.
     /// @return stateDiffSpec_ An array of account accesses that modified storage.
-    function extractDiffSpecFromAcccountAccesses(VmSafe.AccountAccess[] memory accesses)
+    function extractDiffSpecFromAcccountAccesses(VmSafe.AccountAccess[] memory accountAccesses)
         internal
         pure
         returns (StateDiffSpec memory stateDiffSpec_)
     {
-        // todo
+        // Get the chain ID from the first account access.
+        stateDiffSpec_.chainId = accountAccesses[0].chainInfo.chainId;
+
+        // First iterate through the account accesses and storage accesses to count the number of storage modifications,
+        // so that we can allocate the correct amount of memory for the StorageDiffSpec.
+        uint256 modifiedCount = 0;
+        for (uint256 acctIndex = 0; acctIndex < accountAccesses.length; acctIndex++) {
+            for (
+                uint256 storageIndex = 0;
+                storageIndex < accountAccesses[acctIndex].storageAccesses.length;
+                storageIndex++
+            ) {
+                if (
+                    accountAccesses[acctIndex].storageAccesses[storageIndex].previousValue
+                        != accountAccesses[acctIndex].storageAccesses[storageIndex].newValue
+                ) {
+                    modifiedCount++;
+                }
+            }
+        }
+
+        // Allocate memory for the storage modifications.
+        stateDiffSpec_.storageSpecs = new StorageDiffSpec[](modifiedCount);
+
+        // Then iterate again through the account accesses and storage accesses to populate the StorageDiffSpec.
+        uint256 specIndex = 0; // index for next write to stateDiffSpec_.storageSpecs
+        for (uint256 acctIndex = 0; acctIndex < accountAccesses.length; acctIndex++) {
+            for (
+                uint256 storageIndex = 0;
+                storageIndex < accountAccesses[acctIndex].storageAccesses.length;
+                storageIndex++
+            ) {
+                if (
+                    accountAccesses[acctIndex].storageAccesses[storageIndex].previousValue
+                        != accountAccesses[acctIndex].storageAccesses[storageIndex].newValue
+                ) {
+                    stateDiffSpec_.storageSpecs[specIndex] = StorageDiffSpec({
+                        account: accountAccesses[acctIndex].storageAccesses[storageIndex].account,
+                        newValue: accountAccesses[acctIndex].storageAccesses[storageIndex].newValue,
+                        previousValue: accountAccesses[acctIndex].storageAccesses[storageIndex].previousValue,
+                        slot: accountAccesses[acctIndex].storageAccesses[storageIndex].slot
+                    });
+                    specIndex++;
+                }
+            }
+        }
+
+        require(specIndex == modifiedCount, "LibStateDiffChecker: found fewer storage modifications than expected.");
     }
 
     /// @notice Checks if a single expected account access matches the actual account access.
     /// @param expectedDiff The expected account access details.
     /// @param actualDiff   The actual account access details recorded by the EVM.
     function checkStateDiff(StateDiffSpec memory expectedDiff, StateDiffSpec memory actualDiff) internal pure {
-        // todo
+        console.log("Checking chainId", expectedDiff.chainId);
+        if (expectedDiff.chainId != actualDiff.chainId) {
+            revert StateDiffMismatch("chainId", bytes32(expectedDiff.chainId), bytes32(actualDiff.chainId));
+        }
+        if (expectedDiff.storageSpecs.length != actualDiff.storageSpecs.length) {
+            revert StateDiffMismatch(
+                "storageSpecs length",
+                bytes32(expectedDiff.storageSpecs.length),
+                bytes32(actualDiff.storageSpecs.length)
+            );
+        }
+        for (uint256 i = 0; i < expectedDiff.storageSpecs.length; i++) {
+            if (expectedDiff.storageSpecs[i].account != actualDiff.storageSpecs[i].account) {
+                revert StateDiffMismatch(
+                    "account",
+                    bytes32(uint256(uint160(expectedDiff.storageSpecs[i].account))),
+                    bytes32(uint256(uint160(actualDiff.storageSpecs[i].account)))
+                );
+            }
+
+            if (expectedDiff.storageSpecs[i].slot != actualDiff.storageSpecs[i].slot) {
+                revert StateDiffMismatch("slot", expectedDiff.storageSpecs[i].slot, actualDiff.storageSpecs[i].slot);
+            }
+
+            if (expectedDiff.storageSpecs[i].newValue != actualDiff.storageSpecs[i].newValue) {
+                revert StateDiffMismatch(
+                    "newValue", expectedDiff.storageSpecs[i].newValue, actualDiff.storageSpecs[i].newValue
+                );
+            }
+
+            if (expectedDiff.storageSpecs[i].previousValue != actualDiff.storageSpecs[i].previousValue) {
+                revert StateDiffMismatch(
+                    "previousValue",
+                    expectedDiff.storageSpecs[i].previousValue,
+                    actualDiff.storageSpecs[i].previousValue
+                );
+            }
+        }
     }
 }
