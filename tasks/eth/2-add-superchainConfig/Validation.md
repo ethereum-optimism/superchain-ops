@@ -128,8 +128,10 @@ There should also be a single 'State Override' in the Foundation Safe contract
   **Before:** `0x0000000000000000000000002150bc3c64cbfddbac9815ef615d6ab8671bfe43` <br/>
   **After:** `0x000000000000000000000000a95b24af19f8907390ed15f8348a1a5e6ccbc5c6` <br/>
   **Meaning:** The name `OVM_L1CrossDomainMessenger` is set to the address of the new
-  `L1CrossDomainMessenger`. The correctness of this slot can be validated by verifying that the **Before** address matches both of the following cast calls
-  (please consider changing out the rpc url):
+  [`L1CrossDomainMessenger`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.2.0-rc.1/op-chain-ops/cmd/op-upgrade-extended-pause/main.go).
+  The correctness of this slot can be validated by verifying that the
+  **Before** address matches both of the following cast calls (please consider changing out the rpc
+  url):
   1. what is returned by calling `AddressManager.getAddress()`:
    ```
    cast call 0xde1fcfb0851916ca5101820a69b13a4e276bd81f 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url https://ethereum.publicnode.com
