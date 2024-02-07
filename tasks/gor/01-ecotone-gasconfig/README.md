@@ -4,7 +4,7 @@
 
 This is the playbook for setting the gas config on OP Goerli.
 
-The Ecotone gas config is set as calculted in [this internal doc](https://www.notion.so/4844-L1-fee-scalars-5461ee49075d4658bc165e89c44faed2).
+The Ecotone gas config is set as calculated in [this internal doc](https://www.notion.so/4844-L1-fee-scalars-5461ee49075d4658bc165e89c44faed2).
 The new gas config has the two values
 * `l1BaseFeeScalar = 7600`
 * `l1BlobBaseFeeScalar = 862000`
