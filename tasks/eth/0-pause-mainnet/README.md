@@ -1,5 +1,7 @@
 # OP Mainnet Pause
 
+Status: DRAFT, NOT READY TO SIGN
+
 ## Objective
 
 This task is intended to generate pre-signed transactions
