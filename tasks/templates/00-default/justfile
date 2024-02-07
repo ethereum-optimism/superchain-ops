@@ -33,7 +33,7 @@ sign hdPath='0':
   echo "Signing with: ${signer}"
   echo ""
   forge build
-  $(go env GOPATH)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
+  $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
   forge script SignFromJson \
     --rpc-url ${rpcUrl} \
     --sig "signJson(string)" \
@@ -48,3 +48,17 @@ execute hdPath='0':
     --sig "runJson(string,bytes)" "${location}/${bundle}.json" ${SIGNATURES} \
     --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
     --sender ${sender}
+
+add-transaction to sig *params:
+  #!/usr/bin/env bash
+  cd ../..
+  newbundle="${bundle}-new"
+  backupbundle="${bundle}-$(date -u '+%Y-%m-%d_%H-%M-%S')"
+  DATA=$(cast calldata '{{sig}}' {{params}})
+  jq --arg to "{{to}}" --arg data "${DATA}" \
+    '.transactions += [{"to": $to, "data": $data}]' \
+    "${location}/${bundle}.json" \
+    > "${location}/${newbundle}.json"
+  mv "${location}/${bundle}.json" "${location}/${backupbundle}.json" 
+  mv "${location}/${newbundle}.json" "${location}/${bundle}.json"
+  echo "Old bundle backed up to ${backupbundle}.json"
