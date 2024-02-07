@@ -5,19 +5,11 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {console2 as console} from "forge-std/console2.sol";
 
-/*
-- consider adding StorageAccess.previousValue, avoid surprises with interspersed upgrades
-- diff spec could be auto generated and then annotated by hand.
-- https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/test/kontrol/scripts/json/clean_json.py#L1
-    - Ask mofi why it prints with all that escaping
-    - also about the account field in the access structs
-- cheatcodes to keep in mind:
-    - loadAllocs <-> dumpState
-*/
-
 library LibStateDiffChecker {
     VmSafe private constant vm = VmSafe(address(uint160(uint256(keccak256("hevm cheat code")))));
 
+    // The order of the fields in the struct is important, and must be alphabetical for some reason related to
+    // how foundry encodes the struct to and from JSON.
     struct StorageDiffSpec {
         address account;
         bytes32 newValue;
