@@ -27,6 +27,8 @@ contract Target {
 contract StateDiffChecker_Test is Test {
     Target public target;
 
+    error StateDiffMismatch(string field, bytes32 expected, bytes32 actual);
+
     function setUp() public {
         target = new Target();
     }
@@ -67,5 +69,118 @@ contract StateDiffChecker_Test is Test {
     function test_checkStateDiff_succeeds() public {
         (Checker.StateDiffSpec memory expectedDiff, Checker.StateDiffSpec memory actualDiff) = executeAndGetDiffs();
         Checker.checkStateDiff(expectedDiff, actualDiff);
+    }
+
+    /// @dev Test that the correct error is thrown when the chain ID does not match.
+    function test_checkStateDiff_chainIdMismatch_reverts() public {
+        (Checker.StateDiffSpec memory expectedDiff, Checker.StateDiffSpec memory actualDiff) = executeAndGetDiffs();
+        actualDiff.chainId = 31338;
+        vm.expectRevert(abi.encodeWithSelector(StateDiffMismatch.selector, "chainId", 31337, 31338));
+        Checker.checkStateDiff(expectedDiff, actualDiff);
+    }
+
+    /// @dev Test that the correct error is thrown when the number of storage modifications does not match.
+    function test_checkStateDiff_lengthMismatch_reverts() public {
+        (Checker.StateDiffSpec memory expectedDiff,) = executeAndGetDiffs();
+        Checker.StateDiffSpec memory shorterDiff = Checker.StateDiffSpec({
+            chainId: 31337,
+            storageSpecs: new Checker.StorageDiffSpec[](expectedDiff.storageSpecs.length - 1)
+        });
+        shorterDiff.storageSpecs[0] = expectedDiff.storageSpecs[0];
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                StateDiffMismatch.selector,
+                "storageSpecs.length",
+                expectedDiff.storageSpecs.length,
+                shorterDiff.storageSpecs.length
+            )
+        );
+        Checker.checkStateDiff(expectedDiff, shorterDiff);
+    }
+
+    /// @dev A utility function to copy a StateDiffSpec struct so that we can modify it without affecting the original.
+    function copyDiff(Checker.StateDiffSpec memory diff) internal pure returns (Checker.StateDiffSpec memory) {
+        Checker.StateDiffSpec memory copy;
+        copy.chainId = diff.chainId;
+        copy.storageSpecs = new Checker.StorageDiffSpec[](diff.storageSpecs.length);
+        for (uint256 i = 0; i < diff.storageSpecs.length; i++) {
+            copy.storageSpecs[i].account = diff.storageSpecs[i].account;
+            copy.storageSpecs[i].slot = diff.storageSpecs[i].slot;
+            copy.storageSpecs[i].newValue = diff.storageSpecs[i].newValue;
+            copy.storageSpecs[i].previousValue = diff.storageSpecs[i].previousValue;
+        }
+        return copy;
+    }
+
+    /// @dev Test that the correct error is thrown when a storage spec account does not match.
+    function test_checkStateDiff_storageSpecAccountMismatch_reverts() public {
+        (Checker.StateDiffSpec memory expectedDiff,) = executeAndGetDiffs();
+        Checker.StateDiffSpec memory brokenDiff = copyDiff(expectedDiff);
+
+        brokenDiff.storageSpecs[0].account = address(0);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                StateDiffMismatch.selector,
+                string.concat("storageSpecs[0].account"),
+                expectedDiff.storageSpecs[0].account,
+                address(0)
+            )
+        );
+        Checker.checkStateDiff(expectedDiff, brokenDiff);
+    }
+
+    /// @dev Test that the correct error is thrown when a storage spec slot does not match.
+    function test_checkStateDiff_storageSpecSlotMismatch_reverts() public {
+        (Checker.StateDiffSpec memory expectedDiff,) = executeAndGetDiffs();
+        Checker.StateDiffSpec memory brokenDiff = copyDiff(expectedDiff);
+
+        // break the slot field
+        brokenDiff.storageSpecs[0].slot = bytes32(hex"deadbeef");
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                StateDiffMismatch.selector,
+                string.concat("storageSpecs[0].slot"),
+                expectedDiff.storageSpecs[0].slot,
+                bytes32(hex"deadbeef")
+            )
+        );
+        Checker.checkStateDiff(expectedDiff, brokenDiff);
+    }
+
+    /// @dev Test that the correct error is thrown when a storage spec newValue does not match.
+    function test_checkStateDiff_storageSpecNewValueMismatch_reverts() public {
+        (Checker.StateDiffSpec memory expectedDiff,) = executeAndGetDiffs();
+        Checker.StateDiffSpec memory brokenDiff = copyDiff(expectedDiff);
+
+        // break the newValue field
+        brokenDiff.storageSpecs[0].newValue = bytes32(hex"deadbeef");
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                StateDiffMismatch.selector,
+                "storageSpecs[0].newValue",
+                expectedDiff.storageSpecs[0].newValue,
+                bytes32(hex"deadbeef")
+            )
+        );
+        Checker.checkStateDiff(expectedDiff, brokenDiff);
+    }
+
+    /// @dev Test that the correct error is thrown when a storage spec previousValue does not match.
+    function test_checkStateDiff_storageSpecPreviousValueMismatch_reverts() public {
+        (Checker.StateDiffSpec memory expectedDiff,) = executeAndGetDiffs();
+        Checker.StateDiffSpec memory brokenDiff = copyDiff(expectedDiff);
+
+        // break the previousValue field
+        brokenDiff.storageSpecs[0].slot = expectedDiff.storageSpecs[0].slot;
+        brokenDiff.storageSpecs[0].previousValue = bytes32(hex"deadbeef");
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                StateDiffMismatch.selector,
+                "storageSpecs[0].previousValue",
+                expectedDiff.storageSpecs[0].previousValue,
+                bytes32(hex"deadbeef")
+            )
+        );
+        Checker.checkStateDiff(expectedDiff, brokenDiff);
     }
 }

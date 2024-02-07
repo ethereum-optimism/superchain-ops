@@ -33,7 +33,7 @@ library LibStateDiffChecker {
     error StateDiffMismatch(string field, bytes32 expected, bytes32 actual);
 
     /// @notice Parses the JSON data to extract account access specifications.
-    /// @param _jsonData     The JSON string containing the account access specifications.
+    /// @param _jsonData The JSON string containing the account access specifications.
     /// @return stateDiffSpec_ An array of StorageDiffSpec structs parsed from the JSON data.
     function parseDiffSpecs(string memory _jsonData) internal pure returns (StateDiffSpec memory stateDiffSpec_) {
         stateDiffSpec_ = abi.decode(vm.parseJson(_jsonData), (StateDiffSpec));
@@ -105,35 +105,54 @@ library LibStateDiffChecker {
         if (expectedDiff.chainId != actualDiff.chainId) {
             revert StateDiffMismatch("chainId", bytes32(expectedDiff.chainId), bytes32(actualDiff.chainId));
         }
+        console.log("Checking storage specs length", expectedDiff.storageSpecs.length, actualDiff.storageSpecs.length);
         if (expectedDiff.storageSpecs.length != actualDiff.storageSpecs.length) {
             revert StateDiffMismatch(
-                "storageSpecs length",
+                "storageSpecs.length",
                 bytes32(expectedDiff.storageSpecs.length),
                 bytes32(actualDiff.storageSpecs.length)
             );
         }
         for (uint256 i = 0; i < expectedDiff.storageSpecs.length; i++) {
+            console.log("Checking", string.concat("storageSpecs[", vm.toString(i), "].account"));
+            console.log("Expected", vm.toString(expectedDiff.storageSpecs[i].account));
+            console.log("Actual  ", vm.toString(actualDiff.storageSpecs[i].account));
             if (expectedDiff.storageSpecs[i].account != actualDiff.storageSpecs[i].account) {
                 revert StateDiffMismatch(
-                    "account",
+                    string.concat("storageSpecs[", vm.toString(i), "].account"),
                     bytes32(uint256(uint160(expectedDiff.storageSpecs[i].account))),
                     bytes32(uint256(uint160(actualDiff.storageSpecs[i].account)))
                 );
             }
 
+            console.log("Checking", string.concat("storageSpecs[", vm.toString(i), "].slot"));
+            console.log("Expected", vm.toString(expectedDiff.storageSpecs[i].slot));
+            console.log("Actual  ", vm.toString(actualDiff.storageSpecs[i].slot));
             if (expectedDiff.storageSpecs[i].slot != actualDiff.storageSpecs[i].slot) {
-                revert StateDiffMismatch("slot", expectedDiff.storageSpecs[i].slot, actualDiff.storageSpecs[i].slot);
-            }
-
-            if (expectedDiff.storageSpecs[i].newValue != actualDiff.storageSpecs[i].newValue) {
                 revert StateDiffMismatch(
-                    "newValue", expectedDiff.storageSpecs[i].newValue, actualDiff.storageSpecs[i].newValue
+                    string.concat("storageSpecs[", vm.toString(i), "].slot"),
+                    expectedDiff.storageSpecs[i].slot,
+                    actualDiff.storageSpecs[i].slot
                 );
             }
 
+            console.log("Checking", string.concat("storageSpecs[", vm.toString(i), "].newValue"));
+            console.log("Expected", vm.toString(expectedDiff.storageSpecs[i].newValue));
+            console.log("Actual  ", vm.toString(actualDiff.storageSpecs[i].newValue));
+            if (expectedDiff.storageSpecs[i].newValue != actualDiff.storageSpecs[i].newValue) {
+                revert StateDiffMismatch(
+                    string.concat("storageSpecs[", vm.toString(i), "].newValue"),
+                    expectedDiff.storageSpecs[i].newValue,
+                    actualDiff.storageSpecs[i].newValue
+                );
+            }
+
+            console.log("Checking", string.concat("storageSpecs[", vm.toString(i), "].previousValue"));
+            console.log("Expected", vm.toString(expectedDiff.storageSpecs[i].previousValue));
+            console.log("Actual  ", vm.toString(actualDiff.storageSpecs[i].previousValue));
             if (expectedDiff.storageSpecs[i].previousValue != actualDiff.storageSpecs[i].previousValue) {
                 revert StateDiffMismatch(
-                    "previousValue",
+                    string.concat("storageSpecs[", vm.toString(i), "].previousValue"),
                     expectedDiff.storageSpecs[i].previousValue,
                     actualDiff.storageSpecs[i].previousValue
                 );
