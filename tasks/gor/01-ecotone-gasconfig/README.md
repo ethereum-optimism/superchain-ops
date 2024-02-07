@@ -33,7 +33,7 @@ cast calldata 'setGasConfig(uint256,uint256)' 0 0x010000000000000000000000000000
 cd superchain-ops
 git pull
 just install
-cd gor/01-ecotone-gasconfig
+cd tasks/gor/01-ecotone-gasconfig
 ```
 
 ### 2. Setup Ledger
