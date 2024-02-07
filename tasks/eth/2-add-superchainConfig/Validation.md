@@ -10,7 +10,7 @@ those addresses at the tagged commit in the Optimism monorepo as linked below.
 ## Pre-upgrade deployed code
 
 The `SuperchainConfigProxy` has already been deployed and initialized. It's address
-`0x95703e0982140d16f8eba6d158fccede42f04a4c` appears in the state diff below in the contracts which
+`0x95703e0982140D16f8ebA6d158FccEde42f04a4C` appears in the state diff below in the contracts which
 will begin querying it for the paused status.
 
 - **Address Validation:** the address is
@@ -109,7 +109,7 @@ There should also be a single 'State Override' in the Foundation Safe contract
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000057` <br/>
   **Meaning:** The Safe nonce is updated.<br/>
   **Additional Note:** This number may be slightly different if other transactions have recently
-  been executed. The important thing is that it should change by 1.
+  been executed. The important thing is that it should increment by 1.
 
 ### `0xbeb5fc579115071764c7423a4f12edde41f106ed` (`OptimismPortalProxy`)
 
@@ -132,7 +132,7 @@ There should also be a single 'State Override' in the Foundation Safe contract
   (please consider changing out the rpc url):
   1. what is returned by calling `AddressManager.getAddress()`:
    ```
-   cast call 0xde1fcfb0851916ca5101820a69b13a4e276bd81f 'getAddress(string)' 'OVM_L1CrossDomainMessenger' --rpc-url https://ethereum.publicnode.com
+   cast call 0xde1fcfb0851916ca5101820a69b13a4e276bd81f 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url https://ethereum.publicnode.com
    ```
   2. what is currently stored at the key:
    ```
