@@ -10,7 +10,7 @@
     {
       "to": "0x543bA4AADBAb8f9025686Bd03993043599c6fB04",
       "value": "0",
-      "data": "0xf2fde38b000000000000000000000000dc53b1d440b8a56dd50a6d69312dac903d3aa48b",
+      "data": "0xf2fde38b0000000000000000000000005a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A",
       "contractMethod": {
         "inputs": [
           {
@@ -23,7 +23,7 @@
         "payable": false
       },
       "contractInputsValues": {
-        "newOwner": "0xdc53B1d440b8a56dd50A6D69312DAC903d3Aa48b"
+        "newOwner": "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
       }
     }
   ]

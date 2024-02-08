@@ -3,19 +3,19 @@
 Status: DRAFT, NOT READY TO SIGN
 
 > [!IMPORTANT] !!! DO NOT SIGN using this playbook yet, as the
-> Security Council membership ratification proposal is not passed, and
-> the final multisig is not set up yet.
+> official security council addresses are not published yet.
 
 ## Objective
 
 This is the playbook for executing the Security Council Phase 0 as
-approved by Governance. There are two governance proposals related to
-this:
+approved by Governance. There are two governance proposals and one
+forum update related to this:
 
 1. [Security Council: Vote #1](https://vote.optimism.io/proposals/27439950952007920118525230291344523079212068327713298769307857575418374325849).
 2. [Security Council Membership Ratification](https://vote.optimism.io/proposals/85591583404433237270543189567126336043697987369929953414380041066767718361144).
+3. [Governance Post containing the threshold and signer addresses](https://gov.optimism.io/t/security-council-vote-2-initial-member-ratification/7118/19)
 
-Both of them should be treated as the source of truth and used by the
+All of them should be treated as the source of truth and used by the
 multisig signers to verify the correctness of the onchain operations.
 
 ## Approving the transaction
@@ -91,15 +91,25 @@ Now click on the "State" tab. Verify that:
 2. The `ProxyAdmin` contract at
    `0x543ba4aadbab8f9025686bd03993043599c6fb04`'s `_owner` is changed
    to a new multisig, and the configuration of this new multisig
-   correctly implements the two approved proposals:
-   1. [Security Council: Vote #1](https://vote.optimism.io/proposals/27439950952007920118525230291344523079212068327713298769307857575418374325849).
-   2. [Security Council Membership Ratification](https://link.to/be/determined).
+   correctly implements the two approved proposals and the one forum
+   update in the Objectives section. Some example things to check:
+
+   a. Verify that the `_owner` of `ProxyAdmin` is changed to a 2 of 2
+   multisig.
+
+   b. Verify that the 2 signers are the new Foundation multisig
+   (`eth:0x847B5c174615B1B7fDF770882256e2D3E95b9D92`) and the Security
+   Council multisig
+   (`eth:0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`).
+
+   c. Verify that the new Foundation multisig's threshold and signers
+   are identical to the old Foundation multisig.
+
+   d. Verify that the Security Council multisig's threshold and
+   signers match what's published in the governacne forum.
+
 3. Both of the other state changes are nonce changes only.
 
-
-All of these addresses should be part of the Optimism Governance vote
-that approves this upgrade if this is a [Normal
-Operation](https://github.com/ethereum-optimism/OPerating-manual/blob/1f42a3766d084864a818b93ce7ba0857a4a846ea/Security%20Council%20Charter%20v0.1.md#normal-operation).
 
 ![](./images/tenderly-state-diff.png)
 
