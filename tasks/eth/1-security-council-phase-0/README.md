@@ -83,11 +83,18 @@ validate integrity of the simulation, we need to check the following:
 
 Now click on the "State" tab. Verify that:
 
-1. There is only a single state override at address
-   `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`, which overrides
-   storage slot `0x4` to new value `0x1`. This override is only
-   intended to change the Foundation multisig's quorum threshold to 1
-   so we can perform a tenderly simulation of the execution,
+1. There are only two single state override at address
+   `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`:
+
+   a. One of them overrides storage slot `0x4` to new value
+   `0x1`. This override is only intended to change the Foundation
+   multisig's quorum threshold to 1 so we can perform a tenderly
+   simulation of the execution,
+
+   b. One of them overrides storage slot `0x5` to `0x56`. This
+   override is an no-op to override the nonce of the multisig to 86,
+   which is the same as it's current value.
+
 2. The `ProxyAdmin` contract at
    `0x543ba4aadbab8f9025686bd03993043599c6fb04`'s `_owner` is changed
    to a new multisig, and the configuration of this new multisig
@@ -97,15 +104,12 @@ Now click on the "State" tab. Verify that:
    a. Verify that the `_owner` of `ProxyAdmin` is changed to a 2 of 2
    multisig.
 
-   b. Verify that the 2 signers are the new Foundation multisig
-   (`eth:0x847B5c174615B1B7fDF770882256e2D3E95b9D92`) and the Security
+   b. Verify that the 2 signers are the Foundation multisig
+   (`eth:0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`) and the Security
    Council multisig
    (`eth:0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`).
 
-   c. Verify that the new Foundation multisig's threshold and signers
-   are identical to the old Foundation multisig.
-
-   d. Verify that the Security Council multisig's threshold and
+   c. Verify that the Security Council multisig's threshold and
    signers match what's published in the governacne forum.
 
 3. Both of the other state changes are nonce changes only.
