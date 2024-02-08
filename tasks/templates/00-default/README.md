@@ -4,6 +4,19 @@
 
 This is the playbook for ... on OP <todo:network>.
 
+_TODO: You can add transactions to this task by calling_
+```
+just add-transaction <to> <sig> <params>...
+```
+_where `<to>` is the target contract to call and `<sig>` and `<params>` are
+the function signature and params as they should be passed to `cast calldata`.
+Example:_
+```
+just add-transaction 0xAe851f927Ee40dE99aaBb7461C00f9622ab91d60 'setGasConfig(uint256,uint256)' 0 0x010000000000000000000000000000000000000000000000000d273000001db0
+```
+_The old bundle is backed up._
+
+
 ## Approving the transaction
 
 ### 1. Update repo and move to the appropriate folder for this rehearsal task:
