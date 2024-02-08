@@ -1,6 +1,12 @@
-install: install-contracts install-eip712sign
+install: install-foundry install-contracts install-eip712sign
 
-# install dependencies
+# installs foundry at the version stored in .foundryrc
+# foundryup must already be installed per the instructions in the root README
+install-foundry:
+  #!/usr/bin/env bash
+  foundryup -C $(cat .foundryrc)
+
+# install contract dependencies
 # for any tasks run in production, a specific commit should be used for each dep.
 install-contracts:
   #!/usr/bin/env bash
