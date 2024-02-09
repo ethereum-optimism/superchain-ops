@@ -1,10 +1,6 @@
 # Security Council Phase 0 Multisig Ceremony.
 
-Status: DRAFT, NOT READY TO SIGN
-
-> [!IMPORTANT] !!! DO NOT SIGN using this playbook yet, as the
-> decision on whether to use a new Foundation multisig has not
-> been made yet.
+Status: READY_TO_SIGN
 
 ## Objective
 
@@ -107,15 +103,18 @@ Now click on the "State" tab. Verify that:
    a. Verify that the `_owner` of `ProxyAdmin` is changed to a 2 of 2
    multisig.
 
-   b. Verify that the 2 signers are the Foundation multisig
-   (`eth:0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`) and the Security
+   b. Verify that the 2 signers are the new Foundation multisig
+   (`eth:0x847B5c174615B1B7fDF770882256e2D3E95b9D92`) and the Security
    Council multisig
    (`eth:0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`).
-
-   c. Verify that the Security Council multisig's threshold and
+   
+   c. Verify that the new Foundation multisig's threshold and signers
+   are identical to the old Foundation multisig.
+   
+   d. Verify that the Security Council multisig's threshold and
    signers match what's published in the governance forum.
 
-3. Both of the other state changes are nonce changes only.
+4. Both of the other state changes are nonce changes only.
 
 
 ![](./images/tenderly-state-diff.png)
