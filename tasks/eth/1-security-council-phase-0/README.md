@@ -114,7 +114,7 @@ Now click on the "State" tab. Verify that:
    (`eth:0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`).
 
    c. Verify that the Security Council multisig's threshold and
-   signers match what's published in the governacne forum.
+   signers match what's published in the governance forum.
 
 3. Both of the other state changes are nonce changes only.
 
