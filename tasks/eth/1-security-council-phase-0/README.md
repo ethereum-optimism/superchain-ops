@@ -3,19 +3,22 @@
 Status: DRAFT, NOT READY TO SIGN
 
 > [!IMPORTANT] !!! DO NOT SIGN using this playbook yet, as the
-> Security Council membership ratification proposal is not passed, and
-> the final multisig is not set up yet.
+> official security council addresses are not published yet.
 
 ## Objective
 
 This is the playbook for executing the Security Council Phase 0 as
-approved by Governance. There are two governance proposals related to
-this:
+approved by Governance. There are two governance proposals and one
+forum update related to this:
 
 1. [Security Council: Vote #1](https://vote.optimism.io/proposals/27439950952007920118525230291344523079212068327713298769307857575418374325849).
 2. [Security Council Membership Ratification](https://vote.optimism.io/proposals/85591583404433237270543189567126336043697987369929953414380041066767718361144).
+3. [Governance Post containing the threshold and signer
+   addresses](https://gov.optimism.io/t/security-council-vote-2-initial-member-ratification/7118/19)
+   (TODO: change this link to the actual post with the addresses and
+   threshold)
 
-Both of them should be treated as the source of truth and used by the
+All of them should be treated as the source of truth and used by the
 multisig signers to verify the correctness of the onchain operations.
 
 ## Approving the transaction
@@ -83,23 +86,38 @@ validate integrity of the simulation, we need to check the following:
 
 Now click on the "State" tab. Verify that:
 
-1. There is only a single state override at address
-   `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`, which overrides
-   storage slot `0x4` to new value `0x1`. This override is only
-   intended to change the Foundation multisig's quorum threshold to 1
-   so we can perform a tenderly simulation of the execution,
+1. There are only two state overrides at address
+   `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`:
+
+   a. One of them overrides storage slot `0x4` to new value
+   `0x1`. This override is only intended to change the Foundation
+   multisig's quorum threshold to 1 so we can perform a tenderly
+   simulation of the execution,
+
+   b. One of them overrides storage slot `0x5` to `0x56`. This
+   override is an no-op to override the nonce of the multisig to 86,
+   which is the same as it's current value. You can see the current
+   value of the nonce in the "State Changes" section.
+
 2. The `ProxyAdmin` contract at
    `0x543ba4aadbab8f9025686bd03993043599c6fb04`'s `_owner` is changed
    to a new multisig, and the configuration of this new multisig
-   correctly implements the two approved proposals:
-   1. [Security Council: Vote #1](https://vote.optimism.io/proposals/27439950952007920118525230291344523079212068327713298769307857575418374325849).
-   2. [Security Council Membership Ratification](https://link.to/be/determined).
+   correctly implements the two approved proposals and the one forum
+   update in the Objectives section. Some example things to check:
+
+   a. Verify that the `_owner` of `ProxyAdmin` is changed to a 2 of 2
+   multisig.
+
+   b. Verify that the 2 signers are the Foundation multisig
+   (`eth:0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`) and the Security
+   Council multisig
+   (`eth:0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`).
+
+   c. Verify that the Security Council multisig's threshold and
+   signers match what's published in the governance forum.
+
 3. Both of the other state changes are nonce changes only.
 
-
-All of these addresses should be part of the Optimism Governance vote
-that approves this upgrade if this is a [Normal
-Operation](https://github.com/ethereum-optimism/OPerating-manual/blob/1f42a3766d084864a818b93ce7ba0857a4a846ea/Security%20Council%20Charter%20v0.1.md#normal-operation).
 
 ![](./images/tenderly-state-diff.png)
 
