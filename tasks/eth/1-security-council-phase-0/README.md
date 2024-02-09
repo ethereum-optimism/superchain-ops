@@ -14,9 +14,7 @@ forum update related to this:
 1. [Security Council: Vote #1](https://vote.optimism.io/proposals/27439950952007920118525230291344523079212068327713298769307857575418374325849).
 2. [Security Council Membership Ratification](https://vote.optimism.io/proposals/85591583404433237270543189567126336043697987369929953414380041066767718361144).
 3. [Governance Post containing the threshold and signer
-   addresses](https://gov.optimism.io/t/security-council-vote-2-initial-member-ratification/7118/19)
-   (TODO: change this link to the actual post with the addresses and
-   threshold)
+   addresses](https://gov.optimism.io/t/security-council-vote-2-initial-member-ratification/7118/20)
 
 All of them should be treated as the source of truth and used by the
 multisig signers to verify the correctness of the onchain operations.
