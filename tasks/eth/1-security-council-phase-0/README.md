@@ -3,7 +3,8 @@
 Status: DRAFT, NOT READY TO SIGN
 
 > [!IMPORTANT] !!! DO NOT SIGN using this playbook yet, as the
-> official security council addresses are not published yet.
+> decision on whether to use a new Foundation multisig has not
+> been made yet.
 
 ## Objective
 
