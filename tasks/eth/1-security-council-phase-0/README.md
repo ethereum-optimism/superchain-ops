@@ -13,7 +13,10 @@ forum update related to this:
 
 1. [Security Council: Vote #1](https://vote.optimism.io/proposals/27439950952007920118525230291344523079212068327713298769307857575418374325849).
 2. [Security Council Membership Ratification](https://vote.optimism.io/proposals/85591583404433237270543189567126336043697987369929953414380041066767718361144).
-3. [Governance Post containing the threshold and signer addresses](https://gov.optimism.io/t/security-council-vote-2-initial-member-ratification/7118/19)
+3. [Governance Post containing the threshold and signer
+   addresses](https://gov.optimism.io/t/security-council-vote-2-initial-member-ratification/7118/19)
+   (TODO: change this link to the actual post with the addresses and
+   threshold)
 
 All of them should be treated as the source of truth and used by the
 multisig signers to verify the correctness of the onchain operations.
@@ -83,7 +86,7 @@ validate integrity of the simulation, we need to check the following:
 
 Now click on the "State" tab. Verify that:
 
-1. There are only two single state override at address
+1. There are only two state overrides at address
    `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`:
 
    a. One of them overrides storage slot `0x4` to new value
@@ -93,7 +96,8 @@ Now click on the "State" tab. Verify that:
 
    b. One of them overrides storage slot `0x5` to `0x56`. This
    override is an no-op to override the nonce of the multisig to 86,
-   which is the same as it's current value.
+   which is the same as it's current value. You can see the current
+   value of the nonce in the "State Changes" section.
 
 2. The `ProxyAdmin` contract at
    `0x543ba4aadbab8f9025686bd03993043599c6fb04`'s `_owner` is changed
