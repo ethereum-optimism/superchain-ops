@@ -2,6 +2,8 @@
 
 Status: READY_TO_SIGN
 
+Test
+
 ## Objective
 
 This is the playbook for executing the Security Council Phase 0 as
