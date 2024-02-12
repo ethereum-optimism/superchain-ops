@@ -3,28 +3,11 @@
   "chainId": "5",
   "createdAt": 1707763323,
   "meta": {
-    "name": "DGF Ownership Transfer and OptimismPortalProxy upgrade - OP Goerli",
-    "description": "Transfers the ownership of the DisputeGameFactory contract to the Goerli Upgrade multisig and upgrades the OptimismPortalProxy's implementation to the OptimismPortal2 contract.",
+    "name": "FPAC OptimismPortalProxy upgrade - OP Goerli",
+    "description": "Upgrades the OptimismPortalProxy's implementation to the OptimismPortal2 contract.",
     "txBuilderVersion": "1.16.3"
   },
   "transactions": [
-    {
-      "to": "<op-goerli-dgf-proxy-address>",
-      "value": "0",
-      "data": "0xf2fde38b...",
-      "contractMethod": {
-        "inputs": [
-          {
-            "internalType": "address",
-            "name": "newOwner",
-            "type": "address"
-          }
-        ]
-      },
-      "contractInputsValues": {
-        "newOwner": "<op-goerli-upgrade-multisig-address>"
-      }
-    },
     {
       "to": "<op-goerli-portal-proxy-address>",
       "value": "0",
