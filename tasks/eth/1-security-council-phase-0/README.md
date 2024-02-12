@@ -1,6 +1,6 @@
 # Security Council Phase 0 Multisig Ceremony.
 
-Status: EXECUTED
+Status: [EXECUTED](https://etherscan.io/tx/0xd2a7e63eb76199234e4876c1c99dcdf73f0ed04eb8b8767e94809cc2de2629ca#eventlog)
 
 ## Objective
 
