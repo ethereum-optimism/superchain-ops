@@ -106,16 +106,6 @@ prepare:
       --rpc-url ${rpcUrl} \
       --target-addr ${optimismPortalAddr} \
       --safe-addr ${safeAddr} \
-      --safe-nonce 86 \
-      create
-
-  presigner \
-      --chain 1 \
-      --rpc-url ${rpcUrl} \
-      --target-addr ${optimismPortalAddr} \
-      --safe-addr ${safeAddr} \
-      --script-name CallUnpause \
-      --json-file tx/draft-unpause-87.json \
       --safe-nonce 87 \
       create
 
@@ -124,6 +114,8 @@ prepare:
       --rpc-url ${rpcUrl} \
       --target-addr ${optimismPortalAddr} \
       --safe-addr ${safeAddr} \
+      --script-name CallUnpause \
+      --json-file tx/draft-unpause-88.json \
       --safe-nonce 88 \
       create
 
@@ -143,8 +135,16 @@ prepare:
       --safe-nonce 90 \
       create
 
-  mv tx/draft-86.json ${location}/tx
-  mv tx/draft-unpause-87.json ${location}/tx
-  mv tx/draft-88.json ${location}/tx
+  presigner \
+      --chain 1 \
+      --rpc-url ${rpcUrl} \
+      --target-addr ${optimismPortalAddr} \
+      --safe-addr ${safeAddr} \
+      --safe-nonce 91 \
+      create
+
+  mv tx/draft-87.json ${location}/tx
+  mv tx/draft-unpause-88.json ${location}/tx
   mv tx/draft-89.json ${location}/tx
   mv tx/draft-90.json ${location}/tx
+  mv tx/draft-91.json ${location}/tx
