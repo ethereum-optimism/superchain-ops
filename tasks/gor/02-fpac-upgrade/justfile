@@ -10,6 +10,30 @@ export OWNER_SAFE := env_var('PROXY_ADMIN_OWNER')
 default:
   just --list
 
+generate-input:
+  #!/usr/bin/env bash
+  META=$(cat ./meta.json)
+
+  PORTAL_PROXY=$(echo $META | jq -r .optimismPortalProxyAddr)
+  PORTAL2_IMPL=$(echo $META | jq -r .optimismPortal2ImplAddr)
+  SYSTEM_CONFIG=$(echo $META | jq -r .systemConfigAddr)
+  SUPERCHAIN_CONFIG=$(echo $META | jq -r .superchainConfigAddr)
+  DGF_PROXY=$(echo $META | jq -r .disputeGameFactoryProxyAddr)
+
+  INITIALIZE_SIG="initialize(address,address,address)"
+  INITIALIZE_ARGS=$(cast abi-encode $INITIALIZE_SIG $DGF_PROXY $SYSTEM_CONFIG $SUPERCHAIN_CONFIG)
+  ENCODED_INITIALIZE="$(cast sig $INITIALIZE_SIG)${INITIALIZE_ARGS:2}"
+
+  UPGRADE_TO_AND_CALL_SIG="upgradeToAndCall(address,bytes)"
+  UPGRADE_TO_AND_CALL_ARGS=$(cast abi-encode $UPGRADE_TO_AND_CALL_SIG $PORTAL2_IMPL $ENCODED_INITIALIZE)
+  ENCODED_UPGRADE_TO_AND_CALL="$(cast sig $UPGRADE_TO_AND_CALL_SIG)${UPGRADE_TO_AND_CALL_ARGS:2}"
+
+  echo $(cat ./input-template.json) > ./input.json
+  jq ".transactions[0].to = \"$PORTAL_PROXY\"" ./input.json > ./input.tmp.json && mv ./input.tmp.json ./input.json
+  jq ".transactions[0].data = \"$ENCODED_UPGRADE_TO_AND_CALL\"" ./input.json > ./input.tmp.json && mv ./input.tmp.json ./input.json
+  jq ".transactions[0].contractInputsValues._implementation = \"$PORTAL2_IMPL\"" ./input.json > ./input.tmp.json && mv ./input.tmp.json ./input.json
+  jq ".transactions[0].contractInputsValues._data = \"$ENCODED_INITIALIZE\"" ./input.json > ./input.tmp.json && mv ./input.tmp.json ./input.json
+
 # Simulates the deployment of the FPAC system
 simulate-deploy hdPath='0':
   #!/usr/bin/env bash

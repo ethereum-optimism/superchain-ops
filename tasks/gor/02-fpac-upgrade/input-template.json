@@ -11,7 +11,7 @@
     {
       "to": "<op-goerli-portal-proxy-address>",
       "value": "0",
-      "data": "0x4f1ef286...",
+      "data": "<upgrade-to-and-call-data>",
       "contractMethod": {
         "inputs": [
           {
@@ -30,7 +30,7 @@
       },
       "contractInputsValues": {
         "_implementation": "<op-goerli-portal2-impl-address>",
-        "_data": "0x9d2751820000000000000000000000000000000000000000000000000000000000093a80000000000000000000000000000000000000000000000000000000000003f4800000000000000000000000000000000000000000000000000000000000000000"
+        "_data": "<initialize-data>"
       }
     }
   ]
