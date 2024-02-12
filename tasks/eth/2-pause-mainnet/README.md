@@ -1,6 +1,6 @@
 # OP Mainnet Pause
 
-Status: DRAFT, NOT READY TO SIGN
+Status: READY_TO_SIGN
 
 ## Objective
 
@@ -54,20 +54,20 @@ just whoami 1
 ### 3. Sign the transactions
 
 We currently have 5 transactions to be signed inside the `tx` folder:
-- `draft-86.json`
-- `draft-unpause-87.json`
-- `draft-88.json`
+- `draft-87.json`
+- `draft-unpause-88.json`
 - `draft-89.json`
 - `draft-90.json`
+- `draft-91.json`
 
 You can sign them one by one by running the following commands:
 
 ```
-just sign 0 tx/draft-86.json
-just sign 0 tx/draft-unpause-87.json
-just sign 0 tx/draft-88.json
+just sign 0 tx/draft-87.json
+just sign 0 tx/draft-unpause-88.json
 just sign 0 tx/draft-89.json
 just sign 0 tx/draft-90.json
+just sign 0 tx/draft-91.json
 ```
 
 The first parameter is the index of the address you want to use in the derivation path.
@@ -194,7 +194,7 @@ The Facilitator will collect the signatures, merge the signatures, verify, simul
 
 The signed transactions are in the `tx` folder.
 They will be named according to the address used to sign, i.e.
-`/tx/draft-86.signer-0x8c78B948Cdd64812993398b4B51ed2603b3543A6.json`
+`/tx/draft-87.signer-0x8c78B948Cdd64812993398b4B51ed2603b3543A6.json`
 was signed by `0x8c78B948Cdd64812993398b4B51ed2603b3543A6`.
 
 All signatures should be present in the same transaction file before execution,
@@ -205,19 +205,19 @@ so next we'll merge them.
 To merge the signatures, run the following command:
 
 ```
-just merge tx/draft-86.json tx/draft-86*
+just merge tx/draft-87.json tx/draft-87*
 ```
 
-Where `tx/draft-86.json` is the resulting transaction file with all the signatures, and
-the `tx/draft-86*` is the pattern to match the signature files.
+Where `tx/draft-87.json` is the resulting transaction file with all the signatures, and
+the `tx/draft-87*` is the pattern to match the signature files.
 
 Repeat for each of the transactions. 
 
-This will overwrite the original `draft-86.json` file with the all merged signatures.
+This will overwrite the original `draft-87.json` file with the all merged signatures.
 
 You can check the file contents with the following command:
 ```
-cat tx/draft-86.json | jq
+cat tx/draft-87.json | jq
 ```
 
 ### 3. Verify the signatures
@@ -225,10 +225,10 @@ cat tx/draft-86.json | jq
 To verify the signatures, run the following command:
 
 ```
-just verify tx/draft-86.json
+just verify tx/draft-87.json
 ```
 
-Where `tx/draft-86.json` is the transaction file with all the signatures.
+Where `tx/draft-87.json` is the transaction file with all the signatures.
 
 Repeat for each of the transactions.
 
@@ -237,10 +237,10 @@ Repeat for each of the transactions.
 To simulate the transaction, run the following command:
 
 ```
-just simulate tx/draft-86.json
+just simulate tx/draft-87.json
 ```
 
-Where `tx/draft-86.json` is the transaction file with all the signatures.
+Where `tx/draft-87.json` is the transaction file with all the signatures.
 
 Repeat for each of the transactions.
 
@@ -252,11 +252,11 @@ The simulate command will output the Tenderly simulation link and the oneliner f
 You can use the oneliner to execute the transaction:
 
 ```
-/bin/bash <(base64 -d -i tx/ready-86.sh.b64) \ 
+/bin/bash <(base64 -d -i tx/ready-87.sh.b64) \ 
     --rpc-url https://ethereum-goerli.publicnode.com
 ```
 
-Where `tx/ready-86.sh.b64` is the oneliner file for the transaction to be executed.
+Where `tx/ready-87.sh.b64` is the oneliner file for the transaction to be executed.
 
 Any parameter passed to the oneliner will be handled by `cast` .
 
