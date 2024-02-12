@@ -26,3 +26,9 @@
 [submodule "lib/solady"]
 	path = lib/solady
 	url = https://github.com/Vectorized/solady
+[submodule "lib/lib-keccak"]
+	path = lib/lib-keccak
+	url = https://github.com/ethereum-optimism/lib-keccak
+[submodule "lib/clones-with-immutable-args"]
+	path = lib/clones-with-immutable-args
+	url = https://github.com/saw-mon-and-natalie/clones-with-immutable-args

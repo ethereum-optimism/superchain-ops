@@ -16,4 +16,6 @@ remappings = [
   '@eth-optimism-bedrock/=lib/optimism/packages/contracts-bedrock/',
   '@rari-capital/solmate/=lib/solmate',
   '@forge-std/=lib/forge-std',
+  '@cwia/=lib/clones-with-immutable-args/src',
+  '@lib-keccak/=lib/lib-keccak/contracts/lib'
 ]
