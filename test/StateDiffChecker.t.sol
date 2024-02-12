@@ -110,6 +110,12 @@ contract StateDiffChecker_Test is Test {
             copy.storageSpecs[i].slot = diff.storageSpecs[i].slot;
             copy.storageSpecs[i].newValue = diff.storageSpecs[i].newValue;
             copy.storageSpecs[i].previousValue = diff.storageSpecs[i].previousValue;
+
+            // Ensure that all values have been copied over
+            require(
+                keccak256(abi.encode(copy.storageSpecs[i])) == keccak256(abi.encode(diff.storageSpecs[i])),
+                "StateDiffCheckerTest: StorageDiffSpec copying failed"
+            );
         }
         return copy;
     }
