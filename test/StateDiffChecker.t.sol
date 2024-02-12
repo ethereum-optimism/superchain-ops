@@ -12,7 +12,13 @@ contract Target {
     address public y;
     mapping(uint256 => bytes32) public z;
 
-    Callee public callee = new Callee();
+    Callee public callee;
+    DelegateCallee public delegateCallee;
+
+    constructor() {
+        callee = new Callee();
+        delegateCallee = new DelegateCallee();
+    }
 
     function set() external {
         x = 0;
@@ -20,14 +26,29 @@ contract Target {
         z[1] = hex"acdc";
 
         callee.set1();
+        (bool success,) =
+            address(callee).delegatecall(abi.encodeWithSelector(callee.set2.selector, address(delegateCallee)));
+        require(success, "Target: Delegatecall failed");
     }
 }
 
 contract Callee {
-
     function set1() external {
         assembly {
             sstore(0x1111, 1)
+        }
+    }
+
+    function set2(DelegateCallee delegateCallee) external {
+        (bool success,) = address(delegateCallee).delegatecall("");
+        require(success, "Callee: Delegatecall failed");
+    }
+}
+
+contract DelegateCallee {
+    fallback() external {
+        assembly {
+            sstore(0x2222, 1)
         }
     }
 }
