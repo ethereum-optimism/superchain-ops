@@ -1,6 +1,6 @@
 # Security Council Phase 0 Multisig Ceremony.
 
-Status: READY_TO_SIGN
+Status: EXECUTED
 
 ## Objective
 
