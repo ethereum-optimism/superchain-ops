@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {Deployer} from "@eth-optimism-bedrock/scripts/Deployer.sol";
-import {Safe} from "safe-contracts/Safe.sol";
+import {GnosisSafe} from "safe-contracts/GnosisSafe.sol";
 import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
 import {Proxy} from "@eth-optimism-bedrock/src/universal/Proxy.sol";
 import {EIP1967Helper} from "@eth-optimism-bedrock/test/mocks/EIP1967Helper.sol";
@@ -13,8 +13,8 @@ import {console2 as console} from "forge-std/console2.sol";
 // forge script scripts/Deploy.s.sol:Deploy --private-key $PRIVATE_KEY --broadcast --rpc-url $ETH_RPC_URL
 // forge script scripts/Deploy.s.sol:Deploy --sig 'sync()' --private-key $PRIVATE_KEY --broadcast --rpc-url $ETH_RPC_URL
 contract DeployRehearsalContracts is Deployer {
-    Safe owner_safe;
-    Safe council_safe;
+    GnosisSafe owner_safe;
+    GnosisSafe council_safe;
     ProxyAdmin proxy_admin;
 
     /// @notice The name of the script, used to ensure the right deploy artifacts
@@ -26,8 +26,8 @@ contract DeployRehearsalContracts is Deployer {
     function setUp() public override {
         super.setUp();
 
-        owner_safe = Safe(payable(vm.envAddress("OWNER_SAFE")));
-        council_safe = Safe(payable(vm.envAddress("COUNCIL_SAFE")));
+        owner_safe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
+        council_safe = GnosisSafe(payable(vm.envAddress("COUNCIL_SAFE")));
 
         require(owner_safe.isOwner(address(council_safe)));
 

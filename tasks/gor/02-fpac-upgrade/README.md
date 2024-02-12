@@ -21,6 +21,14 @@ The Fault Proof Alpha Chad upgrade:
 [dgf-sol]: https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol
 [portal-2]: https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal2.sol
 
+## Preparing the Upgrade
+
+1. Deploy the FPAC system to Goerli L1.
+
+```
+just
+```
+
 ## Approving the Transaction
 
 ### 1. Update repo and move to the appropriate folder for this rehearsal task:
