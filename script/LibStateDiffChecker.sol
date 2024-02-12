@@ -8,8 +8,8 @@ import {console2 as console} from "forge-std/console2.sol";
 library LibStateDiffChecker {
     VmSafe private constant vm = VmSafe(address(uint160(uint256(keccak256("hevm cheat code")))));
 
-    // The order of the fields in the struct is important, and must be alphabetical for some reason related to
-    // how foundry encodes the struct to and from JSON.
+    // The order of the fields in the struct is important, and must be alphabetical
+    // for foundry to properly decode data: https://book.getfoundry.sh/cheatcodes/parse-json#decoding-json-objects-into-solidity-structs
     struct StorageDiffSpec {
         address account;
         bytes32 newValue;
@@ -34,7 +34,7 @@ library LibStateDiffChecker {
     /// @notice Filters account accesses to return only those that modified storage.
     /// @param accountAccesses An array of account accesses recorded by the EVM.
     /// @return stateDiffSpec_ An array of account accesses that modified storage.
-    function extractDiffSpecFromAcccountAccesses(VmSafe.AccountAccess[] memory accountAccesses)
+    function extractDiffSpecFromAccountAccesses(VmSafe.AccountAccess[] memory accountAccesses)
         internal
         pure
         returns (StateDiffSpec memory stateDiffSpec_)
