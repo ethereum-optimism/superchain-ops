@@ -1,6 +1,6 @@
 # OP Mainnet Pause
 
-Status: DRAFT, NOT READY TO SIGN
+Status: READY_TO_SIGN
 
 ## Objective
 
