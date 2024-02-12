@@ -140,10 +140,10 @@ jobs:
     steps:
       - checkout
       - run:
-          name: just simulate 2-add-superchain-config
+          name: just simulate 3-add-superchain-config
           command: |
             just install
-            cd tasks/eth/2-add-superchainConfig
+            cd tasks/eth/3-add-superchainConfig
             export SIMULATE_WITHOUT_LEDGER=1
             just simulate
   just_simulate_sc_rehearsal_1:

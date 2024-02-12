@@ -21,7 +21,7 @@ correctness of the onchain operations.
 cd superchain-ops
 git pull
 just install
-cd tasks/eth/2-add-superchainConfig
+cd tasks/eth/3-add-superchainConfig
 ```
 
 ### 2. Setup Ledger
