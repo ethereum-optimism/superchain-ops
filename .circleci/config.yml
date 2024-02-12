@@ -133,19 +133,6 @@ jobs:
               echo "L1 RPC URL: $L1_RPC_URL"
               echo "L2 RPC URL: $L2_RPC_URL"
               # Use L1_RPC_URL and L2_RPC_URL here.
-  just_simulate_sc_phase_0:
-    docker:
-      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
-
-    steps:
-      - checkout
-      - run:
-          name: just simulate 1-security-council-phase-0
-          command: |
-            just install
-            cd tasks/eth/1-security-council-phase-0
-            export SIMULATE_WITHOUT_LEDGER=1
-            just simulate
   just_simulate_add_superchain_config:
     docker:
       - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
@@ -245,7 +232,6 @@ workflows:
         # expect the ceremony to work continously), and remove it once
         # the ceremony is for historical archive only (e.g. the
         # ceremony is done).
-          - just_simulate_sc_phase_0
           - just_simulate_add_superchain_config
           - just_simulate_sc_rehearsal_1
           - just_simulate_sc_rehearsal_2
