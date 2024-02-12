@@ -8,18 +8,27 @@ import {LibStateDiffChecker as Checker} from "script/LibStateDiffChecker.sol";
 
 /// @dev A simple contract to which makes some state modifications for the purpose of testing state diff checking.
 contract Target {
-    uint256 public x;
+    uint256 public x = 1;
     address public y;
     mapping(uint256 => bytes32) public z;
 
-    constructor() {
-        x = 1;
-    }
+    Callee public callee = new Callee();
 
-    function set() public {
+    function set() external {
         x = 0;
         y = address(0xabba);
         z[1] = hex"acdc";
+
+        callee.set1();
+    }
+}
+
+contract Callee {
+
+    function set1() external {
+        assembly {
+            sstore(0x1111, 1)
+        }
     }
 }
 
