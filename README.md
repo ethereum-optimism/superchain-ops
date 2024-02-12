@@ -52,7 +52,7 @@ You should see the version number of Go that you just installed.
 
 ### Installing the Rust Toolchain
 
-1. Go to the official Rust website at https://www.rust-lang.org/tools/install
+1. Visit the rust toolchain installer website at https://rustup.rs
 1. Follow the instructions for your operating system to install `rustup`, and use `rustup` to install the Rust toolchain.
 1. Verify the installation from the command prompt:
   - Type rustc --version
