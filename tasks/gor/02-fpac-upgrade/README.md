@@ -23,11 +23,22 @@ The Fault Proof Alpha Chad upgrade:
 
 ## Preparing the Upgrade
 
-1. Deploy the FPAC system to Goerli L1.
+1. Cut a release of the `op-program` to generate a reproducible build.
 
+   - _Note_: This release pipeline is not yet available.
+
+2. Add the absolute prestate hash from the above release into the deploy config for the chain that is being upgraded in the Optimism Monorepo.
+
+3. Deploy the FPAC system to the settlement layer of the chain. The deploy script can be found in the Optimism Monorepo, under the `contracts-bedrocks` package.
+
+```sh
+cd packages/contracts-bedrock/scripts/fpac && \
+   just deploy-fresh chain=<chain-name> proxy-admin=<chain-proxy-admin-addr> system-owner-safe=<chain-safe-addr> args="--broadcast"
 ```
-just
-```
+
+4. Fill out `meta.json` with the deployed `OptimismPortal2` and `DisputeGameFactoryProxy` contracts from step 3.
+
+5. Generate the `input.json` with `just generate-input`
 
 ## Approving the Transaction
 
@@ -75,3 +86,93 @@ validate integrity of the simulation, we need to check the following:
 3. "Sender": Check the address shown is your signer account. If not, you will need to determine which “number” it is in the list of
    addresses on your ledger. By default the script will assume the derivation path is m/44'/60'/0'/0/0. By calling the script with
    `just simulate 1` it will derive the address using `m/44'/60'/1'/0/0` instead.
+
+#### 3.2. Validate correctness of the state diff and events.
+
+_TODO_
+
+#### 3.3. Extract the domain hash and the message hash to approve.
+
+Now that we have verified the transaction performs the right operation, we need to extract the domain hash and the message hash to
+approve.
+
+Go back to the "Overview" tab, and find the `GnosisSafe.checkSignatures` call. This call's `data` parameter
+contains both the domain hash and the message hash that will show up in your Ledger.
+
+Here is an example screenshot. Note that the hash value may be different:
+
+![](./images/tenderly-sim-check-sig.png)
+
+Seb's sig data: `0x1901d0038af9d1425c8c3831ba8a43a136259ebe7d15ecb0ce60bd3b90f4189487641527ccc2d6f5fcacdd23c4a9a6fef57bcc6c969aa4f4819a86c2e4a5e14b7f26`
+
+It will be a concatenation of `0x1901`, the domain hash, and the
+message hash: `0x1901[domain hash][message hash]`.
+
+Note down this value. You will need to compare it with the ones displayed on the Ledger screen at signing.
+
+### 4. Approve the signature on your ledger
+
+Once the validations are done, it's time to actually sign the transaction. Make sure your ledger is still unlocked and run the
+following:
+
+```shell
+just sign # or just sign <hdPath>
+```
+
+> [!NOTE]
+> This is the most security critical part of the playbook: make sure the domain hash and message hash in the
+> following two places match:
+
+1. on your Ledger screen.
+2. in the Tenderly simulation. You should use the same Tenderly simulation as the one you used to verify the state diffs, instead
+   of opening the new one printed in the console.
+
+There is no need to verify anything printed in the console. There is
+no need to open the new Tenderly simulation link either.
+
+After verification, sign the transaction. You will see the `Data`, `Signer` and `Signature` printed in the console. Format should be
+something like this:
+
+```
+Data:  <DATA>
+Signer: <ADDRESS>
+Signature: <SIGNATURE>
+```
+
+Double check the signer address is the right one.
+
+### 5. Send the output to Facilitator(s)
+
+Nothing has occurred onchain - these are offchain signatures which will be collected by Facilitators for execution. Execution can occur
+by anyone once a threshold of signatures are collected, so a Facilitator will do the final execution for convenience.
+
+Share the `Data`, `Signer` and `Signature` with the Facilitator, and congrats, you are done!
+
+## [For Facilitator ONLY] How to execute the upgrade
+
+### [After the signatures are collected] Execute the output
+
+1. Collect outputs from all participating signers.
+2. Concatenate all signatures and export it as the `SIGNATURES` environment variable, i.e. `export SIGNATURES="0x[SIGNATURE1][SIGNATURE2]..."`.
+3. Run `just execute 0 # or 1 or ...` to execute the transaction onchain.
+
+For example, if the quorum is 2 and you get the following outputs:
+
+```shell
+Data:  0xDEADBEEF
+Signer: 0xC0FFEE01
+Signature: AAAA
+```
+
+```shell
+Data:  0xDEADBEEF
+Signer: 0xC0FFEE02
+Signature: BBBB
+```
+
+Then you should run
+
+```shell
+export SIGNATURES="0xAAAABBBB"
+just execute 0 # or 1 or ...
+```
