@@ -1,8 +1,8 @@
-# Goerli FPAC Upgrade
+# Sepolia FPAC Upgrade
 
 ## Objective
 
-This is the playbook for executing the Fault Proof Alpha Chad upgrade on Goerli.
+This is the playbook for executing the Fault Proof Alpha Chad upgrade on Sepolia.
 
 The Fault Proof Alpha Chad upgrade:
 
@@ -23,11 +23,11 @@ The Fault Proof Alpha Chad upgrade:
 
 ## Preparing the Upgrade
 
-1. Cut a release of the `op-program` to generate a reproducible build.
+1. Cut a release of the `op-program` in the Optimism Monorepo to generate a reproducible build.
 
    - _Note_: This release pipeline is not yet available.
 
-2. Add the absolute prestate hash from the above release into the deploy config for the chain that is being upgraded in the Optimism Monorepo.
+2. In the Optimism Monorepo, add the absolute prestate hash from the above release into the deploy config for the chain that is being upgraded.
 
 3. Deploy the FPAC system to the settlement layer of the chain. The deploy script can be found in the Optimism Monorepo, under the `contracts-bedrocks` package.
 
@@ -81,7 +81,7 @@ message hash to approve on your Ledger:
 Make sure you are on the "Overview" tab of the tenderly simulation, to
 validate integrity of the simulation, we need to check the following:
 
-1. "Network": Check the network is Goerli (`5`).
+1. "Network": Check the network is Sepolia (`11155111`).
 2. "Timestamp": Check the simulation is performed on a block with a recent timestamp (i.e. close to when you run the script).
 3. "Sender": Check the address shown is your signer account. If not, you will need to determine which “number” it is in the list of
    addresses on your ledger. By default the script will assume the derivation path is m/44'/60'/0'/0/0. By calling the script with
