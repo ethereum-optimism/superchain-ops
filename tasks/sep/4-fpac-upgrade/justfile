@@ -10,15 +10,14 @@ export OWNER_SAFE := env_var('PROXY_ADMIN_OWNER')
 default:
   just --list
 
+# Generates the `input.json` file from the addresses in the `meta.json` file.
 generate-input:
   #!/usr/bin/env bash
-  META=$(cat ./meta.json)
-
-  PORTAL_PROXY=$(echo $META | jq -r .optimismPortalProxyAddr)
-  PORTAL2_IMPL=$(echo $META | jq -r .optimismPortal2ImplAddr)
-  SYSTEM_CONFIG=$(echo $META | jq -r .systemConfigAddr)
-  SUPERCHAIN_CONFIG=$(echo $META | jq -r .superchainConfigAddr)
-  DGF_PROXY=$(echo $META | jq -r .disputeGameFactoryProxyAddr)
+  PORTAL_PROXY=$(jq -r .optimismPortalProxyAddr ./meta.json)
+  PORTAL2_IMPL=$(jq -r .optimismPortal2ImplAddr ./meta.json)
+  SYSTEM_CONFIG=$(jq -r .systemConfigAddr ./meta.json)
+  SUPERCHAIN_CONFIG=$(jq -r .superchainConfigAddr ./meta.json)
+  DGF_PROXY=$(jq -r .disputeGameFactoryProxyAddr ./meta.json)
 
   INITIALIZE_SIG="initialize(address,address,address)"
   INITIALIZE_ARGS=$(cast abi-encode $INITIALIZE_SIG $DGF_PROXY $SYSTEM_CONFIG $SUPERCHAIN_CONFIG)
@@ -28,47 +27,11 @@ generate-input:
   UPGRADE_TO_AND_CALL_ARGS=$(cast abi-encode $UPGRADE_TO_AND_CALL_SIG $PORTAL2_IMPL $ENCODED_INITIALIZE)
   ENCODED_UPGRADE_TO_AND_CALL="$(cast sig $UPGRADE_TO_AND_CALL_SIG)${UPGRADE_TO_AND_CALL_ARGS:2}"
 
-  echo $(cat ./input-template.json) > ./input.json
-  jq ".transactions[0].to = \"$PORTAL_PROXY\"" ./input.json > ./input.tmp.json && mv ./input.tmp.json ./input.json
-  jq ".transactions[0].data = \"$ENCODED_UPGRADE_TO_AND_CALL\"" ./input.json > ./input.tmp.json && mv ./input.tmp.json ./input.json
-  jq ".transactions[0].contractInputsValues._implementation = \"$PORTAL2_IMPL\"" ./input.json > ./input.tmp.json && mv ./input.tmp.json ./input.json
-  jq ".transactions[0].contractInputsValues._data = \"$ENCODED_INITIALIZE\"" ./input.json > ./input.tmp.json && mv ./input.tmp.json ./input.json
-
-# Simulates the deployment of the FPAC system
-simulate-deploy hdPath='0':
-  #!/usr/bin/env bash
-  cd ../..
-  if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
-  then
-    signer="0xEA96f8d33Af98839C20547D970EE0961f8865009"
-  else
-    signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-  fi
-  echo "Deploying FPAC system from ${signer}..."
-  echo ""
-  forge build
-  forge script DeployFPAC \
-    --rpc-url ${rpcUrl} \
-    --sender ${signer} \
-    --broadcast
-
-# Deploys the FPAC system
-deploy hdPath='0':
-  #!/usr/bin/env bash
-  cd ../..
-  if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
-  then
-    signer="0xEA96f8d33Af98839C20547D970EE0961f8865009"
-  else
-    signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-  fi
-  echo "Deploying FPAC system from ${signer}..."
-  echo ""
-  forge build
-  forge script DeployFPAC \
-    --rpc-url ${rpcUrl} \
-    --sender ${signer} \
-    --broadcast
+  cp ./input-template.json ./input.json
+  jq "(.transactions[0].to = \"$PORTAL_PROXY\") |
+           (.transactions[0].data = \"$ENCODED_UPGRADE_TO_AND_CALL\") |
+           (.transactions[0].contractInputsValues._implementation = \"$PORTAL2_IMPL\") |
+           (.transactions[0].contractInputsValues._data = \"$ENCODED_INITIALIZE\")" ./input.json > ./input.tmp.json && mv ./input.tmp.json ./input.json
 
 # Simulates the signing of the `OptimismPortal` proxy upgrade transaction.
 simulate hdPath='0':
