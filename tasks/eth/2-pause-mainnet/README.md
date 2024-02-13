@@ -103,12 +103,12 @@ might be different in your simulation:
 Now click on the "State" tab. Verify that:
 
 1. Under address `0xbEb5Fc579115071764c7423A4f12eDde41f106Ed` (OptimismPortal contract),
-   the storage key `0x0`'s value's last byte is changed from `0x00` to
+   the storage key `0x35`'s value's last byte is changed from `0x00` to
    `0x01`. This is indicating that the `paused` variable
    is successfully changed from `false` to `true`.
 2. There are no other significant state changes except for 2 nonce
    changes from the Safe and the signer address.
-3. You will see a state override (not a state chagne). This is
+3. You will see a state override (not a state change). This is
    expected and its purpose is to generate a successful Safe execution
    simulation without collecting any signatures.
 
