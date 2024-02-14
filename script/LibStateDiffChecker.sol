@@ -89,7 +89,7 @@ library LibStateDiffChecker {
         require(specIndex == modifiedCount, "LibStateDiffChecker: found fewer storage modifications than expected.");
     }
 
-    /// @notice Checks if a single expected account access matches the actual account access.
+    /// @notice Checks if two state diffs are equivalent
     /// @param expectedDiff The expected account access details.
     /// @param actualDiff   The actual account access details recorded by the EVM.
     function checkStateDiff(StateDiffSpec memory expectedDiff, StateDiffSpec memory actualDiff) internal pure {
@@ -150,5 +150,12 @@ library LibStateDiffChecker {
                 );
             }
         }
+
+        // A catch all check to ensure that the state diff is exactly the same. This makes the checking
+        // more robust, as it will catch any discrepancies that are not covered by the checks above.
+        require(
+            keccak256(abi.encode(expectedDiff)) == keccak256(abi.encode(actualDiff)),
+            "LibStateDiffChecker: unknown state diff mismatch."
+        );
     }
 }

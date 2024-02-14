@@ -8,7 +8,7 @@ import {LibStateDiffChecker as Checker} from "script/LibStateDiffChecker.sol";
 
 /// @dev A simple contract to which makes some state modifications for the purpose of testing state diff checking.
 contract Target {
-    uint256 public x = 1;
+    uint256 public x;
     address public y;
     mapping(uint256 => bytes32) public z;
 
@@ -16,6 +16,7 @@ contract Target {
     DelegateCallee public delegateCallee;
 
     constructor() {
+        x = 1;
         callee = new Callee();
         delegateCallee = new DelegateCallee();
     }
@@ -172,13 +173,13 @@ contract StateDiffChecker_Test is Test {
             copy.storageSpecs[i].slot = diff.storageSpecs[i].slot;
             copy.storageSpecs[i].newValue = diff.storageSpecs[i].newValue;
             copy.storageSpecs[i].previousValue = diff.storageSpecs[i].previousValue;
-
-            // Ensure that all values have been copied over
-            require(
-                keccak256(abi.encode(copy.storageSpecs[i])) == keccak256(abi.encode(diff.storageSpecs[i])),
-                "StateDiffCheckerTest: StorageDiffSpec copying failed"
-            );
         }
+
+        // Ensure that all values have been copied over
+        require(
+            keccak256(abi.encode(copy)) == keccak256(abi.encode(diff)),
+            "StateDiffCheckerTest: StorageDiffSpec copying failed"
+        );
         return copy;
     }
 
