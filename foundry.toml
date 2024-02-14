@@ -15,5 +15,8 @@ remappings = [
   '@base-contracts/=lib/base-contracts/',
   '@eth-optimism-bedrock/=lib/optimism/packages/contracts-bedrock/',
   '@rari-capital/solmate/=lib/solmate',
-  '@forge-std/=lib/forge-std',
+  'forge-std/=lib/forge-std/src/',
 ]
+
+[profile.ci]
+deny_warnings = true
