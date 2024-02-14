@@ -67,16 +67,48 @@ contract StateDiffChecker_Test is Test {
     function test_parseDiffSpecs() public {
         string memory _path = "test/testDiff.json";
         string memory json = vm.readFile(_path);
-        Checker.StateDiffSpec memory diffSpec = Checker.parseDiffSpecs(json);
+        Checker.StateDiffSpec memory parsedSpec = Checker.parseDiffSpecs(json);
 
-        assertEq(diffSpec.chainId, 31337);
-        assertEq(diffSpec.storageSpecs.length, 3);
-        assertEq(diffSpec.storageSpecs[0].slot, bytes32(0));
-        assertEq(diffSpec.storageSpecs[0].newValue, bytes32(0));
-        assertEq(diffSpec.storageSpecs[1].slot, bytes32(uint256(1)));
-        assertEq(diffSpec.storageSpecs[1].newValue, bytes32(uint256(uint160(address(0xabba)))));
-        assertEq(diffSpec.storageSpecs[2].slot, keccak256(abi.encodePacked(uint256(1), uint256(2))));
-        assertEq(diffSpec.storageSpecs[2].newValue, hex"acdc");
+        Checker.StateDiffSpec memory expectedSpec =
+            Checker.StateDiffSpec({chainId: 31337, storageSpecs: new Checker.StorageDiffSpec[](5)});
+
+        expectedSpec.storageSpecs[0] = Checker.StorageDiffSpec({
+            account: 0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f,
+            slot: bytes32(0),
+            previousValue: bytes32(uint256(1)),
+            newValue: bytes32(0)
+        });
+        expectedSpec.storageSpecs[1] = Checker.StorageDiffSpec({
+            account: 0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f,
+            slot: bytes32(uint256(1)),
+            previousValue: bytes32(0),
+            newValue: bytes32(uint256((0xabba)))
+        });
+        expectedSpec.storageSpecs[2] = Checker.StorageDiffSpec({
+            account: 0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f,
+            slot: keccak256(abi.encodePacked(uint256(1), uint256(2))),
+            previousValue: bytes32(0),
+            newValue: bytes32(hex"acdc")
+        });
+        expectedSpec.storageSpecs[3] = Checker.StorageDiffSpec({
+            account: 0x104fBc016F4bb334D775a19E8A6510109AC63E00,
+            slot: bytes32(uint256(0x1111)),
+            previousValue: bytes32(0),
+            newValue: bytes32(uint256(1))
+        });
+        expectedSpec.storageSpecs[4] = Checker.StorageDiffSpec({
+            account: 0x5615dEB798BB3E4dFa0139dFa1b3D433Cc23b72f,
+            slot: bytes32(uint256(0x2222)),
+            previousValue: bytes32(0),
+            newValue: bytes32(uint256(1))
+        });
+
+        for (uint256 i = 0; i < expectedSpec.storageSpecs.length; i++) {
+            require(
+                keccak256(abi.encode(parsedSpec.storageSpecs[i])) == keccak256(abi.encode(expectedSpec.storageSpecs[i])),
+                "StateDiffCheckerTest: StorageDiffSpec parsing failed"
+            );
+        }
     }
 
     /// @dev Utility function which sets up the subsequent tests by executing Target.set(), parsing the diff spec
