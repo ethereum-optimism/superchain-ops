@@ -65,7 +65,7 @@ contract StateDiffChecker_Test is Test {
     }
 
     /// @dev Test that the sample testDiff.json file is read and parsed correctly
-    function test_parseDiffSpecs() public {
+    function test_parseDiffSpecs() public view {
         string memory _path = "test/testDiff.json";
         string memory json = vm.readFile(_path);
         Checker.StateDiffSpec memory parsedSpec = Checker.parseDiffSpecs(json);
