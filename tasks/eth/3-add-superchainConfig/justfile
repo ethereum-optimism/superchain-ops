@@ -2,11 +2,33 @@ set dotenv-load
 
 export rpcUrl := env_var('ETH_RPC_URL')
 export signatures := env_var_or_default('SIGNATURES', '')
+export councilSafe := env_var('COUNCIL_SAFE')
+export foundationSafe := env_var('FOUNDATION_SAFE')
+export ownerSafe := env_var('FOUNDATION_SAFE')
+
 export bundle := "input"
 export location := `pwd`
-export OWNER_SAFE := env_var('FOUNDATION_SAFE')
 
-simulate hdPath='0':
+simulate-council hdPath='0':
+  #!/usr/bin/env bash
+  cd ../../..
+  echo "getting signer address..."
+  if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
+  then
+    signer="0x07dC0893cAfbF810e3E72505041f2865726Fd073"
+  else
+    signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  fi
+  echo "Simulating with: ${signer}"
+  echo ""
+  forge script NestedSignFromJson \
+    --rpc-url ${rpcUrl} \
+    --sender ${signer} \
+    --sig "signJson(string,address)" \
+    "${location}/${bundle}.json" \
+    "${councilSafe}"
+
+simulate-foundation hdPath='0':
   #!/usr/bin/env bash
   cd ../../..
   echo "getting signer address..."
@@ -18,12 +40,12 @@ simulate hdPath='0':
   fi
   echo "Simulating with: ${signer}"
   echo ""
-  forge build
-  forge script SignFromJson \
+  forge script NestedSignFromJson \
     --rpc-url ${rpcUrl} \
-    --sig "signJson(string)" \
+    --sender ${signer} \
+    --sig "signJson(string,address)" \
     "${location}/${bundle}.json" \
-    --sender ${signer}
+    "${foundationSafe}"
 
 sign hdPath='0':
   #!/usr/bin/env bash
