@@ -8,17 +8,19 @@ import {stdJson} from "forge-std/StdJson.sol";
 import {console} from "forge-std/console.sol";
 
 contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
-
+    /// @dev Signs the approveHash transaction from the Nested Safe to the System Owner Safe.
     function signJson(string memory _path, address _signerSafe) public {
         _loadJson(_path);
         sign(_signerSafe);
     }
 
+    /// @dev Submits signatures to call approveHash on the System Owner Safe.
     function approveJson(string memory _path, address _signerSafe, bytes memory _signatures) public {
         _loadJson(_path);
         approve(_signerSafe, _signatures);
     }
 
+    /// @dev Executes the transaction from the System Owner Safe.
     function runJson(string memory _path) public {
         _loadJson(_path);
         run();
