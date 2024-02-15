@@ -107,3 +107,12 @@ execute-foundation hdPath='0':
     "${location}/${bundle}.json" \
     "${foundationSafe}" \
     "${signatures}"
+
+simulated-run hdPath='0':
+  #!/usr/bin/env bash
+  cd ../../..
+  forge script NestedSignFromJson \
+    --fork-url ${rpcUrl} \
+    --sender ${randomPersonEoa} \
+    --sig "runJson(string)" \
+    ${location}/${bundle}.json
