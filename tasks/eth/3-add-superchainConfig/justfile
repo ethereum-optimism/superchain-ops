@@ -75,12 +75,30 @@ sign-foundation hdPath='0':
     "${location}/${bundle}.json" \
     "${foundationSafe}"
 
-execute hdPath='0':
+execute-council hdPath='0':
   #!/usr/bin/env bash
-  cd ../../..
+  cd ../..
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-  forge build
-  forge script --fork-url ${ETH_RPC_URL} SignFromJson \
-    --sig "runJson(string,bytes)" "${location}/${bundle}.json" ${SIGNATURES} \
-    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
-    --sender ${sender}
+  forge script NestedSignFromJson \
+    --fork-url ${rpcUrl} \
+    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
+    --broadcast \
+    --sender ${sender} \
+    --sig "approveJson(string,address,bytes)" \
+    "${location}/${bundle}.json" \
+    "${councilSafe}" \
+    "${signatures}"
+
+execute-foundation hdPath='0':
+  #!/usr/bin/env bash
+  cd ../..
+  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  forge script NestedSignFromJson \
+    --fork-url ${rpcUrl} \
+    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
+    --broadcast \
+    --sender ${sender} \
+    --sig "approveJson(string,address,bytes)" \
+    "${location}/${bundle}.json" \
+    "${foundationSafe}" \
+    "${signatures}"
