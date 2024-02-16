@@ -20,12 +20,29 @@ will begin querying it for the paused status.
 
 ## State Overrides
 
-There should also be a single 'State Override' in the Foundation Safe contract
-(`0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`) to enable the simulation by reducing the threshold to
-1:
+The following state overrides should be seen:
+
+### `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (The 2 of 2 `ProxyAdmin` owner Safe)
+
+Enables the simulation by reducing the threshold to 1:
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000004` <br/>
   **Value:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+
+### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Council Safe) or `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation Safe)
+
+- **Key:** 0x0000000000000000000000000000000000000000000000000000000000000003 <br/>
+  **Value:** 0x0000000000000000000000000000000000000000000000000000000000000001
+  **Meaning:** The number of owners is set to 1.
+- **Key:** 0x0000000000000000000000000000000000000000000000000000000000000004 <br/>
+  **Value:** 0x0000000000000000000000000000000000000000000000000000000000000001
+  **Meaning:** The threshold is set to 1.
+
+- **Key:** 0x316a0aac0d94f5824f0b66f5bbe94a8c360a17699a1d3a233aafcf7146e9f11c <br/>
+  **Value:** 0x0000000000000000000000000000000000000000000000000000000000000001
+- **Key:** 0xe90b7bceb6e7df5418fb78d8ee546e97c83a08bbccc01a0644d599ccd2a7c2e0 <br/>
+  **Value:** 0x000000000000000000000000ca11bde05977b3631167028862be2a173976ca11
+  **Meaning:** The two previous overrides set the owner of the signing safe to the [Multicall](https://etherscan.io/address/0xca11bde05977b3631167028862be2a173976ca11#code) contract. This allows simulating both the approve hash and the final tx in a single Tenderly tx.
 
 ## State Changes
 
