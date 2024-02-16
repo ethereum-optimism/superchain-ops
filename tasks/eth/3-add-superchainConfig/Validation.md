@@ -49,9 +49,9 @@ There should also be a single 'State Override' in the Foundation Safe contract
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **Before:** `0x000000000000000000000001de1fcfb0851916ca5101820a69b13a4e276bd81f` <br/>
   **After:**  `0x0000000000000000000000010000000000000000000000000000000000000000` <br/>
-  **Meaning:** The "Before" value was `abi.encodePacked(true, address(libAddressManager)`. The boolean
-    value corresponds to the initialized state, which must be true. The address being deleted is
-    the `AddressManager`, it was used in the legacy L1xDM to look up the address of the CTC. It is
+  **Meaning:** The "Before" value was `abi.encodePacked(true, address(libAddressManager)`.
+    - The boolean value corresponds to the initialized state, which must be true.
+    - The address being deleted is the `AddressManager`, it was used in the legacy L1xDM to look up the address of the CTC. It is
     safe to delete because it is no longer in use, as shown by the presence of a [spacer](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.2.0-rc.1/packages/contracts-bedrock/src/universal/CrossDomainMessenger.sol#L19)
     in the current implementation.
 
@@ -60,6 +60,53 @@ There should also be a single 'State Override' in the Foundation Safe contract
   **Meaning:** Sets the `SuperchainConfigProxy` address at slot `0xfb` (251). The correctness of
    this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.2.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L122-L127).
 
+### `0x5a0aae59d09fccbddb6c6cceb07b7279367c3d2a` (The 2 of 2 `ProxyAdmin` owner Safe)
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
+  **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
+  **Meaning:** The Safe nonce is updated.
+
+#### For the Council:
+
+- **Key:** `0xc17968c40bf9fa0af0c9c957e0f95fb7d057c959f119d672b696ef249c039704` <br/>
+  **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
+  **Meaning:** The GnosisSafe `approvedHashes` mapping is updated to indicate approval of this transaction by the council. The correctness of this slot can be verified as follows:
+    - Since this is a nested mapping, we need to use `cast index` twice to confirm that this is the correct slot. The inputs needed are:
+      - The location (`8`) of the `approvedHashes` mapping in the [GnosisSafe storage layout](https://github.com/safe-global/safe-contracts/blob/v1.4.0/contracts/libraries/SafeStorage.sol#L23)
+      - The address of the Council Safe: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`
+      - The safe hash to approve: `0x782cc13743013d9b1b0854b914bba5ebde49971466bf982c98d4ba911eb0d42d`
+    - The using `cast index`, we can verify that:
+      ```shell
+        $ cast index address 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 8
+        0xaaf2b641eaf0bae063c4f2e5670f905e1fb7334436b902d1d880b05bd6228fbd
+        ```
+        and
+      ```shell
+        $ cast index bytes32 0x782cc13743013d9b1b0854b914bba5ebde49971466bf982c98d4ba911eb0d42d 0xaaf2b641eaf0bae063c4f2e5670f905e1fb7334436b902d1d88
+        0xc17968c40bf9fa0af0c9c957e0f95fb7d057c959f119d672b696ef249c039704
+        ```
+      And so the output of the second command matches the key above.
+
+#### For the Foundation:
+
+- **Key:** `0x66dfee7d20e8ae2c45828a6a3c2c79c377eccb8b4cea869195a802469fe70584` <br/>
+  **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
+  **Meaning:** The GnosisSafe `approvedHashes` mapping is updated to indicate approval of this transaction by the council. The correctness of this slot can be verified as follows:
+    - Since this is a nested mapping, we need to use `cast index` twice to confirm that this is the correct slot. The inputs needed are:
+      - The location (`8`) of the `approvedHashes` mapping in the [GnosisSafe storage layout](https://github.com/safe-global/safe-contracts/blob/v1.4.0/contracts/libraries/SafeStorage.sol#L23)
+      - The address of the Council Safe: `0x5a0aae59d09fccbddb6c6cceb07b7279367c3d2a`
+      - The safe hash to approve: `0x782cc13743013d9b1b0854b914bba5ebde49971466bf982c98d4ba911eb0d42d`
+    - The using `cast index`, we can verify that:
+      ```shell
+        $ cast index address 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 8
+        0x13908ba1c0e379ab58c6445554ab471f3d4efb06e3c4cf966c4f5e918eca67bd
+      ```
+      and
+      ```shell
+        $ cast index bytes32 0x782cc13743013d9b1b0854b914bba5ebde49971466bf982c98d4ba911eb0d42d 0x13908ba1c0e379ab58c6445554ab471f3d4efb06e3c4cf966c4f5e918eca67bd
+        0x66dfee7d20e8ae2c45828a6a3c2c79c377eccb8b4cea869195a802469fe70584
+      ```
+      And so the output of the second command matches the key above.
 
 ### `0x5a7749f83b81b301cab5f48eb8516b986daef23d` (`L1ERC721BridgeProxy`)
 
@@ -81,6 +128,12 @@ There should also be a single 'State Override' in the Foundation Safe contract
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
   **After:** `0x00000000000000000000000074e273220fa1cb62fd756fe6cbda8bbb89404ded` <br/>
   **Meaning:** Implementation address is set to the new [`OptimismMintableERC20Factory`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.2.0-rc.1/op-chain-ops/cmd/op-upgrade-extended-pause/main.go#L51-L53).
+
+### Foundation Only: `0x847b5c174615b1b7fdf770882256e2d3e95b9d92` (Foundation Safe)
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
+  **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
+  **Meaning:** The nonce is increased by one.
 
 ### `0x99c9fc46f92e8a1c0dec1b1747d010903e884be1` (`L1StandardBridgeProxy`)
 
@@ -121,6 +174,12 @@ There should also be a single 'State Override' in the Foundation Safe contract
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
   **After:** `0x000000000000000000000000ababe63514ddd6277356f8cc3d6518aa8bdeb4de` <br/>
   **Meaning:** Implementation address is set to the new [`OptimismPortal`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.2.0-rc.1/op-chain-ops/cmd/op-upgrade-extended-pause/main.go#L39-L42).
+
+### Council Only: `0xc2819dc788505aac350142a7a707bf9d03e3bd03` (Council Safe)
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
+  **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
+  **Meaning:** The nonce is increased by one.
 
 ### `0xde1fcfb0851916ca5101820a69b13a4e276bd81f` (`AddressManager`)
 

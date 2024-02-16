@@ -39,8 +39,16 @@ Remember that by default just is running with the address derived from
 simulate [X]`, where X is the derivation path of the address
 that you want to use.
 
-``` shell
-just simulate
+Depending on whether you are signing on behalf of the Foundation or Security Council:
+
+```shell
+just simulate-council
+```
+
+or
+
+```shell
+just simulate-foundation
 ```
 
 You will see a "Simulation link" from the output.
@@ -106,8 +114,14 @@ Once the validations are done, it's time to actually sign the
 transaction. Make sure your ledger is still unlocked and run the
 following:
 
-``` shell
-just sign # or just sign <hdPath>
+```shell
+just simulate-council # or just simulate-council <hdPath>
+```
+
+or
+
+```shell
+just simulate-foundation # or just simulate-foundation <hdPath>
 ```
 
 > [!IMPORTANT] This is the most security critical part of the
