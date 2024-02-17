@@ -1,0 +1,14 @@
+name: Setup
+description: Common setup steps used by our workflows
+runs:
+  using: composite
+  steps:
+    - name: Setup foundry
+      uses: foundry-rs/foundry-toolchain@v1
+
+    - name: Setup just
+      uses: extractions/setup-just@v1
+
+    - name: Install contracts
+      run: just install-contracts
+
