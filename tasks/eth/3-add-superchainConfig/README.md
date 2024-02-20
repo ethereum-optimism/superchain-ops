@@ -42,13 +42,13 @@ that you want to use.
 Depending on whether you are signing on behalf of the Foundation or Security Council:
 
 ```shell
-just simulate-council
+just simulate council
 ```
 
 or
 
 ```shell
-just simulate-foundation
+just simulate foundation
 ```
 
 You will see a "Simulation link" from the output.
@@ -115,13 +115,13 @@ transaction. Make sure your ledger is still unlocked and run the
 following:
 
 ```shell
-just simulate-council # or just simulate-council <hdPath>
+just sign council # or just sign council <hdPath>
 ```
 
 or
 
 ```shell
-just simulate-foundation # or just simulate-foundation <hdPath>
+just sign foundation # or just sign foundation <hdPath>
 ```
 
 > [!IMPORTANT] This is the most security critical part of the
