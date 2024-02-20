@@ -11,38 +11,27 @@ export foundationSafe := env_var('FOUNDATION_SAFE')
 export ownerSafe := env_var('FOUNDATION_SAFE')
 export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 
-
-simulate-council hdPath='0':
+simulate whichSafe hdPath='0':
   #!/usr/bin/env bash
   cd ../../..
   echo "getting signer address..."
-  if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
+  if [ t"{{whichSafe}}" == t"foundation" ]
   then
-    signer="0x07dC0893cAfbF810e3E72505041f2865726Fd073"
-    echo "Simulating with first owner: ${signer}"
-  else
-    signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-    echo "Simulating with leger account: ${signer}"
-  fi
-  echo ""
-  forge script NestedSignFromJson \
-    --rpc-url ${rpcUrl} \
-    --sender ${signer} \
-    --sig "signJson(string,address)" \
-    "${location}/${bundle}.json" \
-    "${councilSafe}"
-
-simulate-foundation hdPath='0':
-  #!/usr/bin/env bash
-  cd ../../..
-  echo "getting signer address..."
-  if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
-  then
+    safe="${foundationSafe}"
     signer="0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64"
-    echo "Simulating with first owner: ${signer}"
-  else
+  fi
+  if [ t"{{whichSafe}}" == t"council" ]
+  then
+    safe="${councilSafe}"
+    signer="0x07dC0893cAfbF810e3E72505041f2865726Fd073"
+  fi
+  echo "Simulating call to the {{whichSafe}} safe at ${safe}"
+  if [ t"$SIMULATE_WITHOUT_LEDGER" != t1 ]
+  then
     signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-    echo "Simulating with legder account: ${signer}"
+    echo "Simulating with ledger account: ${signer}"
+    else
+      echo "Simulating without ledger using the first owner account: ${signer}"
   fi
   echo ""
   forge script NestedSignFromJson \
@@ -50,7 +39,7 @@ simulate-foundation hdPath='0':
     --sender ${signer} \
     --sig "signJson(string,address)" \
     "${location}/${bundle}.json" \
-    "${foundationSafe}"
+    "${safe}"
 
 sign-council hdPath='0':
   #!/usr/bin/env bash
