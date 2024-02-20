@@ -15,19 +15,16 @@ simulate whichSafe hdPath='0':
   #!/usr/bin/env bash
   cd ../../..
   echo "getting signer address..."
-  if [ t"{{whichSafe}}" == t"foundation" ]
-  then
+  if [ t"{{whichSafe}}" == t"foundation" ]; then
     safe="${foundationSafe}"
     signer="0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64"
   fi
-  if [ t"{{whichSafe}}" == t"council" ]
-  then
+  if [ t"{{whichSafe}}" == t"council" ]; then
     safe="${councilSafe}"
     signer="0x07dC0893cAfbF810e3E72505041f2865726Fd073"
   fi
   echo "Simulating call to the {{whichSafe}} safe at ${safe}"
-  if [ t"$SIMULATE_WITHOUT_LEDGER" != t1 ]
-  then
+  if [ t"$SIMULATE_WITHOUT_LEDGER" != t1 ]; then
     signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
     echo "Simulating with ledger account: ${signer}"
     else
@@ -44,13 +41,13 @@ simulate whichSafe hdPath='0':
 sign whichSafe hdPath='0':
   #!/usr/bin/env bash
   cd ../../..
-  if [ t"{{whichSafe}}" == t"foundation" ]
-  then
+  if [ t"{{whichSafe}}" == t"foundation" ]; then
     safe="${foundationSafe}"
+    echo "Using foundation safe at ${safe}"
   fi
-  if [ t"{{whichSafe}}" == t"council" ]
-  then
+  if [ t"{{whichSafe}}" == t"council" ]; then
     safe="${councilSafe}"
+    echo "Using council safe at ${safe}"
   fi
   echo "getting signer address..."
   signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
@@ -66,13 +63,13 @@ sign whichSafe hdPath='0':
 execute whichSafe hdPath='0':
   #!/usr/bin/env bash
   cd ../../..
-  if [ t"{{whichSafe}}" == t"foundation" ]
-  then
+  if [ t"{{whichSafe}}" == t"foundation" ]; then
     safe="${foundationSafe}"
+    echo "Using foundation safe at ${safe}"
   fi
-  if [ t"{{whichSafe}}" == t"council" ]
-  then
+  if [ t"{{whichSafe}}" == t"council" ]; then
     safe="${councilSafe}"
+    echo "Using council safe at ${safe}"
   fi
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge script NestedSignFromJson \
