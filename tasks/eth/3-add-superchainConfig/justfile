@@ -63,9 +63,17 @@ sign whichSafe hdPath='0':
     "${location}/${bundle}.json" \
     "${safe}"
 
-execute-council hdPath='0':
+execute whichSafe hdPath='0':
   #!/usr/bin/env bash
   cd ../../..
+  if [ t"{{whichSafe}}" == t"foundation" ]
+  then
+    safe="${foundationSafe}"
+  fi
+  if [ t"{{whichSafe}}" == t"council" ]
+  then
+    safe="${councilSafe}"
+  fi
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge script NestedSignFromJson \
     --fork-url ${rpcUrl} \
@@ -74,21 +82,7 @@ execute-council hdPath='0':
     --sender ${sender} \
     --sig "approveJson(string,address,bytes)" \
     "${location}/${bundle}.json" \
-    "${councilSafe}" \
-    "${signatures}"
-
-execute-foundation hdPath='0':
-  #!/usr/bin/env bash
-  cd ../../..
-  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-  forge script NestedSignFromJson \
-    --fork-url ${rpcUrl} \
-    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
-    --broadcast \
-    --sender ${sender} \
-    --sig "approveJson(string,address,bytes)" \
-    "${location}/${bundle}.json" \
-    "${foundationSafe}" \
+    "${safe}" \
     "${signatures}"
 
 simulated-run hdPath='0':
