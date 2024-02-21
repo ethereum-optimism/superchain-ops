@@ -68,7 +68,7 @@ And we do indeed see these entries:
   [Proxy.sol](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.2.0-rc.1/packages/contracts-bedrock/src/universal/Proxy.sol#L104)
   and
   [Constants.sol](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.2.0-rc.1/packages/contracts-bedrock/src/libraries/Constants.sol#L26-L27).
-- In order to minimize the validation effort, **"Before"** values are only included below when they are non-zero prior to the upgrade.
+- In order to minimize the validation effort, **"Before"** values are only included below when they are not implementation addresses being swapped out, and when they are non-zero prior to the upgrade.
 
 ### `0x229047fed2591dbec1ef1118d64f7af3db9eb290` (`SystemConfigProxy`)
 
