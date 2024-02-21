@@ -31,18 +31,33 @@ Enables the simulation by reducing the threshold to 1:
 
 ### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Council Safe) or `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation Safe)
 
+The Safe you are signing for will have the following overrides which will set the [Multicall](https://etherscan.io/address/0xca11bde05977b3631167028862be2a173976ca11#code) contract as the sole owner of the signing safe. This allows simulating both the approve hash and the final tx in a single Tenderly tx.
+
 - **Key:** 0x0000000000000000000000000000000000000000000000000000000000000003 <br/>
   **Value:** 0x0000000000000000000000000000000000000000000000000000000000000001
   **Meaning:** The number of owners is set to 1.
+
 - **Key:** 0x0000000000000000000000000000000000000000000000000000000000000004 <br/>
   **Value:** 0x0000000000000000000000000000000000000000000000000000000000000001
   **Meaning:** The threshold is set to 1.
 
+The following two overrides are modifications to the [`owners` mapping](https://github.com/safe-global/safe-contracts/blob/v1.4.0/contracts/libraries/SafeStorage.sol#L15). For the purpose of calculating the storage, note that this mapping is in slot `2`.
+This mapping implements a linked list for iterating through the list of owners. Since we'll only have one owner (Multicall), and the `0x01` address is used as the first and last entry in the linked list, we will see the following overrides:
+- `owners[1] -> 0xca11bde05977b3631167028862be2a173976ca11`
+- `owners[0xca11bde05977b3631167028862be2a173976ca11] -> 1`
+
+And we do indeed see these entries:
+
 - **Key:** 0x316a0aac0d94f5824f0b66f5bbe94a8c360a17699a1d3a233aafcf7146e9f11c <br/>
   **Value:** 0x0000000000000000000000000000000000000000000000000000000000000001
+  **Meaning:** This is `owners[0xca11bde05977b3631167028862be2a173976ca11] -> 1`, so the key can be
+    derived from `cast index address 0xca11bde05977b3631167028862be2a173976ca11 2`.
+
+
 - **Key:** 0xe90b7bceb6e7df5418fb78d8ee546e97c83a08bbccc01a0644d599ccd2a7c2e0 <br/>
   **Value:** 0x000000000000000000000000ca11bde05977b3631167028862be2a173976ca11
-  **Meaning:** The two previous overrides set the owner of the signing safe to the [Multicall](https://etherscan.io/address/0xca11bde05977b3631167028862be2a173976ca11#code) contract. This allows simulating both the approve hash and the final tx in a single Tenderly tx.
+  **Meaning:** This is `owners[1] -> 0xca11bde05977b3631167028862be2a173976ca11`, so the key can be
+    derived from `cast index address 0x0000000000000000000000000000000000000001`.
 
 ## State Changes
 
