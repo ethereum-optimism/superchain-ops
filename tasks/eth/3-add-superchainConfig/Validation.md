@@ -57,7 +57,7 @@ And we do indeed see these entries:
 - **Key:** 0xe90b7bceb6e7df5418fb78d8ee546e97c83a08bbccc01a0644d599ccd2a7c2e0 <br/>
   **Value:** 0x000000000000000000000000ca11bde05977b3631167028862be2a173976ca11
   **Meaning:** This is `owners[1] -> 0xca11bde05977b3631167028862be2a173976ca11`, so the key can be
-    derived from `cast index address 0x0000000000000000000000000000000000000001`.
+    derived from `cast index address 0x0000000000000000000000000000000000000001 2`.
 
 ## State Changes
 
