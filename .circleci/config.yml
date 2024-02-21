@@ -143,10 +143,12 @@ jobs:
           name: just simulate 3-add-superchain-config
           command: |
             just install
+            forge clean
+            forge build
             cd tasks/eth/3-add-superchainConfig
             export SIMULATE_WITHOUT_LEDGER=1
-            just simulate-council
-            just simulate-foundation
+            just simulate council
+            just simulate foundation
   just_simulate_sc_rehearsal_1:
     docker:
       - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
@@ -240,7 +242,7 @@ workflows:
         jobs:
         # Please add an invocation to `just simulate` if a ceremony is
         # active (e.g. it is the next ceremony to perform or you
-        # expect the ceremony to work continously), and remove it once
+        # expect the ceremony to work continuously), and remove it once
         # the ceremony is for historical archive only (e.g. the
         # ceremony is done).
           - just_simulate_add_superchain_config
