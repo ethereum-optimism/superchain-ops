@@ -114,7 +114,7 @@ And we do indeed see these entries:
         ```
         and
       ```shell
-        $ cast index bytes32 0x782cc13743013d9b1b0854b914bba5ebde49971466bf982c98d4ba911eb0d42d 0xaaf2b641eaf0bae063c4f2e5670f905e1fb7334436b902d1d88
+        $ cast index bytes32 0x782cc13743013d9b1b0854b914bba5ebde49971466bf982c98d4ba911eb0d42d 0xaaf2b641eaf0bae063c4f2e5670f905e1fb7334436b902d1d880b05bd6228fbd
         0xc17968c40bf9fa0af0c9c957e0f95fb7d057c959f119d672b696ef249c039704
         ```
       And so the output of the second command matches the key above.
