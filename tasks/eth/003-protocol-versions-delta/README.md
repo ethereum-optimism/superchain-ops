@@ -28,7 +28,7 @@ version earlier. This isn't an issue, as both are informative signals.
 cd superchain-ops
 git pull
 just install
-cd tasks/eth/03-protocol-version
+cd tasks/eth/003-protocol-version
 ```
 
 ### 2. Setup Ledger

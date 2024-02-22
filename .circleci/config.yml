@@ -133,22 +133,41 @@ jobs:
               echo "L1 RPC URL: $L1_RPC_URL"
               echo "L2 RPC URL: $L2_RPC_URL"
               # Use L1_RPC_URL and L2_RPC_URL here.
-  just_simulate_add_superchain_config:
+
+  just_simulate_003-protocol-versions-delta:
     docker:
       - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
 
     steps:
       - checkout
       - run:
-          name: just simulate 3-add-superchain-config
+          name: just simulate 003-protocol-versions-delta
           command: |
             just install
             forge clean
             forge build
-            cd tasks/eth/3-add-superchainConfig
+            cd tasks/eth/003-protocol-versions-delta
             export SIMULATE_WITHOUT_LEDGER=1
             just simulate council
             just simulate foundation
+
+  just_simulate_004_add_superchain_config:
+    docker:
+      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
+
+    steps:
+      - checkout
+      - run:
+          name: just simulate 004-add-superchain-config
+          command: |
+            just install
+            forge clean
+            forge build
+            cd tasks/eth/004-add-superchainConfig
+            export SIMULATE_WITHOUT_LEDGER=1
+            just simulate council
+            just simulate foundation
+
   just_simulate_sc_rehearsal_1:
     docker:
       - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
@@ -245,7 +264,8 @@ workflows:
         # expect the ceremony to work continuously), and remove it once
         # the ceremony is for historical archive only (e.g. the
         # ceremony is done).
-          - just_simulate_add_superchain_config
+          - just_simulate_003-protocol-versions-delta
+          - just_simulate_004_add_superchain_config
           - just_simulate_sc_rehearsal_1
           - just_simulate_sc_rehearsal_2
           - just_simulate_sc_rehearsal_4
