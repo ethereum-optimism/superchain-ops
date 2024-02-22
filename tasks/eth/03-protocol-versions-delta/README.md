@@ -1,6 +1,15 @@
 # Mainnet Protocol Versions Update - 5.0.0 (Delta)
 
-Status: DRAFT, NOT READY TO SIGN
+Status: READY_TO_SIGN
+
+## Objective
+
+This is the playbook for executing
+
+The proposal was:
+- [X] approved by Token House voting here: https://vote.optimism.io/proposals/64861580915106728278960188313654044018229192803489945934331754023009986585740
+- [X] not vetoed by the Citizens' house here: https://snapshot.org/#/citizenshouse.eth/proposal/0x6efd678a37dd547f40956fb613047ffc077c234b7723298419ca54f40b8531de
+
 
 ## Objective
 
