@@ -1,14 +1,11 @@
 # Upgrade #4 Multisig Ceremony
 
-Status: DRAFT, NOT READY TO SIGN
-
-> [!IMPORTANT] !!! DO NOT SIGN using this playbook yet, as the associated governance proposal has
-> not yet passed.
+Status: READY_TO_SIGN
 
 ## Objective
 
 This is the playbook for executing Upgrade #4, pending approval by governance. Voting on this
-proposal is tracked at https://vote.optimism.io/proposals/tbd.
+proposal is tracked at https://vote.optimism.io/proposals/110376471005925230990107796624328147348746431603727026291575353089698990280147.
 
 The proposal should be treated as the source of truth and used by the multisig signers to verify the
 correctness of the onchain operations.
