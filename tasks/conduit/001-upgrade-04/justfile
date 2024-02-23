@@ -4,97 +4,56 @@ export rpcUrl := env_var_or_default('ETH_RPC_URL', 'https://ethereum.publicnode.
 export signatures := env_var_or_default('SIGNATURES', '')
 export bundle := "input"
 export location := `pwd`
-
-# Accounts
-export councilSafe := "0xc2819DC788505Aac350142A7A707BF9D03E3Bd03"
-export councilOwner0 := "0x07dC0893cAfbF810e3E72505041f2865726Fd073"
-
-export foundationSafe := "0x847B5c174615B1B7fDF770882256e2D3E95b9D92"
-export foundationOwner0 := "0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64"
-
 export ownerSafe := env_var('OWNER_SAFE')
-export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+export randomEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 
-simulate whichSafe hdPath='0':
+simulate l2ChainId hdPath='0':
   #!/usr/bin/env bash
   cd ../../..
-  echo "getting signer address..."
-  if [ t"{{whichSafe}}" == t"foundation" ]; then
-    safe="${foundationSafe}"
-    signer="${foundationOwner0}"
-    echo "signer: ${signer}"
-    echo "safe: ${safe}"
-  fi
-  if [ t"{{whichSafe}}" == t"council" ]; then
-    safe="${councilSafe}"
-    signer="${councilOwner0}"
-    echo "signer: ${signer}"
-    echo "safe: ${safe}"
-  fi
-  echo "Simulating call to the {{whichSafe}} safe at ${safe}"
-  if [ t"$SIMULATE_WITHOUT_LEDGER" != t1 ]; then
+  echo "Safe address: ${ownerSafe}"
+  echo "Chain ID: ${l2ChainId}"
+  echo "Getting signer address..."
+
+  if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
+  then
+    # Use the first owner of the safe as the signer
+    owners=$(cast call "0x4a4962275DF8C60a80d3a25faEc5AA7De116A746" "getOwners()(address[])" )
+    cleanedOwners=$(echo "$output" | tr -d '[] ' )
+    signer=$(echo "$cleanedOwners" | cut -d ',' -f1)
+    echo "Simulating without ledger using first Safe owner account: ${signer}"
+  else
     signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
     echo "Simulating with ledger account: ${signer}"
-    else
-      echo "Simulating without ledger using the first owner account: ${signer}"
   fi
-  echo ""
-  forge script NestedSignFromJson \
-    --rpc-url ${rpcUrl} \
-    --sender ${signer} \
-    --sig "signJson(string,address)" \
-    "${location}/${bundle}.json" \
-    "${safe}"
 
-sign whichSafe hdPath='0':
+  echo ""
+  forge build
+  forge script SignFromJson \
+    --rpc-url ${rpcUrl} \
+    --sig "signJson(string)" \
+    "${location}/${bundle}-${l2ChainId}.json" \
+    --sender ${signer}
+
+sign l2ChainId hdPath='0':
   #!/usr/bin/env bash
   cd ../../..
-  if [ t"{{whichSafe}}" == t"foundation" ]; then
-    safe="${foundationSafe}"
-    echo "Using foundation safe at ${safe}"
-  fi
-  if [ t"{{whichSafe}}" == t"council" ]; then
-    safe="${councilSafe}"
-    echo "Using council safe at ${safe}"
-  fi
-  echo "getting signer address..."
+  echo "Getting signer address..."
   signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   echo "Signing with: ${signer}"
   echo ""
+  forge build
   $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
-  forge script NestedSignFromJson \
+  forge script SignFromJson \
     --rpc-url ${rpcUrl} \
-    --sig "signJson(string,address)" \
-    "${location}/${bundle}.json" \
-    "${safe}"
+    --sig "signJson(string)"
+    "${location}/${bundle}-${l2ChainId}.json"
 
-execute whichSafe hdPath='0':
+execute l2ChainId hdPath='0':
   #!/usr/bin/env bash
   cd ../../..
-  if [ t"{{whichSafe}}" == t"foundation" ]; then
-    safe="${foundationSafe}"
-    echo "Using foundation safe at ${safe}"
-  fi
-  if [ t"{{whichSafe}}" == t"council" ]; then
-    safe="${councilSafe}"
-    echo "Using council safe at ${safe}"
-  fi
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-  forge script NestedSignFromJson \
-    --fork-url ${rpcUrl} \
-    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
-    --broadcast \
-    --sender ${sender} \
-    --sig "approveJson(string,address,bytes)" \
-    "${location}/${bundle}.json" \
-    "${safe}" \
-    "${signatures}"
-
-simulated-run hdPath='0':
-  #!/usr/bin/env bash
-  cd ../../..
-  forge script NestedSignFromJson \
-    --fork-url ${rpcUrl} \
-    --sender ${randomPersonEoa} \
-    --sig "runJson(string)" \
-    ${location}/${bundle}.json
+  forge build
+  forge script --fork-url ${ETH_RPC_URL} SignFromJson \
+    --sig "runJson(string,bytes)" "${location}/${bundle}-${l2ChainId}.json" ${SIGNATURES} \
+    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
+    --sender ${sender}

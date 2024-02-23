@@ -1,10 +1,11 @@
 # Upgrade #4 Multisig Ceremony
 
-Status: READY_TO_SIGN
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
-This is the playbook for executing Upgrade #4.
+This is the playbook for executing [Upgrade #4](https://gov.optimism.io/t/upgrade-proposal-4/7534) on Conduit mainnet and testnet chains.
+This playbook is based on the OP Mainnet playbook for this upgrade which can be found [here](../../eth/004-add-superchainConfig/README.md).
 
 The proposal was:
 - [X] approved by Token House voting here: https://vote.optimism.io/proposals/110376471005925230990107796624328147348746431603727026291575353089698990280147
@@ -12,6 +13,15 @@ The proposal was:
 
 The proposal should be treated as the source of truth and used by the multisig signers to verify the
 correctness of the onchain operations.
+
+The playbook can be used for the following chains:
+- Lyra Mainnet, chain ID 957
+- Mode Mainnet, chain ID 34443
+- Orderly Mainnet, chain ID 291
+
+## Setup
+
+If you have not run through a playbook in this repository before, please read through the root [README](../../../README.md) to get an understanding of the directory structure and how to install the necessary tools.
 
 ## Approving the transaction
 
@@ -21,10 +31,12 @@ correctness of the onchain operations.
 cd superchain-ops
 git pull
 just install
-cd tasks/eth/004-add-superchainConfig
+cd tasks/conduit/001-upgrade-04
 ```
 
 ### 2. Setup Ledger
+
+This playbook assumes all signers are using ledger wallets.
 
 Your Ledger needs to be connected and unlocked. The Ethereum
 application needs to be opened on Ledger with the message "Application
@@ -35,20 +47,12 @@ is ready".
 Make sure your ledger is still unlocked and run the following.
 
 Remember that by default just is running with the address derived from
-`/0` (first nonce). If you wish to use a different account, run `just
-simulate [X]`, where X is the derivation path of the address
-that you want to use.
+`/0'` (first account). If you wish to use a different account, run `just
+simulate [X]`, where X is the account index for the address
+that you want to use. Specifically, the derivation path is `m/44'/60'/{X}'/0/0`.
 
-Depending on whether you are signing on behalf of the Foundation or Security Council:
-
-```shell
-just simulate council
-```
-
-or
-
-```shell
-just simulate foundation
+``` shell
+just simulate {l2ChainId} # or `just simulate {l2ChainId} {X}` where X is the account index
 ```
 
 You will see a "Simulation link" from the output.
@@ -115,13 +119,7 @@ transaction. Make sure your ledger is still unlocked and run the
 following:
 
 ```shell
-just sign council # or just sign council <hdPath>
-```
-
-or
-
-```shell
-just sign foundation # or just sign foundation <hdPath>
+just sign {l2ChainId} # or `just sign {l2ChainId} {X}` where X is the account index
 ```
 
 > [!IMPORTANT] This is the most security critical part of the
