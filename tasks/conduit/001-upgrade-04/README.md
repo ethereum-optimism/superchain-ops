@@ -14,10 +14,11 @@ The proposal was:
 The proposal should be treated as the source of truth and used by the multisig signers to verify the
 correctness of the onchain operations.
 
-The playbook can be used for the following chains:
-- Lyra Mainnet, chain ID 957
-- Mode Mainnet, chain ID 34443
-- Orderly Mainnet, chain ID 291
+The playbook can be used for the following chains, which is the set of chains controlled by `0x4a4962275DF8C60a80d3a25faEc5AA7De116A746`.
+- Lyra Mainnet
+- Mode Mainnet
+- Orderly Mainnet
+- Public Goods Network Mainnet
 
 ## Setup
 
@@ -52,7 +53,7 @@ simulate [X]`, where X is the account index for the address
 that you want to use. Specifically, the derivation path is `m/44'/60'/{X}'/0/0`.
 
 ``` shell
-just simulate {l2ChainId} # or `just simulate {l2ChainId} {X}` where X is the account index
+just simulate {l2ChainName} # or `just simulate {l2ChainName} {X}` where X is the account index
 ```
 
 You will see a "Simulation link" from the output.
@@ -119,7 +120,7 @@ transaction. Make sure your ledger is still unlocked and run the
 following:
 
 ```shell
-just sign {l2ChainId} # or `just sign {l2ChainId} {X}` where X is the account index
+just sign {l2ChainName} # or `just sign {l2ChainName} {X}` where X is the account index
 ```
 
 > [!IMPORTANT] This is the most security critical part of the

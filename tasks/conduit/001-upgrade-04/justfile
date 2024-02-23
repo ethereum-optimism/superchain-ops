@@ -7,19 +7,18 @@ export location := `pwd`
 export ownerSafe := env_var('OWNER_SAFE')
 export randomEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 
-simulate l2ChainId hdPath='0':
+simulate l2ChainName hdPath='0':
   #!/usr/bin/env bash
   cd ../../..
   echo "Safe address: ${ownerSafe}"
-  echo "Chain ID: ${l2ChainId}"
+  echo "Chain name: {{l2ChainName}}"
   echo "Getting signer address..."
 
   if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
   then
     # Use the first owner of the safe as the signer
-    owners=$(cast call "0x4a4962275DF8C60a80d3a25faEc5AA7De116A746" "getOwners()(address[])" )
-    cleanedOwners=$(echo "$output" | tr -d '[] ' )
-    signer=$(echo "$cleanedOwners" | cut -d ',' -f1)
+    owners=$(cast call $ownerSafe "getOwners()(address[])" | tr -d '[]' | tr ',' '\n')
+    signer=$(echo $owners | awk '{print $1}')
     echo "Simulating without ledger using first Safe owner account: ${signer}"
   else
     signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
@@ -27,33 +26,30 @@ simulate l2ChainId hdPath='0':
   fi
 
   echo ""
-  forge build
   forge script SignFromJson \
     --rpc-url ${rpcUrl} \
     --sig "signJson(string)" \
-    "${location}/${bundle}-${l2ChainId}.json" \
+    "${location}/${bundle}-{{l2ChainName}}.json" \
     --sender ${signer}
 
-sign l2ChainId hdPath='0':
+sign l2ChainName hdPath='0':
   #!/usr/bin/env bash
   cd ../../..
   echo "Getting signer address..."
   signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   echo "Signing with: ${signer}"
   echo ""
-  forge build
   $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
   forge script SignFromJson \
     --rpc-url ${rpcUrl} \
     --sig "signJson(string)"
-    "${location}/${bundle}-${l2ChainId}.json"
+    "${location}/${bundle}-${l2ChainName}.json"
 
-execute l2ChainId hdPath='0':
+execute l2ChainName hdPath='0':
   #!/usr/bin/env bash
   cd ../../..
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-  forge build
   forge script --fork-url ${ETH_RPC_URL} SignFromJson \
-    --sig "runJson(string,bytes)" "${location}/${bundle}-${l2ChainId}.json" ${SIGNATURES} \
+    --sig "runJson(string,bytes)" "${location}/${bundle}-${l2ChainName}.json" ${SIGNATURES} \
     --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
     --sender ${sender}
