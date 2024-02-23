@@ -8,7 +8,7 @@ export OWNER_SAFE := env_var('FOUNDATION_SAFE')
 
 simulate taskPath hdPath='0':
   #!/usr/bin/env bash
-  bundlePath="${location}/{{taskPath}}/${bundle}"
+  bundlePath="${location}/{{taskPath}}/${bundle}.json"
   echo "getting signer address..."
   if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
   then
@@ -21,12 +21,12 @@ simulate taskPath hdPath='0':
   forge build
   forge script SignFromJson \
     --rpc-url ${rpcUrl} \
-    --sig "signJson(string)" ${bundlePath}.json \
+    --sig "signJson(string)" ${bundlePath} \
     --sender ${signer}
 
 sign taskPath hdPath='0':
   #!/usr/bin/env bash
-  bundlePath="${location}/{{taskPath}}/${bundle}"
+  bundlePath="${location}/{{taskPath}}/${bundle}.json"
   echo "getting signer address..."
   signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   echo "Signing with: ${signer}"
@@ -36,7 +36,7 @@ sign taskPath hdPath='0':
   forge script SignFromJson \
     --rpc-url ${rpcUrl} \
     --sig "signJson(string)" \
-    ${bundlePath}.json
+    ${bundlePath}
 
 execute taskPath hdPath='0':
   #!/usr/bin/env bash
@@ -50,14 +50,14 @@ execute taskPath hdPath='0':
 
 add-transaction taskPath to sig *params:
   #!/usr/bin/env bash
-  bundlePath="${location}/{{taskPath}}/${bundle}"
-  newBundlePath="${location}/{{taskPath}}/${bundle}-new"
-  backupBundlePath="${bundlePath}-$(date -u '+%Y-%m-%d_%H-%M-%S')"
+  bundlePath="${location}/{{taskPath}}/${bundle}.json"
+  newBundlePath="${location}/{{taskPath}}/${bundle}-new.json"
+  backupBundlePath="${bundlePath}-$(date -u '+%Y-%m-%d_%H-%M-%S').json"
   DATA=$(cast calldata '{{sig}}' {{params}})
   jq --arg to "{{to}}" --arg data "${DATA}" \
     '.transactions += [{"to": $to, "data": $data}]' \
-    ${bundlePath}.json \
-    > ${newbundlePath}.json
-  mv ${bundlePath}.json ${backupBundlePath}.json"
-  mv "${location}/${newbundle}.json" "${location}/${bundle}.json"
-  echo "Old bundle backed up to ${backupbundle}.json"
+    ${bundlePath} \
+    > ${newbundlePath}
+  mv ${bundlePath} ${backupBundlePath}"
+  mv "${newBundlePath}" "${bundlePath}"
+  echo "Old bundle backed up to ${backupBundlePath}."
