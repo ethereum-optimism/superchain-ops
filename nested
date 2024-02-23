@@ -17,7 +17,7 @@ export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 
 simulate whichSafe taskPath hdPath='0':
   #!/usr/bin/env bash
-  bundlePath="${location}/{{taskPath}}/${bundle}"
+  bundlePath=${location}/{{taskPath}}/${bundle}
   echo "getting signer address..."
   if [ t"{{whichSafe}}" == t"foundation" ]; then
     safe="${foundationSafe}"
@@ -48,7 +48,7 @@ simulate whichSafe taskPath hdPath='0':
 
 sign whichSafe taskPath hdPath='0':
   #!/usr/bin/env bash
-  bundlePath="${location}/{{taskPath}}/${bundle}"
+  bundlePath=${location}/{{taskPath}}/${bundle}
   cd ../../..
   if [ t"{{whichSafe}}" == t"foundation" ]; then
     safe="${foundationSafe}"
@@ -71,7 +71,7 @@ sign whichSafe taskPath hdPath='0':
 
 execute whichSafe taskPath hdPath='0':
   #!/usr/bin/env bash
-  bundlePath="${location}/{{taskPath}}/${bundle}"
+  bundlePath=${location}/{{taskPath}}/${bundle}
   cd ../../..
   if [ t"{{whichSafe}}" == t"foundation" ]; then
     safe="${foundationSafe}"
@@ -94,6 +94,7 @@ execute whichSafe taskPath hdPath='0':
 
 simulated-run taskPath hdPath='0':
   #!/usr/bin/env bash
+  bundlePath=${location}/{{taskPath}}/${bundle}
   cd ../../..
   forge script NestedSignFromJson \
     --fork-url ${rpcUrl} \
