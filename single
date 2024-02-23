@@ -8,8 +8,7 @@ export OWNER_SAFE := env_var('FOUNDATION_SAFE')
 
 simulate taskPath hdPath='0':
   #!/usr/bin/env bash
-  bundlePath="${location}/{{taskPath}}/${bundle}.json"
-  cd ../..
+  bundlePath="${location}/{{taskPath}}/${bundle}"
   echo "getting signer address..."
   if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
   then
@@ -22,14 +21,12 @@ simulate taskPath hdPath='0':
   forge build
   forge script SignFromJson \
     --rpc-url ${rpcUrl} \
-    --sig "signJson(string)" \
-    ${bundlePath} \
+    --sig "signJson(string)" ${bundlePath}.json \
     --sender ${signer}
 
 sign taskPath hdPath='0':
   #!/usr/bin/env bash
-  bundlePath="${location}/{{taskPath}}/${bundle}.json"
-  cd ../..
+  bundlePath="${location}/{{taskPath}}/${bundle}"
   echo "getting signer address..."
   signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   echo "Signing with: ${signer}"
@@ -39,12 +36,11 @@ sign taskPath hdPath='0':
   forge script SignFromJson \
     --rpc-url ${rpcUrl} \
     --sig "signJson(string)" \
-    ${bundlePath}
+    ${bundlePath}.json
 
 execute taskPath hdPath='0':
   #!/usr/bin/env bash
   bundlePath="${location}/{{taskPath}}/${bundle}.json"
-  cd ../..
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge build
   forge script --fork-url ${ETH_RPC_URL} SignFromJson \
