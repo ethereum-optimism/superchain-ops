@@ -188,14 +188,6 @@ And we do indeed see these entries:
   **After:** `0x000000000000000000000000566511a1a09561e2896f8c0fd77e8544e59bfdb0` <br/>
   **Meaning:** Implementation address is set to the new [`L1StandardBridge`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.2.0-rc.1/op-chain-ops/cmd/op-upgrade-extended-pause/main.go#L51-L53).
 
-### `0x9ba6e03d8b90de867373db8cf1a58d2f7f006b3a` (`SafeProxy`)
-
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
-  **After:** `0x0000000000000000000000000000000000000000000000000000000000000057` <br/>
-  **Meaning:** The Safe nonce is updated.<br/>
-  **Additional Note:** This number may be slightly different if other transactions have recently
-  been executed. The important thing is that it should increment by 1.
-
 ### `0xbeb5fc579115071764c7423a4f12edde41f106ed` (`OptimismPortalProxy`)
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000035` <br/>
