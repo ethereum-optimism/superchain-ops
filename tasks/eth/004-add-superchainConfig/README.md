@@ -13,6 +13,10 @@ The proposal was:
 The proposal should be treated as the source of truth and used by the multisig signers to verify the
 correctness of the onchain operations.
 
+## Signing and execution
+
+Please see the signing and execution instructions in [NESTED](../../../NESTED.md).
+
 ## Validations
 
 Please see the instructions for [validation](./Validation.md).

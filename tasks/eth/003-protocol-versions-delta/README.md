@@ -20,6 +20,10 @@ Both versions are currently set to 3.1.0 (Regolith), which are the versions set 
 Both are set at the same time in a batch because the time window has passed in which it makes sense to set the recommended
 version earlier. This isn't an issue, as both are informative signals.
 
+## Signing and execution
+
+Please see the signing and execution instructions in [SINGLE.md](../../../SINGLE.md).
+
 ## Validations
 
 On the "Events" tab, you can verify that two `ConfigUpdate` events were emitted from the `ProtocolVersions` proxy,
