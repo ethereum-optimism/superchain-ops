@@ -68,7 +68,7 @@ sign whichSafe hdPath='0':
     "${location}/${bundle}.json" \
     "${safe}"
 
-execute whichSafe hdPath='0':
+approve whichSafe hdPath='0':
   #!/usr/bin/env bash
   cd ../../..
   if [ t"{{whichSafe}}" == t"foundation" ]; then
@@ -89,6 +89,18 @@ execute whichSafe hdPath='0':
     "${location}/${bundle}.json" \
     "${safe}" \
     "${signatures}"
+
+execute hdPath='0':
+  #!/usr/bin/env bash
+  cd ../../..
+  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  forge script NestedSignFromJson \
+    --fork-url ${rpcUrl} \
+    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
+    --broadcast \
+    --sender ${sender} \
+    --sig "runJson(string)" \
+    "${location}/${bundle}.json"
 
 simulated-run hdPath='0':
   #!/usr/bin/env bash

@@ -158,15 +158,17 @@ Facilitator will do the final execution for convenience.
 Share the `Data`, `Signer` and `Signature` with the Facilitator, and
 congrats, you are done!
 
-## [For Facilitator ONLY] How to execute the rehearsal
+## [For Facilitator ONLY] How to approve and execute the transaction
 
-### [After the rehearsal] Execute the output
+### Approve the transaction
 
 1. Collect outputs from all participating signers.
 2. Concatenate all signatures and export it as the `SIGNATURES`
    environment variable, i.e. `export
    SIGNATURES="0x[SIGNATURE1][SIGNATURE2]..."`.
-3. Run `just execute 0 # or 1 or ...` to execute the transaction onchain.
+3. To approve the transaction onchain, run the command for the Safe, either:
+   - `just approve council 0 # or 1 or ...`
+   - `just approve foundation 0 # or 1 or ...`
 
 For example, if the quorum is 2 and you get the following outputs:
 
@@ -187,4 +189,12 @@ Then you should run
 ``` shell
 export SIGNATURES="0xAAAABBBB"
 just execute 0 # or 1 or ...
+```
+
+### Execute the transaction
+
+Once both of the nested safes have approved the transaction, you can run to finalize the transaction.
+
+```
+just execute 0 # or 1 or ...`
 ```
