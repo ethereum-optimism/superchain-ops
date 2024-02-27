@@ -168,6 +168,22 @@ jobs:
             just simulate council
             just simulate foundation
 
+  just_simulate_005-protocol-versions-ecotone:
+    docker:
+      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
+
+    steps:
+      - checkout
+      - run:
+          name: just simulate 005-protocol-versions-ecotone
+          command: |
+            just install
+            forge clean
+            forge build
+            cd tasks/eth/005-protocol-versions-ecotone
+            export SIMULATE_WITHOUT_LEDGER=1
+            just simulate
+
   just_simulate_sc_rehearsal_1:
     docker:
       - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
@@ -266,6 +282,7 @@ workflows:
         # ceremony is done).
           - just_simulate_003-protocol-versions-delta
           - just_simulate_004_add_superchain_config
+          - just_simulate_005-protocol-versions-ecotone
           - just_simulate_sc_rehearsal_1
           - just_simulate_sc_rehearsal_2
           - just_simulate_sc_rehearsal_4
