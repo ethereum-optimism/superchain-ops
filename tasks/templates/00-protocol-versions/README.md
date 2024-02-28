@@ -1,23 +1,26 @@
-# <TODO:TITLE>
+# Mainnet Protocol Versions Update - X.0.0 (Forkname TODO)
 
 Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
-This is the playbook for ... on OP <todo:network>.
+This is the playbook for updating the required/recommended(TODO) protocol versions of the `ProtocolVersions` contract on Ethereum mainnet to X.0.0 (Forkname TODO).
 
-_TODO: You can add transactions to this task by calling_
-```
-just add-transaction <to> <sig> <params>...
-```
-_where `<to>` is the target contract to call and `<sig>` and `<params>` are
-the function signature and params as they should be passed to `cast calldata`.
-Example:_
-```
-just add-transaction 0xAe851f927Ee40dE99aaBb7461C00f9622ab91d60 'setGasConfig(uint256,uint256)' 0 0x010000000000000000000000000000000000000000000000000d273000001db0
-```
-_The old bundle is backed up._
+Both versions are currently set to X.Y.0 (Old Forkname TODO).
 
+## _TODO: TX Creation_
+
+_Transactions can be created using
+```
+export PV_ENC=$(cd ../../../lib/optimism && go run ./op-chain-ops/cmd/protocol-version encode --major <TODO:major-version>)
+# 0x0000000000000000000000000000000000000005000000000000000000000000 
+export PV_ADDR=0x8062AbC286f5e7D9428a0Ccb9AbD71e50d93b935 
+just add-transaction $PV_ADDR 'setRecommended(uint256)' $PV_ENC
+just add-transaction $PV_ADDR 'setRequired(uint256)' $PV_ENC
+```
+This batches setting both, the recommended and required versions in one multicall.
+
+Adapt accordingly if only setting one of require/recommended or if setting different versions._
 
 ## Approving the transaction
 
@@ -27,7 +30,7 @@ _The old bundle is backed up._
 cd superchain-ops
 git pull
 just install
-cd <network>/xx-todo-task
+cd tasks/eth/03-protocol-version
 ```
 
 ### 2. Setup Ledger
@@ -64,27 +67,57 @@ message hash to approve on your Ledger:
 Make sure you are on the "Overview" tab of the tenderly simulation, to
 validate integrity of the simulation, we need to check the following:
 
-1. "Network": Check the network is <todo:network>.
+1. "Network": Check the network is mainnet.
 2. "Timestamp": Check the simulation is performed on a block with a
    recent timestamp (i.e. close to when you run the script).
 3. "Sender": Check the address shown is your signer account. If not,
    you will need to determine which “number” it is in the list of
    addresses on your ledger. By default the script will assume the
-   derivation path is m/44'/60'/0'/0/0. By calling the script with
+   derivation path is `m/44'/60'/0'/0/0`. By calling the script with
    `just simulate 1` it will derive the address using
-   m/44'/60'/1'/0/0 instead.
-
-_TODO: Possibly replace following image with recent "Simulated Transaction" screen shot of Tenderly_
-
-![](./images/tenderly-overview-network.png)
+   `m/44'/60'/1'/0/0` instead.
 
 #### 3.2. Validate correctness of the state diff.
 
 Now click on the "State" tab. Verify that:
 
-_TODO: Describe expected state changes and possibly link out to relevant PRs.
-[This](../../sep/2-op-extended-pause/README.md#32-validate-correctness-of-the-state-diff)
-is a good example of how this can look._
+_TODO: Adapt to actual changes._
+
+* For the `ProtocolVersions` Proxy at `0x8062AbC286f5e7D9428a0Ccb9AbD71e50d93b935` both the
+  recommended and required storage slots are updated from the encoded form of `3.1.0` to `5.0.0`.
+  * key `0x4aaefe95bd84fd3f32700cf3b7566bc944b73138e41958b5785826df2aecace0`
+    * before: `0x0000000000000000000000000000000000000003000000010000000000000000`
+    * after : `0x0000000000000000000000000000000000000005000000000000000000000000`
+  * key `0xe314dfc40f0025322aacc0ba8ef420b62fb3b702cf01e0cdf3d829117ac2ff1a`
+    * before: `0x0000000000000000000000000000000000000003000000010000000000000000`
+    * after : `0x0000000000000000000000000000000000000005000000000000000000000000`
+* All other state changes (2) are a nonce change of the sender account and the multisig.
+
+On the "Events" tab, you can verify that two `ConfigUpdate` events were emitted from the `ProtocolVersions` proxy,
+as well as an `ExecutionSuccess` event by the multisig.
+
+![](./images/tenderly-state.png)
+
+You can verify the correctness of the storage slots with `chisel`.
+Just start it up and enter the slot definitions as found in the contract source code.
+```
+➜ bytes32(uint256(keccak256("protocolversion.required")) - 1)
+Type: bytes32
+└ Data: 0x4aaefe95bd84fd3f32700cf3b7566bc944b73138e41958b5785826df2aecace0
+➜ bytes32(uint256(keccak256("protocolversion.recommended")) - 1)
+Type: bytes32
+└ Data: 0xe314dfc40f0025322aacc0ba8ef420b62fb3b702cf01e0cdf3d829117ac2ff1a
+```
+
+Alternatively, `cast keccak` can be used.
+Call it with the storage slot string identifier, and subtract `1` form the result:
+```
+cast keccak protocolversion.required
+# 0x4aaefe95bd84fd3f32700cf3b7566bc944b73138e41958b5785826df2aecace1
+
+cast keccak protocolversion.recommended
+# 0xe314dfc40f0025322aacc0ba8ef420b62fb3b702cf01e0cdf3d829117ac2ff1b
+```
 
 #### 3.3. Extract the domain hash and the message hash to approve.
 
