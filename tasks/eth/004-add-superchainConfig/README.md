@@ -15,7 +15,7 @@ correctness of the onchain operations.
 
 ## Signing and execution
 
-Please see the signing and execution instructions in [NESTED](../../../NESTED.md).
+Please see the signing and execution instructions in [NESTED.md](../../../NESTED.md).
 
 ## Validations
 
