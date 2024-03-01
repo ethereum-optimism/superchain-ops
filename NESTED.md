@@ -1,5 +1,19 @@
 # Nested Execution
 
+- [Approving the transaction](#approving-the-transaction)
+   - [1. Update repo:](#1-update-repo)
+   - [2. Setup Ledger](#2-setup-ledger)
+   - [3. Simulate and validate the transaction](#3-simulate-and-validate-the-transaction)
+   - [3.1. Validate integrity of the simulation.](#31-validate-integrity-of-the-simulation)
+   - [3.2. Validate correctness of the state diff.](#32-validate-correctness-of-the-state-diff)
+   - [3.3. Extract the domain hash and the message hash to approve.](#33-extract-the-domain-hash-and-the-message-hash-to-approve)
+   - [4. Approve the signature on your ledger](#4-approve-the-signature-on-your-ledger)
+   - [5. Send the output to Facilitator(s)](#5-send-the-output-to-facilitators)
+- [\[For Facilitator ONLY\] How to execute](#for-facilitator-only-how-to-execute)
+   - [Approve the transaction](#approve-the-transaction)
+   - [Execute the transaction](#execute-the-transaction)
+
+
 ## Approving the transaction
 
 ### 1. Update repo:
@@ -185,8 +199,7 @@ just \
    --dotenv-path .env \
    --justfile ../../../nested.just \
    approve \
-   foundation  # or council \
-   0 # or 1 or ...
+   foundation  # or council \ 0 or 1 or ...
 ```
 ### Execute the transaction
 
