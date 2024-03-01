@@ -8,6 +8,7 @@
 cd superchain-ops
 git pull
 just install
+cd tasks/<NETWORK_DIR>/<RUNBOOK_DIR>
 ```
 
 ### 2. Setup Ledger
@@ -25,10 +26,10 @@ If you wish to use a different account, append an `X` to the command to set the 
 
 ```shell
 just \
-   --dotenv-path tasks/<NETWORK_DIR>/<RUNBOOK_DIR>/.env \
-   --justfile single \
+   --dotenv-path .env \
+   --justfile ../../../single.just \
    simulate \
-   tasks/<NETWORK_DIR>/<RUNBOOK_DIR> # 0 or 1 or ...
+   0 # or 1 or ...
 ```
 
 You will see a "Simulation link" from the output.
@@ -54,6 +55,7 @@ validate integrity of the simulation, we need to check the following:
 2. "Timestamp": Check the simulation is performed on a block with a
    recent timestamp (i.e. close to when you run the script).
 3. "Sender": Check the address shown is your signer account. If not see the derivation path Note above.
+![](./images/tenderly-overview-network.png)
 
 #### 3.2. Validate correctness of the state diff.
 
@@ -89,8 +91,8 @@ following:
 
 ``` shell
 just \
-   --dotenv-path tasks/<NETWORK_DIR>/<RUNBOOK_DIR>/.env \
-   --justfile single \
+   --dotenv-path .env \
+   --justfile ../../../single.just \
    sign \
    tasks/<NETWORK_DIR>/<RUNBOOK_DIR> # 0 or 1 or ...
 ```
@@ -157,5 +159,8 @@ Then you should run:
 
 ``` shell
 export SIGNATURES="0xAAAABBBB"
-just execute 0 # or 1 or ...
+just \
+   --dotenv-path .env \
+   --justfile ../../../single.just \
+    execute 0 # or 1 or ...
 ```

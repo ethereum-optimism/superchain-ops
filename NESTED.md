@@ -8,6 +8,7 @@
 cd superchain-ops
 git pull
 just install
+cd tasks/<NETWORK_DIR>/<RUNBOOK_DIR>
 ```
 
 ### 2. Setup Ledger
@@ -26,23 +27,21 @@ If you wish to use a different account, append an `X` to the command to set the 
 For the Security Council:
 
 ```shell
-just \
-   --dotenv-path tasks/<NETWORK_DIR>/<RUNBOOK_DIR>/.env \
-   --justfile nested \
+   just \
+   --dotenv-path .env \
+   --justfile ../../../nested.just \
    simulate \
-   council \
-   tasks/<NETWORK_DIR>/<RUNBOOK_DIR> # 0 or 1 or ...
+   council # 0 or 1 or ...
 ```
 
 For the Foundation:
 
 ```shell
 just \
-   --dotenv-path tasks/<NETWORK_DIR>/<RUNBOOK_DIR>/.env \
-   --justfile nested \
+   --dotenv-path .env \
+   --justfile ../../../nested.just \
    simulate \
-   foundation \
-   tasks/<NETWORK_DIR>/<RUNBOOK_DIR> # 0 or 1 or ...
+   foundation # 0 or 1 or ...
 ```
 
 You will see a "Simulation link" from the output.
@@ -105,22 +104,20 @@ following:
 
 ```shell
 just \
-   --dotenv-path tasks/<NETWORK_DIR>/<RUNBOOK_DIR>/.env \
-   --justfile nested \
+   --dotenv-path .env \
+   --justfile ../../../nested.just \
    sign \
-   council \
-   tasks/<NETWORK_DIR>/<RUNBOOK_DIR> # 0 or 1 or ...
+   council # 0 or 1 or ...
 ```
 
 or
 
 ```shell
 just \
-   --dotenv-path tasks/<NETWORK_DIR>/<RUNBOOK_DIR>/.env \
-   --justfile nested \
+   --dotenv-path .env \
+   --justfile ../../../nested.just \
    sign \
-   foundation \
-   tasks/<NETWORK_DIR>/<RUNBOOK_DIR> # 0 or 1 or ...
+   foundation # 0 or 1 or ...
 ```
 
 > [!IMPORTANT] This is the most security critical part of the
@@ -185,11 +182,11 @@ Then you should run:
 
 ```shell
 just \
-   --dotenv-path tasks/<NETWORK_DIR>/<RUNBOOK_DIR>/.env \
-   --justfile nested \
+   --dotenv-path .env \
+   --justfile ../../../nested.just \
    approve \
-   foundation \ # or council
-   tasks/<NETWORK_DIR>/<RUNBOOK_DIR> # 0 or 1 or ...
+   foundation  # or council \
+   0 # or 1 or ...
 ```
 ### Execute the transaction
 
@@ -197,8 +194,8 @@ Once the signatures have been submitted approving the transaction for all nested
 
 ```shell
 just \
-   --dotenv-path tasks/<NETWORK_DIR>/<RUNBOOK_DIR>/.env \
-   --justfile nested \
+   --dotenv-path .env \
+   --justfile ../../../nested.just \
    execute \
-   tasks/<NETWORK_DIR>/<RUNBOOK_DIR> # 0 or 1 or ...
+   0 # or 1 or ...
 ```

@@ -3,7 +3,7 @@ set dotenv-load
 export rpcUrl := env_var_or_default('ETH_RPC_URL', 'https://ethereum.publicnode.com')
 export signatures := env_var_or_default('SIGNATURES', '')
 export bundle := "input"
-export location := `pwd`
+export taskPath := invocation_directory()
 
 # Accounts
 export councilSafe := "0xc2819DC788505Aac350142A7A707BF9D03E3Bd03"
@@ -15,9 +15,9 @@ export foundationOwner0 := "0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64"
 export ownerSafe := env_var('OWNER_SAFE')
 export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 
-simulate whichSafe taskPath hdPath='0':
+simulate whichSafe hdPath='0':
   #!/usr/bin/env bash
-  bundlePath=${location}/{{taskPath}}/${bundle}.json
+  bundlePath=${taskPath}/${bundle}.json
   echo "getting signer address..."
   if [ t"{{whichSafe}}" == t"foundation" ]; then
     safe="${foundationSafe}"
@@ -46,10 +46,9 @@ simulate whichSafe taskPath hdPath='0':
     ${bundlePath} \
     "${safe}"
 
-sign whichSafe taskPath hdPath='0':
+sign whichSafe hdPath='0':
   #!/usr/bin/env bash
-  bundlePath=${location}/{{taskPath}}/${bundle}.json
-  cd ../../..
+  bundlePath=${taskPath}/${bundle}.json
   if [ t"{{whichSafe}}" == t"foundation" ]; then
     safe="${foundationSafe}"
     echo "Using foundation safe at ${safe}"
@@ -69,10 +68,10 @@ sign whichSafe taskPath hdPath='0':
     ${bundlePath} \
     "${safe}"
 
-execute whichSafe taskPath hdPath='0':
+## TODO: restore the approve/execute tasks
+execute whichSafe hdPath='0':
   #!/usr/bin/env bash
-  bundlePath=${location}/{{taskPath}}/${bundle}.json
-  cd ../../..
+  bundlePath=${taskPath}/${bundle}.json
   if [ t"{{whichSafe}}" == t"foundation" ]; then
     safe="${foundationSafe}"
     echo "Using foundation safe at ${safe}"
@@ -92,9 +91,9 @@ execute whichSafe taskPath hdPath='0':
     "${safe}" \
     "${signatures}"
 
-simulated-run taskPath hdPath='0':
+simulated-run hdPath='0':
   #!/usr/bin/env bash
-  bundlePath=${location}/{{taskPath}}/${bundle}.json
+  bundlePath=${taskPath}/${bundle}.json
   cd ../../..
   forge script NestedSignFromJson \
     --fork-url ${rpcUrl} \
