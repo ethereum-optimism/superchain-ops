@@ -21,7 +21,6 @@ Each task should contain the following:
 - `README.md`: A brief markdown file describing the task to be executed.
 - `Validation.md`: A markdown file describing and justifying the expected state changes for manual validation by multisig signers.
 - `input.json`: A JSON file which defines the specific transaction for the task to be executed. This file may either be generated automatically or manually created.
-- `diff.json` (optional): A json file enabling the automated verification of the expected state diff.
 - `.env`: a place to store environment variables specific to this task
 
 ## Installation
