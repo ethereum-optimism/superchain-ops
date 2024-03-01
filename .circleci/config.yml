@@ -148,6 +148,7 @@ jobs:
             forge build
             cd tasks/eth/003-protocol-versions-delta
             export SIMULATE_WITHOUT_LEDGER=1
+            export BUNDLE_NAME=inputs/op
             just \
               --dotenv-path .env \
               --justfile ../../../single.just \
