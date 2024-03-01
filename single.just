@@ -2,8 +2,9 @@ set dotenv-load
 
 export rpcUrl := env_var('ETH_RPC_URL')
 export signatures := env_var_or_default('SIGNATURES', '')
-export bundle := "inputs/op"
+export bundle := env_var_or_default('BUNDLE_NAME', 'input')
 export taskPath := invocation_directory()
+export bundlePath := "${taskPath}/${bundleName}.json"
 
 # Accounts
 export foundationSafe := "0x847B5c174615B1B7fDF770882256e2D3E95b9D92"
