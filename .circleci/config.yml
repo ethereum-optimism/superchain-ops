@@ -153,6 +153,26 @@ jobs:
               --justfile ../../../single.just \
               simulate
 
+  just_simulate_005-2-ecotone-set-gas-config:
+    docker:
+      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
+
+    steps:
+      - checkout
+      - run:
+          name: just simulate 005-2-ecotone-set-gas-config
+          command: |
+            just install
+            forge clean
+            forge build
+            cd tasks/eth/005-2-ecotone-set-gas-config
+            export SIMULATE_WITHOUT_LEDGER=1
+            export BUNDLE_NAME=input
+            just \
+              --dotenv-path .env \
+              --justfile ../../../single.just \
+              simulate
+
   just_simulate_sc_rehearsal_1:
     docker:
       - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
@@ -250,6 +270,7 @@ workflows:
         # the ceremony is for historical archive only (e.g. the
         # ceremony is done).
           - just_simulate_005-protocol-versions-ecotone
+          - just_simulate_005-2-ecotone-set-gas-config
           - just_simulate_sc_rehearsal_1
           - just_simulate_sc_rehearsal_2
           - just_simulate_sc_rehearsal_4
