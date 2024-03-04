@@ -148,8 +148,17 @@ jobs:
             forge build
             cd tasks/eth/003-protocol-versions-delta
             export SIMULATE_WITHOUT_LEDGER=1
-            just simulate council
-            just simulate foundation
+            export BUNDLE_NAME=inputs/op
+            just \
+              --dotenv-path .env \
+              --justfile ../../../single.just \
+              simulate \
+              council
+            just \
+              --dotenv-path .env \
+              --justfile ../../../single.just \
+              simulate \
+              foundation
 
   just_simulate_004_add_superchain_config:
     docker:
@@ -165,8 +174,16 @@ jobs:
             forge build
             cd tasks/eth/004-add-superchainConfig
             export SIMULATE_WITHOUT_LEDGER=1
-            just simulate council
-            just simulate foundation
+            just \
+              --dotenv-path .env \
+              --justfile ../../../single.just \
+              simulate \
+              council
+            just \
+              --dotenv-path .env \
+              --justfile ../../../single.just \
+              simulate \
+              foundation
 
   just_simulate_sc_rehearsal_1:
     docker:

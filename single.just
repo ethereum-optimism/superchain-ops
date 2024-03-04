@@ -2,17 +2,21 @@ set dotenv-load
 
 export rpcUrl := env_var('ETH_RPC_URL')
 export signatures := env_var_or_default('SIGNATURES', '')
-export bundle := "inputs/op"
-export location := `pwd`
-export OWNER_SAFE := env_var('PROXY_ADMIN_OWNER')
+export bundle := env_var_or_default('BUNDLE_NAME', 'input')
+export taskPath := invocation_directory()
+export bundlePath := "${taskPath}/${bundleName}.json"
+
+# Accounts
+export OWNER_SAFE := "0x847B5c174615B1B7fDF770882256e2D3E95b9D92"
+export foundationOwner0 := "0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64"
 
 simulate hdPath='0':
   #!/usr/bin/env bash
-  cd ../..
+  bundlePath=${taskPath}/${bundle}.json
   echo "getting signer address..."
   if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
   then
-    signer="0xTODO:some-safe-owner"
+    signer=${foundationOwner0}
   else
     signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   fi
@@ -21,13 +25,12 @@ simulate hdPath='0':
   forge build
   forge script SignFromJson \
     --rpc-url ${rpcUrl} \
-    --sig "signJson(string)" \
-    "${location}/${bundle}.json" \
+    --sig "signJson(string)" ${bundlePath} \
     --sender ${signer}
 
-sign hdPath='0':
+sign taskPath hdPath='0':
   #!/usr/bin/env bash
-  cd ../..
+  bundlePath=${taskPath}/${bundle}.json
   echo "getting signer address..."
   signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   echo "Signing with: ${signer}"
@@ -37,28 +40,14 @@ sign hdPath='0':
   forge script SignFromJson \
     --rpc-url ${rpcUrl} \
     --sig "signJson(string)" \
-    "${location}/${bundle}.json"
+    ${bundlePath}
 
-execute hdPath='0':
+execute taskPath hdPath='0':
   #!/usr/bin/env bash
-  cd ../..
+  bundlePath=${taskPath}/${bundle}.json
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge build
   forge script --fork-url ${ETH_RPC_URL} SignFromJson \
-    --sig "runJson(string,bytes)" "${location}/${bundle}.json" ${SIGNATURES} \
+    --sig "runJson(string,bytes)" ${bundlePath} ${SIGNATURES} \
     --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
     --sender ${sender}
-
-add-transaction to sig *params:
-  #!/usr/bin/env bash
-  cd ../..
-  newbundle="${bundle}-new"
-  backupbundle="${bundle}-$(date -u '+%Y-%m-%d_%H-%M-%S')"
-  DATA=$(cast calldata '{{sig}}' {{params}})
-  jq --arg to "{{to}}" --arg data "${DATA}" \
-    '.transactions += [{"to": $to, "data": $data}]' \
-    "${location}/${bundle}.json" \
-    > "${location}/${newbundle}.json"
-  mv "${location}/${bundle}.json" "${location}/${backupbundle}.json" 
-  mv "${location}/${newbundle}.json" "${location}/${bundle}.json"
-  echo "Old bundle backed up to ${backupbundle}.json"

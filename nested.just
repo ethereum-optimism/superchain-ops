@@ -2,8 +2,9 @@ set dotenv-load
 
 export rpcUrl := env_var_or_default('ETH_RPC_URL', 'https://ethereum.publicnode.com')
 export signatures := env_var_or_default('SIGNATURES', '')
-export bundle := "input"
-export location := `pwd`
+export bundleName := env_var_or_default('BUNDLE_NAME', 'input')
+export taskPath := invocation_directory()
+export bundlePath := "${taskPath}/${bundleName}.json"
 
 # Accounts
 export councilSafe := "0xc2819DC788505Aac350142A7A707BF9D03E3Bd03"
@@ -17,7 +18,6 @@ export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 
 simulate whichSafe hdPath='0':
   #!/usr/bin/env bash
-  cd ../../..
   echo "getting signer address..."
   if [ t"{{whichSafe}}" == t"foundation" ]; then
     safe="${foundationSafe}"
@@ -43,12 +43,11 @@ simulate whichSafe hdPath='0':
     --rpc-url ${rpcUrl} \
     --sender ${signer} \
     --sig "signJson(string,address)" \
-    "${location}/${bundle}.json" \
+    ${bundlePath} \
     "${safe}"
 
 sign whichSafe hdPath='0':
   #!/usr/bin/env bash
-  cd ../../..
   if [ t"{{whichSafe}}" == t"foundation" ]; then
     safe="${foundationSafe}"
     echo "Using foundation safe at ${safe}"
@@ -65,12 +64,11 @@ sign whichSafe hdPath='0':
   forge script NestedSignFromJson \
     --rpc-url ${rpcUrl} \
     --sig "signJson(string,address)" \
-    "${location}/${bundle}.json" \
+    ${bundlePath} \
     "${safe}"
 
 approve whichSafe hdPath='0':
   #!/usr/bin/env bash
-  cd ../../..
   if [ t"{{whichSafe}}" == t"foundation" ]; then
     safe="${foundationSafe}"
     echo "Using foundation safe at ${safe}"
@@ -86,13 +84,12 @@ approve whichSafe hdPath='0':
     --broadcast \
     --sender ${sender} \
     --sig "approveJson(string,address,bytes)" \
-    "${location}/${bundle}.json" \
-    "${safe}" \
-    "${signatures}"
+    ${bundlePath} \
+    ${safe} \
+    ${signatures}
 
 execute hdPath='0':
   #!/usr/bin/env bash
-  cd ../../..
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge script NestedSignFromJson \
     --fork-url ${rpcUrl} \
@@ -100,7 +97,7 @@ execute hdPath='0':
     --broadcast \
     --sender ${sender} \
     --sig "runJson(string)" \
-    "${location}/${bundle}.json"
+    ${bundlePath}
 
 simulated-run hdPath='0':
   #!/usr/bin/env bash
@@ -109,4 +106,4 @@ simulated-run hdPath='0':
     --fork-url ${rpcUrl} \
     --sender ${randomPersonEoa} \
     --sig "runJson(string)" \
-    ${location}/${bundle}.json
+    ${bundlePath}

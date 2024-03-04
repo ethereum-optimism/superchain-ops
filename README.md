@@ -14,14 +14,14 @@ Effectively any significant change to the state of the network, requiring author
 
 ## Directory structure
 
-Top level direct names should be the [EIP 3770](https://eips.ethereum.org/EIPS/eip-3770) short name for the network (see [shortNameMapping.json](https://chainid.network/shortNameMapping.json))
+Top level directory names should be the [EIP-3770](https://eips.ethereum.org/EIPS/eip-3770) short name for the network (see [shortNameMapping.json](https://chainid.network/shortNameMapping.json))
 
-Each task will have a directory structure similar to the following:
+Each task should contain the following:
 
-- `task-name.json`: A json file which defines the task to be executed. This file may either be generated automatically or manually created.
-- `.env`: a place to store env variables specific to this task
-- `/records/`: foundry will autogenerate files here as a result of executing the task
-- `/script/`: (optional) for storing one-off scripts
+- `README.md`: A brief markdown file describing the task to be executed.
+- `Validation.md`: A markdown file describing and justifying the expected state changes for manual validation by multisig signers.
+- `input.json`: A JSON file which defines the specific transaction for the task to be executed. This file may either be generated automatically or manually created.
+- `.env`: a place to store environment variables specific to this task
 
 ## Installation
 
@@ -87,7 +87,7 @@ Just is a command runner, which is similar to `make`.
 1. From the command prompt run:
   `cargo install just`
 1. Verify the installation by typing `just --version`
-1. You should see the version number printed.
+1. You should see the version number printed. This repo has been tested with version `1.24.0`.
 
 ### Cloning the superchain-ops repo
 
