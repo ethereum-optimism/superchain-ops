@@ -54,3 +54,7 @@ cast keccak protocolversion.required
 cast keccak protocolversion.recommended
 # 0xe314dfc40f0025322aacc0ba8ef420b62fb3b702cf01e0cdf3d829117ac2ff1b
 ```
+
+## Continue signing
+
+At this point you may resume following the signing and execution instructions in [SINGLE.md](../../../SINGLE.md).
