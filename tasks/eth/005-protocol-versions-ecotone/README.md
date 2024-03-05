@@ -57,4 +57,4 @@ cast keccak protocolversion.recommended
 
 ## Continue signing
 
-At this point you may resume following the signing and execution instructions in [SINGLE.md](../../../SINGLE.md).
+At this point you may resume following the signing and execution instructions in section 3.3 of [SINGLE.md](../../../SINGLE.md).

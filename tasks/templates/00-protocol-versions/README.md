@@ -13,8 +13,8 @@ Both versions are currently set to X.Y.0 (Old Forkname TODO).
 _Transactions can be created using
 ```
 export PV_ENC=$(cd ../../../lib/optimism && go run ./op-chain-ops/cmd/protocol-version encode --major <TODO:major-version>)
-# 0x0000000000000000000000000000000000000005000000000000000000000000 
-export PV_ADDR=0x8062AbC286f5e7D9428a0Ccb9AbD71e50d93b935 
+# 0x0000000000000000000000000000000000000005000000000000000000000000
+export PV_ADDR=0x8062AbC286f5e7D9428a0Ccb9AbD71e50d93b935
 just add-transaction $PV_ADDR 'setRecommended(uint256)' $PV_ENC
 just add-transaction $PV_ADDR 'setRequired(uint256)' $PV_ENC
 ```
@@ -70,4 +70,4 @@ cast keccak protocolversion.recommended
 
 ## Continue signing
 
-At this point you may resume following the signing and execution instructions in [SINGLE.md](../../../SINGLE.md).
+At this point you may resume following the signing and execution instructions in section 3.3 of [SINGLE.md](../../../SINGLE.md).

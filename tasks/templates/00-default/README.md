@@ -43,6 +43,6 @@ is a good example of how this can look._
 
 _TODO: choose one of the following options and delete the other._
 
-At this point you may resume following the signing and execution instructions in [SINGLE.md](../../../SINGLE.md).
+At this point you may resume following the signing and execution instructions in section 3.3 of [SINGLE.md](../../../SINGLE.md).
 
-At this point you may resume following the signing and execution instructions in [NESTED.md](../../../NESTED.md).
+At this point you may resume following the signing and execution instructions in section 3.3 of [NESTED.md](../../../NESTED.md).
