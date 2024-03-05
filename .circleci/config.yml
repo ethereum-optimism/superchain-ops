@@ -148,7 +148,10 @@ jobs:
             forge build
             cd tasks/eth/005-protocol-versions-ecotone
             export SIMULATE_WITHOUT_LEDGER=1
-            just simulate
+            just \
+              --dotenv-path .env \
+              --justfile ../../../single.just \
+              simulate
 
   just_simulate_sc_rehearsal_1:
     docker:
