@@ -1,6 +1,8 @@
 # OP Mainnet Pause
 
-Status: READY_TO_SIGN
+Status:
+- [EXECUTED PAUSE](https://etherscan.io/tx/0x374dc0d5ad3dd0683d92762c84c7038804dd987e9fd9bac7418dca5ff489e6b0#eventlog)
+- [EXECUTED UNPAUSE](https://etherscan.io/tx/0x7d6880954fd4df2a8da987b5d8500e07613e3549a3376bef94e951aab890fc54#eventlog)
 
 ## Objective
 
@@ -12,7 +14,7 @@ json file. This will be the standard approach for all transactions.
 
 Note that no onchain actions will be taking place during this
 signing. You won’t be submitting a transaction and your address
-doesn’t even need to be funded. These are offchain signatures. 
+doesn’t even need to be funded. These are offchain signatures.
 
 A Facilitator will collect the signatures and execute the contract.
 
@@ -42,10 +44,10 @@ You should see the output similar to the following:
 
 ```
 Signer: 0x8C835568fE7Eea01B6DCD79214aB5BCe5E1759B0
-``` 
+```
 
 If this is not the address you are expecting,
-you can change the index of the address you want to use, i.e. 
+you can change the index of the address you want to use, i.e.
 
 ```
 just whoami 1
@@ -91,7 +93,7 @@ validate integrity of the simulation, we need to
    recent timestamp (i.e. close to when you run the script).
 3. "Sender": Check the address shown is your signer account. If not,
    you will need to determine which “number” it is in the list of
-   addresses on your ledger. 
+   addresses on your ledger.
 
 Here is an example screenshot, note that the Timestamp and Sender
 might be different in your simulation:
@@ -180,7 +182,7 @@ will be collected by Facilitators for execution. Execution can occur
 by anyone once a threshold of signatures are collected, so a
 Facilitator will do the final execution for convenience.
 
-The tx files now should have been updated with the signature. 
+The tx files now should have been updated with the signature.
 
 Share these 5 files with the Facilitator, and
 congrats, you are done!
@@ -211,7 +213,7 @@ just merge tx/draft-87.json tx/draft-87*
 Where `tx/draft-87.json` is the resulting transaction file with all the signatures, and
 the `tx/draft-87*` is the pattern to match the signature files.
 
-Repeat for each of the transactions. 
+Repeat for each of the transactions.
 
 This will overwrite the original `draft-87.json` file with the all merged signatures.
 
@@ -252,7 +254,7 @@ The simulate command will output the Tenderly simulation link and the oneliner f
 You can use the oneliner to execute the transaction:
 
 ```
-/bin/bash <(base64 -d -i tx/ready-87.sh.b64) \ 
+/bin/bash <(base64 -d -i tx/ready-87.sh.b64) \
     --rpc-url https://ethereum-goerli.publicnode.com
 ```
 
