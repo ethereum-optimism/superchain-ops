@@ -1,6 +1,6 @@
 # Upgrade #4 Multisig Ceremony
 
-Status: READY_TO_SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0x3f7c36a1d636cdb23bf4f9171c27ebe58b73f4c0e6a33dbaac2c2f3c142faf50)
 
 ## Objective
 
