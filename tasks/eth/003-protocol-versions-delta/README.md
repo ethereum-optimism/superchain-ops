@@ -1,6 +1,6 @@
 # Mainnet Protocol Versions Update - 5.0.0 (Delta)
 
-Status: READY_TO_SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0x2c616fc82192b85d245fe7bff1f4ed8015a6b3bfdbcbedf087fd7e6d25ffe814#eventlog)
 
 ## Objective
 
