@@ -3,5 +3,6 @@
   "systemConfigAddr": "0xa6b72407e2dc9EBF84b839B69A24C88929cf20F7",
   "superchainConfigAddr": "0x02d91Cf852423640d93920BE0CAdceC0E7A00FA7",
   "disputeGameFactoryProxyAddr": "0x8c8341e39837Dd44dd2dcA45350FDa228392D558",
-  "optimismPortal2ImplAddr": "0x407f0502Aa09eC2e3E2085C7b040FC2d2CE47E18"
+  "optimismPortal2ImplAddr": "0x407f0502Aa09eC2e3E2085C7b040FC2d2CE47E18",
+  "proxyAdminAddr": "0x18d890A46A3556e7F36f28C79F6157BC7a59f867"
 }

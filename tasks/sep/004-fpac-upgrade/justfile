@@ -18,18 +18,20 @@ generate-input:
   SYSTEM_CONFIG=$(jq -r .systemConfigAddr ./meta.json)
   SUPERCHAIN_CONFIG=$(jq -r .superchainConfigAddr ./meta.json)
   DGF_PROXY=$(jq -r .disputeGameFactoryProxyAddr ./meta.json)
+  PROXY_ADMIN=$(jq -r .proxyAdminAddr ./meta.json)
 
   INITIALIZE_SIG="initialize(address,address,address)"
   INITIALIZE_ARGS=$(cast abi-encode $INITIALIZE_SIG $DGF_PROXY $SYSTEM_CONFIG $SUPERCHAIN_CONFIG)
   ENCODED_INITIALIZE="$(cast sig $INITIALIZE_SIG)${INITIALIZE_ARGS:2}"
 
-  UPGRADE_TO_AND_CALL_SIG="upgradeToAndCall(address,bytes)"
-  UPGRADE_TO_AND_CALL_ARGS=$(cast abi-encode $UPGRADE_TO_AND_CALL_SIG $PORTAL2_IMPL $ENCODED_INITIALIZE)
+  UPGRADE_TO_AND_CALL_SIG="upgradeAndCall(address,address,bytes)"
+  UPGRADE_TO_AND_CALL_ARGS=$(cast abi-encode $UPGRADE_TO_AND_CALL_SIG $PORTAL_PROXY $PORTAL2_IMPL $ENCODED_INITIALIZE)
   ENCODED_UPGRADE_TO_AND_CALL="$(cast sig $UPGRADE_TO_AND_CALL_SIG)${UPGRADE_TO_AND_CALL_ARGS:2}"
 
   cp ./input-template.json ./input.json
-  jq "(.transactions[0].to = \"$PORTAL_PROXY\") |
+  jq "(.transactions[0].to = \"$PROXY_ADMIN\") |
            (.transactions[0].data = \"$ENCODED_UPGRADE_TO_AND_CALL\") |
+           (.transactions[0].contractInputsValues._proxy = \"$PORTAL_PROXY\") |
            (.transactions[0].contractInputsValues._implementation = \"$PORTAL2_IMPL\") |
            (.transactions[0].contractInputsValues._data = \"$ENCODED_INITIALIZE\")" ./input.json > ./input.tmp.json && mv ./input.tmp.json ./input.json
 
@@ -40,7 +42,7 @@ simulate hdPath='0':
   echo "getting signer address..."
   if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
   then
-    signer="0xEA96f8d33Af98839C20547D970EE0961f8865009"
+    signer="0x107781Bc6FA8f66B843f4216fd6D5862D3aa4fcd"
   else
     signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   fi

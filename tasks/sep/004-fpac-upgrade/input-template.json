@@ -9,11 +9,16 @@
   },
   "transactions": [
     {
-      "to": "<op-sepolia-devnet-0-portal-proxy-address>",
+      "to": "<op-sepolia-devnet-0-proxy-admin-address>",
       "value": "0",
-      "data": "<upgrade-to-and-call-data>",
+      "data": "<upgrade-and-call-data>",
       "contractMethod": {
         "inputs": [
+          {
+            "internalType": "address",
+            "name": "_proxy",
+            "type": "address"
+          },
           {
             "internalType": "address",
             "name": "_implementation",
@@ -25,10 +30,11 @@
             "type": "bytes"
           }
         ],
-        "name": "upgradeToAndCall",
+        "name": "upgradeAndCall",
         "payable": false
       },
       "contractInputsValues": {
+        "_proxy": "<op-sepolia-portal-proxy-address>",
         "_implementation": "<op-sepolia-devnet-0-portal2-impl-address>",
         "_data": "<initialize-data>"
       }
