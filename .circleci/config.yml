@@ -4,18 +4,12 @@ parameters:
   l1_mainnet_rpc_url:
     type: string
     default: "https://ci-mainnet-l1.optimism.io"
-  l1_goerli_rpc_url:
-    type: string
-    default: "https://ci-goerli-l1.optimism.io"
   l1_sepolia_rpc_url:
     type: string
     default: "https://ci-sepolia-l1.optimism.io"
   l2_mainnet_rpc_url:
     type: string
     default: "https://mainnet.optimism.io"
-  l2_goerli_rpc_url:
-    type: string
-    default: "https://goerli.optimism.io"
   l2_sepolia_rpc_url:
     type: string
     default: "https://sepolia.optimism.io"
@@ -53,35 +47,7 @@ jobs:
           root: .
           paths:
             - bash.env
-  check_goerli_rpc_endpoints:
-    circleci_ip_ranges: true
-    docker:
-      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
 
-    steps:
-      - checkout
-      - run:
-          name: Check Goerli RPC Endpoints
-          command: |
-            if ./ops/verify-geth-endpoint.sh "<< pipeline.parameters.l1_goerli_rpc_url >>"; then
-             if ./ops/verify-geth-endpoint.sh "<< pipeline.parameters.l2_goerli_rpc_url >>"; then
-                echo "Both RPC endpoints are up to date and not syncing."
-                echo "L1_RPC_GOERLI=<< pipeline.parameters.l1_goerli_rpc_url >>" >> $BASH_ENV
-                echo "L2_RPC_GOERLI=<< pipeline.parameters.l2_goerli_rpc_url >>" >> $BASH_ENV
-              else
-                echo "L2 RPC endpoint failed the checks."
-                exit 1
-              fi
-            else
-              echo "L1 RPC endpoint failed the checks."
-              exit 1
-            fi
-      - run: |
-          cp $BASH_ENV bash.env
-      - persist_to_workspace:
-          root: .
-          paths:
-            - bash.env
   check_mainnet_rpc_endpoints:
     circleci_ip_ranges: true
     docker:
@@ -257,7 +223,6 @@ workflows:
     check_rpc_endpoints:
         jobs:
           - check_sepolia_rpc_endpoints
-          - check_goerli_rpc_endpoints
           - check_mainnet_rpc_endpoints
           - example_mainnet_job:
               requires:
