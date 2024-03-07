@@ -1,8 +1,8 @@
-# Sepolia FPAC Upgrade
+# Sepolia Devnet 0 FPAC Upgrade
 
 ## Objective
 
-This is the playbook for executing the Fault Proof Alpha Chad upgrade on Sepolia.
+This is the playbook for executing the Fault Proof Alpha Chad upgrade on Sepolia devnet 0.
 
 The Fault Proof Alpha Chad upgrade:
 
@@ -12,6 +12,7 @@ The Fault Proof Alpha Chad upgrade:
    - [`FaultDisputeGame.sol`][fdg-sol]
    - [`PermissionedDisputeGame.sol`][soy-fdg-sol]
    - [`DisputeGameFactory.sol`][dgf-sol]
+   - [`DelayedWeth.sol`][delayed-weth-sol]
 1. Upgrades the `OptimismPortal` proxy implementation to [`OptimismPortal2.sol`][portal-2]
 
 [mips-sol]: https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/cannon/MIPS.sol
@@ -19,13 +20,12 @@ The Fault Proof Alpha Chad upgrade:
 [fdg-sol]: https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/FaultDisputeGame.sol
 [soy-fdg-sol]: https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/PermissionedDisputeGame.sol
 [dgf-sol]: https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol
+[delayed-weth-sol]: https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/weth/DelayedWETH.sol
 [portal-2]: https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal2.sol
 
 ## Preparing the Upgrade
 
-1. Cut a release of the `op-program` in the Optimism Monorepo to generate a reproducible build.
-
-   - _Note_: This release pipeline is not yet available.
+1. Cut a release of the `op-program` in the Optimism Monorepo using the tag service to generate a reproducible build.
 
 2. In the Optimism Monorepo, add the absolute prestate hash from the above release into the deploy config for the chain that is being upgraded.
 
@@ -40,6 +40,15 @@ cd packages/contracts-bedrock/scripts/fpac && \
 
 5. Generate the `input.json` with `just generate-input`
 
+6. Prepare the periphery infrastructure.
+
+   - Point the `op-challenger` and `dispute-mon` towards the new `DisputeGameFactory` contract proxy, deployed in step 3.
+   - Point the `op-proposer` towards the new `DisputeGameFactory` contract proxy, deployed in step 3.
+
+7. Collect signatures for the `OptimismPortal` proxy upgrade.
+
+8. Execute the `OptimismPortal` proxy upgrade, enabling dispute-game based withdrawals on the network.
+
 ## Approving the Transaction
 
 ### 1. Update repo and move to the appropriate folder for this rehearsal task:
@@ -48,7 +57,7 @@ cd packages/contracts-bedrock/scripts/fpac && \
 cd superchain-ops
 git pull
 just install
-cd tasks/gor/02-fpac-upgrade
+cd tasks/sep/004-fpac-upgrade
 ```
 
 ### 2. Setup Ledger

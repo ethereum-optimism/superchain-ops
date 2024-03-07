@@ -3,13 +3,13 @@
   "chainId": "5",
   "createdAt": 1707763323,
   "meta": {
-    "name": "FPAC OptimismPortalProxy upgrade - OP Goerli",
+    "name": "FPAC OptimismPortalProxy upgrade - OP Sepolia Devnet 0",
     "description": "Upgrades the OptimismPortalProxy's implementation to the OptimismPortal2 contract.",
     "txBuilderVersion": "1.16.3"
   },
   "transactions": [
     {
-      "to": "<op-goerli-portal-proxy-address>",
+      "to": "<op-sepolia-devnet-0-portal-proxy-address>",
       "value": "0",
       "data": "<upgrade-to-and-call-data>",
       "contractMethod": {
@@ -29,7 +29,7 @@
         "payable": false
       },
       "contractInputsValues": {
-        "_implementation": "<op-goerli-portal2-impl-address>",
+        "_implementation": "<op-sepolia-devnet-0-portal2-impl-address>",
         "_data": "<initialize-data>"
       }
     }
