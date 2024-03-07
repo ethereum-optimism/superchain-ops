@@ -98,7 +98,18 @@ validate integrity of the simulation, we need to check the following:
 
 #### 3.2. Validate correctness of the state diff and events.
 
-_TODO_
+1. Simulate the transaction with `SIMULATE_WITHOUT_LEDGER=1 just simulate`
+1. Copy the Tenderly simulation URL and navigate to it in your browser.
+1. Double check that the state diff affects the correct storage slots.
+
+![](./images/tenderly-state-diff.png)
+
+**Expected Modified Slots**
+
+- `OptimismPortal` Proxy
+  - `0x0000000000000000000000000000000000000000000000000000000000000037` - Sets the `SystemConfig` proxy address.
+  - `0x0000000000000000000000000000000000000000000000000000000000000038` - Sets the `DisputeGameFactory` proxy address.
+  - `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` - Sets the new `OptimismPortal2` implementation address.
 
 #### 3.3. Extract the domain hash and the message hash to approve.
 
@@ -110,7 +121,7 @@ contains both the domain hash and the message hash that will show up in your Led
 
 Here is an example screenshot. Note that the hash value may be different:
 
-![](./images/tenderly-sim-check-sig.png)
+![](./images/tenderly-hash.png)
 
 Seb's sig data: `0x1901d0038af9d1425c8c3831ba8a43a136259ebe7d15ecb0ce60bd3b90f4189487641527ccc2d6f5fcacdd23c4a9a6fef57bcc6c969aa4f4819a86c2e4a5e14b7f26`
 
