@@ -29,6 +29,35 @@
             "name": "_data",
             "type": "bytes"
           }
+        ]
+      },
+      "contractInputsValues": {
+        "_proxy": "<op-sepolia-portal-proxy-address>",
+        "_implementation": "<op-sepolia-devnet-0-storage-setter-address>",
+        "_data": "<storage-set-data>"
+      }
+    },
+    {
+      "to": "<op-sepolia-devnet-0-proxy-admin-address>",
+      "value": "0",
+      "data": "<upgrade-and-call-data>",
+      "contractMethod": {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_proxy",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "_implementation",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes",
+            "name": "_data",
+            "type": "bytes"
+          }
         ],
         "name": "upgradeAndCall",
         "payable": false
