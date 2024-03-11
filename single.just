@@ -7,7 +7,7 @@ export taskPath := invocation_directory()
 export bundlePath := "${taskPath}/${bundleName}.json"
 
 # Accounts
-export OWNER_SAFE := env_var_or_default('FOUNDATION_SAFE', '0x847B5c174615B1B7fDF770882256e2D3E95b9D92')
+export OWNER_SAFE := env_var_or_default('FOUNDATION_SAFE', '0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A')
 export foundationOwner0 := "0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64"
 
 simulate hdPath='0':
