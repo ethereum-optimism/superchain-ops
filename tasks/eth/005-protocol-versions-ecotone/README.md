@@ -8,9 +8,6 @@ This is the playbook for updating the required and recommended protocol versions
 
 This transaction should be sent on **Mar 11, 2024**, two and a half days prior to the Ecotone Mainnet activation on `Mar 14 00:00:01 UTC`.
 
-Both versions are currently set to 3.1.0 (Regolith), as they were never updated since the deployment of `ProtocolVersions` for Canyon or Delta.
-[Task-003](../003-protocol-versions-delta/) is scheduled to update these versions to 5.0.0, and this task will then upgrade them to 6.0.0.
-
 ## Signing and execution
 
 Please see the signing and execution instructions in [SINGLE.md](../../../SINGLE.md).
@@ -20,7 +17,7 @@ Please see the signing and execution instructions in [SINGLE.md](../../../SINGLE
 Now click on the "State" tab. Verify that:
 
 * For the `ProtocolVersions` Proxy at `0x8062AbC286f5e7D9428a0Ccb9AbD71e50d93b935` both the
-  recommended and required storage slots are updated from the encoded form of `3.1.0` to `6.0.0`.
+  recommended and required storage slots are updated from the encoded form of `5.0.0` to `6.0.0`.
   * key `0x4aaefe95bd84fd3f32700cf3b7566bc944b73138e41958b5785826df2aecace0`
     * before: `0x0000000000000000000000000000000000000005000000000000000000000000`
     * after : `0x0000000000000000000000000000000000000006000000000000000000000000`
@@ -34,7 +31,7 @@ as well as an `ExecutionSuccess` event by the multisig.
 
 ![](./images/tenderly-state.png)
 
-You can verify the correctness of the storage slots with `chisel`.
+You can verify the correctness of the storage slots with `chisel --use 0.8.15  --evm-version london`.
 Just start it up and enter the slot definitions as found in the contract source code.
 ```
 ➜ bytes32(uint256(keccak256("protocolversion.required")) - 1)
