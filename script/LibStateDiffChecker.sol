@@ -89,6 +89,35 @@ library LibStateDiffChecker {
         require(specIndex == modifiedCount, "LibStateDiffChecker: found fewer storage modifications than expected.");
     }
 
+    /// @notice Serializes a StateDiffSpec to a JSON string.
+    /// @param _diffSpec The StateDiffSpec to serialize.
+    /// @return serialized_ The JSON string containing the serialized StateDiffSpec.
+    function serializeDiffSpecs(StateDiffSpec memory _diffSpec) internal returns (string memory serialized_) {
+        string memory json = "";
+        json = stdJson.serialize("", "chainId", block.chainid);
+        string[] memory serializedStorageSpecs = new string[](_diffSpec.storageSpecs.length);
+        for (uint256 i = 0; i < _diffSpec.storageSpecs.length; i++) {
+            string memory serializedStorageSpec = "";
+            serializedStorageSpec = stdJson.serialize(
+                string.concat("storageSpecs[", vm.toString(i), "]"), "account", _diffSpec.storageSpecs[i].account
+            );
+            serializedStorageSpec = stdJson.serialize(
+                string.concat("storageSpecs[", vm.toString(i), "]"), "newValue", _diffSpec.storageSpecs[i].newValue
+            );
+            serializedStorageSpec = stdJson.serialize(
+                string.concat("storageSpecs[", vm.toString(i), "]"),
+                "previousValue",
+                _diffSpec.storageSpecs[i].previousValue
+            );
+            serializedStorageSpec = stdJson.serialize(
+                string.concat("storageSpecs[", vm.toString(i), "]"), "slot", _diffSpec.storageSpecs[i].slot
+            );
+            serializedStorageSpecs[i] = serializedStorageSpec;
+        }
+        json = stdJson.serialize("", "storageSpecs", serializedStorageSpecs);
+        serialized_ = json;
+    }
+
     /// @notice Checks if two state diffs are equivalent
     /// @param expectedDiff The expected account access details.
     /// @param actualDiff   The actual account access details recorded by the EVM.
