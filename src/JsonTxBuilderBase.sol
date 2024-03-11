@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
+import {IGnosisSafe as Safe} from "@eth-optimism-bedrock/scripts/interfaces/IGnosisSafe.sol";
+
 import {Simulator} from "@base-contracts/script/universal/Simulator.sol";
 
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
@@ -72,8 +74,7 @@ abstract contract JsonTxBuilderBase is Simulator {
             vm.store(thresholdStateOverride.contractAddress, storageOverride.key, storageOverride.value);
         }
 
-        Simulator.SimulationStateOverride memory nonceStateOverride =
-            overrideSafeThresholdAndOwner(ownerSafe, address(this));
+        Simulator.SimulationStateOverride memory nonceStateOverride = overrideSafeThresholdAndNonce(ownerSafe, _nonce());
         Simulator.SimulationStorageOverride[] memory thresholdNonceOverrides = nonceStateOverride.overrides;
         for (uint256 i = 0; i < thresholdNonceOverrides.length; i++) {
             Simulator.SimulationStorageOverride memory storageOverride = thresholdNonceOverrides[i];
@@ -82,4 +83,15 @@ abstract contract JsonTxBuilderBase is Simulator {
     }
 
     function _ownerSafe() internal view virtual returns (address);
+
+    function _nonce() internal view returns (uint256 nonce_) {
+        nonce_ = Safe(_ownerSafe()).nonce();
+        console.log("Safe current nonce:", nonce_);
+
+        // workaround to check if the SAFE_NONCE env var is present
+        try vm.envUint("SAFE_NONCE") {
+            nonce_ = vm.envUint("SAFE_NONCE");
+            console.log("Creating transaction with nonce:", nonce_);
+        } catch {}
+    }
 }
