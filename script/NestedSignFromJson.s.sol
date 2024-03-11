@@ -2,10 +2,11 @@
 pragma solidity ^0.8.15;
 
 import {JsonTxBuilderBase} from "src/JsonTxBuilderBase.sol";
+
 import {NestedMultisigBuilder} from "@base-contracts/script/universal/NestedMultisigBuilder.sol";
+
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {stdJson} from "forge-std/StdJson.sol";
-import {console} from "forge-std/console.sol";
 
 contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
     /// @dev Signs the approveHash transaction from the Nested Safe to the System Owner Safe.
@@ -30,7 +31,7 @@ contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
         return _buildCallsFromJson();
     }
 
-    function _ownerSafe() internal view override returns (address) {
+    function _ownerSafe() internal view override(NestedMultisigBuilder, JsonTxBuilderBase) returns (address) {
         return vm.envAddress("OWNER_SAFE");
     }
 
