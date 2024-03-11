@@ -28,7 +28,7 @@ simulate hdPath='0':
     --sig "signJson(string)" ${bundlePath} \
     --sender ${signer}
 
-sign taskPath hdPath='0':
+sign hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundle}.json
   echo "getting signer address..."
@@ -42,7 +42,7 @@ sign taskPath hdPath='0':
     --sig "signJson(string)" \
     ${bundlePath}
 
-execute taskPath hdPath='0':
+execute hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundle}.json
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
