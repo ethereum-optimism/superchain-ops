@@ -4,7 +4,6 @@ export rpcUrl := env_var_or_default('ETH_RPC_URL', 'https://ethereum.publicnode.
 export signatures := env_var_or_default('SIGNATURES', '')
 export bundleName := env_var_or_default('BUNDLE_NAME', 'input')
 export taskPath := invocation_directory()
-export bundlePath := "${taskPath}/${bundleName}.json"
 
 # Accounts
 export councilSafe := "0xc2819DC788505Aac350142A7A707BF9D03E3Bd03"
@@ -18,6 +17,7 @@ export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 
 simulate whichSafe hdPath='0':
   #!/usr/bin/env bash
+  bundlePath=${taskPath}/${bundleName}.json
   echo "getting signer address..."
   if [ t"{{whichSafe}}" == t"foundation" ]; then
     safe="${foundationSafe}"
@@ -48,6 +48,7 @@ simulate whichSafe hdPath='0':
 
 sign whichSafe hdPath='0':
   #!/usr/bin/env bash
+  bundlePath=${taskPath}/${bundleName}.json
   if [ t"{{whichSafe}}" == t"foundation" ]; then
     safe="${foundationSafe}"
     echo "Using foundation safe at ${safe}"
@@ -69,6 +70,7 @@ sign whichSafe hdPath='0':
 
 approve whichSafe hdPath='0':
   #!/usr/bin/env bash
+  bundlePath=${taskPath}/${bundleName}.json
   if [ t"{{whichSafe}}" == t"foundation" ]; then
     safe="${foundationSafe}"
     echo "Using foundation safe at ${safe}"
@@ -90,6 +92,7 @@ approve whichSafe hdPath='0':
 
 execute hdPath='0':
   #!/usr/bin/env bash
+  bundlePath=${taskPath}/${bundleName}.json
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge script NestedSignFromJson \
     --fork-url ${rpcUrl} \
@@ -101,7 +104,7 @@ execute hdPath='0':
 
 simulated-run hdPath='0':
   #!/usr/bin/env bash
-  cd ../../..
+  bundlePath=${taskPath}/${bundleName}.json
   forge script NestedSignFromJson \
     --fork-url ${rpcUrl} \
     --sender ${randomPersonEoa} \
