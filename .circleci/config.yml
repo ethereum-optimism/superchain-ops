@@ -235,6 +235,16 @@ jobs:
           command: |
             just install
             forge test
+  forge_fmt:
+    docker:
+      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
+    steps:
+      - checkout
+      - run:
+          name: forge fmt
+          command: |
+            just install
+            forge fmt --check
 
 workflows:
     version: 2
