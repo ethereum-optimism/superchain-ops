@@ -8,7 +8,6 @@ import {stdJson} from "forge-std/StdJson.sol";
 import {console} from "forge-std/console.sol";
 
 contract SignFromJson is MultisigBuilder, JsonTxBuilderBase {
-
     function signJson(string memory _path) public {
         _loadJson(_path);
         sign();
