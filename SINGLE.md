@@ -108,7 +108,7 @@ just \
    --dotenv-path .env \
    --justfile ../../../single.just \
    sign \
-   tasks/<NETWORK_DIR>/<RUNBOOK_DIR> # 0 or 1 or ...
+   0 # or 1 or ...
 ```
 
 > [!IMPORTANT] This is the most security critical part of the
@@ -176,5 +176,6 @@ export SIGNATURES="0xAAAABBBB"
 just \
    --dotenv-path .env \
    --justfile ../../../single.just \
-    execute 0 # or 1 or ...
+    execute \
+    0 # or 1 or ...
 ```
