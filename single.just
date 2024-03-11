@@ -2,7 +2,7 @@ set dotenv-load
 
 export rpcUrl := env_var('ETH_RPC_URL')
 export signatures := env_var_or_default('SIGNATURES', '')
-export bundle := env_var_or_default('BUNDLE_NAME', 'input')
+export bundleName := env_var_or_default('BUNDLE_NAME', 'input')
 export taskPath := invocation_directory()
 export bundlePath := "${taskPath}/${bundleName}.json"
 
@@ -12,7 +12,7 @@ export foundationOwner0 := "0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64"
 
 simulate hdPath='0':
   #!/usr/bin/env bash
-  bundlePath=${taskPath}/${bundle}.json
+  bundlePath=${taskPath}/${bundleName}.json
   echo "getting signer address..."
   if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
   then
@@ -30,7 +30,7 @@ simulate hdPath='0':
 
 sign hdPath='0':
   #!/usr/bin/env bash
-  bundlePath=${taskPath}/${bundle}.json
+  bundlePath=${taskPath}/${bundleName}.json
   echo "getting signer address..."
   signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   echo "Signing with: ${signer}"
@@ -42,9 +42,9 @@ sign hdPath='0':
     --sig "signJson(string)" \
     ${bundlePath}
 
-execute hdPath='0':
+execute  hdPath='0':
   #!/usr/bin/env bash
-  bundlePath=${taskPath}/${bundle}.json
+  bundlePath=${taskPath}/${bundleName}.json
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge build
   forge script --fork-url ${ETH_RPC_URL} SignFromJson \
