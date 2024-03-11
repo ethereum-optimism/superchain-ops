@@ -244,8 +244,7 @@ jobs:
           name: forge fmt
           command: |
             just install
-            forge fmt
-            git diff --exit-code
+            forge fmt --check
 
 workflows:
     version: 2
