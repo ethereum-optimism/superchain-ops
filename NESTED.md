@@ -177,7 +177,7 @@ congrats, you are done!
 2. Concatenate all signatures and export it as the `SIGNATURES`
    environment variable, i.e. `export
    SIGNATURES="0x[SIGNATURE1][SIGNATURE2]..."`.
-3. Run `just approve 0 # or 1 or ...` to execute the transaction onchain.
+3. Run the `just approve` command as described below to approve the transaction in each multisig.
 
 For example, if the quorum is 2 and you get the following outputs:
 
@@ -196,11 +196,13 @@ Signature: BBBB
 Then you should run:
 
 ```shell
+export SIGNATURES="0xAAAABBBB"
 just \
    --dotenv-path .env \
    --justfile ../../../nested.just \
    approve \
-   foundation  # or council \ 0 or 1 or ...
+   foundation \ # or council
+   0 # or 1 or ...
 ```
 ### Execute the transaction
 
