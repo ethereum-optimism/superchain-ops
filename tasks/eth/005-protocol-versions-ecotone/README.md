@@ -1,6 +1,6 @@
 # Mainnet Protocol Versions Update - 6.0.0 (Ecotone)
 
-Status: DRAFT, NOT READY TO SIGN
+Status: READY_TO_SIGN
 
 ## Objective
 

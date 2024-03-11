@@ -1,6 +1,6 @@
 # Mainnet - Ecotone Blobs Gas Configuration
 
-Status: DRAFT
+Status: READY_TO_SIGN
 
 ## Objective
 
@@ -8,7 +8,7 @@ This is the playbook for updating the gas config of the `SystemConfig` to be rea
 blob batch transactions.
 
 The proposal was:
-- [ ] approved by Token House voting here: https://vote.optimism.io/proposals/95119698597711750186734377984697814101707190887694311194110013874163880701970 
+- [ ] approved by Token House voting here: https://vote.optimism.io/proposals/95119698597711750186734377984697814101707190887694311194110013874163880701970
 - [ ] not vetoed by the Citizens' house here: TODO
 
 ### New blob fee scalars
@@ -62,7 +62,7 @@ Please see the signing and execution instructions in [SINGLE.md](../../../SINGLE
 
 ## Validations
 
-### State 
+### State
 
 On the "State" tab, you can verify that the following two state changes occured on the `SystemConfigProxy` at `0x229047fed2591dbec1ef1118d64f7af3db9eb290`:
 
@@ -79,7 +79,7 @@ and the sender account.
 
 ![](./images/tenderly-state.png)
 
-### Events 
+### Events
 
 On the "Events" tab, you can verify that one `ConfigUpdate` event was emitted from the `SystemConfigProxy`,
 of `updateType = 1` and `data` containing the packed `overhead` and `scalar` values.

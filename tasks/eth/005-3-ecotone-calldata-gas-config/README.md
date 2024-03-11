@@ -1,6 +1,6 @@
 # Mainnet - Ecotone Calldata Gas Configuration - Contingency
 
-Status: DRAFT
+Status: READY_TO_SIGN
 
 ## Objective
 
@@ -11,7 +11,7 @@ back to calldata.
 For this reason, the nonce in `.env` is also one higher (92) than for task `005-2` (91).
 
 The proposal was:
-- [x] approved by Token House voting here: https://vote.optimism.io/proposals/95119698597711750186734377984697814101707190887694311194110013874163880701970 
+- [x] approved by Token House voting here: https://vote.optimism.io/proposals/95119698597711750186734377984697814101707190887694311194110013874163880701970
 - [ ] not vetoed by the Citizens' house here: TODO
 
 ### Calldata fee scalars
@@ -67,7 +67,7 @@ Please see the signing and execution instructions in [SINGLE.md](../../../SINGLE
 
 ## Validations
 
-### State 
+### State
 
 On the "State" tab, you can verify that the following two state changes occured on the `SystemConfigProxy` at `0x229047fed2591dbec1ef1118d64f7af3db9eb290`:
 
@@ -89,7 +89,7 @@ and the sender account.
 Note that this transaction needs to be signed before task 005-2 can be executed, but it will run on top of task 005-2,
 so the diff at execution time will be different.
 
-### Events 
+### Events
 
 On the "Events" tab, you can verify that one `ConfigUpdate` event was emitted from the `SystemConfigProxy`,
 of `updateType = 1` and `data` containing the packed `overhead` and `scalar` values.
