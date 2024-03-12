@@ -7,8 +7,12 @@ Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
-This is the playbook for executing Mainnet MCP L1 Upgrade, pending approval by governance. Voting on this
-proposal is tracked at https://vote.optimism.io/proposals/tbd.
+```markdown
+This is the playbook for executing Upgrade #6, Multi-Chain Prep (MCP) L1.
+
+The proposal was:
+- [X] Approved by Token House voting here: https://vote.optimism.io/proposals/47253113366919812831791422571513347073374828501432502648295761953879525315523
+- [ ] Not vetoed by the Citizens' house here: https://snapshot.org/#/citizenshouse.eth/proposal/0x2bc6565053b73813c6b0a001c8c07eb5656234b4d8bae12ba6541250993d1d25
 
 The proposal should be treated as the source of truth and used by the Optimism Foundation and the Collective’s
 first Security Council to verify the correctness of the onchain operations.
