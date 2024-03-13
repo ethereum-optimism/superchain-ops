@@ -334,4 +334,4 @@ And we do indeed see these entries:
   **After:** `0x000000000000000000000000f243bed163251380e78068d317ae10f26042b292` <br/>
   **Meaning:** Implementation address is set to the new `L2OutputOracle`.
 
-All other state changes (1) are a nonce change of `0x07dc0893cafbf810e3e72505041f2865726fd073`.
+The only other state change is a nonce change of `0x07dc0893cafbf810e3e72505041f2865726fd073`.
