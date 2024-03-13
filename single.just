@@ -8,6 +8,7 @@ export taskPath := invocation_directory()
 # Accounts
 export OWNER_SAFE := env_var_or_default('FOUNDATION_SAFE', '0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A')
 export foundationOwner0 := "0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64"
+export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 
 simulate hdPath='0':
   #!/usr/bin/env bash
@@ -40,6 +41,17 @@ sign hdPath='0':
     --rpc-url ${rpcUrl} \
     --sig "signJson(string)" \
     ${bundlePath}
+
+# Used to ensure that the signatures are valid without broadcasting them to the network
+# Before running this, open a new terminal and run `anvil --fork-url $ETH_RPC_URL`
+# After this script runs, you can use cast commands to manually validate the state diff.
+validate:
+  #!/usr/bin/env bash
+  bundlePath=${taskPath}/${bundleName}.json
+  forge build
+  forge script --rpc-url http://127.0.0.1:8545 SignFromJson \
+    --sig "runJson(string,bytes)" ${bundlePath} ${SIGNATURES} \
+    --sender 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --broadcast --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 
 execute hdPath='0':
   #!/usr/bin/env bash

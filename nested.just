@@ -13,7 +13,6 @@ export foundationSafe := "0x847B5c174615B1B7fDF770882256e2D3E95b9D92"
 export foundationOwner0 := "0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64"
 
 export ownerSafe := env_var('OWNER_SAFE')
-export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 
 simulate whichSafe hdPath='0':
   #!/usr/bin/env bash
@@ -102,11 +101,13 @@ execute hdPath='0':
     --sig "runJson(string)" \
     ${bundlePath}
 
-simulated-run hdPath='0':
+# Used to ensure that the signatures are valid without broadcasting them to the network
+# Before running this, open a new terminal and run `anvil --fork-url $ETH_RPC_URL`
+# After this script runs, you can use cast commands to manually validate the state diff.
+validate:
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
-  forge script NestedSignFromJson \
-    --fork-url ${rpcUrl} \
-    --sender ${randomPersonEoa} \
-    --sig "runJson(string)" \
-    ${bundlePath}
+  forge build
+  forge script --rpc-url http://127.0.0.1:8545 SignFromJson \
+    --sig "runJson(string)" ${bundlePath} \
+    --sender 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --broadcast --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
