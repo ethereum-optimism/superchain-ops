@@ -7,7 +7,6 @@ Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
-```markdown
 This is the playbook for executing Upgrade #6, Multi-Chain Prep (MCP) L1.
 
 The proposal was:
