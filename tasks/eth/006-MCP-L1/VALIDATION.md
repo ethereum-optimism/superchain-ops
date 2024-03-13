@@ -54,7 +54,6 @@ And we do indeed see these entries:
 - The value `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` occurs
   multiple times below, and corresponds to the storage key of the implementation address as defined
   in [Proxy.sol](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0-rc.1/packages/contracts-bedrock/src/universal/Proxy.sol#L104)  and [Constants.sol](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0-rc.1/packages/contracts-bedrock/src/libraries/Constants.sol#L26-L27).
-- In order to minimize the validation effort, **"Before"** values are only included below when they are non-zero prior to the upgrade.
 
 ### `0x229047fed2591dbec1ef1118d64f7af3db9eb290` (`SystemConfigProxy`)
 
@@ -155,7 +154,7 @@ And we do indeed see these entries:
 #### For the Foundation:
 
 - **Key:** `0x8bbe2c1d1398aac81019c2c136ded3baed46d82f19927d40eb4f0c11b4cd4744` <br/>
-**Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **Meaning:** The GnosisSafe `approvedHashes` mapping is updated to indicate approval of this transaction by the council. The correctness of this slot can be verified as follows:
     - Since this is a nested mapping, we need to use `cast index` twice to confirm that this is the correct slot. The inputs needed are:
