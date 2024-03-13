@@ -292,7 +292,7 @@ And we do indeed see these entries:
    ```
   2. what is currently stored at the key:
    ```
-   cast st 0xde1fcfb0851916ca5101820a69b13a4e276bd81f 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url https://ethereum.publicnode.com
+   cast storage 0xde1fcfb0851916ca5101820a69b13a4e276bd81f 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url https://ethereum.publicnode.com
    ```
 
 ### `0xdfe97868233d1aa22e815a266982f2cf17685a27` (`L2OutputOracleProxy`)
