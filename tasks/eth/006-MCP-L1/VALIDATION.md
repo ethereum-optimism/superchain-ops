@@ -53,7 +53,7 @@ And we do indeed see these entries:
 **Notes:**
 - The value `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` occurs
   multiple times below, and corresponds to the storage key of the implementation address as defined
-  in [Proxy.sol](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0-rc.1/packages/contracts-bedrock/src/universal/Proxy.sol#L104)  and [Constants.sol](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0-rc.1/packages/contracts-bedrock/src/libraries/Constants.sol#L26-L27).
+  in [Proxy.sol](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/src/universal/Proxy.sol#L104)  and [Constants.sol](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/src/libraries/Constants.sol#L26-L27).
 
 ### `0x229047fed2591dbec1ef1118d64f7af3db9eb290` (`SystemConfigProxy`)
 
@@ -108,19 +108,19 @@ And we do indeed see these entries:
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:**  `0x0000000000000000000000004200000000000000000000000000000000000007` <br/>
   **Meaning:** Sets `otherMessenger` at slot `0xcf` (207). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L115-L119).
+   this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L115-L119).
 
 - **Key:** `0x00000000000000000000000000000000000000000000000000000000000000fb` <br/>
   **Before:** `0x00000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c` <br/>
   **After:**  `0x000000000000000000000000c2be75506d5724086deb7245bd260cc9753911be` <br/>
   **Meaning:** Sets `superchainConfig` at slot `0xfb` (251). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L129-L133).
+   this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L129-L133).
 
 - **Key:** `0x00000000000000000000000000000000000000000000000000000000000000fc` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:**  `0x000000000000000000000000beb5fc579115071764c7423a4f12edde41f106ed` <br/>
   **Meaning:** Sets `OptimismPortal` at slot `0xfc` (252). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L136-L140).
+   this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L136-L140).
 
 ### `0x5a0aae59d09fccbddb6c6cceb07b7279367c3d2a` (The 2 of 2 `ProxyAdmin` owner Safe)
 
@@ -184,13 +184,13 @@ And we do indeed see these entries:
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x0000000000000000000000004200000000000000000000000000000000000014` <br/>
   **Meaning:** Sets `messenger` at slot `0x02` (1). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1ERC721Bridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/L1ERC721Bridge.json#L24-L28).
+   this slot is attested to in the Optimism repo at [storageLayout/L1ERC721Bridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1ERC721Bridge.json#L24-L28).
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000032` <br/>
   **Before:** `0x00000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c` <br/>
   **After:** `0x000000000000000000000000c2be75506d5724086deb7245bd260cc9753911be` <br/>
   **Meaning:** Sets `otherBridge` at slot `0x32` (50). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1ERC721Bridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/L1ERC721Bridge.json#L31-L35).
+   this slot is attested to in the Optimism repo at [storageLayout/L1ERC721Bridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1ERC721Bridge.json#L31-L35).
 
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
   **Before:** `0x000000000000000000000000c599fa757c2bcaa5ae3753ab129237f38c10da0b` <br/>
@@ -208,7 +208,7 @@ And we do indeed see these entries:
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x00000000000000000000000099c9fc46f92e8a1c0dec1b1747d010903e884be1` <br/>
   **Meaning:** Sets `messenger` at slot `0x01` (1).  The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/OptimismMintableERC20Factory.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/OptimismMintableERC20Factory.json#L24-L28).
+   this slot is attested to in the Optimism repo at [storageLayout/OptimismMintableERC20Factory.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismMintableERC20Factory.json#L24-L28).
 
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
   **Before:** `0x00000000000000000000000074e273220fa1cb62fd756fe6cbda8bbb89404ded` <br/>
@@ -233,13 +233,13 @@ And we do indeed see these entries:
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x0000000000000000000000004200000000000000000000000000000000000010` <br/>
   **Meaning:** Sets `otherBridge` at slot `0x04` (4). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1StandardBridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/L1StandardBridge.json#L45-L49).
+   this slot is attested to in the Optimism repo at [storageLayout/L1StandardBridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1StandardBridge.json#L45-L49).
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000032` <br/>
   **Before:** `0x00000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c` <br/>
   **After:** `0x000000000000000000000000c2be75506d5724086deb7245bd260cc9753911be` <br/>
   **Meaning:** Sets `superchainConfig` at slot `0x32` (50). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1StandardBridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/L1StandardBridge.json#L59-L63).
+   this slot is attested to in the Optimism repo at [storageLayout/L1StandardBridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1StandardBridge.json#L59-L63).
 
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
   **Before:** `0x000000000000000000000000566511a1a09561e2896f8c0fd77e8544e59bfdb0` <br/>
@@ -252,19 +252,19 @@ And we do indeed see these entries:
   **Before:** `0x000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c00` <br/>
   **After:** `0x0000000000000000000000c2be75506d5724086deb7245bd260cc9753911be00` <br/>
   **Meaning:** Sets `superchainConfig` at slot `0x35` (53). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/OptimismPortal.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal.json#L59-L63).
+   this slot is attested to in the Optimism repo at [storageLayout/OptimismPortal.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal.json#L59-L63).
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000036` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   **After:** `0x000000000000000000000000dfe97868233d1aa22e815a266982f2cf17685a27` <br/>
   **Meaning:** Sets `l2Oracle` at slot `0x36` (54). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/OptimismPortal.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal.json#L66-L70).
+   this slot is attested to in the Optimism repo at [storageLayout/OptimismPortal.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal.json#L66-L70).
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000037` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   **After:** `0x000000000000000000000000229047fed2591dbec1ef1118d64f7af3db9eb290` <br/>
   **Meaning:** Sets `systemConfig` at slot `0x37` (55). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/OptimismPortal.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal.json#L73-L77).
+   this slot is attested to in the Optimism repo at [storageLayout/OptimismPortal.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal.json#L73-L77).
 
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
   **Before:** `0x000000000000000000000000ababe63514ddd6277356f8cc3d6518aa8bdeb4de`
@@ -301,31 +301,31 @@ And we do indeed see these entries:
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000708` <br/>
   **Meaning:** Sets `submissionInterval` at slot `0x04` (4). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L38-L42).
+   this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L38-L42).
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000002` <br/>
   **Meaning:** Sets `l2BlockTime` at slot `0x05` (5). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L45-L49).
+   this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L45-L49).
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000006` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x0000000000000000000000009ba6e03d8b90de867373db8cf1a58d2f7f006b3a` <br/>
   **Meaning:**  Sets `challenger` at slot `0x06` (6). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L52-L56).
+   this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L52-L56).
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000007` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x000000000000000000000000473300df21d047806a082244b417f96b32f13a33` <br/>
   **Meaning:** Sets `proposer` at slot `0x07` (7). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L59-L63).
+   this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L59-L63).
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000008` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000093a80` <br/>
   **Meaning:**  Sets `finalizationPeriodSeconds` at slot `0x08` (8). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L66-L70).
+   this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L66-L70).
 
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
   **Before:** `0x000000000000000000000000db5d932af15d00f879cabebf008cadaaaa691e06` <br/>
