@@ -53,7 +53,7 @@ And we do indeed see these entries:
 **Notes:**
 - The value `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` occurs
   multiple times below, and corresponds to the storage key of the implementation address as defined
-  in [Proxy.sol](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/src/universal/Proxy.sol#L104)  and [Constants.sol](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/src/libraries/Constants.sol#L26-L27).
+  in [Proxy.sol](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/src/universal/Proxy.sol#L104) and [Constants.sol](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/src/libraries/Constants.sol#L26-L27).
 
 ### `0x229047fed2591dbec1ef1118d64f7af3db9eb290` (`SystemConfigProxy`)
 
@@ -208,7 +208,7 @@ And we do indeed see these entries:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x00000000000000000000000099c9fc46f92e8a1c0dec1b1747d010903e884be1` <br/>
-  **Meaning:** Sets `bridge` at slot `0x01` (1).  The correctness of
+  **Meaning:** Sets `bridge` at slot `0x01` (1). The correctness of
    this slot is attested to in the Optimism repo at [storageLayout/OptimismMintableERC20Factory.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismMintableERC20Factory.json#L24-L28).
 
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
@@ -314,7 +314,7 @@ And we do indeed see these entries:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000006` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x0000000000000000000000009ba6e03d8b90de867373db8cf1a58d2f7f006b3a` <br/>
-  **Meaning:**  Sets `challenger` at slot `0x06` (6). The correctness of
+  **Meaning:** Sets `challenger` at slot `0x06` (6). The correctness of
    this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L52-L56).
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000007` <br/>
@@ -326,7 +326,7 @@ And we do indeed see these entries:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000008` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000093a80` <br/>
-  **Meaning:**  Sets `finalizationPeriodSeconds` at slot `0x08` (8). The correctness of
+  **Meaning:** Sets `finalizationPeriodSeconds` at slot `0x08` (8). The correctness of
    this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L66-L70).
 
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
