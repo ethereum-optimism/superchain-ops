@@ -178,19 +178,20 @@ And we do indeed see these entries:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x00000000000000000000000025ace71c97b33cc4729cf772ae268934f7ab5fa1` <br/>
-  **Meaning:** The `initialized` boolean is set to `true`.
+    **Meaning:** Sets `messenger` at slot `0x01` (1). The correctness of
+   this slot is attested to in the Optimism repo at [storageLayout/L1ERC721Bridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1ERC721Bridge.json#L24-L28).
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000002` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x0000000000000000000000004200000000000000000000000000000000000014` <br/>
-  **Meaning:** Sets `messenger` at slot `0x02` (1). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1ERC721Bridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1ERC721Bridge.json#L24-L28).
+  **Meaning:** Sets `otherBridge` at slot `0x02` (2). The correctness of
+   this slot is attested to in the Optimism repo at [storageLayout/L1ERC721Bridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1ERC721Bridge.json#L31-L35).
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000032` <br/>
   **Before:** `0x00000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c` <br/>
   **After:** `0x000000000000000000000000c2be75506d5724086deb7245bd260cc9753911be` <br/>
-  **Meaning:** Sets `otherBridge` at slot `0x32` (50). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1ERC721Bridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1ERC721Bridge.json#L31-L35).
+  **Meaning:** Sets `superchainConfig` at slot `0x32` (50). The correctness of
+   this slot is attested to in the Optimism repo at [storageLayout/L1ERC721Bridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1ERC721Bridge.json#L52-L56).
 
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
   **Before:** `0x000000000000000000000000c599fa757c2bcaa5ae3753ab129237f38c10da0b` <br/>
@@ -207,7 +208,7 @@ And we do indeed see these entries:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x00000000000000000000000099c9fc46f92e8a1c0dec1b1747d010903e884be1` <br/>
-  **Meaning:** Sets `messenger` at slot `0x01` (1).  The correctness of
+  **Meaning:** Sets `bridge` at slot `0x01` (1).  The correctness of
    this slot is attested to in the Optimism repo at [storageLayout/OptimismMintableERC20Factory.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismMintableERC20Factory.json#L24-L28).
 
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
@@ -227,7 +228,8 @@ And we do indeed see these entries:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000003` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x00000000000000000000000025ace71c97b33cc4729cf772ae268934f7ab5fa1` <br/>
-  **Meaning:** The `initialized` boolean is set to `true`. <br/>
+  **Meaning:** Sets `messenger` at slot `0x03` (3). The correctness of
+   this slot is attested to in the Optimism repo at [storageLayout/L1StandardBridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1StandardBridge.json#L38-L42).
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000004` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
