@@ -53,16 +53,27 @@ contract DeployRehearsalContracts is Deployer {
         proxy_admin = admin;
     }
 
-    function deployL1ERC721BridgeProxy() public broadcast {
-        Proxy proxy = new Proxy({_admin: address(proxy_admin)});
-        require(EIP1967Helper.getAdmin(address(proxy)) == address(proxy_admin));
+// Function to deploy the Optimism Portal Proxy
+function deployOptimismPortalProxy() public broadcast {
+    // Create a new Proxy instance with the specified admin address
+    Proxy proxy = new Proxy({_admin: address(proxy_admin)});
+    
+    // Ensure the admin of the newly created proxy is set correctly
+    require(EIP1967Helper.getAdmin(address(proxy)) == address(proxy_admin));
 
-        address reusedOldL1ERC721Bridge = 0x3268Ed09f76e619331528270B6267D4d2C5Ab5C2;
-        proxy_admin.upgrade(payable(proxy), reusedOldL1ERC721Bridge);
+    // Address of the reused old Optimism Portal
+    address reusedOldOptimismPortal = 0x28a55488fef40005309e2DA0040DbE9D300a64AB;
+    
+    // Upgrade the proxy to use the reused old Optimism Portal
+    proxy_admin.upgrade(payable(proxy), reusedOldOptimismPortal);
 
-        save("L1ERC721BridgeProxy", address(proxy));
-        console.log("L1ERC721BridgeProxy deployed at %s", address(proxy));
-    }
+    // Save the address of the deployed proxy
+    save("OptimismPortalProxy", address(proxy));
+    
+    // Log the deployment of the Optimism Portal Proxy
+    console.log("OptimismPortalProxy deployed at %s", address(proxy));
+}
+
 
     function deployOptimismPortalProxy() public broadcast {
         Proxy proxy = new Proxy({_admin: address(proxy_admin)});
