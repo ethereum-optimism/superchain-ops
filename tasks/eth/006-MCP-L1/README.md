@@ -1,9 +1,6 @@
 # Mainnet MCP L1 Upgrade
 
-Status: DRAFT, NOT READY TO SIGN
-
-> [!IMPORTANT] !!! DO NOT SIGN using this playbook yet, as the associated governance proposal has
-> not yet passed.
+Status: READY TO SIGN
 
 ## Objective
 
