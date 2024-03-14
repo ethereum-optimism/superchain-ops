@@ -10,6 +10,7 @@ export OWNER_SAFE := env_var_or_default('FOUNDATION_SAFE', '0x9BA6e03D8B90dE8673
 export foundationOwner0 := "0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64"
 export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 
+# Prints a tenderly simulation URL for the transaction
 simulate hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
@@ -28,6 +29,7 @@ simulate hdPath='0':
     --sig "signJson(string)" ${bundlePath} \
     --sender ${signer}
 
+# Signs the transaction with the nested safe
 sign hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
@@ -53,12 +55,13 @@ validate:
     --sig "runJson(string,bytes)" ${bundlePath} ${SIGNATURES} \
     --sender 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --broadcast --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 
+# Submits signatures and executes the transaction
 execute hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge build
-  forge script --fork-url ${ETH_RPC_URL} SignFromJson \
+  forge script --rpc-url ${ETH_RPC_URL} SignFromJson \
     --sig "runJson(string,bytes)" ${bundlePath} ${SIGNATURES} \
     --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
     --sender ${sender}
