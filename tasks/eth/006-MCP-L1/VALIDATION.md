@@ -131,7 +131,7 @@ And we do indeed see these entries:
 
 #### For the Council:
 
-- **Key:** `0xe5a48f5ffaa688c5a5bcf794e48eb875102b7174501dea10998e539cfda7b3d1` <br/>
+- **Key:** `0x2c8521091811e484363a01c8cefab1472ab245090e44063d5a27b8167ac8ce8b` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **Meaning:** The GnosisSafe `approvedHashes` mapping is updated to indicate approval of this transaction by the council. The correctness of this slot can be verified as follows:
@@ -153,7 +153,7 @@ And we do indeed see these entries:
 
 #### For the Foundation:
 
-- **Key:** `0x8bbe2c1d1398aac81019c2c136ded3baed46d82f19927d40eb4f0c11b4cd4744` <br/>
+- **Key:** `0x2149877f4fc8c44b481023270984d6a9f7ff237a757db8a67a52bcb69e4f7058` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **Meaning:** The GnosisSafe `approvedHashes` mapping is updated to indicate approval of this transaction by the council. The correctness of this slot can be verified as follows:
