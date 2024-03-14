@@ -138,7 +138,7 @@ And we do indeed see these entries:
     - Since this is a nested mapping, we need to use `cast index` twice to confirm that this is the correct slot. The inputs needed are:
       - The location (`8`) of the `approvedHashes` mapping in the [GnosisSafe storage layout](https://github.com/safe-global/safe-contracts/blob/v1.4.0/contracts/libraries/SafeStorage.sol#L23)
       - The address of the Council Safe: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`
-      - The safe hash to approve: `0x3ac2526a656ea43a0a7e3926d44768d54616d8370fdaf5538390bba29f31b245`
+      - The safe hash to approve: `0x8b2754f429a3faae46d77b6eca8accdb3635497b626e13dc8539cd81d1fa244f`
     - The using `cast index`, we can verify that:
       ```shell
         $ cast index address 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 8
@@ -146,8 +146,8 @@ And we do indeed see these entries:
         ```
         and
       ```shell
-        $ cast index bytes32 0x3ac2526a656ea43a0a7e3926d44768d54616d8370fdaf5538390bba29f31b245 0xaaf2b641eaf0bae063c4f2e5670f905e1fb7334436b902d1d880b05bd6228fbd
-        0xe5a48f5ffaa688c5a5bcf794e48eb875102b7174501dea10998e539cfda7b3d1
+        $ cast index bytes32 0x8b2754f429a3faae46d77b6eca8accdb3635497b626e13dc8539cd81d1fa244f 0xaaf2b641eaf0bae063c4f2e5670f905e1fb7334436b902d1d880b05bd6228fbd
+        0x2c8521091811e484363a01c8cefab1472ab245090e44063d5a27b8167ac8ce8b
         ```
       And so the output of the second command matches the key above.
 
@@ -160,7 +160,7 @@ And we do indeed see these entries:
     - Since this is a nested mapping, we need to use `cast index` twice to confirm that this is the correct slot. The inputs needed are:
       - The location (`8`) of the `approvedHashes` mapping in the [GnosisSafe storage layout](https://github.com/safe-global/safe-contracts/blob/v1.4.0/contracts/libraries/SafeStorage.sol#L23)
       - The address of the Council Safe: `0x5a0aae59d09fccbddb6c6cceb07b7279367c3d2a`
-      - The safe hash to approve: `0x3ac2526a656ea43a0a7e3926d44768d54616d8370fdaf5538390bba29f31b245`
+      - The safe hash to approve: `0x8b2754f429a3faae46d77b6eca8accdb3635497b626e13dc8539cd81d1fa244f`
     - The using `cast index`, we can verify that:
       ```shell
         $ cast index address 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 8
@@ -168,8 +168,8 @@ And we do indeed see these entries:
       ```
       and
       ```shell
-        $ cast index bytes32 0x3ac2526a656ea43a0a7e3926d44768d54616d8370fdaf5538390bba29f31b245 0x13908ba1c0e379ab58c6445554ab471f3d4efb06e3c4cf966c4f5e918eca67bd
-        0x8bbe2c1d1398aac81019c2c136ded3baed46d82f19927d40eb4f0c11b4cd4744
+        $ cast index bytes32 0x8b2754f429a3faae46d77b6eca8accdb3635497b626e13dc8539cd81d1fa244f 0x13908ba1c0e379ab58c6445554ab471f3d4efb06e3c4cf966c4f5e918eca67bd
+        0x2149877f4fc8c44b481023270984d6a9f7ff237a757db8a67a52bcb69e4f7058
       ```
       And so the output of the second command matches the key above.
 
