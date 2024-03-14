@@ -19,7 +19,7 @@ Please see the signing and execution instructions in [NESTED.md](../../../NESTED
 
 ## State Validations
 
-Please see the instructions for [validation](./Validation.md).
+Please see the instructions for [validation](./VALIDATION.md).
 
 ## Continue signing
 
