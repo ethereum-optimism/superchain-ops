@@ -19,20 +19,20 @@ simulate whichSafe hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
   echo "getting signer address..."
-  if [ t"{{whichSafe}}" == t"foundation" ]; then
+  if [ "$whichSafe" == "$foundation" ]; then
     safe="${foundationSafe}"
     signer="${foundationOwner0}"
     echo "signer: ${signer}"
     echo "safe: ${safe}"
   fi
-  if [ t"{{whichSafe}}" == t"council" ]; then
+  if [ "$whichSafe" == "$council" ]; then
     safe="${councilSafe}"
     signer="${councilOwner0}"
     echo "signer: ${signer}"
     echo "safe: ${safe}"
   fi
   echo "Simulating call to the {{whichSafe}} safe at ${safe}"
-  if [ ! -z "$SIMULATE_WITHOUT_LEDGER" ]; then
+  if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
     signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
     echo "Simulating with ledger account: ${signer}"
     else
@@ -49,17 +49,17 @@ simulate whichSafe hdPath='0':
 sign whichSafe hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
-  if [ t"{{whichSafe}}" == t"foundation" ]; then
+  if [ "$whichSafe" == "$foundation" ]; then
     safe="${foundationSafe}"
     echo "Using foundation safe at ${safe}"
   fi
-  if [ t"{{whichSafe}}" == t"council" ]; then
-    safe="${councilSafe}"
+  if [ "$whichSafe" == "$council" ]; then
+    safe="$councilSafe"
     echo "Using council safe at ${safe}"
   fi
   echo "getting signer address..."
   signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-  echo "Signing with: ${signer}"
+  echo "Signing with: $signer"
   echo ""
   $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
   forge script NestedSignFromJson \
@@ -75,8 +75,8 @@ approve whichSafe hdPath='0':
     safe="${foundationSafe}"
     echo "Using foundation safe at ${safe}"
   fi
-  if [ t"{{whichSafe}}" == t"council" ]; then
-    safe="${councilSafe}"
+  if [ "$whichSafe" == "$council" ]; then
+    safe="$councilSafe"
     echo "Using council safe at ${safe}"
   fi
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
