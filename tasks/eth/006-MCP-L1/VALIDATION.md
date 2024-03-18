@@ -57,8 +57,11 @@ And we do indeed see these entries:
 
 ### `0x229047fed2591dbec1ef1118d64f7af3db9eb290` (`SystemConfigProxy`)
 
+Links:
 - [Etherscan](https://etherscan.io/address/0x229047fed2591dbec1ef1118d64f7af3db9eb290)
 - [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/extra/addresses/mainnet/op.json#L10)
+
+State Changes:
 
 Please ensure that each link to the `superchain-registry` correctly corresponds to OP Mainnet as it contains data for
 different chains.
@@ -106,24 +109,34 @@ different chains.
 - **Key:** `0xe52a667f71ec761b9b381c7b76ca9b852adf7e8905da0e0ad49986a0a6871815` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x000000000000000000000000dfe97868233d1aa22e815a266982f2cf17685a27` <br/>
-  **Meaning:** Sets `l2OutputOracle` at slot per the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/extra/addresses/mainnet/op.json#L6).
+  **Meaning:** Sets `l2OutputOracle` at slot per the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/extra/addresses/mainnet/op.json#L6). This should be a proxy.
 
 ### `0x25ace71c97b33cc4729cf772ae268934f7ab5fa1` (`L1CrossDomainMessengerProxy`)
 
+Links:
+- [Etherscan](https://etherscan.io/address/0x25ace71c97b33cc4729cf772ae268934f7ab5fa1)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/extra/addresses/mainnet/op.json#L3)
+
+State Changes:
 - **Key:** `0x00000000000000000000000000000000000000000000000000000000000000cf` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:**  `0x0000000000000000000000004200000000000000000000000000000000000007` <br/>
   **Meaning:** Sets `otherMessenger` at slot `0xcf` (207). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L115-L119).
+   this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L115-L119). The `otherMessenger` address should be the the [L2CrossDomainMessenger](https://optimistic.etherscan.io/address/0x4200000000000000000000000000000000000007).
 
 - **Key:** `0x00000000000000000000000000000000000000000000000000000000000000fc` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:**  `0x000000000000000000000000beb5fc579115071764c7423a4f12edde41f106ed` <br/>
   **Meaning:** Sets `OptimismPortal` at slot `0xfc` (252). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L136-L140).
+   this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L136-L140). The `OptimismPortal` address can be found [here](https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/extra/addresses/mainnet/op.json#L8).
 
 ### `0x5a0aae59d09fccbddb6c6cceb07b7279367c3d2a` (The 2 of 2 `ProxyAdmin` owner Safe)
 
+Links:
+- [Etherscan](https://etherscan.io/address/0x5a0aae59d09fccbddb6c6cceb07b7279367c3d2a)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/extra/addresses/mainnet/op.json#L11)
+
+State Changes:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`<br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000002` <br/>
@@ -131,14 +144,14 @@ different chains.
 
 #### For the Council:
 
-- **Key:** `0x2c8521091811e484363a01c8cefab1472ab245090e44063d5a27b8167ac8ce8b` <br/>
+- **Key:** `0x4c86e529f4c6c8a1297468d37da3ed07c5e661e07722d010373a4a8ca61822d6` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **Meaning:** The GnosisSafe `approvedHashes` mapping is updated to indicate approval of this transaction by the council. The correctness of this slot can be verified as follows:
     - Since this is a nested mapping, we need to use `cast index` twice to confirm that this is the correct slot. The inputs needed are:
       - The location (`8`) of the `approvedHashes` mapping in the [GnosisSafe storage layout](https://github.com/safe-global/safe-contracts/blob/v1.4.0/contracts/libraries/SafeStorage.sol#L23)
       - The address of the Council Safe: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`
-      - The safe hash to approve: `0x8b2754f429a3faae46d77b6eca8accdb3635497b626e13dc8539cd81d1fa244f`
+      - The safe hash to approve: `0xa262a5d8e4b2218c9c47c045028d5fd49f9191565837f3afd8e4ae118a60e2b3`
     - The using `cast index`, we can verify that:
       ```shell
         $ cast index address 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 8
@@ -146,21 +159,21 @@ different chains.
         ```
         and
       ```shell
-        $ cast index bytes32 0x8b2754f429a3faae46d77b6eca8accdb3635497b626e13dc8539cd81d1fa244f 0xaaf2b641eaf0bae063c4f2e5670f905e1fb7334436b902d1d880b05bd6228fbd
-        0x2c8521091811e484363a01c8cefab1472ab245090e44063d5a27b8167ac8ce8b
+        $ cast index bytes32 0xa262a5d8e4b2218c9c47c045028d5fd49f9191565837f3afd8e4ae118a60e2b3 0xaaf2b641eaf0bae063c4f2e5670f905e1fb7334436b902d1d880b05bd6228fbd
+        0x4c86e529f4c6c8a1297468d37da3ed07c5e661e07722d010373a4a8ca61822d6
         ```
       And so the output of the second command matches the key above.
 
 #### For the Foundation:
 
-- **Key:** `0x2149877f4fc8c44b481023270984d6a9f7ff237a757db8a67a52bcb69e4f7058` <br/>
+- **Key:** `0x5a2e529e7b2feaedb77a6a1784f400f0d0de9ed9f2c41a0e9adaba3d4fce28a6` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **Meaning:** The GnosisSafe `approvedHashes` mapping is updated to indicate approval of this transaction by the council. The correctness of this slot can be verified as follows:
     - Since this is a nested mapping, we need to use `cast index` twice to confirm that this is the correct slot. The inputs needed are:
       - The location (`8`) of the `approvedHashes` mapping in the [GnosisSafe storage layout](https://github.com/safe-global/safe-contracts/blob/v1.4.0/contracts/libraries/SafeStorage.sol#L23)
-      - The address of the Council Safe: `0x5a0aae59d09fccbddb6c6cceb07b7279367c3d2a`
-      - The safe hash to approve: `0x8b2754f429a3faae46d77b6eca8accdb3635497b626e13dc8539cd81d1fa244f`
+      - The address of the Foundation Safe: `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`
+      - The safe hash to approve: `0xa262a5d8e4b2218c9c47c045028d5fd49f9191565837f3afd8e4ae118a60e2b3`
     - The using `cast index`, we can verify that:
       ```shell
         $ cast index address 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 8
@@ -168,13 +181,18 @@ different chains.
       ```
       and
       ```shell
-        $ cast index bytes32 0x8b2754f429a3faae46d77b6eca8accdb3635497b626e13dc8539cd81d1fa244f 0x13908ba1c0e379ab58c6445554ab471f3d4efb06e3c4cf966c4f5e918eca67bd
-        0x2149877f4fc8c44b481023270984d6a9f7ff237a757db8a67a52bcb69e4f7058
+        $ cast index bytes32 0xa262a5d8e4b2218c9c47c045028d5fd49f9191565837f3afd8e4ae118a60e2b3 0x13908ba1c0e379ab58c6445554ab471f3d4efb06e3c4cf966c4f5e918eca67bd
+        0x5a2e529e7b2feaedb77a6a1784f400f0d0de9ed9f2c41a0e9adaba3d4fce28a6
       ```
       And so the output of the second command matches the key above.
 
 ### `0x5a7749f83b81b301cab5f48eb8516b986daef23d` (`L1ERC721BridgeProxy`)
 
+Links:
+- [Etherscan](https://etherscan.io/address/0x5a7749f83b81b301cab5f48eb8516b986daef23d)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/extra/addresses/mainnet/op.json#L4)
+
+State Changes:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x00000000000000000000000025ace71c97b33cc4729cf772ae268934f7ab5fa1` <br/>
@@ -194,6 +212,11 @@ different chains.
 
 ### `0x75505a97bd334e7bd3c476893285569c4136fa0f` (`OptimismMintableERC20FactoryProxy`)
 
+Links:
+- [Etherscan](https://etherscan.io/address/0x75505a97bd334e7bd3c476893285569c4136fa0f)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/extra/addresses/mainnet/op.json#L7)
+
+State Changes:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
@@ -212,6 +235,11 @@ different chains.
 
 ### Foundation Only: `0x847b5c174615b1b7fdf770882256e2d3e95b9d92` (Foundation Safe)
 
+Links:
+- [Etherscan](https://etherscan.io/address/0x847b5c174615b1b7fdf770882256e2d3e95b9d92)
+- Not in Superchain Registry
+
+State Changes:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000002` <br/>
@@ -219,6 +247,11 @@ different chains.
 
 ### `0x99c9fc46f92e8a1c0dec1b1747d010903e884be1` (`L1StandardBridgeProxy`)
 
+Links:
+- [Etherscan](https://etherscan.io/address/0x99c9fc46f92e8a1c0dec1b1747d010903e884be1)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/extra/addresses/mainnet/op.json#L5)
+
+State Changes:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000003` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x00000000000000000000000025ace71c97b33cc4729cf772ae268934f7ab5fa1` <br/>
@@ -238,6 +271,11 @@ different chains.
 
 ### `0xbeb5fc579115071764c7423a4f12edde41f106ed` (`OptimismPortalProxy`)
 
+Links:
+- [Etherscan](https://etherscan.io/address/0xbeb5fc579115071764c7423a4f12edde41f106ed)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/extra/addresses/mainnet/op.json#L8)
+
+State Changes:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000036` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   **After:** `0x000000000000000000000000dfe97868233d1aa22e815a266982f2cf17685a27` <br/>
@@ -257,6 +295,11 @@ different chains.
 
 ### Council Only: `0xc2819dc788505aac350142a7a707bf9d03e3bd03` (Council Safe)
 
+Links:
+- [Etherscan](https://etherscan.io/address/0xc2819dc788505aac350142a7a707bf9d03e3bd03)
+- Not in Superchain Registry
+
+State Changes:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000002` <br/>
@@ -264,6 +307,11 @@ different chains.
 
 ### `0xde1fcfb0851916ca5101820a69b13a4e276bd81f` (`AddressManager`)
 
+Links:
+- [Etherscan](https://etherscan.io/address/0xde1fcfb0851916ca5101820a69b13a4e276bd81f)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/extra/addresses/mainnet/op.json#L2)
+
+State Changes:
 - **Key:** `0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e` <br/>
   **Before:** `0x000000000000000000000000a95b24af19f8907390ed15f8348a1a5e6ccbc5c6` <br/>
   **After:** `0x000000000000000000000000d3494713a5cfad3f5359379dfa074e2ac8c6fd65` <br/>
@@ -281,6 +329,11 @@ different chains.
 
 ### `0xdfe97868233d1aa22e815a266982f2cf17685a27` (`L2OutputOracleProxy`)
 
+Links:
+- [Etherscan](https://etherscan.io/address/0xdfe97868233d1aa22e815a266982f2cf17685a27)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/extra/addresses/mainnet/op.json#L6)
+
+State Changes:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000004` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000708` <br/>
@@ -317,3 +370,4 @@ different chains.
   **Meaning:** Implementation address is set to the new `L2OutputOracle`.
 
 The only other state change is a nonce change of `0x07dc0893cafbf810e3e72505041f2865726fd073`.
+
