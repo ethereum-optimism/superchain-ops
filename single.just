@@ -13,7 +13,7 @@ simulate hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
   echo "getting signer address..."
-  if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
+  if [ ! -z "$SIMULATE_WITHOUT_LEDGER" ]
   then
     signer=${foundationOwner0}
   else
