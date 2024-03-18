@@ -57,50 +57,56 @@ And we do indeed see these entries:
 
 ### `0x229047fed2591dbec1ef1118d64f7af3db9eb290` (`SystemConfigProxy`)
 
+- [Etherscan](https://etherscan.io/address/0x229047fed2591dbec1ef1118d64f7af3db9eb290)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/extra/addresses/mainnet/op.json#L10)
+
+Please ensure that each link to the `superchain-registry` correctly corresponds to OP Mainnet as it contains data for
+different chains.
+
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
   **Before:** `0x00000000000000000000000033a032ec93ec0c492ec4bf0b30d5f51986e5a314` <br/>
   **After:** `0x000000000000000000000000ba2492e52f45651b60b8b38d4ea5e2390c64ffb1` <br/>
-  **Meaning:** Implementation address is set to the new `SystemConfig`.
+  **Meaning:** Implementation address is set to the new `SystemConfig` per the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/implementations/networks/mainnet.yaml#L14). This should be an implementation address.
 
 - **Key:** `0x383f291819e6d54073bc9a648251d97421076bdd101933c0c022219ce9580636` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x00000000000000000000000025ace71c97b33cc4729cf772ae268934f7ab5fa1` <br/>
-  **Meaning:** Sets `l1CrossDomainMessenger` at slot.
+  **Meaning:** Sets `l1CrossDomainMessenger` address at slot per the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/extra/addresses/mainnet/op.json#L3). This should be a proxy address.
 
 - **Key:** `0x46adcbebc6be8ce551740c29c47c8798210f23f7f4086c41752944352568d5a7` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x0000000000000000000000005a7749f83b81b301cab5f48eb8516b986daef23d` <br/>
-  **Meaning:** Sets `l1ERC721Bridge` at slot.
+  **Meaning:** Sets `l1ERC721Bridge` address at slot per the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/extra/addresses/mainnet/op.json#L4). This should be a proxy address.
 
 - **Key:** `0x4b6c74f9e688cb39801f2112c14a8c57232a3fc5202e1444126d4bce86eb19ac` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x000000000000000000000000beb5fc579115071764c7423a4f12edde41f106ed` <br/>
-  **Meaning:** Sets `optimismPortal` at slot.
+  **Meaning:** Sets `optimismPortal` at slot per the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/extra/addresses/mainnet/op.json#L8). This should be a proxy address.
 
 - **Key:** `0x71ac12829d66ee73d8d95bff50b3589745ce57edae70a3fb111a2342464dc597` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x000000000000000000000000ff00000000000000000000000000000000000010` <br/>
-  **Meaning:** Sets `batchInbox` at slot.
+  **Meaning:** Sets `batchInbox` at slot per the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/configs/mainnet/op.yaml#L8). This should be an address with no code.
 
 - **Key:** `0x9904ba90dde5696cda05c9e0dab5cbaa0fea005ace4d11218a02ac668dad6376` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x00000000000000000000000099c9fc46f92e8a1c0dec1b1747d010903e884be1` <br/>
-  **Meaning:** Sets `l1StandardBridge` at slot.
+  **Meaning:** Sets `l1StandardBridge` at slot per the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/extra/addresses/mainnet/op.json#L5). This should be a proxy address.
 
 - **Key:** `0xa04c5bb938ca6fc46d95553abf0a76345ce3e722a30bf4f74928b8e7d852320c` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x00000000000000000000000075505a97bd334e7bd3c476893285569c4136fa0f` <br/>
-  **Meaning:** Sets `optimismMintableERC20Factory` at slot.
+  **Meaning:** Sets `optimismMintableERC20Factory` at slot per the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/extra/addresses/mainnet/op.json#L7). This should be a proxy address.
 
 - **Key:** `0xa11ee3ab75b40e88a0105e935d17cd36c8faee0138320d776c411291bdbbb19f` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x000000000000000000000000000000000000000000000000000000000109d86c` <br/>
-  **Meaning:** Sets `startBlock` at slot to 17422444.
+  **Meaning:** Sets `startBlock` at slot to 17422444. This should be the blocknumber at which the `SystemConfig` proxy was initialized for the first time. [Etherscan](https://etherscan.io/advanced-filter?eladd=0x229047fed2591dbec1eF1118d64F7aF3dB9EB290&eltpc=0x7f26b83ff96e1f2b6a682f133852f6798a09c465da95921460cefb3847402498) filter shows the transactions that initialized the proxy, the oldest one should be checked to ensure its blocknumber matches what is here.
 
 - **Key:** `0xe52a667f71ec761b9b381c7b76ca9b852adf7e8905da0e0ad49986a0a6871815` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x000000000000000000000000dfe97868233d1aa22e815a266982f2cf17685a27` <br/>
-  **Meaning:** Sets `l2OutputOracle` at slot.
+  **Meaning:** Sets `l2OutputOracle` at slot per the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/extra/addresses/mainnet/op.json#L6).
 
 ### `0x25ace71c97b33cc4729cf772ae268934f7ab5fa1` (`L1CrossDomainMessengerProxy`)
 
@@ -109,12 +115,6 @@ And we do indeed see these entries:
   **After:**  `0x0000000000000000000000004200000000000000000000000000000000000007` <br/>
   **Meaning:** Sets `otherMessenger` at slot `0xcf` (207). The correctness of
    this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L115-L119).
-
-- **Key:** `0x00000000000000000000000000000000000000000000000000000000000000fb` <br/>
-  **Before:** `0x00000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c` <br/>
-  **After:**  `0x00000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c` <br/>
-  **Meaning:** Sets `superchainConfig` at slot `0xfb` (251). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L129-L133).
 
 - **Key:** `0x00000000000000000000000000000000000000000000000000000000000000fc` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
@@ -187,12 +187,6 @@ And we do indeed see these entries:
   **Meaning:** Sets `otherBridge` at slot `0x02` (2). The correctness of
    this slot is attested to in the Optimism repo at [storageLayout/L1ERC721Bridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1ERC721Bridge.json#L31-L35).
 
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000032` <br/>
-  **Before:** `0x00000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c` <br/>
-  **After:** `0x00000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c` <br/>
-  **Meaning:** Sets `superchainConfig` at slot `0x32` (50). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1ERC721Bridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1ERC721Bridge.json#L52-L56).
-
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
   **Before:** `0x000000000000000000000000c599fa757c2bcaa5ae3753ab129237f38c10da0b` <br/>
   **After:** `0x000000000000000000000000ae2af01232a6c4a4d3012c5ec5b1b35059caf10d` <br/>
@@ -237,24 +231,12 @@ And we do indeed see these entries:
   **Meaning:** Sets `otherBridge` at slot `0x04` (4). The correctness of
    this slot is attested to in the Optimism repo at [storageLayout/L1StandardBridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1StandardBridge.json#L45-L49).
 
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000032` <br/>
-  **Before:** `0x00000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c` <br/>
-  **After:** `0x00000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c` <br/>
-  **Meaning:** Sets `superchainConfig` at slot `0x32` (50). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1StandardBridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1StandardBridge.json#L59-L63).
-
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
   **Before:** `0x000000000000000000000000566511a1a09561e2896f8c0fd77e8544e59bfdb0` <br/>
   **After:** `0x00000000000000000000000064b5a5ed26dcb17370ff4d33a8d503f0fbd06cff` <br/>
   **Meaning:** Implementation address is set to the new `L1StandardBridge`.
 
 ### `0xbeb5fc579115071764c7423a4f12edde41f106ed` (`OptimismPortalProxy`)
-
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000035` <br/>
-  **Before:** `0x000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c00` <br/>
-  **After:** `0x000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c00` <br/>
-  **Meaning:** Sets `superchainConfig` at slot `0x35` (53). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/OptimismPortal.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal.json#L59-L63).
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000036` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
