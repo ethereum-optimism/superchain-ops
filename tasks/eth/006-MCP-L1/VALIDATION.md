@@ -112,7 +112,7 @@ And we do indeed see these entries:
 
 - **Key:** `0x00000000000000000000000000000000000000000000000000000000000000fb` <br/>
   **Before:** `0x00000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c` <br/>
-  **After:**  `0x000000000000000000000000c2be75506d5724086deb7245bd260cc9753911be` <br/>
+  **After:**  `0x00000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c` <br/>
   **Meaning:** Sets `superchainConfig` at slot `0xfb` (251). The correctness of
    this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L129-L133).
 
@@ -189,7 +189,7 @@ And we do indeed see these entries:
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000032` <br/>
   **Before:** `0x00000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c` <br/>
-  **After:** `0x000000000000000000000000c2be75506d5724086deb7245bd260cc9753911be` <br/>
+  **After:** `0x00000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c` <br/>
   **Meaning:** Sets `superchainConfig` at slot `0x32` (50). The correctness of
    this slot is attested to in the Optimism repo at [storageLayout/L1ERC721Bridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1ERC721Bridge.json#L52-L56).
 
@@ -239,7 +239,7 @@ And we do indeed see these entries:
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000032` <br/>
   **Before:** `0x00000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c` <br/>
-  **After:** `0x000000000000000000000000c2be75506d5724086deb7245bd260cc9753911be` <br/>
+  **After:** `0x00000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c` <br/>
   **Meaning:** Sets `superchainConfig` at slot `0x32` (50). The correctness of
    this slot is attested to in the Optimism repo at [storageLayout/L1StandardBridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1StandardBridge.json#L59-L63).
 
@@ -252,7 +252,7 @@ And we do indeed see these entries:
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000035` <br/>
   **Before:** `0x000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c00` <br/>
-  **After:** `0x0000000000000000000000c2be75506d5724086deb7245bd260cc9753911be00` <br/>
+  **After:** `0x000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c00` <br/>
   **Meaning:** Sets `superchainConfig` at slot `0x35` (53). The correctness of
    this slot is attested to in the Optimism repo at [storageLayout/OptimismPortal.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal.json#L59-L63).
 
