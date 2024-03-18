@@ -19,19 +19,18 @@ simulate whichSafe hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
   echo "getting signer address..."
-  if [ "$whichSafe" == "$foundation" ]; then
-    safe="${foundationSafe}"
-    signer="${foundationOwner0}"
-    echo "signer: ${signer}"
-    echo "safe: ${safe}"
+
+  if [ "{{whichSafe}}" == "{{foundationSafe}}" ]; then
+    safe="{{foundationSafe}}"
+    signer="{{foundationOwner0}}"
   fi
-  if [ "$whichSafe" == "$council" ]; then
-    safe="${councilSafe}"
-    signer="${councilOwner0}"
-    echo "signer: ${signer}"
-    echo "safe: ${safe}"
+  if [ "{{whichSafe}}" == "{{councilSafe}}" ]; then
+    safe="{{councilSafe}}"
+    signer="{{councilOwner0}}"
   fi
-  echo "Simulating call to the {{whichSafe}} safe at ${safe}"
+  echo "signer: $signer"
+  echo "safe: $safe"
+  echo "Simulating call to the ${safe}"
   if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
     signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
     echo "Simulating with ledger account: ${signer}"
@@ -49,11 +48,11 @@ simulate whichSafe hdPath='0':
 sign whichSafe hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
-  if [ "$whichSafe" == "$foundation" ]; then
+  if [ "{{whichSafe}}" == "$foundation" ]; then
     safe="${foundationSafe}"
     echo "Using foundation safe at ${safe}"
   fi
-  if [ "$whichSafe" == "$council" ]; then
+  if [ "{{whichSafe}}" == "$council" ]; then
     safe="$councilSafe"
     echo "Using council safe at ${safe}"
   fi
