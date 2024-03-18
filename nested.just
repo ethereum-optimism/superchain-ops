@@ -48,11 +48,11 @@ simulate whichSafe hdPath='0':
 sign whichSafe hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
-  if [ "{{whichSafe}}" == "$foundation" ]; then
+  if [ "{{whichSafe}}" == "{{foundationSafe}}" ]; then
     safe="${foundationSafe}"
     echo "Using foundation safe at ${safe}"
   fi
-  if [ "{{whichSafe}}" == "$council" ]; then
+  if [ "{{whichSafe}}" == "{{councilSafe}}" ]; then
     safe="$councilSafe"
     echo "Using council safe at ${safe}"
   fi
@@ -70,11 +70,11 @@ sign whichSafe hdPath='0':
 approve whichSafe hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
-  if [ t"{{whichSafe}}" == t"foundation" ]; then
+  if [ "{{whichSafe}}" == "{{foundationSafe}}" ]; then
     safe="${foundationSafe}"
     echo "Using foundation safe at ${safe}"
   fi
-  if [ "$whichSafe" == "$council" ]; then
+  if [ "{{whichSafe}}" == "{{councilSafe}}" ]; then
     safe="$councilSafe"
     echo "Using council safe at ${safe}"
   fi
