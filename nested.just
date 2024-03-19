@@ -18,19 +18,19 @@ export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 simulate whichSafe hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
-  echo "getting signer address..."
+  echo "getting signer address for {{whichSafe}}..."
 
-  if [ "{{whichSafe}}" == "{{foundationSafe}}" ]; then
+  if [ "{{whichSafe}}" == "foundation" ]; then
     safe="{{foundationSafe}}"
     signer="{{foundationOwner0}}"
   fi
-  if [ "{{whichSafe}}" == "{{councilSafe}}" ]; then
+  if [ "{{whichSafe}}" == "council" ]; then
     safe="{{councilSafe}}"
     signer="{{councilOwner0}}"
   fi
   echo "signer: $signer"
   echo "safe: $safe"
-  echo "Simulating call to the ${safe}"
+  echo "Simulating call to ${safe}"
   if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
     signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
     echo "Simulating with ledger account: ${signer}"
@@ -48,11 +48,11 @@ simulate whichSafe hdPath='0':
 sign whichSafe hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
-  if [ "{{whichSafe}}" == "{{foundationSafe}}" ]; then
+  if [ "{{whichSafe}}" == "foundation" ]; then
     safe="${foundationSafe}"
     echo "Using foundation safe at ${safe}"
   fi
-  if [ "{{whichSafe}}" == "{{councilSafe}}" ]; then
+  if [ "{{whichSafe}}" == "council" ]; then
     safe="$councilSafe"
     echo "Using council safe at ${safe}"
   fi
@@ -70,11 +70,11 @@ sign whichSafe hdPath='0':
 approve whichSafe hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
-  if [ "{{whichSafe}}" == "{{foundationSafe}}" ]; then
+  if [ "{{whichSafe}}" == "foundation" ]; then
     safe="${foundationSafe}"
     echo "Using foundation safe at ${safe}"
   fi
-  if [ "{{whichSafe}}" == "{{councilSafe}}" ]; then
+  if [ "{{whichSafe}}" == "council" ]; then
     safe="$councilSafe"
     echo "Using council safe at ${safe}"
   fi
