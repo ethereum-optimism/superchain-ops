@@ -54,3 +54,12 @@ cd packages/contracts-bedrock/scripts/fpac && \
 ## Signing and execution
 
 Please see the signing and execution instructions in [NESTED.md](../../../NESTED.md).
+
+### State Validations
+
+The transaction should only result in two changed storage slots in the `OptimismPortal` proxy contract:
+
+- Slot `56`: The `DisputeGameFactory` proxy address.
+- Slot `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` - EIP-1967 Implementation slot, updated to the `OptimismPortal2` implementation address.
+
+![state_diff](./images/state_diff.png)
