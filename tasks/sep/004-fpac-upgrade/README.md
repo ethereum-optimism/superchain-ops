@@ -57,9 +57,31 @@ Please see the signing and execution instructions in [NESTED.md](../../../NESTED
 
 ### State Validations
 
+The following state overrides should be seen:
+
+**[`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`][safe-etherscan] (The 2/9 `ProxyAdmin` owner Safe)**:
+
+Enables the simulation by reducing the threshold to 1:
+
+- Key: `0x0000000000000000000000000000000000000000000000000000000000000004`
+- Value: `0x0000000000000000000000000000000000000000000000000000000000000001`
+
+The following state diff should be seen:
+
+**[`0x16Fc5058F25648194471939df75CF27A2fdC48BC`][portal-prox-etherscan] (The `OptimismPortal` proxy contract)**
+
 The transaction should only result in two changed storage slots in the `OptimismPortal` proxy contract:
 
-- Slot `56`: The `DisputeGameFactory` proxy address.
-- Slot `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` - EIP-1967 Implementation slot, updated to the `OptimismPortal2` implementation address.
+- Key `0x0000000000000000000000000000000000000000000000000000000000000038`
+  - Before: `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - After: `0x00000000000000000000000005f9613adb30026ffd634f38e5c4dfd30a197fa1`
+  - Meaning: The `DisputeGameFactory` proxy address, new storage slot.
+- Key `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - Before: `0x0000000000000000000000002d778797049fe9259d947d1ed8e5442226dfb589`
+  - After: `0x000000000000000000000000215b3a2d1766616d1c4701f3d117348711baae93`
+  - Meaning: EIP-1967 Implementation slot, updated to the `OptimismPortal2` implementation address.
 
 ![state_diff](./images/state_diff.png)
+
+[safe-etherscan]: https://sepolia.etherscan.io/address/0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B
+[portal-prox-etherscan]: https://sepolia.etherscan.io/address/0x16Fc5058F25648194471939df75CF27A2fdC48BC
