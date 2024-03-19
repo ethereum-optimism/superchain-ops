@@ -1,9 +1,9 @@
 {
-  "optimismPortalProxyAddr": "0x76114bd29dFcC7a9892240D317E6c7C2A281Ffc6",
-  "systemConfigAddr": "0xa6b72407e2dc9EBF84b839B69A24C88929cf20F7",
-  "superchainConfigAddr": "0x02d91Cf852423640d93920BE0CAdceC0E7A00FA7",
-  "disputeGameFactoryProxyAddr": "0x8c8341e39837Dd44dd2dcA45350FDa228392D558",
-  "optimismPortal2ImplAddr": "0xc0BbeF66fdeDEB5D9Cc77E4969e020702D7251f3",
-  "proxyAdminAddr": "0x18d890A46A3556e7F36f28C79F6157BC7a59f867",
+  "optimismPortalProxyAddr": "0x16Fc5058F25648194471939df75CF27A2fdC48BC",
+  "systemConfigAddr": "0x034edD2A225f7f429A63E0f1D2084B9E0A93b538",
+  "superchainConfigAddr": "0xC2Be75506d5724086DEB7245bd260Cc9753911Be",
+  "disputeGameFactoryProxyAddr": "0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1",
+  "optimismPortal2ImplAddr": "0x215b3A2d1766616d1C4701f3D117348711BaAe93",
+  "proxyAdminAddr": "0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc",
   "storageSetterAddr": "0x54F8076f4027e21A010b4B3900C86211Dd2C2DEB"
 }
