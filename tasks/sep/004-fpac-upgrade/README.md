@@ -13,6 +13,7 @@ The Fault Proof Alpha Chad upgrade:
    - [`PermissionedDisputeGame.sol`][soy-fdg-sol]
    - [`DisputeGameFactory.sol`][dgf-sol]
    - [`DelayedWeth.sol`][delayed-weth-sol]
+   - [`AnchorStateRegistry.sol`][anchor-state-reg-sol]
 1. Upgrades the `OptimismPortal` proxy implementation to [`OptimismPortal2.sol`][portal-2]
 
 [mips-sol]: https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/cannon/MIPS.sol
@@ -22,6 +23,7 @@ The Fault Proof Alpha Chad upgrade:
 [dgf-sol]: https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol
 [delayed-weth-sol]: https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/weth/DelayedWETH.sol
 [portal-2]: https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal2.sol
+[anchor-state-reg-sol]: https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol
 
 ## Preparing the Upgrade
 
