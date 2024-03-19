@@ -53,7 +53,7 @@ cd packages/contracts-bedrock/scripts/fpac && \
 
 ## Signing and execution
 
-Please see the signing and execution instructions in [NESTED.md](../../../NESTED.md).
+Please see the signing and execution instructions in [SINGLE.md](../../../SINGLE.md).
 
 ### State Validations
 
