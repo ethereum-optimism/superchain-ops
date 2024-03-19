@@ -49,16 +49,16 @@ sign whichSafe hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
   if [ "{{whichSafe}}" == "foundation" ]; then
-    safe="${foundationSafe}"
+    safe="{{foundationSafe}}"
     echo "Using foundation safe at ${safe}"
   fi
   if [ "{{whichSafe}}" == "council" ]; then
-    safe="$councilSafe"
+    safe="{{councilSafe}}"
     echo "Using council safe at ${safe}"
   fi
   echo "getting signer address..."
   signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-  echo "Signing with: $signer"
+  echo "Signing with: ${signer}"
   echo ""
   $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
   forge script NestedSignFromJson \
@@ -71,11 +71,11 @@ approve whichSafe hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
   if [ "{{whichSafe}}" == "foundation" ]; then
-    safe="${foundationSafe}"
+    safe="{{foundationSafe}}"
     echo "Using foundation safe at ${safe}"
   fi
   if [ "{{whichSafe}}" == "council" ]; then
-    safe="$councilSafe"
+    safe="{{councilSafe}}"
     echo "Using council safe at ${safe}"
   fi
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
