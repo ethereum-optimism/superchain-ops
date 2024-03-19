@@ -1,8 +1,8 @@
-# Sepolia Devnet 0 FPAC Upgrade
+# Sepolia Testnet FPAC Upgrade
 
 ## Objective
 
-This is the playbook for executing the Fault Proof Alpha Chad upgrade on Sepolia devnet 0.
+This is the playbook for executing the Fault Proof Alpha Chad upgrade on Sepolia testnet.
 
 The Fault Proof Alpha Chad upgrade:
 
