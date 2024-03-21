@@ -136,7 +136,7 @@ that the address actually matches the correct implementation, an Etherscan link 
 - **Key:** `0xe52a667f71ec761b9b381c7b76ca9b852adf7e8905da0e0ad49986a0a6871815` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x000000000000000000000000dfe97868233d1aa22e815a266982f2cf17685a27` <br/>
-  **Meaning:** Sets `l2OutputOracle` at slot per the [Superchain Registry][output-oracle-registry]. This should be a proxy per [Etherscan][output-oracle-etherscan]. Verification of the key can be done by ensuring the result of the [L2_OUTPUT_ORACLE_SLOT]([temp](https://etherscan.io/address/0xba2492e52f45651b60b8b38d4ea5e2390c64ffb1#readContract#F5)) getter on the implementation contract matches the key.
+  **Meaning:** Sets `l2OutputOracle` at slot per the [Superchain Registry][output-oracle-registry]. This should be a proxy per [Etherscan][output-oracle-etherscan]. Verification of the key can be done by ensuring the result of the [L2_OUTPUT_ORACLE_SLOT](https://etherscan.io/address/0xba2492e52f45651b60b8b38d4ea5e2390c64ffb1#readContract#F5) getter on the implementation contract matches the key.
 
 ### `0x25ace71c97b33cc4729cf772ae268934f7ab5fa1` (`L1CrossDomainMessengerProxy`)
 
