@@ -249,6 +249,7 @@ State Changes:
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **Meaning:** The `initialized` boolean is set to `true`. The correctness of
    this slot is attested to in the Optimism repo at [storageLayout/OptimismMintableERC20Factory.json](https://github.com/ethereum-optimism/optimism/blob/e6ef3a900c42c8722e72c2e2314027f85d12ced5/packages/contracts-bedrock/snapshots/storageLayout/OptimismMintableERC20Factory.json#L2-L15).
+   This state diff will only appear in contracts that were previously not initializable. Other contracts are reinitialized but it does not show in the state diff because the storage diff is a noop.
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
