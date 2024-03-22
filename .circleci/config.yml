@@ -190,22 +190,6 @@ jobs:
             just simulate-council
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
-  just_simulate_sc_rehearsal_2_0122:
-    docker:
-      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
-    steps:
-      - checkout
-      - run:
-          name: just simulate r2-remove-signer
-          command: |
-            just install
-            cd security-council-rehearsals
-            cd 2024-01-22-r2-remove-signer-0122
-            export SIMULATE_WITHOUT_LEDGER=1
-            just simulate
-            just get-owners
-            just prepare
-            just simulate # simulate again to make sure the json is still valid
   forge_test:
     docker:
       - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
@@ -248,4 +232,3 @@ workflows:
           - just_simulate_sc_rehearsal_1
           - just_simulate_sc_rehearsal_2
           - just_simulate_sc_rehearsal_4
-          - just_simulate_sc_rehearsal_2_0122
