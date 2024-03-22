@@ -16,6 +16,8 @@ install-presigner:
   mkdir -p bin || true
   PATH="$REPO_ROOT/bin:$PATH"
   cd lib/presigner
+  # DO NOT MERGE WIHTOUT REMOVING THIS LINE:
+  git checkout k0522-pre-signed-pause
   make clean-lib forge-deps
   go build
   cp presigner $REPO_ROOT/bin
