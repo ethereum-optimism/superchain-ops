@@ -133,10 +133,9 @@ jobs:
             forge build
             cd tasks/eth/007-presigned-pause
             export SIMULATE_WITHOUT_LEDGER=1
-            just sign 0 tx/draft-87.json
-            just sign 0 tx/draft-89.json
-            just sign 0 tx/draft-90.json
-            just sign 0 tx/draft-91.json
+            just sign 0 tx/draft-92.json
+            just sign 0 tx/draft-93.json
+            just sign 0 tx/draft-94.json
 
   just_simulate_sc_rehearsal_1:
     docker:
