@@ -20,6 +20,7 @@ Each task should contain the following:
 
 - `README.md`: A brief markdown file describing the task to be executed.
 - `Validation.md`: A markdown file describing and justifying the expected state changes for manual validation by multisig signers.
+- `Script.s.sol`: A foundry script that implements post upgrade assertions.
 - `input.json`: A JSON file which defines the specific transaction for the task to be executed. This file may either be generated automatically or manually created.
 - `.env`: a place to store environment variables specific to this task
 
@@ -117,3 +118,18 @@ Move into the repo and install the contract dependencies
 Tenderly is used to simulate transactions.
 If you don’t already have a Tenderly account, go to https://dashboard.tenderly.co/login and sign up.
 The free account is sufficient.
+
+## Creating a Task
+
+Each task in the `tasks` directory should contain all of the information required to both validate
+and perform the network interaction. To validate that the intention of the network interaction is
+correct, specific contextual information must be included in `Validation.md` that enables signers
+to double check the correctness. This includes linking to authoritative sources such as the
+[superchain-registry](https://github.com/ethereum-optimism/superchain-registry) or
+[Etherscan](https://etherscan.io) to prove the correctness of particular configuration values.
+
+The base scripts for performing network interactions found in the `script` directory should
+be inherited from with the `Script.s.sol` file where the `_postCheck` hook is implemented.
+This function should make assertions on the post state of the network interaction.
+It will run each time that a signer generates a signature, giving additional automation
+on validating the correctness of the network interaction.
