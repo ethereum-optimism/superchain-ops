@@ -117,7 +117,11 @@ jobs:
             just \
               --dotenv-path .env \
               --justfile ../../../nested.just \
-              simulate
+              simulate foundation
+            just \
+              --dotenv-path .env \
+              --justfile ../../../nested.just \
+              simulate council
 
   just_simulate_007-presigned-pause:
     docker:
