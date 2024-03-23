@@ -1,0 +1,2 @@
+check:
+  forge script SmartEscrowCheck.s.sol --rpc-url https://mainnet.optimism.io
