@@ -74,15 +74,20 @@ sign hdPath jsonFile:
   JSON_FILE=`realpath {{jsonFile}}`
   cd $REPO_ROOT/lib/presigner
   if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
-    SIGNER_FLAGS="--ledger --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\"'"
+    presigner \
+      --rpc-url ${rpcUrl} \
+      --json-file $JSON_FILE \
+      --ledger \
+      --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
+      sign
   else
-    SIGNER_FLAGS="--mnemonic \"test test test test test test test test test test test junk\" --sender 0xE7dEA1306D9F829bA469d1904c50903b46ebd02e"
+    presigner \
+      --rpc-url ${rpcUrl} \
+      --json-file $JSON_FILE \
+      --mnemonic "test test test test test test test test test test test junk" \
+      --sender 0xE7dEA1306D9F829bA469d1904c50903b46ebd02e \
+      sign
   fi
-  presigner \
-    --rpc-url ${rpcUrl} \
-    --json-file $JSON_FILE \
-    ${SIGNER_FLAGS} \
-    sign
 
 execute hdPath jsonFile:
   #!/usr/bin/env bash
