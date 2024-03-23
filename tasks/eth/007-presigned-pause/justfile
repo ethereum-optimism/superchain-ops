@@ -81,7 +81,7 @@ sign hdPath jsonFile:
   presigner \
     --rpc-url ${rpcUrl} \
     --json-file $JSON_FILE \
-    $SIGNER_FLAGS \
+    ${SIGNER_FLAGS} \
     sign
 
 execute hdPath jsonFile:
