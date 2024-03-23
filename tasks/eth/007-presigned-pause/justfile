@@ -68,6 +68,7 @@ simulate jsonFile:
 
 sign hdPath jsonFile:
   #!/usr/bin/env bash
+  set -x
   REPO_ROOT=`git rev-parse --show-toplevel`
   PATH="$REPO_ROOT/bin:$PATH"
   JSON_FILE=`realpath {{jsonFile}}`
