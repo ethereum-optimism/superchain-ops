@@ -34,7 +34,7 @@ simulate whichSafe hdPath='0':
   if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
     signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
     echo "Simulating with ledger account: ${signer}"
-    else
+  else
       echo "Simulating without ledger using the first owner account: ${signer}"
   fi
   echo ""
