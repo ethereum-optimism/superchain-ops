@@ -135,7 +135,6 @@ jobs:
             just install
             cd tasks/eth/007-presigned-pause
             just install
-            forge clean
             forge build
             export SIMULATE_WITHOUT_LEDGER=1
             just whoami 0
