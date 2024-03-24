@@ -11,22 +11,7 @@ install: install-presigner
 
 install-presigner:
   #!/usr/bin/env bash
-  REPO_ROOT=`git rev-parse --show-toplevel`
-  cd $REPO_ROOT
-  mkdir -p bin || true
-  PATH="$REPO_ROOT/bin:$PATH"
-  cd lib/presigner
-  # DO NOT MERGE WIHTOUT REMOVING THIS LINE:
-  git checkout k0522-pre-signed-pause
-  make clean-lib forge-deps
-  go build
-  cp presigner $REPO_ROOT/bin
-  go build tools/onepass/1p.go
-  cp 1p $REPO_ROOT/bin
-  cd $REPO_ROOT
-  cd lib/eip712sign
-  go build
-  cp eip712sign $REPO_ROOT/bin
+  go install github.com/ethereum-optimism/presigner@v0.0.2
 
 whoami hdPath='0':
     #!/usr/bin/env bash
