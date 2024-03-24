@@ -24,7 +24,7 @@ whoami hdPath='0':
     PATH="$REPO_ROOT/bin:$PATH"
     $REPO_ROOT/bin/eip712sign --address --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --ledger
 
-sign hdPath jsonFile: install
+sign hdPath jsonFile:
     #!/usr/bin/env bash
     set -x
     REPO_ROOT=`git rev-parse --show-toplevel`
