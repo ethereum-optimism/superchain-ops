@@ -31,6 +31,8 @@ sign hdPath jsonFile:
     JSON_FILE=`realpath {{jsonFile}}`
     if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
       presigner \
+        --workdir . \
+        --script-name SignFromInputJson \
         --rpc-url ${rpcUrl} \
         --json-file $JSON_FILE \
         --ledger \
@@ -38,6 +40,8 @@ sign hdPath jsonFile:
         sign
     else
       presigner \
+        --workdir . \
+        --script-name SignFromInputJson \
         --rpc-url ${rpcUrl} \
         --json-file $JSON_FILE \
         --mnemonic "test test test test test test test test test test test junk" \
@@ -61,6 +65,8 @@ verify jsonFile:
   #!/usr/bin/env bash
   JSON_FILE=`realpath {{jsonFile}}`
   presigner \
+    --workdir . \
+    --script-name SignFromInputJson \
     --rpc-url ${rpcUrl} \
     --json-file $JSON_FILE \
     verify
@@ -69,6 +75,8 @@ simulate jsonFile:
   #!/usr/bin/env bash
   JSON_FILE=`realpath {{jsonFile}}`
   presigner \
+    --workdir . \
+    --script-name SignFromInputJson \
     --rpc-url ${rpcUrl} \
     --json-file $JSON_FILE \
     simulate
