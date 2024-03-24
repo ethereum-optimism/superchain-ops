@@ -1,10 +1,10 @@
 {
   "chain_id": "1",
   "rpc_url": "https://ethereum.publicnode.com",
-  "created_at": "2024-03-23T14:20:20-07:00",
+  "created_at": "2024-03-24T09:24:29-07:00",
   "safe_addr": "0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A",
   "safe_nonce": "93",
   "target_addr": "0x95703e0982140d16f8eba6d158fccede42f04a4c",
-  "script_name": "CallPause",
-  "data": "0x19014e6a6554de0308f5ece8ff736beed8a1b876d16f5c27cac8e466d7de0c703890ee26fd77df4de31df0169e85a4e39466628a07fcb3247a3af90c31f63f6ae185"
+  "script_name": "SignFromInputJson",
+  "data": "No files changed, compilation skipped\nTraces:\n  [3175121] \u001b[33m→ \u001b[0m\u001b[33mnew\u001b[0m SignFromInputJson@0x5b73C5498c1E3b4dbA84de0F1833c4a029d90519\n    └─ \u001b[32m← \u001b[0m15886 bytes of code\n\n  [2984] \u001b[31mSignFromInputJson\u001b[0m::\u001b[31msign\u001b[0m()\u001b[33m\u001b[0m\n    ├─ [0] \u001b[34mVM\u001b[0m::\u001b[34menvAddress\u001b[0m(\"OWNER_SAFE\")\u001b[33m [staticcall]\u001b[0m\n    │   └─ \u001b[34m← \u001b[0mfailed parsing $OWNER_SAFE as type `address`: parser error:\n$OWNER_SAFE\n^\nInvalid string length\n    └─ \u001b[31m← \u001b[0mfailed parsing $OWNER_SAFE as type `address`: parser error:\n$OWNER_SAFE\n^\nInvalid string length"
 }

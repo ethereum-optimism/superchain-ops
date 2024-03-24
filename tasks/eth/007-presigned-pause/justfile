@@ -50,6 +50,32 @@ sign hdPath jsonFile:
     fi
 
 ######################################
+# Before the ceremony ...
+######################################
+
+prepare:
+  #!/usr/bin/env bash
+  echo creating 3 tx...
+  echo
+
+  INPUT_JSON_PATH="${location}/input.json"
+  mkdir -p ${location}/tmp
+  for nonce in 92 93 94
+  do
+    presigner \
+      --workdir . \
+      --script-name SignFromInputJson \
+      --chain 1 \
+      --rpc-url ${rpcUrl} \
+      --target-addr ${superchainConfigAddr} \
+      --safe-addr ${safeAddr} \
+      --safe-nonce ${nonce} \
+      --json-file ${location}/tmp/tmp-${nonce}.json \
+      create
+    cat ${location}/tmp/tmp-${nonce}.json | jq . > ${location}/tx/draft-${nonce}.json
+  done
+
+######################################
 # After the ceremony ...
 ######################################
 
