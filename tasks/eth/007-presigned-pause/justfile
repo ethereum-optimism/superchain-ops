@@ -7,17 +7,48 @@ export location := `pwd`
 
 jsonFile := ''
 
+######################################
+# During the ceremony ...
+######################################
+
 install: install-presigner
 
 install-presigner:
-  #!/usr/bin/env bash
-  go install github.com/ethereum-optimism/presigner@v0.0.2
+    #!/usr/bin/env bash
+    go install github.com/ethereum-optimism/presigner@v0.0.2
 
 whoami hdPath='0':
     #!/usr/bin/env bash
     REPO_ROOT=`git rev-parse --show-toplevel`
     PATH="$REPO_ROOT/bin:$PATH"
     $REPO_ROOT/bin/eip712sign --address --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --ledger
+
+sign hdPath jsonFile:
+    #!/usr/bin/env bash
+    set -x
+    REPO_ROOT=`git rev-parse --show-toplevel`
+    PATH="$REPO_ROOT/bin:$PATH"
+    JSON_FILE=`realpath {{jsonFile}}`
+    cd $REPO_ROOT/lib/presigner
+    if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
+    presigner \
+      --rpc-url ${rpcUrl} \
+      --json-file $JSON_FILE \
+      --ledger \
+      --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
+      sign
+      else
+      presigner \
+      --rpc-url ${rpcUrl} \
+      --json-file $JSON_FILE \
+      --mnemonic "test test test test test test test test test test test junk" \
+      --sender 0xE7dEA1306D9F829bA469d1904c50903b46ebd02e \
+      sign
+      fi
+
+######################################
+# After the ceremony ...
+######################################
 
 merge jsonFile +signedFiles:
   #!/usr/bin/env bash
@@ -50,78 +81,3 @@ simulate jsonFile:
     --rpc-url ${rpcUrl} \
     --json-file $JSON_FILE \
     simulate
-
-sign hdPath jsonFile:
-  #!/usr/bin/env bash
-  set -x
-  REPO_ROOT=`git rev-parse --show-toplevel`
-  PATH="$REPO_ROOT/bin:$PATH"
-  JSON_FILE=`realpath {{jsonFile}}`
-  cd $REPO_ROOT/lib/presigner
-  if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
-    presigner \
-      --rpc-url ${rpcUrl} \
-      --json-file $JSON_FILE \
-      --ledger \
-      --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
-      sign
-  else
-    presigner \
-      --rpc-url ${rpcUrl} \
-      --json-file $JSON_FILE \
-      --mnemonic "test test test test test test test test test test test junk" \
-      --sender 0xE7dEA1306D9F829bA469d1904c50903b46ebd02e \
-      sign
-  fi
-
-execute hdPath jsonFile:
-  #!/usr/bin/env bash
-  REPO_ROOT=`git rev-parse --show-toplevel`
-  PATH="$REPO_ROOT/bin:$PATH"
-  JSON_FILE=`realpath {{jsonFile}}`
-  cd $REPO_ROOT/lib/presigner
-  presigner \
-    --rpc-url ${rpcUrl} \
-    --json-file $JSON_FILE \
-    --ledger \
-    --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
-    execute
-
-get-owners:
-  #!/usr/bin/env bash
-  cast call -r ${rpcUrl} ${safeAddr} "getOwners()(address[])"
-
-prepare:
-  #!/usr/bin/env bash
-  REPO_ROOT=`git rev-parse --show-toplevel`
-  PATH="$REPO_ROOT/bin:$PATH"
-  cd $REPO_ROOT/lib/presigner
-  echo creating 5 tx...
-  echo
-  presigner \
-      --chain 1 \
-      --rpc-url ${rpcUrl} \
-      --target-addr ${superchainConfigAddr} \
-      --safe-addr ${safeAddr} \
-      --safe-nonce 92 \
-      create
-
-  presigner \
-      --chain 1 \
-      --rpc-url ${rpcUrl} \
-      --target-addr ${superchainConfigAddr} \
-      --safe-addr ${safeAddr} \
-      --safe-nonce 93 \
-      create
-
-  presigner \
-      --chain 1 \
-      --rpc-url ${rpcUrl} \
-      --target-addr ${superchainConfigAddr} \
-      --safe-addr ${safeAddr} \
-      --safe-nonce 94 \
-      create
-
-  mv tx/draft-92.json ${location}/tx
-  mv tx/draft-93.json ${location}/tx
-  mv tx/draft-94.json ${location}/tx

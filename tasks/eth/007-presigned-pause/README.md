@@ -183,8 +183,7 @@ The tx files now should have been updated with the signature.
 Share these 5 files with the Facilitator, and
 congrats, you are done!
 
-
-## Instructions for the facilitator
+## [After Ceremony] Instructions for the facilitator
 
 The Facilitator will collect the signatures, merge the signatures, verify, simulate and execute the contract.
 
