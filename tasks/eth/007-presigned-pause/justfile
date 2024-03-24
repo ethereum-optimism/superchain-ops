@@ -15,7 +15,7 @@ install: install-presigner
 
 install-presigner:
     #!/usr/bin/env bash
-    go install github.com/ethereum-optimism/presigner@v0.0.2
+    go install github.com/ethereum-optimism/presigner@v0.0.3
 
 whoami hdPath='0':
     #!/usr/bin/env bash
@@ -28,6 +28,7 @@ whoami hdPath='0':
 sign hdPath jsonFile:
     #!/usr/bin/env bash
     set -x
+    export INPUT_JSON_PATH="${location}/input.json"
     JSON_FILE=`realpath {{jsonFile}}`
     if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
       presigner \
@@ -55,15 +56,16 @@ sign hdPath jsonFile:
 
 prepare:
   #!/usr/bin/env bash
+  set -x
   echo creating 3 tx...
   echo
 
-  INPUT_JSON_PATH="${location}/input.json"
+  export INPUT_JSON_PATH="${location}/input.json"
   mkdir -p ${location}/tmp
   for nonce in 92 93 94
   do
     presigner \
-      --workdir . \
+      --workdir ${location} \
       --script-name SignFromInputJson \
       --chain 1 \
       --rpc-url ${rpcUrl} \
