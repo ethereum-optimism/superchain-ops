@@ -6,16 +6,8 @@ install-contracts:
   #!/usr/bin/env bash
   forge install
 
-# install-eip712sign depends on install-contracts because the
-# lib/eip712sign submodule needs to be installed by forge install.
-install-eip712sign: install-contracts
-  #!/usr/bin/env bash
-  REPO_ROOT=`git rev-parse --show-toplevel`
-  cd $REPO_ROOT
-  mkdir -p bin || true
-  cd lib/eip712sign
-  go build
-  cp eip712sign ../../bin
+install-eip712sign:
+  go install github.com/base-org/eip712sign@v0.0.7
 
 # Bundle path should be provided including the .json file extension.
 add-transaction bundlePath to sig *params:
