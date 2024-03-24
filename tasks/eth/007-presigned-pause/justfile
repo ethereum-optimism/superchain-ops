@@ -16,6 +16,7 @@ install: install-presigner
 install-presigner:
     #!/usr/bin/env bash
     go install github.com/ethereum-optimism/presigner@v0.0.2
+    forge install ethereum-optimism/presigner@v0.0.2
 
 whoami hdPath='0':
     #!/usr/bin/env bash
