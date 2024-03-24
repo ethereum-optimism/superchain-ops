@@ -20,3 +20,6 @@
 [submodule "lib/solady"]
 	path = lib/solady
 	url = https://github.com/Vectorized/solady
+[submodule "lib/presigner"]
+	path = lib/presigner
+	url = https://github.com/ethereum-optimism/presigner
