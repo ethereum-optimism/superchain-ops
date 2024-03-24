@@ -23,7 +23,7 @@ whoami hdPath='0':
     PATH="$REPO_ROOT/bin:$PATH"
     $REPO_ROOT/bin/eip712sign --address --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --ledger
 
-sign hdPath jsonFile:
+sign hdPath jsonFile: install
     #!/usr/bin/env bash
     set -x
     REPO_ROOT=`git rev-parse --show-toplevel`
@@ -31,20 +31,20 @@ sign hdPath jsonFile:
     JSON_FILE=`realpath {{jsonFile}}`
     cd $REPO_ROOT/lib/presigner
     if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
-    presigner \
-      --rpc-url ${rpcUrl} \
-      --json-file $JSON_FILE \
-      --ledger \
-      --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
-      sign
-      else
       presigner \
-      --rpc-url ${rpcUrl} \
-      --json-file $JSON_FILE \
-      --mnemonic "test test test test test test test test test test test junk" \
-      --sender 0xE7dEA1306D9F829bA469d1904c50903b46ebd02e \
-      sign
-      fi
+        --rpc-url ${rpcUrl} \
+        --json-file $JSON_FILE \
+        --ledger \
+        --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
+        sign
+    else
+      presigner \
+        --rpc-url ${rpcUrl} \
+        --json-file $JSON_FILE \
+        --mnemonic "test test test test test test test test test test test junk" \
+        --sender 0xE7dEA1306D9F829bA469d1904c50903b46ebd02e \
+        sign
+    fi
 
 ######################################
 # After the ceremony ...
