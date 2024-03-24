@@ -133,11 +133,12 @@ jobs:
           name: just simulate 007-presigned-pause
           command: |
             just install
-            forge clean
-            forge build
             cd tasks/eth/007-presigned-pause
             just install
+            forge clean
+            forge build
             export SIMULATE_WITHOUT_LEDGER=1
+            just whoami 0
             just sign 0 tx/draft-92.json
             just sign 0 tx/draft-93.json
             just sign 0 tx/draft-94.json

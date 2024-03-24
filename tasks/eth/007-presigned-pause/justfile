@@ -20,17 +20,16 @@ install-presigner:
 
 whoami hdPath='0':
     #!/usr/bin/env bash
-    REPO_ROOT=`git rev-parse --show-toplevel`
-    PATH="$REPO_ROOT/bin:$PATH"
-    $REPO_ROOT/bin/eip712sign --address --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --ledger
+    if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
+      eip712sign --address --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --ledger
+    else
+      eip712sign --address --mnemonic "test test test test test test test test test test test junk"
+    fi
 
 sign hdPath jsonFile:
     #!/usr/bin/env bash
     set -x
-    REPO_ROOT=`git rev-parse --show-toplevel`
-    PATH="$REPO_ROOT/bin:$PATH"
     JSON_FILE=`realpath {{jsonFile}}`
-    cd $REPO_ROOT/lib/presigner
     if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
       presigner \
         --rpc-url ${rpcUrl} \
@@ -53,8 +52,6 @@ sign hdPath jsonFile:
 
 merge jsonFile +signedFiles:
   #!/usr/bin/env bash
-  REPO_ROOT=`git rev-parse --show-toplevel`
-  PATH="$REPO_ROOT/bin:$PATH"
   JSON_FILE=`realpath {{jsonFile}}`
   presigner \
     --rpc-url ${rpcUrl} \
@@ -63,10 +60,7 @@ merge jsonFile +signedFiles:
 
 verify jsonFile:
   #!/usr/bin/env bash
-  REPO_ROOT=`git rev-parse --show-toplevel`
-  PATH="$REPO_ROOT/bin:$PATH"
   JSON_FILE=`realpath {{jsonFile}}`
-  cd $REPO_ROOT/lib/presigner
   presigner \
     --rpc-url ${rpcUrl} \
     --json-file $JSON_FILE \
@@ -74,10 +68,7 @@ verify jsonFile:
 
 simulate jsonFile:
   #!/usr/bin/env bash
-  REPO_ROOT=`git rev-parse --show-toplevel`
-  PATH="$REPO_ROOT/bin:$PATH"
   JSON_FILE=`realpath {{jsonFile}}`
-  cd $REPO_ROOT/lib/presigner
   presigner \
     --rpc-url ${rpcUrl} \
     --json-file $JSON_FILE \
