@@ -15,10 +15,16 @@ install: install-presigner
 
 install-presigner:
     #!/usr/bin/env bash
-    go install github.com/ethereum-optimism/presigner@v0.0.3
+    REPO_ROOT=`git rev-parse --show-toplevel`
+    PATH="$REPO_ROOT/bin:$PATH"
+    cd $REPO_ROOT
+    mkdir -p bin || true
+    GOBIN="$REPO_ROOT/bin" go install github.com/ethereum-optimism/presigner@v0.0.4
 
 whoami hdPath='0':
     #!/usr/bin/env bash
+    REPO_ROOT=`git rev-parse --show-toplevel`
+    PATH="$REPO_ROOT/bin:$PATH"
     if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
       eip712sign --address --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --ledger
     else
@@ -28,6 +34,8 @@ whoami hdPath='0':
 sign hdPath jsonFile:
     #!/usr/bin/env bash
     set -x
+    REPO_ROOT=`git rev-parse --show-toplevel`
+    PATH="$REPO_ROOT/bin:$PATH"
     export INPUT_JSON_PATH="${location}/input.json"
     JSON_FILE=`realpath {{jsonFile}}`
     if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
@@ -57,6 +65,8 @@ sign hdPath jsonFile:
 prepare:
   #!/usr/bin/env bash
   set -x
+  REPO_ROOT=`git rev-parse --show-toplevel`
+  PATH="$REPO_ROOT/bin:$PATH"
   echo creating 3 tx...
   echo
 
@@ -83,6 +93,8 @@ prepare:
 
 merge jsonFile +signedFiles:
   #!/usr/bin/env bash
+  REPO_ROOT=`git rev-parse --show-toplevel`
+  PATH="$REPO_ROOT/bin:$PATH"
   JSON_FILE=`realpath {{jsonFile}}`
   presigner \
     --rpc-url ${rpcUrl} \
@@ -91,6 +103,8 @@ merge jsonFile +signedFiles:
 
 verify jsonFile:
   #!/usr/bin/env bash
+  REPO_ROOT=`git rev-parse --show-toplevel`
+  PATH="$REPO_ROOT/bin:$PATH"
   JSON_FILE=`realpath {{jsonFile}}`
   presigner \
     --workdir . \
@@ -101,6 +115,8 @@ verify jsonFile:
 
 simulate jsonFile:
   #!/usr/bin/env bash
+  REPO_ROOT=`git rev-parse --show-toplevel`
+  PATH="$REPO_ROOT/bin:$PATH"
   JSON_FILE=`realpath {{jsonFile}}`
   presigner \
     --workdir . \

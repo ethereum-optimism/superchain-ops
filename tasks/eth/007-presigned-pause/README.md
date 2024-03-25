@@ -21,6 +21,11 @@ A Facilitator will collect the signatures and execute the contract.
 
 ### 1. Install tools
 
+In addition to the general tools installed when you clone/update the
+repo and run `just install` at the root of the repo, this ceremony
+also requires a `presigner` tool, which can be installed by running
+the following command at the ceremony folder:
+
 ```
 just install
 ```
