@@ -1,0 +1,55 @@
+set dotenv-load
+
+export rpcUrl := env_var_or_default('ETH_RPC_URL', 'https://ethereum.publicnode.com')
+export signatures := env_var_or_default('SIGNATURES', '')
+export bundle := "input"
+export location := `pwd`
+export ownerSafe := env_var('OWNER_SAFE')
+export randomEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+
+simulate l2ChainName hdPath='0':
+  #!/usr/bin/env bash
+  cd ../../..
+  echo "Safe address: ${ownerSafe}"
+  echo "Chain name: {{l2ChainName}}"
+  echo "Getting signer address..."
+
+  if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
+  then
+    # Use the first owner of the safe as the signer
+    owners=$(cast call $ownerSafe "getOwners()(address[])" | tr -d '[]' | tr ',' '\n')
+    signer=$(echo $owners | awk '{print $1}')
+    echo "Simulating without ledger using first Safe owner account: ${signer}"
+  else
+    signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+    echo "Simulating with ledger account: ${signer}"
+  fi
+
+  echo ""
+  forge script SignFromJson \
+    --rpc-url ${rpcUrl} \
+    --sig "signJson(string)" \
+    "${location}/${bundle}-{{l2ChainName}}.json" \
+    --sender ${signer}
+
+sign l2ChainName hdPath='0':
+  #!/usr/bin/env bash
+  cd ../../..
+  echo "Getting signer address..."
+  signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  echo "Signing with: ${signer}"
+  echo ""
+  $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
+  forge script SignFromJson \
+    --rpc-url ${rpcUrl} \
+    --sig "signJson(string)"
+    "${location}/${bundle}-${l2ChainName}.json"
+
+execute l2ChainName hdPath='0':
+  #!/usr/bin/env bash
+  cd ../../..
+  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  forge script --fork-url ${ETH_RPC_URL} SignFromJson \
+    --sig "runJson(string,bytes)" "${location}/${bundle}-${l2ChainName}.json" ${SIGNATURES} \
+    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
+    --sender ${sender}
