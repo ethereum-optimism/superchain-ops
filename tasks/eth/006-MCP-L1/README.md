@@ -1,6 +1,6 @@
 # Mainnet MCP L1 Upgrade
 
-Status: READY TO SIGN
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
