@@ -178,8 +178,11 @@ congrats, you are done!
    environment variable, i.e. `export
    SIGNATURES="0x[SIGNATURE1][SIGNATURE2]..."`.
 3. Run the `just approve` command as described below to approve the transaction in each multisig.
+### Concatenate the signatures
 
-For example, if the quorum is 2 and you get the following outputs:
+1. Collect outputs from all participating signers.
+2. Concatenate all signatures and export it as the `SIGNATURES` environment variable. For example,
+   if the quorum is 2 and you get the following outputs:
 
 ``` shell
 Data:  0xDEADBEEF
@@ -193,17 +196,33 @@ Signer: 0xC0FFEE02
 Signature: BBBB
 ```
 
-Then you should run:
+Then you should run the following command prior to running `just validate` or `just execute`:
 
 ```shell
 export SIGNATURES="0xAAAABBBB"
+```
+
+### Validate the signatures
+
+If you wish to verify that the signatures are correct, you can use the `just validate-approval` command.
+You do not need to connect your ledger or provide an hd path to do so.
+
+1. Run `anvil --fork-url $ETH_RPC_URL` (you can use the same URL as in the `.env` file).
+2. Open a new terminal.
+3. Export the signatures.
+4. Run the following:
+
+```
 just \
    --dotenv-path .env \
    --justfile ../../../nested.just \
-   approve \
-   foundation \ # or council
-   0 # or 1 or ...
+    validate-approval \
+    foundation # or council
 ```
+
+###
+
+
 ### Execute the transaction
 
 Once the signatures have been submitted approving the transaction for all nested Safes run:

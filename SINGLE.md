@@ -147,15 +147,11 @@ congrats, you are done!
 
 ## [For Facilitator ONLY] How to execute
 
-### Execute the output
+### Concatenate the signatures
 
 1. Collect outputs from all participating signers.
 2. Concatenate all signatures and export it as the `SIGNATURES`
-   environment variable, i.e. `export
-   SIGNATURES="0x[SIGNATURE1][SIGNATURE2]..."`.
-3. Run `just execute 0 # or 1 or ...` to execute the transaction onchain.
-
-For example, if the quorum is 2 and you get the following outputs:
+   environment variable. For example, if the quorum is 2 and you get the following outputs:
 
 ``` shell
 Data:  0xDEADBEEF
@@ -169,10 +165,38 @@ Signer: 0xC0FFEE02
 Signature: BBBB
 ```
 
-Then you should run:
+Then you should run the following command prior to running `just validate` or `just execute`:
 
 ``` shell
 export SIGNATURES="0xAAAABBBB"
+```
+
+### Validate the signatures
+
+If you wish to verify that the signatures are correct, you can use the `just validate` command.
+You do not need to connect your ledger or provide an hd path to do so.
+
+1. Run `anvil --fork-url $ETH_RPC_URL` (you can use the same URL as in the `.env` file).
+2. Open a new terminal.
+3. Export the signatures.
+4. Run the following:
+
+```
+just \
+   --dotenv-path .env \
+   --justfile ../../../single.just \
+    validate
+```
+
+### Execute the transaction
+
+To execute the transaction:
+
+1. Export the signatures.
+2. Connect your ledger.
+3. Run the following:
+
+```
 just \
    --dotenv-path .env \
    --justfile ../../../single.just \
