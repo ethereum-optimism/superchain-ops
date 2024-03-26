@@ -27,6 +27,30 @@ simulate hdPath='0':
     --sig "signJson(string)" ${bundlePath} \
     --sender ${signer}
 
+checkDiff hdPath='0':
+  #!/usr/bin/env bash
+  bundlePath=${taskPath}/${bundleName}.json
+  signer="0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64"
+  echo "Simulating with: ${signer}"
+  echo ""
+  forge build
+  forge script -vvvv SignFromJson \
+    --rpc-url ${rpcUrl} \
+    --sig "checkDiff(string)" ${bundleName} \
+    --sender ${signer}
+
+writeDiff hdPath='0':
+  #!/usr/bin/env bash
+  bundlePath=${taskPath}/${bundle}.json
+  signer="0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64"
+  echo "Simulating with: ${signer}"
+  echo ""
+  forge build
+  forge script -vvvv SignFromJson \
+    --rpc-url ${rpcUrl} \
+    --sig "writeDiff(string)" ${bundlePath} \
+    --sender ${signer}
+
 sign hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json

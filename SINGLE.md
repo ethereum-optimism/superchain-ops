@@ -72,8 +72,18 @@ validate integrity of the simulation, we need to check the following:
 
 #### 3.2. Validate correctness of the state diff.
 
-Now click on the "State" tab, and refer to the "State Validations" instructions for the transaction you are signing.
-Once complete return to this document to complete the signing.
+There are two options for validating the state diff.
+
+1. If there is a `diff.json` file in the runbook directory, then the resulting execution
+can be validated by running:
+
+```
+just --dotenv-path .env \
+  --justfile ../../../single.just \
+  checkDiff
+```
+
+2. Click on the "State" tab, and refer to the "State Validations" instructions for the transaction you are signing. Once complete return to this document to complete the signing.
 
 #### 3.3. Extract the domain hash and the message hash to approve.
 
