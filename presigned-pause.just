@@ -3,7 +3,7 @@ set dotenv-load
 export rpcUrl := env_var('ETH_RPC_URL')
 export superchainConfigAddr := env_var('SUPERCHAIN_CONFIG_ADDR')
 export safeAddr := env_var('SAFE_ADDR')
-export location := `pwd`
+export taskPath := invocation_directory()
 
 jsonFile := ''
 
@@ -31,32 +31,34 @@ whoami hdPath='0':
       eip712sign --address --mnemonic "test test test test test test test test test test test junk"
     fi
 
-sign hdPath jsonFile:
+sign hdPath='0':
     #!/usr/bin/env bash
     set -x
     REPO_ROOT=`git rev-parse --show-toplevel`
     PATH="$REPO_ROOT/bin:$PATH"
-    export INPUT_JSON_PATH="${location}/input.json"
-    JSON_FILE=`realpath {{jsonFile}}`
-    if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
-      presigner \
-        --workdir . \
-        --script-name SignFromInputJson \
-        --rpc-url ${rpcUrl} \
-        --json-file $JSON_FILE \
-        --ledger \
-        --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
-        sign
-    else
-      presigner \
-        --workdir . \
-        --script-name SignFromInputJson \
-        --rpc-url ${rpcUrl} \
-        --json-file $JSON_FILE \
-        --mnemonic "test test test test test test test test test test test junk" \
-        --sender 0xE7dEA1306D9F829bA469d1904c50903b46ebd02e \
-        sign
-    fi
+    export INPUT_JSON_PATH="${taskPath}/input.json"
+    for nonce in ${PRESIGN_NONCES[@]}; do
+      JSON_FILE="${taskPath}/tx/draft-${nonce}.json"
+      if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
+        presigner \
+          --workdir . \
+          --script-name SignFromInputJson \
+          --rpc-url ${rpcUrl} \
+          --json-file $JSON_FILE \
+          --ledger \
+          --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
+          sign
+      else
+        presigner \
+          --workdir . \
+          --script-name SignFromInputJson \
+          --rpc-url ${rpcUrl} \
+          --json-file $JSON_FILE \
+          --mnemonic "test test test test test test test test test test test junk" \
+          --sender 0xE7dEA1306D9F829bA469d1904c50903b46ebd02e \
+          sign
+      fi
+    done
 
 ######################################
 # Before the ceremony ...
@@ -70,57 +72,59 @@ prepare:
   echo creating 3 tx...
   echo
 
-  export INPUT_JSON_PATH="${location}/input.json"
-  mkdir -p ${location}/tmp
-  for nonce in 92 93 94
-  do
+  export INPUT_JSON_PATH="${taskPath}/input.json"
+  mkdir -p ${taskPath}/tmp
+  for nonce in ${PRESIGN_NONCES[@]}; do
     presigner \
-      --workdir ${location} \
+      --workdir ${taskPath} \
       --script-name SignFromInputJson \
       --chain 1 \
       --rpc-url ${rpcUrl} \
       --target-addr ${superchainConfigAddr} \
       --safe-addr ${safeAddr} \
       --safe-nonce ${nonce} \
-      --json-file ${location}/tmp/tmp-${nonce}.json \
+      --json-file ${taskPath}/tmp/tmp-${nonce}.json \
       create
-    cat ${location}/tmp/tmp-${nonce}.json | jq . > ${location}/tx/draft-${nonce}.json
+    cat ${taskPath}/tmp/tmp-${nonce}.json | jq . > ${taskPath}/tx/draft-${nonce}.json
   done
 
 ######################################
 # After the ceremony ...
 ######################################
 
-merge jsonFile +signedFiles:
+merge:
   #!/usr/bin/env bash
   REPO_ROOT=`git rev-parse --show-toplevel`
   PATH="$REPO_ROOT/bin:$PATH"
-  JSON_FILE=`realpath {{jsonFile}}`
-  presigner \
-    --rpc-url ${rpcUrl} \
-    --json-file $JSON_FILE \
-    merge {{signedFiles}}
+  for nonce in ${PRESIGN_NONCES[@]}; do
+    presigner \
+      --rpc-url ${rpcUrl} \
+      --json-file ${taskPath}/tx/draft-${nonce}.json \
+      merge ${taskPath}/tx/draft-${nonce}.signer-*.json
+  done
 
-verify jsonFile:
+verify:
   #!/usr/bin/env bash
   REPO_ROOT=`git rev-parse --show-toplevel`
   PATH="$REPO_ROOT/bin:$PATH"
-  JSON_FILE=`realpath {{jsonFile}}`
-  presigner \
-    --workdir . \
-    --script-name SignFromInputJson \
-    --rpc-url ${rpcUrl} \
-    --json-file $JSON_FILE \
-    verify
+  for nonce in ${PRESIGN_NONCES[@]}; do
+    presigner \
+      --workdir . \
+      --script-name SignFromInputJson \
+      --rpc-url ${rpcUrl} \
+      --json-file ${taskPath}/tx/draft-${nonce}.json \
+      verify
+  done
 
-simulate jsonFile:
+simulate-all jsonFile:
   #!/usr/bin/env bash
   REPO_ROOT=`git rev-parse --show-toplevel`
   PATH="$REPO_ROOT/bin:$PATH"
-  JSON_FILE=`realpath {{jsonFile}}`
-  presigner \
-    --workdir . \
-    --script-name SignFromInputJson \
-    --rpc-url ${rpcUrl} \
-    --json-file $JSON_FILE \
-    simulate
+  for nonce in ${PRESIGN_NONCES[@]}; do
+    presigner \
+      --workdir . \
+      --script-name SignFromInputJson \
+      --rpc-url ${rpcUrl} \
+      --json-file ${taskPath}/tx/draft-${nonce}.json \
+      simulate
+  done
