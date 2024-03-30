@@ -37,11 +37,11 @@ contract PostCheck is SignFromJson {
         SuperchainConfig: 0x95703e0982140D16f8ebA6d158FccEde42f04a4C
     });
     DeployConfig cfg = new DeployConfig();
-    uint256 l2OutputOracleStartingTimestamp = 0;
+    uint256 l2OutputOracleStartingTimestamp = 1686068903;
 
     constructor() {
         // Load the DeployConfig from the JSON file
-        cfg.read(string.concat(vm.projectRoot(), "/script/DeployConfigMainnet.json"));
+        cfg.read(string.concat(vm.projectRoot(), "/tasks/eth/006-MCP-L1/DeployConfig.json"));
     }
 
     function _postCheck() internal view override {
