@@ -2,10 +2,8 @@
 pragma solidity ^0.8.15;
 
 import {SignFromJson} from "./SignFromJson.s.sol";
-import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
 import {ResourceMetering} from "@eth-optimism-bedrock/src/L1/ResourceMetering.sol";
 import {DeployConfig} from "@eth-optimism-bedrock/scripts/DeployConfig.s.sol";
-import {Deployer} from "@eth-optimism-bedrock/scripts/Deployer.sol";
 import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
 import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
 import {L1StandardBridge} from "@eth-optimism-bedrock/src/L1/L1StandardBridge.sol";
@@ -18,8 +16,6 @@ import {OptimismMintableERC20Factory} from "@eth-optimism-bedrock/src/universal/
 import {L1ERC721Bridge} from "@eth-optimism-bedrock/src/L1/L1ERC721Bridge.sol";
 import {Predeploys} from "@eth-optimism-bedrock/src/libraries/Predeploys.sol";
 import {Types} from "@eth-optimism-bedrock/scripts/Types.sol";
-import {Vm} from "forge-std/Vm.sol";
-import {ISystemConfigV0} from "@eth-optimism-bedrock/scripts/interfaces/ISystemConfigV0.sol";
 import {console2 as console} from "forge-std/console2.sol";
 
 contract PostCheck is SignFromJson {
