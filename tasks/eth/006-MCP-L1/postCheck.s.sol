@@ -92,63 +92,38 @@ contract PostCheck is SignFromJson {
         resourceConfig.systemTxMaxGas = config.resourceConfig().systemTxMaxGas;
         resourceConfig.maximumBaseFee = config.resourceConfig().maximumBaseFee;
 
-        if (true) {
-            require(config.owner() == cfg.finalSystemOwner());
-            require(config.overhead() == cfg.gasPriceOracleOverhead());
-            require(config.scalar() == cfg.gasPriceOracleScalar());
-            require(config.batcherHash() == bytes32(uint256(uint160(cfg.batchSenderAddress()))));
-            require(config.gasLimit() == uint64(cfg.l2GenesisBlockGasLimit()));
-            require(config.unsafeBlockSigner() == cfg.p2pSequencerAddress());
-            // Check _config
-            ResourceMetering.ResourceConfig memory rconfig;
-            rconfig.maxResourceLimit = Constants.DEFAULT_RESOURCE_CONFIG().maxResourceLimit;
-            rconfig.elasticityMultiplier = Constants.DEFAULT_RESOURCE_CONFIG().elasticityMultiplier;
-            rconfig.baseFeeMaxChangeDenominator = Constants.DEFAULT_RESOURCE_CONFIG().baseFeeMaxChangeDenominator;
-            rconfig.minimumBaseFee = Constants.DEFAULT_RESOURCE_CONFIG().minimumBaseFee;
-            rconfig.systemTxMaxGas = Constants.DEFAULT_RESOURCE_CONFIG().systemTxMaxGas;
-            rconfig.maximumBaseFee = Constants.DEFAULT_RESOURCE_CONFIG().maximumBaseFee;
+        require(config.owner() == cfg.finalSystemOwner());
+        require(config.overhead() == cfg.gasPriceOracleOverhead());
+        require(config.scalar() == cfg.gasPriceOracleScalar());
+        require(config.batcherHash() == bytes32(uint256(uint160(cfg.batchSenderAddress()))));
+        require(config.gasLimit() == uint64(cfg.l2GenesisBlockGasLimit()));
+        require(config.unsafeBlockSigner() == cfg.p2pSequencerAddress());
+        // Check _config
+        ResourceMetering.ResourceConfig memory rconfig;
+        rconfig.maxResourceLimit = Constants.DEFAULT_RESOURCE_CONFIG().maxResourceLimit;
+        rconfig.elasticityMultiplier = Constants.DEFAULT_RESOURCE_CONFIG().elasticityMultiplier;
+        rconfig.baseFeeMaxChangeDenominator = Constants.DEFAULT_RESOURCE_CONFIG().baseFeeMaxChangeDenominator;
+        rconfig.minimumBaseFee = Constants.DEFAULT_RESOURCE_CONFIG().minimumBaseFee;
+        rconfig.systemTxMaxGas = Constants.DEFAULT_RESOURCE_CONFIG().systemTxMaxGas;
+        rconfig.maximumBaseFee = Constants.DEFAULT_RESOURCE_CONFIG().maximumBaseFee;
 
-            require(resourceConfig.maxResourceLimit == rconfig.maxResourceLimit);
-            require(resourceConfig.elasticityMultiplier == rconfig.elasticityMultiplier);
-            require(resourceConfig.baseFeeMaxChangeDenominator == rconfig.baseFeeMaxChangeDenominator);
-            require(resourceConfig.systemTxMaxGas == rconfig.systemTxMaxGas);
-            require(resourceConfig.minimumBaseFee == rconfig.minimumBaseFee);
-            require(resourceConfig.maximumBaseFee == rconfig.maximumBaseFee);
-            // Depends on start block being set to 0 in `initialize`
-            uint256 cfgStartBlock = cfg.systemConfigStartBlock();
-            require(config.startBlock() == (cfgStartBlock == 0 ? block.number : cfgStartBlock));
-            require(config.batchInbox() == cfg.batchInboxAddress());
-            // Check _addresses
-            require(config.l1CrossDomainMessenger() == prox.L1CrossDomainMessenger);
-            require(config.l1ERC721Bridge() == prox.L1ERC721Bridge);
-            require(config.l1StandardBridge() == prox.L1StandardBridge);
-            require(config.l2OutputOracle() == prox.L2OutputOracle);
-            require(config.optimismPortal() == prox.OptimismPortal);
-            require(config.optimismMintableERC20Factory() == prox.OptimismMintableERC20Factory);
-        } else {
-            require(config.owner() == address(0xdead));
-            require(config.overhead() == 0);
-            require(config.scalar() == 0);
-            require(config.batcherHash() == bytes32(0));
-            require(config.gasLimit() == 1);
-            require(config.unsafeBlockSigner() == address(0));
-            // Check _config
-            require(resourceConfig.maxResourceLimit == 1);
-            require(resourceConfig.elasticityMultiplier == 1);
-            require(resourceConfig.baseFeeMaxChangeDenominator == 2);
-            require(resourceConfig.systemTxMaxGas == 0);
-            require(resourceConfig.minimumBaseFee == 0);
-            require(resourceConfig.maximumBaseFee == 0);
-            // Check _addresses
-            require(config.startBlock() == type(uint256).max);
-            require(config.batchInbox() == address(0));
-            require(config.l1CrossDomainMessenger() == address(0));
-            require(config.l1ERC721Bridge() == address(0));
-            require(config.l1StandardBridge() == address(0));
-            require(config.l2OutputOracle() == address(0));
-            require(config.optimismPortal() == address(0));
-            require(config.optimismMintableERC20Factory() == address(0));
-        }
+        require(resourceConfig.maxResourceLimit == rconfig.maxResourceLimit);
+        require(resourceConfig.elasticityMultiplier == rconfig.elasticityMultiplier);
+        require(resourceConfig.baseFeeMaxChangeDenominator == rconfig.baseFeeMaxChangeDenominator);
+        require(resourceConfig.systemTxMaxGas == rconfig.systemTxMaxGas);
+        require(resourceConfig.minimumBaseFee == rconfig.minimumBaseFee);
+        require(resourceConfig.maximumBaseFee == rconfig.maximumBaseFee);
+        // Depends on start block being set to 0 in `initialize`
+        uint256 cfgStartBlock = cfg.systemConfigStartBlock();
+        require(config.startBlock() == (cfgStartBlock == 0 ? block.number : cfgStartBlock));
+        require(config.batchInbox() == cfg.batchInboxAddress());
+        // Check _addresses
+        require(config.l1CrossDomainMessenger() == prox.L1CrossDomainMessenger);
+        require(config.l1ERC721Bridge() == prox.L1ERC721Bridge);
+        require(config.l1StandardBridge() == prox.L1StandardBridge);
+        require(config.l2OutputOracle() == prox.L2OutputOracle);
+        require(config.optimismPortal() == prox.OptimismPortal);
+        require(config.optimismMintableERC20Factory() == prox.OptimismMintableERC20Factory);
     }
 
     /// @notice Asserts that the L1CrossDomainMessenger is setup correctly
@@ -159,17 +134,11 @@ contract PostCheck is SignFromJson {
         require(address(messenger.OTHER_MESSENGER()) == Predeploys.L2_CROSS_DOMAIN_MESSENGER);
         require(address(messenger.otherMessenger()) == Predeploys.L2_CROSS_DOMAIN_MESSENGER);
 
-        if (true) {
-            require(address(messenger.PORTAL()) == prox.OptimismPortal);
-            require(address(messenger.portal()) == prox.OptimismPortal);
-            require(address(messenger.superchainConfig()) == prox.SuperchainConfig);
-            bytes32 xdmSenderSlot = vm.load(address(messenger), bytes32(uint256(204)));
-            require(address(uint160(uint256(xdmSenderSlot))) == Constants.DEFAULT_L2_SENDER);
-        } else {
-            require(address(messenger.PORTAL()) == address(0));
-            require(address(messenger.portal()) == address(0));
-            require(address(messenger.superchainConfig()) == address(0));
-        }
+        require(address(messenger.PORTAL()) == prox.OptimismPortal);
+        require(address(messenger.portal()) == prox.OptimismPortal);
+        require(address(messenger.superchainConfig()) == prox.SuperchainConfig);
+        bytes32 xdmSenderSlot = vm.load(address(messenger), bytes32(uint256(204)));
+        require(address(uint160(uint256(xdmSenderSlot))) == Constants.DEFAULT_L2_SENDER);
     }
 
     /// @notice Asserts that the L1StandardBridge is setup correctly
@@ -177,19 +146,11 @@ contract PostCheck is SignFromJson {
         console.log("Running chain assertions on the L1StandardBridge");
         L1StandardBridge bridge = L1StandardBridge(payable(prox.L1StandardBridge));
 
-        if (true) {
-            require(address(bridge.MESSENGER()) == prox.L1CrossDomainMessenger);
-            require(address(bridge.messenger()) == prox.L1CrossDomainMessenger);
-            require(address(bridge.OTHER_BRIDGE()) == Predeploys.L2_STANDARD_BRIDGE);
-            require(address(bridge.otherBridge()) == Predeploys.L2_STANDARD_BRIDGE);
-            require(address(bridge.superchainConfig()) == prox.SuperchainConfig);
-        } else {
-            require(address(bridge.MESSENGER()) == address(0));
-            require(address(bridge.messenger()) == address(0));
-            require(address(bridge.OTHER_BRIDGE()) == Predeploys.L2_STANDARD_BRIDGE);
-            require(address(bridge.otherBridge()) == Predeploys.L2_STANDARD_BRIDGE);
-            require(address(bridge.superchainConfig()) == address(0));
-        }
+        require(address(bridge.MESSENGER()) == prox.L1CrossDomainMessenger);
+        require(address(bridge.messenger()) == prox.L1CrossDomainMessenger);
+        require(address(bridge.OTHER_BRIDGE()) == Predeploys.L2_STANDARD_BRIDGE);
+        require(address(bridge.otherBridge()) == Predeploys.L2_STANDARD_BRIDGE);
+        require(address(bridge.superchainConfig()) == prox.SuperchainConfig);
     }
 
     /// @notice Asserts that the L2OutputOracle is setup correctly
@@ -197,33 +158,18 @@ contract PostCheck is SignFromJson {
         console.log("Running chain assertions on the L2OutputOracle");
         L2OutputOracle oracle = L2OutputOracle(prox.L2OutputOracle);
 
-        if (true) {
-            require(oracle.SUBMISSION_INTERVAL() == cfg.l2OutputOracleSubmissionInterval());
-            require(oracle.submissionInterval() == cfg.l2OutputOracleSubmissionInterval());
-            require(oracle.L2_BLOCK_TIME() == cfg.l2BlockTime());
-            require(oracle.l2BlockTime() == cfg.l2BlockTime());
-            require(oracle.PROPOSER() == cfg.l2OutputOracleProposer());
-            require(oracle.proposer() == cfg.l2OutputOracleProposer());
-            require(oracle.CHALLENGER() == cfg.l2OutputOracleChallenger());
-            require(oracle.challenger() == cfg.l2OutputOracleChallenger());
-            require(oracle.FINALIZATION_PERIOD_SECONDS() == cfg.finalizationPeriodSeconds());
-            require(oracle.finalizationPeriodSeconds() == cfg.finalizationPeriodSeconds());
-            require(oracle.startingBlockNumber() == cfg.l2OutputOracleStartingBlockNumber());
-            require(oracle.startingTimestamp() == l2OutputOracleStartingTimestamp);
-        } else {
-            require(oracle.SUBMISSION_INTERVAL() == 1);
-            require(oracle.submissionInterval() == 1);
-            require(oracle.L2_BLOCK_TIME() == 1);
-            require(oracle.l2BlockTime() == 1);
-            require(oracle.PROPOSER() == address(0));
-            require(oracle.proposer() == address(0));
-            require(oracle.CHALLENGER() == address(0));
-            require(oracle.challenger() == address(0));
-            require(oracle.FINALIZATION_PERIOD_SECONDS() == 0);
-            require(oracle.finalizationPeriodSeconds() == 0);
-            require(oracle.startingBlockNumber() == 0);
-            require(oracle.startingTimestamp() == 0);
-        }
+        require(oracle.SUBMISSION_INTERVAL() == cfg.l2OutputOracleSubmissionInterval());
+        require(oracle.submissionInterval() == cfg.l2OutputOracleSubmissionInterval());
+        require(oracle.L2_BLOCK_TIME() == cfg.l2BlockTime());
+        require(oracle.l2BlockTime() == cfg.l2BlockTime());
+        require(oracle.PROPOSER() == cfg.l2OutputOracleProposer());
+        require(oracle.proposer() == cfg.l2OutputOracleProposer());
+        require(oracle.CHALLENGER() == cfg.l2OutputOracleChallenger());
+        require(oracle.challenger() == cfg.l2OutputOracleChallenger());
+        require(oracle.FINALIZATION_PERIOD_SECONDS() == cfg.finalizationPeriodSeconds());
+        require(oracle.finalizationPeriodSeconds() == cfg.finalizationPeriodSeconds());
+        require(oracle.startingBlockNumber() == cfg.l2OutputOracleStartingBlockNumber());
+        require(oracle.startingTimestamp() == l2OutputOracleStartingTimestamp);
     }
 
     /// @notice Asserts that the OptimismMintableERC20Factory is setup correctly
@@ -231,13 +177,8 @@ contract PostCheck is SignFromJson {
         console.log("Running chain assertions on the OptimismMintableERC20Factory");
         OptimismMintableERC20Factory factory = OptimismMintableERC20Factory(prox.OptimismMintableERC20Factory);
 
-        if (true) {
-            require(factory.BRIDGE() == prox.L1StandardBridge);
-            require(factory.bridge() == prox.L1StandardBridge);
-        } else {
-            require(factory.BRIDGE() == address(0));
-            require(factory.bridge() == address(0));
-        }
+        require(factory.BRIDGE() == prox.L1StandardBridge);
+        require(factory.bridge() == prox.L1StandardBridge);
     }
 
     /// @notice Asserts that the L1ERC721Bridge is setup correctly
@@ -248,15 +189,9 @@ contract PostCheck is SignFromJson {
         require(address(bridge.OTHER_BRIDGE()) == Predeploys.L2_ERC721_BRIDGE);
         require(address(bridge.otherBridge()) == Predeploys.L2_ERC721_BRIDGE);
 
-        if (true) {
-            require(address(bridge.MESSENGER()) == prox.L1CrossDomainMessenger);
-            require(address(bridge.messenger()) == prox.L1CrossDomainMessenger);
-            require(address(bridge.superchainConfig()) == prox.SuperchainConfig);
-        } else {
-            require(address(bridge.MESSENGER()) == address(0));
-            require(address(bridge.messenger()) == address(0));
-            require(address(bridge.superchainConfig()) == address(0));
-        }
+        require(address(bridge.MESSENGER()) == prox.L1CrossDomainMessenger);
+        require(address(bridge.messenger()) == prox.L1CrossDomainMessenger);
+        require(address(bridge.superchainConfig()) == prox.SuperchainConfig);
     }
 
     /// @notice Asserts the OptimismPortal is setup correctly
@@ -270,39 +205,24 @@ contract PostCheck is SignFromJson {
             console.log("Guardian has no code: %s", guardian);
         }
 
-        if (true) {
-            require(address(portal.L2_ORACLE()) == prox.L2OutputOracle);
-            require(address(portal.l2Oracle()) == prox.L2OutputOracle);
-            require(address(portal.SYSTEM_CONFIG()) == prox.SystemConfig);
-            require(address(portal.systemConfig()) == prox.SystemConfig);
-            require(portal.GUARDIAN() == guardian);
-            require(portal.guardian() == guardian);
-            require(address(portal.superchainConfig()) == address(prox.SuperchainConfig));
-            require(portal.paused() == SuperchainConfig(prox.SuperchainConfig).paused());
-            require(portal.l2Sender() == Constants.DEFAULT_L2_SENDER);
-        } else {
-            require(address(portal.L2_ORACLE()) == address(0));
-            require(address(portal.l2Oracle()) == address(0));
-            require(address(portal.SYSTEM_CONFIG()) == address(0));
-            require(address(portal.systemConfig()) == address(0));
-            require(address(portal.superchainConfig()) == address(0));
-            require(portal.l2Sender() == Constants.DEFAULT_L2_SENDER);
-        }
+        require(address(portal.L2_ORACLE()) == prox.L2OutputOracle);
+        require(address(portal.l2Oracle()) == prox.L2OutputOracle);
+        require(address(portal.SYSTEM_CONFIG()) == prox.SystemConfig);
+        require(address(portal.systemConfig()) == prox.SystemConfig);
+        require(portal.GUARDIAN() == guardian);
+        require(portal.guardian() == guardian);
+        require(address(portal.superchainConfig()) == address(prox.SuperchainConfig));
+        require(portal.paused() == SuperchainConfig(prox.SuperchainConfig).paused());
+        require(portal.l2Sender() == Constants.DEFAULT_L2_SENDER);
     }
 
     /// @notice Asserts that the ProtocolVersions is setup correctly
     function checkProtocolVersions() internal view {
         console.log("Running chain assertions on the ProtocolVersions");
         ProtocolVersions versions = ProtocolVersions(prox.ProtocolVersions);
-        if (true) {
-            require(versions.owner() == cfg.finalSystemOwner());
-            require(ProtocolVersion.unwrap(versions.required()) == cfg.requiredProtocolVersion());
-            require(ProtocolVersion.unwrap(versions.recommended()) == cfg.recommendedProtocolVersion());
-        } else {
-            require(versions.owner() == address(0xdead));
-            require(ProtocolVersion.unwrap(versions.required()) == 0);
-            require(ProtocolVersion.unwrap(versions.recommended()) == 0);
-        }
+        require(versions.owner() == cfg.finalSystemOwner());
+        require(ProtocolVersion.unwrap(versions.required()) == cfg.requiredProtocolVersion());
+        require(ProtocolVersion.unwrap(versions.recommended()) == cfg.recommendedProtocolVersion());
     }
 
     /// @notice Asserts that the SuperchainConfig is setup correctly
