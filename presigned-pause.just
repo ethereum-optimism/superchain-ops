@@ -78,7 +78,7 @@ prepare:
     presigner \
       --workdir ${taskPath} \
       --script-name SignFromInputJson \
-      --chain 1 \
+      --chain `cast chain-id` \
       --rpc-url ${rpcUrl} \
       --target-addr ${superchainConfigAddr} \
       --safe-addr ${safeAddr} \
