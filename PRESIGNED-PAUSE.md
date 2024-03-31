@@ -116,7 +116,10 @@ might be different in your simulation:
 
 Now click on the "State" tab. Verify that:
 
-1. Under address `SuperchainConfig` contract address, the storage key
+1. Under address `SuperchainConfig` contract
+   address([mainnet](https://github.com/ethereum-optimism/superchain-registry/blob/77a930120ec63dd50c43483c82b1a0a29939ed27/superchain/configs/mainnet/superchain.yaml#L8),
+   [sepolia](https://github.com/ethereum-optimism/superchain-registry/blob/77a930120ec63dd50c43483c82b1a0a29939ed27/superchain/configs/sepolia/superchain.yaml#L8)),
+   the storage key
    `0x54176ff9944c47845857c4e5ef560a462c483bf534eda43f91bb01a470b1b6`'s
    value is changed from `0x00` to `0x01`. This is indicating that the
    `paused` variable is successfully changed from `false` to `true`.
