@@ -201,6 +201,22 @@ according to the address used to sign, i.e.
 was signed by `0x8c78B948Cdd64812993398b4B51ed2603b3543A6`.  Share
 these 3 files with the Facilitator, and congrats, you are done!
 
+## [Before Ceremony] Instructions for the facilitator
+
+### 1. Update input files
+
+Update `.env` and `input.json` in the ceremony folder with the right
+values.
+
+### 2. Prepare the transactions
+
+```
+just \
+   --dotenv-path .env \
+   --justfile ../../../presigned-pause.just \
+   prepare
+```
+
 ## [After Ceremony] Instructions for the facilitator
 
 The Facilitator will collect the signatures, merge the signatures,
