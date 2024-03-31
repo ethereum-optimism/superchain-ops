@@ -116,10 +116,10 @@ might be different in your simulation:
 
 Now click on the "State" tab. Verify that:
 
-1. Under address `0x95703e0982140d16f8eba6d158fccede42f04a4c` (SuperchainConfig contract),
-   the storage key `0x35`'s value's last byte is changed from `0x00` to
-   `0x01`. This is indicating that the `paused` variable
-   is successfully changed from `false` to `true`.
+1. Under address `SuperchainConfig` contract address, the storage key
+   `0x54176ff9944c47845857c4e5ef560a462c483bf534eda43f91bb01a470b1b6`'s
+   value is changed from `0x00` to `0x01`. This is indicating that the
+   `paused` variable is successfully changed from `false` to `true`.
 2. There are no other significant state changes except for 2 nonce
    changes from the Safe and the signer address.
 3. You will see a state override (not a state change). This is
