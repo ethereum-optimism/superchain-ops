@@ -134,13 +134,46 @@ jobs:
           command: |
             just install
             cd tasks/eth/007-presigned-pause
-            just install
+            just \
+              --dotenv-path .env \
+              --justfile ../../../presigned-pause.just \
+              install
             forge build
             export SIMULATE_WITHOUT_LEDGER=1
-            just whoami 0
-            just sign 0 tx/draft-92.json
-            just sign 0 tx/draft-93.json
-            just sign 0 tx/draft-94.json
+            just \
+              --dotenv-path .env \
+              --justfile ../../../presigned-pause.just \
+              whoami 0
+            just \
+              --dotenv-path .env \
+              --justfile ../../../presigned-pause.just \
+              sign
+
+  just_simulate_sep_005-presigned-pause:
+    docker:
+      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
+
+    steps:
+      - checkout
+      - run:
+          name: just simulate sepolia 005-presigned-pause
+          command: |
+            just install
+            cd tasks/sep/005-presigned-pause
+            just \
+              --dotenv-path .env \
+              --justfile ../../../presigned-pause.just \
+              install
+            forge build
+            export SIMULATE_WITHOUT_LEDGER=1
+            just \
+              --dotenv-path .env \
+              --justfile ../../../presigned-pause.just \
+              whoami 0
+            just \
+              --dotenv-path .env \
+              --justfile ../../../presigned-pause.just \
+              sign
 
   just_simulate_sc_rehearsal_1:
     docker:
@@ -236,3 +269,4 @@ workflows:
           - just_simulate_sc_rehearsal_1
           - just_simulate_sc_rehearsal_2
           - just_simulate_sc_rehearsal_4
+          - just_simulate_sep_005-presigned-pause
