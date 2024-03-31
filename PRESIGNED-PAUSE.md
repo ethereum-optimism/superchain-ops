@@ -130,7 +130,7 @@ Now click on the "State" tab. Verify that:
 Here is an example screenshot. Note that the addresses may be
 different:
 
-![](images/tenderly-state-changes.png)
+![](images/tenderly-state-changes-presigned-pause.png)
 
 #### 3.3. Extract the domain hash and the message hash to approve.
 
@@ -203,7 +203,8 @@ these 3 files with the Facilitator, and congrats, you are done!
 
 ## [After Ceremony] Instructions for the facilitator
 
-The Facilitator will collect the signatures, merge the signatures, verify, simulate and execute the contract.
+The Facilitator will collect the signatures, merge the signatures,
+verify, simulate and execute the contract.
 
 ### 1. Collect the signatures
 
