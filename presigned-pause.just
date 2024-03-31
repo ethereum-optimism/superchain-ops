@@ -50,7 +50,7 @@ sign hdPath='0':
           sign
       else
         presigner \
-          --workdir . \
+          --workdir ${taskPath} \
           --script-name SignFromInputJson \
           --rpc-url ${rpcUrl} \
           --json-file $JSON_FILE \
@@ -107,22 +107,24 @@ verify:
   #!/usr/bin/env bash
   REPO_ROOT=`git rev-parse --show-toplevel`
   PATH="$REPO_ROOT/bin:$PATH"
+  export INPUT_JSON_PATH="${taskPath}/input.json"
   for nonce in ${PRESIGN_NONCES[@]}; do
     presigner \
-      --workdir . \
+      --workdir ${taskPath} \
       --script-name SignFromInputJson \
       --rpc-url ${rpcUrl} \
       --json-file ${taskPath}/tx/draft-${nonce}.json \
       verify
   done
 
-simulate-all jsonFile:
+simulate-all:
   #!/usr/bin/env bash
   REPO_ROOT=`git rev-parse --show-toplevel`
   PATH="$REPO_ROOT/bin:$PATH"
+  export INPUT_JSON_PATH="${taskPath}/input.json"
   for nonce in ${PRESIGN_NONCES[@]}; do
     presigner \
-      --workdir . \
+      --workdir ${taskPath} \
       --script-name SignFromInputJson \
       --rpc-url ${rpcUrl} \
       --json-file ${taskPath}/tx/draft-${nonce}.json \
