@@ -80,7 +80,6 @@ You can sign them by running the following commands:
 just \
    --dotenv-path .env \
    --justfile ../../../presigned-pause.just \
-   install
    sign
 ```
 
