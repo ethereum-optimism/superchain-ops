@@ -63,6 +63,8 @@ contract PostCheck is SignFromJson {
         console.log("Running chain assertions on the SystemConfig");
         SystemConfig config = SystemConfig(prox.SystemConfig);
 
+        require(config.code.length != 0);
+
         ResourceMetering.ResourceConfig memory resourceConfig = config.resourceConfig();
 
         require(config.owner() == cfg.finalSystemOwner());
@@ -98,6 +100,8 @@ contract PostCheck is SignFromJson {
         console.log("Running chain assertions on the L1CrossDomainMessenger");
         L1CrossDomainMessenger messenger = L1CrossDomainMessenger(prox.L1CrossDomainMessenger);
 
+        require(messenger.code.length != 0);
+
         require(address(messenger.OTHER_MESSENGER()) == Predeploys.L2_CROSS_DOMAIN_MESSENGER);
         require(address(messenger.otherMessenger()) == Predeploys.L2_CROSS_DOMAIN_MESSENGER);
 
@@ -125,6 +129,8 @@ contract PostCheck is SignFromJson {
         console.log("Running chain assertions on the L2OutputOracle");
         L2OutputOracle oracle = L2OutputOracle(prox.L2OutputOracle);
 
+        require(oracle.code.length != 0);
+
         require(oracle.SUBMISSION_INTERVAL() == cfg.l2OutputOracleSubmissionInterval());
         require(oracle.submissionInterval() == cfg.l2OutputOracleSubmissionInterval());
         require(oracle.L2_BLOCK_TIME() == cfg.l2BlockTime());
@@ -144,6 +150,8 @@ contract PostCheck is SignFromJson {
         console.log("Running chain assertions on the OptimismMintableERC20Factory");
         OptimismMintableERC20Factory factory = OptimismMintableERC20Factory(prox.OptimismMintableERC20Factory);
 
+        require(factory.code.length != 0);
+
         require(factory.BRIDGE() == prox.L1StandardBridge);
         require(factory.bridge() == prox.L1StandardBridge);
     }
@@ -152,6 +160,8 @@ contract PostCheck is SignFromJson {
     function checkL1ERC721Bridge() internal view {
         console.log("Running chain assertions on the L1ERC721Bridge");
         L1ERC721Bridge bridge = L1ERC721Bridge(prox.L1ERC721Bridge);
+
+        require(bridge.code.length != 0);
 
         require(address(bridge.OTHER_BRIDGE()) == Predeploys.L2_ERC721_BRIDGE);
         require(address(bridge.otherBridge()) == Predeploys.L2_ERC721_BRIDGE);
@@ -166,6 +176,8 @@ contract PostCheck is SignFromJson {
         console.log("Running chain assertions on the OptimismPortal");
 
         OptimismPortal portal = OptimismPortal(payable(prox.OptimismPortal));
+
+        require(portal.code.length != 0);
 
         address guardian = cfg.superchainConfigGuardian();
 
@@ -184,6 +196,9 @@ contract PostCheck is SignFromJson {
     function checkProtocolVersions() internal view {
         console.log("Running chain assertions on the ProtocolVersions");
         ProtocolVersions versions = ProtocolVersions(prox.ProtocolVersions);
+
+        require(versions.code.length != 0);
+
         require(versions.owner() == cfg.finalSystemOwner());
         require(ProtocolVersion.unwrap(versions.required()) == cfg.requiredProtocolVersion());
         require(ProtocolVersion.unwrap(versions.recommended()) == cfg.recommendedProtocolVersion());
@@ -193,6 +208,9 @@ contract PostCheck is SignFromJson {
     function checkSuperchainConfig() internal view {
         console.log("Running chain assertions on the SuperchainConfig");
         SuperchainConfig superchainConfig = SuperchainConfig(prox.SuperchainConfig);
+
+        require(superchainConfig.code.length != 0);
+
         require(superchainConfig.guardian() == cfg.superchainConfigGuardian());
         require(superchainConfig.paused() == false);
     }
