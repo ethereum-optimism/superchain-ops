@@ -16,26 +16,17 @@ import {L1ERC721Bridge} from "@eth-optimism-bedrock/src/L1/L1ERC721Bridge.sol";
 import {Predeploys} from "@eth-optimism-bedrock/src/libraries/Predeploys.sol";
 import {Types} from "@eth-optimism-bedrock/scripts/Types.sol";
 import {console2 as console} from "forge-std/console2.sol";
+import {stdJson} from "forge-std/StdJson.sol";
 
 contract PostCheck is SignFromJson {
-    Types.ContractSet prox = Types.ContractSet({
-        L1CrossDomainMessenger: 0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1,
-        L1StandardBridge: 0x99C9fc46f92E8a1c0deC1b1747d010903E884bE1,
-        L2OutputOracle: 0xdfe97868233d1aa22e815a266982f2cf17685a27,
-        DisputeGameFactory: address(0),
-        OptimismMintableERC20Factory: 0x75505a97BD334E7BD3C476893285569C4136Fa0F,
-        OptimismPortal: 0xbEb5Fc579115071764c7423A4f12eDde41f106Ed,
-        OptimismPortal2: 0xbEb5Fc579115071764c7423A4f12eDde41f106Ed,
-        SystemConfig: 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290,
-        L1ERC721Bridge: 0x5a7749f83b81B301cAb5f48EB8516B986DAef23D,
-        ProtocolVersions: 0x8062AbC286f5e7D9428a0Ccb9AbD71e50d93b935,
-        SuperchainConfig: 0x95703e0982140D16f8ebA6d158FccEde42f04a4C
-    });
+    Types.ContractSet prox;
     DeployConfig public constant cfg =
         DeployConfig(address(uint160(uint256(keccak256(abi.encode("optimism.deployconfig"))))));
     uint256 l2OutputOracleStartingTimestamp = 1686068903;
 
     constructor() {
+        prox = _getContractSet();
+
         vm.etch(address(cfg), vm.getDeployedCode("DeployConfig.s.sol:DeployConfig"));
         vm.label(address(cfg), "DeployConfig");
         vm.allowCheatcodes(address(cfg));
@@ -202,5 +193,32 @@ contract PostCheck is SignFromJson {
         SuperchainConfig superchainConfig = SuperchainConfig(prox.SuperchainConfig);
         require(superchainConfig.guardian() == cfg.superchainConfigGuardian());
         require(superchainConfig.paused() == false);
+    }
+
+    function _getContractSet() internal view returns (Types.ContractSet memory _proxies) {
+        string memory _json;
+
+        // Read extra addresses
+        try vm.readFile(
+            string.concat(vm.projectRoot(), "/lib/superchain-registry/superchain/extra/addresses/mainnet/op.json")
+        ) returns (string memory data) {
+            _json = data;
+        } catch {
+            revert("Failed to read extra addresses file for mainnet.");
+        }
+
+        _proxies.L1CrossDomainMessenger = stdJson.readAddress(_json, "$.L1CrossDomainMessengerProxy");
+        _proxies.L1StandardBridge = stdJson.readAddress(_json, "$.L1StandardBridgeProxy");
+        _proxies.L2OutputOracle = stdJson.readAddress(_json, "$.L2OutputOracleProxy");
+        _proxies.OptimismMintableERC20Factory = stdJson.readAddress(_json, "$.OptimismMintableERC20FactoryProxy");
+        _proxies.OptimismPortal = stdJson.readAddress(_json, "$.OptimismPortalProxy");
+        _proxies.OptimismPortal2 = stdJson.readAddress(_json, "$.OptimismPortalProxy");
+        _proxies.SystemConfig = stdJson.readAddress(_json, "$.SystemConfigProxy");
+        _proxies.L1ERC721Bridge = stdJson.readAddress(_json, "$.L1ERC721BridgeProxy");
+
+        _proxies.ProtocolVersions = stdJson.readAddress(_json, "$.finalSystemOwner");
+        _proxies.SuperchainConfig = stdJson.readAddress(_json, "$.finalSystemOwner");
+
+        return _proxies;
     }
 }
