@@ -32,12 +32,15 @@ contract PostCheck is SignFromJson {
         ProtocolVersions: 0x8062AbC286f5e7D9428a0Ccb9AbD71e50d93b935,
         SuperchainConfig: 0x95703e0982140D16f8ebA6d158FccEde42f04a4C
     });
-    DeployConfig cfg = new DeployConfig();
+    DeployConfig public constant cfg =
+        DeployConfig(address(uint160(uint256(keccak256(abi.encode("optimism.deployconfig"))))));
     uint256 l2OutputOracleStartingTimestamp = 1686068903;
 
     constructor() {
-        // Load the DeployConfig from the JSON file
-        cfg.read(string.concat(vm.projectRoot(), "/tasks/eth/006-MCP-L1/DeployConfig.json"));
+        vm.etch(address(cfg), vm.getDeployedCode("DeployConfig.s.sol:DeployConfig"));
+        vm.label(address(cfg), "DeployConfig");
+        vm.allowCheatcodes(address(cfg));
+        cfg.read(vm.envOr("DEPLOY_CONFIG_PATH", string.concat(vm.projectRoot(), "/deploy-config/mainnet.json")));
     }
 
     function _postCheck() internal view override {
