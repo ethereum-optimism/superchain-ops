@@ -2,10 +2,9 @@
 pragma solidity ^0.8.15;
 
 import {SignFromJson} from "./SignFromJson.s.sol";
-import {ResourceMetering} from "@eth-optimism-bedrock/src/L1/ResourceMetering.sol";
 import {DeployConfig} from "@eth-optimism-bedrock/scripts/DeployConfig.s.sol";
 import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
-import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
+import {Constants, ResourceMetering} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
 import {L1StandardBridge} from "@eth-optimism-bedrock/src/L1/L1StandardBridge.sol";
 import {L2OutputOracle} from "@eth-optimism-bedrock/src/L1/L2OutputOracle.sol";
 import {ProtocolVersion, ProtocolVersions} from "@eth-optimism-bedrock/src/L1/ProtocolVersions.sol";
@@ -51,20 +50,8 @@ contract PostCheck is SignFromJson {
     ///         within the `prox` ContractSet are proxies that have been setup and initialized.
     function postDeployAssertions() internal view {
         console.log("Running post-deploy assertions");
-        ResourceMetering.ResourceConfig memory rcfg;
-        rcfg.maxResourceLimit = SystemConfig(prox.SystemConfig).resourceConfig().maxResourceLimit;
-        rcfg.elasticityMultiplier = SystemConfig(prox.SystemConfig).resourceConfig().elasticityMultiplier;
-        rcfg.baseFeeMaxChangeDenominator = SystemConfig(prox.SystemConfig).resourceConfig().baseFeeMaxChangeDenominator;
-        rcfg.minimumBaseFee = SystemConfig(prox.SystemConfig).resourceConfig().minimumBaseFee;
-        rcfg.systemTxMaxGas = SystemConfig(prox.SystemConfig).resourceConfig().systemTxMaxGas;
-        rcfg.maximumBaseFee = SystemConfig(prox.SystemConfig).resourceConfig().maximumBaseFee;
-        ResourceMetering.ResourceConfig memory dflt;
-        dflt.maxResourceLimit = Constants.DEFAULT_RESOURCE_CONFIG().maxResourceLimit;
-        dflt.elasticityMultiplier = Constants.DEFAULT_RESOURCE_CONFIG().elasticityMultiplier;
-        dflt.baseFeeMaxChangeDenominator = Constants.DEFAULT_RESOURCE_CONFIG().baseFeeMaxChangeDenominator;
-        dflt.minimumBaseFee = Constants.DEFAULT_RESOURCE_CONFIG().minimumBaseFee;
-        dflt.systemTxMaxGas = Constants.DEFAULT_RESOURCE_CONFIG().systemTxMaxGas;
-        dflt.maximumBaseFee = Constants.DEFAULT_RESOURCE_CONFIG().maximumBaseFee;
+        ResourceMetering.ResourceConfig memory rcfg = SystemConfig(prox.SystemConfig).resourceConfig();
+        ResourceMetering.ResourceConfig memory dflt = Constants.DEFAULT_RESOURCE_CONFIG();
         require(keccak256(abi.encode(rcfg)) == keccak256(abi.encode(dflt)));
 
         checkSystemConfig();
@@ -83,13 +70,7 @@ contract PostCheck is SignFromJson {
         console.log("Running chain assertions on the SystemConfig");
         SystemConfig config = SystemConfig(prox.SystemConfig);
 
-        ResourceMetering.ResourceConfig memory resourceConfig;
-        resourceConfig.maxResourceLimit = config.resourceConfig().maxResourceLimit;
-        resourceConfig.elasticityMultiplier = config.resourceConfig().elasticityMultiplier;
-        resourceConfig.baseFeeMaxChangeDenominator = config.resourceConfig().baseFeeMaxChangeDenominator;
-        resourceConfig.minimumBaseFee = config.resourceConfig().minimumBaseFee;
-        resourceConfig.systemTxMaxGas = config.resourceConfig().systemTxMaxGas;
-        resourceConfig.maximumBaseFee = config.resourceConfig().maximumBaseFee;
+        ResourceMetering.ResourceConfig memory resourceConfig = config.resourceConfig();
 
         require(config.owner() == cfg.finalSystemOwner());
         require(config.overhead() == cfg.gasPriceOracleOverhead());
@@ -98,13 +79,7 @@ contract PostCheck is SignFromJson {
         require(config.gasLimit() == uint64(cfg.l2GenesisBlockGasLimit()));
         require(config.unsafeBlockSigner() == cfg.p2pSequencerAddress());
         // Check _config
-        ResourceMetering.ResourceConfig memory rconfig;
-        rconfig.maxResourceLimit = Constants.DEFAULT_RESOURCE_CONFIG().maxResourceLimit;
-        rconfig.elasticityMultiplier = Constants.DEFAULT_RESOURCE_CONFIG().elasticityMultiplier;
-        rconfig.baseFeeMaxChangeDenominator = Constants.DEFAULT_RESOURCE_CONFIG().baseFeeMaxChangeDenominator;
-        rconfig.minimumBaseFee = Constants.DEFAULT_RESOURCE_CONFIG().minimumBaseFee;
-        rconfig.systemTxMaxGas = Constants.DEFAULT_RESOURCE_CONFIG().systemTxMaxGas;
-        rconfig.maximumBaseFee = Constants.DEFAULT_RESOURCE_CONFIG().maximumBaseFee;
+        ResourceMetering.ResourceConfig memory rconfig = Constants.DEFAULT_RESOURCE_CONFIG();
 
         require(resourceConfig.maxResourceLimit == rconfig.maxResourceLimit);
         require(resourceConfig.elasticityMultiplier == rconfig.elasticityMultiplier);
