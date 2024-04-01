@@ -22,7 +22,7 @@ contract PostCheck is SignFromJson {
     Types.ContractSet prox;
     DeployConfig public constant cfg =
         DeployConfig(address(uint160(uint256(keccak256(abi.encode("optimism.deployconfig"))))));
-    uint256 l2OutputOracleStartingTimestamp = 1686068903;
+    uint256 l2OutputOracleStartingTimestamp;
 
     constructor() {
         prox = _getContractSet();
@@ -31,6 +31,8 @@ contract PostCheck is SignFromJson {
         vm.label(address(cfg), "DeployConfig");
         vm.allowCheatcodes(address(cfg));
         cfg.read(vm.envOr("DEPLOY_CONFIG_PATH", string.concat(vm.projectRoot(), "/deploy-config/mainnet.json")));
+
+        l2OutputOracleStartingTimestamp = cfg.l2OutputOracleStartingTimestamp();
     }
 
     function _postCheck() internal view override {
