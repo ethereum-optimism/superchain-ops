@@ -175,9 +175,6 @@ contract PostCheck is SignFromJson {
         OptimismPortal portal = OptimismPortal(payable(prox.OptimismPortal));
 
         address guardian = cfg.superchainConfigGuardian();
-        if (guardian.code.length == 0) {
-            console.log("Guardian has no code: %s", guardian);
-        }
 
         require(address(portal.L2_ORACLE()) == prox.L2OutputOracle);
         require(address(portal.l2Oracle()) == prox.L2OutputOracle);
