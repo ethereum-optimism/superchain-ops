@@ -62,7 +62,7 @@ contract PostCheck is SignFromJson {
         checkL1ERC721Bridge();
         checkOptimismPortal();
         checkProtocolVersions();
-        checkSuperchainConfig(false);
+        checkSuperchainConfig();
     }
 
     /// @notice Asserts that the SystemConfig is setup correctly
@@ -197,10 +197,10 @@ contract PostCheck is SignFromJson {
     }
 
     /// @notice Asserts that the SuperchainConfig is setup correctly
-    function checkSuperchainConfig(bool _isPaused) internal view {
+    function checkSuperchainConfig() internal view {
         console.log("Running chain assertions on the SuperchainConfig");
         SuperchainConfig superchainConfig = SuperchainConfig(prox.SuperchainConfig);
         require(superchainConfig.guardian() == cfg.superchainConfigGuardian());
-        require(superchainConfig.paused() == _isPaused);
+        require(superchainConfig.paused() == false);
     }
 }
