@@ -7,7 +7,7 @@ optimizer_runs = 999999
 solc_version = "0.8.15"
 via_ir = true
 broadcast = 'records'
-fs_permissions = [ {access = "read-write", path = "./"} ]
+fs_permissions = [{ access = "read-write", path = "./" }]
 
 remappings = [
   '@openzeppelin/contracts-upgradeable/=lib/optimism/packages/contracts-bedrock/lib/openzeppelin-contracts-upgradeable/contracts/',
@@ -15,6 +15,7 @@ remappings = [
   '@base-contracts/=lib/base-contracts/',
   '@eth-optimism-bedrock/=lib/optimism/packages/contracts-bedrock/',
   '@rari-capital/solmate/=lib/solmate',
+  '@eth-optimism-superchain-registry/=lib/superchain-registry/',
   'forge-std/=lib/forge-std/src/',
 ]
 
