@@ -78,11 +78,17 @@ contract SignFromJsonWithAssertions is SignFromJson, Deployer {
         require(config.batchInbox() == cfg.batchInboxAddress(), "1600");
         // Check _addresses
         require(config.l1CrossDomainMessenger() == proxies.L1CrossDomainMessenger, "1700");
+        require(config.l1CrossDomainMessenger().code.length != 0, "1701");
         require(config.l1ERC721Bridge() == proxies.L1ERC721Bridge, "1800");
+        require(config.l1ERC721Bridge().code.length != 0, "1801");
         require(config.l1StandardBridge() == proxies.L1StandardBridge, "1900");
+        require(config.l1StandardBridge().code.length != 0, "1901");
         require(config.l2OutputOracle() == proxies.L2OutputOracle, "2000");
+        require(config.l2OutputOracle().code.length != 0, "2001");
         require(config.optimismPortal() == proxies.OptimismPortal, "2100");
+        require(config.optimismPortal().code.length != 0, "2101");
         require(config.optimismMintableERC20Factory() == proxies.OptimismMintableERC20Factory, "2200");
+        require(config.optimismMintableERC20Factory().code.length != 0, "2201");
     }
 
     /// @notice Asserts that the L1CrossDomainMessenger is setup correctly
@@ -95,10 +101,15 @@ contract SignFromJsonWithAssertions is SignFromJson, Deployer {
 
         require(address(messenger.OTHER_MESSENGER()) == Predeploys.L2_CROSS_DOMAIN_MESSENGER, "2400");
         require(address(messenger.otherMessenger()) == Predeploys.L2_CROSS_DOMAIN_MESSENGER, "2500");
+        require(address(messenger.otherMessenger()).code.length != 0, "2501");
 
         require(address(messenger.PORTAL()) == proxies.OptimismPortal, "2600");
         require(address(messenger.portal()) == proxies.OptimismPortal, "2700");
+        require(address(messenger.portal()).code.length != 0, "2701");
+
         require(address(messenger.superchainConfig()) == proxies.SuperchainConfig, "2800");
+        require(address(messenger.superchainConfig()).code.length != 0, "2801");
+
         bytes32 xdmSenderSlot = vm.load(address(messenger), bytes32(xdmSenderSlotNumber));
         require(address(uint160(uint256(xdmSenderSlot))) == Constants.DEFAULT_L2_SENDER, "2900");
     }
@@ -110,9 +121,14 @@ contract SignFromJsonWithAssertions is SignFromJson, Deployer {
 
         require(address(bridge.MESSENGER()) == proxies.L1CrossDomainMessenger, "3000");
         require(address(bridge.messenger()) == proxies.L1CrossDomainMessenger, "3100");
+        require(address(bridge.messenger()).code.length != 0, "3101");
+
         require(address(bridge.OTHER_BRIDGE()) == Predeploys.L2_STANDARD_BRIDGE, "3200");
         require(address(bridge.otherBridge()) == Predeploys.L2_STANDARD_BRIDGE, "3300");
+        require(address(bridge.otherBridge()).code.length != 0, "3302");
+
         require(address(bridge.superchainConfig()) == proxies.SuperchainConfig, "3400");
+        require(address(bridge.superchainConfig()).code.length != 0, "3303");
     }
 
     /// @notice Asserts that the L2OutputOracle is setup correctly
@@ -147,6 +163,7 @@ contract SignFromJsonWithAssertions is SignFromJson, Deployer {
 
         require(factory.BRIDGE() == proxies.L1StandardBridge, "4900");
         require(factory.bridge() == proxies.L1StandardBridge, "5000");
+        require(factory.bridge().code.length != 0, "5001");
     }
 
     /// @notice Asserts that the L1ERC721Bridge is setup correctly
@@ -159,10 +176,14 @@ contract SignFromJsonWithAssertions is SignFromJson, Deployer {
 
         require(address(bridge.OTHER_BRIDGE()) == Predeploys.L2_ERC721_BRIDGE, "5200");
         require(address(bridge.otherBridge()) == Predeploys.L2_ERC721_BRIDGE, "5300");
+        require(address(bridge.otherBridge()).code.length != 0, "5301");
 
         require(address(bridge.MESSENGER()) == proxies.L1CrossDomainMessenger, "5400");
         require(address(bridge.messenger()) == proxies.L1CrossDomainMessenger, "5500");
+        require(address(bridge.messenger()).code.length != 0, "5502");
+
         require(address(bridge.superchainConfig()) == proxies.SuperchainConfig, "5600");
+        require(address(bridge.superchainConfig()).code.length != 0, "5603");
     }
 
     /// @notice Asserts the OptimismPortal is setup correctly
@@ -177,11 +198,19 @@ contract SignFromJsonWithAssertions is SignFromJson, Deployer {
 
         require(address(portal.L2_ORACLE()) == proxies.L2OutputOracle, "5800");
         require(address(portal.l2Oracle()) == proxies.L2OutputOracle, "5900");
+        require(address(portal.l2Oracle()).code.length != 0, "5901");
+
         require(address(portal.SYSTEM_CONFIG()) == proxies.SystemConfig, "6000");
         require(address(portal.systemConfig()) == proxies.SystemConfig, "6100");
+        require(address(portal.systemConfig()).code.length != 0, "6101");
+
         require(portal.GUARDIAN() == guardian, "6200");
         require(portal.guardian() == guardian, "6300");
+        require(address(portal.guardian()).code.length != 0, "6301");
+
         require(address(portal.superchainConfig()) == address(proxies.SuperchainConfig), "6400");
+        require(address(portal.superchainConfig()).code.length != 0, "6401");
+
         require(portal.paused() == SuperchainConfig(proxies.SuperchainConfig).paused(), "6500");
         require(portal.l2Sender() == Constants.DEFAULT_L2_SENDER, "6600");
     }
@@ -209,6 +238,8 @@ contract SignFromJsonWithAssertions is SignFromJson, Deployer {
         SuperchainConfig superchainConfig = SuperchainConfig(proxies.SuperchainConfig);
 
         require(superchainConfig.guardian() == cfg.superchainConfigGuardian(), "7200");
+        require(superchainConfig.guardian().code.length != 0, "7201");
+
         require(superchainConfig.paused() == false, "7300");
     }
 
