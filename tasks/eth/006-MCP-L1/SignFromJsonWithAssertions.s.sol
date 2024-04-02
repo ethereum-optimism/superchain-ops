@@ -20,13 +20,11 @@ import {console2 as console} from "forge-std/console2.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 
 contract SignFromJsonWithAssertions is SignFromJson, Deployer {
-    /// @dev Verify that the slot number of xDomainMsgSender in lib/optimism/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json
-    ///      is 24. If not, update xdmSenderSlotNumber to the correct slot number.
-    uint256 constant xdmSenderSlotNumber = 24;
-
     Types.ContractSet proxies;
 
     uint256 l2OutputOracleStartingTimestamp;
+
+    uint256 xdmSenderSlotNumber;
 
     /// @notice Sets up the contract.
     function setUp() public override {
@@ -35,6 +33,20 @@ contract SignFromJsonWithAssertions is SignFromJson, Deployer {
         proxies = _getContractSet();
 
         l2OutputOracleStartingTimestamp = cfg.l2OutputOracleStartingTimestamp();
+
+        // Read the slot number for the xDomainMsgSender in the L1CrossDomainMessenger
+        try vm.readFile(
+            string.concat(
+                vm.projectRoot(),
+                "/lib/optimism/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json"
+            )
+        ) returns (string memory data) {
+            xdmSenderSlotNumber = stdJson.readUint(data, string(abi.encodePacked("$.[13].slot")));
+        } catch {
+            revert(
+                "Failed to read xDomainMsgSender slot number in lib/optimism/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json"
+            );
+        }
     }
 
     /// @notice The name of the script
