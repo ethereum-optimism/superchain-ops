@@ -109,6 +109,7 @@ jobs:
       - run:
           name: just simulate 006-MCP-L1
           command: |
+            go install github.com/mikefarah/yq/v4@latest
             just install
             forge clean
             forge build
@@ -132,6 +133,7 @@ jobs:
       - run:
           name: just simulate 007-presigned-pause
           command: |
+            go install github.com/mikefarah/yq/v4@latest
             just install
             cd tasks/eth/007-presigned-pause
             just \
@@ -158,6 +160,7 @@ jobs:
       - run:
           name: just simulate sepolia 005-presigned-pause
           command: |
+            go install github.com/mikefarah/yq/v4@latest
             just install
             cd tasks/sep/005-presigned-pause
             just \
