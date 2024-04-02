@@ -24,24 +24,15 @@ contract SignFromJsonWithAssertions is SignFromJson, Deployer {
     ///      is 24. If not, update xdmSenderSlotNumber to the correct slot number.
     uint256 constant xdmSenderSlotNumber = 24;
 
-    DeployConfig constant cfg = DeployConfig(address(uint160(uint256(keccak256(abi.encode("optimism.deployconfig"))))));
-
     Types.ContractSet proxies;
 
     uint256 l2OutputOracleStartingTimestamp;
 
-    constructor() {
-        proxies = _getContractSet();
+    /// @notice Sets up the contract.
+    function setUp() public override {
+        super.setUp();
 
-        vm.etch(address(cfg), vm.getDeployedCode("DeployConfig.s.sol:DeployConfig"));
-        vm.label(address(cfg), "DeployConfig");
-        vm.allowCheatcodes(address(cfg));
-        cfg.read(
-            vm.envOr(
-                "DEPLOY_CONFIG_PATH",
-                string.concat(vm.projectRoot(), "/lib/optimism/packages/contracts-bedrock/deploy-config/mainnet.json")
-            )
-        );
+        proxies = _getContractSet();
 
         l2OutputOracleStartingTimestamp = cfg.l2OutputOracleStartingTimestamp();
     }
