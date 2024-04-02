@@ -70,6 +70,15 @@ We’ll use the [eip712sign](https://github.com/base-org/eip712sign) utility dev
 You should see a message something like this:
   ` One (and only one) of --private-key, --ledger, --mnemonic must be set`
 
+### Installing `mikefarah/yq`
+
+We’ll use `mikefarah/yq` to manipulate `.yaml` files:
+
+1. From the command prompt run:
+  `go install github.com/mikefarah/yq/v4@latest`
+2. Verify the installation by typing `$(go env GOPATH)/bin/yq --version`
+3. You should see the version number printed. This repo has been tested with version `4.43.1`.
+
 ### Installing foundry
 
 We’ll use foundry to simulate the transaction we’re approving:
