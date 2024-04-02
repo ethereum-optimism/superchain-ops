@@ -272,7 +272,10 @@ execute the pasue!
 To simulate the transaction, run the following command:
 
 ```
-just simulate-all
+just
+   --dotenv-path .env \
+   --justfile ../../../presigned-pause.just \
+   simulate-all
 ```
 
 The simulate command will output the Tenderly simulation link and the
