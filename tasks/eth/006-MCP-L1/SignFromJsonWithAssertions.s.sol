@@ -70,9 +70,11 @@ contract SignFromJsonWithAssertions is SignFromJson {
             )
         ) returns (string memory data) {
             xdmSenderSlotNumber = stdJson.readUint(data, "$.[13].slot");
+
+            require(xdmSenderSlotNumber == 204, "Wrong xDomainMsgSender slot number");
         } catch {
             revert(
-                "Failed to read xDomainMsgSender slot number in lib/optimism/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json"
+                "Failed to read xDomainMsgSender slot number from lib/optimism/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json"
             );
         }
     }
