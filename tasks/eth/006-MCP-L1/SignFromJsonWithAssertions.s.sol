@@ -25,12 +25,12 @@ contract PostCheck is SignFromJson {
 
     DeployConfig constant cfg = DeployConfig(address(uint160(uint256(keccak256(abi.encode("optimism.deployconfig"))))));
 
-    Types.ContractSet prox;
+    Types.ContractSet proxies;
 
     uint256 l2OutputOracleStartingTimestamp;
 
     constructor() {
-        prox = _getContractSet();
+        proxies = _getContractSet();
 
         vm.etch(address(cfg), vm.getDeployedCode("DeployConfig.s.sol:DeployConfig"));
         vm.label(address(cfg), "DeployConfig");
@@ -49,9 +49,9 @@ contract PostCheck is SignFromJson {
     function checkSystemConfig() internal view {
         console.log("Running chain assertions on the SystemConfig");
 
-        require(prox.SystemConfig.code.length != 0, "200");
+        require(proxies.SystemConfig.code.length != 0, "200");
 
-        SystemConfig config = SystemConfig(prox.SystemConfig);
+        SystemConfig config = SystemConfig(proxies.SystemConfig);
 
         ResourceMetering.ResourceConfig memory resourceConfig = config.resourceConfig();
 
@@ -75,28 +75,28 @@ contract PostCheck is SignFromJson {
         require(config.startBlock() == (cfgStartBlock == 0 ? block.number : cfgStartBlock), "1500");
         require(config.batchInbox() == cfg.batchInboxAddress(), "1600");
         // Check _addresses
-        require(config.l1CrossDomainMessenger() == prox.L1CrossDomainMessenger, "1700");
-        require(config.l1ERC721Bridge() == prox.L1ERC721Bridge, "1800");
-        require(config.l1StandardBridge() == prox.L1StandardBridge, "1900");
-        require(config.l2OutputOracle() == prox.L2OutputOracle, "2000");
-        require(config.optimismPortal() == prox.OptimismPortal, "2100");
-        require(config.optimismMintableERC20Factory() == prox.OptimismMintableERC20Factory, "2200");
+        require(config.l1CrossDomainMessenger() == proxies.L1CrossDomainMessenger, "1700");
+        require(config.l1ERC721Bridge() == proxies.L1ERC721Bridge, "1800");
+        require(config.l1StandardBridge() == proxies.L1StandardBridge, "1900");
+        require(config.l2OutputOracle() == proxies.L2OutputOracle, "2000");
+        require(config.optimismPortal() == proxies.OptimismPortal, "2100");
+        require(config.optimismMintableERC20Factory() == proxies.OptimismMintableERC20Factory, "2200");
     }
 
     /// @notice Asserts that the L1CrossDomainMessenger is setup correctly
     function checkL1CrossDomainMessenger() internal view {
         console.log("Running chain assertions on the L1CrossDomainMessenger");
 
-        require(prox.L1CrossDomainMessenger.code.length != 0, "2300");
+        require(proxies.L1CrossDomainMessenger.code.length != 0, "2300");
 
-        L1CrossDomainMessenger messenger = L1CrossDomainMessenger(prox.L1CrossDomainMessenger);
+        L1CrossDomainMessenger messenger = L1CrossDomainMessenger(proxies.L1CrossDomainMessenger);
 
         require(address(messenger.OTHER_MESSENGER()) == Predeploys.L2_CROSS_DOMAIN_MESSENGER, "2400");
         require(address(messenger.otherMessenger()) == Predeploys.L2_CROSS_DOMAIN_MESSENGER, "2500");
 
-        require(address(messenger.PORTAL()) == prox.OptimismPortal, "2600");
-        require(address(messenger.portal()) == prox.OptimismPortal, "2700");
-        require(address(messenger.superchainConfig()) == prox.SuperchainConfig, "2800");
+        require(address(messenger.PORTAL()) == proxies.OptimismPortal, "2600");
+        require(address(messenger.portal()) == proxies.OptimismPortal, "2700");
+        require(address(messenger.superchainConfig()) == proxies.SuperchainConfig, "2800");
         bytes32 xdmSenderSlot = vm.load(address(messenger), bytes32(xdmSenderSlotNumber));
         require(address(uint160(uint256(xdmSenderSlot))) == Constants.DEFAULT_L2_SENDER, "2900");
     }
@@ -104,22 +104,22 @@ contract PostCheck is SignFromJson {
     /// @notice Asserts that the L1StandardBridge is setup correctly
     function checkL1StandardBridge() internal view {
         console.log("Running chain assertions on the L1StandardBridge");
-        L1StandardBridge bridge = L1StandardBridge(payable(prox.L1StandardBridge));
+        L1StandardBridge bridge = L1StandardBridge(payable(proxies.L1StandardBridge));
 
-        require(address(bridge.MESSENGER()) == prox.L1CrossDomainMessenger, "3000");
-        require(address(bridge.messenger()) == prox.L1CrossDomainMessenger, "3100");
+        require(address(bridge.MESSENGER()) == proxies.L1CrossDomainMessenger, "3000");
+        require(address(bridge.messenger()) == proxies.L1CrossDomainMessenger, "3100");
         require(address(bridge.OTHER_BRIDGE()) == Predeploys.L2_STANDARD_BRIDGE, "3200");
         require(address(bridge.otherBridge()) == Predeploys.L2_STANDARD_BRIDGE, "3300");
-        require(address(bridge.superchainConfig()) == prox.SuperchainConfig, "3400");
+        require(address(bridge.superchainConfig()) == proxies.SuperchainConfig, "3400");
     }
 
     /// @notice Asserts that the L2OutputOracle is setup correctly
     function checkL2OutputOracle() internal view {
         console.log("Running chain assertions on the L2OutputOracle");
 
-        require(prox.L2OutputOracle.code.length != 0, "3500");
+        require(proxies.L2OutputOracle.code.length != 0, "3500");
 
-        L2OutputOracle oracle = L2OutputOracle(prox.L2OutputOracle);
+        L2OutputOracle oracle = L2OutputOracle(proxies.L2OutputOracle);
 
         require(oracle.SUBMISSION_INTERVAL() == cfg.l2OutputOracleSubmissionInterval(), "3600");
         require(oracle.submissionInterval() == cfg.l2OutputOracleSubmissionInterval(), "3700");
@@ -139,48 +139,48 @@ contract PostCheck is SignFromJson {
     function checkOptimismMintableERC20Factory() internal view {
         console.log("Running chain assertions on the OptimismMintableERC20Factory");
 
-        require(prox.OptimismMintableERC20Factory.code.length != 0, "4800");
+        require(proxies.OptimismMintableERC20Factory.code.length != 0, "4800");
 
-        OptimismMintableERC20Factory factory = OptimismMintableERC20Factory(prox.OptimismMintableERC20Factory);
+        OptimismMintableERC20Factory factory = OptimismMintableERC20Factory(proxies.OptimismMintableERC20Factory);
 
-        require(factory.BRIDGE() == prox.L1StandardBridge, "4900");
-        require(factory.bridge() == prox.L1StandardBridge, "5000");
+        require(factory.BRIDGE() == proxies.L1StandardBridge, "4900");
+        require(factory.bridge() == proxies.L1StandardBridge, "5000");
     }
 
     /// @notice Asserts that the L1ERC721Bridge is setup correctly
     function checkL1ERC721Bridge() internal view {
         console.log("Running chain assertions on the L1ERC721Bridge");
 
-        require(prox.L1ERC721Bridge.code.length != 0, "5100");
+        require(proxies.L1ERC721Bridge.code.length != 0, "5100");
 
-        L1ERC721Bridge bridge = L1ERC721Bridge(prox.L1ERC721Bridge);
+        L1ERC721Bridge bridge = L1ERC721Bridge(proxies.L1ERC721Bridge);
 
         require(address(bridge.OTHER_BRIDGE()) == Predeploys.L2_ERC721_BRIDGE, "5200");
         require(address(bridge.otherBridge()) == Predeploys.L2_ERC721_BRIDGE, "5300");
 
-        require(address(bridge.MESSENGER()) == prox.L1CrossDomainMessenger, "5400");
-        require(address(bridge.messenger()) == prox.L1CrossDomainMessenger, "5500");
-        require(address(bridge.superchainConfig()) == prox.SuperchainConfig, "5600");
+        require(address(bridge.MESSENGER()) == proxies.L1CrossDomainMessenger, "5400");
+        require(address(bridge.messenger()) == proxies.L1CrossDomainMessenger, "5500");
+        require(address(bridge.superchainConfig()) == proxies.SuperchainConfig, "5600");
     }
 
     /// @notice Asserts the OptimismPortal is setup correctly
     function checkOptimismPortal() internal view {
         console.log("Running chain assertions on the OptimismPortal");
 
-        require(prox.OptimismPortal.code.length != 0, "5700");
+        require(proxies.OptimismPortal.code.length != 0, "5700");
 
-        OptimismPortal portal = OptimismPortal(payable(prox.OptimismPortal));
+        OptimismPortal portal = OptimismPortal(payable(proxies.OptimismPortal));
 
         address guardian = cfg.superchainConfigGuardian();
 
-        require(address(portal.L2_ORACLE()) == prox.L2OutputOracle, "5800");
-        require(address(portal.l2Oracle()) == prox.L2OutputOracle, "5900");
-        require(address(portal.SYSTEM_CONFIG()) == prox.SystemConfig, "6000");
-        require(address(portal.systemConfig()) == prox.SystemConfig, "6100");
+        require(address(portal.L2_ORACLE()) == proxies.L2OutputOracle, "5800");
+        require(address(portal.l2Oracle()) == proxies.L2OutputOracle, "5900");
+        require(address(portal.SYSTEM_CONFIG()) == proxies.SystemConfig, "6000");
+        require(address(portal.systemConfig()) == proxies.SystemConfig, "6100");
         require(portal.GUARDIAN() == guardian, "6200");
         require(portal.guardian() == guardian, "6300");
-        require(address(portal.superchainConfig()) == address(prox.SuperchainConfig), "6400");
-        require(portal.paused() == SuperchainConfig(prox.SuperchainConfig).paused(), "6500");
+        require(address(portal.superchainConfig()) == address(proxies.SuperchainConfig), "6400");
+        require(portal.paused() == SuperchainConfig(proxies.SuperchainConfig).paused(), "6500");
         require(portal.l2Sender() == Constants.DEFAULT_L2_SENDER, "6600");
     }
 
@@ -188,9 +188,9 @@ contract PostCheck is SignFromJson {
     function checkProtocolVersions() internal view {
         console.log("Running chain assertions on the ProtocolVersions");
 
-        require(prox.ProtocolVersions.code.length != 0, "6700");
+        require(proxies.ProtocolVersions.code.length != 0, "6700");
 
-        ProtocolVersions versions = ProtocolVersions(prox.ProtocolVersions);
+        ProtocolVersions versions = ProtocolVersions(proxies.ProtocolVersions);
 
         require(versions.owner() == cfg.finalSystemOwner(), "6800");
 
@@ -219,9 +219,9 @@ contract PostCheck is SignFromJson {
     function checkSuperchainConfig() internal view {
         console.log("Running chain assertions on the SuperchainConfig");
 
-        require(prox.SuperchainConfig.code.length != 0, "7100");
+        require(proxies.SuperchainConfig.code.length != 0, "7100");
 
-        SuperchainConfig superchainConfig = SuperchainConfig(prox.SuperchainConfig);
+        SuperchainConfig superchainConfig = SuperchainConfig(proxies.SuperchainConfig);
 
         require(superchainConfig.guardian() == cfg.superchainConfigGuardian(), "7200");
         require(superchainConfig.paused() == false, "7300");
@@ -230,9 +230,10 @@ contract PostCheck is SignFromJson {
     /// @notice Checks the correctness of the deployment
     function _postCheck() internal view override {
         console.log("Running post-deploy assertions");
-        ResourceMetering.ResourceConfig memory rcfg = SystemConfig(prox.SystemConfig).resourceConfig();
-        ResourceMetering.ResourceConfig memory dflt = Constants.DEFAULT_RESOURCE_CONFIG();
-        require(keccak256(abi.encode(rcfg)) == keccak256(abi.encode(dflt)), "100");
+        ResourceMetering.ResourceConfig memory actualResourceConfig =
+            SystemConfig(proxies.SystemConfig).resourceConfig();
+        ResourceMetering.ResourceConfig memory expectedResourceConfig = Constants.DEFAULT_RESOURCE_CONFIG();
+        require(keccak256(abi.encode(actualResourceConfig)) == keccak256(abi.encode(expectedResourceConfig)), "100");
 
         checkSystemConfig();
         checkL1CrossDomainMessenger();
