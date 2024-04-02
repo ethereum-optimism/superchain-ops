@@ -55,7 +55,7 @@ sign hdPath='0':
           --rpc-url ${rpcUrl} \
           --json-file $JSON_FILE \
           --mnemonic "test test test test test test test test test test test junk" \
-          --sender 0xE7dEA1306D9F829bA469d1904c50903b46ebd02e \
+          --sender 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 \
           sign
       fi
     done
