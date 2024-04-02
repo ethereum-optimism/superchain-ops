@@ -196,25 +196,8 @@ contract SignFromJsonWithAssertions is SignFromJson, Deployer {
 
         require(versions.owner() == cfg.finalSystemOwner(), "6800");
 
-        string memory json;
-
-        try vm.readFile(string.concat(vm.projectRoot(), "/tasks/eth/005-protocol-versions-ecotone/input.json"))
-        returns (string memory data) {
-            json = data;
-        } catch {
-            revert("Failed to read tasks/eth/005-protocol-versions-ecotone/input.json");
-        }
-
-        require(
-            ProtocolVersion.unwrap(versions.required())
-                == uint256(stdJson.readBytes32(json, string(abi.encodePacked("$.transactions[0].data")))),
-            "6900"
-        );
-        require(
-            ProtocolVersion.unwrap(versions.recommended())
-                == uint256(stdJson.readBytes32(json, string(abi.encodePacked("$.transactions[1].data")))),
-            "7000"
-        );
+        require(ProtocolVersion.unwrap(versions.required()) == cfg.requiredProtocolVersion(), "6900");
+        require(ProtocolVersion.unwrap(versions.recommended()) == cfg.recommendedProtocolVersion(), "7000");
     }
 
     /// @notice Asserts that the SuperchainConfig is setup correctly
