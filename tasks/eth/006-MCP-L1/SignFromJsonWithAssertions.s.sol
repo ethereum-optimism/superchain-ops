@@ -205,8 +205,26 @@ contract PostCheck is SignFromJson {
         require(versions.code.length != 0, "6700");
 
         require(versions.owner() == cfg.finalSystemOwner(), "6800");
-        require(ProtocolVersion.unwrap(versions.required()) == cfg.requiredProtocolVersion(), "6900");
-        require(ProtocolVersion.unwrap(versions.recommended()) == cfg.recommendedProtocolVersion(), "7000");
+
+        string memory json;
+
+        try vm.readFile(string.concat(vm.projectRoot(), "/tasks/eth/005-protocol-versions-ecotone/input.json"))
+        returns (string memory data) {
+            json = data;
+        } catch {
+            revert("Failed to read tasks/eth/005-protocol-versions-ecotone/input.json");
+        }
+
+        require(
+            ProtocolVersion.unwrap(versions.required())
+                == uint256(stdJson.readBytes32(json, string(abi.encodePacked("$.transactions[0].data")))),
+            "6900"
+        );
+        require(
+            ProtocolVersion.unwrap(versions.recommended())
+                == uint256(stdJson.readBytes32(json, string(abi.encodePacked("$.transactions[1].data")))),
+            "7000"
+        );
     }
 
     /// @notice Asserts that the SuperchainConfig is setup correctly
@@ -221,28 +239,28 @@ contract PostCheck is SignFromJson {
     }
 
     function _getContractSet() internal view returns (Types.ContractSet memory _proxies) {
-        string memory _json;
+        string memory json;
 
         // Read extra addresses
         try vm.readFile(
             string.concat(vm.projectRoot(), "/lib/superchain-registry/superchain/extra/addresses/mainnet/op.json")
         ) returns (string memory data) {
-            _json = data;
+            json = data;
         } catch {
-            revert("Failed to read extra addresses file for mainnet.");
+            revert("Failed to read lib/superchain-registry/superchain/extra/addresses/mainnet/op.json");
         }
 
-        _proxies.L1CrossDomainMessenger = stdJson.readAddress(_json, "$.L1CrossDomainMessengerProxy");
-        _proxies.L1StandardBridge = stdJson.readAddress(_json, "$.L1StandardBridgeProxy");
-        _proxies.L2OutputOracle = stdJson.readAddress(_json, "$.L2OutputOracleProxy");
-        _proxies.OptimismMintableERC20Factory = stdJson.readAddress(_json, "$.OptimismMintableERC20FactoryProxy");
-        _proxies.OptimismPortal = stdJson.readAddress(_json, "$.OptimismPortalProxy");
-        _proxies.OptimismPortal2 = stdJson.readAddress(_json, "$.OptimismPortalProxy");
-        _proxies.SystemConfig = stdJson.readAddress(_json, "$.SystemConfigProxy");
-        _proxies.L1ERC721Bridge = stdJson.readAddress(_json, "$.L1ERC721BridgeProxy");
+        _proxies.L1CrossDomainMessenger = stdJson.readAddress(json, "$.L1CrossDomainMessengerProxy");
+        _proxies.L1StandardBridge = stdJson.readAddress(json, "$.L1StandardBridgeProxy");
+        _proxies.L2OutputOracle = stdJson.readAddress(json, "$.L2OutputOracleProxy");
+        _proxies.OptimismMintableERC20Factory = stdJson.readAddress(json, "$.OptimismMintableERC20FactoryProxy");
+        _proxies.OptimismPortal = stdJson.readAddress(json, "$.OptimismPortalProxy");
+        _proxies.OptimismPortal2 = stdJson.readAddress(json, "$.OptimismPortalProxy");
+        _proxies.SystemConfig = stdJson.readAddress(json, "$.SystemConfigProxy");
+        _proxies.L1ERC721Bridge = stdJson.readAddress(json, "$.L1ERC721BridgeProxy");
 
-        _proxies.ProtocolVersions = stdJson.readAddress(_json, "$.finalSystemOwner");
-        _proxies.SuperchainConfig = stdJson.readAddress(_json, "$.finalSystemOwner");
+        _proxies.ProtocolVersions = stdJson.readAddress(json, "$.finalSystemOwner");
+        _proxies.SuperchainConfig = stdJson.readAddress(json, "$.finalSystemOwner");
 
         return _proxies;
     }
