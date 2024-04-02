@@ -266,10 +266,16 @@ contract SignFromJsonWithAssertions is SignFromJson, Deployer {
         _proxies.SystemConfig = stdJson.readAddress(json, "$.SystemConfigProxy");
         _proxies.L1ERC721Bridge = stdJson.readAddress(json, "$.L1ERC721BridgeProxy");
 
-        // Read superchain.yaml
-        string[] memory inputs = new string[](4);
+        // Get go path
+        string[] memory inputs = new string[](3);
+        inputs[0] = "go";
+        inputs[1] = "env";
+        inputs[2] = "GOPATH";
+        string memory goPath = string(vm.ffi(inputs));
 
-        inputs[0] = "yq";
+        // Read superchain.yaml
+        inputs = new string[](4);
+        inputs[0] = string.concat(goPath, "/bin/yq");
         inputs[1] = "-o";
         inputs[2] = "json";
         inputs[3] = "lib/superchain-registry/superchain/configs/mainnet/superchain.yaml";
