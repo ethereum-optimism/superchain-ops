@@ -35,7 +35,12 @@ contract PostCheck is SignFromJson {
         vm.etch(address(cfg), vm.getDeployedCode("DeployConfig.s.sol:DeployConfig"));
         vm.label(address(cfg), "DeployConfig");
         vm.allowCheatcodes(address(cfg));
-        cfg.read(vm.envOr("DEPLOY_CONFIG_PATH", string.concat(vm.projectRoot(), "/deploy-config/mainnet.json")));
+        cfg.read(
+            vm.envOr(
+                "DEPLOY_CONFIG_PATH",
+                string.concat(vm.projectRoot(), "/lib/optimism/packages/contracts-bedrock/deploy-config/mainnet.json")
+            )
+        );
 
         l2OutputOracleStartingTimestamp = cfg.l2OutputOracleStartingTimestamp();
     }
