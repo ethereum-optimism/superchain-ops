@@ -74,9 +74,7 @@ contract SignFromJsonWithAssertions is SignFromJson, Deployer {
         require(
             keccak256(abi.encode(resourceConfig)) == keccak256(abi.encode(Constants.DEFAULT_RESOURCE_CONFIG())), "900"
         );
-        // Depends on start block being set to 0 in `initialize`
-        uint256 cfgStartBlock = cfg.systemConfigStartBlock();
-        require(config.startBlock() == (cfgStartBlock == 0 ? block.number : cfgStartBlock), "1500");
+        require(config.startBlock() == cfg.systemConfigStartBlock(), "1500");
         require(config.batchInbox() == cfg.batchInboxAddress(), "1600");
         // Check _addresses
         require(config.l1CrossDomainMessenger() == proxies.L1CrossDomainMessenger, "1700");
