@@ -66,9 +66,10 @@ contract PostCheck is SignFromJson {
     /// @notice Asserts that the SystemConfig is setup correctly
     function checkSystemConfig() internal view {
         console.log("Running chain assertions on the SystemConfig");
-        SystemConfig config = SystemConfig(prox.SystemConfig);
 
-        require(config.code.length != 0, "200");
+        require(prox.SystemConfig.code.length != 0, "200");
+
+        SystemConfig config = SystemConfig(prox.SystemConfig);
 
         ResourceMetering.ResourceConfig memory resourceConfig = config.resourceConfig();
 
@@ -103,9 +104,10 @@ contract PostCheck is SignFromJson {
     /// @notice Asserts that the L1CrossDomainMessenger is setup correctly
     function checkL1CrossDomainMessenger() internal view {
         console.log("Running chain assertions on the L1CrossDomainMessenger");
-        L1CrossDomainMessenger messenger = L1CrossDomainMessenger(prox.L1CrossDomainMessenger);
 
-        require(messenger.code.length != 0, "2300");
+        require(prox.L1CrossDomainMessenger.code.length != 0, "2300");
+
+        L1CrossDomainMessenger messenger = L1CrossDomainMessenger(prox.L1CrossDomainMessenger);
 
         require(address(messenger.OTHER_MESSENGER()) == Predeploys.L2_CROSS_DOMAIN_MESSENGER, "2400");
         require(address(messenger.otherMessenger()) == Predeploys.L2_CROSS_DOMAIN_MESSENGER, "2500");
@@ -132,9 +134,10 @@ contract PostCheck is SignFromJson {
     /// @notice Asserts that the L2OutputOracle is setup correctly
     function checkL2OutputOracle() internal view {
         console.log("Running chain assertions on the L2OutputOracle");
-        L2OutputOracle oracle = L2OutputOracle(prox.L2OutputOracle);
 
-        require(oracle.code.length != 0, "3500");
+        require(prox.L2OutputOracle.code.length != 0, "3500");
+
+        L2OutputOracle oracle = L2OutputOracle(prox.L2OutputOracle);
 
         require(oracle.SUBMISSION_INTERVAL() == cfg.l2OutputOracleSubmissionInterval(), "3600");
         require(oracle.submissionInterval() == cfg.l2OutputOracleSubmissionInterval(), "3700");
@@ -153,9 +156,10 @@ contract PostCheck is SignFromJson {
     /// @notice Asserts that the OptimismMintableERC20Factory is setup correctly
     function checkOptimismMintableERC20Factory() internal view {
         console.log("Running chain assertions on the OptimismMintableERC20Factory");
-        OptimismMintableERC20Factory factory = OptimismMintableERC20Factory(prox.OptimismMintableERC20Factory);
 
-        require(factory.code.length != 0, "4800");
+        require(prox.OptimismMintableERC20Factory.code.length != 0, "4800");
+
+        OptimismMintableERC20Factory factory = OptimismMintableERC20Factory(prox.OptimismMintableERC20Factory);
 
         require(factory.BRIDGE() == prox.L1StandardBridge, "4900");
         require(factory.bridge() == prox.L1StandardBridge, "5000");
@@ -164,9 +168,10 @@ contract PostCheck is SignFromJson {
     /// @notice Asserts that the L1ERC721Bridge is setup correctly
     function checkL1ERC721Bridge() internal view {
         console.log("Running chain assertions on the L1ERC721Bridge");
-        L1ERC721Bridge bridge = L1ERC721Bridge(prox.L1ERC721Bridge);
 
-        require(bridge.code.length != 0, "5100");
+        require(prox.L1ERC721Bridge.code.length != 0, "5100");
+
+        L1ERC721Bridge bridge = L1ERC721Bridge(prox.L1ERC721Bridge);
 
         require(address(bridge.OTHER_BRIDGE()) == Predeploys.L2_ERC721_BRIDGE, "5200");
         require(address(bridge.otherBridge()) == Predeploys.L2_ERC721_BRIDGE, "5300");
@@ -180,9 +185,9 @@ contract PostCheck is SignFromJson {
     function checkOptimismPortal() internal view {
         console.log("Running chain assertions on the OptimismPortal");
 
-        OptimismPortal portal = OptimismPortal(payable(prox.OptimismPortal));
+        require(prox.OptimismPortal.code.length != 0, "5700");
 
-        require(portal.code.length != 0, "5700");
+        OptimismPortal portal = OptimismPortal(payable(prox.OptimismPortal));
 
         address guardian = cfg.superchainConfigGuardian();
 
@@ -200,9 +205,10 @@ contract PostCheck is SignFromJson {
     /// @notice Asserts that the ProtocolVersions is setup correctly
     function checkProtocolVersions() internal view {
         console.log("Running chain assertions on the ProtocolVersions");
-        ProtocolVersions versions = ProtocolVersions(prox.ProtocolVersions);
 
-        require(versions.code.length != 0, "6700");
+        require(prox.ProtocolVersions.code.length != 0, "6700");
+
+        ProtocolVersions versions = ProtocolVersions(prox.ProtocolVersions);
 
         require(versions.owner() == cfg.finalSystemOwner(), "6800");
 
@@ -230,9 +236,10 @@ contract PostCheck is SignFromJson {
     /// @notice Asserts that the SuperchainConfig is setup correctly
     function checkSuperchainConfig() internal view {
         console.log("Running chain assertions on the SuperchainConfig");
-        SuperchainConfig superchainConfig = SuperchainConfig(prox.SuperchainConfig);
 
-        require(superchainConfig.code.length != 0, "7100");
+        require(prox.SuperchainConfig.code.length != 0, "7100");
+
+        SuperchainConfig superchainConfig = SuperchainConfig(prox.SuperchainConfig);
 
         require(superchainConfig.guardian() == cfg.superchainConfigGuardian(), "7200");
         require(superchainConfig.paused() == false, "7300");
