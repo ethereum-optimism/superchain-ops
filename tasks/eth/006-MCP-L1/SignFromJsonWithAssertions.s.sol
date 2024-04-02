@@ -71,14 +71,7 @@ contract SignFromJsonWithAssertions is SignFromJson, Deployer {
         require(config.gasLimit() == uint64(cfg.l2GenesisBlockGasLimit()), "700");
         require(config.unsafeBlockSigner() == cfg.p2pSequencerAddress(), "800");
         // Check _config
-        ResourceMetering.ResourceConfig memory rconfig = Constants.DEFAULT_RESOURCE_CONFIG();
-
-        require(resourceConfig.maxResourceLimit == rconfig.maxResourceLimit, "900");
-        require(resourceConfig.elasticityMultiplier == rconfig.elasticityMultiplier, "1000");
-        require(resourceConfig.baseFeeMaxChangeDenominator == rconfig.baseFeeMaxChangeDenominator, "1100");
-        require(resourceConfig.systemTxMaxGas == rconfig.systemTxMaxGas, "1200");
-        require(resourceConfig.minimumBaseFee == rconfig.minimumBaseFee, "1300");
-        require(resourceConfig.maximumBaseFee == rconfig.maximumBaseFee, "1400");
+        require(keccak256(abi.encode(rconfig)) == keccak256(abi.encode(Constants.DEFAULT_RESOURCE_CONFIG())), "900");
         // Depends on start block being set to 0 in `initialize`
         uint256 cfgStartBlock = cfg.systemConfigStartBlock();
         require(config.startBlock() == (cfgStartBlock == 0 ? block.number : cfgStartBlock), "1500");
