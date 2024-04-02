@@ -267,9 +267,8 @@ contract PostCheck is SignFromJson {
         _proxies.SystemConfig = stdJson.readAddress(json, "$.SystemConfigProxy");
         _proxies.L1ERC721Bridge = stdJson.readAddress(json, "$.L1ERC721BridgeProxy");
 
+        // TODO: Fetch the addresses from lib/superchain-registry/superchain/configs/mainnet/superchain.yaml
         _proxies.ProtocolVersions = stdJson.readAddress(json, "$.finalSystemOwner");
         _proxies.SuperchainConfig = stdJson.readAddress(json, "$.finalSystemOwner");
-
-        return _proxies;
     }
 }
