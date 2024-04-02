@@ -100,62 +100,80 @@ jobs:
               echo "L2 RPC URL: $L2_RPC_URL"
               # Use L1_RPC_URL and L2_RPC_URL here.
 
-  just_simulate_005-protocol-versions-ecotone:
+  just_simulate_006-MCP-L1:
     docker:
       - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
 
     steps:
       - checkout
       - run:
-          name: just simulate 005-protocol-versions-ecotone
+          name: just simulate 006-MCP-L1
           command: |
             just install
             forge clean
             forge build
-            cd tasks/eth/005-protocol-versions-ecotone
+            cd tasks/eth/006-MCP-L1
             export SIMULATE_WITHOUT_LEDGER=1
             just \
               --dotenv-path .env \
-              --justfile ../../../single.just \
-              simulate
+              --justfile ../../../nested.just \
+              simulate foundation
+            just \
+              --dotenv-path .env \
+              --justfile ../../../nested.just \
+              simulate council
 
-  just_simulate_005-2-ecotone-set-gas-config:
+  just_simulate_007-presigned-pause:
     docker:
       - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
 
     steps:
       - checkout
       - run:
-          name: just simulate 005-2-ecotone-set-gas-config
+          name: just simulate 007-presigned-pause
           command: |
             just install
-            forge clean
+            cd tasks/eth/007-presigned-pause
+            just \
+              --dotenv-path .env \
+              --justfile ../../../presigned-pause.just \
+              install
             forge build
-            cd tasks/eth/005-2-ecotone-set-gas-config
             export SIMULATE_WITHOUT_LEDGER=1
             just \
               --dotenv-path .env \
-              --justfile ../../../single.just \
-              simulate
+              --justfile ../../../presigned-pause.just \
+              whoami 0
+            just \
+              --dotenv-path .env \
+              --justfile ../../../presigned-pause.just \
+              sign
 
-  just_simulate_005-3-ecotone-calldata-gas-config:
+  just_simulate_sep_005-presigned-pause:
     docker:
       - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
 
     steps:
       - checkout
       - run:
-          name: just simulate 005-3-ecotone-calldata-gas-config
+          name: just simulate sepolia 005-presigned-pause
           command: |
             just install
-            forge clean
+            cd tasks/sep/005-presigned-pause
+            just \
+              --dotenv-path .env \
+              --justfile ../../../presigned-pause.just \
+              install
             forge build
-            cd tasks/eth/005-3-ecotone-calldata-gas-config
             export SIMULATE_WITHOUT_LEDGER=1
             just \
               --dotenv-path .env \
-              --justfile ../../../single.just \
-              simulate
+              --justfile ../../../presigned-pause.just \
+              whoami 0
+            just \
+              --dotenv-path .env \
+              --justfile ../../../presigned-pause.just \
+              sign
 
   just_simulate_sc_rehearsal_1:
     docker:
@@ -209,22 +227,6 @@ jobs:
             just simulate-council
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
-  just_simulate_sc_rehearsal_2_0122:
-    docker:
-      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
-    steps:
-      - checkout
-      - run:
-          name: just simulate r2-remove-signer
-          command: |
-            just install
-            cd security-council-rehearsals
-            cd 2024-01-22-r2-remove-signer-0122
-            export SIMULATE_WITHOUT_LEDGER=1
-            just simulate
-            just get-owners
-            just prepare
-            just simulate # simulate again to make sure the json is still valid
   forge_test:
     docker:
       - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
@@ -262,10 +264,9 @@ workflows:
         # expect the ceremony to work continuously), and remove it once
         # the ceremony is for historical archive only (e.g. the
         # ceremony is done).
-          - just_simulate_005-protocol-versions-ecotone
-          - just_simulate_005-2-ecotone-set-gas-config
-          - just_simulate_005-3-ecotone-calldata-gas-config
+          - just_simulate_006-MCP-L1
+          - just_simulate_007-presigned-pause
           - just_simulate_sc_rehearsal_1
           - just_simulate_sc_rehearsal_2
           - just_simulate_sc_rehearsal_4
-          - just_simulate_sc_rehearsal_2_0122
+          - just_simulate_sep_005-presigned-pause
