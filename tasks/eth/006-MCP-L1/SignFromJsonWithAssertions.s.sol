@@ -19,9 +19,14 @@ import {console2 as console} from "forge-std/console2.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 
 contract PostCheck is SignFromJson {
+    /// @dev Verify that the slot number of xDomainMsgSender in lib/optimism/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json
+    ///      is 24. If not, update xdmSenderSlotNumber to the correct slot number.
+    uint256 constant xdmSenderSlotNumber = 24;
+
+    DeployConfig constant cfg = DeployConfig(address(uint160(uint256(keccak256(abi.encode("optimism.deployconfig"))))));
+
     Types.ContractSet prox;
-    DeployConfig public constant cfg =
-        DeployConfig(address(uint160(uint256(keccak256(abi.encode("optimism.deployconfig"))))));
+
     uint256 l2OutputOracleStartingTimestamp;
 
     constructor() {
