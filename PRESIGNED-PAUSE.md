@@ -257,7 +257,10 @@ cat tx/draft-*.json | jq
 To verify the signatures, run the following command:
 
 ```
-just verify
+just
+   --dotenv-path .env \
+   --justfile ../../../presigned-pause.just \
+   verify
 ```
 
 ### 4. Simulate the transaction with signatures
