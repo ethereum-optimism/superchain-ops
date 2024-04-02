@@ -15,10 +15,11 @@ import {OptimismMintableERC20Factory} from "@eth-optimism-bedrock/src/universal/
 import {L1ERC721Bridge} from "@eth-optimism-bedrock/src/L1/L1ERC721Bridge.sol";
 import {Predeploys} from "@eth-optimism-bedrock/src/libraries/Predeploys.sol";
 import {Types} from "@eth-optimism-bedrock/scripts/Types.sol";
+import {Deployer} from "@eth-optimism-bedrock/scripts/Deployer.sol";
 import {console2 as console} from "forge-std/console2.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 
-contract PostCheck is SignFromJson {
+contract PostCheck is SignFromJson, Deployer {
     /// @dev Verify that the slot number of xDomainMsgSender in lib/optimism/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json
     ///      is 24. If not, update xdmSenderSlotNumber to the correct slot number.
     uint256 constant xdmSenderSlotNumber = 24;
@@ -43,6 +44,11 @@ contract PostCheck is SignFromJson {
         );
 
         l2OutputOracleStartingTimestamp = cfg.l2OutputOracleStartingTimestamp();
+    }
+
+    /// @notice The name of the script
+    function name() public pure override returns (string memory) {
+        return "SignFromJsonWithAssertions";
     }
 
     /// @notice Asserts that the SystemConfig is setup correctly
