@@ -246,10 +246,10 @@ contract PostCheck is SignFromJson {
     }
 
     /// @notice Reads the contract addresses from lib/superchain-registry/superchain/extra/addresses/mainnet/op.json
-    function _getContractSet() internal view returns (Types.ContractSet memory _proxies) {
+    function _getContractSet() internal returns (Types.ContractSet memory _proxies) {
         string memory json;
 
-        // Read extra addresses
+        // Read op.json
         try vm.readFile(
             string.concat(vm.projectRoot(), "/lib/superchain-registry/superchain/extra/addresses/mainnet/op.json")
         ) returns (string memory data) {
@@ -267,8 +267,20 @@ contract PostCheck is SignFromJson {
         _proxies.SystemConfig = stdJson.readAddress(json, "$.SystemConfigProxy");
         _proxies.L1ERC721Bridge = stdJson.readAddress(json, "$.L1ERC721BridgeProxy");
 
-        // TODO: Fetch the addresses from lib/superchain-registry/superchain/configs/mainnet/superchain.yaml
-        _proxies.ProtocolVersions = stdJson.readAddress(json, "$.finalSystemOwner");
-        _proxies.SuperchainConfig = stdJson.readAddress(json, "$.finalSystemOwner");
+        // Read superchain.yaml
+        string[] memory cmds = new string[](6);
+
+        // Build ffi command string
+        cmds[0] = "cat";
+        cmds[1] = "superchain.yaml";
+        cmds[2] = "|";
+        cmds[3] = "yq";
+        cmds[4] = "e";
+        cmds[5] = "-j";
+
+        json = string(vm.ffi(cmds));
+
+        _proxies.ProtocolVersions = stdJson.readAddress(json, "$.protocol_versions_addr");
+        _proxies.SuperchainConfig = stdJson.readAddress(json, "$.superchain_config_addr");
     }
 }
