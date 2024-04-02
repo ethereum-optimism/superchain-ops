@@ -30,9 +30,6 @@ contract DeployRehearsalContracts is Deployer {
         council_safe = GnosisSafe(payable(vm.envAddress("COUNCIL_SAFE")));
 
         require(owner_safe.isOwner(address(council_safe)));
-
-        console.log("Deploying from %s", deployScript);
-        console.log("Deployment context: %s", deploymentContext);
     }
 
     function run() public {
