@@ -2,7 +2,6 @@
 pragma solidity ^0.8.15;
 
 import {SignFromJson} from "../../../script/SignFromJson.s.sol";
-import {DeployConfig} from "@eth-optimism-bedrock/scripts/DeployConfig.s.sol";
 import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
 import {Constants, ResourceMetering} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
 import {L1StandardBridge} from "@eth-optimism-bedrock/src/L1/L1StandardBridge.sol";
@@ -15,24 +14,53 @@ import {OptimismMintableERC20Factory} from "@eth-optimism-bedrock/src/universal/
 import {L1ERC721Bridge} from "@eth-optimism-bedrock/src/L1/L1ERC721Bridge.sol";
 import {Predeploys} from "@eth-optimism-bedrock/src/libraries/Predeploys.sol";
 import {Types} from "@eth-optimism-bedrock/scripts/Types.sol";
-import {Deployer} from "@eth-optimism-bedrock/scripts/Deployer.sol";
 import {console2 as console} from "forge-std/console2.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 
-contract SignFromJsonWithAssertions is SignFromJson, Deployer {
-    Types.ContractSet proxies;
+contract SignFromJsonWithAssertions is SignFromJson {
+    address constant finalSystemOwner = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A;
 
-    uint256 l2OutputOracleStartingTimestamp;
+    address constant superchainConfigGuardian = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A;
+
+    uint256 constant l2BlockTime = 2;
+
+    address constant p2pSequencerAddress = 0xAAAA45d9549EDA09E70937013520214382Ffc4A2;
+
+    address constant batchInboxAddress = 0xFF00000000000000000000000000000000000010;
+
+    address constant batchSenderAddress = 0x6887246668a3b87F54DeB3b94Ba47a6f63F32985;
+
+    uint256 constant l2OutputOracleSubmissionInterval = 1800;
+
+    uint256 constant l2OutputOracleStartingTimestamp = 1686068903;
+
+    uint256 constant l2OutputOracleStartingBlockNumber = 105235063;
+
+    address constant l2OutputOracleProposer = 0x473300df21D047806A082244b417f96b32f13A33;
+
+    address constant l2OutputOracleChallenger = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A;
+
+    uint256 constant finalizationPeriodSeconds = 604800;
+
+    uint256 constant l2GenesisBlockGasLimit = 0x1c9c380;
+
+    uint256 constant gasPriceOracleOverhead = 188;
+
+    uint256 constant gasPriceOracleScalar = 684000;
+
+    uint256 constant systemConfigStartBlock = 17422444;
+
+    uint256 constant requiredProtocolVersion = 0x0000000000000000000000000000000000000003000000010000000000000000;
+
+    uint256 constant recommendedProtocolVersion = 0x0000000000000000000000000000000000000003000000010000000000000000;
+
+    Types.ContractSet proxies;
 
     uint256 xdmSenderSlotNumber;
 
-    /// @notice Sets up the contract.
-    function setUp() public override {
-        super.setUp();
-
+    /// @notice Sets up the contract
+    function setUp() public {
         proxies = _getContractSet();
-
-        l2OutputOracleStartingTimestamp = cfg.l2OutputOracleStartingTimestamp();
 
         // Read the slot number for the xDomainMsgSender in the L1CrossDomainMessenger
         try vm.readFile(
@@ -49,11 +77,6 @@ contract SignFromJsonWithAssertions is SignFromJson, Deployer {
         }
     }
 
-    /// @notice The name of the script
-    function name() public pure override returns (string memory) {
-        return "SignFromJsonWithAssertions";
-    }
-
     /// @notice Asserts that the SystemConfig is setup correctly
     function checkSystemConfig() internal view {
         console.log("Running chain assertions on the SystemConfig");
@@ -64,30 +87,44 @@ contract SignFromJsonWithAssertions is SignFromJson, Deployer {
 
         ResourceMetering.ResourceConfig memory resourceConfigToCheck = configToCheck.resourceConfig();
 
-        require(configToCheck.owner() == cfg.finalSystemOwner(), "300");
-        require(configToCheck.overhead() == cfg.gasPriceOracleOverhead(), "400");
-        require(configToCheck.scalar() == cfg.gasPriceOracleScalar(), "500");
-        require(configToCheck.batcherHash() == bytes32(uint256(uint160(cfg.batchSenderAddress()))), "600");
-        require(configToCheck.gasLimit() == uint64(cfg.l2GenesisBlockGasLimit()), "700");
-        require(configToCheck.unsafeBlockSigner() == cfg.p2pSequencerAddress(), "800");
+        require(configToCheck.owner() == superchainConfigGuardian, "300");
+
+        require(configToCheck.overhead() == gasPriceOracleOverhead, "400");
+
+        require(configToCheck.scalar() == gasPriceOracleScalar, "500");
+
+        require(configToCheck.batcherHash() == bytes32(uint256(uint160(batchSenderAddress))), "600");
+
+        require(configToCheck.gasLimit() == uint64(l2GenesisBlockGasLimit), "700");
+
+        require(configToCheck.unsafeBlockSigner() == p2pSequencerAddress, "800");
+
         // Check _config
         require(
             keccak256(abi.encode(resourceConfigToCheck)) == keccak256(abi.encode(Constants.DEFAULT_RESOURCE_CONFIG())),
             "900"
         );
-        require(configToCheck.startBlock() == cfg.systemConfigStartBlock(), "1500");
-        require(configToCheck.batchInbox() == cfg.batchInboxAddress(), "1600");
+
+        require(configToCheck.startBlock() == systemConfigStartBlock, "1500");
+
+        require(configToCheck.batchInbox() == batchInboxAddress, "1600");
+
         // Check _addresses
         require(configToCheck.l1CrossDomainMessenger() == proxies.L1CrossDomainMessenger, "1700");
         require(configToCheck.l1CrossDomainMessenger().code.length != 0, "1701");
+
         require(configToCheck.l1ERC721Bridge() == proxies.L1ERC721Bridge, "1800");
         require(configToCheck.l1ERC721Bridge().code.length != 0, "1801");
+
         require(configToCheck.l1StandardBridge() == proxies.L1StandardBridge, "1900");
         require(configToCheck.l1StandardBridge().code.length != 0, "1901");
+
         require(configToCheck.l2OutputOracle() == proxies.L2OutputOracle, "2000");
         require(configToCheck.l2OutputOracle().code.length != 0, "2001");
+
         require(configToCheck.optimismPortal() == proxies.OptimismPortal, "2100");
         require(configToCheck.optimismPortal().code.length != 0, "2101");
+
         require(configToCheck.optimismMintableERC20Factory() == proxies.OptimismMintableERC20Factory, "2200");
         require(configToCheck.optimismMintableERC20Factory().code.length != 0, "2201");
     }
@@ -143,17 +180,22 @@ contract SignFromJsonWithAssertions is SignFromJson, Deployer {
 
         L2OutputOracle oracleToCheck = L2OutputOracle(proxies.L2OutputOracle);
 
-        require(oracleToCheck.SUBMISSION_INTERVAL() == cfg.l2OutputOracleSubmissionInterval(), "3600");
-        require(oracleToCheck.submissionInterval() == cfg.l2OutputOracleSubmissionInterval(), "3700");
-        require(oracleToCheck.L2_BLOCK_TIME() == cfg.l2BlockTime(), "3800");
-        require(oracleToCheck.l2BlockTime() == cfg.l2BlockTime(), "3900");
-        require(oracleToCheck.PROPOSER() == cfg.l2OutputOracleProposer(), "4000");
-        require(oracleToCheck.proposer() == cfg.l2OutputOracleProposer(), "4100");
-        require(oracleToCheck.CHALLENGER() == cfg.l2OutputOracleChallenger(), "4200");
-        require(oracleToCheck.challenger() == cfg.l2OutputOracleChallenger(), "4300");
-        require(oracleToCheck.FINALIZATION_PERIOD_SECONDS() == cfg.finalizationPeriodSeconds(), "4400");
-        require(oracleToCheck.finalizationPeriodSeconds() == cfg.finalizationPeriodSeconds(), "4500");
-        require(oracleToCheck.startingBlockNumber() == cfg.l2OutputOracleStartingBlockNumber(), "4600");
+        require(oracleToCheck.SUBMISSION_INTERVAL() == l2OutputOracleSubmissionInterval, "3600");
+        require(oracleToCheck.submissionInterval() == l2OutputOracleSubmissionInterval, "3700");
+
+        require(oracleToCheck.L2_BLOCK_TIME() == l2BlockTime, "3800");
+        require(oracleToCheck.l2BlockTime() == l2BlockTime, "3900");
+
+        require(oracleToCheck.PROPOSER() == l2OutputOracleProposer, "4000");
+        require(oracleToCheck.proposer() == l2OutputOracleProposer, "4100");
+
+        require(oracleToCheck.CHALLENGER() == l2OutputOracleChallenger, "4200");
+        require(oracleToCheck.challenger() == l2OutputOracleChallenger, "4300");
+
+        require(oracleToCheck.FINALIZATION_PERIOD_SECONDS() == finalizationPeriodSeconds, "4400");
+        require(oracleToCheck.finalizationPeriodSeconds() == finalizationPeriodSeconds, "4500");
+
+        require(oracleToCheck.startingBlockNumber() == l2OutputOracleStartingBlockNumber, "4600");
         require(oracleToCheck.startingTimestamp() == l2OutputOracleStartingTimestamp, "4700");
     }
 
@@ -198,7 +240,7 @@ contract SignFromJsonWithAssertions is SignFromJson, Deployer {
 
         OptimismPortal portalToCheck = OptimismPortal(payable(proxies.OptimismPortal));
 
-        address guardian = cfg.superchainConfigGuardian();
+        address guardian = superchainConfigGuardian;
 
         require(address(portalToCheck.L2_ORACLE()) == proxies.L2OutputOracle, "5800");
         require(address(portalToCheck.l2Oracle()) == proxies.L2OutputOracle, "5900");
@@ -216,6 +258,7 @@ contract SignFromJsonWithAssertions is SignFromJson, Deployer {
         require(address(portalToCheck.superchainConfig()).code.length != 0, "6401");
 
         require(portalToCheck.paused() == SuperchainConfig(proxies.SuperchainConfig).paused(), "6500");
+
         require(portalToCheck.l2Sender() == Constants.DEFAULT_L2_SENDER, "6600");
     }
 
@@ -227,12 +270,11 @@ contract SignFromJsonWithAssertions is SignFromJson, Deployer {
 
         ProtocolVersions protocolVersionsToCheck = ProtocolVersions(proxies.ProtocolVersions);
 
-        require(protocolVersionsToCheck.owner() == cfg.finalSystemOwner(), "6800");
+        require(protocolVersionsToCheck.owner() == superchainConfigGuardian, "6800");
 
-        require(ProtocolVersion.unwrap(protocolVersionsToCheck.required()) == cfg.requiredProtocolVersion(), "6900");
-        require(
-            ProtocolVersion.unwrap(protocolVersionsToCheck.recommended()) == cfg.recommendedProtocolVersion(), "7000"
-        );
+        require(ProtocolVersion.unwrap(protocolVersionsToCheck.required()) == requiredProtocolVersion, "6900");
+
+        require(ProtocolVersion.unwrap(protocolVersionsToCheck.recommended()) == recommendedProtocolVersion, "7000");
     }
 
     /// @notice Asserts that the SuperchainConfig is setup correctly
@@ -243,7 +285,7 @@ contract SignFromJsonWithAssertions is SignFromJson, Deployer {
 
         SuperchainConfig superchainConfigToCheck = SuperchainConfig(proxies.SuperchainConfig);
 
-        require(superchainConfigToCheck.guardian() == cfg.superchainConfigGuardian(), "7200");
+        require(superchainConfigToCheck.guardian() == superchainConfigGuardian, "7200");
         require(superchainConfigToCheck.guardian().code.length != 0, "7201");
 
         require(superchainConfigToCheck.paused() == false, "7300");
