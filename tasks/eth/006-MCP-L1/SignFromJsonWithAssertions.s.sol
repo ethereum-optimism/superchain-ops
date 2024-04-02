@@ -45,29 +45,6 @@ contract PostCheck is SignFromJson {
         l2OutputOracleStartingTimestamp = cfg.l2OutputOracleStartingTimestamp();
     }
 
-    function _postCheck() internal view override {
-        postDeployAssertions();
-    }
-
-    /// @notice Asserts the correctness of an L1 deployment. This function expects that all contracts
-    ///         within the `prox` ContractSet are proxies that have been setup and initialized.
-    function postDeployAssertions() internal view {
-        console.log("Running post-deploy assertions");
-        ResourceMetering.ResourceConfig memory rcfg = SystemConfig(prox.SystemConfig).resourceConfig();
-        ResourceMetering.ResourceConfig memory dflt = Constants.DEFAULT_RESOURCE_CONFIG();
-        require(keccak256(abi.encode(rcfg)) == keccak256(abi.encode(dflt)), "100");
-
-        checkSystemConfig();
-        checkL1CrossDomainMessenger();
-        checkL1StandardBridge();
-        checkL2OutputOracle();
-        checkOptimismMintableERC20Factory();
-        checkL1ERC721Bridge();
-        checkOptimismPortal();
-        checkProtocolVersions();
-        checkSuperchainConfig();
-    }
-
     /// @notice Asserts that the SystemConfig is setup correctly
     function checkSystemConfig() internal view {
         console.log("Running chain assertions on the SystemConfig");
@@ -250,6 +227,25 @@ contract PostCheck is SignFromJson {
         require(superchainConfig.paused() == false, "7300");
     }
 
+    /// @notice Checks the correctness of the deployment
+    function _postCheck() internal view override {
+        console.log("Running post-deploy assertions");
+        ResourceMetering.ResourceConfig memory rcfg = SystemConfig(prox.SystemConfig).resourceConfig();
+        ResourceMetering.ResourceConfig memory dflt = Constants.DEFAULT_RESOURCE_CONFIG();
+        require(keccak256(abi.encode(rcfg)) == keccak256(abi.encode(dflt)), "100");
+
+        checkSystemConfig();
+        checkL1CrossDomainMessenger();
+        checkL1StandardBridge();
+        checkL2OutputOracle();
+        checkOptimismMintableERC20Factory();
+        checkL1ERC721Bridge();
+        checkOptimismPortal();
+        checkProtocolVersions();
+        checkSuperchainConfig();
+    }
+
+    /// @notice Reads the contract addresses from lib/superchain-registry/superchain/extra/addresses/mainnet/op.json
     function _getContractSet() internal view returns (Types.ContractSet memory _proxies) {
         string memory json;
 
