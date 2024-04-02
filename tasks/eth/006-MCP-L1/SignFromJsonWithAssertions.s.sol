@@ -19,7 +19,7 @@ import {Deployer} from "@eth-optimism-bedrock/scripts/Deployer.sol";
 import {console2 as console} from "forge-std/console2.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 
-contract PostCheck is SignFromJson, Deployer {
+contract SignFromJsonWithAssertions is SignFromJson, Deployer {
     /// @dev Verify that the slot number of xDomainMsgSender in lib/optimism/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json
     ///      is 24. If not, update xdmSenderSlotNumber to the correct slot number.
     uint256 constant xdmSenderSlotNumber = 24;
