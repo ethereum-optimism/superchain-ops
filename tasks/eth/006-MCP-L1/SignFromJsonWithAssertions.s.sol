@@ -41,7 +41,7 @@ contract SignFromJsonWithAssertions is SignFromJson, Deployer {
                 "/lib/optimism/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json"
             )
         ) returns (string memory data) {
-            xdmSenderSlotNumber = stdJson.readUint(data, string(abi.encodePacked("$.[13].slot")));
+            xdmSenderSlotNumber = stdJson.readUint(data, "$.[13].slot");
         } catch {
             revert(
                 "Failed to read xDomainMsgSender slot number in lib/optimism/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json"
