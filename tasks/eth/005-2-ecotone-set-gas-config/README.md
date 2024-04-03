@@ -1,6 +1,6 @@
 # Mainnet - Ecotone Blobs Gas Configuration
 
-Status: READY_TO_SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0xac827d7a1238dfd6f3cc81dba09f0a3e1d9dc685bcc6b22466d76bb2335db38b)
 
 ## Objective
 
