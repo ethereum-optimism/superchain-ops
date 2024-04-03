@@ -1,7 +1,5 @@
 # Superchain Presigned Pause
 
-Status: DRAFT, not ready to sign
-
 ## Objective
 
 This task is intended to generate pre-signed transactions to pause
