@@ -1,6 +1,6 @@
 # Mainnet Protocol Versions Update - 6.0.0 (Ecotone)
 
-Status: READY_TO_SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0x29bb617fac8f49f5c934cc776b22d47e187ab482e86f21e4502a23ba1c9ad0da)
 
 ## Objective
 

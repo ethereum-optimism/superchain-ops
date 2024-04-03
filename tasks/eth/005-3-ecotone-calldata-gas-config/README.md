@@ -1,6 +1,6 @@
 # Mainnet - Ecotone Calldata Gas Configuration - Contingency
 
-Status: READY_TO_SIGN
+Status: CANCELLED
 
 ## Objective
 
