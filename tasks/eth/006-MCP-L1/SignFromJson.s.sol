@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import {SignFromJson} from "../../../script/SignFromJson.s.sol";
+import {SignFromJson as OriginalSignFromJson} from "../../../script/SignFromJson.s.sol";
 import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
 import {Constants, ResourceMetering} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
 import {L1StandardBridge} from "@eth-optimism-bedrock/src/L1/L1StandardBridge.sol";
@@ -17,7 +17,7 @@ import {Types} from "@eth-optimism-bedrock/scripts/Types.sol";
 import {console2 as console} from "forge-std/console2.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 
-contract SignFromJsonWithAssertions is SignFromJson {
+contract SignFromJson is OriginalSignFromJson {
     address constant finalSystemOwner = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A;
 
     address constant superchainConfigGuardian = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A;

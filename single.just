@@ -13,8 +13,8 @@ simulate hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
   script=SignFromJson
-  if [ -f tasks/eth/006-MCP-L1/SignFromJsonWithAssertions.s.sol ]; then
-    script=tasks/eth/006-MCP-L1/SignFromJsonWithAssertions.s.sol
+  if [ -f "${taskPath}/SignFromJson.s.sol" ]; then
+    script="${taskPath}/SignFromJson.s.sol"
   fi
   echo "Using script: ${script}"
   echo "getting signer address..."
@@ -36,8 +36,8 @@ sign hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
   script=SignFromJson
-  if [ -f tasks/eth/006-MCP-L1/SignFromJsonWithAssertions.s.sol ]; then
-    script=tasks/eth/006-MCP-L1/SignFromJsonWithAssertions.s.sol
+  if [ -f "${taskPath}/SignFromJson.s.sol" ]; then
+    script="${taskPath}/SignFromJson.s.sol"
   fi
   echo "Using script: ${script}"
   echo "getting signer address..."
@@ -55,8 +55,8 @@ execute hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
   script=SignFromJson
-  if [ -f tasks/eth/006-MCP-L1/SignFromJsonWithAssertions.s.sol ]; then
-    script=tasks/eth/006-MCP-L1/SignFromJsonWithAssertions.s.sol
+  if [ -f "${taskPath}/SignFromJson.s.sol" ]; then
+    script="${taskPath}/SignFromJson.s.sol"
   fi
   echo "Using script: ${script}"
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
