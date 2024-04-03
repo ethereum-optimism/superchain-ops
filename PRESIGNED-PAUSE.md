@@ -255,7 +255,7 @@ cat tx/draft-*.json | jq
 To verify the signatures, run the following command:
 
 ```
-just
+just \
    --dotenv-path .env \
    --justfile ../../../presigned-pause.just \
    verify
@@ -270,7 +270,7 @@ execute the pasue!
 To simulate the transaction, run the following command:
 
 ```
-just
+just \
    --dotenv-path .env \
    --justfile ../../../presigned-pause.just \
    simulate-all
