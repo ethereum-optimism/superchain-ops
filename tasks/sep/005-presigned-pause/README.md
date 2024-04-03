@@ -1,5 +1,5 @@
 # Superchain Presigned Pause
 
-Status: DRAFT, not ready to sign
+Status: READY_TO_SIGN
 
 See [../../../PRESIGNED-PAUSE.md](../../../PRESIGNED-PAUSE.md) for the playbook.
