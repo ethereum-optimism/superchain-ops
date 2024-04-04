@@ -54,29 +54,15 @@ contract SignFromJson is OriginalSignFromJson {
 
     uint256 constant recommendedProtocolVersion = 0x0000000000000000000000000000000000000003000000010000000000000000;
 
-    Types.ContractSet proxies;
+    /// @dev Validate that the xDomainMsgSender slot number is correct at the following link:
+    ///      https://github.com/ethereum-optimism/optimism/blob/e6ef3a900c42c8722e72c2e2314027f85d12ced5/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L93-L99
+    uint256 constant xdmSenderSlotNumber = 204;
 
-    uint256 xdmSenderSlotNumber;
+    Types.ContractSet proxies;
 
     /// @notice Sets up the contract
     function setUp() public {
         proxies = _getContractSet();
-
-        // Read the slot number for the xDomainMsgSender in the L1CrossDomainMessenger
-        try vm.readFile(
-            string.concat(
-                vm.projectRoot(),
-                "/lib/optimism/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json"
-            )
-        ) returns (string memory data) {
-            xdmSenderSlotNumber = stdJson.readUint(data, "$.[13].slot");
-
-            require(xdmSenderSlotNumber == 204, "Wrong xDomainMsgSender slot number");
-        } catch {
-            revert(
-                "Failed to read xDomainMsgSender slot number from lib/optimism/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json"
-            );
-        }
     }
 
     /// @notice Asserts that the SystemConfig is setup correctly
