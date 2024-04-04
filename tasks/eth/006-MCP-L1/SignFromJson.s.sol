@@ -228,8 +228,6 @@ contract SignFromJson is OriginalSignFromJson {
 
         OptimismPortal portalToCheck = OptimismPortal(payable(proxies.OptimismPortal));
 
-        address guardian = superchainConfigGuardian;
-
         require(address(portalToCheck.L2_ORACLE()) == proxies.L2OutputOracle, "5800");
         require(address(portalToCheck.l2Oracle()) == proxies.L2OutputOracle, "5900");
         require(address(portalToCheck.l2Oracle()).code.length != 0, "5901");
@@ -238,8 +236,8 @@ contract SignFromJson is OriginalSignFromJson {
         require(address(portalToCheck.systemConfig()) == proxies.SystemConfig, "6100");
         require(address(portalToCheck.systemConfig()).code.length != 0, "6101");
 
-        require(portalToCheck.GUARDIAN() == guardian, "6200");
-        require(portalToCheck.guardian() == guardian, "6300");
+        require(portalToCheck.GUARDIAN() == superchainConfigGuardian, "6200");
+        require(portalToCheck.guardian() == superchainConfigGuardian, "6300");
         require(portalToCheck.guardian().code.length != 0, "6301");
 
         require(address(portalToCheck.superchainConfig()) == address(proxies.SuperchainConfig), "6400");
