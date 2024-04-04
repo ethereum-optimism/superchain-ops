@@ -118,12 +118,15 @@ Now click on the "State" tab. Verify that:
    address([mainnet](https://github.com/ethereum-optimism/superchain-registry/blob/77a930120ec63dd50c43483c82b1a0a29939ed27/superchain/configs/mainnet/superchain.yaml#L8),
    [sepolia](https://github.com/ethereum-optimism/superchain-registry/blob/77a930120ec63dd50c43483c82b1a0a29939ed27/superchain/configs/sepolia/superchain.yaml#L8)),
    the storage key
-   `0x54176ff9944c47845857c4e5ef560a462c483bf534eda43f91bb01a470b1b6`'s
+   `0x54176ff9944c4784e5857ec4e5ef560a462c483bf534eda43f91bb01a470b1b6`'s
    value is changed from `0x00` to `0x01`. This is indicating that the
-   `paused` variable is successfully changed from `false` to `true`.
-2. There are no other significant state changes except for 2 nonce
+   `paused` variable is successfully changed from `false` to `true`. The
+   storage key hash is evaluated from the following expression:
+   `bytes32(uint256(keccak256("superchainConfig.paused")) - 1)` per the
+   `SuperchainConfig` [implementation](https://github.com/ethereum-optimism/optimism/blob/856c08bf84d9aa829d1e764fc8e9a37d41960ba0/packages/contracts-bedrock/src/L1/SuperchainConfig.sol#L23).
+3. There are no other significant state changes except for 2 nonce
    changes from the Safe and the signer address.
-3. You will see a state override (not a state change). This is
+4. You will see a state override (not a state change). This is
    expected and its purpose is to generate a successful Safe execution
    simulation without collecting any signatures.
 
