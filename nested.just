@@ -21,6 +21,7 @@ simulate whichSafe hdPath='0':
   script=NestedSignFromJson
   if [ -f "${taskPath}/NestedSignFromJson.s.sol" ]; then
     script="${taskPath}/NestedSignFromJson.s.sol"
+    echo "Running script with assertions"
   fi
   echo "Using script: ${script}"
   echo "getting signer address for {{whichSafe}}..."
@@ -56,6 +57,7 @@ sign whichSafe hdPath='0':
   script=NestedSignFromJson
   if [ -f "${taskPath}/NestedSignFromJson.s.sol" ]; then
     script="${taskPath}/NestedSignFromJson.s.sol"
+    echo "Running script with assertions"
   fi
   echo "Using script: ${script}"
   if [ "{{whichSafe}}" == "foundation" ]; then
@@ -83,6 +85,7 @@ approve whichSafe hdPath='0':
   script=NestedSignFromJson
   if [ -f "${taskPath}/NestedSignFromJson.s.sol" ]; then
     script="${taskPath}/NestedSignFromJson.s.sol"
+    echo "Running script with assertions"
   fi
   echo "Using script: ${script}"
   if [ "{{whichSafe}}" == "foundation" ]; then
@@ -110,6 +113,7 @@ execute hdPath='0':
   script=NestedSignFromJson
   if [ -f "${taskPath}/NestedSignFromJson.s.sol" ]; then
     script="${taskPath}/NestedSignFromJson.s.sol"
+    echo "Running script with assertions"
   fi
   echo "Using script: ${script}"
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
@@ -127,6 +131,7 @@ simulated-run hdPath='0':
   script=NestedSignFromJson
   if [ -f "${taskPath}/NestedSignFromJson.s.sol" ]; then
     script="${taskPath}/NestedSignFromJson.s.sol"
+    echo "Running script with assertions"
   fi
   echo "Using script: ${script}"
   forge script ${script} \
