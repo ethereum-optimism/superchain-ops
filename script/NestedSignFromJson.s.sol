@@ -12,18 +12,21 @@ contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
     function signJson(string memory _path, address _signerSafe) public {
         _loadJson(_path);
         sign(_signerSafe);
+        _postCheck();
     }
 
     /// @dev Submits signatures to call approveHash on the System Owner Safe.
     function approveJson(string memory _path, address _signerSafe, bytes memory _signatures) public {
         _loadJson(_path);
         approve(_signerSafe, _signatures);
+        _postCheck();
     }
 
     /// @dev Executes the transaction from the System Owner Safe.
     function runJson(string memory _path) public {
         _loadJson(_path);
         run();
+        _postCheck();
     }
 
     function _buildCalls() internal view override returns (IMulticall3.Call3[] memory) {
@@ -34,5 +37,5 @@ contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
         return vm.envAddress("OWNER_SAFE");
     }
 
-    function _postCheck() internal view override {}
+    function _postCheck() internal view virtual override {}
 }
