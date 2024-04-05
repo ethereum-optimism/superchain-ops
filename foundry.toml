@@ -8,7 +8,7 @@ solc_version = "0.8.15"
 via_ir = true
 broadcast = 'records'
 fs_permissions = [{ access = "read-write", path = "./" }]
-# Enable FFI for reading superchain registry files in scripts SignFromJson.s.sol, NestedSignFromJson.s.sol within tasks
+# Enable FFI for reading lib/superchain-registry files in scripts SignFromJson.s.sol, NestedSignFromJson.s.sol within tasks
 ffi = true
 
 remappings = [
