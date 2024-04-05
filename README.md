@@ -72,7 +72,7 @@ You should see a message something like this:
 
 ### Installing `mikefarah/yq`
 
-We’ll use `mikefarah/yq` to manipulate `.yaml` files:
+We’ll use `mikefarah/yq` to parse `.yaml` files:
 
 1. From the command prompt run:
   `go install github.com/mikefarah/yq/v4@latest`
