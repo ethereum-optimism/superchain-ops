@@ -19,44 +19,61 @@ import {stdJson} from "forge-std/StdJson.sol";
 import {EIP1967Helper} from "@eth-optimism-bedrock/test/mocks/EIP1967Helper.sol";
 
 contract NestedSignFromJson is OriginalNestedSignFromJson {
+    /// @notice Verify against https://etherscan.io/address/0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A
     address constant finalSystemOwner = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A;
 
+    /// @notice Verify against https://etherscan.io/address/0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A
     address constant superchainConfigGuardian = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A;
 
+    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/deploy-config/mainnet.json#L7
     uint256 constant l2BlockTime = 2;
 
+    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/deploy-config/mainnet.json#L12
     address constant p2pSequencerAddress = 0xAAAA45d9549EDA09E70937013520214382Ffc4A2;
 
+    /// @notice Verify against https://etherscan.io/address/0xFF00000000000000000000000000000000000010
     address constant batchInboxAddress = 0xFF00000000000000000000000000000000000010;
 
+    /// @notice Verify against https://etherscan.io/address/0x6887246668a3b87F54DeB3b94Ba47a6f63F32985
     address constant batchSenderAddress = 0x6887246668a3b87F54DeB3b94Ba47a6f63F32985;
 
+    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/deploy-config/mainnet.json#L15
     uint256 constant l2OutputOracleSubmissionInterval = 1800;
 
+    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/deploy-config/mainnet.json#L16
     uint256 constant l2OutputOracleStartingTimestamp = 1686068903;
 
+    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/deploy-config/mainnet.json#L17
     uint256 constant l2OutputOracleStartingBlockNumber = 105235063;
 
+    /// @notice Verify against https://etherscan.io/address/0x473300df21D047806A082244b417f96b32f13A33
     address constant l2OutputOracleProposer = 0x473300df21D047806A082244b417f96b32f13A33;
 
+    /// @notice Verify against https://etherscan.io/address/0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A
     address constant l2OutputOracleChallenger = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A;
 
+    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/deploy-config/mainnet.json#L20
     uint256 constant finalizationPeriodSeconds = 604800;
 
+    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/deploy-config/mainnet.json#L35
     uint256 constant l2GenesisBlockGasLimit = 0x1c9c380;
 
+    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/deploy-config/mainnet.json#L37
     uint256 constant gasPriceOracleOverhead = 0;
 
+    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/deploy-config/mainnet.json#L38
     uint256 constant gasPriceOracleScalar = 684000;
 
+    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/deploy-config/mainnet.json#L42
     uint256 constant systemConfigStartBlock = 17422444;
 
+    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/deploy-config/mainnet.json#L43
     uint256 constant requiredProtocolVersion = 0x0000000000000000000000000000000000000003000000010000000000000000;
 
+    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/deploy-config/mainnet.json#L44
     uint256 constant recommendedProtocolVersion = 0x0000000000000000000000000000000000000003000000010000000000000000;
 
-    /// @dev Validate that the xDomainMsgSender slot number is correct at the following link:
-    ///      https://github.com/ethereum-optimism/optimism/blob/e6ef3a900c42c8722e72c2e2314027f85d12ced5/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L93-L99
+    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L93-L99
     uint256 constant xdmSenderSlotNumber = 204;
 
     Types.ContractSet proxies;
