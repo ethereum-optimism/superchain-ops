@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {Deployer} from "@eth-optimism-bedrock/scripts/Deployer.sol";
+import {Deployer, Config} from "@eth-optimism-bedrock/scripts/Deployer.sol";
 import {GnosisSafe} from "safe-contracts/GnosisSafe.sol";
 import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
 import {Proxy} from "@eth-optimism-bedrock/src/universal/Proxy.sol";
@@ -30,6 +30,9 @@ contract DeployRehearsalContracts is Deployer {
         council_safe = GnosisSafe(payable(vm.envAddress("COUNCIL_SAFE")));
 
         require(owner_safe.isOwner(address(council_safe)));
+
+        console.log("Deploying from %s", Config.sig());
+        console.log("Deployment context: %s", Config.deploymentContext());
     }
 
     function run() public {
