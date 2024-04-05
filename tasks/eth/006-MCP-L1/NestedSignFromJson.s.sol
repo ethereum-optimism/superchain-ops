@@ -34,7 +34,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     /// @notice Verify against https://etherscan.io/address/0xFF00000000000000000000000000000000000010
     address constant batchInboxAddress = 0xFF00000000000000000000000000000000000010;
 
-    /// @notice Verify against https://etherscan.io/address/0x6887246668a3b87F54DeB3b94Ba47a6f63F32985
+    /// @notice Verify against https://docs.optimism.io/chain/security/privileged-roles#batcher
     address constant batchSenderAddress = 0x6887246668a3b87F54DeB3b94Ba47a6f63F32985;
 
     /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/deploy-config/mainnet.json#L15
