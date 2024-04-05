@@ -14,9 +14,9 @@ import {OptimismMintableERC20Factory} from "@eth-optimism-bedrock/src/universal/
 import {L1ERC721Bridge} from "@eth-optimism-bedrock/src/L1/L1ERC721Bridge.sol";
 import {Predeploys} from "@eth-optimism-bedrock/src/libraries/Predeploys.sol";
 import {Types} from "@eth-optimism-bedrock/scripts/Types.sol";
+import {EIP1967Helper} from "@eth-optimism-bedrock/test/mocks/EIP1967Helper.sol";
 import {console2 as console} from "forge-std/console2.sol";
 import {stdJson} from "forge-std/StdJson.sol";
-import {EIP1967Helper} from "@eth-optimism-bedrock/test/mocks/EIP1967Helper.sol";
 
 contract NestedSignFromJson is OriginalNestedSignFromJson {
     /// @notice Verify against https://etherscan.io/address/0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A
@@ -62,15 +62,15 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     uint256 constant gasPriceOracleOverhead = 0;
 
     /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/deploy-config/mainnet.json#L38
-    uint256 constant gasPriceOracleScalar = 684000;
-
-    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/deploy-config/mainnet.json#L42
-    uint256 constant systemConfigStartBlock = 17422444;
-
-    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/deploy-config/mainnet.json#L43
-    uint256 constant requiredProtocolVersion = 0x0000000000000000000000000000000000000003000000010000000000000000;
+    uint256 constant gasPriceOracleScalar = 0;
 
     /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/deploy-config/mainnet.json#L44
+    uint256 constant systemConfigStartBlock = 17422444;
+
+    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/deploy-config/mainnet.json#L45
+    uint256 constant requiredProtocolVersion = 0x0000000000000000000000000000000000000003000000010000000000000000;
+
+    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/deploy-config/mainnet.json#L46
     uint256 constant recommendedProtocolVersion = 0x0000000000000000000000000000000000000003000000010000000000000000;
 
     /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L93-L99
