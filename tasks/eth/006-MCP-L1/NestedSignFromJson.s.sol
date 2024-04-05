@@ -61,8 +61,11 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L37
     uint256 constant gasPriceOracleOverhead = 0;
 
-    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L38
-    uint256 constant gasPriceOracleScalar = 0;
+    /// @notice Verify with `cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "scalar()(bytes32)"`. We don't link to
+    /// the deploy-config here because it needs to be updated to account for the new way the scalar
+    /// is encoded post-ecotone. But we don't want this parameter to change, so we hardcode the
+    /// existing value (fetched with the above command) here.
+    uint256 constant gasPriceOracleScalar = 0x10000000000000000000000000000000000000000000000000c5fc500000558;
 
     /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L44
     uint256 constant systemConfigStartBlock = 17422444;
