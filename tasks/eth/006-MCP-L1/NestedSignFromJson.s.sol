@@ -16,6 +16,7 @@ import {Predeploys} from "@eth-optimism-bedrock/src/libraries/Predeploys.sol";
 import {Types} from "@eth-optimism-bedrock/scripts/Types.sol";
 import {console2 as console} from "forge-std/console2.sol";
 import {stdJson} from "forge-std/StdJson.sol";
+import {EIP1967Helper} from "@eth-optimism-bedrock/test/mocks/EIP1967Helper.sol";
 
 contract NestedSignFromJson is OriginalNestedSignFromJson {
     address constant finalSystemOwner = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A;
@@ -71,6 +72,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
         require(proxies.SystemConfig.code.length != 0, "200");
 
+        require(EIP1967Helper.getImplementation(proxies.SystemConfig).code.length != 0, "201");
+
         SystemConfig configToCheck = SystemConfig(proxies.SystemConfig);
 
         ResourceMetering.ResourceConfig memory resourceConfigToCheck = configToCheck.resourceConfig();
@@ -100,21 +103,27 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         // Check _addresses
         require(configToCheck.l1CrossDomainMessenger() == proxies.L1CrossDomainMessenger, "1700");
         require(configToCheck.l1CrossDomainMessenger().code.length != 0, "1701");
+        require(EIP1967Helper.getImplementation(configToCheck.l1CrossDomainMessenger()).code.length != 0, "1702");
 
         require(configToCheck.l1ERC721Bridge() == proxies.L1ERC721Bridge, "1800");
         require(configToCheck.l1ERC721Bridge().code.length != 0, "1801");
+        require(EIP1967Helper.getImplementation(configToCheck.l1ERC721Bridge()).code.length != 0, "1802");
 
         require(configToCheck.l1StandardBridge() == proxies.L1StandardBridge, "1900");
         require(configToCheck.l1StandardBridge().code.length != 0, "1901");
+        require(EIP1967Helper.getImplementation(configToCheck.l1StandardBridge()).code.length != 0, "1902");
 
         require(configToCheck.l2OutputOracle() == proxies.L2OutputOracle, "2000");
         require(configToCheck.l2OutputOracle().code.length != 0, "2001");
+        require(EIP1967Helper.getImplementation(configToCheck.l2OutputOracle()).code.length != 0, "2002");
 
         require(configToCheck.optimismPortal() == proxies.OptimismPortal, "2100");
         require(configToCheck.optimismPortal().code.length != 0, "2101");
+        require(EIP1967Helper.getImplementation(configToCheck.optimismPortal()).code.length != 0, "2102");
 
         require(configToCheck.optimismMintableERC20Factory() == proxies.OptimismMintableERC20Factory, "2200");
         require(configToCheck.optimismMintableERC20Factory().code.length != 0, "2201");
+        require(EIP1967Helper.getImplementation(configToCheck.optimismMintableERC20Factory()).code.length != 0, "2202");
     }
 
     /// @notice Asserts that the L1CrossDomainMessenger is setup correctly
@@ -123,18 +132,23 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
         require(proxies.L1CrossDomainMessenger.code.length != 0, "2300");
 
+        require(EIP1967Helper.getImplementation(proxies.L1CrossDomainMessenger).code.length != 0, "2301");
+
         L1CrossDomainMessenger messengerToCheck = L1CrossDomainMessenger(proxies.L1CrossDomainMessenger);
 
         require(address(messengerToCheck.OTHER_MESSENGER()) == Predeploys.L2_CROSS_DOMAIN_MESSENGER, "2400");
         require(address(messengerToCheck.otherMessenger()) == Predeploys.L2_CROSS_DOMAIN_MESSENGER, "2500");
         require(address(messengerToCheck.otherMessenger()).code.length != 0, "2501");
+        require(EIP1967Helper.getImplementation(address(messengerToCheck.otherMessenger())).code.length != 0, "2502");
 
         require(address(messengerToCheck.PORTAL()) == proxies.OptimismPortal, "2600");
         require(address(messengerToCheck.portal()) == proxies.OptimismPortal, "2700");
         require(address(messengerToCheck.portal()).code.length != 0, "2701");
+        require(EIP1967Helper.getImplementation(address(messengerToCheck.portal())).code.length != 0, "2702");
 
         require(address(messengerToCheck.superchainConfig()) == proxies.SuperchainConfig, "2800");
         require(address(messengerToCheck.superchainConfig()).code.length != 0, "2801");
+        require(EIP1967Helper.getImplementation(address(messengerToCheck.superchainConfig())).code.length != 0, "2802");
 
         bytes32 xdmSenderSlot = vm.load(address(messengerToCheck), bytes32(xdmSenderSlotNumber));
         require(address(uint160(uint256(xdmSenderSlot))) == Constants.DEFAULT_L2_SENDER, "2900");
@@ -146,18 +160,23 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
         require(proxies.L1StandardBridge.code.length != 0, "2901");
 
+        require(EIP1967Helper.getImplementation(proxies.L1StandardBridge).code.length != 0, "2901");
+
         L1StandardBridge bridgeToCheck = L1StandardBridge(payable(proxies.L1StandardBridge));
 
         require(address(bridgeToCheck.MESSENGER()) == proxies.L1CrossDomainMessenger, "3000");
         require(address(bridgeToCheck.messenger()) == proxies.L1CrossDomainMessenger, "3100");
         require(address(bridgeToCheck.messenger()).code.length != 0, "3101");
+        require(EIP1967Helper.getImplementation(address(bridgeToCheck.messenger())).code.length != 0, "3102");
 
         require(address(bridgeToCheck.OTHER_BRIDGE()) == Predeploys.L2_STANDARD_BRIDGE, "3200");
         require(address(bridgeToCheck.otherBridge()) == Predeploys.L2_STANDARD_BRIDGE, "3300");
         require(address(bridgeToCheck.otherBridge()).code.length != 0, "3302");
+        require(EIP1967Helper.getImplementation(address(bridgeToCheck.otherBridge())).code.length != 0, "3203");
 
         require(address(bridgeToCheck.superchainConfig()) == proxies.SuperchainConfig, "3400");
-        require(address(bridgeToCheck.superchainConfig()).code.length != 0, "3303");
+        require(address(bridgeToCheck.superchainConfig()).code.length != 0, "3401");
+        require(EIP1967Helper.getImplementation(address(bridgeToCheck.superchainConfig())).code.length != 0, "3402");
     }
 
     /// @notice Asserts that the L2OutputOracle is setup correctly
@@ -165,6 +184,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         console.log("Running chain assertions on the L2OutputOracle");
 
         require(proxies.L2OutputOracle.code.length != 0, "3500");
+
+        require(EIP1967Helper.getImplementation(proxies.L2OutputOracle).code.length != 0, "3501");
 
         L2OutputOracle oracleToCheck = L2OutputOracle(proxies.L2OutputOracle);
 
@@ -193,11 +214,14 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
         require(proxies.OptimismMintableERC20Factory.code.length != 0, "4800");
 
+        require(EIP1967Helper.getImplementation(proxies.OptimismMintableERC20Factory).code.length != 0, "4801");
+
         OptimismMintableERC20Factory factoryToCheck = OptimismMintableERC20Factory(proxies.OptimismMintableERC20Factory);
 
         require(factoryToCheck.BRIDGE() == proxies.L1StandardBridge, "4900");
         require(factoryToCheck.bridge() == proxies.L1StandardBridge, "5000");
         require(factoryToCheck.bridge().code.length != 0, "5001");
+        require(EIP1967Helper.getImplementation(factoryToCheck.bridge()).code.length != 0, "5002");
     }
 
     /// @notice Asserts that the L1ERC721Bridge is setup correctly
@@ -206,18 +230,23 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
         require(proxies.L1ERC721Bridge.code.length != 0, "5100");
 
+        require(EIP1967Helper.getImplementation(proxies.L1ERC721Bridge).code.length != 0, "5101");
+
         L1ERC721Bridge bridgeToCheck = L1ERC721Bridge(proxies.L1ERC721Bridge);
 
         require(address(bridgeToCheck.OTHER_BRIDGE()) == Predeploys.L2_ERC721_BRIDGE, "5200");
         require(address(bridgeToCheck.otherBridge()) == Predeploys.L2_ERC721_BRIDGE, "5300");
         require(address(bridgeToCheck.otherBridge()).code.length != 0, "5301");
+        require(EIP1967Helper.getImplementation(address(bridgeToCheck.otherBridge())).code.length != 0, "5302");
 
         require(address(bridgeToCheck.MESSENGER()) == proxies.L1CrossDomainMessenger, "5400");
         require(address(bridgeToCheck.messenger()) == proxies.L1CrossDomainMessenger, "5500");
         require(address(bridgeToCheck.messenger()).code.length != 0, "5502");
+        require(EIP1967Helper.getImplementation(address(bridgeToCheck.messenger())).code.length != 0, "5503");
 
         require(address(bridgeToCheck.superchainConfig()) == proxies.SuperchainConfig, "5600");
-        require(address(bridgeToCheck.superchainConfig()).code.length != 0, "5603");
+        require(address(bridgeToCheck.superchainConfig()).code.length != 0, "5601");
+        require(EIP1967Helper.getImplementation(address(bridgeToCheck.superchainConfig())).code.length != 0, "5603");
     }
 
     /// @notice Asserts the OptimismPortal is setup correctly
@@ -226,22 +255,28 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
         require(proxies.OptimismPortal.code.length != 0, "5700");
 
+        require(EIP1967Helper.getImplementation(proxies.OptimismPortal).code.length != 0, "5701");
+
         OptimismPortal portalToCheck = OptimismPortal(payable(proxies.OptimismPortal));
 
         require(address(portalToCheck.L2_ORACLE()) == proxies.L2OutputOracle, "5800");
         require(address(portalToCheck.l2Oracle()) == proxies.L2OutputOracle, "5900");
         require(address(portalToCheck.l2Oracle()).code.length != 0, "5901");
+        require(EIP1967Helper.getImplementation(address(portalToCheck.l2Oracle())).code.length != 0, "5902");
 
         require(address(portalToCheck.SYSTEM_CONFIG()) == proxies.SystemConfig, "6000");
         require(address(portalToCheck.systemConfig()) == proxies.SystemConfig, "6100");
         require(address(portalToCheck.systemConfig()).code.length != 0, "6101");
+        require(EIP1967Helper.getImplementation(address(portalToCheck.systemConfig())).code.length != 0, "6102");
 
         require(portalToCheck.GUARDIAN() == superchainConfigGuardian, "6200");
         require(portalToCheck.guardian() == superchainConfigGuardian, "6300");
         require(portalToCheck.guardian().code.length != 0, "6301");
+        require(EIP1967Helper.getImplementation(portalToCheck.guardian()).code.length != 0, "6302");
 
         require(address(portalToCheck.superchainConfig()) == address(proxies.SuperchainConfig), "6400");
         require(address(portalToCheck.superchainConfig()).code.length != 0, "6401");
+        require(EIP1967Helper.getImplementation(address(portalToCheck.superchainConfig())).code.length != 0, "6402");
 
         require(portalToCheck.paused() == SuperchainConfig(proxies.SuperchainConfig).paused(), "6500");
 
@@ -253,6 +288,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         console.log("Running chain assertions on the ProtocolVersions");
 
         require(proxies.ProtocolVersions.code.length != 0, "6700");
+
+        require(EIP1967Helper.getImplementation(proxies.ProtocolVersions).code.length != 0, "6701");
 
         ProtocolVersions protocolVersionsToCheck = ProtocolVersions(proxies.ProtocolVersions);
 
@@ -269,10 +306,13 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
         require(proxies.SuperchainConfig.code.length != 0, "7100");
 
+        require(EIP1967Helper.getImplementation(proxies.SuperchainConfig).code.length != 0, "7101");
+
         SuperchainConfig superchainConfigToCheck = SuperchainConfig(proxies.SuperchainConfig);
 
         require(superchainConfigToCheck.guardian() == superchainConfigGuardian, "7200");
         require(superchainConfigToCheck.guardian().code.length != 0, "7201");
+        require(EIP1967Helper.getImplementation(superchainConfigToCheck.guardian()).code.length != 0, "7202");
 
         require(superchainConfigToCheck.paused() == false, "7300");
     }
