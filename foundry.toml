@@ -8,6 +8,7 @@ solc_version = "0.8.15"
 via_ir = true
 broadcast = 'records'
 fs_permissions = [{ access = "read-write", path = "./" }]
+ffi = true                                                # Enable FFI for reading superchain registry files in tasks' SignFromJson.s.sol, NestedSignFromJson.s.sol
 
 remappings = [
   '@openzeppelin/contracts-upgradeable/=lib/optimism/packages/contracts-bedrock/lib/openzeppelin-contracts-upgradeable/contracts/',
