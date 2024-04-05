@@ -279,10 +279,16 @@ just \
    simulate-all
 ```
 
-The simulate command will output the Tenderly simulation link and the
-oneliner for further execution.
+The simulate command will output the Tenderly simulation link, new 
+`ready-*` json files and a `.sh.b64` script for further execution.
+
+Files with prefix `ready-` are transactions fully signed and ready 
+to be executed.
+
+The additional file with extention `.sh.b64` is a oneliner script, 
+which can be quickly executed from command line.
 
 ### 5. Store and execute the transaction
 
-Please refer to the internal playbook for how to store the presigned
-pause and executed it in emergency situations.
+Please refer to the [internal playbook](https://www.notion.so/oplabs/RB-111-Pre-signed-pause-8bce5b27728b447aa51ba12fcfff9e58?pvs=4#a227c38a09e14518b26095baa91f81c8) 
+for how to store the presigned pause and executed it in emergency situations.
