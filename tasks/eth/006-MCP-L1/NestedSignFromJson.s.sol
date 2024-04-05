@@ -31,7 +31,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L12
     address constant p2pSequencerAddress = 0xAAAA45d9549EDA09E70937013520214382Ffc4A2;
 
-    /// @notice Verify against https://etherscan.io/address/0xFF00000000000000000000000000000000000010
+    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L13
     address constant batchInboxAddress = 0xFF00000000000000000000000000000000000010;
 
     /// @notice Verify against https://docs.optimism.io/chain/security/privileged-roles#batcher
@@ -46,10 +46,10 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L17
     uint256 constant l2OutputOracleStartingBlockNumber = 105235063;
 
-    /// @notice https://docs.optimism.io/chain/security/privileged-roles#proposer
+    /// @notice Verify against https://docs.optimism.io/chain/security/privileged-roles#proposer
     address constant l2OutputOracleProposer = 0x473300df21D047806A082244b417f96b32f13A33;
 
-    /// @notice Verify against https://etherscan.io/address/0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A
+    /// @notice Verify against https://docs.optimism.io/chain/security/privileged-roles#challenger
     address constant l2OutputOracleChallenger = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A;
 
     /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L20
