@@ -12,6 +12,7 @@ contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
     function signJson(string memory _path, address _signerSafe) public {
         _loadJson(_path);
         sign(_signerSafe);
+        _postCheck();
     }
 
     /// @dev Submits signatures to call approveHash on the System Owner Safe.

@@ -11,6 +11,7 @@ contract SignFromJson is MultisigBuilder, JsonTxBuilderBase {
     function signJson(string memory _path) public {
         _loadJson(_path);
         sign();
+        _postCheck();
     }
 
     function runJson(string memory _path, bytes memory _signatures) public {
