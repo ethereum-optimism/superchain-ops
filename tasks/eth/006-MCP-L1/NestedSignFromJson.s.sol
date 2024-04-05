@@ -46,7 +46,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/deploy-config/mainnet.json#L17
     uint256 constant l2OutputOracleStartingBlockNumber = 105235063;
 
-    /// @notice Verify against https://etherscan.io/address/0x473300df21D047806A082244b417f96b32f13A33
+    /// @notice https://docs.optimism.io/chain/security/privileged-roles#proposer
     address constant l2OutputOracleProposer = 0x473300df21D047806A082244b417f96b32f13A33;
 
     /// @notice Verify against https://etherscan.io/address/0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A
