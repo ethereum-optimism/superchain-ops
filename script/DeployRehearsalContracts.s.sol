@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {Deployer} from "@eth-optimism-bedrock/scripts/Deployer.sol";
+import {Config} from "@eth-optimism-bedrock/scripts/Config.sol";
 import {GnosisSafe} from "safe-contracts/GnosisSafe.sol";
 import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
 import {Proxy} from "@eth-optimism-bedrock/src/universal/Proxy.sol";
@@ -31,8 +32,8 @@ contract DeployRehearsalContracts is Deployer {
 
         require(owner_safe.isOwner(address(council_safe)));
 
-        console.log("Deploying from %s", deployScript);
-        console.log("Deployment context: %s", deploymentContext);
+        console.log("Deploying from %s", name());
+        console.log("Deployment context: %s", Config.deploymentContext());
     }
 
     function run() public {

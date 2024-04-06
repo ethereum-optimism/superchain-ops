@@ -11,11 +11,13 @@ contract SignFromJson is MultisigBuilder, JsonTxBuilderBase {
     function signJson(string memory _path) public {
         _loadJson(_path);
         sign();
+        _postCheck();
     }
 
     function runJson(string memory _path, bytes memory _signatures) public {
         _loadJson(_path);
         run(_signatures);
+        _postCheck();
     }
 
     function _buildCalls() internal view override returns (IMulticall3.Call3[] memory) {
@@ -27,5 +29,5 @@ contract SignFromJson is MultisigBuilder, JsonTxBuilderBase {
         return vm.envAddress("OWNER_SAFE");
     }
 
-    function _postCheck() internal view override {}
+    function _postCheck() internal view virtual override {}
 }

@@ -12,6 +12,11 @@ export foundationOwner0 := "0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64"
 simulate hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
+  script=SignFromJson
+  if [ -f "${taskPath}/SignFromJson.s.sol" ]; then
+    script="${taskPath}/SignFromJson.s.sol"
+  fi
+  echo "Using script ${script}"
   echo "getting signer address..."
   if [ ! -z "$SIMULATE_WITHOUT_LEDGER" ]
   then
@@ -22,7 +27,7 @@ simulate hdPath='0':
   echo "Simulating with: ${signer}"
   echo ""
   forge build
-  forge script SignFromJson \
+  forge script ${script} \
     --rpc-url ${rpcUrl} \
     --sig "signJson(string)" ${bundlePath} \
     --sender ${signer}
@@ -30,13 +35,18 @@ simulate hdPath='0':
 sign hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
+  script=SignFromJson
+  if [ -f "${taskPath}/SignFromJson.s.sol" ]; then
+    script="${taskPath}/SignFromJson.s.sol"
+  fi
+  echo "Using script ${script}"
   echo "getting signer address..."
   signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   echo "Signing with: ${signer}"
   echo ""
   forge build
   $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
-  forge script SignFromJson \
+  forge script ${script} \
     --rpc-url ${rpcUrl} \
     --sig "signJson(string)" \
     ${bundlePath}
@@ -44,9 +54,14 @@ sign hdPath='0':
 execute hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
+  script=SignFromJson
+  if [ -f "${taskPath}/SignFromJson.s.sol" ]; then
+    script="${taskPath}/SignFromJson.s.sol"
+  fi
+  echo "Using script ${script}"
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge build
-  forge script --fork-url ${ETH_RPC_URL} SignFromJson \
+  forge script --fork-url ${ETH_RPC_URL} ${script} \
     --sig "runJson(string,bytes)" ${bundlePath} ${SIGNATURES} \
     --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
     --sender ${sender}
