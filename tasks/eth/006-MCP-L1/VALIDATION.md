@@ -79,7 +79,7 @@ that the address actually matches the correct implementation, an Etherscan link 
 [system-config-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/implementations/networks/mainnet.yaml#L14
 [system-config-etherscan]: https://etherscan.io/address/0xba2492e52F45651B60B8B38d4Ea5E2390C64Ffb1
 [l1-xdm-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/extra/addresses/mainnet/op.json#L3
-[l1-xdm-proxy-etherscan]: https://etherscan.io/address/0x25ace71c97b33cc4729cf772ae268934f7ab5fa1
+[l1-xdm-etherscan]: https://etherscan.io/address/0x25ace71c97b33cc4729cf772ae268934f7ab5fa1
 [l1-erc721-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/extra/addresses/mainnet/op.json#L4
 [l1-erc721-etherscan]: https://etherscan.io/address/0x5a7749f83b81b301cab5f48eb8516b986daef23d
 [portal-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/extra/addresses/mainnet/op.json#L8
