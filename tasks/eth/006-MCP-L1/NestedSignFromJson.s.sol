@@ -92,7 +92,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
     /// @notice Asserts that the SystemConfig is setup correctly
     function checkSystemConfig() internal view {
-        console.log("Running chain assertions on the SystemConfig");
+        console.log("Running assertions on the SystemConfig");
 
         require(proxies.SystemConfig.code.length != 0, "200");
 
@@ -156,7 +156,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
     /// @notice Asserts that the L1CrossDomainMessenger is setup correctly
     function checkL1CrossDomainMessenger() internal view {
-        console.log("Running chain assertions on the L1CrossDomainMessenger");
+        console.log("Running assertions on the L1CrossDomainMessenger");
 
         require(proxies.L1CrossDomainMessenger.code.length != 0, "2300");
 
@@ -180,7 +180,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
     /// @notice Asserts that the L1StandardBridge is setup correctly
     function checkL1StandardBridge() internal view {
-        console.log("Running chain assertions on the L1StandardBridge");
+        console.log("Running assertions on the L1StandardBridge");
 
         require(proxies.L1StandardBridge.code.length != 0, "2901");
 
@@ -203,7 +203,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
     /// @notice Asserts that the L2OutputOracle is setup correctly
     function checkL2OutputOracle() internal view {
-        console.log("Running chain assertions on the L2OutputOracle");
+        console.log("Running assertions on the L2OutputOracle");
 
         require(proxies.L2OutputOracle.code.length != 0, "3500");
 
@@ -232,7 +232,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
     /// @notice Asserts that the OptimismMintableERC20Factory is setup correctly
     function checkOptimismMintableERC20Factory() internal view {
-        console.log("Running chain assertions on the OptimismMintableERC20Factory");
+        console.log("Running assertions on the OptimismMintableERC20Factory");
 
         require(proxies.OptimismMintableERC20Factory.code.length != 0, "4800");
 
@@ -248,7 +248,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
     /// @notice Asserts that the L1ERC721Bridge is setup correctly
     function checkL1ERC721Bridge() internal view {
-        console.log("Running chain assertions on the L1ERC721Bridge");
+        console.log("Running assertions on the L1ERC721Bridge");
 
         require(proxies.L1ERC721Bridge.code.length != 0, "5100");
 
@@ -270,7 +270,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
     /// @notice Asserts the OptimismPortal is setup correctly
     function checkOptimismPortal() internal view {
-        console.log("Running chain assertions on the OptimismPortal");
+        console.log("Running assertions on the OptimismPortal");
 
         require(proxies.OptimismPortal.code.length != 0, "5700");
 
@@ -303,7 +303,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
     /// @notice Asserts that the ProtocolVersions is setup correctly
     function checkProtocolVersions() internal view {
-        console.log("Running chain assertions on the ProtocolVersions");
+        console.log("Running assertions on the ProtocolVersions");
 
         require(proxies.ProtocolVersions.code.length != 0, "6700");
         require(EIP1967Helper.getImplementation(proxies.ProtocolVersions).code.length != 0, "6701");
@@ -316,7 +316,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
     /// @notice Asserts that the SuperchainConfig is setup correctly
     function checkSuperchainConfig() internal view {
-        console.log("Running chain assertions on the SuperchainConfig");
+        console.log("Running assertions on the SuperchainConfig");
 
         require(proxies.SuperchainConfig.code.length != 0, "7100");
         require(EIP1967Helper.getImplementation(proxies.SuperchainConfig).code.length != 0, "7101");
@@ -329,14 +329,9 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     }
 
     /// @notice Checks the correctness of the deployment
-    function _postCheckWithSim() internal override {
-        console.log("Running the simulation locally");
-        vm.startStateDiffRecording();
-        runSim();
-        Vm.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
-
+    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory /* simPayload */) internal view override {
         console.log("Running post-deploy assertions");
-        checkStateDiff(accountAccesses);
+        checkStateDiff(accesses);
         checkSystemConfig();
         checkL1CrossDomainMessenger();
         checkL1StandardBridge();
@@ -349,39 +344,61 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         console.log("All assertions passed!");
     }
 
-    function checkStateDiff(Vm.AccountAccess[] memory accountAccesses) internal view {
-        require(accountAccesses.length > 0, "No account accesses");
+    // This method is not storage-layout-aware and therefore is not perfect. It may return erroneous
+    // results for cases like packed slots, and silently show that things are okay when they are not.
+    function isLikelyAddressThatShouldHaveCode(uint256 value) internal pure returns (bool) {
+        // If out of range (fairly arbitrary lower bound), return false.
+        if (value > type(uint160).max) return false;
+        if (value < uint256(uint160(0x00000000fFFFffffffFfFfFFffFfFffFFFfFffff))) return false;
 
-        for (uint256 i; i < accountAccesses.length; i++) {
-            Vm.AccountAccess memory accountAccess = accountAccesses[i];
+        // If the value is a L2 predeploy address it won't have code on this chain, so return false.
+        if (
+            value >= uint256(uint160(0x4200000000000000000000000000000000000000)) &&
+            value <= uint256(uint160(0x420000000000000000000000000000000000FffF))
+        ) return false;
+
+        // If it's the proposer address, return false, since this is an EOA.
+        if (address(uint160(value)) == 0x473300df21D047806A082244b417f96b32f13A33) return false;
+
+        // Otherwise, this value looks like an address that we'd expect to have code.
+        return true;
+    }
+
+    function checkStateDiff(Vm.AccountAccess[] memory accesses) internal view {
+        console.log("Running assertions on the state diff");
+
+        for (uint256 i; i < accesses.length; i++) {
+            Vm.AccountAccess memory access = accesses[i];
             require(
-                accountAccess.account.code.length != 0,
-                string.concat("Account has no code: ", vm.toString(accountAccess.account))
+                access.account.code.length != 0,
+                string.concat("Account has no code: ", vm.toString(access.account))
             );
             require(
-                accountAccess.oldBalance == accountAccess.account.balance,
-                string.concat("Unexpected balance change: ", vm.toString(accountAccess.account))
+                access.oldBalance == access.account.balance,
+                string.concat("Unexpected balance change: ", vm.toString(access.account))
             );
             require(
-                accountAccess.kind != VmSafe.AccountAccessKind.SelfDestruct,
-                string.concat("Self-destructed account: ", vm.toString(accountAccess.account))
+                access.kind != VmSafe.AccountAccessKind.SelfDestruct,
+                string.concat("Self-destructed account: ", vm.toString(access.account))
             );
 
-            for (uint256 j; j < accountAccess.storageAccesses.length; j++) {
-                Vm.StorageAccess memory storageAccess = accountAccess.storageAccesses[j];
+            for (uint256 j; j < access.storageAccesses.length; j++) {
+                Vm.StorageAccess memory storageAccess = access.storageAccesses[j];
                 uint256 value = uint256(storageAccess.newValue);
 
-                // If a value looks like an address and is not an L2 predeploy, check if it has code.
-                bool isLikelyAddress = value <= type(uint160).max
-                    && value >= uint160(0x00000000fFFFffffffFfFfFFffFfFffFFFfFffff)
-                    && value < uint256(uint160(0x4200000000000000000000000000000000000000))
-                    && value > uint256(uint160(0x420000000000000000000000000000000000FffF));
-                if (isLikelyAddress) {
-                    require(
-                        address(uint160(value)).code.length != 0,
-                        string.concat("Address in storage has no code: ", vm.toString(value))
+                if (isLikelyAddressThatShouldHaveCode(value)) {
+                    // Log account, slot, and value if there is no code.
+                    string memory err = string.concat(
+                        "Likely address in storage has no code\n",
+                        "  account: ", vm.toString(storageAccess.account),
+                        "\n  slot:    ",
+                        vm.toString(storageAccess.slot),
+                        "\n  value:   ",
+                        vm.toString(bytes32(value))
                     );
+                    require(address(uint160(value)).code.length != 0, err);
                 }
+
                 require(
                     storageAccess.account.code.length != 0,
                     string.concat("Storage account has no code: ", vm.toString(storageAccess.account))
@@ -436,82 +453,5 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
         _proxies.ProtocolVersions = stdJson.readAddress(addressesJson, "$.protocol_versions_addr");
         _proxies.SuperchainConfig = stdJson.readAddress(addressesJson, "$.superchain_config_addr");
-    }
-
-    function runSim() internal {
-        // The logic for computing state overrides and calldata was copied from
-        // `NestedMultisigBuilder._simulateForSigner`. Then we add the nested `for` loop to
-        // `vm.store` the state overrides and the `vm.prank` section to simulate the execution.
-        require(globalSignerSafe != address(0), "Signer safe not set");
-        address _safe = _ownerSafe();
-        IGnosisSafe safe = IGnosisSafe(payable(_safe));
-        IGnosisSafe signerSafe_ = IGnosisSafe(payable(globalSignerSafe));
-
-        // Apply state overrides.
-        SimulationStateOverride[] memory stateOverrides = new SimulationStateOverride[](2);
-        stateOverrides[0] = overrideSafeThreshold(_safe);
-        stateOverrides[1] = overrideSafeThresholdAndOwner(globalSignerSafe, address(multicall));
-
-        for (uint256 i; i < stateOverrides.length; i++) {
-            SimulationStateOverride memory stateOverride = stateOverrides[i];
-            SimulationStorageOverride[] memory storageOverrides = stateOverride.overrides;
-            for (uint256 j; j < storageOverrides.length; j++) {
-                SimulationStorageOverride memory storageOverride = storageOverrides[j];
-                vm.store(stateOverride.contractAddress, storageOverride.key, storageOverride.value);
-            }
-        }
-
-        // Build the call.
-        IMulticall3.Call3[] memory nestedCalls = _buildCalls();
-        bytes memory data = abi.encodeCall(IMulticall3.aggregate3, (nestedCalls));
-        bytes32 hash = _getTransactionHash(_safe, data);
-
-        IMulticall3.Call3[] memory calls = new IMulticall3.Call3[](2);
-        bytes memory approveHashData = abi.encodeCall(IMulticall3.aggregate3, (toArray(
-            IMulticall3.Call3({
-                target: _safe,
-                allowFailure: false,
-                callData: abi.encodeCall(safe.approveHash, (hash))
-            })
-        )));
-        bytes memory approveHashExec = abi.encodeCall(
-            signerSafe_.execTransaction,
-            (
-                address(multicall),
-                0,
-                approveHashData,
-                Enum.Operation.DelegateCall,
-                0,
-                0,
-                0,
-                address(0),
-                payable(address(0)),
-                prevalidatedSignature(address(multicall))
-            )
-        );
-        calls[0] = IMulticall3.Call3({target: globalSignerSafe, allowFailure: false, callData: approveHashExec});
-
-        // simulate the final state changes tx, so that signer can verify the final results
-        bytes memory finalExec = abi.encodeCall(
-            safe.execTransaction,
-            (
-                address(multicall),
-                0,
-                data,
-                Enum.Operation.DelegateCall,
-                0,
-                0,
-                0,
-                address(0),
-                payable(address(0)),
-                prevalidatedSignature(globalSignerSafe)
-            )
-        );
-        calls[1] = IMulticall3.Call3({target: _safe, allowFailure: false, callData: finalExec});
-
-        bytes memory finalData = abi.encodeCall(IMulticall3.aggregate3, (calls));
-        vm.prank(msg.sender);
-        (bool ok, bytes memory returnData) = address(multicall).call(finalData);
-        require(ok, string.concat("Foundry simulation failed: ", vm.toString(returnData)));
     }
 }
