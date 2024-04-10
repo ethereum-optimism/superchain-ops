@@ -1,9 +1,6 @@
 # Sepolia MCP L1 Upgrade
 
-Status: DRAFT, NOT READY TO SIGN
-
-> [!IMPORTANT] !!! DO NOT SIGN using this playbook yet, as the associated governance proposal has
-> not yet passed.
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x8a2ace087c8a01dd79c63e1d472e91844626d0a38ee9f4410af7460431bde566)
 
 ## Objective
 
