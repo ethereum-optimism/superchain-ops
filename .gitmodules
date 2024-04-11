@@ -14,12 +14,12 @@
 [submodule "lib/solmate"]
 	path = lib/solmate
 	url = https://github.com/transmissions11/solmate
-[submodule "lib/base-contracts"]
-	path = lib/base-contracts
-	url = https://github.com/base-org/contracts
 [submodule "lib/solady"]
 	path = lib/solady
 	url = https://github.com/Vectorized/solady
 [submodule "lib/superchain-registry"]
 	path = lib/superchain-registry
 	url = https://github.com/ethereum-optimism/superchain-registry
+[submodule "lib/base-contracts"]
+	path = lib/base-contracts
+	url = https://github.com/base-org/contracts
