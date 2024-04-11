@@ -78,7 +78,7 @@ contract EOASignFromJson is Simulator, JsonTxBuilderBase {
         );
     }
 
-    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory simPayload) internal pure virtual {
+    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory simPayload) internal view virtual {
         accesses; // Silences compiler warnings.
         simPayload;
         require(false, "EOASignFromJson::_postCheck not implemented"); // Force user to implement post-check assertions.
