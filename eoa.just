@@ -7,7 +7,7 @@ export taskPath := invocation_directory()
 # Accounts
 export proxyAdminOwner := env_var('PROXY_ADMIN_OWNER')
 
-simulate hdPath='0'::
+simulate hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
   script="${taskPath}/EOASignFromJson.s.sol"
@@ -26,7 +26,7 @@ simulate hdPath='0'::
     --sender ${signer} \
     ${ledgerFlags}
 
-execute hdPath='0':
+execute hdPath='0' resume='':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
   script="${taskPath}/EOASignFromJson.s.sol"
@@ -39,9 +39,15 @@ execute hdPath='0':
     ledgerFlags="--ledger --mnemonic-derivation-path ${derivationPath}"
   fi
 
+  resumeFlag=""
+  if [ "$resume" = "resume" ]; then
+    resumeFlag="--resume"
+  fi
+
   forge script ${script} \
     --rpc-url ${rpcUrl} \
     --sig "run(string)" ${bundlePath} \
     --sender ${signer} \
     ${ledgerFlags} \
+    ${resumeFlag} \
     --broadcast
