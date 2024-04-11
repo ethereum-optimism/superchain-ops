@@ -19,7 +19,7 @@ of the onchain operations.
 
 ## Simulation
 
-Please see the "Simulating and Verifying the Transaction" instructions in [EOA.md](../../../EOA.md).
+Please see the "Simulating and Verifying the Transaction" instructions in [SINGLE.md](../../../SINGLE.md).
 
 Do NOT yet proceed to the "Execute the Transaction" section.
 
@@ -29,4 +29,4 @@ Please see the instructions for [validation](./VALIDATION.md).
 
 ## Execution
 
-At this point you may resume following the execution instructions in the "Execute the Transaction" section of [EOA.md](../../../EOA.md).
+At this point you may resume following the execution instructions in the "Execute the Transaction" section of [SINGLE.md](../../../SINGLE.md).
