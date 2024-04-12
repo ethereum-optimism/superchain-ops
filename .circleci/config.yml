@@ -162,7 +162,7 @@ jobs:
           command: |
             go install github.com/mikefarah/yq/v4@latest
             just install
-            cd tasks/eth/sep/metal-001-MCP-L1
+            cd tasks/sep/metal-001-MCP-L1
             export SIMULATE_WITHOUT_LEDGER=1
             just \
               --dotenv-path .env \
