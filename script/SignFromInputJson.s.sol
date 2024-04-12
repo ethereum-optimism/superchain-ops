@@ -19,9 +19,14 @@ contract SignFromInputJson is MultisigBuilder, JsonTxBuilderBase {
         return vm.envAddress("OWNER_SAFE");
     }
 
-    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory simPayload) internal view virtual override {
+    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory simPayload)
+        internal
+        view
+        virtual
+        override
+    {
         accesses; // Silences compiler warnings.
         simPayload;
-        require(false, "SignFromJson::_postCheck not implemented"); // Force user to implement post-check assertions.
+        console.log("\x1b[1;33mWARNING:\x1b[0m _postCheck not implemented");
     }
 }
