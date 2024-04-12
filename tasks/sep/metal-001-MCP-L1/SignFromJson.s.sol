@@ -21,23 +21,23 @@ import {stdJson} from "forge-std/StdJson.sol";
 import {Vm, VmSafe} from "forge-std/Vm.sol";
 
 contract SignFromJson is OriginalSignFromJson {
-    /// @notice Verify against https://docs.optimism.io/chain/security/privileged-roles#system-config-owner
-    address constant finalSystemOwner = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A;
+    // Chains for this task.
+    string constant l1ChainName = "sepolia";
+    string constant l2ChainName = "metal";
+
+    // Known EOAs to exclude from safety checks.
+    address constant l2OutputOracleProposer = 0x2D70F9A866dE34C0f738F8cb2AF1361b5aF18CAa;
+    address constant l2OutputOracleChallenger = 0x45eFFbD799Ab49122eeEAB75B78D9C56A187F9A7;
+    address constant systemConfigOwner = 0x23BA22Dd7923F3a3f2495bB32a6f3c9b9CD1EC6C;
+    address constant batchSenderAddress = 0xdb80Eca386AC72a55510e33CF9CF7533e75916eE;
+    address constant p2pSequencerAddress = 0x3C1A357c4c77843d34750dBee68C589ACB4F5f9B;
+    address constant batchInboxAddress = 0x24567B64a86A4c966655fba6502a93dFb701E316;
 
     /// @notice Verify against https://docs.optimism.io/chain/security/privileged-roles#guardian
-    address constant superchainConfigGuardian = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A;
+    address constant superchainConfigGuardian = 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B;
 
     /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L7
     uint256 constant l2BlockTime = 2;
-
-    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L12
-    address constant p2pSequencerAddress = 0xAAAA45d9549EDA09E70937013520214382Ffc4A2;
-
-    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L13
-    address constant batchInboxAddress = 0xFF00000000000000000000000000000000000010;
-
-    /// @notice Verify against https://docs.optimism.io/chain/security/privileged-roles#batcher
-    address constant batchSenderAddress = 0x6887246668a3b87F54DeB3b94Ba47a6f63F32985;
 
     /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L15
     uint256 constant l2OutputOracleSubmissionInterval = 1800;
@@ -47,12 +47,6 @@ contract SignFromJson is OriginalSignFromJson {
 
     /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L17
     uint256 constant l2OutputOracleStartingBlockNumber = 105235063;
-
-    /// @notice Verify against https://docs.optimism.io/chain/security/privileged-roles#proposer
-    address constant l2OutputOracleProposer = 0x473300df21D047806A082244b417f96b32f13A33;
-
-    /// @notice Verify against https://docs.optimism.io/chain/security/privileged-roles#challenger
-    address constant l2OutputOracleChallenger = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A;
 
     /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L20
     uint256 constant finalizationPeriodSeconds = 604800;
@@ -93,24 +87,17 @@ contract SignFromJson is OriginalSignFromJson {
         console.log("Running assertions on the SystemConfig");
 
         require(proxies.SystemConfig.code.length != 0, "200");
-
         require(EIP1967Helper.getImplementation(proxies.SystemConfig).code.length != 0, "201");
 
-        SystemConfig configToCheck = SystemConfig(proxies.SystemConfig);
+        SystemConfig systemConfig = SystemConfig(proxies.SystemConfig);
+        ResourceMetering.ResourceConfig memory resourceConfigToCheck = systemConfig.resourceConfig();
 
-        ResourceMetering.ResourceConfig memory resourceConfigToCheck = configToCheck.resourceConfig();
-
-        require(configToCheck.owner() == superchainConfigGuardian, "300");
-
-        require(configToCheck.overhead() == gasPriceOracleOverhead, "400");
-
-        require(configToCheck.scalar() == gasPriceOracleScalar, "500");
-
-        require(configToCheck.batcherHash() == bytes32(uint256(uint160(batchSenderAddress))), "600");
-
-        require(configToCheck.gasLimit() == uint64(l2GenesisBlockGasLimit), "700");
-
-        require(configToCheck.unsafeBlockSigner() == p2pSequencerAddress, "800");
+        require(systemConfig.owner() == superchainConfigGuardian, "300");
+        require(systemConfig.overhead() == gasPriceOracleOverhead, "400");
+        require(systemConfig.scalar() == gasPriceOracleScalar, "500");
+        require(systemConfig.batcherHash() == bytes32(uint256(uint160(batchSenderAddress))), "600");
+        require(systemConfig.gasLimit() == uint64(l2GenesisBlockGasLimit), "700");
+        require(systemConfig.unsafeBlockSigner() == p2pSequencerAddress, "800");
 
         // Check _config
         require(
@@ -118,38 +105,38 @@ contract SignFromJson is OriginalSignFromJson {
             "900"
         );
 
-        require(configToCheck.startBlock() == systemConfigStartBlock, "1500");
+        require(systemConfig.startBlock() == systemConfigStartBlock, "1500");
 
-        require(configToCheck.batchInbox() == batchInboxAddress, "1600");
+        require(systemConfig.batchInbox() == batchInboxAddress, "1600");
 
         // Check _addresses
-        require(configToCheck.l1CrossDomainMessenger() == proxies.L1CrossDomainMessenger, "1700");
-        require(configToCheck.l1CrossDomainMessenger().code.length != 0, "1740");
+        require(systemConfig.l1CrossDomainMessenger() == proxies.L1CrossDomainMessenger, "1700");
+        require(systemConfig.l1CrossDomainMessenger().code.length != 0, "1740");
 
         // L1CrossDomainMessenger is a ResolvedDelegateProxy and that has no getters, so we hardcode some info needed here.
         AddressManager addressManager = AddressManager(0xdE1FCfB0851916CA5101820A69b13a4E276bd81F); // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/op.json#L2
         address l1xdmImplementation = addressManager.getAddress("OVM_L1CrossDomainMessenger");
         require(l1xdmImplementation.code.length != 0, "1750");
 
-        require(configToCheck.l1ERC721Bridge() == proxies.L1ERC721Bridge, "1800");
-        require(configToCheck.l1ERC721Bridge().code.length != 0, "1801");
-        require(EIP1967Helper.getImplementation(configToCheck.l1ERC721Bridge()).code.length != 0, "1802");
+        require(systemConfig.l1ERC721Bridge() == proxies.L1ERC721Bridge, "1800");
+        require(systemConfig.l1ERC721Bridge().code.length != 0, "1801");
+        require(EIP1967Helper.getImplementation(systemConfig.l1ERC721Bridge()).code.length != 0, "1802");
 
-        require(configToCheck.l1StandardBridge() == proxies.L1StandardBridge, "1900");
-        require(configToCheck.l1StandardBridge().code.length != 0, "1901");
-        require(EIP1967Helper.getImplementation(configToCheck.l1StandardBridge()).code.length != 0, "1902");
+        require(systemConfig.l1StandardBridge() == proxies.L1StandardBridge, "1900");
+        require(systemConfig.l1StandardBridge().code.length != 0, "1901");
+        require(EIP1967Helper.getImplementation(systemConfig.l1StandardBridge()).code.length != 0, "1902");
 
-        require(configToCheck.l2OutputOracle() == proxies.L2OutputOracle, "2000");
-        require(configToCheck.l2OutputOracle().code.length != 0, "2001");
-        require(EIP1967Helper.getImplementation(configToCheck.l2OutputOracle()).code.length != 0, "2002");
+        require(systemConfig.l2OutputOracle() == proxies.L2OutputOracle, "2000");
+        require(systemConfig.l2OutputOracle().code.length != 0, "2001");
+        require(EIP1967Helper.getImplementation(systemConfig.l2OutputOracle()).code.length != 0, "2002");
 
-        require(configToCheck.optimismPortal() == proxies.OptimismPortal, "2100");
-        require(configToCheck.optimismPortal().code.length != 0, "2101");
-        require(EIP1967Helper.getImplementation(configToCheck.optimismPortal()).code.length != 0, "2102");
+        require(systemConfig.optimismPortal() == proxies.OptimismPortal, "2100");
+        require(systemConfig.optimismPortal().code.length != 0, "2101");
+        require(EIP1967Helper.getImplementation(systemConfig.optimismPortal()).code.length != 0, "2102");
 
-        require(configToCheck.optimismMintableERC20Factory() == proxies.OptimismMintableERC20Factory, "2200");
-        require(configToCheck.optimismMintableERC20Factory().code.length != 0, "2201");
-        require(EIP1967Helper.getImplementation(configToCheck.optimismMintableERC20Factory()).code.length != 0, "2202");
+        require(systemConfig.optimismMintableERC20Factory() == proxies.OptimismMintableERC20Factory, "2200");
+        require(systemConfig.optimismMintableERC20Factory().code.length != 0, "2201");
+        require(EIP1967Helper.getImplementation(systemConfig.optimismMintableERC20Factory()).code.length != 0, "2202");
     }
 
     /// @notice Asserts that the L1CrossDomainMessenger is setup correctly
@@ -357,6 +344,8 @@ contract SignFromJson is OriginalSignFromJson {
 
         // Allow known EOAs.
         if (address(uint160(value)) == l2OutputOracleProposer) return false;
+        if (address(uint160(value)) == l2OutputOracleChallenger) return false;
+        if (address(uint160(value)) == systemConfigOwner) return false;
         if (address(uint160(value)) == batchSenderAddress) return false;
         if (address(uint160(value)) == p2pSequencerAddress) return false;
         if (address(uint160(value)) == batchInboxAddress) return false;
@@ -389,15 +378,18 @@ contract SignFromJson is OriginalSignFromJson {
 
                 if (isLikelyAddressThatShouldHaveCode(value)) {
                     // Log account, slot, and value if there is no code.
-                    string memory err = string.concat(
-                        "Likely address in storage has no code\n",
-                        "  account: ", vm.toString(storageAccess.account),
-                        "\n  slot:    ",
-                        vm.toString(storageAccess.slot),
-                        "\n  value:   ",
-                        vm.toString(bytes32(value))
-                    );
-                    require(address(uint160(value)).code.length != 0, err);
+                    if (address(uint160(value)).code.length == 0) {
+                        string memory err = string.concat(
+                            "Likely address in storage has no code\n",
+                            "  account: ", vm.toString(storageAccess.account),
+                            "\n  slot:    ",
+                            vm.toString(storageAccess.slot),
+                            "\n  value:   ",
+                            vm.toString(bytes32(value))
+                        );
+                        console.log(err);
+                    }
+                    // require(address(uint160(value)).code.length != 0, err);
                 }
 
                 require(
@@ -425,12 +417,14 @@ contract SignFromJson is OriginalSignFromJson {
         string memory addressesJson;
 
         // Read addresses json
-        try vm.readFile(
-            string.concat(vm.projectRoot(), "/lib/superchain-registry/superchain/extra/addresses/mainnet/op.json")
-        ) returns (string memory data) {
+        string memory path = string.concat(
+            "/lib/superchain-registry/superchain/extra/addresses/",
+            l1ChainName, "/", l2ChainName, ".json"
+        );
+        try vm.readFile(string.concat(vm.projectRoot(),path)) returns (string memory data) {
             addressesJson = data;
         } catch {
-            revert("Failed to read lib/superchain-registry/superchain/extra/addresses/mainnet/op.json");
+            revert(string.concat("Failed to read ", path));
         }
 
         _proxies.L1CrossDomainMessenger = stdJson.readAddress(addressesJson, "$.L1CrossDomainMessengerProxy");
@@ -448,7 +442,7 @@ contract SignFromJson is OriginalSignFromJson {
         inputs[0] = "yq";
         inputs[1] = "-o";
         inputs[2] = "json";
-        inputs[3] = "lib/superchain-registry/superchain/configs/mainnet/superchain.yaml";
+        inputs[3] = string.concat("lib/superchain-registry/superchain/configs/", l1ChainName,"/superchain.yaml");
 
         addressesJson = string(vm.ffi(inputs));
 

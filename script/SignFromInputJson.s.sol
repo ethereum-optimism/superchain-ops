@@ -6,6 +6,7 @@ import {MultisigBuilder} from "@base-contracts/script/universal/MultisigBuilder.
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {console} from "forge-std/console.sol";
+import {Vm} from "forge-std/Vm.sol";
 
 contract SignFromInputJson is MultisigBuilder, JsonTxBuilderBase {
     function _buildCalls() internal view override returns (IMulticall3.Call3[] memory) {
@@ -18,5 +19,9 @@ contract SignFromInputJson is MultisigBuilder, JsonTxBuilderBase {
         return vm.envAddress("OWNER_SAFE");
     }
 
-    function _postCheck() internal view override {}
+    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory simPayload) internal view virtual override {
+        accesses; // Silences compiler warnings.
+        simPayload;
+        require(false, "SignFromJson::_postCheck not implemented"); // Force user to implement post-check assertions.
+    }
 }
