@@ -15,8 +15,6 @@ contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
     function signJson(string memory _path, address _signerSafe) public {
         _loadJson(_path);
         sign(_signerSafe);
-        globalSignerSafe = _signerSafe;
-        _postCheckWithSim();
     }
 
     /// @dev Submits signatures to call approveHash on the System Owner Safe.
@@ -28,10 +26,7 @@ contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
     /// @dev Executes the transaction from the System Owner Safe.
     function runJson(string memory _path) public {
         _loadJson(_path);
-        vm.startStateDiffRecording();
         run();
-        Vm.AccountAccess[] memory accesses = vm.stopAndReturnStateDiff();
-        _postCheckExecute(accesses);
     }
 
     function _buildCalls() internal view override returns (IMulticall3.Call3[] memory) {
@@ -42,15 +37,14 @@ contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
         return vm.envAddress("OWNER_SAFE");
     }
 
-    function _postCheck() internal view virtual override {}
-
-    // A thorough postCheck would apply the needed state overrides and run the simulation, then
-    // execute those assertions against the resulting state. Using `vm.store` changes state therefore
-    // the postCheck methods cannot be `view`, which is why we have this alternate version.
-    function _postCheckWithSim() internal virtual {}
-
-    // Basically a copy/paste of _postCheckWithSim, but does not perform the simulation.
-    function _postCheckExecute(Vm.AccountAccess[] memory) internal virtual {
-        require(false, "Not implemented");
+    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory simPayload)
+        internal
+        view
+        virtual
+        override
+    {
+        accesses; // Silences compiler warnings.
+        simPayload;
+        console.log("\x1b[1;33mWARNING:\x1b[0m _postCheck not implemented");
     }
 }
