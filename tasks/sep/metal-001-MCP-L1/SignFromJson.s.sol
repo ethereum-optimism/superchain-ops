@@ -33,47 +33,22 @@ contract SignFromJson is OriginalSignFromJson {
     address constant p2pSequencerAddress = 0x3C1A357c4c77843d34750dBee68C589ACB4F5f9B;
     address constant batchInboxAddress = 0x24567B64a86A4c966655fba6502a93dFb701E316;
 
-    /// @notice Verify against https://docs.optimism.io/chain/security/privileged-roles#guardian
-    address constant superchainConfigGuardian = 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B;
-
-    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L7
-    uint256 constant l2BlockTime = 2;
-
-    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L15
-    uint256 constant l2OutputOracleSubmissionInterval = 1800;
-
-    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L16
-    uint256 constant l2OutputOracleStartingTimestamp = 1686068903;
-
-    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L17
-    uint256 constant l2OutputOracleStartingBlockNumber = 105235063;
-
-    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L20
-    uint256 constant finalizationPeriodSeconds = 604800;
-
-    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L35
-    uint256 constant l2GenesisBlockGasLimit = 0x1c9c380;
-
-    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L37
-    uint256 constant gasPriceOracleOverhead = 0;
-
-    /// @notice Verify with `cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "scalar()(bytes32)"`. We don't link to
-    /// the deploy-config here because it needs to be updated to account for the new way the scalar
-    /// is encoded post-ecotone. But we don't want this parameter to change, so we hardcode the
-    /// existing value (fetched with the above command) here.
-    uint256 constant gasPriceOracleScalar = 0x10000000000000000000000000000000000000000000000000c5fc500000558;
-
-    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L44
-    uint256 constant systemConfigStartBlock = 17422444;
-
-    /// @notice Verify against https://github.com/ethereum-optimism/superchain-ops/tree/b350daad1f969c7371acdfd4b3785545304baf99/tasks/eth/005-protocol-versions-ecotone
-    uint256 constant requiredProtocolVersion = 0x0000000000000000000000000000000000000006000000000000000000000000;
-
-    /// @notice Verify against https://github.com/ethereum-optimism/superchain-ops/tree/b350daad1f969c7371acdfd4b3785545304baf99/tasks/eth/005-protocol-versions-ecotone
-    uint256 constant recommendedProtocolVersion = 0x0000000000000000000000000000000000000006000000000000000000000000;
-
-    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L93-L99
-    uint256 constant xdmSenderSlotNumber = 204;
+    // Other data
+    uint256 constant gasPriceOracleOverhead = 188; // cast call 0x5D63A8Dc2737cE771aa4a6510D063b6Ba2c4f6F2 "overhead()(uint)"
+    uint256 constant gasPriceOracleScalar = 684000; // cast call 0x5D63A8Dc2737cE771aa4a6510D063b6Ba2c4f6F2 "scalar()(uint)"
+    address constant superchainConfigGuardian = 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B; // cast call 0xC2Be75506d5724086DEB7245bd260Cc9753911Be "guardian()(address)"
+    address constant protocolVersionsOwner = 0xfd1D2e729aE8eEe2E146c033bf4400fE75284301; // cast call 0x79ADD5713B383DAa0a138d3C4780C7A1804a8090 "owner()(address)"
+    uint256 constant systemConfigStartBlock = 5304055;
+    AddressManager addressManager = AddressManager(0x394f844B9A0FC876935d1b0b791D9e94Ad905e8b);
+    uint256 constant l2BlockTime = 2; // cast call 0x75a6B961c8da942Ee03CA641B09C322549f6FA98 "L2_BLOCK_TIME()(uint256)"
+    uint256 constant l2OutputOracleSubmissionInterval = 180; // cast call 0x75a6B961c8da942Ee03CA641B09C322549f6FA98 "SUBMISSION_INTERVAL()(uint256)"
+    uint256 constant finalizationPeriodSeconds = 604800; // cast call 0x75a6B961c8da942Ee03CA641B09C322549f6FA98 "FINALIZATION_PERIOD_SECONDS()(uint256)
+    uint256 constant l2OutputOracleStartingTimestamp = 1708129620; // cast call 0x75a6B961c8da942Ee03CA641B09C322549f6FA98 "startingTimestamp()(uint)"
+    uint256 constant l2OutputOracleStartingBlockNumber = 0; // TODO is this ok? cast call 0x75a6B961c8da942Ee03CA641B09C322549f6FA98 "startingBlockNumber()(uint)"
+    uint256 constant l2GenesisBlockGasLimit = 30e6;
+    uint256 constant requiredProtocolVersion = 0x0000000000000000000000000000000000000006000000000000000000000003; // cast call 0x79ADD5713B383DAa0a138d3C4780C7A1804a8090 "required()(bytes32)"
+    uint256 constant recommendedProtocolVersion = 0x0000000000000000000000000000000000000006000000000000000000000003; // cast call 0x79ADD5713B383DAa0a138d3C4780C7A1804a8090 "recommended()(bytes32)"
+    uint256 constant xdmSenderSlotNumber = 204; // Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L93-L99
 
     Types.ContractSet proxies;
 
@@ -92,7 +67,7 @@ contract SignFromJson is OriginalSignFromJson {
         SystemConfig systemConfig = SystemConfig(proxies.SystemConfig);
         ResourceMetering.ResourceConfig memory resourceConfigToCheck = systemConfig.resourceConfig();
 
-        require(systemConfig.owner() == superchainConfigGuardian, "300");
+        require(systemConfig.owner() == systemConfigOwner, "300");
         require(systemConfig.overhead() == gasPriceOracleOverhead, "400");
         require(systemConfig.scalar() == gasPriceOracleScalar, "500");
         require(systemConfig.batcherHash() == bytes32(uint256(uint160(batchSenderAddress))), "600");
@@ -106,7 +81,6 @@ contract SignFromJson is OriginalSignFromJson {
         );
 
         require(systemConfig.startBlock() == systemConfigStartBlock, "1500");
-
         require(systemConfig.batchInbox() == batchInboxAddress, "1600");
 
         // Check _addresses
@@ -114,7 +88,6 @@ contract SignFromJson is OriginalSignFromJson {
         require(systemConfig.l1CrossDomainMessenger().code.length != 0, "1740");
 
         // L1CrossDomainMessenger is a ResolvedDelegateProxy and that has no getters, so we hardcode some info needed here.
-        AddressManager addressManager = AddressManager(0xdE1FCfB0851916CA5101820A69b13a4E276bd81F); // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/op.json#L2
         address l1xdmImplementation = addressManager.getAddress("OVM_L1CrossDomainMessenger");
         require(l1xdmImplementation.code.length != 0, "1750");
 
@@ -168,7 +141,6 @@ contract SignFromJson is OriginalSignFromJson {
         console.log("Running assertions on the L1StandardBridge");
 
         require(proxies.L1StandardBridge.code.length != 0, "2901");
-
         require(EIP1967Helper.getImplementation(proxies.L1StandardBridge).code.length != 0, "2901");
 
         L1StandardBridge bridgeToCheck = L1StandardBridge(payable(proxies.L1StandardBridge));
@@ -294,7 +266,7 @@ contract SignFromJson is OriginalSignFromJson {
         require(EIP1967Helper.getImplementation(proxies.ProtocolVersions).code.length != 0, "6701");
 
         ProtocolVersions protocolVersionsToCheck = ProtocolVersions(proxies.ProtocolVersions);
-        require(protocolVersionsToCheck.owner() == superchainConfigGuardian, "6800");
+        require(protocolVersionsToCheck.owner() == protocolVersionsOwner, "6800");
         require(ProtocolVersion.unwrap(protocolVersionsToCheck.required()) == requiredProtocolVersion, "6900");
         require(ProtocolVersion.unwrap(protocolVersionsToCheck.recommended()) == recommendedProtocolVersion, "7000");
     }
@@ -307,14 +279,17 @@ contract SignFromJson is OriginalSignFromJson {
         require(EIP1967Helper.getImplementation(proxies.SuperchainConfig).code.length != 0, "7101");
 
         SuperchainConfig superchainConfigToCheck = SuperchainConfig(proxies.SuperchainConfig);
-
         require(superchainConfigToCheck.guardian() == superchainConfigGuardian, "7200");
         require(superchainConfigToCheck.guardian().code.length != 0, "7250");
         require(superchainConfigToCheck.paused() == false, "7300");
     }
 
     /// @notice Checks the correctness of the deployment
-    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory /* simPayload */) internal view override {
+    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory /* simPayload */ )
+        internal
+        view
+        override
+    {
         console.log("Running post-deploy assertions");
         checkStateDiff(accesses);
         checkSystemConfig();
@@ -338,8 +313,8 @@ contract SignFromJson is OriginalSignFromJson {
 
         // If the value is a L2 predeploy address it won't have code on this chain, so return false.
         if (
-            value >= uint256(uint160(0x4200000000000000000000000000000000000000)) &&
-            value <= uint256(uint160(0x420000000000000000000000000000000000FffF))
+            value >= uint256(uint160(0x4200000000000000000000000000000000000000))
+                && value <= uint256(uint160(0x420000000000000000000000000000000000FffF))
         ) return false;
 
         // Allow known EOAs.
@@ -360,8 +335,7 @@ contract SignFromJson is OriginalSignFromJson {
         for (uint256 i; i < accesses.length; i++) {
             Vm.AccountAccess memory access = accesses[i];
             require(
-                access.account.code.length != 0,
-                string.concat("Account has no code: ", vm.toString(access.account))
+                access.account.code.length != 0, string.concat("Account has no code: ", vm.toString(access.account))
             );
             require(
                 access.oldBalance == access.account.balance,
@@ -381,7 +355,8 @@ contract SignFromJson is OriginalSignFromJson {
                     if (address(uint160(value)).code.length == 0) {
                         string memory err = string.concat(
                             "Likely address in storage has no code\n",
-                            "  account: ", vm.toString(storageAccess.account),
+                            "  account: ",
+                            vm.toString(storageAccess.account),
                             "\n  slot:    ",
                             vm.toString(storageAccess.slot),
                             "\n  value:   ",
@@ -418,10 +393,9 @@ contract SignFromJson is OriginalSignFromJson {
 
         // Read addresses json
         string memory path = string.concat(
-            "/lib/superchain-registry/superchain/extra/addresses/",
-            l1ChainName, "/", l2ChainName, ".json"
+            "/lib/superchain-registry/superchain/extra/addresses/", l1ChainName, "/", l2ChainName, ".json"
         );
-        try vm.readFile(string.concat(vm.projectRoot(),path)) returns (string memory data) {
+        try vm.readFile(string.concat(vm.projectRoot(), path)) returns (string memory data) {
             addressesJson = data;
         } catch {
             revert(string.concat("Failed to read ", path));
@@ -442,7 +416,7 @@ contract SignFromJson is OriginalSignFromJson {
         inputs[0] = "yq";
         inputs[1] = "-o";
         inputs[2] = "json";
-        inputs[3] = string.concat("lib/superchain-registry/superchain/configs/", l1ChainName,"/superchain.yaml");
+        inputs[3] = string.concat("lib/superchain-registry/superchain/configs/", l1ChainName, "/superchain.yaml");
 
         addressesJson = string(vm.ffi(inputs));
 
