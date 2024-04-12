@@ -14,13 +14,17 @@ import {OptimismMintableERC20Factory} from "@eth-optimism-bedrock/src/universal/
 import {L1ERC721Bridge} from "@eth-optimism-bedrock/src/L1/L1ERC721Bridge.sol";
 import {AddressManager} from "@eth-optimism-bedrock/src/legacy/AddressManager.sol";
 import {Predeploys} from "@eth-optimism-bedrock/src/libraries/Predeploys.sol";
+import {ISemver} from "@eth-optimism-bedrock/src/universal/ISemver.sol";
 import {Types} from "@eth-optimism-bedrock/scripts/Types.sol";
 import {EIP1967Helper} from "@eth-optimism-bedrock/test/mocks/EIP1967Helper.sol";
 import {console2 as console} from "forge-std/console2.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {Vm, VmSafe} from "forge-std/Vm.sol";
+import {LibString} from "solady/utils/LibString.sol";
 
 contract SignFromJson is OriginalSignFromJson {
+    using LibString for string;
+
     // Chains for this task.
     string constant l1ChainName = "sepolia";
     string constant l2ChainName = "metal";
@@ -55,6 +59,20 @@ contract SignFromJson is OriginalSignFromJson {
     /// @notice Sets up the contract
     function setUp() public {
         proxies = _getContractSet();
+    }
+
+    function checkSemvers() internal view {
+        // These are the expected semvers based on the `op-contracts/v1.3.0` release.
+        // https://github.com/ethereum-optimism/optimism/releases/tag/op-contracts%2fv1.3.0
+        require(ISemver(proxies.L1CrossDomainMessenger).version().eq("2.3.0"), "semver-100");
+        require(ISemver(proxies.L1StandardBridge).version().eq("2.1.0"), "semver-200");
+        require(ISemver(proxies.L2OutputOracle).version().eq("1.8.0"), "semver-300");
+        require(ISemver(proxies.OptimismMintableERC20Factory).version().eq("1.9.0"), "semver-400");
+        require(ISemver(proxies.OptimismPortal).version().eq("2.5.0"), "semver-500");
+        require(ISemver(proxies.SystemConfig).version().eq("1.12.0"), "semver-600");
+        require(ISemver(proxies.L1ERC721Bridge).version().eq("2.1.0"), "semver-700");
+        require(ISemver(proxies.ProtocolVersions).version().eq("1.0.0"), "semver-800");
+        require(ISemver(proxies.SuperchainConfig).version().eq("1.1.0"), "semver-900");
     }
 
     /// @notice Asserts that the SystemConfig is setup correctly
@@ -291,7 +309,10 @@ contract SignFromJson is OriginalSignFromJson {
         override
     {
         console.log("Running post-deploy assertions");
+
         checkStateDiff(accesses);
+        checkSemvers();
+
         checkSystemConfig();
         checkL1CrossDomainMessenger();
         checkL1StandardBridge();
@@ -301,6 +322,7 @@ contract SignFromJson is OriginalSignFromJson {
         checkOptimismPortal();
         checkProtocolVersions();
         checkSuperchainConfig();
+
         console.log("All assertions passed!");
     }
 
