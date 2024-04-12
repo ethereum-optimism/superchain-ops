@@ -349,6 +349,46 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         console.log("All assertions passed!");
     }
 
+    function _postCheckExecute(Vm.AccountAccess[] memory accountAccesses) internal view override {
+        // Same assertions as _postCheckWithSim, and just does not simulate anything since
+        // the transactions were broadcasted.
+        console.log("Running post-deploy assertions");
+        checkStateDiff(accountAccesses);
+        checkSystemConfig();
+        checkL1CrossDomainMessenger();
+        checkL1StandardBridge();
+        checkL2OutputOracle();
+        checkOptimismMintableERC20Factory();
+        checkL1ERC721Bridge();
+        checkOptimismPortal();
+        checkProtocolVersions();
+        checkSuperchainConfig();
+        console.log("All assertions passed!");
+    }
+
+    // This method is not storage-layout-aware and therefore is not perfect. It may return erroneous
+    // results for cases like packed slots, and silently show that things are okay when they are not.
+    function isLikelyAddressThatShouldHaveCode(uint256 value) internal pure returns (bool) {
+        // If out of range (fairly arbitrary lower bound), return false.
+        if (value > type(uint160).max) return false;
+        if (value < uint256(uint160(0x00000000fFFFffffffFfFfFFffFfFffFFFfFffff))) return false;
+
+        // If the value is a L2 predeploy address it won't have code on this chain, so return false.
+        if (
+            value >= uint256(uint160(0x4200000000000000000000000000000000000000)) &&
+            value <= uint256(uint160(0x420000000000000000000000000000000000FffF))
+        ) return false;
+
+        // Allow known EOAs.
+        if (address(uint160(value)) == l2OutputOracleProposer) return false;
+        if (address(uint160(value)) == batchSenderAddress) return false;
+        if (address(uint160(value)) == p2pSequencerAddress) return false;
+        if (address(uint160(value)) == batchInboxAddress) return false;
+
+        // Otherwise, this value looks like an address that we'd expect to have code.
+        return true;
+    }
+
     function checkStateDiff(Vm.AccountAccess[] memory accountAccesses) internal view {
         require(accountAccesses.length > 0, "No account accesses");
 
@@ -371,17 +411,19 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
                 Vm.StorageAccess memory storageAccess = accountAccess.storageAccesses[j];
                 uint256 value = uint256(storageAccess.newValue);
 
-                // If a value looks like an address and is not an L2 predeploy, check if it has code.
-                bool isLikelyAddress = value <= type(uint160).max
-                    && value >= uint160(0x00000000fFFFffffffFfFfFFffFfFffFFFfFffff)
-                    && value < uint256(uint160(0x4200000000000000000000000000000000000000))
-                    && value > uint256(uint160(0x420000000000000000000000000000000000FffF));
-                if (isLikelyAddress) {
-                    require(
-                        address(uint160(value)).code.length != 0,
-                        string.concat("Address in storage has no code: ", vm.toString(value))
+                if (isLikelyAddressThatShouldHaveCode(value)) {
+                    // Log account, slot, and value if there is no code.
+                    string memory err = string.concat(
+                        "Likely address in storage has no code\n",
+                        "  account: ", vm.toString(storageAccess.account),
+                        "\n  slot:    ",
+                        vm.toString(storageAccess.slot),
+                        "\n  value:   ",
+                        vm.toString(bytes32(value))
                     );
+                    require(address(uint160(value)).code.length != 0, err);
                 }
+
                 require(
                     storageAccess.account.code.length != 0,
                     string.concat("Storage account has no code: ", vm.toString(storageAccess.account))

@@ -6,6 +6,7 @@ import {NestedMultisigBuilder} from "@base-contracts/script/universal/NestedMult
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {console} from "forge-std/console.sol";
+import {Vm} from "forge-std/Vm.sol";
 
 contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
     address globalSignerSafe; // Hack to avoid passing signerSafe as an input to many functions.
@@ -22,16 +23,15 @@ contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
     function approveJson(string memory _path, address _signerSafe, bytes memory _signatures) public {
         _loadJson(_path);
         approve(_signerSafe, _signatures);
-        globalSignerSafe = _signerSafe;
-        _postCheckWithSim();
     }
 
     /// @dev Executes the transaction from the System Owner Safe.
     function runJson(string memory _path) public {
         _loadJson(_path);
+        vm.startStateDiffRecording();
         run();
-        // globalSignerSafe = _signerSafe; // TODO how to handle this one?
-        // _postCheckWithSim();
+        Vm.AccountAccess[] memory accesses = vm.stopAndReturnStateDiff();
+        _postCheckExecute(accesses);
     }
 
     function _buildCalls() internal view override returns (IMulticall3.Call3[] memory) {
@@ -48,4 +48,9 @@ contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
     // execute those assertions against the resulting state. Using `vm.store` changes state therefore
     // the postCheck methods cannot be `view`, which is why we have this alternate version.
     function _postCheckWithSim() internal virtual {}
+
+    // Basically a copy/paste of _postCheckWithSim, but does not perform the simulation.
+    function _postCheckExecute(Vm.AccountAccess[] memory) internal virtual {
+        require(false, "Not implemented");
+    }
 }
