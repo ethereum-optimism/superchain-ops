@@ -4,10 +4,7 @@ export rpcUrl := env_var('ETH_RPC_URL')
 export signatures := env_var_or_default('SIGNATURES', '')
 export bundleName := env_var_or_default('BUNDLE_NAME', 'input')
 export taskPath := invocation_directory()
-
-# Accounts
-export OWNER_SAFE := env_var_or_default('FOUNDATION_SAFE', '0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A')
-export foundationOwner0 := "0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64"
+export ownerSafe := env_var('OWNER_SAFE')
 
 simulate hdPath='0':
   #!/usr/bin/env bash
@@ -16,17 +13,19 @@ simulate hdPath='0':
   if [ -f "${taskPath}/SignFromJson.s.sol" ]; then
     script="${taskPath}/SignFromJson.s.sol"
   fi
+
   echo "Using script ${script}"
-  echo "getting signer address..."
-  if [ ! -z "$SIMULATE_WITHOUT_LEDGER" ]
-  then
-    signer=${foundationOwner0}
+  echo "Safe address: ${ownerSafe}"
+  echo "Getting signer address..."
+
+  if [ ! -z "$SIMULATE_WITHOUT_LEDGER" ]; then
+    signer=$(cast call ${ownerSafe} "getOwners()(address[])" -r $SEPOLIA_RPC_URL | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
   else
     signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   fi
   echo "Simulating with: ${signer}"
   echo ""
-  forge build
+
   forge script ${script} \
     --rpc-url ${rpcUrl} \
     --sig "signJson(string)" ${bundlePath} \

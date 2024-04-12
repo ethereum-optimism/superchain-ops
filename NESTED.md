@@ -77,7 +77,7 @@ message hash to approve on your Ledger:
 Make sure you are on the "Overview" tab of the tenderly simulation, to
 validate integrity of the simulation, we need to check the following:
 
-1. "Network": Check the network is Ethereum Mainnet.
+1. "Network": Check the network is Ethereum mainnet or Sepolia. This must match the `<NETWORK_DIR>` from above.
 2. "Timestamp": Check the simulation is performed on a block with a
    recent timestamp (i.e. close to when you run the script).
 3. "Sender": Check the address shown is your signer account. If not see the derivation path Note above.
@@ -135,23 +135,23 @@ just \
    foundation # 0 or 1 or ...
 ```
 
-> [!IMPORTANT] This is the most security critical part of the
-> playbook: make sure the domain hash and message hash in the
-> following two places match:
-
-1. on your Ledger screen.
-2. in the Tenderly simulation. You should use the same Tenderly
-   simulation as the one you used to verify the state diffs, instead
-   of opening the new one printed in the console.
-
-There is no need to verify anything printed in the console. There is
-no need to open the new Tenderly simulation link either.
+> [!WARNING]
+> This is the most security critical part of the playbook: make sure the
+> domain hash and message hash in the following two places match:
+>
+> 1. On your Ledger screen.
+> 2. In the Tenderly simulation. You should use the same Tenderly
+> simulation as the one you used to verify the state diffs, instead
+> of opening the new one printed in the console.
+>
+> There is no need to verify anything printed in the console. There is
+> no need to open the new Tenderly simulation link either.
 
 After verification, sign the transaction. You will see the `Data`,
 `Signer` and `Signature` printed in the console. Format should be
 something like this:
 
-```
+```shell
 Data:  <DATA>
 Signer: <ADDRESS>
 Signature: <SIGNATURE>
@@ -181,13 +181,13 @@ congrats, you are done!
 
 For example, if the quorum is 2 and you get the following outputs:
 
-``` shell
+```shell
 Data:  0xDEADBEEF
 Signer: 0xC0FFEE01
 Signature: AAAA
 ```
 
-``` shell
+```shell
 Data:  0xDEADBEEF
 Signer: 0xC0FFEE02
 Signature: BBBB
@@ -204,6 +204,7 @@ just \
    foundation \ # or council
    0 # or 1 or ...
 ```
+
 ### Execute the transaction
 
 Once the signatures have been submitted approving the transaction for all nested Safes run:
