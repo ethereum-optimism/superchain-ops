@@ -26,7 +26,10 @@ contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
     /// @dev Executes the transaction from the System Owner Safe.
     function runJson(string memory _path) public {
         _loadJson(_path);
+        vm.startStateDiffRecording();
         run();
+        Vm.AccountAccess[] memory accesses = vm.stopAndReturnStateDiff();
+        _postCheckExecute(accesses);
     }
 
     function _buildCalls() internal view override returns (IMulticall3.Call3[] memory) {
@@ -41,5 +44,10 @@ contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
         accesses; // Silences compiler warnings.
         simPayload;
         require(false, "SignFromJson::_postCheck not implemented"); // Force user to implement post-check assertions.
+    }
+
+    // Basically a copy/paste of _postCheckWithSim, but does not perform the simulation.
+    function _postCheckExecute(Vm.AccountAccess[] memory) internal virtual {
+        require(false, "Not implemented");
     }
 }
