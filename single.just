@@ -19,7 +19,7 @@ simulate hdPath='0':
   echo "Getting signer address..."
 
   if [ ! -z "$SIMULATE_WITHOUT_LEDGER" ]; then
-    signer=$(cast call ${ownerSafe} "getOwners()(address[])" -r $SEPOLIA_RPC_URL | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
+    signer=$(cast call ${ownerSafe} "getOwners()(address[])" -r ${rpcUrl} | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
   else
     signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   fi
