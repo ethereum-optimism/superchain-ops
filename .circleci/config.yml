@@ -157,12 +157,13 @@ jobs:
             just simulate-council # simulate again to make sure the json is still valid
   just_simulate_sep-metal-001-MCP-L1:
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
     steps:
       - checkout
       - run:
           name: just simulate sep/metal-001-MCP-L1
           command: |
+            go install github.com/mikefarah/yq/v4@latest
             just install
             cd tasks/sep/metal-001-MCP-L1
             export SIMULATE_WITHOUT_LEDGER=1
