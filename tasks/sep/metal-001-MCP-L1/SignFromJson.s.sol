@@ -22,6 +22,22 @@ import {stdJson} from "forge-std/StdJson.sol";
 import {Vm, VmSafe} from "forge-std/Vm.sol";
 import {LibString} from "solady/utils/LibString.sol";
 
+// Interface used to read various data from contracts. This is an aggregation of methods from
+// various protocol contracts for simplicity, and does map to the full ABI of any single contract.
+interface IFetcher {
+    function overhead() external returns (uint); // SystemConfig
+    function scalar() external returns (uint); // SystemConfig
+    function guardian() external returns (address); // SuperchainConfig
+    function L2_BLOCK_TIME() external returns (uint256); // L2OutputOracle
+    function SUBMISSION_INTERVAL() external returns (uint256); // L2OutputOracle
+    function FINALIZATION_PERIOD_SECONDS() external returns (uint256); // L2OutputOracle
+    function startingTimestamp() external returns (uint); // L2OutputOracle
+    function startingBlockNumber() external returns (uint); // L2OutputOracle
+    function owner() external returns (address); // ProtocolVersions
+    function required() external returns (uint256);  // ProtocolVersions
+    function recommended() external returns (uint256);  // ProtocolVersions
+}
+
 contract SignFromJson is OriginalSignFromJson {
     using LibString for string;
 
@@ -37,28 +53,54 @@ contract SignFromJson is OriginalSignFromJson {
     address constant p2pSequencerAddress = 0x3C1A357c4c77843d34750dBee68C589ACB4F5f9B;
     address constant batchInboxAddress = 0x24567B64a86A4c966655fba6502a93dFb701E316;
 
-    // Other data
-    uint256 constant gasPriceOracleOverhead = 188; // cast call 0x5D63A8Dc2737cE771aa4a6510D063b6Ba2c4f6F2 "overhead()(uint)"
-    uint256 constant gasPriceOracleScalar = 684000; // cast call 0x5D63A8Dc2737cE771aa4a6510D063b6Ba2c4f6F2 "scalar()(uint)"
-    address constant superchainConfigGuardian = 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B; // cast call 0xC2Be75506d5724086DEB7245bd260Cc9753911Be "guardian()(address)"
-    address constant protocolVersionsOwner = 0xfd1D2e729aE8eEe2E146c033bf4400fE75284301; // cast call 0x79ADD5713B383DAa0a138d3C4780C7A1804a8090 "owner()(address)"
-    uint256 constant systemConfigStartBlock = 5304055;
-    AddressManager addressManager = AddressManager(0x394f844B9A0FC876935d1b0b791D9e94Ad905e8b);
-    uint256 constant l2BlockTime = 2; // cast call 0x75a6B961c8da942Ee03CA641B09C322549f6FA98 "L2_BLOCK_TIME()(uint256)"
-    uint256 constant l2OutputOracleSubmissionInterval = 180; // cast call 0x75a6B961c8da942Ee03CA641B09C322549f6FA98 "SUBMISSION_INTERVAL()(uint256)"
-    uint256 constant finalizationPeriodSeconds = 604800; // cast call 0x75a6B961c8da942Ee03CA641B09C322549f6FA98 "FINALIZATION_PERIOD_SECONDS()(uint256)
-    uint256 constant l2OutputOracleStartingTimestamp = 1708129620; // cast call 0x75a6B961c8da942Ee03CA641B09C322549f6FA98 "startingTimestamp()(uint)"
-    uint256 constant l2OutputOracleStartingBlockNumber = 0; // TODO is this ok? cast call 0x75a6B961c8da942Ee03CA641B09C322549f6FA98 "startingBlockNumber()(uint)"
-    uint256 constant l2GenesisBlockGasLimit = 30e6;
-    uint256 constant requiredProtocolVersion = 0x0000000000000000000000000000000000000006000000000000000000000003; // cast call 0x79ADD5713B383DAa0a138d3C4780C7A1804a8090 "required()(bytes32)"
-    uint256 constant recommendedProtocolVersion = 0x0000000000000000000000000000000000000006000000000000000000000003; // cast call 0x79ADD5713B383DAa0a138d3C4780C7A1804a8090 "recommended()(bytes32)"
-    uint256 constant xdmSenderSlotNumber = 204; // Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L93-L99
+    // Hardcoded data that should not change after execution.
+    uint256 l2GenesisBlockGasLimit = 30e6;
+    uint256 xdmSenderSlotNumber = 204; // Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L93-L99
 
+    // Data that should not change after execution, fetching during `setUp`.
+    uint256 gasPriceOracleOverhead;
+    uint256 gasPriceOracleScalar;
+    address superchainConfigGuardian;
+    uint256 l2BlockTime;
+    uint256 l2OutputOracleSubmissionInterval;
+    uint256 finalizationPeriodSeconds;
+    uint256 l2OutputOracleStartingTimestamp;
+    uint256 l2OutputOracleStartingBlockNumber;
+    address protocolVersionsOwner;
+    uint256 requiredProtocolVersion;
+    uint256 recommendedProtocolVersion;
+
+    // Other data we use.
+    uint256 systemConfigStartBlock = 5304055; // This was an input when generating input.json
+    AddressManager addressManager = AddressManager(0x394f844B9A0FC876935d1b0b791D9e94Ad905e8b);
     Types.ContractSet proxies;
+
+    // This gives the initial fork, so we can use it to switch back after fetching data.
+    uint256 initialFork;
 
     /// @notice Sets up the contract
     function setUp() public {
         proxies = _getContractSet();
+
+        // Fetch variables that are not expected to change from an older block.
+        initialFork = vm.activeFork();
+        console.log("block1", block.number);
+        vm.createSelectFork(vm.envString("ETH_RPC_URL"), 5705332); // This block is from April 15 2024 at 11:40am PT.
+        console.log("block2", block.number);
+        gasPriceOracleOverhead = IFetcher(0x5D63A8Dc2737cE771aa4a6510D063b6Ba2c4f6F2).overhead();
+        gasPriceOracleScalar = IFetcher(0x5D63A8Dc2737cE771aa4a6510D063b6Ba2c4f6F2).scalar();
+        superchainConfigGuardian = IFetcher(0xC2Be75506d5724086DEB7245bd260Cc9753911Be).guardian();
+        l2BlockTime = IFetcher(0x75a6B961c8da942Ee03CA641B09C322549f6FA98).L2_BLOCK_TIME();
+        l2OutputOracleSubmissionInterval = IFetcher(0x75a6B961c8da942Ee03CA641B09C322549f6FA98).SUBMISSION_INTERVAL();
+        finalizationPeriodSeconds = IFetcher(0x75a6B961c8da942Ee03CA641B09C322549f6FA98).FINALIZATION_PERIOD_SECONDS();
+        l2OutputOracleStartingTimestamp = IFetcher(0x75a6B961c8da942Ee03CA641B09C322549f6FA98).startingTimestamp();
+        l2OutputOracleStartingBlockNumber = IFetcher(0x75a6B961c8da942Ee03CA641B09C322549f6FA98).startingBlockNumber();
+        protocolVersionsOwner = IFetcher(0x79ADD5713B383DAa0a138d3C4780C7A1804a8090).owner();
+        requiredProtocolVersion = IFetcher(0x79ADD5713B383DAa0a138d3C4780C7A1804a8090).required();
+        recommendedProtocolVersion = IFetcher(0x79ADD5713B383DAa0a138d3C4780C7A1804a8090).recommended();
+
+        vm.selectFork(initialFork);
+        console.log("block3", block.number);
     }
 
     function checkSemvers() internal view {
