@@ -84,9 +84,8 @@ contract SignFromJson is OriginalSignFromJson {
 
         // Fetch variables that are not expected to change from an older block.
         initialFork = vm.activeFork();
-        console.log("block1", block.number);
         vm.createSelectFork(vm.envString("ETH_RPC_URL"), 5705332); // This block is from April 15 2024 at 11:40am PT.
-        console.log("block2", block.number);
+
         gasPriceOracleOverhead = IFetcher(0x5D63A8Dc2737cE771aa4a6510D063b6Ba2c4f6F2).overhead();
         gasPriceOracleScalar = IFetcher(0x5D63A8Dc2737cE771aa4a6510D063b6Ba2c4f6F2).scalar();
         superchainConfigGuardian = IFetcher(0xC2Be75506d5724086DEB7245bd260Cc9753911Be).guardian();
@@ -100,7 +99,6 @@ contract SignFromJson is OriginalSignFromJson {
         recommendedProtocolVersion = IFetcher(0x79ADD5713B383DAa0a138d3C4780C7A1804a8090).recommended();
 
         vm.selectFork(initialFork);
-        console.log("block3", block.number);
     }
 
     function checkSemvers() internal view {
