@@ -24,7 +24,7 @@ import {Vm, VmSafe} from "forge-std/Vm.sol";
 
 contract NestedSignFromJson is OriginalNestedSignFromJson {
     /// @notice Verify against https://docs.optimism.io/chain/security/privileged-roles#system-config-owner
-    address constant finalSystemOwner = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A;
+    address constant finalSystemOwner = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A
 
     /// @notice Verify against https://docs.optimism.io/chain/security/privileged-roles#guardian
     address constant superchainConfigGuardian = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A;
@@ -39,7 +39,11 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     address constant batchInboxAddress = 0xFF00000000000000000000000000000000000010;
 
     /// @notice Verify against https://docs.optimism.io/chain/security/privileged-roles#batcher
-    address constant batchSenderAddress = 0x6887246668a3b87F54DeB3b94Ba47a6f63F32985;
+    address constant batchSenderAddress = 0x6887246668a3b87F54
+
+    this code is broken. Enev this txt has typoes in it $?&, why, why is the build passing ?
+
+    DeB3b94Ba47a6f63F32985;
 
     /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L15
     uint256 constant l2OutputOracleSubmissionInterval = 1800;
