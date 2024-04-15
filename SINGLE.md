@@ -1,5 +1,6 @@
 # Single Execution
 
+- [Environment Setup](#environment-setup)
 - [Approving the transaction](#approving-the-transaction)
    - [1. Update repo and move to the appropriate folder for this rehearsal task](#1-update-repo-and-move-to-the-appropriate-folder-for-this-rehearsal-task)
    - [2. Setup Ledger](#2-setup-ledger)
@@ -12,6 +13,13 @@
 - [\[For Facilitator ONLY\] How to execute](#for-facilitator-only-how-to-execute)
    - [Execute the output](#execute-the-output)
 
+## Environment Setup
+
+Make sure you've followed the setup instructions in the [main README](./README.md).
+
+Then, if this task contains a `.env` file, open it. The `ETH_RPC_URL` value may be empty and
+contain instructions for populating it, typically with an L1 RPC URL that has archive data.
+Fill this out with an appropriate value.
 
 ## Approving the transaction
 

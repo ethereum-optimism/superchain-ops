@@ -39,25 +39,25 @@ Links:
 
 State Changes:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000035` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x0000000000000000000000c2be75506d5724086deb7245bd260cc9753911be00` <br/>
   **Meaning:** Sets `superchainConfig` at slot `0x35` (53). The correctness of
    this slot is attested to in the Optimism repo at [storageLayout/OptimismPortal.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal.json#L58-L64). The `superchainConfig` address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/configs/sepolia/superchain.yaml#L8).
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000036` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x00000000000000000000000075a6b961c8da942ee03ca641b09c322549f6fa98` <br/>
   **Meaning:** Sets `l2Oracle` at slot `0x36` (54). The correctness of
    this slot is attested to in the Optimism repo at [storageLayout/OptimismPortal.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal.json#L66-L70). The `L2OutputOracleProxy` address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L6).
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000037` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x0000000000000000000000005d63a8dc2737ce771aa4a6510d063b6ba2c4f6f2` <br/>
   **Meaning:** Sets `systemConfig` at slot `0x37` (55). The correctness of
    this slot is attested to in the Optimism repo at [storageLayout/OptimismPortal.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal.json#L73-L77). The `SystemConfigProxy` address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L9).
 
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
-  **Before:** `0x000000000000000000000000b010405e76a7f9ead2f6ee94135a4d15c31b3659`
+  **Before:** `0x000000000000000000000000b010405e76a7f9ead2f6ee94135a4d15c31b3659` <br/>
   **After:** `0x0000000000000000000000002d778797049fe9259d947d1ed8e5442226dfb589` <br/>
   **Meaning:** Implementation address is set to the new `OptimismPortal`. The implementation address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/sepolia.yaml#L12).
 
@@ -232,7 +232,7 @@ that the address actually matches the correct implementation, an Etherscan link 
 - **Key:** `0xa11ee3ab75b40e88a0105e935d17cd36c8faee0138320d776c411291bdbbb19f` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x000000000000000000000000000000000000000000000000000000000050eef7` <br/>
-  **Meaning:** Sets `startBlock` at slot to 5304055. This should be the blocknumber at which the `SystemConfig` proxy was initialized for the first time. [Etherscan events](https://sepolia.etherscan.io/address/0x5D63A8Dc2737cE771aa4a6510D063b6Ba2c4f6F2#events) shows only five events have been emitted since contract creation in block 5304039, and that the first `Initialize` event after that should be in block 5304055. Verification of the key can be done by ensuring the result of the [START_BLOCK_SLOT](https://sepolia.etherscan.io/address/0xba2492e52F45651B60B8B38d4Ea5E2390C64Ffb1#readContract#F8) getter on the implementation contract matches the key.
+  **Meaning:** Sets `startBlock` at slot to 5304055. This should be the block number at which the `SystemConfig` proxy was initialized for the first time. [Etherscan events](https://sepolia.etherscan.io/address/0x5D63A8Dc2737cE771aa4a6510D063b6Ba2c4f6F2#events) shows only five events have been emitted since contract creation in block 5304039, and that the first `Initialize` event after that should be in block 5304055. Verification of the key can be done by ensuring the result of the [START_BLOCK_SLOT](https://sepolia.etherscan.io/address/0xba2492e52F45651B60B8B38d4Ea5E2390C64Ffb1#readContract#F8) getter on the implementation contract matches the key.
 
 - **Key:** `0xe52a667f71ec761b9b381c7b76ca9b852adf7e8905da0e0ad49986a0a6871815` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>

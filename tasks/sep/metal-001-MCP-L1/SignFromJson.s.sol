@@ -23,19 +23,19 @@ import {Vm, VmSafe} from "forge-std/Vm.sol";
 import {LibString} from "solady/utils/LibString.sol";
 
 // Interface used to read various data from contracts. This is an aggregation of methods from
-// various protocol contracts for simplicity, and does map to the full ABI of any single contract.
+// various protocol contracts for simplicity, and does not map to the full ABI of any single contract.
 interface IFetcher {
-    function overhead() external returns (uint); // SystemConfig
-    function scalar() external returns (uint); // SystemConfig
+    function overhead() external returns (uint256); // SystemConfig
+    function scalar() external returns (uint256); // SystemConfig
     function guardian() external returns (address); // SuperchainConfig
     function L2_BLOCK_TIME() external returns (uint256); // L2OutputOracle
     function SUBMISSION_INTERVAL() external returns (uint256); // L2OutputOracle
     function FINALIZATION_PERIOD_SECONDS() external returns (uint256); // L2OutputOracle
-    function startingTimestamp() external returns (uint); // L2OutputOracle
-    function startingBlockNumber() external returns (uint); // L2OutputOracle
+    function startingTimestamp() external returns (uint256); // L2OutputOracle
+    function startingBlockNumber() external returns (uint256); // L2OutputOracle
     function owner() external returns (address); // ProtocolVersions
-    function required() external returns (uint256);  // ProtocolVersions
-    function recommended() external returns (uint256);  // ProtocolVersions
+    function required() external returns (uint256); // ProtocolVersions
+    function recommended() external returns (uint256); // ProtocolVersions
 }
 
 contract SignFromJson is OriginalSignFromJson {
@@ -86,17 +86,17 @@ contract SignFromJson is OriginalSignFromJson {
         initialFork = vm.activeFork();
         vm.createSelectFork(vm.envString("ETH_RPC_URL"), 5705332); // This block is from April 15 2024 at 11:40am PT.
 
-        gasPriceOracleOverhead = IFetcher(0x5D63A8Dc2737cE771aa4a6510D063b6Ba2c4f6F2).overhead();
-        gasPriceOracleScalar = IFetcher(0x5D63A8Dc2737cE771aa4a6510D063b6Ba2c4f6F2).scalar();
-        superchainConfigGuardian = IFetcher(0xC2Be75506d5724086DEB7245bd260Cc9753911Be).guardian();
-        l2BlockTime = IFetcher(0x75a6B961c8da942Ee03CA641B09C322549f6FA98).L2_BLOCK_TIME();
-        l2OutputOracleSubmissionInterval = IFetcher(0x75a6B961c8da942Ee03CA641B09C322549f6FA98).SUBMISSION_INTERVAL();
-        finalizationPeriodSeconds = IFetcher(0x75a6B961c8da942Ee03CA641B09C322549f6FA98).FINALIZATION_PERIOD_SECONDS();
-        l2OutputOracleStartingTimestamp = IFetcher(0x75a6B961c8da942Ee03CA641B09C322549f6FA98).startingTimestamp();
-        l2OutputOracleStartingBlockNumber = IFetcher(0x75a6B961c8da942Ee03CA641B09C322549f6FA98).startingBlockNumber();
-        protocolVersionsOwner = IFetcher(0x79ADD5713B383DAa0a138d3C4780C7A1804a8090).owner();
-        requiredProtocolVersion = IFetcher(0x79ADD5713B383DAa0a138d3C4780C7A1804a8090).required();
-        recommendedProtocolVersion = IFetcher(0x79ADD5713B383DAa0a138d3C4780C7A1804a8090).recommended();
+        gasPriceOracleOverhead = IFetcher(proxies.SystemConfig).overhead();
+        gasPriceOracleScalar = IFetcher(proxies.SystemConfig).scalar();
+        superchainConfigGuardian = IFetcher(proxies.SuperchainConfig).guardian();
+        l2BlockTime = IFetcher(proxies.L2OutputOracle).L2_BLOCK_TIME();
+        l2OutputOracleSubmissionInterval = IFetcher(proxies.L2OutputOracle).SUBMISSION_INTERVAL();
+        finalizationPeriodSeconds = IFetcher(proxies.L2OutputOracle).FINALIZATION_PERIOD_SECONDS();
+        l2OutputOracleStartingTimestamp = IFetcher(proxies.L2OutputOracle).startingTimestamp();
+        l2OutputOracleStartingBlockNumber = IFetcher(proxies.L2OutputOracle).startingBlockNumber();
+        protocolVersionsOwner = IFetcher(proxies.ProtocolVersions).owner();
+        requiredProtocolVersion = IFetcher(proxies.ProtocolVersions).required();
+        recommendedProtocolVersion = IFetcher(proxies.ProtocolVersions).recommended();
 
         vm.selectFork(initialFork);
     }
