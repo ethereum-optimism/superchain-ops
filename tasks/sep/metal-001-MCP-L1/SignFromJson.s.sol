@@ -424,9 +424,8 @@ contract SignFromJson is OriginalSignFromJson {
                             "\n  value:   ",
                             vm.toString(bytes32(value))
                         );
-                        console.log(err);
+                        revert(err);
                     }
-                    // require(address(uint160(value)).code.length != 0, err);
                 }
 
                 require(
