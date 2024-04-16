@@ -8,7 +8,7 @@ import {stdJson} from "forge-std/StdJson.sol";
 import {console} from "forge-std/console.sol";
 import {Vm} from "forge-std/Vm.sol";
 
-contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
+abstract contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
     address globalSignerSafe; // Hack to avoid passing signerSafe as an input to many functions.
 
     /// @dev Signs the approveHash transaction from the Nested Safe to the System Owner Safe.

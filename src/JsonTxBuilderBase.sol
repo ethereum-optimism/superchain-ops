@@ -5,6 +5,7 @@ import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {console} from "forge-std/console.sol";
 import {CommonBase} from "forge-std/Base.sol";
+import {Vm, VmSafe} from "forge-std/Vm.sol";
 
 abstract contract JsonTxBuilderBase is CommonBase {
     string json;
@@ -29,9 +30,8 @@ abstract contract JsonTxBuilderBase is CommonBase {
                 "Transaction list longer than MAX_LENGTH_SUPPORTED is not "
                 "supported, to support it, simply bump the value of " "MAX_LENGTH_SUPPORTED to a bigger one."
             );
-            try vm.parseJsonAddress(jsonContent, string(abi.encodePacked("$.transactions[", vm.toString(i), "].to"))) returns (
-                address
-            ) {} catch {
+            try vm.parseJsonAddress(jsonContent, string(abi.encodePacked("$.transactions[", vm.toString(i), "].to")))
+            returns (address) {} catch {
                 transaction_count = i;
             }
         }
@@ -40,12 +40,101 @@ abstract contract JsonTxBuilderBase is CommonBase {
 
         for (uint256 i = 0; i < transaction_count; i++) {
             calls[i] = IMulticall3.Call3({
-                target: stdJson.readAddress(jsonContent, string(abi.encodePacked("$.transactions[", vm.toString(i), "].to"))),
+                target: stdJson.readAddress(
+                    jsonContent, string(abi.encodePacked("$.transactions[", vm.toString(i), "].to"))
+                ),
                 allowFailure: false,
-                callData: stdJson.readBytes(jsonContent, string(abi.encodePacked("$.transactions[", vm.toString(i), "].data")))
+                callData: stdJson.readBytes(
+                    jsonContent, string(abi.encodePacked("$.transactions[", vm.toString(i), "].data"))
+                )
             });
         }
 
         return calls;
+    }
+
+    function checkStateDiff(Vm.AccountAccess[] memory accountAccesses, address[] memory shouldHaveCodeExceptions)
+        internal
+        view
+    {
+        require(accountAccesses.length > 0, "No account accesses");
+
+        for (uint256 i; i < accountAccesses.length; i++) {
+            Vm.AccountAccess memory accountAccess = accountAccesses[i];
+            require(
+                accountAccess.account.code.length != 0,
+                string.concat("Account has no code: ", vm.toString(accountAccess.account))
+            );
+            require(
+                accountAccess.oldBalance == accountAccess.account.balance,
+                string.concat("Unexpected balance change: ", vm.toString(accountAccess.account))
+            );
+            require(
+                accountAccess.kind != VmSafe.AccountAccessKind.SelfDestruct,
+                string.concat("Self-destructed account: ", vm.toString(accountAccess.account))
+            );
+
+            for (uint256 j; j < accountAccess.storageAccesses.length; j++) {
+                Vm.StorageAccess memory storageAccess = accountAccess.storageAccesses[j];
+                uint256 value = uint256(storageAccess.newValue);
+
+                if (isLikelyAddressThatShouldHaveCode(value, shouldHaveCodeExceptions)) {
+                    // Log account, slot, and value if there is no code.
+                    string memory err = string.concat(
+                        "Likely address in storage has no code\n",
+                        "  account: ",
+                        vm.toString(storageAccess.account),
+                        "\n  slot:    ",
+                        vm.toString(storageAccess.slot),
+                        "\n  value:   ",
+                        vm.toString(bytes32(value))
+                    );
+                    require(address(uint160(value)).code.length != 0, err);
+                }
+
+                require(
+                    storageAccess.account.code.length != 0,
+                    string.concat("Storage account has no code: ", vm.toString(storageAccess.account))
+                );
+                require(
+                    !storageAccess.reverted,
+                    string.concat("Storage access reverted: ", vm.toString(storageAccess.account))
+                );
+                require(
+                    storageAccess.account.code.length != 0,
+                    string.concat("Storage account has no code: ", vm.toString(storageAccess.account))
+                );
+                require(
+                    !storageAccess.reverted,
+                    string.concat("Storage access reverted: ", vm.toString(storageAccess.account))
+                );
+            }
+        }
+    }
+
+    // This method is not storage-layout-aware and therefore is not perfect. It may return erroneous
+    // results for cases like packed slots, and silently show that things are okay when they are not.
+    function isLikelyAddressThatShouldHaveCode(uint256 value, address[] memory exceptions)
+        internal
+        pure
+        returns (bool)
+    {
+        // If out of range (fairly arbitrary lower bound), return false.
+        if (value > type(uint160).max) return false;
+        if (value < uint256(uint160(0x00000000fFFFffffffFfFfFFffFfFffFFFfFffff))) return false;
+
+        // If the value is a L2 predeploy address it won't have code on this chain, so return false.
+        if (
+            value >= uint256(uint160(0x4200000000000000000000000000000000000000))
+                && value <= uint256(uint160(0x420000000000000000000000000000000000FffF))
+        ) return false;
+
+        // Allow known EOAs.
+        for (uint256 i; i < exceptions.length; i++) {
+            if (address(uint160(value)) == exceptions[i]) return false;
+        }
+
+        // Otherwise, this value looks like an address that we'd expect to have code.
+        return true;
     }
 }

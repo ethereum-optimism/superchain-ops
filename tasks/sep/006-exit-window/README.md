@@ -1,17 +1,25 @@
 # Mainnet MCP L1 Upgrade
 
-Status: [EXECUTED](https://etherscan.io/tx/0x4758bd62359bc69d7e8a0faaf5308d826379c23258d689a7430d5c0ad0361ad2)
+Status: DRAFT
 
 ## Objective
 
-This is the playbook for executing Upgrade #6, Multi-Chain Prep (MCP) L1.
+This is the playbook for executing the OP Sepolia Exit Window changes. These changes bring the OP
+Sepolia roles into alignment with our plans for OP Mainnet.
 
-The proposal was:
-- [X] Approved by Token House voting here: https://vote.optimism.io/proposals/47253113366919812831791422571513347073374828501432502648295761953879525315523
-- [X] Not vetoed by the Citizens' house here: https://snapshot.org/#/citizenshouse.eth/proposal/0x2bc6565053b73813c6b0a001c8c07eb5656234b4d8bae12ba6541250993d1d25
+1. The owner of the L1 ProxyAdmin becomes a new Safe. This multisig is a 2 of 2 controlled by two
+   Safe contracts.
+1. Those two Safe contracts are:
+    - `FoundationMockSafe`: this safe is the current ProxyAdmin owner. It will represent the mainnet
+      Safe which is controlled by the Optimism Foundation.
+    - `SecurityCouncilMockSafe`: A new Safe which will represent the mainnet safe which is
+      controlled by the Security Council.
+1. Additionally, the `SecurityCouncilMockSafe` will have to modules and a guard ([documented
+   here](https://github.com/ethereum-optimism/specs/blob/maur/sc-safe-specs/specs/experimental/security-council-safe.md))
+   registered on it to enforce certain security guarantees.
 
-The proposal should be treated as the source of truth and used by the Optimism Foundation and the Collective’s
-first Security Council to verify the correctness of the onchain operations.
+Note that the thresholds for both Safes on Sepolia will be lower than on Mainnet in order to reduce
+overhead.
 
 ## Signing and execution
 
