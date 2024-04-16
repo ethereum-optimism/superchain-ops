@@ -87,6 +87,12 @@ State Changes:
   **Meaning:** Sets `otherBridge` at slot `0x04` (4). The correctness of
    this slot is attested to in the Optimism repo at [storageLayout/L1StandardBridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1StandardBridge.json#L45-L49). This should correspond to the L2StandardBridge predeploy address as seen in the [Optimism repo predeploys](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/op-bindings/predeploys/addresses.go#L13). The slot has left padding of zero bytes to fill the storage slot.
 
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000032` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  **After:** `0x000000000000000000000000c2be75506d5724086deb7245bd260cc9753911be` <br/>
+  **Meaning:** Sets `superchainConfig` at slot `0x32` (50). The correctness of
+   this slot is attested to in the Optimism repo at [storageLayout/L1StandardBridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1StandardBridge.json#L58-L64). The `superchainConfig` address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/configs/sepolia/superchain.yaml#L8).
+
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
   **Before:** `0x000000000000000000000000fa0eba40f30338b50a08613af2216f914ae8a7b4` <br/>
   **After:** `0x00000000000000000000000064b5a5ed26dcb17370ff4d33a8d503f0fbd06cff` <br/>
