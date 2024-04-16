@@ -1,6 +1,9 @@
 version: 2.1
 
 parameters:
+  ci_builder_image:
+    type: string
+    default: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.47.0
   l1_mainnet_rpc_url:
     type: string
     default: "https://ci-mainnet-l1.optimism.io"
@@ -152,6 +155,22 @@ jobs:
             just simulate-council
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
+  just_simulate_sep-metal-001-MCP-L1:
+    docker:
+      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
+    steps:
+      - checkout
+      - run:
+          name: just simulate sep/metal-001-MCP-L1
+          command: |
+            go install github.com/mikefarah/yq/v4@latest
+            just install
+            cd tasks/sep/metal-001-MCP-L1
+            export SIMULATE_WITHOUT_LEDGER=1
+            just \
+              --dotenv-path .env \
+              --justfile ../../../single.just \
+              simulate
   forge_test:
     docker:
       - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
@@ -192,3 +211,4 @@ workflows:
           - just_simulate_sc_rehearsal_1
           - just_simulate_sc_rehearsal_2
           - just_simulate_sc_rehearsal_4
+          - just_simulate_sep-metal-001-MCP-L1
