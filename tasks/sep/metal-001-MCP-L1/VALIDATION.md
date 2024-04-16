@@ -259,7 +259,6 @@ State Changes:
    this slot is attested to in the Optimism repo at [storageLayout/L1ERC721Bridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1ERC721Bridge.json#L2-L22).
    This state diff will only appear in contracts that were previously not initializable. Other contracts are reinitialized but it does not show in the state diff because the storage diff is a noop.
 
-State Changes:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x0000000000000000000000005d335aa7d93102110879e3b54985c5f08146091e` <br/>
