@@ -22,7 +22,7 @@ import {stdJson} from "forge-std/StdJson.sol";
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {Vm, VmSafe} from "forge-std/Vm.sol";
 
-contract NestedSignFromJson is OriginalNestedSignFromJson {
+contract NestedSignFromJsonX is OriginalNestedSignFromJson {
     /// @notice Verify against https://docs.optimism.io/chain/security/privileged-roles#system-config-owner
     address constant finalSystemOwner = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A
 
