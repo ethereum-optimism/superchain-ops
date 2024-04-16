@@ -1,9 +1,18 @@
 *                   @maurelian @zchn @mds1
-/tasks/eth          @maurelian @zchn @mds1
-/tasks/gor          @ethereum-optimism/contract-reviewers
+
+/tasks/eth          @maurelian @zchn @mds1 
+/tasks/eth/metal-*  @sbvegan @mds1 @blmalone
+/tasks/eth/mode-*   @sbvegan @mds1 @blmalone
+/tasks/eth/base-*   @sbvegan @mds1 @blmalone
+/tasks/eth/zora-*   @sbvegan @ZakAyesh @OPMattie
+
 /tasks/sep          @ethereum-optimism/contract-reviewers
-/mainnet-rehearsals @maurelian @zchn @mds1
+/tasks/sep/metal-*  @sbvegan @mds1 @blmalone
+/tasks/sep/mode-*   @sbvegan @mds1 @blmalone
+/tasks/sep/base-*   @sbvegan @mds1 @blmalone
+/tasks/sep/zora-*   @sbvegan @ZakAyesh @OPMattie
+
 /tasks/oeth         @maurelian @zchn @mds1
-/tasks/ogor         @ethereum-optimism/contract-reviewers
+
 /script             @ethereum-optimism/contract-reviewers
 /src                @ethereum-optimism/contract-reviewers
