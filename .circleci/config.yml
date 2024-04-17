@@ -210,6 +210,10 @@ jobs:
 
 workflows:
     version: 2
+    forge_checks:
+        jobs:
+          - forge_test
+          - forge_fmt
     check_rpc_endpoints:
         jobs:
           - check_sepolia_rpc_endpoints
