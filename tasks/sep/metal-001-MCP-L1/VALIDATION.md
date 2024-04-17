@@ -18,7 +18,7 @@ The following state overrides should be seen:
 Links:
 - [Etherscan](https://sepolia.etherscan.io/address/0xE75Cd021F520B160BF6b54D472Fa15e52aFe5aDD)
 
-Enables the simulation by reducing the threshold to 1:
+Enables the simulation by setting the threshold to 1:
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000004` <br/>
   **Value:** `0x0000000000000000000000000000000000000000000000000000000000000001`
