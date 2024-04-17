@@ -56,7 +56,7 @@ abstract contract JsonTxBuilderBase is CommonBase {
     /// @notice Reads all account and storage accesses and makes a series of basic sanity checks on them.
     ///         This function can be overridden to provide more specific checks, but should still call
     ///         super.checkStateDiff().
-    function checkStateDiff(Vm.AccountAccess[] memory accountAccesses) internal view {
+    function checkStateDiff(Vm.AccountAccess[] memory accountAccesses) internal view virtual {
         require(accountAccesses.length > 0, "No account accesses");
 
         for (uint256 i; i < accountAccesses.length; i++) {
@@ -123,7 +123,7 @@ abstract contract JsonTxBuilderBase is CommonBase {
     /// @notice Checks that values have code on this chain.
     ///         This method is not storage-layout-aware and therefore is not perfect. It may return erroneous
     ///         results for cases like packed slots, and silently show that things are okay when they are not.
-    function isLikelyAddressThatShouldHaveCode(uint256 value) internal view returns (bool) {
+    function isLikelyAddressThatShouldHaveCode(uint256 value) internal view virtual returns (bool) {
         // If out of range (fairly arbitrary lower bound), return false.
         if (value > type(uint160).max) return false;
         if (value < uint256(uint160(0x00000000fFFFffffffFfFfFFffFfFffFFFfFffff))) return false;

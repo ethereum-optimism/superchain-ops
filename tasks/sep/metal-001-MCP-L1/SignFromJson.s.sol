@@ -368,7 +368,7 @@ contract SignFromJson is OriginalSignFromJson {
 
     // This method is not storage-layout-aware and therefore is not perfect. It may return erroneous
     // results for cases like packed slots, and silently show that things are okay when they are not.
-    function isLikelyAddressThatShouldHaveCode(uint256 value) internal pure returns (bool) {
+    function isLikelyAddressThatShouldHaveCode(uint256 value) internal pure override returns (bool) {
         // If out of range (fairly arbitrary lower bound), return false.
         if (value > type(uint160).max) return false;
         if (value < uint256(uint160(0x00000000fFFFffffffFfFfFFffFfFffFFFfFffff))) return false;
@@ -391,7 +391,7 @@ contract SignFromJson is OriginalSignFromJson {
         return true;
     }
 
-    function checkStateDiff(Vm.AccountAccess[] memory accesses) internal view {
+    function checkStateDiff(Vm.AccountAccess[] memory accesses) internal view override {
         console.log("Running assertions on the state diff");
 
         for (uint256 i; i < accesses.length; i++) {
