@@ -367,12 +367,14 @@ contract SignFromJson is OriginalSignFromJson {
     }
 
     function getCodeExceptions() internal view override returns (address[] memory) {
-        address[] memory shouldHaveCodeExceptions = new address[](4);
+        address[] memory shouldHaveCodeExceptions = new address[](6);
 
         shouldHaveCodeExceptions[0] = l2OutputOracleProposer;
-        shouldHaveCodeExceptions[1] = batchSenderAddress;
-        shouldHaveCodeExceptions[2] = p2pSequencerAddress;
-        shouldHaveCodeExceptions[3] = batchInboxAddress;
+        shouldHaveCodeExceptions[1] = l2OutputOracleChallenger;
+        shouldHaveCodeExceptions[2] = systemConfigOwner;
+        shouldHaveCodeExceptions[3] = batchSenderAddress;
+        shouldHaveCodeExceptions[4] = p2pSequencerAddress;
+        shouldHaveCodeExceptions[5] = batchInboxAddress;
 
         return shouldHaveCodeExceptions;
     }
