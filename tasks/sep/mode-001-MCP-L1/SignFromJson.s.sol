@@ -410,8 +410,9 @@ contract SignFromJson is OriginalSignFromJson {
 
             for (uint256 j; j < access.storageAccesses.length; j++) {
                 Vm.StorageAccess memory storageAccess = access.storageAccesses[j];
-                uint256 value = uint256(storageAccess.newValue);
+                if (!storageAccess.isWrite) continue; // Skip SLOADs.
 
+                uint256 value = uint256(storageAccess.newValue);
                 if (isLikelyAddressThatShouldHaveCode(value)) {
                     // Log account, slot, and value if there is no code.
                     if (address(uint160(value)).code.length == 0) {
