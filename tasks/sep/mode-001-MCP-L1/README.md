@@ -1,6 +1,6 @@
 # Mode Sepolia MCP L1 Upgrade
 
-Status: DRAFT, NOT READY TO SIGN
+Status: READY TO SIGN
 
 ## Objective
 
