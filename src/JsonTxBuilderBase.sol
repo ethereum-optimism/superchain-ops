@@ -57,6 +57,7 @@ abstract contract JsonTxBuilderBase is CommonBase {
     ///         This function can be overridden to provide more specific checks, but should still call
     ///         super.checkStateDiff().
     function checkStateDiff(Vm.AccountAccess[] memory accountAccesses) internal view virtual {
+        console.log("Running assertions on the state diff");
         require(accountAccesses.length > 0, "No account accesses");
 
         for (uint256 i; i < accountAccesses.length; i++) {
@@ -92,6 +93,18 @@ abstract contract JsonTxBuilderBase is CommonBase {
                         vm.toString(bytes32(value))
                     );
                     require(address(uint160(value)).code.length != 0, err);
+                } else {
+                    // Log account, slot, and value if there is code.
+                    string memory err = string.concat(
+                        "Likely address in storage has unexpected code\n",
+                        "  account: ",
+                        vm.toString(storageAccess.account),
+                        "\n  slot:    ",
+                        vm.toString(storageAccess.slot),
+                        "\n  value:   ",
+                        vm.toString(bytes32(value))
+                    );
+                    require(address(uint160(value)).code.length == 0, err);
                 }
 
                 require(
@@ -116,7 +129,7 @@ abstract contract JsonTxBuilderBase is CommonBase {
 
     /// @notice Returns a list of addresses which are expected to be in storage, but will not to have code on this
     ///         chain. Examples of such addresses include EOAs, predeploy addresses, and inbox addresses.
-    function getCodeExceptions() internal view virtual returns (address[] memory) {
+    function getCodeExceptions() internal pure virtual returns (address[] memory) {
         revert("getCodeExceptions not implemented");
     }
 
