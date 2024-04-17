@@ -366,15 +366,87 @@ contract SignFromJson is OriginalSignFromJson {
         console.log("All assertions passed!");
     }
 
-    function getCodeExceptions() internal view override returns (address[] memory) {
-        address[] memory shouldHaveCodeExceptions = new address[](4);
+    // This method is not storage-layout-aware and therefore is not perfect. It may return erroneous
+    // results for cases like packed slots, and silently show that things are okay when they are not.
+    function isLikelyAddressThatShouldHaveCode(uint256 value) internal pure returns (bool) {
+        // If out of range (fairly arbitrary lower bound), return false.
+        if (value > type(uint160).max) return false;
+        if (value < uint256(uint160(0x00000000fFFFffffffFfFfFFffFfFffFFFfFffff))) return false;
 
-        shouldHaveCodeExceptions[0] = l2OutputOracleProposer;
-        shouldHaveCodeExceptions[1] = batchSenderAddress;
-        shouldHaveCodeExceptions[2] = p2pSequencerAddress;
-        shouldHaveCodeExceptions[3] = batchInboxAddress;
+        // If the value is a L2 predeploy address it won't have code on this chain, so return false.
+        if (
+            value >= uint256(uint160(0x4200000000000000000000000000000000000000))
+                && value <= uint256(uint160(0x420000000000000000000000000000000000FffF))
+        ) return false;
 
-        return shouldHaveCodeExceptions;
+        // Allow known EOAs.
+        if (address(uint160(value)) == l2OutputOracleProposer) return false;
+        if (address(uint160(value)) == l2OutputOracleChallenger) return false;
+        if (address(uint160(value)) == systemConfigOwner) return false;
+        if (address(uint160(value)) == batchSenderAddress) return false;
+        if (address(uint160(value)) == p2pSequencerAddress) return false;
+        if (address(uint160(value)) == batchInboxAddress) return false;
+
+        // Otherwise, this value looks like an address that we'd expect to have code.
+        return true;
+    }
+
+    function checkStateDiff(Vm.AccountAccess[] memory accesses) internal view {
+        console.log("Running assertions on the state diff");
+
+        for (uint256 i; i < accesses.length; i++) {
+            Vm.AccountAccess memory access = accesses[i];
+            require(
+                access.account.code.length != 0, string.concat("Account has no code: ", vm.toString(access.account))
+            );
+            require(
+                access.oldBalance == access.account.balance,
+                string.concat("Unexpected balance change: ", vm.toString(access.account))
+            );
+            require(
+                access.kind != VmSafe.AccountAccessKind.SelfDestruct,
+                string.concat("Self-destructed account: ", vm.toString(access.account))
+            );
+
+            for (uint256 j; j < access.storageAccesses.length; j++) {
+                Vm.StorageAccess memory storageAccess = access.storageAccesses[j];
+                if (!storageAccess.isWrite) continue; // Skip SLOADs.
+
+                uint256 value = uint256(storageAccess.newValue);
+                if (isLikelyAddressThatShouldHaveCode(value)) {
+                    // Log account, slot, and value if there is no code.
+                    if (address(uint160(value)).code.length == 0) {
+                        string memory err = string.concat(
+                            "Likely address in storage has no code\n",
+                            "  account: ",
+                            vm.toString(storageAccess.account),
+                            "\n  slot:    ",
+                            vm.toString(storageAccess.slot),
+                            "\n  value:   ",
+                            vm.toString(bytes32(value))
+                        );
+                        revert(err);
+                    }
+                }
+
+                require(
+                    storageAccess.account.code.length != 0,
+                    string.concat("Storage account has no code: ", vm.toString(storageAccess.account))
+                );
+                require(
+                    !storageAccess.reverted,
+                    string.concat("Storage access reverted: ", vm.toString(storageAccess.account))
+                );
+                require(
+                    storageAccess.account.code.length != 0,
+                    string.concat("Storage account has no code: ", vm.toString(storageAccess.account))
+                );
+                require(
+                    !storageAccess.reverted,
+                    string.concat("Storage access reverted: ", vm.toString(storageAccess.account))
+                );
+            }
+        }
     }
 
     /// @notice Reads the contract addresses from lib/superchain-registry/superchain/extra/addresses/mainnet/op.json
