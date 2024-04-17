@@ -29,9 +29,8 @@ abstract contract JsonTxBuilderBase is CommonBase {
                 "Transaction list longer than MAX_LENGTH_SUPPORTED is not "
                 "supported, to support it, simply bump the value of " "MAX_LENGTH_SUPPORTED to a bigger one."
             );
-            try vm.parseJsonAddress(jsonContent, string(abi.encodePacked("$.transactions[", vm.toString(i), "].to"))) returns (
-                address
-            ) {} catch {
+            try vm.parseJsonAddress(jsonContent, string(abi.encodePacked("$.transactions[", vm.toString(i), "].to")))
+            returns (address) {} catch {
                 transaction_count = i;
             }
         }
@@ -40,9 +39,13 @@ abstract contract JsonTxBuilderBase is CommonBase {
 
         for (uint256 i = 0; i < transaction_count; i++) {
             calls[i] = IMulticall3.Call3({
-                target: stdJson.readAddress(jsonContent, string(abi.encodePacked("$.transactions[", vm.toString(i), "].to"))),
+                target: stdJson.readAddress(
+                    jsonContent, string(abi.encodePacked("$.transactions[", vm.toString(i), "].to"))
+                ),
                 allowFailure: false,
-                callData: stdJson.readBytes(jsonContent, string(abi.encodePacked("$.transactions[", vm.toString(i), "].data")))
+                callData: stdJson.readBytes(
+                    jsonContent, string(abi.encodePacked("$.transactions[", vm.toString(i), "].data"))
+                )
             });
         }
 
