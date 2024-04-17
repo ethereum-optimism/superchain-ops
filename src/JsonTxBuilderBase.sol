@@ -114,10 +114,10 @@ abstract contract JsonTxBuilderBase is CommonBase {
         }
     }
 
-    /// @notice Returns a list of addresses that are known to not have code on this chain.
+    /// @notice Returns a list of addresses which are expected to be in storage, but will not to have code on this
+    ///         chain. Examples of such addresses include EOAs, predeploy addresses, and inbox addresses.
     function getCodeExceptions() internal view virtual returns (address[] memory) {
-        console.log("\x1b[1;33mWARNING:\x1b[0m getCodeExceptions not implemented");
-        return new address[](0);
+        revert("getCodeExceptions not implemented");
     }
 
     /// @notice Checks that values have code on this chain.
