@@ -24,7 +24,7 @@ jobs:
   check_sepolia_rpc_endpoints:
     circleci_ip_ranges: true
     docker:
-      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
+      - image: <<pipeline.parameters.ci_builder_image>>
 
     steps:
       - checkout
@@ -54,7 +54,7 @@ jobs:
   check_mainnet_rpc_endpoints:
     circleci_ip_ranges: true
     docker:
-      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
+      - image: <<pipeline.parameters.ci_builder_image>>
 
     steps:
       - checkout
@@ -84,7 +84,7 @@ jobs:
   example_mainnet_job:
     circleci_ip_ranges: true
     docker:
-      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
+      - image: <<pipeline.parameters.ci_builder_image>>
 
     steps:
       - attach_workspace:
@@ -105,7 +105,7 @@ jobs:
 
   just_simulate_sc_rehearsal_1:
     docker:
-      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
+      - image: <<pipeline.parameters.ci_builder_image>>
 
     steps:
       - checkout
@@ -122,7 +122,7 @@ jobs:
             just simulate # simulate again to make sure the json is still valid
   just_simulate_sc_rehearsal_2:
     docker:
-      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
+      - image: <<pipeline.parameters.ci_builder_image>>
 
     steps:
       - checkout
@@ -140,7 +140,7 @@ jobs:
             just simulate # simulate again to make sure the json is still valid
   just_simulate_sc_rehearsal_4:
     docker:
-      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
+      - image: <<pipeline.parameters.ci_builder_image>>
 
     steps:
       - checkout
@@ -189,7 +189,7 @@ jobs:
               simulate
   forge_test:
     docker:
-      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
+      - image: <<pipeline.parameters.ci_builder_image>>
     steps:
       - checkout
       - run:
@@ -200,7 +200,7 @@ jobs:
             forge test
   forge_fmt:
     docker:
-      - image: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.35.0
+      - image: <<pipeline.parameters.ci_builder_image>>
     steps:
       - checkout
       - run:
