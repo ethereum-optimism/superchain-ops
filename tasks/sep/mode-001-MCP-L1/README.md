@@ -1,6 +1,6 @@
 # Mode Sepolia MCP L1 Upgrade
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xaf3d8b56ea09d55986b0b1e6c98bceb737332752d6f828b748421f947046920f)
 
 ## Objective
 
