@@ -7,18 +7,20 @@ the Multi-Chain Prep (MCP) L1 upgrade.
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [Multi-Chain Prep (MCP) Overview](#multi-chain-prep-mcp-overview)
-- [Upgrade Process](#upgrade-process)
-  - [Setup](#setup)
-    - [Local Machine](#local-machine)
-    - [Familiarize yourself with the `single.just` file (superchain-ops repo)](#familiarize-yourself-with-the-singlejust-file-superchain-ops-repo)
-  - [Scaffold the ops task (playbook) for your upgrade (superchain-ops repo)](#scaffold-the-ops-task-playbook-for-your-upgrade-superchain-ops-repo)
-  - [Generate the `input.json` file from the Optimism monorepo](#generate-the-inputjson-file-from-the-optimism-monorepo)
-  - [Simulate and Validate](#simulate-and-validate)
-  - [Sign](#sign)
-  - [Facilitators Execute](#facilitators-execute)
-  - [Onchain Validation Ideas](#onchain-validation-ideas)
-- [Appendix A: Using this Runbook for Other Chains](#appendix-a-using-this-runbook-for-other-chains)
+- [MCP L1 Upgrades Runbook](#mcp-l1-upgrades-runbook)
+  - [Multi-Chain Prep (MCP) Overview](#multi-chain-prep-mcp-overview)
+  - [Upgrade Process](#upgrade-process)
+    - [Setup](#setup)
+      - [Local Machine](#local-machine)
+      - [Familiarize yourself with the `single.just` file (superchain-ops repo)](#familiarize-yourself-with-the-singlejust-file-superchain-ops-repo)
+    - [Scaffold the ops task (playbook) for your upgrade (superchain-ops repo)](#scaffold-the-ops-task-playbook-for-your-upgrade-superchain-ops-repo)
+    - [Generate the `input.json` file from the Optimism monorepo](#generate-the-inputjson-file-from-the-optimism-monorepo)
+    - [Simulate and Validate](#simulate-and-validate)
+    - [Add New Chain to CircleCI](#add-new-chain-to-circleci)
+    - [Sign](#sign)
+    - [Facilitators Execute](#facilitators-execute)
+    - [Onchain Validation Ideas](#onchain-validation-ideas)
+  - [Appendix A: Using this Runbook for Other Chains](#appendix-a-using-this-runbook-for-other-chains)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -309,6 +311,10 @@ brevity, but can be modified accordingly for other chains:
 - Cmd+F for "op" (or use `\bop[^-]\b` as a regex search) to ensure no links are pointing to the OP chains.
 - Do the same but for other chain names that are not the chain you are upgrading.
 - Walk through the validations file as if you are the most diligent multisig signer on the Safe, while viewing the markdown render on github (or some IDE different from the one you used to write it). Creating these files is a tedious and error-prone manual process so mistakes are likely. Walking through the file and validating everything in a different viewer/IDE is a really great way to catch mistakes.l
+
+### Add New Chain to CircleCI
+
+
 
 ### Sign
 
