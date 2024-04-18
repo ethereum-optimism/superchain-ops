@@ -49,9 +49,9 @@ contract SignFromJson is OriginalSignFromJson {
     address constant l2OutputOracleProposer = 0xe8326a5839175dE7f467e66D8bB443aa70DA1c3e; // cast call $L2OO "PROPOSER()(address)"
     address constant l2OutputOracleChallenger = 0x45eFFbD799Ab49122eeEAB75B78D9C56A187F9A7; // In registry addresses.
     address constant systemConfigOwner = 0x23BA22Dd7923F3a3f2495bB32a6f3c9b9CD1EC6C; // In registry addresses.
-    address constant batchSenderAddress = 0x3cd868e221a3be64b161d596a7482257a99d857f; // In registry genesis-system-configs
+    address constant batchSenderAddress = 0x3Cd868E221A3be64B161D596A7482257a99D857f; // In registry genesis-system-configs
     address constant p2pSequencerAddress = 0x3609513933100689bd1f84782529A99239842344; // cast call $SystemConfig "unsafeBlockSigner()(address)"
-    address constant batchInboxAddress = 0xcd734290e4bd0200dac631c7d4b9e8a33234e91f; // In registry yaml.
+    address constant batchInboxAddress = 0xCd734290E4bd0200dAC631c7D4b9E8a33234e91f; // In registry yaml.
 
     // Hardcoded data that should not change after execution.
     uint256 l2GenesisBlockGasLimit = 30e6;
