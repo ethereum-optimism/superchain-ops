@@ -147,7 +147,7 @@ State Changes:
 ### `0x5e6432f18bc5d497b1ab2288a025fbf9d69e2221` (`SystemConfigProxy`)
 
 Links:
-- [Etherscan](https://sepolia.etherscan.io/address/0x5e6432f18bc5d497b1ab2288a025fbf9d69e2221)
+- [Etherscan](https://etherscan.io/address/0x5e6432f18bc5d497b1ab2288a025fbf9d69e2221)
 - [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/mainnet/mode.json#L3)
 
 State Changes:
