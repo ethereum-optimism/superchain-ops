@@ -69,7 +69,6 @@ State Changes:
   **After:** `0x000000000000000000000000ae2af01232a6c4a4d3012c5ec5b1b35059caf10d` <br/>
   **Meaning:** The implementation address is set to the new `L1ERC721Bridge`. The address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/implementations/networks/sepolia.yaml#L4).
 
-
 ### `0x1bDBC0ae22bEc0c2f08B4dd836944b3E28fe9b7A` (`L1CrossDomainMessengerProxy`)
 
 Links:
@@ -95,7 +94,6 @@ State Changes:
   **After:**  `0x000000000000000000000000effe2c6ca9ab797d418f0d91ea60807713f3536f` <br/>
   **Meaning:** Sets `OptimismPortal` at slot `0xfc` (252). The correctness of
    this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L136-L140). The `OptimismPortal` address can be found [here](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L8).
-
 
 ### `0x2615B481Bd3E5A1C0C7Ca3Da1bdc663E8615Ade9` (`L2OutputOracleProxy`)
 
@@ -138,9 +136,6 @@ State Changes:
   **Before:** `0x00000000000000000000000005f3b4588b00bacb7808c54126072f5907fdc21a` <br/>
   **After:** `0x000000000000000000000000f243bed163251380e78068d317ae10f26042b292` <br/>
   **Meaning:** Implementation address is set to the new `L2OutputOracle`. The address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/sepolia.yaml#L8).
-
-
-
 
 ### `0x27c9392144DFcB6dab113F737356C32435cD1D55` (`AddressManager`)
 
@@ -201,9 +196,6 @@ State Changes:
   **After:** `0x00000000000000000000000064b5a5ed26dcb17370ff4d33a8d503f0fbd06cff` <br/>
   **Meaning:** Implementation address is set to the new `L1StandardBridge`. The address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/sepolia.yaml#L6).
 
-
-
-
 ### `0x5F3bdd57f01e88cE2F88f00685D30D6eb51A187c` (`OptimismMintableERC20FactoryProxy`)
 
 Links:
@@ -228,9 +220,6 @@ State Changes:
   **Before:** `0x00000000000000000000000042d4a53fdcbc738479aaac9a39e3efe6a3216bef` <br/>
   **After:** `0x000000000000000000000000e01efbeb1089d1d1db9c6c8b135c934c0734c846` <br/>
   **Meaning:** Implementation address is set to the new `OptimismMintableERC20Factory` implementation. The address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/sepolia.yaml#L10).
-
-
-
 
 ### `0xB54c7BFC223058773CF9b739cC5bd4095184Fb08` (`SystemConfigProxy`)
 
