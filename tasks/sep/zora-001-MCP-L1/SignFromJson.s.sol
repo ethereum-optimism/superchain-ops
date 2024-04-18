@@ -43,15 +43,15 @@ contract SignFromJson is OriginalSignFromJson {
 
     // Chains for this task.
     string constant l1ChainName = "sepolia";
-    string constant l2ChainName = "metal";
+    string constant l2ChainName = "zora";
 
     // Known EOAs to exclude from safety checks.
-    address constant l2OutputOracleProposer = 0x2D70F9A866dE34C0f738F8cb2AF1361b5aF18CAa; // cast call $L2OO "PROPOSER()(address)"
+    address constant l2OutputOracleProposer = 0xe8326a5839175dE7f467e66D8bB443aa70DA1c3e; // cast call $L2OO "PROPOSER()(address)"
     address constant l2OutputOracleChallenger = 0x45eFFbD799Ab49122eeEAB75B78D9C56A187F9A7; // In registry addresses.
     address constant systemConfigOwner = 0x23BA22Dd7923F3a3f2495bB32a6f3c9b9CD1EC6C; // In registry addresses.
-    address constant batchSenderAddress = 0xdb80Eca386AC72a55510e33CF9CF7533e75916eE; // In registry genesis-system-configs
-    address constant p2pSequencerAddress = 0x3C1A357c4c77843d34750dBee68C589ACB4F5f9B; // cast call $SystemConfig "unsafeBlockSigner()(address)"
-    address constant batchInboxAddress = 0x24567B64a86A4c966655fba6502a93dFb701E316; // In registry yaml.
+    address constant batchSenderAddress = 0x3cd868e221a3be64b161d596a7482257a99d857f; // In registry genesis-system-configs
+    address constant p2pSequencerAddress = 0x3609513933100689bd1f84782529A99239842344; // cast call $SystemConfig "unsafeBlockSigner()(address)"
+    address constant batchInboxAddress = 0xcd734290e4bd0200dac631c7d4b9e8a33234e91f; // In registry yaml.
 
     // Hardcoded data that should not change after execution.
     uint256 l2GenesisBlockGasLimit = 30e6;
@@ -71,8 +71,8 @@ contract SignFromJson is OriginalSignFromJson {
     uint256 recommendedProtocolVersion;
 
     // Other data we use.
-    uint256 systemConfigStartBlock = 5304055; // This was an input when generating input.json
-    AddressManager addressManager = AddressManager(0x394f844B9A0FC876935d1b0b791D9e94Ad905e8b);
+    uint256 systemConfigStartBlock = 4548045; // This was an input when generating input.json
+    AddressManager addressManager = AddressManager(0x27c9392144DFcB6dab113F737356C32435cD1D55);
     Types.ContractSet proxies;
 
     // This gives the initial fork, so we can use it to switch back after fetching data.
