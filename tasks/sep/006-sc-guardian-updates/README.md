@@ -21,6 +21,7 @@ Reduce Pause: Reduce non-SC's ability to pause indefinitely.
 5. DeputyGuardianModule: 0x2329EfD0bFc72Aa7849D9DFc2e131D83F4680d85 #new contract
 6. LivenessGuard: 0x54E8baCcC67fA3c6b3e9A94BAa4d70d1668f0820 #new contract
 7. LivenessModule: 0xefd77C23A8ACF13E194d30C6DF51F1C43B0f9932 #new contract
+8. 2 of 2 Safe: 0xeD3d7D9f610a8ACcBe9CACA172B7F3d70530E89D
 
 Question:
 - do we need a runbook to add the LivenessModule, or can we just do it?
