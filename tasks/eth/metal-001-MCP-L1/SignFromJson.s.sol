@@ -47,11 +47,11 @@ contract SignFromJson is OriginalSignFromJson {
 
     // Known EOAs to exclude from safety checks.
     address constant l2OutputOracleProposer = 0xC8187d40AD440328104A52BBed2D8Efc5ab1F1F6; // cast call $L2_OUTPUT_ORACLE_PROXY "PROPOSER()(address)" # https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/mainnet/metal.json#L6
-    address constant l2OutputOracleChallenger = 0x4a4962275df8c60a80d3a25faec5aa7de116a746; // https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/mainnet/metal.json#L14
-    address constant systemConfigOwner = 0x4a4962275df8c60a80d3a25faec5aa7de116a746; // https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/mainnet/metal.json#L12 
-    address constant batchSenderAddress = 0xc94c243f8fb37223f3eb2f7961f7072602a51b8b; // https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/genesis-system-configs/mainnet/metal.json#L2
+    address constant l2OutputOracleChallenger = 0x4a4962275DF8C60a80d3a25faEc5AA7De116A746; // https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/mainnet/metal.json#L14
+    address constant systemConfigOwner = 0x4a4962275DF8C60a80d3a25faEc5AA7De116A746; // https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/mainnet/metal.json#L12 
+    address constant batchSenderAddress = 0xC94C243f8fb37223F3EB2f7961F7072602A51B8B; // https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/genesis-system-configs/mainnet/metal.json#L2
     address constant p2pSequencerAddress = 0x4a65F5da5e80DEFfEA844eAa15CE130e80605dc5; // cast call $SYSTEM_CONFIG_PROXY "unsafeBlockSigner()(address)" # https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/mainnet/metal.json#L9
-    address constant batchInboxAddress = 0xc83f7d9f2d4a76e81145849381aba02602373723; // https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/metal.yaml#L9
+    address constant batchInboxAddress = 0xc83f7D9F2D4A76E81145849381ABA02602373723; // https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/metal.yaml#L9
 
     // Hardcoded data that should not change after execution.
     uint256 l2GenesisBlockGasLimit = 30e6;
@@ -84,7 +84,7 @@ contract SignFromJson is OriginalSignFromJson {
 
         // Fetch variables that are not expected to change from an older block.
         initialFork = vm.activeFork();
-        vm.createSelectFork(vm.envString("ETH_RPC_URL"), 19683673); // This block is from Apr-18-2024 04:56:47 PM +UTC.
+        vm.createSelectFork(vm.envString("ETH_RPC_URL"), 19684789); // This block is from Apr-18-2024 08:41:23 PM +UTC.
 
         gasPriceOracleOverhead = IFetcher(proxies.SystemConfig).overhead();
         gasPriceOracleScalar = IFetcher(proxies.SystemConfig).scalar();
@@ -367,14 +367,12 @@ contract SignFromJson is OriginalSignFromJson {
     }
 
     function getCodeExceptions() internal pure override returns (address[] memory) {
-        address[] memory shouldHaveCodeExceptions = new address[](6); 
+        address[] memory shouldHaveCodeExceptions = new address[](4); 
 
         shouldHaveCodeExceptions[0] = l2OutputOracleProposer;
-        shouldHaveCodeExceptions[1] = l2OutputOracleChallenger;
-        shouldHaveCodeExceptions[2] = systemConfigOwner;
-        shouldHaveCodeExceptions[3] = batchSenderAddress;
-        shouldHaveCodeExceptions[4] = p2pSequencerAddress;
-        shouldHaveCodeExceptions[5] = batchInboxAddress;
+        shouldHaveCodeExceptions[1] = batchSenderAddress;
+        shouldHaveCodeExceptions[2] = p2pSequencerAddress;
+        shouldHaveCodeExceptions[3] = batchInboxAddress;
 
         return shouldHaveCodeExceptions;
     }

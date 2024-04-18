@@ -1,6 +1,3 @@
-====================================================================================================
-====================== ABOVE THIS LINE IS FINALIZED, BELOW IT IS IN PROGRESS =======================
-====================================================================================================
 # Validation
 
 This document can be used to validate the state diff resulting from the execution of the upgrade
@@ -33,6 +30,63 @@ Enables the simulation by setting the threshold to 1:
   multiple times below, and corresponds to the storage key of the implementation address as defined
   in [Proxy.sol](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/src/universal/Proxy.sol#L104) and [Constants.sol](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/src/libraries/Constants.sol#L26-L27). This is useful for [ERC-1967](https://eips.ethereum.org/EIPS/eip-1967) proxies.
 - Check the provided links to ensure that the correct contract is described at the correct address. The superchain registry is the source of truth for contract addresses and etherscan is supplementary.
+
+### `0x0a47A44f1B2bb753474f8c830322554A96C9934D` (`L1CrossDomainMessengerProxy`)
+
+Links:
+- [Etherscan](https://etherscan.io/address/0x0a47A44f1B2bb753474f8c830322554A96C9934D)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/mainnet/metal.json#L3)
+
+State Changes:
+- **Key:** `0x00000000000000000000000000000000000000000000000000000000000000cf` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
+  **After:**  `0x0000000000000000000000004200000000000000000000000000000000000007` <br/>
+  **Meaning:** Sets `otherMessenger` at slot `0xcf` (207). The correctness of
+   this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L115-L119). The `otherMessenger` address should be the the L2CrossDomainMessenger
+   predeploy address as seen in the [Optimism repo predeploys](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/op-bindings/predeploys/addresses.go#L12). The slot has left padding of zero bytes to fill the storage slot.
+
+- **Key:** `0x00000000000000000000000000000000000000000000000000000000000000fb` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
+  **After:**  `0x00000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c` <br/>
+  **Meaning:** Sets `SuperchainConfig` at slot `0xfb` (251). The correctness of
+   this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L128-L134). The `superchainConfig` address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/configs/mainnet/superchain.yaml#L8).
+
+- **Key:** `0x00000000000000000000000000000000000000000000000000000000000000fc` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
+  **After:**  `0x0000000000000000000000003f37abde2c6b5b2ed6f8045787df1ed1e3753956` <br/>
+  **Meaning:** Sets `OptimismPortal` at slot `0xfc` (252). The correctness of
+   this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L136-L140). The `OptimismPortal` address can be found [here](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/mainnet/metal.json#L8).
+
+====================================================================================================
+====================== ABOVE THIS LINE IS FINALIZED, BELOW IT IS IN PROGRESS =======================
+====================================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ### `0x2901da832a4d0297ff0691100a8e496626cc626d` (`L1ERC721BridgeProxy`)
 
@@ -312,32 +366,6 @@ State Changes:
   **Before:** `0x000000000000000000000000ad3dc277d3242938f8be18f0560e3d9b9988c46a` <br/>
   **After:** `0x0000000000000000000000002d778797049fe9259d947d1ed8e5442226dfb589` <br/>
   **Meaning:** Implementation address is set to the new `OptimismPortal`. The implementation address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/mainnet.yaml#L12).
-
-### `0x95bdca6c8edeb69c98bd5bd17660bacef1298a6f` (`L1CrossDomainMessengerProxy`)
-
-Links:
-- [Etherscan](https://etherscan.io/address/0x95bdca6c8edeb69c98bd5bd17660bacef1298a6f)
-- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/mainnet/mode.json#L6)
-
-State Changes:
-- **Key:** `0x00000000000000000000000000000000000000000000000000000000000000cf` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:**  `0x0000000000000000000000004200000000000000000000000000000000000007` <br/>
-  **Meaning:** Sets `otherMessenger` at slot `0xcf` (207). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L115-L119). The `otherMessenger` address should be the the L2CrossDomainMessenger
-   predeploy address as seen in the [Optimism repo predeploys](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/op-bindings/predeploys/addresses.go#L12). The slot has left padding of zero bytes to fill the storage slot.
-
-- **Key:** `0x00000000000000000000000000000000000000000000000000000000000000fb` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:**  `0x00000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c` <br/>
-  **Meaning:** Sets `SuperchainConfig` at slot `0xfb` (251). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L128-L134). The `superchainConfig` address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/configs/mainnet/superchain.yaml#L8).
-
-- **Key:** `0x00000000000000000000000000000000000000000000000000000000000000fc` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:**  `0x0000000000000000000000008b34b14c7c7123459cf3076b8cb929be097d0c07` <br/>
-  **Meaning:** Sets `OptimismPortal` at slot `0xfc` (252). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L136-L140). The `OptimismPortal` address can be found [here](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/mainnet/mode.json#L5).
 
 The only other state change is a nonce increment of `0xa4000bdd2bb92ce6750b31f1eeda47bd1cb8e6e4`,
 which is the account sending the transaction and is the only signer on the safe.
