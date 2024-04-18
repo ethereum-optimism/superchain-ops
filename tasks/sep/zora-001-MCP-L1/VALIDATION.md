@@ -31,6 +31,151 @@ Enables the simulation by setting the threshold to 1:
   in [Proxy.sol](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/src/universal/Proxy.sol#L104) and [Constants.sol](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/src/libraries/Constants.sol#L26-L27). This is useful for [ERC-1967](https://eips.ethereum.org/EIPS/eip-1967) proxies.
 - Check the provided links to ensure that the correct contract is described at the correct address. The superchain registry is the source of truth for contract addresses and etherscan is supplementary.
 
+
+
+
+### `0x16b0a4f451c4cb567703367e587e15ac108e4311` (`L1ERC721BridgeProxy`)
+
+Links:
+- [Etherscan](https://sepolia.etherscan.io/address/0x16b0a4f451c4cb567703367e587e15ac108e4311)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L4)
+
+State Changes:
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
+  **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
+  **Meaning:** The `initialized` boolean is set to `true`. The correctness of
+   this slot is attested to in the Optimism repo at [storageLayout/L1ERC721Bridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1ERC721Bridge.json#L2-L22).
+   This state diff will only appear in contracts that were previously not initializable. Other contracts are reinitialized but it does not show in the state diff because the storage diff is a noop.
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
+  **After:** `0x0000000000000000000000001bdbc0ae22bec0c2f08b4dd836944b3e28fe9b7a` <br/>
+  **Meaning:** Sets `messenger` at slot `0x01` (1). The correctness of
+   this slot is attested to in the Optimism repo at [storageLayout/L1ERC721Bridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1ERC721Bridge.json#L24-L28). The address of the [L1CrossDomainMessengerProxy](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L3) should be in the slot with left padding to fill the storage slot.
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000002` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
+  **After:** `0x0000000000000000000000004200000000000000000000000000000000000014` <br/>
+  **Meaning:** Sets `otherBridge` at slot `0x02` (2). The correctness of
+   this slot is attested to in the Optimism repo at [storageLayout/L1ERC721Bridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1ERC721Bridge.json#L31-L35). This should correspond to the L2ERC721Bridge predeploy address as seen in the [Optimism repo predeploys](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/op-bindings/predeploys/addresses.go#L21). The slot has left padding of zero bytes to fill the storage slot.
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000032` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  **After:** `0x000000000000000000000000c2be75506d5724086deb7245bd260cc9753911be` <br/>
+  **Meaning:** Sets `superchainConfig` at slot `0x32` (50). The correctness of
+   this slot is attested to in the Optimism repo at [storageLayout/L1ERC721Bridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1ERC721Bridge.json#L51-L57). The `superchainConfig` address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/configs/sepolia/superchain.yaml#L8).
+
+- **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
+  **Before:** `0x000000000000000000000000463ad1d9e283f920306a04d195bca9f88c89d30e` <br/>
+  **After:** `0x000000000000000000000000ae2af01232a6c4a4d3012c5ec5b1b35059caf10d` <br/>
+  **Meaning:** The implementation address is set to the new `L1ERC721Bridge`. The address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/implementations/networks/sepolia.yaml#L4).
+
+
+### `0x1bDBC0ae22bEc0c2f08B4dd836944b3E28fe9b7A` (`L1CrossDomainMessengerProxy`)
+
+Links:
+- [Etherscan](https://sepolia.etherscan.io/address/0x1bDBC0ae22bEc0c2f08B4dd836944b3E28fe9b7A)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L3)
+
+State Changes:
+- **Key:** `0x00000000000000000000000000000000000000000000000000000000000000cf` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
+  **After:**  `0x0000000000000000000000004200000000000000000000000000000000000007` <br/>
+  **Meaning:** Sets `otherMessenger` at slot `0xcf` (207). The correctness of
+   this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L115-L119). The `otherMessenger` address should be the the L2CrossDomainMessenger
+   predeploy address as seen in the [Optimism repo predeploys](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/op-bindings/predeploys/addresses.go#L12). The slot has left padding of zero bytes to fill the storage slot.
+
+- **Key:** `0x00000000000000000000000000000000000000000000000000000000000000fb` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
+  **After:**  `0x000000000000000000000000c2be75506d5724086deb7245bd260cc9753911be` <br/>
+  **Meaning:** Sets `SuperchainConfig` at slot `0xfb` (251). The correctness of
+   this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L128-L134). The `superchainConfig` address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/configs/sepolia/superchain.yaml#L8).
+
+- **Key:** `0x00000000000000000000000000000000000000000000000000000000000000fc` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
+  **After:**  `0x000000000000000000000000effe2c6ca9ab797d418f0d91ea60807713f3536f` <br/>
+  **Meaning:** Sets `OptimismPortal` at slot `0xfc` (252). The correctness of
+   this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L136-L140). The `OptimismPortal` address can be found [here](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L8).
+
+
+### `0x2615B481Bd3E5A1C0C7Ca3Da1bdc663E8615Ade9` (`L2OutputOracleProxy`)
+
+Links:
+- [Etherscan](https://sepolia.etherscan.io/address/0x2615B481Bd3E5A1C0C7Ca3Da1bdc663E8615Ade9)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L6C27-L6C69)
+
+State Changes:
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000004` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
+  **After:** `0x00000000000000000000000000000000000000000000000000000000000000b4` <br/>
+  **Meaning:** Sets `submissionInterval` at slot `0x04` (4). The correctness of
+   this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L38-L42). `0xb4` is 180 in decimal, which matches the current value found by `cast call 0x2615B481Bd3E5A1C0C7Ca3Da1bdc663E8615Ade9 "SUBMISSION_INTERVAL()(uint256)" -r https://ethereum-sepolia.publicnode.com`.
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
+  **After:** `0x0000000000000000000000000000000000000000000000000000000000000002` <br/>
+  **Meaning:** Sets `l2BlockTime` at slot `0x05` (5). The correctness of
+   this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L45-L49). Units are in seconds, so the value should be 2 seconds to match the current value found by `cast call 0x2615B481Bd3E5A1C0C7Ca3Da1bdc663E8615Ade9 "L2_BLOCK_TIME()(uint256)" -r https://ethereum-sepolia.publicnode.com`.
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000006` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
+  **After:** `0x00000000000000000000000045effbd799ab49122eeeab75b78d9c56a187f9a7` <br/>
+  **Meaning:** Sets `challenger` at slot `0x06` (6). The correctness of
+   this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L52-L56). This value matches the current address found by `cast call 0x2615B481Bd3E5A1C0C7Ca3Da1bdc663E8615Ade9 "CHALLENGER()(address)" -r https://ethereum-sepolia.publicnode.com`.
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000007` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
+  **After:** `0x000000000000000000000000e8326a5839175de7f467e66d8bb443aa70da1c3e` <br/>
+  **Meaning:** Sets `proposer` at slot `0x07` (7). The correctness of
+   this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L59-L63). This value matches the current address found by `cast call 0x2615B481Bd3E5A1C0C7Ca3Da1bdc663E8615Ade9 "PROPOSER()(address)" -r https://ethereum-sepolia.publicnode.com`.
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000008` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
+  **After:** `0x0000000000000000000000000000000000000000000000000000000000093a80` <br/>
+  **Meaning:** Sets `finalizationPeriodSeconds` at slot `0x08` (8). The correctness of
+   this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L66-L70). Units are in seconds, so the value should be `0x93a80` which is 604,800 in decimal. This value matches the current address found by `cast call 0x2615B481Bd3E5A1C0C7Ca3Da1bdc663E8615Ade9 "FINALIZATION_PERIOD_SECONDS()(uint256)" -r https://ethereum-sepolia.publicnode.com`
+
+- **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
+  **Before:** `0x00000000000000000000000005f3b4588b00bacb7808c54126072f5907fdc21a` <br/>
+  **After:** `0x000000000000000000000000f243bed163251380e78068d317ae10f26042b292` <br/>
+  **Meaning:** Implementation address is set to the new `L2OutputOracle`. The address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/sepolia.yaml#L8).
+
+
+
+
+### `0x27c9392144DFcB6dab113F737356C32435cD1D55` (`AddressManager`)
+
+Links:
+- [Etherscan](https://sepolia.etherscan.io/address/0x27c9392144DFcB6dab113F737356C32435cD1D55)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L2C22-L2C64)
+
+State Changes:
+- **Key:** `0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e` <br/>
+  **Before:** `0x00000000000000000000000044173eff58cc8946ffc28faef4abd710e5da7d24` <br/>
+  **After:** `0x000000000000000000000000d3494713a5cfad3f5359379dfa074e2ac8c6fd65` <br/>
+  **Meaning:** The name `OVM_L1CrossDomainMessenger` is set to the address of the new `L1CrossDomainMessenger` [implementation](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/sepolia.yaml#L2). This key is complicated to compute, so instead we attest to correctness of the key by verifying that the "Before" value currently exists in that slot, as explained below.
+  **Before** address matches both of the following cast calls (please consider changing out the rpc
+  url):
+  1. what is returned by calling `AddressManager.getAddress()`:
+   ```
+   cast call 0x27c9392144DFcB6dab113F737356C32435cD1D55 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url https://ethereum-sepolia.publicnode.com
+   ```
+  2. what is currently stored at the key:
+   ```
+   cast storage 0x27c9392144DFcB6dab113F737356C32435cD1D55 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url https://ethereum-sepolia.publicnode.com
+   ```
+
+====================================================================================================
+====================== ABOVE THIS LINE IS FINALIZED, BELOW IT IS IN PROGRESS =======================
+====================================================================================================
+
+
+
+====================================================================================================
+===================== ABOVE THIS LINE IS IN PROGRESS, BELOW IT WAS NOT UPDATED =====================
+====================================================================================================
+
 ### `0x01D4dfC994878682811b2980653D03E589f093cB` (`OptimismPortalProxy`)
 
 Links:
@@ -98,28 +243,6 @@ State Changes:
   **After:** `0x00000000000000000000000064b5a5ed26dcb17370ff4d33a8d503f0fbd06cff` <br/>
   **Meaning:** Implementation address is set to the new `L1StandardBridge`. The address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/sepolia.yaml#L6).
 
-### `0x394f844B9A0FC876935d1b0b791D9e94Ad905e8b` (`AddressManager`)
-
-Links:
-- [Etherscan](https://sepolia.etherscan.io/address/0x394f844B9A0FC876935d1b0b791D9e94Ad905e8b)
-- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L2)
-
-State Changes:
-- **Key:** `0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e` <br/>
-  **Before:** `0x000000000000000000000000cafe858f9d9f54dc1bf4c23fef58c254862b58dc` <br/>
-  **After:** `0x000000000000000000000000d3494713a5cfad3f5359379dfa074e2ac8c6fd65` <br/>
-  **Meaning:** The name `OVM_L1CrossDomainMessenger` is set to the address of the new `L1CrossDomainMessenger` [implementation](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/sepolia.yaml#L2). This key is complicated to compute, so instead we attest to correctness of the key by verifying that the "Before" value currently exists in that slot, as explained below.
-  **Before** address matches both of the following cast calls (please consider changing out the rpc
-  url):
-  1. what is returned by calling `AddressManager.getAddress()`:
-   ```
-   cast call 0x394f844b9a0fc876935d1b0b791d9e94ad905e8b 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url https://ethereum-sepolia.publicnode.com
-   ```
-  2. what is currently stored at the key:
-   ```
-   cast storage 0x394f844b9a0fc876935d1b0b791d9e94ad905e8b 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url https://ethereum-sepolia.publicnode.com
-   ```
-
 ### `0x49Ff2C4be882298e8CA7DeCD195c207c42B45F66` (`OptimismMintableERC20FactoryProxy`)
 
 Links:
@@ -144,32 +267,6 @@ State Changes:
   **Before:** `0x000000000000000000000000585e9769e643dc1b5261fb32362e0cd1f48f6246` <br/>
   **After:** `0x000000000000000000000000e01efbeb1089d1d1db9c6c8b135c934c0734c846` <br/>
   **Meaning:** Implementation address is set to the new `OptimismMintableERC20Factory` implementation. The address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/sepolia.yaml#L10).
-
-### `0x5D335Aa7d93102110879e3B54985c5F08146091E` (`L1CrossDomainMessengerProxy`)
-
-Links:
-- [Etherscan](https://sepolia.etherscan.io/address/0x5D335Aa7d93102110879e3B54985c5F08146091E)
-- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L3)
-
-State Changes:
-- **Key:** `0x00000000000000000000000000000000000000000000000000000000000000cf` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:**  `0x0000000000000000000000004200000000000000000000000000000000000007` <br/>
-  **Meaning:** Sets `otherMessenger` at slot `0xcf` (207). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L115-L119). The `otherMessenger` address should be the the L2CrossDomainMessenger
-   predeploy address as seen in the [Optimism repo predeploys](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/op-bindings/predeploys/addresses.go#L12). The slot has left padding of zero bytes to fill the storage slot.
-
-- **Key:** `0x00000000000000000000000000000000000000000000000000000000000000fb` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:**  `0x000000000000000000000000c2be75506d5724086deb7245bd260cc9753911be` <br/>
-  **Meaning:** Sets `SuperchainConfig` at slot `0xfb` (251). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L128-L134). The `superchainConfig` address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/configs/sepolia/superchain.yaml#L8).
-
-- **Key:** `0x00000000000000000000000000000000000000000000000000000000000000fc` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:**  `0x00000000000000000000000001d4dfc994878682811b2980653d03e589f093cb` <br/>
-  **Meaning:** Sets `OptimismPortal` at slot `0xfc` (252). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L136-L140). The `OptimismPortal` address can be found [here](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L8).
 
 ### `0x5D63A8Dc2737cE771aa4a6510D063b6Ba2c4f6F2` (`SystemConfigProxy`)
 
@@ -245,84 +342,6 @@ that the address actually matches the correct implementation, an Etherscan link 
   **After:** `0x00000000000000000000000075a6b961c8da942ee03ca641b09c322549f6fa98` <br/>
   **Meaning:** Sets `l2OutputOracle` at slot per the [Superchain Registry][output-oracle-registry]. This should be a proxy per [Etherscan][output-oracle-etherscan]. Verification of the key can be done by ensuring the result of the [L2_OUTPUT_ORACLE_SLOT](https://sepolia.etherscan.io/address/0xba2492e52F45651B60B8B38d4Ea5E2390C64Ffb1#readContract#F5) getter on the implementation contract matches the key.
 
-### `0x5d6cE6917dBeeacF010c96BfFdaBE89e33a30309` (`L1ERC721BridgeProxy`)
-
-Links:
-- [Etherscan](https://sepolia.etherscan.io/address/0x5d6cE6917dBeeacF010c96BfFdaBE89e33a30309)
-- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L4)
-
-State Changes:
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
-  **Meaning:** The `initialized` boolean is set to `true`. The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1ERC721Bridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1ERC721Bridge.json#L2-L22).
-   This state diff will only appear in contracts that were previously not initializable. Other contracts are reinitialized but it does not show in the state diff because the storage diff is a noop.
-
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:** `0x0000000000000000000000005d335aa7d93102110879e3b54985c5f08146091e` <br/>
-  **Meaning:** Sets `messenger` at slot `0x01` (1). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1ERC721Bridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1ERC721Bridge.json#L24-L28). The address of the [L1CrossDomainMessengerProxy](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L3) should be in the slot with left padding to fill the storage slot.
-
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000002` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:** `0x0000000000000000000000004200000000000000000000000000000000000014` <br/>
-  **Meaning:** Sets `otherBridge` at slot `0x02` (2). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1ERC721Bridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1ERC721Bridge.json#L31-L35). This should correspond to the L2ERC721Bridge predeploy address as seen in the [Optimism repo predeploys](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/op-bindings/predeploys/addresses.go#L21). The slot has left padding of zero bytes to fill the storage slot.
-
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000032` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
-  **After:** `0x000000000000000000000000c2be75506d5724086deb7245bd260cc9753911be` <br/>
-  **Meaning:** Sets `superchainConfig` at slot `0x32` (50). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1ERC721Bridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1ERC721Bridge.json#L51-L57). The `superchainConfig` address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/configs/sepolia/superchain.yaml#L8).
-
-- **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
-  **Before:** `0x0000000000000000000000004a2bf159cd6f436a3eb7cdcf5dad1a6fce66427f` <br/>
-  **After:** `0x000000000000000000000000ae2af01232a6c4a4d3012c5ec5b1b35059caf10d` <br/>
-  **Meaning:** The implementation address is set to the new `L1ERC721Bridge`. The address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/sepolia.yaml#L4).
-
-### `0x75a6B961c8da942Ee03CA641B09C322549f6FA98` (`L2OutputOracleProxy`)
-
-Links:
-- [Etherscan](https://sepolia.etherscan.io/address/0x75a6B961c8da942Ee03CA641B09C322549f6FA98)
-- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L6)
-
-State Changes:
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000004` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:** `0x00000000000000000000000000000000000000000000000000000000000000b4` <br/>
-  **Meaning:** Sets `submissionInterval` at slot `0x04` (4). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L38-L42). `0xb4` is 180 in decimal, which matches the current value found by `cast call 0x75a6B961c8da942Ee03CA641B09C322549f6FA98 "SUBMISSION_INTERVAL()(uint256)" -r https://ethereum-sepolia.publicnode.com`.
-
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:** `0x0000000000000000000000000000000000000000000000000000000000000002` <br/>
-  **Meaning:** Sets `l2BlockTime` at slot `0x05` (5). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L45-L49). Units are in seconds, so the value should be 2 seconds to match the current value found by `cast call 0x75a6B961c8da942Ee03CA641B09C322549f6FA98 "L2_BLOCK_TIME()(uint256)" -r https://ethereum-sepolia.publicnode.com`.
-
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000006` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:** `0x00000000000000000000000045effbd799ab49122eeeab75b78d9c56a187f9a7` <br/>
-  **Meaning:** Sets `challenger` at slot `0x06` (6). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L52-L56). This value matches the current address found by `cast call 0x75a6B961c8da942Ee03CA641B09C322549f6FA98 "CHALLENGER()(address)" -r https://ethereum-sepolia.publicnode.com`.
-
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000007` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:** `0x0000000000000000000000002d70f9a866de34c0f738f8cb2af1361b5af18caa` <br/>
-  **Meaning:** Sets `proposer` at slot `0x07` (7). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L59-L63). This value matches the current address found by `cast call 0x75a6B961c8da942Ee03CA641B09C322549f6FA98 "PROPOSER()(address)" -r https://ethereum-sepolia.publicnode.com`.
-
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000008` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:** `0x0000000000000000000000000000000000000000000000000000000000093a80` <br/>
-  **Meaning:** Sets `finalizationPeriodSeconds` at slot `0x08` (8). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L66-L70). Units are in seconds, so the value should be `0x93a80` which is 604,800 in decimal. This value matches the current address found by `cast call 0x75a6B961c8da942Ee03CA641B09C322549f6FA98 "FINALIZATION_PERIOD_SECONDS()(uint256)" -r https://ethereum-sepolia.publicnode.com`
-
-- **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
-  **Before:** `0x00000000000000000000000074191a9c4b2615df85211b9a0700aa5ab7faea1f` <br/>
-  **After:** `0x000000000000000000000000f243bed163251380e78068d317ae10f26042b292` <br/>
-  **Meaning:** Implementation address is set to the new `L2OutputOracle`. The address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/sepolia.yaml#L8).
 
 ### `0xE75Cd021F520B160BF6b54D472Fa15e52aFe5aDD` (The 1 of 1 `ProxyAdmin` owner Safe)
 
