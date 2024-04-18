@@ -45,10 +45,12 @@ contract SignFromJson is OriginalSignFromJson {
     string constant l1ChainName = "mainnet";
     string constant l2ChainName = "mode";
 
-    // Known EOAs to exclude from safety checks.
-    address constant l2OutputOracleProposer = 0x674F64D64Ddc198db83cd9047dF54BF89cCD0ddB; // cast call $L2_OUTPUT_ORACLE_PROXY "PROPOSER()(address)" # https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/mode.json#L7
+    // Known Addresses that we expect to be contracts
     address constant l2OutputOracleChallenger = 0x309Fe2536d01867018D120b40e4676723C53A14C; // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/mode.json#L14
     address constant systemConfigOwner = 0x4a4962275DF8C60a80d3a25faEc5AA7De116A746; // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/mode.json#L12 
+
+    // Known EOAs to exclude from safety checks.
+    address constant l2OutputOracleProposer = 0x674F64D64Ddc198db83cd9047dF54BF89cCD0ddB; // cast call $L2_OUTPUT_ORACLE_PROXY "PROPOSER()(address)" # https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/mode.json#L7
     address constant batchSenderAddress = 0x99199a22125034c808ff20f377d91187E8050F2E; // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/genesis-system-configs/mainnet/mode.json#L2
     address constant p2pSequencerAddress = 0xa7fA9CA4ac88686A542C0f830d7378eAB4A0278F; // cast call $SYSTEM_CONFIG_PROXY "unsafeBlockSigner()(address)" # https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/mode.json#L3C25-L3C67
     address constant batchInboxAddress = 0x24E59d9d3Bd73ccC28Dc54062AF7EF7bFF58Bd67; // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/configs/mainnet/mode.yaml#L10
