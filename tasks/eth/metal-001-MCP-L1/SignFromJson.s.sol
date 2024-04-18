@@ -45,10 +45,12 @@ contract SignFromJson is OriginalSignFromJson {
     string constant l1ChainName = "mainnet";
     string constant l2ChainName = "metal";
 
+    // Known Addresses that we expect to be contracts
+    address constant l2OutputOracleChallenger = 0x4a4962275DF8C60a80d3a25faEc5AA7De116A746; // https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/mainnet/metal.json#L14
+    address constant systemConfigOwner = 0x4a4962275DF8C60a80d3a25faEc5AA7De116A746; // https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/mainnet/metal.json#L12
+
     // Known EOAs to exclude from safety checks.
     address constant l2OutputOracleProposer = 0xC8187d40AD440328104A52BBed2D8Efc5ab1F1F6; // cast call $L2_OUTPUT_ORACLE_PROXY "PROPOSER()(address)" # https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/mainnet/metal.json#L6
-    address constant l2OutputOracleChallenger = 0x4a4962275DF8C60a80d3a25faEc5AA7De116A746; // https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/mainnet/metal.json#L14
-    address constant systemConfigOwner = 0x4a4962275DF8C60a80d3a25faEc5AA7De116A746; // https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/mainnet/metal.json#L12 
     address constant batchSenderAddress = 0xC94C243f8fb37223F3EB2f7961F7072602A51B8B; // https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/genesis-system-configs/mainnet/metal.json#L2
     address constant p2pSequencerAddress = 0x4a65F5da5e80DEFfEA844eAa15CE130e80605dc5; // cast call $SYSTEM_CONFIG_PROXY "unsafeBlockSigner()(address)" # https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/mainnet/metal.json#L9
     address constant batchInboxAddress = 0xc83f7D9F2D4A76E81145849381ABA02602373723; // https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/metal.yaml#L9
@@ -71,7 +73,7 @@ contract SignFromJson is OriginalSignFromJson {
     uint256 recommendedProtocolVersion;
 
     // Other data we use.
-    uint256 systemConfigStartBlock = 19527368; // This was an input when generating input.json 
+    uint256 systemConfigStartBlock = 19527368; // This was an input when generating input.json
     AddressManager addressManager = AddressManager(0xd4b1EC0DEc3C7F12abD3ec27B7514880ae1C3a37); // https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/mainnet/metal.json#L2
     Types.ContractSet proxies;
 
@@ -367,7 +369,7 @@ contract SignFromJson is OriginalSignFromJson {
     }
 
     function getCodeExceptions() internal pure override returns (address[] memory) {
-        address[] memory shouldHaveCodeExceptions = new address[](4); 
+        address[] memory shouldHaveCodeExceptions = new address[](4);
 
         shouldHaveCodeExceptions[0] = l2OutputOracleProposer;
         shouldHaveCodeExceptions[1] = batchSenderAddress;
