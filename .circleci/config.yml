@@ -197,10 +197,6 @@ jobs:
           command: |
             go install github.com/mikefarah/yq/v4@latest
             just install
-          name: just simulate eth/mode-001-MCP-L1
-          command: |
-            go install github.com/mikefarah/yq/v4@latest
-            just install
             cd tasks/eth/mode-001-MCP-L1
             export SIMULATE_WITHOUT_LEDGER=1
             just \
