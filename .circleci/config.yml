@@ -155,17 +155,17 @@ jobs:
             just simulate-council
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
-  just_simulate_sep-metal-001-MCP-L1:
+  just_simulate_eth-metal-001-MCP-L1:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
     steps:
       - checkout
       - run:
-          name: just simulate sep/metal-001-MCP-L1
+          name: just simulate eth/metal-001-MCP-L1
           command: |
             go install github.com/mikefarah/yq/v4@latest
             just install
-            cd tasks/sep/metal-001-MCP-L1
+            cd tasks/eth/metal-001-MCP-L1
             export SIMULATE_WITHOUT_LEDGER=1
             just \
               --dotenv-path .env \
@@ -233,5 +233,5 @@ workflows:
           - just_simulate_sc_rehearsal_1
           - just_simulate_sc_rehearsal_2
           - just_simulate_sc_rehearsal_4
-          - just_simulate_sep-metal-001-MCP-L1
+          - just_simulate_eth-metal-001-MCP-L1
           - just_simulate_eth-mode-001-MCP-L1
