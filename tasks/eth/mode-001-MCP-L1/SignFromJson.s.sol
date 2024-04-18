@@ -46,7 +46,7 @@ contract SignFromJson is OriginalSignFromJson {
     string constant l2ChainName = "mode";
 
     // Known EOAs to exclude from safety checks.
-    address constant l2OutputOracleProposer = 0x674F64D64Ddc198db83cd9047dF54BF89cCD0ddB; // cast call $L2_OUTPUT_ORACLE_PROXY "PROPOSER()(address)" # https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/mode.json#L9
+    address constant l2OutputOracleProposer = 0x674F64D64Ddc198db83cd9047dF54BF89cCD0ddB; // cast call $L2_OUTPUT_ORACLE_PROXY "PROPOSER()(address)" # https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/mode.json#L7
     address constant l2OutputOracleChallenger = 0x309Fe2536d01867018D120b40e4676723C53A14C; // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/mode.json#L14
     address constant systemConfigOwner = 0x4a4962275DF8C60a80d3a25faEc5AA7De116A746; // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/mode.json#L12 
     address constant batchSenderAddress = 0x99199a22125034c808ff20f377d91187E8050F2E; // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/genesis-system-configs/mainnet/mode.json#L2
@@ -84,7 +84,7 @@ contract SignFromJson is OriginalSignFromJson {
 
         // Fetch variables that are not expected to change from an older block.
         initialFork = vm.activeFork();
-        vm.createSelectFork(vm.envString("ETH_RPC_URL"), 19660000); // This block is from Apr-15-2024 09:24:11 AM +UTC.
+        vm.createSelectFork(vm.envString("ETH_RPC_URL"), 19683673); // This block is from Apr-18-2024 04:56:47 PM +UTC.
 
         gasPriceOracleOverhead = IFetcher(proxies.SystemConfig).overhead();
         gasPriceOracleScalar = IFetcher(proxies.SystemConfig).scalar();
