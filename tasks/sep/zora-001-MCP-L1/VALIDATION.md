@@ -343,11 +343,11 @@ State Changes:
   **After:** `0x0000000000000000000000002d778797049fe9259d947d1ed8e5442226dfb589` <br/>
   **Meaning:** Implementation address is set to the new `OptimismPortal`. The implementation address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/sepolia.yaml#L12).
 
-### `0xE17071F4C216Eb189437fbDBCc16Bb79c4efD9c2` (The 1 of 1 `ProxyAdmin` owner Safe)
+### `0xE75Cd021F520B160BF6b54D472Fa15e52aFe5aDD` (The 1 of 1 `ProxyAdminOwner` Safe)
 
 Links:
-- [Etherscan](https://sepolia.etherscan.io/address/0xE17071F4C216Eb189437fbDBCc16Bb79c4efD9c2)
-- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L9C18-L9C60)
+- [Etherscan](https://sepolia.etherscan.io/address/0xE75Cd021F520B160BF6b54D472Fa15e52aFe5aDD)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L11C23-L11C65)
 
 State Changes:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
@@ -355,5 +355,6 @@ State Changes:
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **Meaning:** The Safe nonce is updated.
 
-The only other state change is a nonce increment of `0xefCf0c8faFB425997870f845e26fC6cA6EE6dD5C`,
-which is the account sending the transaction and is the only signer on the safe.
+The only other state change is a nonce increment of an owner on the safe.
+If simulating it will be `0xa4000bdd2bb92ce6750b31f1eeda47bd1cb8e6e4`, but if your ledger is
+connected it may be a different one of the safe's owners.
