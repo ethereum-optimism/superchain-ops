@@ -45,11 +45,13 @@ contract SignFromJson is OriginalSignFromJson {
     string constant l1ChainName = "sepolia";
     string constant l2ChainName = "op";
 
+    Safe safe = Safe(payable(0xa87675ebb9501C7baE8570a431c108C1577478Fa));
+
     // Known EOAs to exclude from safety checks.
     address constant l2OutputOracleProposer = 0x49277EE36A024120Ee218127354c4a3591dc90A9; // cast call $L2OO "PROPOSER()(address)"
     address constant l2OutputOracleChallenger = 0xfd1D2e729aE8eEe2E146c033bf4400fE75284301; // In registry addresses.
     address constant systemConfigOwner = 0xfd1D2e729aE8eEe2E146c033bf4400fE75284301; // In registry addresses.
-    address constant batchSenderAddress = 0x6887246668a3b87F54DeB3b94Ba47a6f63F32985; // In registry genesis-system-configs
+    address constant batchSenderAddress = 0x8F23BB38F531600e5d8FDDaAEC41F13FaB46E98c; // In registry genesis-system-configs
     address constant p2pSequencerAddress = 0x57CACBB0d30b01eb2462e5dC940c161aff3230D3; // cast call $SystemConfig "unsafeBlockSigner()(address)"
     address constant batchInboxAddress = 0xff00000000000000000000000000000011155420; // In registry yaml.
 
@@ -71,7 +73,7 @@ contract SignFromJson is OriginalSignFromJson {
     uint256 recommendedProtocolVersion;
 
     // Other data we use.
-    uint256 systemConfigStartBlock = 5304055; // This was an input when generating input.json
+    uint256 systemConfigStartBlock = 4071248; // This was an input when generating input.json
     AddressManager addressManager = AddressManager(0x9bFE9c5609311DF1c011c47642253B78a4f33F4B);
     Types.ContractSet proxies;
 
@@ -108,7 +110,7 @@ contract SignFromJson is OriginalSignFromJson {
         require(ISemver(proxies.L1StandardBridge).version().eq("2.1.0"), "semver-200");
         require(ISemver(proxies.L2OutputOracle).version().eq("1.8.0"), "semver-300");
         require(ISemver(proxies.OptimismMintableERC20Factory).version().eq("1.9.0"), "semver-400");
-        require(ISemver(proxies.OptimismPortal).version().eq("2.5.0"), "semver-500");
+        require(ISemver(proxies.OptimismPortal).version().eq("3.3.0"), "semver-500");
         require(ISemver(proxies.SystemConfig).version().eq("1.12.0"), "semver-600");
         require(ISemver(proxies.L1ERC721Bridge).version().eq("2.1.0"), "semver-700");
         require(ISemver(proxies.ProtocolVersions).version().eq("1.0.0"), "semver-800");
@@ -292,11 +294,6 @@ contract SignFromJson is OriginalSignFromJson {
         require(EIP1967Helper.getImplementation(proxies.OptimismPortal).code.length != 0, "5701");
 
         OptimismPortal portalToCheck = OptimismPortal(payable(proxies.OptimismPortal));
-
-        require(address(portalToCheck.L2_ORACLE()) == proxies.L2OutputOracle, "5800");
-        require(address(portalToCheck.l2Oracle()) == proxies.L2OutputOracle, "5900");
-        require(address(portalToCheck.l2Oracle()).code.length != 0, "5901");
-        require(EIP1967Helper.getImplementation(address(portalToCheck.l2Oracle())).code.length != 0, "5902");
 
         require(address(portalToCheck.SYSTEM_CONFIG()) == proxies.SystemConfig, "6000");
         require(address(portalToCheck.systemConfig()) == proxies.SystemConfig, "6100");
