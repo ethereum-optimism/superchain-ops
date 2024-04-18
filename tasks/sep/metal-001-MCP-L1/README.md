@@ -1,6 +1,6 @@
 # Metal Sepolia MCP L1 Upgrade
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x8660ab6ecf281037063d3acdb69bcf4f3962d69fcf0068ca1154ffc7bb8c0d9e)
 
 ## Objective
 
