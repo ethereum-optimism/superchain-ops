@@ -366,8 +366,8 @@ contract SignFromJson is OriginalSignFromJson {
         console.log("All assertions passed!");
     }
 
-    function getCodeExceptions() internal pure override returns (address[] memory) {
         address[] memory shouldHaveCodeExceptions = new address[](6);
+    function getCodeExceptions() internal view override returns (address[] memory) {
 
         shouldHaveCodeExceptions[0] = l2OutputOracleProposer;
         shouldHaveCodeExceptions[1] = l2OutputOracleChallenger;
