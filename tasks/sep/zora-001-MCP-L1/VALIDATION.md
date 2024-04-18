@@ -32,8 +32,6 @@ Enables the simulation by setting the threshold to 1:
 - Check the provided links to ensure that the correct contract is described at the correct address. The superchain registry is the source of truth for contract addresses and etherscan is supplementary.
 
 
-
-
 ### `0x16b0a4f451c4cb567703367e587e15ac108e4311` (`L1ERC721BridgeProxy`)
 
 Links:
@@ -166,51 +164,11 @@ State Changes:
    cast storage 0x27c9392144DFcB6dab113F737356C32435cD1D55 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url https://ethereum-sepolia.publicnode.com
    ```
 
-====================================================================================================
-====================== ABOVE THIS LINE IS FINALIZED, BELOW IT IS IN PROGRESS =======================
-====================================================================================================
-
-
-
-====================================================================================================
-===================== ABOVE THIS LINE IS IN PROGRESS, BELOW IT WAS NOT UPDATED =====================
-====================================================================================================
-
-### `0x01D4dfC994878682811b2980653D03E589f093cB` (`OptimismPortalProxy`)
+### `0x5376f1D543dcbB5BD416c56C189e4cB7399fCcCB` (`L1StandardBridgeProxy`)
 
 Links:
-- [Etherscan](https://sepolia.etherscan.io/address/0x01D4dfC994878682811b2980653D03E589f093cB)
-- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L8)
-
-State Changes:
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000035` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:** `0x0000000000000000000000c2be75506d5724086deb7245bd260cc9753911be00` <br/>
-  **Meaning:** Sets `superchainConfig` at slot `0x35` (53). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/OptimismPortal.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal.json#L58-L64). The `superchainConfig` address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/configs/sepolia/superchain.yaml#L8).
-
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000036` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:** `0x00000000000000000000000075a6b961c8da942ee03ca641b09c322549f6fa98` <br/>
-  **Meaning:** Sets `l2Oracle` at slot `0x36` (54). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/OptimismPortal.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal.json#L66-L70). The `L2OutputOracleProxy` address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L6).
-
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000037` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:** `0x0000000000000000000000005d63a8dc2737ce771aa4a6510d063b6ba2c4f6f2` <br/>
-  **Meaning:** Sets `systemConfig` at slot `0x37` (55). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/OptimismPortal.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal.json#L73-L77). The `SystemConfigProxy` address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L9).
-
-- **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
-  **Before:** `0x000000000000000000000000b010405e76a7f9ead2f6ee94135a4d15c31b3659` <br/>
-  **After:** `0x0000000000000000000000002d778797049fe9259d947d1ed8e5442226dfb589` <br/>
-  **Meaning:** Implementation address is set to the new `OptimismPortal`. The implementation address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/sepolia.yaml#L12).
-
-### `0x21530aAdF4DCFb9c477171400E40d4ef615868BE` (`L1StandardBridgeProxy`)
-
-Links:
-- [Etherscan](https://sepolia.etherscan.io/address/0x21530aAdF4DCFb9c477171400E40d4ef615868BE)
-- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L5)
+- [Etherscan](https://sepolia.etherscan.io/address/0x5376f1D543dcbB5BD416c56C189e4cB7399fCcCB)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L5C29-L5C71)
 
 State Changes:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
@@ -222,9 +180,9 @@ State Changes:
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000003` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:** `0x0000000000000000000000005d335aa7d93102110879e3b54985c5f08146091e` <br/>
+  **After:** `0x0000000000000000000000001bdbc0ae22bec0c2f08b4dd836944b3e28fe9b7a` <br/>
   **Meaning:** Sets `messenger` at slot `0x03` (3). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1StandardBridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1StandardBridge.json#L38-L42). The address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L3).
+   this slot is attested to in the Optimism repo at [storageLayout/L1StandardBridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1StandardBridge.json#L38-L42). The address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L3).
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000004` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
@@ -239,15 +197,18 @@ State Changes:
    this slot is attested to in the Optimism repo at [storageLayout/L1StandardBridge.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1StandardBridge.json#L58-L64). The `superchainConfig` address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/configs/sepolia/superchain.yaml#L8).
 
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
-  **Before:** `0x000000000000000000000000fa0eba40f30338b50a08613af2216f914ae8a7b4` <br/>
+  **Before:** `0x000000000000000000000000e3a97585c6958c95738e2afa9088ab808cc2ac3b` <br/>
   **After:** `0x00000000000000000000000064b5a5ed26dcb17370ff4d33a8d503f0fbd06cff` <br/>
   **Meaning:** Implementation address is set to the new `L1StandardBridge`. The address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/sepolia.yaml#L6).
 
-### `0x49Ff2C4be882298e8CA7DeCD195c207c42B45F66` (`OptimismMintableERC20FactoryProxy`)
+
+
+
+### `0x5F3bdd57f01e88cE2F88f00685D30D6eb51A187c` (`OptimismMintableERC20FactoryProxy`)
 
 Links:
-- [Etherscan](https://sepolia.etherscan.io/address/0x49Ff2C4be882298e8CA7DeCD195c207c42B45F66)
-- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L7)
+- [Etherscan](https://sepolia.etherscan.io/address/0x5F3bdd57f01e88cE2F88f00685D30D6eb51A187c)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L7C41-L7C83)
 
 State Changes:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
@@ -259,20 +220,23 @@ State Changes:
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:** `0x00000000000000000000000021530aadf4dcfb9c477171400e40d4ef615868be` <br/>
+  **After:** `0x0000000000000000000000005376f1d543dcbb5bd416c56c189e4cb7399fcccb` <br/>
   **Meaning:** Sets `bridge` at slot `0x01` (1). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/OptimismMintableERC20Factory.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismMintableERC20Factory.json#L24-L28). The address of the `L1StandardBridge` should be the value set in the slot, left padded with zero bytes to fill the slot. The address of the [L1StandardBridgeProxy](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L5) can be found in the Superchain Registry.
+   this slot is attested to in the Optimism repo at [storageLayout/OptimismMintableERC20Factory.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismMintableERC20Factory.json#L24-L28). The address of the `L1StandardBridge` should be the value set in the slot, left padded with zero bytes to fill the slot. The address of the [L1StandardBridgeProxy](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L5) can be found in the Superchain Registry.
 
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
-  **Before:** `0x000000000000000000000000585e9769e643dc1b5261fb32362e0cd1f48f6246` <br/>
+  **Before:** `0x00000000000000000000000042d4a53fdcbc738479aaac9a39e3efe6a3216bef` <br/>
   **After:** `0x000000000000000000000000e01efbeb1089d1d1db9c6c8b135c934c0734c846` <br/>
   **Meaning:** Implementation address is set to the new `OptimismMintableERC20Factory` implementation. The address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/sepolia.yaml#L10).
 
-### `0x5D63A8Dc2737cE771aa4a6510D063b6Ba2c4f6F2` (`SystemConfigProxy`)
+
+
+
+### `0xB54c7BFC223058773CF9b739cC5bd4095184Fb08` (`SystemConfigProxy`)
 
 Links:
-- [Etherscan](https://sepolia.etherscan.io/address/0x5D63A8Dc2737cE771aa4a6510D063b6Ba2c4f6F2)
-- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L9)
+- [Etherscan](https://sepolia.etherscan.io/address/0xB54c7BFC223058773CF9b739cC5bd4095184Fb08)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L10C25-L10C67)
 
 State Changes:
 
@@ -282,72 +246,108 @@ that the address actually matches the correct implementation, an Etherscan link 
 
 [system-config-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/sepolia.yaml#L14
 [system-config-etherscan]: https://sepolia.etherscan.io/address/0xba2492e52F45651B60B8B38d4Ea5E2390C64Ffb1
-[l1-xdm-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L3
-[l1-xdm-etherscan]: https://sepolia.etherscan.io/address/0x5D335Aa7d93102110879e3B54985c5F08146091E
-[l1-erc721-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L4
-[l1-erc721-etherscan]: https://sepolia.etherscan.io/address/0x5d6cE6917dBeeacF010c96BfFdaBE89e33a30309
-[portal-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L8
-[portal-etherscan]: https://sepolia.etherscan.io/address/0x01D4dfC994878682811b2980653D03E589f093cB
-[batch-inbox-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/configs/sepolia/metal.yaml#L9
-[batch-inbox-etherscan]: https://sepolia.etherscan.io/address/0x24567B64a86A4c966655fba6502a93dFb701E316
-[l1-standard-bridge-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L5
-[l1-standard-bridge-etherscan]: https://sepolia.etherscan.io/address/0x21530aAdF4DCFb9c477171400E40d4ef615868BE
-[factory-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L7
-[factory-etherscan]: https://sepolia.etherscan.io/address/0x49Ff2C4be882298e8CA7DeCD195c207c42B45F66
-[output-oracle-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L6
-[output-oracle-etherscan]: https://sepolia.etherscan.io/address/0x75a6B961c8da942Ee03CA641B09C322549f6FA98
+
+[l1-xdm-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L3
+[l1-xdm-etherscan]: https://sepolia.etherscan.io/address/0x1bDBC0ae22bEc0c2f08B4dd836944b3E28fe9b7A
+
+[l1-erc721-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L4
+[l1-erc721-etherscan]: https://sepolia.etherscan.io/address/0x16B0a4f451c4CB567703367e587E15Ac108e4311
+
+[portal-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L8
+[portal-etherscan]: https://sepolia.etherscan.io/address/0xeffE2C6cA9Ab797D418f0D91eA60807713f3536f
+
+[batch-inbox-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/configs/sepolia/zora.yaml#L10
+[batch-inbox-etherscan]: https://sepolia.etherscan.io/address/0xcd734290e4bd0200dac631c7d4b9e8a33234e91f
+
+[l1-standard-bridge-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L5
+[l1-standard-bridge-etherscan]: https://sepolia.etherscan.io/address/0x5376f1D543dcbB5BD416c56C189e4cB7399fCcCB
+
+[factory-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L7
+[factory-etherscan]: https://sepolia.etherscan.io/address/0x5F3bdd57f01e88cE2F88f00685D30D6eb51A187c
+
+[output-oracle-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L6
+[output-oracle-etherscan]: https://sepolia.etherscan.io/address/0x2615B481Bd3E5A1C0C7Ca3Da1bdc663E8615Ade9
 
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
-  **Before:** `0x000000000000000000000000bd525f20f262558cb447374ba53a6c9c690bb66d` <br/>
+  **Before:** `0x000000000000000000000000c3f36530e27c31874e414958f0a7ac3d542ec943` <br/>
   **After:** `0x000000000000000000000000ba2492e52f45651b60b8b38d4ea5e2390c64ffb1` <br/>
   **Meaning:** Implementation address is set to the new `SystemConfig` per the [Superchain Registry][system-config-registry] and [Etherscan][system-config-etherscan].
 
 - **Key:** `0x383f291819e6d54073bc9a648251d97421076bdd101933c0c022219ce9580636` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:** `0x0000000000000000000000005d335aa7d93102110879e3b54985c5f08146091e` <br/>
+  **After:** `0x0000000000000000000000001bdbc0ae22bec0c2f08b4dd836944b3e28fe9b7a` <br/>
   **Meaning:** Sets `l1CrossDomainMessenger` address at slot per the [Superchain Registry][l1-xdm-registry]. This should be a proxy address per [Etherscan][l1-xdm-etherscan]. Verification of the key can be done by ensuring the result of the [L1_CROSS_DOMAIN_MESSENGER_SLOT](https://sepolia.etherscan.io/address/0xba2492e52F45651B60B8B38d4Ea5E2390C64Ffb1#readContract#F2) getter on the implementation contract matches the key.
 
 - **Key:** `0x46adcbebc6be8ce551740c29c47c8798210f23f7f4086c41752944352568d5a7` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:** `0x0000000000000000000000005d6ce6917dbeeacf010c96bffdabe89e33a30309` <br/>
+  **After:** `0x00000000000000000000000016b0a4f451c4cb567703367e587e15ac108e4311` <br/>
   **Meaning:** Sets `l1ERC721Bridge` address at slot per the [Superchain Registry][l1-erc721-registry]. This should be a proxy address per [Etherscan][l1-erc721-etherscan]. Verification of the key can be done by ensuring the result of the [L1_ERC_721_BRIDGE_SLOT](https://sepolia.etherscan.io/address/0xba2492e52F45651B60B8B38d4Ea5E2390C64Ffb1#readContract#F3) getter on the implementation contract matches the key.
 
 - **Key:** `0x4b6c74f9e688cb39801f2112c14a8c57232a3fc5202e1444126d4bce86eb19ac` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:** `0x00000000000000000000000001d4dfc994878682811b2980653d03e589f093cb` <br/>
+  **After:** `0x000000000000000000000000effe2c6ca9ab797d418f0d91ea60807713f3536f` <br/>
   **Meaning:** Sets `optimismPortal` at slot per the [Superchain Registry][portal-registry]. This should be a proxy address per [Etherscan][portal-etherscan]. Verification of the key can be done by ensuring the result of the [OPTIMISM_PORTAL_SLOT](https://sepolia.etherscan.io/address/0xba2492e52F45651B60B8B38d4Ea5E2390C64Ffb1#readContract#F7) getter on the implementation contract matches the key.
 
 - **Key:** `0x71ac12829d66ee73d8d95bff50b3589745ce57edae70a3fb111a2342464dc597` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:** `0x00000000000000000000000024567b64a86a4c966655fba6502a93dfb701e316` <br/>
+  **After:** `0x000000000000000000000000cd734290e4bd0200dac631c7d4b9e8a33234e91f` <br/>
   **Meaning:** Sets `batchInbox` at slot per the [Superchain Registry][batch-inbox-registry]. This should be an address with no code per [Etherscan][batch-inbox-etherscan]. Verification of the key can be done by ensuring the result of the [BATCH_INBOX_SLOT](https://sepolia.etherscan.io/address/0xba2492e52F45651B60B8B38d4Ea5E2390C64Ffb1#readContract#F1) getter on the implementation contract matches the key.
 
 - **Key:** `0x9904ba90dde5696cda05c9e0dab5cbaa0fea005ace4d11218a02ac668dad6376` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:** `0x00000000000000000000000021530aadf4dcfb9c477171400e40d4ef615868be` <br/>
+  **After:** `0x0000000000000000000000005376f1d543dcbb5bd416c56c189e4cb7399fcccb` <br/>
   **Meaning:** Sets `l1StandardBridge` at slot per the [Superchain Registry][l1-standard-bridge-registry]. This should be a proxy address per [Etherscan][l1-standard-bridge-etherscan]. Verification of the key can be done by ensuring the result of the [L1_STANDARD_BRIDGE_SLOT](https://sepolia.etherscan.io/address/0xba2492e52F45651B60B8B38d4Ea5E2390C64Ffb1#readContract#F4) getter on the implementation contract matches the key.
 
 - **Key:** `0xa04c5bb938ca6fc46d95553abf0a76345ce3e722a30bf4f74928b8e7d852320c` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:** `0x00000000000000000000000049ff2c4be882298e8ca7decd195c207c42b45f66` <br/>
+  **After:** `0x0000000000000000000000005f3bdd57f01e88ce2f88f00685d30d6eb51a187c` <br/>
   **Meaning:** Sets `optimismMintableERC20Factory` at slot per the [Superchain Registry][factory-registry]. This should be a proxy address per [Etherscan][factory-etherscan]. Verification of the key can be done by ensuring the result of the [OPTIMISM_MINTABLE_ERC20_FACTORY_SLOT](https://sepolia.etherscan.io/address/0xba2492e52F45651B60B8B38d4Ea5E2390C64Ffb1#readContract#F6) getter on the implementation contract matches the key.
 
 - **Key:** `0xa11ee3ab75b40e88a0105e935d17cd36c8faee0138320d776c411291bdbbb19f` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:** `0x000000000000000000000000000000000000000000000000000000000050eef7` <br/>
-  **Meaning:** Sets `startBlock` at slot to 5304055. This should be the block number at which the `SystemConfig` proxy was initialized for the first time. [Etherscan events](https://sepolia.etherscan.io/address/0x5D63A8Dc2737cE771aa4a6510D063b6Ba2c4f6F2#events) shows only five events have been emitted since contract creation in block 5304039, and that the first `Initialize` event after that should be in block 5304055. Verification of the key can be done by ensuring the result of the [START_BLOCK_SLOT](https://sepolia.etherscan.io/address/0xba2492e52F45651B60B8B38d4Ea5E2390C64Ffb1#readContract#F8) getter on the implementation contract matches the key.
+  **After:** `0x00000000000000000000000000000000000000000000000000000000004565cd` <br/>
+  **Meaning:** Sets `startBlock` at slot to 4548045. This should be the block number at which the `SystemConfig` proxy was initialized for the first time. [Etherscan events](https://sepolia.etherscan.io/address/0xB54c7BFC223058773CF9b739cC5bd4095184Fb08#events) shows only five events have been emitted since contract creation in block 4548045, and that the first `Initialized` event after that should be in block 4548045. Verification of the key can be done by ensuring the result of the [START_BLOCK_SLOT](https://sepolia.etherscan.io/address/0xba2492e52F45651B60B8B38d4Ea5E2390C64Ffb1#readContract#F8) getter on the implementation contract matches the key.
 
 - **Key:** `0xe52a667f71ec761b9b381c7b76ca9b852adf7e8905da0e0ad49986a0a6871815` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:** `0x00000000000000000000000075a6b961c8da942ee03ca641b09c322549f6fa98` <br/>
+  **After:** `0x0000000000000000000000002615b481bd3e5a1c0c7ca3da1bdc663e8615ade9` <br/>
   **Meaning:** Sets `l2OutputOracle` at slot per the [Superchain Registry][output-oracle-registry]. This should be a proxy per [Etherscan][output-oracle-etherscan]. Verification of the key can be done by ensuring the result of the [L2_OUTPUT_ORACLE_SLOT](https://sepolia.etherscan.io/address/0xba2492e52F45651B60B8B38d4Ea5E2390C64Ffb1#readContract#F5) getter on the implementation contract matches the key.
 
-
-### `0xE75Cd021F520B160BF6b54D472Fa15e52aFe5aDD` (The 1 of 1 `ProxyAdmin` owner Safe)
+### `0xeffE2C6cA9Ab797D418f0D91eA60807713f3536f` (`OptimismPortalProxy`)
 
 Links:
-- [Etherscan](https://sepolia.etherscan.io/address/0xE75Cd021F520B160BF6b54D472Fa15e52aFe5aDD)
-- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L10)
+- [Etherscan](https://sepolia.etherscan.io/address/0xeffE2C6cA9Ab797D418f0D91eA60807713f3536f)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L8C27-L8C69)
+
+State Changes:
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000035` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
+  **After:** `0x0000000000000000000000c2be75506d5724086deb7245bd260cc9753911be00` <br/>
+  **Meaning:** Sets `superchainConfig` at slot `0x35` (53). The correctness of
+   this slot is attested to in the Optimism repo at [storageLayout/OptimismPortal.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal.json#L58-L64). The `superchainConfig` address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/configs/sepolia/superchain.yaml#L8).
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000036` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
+  **After:** `0x0000000000000000000000002615b481bd3e5a1c0c7ca3da1bdc663e8615ade9` <br/>
+  **Meaning:** Sets `l2Oracle` at slot `0x36` (54). The correctness of
+   this slot is attested to in the Optimism repo at [storageLayout/OptimismPortal.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal.json#L66-L70). The `L2OutputOracleProxy` address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L6).
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000037` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
+  **After:** `0x000000000000000000000000b54c7bfc223058773cf9b739cc5bd4095184fb08` <br/>
+  **Meaning:** Sets `systemConfig` at slot `0x37` (55). The correctness of
+   this slot is attested to in the Optimism repo at [storageLayout/OptimismPortal.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal.json#L73-L77). The `SystemConfigProxy` address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L10).
+
+- **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
+  **Before:** `0x0000000000000000000000008e24bdf3dcba149bae8dd8b73efd9d886f9f5d3c` <br/>
+  **After:** `0x0000000000000000000000002d778797049fe9259d947d1ed8e5442226dfb589` <br/>
+  **Meaning:** Implementation address is set to the new `OptimismPortal`. The implementation address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/sepolia.yaml#L12).
+
+### `0xE17071F4C216Eb189437fbDBCc16Bb79c4efD9c2` (The 1 of 1 `ProxyAdmin` owner Safe)
+
+Links:
+- [Etherscan](https://sepolia.etherscan.io/address/0xE17071F4C216Eb189437fbDBCc16Bb79c4efD9c2)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L9C18-L9C60)
 
 State Changes:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
