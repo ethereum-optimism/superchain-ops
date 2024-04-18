@@ -43,17 +43,17 @@ contract SignFromJson is OriginalSignFromJson {
 
     // Chains for this task.
     string constant l1ChainName = "mainnet";
-    string constant l2ChainName = "mode";
+    string constant l2ChainName = "zora";
 
     // Known Addresses that we expect to be contracts
-    address constant l2OutputOracleChallenger = 0x309Fe2536d01867018D120b40e4676723C53A14C; // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/mode.json#L14
-    address constant systemConfigOwner = 0x4a4962275DF8C60a80d3a25faEc5AA7De116A746; // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/mode.json#L12 
+    address constant l2OutputOracleChallenger = 0xcA4571b1ecBeC86Ea2E660d242c1c29FcB55Dc72; // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/zora.json#L14C18-L14C60
+    address constant systemConfigOwner = 0xC72aE5c7cc9a332699305E29F68Be66c73b60542; // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/zora.json#L12C25-L12C67
 
     // Known EOAs to exclude from safety checks.
-    address constant l2OutputOracleProposer = 0x674F64D64Ddc198db83cd9047dF54BF89cCD0ddB; // cast call $L2_OUTPUT_ORACLE_PROXY "PROPOSER()(address)" # https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/mode.json#L7
-    address constant batchSenderAddress = 0x99199a22125034c808ff20f377d91187E8050F2E; // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/genesis-system-configs/mainnet/mode.json#L2
-    address constant p2pSequencerAddress = 0xa7fA9CA4ac88686A542C0f830d7378eAB4A0278F; // cast call $SYSTEM_CONFIG_PROXY "unsafeBlockSigner()(address)" # https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/mode.json#L3C25-L3C67
-    address constant batchInboxAddress = 0x24E59d9d3Bd73ccC28Dc54062AF7EF7bFF58Bd67; // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/configs/mainnet/mode.yaml#L10
+    address constant l2OutputOracleProposer = 0x48247032092e7b0ecf5dEF611ad89eaf3fC888Dd; // cast call $L2_OUTPUT_ORACLE_PROXY "PROPOSER()(address)" # https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/mode.json#L7
+    address constant batchSenderAddress = 0x625726c858dBF78c0125436C943Bf4b4bE9d9033; // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/genesis-system-configs/mainnet/zora.json#L2C19-L2C61
+    address constant p2pSequencerAddress = 0x3Dc8Dfd0709C835cAd15a6A27e089FF4cF4C9228; // cast call $SYSTEM_CONFIG_PROXY "unsafeBlockSigner()(address)" # https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/mode.json#L3C25-L3C67
+    address constant batchInboxAddress = 0x6F54Ca6F6EdE96662024Ffd61BFd18f3f4e34DFf; // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/configs/mainnet/zora.yaml#L10C20-L10C62
 
     // Hardcoded data that should not change after execution.
     uint256 l2GenesisBlockGasLimit = 30e6;
@@ -73,8 +73,8 @@ contract SignFromJson is OriginalSignFromJson {
     uint256 recommendedProtocolVersion;
 
     // Other data we use.
-    uint256 systemConfigStartBlock = 18586931; // This was an input when generating input.json
-    AddressManager addressManager = AddressManager(0x50eF494573f28Cad6B64C31b7a00Cdaa48306e15); // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/mode.json#L9
+    uint256 systemConfigStartBlock = 17473957; // This was an input when generating input.json
+    AddressManager addressManager = AddressManager(0xEF8115F2733fb2033a7c756402Fc1deaa56550Ef); // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/mode.json#L9
     Types.ContractSet proxies;
 
     // This gives the initial fork, so we can use it to switch back after fetching data.
@@ -86,7 +86,7 @@ contract SignFromJson is OriginalSignFromJson {
 
         // Fetch variables that are not expected to change from an older block.
         initialFork = vm.activeFork();
-        vm.createSelectFork(vm.envString("ETH_RPC_URL"), 19683673); // This block is from Apr-18-2024 04:56:47 PM +UTC.
+        vm.createSelectFork(vm.envString("ETH_RPC_URL"), 19685514); // This block is from Apr-18-2024 11:06:59 PM +UTC.
 
         gasPriceOracleOverhead = IFetcher(proxies.SystemConfig).overhead();
         gasPriceOracleScalar = IFetcher(proxies.SystemConfig).scalar();
