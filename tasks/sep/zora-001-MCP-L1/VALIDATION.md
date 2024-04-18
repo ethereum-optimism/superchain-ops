@@ -313,6 +313,18 @@ that the address actually matches the correct implementation, an Etherscan link 
   **After:** `0x0000000000000000000000002615b481bd3e5a1c0c7ca3da1bdc663e8615ade9` <br/>
   **Meaning:** Sets `l2OutputOracle` at slot per the [Superchain Registry][output-oracle-registry]. This should be a proxy per [Etherscan][output-oracle-etherscan]. Verification of the key can be done by ensuring the result of the [L2_OUTPUT_ORACLE_SLOT](https://sepolia.etherscan.io/address/0xba2492e52F45651B60B8B38d4Ea5E2390C64Ffb1#readContract#F5) getter on the implementation contract matches the key.
 
+### `0xE75Cd021F520B160BF6b54D472Fa15e52aFe5aDD` (The 1 of 1 `ProxyAdminOwner` Safe)
+
+Links:
+- [Etherscan](https://sepolia.etherscan.io/address/0xE75Cd021F520B160BF6b54D472Fa15e52aFe5aDD)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L11C23-L11C65)
+
+State Changes:
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
+  **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
+  **Meaning:** The Safe nonce is updated.
+
 ### `0xeffE2C6cA9Ab797D418f0D91eA60807713f3536f` (`OptimismPortalProxy`)
 
 Links:
@@ -342,18 +354,6 @@ State Changes:
   **Before:** `0x0000000000000000000000008e24bdf3dcba149bae8dd8b73efd9d886f9f5d3c` <br/>
   **After:** `0x0000000000000000000000002d778797049fe9259d947d1ed8e5442226dfb589` <br/>
   **Meaning:** Implementation address is set to the new `OptimismPortal`. The implementation address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/sepolia.yaml#L12).
-
-### `0xE75Cd021F520B160BF6b54D472Fa15e52aFe5aDD` (The 1 of 1 `ProxyAdminOwner` Safe)
-
-Links:
-- [Etherscan](https://sepolia.etherscan.io/address/0xE75Cd021F520B160BF6b54D472Fa15e52aFe5aDD)
-- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/sepolia/zora.json#L11C23-L11C65)
-
-State Changes:
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
-  **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
-  **Meaning:** The Safe nonce is updated.
 
 The only other state change is a nonce increment of an owner on the safe.
 If simulating it will be `0xa4000bdd2bb92ce6750b31f1eeda47bd1cb8e6e4`, but if your ledger is
