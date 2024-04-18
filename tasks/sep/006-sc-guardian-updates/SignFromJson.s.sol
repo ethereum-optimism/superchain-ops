@@ -43,15 +43,15 @@ contract SignFromJson is OriginalSignFromJson {
 
     // Chains for this task.
     string constant l1ChainName = "sepolia";
-    string constant l2ChainName = "metal";
+    string constant l2ChainName = "op";
 
     // Known EOAs to exclude from safety checks.
-    address constant l2OutputOracleProposer = 0x2D70F9A866dE34C0f738F8cb2AF1361b5aF18CAa; // cast call $L2OO "PROPOSER()(address)"
-    address constant l2OutputOracleChallenger = 0x45eFFbD799Ab49122eeEAB75B78D9C56A187F9A7; // In registry addresses.
-    address constant systemConfigOwner = 0x23BA22Dd7923F3a3f2495bB32a6f3c9b9CD1EC6C; // In registry addresses.
-    address constant batchSenderAddress = 0xdb80Eca386AC72a55510e33CF9CF7533e75916eE; // In registry genesis-system-configs
-    address constant p2pSequencerAddress = 0x3C1A357c4c77843d34750dBee68C589ACB4F5f9B; // cast call $SystemConfig "unsafeBlockSigner()(address)"
-    address constant batchInboxAddress = 0x24567B64a86A4c966655fba6502a93dFb701E316; // In registry yaml.
+    address constant l2OutputOracleProposer = 0x49277EE36A024120Ee218127354c4a3591dc90A9; // cast call $L2OO "PROPOSER()(address)"
+    address constant l2OutputOracleChallenger = 0xfd1D2e729aE8eEe2E146c033bf4400fE75284301; // In registry addresses.
+    address constant systemConfigOwner = 0xfd1D2e729aE8eEe2E146c033bf4400fE75284301; // In registry addresses.
+    address constant batchSenderAddress = 0x6887246668a3b87F54DeB3b94Ba47a6f63F32985; // In registry genesis-system-configs
+    address constant p2pSequencerAddress = 0x57CACBB0d30b01eb2462e5dC940c161aff3230D3; // cast call $SystemConfig "unsafeBlockSigner()(address)"
+    address constant batchInboxAddress = 0xff00000000000000000000000000000011155420; // In registry yaml.
 
     // Hardcoded data that should not change after execution.
     uint256 l2GenesisBlockGasLimit = 30e6;
@@ -72,7 +72,7 @@ contract SignFromJson is OriginalSignFromJson {
 
     // Other data we use.
     uint256 systemConfigStartBlock = 5304055; // This was an input when generating input.json
-    AddressManager addressManager = AddressManager(0x394f844B9A0FC876935d1b0b791D9e94Ad905e8b);
+    AddressManager addressManager = AddressManager(0x9bFE9c5609311DF1c011c47642253B78a4f33F4B);
     Types.ContractSet proxies;
 
     // This gives the initial fork, so we can use it to switch back after fetching data.
@@ -364,6 +364,19 @@ contract SignFromJson is OriginalSignFromJson {
         checkSuperchainConfig();
 
         console.log("All assertions passed!");
+    }
+
+    function getCodeExceptions() internal pure override returns (address[] memory) {
+        address[] memory shouldHaveCodeExceptions = new address[](6);
+
+        shouldHaveCodeExceptions[0] = l2OutputOracleProposer;
+        shouldHaveCodeExceptions[1] = l2OutputOracleChallenger;
+        shouldHaveCodeExceptions[2] = systemConfigOwner;
+        shouldHaveCodeExceptions[3] = batchSenderAddress;
+        shouldHaveCodeExceptions[4] = p2pSequencerAddress;
+        shouldHaveCodeExceptions[5] = batchInboxAddress;
+
+        return shouldHaveCodeExceptions;
     }
 
     /// @notice Reads the contract addresses from lib/superchain-registry/superchain/extra/addresses/mainnet/op.json
