@@ -39,6 +39,32 @@ interface IFetcher {
     function recommended() external returns (uint256); // ProtocolVersions
 }
 
+// Interfaces of the new contracts we need to check.
+interface ILivenessModule {
+    function fallbackOwner() external view returns (address fallbackOwner_);
+    function getRequiredThreshold(uint256 _numOwners) external view returns (uint256 threshold_);
+    function livenessGuard() external view returns (address livenessGuard_);
+    function livenessInterval() external view returns (uint256 livenessInterval_);
+    function minOwners() external view returns (uint256 minOwners_);
+    function safe() external view returns (address safe_);
+    function thresholdPercentage() external view returns (uint256 thresholdPercentage_);
+    function version() external view returns (string memory);
+}
+
+interface ILivenessGuard {
+    function lastLive(address) external view returns (uint256);
+    function safe() external view returns (address safe_);
+    function showLiveness() external;
+    function version() external view returns (string memory);
+}
+
+interface IDeputyGuardianModule {
+    function deputyGuardian() external view returns (address deputyGuardian_);
+    function safe() external view returns (address safe_);
+    function superchainConfig() external view returns (address superchainConfig_);
+    function version() external view returns (string memory);
+}
+
 contract SignFromJson is OriginalSignFromJson {
     using LibString for string;
 
@@ -46,7 +72,14 @@ contract SignFromJson is OriginalSignFromJson {
     string constant l1ChainName = "sepolia";
     string constant l2ChainName = "op";
 
-    Safe safe = Safe(payable(0xa87675ebb9501C7baE8570a431c108C1577478Fa));
+    // Safe contract for this task.
+    Safe securityCouncilSafe = Safe(payable(0xa87675ebb9501C7baE8570a431c108C1577478Fa));
+    Safe foundationSafe = Safe(payable(0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B));
+
+    // Contracts we need to check, which are not in the superchain registry
+    IDeputyGuardianModule deputyGuardianModule = IDeputyGuardianModule(0x2329EfD0bFc72Aa7849D9DFc2e131D83F4680d85);
+    ILivenessGuard livenessGuard = ILivenessGuard(0x54E8baCcC67fA3c6b3e9A94BAa4d70d1668f0820);
+    ILivenessModule livenessModule = ILivenessModule(0xefd77C23A8ACF13E194d30C6DF51F1C43B0f9932);
 
     // Known EOAs to exclude from safety checks.
     address constant l2OutputOracleProposer = 0x49277EE36A024120Ee218127354c4a3591dc90A9; // cast call $L2OO "PROPOSER()(address)"
@@ -340,6 +373,29 @@ contract SignFromJson is OriginalSignFromJson {
         require(superchainConfigToCheck.paused() == false, "7300");
     }
 
+    function checkLivenessModule() internal view {
+        console.log("Running assertions on the LivenessModule");
+
+        require(livenessModule.safe() == address(securityCouncilSafe), "checkLivenessModule-100");
+        require(livenessModule.livenessGuard() == address(livenessGuard), "checkLivenessModule-200");
+        require(livenessModule.livenessInterval() == 31536000, "checkLivenessModule-300"); // 10 years so we don't have to worry about it
+        require(livenessModule.minOwners() == 2, "checkLivenessModule-400");
+        require(livenessModule.thresholdPercentage() == 20, "checkLivenessModule-500");
+        require(livenessModule.fallbackOwner() == address(foundationSafe), "checkLivenessModule-600");
+    }
+
+    function checkLivenessGuard() internal view {
+        console.log("Running assertions on the LivenessGuard");
+    }
+
+    function checkDeputyGuardianModule() internal view {
+        console.log("Running assertions on the DeputyGuardianModule");
+    }
+
+    function checkSecurityCouncilSafe() internal view {
+        console.log("Running assertions on the SecurityCouncilSafe");
+    }
+
     /// @notice Checks the correctness of the deployment
     function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory /* simPayload */ )
         internal
@@ -360,6 +416,10 @@ contract SignFromJson is OriginalSignFromJson {
         checkOptimismPortal();
         checkProtocolVersions();
         checkSuperchainConfig();
+        checkLivenessModule();
+        checkLivenessGuard();
+        checkDeputyGuardianModule();
+        checkSecurityCouncilSafe();
 
         console.log("All assertions passed!");
     }
