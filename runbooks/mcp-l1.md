@@ -107,6 +107,9 @@ cp -R metal-001-MCP-L1/. {chainName}-001-MCP-L1
 # Delete the input.json file.
 cd {chainName}-001-MCP-L1
 rm input.json
+
+# Clean your environment to avoid forge caching issues.
+forge clean
 ```
 
 The `.env` file should look like below. t can be left alone, unless you need to change the address
