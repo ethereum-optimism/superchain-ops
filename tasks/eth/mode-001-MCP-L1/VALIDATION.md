@@ -337,4 +337,4 @@ State Changes:
    this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L136-L140). The `OptimismPortal` address can be found [here](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/mainnet/mode.json#L5).
 
 The only other state change is a nonce increment of `0xa4000bdd2bb92ce6750b31f1eeda47bd1cb8e6e4`,
-which is the account sending the transaction and is the only signer on the safe.
+which is the account sending the transaction and is the only signer on the safe. 
