@@ -71,7 +71,7 @@ contract SignFromJson is OriginalSignFromJson {
     uint256 recommendedProtocolVersion;
 
     // Other data we use.
-    uint256 systemConfigStartBlock = 19527368; // This was an input when generating input.json https://etherscan.io/address/0x7BD909970B0EEdcF078De6Aeff23ce571663b8aA#events
+    uint256 systemConfigStartBlock = 19527368; // This was an input when generating input.json 
     AddressManager addressManager = AddressManager(0xd4b1EC0DEc3C7F12abD3ec27B7514880ae1C3a37); // https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/mainnet/metal.json#L2
     Types.ContractSet proxies;
 
