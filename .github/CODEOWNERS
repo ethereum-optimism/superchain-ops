@@ -1,5 +1,7 @@
 *                   @maurelian @zchn @mds1
 
+/runbooks/**/*mcp-l1* @sbvegan @blmalone
+
 /tasks/eth          @maurelian @zchn @mds1 
 /tasks/eth/metal-*  @sbvegan @mds1 @blmalone @maurelian @zchn
 /tasks/eth/mode-*   @sbvegan @mds1 @blmalone @maurelian @zchn
