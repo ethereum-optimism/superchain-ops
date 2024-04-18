@@ -195,10 +195,10 @@ need to change, including:
 - The 6 addresses under the `// Known EOAs to exclude from safety checks.` comment.
   - These have comments explaining where to get each value from.
   - Context on these addresses: Most upgrades have an an invariant of “When writing an address into a storage slot, that address should *usually* have code”. It’s “usually” and not “always” because:
-    - Some roles in the protocol are EOAs with no code, and their addresses are in storage. This is what these 6 EOAs are. Depending on the chain configuration, this list of six addresses may be too large or too small, so edit it as appropriate.
+    - Some roles in the protocol are EOAs with no code, and their addresses are in storage. This is what these 6 EOAs are.
     - Other exceptions are when we put an L2 predeploy address in L1 storage.
 
-    Therefore we added a method that takes a value that’s being written to storage and checks if that value looks like an address. If that address has no code, and is not one of the expected exceptions, we revert, causing the simulation to fail.
+    Therefore we added a method that takes a value that’s being written to storage and checks if that value looks like an address. If that address has no code, and is not one of the expected exceptions, we revert, causing the simulation to fail. Depending on the chain configuration, this list of six addresses may be too large or too small, so edit the `getCodeExceptions` method as appropriate by adding or removing addresses.
 
 - The `systemConfigStartBlock`, based on the value you found above.
 - The `addressManager`, which can be obtained from the superchain registry.
