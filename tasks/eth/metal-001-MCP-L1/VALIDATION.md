@@ -105,7 +105,7 @@ State Changes:
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x0000000000000000000000004a4962275df8c60a80d3a25faec5aa7de116a746` <br/>
   **Meaning:** Sets `challenger` at slot `0x06` (6). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L52-L56). This value matches the current address found by `cast call 0x3B1F7aDa0Fcc26B13515af752Dd07fB1CAc11426 "CHALLENGER()(address)" -r https://ethereum.publicnode.com`. 
+   this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L52-L56). This value matches the current address found by `cast call 0x3B1F7aDa0Fcc26B13515af752Dd07fB1CAc11426 "CHALLENGER()(address)" -r https://ethereum.publicnode.com`.
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000007` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
@@ -117,7 +117,7 @@ State Changes:
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000093a80` <br/>
   **Meaning:** Sets `finalizationPeriodSeconds` at slot `0x08` (8). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L66-L70). Units are in seconds, so the value should be `0x93a80` which is 604,800 in decimal. This value matches the current address found by `cast call 0x3B1F7aDa0Fcc26B13515af752Dd07fB1CAc11426 "FINALIZATION_PERIOD_SECONDS()(uint256)" -r https://ethereum.publicnode.com`   
+   this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L66-L70). Units are in seconds, so the value should be `0x93a80` which is 604,800 in decimal. This value matches the current address found by `cast call 0x3B1F7aDa0Fcc26B13515af752Dd07fB1CAc11426 "FINALIZATION_PERIOD_SECONDS()(uint256)" -r https://ethereum.publicnode.com`
 
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
   **Before:** `0x000000000000000000000000293d15636668cc3ffec89591ff5787df98291d96` <br/>
@@ -336,5 +336,6 @@ State Changes:
    cast storage 0xd4b1ec0dec3c7f12abd3ec27b7514880ae1c3a37 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url https://ethereum.publicnode.com
    ```
 
-The only other state change is a nonce increment of `0xa4000bdd2bb92ce6750b31f1eeda47bd1cb8e6e4`,
-which is the account sending the transaction and is the only signer on the safe.
+The only other state change is a nonce increment of the owner on the safe that sent the transaction.
+If simulating it will be `0xa4000bdd2bb92ce6750b31f1eeda47bd1cb8e6e4`, but if your ledger is
+connected it may be a different one of the safe's owners.
