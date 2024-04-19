@@ -21,6 +21,7 @@ import {console2 as console} from "forge-std/console2.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {Vm, VmSafe} from "forge-std/Vm.sol";
 import {LibString} from "solady/utils/LibString.sol";
+import {GnosisSafe} from "safe-contracts/GnosisSafe.sol";
 
 // Interface used to read various data from contracts. This is an aggregation of methods from
 // various protocol contracts for simplicity, and does not map to the full ABI of any single contract.
@@ -363,8 +364,10 @@ contract SignFromJson is OriginalSignFromJson {
         console.log("All assertions passed!");
     }
 
-        address[] memory shouldHaveCodeExceptions = new address[](6);
     function getCodeExceptions() internal view override returns (address[] memory) {
+        // Safe owners will appear in storage in the LivenessGuard when added
+        address[] memory securityCouncilSafeOwners = securityCouncilSafe.getOwners();
+        address[] memory shouldHaveCodeExceptions = new address[](6 + securityCouncilSafeOwners.length);
 
         shouldHaveCodeExceptions[0] = l2OutputOracleProposer;
         shouldHaveCodeExceptions[1] = l2OutputOracleChallenger;
@@ -372,6 +375,10 @@ contract SignFromJson is OriginalSignFromJson {
         shouldHaveCodeExceptions[3] = batchSenderAddress;
         shouldHaveCodeExceptions[4] = p2pSequencerAddress;
         shouldHaveCodeExceptions[5] = batchInboxAddress;
+
+        for (uint256 i = 0; i < securityCouncilSafeOwners.length; i++) {
+            shouldHaveCodeExceptions[6 + i] = securityCouncilSafeOwners[i];
+        }
 
         return shouldHaveCodeExceptions;
     }
