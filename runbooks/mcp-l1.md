@@ -5,8 +5,6 @@ the Multi-Chain Prep (MCP) L1 upgrade.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
-
 - [MCP L1 Upgrades Runbook](#mcp-l1-upgrades-runbook)
   - [Multi-Chain Prep (MCP) Overview](#multi-chain-prep-mcp-overview)
   - [Upgrade Process](#upgrade-process)
@@ -314,7 +312,11 @@ brevity, but can be modified accordingly for other chains:
 
 ### Add New Chain to CircleCI
 
+Before the task is executed, it should be added to the CircleCI config to ensure it continues
+to pass even as changes are made to the repo prior to execution.
+Check out existing tasks in the `.circleci/config.yml` file as examples of how to add it.
 
+Once the task is executed, the job can be removed from CI.
 
 ### Sign
 
