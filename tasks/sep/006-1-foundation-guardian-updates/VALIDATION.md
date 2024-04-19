@@ -50,4 +50,12 @@ State Changes:
 
 ### `0xdee57160aafcf04c34c887b5962d0a69676d3c8b` (`GnosisSafe`)
 
-The nonce is increased.
+State Changes:
+
+- **Key:** 0x0000000000000000000000000000000000000000000000000000000000000005
+  **Before:** 0x000000000000000000000000000000000000000000000000000000000000000a
+  **After:** 0x000000000000000000000000000000000000000000000000000000000000000b
+The nonce is increased from `0xa` (decimal 10) to `0xb` (decimal 11).
+
+
+The only other state change is a nonce increment of the owner on the safe that sent the transaction.

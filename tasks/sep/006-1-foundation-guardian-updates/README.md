@@ -12,7 +12,7 @@ This is the sepolia playbook for:
 ## Simulation
 
 Please see the "Simulating and Verifying the Transaction" instructions in [SINGLE.md](../../../SINGLE.md).
-When simulating, ensure the logs say `Using script Using script /your/path/to/superchain-ops/tasks/sep/metal-001-MCP-L1/SignFromJson.s.sol`.
+When simulating, ensure the logs say `Using script Using script /your/path/to/superchain-ops/tasks/sep/006-1-foundation-guardian-updates/SignFromJson.s.sol`.
 Thus ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown
 (without the full path), something is wrong and the safety checks will not run.
 
@@ -25,3 +25,5 @@ Please see the instructions for [validation](./VALIDATION.md).
 ## Execution
 
 At this point you may resume following the execution instructions in the "Execute the Transaction" section of [SINGLE.md](../../../SINGLE.md).
+
+When executing, ensure the logs say `Using script Using script /your/path/to/superchain-ops/tasks/sep/006-1-foundation-guardian-updates/SignFromJson.s.sol`. Thus ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
