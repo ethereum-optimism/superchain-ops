@@ -489,7 +489,7 @@ contract SignFromJson is OriginalSignFromJson {
         return shouldHaveCodeExceptions;
     }
 
-    /// @notice Reads the contract addresses from lib/superchain-registry/superchain/extra/addresses/mainnet/op.json
+    /// @notice Reads the contract addresses from lib/superchain-registry/superchain/extra/addresses/sepolia/op.json
     function _getContractSet() internal returns (Types.ContractSet memory _proxies) {
         string memory addressesJson;
 
