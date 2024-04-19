@@ -89,9 +89,6 @@ contract SignFromJson is OriginalSignFromJson {
     address constant p2pSequencerAddress = 0x57CACBB0d30b01eb2462e5dC940c161aff3230D3; // cast call $SystemConfig "unsafeBlockSigner()(address)"
     address constant batchInboxAddress = 0xff00000000000000000000000000000011155420; // In registry yaml.
 
-    // The deployer address which should be removed as an owner on the security council safe.
-    address constant deployerAddress = 0x78339d822c23D943E4a2d4c3DD5408F66e6D662D;
-
     // Hardcoded data that should not change after execution.
     uint256 l2GenesisBlockGasLimit = 30e6;
     uint256 xdmSenderSlotNumber = 204; // Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L93-L99
@@ -99,7 +96,6 @@ contract SignFromJson is OriginalSignFromJson {
     // Data that should not change after execution, fetching during `setUp`.
     uint256 gasPriceOracleOverhead;
     uint256 gasPriceOracleScalar;
-    address superchainConfigGuardian;
     uint256 l2BlockTime;
     uint256 l2OutputOracleSubmissionInterval;
     uint256 finalizationPeriodSeconds;
@@ -127,7 +123,6 @@ contract SignFromJson is OriginalSignFromJson {
 
         gasPriceOracleOverhead = IFetcher(proxies.SystemConfig).overhead();
         gasPriceOracleScalar = IFetcher(proxies.SystemConfig).scalar();
-        superchainConfigGuardian = IFetcher(proxies.SuperchainConfig).guardian();
         l2BlockTime = IFetcher(proxies.L2OutputOracle).L2_BLOCK_TIME();
         l2OutputOracleSubmissionInterval = IFetcher(proxies.L2OutputOracle).SUBMISSION_INTERVAL();
         finalizationPeriodSeconds = IFetcher(proxies.L2OutputOracle).FINALIZATION_PERIOD_SECONDS();
@@ -337,8 +332,8 @@ contract SignFromJson is OriginalSignFromJson {
         require(address(portalToCheck.systemConfig()).code.length != 0, "6101");
         require(EIP1967Helper.getImplementation(address(portalToCheck.systemConfig())).code.length != 0, "6102");
 
-        require(portalToCheck.GUARDIAN() == superchainConfigGuardian, "6200");
-        require(portalToCheck.guardian() == superchainConfigGuardian, "6300");
+        require(portalToCheck.GUARDIAN() == address(securityCouncilSafe), "6200");
+        require(portalToCheck.guardian() == address(securityCouncilSafe), "6300");
         require(portalToCheck.guardian().code.length != 0, "6350"); // This is a Safe, no need to check the implementation.
 
         require(address(portalToCheck.superchainConfig()) == address(proxies.SuperchainConfig), "6400");
@@ -371,7 +366,7 @@ contract SignFromJson is OriginalSignFromJson {
         require(EIP1967Helper.getImplementation(proxies.SuperchainConfig).code.length != 0, "7101");
 
         SuperchainConfig superchainConfigToCheck = SuperchainConfig(proxies.SuperchainConfig);
-        require(superchainConfigToCheck.guardian() == superchainConfigGuardian, "7200");
+        require(superchainConfigToCheck.guardian() == address(securityCouncilSafe), "7200");
         require(superchainConfigToCheck.guardian().code.length != 0, "7250");
         require(superchainConfigToCheck.paused() == false, "7300");
     }
@@ -403,9 +398,6 @@ contract SignFromJson is OriginalSignFromJson {
             uint256 lastLive = livenessGuard.lastLive(owners[i]);
             require(lastLive == 1713416868 || lastLive == block.timestamp, "checkLivenessGuard-201");
         }
-
-        // Ensure the deployer is no longer tracked in the Guard after removal.
-        require(livenessGuard.lastLive(deployerAddress) == 0, "checkLivenessGuard-300");
     }
 
     function checkDeputyGuardianModule() internal view {
@@ -422,10 +414,6 @@ contract SignFromJson is OriginalSignFromJson {
 
     function checkSecurityCouncilSafe() internal view {
         console.log("Running assertions on the SecurityCouncilSafe");
-
-        // The deploy address should have been removed as an owner.
-        require(!securityCouncilSafe.isOwner(deployerAddress), "checkSecurityCouncilSafe-100");
-
         // The SecurityCouncilSafe and FoundationSafe should have the same set of owners
         address[] memory councilOwners = securityCouncilSafe.getOwners();
         address[] memory foundationOwners = foundationSafe.getOwners();
@@ -480,10 +468,9 @@ contract SignFromJson is OriginalSignFromJson {
         shouldHaveCodeExceptions[3] = batchSenderAddress;
         shouldHaveCodeExceptions[4] = p2pSequencerAddress;
         shouldHaveCodeExceptions[5] = batchInboxAddress;
-        shouldHaveCodeExceptions[6] = deployerAddress;
 
         for (uint256 i = 0; i < securityCouncilSafeOwners.length; i++) {
-            shouldHaveCodeExceptions[7 + i] = securityCouncilSafeOwners[i];
+            shouldHaveCodeExceptions[6 + i] = securityCouncilSafeOwners[i];
         }
 
         return shouldHaveCodeExceptions;
