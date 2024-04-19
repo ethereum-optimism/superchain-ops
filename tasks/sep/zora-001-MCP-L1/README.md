@@ -1,6 +1,6 @@
 # Zora Sepolia MCP L1 Upgrade
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x8010eb023ef9891e7fd1c05fe3ad92d5ba3be4896a2fbc5cb809b5467f02e84e)
 
 ## Objective
 
