@@ -1,6 +1,6 @@
 # Zora Mainnet MCP L1 Upgrade
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0xfe942033eec0df235735ae8872759f690e4bee4c86ebb6dba7b9b9446410b5d1)
 
 ## Objective
 
