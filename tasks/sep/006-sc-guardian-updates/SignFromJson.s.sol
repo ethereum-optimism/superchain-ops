@@ -40,7 +40,7 @@ interface IFetcher {
 }
 
 // Interfaces of the new contracts we need to check.
-interface ILivenessModule {
+interface ILivenessModuleFetcher {
     function fallbackOwner() external view returns (address fallbackOwner_);
     function getRequiredThreshold(uint256 _numOwners) external view returns (uint256 threshold_);
     function livenessGuard() external view returns (address livenessGuard_);
@@ -51,14 +51,13 @@ interface ILivenessModule {
     function version() external view returns (string memory);
 }
 
-interface ILivenessGuard {
+interface ILivenessGuardFetcher {
     function lastLive(address) external view returns (uint256);
     function safe() external view returns (address safe_);
-    function showLiveness() external;
     function version() external view returns (string memory);
 }
 
-interface IDeputyGuardianModule {
+interface IDeputyGuardianModuleFetcher {
     function deputyGuardian() external view returns (address deputyGuardian_);
     function safe() external view returns (address safe_);
     function superchainConfig() external view returns (address superchainConfig_);
@@ -73,13 +72,14 @@ contract SignFromJson is OriginalSignFromJson {
     string constant l2ChainName = "op";
 
     // Safe contract for this task.
-    Safe securityCouncilSafe = Safe(payable(0xa87675ebb9501C7baE8570a431c108C1577478Fa));
-    Safe foundationSafe = Safe(payable(0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B));
+    GnosisSafe securityCouncilSafe = GnosisSafe(payable(0xa87675ebb9501C7baE8570a431c108C1577478Fa));
+    GnosisSafe foundationSafe = GnosisSafe(payable(0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B));
 
     // Contracts we need to check, which are not in the superchain registry
-    IDeputyGuardianModule deputyGuardianModule = IDeputyGuardianModule(0x2329EfD0bFc72Aa7849D9DFc2e131D83F4680d85);
-    ILivenessGuard livenessGuard = ILivenessGuard(0x54E8baCcC67fA3c6b3e9A94BAa4d70d1668f0820);
-    ILivenessModule livenessModule = ILivenessModule(0xefd77C23A8ACF13E194d30C6DF51F1C43B0f9932);
+    IDeputyGuardianModuleFetcher deputyGuardianModule =
+        IDeputyGuardianModuleFetcher(0x2329EfD0bFc72Aa7849D9DFc2e131D83F4680d85);
+    ILivenessGuardFetcher livenessGuard = ILivenessGuardFetcher(0x54E8baCcC67fA3c6b3e9A94BAa4d70d1668f0820);
+    ILivenessModuleFetcher livenessModule = ILivenessModuleFetcher(0xefd77C23A8ACF13E194d30C6DF51F1C43B0f9932);
 
     // Known EOAs to exclude from safety checks.
     address constant l2OutputOracleProposer = 0x49277EE36A024120Ee218127354c4a3591dc90A9; // cast call $L2OO "PROPOSER()(address)"
@@ -88,6 +88,9 @@ contract SignFromJson is OriginalSignFromJson {
     address constant batchSenderAddress = 0x8F23BB38F531600e5d8FDDaAEC41F13FaB46E98c; // In registry genesis-system-configs
     address constant p2pSequencerAddress = 0x57CACBB0d30b01eb2462e5dC940c161aff3230D3; // cast call $SystemConfig "unsafeBlockSigner()(address)"
     address constant batchInboxAddress = 0xff00000000000000000000000000000011155420; // In registry yaml.
+
+    // The deployer address which should be removed as an owner on the security council safe.
+    address constant deployerAddress = 0x78339d822c23D943E4a2d4c3DD5408F66e6D662D;
 
     // Hardcoded data that should not change after execution.
     uint256 l2GenesisBlockGasLimit = 30e6;
@@ -376,9 +379,12 @@ contract SignFromJson is OriginalSignFromJson {
     function checkLivenessModule() internal view {
         console.log("Running assertions on the LivenessModule");
 
+        // See sepolia.json for config values being verified:
+        // https://github.com/ethereum-optimism/optimism/pull/10224/files
+        require(livenessModule.version().eq("1.1.0"), "checkLivenessModule-000");
         require(livenessModule.safe() == address(securityCouncilSafe), "checkLivenessModule-100");
         require(livenessModule.livenessGuard() == address(livenessGuard), "checkLivenessModule-200");
-        require(livenessModule.livenessInterval() == 31536000, "checkLivenessModule-300"); // 10 years so we don't have to worry about it
+        require(livenessModule.livenessInterval() == 31536000, "checkLivenessModule-300");
         require(livenessModule.minOwners() == 2, "checkLivenessModule-400");
         require(livenessModule.thresholdPercentage() == 20, "checkLivenessModule-500");
         require(livenessModule.fallbackOwner() == address(foundationSafe), "checkLivenessModule-600");
@@ -386,14 +392,53 @@ contract SignFromJson is OriginalSignFromJson {
 
     function checkLivenessGuard() internal view {
         console.log("Running assertions on the LivenessGuard");
+
+        require(livenessGuard.version().eq("1.0.0"), "checkLivenesssGuard-000");
+        require(livenessGuard.safe() == address(securityCouncilSafe), "checkLivenessGuard-100");
+
+        // Each owner was recorded as live when the Guard was deployed, or was recorded as live during execution of
+        // this runbook.
+        address[] memory owners = securityCouncilSafe.getOwners();
+        for (uint256 i = 0; i < owners.length; i++) {
+            uint256 lastLive = livenessGuard.lastLive(owners[i]);
+            require(lastLive == 1713416868 || lastLive == block.timestamp, "checkLivenessGuard-201");
+        }
+
+        // Ensure the deployer is no longer tracked in the Guard after removal.
+        require(livenessGuard.lastLive(deployerAddress) == 0, "checkLivenessGuard-300");
     }
 
     function checkDeputyGuardianModule() internal view {
         console.log("Running assertions on the DeputyGuardianModule");
+
+        require(deputyGuardianModule.version().eq("1.0.0"), "checkDeputyGuardianModule-000");
+        require(deputyGuardianModule.deputyGuardian() == address(foundationSafe), "checkDeputyGuardianModule-100");
+        require(deputyGuardianModule.safe() == address(securityCouncilSafe), "checkDeputyGuardianModule-200");
+        require(
+            deputyGuardianModule.superchainConfig() == address(proxies.SuperchainConfig),
+            "checkDeputyGuardianModule-300"
+        );
     }
 
     function checkSecurityCouncilSafe() internal view {
         console.log("Running assertions on the SecurityCouncilSafe");
+
+        // The deploy address should have been removed as an owner.
+        require(!securityCouncilSafe.isOwner(deployerAddress), "checkSecurityCouncilSafe-100");
+
+        // The SecurityCouncilSafe and FoundationSafe should have the same set of owners
+        address[] memory councilOwners = securityCouncilSafe.getOwners();
+        address[] memory foundationOwners = foundationSafe.getOwners();
+        require(councilOwners.length == foundationOwners.length, "checkSecurityCouncilSafe-200");
+        for (uint256 i = 0; i < councilOwners.length; i++) {
+            require(foundationSafe.isOwner(councilOwners[i]), "checkSecurityCouncilSafe-201");
+        }
+
+        // See sepolia.json for config values being verified:
+        // https://github.com/ethereum-optimism/optimism/pull/10224/files
+        // The SecurityCouncilSafe should have the same threshold (2) as the FoundationSafe
+        require(securityCouncilSafe.getThreshold() == foundationSafe.getThreshold(), "checkSecurityCouncilSafe-300");
+        require(securityCouncilSafe.getThreshold() == 2, "checkSecurityCouncilSafe-301");
     }
 
     /// @notice Checks the correctness of the deployment
@@ -416,10 +461,10 @@ contract SignFromJson is OriginalSignFromJson {
         checkOptimismPortal();
         checkProtocolVersions();
         checkSuperchainConfig();
+        checkSecurityCouncilSafe();
         checkLivenessModule();
         checkLivenessGuard();
         checkDeputyGuardianModule();
-        checkSecurityCouncilSafe();
 
         console.log("All assertions passed!");
     }
@@ -427,7 +472,7 @@ contract SignFromJson is OriginalSignFromJson {
     function getCodeExceptions() internal view override returns (address[] memory) {
         // Safe owners will appear in storage in the LivenessGuard when added
         address[] memory securityCouncilSafeOwners = securityCouncilSafe.getOwners();
-        address[] memory shouldHaveCodeExceptions = new address[](6 + securityCouncilSafeOwners.length);
+        address[] memory shouldHaveCodeExceptions = new address[](7 + securityCouncilSafeOwners.length);
 
         shouldHaveCodeExceptions[0] = l2OutputOracleProposer;
         shouldHaveCodeExceptions[1] = l2OutputOracleChallenger;
@@ -435,9 +480,10 @@ contract SignFromJson is OriginalSignFromJson {
         shouldHaveCodeExceptions[3] = batchSenderAddress;
         shouldHaveCodeExceptions[4] = p2pSequencerAddress;
         shouldHaveCodeExceptions[5] = batchInboxAddress;
+        shouldHaveCodeExceptions[6] = deployerAddress;
 
         for (uint256 i = 0; i < securityCouncilSafeOwners.length; i++) {
-            shouldHaveCodeExceptions[6 + i] = securityCouncilSafeOwners[i];
+            shouldHaveCodeExceptions[7 + i] = securityCouncilSafeOwners[i];
         }
 
         return shouldHaveCodeExceptions;
