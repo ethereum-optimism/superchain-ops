@@ -62,10 +62,15 @@ abstract contract JsonTxBuilderBase is CommonBase {
 
         for (uint256 i; i < accountAccesses.length; i++) {
             Vm.AccountAccess memory accountAccess = accountAccesses[i];
-            require(
-                accountAccess.account.code.length != 0,
-                string.concat("Account has no code: ", vm.toString(accountAccess.account))
-            );
+
+            // All touched accounts should have code, with the exception of precompiles.
+            if (!isPrecompile(accountAccess.account)) {
+                require(
+                    accountAccess.account.code.length != 0,
+                    string.concat("Account has no code: ", vm.toString(accountAccess.account))
+                );
+            }
+
             require(
                 accountAccess.oldBalance == accountAccess.account.balance,
                 string.concat("Unexpected balance change: ", vm.toString(accountAccess.account))
@@ -129,7 +134,8 @@ abstract contract JsonTxBuilderBase is CommonBase {
 
     /// @notice Returns a list of addresses which are expected to be in storage, but will not to have code on this
     ///         chain. Examples of such addresses include EOAs, predeploy addresses, and inbox addresses.
-    function getCodeExceptions() internal pure virtual returns (address[] memory) {
+    function getCodeExceptions() internal pure virtual returns (address[] memory exceptions) {
+        exceptions; // Named return and this no-op required to silence compiler warnings.
         require(false, "getCodeExceptions not implemented");
     }
 
@@ -155,5 +161,10 @@ abstract contract JsonTxBuilderBase is CommonBase {
 
         // Otherwise, this value looks like an address that we'd expect to have code.
         return true;
+    }
+
+    /// @notice Returns true if the address is a precompile, false otherwise.
+    function isPrecompile(address addr) internal pure returns (bool) {
+        return addr >= address(0x1) && addr <= address(0xa);
     }
 }
