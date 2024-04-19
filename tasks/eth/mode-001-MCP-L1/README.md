@@ -1,6 +1,6 @@
 # Mode Mainnet MCP L1 Upgrade
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0xfd62d0d284c8655e916a5cdd2472b461ed5686ab1414b834a1ffdb06a44f63b4)
 
 ## Objective
 
