@@ -131,6 +131,7 @@ abstract contract JsonTxBuilderBase is CommonBase {
     ///         chain. Examples of such addresses include EOAs, predeploy addresses, and inbox addresses.
     function getCodeExceptions() internal view virtual returns (address[] memory exceptions_) {
         require(false, "getCodeExceptions not implemented");
+        exceptions_ = new address[](0); // Silence compiler warnings.
     }
 
     /// @notice Checks that values have code on this chain.
