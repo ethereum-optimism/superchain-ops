@@ -179,25 +179,28 @@ jobs:
             forge fmt --check
 
 workflows:
-    version: 2
-    forge_checks:
-        jobs:
-          - forge_test
-          - forge_fmt
-    check_rpc_endpoints:
-        jobs:
-          - check_sepolia_rpc_endpoints
-          - check_mainnet_rpc_endpoints
-          - example_mainnet_job:
-              requires:
-                - check_mainnet_rpc_endpoints
-    check_just_simulate:
-        jobs:
-        # Please add an invocation to `just simulate` if a ceremony is
-        # active (e.g. it is the next ceremony to perform or you
-        # expect the ceremony to work continuously), and remove it once
-        # the ceremony is for historical archive only (e.g. the
-        # ceremony is done).
-          - just_simulate_sc_rehearsal_1
-          - just_simulate_sc_rehearsal_2
-          - just_simulate_sc_rehearsal_4
+  version: 2
+  forge_checks:
+    jobs:
+      - forge_test
+      - forge_fmt
+  check_rpc_endpoints:
+    jobs:
+      - check_sepolia_rpc_endpoints
+      - check_mainnet_rpc_endpoints
+      - example_mainnet_job:
+          requires:
+            - check_mainnet_rpc_endpoints
+  check_just_simulate:
+    jobs:
+      # Please add an invocation to `just simulate` if a ceremony is
+      # active (e.g. it is the next ceremony to perform or you
+      # expect the ceremony to work continuously), and remove it once
+      # the ceremony is for historical archive only (e.g. the
+      # ceremony is done).
+      - just_simulate_sc_rehearsal_1
+      - just_simulate_sc_rehearsal_2
+      - just_simulate_sc_rehearsal_4
+      - just_simulate_sep-metal-001-MCP-L1
+      - just_simulate_sep-mode-001-MCP-L1
+      - just_simulate_sep-op-006-0
