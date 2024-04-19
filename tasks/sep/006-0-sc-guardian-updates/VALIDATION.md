@@ -16,7 +16,7 @@ The following state overrides should be seen:
 ### `0xa87675ebb9501C7baE8570a431c108C1577478Fa` (The Security Council Safe)
 
 Links:
-- [Etherscan](https://sepolia.etherscan.io/address/0xE75Cd021F520B160BF6b54D472Fa15e52aFe5aDD)
+- [Etherscan](https://sepolia.etherscan.io/address/0xa87675ebb9501C7baE8570a431c108C1577478Fa)
 
 Enables the simulation by setting the threshold to 1:
 
@@ -62,7 +62,7 @@ State Changes:
 
 - **Owner count:** reduced from 10 to 9, because of the removed owner.
 - **Threshold:** increased from 1 to 2 (this change only occurs due to the state override required for the simulation)
-- **Owners mapping:** The deployer `0x7833...` removed from the linked list of owners.
+- **Owners mapping:** The deployer `0x78339d822c23D943E4a2d4c3DD5408F66e6D662D` removed from the linked list of owners.
   - `0x78339d822c23d943e4a2d4c3dd5408f66e6d662d` no longer maps to `0x1` (the [sentinel owner](https://github.com/safe-global/safe-contracts/blob/v1.4.0/contracts/base/OwnerManager.sol#L17))
   - `0xea96f8d33af98839c20547d970ee0961f8865009` now maps to `0x1`
 - **Modules mapping:** The Liveness module (`0xefd7...`) is inserted into the liked list of modules.
@@ -71,4 +71,4 @@ State Changes:
 
 ### `0xa87675ebb9501C7baE8570a431c108C1577478Fa` (The Security Council Safe)
 
-The nonce is increased.
+The nonce is increased by 1.
