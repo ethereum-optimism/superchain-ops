@@ -1,6 +1,6 @@
 # Metal Mainnet MCP L1 Upgrade
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0x5cc6333ba2dbc12eba44db7e3f014195596d9e02ebbfc4cd718dfc0eee0d1156)
 
 ## Objective
 
