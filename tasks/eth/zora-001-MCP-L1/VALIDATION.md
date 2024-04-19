@@ -61,9 +61,6 @@ State Changes:
   **After:** `0x0000000000000000000000002d778797049fe9259d947d1ed8e5442226dfb589` <br/>
   **Meaning:** Implementation address is set to the new `OptimismPortal`. The implementation address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/mainnet.yaml#L12).
 
-
-
-
 ### `0x3e2Ea9B92B7E48A52296fD261dc26fd995284631` (`L1StandardBridgeProxy`)
 
 Links:
@@ -101,8 +98,6 @@ State Changes:
   **After:** `0x00000000000000000000000064b5a5ed26dcb17370ff4d33a8d503f0fbd06cff` <br/>
   **Meaning:** Implementation address is set to the new `L1StandardBridge`. The address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/mainnet.yaml#L6).
 
-
-
 ### `0x83A4521A3573Ca87f3a971B169C5A0E1d34481c3` (`L1ERC721BridgeProxy`)
 
 Links:
@@ -139,10 +134,6 @@ State Changes:
   **Before:** `0x000000000000000000000000dbcda21518af39e7feb9748f6718d3db11591461` <br/>
   **After:** `0x000000000000000000000000ae2af01232a6c4a4d3012c5ec5b1b35059caf10d` <br/>
   **Meaning:** The implementation address is set to the new `L1ERC721Bridge`. The address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/implementations/networks/mainnet.yaml#L4).
-
-
-
-
 
 ### `0x9E6204F750cD866b299594e2aC9eA824E2e5f95c` (`L2OutputOracleProxy`)
 
@@ -185,7 +176,6 @@ State Changes:
   **Before:** `0x0000000000000000000000009eedde6b4d3263b97209ba860edf3fc6a8fb6a44` <br/>
   **After:** `0x000000000000000000000000f243bed163251380e78068d317ae10f26042b292` <br/>
   **Meaning:** Implementation address is set to the new `L2OutputOracle`. The address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/mainnet.yaml#L8).
-
 
 ### `0xA3cAB0126d5F504B071b81a3e8A2BBBF17930d86` (`SystemConfigProxy`)
 
@@ -286,9 +276,6 @@ State Changes:
   **After:** `0x000000000000000000000000e01efbeb1089d1d1db9c6c8b135c934c0734c846` <br/>
   **Meaning:** Implementation address is set to the new `OptimismMintableERC20Factory` implementation. The address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/mainnet.yaml#L10).
 
-
-
-
 ### `0xC72aE5c7cc9a332699305E29F68Be66c73b60542` (The 1 of 1 `ProxyAdmin` owner Safe)
 
 Links:
@@ -325,7 +312,7 @@ State Changes:
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:**  `0x0000000000000000000000001a0ad011913a150f69f6a19df447a0cfd9551054` <br/>
   **Meaning:** Sets `OptimismPortal` at slot `0xfc` (252). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L136-L140). The `OptimismPortal` address can be found [here](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/mainnet/mode.json#L5).
+   this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L136-L140). The `OptimismPortal` address can be found [here](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/mainnet/zora.json#L8).
 
 ### `0xef8115f2733fb2033a7c756402fc1deaa56550ef` (`AddressManager`)
 
@@ -349,5 +336,6 @@ State Changes:
    cast storage 0xEF8115F2733fb2033a7c756402Fc1deaa56550Ef 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url https://ethereum.publicnode.com
    ```
 
-The only other state change is a nonce increment of `0xa4000bdd2bb92ce6750b31f1eeda47bd1cb8e6e4`,
-which is the account sending the transaction and is the only signer on the safe.
+The only other state change is a nonce increment of the owner on the safe that sent the transaction.
+If simulating it will be `0xa4000bdd2bb92ce6750b31f1eeda47bd1cb8e6e4`, but if your ledger is
+connected it may be a different one of the safe's owners.
