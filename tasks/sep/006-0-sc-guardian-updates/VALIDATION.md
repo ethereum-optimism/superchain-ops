@@ -36,10 +36,15 @@ State Changes:
   **After:** `0x000000000000000000000000000000000000000000000000000000006621dcfe` <br/>
   **Meaning:** The 'lastLive' timestamp of the caller has been updated. The key can be verified by:
     1. Seeing that the [slot of the mapping is 0](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/snapshots/storageLayout/LivenessGuard.json#L6).
-    2. obtaining the storage key with `cast`, where the address provided should be the one used to simulate.
+    2. Obtaining the storage key with `cast`, where the address provided should be the one used to simulate.
       ```shell
         cast index address 0x2e2e33fedd27fdecfc851ae98e45a5ecb76904fe 0
         0x023c107741c8297b7d31ce48158a7d3e0c1bab34eb099ba05b48e6e0bb5b0324
+      ```
+    3. The timestamp should be from a recent block, and can be decoded from the value with:
+      ```shell
+        cast to-dec 0x000000000000000000000000000000000000000000000000000000006621dcfe
+        1713495294
       ```
 
 - **Key**: `0x56ee16ca3ade18209faccff732edefbb77524a2f2c0c642df2abe4924871e783` <br/>
