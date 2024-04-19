@@ -74,6 +74,7 @@ contract SignFromJson is OriginalSignFromJson {
     // Safe contract for this task.
     GnosisSafe securityCouncilSafe = GnosisSafe(payable(0xa87675ebb9501C7baE8570a431c108C1577478Fa));
     GnosisSafe foundationSafe = GnosisSafe(payable(0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B));
+    GnosisSafe upgradeOwnerSafe = GnosisSafe(payable(0xeD3d7D9f610a8ACcBe9CACA172B7F3d70530E89D));
 
     // Contracts we need to check, which are not in the superchain registry
     IDeputyGuardianModuleFetcher deputyGuardianModule =
@@ -421,14 +422,17 @@ contract SignFromJson is OriginalSignFromJson {
         if (councilOwners.length != foundationOwners.length) {
             // this should be silenced once the previous runbook is completed
             console.log(
-                "\x1b[31mcheckSecurityCouncilSafe-100", councilOwners.length, foundationOwners.length, "\x1b[0m"
+                "\x1b[31m TEMP ERROR: checkSecurityCouncilSafe-100",
+                councilOwners.length,
+                foundationOwners.length,
+                "\x1b[0m"
             );
         }
         for (uint256 i = 0; i < councilOwners.length; i++) {
             // require(foundationSafe.isOwner(councilOwners[i]), "checkSecurityCouncilSafe-201");
             if (!foundationSafe.isOwner(councilOwners[i])) {
                 // this should be silenced once the previous runbook is completed
-                console.log("\x1b[31m", "checkSecurityCouncilSafe-101", councilOwners[i], "\x1b[0m");
+                console.log("\x1b[31m TEMP ERROR: checkSecurityCouncilSafe-101", councilOwners[i], "\x1b[0m");
             }
         }
 
@@ -436,6 +440,14 @@ contract SignFromJson is OriginalSignFromJson {
         // https://github.com/ethereum-optimism/optimism/pull/10224/files
         // The SecurityCouncilSafe should have a treshold of 2
         require(securityCouncilSafe.getThreshold() == 2, "checkSecurityCouncilSafe-301");
+    }
+
+    function checkUpgradeOwnerSafe() internal view {
+        console.log("Running assertions on the UpgradeOwnerSafe");
+        require(upgradeOwnerSafe.getThreshold() == 2, "checkUpgradeOwnerSafe-100");
+        require(upgradeOwnerSafe.getOwners().length == 2, "checkUpgradeOwnerSafe-200");
+        require(upgradeOwnerSafe.isOwner(address(foundationSafe)), "checkUpgradeOwnerSafe-300");
+        require(upgradeOwnerSafe.isOwner(address(securityCouncilSafe)), "checkUpgradeOwnerSafe-400");
     }
 
     /// @notice Checks the correctness of the deployment
@@ -462,6 +474,7 @@ contract SignFromJson is OriginalSignFromJson {
         checkLivenessModule();
         checkLivenessGuard();
         checkDeputyGuardianModule();
+        checkUpgradeOwnerSafe();
 
         console.log("All assertions passed!");
     }
