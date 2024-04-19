@@ -261,55 +261,11 @@ that the address actually matches the correct implementation, an Etherscan link 
   **After:** `0x0000000000000000000000009e6204f750cd866b299594e2ac9ea824e2e5f95c` <br/>
   **Meaning:** Sets `l2OutputOracle` at slot per the [Superchain Registry][output-oracle-registry]. This should be a proxy per [Etherscan][output-oracle-etherscan]. Verification of the key can be done by ensuring the result of the [L2_OUTPUT_ORACLE_SLOT](https://etherscan.io/address/0xba2492e52F45651B60B8B38d4Ea5E2390C64Ffb1#readContract#F5) getter on the implementation contract matches the key.
 
-====================================================================================================
-====================== ABOVE THIS LINE IS FINALIZED, BELOW IT IS IN PROGRESS =======================
-====================================================================================================
-
-
-
-====================================================================================================
-===================== ABOVE THIS LINE IS IN PROGRESS, BELOW IT WAS NOT UPDATED =====================
-====================================================================================================
-
-### `0x4a4962275df8c60a80d3a25faec5aa7de116a746` (The 1 of 1 `ProxyAdmin` owner Safe)
+### `0xc52BC7344e24e39dF1bf026fe05C4e6E23CfBcFf` (`OptimismMintableERC20FactoryProxy`)
 
 Links:
-- [Etherscan](https://etherscan.io/address/0x4a4962275df8c60a80d3a25faec5aa7de116a746)
-- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/mainnet/mode.json#L11)
-
-State Changes:
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
-  **Before:** `0x000000000000000000000000000000000000000000000000000000000000001a`<br/>
-  **After:** `0x000000000000000000000000000000000000000000000000000000000000001b` <br/>
-  **Meaning:** The Safe nonce is updated from `26` -> `27`.
-
-### `0x50ef494573f28cad6b64c31b7a00cdaa48306e15` (`AddressManager`)
-
-Links:
-- [Etherscan](https://etherscan.io/address/0x50ef494573f28cad6b64c31b7a00cdaa48306e15)
-- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/mainnet/mode.json#L9)
-
-State Changes:
-- **Key:** `0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e` <br/>
-  **Before:** `0x00000000000000000000000014ddd08c0e28764fc89a266ec95a93619b0ee835` <br/>
-  **After:** `0x000000000000000000000000d3494713a5cfad3f5359379dfa074e2ac8c6fd65` <br/>
-  **Meaning:** The name `OVM_L1CrossDomainMessenger` is set to the address of the new `L1CrossDomainMessenger` [implementation](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/mainnet.yaml#L2). This key is complicated to compute, so instead we attest to correctness of the key by verifying that the "Before" value currently exists in that slot, as explained below.
-  **Before** address matches both of the following cast calls (please consider changing out the rpc
-  url):
-  1. what is returned by calling `AddressManager.getAddress()`:
-   ```
-   cast call 0x50ef494573f28cad6b64c31b7a00cdaa48306e15 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url https://ethereum.publicnode.com
-   ```
-  2. what is currently stored at the key:
-   ```
-   cast storage 0x50ef494573f28cad6b64c31b7a00cdaa48306e15 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url https://ethereum.publicnode.com
-   ```
-
-### `0x69216395a62dfb243c05ef4f1c27af8655096a95` (`OptimismMintableERC20FactoryProxy`)
-
-Links:
-- [Etherscan](https://etherscan.io/address/0x69216395a62dfb243c05ef4f1c27af8655096a95)
-- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/4156733e723282b632a5743ac3064710caea03d4/superchain/extra/addresses/mainnet/mode.json#L2)
+- [Etherscan](https://etherscan.io/address/0xc52BC7344e24e39dF1bf026fe05C4e6E23CfBcFf)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5156b9582d0920624c61b63f1696bc624f37cc2e/superchain/extra/addresses/mainnet/zora.json#L7C41-L7C83)
 
 State Changes:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
@@ -321,20 +277,35 @@ State Changes:
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:** `0x000000000000000000000000735adbbe72226bd52e818e7181953f42e3b0ff21` <br/>
+  **After:** `0x0000000000000000000000003e2ea9b92b7e48a52296fd261dc26fd995284631` <br/>
   **Meaning:** Sets `bridge` at slot `0x01` (1). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/OptimismMintableERC20Factory.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismMintableERC20Factory.json#L24-L28). The address of the `L1StandardBridge` should be the value set in the slot, left padded with zero bytes to fill the slot. The address of the [L1StandardBridgeProxy](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/mainnet/mode.json#L10) can be found in the Superchain Registry.
+   this slot is attested to in the Optimism repo at [storageLayout/OptimismMintableERC20Factory.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismMintableERC20Factory.json#L24-L28). The address of the `L1StandardBridge` should be the value set in the slot, left padded with zero bytes to fill the slot. The address of the [L1StandardBridgeProxy](https://github.com/ethereum-optimism/superchain-registry/blob/5156b9582d0920624c61b63f1696bc624f37cc2e/superchain/extra/addresses/mainnet/zora.json#L5) can be found in the Superchain Registry.
 
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
-  **Before:** `0x000000000000000000000000c0c6a811bbf07fa01b946f1c46a9a94c2ee8c73e` <br/>
+  **Before:** `0x00000000000000000000000084ee4b9673598ca2fbdad4ba4a27a58d6328ec46` <br/>
   **After:** `0x000000000000000000000000e01efbeb1089d1d1db9c6c8b135c934c0734c846` <br/>
   **Meaning:** Implementation address is set to the new `OptimismMintableERC20Factory` implementation. The address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/mainnet.yaml#L10).
 
-### `0x95bdca6c8edeb69c98bd5bd17660bacef1298a6f` (`L1CrossDomainMessengerProxy`)
+
+
+
+### `0xC72aE5c7cc9a332699305E29F68Be66c73b60542` (The 1 of 1 `ProxyAdmin` owner Safe)
 
 Links:
-- [Etherscan](https://etherscan.io/address/0x95bdca6c8edeb69c98bd5bd17660bacef1298a6f)
-- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/mainnet/mode.json#L6)
+- [Etherscan](https://etherscan.io/address/0xC72aE5c7cc9a332699305E29F68Be66c73b60542)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5156b9582d0920624c61b63f1696bc624f37cc2e/superchain/extra/addresses/mainnet/zora.json#L11C23-L11C65)
+
+State Changes:
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
+  **Before:** `0x000000000000000000000000000000000000000000000000000000000000000e`<br/>
+  **After:** `0x000000000000000000000000000000000000000000000000000000000000000f` <br/>
+  **Meaning:** The Safe nonce is updated from `14` -> `15`.
+
+### `0xdC40a14d9abd6F410226f1E6de71aE03441ca506` (`L1CrossDomainMessengerProxy`)
+
+Links:
+- [Etherscan](https://etherscan.io/address/0xdC40a14d9abd6F410226f1E6de71aE03441ca506)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5156b9582d0920624c61b63f1696bc624f37cc2e/superchain/extra/addresses/mainnet/zora.json#L3)
 
 State Changes:
 - **Key:** `0x00000000000000000000000000000000000000000000000000000000000000cf` <br/>
@@ -352,9 +323,31 @@ State Changes:
 
 - **Key:** `0x00000000000000000000000000000000000000000000000000000000000000fc` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:**  `0x0000000000000000000000008b34b14c7c7123459cf3076b8cb929be097d0c07` <br/>
+  **After:**  `0x0000000000000000000000001a0ad011913a150f69f6a19df447a0cfd9551054` <br/>
   **Meaning:** Sets `OptimismPortal` at slot `0xfc` (252). The correctness of
    this slot is attested to in the Optimism repo at [storageLayout/L1CrossDomainMessenger.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L136-L140). The `OptimismPortal` address can be found [here](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/mainnet/mode.json#L5).
+
+### `0xef8115f2733fb2033a7c756402fc1deaa56550ef` (`AddressManager`)
+
+Links:
+- [Etherscan](https://etherscan.io/address/0xef8115f2733fb2033a7c756402fc1deaa56550ef)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5156b9582d0920624c61b63f1696bc624f37cc2e/superchain/extra/addresses/mainnet/zora.json#L2)
+
+State Changes:
+- **Key:** `0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e` <br/>
+  **Before:** `0x000000000000000000000000363b4b1ada52e50353f746999bd9e94395190d2c` <br/>
+  **After:** `0x000000000000000000000000d3494713a5cfad3f5359379dfa074e2ac8c6fd65` <br/>
+  **Meaning:** The name `OVM_L1CrossDomainMessenger` is set to the address of the new `L1CrossDomainMessenger` [implementation](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/mainnet.yaml#L2). This key is complicated to compute, so instead we attest to correctness of the key by verifying that the "Before" value currently exists in that slot, as explained below.
+  **Before** address matches both of the following cast calls (please consider changing out the rpc
+  url):
+  1. what is returned by calling `AddressManager.getAddress()`:
+   ```
+   cast call 0xEF8115F2733fb2033a7c756402Fc1deaa56550Ef 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url https://ethereum.publicnode.com
+   ```
+  2. what is currently stored at the key:
+   ```
+   cast storage 0xEF8115F2733fb2033a7c756402Fc1deaa56550Ef 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url https://ethereum.publicnode.com
+   ```
 
 The only other state change is a nonce increment of `0xa4000bdd2bb92ce6750b31f1eeda47bd1cb8e6e4`,
 which is the account sending the transaction and is the only signer on the safe.
