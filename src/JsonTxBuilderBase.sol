@@ -72,7 +72,7 @@ abstract contract JsonTxBuilderBase is CommonBase {
             }
 
             require(
-                accountAccess.oldBalance == accountAccess.account.balance,
+                accountAccess.oldBalance == accountAccess.newBalance,
                 string.concat("Unexpected balance change: ", vm.toString(accountAccess.account))
             );
             require(
