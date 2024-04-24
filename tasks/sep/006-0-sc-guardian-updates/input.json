@@ -1,20 +1,48 @@
 {
   "version": "1.0",
   "chainId": "11155111",
-  "createdAt": 1713460666338,
+  "createdAt": 1713990767564,
   "meta": {
-    "name": "Transactions Batch",
+    "name": "SC Changes",
     "description": "",
     "txBuilderVersion": "1.16.5",
-    "createdFromSafeAddress": "0xa87675ebb9501C7baE8570a431c108C1577478Fa",
+    "createdFromSafeAddress": "0xf64bc17485f0B4Ea5F06A96514182FC4cB561977",
     "createdFromOwnerAddress": "",
-    "checksum": "0xad44372eea3d6d98d5b72913d1119b13f0543649af05d945dc10007e90098321"
+    "checksum": "0x6efe389d36114c140bda29b40f6ff7e9eeb59a38993d84f3a1ac5cb5f5319248"
   },
   "transactions": [
     {
-      "to": "0xa87675ebb9501C7baE8570a431c108C1577478Fa",
+      "to": "0xf64bc17485f0B4Ea5F06A96514182FC4cB561977",
       "value": "0",
-      "data": "0x610b5925000000000000000000000000efd77c23a8acf13e194d30c6df51f1c43b0f9932",
+      "data": null,
+      "contractMethod": {
+        "inputs": [
+          { "internalType": "uint256", "name": "_threshold", "type": "uint256" }
+        ],
+        "name": "changeThreshold",
+        "payable": false
+      },
+      "contractInputsValues": { "_threshold": "3" }
+    },
+    {
+      "to": "0xf64bc17485f0B4Ea5F06A96514182FC4cB561977",
+      "value": "0",
+      "data": null,
+      "contractMethod": {
+        "inputs": [
+          { "internalType": "address", "name": "guard", "type": "address" }
+        ],
+        "name": "setGuard",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "guard": "0x8185fa3BE4608Adfae19537F75a323fe6d464a3d"
+      }
+    },
+    {
+      "to": "0xf64bc17485f0B4Ea5F06A96514182FC4cB561977",
+      "value": "0",
+      "data": null,
       "contractMethod": {
         "inputs": [
           { "internalType": "address", "name": "module", "type": "address" }
@@ -23,26 +51,22 @@
         "payable": false
       },
       "contractInputsValues": {
-        "module": "0xefd77C23A8ACF13E194d30C6DF51F1C43B0f9932"
+        "module": "0x9b3a60522995F90996d97a094878a7529Ff00Be1"
       }
     },
     {
-      "to": "0xa87675ebb9501C7baE8570a431c108C1577478Fa",
+      "to": "0xf64bc17485f0B4Ea5F06A96514182FC4cB561977",
       "value": "0",
-      "data": "0xf8dc5dd9000000000000000000000000ea96f8d33af98839c20547d970ee0961f886500900000000000000000000000078339d822c23d943e4a2d4c3dd5408f66e6d662d0000000000000000000000000000000000000000000000000000000000000002",
+      "data": null,
       "contractMethod": {
         "inputs": [
-          { "internalType": "address", "name": "prevOwner", "type": "address" },
-          { "internalType": "address", "name": "owner", "type": "address" },
-          { "internalType": "uint256", "name": "_threshold", "type": "uint256" }
+          { "internalType": "address", "name": "module", "type": "address" }
         ],
-        "name": "removeOwner",
+        "name": "enableModule",
         "payable": false
       },
       "contractInputsValues": {
-        "prevOwner": "0xEA96f8d33Af98839C20547D970EE0961f8865009",
-        "owner": "0x78339d822c23D943E4a2d4c3DD5408F66e6D662D",
-        "_threshold": "2"
+        "module": "0x999B254D5138D93640a40D7bDD9872a5646D0774"
       }
     }
   ]
