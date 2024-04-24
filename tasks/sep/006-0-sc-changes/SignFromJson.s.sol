@@ -403,9 +403,6 @@ contract SignFromJson is OriginalSignFromJson {
             uint256 lastLive = livenessGuard.lastLive(owners[i]);
             require(lastLive == 1713416868 || lastLive == block.timestamp, "checkLivenessGuard-201");
         }
-
-        // Ensure the deployer is no longer tracked in the Guard after removal.
-        require(livenessGuard.lastLive(deployerAddress) == 0, "checkLivenessGuard-300");
     }
 
     function checkDeputyGuardianModule() internal view {
@@ -423,15 +420,14 @@ contract SignFromJson is OriginalSignFromJson {
     function checkSecurityCouncilSafe() internal view {
         console.log("Running assertions on the SecurityCouncilSafe");
 
-        // The deploy address should have been removed as an owner.
-        require(!securityCouncilSafe.isOwner(deployerAddress), "checkSecurityCouncilSafe-100");
-
         // The SecurityCouncilSafe and FoundationSafe should have the same set of owners
         address[] memory councilOwners = securityCouncilSafe.getOwners();
         address[] memory foundationOwners = foundationSafe.getOwners();
-        require(councilOwners.length == foundationOwners.length, "checkSecurityCouncilSafe-200");
+        require(councilOwners.length == foundationOwners.length + 1, "checkSecurityCouncilSafe-200");
         for (uint256 i = 0; i < councilOwners.length; i++) {
-            require(foundationSafe.isOwner(councilOwners[i]), "checkSecurityCouncilSafe-201");
+            if (councilOwners[i] != deployerAddress) {
+                require(foundationSafe.isOwner(councilOwners[i]), "checkSecurityCouncilSafe-201");
+            }
         }
 
         // See sepolia.json for config values being verified:
@@ -480,10 +476,9 @@ contract SignFromJson is OriginalSignFromJson {
         shouldHaveCodeExceptions[3] = batchSenderAddress;
         shouldHaveCodeExceptions[4] = p2pSequencerAddress;
         shouldHaveCodeExceptions[5] = batchInboxAddress;
-        shouldHaveCodeExceptions[6] = deployerAddress;
 
         for (uint256 i = 0; i < securityCouncilSafeOwners.length; i++) {
-            shouldHaveCodeExceptions[7 + i] = securityCouncilSafeOwners[i];
+            shouldHaveCodeExceptions[6 + i] = securityCouncilSafeOwners[i];
         }
 
         return shouldHaveCodeExceptions;
