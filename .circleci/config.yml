@@ -155,21 +155,6 @@ jobs:
             just simulate-council
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
-    docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
-    steps:
-      - checkout
-      - run:
-          name: just simulate eth/zora-001-MCP-L1
-          command: |
-            go install github.com/mikefarah/yq/v4@latest
-            just install
-            cd tasks/eth/zora-001-MCP-L1
-            export SIMULATE_WITHOUT_LEDGER=1
-            just \
-              --dotenv-path .env \
-              --justfile ../../../single.just \
-              simulate
   forge_test:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
