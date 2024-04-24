@@ -3,7 +3,7 @@
 Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xa7ea1ac70ded1b97b382725b46c6f4b0845e5705e5237a1c13ddfc5c80272ca3)
 
 This runbook is intended to document the act of transferring ownership of the L1 Proxy Admin on
-Sepolia, order to bring it to parity with the current configuration of Mainnet.
+Sepolia, in order to bring it to parity with the current configuration of Mainnet.
 
 This ceremony will be done via the Safe UI rather than the just scripts.
 
