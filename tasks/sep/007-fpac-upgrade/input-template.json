@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "chainId": "5",
+  "chainId": "11155111",
   "createdAt": 1707763323,
   "meta": {
     "name": "FPAC Upgrade Mk2 - Sepolia Testnet",
