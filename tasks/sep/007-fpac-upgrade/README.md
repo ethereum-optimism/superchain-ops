@@ -70,12 +70,12 @@ The following state changes should be seen:
   - Meaning: The implementation of the `DisputeGameFactory` proxy has been upgraded to `0xc658fddbfbe85b59c9fdabb9e78598967e33cb96`
 - Key `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
   - Before: `0x00000000000000000000000054a16603469dc1f4bf7197908067d858d04864e5`
-  - After: `0x000000000000000000000000dae97900d4b184c5d2012dcdb658c008966466dd`
-  - Meaning: The implementation of the `PermissionedDisputeGame` has been upgraded to `0xdaE97900D4B184c5D2012dcdB658c008966466DD`
+  - After: `0x000000000000000000000000FDcA34EDa4cf5944E9fa0D5DBE2A515a88650FB7`
+  - Meaning: The implementation of the `PermissionedDisputeGame` has been upgraded to `0xFDcA34EDa4cf5944E9fa0D5DBE2A515a88650FB7`
 - Key `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
   - Before: `0x000000000000000000000000a2f42e0a3571e14a831bc5ea58cdf8b98d9b11f2`
-  - After: `0x000000000000000000000000c7f2cf4845c6db0e1a1e91ed41bcd0fcc1b0e141`
-  - Meaning: The implementation of the `FaultDisputeGame` has been upgraded to `0xC7f2Cf4845C6db0e1a1e91ED41Bcd0FcC1b0E141`
+  - After: `0x000000000000000000000000200b7F3259E1c2F5be6d801339d4E8C3d4534f15`
+  - Meaning: The implementation of the `FaultDisputeGame` has been upgraded to `0x200b7F3259E1c2F5be6d801339d4E8C3d4534f15`
 
 **[`0x16Fc5058F25648194471939df75CF27A2fdC48BC`][portal-prox-etherscan] (The `OptimismPortal` proxy contract)**
 
