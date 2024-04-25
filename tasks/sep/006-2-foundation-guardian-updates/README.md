@@ -4,10 +4,8 @@ Status: READY TO SIGN
 
 ## Objective
 
-This is the sepolia playbook for:
-
-1. Reinitializing the SuperchainConfig with the Security Council as Guardian
-1. Transferring ownership of the ProxyAdmin to a new 2 of 2 safe
+This is the sepolia playbook for reinitializing the SuperchainConfig with the Security Council as Guardian, instead of the Optimism Foundation.
+This is a requirement for reaching Stage 1.
 
 ## Simulation
 
