@@ -68,21 +68,6 @@
         "_implementation": "0x44674AF65D36b9d4AC6ba4717369AF794c75d9BA",
         "_data": "0x400ada75000000000000000000000000a87675ebb9501c7bae8570a431c108c1577478fa0000000000000000000000000000000000000000000000000000000000000000"
       }
-    },
-    {
-      "to": "0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc",
-      "value": "0",
-      "data": "0xf2fde38b000000000000000000000000eD3d7D9f610a8ACcBe9CACA172B7F3d70530E89D",
-      "contractMethod": {
-        "inputs": [
-          { "name": "newOwner", "type": "address", "internalType": "address" }
-        ],
-        "name": "transferOwnership",
-        "payable": false
-      },
-      "contractInputsValues": {
-        "newOwner": "0xeD3d7D9f610a8ACcBe9CACA172B7F3d70530E89D"
-      }
     }
   ]
 }
