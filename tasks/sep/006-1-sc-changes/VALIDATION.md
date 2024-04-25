@@ -46,9 +46,9 @@ The following three changes are all updates to the `modules` mapping, which is i
 **Key:** `0x39ead0e6be1167a8c3acf9d6eec70b5b0f4d9e3dc111ef31bd39447081125e31` <br/>
 **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
 **After:** `0x0000000000000000000000009b3a60522995f90996d97a094878a7529ff00be1` <br/>
-**Meaning:** The `DeputyGuardianModule` at `0x999b254d5138d93640a40d7bdd9872a5646d0774` is now pointing to the `LivenessModule` at [0x9b3a60522995f90996d97a094878a7529ff00be1](https://sepolia.etherscan.io/address/0x9b3a60522995f90996d97a094878a7529ff00be1).
-  This is `modules[0x999b254d5138d93640a40d7bdd9872a5646d0774]`, so the key can be
-    derived from `cast index address 0x999b254d5138d93640a40d7bdd9872a5646d0774 1`.
+**Meaning:** The `DeputyGuardianModule` at `0xed12261735aD411A40Ea092FF4701a962d25cA21` is now pointing to the `LivenessModule` at [0x9b3a60522995f90996d97a094878a7529ff00be1](https://sepolia.etherscan.io/address/0x9b3a60522995f90996d97a094878a7529ff00be1).
+  This is `modules[0xed12261735aD411A40Ea092FF4701a962d25cA21]`, so the key can be
+    derived from `cast index address 0xed12261735aD411A40Ea092FF4701a962d25cA21 1`.
 
 **Key:** `0x58efc98e5ba3d3b4ab5f75c89f88f196af75a46acf856be87add4013d6d6b26c` <br/>
 **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
@@ -59,8 +59,8 @@ The following three changes are all updates to the `modules` mapping, which is i
 
 **Key:** `0xcc69885fda6bcc1a4ace058b4a62bf5e179ea78fd58a1ccd71c22cc9b688792f` <br/>
 **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
-**After:** `0x000000000000000000000000999b254d5138d93640a40d7bdd9872a5646d0774` <br/>
-**Meaning:** The sentinel module (`address(0x01)`) is now pointing to the `DeputyGuardianModule` at [0x999b254d5138d93640a40d7bdd9872a5646d0774](https://sepolia.etherscan.io/address/0x999b254d5138d93640a40d7bdd9872a5646d0774).
+**After:** `0x000000000000000000000000ed12261735ad411a40ea092ff4701a962d25ca21` <br/>
+**Meaning:** The sentinel module (`address(0x01)`) is now pointing to the `DeputyGuardianModule` at [0xed12261735aD411A40Ea092FF4701a962d25cA21](https://sepolia.etherscan.io/address/0xed12261735aD411A40Ea092FF4701a962d25cA21).
   This is `modules[0x1]`, so the key can be
     derived from `cast index address 0x0000000000000000000000000000000000000001 1`.
 

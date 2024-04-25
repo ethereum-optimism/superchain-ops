@@ -77,7 +77,7 @@ contract SignFromJson is OriginalSignFromJson {
 
     // Contracts we need to check, which are not in the superchain registry
     IDeputyGuardianModuleFetcher deputyGuardianModule =
-        IDeputyGuardianModuleFetcher(0x2329EfD0bFc72Aa7849D9DFc2e131D83F4680d85);
+        IDeputyGuardianModuleFetcher(0xed12261735aD411A40Ea092FF4701a962d25cA21);
     ILivenessGuardFetcher livenessGuard = ILivenessGuardFetcher(0x54E8baCcC67fA3c6b3e9A94BAa4d70d1668f0820);
     ILivenessModuleFetcher livenessModule = ILivenessModuleFetcher(0xefd77C23A8ACF13E194d30C6DF51F1C43B0f9932);
 
