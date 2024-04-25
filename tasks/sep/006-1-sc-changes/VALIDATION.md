@@ -66,5 +66,5 @@ The following three changes are all updates to the `modules` mapping, which is i
 
 **Key:** `0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8` <br/>
 **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-**After:** `0x0000000000000000000000008185fa3be4608adfae19537f75a323fe6d464a3d` <br/>
-**Meaning:** The `LivenessGuard` address is set to [0x8185fa3be4608adfae19537f75a323fe6d464a3d](https://sepolia.etherscan.io/address/0x8185fa3be4608adfae19537f75a323fe6d464a3d). The key can be validated by the key in the [Guard Manager](https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/base/GuardManager.sol#L30).
+**After:** `0x0000000000000000000000004416c7fe250ee49b5a3133146a0bbb8ec0c6a321` <br/>
+**Meaning:** The `LivenessGuard` address is set to [0x4416c7fe250ee49b5a3133146a0bbb8ec0c6a321](https://sepolia.etherscan.io/address/0x4416c7fe250ee49b5a3133146a0bbb8ec0c6a321). The key can be validated by the key in the [Guard Manager](https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/base/GuardManager.sol#L30).
