@@ -42,7 +42,7 @@
     {
       "to": "0xf64bc17485f0B4Ea5F06A96514182FC4cB561977",
       "value": "0",
-      "data": "0x610b59250000000000000000000000009b3a60522995f90996d97a094878a7529ff00be1",
+      "data": "0x610b5925000000000000000000000000812b1fa86be61a787705c49fc0fb05ef50c8fedf",
       "contractMethod": {
         "inputs": [
           { "internalType": "address", "name": "module", "type": "address" }
@@ -51,7 +51,7 @@
         "payable": false
       },
       "contractInputsValues": {
-        "module": "0x9b3a60522995F90996d97a094878a7529Ff00Be1"
+        "module": "0x812B1fa86bE61a787705C49fc0fb05Ef50c8FEDf"
       }
     },
     {

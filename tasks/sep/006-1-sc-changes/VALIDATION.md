@@ -45,17 +45,17 @@ The following three changes are all updates to the `modules` mapping, which is i
 
 **Key:** `0x39ead0e6be1167a8c3acf9d6eec70b5b0f4d9e3dc111ef31bd39447081125e31` <br/>
 **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-**After:** `0x0000000000000000000000009b3a60522995f90996d97a094878a7529ff00be1` <br/>
-**Meaning:** The `DeputyGuardianModule` at `0xed12261735aD411A40Ea092FF4701a962d25cA21` is now pointing to the `LivenessModule` at [0x9b3a60522995f90996d97a094878a7529ff00be1](https://sepolia.etherscan.io/address/0x9b3a60522995f90996d97a094878a7529ff00be1).
+**After:** `0x000000000000000000000000812b1fa86be61a787705c49fc0fb05ef50c8fedf` <br/>
+**Meaning:** The `DeputyGuardianModule` at `0xed12261735aD411A40Ea092FF4701a962d25cA21` is now pointing to the `LivenessModule` at [0x812b1fa86be61a787705c49fc0fb05ef50c8fedf](https://sepolia.etherscan.io/address/0x812b1fa86be61a787705c49fc0fb05ef50c8fedf).
   This is `modules[0xed12261735aD411A40Ea092FF4701a962d25cA21]`, so the key can be
     derived from `cast index address 0xed12261735aD411A40Ea092FF4701a962d25cA21 1`.
 
 **Key:** `0x58efc98e5ba3d3b4ab5f75c89f88f196af75a46acf856be87add4013d6d6b26c` <br/>
 **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
 **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
-**Meaning:** The `LivenessModule` at `0x9b3a60522995f90996d97a094878a7529ff00be1` is now pointing to the sentinel module at `0x01`.
-  This is `modules[0x9b3a60522995f90996d97a094878a7529ff00be1]`, so the key can be
-    derived from `cast index address 0x9b3a60522995f90996d97a094878a7529ff00be1 1`.
+**Meaning:** The `LivenessModule` at `0x812b1fa86be61a787705c49fc0fb05ef50c8fedf` is now pointing to the sentinel module at `0x01`.
+  This is `modules[0x812b1fa86be61a787705c49fc0fb05ef50c8fedf]`, so the key can be
+    derived from `cast index address 0x812b1fa86be61a787705c49fc0fb05ef50c8fedf 1`.
 
 **Key:** `0xcc69885fda6bcc1a4ace058b4a62bf5e179ea78fd58a1ccd71c22cc9b688792f` <br/>
 **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>

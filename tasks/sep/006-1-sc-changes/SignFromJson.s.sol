@@ -79,7 +79,7 @@ contract SignFromJson is OriginalSignFromJson {
     IDeputyGuardianModuleFetcher deputyGuardianModule =
         IDeputyGuardianModuleFetcher(0xed12261735aD411A40Ea092FF4701a962d25cA21);
     ILivenessGuardFetcher livenessGuard = ILivenessGuardFetcher(0x54E8baCcC67fA3c6b3e9A94BAa4d70d1668f0820);
-    ILivenessModuleFetcher livenessModule = ILivenessModuleFetcher(0xefd77C23A8ACF13E194d30C6DF51F1C43B0f9932);
+    ILivenessModuleFetcher livenessModule = ILivenessModuleFetcher(0x812B1fa86bE61a787705C49fc0fb05Ef50c8FEDf);
 
     // Known EOAs to exclude from safety checks.
     address constant l2OutputOracleProposer = 0x49277EE36A024120Ee218127354c4a3591dc90A9; // cast call $L2OO "PROPOSER()(address)"
