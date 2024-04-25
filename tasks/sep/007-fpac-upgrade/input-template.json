@@ -34,7 +34,59 @@
       "contractInputsValues": {
         "_proxy": "<op-sepolia-dispute-game-factory-proxy-address>",
         "_implementation": "<op-sepolia-dgf-address>",
-        "_data": "<update-game-impl-data>"
+        "_data": "<storage-setter-data>"
+      }
+    },
+    {
+      "to": "<op-sepolia-proxy-admin-address>",
+      "value": "0",
+      "data": "<upgrade-and-call-data>",
+      "contractMethod": {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_proxy",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "_implementation",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes",
+            "name": "_data",
+            "type": "bytes"
+          }
+        ]
+      },
+      "contractInputsValues": {
+        "_proxy": "<op-sepolia-dispute-game-factory-proxy-address>",
+        "_implementation": "<op-sepolia-dgf-address>",
+        "_data": "<initialize-data>"
+      }
+    },
+    {
+      "to": "<op-sepolia-dispute-game-factory-proxy-address>",
+      "value": "0",
+      "data": "<set-impl-calldata>",
+      "contractMethod": {
+        "inputs": [
+          {
+            "internalType": "uint32",
+            "name": "_gameType",
+            "type": "uint32"
+          },
+          {
+            "internalType": "address",
+            "name": "_impl",
+            "type": "address"
+          }
+        ]
+      },
+      "contractInputsValues": {
+        "_gameType": 0,
+        "_impl": "<permissionless-game-impl-address>"
       }
     },
     {

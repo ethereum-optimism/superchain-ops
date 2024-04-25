@@ -3,15 +3,44 @@
   "chainId": "5",
   "createdAt": 1707763323,
   "meta": {
-    "name": "FPAC OptimismPortalProxy upgrade - OP Sepolia Devnet 0",
-    "description": "Upgrades the OptimismPortalProxy's implementation to the OptimismPortal2 contract.",
+    "name": "FPAC Upgrade Mk2 - Sepolia Testnet",
+    "description": "Upgrades the `DisputeGameFactory` and `OptimismPortal` proxy implementations, as well as the dispute games, anchor state registry, preimage oracle, and MIPS VM",
     "txBuilderVersion": "1.16.3"
   },
   "transactions": [
     {
       "to": "0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc",
       "value": "0",
-      "data": "0x9623609d00000000000000000000000005f9613adb30026ffd634f38e5c4dfd30a197fa1000000000000000000000000c658fddbfbe85b59c9fdabb9e78598967e33cb960000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000004414f6b1a30000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c7f2cf4845c6db0e1a1e91ed41bcd0fcc1b0e14100000000000000000000000000000000000000000000000000000000",
+      "data": "0x9623609d00000000000000000000000005f9613adb30026ffd634f38e5c4dfd30a197fa100000000000000000000000054f8076f4027e21a010b4b3900c86211dd2c2deb00000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000044abfdcced0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "contractMethod": {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_proxy",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "_implementation",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes",
+            "name": "_data",
+            "type": "bytes"
+          }
+        ]
+      },
+      "contractInputsValues": {
+        "_proxy": "0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1",
+        "_implementation": "0x54F8076f4027e21A010b4B3900C86211Dd2C2DEB",
+        "_data": "0xabfdcced00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "to": "0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc",
+      "value": "0",
+      "data": "0x9623609d00000000000000000000000005f9613adb30026ffd634f38e5c4dfd30a197fa1000000000000000000000000c658fddbfbe85b59c9fdabb9e78598967e33cb9600000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000024c4d66de80000000000000000000000001eb2ffc903729a0f03966b917003800b145f56e200000000000000000000000000000000000000000000000000000000",
       "contractMethod": {
         "inputs": [
           {
@@ -34,7 +63,30 @@
       "contractInputsValues": {
         "_proxy": "0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1",
         "_implementation": "0xC658FDDBfbe85B59C9FDaBB9E78598967e33Cb96",
-        "_data": "0x14f6b1a30000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c7f2cf4845c6db0e1a1e91ed41bcd0fcc1b0e141"
+        "_data": "0xc4d66de80000000000000000000000001eb2ffc903729a0f03966b917003800b145f56e2"
+      }
+    },
+    {
+      "to": "0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1",
+      "value": "0",
+      "data": "0x14f6b1a30000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c7f2cf4845c6db0e1a1e91ed41bcd0fcc1b0e141",
+      "contractMethod": {
+        "inputs": [
+          {
+            "internalType": "uint32",
+            "name": "_gameType",
+            "type": "uint32"
+          },
+          {
+            "internalType": "address",
+            "name": "_impl",
+            "type": "address"
+          }
+        ]
+      },
+      "contractInputsValues": {
+        "_gameType": 0,
+        "_impl": "0xC7f2Cf4845C6db0e1a1e91ED41Bcd0FcC1b0E141"
       }
     },
     {
