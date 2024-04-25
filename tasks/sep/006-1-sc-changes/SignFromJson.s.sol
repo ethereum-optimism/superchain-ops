@@ -434,9 +434,7 @@ contract SignFromJson is OriginalSignFromJson {
 
         // See sepolia.json for config values being verified:
         // https://github.com/ethereum-optimism/optimism/pull/10224/files
-        // The SecurityCouncilSafe should have the same threshold (2) as the FoundationSafe
-        require(securityCouncilSafe.getThreshold() == foundationSafe.getThreshold(), "checkSecurityCouncilSafe-300");
-        require(securityCouncilSafe.getThreshold() == 2, "checkSecurityCouncilSafe-301");
+        require(securityCouncilSafe.getThreshold() == 3, "checkSecurityCouncilSafe-301");
     }
 
     /// @notice Checks the correctness of the deployment
