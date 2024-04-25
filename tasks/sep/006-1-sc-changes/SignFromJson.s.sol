@@ -420,7 +420,8 @@ contract SignFromJson is OriginalSignFromJson {
     function checkSecurityCouncilSafe() internal view {
         console.log("Running assertions on the SecurityCouncilSafe");
 
-        // The SecurityCouncilSafe and FoundationSafe should have the same set of owners
+        // The SecurityCouncilSafe and FoundationSafe should have the same set of owners on Sepolia only,
+        // with the exception of the extra deployer address which is still included to facilitate testing.
         address[] memory councilOwners = securityCouncilSafe.getOwners();
         address[] memory foundationOwners = foundationSafe.getOwners();
         require(councilOwners.length == foundationOwners.length + 1, "checkSecurityCouncilSafe-200");
@@ -468,7 +469,7 @@ contract SignFromJson is OriginalSignFromJson {
     function getCodeExceptions() internal view override returns (address[] memory) {
         // Safe owners will appear in storage in the LivenessGuard when added
         address[] memory securityCouncilSafeOwners = securityCouncilSafe.getOwners();
-        address[] memory shouldHaveCodeExceptions = new address[](7 + securityCouncilSafeOwners.length);
+        address[] memory shouldHaveCodeExceptions = new address[](6 + securityCouncilSafeOwners.length);
 
         shouldHaveCodeExceptions[0] = l2OutputOracleProposer;
         shouldHaveCodeExceptions[1] = l2OutputOracleChallenger;
