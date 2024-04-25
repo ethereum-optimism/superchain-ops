@@ -11,8 +11,6 @@ This is the Sepolia playbook for changes to be made to the Security Council's co
 3. Enable the `LivenessModule` at `0x812B1fa86bE61a787705C49fc0fb05Ef50c8FEDf`.
 4. Enable the `DeputyGuardianModule` at `0xed12261735aD411A40Ea092FF4701a962d25cA21`.
 
-<!-- TODO ^ Replace the TestFake addresses above with the final FAKE addresses -->
-
 These modules are documented in the OP Stack Specification's [Security Council Safe document](https://github.com/ethereum-optimism/specs/blob/b8580f28d1371b24461d4fd08e02763c2a5b66f5/specs/experimental/security-council-safe.md#L1).
 
 The threshold change is intended to simulate a similar change which will occur on Mainnet, which will increase the Security Council's threshold
