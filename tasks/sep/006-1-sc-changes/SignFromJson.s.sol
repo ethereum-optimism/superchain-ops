@@ -89,7 +89,7 @@ contract SignFromJson is OriginalSignFromJson {
     address constant p2pSequencerAddress = 0x57CACBB0d30b01eb2462e5dC940c161aff3230D3; // cast call $SystemConfig "unsafeBlockSigner()(address)"
     address constant batchInboxAddress = 0xff00000000000000000000000000000011155420; // In registry yaml.
 
-    // The deployer address which should be removed as an owner on the security council safe.
+    // The deployer address which is a signer on the Security Council but not Foundation safe (on Sepolia).
     address constant deployerAddress = 0x78339d822c23D943E4a2d4c3DD5408F66e6D662D;
 
     // Hardcoded data that should not change after execution.
@@ -110,7 +110,8 @@ contract SignFromJson is OriginalSignFromJson {
     uint256 recommendedProtocolVersion;
 
     // Other data we use.
-    uint256 systemConfigStartBlock = 4071248; // This was an input when generating input.json
+    uint256 systemConfigStartBlock = 4071248;
+    uint256 livenessGuardDeployTime = 1713416868; // Sepolia only
     AddressManager addressManager = AddressManager(0x9bFE9c5609311DF1c011c47642253B78a4f33F4B);
     Types.ContractSet proxies;
 
@@ -393,7 +394,7 @@ contract SignFromJson is OriginalSignFromJson {
     function checkLivenessGuard() internal view {
         console.log("Running assertions on the LivenessGuard");
 
-        require(livenessGuard.version().eq("1.0.0"), "checkLivenesssGuard-000");
+        require(livenessGuard.version().eq("1.0.0"), "checkLivenessGuard-000");
         require(livenessGuard.safe() == address(securityCouncilSafe), "checkLivenessGuard-100");
 
         // Each owner was recorded as live when the Guard was deployed, or was recorded as live during execution of
@@ -401,7 +402,7 @@ contract SignFromJson is OriginalSignFromJson {
         address[] memory owners = securityCouncilSafe.getOwners();
         for (uint256 i = 0; i < owners.length; i++) {
             uint256 lastLive = livenessGuard.lastLive(owners[i]);
-            require(lastLive == 1713416868 || lastLive == block.timestamp, "checkLivenessGuard-201");
+            require(lastLive == livenessGuardDeployTime || lastLive == block.timestamp, "checkLivenessGuard-201");
         }
     }
 
