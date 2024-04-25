@@ -1,6 +1,6 @@
 # Sepolia Guardian Changes - Security Council Runbook
 
-Status: TESTFAKE
+Status: READY TO SIGN
 
 ## Objective
 
