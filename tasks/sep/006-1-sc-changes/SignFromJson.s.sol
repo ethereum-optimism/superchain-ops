@@ -72,7 +72,7 @@ contract SignFromJson is OriginalSignFromJson {
     string constant l2ChainName = "op";
 
     // Safe contract for this task.
-    GnosisSafe securityCouncilSafe = GnosisSafe(payable(0xa87675ebb9501C7baE8570a431c108C1577478Fa));
+    GnosisSafe securityCouncilSafe = GnosisSafe(payable(0xf64bc17485f0B4Ea5F06A96514182FC4cB561977));
     GnosisSafe foundationSafe = GnosisSafe(payable(0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B));
 
     // Contracts we need to check, which are not in the superchain registry

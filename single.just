@@ -14,10 +14,6 @@ simulate hdPath='0':
     script="${taskPath}/SignFromJson.s.sol"
   fi
 
-  if [ "$ownerSafe" == "0xE5bd017934F4c00Fa5653857ebE70A1939fBD169" ]; then
-    echo -e "\e[31mUsing the TestSecurityCouncilSafe\e[0m"
-  fi
-
   echo "Using script ${script}"
   echo "Safe address: ${ownerSafe}"
   echo "Getting signer address..."
