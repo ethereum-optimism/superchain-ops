@@ -6,10 +6,10 @@ Status: TESTFAKE
 
 This is the Sepolia playbook for changes to be made to the Security Council's configuration:
 
-1. increase its threshold to 30% (ie. from 2/10 to 3/10)
-2. enable the `LivenessGuard` at 0x8185fa3be4608adfae19537f75a323fe6d464a3d
-3. enable the `LivenessModule` at 0x9b3a60522995F90996d97a094878a7529Ff00Be1
-4. enable the `DeputyGuardianModule` at 0x999B254D5138D93640a40D7bDD9872a5646D0774
+1. Increase its threshold to 30% (ie. from 2/10 to 3/10)
+2. Enable the `LivenessGuard` at `0x8185fa3BE4608Adfae19537F75a323fe6d464a3d`.
+3. Enable the `LivenessModule` at `0x9b3a60522995F90996d97a094878a7529Ff00Be1`.
+4. Enable the `DeputyGuardianModule` at `0x999B254D5138D93640a40D7bDD9872a5646D0774`.
 
 <!-- TODO ^ Replace the TestFake addresses above with the final FAKE addresses -->
 
