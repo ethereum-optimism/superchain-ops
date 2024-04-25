@@ -111,7 +111,7 @@ contract SignFromJson is OriginalSignFromJson {
 
     // Other data we use.
     uint256 systemConfigStartBlock = 4071248;
-    uint256 livenessGuardDeployTime = 1713416868; // Sepolia only
+    uint256 livenessGuardDeployTime = 1714077828; // Sepolia only
     AddressManager addressManager = AddressManager(0x9bFE9c5609311DF1c011c47642253B78a4f33F4B);
     Types.ContractSet proxies;
 
