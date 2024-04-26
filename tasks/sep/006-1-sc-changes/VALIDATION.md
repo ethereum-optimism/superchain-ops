@@ -37,20 +37,18 @@ Links:
 **Meaning:** The threshold has been increased to 3. The key can be validated by the location of the `threshold` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L14). The before value shown is 1, rather than the actual value of 2, because of the state override.
 
 **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
-**Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-**After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
+**Before:** `0x0000000000000000000000000000000000000000000000000000000000000002` <br/>
+**After:** `0x0000000000000000000000000000000000000000000000000000000000000003` <br/>
 **Meaning:** The nonce has been increased to 1. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
+
+**Key:** `0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8` <br/>
+**Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
+**After:** `0x0000000000000000000000004416c7fe250ee49b5a3133146a0bbb8ec0c6a321` <br/>
+**Meaning:** The `LivenessGuard` address is set to [0x4416c7fe250ee49b5a3133146a0bbb8ec0c6a321](https://sepolia.etherscan.io/address/0x4416c7fe250ee49b5a3133146a0bbb8ec0c6a321). The key can be validated by the key in the [Guard Manager](https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/base/GuardManager.sol#L30).
 
 The following three changes are all updates to the `modules` mapping, which is in the [1-th slot](https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L10).
 
-**Key:** `0x39ead0e6be1167a8c3acf9d6eec70b5b0f4d9e3dc111ef31bd39447081125e31` <br/>
-**Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-**After:** `0x000000000000000000000000812b1fa86be61a787705c49fc0fb05ef50c8fedf` <br/>
-**Meaning:** The `DeputyGuardianModule` at `0xed12261735aD411A40Ea092FF4701a962d25cA21` is now pointing to the `LivenessModule` at [0x812b1fa86be61a787705c49fc0fb05ef50c8fedf](https://sepolia.etherscan.io/address/0x812b1fa86be61a787705c49fc0fb05ef50c8fedf).
-  This is `modules[0xed12261735aD411A40Ea092FF4701a962d25cA21]`, so the key can be
-    derived from `cast index address 0xed12261735aD411A40Ea092FF4701a962d25cA21 1`.
-
-**Key:** `0x58efc98e5ba3d3b4ab5f75c89f88f196af75a46acf856be87add4013d6d6b26c` <br/>
+**Key:** `0xacbf9592ae4032ad5c93b5c8322c5e0fca1cc9ae67f551dee5a8b6f78041eabf` <br/>
 **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
 **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
 **Meaning:** The `LivenessModule` at `0x812b1fa86be61a787705c49fc0fb05ef50c8fedf` is now pointing to the sentinel module at `0x01`.
@@ -64,7 +62,9 @@ The following three changes are all updates to the `modules` mapping, which is i
   This is `modules[0x1]`, so the key can be
     derived from `cast index address 0x0000000000000000000000000000000000000001 1`.
 
-**Key:** `0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8` <br/>
+**Key:** `0xfa5b7c957b60505335b308d4cb1897b38d70b1c1ed76638190c5511b8707ee1b` <br/>
 **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-**After:** `0x0000000000000000000000004416c7fe250ee49b5a3133146a0bbb8ec0c6a321` <br/>
-**Meaning:** The `LivenessGuard` address is set to [0x4416c7fe250ee49b5a3133146a0bbb8ec0c6a321](https://sepolia.etherscan.io/address/0x4416c7fe250ee49b5a3133146a0bbb8ec0c6a321). The key can be validated by the key in the [Guard Manager](https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/base/GuardManager.sol#L30).
+**After:** `0x000000000000000000000000812b1fa86be61a787705c49fc0fb05ef50c8fedf` <br/>
+**Meaning:** The `DeputyGuardianModule` at `0xed12261735aD411A40Ea092FF4701a962d25cA21` is now pointing to the `LivenessModule` at [0x812b1fa86be61a787705c49fc0fb05ef50c8fedf](https://sepolia.etherscan.io/address/0x812b1fa86be61a787705c49fc0fb05ef50c8fedf).
+  This is `modules[0xed12261735aD411A40Ea092FF4701a962d25cA21]`, so the key can be
+    derived from `cast index address 0xed12261735aD411A40Ea092FF4701a962d25cA21 1`.
