@@ -72,15 +72,15 @@ contract SignFromJson is OriginalSignFromJson {
     string constant l2ChainName = "op";
 
     // Safe contract for this task.
-    GnosisSafe securityCouncilSafe = GnosisSafe(payable(0xa87675ebb9501C7baE8570a431c108C1577478Fa));
+    GnosisSafe securityCouncilSafe = GnosisSafe(payable(0xf64bc17485f0B4Ea5F06A96514182FC4cB561977));
     GnosisSafe foundationSafe = GnosisSafe(payable(0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B));
-    GnosisSafe upgradeOwnerSafe = GnosisSafe(payable(0xeD3d7D9f610a8ACcBe9CACA172B7F3d70530E89D));
+    GnosisSafe proxyAdminOwnerSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
 
     // Contracts we need to check, which are not in the superchain registry
     IDeputyGuardianModuleFetcher deputyGuardianModule =
-        IDeputyGuardianModuleFetcher(0x2329EfD0bFc72Aa7849D9DFc2e131D83F4680d85);
-    ILivenessGuardFetcher livenessGuard = ILivenessGuardFetcher(0x54E8baCcC67fA3c6b3e9A94BAa4d70d1668f0820);
-    ILivenessModuleFetcher livenessModule = ILivenessModuleFetcher(0xefd77C23A8ACF13E194d30C6DF51F1C43B0f9932);
+        IDeputyGuardianModuleFetcher(0xed12261735aD411A40Ea092FF4701a962d25cA21);
+    ILivenessGuardFetcher livenessGuard = ILivenessGuardFetcher(0x4416c7Fe250ee49B5a3133146A0BBB8Ec0c6A321);
+    ILivenessModuleFetcher livenessModule = ILivenessModuleFetcher(0x812B1fa86bE61a787705C49fc0fb05Ef50c8FEDf);
 
     // Known EOAs to exclude from safety checks.
     address constant l2OutputOracleProposer = 0x49277EE36A024120Ee218127354c4a3591dc90A9; // cast call $L2OO "PROPOSER()(address)"
@@ -90,6 +90,9 @@ contract SignFromJson is OriginalSignFromJson {
     address constant p2pSequencerAddress = 0x57CACBB0d30b01eb2462e5dC940c161aff3230D3; // cast call $SystemConfig "unsafeBlockSigner()(address)"
     address constant batchInboxAddress = 0xff00000000000000000000000000000011155420; // In registry yaml.
 
+    // The deployer address which is a signer on the Security Council but not Foundation safe (on Sepolia).
+    address constant extraMaurelianSigner = 0x78339d822c23D943E4a2d4c3DD5408F66e6D662D;
+
     // Hardcoded data that should not change after execution.
     uint256 l2GenesisBlockGasLimit = 30e6;
     uint256 xdmSenderSlotNumber = 204; // Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L93-L99
@@ -97,6 +100,7 @@ contract SignFromJson is OriginalSignFromJson {
     // Data that should not change after execution, fetching during `setUp`.
     uint256 gasPriceOracleOverhead;
     uint256 gasPriceOracleScalar;
+    address superchainConfigGuardian;
     uint256 l2BlockTime;
     uint256 l2OutputOracleSubmissionInterval;
     uint256 finalizationPeriodSeconds;
@@ -107,7 +111,11 @@ contract SignFromJson is OriginalSignFromJson {
     uint256 recommendedProtocolVersion;
 
     // Other data we use.
-    uint256 systemConfigStartBlock = 4071248; // This was an input when generating input.json
+    uint256 constant systemConfigStartBlock = 4071248;
+    uint256 constant livenessGuardExpectedTimes = [
+        1714077828, // When the liveness guard was deployed.
+        1714141272 // When the tasks/sep/006-1-sc-changes task was executed.
+    ];
     AddressManager addressManager = AddressManager(0x9bFE9c5609311DF1c011c47642253B78a4f33F4B);
     Types.ContractSet proxies;
 
@@ -124,6 +132,7 @@ contract SignFromJson is OriginalSignFromJson {
 
         gasPriceOracleOverhead = IFetcher(proxies.SystemConfig).overhead();
         gasPriceOracleScalar = IFetcher(proxies.SystemConfig).scalar();
+        superchainConfigGuardian = IFetcher(proxies.SuperchainConfig).guardian();
         l2BlockTime = IFetcher(proxies.L2OutputOracle).L2_BLOCK_TIME();
         l2OutputOracleSubmissionInterval = IFetcher(proxies.L2OutputOracle).SUBMISSION_INTERVAL();
         finalizationPeriodSeconds = IFetcher(proxies.L2OutputOracle).FINALIZATION_PERIOD_SECONDS();
@@ -143,7 +152,7 @@ contract SignFromJson is OriginalSignFromJson {
         require(ISemver(proxies.L1StandardBridge).version().eq("2.1.0"), "semver-200");
         require(ISemver(proxies.L2OutputOracle).version().eq("1.8.0"), "semver-300");
         require(ISemver(proxies.OptimismMintableERC20Factory).version().eq("1.9.0"), "semver-400");
-        require(ISemver(proxies.OptimismPortal).version().eq("3.3.0"), "semver-500");
+        require(ISemver(proxies.OptimismPortal).version().eq("3.8.0"), "semver-500");
         require(ISemver(proxies.SystemConfig).version().eq("1.12.0"), "semver-600");
         require(ISemver(proxies.L1ERC721Bridge).version().eq("2.1.0"), "semver-700");
         require(ISemver(proxies.ProtocolVersions).version().eq("1.0.0"), "semver-800");
@@ -328,13 +337,12 @@ contract SignFromJson is OriginalSignFromJson {
 
         OptimismPortal portalToCheck = OptimismPortal(payable(proxies.OptimismPortal));
 
-        require(address(portalToCheck.SYSTEM_CONFIG()) == proxies.SystemConfig, "6000");
-        require(address(portalToCheck.systemConfig()) == proxies.SystemConfig, "6100");
-        require(address(portalToCheck.systemConfig()).code.length != 0, "6101");
+        require(address(portalToCheck.systemConfig()) == proxies.SystemConfig, "6000");
+        require(address(portalToCheck.systemConfig()).code.length != 0, "6100");
         require(EIP1967Helper.getImplementation(address(portalToCheck.systemConfig())).code.length != 0, "6102");
 
-        require(portalToCheck.GUARDIAN() == address(securityCouncilSafe), "6200");
-        require(portalToCheck.guardian() == address(securityCouncilSafe), "6300");
+        require(portalToCheck.guardian() == superchainConfigGuardian, "6200");
+        require(portalToCheck.guardian() == superchainConfigGuardian, "6300");
         require(portalToCheck.guardian().code.length != 0, "6350"); // This is a Safe, no need to check the implementation.
 
         require(address(portalToCheck.superchainConfig()) == address(proxies.SuperchainConfig), "6400");
@@ -367,7 +375,7 @@ contract SignFromJson is OriginalSignFromJson {
         require(EIP1967Helper.getImplementation(proxies.SuperchainConfig).code.length != 0, "7101");
 
         SuperchainConfig superchainConfigToCheck = SuperchainConfig(proxies.SuperchainConfig);
-        require(superchainConfigToCheck.guardian() == address(securityCouncilSafe), "7200");
+        require(superchainConfigToCheck.guardian() == superchainConfigGuardian, "7200");
         require(superchainConfigToCheck.guardian().code.length != 0, "7250");
         require(superchainConfigToCheck.paused() == false, "7300");
     }
@@ -389,15 +397,21 @@ contract SignFromJson is OriginalSignFromJson {
     function checkLivenessGuard() internal view {
         console.log("Running assertions on the LivenessGuard");
 
-        require(livenessGuard.version().eq("1.0.0"), "checkLivenesssGuard-000");
+        require(livenessGuard.version().eq("1.0.0"), "checkLivenessGuard-000");
         require(livenessGuard.safe() == address(securityCouncilSafe), "checkLivenessGuard-100");
 
-        // Each owner was recorded as live when the Guard was deployed, or was recorded as live during execution of
-        // this runbook.
+        // Each owner was recorded as live when the Guard was deployed, or was recorded as live
+        // during execution of this runbook or a previous runbook.
         address[] memory owners = securityCouncilSafe.getOwners();
         for (uint256 i = 0; i < owners.length; i++) {
             uint256 lastLive = livenessGuard.lastLive(owners[i]);
-            require(lastLive == 1713416868 || lastLive == block.timestamp, "checkLivenessGuard-201");
+            bool allowedLastLiveTimestamp = false;
+            for (uint256 j = 0; j < livenessGuardExpectedTimes.length; j++) {
+                if (lastLive == livenessGuardExpectedTimes[j] || lastLive == block.timestamp) {
+                    allowedLastLiveTimestamp = true;
+                }
+            }
+            require(allowedLastLiveTimestamp, "checkLivenessGuard-200");
         }
     }
 
@@ -415,39 +429,42 @@ contract SignFromJson is OriginalSignFromJson {
 
     function checkSecurityCouncilSafe() internal view {
         console.log("Running assertions on the SecurityCouncilSafe");
-        // The SecurityCouncilSafe and FoundationSafe should have the same set of owners
+
+        // The SecurityCouncilSafe and FoundationSafe should have the same set of owners on Sepolia only,
+        // with the exception of the extra deployer address which is still included to facilitate testing.
         address[] memory councilOwners = securityCouncilSafe.getOwners();
         address[] memory foundationOwners = foundationSafe.getOwners();
-        // require(councilOwners.length == foundationOwners.length, "checkSecurityCouncilSafe-200");
-        if (councilOwners.length != foundationOwners.length) {
-            // this should be silenced once the previous runbook is completed
-            console.log(
-                "\x1b[31m TEMP ERROR: checkSecurityCouncilSafe-100",
-                councilOwners.length,
-                foundationOwners.length,
-                "\x1b[0m"
-            );
-        }
+        require(councilOwners.length == foundationOwners.length + 1, "checkSecurityCouncilSafe-200");
         for (uint256 i = 0; i < councilOwners.length; i++) {
-            // require(foundationSafe.isOwner(councilOwners[i]), "checkSecurityCouncilSafe-201");
-            if (!foundationSafe.isOwner(councilOwners[i])) {
-                // this should be silenced once the previous runbook is completed
-                console.log("\x1b[31m TEMP ERROR: checkSecurityCouncilSafe-101", councilOwners[i], "\x1b[0m");
+            if (councilOwners[i] != extraMaurelianSigner) {
+                require(foundationSafe.isOwner(councilOwners[i]), "checkSecurityCouncilSafe-201");
             }
         }
 
         // See sepolia.json for config values being verified:
         // https://github.com/ethereum-optimism/optimism/pull/10224/files
-        // The SecurityCouncilSafe should have a treshold of 2
-        require(securityCouncilSafe.getThreshold() == 2, "checkSecurityCouncilSafe-301");
+        require(securityCouncilSafe.getThreshold() == 3, "checkSecurityCouncilSafe-301");
     }
 
-    function checkUpgradeOwnerSafe() internal view {
+    function checkProxyAdminOwnerSafe() internal view {
         console.log("Running assertions on the UpgradeOwnerSafe");
-        require(upgradeOwnerSafe.getThreshold() == 2, "checkUpgradeOwnerSafe-100");
-        require(upgradeOwnerSafe.getOwners().length == 2, "checkUpgradeOwnerSafe-200");
-        require(upgradeOwnerSafe.isOwner(address(foundationSafe)), "checkUpgradeOwnerSafe-300");
-        require(upgradeOwnerSafe.isOwner(address(securityCouncilSafe)), "checkUpgradeOwnerSafe-400");
+        require(proxyAdminOwnerSafe.getThreshold() == 2, "checkProxyAdminOwnerSafe-100");
+
+        address[] memory proxyAdminOwners = proxyAdminOwnerSafe.getOwners();
+        require(proxyAdminOwners.length == 2, "checkProxyAdminOwnerSafe-200");
+        require(proxyAdminOwners[0] != proxyAdminOwners[1], "checkProxyAdminOwnerSafe-210");
+        for (uint256 i = 0; i < proxyAdminOwners.length; i++) {
+            require(
+                proxyAdminOwners[i] == address(foundationSafe) || proxyAdminOwners[i] == address(securityCouncilSafe),
+                "checkProxyAdminOwnerSafe-250"
+            );
+        }
+        address proxyAdmin = SystemConfig(proxies.SystemConfig).admin();
+        address proxyAdminOwner = ProxyAdmin(proxyAdmin).owner();
+        require(proxyAdminOwner == proxyAdminOwnerSafe, "checkProxyAdminOwnerSafe-260");
+
+        require(proxyAdminOwnerSafe.isOwner(address(foundationSafe)), "checkProxyAdminOwnerSafe-300");
+        require(proxyAdminOwnerSafe.isOwner(address(securityCouncilSafe)), "checkProxyAdminOwnerSafe-400");
     }
 
     /// @notice Checks the correctness of the deployment
@@ -474,7 +491,7 @@ contract SignFromJson is OriginalSignFromJson {
         checkLivenessModule();
         checkLivenessGuard();
         checkDeputyGuardianModule();
-        checkUpgradeOwnerSafe();
+        checkProxyAdminOwnerSafe();
 
         console.log("All assertions passed!");
     }
@@ -482,7 +499,7 @@ contract SignFromJson is OriginalSignFromJson {
     function getCodeExceptions() internal view override returns (address[] memory) {
         // Safe owners will appear in storage in the LivenessGuard when added
         address[] memory securityCouncilSafeOwners = securityCouncilSafe.getOwners();
-        address[] memory shouldHaveCodeExceptions = new address[](7 + securityCouncilSafeOwners.length);
+        address[] memory shouldHaveCodeExceptions = new address[](6 + securityCouncilSafeOwners.length);
 
         shouldHaveCodeExceptions[0] = l2OutputOracleProposer;
         shouldHaveCodeExceptions[1] = l2OutputOracleChallenger;
@@ -498,7 +515,7 @@ contract SignFromJson is OriginalSignFromJson {
         return shouldHaveCodeExceptions;
     }
 
-    /// @notice Reads the contract addresses from lib/superchain-registry/superchain/extra/addresses/mainnet/op.json
+    /// @notice Reads the contract addresses from lib/superchain-registry/superchain/extra/addresses/sepolia/op.json
     function _getContractSet() internal returns (Types.ContractSet memory _proxies) {
         string memory addressesJson;
 

@@ -43,8 +43,8 @@ State Changes:
 
 - **Key:** 0xd30e835d3f35624761057ff5b27d558f97bd5be034621e62240e5c0b784abe68
   **Before:** 0x000000000000000000000000dee57160aafcf04c34c887b5962d0a69676d3c8b
-  **After:** 0x000000000000000000000000a87675ebb9501c7bae8570a431c108c1577478fa
-  **Meaning:** The Guardian address has been updated from `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B` (Foundation) to `0xa87675ebb9501C7baE8570a431c108C1577478Fa` (Council).
+  **After:** 0x000000000000000000000000f64bc17485f0b4ea5f06a96514182fc4cb561977
+  **Meaning:** The Guardian address has been updated from `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B` (Foundation) to `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977` (Council).
     The key is `keccak256("superchainConfig.guardian") - 1` ([ref](https://github.com/ethereum-optimism/optimism/blob/maur/sepolia-council/packages/contracts-bedrock/src/L1/SuperchainConfig.sol#L23)),
     which can be verified using `cast keccak "superchainConfig.guardian"`.
 
