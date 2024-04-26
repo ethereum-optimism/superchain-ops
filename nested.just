@@ -40,6 +40,8 @@ simulate whichSafe hdPath='0':
       echo "Simulating without ledger using the first owner account: ${signer}"
   fi
   echo ""
+
+  forge build
   forge script ${script} \
     --rpc-url ${rpcUrl} \
     --sender ${signer} \
@@ -68,6 +70,8 @@ sign whichSafe hdPath='0':
   signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   echo "Signing with: ${signer}"
   echo ""
+
+  forge build
   $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
   forge script ${script} \
     --rpc-url ${rpcUrl} \
@@ -93,6 +97,8 @@ approve whichSafe hdPath='0':
     echo "Using council safe at ${safe}"
   fi
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+
+  forge build
   forge script ${script} \
     --fork-url ${rpcUrl} \
     --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
@@ -113,6 +119,8 @@ execute hdPath='0':
   fi
   echo "Using script ${script}"
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+
+  forge build
   forge script ${script} \
     --fork-url ${rpcUrl} \
     --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
@@ -130,6 +138,8 @@ simulated-run hdPath='0':
     echo "Running script with assertions"
   fi
   echo "Using script ${script}"
+
+  forge build
   forge script ${script} \
     --fork-url ${rpcUrl} \
     --sender ${randomPersonEoa} \

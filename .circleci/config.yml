@@ -165,7 +165,6 @@ jobs:
           command: |
             go install github.com/mikefarah/yq/v4@latest
             just install
-            forge build
             cd tasks/sep/006-2-foundation-guardian-updates
             export SIMULATE_WITHOUT_LEDGER=1
             just \
