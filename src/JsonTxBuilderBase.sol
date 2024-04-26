@@ -157,6 +157,10 @@ abstract contract JsonTxBuilderBase is CommonBase {
         // Allow known EOAs.
         address[] memory exceptions = getCodeExceptions();
         for (uint256 i; i < exceptions.length; i++) {
+            require(
+                exceptions[i] != address(0),
+                "getCodeExceptions includes the zero address, please make sure all entries are populated."
+            );
             if (address(uint160(value)) == exceptions[i]) return false;
         }
 
