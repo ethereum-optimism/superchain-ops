@@ -13,10 +13,10 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 The following state overrides should be seen:
 
-### `0x0xf64bc17485f0b4ea5f06a96514182fc4cb561977` (The Security Council Safe)
+### `0xf64bc17485f0b4ea5f06a96514182fc4cb561977` (The Security Council Safe)
 
 Links:
-- [Etherscan](https://sepolia.etherscan.io/address/0x0xf64bc17485f0b4ea5f06a96514182fc4cb56197777)
+- [Etherscan](https://sepolia.etherscan.io/address/0xf64bc17485f0b4ea5f06a96514182fc4cb56197777)
 
 Enables the simulation by setting the threshold to 1:
 
@@ -26,10 +26,10 @@ Enables the simulation by setting the threshold to 1:
 
 ## State Changes
 
-### `0x0xf64bc17485f0b4ea5f06a96514182fc4cb561977` (`GnosisSafe`)
+### `0xf64bc17485f0b4ea5f06a96514182fc4cb561977` (`GnosisSafe`)
 
 Links:
-- [Etherscan](https://sepolia.etherscan.io/address/0x0xf64bc17485f0b4ea5f06a96514182fc4cb561977)
+- [Etherscan](https://sepolia.etherscan.io/address/0xf64bc17485f0b4ea5f06a96514182fc4cb561977)
 
 **Key:** `0x0000000000000000000000000000000000000000000000000000000000000004` <br/>
 **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
