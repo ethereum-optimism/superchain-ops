@@ -46,7 +46,7 @@ Links:
 **After:** `0x0000000000000000000000004416c7fe250ee49b5a3133146a0bbb8ec0c6a321` <br/>
 **Meaning:** The `LivenessGuard` address is set to [0x4416c7fe250ee49b5a3133146a0bbb8ec0c6a321](https://sepolia.etherscan.io/address/0x4416c7fe250ee49b5a3133146a0bbb8ec0c6a321). The key can be validated by the key in the [Guard Manager](https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/base/GuardManager.sol#L30).
 
-The following three changes are all updates to the `modules` mapping, which is in the [1-th slot](https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L10).
+The following three changes are all updates to the `modules` mapping, which is in [slot 1](https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L10).
 
 **Key:** `0xacbf9592ae4032ad5c93b5c8322c5e0fca1cc9ae67f551dee5a8b6f78041eabf` <br/>
 **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
