@@ -123,7 +123,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     // Other data we use.
     address superchainConfigGuardian; // We fetch this during setUp and expect it to change.
     uint256 constant systemConfigStartBlock = 4071248;
-    uint256[2] livenessGuardExpectedTimes;
+    uint256[3] livenessGuardExpectedTimes;
 
     AddressManager addressManager = AddressManager(0x9bFE9c5609311DF1c011c47642253B78a4f33F4B);
     Types.ContractSet proxies;
@@ -134,6 +134,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     constructor() {
         livenessGuardExpectedTimes[0] = 1714077828; // When the liveness guard was deployed.
         livenessGuardExpectedTimes[1] = 1714141272; // When the tasks/sep/006-1-sc-changes task was executed.
+        livenessGuardExpectedTimes[2] = 1714164444; // When this task's SC approval was submitted.
     }
 
     /// @notice Sets up the contract
