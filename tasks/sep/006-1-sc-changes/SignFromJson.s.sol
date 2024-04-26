@@ -333,7 +333,7 @@ contract SignFromJson is OriginalSignFromJson {
 
         OptimismPortal portalToCheck = OptimismPortal(payable(proxies.OptimismPortal));
 
-        require(address(portalToCheck.SYSTEM_CONFIG()) == proxies.SystemConfig, "6000");
+        require(address(portalToCheck.systemConfig()) == proxies.SystemConfig, "6000");
         require(address(portalToCheck.systemConfig()) == proxies.SystemConfig, "6100");
         require(address(portalToCheck.systemConfig()).code.length != 0, "6101");
         require(EIP1967Helper.getImplementation(address(portalToCheck.systemConfig())).code.length != 0, "6102");
