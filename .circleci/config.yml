@@ -155,22 +155,26 @@ jobs:
             just simulate-council
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
-  just_simulate_sep-op-006-1:
+  just_simulate_sep-006-2-foundation-guardian-updates:
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+    - image: <<pipeline.parameters.ci_builder_image>>
     steps:
       - checkout
       - run:
-          name: just simulate sep/006-1-sc-changes
+          name: just simulate sep/006-2-foundation-guardian-updates
           command: |
             go install github.com/mikefarah/yq/v4@latest
             just install
-            cd tasks/sep/006-1-sc-changes
+            cd tasks/sep/006-2-foundation-guardian-updates
             export SIMULATE_WITHOUT_LEDGER=1
             just \
               --dotenv-path .env \
-              --justfile ../../../single.just \
-              simulate
+              --justfile ../../../nested.just \
+              simulate foundation
+            just \
+              --dotenv-path .env \
+              --justfile ../../../nested.just \
+              simulate council
   forge_test:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
@@ -195,26 +199,26 @@ jobs:
             forge fmt --check
 
 workflows:
-    version: 2
-    forge_checks:
-        jobs:
-          - forge_test
-          - forge_fmt
-    check_rpc_endpoints:
-        jobs:
-          - check_sepolia_rpc_endpoints
-          - check_mainnet_rpc_endpoints
-          - example_mainnet_job:
-              requires:
-                - check_mainnet_rpc_endpoints
-    check_just_simulate:
-        jobs:
-        # Please add an invocation to `just simulate` if a ceremony is
-        # active (e.g. it is the next ceremony to perform or you
-        # expect the ceremony to work continuously), and remove it once
-        # the ceremony is for historical archive only (e.g. the
-        # ceremony is done).
-          - just_simulate_sc_rehearsal_1
-          - just_simulate_sc_rehearsal_2
-          - just_simulate_sc_rehearsal_4
-          - just_simulate_sep-op-006-1
+  version: 2
+  forge_checks:
+    jobs:
+      - forge_test
+      - forge_fmt
+  check_rpc_endpoints:
+    jobs:
+      - check_sepolia_rpc_endpoints
+      - check_mainnet_rpc_endpoints
+      - example_mainnet_job:
+          requires:
+            - check_mainnet_rpc_endpoints
+  check_just_simulate:
+    jobs:
+      # Please add an invocation to `just simulate` if a ceremony is
+      # active (e.g. it is the next ceremony to perform or you
+      # expect the ceremony to work continuously), and remove it once
+      # the ceremony is for historical archive only (e.g. the
+      # ceremony is done).
+      - just_simulate_sc_rehearsal_1
+      - just_simulate_sc_rehearsal_2
+      - just_simulate_sc_rehearsal_4
+      - just_simulate_sep-006-2-foundation-guardian-updates

@@ -6,12 +6,8 @@ export bundleName := env_var_or_default('BUNDLE_NAME', 'input')
 export taskPath := invocation_directory()
 
 # Accounts
-export councilSafe := "0xc2819DC788505Aac350142A7A707BF9D03E3Bd03"
-export councilOwner0 := "0x07dC0893cAfbF810e3E72505041f2865726Fd073"
-
-export foundationSafe := "0x847B5c174615B1B7fDF770882256e2D3E95b9D92"
-export foundationOwner0 := "0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64"
-
+export councilSafe := env_var("COUNCIL_SAFE")
+export foundationSafe := env_var("FOUNDATION_SAFE")
 export ownerSafe := env_var('OWNER_SAFE')
 export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 
@@ -28,12 +24,12 @@ simulate whichSafe hdPath='0':
 
   if [ "{{whichSafe}}" == "foundation" ]; then
     safe="{{foundationSafe}}"
-    signer="{{foundationOwner0}}"
   fi
   if [ "{{whichSafe}}" == "council" ]; then
     safe="{{councilSafe}}"
-    signer="{{councilOwner0}}"
   fi
+  signer=$(cast call ${safe} "getOwners()(address[])" -r ${rpcUrl} | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
+
   echo "signer: $signer"
   echo "safe: $safe"
   echo "Simulating call to {{whichSafe}} at ${safe}"
@@ -44,6 +40,8 @@ simulate whichSafe hdPath='0':
       echo "Simulating without ledger using the first owner account: ${signer}"
   fi
   echo ""
+
+  forge build
   forge script ${script} \
     --rpc-url ${rpcUrl} \
     --sender ${signer} \
@@ -72,6 +70,8 @@ sign whichSafe hdPath='0':
   signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   echo "Signing with: ${signer}"
   echo ""
+
+  forge build
   $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
   forge script ${script} \
     --rpc-url ${rpcUrl} \
@@ -97,6 +97,8 @@ approve whichSafe hdPath='0':
     echo "Using council safe at ${safe}"
   fi
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+
+  forge build
   forge script ${script} \
     --fork-url ${rpcUrl} \
     --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
@@ -117,6 +119,8 @@ execute hdPath='0':
   fi
   echo "Using script ${script}"
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+
+  forge build
   forge script ${script} \
     --fork-url ${rpcUrl} \
     --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
@@ -134,6 +138,8 @@ simulated-run hdPath='0':
     echo "Running script with assertions"
   fi
   echo "Using script ${script}"
+
+  forge build
   forge script ${script} \
     --fork-url ${rpcUrl} \
     --sender ${randomPersonEoa} \
