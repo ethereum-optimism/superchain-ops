@@ -91,7 +91,7 @@ The nonce is increased from 2 to 3.
 
 #### For the Foundation:
 
-- **Key:** `0x5a2e529e7b2feaedb77a6a1784f400f0d0de9ed9f2c41a0e9adaba3d4fce28a6` <br/>
+- **Key:** `0x0e26a6631c2709943281f97fec36e17c5580ad223a9f898224313fa217146846` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **Meaning:** The GnosisSafe `approvedHashes` mapping is updated to indicate approval of this transaction by the council. The correctness of this slot can be verified as follows:
