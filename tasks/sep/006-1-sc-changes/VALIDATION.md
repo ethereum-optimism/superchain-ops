@@ -26,7 +26,7 @@ Enables the simulation by setting the threshold to 1:
 
 ## State Changes
 
-### `0xf64bc17485f0b4ea5f06a96514182fc4cb561977` (`GnosisSafe`)
+### `0xf64bc17485f0b4ea5f06a96514182fc4cb561977` (`FakeSecurityCouncil`)
 
 Links:
 - [Etherscan](https://sepolia.etherscan.io/address/0xf64bc17485f0b4ea5f06a96514182fc4cb561977)
