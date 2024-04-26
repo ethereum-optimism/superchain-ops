@@ -134,7 +134,8 @@ abstract contract JsonTxBuilderBase is CommonBase {
 
     /// @notice Returns a list of addresses which are expected to be in storage, but will not to have code on this
     ///         chain. Examples of such addresses include EOAs, predeploy addresses, and inbox addresses.
-    function getCodeExceptions() internal pure virtual returns (address[] memory exceptions) {
+    function getCodeExceptions() internal view virtual returns (address[] memory exceptions) {
+        json; // Storage access to silence compiler warnings about use of view rather than pure.
         exceptions; // Named return and this no-op required to silence compiler warnings.
         require(false, "getCodeExceptions not implemented");
     }
@@ -156,6 +157,10 @@ abstract contract JsonTxBuilderBase is CommonBase {
         // Allow known EOAs.
         address[] memory exceptions = getCodeExceptions();
         for (uint256 i; i < exceptions.length; i++) {
+            require(
+                exceptions[i] != address(0),
+                "getCodeExceptions includes the zero address, please make sure all entries are populated."
+            );
             if (address(uint160(value)) == exceptions[i]) return false;
         }
 
