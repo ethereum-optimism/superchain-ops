@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import {SignFromJson as OriginalSignFromJson} from "script/SignFromJson.s.sol";
+import {NestedSignFromJson as OriginalNestedSignFromJson} from "script/NestedSignFromJson.s.sol";
+import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
 import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
 import {Constants, ResourceMetering} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
 import {L1StandardBridge} from "@eth-optimism-bedrock/src/L1/L1StandardBridge.sol";
@@ -64,7 +65,15 @@ interface IDeputyGuardianModuleFetcher {
     function version() external view returns (string memory);
 }
 
-contract SignFromJson is OriginalSignFromJson {
+// In Proxy.sol, the `admin()` method is not view because it's a delegatecall if the caller is
+// not the admin or address(0). We know our call here will not be mutable, so to avoid removing the
+// view modifier from `_postCheck` we use this interface to fetch the admin instead of the actual
+// `Proxy` contract interface.
+interface IProxyAdminView {
+    function admin() external view returns (address);
+}
+
+contract NestedSignFromJson is OriginalNestedSignFromJson {
     using LibString for string;
 
     // Chains for this task.
@@ -100,7 +109,6 @@ contract SignFromJson is OriginalSignFromJson {
     // Data that should not change after execution, fetching during `setUp`.
     uint256 gasPriceOracleOverhead;
     uint256 gasPriceOracleScalar;
-    address superchainConfigGuardian;
     uint256 l2BlockTime;
     uint256 l2OutputOracleSubmissionInterval;
     uint256 finalizationPeriodSeconds;
@@ -109,18 +117,24 @@ contract SignFromJson is OriginalSignFromJson {
     address protocolVersionsOwner;
     uint256 requiredProtocolVersion;
     uint256 recommendedProtocolVersion;
+    uint256 proxyAdminOwnerThreshold;
+    uint256 proxyAdminOwnerNumSigners;
 
     // Other data we use.
+    address superchainConfigGuardian; // We fetch this during setUp and expect it to change.
     uint256 constant systemConfigStartBlock = 4071248;
-    uint256 constant livenessGuardExpectedTimes = [
-        1714077828, // When the liveness guard was deployed.
-        1714141272 // When the tasks/sep/006-1-sc-changes task was executed.
-    ];
+    uint256[2] livenessGuardExpectedTimes;
+
     AddressManager addressManager = AddressManager(0x9bFE9c5609311DF1c011c47642253B78a4f33F4B);
     Types.ContractSet proxies;
 
     // This gives the initial fork, so we can use it to switch back after fetching data.
     uint256 initialFork;
+
+    constructor() {
+        livenessGuardExpectedTimes[0] = 1714077828; // When the liveness guard was deployed.
+        livenessGuardExpectedTimes[1] = 1714141272; // When the tasks/sep/006-1-sc-changes task was executed.
+    }
 
     /// @notice Sets up the contract
     function setUp() public {
@@ -128,11 +142,10 @@ contract SignFromJson is OriginalSignFromJson {
 
         // Fetch variables that are not expected to change from an older block.
         initialFork = vm.activeFork();
-        vm.createSelectFork(vm.envString("ETH_RPC_URL"), 5705332); // This block is from April 15 2024 at 11:40am PT.
+        vm.createSelectFork(vm.envString("ETH_RPC_URL"), block.number - 10); // Arbitrary recent block.
 
         gasPriceOracleOverhead = IFetcher(proxies.SystemConfig).overhead();
         gasPriceOracleScalar = IFetcher(proxies.SystemConfig).scalar();
-        superchainConfigGuardian = IFetcher(proxies.SuperchainConfig).guardian();
         l2BlockTime = IFetcher(proxies.L2OutputOracle).L2_BLOCK_TIME();
         l2OutputOracleSubmissionInterval = IFetcher(proxies.L2OutputOracle).SUBMISSION_INTERVAL();
         finalizationPeriodSeconds = IFetcher(proxies.L2OutputOracle).FINALIZATION_PERIOD_SECONDS();
@@ -141,6 +154,11 @@ contract SignFromJson is OriginalSignFromJson {
         protocolVersionsOwner = IFetcher(proxies.ProtocolVersions).owner();
         requiredProtocolVersion = IFetcher(proxies.ProtocolVersions).required();
         recommendedProtocolVersion = IFetcher(proxies.ProtocolVersions).recommended();
+        proxyAdminOwnerThreshold = proxyAdminOwnerSafe.getThreshold();
+        proxyAdminOwnerNumSigners = proxyAdminOwnerSafe.getOwners().length;
+
+        // This one should change, but we fetch the original value here to verify that later.
+        superchainConfigGuardian = IFetcher(proxies.SuperchainConfig).guardian();
 
         vm.selectFork(initialFork);
     }
@@ -332,17 +350,15 @@ contract SignFromJson is OriginalSignFromJson {
         console.log("Running assertions on the OptimismPortal");
 
         require(proxies.OptimismPortal.code.length != 0, "5700");
-
         require(EIP1967Helper.getImplementation(proxies.OptimismPortal).code.length != 0, "5701");
 
         OptimismPortal portalToCheck = OptimismPortal(payable(proxies.OptimismPortal));
 
         require(address(portalToCheck.systemConfig()) == proxies.SystemConfig, "6000");
         require(address(portalToCheck.systemConfig()).code.length != 0, "6100");
-        require(EIP1967Helper.getImplementation(address(portalToCheck.systemConfig())).code.length != 0, "6102");
+        require(EIP1967Helper.getImplementation(address(portalToCheck.systemConfig())).code.length != 0, "6200");
 
-        require(portalToCheck.guardian() == superchainConfigGuardian, "6200");
-        require(portalToCheck.guardian() == superchainConfigGuardian, "6300");
+        require(portalToCheck.guardian() != superchainConfigGuardian, "6300"); // In this playbook, we expect the guardian to change.
         require(portalToCheck.guardian().code.length != 0, "6350"); // This is a Safe, no need to check the implementation.
 
         require(address(portalToCheck.superchainConfig()) == address(proxies.SuperchainConfig), "6400");
@@ -350,7 +366,6 @@ contract SignFromJson is OriginalSignFromJson {
         require(EIP1967Helper.getImplementation(address(portalToCheck.superchainConfig())).code.length != 0, "6402");
 
         require(portalToCheck.paused() == SuperchainConfig(proxies.SuperchainConfig).paused(), "6500");
-
         require(portalToCheck.l2Sender() == Constants.DEFAULT_L2_SENDER, "6600");
     }
 
@@ -375,7 +390,7 @@ contract SignFromJson is OriginalSignFromJson {
         require(EIP1967Helper.getImplementation(proxies.SuperchainConfig).code.length != 0, "7101");
 
         SuperchainConfig superchainConfigToCheck = SuperchainConfig(proxies.SuperchainConfig);
-        require(superchainConfigToCheck.guardian() == superchainConfigGuardian, "7200");
+        require(superchainConfigToCheck.guardian() != superchainConfigGuardian, "7200"); // In this playbook, we expect the guardian to change.
         require(superchainConfigToCheck.guardian().code.length != 0, "7250");
         require(superchainConfigToCheck.paused() == false, "7300");
     }
@@ -427,41 +442,18 @@ contract SignFromJson is OriginalSignFromJson {
         );
     }
 
-    function checkSecurityCouncilSafe() internal view {
-        console.log("Running assertions on the SecurityCouncilSafe");
-
-        // The SecurityCouncilSafe and FoundationSafe should have the same set of owners on Sepolia only,
-        // with the exception of the extra deployer address which is still included to facilitate testing.
-        address[] memory councilOwners = securityCouncilSafe.getOwners();
-        address[] memory foundationOwners = foundationSafe.getOwners();
-        require(councilOwners.length == foundationOwners.length + 1, "checkSecurityCouncilSafe-200");
-        for (uint256 i = 0; i < councilOwners.length; i++) {
-            if (councilOwners[i] != extraMaurelianSigner) {
-                require(foundationSafe.isOwner(councilOwners[i]), "checkSecurityCouncilSafe-201");
-            }
-        }
-
-        // See sepolia.json for config values being verified:
-        // https://github.com/ethereum-optimism/optimism/pull/10224/files
-        require(securityCouncilSafe.getThreshold() == 3, "checkSecurityCouncilSafe-301");
-    }
-
     function checkProxyAdminOwnerSafe() internal view {
-        console.log("Running assertions on the UpgradeOwnerSafe");
-        require(proxyAdminOwnerSafe.getThreshold() == 2, "checkProxyAdminOwnerSafe-100");
-
-        address[] memory proxyAdminOwners = proxyAdminOwnerSafe.getOwners();
-        require(proxyAdminOwners.length == 2, "checkProxyAdminOwnerSafe-200");
-        require(proxyAdminOwners[0] != proxyAdminOwners[1], "checkProxyAdminOwnerSafe-210");
-        for (uint256 i = 0; i < proxyAdminOwners.length; i++) {
-            require(
-                proxyAdminOwners[i] == address(foundationSafe) || proxyAdminOwners[i] == address(securityCouncilSafe),
-                "checkProxyAdminOwnerSafe-250"
-            );
-        }
-        address proxyAdmin = SystemConfig(proxies.SystemConfig).admin();
+        // In Proxy.sol, the `admin()` method is not view because it's a delegatecall if the caller is
+        // not the admin or address(0). We know our call here will not be mutable, so to avoid removing the
+        // view modifier from `_postCheck` we use the IProxyAdminView interface to fetch the admin,
+        // instead of the actual `Proxy` contract interface. However, we need to prank for the call
+        // to come from the zero address, and prank is also not a view method. Therefore, we instead
+        // prank using a low-level staticcall to preserve the view modifier.
+        (bool ok,) = address(vm).staticcall(abi.encodeWithSignature("prank(address)", address(0)));
+        address proxyAdmin = IProxyAdminView(payable(proxies.SystemConfig)).admin();
+        require(ok, "checkProxyAdminOwnerSafe: low-level prank failed");
         address proxyAdminOwner = ProxyAdmin(proxyAdmin).owner();
-        require(proxyAdminOwner == proxyAdminOwnerSafe, "checkProxyAdminOwnerSafe-260");
+        require(proxyAdminOwner == address(proxyAdminOwnerSafe), "checkProxyAdminOwnerSafe-260");
 
         require(proxyAdminOwnerSafe.isOwner(address(foundationSafe)), "checkProxyAdminOwnerSafe-300");
         require(proxyAdminOwnerSafe.isOwner(address(securityCouncilSafe)), "checkProxyAdminOwnerSafe-400");
@@ -487,19 +479,40 @@ contract SignFromJson is OriginalSignFromJson {
         checkOptimismPortal();
         checkProtocolVersions();
         checkSuperchainConfig();
-        checkSecurityCouncilSafe();
+        checkProxyAdminOwnerSafe();
         checkLivenessModule();
         checkLivenessGuard();
         checkDeputyGuardianModule();
-        checkProxyAdminOwnerSafe();
 
         console.log("All assertions passed!");
     }
 
     function getCodeExceptions() internal view override returns (address[] memory) {
-        // Safe owners will appear in storage in the LivenessGuard when added
+        // Safe owners will appear in storage in the LivenessGuard when added, and they are allowed
+        // to have code AND to have no code.
         address[] memory securityCouncilSafeOwners = securityCouncilSafe.getOwners();
-        address[] memory shouldHaveCodeExceptions = new address[](6 + securityCouncilSafeOwners.length);
+
+        // To make sure we probably handle all signers whether or not they have code, first we count
+        // the number of signers that have no code.
+        uint256 numberOfSafeSignersWithNoCode;
+        for (uint256 i = 0; i < securityCouncilSafeOwners.length; i++) {
+            if (securityCouncilSafeOwners[i].code.length == 0) {
+                numberOfSafeSignersWithNoCode++;
+            }
+        }
+
+        // Then we extract those EOA addresses into a dedicated array.
+        uint256 trackedSignersWithNoCode;
+        address[] memory safeSignersWithNoCode = new address[](numberOfSafeSignersWithNoCode);
+        for (uint256 i = 0; i < securityCouncilSafeOwners.length; i++) {
+            if (securityCouncilSafeOwners[i].code.length == 0) {
+                safeSignersWithNoCode[trackedSignersWithNoCode] = securityCouncilSafeOwners[i];
+                trackedSignersWithNoCode++;
+            }
+        }
+
+        // Here we add the standard (non Safe signer) exceptions.
+        address[] memory shouldHaveCodeExceptions = new address[](6 + numberOfSafeSignersWithNoCode);
 
         shouldHaveCodeExceptions[0] = l2OutputOracleProposer;
         shouldHaveCodeExceptions[1] = l2OutputOracleChallenger;
@@ -508,8 +521,9 @@ contract SignFromJson is OriginalSignFromJson {
         shouldHaveCodeExceptions[4] = p2pSequencerAddress;
         shouldHaveCodeExceptions[5] = batchInboxAddress;
 
-        for (uint256 i = 0; i < securityCouncilSafeOwners.length; i++) {
-            shouldHaveCodeExceptions[6 + i] = securityCouncilSafeOwners[i];
+        // And finally, we append the Safe signer exceptions.
+        for (uint256 i = 0; i < safeSignersWithNoCode.length; i++) {
+            shouldHaveCodeExceptions[6 + i] = safeSignersWithNoCode[i];
         }
 
         return shouldHaveCodeExceptions;

@@ -23,6 +23,39 @@ Enables the simulation by setting the threshold to 1:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000004` <br/>
   **Value:** `0x0000000000000000000000000000000000000000000000000000000000000001`
 
+### `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977` (Council Safe) or `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B` (Foundation Safe)
+
+Links:
+- [Etherscan (Council Safe)](https://sepolia.etherscan.io/address/0xf64bc17485f0B4Ea5F06A96514182FC4cB561977). This address is attested to in the [Optimism docs](https://docs.optimism.io/chain/security/privileged-roles#mitigations).
+- [Etherscan (Foundation Safe)](https://sepolia.etherscan.io/address/0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B). This address is attested to in the [Optimism docs](https://docs.optimism.io/chain/security/privileged-roles#mitigations).
+
+The Safe you are signing for will have the following overrides which will set the [Multicall](https://sepolia.etherscan.io/address/0xca11bde05977b3631167028862be2a173976ca11#code) contract as the sole owner of the signing safe. This allows simulating both the approve hash and the final tx in a single Tenderly tx.
+
+- **Key:** 0x0000000000000000000000000000000000000000000000000000000000000003 <br/>
+  **Value:** 0x0000000000000000000000000000000000000000000000000000000000000001 <br/>
+  **Meaning:** The number of owners is set to 1.
+
+- **Key:** 0x0000000000000000000000000000000000000000000000000000000000000004 <br/>
+  **Value:** 0x0000000000000000000000000000000000000000000000000000000000000001 <br/>
+  **Meaning:** The threshold is set to 1.
+
+The following two overrides are modifications to the [`owners` mapping](https://github.com/safe-global/safe-contracts/blob/v1.4.0/contracts/libraries/SafeStorage.sol#L15). For the purpose of calculating the storage, note that this mapping is in slot `2`.
+This mapping implements a linked list for iterating through the list of owners. Since we'll only have one owner (Multicall), and the `0x01` address is used as the first and last entry in the linked list, we will see the following overrides:
+- `owners[1] -> 0xca11bde05977b3631167028862be2a173976ca11`
+- `owners[0xca11bde05977b3631167028862be2a173976ca11] -> 1`
+
+And we do indeed see these entries:
+
+- **Key:** 0x316a0aac0d94f5824f0b66f5bbe94a8c360a17699a1d3a233aafcf7146e9f11c <br/>
+  **Value:** 0x0000000000000000000000000000000000000000000000000000000000000001 <br/>
+  **Meaning:** This is `owners[0xca11bde05977b3631167028862be2a173976ca11] -> 1`, so the key can be
+    derived from `cast index address 0xca11bde05977b3631167028862be2a173976ca11 2`.
+
+- **Key:** 0xe90b7bceb6e7df5418fb78d8ee546e97c83a08bbccc01a0644d599ccd2a7c2e0 <br/>
+  **Value:** 0x000000000000000000000000ca11bde05977b3631167028862be2a173976ca11 <br/>
+  **Meaning:** This is `owners[1] -> 0xca11bde05977b3631167028862be2a173976ca11`, so the key can be
+    derived from `cast index address 0x0000000000000000000000000000000000000001 2`.
+
 ## State Changes
 
 ### `0x1Eb2fFc903729a0F03966B917003800b145F56E2` (`GnosisSafe`)
