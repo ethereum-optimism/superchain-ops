@@ -169,8 +169,12 @@ jobs:
             export SIMULATE_WITHOUT_LEDGER=1
             just \
               --dotenv-path .env \
-              --justfile ../../../single.just \
-              simulate
+              --justfile ../../../nested.just \
+              simulate foundation
+            just \
+              --dotenv-path .env \
+              --justfile ../../../nested.just \
+              simulate council
   forge_test:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
