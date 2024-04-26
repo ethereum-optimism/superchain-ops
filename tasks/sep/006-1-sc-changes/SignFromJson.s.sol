@@ -338,7 +338,7 @@ contract SignFromJson is OriginalSignFromJson {
         require(address(portalToCheck.systemConfig()).code.length != 0, "6101");
         require(EIP1967Helper.getImplementation(address(portalToCheck.systemConfig())).code.length != 0, "6102");
 
-        require(portalToCheck.GUARDIAN() == superchainConfigGuardian, "6200");
+        require(portalToCheck.guardian() == superchainConfigGuardian, "6200");
         require(portalToCheck.guardian() == superchainConfigGuardian, "6300");
         require(portalToCheck.guardian().code.length != 0, "6350"); // This is a Safe, no need to check the implementation.
 
