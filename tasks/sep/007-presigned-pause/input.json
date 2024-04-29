@@ -1,0 +1,22 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "meta": {
+    "name": "Call SuperchainConfig.pause('presigned-20240324')"
+  },
+  "transactions": [
+    {
+      "to": "0xed12261735aD411A40Ea092FF4701a962d25cA21",
+      "value": "0",
+      "data": "0x365c4b8b",
+      "contractMethod": {
+        "inputs": [],
+        "name": "pause",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_identifier": "presigned-20240324"
+      }
+    }
+  ]
+}
