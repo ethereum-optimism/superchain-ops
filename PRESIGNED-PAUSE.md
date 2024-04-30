@@ -78,11 +78,10 @@ You can sign them by running the following commands:
 just \
    --dotenv-path .env \
    --justfile ../../../presigned-pause.just \
-   sign
+   sign 0
 ```
 
-The first parameter is the index of the address you want to use in the
-derivation path.
+Where `0` is the index of the address you want to use in the derivation path.
 
 For each transaction we will be performing 3 validations
 and ensure the domain hash and  message hash are the same
