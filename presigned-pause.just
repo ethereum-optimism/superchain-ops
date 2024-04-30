@@ -42,7 +42,7 @@ sign hdPath='0':
       if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
         presigner \
           --workdir . \
-          --script-name SignFromInputJson \
+          --script-name PresignPauseFromJson \
           --rpc-url ${rpcUrl} \
           --json-file $JSON_FILE \
           --ledger \
@@ -53,7 +53,7 @@ sign hdPath='0':
       export TEST_SENDER=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         presigner \
           --workdir ${taskPath} \
-          --script-name SignFromInputJson \
+          --script-name PresignPauseFromJson \
           --rpc-url ${rpcUrl} \
           --json-file $JSON_FILE \
           --mnemonic "$TEST_MNEMONIC" \
@@ -79,7 +79,7 @@ prepare:
   for nonce in ${PRESIGN_NONCES[@]}; do
     presigner \
       --workdir ${taskPath} \
-      --script-name SignFromInputJson \
+      --script-name PresignPauseFromJson \
       --chain `cast chain-id` \
       --rpc-url ${rpcUrl} \
       --target-addr ${superchainConfigAddr} \
@@ -113,7 +113,7 @@ verify:
   for nonce in ${PRESIGN_NONCES[@]}; do
     presigner \
       --workdir ${taskPath} \
-      --script-name SignFromInputJson \
+      --script-name PresignPauseFromJson \
       --rpc-url ${rpcUrl} \
       --json-file ${taskPath}/tx/draft-${nonce}.json \
       verify
@@ -127,7 +127,7 @@ simulate-all:
   for nonce in ${PRESIGN_NONCES[@]}; do
     presigner \
       --workdir ${taskPath} \
-      --script-name SignFromInputJson \
+      --script-name PresignPauseFromJson \
       --rpc-url ${rpcUrl} \
       --json-file ${taskPath}/tx/draft-${nonce}.json \
       simulate
