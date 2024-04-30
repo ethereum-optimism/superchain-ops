@@ -49,13 +49,15 @@ sign hdPath='0':
           --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
           sign
       else
+      TEST_MNEMONIC="test test test test test test test test test test test junk"
+      export TEST_SENDER=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         presigner \
           --workdir ${taskPath} \
           --script-name SignFromInputJson \
           --rpc-url ${rpcUrl} \
           --json-file $JSON_FILE \
-          --mnemonic "test test test test test test test test test test test junk" \
-          --sender 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 \
+          --mnemonic "$TEST_MNEMONIC" \
+          --sender $TEST_SENDER \
           sign
       fi
     done
