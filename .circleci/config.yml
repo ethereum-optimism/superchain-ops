@@ -156,16 +156,16 @@ jobs:
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
 
-  just_simulate_sep_007-presigned-pause:
+  just_simulate_sep_008-presigned-pause:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
     steps:
       - checkout
       - run:
-          name: just simulate sepolia 007-presigned-pause
+          name: just simulate sepolia 008-presigned-pause
           command: |
             just install
-            cd tasks/sep/007-presigned-pause
+            cd tasks/sep/008-presigned-pause
             just \
               --dotenv-path .env \
               --justfile ../../../presigned-pause.just \
@@ -226,4 +226,4 @@ workflows:
       - just_simulate_sc_rehearsal_1
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
-      - just_simulate_sep_007-presigned-pause
+      - just_simulate_sep_008-presigned-pause
