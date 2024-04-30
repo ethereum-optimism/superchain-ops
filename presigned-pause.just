@@ -2,7 +2,7 @@ set dotenv-load
 
 export rpcUrl := env_var('ETH_RPC_URL')
 export superchainConfigAddr := env_var('DEPUTY_GUARDIAN_MODULE_ADDR')
-export safeAddr := env_var('SAFE_ADDR')
+export safeAddr := env_var('OWNER_SAFE')
 export taskPath := invocation_directory()
 
 jsonFile := ''
