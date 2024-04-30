@@ -1,8 +1,8 @@
 set dotenv-load
 
 export rpcUrl := env_var('ETH_RPC_URL')
-export superchainConfigAddr := env_var('DEPUTY_GUARDIAN_MODULE_ADDR')
-export safeAddr := env_var('OWNER_SAFE')
+export deputyGuardianModuleAddr := env_var('DEPUTY_GUARDIAN_MODULE_ADDR')
+export presignerSafe := env_var('PRESIGNER_SAFE')
 export taskPath := invocation_directory()
 
 jsonFile := ''
@@ -49,8 +49,8 @@ sign hdPath='0':
           --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
           sign
       else
-      TEST_MNEMONIC="test test test test test test test test test test test junk"
-      export TEST_SENDER=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+        TEST_MNEMONIC="test test test test test test test test test test test junk"
+        export TEST_SENDER=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         presigner \
           --workdir ${taskPath} \
           --script-name PresignPauseFromJson \
@@ -82,8 +82,8 @@ prepare:
       --script-name PresignPauseFromJson \
       --chain `cast chain-id` \
       --rpc-url ${rpcUrl} \
-      --target-addr ${superchainConfigAddr} \
-      --safe-addr ${safeAddr} \
+      --target-addr ${deputyGuardianModuleAddr} \
+      --safe-addr ${presignerSafe} \
       --safe-nonce ${nonce} \
       --json-file ${taskPath}/tmp/tmp-${nonce}.json \
       create

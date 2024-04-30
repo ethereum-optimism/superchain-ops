@@ -28,11 +28,11 @@ contract PresignPauseFromJson is MultisigBuilder, JsonTxBuilderBase {
 
     // todo: allow passing this as a script argument.
     function _ownerSafe() internal view override returns (address) {
-        return vm.envAddress("OWNER_SAFE");
+        return vm.envAddress("PRESIGNER_SAFE");
     }
 
     /// @notice This function is called after the simulation of the transactions is done.
-    ///     It checks that the transactions only write to the nonce of the OWNER_SAFE contract and the paused slot of
+    ///     It checks that the transactions only write to the nonce of the PRESIGNER_SAFE contract and the paused slot of
     ///     the SuperchainConfig contract.
     function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory simPayload)
         internal
@@ -48,7 +48,7 @@ contract PresignPauseFromJson is MultisigBuilder, JsonTxBuilderBase {
 
                 if (storageAccess.isWrite) {
                     console.log("Checking Owner Safe storage writes");
-                    if (storageAccess.account == vm.envAddress("OWNER_SAFE")) {
+                    if (storageAccess.account == _ownerSafe()) {
                         require(storageAccess.slot == bytes32(uint256(5)), "The only allowed write is to the nonce");
                         require(
                             uint256(storageAccess.previousValue) == uint256(storageAccess.newValue) - 1,
