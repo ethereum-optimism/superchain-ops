@@ -155,6 +155,31 @@ jobs:
             just simulate-council
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
+
+  just_simulate_sep_008-presigned-pause:
+    docker:
+      - image: <<pipeline.parameters.ci_builder_image>>
+    steps:
+      - checkout
+      - run:
+          name: just simulate sepolia 008-presigned-pause
+          command: |
+            just install
+            cd tasks/sep/008-presigned-pause
+            just \
+              --dotenv-path .env \
+              --justfile ../../../presigned-pause.just \
+              install
+            forge build
+            export SIMULATE_WITHOUT_LEDGER=1
+            just \
+              --dotenv-path .env \
+              --justfile ../../../presigned-pause.just \
+              whoami 0
+            just \
+              --dotenv-path .env \
+              --justfile ../../../presigned-pause.just \
+              sign
   forge_test:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
@@ -201,3 +226,4 @@ workflows:
       - just_simulate_sc_rehearsal_1
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
+      - just_simulate_sep_008-presigned-pause

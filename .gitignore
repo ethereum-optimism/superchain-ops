@@ -19,3 +19,7 @@ cache/
 
 .DS_Store
 .idea/
+
+# ignore unwanted output from presigning runbooks
+tmp-*.json
+draft*signer*.json
