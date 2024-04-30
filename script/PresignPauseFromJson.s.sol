@@ -14,7 +14,9 @@ import {Vm} from "forge-std/Vm.sol";
 contract PresignPauseFromJson is MultisigBuilder, JsonTxBuilderBase {
     function _addGenericOverrides() internal view override returns (SimulationStateOverride memory override_) {
         // If SIMULATE_WITHOUT_LEDGER is set, we add an override to allow the script to run using the same
-        // test address as defined in presigned-pause.just
+        // test address as defined in presigned-pause.just. This is necessary because the presigner tool requires
+        // access to the private key of the address that will sign the transaction. Therefore we must insert a test
+        // address into the owners list.
         if (vm.envOr("SIMULATE_WITHOUT_LEDGER", false) || vm.envOr("SIMULATE_WITHOUT_LEDGER", uint256(0)) == 1) {
             console.log("Adding override for test sender");
             override_ = overrideSafeThresholdAndOwner(_ownerSafe(), vm.envAddress("TEST_SENDER"));
@@ -40,6 +42,7 @@ contract PresignPauseFromJson is MultisigBuilder, JsonTxBuilderBase {
         virtual
         override
     {
+        checkStateDiff(accesses);
         for (uint256 i; i < accesses.length; i++) {
             Vm.AccountAccess memory accountAccess = accesses[i];
 
