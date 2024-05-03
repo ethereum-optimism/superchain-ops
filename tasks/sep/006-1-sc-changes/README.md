@@ -1,6 +1,6 @@
 # Sepolia Guardian Changes - Security Council Runbook
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x19a8f2f0982295ab901ef0f06962d3e8cd930fb1b8e162229a36931ca4a9d76d)
 
 ## Objective
 
