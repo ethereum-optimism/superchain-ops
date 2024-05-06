@@ -17,6 +17,7 @@ remappings = [
   '@base-contracts/=lib/base-contracts/',
   '@eth-optimism-bedrock/=lib/optimism/packages/contracts-bedrock/',
   '@rari-capital/solmate/=lib/solmate',
+  '@solady=lib/solady/src',
   '@eth-optimism-superchain-registry/=lib/superchain-registry/',
   '@solady=lib/optimism/packages/contracts-bedrock/lib/solady/src',
   'ds-test/=lib/optimism/packages/contracts-bedrock/lib/forge-std/lib/ds-test/src',
