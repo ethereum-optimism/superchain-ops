@@ -20,9 +20,11 @@ Each task should contain the following:
 
 - `README.md`: A brief markdown file describing the task to be executed.
 - `Validation.md`: A markdown file describing and justifying the expected state changes for manual validation by multisig signers.
-- `Script.s.sol`: A foundry script that implements post upgrade assertions.
+- A foundry script that implements post upgrade assertions, depending on the nature of the ceremony it should be called either:
+  - `SignFromJson.s.sol`: If the ceremony is for a Safe owned by EOA signers.
+  - `NestedSignFromJson.s.sol`: If the ceremony is for a Safe owned by other Safe's.
 - `input.json`: A JSON file which defines the specific transaction for the task to be executed. This file may either be generated automatically or manually created.
-- `.env`: a place to store environment variables specific to this task
+- `.env`: a place to store environment variables specific to this task.
 
 ## Installation
 
@@ -101,7 +103,8 @@ Just is a command runner, which is similar to `make`.
 
 ### Cloning the superchain-ops repo
 
-The superchain-ops repo holds the tools and artifacts that define any on-chain actions taken to either upgrade our system, or modify its configuration.
+The superchain-ops repo holds the tools and artifacts that define any on-chain actions taken to
+either upgrade our system, or modify its configuration.
 
 1. Clone the superchain-ops repo
   `git clone https://github.com/ethereum-optimism/superchain-ops.git`
@@ -128,8 +131,8 @@ to double check the correctness. This includes linking to authoritative sources 
 [superchain-registry](https://github.com/ethereum-optimism/superchain-registry) or
 [Etherscan](https://etherscan.io) to prove the correctness of particular configuration values.
 
-The base scripts for performing network interactions found in the `script` directory should
-be inherited from with the `Script.s.sol` file where the `_postCheck` hook is implemented.
-This function should make assertions on the post state of the network interaction.
-It will run each time that a signer generates a signature, giving additional automation
+The base scripts for performing network interactions found in the `script` directory should be
+inherited by the `SignFromJson.s.sol` or `NestedSignFromJson.s.sol` file where the `_postCheck` hook
+is implemented. This function must make assertions on the post-transaction state of the network
+interaction. It will run each time that a signer generates a signature, giving additional automation
 on validating the correctness of the network interaction.
