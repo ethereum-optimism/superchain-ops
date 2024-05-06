@@ -20,7 +20,7 @@ contract DeployRehearsalContracts is Deployer {
 
     /// @notice The name of the script, used to ensure the right deploy artifacts
     ///         are used.
-    function name() public pure override returns (string memory name_) {
+    function name() public pure returns (string memory name_) {
         name_ = "DeployRehearsalContracts";
     }
 
@@ -33,7 +33,7 @@ contract DeployRehearsalContracts is Deployer {
         require(owner_safe.isOwner(address(council_safe)));
 
         console.log("Deploying from %s", name());
-        console.log("Deployment context: %s", Config.deploymentContext());
+        console.log("Deployment context: %s", vm.envOr("DEPLOYMENT_CONTEXT", string("")));
     }
 
     function run() public {
