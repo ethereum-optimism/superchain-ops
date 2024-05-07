@@ -1,11 +1,15 @@
 # MCP L1 Upgrades Runbook
 
 This document describes how to generate upgrade playbooks to upgrade chains to
-the Multi-Chain Prep (MCP) L1 upgrade.
+the Multi-Chain Prep (MCP) L1 upgrade, also known as Upgrade #6.
+If upgrading a chain from Bedrock, this will also apply the Extended Pause functionality,
+also known as Upgrade #4.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-- [Multi-Chain Prep (MCP) Overview](#multi-chain-prep-mcp-overview)
+- [Upgrades Involved](#upgrades-involved)
+  - [Extended Pause Overview (Upgrade #4)](#extended-pause-overview-upgrade-4)
+  - [Multi-Chain Prep (MCP) Overview (Upgrade #6)](#multi-chain-prep-mcp-overview-upgrade-6)
 - [Upgrade Process](#upgrade-process)
   - [Setup](#setup)
     - [Local Machine](#local-machine)
@@ -21,15 +25,35 @@ the Multi-Chain Prep (MCP) L1 upgrade.
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## Multi-Chain Prep (MCP) Overview
+## Upgrades Involved
+
+This runbook will apply up to two upgrades to the chain:
+
+- [Extended Pause](#extended-pause-overview-upgrade-4)
+- [Multi-Chain Prep (MCP)](#multi-chain-prep-mcp-overview-upgrade-6)
+
+Each upgrade is described below.
+The Extended Pause upgrade is only applied to chains currently on the Bedrock commit, corresponding to the [`op-contracts/v1.0.0`](https://github.com/ethereum-optimism/optimism/releases/tag/op-contracts%2Fv1.0.0) tag in the [Optimism monorepo](https://github.com/ethereum-optimism/optimism).
+
+In either case, the upgrade will be a single, atomic transaction.
+
+### Extended Pause Overview (Upgrade #4)
+
+This protocol upgrade introduced a Superchain-wide pause mechanism that enables simultaneously pausing ETH, ERC20, and ERC-721 withdrawals for and all chains pointing to the same `SuperchainConfig` contract.
+Withdrawals are a security-critical code path so this provides a significant improvement to a chain's incident response capabilities.
+
+Learn more:
+
+- [Extended Pause release notes](https://github.com/ethereum-optimism/optimism/releases/tag/op-contracts%2Fv1.2.0). (This is release `op-contracts/v1.2.0`).
+- [Governance post](https://gov.optimism.io/t/upgrade-proposal-4/7534).
+- [Blog post](https://blog.oplabs.co/improved-superchain-incident-response/).
+
+### Multi-Chain Prep (MCP) Overview (Upgrade #6)
 
 This protocol upgrade strengthens the security and upgradeability of the Superchain by enabling L1
 contracts to be upgraded atomically across multiple chains in a single transaction. This upgrade
 also extends the `SystemConfig` to contain the addresses of the contracts in the network, allowing
 users to discover the system's contract addresses programmatically.
-
-- [MCP release notes](https://github.com/ethereum-optimism/optimism/releases/tag/op-contracts%2Fv1.3.0-rc.1) (This is release `op-contracts/v1.3.0`)
-- [Governance post](https://gov.optimism.io/t/upgrade-proposal-6-multi-chain-prep-mcp-l1/7677)
 
 MCP is a contract upgrade that doesn’t change functionality, it changes the contract code so the
 implementation contract is used for every chain in the superchain. Meaning each chain’s proxies
@@ -37,6 +61,11 @@ point to the same implementation and this ensures we’re all on the same versio
 
 This document provides a repeatable process that can be used to upgrade the following 8 chains:
 Metal, Mode, Zora, and Base, for both the Sepolia and Mainnet chains.
+
+Learn more:
+
+- [MCP release notes](https://github.com/ethereum-optimism/optimism/releases/tag/op-contracts%2Fv1.3.0) (This is release `op-contracts/v1.3.0`).
+- [Governance post](https://gov.optimism.io/t/upgrade-proposal-6-multi-chain-prep-mcp-l1/7677)
 
 **This runbook MUST only be used for MCP L1 upgrades of those chains.** See [Appendix A](#appendix-a-using-this-runbook-for-other-chains)
 to learn about modifications required to use this for other chains.
