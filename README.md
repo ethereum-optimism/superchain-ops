@@ -128,7 +128,7 @@ Each task in the `tasks` directory should contain all of the information require
 and perform the network interaction. To validate that the intention of the network interaction is
 correct, specific contextual information must be included in `Validation.md` that enables signers
 to double check the correctness. This includes linking to authoritative sources such as the
-[superchain-registry](https://github.com/ethereum-optimism/superchain-registry) or
+[superchain-registry](https://github.com/ethereum-optimism/superchain-registry), the [Optimism monorepo](https://github.com/ethereum-optimism/optimism), and
 [Etherscan](https://etherscan.io) to prove the correctness of particular configuration values.
 
 The base scripts for performing network interactions found in the `script` directory should be
