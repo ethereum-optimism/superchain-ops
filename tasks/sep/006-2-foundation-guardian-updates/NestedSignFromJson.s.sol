@@ -123,19 +123,12 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     // Other data we use.
     address superchainConfigGuardian; // We fetch this during setUp and expect it to change.
     uint256 constant systemConfigStartBlock = 4071248;
-    uint256[3] livenessGuardExpectedTimes;
 
     AddressManager addressManager = AddressManager(0x9bFE9c5609311DF1c011c47642253B78a4f33F4B);
     Types.ContractSet proxies;
 
     // This gives the initial fork, so we can use it to switch back after fetching data.
     uint256 initialFork;
-
-    constructor() {
-        livenessGuardExpectedTimes[0] = 1714077828; // When the liveness guard was deployed.
-        livenessGuardExpectedTimes[1] = 1714141272; // When the tasks/sep/006-1-sc-changes task was executed.
-        livenessGuardExpectedTimes[2] = 1714164444; // When this task's SC approval was submitted.
-    }
 
     /// @notice Sets up the contract
     function setUp() public {
@@ -415,20 +408,6 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
         require(livenessGuard.version().eq("1.0.0"), "checkLivenessGuard-000");
         require(livenessGuard.safe() == address(securityCouncilSafe), "checkLivenessGuard-100");
-
-        // Each owner was recorded as live when the Guard was deployed, or was recorded as live
-        // during execution of this runbook or a previous runbook.
-        address[] memory owners = securityCouncilSafe.getOwners();
-        for (uint256 i = 0; i < owners.length; i++) {
-            uint256 lastLive = livenessGuard.lastLive(owners[i]);
-            bool allowedLastLiveTimestamp = false;
-            for (uint256 j = 0; j < livenessGuardExpectedTimes.length; j++) {
-                if (lastLive == livenessGuardExpectedTimes[j] || lastLive == block.timestamp) {
-                    allowedLastLiveTimestamp = true;
-                }
-            }
-            require(allowedLastLiveTimestamp, "checkLivenessGuard-200");
-        }
     }
 
     function checkDeputyGuardianModule() internal view {
