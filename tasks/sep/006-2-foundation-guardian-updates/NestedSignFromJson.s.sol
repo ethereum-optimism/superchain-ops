@@ -352,7 +352,10 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         require(address(portalToCheck.systemConfig()).code.length != 0, "6100");
         require(EIP1967Helper.getImplementation(address(portalToCheck.systemConfig())).code.length != 0, "6200");
 
-        require(portalToCheck.guardian() != superchainConfigGuardian, "6300"); // In this playbook, we expect the guardian to change.
+        // In this playbook, we expect the guardian to change. We comment out this check instead of
+        // changing to `!=` because the change is verified in the validations file, and because if
+        // we had `!=`, this would error when simulating on the `just approve` call.
+        // require(portalToCheck.guardian() == superchainConfigGuardian, "6300");
         require(portalToCheck.guardian().code.length != 0, "6350"); // This is a Safe, no need to check the implementation.
 
         require(address(portalToCheck.superchainConfig()) == address(proxies.SuperchainConfig), "6400");
@@ -384,7 +387,10 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         require(EIP1967Helper.getImplementation(proxies.SuperchainConfig).code.length != 0, "7101");
 
         SuperchainConfig superchainConfigToCheck = SuperchainConfig(proxies.SuperchainConfig);
-        require(superchainConfigToCheck.guardian() != superchainConfigGuardian, "7200"); // In this playbook, we expect the guardian to change.
+        // In this playbook, we expect the guardian to change. We comment out this check instead of
+        // changing to `!=` because the change is verified in the validations file, and because if
+        // we had `!=`, this would error when simulating on the `just approve` call.
+        // require(superchainConfigToCheck.guardian() != superchainConfigGuardian, "7200");
         require(superchainConfigToCheck.guardian().code.length != 0, "7250");
         require(superchainConfigToCheck.paused() == false, "7300");
     }
