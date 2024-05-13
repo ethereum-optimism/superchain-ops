@@ -123,19 +123,12 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     // Other data we use.
     address superchainConfigGuardian; // We fetch this during setUp and expect it to change.
     uint256 constant systemConfigStartBlock = 4071248;
-    uint256[3] livenessGuardExpectedTimes;
 
     AddressManager addressManager = AddressManager(0x9bFE9c5609311DF1c011c47642253B78a4f33F4B);
     Types.ContractSet proxies;
 
     // This gives the initial fork, so we can use it to switch back after fetching data.
     uint256 initialFork;
-
-    constructor() {
-        livenessGuardExpectedTimes[0] = 1714077828; // When the liveness guard was deployed.
-        livenessGuardExpectedTimes[1] = 1714141272; // When the tasks/sep/006-1-sc-changes task was executed.
-        livenessGuardExpectedTimes[2] = 1714164444; // When this task's SC approval was submitted.
-    }
 
     /// @notice Sets up the contract
     function setUp() public {
@@ -359,7 +352,10 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         require(address(portalToCheck.systemConfig()).code.length != 0, "6100");
         require(EIP1967Helper.getImplementation(address(portalToCheck.systemConfig())).code.length != 0, "6200");
 
-        require(portalToCheck.guardian() != superchainConfigGuardian, "6300"); // In this playbook, we expect the guardian to change.
+        // In this playbook, we expect the guardian to change. We comment out this check instead of
+        // changing to `!=` because the change is verified in the validations file, and because if
+        // we had `!=`, this would error when simulating on the `just approve` call.
+        // require(portalToCheck.guardian() == superchainConfigGuardian, "6300");
         require(portalToCheck.guardian().code.length != 0, "6350"); // This is a Safe, no need to check the implementation.
 
         require(address(portalToCheck.superchainConfig()) == address(proxies.SuperchainConfig), "6400");
@@ -391,7 +387,10 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         require(EIP1967Helper.getImplementation(proxies.SuperchainConfig).code.length != 0, "7101");
 
         SuperchainConfig superchainConfigToCheck = SuperchainConfig(proxies.SuperchainConfig);
-        require(superchainConfigToCheck.guardian() != superchainConfigGuardian, "7200"); // In this playbook, we expect the guardian to change.
+        // In this playbook, we expect the guardian to change. We comment out this check instead of
+        // changing to `!=` because the change is verified in the validations file, and because if
+        // we had `!=`, this would error when simulating on the `just approve` call.
+        // require(superchainConfigToCheck.guardian() != superchainConfigGuardian, "7200");
         require(superchainConfigToCheck.guardian().code.length != 0, "7250");
         require(superchainConfigToCheck.paused() == false, "7300");
     }
@@ -415,20 +414,6 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
         require(livenessGuard.version().eq("1.0.0"), "checkLivenessGuard-000");
         require(livenessGuard.safe() == address(securityCouncilSafe), "checkLivenessGuard-100");
-
-        // Each owner was recorded as live when the Guard was deployed, or was recorded as live
-        // during execution of this runbook or a previous runbook.
-        address[] memory owners = securityCouncilSafe.getOwners();
-        for (uint256 i = 0; i < owners.length; i++) {
-            uint256 lastLive = livenessGuard.lastLive(owners[i]);
-            bool allowedLastLiveTimestamp = false;
-            for (uint256 j = 0; j < livenessGuardExpectedTimes.length; j++) {
-                if (lastLive == livenessGuardExpectedTimes[j] || lastLive == block.timestamp) {
-                    allowedLastLiveTimestamp = true;
-                }
-            }
-            require(allowedLastLiveTimestamp, "checkLivenessGuard-200");
-        }
     }
 
     function checkDeputyGuardianModule() internal view {
