@@ -1,3 +1,28 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Objective](#objective)
+- [Approving the transaction](#approving-the-transaction)
+   - [1. Update repo and move to the appropriate folder for this rehearsal task](#1-update-repo-and-move-to-the-appropriate-folder-for-this-rehearsal-task)
+   - [2. Setup Ledger](#2-setup-ledger)
+   - [3. Sign the transactions](#3-sign-the-transactions)
+   - [3.1. Validate integrity of the simulation.](#31-validate-integrity-of-the-simulation)
+   - [3.2. Validate correctness of the state diff.](#32-validate-correctness-of-the-state-diff)
+   - [3.3. Extract the domain hash and the message hash to approve.](#33-extract-the-domain-hash-and-the-message-hash-to-approve)
+   - [4. Approve the signature on your ledger](#4-approve-the-signature-on-your-ledger)
+   - [5. Send the output to Facilitator(s)](#5-send-the-output-to-facilitators)
+- [[Before Ceremony] Instructions for the facilitator](#before-ceremony-instructions-for-the-facilitator)
+   - [1. Update input files](#1-update-input-files)
+   - [2. Prepare the transactions](#2-prepare-the-transactions)
+- [[After Ceremony] Instructions for the facilitator](#after-ceremony-instructions-for-the-facilitator)
+   - [1. Collect the signatures](#1-collect-the-signatures)
+   - [2. Merge the signatures](#2-merge-the-signatures)
+   - [3. Verify the signatures](#3-verify-the-signatures)
+   - [4. Simulate the transaction with signatures](#4-simulate-the-transaction-with-signatures)
+   - [5. Store and execute the transaction](#5-store-and-execute-the-transaction)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Superchain Presigned Pause
 
 ## Objective
@@ -213,6 +238,8 @@ values.
 ### 2. Prepare the transactions
 
 ```
+cd tasks/<NETWORK_DIR>/<RUNBOOK_DIR>
+
 just \
    --dotenv-path .env \
    --justfile ../../../presigned-pause.just \
@@ -278,16 +305,16 @@ just \
    simulate-all
 ```
 
-The simulate command will output the Tenderly simulation link, new 
+The simulate command will output the Tenderly simulation link, new
 `ready-*` json files and a `.sh.b64` script for further execution.
 
-Files with prefix `ready-` are transactions fully signed and ready 
+Files with prefix `ready-` are transactions fully signed and ready
 to be executed.
 
-The additional file with extention `.sh.b64` is a oneliner script, 
+The additional file with extention `.sh.b64` is a oneliner script,
 which can be quickly executed from command line.
 
 ### 5. Store and execute the transaction
 
-Please refer to the [internal playbook](https://www.notion.so/oplabs/RB-111-Pre-signed-pause-8bce5b27728b447aa51ba12fcfff9e58?pvs=4#a227c38a09e14518b26095baa91f81c8) 
+Please refer to the [internal playbook](https://www.notion.so/oplabs/RB-111-Pre-signed-pause-8bce5b27728b447aa51ba12fcfff9e58?pvs=4#a227c38a09e14518b26095baa91f81c8)
 for how to store the presigned pause and executed it in emergency situations.
