@@ -237,9 +237,30 @@ values.
 
 ### 2. Prepare the transactions
 
-```
-cd tasks/<NETWORK_DIR>/<RUNBOOK_DIR>
+First, navigate into the task directory and create an empty `tx` folder.
+This is where the transactions to sign will be written.
 
+```shell
+cd tasks/<NETWORK_DIR>/<RUNBOOK_DIR>
+mkdir tx
+```
+
+If you have an `ETH_RPC_URL` already set in your environment, unset it.
+This is required so the one in the `.env` file takes precedence.
+
+```shell
+unset ETH_RPC_URL
+```
+
+Now, prepare the transactions by running the following command.
+The `FOUNDRY_SENDER` and `TEST_SENDER` environment variables should be the same,
+and set to any address on the Safe that we are preparing the presigned pause for.
+An example address from the Sepolia Foundation Safe is used below:
+
+```shell
+SIMULATE_WITHOUT_LEDGER=1 \
+FOUNDRY_SENDER=0xF0871b2F75ecD07e2D709b7a2cc0AF6848c1cE76 \
+TEST_SENDER=0xF0871b2F75ecD07e2D709b7a2cc0AF6848c1cE76 \
 just \
    --dotenv-path .env \
    --justfile ../../../presigned-pause.just \
