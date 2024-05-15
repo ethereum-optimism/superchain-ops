@@ -97,6 +97,13 @@ just \
 
 The transactions to be signed are inside the `tx` folder named `draft-{nonce}.json`
 
+If you have an `ETH_RPC_URL` already set in your environment, unset it.
+This is required so the one in the `.env` file takes precedence.
+
+```shell
+unset ETH_RPC_URL
+```
+
 You can sign them by running the following commands:
 
 ```
