@@ -13,6 +13,7 @@
 /tasks/sep/mode-*   @sbvegan @mds1 @blmalone @maurelian @zchn
 /tasks/sep/base-*   @sbvegan @mds1 @blmalone @maurelian @zchn
 /tasks/sep/zora-*   @sbvegan @ZakAyesh @OPMattie
+/tasks/sep-dev-*    @ethereum-optimism/contract-reviewers
 
 /tasks/oeth         @maurelian @zchn @mds1
 
