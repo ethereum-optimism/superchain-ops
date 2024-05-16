@@ -71,7 +71,7 @@ prepare:
   set -x
   REPO_ROOT=`git rev-parse --show-toplevel`
   PATH="$REPO_ROOT/bin:$PATH"
-  echo creating 3 tx...
+  echo Preparing transactions to sign...
   echo
 
   export INPUT_JSON_PATH="${taskPath}/input.json"
