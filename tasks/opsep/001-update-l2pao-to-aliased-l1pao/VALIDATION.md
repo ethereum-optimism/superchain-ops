@@ -43,18 +43,11 @@ State Changes:
    ```
    0x1Eb2fFc903729a0F03966B917003800b145F56E2 + 0x1111000000000000000000000000000000001111 = 0x2FC3ffc903729a0f03966b917003800B145F67F3
    ```
-   You can check it yourself using this code deployed onchain: [applyL1ToL2Alias](https://sepolia.etherscan.io/address/0xDB893121a8CF3ae4c6fa2fbdcE37691BdA92a838#readContract#F1). Additionally, you can use [chisel](https://book.getfoundry.sh/chisel/):
-   ```bash
-   function applyL1ToL2Alias(address l1Address) public pure returns (address l2Address) {
-        unchecked {
-            l2Address = address(uint160(l1Address) + uint160(0x1111000000000000000000000000000000001111));
-        }
-    }
-   ```
-   then invoke the `applyL1ToL2Alias` function.
+   You can use [chisel](https://book.getfoundry.sh/chisel/) to verify the aliasing result by invoking the `applyL1ToL2Alias` function.
    ```bash
    applyL1ToL2Alias(0x1Eb2fFc903729a0F03966B917003800b145F56E2)
    ```
+   You can find a reference to this code here: [`applyL1ToL2Alias`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/src/vendor/AddressAliasHelper.sol#L28).
 
 ### `0xb41890910b05dcba3d3def19b27e886c4ab406eb` (Former L2 `ProxyAdmin` Owner (Safe))
 
