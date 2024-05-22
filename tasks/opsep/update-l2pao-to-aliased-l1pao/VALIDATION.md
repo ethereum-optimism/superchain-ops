@@ -61,6 +61,6 @@ State Changes:
 
 State Changes:
 - **Nonce** <br/>
-  **Before:**: 5 <br/>
-  **After:**: 6 <br/>
+  **Before:** 5 <br/>
+  **After:** 6 <br/>
   **Meaning:** Account sending the transaction and is the only signer on the safe.
