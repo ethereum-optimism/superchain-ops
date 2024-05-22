@@ -59,9 +59,6 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     GnosisSafe foundationSafe = GnosisSafe(payable(0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B));
     GnosisSafe proxyAdminOwnerSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
 
-    // Contracts we need to check, which are not in the superchain registry
-
-
     // Known EOAs to exclude from safety checks.
     address constant l2OutputOracleProposer = 0x49277EE36A024120Ee218127354c4a3591dc90A9; // cast call $L2OO "PROPOSER()(address)"
     address constant l2OutputOracleChallenger = 0xfd1D2e729aE8eEe2E146c033bf4400fE75284301; // In registry addresses.
@@ -108,33 +105,6 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         require(ISemver(proxies.SuperchainConfig).version().eq("1.1.0"), "semver-900");
     }
 
-   
-    /// @notice Asserts the OptimismPortal emitted correct event
-    function checkOptimismPortal() internal pure {
-        console.log("Running assertions on the OptimismPortal");
-
-        // require(proxies.OptimismPortal.code.length != 0, "5700");
-        // require(EIP1967Helper.getImplementation(proxies.OptimismPortal).code.length != 0, "5701");
-
-        // OptimismPortal portalToCheck = OptimismPortal(payable(proxies.OptimismPortal));
-
-        // require(address(portalToCheck.systemConfig()) == proxies.SystemConfig, "6000");
-        // require(address(portalToCheck.systemConfig()).code.length != 0, "6100");
-        // require(EIP1967Helper.getImplementation(address(portalToCheck.systemConfig())).code.length != 0, "6200");
-
-        // // In this playbook, we expect the guardian to change. We comment out this check instead of
-        // // changing to `!=` because the change is verified in the validations file, and because if
-        // // we had `!=`, this would error when simulating on the `just approve` call.
-        // // require(portalToCheck.guardian() == superchainConfigGuardian, "6300");
-        // require(portalToCheck.guardian().code.length != 0, "6350"); // This is a Safe, no need to check the implementation.
-
-        // require(address(portalToCheck.superchainConfig()) == address(proxies.SuperchainConfig), "6400");
-        // require(address(portalToCheck.superchainConfig()).code.length != 0, "6401");
-        // require(EIP1967Helper.getImplementation(address(portalToCheck.superchainConfig())).code.length != 0, "6402");
-
-        // require(portalToCheck.paused() == SuperchainConfig(proxies.SuperchainConfig).paused(), "6500");
-        // require(portalToCheck.l2Sender() == Constants.DEFAULT_L2_SENDER, "6600");
-    }
 
     function checkProxyAdminOwnerSafe() internal view {
         // In Proxy.sol, the `admin()` method is not view because it's a delegatecall if the caller is
@@ -164,15 +134,12 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         checkStateDiff(accesses);
         checkSemvers();
 
-        checkOptimismPortal();
         checkProxyAdminOwnerSafe();
 
         console.log("All assertions passed!");
     }
 
     function getCodeExceptions() internal view override returns (address[] memory) {
-        // Safe owners will appear in storage in the LivenessGuard when added, and they are allowed
-        // to have code AND to have no code.
         address[] memory securityCouncilSafeOwners = securityCouncilSafe.getOwners();
 
         // To make sure we probably handle all signers whether or not they have code, first we count
