@@ -71,29 +71,6 @@ contract SignFromJson is OriginalSignFromJson {
     address constant batchSenderAddress = 0x8F23BB38F531600e5d8FDDaAEC41F13FaB46E98c; // In registry genesis-system-configs
     address constant p2pSequencerAddress = 0x57CACBB0d30b01eb2462e5dC940c161aff3230D3; // cast call $SystemConfig "unsafeBlockSigner()(address)"
     address constant batchInboxAddress = 0xff00000000000000000000000000000011155420; // In registry yaml.
-
-    // The deployer address which is a signer on the Security Council but not Foundation safe (on Sepolia).
-    address constant deployerAddress = 0x78339d822c23D943E4a2d4c3DD5408F66e6D662D;
-
-    // Hardcoded data that should not change after execution.
-    uint256 l2GenesisBlockGasLimit = 30e6;
-    uint256 xdmSenderSlotNumber = 204; // Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L93-L99
-
-    // Data that should not change after execution, fetching during `setUp`.
-    uint256 gasPriceOracleOverhead;
-    uint256 gasPriceOracleScalar;
-    address superchainConfigGuardian;
-    uint256 l2BlockTime;
-    uint256 l2OutputOracleSubmissionInterval;
-    uint256 finalizationPeriodSeconds;
-    uint256 l2OutputOracleStartingTimestamp;
-    uint256 l2OutputOracleStartingBlockNumber;
-    address protocolVersionsOwner;
-    uint256 requiredProtocolVersion;
-    uint256 recommendedProtocolVersion;
-
-    // Other data we use.
-    uint256 systemConfigStartBlock = 4071248;
     
     Types.ContractSet proxies;
 
@@ -110,18 +87,6 @@ contract SignFromJson is OriginalSignFromJson {
 
         require(unaliasedL1PAO == undoL1ToL2Alias(aliasedL1PAO), "setUp-100");
         require(aliasedL1PAO == applyL1ToL2Alias(unaliasedL1PAO), "setUp-101");
-
-        // gasPriceOracleOverhead = IFetcher(proxies.SystemConfig).overhead();
-        // gasPriceOracleScalar = IFetcher(proxies.SystemConfig).scalar();
-        // superchainConfigGuardian = IFetcher(proxies.SuperchainConfig).guardian();
-        // l2BlockTime = IFetcher(proxies.L2OutputOracle).L2_BLOCK_TIME();
-        // l2OutputOracleSubmissionInterval = IFetcher(proxies.L2OutputOracle).SUBMISSION_INTERVAL();
-        // finalizationPeriodSeconds = IFetcher(proxies.L2OutputOracle).FINALIZATION_PERIOD_SECONDS();
-        // l2OutputOracleStartingTimestamp = IFetcher(proxies.L2OutputOracle).startingTimestamp();
-        // l2OutputOracleStartingBlockNumber = IFetcher(proxies.L2OutputOracle).startingBlockNumber();
-        // protocolVersionsOwner = IFetcher(proxies.ProtocolVersions).owner();
-        // requiredProtocolVersion = IFetcher(proxies.ProtocolVersions).required();
-        // recommendedProtocolVersion = IFetcher(proxies.ProtocolVersions).recommended();
 
         vm.selectFork(initialFork);
     }
