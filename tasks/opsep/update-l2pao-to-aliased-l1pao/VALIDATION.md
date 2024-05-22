@@ -60,7 +60,7 @@ State Changes:
 ### `0xfd1d2e729ae8eee2e146c033bf4400fe75284301` (Signer on the L2 Proxy Admin Owner Safe)
 
 State Changes:
-- **Nonce**
-  **Before:**: 5
-  **After:**: 6
+- **Nonce** <br/>
+  **Before:**: 5 <br/>
+  **After:**: 6 <br/>
   **Meaning:** Account sending the transaction and is the only signer on the safe.
