@@ -56,7 +56,7 @@ State Changes:
    applyL1ToL2Alias(0x1Eb2fFc903729a0F03966B917003800b145F56E2)
    ```
 
-### `0xb41890910b05dcba3d3def19b27e886c4ab406eb` (`L2 Proxy Admin Owner (Safe)`)
+### `0xb41890910b05dcba3d3def19b27e886c4ab406eb` (Former L2 `ProxyAdmin` Owner (Safe))
 
 Links:
 - [Etherscan](https://sepolia-optimism.etherscan.io/address/0xb41890910b05dCba3d3dEF19B27E886C4Ab406EB)

@@ -4,15 +4,14 @@ Status: [DRAFT]()
 
 ## Objective
 
-This is the playbook for executing Upgrade #X, `set(L2PAO, aliased(L2PAO))`, on Op Sepolia (chain ID 11155420).
+This is the playbook for executing Upgrade #X, to update the L2ProxyAdmin owner (L2PAO) to be the aliased L1ProxyAdmin owner (L1PAO) address, on OP Sepolia (chain ID 11155420).
 
 The proposal was:
 
-- [X] Posted on the governance forum here: (//TODO edit this) https://gov.optimism.io/t/upgrade-proposal-6-multi-chain-prep-mcp-l1
-- [X] Approved by Token House voting here: (//TODO edit this) https://vote.optimism.io/proposals/47253113366919812831791422571513347073374828501432502648295761953879525315523
-- [X] Not vetoed by the Citizens' house here: (TODO edit this) https://snapshot.org/#/citizenshouse.eth/proposal/0x2bc6565053b73813c6b0a001c8c07eb5656234b4d8bae12ba6541250993d1d25
-- [X] Executed on OP Sepolia: (//TODO edit this) https://github.com/ethereum-optimism/superchain-ops/tree/6ea64b21416917e3dfcb867fd0c76db90fb46277/tasks/sep/003-MCP-L1
-- [X] Executed on OP Mainnet: (//TODO edit this) https://github.com/ethereum-optimism/superchain-ops/tree/11bd3a24b3c18ccf637e32182045a377a89ec22f/tasks/eth/006-MCP-L1
+- [X] Posted on the governance forum here: https://gov.optimism.io/t/upgrade-proposal-guardian-security-council-threshold-and-l2-proxyadmin-ownership-changes-for-stage-1-decentralization/8157
+- [ ] Approved by Token House voting here
+- [ ] Not vetoed by the Citizens' house here
+- [ ] Executed on OP Sepolia
 
 The governance proposal should be treated as the source of truth and used to verify the correctness
 of the onchain operations.
@@ -20,7 +19,7 @@ of the onchain operations.
 ## Simulation
 
 Please see the "Simulating and Verifying the Transaction" instructions in [SINGLE.md](../../../SINGLE.md).
-When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/opsep/update-l2pao-to-aliased-l1pao/SignFromJson.s.sol`.
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/opsep/001-update-l2pao-to-aliased-l1pao/SignFromJson.s.sol`.
 Thus ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown
 (without the full path), something is wrong and the safety checks will not run.
 
@@ -34,6 +33,6 @@ Please see the instructions for [validation](./VALIDATION.md).
 
 At this point you may resume following the execution instructions in the "Execute the Transaction" section of [SINGLE.md](../../../SINGLE.md).
 
-When executing, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/opsep/update-l2pao-to-aliased-l1pao/SignFromJson.s.sol`.
+When executing, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/opsep/001-update-l2pao-to-aliased-l1pao/SignFromJson.s.sol`.
 Thus ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown
 (without the full path), something is wrong and the safety checks will not run.

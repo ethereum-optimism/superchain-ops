@@ -83,7 +83,7 @@ contract SignFromJson is OriginalSignFromJson {
 
         // Fetch variables that are not expected to change from an older block.
         initialFork = vm.activeFork();
-        vm.createSelectFork(vm.envString("ETH_RPC_URL"), 5705332); // This block is from April 15 2024 at 11:40am PT.
+        vm.createSelectFork(vm.envString("ETH_RPC_URL"), block.number - 10); // Arbitrary recent block.
 
         require(unaliasedL1PAO == undoL1ToL2Alias(aliasedL1PAO), "setUp-100");
         require(aliasedL1PAO == applyL1ToL2Alias(unaliasedL1PAO), "setUp-101");
