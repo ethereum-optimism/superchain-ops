@@ -26,7 +26,7 @@ Enables the simulation by setting the threshold to 1 (threshold was already 1 fo
 ## State Changes
 
 **Notes:**
-- Check the provided links to ensure that the correct contract is described at the correct address. The superchain registry is the source of truth for contract addresses and etherscan is supplementary.
+- Check the provided links to ensure that the correct contract is described at the correct address. 
 
 ### `0x4200000000000000000000000000000000000018` (`ProxyAdmin`)
 
@@ -39,7 +39,7 @@ State Changes:
   **Before:** `0x000000000000000000000000b41890910b05dcba3d3def19b27e886c4ab406eb` <br/>
   **After:** `0x0000000000000000000000002fc3ffc903729a0f03966b917003800b145f67f3` <br/>
   **Meaning:** The `_owner` address variable is set to `0x2FC3ffc903729a0f03966b917003800B145F67F3`. The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/ProxyAdmin.json](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/snapshots/storageLayout/ProxyAdmin.json#L4). The current owner of the `ProxyAdmin` contract is `0xb41890910b05dcba3d3def19b27e886c4ab406eb` which is a 1 of 1 Safe that was deployed to mirror the production environment configuration as close as possible. The new `_owner` is `0x2FC3ffc903729a0f03966b917003800B145F67F3` which is the aliased L1 Proxy Admin Owner address i.e. 
+   this slot is attested to in the Optimism repo at [storageLayout/ProxyAdmin.json](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/snapshots/storageLayout/ProxyAdmin.json#L4). The current owner of the `ProxyAdmin` contract is `0xb41890910b05dcba3d3def19b27e886c4ab406eb`, which is a 1-of-1 Safe deployed to closely mirror the production environment configuration. The new `_owner` is `0x2FC3ffc903729a0f03966b917003800B145F67F3` which is the aliased L1 Proxy Admin Owner address i.e. 
    ```
    0x1Eb2fFc903729a0F03966B917003800b145F56E2 + 0x1111000000000000000000000000000000001111 = 0x2FC3ffc903729a0f03966b917003800B145F67F3
    ```
