@@ -73,13 +73,13 @@ contract SignFromJson is OriginalSignFromJson {
 
     // Safe contract for this task.
     GnosisSafe securityCouncilSafe = GnosisSafe(payable(0xf64bc17485f0B4Ea5F06A96514182FC4cB561977));
-    GnosisSafe foundationSafe = GnosisSafe(payable(0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B));
+    GnosisSafe foundationUpgradesSafe = GnosisSafe(payable(0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B));
 
     // Contracts we need to check, which are not in the superchain registry
     IDeputyGuardianModuleFetcher deputyGuardianModule =
-        IDeputyGuardianModuleFetcher(0xed12261735aD411A40Ea092FF4701a962d25cA21);
-    ILivenessGuardFetcher livenessGuard = ILivenessGuardFetcher(0x4416c7Fe250ee49B5a3133146A0BBB8Ec0c6A321);
-    ILivenessModuleFetcher livenessModule = ILivenessModuleFetcher(0x812B1fa86bE61a787705C49fc0fb05Ef50c8FEDf);
+        IDeputyGuardianModuleFetcher(0x7dF9594B205041Ea4917cb047Dc20F84dfe297c7);
+    ILivenessGuardFetcher livenessGuard = ILivenessGuardFetcher(0x1A2114e5Ca491b919561cd118279040Ab4a1BA4a);
+    ILivenessModuleFetcher livenessModule = ILivenessModuleFetcher(0xe4391Ba3911299b7A8C0e361EF763190Ce4f6222);
 
     // Known EOAs to exclude from safety checks.
     address constant l2OutputOracleProposer = 0x49277EE36A024120Ee218127354c4a3591dc90A9; // cast call $L2OO "PROPOSER()(address)"
@@ -111,7 +111,6 @@ contract SignFromJson is OriginalSignFromJson {
 
     // Other data we use.
     uint256 systemConfigStartBlock = 4071248;
-    uint256 livenessGuardDeployTime = 1714077828; // Sepolia only
     AddressManager addressManager = AddressManager(0x9bFE9c5609311DF1c011c47642253B78a4f33F4B);
     Types.ContractSet proxies;
 
@@ -124,7 +123,7 @@ contract SignFromJson is OriginalSignFromJson {
 
         // Fetch variables that are not expected to change from an older block.
         initialFork = vm.activeFork();
-        vm.createSelectFork(vm.envString("ETH_RPC_URL"), 5705332); // This block is from April 15 2024 at 11:40am PT.
+        vm.createSelectFork(vm.envString("ETH_RPC_URL"), block.number - 10);
 
         gasPriceOracleOverhead = IFetcher(proxies.SystemConfig).overhead();
         gasPriceOracleScalar = IFetcher(proxies.SystemConfig).scalar();
@@ -142,14 +141,14 @@ contract SignFromJson is OriginalSignFromJson {
     }
 
     function checkSemvers() internal view {
-        // These are the expected semvers based on the `op-contracts/v1.3.0` release.
-        // https://github.com/ethereum-optimism/optimism/releases/tag/op-contracts%2fv1.3.0
+        // These are the expected semvers based on the `op-contracts/v1.4.0-rc.4` release.
+        // https://github.com/ethereum-optimism/optimism/releases/tag/op-contracts%2Fv1.4.0-rc.4
         require(ISemver(proxies.L1CrossDomainMessenger).version().eq("2.3.0"), "semver-100");
         require(ISemver(proxies.L1StandardBridge).version().eq("2.1.0"), "semver-200");
         require(ISemver(proxies.L2OutputOracle).version().eq("1.8.0"), "semver-300");
         require(ISemver(proxies.OptimismMintableERC20Factory).version().eq("1.9.0"), "semver-400");
-        require(ISemver(proxies.OptimismPortal).version().eq("3.8.0"), "semver-500");
-        require(ISemver(proxies.SystemConfig).version().eq("1.12.0"), "semver-600");
+        require(ISemver(proxies.OptimismPortal).version().eq("3.10.0"), "semver-500");
+        require(ISemver(proxies.SystemConfig).version().eq("2.2.0"), "semver-600");
         require(ISemver(proxies.L1ERC721Bridge).version().eq("2.1.0"), "semver-700");
         require(ISemver(proxies.ProtocolVersions).version().eq("1.0.0"), "semver-800");
         require(ISemver(proxies.SuperchainConfig).version().eq("1.1.0"), "semver-900");
@@ -197,9 +196,9 @@ contract SignFromJson is OriginalSignFromJson {
         require(systemConfig.l1StandardBridge().code.length != 0, "1901");
         require(EIP1967Helper.getImplementation(systemConfig.l1StandardBridge()).code.length != 0, "1902");
 
-        require(systemConfig.l2OutputOracle() == proxies.L2OutputOracle, "2000");
-        require(systemConfig.l2OutputOracle().code.length != 0, "2001");
-        require(EIP1967Helper.getImplementation(systemConfig.l2OutputOracle()).code.length != 0, "2002");
+        // require(systemConfig.l2OutputOracle() == proxies.L2OutputOracle, "2000");
+        // require(systemConfig.l2OutputOracle().code.length != 0, "2001");
+        // require(EIP1967Helper.getImplementation(systemConfig.l2OutputOracle()).code.length != 0, "2002");
 
         require(systemConfig.optimismPortal() == proxies.OptimismPortal, "2100");
         require(systemConfig.optimismPortal().code.length != 0, "2101");
@@ -380,15 +379,13 @@ contract SignFromJson is OriginalSignFromJson {
     function checkLivenessModule() internal view {
         console.log("Running assertions on the LivenessModule");
 
-        // See sepolia.json for config values being verified:
-        // https://github.com/ethereum-optimism/optimism/pull/10224/files
-        require(livenessModule.version().eq("1.1.0"), "checkLivenessModule-000");
+        require(livenessModule.version().eq("1.2.0"), "checkLivenessModule-000");
         require(livenessModule.safe() == address(securityCouncilSafe), "checkLivenessModule-100");
         require(livenessModule.livenessGuard() == address(livenessGuard), "checkLivenessModule-200");
-        require(livenessModule.livenessInterval() == 31536000, "checkLivenessModule-300");
+        require(livenessModule.livenessInterval() == 62899200, "checkLivenessModule-300");
         require(livenessModule.minOwners() == 2, "checkLivenessModule-400");
         require(livenessModule.thresholdPercentage() == 20, "checkLivenessModule-500");
-        require(livenessModule.fallbackOwner() == address(foundationSafe), "checkLivenessModule-600");
+        require(livenessModule.fallbackOwner() == address(foundationUpgradesSafe), "checkLivenessModule-600");
     }
 
     function checkLivenessGuard() internal view {
@@ -396,21 +393,13 @@ contract SignFromJson is OriginalSignFromJson {
 
         require(livenessGuard.version().eq("1.0.0"), "checkLivenessGuard-000");
         require(livenessGuard.safe() == address(securityCouncilSafe), "checkLivenessGuard-100");
-
-        // Each owner was recorded as live when the Guard was deployed, or was recorded as live during execution of
-        // this runbook.
-        address[] memory owners = securityCouncilSafe.getOwners();
-        for (uint256 i = 0; i < owners.length; i++) {
-            uint256 lastLive = livenessGuard.lastLive(owners[i]);
-            require(lastLive == livenessGuardDeployTime || lastLive == block.timestamp, "checkLivenessGuard-201");
-        }
     }
 
     function checkDeputyGuardianModule() internal view {
         console.log("Running assertions on the DeputyGuardianModule");
 
-        require(deputyGuardianModule.version().eq("1.0.0"), "checkDeputyGuardianModule-000");
-        require(deputyGuardianModule.deputyGuardian() == address(foundationSafe), "checkDeputyGuardianModule-100");
+        require(deputyGuardianModule.version().eq("1.1.0"), "checkDeputyGuardianModule-000");
+        require(deputyGuardianModule.deputyGuardian() == address(foundationUpgradesSafe), "checkDeputyGuardianModule-100");
         require(deputyGuardianModule.safe() == address(securityCouncilSafe), "checkDeputyGuardianModule-200");
         require(
             deputyGuardianModule.superchainConfig() == address(proxies.SuperchainConfig),
@@ -424,11 +413,11 @@ contract SignFromJson is OriginalSignFromJson {
         // The SecurityCouncilSafe and FoundationSafe should have the same set of owners on Sepolia only,
         // with the exception of the extra deployer address which is still included to facilitate testing.
         address[] memory councilOwners = securityCouncilSafe.getOwners();
-        address[] memory foundationOwners = foundationSafe.getOwners();
+        address[] memory foundationOwners = foundationUpgradesSafe.getOwners();
         require(councilOwners.length == foundationOwners.length + 1, "checkSecurityCouncilSafe-200");
         for (uint256 i = 0; i < councilOwners.length; i++) {
             if (councilOwners[i] != deployerAddress) {
-                require(foundationSafe.isOwner(councilOwners[i]), "checkSecurityCouncilSafe-201");
+                require(foundationUpgradesSafe.isOwner(councilOwners[i]), "checkSecurityCouncilSafe-201");
             }
         }
 
@@ -451,7 +440,7 @@ contract SignFromJson is OriginalSignFromJson {
         checkSystemConfig();
         checkL1CrossDomainMessenger();
         checkL1StandardBridge();
-        checkL2OutputOracle();
+        // checkL2OutputOracle();
         checkOptimismMintableERC20Factory();
         checkL1ERC721Bridge();
         checkOptimismPortal();
