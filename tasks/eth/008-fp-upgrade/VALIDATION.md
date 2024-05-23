@@ -41,12 +41,12 @@ State Changes:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000038` <br/>
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After**: `0x000000000000000000000000e5965ab5962edc7477c8520243a95517cd252fa9` <br/>
-  **Meaning**: Sets the `DisputeGameFactoryProxy` address in the proxy storage. Consult the [gov proposal](https://gov.optimism.io/t/final-protocol-upgrade-7-fault-proofs/8161) for the location of the proxy addreess.
+  **Meaning**: Sets the `DisputeGameFactoryProxy` address in the proxy storage. Consult the [gov proposal](https://gov.optimism.io/t/final-protocol-upgrade-7-fault-proofs/8161) for the proxy addreess value.
 
 - **Key:** `0x000000000000000000000000000000000000000000000000000000000000003b` <br/>
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After**: `0x000000000000000000000000000000000000000000000000664f90d500000000` <br/>
-  **Meaning**: Sets the `respectedGameType` and `respectedGameTypeUpdatedAt` slot. The `respectedGameTypeUpdatedAt` is offset by `4` on that slot. It should be close to the same unix time the upgrade was executed.
+  **Meaning**: Sets the `respectedGameType` and `respectedGameTypeUpdatedAt` slot. The `respectedGameType` is 32-bits wide at offset 0 which should be set to 0 (i.e. `CANNON`). The `respectedGameTypeUpdatedAt` is 64-bits wide and offset by `4` on that slot. It should be equivalent to the unix timestamp of the block the upgrade was executed.
 
 
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
