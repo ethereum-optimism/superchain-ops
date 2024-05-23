@@ -124,3 +124,8 @@ In the 'Overview' tab on Tenderly, check that the `depositTransaction` function 
 ```solidity
 depositTransaction(_to = 0x4200000000000000000000000000000000000018, _value = 0, _gasLimit = 200000, _isCreation = false, _data = 0x99a88ec40000000000000000000000004200000000000000000000000000000000000014000000000000000000000000c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d30014)
 ```
+
+Also, check that the result of the following `cast` is equal to the bytes produced at `contractInputsValues._data` in `input.json`.
+```
+cast calldata "upgrade(address,address)" 0x4200000000000000000000000000000000000014 0xc0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d30014
+```
