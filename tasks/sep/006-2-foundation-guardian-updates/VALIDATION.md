@@ -63,20 +63,20 @@ And we do indeed see these entries:
 State Changes:
 
 - **Key:** 0x0000000000000000000000000000000000000000000000000000000000000005 <br/>
-  **Before:** 0x0000000000000000000000000000000000000000000000000000000000000002 <br/>
-  **After:** 0x0000000000000000000000000000000000000000000000000000000000000003 <br/>
-The nonce is increased from 2 to 3.
+  **Before:** 0x0000000000000000000000000000000000000000000000000000000000000005 <br/>
+  **After:** 0x0000000000000000000000000000000000000000000000000000000000000006 <br/>
+The nonce is increased from 5 to 6.
 
 #### For the Council:
 
-- **Key:** `0xac95ca0f85a84ae76de93bc97a507b48cfff5f45f6c547867edf776e555f3ef4` <br/>
+- **Key:** `0x3e2a37a6a6cbd9cb482d469f9279423616fc676017a9b40c1771a1aa999b5db1` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **Meaning:** The GnosisSafe `approvedHashes` mapping is updated to indicate approval of this transaction by the council. The correctness of this slot can be verified as follows:
     - Since this is a nested mapping, we need to use `cast index` twice to confirm that this is the correct slot. The inputs needed are:
       - The location (`8`) of the `approvedHashes` mapping in the [GnosisSafe storage layout](https://github.com/safe-global/safe-contracts/blob/v1.4.0/contracts/libraries/SafeStorage.sol#L23)
       - The address of the Council Safe: `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`
-      - The safe hash to approve: `0x563a53530afacab3f89ccf6740cfa816de3150d50e9283626e3af00babef3d87`
+      - The safe hash to approve: `0x3d8e7dd3387e3220b6ea1c031167fc2c32a12aa52d924ae3a0ff4e8c7208b627`
     - The using `cast index`, we can verify that:
       ```shell
         $ cast index address 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 8
@@ -84,21 +84,21 @@ The nonce is increased from 2 to 3.
         ```
         and
       ```shell
-        $ cast index bytes32 0x563a53530afacab3f89ccf6740cfa816de3150d50e9283626e3af00babef3d87 0x56362ae34e37f50105bd722d564a267a69bbc15ede4cb7136e81afd747b41c4d
-        0xac95ca0f85a84ae76de93bc97a507b48cfff5f45f6c547867edf776e555f3ef4
+        $ cast index bytes32 0x3d8e7dd3387e3220b6ea1c031167fc2c32a12aa52d924ae3a0ff4e8c7208b627 0x56362ae34e37f50105bd722d564a267a69bbc15ede4cb7136e81afd747b41c4d
+        0x3e2a37a6a6cbd9cb482d469f9279423616fc676017a9b40c1771a1aa999b5db1
         ```
       And so the output of the second command matches the key above.
 
 #### For the Foundation:
 
-- **Key:** `0x0e26a6631c2709943281f97fec36e17c5580ad223a9f898224313fa217146846` <br/>
+- **Key:** `0xcf5eae036a45d1b0471b1cbc05cda45cabba927f71b3e3e82b4519049e2cfd45` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **Meaning:** The GnosisSafe `approvedHashes` mapping is updated to indicate approval of this transaction by the council. The correctness of this slot can be verified as follows:
     - Since this is a nested mapping, we need to use `cast index` twice to confirm that this is the correct slot. The inputs needed are:
       - The location (`8`) of the `approvedHashes` mapping in the [GnosisSafe storage layout](https://github.com/safe-global/safe-contracts/blob/v1.4.0/contracts/libraries/SafeStorage.sol#L23)
       - The address of the Foundation Safe: `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`
-      - The safe hash to approve: `0x563a53530afacab3f89ccf6740cfa816de3150d50e9283626e3af00babef3d87`
+      - The safe hash to approve: `0x3d8e7dd3387e3220b6ea1c031167fc2c32a12aa52d924ae3a0ff4e8c7208b627`
     - The using `cast index`, we can verify that:
       ```shell
         $ cast index address 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B 8
@@ -106,15 +106,15 @@ The nonce is increased from 2 to 3.
       ```
       and
       ```shell
-        $ cast index bytes32 0x563a53530afacab3f89ccf6740cfa816de3150d50e9283626e3af00babef3d87 0xc18fefc0a6b81265cf06017c3f1f91c040dc3227321d73c608cfbcf1c5253e5c
-        0x0e26a6631c2709943281f97fec36e17c5580ad223a9f898224313fa217146846
+        $ cast index bytes32 0x3d8e7dd3387e3220b6ea1c031167fc2c32a12aa52d924ae3a0ff4e8c7208b627 0xc18fefc0a6b81265cf06017c3f1f91c040dc3227321d73c608cfbcf1c5253e5c
+        0xcf5eae036a45d1b0471b1cbc05cda45cabba927f71b3e3e82b4519049e2cfd45
       ```
       And so the output of the second command matches the key above.
 
-### `0x4416c7Fe250ee49B5a3133146A0BBB8Ec0c6A321` (`LivenessGuard`) (Council Only)
+### `0x1A2114e5Ca491b919561cd118279040Ab4a1BA4a` (`LivenessGuard`) (Council Only)
 
 Links:
-- [Etherscan](https://sepolia.etherscan.io/address/0x4416c7Fe250ee49B5a3133146A0BBB8Ec0c6A321)
+- [Etherscan](https://sepolia.etherscan.io/address/0x1A2114e5Ca491b919561cd118279040Ab4a1BA4a)
 
 State Changes:
 

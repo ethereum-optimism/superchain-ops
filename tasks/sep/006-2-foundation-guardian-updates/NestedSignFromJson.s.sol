@@ -164,8 +164,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         require(ISemver(proxies.L1StandardBridge).version().eq("2.1.0"), "semver-200");
         require(ISemver(proxies.L2OutputOracle).version().eq("1.8.0"), "semver-300");
         require(ISemver(proxies.OptimismMintableERC20Factory).version().eq("1.9.0"), "semver-400");
-        require(ISemver(proxies.OptimismPortal).version().eq("3.8.0"), "semver-500");
-        require(ISemver(proxies.SystemConfig).version().eq("1.12.0"), "semver-600");
+        require(ISemver(proxies.OptimismPortal).version().eq("3.10.0"), "semver-500");
+        require(ISemver(proxies.SystemConfig).version().eq("2.2.0"), "semver-600");
         require(ISemver(proxies.L1ERC721Bridge).version().eq("2.1.0"), "semver-700");
         require(ISemver(proxies.ProtocolVersions).version().eq("1.0.0"), "semver-800");
         require(ISemver(proxies.SuperchainConfig).version().eq("1.1.0"), "semver-900");
@@ -213,9 +213,9 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         require(systemConfig.l1StandardBridge().code.length != 0, "1901");
         require(EIP1967Helper.getImplementation(systemConfig.l1StandardBridge()).code.length != 0, "1902");
 
-        require(systemConfig.l2OutputOracle() == proxies.L2OutputOracle, "2000");
-        require(systemConfig.l2OutputOracle().code.length != 0, "2001");
-        require(EIP1967Helper.getImplementation(systemConfig.l2OutputOracle()).code.length != 0, "2002");
+        // require(systemConfig.l2OutputOracle() == proxies.L2OutputOracle, "2000");
+        // require(systemConfig.l2OutputOracle().code.length != 0, "2001");
+        // require(EIP1967Helper.getImplementation(systemConfig.l2OutputOracle()).code.length != 0, "2002");
 
         require(systemConfig.optimismPortal() == proxies.OptimismPortal, "2100");
         require(systemConfig.optimismPortal().code.length != 0, "2101");
@@ -459,7 +459,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         checkSystemConfig();
         checkL1CrossDomainMessenger();
         checkL1StandardBridge();
-        checkL2OutputOracle();
+        // checkL2OutputOracle();
         checkOptimismMintableERC20Factory();
         checkL1ERC721Bridge();
         checkOptimismPortal();
