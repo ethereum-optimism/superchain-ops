@@ -23,6 +23,16 @@ State Changes:
   **After:** `0x000000000000000000000000f56d96b2535b932656d3c04ebf51babff241d886` <br/>
   **Meaning:** This upgrades the SystemConfig implementation. The only state change is an update to the eip1967 proxy implementation slot.
 
+- **Key**: `0x52322a25d9f59ea17656545543306b7aef62bc0cc53a0e65ccfa0c75b97aa906`
+  **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000`
+  **After**: `0x000000000000000000000000e5965ab5962edc7477c8520243a95517cd252fa9`
+  **Meaning**: Sets the [DisputeGameFactory slot](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0-rc.4/packages/contracts-bedrock/src/L1/SystemConfig.sol#L76). Verify that the `Key` matches the expected slot.
+
+- **Key**: `0xe52a667f71ec761b9b381c7b76ca9b852adf7e8905da0e0ad49986a0a6871815`
+  **Before**: `0x000000000000000000000000dfe97868233d1aa22e815a266982f2cf17685a27`
+  **After**: `0x0000000000000000000000000000000000000000000000000000000000000000`
+  **Meaning**: Clears the old and unused [L2OutputOracle slot](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/src/L1/SystemConfig.sol#L63). Verify that the `Key` matches the expected slot.
+
 
 ### `0xbeb5fc579115071764c7423a4f12edde41f106ed` (`OptimismPortalProxy`)
 

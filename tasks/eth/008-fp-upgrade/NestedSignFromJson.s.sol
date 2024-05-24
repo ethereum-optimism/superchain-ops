@@ -12,7 +12,7 @@ import {OptimismMintableERC20Factory} from "@eth-optimism-bedrock/src/universal/
 import {L1ERC721Bridge} from "@eth-optimism-bedrock/src/L1/L1ERC721Bridge.sol";
 import {AddressManager} from "@eth-optimism-bedrock/src/legacy/AddressManager.sol";
 import {Predeploys} from "@eth-optimism-bedrock/src/libraries/Predeploys.sol";
-import {ResourceMetering} from "@eth-optimism-bedrock/src/L1/ResourceMetering.sol";
+import {ResourceMetering} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
 import {Types} from "@eth-optimism-bedrock/scripts/Types.sol";
 import {ISemver} from "@eth-optimism-bedrock/src/universal/ISemver.sol";
 import {EIP1967Helper} from "@eth-optimism-bedrock/test/mocks/EIP1967Helper.sol";
@@ -186,13 +186,12 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         require(configToCheck.gasLimit() == uint64(l2GenesisBlockGasLimit), "700");
         require(configToCheck.unsafeBlockSigner() == p2pSequencerAddress, "800");
 
-        // TODO: solc is acting up
-        //ResourceMetering.ResourceConfig memory resourceConfigToCheck = configToCheck.resourceConfig();
+        ResourceMetering.ResourceConfig memory resourceConfigToCheck = configToCheck.resourceConfig();
         // Check _config
-        //require(
-            //keccak256(abi.encode(resourceConfigToCheck)) == keccak256(abi.encode(Constants.DEFAULT_RESOURCE_CONFIG())),
-            //"900"
-        //);
+        require(
+            keccak256(abi.encode(resourceConfigToCheck)) == keccak256(abi.encode(Constants.DEFAULT_RESOURCE_CONFIG())),
+            "900"
+        );
         require(configToCheck.startBlock() == systemConfigStartBlock, "1500");
         require(configToCheck.batchInbox() == batchInboxAddress, "1600");
 
@@ -220,6 +219,14 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         require(configToCheck.optimismMintableERC20Factory() == proxies.OptimismMintableERC20Factory, "2200");
         require(configToCheck.optimismMintableERC20Factory().code.length != 0, "2201");
         require(EIP1967Helper.getImplementation(configToCheck.optimismMintableERC20Factory()).code.length != 0, "2202");
+
+        require(configToCheck.disputeGameFactory() == proxies.DisputeGameFactory, "2300");
+        require(configToCheck.disputeGameFactory().code.length != 0, "2301");
+        require(EIP1967Helper.getImplementation(configToCheck.disputeGameFactory()).code.length != 0, "2302");
+
+        // Ensure that the old l2outputoracle slot is cleared
+        bytes32 l2OutputOracleSlot = vm.load(address(configToCheck), bytes32(uint256(keccak256("systemconfig.l2outputoracle")) - 1));
+        require(address(uint160(uint256(l2OutputOracleSlot))) == address(0), "2400");
     }
 
     function checkOptimismPortal() internal view {
