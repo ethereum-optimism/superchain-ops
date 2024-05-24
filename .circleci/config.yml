@@ -166,7 +166,7 @@ jobs:
           command: |
             go install github.com/mikefarah/yq/v4@latest
             just install
-            cd tasks/sep/006-1-sc-changes
+            cd tasks/opsep/001-update-l2pao-to-aliased-l1pao
             export SIMULATE_WITHOUT_LEDGER=1
             just \
               --dotenv-path .env \
