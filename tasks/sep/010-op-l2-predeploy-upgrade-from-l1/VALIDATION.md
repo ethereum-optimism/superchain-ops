@@ -60,7 +60,7 @@ And we do indeed see these entries:
 
 ### `0x16fc5058f25648194471939df75cf27a2fdc48bc` (`OptimismPortal`)
 
-- `prevBoughtGas`: value increases (depends on execution) 
+- `prevBoughtGas`: value changes (depends on execution) 
 - `prevBlockNum`: value increases (depends on execution) 
 
 
