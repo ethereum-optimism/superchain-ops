@@ -21,7 +21,7 @@ State Changes:
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
   **Before:** `0x000000000000000000000000ba2492e52f45651b60b8b38d4ea5e2390c64ffb1` <br/>
   **After:** `0x000000000000000000000000f56d96b2535b932656d3c04ebf51babff241d886` <br/>
-  **Meaning:** This upgrades the SystemConfig implementation. The only state change is an update to the eip1967 proxy implementation slot.
+  **Meaning:** This upgrades the SystemConfig implementation. Verify that the new `SystemConfig` implementation is stoored at the eip1967 proxy implementation slot.
 
 - **Key**: `0x52322a25d9f59ea17656545543306b7aef62bc0cc53a0e65ccfa0c75b97aa906`
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -40,24 +40,21 @@ Links:
 - [Etherscan](https://etherscan.io/address/0xbEb5Fc579115071764c7423A4f12eDde41f106Ed)
 - [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/52d3dbd1605dd43f419e838584abd0ec163d462b/superchain/extra/addresses/mainnet/op.json#L8)
 
-Upgrades the `OptimismPortal` to the `OptimismPortal2` implementation. This occurs in three steps:
-
-1. Upgrade the `OptimismPortal` implementation to the `StorageSetter` contract.
-1. Reset the first slot of the `OptimismPortalProxy` storage to allow initialization.
-1. Reset the `l2Sender` storage slot in the proxy to allow the first initialization of the new OptimismPortal implementation.
-1. Upgrade the `OptimismPortal` implementation to the `OptimismPortal2` contract and execute `initialize(address,address,address,uint32)`.
+Upgrades the `OptimismPortal` to the `OptimismPortal2` implementation.
 
 State Changes:
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000038` <br/>
+- **Key:** [`0x0000000000000000000000000000000000000000000000000000000000000038`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0-rc.4/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal2.json#L80C1-L85C5) <br/>
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After**: `0x000000000000000000000000e5965ab5962edc7477c8520243a95517cd252fa9` <br/>
   **Meaning**: Sets the `DisputeGameFactoryProxy` address in the proxy storage. Consult the [gov proposal](https://gov.optimism.io/t/final-protocol-upgrade-7-fault-proofs/8161) for the proxy addreess value.
+One can verify that this change was made by running `cast call 0xbeb5fc579115071764c7423a4f12edde41f106ed 'disputeGameFactory()(address)' https://ethereum.publicnode.com`
 
-- **Key:** `0x000000000000000000000000000000000000000000000000000000000000003b` <br/>
+- **Key:** [`0x000000000000000000000000000000000000000000000000000000000000003b`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0-rc.4/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal2.json#L101C1-L113C5) <br/>
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After**: `0x000000000000000000000000000000000000000000000000664f90d500000000` <br/>
-  **Meaning**: Sets the `respectedGameType` and `respectedGameTypeUpdatedAt` slot. The `respectedGameType` is 32-bits wide at offset 0 which should be set to 0 (i.e. `CANNON`). The `respectedGameTypeUpdatedAt` is 64-bits wide and offset by `4` on that slot. It should be equivalent to the unix timestamp of the block the upgrade was executed.
-
+  **Meaning**: Sets the `respectedGameType` and `respectedGameTypeUpdatedAt` slot.
+The `respectedGameType` is 32-bits wide at offset 0 which should be set to 0 (i.e. [`CANNON`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0-rc.4/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28)).
+The `respectedGameTypeUpdatedAt` is 64-bits wide and offset by `4` on that slot. It should be equivalent to the unix timestamp of the block the upgrade was executed.
 
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
   **Before**: `0x0000000000000000000000002d778797049fe9259d947d1ed8e5442226dfb589` <br/>
