@@ -4,10 +4,10 @@ Status: [DRAFT]()
 
 ## Objective
 
-This is the playbook for executing Upgrade 001, to update the L2ProxyAdmin owner (L2PAO) to be the aliased L1ProxyAdmin owner (L1PAO) address, on OP Sepolia (chain ID 11155420).
+This is the playbook for executing part of [Upgrade #8](https://gov.optimism.io/t/final-protocol-upgrade-8-guardian-security-council-threshold-and-l2-proxyadmin-ownership-changes-for-stage-1-decentralization/8157/1), to update the L2ProxyAdmin owner (L2PAO) to be the aliased L1ProxyAdmin owner (L1PAO) address, on OP Sepolia (chain ID 11155420).
 
-Before this task was created, some op-sepolia configuration was updated to closely mirror op-mainnet. 
-Specifically, the L2Proxy Admin owner on op-mainnet is a Safe: [0x7871d1187A97cbbE40710aC119AA3d412944e4Fe](https://optimistic.etherscan.io/address/0x7871d1187A97cbbE40710aC119AA3d412944e4Fe). On op-sepolia it was an EOA [0xfd1D2e729aE8eEe2E146c033bf4400fE75284301](https://sepolia-optimism.etherscan.io/address/0xfd1D2e729aE8eEe2E146c033bf4400fE75284301). It has since been updated to be a 1-of-1 safe: [0xb41890910b05dCba3d3dEF19B27E886C4Ab406EB](https://sepolia-optimism.etherscan.io/address/0xb41890910b05dCba3d3dEF19B27E886C4Ab406EB), where the previous L2Proxy Admin Owner EOA is it's signatory.
+Before this task was created, some OP Sepolia configuration was updated to closely mirror OP Mainnet. 
+Specifically, the L2Proxy Admin owner on op-mainnet is a Safe: [0x7871d1187A97cbbE40710aC119AA3d412944e4Fe](https://optimistic.etherscan.io/address/0x7871d1187A97cbbE40710aC119AA3d412944e4Fe). On op-sepolia it was an EOA [0xfd1D2e729aE8eEe2E146c033bf4400fE75284301](https://sepolia-optimism.etherscan.io/address/0xfd1D2e729aE8eEe2E146c033bf4400fE75284301). It has since been updated to be a 1-of-1 safe: [0xb41890910b05dCba3d3dEF19B27E886C4Ab406EB](https://sepolia-optimism.etherscan.io/address/0xb41890910b05dCba3d3dEF19B27E886C4Ab406EB), where the previous L2Proxy Admin Owner EOA is it's owner.
 
 
 The proposal was:

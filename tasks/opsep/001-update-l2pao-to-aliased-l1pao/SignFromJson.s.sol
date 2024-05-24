@@ -28,7 +28,6 @@ contract SignFromJson is OriginalSignFromJson {
     address constant unaliasedL1PAO =
         0x1Eb2fFc903729a0F03966B917003800b145F56E2; // Safe
 
-    function setUp() public {}
 
     function checkL2PA() internal {
         console.log("Running assertions on the L2PA");
@@ -42,7 +41,7 @@ contract SignFromJson is OriginalSignFromJson {
             AddressAliasHelper.undoL1ToL2Alias(l2paOwner)
         );
         uint256 originalFork = vm.activeFork();
-        vm.createSelectFork(vm.envString("L1_ETH_RPC_URL")); // begins on the latest block (can't use block.number as it's the wrong chain here).
+        vm.createSelectFork(vm.envString("L1_ETH_RPC_URL")); // Forks on the latest block.
 
         require(l1Address.code.length > 0, "checkL2PA-200");
         require(
