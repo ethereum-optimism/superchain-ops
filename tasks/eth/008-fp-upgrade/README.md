@@ -12,6 +12,8 @@ Governance post of the Fault Proofs upgrade can be found at https://gov.optimism
 1. Upgrades the `OptimismPortal` proxy implementation.
 1. Upgrades the `SystemConfig` proxy implementation.
 
+Details on the upgrade procedure can be found in [EXEC.md](./EXEC.md).
+
 ## Preparing the Upgrade
 
 The contract implementations and new proxies for the Fault Proof system have been pre-deployed to mainnet.
