@@ -171,7 +171,7 @@ Decode the `opaqueData`.
 ```solidity
 (uint256 _msgValue, uint256 _value, uint64 _gasLimit, bool _isCreation, bytes memory _data) = this.decode(hex"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000030d400099a88ec40000000000000000000000004200000000000000000000000000000000000014000000000000000000000000c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d30014");
 ```
-Check each value individually:
+Check each value individually by typing the variable name into chisel and hitting enter:
 1. `_msgValue`: 0
 2. `_value`: 0
 3. `_gasLimit`: 200000
