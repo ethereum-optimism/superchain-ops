@@ -22,6 +22,7 @@ import {stdJson} from "forge-std/StdJson.sol";
 import {Vm, VmSafe} from "forge-std/Vm.sol";
 import {LibString} from "solady/utils/LibString.sol";
 import {GnosisSafe} from "safe-contracts/GnosisSafe.sol";
+import {ModuleManager} from "safe-contracts/base/ModuleManager.sol";
 
 // Interface used to read various data from contracts. This is an aggregation of methods from
 // various protocol contracts for simplicity, and does not map to the full ABI of any single contract.
@@ -67,19 +68,28 @@ interface IDeputyGuardianModuleFetcher {
 contract SignFromJson is OriginalSignFromJson {
     using LibString for string;
 
+    address internal constant SENTINEL_MODULE = address(0x1);
+    bytes32 internal constant GUARD_STORAGE_SLOT = 0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8;
+
     // Chains for this task.
     string constant l1ChainName = "sepolia";
     string constant l2ChainName = "op";
 
     // Safe contract for this task.
     GnosisSafe securityCouncilSafe = GnosisSafe(payable(0xf64bc17485f0B4Ea5F06A96514182FC4cB561977));
+    GnosisSafe guardianSafe = GnosisSafe(payable(0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E));
     GnosisSafe foundationUpgradesSafe = GnosisSafe(payable(0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B));
+    GnosisSafe foundationOperationsSafe = GnosisSafe(payable(0x837DE453AD5F21E89771e3c06239d8236c0EFd5E));
 
     // Contracts we need to check, which are not in the superchain registry
-    IDeputyGuardianModuleFetcher deputyGuardianModule =
-        IDeputyGuardianModuleFetcher(0x7dF9594B205041Ea4917cb047Dc20F84dfe297c7);
-    ILivenessGuardFetcher livenessGuard = ILivenessGuardFetcher(0x1A2114e5Ca491b919561cd118279040Ab4a1BA4a);
-    ILivenessModuleFetcher livenessModule = ILivenessModuleFetcher(0xe4391Ba3911299b7A8C0e361EF763190Ce4f6222);
+    address expectedDeputyGuardianModule = 0x4220C5deD9dC2C8a8366e684B098094790C72d3c;
+    address expectedLivenessModule = 0xe4391Ba3911299b7A8C0e361EF763190Ce4f6222;
+    address expectedLivenessGuard = 0x1A2114e5Ca491b919561cd118279040Ab4a1BA4a;
+
+    // We fetch these and compare them to the expected values.
+    IDeputyGuardianModuleFetcher deputyGuardianModule;
+    ILivenessGuardFetcher livenessGuard;
+    ILivenessModuleFetcher livenessModule;
 
     // Known EOAs to exclude from safety checks.
     address constant l2OutputOracleProposer = 0x49277EE36A024120Ee218127354c4a3591dc90A9; // cast call $L2OO "PROPOSER()(address)"
@@ -399,8 +409,10 @@ contract SignFromJson is OriginalSignFromJson {
         console.log("Running assertions on the DeputyGuardianModule");
 
         require(deputyGuardianModule.version().eq("1.1.0"), "checkDeputyGuardianModule-000");
-        require(deputyGuardianModule.deputyGuardian() == address(foundationUpgradesSafe), "checkDeputyGuardianModule-100");
-        require(deputyGuardianModule.safe() == address(securityCouncilSafe), "checkDeputyGuardianModule-200");
+        require(
+            deputyGuardianModule.deputyGuardian() == address(foundationOperationsSafe), "checkDeputyGuardianModule-100"
+        );
+        require(deputyGuardianModule.safe() == address(guardianSafe), "checkDeputyGuardianModule-200");
         require(
             deputyGuardianModule.superchainConfig() == address(proxies.SuperchainConfig),
             "checkDeputyGuardianModule-300"
@@ -426,16 +438,32 @@ contract SignFromJson is OriginalSignFromJson {
         require(securityCouncilSafe.getThreshold() == 3, "checkSecurityCouncilSafe-301");
     }
 
+    function checkOwnershipConfiguration() internal {
+        (address[] memory modules,) = ModuleManager(guardianSafe).getModulesPaginated(SENTINEL_MODULE, 3);
+        deputyGuardianModule = IDeputyGuardianModuleFetcher(modules[0]);
+        require(modules.length == 1, "checkOwnershipConfiguration-50");
+        require(address(deputyGuardianModule) == expectedDeputyGuardianModule, "checkOwnershipConfiguration-100");
+
+        (modules,) = ModuleManager(securityCouncilSafe).getModulesPaginated(SENTINEL_MODULE, 2);
+        livenessModule = ILivenessModuleFetcher(modules[0]);
+        require(modules.length == 1, "checkOwnershipConfiguration-150");
+        require(address(livenessModule) == expectedLivenessModule, "checkOwnershipConfiguration-200");
+
+        bytes32 _livenessGuard = vm.load(address(securityCouncilSafe), GUARD_STORAGE_SLOT);
+        livenessGuard = ILivenessGuardFetcher(address(uint160(uint256(_livenessGuard))));
+        require(address(livenessGuard) == expectedLivenessGuard, "checkOwnershipConfiguration-300");
+    }
+
     /// @notice Checks the correctness of the deployment
     function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory /* simPayload */ )
         internal
-        view
         override
     {
         console.log("Running post-deploy assertions");
 
         checkStateDiff(accesses);
         checkSemvers();
+        checkOwnershipConfiguration();
 
         checkSystemConfig();
         checkL1CrossDomainMessenger();
