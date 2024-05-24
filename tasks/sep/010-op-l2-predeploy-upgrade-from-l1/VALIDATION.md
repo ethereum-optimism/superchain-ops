@@ -117,7 +117,7 @@ The only other state change are two nonce increments:
 - One on the Council or Foundation safe (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B` for Foundation and `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977` for Council). If this is not decoded, it corresponds to key `0x05` on a `GnosisSafeProxy`.
 - One on the owner on the safe that sent the transaction.
 
-### Addition Checks To Perform
+### Additional Checks To Perform
 
 In the 'Overview' tab on Tenderly, check that the `depositTransaction` function is invoked with the arguments listed in the `input.json` i.e. 
 
