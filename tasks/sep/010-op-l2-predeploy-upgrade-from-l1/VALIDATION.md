@@ -139,46 +139,38 @@ Decode the `opaqueData` property using chisel from Foundry:
 
 Open chisel and declare the function that'll decode the `opaqueData`:
 ```solidity
-    function decode(bytes calldata opaqueData) public pure
-        returns (
-            uint256 _msgValue,
-            uint256 _value,
-            uint64 _gasLimit,
-            bool _isCreation,
-            bytes memory _data
-        )
-    {
-        uint256 offset = 0;
+function decode(bytes calldata opaqueData) public pure returns (uint256 msgValue, uint256 value, uint64 gasLimit, bool isCreation, bytes memory data) {
+    uint256 offset = 0;
 
-        _msgValue = uint256(bytes32(opaqueData[offset:offset + 32]));
-        offset += 32;
+    msgValue = uint256(bytes32(opaqueData[offset:offset + 32]));
+    offset += 32;
 
-        _value = uint256(bytes32(opaqueData[offset:offset + 32]));
-        offset += 32;
+    value = uint256(bytes32(opaqueData[offset:offset + 32]));
+    offset += 32;
 
-        _gasLimit = uint64(bytes8(opaqueData[offset:offset + 8]));
-        offset += 8;
+    gasLimit = uint64(bytes8(opaqueData[offset:offset + 8]));
+    offset += 8;
 
-        _isCreation = bytes1(opaqueData[offset]) != 0x00;
+    isCreation = bytes1(opaqueData[offset]) != 0x00;
 
-        offset += 1;
-        _data = opaqueData[offset:];
+    offset += 1;
+    data = opaqueData[offset:];
 
-        return (_msgValue, _value, _gasLimit, _isCreation, _data);
-    }
+    return (msgValue, value, gasLimit, isCreation, data);
+}
 ```
-Decode the `opaqueData`.
+Decode your `opaqueData` value (remove `0x`).
 ```solidity
-(uint256 _msgValue, uint256 _value, uint64 _gasLimit, bool _isCreation, bytes memory _data) = this.decode(hex"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000030d400099a88ec40000000000000000000000004200000000000000000000000000000000000014000000000000000000000000c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d30014");
+(uint256 msgValue, uint256 value, uint64 gasLimit, bool isCreation, bytes memory data) = this.decode(hex"yourOpaqueDataHere");
 ```
 Check each value individually by typing the variable name into chisel and hitting enter:
-1. `_msgValue`: 0
-2. `_value`: 0
-3. `_gasLimit`: 200000
-4. `_isCreation`: false
-5. `_data`: `0x99a88ec40000000000000000000000004200000000000000000000000000000000000014000000000000000000000000c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d30014`
+1. `msgValue`: 0
+2. `value`: 0
+3. `gasLimit`: 200000
+4. `isCreation`: false
+5. `data`: `0x99a88ec40000000000000000000000004200000000000000000000000000000000000014000000000000000000000000c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d30014`
 
-Decode the `_data` bytes, this is the calldata for invoking the `upgrade` function on the L2 ProxyAdmin: 
+Decode the `data` bytes, this is the calldata for invoking the `upgrade` function on the L2 ProxyAdmin: 
 ```bash
 cast calldata-decode "upgrade(address,address)" yourDataHereWith0xPrefix
 ```
