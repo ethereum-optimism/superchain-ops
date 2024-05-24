@@ -123,15 +123,85 @@ The only other state change are two nonce increments:
 - One on the Council or Foundation safe (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B` for Foundation and `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977` for Council). If this is not decoded, it corresponds to key `0x05` on a `GnosisSafeProxy`.
 - One on the owner on the safe that sent the transaction.
 
-### Additional Checks To Perform
+## Additional Checks To Perform
 
-In the 'Overview' tab on Tenderly, check that the `depositTransaction` function is invoked with the arguments listed in the `input.json` i.e. 
+### Cross-chain upgrade
 
+This is a two step process, we want to:
+1. Validate L1 execution completed successfully
+2. Validate L2 execution completed successfully
+
+### L1 Execution validation
+
+On the Tenderly simulation, go to the 'Events' tab and look for the `TransactionDeposited` event.
+
+Decode the `opaqueData` property using chisel from Foundry: 
+
+Open chisel and declare the `opaqueData`:
 ```solidity
-depositTransaction(_to = 0x4200000000000000000000000000000000000018, _value = 0, _gasLimit = 200000, _isCreation = false, _data = 0x99a88ec40000000000000000000000004200000000000000000000000000000000000014000000000000000000000000c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d30014)
+bytes memory opaqueData = hex"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000030d400099a88ec40000000000000000000000004200000000000000000000000000000000000014000000000000000000000000c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d30014";
 ```
+Declare the function that'll decode the `opaqueData`:
+```solidity
+function decode(bytes memory opaqueData) public pure returns (uint256 _msgValue, uint256 _value, uint64 _gasLimit, bool _isCreation, bytes memory _data) {
+        uint256 offset = 0;
+        assembly {
+            _msgValue := mload(add(opaqueData, 32))
+        }
+        offset += 32;
 
-Also, check that the result of the following `cast` is equal to the bytes produced at `contractInputsValues._data` in `input.json`.
+        assembly {
+            _value := mload(add(opaqueData, add(32, offset)))
+        }
+        offset += 32;
+
+        assembly {
+            _gasLimit := mload(add(opaqueData, add(32, offset)))
+        }
+        offset += 8;
+
+        assembly {
+            _isCreation := byte(0, mload(add(opaqueData, add(32, offset))))
+        }
+        offset += 1;
+
+        uint256 dataLength = opaqueData.length - offset;
+        _data = new bytes(dataLength);
+        for (uint256 i = 0; i < dataLength; i++) {
+            _data[i] = opaqueData[offset + i];
+        }
+    }
 ```
-cast calldata "upgrade(address,address)" 0x4200000000000000000000000000000000000014 0xc0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d30014
+Decode the `opaqueData`.
+```solidity
+(uint256 _msgValue, uint256 _value, uint64 _gasLimit, bool _isCreation, bytes memory _data) = decode(opaqueData);
 ```
+Check each value individually:
+1. `_msgValue`: 0
+2. `_value`: 0
+3. `_gasLimit`: 18577348462903296
+4. `_isCreation`: false
+5. `_data`: `0x99a88ec40000000000000000000000004200000000000000000000000000000000000014000000000000000000000000c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3001400000000000000000000000000000000000000000000000000000000`
+Decode the `_data` bytes, this is the calldata for invoking the `upgrade` function on the L2 ProxyAdmin: 
+```bash
+cast calldata-decode "upgrade(address,address)" 0x99a88ec40000000000000000000000004200000000000000000000000000000000000014000000000000000000000000c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3001400000000000000000000000000000000000000000000000000000000
+```
+Notice the output is 2 addresses: 
+```solidity
+0x4200000000000000000000000000000000000014
+0xC0D3c0d3c0d3c0d3c0D3C0d3C0D3C0D3c0d30014
+```
+The first is the [`L2ERC721Bridge`](https://github.com/ethereum-optimism/optimism/blob/4c3f63de0995e4783a4ecce60ac48856954ce0c5/op-service/predeploys/addresses.go#L21) predeploy. The second is the current implementation address of this contract which you can check [onchain](https://sepolia-optimism.etherscan.io/address/0x4200000000000000000000000000000000000014#readProxyContract). Remember this is a no-op upgrade, so we don't actually want to change the implementation code.
+
+### L2 Execution validation
+
+Since Tenderly doesn't simulate the entire cross-chain interaction, this validation can only be confirmed _after_ execution. If the [*L1 Execution validation*](#l1-execution-validation) section was followed thoroughly, and there's not problems with the L2 chain deposit transaction flow, then we can assume this should work as expected. For absolute confirmation, preform the following post-execution checks. 
+
+**Post-Execution Checks**
+
+1. Find the L2 deposit transaction by identifying the alias of the L1 ProxyAdmin owner safe. You can use [chisel](https://book.getfoundry.sh/chisel/) to verify the aliasing result by invoking the `applyL1ToL2Alias` function. Refer to this code here: [`applyL1ToL2Alias`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/src/vendor/AddressAliasHelper.sol#L28).
+    ```bash
+    applyL1ToL2Alias(0x1Eb2fFc903729a0F03966B917003800b145F56E2) = 0x2FC3ffc903729a0f03966b917003800B145F67F3
+    ```
+2. The transaction you're looking for should be the most recent transaction sent from [`0x2FC3ffc903729a0f03966b917003800B145F67F3`](https://sepolia-optimism.etherscan.io/address/0x2FC3ffc903729a0f03966b917003800B145F67F3) on L2. If it's not, then it should be a _recent_ transaction from [`0x2FC3ffc903729a0f03966b917003800B145F67F3`](https://sepolia-optimism.etherscan.io/address/0x2FC3ffc903729a0f03966b917003800B145F67F3) that was interacting with the L1 ProxyAdmin Owner [`0x4200000000000000000000000000000000000018`](https://sepolia-optimism.etherscan.io/address/0x4200000000000000000000000000000000000018).
+3. Once you've found the correct transaction, verify that there a log event was emit, similar to this testnet [log event](https://sepolia-optimism.etherscan.io/tx/0x2c42b8fad843f49abde106afe888f94be5bef8dabf60238fc0a4893aef0ff9a9#eventlog). The implementation address in our case should be [`0xC0D3c0d3c0d3c0d3c0D3C0d3C0D3C0D3c0d30014`](https://sepolia-optimism.etherscan.io/address/0xC0D3c0d3c0d3c0d3c0D3C0d3C0D3C0D3c0d30014).
