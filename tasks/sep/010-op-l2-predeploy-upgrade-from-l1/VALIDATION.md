@@ -135,8 +135,7 @@ This is a two step process, we want to:
 
 On the Tenderly simulation, go to the 'Events' tab and look for the `TransactionDeposited` event.
 
-Decode the `opaqueData` property using chisel from Foundry: 
-
+Inside the `TransactionDeposited` event, find `opaqueData` and decode the property using [chisel](https://book.getfoundry.sh/chisel/) from Foundry.
 Open chisel and declare the function that'll decode the `opaqueData`:
 ```solidity
 function decode(bytes calldata opaqueData) public pure returns (uint256 msgValue, uint256 value, uint64 gasLimit, bool isCreation, bytes memory data) {
@@ -159,15 +158,15 @@ function decode(bytes calldata opaqueData) public pure returns (uint256 msgValue
     return (msgValue, value, gasLimit, isCreation, data);
 }
 ```
-Decode your `opaqueData` value (remove `0x`).
+Decode your `opaqueData` value (remove `0x`):
 ```solidity
 (uint256 msgValue, uint256 value, uint64 gasLimit, bool isCreation, bytes memory data) = this.decode(hex"yourOpaqueDataHere");
 ```
 Check each value individually by typing the variable name into chisel and hitting enter:
-1. `msgValue`: 0
-2. `value`: 0
-3. `gasLimit`: 200000
-4. `isCreation`: false
+1. `msgValue`: `0`
+2. `value`: `0`
+3. `gasLimit`: `200000`
+4. `isCreation`: `false`
 5. `data`: `0x99a88ec40000000000000000000000004200000000000000000000000000000000000014000000000000000000000000c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d30014`
 
 Decode the `data` bytes, this is the calldata for invoking the `upgrade` function on the L2 ProxyAdmin: 
@@ -180,7 +179,7 @@ Notice 2 addresses are output:
 0xC0D3c0d3c0d3c0d3c0D3C0d3C0D3C0D3c0d30014
 ```
 The first is the [`L2ERC721Bridge`](https://github.com/ethereum-optimism/optimism/blob/4c3f63de0995e4783a4ecce60ac48856954ce0c5/op-service/predeploys/addresses.go#L21) predeploy. 
-The second is the current implementation address of this contract which you can check [onchain](https://sepolia-optimism.etherscan.io/address/0x4200000000000000000000000000000000000014#readProxyContract). Remember this is a no-op upgrade, so we don't actually want to change the implementation code.
+The second is the current implementation address of the `L2ERC721Bridge` proxy contract which you can check [onchain](https://sepolia-optimism.etherscan.io/address/0x4200000000000000000000000000000000000014#readProxyContract). Remember this is a no-op upgrade, so we don't actually want to change the implementation code.
 
 ### L2 Execution validation
 
