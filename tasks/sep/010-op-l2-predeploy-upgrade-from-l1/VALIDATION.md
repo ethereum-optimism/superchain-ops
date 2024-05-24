@@ -137,55 +137,50 @@ On the Tenderly simulation, go to the 'Events' tab and look for the `Transaction
 
 Decode the `opaqueData` property using chisel from Foundry: 
 
-Open chisel and declare the `opaqueData`:
+Open chisel and declare the function that'll decode the `opaqueData`:
 ```solidity
-bytes memory opaqueData = hex"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000030d400099a88ec40000000000000000000000004200000000000000000000000000000000000014000000000000000000000000c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d30014";
-```
-Declare the function that'll decode the `opaqueData`:
-```solidity
-function decode(bytes memory opaqueData) public pure returns (uint256 _msgValue, uint256 _value, uint64 _gasLimit, bool _isCreation, bytes memory _data) {
+    function decode(bytes calldata opaqueData) public pure
+        returns (
+            uint256 _msgValue,
+            uint256 _value,
+            uint64 _gasLimit,
+            bool _isCreation,
+            bytes memory _data
+        )
+    {
         uint256 offset = 0;
-        assembly {
-            _msgValue := mload(add(opaqueData, 32))
-        }
+
+        _msgValue = uint256(bytes32(opaqueData[offset:offset + 32]));
         offset += 32;
 
-        assembly {
-            _value := mload(add(opaqueData, add(32, offset)))
-        }
+        _value = uint256(bytes32(opaqueData[offset:offset + 32]));
         offset += 32;
 
-        assembly {
-            _gasLimit := mload(add(opaqueData, add(32, offset)))
-        }
+        _gasLimit = uint64(bytes8(opaqueData[offset:offset + 8]));
         offset += 8;
 
-        assembly {
-            _isCreation := byte(0, mload(add(opaqueData, add(32, offset))))
-        }
-        offset += 1;
+        _isCreation = bytes1(opaqueData[offset]) != 0x00;
 
-        uint256 dataLength = opaqueData.length - offset;
-        _data = new bytes(dataLength);
-        for (uint256 i = 0; i < dataLength; i++) {
-            _data[i] = opaqueData[offset + i];
-        }
+        offset += 1;
+        _data = opaqueData[offset:];
+
+        return (_msgValue, _value, _gasLimit, _isCreation, _data);
     }
 ```
 Decode the `opaqueData`.
 ```solidity
-(uint256 _msgValue, uint256 _value, uint64 _gasLimit, bool _isCreation, bytes memory _data) = decode(opaqueData);
+(uint256 _msgValue, uint256 _value, uint64 _gasLimit, bool _isCreation, bytes memory _data) = this.decode(hex"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000030d400099a88ec40000000000000000000000004200000000000000000000000000000000000014000000000000000000000000c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d30014");
 ```
 Check each value individually:
 1. `_msgValue`: 0
 2. `_value`: 0
-3. `_gasLimit`: 18577348462903296
+3. `_gasLimit`: 200000
 4. `_isCreation`: false
-5. `_data`: `0x99a88ec40000000000000000000000004200000000000000000000000000000000000014000000000000000000000000c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3001400000000000000000000000000000000000000000000000000000000`
+5. `_data`: `0x99a88ec40000000000000000000000004200000000000000000000000000000000000014000000000000000000000000c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d30014`
 
 Decode the `_data` bytes, this is the calldata for invoking the `upgrade` function on the L2 ProxyAdmin: 
 ```bash
-cast calldata-decode "upgrade(address,address)" 0x99a88ec40000000000000000000000004200000000000000000000000000000000000014000000000000000000000000c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3001400000000000000000000000000000000000000000000000000000000
+cast calldata-decode "upgrade(address,address)" 0x99a88ec40000000000000000000000004200000000000000000000000000000000000014000000000000000000000000c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d30014
 ```
 Notice 2 addresses are output: 
 ```solidity
