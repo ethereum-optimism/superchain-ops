@@ -168,6 +168,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         require(ISemver(proxies.SystemConfig).version().eq("2.2.0"), "semver-600");
         require(ISemver(proxies.ProtocolVersions).version().eq("1.0.0"), "semver-800");
         require(ISemver(proxies.SuperchainConfig).version().eq("1.1.0"), "semver-900");
+        require(ISemver(proxies.DisputeGameFactory).version().eq("1.0.0"), "semver-1000");
     }
 
     /// @notice Asserts that the SystemConfig is setup correctly
