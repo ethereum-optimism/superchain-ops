@@ -155,7 +155,7 @@ jobs:
             just simulate-council
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
-    just_simulate_001_update_l2pao_to_aliased_l1pao:
+  just_simulate_001_update_l2pao_to_aliased_l1pao:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
 
