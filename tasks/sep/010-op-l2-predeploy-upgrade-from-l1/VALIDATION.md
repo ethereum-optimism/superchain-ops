@@ -182,20 +182,22 @@ Check each value individually:
 3. `_gasLimit`: 18577348462903296
 4. `_isCreation`: false
 5. `_data`: `0x99a88ec40000000000000000000000004200000000000000000000000000000000000014000000000000000000000000c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3001400000000000000000000000000000000000000000000000000000000`
+
 Decode the `_data` bytes, this is the calldata for invoking the `upgrade` function on the L2 ProxyAdmin: 
 ```bash
 cast calldata-decode "upgrade(address,address)" 0x99a88ec40000000000000000000000004200000000000000000000000000000000000014000000000000000000000000c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3001400000000000000000000000000000000000000000000000000000000
 ```
-Notice the output is 2 addresses: 
+Notice 2 addresses are output: 
 ```solidity
 0x4200000000000000000000000000000000000014
 0xC0D3c0d3c0d3c0d3c0D3C0d3C0D3C0D3c0d30014
 ```
-The first is the [`L2ERC721Bridge`](https://github.com/ethereum-optimism/optimism/blob/4c3f63de0995e4783a4ecce60ac48856954ce0c5/op-service/predeploys/addresses.go#L21) predeploy. The second is the current implementation address of this contract which you can check [onchain](https://sepolia-optimism.etherscan.io/address/0x4200000000000000000000000000000000000014#readProxyContract). Remember this is a no-op upgrade, so we don't actually want to change the implementation code.
+The first is the [`L2ERC721Bridge`](https://github.com/ethereum-optimism/optimism/blob/4c3f63de0995e4783a4ecce60ac48856954ce0c5/op-service/predeploys/addresses.go#L21) predeploy. 
+The second is the current implementation address of this contract which you can check [onchain](https://sepolia-optimism.etherscan.io/address/0x4200000000000000000000000000000000000014#readProxyContract). Remember this is a no-op upgrade, so we don't actually want to change the implementation code.
 
 ### L2 Execution validation
 
-Since Tenderly doesn't simulate the entire cross-chain interaction, this validation can only be confirmed _after_ execution. If the [*L1 Execution validation*](#l1-execution-validation) section was followed thoroughly, and there's not problems with the L2 chain deposit transaction flow, then we can assume this should work as expected. For absolute confirmation, preform the following post-execution checks. 
+Since Tenderly doesn't simulate the entire cross-chain interaction, this validation can only be confirmed after execution. If the [*L1 Execution validation*](#l1-execution-validation) section was followed thoroughly and there are no issues with the L2 chain deposit transaction flow, then it should work as expected. However, for absolute confirmation, perform the following post-execution checks.
 
 **Post-Execution Checks**
 
