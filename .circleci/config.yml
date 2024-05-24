@@ -166,12 +166,12 @@ jobs:
           command: |
             go install github.com/mikefarah/yq/v4@latest
             just install
-            cd tasks/opsep/001-update-l2pao-to-aliased-l1pao
+            cd tasks/sep/006-1-sc-changes
             export SIMULATE_WITHOUT_LEDGER=1
             just \
               --dotenv-path .env \
-              --justfile ../../../nested.just \
-              simulate council
+              --justfile ../../../single.just \
+              simulate
 
   forge_test:
     docker:
