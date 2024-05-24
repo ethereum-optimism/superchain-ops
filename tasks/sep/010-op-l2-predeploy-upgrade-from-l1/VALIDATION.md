@@ -58,6 +58,12 @@ And we do indeed see these entries:
 
 ## State Changes
 
+### `0x16fc5058f25648194471939df75cf27a2fdc48bc` (`OptimismPortal`)
+
+- `prevBoughtGas`: value increases (depends on execution) 
+- `prevBlockNum`: value increases (depends on execution) 
+
+
 ### `0x1Eb2fFc903729a0F03966B917003800b145F56E2` (The 2/2 `ProxyAdmin` Owner)
 
 State Changes:
