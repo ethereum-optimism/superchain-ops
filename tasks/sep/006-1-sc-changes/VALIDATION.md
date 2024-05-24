@@ -38,17 +38,17 @@ Links:
 
 The following two changes are both updates to the `modules` mapping, which is in [slot 1](https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L10).
 
-**Key:** `0x17ecfd82d924357693965bec7aa8c5d9a3d70f9cf442f2324ab6a67dde8e93aa` <br/>
+**Key:** `0x33da99a51c1b688d5178595aac5396d1190fb91dc97bd61605c54cce5a81e8f8` <br/>
 **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
 **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
-**Meaning:** The `DeputyGuardianModule` at [`0x7dF9594B205041Ea4917cb047Dc20F84dfe297c7`](https://sepolia.etherscan.io/address/0x7dF9594B205041Ea4917cb047Dc20F84dfe297c7) is now pointing to the sentinel module at `0x01`.
-  This is `modules[0x7dF9594B205041Ea4917cb047Dc20F84dfe297c7]`, so the key can be
-    derived from `cast index address 0x7dF9594B205041Ea4917cb047Dc20F84dfe297c7 1`.
+**Meaning:** The `DeputyGuardianModule` at [`0x4220C5deD9dC2C8a8366e684B098094790C72d3c`](https://sepolia.etherscan.io/address/0x4220C5deD9dC2C8a8366e684B098094790C72d3c) is now pointing to the sentinel module at `0x01`.
+  This is `modules[0x4220C5deD9dC2C8a8366e684B098094790C72d3c]`, so the key can be
+    derived from `cast index address 0x4220C5deD9dC2C8a8366e684B098094790C72d3c 1`.
 
 **Key:** `0xcc69885fda6bcc1a4ace058b4a62bf5e179ea78fd58a1ccd71c22cc9b688792f` <br/>
 **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
 **After:** `0x0000000000000000000000007df9594b205041ea4917cb047dc20f84dfe297c7` <br/>
-**Meaning:** The sentinel module (`address(0x01)`) is now pointing to the `DeputyGuardianModule` at [`0x7dF9594B205041Ea4917cb047Dc20F84dfe297c7`](https://sepolia.etherscan.io/address/0x7dF9594B205041Ea4917cb047Dc20F84dfe297c7).
+**Meaning:** The sentinel module (`address(0x01)`) is now pointing to the `DeputyGuardianModule` at [`0x4220C5deD9dC2C8a8366e684B098094790C72d3c`](https://sepolia.etherscan.io/address/0x4220C5deD9dC2C8a8366e684B098094790C72d3c).
   This is `modules[0x1]`, so the key can be
     derived from `cast index address 0x0000000000000000000000000000000000000001 1`.
 
