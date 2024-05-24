@@ -61,11 +61,17 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     // Verify against the `DisputeGameFactoryProxy` in the Fault Proofs governance post - https://gov.optimism.io/t/upgrade-proposal-fault-proofs/8161
     address constant dgfProxy = 0xe5965Ab5962eDc7477C8520243A95517CD252fA9;
 
+    address councilSafe;
+    address foundationSafe;
+
     Types.ContractSet proxies;
 
     /// @notice Sets up the contract
     function setUp() public {
         proxies = _getContractSet();
+
+        councilSafe = vm.envAddress("COUNCIL_SAFE");
+        foundationSafe = vm.envAddress("FOUNDATION_SAFE");
     }
 
     function getCodeExceptions() internal pure override returns (address[] memory) {
@@ -114,7 +120,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         _proxies.ProtocolVersions = stdJson.readAddress(addressesJson, "$.protocol_versions_addr");
         _proxies.SuperchainConfig = stdJson.readAddress(addressesJson, "$.superchain_config_addr");
     }
- 
+
     function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory simPayload)
         internal
         view
@@ -133,7 +139,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
         super.checkStateDiff(accountAccesses);
 
-        // Assert that no other OP Contracts other than the SystemConfig and the OptimismPortal are accessed
+        // Assert that only the SystemConfig, OptimismPortal and various safes storage are written to
         for (uint256 i; i < accountAccesses.length; i++) {
             Vm.AccountAccess memory accountAccess = accountAccesses[i];
             require(
@@ -147,12 +153,14 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
             for (uint256 j; j < accountAccess.storageAccesses.length; j++) {
                 Vm.StorageAccess memory storageAccess = accountAccess.storageAccesses[j];
-
-                address account = storageAccess.account;
-                require(account != proxies.L1CrossDomainMessenger, "state-000");
-                require(account != proxies.L1ERC721Bridge, "state-100");
-                require(account != proxies.L1StandardBridge, "state-200");
-                require(account != proxies.OptimismMintableERC20Factory, "state-300");
+                if (storageAccess.isWrite) {
+                    address account = storageAccess.account;
+                    require(
+                        account == _ownerSafe() || account == councilSafe || account == foundationSafe
+                            || account == proxies.SystemConfig || account == proxies.OptimismPortal,
+                        "state-000"
+                    );
+                }
             }
         }
     }
@@ -226,7 +234,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         require(EIP1967Helper.getImplementation(configToCheck.disputeGameFactory()).code.length != 0, "2302");
 
         // Ensure that the old l2outputoracle slot is cleared
-        bytes32 l2OutputOracleSlot = vm.load(address(configToCheck), bytes32(uint256(keccak256("systemconfig.l2outputoracle")) - 1));
+        bytes32 l2OutputOracleSlot =
+            vm.load(address(configToCheck), bytes32(uint256(keccak256("systemconfig.l2outputoracle")) - 1));
         require(address(uint160(uint256(l2OutputOracleSlot))) == address(0), "2400");
     }
 
