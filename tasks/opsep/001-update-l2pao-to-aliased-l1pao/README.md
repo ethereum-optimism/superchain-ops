@@ -1,6 +1,6 @@
 # Op Sepolia - Update L2ProxyAdmin owner to be aliased L1ProxyAdmin owner address
 
-Status: [EXECUTED](https://sepolia-optimism.etherscan.io/tx/0x06953e9fa4f05c9c074749c0d702647a67348d44f83c43948a7c8437e581f790#eventlog)
+Status: [EXECUTED](https://sepolia-optimism.etherscan.io/tx/0x06953e9fa4f05c9c074749c0d702647a67348d44f83c43948a7c8437e581f790)
 
 ## Objective
 
