@@ -105,7 +105,7 @@
     {
       "metadata": {
         "name": "Upgrade SystemConfig to StorageSetter",
-        "description": ""
+        "description": "Upgrades the `SystemConfig` proxy to the `StorageSetter` contract in preparation for clearing the legacy `L2OutputOracle` storage slot and set the new `DisputeGameFactory` storage slot to contain the address of the `DisputeGameFactory` proxy."
       },
       "to": "0x543ba4aadbab8f9025686bd03993043599c6fb04",
       "value": "0x0",
