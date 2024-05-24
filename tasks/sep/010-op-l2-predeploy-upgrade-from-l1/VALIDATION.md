@@ -180,7 +180,7 @@ Check each value individually by typing the variable name into chisel and hittin
 
 Decode the `_data` bytes, this is the calldata for invoking the `upgrade` function on the L2 ProxyAdmin: 
 ```bash
-cast calldata-decode "upgrade(address,address)" 0x99a88ec40000000000000000000000004200000000000000000000000000000000000014000000000000000000000000c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d3c0d30014
+cast calldata-decode "upgrade(address,address)" yourDataHereWith0xPrefix
 ```
 Notice 2 addresses are output: 
 ```solidity
