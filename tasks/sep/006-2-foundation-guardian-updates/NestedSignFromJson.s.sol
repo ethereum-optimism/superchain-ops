@@ -23,6 +23,7 @@ import {stdJson} from "forge-std/StdJson.sol";
 import {Vm, VmSafe} from "forge-std/Vm.sol";
 import {LibString} from "solady/utils/LibString.sol";
 import {GnosisSafe} from "safe-contracts/GnosisSafe.sol";
+import {ModuleManager} from "safe-contracts/base/ModuleManager.sol";
 
 // Interface used to read various data from contracts. This is an aggregation of methods from
 // various protocol contracts for simplicity, and does not map to the full ABI of any single contract.
@@ -76,20 +77,24 @@ interface IProxyAdminView {
 contract NestedSignFromJson is OriginalNestedSignFromJson {
     using LibString for string;
 
+    address internal constant SENTINEL_MODULE = address(0x1);
+    bytes32 internal constant GUARD_STORAGE_SLOT = 0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8;
+
     // Chains for this task.
     string constant l1ChainName = "sepolia";
     string constant l2ChainName = "op";
 
     // Safe contract for this task.
     GnosisSafe securityCouncilSafe = GnosisSafe(payable(0xf64bc17485f0B4Ea5F06A96514182FC4cB561977));
-    GnosisSafe foundationSafe = GnosisSafe(payable(0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B));
+    GnosisSafe expectedGuardian = GnosisSafe(payable(0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E));
+    GnosisSafe foundationUpgradesSafe = GnosisSafe(payable(0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B));
+    GnosisSafe foundationOperationsSafe = GnosisSafe(payable(0x837DE453AD5F21E89771e3c06239d8236c0EFd5E));
     GnosisSafe proxyAdminOwnerSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
 
     // Contracts we need to check, which are not in the superchain registry
-    IDeputyGuardianModuleFetcher deputyGuardianModule =
-        IDeputyGuardianModuleFetcher(0xed12261735aD411A40Ea092FF4701a962d25cA21);
-    ILivenessGuardFetcher livenessGuard = ILivenessGuardFetcher(0x4416c7Fe250ee49B5a3133146A0BBB8Ec0c6A321);
-    ILivenessModuleFetcher livenessModule = ILivenessModuleFetcher(0x812B1fa86bE61a787705C49fc0fb05Ef50c8FEDf);
+    IDeputyGuardianModuleFetcher deputyGuardianModule;
+    ILivenessGuardFetcher livenessGuard;
+    ILivenessModuleFetcher livenessModule;
 
     // Known EOAs to exclude from safety checks.
     address constant l2OutputOracleProposer = 0x49277EE36A024120Ee218127354c4a3591dc90A9; // cast call $L2OO "PROPOSER()(address)"
@@ -133,6 +138,16 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     /// @notice Sets up the contract
     function setUp() public {
         proxies = _getContractSet();
+
+        (, address _deputyGuardianModule) = ModuleManager(expectedGuardian).getModulesPaginated(SENTINEL_MODULE, 2);
+        deputyGuardianModule = IDeputyGuardianModuleFetcher(_deputyGuardianModule);
+
+        (, address _livenessModule) = ModuleManager(securityCouncilSafe).getModulesPaginated(SENTINEL_MODULE, 2);
+        livenessModule = ILivenessModuleFetcher(_livenessModule);
+
+        bytes32 _livenessGuard = vm.load(address(securityCouncilSafe), GUARD_STORAGE_SLOT);
+        livenessGuard = ILivenessGuardFetcher(address(uint160(uint256(_livenessGuard))));
+
 
         // Fetch variables that are not expected to change from an older block.
         initialFork = vm.activeFork();
@@ -400,13 +415,13 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
         // See sepolia.json for config values being verified:
         // https://github.com/ethereum-optimism/optimism/pull/10224/files
-        require(livenessModule.version().eq("1.1.0"), "checkLivenessModule-000");
+        require(livenessModule.version().eq("1.2.0"), "checkLivenessModule-000");
         require(livenessModule.safe() == address(securityCouncilSafe), "checkLivenessModule-100");
         require(livenessModule.livenessGuard() == address(livenessGuard), "checkLivenessModule-200");
         require(livenessModule.livenessInterval() == 31536000, "checkLivenessModule-300");
         require(livenessModule.minOwners() == 2, "checkLivenessModule-400");
         require(livenessModule.thresholdPercentage() == 20, "checkLivenessModule-500");
-        require(livenessModule.fallbackOwner() == address(foundationSafe), "checkLivenessModule-600");
+        require(livenessModule.fallbackOwner() == address(foundationUpgradesSafe), "checkLivenessModule-600");
     }
 
     function checkLivenessGuard() internal view {
@@ -419,8 +434,10 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     function checkDeputyGuardianModule() internal view {
         console.log("Running assertions on the DeputyGuardianModule");
 
-        require(deputyGuardianModule.version().eq("1.0.0"), "checkDeputyGuardianModule-000");
-        require(deputyGuardianModule.deputyGuardian() == address(foundationSafe), "checkDeputyGuardianModule-100");
+        require(deputyGuardianModule.version().eq("1.1.0"), "checkDeputyGuardianModule-000");
+        require(
+            deputyGuardianModule.deputyGuardian() == address(foundationUpgradesSafe), "checkDeputyGuardianModule-100"
+        );
         require(deputyGuardianModule.safe() == address(securityCouncilSafe), "checkDeputyGuardianModule-200");
         require(
             deputyGuardianModule.superchainConfig() == address(proxies.SuperchainConfig),
@@ -441,14 +458,50 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         address proxyAdminOwner = ProxyAdmin(proxyAdmin).owner();
         require(proxyAdminOwner == address(proxyAdminOwnerSafe), "checkProxyAdminOwnerSafe-260");
 
-        require(proxyAdminOwnerSafe.isOwner(address(foundationSafe)), "checkProxyAdminOwnerSafe-300");
+        require(proxyAdminOwnerSafe.isOwner(address(foundationUpgradesSafe)), "checkProxyAdminOwnerSafe-300");
         require(proxyAdminOwnerSafe.isOwner(address(securityCouncilSafe)), "checkProxyAdminOwnerSafe-400");
+    }
+
+    function checkOwnershipModel() internal {
+        console.log("Running assertions on the OwnershipModel");
+        // After this upgrade, the resulting ownership model of the protocol should look like this:
+        //   - The Guardian on the superchain config is the 1/1 Security Council Safe.
+        //   - The 1/1 SC Safe has the Deputy Guardian Module installed with the Foundation
+        //     Operations Safe as the Deputy Guardian.
+        //   - The L1 ProxyAdmin owner is a 2/2 Safe between the Security Council Safe and the
+        //     Foundation Upgrades Safe.
+        address guardian = SuperchainConfig(proxies.SuperchainConfig).guardian();
+
+        // Check 1. The Guardian on the superchain config is the 1/1 Security Council Safe.
+        // This check will fail when we run approveJson, since it's dependent on a state change
+        // occurring, so we skip it in that case.
+        if (msg.sig != bytes4(keccak256("approveJson(string,address,bytes)"))) {
+            require(guardian == address(expectedGuardian), "checkOwnershipModel-100");
+            address[] memory securityCouncilGuardianOwners = GnosisSafe(payable(guardian)).getOwners();
+            require(securityCouncilGuardianOwners.length == 1, "checkOwnershipModel-200");
+            require(securityCouncilGuardianOwners[0] == address(securityCouncilSafe), "checkOwnershipModel-300");
+        }
+
+        // Check 2. The 1/1 SC Safe has the Deputy Guardian Module installed with the Foundation
+        // Operations Safe as the Deputy Guardian.
+        (, address nextModule) = ModuleManager(guardian).getModulesPaginated(SENTINEL_MODULE, 2);
+        address deputyGuardian = IDeputyGuardianModuleFetcher(nextModule).deputyGuardian();
+        require(deputyGuardian == address(foundationOperationsSafe), "checkOwnershipModel-400");
+
+        // Check 3. The L1 ProxyAdmin owner is a 2/2 Safe between the Security Council Safe and the
+        // Foundation Upgrades Safe.
+        vm.prank(address(0));
+        address proxyAdmin = IProxyAdminView(payable(proxies.SystemConfig)).admin();
+        address proxyAdminOwner = ProxyAdmin(proxyAdmin).owner();
+        require(proxyAdminOwner == address(proxyAdminOwnerSafe), "checkOwnershipModel-500");
+
+        require(proxyAdminOwnerSafe.isOwner(address(foundationUpgradesSafe)), "checkOwnershipModel-600");
+        require(proxyAdminOwnerSafe.isOwner(address(securityCouncilSafe)), "checkOwnershipModel-700");
     }
 
     /// @notice Checks the correctness of the deployment
     function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory /* simPayload */ )
         internal
-        view
         override
     {
         console.log("Running post-deploy assertions");
@@ -469,6 +522,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         checkLivenessModule();
         checkLivenessGuard();
         checkDeputyGuardianModule();
+        checkOwnershipModel();
 
         console.log("All assertions passed!");
     }
