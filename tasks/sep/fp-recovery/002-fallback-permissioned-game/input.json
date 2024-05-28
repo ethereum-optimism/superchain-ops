@@ -1,0 +1,33 @@
+{
+  "chainId": 11155111,
+  "metadata": {
+    "name": "Guardian - Fall back to `PermissionedDisputeGame`",
+    "description": "This batch udates the `respectedGameType` to `PERMISSIONED_CANNON` in the `OptimismPortal`. This action requires all in-progress withdrawals to be re-proven against a new `PermissionedDisputeGame` that was created after this update occurs."
+  },
+  "transactions": [
+    {
+      "metadata": {
+        "name": "Update `respectedGameType` in the `OptimismPortal`",
+        "description": "Updates the `respectedGameType` to `PERMISSIONED_CANNON` in the `OptimismPortal`, enabling permissioned proposals and challenging."
+      },
+      "to": "0x16fc5058f25648194471939df75cf27a2fdc48bc",
+      "value": "0x0",
+      "data": "0x7fc485040000000000000000000000000000000000000000000000000000000000000001",
+      "contractMethod": {
+        "type": "function",
+        "name": "setRespectedGameType",
+        "inputs": [
+          {
+            "name": "_gameType",
+            "type": "uint32"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_gameType": "1"
+      }
+    }
+  ]
+}
