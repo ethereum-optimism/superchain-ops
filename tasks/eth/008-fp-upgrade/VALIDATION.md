@@ -65,7 +65,6 @@ State Changes:
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After**: [`0x000000000000000000000000e5965ab5962edc7477c8520243a95517cd252fa9`](https://etherscan.io/address/0xe5965ab5962edc7477c8520243a95517cd252fa9) <br/>
   **Meaning**: Sets the `DisputeGameFactoryProxy` address in the proxy storage. Consult the [gov proposal](https://gov.optimism.io/t/final-protocol-upgrade-7-fault-proofs/8161) for the proxy addreess value.
-One can verify that this change was made by running `cast call 0xbeb5fc579115071764c7423a4f12edde41f106ed 'disputeGameFactory()(address)' https://ethereum.publicnode.com`
 
 - **Key:** [`0x000000000000000000000000000000000000000000000000000000000000003b`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0-rc.4/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal2.json#L101C1-L113C5) <br/>
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
