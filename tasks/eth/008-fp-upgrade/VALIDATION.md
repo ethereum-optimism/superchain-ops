@@ -73,6 +73,23 @@ One can verify that this change was made by running `cast call 0xbeb5fc579115071
   **Meaning**: Sets the `respectedGameType` and `respectedGameTypeUpdatedAt` slot.
 The `respectedGameType` is 32-bits wide at offset 0 which should be set to 0 (i.e. [`CANNON`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0-rc.4/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28)).
 The `respectedGameTypeUpdatedAt` is 64-bits wide and offset by `4` on that slot. It should be equivalent to the unix timestamp of the block the upgrade was executed.
+You can extract the offset values from the slot using `chisel`:
+```
+➜ uint256 x = 0x000000000000000000000000000000000000000000000000664f90d500000000
+➜ uint64 respectedGameTypeUpdatedAt = uint64(x >> 32)
+➜ respectedGameTypeUpdatedAt
+Type: uint64
+├ Hex: 0x00000000664f90d5
+├ Hex (full word): 0x00000000000000000000000000000000000000000000000000000000664f90d5
+└ Decimal: 1716490453
+➜
+➜ uint32 respectedGameType = uint32(x & 0xFFFFFFFF)
+➜ respectedGameType
+Type: uint32
+├ Hex: 0x
+├ Hex (full word): 0x0
+└ Decimal: 0
+```
 
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
   **Before**: `0x0000000000000000000000002d778797049fe9259d947d1ed8e5442226dfb589` <br/>
