@@ -11,6 +11,14 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ## State Changes
 
+**Notes:**
+- The value `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` occurs
+  multiple times below, and corresponds to the storage key of the implementation address as defined
+  in
+  [Proxy.sol](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0-rc.4/packages/contracts-bedrock/src/universal/Proxy.sol#L104)
+  and
+  [Constants.sol](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0-rc.4/packages/contracts-bedrock/src/libraries/Constants.sol#L26-L27).
+
 ### `0x229047fed2591dbec1ef1118d64f7af3db9eb290` (`SystemConfigProxy`)
 
 Links:
@@ -20,18 +28,28 @@ Links:
 State Changes:
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
   **Before:** `0x000000000000000000000000ba2492e52f45651b60b8b38d4ea5e2390c64ffb1` <br/>
-  **After:** `0x000000000000000000000000f56d96b2535b932656d3c04ebf51babff241d886` <br/>
-  **Meaning:** This upgrades the SystemConfig implementation. Verify that the new `SystemConfig` implementation is stoored at the eip1967 proxy implementation slot.
+  **After:** [`0x000000000000000000000000f56d96b2535b932656d3c04ebf51babff241d886`](https://etherscan.io/address/0xf56d96b2535b932656d3c04ebf51babff241d886) <br/>
+  **Meaning:** This upgrades the SystemConfig implementation. Verify that the new `SystemConfig` implementation is stored at the eip1967 proxy implementation slot.
 
 - **Key**: `0x52322a25d9f59ea17656545543306b7aef62bc0cc53a0e65ccfa0c75b97aa906`
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000`
-  **After**: `0x000000000000000000000000e5965ab5962edc7477c8520243a95517cd252fa9`
-  **Meaning**: Sets the [DisputeGameFactory slot](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0-rc.4/packages/contracts-bedrock/src/L1/SystemConfig.sol#L76). Verify that the `Key` matches the expected slot.
+  **After**: [`0x000000000000000000000000e5965ab5962edc7477c8520243a95517cd252fa9`](https://etherscan.io/address/0xe5965ab5962edc7477c8520243a95517cd252fa9)
+  **Meaning**: Sets the [DisputeGameFactory slot](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0-rc.4/packages/contracts-bedrock/src/L1/SystemConfig.sol#L76). You can verify the correctnes of the storage slots with `chisel`. Just start it up and enter the slot definitions as found in the contract source code.
+  ```
+  ➜ bytes32(uint256(keccak256("systemconfig.disputegamefactory")) - 1)
+  Type: bytes32
+  └ Data: 0x52322a25d9f59ea17656545543306b7aef62bc0cc53a0e65ccfa0c75b97aa906
+  ```
 
 - **Key**: `0xe52a667f71ec761b9b381c7b76ca9b852adf7e8905da0e0ad49986a0a6871815`
   **Before**: `0x000000000000000000000000dfe97868233d1aa22e815a266982f2cf17685a27`
   **After**: `0x0000000000000000000000000000000000000000000000000000000000000000`
-  **Meaning**: Clears the old and unused [L2OutputOracle slot](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/src/L1/SystemConfig.sol#L63). Verify that the `Key` matches the expected slot.
+  **Meaning**: Clears the old and unused [L2OutputOracle slot](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/src/L1/SystemConfig.sol#L63). You can verify the correctnes of the storage slots with `chisel`. Just start it up and enter the slot definitions as found in the contract source code.
+  ```
+  ➜ bytes32(uint256(keccak256("systemconfig.l2outputoracle")) - 1)
+  Type: bytes32
+  └ Data: 0xe52a667f71ec761b9b381c7b76ca9b852adf7e8905da0e0ad49986a0a6871815 
+  ```
 
 
 ### `0xbeb5fc579115071764c7423a4f12edde41f106ed` (`OptimismPortalProxy`)
@@ -45,7 +63,7 @@ Upgrades the `OptimismPortal` to the `OptimismPortal2` implementation.
 State Changes:
 - **Key:** [`0x0000000000000000000000000000000000000000000000000000000000000038`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0-rc.4/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal2.json#L80C1-L85C5) <br/>
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After**: `0x000000000000000000000000e5965ab5962edc7477c8520243a95517cd252fa9` <br/>
+  **After**: [`0x000000000000000000000000e5965ab5962edc7477c8520243a95517cd252fa9`](https://etherscan.io/address/0xe5965ab5962edc7477c8520243a95517cd252fa9) <br/>
   **Meaning**: Sets the `DisputeGameFactoryProxy` address in the proxy storage. Consult the [gov proposal](https://gov.optimism.io/t/final-protocol-upgrade-7-fault-proofs/8161) for the proxy addreess value.
 One can verify that this change was made by running `cast call 0xbeb5fc579115071764c7423a4f12edde41f106ed 'disputeGameFactory()(address)' https://ethereum.publicnode.com`
 
@@ -58,5 +76,5 @@ The `respectedGameTypeUpdatedAt` is 64-bits wide and offset by `4` on that slot.
 
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
   **Before**: `0x0000000000000000000000002d778797049fe9259d947d1ed8e5442226dfb589` <br/>
-  **After**: `0x000000000000000000000000e2f826324b2faf99e513d16d266c3f80ae87832b` <br/>
+  **After**: [`0x000000000000000000000000e2f826324b2faf99e513d16d266c3f80ae87832b`](https://etherscan.io/address/0xe2f826324b2faf99e513d16d266c3f80ae87832b) <br/>
   **Meaning**: Sets the eip1967 proxy implementation slot to the `OptimismPortal2` implementation.

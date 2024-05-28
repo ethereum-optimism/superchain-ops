@@ -12,14 +12,14 @@ Governance post of the Fault Proofs upgrade can be found at https://gov.optimism
 1. Upgrades the `OptimismPortal` proxy implementation.
 1. Upgrades the `SystemConfig` proxy implementation.
 
-Details on the upgrade procedure can be found in [EXEC.md](./EXEC.md).
+Details on the upgrade procedure can be found in [EXEC.md](./EXEC.md). Signers need not validate the, but they are provided for reference.
 
 ## Preparing the Upgrade
 
 The contract implementations and new proxies for the Fault Proof system have been pre-deployed to mainnet.
 
-- "AnchorStateRegistry": "0x6B7da1647Aa9684F54B2BEeB699F91F31cd35Fb9",
-- "AnchorStateRegistryProxy": "0x18DAc71c228D1C32c99489B7323d441E1175e443",
+- `AnchorStateRegistry`: `0x6B7da1647Aa9684F54B2BEeB699F91F31cd35Fb9`,
+- `AnchorStateRegistryProxy`: `0x18DAc71c228D1C32c99489B7323d441E1175e443`,
 - `DelayedWETH`: `0x97988d5624F1ba266E1da305117BCf20713bee08`
 - `DelayedWETHProxy`: `0xE497B094d6DbB3D5E4CaAc9a14696D7572588d14`
 - `DisputeGameFactory`: `0xc641A33cab81C559F2bd4b21EA34C290E2440C2B`
