@@ -394,7 +394,7 @@ contract SignFromJson is OriginalSignFromJson {
         require(livenessModule.livenessGuard() == address(livenessGuard), "checkLivenessModule-200");
         require(livenessModule.livenessInterval() == 62899200, "checkLivenessModule-300");
         require(livenessModule.minOwners() == 2, "checkLivenessModule-400");
-        require(livenessModule.thresholdPercentage() == 20, "checkLivenessModule-500");
+        require(livenessModule.thresholdPercentage() == 30, "checkLivenessModule-500");
         require(livenessModule.fallbackOwner() == address(foundationUpgradesSafe), "checkLivenessModule-600");
     }
 
