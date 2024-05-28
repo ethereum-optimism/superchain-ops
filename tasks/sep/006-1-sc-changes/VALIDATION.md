@@ -70,22 +70,22 @@ Links:
 **Key:** `0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8` <br/>
 **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
 **After:** `0x0000000000000000000000004416c7fe250ee49b5a3133146a0bbb8ec0c6a321` <br/>
-**Meaning:** The `LivenessGuard` address is set to [0x1A2114e5Ca491b919561cd118279040Ab4a1BA4a](https://sepolia.etherscan.io/address/0x1A2114e5Ca491b919561cd118279040Ab4a1BA4a). The key can be validated by the key in the [Guard Manager](https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/base/GuardManager.sol#L30).
+**Meaning:** The `LivenessGuard` address is set to [0xc26977310bC89DAee5823C2e2a73195E85382cC7](https://sepolia.etherscan.io/address/0xc26977310bC89DAee5823C2e2a73195E85382cC7). The key can be validated by the key in the [Guard Manager](https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/base/GuardManager.sol#L30).
 
 The following two changes are both updates to the `modules` mapping, which is in [slot 1](https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L10).
 
 **Key:** `0xcc69885fda6bcc1a4ace058b4a62bf5e179ea78fd58a1ccd71c22cc9b688792f` <br/>
 **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
-**After:** `0x000000000000000000000000e4391ba3911299b7a8c0e361ef763190ce4f6222` <br/>
-**Meaning:** The sentinel module (`address(0x01)`) is now pointing to the `LivenessModule` at [`0xe4391Ba3911299b7A8C0e361EF763190Ce4f6222`](https://sepolia.etherscan.io/address/0xe4391Ba3911299b7A8C0e361EF763190Ce4f6222).
+**After:** `0x000000000000000000000000eb3ef34acf1a6c1630807495bcc07ed3e7b0177e` <br/>
+**Meaning:** The sentinel module (`address(0x01)`) is now pointing to the `LivenessModule` at [`0xEB3eF34ACF1a6C1630807495bCC07ED3e7B0177e`](https://sepolia.etherscan.io/address/0xEB3eF34ACF1a6C1630807495bCC07ED3e7B0177e).
   This is `modules[0x1]`, so the key can be
     derived from `cast index address 0x0000000000000000000000000000000000000001 1`.
 
 **Key:** `0xd94b9fe9ff6b9f2bdd33e60c54ffff22143c4794aae3d24091fa3ef8ace26714` <br/>
 **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
 **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
-**Meaning:** The `LivenessModule` at [`0xe4391Ba3911299b7A8C0e361EF763190Ce4f6222`](https://sepolia.etherscan.io/address/0xe4391Ba3911299b7A8C0e361EF763190Ce4f6222) is now pointing to the sentinel module at `0x01`.
-  This is `modules[0xe4391Ba3911299b7A8C0e361EF763190Ce4f6222]`, so the key can be
-    derived from `cast index address 0xe4391Ba3911299b7A8C0e361EF763190Ce4f6222 1`.
+**Meaning:** The `LivenessModule` at [`0xEB3eF34ACF1a6C1630807495bCC07ED3e7B0177e`](https://sepolia.etherscan.io/address/0xEB3eF34ACF1a6C1630807495bCC07ED3e7B0177e) is now pointing to the sentinel module at `0x01`.
+  This is `modules[0xEB3eF34ACF1a6C1630807495bCC07ED3e7B0177e]`, so the key can be
+    derived from `cast index address 0xEB3eF34ACF1a6C1630807495bCC07ED3e7B0177e 1`.
 
 The only other state change is a nonce increment for the EOA which sent the transaction.

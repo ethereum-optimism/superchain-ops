@@ -83,8 +83,8 @@ contract SignFromJson is OriginalSignFromJson {
 
     // Contracts we need to check, which are not in the superchain registry
     address expectedDeputyGuardianModule = 0x4220C5deD9dC2C8a8366e684B098094790C72d3c;
-    address expectedLivenessModule = 0xe4391Ba3911299b7A8C0e361EF763190Ce4f6222;
-    address expectedLivenessGuard = 0x1A2114e5Ca491b919561cd118279040Ab4a1BA4a;
+    address expectedLivenessModule = 0xEB3eF34ACF1a6C1630807495bCC07ED3e7B0177e;
+    address expectedLivenessGuard = 0xc26977310bC89DAee5823C2e2a73195E85382cC7;
 
     // We fetch these and compare them to the expected values.
     IDeputyGuardianModuleFetcher deputyGuardianModule;
@@ -439,15 +439,18 @@ contract SignFromJson is OriginalSignFromJson {
     }
 
     function checkOwnershipConfiguration() internal {
-        (address[] memory modules,) = ModuleManager(guardianSafe).getModulesPaginated(SENTINEL_MODULE, 3);
+        (address[] memory modules, address nextModule) =
+            ModuleManager(guardianSafe).getModulesPaginated(SENTINEL_MODULE, 1);
         deputyGuardianModule = IDeputyGuardianModuleFetcher(modules[0]);
         require(modules.length == 1, "checkOwnershipConfiguration-50");
         require(address(deputyGuardianModule) == expectedDeputyGuardianModule, "checkOwnershipConfiguration-100");
+        require(nextModule == SENTINEL_MODULE, "checkOwnershipConfiguration-125");
 
-        (modules,) = ModuleManager(securityCouncilSafe).getModulesPaginated(SENTINEL_MODULE, 2);
+        (modules, nextModule) = ModuleManager(securityCouncilSafe).getModulesPaginated(SENTINEL_MODULE, 1);
         livenessModule = ILivenessModuleFetcher(modules[0]);
         require(modules.length == 1, "checkOwnershipConfiguration-150");
         require(address(livenessModule) == expectedLivenessModule, "checkOwnershipConfiguration-200");
+        require(nextModule == SENTINEL_MODULE, "checkOwnershipConfiguration-225");
 
         bytes32 _livenessGuard = vm.load(address(securityCouncilSafe), GUARD_STORAGE_SLOT);
         livenessGuard = ILivenessGuardFetcher(address(uint160(uint256(_livenessGuard))));

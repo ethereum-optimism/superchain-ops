@@ -14,8 +14,8 @@ There are two Safes controlled by the Security Council:
 The following state changes will be made to those Safes:
 
 1. On the Security Council safe, increase the threshold to 30% (from 2/10 to 3/10)
-2. On the Security Council safe, set the `LivenessGuard` at `0x1A2114e5Ca491b919561cd118279040Ab4a1BA4a`.
-3. On the Security Council safe, enable the `LivenessModule` at `0xe4391Ba3911299b7A8C0e361EF763190Ce4f6222`.
+2. On the Security Council safe, set the `LivenessGuard` at `0xc26977310bC89DAee5823C2e2a73195E85382cC7`.
+3. On the Security Council safe, enable the `LivenessModule` at `0xEB3eF34ACF1a6C1630807495bCC07ED3e7B0177e`.
 4. On the 1/1 Guardian Safe, enable the `DeputyGuardianModule` at `0x7dF9594B205041Ea4917cb047Dc20F84dfe297c7`.
 
 These modules are documented in the OP Stack Specification's [Security Council Safe document](https://specs.optimism.io/experimental/security-council-safe.html).
