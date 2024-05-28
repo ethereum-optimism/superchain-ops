@@ -43,14 +43,14 @@ contract SignFromJson is OriginalSignFromJson {
 
     // Chains for this task.
     string constant l1ChainName = "sepolia";
-    string constant l2ChainName = "metal";
+    string constant l2ChainName = "base";
 
     // Known EOAs to exclude from safety checks.
-    address constant l2OutputOracleProposer = 0x2D70F9A866dE34C0f738F8cb2AF1361b5aF18CAa; // cast call $L2OO "PROPOSER()(address)"
-    address constant l2OutputOracleChallenger = 0x45eFFbD799Ab49122eeEAB75B78D9C56A187F9A7; // In registry addresses.
-    address constant systemConfigOwner = 0x23BA22Dd7923F3a3f2495bB32a6f3c9b9CD1EC6C; // In registry addresses.
-    address constant batchSenderAddress = 0xdb80Eca386AC72a55510e33CF9CF7533e75916eE; // In registry genesis-system-configs
-    address constant p2pSequencerAddress = 0x3C1A357c4c77843d34750dBee68C589ACB4F5f9B; // cast call $SystemConfig "unsafeBlockSigner()(address)"
+    address constant l2OutputOracleProposer = 0x20044a0d104E9e788A0C984A2B7eAe615afD046b; // cast call $L2OO "PROPOSER()(address)"
+    address constant l2OutputOracleChallenger = 0xDa3037Ff70Ac92CD867c683BD807e5A484857405; // In registry addresses.
+    address constant systemConfigOwner = 0x608081689Fe46936fB2fBDF7552CbB1D80ad4822; // In registry addresses.
+    address constant batchSenderAddress = 0x6CDEbe940BC0F26850285cacA097C11c33103E47; // In registry genesis-system-configs
+    address constant p2pSequencerAddress = 0xb830b99c95Ea32300039624Cb567d324D4b1D83C; // cast call $SystemConfig "unsafeBlockSigner()(address)"
     address constant batchInboxAddress = 0x24567B64a86A4c966655fba6502a93dFb701E316; // In registry yaml.
 
     // Hardcoded data that should not change after execution.
@@ -71,8 +71,8 @@ contract SignFromJson is OriginalSignFromJson {
     uint256 recommendedProtocolVersion;
 
     // Other data we use.
-    uint256 systemConfigStartBlock = 5304055; // This was an input when generating input.json
-    AddressManager addressManager = AddressManager(0x394f844B9A0FC876935d1b0b791D9e94Ad905e8b);
+    uint256 systemConfigStartBlock = 4370903; // This was an input when generating input.json
+    AddressManager addressManager = AddressManager(0x709c2B8ef4A9feFc629A8a2C1AF424Dc5BD6ad1B);
     Types.ContractSet proxies;
 
     // This gives the initial fork, so we can use it to switch back after fetching data.
@@ -84,7 +84,7 @@ contract SignFromJson is OriginalSignFromJson {
 
         // Fetch variables that are not expected to change from an older block.
         initialFork = vm.activeFork();
-        vm.createSelectFork(vm.envString("ETH_RPC_URL"), 5705332); // This block is from April 15 2024 at 11:40am PT.
+        vm.createSelectFork(vm.envString("ETH_RPC_URL"), 5995983); // This block is from May-28-2024 08:17:48 PM +UTC.
 
         gasPriceOracleOverhead = IFetcher(proxies.SystemConfig).overhead();
         gasPriceOracleScalar = IFetcher(proxies.SystemConfig).scalar();
