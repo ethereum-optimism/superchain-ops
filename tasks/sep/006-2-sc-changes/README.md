@@ -27,7 +27,7 @@ to 75% in order to meet the [requirements for a Stage 1 rollup](https://medium.c
 
 Please see the "Simulating and Verifying the Transaction" instructions in [SINGLE.md](../../../SINGLE.md).
 
-When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/sep/006-1-sc-changes/SignFromJson.s.sol`. This ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/sep/006-2-sc-changes/SignFromJson.s.sol`. This ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
 
 Do NOT yet proceed to the "Execute the Transaction" section.
 
@@ -39,4 +39,4 @@ Please see the instructions for [validation](./VALIDATION.md).
 
 At this point you may resume following the execution instructions in the "Execute the Transaction" section of [SINGLE.md](../../../SINGLE.md).
 
-When executing, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/sep/006-1-sc-changes/SignFromJson.s.sol`. This ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
+When executing, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/sep/006-2-sc-changes/SignFromJson.s.sol`. This ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
