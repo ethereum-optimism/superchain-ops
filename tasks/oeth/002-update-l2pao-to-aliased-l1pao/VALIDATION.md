@@ -62,7 +62,7 @@ State Changes:
   **Meaning:** The Safe nonce is updated.
 
 ### `0x3041ba32f451f5850c147805f5521ac206421623` (Signer on the L2 Proxy Admin Owner Safe)
-For signers, this address should be their ledger address. It will be different from the address listed above.
+For signers, this address should be their ledger address. It may be different from the address listed above.
 
 State Changes:
 - **Nonce** <br/>
