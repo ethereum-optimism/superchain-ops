@@ -81,15 +81,9 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     string constant l2ChainName = "op";
 
     // Safe contract for this task.
-    GnosisSafe securityCouncilSafe = GnosisSafe(payable(0xf64bc17485f0B4Ea5F06A96514182FC4cB561977));
-    GnosisSafe foundationSafe = GnosisSafe(payable(0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B));
     GnosisSafe proxyAdminOwnerSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
-
-    // Contracts we need to check, which are not in the superchain registry
-    IDeputyGuardianModuleFetcher deputyGuardianModule =
-        IDeputyGuardianModuleFetcher(0xed12261735aD411A40Ea092FF4701a962d25cA21);
-    ILivenessGuardFetcher livenessGuard = ILivenessGuardFetcher(0x4416c7Fe250ee49B5a3133146A0BBB8Ec0c6A321);
-    ILivenessModuleFetcher livenessModule = ILivenessModuleFetcher(0x812B1fa86bE61a787705C49fc0fb05Ef50c8FEDf);
+    GnosisSafe securityCouncilSafe = GnosisSafe(payable(vm.envAddress("COUNCIL_SAFE")));
+    GnosisSafe foundationUpgradesSafe = GnosisSafe(payable(vm.envAddress("FOUNDATION_SAFE")));
 
     // Known EOAs to exclude from safety checks.
     address constant l2OutputOracleProposer = 0x49277EE36A024120Ee218127354c4a3591dc90A9; // cast call $L2OO "PROPOSER()(address)"
@@ -98,9 +92,6 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     address constant batchSenderAddress = 0x8F23BB38F531600e5d8FDDaAEC41F13FaB46E98c; // In registry genesis-system-configs
     address constant p2pSequencerAddress = 0x57CACBB0d30b01eb2462e5dC940c161aff3230D3; // cast call $SystemConfig "unsafeBlockSigner()(address)"
     address constant batchInboxAddress = 0xff00000000000000000000000000000011155420; // In registry yaml.
-
-    // The deployer address which is a signer on the Security Council but not Foundation safe (on Sepolia).
-    address constant extraMaurelianSigner = 0x78339d822c23D943E4a2d4c3DD5408F66e6D662D;
 
     // Hardcoded data that should not change after execution.
     uint256 l2GenesisBlockGasLimit = 30e6;
@@ -164,8 +155,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         require(ISemver(proxies.L1StandardBridge).version().eq("2.1.0"), "semver-200");
         require(ISemver(proxies.L2OutputOracle).version().eq("1.8.0"), "semver-300");
         require(ISemver(proxies.OptimismMintableERC20Factory).version().eq("1.9.0"), "semver-400");
-        require(ISemver(proxies.OptimismPortal).version().eq("3.8.0"), "semver-500");
-        require(ISemver(proxies.SystemConfig).version().eq("1.12.0"), "semver-600");
+        require(ISemver(proxies.OptimismPortal).version().eq("3.10.0"), "semver-500");
+        require(ISemver(proxies.SystemConfig).version().eq("2.2.0"), "semver-600");
         require(ISemver(proxies.L1ERC721Bridge).version().eq("2.1.0"), "semver-700");
         require(ISemver(proxies.ProtocolVersions).version().eq("1.0.0"), "semver-800");
         require(ISemver(proxies.SuperchainConfig).version().eq("1.1.0"), "semver-900");
@@ -212,10 +203,6 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         require(systemConfig.l1StandardBridge() == proxies.L1StandardBridge, "1900");
         require(systemConfig.l1StandardBridge().code.length != 0, "1901");
         require(EIP1967Helper.getImplementation(systemConfig.l1StandardBridge()).code.length != 0, "1902");
-
-        require(systemConfig.l2OutputOracle() == proxies.L2OutputOracle, "2000");
-        require(systemConfig.l2OutputOracle().code.length != 0, "2001");
-        require(EIP1967Helper.getImplementation(systemConfig.l2OutputOracle()).code.length != 0, "2002");
 
         require(systemConfig.optimismPortal() == proxies.OptimismPortal, "2100");
         require(systemConfig.optimismPortal().code.length != 0, "2101");
@@ -395,39 +382,6 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         require(superchainConfigToCheck.paused() == false, "7300");
     }
 
-    function checkLivenessModule() internal view {
-        console.log("Running assertions on the LivenessModule");
-
-        // See sepolia.json for config values being verified:
-        // https://github.com/ethereum-optimism/optimism/pull/10224/files
-        require(livenessModule.version().eq("1.1.0"), "checkLivenessModule-000");
-        require(livenessModule.safe() == address(securityCouncilSafe), "checkLivenessModule-100");
-        require(livenessModule.livenessGuard() == address(livenessGuard), "checkLivenessModule-200");
-        require(livenessModule.livenessInterval() == 31536000, "checkLivenessModule-300");
-        require(livenessModule.minOwners() == 2, "checkLivenessModule-400");
-        require(livenessModule.thresholdPercentage() == 20, "checkLivenessModule-500");
-        require(livenessModule.fallbackOwner() == address(foundationSafe), "checkLivenessModule-600");
-    }
-
-    function checkLivenessGuard() internal view {
-        console.log("Running assertions on the LivenessGuard");
-
-        require(livenessGuard.version().eq("1.0.0"), "checkLivenessGuard-000");
-        require(livenessGuard.safe() == address(securityCouncilSafe), "checkLivenessGuard-100");
-    }
-
-    function checkDeputyGuardianModule() internal view {
-        console.log("Running assertions on the DeputyGuardianModule");
-
-        require(deputyGuardianModule.version().eq("1.0.0"), "checkDeputyGuardianModule-000");
-        require(deputyGuardianModule.deputyGuardian() == address(foundationSafe), "checkDeputyGuardianModule-100");
-        require(deputyGuardianModule.safe() == address(securityCouncilSafe), "checkDeputyGuardianModule-200");
-        require(
-            deputyGuardianModule.superchainConfig() == address(proxies.SuperchainConfig),
-            "checkDeputyGuardianModule-300"
-        );
-    }
-
     function checkProxyAdminOwnerSafe() internal view {
         // In Proxy.sol, the `admin()` method is not view because it's a delegatecall if the caller is
         // not the admin or address(0). We know our call here will not be mutable, so to avoid removing the
@@ -441,7 +395,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         address proxyAdminOwner = ProxyAdmin(proxyAdmin).owner();
         require(proxyAdminOwner == address(proxyAdminOwnerSafe), "checkProxyAdminOwnerSafe-260");
 
-        require(proxyAdminOwnerSafe.isOwner(address(foundationSafe)), "checkProxyAdminOwnerSafe-300");
+        require(proxyAdminOwnerSafe.isOwner(address(foundationUpgradesSafe)), "checkProxyAdminOwnerSafe-300");
         require(proxyAdminOwnerSafe.isOwner(address(securityCouncilSafe)), "checkProxyAdminOwnerSafe-400");
     }
 
@@ -466,9 +420,6 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         checkProtocolVersions();
         checkSuperchainConfig();
         checkProxyAdminOwnerSafe();
-        checkLivenessModule();
-        checkLivenessGuard();
-        checkDeputyGuardianModule();
 
         console.log("All assertions passed!");
     }
