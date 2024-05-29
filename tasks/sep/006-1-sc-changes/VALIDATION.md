@@ -81,7 +81,7 @@ The following two changes are both updates to the `modules` mapping, which is in
   This is `modules[0x1]`, so the key can be
     derived from `cast index address 0x0000000000000000000000000000000000000001 1`.
 
-**Key:** `0xd94b9fe9ff6b9f2bdd33e60c54ffff22143c4794aae3d24091fa3ef8ace26714` <br/>
+**Key:** `0x5ebcfc77c53cd2a46ad21b72f1b6a878f7bea47b3baad3c0383053a9361006b8` <br/>
 **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
 **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
 **Meaning:** The `LivenessModule` at [`0xEB3eF34ACF1a6C1630807495bCC07ED3e7B0177e`](https://sepolia.etherscan.io/address/0xEB3eF34ACF1a6C1630807495bCC07ED3e7B0177e) is now pointing to the sentinel module at `0x01`.
