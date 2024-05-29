@@ -26,6 +26,18 @@ Enables the simulation by setting the threshold to 1:
 
 ## State Changes
 
+### `0x4416c7Fe250ee49B5a3133146A0BBB8Ec0c6A321` (`LivenessGuard`)
+
+Links:
+- [Etherscan](https://sepolia.etherscan.io/address/0x4416c7Fe250ee49B5a3133146A0BBB8Ec0c6A321)
+
+State Changes:
+
+- **Key:** 0xee4378be6a15d4c71cb07a5a47d8ddc4aba235142e05cb828bb7141206657e27<br/>
+  **Before:** 0x0000000000000000000000000000000000000000000000000000000000000000<br/>
+  **After:** 0x00000000000000000000000000000000000000000000000000000000662be90c<br/>
+  **Meaning:** This key indicates that the EOA submitting the transaction from the Council owners is an active signer. The key will differ for each signer and can be computed as: `cast index address [yourCouncilSignerAddress] 0`. If you are simulating, `yourCouncilSignerAddress` will be the Multicall `0xca11bde05977b3631167028862be2a173976ca11` address that is used in the state overrides. The after value shown is the timestamp of the transaction or simulation.
+
 ### `0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E` (1/1 Guardian Safe)
 
 Links:

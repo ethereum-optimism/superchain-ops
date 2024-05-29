@@ -2,6 +2,7 @@
 pragma solidity ^0.8.15;
 
 import {SignFromJson as OriginalSignFromJson} from "script/SignFromJson.s.sol";
+import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
 import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
 import {Constants, ResourceMetering} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
 import {L1StandardBridge} from "@eth-optimism-bedrock/src/L1/L1StandardBridge.sol";
@@ -65,6 +66,14 @@ interface IDeputyGuardianModuleFetcher {
     function version() external view returns (string memory);
 }
 
+// In Proxy.sol, the `admin()` method is not view because it's a delegatecall if the caller is
+// not the admin or address(0). We know our call here will not be mutable, so to avoid removing the
+// view modifier from `_postCheck` we use this interface to fetch the admin instead of the actual
+// `Proxy` contract interface.
+interface IProxyAdminView {
+    function admin() external view returns (address);
+}
+
 contract SignFromJson is OriginalSignFromJson {
     using LibString for string;
 
@@ -76,17 +85,18 @@ contract SignFromJson is OriginalSignFromJson {
     string constant l2ChainName = "op";
 
     // Safe contract for this task.
-    GnosisSafe securityCouncilSafe = GnosisSafe(payable(0xf64bc17485f0B4Ea5F06A96514182FC4cB561977));
-    GnosisSafe guardianSafe = GnosisSafe(payable(0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E));
+    GnosisSafe securityCouncilSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
+    GnosisSafe expectedGuardian = GnosisSafe(payable(0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E));
     GnosisSafe foundationUpgradesSafe = GnosisSafe(payable(0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B));
     GnosisSafe foundationOperationsSafe = GnosisSafe(payable(0x837DE453AD5F21E89771e3c06239d8236c0EFd5E));
+    GnosisSafe proxyAdminOwnerSafe = GnosisSafe(payable(0x1Eb2fFc903729a0F03966B917003800b145F56E2));
 
     // Contracts we need to check, which are not in the superchain registry
     address expectedDeputyGuardianModule = 0x4220C5deD9dC2C8a8366e684B098094790C72d3c;
     address expectedLivenessModule = 0xEB3eF34ACF1a6C1630807495bCC07ED3e7B0177e;
     address expectedLivenessGuard = 0xc26977310bC89DAee5823C2e2a73195E85382cC7;
 
-    // We fetch these and compare them to the expected values.
+    // Contracts we need to check, which are not in the superchain registry
     IDeputyGuardianModuleFetcher deputyGuardianModule;
     ILivenessGuardFetcher livenessGuard;
     ILivenessModuleFetcher livenessModule;
@@ -206,10 +216,6 @@ contract SignFromJson is OriginalSignFromJson {
         require(systemConfig.l1StandardBridge().code.length != 0, "1901");
         require(EIP1967Helper.getImplementation(systemConfig.l1StandardBridge()).code.length != 0, "1902");
 
-        // require(systemConfig.l2OutputOracle() == proxies.L2OutputOracle, "2000");
-        // require(systemConfig.l2OutputOracle().code.length != 0, "2001");
-        // require(EIP1967Helper.getImplementation(systemConfig.l2OutputOracle()).code.length != 0, "2002");
-
         require(systemConfig.optimismPortal() == proxies.OptimismPortal, "2100");
         require(systemConfig.optimismPortal().code.length != 0, "2101");
         require(EIP1967Helper.getImplementation(systemConfig.optimismPortal()).code.length != 0, "2102");
@@ -263,35 +269,6 @@ contract SignFromJson is OriginalSignFromJson {
         require(address(bridgeToCheck.superchainConfig()) == proxies.SuperchainConfig, "3400");
         require(address(bridgeToCheck.superchainConfig()).code.length != 0, "3401");
         require(EIP1967Helper.getImplementation(address(bridgeToCheck.superchainConfig())).code.length != 0, "3402");
-    }
-
-    /// @notice Asserts that the L2OutputOracle is setup correctly
-    function checkL2OutputOracle() internal view {
-        console.log("Running assertions on the L2OutputOracle");
-
-        require(proxies.L2OutputOracle.code.length != 0, "3500");
-
-        require(EIP1967Helper.getImplementation(proxies.L2OutputOracle).code.length != 0, "3501");
-
-        L2OutputOracle oracleToCheck = L2OutputOracle(proxies.L2OutputOracle);
-
-        require(oracleToCheck.SUBMISSION_INTERVAL() == l2OutputOracleSubmissionInterval, "3600");
-        require(oracleToCheck.submissionInterval() == l2OutputOracleSubmissionInterval, "3700");
-
-        require(oracleToCheck.L2_BLOCK_TIME() == l2BlockTime, "3800");
-        require(oracleToCheck.l2BlockTime() == l2BlockTime, "3900");
-
-        require(oracleToCheck.PROPOSER() == l2OutputOracleProposer, "4000");
-        require(oracleToCheck.proposer() == l2OutputOracleProposer, "4100");
-
-        require(oracleToCheck.CHALLENGER() == l2OutputOracleChallenger, "4200");
-        require(oracleToCheck.challenger() == l2OutputOracleChallenger, "4300");
-
-        require(oracleToCheck.FINALIZATION_PERIOD_SECONDS() == finalizationPeriodSeconds, "4400");
-        require(oracleToCheck.finalizationPeriodSeconds() == finalizationPeriodSeconds, "4500");
-
-        require(oracleToCheck.startingBlockNumber() == l2OutputOracleStartingBlockNumber, "4600");
-        require(oracleToCheck.startingTimestamp() == l2OutputOracleStartingTimestamp, "4700");
     }
 
     /// @notice Asserts that the OptimismMintableERC20Factory is setup correctly
@@ -412,7 +389,7 @@ contract SignFromJson is OriginalSignFromJson {
         require(
             deputyGuardianModule.deputyGuardian() == address(foundationOperationsSafe), "checkDeputyGuardianModule-100"
         );
-        require(deputyGuardianModule.safe() == address(guardianSafe), "checkDeputyGuardianModule-200");
+        require(deputyGuardianModule.safe() == address(expectedGuardian), "checkDeputyGuardianModule-200");
         require(
             deputyGuardianModule.superchainConfig() == address(proxies.SuperchainConfig),
             "checkDeputyGuardianModule-300"
@@ -440,7 +417,7 @@ contract SignFromJson is OriginalSignFromJson {
 
     function checkOwnershipConfiguration() internal {
         (address[] memory modules, address nextModule) =
-            ModuleManager(guardianSafe).getModulesPaginated(SENTINEL_MODULE, 1);
+            ModuleManager(expectedGuardian).getModulesPaginated(SENTINEL_MODULE, 1);
         deputyGuardianModule = IDeputyGuardianModuleFetcher(modules[0]);
         require(modules.length == 1, "checkOwnershipConfiguration-50");
         require(address(deputyGuardianModule) == expectedDeputyGuardianModule, "checkOwnershipConfiguration-100");
@@ -457,6 +434,65 @@ contract SignFromJson is OriginalSignFromJson {
         require(address(livenessGuard) == expectedLivenessGuard, "checkOwnershipConfiguration-300");
     }
 
+    function checkProxyAdminOwnerSafe() internal view {
+        // In Proxy.sol, the `admin()` method is not view because it's a delegatecall if the caller is
+        // not the admin or address(0). We know our call here will not be mutable, so to avoid removing the
+        // view modifier from `_postCheck` we use the IProxyAdminView interface to fetch the admin,
+        // instead of the actual `Proxy` contract interface. However, we need to prank for the call
+        // to come from the zero address, and prank is also not a view method. Therefore, we instead
+        // prank using a low-level staticcall to preserve the view modifier.
+        (bool ok,) = address(vm).staticcall(abi.encodeWithSignature("prank(address)", address(0)));
+        address proxyAdmin = IProxyAdminView(payable(proxies.SystemConfig)).admin();
+        require(ok, "checkProxyAdminOwnerSafe: low-level prank failed");
+        address proxyAdminOwner = ProxyAdmin(proxyAdmin).owner();
+        require(proxyAdminOwner == address(proxyAdminOwnerSafe), "checkProxyAdminOwnerSafe-260");
+
+        require(proxyAdminOwnerSafe.isOwner(address(foundationUpgradesSafe)), "checkProxyAdminOwnerSafe-300");
+        require(proxyAdminOwnerSafe.isOwner(address(securityCouncilSafe)), "checkProxyAdminOwnerSafe-400");
+    }
+
+    function checkOwnershipModel() internal {
+        console.log("Running assertions on the OwnershipModel");
+        // After this playbook is executed, the resulting ownership model of the protocol should
+        // look like this:
+        //   1. The Guardian on the superchain config is the 1/1 Security Council Safe.
+        //   2. The 1/1 SC Safe has the Deputy Guardian Module installed with the Foundation
+        //     Operations Safe as the Deputy Guardian.
+        //   3. The main Security Council Safe has the Liveness Module and Liveness Guard installed.
+        //   4. The L1 ProxyAdmin owner is a 2/2 Safe between the Security Council Safe and the
+        //     Foundation Upgrades Safe.
+        address guardian = SuperchainConfig(proxies.SuperchainConfig).guardian();
+
+        // Check 1. The Guardian on the superchain config is the 1/1 Security Council Safe.
+        require(guardian == address(expectedGuardian), "checkOwnershipModel-100");
+        address[] memory securityCouncilGuardianOwners = GnosisSafe(payable(guardian)).getOwners();
+        require(securityCouncilGuardianOwners.length == 1, "checkOwnershipModel-200");
+        require(securityCouncilGuardianOwners[0] == address(securityCouncilSafe), "checkOwnershipModel-300");
+
+        // Check 2. The 1/1 SC Safe has the Deputy Guardian Module installed with the Foundation
+        // Operations Safe as the Deputy Guardian.
+        (address[] memory modules, address nextModule) = ModuleManager(guardian).getModulesPaginated(SENTINEL_MODULE, 1);
+        deputyGuardianModule = IDeputyGuardianModuleFetcher(modules[0]);
+        require(address(deputyGuardianModule) == expectedDeputyGuardianModule, "checkOwnershipModel-350");
+        require(nextModule == SENTINEL_MODULE, "checkOwnershipModel-360");
+
+        address deputyGuardian = IDeputyGuardianModuleFetcher(deputyGuardianModule).deputyGuardian();
+        require(deputyGuardian == address(foundationOperationsSafe), "checkOwnershipModel-400");
+
+        // Check 3. The main Security Council Safe has the Liveness Module and Liveness Guard installed.
+        checkOwnershipConfiguration();
+
+        // Check 4. The L1 ProxyAdmin owner is a 2/2 Safe between the Security Council Safe and the
+        // Foundation Upgrades Safe.
+        vm.prank(address(0));
+        address proxyAdmin = IProxyAdminView(payable(proxies.SystemConfig)).admin();
+        address proxyAdminOwner = ProxyAdmin(proxyAdmin).owner();
+        require(proxyAdminOwner == address(proxyAdminOwnerSafe), "checkOwnershipModel-500");
+
+        require(proxyAdminOwnerSafe.isOwner(address(foundationUpgradesSafe)), "checkOwnershipModel-600");
+        require(proxyAdminOwnerSafe.isOwner(address(securityCouncilSafe)), "checkOwnershipModel-700");
+    }
+
     /// @notice Checks the correctness of the deployment
     function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory /* simPayload */ )
         internal
@@ -466,12 +502,11 @@ contract SignFromJson is OriginalSignFromJson {
 
         checkStateDiff(accesses);
         checkSemvers();
-        checkOwnershipConfiguration();
+        checkOwnershipModel();
 
         checkSystemConfig();
         checkL1CrossDomainMessenger();
         checkL1StandardBridge();
-        // checkL2OutputOracle();
         checkOptimismMintableERC20Factory();
         checkL1ERC721Bridge();
         checkOptimismPortal();
@@ -481,6 +516,7 @@ contract SignFromJson is OriginalSignFromJson {
         checkLivenessModule();
         checkLivenessGuard();
         checkDeputyGuardianModule();
+        checkProxyAdminOwnerSafe();
 
         console.log("All assertions passed!");
     }
