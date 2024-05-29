@@ -21,7 +21,7 @@ contract SignFromJson is OriginalSignFromJson {
     string constant l2ChainName = "op";
 
     // Safe contract for this task.
-    GnosisSafe l2paoSafe = GnosisSafe(payable(0x7871d1187A97cbbE40710aC119AA3d412944e4Fe));
+    GnosisSafe l2paoSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
 
     IProxyAdmin l2pa = IProxyAdmin(Predeploys.PROXY_ADMIN);
     address constant unaliasedL1PAO = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A; // Aliased address on L2: 0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b
@@ -73,7 +73,7 @@ contract SignFromJson is OriginalSignFromJson {
 
         shouldHaveCodeExceptions[0] = AddressAliasHelper.applyL1ToL2Alias(
             unaliasedL1PAO
-        ); // aliased L1PAO on op-sepolia doesn't have any code.
+        ); // aliased L1PAO on op-mainnet doesn't have any code.
 
         return shouldHaveCodeExceptions;
     }

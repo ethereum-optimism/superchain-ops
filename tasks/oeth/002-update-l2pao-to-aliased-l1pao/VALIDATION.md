@@ -39,7 +39,7 @@ State Changes:
   **Before:** `0x0000000000000000000000007871d1187a97cbbe40710ac119aa3d412944e4fe` <br/>
   **After:** `0x0000000000000000000000006b1bae59d09fccbddb6c6cceb07b7279367c4e3b` <br/>
   **Meaning:** The `_owner` address variable is set to `0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b`. The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/ProxyAdmin.json](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/snapshots/storageLayout/ProxyAdmin.json#L4). The current owner of the `ProxyAdmin` contract is `0x7871d1187A97cbbE40710aC119AA3d412944e4Fe`, which is a 1-of-1 Safe deployed to closely mirror the production environment configuration. The new `_owner` is `0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b` which is the aliased L1 Proxy Admin Owner address (unaliased address [`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`](https://etherscan.io/address/0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A)) i.e. 
+   this slot is attested to in the Optimism repo at [storageLayout/ProxyAdmin.json](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/snapshots/storageLayout/ProxyAdmin.json#L4). The current owner of the `ProxyAdmin` contract is `0x7871d1187A97cbbE40710aC119AA3d412944e4Fe`, which is a 5-of-7 Safe owned by the Optimism Foundation. The new `_owner` is `0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b` which is the aliased L1 Proxy Admin Owner address (unaliased address [`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`](https://etherscan.io/address/0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A)) i.e. 
    ```
    0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A + 0x1111000000000000000000000000000000001111 = 0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b
    ```
