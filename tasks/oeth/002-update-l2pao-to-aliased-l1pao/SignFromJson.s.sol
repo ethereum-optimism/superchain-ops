@@ -24,6 +24,7 @@ contract SignFromJson is OriginalSignFromJson {
     GnosisSafe l2paoSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
 
     IProxyAdmin l2pa = IProxyAdmin(Predeploys.PROXY_ADMIN);
+    // Reference to address: https://github.com/ethereum-optimism/superchain-registry/blob/94149a2651f0aadb982802c8909d60ecae67e050/superchain/extra/addresses/mainnet/op.json#L11
     address constant unaliasedL1PAO = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A; // Aliased address on L2: 0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b
 
 

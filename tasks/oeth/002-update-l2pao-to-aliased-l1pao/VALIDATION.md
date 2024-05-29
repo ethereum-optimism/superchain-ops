@@ -68,9 +68,10 @@ The balance on the `L1FeeVault` increases.
 
 
 ### `0x3041ba32f451f5850c147805f5521ac206421623` (Signer on the L2 Proxy Admin Owner Safe)
+For signers, this address should be their ledger address. It will be different from the address listed above.
 
 State Changes:
 - **Nonce** <br/>
   **Before:** 0 <br/>
   **After:** 1 <br/>
-  **Meaning:** Account sending the transaction and is the only signer on the safe.
+  **Meaning:** Account sending the transaction. The L2 Proxy Admin owner is a 5-of-7 safe. This account is one signer on that safe. In the simulation, the threshold is reduced so that only one signature is required.
