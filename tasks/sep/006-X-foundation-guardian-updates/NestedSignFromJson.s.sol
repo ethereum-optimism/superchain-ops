@@ -412,6 +412,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
     function checkLivenessModule() internal view {
         console.log("Running assertions on the LivenessModule");
+        console.log('livenessModule:', address(livenessModule));
 
         // See sepolia.json for config values being verified:
         // https://github.com/ethereum-optimism/optimism/pull/10224/files
