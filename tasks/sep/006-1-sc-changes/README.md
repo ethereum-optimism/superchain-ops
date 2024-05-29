@@ -1,17 +1,24 @@
 # Sepolia Guardian Changes - Security Council Runbook
 
-Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x19a8f2f0982295ab901ef0f06962d3e8cd930fb1b8e162229a36931ca4a9d76d)
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
-This is the Sepolia playbook for changes to be made to the Security Council's configuration:
+This is the Sepolia playbook for changes to be made to the Security Council's configuration.
 
-1. Increase its threshold to 30% (ie. from 2/10 to 3/10)
-2. Enable the `LivenessGuard` at `0x4416c7Fe250ee49B5a3133146A0BBB8Ec0c6A321`.
-3. Enable the `LivenessModule` at `0x812B1fa86bE61a787705C49fc0fb05Ef50c8FEDf`.
-4. Enable the `DeputyGuardianModule` at `0xed12261735aD411A40Ea092FF4701a962d25cA21`.
+There are two Safes controlled by the Security Council:
 
-These modules are documented in the OP Stack Specification's [Security Council Safe document](https://github.com/ethereum-optimism/specs/blob/b8580f28d1371b24461d4fd08e02763c2a5b66f5/specs/experimental/security-council-safe.md#L1).
+1. The Security Council Safe at `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`.
+2. The 1/1 Guardian Safe owned by the Security Council at `0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E`.
+
+The following state changes will be made to those Safes:
+
+1. On the Security Council safe, increase the threshold to 30% (from 2/10 to 3/10)
+2. On the Security Council safe, set the `LivenessGuard` at `0xc26977310bC89DAee5823C2e2a73195E85382cC7`.
+3. On the Security Council safe, enable the `LivenessModule` at `0xEB3eF34ACF1a6C1630807495bCC07ED3e7B0177e`.
+4. On the 1/1 Guardian Safe, enable the `DeputyGuardianModule` at `0x7dF9594B205041Ea4917cb047Dc20F84dfe297c7`.
+
+These modules are documented in the OP Stack Specification's [Security Council Safe document](https://specs.optimism.io/experimental/security-council-safe.html).
 
 The threshold change is intended to simulate a similar change which will occur on Mainnet, which will increase the Security Council's threshold
 to 75% in order to meet the [requirements for a Stage 1 rollup](https://medium.com/l2beat/stages-update-security-council-requirements-4c79cea8ef52).
