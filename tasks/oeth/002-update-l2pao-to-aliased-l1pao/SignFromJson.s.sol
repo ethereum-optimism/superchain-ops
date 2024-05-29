@@ -57,7 +57,9 @@ contract SignFromJson is OriginalSignFromJson {
         SimulationPayload memory /* simPayload */
     ) internal override {
         console.log("Running post-deploy assertions");
-
+        for (uint256 i; i < accesses.length; i++) {
+            console.log(accesses[i].account);
+        }
         checkStateDiff(accesses);
         checkL2PA();
 

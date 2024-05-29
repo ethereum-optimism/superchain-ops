@@ -61,12 +61,6 @@ State Changes:
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000003` <br/>
   **Meaning:** The Safe nonce is updated.
 
-
-### `0x420000000000000000000000000000000000001a` (L1FeeVault)
-
-The balance on the `L1FeeVault` increases.
-
-
 ### `0x3041ba32f451f5850c147805f5521ac206421623` (Signer on the L2 Proxy Admin Owner Safe)
 For signers, this address should be their ledger address. It will be different from the address listed above.
 
