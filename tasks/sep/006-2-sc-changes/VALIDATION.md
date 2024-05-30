@@ -19,8 +19,6 @@ Links:
 - [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/e3004259a4724ad040fe437f219e8e35af391a56/superchain/configs/sepolia/superchain.yaml#L8)
 - [Etherscan](https://sepolia.etherscan.io/address/0xC2Be75506d5724086DEB7245bd260Cc9753911Be)
 
-Enables the simulation by setting the threshold to 1:
-
 - **Key:** `0xd30e835d3f35624761057ff5b27d558f97bd5be034621e62240e5c0b784abe68` <br/>
   **Value:** `0x0000000000000000000000007a50f00e8d05b95f98fe38d8bee366a7324dcf7e`
   **Meaning:** The Guardian slot of the `SuperchainConfig` is set to the value that it will be set to once [tasks/sep/006-1-guardian-upgrade](../006-1-guardian-upgrade/README.md) is executed. This override will only be present when simulating and signing, not when executing. The slot can be computed as `cast keccak "superchainConfig.guardian"` then subtracting 1 from the result, as seen in the Superchain Config [here](https://github.com/ethereum-optimism/optimism/blob/9047beb54c66a5c572784efec8984f259302ec92/packages/contracts-bedrock/src/L1/SuperchainConfig.sol#L23).
