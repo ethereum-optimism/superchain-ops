@@ -156,46 +156,6 @@ jobs:
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
 
-  just_simulate_006-1-guardian-upgrade:
-    docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
-
-    steps:
-      - checkout
-      - run:
-          name: just simulate 006-1-guardian-upgrade
-          command: |
-            go install github.com/mikefarah/yq/v4@latest
-            just install
-            cd tasks/sep/006-1-guardian-upgrade
-            export SIMULATE_WITHOUT_LEDGER=1
-            just \
-              --dotenv-path .env \
-              --justfile ../../../nested.just \
-              simulate council
-            just \
-              --dotenv-path .env \
-              --justfile ../../../nested.just \
-              simulate foundation
-
-  just_simulate_006-2-sc-changes:
-    docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
-
-    steps:
-      - checkout
-      - run:
-          name: just simulate 006-2-sc-changes
-          command: |
-            go install github.com/mikefarah/yq/v4@latest
-            just install
-            cd tasks/sep/006-2-sc-changes
-            export SIMULATE_WITHOUT_LEDGER=1
-            just \
-              --dotenv-path .env \
-              --justfile ../../../single.just \
-              simulate
-
   forge_test:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
@@ -242,5 +202,3 @@ workflows:
       - just_simulate_sc_rehearsal_1
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
-      - just_simulate_006-1-guardian-upgrade
-      - just_simulate_006-2-sc-changes

@@ -36,6 +36,10 @@ Enables the simulation by setting the threshold to 1:
   **Value:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   **Meaning:** The threshold is set to 1. The key can be validated by the location of the `threshold` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L14).
 
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
+  **Value:** `0x000000000000000000000000000000000000000000000000000000000000000a`
+  **Meaning:** Sets the Safe nonce to the hardcoded value of 10. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
+
 ## State Changes
 
 ### `0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E` (1/1 Guardian Safe)
@@ -75,9 +79,9 @@ Links:
 **Meaning:** The threshold has been increased to 3. The key can be validated by the location of the `threshold` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L14). The before value shown is 1, rather than the actual value of 2, because of the state override.
 
 **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
-**Before:** `0x0000000000000000000000000000000000000000000000000000000000000009` <br/>
-**After:** `0x000000000000000000000000000000000000000000000000000000000000000a` <br/>
-**Meaning:** The nonce has been increased to 8. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
+**Before:** `0x000000000000000000000000000000000000000000000000000000000000000a` <br/>
+**After:** `0x000000000000000000000000000000000000000000000000000000000000000b` <br/>
+**Meaning:** The nonce has been increased to 11. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
 
 **Key:** `0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8` <br/>
 **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
