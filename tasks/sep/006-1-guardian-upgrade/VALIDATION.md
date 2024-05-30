@@ -106,7 +106,7 @@ The nonce is increased from 2 to 3.
       ```
       and
       ```shell
-        $ cast index bytes32 0x563a53530afacab3f89ccf6740cfa816de3150d50e9283626e3af00babef3d87 0xc18fefc0a6b81265cf06017c3f1f91c040dc3227321d73c608cfbcf1c5253e5c
+        $ cast index bytes32 0xedfca432f3badd2831a2436b972ec813df98bf9849ecddf384d23ff70ccc8206 0xc18fefc0a6b81265cf06017c3f1f91c040dc3227321d73c608cfbcf1c5253e5c
         0x3586f7df2e6cf61c72cf669a6c5e75aed3055bed7da05829eab7f240c1dab416
       ```
       And so the output of the second command matches the key above.
