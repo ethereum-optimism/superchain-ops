@@ -1,6 +1,6 @@
 # Sepolia Guardian Changes - Foundation Runbook
 
-Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xd62f0d4a18b8917c90eb1e9d89551448e257a46dbd08621e27da3a739e7ffa05)
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x0caecfa5f9c4d215b9436ef45797cbd4f47e71477d6408f9659539e29cc893fc)
 
 ## Objective
 
