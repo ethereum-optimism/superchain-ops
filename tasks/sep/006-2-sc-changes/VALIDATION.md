@@ -36,6 +36,10 @@ Enables the simulation by setting the threshold to 1:
   **Value:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   **Meaning:** The threshold is set to 1. The key can be validated by the location of the `threshold` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L14).
 
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
+  **Value:** `0x000000000000000000000000000000000000000000000000000000000000000a`
+  **Meaning:** Sets the Safe nonce to the hardcoded value of 10. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
+
 ## State Changes
 
 ### `0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E` (1/1 Guardian Safe)
