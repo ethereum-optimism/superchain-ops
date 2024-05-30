@@ -226,6 +226,27 @@ contract SignFromJson is OriginalSignFromJson {
         checkProxyAdminOwnerSafe();
     }
 
+    function checkStateDiff(Vm.AccountAccess[] memory accountAccesses) internal view override {
+        super.checkStateDiff(accountAccesses);
+
+        for (uint256 i; i < accountAccesses.length; i++) {
+            Vm.AccountAccess memory accountAccess = accountAccesses[i];
+
+            // Assert that only the expected accounts have been written to.
+            for (uint256 j; j < accountAccess.storageAccesses.length; j++) {
+                Vm.StorageAccess memory storageAccess = accountAccess.storageAccesses[j];
+                if (storageAccess.isWrite) {
+                    address account = storageAccess.account;
+                    console.log("Account with write", account);
+                    // Only state changes to the Safe's are expected.
+                    require(
+                        account == address(expectedGuardian) || account == address(securityCouncilSafe), "state-100"
+                    );
+                }
+            }
+        }
+    }
+
     /// @notice Checks the correctness of the deployment
     function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory /* simPayload */ )
         internal

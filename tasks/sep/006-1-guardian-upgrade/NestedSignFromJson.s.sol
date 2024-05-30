@@ -86,6 +86,30 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         require(proxyAdminOwnerSafe.isOwner(address(securityCouncilSafe)), "checkProxyAdminOwnerSafe-400");
     }
 
+    function checkStateDiff(Vm.AccountAccess[] memory accountAccesses) internal view override {
+        super.checkStateDiff(accountAccesses);
+
+        for (uint256 i; i < accountAccesses.length; i++) {
+            Vm.AccountAccess memory accountAccess = accountAccesses[i];
+
+            // Assert that only the expected accounts have been written to.
+            for (uint256 j; j < accountAccess.storageAccesses.length; j++) {
+                Vm.StorageAccess memory storageAccess = accountAccess.storageAccesses[j];
+                if (storageAccess.isWrite) {
+                    address account = storageAccess.account;
+                    require(
+                        // We set the guardian slot on the Superchain Config.
+                        account == address(proxies.SuperchainConfig)
+                        // State changes the Safe's are also expected.
+                        || account == address(proxyAdminOwnerSafe) || account == address(securityCouncilSafe)
+                            || account == address(foundationUpgradesSafe),
+                        "state-100"
+                    );
+                }
+            }
+        }
+    }
+
     /// @notice Checks the correctness of the deployment
     function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory /* simPayload */ )
         internal
