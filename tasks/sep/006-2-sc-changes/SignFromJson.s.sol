@@ -50,17 +50,18 @@ interface IDeputyGuardianModuleFetcher {
 contract SignFromJson is OriginalSignFromJson {
     using LibString for string;
 
-    address internal constant SENTINEL_MODULE = address(0x1);
-    bytes32 internal constant GUARD_STORAGE_SLOT = 0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8;
+    address constant SENTINEL_MODULE = address(0x1);
+    bytes32 constant GUARD_STORAGE_SLOT = 0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8;
+    bytes32 constant GUARDIAN_SLOT = bytes32(uint256(keccak256("superchainConfig.guardian")) - 1);
 
     // Chains for this task.
     string constant l1ChainName = "sepolia";
     string constant l2ChainName = "op";
 
     // Properties we want to verify.
-    uint256 internal constant expectedGuardLivenessInterval = 62899200;
-    uint256 internal constant expectedGuardMinOwners = 2;
-    uint256 internal constant expectedGuardThresholdPercentage = 30;
+    uint256 constant expectedGuardLivenessInterval = 62899200;
+    uint256 constant expectedGuardMinOwners = 2;
+    uint256 constant expectedGuardThresholdPercentage = 30;
 
     // Safe contract for this task.
     GnosisSafe securityCouncilSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
@@ -80,6 +81,20 @@ contract SignFromJson is OriginalSignFromJson {
     /// @notice Sets up the contract
     function setUp() public {
         proxies = _getContractSet();
+    }
+
+    function _addGenericOverrides() internal view override returns (SimulationStateOverride memory override_) {
+        // If `runJson` was the method invoked, this is the live execution and we do not want to
+        // apply any overrides. Otherwise, this is a simulation and we want to apply overrides to
+        // behave as if 006-1 was executed.
+        if (msg.sig != this.runJson.selector) {
+            SimulationStorageOverride[] memory overrides = new SimulationStorageOverride[](1);
+            overrides[0] = SimulationStorageOverride({
+                key: GUARDIAN_SLOT,
+                value: bytes32(uint256(uint160(address(expectedGuardian))))
+            });
+            override_ = SimulationStateOverride({contractAddress: proxies.SuperchainConfig, overrides: overrides});
+        }
     }
 
     function checkSemvers() internal view {
