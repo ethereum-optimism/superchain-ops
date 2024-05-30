@@ -163,7 +163,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: just simulate r4-jointly-upgrade
+          name: just simulate 006-1-guardian-upgrade
           command: |
             go install github.com/mikefarah/yq/v4@latest
             just install
@@ -185,7 +185,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: just simulate r4-jointly-upgrade
+          name: just simulate 006-2-sc-changes
           command: |
             go install github.com/mikefarah/yq/v4@latest
             just install
