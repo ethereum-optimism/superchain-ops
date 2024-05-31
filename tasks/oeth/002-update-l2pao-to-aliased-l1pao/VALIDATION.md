@@ -26,7 +26,7 @@ Enables the simulation by setting the threshold to 1 (threshold was already 1 fo
 ## State Changes
 
 **Notes:**
-- Check the provided links to ensure that the correct contract is described at the correct address. 
+- Check the provided links to ensure that the correct contract is described at the correct address.
 
 ### `0x4200000000000000000000000000000000000018` (`ProxyAdmin`)
 
@@ -39,7 +39,7 @@ State Changes:
   **Before:** `0x0000000000000000000000007871d1187a97cbbe40710ac119aa3d412944e4fe` <br/>
   **After:** `0x0000000000000000000000006b1bae59d09fccbddb6c6cceb07b7279367c4e3b` <br/>
   **Meaning:** The `_owner` address variable is set to `0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b`. The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/ProxyAdmin.json](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/snapshots/storageLayout/ProxyAdmin.json#L4). The current owner of the `ProxyAdmin` contract is `0x7871d1187A97cbbE40710aC119AA3d412944e4Fe`, which is a 5-of-7 Safe owned by the Optimism Foundation. The new `_owner` is `0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b` which is the aliased L1 Proxy Admin Owner address (unaliased address [`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`](https://etherscan.io/address/0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A)) i.e. 
+   this slot is attested to in the Optimism repo at [storageLayout/ProxyAdmin.json](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/snapshots/storageLayout/ProxyAdmin.json#L4). The current owner of the `ProxyAdmin` contract is `0x7871d1187A97cbbE40710aC119AA3d412944e4Fe`, which is a 5-of-7 Safe owned by the Optimism Foundation. The new `_owner` is `0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b` which is the aliased L1 Proxy Admin Owner address (unaliased address [`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`](https://etherscan.io/address/0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A)) i.e.
    ```
    0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A + 0x1111000000000000000000000000000000001111 = 0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b
    ```
@@ -47,7 +47,7 @@ State Changes:
    ```bash
    applyL1ToL2Alias(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A)
    ```
-   You can find a reference to this code here: [`applyL1ToL2Alias`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/src/vendor/AddressAliasHelper.sol#L28).
+   You can find a reference to this code here: [`applyL1ToL2Alias`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/src/vendor/AddressAliasHelper.sol#L28). Paste the `offset` constant into chisel, then paste the `applyL1ToL2Alias` function definition. Finally call the function with the L1 address (`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`) as an argument and verify it matches the new owner (`0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b`).
 
 ### `0x7871d1187a97cbbe40710ac119aa3d412944e4fe` (Former L2 `ProxyAdmin` Owner (Safe))
 
@@ -61,21 +61,15 @@ State Changes:
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000003` <br/>
   **Meaning:** The Safe nonce is updated.
 
-### Fees (Optional)
-As part of the simulation, you **may** see 'State Changes' in Tenderly for the following addresses: 
+### Fee Transfers
 
-- `0x4200000000000000000000000000000000000011` - `BaseFeeVault`
+As part of the simulation, you **may** see 'State Changes' in Tenderly for the following addresses:
+
+- `0x4200000000000000000000000000000000000019` - `BaseFeeVault`
 - `0x420000000000000000000000000000000000001A` - `L1FeeVault`
 - `0x4200000000000000000000000000000000000011` - `SequencerFeeVault`
 
-Support for showing these state changes is experimental and temperamental at the time of writing. **Do not be concerned** if your simulation does or does not show any or all of these 'Fees' state changes from the addresses listed above. If you do see them, just know this is expected behavior.
+Tenderly's support for showing these state changes appears experimental, as it's inconsistently shown at the time of writing. Therefore **do not be concerned** if your simulation does or does not show any or all of these 'Fees' state changes from the addresses listed above. If you do see them, just know this is expected behavior.
 
-### `0x3041ba32f451f5850c147805f5521ac206421623` (Signer on the L2 Proxy Admin Owner Safe)
-For signers, this address should be their ledger address. It **may be different** from the address listed above.
-
-State Changes:
-- **Nonce** <br/>
-  **Before:** 0 <br/>
-  **After:** 1 <br/>
-  **Meaning:** Account sending the transaction. The L2 Proxy Admin owner is a 5-of-7 safe. This account is one signer on that safe. In the simulation, the threshold is reduced so that only one signature is required.
-
+The only other state change shown will be a nonce increase for the signer account.
+This will be your ledger's address if you are signing the transaction, or `0x3041ba32f451f5850c147805f5521ac206421623` if you are simulating without a ledger.

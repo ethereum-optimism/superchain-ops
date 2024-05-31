@@ -8,10 +8,8 @@ import {console2 as console} from "forge-std/console2.sol";
 import {Vm, VmSafe} from "forge-std/Vm.sol";
 import {LibString} from "solady/utils/LibString.sol";
 import {GnosisSafe} from "safe-contracts/GnosisSafe.sol";
+import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
 
-interface IProxyAdmin {
-    function owner() external view returns (address);
-}
 
 contract SignFromJson is OriginalSignFromJson {
     using LibString for string;
@@ -23,7 +21,8 @@ contract SignFromJson is OriginalSignFromJson {
     // Safe contract for this task.
     GnosisSafe l2paoSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
 
-    IProxyAdmin l2pa = IProxyAdmin(Predeploys.PROXY_ADMIN);
+    ProxyAdmin l2pa = ProxyAdmin(Predeploys.PROXY_ADMIN);
+
     // Reference to address: https://github.com/ethereum-optimism/superchain-registry/blob/94149a2651f0aadb982802c8909d60ecae67e050/superchain/extra/addresses/mainnet/op.json#L11
     address constant unaliasedL1PAO = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A; // Aliased address on L2: 0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b
 
@@ -51,12 +50,30 @@ contract SignFromJson is OriginalSignFromJson {
         vm.selectFork(originalFork);
     }
 
+    function checkStateDiff(Vm.AccountAccess[] memory accountAccesses) internal view override {
+        super.checkStateDiff(accountAccesses);
+
+        for (uint256 i; i < accountAccesses.length; i++) {
+            Vm.AccountAccess memory accountAccess = accountAccesses[i];
+
+            // Assert that only the expected accounts have been written to.
+            for (uint256 j; j < accountAccess.storageAccesses.length; j++) {
+                Vm.StorageAccess memory storageAccess = accountAccess.storageAccesses[j];
+                if (storageAccess.isWrite) {
+                    address account = storageAccess.account;
+                    // Only state changes to the Safe's are expected.
+                    require(account == address(l2paoSafe) || account == address(l2pa), "state-100");
+                }
+            }
+        }
+    }
+
     /// @notice Checks the correctness of the deployment
     function _postCheck(
         Vm.AccountAccess[] memory accesses,
         SimulationPayload memory /* simPayload */
     ) internal override {
-        console.log("Running post-deploy assertions");
+        console.log("Running post-execution assertions");
         checkStateDiff(accesses);
         checkL2PA();
 
