@@ -155,6 +155,25 @@ jobs:
             just simulate-council
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
+
+  just_simulate_oeth-002-update-l2pao-to-aliased-l1pao:
+    docker:
+      - image: <<pipeline.parameters.ci_builder_image>>
+
+    steps:
+      - checkout
+      - run:
+          name: just simulate oeth 002-update-l2pao-to-aliased-l1pao
+          command: |
+            go install github.com/mikefarah/yq/v4@latest
+            just install
+            cd tasks/oeth/002-update-l2pao-to-aliased-l1pao
+            export SIMULATE_WITHOUT_LEDGER=1
+            just \
+              --dotenv-path .env \
+              --justfile ../../../single.just \
+              simulate
+
   just_simulate_009-fp-upgrade:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
@@ -223,4 +242,5 @@ workflows:
       - just_simulate_sc_rehearsal_1
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
+      - just_simulate_oeth-002-update-l2pao-to-aliased-l1pao
       - just_simulate_009-fp-upgrade
