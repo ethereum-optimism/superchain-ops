@@ -16,7 +16,7 @@ The following state overrides should be seen:
 ### `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (The 2/2 `ProxyAdmin` Owner)
 
 Links:
-- [Etherscan](https://sepolia.etherscan.io/address/0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A)
+- [Etherscan](https://etherscan.io/address/0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A)
 
 Overrides:
 
@@ -31,10 +31,10 @@ Overrides:
 ### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Council Safe) or `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation Safe)
 
 Links:
-- [Etherscan (Council Safe)](https://sepolia.etherscan.io/address/0xc2819DC788505Aac350142A7A707BF9D03E3Bd03). This address is attested to in the [Optimism docs](https://docs.optimism.io/chain/security/privileged-roles#l1-proxy-admin), as it's one of the signers of the L1 Proxy Admin owner.
-- [Etherscan (Foundation Safe)](https://sepolia.etherscan.io/address/0x847B5c174615B1B7fDF770882256e2D3E95b9D92). This address is attested to in the [Optimism docs](https://docs.optimism.io/chain/security/privileged-roles#l1-proxy-admin), as it's one of the signers of the L1 Proxy Admin owner.
+- [Etherscan (Council Safe)](https://etherscan.io/address/0xc2819DC788505Aac350142A7A707BF9D03E3Bd03). This address is attested to in the [Optimism docs](https://docs.optimism.io/chain/security/privileged-roles#l1-proxy-admin), as it's one of the signers of the L1 Proxy Admin owner.
+- [Etherscan (Foundation Safe)](https://etherscan.io/address/0x847B5c174615B1B7fDF770882256e2D3E95b9D92). This address is attested to in the [Optimism docs](https://docs.optimism.io/chain/security/privileged-roles#l1-proxy-admin), as it's one of the signers of the L1 Proxy Admin owner.
 
-The Safe you are signing for will have the following overrides which will set the [Multicall](https://sepolia.etherscan.io/address/0xca11bde05977b3631167028862be2a173976ca11#code) contract as the sole owner of the signing safe. This allows simulating both the approve hash and the final tx in a single Tenderly tx.
+The Safe you are signing for will have the following overrides which will set the [Multicall](https://etherscan.io/address/0xca11bde05977b3631167028862be2a173976ca11#code) contract as the sole owner of the signing safe. This allows simulating both the approve hash and the final tx in a single Tenderly tx.
 
 - **Key:** 0x0000000000000000000000000000000000000000000000000000000000000003 <br/>
   **Value:** 0x0000000000000000000000000000000000000000000000000000000000000001 <br/>
@@ -123,7 +123,7 @@ State Changes:
 ### `0x95703e0982140D16f8ebA6d158FccEde42f04a4C` (`SuperchainConfig`)
 
 Links:
-- [Etherscan](https://sepolia.etherscan.io/address/0x95703e0982140D16f8ebA6d158FccEde42f04a4C)
+- [Etherscan](https://etherscan.io/address/0x95703e0982140D16f8ebA6d158FccEde42f04a4C)
 
 State Changes:
 
@@ -131,7 +131,7 @@ State Changes:
   **Before:** 0x0000000000000000000000009ba6e03d8b90de867373db8cf1a58d2f7f006b3a<br/>
   **After:** 0x0000000000000000000000007a50f00e8D05b95F98fE38d8BeE366a7324dCf7E<br/>
   **Meaning:** The Guardian address has been updated from `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A` (Foundation Upgrades Safe) to `0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2` (1/1 Safe owned by the Security Council).
-    The key is `keccak256("superchainConfig.guardian") - 1` ([ref](https://github.com/ethereum-optimism/optimism/blob/maur/sepolia-council/packages/contracts-bedrock/src/L1/SuperchainConfig.sol#L23)),
+    The key is `keccak256("superchainConfig.guardian") - 1` ([ref](https://github.com/ethereum-optimism/optimism/blob/9047beb54c66a5c572784efec8984f259302ec92/packages/contracts-bedrock/src/L1/SuperchainConfig.sol#L23)),
     which can be verified using `cast keccak "superchainConfig.guardian"`, then subtracting 1 from the result.
 
 The only other state changes are two nonce increments:

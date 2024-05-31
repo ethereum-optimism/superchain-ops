@@ -1,10 +1,10 @@
-# Sepolia Guardian Changes - Foundation Runbook
+# Guardian Changes
 
 Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
-This is the sepolia playbook for reinitializing the SuperchainConfig with the Security Council as Guardian, instead of the Optimism Foundation.
+This is the playbook for reinitializing the SuperchainConfig with the Security Council as Guardian, instead of the Optimism Foundation.
 This is a requirement for reaching Stage 1.
 
 The new Guardian will be a 1/1 Safe (`0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2`) owned by the Security Council Safe (`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`).
