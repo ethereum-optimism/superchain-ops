@@ -1,6 +1,6 @@
 # Sepolia Guardian Changes - Foundation Runbook
 
-Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xd62f0d4a18b8917c90eb1e9d89551448e257a46dbd08621e27da3a739e7ffa05)
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x0caecfa5f9c4d215b9436ef45797cbd4f47e71477d6408f9659539e29cc893fc)
 
 ## Objective
 
@@ -10,7 +10,7 @@ This is a requirement for reaching Stage 1.
 ## Simulation
 
 Please see the "Simulating and Verifying the Transaction" instructions in [NESTED.md](../../../NESTED.md).
-When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/sep/006-2-foundation-guardian-updates/NestedSignFromJson.s.sol`.
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/sep/006-1-guardian-upgrade/NestedSignFromJson.s.sol`.
 This ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown
 (without the full path), something is wrong and the safety checks will not run.
 
@@ -24,4 +24,4 @@ Please see the instructions for [validation](./VALIDATION.md).
 
 At this point you may resume following the execution instructions in the "Execute the Transaction" section of [NESTED.md](../../../NESTED.md).
 
-When executing, ensure the logs say `Using script Using script /your/path/to/superchain-ops/tasks/sep/006-2-foundation-guardian-updates/NestedSignFromJson.s.sol`. This ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
+When executing, ensure the logs say `Using script Using script /your/path/to/superchain-ops/tasks/sep/006-1-guardian-upgrade/NestedSignFromJson.s.sol`. This ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
