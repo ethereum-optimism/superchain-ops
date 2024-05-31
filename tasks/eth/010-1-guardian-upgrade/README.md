@@ -9,6 +9,16 @@ This is a requirement for reaching Stage 1.
 
 The new Guardian will be a 1/1 Safe (`0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2`) owned by the Security Council Safe (`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`).
 
+The proposal was:
+
+- [X] Posted on the governance forum [here](https://gov.optimism.io/t/upgrade-proposal-guardian-security-council-threshold-and-l2-proxyadmin-ownership-changes-for-stage-1-decentralization/8157).
+- [X] Approved by Token House voting [here](https://vote.optimism.io/proposals/89250535338859095270968116984279971013811713632639468811376241520756760598962).
+- [ ] Not vetoed by the Citizens' house here (IN PROGRESS).
+- [X] [Executed on OP Sepolia](https://github.com/ethereum-optimism/superchain-ops/tree/main/tasks/sep/006-1-guardian-upgrade).
+
+The governance proposal should be treated as the source of truth and used to verify the correctness
+of the onchain operations.
+
 ## Simulation
 
 Please see the "Simulating and Verifying the Transaction" instructions in [NESTED.md](../../../NESTED.md).
