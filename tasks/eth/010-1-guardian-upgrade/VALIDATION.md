@@ -13,31 +13,40 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 The following state overrides should be seen:
 
-### `0x1Eb2fFc903729a0F03966B917003800b145F56E2` (The 2/2 `ProxyAdmin` Owner)
+### `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (The 2/2 `ProxyAdmin` Owner)
 
 Links:
-- [Etherscan](https://sepolia.etherscan.io/address/0x1Eb2fFc903729a0F03966B917003800b145F56E2)
+- [Etherscan](https://sepolia.etherscan.io/address/0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A)
 
-Enables the simulation by setting the threshold to 1:
+Overrides:
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000004` <br/>
-  **Value:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  **Value:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
+  **Meaning:** Enables the simulation by setting the threshold to 1. The key can be validated by the location of the `threshold` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L14).
 
-### `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977` (Council Safe) or `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B` (Foundation Safe)
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
+  **Value:** `0x0000000000000000000000000000000000000000000000000000000000000003` <br/>
+  **Meaning:** Sets the nonce to 3 for simulation and signing, since this is the expected nonce of the Safe at the time of execution. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
+
+### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Council Safe) or `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation Safe)
 
 Links:
-- [Etherscan (Council Safe)](https://sepolia.etherscan.io/address/0xf64bc17485f0B4Ea5F06A96514182FC4cB561977). This address is attested to in the [Optimism docs](https://docs.optimism.io/chain/security/privileged-roles#l1-proxy-admin), as it's one of the signers of the L1 Proxy Admin owner.
-- [Etherscan (Foundation Safe)](https://sepolia.etherscan.io/address/0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B). This address is attested to in the [Optimism docs](https://docs.optimism.io/chain/security/privileged-roles#l1-proxy-admin), as it's one of the signers of the L1 Proxy Admin owner.
+- [Etherscan (Council Safe)](https://sepolia.etherscan.io/address/0xc2819DC788505Aac350142A7A707BF9D03E3Bd03). This address is attested to in the [Optimism docs](https://docs.optimism.io/chain/security/privileged-roles#l1-proxy-admin), as it's one of the signers of the L1 Proxy Admin owner.
+- [Etherscan (Foundation Safe)](https://sepolia.etherscan.io/address/0x847B5c174615B1B7fDF770882256e2D3E95b9D92). This address is attested to in the [Optimism docs](https://docs.optimism.io/chain/security/privileged-roles#l1-proxy-admin), as it's one of the signers of the L1 Proxy Admin owner.
 
 The Safe you are signing for will have the following overrides which will set the [Multicall](https://sepolia.etherscan.io/address/0xca11bde05977b3631167028862be2a173976ca11#code) contract as the sole owner of the signing safe. This allows simulating both the approve hash and the final tx in a single Tenderly tx.
 
 - **Key:** 0x0000000000000000000000000000000000000000000000000000000000000003 <br/>
   **Value:** 0x0000000000000000000000000000000000000000000000000000000000000001 <br/>
-  **Meaning:** The number of owners is set to 1.
+  **Meaning:** The number of owners is set to 1. The key can be validated by the location of the `ownerCount` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L13).
 
 - **Key:** 0x0000000000000000000000000000000000000000000000000000000000000004 <br/>
   **Value:** 0x0000000000000000000000000000000000000000000000000000000000000001 <br/>
-  **Meaning:** The threshold is set to 1.
+  **Meaning:** The threshold is set to 1. The key can be validated by the location of the `threshold` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L14).
+
+- **Key:** 0x0000000000000000000000000000000000000000000000000000000000000005 <br/>
+  **Value:** 0x0000000000000000000000000000000000000000000000000000000000000003 <br/>
+  **Meaning:** Sets the nonce to 3 for simulation and signing, since this is the expected nonce of the Safe at the time of execution. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
 
 The following two overrides are modifications to the [`owners` mapping](https://github.com/safe-global/safe-contracts/blob/v1.4.0/contracts/libraries/SafeStorage.sol#L15). For the purpose of calculating the storage, note that this mapping is in slot `2`.
 This mapping implements a linked list for iterating through the list of owners. Since we'll only have one owner (Multicall), and the `0x01` address is used as the first and last entry in the linked list, we will see the following overrides:
@@ -58,74 +67,74 @@ And we do indeed see these entries:
 
 ## State Changes
 
-### `0x1Eb2fFc903729a0F03966B917003800b145F56E2` (The 2/2 `ProxyAdmin` Owner)
+### `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (The 2/2 `ProxyAdmin` Owner)
 
 State Changes:
 
 - **Key:** 0x0000000000000000000000000000000000000000000000000000000000000005 <br/>
-  **Before:** 0x0000000000000000000000000000000000000000000000000000000000000007 <br/>
-  **After:** 0x0000000000000000000000000000000000000000000000000000000000000008 <br/>
-  **Meaning:** The nonce is increased from 7 to 8.
+  **Before:** 0x0000000000000000000000000000000000000000000000000000000000000003 <br/>
+  **After:** 0x0000000000000000000000000000000000000000000000000000000000000004 <br/>
+  **Meaning:** The nonce is increased from 3 to 4. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
 
 #### For the Council:
 
-- **Key:** `0x1bbed5e10c7bba3b6887413996db2f9a940f2032b5feffc5712e963aeeb56763` <br/>
+- **Key:** `0x81e0d4aeef77664a42055404dac0d53d73782f19253d3d4faa4adfb0a05c44ff` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **Meaning:** The GnosisSafe `approvedHashes` mapping is updated to indicate approval of this transaction by the council. The correctness of this slot can be verified as follows:
     - Since this is a nested mapping, we need to use `cast index` twice to confirm that this is the correct slot. The inputs needed are:
       - The location (`8`) of the `approvedHashes` mapping in the [GnosisSafe storage layout](https://github.com/safe-global/safe-contracts/blob/v1.4.0/contracts/libraries/SafeStorage.sol#L23)
-      - The address of the Council Safe: `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`
-      - The safe hash to approve: `0xedfca432f3badd2831a2436b972ec813df98bf9849ecddf384d23ff70ccc8206`
+      - The address of the Council Safe: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`
+      - The safe hash to approve: `0xdf2a3aeca4b1cd128382510b6c124106e5ee616405a19b1324371a5fa6240289`
     - The using `cast index`, we can verify that:
       ```shell
-        $ cast index address 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 8
-        0x56362ae34e37f50105bd722d564a267a69bbc15ede4cb7136e81afd747b41c4d
+        $ cast index address 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 8
+        0xaaf2b641eaf0bae063c4f2e5670f905e1fb7334436b902d1d880b05bd6228fbd
         ```
         and
       ```shell
-        $ cast index bytes32 0xedfca432f3badd2831a2436b972ec813df98bf9849ecddf384d23ff70ccc8206 0x56362ae34e37f50105bd722d564a267a69bbc15ede4cb7136e81afd747b41c4d
-        0x1bbed5e10c7bba3b6887413996db2f9a940f2032b5feffc5712e963aeeb56763
+        $ cast index bytes32 0xdf2a3aeca4b1cd128382510b6c124106e5ee616405a19b1324371a5fa6240289 0xaaf2b641eaf0bae063c4f2e5670f905e1fb7334436b902d1d880b05bd6228fbd
+        0x81e0d4aeef77664a42055404dac0d53d73782f19253d3d4faa4adfb0a05c44ff
         ```
       And so the output of the second command matches the key above.
 
 #### For the Foundation:
 
-- **Key:** `0x3586f7df2e6cf61c72cf669a6c5e75aed3055bed7da05829eab7f240c1dab416` <br/>
+- **Key:** `0x6a15d729bf4b9fb22dcb9ab39059d403e85fffd74d9194df0adece336a38c5f0` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **Meaning:** The GnosisSafe `approvedHashes` mapping is updated to indicate approval of this transaction by the council. The correctness of this slot can be verified as follows:
     - Since this is a nested mapping, we need to use `cast index` twice to confirm that this is the correct slot. The inputs needed are:
       - The location (`8`) of the `approvedHashes` mapping in the [GnosisSafe storage layout](https://github.com/safe-global/safe-contracts/blob/v1.4.0/contracts/libraries/SafeStorage.sol#L23)
-      - The address of the Foundation Safe: `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`
-      - The safe hash to approve: `0xedfca432f3badd2831a2436b972ec813df98bf9849ecddf384d23ff70ccc8206`
+      - The address of the Foundation Safe: `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`
+      - The safe hash to approve: `0xdf2a3aeca4b1cd128382510b6c124106e5ee616405a19b1324371a5fa6240289`
     - The using `cast index`, we can verify that:
       ```shell
-        $ cast index address 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B 8
-        0xc18fefc0a6b81265cf06017c3f1f91c040dc3227321d73c608cfbcf1c5253e5c
+        $ cast index address 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 8
+        0x13908ba1c0e379ab58c6445554ab471f3d4efb06e3c4cf966c4f5e918eca67bd
       ```
       and
       ```shell
-        $ cast index bytes32 0xedfca432f3badd2831a2436b972ec813df98bf9849ecddf384d23ff70ccc8206 0xc18fefc0a6b81265cf06017c3f1f91c040dc3227321d73c608cfbcf1c5253e5c
-        0x3586f7df2e6cf61c72cf669a6c5e75aed3055bed7da05829eab7f240c1dab416
+        $ cast index bytes32 0xdf2a3aeca4b1cd128382510b6c124106e5ee616405a19b1324371a5fa6240289 0x13908ba1c0e379ab58c6445554ab471f3d4efb06e3c4cf966c4f5e918eca67bd
+        0x6a15d729bf4b9fb22dcb9ab39059d403e85fffd74d9194df0adece336a38c5f0
       ```
       And so the output of the second command matches the key above.
 
-### `0xc2be75506d5724086deb7245bd260cc9753911be` (`SuperchainConfig`)
+### `0x95703e0982140D16f8ebA6d158FccEde42f04a4C` (`SuperchainConfig`)
 
 Links:
-- [Etherscan](https://sepolia.etherscan.io/address/0xc2be75506d5724086deb7245bd260cc9753911be)
+- [Etherscan](https://sepolia.etherscan.io/address/0x95703e0982140D16f8ebA6d158FccEde42f04a4C)
 
 State Changes:
 
 - **Key:** 0xd30e835d3f35624761057ff5b27d558f97bd5be034621e62240e5c0b784abe68<br/>
-  **Before:** 0x000000000000000000000000dee57160aafcf04c34c887b5962d0a69676d3c8b<br/>
+  **Before:** 0x0000000000000000000000009ba6e03d8b90de867373db8cf1a58d2f7f006b3a<br/>
   **After:** 0x0000000000000000000000007a50f00e8D05b95F98fE38d8BeE366a7324dCf7E<br/>
-  **Meaning:** The Guardian address has been updated from `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B` (Foundation Upgrades Safe) to `0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E` (1/1 Safe owned by the Security Council).
+  **Meaning:** The Guardian address has been updated from `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A` (Foundation Upgrades Safe) to `0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2` (1/1 Safe owned by the Security Council).
     The key is `keccak256("superchainConfig.guardian") - 1` ([ref](https://github.com/ethereum-optimism/optimism/blob/maur/sepolia-council/packages/contracts-bedrock/src/L1/SuperchainConfig.sol#L23)),
     which can be verified using `cast keccak "superchainConfig.guardian"`, then subtracting 1 from the result.
 
 The only other state changes are two nonce increments:
 
-- One on the Council or Foundation safe (`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B` for Foundation and `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977` for Council). If this is not decoded, it corresponds to key `0x05` on a `GnosisSafeProxy`.
+- One on the Council or Foundation safe (`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` for Council and `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` for Foundation). If this is not decoded, it corresponds to key `0x05` on a `GnosisSafeProxy`.
 - One on the owner on the account that sent the transaction.

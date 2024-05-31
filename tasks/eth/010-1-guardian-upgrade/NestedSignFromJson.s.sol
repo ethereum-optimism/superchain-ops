@@ -48,13 +48,21 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         // https://github.com/ethereum-optimism/optimism/releases/tag/op-contracts%2Fv1.4.0-rc.4
         require(ISemver(proxies.L1CrossDomainMessenger).version().eq("2.3.0"), "semver-100");
         require(ISemver(proxies.L1StandardBridge).version().eq("2.1.0"), "semver-200");
-        require(ISemver(proxies.DisputeGameFactory).version().eq("1.0.0"), "semver-300");
         require(ISemver(proxies.OptimismMintableERC20Factory).version().eq("1.9.0"), "semver-400");
-        require(ISemver(proxies.OptimismPortal).version().eq("3.10.0"), "semver-500");
-        require(ISemver(proxies.SystemConfig).version().eq("2.2.0"), "semver-600");
         require(ISemver(proxies.L1ERC721Bridge).version().eq("2.1.0"), "semver-700");
         require(ISemver(proxies.ProtocolVersions).version().eq("1.0.0"), "semver-800");
         require(ISemver(proxies.SuperchainConfig).version().eq("1.1.0"), "semver-900");
+
+        // These are changed during the Fault Proof Upgrade in tasks/eth/009.
+        if (isLiveExecution()) {
+            require(ISemver(proxies.DisputeGameFactory).version().eq("1.0.0"), "semver-300");
+            require(ISemver(proxies.OptimismPortal).version().eq("3.10.0"), "semver-500");
+            require(ISemver(proxies.SystemConfig).version().eq("2.2.0"), "semver-600");
+        } else {
+            require(ISemver(proxies.L2OutputOracle).version().eq("1.8.0"), "semver-300");
+            require(ISemver(proxies.OptimismPortal).version().eq("2.5.0"), "semver-500");
+            require(ISemver(proxies.SystemConfig).version().eq("1.12.0"), "semver-600");
+        }
     }
 
     /// @notice Asserts that the SuperchainConfig is setup correctly
@@ -184,6 +192,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         _proxies.L1StandardBridge = stdJson.readAddress(addressesJson, "$.L1StandardBridgeProxy");
         if (isLiveExecution()) {
             _proxies.DisputeGameFactory = stdJson.readAddress(addressesJson, "$.DisputeGameFactoryProxy");
+        } else {
+            _proxies.L2OutputOracle = stdJson.readAddress(addressesJson, "$.L2OutputOracleProxy");
         }
         _proxies.OptimismMintableERC20Factory =
             stdJson.readAddress(addressesJson, "$.OptimismMintableERC20FactoryProxy");
