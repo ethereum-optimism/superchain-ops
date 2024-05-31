@@ -223,3 +223,4 @@ workflows:
       - just_simulate_sc_rehearsal_1
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
+      - just_simulate_009-fp-upgrade
