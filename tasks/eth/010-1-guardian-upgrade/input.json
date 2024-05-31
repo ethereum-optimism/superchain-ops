@@ -1,7 +1,7 @@
 {
   "version": "1.0",
-  "chainId": "11155111",
-  "createdAt": 1713498850778,
+  "chainId": "1",
+  "createdAt": 1717189817422,
   "meta": {
     "name": "Guardian Upgrade",
     "description": "Reinitializes the SuperchainConfig with the Security Council as Guardian, instead of the Optimism Foundation",

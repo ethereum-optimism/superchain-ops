@@ -174,7 +174,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         return msg.sig == this.runJson.selector;
     }
 
-    /// @notice Reads the contract addresses from lib/superchain-registry/superchain/extra/addresses/${l1ChainName}/${l2ChainName}.json
+    /// @notice Reads the contract addresses from the superchain registry.
     function _getContractSet() internal returns (Types.ContractSet memory _proxies) {
         string memory addressesJson;
 
