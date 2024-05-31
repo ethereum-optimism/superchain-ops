@@ -10,7 +10,7 @@ This is the playbook for executing part of [Upgrade #8](https://gov.optimism.io/
 The proposal was:
 
 - [X] Posted on the governance forum here: https://gov.optimism.io/t/upgrade-proposal-guardian-security-council-threshold-and-l2-proxyadmin-ownership-changes-for-stage-1-decentralization/8157
-- [ ] Approved by Token House voting here
+- [X] Approved by Token House voting here: https://vote.optimism.io/proposals/89250535338859095270968116984279971013811713632639468811376241520756760598962
 - [ ] Not vetoed by the Citizens' house here
 - [X] [Executed on OP Sepolia](https://github.com/ethereum-optimism/superchain-ops/tree/main/tasks/opsep/001-update-l2pao-to-aliased-l1pao)
 
