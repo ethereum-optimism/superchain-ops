@@ -190,6 +190,8 @@ jobs:
               install
             forge build
             export SIMULATE_WITHOUT_LEDGER=1
+            export FOUNDRY_SENDER=0xF0871b2F75ecD07e2D709b7a2cc0AF6848c1cE76
+            export TEST_SENDER=0xF0871b2F75ecD07e2D709b7a2cc0AF6848c1cE76
             just \
               --dotenv-path .env \
               --justfile ../../../presigned-pause.just \
