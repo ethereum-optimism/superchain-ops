@@ -133,37 +133,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         console.log("All assertions passed!");
     }
 
-    function getCodeExceptions() internal view override returns (address[] memory) {
-        // Safe owners will appear in storage in the LivenessGuard when added, and they are allowed
-        // to have code AND to have no code.
-        address[] memory securityCouncilSafeOwners = securityCouncilSafe.getOwners();
-
-        // To make sure we probably handle all signers whether or not they have code, first we count
-        // the number of signers that have no code.
-        uint256 numberOfSafeSignersWithNoCode;
-        for (uint256 i = 0; i < securityCouncilSafeOwners.length; i++) {
-            if (securityCouncilSafeOwners[i].code.length == 0) {
-                numberOfSafeSignersWithNoCode++;
-            }
-        }
-
-        // Then we extract those EOA addresses into a dedicated array.
-        uint256 trackedSignersWithNoCode;
-        address[] memory safeSignersWithNoCode = new address[](numberOfSafeSignersWithNoCode);
-        for (uint256 i = 0; i < securityCouncilSafeOwners.length; i++) {
-            if (securityCouncilSafeOwners[i].code.length == 0) {
-                safeSignersWithNoCode[trackedSignersWithNoCode] = securityCouncilSafeOwners[i];
-                trackedSignersWithNoCode++;
-            }
-        }
-
-        // And finally, we set the Safe signer exceptions.
-        address[] memory shouldHaveCodeExceptions = new address[](numberOfSafeSignersWithNoCode);
-        for (uint256 i = 0; i < safeSignersWithNoCode.length; i++) {
-            shouldHaveCodeExceptions[i] = safeSignersWithNoCode[i];
-        }
-
-        return shouldHaveCodeExceptions;
+    function getCodeExceptions() internal view override returns (address[] memory exceptions) {
+        // No exceptions are expected in this task, but it must be implemented.
     }
 
     function isLiveExecution() internal pure returns (bool) {
