@@ -218,6 +218,24 @@ jobs:
               --justfile ../../../nested.just \
               simulate foundation
 
+  just_simulate_eth-010-2-sc-changes:
+    docker:
+      - image: <<pipeline.parameters.ci_builder_image>>
+
+    steps:
+      - checkout
+      - run:
+          name: just simulate eth 010-2-sc-changes
+          command: |
+            go install github.com/mikefarah/yq/v4@latest
+            just install
+            cd tasks/eth/010-2-sc-changes
+            export SIMULATE_WITHOUT_LEDGER=1
+            just \
+              --dotenv-path .env \
+              --justfile ../../../single.just \
+              simulate
+
   forge_test:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
@@ -267,3 +285,4 @@ workflows:
       - just_simulate_oeth-002-update-l2pao-to-aliased-l1pao
       - just_simulate_009-fp-upgrade
       - just_simulate_eth-010-1-guardian-upgrade
+      - just_simulate_eth-010-2-sc-changes
