@@ -12,7 +12,7 @@ import {Vm} from "forge-std/Vm.sol";
 /// @notice A script that reads a JSON file and builds a series of transactions from it. This script is
 ///     intended to be used only in the presigned pause runbooks.
 contract PresignPauseFromJson is MultisigBuilder, JsonTxBuilderBase {
-    function _addGenericOverrides() internal view override returns (SimulationStateOverride memory override_) {
+    function _addGenericOverrides() internal view virtual override returns (SimulationStateOverride memory override_) {
         // If SIMULATE_WITHOUT_LEDGER is set, we add an override to allow the script to run using the same
         // test address as defined in presigned-pause.just. This is necessary because the presigner tool requires
         // access to the private key of the address that will sign the transaction. Therefore we must insert a test

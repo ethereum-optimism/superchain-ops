@@ -34,6 +34,12 @@ whoami hdPath='0':
 sign hdPath='0':
     #!/usr/bin/env bash
     set -x
+    script=PresignPauseFromJson
+    if [ -f "${taskPath}/PresignPauseFromJson.s.sol" ]; then
+      script="${taskPath}/PresignPauseFromJson.s.sol:PresignPauseFromJson"
+      echo "Running script with assertions"
+    fi
+    echo "Using script ${script}"
     REPO_ROOT=`git rev-parse --show-toplevel`
     PATH="$REPO_ROOT/bin:$PATH"
     export INPUT_JSON_PATH="${taskPath}/input.json"
@@ -42,7 +48,7 @@ sign hdPath='0':
       if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
         presigner \
           --workdir . \
-          --script-name PresignPauseFromJson \
+          --script-name ${script} \
           --rpc-url ${rpcUrl} \
           --json-file $JSON_FILE \
           --ledger \
@@ -53,7 +59,7 @@ sign hdPath='0':
         export TEST_SENDER=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         presigner \
           --workdir ${taskPath} \
-          --script-name PresignPauseFromJson \
+          --script-name ${script} \
           --rpc-url ${rpcUrl} \
           --json-file $JSON_FILE \
           --mnemonic "$TEST_MNEMONIC" \
@@ -69,6 +75,12 @@ sign hdPath='0':
 prepare:
   #!/usr/bin/env bash
   set -x
+  script=PresignPauseFromJson
+  if [ -f "${taskPath}/PresignPauseFromJson.s.sol" ]; then
+    script="${taskPath}/PresignPauseFromJson.s.sol:PresignPauseFromJson"
+    echo "Running script with assertions"
+  fi
+  echo "Using script ${script}"
   REPO_ROOT=`git rev-parse --show-toplevel`
   PATH="$REPO_ROOT/bin:$PATH"
   echo Preparing transactions to sign...
@@ -79,7 +91,7 @@ prepare:
   for nonce in ${PRESIGN_NONCES[@]}; do
     presigner \
       --workdir ${taskPath} \
-      --script-name PresignPauseFromJson \
+      --script-name ${script} \
       --chain `cast chain-id` \
       --rpc-url ${rpcUrl} \
       --target-addr ${deputyGuardianModuleAddr} \
@@ -107,13 +119,18 @@ merge:
 
 verify:
   #!/usr/bin/env bash
+  script=PresignPauseFromJson
+  if [ -f "${taskPath}/PresignPauseFromJson.s.sol" ]; then
+    script="${taskPath}/PresignPauseFromJson.s.sol:PresignPauseFromJson"
+    echo "Running script with assertions"
+  fi
   REPO_ROOT=`git rev-parse --show-toplevel`
   PATH="$REPO_ROOT/bin:$PATH"
   export INPUT_JSON_PATH="${taskPath}/input.json"
   for nonce in ${PRESIGN_NONCES[@]}; do
     presigner \
       --workdir ${taskPath} \
-      --script-name PresignPauseFromJson \
+      --script-name ${script} \
       --rpc-url ${rpcUrl} \
       --json-file ${taskPath}/tx/draft-${nonce}.json \
       verify
@@ -121,13 +138,18 @@ verify:
 
 simulate-all:
   #!/usr/bin/env bash
+    script=PresignPauseFromJson
+  if [ -f "${taskPath}/PresignPauseFromJson.s.sol" ]; then
+    script="${taskPath}/PresignPauseFromJson.s.sol:PresignPauseFromJson"
+    echo "Running script with assertions"
+  fi
   REPO_ROOT=`git rev-parse --show-toplevel`
   PATH="$REPO_ROOT/bin:$PATH"
   export INPUT_JSON_PATH="${taskPath}/input.json"
   for nonce in ${PRESIGN_NONCES[@]}; do
     presigner \
       --workdir ${taskPath} \
-      --script-name PresignPauseFromJson \
+      --script-name ${script} \
       --rpc-url ${rpcUrl} \
       --json-file ${taskPath}/tx/draft-${nonce}.json \
       simulate
