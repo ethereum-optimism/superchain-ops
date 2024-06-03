@@ -34,11 +34,11 @@ Enables the simulation by setting the threshold to 1:
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000004` <br/>
   **Value:** `0x0000000000000000000000000000000000000000000000000000000000000001`
-  **Meaning:** The threshold is set to 1. The key can be validated by the location of the `threshold` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L14).
+  **Meaning:** The threshold is set to 1. The key can be validated by the location of the `threshold` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L14).
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
   **Value:** `0x0000000000000000000000000000000000000000000000000000000000000004`
-  **Meaning:** Sets the Safe nonce to the hardcoded value of 4. This is the expected value of the Safe nonce at the time of execution. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
+  **Meaning:** Sets the Safe nonce to the hardcoded value of 4. This is the expected value of the Safe nonce at the time of execution. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
 
 ## State Changes
 
@@ -50,7 +50,7 @@ Links:
 **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
 **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
 **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
-**Meaning:** The nonce has been increased to 1. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
+**Meaning:** The nonce has been increased to 1. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
 
 The following two changes are both updates to the `modules` mapping, which is in [slot 1](https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L10).
 
@@ -76,12 +76,12 @@ Links:
 **Key:** `0x0000000000000000000000000000000000000000000000000000000000000004` <br/>
 **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
 **After:** `0x000000000000000000000000000000000000000000000000000000000000000a` <br/>
-**Meaning:** The threshold has been increased to 10. The key can be validated by the location of the `threshold` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L14). The before value shown is 1, rather than the actual value of 4, because of the state override.
+**Meaning:** The threshold has been increased to 10. The key can be validated by the location of the `threshold` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L14). The before value shown is 1, rather than the actual value of 4, because of the state override.
 
 **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
 **Before:** `0x0000000000000000000000000000000000000000000000000000000000000004` <br/>
 **After:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
-**Meaning:** The nonce has been increased to 5. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
+**Meaning:** The nonce has been increased to 5. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
 
 **Key:** `0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8` <br/>
 **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>

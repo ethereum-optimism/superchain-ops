@@ -22,11 +22,11 @@ Overrides:
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000004` <br/>
   **Value:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
-  **Meaning:** Enables the simulation by setting the threshold to 1. The key can be validated by the location of the `threshold` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L14).
+  **Meaning:** Enables the simulation by setting the threshold to 1. The key can be validated by the location of the `threshold` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L14).
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
   **Value:** `0x0000000000000000000000000000000000000000000000000000000000000003` <br/>
-  **Meaning:** Sets the nonce to 3 for simulation and signing, since this is the expected nonce of the Safe at the time of execution. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
+  **Meaning:** Sets the nonce to 3 for simulation and signing, since this is the expected nonce of the Safe at the time of execution. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
 
 ### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Council Safe) or `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation Safe)
 
@@ -38,17 +38,17 @@ The Safe you are signing for will have the following overrides which will set th
 
 - **Key:** 0x0000000000000000000000000000000000000000000000000000000000000003 <br/>
   **Value:** 0x0000000000000000000000000000000000000000000000000000000000000001 <br/>
-  **Meaning:** The number of owners is set to 1. The key can be validated by the location of the `ownerCount` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L13).
+  **Meaning:** The number of owners is set to 1. The key can be validated by the location of the `ownerCount` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L13).
 
 - **Key:** 0x0000000000000000000000000000000000000000000000000000000000000004 <br/>
   **Value:** 0x0000000000000000000000000000000000000000000000000000000000000001 <br/>
-  **Meaning:** The threshold is set to 1. The key can be validated by the location of the `threshold` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L14).
+  **Meaning:** The threshold is set to 1. The key can be validated by the location of the `threshold` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L14).
 
 - **Key:** 0x0000000000000000000000000000000000000000000000000000000000000005 <br/>
   **Value:** 0x0000000000000000000000000000000000000000000000000000000000000003 <br/>
-  **Meaning:** Sets the nonce to 3 for simulation and signing, since this is the expected nonce of the Safe at the time of execution. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
+  **Meaning:** Sets the nonce to 3 for simulation and signing, since this is the expected nonce of the Safe at the time of execution. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
 
-The following two overrides are modifications to the [`owners` mapping](https://github.com/safe-global/safe-contracts/blob/v1.4.0/contracts/libraries/SafeStorage.sol#L15). For the purpose of calculating the storage, note that this mapping is in slot `2`.
+The following two overrides are modifications to the [`owners` mapping](https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L12). For the purpose of calculating the storage, note that this mapping is in slot `2`.
 This mapping implements a linked list for iterating through the list of owners. Since we'll only have one owner (Multicall), and the `0x01` address is used as the first and last entry in the linked list, we will see the following overrides:
 - `owners[1] -> 0xca11bde05977b3631167028862be2a173976ca11`
 - `owners[0xca11bde05977b3631167028862be2a173976ca11] -> 1`
@@ -74,7 +74,7 @@ State Changes:
 - **Key:** 0x0000000000000000000000000000000000000000000000000000000000000005 <br/>
   **Before:** 0x0000000000000000000000000000000000000000000000000000000000000003 <br/>
   **After:** 0x0000000000000000000000000000000000000000000000000000000000000004 <br/>
-  **Meaning:** The nonce is increased from 3 to 4. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
+  **Meaning:** The nonce is increased from 3 to 4. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
 
 #### For the Council:
 
@@ -83,7 +83,7 @@ State Changes:
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **Meaning:** The GnosisSafe `approvedHashes` mapping is updated to indicate approval of this transaction by the council. The correctness of this slot can be verified as follows:
     - Since this is a nested mapping, we need to use `cast index` twice to confirm that this is the correct slot. The inputs needed are:
-      - The location (`8`) of the `approvedHashes` mapping in the [GnosisSafe storage layout](https://github.com/safe-global/safe-contracts/blob/v1.4.0/contracts/libraries/SafeStorage.sol#L23)
+      - The location (`8`) of the `approvedHashes` mapping in the [GnosisSafe storage layout](https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L20)
       - The address of the Council Safe: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`
       - The safe hash to approve: `0xdf2a3aeca4b1cd128382510b6c124106e5ee616405a19b1324371a5fa6240289`
     - The using `cast index`, we can verify that:
@@ -105,7 +105,7 @@ State Changes:
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **Meaning:** The GnosisSafe `approvedHashes` mapping is updated to indicate approval of this transaction by the council. The correctness of this slot can be verified as follows:
     - Since this is a nested mapping, we need to use `cast index` twice to confirm that this is the correct slot. The inputs needed are:
-      - The location (`8`) of the `approvedHashes` mapping in the [GnosisSafe storage layout](https://github.com/safe-global/safe-contracts/blob/v1.4.0/contracts/libraries/SafeStorage.sol#L23)
+      - The location (`8`) of the `approvedHashes` mapping in the [GnosisSafe storage layout](https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L20)
       - The address of the Foundation Safe: `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`
       - The safe hash to approve: `0xdf2a3aeca4b1cd128382510b6c124106e5ee616405a19b1324371a5fa6240289`
     - The using `cast index`, we can verify that:
