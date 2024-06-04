@@ -63,6 +63,8 @@ contract SignFromJson is OriginalSignFromJson {
     uint256 constant expectedGuardMinOwners = 8;
     uint256 constant expectedGuardThresholdPercentage = 75;
     uint256 constant expectedThreshold = 10;
+    uint256 constant expectedSecurityCouncilOwnersCount = 13;
+    uint256 constant expectedGuardianSafeOwnersCount = 1;
 
     // Safe contract for this task.
     GnosisSafe securityCouncilSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
@@ -238,6 +240,12 @@ contract SignFromJson is OriginalSignFromJson {
         // Check 5. The main Security Council Safe has it's threshold increased to 10.
         uint256 threshold = securityCouncilSafe.getThreshold();
         require(threshold == expectedThreshold, "checkOwnershipModel-400");
+
+        // Sanity checks that the owner counts have not changed.
+        address[] memory scSafeOwners = securityCouncilSafe.getOwners();
+        require(scSafeOwners.length == expectedSecurityCouncilOwnersCount, "checkOwnershipModel-500");
+        address[] memory guardianSafeOwners = expectedGuardian.getOwners();
+        require(guardianSafeOwners.length == expectedGuardianSafeOwnersCount, "checkOwnershipModel-600");
     }
 
     function checkStateDiff(Vm.AccountAccess[] memory accountAccesses) internal view override {
