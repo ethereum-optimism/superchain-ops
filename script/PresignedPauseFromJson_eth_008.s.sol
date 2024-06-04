@@ -4,6 +4,9 @@ pragma solidity ^0.8.15;
 import {PresignPauseFromJson as OriginalPresignPauseFromJson} from "./PresignPauseFromJson.s.sol";
 import {console} from "forge-std/console.sol";
 
+/// @title PresignPauseFromJson_eth_008
+/// @notice This script is intended for one time use, and can be deleted after the tasks/eth/008-presign-pause runbook
+///         is completed.
 contract PresignPauseFromJson_eth_008 is OriginalPresignPauseFromJson {
     address guardianSafe = vm.envAddress("GUARDIAN_SAFE_ADDR");
 
