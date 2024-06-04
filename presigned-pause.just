@@ -47,7 +47,7 @@ sign hdPath='0':
       JSON_FILE="${taskPath}/tx/draft-${nonce}.json"
       if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
         presigner \
-          --workdir . \
+          --workdir ${taskPath} \
           --script-name ${script} \
           --rpc-url ${rpcUrl} \
           --json-file $JSON_FILE \
@@ -56,6 +56,7 @@ sign hdPath='0':
           sign
       else
         TEST_MNEMONIC="test test test test test test test test test test test junk"
+        export FOUNDRY_SENDER=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         export TEST_SENDER=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         presigner \
           --workdir ${taskPath} \
