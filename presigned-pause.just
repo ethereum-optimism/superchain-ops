@@ -85,8 +85,8 @@ prepare:
   echo Preparing transactions to sign...
   echo
   if [ -n "$SCRIPT" ]; then
-      script=$SCRIPT
-    fi
+    script=$SCRIPT
+  fi
 
   export INPUT_JSON_PATH="${taskPath}/input.json"
   mkdir -p ${taskPath}/tmp
