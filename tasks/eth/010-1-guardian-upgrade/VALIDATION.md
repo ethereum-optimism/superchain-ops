@@ -130,7 +130,7 @@ State Changes:
 - **Key:** 0xd30e835d3f35624761057ff5b27d558f97bd5be034621e62240e5c0b784abe68<br/>
   **Before:** 0x0000000000000000000000009ba6e03d8b90de867373db8cf1a58d2f7f006b3a<br/>
   **After:** 0x00000000000000000000000009f7150d8c019bef34450d6920f6b3608cefdaf2<br/>
-  **Meaning:** The Guardian address has been updated from `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A` (Foundation Upgrades Safe) to `0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2` (1/1 Safe owned by the Security Council).
+  **Meaning:** The Guardian address has been updated from `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A` (Foundation Operations Safe) to `0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2` (1/1 Safe owned by the Security Council).
     The key is `keccak256("superchainConfig.guardian") - 1` ([ref](https://github.com/ethereum-optimism/optimism/blob/9047beb54c66a5c572784efec8984f259302ec92/packages/contracts-bedrock/src/L1/SuperchainConfig.sol#L23)),
     which can be verified using `cast keccak "superchainConfig.guardian"`, then subtracting 1 from the result.
 
