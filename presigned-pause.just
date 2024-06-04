@@ -35,9 +35,8 @@ sign hdPath='0':
     #!/usr/bin/env bash
     set -x
     script=PresignPauseFromJson
-    if [ -f "${taskPath}/PresignPauseFromJson.s.sol" ]; then
-      script="${taskPath}/PresignPauseFromJson.s.sol:PresignPauseFromJson"
-      echo "Running script with assertions"
+    if [ -n "$SCRIPT" ]; then
+      script=$SCRIPT
     fi
     echo "Using script ${script}"
     REPO_ROOT=`git rev-parse --show-toplevel`
@@ -77,15 +76,17 @@ prepare:
   #!/usr/bin/env bash
   set -x
   script=PresignPauseFromJson
-  if [ -f "${taskPath}/PresignPauseFromJson.s.sol" ]; then
-    script="${taskPath}/PresignPauseFromJson.s.sol:PresignPauseFromJson"
-    echo "Running script with assertions"
+  if [ -n "$SCRIPT" ]; then
+    script=$SCRIPT
   fi
   echo "Using script ${script}"
   REPO_ROOT=`git rev-parse --show-toplevel`
   PATH="$REPO_ROOT/bin:$PATH"
   echo Preparing transactions to sign...
   echo
+  if [ -n "$SCRIPT" ]; then
+      script=$SCRIPT
+    fi
 
   export INPUT_JSON_PATH="${taskPath}/input.json"
   mkdir -p ${taskPath}/tmp
@@ -121,10 +122,10 @@ merge:
 verify:
   #!/usr/bin/env bash
   script=PresignPauseFromJson
-  if [ -f "${taskPath}/PresignPauseFromJson.s.sol" ]; then
-    script="${taskPath}/PresignPauseFromJson.s.sol:PresignPauseFromJson"
-    echo "Running script with assertions"
+  if [ -n "$SCRIPT" ]; then
+    script=$SCRIPT
   fi
+  echo "Using script ${script}"
   REPO_ROOT=`git rev-parse --show-toplevel`
   PATH="$REPO_ROOT/bin:$PATH"
   export INPUT_JSON_PATH="${taskPath}/input.json"
@@ -139,11 +140,11 @@ verify:
 
 simulate-all:
   #!/usr/bin/env bash
-    script=PresignPauseFromJson
-  if [ -f "${taskPath}/PresignPauseFromJson.s.sol" ]; then
-    script="${taskPath}/PresignPauseFromJson.s.sol:PresignPauseFromJson"
-    echo "Running script with assertions"
+  script=PresignPauseFromJson
+  if [ -n "$SCRIPT" ]; then
+    script=$SCRIPT
   fi
+  echo "Using script ${script}"
   REPO_ROOT=`git rev-parse --show-toplevel`
   PATH="$REPO_ROOT/bin:$PATH"
   export INPUT_JSON_PATH="${taskPath}/input.json"

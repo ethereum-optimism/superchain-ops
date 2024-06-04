@@ -2,7 +2,14 @@
 
 Status: DRAFT
 
-See [../../../PRESIGNED-PAUSE.md](../../../PRESIGNED-PAUSE.md) for the playbook.
+Set the `SCRIPT` env var with the following command:
+
+```
+export SCRIPT=PresignPauseFromJson_eth_008
+```
+
+Then see [../../../PRESIGNED-PAUSE.md](../../../PRESIGNED-PAUSE.md) for the remainder of the
+playbook.
 
 ## Additional Overrides
 

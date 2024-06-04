@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import {PresignPauseFromJson as OriginalPresignPauseFromJson} from "script/PresignPauseFromJson.s.sol";
+import {PresignPauseFromJson as OriginalPresignPauseFromJson} from "./PresignPauseFromJson.s.sol";
 import {console} from "forge-std/console.sol";
 
-contract PresignPauseFromJson is OriginalPresignPauseFromJson {
+contract PresignPauseFromJson_eth_008 is OriginalPresignPauseFromJson {
     address guardianSafe = vm.envAddress("GUARDIAN_SAFE_ADDR");
 
     /// @notice Adds the Guardian Safe and DeputyGuardianModule to the simulation state.

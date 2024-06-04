@@ -190,6 +190,7 @@ jobs:
               install
             forge build
             export SIMULATE_WITHOUT_LEDGER=1
+            export SCRIPT=PresignPauseFromJson_eth_008
             export FOUNDRY_SENDER=0x3041BA32f451F5850c147805F5521AC206421623
             export TEST_SENDER=0x3041BA32f451F5850c147805F5521AC206421623
             just \
