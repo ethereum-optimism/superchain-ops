@@ -20,7 +20,7 @@ a presigned pause playbook.
 The following is an explanation of those overrides. All other validation steps should be contained
 in the PRESIGNED_PAUSE.md playbook linked to above.
 
-### `0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2` (GuardianSafe)
+### `0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2` (1/1 Guardian Safe)
 
 Links:
 - [Etherscan](https://etherscan.io/address/0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2).
