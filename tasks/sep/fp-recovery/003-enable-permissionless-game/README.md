@@ -1,26 +1,26 @@
-# Guardian - Enable Permissioness Dispute Game task
-
-## Objective
+# Deputy Guardian - Enable Permissioness Dispute Game
 
 This task updates the `respectedGameType` in the `OptimismPortal` to `CANNON`, enabling users to permissionlessly propose outputs as well as for anyone to participate in the dispute of these proposals. This action requires all in-progress withdrawals to be re-proven against a new `FaultDisputeGame` that was created after this update occurs.
 
 The batch will be executed on chain ID `11155111`, and contains `1` transactions.
 
-### Tx #1: Update `respectedGameType` in the `OptimismPortal`
+## Tx #1: Update `respectedGameType` in the `OptimismPortal`
 
 Updates the `respectedGameType` to `CANNON` in the `OptimismPortal`, enabling permissionless proposals and challenging.
 
-**Function Signature:** `setRespectedGameType(uint32)`
+**Function Signature:** `setRespectedGameType(address,uint32)`
 
-**To:** `0x16Fc5058F25648194471939df75CF27A2fdC48BC`
+**To:** `0x4220C5deD9dC2C8a8366e684B098094790C72d3c`
 
 **Value:** `0 WEI`
 
-**Raw Input Data:** `0x7fc485040000000000000000000000000000000000000000000000000000000000000000`
+**Raw Input Data:** `0xa1155ed900000000000000000000000016fc5058f25648194471939df75cf27a2fdc48bc0000000000000000000000000000000000000000000000000000000000000000`
 
-#### Inputs
+### Inputs
 
-`_gameType`: `0`
+**\_gameType:** `0`
+
+**\_portal:** `0x16Fc5058F25648194471939df75CF27A2fdC48BC`
 
 ## Preparing the Operation
 

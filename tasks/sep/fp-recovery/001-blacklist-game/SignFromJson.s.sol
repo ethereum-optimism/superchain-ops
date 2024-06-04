@@ -48,7 +48,7 @@ contract SignFromJson is OriginalSignFromJson {
             revert(string.concat("Failed to read ", path));
         }
 
-        address blacklistedGame = stdJson.readAddress(inputJson, "$.transactions[0].contractInputsValues._disputeGameProxy");
+        address blacklistedGame = stdJson.readAddress(inputJson, "$.transactions[0].contractInputsValues._game");
         require(portal.disputeGameBlacklist(IDisputeGame(blacklistedGame)), "Dispute game is not blacklisted");
     }
 
