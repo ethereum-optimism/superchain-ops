@@ -154,7 +154,7 @@ Now click on the "State" tab. Verify that:
    `paused` variable is successfully changed from `false` to `true`. The
    storage key hash is evaluated from the following expression:
    `bytes32(uint256(keccak256("superchainConfig.paused")) - 1)` per the
-   `SuperchainConfig` [implementation](https://github.com/ethereum-optimism/optimism/blob/856c08bf84d9aa829d1e764fc8e9a37d41960ba0/packages/contracts-bedrock/src/L1/SuperchainConfig.sol#L23).
+   `SuperchainConfig` [implementation](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.5.0-rc.1/packages/contracts-bedrock/src/L1/SuperchainConfig.sol#L19).
 3. There are no other significant state changes except for 2 nonce
    changes from the Safe and the signer address.
 4. You will see a state override (not a state change). This is
