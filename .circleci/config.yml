@@ -180,7 +180,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: just simulate sepolia 008-presigned-pause
+          name: just simulate mainnet 008-presigned-pause
           command: |
             just install
             cd tasks/eth/008-presigned-pause
