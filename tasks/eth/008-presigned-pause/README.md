@@ -1,8 +1,10 @@
 # Superchain Presigned Pause
 
-Status: DRAFT
+Status: READY TO SIGN
 
-Set the `SCRIPT` env var with the following command:
+## Instructions
+
+Begin by setting the `SCRIPT` env var with the following command:
 
 ```
 export SCRIPT=PresignPauseFromJson_eth_008
