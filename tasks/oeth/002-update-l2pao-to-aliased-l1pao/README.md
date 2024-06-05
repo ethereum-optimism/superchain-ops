@@ -10,7 +10,7 @@ The proposal was:
 
 - [X] Posted on the governance forum [here](https://gov.optimism.io/t/upgrade-proposal-guardian-security-council-threshold-and-l2-proxyadmin-ownership-changes-for-stage-1-decentralization/8157).
 - [X] Approved by Token House voting [here](https://vote.optimism.io/proposals/89250535338859095270968116984279971013811713632639468811376241520756760598962).
-- [ ] Not vetoed by the Citizens' house here (IN PROGRESS).
+- [X] Not vetoed by the Citizens' house [here](https://snapshot.org/#/citizenshouse.eth/proposal/0x21f7126c1636cecdcf7522eadbf6e1b20ca22a2230faf871209fcd21dc999d81).
 - [X] [Executed on OP Sepolia](https://github.com/ethereum-optimism/superchain-ops/tree/main/tasks/opsep/001-update-l2pao-to-aliased-l1pao).
 
 The governance proposal should be treated as the source of truth and used to verify the correctness
