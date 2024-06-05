@@ -25,6 +25,16 @@ contract PresignPauseFromJson is MultisigBuilder, JsonTxBuilderBase {
         }
     }
 
+    /// @notice Overrides the MultisigBuilder's _addOverrides function to prevent creating multiple separate state
+    ///         overrides for the owner safe when using SIMULATE_WITHOUT_LEDGER.
+    function _addOverrides(address _safe) internal view override returns (SimulationStateOverride memory override_) {
+        if (vm.envOr("SIMULATE_WITHOUT_LEDGER", false) || vm.envOr("SIMULATE_WITHOUT_LEDGER", uint256(0)) == 1) {
+            override_;
+        } else {
+            override_ = super._addOverrides(_safe);
+        }
+    }
+
     function _buildCalls() internal view override returns (IMulticall3.Call3[] memory) {
         string memory jsonContent = vm.readFile(vm.envOr("INPUT_JSON_PATH", string("input.json")));
         return _buildCallsFromJson(jsonContent);
