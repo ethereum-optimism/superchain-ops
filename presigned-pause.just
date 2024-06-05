@@ -34,6 +34,11 @@ whoami hdPath='0':
 sign hdPath='0':
     #!/usr/bin/env bash
     set -x
+    script=PresignPauseFromJson
+    if [ -n "$SCRIPT" ]; then
+      script=$SCRIPT
+    fi
+    echo "Using script ${script}"
     REPO_ROOT=`git rev-parse --show-toplevel`
     PATH="$REPO_ROOT/bin:$PATH"
     export INPUT_JSON_PATH="${taskPath}/input.json"
@@ -41,8 +46,8 @@ sign hdPath='0':
       JSON_FILE="${taskPath}/tx/draft-${nonce}.json"
       if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
         presigner \
-          --workdir . \
-          --script-name PresignPauseFromJson \
+          --workdir ${taskPath} \
+          --script-name ${script} \
           --rpc-url ${rpcUrl} \
           --json-file $JSON_FILE \
           --ledger \
@@ -50,10 +55,11 @@ sign hdPath='0':
           sign
       else
         TEST_MNEMONIC="test test test test test test test test test test test junk"
+        export FOUNDRY_SENDER=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         export TEST_SENDER=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         presigner \
           --workdir ${taskPath} \
-          --script-name PresignPauseFromJson \
+          --script-name ${script} \
           --rpc-url ${rpcUrl} \
           --json-file $JSON_FILE \
           --mnemonic "$TEST_MNEMONIC" \
@@ -69,17 +75,25 @@ sign hdPath='0':
 prepare:
   #!/usr/bin/env bash
   set -x
+  script=PresignPauseFromJson
+  if [ -n "$SCRIPT" ]; then
+    script=$SCRIPT
+  fi
+  echo "Using script ${script}"
   REPO_ROOT=`git rev-parse --show-toplevel`
   PATH="$REPO_ROOT/bin:$PATH"
   echo Preparing transactions to sign...
   echo
+  if [ -n "$SCRIPT" ]; then
+    script=$SCRIPT
+  fi
 
   export INPUT_JSON_PATH="${taskPath}/input.json"
   mkdir -p ${taskPath}/tmp
   for nonce in ${PRESIGN_NONCES[@]}; do
     presigner \
       --workdir ${taskPath} \
-      --script-name PresignPauseFromJson \
+      --script-name ${script} \
       --chain `cast chain-id` \
       --rpc-url ${rpcUrl} \
       --target-addr ${deputyGuardianModuleAddr} \
@@ -107,13 +121,18 @@ merge:
 
 verify:
   #!/usr/bin/env bash
+  script=PresignPauseFromJson
+  if [ -n "$SCRIPT" ]; then
+    script=$SCRIPT
+  fi
+  echo "Using script ${script}"
   REPO_ROOT=`git rev-parse --show-toplevel`
   PATH="$REPO_ROOT/bin:$PATH"
   export INPUT_JSON_PATH="${taskPath}/input.json"
   for nonce in ${PRESIGN_NONCES[@]}; do
     presigner \
       --workdir ${taskPath} \
-      --script-name PresignPauseFromJson \
+      --script-name ${script} \
       --rpc-url ${rpcUrl} \
       --json-file ${taskPath}/tx/draft-${nonce}.json \
       verify
@@ -121,13 +140,18 @@ verify:
 
 simulate-all:
   #!/usr/bin/env bash
+  script=PresignPauseFromJson
+  if [ -n "$SCRIPT" ]; then
+    script=$SCRIPT
+  fi
+  echo "Using script ${script}"
   REPO_ROOT=`git rev-parse --show-toplevel`
   PATH="$REPO_ROOT/bin:$PATH"
   export INPUT_JSON_PATH="${taskPath}/input.json"
   for nonce in ${PRESIGN_NONCES[@]}; do
     presigner \
       --workdir ${taskPath} \
-      --script-name PresignPauseFromJson \
+      --script-name ${script} \
       --rpc-url ${rpcUrl} \
       --json-file ${taskPath}/tx/draft-${nonce}.json \
       simulate

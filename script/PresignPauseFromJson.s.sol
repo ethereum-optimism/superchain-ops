@@ -3,6 +3,7 @@ pragma solidity ^0.8.15;
 
 import {JsonTxBuilderBase} from "src/JsonTxBuilderBase.sol";
 import {MultisigBuilder} from "@base-contracts/script/universal/MultisigBuilder.sol";
+import {IGnosisSafe} from "@eth-optimism-bedrock/scripts/interfaces/IGnosisSafe.sol";
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {console} from "forge-std/console.sol";
@@ -12,14 +13,25 @@ import {Vm} from "forge-std/Vm.sol";
 /// @notice A script that reads a JSON file and builds a series of transactions from it. This script is
 ///     intended to be used only in the presigned pause runbooks.
 contract PresignPauseFromJson is MultisigBuilder, JsonTxBuilderBase {
-    function _addGenericOverrides() internal view override returns (SimulationStateOverride memory override_) {
+    function _addGenericOverrides() internal view virtual override returns (SimulationStateOverride memory override_) {
         // If SIMULATE_WITHOUT_LEDGER is set, we add an override to allow the script to run using the same
         // test address as defined in presigned-pause.just. This is necessary because the presigner tool requires
         // access to the private key of the address that will sign the transaction. Therefore we must insert a test
         // address into the owners list.
         if (vm.envOr("SIMULATE_WITHOUT_LEDGER", false) || vm.envOr("SIMULATE_WITHOUT_LEDGER", uint256(0)) == 1) {
             console.log("Adding override for test sender");
-            override_ = overrideSafeThresholdAndOwner(_ownerSafe(), vm.envAddress("TEST_SENDER"));
+            uint256 nonce = _getNonce(IGnosisSafe(_ownerSafe()));
+            override_ = overrideSafeThresholdOwnerAndNonce(_ownerSafe(), vm.envAddress("TEST_SENDER"), nonce);
+        }
+    }
+
+    /// @notice Overrides the MultisigBuilder's _addOverrides function to prevent creating multiple separate state
+    ///         overrides for the owner safe when using SIMULATE_WITHOUT_LEDGER.
+    function _addOverrides(address _safe) internal view override returns (SimulationStateOverride memory override_) {
+        if (vm.envOr("SIMULATE_WITHOUT_LEDGER", false) || vm.envOr("SIMULATE_WITHOUT_LEDGER", uint256(0)) == 1) {
+            override_;
+        } else {
+            override_ = super._addOverrides(_safe);
         }
     }
 
