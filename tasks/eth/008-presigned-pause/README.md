@@ -51,3 +51,32 @@ Links:
   **Meaning:** The Guardian slot of the `SuperchainConfig` is set to the Guardian Safe address at `0x9f7150d8c019bef34450d6920f6b3608cefdaf2`.
      This is the same value it will be set to once [tasks/eth/010-1-guardian-upgrade](../010-1-guardian-upgrade/README.md) is executed. The slot can be computed as `cast keccak "superchainConfig.guardian"` then subtracting 1 from the result, as seen in the Superchain Config [here](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.5.0-rc.1/packages/contracts-bedrock/src/L1/SuperchainConfig.sol#L23).
 
+
+### `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A` (Foundation Operations Safe)
+
+The Safe will have the following overrides to set your address as the sole owner of the signing safe, to allow simulating the tx in Tenderly.
+
+- **Key:** 0x0000000000000000000000000000000000000000000000000000000000000003 <br/>
+  **Value:** 0x0000000000000000000000000000000000000000000000000000000000000001 <br/>
+  **Meaning:** The number of owners is set to 1. The key can be validated by the location of the `ownerCount` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L13).
+
+- **Key:** 0x0000000000000000000000000000000000000000000000000000000000000004 <br/>
+  **Value:** 0x0000000000000000000000000000000000000000000000000000000000000001 <br/>
+  **Meaning:** The threshold is set to 1. The key can be validated by the location of the `threshold` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L14).
+
+The following two overrides are modifications to the [`owners` mapping](https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L12). For the purpose of calculating the storage, note that this mapping is in slot `2`.
+This mapping implements a linked list for iterating through the list of owners. Since we'll only have one owner (Multicall), and the `0x01` address is used as the first and last entry in the linked list, we will see the following overrides:
+- `owners[1] -> 0xca11bde05977b3631167028862be2a173976ca11`
+- `owners[0xca11bde05977b3631167028862be2a173976ca11] -> 1`
+
+And we do indeed see these entries:
+
+- **Key:** 0x316a0aac0d94f5824f0b66f5bbe94a8c360a17699a1d3a233aafcf7146e9f11c <br/>
+  **Value:** 0x0000000000000000000000000000000000000000000000000000000000000001 <br/>
+  **Meaning:** This is `owners[0xca11bde05977b3631167028862be2a173976ca11] -> 1`, so the key can be
+    derived from `cast index address 0xca11bde05977b3631167028862be2a173976ca11 2`.
+
+- **Key:** 0xe90b7bceb6e7df5418fb78d8ee546e97c83a08bbccc01a0644d599ccd2a7c2e0 <br/>
+  **Value:** 0x000000000000000000000000ca11bde05977b3631167028862be2a173976ca11 <br/>
+  **Meaning:** This is `owners[1] -> 0xca11bde05977b3631167028862be2a173976ca11`, so the key can be
+    derived from `cast index address 0x0000000000000000000000000000000000000001 2`.
