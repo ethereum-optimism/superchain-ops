@@ -3,6 +3,7 @@ pragma solidity ^0.8.15;
 
 import {JsonTxBuilderBase} from "src/JsonTxBuilderBase.sol";
 import {MultisigBuilder} from "@base-contracts/script/universal/MultisigBuilder.sol";
+import {IGnosisSafe} from "@eth-optimism-bedrock/scripts/interfaces/IGnosisSafe.sol";
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {console} from "forge-std/console.sol";
@@ -19,7 +20,8 @@ contract PresignPauseFromJson is MultisigBuilder, JsonTxBuilderBase {
         // address into the owners list.
         if (vm.envOr("SIMULATE_WITHOUT_LEDGER", false) || vm.envOr("SIMULATE_WITHOUT_LEDGER", uint256(0)) == 1) {
             console.log("Adding override for test sender");
-            override_ = overrideSafeThresholdAndOwner(_ownerSafe(), vm.envAddress("TEST_SENDER"));
+            uint256 nonce = _getNonce(IGnosisSafe(_ownerSafe()));
+            override_ = overrideSafeThresholdOwnerAndNonce(_ownerSafe(), vm.envAddress("TEST_SENDER"), nonce);
         }
     }
 
