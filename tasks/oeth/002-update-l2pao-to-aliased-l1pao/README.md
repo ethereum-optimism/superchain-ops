@@ -1,6 +1,6 @@
 # OP Mainnet - Update L2ProxyAdmin owner to the aliased L1ProxyAdmin owner address
 
-Status: DRAFT
+Status: READY TO SIGN
 
 ## Objective
 

@@ -1,6 +1,7 @@
 # Mainnet Fault Proofs Upgrade
 
-STATUS: DRAFT DO NOT EXECUTE
+STATUS: READY TO SIGN
+
 ## Objective
 
 This is the playbook for executing the Fault Proofs upgrade on Mainnet.
