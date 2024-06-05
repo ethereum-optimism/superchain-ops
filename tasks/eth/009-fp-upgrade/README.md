@@ -15,6 +15,12 @@ Governance post of the Fault Proofs upgrade can be found at https://gov.optimism
 
 Details on the upgrade procedure can be found in [EXEC.md](./EXEC.md). Signers need not validate the, but they are provided for reference.
 
+The proposal was:
+
+- [X] Posted on the governance forum [here](https://gov.optimism.io/t/upgrade-proposal-fault-proofs/8161).
+- [X] Approved by Token House voting [here](https://vote.optimism.io/proposals/72085170435228531173144599119267762084652443676555508407874836206178427511368).
+- [X] Not vetoed by the Citizens' house [here](https://snapshot.org/#/citizenshouse.eth/proposal/0xe2d86afceea73f2e2734550bec73af395b78826413fb3622b57dce43b2fd7b94).
+
 ## Preparing the Upgrade
 
 The contract implementations and new proxies for the Fault Proof system have been pre-deployed to mainnet.
