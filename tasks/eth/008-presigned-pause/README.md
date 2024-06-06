@@ -50,7 +50,7 @@ Links:
 
 - **Key:** 0xd30e835d3f35624761057ff5b27d558f97bd5be034621e62240e5c0b784abe68 <br/>
   **Value:** 0x00000000000000000000000009f7150d8c019bef34450d6920f6b3608cefdaf2 <br/>
-  **Meaning:** The Guardian slot of the `SuperchainConfig` is set to the Guardian Safe address at `0x9f7150d8c019bef34450d6920f6b3608cefdaf2`.
+  **Meaning:** The Guardian slot of the `SuperchainConfig` is set to the Guardian Safe address at `0x09f7150d8c019bef34450d6920f6b3608cefdaf2`.
      This is the same value it will be set to once [tasks/eth/010-1-guardian-upgrade](../010-1-guardian-upgrade/README.md) is executed. The slot can be computed as `cast keccak "superchainConfig.guardian"` then subtracting 1 from the result, as seen in the Superchain Config [here](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.5.0-rc.1/packages/contracts-bedrock/src/L1/SuperchainConfig.sol#L23).
 
 
