@@ -58,28 +58,10 @@ Links:
 
 The Safe will have the following overrides to set your address as the sole owner of the signing safe, to allow simulating the tx in Tenderly.
 
-- **Key:** 0x0000000000000000000000000000000000000000000000000000000000000003 <br/>
-  **Value:** 0x0000000000000000000000000000000000000000000000000000000000000001 <br/>
-  **Meaning:** The number of owners is set to 1. The key can be validated by the location of the `ownerCount` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L13).
-
 - **Key:** 0x0000000000000000000000000000000000000000000000000000000000000004 <br/>
   **Value:** 0x0000000000000000000000000000000000000000000000000000000000000001 <br/>
   **Meaning:** The threshold is set to 1. The key can be validated by the location of the `threshold` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L14).
 
-The following two overrides are modifications to the [`owners` mapping](https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L12). For the purpose of calculating the storage, note that this mapping is in slot `2`.
-This mapping implements a linked list for iterating through the list of owners. Since we'll only have one owner (the current signer), and the `0x01` address is used as the first and last entry in the linked list, we will see the following overrides. Note that the below values are examples, and you must replace `0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266` with your signer's address to get the correct values shown for you.
-
-- `owners[1] -> 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266`
-- `owners[0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266] -> 1`
-
-And we do indeed see these entries:
-
-- **Key:** 0xbc40fbf4394cd00f78fae9763b0c2c71b21ea442c42fdadc5b720537240ebac1 <br/>
-  **Value:** 0x0000000000000000000000000000000000000000000000000000000000000001 <br/>
-  **Meaning:** This is `owners[0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266] -> 1`, so the key can be
-    derived from `cast index address 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266 2`.
-
-- **Key:** 0xe90b7bceb6e7df5418fb78d8ee546e97c83a08bbccc01a0644d599ccd2a7c2e0 <br/>
-  **Value:** 0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266 <br/>
-  **Meaning:** This is `owners[1] -> 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266`, so the key can be
-    derived from `cast index address 0x0000000000000000000000000000000000000001 2`.
+- **Key:** 0x0000000000000000000000000000000000000000000000000000000000000005 <br/>
+  **Value:** 0x00000000000000000000000000000000000000000000000000000000000000XX <br/>
+  **Meaning:** This is the nonce override. You will not see it when signing the first nonce (as it matches to the current nonce). In subsequent simulations the value will be in the range from 0x5d to 0x60.
