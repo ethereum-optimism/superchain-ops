@@ -19,7 +19,7 @@ install-presigner:
     PATH="$REPO_ROOT/bin:$PATH"
     cd $REPO_ROOT
     mkdir -p bin || true
-    GOBIN="$REPO_ROOT/bin" go install github.com/ethereum-optimism/presigner@v0.0.4
+    GOBIN="$REPO_ROOT/bin" go install github.com/ethereum-optimism/presigner@v0.0.5
 
 whoami hdPath='0':
     #!/usr/bin/env bash
