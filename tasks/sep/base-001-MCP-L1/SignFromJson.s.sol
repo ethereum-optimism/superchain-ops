@@ -36,6 +36,10 @@ interface IFetcher {
     function owner() external returns (address); // ProtocolVersions
     function required() external returns (uint256); // ProtocolVersions
     function recommended() external returns (uint256); // ProtocolVersions
+    function l2OutputOracle() external view returns (address); // L2OutputOracle Address, replaced by DGF in FP code
+    function L2_ORACLE() external view returns (address);
+    function SYSTEM_CONFIG() external view returns (address);
+    function GUARDIAN() external view returns (address);
 }
 
 contract SignFromJson is OriginalSignFromJson {
@@ -48,7 +52,7 @@ contract SignFromJson is OriginalSignFromJson {
     // Known EOAs to exclude from safety checks.
     address constant l2OutputOracleProposer = 0x20044a0d104E9e788A0C984A2B7eAe615afD046b; // cast call $L2OO "PROPOSER()(address)"
     address constant l2OutputOracleChallenger = 0xDa3037Ff70Ac92CD867c683BD807e5A484857405; // In registry addresses.
-    address constant systemConfigOwner = 0x608081689Fe46936fB2fBDF7552CbB1D80ad4822; // In registry addresses.
+    address constant systemConfigOwner = 0x0fe884546476dDd290eC46318785046ef68a0BA9; // In registry addresses.
     address constant batchSenderAddress = 0x6CDEbe940BC0F26850285cacA097C11c33103E47; // In registry genesis-system-configs
     address constant p2pSequencerAddress = 0xb830b99c95Ea32300039624Cb567d324D4b1D83C; // cast call $SystemConfig "unsafeBlockSigner()(address)"
     address constant batchInboxAddress = 0x24567B64a86A4c966655fba6502a93dFb701E316; // In registry yaml.
@@ -157,9 +161,9 @@ contract SignFromJson is OriginalSignFromJson {
         require(systemConfig.l1StandardBridge().code.length != 0, "1901");
         require(EIP1967Helper.getImplementation(systemConfig.l1StandardBridge()).code.length != 0, "1902");
 
-        require(systemConfig.l2OutputOracle() == proxies.L2OutputOracle, "2000");
-        require(systemConfig.l2OutputOracle().code.length != 0, "2001");
-        require(EIP1967Helper.getImplementation(systemConfig.l2OutputOracle()).code.length != 0, "2002");
+        require(IFetcher(address(systemConfig)).l2OutputOracle() == proxies.L2OutputOracle, "2000");
+        require(IFetcher(address(systemConfig)).l2OutputOracle().code.length != 0, "2001");
+        require(EIP1967Helper.getImplementation(IFetcher(address(systemConfig)).l2OutputOracle()).code.length != 0, "2002");
 
         require(systemConfig.optimismPortal() == proxies.OptimismPortal, "2100");
         require(systemConfig.optimismPortal().code.length != 0, "2101");
@@ -293,17 +297,18 @@ contract SignFromJson is OriginalSignFromJson {
 
         OptimismPortal portalToCheck = OptimismPortal(payable(proxies.OptimismPortal));
 
-        require(address(portalToCheck.L2_ORACLE()) == proxies.L2OutputOracle, "5800");
+        require(IFetcher(address(portalToCheck)).L2_ORACLE() == proxies.L2OutputOracle, "5800");
         require(address(portalToCheck.l2Oracle()) == proxies.L2OutputOracle, "5900");
         require(address(portalToCheck.l2Oracle()).code.length != 0, "5901");
         require(EIP1967Helper.getImplementation(address(portalToCheck.l2Oracle())).code.length != 0, "5902");
 
-        require(address(portalToCheck.SYSTEM_CONFIG()) == proxies.SystemConfig, "6000");
+        require(IFetcher(address(portalToCheck)).SYSTEM_CONFIG() == proxies.SystemConfig, "6000");
         require(address(portalToCheck.systemConfig()) == proxies.SystemConfig, "6100");
         require(address(portalToCheck.systemConfig()).code.length != 0, "6101");
         require(EIP1967Helper.getImplementation(address(portalToCheck.systemConfig())).code.length != 0, "6102");
 
-        require(portalToCheck.GUARDIAN() == superchainConfigGuardian, "6200");
+        // require(portalToCheck.GUARDIAN() == superchainConfigGuardian, "6200");
+        // require(IFetcher(address(portalToCheck)).GUARDIAN() == superchainConfigGuardian, "6200");
         require(portalToCheck.guardian() == superchainConfigGuardian, "6300");
         require(portalToCheck.guardian().code.length != 0, "6350"); // This is a Safe, no need to check the implementation.
 
