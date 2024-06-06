@@ -322,7 +322,7 @@ just \
 
 WARNING: do not simulate using public tenderly projects, anyone who
 can see the simulation will be able to extract the signature and
-execute the pasue!
+execute the pause!
 
 To simulate the transaction, run the following command:
 
@@ -339,7 +339,7 @@ The simulate command will output the Tenderly simulation link, new
 Files with prefix `ready-` are transactions fully signed and ready
 to be executed.
 
-The additional file with extention `.sh.b64` is a oneliner script,
+The additional file with extension `.sh.b64` is a one-liner script,
 which can be quickly executed from command line.
 
 ### 5. Store and execute the transaction
