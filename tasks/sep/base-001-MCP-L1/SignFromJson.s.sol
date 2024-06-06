@@ -39,7 +39,6 @@ interface IFetcher {
     function l2OutputOracle() external view returns (address); // L2OutputOracle Address, replaced by DGF in FP code
     function L2_ORACLE() external view returns (address);
     function SYSTEM_CONFIG() external view returns (address);
-    function GUARDIAN() external view returns (address);
 }
 
 contract SignFromJson is OriginalSignFromJson {
@@ -55,10 +54,10 @@ contract SignFromJson is OriginalSignFromJson {
     address constant systemConfigOwner = 0x0fe884546476dDd290eC46318785046ef68a0BA9; // In registry addresses.
     address constant batchSenderAddress = 0x6CDEbe940BC0F26850285cacA097C11c33103E47; // In registry genesis-system-configs
     address constant p2pSequencerAddress = 0xb830b99c95Ea32300039624Cb567d324D4b1D83C; // cast call $SystemConfig "unsafeBlockSigner()(address)"
-    address constant batchInboxAddress = 0x24567B64a86A4c966655fba6502a93dFb701E316; // In registry yaml.
+    address constant batchInboxAddress = 0xfF00000000000000000000000000000000084532; // In registry yaml.
 
     // Hardcoded data that should not change after execution.
-    uint256 l2GenesisBlockGasLimit = 30e6;
+    uint256 l2GenesisBlockGasLimit = 45e6;
     uint256 xdmSenderSlotNumber = 204; // Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L93-L99
 
     // Data that should not change after execution, fetching during `setUp`.
@@ -88,7 +87,7 @@ contract SignFromJson is OriginalSignFromJson {
 
         // Fetch variables that are not expected to change from an older block.
         initialFork = vm.activeFork();
-        vm.createSelectFork(vm.envString("ETH_RPC_URL"), 5995983); // This block is from May-28-2024 08:17:48 PM +UTC.
+        vm.createSelectFork(vm.envString("ETH_RPC_URL"), block.number - 10); 
 
         gasPriceOracleOverhead = IFetcher(proxies.SystemConfig).overhead();
         gasPriceOracleScalar = IFetcher(proxies.SystemConfig).scalar();
@@ -133,6 +132,7 @@ contract SignFromJson is OriginalSignFromJson {
         require(systemConfig.overhead() == gasPriceOracleOverhead, "400");
         require(systemConfig.scalar() == gasPriceOracleScalar, "500");
         require(systemConfig.batcherHash() == bytes32(uint256(uint160(batchSenderAddress))), "600");
+        console.log(systemConfig.gasLimit());
         require(systemConfig.gasLimit() == uint64(l2GenesisBlockGasLimit), "700");
         require(systemConfig.unsafeBlockSigner() == p2pSequencerAddress, "800");
 
@@ -307,8 +307,6 @@ contract SignFromJson is OriginalSignFromJson {
         require(address(portalToCheck.systemConfig()).code.length != 0, "6101");
         require(EIP1967Helper.getImplementation(address(portalToCheck.systemConfig())).code.length != 0, "6102");
 
-        // require(portalToCheck.GUARDIAN() == superchainConfigGuardian, "6200");
-        // require(IFetcher(address(portalToCheck)).GUARDIAN() == superchainConfigGuardian, "6200");
         require(portalToCheck.guardian() == superchainConfigGuardian, "6300");
         require(portalToCheck.guardian().code.length != 0, "6350"); // This is a Safe, no need to check the implementation.
 
@@ -372,14 +370,13 @@ contract SignFromJson is OriginalSignFromJson {
     }
 
     function getCodeExceptions() internal pure override returns (address[] memory) {
-        address[] memory shouldHaveCodeExceptions = new address[](6);
+        address[] memory shouldHaveCodeExceptions = new address[](5);
 
         shouldHaveCodeExceptions[0] = l2OutputOracleProposer;
         shouldHaveCodeExceptions[1] = l2OutputOracleChallenger;
-        shouldHaveCodeExceptions[2] = systemConfigOwner;
-        shouldHaveCodeExceptions[3] = batchSenderAddress;
-        shouldHaveCodeExceptions[4] = p2pSequencerAddress;
-        shouldHaveCodeExceptions[5] = batchInboxAddress;
+        shouldHaveCodeExceptions[2] = batchSenderAddress;
+        shouldHaveCodeExceptions[3] = p2pSequencerAddress;
+        shouldHaveCodeExceptions[4] = batchInboxAddress;
 
         return shouldHaveCodeExceptions;
     }
