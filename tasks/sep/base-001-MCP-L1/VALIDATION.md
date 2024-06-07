@@ -13,7 +13,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 The following state overrides should be seen:
 
-### `0x0fe884546476dDd290eC46318785046ef68a0BA9` (The 1 of 1 `ProxyAdmin` owner Safe)
+### `0x0fe884546476dDd290eC46318785046ef68a0BA9` (The `ProxyAdmin` owner Safe)
 
 Links:
 - [Etherscan](https://sepolia.etherscan.io/address/0x0fe884546476dDd290eC46318785046ef68a0BA9)
@@ -31,7 +31,7 @@ Enables the simulation by setting the threshold to 1:
   in [Proxy.sol](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/src/universal/Proxy.sol#L104) and [Constants.sol](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/src/libraries/Constants.sol#L26-L27). This is useful for [ERC-1967](https://eips.ethereum.org/EIPS/eip-1967) proxies.
 - Check the provided links to ensure that the correct contract is described at the correct address. The superchain registry is the source of truth for contract addresses and etherscan is supplementary.
 
-### `0x0fe884546476ddd290ec46318785046ef68a0ba9` (The 1 of 1 `ProxyAdmin` owner Safe)
+### `0x0fe884546476ddd290ec46318785046ef68a0ba9` (The `ProxyAdmin` owner Safe)
 
 Links:
 - [Etherscan](https://sepolia.etherscan.io/address/0x0fe884546476ddd290ec46318785046ef68a0ba9)
@@ -121,7 +121,7 @@ todo: this state change was not in the template, need to check if this initializ
 
 Links:
 - [Etherscan](https://sepolia.etherscan.io/address/0x709c2B8ef4A9feFc629A8a2C1AF424Dc5BD6ad1B)
-- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L2)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/a62fd38c9239459b27ea50a2df895e89a3305382/superchain/extra/addresses/sepolia/base.json#L2)
 
 State Changes:
 - **Key:** `0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e` <br/>
@@ -179,7 +179,6 @@ todo: new state change, meaning needs to be checked
   **Meaning:** Sets `proposer` at slot `0x07` (7). The correctness of
    this slot is attested to in the Optimism repo at [storageLayout/L2OutputOracle.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/L2OutputOracle.json#L59-L63). This value matches the current address found by `cast call 0x84457ca9d0163fbc4bbfe4dfbb20ba46e48df254 "PROPOSER()(address)" -r https://ethereum-sepolia.publicnode.com`.
 
-todo: this one differs from the template as well, the finalizationPeriodSeconds is set to 12 (0xc) on Base Sepolia, the template said: Units are in seconds, so the value should be `0x93a80` which is 604,800 in decimal.
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000008` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x000000000000000000000000000000000000000000000000000000000000000c` <br/>
@@ -195,7 +194,7 @@ todo: this one differs from the template as well, the finalizationPeriodSeconds 
 
 Links:
 - [Etherscan](https://sepolia.etherscan.io/address/0xb1efB9650aD6d0CC1ed3Ac4a0B7f1D5732696D37)
-- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L7)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/base.json#L7)
 
 State Changes:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
@@ -222,7 +221,7 @@ todo: actual state changes 4 vs 3 in the template
 
 Links:
 - [Etherscan](https://sepolia.etherscan.io/address/0x5D335Aa7d93102110879e3B54985c5F08146091E)
-- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L3)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/base.json#L3)
 
 State Changes:
 todo: is this one set to true? value doesn't seem to indicate that
@@ -274,7 +273,7 @@ that the address actually matches the correct implementation, an Etherscan link 
 [l1-erc721-etherscan]: https://sepolia.etherscan.io/address/0x21eFD066e581FA55Ef105170Cc04d74386a09190
 [portal-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/a62fd38c9239459b27ea50a2df895e89a3305382/superchain/extra/addresses/sepolia/base.json#L8
 [portal-etherscan]: https://sepolia.etherscan.io/address/0x49f53e41452C74589E85cA1677426Ba426459e85
-[batch-inbox-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/configs/sepolia/metal.yaml#L9
+[batch-inbox-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/configs/sepolia/base.yaml#L10
 [batch-inbox-etherscan]: https://sepolia.etherscan.io/address/0x24567B64a86A4c966655fba6502a93dFb701E316
 [l1-standard-bridge-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/a62fd38c9239459b27ea50a2df895e89a3305382/superchain/extra/addresses/sepolia/base.json#L5
 [l1-standard-bridge-etherscan]: https://sepolia.etherscan.io/address/0xfd0Bf71F60660E2f608ed56e1659C450eB113120
