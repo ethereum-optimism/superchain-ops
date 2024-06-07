@@ -87,7 +87,6 @@ Links:
 - [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/a62fd38c9239459b27ea50a2df895e89a3305382/superchain/extra/addresses/sepolia/base.json#L8)
 
 State Changes:
-todo: this state change was not in the template, need to check if this initialization is expected and if the meaning I added is correct.
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000002` <br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
@@ -141,14 +140,11 @@ State Changes:
 
 ### `0x84457ca9d0163fbc4bbfe4dfbb20ba46e48df254` (`L2OutputOracleProxy`)
 
-todo: there are 7 state changes in the simulated tx vs the templates 6
-
 Links:
 - [Etherscan](https://sepolia.etherscan.io/address/0x84457ca9d0163fbc4bbfe4dfbb20ba46e48df254)
 - [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/a62fd38c9239459b27ea50a2df895e89a3305382/superchain/extra/addresses/sepolia/base.json#L6)
 
 State Changes:
-todo: new state change, meaning needs to be checked
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000002` <br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
@@ -217,8 +213,6 @@ State Changes:
 
 ### `0x5D335Aa7d93102110879e3B54985c5F08146091E` (`L1CrossDomainMessengerProxy`)
 
-todo: actual state changes 4 vs 3 in the template
-
 Links:
 - [Etherscan](https://sepolia.etherscan.io/address/0x5D335Aa7d93102110879e3B54985c5F08146091E)
 - [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/base.json#L3)
@@ -252,8 +246,6 @@ todo: is this one set to true? value doesn't seem to indicate that
 
 
 ### `0xf272670eb55e895584501d564AfEB048bEd26194` (`SystemConfigProxy`)
-
-todo: simulated state changes 3, vs template's 8
 
 Links:
 - [Etherscan](https://sepolia.etherscan.io/address/0xf272670eb55e895584501d564AfEB048bEd26194)
@@ -303,8 +295,6 @@ todo: this one has 12 events vs 5 events in the template, but it should be fine
 
 
 ### `0xfd0Bf71F60660E2f608ed56e1659C450eB113120` (`L1StandardBridgeProxy`)
-
-todo: simulated state changes 4 vs 5 in template
 
 Links:
 - [Etherscan](https://sepolia.etherscan.io/address/0xfd0Bf71F60660E2f608ed56e1659C450eB113120)
