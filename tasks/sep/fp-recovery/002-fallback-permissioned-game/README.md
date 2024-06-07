@@ -43,20 +43,19 @@ Slot [`0x000000000000000000000000000000000000000000000000000000000000003b`](http
 
 Note that the offsets in the above table refer to the slot value's big-endian representation. You can compute the offset values with chisel:
 ```
-➜ uint256 x = 0x000000000000000000000000000000000000000000000000664f90d500000000
+➜ uint256 x = 0x00000000000000000000000000000000000000000000000066302da900000001
 ➜ uint64 respectedGameTypeUpdatedAt = uint64(x >> 32)
 ➜ respectedGameTypeUpdatedAt
 Type: uint64
-├ Hex: 0x00000000664f90d5
-├ Hex (full word): 0x00000000000000000000000000000000000000000000000000000000664f90d5
-└ Decimal: 1716490453
-➜
+├ Hex: 0x0000000066302da9
+├ Hex (full word): 0x0000000000000000000000000000000000000000000000000000000066302da9
+└ Decimal: 1714433449
 ➜ uint32 respectedGameType = uint32(x & 0xFFFFFFFF)
 ➜ respectedGameType
 Type: uint32
-├ Hex: 0x
-├ Hex (full word): 0x0
-└ Decimal: 0
+├ Hex: 0x00000001
+├ Hex (full word): 0x0000000000000000000000000000000000000000000000000000000000000001
+└ Decimal: 1
 ```
 
 To verify the diff:
