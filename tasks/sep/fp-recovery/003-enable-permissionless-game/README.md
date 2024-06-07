@@ -24,13 +24,7 @@ Updates the `respectedGameType` to `CANNON` in the `OptimismPortal`, enabling pe
 
 ## Preparing the Operation
 
-1. Collect signatures for the action.
-
-1. Execute the action.
-
-## Signing and execution
-
-Please see the signing and execution instructions in [SINGLE.md](../../../../SINGLE.md).
+1. Collect signatures and execute the action according to the instructions in [SINGLE.md](../../../../SINGLE.md).
 
 ### State Validations
 
@@ -39,13 +33,31 @@ and `respectedGameTypeUpdatedAt` variables:
 
 ![state-diff](./images/state_diff.png)
 
-Slot `0x000000000000000000000000000000000000000000000000000000000000003b` in the `OptimismPortal` proxy has the following packed layout:
+Slot [`0x000000000000000000000000000000000000000000000000000000000000003b`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0-rc.4/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal2.json#L100C3-L113C5) in the `OptimismPortal` proxy has the following packed layout:
 
 | Offset     | Description                                                  |
 | ---------- | ------------------------------------------------------------ |
 | `[0, 20)`  | Unused; Should be zero'd out.                                |
 | `[20, 28)` | `respectedGameTypeUpdatedAt` timestamp (64 bits, big-endian) |
 | `[28, 32)` | `respectedGameType` (32 bits, big-endian)                    |
+
+Note that the offsets in the above table refer to the slot value's big-endian representation. You can compute the offset values with chisel:
+```
+➜ uint256 x = 0x000000000000000000000000000000000000000000000000664f90d500000000
+➜ uint64 respectedGameTypeUpdatedAt = uint64(x >> 32)
+➜ respectedGameTypeUpdatedAt
+Type: uint64
+├ Hex: 0x00000000664f90d5
+├ Hex (full word): 0x00000000000000000000000000000000000000000000000000000000664f90d5
+└ Decimal: 1716490453
+➜
+➜ uint32 respectedGameType = uint32(x & 0xFFFFFFFF)
+➜ respectedGameType
+Type: uint32
+├ Hex: 0x
+├ Hex (full word): 0x0
+└ Decimal: 0
+```
 
 To verify the diff:
 

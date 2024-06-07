@@ -30,13 +30,7 @@ Executes the `blacklistDisputeGame` call to the `OptimismPortal` proxy
 
 1. Generate the batch with `just generate-input <address>`.
 
-1. Collect signatures for the action.
-
-1. Execute the action.
-
-## Signing and execution
-
-Please see the signing and execution instructions in [SINGLE.md](../../../../SINGLE.md).
+1. Collect signatures and execute the action according to the instructions in [SINGLE.md](../../../../SINGLE.md).
 
 ### State Validations
 
@@ -56,3 +50,5 @@ cast index \
     $BLACKLISTED_ADDRESS \
     $PORTAL_BLACKLIST_MAP_SLOT
 ```
+
+You can verify the expected `PORTAL_BLACKLIST_MAP_SLOT` in [`OptimismPortal` storage layout snapshot](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0-rc.4/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal2.json#L93C1-L99C5)
