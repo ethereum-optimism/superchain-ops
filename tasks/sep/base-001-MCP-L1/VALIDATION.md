@@ -337,5 +337,4 @@ State Changes:
   **Meaning:** Implementation address is set to the new `L1StandardBridge`. The address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/sepolia.yaml#L6).
 
 
-The only other state change is a nonce increment of `0x4672425c27a942bb27e7b9709c1b21ab89a3ca13`,
-which is the account sending the transaction and is the only signer on the safe.
+The only other state change is a nonce increment of the account being used to simulate the transaction.
