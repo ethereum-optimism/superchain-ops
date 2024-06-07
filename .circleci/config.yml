@@ -156,6 +156,24 @@ jobs:
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
 
+  just_simulate_006-2-sc-changes:
+    docker:
+      - image: <<pipeline.parameters.ci_builder_image>>
+
+    steps:
+      - checkout
+      - run:
+          name: just simulate r4-jointly-upgrade
+          command: |
+            go install github.com/mikefarah/yq/v4@latest
+            just install
+            cd tasks/sep/006-2-sc-changes
+            export SIMULATE_WITHOUT_LEDGER=1
+            just \
+              --dotenv-path .env \
+              --justfile ../../../single.just \
+              simulate
+
   just_simulate_sep-base-001-MCP-L1:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
@@ -219,4 +237,4 @@ workflows:
       - just_simulate_sc_rehearsal_1
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
-      - just_simulate_sep-base-001-MCP-L1
+      - just_simulate_006-2-sc-changes
