@@ -132,7 +132,6 @@ contract SignFromJson is OriginalSignFromJson {
         require(systemConfig.overhead() == gasPriceOracleOverhead, "400");
         require(systemConfig.scalar() == gasPriceOracleScalar, "500");
         require(systemConfig.batcherHash() == bytes32(uint256(uint160(batchSenderAddress))), "600");
-        console.log(systemConfig.gasLimit());
         require(systemConfig.gasLimit() == uint64(l2GenesisBlockGasLimit), "700");
         require(systemConfig.unsafeBlockSigner() == p2pSequencerAddress, "800");
 
