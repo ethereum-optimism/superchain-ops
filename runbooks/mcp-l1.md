@@ -8,21 +8,22 @@ also known as Upgrade #4.
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 - [MCP L1 Upgrades Runbook](#mcp-l1-upgrades-runbook)
-  - [Upgrades Involved](#upgrades-involved)
-    - [Extended Pause Overview (Upgrade #4)](#extended-pause-overview-upgrade-4)
-    - [Multi-Chain Prep (MCP) Overview (Upgrade #6)](#multi-chain-prep-mcp-overview-upgrade-6)
-  - [Upgrade Process](#upgrade-process)
-    - [Setup](#setup)
-      - [Local Machine](#local-machine)
-      - [Familiarize yourself with the `single.just` file (superchain-ops repo)](#familiarize-yourself-with-the-singlejust-file-superchain-ops-repo)
-    - [Scaffold the ops task (playbook) for your upgrade (superchain-ops repo)](#scaffold-the-ops-task-playbook-for-your-upgrade-superchain-ops-repo)
-    - [Generate the `input.json` file from the Optimism monorepo](#generate-the-inputjson-file-from-the-optimism-monorepo)
-    - [Simulate and Validate](#simulate-and-validate)
-    - [Add New Chain to CircleCI](#add-new-chain-to-circleci)
-    - [Sign](#sign)
-    - [Facilitators Execute](#facilitators-execute)
-    - [Onchain Validation Ideas](#onchain-validation-ideas)
-  - [Appendix A: Using this Runbook for Other Chains](#appendix-a-using-this-runbook-for-other-chains)
+
+- [Upgrades Involved](#upgrades-involved)
+  - [Extended Pause Overview (Upgrade #4)](#extended-pause-overview-upgrade-4)
+  - [Multi-Chain Prep (MCP) Overview (Upgrade #6)](#multi-chain-prep-mcp-overview-upgrade-6)
+- [Upgrade Process](#upgrade-process)
+  - [Setup](#setup)
+    - [Local Machine](#local-machine)
+    - [Familiarize yourself with the `single.just` file (superchain-ops repo)](#familiarize-yourself-with-the-singlejust-file-superchain-ops-repo)
+  - [Scaffold the ops task (playbook) for your upgrade (superchain-ops repo)](#scaffold-the-ops-task-playbook-for-your-upgrade-superchain-ops-repo)
+  - [Generate the `input.json` file from the Optimism monorepo](#generate-the-inputjson-file-from-the-optimism-monorepo)
+  - [Simulate and Validate](#simulate-and-validate)
+  - [Add New Chain to CircleCI](#add-new-chain-to-circleci)
+  - [Sign](#sign)
+  - [Facilitators Execute](#facilitators-execute)
+  - [Onchain Validation Ideas](#onchain-validation-ideas)
+- [Appendix A: Using this Runbook for Other Chains](#appendix-a-using-this-runbook-for-other-chains)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
