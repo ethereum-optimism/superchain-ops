@@ -1,0 +1,38 @@
+{
+  "chainId": 11155111,
+  "metadata": {
+    "name": "Deputy Guardian - Blacklist Dispute Game",
+    "description": "This task executes a `blacklistDisputeGame` operation in the `OptimismPortal` on behalf of the `Guardian` role. Blacklisting the dispute game prevents any withdrawals proven to be contained within the game's proposed output root from being finalized."
+  },
+  "transactions": [
+    {
+      "metadata": {
+        "name": "Blacklist Dispute Game",
+        "description": "Executes the `blacklistDisputeGame` call to the `OptimismPortal` proxy"
+      },
+      "to": "0x4220c5ded9dc2c8a8366e684b098094790c72d3c",
+      "value": "0x0",
+      "data": "0x629cdd4900000000000000000000000016fc5058f25648194471939df75cf27a2fdc48bc0000000000000000000000000000000000000000000000000000000000000000",
+      "contractMethod": {
+        "type": "function",
+        "name": "blacklistDisputeGame",
+        "inputs": [
+          {
+            "name": "_portal",
+            "type": "address"
+          },
+          {
+            "name": "_game",
+            "type": "address"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_portal": "0x16Fc5058F25648194471939df75CF27A2fdC48BC",
+        "_game": "0x0000000000000000000000000000000000000000"
+      }
+    }
+  ]
+}
