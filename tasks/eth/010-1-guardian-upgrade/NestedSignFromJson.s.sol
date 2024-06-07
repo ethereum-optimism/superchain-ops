@@ -26,7 +26,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     using LibString for string;
 
     // Chains for this task.
-    string constant l1ChainName = "sepolia";
+    string constant l1ChainName = "mainnet";
     string constant l2ChainName = "op";
 
     // Safe contract for this task.
@@ -48,13 +48,21 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         // https://github.com/ethereum-optimism/optimism/releases/tag/op-contracts%2Fv1.4.0-rc.4
         require(ISemver(proxies.L1CrossDomainMessenger).version().eq("2.3.0"), "semver-100");
         require(ISemver(proxies.L1StandardBridge).version().eq("2.1.0"), "semver-200");
-        require(ISemver(proxies.DisputeGameFactory).version().eq("1.0.0"), "semver-300");
         require(ISemver(proxies.OptimismMintableERC20Factory).version().eq("1.9.0"), "semver-400");
-        require(ISemver(proxies.OptimismPortal).version().eq("3.10.0"), "semver-500");
-        require(ISemver(proxies.SystemConfig).version().eq("2.2.0"), "semver-600");
         require(ISemver(proxies.L1ERC721Bridge).version().eq("2.1.0"), "semver-700");
         require(ISemver(proxies.ProtocolVersions).version().eq("1.0.0"), "semver-800");
         require(ISemver(proxies.SuperchainConfig).version().eq("1.1.0"), "semver-900");
+
+        // These are changed during the Fault Proof Upgrade in tasks/eth/009.
+        if (isLiveExecution()) {
+            require(ISemver(proxies.DisputeGameFactory).version().eq("1.0.0"), "semver-300");
+            require(ISemver(proxies.OptimismPortal).version().eq("3.10.0"), "semver-500");
+            require(ISemver(proxies.SystemConfig).version().eq("2.2.0"), "semver-600");
+        } else {
+            require(ISemver(proxies.L2OutputOracle).version().eq("1.8.0"), "semver-300");
+            require(ISemver(proxies.OptimismPortal).version().eq("2.5.0"), "semver-500");
+            require(ISemver(proxies.SystemConfig).version().eq("1.12.0"), "semver-600");
+        }
     }
 
     /// @notice Asserts that the SuperchainConfig is setup correctly
@@ -125,40 +133,19 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         console.log("All assertions passed!");
     }
 
-    function getCodeExceptions() internal view override returns (address[] memory) {
-        // Safe owners will appear in storage in the LivenessGuard when added, and they are allowed
-        // to have code AND to have no code.
-        address[] memory securityCouncilSafeOwners = securityCouncilSafe.getOwners();
-
-        // To make sure we probably handle all signers whether or not they have code, first we count
-        // the number of signers that have no code.
-        uint256 numberOfSafeSignersWithNoCode;
-        for (uint256 i = 0; i < securityCouncilSafeOwners.length; i++) {
-            if (securityCouncilSafeOwners[i].code.length == 0) {
-                numberOfSafeSignersWithNoCode++;
-            }
-        }
-
-        // Then we extract those EOA addresses into a dedicated array.
-        uint256 trackedSignersWithNoCode;
-        address[] memory safeSignersWithNoCode = new address[](numberOfSafeSignersWithNoCode);
-        for (uint256 i = 0; i < securityCouncilSafeOwners.length; i++) {
-            if (securityCouncilSafeOwners[i].code.length == 0) {
-                safeSignersWithNoCode[trackedSignersWithNoCode] = securityCouncilSafeOwners[i];
-                trackedSignersWithNoCode++;
-            }
-        }
-
-        // And finally, we set the Safe signer exceptions.
-        address[] memory shouldHaveCodeExceptions = new address[](numberOfSafeSignersWithNoCode);
-        for (uint256 i = 0; i < safeSignersWithNoCode.length; i++) {
-            shouldHaveCodeExceptions[i] = safeSignersWithNoCode[i];
-        }
-
-        return shouldHaveCodeExceptions;
+    function getCodeExceptions() internal view override returns (address[] memory exceptions) {
+        // No exceptions are expected in this task, but it must be implemented.
     }
 
-    /// @notice Reads the contract addresses from lib/superchain-registry/superchain/extra/addresses/${l1ChainName}/${l2ChainName}.json
+    function isLiveExecution() internal pure returns (bool) {
+        // Some checks will only pass once the prior fault proofs task has been executed. We use
+        // this method to determine if this is the live execution or a simulation. If `runJson` was
+        // the method invoked, this is the live execution. Otherwise, this is a simulation and we
+        // want to apply overrides to behave as if 006-1 was executed.
+        return msg.sig == this.runJson.selector;
+    }
+
+    /// @notice Reads the contract addresses from the superchain registry.
     function _getContractSet() internal returns (Types.ContractSet memory _proxies) {
         string memory addressesJson;
 
@@ -174,7 +161,11 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
         _proxies.L1CrossDomainMessenger = stdJson.readAddress(addressesJson, "$.L1CrossDomainMessengerProxy");
         _proxies.L1StandardBridge = stdJson.readAddress(addressesJson, "$.L1StandardBridgeProxy");
-        _proxies.DisputeGameFactory = stdJson.readAddress(addressesJson, "$.DisputeGameFactoryProxy");
+        if (isLiveExecution()) {
+            _proxies.DisputeGameFactory = stdJson.readAddress(addressesJson, "$.DisputeGameFactoryProxy");
+        } else {
+            _proxies.L2OutputOracle = stdJson.readAddress(addressesJson, "$.L2OutputOracleProxy");
+        }
         _proxies.OptimismMintableERC20Factory =
             stdJson.readAddress(addressesJson, "$.OptimismMintableERC20FactoryProxy");
         _proxies.OptimismPortal = stdJson.readAddress(addressesJson, "$.OptimismPortalProxy");

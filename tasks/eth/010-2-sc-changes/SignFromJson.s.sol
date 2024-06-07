@@ -55,25 +55,28 @@ contract SignFromJson is OriginalSignFromJson {
     bytes32 constant GUARDIAN_SLOT = bytes32(uint256(keccak256("superchainConfig.guardian")) - 1);
 
     // Chains for this task.
-    string constant l1ChainName = "sepolia";
+    string constant l1ChainName = "mainnet";
     string constant l2ChainName = "op";
 
     // Properties we want to verify.
-    uint256 constant expectedGuardLivenessInterval = 62899200;
-    uint256 constant expectedGuardMinOwners = 2;
-    uint256 constant expectedGuardThresholdPercentage = 30;
+    uint256 constant expectedGuardLivenessInterval = 14 weeks;
+    uint256 constant expectedGuardMinOwners = 8;
+    uint256 constant expectedGuardThresholdPercentage = 75;
+    uint256 constant expectedThreshold = 10;
+    uint256 constant expectedSecurityCouncilOwnersCount = 13;
+    uint256 constant expectedGuardianSafeOwnersCount = 1;
 
     // Safe contract for this task.
     GnosisSafe securityCouncilSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
-    GnosisSafe expectedGuardian = GnosisSafe(payable(0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E));
-    GnosisSafe foundationUpgradesSafe = GnosisSafe(payable(0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B));
-    GnosisSafe foundationOperationsSafe = GnosisSafe(payable(0x837DE453AD5F21E89771e3c06239d8236c0EFd5E));
-    GnosisSafe proxyAdminOwnerSafe = GnosisSafe(payable(0x1Eb2fFc903729a0F03966B917003800b145F56E2));
+    GnosisSafe expectedGuardian = GnosisSafe(payable(0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2));
+    GnosisSafe foundationUpgradesSafe = GnosisSafe(payable(0x847B5c174615B1B7fDF770882256e2D3E95b9D92));
+    GnosisSafe foundationOperationsSafe = GnosisSafe(payable(0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A));
+    GnosisSafe proxyAdminOwnerSafe = GnosisSafe(payable(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A));
 
     // Contracts we need to check, which are not in the superchain registry.
-    address expectedDeputyGuardianModule = 0x4220C5deD9dC2C8a8366e684B098094790C72d3c;
-    address expectedLivenessModule = 0xEB3eF34ACF1a6C1630807495bCC07ED3e7B0177e;
-    address expectedLivenessGuard = 0xc26977310bC89DAee5823C2e2a73195E85382cC7;
+    address expectedDeputyGuardianModule = 0x5dC91D01290af474CE21DE14c17335a6dEe4d2a8;
+    address expectedLivenessModule = 0x0454092516c9A4d636d3CAfA1e82161376C8a748;
+    address expectedLivenessGuard = 0x24424336F04440b1c28685a38303aC33C9D14a25;
 
     // All L1 proxy addresses.
     Types.ContractSet proxies;
@@ -86,7 +89,7 @@ contract SignFromJson is OriginalSignFromJson {
     function _addGenericOverrides() internal view override returns (SimulationStateOverride memory override_) {
         // If `runJson` was the method invoked, this is the live execution and we do not want to
         // apply any overrides. Otherwise, this is a simulation and we want to apply overrides to
-        // behave as if 006-1 was executed.
+        // behave as if 010-1 was executed.
         if (msg.sig != this.runJson.selector) {
             SimulationStorageOverride[] memory overrides = new SimulationStorageOverride[](1);
             overrides[0] = SimulationStorageOverride({
@@ -104,13 +107,21 @@ contract SignFromJson is OriginalSignFromJson {
         // https://github.com/ethereum-optimism/optimism/releases/tag/op-contracts%2Fv1.4.0-rc.4
         require(ISemver(proxies.L1CrossDomainMessenger).version().eq("2.3.0"), "semver-100");
         require(ISemver(proxies.L1StandardBridge).version().eq("2.1.0"), "semver-200");
-        require(ISemver(proxies.DisputeGameFactory).version().eq("1.0.0"), "semver-300");
         require(ISemver(proxies.OptimismMintableERC20Factory).version().eq("1.9.0"), "semver-400");
-        require(ISemver(proxies.OptimismPortal).version().eq("3.10.0"), "semver-500");
-        require(ISemver(proxies.SystemConfig).version().eq("2.2.0"), "semver-600");
         require(ISemver(proxies.L1ERC721Bridge).version().eq("2.1.0"), "semver-700");
         require(ISemver(proxies.ProtocolVersions).version().eq("1.0.0"), "semver-800");
         require(ISemver(proxies.SuperchainConfig).version().eq("1.1.0"), "semver-900");
+
+        // These are changed during the Fault Proof Upgrade in tasks/eth/009.
+        if (isLiveExecution()) {
+            require(ISemver(proxies.DisputeGameFactory).version().eq("1.0.0"), "semver-300");
+            require(ISemver(proxies.OptimismPortal).version().eq("3.10.0"), "semver-500");
+            require(ISemver(proxies.SystemConfig).version().eq("2.2.0"), "semver-600");
+        } else {
+            require(ISemver(proxies.L2OutputOracle).version().eq("1.8.0"), "semver-300");
+            require(ISemver(proxies.OptimismPortal).version().eq("2.5.0"), "semver-500");
+            require(ISemver(proxies.SystemConfig).version().eq("1.12.0"), "semver-600");
+        }
     }
 
     /// @notice Asserts that the SuperchainConfig is setup correctly
@@ -205,6 +216,7 @@ contract SignFromJson is OriginalSignFromJson {
         //   3. The main Security Council Safe has the Liveness Module and Liveness Guard installed.
         //   4. The L1 ProxyAdmin owner is a 2/2 Safe between the Security Council Safe and the
         //     Foundation Upgrades Safe.
+        //   5. The main Security Council Safe has it's threshold increased to 10.
         address guardian = SuperchainConfig(proxies.SuperchainConfig).guardian();
 
         // Check 1. The Guardian on the superchain config is the 1/1 Security Council Safe.
@@ -224,6 +236,16 @@ contract SignFromJson is OriginalSignFromJson {
         // Check 4. The L1 ProxyAdmin owner is a 2/2 Safe between the Security Council Safe and the
         // Foundation Upgrades Safe.
         checkProxyAdminOwnerSafe();
+
+        // Check 5. The main Security Council Safe has it's threshold increased to 10.
+        uint256 threshold = securityCouncilSafe.getThreshold();
+        require(threshold == expectedThreshold, "checkOwnershipModel-400");
+
+        // Sanity checks that the owner counts have not changed.
+        address[] memory scSafeOwners = securityCouncilSafe.getOwners();
+        require(scSafeOwners.length == expectedSecurityCouncilOwnersCount, "checkOwnershipModel-500");
+        address[] memory guardianSafeOwners = expectedGuardian.getOwners();
+        require(guardianSafeOwners.length == expectedGuardianSafeOwnersCount, "checkOwnershipModel-600");
     }
 
     function checkStateDiff(Vm.AccountAccess[] memory accountAccesses) internal view override {
@@ -261,40 +283,19 @@ contract SignFromJson is OriginalSignFromJson {
         console.log("All assertions passed!");
     }
 
-    function getCodeExceptions() internal view override returns (address[] memory) {
-        // Safe owners will appear in storage in the LivenessGuard when added, and they are allowed
-        // to have code AND to have no code.
-        address[] memory securityCouncilSafeOwners = securityCouncilSafe.getOwners();
-
-        // To make sure we probably handle all signers whether or not they have code, first we count
-        // the number of signers that have no code.
-        uint256 numberOfSafeSignersWithNoCode;
-        for (uint256 i = 0; i < securityCouncilSafeOwners.length; i++) {
-            if (securityCouncilSafeOwners[i].code.length == 0) {
-                numberOfSafeSignersWithNoCode++;
-            }
-        }
-
-        // Then we extract those EOA addresses into a dedicated array.
-        uint256 trackedSignersWithNoCode;
-        address[] memory safeSignersWithNoCode = new address[](numberOfSafeSignersWithNoCode);
-        for (uint256 i = 0; i < securityCouncilSafeOwners.length; i++) {
-            if (securityCouncilSafeOwners[i].code.length == 0) {
-                safeSignersWithNoCode[trackedSignersWithNoCode] = securityCouncilSafeOwners[i];
-                trackedSignersWithNoCode++;
-            }
-        }
-
-        // And finally, we set the Safe signer exceptions.
-        address[] memory shouldHaveCodeExceptions = new address[](numberOfSafeSignersWithNoCode);
-        for (uint256 i = 0; i < safeSignersWithNoCode.length; i++) {
-            shouldHaveCodeExceptions[i] = safeSignersWithNoCode[i];
-        }
-
-        return shouldHaveCodeExceptions;
+    function getCodeExceptions() internal view override returns (address[] memory exceptions) {
+        // No exceptions are expected in this task, but it must be implemented.
     }
 
-    /// @notice Reads the contract addresses from lib/superchain-registry/superchain/extra/addresses/sepolia/op.json
+    function isLiveExecution() internal pure returns (bool) {
+        // Some checks will only pass once the prior fault proofs task has been executed. We use
+        // this method to determine if this is the live execution or a simulation. If `runJson` was
+        // the method invoked, this is the live execution. Otherwise, this is a simulation and we
+        // want to apply overrides to behave as if 006-1 was executed.
+        return msg.sig == this.runJson.selector;
+    }
+
+    /// @notice Reads the contract addresses from the superchain registry.
     function _getContractSet() internal returns (Types.ContractSet memory _proxies) {
         string memory addressesJson;
 
@@ -310,7 +311,11 @@ contract SignFromJson is OriginalSignFromJson {
 
         _proxies.L1CrossDomainMessenger = stdJson.readAddress(addressesJson, "$.L1CrossDomainMessengerProxy");
         _proxies.L1StandardBridge = stdJson.readAddress(addressesJson, "$.L1StandardBridgeProxy");
-        _proxies.DisputeGameFactory = stdJson.readAddress(addressesJson, "$.DisputeGameFactoryProxy");
+        if (isLiveExecution()) {
+            _proxies.DisputeGameFactory = stdJson.readAddress(addressesJson, "$.DisputeGameFactoryProxy");
+        } else {
+            _proxies.L2OutputOracle = stdJson.readAddress(addressesJson, "$.L2OutputOracleProxy");
+        }
         _proxies.OptimismMintableERC20Factory =
             stdJson.readAddress(addressesJson, "$.OptimismMintableERC20FactoryProxy");
         _proxies.OptimismPortal = stdJson.readAddress(addressesJson, "$.OptimismPortalProxy");

@@ -121,11 +121,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         _proxies.SuperchainConfig = stdJson.readAddress(addressesJson, "$.superchain_config_addr");
     }
 
-    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory simPayload)
-        internal
-        view
-        override
-    {
+    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory) internal view override {
         console.log("Running post-deploy assertions");
         checkSemvers();
         checkStateDiff(accesses);
