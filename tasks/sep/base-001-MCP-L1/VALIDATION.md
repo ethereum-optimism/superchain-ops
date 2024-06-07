@@ -191,10 +191,10 @@ todo: this one differs from the template as well, the finalizationPeriodSeconds 
   **After:** `0x000000000000000000000000f243bed163251380e78068d317ae10f26042b292` <br/>
   **Meaning:** Implementation address is set to the new `L2OutputOracle`. The address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/sepolia.yaml#L8).
 
-### `0x49Ff2C4be882298e8CA7DeCD195c207c42B45F66` (`OptimismMintableERC20FactoryProxy`)
+### `0xb1efB9650aD6d0CC1ed3Ac4a0B7f1D5732696D37` (`OptimismMintableERC20FactoryProxy`)
 
 Links:
-- [Etherscan](https://sepolia.etherscan.io/address/0x49Ff2C4be882298e8CA7DeCD195c207c42B45F66)
+- [Etherscan](https://sepolia.etherscan.io/address/0xb1efB9650aD6d0CC1ed3Ac4a0B7f1D5732696D37)
 - [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/metal.json#L7)
 
 State Changes:
