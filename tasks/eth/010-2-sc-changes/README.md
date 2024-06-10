@@ -1,6 +1,6 @@
 # Security Council Safe Changes
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0x50db9c1b9f5a8616f982022429a1d75c35986bcfb67bd1e3358d97ddbe751144)
 
 ## Objective
 
