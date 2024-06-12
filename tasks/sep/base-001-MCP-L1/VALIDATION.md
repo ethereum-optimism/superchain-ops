@@ -211,10 +211,10 @@ State Changes:
   **After:** `0x000000000000000000000000e01efbeb1089d1d1db9c6c8b135c934c0734c846` <br/>
   **Meaning:** Implementation address is set to the new `OptimismMintableERC20Factory` implementation. The address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/sepolia.yaml#L10).
 
-### `0x5D335Aa7d93102110879e3B54985c5F08146091E` (`L1CrossDomainMessengerProxy`)
+### `0xC34855F4De64F1840e5686e64278da901e261f20` (`L1CrossDomainMessengerProxy`)
 
 Links:
-- [Etherscan](https://sepolia.etherscan.io/address/0x5D335Aa7d93102110879e3B54985c5F08146091E)
+- [Etherscan](https://sepolia.etherscan.io/address/0xC34855F4De64F1840e5686e64278da901e261f20)
 - [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/base.json#L3)
 
 State Changes:
