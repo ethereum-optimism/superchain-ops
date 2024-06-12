@@ -1,6 +1,6 @@
 # Guardian Changes
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0xe361c0d4ae3aebc94b3f281ee372fbb1cbdb0c33ca8b1b35e7f3b009b2fcbdb0)
 
 ## Objective
 
