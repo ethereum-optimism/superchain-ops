@@ -1,6 +1,6 @@
 # OP Mainnet - Update L2ProxyAdmin owner to the aliased L1ProxyAdmin owner address
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://optimistic.etherscan.io/tx/0x93b7a9956faec114c3bac7fd72479ebdc23f8aace38220f8914cbf6af971bf6e)
 
 ## Objective
 
