@@ -218,7 +218,6 @@ Links:
 - [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/extra/addresses/sepolia/base.json#L3)
 
 State Changes:
-todo: is this one set to true? value doesn't seem to indicate that
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **Before:** `0x0000000000000000000000020000000000000000000000000000000000000000` <br/>
   **After:**  `0x0000000000000000000000010000000000000000000000000000000000000000` <br/>
@@ -274,8 +273,6 @@ that the address actually matches the correct implementation, an Etherscan link 
 [output-oracle-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/a62fd38c9239459b27ea50a2df895e89a3305382/superchain/extra/addresses/sepolia/base.json#L6
 [output-oracle-etherscan]: https://sepolia.etherscan.io/address/0x84457ca9D0163FbC4bbfe4Dfbb20ba46e48DF254
 
-todo: this looks like an initialization but it wasn't present in the template
-
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000002` <br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
@@ -285,8 +282,6 @@ todo: this looks like an initialization but it wasn't present in the template
   **Before:** `0x0000000000000000000000001126e5afb588d39c3c5465a15af389146d309581` <br/>
   **After:** `0x000000000000000000000000ba2492e52f45651b60b8b38d4ea5e2390c64ffb1` <br/>
   **Meaning:** Implementation address is set to the new `SystemConfig` per the [Superchain Registry][system-config-registry] and [Etherscan][system-config-etherscan].
-
-todo: this one has 12 events vs 5 events in the template, but it should be fine
 
 - **Key:** `0xa11ee3ab75b40e88a0105e935d17cd36c8faee0138320d776c411291bdbbb19f` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
