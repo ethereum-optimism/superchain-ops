@@ -1,6 +1,6 @@
 # Superchain Presigned Pause
 
-Status: EXECUTED
+Status: SIGNED
 
 ## Instructions
 
