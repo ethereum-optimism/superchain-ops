@@ -21,6 +21,9 @@ remappings = [
   '@solady=lib/optimism/packages/contracts-bedrock/lib/solady/src',
   'ds-test/=lib/optimism/packages/contracts-bedrock/lib/forge-std/lib/ds-test/src',
   'forge-std/=lib/forge-std/src/',
+  'safe-contracts/=lib/optimism/packages/contracts-bedrock/lib/safe-contracts/contracts/',
+  'safe-contracts-v1.3.0/=lib/safe-contracts/contracts/',
+  '@lib-keccak/=lib/optimism/packages/contracts-bedrock/lib/lib-keccak/contracts/lib/'
 ]
 
 [profile.ci]
