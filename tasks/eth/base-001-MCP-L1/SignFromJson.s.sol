@@ -36,6 +36,9 @@ interface IFetcher {
     function owner() external returns (address); // ProtocolVersions
     function required() external returns (uint256); // ProtocolVersions
     function recommended() external returns (uint256); // ProtocolVersions
+    function l2OutputOracle() external view returns (address); // L2OutputOracle Address, replaced by DGF in FP code
+    function L2_ORACLE() external view returns (address);
+    function SYSTEM_CONFIG() external view returns (address);
 }
 
 contract SignFromJson is OriginalSignFromJson {
@@ -43,20 +46,20 @@ contract SignFromJson is OriginalSignFromJson {
 
     // Chains for this task.
     string constant l1ChainName = "mainnet";
-    string constant l2ChainName = "zora";
+    string constant l2ChainName = "base";
 
     // Known Addresses that we expect to be contracts
-    address constant l2OutputOracleChallenger = 0xcA4571b1ecBeC86Ea2E660d242c1c29FcB55Dc72; // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/zora.json#L14C18-L14C60
-    address constant systemConfigOwner = 0xC72aE5c7cc9a332699305E29F68Be66c73b60542; // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/zora.json#L12C25-L12C67
+    address constant l2OutputOracleChallenger = 0x6F8C5bA3F59ea3E76300E3BEcDC231D656017824; // https://github.com/ethereum-optimism/superchain-registry/blob/72861f4bbf15482eedfbf26dffb8507cbd1d720d/superchain/extra/addresses/mainnet/base.json#L14
+    address constant systemConfigOwner = 0x14536667Cd30e52C0b458BaACcB9faDA7046E056; // https://github.com/ethereum-optimism/superchain-registry/blob/645bb0a309970f3cc03ef6ff84670fc35917772a/superchain/extra/addresses/mainnet/base.json#L12
 
     // Known EOAs to exclude from safety checks.
-    address constant l2OutputOracleProposer = 0x48247032092e7b0ecf5dEF611ad89eaf3fC888Dd; // cast call $L2_OUTPUT_ORACLE_PROXY "PROPOSER()(address)" # https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/mode.json#L7
-    address constant batchSenderAddress = 0x625726c858dBF78c0125436C943Bf4b4bE9d9033; // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/genesis-system-configs/mainnet/zora.json#L2C19-L2C61
-    address constant p2pSequencerAddress = 0x3Dc8Dfd0709C835cAd15a6A27e089FF4cF4C9228; // cast call $SYSTEM_CONFIG_PROXY "unsafeBlockSigner()(address)" # https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/mode.json#L3C25-L3C67
-    address constant batchInboxAddress = 0x6F54Ca6F6EdE96662024Ffd61BFd18f3f4e34DFf; // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/configs/mainnet/zora.yaml#L10C20-L10C62
+    address constant l2OutputOracleProposer = 0x642229f238fb9dE03374Be34B0eD8D9De80752c5; // cast call $L2_OUTPUT_ORACLE_PROXY "PROPOSER()(address)" # https://github.com/ethereum-optimism/superchain-registry/blob/645bb0a309970f3cc03ef6ff84670fc35917772a/superchain/extra/addresses/mainnet/base.json#L6
+    address constant batchSenderAddress = 0x5050F69a9786F081509234F1a7F4684b5E5b76C9; // https://github.com/ethereum-optimism/superchain-registry/blob/72861f4bbf15482eedfbf26dffb8507cbd1d720d/superchain/extra/genesis-system-configs/mainnet/base.json#L2
+    address constant p2pSequencerAddress = 0xAf6E19BE0F9cE7f8afd49a1824851023A8249e8a; // cast call $SYSTEM_CONFIG_PROXY "unsafeBlockSigner()(address)" # https://github.com/ethereum-optimism/superchain-registry/blob/645bb0a309970f3cc03ef6ff84670fc35917772a/superchain/extra/addresses/mainnet/base.json#L10
+    address constant batchInboxAddress = 0xFf00000000000000000000000000000000008453; // https://github.com/ethereum-optimism/superchain-registry/blob/72861f4bbf15482eedfbf26dffb8507cbd1d720d/superchain/configs/mainnet/base.yaml#L11
 
     // Hardcoded data that should not change after execution.
-    uint256 l2GenesisBlockGasLimit = 30e6;
+    uint256 l2GenesisBlockGasLimit = 90e6;
     uint256 xdmSenderSlotNumber = 204; // Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L93-L99
 
     // Data that should not change after execution, fetching during `setUp`.
@@ -73,8 +76,8 @@ contract SignFromJson is OriginalSignFromJson {
     uint256 recommendedProtocolVersion;
 
     // Other data we use.
-    uint256 systemConfigStartBlock = 17473957; // This was an input when generating input.json
-    AddressManager addressManager = AddressManager(0xEF8115F2733fb2033a7c756402Fc1deaa56550Ef); // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/mode.json#L9
+    uint256 systemConfigStartBlock = 17482144; // This was an input when generating input.json
+    AddressManager addressManager = AddressManager(0x8EfB6B5c4767B09Dc9AA6Af4eAA89F749522BaE2); // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/mode.json#L9
     Types.ContractSet proxies;
 
     // This gives the initial fork, so we can use it to switch back after fetching data.
@@ -86,7 +89,7 @@ contract SignFromJson is OriginalSignFromJson {
 
         // Fetch variables that are not expected to change from an older block.
         initialFork = vm.activeFork();
-        vm.createSelectFork(vm.envString("ETH_RPC_URL"), 19685514); // This block is from Apr-18-2024 11:06:59 PM +UTC.
+        vm.createSelectFork(vm.envString("ETH_RPC_URL"), 20113651); // This block is from Jun-17-2024 07:40:47 PM +UTC
 
         gasPriceOracleOverhead = IFetcher(proxies.SystemConfig).overhead();
         gasPriceOracleScalar = IFetcher(proxies.SystemConfig).scalar();
@@ -159,9 +162,9 @@ contract SignFromJson is OriginalSignFromJson {
         require(systemConfig.l1StandardBridge().code.length != 0, "1901");
         require(EIP1967Helper.getImplementation(systemConfig.l1StandardBridge()).code.length != 0, "1902");
 
-        require(systemConfig.l2OutputOracle() == proxies.L2OutputOracle, "2000");
-        require(systemConfig.l2OutputOracle().code.length != 0, "2001");
-        require(EIP1967Helper.getImplementation(systemConfig.l2OutputOracle()).code.length != 0, "2002");
+        require(IFetcher(address(systemConfig)).l2OutputOracle() == proxies.L2OutputOracle, "2000");
+        require(IFetcher(address(systemConfig)).l2OutputOracle().code.length != 0, "2001");
+        require(EIP1967Helper.getImplementation(IFetcher(address(systemConfig)).l2OutputOracle()).code.length != 0, "2002");
 
         require(systemConfig.optimismPortal() == proxies.OptimismPortal, "2100");
         require(systemConfig.optimismPortal().code.length != 0, "2101");
@@ -295,17 +298,16 @@ contract SignFromJson is OriginalSignFromJson {
 
         OptimismPortal portalToCheck = OptimismPortal(payable(proxies.OptimismPortal));
 
-        require(address(portalToCheck.L2_ORACLE()) == proxies.L2OutputOracle, "5800");
+        require(IFetcher(address(portalToCheck)).L2_ORACLE() == proxies.L2OutputOracle, "5800");
         require(address(portalToCheck.l2Oracle()) == proxies.L2OutputOracle, "5900");
         require(address(portalToCheck.l2Oracle()).code.length != 0, "5901");
         require(EIP1967Helper.getImplementation(address(portalToCheck.l2Oracle())).code.length != 0, "5902");
 
-        require(address(portalToCheck.SYSTEM_CONFIG()) == proxies.SystemConfig, "6000");
+        require(IFetcher(address(portalToCheck)).SYSTEM_CONFIG() == proxies.SystemConfig, "6000");
         require(address(portalToCheck.systemConfig()) == proxies.SystemConfig, "6100");
         require(address(portalToCheck.systemConfig()).code.length != 0, "6101");
         require(EIP1967Helper.getImplementation(address(portalToCheck.systemConfig())).code.length != 0, "6102");
 
-        require(portalToCheck.GUARDIAN() == superchainConfigGuardian, "6200");
         require(portalToCheck.guardian() == superchainConfigGuardian, "6300");
         require(portalToCheck.guardian().code.length != 0, "6350"); // This is a Safe, no need to check the implementation.
 
