@@ -13,10 +13,10 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 The following state overrides should be seen:
 
-### `0xC72aE5c7cc9a332699305E29F68Be66c73b60542` (The 3 of 5 `ProxyAdmin` owner Safe)
+### `0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c` (`ProxyAdminOwner` Safe)
 
 Links:
-- [Etherscan](https://etherscan.io/address/0xC72aE5c7cc9a332699305E29F68Be66c73b60542)
+- [Etherscan](https://etherscan.io/address/0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c)
 
 Enables the simulation by setting the threshold to 1:
 
@@ -24,6 +24,43 @@ Enables the simulation by setting the threshold to 1:
   **Value:** `0x0000000000000000000000000000000000000000000000000000000000000001`
 
 ## State Changes
+
+### `0x05cc379ebd9b30bba19c6fa282ab29218ec61d84` (`OptimismMintableERC20FactoryProxy`)
+
+Links:
+- [Etherscan](https://etherscan.io/address/0x05cc379ebd9b30bba19c6fa282ab29218ec61d84)
+- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5156b9582d0920624c61b63f1696bc624f37cc2e/superchain/extra/addresses/mainnet/zora.json#L7C41-L7C83)
+
+State Changes:
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
+  **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
+  **Meaning:** The `initialized` boolean is set to `true`. The correctness of
+   this slot is attested to in the Optimism repo at [storageLayout/OptimismMintableERC20Factory.json](https://github.com/ethereum-optimism/optimism/blob/e6ef3a900c42c8722e72c2e2314027f85d12ced5/packages/contracts-bedrock/snapshots/storageLayout/OptimismMintableERC20Factory.json#L2-L22).
+   This state diff will only appear in contracts that were previously not initializable. Other contracts may be reinitialized but it does not show in the state diff because the storage diff is a noop.
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
+  **After:** `0x0000000000000000000000003154cf16ccdb4c6d922629664174b904d80f2c35` <br/>
+  **Meaning:** Sets `bridge` at slot `0x01` (1). The correctness of
+   this slot is attested to in the Optimism repo at [storageLayout/OptimismMintableERC20Factory.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismMintableERC20Factory.json#L24-L28). The address of the `L1StandardBridge` should be the value set in the slot, left padded with zero bytes to fill the slot. The address of the [L1StandardBridgeProxy](https://github.com/ethereum-optimism/superchain-registry/blob/645bb0a309970f3cc03ef6ff84670fc35917772a/superchain/extra/addresses/mainnet/base.json#L5) can be found in the Superchain Registry.
+
+- **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
+  **Before:** `0x0000000000000000000000003d2c2f8f95caba644ea25319c4c08594b8dc0359` <br/>
+  **After:** `0x000000000000000000000000e01efbeb1089d1d1db9c6c8b135c934c0734c846` <br/>
+  **Meaning:** Implementation address is set to the new `OptimismMintableERC20Factory` implementation. The address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/mainnet.yaml#L10).
+
+
+====================================================================================================
+====================== ABOVE THIS LINE IS FINALIZED, BELOW IT IS IN PROGRESS =======================
+====================================================================================================
+
+====================================================================================================
+===================== ABOVE THIS LINE IS IN PROGRESS, BELOW IT WAS NOT UPDATED =====================
+====================================================================================================
+
+
+
 
 **Notes:**
 - The value `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` occurs
@@ -202,7 +239,7 @@ that the address actually matches the correct implementation, an Etherscan link 
 [l1-standard-bridge-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/5156b9582d0920624c61b63f1696bc624f37cc2e/superchain/extra/addresses/mainnet/zora.json#L5
 [l1-standard-bridge-etherscan]: https://etherscan.io/address/0x3e2Ea9B92B7E48A52296fD261dc26fd995284631
 [factory-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/5156b9582d0920624c61b63f1696bc624f37cc2e/superchain/extra/addresses/mainnet/zora.json#L7
-[factory-etherscan]: https://etherscan.io/address/0xc52BC7344e24e39dF1bf026fe05C4e6E23CfBcFf
+[factory-etherscan]: https://etherscan.io/address/0x05cc379ebd9b30bba19c6fa282ab29218ec61d84
 [output-oracle-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/5156b9582d0920624c61b63f1696bc624f37cc2e/superchain/extra/addresses/mainnet/zora.json#L6
 [output-oracle-etherscan]: https://etherscan.io/address/0x9E6204F750cD866b299594e2aC9eA824E2e5f95c
 
@@ -250,31 +287,6 @@ that the address actually matches the correct implementation, an Etherscan link 
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x0000000000000000000000009e6204f750cd866b299594e2ac9ea824e2e5f95c` <br/>
   **Meaning:** Sets `l2OutputOracle` at slot per the [Superchain Registry][output-oracle-registry]. This should be a proxy per [Etherscan][output-oracle-etherscan]. Verification of the key can be done by ensuring the result of the [L2_OUTPUT_ORACLE_SLOT](https://etherscan.io/address/0xba2492e52F45651B60B8B38d4Ea5E2390C64Ffb1#readContract#F5) getter on the implementation contract matches the key.
-
-### `0xc52BC7344e24e39dF1bf026fe05C4e6E23CfBcFf` (`OptimismMintableERC20FactoryProxy`)
-
-Links:
-- [Etherscan](https://etherscan.io/address/0xc52BC7344e24e39dF1bf026fe05C4e6E23CfBcFf)
-- [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5156b9582d0920624c61b63f1696bc624f37cc2e/superchain/extra/addresses/mainnet/zora.json#L7C41-L7C83)
-
-State Changes:
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
-  **Meaning:** The `initialized` boolean is set to `true`. The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/OptimismMintableERC20Factory.json](https://github.com/ethereum-optimism/optimism/blob/e6ef3a900c42c8722e72c2e2314027f85d12ced5/packages/contracts-bedrock/snapshots/storageLayout/OptimismMintableERC20Factory.json#L2-L22).
-   This state diff will only appear in contracts that were previously not initializable. Other contracts may be reinitialized but it does not show in the state diff because the storage diff is a noop.
-
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After:** `0x0000000000000000000000003e2ea9b92b7e48a52296fd261dc26fd995284631` <br/>
-  **Meaning:** Sets `bridge` at slot `0x01` (1). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/OptimismMintableERC20Factory.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismMintableERC20Factory.json#L24-L28). The address of the `L1StandardBridge` should be the value set in the slot, left padded with zero bytes to fill the slot. The address of the [L1StandardBridgeProxy](https://github.com/ethereum-optimism/superchain-registry/blob/5156b9582d0920624c61b63f1696bc624f37cc2e/superchain/extra/addresses/mainnet/zora.json#L5) can be found in the Superchain Registry.
-
-- **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
-  **Before:** `0x00000000000000000000000084ee4b9673598ca2fbdad4ba4a27a58d6328ec46` <br/>
-  **After:** `0x000000000000000000000000e01efbeb1089d1d1db9c6c8b135c934c0734c846` <br/>
-  **Meaning:** Implementation address is set to the new `OptimismMintableERC20Factory` implementation. The address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/implementations/networks/mainnet.yaml#L10).
 
 ### `0xC72aE5c7cc9a332699305E29F68Be66c73b60542` (The 1 of 1 `ProxyAdmin` owner Safe)
 
