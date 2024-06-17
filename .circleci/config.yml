@@ -195,7 +195,6 @@ jobs:
             forge fmt --check
 
 workflows:
-  version: 2
   forge_checks:
     jobs:
       - forge_fmt
