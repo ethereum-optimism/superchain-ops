@@ -1,6 +1,6 @@
 # Add 0x3041 to the 0x2A82 multisig
 
-Status: READY_TO_SIGN
+Status: [EXECUTED](https://optimistic.etherscan.io/tx/0xa0c510a0e82cbd8612634beb71509c0423a0c91cd3f3065535631055318ec888)
 
 ## Objective
 

@@ -1,8 +1,6 @@
 # OP Mainnet Pause
 
-Status:
-- [EXECUTED PAUSE](https://etherscan.io/tx/0x374dc0d5ad3dd0683d92762c84c7038804dd987e9fd9bac7418dca5ff489e6b0#eventlog)
-- [EXECUTED UNPAUSE](https://etherscan.io/tx/0x7d6880954fd4df2a8da987b5d8500e07613e3549a3376bef94e951aab890fc54#eventlog)
+Status: EXECUTED — [pause](https://etherscan.io/tx/0x374dc0d5ad3dd0683d92762c84c7038804dd987e9fd9bac7418dca5ff489e6b0#eventlog), [unpause](https://etherscan.io/tx/0x7d6880954fd4df2a8da987b5d8500e07613e3549a3376bef94e951aab890fc54#eventlog)
 
 ## Objective
 
