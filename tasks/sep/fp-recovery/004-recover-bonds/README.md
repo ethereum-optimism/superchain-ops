@@ -1,10 +1,12 @@
 # Recover Bonds
 
+Status: CONTINGENCY TASK, SIGN AS NEEDED
+
 ## Objective
 
 This task executes a `recover` operation of bonds in the `DelayedWETH` on behalf of the `Guardian` role. This facilitates the recovery of bonds locked in bricked dispute games so they may be redistributed to its participants. Bond recovery should only be used to recover _unclaimed credits_ of fault dispute games that cannot be reclaimed by players during a superchain pause.
 
-### Tx: Recover Locked WETH 
+### Tx: Recover Locked WETH
 
 Executes the `recover` call to the `DelayedWETH` proxy
 

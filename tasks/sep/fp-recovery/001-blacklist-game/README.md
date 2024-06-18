@@ -1,5 +1,7 @@
 # Deputy Guardian - Blacklist Dispute Game
 
+Status: CONTINGENCY TASK, SIGN AS NEEDED
+
 ## Objective
 
 This task executes a `blacklistDisputeGame` operation in the `OptimismPortal` on behalf of the `Guardian` role. Blacklisting the dispute game prevents any withdrawals proven to be contained within the game's proposed output root from being finalized.
