@@ -1,5 +1,9 @@
 # Sepolia FP Upgrade - Fjord
 
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x68178d475add97b2ec1ec7dc02056c7c364d4458c3eabec8875fe91ab8a141a7)
+
+## Objective
+
 Upgrades the deployed system on `sepolia` to use the absolute prestate for the `op-program/v1.1.0` release.
 The op-program release is fjord compatible.
 
