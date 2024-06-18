@@ -1,4 +1,8 @@
-# Sepolia FP Upgrade - Fjord
+# Sepolia FP Upgrade - Fjord Fix
+
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x1ea26d9aa123aceaf781f6c0f295fbf228a7d8d5f17fe0365e7896d42bee7ce0)
+
+## Objective
 
 Upgrades the deployed system on `sepolia` to use the appropriate `DelayedWETH` proxy for dispute games.
 
@@ -11,6 +15,12 @@ The `FaultDisputeGame` has been deployed at [`0xA4E392d63AE6096DB5454Fa178E2F8f9
 The `PermissionedDisputeGame` has been deployed at [`0x864fbE13Bb239521a8c837A0aA7c7122ee3eb0b2`](https://sepolia.etherscan.io/address/0x864fbE13Bb239521a8c837A0aA7c7122ee3eb0b2).
 
 The new implementations should be configured for the appropriate `DelayedWETH` proxy address. All other configs should stay the same.
+
+## Simulation
+
+Please see the "Simulating and Verifying the Transaction" instructions in [NESTED.md](../../../NESTED.md).
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/sep/012-fp-fjord-upgrade-fix/NestedSignFromJson.s.sol`.
+This ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
 
 ## State Validation
 
