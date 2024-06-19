@@ -65,8 +65,11 @@ abstract contract JsonTxBuilderBase is CommonBase {
     ///         This function can be overridden to provide more specific checks, but should still call
     ///         super.checkStateDiff().
     /// @param  allowedAccesses - if specified, it is checked for each memory access
-    ///         that the account is present in this array. 
-    function checkStateDiff(Vm.AccountAccess[] memory accountAccesses, address[] memory allowedAccesses) internal view {
+    ///         that the account is present in this array.
+    function checkStateDiff(Vm.AccountAccess[] memory accountAccesses, address[] memory allowedAccesses)
+        internal
+        view
+    {
         console.log("Running assertions on the state diff");
         require(accountAccesses.length > 0, "No account accesses");
 
@@ -123,14 +126,8 @@ abstract contract JsonTxBuilderBase is CommonBase {
                     require(address(uint160(value)).code.length == 0, err);
                 }
 
-                require(
-                    account.code.length != 0,
-                    string.concat("Storage account has no code: ", vm.toString(account))
-                );
-                require(
-                    !storageAccess.reverted,
-                    string.concat("Storage access reverted: ", vm.toString(account))
-                );
+                require(account.code.length != 0, string.concat("Storage account has no code: ", vm.toString(account)));
+                require(!storageAccess.reverted, string.concat("Storage access reverted: ", vm.toString(account)));
 
                 // If allowedAccesses is specified, test for allowed access.
                 if (allowedAccesses.length > 0) {
@@ -138,10 +135,7 @@ abstract contract JsonTxBuilderBase is CommonBase {
                     for (uint256 k; k < allowedAccesses.length; k++) {
                         allowed = allowed || (account == allowedAccesses[k]);
                     }
-                    require(
-                        allowed,
-                        string.concat("Unallowed Storage access: ", vm.toString(account))
-                    );
+                    require(allowed, string.concat("Unallowed Storage access: ", vm.toString(account)));
                 }
             }
         }
