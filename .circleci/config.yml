@@ -85,6 +85,8 @@ jobs:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
     steps:
+      - attach_workspace:
+          at: .
       - run:
           name: Check task statuses
           command: bash ./script/utils/check-task-statuses.sh
