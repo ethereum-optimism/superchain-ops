@@ -51,5 +51,5 @@ if [[ ${#errors[@]} -gt 0 ]]; then
   done
   exit 1
 else
-  echo "✅ No errors found."
+  echo "✅ All task statuses are valid"
 fi
