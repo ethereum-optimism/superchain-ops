@@ -80,6 +80,18 @@ jobs:
           root: .
           paths:
             - bash.env
+
+  check_task_statuses:
+    docker:
+      - image: <<pipeline.parameters.ci_builder_image>>
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Check task statuses
+          command: bash ./script/utils/check-task-statuses.sh
+
   # TODO: remove/replace when there are real consumers of the RPC URLs
   example_mainnet_job:
     circleci_ip_ranges: true
@@ -186,7 +198,6 @@ jobs:
             forge fmt --check
 
 workflows:
-  version: 2
   forge_checks:
     jobs:
       - forge_fmt
@@ -197,6 +208,9 @@ workflows:
       - example_mainnet_job:
           requires:
             - check_mainnet_rpc_endpoints
+  task_validation:
+    jobs:
+      - check_task_statuses
   check_just_simulate:
     jobs:
       # Please add an invocation to `just simulate` if a ceremony is
