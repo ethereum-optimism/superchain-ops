@@ -12,11 +12,11 @@ Both versions are currently set to X.Y.0 (Old Forkname TODO).
 
 _Transactions can be created using
 ```
-export PV_ENC=$(cd ../../../lib/optimism && go run ./op-chain-ops/cmd/protocol-version encode --major <TODO:major-version>)
+export PV_ENC=$(cd $(git rev-parse --show-toplevel)/lib/optimism && go run ./op-chain-ops/cmd/protocol-version encode --major <TODO:major-version>)
 # 0x0000000000000000000000000000000000000005000000000000000000000000
-export PV_ADDR=0x8062AbC286f5e7D9428a0Ccb9AbD71e50d93b935
-just add-transaction $PV_ADDR 'setRecommended(uint256)' $PV_ENC
-just add-transaction $PV_ADDR 'setRequired(uint256)' $PV_ENC
+export PV_ADDR=$(yq .protocol_versions_addr "$(git rev-parse --show-toplevel)/lib/superchain-registry/superchain/configs/mainnet/superchain.yaml")
+just add-transaction $(git rev-parse --show-prefix)input.json $PV_ADDR 'setRecommended(uint256)' $PV_ENC
+just add-transaction $(git rev-parse --show-prefix)input.json $PV_ADDR 'setRequired(uint256)' $PV_ENC
 ```
 This batches setting both, the recommended and required versions in one multicall.
 

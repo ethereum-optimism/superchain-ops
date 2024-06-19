@@ -57,6 +57,16 @@ abstract contract JsonTxBuilderBase is CommonBase {
     ///         This function can be overridden to provide more specific checks, but should still call
     ///         super.checkStateDiff().
     function checkStateDiff(Vm.AccountAccess[] memory accountAccesses) internal view virtual {
+        address[] memory empty = new address[](0);
+        checkStateDiff(accountAccesses, empty);
+    }
+
+    /// @notice Reads all account and storage accesses and makes a series of basic sanity checks on them.
+    ///         This function can be overridden to provide more specific checks, but should still call
+    ///         super.checkStateDiff().
+    /// @param  allowedAccesses - if specified, it is checked for each memory access
+    ///         that the account is present in this array. 
+    function checkStateDiff(Vm.AccountAccess[] memory accountAccesses, address[] memory allowedAccesses) internal view {
         console.log("Running assertions on the state diff");
         require(accountAccesses.length > 0, "No account accesses");
 
@@ -86,12 +96,13 @@ abstract contract JsonTxBuilderBase is CommonBase {
                 if (!storageAccess.isWrite) continue; // Skip SLOADs.
 
                 uint256 value = uint256(storageAccess.newValue);
+                address account = storageAccess.account;
                 if (isLikelyAddressThatShouldHaveCode(value)) {
                     // Log account, slot, and value if there is no code.
                     string memory err = string.concat(
                         "Likely address in storage has no code\n",
                         "  account: ",
-                        vm.toString(storageAccess.account),
+                        vm.toString(account),
                         "\n  slot:    ",
                         vm.toString(storageAccess.slot),
                         "\n  value:   ",
@@ -103,7 +114,7 @@ abstract contract JsonTxBuilderBase is CommonBase {
                     string memory err = string.concat(
                         "Likely address in storage has unexpected code\n",
                         "  account: ",
-                        vm.toString(storageAccess.account),
+                        vm.toString(account),
                         "\n  slot:    ",
                         vm.toString(storageAccess.slot),
                         "\n  value:   ",
@@ -113,21 +124,25 @@ abstract contract JsonTxBuilderBase is CommonBase {
                 }
 
                 require(
-                    storageAccess.account.code.length != 0,
-                    string.concat("Storage account has no code: ", vm.toString(storageAccess.account))
+                    account.code.length != 0,
+                    string.concat("Storage account has no code: ", vm.toString(account))
                 );
                 require(
                     !storageAccess.reverted,
-                    string.concat("Storage access reverted: ", vm.toString(storageAccess.account))
+                    string.concat("Storage access reverted: ", vm.toString(account))
                 );
-                require(
-                    storageAccess.account.code.length != 0,
-                    string.concat("Storage account has no code: ", vm.toString(storageAccess.account))
-                );
-                require(
-                    !storageAccess.reverted,
-                    string.concat("Storage access reverted: ", vm.toString(storageAccess.account))
-                );
+
+                // If allowedAccesses is specified, test for allowed access.
+                if (allowedAccesses.length > 0) {
+                    bool allowed;
+                    for (uint256 k; k < allowedAccesses.length; k++) {
+                        allowed = allowed || (account == allowedAccesses[k]);
+                    }
+                    require(
+                        allowed,
+                        string.concat("Unallowed Storage access: ", vm.toString(account))
+                    );
+                }
             }
         }
     }
