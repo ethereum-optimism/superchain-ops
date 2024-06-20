@@ -88,4 +88,4 @@ The only other state changes should be restricted to one of the following addres
 - Security Council L1 Safe: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`
   - The nonce (slot 0x5) should be increased from 5 to 6.
 - Foundation L1 Upgrades Safe: `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`
-  - The nonce (slot 0x5) should be increased from 5 to 6.
+  - The nonce (slot 0x5) should be increased from 4 to 5.
