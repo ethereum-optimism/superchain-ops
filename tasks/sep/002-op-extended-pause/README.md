@@ -1,5 +1,7 @@
 # Sepolia Extended Pause Upgrade
 
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xa8206b9696ad9540df0817288bf4e2eed35c438e92ad0634f1f908d69fc1bca9)
+
 ## Objective
 
 This is the playbook for executing the second Extended Pause upgrade ceremony on OP Sepolia.
