@@ -1,6 +1,6 @@
 # Mainnet Fjord Fault Proofs Upgrade
 
-Status: DRAFT
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
