@@ -1,5 +1,7 @@
 # Sepolia Testnet FPAC Upgrade - Mk. 2
 
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x0aa41e85bc6b9063e0795a21749e5fd53988f3a2c83a856b937c20ed5c4abd91)
+
 ## Objective
 
 This is the playbook for executing the second FPAC upgrade on Sepolia testnet.

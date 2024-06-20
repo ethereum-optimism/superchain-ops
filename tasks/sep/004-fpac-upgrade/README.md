@@ -1,5 +1,7 @@
 # Sepolia Testnet FPAC Upgrade
 
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x0db5995b80d16b0d6ec914cb87755c5debb4f4e5aeb4774f8a6050f109d46df5)
+
 ## Objective
 
 This is the playbook for executing the Fault Proof Alpha Chad upgrade on Sepolia testnet.
