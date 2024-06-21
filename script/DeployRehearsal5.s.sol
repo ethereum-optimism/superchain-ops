@@ -21,7 +21,7 @@ contract DeployRehearsal5 is Script {
     GnosisSafe councilSafe;
     GnosisSafe guardianSafe;
     SuperchainConfig superchainConfigProxy;
-    address dummyDeputyGuardianModule = 0xAbCD1234ABCD1234AbCD1234ABcD1234ABCD1234;
+    address dummyDeputyGuardianModule = vm.envAddress("DUMMY_DEPUTY_GUARDIAN_MODULE");
 
     /// @notice The name of the script, used to ensure the right deploy artifacts
     ///         are used.
@@ -75,7 +75,7 @@ contract DeployRehearsal5 is Script {
             signatures: signature
         });
 
-        console.log("New Guardian Safe deployed at %s", address(guardianSafe));
+        console.log("New GuardianSafe deployed at %s", address(guardianSafe));
     }
 
     function deploySuperchainConfigProxy() public {

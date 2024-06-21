@@ -1,9 +1,9 @@
-# Rehearsal 4 - Protocol Upgrade via Nested Multisig
+# Rehearsal 5 - Remove Deputy Guardian and Unpause
 
 ## Objective
 
-In this rehearsal we will be intervening to restore users ability to make withdrawals from the the
-Superchain.
+In this rehearsal we will be intervening to restore users ability to make withdrawals from the
+Superchain, and prevent the Deputy Guardian from pausing the system again.
 
 ## Overview
 
@@ -13,9 +13,6 @@ The rehearsal will involve the following contracts:
 2. A `DeputyGuardianModule`.
 3. A Guardian Safe with that `DeputyGuardianModule` enabled on it.
 4. A `SuperchainConfig` contract, which will be paused.
-
-\* The initial rehearsal will use the existing Security Council Safe. Future rehearsals may use newly
-deployed Safe's with only the council members who need to complete the rehearsal.
 
 Once completed the `DeputyGuardianModule` will be disabled on the Guardian Safe, and the
 `SuperchainConfig` will be unpaused.
@@ -180,36 +177,26 @@ congrats, you are done!
 
 ### [Before the rehearsal] Prepare the rehearsal
 
-#### 1. Create the Council Safe
+#### 1. Identify the Council Safe
 
-In [Phase
-0](https://gov.optimism.io/t/intro-to-optimisms-security-council/6885)
-of the Superchain's Security Council, OP Mainnet's upgrade key is
-going to be shared between the Optimism Foundation and the Security
-Council using a nested 2-of-2 multisig. To simulate that, we need to
-create another Safe where the Council Safe is one of its owners. You
-should leverage the [Safe
-UI](https://app.safe.global/new-safe/create?chain=eth) to do that.
+The initial occurrence of this rehearsal will use the existing Security Council Safe.
 
-To make the prepartion and coordination of the ceremonies easier, we
-recommend setting the threshold of the new multisig to 1, and add an
-additional key controled by the Facilitator as the second owner.
+Future rehearsals may use newly deployed Safe's with only the council members who need to complete
+ the rehearsal.
 
 #### 2. Create the rehearsal contracts
 
-1. Set the `OWNER_SAFE` address in `.env` to the newly-created Safe
-   address.
-2. Set the `COUNCIL_SAFE` address in `.env` to the same one used in
-   previous rehearsals.
+1. Set the `COUNCIL_SAFE` address in `.env` to the Safe address identified in the previous step.
 2. Make sure your Ledger is connected and run `just deploy-contracts`
-   to deploy the rehearsal contract. There will be three contracts
-   deployed: the `L1ERC721BridgeProxy`, the `OptimismPortalProxy` and
-   the `ProxyAdmin` as their admin.
-3. Update the `L1ERC721BridgeProxy_ADDRESS`, the
-   `OptimismPortalProxy_ADDRESS` and the `ProxyAdmin_ADDRESS`
-   variables in `.env` to the newly-created contracts' addresses.
+   to deploy the rehearsal contract. There will be two contracts
+   deployed: the new `GuardianSafe`, and a `SuperchainConfig`.
+3. Update the `GuardianSafe_ADDRESS`, and the `SuperchainConfig_ADDRESS`
+   variables in `.env` to the newly-created contracts' addresses. These address will have been
+   printed out in step 1.
 
 #### 3. Update input.json
+
+NOTE: stop here. This is not ready yet.
 
 1. Make sure the variables in the `.env` file have been updated, then
    run `just prepare-json` to update the `input.json` file.

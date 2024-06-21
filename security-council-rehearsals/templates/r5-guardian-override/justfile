@@ -6,6 +6,9 @@ export councilSafe := env_var('COUNCIL_SAFE')
 export bundle := "input"
 export location := `pwd`
 export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+export dummyDgm := env_var('DUMMY_DEPUTY_GUARDIAN_MODULE')
+export guardianSafe := env_var('GuardianSafe_ADDRESS')
+export superchainConfig := env_var('SuperchainConfig_ADDRESS')
 
 simulate-council hdPath='0':
   #!/usr/bin/env bash
@@ -73,29 +76,38 @@ execute-all hdPath='0':
 deploy-contracts hdPath='0':
   #!/usr/bin/env bash
   cd ../..
-  # sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge build
   forge script DeployRehearsal5 --ffi \
     --fork-url ${rpcUrl} \
-    # --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
-    # --broadcast \
-    # --sender ${sender}
+    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
+    --broadcast \
+    --sender ${sender} \
+    --verify --etherscan-api-key {{env_var('ETHERSCAN_KEY')}}
 
 prepare-json:
   #!/usr/bin/env bash
-
-  implementation_0="0x3311aC7F72bb4108d9f4D5d50E7623B1498A9eC0"
-  jq ".transactions[0].to |= \"${ProxyAdmin_ADDRESS}\"" ./input.json > ./input.tmp && mv input.tmp input.json
-  jq ".transactions[0].contractInputsValues._proxy |= \"${L1ERC721BridgeProxy_ADDRESS}\"" ./input.json > ./input.tmp && mv input.tmp input.json
-  jq ".transactions[0].contractInputsValues._implementation |= \"${implementation_0}\"" ./input.json > ./input.tmp && mv input.tmp input.json
-  calldata_0=$(cast calldata "upgrade(address,address)" ${L1ERC721BridgeProxy_ADDRESS} ${implementation_0})
+  sentinel_module=0x0000000000000000000000000000000000000001
+  calldata_0=$(cast calldata "disableModule(address,address)" ${sentinel_module} ${dummyDgm})
+  jq ".transactions[0].to |= \"${guardianSafe}\"" ./input.json > ./input.tmp && mv input.tmp input.json
   jq ".transactions[0].data |= \"${calldata_0}\"" ./input.json > ./input.tmp && mv input.tmp input.json
 
-  implementation_1="0x0A9d47e531825FaaA2863D4d10DC8E5E0B91BfB0"
-  init_calldata="0xfecf9734000000000000000000000000dfe97868233d1aa22e815a266982f2cf17685a270000000000000000000000009BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A000000000000000000000000229047fed2591dbec1eF1118d64F7aF3dB9EB2900000000000000000000000000000000000000000000000000000000000000000"
-  jq ".transactions[1].to |= \"${ProxyAdmin_ADDRESS}\"" ./input.json > ./input.tmp && mv input.tmp input.json
-  jq ".transactions[1].contractInputsValues._proxy |= \"${OptimismPortalProxy_ADDRESS}\"" ./input.json > ./input.tmp && mv input.tmp input.json
-  jq ".transactions[1].contractInputsValues._implementation |= \"${implementation_1}\"" ./input.json > ./input.tmp && mv input.tmp input.json
-  jq ".transactions[1].contractInputsValues._data |= \"${init_calldata}\"" ./input.json > ./input.tmp && mv input.tmp input.json
-  calldata_1=$(cast calldata "upgradeAndCall(address,address,bytes)" ${OptimismPortalProxy_ADDRESS} ${implementation_1} ${init_calldata})
-  jq ".transactions[1].data |= \"${calldata_1}\"" ./input.json > ./input.tmp && mv input.tmp input.json
+
+  # prevalidated signature
+  signatures="${councilSafe}"000000000000000000000000000000000000000000000000000000000000000001
+  a0=0x0000000000000000000000000000000000000000
+  calldata_from_guardian=$(cast calldata "unpause()")
+  calldata_from_security_council=$(cast calldata "execTransaction(address,uint256,bytes,uint8,uint256,uint256,uint256,address,address,bytes)" \
+    ${superchainConfig} \
+    0 \
+    ${calldata_from_guardian} \
+    0 \
+    0 \
+    0 \
+    0 \
+    0x0000000000000000000000000000000000000000 \
+    0x0000000000000000000000000000000000000000 \
+    ${signatures}
+  )
+  jq ".transactions[1].to |= \"${guardianSafe}\"" ./input.json > ./input.tmp && mv input.tmp input.json
+  jq ".transactions[1].data |= \"${calldata_from_security_council}\"" ./input.json > ./input.tmp && mv input.tmp input.json
