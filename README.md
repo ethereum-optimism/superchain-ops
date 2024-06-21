@@ -58,9 +58,8 @@ You should see the version number of Go that you just installed.
 1. Visit the rust toolchain installer website at https://rustup.rs
 1. Follow the instructions for your operating system to install `rustup`, and use `rustup` to install the Rust toolchain.
 1. Verify the installation from the command prompt:
-  - Type rustc --version
-  - Type cargo --version.
- Both commands should print a version number.
+  Type `cargo --version`.
+  You should see a version number.
 
 ### Installing eip712sign
 
