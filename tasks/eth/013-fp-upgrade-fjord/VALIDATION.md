@@ -161,7 +161,7 @@ State Changes:
 
 #### For the Council:
 
-- **Key:** `0x24424336f04440b1c28685a38303ac33c9d14a25` <br/>
+- **Key:** `0xee4378be6a15d4c71cb07a5a47d8ddc4aba235142e05cb828bb7141206657e27` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x000000000000000000000000000000000000000000000000000000006675b61f` <br/>
   **Meaning:** This updates the [`lastLive`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.5.0/packages/contracts-bedrock/src/Safe/LivenessGuard.sol#L36) indicating liveness of an owner that participated in signing. This will be updated to a block timestamp that's close to when this task was executed. Note that the "before" value may be non-zero for signers that have participated in signing.
