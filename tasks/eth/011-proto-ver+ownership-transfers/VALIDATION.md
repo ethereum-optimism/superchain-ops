@@ -27,15 +27,15 @@ To allow simulating the transaction bundle of setting the recommended versions a
 
 ### `0x8062AbC286f5e7D9428a0Ccb9AbD71e50d93b935` (`ProtocolVersions`)
 
-* Key: `0xe314dfc40f0025322aacc0ba8ef420b62fb3b702cf01e0cdf3d829117ac2ff1a`
-* Before: `0x0000000000000000000000000000000000000006000000000000000000000000`
-* After: `0x0000000000000000000000000000000000000007000000000000000000000000`
-* Meaning: This bumps the major version of the *recommended protocol version* from 6 to 7.
+- **Key:** `0xe314dfc40f0025322aacc0ba8ef420b62fb3b702cf01e0cdf3d829117ac2ff1a` <br/>
+  **Before:** `0x0000000000000000000000000000000000000006000000000000000000000000` <br/>
+  **After:** `0x0000000000000000000000000000000000000007000000000000000000000000` <br/>
+  **Meaning:** This bumps the major version of the *recommended protocol version* from 6 to 7.
 
-* Key: `0x0000000000000000000000000000000000000000000000000000000000000033`
-* Before: `0x0000000000000000000000009ba6e03d8b90de867373db8cf1a58d2f7f006b3a`
-* After: `0x000000000000000000000000847b5c174615b1b7fdf770882256e2d3e95b9d92`
-* Meaning: Transfers ownership to the Foundation Upgrades Safe. The Tenderly simulation should
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000033` <br/>
+  **Before:** `0x0000000000000000000000009ba6e03d8b90de867373db8cf1a58d2f7f006b3a` <br/>
+  **After:** `0x000000000000000000000000847b5c174615b1b7fdf770882256e2d3e95b9d92` <br/>
+  **Meaning:** Transfers ownership to the Foundation Upgrades Safe. The Tenderly simulation should
     recognize this as a change to the `_owner` value.
 
 
@@ -44,10 +44,10 @@ More background on `ProtocolVersions` state validation can be found
 
 ### `0x229047fed2591dbec1ef1118d64f7af3db9eb290` (`SystemConfig`)
 
-* Key: `0x0000000000000000000000000000000000000000000000000000000000000033`
-* Before: `0x0000000000000000000000009ba6e03d8b90de867373db8cf1a58d2f7f006b3a`
-* After: `0x000000000000000000000000847b5c174615b1b7fdf770882256e2d3e95b9d92`
-* Meaning: Transfers ownership to the Foundation Upgrades Safe. The Tenderly simulation should
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000033` <br/>
+  **Before:** `0x0000000000000000000000009ba6e03d8b90de867373db8cf1a58d2f7f006b3a` <br/>
+  **After:** `0x000000000000000000000000847b5c174615b1b7fdf770882256e2d3e95b9d92` <br/>
+  **Meaning:** Transfers ownership to the Foundation Upgrades Safe. The Tenderly simulation should
     recognize this as a change to the `_owner` value.
 
 The only other state changes are two nonce increments:
