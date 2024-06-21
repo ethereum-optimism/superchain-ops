@@ -3,7 +3,6 @@ set dotenv-load
 export rpcUrl := env_var_or_default('ETH_RPC_URL', "https://ethereum.publicnode.com")
 export signatures := env_var_or_default('SIGNATURES', '')
 export councilSafe := env_var('COUNCIL_SAFE')
-export ownerSafe := env_var('OWNER_SAFE')
 export bundle := "input"
 export location := `pwd`
 export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
