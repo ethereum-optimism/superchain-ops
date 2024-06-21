@@ -83,8 +83,8 @@ State Changes:
 State Changes:
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000003` <br/>
-  **After:** `0x0000000000000000000000000000000000000000000000000000000000000004` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000004` <br/>
+  **After:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
   **Meaning:** The nonce is increased from 4 to 5. The key can be validated by the location of the nonce variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
 
 #### For the Council:
