@@ -180,7 +180,25 @@ jobs:
             forge --version
             forge fmt --check
 
+  print_versions:
+    docker:
+      - image: <<pipeline.parameters.ci_builder_image>>
+
+    steps:
+      - checkout
+      - run:
+          name: print versions
+          command: |
+            just --version
+            yq --version
+            forge --version
+            rustc --version
+            cargo --version
+
 workflows:
+  print_versions:
+    jobs:
+      - print_versions
   forge_checks:
     jobs:
       - forge_fmt
