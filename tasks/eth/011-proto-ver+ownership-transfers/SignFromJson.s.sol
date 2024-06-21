@@ -23,7 +23,7 @@ contract SignFromJson is OriginalSignFromJson {
     uint256 constant protoVerFjord = 0x0000000000000000000000000000000000000007000000000000000000000000;
 
     // Safe contract for this task.
-    GnosisSafe foundationUpgradesSafe = GnosisSafe(payable(vm.envAddress("FOUNDATION_SAFE")));
+    GnosisSafe foundationUpgradesSafe = GnosisSafe(payable(vm.envAddress("FOUNDATION_UP_SAFE")));
     GnosisSafe foundationOperationsSafe = GnosisSafe(payable(vm.envAddress("FOUNDATION_OP_SAFE")));
 
     // All L1 proxy addresses.
@@ -33,15 +33,11 @@ contract SignFromJson is OriginalSignFromJson {
         proxies = _getContractSet();
     }
 
-    function checkStateDiff(Vm.AccountAccess[] memory accountAccesses) internal view override {
-        address[] memory allowed = new address[](3);
+    function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
+        allowed = new address[](3);
         allowed[0] = address(foundationOperationsSafe);
         allowed[1] = proxies.ProtocolVersions;
         allowed[2] = proxies.SystemConfig;
-        super.checkStateDiff(accountAccesses, allowed);
-
-        checkProtocolVersions();
-        checkSystemConfig();
     }
 
     /// @notice Checks the correctness of the deployment
@@ -53,6 +49,8 @@ contract SignFromJson is OriginalSignFromJson {
         console.log("Running assertions");
 
         checkStateDiff(accesses);
+        checkProtocolVersions();
+        checkSystemConfig();
 
         console.log("All assertions passed!");
     }

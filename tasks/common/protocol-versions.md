@@ -50,9 +50,14 @@ An encoded version for comparison can be generated with the `protocol-version` e
 monorepo, e.g. for a bump of the major version to 7:
 ```
 cd $(git rev-parse --show-toplevel)/lib/optimism
-go run ./op-chain-ops/cmd/protocol-version encode --major 7
+export PV=$(go run ./op-chain-ops/cmd/protocol-version encode --major 7)
+echo $PV
 ```
-The tool can also be used to decode an encoded protocol version.
+The tool can also be used to decode an encoded protocol version:
+```
+go run ./op-chain-ops/cmd/protocol-version decode $PV
+# v7.0.0
+```
 
 ## Events
 

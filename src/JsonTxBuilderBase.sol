@@ -56,22 +56,11 @@ abstract contract JsonTxBuilderBase is CommonBase {
     /// @notice Reads all account and storage accesses and makes a series of basic sanity checks on them.
     ///         This function can be overridden to provide more specific checks, but should still call
     ///         super.checkStateDiff().
-    function checkStateDiff(Vm.AccountAccess[] memory accountAccesses) internal view virtual {
-        address[] memory empty = new address[](0);
-        checkStateDiff(accountAccesses, empty);
-    }
-
-    /// @notice Reads all account and storage accesses and makes a series of basic sanity checks on them.
-    ///         This function can be overridden to provide more specific checks, but should still call
-    ///         super.checkStateDiff().
-    /// @param  allowedAccesses - if specified, it is checked for each memory access
-    ///         that the account is present in this array.
-    function checkStateDiff(Vm.AccountAccess[] memory accountAccesses, address[] memory allowedAccesses)
-        internal
-        view
-    {
+    function checkStateDiff(Vm.AccountAccess[] memory accountAccesses) internal view {
         console.log("Running assertions on the state diff");
         require(accountAccesses.length > 0, "No account accesses");
+
+        address[] memory allowedAccesses = getAllowedStorageAccess();
 
         for (uint256 i; i < accountAccesses.length; i++) {
             Vm.AccountAccess memory accountAccess = accountAccesses[i];
@@ -129,14 +118,11 @@ abstract contract JsonTxBuilderBase is CommonBase {
                 require(account.code.length != 0, string.concat("Storage account has no code: ", vm.toString(account)));
                 require(!storageAccess.reverted, string.concat("Storage access reverted: ", vm.toString(account)));
 
-                // If allowedAccesses is specified, test for allowed access.
-                if (allowedAccesses.length > 0) {
-                    bool allowed;
-                    for (uint256 k; k < allowedAccesses.length; k++) {
-                        allowed = allowed || (account == allowedAccesses[k]);
-                    }
-                    require(allowed, string.concat("Unallowed Storage access: ", vm.toString(account)));
+                bool allowed;
+                for (uint256 k; k < allowedAccesses.length; k++) {
+                    allowed = allowed || (account == allowedAccesses[k]);
                 }
+                require(allowed, string.concat("Unallowed Storage access: ", vm.toString(account)));
             }
         }
     }
@@ -147,6 +133,13 @@ abstract contract JsonTxBuilderBase is CommonBase {
         json; // Storage access to silence compiler warnings about use of view rather than pure.
         exceptions; // Named return and this no-op required to silence compiler warnings.
         require(false, "getCodeExceptions not implemented");
+    }
+
+    /// @notice Returns a list of all addresses to which storage access is allowed.
+    function getAllowedStorageAccess() internal view virtual returns (address[] memory allowed) {
+        json; // Storage access to silence compiler warnings about use of view rather than pure.
+        allowed; // Named return and this no-op required to silence compiler warnings.
+        require(false, "getAllowedStorageAccess not implemented");
     }
 
     /// @notice Checks that values have code on this chain.
