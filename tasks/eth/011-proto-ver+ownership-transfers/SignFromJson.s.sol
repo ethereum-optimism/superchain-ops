@@ -90,7 +90,9 @@ contract SignFromJson is OriginalSignFromJson {
 
         _proxies.ProtocolVersions = stdJson.readAddress(addressesJson, "$.protocol_versions_addr");
 
-        addressesJson = vm.readFile("lib/superchain-registry/superchain/extra/addresses/mainnet/op.json");
+        addressesJson = vm.readFile(
+            string.concat("lib/superchain-registry/superchain/extra/addresses/", l1ChainName, "/", l2ChainName, ".json")
+        );
         _proxies.SystemConfig = stdJson.readAddress(addressesJson, "$.SystemConfigProxy");
     }
 }
