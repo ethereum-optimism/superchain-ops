@@ -34,14 +34,14 @@ contract SignFromJson is OriginalSignFromJson {
     }
 
     function checkStateDiff(Vm.AccountAccess[] memory accountAccesses) internal view override {
-        address[] memory allowed = new address[](2);
+        address[] memory allowed = new address[](3);
         allowed[0] = address(foundationOperationsSafe);
         allowed[1] = proxies.ProtocolVersions;
-        // TODO: add SuperchainConfig once that's in the bundle
+        allowed[2] = proxies.SystemConfig;
         super.checkStateDiff(accountAccesses, allowed);
 
         checkProtocolVersions();
-        // TODO: also check superchain config ownership transfer
+        checkSystemConfig();
     }
 
     /// @notice Checks the correctness of the deployment
@@ -62,11 +62,17 @@ contract SignFromJson is OriginalSignFromJson {
     }
 
     function checkProtocolVersions() internal view {
+        console.log("Checking ProtocolVersions at ", proxies.ProtocolVersions);
         ProtocolVersions pv = ProtocolVersions(proxies.ProtocolVersions);
-        // TODO: uncomment once owner transfer is implemented.
-        //require(pv.owner() == address(foundationUpgradesSafe), "PV owner must be Foundation Upgrade Safe");
+        require(pv.owner() == address(foundationUpgradesSafe), "PV owner must be Foundation Upgrade Safe");
         require(ProtocolVersion.unwrap(pv.recommended()) == protoVerFjord, "Recommended PV must be Fjord");
         require(ProtocolVersion.unwrap(pv.required()) == protoVerEcotone, "Required PV must still be Ecotone");
+    }
+
+    function checkSystemConfig() internal view {
+        console.log("Checking SystemConfig at ", proxies.SystemConfig);
+        SystemConfig sc = SystemConfig(proxies.SystemConfig);
+        require(sc.owner() == address(foundationUpgradesSafe), "SC owner must be Foundation Upgrade Safe");
     }
 
     /// @notice Reads the contract addresses from the superchain registry.
@@ -83,6 +89,8 @@ contract SignFromJson is OriginalSignFromJson {
         addressesJson = string(vm.ffi(inputs));
 
         _proxies.ProtocolVersions = stdJson.readAddress(addressesJson, "$.protocol_versions_addr");
-        _proxies.SuperchainConfig = stdJson.readAddress(addressesJson, "$.superchain_config_addr");
+
+        addressesJson = vm.readFile("lib/superchain-registry/superchain/extra/addresses/mainnet/op.json");
+        _proxies.SystemConfig = stdJson.readAddress(addressesJson, "$.SystemConfigProxy");
     }
 }
