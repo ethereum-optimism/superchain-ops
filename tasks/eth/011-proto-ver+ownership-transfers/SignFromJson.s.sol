@@ -3,20 +3,9 @@ pragma solidity ^0.8.15;
 
 import {SignFromJson as OriginalSignFromJson} from "script/SignFromJson.s.sol";
 import {Proxy} from "@eth-optimism-bedrock/src/universal/Proxy.sol";
-import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
 import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
 import {ProtocolVersions, ProtocolVersion} from "@eth-optimism-bedrock/src/L1/ProtocolVersions.sol";
-import {L1StandardBridge} from "@eth-optimism-bedrock/src/L1/L1StandardBridge.sol";
-import {L2OutputOracle} from "@eth-optimism-bedrock/src/L1/L2OutputOracle.sol";
-import {SuperchainConfig} from "@eth-optimism-bedrock/src/L1/SuperchainConfig.sol";
-import {OptimismPortal} from "@eth-optimism-bedrock/src/L1/OptimismPortal.sol";
-import {L1CrossDomainMessenger} from "@eth-optimism-bedrock/src/L1/L1CrossDomainMessenger.sol";
-import {OptimismMintableERC20Factory} from "@eth-optimism-bedrock/src/universal/OptimismMintableERC20Factory.sol";
-import {L1ERC721Bridge} from "@eth-optimism-bedrock/src/L1/L1ERC721Bridge.sol";
-import {AddressManager} from "@eth-optimism-bedrock/src/legacy/AddressManager.sol";
-import {ISemver} from "@eth-optimism-bedrock/src/universal/ISemver.sol";
 import {Types} from "@eth-optimism-bedrock/scripts/Types.sol";
-import {EIP1967Helper} from "@eth-optimism-bedrock/test/mocks/EIP1967Helper.sol";
 import {console2 as console} from "forge-std/console2.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {Vm, VmSafe} from "forge-std/Vm.sol";
@@ -45,14 +34,14 @@ contract SignFromJson is OriginalSignFromJson {
     }
 
     function checkStateDiff(Vm.AccountAccess[] memory accountAccesses) internal view override {
-        address[] memory allowed = new address[](2);
+        address[] memory allowed = new address[](3);
         allowed[0] = address(foundationOperationsSafe);
         allowed[1] = proxies.ProtocolVersions;
-        // TODO: add SuperchainConfig once that's in the bundle
+        allowed[2] = proxies.SystemConfig;
         super.checkStateDiff(accountAccesses, allowed);
 
         checkProtocolVersions();
-        // TODO: also check superchain config ownership transfer
+        checkSystemConfig();
     }
 
     /// @notice Checks the correctness of the deployment
@@ -73,11 +62,17 @@ contract SignFromJson is OriginalSignFromJson {
     }
 
     function checkProtocolVersions() internal view {
+        console.log("Checking ProtocolVersions at ", proxies.ProtocolVersions);
         ProtocolVersions pv = ProtocolVersions(proxies.ProtocolVersions);
-        // TODO: uncomment once owner transfer is implemented.
-        //require(pv.owner() == address(foundationUpgradesSafe), "PV owner must be Foundation Upgrade Safe");
+        require(pv.owner() == address(foundationUpgradesSafe), "PV owner must be Foundation Upgrade Safe");
         require(ProtocolVersion.unwrap(pv.recommended()) == protoVerFjord, "Recommended PV must be Fjord");
         require(ProtocolVersion.unwrap(pv.required()) == protoVerEcotone, "Required PV must still be Ecotone");
+    }
+
+    function checkSystemConfig() internal view {
+        console.log("Checking SystemConfig at ", proxies.SystemConfig);
+        SystemConfig sc = SystemConfig(proxies.SystemConfig);
+        require(sc.owner() == address(foundationUpgradesSafe), "SC owner must be Foundation Upgrade Safe");
     }
 
     /// @notice Reads the contract addresses from the superchain registry.
@@ -94,6 +89,10 @@ contract SignFromJson is OriginalSignFromJson {
         addressesJson = string(vm.ffi(inputs));
 
         _proxies.ProtocolVersions = stdJson.readAddress(addressesJson, "$.protocol_versions_addr");
-        _proxies.SuperchainConfig = stdJson.readAddress(addressesJson, "$.superchain_config_addr");
+
+        addressesJson = vm.readFile(
+            string.concat("lib/superchain-registry/superchain/extra/addresses/", l1ChainName, "/", l2ChainName, ".json")
+        );
+        _proxies.SystemConfig = stdJson.readAddress(addressesJson, "$.SystemConfigProxy");
     }
 }
