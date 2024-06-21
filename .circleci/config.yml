@@ -200,7 +200,11 @@ jobs:
             just \
               --dotenv-path .env \
               --justfile ../../../nested.just \
-              simulate
+              simulate council
+            just \
+              --dotenv-path .env \
+              --justfile ../../../nested.just \
+              simulate foundation
 
   forge_fmt:
     docker:
