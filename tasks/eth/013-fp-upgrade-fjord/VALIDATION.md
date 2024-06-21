@@ -78,14 +78,55 @@ State Changes:
   **After:** [`0x000000000000000000000000f691f8a6d908b58c534b624cf16495b491e633ba`](https://etherscan.io/address/0xf691f8a6d908b58c534b624cf16495b491e633ba) <br/>
   **Meaning:** This is `gameImpls[1] -> 0xf691f8a6d908b58c534b624cf16495b491e633ba` (where `1` is the [`PERMISSIONED_CANNON` game type](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L31)), so the key can be derived from `cast index uint32 0 101`.
 
-### Safe Contract State Changes
+### `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (The 2/2 `ProxyAdmin` Owner)
 
-The only other state changes should be restricted to one of the following addresses:
+State Changes:
 
-- L1 2/2 ProxyAdmin Owner Safe: `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`
-  - The nonce (slot 0x5) should be increased from 4 to 5.
-  - Another key is set from 0 to 1 reflecting an entry in the `approvedHashes` mapping.
-- Security Council L1 Safe: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`
-  - The nonce (slot 0x5) should be increased from 5 to 6.
-- Foundation L1 Upgrades Safe: `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`
-  - The nonce (slot 0x5) should be increased from 4 to 5.
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000003`
+  **After:** `0x0000000000000000000000000000000000000000000000000000000000000004`
+  **Meaning:** The nonce is increased from 4 to 5. The key can be validated by the location of the nonce variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
+
+#### For the Council:
+
+- **Key:** `0x0f7b79f6b38abe5e02d33eec6fcdf7d9447ff17f6803d46f0afd5f628bac8504` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
+  **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
+  **Meaning:** The GnosisSafe `approvedHashes` mapping is updated to indicate approval of this transaction by the council. The correctness of this slot can be verified as follows:
+    - Since this is a nested mapping, we need to use `cast index` twice to confirm that this is the correct slot. The inputs needed are:
+      - The location (`8`) of the `approvedHashes` mapping in the [GnosisSafe storage layout](https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L20)
+      - The address of the Council Safe: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`
+      - The safe hash to approve: `0x530085da61c08016f1625301df4686fcfe40291b98db29a4bf801237ca3098c4`
+    - The using `cast index`, we can verify that:
+      ```shell
+        $ cast index address 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 8
+        0xaaf2b641eaf0bae063c4f2e5670f905e1fb7334436b902d1d880b05bd6228fbd
+        ```
+        and
+      ```shell
+        $ cast index bytes32 0x530085da61c08016f1625301df4686fcfe40291b98db29a4bf801237ca3098c4 0xaaf2b641eaf0bae063c4f2e5670f905e1fb7334436b902d1d880b05bd6228fbd
+        0x0f7b79f6b38abe5e02d33eec6fcdf7d9447ff17f6803d46f0afd5f628bac8504 
+        ```
+      And so the output of the second command matches the key above.
+
+#### For the Foundation:
+
+- **Key:** `0x6ef669e1a6fdba12525f568b5f98f3455726b23f9e33a5034c9180ca01a3f223` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
+  **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
+  **Meaning:** The GnosisSafe `approvedHashes` mapping is updated to indicate approval of this transaction by the council. The correctness of this slot can be verified as follows:
+    - Since this is a nested mapping, we need to use `cast index` twice to confirm that this is the correct slot. The inputs needed are:
+      - The location (`8`) of the `approvedHashes` mapping in the [GnosisSafe storage layout](https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L20)
+      - The address of the Foundation Safe: `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`
+      - The safe hash to approve: `0x530085da61c08016f1625301df4686fcfe40291b98db29a4bf801237ca3098c4`
+    - The using `cast index`, we can verify that:
+      ```shell
+        $ cast index address 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 8
+        0x13908ba1c0e379ab58c6445554ab471f3d4efb06e3c4cf966c4f5e918eca67bd
+      ```
+      and
+      ```shell
+        $ cast index bytes32 0x530085da61c08016f1625301df4686fcfe40291b98db29a4bf801237ca3098c4 0x13908ba1c0e379ab58c6445554ab471f3d4efb06e3c4cf966c4f5e918eca67bd
+        0x6ef669e1a6fdba12525f568b5f98f3455726b23f9e33a5034c9180ca01a3f223 
+      ```
+      And so the output of the second command matches the key above.

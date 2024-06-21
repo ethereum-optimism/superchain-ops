@@ -21,6 +21,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     address immutable proxyAdminOwnerSafe = vm.envAddress("OWNER_SAFE");
     address immutable securityCouncilSafe = vm.envAddress("COUNCIL_SAFE");
     address immutable foundationUpgradesSafe = vm.envAddress("FOUNDATION_SAFE");
+    address immutable livenessGuard = 0x24424336F04440b1c28685a38303aC33C9D14a25;
 
     // New dispute game implementations
     // See governance proposal for verification - https://gov.optimism.io/t/upgrade-proposal-9-fjord-network-upgrade/8236
@@ -69,7 +70,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
                         account == address(dgfProxy)
                         // State changes the Safe's are also expected.
                         || account == proxyAdminOwnerSafe || account == securityCouncilSafe
-                            || account == foundationUpgradesSafe,
+                            || account == foundationUpgradesSafe || account == livenessGuard,
                         "state-100"
                     );
                 }
