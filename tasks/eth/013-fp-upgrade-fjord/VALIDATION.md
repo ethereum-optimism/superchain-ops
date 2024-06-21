@@ -82,9 +82,9 @@ State Changes:
 
 State Changes:
 
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000003`
-  **After:** `0x0000000000000000000000000000000000000000000000000000000000000004`
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000003` <br/>
+  **After:** `0x0000000000000000000000000000000000000000000000000000000000000004` <br/>
   **Meaning:** The nonce is increased from 4 to 5. The key can be validated by the location of the nonce variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
 
 #### For the Council:
@@ -138,9 +138,9 @@ State Changes:
 
 #### For the Council:
 
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  **After:** `0x0000000000000000000000000000000000000000000000000000000000000006`
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
+  **After:** `0x0000000000000000000000000000000000000000000000000000000000000006` <br/>
   **Meaning:** The nonce is increased from 5 to 6. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
 
 
@@ -150,9 +150,9 @@ State Changes:
 
 #### For the Foundation:
 
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  **After:** `0x0000000000000000000000000000000000000000000000000000000000000006`
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
+  **After:** `0x0000000000000000000000000000000000000000000000000000000000000006` <br/>
   **Meaning:** The nonce is increased from 5 to 6. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L17). Note that if this task is simulated before 011 has executed, then the nonce should be increased from 4 to 5.
 
 ### `0x24424336F04440b1c28685a38303aC33C9D14a25` (`LivenessGuard`)
@@ -161,7 +161,7 @@ State Changes:
 
 #### For the Council:
 
-- **Key:** `0x24424336f04440b1c28685a38303ac33c9d14a25`
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
-  **After:** `0x000000000000000000000000000000000000000000000000000000006675b61f`
+- **Key:** `0x24424336f04440b1c28685a38303ac33c9d14a25` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
+  **After:** `0x000000000000000000000000000000000000000000000000000000006675b61f` <br/>
   **Meaning:** This updates the [`lastLive`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.5.0/packages/contracts-bedrock/src/Safe/LivenessGuard.sol#L36) indicating liveness of an owner that participated in signing. This will be updated to a block timestamp that's close to when this task was executed. Note that the "before" value may be non-zero for signers that have participated in signing prior.
