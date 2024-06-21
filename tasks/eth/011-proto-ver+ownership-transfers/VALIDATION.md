@@ -35,7 +35,9 @@ To allow simulating the transaction bundle of setting the recommended versions a
 * Key: `0x0000000000000000000000000000000000000000000000000000000000000033`
 * Before: `0x0000000000000000000000009ba6e03d8b90de867373db8cf1a58d2f7f006b3a`
 * After: `0x000000000000000000000000847b5c174615b1b7fdf770882256e2d3e95b9d92`
-* Meaning: Transfers ownership to the Foundation Upgrades Safe.
+* Meaning: Transfers ownership to the Foundation Upgrades Safe. The Tenderly simulation should
+    recognize this as a change to the `_owner` value.
+
 
 More background on `ProtocolVersions` state validation can be found
 [here](../common/protocol-versions.md), including a description of expected event emissions.
@@ -45,7 +47,8 @@ More background on `ProtocolVersions` state validation can be found
 * Key: `0x0000000000000000000000000000000000000000000000000000000000000033`
 * Before: `0x0000000000000000000000009ba6e03d8b90de867373db8cf1a58d2f7f006b3a`
 * After: `0x000000000000000000000000847b5c174615b1b7fdf770882256e2d3e95b9d92`
-* Meaning: Transfers ownership to the Foundation Upgrades Safe.
+* Meaning: Transfers ownership to the Foundation Upgrades Safe. The Tenderly simulation should
+    recognize this as a change to the `_owner` value.
 
 The only other state changes are two nonce increments:
 
