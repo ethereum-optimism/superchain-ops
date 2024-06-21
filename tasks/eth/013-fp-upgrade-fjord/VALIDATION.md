@@ -59,11 +59,9 @@ And we do indeed see these entries:
 
 ## State Changes
 
-### `0x24424336F04440b1c28685a38303aC33C9D14a25` (`LivenessGuard`)
+### `0x24424336F04440b1c28685a38303aC33C9D14a25` (`LivenessGuard`, Council only)
 
 State Changes:
-
-#### For the Council:
 
 - **Key:** Compute with `cast index address {yourSignerAddress} 0` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
