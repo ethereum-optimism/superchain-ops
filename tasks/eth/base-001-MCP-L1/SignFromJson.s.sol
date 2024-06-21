@@ -59,7 +59,7 @@ contract SignFromJson is OriginalSignFromJson {
     address constant batchInboxAddress = 0xFf00000000000000000000000000000000008453; // https://github.com/ethereum-optimism/superchain-registry/blob/72861f4bbf15482eedfbf26dffb8507cbd1d720d/superchain/configs/mainnet/base.yaml#L11
 
     // Hardcoded data that should not change after execution.
-    uint256 l2GenesisBlockGasLimit = 90e6;
+    uint256 l2GenesisBlockGasLimit = 9.75e7; // https://github.com/base-org/contract-deployments/tree/main/mainnet/2024-06-17-increase-gas-limit
     uint256 xdmSenderSlotNumber = 204; // Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/snapshots/storageLayout/L1CrossDomainMessenger.json#L93-L99
 
     // Data that should not change after execution, fetching during `setUp`.
@@ -89,7 +89,7 @@ contract SignFromJson is OriginalSignFromJson {
 
         // Fetch variables that are not expected to change from an older block.
         initialFork = vm.activeFork();
-        vm.createSelectFork(vm.envString("ETH_RPC_URL"), 20113651); // This block is from Jun-17-2024 07:40:47 PM +UTC
+        vm.createSelectFork(vm.envString("ETH_RPC_URL"), 20139954); // This block is from Jun-21-2024 11:59:35 AM +UTC
 
         gasPriceOracleOverhead = IFetcher(proxies.SystemConfig).overhead();
         gasPriceOracleScalar = IFetcher(proxies.SystemConfig).scalar();
