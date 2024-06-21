@@ -58,9 +58,8 @@ You should see the version number of Go that you just installed.
 1. Visit the rust toolchain installer website at https://rustup.rs
 1. Follow the instructions for your operating system to install `rustup`, and use `rustup` to install the Rust toolchain.
 1. Verify the installation from the command prompt:
-  - Type rustc --version
-  - Type cargo --version.
- Both commands should print a version number.
+  Type `cargo --version`.
+  You should see a version number.
 
 ### Installing eip712sign
 
@@ -96,10 +95,10 @@ We’ll use foundry to simulate the transaction we’re approving:
 
 Just is a command runner, which is similar to `make`.
 
-1. From the command prompt run:
-  `cargo install just`
+1. From the command prompt run either:
+  `cargo install just` or `brew install just`
 1. Verify the installation by typing `just --version`
-1. You should see the version number printed. This repo has been tested with version `1.24.0`.
+1. You should see the version number printed. This repo has been tested with version `1.28.0`.
 
 ### Cloning the superchain-ops repo
 
