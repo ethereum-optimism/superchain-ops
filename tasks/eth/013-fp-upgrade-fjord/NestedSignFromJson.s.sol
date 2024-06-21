@@ -46,36 +46,20 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         // No code exceptions expected
     }
 
+    function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
+        allowed = new address[](5);
+        allowed[0] = address(dgfProxy);
+        allowed[1] = proxyAdminOwnerSafe;
+        allowed[2] = securityCouncilSafe;
+        allowed[3] = foundationUpgradesSafe;
+        allowed[4] = livenessGuard;
+    }
+
     function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory) internal view override {
         console.log("Running post-deploy assertions");
         checkStateDiff(accesses);
         checkDGFProxy();
         console.log("All assertions passed!");
-    }
-
-    function checkStateDiff(Vm.AccountAccess[] memory accountAccesses) internal view override {
-        require(accountAccesses.length > 0, "No account accesses");
-        super.checkStateDiff(accountAccesses);
-
-        for (uint256 i; i < accountAccesses.length; i++) {
-            Vm.AccountAccess memory accountAccess = accountAccesses[i];
-
-            // Assert that only the expected accounts have been written to.
-            for (uint256 j; j < accountAccess.storageAccesses.length; j++) {
-                Vm.StorageAccess memory storageAccess = accountAccess.storageAccesses[j];
-                if (storageAccess.isWrite) {
-                    address account = storageAccess.account;
-                    require(
-                        // DisputeGameFactoryProxy is expected to be updated
-                        account == address(dgfProxy)
-                        // State changes the Safe's are also expected.
-                        || account == proxyAdminOwnerSafe || account == securityCouncilSafe
-                            || account == foundationUpgradesSafe || account == livenessGuard,
-                        "state-100"
-                    );
-                }
-            }
-        }
     }
 
     function checkDGFProxy() internal view {
