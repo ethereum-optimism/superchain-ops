@@ -1,5 +1,9 @@
 # OP Sepolia - `op-contracts/v1.4.0-rc.3` upgrade
 
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x13d97b5d7ad34fc6284bd75a023c9b12ac377ad94007d9870bce6815e0947da5)
+
+## Objective
+
 This upgrade updates the implementation of the `OptimismPortal`, `SystemConfig`, and `DisputeGameFactory` contracts with the latest versions, as well as the dispute games and their dependencies.
 
 The batch will be executed on chain ID `11155111`, and contains `7` transactions.

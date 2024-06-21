@@ -7,6 +7,8 @@ also known as Upgrade #4.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+- [MCP L1 Upgrades Runbook](#mcp-l1-upgrades-runbook)
+
 - [Upgrades Involved](#upgrades-involved)
   - [Extended Pause Overview (Upgrade #4)](#extended-pause-overview-upgrade-4)
   - [Multi-Chain Prep (MCP) Overview (Upgrade #6)](#multi-chain-prep-mcp-overview-upgrade-6)
@@ -288,6 +290,9 @@ Then:
 - In the part that looks like the image below, sanity check these values. For example, make sure the block number is close to the latest block for the chain, ensure the sender is correct, and that the gas used seems sensible.
 
     ![tenderly-overview](./img/mcp-l1-2.png)
+- Please make sure that the `Data to sign` matches what you see in the simulation and on your hardware wallet. This is a critical step that must not be skipped. Copy the `Data to sign:` from your terminal output and search the Tenderly Simulated Transaction and ensure its there.
+  
+    ![tenderly-simulated-tx-data-to-sign](./img/mcp-l1-3.png)
 
 - Then click the “State” tab at the top to see the state diff. Unfortunately this will not be decoded due to a Tenderly bug that [they’re working on](https://oplabs-pbc.slack.com/archives/C053NFWLG9K/p1711719503660909?thread_ts=1710771049.267939&cid=C053NFWLG9K).
 

@@ -1,6 +1,6 @@
 # Sepolia Guardian Changes - Security Council Runbook
 
-Status: DRAFT, NOT READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xc369539475c779729adb1ae9326e9245cefccdb0159cabc2f0be7650c6cfe170)
 
 ## Objective
 
@@ -16,7 +16,7 @@ The following state changes will be made to those Safes:
 1. On the Security Council safe, increase the threshold to 30% (from 2/10 to 3/10)
 2. On the Security Council safe, set the `LivenessGuard` at `0xc26977310bC89DAee5823C2e2a73195E85382cC7`.
 3. On the Security Council safe, enable the `LivenessModule` at `0xEB3eF34ACF1a6C1630807495bCC07ED3e7B0177e`.
-4. On the 1/1 Guardian Safe, enable the `DeputyGuardianModule` at `0x7dF9594B205041Ea4917cb047Dc20F84dfe297c7`.
+4. On the 1/1 Guardian Safe, enable the `DeputyGuardianModule` at `0x4220C5deD9dC2C8a8366e684B098094790C72d3c`.
 
 These modules are documented in the OP Stack Specification's [Security Council Safe document](https://specs.optimism.io/experimental/security-council-safe.html).
 
