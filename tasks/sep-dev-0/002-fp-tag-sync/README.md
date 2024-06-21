@@ -1,5 +1,9 @@
 # Devnet FP Upgrade - `op-contracts/v1.4.0-rc.3`
 
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x4859f2fda193b9c76d5e96c7e586f1c4fac91e9b1eedcbe6c1ab65adf3850532)
+
+## Objective
+
 Upgrades the deployed system on `sepolia-devnet-0` to the latest version of the deployed contracts, `op-contracts/1.4.0-rc.3`.
 
 The batch will be executed on chain ID `11155111`, and contains `3` transactions.
