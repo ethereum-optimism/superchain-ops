@@ -23,7 +23,7 @@ Details on the upgrade procedure can be found in [EXEC.md](./EXEC.md). Signers n
 
 ## Preparing the Upgrade
 
-The new Fault Dispute Game coontract implementations have been pre-deployed to mainnet.
+The new Fault Dispute Game contract implementations have been pre-deployed to mainnet.
 
 - `FaultDisputeGame`: [`0xf691F8A6d908B58C534B624cF16495b491E633BA`](https://etherscan.io/address/0xc307e93a7C530a184c98EaDe4545a412b857b62f)
 - `PermissionedDisputeGame` - [`0xc307e93a7C530a184c98EaDe4545a412b857b62f`](https://etherscan.io/address/0xc307e93a7C530a184c98EaDe4545a412b857b62f)
