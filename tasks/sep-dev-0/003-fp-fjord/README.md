@@ -1,5 +1,9 @@
 # Devnet FP Upgrade - Fjord
 
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x7eb73a9e5eaa60aed79c09406fe5d9a890c7b7ca01839cb729e8c29cb700d161)
+
+## Objective 
+
 Upgrades the deployed system on `sepolia-devnet-0` to use the absolute prestate for the `op-program/v1.1.0` release.
 The op-program release is fjord compatible.
 
