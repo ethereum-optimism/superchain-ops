@@ -1,6 +1,6 @@
 # Mainnet Recommended Protocol Version Update (7.0.0 - Fjord) & Ownership Transfers
 
-Status: DRAFT
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 

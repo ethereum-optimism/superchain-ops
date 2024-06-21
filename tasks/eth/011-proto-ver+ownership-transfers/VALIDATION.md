@@ -11,7 +11,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 The following state overrides should be seen:
 
-### `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A` (Foundation Operational Safe)
+### `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A` (Foundation Operations Safe)
 
 The [Foundation Operations Safe](https://etherscan.io/address/0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A) is attested to in the [Optimism docs](https://docs.optimism.io/chain/security/privileged-roles#system-config-owner) as the current owner of the `SystemConfig`.
 The `ProtocolVersions` owner is not mentioned in the docs, but is the same.
