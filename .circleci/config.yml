@@ -185,6 +185,23 @@ jobs:
               --justfile ../../../single.just \
               simulate
 
+  just_simulate_eth-013-fp-upgrade-fjord:
+    docker:
+      - image: <<pipeline.parameters.ci_builder_image>>
+    steps:
+      - checkout
+      - run:
+          name: just simulate eth/013-fp-upgrade-fjord
+          command: |
+            go install github.com/mikefarah/yq/v4@latest
+            just install
+            cd tasks/eth/013-fp-upgrade-fjord
+            export SIMULATE_WITHOUT_LEDGER=1
+            just \
+              --dotenv-path .env \
+              --justfile ../../../nested.just \
+              simulate
+
   forge_fmt:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
