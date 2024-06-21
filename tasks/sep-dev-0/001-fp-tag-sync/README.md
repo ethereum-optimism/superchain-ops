@@ -1,6 +1,6 @@
 # Devnet FP Upgrade - `op-contracts/v1.4.0-rc.2`
 
-STATUS: [EXECUTED](https://sepolia.etherscan.io/tx/0xeb2196e96d453c8cb77c10822b71f15c1fbf963e1ce8bee17255c8de1937aa3e)
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xeb2196e96d453c8cb77c10822b71f15c1fbf963e1ce8bee17255c8de1937aa3e)
 
 ## Objective
 
