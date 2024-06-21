@@ -99,7 +99,7 @@ Just is a command runner, which is similar to `make`.
 1. From the command prompt run:
   `cargo install just`
 1. Verify the installation by typing `just --version`
-1. You should see the version number printed. This repo has been tested with version `1.24.0`.
+1. You should see the version number printed. This repo has been tested with version `1.28.0`.
 
 ### Cloning the superchain-ops repo
 
