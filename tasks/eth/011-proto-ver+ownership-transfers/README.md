@@ -6,7 +6,7 @@ Status: DRAFT, NOT READY TO SIGN
 
 This is the playbook to
 - Update the recommended protocol version of the `ProtocolVersions` contract on Ethereum mainnet to 7.0.0 (Fjord). It is currently set to 6.0.0 (Ecotone).
-- Transfer ownership of the `ProtocolVersions` and `SystemConfig` from the `FoundationOperationsSafe` to the `FoundationUpgradeSafe` (TODO).
+- Transfer ownership of the `ProtocolVersions` and `SystemConfig` from the `FoundationOperationsSafe` to the `FoundationUpgradeSafe`.
 
 This transaction should be sent on **Jun 27, 2024**, so right after the Veto Period for Voting Cycle 23b has ended.
 
