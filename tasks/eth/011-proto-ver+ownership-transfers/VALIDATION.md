@@ -42,7 +42,7 @@ To allow simulating the transaction bundle of setting the recommended versions a
 More background on `ProtocolVersions` state validation can be found
 [here](../common/protocol-versions.md), including a description of expected event emissions.
 
-### `0x229047fed2591dbec1ef1118d64f7af3db9eb290` (`ProtocolVersions`)
+### `0x229047fed2591dbec1ef1118d64f7af3db9eb290` (`SystemConfig`)
 
 * Key: `0x0000000000000000000000000000000000000000000000000000000000000033`
 * Before: `0x0000000000000000000000009ba6e03d8b90de867373db8cf1a58d2f7f006b3a`
