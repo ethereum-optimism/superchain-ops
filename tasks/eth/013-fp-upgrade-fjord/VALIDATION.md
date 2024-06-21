@@ -131,6 +131,30 @@ State Changes:
       ```
       And so the output of the second command matches the key above.
 
+
+### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Council Safe)
+
+State Changes:
+
+#### For the Council:
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000005`
+  **After:** `0x0000000000000000000000000000000000000000000000000000000000000006`
+  **Meaning:** The nonce is increased from 5 to 6. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
+
+
+### `0x847b5c174615b1b7fdf770882256e2d3e95b9d92` (Foundation Safe)
+
+State Changes:
+
+#### For the Foundation:
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000005`
+  **After:** `0x0000000000000000000000000000000000000000000000000000000000000006`
+  **Meaning:** The nonce is increased from 5 to 6. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L17). Note that if this task is simulated before 011 has executed, then the nonce should be increased from 4 to 5.
+
 ### `0x24424336F04440b1c28685a38303aC33C9D14a25` (`LivenessGuard`)
 
 State Changes:
