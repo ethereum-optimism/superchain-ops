@@ -10,7 +10,7 @@ This is a requirement for reaching Stage 1.
 ## Simulation
 
 Please see the "Simulating and Verifying the Transaction" instructions in [NESTED.md](../../../NESTED.md).
-When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/sep/006-2-foundation-guardian-updates/NestedSignFromJson.s.sol`.
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/sep/006-1-guardian-upgrade/NestedSignFromJson.s.sol`.
 This ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown
 (without the full path), something is wrong and the safety checks will not run.
 
@@ -24,4 +24,4 @@ Please see the instructions for [validation](./VALIDATION.md).
 
 At this point you may resume following the execution instructions in the "Execute the Transaction" section of [NESTED.md](../../../NESTED.md).
 
-When executing, ensure the logs say `Using script Using script /your/path/to/superchain-ops/tasks/sep/006-2-foundation-guardian-updates/NestedSignFromJson.s.sol`. This ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
+When executing, ensure the logs say `Using script Using script /your/path/to/superchain-ops/tasks/sep/006-1-guardian-upgrade/NestedSignFromJson.s.sol`. This ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
