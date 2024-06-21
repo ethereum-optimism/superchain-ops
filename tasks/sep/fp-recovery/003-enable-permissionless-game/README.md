@@ -1,5 +1,9 @@
 # Deputy Guardian - Enable Permissioness Dispute Game
 
+Status: CONTINGENCY TASK, SIGN AS NEEDED
+
+## Objective
+
 This task updates the `respectedGameType` in the `OptimismPortal` to `CANNON`, enabling users to permissionlessly propose outputs as well as for anyone to participate in the dispute of these proposals. This action requires all in-progress withdrawals to be re-proven against a new `FaultDisputeGame` that was created after this update occurs.
 
 The batch will be executed on chain ID `11155111`, and contains `1` transactions.
