@@ -142,9 +142,9 @@ State Changes:
 #### For the Foundation:
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
-  **After:** `0x0000000000000000000000000000000000000000000000000000000000000006` <br/>
-  **Meaning:** The nonce is increased from 5 to 6. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L17). Note that if this task is simulated before 011 has executed, then the nonce should be increased from 4 to 5.
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000006` <br/>
+  **After:** `0x0000000000000000000000000000000000000000000000000000000000000007` <br/>
+  **Meaning:** The nonce is increased from 6 to 7. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L17). Note that if this task is simulated before 011 and 012 have executed, then the nonce should be increased from 4 to 5.
 
 
 ### `0xe5965ab5962edc7477c8520243a95517cd252fa9` (`DisputeGameFactoryProxy`)
