@@ -168,7 +168,7 @@ jobs:
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
 
-just_simulate_eth-base-001-MCP-L1:
+  just_simulate_eth-base-001-MCP-L1:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
     steps:
