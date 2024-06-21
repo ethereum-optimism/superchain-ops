@@ -166,4 +166,4 @@ State Changes:
   **After:** [`0x000000000000000000000000f691f8a6d908b58c534b624cf16495b491e633ba`](https://etherscan.io/address/0xf691f8a6d908b58c534b624cf16495b491e633ba) <br/>
   **Meaning:** This is `gameImpls[1] -> 0xf691f8a6d908b58c534b624cf16495b491e633ba` (where `1` is the [`PERMISSIONED_CANNON` game type](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L31)), so the key can be derived from `cast index uint32 0 101`.
   
-The only other state changes is a nonce increments on the account that sent the transaction.
+The only other state changes is a nonce increment on the account that sent the transaction.
