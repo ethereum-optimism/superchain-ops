@@ -109,6 +109,11 @@ State Changes:
         ```
       And so the output of the second command matches the key above.
 
+- **Key:** `0x24424336f04440b1c28685a38303ac33c9d14a25`
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  **After:** `0x000000000000000000000000000000000000000000000000000000006675b61f`
+  **Meaning:** This updates the [`lastLive`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.5.0/packages/contracts-bedrock/src/Safe/LivenessGuard.sol#L36) indicating liveness of an owner that participated in signing. This will be updated to a block timestamp that's close to when this task was executed.
+
 #### For the Foundation:
 
 - **Key:** `0x6ef669e1a6fdba12525f568b5f98f3455726b23f9e33a5034c9180ca01a3f223` <br/>
