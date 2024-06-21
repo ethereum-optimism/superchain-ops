@@ -192,7 +192,6 @@ jobs:
             just --version
             yq --version
             forge --version
-            cargo --version
 
 workflows:
   print_versions:
