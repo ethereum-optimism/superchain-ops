@@ -38,9 +38,8 @@ To allow simulating the transaction bundle of setting the recommended versions a
   **Meaning:** Transfers ownership to the Foundation Upgrades Safe. The Tenderly simulation should
     recognize this as a change to the `_owner` value.
 
-
 More background on `ProtocolVersions` state validation can be found
-[here](../common/protocol-versions.md), including a description of expected event emissions.
+[here](../common/protocol-versions.md), including how to compute the key above, and a description of expected event emissions.
 
 ### `0x229047fed2591dbec1ef1118d64f7af3db9eb290` (`SystemConfig`)
 
@@ -54,4 +53,3 @@ The only other state changes are two nonce increments:
 
 - One on the Foundation Operations Safe (`0x9ba6e03d8b90de867373db8cf1a58d2f7f006b3a`). If this is not decoded, it corresponds to key `0x05` on a `GnosisSafeProxy`.
 - One on the owner on the account that sent the transaction.
-
