@@ -47,7 +47,7 @@ If you wish to use a different account, append an `X` to the command to set the 
 
 ```shell
 just \
-   --dotenv-path .env \
+   --dotenv-path $(pwd)/.env \
    --justfile ../../../single.just \
    simulate \
    0 # or 1 or ...
@@ -113,7 +113,7 @@ following:
 
 ```shell
 just \
-   --dotenv-path .env \
+   --dotenv-path $(pwd)/.env \
    --justfile ../../../single.just \
    sign \
    0 # or 1 or ...
@@ -182,7 +182,7 @@ Then you should run:
 ```shell
 export SIGNATURES="0xAAAABBBB"
 just \
-   --dotenv-path .env \
+   --dotenv-path $(pwd)/.env \
    --justfile ../../../single.just \
     execute \
     0 # or 1 or ...

@@ -42,7 +42,7 @@ For the Security Council:
 
 ```shell
    just \
-   --dotenv-path .env \
+   --dotenv-path $(pwd)/.env \
    --justfile ../../../nested.just \
    simulate \
    council # 0 or 1 or ...
@@ -52,7 +52,7 @@ For the Foundation:
 
 ```shell
 just \
-   --dotenv-path .env \
+   --dotenv-path $(pwd)/.env \
    --justfile ../../../nested.just \
    simulate \
    foundation # 0 or 1 or ...
@@ -119,7 +119,7 @@ following:
 
 ```shell
 just \
-   --dotenv-path .env \
+   --dotenv-path $(pwd)/.env \
    --justfile ../../../nested.just \
    sign \
    council # 0 or 1 or ...
@@ -129,7 +129,7 @@ or
 
 ```shell
 just \
-   --dotenv-path .env \
+   --dotenv-path $(pwd)/.env \
    --justfile ../../../nested.just \
    sign \
    foundation # 0 or 1 or ...
@@ -198,7 +198,7 @@ Then you should run:
 ```shell
 export SIGNATURES="0xAAAABBBB"
 just \
-   --dotenv-path .env \
+   --dotenv-path $(pwd)/.env \
    --justfile ../../../nested.just \
    approve \
    foundation \ # or council
@@ -211,7 +211,7 @@ Once the signatures have been submitted approving the transaction for all nested
 
 ```shell
 just \
-   --dotenv-path .env \
+   --dotenv-path $(pwd)/.env \
    --justfile ../../../nested.just \
    execute \
    0 # or 1 or ...

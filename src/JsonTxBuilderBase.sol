@@ -56,9 +56,11 @@ abstract contract JsonTxBuilderBase is CommonBase {
     /// @notice Reads all account and storage accesses and makes a series of basic sanity checks on them.
     ///         This function can be overridden to provide more specific checks, but should still call
     ///         super.checkStateDiff().
-    function checkStateDiff(Vm.AccountAccess[] memory accountAccesses) internal view virtual {
+    function checkStateDiff(Vm.AccountAccess[] memory accountAccesses) internal view {
         console.log("Running assertions on the state diff");
         require(accountAccesses.length > 0, "No account accesses");
+
+        address[] memory allowedAccesses = getAllowedStorageAccess();
 
         for (uint256 i; i < accountAccesses.length; i++) {
             Vm.AccountAccess memory accountAccess = accountAccesses[i];
@@ -86,12 +88,13 @@ abstract contract JsonTxBuilderBase is CommonBase {
                 if (!storageAccess.isWrite) continue; // Skip SLOADs.
 
                 uint256 value = uint256(storageAccess.newValue);
+                address account = storageAccess.account;
                 if (isLikelyAddressThatShouldHaveCode(value)) {
                     // Log account, slot, and value if there is no code.
                     string memory err = string.concat(
                         "Likely address in storage has no code\n",
                         "  account: ",
-                        vm.toString(storageAccess.account),
+                        vm.toString(account),
                         "\n  slot:    ",
                         vm.toString(storageAccess.slot),
                         "\n  value:   ",
@@ -103,7 +106,7 @@ abstract contract JsonTxBuilderBase is CommonBase {
                     string memory err = string.concat(
                         "Likely address in storage has unexpected code\n",
                         "  account: ",
-                        vm.toString(storageAccess.account),
+                        vm.toString(account),
                         "\n  slot:    ",
                         vm.toString(storageAccess.slot),
                         "\n  value:   ",
@@ -112,22 +115,14 @@ abstract contract JsonTxBuilderBase is CommonBase {
                     require(address(uint160(value)).code.length == 0, err);
                 }
 
-                require(
-                    storageAccess.account.code.length != 0,
-                    string.concat("Storage account has no code: ", vm.toString(storageAccess.account))
-                );
-                require(
-                    !storageAccess.reverted,
-                    string.concat("Storage access reverted: ", vm.toString(storageAccess.account))
-                );
-                require(
-                    storageAccess.account.code.length != 0,
-                    string.concat("Storage account has no code: ", vm.toString(storageAccess.account))
-                );
-                require(
-                    !storageAccess.reverted,
-                    string.concat("Storage access reverted: ", vm.toString(storageAccess.account))
-                );
+                require(account.code.length != 0, string.concat("Storage account has no code: ", vm.toString(account)));
+                require(!storageAccess.reverted, string.concat("Storage access reverted: ", vm.toString(account)));
+
+                bool allowed;
+                for (uint256 k; k < allowedAccesses.length; k++) {
+                    allowed = allowed || (account == allowedAccesses[k]);
+                }
+                require(allowed, string.concat("Unallowed Storage access: ", vm.toString(account)));
             }
         }
     }
@@ -138,6 +133,13 @@ abstract contract JsonTxBuilderBase is CommonBase {
         json; // Storage access to silence compiler warnings about use of view rather than pure.
         exceptions; // Named return and this no-op required to silence compiler warnings.
         require(false, "getCodeExceptions not implemented");
+    }
+
+    /// @notice Returns a list of all addresses to which storage access is allowed.
+    function getAllowedStorageAccess() internal view virtual returns (address[] memory allowed) {
+        json; // Storage access to silence compiler warnings about use of view rather than pure.
+        allowed; // Named return and this no-op required to silence compiler warnings.
+        require(false, "getAllowedStorageAccess not implemented");
     }
 
     /// @notice Checks that values have code on this chain.
