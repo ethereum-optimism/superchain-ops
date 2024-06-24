@@ -28,6 +28,7 @@ interface IFetcher {
     function overhead() external returns (uint256); // SystemConfig
     function scalar() external returns (uint256); // SystemConfig
     function guardian() external returns (address); // SuperchainConfig
+    function GUARDIAN() external view returns (address); // SuperchainConfig, legacy
     function L2_BLOCK_TIME() external returns (uint256); // L2OutputOracle
     function SUBMISSION_INTERVAL() external returns (uint256); // L2OutputOracle
     function FINALIZATION_PERIOD_SECONDS() external returns (uint256); // L2OutputOracle
@@ -37,7 +38,7 @@ interface IFetcher {
     function required() external returns (uint256); // ProtocolVersions
     function recommended() external returns (uint256); // ProtocolVersions
     function l2OutputOracle() external view returns (address); // L2OutputOracle Address, replaced by DGF in FP code
-    function L2_ORACLE() external view returns (address);
+    function L2_ORACLE() external view returns (address); // L2OutputOracle, legacy
     function SYSTEM_CONFIG() external view returns (address);
 }
 
@@ -313,6 +314,7 @@ contract NestedSignFromJson is OriginalSignFromJson {
         require(address(portalToCheck.systemConfig()).code.length != 0, "6101");
         require(EIP1967Helper.getImplementation(address(portalToCheck.systemConfig())).code.length != 0, "6102");
 
+        require(IFetcher(address(portalToCheck)).GUARDIAN() == superchainConfigGuardian, "6200");
         require(portalToCheck.guardian() == superchainConfigGuardian, "6300");
         require(portalToCheck.guardian().code.length != 0, "6350"); // This is a Safe, no need to check the implementation.
 
@@ -360,7 +362,17 @@ contract NestedSignFromJson is OriginalSignFromJson {
         console.log("Running post-deploy assertions");
 
         checkStateDiff(accesses);
-        checkSemvers();
+
+        // We check these conditionally because during the `approveHash` call from `just approve`,
+        // the contract state changes are not simulated nor executed. Therefore we would still see
+        // the original contract data, not the post-execution data, meaning the set of assertions
+        // would fail during this call. To mitigate that UX issue, we only check these assertions
+        // when simulating, signing, or executing.
+        if (msg.sig != this.approveJson.selector) {
+            checkSemvers(); // Fails because semver mismatch.
+            checkOptimismPortal(); // Fails because Guardian is updated by this task.
+            checkSuperchainConfig(); // Fails because Guardian is updated by this task.
+        }
 
         checkSystemConfig();
         checkL1CrossDomainMessenger();
@@ -368,9 +380,7 @@ contract NestedSignFromJson is OriginalSignFromJson {
         checkL2OutputOracle();
         checkOptimismMintableERC20Factory();
         checkL1ERC721Bridge();
-        checkOptimismPortal();
         checkProtocolVersions();
-        checkSuperchainConfig();
 
         console.log("All assertions passed!");
     }
