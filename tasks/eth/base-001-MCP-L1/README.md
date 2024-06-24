@@ -25,6 +25,10 @@ When simulating, ensure the logs say `Using script Using script /your/path/to/su
 Thus ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown
 (without the full path), something is wrong and the safety checks will not run.
 
+When signing as a Base signer, use `council` as the argument to the just command. 
+This is actually the Base safe but the `nested.just` file uses council as a keyword and
+we want to minimize changes.
+
 Do NOT yet proceed to the "Execute the Transaction" section.
 
 ## State Validations
