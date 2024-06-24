@@ -77,7 +77,7 @@ contract SignFromJson is OriginalSignFromJson {
 
     // Other data we use.
     uint256 systemConfigStartBlock = 17482144; // This was an input when generating input.json
-    AddressManager addressManager = AddressManager(0x8EfB6B5c4767B09Dc9AA6Af4eAA89F749522BaE2); // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/mode.json#L9
+    AddressManager addressManager = AddressManager(0x8EfB6B5c4767B09Dc9AA6Af4eAA89F749522BaE2); // https://github.com/ethereum-optimism/superchain-registry/blob/4c005f16ee1b100afc08a35a2e418d849bea044a/superchain/extra/addresses/mainnet/base.json#L2
     Types.ContractSet proxies;
 
     // This gives the initial fork, so we can use it to switch back after fetching data.
@@ -89,7 +89,7 @@ contract SignFromJson is OriginalSignFromJson {
 
         // Fetch variables that are not expected to change from an older block.
         initialFork = vm.activeFork();
-        vm.createSelectFork(vm.envString("ETH_RPC_URL"), 20139954); // This block is from Jun-21-2024 11:59:35 AM +UTC
+        vm.createSelectFork(vm.envString("ETH_RPC_URL"), block.number - 10);
 
         gasPriceOracleOverhead = IFetcher(proxies.SystemConfig).overhead();
         gasPriceOracleScalar = IFetcher(proxies.SystemConfig).scalar();
@@ -381,7 +381,7 @@ contract SignFromJson is OriginalSignFromJson {
         return shouldHaveCodeExceptions;
     }
 
-    /// @notice Reads the contract addresses from lib/superchain-registry/superchain/extra/addresses/mainnet/zora.json
+    /// @notice Reads the contract addresses from lib/superchain-registry/superchain/extra/addresses/mainnet/base.json
     function _getContractSet() internal returns (Types.ContractSet memory _proxies) {
         string memory addressesJson;
 

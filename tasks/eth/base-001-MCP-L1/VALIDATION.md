@@ -221,13 +221,13 @@ that the address actually matches the correct implementation, an Etherscan link 
 [l1-xdm-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/3fb9d9b4c72183373447571e932ea01f6fef46e9/superchain/extra/addresses/mainnet/base.json#L3
 [l1-xdm-etherscan]: https://etherscan.io/address/0x866E82a600A1414e583f7F13623F1aC5d58b0Afa
 [l1-erc721-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/3fb9d9b4c72183373447571e932ea01f6fef46e9/superchain/extra/addresses/mainnet/base.json#L4
-[l1-erc721-etherscan]: https://etherscan.io/address/0x73a79Fab69143498Ed3712e519A88a918e1f4072
+[l1-erc721-etherscan]: https://etherscan.io/address/0x608d94945A64503E642E6370Ec598e519a2C1E53
 [portal-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/3fb9d9b4c72183373447571e932ea01f6fef46e9/superchain/extra/addresses/mainnet/base.json#L8
-[portal-etherscan]: https://etherscan.io/address/0x73a79Fab69143498Ed3712e519A88a918e1f4072
+[portal-etherscan]: https://etherscan.io/address/0x49048044D57e1C92A77f79988d21Fa8fAF74E97e
 [batch-inbox-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/3fb9d9b4c72183373447571e932ea01f6fef46e9/superchain/configs/mainnet/base.yaml#L11
 [batch-inbox-etherscan]: https://etherscan.io/address/0xFf00000000000000000000000000000000008453
 [l1-standard-bridge-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/3fb9d9b4c72183373447571e932ea01f6fef46e9/superchain/extra/addresses/mainnet/base.json#L5
-[l1-standard-bridge-etherscan]: https://etherscan.io/address/0x73a79Fab69143498Ed3712e519A88a918e1f4072
+[l1-standard-bridge-etherscan]: https://etherscan.io/address/3154cf16ccdb4c6d922629664174b904d80f2c35
 [factory-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/3fb9d9b4c72183373447571e932ea01f6fef46e9/superchain/extra/addresses/mainnet/base.json#L7
 [factory-etherscan]: https://etherscan.io/address/0x05cc379EBD9B30BbA19C6fA282AB29218EC61D84
 [output-oracle-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/3fb9d9b4c72183373447571e932ea01f6fef46e9/superchain/extra/addresses/mainnet/base.json#L6
@@ -271,7 +271,7 @@ that the address actually matches the correct implementation, an Etherscan link 
 - **Key:** `0xa11ee3ab75b40e88a0105e935d17cd36c8faee0138320d776c411291bdbbb19f` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x00000000000000000000000000000000000000000000000000000000010ac1a0` <br/>
-  **Meaning:** Sets `startBlock` at slot to 17482144. This should be the block number at which the `SystemConfig` proxy was initialized for the first time. [Etherscan events](https://etherscan.io/address/0x73a79Fab69143498Ed3712e519A88a918e1f4072#events) shows twelve events have been emitted since contract creation in block 17482143, and that the first `Initialize` event after that should be in block 17482144. Verification of the key can be done by ensuring the result of the [START_BLOCK_SLOT](https://etherscan.io/address/0xba2492e52f45651b60b8b38d4ea5e2390c64ffb1#readContract#F8) getter on the implementation contract matches the key.
+  **Meaning:** Sets `startBlock` at slot to 17482144. This should be the block number at which the `SystemConfig` proxy was initialized for the first time. [Etherscan events](https://etherscan.io/address/0x73a79Fab69143498Ed3712e519A88a918e1f4072#events) shows twelve events have been emitted since contract creation in block 17482143, and that the first `Initialized` event after that should be in block 17482144. Verification of the key can be done by ensuring the result of the [START_BLOCK_SLOT](https://etherscan.io/address/0xba2492e52f45651b60b8b38d4ea5e2390c64ffb1#readContract#F8) getter on the implementation contract matches the key.
 
 - **Key:** `0xe52a667f71ec761b9b381c7b76ca9b852adf7e8905da0e0ad49986a0a6871815` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
