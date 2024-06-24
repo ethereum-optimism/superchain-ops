@@ -219,8 +219,12 @@ jobs:
             export SIMULATE_WITHOUT_LEDGER=1
             just \
               --dotenv-path .env \
-              --justfile ../../../single.just \
-              simulate
+              --justfile ../../../nested.just \
+              simulate council
+            just \
+              --dotenv-path .env \
+              --justfile ../../../nested.just \
+              simulate foundation
 
   forge_fmt:
     docker:

@@ -13,7 +13,7 @@ The proposal was:
 - [X] Not vetoed by the Citizens' house here: https://snapshot.org/#/citizenshouse.eth/proposal/0x2bc6565053b73813c6b0a001c8c07eb5656234b4d8bae12ba6541250993d1d25
 - [X] Executed on OP Sepolia: https://github.com/ethereum-optimism/superchain-ops/tree/6ea64b21416917e3dfcb867fd0c76db90fb46277/tasks/sep/003-MCP-L1
 - [X] Executed on OP Mainnet: https://github.com/ethereum-optimism/superchain-ops/tree/11bd3a24b3c18ccf637e32182045a377a89ec22f/tasks/eth/006-MCP-L1
-- [X] Executed on Base Sepolia: https://sepolia.etherscan.io/tx/0xdd0716a31a2b71f0f4162f474bbfb3873eb570e0395d42f3a945b65e35562dbf
+- [X] Executed on Base Sepolia: https://github.com/ethereum-optimism/superchain-ops/tree/10b7011977ba239b04f18bd8499e08c616c328a5/tasks/sep/base-001-MCP-L1
 
 The governance proposal should be treated as the source of truth and used to verify the correctness
 of the onchain operations.
@@ -21,7 +21,7 @@ of the onchain operations.
 ## Simulation
 
 Please see the "Simulating and Verifying the Transaction" instructions in [SINGLE.md](../../../SINGLE.md).
-When simulating, ensure the logs say `Using script Using script /your/path/to/superchain-ops/tasks/eth/base-001-MCP-L1/SignFromJson.s.sol`.
+When simulating, ensure the logs say `Using script Using script /your/path/to/superchain-ops/tasks/eth/base-001-MCP-L1/NestedSignFromJson.s.sol`.
 Thus ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown
 (without the full path), something is wrong and the safety checks will not run.
 
@@ -35,6 +35,6 @@ Please see the instructions for [validation](./VALIDATION.md).
 
 At this point you may resume following the execution instructions in the "Execute the Transaction" section of [SINGLE.md](../../../SINGLE.md).
 
-When executing, ensure the logs say `Using script Using script /your/path/to/superchain-ops/tasks/eth/base-001-MCP-L1/SignFromJson.s.sol`.
-Thus ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown
+When executing, ensure the logs say `Using script Using script /your/path/to/superchain-ops/tasks/eth/base-001-MCP-L1/NestedSignFromJson.s.sol`.
+Thus ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown
 (without the full path), something is wrong and the safety checks will not run.
