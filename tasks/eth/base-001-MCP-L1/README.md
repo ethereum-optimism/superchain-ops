@@ -1,6 +1,6 @@
 # Base Mainnet MCP L1 Upgrade
 
-Status: [READY TO SIGN]()
+Status: READY TO SIGN
 
 ## Objective
 
