@@ -1,4 +1,4 @@
-# Mainnet Required Protocol Version Update (7.0.0 - Fjord)
+# Mainnet Gas Config Update for Fjord
 
 Status: DRAFT, NOT READY TO SIGN
 
