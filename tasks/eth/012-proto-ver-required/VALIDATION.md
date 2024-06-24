@@ -13,7 +13,7 @@ The following state overrides should be seen:
 
 ### `0x8062AbC286f5e7D9428a0Ccb9AbD71e50d93b935` (`ProtocolVersions`)
 
-We overrid the ownership of the PV contract (task#011).
+We override the ownership of the PV contract (task#011).
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000033` <br/>
   **Value:** `0x000000000000000000000000847b5c174615b1b7fdf770882256e2d3e95b9d92` <br/>
@@ -26,15 +26,10 @@ The [Foundation Upgrade Safe](https://etherscan.io/address/0x847B5c174615B1B7fDF
 The `ProtocolVersions` owner is not mentioned in the docs, but is the same.
 
 To allow simulating the transaction bundle of setting the required versions in a single Tenderly tx, the threshold is overridden to 1.
-Additionally, the nonce is set to 5 to account for task `011-3`.
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000004` <br/>
   **Value:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **Meaning:** The threshold is set to 1. The key can be validated by the location of the `threshold` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L14).
-
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
-  **Value:** `0x0000000000000000000000000000000000000000000000000000000000000005`
-  **Meaning:** Sets the Safe nonce to the hardcoded value of 5. This is the expected value of the Safe nonce at the time of execution. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
 
 ## State Changes
 
