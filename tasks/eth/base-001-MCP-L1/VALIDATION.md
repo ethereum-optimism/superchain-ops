@@ -380,9 +380,6 @@ State Changes:
    cast storage 0x8efb6b5c4767b09dc9aa6af4eaa89f749522bae2 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url https://ethereum.publicnode.com
    ```
 
-The only other state change is a nonce increment of the owner on the safe that sent the transaction.
-If simulating it will be `0x9855054731540a48b28990b63dcf4f33d8ae46a1`, but if your ledger is
-connected it may be a different one of the safe's owners.
-
-The only other state changes is a nonce increment on the account that sent the
-transaction.
+The only other state changes are two nonce increments:
+- One on the Safe that you are simulating as, so `0x9855054731540A48b28990B63DcF4f33d8AE46A1` if simulating from the Base Safe, or `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A` if simulating from the Foundation Safe.
+- One on the account used to send the transaction, which will be the address of your wallet.
