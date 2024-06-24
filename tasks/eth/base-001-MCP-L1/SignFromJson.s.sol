@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import {SignFromJson as OriginalSignFromJson} from "script/SignFromJson.s.sol";
+import {NestedSignFromJson as OriginalSignFromJson} from "script/NestedSignFromJson.s.sol";
 import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
 import {Constants, ResourceMetering} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
 import {L1StandardBridge} from "@eth-optimism-bedrock/src/L1/L1StandardBridge.sol";
