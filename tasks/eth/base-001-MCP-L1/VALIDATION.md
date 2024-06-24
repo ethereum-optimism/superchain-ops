@@ -103,7 +103,6 @@ State Changes:
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000035` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  TODO: verify that the trailing two 0s here are expected because of the storage offset.
   **After:** `0x000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c00` <br/>
   **Meaning:** Sets `superchainConfig` at slot `0x35` (53). The correctness of
    this slot is attested to in the Optimism repo at [storageLayout/OptimismPortal.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal.json#L58-L64). The `superchainConfig` address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/configs/mainnet/superchain.yaml#L8).

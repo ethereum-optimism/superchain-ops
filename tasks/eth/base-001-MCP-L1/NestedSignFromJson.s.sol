@@ -41,7 +41,7 @@ interface IFetcher {
     function SYSTEM_CONFIG() external view returns (address);
 }
 
-contract SignFromJson is OriginalSignFromJson {
+contract NestedSignFromJson is OriginalSignFromJson {
     using LibString for string;
 
     // Chains for this task.
