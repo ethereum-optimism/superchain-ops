@@ -13,10 +13,10 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 The following state overrides should be seen:
 
-### `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (The 2/2 `ProxyAdmin` Owner)
+### `0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c` (The 2/2 `ProxyAdmin` Owner)
 
 Links:
-- [Etherscan](https://etherscan.io/address/0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A)
+- [Etherscan](https://etherscan.io/address/0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c)
 
 Overrides:
 
@@ -27,10 +27,13 @@ Overrides:
 ### `0x9855054731540A48b28990B63DcF4f33d8AE46A1` (Base Safe) or `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A` (Foundation Safe)
 
 Links:
-- [Etherscan (Base Safe)](https://etherscan.io/address/0x9855054731540A48b28990B63DcF4f33d8AE46A1). This address is attested to in the [Optimism docs](https://docs.optimism.io/chain/security/privileged-roles#l1-proxy-admin), as it's one of the signers of the L1 Proxy Admin owner.
+- [Etherscan (Base Safe)](https://etherscan.io/address/0x9855054731540A48b28990B63DcF4f33d8AE46A1). You can verify this as it's one of the signers of the L1 Proxy Admin owner, by calling `getOwners` on
+the [ProxyAdmin](https://etherscan.io/address/0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c#readProxyContract) 
 - [Etherscan (Foundation Safe)](https://etherscan.io/address/0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A). This address is attested to in the [Optimism docs](https://docs.optimism.io/chain/security/privileged-roles#l1-proxy-admin), as it's one of the signers of the L1 Proxy Admin owner.
 
 The Safe you are signing for will have the following overrides which will set the [Multicall](https://etherscan.io/address/0xca11bde05977b3631167028862be2a173976ca11#code) contract as the sole owner of the signing safe. This allows simulating both the approve hash and the final tx in a single Tenderly tx.
+
+#### For the Base and Foundation Safe
 
 - **Key:** 0x0000000000000000000000000000000000000000000000000000000000000003 <br/>
   **Value:** 0x0000000000000000000000000000000000000000000000000000000000000001 <br/>
@@ -39,6 +42,12 @@ The Safe you are signing for will have the following overrides which will set th
 - **Key:** 0x0000000000000000000000000000000000000000000000000000000000000004 <br/>
   **Value:** 0x0000000000000000000000000000000000000000000000000000000000000001 <br/>
   **Meaning:** The threshold is set to 1. The key can be validated by the location of the `threshold` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L14).
+
+#### Additional override for the Foundation Safe
+
+- **Key:** 0x0000000000000000000000000000000000000000000000000000000000000005 <br/>
+  **Value:** 0x000000000000000000000000000000000000000000000000000000000000005d <br/>
+  **Meaning:** The nonce is increased from 92 to 93. The key can be validated by the location of the nonce variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
 
 The following two overrides are modifications to the [`owners` mapping](https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L12). For the purpose of calculating the storage, note that this mapping is in slot `2`.
 This mapping implements a linked list for iterating through the list of owners. Since we'll only have one owner (Multicall), and the `0x01` address is used as the first and last entry in the linked list, we will see the following overrides:
@@ -311,7 +320,7 @@ that the address actually matches the correct implementation, an Etherscan link 
   **After:** `0x00000000000000000000000056315b90c40730925ec5485cf004d835058518a0` <br/>
   **Meaning:** Sets `l2OutputOracle` at slot per the [Superchain Registry][output-oracle-registry]. This should be a proxy per [Etherscan][output-oracle-etherscan]. Verification of the key can be done by ensuring the result of the [L2_OUTPUT_ORACLE_SLOT](https://etherscan.io/address/0xba2492e52F45651B60B8B38d4Ea5E2390C64Ffb1#readContract#F5) getter on the implementation contract matches the key.
 
-### `0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c` (The 1 of 1 `ProxyAdminOwner` Safe)
+### `0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c` (The 2 of 2 `ProxyAdminOwner` Safe)
 
 Links:
 - [Etherscan](https://etherscan.io/address/0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c)
@@ -374,3 +383,6 @@ State Changes:
 The only other state change is a nonce increment of the owner on the safe that sent the transaction.
 If simulating it will be `0x9855054731540a48b28990b63dcf4f33d8ae46a1`, but if your ledger is
 connected it may be a different one of the safe's owners.
+
+The only other state changes is a nonce increment on the account that sent the
+transaction.

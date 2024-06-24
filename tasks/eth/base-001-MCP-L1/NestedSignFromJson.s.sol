@@ -44,6 +44,11 @@ interface IFetcher {
 contract NestedSignFromJson is OriginalSignFromJson {
     using LibString for string;
 
+    // Safe contract for this task.
+    address immutable proxyAdminOwnerSafe = vm.envAddress("OWNER_SAFE");
+    address immutable baseSafe = vm.envAddress("COUNCIL_SAFE");
+    address immutable foundationUpgradesSafe = vm.envAddress("FOUNDATION_SAFE");
+
     // Chains for this task.
     string constant l1ChainName = "mainnet";
     string constant l2ChainName = "base";
@@ -379,6 +384,22 @@ contract NestedSignFromJson is OriginalSignFromJson {
         shouldHaveCodeExceptions[3] = batchInboxAddress;
 
         return shouldHaveCodeExceptions;
+    }
+
+    function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
+        allowed = new address[](12);
+        allowed[0] = proxies.OptimismMintableERC20Factory;
+        allowed[1] = proxies.L1StandardBridge;
+        allowed[2] = proxies.OptimismPortal;
+        allowed[3] = proxies.L2OutputOracle;
+        allowed[4] = proxies.L1ERC721Bridge;
+        allowed[5] = proxies.SystemConfig;
+        allowed[6] = proxyAdminOwnerSafe;
+        allowed[7] = baseSafe;
+        allowed[8] = proxyAdminOwnerSafe;
+        allowed[9] = foundationUpgradesSafe;
+        allowed[10] = proxies.L1CrossDomainMessenger;
+        allowed[11] = address(addressManager);
     }
 
     /// @notice Reads the contract addresses from lib/superchain-registry/superchain/extra/addresses/mainnet/base.json
