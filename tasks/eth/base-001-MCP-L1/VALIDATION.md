@@ -28,7 +28,7 @@ Overrides:
 
 Links:
 - [Etherscan (Base Safe)](https://etherscan.io/address/0x9855054731540A48b28990B63DcF4f33d8AE46A1). You can verify this as it's one of the signers of the L1 Proxy Admin owner, by calling `getOwners` on
-the [ProxyAdmin](https://etherscan.io/address/0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c#readProxyContract) 
+the [ProxyAdmin](https://etherscan.io/address/0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c#readProxyContract)
 - [Etherscan (Foundation Safe)](https://etherscan.io/address/0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A). This address is attested to in the [Optimism docs](https://docs.optimism.io/chain/security/privileged-roles#l1-proxy-admin), as it's one of the signers of the L1 Proxy Admin owner.
 
 The Safe you are signing for will have the following overrides which will set the [Multicall](https://etherscan.io/address/0xca11bde05977b3631167028862be2a173976ca11#code) contract as the sole owner of the signing safe. This allows simulating both the approve hash and the final tx in a single Tenderly tx.
@@ -42,12 +42,6 @@ The Safe you are signing for will have the following overrides which will set th
 - **Key:** 0x0000000000000000000000000000000000000000000000000000000000000004 <br/>
   **Value:** 0x0000000000000000000000000000000000000000000000000000000000000001 <br/>
   **Meaning:** The threshold is set to 1. The key can be validated by the location of the `threshold` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L14).
-
-#### Additional override for the Foundation Safe
-
-- **Key:** 0x0000000000000000000000000000000000000000000000000000000000000005 <br/>
-  **Value:** 0x000000000000000000000000000000000000000000000000000000000000005d <br/>
-  **Meaning:** The nonce is increased from 92 to 93. The key can be validated by the location of the nonce variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
 
 The following two overrides are modifications to the [`owners` mapping](https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L12). For the purpose of calculating the storage, note that this mapping is in slot `2`.
 This mapping implements a linked list for iterating through the list of owners. Since we'll only have one owner (Multicall), and the `0x01` address is used as the first and last entry in the linked list, we will see the following overrides:
@@ -65,6 +59,12 @@ And we do indeed see these entries:
   **Value:** 0x000000000000000000000000ca11bde05977b3631167028862be2a173976ca11 <br/>
   **Meaning:** This is `owners[1] -> 0xca11bde05977b3631167028862be2a173976ca11`, so the key can be
     derived from `cast index address 0x0000000000000000000000000000000000000001 2`.
+
+#### Additional override for the Foundation Safe
+
+- **Key:** 0x0000000000000000000000000000000000000000000000000000000000000005 <br/>
+  **Value:** 0x000000000000000000000000000000000000000000000000000000000000005d <br/>
+  **Meaning:** The nonce is increased from 92 to 93. The key can be validated by the location of the nonce variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
 
 ## State Changes
 
