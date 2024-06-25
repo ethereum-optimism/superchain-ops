@@ -59,7 +59,7 @@ contract DeployRehearsal5 is Script {
         guardianSafe =
             GnosisSafe(payable(address(safeProxyFactory.createProxyWithNonce(address(safeSingleton), initData, salt))));
 
-        // This is the signature format used the caller is also the signer.
+        // This is the signature format used when the caller is also the signer.
         bytes memory signature = abi.encodePacked(uint256(uint160(msg.sender)), bytes32(0), uint8(1));
         bytes memory data = abi.encodeCall(ModuleManager.enableModule, (dummyDeputyGuardianModule));
         guardianSafe.execTransaction({
