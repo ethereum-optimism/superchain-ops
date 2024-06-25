@@ -49,12 +49,13 @@ is ready".
 Make sure your ledger is still unlocked and run the following.
 
 Remember that by default just is running with the address derived from
-`/0` (first nonce). If you wish to use a different account, run `just
-simulate-council [X]`, where X is the derivation path of the address
-that you want to use.
+`/0` (first nonce). If you wish to use a different account, append the value `X` to the end of the following command where X is the derivation path of the address that you want to use.
 
 ``` shell
-just simulate-council
+just \
+   --dotenv-path $(pwd)/.env \
+   --justfile ../../../single.just \
+simulate # 0 or 1 or your derivation path index
 ```
 
 You will see a "Simulation link" from the output.
@@ -79,12 +80,7 @@ validate integrity of the simulation, we need to
 1. "Network": Check the network is Ethereum Mainnet.
 2. "Timestamp": Check the simulation is performed on a block with a
    recent timestamp (i.e. close to when you run the script).
-3. "Sender": Check the address shown is your signer account. If not,
-   you will need to determine which “number” it is in the list of
-   addresses on your ledger. By default the script will assume the
-   derivation path is m/44'/60'/0'/0/0. By calling the script with
-   `just simulate-council 1` it will derive the address using
-   m/44'/60'/1'/0/0 instead.
+3. "Sender": Check the address shown is your signer account.
 
 ![](./images/tenderly-overview-network.png)
 
@@ -92,13 +88,8 @@ validate integrity of the simulation, we need to
 
 Now click on the "State" tab. Verify that:
 
+TODO: Add validations
 
-
-All of these addresses should be part of the Optimism Governance vote
-that approves this upgrade if this is a [Normal
-Operation](https://github.com/ethereum-optimism/OPerating-manual/blob/1f42a3766d084864a818b93ce7ba0857a4a846ea/Security%20Council%20Charter%20v0.1.md#normal-operation).
-
-![](./images/tenderly-state-diff.png)
 
 
 #### 3.3. Extract the domain hash and the message hash to approve.
@@ -195,8 +186,6 @@ Future rehearsals may use newly deployed Safe's with only the council members wh
    printed out in step 1.
 
 #### 3. Update input.json
-
-NOTE: stop here. This is not ready yet.
 
 1. Make sure the variables in the `.env` file have been updated, then
    run `just prepare-json` to update the `input.json` file.
