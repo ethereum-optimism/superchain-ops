@@ -168,17 +168,17 @@ jobs:
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
 
-  just_simulate_eth-011-1-proto-ver_ownership-transfers:
+  just_simulate_eth-011-proto-ver_ownership-transfers:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
     steps:
       - checkout
       - run:
-          name: just simulate eth/011-1-proto-ver+ownership-transfers
+          name: just simulate eth/011-proto-ver+ownership-transfers
           command: |
             go install github.com/mikefarah/yq/v4@latest
             just install
-            cd tasks/eth/011-1-proto-ver+ownership-transfers
+            cd tasks/eth/011-proto-ver+ownership-transfers
             export SIMULATE_WITHOUT_LEDGER=1
             just \
               --dotenv-path $(pwd)/.env \
@@ -311,7 +311,7 @@ workflows:
       - just_simulate_sc_rehearsal_1
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
-      - just_simulate_eth-011-1-proto-ver_ownership-transfers
+      - just_simulate_eth-011-proto-ver_ownership-transfers
       - just_simulate_eth-base-001-MCP-L1
       - just_simulate_eth-012-proto-ver-required
       - just_simulate_eth-013-fp-upgrade-fjord
