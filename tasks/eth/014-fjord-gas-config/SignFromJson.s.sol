@@ -21,7 +21,7 @@ contract SignFromJson is OriginalSignFromJson {
     uint256 constant scalarFjord = 0x010000000000000000000000000000000000000000000000000f79c50000146b;
 
     // Safe contract for this task.
-    address foundationUpgradesSafe = vm.envAddress("FOUNDATION_SAFE");
+    address foundationUpgradesSafe = vm.envAddress("OWNER_SAFE");
 
     // All L1 proxy addresses.
     Types.ContractSet proxies;
