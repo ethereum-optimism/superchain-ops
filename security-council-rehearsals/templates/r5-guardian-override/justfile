@@ -10,69 +10,6 @@ export dummyDgm := env_var('DUMMY_DEPUTY_GUARDIAN_MODULE')
 export guardianSafe := env_var('GuardianSafe_ADDRESS')
 export superchainConfig := env_var('SuperchainConfig_ADDRESS')
 
-simulate-council hdPath='0':
-  #!/usr/bin/env bash
-  cd ../..
-  echo "getting signer address..."
-  if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
-  then
-    signer="0xc49d46E3F834f5C9856A7FcBEB185baD052c98e7"
-  else
-    signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-  fi
-  echo "Simulating with: ${signer}"
-  echo ""
-  forge build
-  forge script NestedSignFromJson \
-    --rpc-url ${rpcUrl} \
-    --sender ${signer} \
-    --sig "signJson(string,address)" \
-    "${location}/${bundle}.json" \
-    "${councilSafe}"
-
-sign-council hdPath='0':
-  #!/usr/bin/env bash
-  cd ../..
-  echo "getting signer address..."
-  signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-  echo "Signing with: ${signer}"
-  echo ""
-  forge build
-  $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
-  forge script NestedSignFromJson \
-    --rpc-url ${rpcUrl} \
-    --sig "signJson(string,address)" \
-    "${location}/${bundle}.json" \
-    "${councilSafe}"
-
-approve-council hdPath='0':
-  #!/usr/bin/env bash
-  cd ../..
-  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-  forge build
-  forge script NestedSignFromJson \
-    --fork-url ${rpcUrl} \
-    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
-    --broadcast \
-    --sender ${sender} \
-    --sig "approveJson(string,address,bytes)" \
-    ${location}/${bundle}.json \
-    "${councilSafe}" \
-    ${signatures}
-
-execute-all hdPath='0':
-  #!/usr/bin/env bash
-  cd ../..
-  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-  forge build
-  forge script NestedSignFromJson \
-    --fork-url ${rpcUrl} \
-    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
-    --broadcast \
-    --sender ${sender} \
-    --sig "runJson(string)" \
-    ${location}/${bundle}.json
-
 deploy-contracts hdPath='0':
   #!/usr/bin/env bash
   cd ../..
