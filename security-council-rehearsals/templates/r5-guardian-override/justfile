@@ -29,7 +29,6 @@ prepare-json:
   jq ".transactions[0].to |= \"${guardianSafe}\"" ./input.json > ./input.tmp && mv input.tmp input.json
   jq ".transactions[0].data |= \"${calldata_0}\"" ./input.json > ./input.tmp && mv input.tmp input.json
 
-
   # prevalidated signature
   signatures="${councilSafe}"000000000000000000000000000000000000000000000000000000000000000001
   a0=0x0000000000000000000000000000000000000000

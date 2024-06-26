@@ -9,8 +9,10 @@ Superchain, and prevent the Deputy Guardian from pausing the system again.
 
 The rehearsal will involve the following contracts:
 
-1. A Security Council Safe*.
-2. A `DeputyGuardianModule`.
+1. A Security Council Safe.
+2. A dummy `DeputyGuardianModule` at `0xAbCD1234ABCD1234AbCD1234ABcD1234ABCD1234`
+   - There is no need to interact with the `DeputyGuardianModule` during the rehearsal, so
+     this 'dummy' address is used  to represent it.
 3. A Guardian Safe with that `DeputyGuardianModule` enabled on it.
 4. A `SuperchainConfig` contract, which will be paused.
 
@@ -170,10 +172,13 @@ congrats, you are done!
 
 #### 1. Identify the Council Safe
 
-The initial occurrence of this rehearsal will use the existing Security Council Safe.
+This rehearsal can be done with any safe which has all of the participating signers on it. If a
+new safe is required, please follow the instructions laid out in the Facilitator instructions for
+  [Rehearsal 4](../r4-jointly-upgrade/README.md#1-create-the-council-safe).
 
-Future rehearsals may use newly deployed Safe's with only the council members who need to complete
- the rehearsal.
+In order to remove any doubt that the execution of this Rehearsal could have consequences on the
+mainnet Superchain, it is not recommended to use the actual Security Council Safe itself in the
+rehearsal.
 
 #### 2. Create the rehearsal contracts
 
