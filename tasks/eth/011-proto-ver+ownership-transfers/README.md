@@ -1,6 +1,6 @@
 # Mainnet Recommended Protocol Version Update (7.0.0 - Fjord) & Ownership Transfers
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0xa324ca8056ff79064771df050d70df9d44deab56290916339d94fd11ea5ee3c0)
 
 ## Objective
 
