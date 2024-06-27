@@ -56,7 +56,7 @@ Remember that by default just is running with the address derived from
 ``` shell
 just \
    --dotenv-path $(pwd)/.env \
-   --justfile ../../../single.just \
+   --justfile ../../single.just \
 simulate # 0 or 1 or your derivation path index
 ```
 
@@ -170,6 +170,10 @@ congrats, you are done!
 
 ### [Before the rehearsal] Prepare the rehearsal
 
+First follow the setup steps outlined in the [rehearsals README](../../README.md), to
+generate the new rehearsal folder. Run `git commit` to save the new files, then move into
+that new folder to ensure any changes are made there, rather than in this template.
+
 #### 1. Identify the Council Safe
 
 This rehearsal can be done with any safe which has all of the participating signers on it. If a
@@ -183,19 +187,27 @@ rehearsal.
 #### 2. Create the rehearsal contracts
 
 1. Set the `COUNCIL_SAFE` address in `.env` to the Safe address identified in the previous step.
-2. Make sure your Ledger is connected and run `just deploy-contracts`
-   to deploy the rehearsal contract. There will be two contracts
-   deployed: the new `GuardianSafe`, and a `SuperchainConfig`.
+2. Make sure your Ledger is connected and run the following command
+   to deploy the rehearsal contract. This will require approving 4 separate transactions on your
+   ledger.
+   ```
+   export ETHERSCAN_KEY=your_etherscan_key
+   just deploy-contracts
+   ```
+3. From The output of the previous command get the following addresses required for the next step:
+   ```
+   New GuardianSafe deployed at 0x...
+   New SuperchainConfig Proxy deployed at 0x...
+   ```
 3. Update the `GuardianSafe_ADDRESS`, and the `SuperchainConfig_ADDRESS`
-   variables in `.env` to the newly-created contracts' addresses. These address will have been
-   printed out in step 1.
+   variables in `.env` with the newly-created contract addresses.
 
 #### 3. Update input.json
 
 1. Make sure the variables in the `.env` file have been updated, then
    run `just prepare-json` to update the `input.json` file.
 2. Test the newly created rehearsal by following the security council
-   steps in the `Approving the transaction` section above.
+   steps in the [`Approving the transaction`](#approving-the-transaction) section above.
 3. Update the rehearsal folder name in the `1. Update repo and move to
    the appropriate folder for this rehearsal task` section and the
    address in the `3.2. Validate correctness of the state diff`
