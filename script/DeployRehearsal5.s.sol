@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import {GnosisSafe} from "safe-contracts-v1.3.0/GnosisSafe.sol";
 import {GnosisSafeProxyFactory} from "safe-contracts-v1.3.0/proxies/GnosisSafeProxyFactory.sol";
 import {ModuleManager} from "safe-contracts-v1.3.0/base/ModuleManager.sol";
+import {OwnerManager} from "safe-contracts-v1.3.0/base/OwnerManager.sol";
 import {Enum} from "safe-contracts-v1.3.0/common/Enum.sol";
 
 import {SuperchainConfig} from "@eth-optimism-bedrock/src/L1/SuperchainConfig.sol";
@@ -22,6 +23,8 @@ contract DeployRehearsal5 is Script {
     GnosisSafe guardianSafe;
     SuperchainConfig superchainConfigProxy;
     address dummyDeputyGuardianModule = vm.envAddress("DUMMY_DEPUTY_GUARDIAN_MODULE");
+
+    address internal constant SENTINEL_OWNERS = address(0x1);
 
     /// @notice The name of the script, used to ensure the right deploy artifacts
     ///         are used.
@@ -59,20 +62,38 @@ contract DeployRehearsal5 is Script {
         guardianSafe =
             GnosisSafe(payable(address(safeProxyFactory.createProxyWithNonce(address(safeSingleton), initData, salt))));
 
-        // This is the signature format used when the caller is also the signer.
-        bytes memory signature = abi.encodePacked(uint256(uint160(msg.sender)), bytes32(0), uint8(1));
-        bytes memory data = abi.encodeCall(ModuleManager.enableModule, (dummyDeputyGuardianModule));
+        bytes memory prevalidatedSignature =
+            abi.encodePacked(bytes32(uint256(uint160(msg.sender))), bytes32(0), uint8(1));
+
+        // The Guardian Safe must make a call to its own enableModules function
+        bytes memory enableModuleData = abi.encodeCall(ModuleManager.enableModule, (dummyDeputyGuardianModule));
         guardianSafe.execTransaction({
             to: address(guardianSafe),
             value: 0,
-            data: data,
+            data: enableModuleData,
             operation: Enum.Operation.Call,
             safeTxGas: 0,
             baseGas: 0,
             gasPrice: 0,
             gasToken: address(0),
             refundReceiver: payable(address(0)),
-            signatures: signature
+            signatures: prevalidatedSignature
+        });
+
+        // The Guardian Safe must make a call its own swapOwner function
+        bytes memory swapOwnerData =
+            abi.encodeCall(OwnerManager.swapOwner, (SENTINEL_OWNERS, msg.sender, address(councilSafe)));
+        guardianSafe.execTransaction({
+            to: address(guardianSafe),
+            value: 0,
+            data: swapOwnerData,
+            operation: Enum.Operation.Call,
+            safeTxGas: 0,
+            baseGas: 0,
+            gasPrice: 0,
+            gasToken: address(0),
+            refundReceiver: payable(address(0)),
+            signatures: prevalidatedSignature
         });
 
         console.log("New GuardianSafe deployed at %s", address(guardianSafe));
