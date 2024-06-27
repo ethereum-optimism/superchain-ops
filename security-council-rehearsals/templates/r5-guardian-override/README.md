@@ -90,8 +90,57 @@ validate integrity of the simulation, we need to
 
 Now click on the "State" tab. Verify that:
 
-TODO: Add validations
+**In the State Overrides:**
 
+There is a single override to the rehearsal safe address (`$COUNCIL_SAFE`), which
+sets
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000004` <br/>
+  **Value:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
+   **Meaning:** Enables the simulation by setting the threshold to 1. The key can be validated by the location of the `threshold` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L14).
+
+**In the State Changes:**
+
+The Guardian Safe (`$GuardianSafe_ADDRESS`), will having the following changes:
+
+1. the `nonce` will be increased from `2` to `4`. This is increased by two because the
+   Safe has made two separate calls.
+2. the `modules` mapping entries will be updated to remove the `DeputyGuardianModule`. This requires
+   two storage writes because of the linked list structure used by the Safe.
+   - 0x0000000000000000000000000000000000000001 -> 0x0000000000000000000000000000000000000001
+   - 0xabcd1234abcd1234abcd1234abcd1234abcd1234 -> 0x0000000000000000000000000000000000000000
+
+The raw representation of the above changes should appear as follows:
+
+```
+Key: 0x0000000000000000000000000000000000000000000000000000000000000005
+Before: 0x0000000000000000000000000000000000000000000000000000000000000002
+After: 0x0000000000000000000000000000000000000000000000000000000000000004
+
+Key: 0xcc69885fda6bcc1a4ace058b4a62bf5e179ea78fd58a1ccd71c22cc9b688792f
+Before: 0x000000000000000000000000abcd1234abcd1234abcd1234abcd1234abcd1234
+After: 0x0000000000000000000000000000000000000000000000000000000000000001
+
+Key: 0xce54200017ea5c2b51de0e9e84d18b17066fd9fb6e4cda2a9000ffe77063f316
+Before: 0x0000000000000000000000000000000000000000000000000000000000000001
+After: 0x0000000000000000000000000000000000000000000000000000000000000000
+```
+
+The SuperchainConfig (`$SuperchainConfig_ADDRESS`)  will have the following changes:
+
+1. The `paused` value will be changed from `1` to `0`.
+
+Since the `paused` value is stored using a non-standard storage layout, this will only be shown
+in the raw storage changes as follows:
+
+```
+Key: 0x54176ff9944c4784e5857ec4e5ef560a462c483bf534eda43f91bb01a470b1b6
+Before: 0x0000000000000000000000000000000000000000000000000000000000000001
+After: 0x0000000000000000000000000000000000000000000000000000000000000000
+```
+
+Where the key can be verified by computing the [PAUSED_SLOT value in the SuperchainConfig](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/src/L1/SuperchainConfig.sol#L19)
+using `cast keccak "superchainConfig.paused"` and seeing that the key equal to the output minus 1.
 
 
 #### 3.3. Extract the domain hash and the message hash to approve.
@@ -208,10 +257,11 @@ rehearsal.
    run `just prepare-json` to update the `input.json` file.
 2. Test the newly created rehearsal by following the security council
    steps in the [`Approving the transaction`](#approving-the-transaction) section above.
-3. Update the rehearsal folder name in the `1. Update repo and move to
-   the appropriate folder for this rehearsal task` section and the
-   address in the `3.2. Validate correctness of the state diff`
-   section above.
+3. Update the placeholder values in these instructions above:
+   1. `REPLACE_WITH_REHEARSAL_FOLDER` should be the name of the rehearsal directory
+   1. `COUNCIL_SAFE` should match the value set in the `.env` file
+   1. `GuardianSafe_ADDRESS` should match the value set in the `.env` file
+   1. `SuperchainConfig_ADDRESS` should match the value set in the `.env` file
 4. Commit the newly created files to Github.
 
 ### [After the rehearsal] Execute the output
