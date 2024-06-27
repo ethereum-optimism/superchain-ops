@@ -147,8 +147,8 @@ State Changes:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000035` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c00` <br/>
-  **Meaning:** Sets `superchainConfig` at slot `0x35` (53). The correctness of
-   this slot is attested to in the Optimism repo at [storageLayout/OptimismPortal.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal.json#L58-L64). The `superchainConfig` address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/configs/mainnet/superchain.yaml#L8).
+  **Meaning:** Sets `superchainConfig` at slot `0x35` (53) with an offset of 1 (hence the extra `00` after the address). The correctness of
+   this slot and offset is attested to in the Optimism repo at [storageLayout/OptimismPortal.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal.json#L58-L64). The `superchainConfig` address can be found in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/5ad42cbb49472a0bf164ade976426f7526ee6dfe/superchain/configs/mainnet/superchain.yaml#L8).
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000036` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
@@ -350,7 +350,7 @@ State Changes:
         and
       ```shell
         $ cast index bytes32 0x8c22d00bfa3153feb624e13e24ba5f6278405d96acd3b28252858115ee3ed8b1 0x80e8cf7d2fc4cce32f3c2e9b576f8f3ec9d5ac9c6905f070c54b8d2c07cd3ccd
-        0x9b4cd5a3064fd24bbc976d7400d207d92a127f9cdb50f1b2545a28803fa67487 
+        0x9b4cd5a3064fd24bbc976d7400d207d92a127f9cdb50f1b2545a28803fa67487
         ```
       And so the output of the second command matches the key above.
 
@@ -372,7 +372,7 @@ State Changes:
       and
       ```shell
         $ cast index bytes32 0x8c22d00bfa3153feb624e13e24ba5f6278405d96acd3b28252858115ee3ed8b1 0x7eaa503d7442070af28111802571ddcef5e43630a4ccafa1f94d858abee98ff3
-        0x0a573c35563dbec58d75670bb871b9b3193ab33159d2102baa36c76bdd9cfabb 
+        0x0a573c35563dbec58d75670bb871b9b3193ab33159d2102baa36c76bdd9cfabb
       ```
       And so the output of the second command matches the key above.
 
