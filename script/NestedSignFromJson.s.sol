@@ -44,6 +44,6 @@ contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
     {
         accesses; // Silences compiler warnings.
         simPayload;
-        console.log("\x1b[1;33mWARNING:\x1b[0m _postCheck not implemented");
+        require(false, "_postCheck not implemented");
     }
 }
