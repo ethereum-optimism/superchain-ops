@@ -36,7 +36,6 @@ contract DeployRehearsal5 is Script {
         councilSafe = GnosisSafe(payable(vm.envAddress("COUNCIL_SAFE")));
 
         console.log("Deploying from %s", name());
-        console.log("Deployment context: %s", vm.envOr("DEPLOYMENT_CONTEXT", string("Deployment context not set")));
     }
 
     function run() public {

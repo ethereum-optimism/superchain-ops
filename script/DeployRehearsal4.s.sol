@@ -31,7 +31,6 @@ contract DeployRehearsal4 is Deployer {
         require(owner_safe.isOwner(address(council_safe)));
 
         console.log("Deploying from %s", name());
-        console.log("Deployment context: %s", vm.envOr("DEPLOYMENT_CONTEXT", string("Deployment context not set")));
     }
 
     function run() public {
