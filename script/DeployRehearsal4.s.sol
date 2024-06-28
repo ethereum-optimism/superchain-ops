@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {Deployer} from "@eth-optimism-bedrock/scripts/Deployer.sol";
 import {Config} from "@eth-optimism-bedrock/scripts/Config.sol";
-import {GnosisSafe} from "safe-contracts/GnosisSafe.sol";
+import {GnosisSafe} from "safe-contracts-v1.3.0/GnosisSafe.sol";
 import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
 import {Proxy} from "@eth-optimism-bedrock/src/universal/Proxy.sol";
 import {EIP1967Helper} from "@eth-optimism-bedrock/test/mocks/EIP1967Helper.sol";
@@ -11,9 +11,7 @@ import {Script} from "forge-std/Script.sol";
 
 import {console2 as console} from "forge-std/console2.sol";
 
-// forge script scripts/Deploy.s.sol:Deploy --private-key $PRIVATE_KEY --broadcast --rpc-url $ETH_RPC_URL
-// forge script scripts/Deploy.s.sol:Deploy --sig 'sync()' --private-key $PRIVATE_KEY --broadcast --rpc-url $ETH_RPC_URL
-contract DeployRehearsalContracts is Deployer {
+contract DeployRehearsal4 is Deployer {
     GnosisSafe owner_safe;
     GnosisSafe council_safe;
     ProxyAdmin proxy_admin;
@@ -21,7 +19,7 @@ contract DeployRehearsalContracts is Deployer {
     /// @notice The name of the script, used to ensure the right deploy artifacts
     ///         are used.
     function name() public pure returns (string memory name_) {
-        name_ = "DeployRehearsalContracts";
+        name_ = "DeployRehearsal4";
     }
 
     function setUp() public override {

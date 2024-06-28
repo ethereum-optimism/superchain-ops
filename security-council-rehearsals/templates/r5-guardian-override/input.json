@@ -1,0 +1,21 @@
+{
+  "chainId": "1",
+  "meta": {
+    "name": "Unpause and remove Deputy Guardian",
+    "description": ""
+  },
+  "transactions": [
+    {
+      "to": "SuperchainConfig_ADDRESS",
+      "value": "0",
+      "data": "",
+      "description": "Unpause the SuperchainConfig"
+    },
+    {
+      "to": "GuardianSafe_ADDRESS",
+      "value": "0",
+      "data": "",
+      "description": "Disable the DeputyGuardianModule"
+    }
+  ]
+}
