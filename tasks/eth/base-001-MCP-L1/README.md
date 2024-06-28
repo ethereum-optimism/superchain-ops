@@ -1,6 +1,6 @@
 # Base Mainnet MCP L1 Upgrade
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0xb690dad4829ca8b07b6944d7e937d7d36048ea29a9278cbae012ab4a66aac817)
 
 ## Objective
 
@@ -25,7 +25,7 @@ When simulating, ensure the logs say `Using script Using script /your/path/to/su
 Thus ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown
 (without the full path), something is wrong and the safety checks will not run.
 
-When signing as a Base signer, use `council` as the argument to the just command. 
+When signing as a Base signer, use `council` as the argument to the just command.
 This is actually the Base safe but the `nested.just` file uses council as a keyword and
 we want to minimize changes.
 

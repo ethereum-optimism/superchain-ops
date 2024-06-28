@@ -275,6 +275,11 @@ that the address actually matches the correct implementation, an Etherscan link 
 [output-oracle-registry]: https://github.com/ethereum-optimism/superchain-registry/blob/3fb9d9b4c72183373447571e932ea01f6fef46e9/superchain/extra/addresses/mainnet/base.json#L6
 [output-oracle-etherscan]: https://etherscan.io/address/0x56315b90c40730925ec5485cf004d835058518A0
 
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000066` <br/>
+  **Before:** `0x010000000000000000000000000000000000000000000000000a118b0000058a` <br/>
+  **After:** `0x010000000000000000000000000000000000000000000000000a118b0000044d` <br/>
+  **Meaning:** This changes the `scalar` value. This is part of the state diff because a [transaction](https://etherscan.io/tx/0x1d6a69c2042da4681238b7cdba765bfe13890307314c1419754c6fbff7f7fb0c) changing the scalar was (playbook [here](https://github.com/base-org/contract-deployments/tree/main/mainnet/2024-06-25-update-gas-config)) was executed after this `input.json` bundle was generated.
+
 - **Key:** `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
   **Before:** `0x0000000000000000000000006481ff79597fe4f77e1063f615ec5bdaddeffd4b` <br/>
   **After:** `0x000000000000000000000000ba2492e52f45651b60b8b38d4ea5e2390c64ffb1` <br/>

@@ -138,7 +138,7 @@ contract NestedSignFromJson is OriginalSignFromJson {
 
         require(systemConfig.owner() == systemConfigOwner, "300");
         require(systemConfig.overhead() == gasPriceOracleOverhead, "400");
-        require(systemConfig.scalar() == gasPriceOracleScalar, "500");
+        // require(systemConfig.scalar() == gasPriceOracleScalar, "500");
         require(systemConfig.batcherHash() == bytes32(uint256(uint160(batchSenderAddress))), "600");
         require(systemConfig.gasLimit() == uint64(l2GenesisBlockGasLimit), "700");
         require(systemConfig.unsafeBlockSigner() == p2pSequencerAddress, "800");
