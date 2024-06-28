@@ -8,7 +8,6 @@ import {OwnerManager} from "safe-contracts-v1.3.0/base/OwnerManager.sol";
 import {Enum} from "safe-contracts-v1.3.0/common/Enum.sol";
 
 import {SuperchainConfig} from "@eth-optimism-bedrock/src/L1/SuperchainConfig.sol";
-// import {DeputyGuardianModule} from "@eth-optimism-bedrock/src/Safe/DeputyGuardianModule.sol";
 
 import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
 import {Proxy} from "@eth-optimism-bedrock/src/universal/Proxy.sol";

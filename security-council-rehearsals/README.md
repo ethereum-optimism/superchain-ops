@@ -24,7 +24,7 @@ where `rehearsal-name` can be one of the following rehearsal names:
    members from the multisig.
 3. `r4-jointly-upgrade`: a rehearsal to perform a protocol upgrade
    jointly with Optimism Foundation via a nested 2-of-2 multisig.
-3. `r5-guardian-override`: a rehearsal to unpause withdrawals and
+4. `r5-guardian-override`: a rehearsal to unpause withdrawals and
    remove the Deputy Guardian Module.
 
 `optional-suffix` is optional and will be appended to newly-created
