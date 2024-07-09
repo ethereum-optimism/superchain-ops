@@ -1,6 +1,6 @@
 # Mainnet Fjord Fault Proofs Upgrade
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0x7abecacd8b1a54db8f0835a5c82edfab96ff922a41d2faa914c339e3e9319b43)
 
 ## Objective
 
