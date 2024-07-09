@@ -1,6 +1,6 @@
 # Mainnet Required Protocol Version Update (7.0.0 - Fjord)
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0xea0bb21ac896ddc9fefe9ed2e7ebaf892a7bca3b56ba3d7c272d694e4c83e8e4)
 
 ## Objective
 
