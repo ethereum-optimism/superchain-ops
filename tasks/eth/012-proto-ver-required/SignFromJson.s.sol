@@ -31,10 +31,9 @@ contract SignFromJson is OriginalSignFromJson {
     }
 
     function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
-        allowed = new address[](3);
+        allowed = new address[](2);
         allowed[0] = foundationUpgradesSafe;
         allowed[1] = proxies.ProtocolVersions;
-        allowed[2] = proxies.SystemConfig;
     }
 
     /// @notice Checks the correctness of the deployment
