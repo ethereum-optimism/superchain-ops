@@ -96,7 +96,7 @@ repo setup instructions for each.
 
 There are three just recipes in this file:
 
-- `simulate` - to simulate the transactions in the the `input.json` bundle
+- `simulate` - to simulate the transactions in the `input.json` bundle
 - `sign` - to sign the transactions in the `input.json` bundle
 - `execute` - to execute the transactions in the `input.json` bundle
 
@@ -188,7 +188,7 @@ SYSTEM_CONFIG_START_BLOCK={startBlock} go run op-chain-ops/cmd/op-upgrade/main.g
   --outfile input.json
 ```
 
-The `startBlock` is the the block number at which the `SystemConfig` proxy was initialized for the
+The `startBlock` is the block number at which the `SystemConfig` proxy was initialized for the
 first time. To find this value, find the very first `Initialize` event after the `SystemConfig`
 was deployed. One way to do this is view the Etherscan events page for the contract. This only
 shows the last 25 or less events, which is often enough. Etherscan will tell you the transaction
@@ -212,7 +212,7 @@ A successful execution will generate the `input.json` file.
 ### Simulate and Validate
 
 > [!WARNING]
-> This is part is the most complicated part of the process, so its recommended to do this while
+> This is part is the most complicated part of the process, so it's recommended to do this while
 > you’re well rested and can carefully validate the transaction simulation results.
 
 Copy the `input.json` from the monorepo into the task you created in the ops repo. It should live
@@ -224,7 +224,7 @@ need to change, including:
 - The `l1ChainName` and `l2ChainName` values.
 - The 6 addresses under the `// Known EOAs to exclude from safety checks.` comment.
   - These have comments explaining where to get each value from.
-  - Context on these addresses: Most upgrades have an an invariant of “When writing an address into a storage slot, that address should *usually* have code”. It’s “usually” and not “always” because:
+  - Context on these addresses: Most upgrades have an invariant of “When writing an address into a storage slot, that address should *usually* have code”. It’s “usually” and not “always” because:
     - Some roles in the protocol are EOAs with no code, and their addresses are in storage. This is what these 6 EOAs are.
     - Other exceptions are when we put an L2 predeploy address in L1 storage.
 
@@ -274,7 +274,7 @@ a revert it’s very likely, but **not guaranteed**, your input bundle is workin
 
 **In the case that you did not get a revert, verify everything did in fact work correctly by changing something that should trigger a revert.** For example, replace one of the 6 hardcoded EOAs with the zero address.
 
-Now scroll up in the terminal output and look the part that looks like this:
+Now scroll up in the terminal output and look at the part that looks like this:
 
 ![terminal-output](./img/mcp-l1-1.png)
 
@@ -290,7 +290,7 @@ Then:
 - In the part that looks like the image below, sanity check these values. For example, make sure the block number is close to the latest block for the chain, ensure the sender is correct, and that the gas used seems sensible.
 
     ![tenderly-overview](./img/mcp-l1-2.png)
-- Please make sure that the `Data to sign` matches what you see in the simulation and on your hardware wallet. This is a critical step that must not be skipped. Copy the `Data to sign:` from your terminal output and search the Tenderly Simulated Transaction and ensure its there.
+- Please make sure that the `Data to sign` matches what you see in the simulation and on your hardware wallet. This is a critical step that must not be skipped. Copy the `Data to sign:` from your terminal output and search the Tenderly Simulated Transaction and ensure it's there.
   
     ![tenderly-simulated-tx-data-to-sign](./img/mcp-l1-3.png)
 
