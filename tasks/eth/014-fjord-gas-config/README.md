@@ -1,6 +1,6 @@
 # Mainnet Gas Config Update for Fjord
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0x220c443aebcd9bb04d6eb79e975c6bbe710104feddf8c4fffa3f13eb3c338af9)
 
 ## Objective
 
