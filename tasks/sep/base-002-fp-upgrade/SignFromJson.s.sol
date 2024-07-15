@@ -3,7 +3,7 @@ pragma solidity ^0.8.15;
 
 import {SignFromJson as OriginalSignFromJson} from "script/SignFromJson.s.sol";
 import {AnchorStateRegistry} from "@eth-optimism-bedrock/src/dispute/AnchorStateRegistry.sol";
-import {GameTypes} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
+import {GameTypes, Hash} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {DelayedWETH} from "@eth-optimism-bedrock/src/dispute/weth/DelayedWETH.sol";
 import {DisputeGameFactory} from "@eth-optimism-bedrock/src/dispute/DisputeGameFactory.sol";
 import {FaultDisputeGame} from "@eth-optimism-bedrock/src/dispute/FaultDisputeGame.sol";
@@ -28,7 +28,6 @@ import {stdJson} from "forge-std/StdJson.sol";
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {LibString} from "solady/utils/LibString.sol";
 import {Vm, VmSafe} from "forge-std/Vm.sol";
-import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 
 contract SignFromJson is OriginalSignFromJson {
     using LibString for string;
