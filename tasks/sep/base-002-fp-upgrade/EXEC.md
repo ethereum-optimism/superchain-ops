@@ -37,7 +37,7 @@ Command to create the `upgradeAndCall` transaction and add to `input.json`:
 just add-transaction tasks/sep/base-002-fp-upgrade/input.json 0x0389E59Aa0a41E4A413Ae70f0008e76CAA34b1F3 "upgradeAndCall(address,address,bytes)" "0x49f53e41452C74589E85cA1677426Ba426459e85" "0x54F8076f4027e21A010b4B3900C86211Dd2C2DEB" "0x4e91db0800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
 ```
 
-## Tx #2: Reset l2Sender
+## Tx #2: Clear l2Sender storage variable in OptimismPortalProxy
 
 This transaction calls `setAddress` on the `OptimismPortalProxy`. This is another pre-requisite step in order to upgrade and re-initialize the `OptimismPortalProxy`
 with the `OptimismPortal2` implementation.
