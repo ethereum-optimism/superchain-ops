@@ -164,7 +164,7 @@ just add-transaction tasks/sep/base-002-fp-upgrade/input.json 0xf272670eb55e8955
 ## Tx #6: Upgrade SystemConfig to version 2.2.0
 
 This transaction on `upgrade` call on the `ProxyAdmin`, targeting the `SystemConfig` contract where the implementation used in the upgrade
-is `SystemConfig` version `2.2.0`. Note there is no additional call, therefore the `SystemConfig` contract is no re-initialized.
+is `SystemConfig` version `2.2.0`. Note there is no additional call, therefore the `SystemConfig` contract is not re-initialized.
 
 **Function Signature:** `upgrade(address,address)`
 
