@@ -444,18 +444,20 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         }
     }
 
-    /// @notice Reads the contract addresses from lib/superchain-registry/superchain/extra/addresses/mainnet/op.json
+    /// @notice Reads the contract addresses from lib/superchain-registry/superchain/extra/addresses/mainnet/op.toml
     function _getContractSet() internal returns (Types.ContractSet memory _proxies) {
         string memory addressesJson;
 
-        // Read addresses json
-        try vm.readFile(
-            string.concat(vm.projectRoot(), "/lib/superchain-registry/superchain/extra/addresses/mainnet/op.json")
-        ) returns (string memory data) {
-            addressesJson = data;
-        } catch {
-            revert("Failed to read lib/superchain-registry/superchain/extra/addresses/mainnet/op.json");
-        }
+        // Read addresses from superchain-registry toml
+        string[] memory inputs = new string[](6);
+        inputs[0] = "yq";
+        inputs[1] = "eval";
+        inputs[2] = "-o";
+        inputs[3] = "json";
+        inputs[4] = ".addresses";
+        inputs[5] = "lib/superchain-registry/superchain/configs/mainnet/op.toml";
+
+        addressesJson = string(vm.ffi(inputs));
 
         _proxies.L1CrossDomainMessenger = stdJson.readAddress(addressesJson, "$.L1CrossDomainMessengerProxy");
         _proxies.L1StandardBridge = stdJson.readAddress(addressesJson, "$.L1StandardBridgeProxy");
