@@ -8,6 +8,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 - All addresses (in section headers and storage values) match the provided name, using the Etherscan and Superchain Registry links provided. This validates the bytecode deployed at the addresses contains the correct logic.
 - All key values match the semantic meaning provided, which can be validated using the storage layout links provided.
 
+An image of the state diff in Tenderly can be viewed [here](./images/state_diff.png).
+
 ## State Overrides
 
 The following state override should be seen:
