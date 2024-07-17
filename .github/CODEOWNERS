@@ -5,13 +5,13 @@
 /tasks/eth          @maurelian @zchn @mds1 
 /tasks/eth/metal-*  @sbvegan @mds1 @blmalone @maurelian @zchn
 /tasks/eth/mode-*   @sbvegan @mds1 @blmalone @maurelian @zchn
-/tasks/eth/base-*   @sbvegan @mds1 @blmalone @maurelian @zchn
+/tasks/eth/base-*   @sbvegan @mds1 @blmalone @maurelian @zchn @awilliams1-cb @anikaraghu @emrahCoinbase
 /tasks/eth/zora-*   @sbvegan @ZakAyesh @OPMattie
 
 /tasks/sep          @ethereum-optimism/contract-reviewers
 /tasks/sep/metal-*  @sbvegan @mds1 @blmalone @maurelian @zchn
 /tasks/sep/mode-*   @sbvegan @mds1 @blmalone @maurelian @zchn
-/tasks/sep/base-*   @sbvegan @mds1 @blmalone @maurelian @zchn
+/tasks/sep/base-*   @sbvegan @mds1 @blmalone @maurelian @zchn @awilliams1-cb @anikaraghu @emrahCoinbase
 /tasks/sep/zora-*   @sbvegan @ZakAyesh @OPMattie
 /tasks/sep-dev-*    @ethereum-optimism/contract-reviewers
 
