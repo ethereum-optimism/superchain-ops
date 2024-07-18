@@ -134,7 +134,7 @@ Command to create the `upgradeAndCall` transaction and add to `input.json`:
 just add-transaction tasks/sep/base-002-fp-upgrade/input.json 0x0389E59Aa0a41E4A413Ae70f0008e76CAA34b1F3 "upgradeAndCall(address,address,bytes)" "0xf272670eb55e895584501d564AfEB048bEd26194" "0x54F8076f4027e21A010b4B3900C86211Dd2C2DEB" "0xca446dd9e52a667f71ec761b9b381c7b76ca9b852adf7e8905da0e0ad49986a0a68718150000000000000000000000000000000000000000000000000000000000000000"
 ```
 
-## Tx #5: Clear storage variable at keccak256(systemconfig.disputegamefactory)-1 in SystemConfig
+## Tx #5: Set storage variable at keccak256(systemconfig.disputegamefactory)-1 in SystemConfig
 
 This transaction calls `setAddress` on the `SystemConfig` contract. Calling `setAddress` directly using the `StorageSetter` allows the new
 `disputeGameFactory` address to be set in the `SystemConfig` contract without having to go through the steps to re-initialize `SystemConfig`.
