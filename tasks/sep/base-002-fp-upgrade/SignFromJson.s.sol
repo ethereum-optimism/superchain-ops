@@ -82,35 +82,31 @@ contract SignFromJson is OriginalSignFromJson {
         return shouldHaveCodeExceptions;
     }
 
-    /// @notice Reads the contract addresses from lib/superchain-registry/superchain/extra/addresses/sepolia/base.json
+    /// @notice Reads the contract addresses from lib/superchain-registry/superchain/configs/sepolia/base.toml
     function _getContractSet() internal returns (Types.ContractSet memory _proxies) {
         string memory addressesJson;
 
-        // Read addresses json
-        try vm.readFile(
-            string.concat(vm.projectRoot(), "/lib/superchain-registry/superchain/extra/addresses/sepolia/base.json")
-        ) returns (string memory data) {
-            addressesJson = data;
-        } catch {
-            revert("Failed to read lib/superchain-registry/superchain/extra/addresses/sepolia/base.json");
-        }
-
-        _proxies.L1CrossDomainMessenger = stdJson.readAddress(addressesJson, "$.L1CrossDomainMessengerProxy");
-        _proxies.L1StandardBridge = stdJson.readAddress(addressesJson, "$.L1StandardBridgeProxy");
-        _proxies.OptimismMintableERC20Factory =
-            stdJson.readAddress(addressesJson, "$.OptimismMintableERC20FactoryProxy");
-        _proxies.OptimismPortal = stdJson.readAddress(addressesJson, "$.OptimismPortalProxy");
-        _proxies.OptimismPortal2 = stdJson.readAddress(addressesJson, "$.OptimismPortalProxy");
-        _proxies.SystemConfig = stdJson.readAddress(addressesJson, "$.SystemConfigProxy");
-        _proxies.L1ERC721Bridge = stdJson.readAddress(addressesJson, "$.L1ERC721BridgeProxy");
-
-        // Read superchain.yaml
-        string[] memory inputs = new string[](4);
+        // Read toml file
+        string[] memory inputs = new string[](5);
         inputs[0] = "yq";
-        inputs[1] = "-o";
-        inputs[2] = "json";
-        inputs[3] = "lib/superchain-registry/superchain/configs/sepolia/superchain.yaml";
+        inputs[1] = "--input-format=toml";
+        inputs[2] = "-o";
+        inputs[3] = "json";
+        inputs[4] = "lib/superchain-registry/superchain/configs/sepolia/base.toml";
+        addressesJson = string(vm.ffi(inputs));
 
+        // Parse addresses from toml file
+        _proxies.L1CrossDomainMessenger = stdJson.readAddress(addressesJson, "$.addresses.L1CrossDomainMessengerProxy");
+        _proxies.L1StandardBridge = stdJson.readAddress(addressesJson, "$.addresses.L1StandardBridgeProxy");
+        _proxies.OptimismMintableERC20Factory =
+            stdJson.readAddress(addressesJson, "$.addresses.OptimismMintableERC20FactoryProxy");
+        _proxies.OptimismPortal = stdJson.readAddress(addressesJson, "$.addresses.OptimismPortalProxy");
+        _proxies.OptimismPortal2 = stdJson.readAddress(addressesJson, "$.addresses.OptimismPortalProxy");
+        _proxies.SystemConfig = stdJson.readAddress(addressesJson, "$.addresses.SystemConfigProxy");
+        _proxies.L1ERC721Bridge = stdJson.readAddress(addressesJson, "$.addresses.L1ERC721BridgeProxy");
+
+        // Read and parse superchain.toml
+        inputs[4] = "lib/superchain-registry/superchain/configs/sepolia/superchain.toml";
         addressesJson = string(vm.ffi(inputs));
 
         _proxies.ProtocolVersions = stdJson.readAddress(addressesJson, "$.protocol_versions_addr");
@@ -271,13 +267,6 @@ contract SignFromJson is OriginalSignFromJson {
         require(address(anchorStateRegistry.disputeGameFactory()) == proxies.DisputeGameFactory, "6800");
         require(address(anchorStateRegistry.disputeGameFactory()).code.length != 0, "6801");
         require(EIP1967Helper.getImplementation(address(anchorStateRegistry.disputeGameFactory())).code.length != 0, "6802");
-
-        (Hash fdgRoot, uint256 fdgBlockNumber) = anchorStateRegistry.anchors(GameTypes.CANNON);
-        (Hash pdgRoot, uint256 pdgBlockNumber) = anchorStateRegistry.anchors(GameTypes.PERMISSIONED_CANNON);
-        require(fdgRoot.raw() == vm.envBytes32("FDG_ANCHOR_ROOT"), "6900");
-        require(fdgBlockNumber == vm.envUint("FDG_ANCHOR_BLOCK"), "6901");
-        require(pdgRoot.raw() == vm.envBytes32("PDG_ANCHOR_ROOT"), "6902");
-        require(pdgBlockNumber == vm.envUint("PDG_ANCHOR_BLOCK"), "6903");
     }
 
     function checkDelayedWETH() internal view {

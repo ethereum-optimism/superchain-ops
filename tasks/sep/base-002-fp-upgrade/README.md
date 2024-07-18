@@ -35,7 +35,7 @@ The contract implementations and new proxies for the Fault Proof system have bee
 
 ## Signing and execution
 
-Please see the signing and execution instructions in [NESTED.md](../../../NESTED.md).
+Please see the signing and execution instructions in [SINGLE.md](../../../SINGLE.md).
 
 ### State Validations
 
