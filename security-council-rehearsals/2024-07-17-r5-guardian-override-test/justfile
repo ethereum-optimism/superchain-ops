@@ -22,8 +22,6 @@ deploy-contracts hdPath='0':
     --broadcast \
     --sender ${sender} \
     --verify --etherscan-api-key ${etherscanKey}
-  echo "reset optimism repo to previous commit"
-  git -C lib/optimism checkout -
 
 prepare-json:
   #!/usr/bin/env bash
