@@ -220,8 +220,14 @@ congrats, you are done!
 ### [Before the rehearsal] Prepare the rehearsal
 
 First follow the setup steps outlined in the [rehearsals README](../../README.md), to
-generate the new rehearsal folder. Run `git commit` to save the new files, then move into
-that new folder to ensure any changes are made there, rather than in this template.
+generate the new rehearsal folder.
+
+Run `git commit` to save the new files, then move into
+that new folder:
+
+```
+cd [rehearsal-name]-[optional-suffix]
+```
 
 #### 1. Identify the Council Safe
 
@@ -229,50 +235,51 @@ This rehearsal can be done with any safe which has all of the participating sign
 new safe is required, please follow the instructions laid out in the Facilitator instructions for
   [Rehearsal 4](../r4-jointly-upgrade/README.md#1-create-the-council-safe).
 
+Set the `COUNCIL_SAFE` address in `.env` to the Safe address identified in the previous step.
+
 In order to remove any doubt that the execution of this Rehearsal could have consequences on the
 mainnet Superchain, it is not recommended to use the actual Security Council Safe itself in the
 rehearsal.
 
 #### 2. Create the rehearsal contracts
 
-1. Set the `COUNCIL_SAFE` address in `.env` to the Safe address identified in the previous step.
-2. Make sure your Ledger is connected and run the following command
+1. Make sure your Ledger is connected and run the following command
    to deploy the rehearsal contract. This will require approving 4 separate transactions on your
    ledger.
    ```
    export ETHERSCAN_KEY=your_etherscan_key
    just deploy-contracts
    ```
-3. From The output of the previous command get the following addresses required for the next step:
+1. From The output of the previous command get the following addresses required for the next step:
    ```
    New GuardianSafe deployed at 0x...
    New SuperchainConfig Proxy deployed at 0x...
    ```
-3. Update the `GuardianSafe_ADDRESS`, and the `SuperchainConfig_ADDRESS`
+1. Update the `GuardianSafe_ADDRESS`, and the `SuperchainConfig_ADDRESS`
    variables in `.env` with the newly-created contract addresses.
 
 #### 3. Update input.json
 
 1. Make sure the variables in the `.env` file have been updated, then
    run `just prepare-json` to update the `input.json` file.
-2. Test the newly created rehearsal by following the security council
+1. Test the newly created rehearsal by following the security council
    steps in the [`Approving the transaction`](#approving-the-transaction) section above.
-3. Update the placeholder values in these instructions above:
+1. Update the placeholder values in these instructions above:
    1. `REPLACE_WITH_REHEARSAL_FOLDER` should be the name of the rehearsal directory
    1. `COUNCIL_SAFE` should match the value set in the `.env` file
    1. `GuardianSafe_ADDRESS` should match the value set in the `.env` file
    1. `SuperchainConfig_ADDRESS` should match the value set in the `.env` file
-4. Commit the newly created files to Github.
+1. Commit the newly created files to Github.
 
 ### [After the rehearsal] Execute the output
 
 1. Collect outputs from all participating signers.
-2. Concatenate all signatures and export it as the `SIGNATURES`
+1. Concatenate all signatures and export it as the `SIGNATURES`
    environment variable, i.e. `export
    SIGNATURES="0x[SIGNATURE1][SIGNATURE2]..."`.
-3. Run `just approve-council 0 # or 1 or ...` to execute a transaction
+1. Run `just approve-council 0 # or 1 or ...` to execute a transaction
    onchain to approve the upgrade transaction.
-4. Run `just execute-all 0 # or 1 or...` to execute the actual upgrade
+1. Run `just execute-all 0 # or 1 or...` to execute the actual upgrade
    transaction.
 
 For example, if the quorum is 2 and you get the following outputs:
