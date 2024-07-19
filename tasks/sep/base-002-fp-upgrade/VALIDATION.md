@@ -84,12 +84,12 @@ State Changes:
 - **Key:**    `0x0000000000000000000000000000000000000000000000000000000000000038` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:**  `0x000000000000000000000000d6e6dbf4f7ea0ac412fd8b65ed297e64bb7a06e1` <br/>
-  **Meaning:**  Sets the `DisputeGameFactoryProxy` address in the proxy storage (0x38 is equivalent to 56). Note the `DisputeGameFactoryProxy` address should be the same address as the one set in the `SystemConfigProxy` state changes.
+  **Meaning:**  Sets the `DisputeGameFactoryProxy` address in the proxy storage (0x38 is equivalent to [56](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0-rc.4/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal2.json#L79-L85)). Note the `DisputeGameFactoryProxy` address should be the same address as the one set in the `SystemConfigProxy` state changes.
 
 - **Key:**    `0x000000000000000000000000000000000000000000000000000000000000003b` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:**  `0x0000000000000000000000000000000000000000000000006692e10f00000000` <br/>
-  **Meaning:** Sets the `respectedGameType` and `respectedGameTypeUpdatedAt` slot (0x3b is equivalent to 59).
+  **Meaning:** Sets the `respectedGameType` and `respectedGameTypeUpdatedAt` slot (0x3b is equivalent to [59](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal2.json#L100-L106)).
   The `respectedGameType` is 32-bits wide at offset 0 which should be set to 0 (i.e. [`CANNON`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0-rc.4/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28)).
   The `respectedGameTypeUpdatedAt` is 64-bits wide and offset by `4` on that slot. It should be equivalent to the unix timestamp of the block the upgrade was executed.
   You can extract the offset values from the slot using `chisel`:
