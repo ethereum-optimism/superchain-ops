@@ -36,4 +36,5 @@ contract SignFromJson is MultisigBuilder, JsonTxBuilderBase {
         accesses; // Silences compiler warnings.
         simPayload;
         require(false, "_postCheck not implemented");
+    }
 }

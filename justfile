@@ -31,3 +31,56 @@ add-transaction bundlePath to sig *params:
   mv {{bundlePath}} ${backupBundlePath}
   mv ${newBundlePath} {{bundlePath}}
   echo "Old bundle backed up to ${backupBundlePath}."
+
+
+# Add new tasks for each rehearsal template
+add-transaction-ScRehearsal1 bundlePath to sig *params:
+  #!/usr/bin/env bash
+  bundleBaseName=$(echo {{bundlePath}} | xargs -I{} basename {} .json)
+  dirname=$(echo {{bundlePath}} | xargs -I{} dirname {})
+  # bundleBasePath is the path to the bundle without the .json extension
+  bundleBasePath=${dirname}/${bundleBaseName}
+  newBundlePath=${bundleBasePath}-new.json
+  backupBundlePath=${bundleBasePath}-$(date -u '+%Y-%m-%d_%H-%M-%S').json
+  DATA=$(cast calldata '{{sig}}' {{params}})
+  echo DATA: $DATA
+  echo bundlePath: {{bundlePath}}
+  echo newBundlePath: $newBundlePath
+  jq --arg to {{to}} --arg data ${DATA} '.transactions += [{"to": $to, "data": $data}]' {{bundlePath}} > ${newBundlePath}
+  mv {{bundlePath}} ${backupBundlePath}
+  mv ${newBundlePath} {{bundlePath}}
+  echo "Old bundle backed up to ${backupBundlePath}."
+
+add-transaction-ScRehearsal2 bundlePath to sig *params:
+  #!/usr/bin/env bash
+  bundleBaseName=$(echo {{bundlePath}} | xargs -I{} basename {} .json)
+  dirname=$(echo {{bundlePath}} | xargs -I{} dirname {})
+  # bundleBasePath is the path to the bundle without the .json extension
+  bundleBasePath=${dirname}/${bundleBaseName}
+  newBundlePath=${bundleBasePath}-new.json
+  backupBundlePath=${bundleBasePath}-$(date -u '+%Y-%m-%d_%H-%M-%S').json
+  DATA=$(cast calldata '{{sig}}' {{params}})
+  echo DATA: $DATA
+  echo bundlePath: {{bundlePath}}
+  echo newBundlePath: $newBundlePath
+  jq --arg to {{to}} --arg data ${DATA} '.transactions += [{"to": $to, "data": $data}]' {{bundlePath}} > ${newBundlePath}
+  mv {{bundlePath}} ${backupBundlePath}
+  mv ${newBundlePath} {{bundlePath}}
+  echo "Old bundle backed up to ${backupBundlePath}."
+
+add-transaction-ScRehearsal4 bundlePath to sig *params:
+  #!/usr/bin/env bash
+  bundleBaseName=$(echo {{bundlePath}} | xargs -I{} basename {} .json)
+  dirname=$(echo {{bundlePath}} | xargs -I{} dirname {})
+  # bundleBasePath is the path to the bundle without the .json extension
+  bundleBasePath=${dirname}/${bundleBaseName}
+  newBundlePath=${bundleBasePath}-new.json
+  backupBundlePath=${bundleBasePath}-$(date -u '+%Y-%m-%d_%H-%M-%S').json
+  DATA=$(cast calldata '{{sig}}' {{params}})
+  echo DATA: $DATA
+  echo bundlePath: {{bundlePath}}
+  echo newBundlePath: $newBundlePath
+  jq --arg to {{to}} --arg data ${DATA} '.transactions += [{"to": $to, "data": $data}]' {{bundlePath}} > ${newBundlePath}
+  mv {{bundlePath}} ${backupBundlePath}
+  mv ${newBundlePath} {{bundlePath}}
+  echo "Old bundle backed up to ${backupBundlePath}."
