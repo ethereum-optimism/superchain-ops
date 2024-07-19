@@ -30,7 +30,6 @@ simulate whichSafe hdPath='0':
   fi
   signer=$(cast call ${safe} "getOwners()(address[])" -r ${rpcUrl} | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
 
-  echo "signer: $signer"
   echo "safe: $safe"
   echo "Simulating call to {{whichSafe}} at ${safe}"
   if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then

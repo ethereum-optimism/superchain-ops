@@ -142,9 +142,9 @@ State Changes:
 #### For the Foundation:
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000006` <br/>
-  **After:** `0x0000000000000000000000000000000000000000000000000000000000000007` <br/>
-  **Meaning:** The nonce is increased from 6 to 7. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L17). Note that if this task is simulated before 011 and 012 have executed, then the nonce should be increased from 4 to 5.
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
+  **After:** `0x0000000000000000000000000000000000000000000000000000000000000006` <br/>
+  **Meaning:** The nonce is increased from 5 to 6. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L17). Note that if this task is simulated before 011 has executed, then the nonce should be increased from 4 to 5.
 
 
 ### `0xe5965ab5962edc7477c8520243a95517cd252fa9` (`DisputeGameFactoryProxy`)
@@ -159,11 +159,11 @@ State Changes:
 - **Key:** `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e` <br/>
   **Before:** `0x000000000000000000000000e9dad167ef4de8812c1abd013ac9570c616599a0` <br/>
   **After:** [`0x000000000000000000000000c307e93a7c530a184c98eade4545a412b857b62f`](https://etherscan.io/address/0xc307e93a7c530a184c98eade4545a412b857b62f) <br/>
-  **Meaning:** This is `gameImpls[0] -> 0xc307e93a7c530a184c98eade4545a412b857b62f` (where `0` is the [`CANNON` game type](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28), so the key can be derived from `cast index uint32 0 101`.
+  **Meaning:** This is `gameImpls[1] -> 0xc307e93a7c530a184c98eade4545a412b857b62f` (where `1` is the [`PERMISSIONED_CANNON` game type](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L31)), so the key can be derived from `cast index uint32 1 101`.
 
 - **Key:** `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b` <br/>
   **Before:** `0x0000000000000000000000004146df64d83acb0dcb0c1a4884a16f090165e122` <br/>
   **After:** [`0x000000000000000000000000f691f8a6d908b58c534b624cf16495b491e633ba`](https://etherscan.io/address/0xf691f8a6d908b58c534b624cf16495b491e633ba) <br/>
-  **Meaning:** This is `gameImpls[1] -> 0xf691f8a6d908b58c534b624cf16495b491e633ba` (where `1` is the [`PERMISSIONED_CANNON` game type](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L31)), so the key can be derived from `cast index uint32 0 101`.
-  
+  **Meaning:** This is `gameImpls[0] -> 0xf691f8a6d908b58c534b624cf16495b491e633ba` (where `0` is the [`CANNON` game type](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28), so the key can be derived from `cast index uint32 0 101`.
+
 The only other state changes is a nonce increment on the account that sent the transaction.

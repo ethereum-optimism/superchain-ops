@@ -1,6 +1,6 @@
 # Mainnet Recommended Protocol Version Update (7.0.0 - Fjord) & Ownership Transfers
 
-Status: DRAFT, NOT READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0xa324ca8056ff79064771df050d70df9d44deab56290916339d94fd11ea5ee3c0)
 
 ## Objective
 
@@ -14,7 +14,7 @@ The Fjord proposal was:
 
 - [x] Posted on the governance forum [here](https://gov.optimism.io/t/upgrade-proposal-9-fjord-network-upgrade/8236).
 - [x] Approved by Token House voting [here](https://vote.optimism.io/proposals/19894803675554157870919000647998468859257602050917884642551010462863037711179).
-- [ ] Not vetoed by the Citizens' house [here](https://snapshot.org/#/citizenshouse.eth/proposal/0x14336dfcb086279e47ef8fffbd6282984d392f1b9eaf22f76547210df6451c43).
+- [x] Not vetoed by the Citizens' house [here](https://snapshot.org/#/citizenshouse.eth/proposal/0x14336dfcb086279e47ef8fffbd6282984d392f1b9eaf22f76547210df6451c43).
 
 The [governance proposal](https://gov.optimism.io/t/upgrade-proposal-9-fjord-network-upgrade/8236) should be treated as the source of truth and used to verify the correctness of the onchain operations.
 
