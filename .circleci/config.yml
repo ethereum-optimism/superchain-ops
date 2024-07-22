@@ -167,6 +167,24 @@ jobs:
             just simulate-council
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
+  
+  just_simulate_sep-base-002-fp-upgrade:
+    docker:
+      - image: <<pipeline.parameters.ci_builder_image>>
+
+    steps:
+      - checkout
+      - run:
+          name: just simulate sep/base-002-fp-upgrade
+          command: |
+            go install github.com/mikefarah/yq/v4@latest
+            just install
+            cd tasks/sep/base-002-fp-upgrade
+            export SIMULATE_WITHOUT_LEDGER=1
+            just \
+            --dotenv-path $(pwd)/.env \
+            --justfile ../../../single.just \
+            simulate
 
   forge_fmt:
     docker:
@@ -219,3 +237,4 @@ workflows:
       - just_simulate_sc_rehearsal_1
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
+      - just_simulate_sep-base-002-fp-upgrade
