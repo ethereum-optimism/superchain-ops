@@ -6,7 +6,7 @@ import {OptimismPortal2, IDisputeGame} from "@eth-optimism-bedrock/src/L1/Optimi
 import {Types} from "@eth-optimism-bedrock/scripts/Types.sol";
 import {Vm, VmSafe} from "forge-std/Vm.sol";
 import {console2 as console} from "forge-std/console2.sol";
-import {stdJson} from "forge-std/StdJson.sol";
+import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
 import {GnosisSafe} from "safe-contracts/GnosisSafe.sol";
 import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
@@ -16,19 +16,19 @@ contract SignFromJson is OriginalSignFromJson {
 
     // Chains for this task.
     string constant l1ChainName = "sepolia";
-    string constant l2ChainName = "op";
+    string l2ChainName = vm.envString("CHAIN_NAME");
 
     // Safe contract for this task.
     GnosisSafe securityCouncilSafe = GnosisSafe(payable(0xf64bc17485f0B4Ea5F06A96514182FC4cB561977));
     GnosisSafe foundationSafe = GnosisSafe(payable(0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B));
 
     // Known EOAs to exclude from safety checks.
-    address constant l2OutputOracleProposer = 0x49277EE36A024120Ee218127354c4a3591dc90A9; // cast call $L2OO "PROPOSER()(address)"
-    address constant l2OutputOracleChallenger = 0xfd1D2e729aE8eEe2E146c033bf4400fE75284301; // In registry addresses.
-    address constant systemConfigOwner = 0xfd1D2e729aE8eEe2E146c033bf4400fE75284301; // In registry addresses.
-    address constant batchSenderAddress = 0x8F23BB38F531600e5d8FDDaAEC41F13FaB46E98c; // In registry genesis-system-configs
-    address constant p2pSequencerAddress = 0x57CACBB0d30b01eb2462e5dC940c161aff3230D3; // cast call $SystemConfig "unsafeBlockSigner()(address)"
-    address constant batchInboxAddress = 0xff00000000000000000000000000000011155420; // In registry yaml.
+    address l2OutputOracleProposer; // cast call $L2OO "PROPOSER()(address)"
+    address l2OutputOracleChallenger; // In registry addresses.
+    address systemConfigOwner; // In registry addresses.
+    address batchSenderAddress; // In registry genesis-system-configs
+    address p2pSequencerAddress; // cast call $SystemConfig "unsafeBlockSigner()(address)"
+    address batchInboxAddress; // In registry yaml.
 
     Types.ContractSet proxies;
 
@@ -61,6 +61,12 @@ contract SignFromJson is OriginalSignFromJson {
         return shouldHaveCodeExceptions;
     }
 
+    function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
+        allowed = new address[](2);
+        allowed[0] = proxies.OptimismPortal;
+        allowed[1] = vm.envAddress("OWNER_SAFE");
+    }
+
     /// @notice Checks the correctness of the deployment
     function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory /* simPayload */ )
         internal
@@ -75,20 +81,29 @@ contract SignFromJson is OriginalSignFromJson {
         console.log("All assertions passed!");
     }
 
-    /// @notice Reads the contract addresses from lib/superchain-registry/superchain/extra/addresses/${l1ChainName}/${l2ChainName}.json
-    function _getContractSet() internal view returns (Types.ContractSet memory _proxies) {
-        string memory addressesJson;
+    /// @notice Reads the contract addresses from lib/superchain-registry/superchain/configs/${l1ChainName}/${l2ChainName}.toml
+    function _getContractSet() internal returns (Types.ContractSet memory _proxies) {
+        string memory chainConfig;
 
-        // Read addresses json
+        // Read chain-specific config toml file
         string memory path = string.concat(
-            "/lib/superchain-registry/superchain/extra/addresses/", l1ChainName, "/", l2ChainName, ".json"
+            "/lib/superchain-registry/superchain/configs/", l1ChainName, "/", l2ChainName, ".toml"
         );
         try vm.readFile(string.concat(vm.projectRoot(), path)) returns (string memory data) {
-            addressesJson = data;
+            chainConfig = data;
         } catch {
             revert(string.concat("Failed to read ", path));
         }
 
-        _proxies.OptimismPortal = stdJson.readAddress(addressesJson, "$.OptimismPortalProxy");
+        // Read the known EOAs out of the config toml file
+        l2OutputOracleProposer = stdToml.readAddress(chainConfig, "$.addresses.Proposer");
+        l2OutputOracleChallenger = stdToml.readAddress(chainConfig, "$.addresses.Challenger");
+        systemConfigOwner = stdToml.readAddress(chainConfig, "$.addresses.SystemConfigOwner");
+        batchSenderAddress = stdToml.readAddress(chainConfig, "$.addresses.BatchSubmitter");
+        p2pSequencerAddress = stdToml.readAddress(chainConfig, "$.addresses.UnsafeBlockSigner");
+        batchInboxAddress = stdToml.readAddress(chainConfig, "$.batch_inbox_addr");
+
+        // Read the chain-specific OptimismPortalProxy address
+        _proxies.OptimismPortal = stdToml.readAddress(chainConfig, "$.addresses.OptimismPortalProxy");
     }
 }
