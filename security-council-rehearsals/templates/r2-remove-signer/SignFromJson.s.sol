@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.15;
 
+// This import path should be relative to where the rehearsal script will be located after a new rehearsal is setup,
+// which is repo_root/security-council-rehearsals/<rehearsal-dir>/SignFromJson.s.sol
 import {SignFromJson as OriginalSignFromJson} from "../../../scripts/SignFromJson.s.sol";
 
 contract SignFromJson is OriginalSignFromJson {
