@@ -26,7 +26,11 @@ check_status_and_hyperlinks() {
   done
 
   if [[ "$is_valid_status" == false ]]; then
-    errors+=("Error: Invalid status in $file_path: $status_line. \nValid statuses are: ${VALID_STATUSES[*]}.")
+    errors+=("Error: Invalid status in $file_path: $status_line.")
+    errors+=("Valid statuses are:")
+    for valid_status in "${VALID_STATUSES[@]}"; do
+      errors+=("- $valid_status")
+    done
     return
   fi
 
