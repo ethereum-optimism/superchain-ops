@@ -15,7 +15,7 @@ simulate hdPath='0':
   echo ""
   export OWNER_SAFE=${COUNCIL_SAFE}
   forge build
-  forge script SignFromJson --via-ir --rpc-url ${ETH_RPC_URL} \
+  forge script ./SignFromJson --via-ir --rpc-url ${ETH_RPC_URL} \
     --sig "signJson(string)" "${here}/input.json" \
     --sender ${signer}
 
@@ -30,7 +30,7 @@ sign hdPath='0':
   export OWNER_SAFE=${COUNCIL_SAFE}
   forge build
   $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
-    forge script SignFromJson --via-ir --rpc-url ${ETH_RPC_URL} \
+    forge script ./SignFromJson --via-ir --rpc-url ${ETH_RPC_URL} \
     --sig "signJson(string)" "${here}/input.json"
 
 execute hdPath='0':
@@ -40,7 +40,7 @@ execute hdPath='0':
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   export OWNER_SAFE=${COUNCIL_SAFE}
   forge build
-  forge script --fork-url ${ETH_RPC_URL} SignFromJson \
+  forge script --fork-url ${ETH_RPC_URL} ./SignFromJson \
   --sig "runJson(string,bytes)" ${here}/input.json ${SIGNATURES} \
   --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
   --sender ${sender}

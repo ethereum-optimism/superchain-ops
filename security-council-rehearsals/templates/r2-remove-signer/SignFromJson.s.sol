@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.15;
 
-import {SignFromJson} from "./SignFromJson.s.sol";
+import {SignFromJson as OriginalSignFromJson} from "../../../scripts/SignFromJson.s.sol";
 
-contract SCRehearsal4 is SignFromJson{
+contract SignFromJson is OriginalSignFromJson {
     // Since after _postCheck hook `require(false)`, the transaction will revert
     // contract extending SignFromJson must implement its own _postCheck method, thus enforcing a more robust implementation pattern.
     function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory simPayload)
