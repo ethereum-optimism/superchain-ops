@@ -21,7 +21,7 @@ simulate-council hdPath='0':
   echo "Simulating with: ${signer}"
   echo ""
   forge build
-  forge script NestedSignFromJson \
+  forge script ./NestedSignFromJson.s.sol:NestedSignFromJson \
     --rpc-url ${rpcUrl} \
     --sender ${signer} \
     --sig "signJson(string,address)" \
@@ -37,7 +37,7 @@ sign-council hdPath='0':
   echo ""
   forge build
   $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
-  forge script NestedSignFromJson \
+  forge script ./NestedSignFromJson.s.sol:NestedSignFromJson \
     --rpc-url ${rpcUrl} \
     --sig "signJson(string,address)" \
     "${location}/${bundle}.json" \
@@ -48,7 +48,7 @@ approve-council hdPath='0':
   cd ../..
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge build
-  forge script NestedSignFromJson \
+  forge script ./NestedSignFromJson.s.sol:NestedSignFromJson \
     --fork-url ${rpcUrl} \
     --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
     --broadcast \
