@@ -1,6 +1,6 @@
 # Base Sepolia Fault Proofs Upgrade
 
-Status: DRAFT
+Status: READY TO SIGN
 
 ## Objective
 
