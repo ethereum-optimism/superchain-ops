@@ -18,30 +18,36 @@ Executes the `blacklistDisputeGame` call to the `OptimismPortal` proxy
 
 **Value:** `0 WEI`
 
-**Raw Input Data:** `0x629cdd4900000000000000000000000016fc5058f25648194471939df75cf27a2fdc48bc000000000000000000000000<blacklisted----game>`
+**Raw Input Data:** `0x629cdd49000000000000000000000000<OptimismPortalProxyAddress------------>000000000000000000000000<DisputeGameToBlacklist---------------->`
 
 ### Inputs
 
-**\_portal:** `0x16Fc5058F25648194471939df75CF27A2fdC48BC`
+**\_portal:** `<user-input>`
 
 **\_game:** `<user-input>`
 
 ## Preparing the Operation
 
-1. Locate the address of the dispute game that the `Guardian` wishes to blacklist.
+1. Locate the address of the `OptimismPortalProxy` to blacklist a dispute game on.
 
-1. Generate the batch with `just generate-input <address>`.
+2. Locate the address of the dispute game that the `Guardian` wishes to blacklist.
 
-1. Collect signatures and execute the action according to the instructions in [SINGLE.md](../../../../SINGLE.md).
+3. Generate the batch with `just generate-input <OptimismPortalProxyAddress> <DisputeGameToBlacklist>`.
+
+4. Collect signatures and execute the action according to the instructions in [SINGLE.md](../../../../SINGLE.md).
 
 ### State Validations
 
-The only state modification that is made by this action is an update to a storage slot within the `disputeGameBlacklist`
-mapping in the `OptimismPortal2` proxy. It should look something like this:
+The two state modifications that are made by this action are:
+
+1. An update to the nonce of the Gnosis safe owner of the `DeputyGuardianModule`.
+2. An update to a storage slot within the `disputeGameBlacklist` mapping in the `OptimismPortalProxy`.
+
+The state changes should look something like this:
 
 ![state-diff](./images/state_diff.png)
 
-To check the validity of the slot that was changed, the `cast index` utility can be used to compute the storage slot
+To check the validity of the slot that was changed on the `OptimismPortalProxy`, the `cast index` utility can be used to compute the storage slot
 that will be used for the address being blacklisted in the `disputeGameBlacklist` mapping:
 
 ```sh
