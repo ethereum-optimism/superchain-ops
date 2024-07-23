@@ -34,7 +34,9 @@ Executes the `blacklistDisputeGame` call to the `OptimismPortal` proxy
 
 3. Generate the batch with `just generate-input <OptimismPortalProxyAddress> <DisputeGameToBlacklist>`.
 
-4. Collect signatures and execute the action according to the instructions in [SINGLE.md](../../../../SINGLE.md).
+4. Set the `CHAIN_NAME` configuration to the appropriate chain in the `.env` file.
+
+5. Collect signatures and execute the action according to the instructions in [SINGLE.md](../../../../SINGLE.md).
 
 ### State Validations
 

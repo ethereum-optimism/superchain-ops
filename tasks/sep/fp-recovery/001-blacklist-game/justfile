@@ -8,8 +8,7 @@ default:
 generate-input *args='':
   #!/usr/bin/env bash
   BLACKLIST_GAME_SIG="blacklistDisputeGame(address,address)"
-  ENCODED_BLACKLIST_ARGS=$(cast abi-encode $BLACKLIST_GAME_SIG $1 $2)
-  ENCODED_BLACKLIST_CALL="$(cast sig $BLACKLIST_GAME_SIG)${ENCODED_BLACKLIST_ARGS:2}"
+  ENCODED_BLACKLIST_CALL="$(cast calldata $BLACKLIST_GAME_SIG $1 $2)"
 
   cp ./input-template.json ./input.json
   jq "(.transactions[0].data = \"$ENCODED_BLACKLIST_CALL\") |

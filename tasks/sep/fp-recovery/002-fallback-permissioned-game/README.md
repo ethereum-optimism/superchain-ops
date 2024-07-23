@@ -32,7 +32,9 @@ Updates the `respectedGameType` to `PERMISSIONED_CANNON` in the `OptimismPortalP
 
 2. Generate the batch with `just generate-input <OptimismPortalProxyAddress>`.
 
-3. Collect signatures and execute the action according to the instructions in [SINGLE.md](../../../../SINGLE.md).
+3. Set the `CHAIN_NAME` configuration to the appropriate chain in the `.env` file.
+
+4. Collect signatures and execute the action according to the instructions in [SINGLE.md](../../../../SINGLE.md).
 
 ### State Validations
 
