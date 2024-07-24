@@ -4,17 +4,22 @@ pragma solidity ^0.8.15;
 import {SignFromJson as OriginalSignFromJson} from "script/SignFromJson.s.sol";
 import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
 import {console2 as console} from "forge-std/console2.sol";
+import {stdJson} from "forge-std/StdJson.sol";
 import {Vm, VmSafe} from "forge-std/Vm.sol";
 
 contract SignFromJson is OriginalSignFromJson {
 
-    ProxyAdmin opProxyAdmin = ProxyAdmin(0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc);
-    ProxyAdmin metalProxyAdmin = ProxyAdmin(0xF7Bc4b3a78C7Dd8bE9B69B3128EEB0D6776Ce18A);
-    ProxyAdmin modeProxyAdmin = ProxyAdmin(0xE7413127F29E050Df65ac3FC9335F85bB10091AE);
-    ProxyAdmin zoraProxyAdmin = ProxyAdmin(0xE17071F4C216Eb189437fbDBCc16Bb79c4efD9c2);
+    ProxyAdmin opProxyAdmin;
+    ProxyAdmin metalProxyAdmin;
+    ProxyAdmin modeProxyAdmin;
+    ProxyAdmin zoraProxyAdmin;
 
     /// @notice Sets up the contract
-    function setUp() public view {
+    function setUp() public {
+        opProxyAdmin = ProxyAdmin(readyProxyAdminAddress("11155420"));
+        metalProxyAdmin = ProxyAdmin(readyProxyAdminAddress("1740"));
+        modeProxyAdmin = ProxyAdmin(readyProxyAdminAddress("919"));
+        zoraProxyAdmin = ProxyAdmin(readyProxyAdminAddress("999999999"));
         require(opProxyAdmin.owner() != metalProxyAdmin.owner());
         require(opProxyAdmin.owner() != modeProxyAdmin.owner());
         require(opProxyAdmin.owner() != zoraProxyAdmin.owner());
@@ -32,5 +37,20 @@ contract SignFromJson is OriginalSignFromJson {
         require(opProxyAdmin.owner() == modeProxyAdmin.owner());
         require(opProxyAdmin.owner() == zoraProxyAdmin.owner());
         console.log("All assertions passed!");
+    }
+
+    function readyProxyAdminAddress(string memory chainId) internal view returns (address) {
+        string memory addressesJson;
+
+        // Read addresses json
+        string memory path = "/lib/superchain-registry/superchain/extra/addresses/addresses.json";
+
+        try vm.readFile(string.concat(vm.projectRoot(), path)) returns (string memory data) {
+            addressesJson = data;
+        } catch {
+            revert(string.concat("Failed to read ", path));
+        }
+
+        return stdJson.readAddress(addressesJson, string.concat("$.", chainId, ".ProxyAdmin"));
     }
 }
