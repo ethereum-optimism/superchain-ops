@@ -1,6 +1,6 @@
 # Mode, Metal, and Zora Sepolia's Key Handover Upgrade
 
-Status: DRAFT
+Status: READY TO SIGN
 
 ## Objective
 
