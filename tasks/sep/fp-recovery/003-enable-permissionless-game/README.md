@@ -32,7 +32,7 @@ Updates the `respectedGameType` to `CANNON` in the `OptimismPortalProxy`, enabli
 
 2. Generate the batch with `just generate-input <OptimismPortalProxyAddress>`.
 
-3. Set the `CHAIN_NAME` configuration to the appropriate chain in the `.env` file.
+3. Set the `L2_CHAIN_NAME` configuration to the appropriate chain in the `.env` file.
 
 4. Collect signatures and execute the action according to the instructions in [SINGLE.md](../../../../SINGLE.md).
 
