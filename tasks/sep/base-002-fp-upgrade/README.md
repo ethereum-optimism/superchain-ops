@@ -1,6 +1,6 @@
 # Base Sepolia Fault Proofs Upgrade
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x3bb79184b85dd76858af0ede118bccf4e9b482288536e814316ffad9a546c67f)
 
 ## Objective
 
