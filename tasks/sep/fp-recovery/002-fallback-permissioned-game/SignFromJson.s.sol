@@ -16,7 +16,7 @@ contract SignFromJson is OriginalSignFromJson {
 
     // Chains for this task.
     string constant l1ChainName = "sepolia";
-    string l2ChainName = vm.envString("CHAIN_NAME");
+    string l2ChainName = vm.envString("L2_CHAIN_NAME");
 
     // Safe contract for this task.
     GnosisSafe securityCouncilSafe = GnosisSafe(payable(0xf64bc17485f0B4Ea5F06A96514182FC4cB561977));
