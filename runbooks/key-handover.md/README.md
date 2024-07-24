@@ -1,0 +1,31 @@
+# {Chain Name i.e. Base Mainnet} Key Handover Upgrade
+
+Status: READY TO SIGN
+
+## Objective
+
+This is the playbook for executing the Key Handover upgrade on {Chain Name i.e. Base Mainnet}.
+This updates the `ProxyAdminOwner` to the Optimism Foundation and Security Council’s multisig account to fufill the Security Council requirement for  Stage 1 Rollup status.
+
+OR for testnets:
+
+This updates the `ProxyAdminOwner` to the same ProxyAdmin owner multisig account as OP Sepolia account.
+
+## Simulation
+
+Please see the "Simulating and Verifying the Transaction" instructions in [SINGLE.md](../../../SINGLE.md).
+When simulating, ensure the logs say `Using script Using script /your/path/to/superchain-ops/tasks/<NETWORK_DIR>/<RUNBOOK_DIR>/SignFromJson.s.sol`.
+Thus ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown
+(without the full path), something is wrong and the safety checks will not run.
+
+### State Validations
+
+Please see the instructions for [validation](./VALIDATION.md).
+
+### Execution
+
+At this point you may resume following the execution instructions in the "Execute the Transaction" section of [SINGLE.md](../../../SINGLE.md).
+
+When executing, ensure the logs say `Using script Using script /your/path/to/superchain-ops/tasks/<NETWORK_DIR>/<RUNBOOK_DIR>/SignFromJson.s.sol`.
+Thus ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown 
+(without the full path), something is wrong and the safety checks will not run.
