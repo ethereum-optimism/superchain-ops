@@ -4,13 +4,13 @@ Status: CONTINGENCY TASK, SIGN AS NEEDED
 
 ## Objective
 
-This task executes a `blacklistDisputeGame` operation in the `OptimismPortal` on behalf of the `Guardian` role. Blacklisting the dispute game prevents any withdrawals proven to be contained within the game's proposed output root from being finalized.
+This task executes a `blacklistDisputeGame` operation in the `OptimismPortalProxy` on behalf of the `Guardian` role. Blacklisting the dispute game prevents any withdrawals proven to be contained within the game's proposed output root from being finalized.
 
 The batch will be executed on chain ID `11155111`, and contains `1` transactions.
 
 ## Tx #1: Blacklist Dispute Game
 
-Executes the `blacklistDisputeGame` call to the `OptimismPortal` proxy
+Executes the `blacklistDisputeGame` call to the `OptimismPortalProxy`.
 
 **Function Signature:** `blacklistDisputeGame(address,address)`
 
@@ -34,7 +34,7 @@ Executes the `blacklistDisputeGame` call to the `OptimismPortal` proxy
 
 3. Generate the batch with `just generate-input <OptimismPortalProxyAddress> <DisputeGameToBlacklist>`.
 
-4. Set the `CHAIN_NAME` configuration to the appropriate chain in the `.env` file.
+4. Set the `L2_CHAIN_NAME` configuration to the appropriate chain in the `.env` file.
 
 5. Collect signatures and execute the action according to the instructions in [SINGLE.md](../../../../SINGLE.md).
 
