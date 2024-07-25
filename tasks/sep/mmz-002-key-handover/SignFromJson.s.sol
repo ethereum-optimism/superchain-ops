@@ -18,7 +18,7 @@ contract SignFromJson is OriginalSignFromJson {
     function setUp() public {
         opProxyAdmin = ProxyAdmin(readProxyAdminAddress("11155420"));
         metalProxyAdmin = ProxyAdmin(readProxyAdminAddress("1740"));
-        modeProxyAdmin = ProxyAdmin(readyProxyAdminAddress("919"));
+        modeProxyAdmin = ProxyAdmin(readProxyAdminAddress("919"));
         zoraProxyAdmin = ProxyAdmin(readyProxyAdminAddress("999999999"));
         require(opProxyAdmin.owner() != metalProxyAdmin.owner());
         require(opProxyAdmin.owner() != modeProxyAdmin.owner());
