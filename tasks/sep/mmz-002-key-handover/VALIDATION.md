@@ -1,6 +1,6 @@
 # Validation
 
-This document can be used to validate the state diff resulting from the execution of s
+This document can be used to validate the state diff resulting from the execution of Key Handover process. This task will transfer ownership of the `ProxyAdminOwner` role to a different account. For mainnet, this is the 2-of-2 multisig of the Optimism Foundation and Security Council.
 
 For each contract listed in the state diff, please verify that no contracts or state changes shown in the Tenderly diff are missing from this document. Additionally, please verify that for each contract:
 
