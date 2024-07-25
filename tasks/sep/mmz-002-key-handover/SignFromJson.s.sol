@@ -16,7 +16,7 @@ contract SignFromJson is OriginalSignFromJson {
 
     /// @notice Sets up the contract
     function setUp() public {
-        opProxyAdmin = ProxyAdmin(readyProxyAdminAddress("11155420"));
+        opProxyAdmin = ProxyAdmin(readProxyAdminAddress("11155420"));
         metalProxyAdmin = ProxyAdmin(readyProxyAdminAddress("1740"));
         modeProxyAdmin = ProxyAdmin(readyProxyAdminAddress("919"));
         zoraProxyAdmin = ProxyAdmin(readyProxyAdminAddress("999999999"));
