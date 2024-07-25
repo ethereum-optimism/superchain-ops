@@ -52,6 +52,8 @@ contract SignFromJson is OriginalSignFromJson {
         }
 
         return stdJson.readAddress(addressesJson, string.concat("$.", chainId, ".ProxyAdmin"));
+    }
+    
     function checkStateDiff(Vm.AccountAccess[] memory accountAccesses) internal view override {
         super.checkStateDiff(accountAccesses);
 
