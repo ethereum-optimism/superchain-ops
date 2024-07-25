@@ -56,7 +56,7 @@ abstract contract JsonTxBuilderBase is CommonBase {
     /// @notice Reads all account and storage accesses and makes a series of basic sanity checks on them.
     ///         This function can be overridden to provide more specific checks, but should still call
     ///         super.checkStateDiff().
-    function checkStateDiff(Vm.AccountAccess[] memory accountAccesses) internal view {
+    function checkStateDiff(Vm.AccountAccess[] memory accountAccesses) internal view virtual {
         console.log("Running assertions on the state diff");
         require(accountAccesses.length > 0, "No account accesses");
 
