@@ -39,7 +39,7 @@ contract SignFromJson is OriginalSignFromJson {
         console.log("All assertions passed!");
     }
 
-    function readyProxyAdminAddress(string memory chainId) internal view returns (address) {
+    function readProxyAdminAddress(string memory chainId) internal view returns (address) {
         string memory addressesJson;
 
         // Read addresses json
