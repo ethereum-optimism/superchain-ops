@@ -37,7 +37,7 @@ State Changes:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **Before:** `0x000000000000000000000000e75cd021f520b160bf6b54d472fa15e52afe5add` <br/>
   **After:** `0x0000000000000000000000001eb2ffc903729a0f03966b917003800b145f56e2` <br/>
-  **Meaning:** The `ProxyAdmin` owner has been transfered to be the same as OP Sepolia. The correctness of this slot is attested to in the Optimism monorepo at [storageLayout/ProxyAdmin.json](https://github.com/ethereum-optimism/optimism/blob/e6ef3a900c42c8722e72c2e2314027f85d12ced5/packages/contracts-bedrock/snapshots/storageLayout/ProxyAdmin.json#L3-L8).
+  **Meaning:** The `ProxyAdmin` owner has been transfered to be the same as [OP Sepolia](https://github.com/ethereum-optimism/superchain-registry/blob/0fb0dcbefc50882f1bb02fafcb27f47b463875c9/superchain/configs/sepolia/op.toml#L50). The correctness of this slot is attested to in the Optimism monorepo at [storageLayout/ProxyAdmin.json](https://github.com/ethereum-optimism/optimism/blob/a12a09f7000ff785a4058998e09b366cbe5a3ed2/packages/contracts-bedrock/.storage-layout#L213).
 
 ### `0xE7413127F29E050Df65ac3FC9335F85bB10091AE` (Mode's `ProxyAdmin`)
 
@@ -49,7 +49,7 @@ State Changes:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **Before:** `0x000000000000000000000000e75cd021f520b160bf6b54d472fa15e52afe5add` <br/>
   **After:** `0x0000000000000000000000001eb2ffc903729a0f03966b917003800b145f56e2` <br/>
-  **Meaning:** The `ProxyAdmin` owner has been transfered to be the same as OP Sepolia. The correctness of this slot is attested to in the Optimism monorepo at [storageLayout/ProxyAdmin.json](https://github.com/ethereum-optimism/optimism/blob/e6ef3a900c42c8722e72c2e2314027f85d12ced5/packages/contracts-bedrock/snapshots/storageLayout/ProxyAdmin.json#L3-L8).
+  **Meaning:** The `ProxyAdmin` owner has been transfered to be the same as [OP Sepolia](https://github.com/ethereum-optimism/superchain-registry/blob/0fb0dcbefc50882f1bb02fafcb27f47b463875c9/superchain/configs/sepolia/op.toml#L50). The correctness of this slot is attested to in the Optimism monorepo at [storageLayout/ProxyAdmin.json](https://github.com/ethereum-optimism/optimism/blob/a12a09f7000ff785a4058998e09b366cbe5a3ed2/packages/contracts-bedrock/.storage-layout#L213).
 
 ### `0xE75Cd021F520B160BF6b54D472Fa15e52aFe5aDD` (The old `ProxyAdmin` owner Safe)
 
@@ -75,6 +75,6 @@ State Changes:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **Before:** `0x000000000000000000000000e75cd021f520b160bf6b54d472fa15e52afe5add` <br/>
   **After:** `0x0000000000000000000000001eb2ffc903729a0f03966b917003800b145f56e2` <br/>
-  **Meaning:** The `ProxyAdmin` owner has been transfered to be the same as OP Sepolia. The correctness of this slot is attested to in the Optimism monorepo at [storageLayout/ProxyAdmin.json](https://github.com/ethereum-optimism/optimism/blob/e6ef3a900c42c8722e72c2e2314027f85d12ced5/packages/contracts-bedrock/snapshots/storageLayout/ProxyAdmin.json#L3-L8).
+  **Meaning:** The `ProxyAdmin` owner has been transfered to be the same as [OP Sepolia](https://github.com/ethereum-optimism/superchain-registry/blob/0fb0dcbefc50882f1bb02fafcb27f47b463875c9/superchain/configs/sepolia/op.toml#L50). The correctness of this slot is attested to in the Optimism monorepo at [storageLayout/ProxyAdmin.json](https://github.com/ethereum-optimism/optimism/blob/a12a09f7000ff785a4058998e09b366cbe5a3ed2/packages/contracts-bedrock/.storage-layout#L213).
 
 The only other state change is a nonce increment of the account being used to simulate the transaction.
