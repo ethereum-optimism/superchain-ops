@@ -52,5 +52,31 @@ contract SignFromJson is OriginalSignFromJson {
         }
 
         return stdJson.readAddress(addressesJson, string.concat("$.", chainId, ".ProxyAdmin"));
+    function checkStateDiff(Vm.AccountAccess[] memory accountAccesses) internal view override {
+        super.checkStateDiff(accountAccesses);
+
+        address metalProxyAdminOwner = metalProxyAdmin.owner();
+        address modeProxyAdminOwner = modeProxyAdmin.owner();
+        address zoraProxyAdminOwner = zoraProxyAdmin.owner();
+        address opProxyAdminOwner = 0xE75Cd021F520B160BF6b54D472Fa15e52aFe5aDD;
+
+        for (uint256 i; i < accountAccesses.length; i++) {
+            Vm.AccountAccess memory accountAccess = accountAccesses[i];
+
+            // Assert that only the expected accounts have been written to.
+            for (uint256 j; j < accountAccess.storageAccesses.length; j++) {
+                Vm.StorageAccess memory storageAccess = accountAccess.storageAccesses[j];
+                if (storageAccess.isWrite) {
+                    address account = storageAccess.account;
+                    require(
+                        // We set the guardian slot on the Superchain Config.
+                        account == metalProxyAdminOwner || account == modeProxyAdminOwner
+                            || account == zoraProxyAdminOwner
+                            || account == opProxyAdminOwner,
+                        "state-100"
+                    );
+                }
+            }
+        }
     }
 }
