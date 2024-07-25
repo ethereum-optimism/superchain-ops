@@ -18,8 +18,7 @@ generate-input delayed_weth:
   done < /tmp/meta.tmp.json
   AMOUNT=$(cast --to-hex $sum)
   RECOVER_WETH_SIG="recover(uint256)"
-  ENCODED_RECOVER_WETH_ARGS=$(cast abi-encode $RECOVER_WETH_SIG $AMOUNT)
-  ENCODED_RECOVER_WETH_CALL="$(cast sig $RECOVER_WETH_SIG)${ENCODED_RECOVER_WETH_ARGS:2}"
+  ENCODED_RECOVER_WETH_CALL=$(cast calldata $RECOVER_WETH_SIG $AMOUNT)
 
   cp ./input-template.json ./input.json
   jq "(.transactions[0].to = \"{{delayed_weth}}\") |
