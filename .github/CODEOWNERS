@@ -1,23 +1,23 @@
-*                   @maurelian @zchn @mds1
+*                   @ethereum-optimism/security-reviewers
 
-/runbooks/**/*mcp-l1* @sbvegan @blmalone @mds1
+/runbooks/**/*mcp-l1* @sbvegan @ethereum-optimism/security-reviewers
 
-/tasks/eth          @maurelian @zchn @mds1 
-/tasks/eth/metal-*  @sbvegan @mds1 @blmalone @maurelian @zchn
-/tasks/eth/mode-*   @sbvegan @mds1 @blmalone @maurelian @zchn
-/tasks/eth/base-*   @sbvegan @mds1 @blmalone @maurelian @zchn @awilliams1-cb @anikaraghu @emrahCoinbase
+/tasks/eth          @ethereum-optimism/security-reviewers 
+/tasks/eth/metal-*  @sbvegan @ethereum-optimism/security-reviewers
+/tasks/eth/mode-*   @sbvegan @ethereum-optimism/security-reviewers
+/tasks/eth/base-*   @sbvegan @ethereum-optimism/security-reviewers @awilliams1-cb @anikaraghu @emrahCoinbase
 /tasks/eth/zora-*   @sbvegan @ZakAyesh @OPMattie
 
 /tasks/sep          @ethereum-optimism/contract-reviewers
-/tasks/sep/metal-*  @sbvegan @mds1 @blmalone @maurelian @zchn
-/tasks/sep/mode-*   @sbvegan @mds1 @blmalone @maurelian @zchn
-/tasks/sep/base-*   @sbvegan @mds1 @blmalone @maurelian @zchn @awilliams1-cb @anikaraghu @emrahCoinbase
+/tasks/sep/metal-*  @sbvegan @ethereum-optimism/security-reviewers
+/tasks/sep/mode-*   @sbvegan @ethereum-optimism/security-reviewers
+/tasks/sep/base-*   @sbvegan @ethereum-optimism/security-reviewers @awilliams1-cb @anikaraghu @emrahCoinbase
 /tasks/sep/zora-*   @sbvegan @ZakAyesh @OPMattie
 /tasks/sep-dev-*    @ethereum-optimism/contract-reviewers
 
 /tasks/sep-dev-*    @ethereum-optimism/contract-reviewers
 
-/tasks/oeth         @maurelian @zchn @mds1
+/tasks/oeth         @ethereum-optimism/security-reviewers
 
 /script             @ethereum-optimism/contract-reviewers
 /src                @ethereum-optimism/contract-reviewers
