@@ -71,6 +71,7 @@ sign whichSafe hdPath='0':
   echo ""
 
   forge build
+  # Using the eip712sign within the repo folder since eip712sign was installed there in ./justfile.
   $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
   forge script ${script} \
     --rpc-url ${rpcUrl} \
