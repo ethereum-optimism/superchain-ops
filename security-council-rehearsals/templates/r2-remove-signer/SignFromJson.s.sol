@@ -3,7 +3,8 @@
 pragma solidity ^0.8.15;
 
 // This import path should be relative to where the rehearsal script will be located after a new rehearsal is setup,
-// which is repo_root/security-council-rehearsals/<rehearsal-dir>/SignFromJson.s.sol
+// which is one level above the current location in
+// repo_root/security-council-rehearsals/<rehearsal-dir>/SignFromJson.s.sol
 import {SignFromJson as OriginalSignFromJson} from "../../script/SignFromJson.s.sol";
 import {Vm, VmSafe} from "forge-std/Vm.sol";
 

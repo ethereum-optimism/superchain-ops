@@ -8,7 +8,7 @@ pragma solidity ^0.8.15;
 import {SignFromJson as OriginalSignFromJson} from "../../script/SignFromJson.s.sol";
 import {Vm, VmSafe} from "forge-std/Vm.sol";
 
-contract SignFromJson is SignFromJson {
+contract SignFromJson is OriginalSignFromJson {
     // Since after _postCheck hook `require(false)`, the transaction will revert
     // contract extending `SignFromJson` must implement its own `_postCheck` method, thus enforcing a more robust implementation pattern.
     function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory simPayload)
