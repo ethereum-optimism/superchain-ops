@@ -3,8 +3,10 @@
 pragma solidity ^0.8.15;
 
 // This import path should be relative to where the rehearsal script will be located after a new rehearsal is setup,
-// which is repo_root/security-council-rehearsals/<rehearsal-dir>/NestedSignFromJson.s.sol
-import {NestedSignFromJson as OriginalNestedSignFromJson} from "../../../scripts/NestedSignFromJson.s.sol"
+// which is one level above the current location in
+//  repo_root/security-council-rehearsals/<rehearsal-dir>/NestedSignFromJson.s.sol
+import {NestedSignFromJson as OriginalNestedSignFromJson} from "../../script/NestedSignFromJson.s.sol";
+import {Vm, VmSafe} from "forge-std/Vm.sol";
 
 contract NestedSignFromJson is OriginalNestedSignFromJson {
     // Since after _postCheck hook `require(false)`, the transaction will revert

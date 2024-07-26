@@ -30,7 +30,6 @@ simulate-council hdPath='0':
 
 sign-council hdPath='0':
   #!/usr/bin/env bash
-  cd ../..
   echo "getting signer address..."
   signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   echo "Signing with: ${signer}"
@@ -45,7 +44,6 @@ sign-council hdPath='0':
 
 approve-council hdPath='0':
   #!/usr/bin/env bash
-  cd ../..
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge build
   forge script ./NestedSignFromJson.s.sol:NestedSignFromJson \
@@ -60,7 +58,6 @@ approve-council hdPath='0':
 
 execute-all hdPath='0':
   #!/usr/bin/env bash
-  cd ../..
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge build
   forge script NestedSignFromJson \
@@ -73,7 +70,6 @@ execute-all hdPath='0':
 
 deploy-contracts hdPath='0':
   #!/usr/bin/env bash
-  cd ../..
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge build
   forge script DeployRehearsalContracts --ffi \

@@ -3,7 +3,6 @@ set dotenv-load
 simulate hdPath='0':
   #!/usr/bin/env bash
   here=$(pwd)
-  cd ../..
   echo "getting signer address..."
   if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
   then
@@ -22,7 +21,6 @@ simulate hdPath='0':
 sign hdPath='0':
   #!/usr/bin/env bash
   here=$(pwd)
-  cd ../..
   echo "getting signer address..."
   signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   echo "Signing with: ${signer}"
@@ -36,7 +34,6 @@ sign hdPath='0':
 execute hdPath='0':
   #!/usr/bin/env bash
   here=$(pwd)
-  cd ../..
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   export OWNER_SAFE=${COUNCIL_SAFE}
   forge build
@@ -48,7 +45,6 @@ execute hdPath='0':
 deploy-contracts hdPath='0':
   #!/usr/bin/env bash
   here=$(pwd)
-  cd ../..
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge build
   forge script DeployHelloWorld --rpc-url ${ETH_RPC_URL} \
