@@ -25,7 +25,6 @@ jobs:
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
-
     steps:
       - checkout
       - run:
@@ -55,14 +54,13 @@ jobs:
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
-
     steps:
       - checkout
       - run:
           name: Check Mainnet RPC Endpoints
           command: |
             if ops/verify-geth-endpoint.sh "<< pipeline.parameters.l1_mainnet_rpc_url >>";then
-             if ops/verify-geth-endpoint.sh "<< pipeline.parameters.l2_mainnet_rpc_url >>"; then
+              if ops/verify-geth-endpoint.sh "<< pipeline.parameters.l2_mainnet_rpc_url >>"; then
                 echo "Both RPC endpoints are up to date and not syncing."
                 echo "L1_RPC_MAINNET=<< pipeline.parameters.l1_mainnet_rpc_url >>" >> $BASH_ENV
                 echo "L2_RPC_MAINNET=<< pipeline.parameters.l2_mainnet_rpc_url >>" >> $BASH_ENV
@@ -97,7 +95,6 @@ jobs:
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
-
     steps:
       - attach_workspace:
           at: .
@@ -118,7 +115,6 @@ jobs:
   just_simulate_sc_rehearsal_1:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
-
     steps:
       - checkout
       - run:
@@ -132,10 +128,10 @@ jobs:
             just simulate
             just prepare-json
             just simulate # simulate again to make sure the json is still valid
+
   just_simulate_sc_rehearsal_2:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
-
     steps:
       - checkout
       - run:
@@ -150,10 +146,10 @@ jobs:
             just get-owners
             just prepare
             just simulate # simulate again to make sure the json is still valid
+
   just_simulate_sc_rehearsal_4:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
-
     steps:
       - checkout
       - run:
@@ -167,11 +163,10 @@ jobs:
             just simulate-council
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
-  
+
   just_simulate_sep-mmz-002-key-handover:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
-
     steps:
       - checkout
       - run:
