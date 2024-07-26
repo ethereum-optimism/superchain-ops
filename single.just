@@ -1,6 +1,6 @@
 set dotenv-load
 
-export rpcUrl := env_var('ETH_RPC_URL')
+export rpcUrl := env_var_or_default('ETH_RPC_URL', 'https://ethereum.publicnode.com')
 export signatures := env_var_or_default('SIGNATURES', '')
 export bundleName := env_var_or_default('BUNDLE_NAME', 'input')
 export taskPath := invocation_directory()
