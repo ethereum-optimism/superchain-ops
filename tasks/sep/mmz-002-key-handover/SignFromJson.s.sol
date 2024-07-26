@@ -71,7 +71,6 @@ contract SignFromJson is OriginalSignFromJson {
                 if (storageAccess.isWrite) {
                     address account = storageAccess.account;
                     require(
-                        // We set the guardian slot on the Superchain Config.
                         account == metalProxyAdminOwner || account == modeProxyAdminOwner
                             || account == zoraProxyAdminOwner
                             || account == opProxyAdminOwner,
