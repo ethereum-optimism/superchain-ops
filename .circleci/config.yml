@@ -186,28 +186,28 @@ jobs:
             --justfile ../../../single.just \
 
     just_simulate_sc_rehearsal_5:
-    docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
-
-    steps:
-      - checkout
-      - run:
-          name: just simulate r5-guardian-override
-            just install
-            cd security-council-rehearsals
-            just setup r5-guardian-override tmp-ci
-            cd *r5-guardian-override-tmp-ci
-            export SIMULATE_WITHOUT_LEDGER=1
-            just \
-              --dotenv-path $(pwd)/.env \
-              --justfile ../../single.just \
-            simulate
-            just prepare-json
-            # simulate again to make sure the json is still valid
-            just \
-              --dotenv-path $(pwd)/.env \
-              --justfile ../../single.just \
-            simulate
+      docker:
+        - image: <<pipeline.parameters.ci_builder_image>>
+      steps:
+        - checkout
+        - run:
+            name: just simulate r5-guardian-override
+            command: |
+              just install
+              cd security-council-rehearsals
+              just setup r5-guardian-override tmp-ci
+              cd *r5-guardian-override-tmp-ci
+              export SIMULATE_WITHOUT_LEDGER=1
+              just \
+                --dotenv-path $(pwd)/.env \
+                --justfile ../../single.just \
+              simulate
+              just prepare-json
+              # simulate again to make sure the json is still valid
+              just \
+                --dotenv-path $(pwd)/.env \
+                --justfile ../../single.just \
+              simulate
 
   forge_fmt:
     docker:
