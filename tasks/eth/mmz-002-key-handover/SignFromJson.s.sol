@@ -60,7 +60,7 @@ contract SignFromJson is OriginalSignFromJson {
         address metalProxyAdminOwner = metalProxyAdmin.owner();
         address modeProxyAdminOwner = modeProxyAdmin.owner();
         address zoraProxyAdminOwner = zoraProxyAdmin.owner();
-        address opProxyAdminOwner = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A;
+        address opProxyAdminOwner = opProxyAdmin.owner();
 
         for (uint256 i; i < accountAccesses.length; i++) {
             Vm.AccountAccess memory accountAccess = accountAccesses[i];
