@@ -55,7 +55,6 @@ contract PresignPauseFromJson is MultisigBuilder, JsonTxBuilderBase {
         override
     {
         checkStateDiff(accesses);
-        require(false, "_postCheck not implemented");
         for (uint256 i; i < accesses.length; i++) {
             Vm.AccountAccess memory accountAccess = accesses[i];
 
