@@ -1,6 +1,6 @@
 # Validation
 
-This document can be used to validate the state diff resulting from the execution of Key Handover process. This task will transfer the `ProxyAdminOwner` role to a different account. On Mainnet, this is the multisig at 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A.
+This document can be used to validate the state diff resulting from the execution of Key Handover process. This task will transfer the `ProxyAdminOwner` role to a different account. On Mainnet, this is the multisig at `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`.
 
 For each contract listed in the state diff, please verify that no contracts or state changes shown in the Tenderly diff are missing from this document. Additionally, please verify that for each contract:
 
