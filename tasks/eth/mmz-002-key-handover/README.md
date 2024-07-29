@@ -1,12 +1,12 @@
 # Mode, Metal, and Zora Mainnet's Key Handover Upgrade
 
-Status: READY TO SIGN
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
 This is the playbook for executing the Key Handover upgrade on Mode, Metal, and Zora Mainnet.
-This updates the `ProxyAdminOwner` to the same `ProxyAdminOwner` multisig account as OP Mainnet account.
-This is the Optimism Foundation and Security Council's [2-of-2 multisig](https://github.com/ethereum-optimism/superchain-registry/blob/d2a098074a5dc6a88f1951d1335c69c5b86970e4/superchain/configs/mainnet/op.toml#L33)
+This updates the `ProxyAdminOwner` on those chains to be the same as the OP Mainnet `ProxyAdminOwner`,
+that is the [2-of-2 multisig](https://github.com/ethereum-optimism/superchain-registry/blob/d2a098074a5dc6a88f1951d1335c69c5b86970e4/superchain/configs/mainnet/op.toml#L33) jointly controlled by the Optimism Foundation and Security Council.
 
 ## Simulation
 

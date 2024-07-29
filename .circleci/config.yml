@@ -189,7 +189,6 @@ jobs:
   just_simulate_eth-mmz-002-key-handover:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
-
     steps:
       - checkout
       - run:
