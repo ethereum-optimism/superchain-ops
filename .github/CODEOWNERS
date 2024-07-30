@@ -1,12 +1,11 @@
 *                   @ethereum-optimism/security-reviewers
 
-/runbooks/**/*mcp-l1* @ethereum-optimism/devrel @ethereum-optimism/security-reviewers
+/runbooks @ethereum-optimism/devrel @ethereum-optimism/security-reviewers
 
 /tasks/eth          @ethereum-optimism/security-reviewers 
 /tasks/oeth         @ethereum-optimism/security-reviewers
 
-/tasks/sep          @ethereum-optimism/contract-reviewers @ethereum-optimism/security-reviewers @ethereum-optimism/coinbase @ethereum-optimism/devrel
-/tasks/sep-dev-*    @ethereum-optimism/contract-reviewers @ethereum-optimism/security-reviewers @ethereum-optimism/coinbase @ethereum-optimism/devrel
+/tasks/sep*    @ethereum-optimism/contract-reviewers @ethereum-optimism/security-reviewers @ethereum-optimism/coinbase @ethereum-optimism/devrel
 
 /script             @ethereum-optimism/contract-reviewers @ethereum-optimism/security-reviewers
 /src                @ethereum-optimism/contract-reviewers @ethereum-optimism/security-reviewers
