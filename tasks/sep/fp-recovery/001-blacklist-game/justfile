@@ -7,11 +7,11 @@ default:
 # Generate the `input.json` with a dispute game address to blacklist
 generate-input *args='':
   #!/usr/bin/env bash
-  PORTAL_ADDRESS="0x16Fc5058F25648194471939df75CF27A2fdC48BC"
   BLACKLIST_GAME_SIG="blacklistDisputeGame(address,address)"
-  ENCODED_BLACKLIST_ARGS=$(cast abi-encode $BLACKLIST_GAME_SIG $PORTAL_ADDRESS $1)
-  ENCODED_BLACKLIST_CALL="$(cast sig $BLACKLIST_GAME_SIG)${ENCODED_BLACKLIST_ARGS:2}"
+  ENCODED_BLACKLIST_CALL="$(cast calldata $BLACKLIST_GAME_SIG $1 $2)"
 
   cp ./input-template.json ./input.json
   jq "(.transactions[0].data = \"$ENCODED_BLACKLIST_CALL\") |
-          (.transactions[0].contractInputsValues._game = \"$1\")" ./input.json > ./input.tmp.json && mv ./input.tmp.json ./input.json 
+          (.transactions[0].contractInputsValues._portal = \"$1\") |
+          (.transactions[0].contractInputsValues._game = \"$2\")" ./input.json > ./input.tmp.json
+  mv ./input.tmp.json ./input.json 

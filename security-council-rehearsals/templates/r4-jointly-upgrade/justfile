@@ -10,7 +10,6 @@ export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 
 simulate-council hdPath='0':
   #!/usr/bin/env bash
-  cd ../..
   echo "getting signer address..."
   if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
   then
@@ -21,7 +20,7 @@ simulate-council hdPath='0':
   echo "Simulating with: ${signer}"
   echo ""
   forge build
-  forge script NestedSignFromJson \
+  forge script ./NestedSignFromJson.s.sol:NestedSignFromJson \
     --rpc-url ${rpcUrl} \
     --sender ${signer} \
     --sig "signJson(string,address)" \
@@ -30,14 +29,13 @@ simulate-council hdPath='0':
 
 sign-council hdPath='0':
   #!/usr/bin/env bash
-  cd ../..
   echo "getting signer address..."
   signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   echo "Signing with: ${signer}"
   echo ""
   forge build
   $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
-  forge script NestedSignFromJson \
+  forge script ./NestedSignFromJson.s.sol:NestedSignFromJson \
     --rpc-url ${rpcUrl} \
     --sig "signJson(string,address)" \
     "${location}/${bundle}.json" \
@@ -45,10 +43,9 @@ sign-council hdPath='0':
 
 approve-council hdPath='0':
   #!/usr/bin/env bash
-  cd ../..
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge build
-  forge script NestedSignFromJson \
+  forge script ./NestedSignFromJson.s.sol:NestedSignFromJson \
     --fork-url ${rpcUrl} \
     --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
     --broadcast \
@@ -60,7 +57,6 @@ approve-council hdPath='0':
 
 execute-all hdPath='0':
   #!/usr/bin/env bash
-  cd ../..
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge build
   forge script NestedSignFromJson \
@@ -73,10 +69,9 @@ execute-all hdPath='0':
 
 deploy-contracts hdPath='0':
   #!/usr/bin/env bash
-  cd ../..
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge build
-  forge script DeployRehearsalContracts --ffi \
+  forge script DeployRehearsal4 --ffi \
     --fork-url ${rpcUrl} \
     --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
     --broadcast \
