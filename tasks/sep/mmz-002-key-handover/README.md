@@ -1,6 +1,6 @@
 # Mode, Metal, and Zora Sepolia's Key Handover Upgrade
 
-Status: READY TO SIGN
+Status: Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x775dd3abdd6c38453a58f35df32de11b868a4277ce59e18dcfabfd01c32048ab)
 
 ## Objective
 
