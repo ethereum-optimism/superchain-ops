@@ -30,7 +30,7 @@ Enables the simulation by setting the threshold to 1:
 **Notes:**
 - Check the provided links to ensure that the correct contract is described at the correct address.
 
-### `REPLACE_WITH_PROXY_ADMIN_ADDRESS` (Mode's `ProxyAdmin`)
+### `REPLACE_WITH_PROXY_ADMIN_ADDRESS` (RELACE_WITH_CHAIN_NAME's `ProxyAdmin`)
 
 Links:
 - [Etherscan](https://sepolia.etherscan.io/address/REPLACE_WITH_PROXY_ADMIN_ADDRESS)
@@ -40,7 +40,7 @@ State Changes:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **Before:** `REPLACE_WITH_BEFORE_VALUE` <br/>
   **After:** `REPLACE_WITH_AFTER_VALUE` <br/>
-  **Meaning:** The `ProxyAdmin` owner has been transfered to be the same as OP Sepolia. The correctness of this slot is attested to in the Optimism monorepo at [storageLayout/ProxyAdmin.json](https://github.com/ethereum-optimism/optimism/blob/e6ef3a900c42c8722e72c2e2314027f85d12ced5/packages/contracts-bedrock/snapshots/storageLayout/ProxyAdmin.json#L3-L8).
+  **Meaning:** The `ProxyAdmin` owner has been transfered to be the same as OP [REPLACE_WITH_MAINNET_OR_SEPOLIA](REPLACE_WITH_LINK_TO_REGISTRY). The correctness of this slot is attested to in the Optimism monorepo at [storageLayout/ProxyAdmin.json](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.0.0/packages/contracts-bedrock/snapshots/storageLayout/ProxyAdmin.json#L3-L8).
 
 ### `REPLACE_WITH_OLD_PROXY_ADMIN_OWNER` (The old `ProxyAdmin` owner Safe)
 
