@@ -8,11 +8,13 @@ import {stdJson} from "forge-std/StdJson.sol";
 import {Vm, VmSafe} from "forge-std/Vm.sol";
 
 contract SignFromJson is OriginalSignFromJson {
-
     ProxyAdmin opProxyAdmin;
     ProxyAdmin metalProxyAdmin;
     ProxyAdmin modeProxyAdmin;
     ProxyAdmin zoraProxyAdmin;
+
+    address opProxyAdminOwner;
+    address mmzProxyAdminOwnerBefore;
 
     /// @notice Sets up the contract
     function setUp() public {
@@ -20,19 +22,23 @@ contract SignFromJson is OriginalSignFromJson {
         metalProxyAdmin = ProxyAdmin(readProxyAdminAddress("1740"));
         modeProxyAdmin = ProxyAdmin(readProxyAdminAddress("919"));
         zoraProxyAdmin = ProxyAdmin(readProxyAdminAddress("999999999"));
+
+        opProxyAdminOwner = opProxyAdmin.owner();
+        mmzProxyAdminOwnerBefore = metalProxyAdmin.owner();
+
         require(opProxyAdmin.owner() != metalProxyAdmin.owner());
         require(opProxyAdmin.owner() != modeProxyAdmin.owner());
         require(opProxyAdmin.owner() != zoraProxyAdmin.owner());
     }
 
-
     /// @notice Checks the correctness of the deployment
-    function _postCheck(Vm.AccountAccess[] memory /* accesses */, SimulationPayload memory /* simPayload */ )
+    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory /* simPayload */ )
         internal
         view
         override
     {
         console.log("Running post-deploy assertions");
+        checkStateDiff(accesses);
         require(opProxyAdmin.owner() == metalProxyAdmin.owner());
         require(opProxyAdmin.owner() == modeProxyAdmin.owner());
         require(opProxyAdmin.owner() == zoraProxyAdmin.owner());
@@ -53,31 +59,20 @@ contract SignFromJson is OriginalSignFromJson {
 
         return stdJson.readAddress(addressesJson, string.concat("$.", chainId, ".ProxyAdmin"));
     }
-    
-    function checkStateDiff(Vm.AccountAccess[] memory accountAccesses) internal view override {
-        super.checkStateDiff(accountAccesses);
 
-        address metalProxyAdminOwner = metalProxyAdmin.owner();
-        address modeProxyAdminOwner = modeProxyAdmin.owner();
-        address zoraProxyAdminOwner = zoraProxyAdmin.owner();
-        address opProxyAdminOwner = 0xE75Cd021F520B160BF6b54D472Fa15e52aFe5aDD;
+    function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
+        allowed = new address[](5);
+        // The initial ProxyAdminOwner of all chains involved
+        allowed[0] = mmzProxyAdminOwnerBefore;
+        // The final ProxyAdminOwner of all chains involved
+        allowed[1] = opProxyAdminOwner;
+        // The ProxyAdmins of all chains involved
+        allowed[2] = address(metalProxyAdmin);
+        allowed[3] = address(modeProxyAdmin);
+        allowed[4] = address(zoraProxyAdmin);
+    }
 
-        for (uint256 i; i < accountAccesses.length; i++) {
-            Vm.AccountAccess memory accountAccess = accountAccesses[i];
-
-            // Assert that only the expected accounts have been written to.
-            for (uint256 j; j < accountAccess.storageAccesses.length; j++) {
-                Vm.StorageAccess memory storageAccess = accountAccess.storageAccesses[j];
-                if (storageAccess.isWrite) {
-                    address account = storageAccess.account;
-                    require(
-                        account == metalProxyAdminOwner || account == modeProxyAdminOwner
-                            || account == zoraProxyAdminOwner
-                            || account == opProxyAdminOwner,
-                        "state-100"
-                    );
-                }
-            }
-        }
+    function getCodeExceptions() internal view override returns (address[] memory exceptions) {
+        // No exceptions are expected in this task, but it must be implemented.
     }
 }

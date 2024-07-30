@@ -11,9 +11,7 @@ import {Script} from "forge-std/Script.sol";
 
 import {console2 as console} from "forge-std/console2.sol";
 
-// forge script scripts/Deploy.s.sol:Deploy --private-key $PRIVATE_KEY --broadcast --rpc-url $ETH_RPC_URL
-// forge script scripts/Deploy.s.sol:Deploy --sig 'sync()' --private-key $PRIVATE_KEY --broadcast --rpc-url $ETH_RPC_URL
-contract DeployRehearsalContracts is Deployer {
+contract DeployRehearsal4 is Deployer {
     GnosisSafe owner_safe;
     GnosisSafe council_safe;
     ProxyAdmin proxy_admin;
@@ -21,7 +19,7 @@ contract DeployRehearsalContracts is Deployer {
     /// @notice The name of the script, used to ensure the right deploy artifacts
     ///         are used.
     function name() public pure returns (string memory name_) {
-        name_ = "DeployRehearsalContracts";
+        name_ = "DeployRehearsal4";
     }
 
     function setUp() public override {
