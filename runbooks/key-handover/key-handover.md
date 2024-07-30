@@ -8,9 +8,9 @@ One of the requirement for getting to Stage, 1 as defined by [L2Beat](https://me
 
 This setup ensures a diversity of viewpoints and minimizes the risk of any single party exerting undue influence. For the sake of transparency and accountability, the identities (or the pseudonyms) of the council participants should also be publicly disclosed.
 
-As a result, “key handover” is necessary to enable the use of Security Council. In practice, this means upgrading the smart contracts to have the `ProxyAdmin` account be the Optimism Foundation and Security Council’s multisig account.
+As a result, “key handover” is necessary to enable the use of Security Council. In practice, this means upgrading the smart contracts to have the `ProxyAdmin` account be the Optimism Foundation and Security Council’s multisig account for mainnets.
 
-This document describes how to generate a key hand over playbook to transfer the mainnet `ProxyAdminOwner` role from the Chain Servicer to  [0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A](https://github.com/ethereum-optimism/superchain-registry/blob/0fb0dcbefc50882f1bb02fafcb27f47b463875c9/superchain/configs/mainnet/op.toml#L50) or testnet `ProxyAdminOwner` to [0x1Eb2fFc903729a0F03966B917003800b145F56E2](https://github.com/ethereum-optimism/superchain-registry/blob/0fb0dcbefc50882f1bb02fafcb27f47b463875c9/superchain/configs/sepolia/op.toml#L50). 
+This document describes how to generate a key hand over playbook to transfer the Mainnet `ProxyAdminOwner` role from the Chain Servicer to  [0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A](https://github.com/ethereum-optimism/superchain-registry/blob/0fb0dcbefc50882f1bb02fafcb27f47b463875c9/superchain/configs/mainnet/op.toml#L50) or Sepolia `ProxyAdminOwner` to [0x1Eb2fFc903729a0F03966B917003800b145F56E2](https://github.com/ethereum-optimism/superchain-registry/blob/0fb0dcbefc50882f1bb02fafcb27f47b463875c9/superchain/configs/sepolia/op.toml#L50). 
 
 > [!NOTE] 
 > The mainnet address is a [2-of-2 multisig](https://etherscan.io/address/0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A#readProxyContract). One owner is an Optimism Foundation 5/7 [multisig](https://etherscan.io/address/0x847B5c174615B1B7fDF770882256e2D3E95b9D92#readProxyContract) and the other owner is the [Security Council's](https://gov.optimism.io/t/intro-to-optimisms-security-council/6885) [multisig](https://etherscan.io/address/0xc2819DC788505Aac350142A7A707BF9D03E3Bd03#readProxyContract).
@@ -59,7 +59,7 @@ In the superchain-ops repo, tasks live in `tasks/<NETWORK_DIR>/<RUNBOOK_DIR>` wh
     - `upgradeIndex` starts at `001` for the first playbook and increments each time. This gives a sequential ordering to upgrade transactions occurring on that chain.
     - `upgradeName` is `key-handover`
 
-### Copy the following files into the task directory
+#### Copy the following files into the task directory
 
 Please create the following files in the task directory and update the placeholder values.
 
@@ -68,26 +68,17 @@ Please create the following files in the task directory and update the placehold
 - [SignFromJson.s.sol](./SignFromJson.s.sol)
 - [VALIDATION.md](./VALIDATION.md)
 
-#### `README.md`
+`README.md`: The README template with an overview of the upgrade task. This needs to be updated with the network details.
 
-The README template with an overview of the upgrade task. This needs to be updated with the network details.
-
-#### `.env`
-
-These are the enviornment variables for the upgrade.
+`.env`: These are the enviornment variables for the upgrade.
 
 - The `ETH_RPC_URL` can be from [PublicNode](https://ethereum.publicnode.com/) or your own node provider.
 - The `OWNER_SAFE` can be found with `cast call $ProxyAdmin "owner()(address)" -r $RPC_URL` or from the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/tree/main). In other words, the`OWNER_SAFE` corresponds to the ProxyAdmin owner. You should *always* run that `cast` command to verify what address should be there.
 - The `SAFE_NONCE` can be found using `getSafeDetails()` from mds1’s [Ethereum helper functions](https://gist.github.com/mds1/3f070676129a095dec372c2d02cedfdd#file-ethrc-sh-L181-L230).
 
+`SignFromJson.s.sol`: This solidity script will generate the Tenderly validation link.
 
-#### SignFromJson.s.sol
-
-This solidity script will generate the Tenderly validation link.
-
-#### Validation.md
-
-The vallidation template
+`Validation.md`: The validation template. 
 
 ### Generate the `input.json`
 
@@ -108,7 +99,8 @@ The vallidation template
 10. Modify the `input.json`
     1.  Remove the `createdAt` key and value
     2.  Update `meta.name` to `{Network Name} Key Handover`
-    3.  Replace `transactions[0].data` with the data from step 8, the download bundle page.
+    3.  Remove `meta.description`, `meta.txBuilderVersion`, `createdFromSafeAddress`, and `createdFromOwnerAddress`
+    4.  Replace `transactions[0].data` with the data from step 8, the download bundle page.
 
 ### Simulate and Validate
 
@@ -167,12 +159,56 @@ Data to sign:
 
 #### Update Validation.md
 
-todo
+Update the validation file to match the tenderly simulation user interface.
+
+- Use the superchain registry to find the chain’s addresses. Look for the file will be located at `superchain/configs/mainnet/{network}/{chainName}.toml`.
+- Replace all of the placeholder values.
+- Ensure the order of the state changes match Tenderly.
+- Ensure the etherscan links are correct.
 
 ### Add New Chain to CircleCI
 
 Before the task is executed, it should be added to the CircleCI config to ensure it continues to pass even as changes are made to the repo prior to execution.
-Check out existing tasks in the `.circleci/config.yml` file as examples of how to add it. Once the task is executed, the job can be removed from CI.
+
+Add the following to the `jobs` in the `.circleci/config.yml` file:
+
+```yml
+just_simulate_[eth or sep]-[chain-name]-[index]-key-handover:
+    docker:
+      - image: <<pipeline.parameters.ci_builder_image>>
+    steps:
+      - checkout
+      - run:
+          name: just simulate [eth or sep]/[chain-name]-[index]-key-handover
+          command: |
+            go install github.com/mikefarah/yq/v4@latest
+            just install
+            cd tasks/[eth or sep]/[chain-name]-[index]-key-handover
+            export SIMULATE_WITHOUT_LEDGER=1
+            just \
+            --dotenv-path $(pwd)/.env \
+            --justfile ../../../single.just \
+            simulate
+```
+
+The add the following to the workflows.main.jobs section at the bottom:
+
+```
+- just_simulate_[eth or sep]-[chain-name]-[index]-key-handover
+```
+
+### Open PR
+
+Once the task folder has been prepared, you can open a PR with the following 
+information:
+
+```md
+pr title: tasks([eth or sep]/[chain-short-name]) <chain-name> key handover
+
+**Description**
+
+<chain-name> Key Handover task has been prepared.
+```
 
 ### Sign
 
@@ -181,3 +217,36 @@ Follow steps 4 and 5 in `SINGLE.md`
 ### Facilitators Execute
 
 Ensure you properly fill out your `.env` file and follow the last section of the `SINGLE.md` file.
+
+### Post Execution
+
+#### superchain-ops
+
+Once the task is executed, the job can be removed from CI and the task status 
+should be updated to: `[EXECUTED](block-explorer-transaction-execution-link)`.
+Then opening a PR to the repo with the following information:
+
+```md
+pr title: <chain-name> Key Handover Executed
+
+**Description**
+
+The <chain-name> key handover task has been executed.
+```
+
+#### superchain-registry
+
+The Superchain Registry needs to be updated. You can do that by modifying the 
+`ProxyAdminOwner` in the `superchain/configs/<superchain-target>/<chain-short-name>.toml` 
+and then running `just codegen` from the root of the repository. Then opening
+a PR to the repo with the following information:
+
+```md
+pr title: <chain-name> key handover executed
+
+**Description**
+
+- The <chain-name> Key Handover [task](<merged-task>)
+- I've updated the ProxyAdminOwners for the network to the new owner, the same one as OP <Mainnet or Sepolia>. I did this by modifying the `superchain/configs/sepolia/<chain-short-name>.toml` and then running `just codegen`.
+```
+
