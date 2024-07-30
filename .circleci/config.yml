@@ -59,7 +59,7 @@ jobs:
       - run:
           name: Check Mainnet RPC Endpoints
           command: |
-            if ops/verify-geth-endpoint.sh "<< pipeline.parameters.l1_mainnet_rpc_url >>";then
+            if ops/verify-geth-endpoint.sh "<< pipeline.parameters.l1_mainnet_rpc_url >>"; then
               if ops/verify-geth-endpoint.sh "<< pipeline.parameters.l2_mainnet_rpc_url >>"; then
                 echo "Both RPC endpoints are up to date and not syncing."
                 echo "L1_RPC_MAINNET=<< pipeline.parameters.l1_mainnet_rpc_url >>" >> $BASH_ENV
@@ -164,6 +164,18 @@ jobs:
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
 
+  forge_build:
+    docker:
+      - image: <<pipeline.parameters.ci_builder_image>>
+    steps:
+      - checkout
+      - run:
+          name: forge build
+          command: |
+            just install
+            forge --version
+            forge build --deny-warnings
+
   forge_fmt:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
@@ -189,24 +201,21 @@ jobs:
             forge --version
 
 workflows:
-  print_versions:
+  main:
     jobs:
       - print_versions
-  forge_checks:
-    jobs:
+      # Forge checks.
+      - forge_build
       - forge_fmt
-  check_rpc_endpoints:
-    jobs:
+      # RPC endpoint checks.
       - check_sepolia_rpc_endpoints
       - check_mainnet_rpc_endpoints
       - example_mainnet_job:
           requires:
             - check_mainnet_rpc_endpoints
-  task_validation:
-    jobs:
+      # Verify that all tasks have a valid status in their README.
       - check_task_statuses
-  check_just_simulate:
-    jobs:
+      # Task simulations.
       # Please add an invocation to `just simulate` if a ceremony is
       # active (e.g. it is the next ceremony to perform or you
       # expect the ceremony to work continuously), and remove it once
