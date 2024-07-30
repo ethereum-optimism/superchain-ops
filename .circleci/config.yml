@@ -180,6 +180,18 @@ jobs:
             --dotenv-path $(pwd)/.env \
             --justfile ../../../single.just \
             simulate
+            
+  forge_build:
+    docker:
+      - image: <<pipeline.parameters.ci_builder_image>>
+    steps:
+      - checkout
+      - run:
+          name: forge build
+          command: |
+            just install
+            forge --version
+            forge build --deny-warnings
 
   forge_fmt:
     docker:
