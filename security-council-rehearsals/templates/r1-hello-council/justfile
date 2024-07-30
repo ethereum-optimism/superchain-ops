@@ -43,7 +43,7 @@ deploy-contracts hdPath='0':
   #!/usr/bin/env bash
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge build
-  forge script DeployHelloWorld --rpc-url ${ETH_RPC_URL} \
+  forge script DeployRehearsal1 --rpc-url ${ETH_RPC_URL} \
     --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
     --sig 'run(address)' $COUNCIL_SAFE \
     --sender ${sender}
