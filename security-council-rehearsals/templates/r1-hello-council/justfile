@@ -1,9 +1,9 @@
 set dotenv-load
+export location := `pwd`
+export OWNER_SAFE := env_var("COUNCIL_SAFE")
 
 simulate hdPath='0':
   #!/usr/bin/env bash
-  here=$(pwd)
-  cd ../..
   echo "getting signer address..."
   if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
   then
@@ -13,45 +13,37 @@ simulate hdPath='0':
   fi
   echo "Simulating with: ${signer}"
   echo ""
-  export OWNER_SAFE=${COUNCIL_SAFE}
+
   forge build
-  forge script SignFromJson --via-ir --rpc-url ${ETH_RPC_URL} \
-    --sig "signJson(string)" "${here}/input.json" \
+  forge script ./SignFromJson.s.sol:SignFromJson --via-ir --rpc-url ${ETH_RPC_URL} \
+    --sig "signJson(string)" "${location}/input.json" \
     --sender ${signer}
 
 sign hdPath='0':
   #!/usr/bin/env bash
-  here=$(pwd)
-  cd ../..
   echo "getting signer address..."
   signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   echo "Signing with: ${signer}"
   echo ""
-  export OWNER_SAFE=${COUNCIL_SAFE}
   forge build
   $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
-    forge script SignFromJson --via-ir --rpc-url ${ETH_RPC_URL} \
-    --sig "signJson(string)" "${here}/input.json"
+    forge script ./SignFromJson.s.sol:SignFromJson --via-ir --rpc-url ${ETH_RPC_URL} \
+    --sig "signJson(string)" "${location}/input.json"
 
 execute hdPath='0':
   #!/usr/bin/env bash
-  here=$(pwd)
-  cd ../..
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-  export OWNER_SAFE=${COUNCIL_SAFE}
   forge build
-  forge script --fork-url ${ETH_RPC_URL} SignFromJson \
-  --sig "runJson(string,bytes)" ${here}/input.json ${SIGNATURES} \
+  forge script --fork-url ${ETH_RPC_URL} ./SignFromJson.s.sol:SignFromJson \
+  --sig "runJson(string,bytes)" ${location}/input.json ${SIGNATURES} \
   --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
   --sender ${sender}
 
 deploy-contracts hdPath='0':
   #!/usr/bin/env bash
-  here=$(pwd)
-  cd ../..
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge build
-  forge script DeployHelloWorld --rpc-url ${ETH_RPC_URL} \
+  forge script DeployRehearsal1 --rpc-url ${ETH_RPC_URL} \
     --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
     --sig 'run(address)' $COUNCIL_SAFE \
     --sender ${sender}
