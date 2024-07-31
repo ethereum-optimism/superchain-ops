@@ -31,15 +31,17 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     /// @notice Sets up the dgfProxy 
     function setUp() public {
         string memory addressesJson;
+
         // Read addresses json
-        try vm.readFile(
-            string.concat(vm.projectRoot(), "/lib/superchain-registry/superchain/extra/addresses/mainnet/op.json")
-        ) returns (string memory data) {
+        string memory path = "/lib/superchain-registry/superchain/extra/addresses/addresses.json";
+
+        try vm.readFile(string.concat(vm.projectRoot(), path)) returns (string memory data) {
             addressesJson = data;
         } catch {
-            revert("Failed to read lib/superchain-registry/superchain/extra/addresses/mainnet/op.json");
+            revert(string.concat("Failed to read ", path));
         }
-        dgfProxy = DisputeGameFactory(stdJson.readAddress(addressesJson, "$.DisputeGameFactoryProxy"));
+
+        dgfProxy = DisputeGameFactory(stdJson.readAddress(addressesJson, string.concat("$.", "10", ".DisputeGameFactoryProxy")));
     }
 
     function getCodeExceptions() internal pure override returns (address[] memory) {
