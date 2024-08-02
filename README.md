@@ -61,17 +61,6 @@ You should see the version number of Go that you just installed.
   Type `cargo --version`.
   You should see a version number.
 
-### Installing eip712sign
-
-We’ll use the [eip712sign](https://github.com/base-org/eip712sign) utility developed by Base for signing hashes:
-
-1. From the command prompt run:
-	`go install github.com/base-org/eip712sign@v0.0.7`
-1. Verify the installation:
-  Type  `$(go env GOPATH)/bin/eip712sign`.
-You should see a message something like this:
-  ` One (and only one) of --private-key, --ledger, --mnemonic must be set`
-
 ### Installing `mikefarah/yq`
 
 We’ll use `mikefarah/yq` to parse `.yaml` files:
