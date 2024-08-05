@@ -22,7 +22,9 @@ First, let’s make sure you have all the right repos and tools on your machine.
     2. Then, run `just install`.
 2. https://github.com/ethereum-optimism/superchain-registry
     1. No setup steps.
-3. Ensure you have a Tenderly account.
+3. https://github.com/clabby/msup
+    1. Then, run `cargo build`. 
+4. Ensure you have a Tenderly account.
 
 #### Familiarize yourself with the `single.just` file (superchain-ops repo)
 
@@ -73,6 +75,23 @@ Please create the following files in the task directory and update the placehold
 
 ### Generate the `input.json` (todo)
 
+Setup clabby's `msup` tool:
+
+```bash
+git clone https://github.com/clabby/msup.git
+cd msup
+cargo build
+```
+
+Prepare transaction bundle with:
+
+```bash
+./target/debug/msup generate --output input.json
+```
+
+This will open up a CLI prompt to generate the safe bundle in `input.json`.
+
+todo: walk through the input.json generation
 
 
 ### Simulate and Validate (todo)
