@@ -1,0 +1,70 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.15;
+
+import {SignFromJson as OriginalSignFromJson} from "script/SignFromJson.s.sol";
+import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
+import {console2 as console} from "forge-std/console2.sol";
+import {stdJson} from "forge-std/StdJson.sol";
+import {Vm, VmSafe} from "forge-std/Vm.sol";
+
+contract SignFromJson is OriginalSignFromJson {
+
+    // todo: need to update this script for fault proof upgrade
+    ProxyAdmin opProxyAdmin;
+    ProxyAdmin chainProxyAdmin;
+
+    address opProxyAdminOwner;
+    address chainAdminOwnerBefore;
+
+    /// @notice Sets up the contract
+    function setUp() public {
+        opProxyAdmin = ProxyAdmin(readProxyAdminAddress("10")); // 10 for OP Mainnet and 11155420 for OP Sepolia
+        chainProxyAdmin = ProxyAdmin(readProxyAdminAddress("<insert-chain-id>"));
+
+        opProxyAdminOwner = opProxyAdmin.owner();
+        chainAdminOwnerBefore = chainProxyAdmin.owner();
+
+        require(opProxyAdmin.owner() != chainProxyAdmin.owner());
+    }
+
+    /// @notice Checks the correctness of the deployment
+    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory /* simPayload */ )
+        internal
+        view
+        override
+    {
+        console.log("Running post-deploy assertions");
+        checkStateDiff(accesses);
+        require(opProxyAdmin.owner() == chainProxyAdmin.owner());
+        console.log("All assertions passed!");
+    }
+
+    function readProxyAdminAddress(string memory chainId) internal view returns (address) {
+        string memory addressesJson;
+
+        // Read addresses json
+        string memory path = "/lib/superchain-registry/superchain/extra/addresses/addresses.json";
+
+        try vm.readFile(string.concat(vm.projectRoot(), path)) returns (string memory data) {
+            addressesJson = data;
+        } catch {
+            revert(string.concat("Failed to read ", path));
+        }
+
+        return stdJson.readAddress(addressesJson, string.concat("$.", chainId, ".ProxyAdmin"));
+    }
+
+    function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
+        allowed = new address[](5);
+        // The initial ProxyAdminOwner of all chains involved
+        allowed[0] = chainAdminOwnerBefore;
+        // The final ProxyAdminOwner of all chains involved
+        allowed[1] = opProxyAdminOwner;
+        // The ProxyAdmins of chain involved
+        allowed[2] = address(chainProxyAdmin);
+    }
+
+    function getCodeExceptions() internal view override returns (address[] memory exceptions) {
+        // No exceptions are expected in this task, but it must be implemented.
+    }
+}
