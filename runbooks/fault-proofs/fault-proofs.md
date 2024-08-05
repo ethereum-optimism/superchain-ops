@@ -73,17 +73,37 @@ Please create the following files in the task directory and update the placehold
 
 `Validation.md`: The validation template. 
 
+### Deploy new proxies and implementations (todo)
+
+https://docs.optimism.io/stack/smart-contracts#op-contractsv140---fault-proofs
+
+Prior to creating the safe transaction bundle, the chain operator will need 
+to have already deployed the following proxies and implementation contracts.
+After they've completed that, they'll need to share those contract addresses.
+
+todo: need to write guidance on how to deploy these contracts properly
+
+New proxy addresses we need:
+
+- DisputeGameFactoryProxy
+- AnchorStateRegistryProxy
+- DelayedWETHProxy
+
+New implementation addresses we need:
+
+- OptimismPortal2: [3.10.0](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/L1/OptimismPortal2.sol#L144)
+- SystemConfig: [2.2.0](https://github.com/ethereum-optimism/optimism/blob/547ea72d9849e13ce169fd31df0f9197651b3f86/packages/contracts-bedrock/src/L1/SystemConfig.sol#L111)
+- DisputeGameFactory: [1.0.0](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L25)
+- FaultDisputeGame: [1.2.0](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/FaultDisputeGame.sol#L73)
+- PermissionedDisputeGame: [1.2.0](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/PermissionedDisputeGame.sol)
+- DelayedWETH: [1.0.0](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/weth/DelayedWETH.sol#L25)
+- AnchorStateRegistry: [1.0.0](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L28)
+- MIPS: [1.0.1](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/cannon/MIPS.sol#L47)
+- PreimageOracle: [1.0.0](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/cannon/PreimageOracle.sol#L33)
+
 ### Generate the `input.json` (todo)
 
-Setup clabby's `msup` tool:
-
-```bash
-git clone https://github.com/clabby/msup.git
-cd msup
-cargo build
-```
-
-Prepare transaction bundle with:
+Use the `msup` tool to generate the safe transaction bundle:
 
 ```bash
 ./target/debug/msup generate --output input.json
@@ -91,8 +111,80 @@ Prepare transaction bundle with:
 
 This will open up a CLI prompt to generate the safe bundle in `input.json`.
 
-todo: walk through the input.json generation
+```bash
+? Number of transactions in the multisig batch:
+```
 
+Specify you'll be completing `7` transactions:
+
+1. Upgrade OptimismPortal to StorageSetter
+2. Reset l2Sender in OptimismPortalProxy
+3. Upgrade the OptimismPortal
+4. Upgrade SystemConfig to StorageSetter
+5. Clear SystemConfig's L2OutputOracle slot
+6. Set SystemConfig's DisputeGameFactory slot
+7. Upgrade SystemConfig to 2.2.0
+
+```bash
+? Chain ID that the batch transaction will be performed on:
+```
+
+Enter `1` for mainnet and `10` for sepolia upgrades.
+
+```bash
+? Enter the name of the batch:
+```
+
+Enter the following and replace the chain name: FP Upgrade - {Chain Name}
+
+```bash
+? Enter the description of the batch:
+```
+
+Use the following description: Upgrades the OptimismPortal and SystemConfig implementations
+
+```bash
+Transaction #1
+? Name:
+```
+
+Transaction #1 Name: Upgrade OptimismPortal to StorageSetter
+
+```bash
+? Description:
+```
+
+Transaction #1 Description: Upgrade OptimismPortal to StorageSetter and reset `initializing`
+
+```bash
+? Address of the contract to call:
+```
+
+Enter the `OptimismPortalProxy` address.
+
+```bash
+? Value to send (in WEI):
+```
+
+Enter `0`.
+
+```bash
+? Enter the function signature of the contract to call:
+```
+
+Enter the following function signature: upgradeAndCall(address _implementation,bytes _data)
+
+```bash
+? Enter the value for input #1 (_implementation):
+```
+
+Enter the value of the new OptimismPortal implementation contract you deployed.
+
+```bash
+? Enter the value for input #2 (_data):
+```
+
+todo: whats the data here??
 
 ### Simulate and Validate (todo)
 
