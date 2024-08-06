@@ -45,11 +45,19 @@ We use `single.just` because the ProxyAdmin owners are regular Safe’s. (For OP
 
 ### Scaffold the ops task (playbook) for your upgrade (superchain-ops repo)
 
-#### Create a task directory in superchain-ops
-
-```bash
-mkdir tasks/<NETWORK_DIR>/<RUNBOOK_DIR>
-```
+> [!NOTE]
+> ℹ️ In this section we use the Mode, Metal, and Zora Sepolia Playbook as a 
+> template. You may choose to use a mainnet playbook as your template instead. 
+> Regardless, we use an existing playbook as the template instead of a dedicated
+> template for two reasons:
+>
+> 1. We know this playbook correct, because it was reviewed very thoroughly. Copying it and changing it into a separate template introduces sources of error (e.g. accidentally deleting a state change) so that template would need to be reviewed even more carefully. This is especially difficult because it wouldn’t have the benefit of being executable as a simulation to help with that validation.
+>
+> 2. Each chain has some unique addresses (like their proxies) and some shared addresses (implementations for those proxies). Using the existing task as-is for the template lets us avoid modifying links for all the shared addresses for Sepolia (this is why you may prefer a mainnet directory as the template for mainnet playbooks). It also makes it easy to find/replace the unique addresses.
+>
+> 3. This Key Handover was done for three chains at once because it was the same ProxyAdminOwner for all of them.
+>
+> **Additionally, if you do use a mainnet playbook as the template, use the Mode, Metal, and Zora Mainnet one.**
 
 In the superchain-ops repo, tasks live in `tasks/<NETWORK_DIR>/<RUNBOOK_DIR>` where:
 
@@ -59,26 +67,48 @@ In the superchain-ops repo, tasks live in `tasks/<NETWORK_DIR>/<RUNBOOK_DIR>` wh
     - `upgradeIndex` starts at `001` for the first playbook and increments each time. This gives a sequential ordering to upgrade transactions occurring on that chain.
     - `upgradeName` is `key-handover`
 
-#### Copy the following files into the task directory
+We’ll use the `tasks/sep/mmz-002-key-handover` directory as our template. Start by copying everything over:
 
-Please create the following files in the task directory and update the placeholder values.
+```bash
+cd tasks/{NetworkDir}
 
-- [README.md](./README.md)
-- [.env](./.env)
-- [SignFromJson.s.sol](./SignFromJson.s.sol)
-- [VALIDATION.md](./VALIDATION.md)
+# copy everything from the metal directory into a directory that
+# will be created.
+cp -R mmz-002-key-handover/. {chainName}-{upgradeIndex}-key-handover
 
-`README.md`: The README template with an overview of the upgrade task. This needs to be updated with the network details.
+# Delete the input.json file.
+cd {chainName}-{upgradeIndex}-key-handover
+rm input.json
 
-`.env`: These are the enviornment variables for the upgrade.
+# Clean your environment to avoid forge caching issues.
+forge clean
+```
 
-- The `ETH_RPC_URL` can be from [PublicNode](https://ethereum.publicnode.com/) or your own node provider.
-- The `OWNER_SAFE` can be found with `cast call $ProxyAdmin "owner()(address)" -r $RPC_URL` or from the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/tree/main). In other words, the`OWNER_SAFE` corresponds to the ProxyAdmin owner. You should *always* run that `cast` command to verify what address should be there.
-- The `SAFE_NONCE` can be found using `getSafeDetails()` from mds1’s [Ethereum helper functions](https://gist.github.com/mds1/3f070676129a095dec372c2d02cedfdd#file-ethrc-sh-L181-L230).
+The `.env` file should look like below. It can be left alone, unless you need 
+to change the address of the owner safe. This can be found with 
+`cast call $ProxyAdmin "owner()(address)" -r $SEPOLIA_RPC_URL`,
+and the proxy admin address can be found from the superchain registry. In other
+words, the `OWNER_SAFE` corresponds to the proxy admin owner. It’s populated 
+with a default value as a result of the `cp` command ran above. This account 
+might not actually be the correct proxy admin owner for the chain being 
+upgraded, so you should *always* run that `cast` command to verify what address 
+should be there.
+
+Now, update the `README.md` so instead of referencing Mode, Metal, and Zora 
+Sepolia it references the chain you are updating. Additionally, change the status
+to READY TO SIGN. For these playbooks, approval of the PR adding the playbook 
+doubles as the indication the playbook is ready to sign.
 
 `SignFromJson.s.sol`: This solidity script will generate the Tenderly validation link.
 
-`Validation.md`: The validation template. 
+Leave the validation file alone for now—it will be partly incorrect since it 
+was based on another chain’s data, but it serves as a useful template for
+validations and to reduce work, so later we will modify it.
+
+This is a good time to commit your initial changes. Note that if you edited your 
+global gitignore to always ignore `.env` files, you will have to run 
+`git add tasks/{networkDir}/{chainName}-{chain-index}-key-handover/.env -f`
+to force add the file to git.
 
 ### Generate the `input.json`
 
@@ -92,9 +122,9 @@ Please create the following files in the task directory and update the placehold
 6. Enter the 2-of-2 Multisig Address of the Optimism Foundation and Security Council [0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A](https://etherscan.io/address/0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A) in the `_newAdmin(address)` field
     1. This is the same as OP Mainnets: https://github.com/ethereum-optimism/superchain-registry/blob/c01722001e88a8d21a6450f89bb7bb42311c9609/superchain/configs/mainnet/op.toml#L50
 7. Click `Add transaction` and then Click `Create Batch`
-   1. ![Add TX and Create Batch](./add-tx-create-batch.png)
+   1. ![Add TX and Create Batch](./img/key-handover-1-add-tx-create-batch.png)
 8.  Click the download icon on the `(1) Transactions Batch` row
-    1.  ![Download Bundle](./download-bundle.png)
+    1.  ![Download Bundle](./img/key-handover-2-download-bundle.png)
 9.  Rename the file to `input.json` and put it in the task folder
 10. Modify the `input.json`
     1.  Remove the `createdAt` key and value
@@ -160,11 +190,22 @@ Data to sign:
 #### Update Validation.md
 
 Update the validation file to match the tenderly simulation user interface.
+Addresses, superchain registry URLs, Etherscan URLs, and “After” slot values all must be changed.
 
 - Use the superchain registry to find the chain’s addresses. Look for the file will be located at `superchain/configs/mainnet/{network}/{chainName}.toml`.
-- Replace all of the placeholder values.
 - Ensure the order of the state changes match Tenderly.
 - Ensure the etherscan links are correct.
+
+Below is a non-comprehensive list of things to check after writing the 
+validations file, to verify it has no mistakes. These bullet points are written
+assuming OP Sepolia validation files for brevity, but can be modified 
+accordingly for other chains:
+
+- Cmd+F for "mainnet" to make sure there are no mainnet references.
+- Cmd+F for `https://etherscan` to make sure all links are not to mainnet etherscan.
+- Cmd+F for "op" (or use `\bop[^-]\b` as a regex search) to ensure no links are pointing to the OP chains.
+- Do the same but for other chain names that are not the chain you are upgrading.
+- Walk through the validations file as if you are the most diligent multisig signer on the Safe, while viewing the markdown render on github (or some IDE different from the one you used to write it). Creating these files is a tedious and error-prone manual process so mistakes are likely. Walking through the file and validating everything in a different viewer/IDE is a really great way to catch mistakes.
 
 ### Add New Chain to CircleCI
 
