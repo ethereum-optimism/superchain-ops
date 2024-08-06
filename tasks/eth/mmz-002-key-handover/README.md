@@ -1,6 +1,6 @@
 # Mode, Metal, and Zora Mainnet's Key Handover Upgrade
 
-Status: DRAFT, NOT READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0xf4e7778523991cf6c4b305970c2c9e71ef27f652e475bb42302d582fa613f5a3)
 
 ## Objective
 
