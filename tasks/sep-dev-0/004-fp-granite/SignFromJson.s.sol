@@ -24,7 +24,7 @@ contract NestedSignFromJson is OriginalSignFromJson {
     FaultDisputeGame faultDisputeGame;
     PermissionedDisputeGame permissionedDisputeGame;
 
-    /// @notice Sets up the dgfProxy 
+    /// @notice Sets up the dgfProxy
     function setUp() public {
         string memory inputJson;
         string memory path = "/tasks/sep-dev-0/004-fp-granite/input.json";
@@ -44,10 +44,10 @@ contract NestedSignFromJson is OriginalSignFromJson {
     }
 
     function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
-        allowed = new address[](5);
+        allowed = new address[](3);
         allowed[0] = address(dgfProxy);
         allowed[1] = proxyAdminOwnerSafe;
-        allowed[4] = livenessGuard;
+        allowed[2] = livenessGuard;
     }
 
     function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory) internal view override {

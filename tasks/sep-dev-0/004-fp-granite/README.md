@@ -9,10 +9,8 @@ The op-program release is Granite compatible.
 
 The new dispute game implementation have been deployed against the latest deploy-config changes. This includes changes to the:
 - absolute prestate
-- clock extension period
-- max clock duration
 
-See https://github.com/ethereum-optimism/optimism/pull/10639 for the details.
+See https://github.com/ethereum-optimism/optimism/pull/11371/ for the details.
 
 
 ## Pre-deployments
@@ -27,7 +25,6 @@ Both contracts have been configured using the aforementioned deploy-config.
 ## State Validation
 
 Please see the instructions for [validation](./VALIDATION.md).
-
 
 ## Execution
 
@@ -50,7 +47,7 @@ The batch will be executed on chain ID `11155111`, and contains `2` transactions
 ### Inputs
 **_gameType:** `0`
 
-**_impl:** `0x3CdB0e38bC990c07eADA1376248BB2a405Ae3B9B`
+**_impl:** `0x54416A2E28E8cbC761fbce0C7f107307991282e5`
 
 
 ## Tx #2: Reset the PermissionedDisputeGame implementation in DGF
@@ -68,4 +65,3 @@ The batch will be executed on chain ID `11155111`, and contains `2` transactions
 **_gameType:** `1`
 
 **_impl:** `0xc06B6A93c4b8ef23e1FB535BB2dd80239ca433AC`
-
