@@ -2,9 +2,40 @@
 
 This document describes how to generate upgrade playbooks to upgrade chains from `op-contracts/v1.3.0` (MCP) to `op-contracts/v1.X.0` (Fault Proofs).
 
-## Context
+## Upgrades Involved
 
-One of the requirement for getting to Stage, 1 as defined by [L2Beat](https://medium.com/l2beat/introducing-stages-a-framework-to-evaluate-rollups-maturity-d290bb22befe) is having a, "the implementation of a fully functional proof system, decentralization of [fault] proof submission."
+This runbook will apply the following upgrade:
+
+- [Fault Proofs](#fault-proofs-upgrade-7)
+
+Each upgrade is described below.
+The Extended Pause upgrade is only applied to chains currently on the Bedrock commit, corresponding to the [`op-contracts/v1.0.0`](https://github.com/ethereum-optimism/optimism/releases/tag/op-contracts%2Fv1.0.0) tag in the [Optimism monorepo](https://github.com/ethereum-optimism/optimism).
+
+In either case, the upgrade will be a single, atomic transaction.
+
+### Fault Proofs (Upgrade #7)
+
+This protocol upgrade reduces the trust assumptions for users of OP Mainnet 
+[and the OP Stack] by enabling permissionless output proposals and a 
+permissionless fault proof system. As part of a responsible and safe rollout
+of Fault Proofs, it preserves the ability for the guardian to override if 
+necessary to maintain security. As a result, withdrawals no longer depend on 
+the privileged proposer role posting an output root, allowing the entire 
+withdrawal process to be completed without any privileged actions. The trust 
+assumption is reduced to requiring only that the guardian role does not act 
+to intervene.
+
+Learn more:
+
+- [Faul Proofs release notes](https://github.com/ethereum-optimism/optimism/releases/tag/op-contracts/v1.4.0). (This is release `op-contracts/v1.4.0`).
+- [Governance post](https://gov.optimism.io/t/final-protocol-upgrade-7-fault-proofs/8161).
+- [Blog post](https://blog.oplabs.co/https://blog.oplabs.co/the-fault-proof-system-is-available-for-the-op-stack/).
+
+### Additional Context
+
+One of the requirement for getting to Stage, 1 as defined by [L2Beat](https://medium.com/l2beat/introducing-stages-a-framework-to-evaluate-rollups-maturity-d290bb22befe)
+is having a, "the implementation of a fully functional proof system, 
+decentralization of [fault] proof submission."
 
 > [!IMPORTANT]
 > In addition to the L1 smart contracts, chain operators must be running [op-challeger](https://docs.optimism.io/builders/chain-operators/tools/op-challenger) to defend the chain against invalid L2 state root proposals and have [monitoring](https://github.com/ethereum-optimism/monitorism/tree/main) in place.
@@ -17,14 +48,17 @@ One of the requirement for getting to Stage, 1 as defined by [L2Beat](https://me
 
 First, let’s make sure you have all the right repos and tools on your machine. Start by cloning the repos below and checking out the latest main branch unless stated otherwise. Then, follow the repo setup instructions for each.
 
-1. https://github.com/ethereum-optimism/superchain-ops
+1. https://github.com/ethereum-optimism/optimism
+   1. Checkout the contract release tag `git checkout op-contracts/v1.4.0`
+   2. Run `pnpm clean && pnpm install && cd packages/contracts-bedrock && pnpm build:go-ffi && forge build`
+2. https://github.com/ethereum-optimism/superchain-ops
     1. Follow the installation instructions in the README: https://github.com/ethereum-optimism/superchain-ops?tab=readme-ov-file#installation
     2. Then, run `just install`.
-2. https://github.com/ethereum-optimism/superchain-registry
+3. https://github.com/ethereum-optimism/superchain-registry
     1. No setup steps.
-3. https://github.com/clabby/msup
+4. https://github.com/clabby/msup
     1. Then, run `cargo build`. 
-4. Ensure you have a Tenderly account.
+5. Ensure you have a Tenderly account.
 
 #### Familiarize yourself with the `single.just` file (superchain-ops repo)
 
@@ -50,40 +84,50 @@ In the superchain-ops repo, tasks live in `tasks/<NETWORK_DIR>/<RUNBOOK_DIR>` wh
 - `RUNBOOK_DIR` is of the form `{chainName}-{upgradeIndex}-{upgradeName}`.
     - `chainName` is just the chain’s name i.e. `base` . This is excluded for OP Chains.
     - `upgradeIndex` starts at `001` for the first playbook and increments each time. This gives a sequential ordering to upgrade transactions occurring on that chain.
-    - `upgradeName` is `fault-proofs`
+    - `upgradeName` is `fp-upgrade`
 
-#### Copy the following files into the task directory
+We'll use the `tasks/sep/mode-001-fp-upgrade` directory as our template.
+Start by copying everything over:
 
-Please create the following files in the task directory and update the placeholder values.
+```bash
+cd tasks/{NetworkDir}
 
-- [README.md](./README.md)
-- [.env](./.env)
-- [SignFromJson.s.sol](./SignFromJson.s.sol)
-- [VALIDATION.md](./VALIDATION.md)
+# copy everything from the mode directory into a directory that
+# will be created.
+cp -R mode-001-fp-upgrade/. {chainName}-001-fp-upgrade
 
-`README.md`: The README template with an overview of the upgrade task. This needs to be updated with the network details.
+# Delete the input.json file.
+cd {chainName}-001-fp-upgrade
+rm input.json
 
-`.env`: These are the enviornment variables for the upgrade.
+# Clean your environment to avoid forge caching issues.
+forge clean
+```
 
-- The `ETH_RPC_URL` can be from [PublicNode](https://ethereum.publicnode.com/) or your own node provider.
-- The `OWNER_SAFE` can be found with `cast call $ProxyAdmin "owner()(address)" -r $RPC_URL` or from the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/tree/main). In other words, the`OWNER_SAFE` corresponds to the ProxyAdmin owner. You should *always* run that `cast` command to verify what address should be there.
-- The `SAFE_NONCE` can be found using `getSafeDetails()` from mds1’s [Ethereum helper functions](https://gist.github.com/mds1/3f070676129a095dec372c2d02cedfdd#file-ethrc-sh-L181-L230).
+The `.env` file should look like below. t can be left alone, unless you need 
+to change the address of the owner safe. This can be found with `cast call $ProxyAdmin "owner()(address)" -r $SEPOLIA_RPC_URL`,
+and the proxy admin address can be found from the superchain registry. In 
+other words, the `OWNER_SAFE` corresponds to the proxy admin owner. It’s 
+populated with a default value as a result of the `cp` command ran above. 
+This account might not actually be the correct proxy admin owner for the 
+chain being upgraded, so you should *always* run that `cast` command to 
+verify what address should be there.
 
-`SignFromJson.s.sol`: This solidity script will generate the Tenderly validation link.
-
-`Validation.md`: The validation template. 
+```bash
+ETH_RPC_URL=https://1rpc.io/sepolia # L1 Sepolia RPC URL that has archive data access.
+OWNER_SAFE=0xE75Cd021F520B160BF6b54D472Fa15e52aFe5aDD
+SAFE_NONCE=""
+```
 
 ### Deploy new proxies and implementations (todo)
 
-https://docs.optimism.io/stack/smart-contracts#op-contractsv140---fault-proofs
-
-Prior to creating the safe transaction bundle, the chain operator will need 
-to have already deployed the following proxies and implementation contracts.
-After they've completed that, they'll need to share those contract addresses.
-
-todo: need to write guidance on how to deploy these contracts properly
+The chain operator will need deployed the following proxies and implementation 
+contracts. After they've completed that, they'll need to share those contract 
+addresses.
 
 New proxy addresses we need:
+
+todo: update versions and add links
 
 - DisputeGameFactoryProxy
 - AnchorStateRegistryProxy
@@ -100,6 +144,12 @@ New implementation addresses we need:
 - AnchorStateRegistry: [1.0.0](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L28)
 - MIPS: [1.0.1](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/cannon/MIPS.sol#L47)
 - PreimageOracle: [1.0.0](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/cannon/PreimageOracle.sol#L33)
+
+#### Deploy the Contracts
+
+todo: can we use this?
+
+https://github.com/ethereum-optimism/optimism/tree/op-contracts/v1.5.0/packages/contracts-bedrock/scripts/fpac
 
 ### Generate the `input.json` (todo)
 
