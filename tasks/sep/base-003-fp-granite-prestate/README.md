@@ -5,7 +5,7 @@ Status: READY TO SIGN
 ## Objective
 
 Upgrades the `FaultDisputeGame` to a new implementation with the `ABSOLUTE_PRESTATE` set for the upcoming Granite
-hardfork. The `MIPS` VM, `PreimageOracle`, and `AnchorStateRegistry` from the existing deployment are re-used.
+hardfork. The `MIPS` VM, `PreimageOracle`, and `AnchorStateRegistry` from the existing deployment are re-used
 
 The `ABSOLUTE_PRESTATE` for this release is that of the `op-program/v1.3.0-rc.3` tag. To reproduce it locally:
 
