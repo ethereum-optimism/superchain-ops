@@ -17,10 +17,10 @@ The only pertinent state changes (ignoring safe nonce updates) should be made to
 
 - **Key**: `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e` <br/>
   **Before**: `0x000000000000000000000000864fbe13bb239521a8c837a0aa7c7122ee3eb0b2` <br/>
-  **After**: `0x0000000000000000000000007ef30b65d49229fc97d4b45bfcf3c435b179771f` <br/>
+  **After**: `0x0000000000000000000000004873712BdB5Fe5B3487Bf0A48FfF1Cdfba794CFD` <br/>
   **Meaning**: Updates the PERMISSIONED_CANNON game type implementation. Verify that the new implementation is set using `cast call 0x05f9613adb30026ffd634f38e5c4dfd30a197fa1 "gameImpls(uint32)(address)" 1`. Where `1` is the [`PERMISSIONED_CANNON` game type](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L31).
 
 - **Key**: `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b` <br/>
   **Before**: `0x000000000000000000000000a4e392d63ae6096db5454fa178e2f8f99f8ef0ef` <br/>
-  **After**: `0x00000000000000000000000019e9d5a58cbc82120c8ab163be2ae544ecf4b802` <br/>
+  **After**: `0x00000000000000000000000078F2B801730DBD937Fe2e209aFB3E1CdF3c460Bc` <br/>
   **Meaning**: Updates the CANNON game type implementation. Verify that the new implementation is set using `cast call 0x05f9613adb30026ffd634f38e5c4dfd30a197fa1 "gameImpls(uint32)(address)" 0`. Where `0` is the [`CANNON` game type](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28).

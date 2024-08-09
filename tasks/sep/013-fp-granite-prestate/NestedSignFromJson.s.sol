@@ -38,8 +38,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     PermissionedDisputeGame currentPDG;
 
     // New dispute game implementations
-    FaultDisputeGame constant faultDisputeGame = FaultDisputeGame(0x19e9d5a58Cbc82120C8AB163bE2aE544ECF4B802);
-    PermissionedDisputeGame constant permissionedDisputeGame = PermissionedDisputeGame(0x7Ef30b65D49229Fc97D4B45bfcf3C435B179771f);
+    FaultDisputeGame constant faultDisputeGame = FaultDisputeGame(0x78F2B801730DBD937Fe2e209aFB3E1CdF3c460Bc);
+    PermissionedDisputeGame constant permissionedDisputeGame = PermissionedDisputeGame(0x4873712BdB5Fe5B3487Bf0A48FfF1Cdfba794CFD);
 
     // See https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/sepolia/op.json#L12
     DisputeGameFactory constant dgfProxy = DisputeGameFactory(0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1);
@@ -143,7 +143,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
         require(address(faultDisputeGame) == address(dgfProxy.gameImpls(GameTypes.CANNON)), "check-100");
         require(address(permissionedDisputeGame) == address(dgfProxy.gameImpls(GameTypes.PERMISSIONED_CANNON)), "check-100");
-        require(faultDisputeGame.absolutePrestate().raw() == bytes32(0x0385c3f8ee78491001d92b90b07d0cf387b7b52ab9b83b4d87c994e92cf823ba));
-        require(permissionedDisputeGame.absolutePrestate().raw() == bytes32(0x0385c3f8ee78491001d92b90b07d0cf387b7b52ab9b83b4d87c994e92cf823ba));
+        require(faultDisputeGame.absolutePrestate().raw() == bytes32(0x030de10d9da911a2b180ecfae2aeaba8758961fc28262ce989458c6f9a547922));
+        require(permissionedDisputeGame.absolutePrestate().raw() == bytes32(0x030de10d9da911a2b180ecfae2aeaba8758961fc28262ce989458c6f9a547922));
     }
 }
