@@ -19,9 +19,9 @@ git clone git@github.com:ethereum-optimism/optimism && \
 
 ## Pre-deployments
 
-The `FaultDisputeGame` has been deployed at [`0xDa35a941D76ff37A4abd877156F58E6Aa2e499b0`](https://sepolia.etherscan.io/address/0xDa35a941D76ff37A4abd877156F58E6Aa2e499b0).
+The `FaultDisputeGame` has been deployed at [`0x48F9F3190b7B5231cBf2aD1A1315AF7f6A554020`](https://sepolia.etherscan.io/address/0x48F9F3190b7B5231cBf2aD1A1315AF7f6A554020).
 
-The `PermissionedDisputeGame` has been deployed at [`0x8105D699B38eD7CF9b75353BaCccA60496Ed72Fd`](https://sepolia.etherscan.io/address/0x8105D699B38eD7CF9b75353BaCccA60496Ed72Fd).
+The `PermissionedDisputeGame` has been deployed at [`0x54966d5A42a812D0dAaDe1FA2321FF8b102d1ee1`](https://sepolia.etherscan.io/address/0x54966d5A42a812D0dAaDe1FA2321FF8b102d1ee1).
 
 ## Simulation
 
@@ -49,13 +49,13 @@ Upgrades the implementation of the `FaultDisputeGame` in the `DisputeGameFactory
 
 **Value:** `0 WEI`
 
-**Raw Input Data:** `0x14f6b1a30000000000000000000000000000000000000000000000000000000000000000000000000000000000000000da35a941d76ff37a4abd877156f58e6aa2e499b0`
+**Raw Input Data:** `0x14f6b1a3000000000000000000000000000000000000000000000000000000000000000000000000000000000000000048f9f3190b7b5231cbf2ad1a1315af7f6a554020`
 
 ### Inputs
 
 **\_gameType:** `0`
 
-**\_impl:** `0xDa35a941D76ff37A4abd877156F58E6Aa2e499b0`
+**\_impl:** `0x48F9F3190b7B5231cBf2aD1A1315AF7f6A554020`
 
 ## Tx #2: Upgrade `PermissionedDisputeGame`
 
@@ -67,10 +67,10 @@ Upgrades the implementation of the `PermissionedDisputeGame` in the `DisputeGame
 
 **Value:** `0 WEI`
 
-**Raw Input Data:** `0x14f6b1a300000000000000000000000000000000000000000000000000000000000000010000000000000000000000008105d699b38ed7cf9b75353baccca60496ed72fd`
+**Raw Input Data:** `0x14f6b1a3000000000000000000000000000000000000000000000000000000000000000100000000000000000000000054966d5a42a812d0daade1fa2321ff8b102d1ee1`
 
 ### Inputs
 
 **\_gameType:** `1`
 
-**\_impl:** `0x8105D699B38eD7CF9b75353BaCccA60496Ed72Fd`
+**\_impl:** `0x54966d5A42a812D0dAaDe1FA2321FF8b102d1ee1`
