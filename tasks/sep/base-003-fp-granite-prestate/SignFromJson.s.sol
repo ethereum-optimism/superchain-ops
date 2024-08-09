@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import {NestedSignFromJson as OriginalNestedSignFromJson} from "script/NestedSignFromJson.s.sol";
 import {SignFromJson as OriginalSignFromJson} from "script/SignFromJson.s.sol";
 import {console2 as console} from "forge-std/console2.sol";
 import {stdJson} from "forge-std/StdJson.sol";

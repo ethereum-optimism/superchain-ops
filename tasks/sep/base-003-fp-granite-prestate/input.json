@@ -2,7 +2,7 @@
     "chainId": 11155111,
     "metadata": {
         "name": "Granite - Dispute Game Prestate Upgrade",
-        "description": "This upgrade changes the `ABSOLUTE_PRESTATE` in the `FaultDisputeGame` and `PermissionedDisputeGame` to that of the `op-program/v1.3.0-rc.2` tag in preparation for the Granite hardfork."
+        "description": "This upgrade changes the `ABSOLUTE_PRESTATE` in the `FaultDisputeGame` and `PermissionedDisputeGame` to that of the `op-program/v1.3.0-rc.3` tag in preparation for the Granite hardfork."
     },
     "transactions": [
         {

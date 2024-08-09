@@ -7,12 +7,12 @@ Status: READY TO SIGN
 Upgrades the `FaultDisputeGame` to a new implementation with the `ABSOLUTE_PRESTATE` set for the upcoming Granite
 hardfork. The `MIPS` VM, `PreimageOracle`, and `AnchorStateRegistry` from the existing deployment are re-used.
 
-The `ABSOLUTE_PRESTATE` for this release is that of the `op-program/v1.3.0-rc.2` tag. To reproduce it locally:
+The `ABSOLUTE_PRESTATE` for this release is that of the `op-program/v1.3.0-rc.3` tag. To reproduce it locally:
 
 ```sh
 git clone git@github.com:ethereum-optimism/optimism && \
   cd optimism && \
-  git checkout op-program/v1.3.0-rc.2 && \
+  git checkout op-program/v1.3.0-rc.3 && \
   make reproducible-prestate && \
   cat ./op-program/bin/prestate-proof.json | jq -r .pre
 ```
@@ -35,7 +35,7 @@ Please see the instructions for [validation](./VALIDATION.md).
 
 ## Execution
 
-This upgrade changes the `ABSOLUTE_PRESTATE` in the `FaultDisputeGame` and `PermissionedDisputeGame` to that of the `op-program/v1.3.0-rc.2` tag in preparation for the Granite hardfork.
+This upgrade changes the `ABSOLUTE_PRESTATE` in the `FaultDisputeGame` and `PermissionedDisputeGame` to that of the `op-program/v1.3.0-rc.3` tag in preparation for the Granite hardfork.
 
 The batch will be executed on chain ID `11155111`, and contains `2` transactions.
 
