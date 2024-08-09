@@ -7,12 +7,12 @@ Status: READY TO SIGN
 Upgrades the `FaultDisputeGame` to a new implementation with the `ABSOLUTE_PRESTATE` set for the upcoming Granite
 hardfork. The `MIPS` VM, `PreimageOracle`, and `AnchorStateRegistry` from the existing deployment are re-used.
 
-The `ABSOLUTE_PRESTATE` for this release is that of the `op-program/v1.3.0-rc.2` tag. To reproduce it locally:
+The `ABSOLUTE_PRESTATE` for this release is that of the `op-program/v1.3.0-rc.3` tag. To reproduce it locally:
 
 ```sh
 git clone git@github.com:ethereum-optimism/optimism && \
   cd optimism && \
-  git checkout op-program/v1.3.0-rc.2 && \
+  git checkout op-program/v1.3.0-rc.3 && \
   make reproducible-prestate && \
   cat ./op-program/bin/prestate-proof.json | jq -r .pre
 ```
@@ -35,7 +35,7 @@ Please see the instructions for [validation](./VALIDATION.md).
 
 ## Execution
 
-This upgrade changes the `ABSOLUTE_PRESTATE` in the `FaultDisputeGame` and `PermissionedDisputeGame` to that of the `op-program/v1.3.0-rc.2` tag in preparation for the Granite hardfork.
+This upgrade changes the `ABSOLUTE_PRESTATE` in the `FaultDisputeGame` and `PermissionedDisputeGame` to that of the `op-program/v1.3.0-rc.3` tag in preparation for the Granite hardfork.
 
 The batch will be executed on chain ID `11155111`, and contains `2` transactions.
 
@@ -49,13 +49,13 @@ Upgrades the implementation of the `FaultDisputeGame` in the `DisputeGameFactory
 
 **Value:** `0 WEI`
 
-**Raw Input Data:** `0x14f6b1a3000000000000000000000000000000000000000000000000000000000000000000000000000000000000000019e9d5a58cbc82120c8ab163be2ae544ecf4b802`
+**Raw Input Data:** `0x14f6b1a3000000000000000000000000000000000000000000000000000000000000000000000000000000000000000078f2b801730dbd937fe2e209afb3e1cdf3c460bc`
 
 ### Inputs
 
-**\_gameType:** `0`
+**\_impl:** `0x78F2B801730DBD937Fe2e209aFB3E1CdF3c460Bc`
 
-**\_impl:** `0x19e9d5a58Cbc82120C8AB163bE2aE544ECF4B802`
+**\_gameType:** `0`
 
 ## Tx #2: Upgrade `PermissionedDisputeGame`
 
@@ -67,10 +67,10 @@ Upgrades the implementation of the `PermissionedDisputeGame` in the `DisputeGame
 
 **Value:** `0 WEI`
 
-**Raw Input Data:** `0x14f6b1a300000000000000000000000000000000000000000000000000000000000000010000000000000000000000007ef30b65d49229fc97d4b45bfcf3c435b179771f`
+**Raw Input Data:** `0x14f6b1a300000000000000000000000000000000000000000000000000000000000000010000000000000000000000004873712bdb5fe5b3487bf0a48fff1cdfba794cfd`
 
 ### Inputs
 
-**\_impl:** `0x7Ef30b65D49229Fc97D4B45bfcf3C435B179771f`
-
 **\_gameType:** `1`
+
+**\_impl:** `0x4873712BdB5Fe5B3487Bf0A48FfF1Cdfba794CFD`
