@@ -36,8 +36,8 @@ contract SignFromJson is OriginalSignFromJson {
     address constant batchInboxAddress =
         0xfF00000000000000000000000000000000084532; // In registry yaml.
     address constant currentPDGProposer =
-        0x727D7c7fCa14b7F3C49a1C816b42a41fe2F709F9;
-    address constant currentPDGChallenger =
+        0x20044a0d104E9e788A0C984A2B7eAe615afD046b;
+    address constant newPDGChallenger =
         0x8b8c52B04A38f10515C52670fcb23f3C4C44474F;
 
     // Currenet dispute game implementations
@@ -138,10 +138,13 @@ contract SignFromJson is OriginalSignFromJson {
             address(currentPDG.proposer()) ==
                 address(permissionedDisputeGame.proposer())
         );
-        require(address(currentPDG.challenger()) == currentPDGProposer);
+        require(address(currentPDG.proposer()) == currentPDGProposer);
         require(
-            address(permissionedDisputeGame.challenger()) ==
-                currentPDGChallenger
+            address(permissionedDisputeGame.proposer()) ==
+                address(currentPDG.proposer())
+        );
+        require(
+            address(permissionedDisputeGame.challenger()) == newPDGChallenger
         );
     }
 
