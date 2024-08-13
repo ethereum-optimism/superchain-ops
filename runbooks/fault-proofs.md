@@ -147,94 +147,165 @@ New implementation addresses we need:
 
 #### Deploy the Contracts
 
-todo: can we use this?
-
-https://github.com/ethereum-optimism/optimism/tree/op-contracts/v1.5.0/packages/contracts-bedrock/scripts/fpac
+todo: we'll likely reuse the OP Stack manager work here
 
 ### Generate the `input.json` (todo)
+
+This transaction bundle will consist of seven transactions. Before you open up
+the CLI, you should gather all the necessary inputs.
+
+#### Tx #1. Upgrade OptimismPortal to StorageSetter
+
+- **Name:** Upgrade OptimismPortal to StorageSetter
+- **Description:** Upgrade OptimismPortal to StorageSetter and reset `initializing`
+- **To:** {L1 Proxy Admin Address}
+- **Value:** 0
+- **Function Signature:** upgradeAndCall(address,address,bytes)
+- **Raw Input Data:** 
+
+To generate the raw input data, use the following command:
+
+```bash
+cast calldata upgradeAndCall(address,address,bytes) {_proxy} {_implementation} {_data}
+```
+
+where the parameters are:
+
+- **_proxy** = {Optimism Portal Proxy Address}
+- **_implementation** = {Address of the new implementation address, which is the StorageSetter. todo: I'm assuming these are deployed on Ethereum and Sepolia, verify and get those addresses}
+- **_data** =  todo: figure out how to generate this
+
+#### Tx #2. Reset l2Sender in OptimismPortalProxy
+
+- **Name:** Reset l2Sender in OptimismPortalProxy
+- **Description:** Pre-initialization of the OptimismPortal2
+- **To:** {Optimism Portal Proxy Address}
+- **Value:** 0
+- **Function Signature:** setAddress(bytes32,address)
+- **Raw Input Data:** 
+
+To generate the raw input data, use the following command:
+
+```bash
+cast calldata "setAddress(bytes32,address)" 0x0000000000000000000000000000000000000000000000000000000000000032 0x0000000000000000000000000000000000000000
+```
+
+where the parameters are:
+
+- **_slot**: https://github.com/ethereum-optimism/optimism/blob/d8807a56648263121abea50985418a236b9eddae/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal.json#L31-L36
+- **_address**: zero address
+
+#### Tx #3. Upgrade the OptimismPortal
+
+- **Name:** Upgrade the OptimismPortal
+- **Description:** Upgrade and initialize the OptimismPortal to OptimismPortal2 (3.10.0)
+- **To:** {L1 Proxy Admin Address}
+- **Value:** 0
+- **Function Signature:** upgradeAndCall(address,address,bytes)
+- **Raw Input Data:** 
+
+To generate the raw input data, use the following command:
+
+```bash
+cast calldata "upgradeAndCall(address,address,bytes)"  {_proxy} {_implementation} {_data}
+```
+
+where the parameters are: 
+
+- **_proxy** = {Optimism Portal Proxy Address}
+- **_implementation** = {Address of the new implementation address of the OptimismPortal2 implementation}
+- **_data** =  todo: figure out how to generate this
+
+#### Tx #4. Upgrade SystemConfig to StorageSetter
+
+- **Name:** `Upgrade SystemConfig to StorageSetter`
+- **Description:** Upgrades the `SystemConfig` proxy to the `StorageSetter` contract in preparation for clearing the legacy `L2OutputOracle` storage slot and set the new `DisputeGameFactory` storage slot to contain the address of the `DisputeGameFactory` proxy.
+- **To:** {L1 Proxy Admin Address}
+- **Value:** 0
+- **Function Signature:** upgrade(address,address)
+- **Raw Input Data:** 
+
+To generate the raw input data, use the following command:
+
+```bash
+cast calldata "upgrade(address,address)" {_proxy} {_implementation}
+```
+
+where the parameters are:
+
+- **_proxy** = {System Config Proxy Address}
+- **_implementation** = {Address of the new implementation address, which is the StorageSetter. todo: I'm assuming these are deployed on Ethereum and Sepolia, verify and get those addresses}
+
+#### Tx #5. Clear SystemConfig's L2OutputOracle slot
+
+- **Name:** Clear SystemConfig's L2OutputOracle slot
+- **Description:** clears the keccak(systemconfig.l2outputoracle)-1 slot
+- **To:** {System Config Proxy Address}
+- **Value:** 0
+- **Function Signature:** setAddress(bytes32,address)
+- **Raw Input Data:** 
+
+To generate the raw input data, use the following command:
+
+```bash
+cast calldata "setAddress(bytes32,address)" {_slot} 0x0000000000000000000000000000000000000000
+```
+
+where the parameters are:
+
+- **_slot:** todo: where's the slot for this? This is the one in the OP Mainnet fp upgrade, but it seems odd: `0xe52a667f71ec761b9b381c7b76ca9b852adf7e8905da0e0ad49986a0a6871815`
+- **_address:** zero address
+
+
+#### Tx #6. Set SystemConfig's DisputeGameFactory slot
+
+- **Name:** Set SystemConfig's DisputeGameFactory slot
+- **Description:** sets the keccak(systemconfig.disputegamefactory)-1 slot
+- **To:** {System Config Proxy Address}
+- **Value:** 0
+- **Function Signature:** setAddress(bytes32,address)
+- **Raw Input Data:** 
+
+To generate the raw input data, use the following command:
+
+```bash
+cast calldata "setAddress(bytes32,address)" {_slot} {_address}
+```
+
+where the parameters are:
+
+- **_slot:** odo: where's the slot for this? This is the one in the OP Mainnet fp upgrade, but it seems odd: `0x52322a25d9f59ea17656545543306b7aef62bc0cc53a0e65ccfa0c75b97aa906`
+- **_address:** {Dispute Game Factory Proxy Address}
+
+
+#### Tx #7. Upgrade SystemConfig to 2.2.0
+
+- **Name:** Upgrade SystemConfig to 2.2.0
+- **Description:** Upgrade SystemConfig to 2.2.0
+- **To:** {L1 Proxy Admin Address}
+- **Value:** 0
+- **Function Signature:** upgrade(address,address)
+- **Raw Input Data:** 
+
+To generate the raw input data, use the following command:
+
+```bash
+cast calldata "upgrade(address,address)" {_proxy} {_implementation}
+```
+
+where the parameters are:
+
+**_proxy:** {System Config Proxy Address}
+**_implementation:** {System Config Implementation Address}
+
+
+#### Generate with msup
 
 Use the `msup` tool to generate the safe transaction bundle:
 
 ```bash
 ./target/debug/msup generate --output input.json
 ```
-
-This will open up a CLI prompt to generate the safe bundle in `input.json`.
-
-```bash
-? Number of transactions in the multisig batch:
-```
-
-Specify you'll be completing `7` transactions:
-
-1. Upgrade OptimismPortal to StorageSetter
-2. Reset l2Sender in OptimismPortalProxy
-3. Upgrade the OptimismPortal
-4. Upgrade SystemConfig to StorageSetter
-5. Clear SystemConfig's L2OutputOracle slot
-6. Set SystemConfig's DisputeGameFactory slot
-7. Upgrade SystemConfig to 2.2.0
-
-```bash
-? Chain ID that the batch transaction will be performed on:
-```
-
-Enter `1` for mainnet and `10` for sepolia upgrades.
-
-```bash
-? Enter the name of the batch:
-```
-
-Enter the following and replace the chain name: FP Upgrade - {Chain Name}
-
-```bash
-? Enter the description of the batch:
-```
-
-Use the following description: Upgrades the OptimismPortal and SystemConfig implementations
-
-```bash
-Transaction #1
-? Name:
-```
-
-Transaction #1 Name: Upgrade OptimismPortal to StorageSetter
-
-```bash
-? Description:
-```
-
-Transaction #1 Description: Upgrade OptimismPortal to StorageSetter and reset `initializing`
-
-```bash
-? Address of the contract to call:
-```
-
-Enter the `OptimismPortalProxy` address.
-
-```bash
-? Value to send (in WEI):
-```
-
-Enter `0`.
-
-```bash
-? Enter the function signature of the contract to call:
-```
-
-Enter the following function signature: upgradeAndCall(address _implementation,bytes _data)
-
-```bash
-? Enter the value for input #1 (_implementation):
-```
-
-Enter the value of the new OptimismPortal implementation contract you deployed.
-
-```bash
-? Enter the value for input #2 (_data):
-```
-
-todo: whats the data here??
 
 ### Simulate and Validate (todo)
 
