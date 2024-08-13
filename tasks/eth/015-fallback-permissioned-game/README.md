@@ -18,7 +18,7 @@ Updates the `respectedGameType` to `PERMISSIONED_CANNON` in the `OptimismPortalP
 
 **Value:** `0 WEI`
 
-**Raw Input Data:** `0xa1155ed9000000000000000000000000bEb5Fc579115071764c7423A4f12eDde41f106Ed0000000000000000000000000000000000000000000000000000000000000001`
+**Raw Input Data:** `0xa1155ed9000000000000000000000000beb5fc579115071764c7423a4f12edde41f106ed0000000000000000000000000000000000000000000000000000000000000001`
 
 ### Inputs
 
@@ -57,13 +57,13 @@ Slot [`0x000000000000000000000000000000000000000000000000000000000000003b`](http
 
 Note that the offsets in the above table refer to the slot value's big-endian representation. You can compute the offset values with chisel:
 ```
-➜ uint256 x = 0x000000000000000000000000000000000000000000000000669eeed200000001
+➜ uint256 x = 0x00000000000000000000000000000000000000000000000066bb70d200000001
 ➜ uint64 respectedGameTypeUpdatedAt = uint64(x >> 32)
 ➜ respectedGameTypeUpdatedAt
 Type: uint64
 ├ Hex: 0x
-├ Hex (full word): 0x669eeed2
-└ Decimal: 1721691858
+├ Hex (full word): 0x66bb70d2
+└ Decimal: 1723560146
 ➜ uint32 respectedGameType = uint32(x & 0xFFFFFFFF)
 ➜ respectedGameType
 Type: uint32
