@@ -15,11 +15,11 @@ contract SignFromJson is OriginalSignFromJson {
     using LibString for string;
 
     // Chains for this task.
-    string constant l1ChainName = "sepolia";
+    string constant l1ChainName = "mainnet";
     string l2ChainName = vm.envString("L2_CHAIN_NAME");
 
     // Safe contract for this task.
-    GnosisSafe securityCouncilSafe = GnosisSafe(payable(0xf64bc17485f0B4Ea5F06A96514182FC4cB561977));
+    GnosisSafe securityCouncilSafe = GnosisSafe(payable(0xc2819DC788505Aac350142A7A707BF9D03E3Bd03));
 
     Types.ContractSet proxies;
 
