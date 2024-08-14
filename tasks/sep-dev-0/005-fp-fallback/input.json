@@ -10,17 +10,13 @@
         "name": "Update `respectedGameType` in the `OptimismPortal`",
         "description": "Updates the `respectedGameType` to `PERMISSIONED_CANNON` in the `OptimismPortal`, enabling permissioned proposals and challenging."
       },
-      "to": "0x2419423c72998eb1c6c15a235de2f112f8e38eff",
+      "to": "0x76114bd29dFcC7a9892240D317E6c7C2A281Ffc6",
       "value": "0x0",
-      "data": "0xa1155ed9000000000000000000000000076114bd29dFcC7a9892240D317E6c7C2A281Ffc6000000000000000000000000000000000000000000000000000000000000001",
+      "data": "0x7fc485040000000000000000000000000000000000000000000000000000000000000001",
       "contractMethod": {
         "type": "function",
         "name": "setRespectedGameType",
         "inputs": [
-          {
-            "name": "_portal",
-            "type": "address"
-          },
           {
             "name": "_gameType",
             "type": "uint32"
@@ -30,7 +26,6 @@
         "stateMutability": "nonpayable"
       },
       "contractInputsValues": {
-        "_portal": "0x76114bd29dFcC7a9892240D317E6c7C2A281Ffc6",
         "_gameType": "1"
       }
     }
