@@ -8,33 +8,13 @@ This batch updates the `respectedGameType` to `PERMISSIONED_CANNON` in the `Opti
 
 The batch will be executed on chain ID `1`, and contains `1` transactions.
 
-## Tx #1: Update `respectedGameType` in the `OptimismPortalProxy`
+## Simulation
 
-Updates the `respectedGameType` to `PERMISSIONED_CANNON` in the `OptimismPortalProxy`, enabling permissioned proposals and challenging.
+Please see the "Simulating and Verifying the Transaction" instructions in [SINGLE.md](../../../SINGLE.md).
 
-**Function Signature:** `setRespectedGameType(address,uint32)`
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/eth/010-2-sc-changes/SignFromJson.s.sol`. This ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
 
-**To:** `0x5dC91D01290af474CE21DE14c17335a6dEe4d2a8`
-
-**Value:** `0 WEI`
-
-**Raw Input Data:** `0xa1155ed9000000000000000000000000beb5fc579115071764c7423a4f12edde41f106ed0000000000000000000000000000000000000000000000000000000000000001`
-
-### Inputs
-
-**\_gameType:** `1` (`PERMISSIONED_CANNON`)
-
-**\_portal:** `0xbEb5Fc579115071764c7423A4f12eDde41f106Ed`
-
-## Preparing the Operation
-
-1. Locate the address of the `OptimismPortalProxy` to change the respected game type of.
-
-2. Generate the batch with `just generate-input <OptimismPortalProxyAddress>`.
-
-3. Set the `L2_CHAIN_NAME` configuration to the appropriate chain in the `.env` file.
-
-4. Collect signatures and execute the action according to the instructions in [SINGLE.md](../../../../SINGLE.md).
+Do NOT yet proceed to the "Execute the Transaction" section.
 
 ### State Validations
 
@@ -77,3 +57,9 @@ To verify the diff:
 1. Check that the only modification to state belongs to the `OptimismPortalProxy` at slot `0x000000000000000000000000000000000000000000000000000000000000003b`
 1. Check that the lower 4 bytes equal `1` (`PERMISSIONED_CANNON`) when read as a big-endian 32-bit uint.
 1. Check that bytes `[20, 28]` equal the timestamp of the transaction's submission when read as a big-endian 64-bit uint.
+
+## Execution
+
+At this point you may resume following the execution instructions in the "Execute the Transaction" section of [SINGLE.md](../../../SINGLE.md).
+
+When executing, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/eth/010-2-sc-changes/SignFromJson.s.sol`. This ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
