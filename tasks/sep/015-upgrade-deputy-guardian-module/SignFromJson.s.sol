@@ -23,6 +23,7 @@ contract SignFromJson is OriginalSignFromJson {
     using LibString for string;
 
     address constant SENTINEL_MODULE = address(0x1);
+    bytes32 constant GUARDIAN_SLOT = bytes32(uint256(keccak256("superchainConfig.guardian")) - 1);
 
     // Chains for this task.
     string constant l1ChainName = "sepolia";
@@ -32,8 +33,9 @@ contract SignFromJson is OriginalSignFromJson {
     GnosisSafe securityCouncilSafe = GnosisSafe(payable(0xf64bc17485f0B4Ea5F06A96514182FC4cB561977));
     GnosisSafe foundationOperationsSafe = GnosisSafe(payable(0x837DE453AD5F21E89771e3c06239d8236c0EFd5E));
     GnosisSafe guardianSafe = GnosisSafe(payable(0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E));
+    address livenessGuard = 0xc26977310bC89DAee5823C2e2a73195E85382cC7;
 
-    address newDGM = 0x0; // TODO: replace with deployed address
+    address expectedDeputyGuardianModule = vm.envAddress("DEPUTY_GUARDIAN_MODULE");
 
     Types.ContractSet proxies;
 
@@ -42,8 +44,21 @@ contract SignFromJson is OriginalSignFromJson {
         proxies = _getContractSet();
     }
 
+    function _addGenericOverrides() internal view override returns (SimulationStateOverride memory override_) {
+        // If `runJson` was the method invoked, this is the live execution and we do not want to
+        // apply any overrides. Otherwise, this is a simulation and we want to apply overrides to
+        // behave as if 006-1 was executed.
+        if (msg.sig != this.runJson.selector) {
+            SimulationStorageOverride[] memory overrides = new SimulationStorageOverride[](1);
+            overrides[0] = SimulationStorageOverride({
+                key: GUARDIAN_SLOT,
+                value: bytes32(uint256(uint160(address(guardianSafe))))
+            });
+            override_ = SimulationStateOverride({contractAddress: proxies.SuperchainConfig, overrides: overrides});
+        }
+    }
+
     function getCodeExceptions() internal view override returns (address[] memory) {
-        // Safe owners will appear in storage in the LivenessGuard when added
         address[] memory securityCouncilSafeOwners = securityCouncilSafe.getOwners();
         address[] memory shouldHaveCodeExceptions = new address[](securityCouncilSafeOwners.length);
 
@@ -55,9 +70,10 @@ contract SignFromJson is OriginalSignFromJson {
     }
 
     function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
-        allowed = new address[](2);
+        allowed = new address[](3);
         allowed[0] = proxies.OptimismPortal;
         allowed[1] = vm.envAddress("OWNER_SAFE");
+        allowed[2] = livenessGuard;
     }
 
     /// @notice Checks the correctness of the deployment
@@ -70,9 +86,29 @@ contract SignFromJson is OriginalSignFromJson {
 
         checkStateDiff(accesses);
         checkDeputyGuardianModule();
-        checkGuardianSafe();
 
         console.log("All assertions passed!");
+    }
+
+    
+    function checkStateDiff(Vm.AccountAccess[] memory accountAccesses) internal view override {
+        super.checkStateDiff(accountAccesses);
+
+        for (uint256 i; i < accountAccesses.length; i++) {
+            Vm.AccountAccess memory accountAccess = accountAccesses[i];
+
+            // Assert that only the expected accounts have been written to.
+            for (uint256 j; j < accountAccess.storageAccesses.length; j++) {
+                Vm.StorageAccess memory storageAccess = accountAccess.storageAccesses[j];
+                if (storageAccess.isWrite) {
+                    address account = storageAccess.account;
+                    // Only state changes to the Safe's are expected.
+                    require(
+                        account == address(guardianSafe) || account == address(securityCouncilSafe), "state-100"
+                    );
+                }
+            }
+        }
     }
 
     /// @notice Reads the contract addresses from lib/superchain-registry/superchain/configs/${l1ChainName}/${l2ChainName}.toml
@@ -92,10 +128,6 @@ contract SignFromJson is OriginalSignFromJson {
         _proxies.OptimismPortal = stdToml.readAddress(chainConfig, "$.addresses.OptimismPortalProxy");
     }
 
-    function checkGuardianSafe() internal view {
-        require(ModuleManager(guardianSafe).isModuleEnabled(newDGM), "checkGuardianSafe-100");
-    }
-
     function checkDeputyGuardianModule() internal view {
         console.log("Running assertions on the DeputyGuardianModule");
 
@@ -111,11 +143,13 @@ contract SignFromJson is OriginalSignFromJson {
         require(deputyGuardianModule.version().eq("1.1.0"), "checkDeputyGuardianModule-100");
         require(deputyGuardianModule.safe() == address(guardianSafe), "checkDeputyGuardianModule-200");
         require(
-            deputyGuardianModule.deputyGuardian() == address(foundationOperationsSafe), "checkDeputyGuardianModule-100"
+            deputyGuardianModule.deputyGuardian() == address(foundationOperationsSafe), "checkDeputyGuardianModule-300"
         );
         require(
             deputyGuardianModule.superchainConfig() == address(proxies.SuperchainConfig),
-            "checkDeputyGuardianModule-300"
+            "checkDeputyGuardianModule-400"
         );
+
+        require(ModuleManager(guardianSafe).isModuleEnabled(expectedDeputyGuardianModule), "checkDeputyGuardianModule-500");
     }
 }
