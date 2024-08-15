@@ -8,7 +8,7 @@
     {
       "metadata": {
         "name": "Disable the old DeputyGuardianModule",
-        "description": ""
+        "description": "Call DeputyGuardian.disableModule via the Guardian's own safe"
       },
       "to": "0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E",
       "value": "0",
@@ -85,7 +85,7 @@
     {
       "metadata": {
         "name": "Enable the new DeputyGuardianModule",
-        "description": ""
+        "description": "TODO: replace DGM address"
       },
       "to": "0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E",
       "value": "0",

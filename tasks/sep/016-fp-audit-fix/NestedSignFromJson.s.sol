@@ -11,6 +11,9 @@ import {LibString} from "solady/utils/LibString.sol";
 import {GnosisSafe} from "safe-contracts/GnosisSafe.sol";
 import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {ISemver} from "@eth-optimism-bedrock/src/universal/ISemver.sol";
+import {FaultDisputeGame} from "@eth-optimism-bedrock/src/dispute/FaultDisputeGame.sol";
+import {PermissionedDisputeGame} from "@eth-optimism-bedrock/src/dispute/PermissionedDisputeGame.sol";
+import {DisputeGameFactory} from "@eth-optimism-bedrock/src/dispute/DisputeGameFactory.sol";
 
 contract NesteSignFromJson is OriginalNestedSignFromJson {
     using LibString for string;
@@ -120,8 +123,8 @@ contract NesteSignFromJson is OriginalNestedSignFromJson {
     function _checkDisputeGameImplementations() internal view {
         console.log("check dispute game implementations");
 
-        FaultDisputeGame faultDisputeGame = dgfProxy.gameImpls(GameTypes.CANNON);
-        FaultDisputeGame permissionedDisputeGame = dgfProxy.gameImpls(GameTypes.PERMISSIONED_CANNON);
+        FaultDisputeGame faultDisputeGame = FaultDisputeGame(address(dgfProxy.gameImpls(GameTypes.CANNON)));
+        PermissionedDisputeGame permissionedDisputeGame = PermissionedDisputeGame(address(dgfProxy.gameImpls(GameTypes.PERMISSIONED_CANNON)));
 
         require(faultDisputeGame.version().eq("1.3.0"), "game-100");
         require(permissionedDisputeGame.version().eq("1.3.0"), "game-200");
@@ -143,11 +146,11 @@ contract NesteSignFromJson is OriginalNestedSignFromJson {
     }
 
     function _checkDelayedWETH() internal view {
-        FaultDisputeGame fdg = dgfProxy.gameImpls(GameTypes.CANNON);
-        require(ISemVer(address(fdg.weth())).version().eq("1.1.0"), "weth-100");
+        FaultDisputeGame fdg = FaultDisputeGame(address(dgfProxy.gameImpls(GameTypes.CANNON)));
+        require(ISemver(address(fdg.weth())).version().eq("1.1.0"), "weth-100");
 
-        PermissionedDisputeGame soyFDG = dgfProxy.gameImpls(GameTypes.PERMISSIONED_CANNON);
-        require(ISemVer(address(soyFDG.weth())).version().eq("1.1.0"), "weth-200");
+        PermissionedDisputeGame soyFDG = PermissionedDisputeGame(address(dgfProxy.gameImpls(GameTypes.PERMISSIONED_CANNON)));
+        require(ISemver(address(soyFDG.weth())).version().eq("1.1.0"), "weth-200");
 
         require(address(fdg.weth()) != address(soyFDG.weth()), "weth-300");
     }
