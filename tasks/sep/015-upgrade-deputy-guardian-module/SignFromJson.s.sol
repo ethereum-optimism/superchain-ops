@@ -29,8 +29,7 @@ contract SignFromJson is OriginalSignFromJson {
     string constant l2ChainName = "op";
 
     // Safe contract for this task.
-    GnosisSafe securityCouncilSafe =
-        GnosisSafe(payable(0xf64bc17485f0B4Ea5F06A96514182FC4cB561977));
+    GnosisSafe securityCouncilSafe = GnosisSafe(payable(0xf64bc17485f0B4Ea5F06A96514182FC4cB561977));
     GnosisSafe foundationOperationsSafe = GnosisSafe(payable(0x837DE453AD5F21E89771e3c06239d8236c0EFd5E));
     GnosisSafe guardianSafe = GnosisSafe(payable(0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E));
 
@@ -43,18 +42,10 @@ contract SignFromJson is OriginalSignFromJson {
         proxies = _getContractSet();
     }
 
-    function getCodeExceptions()
-        internal
-        view
-        override
-        returns (address[] memory)
-    {
+    function getCodeExceptions() internal view override returns (address[] memory) {
         // Safe owners will appear in storage in the LivenessGuard when added
-        address[] memory securityCouncilSafeOwners = securityCouncilSafe
-            .getOwners();
-        address[] memory shouldHaveCodeExceptions = new address[](
-            securityCouncilSafeOwners.length
-        );
+        address[] memory securityCouncilSafeOwners = securityCouncilSafe.getOwners();
+        address[] memory shouldHaveCodeExceptions = new address[](securityCouncilSafeOwners.length);
 
         for (uint256 i = 0; i < securityCouncilSafeOwners.length; i++) {
             shouldHaveCodeExceptions[i] = securityCouncilSafeOwners[i];
@@ -63,22 +54,18 @@ contract SignFromJson is OriginalSignFromJson {
         return shouldHaveCodeExceptions;
     }
 
-    function getAllowedStorageAccess()
-        internal
-        view
-        override
-        returns (address[] memory allowed)
-    {
+    function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
         allowed = new address[](2);
         allowed[0] = proxies.OptimismPortal;
         allowed[1] = vm.envAddress("OWNER_SAFE");
     }
 
     /// @notice Checks the correctness of the deployment
-    function _postCheck(
-        Vm.AccountAccess[] memory accesses,
-        SimulationPayload memory /* simPayload */
-    ) internal view override {
+    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory /* simPayload */ )
+        internal
+        view
+        override
+    {
         console.log("Running post-deploy assertions");
 
         checkStateDiff(accesses);
@@ -89,34 +76,20 @@ contract SignFromJson is OriginalSignFromJson {
     }
 
     /// @notice Reads the contract addresses from lib/superchain-registry/superchain/configs/${l1ChainName}/${l2ChainName}.toml
-    function _getContractSet()
-        internal
-        view
-        returns (Types.ContractSet memory _proxies)
-    {
+    function _getContractSet() internal view returns (Types.ContractSet memory _proxies) {
         string memory chainConfig;
 
         // Read chain-specific config toml file
-        string memory path = string.concat(
-            "/lib/superchain-registry/superchain/configs/",
-            l1ChainName,
-            "/",
-            l2ChainName,
-            ".toml"
-        );
-        try vm.readFile(string.concat(vm.projectRoot(), path)) returns (
-            string memory data
-        ) {
+        string memory path =
+            string.concat("/lib/superchain-registry/superchain/configs/", l1ChainName, "/", l2ChainName, ".toml");
+        try vm.readFile(string.concat(vm.projectRoot(), path)) returns (string memory data) {
             chainConfig = data;
         } catch {
             revert(string.concat("Failed to read ", path));
         }
 
         // Read the chain-specific OptimismPortalProxy address
-        _proxies.OptimismPortal = stdToml.readAddress(
-            chainConfig,
-            "$.addresses.OptimismPortalProxy"
-        );
+        _proxies.OptimismPortal = stdToml.readAddress(chainConfig, "$.addresses.OptimismPortalProxy");
     }
 
     function checkGuardianSafe() internal view {
@@ -126,37 +99,22 @@ contract SignFromJson is OriginalSignFromJson {
     function checkDeputyGuardianModule() internal view {
         console.log("Running assertions on the DeputyGuardianModule");
 
-        (address[] memory modules, address nextModule) = ModuleManager(
-           guardianSafe 
-        ).getModulesPaginated(SENTINEL_MODULE, 1);
+        (address[] memory modules, address nextModule) =
+            ModuleManager(guardianSafe).getModulesPaginated(SENTINEL_MODULE, 1);
         address deputyGuardianModuleAddr = modules[0];
 
         require(modules.length == 1, "checkDeputyGuardianModule-40");
-        require(
-            address(deputyGuardianModuleAddr) == expectedDeputyGuardianModule,
-            "checkDeputyGuardianModule-60"
-        );
+        require(address(deputyGuardianModuleAddr) == expectedDeputyGuardianModule, "checkDeputyGuardianModule-60");
         require(nextModule == SENTINEL_MODULE, "checkDeputyGuardianModule-80");
 
-        IDeputyGuardianModuleFetcher deputyGuardianModule = IDeputyGuardianModuleFetcher(
-                deputyGuardianModuleAddr
-            );
+        IDeputyGuardianModuleFetcher deputyGuardianModule = IDeputyGuardianModuleFetcher(deputyGuardianModuleAddr);
+        require(deputyGuardianModule.version().eq("1.1.0"), "checkDeputyGuardianModule-100");
+        require(deputyGuardianModule.safe() == address(guardianSafe), "checkDeputyGuardianModule-200");
         require(
-            deputyGuardianModule.version().eq("1.1.0"),
-            "checkDeputyGuardianModule-100"
+            deputyGuardianModule.deputyGuardian() == address(foundationOperationsSafe), "checkDeputyGuardianModule-100"
         );
         require(
-            deputyGuardianModule.safe() == address(guardianSafe),
-            "checkDeputyGuardianModule-200"
-        );
-        require(
-            deputyGuardianModule.deputyGuardian() ==
-                address(foundationOperationsSafe),
-            "checkDeputyGuardianModule-100"
-        );
-        require(
-            deputyGuardianModule.superchainConfig() ==
-                address(proxies.SuperchainConfig),
+            deputyGuardianModule.superchainConfig() == address(proxies.SuperchainConfig),
             "checkDeputyGuardianModule-300"
         );
     }

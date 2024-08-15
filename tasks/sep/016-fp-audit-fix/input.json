@@ -7,31 +7,44 @@
   "transactions": [
     {
       "metadata": {
+        "name": "Upgrade the DelayedWETHProxy for the permissionless game",
+        "description": ""
+      },
+      "to": "0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc",
+      "value": "0x0",
+      "data": "<TODO - pending delayedweth impl deployment>",
+      "contractMethod": {
+        "type": "function",
+        "name": "upgradeAndCall",
+        "inputs": [
+          { "internalType": "address", "name": "_proxy", "type": "address" },
+          { "internalType": "address", "name": "_implementation", "type": "address" },
+          { "internalType": "bytes", "name": "_data", "type": "bytes" }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_proxy": "0x218CD9489199F321E1177b56385d333c5B598629",
+        "_implementation": "<TODO - new deployed contract>",
+        "_data": "0x485cc9550000000000000000000000001eb2ffc903729a0f03966b917003800b145f56e2000000000000000000000000c2be75506d5724086deb7245bd260cc9753911be"
+      }
+    },
+    {
+      "metadata": {
         "name": "Upgrade the AnchorStateRegistryProxy",
         "description": "Calls AnchorStateRegistryProxy.initialize for an OutputRoot (0xe4be16e06c7e983288edbf53e0d2c7ae4b433d3f843bb5606607f540c98e8944,15817045)"
       },
       "to": "0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc",
       "value": "0x0",
-      "data": "",
+      "data": "<TODO - pending impl deployment>",
       "contractMethod": {
         "type": "function",
         "name": "upgradeAndCall",
         "inputs": [
-          {
-            "internalType": "address",
-            "name": "_proxy",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "_implementation",
-            "type": "address"
-          },
-          {
-            "internalType": "bytes",
-            "name": "_data",
-            "type": "bytes"
-          }
+          { "internalType": "address", "name": "_proxy", "type": "address" },
+          { "internalType": "address", "name": "_implementation", "type": "address" },
+          { "internalType": "bytes", "name": "_data", "type": "bytes" }
         ],
         "outputs": [],
         "stateMutability": "nonpayable"
