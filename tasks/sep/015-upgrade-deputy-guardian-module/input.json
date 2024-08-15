@@ -1,0 +1,49 @@
+{
+  "chainId": 11155111,
+  "metadata": {
+    "name": "Upgrade DeputyGuardianModule",
+    "description": "Replace the DeputyGuardianModule in the Guardian Safe with a new version"
+  },
+  "transactions": [
+    {
+      "metadata": {
+        "name": "Disable the old DeputyGuardianModule",
+        "description": ""
+      },
+      "to": "0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E",
+      "value": "0",
+      "data": "0xe009cfde00000000000000000000000000000000000000000000000000000000000000010000000000000000000000004220c5ded9dc2c8a8366e684b098094790c72d3c",
+      "contractMethod": {
+        "inputs": [
+          { "internalType": "address", "name": "prevModule", "type": "address" },
+          { "internalType": "address", "name": "module", "type": "address" }
+        ],
+        "name": "disableModule",
+        "payable": false
+      },
+      "contractInputsValues": {
+          "prevModule": "0x0000000000000000000000000000000000000001",
+          "module": "0x4220C5deD9dC2C8a8366e684B098094790C72d3c"
+      }
+    },
+    {
+      "metadata": {
+        "name": "Enable the new DeputyGuardianModule",
+        "description": ""
+      },
+      "to": "0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E",
+      "value": "0",
+      "data": "0x610b5925000000000000000000000000eb3ef34acf1a6c1630807495bcc07ed3e7b0177e",
+      "contractMethod": {
+        "inputs": [
+          { "internalType": "address", "name": "module", "type": "address" }
+        ],
+        "name": "enableModule",
+        "payable": false
+      },
+      "contractInputsValues": {
+          "module": "<TOOD - new deployed DGM>"
+      }
+    }
+  ]
+}

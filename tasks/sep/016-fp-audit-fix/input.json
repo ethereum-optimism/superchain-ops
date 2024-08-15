@@ -1,0 +1,104 @@
+{
+  "chainId": 11155111,
+  "metadata": {
+    "name": "Fault Proofs Audit Fixes",
+    "description": "Upgrade Fault Dispute Game contract implementations"
+  },
+  "transactions": [
+    {
+      "metadata": {
+        "name": "Upgrade the AnchorStateRegistryProxy",
+        "description": "Calls AnchorStateRegistryProxy.initialize for an OutputRoot (0xe4be16e06c7e983288edbf53e0d2c7ae4b433d3f843bb5606607f540c98e8944,15817045)"
+      },
+      "to": "0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc",
+      "value": "0x0",
+      "data": "",
+      "contractMethod": {
+        "type": "function",
+        "name": "upgradeAndCall",
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_proxy",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "_implementation",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes",
+            "name": "_data",
+            "type": "bytes"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_proxy": "0x218CD9489199F321E1177b56385d333c5B598629",
+        "_implementation": "<TODO - new deployed contract>",
+        "_data": "0x5e05fbd00000000000000000000000000000000000000000000000000000000000000040000000000000000000000000c2be75506d5724086deb7245bd260cc9753911be00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000e4be16e06c7e983288edbf53e0d2c7ae4b433d3f843bb5606607f540c98e89440000000000000000000000000000000000000000000000000000000000f159550000000000000000000000000000000000000000000000000000000000000001e4be16e06c7e983288edbf53e0d2c7ae4b433d3f843bb5606607f540c98e89440000000000000000000000000000000000000000000000000000000000f15955"
+      }
+    },
+    {
+      "metadata": {
+        "name": "Reset the FaultDisputeGame implementation in DGF",
+        "description": "TODO"
+      },
+      "to": "0x05f9613adb30026ffd634f38e5c4dfd30a197fa1",
+      "value": "0x0",
+      "data": "0x14f6b1a30000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a4e392d63ae6096db5454fa178e2f8f99f8ef0ef",
+      "contractMethod": {
+        "type": "function",
+        "name": "setImplementation",
+        "inputs": [
+          {
+            "name": "_gameType",
+            "type": "uint32"
+          },
+          {
+            "name": "_impl",
+            "type": "address"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_gameType": "0",
+        "_impl": "<TODO>"
+      }
+    },
+    {
+      "metadata": {
+        "name": "Reset the PermissionedDisputeGame implementation in DGF",
+        "description": "TODO"
+      },
+      "to": "0x05f9613adb30026ffd634f38e5c4dfd30a197fa1",
+      "value": "0x0",
+      "data": "0x14f6b1a30000000000000000000000000000000000000000000000000000000000000001000000000000000000000000864fbe13bb239521a8c837a0aa7c7122ee3eb0b2",
+      "contractMethod": {
+        "type": "function",
+        "name": "setImplementation",
+        "inputs": [
+          {
+            "name": "_gameType",
+            "type": "uint32"
+          },
+          {
+            "name": "_impl",
+            "type": "address"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_gameType": "1",
+        "_impl": "<TODO>"
+      }
+    }
+  ]
+}
