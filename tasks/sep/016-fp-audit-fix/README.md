@@ -1,4 +1,4 @@
-# Sepolia FP Upgrade - Granite Prestate Update
+# Sepolia FP Upgrade - Fault Proof Audit Fixes
 
 Status: READY TO SIGN
 
@@ -16,7 +16,7 @@ Upgrades Fault Proof contracts to fix issues found in audits. This uses the `op-
 ## Simulation
 
 Please see the "Simulating and Verifying the Transaction" instructions in [NESTED.md](../../../NESTED.md).
-When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/sep/013-fp-granite-prestate/NestedSignFromJson.s.sol`.
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/sep/016-fp-audit-fix/NestedSignFromJson.s.sol`.
 This ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
 
 ## State Validation

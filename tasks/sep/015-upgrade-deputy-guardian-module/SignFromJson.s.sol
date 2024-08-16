@@ -34,7 +34,7 @@ contract SignFromJson is OriginalSignFromJson {
     GnosisSafe guardianSafe = GnosisSafe(payable(0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E));
     address constant livenessGuard = 0xc26977310bC89DAee5823C2e2a73195E85382cC7;
 
-    address constant expectedDeputyGuardianModule = vm.envAddress("DEPUTY_GUARDIAN_MODULE");
+    address expectedDeputyGuardianModule = vm.envAddress("DEPUTY_GUARDIAN_MODULE");
 
     Types.ContractSet proxies;
 
