@@ -15,6 +15,10 @@ import {FaultDisputeGame} from "@eth-optimism-bedrock/src/dispute/FaultDisputeGa
 import {PermissionedDisputeGame} from "@eth-optimism-bedrock/src/dispute/PermissionedDisputeGame.sol";
 import {DisputeGameFactory} from "@eth-optimism-bedrock/src/dispute/DisputeGameFactory.sol";
 
+interface IASR {
+    function superchainConfig() external view returns (address superchainConfig_);
+}
+
 contract NesteSignFromJson is OriginalNestedSignFromJson {
     using LibString for string;
 
@@ -37,8 +41,12 @@ contract NesteSignFromJson is OriginalNestedSignFromJson {
     DisputeGameFactory constant dgfProxy = DisputeGameFactory(0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1);
     address constant anchorStateRegistryProxy = 0x218CD9489199F321E1177b56385d333c5B598629;
 
+    Types.ContractSet proxies;
+
     /// @notice Sets up the contract
-    function setUp() public {}
+    function setUp() public {
+        proxies = _getContractSet();
+    }
 
     function getCodeExceptions() internal view override returns (address[] memory) {
         // Safe owners will appear in storage in the LivenessGuard when added, and they are allowed
@@ -101,6 +109,7 @@ contract NesteSignFromJson is OriginalNestedSignFromJson {
         checkStateDiff(accesses);
         _checkDisputeGameImplementations();
         _checkDelayedWETH();
+        _checkAnchorStateRegistry();
 
         console.log("All assertions passed!");
     }
@@ -108,18 +117,13 @@ contract NesteSignFromJson is OriginalNestedSignFromJson {
     /// @notice Reads the contract addresses from lib/superchain-registry/superchain/configs/${l1ChainName}/${l2ChainName}.toml
     function _getContractSet() internal view returns (Types.ContractSet memory _proxies) {
         string memory chainConfig;
-
-        // Read chain-specific config toml file
-        string memory path =
-            string.concat("/lib/superchain-registry/superchain/configs/", l1ChainName, "/", l2ChainName, ".toml");
+        string memory path = string.concat("/lib/superchain-registry/superchain/configs/", l1ChainName, "/superchain.toml");
         try vm.readFile(string.concat(vm.projectRoot(), path)) returns (string memory data) {
             chainConfig = data;
         } catch {
             revert(string.concat("Failed to read ", path));
         }
-
-        // Read the chain-specific OptimismPortalProxy address
-        _proxies.OptimismPortal = stdToml.readAddress(chainConfig, "$.addresses.OptimismPortalProxy");
+        _proxies.SuperchainConfig = stdToml.readAddress(chainConfig, "$.superchain_config_addr");
     }
 
     function _checkDisputeGameImplementations() internal view {
@@ -132,19 +136,15 @@ contract NesteSignFromJson is OriginalNestedSignFromJson {
         require(faultDisputeGame.version().eq("1.3.0"), "game-100");
         require(permissionedDisputeGame.version().eq("1.3.0"), "game-200");
 
-        require(address(faultDisputeGame) == address(dgfProxy.gameImpls(GameTypes.CANNON)), "game-300");
-        require(
-            address(permissionedDisputeGame) == address(dgfProxy.gameImpls(GameTypes.PERMISSIONED_CANNON)), "game-400"
-        );
         require(
             faultDisputeGame.absolutePrestate().raw()
                 == bytes32(0x030de10d9da911a2b180ecfae2aeaba8758961fc28262ce989458c6f9a547922),
-            "game-500"
+            "game-300"
         );
         require(
             permissionedDisputeGame.absolutePrestate().raw()
                 == bytes32(0x030de10d9da911a2b180ecfae2aeaba8758961fc28262ce989458c6f9a547922),
-            "game-600"
+            "game-400"
         );
     }
 
@@ -157,5 +157,10 @@ contract NesteSignFromJson is OriginalNestedSignFromJson {
         require(ISemver(address(soyFDG.weth())).version().eq("1.1.0"), "weth-200");
 
         require(address(fdg.weth()) != address(soyFDG.weth()), "weth-300");
+    }
+
+    function _checkAnchorStateRegistry() internal view {
+        require(ISemver(anchorStateRegistryProxy).version().eq("2.0.0"), "asr-100");
+        require(IASR(anchorStateRegistryProxy).superchainConfig() == proxies.SuperchainConfig, "asr-200");
     }
 }

@@ -8,7 +8,7 @@
     {
       "metadata": {
         "name": "Upgrade AnchorStateRegistry to StorageSetter and clear legacy initialized slot",
-        "description": ""
+        "description": "By clearing the initialied slot, we can call initialize again using the upgraded implementation"
       },
       "to": "0x189abaaaa82dfc015a588a7dbad6f13b1d3485bc",
       "value": "0x0",
@@ -67,7 +67,7 @@
     {
       "metadata": {
         "name": "Reset the FaultDisputeGame implementation in DGF",
-        "description": "TODO"
+        "description": "TODO(uses dummy implementation address)"
       },
       "to": "0x05f9613adb30026ffd634f38e5c4dfd30a197fa1",
       "value": "0x0",
@@ -96,7 +96,7 @@
     {
       "metadata": {
         "name": "Reset the PermissionedDisputeGame implementation in DGF",
-        "description": "TODO"
+        "description": "TODO(uses dummy implementation address)"
       },
       "to": "0x05f9613adb30026ffd634f38e5c4dfd30a197fa1",
       "value": "0x0",
