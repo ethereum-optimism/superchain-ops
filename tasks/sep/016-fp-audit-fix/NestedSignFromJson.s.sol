@@ -26,7 +26,7 @@ contract NesteSignFromJson is OriginalNestedSignFromJson {
     GnosisSafe securityCouncilSafe = GnosisSafe(payable(vm.envAddress("COUNCIL_SAFE")));
     GnosisSafe fndSafe = GnosisSafe(payable(vm.envAddress("FOUNDATION_SAFE")));
     GnosisSafe ownerSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
-    address livenessGuard = 0xc26977310bC89DAee5823C2e2a73195E85382cC7;
+    address constant livenessGuard = 0xc26977310bC89DAee5823C2e2a73195E85382cC7;
 
     address constant systemConfigOwner = 0xfd1D2e729aE8eEe2E146c033bf4400fE75284301; // In registry addresses.
     address constant batchSenderAddress = 0x8F23BB38F531600e5d8FDDaAEC41F13FaB46E98c; // In registry genesis-system-configs
@@ -35,6 +35,7 @@ contract NesteSignFromJson is OriginalNestedSignFromJson {
 
     // See https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/sepolia/op.json#L12
     DisputeGameFactory constant dgfProxy = DisputeGameFactory(0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1);
+    address constant anchorStateRegistryProxy = 0x218CD9489199F321E1177b56385d333c5B598629;
 
     /// @notice Sets up the contract
     function setUp() public {}
@@ -80,12 +81,13 @@ contract NesteSignFromJson is OriginalNestedSignFromJson {
     }
 
     function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
-        allowed = new address[](5);
+        allowed = new address[](6);
         allowed[0] = address(dgfProxy);
         allowed[1] = address(ownerSafe);
         allowed[2] = address(securityCouncilSafe);
         allowed[3] = address(fndSafe);
         allowed[4] = livenessGuard;
+        allowed[5] = anchorStateRegistryProxy;
     }
 
     /// @notice Checks the correctness of the deployment
@@ -124,7 +126,8 @@ contract NesteSignFromJson is OriginalNestedSignFromJson {
         console.log("check dispute game implementations");
 
         FaultDisputeGame faultDisputeGame = FaultDisputeGame(address(dgfProxy.gameImpls(GameTypes.CANNON)));
-        PermissionedDisputeGame permissionedDisputeGame = PermissionedDisputeGame(address(dgfProxy.gameImpls(GameTypes.PERMISSIONED_CANNON)));
+        PermissionedDisputeGame permissionedDisputeGame =
+            PermissionedDisputeGame(address(dgfProxy.gameImpls(GameTypes.PERMISSIONED_CANNON)));
 
         require(faultDisputeGame.version().eq("1.3.0"), "game-100");
         require(permissionedDisputeGame.version().eq("1.3.0"), "game-200");
@@ -149,7 +152,8 @@ contract NesteSignFromJson is OriginalNestedSignFromJson {
         FaultDisputeGame fdg = FaultDisputeGame(address(dgfProxy.gameImpls(GameTypes.CANNON)));
         require(ISemver(address(fdg.weth())).version().eq("1.1.0"), "weth-100");
 
-        PermissionedDisputeGame soyFDG = PermissionedDisputeGame(address(dgfProxy.gameImpls(GameTypes.PERMISSIONED_CANNON)));
+        PermissionedDisputeGame soyFDG =
+            PermissionedDisputeGame(address(dgfProxy.gameImpls(GameTypes.PERMISSIONED_CANNON)));
         require(ISemver(address(soyFDG.weth())).version().eq("1.1.0"), "weth-200");
 
         require(address(fdg.weth()) != address(soyFDG.weth()), "weth-300");
