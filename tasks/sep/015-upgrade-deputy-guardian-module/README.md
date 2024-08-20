@@ -1,6 +1,6 @@
 # Sepolia Deputy Guardian Module Upgrade
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x51d95569e788638692f3ee8102848b64bf1ff0e40a37f1558259a323ca3674a9)
 
 ## Objective
 

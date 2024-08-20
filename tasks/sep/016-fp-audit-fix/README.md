@@ -1,6 +1,6 @@
 # Sepolia FP Upgrade - Fault Proof Audit Fixes
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x7d8d6c046b9fadd7550f239068423c8acb21bc759f7fc65186287c9078caa17e)
 
 ## Objective
 
