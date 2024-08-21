@@ -1,6 +1,6 @@
 # Deputy Guardian - Fall back to `PermissionedDisputeGame`
 
-Status: READY TO SIGN
+Status: CANCELLED
 
 ## Objective
 
