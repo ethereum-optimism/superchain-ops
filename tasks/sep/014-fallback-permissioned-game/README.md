@@ -1,6 +1,6 @@
 # Deputy Guardian - Fall back to `PermissionedDisputeGame`
 
-Status: READY TO SIGN
+Status: EXECUTED
 
 ## Objective
 
@@ -56,6 +56,7 @@ Slot [`0x000000000000000000000000000000000000000000000000000000000000003b`](http
 | `[28, 32)` | `respectedGameType` (32 bits, big-endian)                    |
 
 Note that the offsets in the above table refer to the slot value's big-endian representation. You can compute the offset values with chisel:
+
 ```
 ➜ uint256 x = 0x000000000000000000000000000000000000000000000000669eeed200000001
 ➜ uint64 respectedGameTypeUpdatedAt = uint64(x >> 32)
