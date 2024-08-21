@@ -6,9 +6,9 @@ Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x51d95569e788638692f3ee81028
 
 Expands the powers of the `DeputyGuardian` via an upgraded `DeputyGuardianModule`.
 
-## Pre-Deployments (TODO)
+## Pre-Deployments
 
-- `DeputyGuardianModule` - [`x`](https://sepolia.etherscan.io/address/x).
+- `DeputyGuardianModule` - [`0xfd7E6Ef1f6c9e4cC34F54065Bf8496cE41A4e2e8`](https://sepolia.etherscan.io/address/0xfd7E6Ef1f6c9e4cC34F54065Bf8496cE41A4e2e8).
 
 ## Simulation
 
