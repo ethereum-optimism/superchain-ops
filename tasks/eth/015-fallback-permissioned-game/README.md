@@ -1,6 +1,6 @@
 # Deputy Guardian - Fall back to `PermissionedDisputeGame`
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0x493e2f3354e8c6c46fb37925a13c02364c1f3b38f88548b9bb4673e3fc762e69)
 
 ## Objective
 
