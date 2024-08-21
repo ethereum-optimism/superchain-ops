@@ -19,7 +19,7 @@ interface IASR {
     function superchainConfig() external view returns (address superchainConfig_);
 }
 
-contract NesteSignFromJson is OriginalNestedSignFromJson {
+contract NestedSignFromJson is OriginalNestedSignFromJson {
     using LibString for string;
 
     // Chains for this task.
