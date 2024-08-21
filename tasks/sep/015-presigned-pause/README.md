@@ -1,6 +1,6 @@
 # Superchain Presigned Pause
 
-Status: SIGNED
+Status: **DRAFT**
 
 See [../../../PRESIGNED-PAUSE.md](../../../PRESIGNED-PAUSE.md) for the playbook.
 
