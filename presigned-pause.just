@@ -156,3 +156,66 @@ simulate-all:
       --json-file ${taskPath}/tx/draft-${nonce}.json \
       simulate
   done
+
+upload-PSPs:
+ #!/bin/bash
+ # Navigate to the directory containing the JSON files
+ # Uncomment and modify the next line if you need to change directories
+ echo "=================== PSPs Uploader ============================="
+ echo "This is about to Upload the PSPs (ready-X.sh.b64 and ready-X.json) to 1Password"
+ echo "Please make sure you have the files in the tx/ folder, if the PSPs is already uploaded this will duplicates it."
+ # Check if there is one-password cli installed on the system.
+ if which op >/dev/null 2>&1; then
+    echo "op is installed."
+ else
+    echo "op is not installed, please install op (one-password cli) using homebrew."
+    exit
+ fi
+
+ cd $taskPath/tx
+ # Loop through all files matching the pattern "ready-*.json"
+ whereis op
+ for file in ready-*; do
+     # Check if the file exists to avoid errors with non-existent glob matches
+     echo " file: "$file""
+     if [[ -f "$file" ]]; then
+         # Execute the command using the current file
+         cat "$file" | op document create --file-name "$file" --vault="Pre-signed Pause OP Sepolia"
+     else
+         echo "No files found matching the pattern."
+     fi
+ done
+ echo "========================= READ ====================================="
+ echo "Make sure you did the just zip-PSPs command to share them with BASE."
+ echo "Now, make sure the PSPs are not empty into the 1Password."
+ echo "[⚠️IMPORTANT STEP⚠️] Remove the PSPs you received from Slack, and also on the current folder (remove all the signatures that could help an attacker executing this)!"
+
+zip-PSPs:
+ #!/bin/bash
+ echo "=================== PSPs Zipping ============================="
+ echo "This script will ZIP the PSPs into an archive encrypted with a Password (that is asked into the stdin)"
+ echo "This will be helpful for sharing the PSPs with BASE for example."
+ DATE=`date +%d-%m-%Y_%H-%M`
+ ZIPNAME=/tmp/psps_$DATE.zip
+ FOLDERNAME=/tmp/psps_$DATE
+ if which zip >/dev/null 2>&1; then
+    echo "zip is installed."
+ else
+    echo "zip is not installed, please install zip using homebrew."
+    exit
+ fi
+ cd $taskPath/tx
+ mkdir $FOLDERNAME
+ cp ready-* $FOLDERNAME
+ echo "Make sure all the ready are inside the folder:"
+ ls -lrta $FOLDERNAME
+ ## zip with the password
+ echo "Please enter the password for the ZIP file:"
+ zip -e -r $ZIPNAME $FOLDERNAME
+ file $ZIPNAME
+ echo "Content of the ZIP archive:"
+ unzip -l $ZIPNAME
+ rm -rf $FOLDERNAME 
+ echo "The file $ZIPNAME is zipped with the password and is ready to be shared to unzip please use the command:"
+ echo "Make sure again to not let any sensitive information the folder."
+ echo "unzip $ZIPNAME"
