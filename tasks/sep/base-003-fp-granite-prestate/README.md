@@ -19,15 +19,15 @@ git clone git@github.com:ethereum-optimism/optimism && \
 
 ## Pre-deployments
 
-The `FaultDisputeGame` has been deployed at [`0x19e9d5a58Cbc82120C8AB163bE2aE544ECF4B802`](https://sepolia.etherscan.io/address/0x19e9d5a58cbc82120c8ab163be2ae544ecf4b802).
+The `FaultDisputeGame` has been deployed at [`0x48F9F3190b7B5231cBf2aD1A1315AF7f6A554020`](https://sepolia.etherscan.io/address/0x48F9F3190b7B5231cBf2aD1A1315AF7f6A554020).
 
-The `PermissionedDisputeGame` has been deployed at [`0x7ef30b65d49229fc97d4b45bfcf3c435b179771f`](https://sepolia.etherscan.io/address/0x7ef30b65d49229fc97d4b45bfcf3c435b179771f).
+The `PermissionedDisputeGame` has been deployed at [`0x54966d5A42a812D0dAaDe1FA2321FF8b102d1ee1`](https://sepolia.etherscan.io/address/0x54966d5A42a812D0dAaDe1FA2321FF8b102d1ee1).
 
 ## Simulation
 
-Please see the "Simulating and Verifying the Transaction" instructions in [NESTED.md](../../../NESTED.md).
-When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/sep/013-fp-granite-prestate/NestedSignFromJson.s.sol`.
-This ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
+Please see the "Simulating and Verifying the Transaction" instructions in [SINGLE.md](../../../SINGLE.md).
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/sep/base-003-fp-granite-prestate/SignFromJson.s.sol`.
+This ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
 
 ## State Validation
 
@@ -45,17 +45,17 @@ Upgrades the implementation of the `FaultDisputeGame` in the `DisputeGameFactory
 
 **Function Signature:** `setImplementation(uint32,address)`
 
-**To:** `0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1`
+**To:** `0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1`
 
 **Value:** `0 WEI`
 
-**Raw Input Data:** `0x14f6b1a3000000000000000000000000000000000000000000000000000000000000000000000000000000000000000078f2b801730dbd937fe2e209afb3e1cdf3c460bc`
+**Raw Input Data:** `0x14f6b1a3000000000000000000000000000000000000000000000000000000000000000000000000000000000000000048f9f3190b7b5231cbf2ad1a1315af7f6a554020`
 
 ### Inputs
 
-**\_impl:** `0x78F2B801730DBD937Fe2e209aFB3E1CdF3c460Bc`
-
 **\_gameType:** `0`
+
+**\_impl:** `0x48F9F3190b7B5231cBf2aD1A1315AF7f6A554020`
 
 ## Tx #2: Upgrade `PermissionedDisputeGame`
 
@@ -63,14 +63,14 @@ Upgrades the implementation of the `PermissionedDisputeGame` in the `DisputeGame
 
 **Function Signature:** `setImplementation(uint32,address)`
 
-**To:** `0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1`
+**To:** `0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1`
 
 **Value:** `0 WEI`
 
-**Raw Input Data:** `0x14f6b1a300000000000000000000000000000000000000000000000000000000000000010000000000000000000000004873712bdb5fe5b3487bf0a48fff1cdfba794cfd`
+**Raw Input Data:** `0x14f6b1a3000000000000000000000000000000000000000000000000000000000000000100000000000000000000000054966d5a42a812d0daade1fa2321ff8b102d1ee1`
 
 ### Inputs
 
 **\_gameType:** `1`
 
-**\_impl:** `0x4873712BdB5Fe5B3487Bf0A48FfF1Cdfba794CFD`
+**\_impl:** `0x54966d5A42a812D0dAaDe1FA2321FF8b102d1ee1`
