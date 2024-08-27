@@ -166,7 +166,7 @@ upload-PSPs:
  echo "Please make sure you have the files in the tx/ folder, if the PSPs is already uploaded this will duplicate it."
  # Check if there is one-password cli installed on the system.
  if which op >/dev/null 2>&1; then
-    echo "op is installed."
+    echo "op (one-password cli) is installed."
  else
     echo "op is not installed, please install op (one-password cli) using homebrew."
     exit
