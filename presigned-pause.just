@@ -168,7 +168,7 @@ upload-PSPs:
  if which op >/dev/null 2>&1; then
     echo "op (one-password cli) is installed."
  else
-    echo "op is not installed, please install op (one-password cli) using homebrew."
+    echo "op is not installed, please install op (one-password cli) using homebrew. Using brew install --cask 1password-cli"
     exit
  fi
 
@@ -195,19 +195,19 @@ zip-PSPs:
  echo "=================== PSPs Zipping ============================="
  echo "This script will ZIP the PSPs into an archive encrypted with a Password (that is asked into the stdin)"
  echo "This will be helpful for sharing the PSPs with BASE for example."
- DATE=`date +%d-%m-%Y_%H-%M`
+ DATE=`date +%Y-%m-%d_%H-%M`
  ZIPNAME=/tmp/psps_$DATE.zip
  FOLDERNAME=/tmp/psps_$DATE
  if which zip >/dev/null 2>&1; then
     echo "zip is installed."
  else
-    echo "zip is not installed, please install zip using homebrew."
+    echo "zip is not installed, please install zip using homebrew. Using brew install zip"
     exit
  fi
  cd $taskPath/tx
  mkdir $FOLDERNAME
  cp ready-* $FOLDERNAME
- echo "Make sure all the ready are inside the folder:"
+ echo "Make sure all the ready files are inside the folder:"
  ls -lrta $FOLDERNAME
  ## zip with the password
  echo "Please enter the password for the ZIP file:"
@@ -216,6 +216,8 @@ zip-PSPs:
  echo "Content of the ZIP archive:"
  unzip -l $ZIPNAME
  rm -rf $FOLDERNAME 
- echo "The file $ZIPNAME is zipped with the password and is ready to be shared to unzip please use the command:"
- echo "Make sure again to not let any sensitive information the folder."
+ echo "The file $ZIPNAME is zipped with the password and is ready to be shared."
+ echo "To unzip please use the command:"
  echo "unzip $ZIPNAME"
+ echo "================================================================"
+ echo "Make sure again to not let any sensitive informations, into the current folder like the PSPs files."

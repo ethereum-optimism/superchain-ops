@@ -16,7 +16,7 @@ contract PresignPauseFromJson is MultisigBuilder, JsonTxBuilderBase {
     function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
         allowed = new address[](2);
         allowed[0] = vm.envAddress("SUPERCHAIN_CONFIG_ADDR"); // The storage for the pause will be set to `1`.
-        allowed[1] = _ownerSafe(); // The nonce is updated in the FoS.
+        allowed[1] = _ownerSafe(); // The nonce is updated in the  Foundation Operations Safe (FOS).
     }
 
     function _addGenericOverrides() internal view virtual override returns (SimulationStateOverride memory override_) {
