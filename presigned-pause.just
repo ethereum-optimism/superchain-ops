@@ -163,7 +163,7 @@ upload-PSPs:
  # Uncomment and modify the next line if you need to change directories
  echo "=================== PSPs Uploader ============================="
  echo "This is about to Upload the PSPs (ready-X.sh.b64 and ready-X.json) to 1Password"
- echo "Please make sure you have the files in the tx/ folder, if the PSPs is already uploaded this will duplicates it."
+ echo "Please make sure you have the files in the tx/ folder, if the PSPs is already uploaded this will duplicate it."
  # Check if there is one-password cli installed on the system.
  if which op >/dev/null 2>&1; then
     echo "op is installed."
