@@ -186,8 +186,8 @@ upload-PSPs:
      fi
  done
  echo "========================= READ ====================================="
- echo "Make sure you did the just zip-PSPs command to share them with BASE."
- echo "Now, make sure the PSPs are not empty into the 1Password."
+ echo "Make sure you run the just zip-PSPs command to share them with Base."
+ echo "Now, make sure the PSPs are not empty into the 1Password (i.e. the signatures must be present)."
  echo "[⚠️IMPORTANT STEP⚠️] Remove the PSPs you received from Slack, and also on the current folder (remove all the signatures that could help an attacker executing this)!"
 
 zip-PSPs:
