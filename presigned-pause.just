@@ -157,12 +157,12 @@ simulate-all:
       simulate
   done
 
-upload-PSPs:
+upload-PSPs VAULTNAME:
  #!/bin/bash
  # Navigate to the directory containing the JSON files
  # Uncomment and modify the next line if you need to change directories
  echo "=================== PSPs Uploader ============================="
- echo "This is about to Upload the PSPs (ready-X.sh.b64 and ready-X.json) to 1Password"
+ echo "This is about to Upload the PSPs (ready-X.sh.b64 and ready-X.json) to 1Password in the vault \"{{VAULTNAME}}\""
  echo "Please make sure you have the files in the tx/ folder, if the PSPs is already uploaded this will duplicate it."
  # Check if there is one-password cli installed on the system.
  if which op >/dev/null 2>&1; then
@@ -180,7 +180,7 @@ upload-PSPs:
      echo " file: "$file""
      if [[ -f "$file" ]]; then
          # Execute the command using the current file
-         cat "$file" | op document create --file-name "$file" --vault="Pre-signed Pause OP Sepolia"
+         cat "$file" | op document create --file-name "$file" --vault="{{VAULTNAME}}"
      else
          echo "No files found matching the pattern."
      fi
