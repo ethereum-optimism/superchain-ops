@@ -1,12 +1,11 @@
 # Superchain Presigned Pause
 
-Status: READY TO SIGN
-
+Status: SIGNED
 See [../../../PRESIGNED-PAUSE.md](../../../PRESIGNED-PAUSE.md) for the playbook.
 
 ## Objective
 
-The Deputy Guardian Module was updated which broke the [previous pre-signed pauses](../011-presigned-pause/). 
+The Deputy Guardian Module was updated which broke the [previous pre-signed pauses](../011-presigned-pause/).
 
 This generates new presigned pauses for Sepolia based on the architecture introduced in [tasks/sep/006-1-guardian-upgrade](../006-1-guardian-upgrade/README.md) and [tasks/sep/006-2-sc-changes](../006-2-sc-changes/README.md).
 
