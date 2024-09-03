@@ -181,7 +181,7 @@ upload-PSPs:
  fi
 
  # Ask for confirmation before proceeding
- read -p "Do you want to continue, with the ? (y/n): " confirm
+ read -p "Do you want to continue, with the upload? (y/n): " confirm
  if [[ $confirm != [yY] ]]; then
      echo "Operation cancelled."
      exit 1
