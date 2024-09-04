@@ -24,7 +24,7 @@ The proposal was:
 
 Please see the "Simulating and Verifying the Transaction" instructions in [SINGLE.md](../../../SINGLE.md).
 
-When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/eth/016-upgrade-deputy-guardian-module/SignFromJson.s.sol`. This ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/eth/019-upgrade-deputy-guardian-module/SignFromJson.s.sol`. This ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
 
 Do NOT yet proceed to the "Execute the Transaction" section.
 
