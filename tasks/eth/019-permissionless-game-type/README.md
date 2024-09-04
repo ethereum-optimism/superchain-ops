@@ -14,7 +14,7 @@ This batch must be executed after Granite activates on mainnet on **Wed 11 Sep 2
 
 Please see the "Simulating and Verifying the Transaction" instructions in [SINGLE.md](../../../SINGLE.md).
 
-When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/eth/018-permissioneless-game-type/SignFromJson.s.sol`. This ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/eth/019-permissioneless-game-type/SignFromJson.s.sol`. This ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
 
 Do NOT yet proceed to the "Execute the Transaction" section.
 
@@ -64,4 +64,4 @@ To verify the diff:
 
 At this point you may resume following the execution instructions in the "Execute the Transaction" section of [SINGLE.md](../../../SINGLE.md).
 
-When executing, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/eth/018-permissionless-game-type/SignFromJson.s.sol`. This ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
+When executing, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/eth/019-permissionless-game-type/SignFromJson.s.sol`. This ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
