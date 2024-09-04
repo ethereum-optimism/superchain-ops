@@ -8,6 +8,8 @@ This batch updates the `respectedGameType` to `CANNON` in the `OptimismPortalPro
 
 The batch will be executed on chain ID `1`, and contains `1` transactions.
 
+This batch must be executed after Granite activates on mainnet on **Wed 11 Sep 2024 16:00:01 UTC**.
+
 ## Simulation
 
 Please see the "Simulating and Verifying the Transaction" instructions in [SINGLE.md](../../../SINGLE.md).
