@@ -36,7 +36,7 @@ Governance post of the upgrade can be found at https://gov.optimism.io/t/upgrade
 
 Please see the "Simulating and Verifying the Transaction" instructions in [NESTED.md](../../../NESTED.md).
 
-When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/eth/017-granite-upgrade/NestedSignFromJson.s.sol`. This ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/eth/018-granite-upgrade/NestedSignFromJson.s.sol`. This ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
 
 Do NOT yet proceed to the "Execute the Transaction" section.
 
