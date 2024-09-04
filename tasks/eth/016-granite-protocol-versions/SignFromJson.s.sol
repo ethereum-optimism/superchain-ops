@@ -58,7 +58,7 @@ contract SignFromJson is OriginalSignFromJson {
         console.log("Checking ProtocolVersions at ", proxies.ProtocolVersions);
         ProtocolVersions pv = ProtocolVersions(proxies.ProtocolVersions);
         require(pv.owner() == foundationUpgradesSafe, "PV owner must be Foundation Upgrade Safe");
-        // We ignore the recommended version, as it is set by task#011
+        // We ignore the recommended version, as it is set by this task
         require(ProtocolVersion.unwrap(pv.required()) == protoVerGranite, "Required PV must be Granite");
         require(ProtocolVersion.unwrap(pv.recommended()) == protoVerGranite, "Required PV must be Granite");
     }
@@ -82,7 +82,7 @@ contract SignFromJson is OriginalSignFromJson {
         override
         returns (SimulationStateOverride[] memory overrides_)
     {
-        // set owner of ProtocolVersions to FUS (#011)
+        // set owner of ProtocolVersions to FUS
         bytes32 ownerSlot = 0x0000000000000000000000000000000000000000000000000000000000000033;
         overrides_ = new SimulationStateOverride[](1);
         overrides_[0].contractAddress = proxies.ProtocolVersions;
