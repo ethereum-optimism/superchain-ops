@@ -23,8 +23,8 @@ Enables the simulation by setting the threshold to 1:
   **Meaning:** The threshold is set to 1. The key can be validated by the location of the `threshold` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L14).
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
-  **Value:** `0x0000000000000000000000000000000000000000000000000000000000000004`
-  **Meaning:** Sets the Safe nonce to the hardcoded value of 4. This is the expected value of the Safe nonce at the time of execution. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
+  **Value:** `0x0000000000000000000000000000000000000000000000000000000000000007`
+  **Meaning:** Sets the Safe nonce to the hardcoded value of 7. This is the expected value of the Safe nonce at the time of execution. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
 
 ## State changes
 
@@ -66,3 +66,9 @@ State Changes:
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After:** `0x000000000000000000000000000000000000000000000000000000006675b61f` <br/>
   **Meaning:** This updates the [`lastLive mapping`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.5.0/packages/contracts-bedrock/src/Safe/LivenessGuard.sol#L36) indicating liveness of an owner that participated in signing. This will be updated to a block timestamp that matches the time when this task was executed. Note that the "before" value may be non-zero for signers that have participated in signing.
+
+### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Security Council Safe)
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000007` <br/>
+  **After:** `0x0000000000000000000000000000000000000000000000000000000000000008` <br/>
+  **Meaning:** The safe nonce increment.
