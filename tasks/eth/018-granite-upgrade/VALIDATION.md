@@ -77,12 +77,12 @@ And we do indeed see these entries:
 - **Key**: `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
   **Before:** `0x0000000000000000000000006b7da1647aa9684f54b2beeb699f91f31cd35fb9` <br/>
   **After**: `0x0000000000000000000000001b5cc028a4276597c607907f24e1ac05d3852cfc` <br/>
-  **Meaning**: Updates the eip1967 proxy implementation slot <br/>
+  **Meaning**: Updates the eip1967 proxy implementation slot. <br/>
 
 - **Key**: `0x2` <br/>
   **Before:** `0x0` <br/>
   **After**: `0x00000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c` <br/>
-  **Meaning**: Sets the superchain config slot value <br/>
+  **Meaning**: Sets the superchain config slot value. <br/>
 
 ### `0x24424336F04440b1c28685a38303aC33C9D14a25` (`LivenessGuard`, Council only)
 
