@@ -1,0 +1,39 @@
+{
+  "chainId": 1,
+  "metadata": {
+    "name": "Deputy Guardian - Re-enable permissionless `FaultDisputeGame`",
+    "description": "This batch updates the `respectedGameType` to `CANNON` in the `OptimismPortal`. This action requires all in-progress withdrawals to be re-proven against a new `FaultDisputeGame` that was created after this update occurs."
+  },
+  "transactions": [
+    {
+      "metadata": {
+        "name": "Deputy Guardian - Use permissionless `FaultDisputeGame`",
+        "description": "Set the `respectedGameType` to `CANNON` in the OptimismPortal"
+      },
+      "to": "0x5dC91D01290af474CE21DE14c17335a6dEe4d2a8",
+      "value": "0x0",
+      "data": "0xa1155ed9000000000000000000000000beb5fc579115071764c7423a4f12edde41f106ed0000000000000000000000000000000000000000000000000000000000000000",
+      "contractMethod": {
+        "type": "function",
+        "name": "setRespectedGameType",
+        "inputs": [
+          {
+            "name": "_portal",
+            "type": "address"
+          },
+          {
+            "name": "_gameType",
+            "type": "uint32"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_portal": "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed",
+        "_gameType": "0"
+      }
+    }
+  ]
+}
+
