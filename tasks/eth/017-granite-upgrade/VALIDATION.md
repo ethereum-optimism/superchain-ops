@@ -101,4 +101,6 @@ The only other state changes should be restricted to one of the following addres
   - The nonce (slot 0x5) should be increased from 5 to 6.
   - Another key is set from 0 to 1 reflecting an entry in the `approvedHashes` mapping.
 - Security Council L1 Safe: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`
-  - The nonce (slot 0x5) should be increased from 6 to 7.
+  - The nonce (slot 0x5) should be increased from 6 to 7. This only occurs for Council signers.
+- Foundation Safe: `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`
+  - The nonce (slot 0x5) should be increased from 7 to 8. This only occurs for Foundation signers.
