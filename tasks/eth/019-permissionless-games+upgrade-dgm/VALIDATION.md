@@ -1,6 +1,6 @@
 # Validation
 
-This document can be used to validate the state diff resulting from the execution of resetting the `OptimismPortal` respectedGameType and upgrading the DeputyGuardianModule.
+This document can be used to validate the state diff resulting from the execution of resetting the `OptimismPortal` respectedGameType and upgrading the `DeputyGuardianModule`.
 
 For each contract listed in the state diff, please verify that no contracts or state changes shown in the Tenderly diff are missing from this document. Additionally, please verify that for each contract:
 
@@ -36,7 +36,7 @@ Links:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
 **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
 **After:** `0x0000000000000000000000000000000000000000000000000000000000000004` <br/>
-**Meaning:** The nonce has been increased to 4, for `setRespectedGameType`, disableModule` and `enableModule` operations. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
+**Meaning:** The nonce has been increased to 4, for `setRespectedGameType`, `disableModule` and `enableModule` operations. The key can be validated by the location of the `nonce` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L17).
 
 - **Key**: `0x122c127b258a6e22748d3f3c38ae3a4c32252b46d3ad49e5d85acb3626c15d39` <br/>
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>

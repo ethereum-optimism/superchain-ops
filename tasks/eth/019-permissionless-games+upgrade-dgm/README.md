@@ -18,7 +18,7 @@ The governance proposal was:
 - [x] Not vetoed by the Citizens' house [here](https://snapshot.org/#/citizenshouse.eth/proposal/0xb0c109d7f68d3cb1054a50f55556d1820e517129b4b53774cb9ca32e0eabe3a4).
 - [ ] Executed on OP Mainnet.
 
-The batch will be executed on chain ID `1`, and contains `1` transactions.
+The batch will be executed on chain ID `1`, and contains `3` transactions.
 
 This batch must be executed after Granite activates on mainnet on **Wed 11 Sep 2024 16:00:01 UTC**.
 
@@ -31,7 +31,7 @@ This batch must be executed after Granite activates on mainnet on **Wed 11 Sep 2
 
 Please see the "Simulating and Verifying the Transaction" instructions in [SINGLE.md](../../../SINGLE.md).
 
-When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/eth/019-permissioneless-games+upgrade-dgm/SignFromJson.s.sol`. This ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/eth/019-permissionless-games+upgrade-dgm/SignFromJson.s.sol`. This ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
 
 Do NOT yet proceed to the "Execute the Transaction" section.
 
