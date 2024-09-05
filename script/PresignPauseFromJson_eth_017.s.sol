@@ -21,34 +21,21 @@ contract PresignPauseFromJson_eth_017 is OriginalPresignPauseFromJson {
     }
 
     /// @notice Inserts the DeputyGuardianModule into the Guardian Safe's modules list
-    function _addGuardianSafeOverrides()
-        internal
-        view
-        returns (SimulationStateOverride memory override_)
-    {
-        address deputyGuardianModule = vm.envAddress(
-            "DEPUTY_GUARDIAN_MODULE_ADDR"
-        );
+    function _addGuardianSafeOverrides() internal view returns (SimulationStateOverride memory override_) {
+        address deputyGuardianModule = vm.envAddress("DEPUTY_GUARDIAN_MODULE_ADDR");
         override_.contractAddress = guardianSafe;
         override_.overrides = new SimulationStorageOverride[](2);
         // Ensure the sentinel module (`address(0x01)`) is pointing to the `DeputyGuardianModule`
         // This is `modules[0x1]`, so the key can be derived from
         // `cast index address 0x0000000000000000000000000000000000000001 1`.
         override_.overrides[0] = SimulationStorageOverride({
-            key: keccak256(
-                abi.encode(bytes32(uint256(1)), bytes32(uint256(1)))
-            ),
+            key: keccak256(abi.encode(bytes32(uint256(1)), bytes32(uint256(1)))),
             value: bytes32(uint256(uint160(deputyGuardianModule)))
         });
 
         // Ensure the DeputyGuardianModule is pointing to the sentinel module.
         override_.overrides[1] = SimulationStorageOverride({
-            key: keccak256(
-                abi.encode(
-                    bytes32(uint256(uint160(deputyGuardianModule))),
-                    bytes32(uint256(1))
-                )
-            ),
+            key: keccak256(abi.encode(bytes32(uint256(uint160(deputyGuardianModule))), bytes32(uint256(1)))),
             value: bytes32(uint256(1))
         });
     }
