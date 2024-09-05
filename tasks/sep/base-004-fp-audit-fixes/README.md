@@ -1,6 +1,6 @@
 # Base Sepolia Fault Proofs Audit Fixes Upgrade
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xc3bd572d932db4296e65db9a16876868a2a32af26810205c594e81487f4dbc90)
 
 ## Objective
 
