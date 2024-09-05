@@ -160,16 +160,31 @@ simulate-all:
 upload-PSPs:
  #!/bin/bash
  # Navigate to the directory containing the JSON files
- # Uncomment and modify the next line if you need to change directories
+ # Determine the VAULTNAME based on the taskPath.
+ if [[ "$taskPath" == *"sep"* ]]; then
+    VAULTNAME="Pre-signed Pause OP Sepolia"
+ elif [[ "$taskPath" == *"eth"* ]]; then
+    VAULTNAME="Pre-signed Pause OP Mainnet"
+ else
+    echo "Unable to determine vault from taskPath"
+    exit 1
+ fi
  echo "=================== PSPs Uploader ============================="
- echo "This is about to Upload the PSPs (ready-X.sh.b64 and ready-X.json) to 1Password"
- echo "Please make sure you have the files in the tx/ folder, if the PSPs is already uploaded this will duplicate it."
+ echo "This is about to Upload the PSPs (ready-X.sh.b64 and ready-X.json) to 1Password in the vault \"$VAULTNAME\""
+ echo "Please make sure you have the files in the \"tx/\" folder, if the PSPs is already uploaded this will duplicate it with the same name."
  # Check if there is one-password cli installed on the system.
  if which op >/dev/null 2>&1; then
-    echo "op (one-password cli) is installed."
+    echo "op (one-password cli) is installed. We can proceed..."
  else
     echo "op is not installed, please install op (one-password cli) using homebrew. Using brew install --cask 1password-cli"
     exit
+ fi
+
+ # Ask for confirmation before proceeding
+ read -p "Do you want to continue, with the upload? (y/n): " confirm
+ if [[ $confirm != [yY] ]]; then
+     echo "Operation cancelled."
+     exit 1
  fi
 
  cd $taskPath/tx
@@ -180,7 +195,7 @@ upload-PSPs:
      echo " file: "$file""
      if [[ -f "$file" ]]; then
          # Execute the command using the current file
-         cat "$file" | op document create --file-name "$file" --vault="Pre-signed Pause OP Sepolia"
+         cat "$file" | op document create --file-name "$file" --vault="$VAULTNAME"
      else
          echo "No files found matching the pattern."
      fi

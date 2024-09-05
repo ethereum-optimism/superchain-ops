@@ -1,6 +1,6 @@
 # Mainnet Granite Upgrade + Fault Proof Fixes
 
-Status: DRAFT, NOT READY TO SIGN
+Status: READY TO SIGN
 
 ## Objective
 
