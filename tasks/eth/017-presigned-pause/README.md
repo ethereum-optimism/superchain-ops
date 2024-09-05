@@ -29,12 +29,15 @@ Links:
 
 The following two changes are both updates to the `modules` mapping, which is in [slot 1](https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L10).
 
+---
 **Key:** `0x122c127b258a6e22748d3f3c38ae3a4c32252b46d3ad49e5d85acb3626c15d39` <br/>
 **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
 **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
 **Meaning:** The `DeputyGuardianModule` at [`0xc6901F65369FC59fC1B4D6D6bE7A2318Ff38dB5B`](https://etherscan.io/address/0xc6901F65369FC59fC1B4D6D6bE7A2318Ff38dB5B) is now pointing to the sentinel module at `0x01`.
 This is `modules[0xc6901F65369FC59fC1B4D6D6bE7A2318Ff38dB5B]`, so the key can be
 derived from `cast index address 0xc6901F65369FC59fC1B4D6D6bE7A2318Ff38dB5B 1`.
+
+---
 
 **Key:** `0xcc69885fda6bcc1a4ace058b4a62bf5e179ea78fd58a1ccd71c22cc9b688792f` <br/>
 **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
