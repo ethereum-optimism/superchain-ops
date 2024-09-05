@@ -24,7 +24,7 @@ This upgrades the Fault Proof contracts in the [op-contracts/v1.6.0](https://git
 
 ## Pre-deployments
 
-Verify their addresses in this section of the [governance proposal](https://gov.optimism.io/t/upgrade-proposal-10-granite-network-upgrade/8733).
+Verify their addresses in this section of the [governance proposal](https://gov.optimism.io/t/upgrade-proposal-10-granite-network-upgrade/8733#p-39463-impacted-components-8).
 
 - `FaultDisputeGame` - [`0xA6f3DFdbf4855a43c529bc42EDE96797252879af`](https://etherscan.io/address/0xA6f3DFdbf4855a43c529bc42EDE96797252879af).
 - `PermissionedDisputeGame` - [`0x050ed6F6273c7D836a111E42153BC00D0380b87d`](https://etherscan.io/address/0x050ed6F6273c7D836a111E42153BC00D0380b87d).
