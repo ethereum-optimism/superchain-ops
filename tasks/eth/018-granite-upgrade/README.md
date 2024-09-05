@@ -19,13 +19,17 @@ The governance proposal should be treated as the source of truth and used to ver
 
 Governance post of the upgrade can be found at https://gov.optimism.io/t/upgrade-proposal-10-granite-network-upgrade/8733.
 
+This upgrades the Fault Proof contracts in the [op-contracts/v1.6.0](https://github.com/ethereum-optimism/optimism/tree/op-contracts/v1.6.0-rc.3) release.
+
 
 ## Pre-deployments
 
-- `FaultDisputeGame` - [`0xD9d616E4a03a8e7cC962396C9f8D4e3d306097D3`](https://etherscan.io/address/0xA6f3DFdbf4855a43c529bc42EDE96797252879af).
-- `PermissionedDisputeGame` - [`0x98E3F752c7224F8322Afa935a4CaEC3832bB25c9`](https://etherscan.io/address/0x050ed6F6273c7D836a111E42153BC00D0380b87d).
-- `AnchorStatRegistry` - [`0x666D2f5316B8562e9F7B74D0B72a980E8E6F8D5C`](https://etherscan.io/address/0x1B5CC028A4276597C607907F24E1AC05d3852cFC).
-- `StorageSetter` - [`0x54F8076f4027e21A010b4B3900C86211Dd2C2DEB`](https://etherscan.io/address/0xd81f43eDBCAcb4c29a9bA38a13Ee5d79278270cC).
+Verify their addresses in this section of the [governance proposal](https://gov.optimism.io/t/upgrade-proposal-10-granite-network-upgrade/8733).
+
+- `FaultDisputeGame` - [`0xA6f3DFdbf4855a43c529bc42EDE96797252879af`](https://etherscan.io/address/0xA6f3DFdbf4855a43c529bc42EDE96797252879af).
+- `PermissionedDisputeGame` - [`0x050ed6F6273c7D836a111E42153BC00D0380b87d`](https://etherscan.io/address/0x050ed6F6273c7D836a111E42153BC00D0380b87d).
+- `AnchorStatRegistry` - [`0x1B5CC028A4276597C607907F24E1AC05d3852cFC`](https://etherscan.io/address/0x1B5CC028A4276597C607907F24E1AC05d3852cFC).
+- `StorageSetter` - [`0xd81f43eDBCAcb4c29a9bA38a13Ee5d79278270cC`](https://etherscan.io/address/0xd81f43eDBCAcb4c29a9bA38a13Ee5d79278270cC).
 - `DelayedWETH` - [`0x71e966Ae981d1ce531a7b6d23DC0f27B38409087`](https://etherscan.io/address/0x71e966Ae981d1ce531a7b6d23DC0f27B38409087)
 - `DelayedWETHProxy` - [`0x82511d494B5C942BE57498a70Fdd7184Ee33B975`](https://etherscan.io/address/0x82511d494B5C942BE57498a70Fdd7184Ee33B975)
 - `PermissionedDelayedWETHProxy` - [`0x9F9b897e37de5052cD70Db6D08474550DDb07f39`](https://etherscan.io/address/0x9F9b897e37de5052cD70Db6D08474550DDb07f39)

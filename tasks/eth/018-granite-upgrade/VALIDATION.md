@@ -65,12 +65,17 @@ And we do indeed see these entries:
 - **Key**: `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e` <br/>
   **Before**: `0x000000000000000000000000c307e93a7c530a184c98eade4545a412b857b62f` <br/>
   **After**: `0x000000000000000000000000050ed6f6273c7d836a111e42153bc00d0380b87d` <br/>
-  **Meaning**: Updates the PERMISSIONED_CANNON game type implementation. Verify that the new implementation is set using `cast call 0xe5965Ab5962eDc7477C8520243A95517CD252fA9 "gameImpls(uint32)(address)" 1`. Where `1` is the [`PERMISSIONED_CANNON` game type](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L31).
+  **Meaning**: Updates the PERMISSIONED_CANNON game type implementation.
+Verify that the new implementation is set by calling the `DisputeGameFactoryProxy` using `cast call 0xe5965Ab5962eDc7477C8520243A95517CD252fA9 "gameImpls(uint32)(address)" 1`.
+Where `1` is the [`PERMISSIONED_CANNON` game type](https://github.com/ethereum-optimism/optimism/tree/op-contracts/v1.6.0-rc.3/packages/contracts-bedrock/src/dispute/lib/Types.sol#L31). <br/>
+Verify the new implementation version is `1.3.0` using `cast call <implementation_address> "version()(string)"`. The contract semver can be found [here](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.6.0-rc.3/packages/contracts-bedrock/src/dispute/FaultDisputeGame.sol#L74).
 
 - **Key**: `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b` <br/>
   **Before**: `0x000000000000000000000000f691f8a6d908b58c534b624cf16495b491e633ba` <br/>
   **After**: `0x000000000000000000000000a6f3dfdbf4855a43c529bc42ede96797252879af` <br/>
-  **Meaning**: Updates the CANNON game type implementation. Verify that the new implementation is set using `cast call 0x05f9613adb30026ffd634f38e5c4dfd30a197fa1 "gameImpls(uint32)(address)" 0`. Where `0` is the [`CANNON` game type](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28).
+  **Meaning**: Updates the CANNON game type implementation.
+Verify that the new implementation is set by calling the `DisputeGameFactoryProxy` using `cast call 0xe5965Ab5962eDc7477C8520243A95517CD252fA9 "gameImpls(uint32)(address)" 0`. Where `0` is the [`CANNON` game type](https://github.com/ethereum-optimism/optimism/tree/op-contracts/v1.6.0-rc.3/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28). <br/>
+Verify the new implementation version is `1.3.0` using `cast call <implementation_address> "version()(string)"`. The contract semver can be found [here](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.6.0-rc.3/packages/contracts-bedrock/src/dispute/FaultDisputeGame.sol#L74). Note that the `PermissionedDisputeGame` contract shares the same semver as the `FaultDisputeGame` contract.
 
 ### `0x18DAc71c228D1C32c99489B7323d441E1175e443` (`AnchorStateRegistryProxy`)
 

@@ -36,11 +36,11 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     address constant systemConfigOwner = 0x847B5c174615B1B7fDF770882256e2D3E95b9D92;
     address constant batchSenderAddress = 0x6887246668a3b87F54DeB3b94Ba47a6f63F32985; // In registry genesis-system-configs
 
-    /// @notice Verify these against https://github.com/ethereum-optimism/superchain-registry/blob/9c9ba657a4d26e1f80bada8e8e94a77df643018c/superchain/configs/mainnet/op.toml.
+    /// @notice Verify these against https://github.com/ethereum-optimism/superchain-registry/blob/9c9ba657a4d26e1f80bada8e8e94a77df643018c/superchain/configs/mainnet/op.toml
     address constant p2pSequencerAddress = 0xAAAA45d9549EDA09E70937013520214382Ffc4A2;
     address constant batchInboxAddress = 0xFF00000000000000000000000000000000000010;
 
-    // See https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/mainnet/op.json#L12
+    // See https://github.com/ethereum-optimism/optimism/blob/proposal/op-contracts/v1.6.0/packages/contracts-bedrock/deploy-config/mainnet.json#L45
     bytes32 constant expectedAbsolutePrestate = hex"038512e02c4c3f7bdaec27d00edf55b7155e0905301e1a88083e4e0a6764d54c";
 
     // Verify addresses in gov proposal - https://gov.optimism.io/t/upgrade-proposal-10-granite-network-upgrade/8733#p-39463-impacted-components-8
@@ -110,6 +110,10 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         view
         override
     {
+        if (msg.sig == this.approveJson.selector) {
+            console.log("Skipping assertions on the approval call");
+            return;
+        }
         console.log("Running post-deploy assertions");
 
         checkStateDiff(accesses);
