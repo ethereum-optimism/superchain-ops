@@ -163,21 +163,6 @@ jobs:
             just simulate-council
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
-  just_simulate_eth-015-fallback-permissioned-game:
-    docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
-    steps:
-      - checkout
-      - run:
-          name: just simulate eth/015-fallback-permissioned-game
-          command: |
-            just install
-            cd tasks/eth/015-fallback-permissioned-game
-            export SIMULATE_WITHOUT_LEDGER=1
-            just \
-            --dotenv-path $(pwd)/.env \
-            --justfile ../../../single.just \
-            simulate
   just_simulate_eth_017-presigned-pause:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
@@ -205,6 +190,36 @@ jobs:
               --dotenv-path .env \
               --justfile ../../../presigned-pause.just \
               sign
+  just_simulate_eth-018-granite-upgrade-council:
+    docker:
+      - image: <<pipeline.parameters.ci_builder_image>>
+    steps:
+      - checkout
+      - run:
+          name: just simulate eth/018-granite-upgrade council
+          command: |
+            just install
+            cd tasks/eth/018-granite-upgrade
+            export SIMULATE_WITHOUT_LEDGER=1
+            just \
+            --dotenv-path $(pwd)/.env \
+            --justfile ../../../nested.just \
+            simulate council
+  just_simulate_eth-018-granite-upgrade-foundation:
+    docker:
+      - image: <<pipeline.parameters.ci_builder_image>>
+    steps:
+      - checkout
+      - run:
+          name: just simulate eth/018-granite-upgrade foundation
+          command: |
+            just install
+            cd tasks/eth/018-granite-upgrade
+            export SIMULATE_WITHOUT_LEDGER=1
+            just \
+            --dotenv-path $(pwd)/.env \
+            --justfile ../../../nested.just \
+            simulate foundation
 
   forge_build:
     docker:
@@ -266,5 +281,6 @@ workflows:
       - just_simulate_sc_rehearsal_1
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
-      - just_simulate_eth-015-fallback-permissioned-game
       - just_simulate_eth_017-presigned-pause
+      - just_simulate_eth-018-granite-upgrade-council
+      - just_simulate_eth-018-granite-upgrade-foundation
