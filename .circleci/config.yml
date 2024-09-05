@@ -178,6 +178,33 @@ jobs:
             --dotenv-path $(pwd)/.env \
             --justfile ../../../single.just \
             simulate
+  just_simulate_eth_017-presigned-pause:
+    docker:
+      - image: <<pipeline.parameters.ci_builder_image>>
+    steps:
+      - checkout
+      - run:
+          name: just simulate mainnet 017-presigned-pause
+          command: |
+            just install
+            cd tasks/eth/017-presigned-pause
+            just \
+              --dotenv-path .env \
+              --justfile ../../../presigned-pause.just \
+              install
+            forge build
+            export SIMULATE_WITHOUT_LEDGER=1
+            export SCRIPT=PresignPauseFromJson_eth_017
+            export FOUNDRY_SENDER=0x3041BA32f451F5850c147805F5521AC206421623
+            export TEST_SENDER=0x3041BA32f451F5850c147805F5521AC206421623
+            just \
+              --dotenv-path .env \
+              --justfile ../../../presigned-pause.just \
+              whoami 0
+            just \
+              --dotenv-path .env \
+              --justfile ../../../presigned-pause.just \
+              sign
   just_simulate_eth-019-permissionless-games_and_upgrade-dgm:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
@@ -193,7 +220,7 @@ jobs:
             --dotenv-path $(pwd)/.env \
             --justfile ../../../single.just \
             simulate
-  
+
   forge_build:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
@@ -255,4 +282,5 @@ workflows:
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
       - just_simulate_eth-015-fallback-permissioned-game
+      - just_simulate_eth_017-presigned-pause
       - just_simulate_eth-019-permissionless-games_and_upgrade-dgm
