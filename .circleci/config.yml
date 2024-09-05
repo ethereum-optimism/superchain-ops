@@ -191,7 +191,7 @@ jobs:
             export SIMULATE_WITHOUT_LEDGER=1
             just \
             --dotenv-path $(pwd)/.env \
-            --justfile ../../../single.just \
+            --justfile ../../../nested.just \
             simulate
   
   forge_build:
