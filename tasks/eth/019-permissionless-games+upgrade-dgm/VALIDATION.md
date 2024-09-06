@@ -64,7 +64,7 @@ State Changes:
 - **Key:** `0x000000000000000000000000000000000000000000000000000000000000003b` <br/>
   **Before:** `0x00000000000000000000000000000000000000000000000066bf9c0f00000001` <br/>
   **After:** `0x00000000000000000000000000000000000000000000000066da0dd600000000` <br/>
-  **Meaning:** Slot [`0x000000000000000000000000000000000000000000000000000000000000003b`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0-rc.4/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal2.json#L100C3-L113C5) in the `OptimismPortalProxy` has the following packed layout:
+  **Meaning:** Slot [`0x000000000000000000000000000000000000000000000000000000000000003b`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.6.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal2.json#L100C3-L113C5) in the `OptimismPortalProxy` has the following packed layout:
 
 | Offset     | Description                                                  |
 | ---------- | ------------------------------------------------------------ |
