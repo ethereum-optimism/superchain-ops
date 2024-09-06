@@ -191,6 +191,11 @@ jobs:
               --justfile ../../../presigned-pause.just \
               sign
   just_simulate_eth-018-granite-upgrade-council:
+    docker:
+      - image: <<pipeline.parameters.ci_builder_image>>
+    steps:
+      - checkout
+      - run:
           name: just simulate eth/018-granite-upgrade council
           command: |
             just install
