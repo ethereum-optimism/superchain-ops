@@ -77,7 +77,7 @@ prepare:
   set -x
   script=PresignPauseFromJson
   if [ -f "${taskPath}/PresignPauseFromJson.s.sol" ]; then
-    script="${taskPath}/PresignPauseFromJson.s.sol"
+    script="./PresignPauseFromJson.s.sol"
   fi
   echo "Using script ${script}"
   REPO_ROOT=`git rev-parse --show-toplevel`
