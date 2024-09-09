@@ -21,7 +21,7 @@
 ```shell
 cd superchain-ops
 git pull
-forge clean
+just clean
 just install
 cd tasks/<NETWORK_DIR>/<RUNBOOK_DIR>
 ```

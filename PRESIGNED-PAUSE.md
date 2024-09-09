@@ -53,7 +53,7 @@ the following command at the ceremony folder:
 cd superchain-ops
 git pull
 just install
-forge clean
+just clean
 cd tasks/<NETWORK_DIR>/<RUNBOOK_DIR>
 just \
    --dotenv-path $(pwd)/.env \
