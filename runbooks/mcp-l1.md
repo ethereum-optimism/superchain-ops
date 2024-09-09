@@ -239,7 +239,7 @@ Now we can run our simulation. From within your task’s directory, run:
 
 ```bash
 SIMULATE_WITHOUT_LEDGER=1 just \
-  --dotenv-path .env \
+  --dotenv-path $(pwd)/.env \
   --justfile ../../../single.just \
   simulate
 ```
@@ -290,7 +290,7 @@ Then:
 
     ![tenderly-overview](./img/mcp-l1-2.png)
 - Please make sure that the `Data to sign` matches what you see in the simulation and on your hardware wallet. This is a critical step that must not be skipped. Copy the `Data to sign:` from your terminal output and search the Tenderly Simulated Transaction and ensure its there.
-  
+
     ![tenderly-simulated-tx-data-to-sign](./img/mcp-l1-3.png)
 
 - Then click the “State” tab at the top to see the state diff. Unfortunately this will not be decoded due to a Tenderly bug that [they’re working on](https://oplabs-pbc.slack.com/archives/C053NFWLG9K/p1711719503660909?thread_ts=1710771049.267939&cid=C053NFWLG9K).

@@ -4,19 +4,19 @@ This document describes how to generate upgrade playbooks to upgrade chains to t
 
 ## Context
 
-One of the requirement for getting to Stage, 1 as defined by [L2Beat](https://medium.com/l2beat/introducing-stages-a-framework-to-evaluate-rollups-maturity-d290bb22befe) is having a Security Council in place. The Security Council acts as a safeguard in the system, ready to step in in the event of bugs or issues with the proof system. It must function through a multisig setup consisting of at least 8 participants and require a 50% consensus threshold. Furthermore, at least half of the participants must be external to the organization running the rollup, with a minimum of two outsiders required for consensus. 
+One of the requirement for getting to Stage, 1 as defined by [L2Beat](https://medium.com/l2beat/introducing-stages-a-framework-to-evaluate-rollups-maturity-d290bb22befe) is having a Security Council in place. The Security Council acts as a safeguard in the system, ready to step in in the event of bugs or issues with the proof system. It must function through a multisig setup consisting of at least 8 participants and require a 50% consensus threshold. Furthermore, at least half of the participants must be external to the organization running the rollup, with a minimum of two outsiders required for consensus.
 
 This setup ensures a diversity of viewpoints and minimizes the risk of any single party exerting undue influence. For the sake of transparency and accountability, the identities (or the pseudonyms) of the council participants should also be publicly disclosed.
 
 As a result, “key handover” is necessary to enable the use of Security Council. In practice, this means upgrading the smart contracts to have the `ProxyAdmin` account be the Optimism Foundation and Security Council’s multisig account for mainnets.
 
-This document describes how to generate a key hand over playbook to transfer the Mainnet `ProxyAdminOwner` role from the Chain Servicer to  [0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A](https://github.com/ethereum-optimism/superchain-registry/blob/0fb0dcbefc50882f1bb02fafcb27f47b463875c9/superchain/configs/mainnet/op.toml#L50) or Sepolia `ProxyAdminOwner` to [0x1Eb2fFc903729a0F03966B917003800b145F56E2](https://github.com/ethereum-optimism/superchain-registry/blob/0fb0dcbefc50882f1bb02fafcb27f47b463875c9/superchain/configs/sepolia/op.toml#L50). 
+This document describes how to generate a key hand over playbook to transfer the Mainnet `ProxyAdminOwner` role from the Chain Servicer to  [0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A](https://github.com/ethereum-optimism/superchain-registry/blob/0fb0dcbefc50882f1bb02fafcb27f47b463875c9/superchain/configs/mainnet/op.toml#L50) or Sepolia `ProxyAdminOwner` to [0x1Eb2fFc903729a0F03966B917003800b145F56E2](https://github.com/ethereum-optimism/superchain-registry/blob/0fb0dcbefc50882f1bb02fafcb27f47b463875c9/superchain/configs/sepolia/op.toml#L50).
 
-> [!NOTE] 
+> [!NOTE]
 > The mainnet address is a [2-of-2 multisig](https://etherscan.io/address/0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A#readProxyContract). One owner is an Optimism Foundation 5/7 [multisig](https://etherscan.io/address/0x847B5c174615B1B7fDF770882256e2D3E95b9D92#readProxyContract) and the other owner is the [Security Council's](https://gov.optimism.io/t/intro-to-optimisms-security-council/6885) [multisig](https://etherscan.io/address/0xc2819DC788505Aac350142A7A707BF9D03E3Bd03#readProxyContract).
 
 > [!IMPORTANT]
-> The prerequisite for the Key Handover upgrade is that the chain must be a Standard Chain and passes the corresponding [block history integrity checks](https://github.com/ethereum-optimism/security-tools/tree/main/src/block-history-integrity-checks). 
+> The prerequisite for the Key Handover upgrade is that the chain must be a Standard Chain and passes the corresponding [block history integrity checks](https://github.com/ethereum-optimism/security-tools/tree/main/src/block-history-integrity-checks).
 
 ## Upgrade Process
 
@@ -46,8 +46,8 @@ We use `single.just` because the ProxyAdmin owners are regular Safe’s. (For OP
 ### Scaffold the ops task (playbook) for your upgrade (superchain-ops repo)
 
 > [!NOTE]
-> ℹ️ In this section we use the Mode, Metal, and Zora Sepolia Playbook as a 
-> template. You may choose to use a mainnet playbook as your template instead. 
+> ℹ️ In this section we use the Mode, Metal, and Zora Sepolia Playbook as a
+> template. You may choose to use a mainnet playbook as your template instead.
 > Regardless, we use an existing playbook as the template instead of a dedicated
 > template for two reasons:
 >
@@ -84,29 +84,29 @@ rm input.json
 forge clean
 ```
 
-The `.env` file should look like below. It can be left alone, unless you need 
-to change the address of the owner safe. This can be found with 
+The `.env` file should look like below. It can be left alone, unless you need
+to change the address of the owner safe. This can be found with
 `cast call $ProxyAdmin "owner()(address)" -r $SEPOLIA_RPC_URL`,
 and the proxy admin address can be found from the superchain registry. In other
-words, the `OWNER_SAFE` corresponds to the proxy admin owner. It’s populated 
-with a default value as a result of the `cp` command ran above. This account 
-might not actually be the correct proxy admin owner for the chain being 
-upgraded, so you should *always* run that `cast` command to verify what address 
+words, the `OWNER_SAFE` corresponds to the proxy admin owner. It’s populated
+with a default value as a result of the `cp` command ran above. This account
+might not actually be the correct proxy admin owner for the chain being
+upgraded, so you should *always* run that `cast` command to verify what address
 should be there.
 
-Now, update the `README.md` so instead of referencing Mode, Metal, and Zora 
+Now, update the `README.md` so instead of referencing Mode, Metal, and Zora
 Sepolia it references the chain you are updating. Additionally, change the status
-to READY TO SIGN. For these playbooks, approval of the PR adding the playbook 
+to READY TO SIGN. For these playbooks, approval of the PR adding the playbook
 doubles as the indication the playbook is ready to sign.
 
 `SignFromJson.s.sol`: This solidity script will generate the Tenderly validation link.
 
-Leave the validation file alone for now—it will be partly incorrect since it 
+Leave the validation file alone for now—it will be partly incorrect since it
 was based on another chain’s data, but it serves as a useful template for
 validations and to reduce work, so later we will modify it.
 
-This is a good time to commit your initial changes. Note that if you edited your 
-global gitignore to always ignore `.env` files, you will have to run 
+This is a good time to commit your initial changes. Note that if you edited your
+global gitignore to always ignore `.env` files, you will have to run
 `git add tasks/{networkDir}/{chainName}-{chain-index}-key-handover/.env -f`
 to force add the file to git.
 
@@ -137,8 +137,8 @@ to force add the file to git.
 Now your task folder is prepared. Navigate into that directory and execute the following command:
 
 ```
-SIMULATE_WITHOUT_LEDGER=1 just \                    
-  --dotenv-path .env \
+SIMULATE_WITHOUT_LEDGER=1 just \
+  --dotenv-path $(pwd).env \
   --justfile ../../../single.just \
   simulate
 ```
@@ -185,7 +185,7 @@ Data to sign:
 - Scroll down and click the “Simulate Transaction” button.
 - In the part that looks like the image below, sanity check these values. For example, make sure the block number is close to the latest block for the chain, ensure the sender is correct, and that the gas used seems sensible.
 - Please make sure that the `Data to sign` matches what you see in the simulation and on your hardware wallet. This is a critical step that must not be skipped. Copy the `Data to sign:` from your terminal output and search the Tenderly Simulated Transaction and ensure its there.
-- Then click the “State” tab at the top to see the state diff. 
+- Then click the “State” tab at the top to see the state diff.
 
 #### Update Validation.md
 
@@ -196,9 +196,9 @@ Addresses, superchain registry URLs, Etherscan URLs, and “After” slot values
 - Ensure the order of the state changes match Tenderly.
 - Ensure the etherscan links are correct.
 
-Below is a non-comprehensive list of things to check after writing the 
+Below is a non-comprehensive list of things to check after writing the
 validations file, to verify it has no mistakes. These bullet points are written
-assuming OP Sepolia validation files for brevity, but can be modified 
+assuming OP Sepolia validation files for brevity, but can be modified
 accordingly for other chains:
 
 - Cmd+F for "mainnet" to make sure there are no mainnet references.
@@ -240,7 +240,7 @@ The add the following to the workflows.main.jobs section at the bottom:
 
 ### Open PR
 
-Once the task folder has been prepared, you can open a PR with the following 
+Once the task folder has been prepared, you can open a PR with the following
 information:
 
 ```md
@@ -263,7 +263,7 @@ Ensure you properly fill out your `.env` file and follow the last section of the
 
 #### superchain-ops
 
-Once the task is executed, the job can be removed from CI and the task status 
+Once the task is executed, the job can be removed from CI and the task status
 should be updated to: `[EXECUTED](block-explorer-transaction-execution-link)`.
 Then opening a PR to the repo with the following information:
 
@@ -277,8 +277,8 @@ The <chain-name> key handover task has been executed.
 
 #### superchain-registry
 
-The Superchain Registry needs to be updated. You can do that by modifying the 
-`ProxyAdminOwner` in the `superchain/configs/<superchain-target>/<chain-short-name>.toml` 
+The Superchain Registry needs to be updated. You can do that by modifying the
+`ProxyAdminOwner` in the `superchain/configs/<superchain-target>/<chain-short-name>.toml`
 and then running `just codegen` from the root of the repository. Then opening
 a PR to the repo with the following information:
 

@@ -55,7 +55,7 @@ git pull
 just install
 cd tasks/<NETWORK_DIR>/<RUNBOOK_DIR>
 just \
-   --dotenv-path .env \
+   --dotenv-path $(pwd)/.env \
    --justfile ../../../presigned-pause.just \
    install
 ```
@@ -70,7 +70,7 @@ Check your address is correct by running the following command
 
 ```
 just \
-   --dotenv-path .env \
+   --dotenv-path $(pwd)/.env \
    --justfile ../../../presigned-pause.just \
    whoami 0
 ```
@@ -88,7 +88,7 @@ you can change the index of the address you want to use, i.e.
 
 ```
 just \
-   --dotenv-path .env \
+   --dotenv-path $(pwd)/.env \
    --justfile ../../../presigned-pause.just \
    whoami 1
 ```
@@ -108,7 +108,7 @@ You can sign them by running the following commands:
 
 ```
 just \
-   --dotenv-path .env \
+   --dotenv-path $(pwd)/.env \
    --justfile ../../../presigned-pause.just \
    sign 0
 ```
@@ -269,7 +269,7 @@ SIMULATE_WITHOUT_LEDGER=1 \
 FOUNDRY_SENDER=0xF0871b2F75ecD07e2D709b7a2cc0AF6848c1cE76 \
 TEST_SENDER=0xF0871b2F75ecD07e2D709b7a2cc0AF6848c1cE76 \
 just \
-   --dotenv-path .env \
+   --dotenv-path $(pwd)/.env \
    --justfile ../../../presigned-pause.just \
    prepare
 ```
@@ -295,7 +295,7 @@ To merge the signatures, run the following command:
 
 ```
 just \
-   --dotenv-path .env \
+   --dotenv-path $(pwd)/.env \
    --justfile ../../../presigned-pause.just \
    merge
 ```
@@ -313,7 +313,7 @@ To verify the signatures, run the following command:
 
 ```
 just \
-   --dotenv-path .env \
+   --dotenv-path $(pwd)/.env \
    --justfile ../../../presigned-pause.just \
    verify
 ```
@@ -328,7 +328,7 @@ To simulate the transaction, run the following command:
 
 ```
 just \
-   --dotenv-path .env \
+   --dotenv-path $(pwd)/.env \
    --justfile ../../../presigned-pause.just \
    simulate-all
 ```
