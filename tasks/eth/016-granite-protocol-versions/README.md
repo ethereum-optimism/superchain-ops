@@ -20,7 +20,7 @@ The [governance proposal](https://gov.optimism.io/t/upgrade-proposal-10-granite-
 ## Simulation
 
 Please see the "Simulating and Verifying the Transaction" instructions in [SINGLE.md](../../../SINGLE.md).
-When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/eth/012-proto-ver-required/SignFromJson.s.sol`.
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/eth/016-granite-protocol-versions/SignFromJson.s.sol`.
 This ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown
 (without the full path), something is wrong and the safety checks will not run.
 

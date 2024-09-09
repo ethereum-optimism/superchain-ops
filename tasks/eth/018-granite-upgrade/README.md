@@ -12,7 +12,7 @@ The proposal was:
 
 - [x] Posted on the governance forum [here](https://gov.optimism.io/t/upgrade-proposal-10-granite-network-upgrade/8733).
 - [x] Approved by Token House voting [here](https://vote.optimism.io/proposals/46514799174839131952937755475635933411907395382311347042580299316635260952272).
-- [ ] Not vetoed by the Citizens' house [here](https://snapshot.org/#/citizenshouse.eth/proposal/0xb0c109d7f68d3cb1054a50f55556d1820e517129b4b53774cb9ca32e0eabe3a4).
+- [x] Not vetoed by the Citizens' house [here](https://snapshot.org/#/citizenshouse.eth/proposal/0xb0c109d7f68d3cb1054a50f55556d1820e517129b4b53774cb9ca32e0eabe3a4).
 - [ ] Executed on OP Mainnet.
 
 The governance proposal should be treated as the source of truth and used to verify the correctness of the onchain operations.
