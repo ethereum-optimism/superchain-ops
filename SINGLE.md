@@ -29,6 +29,7 @@ Fill this out with an appropriate value.
 cd superchain-ops
 git pull
 just install
+forge clean
 cd tasks/<NETWORK_DIR>/<RUNBOOK_DIR>
 ```
 

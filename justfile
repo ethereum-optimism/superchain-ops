@@ -31,3 +31,6 @@ add-transaction bundlePath to sig *params:
   mv {{bundlePath}} ${backupBundlePath}
   mv ${newBundlePath} {{bundlePath}}
   echo "Old bundle backed up to ${backupBundlePath}."
+
+clean:
+  forge clean

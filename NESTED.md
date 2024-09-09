@@ -18,9 +18,10 @@
 
 ### 1. Update repo:
 
-```
+```shell
 cd superchain-ops
 git pull
+forge clean
 just install
 cd tasks/<NETWORK_DIR>/<RUNBOOK_DIR>
 ```

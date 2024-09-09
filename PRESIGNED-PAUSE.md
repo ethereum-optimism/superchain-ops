@@ -49,10 +49,11 @@ repo and run `just install` at the root of the repo, this ceremony
 also requires a `presigner` tool, which can be installed by running
 the following command at the ceremony folder:
 
-```
+```shell
 cd superchain-ops
 git pull
 just install
+forge clean
 cd tasks/<NETWORK_DIR>/<RUNBOOK_DIR>
 just \
    --dotenv-path $(pwd)/.env \
