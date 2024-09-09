@@ -1,6 +1,6 @@
 # Mainnet Required Protocol Version Update (8.0.0 - Granite)
 
-Status: DRAFT, NOT READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0x804fd189aad5c2caccf274235649905f0dd18c8a4f34c58ce471176fec3e34b7)
 
 ## Objective
 
@@ -12,8 +12,8 @@ The Granite proposal was:
 
 - [x] Posted on the governance forum [here](https://gov.optimism.io/t/upgrade-proposal-10-granite-network-upgrade/8733).
 - [x] Approved by Token House voting [here](https://vote.optimism.io/proposals/46514799174839131952937755475635933411907395382311347042580299316635260952272).
-- [ ] Not vetoed by the Citizens' house [here](https://snapshot.org/#/citizenshouse.eth/proposal/0xb0c109d7f68d3cb1054a50f55556d1820e517129b4b53774cb9ca32e0eabe3a4).
-- [ ] Executed on OP Mainnet.
+- [x] Not vetoed by the Citizens' house [here](https://snapshot.org/#/citizenshouse.eth/proposal/0xb0c109d7f68d3cb1054a50f55556d1820e517129b4b53774cb9ca32e0eabe3a4).
+- [x] Executed on OP Mainnet.
 
 The [governance proposal](https://gov.optimism.io/t/upgrade-proposal-10-granite-network-upgrade/8733) should be treated as the source of truth and used to verify the correctness of the onchain operations.
 
