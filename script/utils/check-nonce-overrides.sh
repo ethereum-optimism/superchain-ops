@@ -23,8 +23,6 @@ for file in $env_files; do
             fi
         fi
     done < "$file"
-
-    echo "Finished checking: $file"
 done
 
 echo "All .env files have been checked. No lowercase letters found in SAFE_NONCE_ variables."
