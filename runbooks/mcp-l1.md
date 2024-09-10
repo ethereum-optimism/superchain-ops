@@ -187,7 +187,7 @@ SYSTEM_CONFIG_START_BLOCK={startBlock} go run op-chain-ops/cmd/op-upgrade/main.g
   --outfile input.json
 ```
 
-The `startBlock` is the the block number at which the `SystemConfig` proxy was initialized for the
+The `startBlock` is the block number at which the `SystemConfig` proxy was initialized for the
 first time. To find this value, find the very first `Initialize` event after the `SystemConfig`
 was deployed. One way to do this is view the Etherscan events page for the contract. This only
 shows the last 25 or less events, which is often enough. Etherscan will tell you the transaction
@@ -223,7 +223,7 @@ need to change, including:
 - The `l1ChainName` and `l2ChainName` values.
 - The 6 addresses under the `// Known EOAs to exclude from safety checks.` comment.
   - These have comments explaining where to get each value from.
-  - Context on these addresses: Most upgrades have an an invariant of “When writing an address into a storage slot, that address should *usually* have code”. It’s “usually” and not “always” because:
+  - Context on these addresses: Most upgrades have an invariant of “When writing an address into a storage slot, that address should *usually* have code”. It’s “usually” and not “always” because:
     - Some roles in the protocol are EOAs with no code, and their addresses are in storage. This is what these 6 EOAs are.
     - Other exceptions are when we put an L2 predeploy address in L1 storage.
 
