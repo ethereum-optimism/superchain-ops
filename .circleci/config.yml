@@ -90,6 +90,17 @@ jobs:
           name: Check task statuses
           command: bash ./script/utils/check-task-statuses.sh
 
+  check_nonce_overrides:
+    docker:
+      - image: <<pipeline.parameters.ci_builder_image>>
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Check nonce overrides
+          command: bash ./script/utils/check-nonce-overrides.sh
+
   # TODO: remove/replace when there are real consumers of the RPC URLs
   example_mainnet_job:
     circleci_ip_ranges: true
@@ -286,6 +297,8 @@ workflows:
             - check_mainnet_rpc_endpoints
       # Verify that all tasks have a valid status in their README.
       - check_task_statuses
+      # Verify that all tasks have correctly uppercased nonce overrides.
+      - check_nonce_overrides
       # Task simulations.
       # Please add an invocation to `just simulate` if a ceremony is
       # active (e.g. it is the next ceremony to perform or you
