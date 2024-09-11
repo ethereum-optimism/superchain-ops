@@ -1,6 +1,6 @@
 # Mainnet Granite Upgrade + Fault Proof Fixes
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0x3bd2d811d0298313e6fb75f0e69fb54280c9b4f2e60f8f04472aaa166c285641)
 
 ## Objective
 
