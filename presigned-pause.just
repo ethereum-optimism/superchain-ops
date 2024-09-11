@@ -35,8 +35,8 @@ sign hdPath='0':
     #!/usr/bin/env bash
     set -x
     script=PresignPauseFromJson
-    if [ -n "$SCRIPT" ]; then
-      script=$SCRIPT
+    if [ -f "${taskPath}/PresignPauseFromJson.s.sol" ]; then
+      script="${taskPath}/PresignPauseFromJson.s.sol"
     fi
     echo "Using script ${script}"
     REPO_ROOT=`git rev-parse --show-toplevel`
@@ -76,8 +76,8 @@ prepare:
   #!/usr/bin/env bash
   set -x
   script=PresignPauseFromJson
-  if [ -n "$SCRIPT" ]; then
-    script=$SCRIPT
+  if [ -f "${taskPath}/PresignPauseFromJson.s.sol" ]; then
+    script="./PresignPauseFromJson.s.sol"
   fi
   echo "Using script ${script}"
   REPO_ROOT=`git rev-parse --show-toplevel`
@@ -122,8 +122,8 @@ merge:
 verify:
   #!/usr/bin/env bash
   script=PresignPauseFromJson
-  if [ -n "$SCRIPT" ]; then
-    script=$SCRIPT
+  if [ -f "${taskPath}/PresignPauseFromJson.s.sol" ]; then
+    script="${taskPath}/PresignPauseFromJson.s.sol"
   fi
   echo "Using script ${script}"
   REPO_ROOT=`git rev-parse --show-toplevel`
@@ -141,8 +141,8 @@ verify:
 simulate-all:
   #!/usr/bin/env bash
   script=PresignPauseFromJson
-  if [ -n "$SCRIPT" ]; then
-    script=$SCRIPT
+  if [ -f "${taskPath}/PresignPauseFromJson.s.sol" ]; then
+    script="${taskPath}/PresignPauseFromJson.s.sol"
   fi
   echo "Using script ${script}"
   REPO_ROOT=`git rev-parse --show-toplevel`

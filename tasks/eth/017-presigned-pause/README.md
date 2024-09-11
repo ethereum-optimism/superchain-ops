@@ -1,7 +1,6 @@
 # Superchain Presigned Pause
 
-Status: READY TO SIGN
-
+Status: SIGNED
 ## Instructions
 
 Begin by setting the `SCRIPT` env var with the following command:
