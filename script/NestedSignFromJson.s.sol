@@ -42,8 +42,19 @@ contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
         virtual
         override
     {
+        if (msg.sig == this.approveJson.selector) {
+            console.log("Skipping assertions on the approval call");
+            return;
+        }
+        _nestedPostCheck(accesses, simPayload);
+    }
+
+    function _nestedPostCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory simPayload)
+        internal
+        virtual
+    {
         accesses; // Silences compiler warnings.
         simPayload;
-        require(false, "_postCheck not implemented");
+        require(false, "_nestedPostCheck not implemented");
     }
 }
