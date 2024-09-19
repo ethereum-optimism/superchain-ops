@@ -236,3 +236,30 @@ zip-PSPs:
  echo "unzip $ZIPNAME"
  echo "================================================================"
  echo "Make sure again to not let any sensitive informations, into the current folder like the PSPs files."
+
+save-PSPs:
+ #!/bin/bash
+ # Navigate to the directory containing the JSON files
+ # Determine the VAULTNAME based on the taskPath.
+ echo "=================== Save PSPs in the same JSON file ============================="
+ # Ask for confirmation before proceeding
+ if which jq >/dev/null 2>&1; then
+    echo "jq is installed."
+ else
+    echo "jq is not installed, please install jq using homebrew. Using brew install jq"
+    exit
+ fi
+
+ read -p "Do you want to continue, this will save the psps into /tmp/psps.json (y/n): " confirm
+ if [[ $confirm != [yY] ]]; then
+     echo "Operation cancelled."
+     exit 1
+ fi
+
+ cd $taskPath/tx
+ # concatenate all files matching the pattern "ready-*.json" into /tmp/psps.json
+ jq -s '.' ready-*.json > /tmp/psps.json
+ echo "PSPs stored into the /tmp/psps.json file ✅"
+ echo "💡Reminder to remove the PSPs from the current folder."
+
+
