@@ -262,7 +262,7 @@ We recommend providing the deployer account with 1 ETH on Mainnet and 10 ETH on 
       - `bundle.json` is the finalization transaction bundle
       - `validation.txt` is used for Tenderly state diff validation
 
-## Simulate Finalization Transaction
+## Simulate finalization transaction
 
 Before running the `op-proposer` and `op-challenger`, it is recommended to simulate and validate the upgrade finalization transaction. The `bundle.json` file that you generated in the previous step contains an transaction bundle that is compatible with the Safe web application’s Transaction Builder feature. You can use this feature alongside `validation.txt` to verify the correctness of `bundle.json`.
 
@@ -293,7 +293,7 @@ Before running the `op-proposer` and `op-challenger`, it is recommended to simul
 
 `validation.txt` contains a list of state changes that you should observe when executing your transaction bundle. It has been designed to mirror the structure of the `State` tab in Tenderly. For each state change in the Tenderly State tab, make sure that the change is also present inside of `validation.txt`. ALL changes inside of the `State` tab should be present inside of the `validation.txt` file EXCEPT for changes to account nonces. Please notify OP Labs if you see any other state changes inside of the `State` tab that are not present in `validation.txt`.
 
-## Run Proposer and Challenger
+## Running a proposer and challenger
 
 You can safely run an instance of `op-proposer` and `op-challenger` after you’ve deployed the contracts for the `op-contracts/v1.6.0` upgrade and validated the upgrade bundle. It is not necessary to shut down your existing `op-proposer` instance. Once the upgrade finalization transaction is executed, the system will seamlessly transition from the `op-contracts/v1.3.0` contracts to the `op-contracts/v1.6.0` contracts.
 
@@ -320,7 +320,7 @@ You can generally use the same configuration that you currently use for `op-prop
     - `--proposal-interval, PROPOSAL_INTERVAL`
     - Recommend setting this to `1h`
 
-## Running a Challenger
+**Running a challenger**
 
 Refer to the [Releases page](https://github.com/ethereum-optimism/optimism/releases) on the Optimism Monorepo to determine the latest OP Stack release that you should be using.
 
@@ -347,7 +347,7 @@ For networks not in the [superchain-registry](https://github.com/ethereum-optimi
         - The simplest option for the permissioned game, given it won’t be used for execution, is to specify a static file and omit the `CANNON_PRESTATES_URL` option.  The local file doesn’t even need to exist.
             - The `PRESTATES_URL` version is needed when moving to the permissionless game so that the challenger can download the particular prestate that matches the dispute game it needs to act on (games may have different prestates because of upgrades). When using the URL version challenger needs to find a file to download from the URL even for the permissioned game.
 
-## Running a Dispute Monitor
+## Running a dispute monitor
 
 Refer to the [Releases page](https://github.com/ethereum-optimism/optimism/releases) on the Optimism Monorepo to determine the latest OP Stack release that you should be using.
 
@@ -370,9 +370,11 @@ You will need to set the following flags for `op-dispute-mon` at a minimum:
     - `--honest-actors, HONEST_ACTORS_FLAG`
     - Ensure that the address of the `Proposer` is included in this list
 
-# Executing the Finalization Transaction
+## Executing the finalization transaction
 
 > [!IMPORTANT]
 > Transaction bundles **MUST** be executed atomically within a single transaction. Do NOT execute each transaction within the bundle individually. Executing the bundle non-atomically is UNSAFE and can open the system up to critical vulnerabilities.
 
 You should have generated a JSON file called `bundle.json` when you deployed the required contracts. `bundle.json` contains a list of transactions compatible with the Transaction Builder feature for the Safe smart wallet. Once you execute this transaction bundle, your chain will be running the `op-contracts/v1.6.0` system. You should make sure that you are successfully able to run the services described above before executing this transaction bundle.
+
+## Updating the superchain-registry
