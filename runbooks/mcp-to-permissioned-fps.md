@@ -378,3 +378,5 @@ You will need to set the following flags for `op-dispute-mon` at a minimum:
 You should have generated a JSON file called `bundle.json` when you deployed the required contracts. `bundle.json` contains a list of transactions compatible with the Transaction Builder feature for the Safe smart wallet. Once you execute this transaction bundle, your chain will be running the `op-contracts/v1.6.0` system. You should make sure that you are successfully able to run the services described above before executing this transaction bundle.
 
 ## Updating the superchain-registry
+
+If your chain is in the [superchain-registry](https://github.com/ethereum-optimism/superchain-registry/tree/main), make sure to open a PR to update the chain information.
