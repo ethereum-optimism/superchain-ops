@@ -1,11 +1,10 @@
 # Mainnet - Ecotone Blobs Gas Configuration
 
-Status: [DRAFT]
+Status: [DRAFT, NOT READY TO SIGN]
 
 ## Objective
 
-This is the playbook for updating the onchain gas limit of the `SystemConfig`. When combined with setting the `GETH_MINER_EFFECTIVEGASLIMIT = 30_000_000` env var on the sequencers, this has the effect of keeping the gas limit at 30Mgas/block and  
-increasing the gas target from 5Mgas/block to 15Mgas/block.
+This is the playbook for updating the onchain gas limit of the `SystemConfig`. When combined with setting the `GETH_MINER_EFFECTIVEGASLIMIT = 30_000_000` env var on the sequencers, this has the effect of keeping the gas limit at 30Mgas/block and increasing the gas target from 5Mgas/block to 15Mgas/block.
 
 ### Timing
 
