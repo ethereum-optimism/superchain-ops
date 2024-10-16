@@ -21,21 +21,3 @@ just add-transaction tasks/eth/020-set-gas-target/input.json 0x229047fed2591dbec
 ## Signing and execution
 
 Please see the signing and execution instructions in [SINGLE.md](../../../SINGLE.md).
-
-## Validations
-
-### State
-
-On the "State" tab, you can verify that the following state change occured on the `SystemConfigProxy` at `0x229047fed2591dbec1ef1118d64f7af3db9eb290`:
-
-* `gasLimit` changed from `30_000_000` to `90_000_000`
-
-The other two state changes are nonce increases by the multisig Proxy at `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`
-and the sender account.
-
-### Events
-
-On the "Events" tab, you can verify that one `ConfigUpdate` event was emitted from the `SystemConfigProxy`,
-of `updateType = 2` and `data` containing the encoded gasLimit value.
-
-The multisig proxy emits an `ExecutionSuccess` event.
