@@ -20,7 +20,7 @@ contract SignFromJson is OriginalSignFromJson {
         opFoundationSystemConfigOwner = opSystemConfigProxy.owner();
 
         initialGasLimit = opSystemConfigProxy.gasLimit();
-        expectedGasLimit = 90_000_000;
+        expectedGasLimit = 60_000_000;
         require(opFoundationSystemConfigOwner != address(0), "SystemConfig owner not found");
     }
 
