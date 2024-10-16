@@ -30,7 +30,7 @@ On the "State" tab, you can verify that the following state change occured on th
 
 * `gasLimit` changed from `30_000_000` to `90_000_000`
 
-The other two state changes are nonce increases by the multisig Proxy at `0x9ba6e03d8b90de867373db8cf1a58d2f7f006b3a`
+The other two state changes are nonce increases by the multisig Proxy at `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`
 and the sender account.
 
 ### Events
