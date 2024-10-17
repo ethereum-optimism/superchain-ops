@@ -1,4 +1,4 @@
-# Mainnet - Ecotone Blobs Gas Configuration
+# Mainnet - Gas Target Increase
 
 Status: [READY TO SIGN]
 
