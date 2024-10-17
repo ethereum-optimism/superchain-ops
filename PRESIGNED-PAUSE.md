@@ -51,7 +51,7 @@ This will allow us to have the PSPs coverage during the upgrade and after the up
 We need to keep the PSPs before the upgrade and after the upgrade.
 
 > [!WARNING]  
-> This will require to making some **overrides** in _superchains-ops_ tasks to simulate successfully with the new changes.
+> This will require to making some **overrides** in _superchains-ops_ tasks to simulate successfully with the new changes. We already had to do this for the PSPs in the [task 017](https://github.com/ethereum-optimism/superchain-ops/blob/main/tasks/eth/017-presigned-pause/PresignPauseFromJson.s.sol)
 
 This is worth noting, if there is another entity that depends on the PSPs, we need to share these before the upgrade occurs.
 
