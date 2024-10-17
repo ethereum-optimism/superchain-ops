@@ -1,25 +1,27 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [Objective](#objective)
-- [Approving the transaction](#approving-the-transaction)
-   - [1. Update repo and move to the appropriate folder for this rehearsal task](#1-update-repo-and-move-to-the-appropriate-folder-for-this-rehearsal-task)
-   - [2. Setup Ledger](#2-setup-ledger)
-   - [3. Sign the transactions](#3-sign-the-transactions)
-   - [3.1. Validate integrity of the simulation.](#31-validate-integrity-of-the-simulation)
-   - [3.2. Validate correctness of the state diff.](#32-validate-correctness-of-the-state-diff)
-   - [3.3. Extract the domain hash and the message hash to approve.](#33-extract-the-domain-hash-and-the-message-hash-to-approve)
-   - [4. Approve the signature on your ledger](#4-approve-the-signature-on-your-ledger)
-   - [5. Send the output to Facilitator(s)](#5-send-the-output-to-facilitators)
-- [[Before Ceremony] Instructions for the facilitator](#before-ceremony-instructions-for-the-facilitator)
-   - [1. Update input files](#1-update-input-files)
-   - [2. Prepare the transactions](#2-prepare-the-transactions)
-- [[After Ceremony] Instructions for the facilitator](#after-ceremony-instructions-for-the-facilitator)
-   - [1. Collect the signatures](#1-collect-the-signatures)
-   - [2. Merge the signatures](#2-merge-the-signatures)
-   - [3. Verify the signatures](#3-verify-the-signatures)
-   - [4. Simulate the transaction with signatures](#4-simulate-the-transaction-with-signatures)
-   - [5. Store and execute the transaction](#5-store-and-execute-the-transaction)
+- [Superchain Presigned Pause](#superchain-presigned-pause)
+  - [Objective](#objective)
+    - [1. Ensure no GAPs with PSPs coverage](#1-ensure-no-gaps-with-psps-coverage)
+  - [Approving the transaction](#approving-the-transaction)
+    - [1. Update repo and move to the appropriate folder for this rehearsal task](#1-update-repo-and-move-to-the-appropriate-folder-for-this-rehearsal-task)
+    - [2. Setup Ledger](#2-setup-ledger)
+    - [3. Sign the transactions](#3-sign-the-transactions)
+      - [3.1. Validate integrity of the simulation.](#31-validate-integrity-of-the-simulation)
+      - [3.2. Validate correctness of the state diff.](#32-validate-correctness-of-the-state-diff)
+      - [3.3. Extract the domain hash and the message hash to approve.](#33-extract-the-domain-hash-and-the-message-hash-to-approve)
+    - [4. Approve the signature on your ledger](#4-approve-the-signature-on-your-ledger)
+    - [5. Send the output to Facilitator(s)](#5-send-the-output-to-facilitators)
+  - [[Before Ceremony] Instructions for the facilitator](#before-ceremony-instructions-for-the-facilitator)
+    - [1. Update input files](#1-update-input-files)
+    - [2. Prepare the transactions](#2-prepare-the-transactions)
+  - [[After Ceremony] Instructions for the facilitator](#after-ceremony-instructions-for-the-facilitator)
+    - [1. Collect the signatures](#1-collect-the-signatures)
+    - [2. Merge the signatures](#2-merge-the-signatures)
+    - [3. Verify the signatures](#3-verify-the-signatures)
+    - [4. Simulate the transaction with signatures](#4-simulate-the-transaction-with-signatures)
+    - [5. Store and execute the transaction](#5-store-and-execute-the-transaction)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -39,6 +41,19 @@ signing. You won’t be submitting a transaction and your address
 doesn’t even need to be funded. These are offchain signatures.
 
 A Facilitator will collect the signatures and execute the contract.
+
+### 1. Ensure no GAPs with PSPs coverage
+
+We need to ensure there is no GAPs in the PSPs coverage during upgrade.
+This means that, if we are upgrading core components of the system. It can break the PSPs coverage, thus we need to ensure before the upgrade that the PSPs coverage will not be broken.
+In the case there are broken changes, we need to blindly simulate the PSPs with the **new changes** and presign the new PSPs with the **new changes**.
+This will allow us to have the PSPs coverage during the upgrade and after the upgrade with the new components.
+We need to keep the PSPs before the upgrade and after the upgrade.
+
+> [!WARNING]  
+> This will require to making some **overrides** in _superchains-ops_ tasks to simulate successfully with the new changes.
+
+This is worth noting, if there is another entity that depends on the PSPs, we need to share these before the upgrade occurs.
 
 ## Approving the transaction
 
@@ -117,7 +132,7 @@ just \
 Where `0` is the index of the address you want to use in the derivation path.
 
 For each transaction we will be performing 3 validations
-and ensure the domain hash and  message hash are the same
+and ensure the domain hash and message hash are the same
 between the Tenderly simulation and your
 Ledger:
 
@@ -156,9 +171,9 @@ Now click on the "State" tab. Verify that:
    storage key hash is evaluated from the following expression:
    `bytes32(uint256(keccak256("superchainConfig.paused")) - 1)` per the
    `SuperchainConfig` [implementation](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.5.0-rc.1/packages/contracts-bedrock/src/L1/SuperchainConfig.sol#L19).
-3. There are no other significant state changes except for 2 nonce
+2. There are no other significant state changes except for 2 nonce
    changes from the Safe and the signer address.
-4. You will see a state override (not a state change). This is
+3. You will see a state override (not a state change). This is
    expected and its purpose is to generate a successful Safe execution
    simulation without collecting any signatures.
 
@@ -230,10 +245,10 @@ will be collected by Facilitators for execution. Execution can occur
 by anyone once a threshold of signatures are collected, so a
 Facilitator will do the final execution for convenience.
 
-The signed transactions are in the `tx` folder.  They will be named
+The signed transactions are in the `tx` folder. They will be named
 according to the address used to sign, i.e.
 `tx/draft-92.signer-0x8c78B948Cdd64812993398b4B51ed2603b3543A6.json`
-was signed by `0x8c78B948Cdd64812993398b4B51ed2603b3543A6`.  Share
+was signed by `0x8c78B948Cdd64812993398b4B51ed2603b3543A6`. Share
 these 3 files with the Facilitator, and congrats, you are done!
 
 ## [Before Ceremony] Instructions for the facilitator
@@ -304,6 +319,7 @@ just \
 This will overwrite the original `draft-*.json` files with the all merged signatures.
 
 You can check the file contents with the following command:
+
 ```
 cat tx/draft-*.json | jq
 ```
