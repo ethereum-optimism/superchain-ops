@@ -1,6 +1,6 @@
 # Mainnet - Ecotone Blobs Gas Configuration
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Objective
 
