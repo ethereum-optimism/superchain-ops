@@ -3,7 +3,7 @@
 
 - [Superchain Presigned Pause](#superchain-presigned-pause)
   - [Objective](#objective)
-    - [1. Ensure no GAPs with PSPs coverage](#1-ensure-no-gaps-with-psps-coverage)
+    - [Ensure no gaps with PSPs coverage](#1-ensure-no-gaps-with-psps-coverage)
   - [Approving the transaction](#approving-the-transaction)
     - [1. Update repo and move to the appropriate folder for this rehearsal task](#1-update-repo-and-move-to-the-appropriate-folder-for-this-rehearsal-task)
     - [2. Setup Ledger](#2-setup-ledger)
@@ -42,9 +42,9 @@ doesn’t even need to be funded. These are offchain signatures.
 
 A Facilitator will collect the signatures and execute the contract.
 
-### 1. Ensure no GAPs with PSPs coverage
+### Ensure no gaps with PSPs coverage
 
-We need to ensure there is no GAPs in the PSPs coverage during upgrade.
+We need to ensure there is no gaps in the PSPs coverage during upgrade.
 This means that, if we are upgrading core components of the system. It can break the PSPs coverage, thus we need to ensure before the upgrade that the PSPs coverage will not be broken.
 In the case there are broken changes, we need to blindly simulate the PSPs with the **new changes** and presign the new PSPs with the **new changes**.
 This will allow us to have the PSPs coverage during the upgrade and after the upgrade with the new components.
