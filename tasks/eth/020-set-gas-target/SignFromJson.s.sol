@@ -21,7 +21,7 @@ contract SignFromJson is OriginalSignFromJson {
 
         initialGasLimit = opSystemConfigProxy.gasLimit();
         expectedGasLimit = 60_000_000;
-        require(opFoundationSystemConfigOwner != address(0), "SystemConfig owner not found");
+        require(opFoundationSystemConfigOwner == vm.envAddress("OWNER_SAFE"), "SystemConfig owner mismatch");    
     }
 
     /// @notice Checks the correctness of the deployment
