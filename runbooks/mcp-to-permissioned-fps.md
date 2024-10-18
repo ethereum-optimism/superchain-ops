@@ -244,7 +244,7 @@ We recommend providing the deployer account with 1 ETH on Mainnet and 10 ETH on 
         -v ./deploy_config:/deploy_config.json \
         -v ./deployments.json:/deployments.json \
         -v ./outputs:/outputs \
-        kfoplabs/upgrade-v1.3.0-v1.6.0-permissioned:latest \
+        kfoplabs/upgrade-v1.3.0-v1.6.0-permissioned@sha256:dfb661ac34e997694eb0aaa2536515992cc0a3d663bfe3adbac0deb7aa1dd159 \
         /deploy_config.json \
         /deployments.json
     ```
