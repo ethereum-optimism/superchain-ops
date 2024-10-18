@@ -92,6 +92,15 @@ jobs:
           name: Check task statuses
           command: bash ./script/utils/check-task-statuses.sh
 
+   check_task_numbering: 
+    docker:
+      - image: <<pipeline.parameters.ci_builder_image>>
+    steps:
+      - checkout
+      - run:
+          name: Check Task Numbering Uniqueness
+          command: bash ./script/utils/check-task-numbering.sh
+
   # TODO: remove/replace when there are real consumers of the RPC URLs
   example_mainnet_job:
     circleci_ip_ranges: true
@@ -209,6 +218,7 @@ workflows:
   task_validation:
     jobs:
       - check_task_statuses
+      - check_task_numbering 
   check_just_simulate:
     jobs:
       # Please add an invocation to `just simulate` if a ceremony is
