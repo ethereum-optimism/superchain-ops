@@ -52,6 +52,12 @@ This will allow us to have continuous PSP coverage before, during, and after the
 > [!WARNING]  
 > This will require to making some **overrides** in _superchains-ops_ tasks to simulate successfully with the new changes. We already had to do this for the PSPs in the [task 017](https://github.com/ethereum-optimism/superchain-ops/blob/main/tasks/eth/017-presigned-pause/PresignPauseFromJson.s.sol)
 
+Moreover during this operation we need to store the PSPs. For this, we will use 2 vaults.
+The **first** vault is the normal vault and will hold the previous PSPs (to make sure we have the coverage until the upgrade).
+The **second** vault is the new **temporary** vault and will hold the new PSPs (to make sure we have the coverage after the upgrade).
+After the upgrade the ** temporary second** vault will be merged in the first vault and will overwrite the PSPs in the first vault with the same nonce.
+
+require to keep the Previous PSPs in the previous vault.
 Additionally, if there is another entity that depends on the PSPs, we need to share these before the upgrade occurs.
 
 ## Approving the transaction
