@@ -17,6 +17,7 @@ import {Types} from "@eth-optimism-bedrock/scripts/Types.sol";
 import {ISemver} from "@eth-optimism-bedrock/src/universal/ISemver.sol";
 import {EIP1967Helper} from "@eth-optimism-bedrock/test/mocks/EIP1967Helper.sol";
 import {IGnosisSafe, Enum} from "@eth-optimism-bedrock/scripts/interfaces/IGnosisSafe.sol";
+import {GnosisSafe} from "safe-contracts/GnosisSafe.sol";
 import {console2 as console} from "forge-std/console2.sol";
 import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
 import {stdJson} from "forge-std/StdJson.sol";
@@ -24,42 +25,52 @@ import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {LibString} from "solady/utils/LibString.sol";
 import {Vm, VmSafe} from "forge-std/Vm.sol";
 import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
+import {stdToml} from "forge-std/StdToml.sol";
+
+// define solidity interface of the old contracts
 
 contract NestedSignFromJson is OriginalNestedSignFromJson {
     using LibString for string;
 
+    // Safe contract for this task.
+    GnosisSafe securityCouncilSafe = GnosisSafe(payable(vm.envAddress("COUNCIL_SAFE")));
+    GnosisSafe fndSafe = GnosisSafe(payable(vm.envAddress("FOUNDATION_SAFE")));
+    GnosisSafe ownerSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
+
     /// @notice Verify against https://docs.optimism.io/chain/security/privileged-roles#guardian
     address constant superchainConfigGuardian = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A;
+    
+    address constant optimismPortalGuardian = 0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2;
 
     /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L12
-    address constant p2pSequencerAddress = 0xAAAA45d9549EDA09E70937013520214382Ffc4A2;
+    address constant p2pSequencerAddress = 0xAf6E19BE0F9cE7f8afd49a1824851023A8249e8a;
 
     /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L13
-    address constant batchInboxAddress = 0xFF00000000000000000000000000000000000010;
+    address constant batchInboxAddress = 0xFf00000000000000000000000000000000008453;
 
     /// @notice Verify against https://docs.optimism.io/chain/security/privileged-roles#batcher
-    address constant batchSenderAddress = 0x6887246668a3b87F54DeB3b94Ba47a6f63F32985;
+    address constant batchSenderAddress = 0x5050F69a9786F081509234F1a7F4684b5E5b76C9;
 
     /// @notice Verify against lib/superchain-registry/superchain/extra/addresses/mainnet/op.json
-    address constant systemConfigOwner = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A;
+    address constant systemConfigOwner = 0x14536667Cd30e52C0b458BaACcB9faDA7046E056;
 
     /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L35
-    uint256 constant l2GenesisBlockGasLimit = 0x1c9c380;
+    uint256 constant l2GenesisBlockGasLimit = 0xA037A00;
 
     /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L37
     uint256 constant gasPriceOracleOverhead = 0;
 
-    /// @notice Verify with `cast call 0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 "scalar()(bytes32)"`. We don't link to
+    /// @notice Verify with `cast call 0x73a79Fab69143498Ed3712e519A88a918e1f4072 "scalar()(bytes32)" --rpc-url https://ethereum-rpc.publicnode.com`. We don't link to
     /// the deploy-config here because it needs to be updated to account for the new way the scalar
     /// is encoded post-ecotone. But we don't want this parameter to change, so we hardcode the
     /// existing value (fetched with the above command) here.
-    uint256 constant gasPriceOracleScalar = 0x10000000000000000000000000000000000000000000000000c5fc500000558;
+    uint256 constant gasPriceOracleScalar = 0x01000000000000000000000000000000000000000000000000101c12000008dd;
 
     /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L44
-    uint256 constant systemConfigStartBlock = 17422444;
+    uint256 constant systemConfigStartBlock = 17482144;
 
     // Verify against the `DisputeGameFactoryProxy` in the Fault Proofs governance post - https://gov.optimism.io/t/upgrade-proposal-fault-proofs/8161
-    address constant dgfProxy = 0xe5965Ab5962eDc7477C8520243A95517CD252fA9;
+    address constant dgfProxy = 0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e;
 
     address councilSafe;
     address foundationSafe;
@@ -85,40 +96,51 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         return shouldHaveCodeExceptions;
     }
 
-    /// @notice Reads the contract addresses from lib/superchain-registry/superchain/extra/addresses/mainnet/op.json
+    /// @notice Reads the contract addresses from lib/superchain-registry/superchain/configs/mainnet/base.toml
     function _getContractSet() internal returns (Types.ContractSet memory _proxies) {
-        string memory addressesJson;
+        string memory addressesToml;
 
         // Read addresses json
         try vm.readFile(
-            string.concat(vm.projectRoot(), "/lib/superchain-registry/superchain/extra/addresses/mainnet/op.json")
+            string.concat(vm.projectRoot(), "/lib/superchain-registry/superchain/configs/mainnet/base.toml")
         ) returns (string memory data) {
-            addressesJson = data;
+            addressesToml = data;
         } catch {
-            revert("Failed to read lib/superchain-registry/superchain/extra/addresses/mainnet/op.json");
+            revert("Failed to read lib/superchain-registry/superchain/configs/mainnet/base.toml");
         }
 
-        _proxies.L1CrossDomainMessenger = stdJson.readAddress(addressesJson, "$.L1CrossDomainMessengerProxy");
-        _proxies.L1StandardBridge = stdJson.readAddress(addressesJson, "$.L1StandardBridgeProxy");
+        _proxies.L1CrossDomainMessenger = stdToml.readAddress(addressesToml, "$.addresses.L1CrossDomainMessengerProxy");
+        _proxies.L1StandardBridge = stdToml.readAddress(addressesToml, "$.addresses.L1StandardBridgeProxy");
         _proxies.OptimismMintableERC20Factory =
-            stdJson.readAddress(addressesJson, "$.OptimismMintableERC20FactoryProxy");
-        _proxies.OptimismPortal = stdJson.readAddress(addressesJson, "$.OptimismPortalProxy");
-        _proxies.OptimismPortal2 = stdJson.readAddress(addressesJson, "$.OptimismPortalProxy");
-        _proxies.SystemConfig = stdJson.readAddress(addressesJson, "$.SystemConfigProxy");
-        _proxies.L1ERC721Bridge = stdJson.readAddress(addressesJson, "$.L1ERC721BridgeProxy");
+            stdToml.readAddress(addressesToml, "$.addresses.OptimismMintableERC20FactoryProxy");
+        _proxies.OptimismPortal = stdToml.readAddress(addressesToml, "$.addresses.OptimismPortalProxy");
+        _proxies.OptimismPortal2 = stdToml.readAddress(addressesToml, "$.addresses.OptimismPortalProxy");
+        _proxies.SystemConfig = stdToml.readAddress(addressesToml, "$.addresses.SystemConfigProxy");
+        _proxies.L1ERC721Bridge = stdToml.readAddress(addressesToml, "$.addresses.L1ERC721BridgeProxy");
         _proxies.DisputeGameFactory = dgfProxy;
 
-        // Read superchain.yaml
-        string[] memory inputs = new string[](4);
-        inputs[0] = "yq";
-        inputs[1] = "-o";
-        inputs[2] = "json";
-        inputs[3] = "lib/superchain-registry/superchain/configs/mainnet/superchain.yaml";
+        // Read superchain.toml
+        string memory chainConfig;
+        string memory path =
+            string.concat("/lib/superchain-registry/superchain/configs/mainnet/superchain.toml");
+        try vm.readFile(string.concat(vm.projectRoot(), path)) returns (string memory data) {
+            chainConfig = data;
+        } catch {
+            revert(string.concat("Failed to read ", path));
+        }
 
-        addressesJson = string(vm.ffi(inputs));
+        _proxies.ProtocolVersions = stdToml.readAddress(chainConfig, "$.protocol_versions_addr");
+        _proxies.SuperchainConfig = stdToml.readAddress(chainConfig, "$.superchain_config_addr");
+    }
 
-        _proxies.ProtocolVersions = stdJson.readAddress(addressesJson, "$.protocol_versions_addr");
-        _proxies.SuperchainConfig = stdJson.readAddress(addressesJson, "$.superchain_config_addr");
+    function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
+        allowed = new address[](6);
+        allowed[0] = address(proxies.OptimismPortal2);
+        allowed[1] = address(proxies.SystemConfig);
+        allowed[2] = address(ownerSafe);
+        allowed[3] = address(securityCouncilSafe);
+        allowed[4] = address(fndSafe);
+        // allowed[4] = expectedLivenessGuard;
     }
 
     function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory) internal view override {
@@ -184,7 +206,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         require(EIP1967Helper.getImplementation(proxies.SystemConfig).code.length != 0, "201");
 
         SystemConfig configToCheck = SystemConfig(proxies.SystemConfig);
-        require(configToCheck.owner() == superchainConfigGuardian, "300");
+        require(configToCheck.owner() == systemConfigOwner, "300");
         require(configToCheck.overhead() == gasPriceOracleOverhead, "400");
         require(configToCheck.scalar() == gasPriceOracleScalar, "500");
         require(configToCheck.batcherHash() == bytes32(uint256(uint160(batchSenderAddress))), "600");
@@ -258,7 +280,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         require(address(portalToCheck.systemConfig()).code.length != 0, "5901");
         require(EIP1967Helper.getImplementation(address(portalToCheck.systemConfig())).code.length != 0, "5902");
 
-        require(portalToCheck.guardian() == superchainConfigGuardian, "6000");
+        require(portalToCheck.guardian() == optimismPortalGuardian, "6000");
         require(portalToCheck.guardian().code.length != 0, "6001"); // This is a Safe, no need to check the implementation.
 
         require(address(portalToCheck.superchainConfig()) == address(proxies.SuperchainConfig), "6100");

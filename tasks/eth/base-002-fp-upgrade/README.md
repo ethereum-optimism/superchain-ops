@@ -4,11 +4,11 @@ Status: []()
 
 ## Objective
 
-This is the playbook for executing the Fault Proofs upgrade on Base Mainnet.
+This is the playbook for upgrading Base Mainnet to use the permissionless fault proofs system.
 
 The fault proof contracts from v1.6.0 have already been deployed and tested. Refer to the [release notes](https://github.com/ethereum-optimism/optimism/releases/tag/op-contracts%2Fv1.6.0) for the contract release details.
 
-Governance post of the Fault Proofs upgrade can be found at https://gov.optimism.io/t/upgrade-proposal-fault-proofs/8161.
+Governance post of the Fault Proofs upgrade can be found at https://gov.optimism.io/t/upgrade-proposal-10-granite-network-upgrade/8733.
 
 1. Upgrades the `OptimismPortal` proxy implementation.
 2. Upgrades the `SystemConfig` proxy implementation.
