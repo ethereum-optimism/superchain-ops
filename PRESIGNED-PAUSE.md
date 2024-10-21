@@ -45,15 +45,14 @@ A Facilitator will collect the signatures and execute the contract.
 ### Ensure no gaps with PSPs coverage
 
 We need to ensure there is no gaps in the PSPs coverage during upgrade.
-This means that, if we are upgrading core components of the system. It can break the PSPs coverage, thus we need to ensure before the upgrade that the PSPs coverage will not be broken.
-In the case there are broken changes, we need to blindly simulate the PSPs with the **new changes** and presign the new PSPs with the **new changes**.
-This will allow us to have the PSPs coverage during the upgrade and after the upgrade with the new components.
-We need to keep the PSPs before the upgrade and after the upgrade.
+Upgrades to certain components of the system can invalidate existing PSPs and cause them to no longer work, thus we need to ensure before the upgrade that PSPs coverage continues without a gap.
+In this case of breaking changes, we need to simulate the PSPs against the **new changes** and presign the new PSPs against these **new changes**.
+This will allow us to have continuous PSP coverage before, during, and after the upgrade.
 
 > [!WARNING]  
 > This will require to making some **overrides** in _superchains-ops_ tasks to simulate successfully with the new changes. We already had to do this for the PSPs in the [task 017](https://github.com/ethereum-optimism/superchain-ops/blob/main/tasks/eth/017-presigned-pause/PresignPauseFromJson.s.sol)
 
-This is worth noting, if there is another entity that depends on the PSPs, we need to share these before the upgrade occurs.
+Additionally, if there is another entity that depends on the PSPs, we need to share these before the upgrade occurs.
 
 ## Approving the transaction
 
