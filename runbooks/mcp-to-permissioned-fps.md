@@ -343,9 +343,14 @@ For networks not in the [superchain-registry](https://github.com/ethereum-optimi
     - `cannon-prestate, CANNON_PRESTATE`
     - Path to absolute prestate to use when generating trace data (cannon trace type only)
     - **Important details**
-        - Must be `0x038512e02c4c3f7bdaec27d00edf55b7155e0905301e1a88083e4e0a6764d54c`. This is the same value as OP Mainnet because it should correspond to the latest version of the `op-program`. This version of the op-program doesn’t account for chains recently added or not in the `superchan-registry`, but for permissioned games that is fine because it will never actually execute.
-        - The simplest option for the permissioned game, given it won’t be used for execution, is to specify a static file and omit the `CANNON_PRESTATES_URL` option.  The local file doesn’t even need to exist.
-            - The `PRESTATES_URL` version is needed when moving to the permissionless game so that the challenger can download the particular prestate that matches the dispute game it needs to act on (games may have different prestates because of upgrades). When using the URL version challenger needs to find a file to download from the URL even for the permissioned game.
+        - This version of the op-program doesn’t account for chains recently added or not in the `superchan-registry`, but for permissioned games that is fine because it will never actually execute.
+        - The absolute prestate hash **for the contracts** must be set to `0x038512e02c4c3f7bdaec27d00edf55b7155e0905301e1a88083e4e0a6764d54c`. This is the same value as OP Mainnet because it should correspond to the latest version of the `op-program`. 
+        - **For the challenger**, the `--cannon-prestate` option is actually a file path to the preimage of that state commitment. For the permissioned game it isn't actually loaded and can be set to anything even if the file doesn't exist.
+        - The simplest option for the permissioned game, given it won’t be used for execution, is to specify a static file and omit the `CANNON_PRESTATES_URL` option. The local file doesn’t even need to exist.
+        - The `PRESTATES_URL` version is needed when moving to the permissionless game so that the challenger can download the particular prestate that matches the dispute game it needs to act on (games may have different prestates because of upgrades). When using the URL version challenger needs to find a file to download from the URL even for the permissioned game.
+- `TraceTypeFlag`
+    - `trace-type`, `TRACE_TYPE`
+    - Set this to `permissioned` so the challenger will act on permissioned games. The default is to act on permissionless (cannon) games.
 
 ## Running a dispute monitor
 
