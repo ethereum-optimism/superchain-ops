@@ -1,4 +1,4 @@
-# Upgrade runbook: op-contracts/v1.3.0 to op-contracts/v1.6.0
+# Upgrade runbook: L2 Output Oracle to Fault Proof System
 
 ## Summary
 
