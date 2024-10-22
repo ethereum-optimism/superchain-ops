@@ -1,6 +1,6 @@
 # Mainnet - Gas Target Increase
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0x14ac2b3612fa27ac89f31d1d2174b4436c19b6721f1ecefce89b1f17c7be5e3c)
 
 ## Objective
 
