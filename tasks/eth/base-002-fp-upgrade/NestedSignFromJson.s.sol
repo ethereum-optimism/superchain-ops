@@ -42,22 +42,22 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     
     address constant optimismPortalGuardian = 0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2;
 
-    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L12
+    /// @notice Verify against https://github.com/ethereum-optimism/superchain-registry/blob/21506ecedf6e83410d12c7cc406685ac061a2a74/superchain/configs/mainnet/base.toml#L44
     address constant p2pSequencerAddress = 0xAf6E19BE0F9cE7f8afd49a1824851023A8249e8a;
 
-    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L13
+    /// @notice Verify against https://github.com/ethereum-optimism/superchain-registry/blob/21506ecedf6e83410d12c7cc406685ac061a2a74/superchain/configs/mainnet/base.toml#L9
     address constant batchInboxAddress = 0xFf00000000000000000000000000000000008453;
 
-    /// @notice Verify against https://docs.optimism.io/chain/security/privileged-roles#batcher
+    /// @notice Verify against https://github.com/ethereum-optimism/superchain-registry/blob/21506ecedf6e83410d12c7cc406685ac061a2a74/superchain/configs/mainnet/base.toml#L33
     address constant batchSenderAddress = 0x5050F69a9786F081509234F1a7F4684b5E5b76C9;
 
-    /// @notice Verify against lib/superchain-registry/superchain/extra/addresses/mainnet/op.json
+    /// @notice Verify against https://github.com/ethereum-optimism/superchain-registry/blob/21506ecedf6e83410d12c7cc406685ac061a2a74/superchain/configs/mainnet/base.toml#L39
     address constant systemConfigOwner = 0x14536667Cd30e52C0b458BaACcB9faDA7046E056;
 
-    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L35
+    /// @notice Verify onchain
     uint256 constant l2GenesisBlockGasLimit = 0xA037A00;
 
-    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L37
+    /// @notice Verify onchain
     uint256 constant gasPriceOracleOverhead = 0;
 
     /// @notice Verify with `cast call 0x73a79Fab69143498Ed3712e519A88a918e1f4072 "scalar()(bytes32)" --rpc-url https://ethereum-rpc.publicnode.com`. We don't link to
@@ -66,10 +66,10 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     /// existing value (fetched with the above command) here.
     uint256 constant gasPriceOracleScalar = 0x01000000000000000000000000000000000000000000000000101c12000008dd;
 
-    /// @notice Verify against https://github.com/ethereum-optimism/optimism/blob/e2307008d8bc3f125f97814243cc72e8b47c117e/packages/contracts-bedrock/deploy-config/mainnet.json#L44
+    /// @notice Verify against
     uint256 constant systemConfigStartBlock = 17482144;
 
-    // Verify against the `DisputeGameFactoryProxy` in the Fault Proofs governance post - https://gov.optimism.io/t/upgrade-proposal-fault-proofs/8161
+    // Verify against the `DisputeGameFactoryProxy` deployment address
     address constant dgfProxy = 0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e;
 
     address councilSafe;

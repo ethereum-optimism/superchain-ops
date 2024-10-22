@@ -1,42 +1,36 @@
 # Base Mainnet Fault Proofs Upgrade
 
-Status: []()
+Status: [READY TO SIGN]
 
 ## Objective
 
-This is the playbook for upgrading Base Mainnet to use the permissionless fault proofs system.
+This is the playbook upgrades Base Mainnet to use the permissionless fault proofs system.
 
-The fault proof contracts from v1.6.0 have already been deployed and tested. Refer to the [release notes](https://github.com/ethereum-optimism/optimism/releases/tag/op-contracts%2Fv1.6.0) for the contract release details.
+The Base team has already deployed and tested the fault proof contract set. Refer to the [release notes](https://github.com/ethereum-optimism/optimism/releases/tag/op-contracts%2Fv1.6.0) for the contract release details.
 
 Governance post of the Fault Proofs upgrade can be found at https://gov.optimism.io/t/upgrade-proposal-10-granite-network-upgrade/8733.
 
 1. Upgrades the `OptimismPortal` proxy implementation.
 2. Upgrades the `SystemConfig` proxy implementation.
 
-Details on the upgrade procedure can be found in [EXEC.md](./EXEC.md). Signers should validate these details.
-
-The original fault proof proposal was proposed here:
-
-- [X] Posted on the governance forum [here](https://gov.optimism.io/t/upgrade-proposal-fault-proofs/8161).
-- [X] Approved by Token House voting [here](https://vote.optimism.io/proposals/72085170435228531173144599119267762084652443676555508407874836206178427511368).
-- [X] Not vetoed by the Citizens' house [here](https://snapshot.org/#/citizenshouse.eth/proposal/0xe2d86afceea73f2e2734550bec73af395b78826413fb3622b57dce43b2fd7b94).
+Details on the upgrade procedure can be found in [EXEC.md](./EXEC.md). Signers need not validate the, but they are provided for reference.
 
 ## Preparing the Upgrade
 
 The contract implementations and new proxies for the Fault Proof system have been pre-deployed to mainnet.
 
-- `AnchorStateRegistry`: `0x6B7da1647Aa9684F54B2BEeB699F91F31cd35Fb9`,
-- `AnchorStateRegistryProxy`: `0x18DAc71c228D1C32c99489B7323d441E1175e443`,
-- `DelayedWETH`: `0x97988d5624F1ba266E1da305117BCf20713bee08`
-- `DelayedWETHProxy`: `0xE497B094d6DbB3D5E4CaAc9a14696D7572588d14`
-- `DisputeGameFactory`: `0xc641A33cab81C559F2bd4b21EA34C290E2440C2B`
-- `DisputeGameFactoryProxy`: `0xe5965Ab5962eDc7477C8520243A95517CD252fA9`
-- `FaultDisputeGame`: `0x4146DF64D83acB0DcB0c1a4884a16f090165e122`
+- `AnchorStateRegistry`: `0x60F1Ea7B3359a4008655df44560B6899B1877a15`,
+- `AnchorStateRegistryProxy`: `0xdB9091e48B1C42992A1213e6916184f9eBDbfEDf`,
+- `DelayedWETH`: `0x71e966ae981d1ce531a7b6d23dc0f27b38409087`
+- `DelayedWETHProxy`: ``
+- `DisputeGameFactory`: `0xc641a33cab81c559f2bd4b21ea34c290e2440c2b`
+- `DisputeGameFactoryProxy`: `0x43edb88c4b80fdd2adff2412a7bebf9df42cb40e`
+- `FaultDisputeGame`: `0xCd3c0194db74C23807D4B90A5181e1B28cF7007C`
 - `Mips`: `0x0f8EdFbDdD3c0256A80AD8C0F2560B1807873C9c`
-- `OptimismPortal2`: `0xe2F826324b2faf99E513D16D266c3F80aE87832B`
+- `OptimismPortal2`: `0x49048044D57e1C92A77f79988d21Fa8fAF74E97e`
 - `PermissionedDisputeGame`: `0xE9daD167EF4DE8812C1abD013Ac9570C616599A0`
-- `PreimageOracle`: `0xD326E10B8186e90F4E2adc5c13a2d0C137ee8b34`
-- `SystemConfig`: `0xF56D96B2535B932656d3c04Ebf51baBff241D886`
+- `PreimageOracle`: ``
+- `SystemConfig`: `0x73a79Fab69143498Ed3712e519A88a918e1f4072`
 
 All that's left is to execute the upgrade.
 
