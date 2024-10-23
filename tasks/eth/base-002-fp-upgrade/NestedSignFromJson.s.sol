@@ -55,7 +55,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     address constant systemConfigOwner = 0x14536667Cd30e52C0b458BaACcB9faDA7046E056;
 
     /// @notice Verify onchain
-    uint256 constant l2GenesisBlockGasLimit = 0xA037A00;
+    uint256 constant l2GenesisBlockGasLimit = 0xABA9500;
 
     /// @notice Verify onchain
     uint256 constant gasPriceOracleOverhead = 0;
