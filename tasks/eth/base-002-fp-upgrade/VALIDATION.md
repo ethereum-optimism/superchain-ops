@@ -3,7 +3,7 @@
 This document can be used to validate the state diff resulting from the execution of the upgrade
 transaction.
 
-For each contract listed in the state diff, please verify that no contracts or state changes shown in the Tenderly diff are missing from this document. Additionally, please verify that for each contract:
+For each contract listed in the state diff, please verify that no contracts or state changes shown in the Tenderly diff are missing from this document. Please note, while verifying in Tenderly, you now have to enable the new "Dev Mode" toggle at the top. Additionally, please verify that for each contract:
 
 - The following state changes (and none others) are made to that contract. This validates that no unexpected state changes occur.
 - All addresses (in section headers and storage values) match the provided name, using the Etherscan and Superchain Registry links provided. This validates the bytecode deployed at the addresses contains the correct logic.
@@ -123,7 +123,7 @@ State Changes:
   **Before:** `0x000000000000000000000000ba2492e52f45651b60b8b38d4ea5e2390c64ffb1` <br/>
   **After:** [`0x000000000000000000000000f56d96b2535b932656d3c04ebf51babff241d886`](https://etherscan.io/address/0xf56d96b2535b932656d3c04ebf51babff241d886) <br/>
   **Meaning:** This upgrades the SystemConfig implementation. Verify that the new `SystemConfig` implementation is stored at the eip1967 proxy implementation slot.
-    Consult the [gov proposal](https://gov.optimism.io/t/final-protocol-upgrade-7-fault-proofs/8161) for the new SystemConfig implementation address.
+    Consult the [superchain registry](https://github.com/ethereum-optimism/superchain-registry/blob/804735eef0f0b24fe4287bd1ee3b36c791630923/validation/standard/standard-versions-mainnet.toml#L11C66-L11C106) for the new SystemConfig implementation address.
 
 - **Key**: `0x52322a25d9f59ea17656545543306b7aef62bc0cc53a0e65ccfa0c75b97aa906`
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000`
