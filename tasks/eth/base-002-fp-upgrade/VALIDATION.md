@@ -80,7 +80,7 @@ State Changes:
 - **Key:** [`0x0000000000000000000000000000000000000000000000000000000000000038`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.6.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal2.json#L80C1-L85C5) <br/>
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After**: [`0x00000000000000000000000043edb88c4b80fdd2adff2412a7bebf9df42cb40e`](https://etherscan.io/address/0x43edb88c4b80fdd2adff2412a7bebf9df42cb40e) <br/>
-  **Meaning**: Sets the `DisputeGameFactoryProxy` address in the proxy storage (0x38 is equivalent to 56). Consult the [gov proposal](https://gov.optimism.io/t/final-protocol-upgrade-7-fault-proofs/8161) for the proxy address value.
+  **Meaning**: Sets the `DisputeGameFactoryProxy` address in the proxy storage (0x38 is equivalent to 56). Consult the [superchain-registry](https://github.com/ethereum-optimism/superchain-registry/pull/653) for the proxy address value.
 
 - **Key:** [`0x000000000000000000000000000000000000000000000000000000000000003b`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.6.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal2.json#L101C1-L113C5) <br/>
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
@@ -157,3 +157,47 @@ The only other state changes should be restricted to one of the following addres
   - The nonce (slot 0x5) should be increased from 14 to 15.
 - Foundation L1 Upgrades Safe: `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`
   - The nonce (slot 0x5) should be increased from 94 to 95.
+
+#### For Base:
+
+- **Key:** `0x20a6c912e89e9f9a3b7b19e820dc2dfa3bdf556756e617efafacf2370e02f763` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
+  **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
+  **Meaning:** The GnosisSafe `approvedHashes` mapping is updated to indicate approval of this transaction by Base. The correctness of this slot can be verified as follows:
+    - Since this is a nested mapping, we need to use `cast index` twice to confirm that this is the correct slot. The inputs needed are:
+      - The location (`8`) of the `approvedHashes` mapping in the [GnosisSafe storage layout](https://github.com/safe-global/safe-contracts/blob/v1.4.0/contracts/libraries/SafeStorage.sol#L23)
+      - The address of the Base Safe: `0x9855054731540A48b28990B63DcF4f33d8AE46A1`
+      - The safe hash to approve: `0x3cf8516a68fc2c37254a100f90774ff8bae325d52d62c70167eed76c6e5413a7`
+    - The using `cast index`, we can verify that:
+      ```shell
+        $ cast index address 0x9855054731540A48b28990B63DcF4f33d8AE46A1 8
+        0x80e8cf7d2fc4cce32f3c2e9b576f8f3ec9d5ac9c6905f070c54b8d2c07cd3ccd
+        ```
+        and
+      ```shell
+        $ cast index bytes32 0x3cf8516a68fc2c37254a100f90774ff8bae325d52d62c70167eed76c6e5413a7 0x80e8cf7d2fc4cce32f3c2e9b576f8f3ec9d5ac9c6905f070c54b8d2c07cd3ccd
+        0x20a6c912e89e9f9a3b7b19e820dc2dfa3bdf556756e617efafacf2370e02f763
+        ```
+      And so the output of the second command matches the key above.
+
+#### For the Foundation:
+
+- **Key:** `0xfd95e97d4d54d0d1ff4424c4c99a89091a555289c0784cc899453daece609757` <br/>
+  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
+  **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
+  **Meaning:** The GnosisSafe `approvedHashes` mapping is updated to indicate approval of this transaction by Base. The correctness of this slot can be verified as follows:
+    - Since this is a nested mapping, we need to use `cast index` twice to confirm that this is the correct slot. The inputs needed are:
+      - The location (`8`) of the `approvedHashes` mapping in the [GnosisSafe storage layout](https://github.com/safe-global/safe-contracts/blob/v1.4.0/contracts/libraries/SafeStorage.sol#L23)
+      - The address of the Foundation Safe: `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`
+      - The safe hash to approve: `0x3cf8516a68fc2c37254a100f90774ff8bae325d52d62c70167eed76c6e5413a7`
+    - The using `cast index`, we can verify that:
+      ```shell
+        $ cast index address 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A 8
+        0x7eaa503d7442070af28111802571ddcef5e43630a4ccafa1f94d858abee98ff3
+      ```
+      and
+      ```shell
+        $ cast index bytes32 0x3cf8516a68fc2c37254a100f90774ff8bae325d52d62c70167eed76c6e5413a7 0x7eaa503d7442070af28111802571ddcef5e43630a4ccafa1f94d858abee98ff3
+        0xfd95e97d4d54d0d1ff4424c4c99a89091a555289c0784cc899453daece609757
+      ```
+      And so the output of the second command matches the key above.
