@@ -30,11 +30,6 @@ import {stdToml} from "forge-std/StdToml.sol";
 contract NestedSignFromJson is OriginalNestedSignFromJson {
     using LibString for string;
 
-    // Safe contract for this task.
-    GnosisSafe securityCouncilSafe = GnosisSafe(payable(vm.envAddress("COUNCIL_SAFE")));
-    GnosisSafe fndSafe = GnosisSafe(payable(vm.envAddress("FOUNDATION_SAFE")));
-    GnosisSafe ownerSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
-
     address constant optimismPortalGuardian = 0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2;
 
     /// @notice Verify against https://github.com/ethereum-optimism/superchain-registry/blob/21506ecedf6e83410d12c7cc406685ac061a2a74/superchain/configs/mainnet/base.toml#L44
@@ -67,17 +62,36 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     // Verify against the `DisputeGameFactoryProxy` deployment address
     address constant dgfProxy = 0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e;
 
-    address councilSafe;
+    GnosisSafe ownerSafe;
+    address baseSafe;
     address foundationSafe;
 
     Types.ContractSet proxies;
-
+    
     /// @notice Sets up the contract
     function setUp() public {
         proxies = _getContractSet();
-
-        councilSafe = vm.envAddress("COUNCIL_SAFE");
+        ownerSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
+        baseSafe = vm.envAddress("COUNCIL_SAFE");
         foundationSafe = vm.envAddress("FOUNDATION_SAFE");
+
+        address[] memory owners = ownerSafe.getOwners();
+        // assert there are two signers on the owner safe
+        assert(owners.length == 2);
+        // assert that they are the expected base and fnd safes
+        bool baseSafeFound = false;
+        bool foundationSafeFound = false;
+
+        for (uint i = 0; i < owners.length; i++){
+            if (owners[i] == baseSafe) {
+                baseSafeFound = true;
+            }
+            if (owners[i] == foundationSafe) {
+                foundationSafeFound = true;
+            }
+        }
+        assert(baseSafeFound);
+        assert(foundationSafeFound);
     }
 
     function getCodeExceptions() internal pure override returns (address[] memory) {
@@ -133,12 +147,12 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         allowed[0] = address(proxies.OptimismPortal2);
         allowed[1] = address(proxies.SystemConfig);
         allowed[2] = address(ownerSafe);
-        allowed[3] = address(securityCouncilSafe);
-        allowed[4] = address(fndSafe);
+        allowed[3] = address(baseSafe);
+        allowed[4] = address(foundationSafe);
         // allowed[4] = expectedLivenessGuard;
     }
 
-    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory) internal view override {
+    function _nestedPostCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory) internal view override {
         console.log("Running post-deploy assertions");
         checkSemvers();
         checkStateDiff(accesses);
@@ -169,7 +183,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
                 if (storageAccess.isWrite) {
                     address account = storageAccess.account;
                     require(
-                        account == _ownerSafe() || account == councilSafe || account == foundationSafe
+                        account == _ownerSafe() || account == baseSafe || account == foundationSafe
                             || account == proxies.SystemConfig || account == proxies.OptimismPortal,
                         "state-000"
                     );
