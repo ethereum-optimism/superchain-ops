@@ -20,7 +20,8 @@ The contract implementations and new proxies for the Fault Proof system have bee
 - `AnchorStateRegistry`: `0x60F1Ea7B3359a4008655df44560B6899B1877a15`,
 - `AnchorStateRegistryProxy`: `0xdB9091e48B1C42992A1213e6916184f9eBDbfEDf`,
 - `DelayedWETH`: `0x71e966ae981d1ce531a7b6d23dc0f27b38409087`
-- `DelayedWETHProxy`: `0xa2f2aC6F5aF72e494A227d79Db20473Cf7A1FFE8`
+- `DelayedWETHPermissionlessProxy`: `0xa2f2aC6F5aF72e494A227d79Db20473Cf7A1FFE8`
+- `DelayedWETHPermissionedProxy`: `0x3E8a0B63f57e975c268d610ece93da5f78c01321`
 - `DisputeGameFactory`: `0xc641a33cab81c559f2bd4b21ea34c290e2440c2b`
 - `DisputeGameFactoryProxy`: `0x43edb88c4b80fdd2adff2412a7bebf9df42cb40e`
 - `FaultDisputeGame`: `0xCd3c0194db74C23807D4B90A5181e1B28cF7007C`
