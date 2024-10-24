@@ -76,22 +76,9 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         foundationSafe = vm.envAddress("FOUNDATION_SAFE");
 
         address[] memory owners = ownerSafe.getOwners();
-        // assert there are two signers on the owner safe
-        assert(owners.length == 2);
-        // assert that they are the expected base and fnd safes
-        bool baseSafeFound = false;
-        bool foundationSafeFound = false;
-
-        for (uint i = 0; i < owners.length; i++){
-            if (owners[i] == baseSafe) {
-                baseSafeFound = true;
-            }
-            if (owners[i] == foundationSafe) {
-                foundationSafeFound = true;
-            }
-        }
-        assert(baseSafeFound);
-        assert(foundationSafeFound);
+        require(owners.length == 2, "unexpected owners count");
+        assert(owners[0] == baseSafe || owners[1] == baseSafe, "baseSafe not found");
+        assert(owners[0] == foundationSafe || owners[1] == foundationSafe, "foundation safe not found");
     }
 
     function getCodeExceptions() internal pure override returns (address[] memory) {
