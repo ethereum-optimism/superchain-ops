@@ -128,7 +128,7 @@ State Changes:
 - **Key**: `0x52322a25d9f59ea17656545543306b7aef62bc0cc53a0e65ccfa0c75b97aa906`
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000`
   **After**: [`0x00000000000000000000000043edb88c4b80fdd2adff2412a7bebf9df42cb40e`](https://etherscan.io/address/43edb88c4b80fdd2adff2412a7bebf9df42cb40e)
-  **Meaning**: Sets the [DisputeGameFactory slot](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.6.0/packages/contracts-bedrock/src/L1/SystemConfig.sol#L76). You can verify the correctness of the storage slots with `chisel`. Just start it up and enter the slot definitions as found in the contract source code.
+  **Meaning**: Sets the [DisputeGameFactory slot](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.6.0/packages/contracts-bedrock/src/L1/SystemConfig.sol#L81-L82). You can verify the correctness of the storage slots with `chisel`. Just start it up and enter the slot definitions as found in the contract source code.
   ```
   ➜ bytes32(uint256(keccak256("systemconfig.disputegamefactory")) - 1)
   Type: bytes32
@@ -154,7 +154,7 @@ The only other state changes should be restricted to one of the following addres
   - The nonce (slot 0x5) should be increased from 2 to 3.
   - Another key is set from 0 to 1 reflecting an entry in the `approvedHashes` mapping.
 - Base L1 Safe: `0x9855054731540A48b28990B63DcF4f33d8AE46A1`
-  - The nonce (slot 0x5) should be increased from 14 to 15.
+  - The nonce (slot 0x5) should be increased from 14 (0xe) to 15 (0xf).
 - Foundation L1 Upgrades Safe: `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`
   - The nonce (slot 0x5) should be increased from 94 to 95.
 
