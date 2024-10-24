@@ -20,11 +20,11 @@ The contract implementations and new proxies for the Fault Proof system have bee
 - `AnchorStateRegistry`: `0x60F1Ea7B3359a4008655df44560B6899B1877a15`,
 - `AnchorStateRegistryProxy`: `0xdB9091e48B1C42992A1213e6916184f9eBDbfEDf`,
 - `DelayedWETH`: `0x71e966ae981d1ce531a7b6d23dc0f27b38409087`
-- `DelayedWETHProxy`: ``
+- `DelayedWETHProxy`: `0xa2f2aC6F5aF72e494A227d79Db20473Cf7A1FFE8`
 - `DisputeGameFactory`: `0xc641a33cab81c559f2bd4b21ea34c290e2440c2b`
 - `DisputeGameFactoryProxy`: `0x43edb88c4b80fdd2adff2412a7bebf9df42cb40e`
 - `FaultDisputeGame`: `0xCd3c0194db74C23807D4B90A5181e1B28cF7007C`
-- `Mips`: `0x0f8EdFbDdD3c0256A80AD8C0F2560B1807873C9c`
+- `Mips`: `0x16e83cE5Ce29BF90AD9Da06D2fE6a15d5f344ce4`
 - `OptimismPortalProxy`: `0x49048044D57e1C92A77f79988d21Fa8fAF74E97e`
 - `PermissionedDisputeGame`: `0x19009dEBF8954B610f207D5925EEDe827805986e`
 - `PreimageOracle`: `0x9c065e11870B891D214Bc2Da7EF1f9DDFA1BE277`
