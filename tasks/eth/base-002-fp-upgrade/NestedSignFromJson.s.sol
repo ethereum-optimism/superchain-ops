@@ -77,8 +77,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
         address[] memory owners = ownerSafe.getOwners();
         require(owners.length == 2, "unexpected owners count");
-        assert(owners[0] == baseSafe || owners[1] == baseSafe, "baseSafe not found");
-        assert(owners[0] == foundationSafe || owners[1] == foundationSafe, "foundation safe not found");
+        require(owners[0] == baseSafe || owners[1] == baseSafe, "baseSafe not found");
+        require(owners[0] == foundationSafe || owners[1] == foundationSafe, "foundation safe not found");
     }
 
     function getCodeExceptions() internal pure override returns (address[] memory) {
