@@ -67,7 +67,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     address foundationSafe;
 
     Types.ContractSet proxies;
-    
+
     /// @notice Sets up the contract
     function setUp() public {
         proxies = _getContractSet();
@@ -143,13 +143,12 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     }
 
     function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
-        allowed = new address[](6);
+        allowed = new address[](5);
         allowed[0] = address(proxies.OptimismPortal2);
         allowed[1] = address(proxies.SystemConfig);
         allowed[2] = address(ownerSafe);
         allowed[3] = address(baseSafe);
         allowed[4] = address(foundationSafe);
-        // allowed[4] = expectedLivenessGuard;
     }
 
     function _nestedPostCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory) internal view override {
