@@ -27,8 +27,8 @@ The contract implementations and new proxies for the Fault Proof system have bee
 - `DisputeGameFactoryProxy`: `0x43edb88c4b80fdd2adff2412a7bebf9df42cb40e`
 - `FaultDisputeGame`: `0xCd3c0194db74C23807D4B90A5181e1B28cF7007C`
 - `Mips`: `0x0f8EdFbDdD3c0256A80AD8C0F2560B1807873C9c`
-- `OptimismPortal2`: `0x49048044D57e1C92A77f79988d21Fa8fAF74E97e`
-- `PermissionedDisputeGame`: `0xE9daD167EF4DE8812C1abD013Ac9570C616599A0`
+- `OptimismPortalProxy`: `0x49048044D57e1C92A77f79988d21Fa8fAF74E97e`
+- `PermissionedDisputeGame`: `0x19009dEBF8954B610f207D5925EEDe827805986e`
 - `PreimageOracle`: ``
 - `SystemConfig`: `0x73a79Fab69143498Ed3712e519A88a918e1f4072`
 
