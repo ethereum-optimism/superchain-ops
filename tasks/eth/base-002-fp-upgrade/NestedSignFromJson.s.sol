@@ -27,8 +27,6 @@ import {Vm, VmSafe} from "forge-std/Vm.sol";
 import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 
-// define solidity interface of the old contracts
-
 contract NestedSignFromJson is OriginalNestedSignFromJson {
     using LibString for string;
 
