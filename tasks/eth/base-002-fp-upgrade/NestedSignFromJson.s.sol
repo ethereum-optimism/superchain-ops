@@ -92,7 +92,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     }
 
     /// @notice Reads the contract addresses from lib/superchain-registry/superchain/configs/mainnet/base.toml
-    function _getContractSet() internal view (Types.ContractSet memory _proxies) {
+    function _getContractSet() internal view returns (Types.ContractSet memory _proxies) {
         string memory addressesToml;
 
         // Read addresses json
