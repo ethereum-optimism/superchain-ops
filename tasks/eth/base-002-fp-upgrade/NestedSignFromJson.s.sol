@@ -35,9 +35,6 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     GnosisSafe fndSafe = GnosisSafe(payable(vm.envAddress("FOUNDATION_SAFE")));
     GnosisSafe ownerSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
 
-    /// @notice Verify against https://docs.optimism.io/chain/security/privileged-roles#guardian
-    address constant superchainConfigGuardian = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A;
-    
     address constant optimismPortalGuardian = 0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2;
 
     /// @notice Verify against https://github.com/ethereum-optimism/superchain-registry/blob/21506ecedf6e83410d12c7cc406685ac061a2a74/superchain/configs/mainnet/base.toml#L44
@@ -95,7 +92,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     }
 
     /// @notice Reads the contract addresses from lib/superchain-registry/superchain/configs/mainnet/base.toml
-    function _getContractSet() internal returns (Types.ContractSet memory _proxies) {
+    function _getContractSet() internal view returns (Types.ContractSet memory _proxies) {
         string memory addressesToml;
 
         // Read addresses json

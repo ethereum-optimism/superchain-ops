@@ -4,7 +4,7 @@ Status: [READY TO SIGN]
 
 ## Objective
 
-This is the playbook upgrades Base Mainnet to use the permissionless fault proofs system.
+This playbook upgrades Base Mainnet to use the permissionless fault proofs system.
 
 The Base team has already deployed and tested the fault proof contract set. Refer to the [release notes](https://github.com/ethereum-optimism/optimism/releases/tag/op-contracts%2Fv1.6.0) for the contract release details.
 
