@@ -192,8 +192,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     }
 
     function checkSemvers() internal view {
-        // These are the expected semvers based on the `op-contracts/v1.4.0-rc.4` release.
-        // https://github.com/ethereum-optimism/optimism/releases/tag/op-contracts%2Fv1.4.0-rc.4
+        // These are the expected semvers based on the `op-contracts/v1.6.0` release.
+        // https://github.com/ethereum-optimism/optimism/releases/tag/op-contracts%2Fv1.6.0
         require(ISemver(proxies.L1CrossDomainMessenger).version().eq("2.3.0"), "semver-100");
         require(ISemver(proxies.L1ERC721Bridge).version().eq("2.1.0"), "semver-700");
         require(ISemver(proxies.L1StandardBridge).version().eq("2.1.0"), "semver-200");
