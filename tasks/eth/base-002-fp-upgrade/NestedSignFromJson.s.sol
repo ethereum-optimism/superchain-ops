@@ -271,6 +271,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         // NOTE: proxies.OptimismPortal2 == proxies.OptimismPortal
         require(proxies.OptimismPortal.code.length != 0, "5700");
         require(EIP1967Helper.getImplementation(proxies.OptimismPortal).code.length != 0, "5701");
+        require(address(proxies.OptimismPortal2) == address(proxies.OptimismPortal), "5702");
 
         OptimismPortal2 portalToCheck = OptimismPortal2(payable(proxies.OptimismPortal));
 
