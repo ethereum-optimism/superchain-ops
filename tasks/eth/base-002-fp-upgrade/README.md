@@ -29,7 +29,7 @@ The contract implementations and new proxies for the Fault Proof system have bee
 - `Mips`: `0x0f8EdFbDdD3c0256A80AD8C0F2560B1807873C9c`
 - `OptimismPortalProxy`: `0x49048044D57e1C92A77f79988d21Fa8fAF74E97e`
 - `PermissionedDisputeGame`: `0x19009dEBF8954B610f207D5925EEDe827805986e`
-- `PreimageOracle`: ``
+- `PreimageOracle`: `0x9c065e11870B891D214Bc2Da7EF1f9DDFA1BE277`
 - `SystemConfig`: `0x73a79Fab69143498Ed3712e519A88a918e1f4072`
 
 All that's left is to execute the upgrade.
