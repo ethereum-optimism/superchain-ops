@@ -1,0 +1,22 @@
+set positional-arguments
+
+# default recipe to display help information
+default:
+  @just --list
+
+# Generate the `input.json` with a dispute game address to blacklist
+generate-input gameAddr:
+  #!/usr/bin/env bash
+  set -euo pipefail
+  outputRoot=$(cast call '{{gameAddr}}' 'rootClaim()(bytes32)')
+  # Position 1 is root, attack creates a new claim at position 2
+  bondAmount=$(cast call '{{gameAddr}}' 'getRequiredBond(uint128)' 2 | cast 2d)
+  ATTACK_SIG="attack(bytes32, uint256, bytes32)"
+  ENCODED_ATTACK_CALL="$(cast calldata "$ATTACK_SIG" "${outputRoot}" 0 0x0000000000000000000000000000000000000000000000000000000000000000)"
+
+  cp ./input-template.json ./input.json
+  jq "(.transactions[0].data = \"$ENCODED_ATTACK_CALL\") |
+          (.transactions[0].value = \"${bondAmount}\") |
+          (.transactions[0].contractInputsValues._disputed = \"${outputRoot}\") |
+          (.transactions[0].to = \"{{gameAddr}}\")" ./input.json > ./input.tmp.json
+  mv ./input.tmp.json ./input.json

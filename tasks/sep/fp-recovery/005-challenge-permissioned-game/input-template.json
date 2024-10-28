@@ -1,0 +1,43 @@
+{
+  "chainId": 11155111,
+  "metadata": {
+    "name": "Challenger - Challenge Dispute Game",
+    "description": "This task executes a `attack` operation in the `PermissionedDisputeGame` on behalf of the `Challenger` role. Challenging the proposal prevents it being accepted as a valid output proposal."
+  },
+  "transactions": [
+    {
+      "metadata": {
+        "name": "Challenge Dispute Game",
+        "description": "Executes the `attack` call to the `PermissionedDisputeGame`"
+      },
+      "to": "0x0000000000000000000000000000000000000000",
+      "value": "0x0",
+      "data": "",
+      "contractMethod": {
+        "type": "function",
+        "name": "attack",
+        "inputs": [
+          {
+            "name": "_disputed",
+            "type": "bytes32"
+          },
+          {
+            "name": "_parentIndex",
+            "type": "uint256"
+          },
+          {
+            "name": "_claim",
+            "type": "bytes32"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_disputed": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "_parentIndex": "0",
+        "_claim": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    }
+  ]
+}
