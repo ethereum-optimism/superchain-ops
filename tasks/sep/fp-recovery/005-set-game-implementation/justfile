@@ -1,0 +1,23 @@
+set positional-arguments
+
+# default recipe to display help information
+default:
+  @just --list
+
+# Generate the `input.json` with the game type and implementation to set.
+generate-input gameType='' implAddr='':
+  #!/usr/bin/env bash
+  set -euo pipefail
+  . .env
+  SET_GAME_TYPE_SIG="setImplementation(uint32, address)"
+  ENCODED_CALL=$(cast calldata "${SET_GAME_TYPE_SIG}" "{{gameType}}" "{{implAddr}}")
+
+  REGISTRY_DIR="../../../../lib/superchain-registry"
+  DGF_ADDR=$(yq .addresses.DisputeGameFactoryProxy "${REGISTRY_DIR}/superchain/configs/${L1_CHAIN_NAME}/${L2_CHAIN_NAME}.toml")
+
+  cp ./input-template.json ./input.json
+  jq "(.transactions[0].data = \"$ENCODED_CALL\") |
+          (.transactions[0].to = \"${DGF_ADDR}\") |
+          (.transactions[0].contractInputsValues._gameType = \"{{gameType}}\") |
+          (.transactions[0].contractInputsValues._impl = \"{{implAddr}}\")" ./input.json > ./input.tmp.json
+  mv ./input.tmp.json ./input.json
