@@ -156,7 +156,7 @@ The only other state changes should be restricted to one of the following addres
 - Base L1 Safe: `0x9855054731540A48b28990B63DcF4f33d8AE46A1`
   - The nonce (slot 0x5) should be increased from 14 (0xe) to 15 (0xf).
 - Foundation L1 Upgrades Safe: `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`
-  - The nonce (slot 0x5) should be increased from 94 to 95.
+  - The nonce (slot 0x5) should be increased from 95 (0x5F) to 96 (0x60).
 
 #### For Base:
 
