@@ -10,7 +10,7 @@
         "name": "Blacklist Dispute Game",
         "description": "Executes the `blacklistDisputeGame` call to the `OptimismPortal` proxy"
       },
-      "to": "0x4220c5ded9dc2c8a8366e684b098094790c72d3c",
+      "to": "0xfd7E6Ef1f6c9e4cC34F54065Bf8496cE41A4e2e8",
       "value": "0x0",
       "data": "0x629cdd4900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
       "contractMethod": {
