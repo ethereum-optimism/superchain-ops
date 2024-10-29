@@ -33,7 +33,7 @@ contract PresignPauseFromJson is MultisigBuilder, JsonTxBuilderBase {
         // address into the owners list.
         if (vm.envOr("SIMULATE_WITHOUT_LEDGER", false) || vm.envOr("SIMULATE_WITHOUT_LEDGER", uint256(0)) == 1) {
             console.log("Adding override for test sender");
-            IGnosisSafe safe = IGnosisSafe(_ownerSafe());
+            address safe = _ownerSafe();
             uint256 nonce = _getNonce(safe);
             overrides_ = new Simulation.StateOverride[](1);
             overrides_[0] = Simulation.overrideSafeThresholdOwnerAndNonce(safe, vm.envAddress("TEST_SENDER"), nonce);
@@ -42,7 +42,7 @@ contract PresignPauseFromJson is MultisigBuilder, JsonTxBuilderBase {
 
     /// @notice Overrides the MultisigBuilder's _addOverrides function to prevent creating multiple separate state
     ///         overrides for the owner safe when using SIMULATE_WITHOUT_LEDGER.
-    function _safeOverrides(IGnosisSafe _safe, address _owner)
+    function _safeOverrides(address _safe, address _owner)
         internal
         view
         override
@@ -65,24 +65,6 @@ contract PresignPauseFromJson is MultisigBuilder, JsonTxBuilderBase {
         return vm.envAddress("PRESIGNER_SAFE");
     }
 
-    function _postSign(Vm.AccountAccess[] memory accesses, Simulation.Payload memory simPayload)
-        internal
-        virtual
-        override
-    {
-        _postCheck(accesses, simPayload);
-    }
-
-    function _postRun(Vm.AccountAccess[] memory accesses, Simulation.Payload memory simPayload)
-        internal
-        virtual
-        override
-    {
-        _postCheck(accesses, simPayload);
-    }
-
-    function _postCheck() internal virtual override {}
-
     /// @notice This function is called after the simulation of the transactions is done.
     ///     It checks that the transactions only write to the nonce of the PRESIGNER_SAFE contract and the paused slot of
     ///     the SuperchainConfig contract.
@@ -90,6 +72,7 @@ contract PresignPauseFromJson is MultisigBuilder, JsonTxBuilderBase {
         internal
         view
         virtual
+        override
     {
         checkStateDiff(accesses);
         for (uint256 i; i < accesses.length; i++) {
