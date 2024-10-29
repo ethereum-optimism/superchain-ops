@@ -9,7 +9,7 @@ generate-input gameType='' implAddr='':
   #!/usr/bin/env bash
   set -euo pipefail
   . .env
-  SET_GAME_TYPE_SIG="setImplementation(uint32, address)"
+  SET_GAME_TYPE_SIG="setImplementation(uint32,address)"
   ENCODED_CALL=$(cast calldata "${SET_GAME_TYPE_SIG}" "{{gameType}}" "{{implAddr}}")
 
   REGISTRY_DIR="../../../../lib/superchain-registry"

@@ -1,4 +1,4 @@
-# Deputy Guardian - Enable Permissioness Dispute Game
+# ProxyAdminOwner - Set Dispute Game Implementation
 
 Status: CONTINGENCY TASK, SIGN AS NEEDED
 
