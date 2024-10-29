@@ -1,6 +1,6 @@
 # Base Mainnet Fault Proofs Upgrade
 
-Status: [READY TO SIGN]
+Status: [SIGNED]
 
 ## Objective
 
