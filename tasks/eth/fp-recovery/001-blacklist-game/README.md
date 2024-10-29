@@ -6,7 +6,7 @@ Status: CONTINGENCY TASK, SIGN AS NEEDED
 
 This task executes a `blacklistDisputeGame` operation in the `OptimismPortalProxy` on behalf of the `Guardian` role. Blacklisting the dispute game prevents any withdrawals proven to be contained within the game's proposed output root from being finalized.
 
-The batch will be executed on chain ID `11155111`, and contains `1` transactions.
+The batch will be executed on chain ID `1`, and contains `1` transactions.
 
 ## Tx #1: Blacklist Dispute Game
 
