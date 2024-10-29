@@ -44,7 +44,7 @@ contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
         virtual
         override
     {
-        _nestedPostCheck(accesses, simPayload);
+        _postCheck(accesses, simPayload);
     }
 
     function _postRun(Vm.AccountAccess[] memory accesses, Simulation.Payload memory simPayload)
@@ -52,17 +52,14 @@ contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
         virtual
         override
     {
-        _nestedPostCheck(accesses, simPayload);
+        _postCheck(accesses, simPayload);
     }
 
     function _postCheck() internal virtual override {}
 
-    function _nestedPostCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory simPayload)
-        internal
-        virtual
-    {
+    function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory simPayload) internal virtual {
         accesses; // Silences compiler warnings.
         simPayload;
-        require(false, "_nestedPostCheck not implemented");
+        require(false, "_postCheck not implemented");
     }
 }

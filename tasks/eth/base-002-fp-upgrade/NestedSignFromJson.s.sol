@@ -139,7 +139,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         allowed[4] = address(foundationSafe);
     }
 
-    function _nestedPostCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory) internal view override {
+    function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory) internal view override {
         console.log("Running post-deploy assertions");
         checkSemvers();
         checkStateDiff(accesses);
