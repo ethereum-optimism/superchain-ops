@@ -2,6 +2,7 @@
 pragma solidity ^0.8.15;
 
 import {NestedSignFromJson as OriginalNestedSignFromJson} from "script/NestedSignFromJson.s.sol";
+import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {console2 as console} from "forge-std/console2.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {Vm, VmSafe} from "forge-std/Vm.sol";
@@ -124,7 +125,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     }
 
     /// @notice Checks the correctness of the deployment
-    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory /* simPayload */ )
+    function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory /* simPayload */ )
         internal
         view
         override

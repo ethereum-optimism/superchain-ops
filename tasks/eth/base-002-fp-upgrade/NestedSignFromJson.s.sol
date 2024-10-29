@@ -2,6 +2,7 @@
 pragma solidity ^0.8.15;
 
 import {NestedSignFromJson as OriginalNestedSignFromJson} from "script/NestedSignFromJson.s.sol";
+import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
 import {L1StandardBridge} from "@eth-optimism-bedrock/src/L1/L1StandardBridge.sol";
 import {ProtocolVersion, ProtocolVersions} from "@eth-optimism-bedrock/src/L1/ProtocolVersions.sol";
@@ -138,7 +139,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         allowed[4] = address(foundationSafe);
     }
 
-    function _nestedPostCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory) internal view override {
+    function _nestedPostCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory) internal view override {
         console.log("Running post-deploy assertions");
         checkSemvers();
         checkStateDiff(accesses);

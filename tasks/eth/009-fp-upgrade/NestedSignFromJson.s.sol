@@ -2,6 +2,7 @@
 pragma solidity ^0.8.15;
 
 import {NestedSignFromJson as OriginalNestedSignFromJson} from "script/NestedSignFromJson.s.sol";
+import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
 import {L1StandardBridge} from "@eth-optimism-bedrock/src/L1/L1StandardBridge.sol";
 import {ProtocolVersion, ProtocolVersions} from "@eth-optimism-bedrock/src/L1/ProtocolVersions.sol";
@@ -121,7 +122,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         _proxies.SuperchainConfig = stdJson.readAddress(addressesJson, "$.superchain_config_addr");
     }
 
-    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory) internal view override {
+    function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory) internal view override {
         console.log("Running post-deploy assertions");
         checkSemvers();
         checkStateDiff(accesses);

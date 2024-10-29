@@ -2,6 +2,7 @@
 pragma solidity ^0.8.15;
 
 import {SignFromJson as OriginalSignFromJson} from "script/SignFromJson.s.sol";
+import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {Predeploys} from "@eth-optimism-bedrock/src/libraries/Predeploys.sol";
 import {AddressAliasHelper} from "@eth-optimism-bedrock/src/vendor/AddressAliasHelper.sol";
 import {console2 as console} from "forge-std/console2.sol";
@@ -59,7 +60,7 @@ contract SignFromJson is OriginalSignFromJson {
     }
 
     /// @notice Checks the correctness of the deployment
-    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory /* simPayload */ )
+    function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory /* simPayload */ )
         internal
         override
     {

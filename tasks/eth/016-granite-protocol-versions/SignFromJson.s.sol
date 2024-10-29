@@ -2,6 +2,7 @@
 pragma solidity ^0.8.15;
 
 import {SignFromJson as OriginalSignFromJson} from "script/SignFromJson.s.sol";
+import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {Proxy} from "@eth-optimism-bedrock/src/universal/Proxy.sol";
 import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
 import {ProtocolVersions, ProtocolVersion} from "@eth-optimism-bedrock/src/L1/ProtocolVersions.sol";
@@ -37,7 +38,7 @@ contract SignFromJson is OriginalSignFromJson {
     }
 
     /// @notice Checks the correctness of the deployment
-    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory /* simPayload */ )
+    function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory /* simPayload */ )
         internal
         view
         override
