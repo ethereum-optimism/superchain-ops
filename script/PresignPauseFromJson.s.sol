@@ -20,7 +20,13 @@ contract PresignPauseFromJson is MultisigBuilder, JsonTxBuilderBase {
         allowed[1] = _ownerSafe(); // The nonce is updated in the  Foundation Operations Safe (FOS).
     }
 
-    function _simulationOverrides() internal view virtual override returns (Simulation.StateOverride[] memory overrides_) {
+    function _simulationOverrides()
+        internal
+        view
+        virtual
+        override
+        returns (Simulation.StateOverride[] memory overrides_)
+    {
         // If SIMULATE_WITHOUT_LEDGER is set, we add an override to allow the script to run using the same
         // test address as defined in presigned-pause.just. This is necessary because the presigner tool requires
         // access to the private key of the address that will sign the transaction. Therefore we must insert a test
@@ -36,7 +42,12 @@ contract PresignPauseFromJson is MultisigBuilder, JsonTxBuilderBase {
 
     /// @notice Overrides the MultisigBuilder's _addOverrides function to prevent creating multiple separate state
     ///         overrides for the owner safe when using SIMULATE_WITHOUT_LEDGER.
-    function _safeOverrides(IGnosisSafe _safe, address _owner) internal view override returns (Simulation.StateOverride memory override_) {
+    function _safeOverrides(IGnosisSafe _safe, address _owner)
+        internal
+        view
+        override
+        returns (Simulation.StateOverride memory override_)
+    {
         if (vm.envOr("SIMULATE_WITHOUT_LEDGER", false) || vm.envOr("SIMULATE_WITHOUT_LEDGER", uint256(0)) == 1) {
             override_;
         } else {
@@ -70,12 +81,7 @@ contract PresignPauseFromJson is MultisigBuilder, JsonTxBuilderBase {
         _postCheck(accesses, simPayload);
     }
 
-    function _postCheck()
-        internal
-        virtual
-        override
-    {
-    }
+    function _postCheck() internal virtual override {}
 
     /// @notice This function is called after the simulation of the transactions is done.
     ///     It checks that the transactions only write to the nonce of the PRESIGNER_SAFE contract and the paused slot of

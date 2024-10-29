@@ -55,12 +55,7 @@ contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
         _nestedPostCheck(accesses, simPayload);
     }
 
-    function _postCheck()
-        internal
-        virtual
-        override
-    {
-    }
+    function _postCheck() internal virtual override {}
 
     function _nestedPostCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory simPayload)
         internal

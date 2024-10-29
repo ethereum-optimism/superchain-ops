@@ -45,17 +45,9 @@ contract SignFromJson is MultisigBuilder, JsonTxBuilderBase {
         _postCheck(accesses, simPayload);
     }
 
-    function _postCheck()
-        internal
-        virtual
-        override
-    {
-    }
+    function _postCheck() internal virtual override {}
 
-    function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory simPayload)
-        internal
-        virtual
-    {
+    function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory simPayload) internal virtual {
         accesses; // Silences compiler warnings.
         simPayload;
         require(false, "_postCheck not implemented");
