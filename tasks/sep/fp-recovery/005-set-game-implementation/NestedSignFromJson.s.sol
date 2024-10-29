@@ -28,8 +28,6 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     address livenessGuard = 0xc26977310bC89DAee5823C2e2a73195E85382cC7;
 
     // Known EOAs to exclude from safety checks.
-    address l2OutputOracleProposer; // cast call $L2OO "PROPOSER()(address)"
-    address l2OutputOracleChallenger; // In registry addresses.
     address systemConfigOwner; // In registry addresses.
     address batchSenderAddress; // In registry genesis-system-configs
     address p2pSequencerAddress; // cast call $SystemConfig "unsafeBlockSigner()(address)"
