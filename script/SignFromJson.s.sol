@@ -3,6 +3,7 @@ pragma solidity ^0.8.15;
 
 import {JsonTxBuilderBase} from "src/JsonTxBuilderBase.sol";
 import {MultisigBuilder} from "@base-contracts/script/universal/MultisigBuilder.sol";
+import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {console} from "forge-std/console.sol";
@@ -28,10 +29,32 @@ contract SignFromJson is MultisigBuilder, JsonTxBuilderBase {
         return vm.envAddress("OWNER_SAFE");
     }
 
-    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory simPayload)
+    function _postSign(Vm.AccountAccess[] memory accesses, Simulation.Payload memory simPayload)
         internal
         virtual
         override
+    {
+        _postCheck(accesses, simPayload);
+    }
+
+    function _postRun(Vm.AccountAccess[] memory accesses, Simulation.Payload memory simPayload)
+        internal
+        virtual
+        override
+    {
+        _postCheck(accesses, simPayload);
+    }
+
+    function _postCheck()
+        internal
+        virtual
+        override
+    {
+    }
+
+    function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory simPayload)
+        internal
+        virtual
     {
         accesses; // Silences compiler warnings.
         simPayload;

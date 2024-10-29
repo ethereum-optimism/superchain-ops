@@ -3,6 +3,7 @@ pragma solidity ^0.8.15;
 
 import {JsonTxBuilderBase} from "src/JsonTxBuilderBase.sol";
 import {MultisigBuilder} from "@base-contracts/script/universal/MultisigBuilder.sol";
+import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {IGnosisSafe} from "@eth-optimism-bedrock/scripts/interfaces/IGnosisSafe.sol";
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {stdJson} from "forge-std/StdJson.sol";
@@ -19,25 +20,27 @@ contract PresignPauseFromJson is MultisigBuilder, JsonTxBuilderBase {
         allowed[1] = _ownerSafe(); // The nonce is updated in the  Foundation Operations Safe (FOS).
     }
 
-    function _addGenericOverrides() internal view virtual override returns (SimulationStateOverride memory override_) {
+    function _simulationOverrides() internal view virtual override returns (Simulation.StateOverride[] memory overrides_) {
         // If SIMULATE_WITHOUT_LEDGER is set, we add an override to allow the script to run using the same
         // test address as defined in presigned-pause.just. This is necessary because the presigner tool requires
         // access to the private key of the address that will sign the transaction. Therefore we must insert a test
         // address into the owners list.
         if (vm.envOr("SIMULATE_WITHOUT_LEDGER", false) || vm.envOr("SIMULATE_WITHOUT_LEDGER", uint256(0)) == 1) {
             console.log("Adding override for test sender");
-            uint256 nonce = _getNonce(IGnosisSafe(_ownerSafe()));
-            override_ = overrideSafeThresholdOwnerAndNonce(_ownerSafe(), vm.envAddress("TEST_SENDER"), nonce);
+            IGnosisSafe safe = IGnosisSafe(_ownerSafe());
+            uint256 nonce = _getNonce(safe);
+            overrides_ = new Simulation.StateOverride[](1);
+            overrides_[0] = Simulation.overrideSafeThresholdOwnerAndNonce(safe, vm.envAddress("TEST_SENDER"), nonce);
         }
     }
 
     /// @notice Overrides the MultisigBuilder's _addOverrides function to prevent creating multiple separate state
     ///         overrides for the owner safe when using SIMULATE_WITHOUT_LEDGER.
-    function _addOverrides(address _safe) internal view override returns (SimulationStateOverride memory override_) {
+    function _safeOverrides(IGnosisSafe _safe, address _owner) internal view override returns (Simulation.StateOverride memory override_) {
         if (vm.envOr("SIMULATE_WITHOUT_LEDGER", false) || vm.envOr("SIMULATE_WITHOUT_LEDGER", uint256(0)) == 1) {
             override_;
         } else {
-            override_ = super._addOverrides(_safe);
+            override_ = super._safeOverrides(_safe, _owner);
         }
     }
 
@@ -51,14 +54,36 @@ contract PresignPauseFromJson is MultisigBuilder, JsonTxBuilderBase {
         return vm.envAddress("PRESIGNER_SAFE");
     }
 
+    function _postSign(Vm.AccountAccess[] memory accesses, Simulation.Payload memory simPayload)
+        internal
+        virtual
+        override
+    {
+        _postCheck(accesses, simPayload);
+    }
+
+    function _postRun(Vm.AccountAccess[] memory accesses, Simulation.Payload memory simPayload)
+        internal
+        virtual
+        override
+    {
+        _postCheck(accesses, simPayload);
+    }
+
+    function _postCheck()
+        internal
+        virtual
+        override
+    {
+    }
+
     /// @notice This function is called after the simulation of the transactions is done.
     ///     It checks that the transactions only write to the nonce of the PRESIGNER_SAFE contract and the paused slot of
     ///     the SuperchainConfig contract.
-    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory simPayload)
+    function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory simPayload)
         internal
         view
         virtual
-        override
     {
         checkStateDiff(accesses);
         for (uint256 i; i < accesses.length; i++) {
