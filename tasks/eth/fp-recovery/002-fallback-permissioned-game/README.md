@@ -4,7 +4,7 @@ Status: CONTINGENCY TASK, SIGN AS NEEDED
 
 ## Objective
 
-This batch udates the `respectedGameType` to `PERMISSIONED_CANNON` in the `OptimismPortalProxy`. This action requires all in-progress withdrawals to be re-proven against a new `PermissionedDisputeGame` that was created after this update occurs.
+This batch updates the `respectedGameType` to `PERMISSIONED_CANNON` in the `OptimismPortalProxy`. This action requires all in-progress withdrawals to be re-proven against a new `PermissionedDisputeGame` that was created after this update occurs.
 
 The batch will be executed on chain ID `1`, and contains `1` transactions.
 

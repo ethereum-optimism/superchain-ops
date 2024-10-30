@@ -6,7 +6,7 @@ Status: CONTINGENCY TASK, SIGN AS NEEDED
 
 This task executes a `blacklistDisputeGame` operation in the `OptimismPortalProxy` on behalf of the `Guardian` role. Blacklisting the dispute game prevents any withdrawals proven to be contained within the game's proposed output root from being finalized.
 
-The batch will be executed on chain ID `1`, and contains `1` transactions.
+The batch will be executed on chain ID `1`, and contains `1` transaction.
 
 ## Tx #1: Blacklist Dispute Game
 
@@ -61,4 +61,5 @@ cast index \
     $PORTAL_BLACKLIST_MAP_SLOT
 ```
 
-You can verify the expected `PORTAL_BLACKLIST_MAP_SLOT` in [`OptimismPortal` storage layout snapshot](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0-rc.4/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal2.json#L93C1-L99C5)
+You can verify the expected `PORTAL_BLACKLIST_MAP_SLOT` in [`OptimismPortal` storage layout snapshot](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.6.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal2.json#L93C1-L99C5)
+
