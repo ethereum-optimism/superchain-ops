@@ -14,7 +14,7 @@ Updates the `respectedGameType` to `CANNON` in the `OptimismPortalProxy`, enabli
 
 **Function Signature:** `setRespectedGameType(address,uint32)`
 
-**To:** `0x4220C5deD9dC2C8a8366e684B098094790C72d3c`
+**To:** `0xc6901F65369FC59fC1B4D6D6bE7A2318Ff38dB5B`
 
 **Value:** `0 WEI`
 

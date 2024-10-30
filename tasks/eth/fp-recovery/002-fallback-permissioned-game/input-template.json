@@ -2,7 +2,7 @@
   "chainId": 1,
   "metadata": {
     "name": "Deputy Guardian - Fall back to `PermissionedDisputeGame`",
-    "description": "This batch udates the `respectedGameType` to `PERMISSIONED_CANNON` in the `OptimismPortal`. This action requires all in-progress withdrawals to be re-proven against a new `PermissionedDisputeGame` that was created after this update occurs."
+    "description": "This batch updates the `respectedGameType` to `PERMISSIONED_CANNON` in the `OptimismPortal`. This action requires all in-progress withdrawals to be re-proven against a new `PermissionedDisputeGame` that was created after this update occurs."
   },
   "transactions": [
     {
