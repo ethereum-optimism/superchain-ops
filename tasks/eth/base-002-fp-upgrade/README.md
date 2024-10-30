@@ -1,6 +1,6 @@
 # Base Mainnet Fault Proofs Upgrade
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0x2476bda1e2cc0f2a501876532cacf1d267fc9be8f07271b75e512e3b6c927639)
 
 ## Objective
 
