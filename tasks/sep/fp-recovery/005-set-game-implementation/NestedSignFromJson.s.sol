@@ -22,8 +22,6 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     string l2ChainName = vm.envString("L2_CHAIN_NAME");
 
     // Safe contract for this task.
-    GnosisSafe securityCouncilSafe = GnosisSafe(payable(vm.envAddress("COUNCIL_SAFE")));
-    GnosisSafe fndSafe = GnosisSafe(payable(vm.envAddress("FOUNDATION_SAFE")));
     GnosisSafe ownerSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
     address livenessGuard = 0xc26977310bC89DAee5823C2e2a73195E85382cC7;
 
@@ -67,15 +65,31 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     }
 
     function getCodeExceptions() internal view override returns (address[] memory) {
-        // Safe owners will appear in storage in the LivenessGuard when added, and they are allowed
+        // Owners of the nested safes will appear in storage in the LivenessGuard when added, and they are allowed
         // to have code AND to have no code.
-        address[] memory securityCouncilSafeOwners = securityCouncilSafe.getOwners();
+        address[] memory nestedSafes = ownerSafe.getOwners();
+        // First count the total owners from the nested safes
+        uint256 totalNumberOfSigners;
+        for (uint256 a = 0; a < nestedSafes.length; a++) {
+            GnosisSafe safe = GnosisSafe(payable(nestedSafes[a]));
+            totalNumberOfSigners += safe.getOwners().length;
+        }
+        address[] memory safeOwners = new address[](totalNumberOfSigners);
+        uint256 addedSigners;
+        for (uint256 a = 0; a < nestedSafes.length; a++) {
+            GnosisSafe safe = GnosisSafe(payable(nestedSafes[a]));
+            address[] memory nestedSafeOwners = safe.getOwners();
+            for (uint256 i = 0; i < nestedSafeOwners.length; i++)  {
+                safeOwners[addedSigners] = nestedSafeOwners[i];
+                addedSigners++;
+            }
+        }
 
         // To make sure we probably handle all signers whether or not they have code, first we count
         // the number of signers that have no code.
         uint256 numberOfSafeSignersWithNoCode;
-        for (uint256 i = 0; i < securityCouncilSafeOwners.length; i++) {
-            if (securityCouncilSafeOwners[i].code.length == 0) {
+        for (uint256 i = 0; i < safeOwners.length; i++) {
+            if (safeOwners[i].code.length == 0) {
                 numberOfSafeSignersWithNoCode++;
             }
         }
@@ -83,9 +97,9 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         // Then we extract those EOA addresses into a dedicated array.
         uint256 trackedSignersWithNoCode;
         address[] memory safeSignersWithNoCode = new address[](numberOfSafeSignersWithNoCode);
-        for (uint256 i = 0; i < securityCouncilSafeOwners.length; i++) {
-            if (securityCouncilSafeOwners[i].code.length == 0) {
-                safeSignersWithNoCode[trackedSignersWithNoCode] = securityCouncilSafeOwners[i];
+        for (uint256 i = 0; i < safeOwners.length; i++) {
+            if (safeOwners[i].code.length == 0) {
+                safeSignersWithNoCode[trackedSignersWithNoCode] = safeOwners[i];
                 trackedSignersWithNoCode++;
             }
         }
@@ -112,30 +126,32 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         if (address(currentImpl) == address(0)) {
             return;
         }
-        require(address(currentImpl.vm()) == address(faultDisputeGame.vm()));
-        require(address(currentImpl.weth()) == address(faultDisputeGame.weth()));
-        require(address(currentImpl.anchorStateRegistry()) == address(faultDisputeGame.anchorStateRegistry()));
-        require(currentImpl.l2ChainId() == faultDisputeGame.l2ChainId());
-        require(currentImpl.splitDepth() == faultDisputeGame.splitDepth());
-        require(currentImpl.maxGameDepth() == faultDisputeGame.maxGameDepth());
-        require(uint64(Duration.unwrap(currentImpl.maxClockDuration())) == uint64(Duration.unwrap(faultDisputeGame.maxClockDuration())));
-        require(uint64(Duration.unwrap(currentImpl.clockExtension())) == uint64(Duration.unwrap(faultDisputeGame.clockExtension())));
+        require(address(currentImpl.vm()) == address(faultDisputeGame.vm()), "10");
+        require(address(currentImpl.weth()) == address(faultDisputeGame.weth()), "20");
+        require(address(currentImpl.anchorStateRegistry()) == address(faultDisputeGame.anchorStateRegistry()), "30");
+        require(currentImpl.l2ChainId() == faultDisputeGame.l2ChainId(), "40");
+        require(currentImpl.splitDepth() == faultDisputeGame.splitDepth(), "50");
+        require(currentImpl.maxGameDepth() == faultDisputeGame.maxGameDepth(), "60");
+        require(uint64(Duration.unwrap(currentImpl.maxClockDuration())) == uint64(Duration.unwrap(faultDisputeGame.maxClockDuration())), "70");
+        require(uint64(Duration.unwrap(currentImpl.clockExtension())) == uint64(Duration.unwrap(faultDisputeGame.clockExtension())), "80");
 
         if (targetGameType.raw() == GameTypes.PERMISSIONED_CANNON.raw()) {
             PermissionedDisputeGame currentPDG = PermissionedDisputeGame(address(currentImpl));
             PermissionedDisputeGame permissionedDisputeGame = PermissionedDisputeGame(address(faultDisputeGame));
-            require(address(currentPDG.proposer()) == address(permissionedDisputeGame.proposer()));
-            require(address(currentPDG.challenger()) == address(permissionedDisputeGame.challenger()));
+            require(address(currentPDG.proposer()) == address(permissionedDisputeGame.proposer()), "90");
+            require(address(currentPDG.challenger()) == address(permissionedDisputeGame.challenger()), "100");
         }
     }
 
     function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
-        allowed = new address[](5);
+        address[] memory nestedSafes = ownerSafe.getOwners();
+        allowed = new address[](3 + nestedSafes.length);
         allowed[0] = address(dgfProxy);
         allowed[1] = address(ownerSafe);
-        allowed[2] = address(securityCouncilSafe);
-        allowed[3] = address(fndSafe);
-        allowed[4] = livenessGuard;
+        allowed[2] = livenessGuard;
+        for (uint256 i = 0; i < nestedSafes.length; i++) {
+            allowed[3 + i] = nestedSafes[i];
+        }
     }
 
     /// @notice Checks the correctness of the deployment
@@ -173,8 +189,6 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         }
 
         // Read the known EOAs out of the config toml file
-        l2OutputOracleProposer = stdToml.readAddress(chainConfig, "$.addresses.Proposer");
-        l2OutputOracleChallenger = stdToml.readAddress(chainConfig, "$.addresses.Challenger");
         systemConfigOwner = stdToml.readAddress(chainConfig, "$.addresses.SystemConfigOwner");
         batchSenderAddress = stdToml.readAddress(chainConfig, "$.addresses.BatchSubmitter");
         p2pSequencerAddress = stdToml.readAddress(chainConfig, "$.addresses.UnsafeBlockSigner");

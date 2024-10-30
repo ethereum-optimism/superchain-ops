@@ -12,8 +12,13 @@ generate-input gameType='' implAddr='':
   SET_GAME_TYPE_SIG="setImplementation(uint32,address)"
   ENCODED_CALL=$(cast calldata "${SET_GAME_TYPE_SIG}" "{{gameType}}" "{{implAddr}}")
 
-  REGISTRY_DIR="../../../../lib/superchain-registry"
-  DGF_ADDR=$(yq .addresses.DisputeGameFactoryProxy "${REGISTRY_DIR}/superchain/configs/${L1_CHAIN_NAME}/${L2_CHAIN_NAME}.toml")
+  CONFIG_URL="https://raw.githubusercontent.com/ethereum-optimism/superchain-registry/refs/heads/main/superchain/configs/${L1_CHAIN_NAME}/${L2_CHAIN_NAME}.toml"
+  CONFIG_TOML=$(curl -s --show-error --fail "${CONFIG_URL}")
+  SC_CONFIG_ADDR=$(echo "${CONFIG_TOML}" | yq -p toml .addresses.SystemConfigProxy)
+  PROXY_ADMIN_OWNER_ADDR=$(echo "${CONFIG_TOML}" | yq -p toml .addresses.ProxyAdminOwner)
+
+  DGF_ADDR=$(cast call "${SC_CONFIG_ADDR}" "disputeGameFactory()(address)")
+  echo "OWNER_SAFE=${PROXY_ADMIN_OWNER_ADDR}" >> .env
 
   cp ./input-template.json ./input.json
   jq "(.transactions[0].data = \"$ENCODED_CALL\") |
