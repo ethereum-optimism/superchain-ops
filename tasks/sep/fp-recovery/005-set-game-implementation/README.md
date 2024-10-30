@@ -28,11 +28,13 @@ Sets the game type implementation contract.
 
 1. Copy this directory to the appropriate final task location.
 
-2. Update the path in `NestedSignFromJson.s.sol` `setUp` function to the new location
+2. Review the assertions in `NestedSignFromJson.s.sol` `_precheckDisputeGameImplementation` function. 
+   The template assertions check that properties of the new implementation match the old one if it exists.
+   No checks are performed if there is no prior implementation, in which case it is recommended to implement custom checks.
 
 3. Update the relative path to lib/superchain-registry in `justfile` if needed.
 
-4. Set the `L1_CHAIN_NAME` and `L2_CHAIN_NAME` configuration to the appropriate chain in the `.env` file.
+4. Set the `L1_CHAIN_NAME` and `L2_CHAIN_NAME` configuration to the appropriate chain in the `.env` file. 
 
 5. Generate the batch with `just generate-input <gameType> <newImplAddr>`.
 
