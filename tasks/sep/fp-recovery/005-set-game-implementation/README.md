@@ -4,40 +4,28 @@ Status: CONTINGENCY TASK, SIGN AS NEEDED
 
 ## Objective
 
-This task sets the implementation for game type _TODO:game type_ to _TODO:new implementation address_.
-
-## Tx #1: Set game implementation in the `DisputeGameFactoryProxy`
-
-Sets the game type implementation contract.
-
-**Function Signature:** `setImplementation(uint32,address)`
-
-**To:** `0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1`
-
-**Value:** `0 WEI`
-
-**Raw Input Data:** `0x14f6b1a3<game-type><implementation-addr>`
-
-### Inputs
-
-**\_gameType:** `<user-input>`
-
-**\_impl:** `<user-input>`
+This template provides the ability to set fault dispute game implementations for one or more game types. In particular
+it is useful for updating the absolute prestate for the fault dispute game as part of a hard fork and for adding a new
+supported game type such as enabling permissionless games.
 
 ## Preparing the Operation
 
-1. Copy this directory to the appropriate final task location.
+1. Run `just prep <l1> <l2>` to prepare the initial files. e.g. `just prep sepolia op` The result is stored in the `out`
+   directory.
 
-2. Review the assertions in `NestedSignFromJson.s.sol` `_precheckDisputeGameImplementation` function.
+2. Add the required transactions to the batch (see below).
+
+3. Review the assertions in `out/NestedSignFromJson.s.sol` `_precheckDisputeGameImplementation` function.
    The template assertions check that properties of the new implementation match the old one if it exists.
    No checks are performed if there is no prior implementation, in which case it is recommended to implement custom
    checks.
 
-3. Run `just prep <l1> <l2>` to prepare the .env file and initial templates. e.g. `just prep sepolia op`
+4. Add additional information to the `README.md` to explain the purpose of the operation (the generated version just
+   states what will change but not why).
 
-4. Add the required transactions to the batch (see below).
+5. Copy the `out` directory to the appropriate final task location (e.g. `tasks/sep/XXX-upgrade-dispute-game`).
 
-5. Collect signatures and execute the action according to the instructions in [NESTED.md](../../../NESTED.md).
+6. Collect signatures and execute the action according to the instructions in [NESTED.md](../../../../NESTED.md).
 
 ### Adding Transactions
 
@@ -50,11 +38,17 @@ just set-implementation <gameType> <newImplAddr>
 
 To remove all added transactions, run `just clean`. Note that you need to run `just prep <l1> <l2>` again after clean.
 
-### State Validations
+#### Example - Upgrading for a Hard Fork
 
-The two state modifications that are made by this action are:
+To prepare the task to upgrade both `CANNON` (0) and `PERMISSIONED` (1) game types on op-sepolia for a new hard fork,
+run:
 
-1. An update to the nonce of the Gnosis safe owner of the `ProxyAdminOwner`.
-2. An update to the `gameImpls` mapping in `DisputeGameFactoryProxy` for each game type being set.
+```bash
+just clean prep sepolia op
+just set-implementation 0 <cannon-game-impl>
+just set-implementation 1 <permissioned-game-impl>
+```
 
-[VALIDATION.md](./VALIDATION.md) is automatically updated with the expected state changes caused by the transactions.
+### Generated Documentation
+
+The `out/README.md` and `out/VALIDATION.md` files are generated based on the transactions that are added to the batch.

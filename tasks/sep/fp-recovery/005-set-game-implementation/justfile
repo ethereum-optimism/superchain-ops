@@ -5,23 +5,25 @@ default:
   @just --list
 
 clean:
-  rm -f VALIDATION.md input.json .env NestedSignFromJson.s.sol
+  rm -rf out
 
 prep l1='' l2='':
   #!/usr/bin/env bash
   set -euo pipefail
-  cp input-template.json input.json
-  cp VALIDATION-template.md VALIDATION.md
-  cp NestedSignFromJson-template.s.sol NestedSignFromJson.s.sol
+  mkdir out
+  sed -e 's/<L2_CHAIN>/{{l2}}/g' -e 's/<L1_CHAIN>/{{l1}}/g' templates/README.md > out/README.md
+  cp templates/input.json out/input.json
+  cp templates/VALIDATION.md out/VALIDATION.md
+  cp templates/NestedSignFromJson.s.sol out/NestedSignFromJson.s.sol
 
   if [[ "{{l1}}" == "sepolia" ]]; then
-    cat > .env << EOF
+    cat > out/.env << EOF
   ETH_RPC_URL="https://ethereum-sepolia.publicnode.com"
   COUNCIL_SAFE=0xf64bc17485f0B4Ea5F06A96514182FC4cB561977
   FOUNDATION_SAFE=0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B
   EOF
   elif [[ "{{l1}}" == "mainnet" ]]; then
-    cat > .env << EOF
+    cat > out/.env << EOF
   ETH_RPC_URL="https://ethereum.publicnode.com"
   COUNCIL_SAFE=0xc2819DC788505Aac350142A7A707BF9D03E3Bd03
   FOUNDATION_SAFE=0x847B5c174615B1B7fDF770882256e2D3E95b9D92
@@ -31,13 +33,12 @@ prep l1='' l2='':
     exit 1
   fi
 
-  . .env
   CONFIG_URL="https://raw.githubusercontent.com/ethereum-optimism/superchain-registry/refs/heads/main/superchain/configs/{{l1}}/{{l2}}.toml"
   CONFIG_TOML=$(curl -s --show-error --fail "${CONFIG_URL}")
   SYSTEM_CONFIG=$(echo "${CONFIG_TOML}" | yq -p toml .addresses.SystemConfigProxy)
   OWNER_SAFE=$(echo "${CONFIG_TOML}" | yq -p toml .addresses.ProxyAdminOwner)
 
-  cat >> .env << EOF
+  cat >> out/.env << EOF
   SAFE_NONCE=""
   L1_CHAIN_NAME="{{l1}}"
   L2_CHAIN_NAME="{{l2}}"
@@ -49,7 +50,8 @@ prep l1='' l2='':
 set-implementation gameType='' implAddr='':
   #!/usr/bin/env bash
   set -euo pipefail
-  . .env
+  . out/.env
+  export ETH_RPC_URL # Make available to cast since the .env file is in the out subdir.
   SET_GAME_TYPE_SIG="setImplementation(uint32,address)"
   ENCODED_CALL=$(cast calldata "${SET_GAME_TYPE_SIG}" "{{gameType}}" "{{implAddr}}")
 
@@ -60,20 +62,20 @@ set-implementation gameType='' implAddr='':
                 (.data = \"$ENCODED_CALL\") |
                 (.to = \"${DGF_ADDR}\") |
                 (.contractInputsValues._gameType = \"{{gameType}}\") |
-                (.contractInputsValues._impl = \"{{implAddr}}\")" ./templates/setImplementation.json)
-  jq --argjson tx "${TX}" --arg desc "${TX_DESC} " '(.metadata.description += $desc) | (.transactions += [$tx])' ./input.json > ./input.tmp.json
-  mv ./input.tmp.json ./input.json
+                (.contractInputsValues._impl = \"{{implAddr}}\")" ./templates/tx/setImplementation.json)
+  jq --argjson tx "${TX}" --arg desc "${TX_DESC} " '(.metadata.description += $desc) | (.transactions += [$tx])' ./out/input.json > ./out/input.tmp.json
+  mv ./out/input.tmp.json ./out/input.json
 
   # Add a precheck for this implementation change
-  sed -I "" -e 's|// INSERT NEW PRE CHECKS HERE|_precheckDisputeGameImplementation(GameType.wrap({{gameType}}), {{implAddr}});\n        // INSERT NEW PRE CHECKS HERE|' NestedSignFromJson.s.sol
-  sed -I "" -e 's|// INSERT NEW POST CHECKS HERE|_checkDisputeGameImplementation(GameType.wrap({{gameType}}), {{implAddr}});\n        // INSERT NEW POST CHECKS HERE|' NestedSignFromJson.s.sol
+  sed -I "" -e 's|// INSERT NEW PRE CHECKS HERE|_precheckDisputeGameImplementation(GameType.wrap({{gameType}}), {{implAddr}});\n        // INSERT NEW PRE CHECKS HERE|' out/NestedSignFromJson.s.sol
+  sed -I "" -e 's|// INSERT NEW POST CHECKS HERE|_checkDisputeGameImplementation(GameType.wrap({{gameType}}), {{implAddr}});\n        // INSERT NEW POST CHECKS HERE|' out/NestedSignFromJson.s.sol
 
   # Update the validation instructions
   GAME_IMPLS_SLOT="101"
   STORAGE_SLOT=$(cast index uint32 "{{gameType}}" "${GAME_IMPLS_SLOT}")
   BEFORE=$(cast storage "${DGF_ADDR}" "${STORAGE_SLOT}")
   AFTER=$(cast concat-hex 0x000000000000000000000000 "{{implAddr}}")
-  cat >> VALIDATION.md << EOF
+  cat >> out/VALIDATION.md << EOF
 
   ### \`${DGF_ADDR}\` (\`DisputeGameFactoryProxy\`)
 
@@ -83,3 +85,7 @@ set-implementation gameType='' implAddr='':
     **Meaning**: Updates the implementation for game type {{gameType}}. Verify that the new implementation is set using
     \`cast call ${DGF_ADDR} "gameImpls(uint32)(address)" {{gameType}}\`.
   EOF
+
+  # Update the README
+  INFO="* Set implementation for game type {{gameType}} to {{implAddr}} in \`DisputeGameFactory\` ${DGF_ADDR}: \`setImplementation({{gameType}}, {{implAddr}})\`"
+  sed -I "" -e "s|<!--NEXT TASK DESCRIPTION-->|${INFO}\n<!--NEXT TASK DESCRIPTION-->|" out/README.md

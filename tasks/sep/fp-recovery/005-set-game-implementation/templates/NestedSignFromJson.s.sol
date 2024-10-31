@@ -13,7 +13,7 @@ import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {DisputeGameFactory} from "@eth-optimism-bedrock/src/dispute/DisputeGameFactory.sol";
 import {FaultDisputeGame} from "@eth-optimism-bedrock/src/dispute/FaultDisputeGame.sol";
 import {PermissionedDisputeGame} from "@eth-optimism-bedrock/src/dispute/PermissionedDisputeGame.sol";
-import {SystemConfig} from "../../../../lib/optimism/packages/contracts-bedrock/src/L1/SystemConfig.sol";
+import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
 
 contract NestedSignFromJson is OriginalNestedSignFromJson {
     using LibString for string;
