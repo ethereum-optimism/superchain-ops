@@ -4,7 +4,7 @@ set positional-arguments
 default:
   @just --list
 
-# Generate the `input.json` with a dispute game address to blacklist
+# Generate the `input.json` with the given optimism portal address
 generate-input *args='':
   #!/usr/bin/env bash
   CANNON="0"
