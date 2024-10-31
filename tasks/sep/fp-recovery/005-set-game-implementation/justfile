@@ -29,7 +29,7 @@ prep l1='' l2='':
   FOUNDATION_SAFE=0x847B5c174615B1B7fDF770882256e2D3E95b9D92
   EOF
   else
-    echo "Unknown L1 chain."
+    echo "Unknown L1 chain. Must be 'mainnet' or 'sepolia'"
     exit 1
   fi
 
