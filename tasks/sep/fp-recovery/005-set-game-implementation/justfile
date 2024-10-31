@@ -50,6 +50,7 @@ prep l1='' l2='':
 set-implementation gameType='' implAddr='':
   #!/usr/bin/env bash
   set -euo pipefail
+  unset ETH_RPC_URL
   . out/.env
   export ETH_RPC_URL # Make available to cast since the .env file is in the out subdir.
   SET_GAME_TYPE_SIG="setImplementation(uint32,address)"
