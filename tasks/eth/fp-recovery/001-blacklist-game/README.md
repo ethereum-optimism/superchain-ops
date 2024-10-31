@@ -14,11 +14,15 @@ Executes the `blacklistDisputeGame` call to the `OptimismPortalProxy`.
 
 **Function Signature:** `blacklistDisputeGame(address,address)`
 
-**To:** `0x4220C5deD9dC2C8a8366e684B098094790C72d3c`
+**To:** `0xc6901F65369FC59fC1B4D6D6bE7A2318Ff38dB5B`
 
 **Value:** `0 WEI`
 
-**Raw Input Data:** `0x629cdd49000000000000000000000000<OptimismPortalProxyAddress------------>000000000000000000000000<DisputeGameToBlacklist---------------->`
+**Raw Input Data**
+
+|Function Selector Signature| OptimismPortalProxyAddress (left-padded to 32 bytes) | DisputeGameToBlacklistAddress  (left-padded to 32 bytes)|
+|--------------------------|--------------------------------------------|--------------------------------------------|
+|0x629cdd49|000000000000000000000000`OptimismPortalProxyAddress`|000000000000000000000000`DisputeGameToBlacklistAddress`|
 
 ### Inputs
 
@@ -28,13 +32,13 @@ Executes the `blacklistDisputeGame` call to the `OptimismPortalProxy`.
 
 ## Preparing the Operation
 
-1. Locate the address of the `OptimismPortalProxy` to blacklist a dispute game on.
+1. Locate the address of the `OptimismPortalProxy` to blacklist a dispute game on. For OP Stack chains that support fault proofs, the contract address can be located in the respective `.toml` file in the [superchain-registry](https://github.com/ethereum-optimism/superchain-registry/tree/2c96a89df841013a59269fa7adc12c77b870310e/superchain/configs/mainnet).
 
-2. Locate the address of the dispute game that the `Guardian` wishes to blacklist.
+2. Locate the address of the dispute game that the `DeputyGuardianModule` wishes to blacklist.
 
 3. Generate the batch with `just generate-input <OptimismPortalProxyAddress> <DisputeGameToBlacklist>`.
 
-4. Set the `L2_CHAIN_NAME` configuration to the appropriate chain in the `.env` file.
+4. Set the `L2_CHAIN_NAME` configuration to the appropriate chain in the `.env` file. Applicable chain names can be found in the [superchain-registry](https://github.com/ethereum-optimism/superchain-registry/tree/2c96a89df841013a59269fa7adc12c77b870310e/superchain/configs/mainnet).
 
 5. Collect signatures and execute the action according to the instructions in [SINGLE.md](../../../../SINGLE.md).
 
@@ -42,8 +46,8 @@ Executes the `blacklistDisputeGame` call to the `OptimismPortalProxy`.
 
 The two state modifications that are made by this action are:
 
-1. An update to the nonce of the Gnosis safe owner of the `DeputyGuardianModule`.
-2. An update to a storage slot within the `disputeGameBlacklist` mapping in the `OptimismPortalProxy`.
+1. An update to the nonce (increment of `1`) of the `DeputyGuardianModule` safe.
+2. An update to the storage slot within the `disputeGameBlacklist` mapping in the `OptimismPortalProxy`, which will be set to `1` for the corresponding `blacklistDisputeGame` address.
 
 The state changes should look something like this:
 
