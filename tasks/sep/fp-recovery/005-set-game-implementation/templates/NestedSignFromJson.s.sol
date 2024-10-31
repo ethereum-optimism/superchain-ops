@@ -24,7 +24,10 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
     // Safe contract for this task.
     GnosisSafe ownerSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
-    address livenessGuard = 0xc26977310bC89DAee5823C2e2a73195E85382cC7;
+
+    // The slot used to store the livenessGuard address in GnosisSafe.
+    // See https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/base/GuardManager.sol#L30
+    bytes32 livenessGuardSlot = 0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8;
 
     // Known EOAs to exclude from safety checks.
     address systemConfigOwner; // In registry addresses.
@@ -130,12 +133,27 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
     function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
         address[] memory nestedSafes = ownerSafe.getOwners();
-        allowed = new address[](3 + nestedSafes.length);
+        uint256 livenessGuardCount;
+        for (uint256 i = 0; i < nestedSafes.length; i++) {
+            address livenessGuard = address(uint160(uint256(vm.load(address(nestedSafes[i]), livenessGuardSlot))));
+            if (livenessGuard != address(0)) {
+                livenessGuardCount++;
+            }
+        }
+
+        allowed = new address[](3 + nestedSafes.length + livenessGuardCount);
         allowed[0] = address(dgfProxy);
         allowed[1] = address(ownerSafe);
-        allowed[2] = livenessGuard;
+        uint256 idx = 2;
         for (uint256 i = 0; i < nestedSafes.length; i++) {
-            allowed[3 + i] = nestedSafes[i];
+            allowed[idx] = nestedSafes[i];
+            idx++;
+
+            address livenessGuard = address(uint160(uint256(vm.load(address(nestedSafes[i]), livenessGuardSlot))));
+            if (livenessGuard != address(0)) {
+                allowed[idx] = livenessGuard;
+                idx++;
+            }
         }
     }
 
