@@ -67,8 +67,8 @@ set-implementation gameType='' implAddr='':
   mv ./out/input.tmp.json ./out/input.json
 
   # Add a precheck for this implementation change
-  sed -I "" -e 's|// INSERT NEW PRE CHECKS HERE|_precheckDisputeGameImplementation(GameType.wrap({{gameType}}), {{implAddr}});\n        // INSERT NEW PRE CHECKS HERE|' out/NestedSignFromJson.s.sol
-  sed -I "" -e 's|// INSERT NEW POST CHECKS HERE|_checkDisputeGameImplementation(GameType.wrap({{gameType}}), {{implAddr}});\n        // INSERT NEW POST CHECKS HERE|' out/NestedSignFromJson.s.sol
+  sed -ie 's|// INSERT NEW PRE CHECKS HERE|_precheckDisputeGameImplementation(GameType.wrap({{gameType}}), {{implAddr}});\n        // INSERT NEW PRE CHECKS HERE|' out/NestedSignFromJson.s.sol
+  sed -ie 's|// INSERT NEW POST CHECKS HERE|_checkDisputeGameImplementation(GameType.wrap({{gameType}}), {{implAddr}});\n        // INSERT NEW POST CHECKS HERE|' out/NestedSignFromJson.s.sol
 
   # Update the validation instructions
   GAME_IMPLS_SLOT="101"
@@ -88,4 +88,4 @@ set-implementation gameType='' implAddr='':
 
   # Update the README
   INFO="* Set implementation for game type {{gameType}} to {{implAddr}} in \`DisputeGameFactory\` ${DGF_ADDR}: \`setImplementation({{gameType}}, {{implAddr}})\`"
-  sed -I "" -e "s|<!--NEXT TASK DESCRIPTION-->|${INFO}\n<!--NEXT TASK DESCRIPTION-->|" out/README.md
+  sed -ie "s|<!--NEXT TASK DESCRIPTION-->|${INFO}\n<!--NEXT TASK DESCRIPTION-->|" out/README.md
