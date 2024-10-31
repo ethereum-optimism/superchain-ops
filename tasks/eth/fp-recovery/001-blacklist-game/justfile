@@ -5,10 +5,10 @@ default:
   @just --list
 
 # Generate the `input.json` with a dispute game address to blacklist
-generate-input *args='':
+generate-input OptimismPortalProxyAddress='' DisputeGameToBlacklist='':
   #!/usr/bin/env bash
   BLACKLIST_GAME_SIG="blacklistDisputeGame(address,address)"
-  ENCODED_BLACKLIST_CALL="$(cast calldata $BLACKLIST_GAME_SIG $1 $2)"
+  ENCODED_BLACKLIST_CALL="$(cast calldata $BLACKLIST_GAME_SIG {{OptimismPortalProxyAddress}} {{DisputeGameToBlacklist}})"
 
   cp ./input-template.json ./input.json
   jq "(.transactions[0].data = \"$ENCODED_BLACKLIST_CALL\") |
