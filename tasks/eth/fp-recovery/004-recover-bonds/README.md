@@ -16,7 +16,11 @@ Executes the `recover` call to the `DelayedWETHProxy` contract.
 
 **Value:** `0 WEI`
 
-**Raw Input Data:** `0x0ca35682<-----------------------------wad-value------------------------>`
+**Raw Input Data**
+
+| Function Selector Signature | Wad value (will be left padded) |
+|--------------------------|------------------------------------|
+| 0x0ca35682 | Wad value (left padded based on value) |
 
 #### Inputs
 
