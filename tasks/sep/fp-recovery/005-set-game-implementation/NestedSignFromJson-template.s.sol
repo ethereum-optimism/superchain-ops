@@ -13,6 +13,7 @@ import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {DisputeGameFactory} from "@eth-optimism-bedrock/src/dispute/DisputeGameFactory.sol";
 import {FaultDisputeGame} from "@eth-optimism-bedrock/src/dispute/FaultDisputeGame.sol";
 import {PermissionedDisputeGame} from "@eth-optimism-bedrock/src/dispute/PermissionedDisputeGame.sol";
+import {SystemConfig} from "../../../../lib/optimism/packages/contracts-bedrock/src/L1/SystemConfig.sol";
 
 contract NestedSignFromJson is OriginalNestedSignFromJson {
     using LibString for string;
@@ -31,37 +32,16 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     address p2pSequencerAddress; // cast call $SystemConfig "unsafeBlockSigner()(address)"
     address batchInboxAddress; // In registry yaml.
 
-    Types.ContractSet proxies;
+    SystemConfig systemConfig = SystemConfig(vm.envAddress("SYSTEM_CONFIG"));
 
-    // Current dispute game implementation
-    FaultDisputeGame currentImpl;
-
-    // New dispute game implementation
-    FaultDisputeGame faultDisputeGame;
-
-    // Game type to set
-    GameType targetGameType;
-
-    // DisputeGameFactoryProxy address. Loaded from superchain-registry
+    // DisputeGameFactoryProxy address.
     DisputeGameFactory dgfProxy;
 
     function setUp() public {
-        proxies = _getContractSet();
-        // Read the DisputeGameFactoryProxy and new dispute game implementation from the input JSON.
-        string memory inputJson;
-        string memory path = "/tasks/sep/fp-recovery/005-set-game-implementation/input.json";
-        try vm.readFile(string.concat(vm.projectRoot(), path)) returns (string memory data) {
-            inputJson = data;
-        } catch {
-            revert(string.concat("Failed to read ", path));
-        }
+        _getContractSet();
 
-        dgfProxy = DisputeGameFactory(stdJson.readAddress(inputJson, "$.transactions[0].to"));
-        targetGameType = GameType.wrap(uint32(stdJson.readUint(inputJson, "$.transactions[0].contractInputsValues._gameType")));
-        faultDisputeGame = FaultDisputeGame(stdJson.readAddress(inputJson, "$.transactions[0].contractInputsValues._impl"));
-        currentImpl = FaultDisputeGame(address(dgfProxy.gameImpls(GameType(targetGameType))));
-
-        _precheckDisputeGameImplementation();
+        dgfProxy = DisputeGameFactory(systemConfig.disputeGameFactory());
+        // INSERT NEW PRE CHECKS HERE
     }
 
     function getCodeExceptions() internal view override returns (address[] memory) {
@@ -120,12 +100,17 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         return shouldHaveCodeExceptions;
     }
 
-    function _precheckDisputeGameImplementation() internal view {
+    // _precheckDisputeGameImplementation checks that the new game being set has the same configuration as the existing
+    // implementation with the exception of the absolutePrestate. This is the most common scenario where the game
+    // implementation is upgraded to provide an updated fault proof program that supports an upcoming hard fork.
+    function _precheckDisputeGameImplementation(GameType _targetGameType, address _newImpl) internal view {
         console.log("pre-check new game implementations");
 
+        FaultDisputeGame currentImpl = FaultDisputeGame(address(dgfProxy.gameImpls(GameType(_targetGameType))));
         if (address(currentImpl) == address(0)) {
             return;
         }
+        FaultDisputeGame faultDisputeGame = FaultDisputeGame(_newImpl);
         require(address(currentImpl.vm()) == address(faultDisputeGame.vm()), "10");
         require(address(currentImpl.weth()) == address(faultDisputeGame.weth()), "20");
         require(address(currentImpl.anchorStateRegistry()) == address(faultDisputeGame.anchorStateRegistry()), "30");
@@ -135,7 +120,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         require(uint64(Duration.unwrap(currentImpl.maxClockDuration())) == uint64(Duration.unwrap(faultDisputeGame.maxClockDuration())), "70");
         require(uint64(Duration.unwrap(currentImpl.clockExtension())) == uint64(Duration.unwrap(faultDisputeGame.clockExtension())), "80");
 
-        if (targetGameType.raw() == GameTypes.PERMISSIONED_CANNON.raw()) {
+        if (_targetGameType.raw() == GameTypes.PERMISSIONED_CANNON.raw()) {
             PermissionedDisputeGame currentPDG = PermissionedDisputeGame(address(currentImpl));
             PermissionedDisputeGame permissionedDisputeGame = PermissionedDisputeGame(address(faultDisputeGame));
             require(address(currentPDG.proposer()) == address(permissionedDisputeGame.proposer()), "90");
@@ -163,38 +148,23 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         console.log("Running post-deploy assertions");
 
         checkStateDiff(accesses);
-        _checkDisputeGameImplementations();
+        // INSERT NEW POST CHECKS HERE
 
         console.log("All assertions passed!");
     }
 
-    function _checkDisputeGameImplementations() internal view {
+    function _checkDisputeGameImplementation(GameType _targetGameType, address _newImpl) internal view {
         console.log("check dispute game implementations");
 
-        require(address(faultDisputeGame) == address(dgfProxy.gameImpls(targetGameType)), "check-100");
+        require(_newImpl == address(dgfProxy.gameImpls(_targetGameType)), "check-100");
     }
 
     /// @notice Reads the contract addresses from lib/superchain-registry/superchain/configs/${l1ChainName}/${l2ChainName}.toml
-    function _getContractSet() internal returns (Types.ContractSet memory _proxies) {
-        string memory chainConfig;
-
-        // Read chain-specific config toml file
-        string memory path = string.concat(
-        "/lib/superchain-registry/superchain/configs/", l1ChainName, "/", l2ChainName, ".toml"
-        );
-        try vm.readFile(string.concat(vm.projectRoot(), path)) returns (string memory data) {
-            chainConfig = data;
-        } catch {
-            revert(string.concat("Failed to read ", path));
-        }
-
-        // Read the known EOAs out of the config toml file
-        systemConfigOwner = stdToml.readAddress(chainConfig, "$.addresses.SystemConfigOwner");
-        batchSenderAddress = stdToml.readAddress(chainConfig, "$.addresses.BatchSubmitter");
-        p2pSequencerAddress = stdToml.readAddress(chainConfig, "$.addresses.UnsafeBlockSigner");
-        batchInboxAddress = stdToml.readAddress(chainConfig, "$.batch_inbox_addr");
-
-        // Read the chain-specific OptimismPortalProxy address
-        _proxies.DisputeGameFactory = stdToml.readAddress(chainConfig, "$.addresses.DisputeGameFactoryProxy");
+    function _getContractSet() internal{
+        // Read the known EOAs out of the systemConfig
+        systemConfigOwner = systemConfig.owner();
+        batchSenderAddress = address(uint160(uint256(systemConfig.batcherHash())));
+        p2pSequencerAddress = systemConfig.unsafeBlockSigner();
+        batchInboxAddress = systemConfig.batchInbox();
     }
 }

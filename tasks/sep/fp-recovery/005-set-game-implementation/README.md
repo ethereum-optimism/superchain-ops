@@ -33,7 +33,7 @@ Sets the game type implementation contract.
    No checks are performed if there is no prior implementation, in which case it is recommended to implement custom
    checks.
 
-3. Set the `L1_CHAIN_NAME` and `L2_CHAIN_NAME` configuration to the appropriate chain in the `.env` file.
+3. Run `just prep <l1> <l2>` to prepare the .env file and initial templates. e.g. `just prep sepolia op`
 
 4. Add the required transactions to the batch (see below).
 
@@ -48,7 +48,7 @@ single batch. For each game type to set, run:
 just set-implementation <gameType> <newImplAddr>
 ```
 
-To remove all added transactions, run `just clean`.
+To remove all added transactions, run `just clean`. Note that you need to run `just prep <l1> <l2>` again after clean.
 
 ### State Validations
 
@@ -56,3 +56,5 @@ The two state modifications that are made by this action are:
 
 1. An update to the nonce of the Gnosis safe owner of the `ProxyAdminOwner`.
 2. An update to the `gameImpls` mapping in `DisputeGameFactoryProxy` for each game type being set.
+
+[VALIDATION.md](./VALIDATION.md) is automatically updated with the expected state changes caused by the transactions.

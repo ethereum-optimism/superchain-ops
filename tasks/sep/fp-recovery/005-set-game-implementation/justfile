@@ -5,29 +5,55 @@ default:
   @just --list
 
 clean:
-  rm -f VALIDATION.md input.json
+  rm -f VALIDATION.md input.json .env NestedSignFromJson.s.sol
 
-prep:
+prep l1='' l2='':
   #!/usr/bin/env bash
   set -euo pipefail
-  if [ ! -f input.json ]; then cp input-template.json input.json; fi
-  if [ ! -f VALIDATION.md ]; then cp VALIDATION-template.md VALIDATION.md; fi
+  cp input-template.json input.json
+  cp VALIDATION-template.md VALIDATION.md
+  cp NestedSignFromJson-template.s.sol NestedSignFromJson.s.sol
+
+  if [[ "{{l1}}" == "sepolia" ]]; then
+    cat > .env << EOF
+  ETH_RPC_URL="https://ethereum-sepolia.publicnode.com"
+  COUNCIL_SAFE=0xf64bc17485f0B4Ea5F06A96514182FC4cB561977
+  FOUNDATION_SAFE=0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B
+  EOF
+  elif [[ "{{l1}}" == "mainnet" ]]; then
+    cat > .env << EOF
+  ETH_RPC_URL="https://ethereum.publicnode.com"
+  COUNCIL_SAFE=0xc2819DC788505Aac350142A7A707BF9D03E3Bd03
+  FOUNDATION_SAFE=0x847B5c174615B1B7fDF770882256e2D3E95b9D92
+  EOF
+  else
+    echo "Unknown L1 chain."
+    exit 1
+  fi
+
+  . .env
+  CONFIG_URL="https://raw.githubusercontent.com/ethereum-optimism/superchain-registry/refs/heads/main/superchain/configs/{{l1}}/{{l2}}.toml"
+  CONFIG_TOML=$(curl -s --show-error --fail "${CONFIG_URL}")
+  SYSTEM_CONFIG=$(echo "${CONFIG_TOML}" | yq -p toml .addresses.SystemConfigProxy)
+  OWNER_SAFE=$(echo "${CONFIG_TOML}" | yq -p toml .addresses.ProxyAdminOwner)
+
+  cat >> .env << EOF
+  SAFE_NONCE=""
+  L1_CHAIN_NAME="{{l1}}"
+  L2_CHAIN_NAME="{{l2}}"
+  SYSTEM_CONFIG="${SYSTEM_CONFIG}"
+  OWNER_SAFE="${OWNER_SAFE}"
+  EOF
 
 # Generate the `input.json` with the game type and implementation to set.
-set-implementation gameType='' implAddr='': prep
+set-implementation gameType='' implAddr='':
   #!/usr/bin/env bash
   set -euo pipefail
   . .env
   SET_GAME_TYPE_SIG="setImplementation(uint32,address)"
   ENCODED_CALL=$(cast calldata "${SET_GAME_TYPE_SIG}" "{{gameType}}" "{{implAddr}}")
 
-  CONFIG_URL="https://raw.githubusercontent.com/ethereum-optimism/superchain-registry/refs/heads/main/superchain/configs/${L1_CHAIN_NAME}/${L2_CHAIN_NAME}.toml"
-  CONFIG_TOML=$(curl -s --show-error --fail "${CONFIG_URL}")
-  SC_CONFIG_ADDR=$(echo "${CONFIG_TOML}" | yq -p toml .addresses.SystemConfigProxy)
-  PROXY_ADMIN_OWNER_ADDR=$(echo "${CONFIG_TOML}" | yq -p toml .addresses.ProxyAdminOwner)
-
-  DGF_ADDR=$(cast call "${SC_CONFIG_ADDR}" "disputeGameFactory()(address)")
-  echo "OWNER_SAFE=${PROXY_ADMIN_OWNER_ADDR}" >> .env
+  DGF_ADDR=$(cast call "${SYSTEM_CONFIG}" "disputeGameFactory()(address)")
 
   TX_DESC="Sets the implementation for game type {{gameType}} to {{implAddr}} in the \`DisputeGameFactory\`."
   TX=$(jq --arg desc "${TX_DESC}" "(.metadata.description = \$desc) |
@@ -37,6 +63,10 @@ set-implementation gameType='' implAddr='': prep
                 (.contractInputsValues._impl = \"{{implAddr}}\")" ./templates/setImplementation.json)
   jq --argjson tx "${TX}" --arg desc "${TX_DESC} " '(.metadata.description += $desc) | (.transactions += [$tx])' ./input.json > ./input.tmp.json
   mv ./input.tmp.json ./input.json
+
+  # Add a precheck for this implementation change
+  sed -I "" -e 's|// INSERT NEW PRE CHECKS HERE|_precheckDisputeGameImplementation(GameType.wrap({{gameType}}), {{implAddr}});\n        // INSERT NEW PRE CHECKS HERE|' NestedSignFromJson.s.sol
+  sed -I "" -e 's|// INSERT NEW POST CHECKS HERE|_checkDisputeGameImplementation(GameType.wrap({{gameType}}), {{implAddr}});\n        // INSERT NEW POST CHECKS HERE|' NestedSignFromJson.s.sol
 
   # Update the validation instructions
   GAME_IMPLS_SLOT="101"
