@@ -28,21 +28,31 @@ Sets the game type implementation contract.
 
 1. Copy this directory to the appropriate final task location.
 
-2. Review the assertions in `NestedSignFromJson.s.sol` `_precheckDisputeGameImplementation` function. 
+2. Review the assertions in `NestedSignFromJson.s.sol` `_precheckDisputeGameImplementation` function.
    The template assertions check that properties of the new implementation match the old one if it exists.
-   No checks are performed if there is no prior implementation, in which case it is recommended to implement custom checks.
+   No checks are performed if there is no prior implementation, in which case it is recommended to implement custom
+   checks.
 
-3. Update the relative path to lib/superchain-registry in `justfile` if needed.
+3. Set the `L1_CHAIN_NAME` and `L2_CHAIN_NAME` configuration to the appropriate chain in the `.env` file.
 
-4. Set the `L1_CHAIN_NAME` and `L2_CHAIN_NAME` configuration to the appropriate chain in the `.env` file. 
+4. Add the required transactions to the batch (see below).
 
-5. Generate the batch with `just generate-input <gameType> <newImplAddr>`.
+5. Collect signatures and execute the action according to the instructions in [NESTED.md](../../../NESTED.md).
 
-6. Collect signatures and execute the action according to the instructions in [NESTED.md](../../../NESTED.md).
+### Adding Transactions
+
+The batch can be created with an arbitrary number of transactions to set the implementation of multiple game types in a
+single batch. For each game type to set, run:
+
+```
+just set-implementation <gameType> <newImplAddr>
+```
+
+To remove all added transactions, run `just clean`.
 
 ### State Validations
 
 The two state modifications that are made by this action are:
 
 1. An update to the nonce of the Gnosis safe owner of the `ProxyAdminOwner`.
-2. An update to the `gameImpls` mapping in `DisputeGameFactoryProxy`.
+2. An update to the `gameImpls` mapping in `DisputeGameFactoryProxy` for each game type being set.

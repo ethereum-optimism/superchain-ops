@@ -4,8 +4,17 @@ set positional-arguments
 default:
   @just --list
 
+clean:
+  rm -f VALIDATION.md input.json
+
+prep:
+  #!/usr/bin/env bash
+  set -euo pipefail
+  if [ ! -f input.json ]; then cp input-template.json input.json; fi
+  if [ ! -f VALIDATION.md ]; then cp VALIDATION-template.md VALIDATION.md; fi
+
 # Generate the `input.json` with the game type and implementation to set.
-generate-input gameType='' implAddr='':
+set-implementation gameType='' implAddr='': prep
   #!/usr/bin/env bash
   set -euo pipefail
   . .env
@@ -20,9 +29,27 @@ generate-input gameType='' implAddr='':
   DGF_ADDR=$(cast call "${SC_CONFIG_ADDR}" "disputeGameFactory()(address)")
   echo "OWNER_SAFE=${PROXY_ADMIN_OWNER_ADDR}" >> .env
 
-  cp ./input-template.json ./input.json
-  jq "(.transactions[0].data = \"$ENCODED_CALL\") |
-          (.transactions[0].to = \"${DGF_ADDR}\") |
-          (.transactions[0].contractInputsValues._gameType = \"{{gameType}}\") |
-          (.transactions[0].contractInputsValues._impl = \"{{implAddr}}\")" ./input.json > ./input.tmp.json
+  TX_DESC="Sets the implementation for game type {{gameType}} to {{implAddr}} in the \`DisputeGameFactory\`."
+  TX=$(jq --arg desc "${TX_DESC}" "(.metadata.description = \$desc) |
+                (.data = \"$ENCODED_CALL\") |
+                (.to = \"${DGF_ADDR}\") |
+                (.contractInputsValues._gameType = \"{{gameType}}\") |
+                (.contractInputsValues._impl = \"{{implAddr}}\")" ./templates/setImplementation.json)
+  jq --argjson tx "${TX}" --arg desc "${TX_DESC} " '(.metadata.description += $desc) | (.transactions += [$tx])' ./input.json > ./input.tmp.json
   mv ./input.tmp.json ./input.json
+
+  # Update the validation instructions
+  GAME_IMPLS_SLOT="101"
+  STORAGE_SLOT=$(cast index uint32 "{{gameType}}" "${GAME_IMPLS_SLOT}")
+  BEFORE=$(cast storage "${DGF_ADDR}" "${STORAGE_SLOT}")
+  AFTER=$(cast concat-hex 0x000000000000000000000000 "{{implAddr}}")
+  cat >> VALIDATION.md << EOF
+
+  ### \`${DGF_ADDR}\` (\`DisputeGameFactoryProxy\`)
+
+  - **Key**: \`${STORAGE_SLOT}\` <br/>
+    **Before**: \`${BEFORE}\` <br/>
+    **After**: \`${AFTER}\` <br/>
+    **Meaning**: Updates the implementation for game type {{gameType}}. Verify that the new implementation is set using
+    \`cast call ${DGF_ADDR} "gameImpls(uint32)(address)" {{gameType}}\`.
+  EOF
