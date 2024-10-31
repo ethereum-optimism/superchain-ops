@@ -18,17 +18,6 @@ contract SignFromJson is OriginalSignFromJson {
     string constant l1ChainName = "mainnet";
     string l2ChainName = vm.envString("L2_CHAIN_NAME");
 
-    // Safe contract for this task.
-    GnosisSafe securityCouncilSafe = GnosisSafe(payable(0xc2819DC788505Aac350142A7A707BF9D03E3Bd03));
-
-    // Known EOAs to exclude from safety checks.
-    address l2OutputOracleProposer; // cast call $L2OO "PROPOSER()(address)"
-    address l2OutputOracleChallenger; // In registry addresses.
-    address systemConfigOwner; // In registry addresses.
-    address batchSenderAddress; // In registry genesis-system-configs
-    address p2pSequencerAddress; // cast call $SystemConfig "unsafeBlockSigner()(address)"
-    address batchInboxAddress; // In registry yaml.
-
     Types.ContractSet proxies;
 
     /// @notice Sets up the contract
@@ -39,25 +28,6 @@ contract SignFromJson is OriginalSignFromJson {
     function checkRespectedGameType() internal view {
         OptimismPortal2 portal = OptimismPortal2(payable(proxies.OptimismPortal));
         require(portal.respectedGameType().raw() == GameTypes.PERMISSIONED_CANNON.raw());
-    }
-
-    function getCodeExceptions() internal view override returns (address[] memory) {
-        // Safe owners will appear in storage in the LivenessGuard when added
-        address[] memory securityCouncilSafeOwners = securityCouncilSafe.getOwners();
-        address[] memory shouldHaveCodeExceptions = new address[](6 + securityCouncilSafeOwners.length);
-
-        shouldHaveCodeExceptions[0] = l2OutputOracleProposer;
-        shouldHaveCodeExceptions[1] = l2OutputOracleChallenger;
-        shouldHaveCodeExceptions[2] = systemConfigOwner;
-        shouldHaveCodeExceptions[3] = batchSenderAddress;
-        shouldHaveCodeExceptions[4] = p2pSequencerAddress;
-        shouldHaveCodeExceptions[5] = batchInboxAddress;
-
-        for (uint256 i = 0; i < securityCouncilSafeOwners.length; i++) {
-            shouldHaveCodeExceptions[6 + i] = securityCouncilSafeOwners[i];
-        }
-
-        return shouldHaveCodeExceptions;
     }
 
     function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
@@ -81,7 +51,7 @@ contract SignFromJson is OriginalSignFromJson {
     }
 
     /// @notice Reads the contract addresses from lib/superchain-registry/superchain/configs/${l1ChainName}/${l2ChainName}.toml
-    function _getContractSet() internal returns (Types.ContractSet memory _proxies) {
+    function _getContractSet() internal view returns (Types.ContractSet memory _proxies) {
         string memory chainConfig;
 
         // Read chain-specific config toml file
@@ -93,14 +63,6 @@ contract SignFromJson is OriginalSignFromJson {
         } catch {
             revert(string.concat("Failed to read ", path));
         }
-
-        // Read the known EOAs out of the config toml file
-        l2OutputOracleProposer = stdToml.readAddress(chainConfig, "$.addresses.Proposer");
-        l2OutputOracleChallenger = stdToml.readAddress(chainConfig, "$.addresses.Challenger");
-        systemConfigOwner = stdToml.readAddress(chainConfig, "$.addresses.SystemConfigOwner");
-        batchSenderAddress = stdToml.readAddress(chainConfig, "$.addresses.BatchSubmitter");
-        p2pSequencerAddress = stdToml.readAddress(chainConfig, "$.addresses.UnsafeBlockSigner");
-        batchInboxAddress = stdToml.readAddress(chainConfig, "$.batch_inbox_addr");
 
         // Read the chain-specific OptimismPortalProxy address
         _proxies.OptimismPortal = stdToml.readAddress(chainConfig, "$.addresses.OptimismPortalProxy");
