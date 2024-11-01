@@ -30,11 +30,35 @@ supported game type such as enabling permissionless games.
 ### Adding Transactions
 
 The batch can be created with an arbitrary number of transactions to set the implementation of multiple game types in a
-single batch. For each game type to set, run:
+single batch. 
+
+#### Set Game Implementation
+
+For each game type to set, run:
 
 ```
 just set-implementation <gameType> <newImplAddr>
 ```
+
+#### Re-initialize AnchorStateRegistry
+
+To add a new game type to the AnchorStateRegistry, it needs to be re-initialized to set an initial anchor state for the
+new game type. To add the transactions required for this run:
+
+```
+just copy-anchor-state <fromGameType> <toGameTypes>
+```
+
+where `<fromGameType>` is the existing game type to load the current game type from and `<toGameTypes>` is the game
+types to copy the anchor state to.  **Important**: Re-initializing the `AnchorStateRegistry` removes all existing anchor
+states so all supported game types must be listed. The `<fromGameType>` is automatically included. Thus while only two
+game types are in use, the permissionless `CANNON` game type can be added based on the `PERMISSIONED` game type with:
+
+```
+just copy-anchor-state 1 0
+```
+
+#### Removing All Transactions
 
 To remove all added transactions, run `just clean`. Note that you need to run `just prep <l1> <l2>` again after clean.
 
