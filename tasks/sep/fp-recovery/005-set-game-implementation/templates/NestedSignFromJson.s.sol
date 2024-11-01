@@ -141,7 +141,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
             }
         }
 
-        allowed = new address[](3 + nestedSafes.length + livenessGuardCount);
+        allowed = new address[](2 + nestedSafes.length + livenessGuardCount);
         allowed[0] = address(dgfProxy);
         allowed[1] = address(ownerSafe);
         uint256 idx = 2;
