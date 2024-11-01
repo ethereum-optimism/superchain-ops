@@ -29,20 +29,12 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     // See https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/base/GuardManager.sol#L30
     bytes32 livenessGuardSlot = 0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8;
 
-    // Known EOAs to exclude from safety checks.
-    address systemConfigOwner; // In registry addresses.
-    address batchSenderAddress; // In registry genesis-system-configs
-    address p2pSequencerAddress; // cast call $SystemConfig "unsafeBlockSigner()(address)"
-    address batchInboxAddress; // In registry yaml.
-
     SystemConfig systemConfig = SystemConfig(vm.envAddress("SYSTEM_CONFIG"));
 
     // DisputeGameFactoryProxy address.
     DisputeGameFactory dgfProxy;
 
     function setUp() public {
-        _getContractSet();
-
         dgfProxy = DisputeGameFactory(systemConfig.disputeGameFactory());
         // INSERT NEW PRE CHECKS HERE
     }
@@ -86,21 +78,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
                 trackedSignersWithNoCode++;
             }
         }
-
-        // Here we add the standard (non Safe signer) exceptions.
-        address[] memory shouldHaveCodeExceptions = new address[](4 + numberOfSafeSignersWithNoCode);
-
-        shouldHaveCodeExceptions[0] = systemConfigOwner;
-        shouldHaveCodeExceptions[1] = batchSenderAddress;
-        shouldHaveCodeExceptions[2] = p2pSequencerAddress;
-        shouldHaveCodeExceptions[3] = batchInboxAddress;
-
-        // And finally, we append the Safe signer exceptions.
-        for (uint256 i = 0; i < safeSignersWithNoCode.length; i++) {
-            shouldHaveCodeExceptions[4 + i] = safeSignersWithNoCode[i];
-        }
-
-        return shouldHaveCodeExceptions;
+        return safeSignersWithNoCode;
     }
 
     // _precheckDisputeGameImplementation checks that the new game being set has the same configuration as the existing
@@ -175,14 +153,5 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         console.log("check dispute game implementations");
 
         require(_newImpl == address(dgfProxy.gameImpls(_targetGameType)), "check-100");
-    }
-
-    /// @notice Reads the contract addresses from lib/superchain-registry/superchain/configs/${l1ChainName}/${l2ChainName}.toml
-    function _getContractSet() internal{
-        // Read the known EOAs out of the systemConfig
-        systemConfigOwner = systemConfig.owner();
-        batchSenderAddress = address(uint160(uint256(systemConfig.batcherHash())));
-        p2pSequencerAddress = systemConfig.unsafeBlockSigner();
-        batchInboxAddress = systemConfig.batchInbox();
     }
 }
