@@ -67,7 +67,7 @@ set-implementation gameType='' implAddr='':
   jq --argjson tx "${TX}" --arg desc "${TX_DESC} " '(.metadata.description += $desc) | (.transactions += [$tx])' ./out/input.json > ./out/input.tmp.json
   mv ./out/input.tmp.json ./out/input.json
 
-  # Add a precheck for this implementation change
+  # Add pre and post checks for this implementation change
   sed \
     -e 's|// INSERT NEW PRE CHECKS HERE|_precheckDisputeGameImplementation(GameType.wrap({{gameType}}), {{implAddr}});\n        // INSERT NEW PRE CHECKS HERE|' \
     -e 's|// INSERT NEW POST CHECKS HERE|_checkDisputeGameImplementation(GameType.wrap({{gameType}}), {{implAddr}});\n        // INSERT NEW POST CHECKS HERE|' \
