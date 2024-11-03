@@ -88,6 +88,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         console.log("pre-check new game implementations");
 
         FaultDisputeGame currentImpl = FaultDisputeGame(address(dgfProxy.gameImpls(GameType(_targetGameType))));
+        // No checks are performed if there is no prior implementation.
+        // When deploying the first implementation, it is recommended to implement custom checks.
         if (address(currentImpl) == address(0)) {
             return;
         }
