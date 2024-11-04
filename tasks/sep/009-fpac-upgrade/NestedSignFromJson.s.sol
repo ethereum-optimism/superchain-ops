@@ -2,6 +2,7 @@
 pragma solidity ^0.8.15;
 
 import {NestedSignFromJson as OriginalNestedSignFromJson} from "script/NestedSignFromJson.s.sol";
+import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {Constants, ResourceMetering} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
 import {ProtocolVersion, ProtocolVersions} from "@eth-optimism-bedrock/src/L1/ProtocolVersions.sol";
 import {ISemver} from "@eth-optimism-bedrock/src/universal/ISemver.sol";
@@ -95,7 +96,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     }
 
     /// @notice Checks the correctness of the deployment
-    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory /* simPayload */ )
+    function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory /* simPayload */ )
         internal
         view
         override

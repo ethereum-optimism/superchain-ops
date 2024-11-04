@@ -8,7 +8,7 @@ import {stdJson} from "forge-std/StdJson.sol";
 import {console} from "forge-std/console.sol";
 import {Vm} from "forge-std/Vm.sol";
 
-contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
+abstract contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
     address globalSignerSafe; // Hack to avoid passing signerSafe as an input to many functions.
 
     /// @dev Signs the approveHash transaction from the Nested Safe to the System Owner Safe.
@@ -35,26 +35,5 @@ contract NestedSignFromJson is NestedMultisigBuilder, JsonTxBuilderBase {
 
     function _ownerSafe() internal view override returns (address) {
         return vm.envAddress("OWNER_SAFE");
-    }
-
-    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory simPayload)
-        internal
-        virtual
-        override
-    {
-        if (msg.sig == this.approveJson.selector) {
-            console.log("Skipping assertions on the approval call");
-            return;
-        }
-        _nestedPostCheck(accesses, simPayload);
-    }
-
-    function _nestedPostCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory simPayload)
-        internal
-        virtual
-    {
-        accesses; // Silences compiler warnings.
-        simPayload;
-        require(false, "_nestedPostCheck not implemented");
     }
 }

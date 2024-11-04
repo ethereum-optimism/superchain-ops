@@ -8,7 +8,7 @@ import {stdJson} from "forge-std/StdJson.sol";
 import {console} from "forge-std/console.sol";
 import {Vm} from "forge-std/Vm.sol";
 
-contract SignFromJson is MultisigBuilder, JsonTxBuilderBase {
+abstract contract SignFromJson is MultisigBuilder, JsonTxBuilderBase {
     function signJson(string memory _path) public {
         _loadJson(_path);
         sign();
@@ -26,15 +26,5 @@ contract SignFromJson is MultisigBuilder, JsonTxBuilderBase {
     // todo: allow passing this as a script argument.
     function _ownerSafe() internal view override returns (address) {
         return vm.envAddress("OWNER_SAFE");
-    }
-
-    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory simPayload)
-        internal
-        virtual
-        override
-    {
-        accesses; // Silences compiler warnings.
-        simPayload;
-        require(false, "_postCheck not implemented");
     }
 }

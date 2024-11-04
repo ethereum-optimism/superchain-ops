@@ -2,6 +2,7 @@
 pragma solidity ^0.8.15;
 
 import {SignFromJson as OriginalSignFromJson} from "script/SignFromJson.s.sol";
+import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {Types} from "@eth-optimism-bedrock/scripts/Types.sol";
 import {console2 as console} from "forge-std/console2.sol";
 import {stdJson} from "forge-std/StdJson.sol";
@@ -50,7 +51,7 @@ contract NestedSignFromJson is OriginalSignFromJson {
         allowed[2] = livenessGuard;
     }
 
-    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory) internal view override {
+    function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory) internal view override {
         console.log("Running post-deploy assertions");
         checkStateDiff(accesses);
         checkDGFProxy();

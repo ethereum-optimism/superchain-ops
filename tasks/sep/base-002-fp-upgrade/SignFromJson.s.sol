@@ -2,6 +2,7 @@
 pragma solidity ^0.8.15;
 
 import {SignFromJson as OriginalSignFromJson} from "script/SignFromJson.s.sol";
+import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {AnchorStateRegistry} from "@eth-optimism-bedrock/src/dispute/AnchorStateRegistry.sol";
 import {GameTypes, Hash} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {DelayedWETH} from "@eth-optimism-bedrock/src/dispute/weth/DelayedWETH.sol";
@@ -118,7 +119,7 @@ contract SignFromJson is OriginalSignFromJson {
         _proxies.DelayedWETH = vm.envAddress("DELAYED_WETH_PROXY");
     }
 
-    function _postCheck(Vm.AccountAccess[] memory accesses, SimulationPayload memory) internal view override {
+    function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory) internal view override {
         console.log("Running post-deploy assertions");
         checkSemvers();
         checkStateDiff(accesses);
