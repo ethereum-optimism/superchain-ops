@@ -1,0 +1,33 @@
+{
+  "chainId": 11155111,
+  "metadata": {
+    "name": "OPCM Admin Swap",
+    "description": "Changes the admin of the OPCM proxy to be the ProxyAdmin contract"
+  },
+  "transactions": [
+    {
+      "metadata": {
+        "name": "OPCM ownership transfer",
+        "description": "Transfers ownership of the OPCM proxy to the ProxyAdmin contract"
+      },
+      "to": "0xF564eEA7960EA244bfEbCBbB17858748606147bf",
+      "value": "0x0",
+      "data": "0x8f283970000000000000000000000000189abaaaa82dfc015a588a7dbad6f13b1d3485bc",
+      "contractMethod": {
+        "type": "function",
+        "name": "changeAdmin",
+        "inputs": [
+          {
+            "name": "_admin",
+            "type": "address"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_admin": "0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc"
+      }
+    }
+  ]
+}
