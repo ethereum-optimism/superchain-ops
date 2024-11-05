@@ -69,6 +69,16 @@ just clean prep sepolia op
 just set-implementation 0 <cannon-game-impl>
 just set-implementation 1 <permissioned-game-impl>
 ```
+#### Example - Adding Permissionless Dispute Game
+
+To prepare the task to set an implementation for `CANNON` (0) and copy the `PERMISSIONED` anchor state to be its initial
+anchor state run:
+
+```bash
+just clean prep sepolia op
+just set-implementation 0 <cannon-game-impl>
+just copy-anchor-state 1 0
+```
 
 ### Generated Documentation
 
