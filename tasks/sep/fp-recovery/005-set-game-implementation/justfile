@@ -124,7 +124,7 @@ copy-anchor-state fromGameType='' toGameTypes='':
 
   GAME_TYPES_WITH_COMMAS=""
   ANCHORS=""
-  for GAME_TYPE in {{fromGameType}} {{toGameTypes}} # Make sure we restore the source game type too
+  for GAME_TYPE in {{toGameTypes}}
   do
     ANCHORS="${ANCHORS}, ($GAME_TYPE, (${ANCHOR_ROOT}, ${ANCHOR_BLOCK}))"
     GAME_TYPES_WITH_COMMAS="${GAME_TYPES_WITH_COMMAS}, ${GAME_TYPE}"
@@ -159,11 +159,12 @@ copy-anchor-state fromGameType='' toGameTypes='':
   mv out/NestedSignFromJson.s.sol.tmp out/NestedSignFromJson.s.sol
 
   # Add pre and post checks
-  for GAME_TYPE in {{fromGameType}} {{toGameTypes}}
+  for GAME_TYPE in {{toGameTypes}}
   do
       sed \
         -e "s|// INSERT NEW PRE CHECKS HERE|_precheckAnchorStateCopy(GameType.wrap({{fromGameType}}), GameType.wrap(${GAME_TYPE}));\n        // INSERT NEW PRE CHECKS HERE|" \
         -e "s|// INSERT NEW POST CHECKS HERE|_postcheckAnchorStateCopy(GameType.wrap(${GAME_TYPE}), bytes32(${ANCHOR_ROOT}), ${ANCHOR_BLOCK});\n        // INSERT NEW POST CHECKS HERE|" \
+        -e "s|// INSERT NEW POST CHECKS HERE|_postcheckHasAnchorState(GameType.wrap({{fromGameType}}));\n        // INSERT NEW POST CHECKS HERE|" \
         out/NestedSignFromJson.s.sol > out/NestedSignFromJson.s.sol.tmp
       mv out/NestedSignFromJson.s.sol.tmp out/NestedSignFromJson.s.sol
   done
@@ -172,7 +173,7 @@ copy-anchor-state fromGameType='' toGameTypes='':
   ANCHORS_SLOT="1"
   echo >> out/VALIDATION.md # Add blank line
   echo "### \`${REGISTRY_PROXY}\` (\`AnchorStateRegistryProxy\`)" >> out/VALIDATION.md
-  for GAME_TYPE in {{fromGameType}} {{toGameTypes}}
+  for GAME_TYPE in {{toGameTypes}}
   do
       STORAGE_SLOT1=$(cast index uint32 "${GAME_TYPE}" "${ANCHORS_SLOT}")
       BEFORE1=$(cast storage "${REGISTRY_PROXY}" "${STORAGE_SLOT1}")

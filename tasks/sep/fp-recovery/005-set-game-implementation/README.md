@@ -52,15 +52,8 @@ just copy-anchor-state <fromGameType> <toGameTypes>
 where `<fromGameType>` is the existing game type to load the current game type from and `<toGameTypes>` is the game
 types to copy the anchor state to. The anchor state to set is taken _at the time the just command is run_. The task is
 then created with a fixed anchor state to set which may roll back later updates to the game type on-chain if games 
-resolve after the `just` command is run to add the transaction to the task definition.
-
-**Important**: Re-initializing the `AnchorStateRegistry` removes all existing anchor
-states so all supported game types must be listed. The `<fromGameType>` is automatically included. Thus while only two
-game types are in use, the permissionless `CANNON` game type can be added based on the `PERMISSIONED` game type with:
-
-```
-just copy-anchor-state 1 0
-```
+resolve after the `just` command is run to add the transaction to the task definition. However this only affects the 
+game types in `<toGameTypes>`, other anchor states are left unchanged.
 
 #### Removing All Transactions
 
