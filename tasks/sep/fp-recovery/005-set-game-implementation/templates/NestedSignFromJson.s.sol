@@ -25,6 +25,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
     // Safe contract for this task.
     GnosisSafe ownerSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
+    GnosisSafe councilSafe = GnosisSafe(payable(vm.envAddress("COUNCIL_SAFE")));
+    GnosisSafe foundationSafe = GnosisSafe(payable(vm.envAddress("FOUNDATION_SAFE")));
 
     // The slot used to store the livenessGuard address in GnosisSafe.
     // See https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/base/GuardManager.sol#L30
@@ -41,31 +43,15 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     }
 
     function getCodeExceptions() internal view override returns (address[] memory) {
-        // Owners of the nested safes will appear in storage in the LivenessGuard when added, and they are allowed
+        // Safe owners will appear in storage in the LivenessGuard when added, and they are allowed
         // to have code AND to have no code.
-        address[] memory nestedSafes = ownerSafe.getOwners();
-        // First count the total owners from the nested safes
-        uint256 totalNumberOfSigners;
-        for (uint256 a = 0; a < nestedSafes.length; a++) {
-            GnosisSafe safe = GnosisSafe(payable(nestedSafes[a]));
-            totalNumberOfSigners += safe.getOwners().length;
-        }
-        address[] memory safeOwners = new address[](totalNumberOfSigners);
-        uint256 addedSigners;
-        for (uint256 a = 0; a < nestedSafes.length; a++) {
-            GnosisSafe safe = GnosisSafe(payable(nestedSafes[a]));
-            address[] memory nestedSafeOwners = safe.getOwners();
-            for (uint256 i = 0; i < nestedSafeOwners.length; i++)  {
-                safeOwners[addedSigners] = nestedSafeOwners[i];
-                addedSigners++;
-            }
-        }
+        address[] memory securityCouncilSafeOwners = councilSafe.getOwners();
 
         // To make sure we probably handle all signers whether or not they have code, first we count
         // the number of signers that have no code.
         uint256 numberOfSafeSignersWithNoCode;
-        for (uint256 i = 0; i < safeOwners.length; i++) {
-            if (safeOwners[i].code.length == 0) {
+        for (uint256 i = 0; i < securityCouncilSafeOwners.length; i++) {
+            if (securityCouncilSafeOwners[i].code.length == 0) {
                 numberOfSafeSignersWithNoCode++;
             }
         }
@@ -73,13 +59,21 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         // Then we extract those EOA addresses into a dedicated array.
         uint256 trackedSignersWithNoCode;
         address[] memory safeSignersWithNoCode = new address[](numberOfSafeSignersWithNoCode);
-        for (uint256 i = 0; i < safeOwners.length; i++) {
-            if (safeOwners[i].code.length == 0) {
-                safeSignersWithNoCode[trackedSignersWithNoCode] = safeOwners[i];
+        for (uint256 i = 0; i < securityCouncilSafeOwners.length; i++) {
+            if (securityCouncilSafeOwners[i].code.length == 0) {
+                safeSignersWithNoCode[trackedSignersWithNoCode] = securityCouncilSafeOwners[i];
                 trackedSignersWithNoCode++;
             }
         }
-        return safeSignersWithNoCode;
+
+        // Here we add the standard (non Safe signer) exceptions.
+        address[] memory shouldHaveCodeExceptions = new address[](numberOfSafeSignersWithNoCode);
+        // And finally, we append the Safe signer exceptions.
+        for (uint256 i = 0; i < safeSignersWithNoCode.length; i++) {
+            shouldHaveCodeExceptions[i] = safeSignersWithNoCode[i];
+        }
+
+        return shouldHaveCodeExceptions;
     }
 
     // _precheckDisputeGameImplementation checks that the new game being set has the same configuration as the existing
@@ -113,29 +107,14 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     }
 
     function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
-        address[] memory nestedSafes = ownerSafe.getOwners();
-        uint256 livenessGuardCount;
-        for (uint256 i = 0; i < nestedSafes.length; i++) {
-            address livenessGuard = address(uint160(uint256(vm.load(address(nestedSafes[i]), livenessGuardSlot))));
-            if (livenessGuard != address(0)) {
-                livenessGuardCount++;
-            }
-        }
-
-        allowed = new address[](2 + nestedSafes.length + livenessGuardCount);
+        allowed = new address[](5);
         allowed[0] = address(dgfProxy);
         allowed[1] = address(ownerSafe);
-        uint256 idx = 2;
-        for (uint256 i = 0; i < nestedSafes.length; i++) {
-            allowed[idx] = nestedSafes[i];
-            idx++;
-
-            address livenessGuard = address(uint160(uint256(vm.load(address(nestedSafes[i]), livenessGuardSlot))));
-            if (livenessGuard != address(0)) {
-                allowed[idx] = livenessGuard;
-                idx++;
-            }
-        }
+        allowed[2] = address(councilSafe);
+        allowed[3] = address(foundationSafe);
+        address livenessGuard = address(uint160(uint256(vm.load(address(councilSafe), livenessGuardSlot))));
+        allowed[4] = livenessGuard;
+        return allowed;
     }
 
     /// @notice Checks the correctness of the deployment
