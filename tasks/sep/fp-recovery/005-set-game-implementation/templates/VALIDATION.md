@@ -13,5 +13,4 @@ are missing from this document. Additionally, please verify that for each contra
 
 ## State Changes
 
-The only pertinent state changes (ignoring safe nonce updates) should be made to the `DisputeGameFactoryProxy` game type
-implementations.
+Note: The changes listed below do not include safe nonce updates or liveness guard related changes.
