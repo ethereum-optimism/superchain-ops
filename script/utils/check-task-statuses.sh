@@ -4,6 +4,9 @@ set -euo pipefail
 VALID_STATUSES=("DRAFT, NOT READY TO SIGN" "CONTINGENCY TASK, SIGN AS NEEDED" "READY TO SIGN" "SIGNED" "EXECUTED" "CANCELLED")
 errors=() # We collect all errors then print them at the end.
 
+# Array to store paths of tasks ready to simulate.
+ready_to_simulate=()
+
 # Function to check status and hyperlinks for a single file.
 check_status_and_hyperlinks() {
   local file_path=$1
@@ -40,6 +43,11 @@ check_status_and_hyperlinks() {
       errors+=("Error: Status is EXECUTED but no link to transaction found in $file_path")
     fi
   fi
+
+  # Echo "ready to simulate" if the status is not SIGNED, EXECUTED, or CANCELLED.
+  if [[ "$status_line" != *"SIGNED"* && "$status_line" != *"EXECUTED"* && "$status_line" != *"CANCELLED"* ]]; then
+    ready_to_simulate+=("$file_path")
+  fi
 }
 
 # Find README.md files for all tasks and process them.
@@ -56,4 +64,12 @@ if [[ ${#errors[@]} -gt 0 ]]; then
   exit 1
 else
   echo "✅ All task statuses are valid"
+fi
+
+# Log the paths of tasks ready to simulate.
+if [[ ${#ready_to_simulate[@]} -gt 0 ]]; then
+  echo "Tasks ready to simulate:"
+  for path in "${ready_to_simulate[@]}"; do
+    echo "  $path"
+  done
 fi
