@@ -1,6 +1,6 @@
-# Holocene Hardfork - Contract Upgrades
+# Holocene Hardfork - Proof Contract Upgrades
 
-Status: DRAFT, NOT READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xabdc7a65709c9d15b2b7b7e346ccd71b3be3d6abab665ba7f2d3a448be25033d)
 
 ## Objective
 

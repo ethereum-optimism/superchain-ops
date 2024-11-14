@@ -175,21 +175,6 @@ jobs:
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
 
-  just_simulate_devnet_holocene_proofs_upgrade:
-    docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
-    steps:
-      - checkout
-      - run:
-          name: just simulate sep-dev-0-holocene-proofs-upgrade
-          command: |
-            just install
-            cd tasks/sep-dev-0/005-holocene-proofs
-            SIMULATE_WITHOUT_LEDGER=true just \
-             --dotenv-path $(pwd)/.env \
-             --justfile ../../../single.just \
-             simulate
-
   just_simulate_devnet_holocene_sys_cfg_upgrade:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
@@ -267,5 +252,4 @@ workflows:
       - just_simulate_sc_rehearsal_1
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
-      - just_simulate_devnet_holocene_proofs_upgrade
       - just_simulate_devnet_holocene_sys_cfg_upgrade
