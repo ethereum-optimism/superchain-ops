@@ -1,39 +1,10 @@
 {
   "chainId": 11155111,
   "metadata": {
-    "name": "Holocene Hardfork - Contract Upgrades",
-    "description": "Upgrades the `SystemConfig.sol`, `MIPS.sol`, `FaultDisputeGame.sol`, and `PermissionedDisputeGame.sol` contracts for Holocene."
+    "name": "Holocene Hardfork - Proof Contract Upgrades",
+    "description": "Upgrades the `MIPS.sol`, `FaultDisputeGame.sol`, and `PermissionedDisputeGame.sol` contracts for Holocene."
   },
   "transactions": [
-    {
-      "metadata": {
-        "name": "Upgrade `SystemConfig` proxy",
-        "description": "Upgrades the `SystemConfig` proxy to the new implementation, featuring configurable EIP-1559 parameters."
-      },
-      "to": "0x18d890A46A3556e7F36f28C79F6157BC7a59f867",
-      "value": "0x0",
-      "data": "0x99a88ec4000000000000000000000000a6b72407e2dc9ebf84b839b69a24c88929cf20f700000000000000000000000029d06ed7105c7552efd9f29f3e0d250e5df412cd",
-      "contractMethod": {
-        "type": "function",
-        "name": "upgrade",
-        "inputs": [
-          {
-            "name": "_proxy",
-            "type": "address"
-          },
-          {
-            "name": "_implementation",
-            "type": "address"
-          }
-        ],
-        "outputs": [],
-        "stateMutability": "nonpayable"
-      },
-      "contractInputsValues": {
-        "_proxy": "0xa6b72407e2dc9EBF84b839B69A24C88929cf20F7",
-        "_implementation": "0x29d06Ed7105c7552EFD9f29f3e0d250e5df412CD"
-      }
-    },
     {
       "metadata": {
         "name": "Upgrade `PERMISSIONED_CANNON` game type in `DisputeGameFactory`",

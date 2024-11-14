@@ -22,10 +22,3 @@ For each contract listed in the state diff, please verify that no contracts or s
   **Before**: `0x00000000000000000000000050573970b291726b881b204ed9f3c1d507e504cd` <br/>
   **After**: `0x0000000000000000000000006a962628aa48564b7c48d97e1a738044ffec686f` <br/>
   **Meaning**: Updates the PERMISSIONED_CANNON game type implementation. Verify that the new implementation is set using `cast call 0x2419423C72998eb1c6c15A235de2f112f8E38efF "gameImpls(uint32)(address)" 1`. Where `1` is the [`PERMISSIONED_CANNON` game type](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L31).
-
-### `0xa6b72407e2dc9EBF84b839B69A24C88929cf20F7` (`SystemConfigProxy`)
-
-- **Key**: `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
-  **Before**: `0x000000000000000000000000c0ccc8b32a7bf4dc3fe8d0de41ad3c9b9b25d681`
-  **After**: `0x00000000000000000000000029d06ed7105c7552efd9f29f3e0d250e5df412cd`
-  **Meaning**: Updates the `SystemConfig` proxy implementation.
