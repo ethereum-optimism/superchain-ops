@@ -18,9 +18,9 @@ Upgrades the `PERMISSIONED_CANNON` game type to the new Holocene deployment, wit
 
 ### Inputs
 
-**_impl:** `0x6A962628Aa48564B7C48D97E1A738044fFEc686F`
-
 **_gameType:** `1`
+
+**_impl:** `0x6A962628Aa48564B7C48D97E1A738044fFEc686F`
 
 
 ## Tx #2: Upgrade `CANNON` game type in `DisputeGameFactory`

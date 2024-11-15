@@ -26,6 +26,7 @@ Please see the instructions for [validation](./VALIDATION.md).
 ## Execution
 
 This upgrade
-* Changes the implementation of the `SystemConfig` to hold EIP-1559 parameters for the
+* Changes the implementation of the `SystemConfig` to hold EIP-1559 parameters for the Holocene hardfork.
+* Performs the MCP L1 upgrade, setting the custom storage slots of the `SystemConfig` to protocol contract addresses.
 
 See the [overview](./OVERVIEW.md) and `input.json` bundle for more details.
