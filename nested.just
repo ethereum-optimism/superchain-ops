@@ -9,7 +9,7 @@ export taskPath := invocation_directory()
 export councilSafe := env_var("COUNCIL_SAFE")
 export foundationSafe := env_var("FOUNDATION_SAFE")
 export ownerSafe := env_var('OWNER_SAFE')
-export chainGovernorSafe := env_var('CHAIN_GOVERNOR_SAFE')
+export chainGovernorSafe := env_var_or_default('CHAIN_GOVERNOR_SAFE', '')
 export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 
 simulate whichSafe hdPath='0':
@@ -30,6 +30,10 @@ simulate whichSafe hdPath='0':
     safe="{{councilSafe}}"
   fi
   if [ "{{whichSafe}}" == "chain-governor" ]; then
+    if [ -z "{{chainGovernorSafe}}" ]; then
+      echo "Error: CHAIN_GOVERNOR_SAFE is not set for chain-governor." >&2
+      exit 1
+    fi
     safe="{{chainGovernorSafe}}"
   fi
   signer=$(cast call ${safe} "getOwners()(address[])" -r ${rpcUrl} | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
@@ -70,6 +74,10 @@ sign whichSafe hdPath='0':
     echo "Using council safe at ${safe}"
   fi
   if [ "{{whichSafe}}" == "chain-governor" ]; then
+    if [ -z "{{chainGovernorSafe}}" ]; then
+      echo "Error: CHAIN_GOVERNOR_SAFE is not set for chain-governor." >&2
+      exit 1
+    fi
     safe="{{chainGovernorSafe}}"
   fi
   echo "getting signer address..."
@@ -104,6 +112,10 @@ approve whichSafe hdPath='0':
     echo "Using council safe at ${safe}"
   fi
   if [ "{{whichSafe}}" == "chain-governor" ]; then
+    if [ -z "{{chainGovernorSafe}}" ]; then
+      echo "Error: CHAIN_GOVERNOR_SAFE is not set for chain-governor." >&2
+      exit 1
+    fi
     safe="{{chainGovernorSafe}}"
   fi
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
