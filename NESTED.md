@@ -59,6 +59,16 @@ just \
    foundation # 0 or 1 or ...
 ```
 
+For the Chain Governor:
+
+```shell
+just \
+   --dotenv-path $(pwd)/.env \
+   --justfile ../../../nested.just \
+   simulate \
+   chain-governor # 0 or 1 or ...
+```
+
 You will see a "Simulation link" from the output.
 
 Paste this URL in your browser. A prompt may ask you to choose a
@@ -136,6 +146,16 @@ just \
    foundation # 0 or 1 or ...
 ```
 
+or
+
+```shell
+just \
+   --dotenv-path $(pwd)/.env \
+   --justfile ../../../nested.just \
+   sign \
+   chain-governor # 0 or 1 or ...
+```
+
 > [!WARNING]
 > This is the most security critical part of the playbook: make sure the
 > domain hash and message hash in the following two places match:
@@ -202,7 +222,7 @@ just \
    --dotenv-path $(pwd)/.env \
    --justfile ../../../nested.just \
    approve \
-   foundation \ # or council
+   foundation \ # or council or chain-governor
    0 # or 1 or ...
 ```
 
