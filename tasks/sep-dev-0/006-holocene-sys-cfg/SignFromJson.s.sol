@@ -54,7 +54,7 @@ contract NestedSignFromJson is OriginalSignFromJson {
         l1StandardBridgeProxy = readContractAddress("L1StandardBridgeProxy", l2ChainId);
         optimismPortalProxy = readContractAddress("OptimismPortalProxy", l2ChainId);
         optimismMintableERC20FactoryProxy = readContractAddress("OptimismMintableERC20FactoryProxy", l2ChainId);
-        batchInbox = stdJson.readAddress(inputJson, "$.transactions[6].contractInputsValues._addr");
+        batchInbox = readBatchInboxAddress();
         startBlock = stdJson.readUint(inputJson, "$.transactions[7].contractInputsValues._block");
         dgfProxy = readContractAddress("DisputeGameFactoryProxy", l2ChainId);
     }
@@ -107,5 +107,32 @@ contract NestedSignFromJson is OriginalSignFromJson {
         }
 
         return stdJson.readAddress(addressesJson, string.concat("$.", chainId, ".", contractName));
+    }
+
+    function readBatchInboxAddress() internal returns (address batchInbox_) {
+        string memory path = "lib/superchain-registry/superchain/configs/sepolia-dev-0/oplabs-devnet-0.toml";
+        string[] memory findAddressCmd = new string[](3);
+        findAddressCmd[0] = "bash";
+        findAddressCmd[1] = "-c";
+        findAddressCmd[2] = string.concat(
+            "cat ",
+            path,
+            " | ",
+            "grep 'batch_inbox_addr'",
+            " | ",
+            "awk '{print $3}'",
+            " | ",
+            "tr -d '\"\n'"
+        );
+        bytes memory rawAddr = vm.ffi(findAddressCmd);
+
+        string[] memory encodeAddrCommand = new string[](4);
+        encodeAddrCommand[0] = "cast";
+        encodeAddrCommand[1] = "abi-encode";
+        encodeAddrCommand[2] = "f(address)";
+        encodeAddrCommand[3] = vm.toString(rawAddr);
+        bytes memory encodedAddr = vm.ffi(encodeAddrCommand);
+
+        batchInbox_ = abi.decode(encodedAddr, (address));
     }
 }
