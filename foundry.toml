@@ -5,6 +5,7 @@ libs = ["lib"]
 optimizer = true
 optimizer_runs = 999999
 solc_version = "0.8.15"
+evm_version = "cancun"
 via_ir = true
 broadcast = 'records'
 fs_permissions = [{ access = "read-write", path = "./" }]
