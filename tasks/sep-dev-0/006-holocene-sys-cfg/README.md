@@ -1,6 +1,6 @@
 # Holocene Hardfork - Contract Upgrades
 
-Status: [EXECUTED](0x4f4cab25e01cc4b6d8d70ac038f27f40e0debf14a93cddf03710c87b898ba633)
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x4f4cab25e01cc4b6d8d70ac038f27f40e0debf14a93cddf03710c87b898ba633)
 
 ## Objective
 
