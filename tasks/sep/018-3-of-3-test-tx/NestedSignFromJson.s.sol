@@ -17,18 +17,20 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     GnosisSafe chainGovernorSafe = GnosisSafe(payable(vm.envAddress("CHAIN_GOVERNOR_SAFE")));
     GnosisSafe ownerSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
     address simpleStorageSetter = address(0x3cc081914Be1bc73BF12c7Ff88dd37f40D324c43);
+    address livenessGuard = 0xc26977310bC89DAee5823C2e2a73195E85382cC7;
 
     /// @notice Sets up the contract
     function setUp() public {
     }
 
     function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
-        allowed = new address[](5);
+        allowed = new address[](6);
         allowed[0] = address(chainGovernorSafe);
         allowed[1] = address(ownerSafe);
         allowed[2] = address(securityCouncilSafe);
         allowed[3] = address(foundationSafe);
         allowed[4] = address(simpleStorageSetter);
+        allowed[5] = address(livenessGuard);
     }
 
     function getCodeExceptions() internal pure override returns (address[] memory) {
