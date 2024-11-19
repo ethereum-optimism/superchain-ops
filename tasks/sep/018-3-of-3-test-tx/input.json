@@ -5,7 +5,7 @@
   "transactions": [
       {
           "to": "0x3cc081914Be1bc73BF12c7Ff88dd37f40D324c43",
-          "value": "0",
+          "value": "0x0",
           "data": "0x6057361d0000000000000000000000000000000000000000000000000000000001324621",
           "contractMethod": {
               "inputs": [
