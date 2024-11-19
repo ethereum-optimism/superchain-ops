@@ -49,6 +49,4 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
         console.log("All assertions passed!");
     }
-
-
 }
