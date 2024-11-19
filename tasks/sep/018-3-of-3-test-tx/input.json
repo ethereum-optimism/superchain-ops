@@ -1,0 +1,22 @@
+{
+  "version": "1.0",
+  "chainId": "11155111",
+  "createdAt": 1732031699892,
+  "meta": {
+    "name": "Transactions Batch",
+    "description": "",
+    "txBuilderVersion": "1.17.1",
+    "createdFromSafeAddress": "0xaAa1202FA447F257b7Cec1fd1CD0Da154481AC73",
+    "createdFromOwnerAddress": "",
+    "checksum": "0x337ff89ba3c963a1a80bfeaf690d10fc49bdb3104c646f6082bff33b5096d0b6"
+  },
+  "transactions": [
+    {
+      "to": "0x1111111111111111111111111111111111111111",
+      "value": "1234567890000000",
+      "data": null,
+      "contractMethod": null,
+      "contractInputsValues": null
+    }
+  ]
+}

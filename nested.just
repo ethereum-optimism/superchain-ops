@@ -36,6 +36,7 @@ simulate whichSafe hdPath='0':
     fi
     safe="{{chainGovernorSafe}}"
   fi
+  echo "rpc url $rpcUrl"
   signer=$(cast call ${safe} "getOwners()(address[])" -r ${rpcUrl} | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
 
   echo "safe: $safe"
