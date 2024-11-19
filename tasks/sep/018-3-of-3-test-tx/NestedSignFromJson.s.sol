@@ -21,9 +21,19 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     function setUp() public {
     }
 
-    function getAllowedStorageAccess() internal pure override returns (address[] memory allowed) {
-        allowed = new address[](0);
+    function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
+        allowed = new address[](4);
+        allowed[0] = address(chainGovernorSafe);
+        allowed[1] = address(ownerSafe);
+        allowed[2] = address(securityCouncilSafe);
+        allowed[3] = address(foundationSafe);
     }
+
+    function getCodeExceptions() internal pure override returns (address[] memory) {
+        address[] memory exceptions = new address[](0);
+        return exceptions;
+    }
+
 
     /// @notice Checks the correctness of the deployment
     function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory /* simPayload */ )
