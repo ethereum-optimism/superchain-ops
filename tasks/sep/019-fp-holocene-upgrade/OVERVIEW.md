@@ -15,10 +15,9 @@ Upgrades the `PERMISSIONED_CANNON` game type to the new Holocene deployment, wit
 **Raw Input Data:** `0x14f6b1a300000000000000000000000000000000000000000000000000000000000000010000000000000000000000004ed046e66c96600dae1a4ec39267bb0ce476e8cc`
 
 ### Inputs
-**_impl:** `0x4Ed046e66c96600DaE1a4ec39267bB0cE476E8cc`
-
 **_gameType:** `1`
 
+**_impl:** `0x4Ed046e66c96600DaE1a4ec39267bB0cE476E8cc`
 
 ## Tx #2: Upgrade `CANNON` game type in `DisputeGameFactory`
 Upgrades the `CANNON` game type to the new Holocene deployment, with an updated version of `op-program` as the absolute prestate hash.
