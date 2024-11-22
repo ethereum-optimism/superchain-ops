@@ -1,24 +1,15 @@
-# Holocene Hardfork Upgrade
+# Holocene Hardfork Upgrade - OP Sepolia
 
-Status: DRAFT, NOT READY TO SIGN
+Status: READY TO SIGN
 
 ## Objective
 
-Upgrades the Fault Proof contracts for the Holocene hardfork.
+Upgrades the Fault Proof contracts of OP Seplia for the Holocene hardfork.
 
-The proposal was:
-
-- [ ] Posted on the governance forum.
-- [ ] Approved by Token House voting.
-- [ ] Not vetoed by the Citizens' house.
-- [ ] Executed on OP Mainnet.
-
-The governance proposal should be treated as the source of truth and used to verify the correctness of the onchain operations.
-
-Governance post of the upgrade can be found at <placeholder>.
+The proposal is soon posted to the governance forum. This is just the testnet upgrade.
 
 This upgrades the Fault Proof contracts in the
-[op-contracts/v1.8.0](https://github.com/ethereum-optimism/optimism/tree/op-contracts/v1.8.0-rc.1) release.
+[op-contracts/v1.8.0-rc.2](https://github.com/ethereum-optimism/optimism/tree/op-contracts/v1.8.0-rc.2) release.
 
 ## Pre-deployments
 
