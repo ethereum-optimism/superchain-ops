@@ -75,10 +75,6 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         // Here we add the standard (non Safe signer) exceptions.
         address[] memory shouldHaveCodeExceptions = new address[](0 + numberOfSafeSignersWithNoCode);
 
-        // shouldHaveCodeExceptions[0] = systemConfigOwner;
-        // shouldHaveCodeExceptions[1] = batchSenderAddress;
-        // shouldHaveCodeExceptions[2] = p2pSequencerAddress;
-        // shouldHaveCodeExceptions[3] = batchInboxAddress;
 
         // And finally, we append the Safe signer exceptions.
         for (uint256 i = 0; i < safeSignersWithNoCode.length; i++) {
