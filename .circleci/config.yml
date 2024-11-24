@@ -189,6 +189,10 @@ jobs:
              --dotenv-path $(pwd)/.env \
              --justfile ../../../nested.just \
              simulate foundation 0
+            SIMULATE_WITHOUT_LEDGER=true just \
+             --dotenv-path $(pwd)/.env \
+             --justfile ../../../nested.just \
+             simulate council 0
 
   forge_build:
     docker:

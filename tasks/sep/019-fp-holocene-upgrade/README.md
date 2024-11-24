@@ -4,7 +4,7 @@ Status: READY TO SIGN
 
 ## Objective
 
-Upgrades the Fault Proof contracts of OP Seplia for the Holocene hardfork.
+Upgrades the Fault Proof contracts of OP Sepolia for the Holocene hardfork.
 
 The proposal is soon posted to the governance forum. This is just the testnet upgrade.
 

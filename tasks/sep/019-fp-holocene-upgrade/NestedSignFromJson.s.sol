@@ -93,7 +93,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         allowed[4] = livenessGuard;
     }
 
-    function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory) internal override {
+    function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory) internal view override {
         console.log("Running post-deploy assertions");
         checkStateDiff(accesses);
         checkDGFProxyAndGames();
