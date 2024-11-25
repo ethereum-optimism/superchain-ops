@@ -175,25 +175,6 @@ jobs:
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
 
-  just_simulate_sep_019-fp-holocene-upgrade:
-    docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
-    steps:
-      - checkout
-      - run:
-          name: just simulate sep_019-fp-holocene-upgrade
-          command: |
-            just install
-            cd tasks/sep/019-fp-holocene-upgrade
-            SIMULATE_WITHOUT_LEDGER=true just \
-             --dotenv-path $(pwd)/.env \
-             --justfile ../../../nested.just \
-             simulate foundation 0
-            SIMULATE_WITHOUT_LEDGER=true just \
-             --dotenv-path $(pwd)/.env \
-             --justfile ../../../nested.just \
-             simulate council 0
-
   forge_build:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
@@ -256,4 +237,3 @@ workflows:
       - just_simulate_sc_rehearsal_1
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
-      - just_simulate_sep_019-fp-holocene-upgrade

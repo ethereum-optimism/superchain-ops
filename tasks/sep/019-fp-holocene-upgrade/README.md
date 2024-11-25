@@ -1,6 +1,6 @@
 # Holocene Hardfork Upgrade - OP Sepolia
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x88b0adbcb78aa77d86b0c7d02305a4e8dfcef5d50adb340c2dcd714f3678b2e0)
 
 ## Objective
 
