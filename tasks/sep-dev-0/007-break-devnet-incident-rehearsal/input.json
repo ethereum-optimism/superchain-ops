@@ -1,0 +1,38 @@
+{
+  "chainId": 11155111,
+  "metadata": {
+    "name": "Set Faulty `FaultDisputeGame` implementation",
+    "description": "Sets the `FaultDisputeGame` implementation to a version with an invalid absolute prestate, for intentionally causing an incident on the internal Sepolia Devnet for response rehearsal purposes."
+  },
+  "transactions": [
+    {
+      "metadata": {
+        "name": "Set `FaultDisputeGame` implementation",
+        "description": "Upgrade the `FaultDisputeGame` implementation in the `DisputeGameFactory`"
+      },
+      "to": "0x2419423c72998eb1c6c15a235de2f112f8e38eff",
+      "value": "0x0",
+      "data": "0x14f6b1a30000000000000000000000000000000000000000000000000000000000000000000000000000000000000000b99208cd3fd55cae2bb0e47dd8e2337d88841bbd",
+      "contractMethod": {
+        "type": "function",
+        "name": "setImplementation",
+        "inputs": [
+          {
+            "name": "_gameType",
+            "type": "uint32"
+          },
+          {
+            "name": "_impl",
+            "type": "address"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_gameType": "0",
+        "_impl": "0xb99208cd3fd55cae2bb0e47dd8e2337d88841bbd"
+      }
+    }
+  ]
+}
