@@ -9,7 +9,7 @@ Upgrades the Fault Proof contracts of OP Sepolia for the Holocene hardfork.
 The proposal is soon posted to the governance forum. This is just the testnet upgrade.
 
 This upgrades the Fault Proof contracts in the
-[op-contracts/v1.8.0-rc.2](https://github.com/ethereum-optimism/optimism/tree/op-contracts/v1.8.0-rc.2) release.
+[op-contracts/v1.8.0-rc.3](https://github.com/ethereum-optimism/optimism/tree/op-contracts/v1.8.0-rc.3) release.
 
 ## Pre-deployments
 
