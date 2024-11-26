@@ -1,0 +1,38 @@
+{
+  "chainId": 11155111,
+  "metadata": {
+    "name": "Holocene Hardfork - SystemConfig Upgrade",
+    "description": "Upgrades the `SystemConfig.sol` contract for Holocene."
+  },
+  "transactions": [
+    {
+      "metadata": {
+        "name": "Upgrade `SystemConfig` proxy",
+        "description": "Upgrades the `SystemConfig` proxy to the new implementation, featuring configurable EIP-1559 parameters."
+      },
+      "to": "0xE17071F4C216Eb189437fbDBCc16Bb79c4efD9c2",
+      "value": "0x0",
+      "data": "0x99a88ec4000000000000000000000000b54c7bfc223058773cf9b739cc5bd4095184fb0800000000000000000000000029d06ed7105c7552efd9f29f3e0d250e5df412cd",
+      "contractMethod": {
+        "type": "function",
+        "name": "upgrade",
+        "inputs": [
+          {
+            "name": "_proxy",
+            "type": "address"
+          },
+          {
+            "name": "_implementation",
+            "type": "address"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_proxy": "0xB54c7BFC223058773CF9b739cC5bd4095184Fb08",
+        "_implementation": "0x29d06Ed7105c7552EFD9f29f3e0d250e5df412CD"
+      }
+    }
+  ]
+}
