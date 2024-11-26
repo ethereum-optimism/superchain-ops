@@ -4,7 +4,7 @@ Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
-Upgrades the `SystemConfig` for the Holocene hardfork.
+Upgrades the `SystemConfig` for the Holocene hardfork for Sepolia/{OP,Mode,Metal,Zora,Base}
 
 The proposal was:
 
