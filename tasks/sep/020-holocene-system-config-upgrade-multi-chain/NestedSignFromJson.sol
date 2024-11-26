@@ -6,6 +6,19 @@ import {GnosisSafe} from "safe-contracts/GnosisSafe.sol";
 import {Vm, VmSafe} from "forge-std/Vm.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {console2 as console} from "forge-std/console2.sol";
+import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
+import {stdJson} from "forge-std/stdJson.sol";
+
+/// @title ISemver
+/// @notice ISemver is a simple contract for ensuring that contracts are
+///         versioned using semantic versioning.
+interface ISemver {
+    /// @notice Getter for the semantic version of the contract. This is not
+    ///         meant to be used onchain but instead meant to be used by offchain
+    ///         tooling.
+    /// @return Semver contract version as a string.
+    function version() external view returns (string memory);
+}
 
 contract NestedSignFromJson is OriginalNestedSignFromJson {
     string[5] l2ChainIds = [
@@ -30,11 +43,10 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         console.log("Running post-deploy assertions");
         checkStateDiff(accesses);
         for (uint256 i = 0; i < l2ChainIds.length; i++) {
-            SystemConfig systemConfigProxy =
-                SystemConfig(readAddressFromSuperchainRegistry(l2ChainIds[i], "SystemConfigProxy"));
+            ISemver systemConfigProxy = ISemver(readAddressFromSuperchainRegistry(l2ChainIds[i], "SystemConfigProxy"));
             ProxyAdmin opProxyAdmin = ProxyAdmin(readAddressFromSuperchainRegistry(l2ChainIds[i], "ProxyAdmin"));
-            require(opProxyAdmin.getProxyImplementation(systemConfigProxy) == newSystemConfigImplAddress);
-            require(systemConfigProxy.Version() == "2.3.0");
+            require(opProxyAdmin.getProxyImplementation(address(systemConfigProxy)) == newSystemConfigImplAddress);
+            require(keccak256(abi.encodePacked(systemConfigProxy.version())) == keccak256(abi.encodePacked("2.3.0")));
         }
 
         console.log("All assertions passed!");
