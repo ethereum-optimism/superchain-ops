@@ -31,6 +31,11 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
     address newSystemConfigImplAddress = 0x29d06Ed7105c7552EFD9f29f3e0d250e5df412CD;
 
+    // Safe contract for this task.
+    GnosisSafe securityCouncilSafe = GnosisSafe(payable(vm.envAddress("COUNCIL_SAFE")));
+    GnosisSafe fndSafe = GnosisSafe(payable(vm.envAddress("FOUNDATION_SAFE")));
+    GnosisSafe ownerSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
+
     /// @notice Sets up the contract
     function setUp() public {}
 
@@ -72,7 +77,15 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     }
 
     function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
-        allowed = new address[](0);
+        allowed = new address[](8);
+
+        for (uint256 i = 0; i < l2ChainIds.length; i++) {
+            address systemConfigProxy = readAddressFromSuperchainRegistry(l2ChainIds[i], "SystemConfigProxy");
+            allowed[i] = systemConfigProxy;
+        }
+        allowed[5] = address(ownerSafe);
+        allowed[6] = address(securityCouncilSafe);
+        allowed[7] = address(fndSafe);
     }
 
     function getCodeExceptions() internal pure override returns (address[] memory) {
