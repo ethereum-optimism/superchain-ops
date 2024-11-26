@@ -21,13 +21,14 @@ interface ISemver {
 }
 
 contract NestedSignFromJson is OriginalNestedSignFromJson {
-    string[5] l2ChainIds = [
+    string[4] l2ChainIds = [
         "11155420", // op
         "1740", // metal
         "919", // mode
-        "999999999", // zora
-        "84532" // base
+        "999999999" // zora
     ];
+
+    address livenessGuard = 0xc26977310bC89DAee5823C2e2a73195E85382cC7;
 
     address newSystemConfigImplAddress = 0x29d06Ed7105c7552EFD9f29f3e0d250e5df412CD;
 
@@ -50,8 +51,14 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         for (uint256 i = 0; i < l2ChainIds.length; i++) {
             ISemver systemConfigProxy = ISemver(readAddressFromSuperchainRegistry(l2ChainIds[i], "SystemConfigProxy"));
             ProxyAdmin opProxyAdmin = ProxyAdmin(readAddressFromSuperchainRegistry(l2ChainIds[i], "ProxyAdmin"));
-            require(opProxyAdmin.getProxyImplementation(address(systemConfigProxy)) == newSystemConfigImplAddress);
-            require(keccak256(abi.encode(systemConfigProxy.version())) == keccak256(abi.encode("2.3.0")));
+            require(
+                opProxyAdmin.getProxyImplementation(address(systemConfigProxy)) == newSystemConfigImplAddress,
+                "SystemConfigProxy implementation not updated"
+            );
+            require(
+                keccak256(abi.encode(systemConfigProxy.version())) == keccak256(abi.encode("2.3.0-beta.5")),
+                "Version not updated"
+            );
         }
 
         console.log("All assertions passed!");
@@ -77,7 +84,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     }
 
     function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
-        allowed = new address[](8);
+        allowed = new address[](9);
 
         for (uint256 i = 0; i < l2ChainIds.length; i++) {
             address systemConfigProxy = readAddressFromSuperchainRegistry(l2ChainIds[i], "SystemConfigProxy");
@@ -86,6 +93,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         allowed[5] = address(ownerSafe);
         allowed[6] = address(securityCouncilSafe);
         allowed[7] = address(fndSafe);
+        allowed[8] = livenessGuard;
     }
 
     function getCodeExceptions() internal pure override returns (address[] memory) {

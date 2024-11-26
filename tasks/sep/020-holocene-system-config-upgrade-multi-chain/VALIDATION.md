@@ -40,10 +40,3 @@ For each contract listed in the state diff, please verify that no contracts or s
   **Before**: `0x000000000000000000000000ba2492e52f45651b60b8b38d4ea5e2390c64ffb1`
   **After**: `0x00000000000000000000000029d06ed7105c7552efd9f29f3e0d250e5df412cd`
   **Meaning**: Updates the `SystemConfig` proxy implementation.
-
-### `0xf272670eb55e895584501d564AfEB048bEd26194` (`SystemConfigProxy`) for Base Sepolia
-
-- **Key**: `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
-  **Before**: `0x000000000000000000000000ccdd86d581e40fb5a1c77582247bc493b6c8b169`
-  **After**: `0x00000000000000000000000029d06ed7105c7552efd9f29f3e0d250e5df412cd`
-  **Meaning**: Updates the `SystemConfig` proxy implementation.
