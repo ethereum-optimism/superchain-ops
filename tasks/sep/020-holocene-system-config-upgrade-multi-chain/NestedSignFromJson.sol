@@ -46,7 +46,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
             ISemver systemConfigProxy = ISemver(readAddressFromSuperchainRegistry(l2ChainIds[i], "SystemConfigProxy"));
             ProxyAdmin opProxyAdmin = ProxyAdmin(readAddressFromSuperchainRegistry(l2ChainIds[i], "ProxyAdmin"));
             require(opProxyAdmin.getProxyImplementation(address(systemConfigProxy)) == newSystemConfigImplAddress);
-            require(keccak256(abi.encodePacked(systemConfigProxy.version())) == keccak256(abi.encodePacked("2.3.0")));
+            require(keccak256(abi.encode(systemConfigProxy.version())) == keccak256(abi.encode("2.3.0")));
         }
 
         console.log("All assertions passed!");
@@ -71,9 +71,12 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         return stdJson.readAddress(addressesJson, string.concat("$.", chainId, ".", contractName));
     }
 
-    function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {}
+    function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
+        allowed = new address[](0);
+    }
 
-    function getCodeExceptions() internal view override returns (address[] memory exceptions) {
-        // No exceptions are expected in this task, but it must be implemented.
+    function getCodeExceptions() internal pure override returns (address[] memory) {
+        address[] memory exceptions = new address[](0);
+        return exceptions;
     }
 }
