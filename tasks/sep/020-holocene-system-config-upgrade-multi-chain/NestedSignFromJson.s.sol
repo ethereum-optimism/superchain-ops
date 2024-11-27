@@ -30,7 +30,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
     address livenessGuard = 0xc26977310bC89DAee5823C2e2a73195E85382cC7;
 
-    address newSystemConfigImplAddress = 0x29d06Ed7105c7552EFD9f29f3e0d250e5df412CD;
+    address newSystemConfigImplAddress = 0x33b83E4C305c908B2Fc181dDa36e230213058d7d;
 
     // Safe contract for this task.
     GnosisSafe securityCouncilSafe = GnosisSafe(payable(vm.envAddress("COUNCIL_SAFE")));
@@ -56,7 +56,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
                 "SystemConfigProxy implementation not updated"
             );
             require(
-                keccak256(abi.encode(systemConfigProxy.version())) == keccak256(abi.encode("2.3.0-beta.5")),
+                keccak256(abi.encode(systemConfigProxy.version())) == keccak256(abi.encode("2.3.0")),
                 "Version not updated"
             );
         }
