@@ -15,7 +15,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 - **Key**: `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   **Before**: `0x000000000000000000000000ccdd86d581e40fb5a1c77582247bc493b6c8b169`
-  **After**: `0x00000000000000000000000029d06ed7105c7552efd9f29f3e0d250e5df412cd`
+  **After**: `0x00000000000000000000000033b83E4C305c908B2Fc181dDa36e230213058d7d`
   **Meaning**: Updates the `SystemConfig` proxy implementation.
 
 
@@ -23,7 +23,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 - **Key**: `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   **Before**: `0x000000000000000000000000ba2492e52f45651b60b8b38d4ea5e2390c64ffb1`
-  **After**: `0x00000000000000000000000029d06ed7105c7552efd9f29f3e0d250e5df412cd`
+  **After**: `0x00000000000000000000000033b83E4C305c908B2Fc181dDa36e230213058d7d`
   **Meaning**: Updates the `SystemConfig` proxy implementation.
 
 
@@ -31,12 +31,12 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 - **Key**: `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   **Before**: `0x000000000000000000000000ba2492e52f45651b60b8b38d4ea5e2390c64ffb1`
-  **After**: `0x00000000000000000000000029d06ed7105c7552efd9f29f3e0d250e5df412cd`
+  **After**: `0x00000000000000000000000033b83E4C305c908B2Fc181dDa36e230213058d7d`
   **Meaning**: Updates the `SystemConfig` proxy implementation.
 
 ### `0xB54c7BFC223058773CF9b739cC5bd4095184Fb08` (`SystemConfigProxy`) for Zora Sepolia
 
 - **Key**: `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   **Before**: `0x000000000000000000000000ba2492e52f45651b60b8b38d4ea5e2390c64ffb1`
-  **After**: `0x00000000000000000000000029d06ed7105c7552efd9f29f3e0d250e5df412cd`
+  **After**: `0x00000000000000000000000033b83E4C305c908B2Fc181dDa36e230213058d7d`
   **Meaning**: Updates the `SystemConfig` proxy implementation.
