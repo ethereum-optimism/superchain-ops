@@ -17,7 +17,7 @@ The governance proposal should be treated as the source of truth and used to ver
 
 Governance post of the upgrade can be found at <placeholder>.
 
-This upgrades the `SystemConfig` in the
+This upgrades the [`SystemConfig`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.8.0-rc.3/packages/contracts-bedrock/src/L1/SystemConfig.sol) in the
 [op-contracts/v1.8.0](https://github.com/ethereum-optimism/optimism/tree/op-contracts/v1.8.0-rc.1) release.
 
 ## Pre-deployments
@@ -27,7 +27,7 @@ This upgrades the `SystemConfig` in the
 ## Simulation
 
 Please see the "Simulating and Verifying the Transaction" instructions in [NESTED.md](../../../NESTED.md).
-When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/<path>/NestedSignFromJson.s.sol`.
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/sep/020-holocene-system-config-upgrade-multi-chain/NestedSignFromJson.s.sol`.
 This ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
 
 ## State Validation
