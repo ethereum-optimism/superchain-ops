@@ -36,7 +36,8 @@ Please see the instructions for [validation](./VALIDATION.md).
 
 ## Execution
 
-This upgrade
-* Changes the implementation of the `SystemConfig` to hold EIP-1559 parameters for the
+The SystemConfig L1 contract will get upgraded to version 2.3.0, which is part of the OP Contracts v1.8.0-rc.3 release. The upgrade will happen after the Holocene activation. The upgraded SystemConfig enables chain operators to update the EIP-1559 parameters via a new function setEIP1559Params.
 
-See the [overview](./OVERVIEW.md) and `input.json` bundle for more details.
+th
+
+See the `input.json` bundle for more details.
