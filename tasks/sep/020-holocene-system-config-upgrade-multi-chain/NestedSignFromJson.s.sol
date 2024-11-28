@@ -37,21 +37,21 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     // Safe contract for this task.
     GnosisSafe securityCouncilSafe = GnosisSafe(payable(vm.envAddress("COUNCIL_SAFE")));
     GnosisSafe fndSafe = GnosisSafe(payable(vm.envAddress("FOUNDATION_SAFE")));
-    GnosisSafe ownerSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE"))); // ProxyAdminOwner
+    GnosisSafe proxyAdminOwnerSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
 
     /// @notice Sets up the contract
     function setUp() public {}
 
-    function checkProxyAdminOwnerSafe(string memory l2ChainId) internal view {
+    function checkProxyAdminproxyAdminOwnerSafe(string memory l2ChainId) internal view {
         ProxyAdmin proxyAdmin = ProxyAdmin(readAddressFromSuperchainRegistry(l2ChainId, "ProxyAdmin"));
 
         address proxyAdminOwner = proxyAdmin.owner();
-        require(proxyAdminOwner == address(ownerSafe), "checkProxyAdminOwnerSafe-260");
+        require(proxyAdminOwner == address(proxyAdminOwnerSafe), "checkProxyAdminproxyAdminOwnerSafe-260");
 
-        address[] memory owners = ownerSafe.getOwners();
-        require(owners.length == 2, "checkProxyAdminOwnerSafe-270");
-        require(ownerSafe.isOwner(address(fndSafe)), "checkProxyAdminOwnerSafe-300");
-        require(ownerSafe.isOwner(address(securityCouncilSafe)), "checkProxyAdminOwnerSafe-400");
+        address[] memory owners = proxyAdminOwnerSafe.getOwners();
+        require(owners.length == 2, "checkProxyAdminproxyAdminOwnerSafe-270");
+        require(proxyAdminOwnerSafe.isOwner(address(fndSafe)), "checkProxyAdminproxyAdminOwnerSafe-300");
+        require(proxyAdminOwnerSafe.isOwner(address(securityCouncilSafe)), "checkProxyAdminproxyAdminOwnerSafe-400");
     }
 
     /// @notice Checks the correctness of the deployment
@@ -63,7 +63,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         console.log("Running post-deploy assertions");
         checkStateDiff(accesses);
         for (uint256 i = 0; i < l2ChainIds.length; i++) {
-            checkProxyAdminOwnerSafe(l2ChainIds[i]);
+            checkProxyAdminproxyAdminOwnerSafe(l2ChainIds[i]);
             ISemver systemConfigProxy = ISemver(readAddressFromSuperchainRegistry(l2ChainIds[i], "SystemConfigProxy"));
             ProxyAdmin proxyAdmin = ProxyAdmin(readAddressFromSuperchainRegistry(l2ChainIds[i], "ProxyAdmin"));
             require(
@@ -107,7 +107,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
             address systemConfigProxy = readAddressFromSuperchainRegistry(l2ChainIds[i], "SystemConfigProxy");
             allowed[i] = systemConfigProxy;
         }
-        allowed[5] = address(ownerSafe);
+        allowed[5] = address(proxyAdminOwnerSafe);
         allowed[6] = address(securityCouncilSafe);
         allowed[7] = address(fndSafe);
         allowed[8] = livenessGuard;
