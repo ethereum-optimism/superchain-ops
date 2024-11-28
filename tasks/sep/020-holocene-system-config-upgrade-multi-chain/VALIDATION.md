@@ -133,10 +133,8 @@ And we do indeed see these entries:
       And so the output of the second command matches the key above.
 
 ### Liveness Guard
-**Key:** `0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8` <br/>
-**Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-**After:** `0x000000000000000000000000c26977310bc89daee5823c2e2a73195e85382cc7` <br/>
-**Meaning:** The `LivenessGuard` address is set to [0xc26977310bC89DAee5823C2e2a73195E85382cC7](https://sepolia.etherscan.io/address/0xc26977310bC89DAee5823C2e2a73195E85382cC7). The key can be validated by the key in the [Guard Manager](https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/base/GuardManager.sol#L30).
+When the Security Council  (`0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`) execute a transaction, this is updating the liveness timestamp for each owner that signed the tasks.
+This is updating at the moment of the transaction is submitted (`block.timestamp`) into the [`lastLive`](https://github.com/ethereum-optimism/optimism/blob/e84868c27776fd04dc77e95176d55c8f6b1cc9a3/packages/contracts-bedrock/src/safe/LivenessGuard.sol#L41). 
 
 ### Nonce increments
 
