@@ -132,6 +132,11 @@ And we do indeed see these entries:
       ```
       And so the output of the second command matches the key above.
 
+### Liveness Guard
+**Key:** `0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8` <br/>
+**Before:** `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
+**After:** `0x000000000000000000000000c26977310bc89daee5823c2e2a73195e85382cc7` <br/>
+**Meaning:** The `LivenessGuard` address is set to [0xc26977310bC89DAee5823C2e2a73195E85382cC7](https://sepolia.etherscan.io/address/0xc26977310bC89DAee5823C2e2a73195E85382cC7). The key can be validated by the key in the [Guard Manager](https://github.com/safe-global/safe-contracts/blob/v1.3.0/contracts/base/GuardManager.sol#L30).
 
 ### Nonce increments
 
