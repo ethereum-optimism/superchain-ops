@@ -4,18 +4,14 @@ Status: READY TO SIGN
 
 ## Objective
 
-Upgrades the `SystemConfig` for the Holocene hardfork for Sepolia/{OP,Mode,Metal,Zora,Base}
+Upgrades the `SystemConfig` for the Holocene hardfork for Sepolia/{OP,Mode,Metal,Zora,Base}.
 
 The proposal was:
 
-- [ ] Posted on the governance forum.
-- [ ] Approved by Token House voting.
-- [ ] Not vetoed by the Citizens' house.
-- [ ] Executed on OP Mainnet.
-
-The governance proposal should be treated as the source of truth and used to verify the correctness of the onchain operations.
-
-Governance post of the upgrade can be found at <placeholder>.
+- [ ] ~~Posted on the governance forum.~~ (Not applicable, as this is a set of testnet upgrades)
+- [ ] ~~Approved by Token House voting.~~ (Not applicable, as this is a set of testnet upgrades)
+- [ ] ~~Not vetoed by the Citizens' house.~~ (Not applicable, as this is a set of testnet upgrades)
+- [ ] Executed on Sepolia.
 
 This upgrades the [`SystemConfig`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.8.0-rc.3/packages/contracts-bedrock/src/L1/SystemConfig.sol) in the
 [op-contracts/v1.8.0](https://github.com/ethereum-optimism/optimism/tree/op-contracts/v1.8.0-rc.1) release.
