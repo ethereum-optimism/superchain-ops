@@ -37,10 +37,22 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     // Safe contract for this task.
     GnosisSafe securityCouncilSafe = GnosisSafe(payable(vm.envAddress("COUNCIL_SAFE")));
     GnosisSafe fndSafe = GnosisSafe(payable(vm.envAddress("FOUNDATION_SAFE")));
-    GnosisSafe ownerSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
+    GnosisSafe ownerSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE"))); // ProxyAdminOwner
 
     /// @notice Sets up the contract
     function setUp() public {}
+
+    function checkProxyAdminOwnerSafe(string memory l2ChainId) internal view {
+        ProxyAdmin proxyAdmin = ProxyAdmin(readAddressFromSuperchainRegistry(l2ChainId, "ProxyAdmin"));
+
+        address proxyAdminOwner = proxyAdmin.owner();
+        require(proxyAdminOwner == address(ownerSafe), "checkProxyAdminOwnerSafe-260");
+
+        address[] memory owners = ownerSafe.getOwners();
+        require(owners.length == 2, "checkProxyAdminOwnerSafe-270");
+        require(ownerSafe.isOwner(address(fndSafe)), "checkProxyAdminOwnerSafe-300");
+        require(ownerSafe.isOwner(address(securityCouncilSafe)), "checkProxyAdminOwnerSafe-400");
+    }
 
     /// @notice Checks the correctness of the deployment
     function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory /* simPayload */ )
@@ -51,10 +63,11 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         console.log("Running post-deploy assertions");
         checkStateDiff(accesses);
         for (uint256 i = 0; i < l2ChainIds.length; i++) {
+            checkProxyAdminOwnerSafe(l2ChainIds[i]);
             ISemver systemConfigProxy = ISemver(readAddressFromSuperchainRegistry(l2ChainIds[i], "SystemConfigProxy"));
-            ProxyAdmin opProxyAdmin = ProxyAdmin(readAddressFromSuperchainRegistry(l2ChainIds[i], "ProxyAdmin"));
+            ProxyAdmin proxyAdmin = ProxyAdmin(readAddressFromSuperchainRegistry(l2ChainIds[i], "ProxyAdmin"));
             require(
-                opProxyAdmin.getProxyImplementation(address(systemConfigProxy)) == newSystemConfigImplAddress,
+                proxyAdmin.getProxyImplementation(address(systemConfigProxy)) == newSystemConfigImplAddress,
                 "SystemConfigProxy implementation not updated"
             );
             require(
