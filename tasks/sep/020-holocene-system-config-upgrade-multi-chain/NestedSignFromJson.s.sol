@@ -28,7 +28,9 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         "999999999" // zora
     ];
 
-    address livenessGuard = 0xc26977310bC89DAee5823C2e2a73195E85382cC7;
+    // The slot used to store the livenessGuard address in GnosisSafe.
+    // See https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/base/GuardManager.sol#L30
+    bytes32 livenessGuardSlot = 0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8;
 
     address newSystemConfigImplAddress = 0x33b83E4C305c908B2Fc181dDa36e230213058d7d;
 
@@ -84,6 +86,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     }
 
     function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
+        address livenessGuard = address(uint160(uint256(vm.load(address(securityCouncilSafe), livenessGuardSlot))));
+
         allowed = new address[](9);
 
         for (uint256 i = 0; i < l2ChainIds.length; i++) {
