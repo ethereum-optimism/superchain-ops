@@ -134,7 +134,7 @@ And we do indeed see these entries:
 
 ### Liveness Guard
 When the Security Council  (`0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`) execute a transaction, this is updating the liveness timestamp for each owner that signed the tasks.
-This is updating at the moment of the transaction is submitted (`block.timestamp`) into the [`lastLive`](https://github.com/ethereum-optimism/optimism/blob/e84868c27776fd04dc77e95176d55c8f6b1cc9a3/packages/contracts-bedrock/src/safe/LivenessGuard.sol#L41). 
+This is updating at the moment of the transaction is submitted (`block.timestamp`) into the [`lastLive`](https://github.com/ethereum-optimism/optimism/blob/e84868c27776fd04dc77e95176d55c8f6b1cc9a3/packages/contracts-bedrock/src/safe/LivenessGuard.sol#L41) mapping located at the slot `0`.
 
 ### Nonce increments
 
