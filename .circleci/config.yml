@@ -186,7 +186,6 @@ jobs:
             
             cd tasks/sep/020-holocene-system-config-upgrade-multi-chain
             forge clean 
-            just install
             export SIMULATE_WITHOUT_LEDGER=1 
             just \
              --dotenv-path $(pwd)/.env \
