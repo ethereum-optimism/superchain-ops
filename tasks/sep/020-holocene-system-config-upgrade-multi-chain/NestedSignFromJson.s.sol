@@ -7,7 +7,7 @@ import {Vm, VmSafe} from "forge-std/Vm.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {console2 as console} from "forge-std/console2.sol";
 import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
-import {stdJson} from "forge-std/stdJson.sol";
+import {stdJson} from "forge-std/StdJson.sol";
 
 /// @title ISemver
 /// @notice ISemver is a simple contract for ensuring that contracts are
