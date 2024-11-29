@@ -183,7 +183,9 @@ jobs:
       - run:
           name: just simulate 020-holocene-system-config-upgrade-multi-chain
           command: |
+            
             cd tasks/sep/020-holocene-system-config-upgrade-multi-chain
+            forge clean 
             just install
             export SIMULATE_WITHOUT_LEDGER=1 
             just \
