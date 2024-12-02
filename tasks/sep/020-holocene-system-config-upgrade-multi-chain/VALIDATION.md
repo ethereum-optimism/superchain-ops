@@ -90,14 +90,14 @@ And we do indeed see these entries:
 
   ### For the Council:
 
-- **Key:** `0x3481a62ac310eecec9b2bcbdfc7f9759c1641b33ec9f302e19c8dc75aa3427bb` <br/>
+- **Key:** `0x471c80b9a7379a0e104a8727b5ffdad33d29a39dcc110fe4ba398e978bdb5ec2` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **Meaning:** The GnosisSafe `approvedHashes` mapping is updated to indicate approval of this transaction by the council. The correctness of this slot can be verified as follows:
     - Since this is a nested mapping, we need to use `cast index` twice to confirm that this is the correct slot. The inputs needed are:
       - The location (`8`) of the `approvedHashes` mapping in the [GnosisSafe storage layout](https://github.com/safe-global/safe-contracts/blob/v1.4.0/contracts/libraries/SafeStorage.sol#L23)
       - The address of the Council Safe: `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`
-      - The safe hash to approve: `0x7e8055d58462ab08d75766766252966eda91b23097f8d96aca0547fe7aae078a`
+      - The safe hash to approve: `0x25d5ad92317b575a2f3c5e5314a7b4ff59f72698e6d02b9a84e87364ed527544`
     - The using `cast index`, we can verify that:
       ```shell
         $ cast index address 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 8
@@ -105,21 +105,21 @@ And we do indeed see these entries:
         ```
         and
       ```shell
-        $ cast index bytes32 0x7e8055d58462ab08d75766766252966eda91b23097f8d96aca0547fe7aae078a 0x56362ae34e37f50105bd722d564a267a69bbc15ede4cb7136e81afd747b41c4d
-        0x3481a62ac310eecec9b2bcbdfc7f9759c1641b33ec9f302e19c8dc75aa3427bb
-        ```
+        $ cast index bytes32 0x25d5ad92317b575a2f3c5e5314a7b4ff59f72698e6d02b9a84e87364ed527544 0x56362ae34e37f50105bd722d564a267a69bbc15ede4cb7136e81afd747b41c4d
+         0x471c80b9a7379a0e104a8727b5ffdad33d29a39dcc110fe4ba398e978bdb5ec2
+      ```
       And so the output of the second command matches the key above.
 
 ### For the Foundation:
 
-- **Key:** `0x66833911cd4988ff9068991368a392dfd91753075a1080eee9ac5b6bf6a4815b` <br/>
+- **Key:** `0x90d712202d829ead1c4a6020547f805cf1f475bab15bf4c6993559af9811b243` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
   **After:** `0x0000000000000000000000000000000000000000000000000000000000000001` <br/>
   **Meaning:** The GnosisSafe `approvedHashes` mapping is updated to indicate approval of this transaction by the council. The correctness of this slot can be verified as follows:
     - Since this is a nested mapping, we need to use `cast index` twice to confirm that this is the correct slot. The inputs needed are:
       - The location (`8`) of the `approvedHashes` mapping in the [GnosisSafe storage layout](https://github.com/safe-global/safe-contracts/blob/v1.4.0/contracts/libraries/SafeStorage.sol#L23)
       - The address of the Foundation Safe: `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`
-      - The safe hash to approve: `0x7e8055d58462ab08d75766766252966eda91b23097f8d96aca0547fe7aae078a`
+      - The safe hash to approve: `0x25d5ad92317b575a2f3c5e5314a7b4ff59f72698e6d02b9a84e87364ed527544`
     - The using `cast index`, we can verify that:
       ```shell
         $ cast index address 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B 8
@@ -127,8 +127,8 @@ And we do indeed see these entries:
       ```
       and
       ```shell
-        $ cast index bytes32 0x7e8055d58462ab08d75766766252966eda91b23097f8d96aca0547fe7aae078a 0xc18fefc0a6b81265cf06017c3f1f91c040dc3227321d73c608cfbcf1c5253e5c
-        0x66833911cd4988ff9068991368a392dfd91753075a1080eee9ac5b6bf6a4815b
+        $ cast index bytes32 0x25d5ad92317b575a2f3c5e5314a7b4ff59f72698e6d02b9a84e87364ed527544 0xc18fefc0a6b81265cf06017c3f1f91c040dc3227321d73c608cfbcf1c5253e5c
+         0x90d712202d829ead1c4a6020547f805cf1f475bab15bf4c6993559af9811b243
       ```
       And so the output of the second command matches the key above.
 
