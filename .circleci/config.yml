@@ -174,7 +174,18 @@ jobs:
             just simulate-council
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
-
+            
+  forge_build:
+    docker:
+      - image: <<pipeline.parameters.ci_builder_image>>
+    steps:
+      - checkout
+      - run:
+          name: forge build
+          command: |
+            just install
+            forge --version
+            forge build --deny-warnings
   forge_fmt:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
@@ -198,7 +209,7 @@ jobs:
             just --version
             yq --version
             forge --version
-
+  
 workflows:
   main:
     jobs:
