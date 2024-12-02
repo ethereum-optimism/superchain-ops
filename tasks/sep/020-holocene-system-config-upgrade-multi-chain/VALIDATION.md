@@ -88,7 +88,7 @@ And we do indeed see these entries:
   **After**: `0x00000000000000000000000033b83E4C305c908B2Fc181dDa36e230213058d7d`
   **Meaning**: Updates the `SystemConfig` proxy implementation.
 
-  ### For the Council:
+### For the Council:
 
 - **Key:** `0x471c80b9a7379a0e104a8727b5ffdad33d29a39dcc110fe4ba398e978bdb5ec2` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
