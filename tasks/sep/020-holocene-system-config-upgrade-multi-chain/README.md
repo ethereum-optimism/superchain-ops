@@ -1,6 +1,6 @@
 # Holocene Hardfork Upgrade - `SystemConfig`
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x88bd1d85740af3741e2ed96d6fd07f2abb4541afc667625480bf6a28451c4d6d)
 
 ## Objective
 
