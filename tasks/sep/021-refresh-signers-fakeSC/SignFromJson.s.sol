@@ -15,14 +15,10 @@ import {ModuleManager} from "safe-contracts/base/ModuleManager.sol";
 
 contract SignFromJson is OriginalSignFromJson {
     using LibString for string;
+
     // Safe contract for this task.
     GnosisSafe securityCouncilSafe =
-        GnosisSafe(payable(vm.envAddress("COUNCIL_SAFE")));
-    GnosisSafe foundationOperationsSafe =
-        GnosisSafe(payable(vm.envAddress("FOUNDATION_OPERATION_SAFE")));
-
-    GnosisSafe foundationUpgradeSafe =
-        GnosisSafe(payable(vm.envAddress("FOUNDATION_UPGRADE_SAFE")));
+        GnosisSafe(payable(vm.envAddress("OWNER_SAFE"))); // We take from the "OWNER_SAFE" as this is the "TARGET_SAFE".
 
     // TODO: Get the livenessGuard from the SC for not hardcoding the address.
     address constant livenessGuard = 0xc26977310bC89DAee5823C2e2a73195E85382cC7;
