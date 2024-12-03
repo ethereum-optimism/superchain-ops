@@ -41,7 +41,7 @@ contract SignFromJson is OriginalSignFromJson {
         address[] memory securityCouncilSafeOwners = securityCouncilSafe
             .getOwners();
         address[] memory shouldHaveCodeExceptions = new address[](
-            securityCouncilSafeOwners.length + 2
+            securityCouncilSafeOwners.length + 3 // 3 is the number of the address we wants to remove here.
         );
 
         for (uint256 i = 0; i < securityCouncilSafeOwners.length; i++) {
@@ -55,6 +55,11 @@ contract SignFromJson is OriginalSignFromJson {
         shouldHaveCodeExceptions[
             securityCouncilSafeOwners.length + 1
         ] = address(0xE09d881A1A13C805ED2c6823f0C7E4443A260f2f);
+
+        shouldHaveCodeExceptions[
+            securityCouncilSafeOwners.length + 2
+        ] = address(0x78339d822c23D943E4a2d4c3DD5408F66e6D662D);
+
         return shouldHaveCodeExceptions;
     }
 
@@ -64,7 +69,7 @@ contract SignFromJson is OriginalSignFromJson {
         override
         returns (address[] memory allowed)
     {
-        allowed = new address[](4);
+        allowed = new address[](5);
         allowed[0] = address(securityCouncilSafe);
         allowed[1] = livenessGuard;
         allowed[2] = address(0xad70Ad7Ac30Cee75EB9638D377EACD8DfDfE0C3c);
