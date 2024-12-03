@@ -65,11 +65,9 @@ contract SignFromJson is OriginalSignFromJson {
         override
         returns (address[] memory allowed)
     {
-        allowed = new address[](5);
+        allowed = new address[](2);
         allowed[0] = address(securityCouncilSafe);
         allowed[1] = livenessGuard;
-        allowed[2] = address(0xad70Ad7Ac30Cee75EB9638D377EACD8DfDfE0C3c);
-        allowed[3] = address(0xE09d881A1A13C805ED2c6823f0C7E4443A260f2f);
     }
 
     /// @notice Checks the correctness of the deployment
