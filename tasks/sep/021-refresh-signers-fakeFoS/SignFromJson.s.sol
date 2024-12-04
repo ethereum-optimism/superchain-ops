@@ -20,6 +20,7 @@ contract SignFromJson is OriginalSignFromJson {
         GnosisSafe(payable(vm.envAddress("OWNER_SAFE"))); // We take from the "OWNER_SAFE" as this is the "TARGET_SAFE".
 
     Types.ContractSet proxies;
+    address previousowner = address(0xad70Ad7Ac30Cee75EB9638D377EACD8DfDfE0C3c);
 
     /// @notice Sets up the contract
     function setUp() public {}
@@ -43,7 +44,7 @@ contract SignFromJson is OriginalSignFromJson {
         // add the exception of the address that has to be removed.
         shouldHaveCodeExceptions[
             foundationOperationsSafeOwners.length
-        ] = address(0xad70Ad7Ac30Cee75EB9638D377EACD8DfDfE0C3c);
+        ] = previousowner;
 
         return shouldHaveCodeExceptions;
     }
@@ -65,6 +66,18 @@ contract SignFromJson is OriginalSignFromJson {
     ) internal view override {
         console.log("Running post-deploy assertions");
 
+        address[]
+            memory foundationOperationsSafeOwners = foundationOperationsSafe
+                .getOwners();
+
+        for (uint256 i = 0; i < foundationOperationsSafeOwners.length; i++) {
+            if (foundationOperationsSafeOwners[i] == previousowner) {
+                console.log("Previous owner found in the owners list");
+                revert(
+                    "Previous owner found in the owners list, should have been removed"
+                );
+            }
+        }
         checkStateDiff(accesses);
 
         console.log("All assertions passed!");
