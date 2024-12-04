@@ -1,13 +1,13 @@
 # Holocene Hardfork Upgrade - Base Sepolia
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x3ab5ff5700afe57b89d7d23c0ad9e535f38a68b55c571e66c642719d85bcb888)
 
 ## Objective
 
 Upgrades the Fault Proof contracts of Base Sepolia for the Holocene hardfork.
 
 This upgrades the Fault Proof contracts in the
-[op-contracts/v1.8.0-rc.1](https://github.com/ethereum-optimism/optimism/tree/op-contracts/v1.8.0-rc.1) release.
+[op-contracts/v1.8.0-rc.2](https://github.com/ethereum-optimism/optimism/tree/op-contracts/v1.8.0-rc.2) release.
 
 ## Pre-deployments
 
