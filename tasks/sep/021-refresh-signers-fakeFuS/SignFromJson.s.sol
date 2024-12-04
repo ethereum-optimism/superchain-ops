@@ -16,12 +16,15 @@ import {ModuleManager} from "safe-contracts/base/ModuleManager.sol";
 contract SignFromJson is OriginalSignFromJson {
     using LibString for string;
     // Safe contract for this task.
-    GnosisSafe foundationOperationsSafe =
+    GnosisSafe foundationUpgradeSafe =
         GnosisSafe(payable(vm.envAddress("OWNER_SAFE"))); // We take from the "OWNER_SAFE" as this is the "TARGET_SAFE".
 
-    // TODO: Get the livenessGuard from the SC for not hardcoding the address.
-    address constant livenessGuard = 0xc26977310bC89DAee5823C2e2a73195E85382cC7;
+    address previousowner1 =
+        address(0xad70Ad7Ac30Cee75EB9638D377EACD8DfDfE0C3c);
+    address previousowner2 =
+        address(0xE09d881A1A13C805ED2c6823f0C7E4443A260f2f);
 
+    uint256 numberOwners = foundationUpgradeSafe.getOwners().length;
     Types.ContractSet proxies;
 
     /// @notice Sets up the contract
@@ -33,20 +36,23 @@ contract SignFromJson is OriginalSignFromJson {
         override
         returns (address[] memory)
     {
-        address[]
-            memory foundationOperationsSafeOwners = foundationOperationsSafe
-                .getOwners();
+        address[] memory foundationUpgradeSafeOwners = foundationUpgradeSafe
+            .getOwners();
         address[] memory shouldHaveCodeExceptions = new address[](
-            foundationOperationsSafeOwners.length + 1 // 3 is the number of the address we wants to remove here.
+            foundationUpgradeSafeOwners.length + 2 // 2 is the number of the address we wants to remove here.
         );
 
-        for (uint256 i = 0; i < foundationOperationsSafeOwners.length; i++) {
-            shouldHaveCodeExceptions[i] = foundationOperationsSafeOwners[i];
+        for (uint256 i = 0; i < foundationUpgradeSafeOwners.length; i++) {
+            shouldHaveCodeExceptions[i] = foundationUpgradeSafeOwners[i];
         }
         // add the exception of the address that has to be removed.
         shouldHaveCodeExceptions[
-            foundationOperationsSafeOwners.length
-        ] = address(0xad70Ad7Ac30Cee75EB9638D377EACD8DfDfE0C3c);
+            foundationUpgradeSafeOwners.length
+        ] = previousowner1;
+
+        shouldHaveCodeExceptions[
+            foundationUpgradeSafeOwners.length + 1
+        ] = previousowner2;
 
         return shouldHaveCodeExceptions;
     }
@@ -57,11 +63,8 @@ contract SignFromJson is OriginalSignFromJson {
         override
         returns (address[] memory allowed)
     {
-        allowed = new address[](2);
-        allowed[0] = address(foundationOperationsSafe);
-        allowed[1] = livenessGuard;
-        // allowed[2] = address(0xad70Ad7Ac30Cee75EB9638D377EACD8DfDfE0C3c);
-        // allowed[3] = address(0xE09d881A1A13C805ED2c6823f0C7E4443A260f2f);
+        allowed = new address[](1);
+        allowed[0] = address(foundationUpgradeSafe);
     }
 
     /// @notice Checks the correctness of the deployment
@@ -71,6 +74,20 @@ contract SignFromJson is OriginalSignFromJson {
     ) internal view override {
         console.log("Running post-deploy assertions");
 
+        address[] memory foundationUpgradeSafeOwners = foundationUpgradeSafe
+            .getOwners();
+
+        for (uint256 i = 0; i < foundationUpgradeSafeOwners.length; i++) {
+            require(
+                foundationUpgradeSafeOwners[i] != previousowner1 ||
+                    foundationUpgradeSafeOwners[i] != previousowner2,
+                "Previous owners found in the owners list, should have been removed"
+            );
+        }
+        require(
+            numberOwners + 1 == foundationUpgradeSafe.getOwners().length,
+            "The number of owners should have been increased by 1."
+        );
         checkStateDiff(accesses);
 
         console.log("All assertions passed!");
