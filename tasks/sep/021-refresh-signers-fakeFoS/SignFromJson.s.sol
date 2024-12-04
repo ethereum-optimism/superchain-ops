@@ -21,6 +21,7 @@ contract SignFromJson is OriginalSignFromJson {
 
     Types.ContractSet proxies;
     address previousowner = address(0xad70Ad7Ac30Cee75EB9638D377EACD8DfDfE0C3c);
+    uint256 numberOwners = foundationOperationsSafe.getOwners().length;
 
     /// @notice Sets up the contract
     function setUp() public {}
@@ -71,13 +72,15 @@ contract SignFromJson is OriginalSignFromJson {
                 .getOwners();
 
         for (uint256 i = 0; i < foundationOperationsSafeOwners.length; i++) {
-            if (foundationOperationsSafeOwners[i] == previousowner) {
-                console.log("Previous owner found in the owners list");
-                revert(
-                    "Previous owner found in the owners list, should have been removed"
-                );
-            }
+            require(
+                foundationOperationsSafeOwners[i] != previousowner,
+                "Previous owner found in the owners list, should have been removed"
+            );
         }
+        require(
+            numberOwners + 2 == foundationOperationsSafe.getOwners().length,
+            "The number of owners should have been increased by 2."
+        );
         checkStateDiff(accesses);
 
         console.log("All assertions passed!");
