@@ -1,10 +1,10 @@
-# Sepolia Update Signers `FakeSC` and `FakeFoS` and `FakeFuS`
+# Sepolia Update Signers `FakeSC`
 
 Status: [READY TO SIGN]
 
 ## Objective
 
-This task **update** the signers of the `FakeSC`(`0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`) and `FakeFuS`(`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`) and `FakeFoS`(`0x837DE453AD5F21E89771e3c06239d8236c0EFd5E`) on Sepolia.
+This task **update** the signers of the `FakeSC`(`0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`) on Sepolia.
 Since some signers are not active anymore or part of the organisation, this is necessary to remove them.
 The **3 signers** that will be removed by this task will be:
 
@@ -26,5 +26,5 @@ To Recap the action will be:
 ## Simulation
 
 Please see the "Simulating and Verifying the Transaction" instructions in [SINGLE.md](../../../SINGLE.md).
-When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/sep/021-refresh-signers-forfakeSC-fakeFND/SignFromJson.s.sol`.
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/sep/021-refresh-signers-fakeSC/SignFromJson.s.sol`.
 This ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
