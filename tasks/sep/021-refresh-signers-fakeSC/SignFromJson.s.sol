@@ -21,7 +21,17 @@ contract SignFromJson is OriginalSignFromJson {
         GnosisSafe(payable(vm.envAddress("OWNER_SAFE"))); // We take from the "OWNER_SAFE" as this is the "TARGET_SAFE".
 
     // TODO: Get the livenessGuard from the SC for not hardcoding the address.
-    address constant livenessGuard = 0xc26977310bC89DAee5823C2e2a73195E85382cC7;
+
+    bytes32 livenessGuardSlot =
+        0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8;
+    address livenessGuard =
+        address(
+            uint160(
+                uint256(
+                    vm.load(address(securityCouncilSafe), livenessGuardSlot)
+                )
+            )
+        );
 
     Types.ContractSet proxies;
 
