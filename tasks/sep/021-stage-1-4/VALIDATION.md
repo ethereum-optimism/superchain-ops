@@ -27,5 +27,5 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 - **Key**: `0x7dfe757ecd65cbd7922a9c0161e935dd7fdbcc0e999689c7d31633896b1fc60c`
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000`
-  **After**: `0x00000000000000000000000000000000000000000000000000000000013b43e9` <br/>
+  **After**: `0x00000000000000000000000000000000000000000000000000000000013b45ce` <br/>
   **Meaning**: Sets the initial anchor block for the new ASTERISC_KONA game type.
