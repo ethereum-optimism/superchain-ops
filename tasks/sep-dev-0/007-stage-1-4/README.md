@@ -1,6 +1,6 @@
 # Stage 1.4 Upgrade
 
-Status: DRAFT, NOT READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x3f226d262fd6b55924abbd0eb4a8d2b5bc55c89bc066651eb7610f3363fd5f37)
 
 ## Objective
 
