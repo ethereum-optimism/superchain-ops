@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-VALID_STATUSES=("DRAFT, NOT READY TO SIGN" "CONTINGENCY TASK, SIGN AS NEEDED" "READY TO SIGN" "SIGNED" "EXECUTED" "CANCELLED")
+source  ./script/utils/get-valid-statuses.sh
 errors=() # We collect all errors then print them at the end.
 
 # Function to check status and hyperlinks for a single file.
@@ -43,7 +43,7 @@ check_status_and_hyperlinks() {
 }
 
 # Find README.md files for all tasks and process them.
-files=$(find ./tasks -type f -path './tasks/*/*/README.md')
+# files read from ./script/utils/get-valid-statuses.sh
 for file in $files; do
   check_status_and_hyperlinks "$file"
 done

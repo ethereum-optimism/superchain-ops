@@ -140,6 +140,17 @@ jobs:
           name: Check nonce overrides
           command: bash ./script/utils/check-nonce-overrides.sh
 
+  simulate_non_terminal_tasks:
+    docker:
+      - image: <<pipeline.parameters.ci_builder_image>>
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Simulate non-terminal tasks
+          command: bash ./script/utils/simulate-tasks.sh
+
   # TODO: remove/replace when there are real consumers of the RPC URLs
   example_mainnet_job:
     circleci_ip_ranges: true
@@ -295,4 +306,4 @@ workflows:
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
       - just_simulate_ink_respected_game_type
-      # sepolia
+      - simulate_non_terminal_tasks
