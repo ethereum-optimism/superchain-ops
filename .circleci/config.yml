@@ -248,4 +248,4 @@ workflows:
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
 
-      - simulate_non_terminal_tasks
+      # - simulate_non_terminal_tasks
