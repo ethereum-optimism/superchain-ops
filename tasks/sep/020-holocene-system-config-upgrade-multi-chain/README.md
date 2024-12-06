@@ -1,6 +1,6 @@
 # Holocene Hardfork Upgrade - `SystemConfig`
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x88bd1d85740af3741e2ed96d6fd07f2abb4541afc667625480bf6a28451c4d6d)
 
 ## Objective
 
@@ -11,7 +11,7 @@ The proposal was:
 - [ ] ~~Posted on the governance forum.~~ (Not applicable, as this is a set of testnet upgrades)
 - [ ] ~~Approved by Token House voting.~~ (Not applicable, as this is a set of testnet upgrades)
 - [ ] ~~Not vetoed by the Citizens' house.~~ (Not applicable, as this is a set of testnet upgrades)
-- [ ] Executed on Sepolia.
+- [x] Executed on Sepolia.
 
 This upgrades the [`SystemConfig`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.8.0-rc.3/packages/contracts-bedrock/src/L1/SystemConfig.sol) in the
 [op-contracts/v1.8.0](https://github.com/ethereum-optimism/optimism/tree/op-contracts/v1.8.0-rc.1) release.

@@ -174,28 +174,7 @@ jobs:
             just simulate-council
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
-
-  just_simulate_020-holocene-system-config-upgrade-multi-chain:
-    docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
-    steps:
-      - checkout
-      - run:
-          name: just simulate 020-holocene-system-config-upgrade-multi-chain
-          command: |
-            just install
-            cd tasks/sep/020-holocene-system-config-upgrade-multi-chain
-            export SIMULATE_WITHOUT_LEDGER=1 
-            just \
-             --dotenv-path $(pwd)/.env \
-             --justfile ../../../nested.just \
-             simulate \
-             foundation
-            just \
-             --dotenv-path $(pwd)/.env \
-             --justfile ../../../nested.just \
-             simulate \
-             council
+            
   forge_build:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
@@ -207,7 +186,6 @@ jobs:
             just install
             forge --version
             forge build --deny-warnings
-
   forge_fmt:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
@@ -231,7 +209,7 @@ jobs:
             just --version
             yq --version
             forge --version
-
+  
 workflows:
   main:
     jobs:
@@ -258,4 +236,3 @@ workflows:
       - just_simulate_sc_rehearsal_1
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
-      - just_simulate_020-holocene-system-config-upgrade-multi-chain
