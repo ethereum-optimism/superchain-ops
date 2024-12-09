@@ -107,7 +107,7 @@ contract SignFromJson is OriginalSignFromJson {
         }
         require(
             numberOwners == securityCouncilSafeOwners.length,
-            "The number of owner should have not be increased."
+            "The number of owners should not have been increased."
         );
 
         checkStateDiff(accesses);
