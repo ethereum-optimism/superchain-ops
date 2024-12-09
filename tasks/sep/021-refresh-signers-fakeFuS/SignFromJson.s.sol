@@ -79,7 +79,7 @@ contract SignFromJson is OriginalSignFromJson {
 
         for (uint256 i = 0; i < foundationUpgradeSafeOwners.length; i++) {
             require(
-                foundationUpgradeSafeOwners[i] != previousowner1 ||
+                foundationUpgradeSafeOwners[i] != previousowner1 &&
                     foundationUpgradeSafeOwners[i] != previousowner2,
                 "Previous owners found in the owners list, should have been removed"
             );
