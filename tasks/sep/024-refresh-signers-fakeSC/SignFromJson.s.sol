@@ -20,6 +20,15 @@ contract SignFromJson is OriginalSignFromJson {
     GnosisSafe securityCouncilSafe =
         GnosisSafe(payable(vm.envAddress("OWNER_SAFE"))); // We take from the "OWNER_SAFE" as this is the "TARGET_SAFE".
 
+    uint256 numberOwners = securityCouncilSafe.getOwners().length;
+
+    address previousowner1 =
+        address(0xad70Ad7Ac30Cee75EB9638D377EACD8DfDfE0C3c);
+    address previousowner2 =
+        address(0xE09d881A1A13C805ED2c6823f0C7E4443A260f2f);
+    address previousowner3 =
+        address(0x78339d822c23D943E4a2d4c3DD5408F66e6D662D);
+
     bytes32 livenessGuardSlot =
         0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8;
     address livenessGuard =
@@ -52,17 +61,17 @@ contract SignFromJson is OriginalSignFromJson {
             shouldHaveCodeExceptions[i] = securityCouncilSafeOwners[i];
         }
         // add the exception of the address that has to be removed.
-        shouldHaveCodeExceptions[securityCouncilSafeOwners.length] = address(
-            0xad70Ad7Ac30Cee75EB9638D377EACD8DfDfE0C3c
-        );
+        shouldHaveCodeExceptions[
+            securityCouncilSafeOwners.length
+        ] = previousowner1;
 
         shouldHaveCodeExceptions[
             securityCouncilSafeOwners.length + 1
-        ] = address(0xE09d881A1A13C805ED2c6823f0C7E4443A260f2f);
+        ] = previousowner2;
 
         shouldHaveCodeExceptions[
             securityCouncilSafeOwners.length + 2
-        ] = address(0x78339d822c23D943E4a2d4c3DD5408F66e6D662D);
+        ] = previousowner3;
 
         return shouldHaveCodeExceptions;
     }
@@ -84,6 +93,22 @@ contract SignFromJson is OriginalSignFromJson {
         Simulation.Payload memory /* simPayload */
     ) internal view override {
         console.log("Running post-deploy assertions");
+
+        address[] memory securityCouncilSafeOwners = securityCouncilSafe
+            .getOwners();
+
+        for (uint256 i = 0; i < securityCouncilSafeOwners.length; i++) {
+            require(
+                securityCouncilSafeOwners[i] != previousowner1 &&
+                    securityCouncilSafeOwners[i] != previousowner2 &&
+                    securityCouncilSafeOwners[i] != previousowner3,
+                "A previous owner found in the owners list, should have been removed!"
+            );
+        }
+        require(
+            numberOwners == securityCouncilSafeOwners.length,
+            "The number of owner should have not be increased."
+        );
 
         checkStateDiff(accesses);
 
