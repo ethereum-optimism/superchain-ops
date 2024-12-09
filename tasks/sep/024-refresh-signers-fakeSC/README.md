@@ -26,5 +26,5 @@ To Recap the action will be:
 ## Simulation
 
 Please see the "Simulating and Verifying the Transaction" instructions in [SINGLE.md](../../../SINGLE.md).
-When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/sep/021-refresh-signers-fakeSC/SignFromJson.s.sol`.
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/sep/024-refresh-signers-fakeSC/SignFromJson.s.sol`.
 This ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
