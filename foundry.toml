@@ -26,3 +26,7 @@ remappings = [
 
 [profile.ci]
 deny_warnings = true
+
+[rpc_endpoints]
+localhost = "http://127.0.0.1:8545"
+mainnet = "https://ethereum.publicnode.com"
