@@ -13,6 +13,8 @@ out/
 # Docs
 docs/
 
+lcov.info
+
 # The specific deps and build artifacts will vary per task
 out/
 cache/
