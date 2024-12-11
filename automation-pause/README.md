@@ -17,7 +17,7 @@ Once "yes" is selected, the network will be paused and the script will return th
 > [!WARNING]
 > There is no cancel option after the "yes" confirmation is selected.
 
-The necessaries informations like the `DeputyPauseModule`, `SuperchainConfig` or the `Foundation Operation Safe`, will be dynamically pulled from the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry) or onchain.
+The necessaries informations like the `DeputyPauseModule`, `SuperchainConfig` or the `Foundation Operation Safe`, will be dynamically pulled from the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry) and on-chain.
 The only information asked to the **operator** is to select the network from the TUI and confirm with "yes" or "no".
 
 ### Video Demo
