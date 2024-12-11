@@ -7,7 +7,7 @@ Remember pausing the network will only affect the withdrawals, the L2 will still
 ### Usage
 
 ```bash
-git pull git@github.com:ethereum-optimism/superchain-ops.git && cd superchain-ops/pause-automation/
+git clone git@github.com:ethereum-optimism/superchain-ops.git && cd superchain-ops/pause-automation/;
 just --justfile pause-automation.just pause
 ```
 
