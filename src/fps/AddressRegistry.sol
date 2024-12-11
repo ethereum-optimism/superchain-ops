@@ -34,15 +34,25 @@ contract AddressRegistry is IAddressRegistry, Test {
         bool isContract;
     }
 
+    /// @dev Structure for reading chain list details from toml file
+    struct Superchain {
+        uint256 chainId;
+        string identifier;
+        string name;
+    }
+
     /// @notice Maps an identifier and chain ID to a stored address entry.
     mapping(string => mapping(uint256 => RegistryEntry)) private registry;
 
     uint256 public supportedChainIds; // List of supported chain IDs
 
+    /// @notice Array of supported superchains and their configurations
+    Superchain[] public superchains;
+
     /// @notice Initializes the contract by loading addresses from JSON files.
     /// @param addressFolderPath Path to the folder containing JSON files for addresses.
     /// @param chainId The chain IDs to load addresses for.
-    constructor(string memory addressFolderPath, uint256 chainId) {
+    constructor(string memory addressFolderPath, string memory superchainListPath, uint256 chainId) {
         supportedChainIds = chainId;
 
         require(block.chainid == chainId, "Chain ID mismatch in config");
@@ -63,13 +73,36 @@ contract AddressRegistry is IAddressRegistry, Test {
                 registry[identifier][chainId].addr == address(0),
                 "Address already registered with this identifier and chain ID"
             );
-    
-    
+
             // Validate if the address is correctly marked as a contract or EOA
             _typeCheckAddress(contractAddress, chainId, isContract);
-    
+
             registry[identifier][chainId] = RegistryEntry(contractAddress, isContract);
             vm.label(contractAddress, identifier); // Add label for debugging purposes
+        }
+
+        bytes memory superchainListContent = vm.parseToml(vm.readFile(superchainListPath), ".chains");
+        superchains = abi.decode(superchainListContent, (Superchain[]));
+
+        string memory superchainAddressesPath = "lib/superchain-registry/superchain/extra/addresses/addresses.json";
+
+        for (uint256 i = 0; i < superchains.length; i++) {
+            require(superchains[i].chainId != 0, "Invalid chain ID in superchains");
+            require(bytes(superchains[i].identifier).length > 0, "Empty identifier in superchains");
+            require(bytes(superchains[i].name).length > 0, "Empty name in superchains");
+
+            string memory superchainAddressesContent = vm.readFile(superchainAddressesPath);
+            string[] memory keys =
+                vm.parseJsonKeys(superchainAddressesContent, string.concat("$.", vm.toString(superchains[i].chainId)));
+
+            for (uint256 j = 0; j < keys.length; j++) {
+                address addr = vm.parseJsonAddress(
+                    superchainAddressesContent, string.concat("$.", vm.toString(superchains[i].chainId), ".", keys[j])
+                );
+                string memory prefixedKey = string.concat(superchains[i].identifier, "_", keys[j]);
+                registry[prefixedKey][chainId] = RegistryEntry(addr, true);
+                vm.label(addr, prefixedKey);
+            }
         }
     }
 
