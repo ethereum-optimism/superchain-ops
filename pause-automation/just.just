@@ -36,10 +36,3 @@ pause network='sepolia':
   fi
   op item get "DeputyPauseModulePrivateKey" --vault Sepolia --format json | jq ".fields.[0].value"
   # TODO: cast send the tx on the network.
-
- 
-
-
-
-
-
