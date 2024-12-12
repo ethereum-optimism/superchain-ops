@@ -45,14 +45,18 @@ contract MainnetAddressRegistryTest is Test {
         assertTrue(
             addresses.isAddressContract("COMPOUND_GOVERNOR_BRAVO", 10), "Address governor bravo should be a contract"
         );
-        assertTrue(addresses.isAddressContract("COMPOUND_CONFIGURATOR", 10), "Address configurator should be a contract");
+        assertTrue(
+            addresses.isAddressContract("COMPOUND_CONFIGURATOR", 10), "Address configurator should be a contract"
+        );
         assertFalse(addresses.isAddressContract("DEPLOYER_EOA", 10), "EOA address should not be a contract");
 
         assertTrue(addresses.isAddressRegistered("DEPLOYER_EOA", 10), "DEPLOYER_EOA should be registered");
         assertTrue(
             addresses.isAddressRegistered("COMPOUND_GOVERNOR_BRAVO", 10), "COMPOUND_GOVERNOR_BRAVO should be registered"
         );
-        assertTrue(addresses.isAddressRegistered("COMPOUND_CONFIGURATOR", 10), "COMPOUND_CONFIGURATOR should be registered");
+        assertTrue(
+            addresses.isAddressRegistered("COMPOUND_CONFIGURATOR", 10), "COMPOUND_CONFIGURATOR should be registered"
+        );
         assertFalse(
             addresses.isAddressRegistered("NON_EXISTENT_ADDRESS", 10), "Non-existent address should not be registered"
         );
@@ -79,9 +83,7 @@ contract MainnetAddressRegistryTest is Test {
         // Verify these are all contracts
         assertTrue(addresses.isAddressContract("OptimismPortalProxy", 10), "OP Portal should be a contract");
         assertTrue(addresses.isAddressContract("L1StandardBridgeProxy", 10), "OP Bridge should be a contract");
-        assertTrue(
-            addresses.isAddressContract("L1CrossDomainMessengerProxy", 10), "OP Messenger should be a contract"
-        );
+        assertTrue(addresses.isAddressContract("L1CrossDomainMessengerProxy", 10), "OP Messenger should be a contract");
 
         // Verify they are registered
         assertTrue(addresses.isAddressRegistered("OptimismPortalProxy", 10), "OP Portal should be registered");
@@ -109,24 +111,16 @@ contract MainnetAddressRegistryTest is Test {
 
         // Verify these are all contracts
         assertTrue(addresses.isAddressContract("OptimismPortalProxy", 8453), "Base Portal should be a contract");
+        assertTrue(addresses.isAddressContract("L1StandardBridgeProxy", 8453), "Base Bridge should be a contract");
         assertTrue(
-            addresses.isAddressContract("L1StandardBridgeProxy", 8453), "Base Bridge should be a contract"
-        );
-        assertTrue(
-            addresses.isAddressContract("L1CrossDomainMessengerProxy", 8453),
-            "Base Messenger should be a contract"
+            addresses.isAddressContract("L1CrossDomainMessengerProxy", 8453), "Base Messenger should be a contract"
         );
 
         // Verify they are registered
+        assertTrue(addresses.isAddressRegistered("OptimismPortalProxy", 8453), "Base Portal should be registered");
+        assertTrue(addresses.isAddressRegistered("L1StandardBridgeProxy", 8453), "Base Bridge should be registered");
         assertTrue(
-            addresses.isAddressRegistered("OptimismPortalProxy", 8453), "Base Portal should be registered"
-        );
-        assertTrue(
-            addresses.isAddressRegistered("L1StandardBridgeProxy", 8453), "Base Bridge should be registered"
-        );
-        assertTrue(
-            addresses.isAddressRegistered("L1CrossDomainMessengerProxy", 8453),
-            "Base Messenger should be registered"
+            addresses.isAddressRegistered("L1CrossDomainMessengerProxy", 8453), "Base Messenger should be registered"
         );
     }
 

@@ -67,7 +67,8 @@ contract AddressRegistry is IAddressRegistry, Test {
             require(superchainId != 0, "Invalid chain ID in superchains");
             require(bytes(superchainName).length > 0, "Empty name in superchains");
 
-            string memory filePath = string(abi.encodePacked(addressFolderPath, "/", vm.toString(superchainId), ".toml"));
+            string memory filePath =
+                string(abi.encodePacked(addressFolderPath, "/", vm.toString(superchainId), ".toml"));
             bytes memory fileContent = vm.parseToml(vm.readFile(filePath), ".addresses");
 
             InputAddress[] memory parsedAddresses = abi.decode(fileContent, (InputAddress[]));
@@ -86,7 +87,8 @@ contract AddressRegistry is IAddressRegistry, Test {
                 _typeCheckAddress(contractAddress, isContract);
 
                 registry[identifier][superchainId] = RegistryEntry(contractAddress, isContract);
-                string memory prefixedIdentifier = string(abi.encodePacked(vm.replace(vm.toUppercase(superchainName), " ", "_"), "_", identifier));
+                string memory prefixedIdentifier =
+                    string(abi.encodePacked(vm.replace(vm.toUppercase(superchainName), " ", "_"), "_", identifier));
                 vm.label(contractAddress, prefixedIdentifier); // Add label for debugging purposes
             }
 
@@ -109,13 +111,12 @@ contract AddressRegistry is IAddressRegistry, Test {
                 // _typeCheckAddress(addr, true);
 
                 registry[key][superchainId] = RegistryEntry(addr, true);
-                string memory prefixedIdentifier = string(abi.encodePacked(vm.replace(vm.toUppercase(superchainName), " ", "_"), "_", key));
+                string memory prefixedIdentifier =
+                    string(abi.encodePacked(vm.replace(vm.toUppercase(superchainName), " ", "_"), "_", key));
                 vm.label(addr, prefixedIdentifier);
             }
         }
-
     }
-
 
     /// @notice Retrieves an address by its identifier for a specified l2 chain instance.
     /// @param identifier The unique name associated with the address.
@@ -146,7 +147,6 @@ contract AddressRegistry is IAddressRegistry, Test {
     /// @param l2chainId The chain ID of the L2 superchain.
     /// @return True if the address exists, false otherwise.
     function isAddressRegistered(string memory identifier, uint256 l2chainId) public view returns (bool) {
-
         return registry[identifier][l2chainId].addr != address(0);
     }
 
