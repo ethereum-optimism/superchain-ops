@@ -9,7 +9,7 @@ import {stdJson} from "forge-std/StdJson.sol";
 import {LibString} from "solady/utils/LibString.sol";
 import {Vm, VmSafe} from "forge-std/Vm.sol";
 import {DisputeGameFactory} from "@eth-optimism-bedrock/src/dispute/DisputeGameFactory.sol";
-import {FaultDisputeGame, Duration, Claim, IDelayedWETH} from "@eth-optimism-bedrock/src/dispute/FaultDisputeGame.sol";
+import {FaultDisputeGame, Duration, Claim} from "@eth-optimism-bedrock/src/dispute/FaultDisputeGame.sol";
 import {PermissionedDisputeGame} from "@eth-optimism-bedrock/src/dispute/PermissionedDisputeGame.sol";
 import {GameType, GameTypes} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {ISemver} from "@eth-optimism-bedrock/src/universal/ISemver.sol";
@@ -129,24 +129,23 @@ contract NestedSignFromJson is OriginalSignFromJson {
         
         address vmAddr0 = address(FaultDisputeGame(faultDisputeGame).vm());
         address vmAddr1 = address(PermissionedDisputeGame(permissionedDisputeGame).vm());
-        ISemver vm = ISemver(vmAddr0);
+        IMIPS vm = IMIPS(vmAddr0);
         string memory vmVersion = vm.version();
         
         require(vmAddr0 == vmAddr1, "vm-100");
         assertStringsEqual(vmVersion, vmExpectedVersion, "vm-200");
-        // TODO: check preimage oracle
-        // require(IMIPS(vmAddr0).oracle() == preimageOracle, "vm-300")
+         require(vm.oracle() == preimageOracle, "vm-300");
     }
 
     function checkWeths() internal view {
         console.log("check IDelayedWETH implementations");
         
-        IDelayedWETH weth0 = FaultDisputeGame(faultDisputeGame).weth();
-        IDelayedWETH weth1 = PermissionedDisputeGame(permissionedDisputeGame).weth();
+        address weth0 = address(FaultDisputeGame(faultDisputeGame).weth());
+        address weth1 = address(PermissionedDisputeGame(permissionedDisputeGame).weth());
         
         require(address(weth0) != address(weth1), "weths-100");
-        checkWeth(weth0, GameTypes.CANNON);
-        checkWeth(weth1, GameTypes.PERMISSIONED_CANNON);
+        checkWeth(IDelayedWETH(weth0), GameTypes.CANNON);
+        checkWeth(IDelayedWETH(weth1), GameTypes.PERMISSIONED_CANNON);
     }
     
     function checkWeth(IDelayedWETH weth, GameType gameType) internal view {
@@ -154,8 +153,7 @@ contract NestedSignFromJson is OriginalSignFromJson {
         string memory errPrefix = string.concat("weth", gameStr, "-");
 
         console.log(string.concat("check IDelayedWETH implementation for GameType ", gameStr));
-        // TODO: check owner
-        // require(weth.owner() == proxyAdminOwnerSafe, string.concat(errPrefix, "100"));
+        require(weth.owner() == proxyAdminOwnerSafe, string.concat(errPrefix, "100"));
         require(weth.delay() == wethDelay, string.concat(errPrefix, "200"));
     }
     
@@ -177,4 +175,13 @@ contract NestedSignFromJson is OriginalSignFromJson {
 
         return stdJson.readAddress(addressesJson, string.concat("$.", LibString.toString(l2ChainId), ".", contractName));
     }
+}
+
+interface IMIPS is ISemver {
+    function oracle() external view returns (address oracle_);
+}
+
+interface IDelayedWETH {
+    function owner() external view returns (address);
+    function delay() external view returns (uint256);
 }
