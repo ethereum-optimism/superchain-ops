@@ -59,12 +59,9 @@ interface IDeputyPauseModule {
 
 //TODO: will be removed once the module is deployed.
 contract mockDeputyPauseModule {
-    constructor() {
-        console.log("mockDeputyPauseModule constructor called");
-    }
+    constructor() {}
 
     function pause(bytes32 _nonce, bytes memory _signature) external pure {
-        console.log("mockDeputyPauseModule.pause called");
         _nonce;
         _signature;
     }
