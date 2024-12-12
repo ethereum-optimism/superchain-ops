@@ -1,3 +1,8 @@
+
+
+
+
+https://github.com/user-attachments/assets/e09f0a5c-5d2a-4df3-b7cd-3249d3a8b1e4
 ## Automation Pause (AP)
 
 _Automation Pause_ (AP) is a script that pause the superchain fast and simply.
@@ -17,7 +22,10 @@ Once "yes" is selected, the network will be paused and the script will return th
 > [!WARNING]
 > There is no cancel option after the "yes" confirmation is selected.
 
+
+
+
 The necessaries informations like the `DeputyPauseModule`, `SuperchainConfig` or the `Foundation Operation Safe`, will be dynamically pulled from the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry) and on-chain.
 The only information asked to the **operator** is to select the network from the TUI and confirm with "yes" or "no".
 
-### Video Demo
+
