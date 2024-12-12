@@ -15,7 +15,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 **Key**: 0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e  
 **Before**: 0x0000000000000000000000006a962628aa48564b7c48d97e1a738044ffec686f  
-**After**: 0x0000000000000000000000001c43a0c1874f6e6a519d1d8d2086da8c550e0722  
+**After**: 0x0000000000000000000000004001542871a610a551b11dcaaea52dc5ca6fdb6a  
 **Meaning**: Updates the PERMISSIONED_CANNON game type implementation. Verify that the new implementation is set using `cast call 0x2419423c72998eb1c6c15a235de2f112f8e38eff gameImpls(uint32)(address) 1`.
 Confirm the expected key slot with the following:
 ```

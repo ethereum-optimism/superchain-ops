@@ -13,7 +13,7 @@ Contracts upgraded are included within the
 
 - `MIPS64`  - [0x2b82752b3809a6b7f1662536af72c519000610e3](https://sepolia.etherscan.io/address/0x2b82752b3809a6b7f1662536af72c519000610e3)
 - `FaultDisputeGame`  - [0x030aca4aea0cf48bd53dca03b34e35d05b9635c7](https://sepolia.etherscan.io/address/0x030aca4aea0cf48bd53dca03b34e35d05b9635c7)
-- `PermissionedDisputeGame` - [0x1c43a0c1874f6e6a519d1d8d2086da8c550e0722](https://sepolia.etherscan.io/address/0x1c43a0c1874f6e6a519d1d8d2086da8c550e0722)
+- `PermissionedDisputeGame` - [0x4001542871a610a551b11dcaaea52dc5ca6fdb6a](https://sepolia.etherscan.io/address/0x4001542871a610a551b11dcaaea52dc5ca6fdb6a)
 - `PermissionedDelayedWETHProxy` - [0x81b05ce22ec8e79078d58df7de44957bd3c93125](https://sepolia.etherscan.io/address/0x81b05ce22ec8e79078d58df7de44957bd3c93125)
 
 ## Simulation
