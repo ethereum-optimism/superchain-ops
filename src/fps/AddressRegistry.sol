@@ -58,8 +58,8 @@ contract AddressRegistry is IAddressRegistry, Test {
         bytes memory superchainListContent = vm.parseToml(vm.readFile(superchainListFilePath), ".chains");
         superchains = abi.decode(superchainListContent, (Superchain[]));
 
-        string memory superchainAddressesPath = "lib/superchain-registry/superchain/extra/addresses/addresses.json";
-        string memory superchainAddressesContent = vm.readFile(superchainAddressesPath);
+        string memory superchainAddressesFilePath = "lib/superchain-registry/superchain/extra/addresses/addresses.json";
+        string memory superchainAddressesContent = vm.readFile(superchainAddressesFilePath);
 
         for (uint256 i = 0; i < superchains.length; i++) {
             uint256 superchainId = superchains[i].chainId;
