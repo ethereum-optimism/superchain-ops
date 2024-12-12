@@ -15,6 +15,18 @@ This task updates the fault dispute system for ink-mainnet:
 - `FaultDisputeGame` - [0x6A8eFcba5642EB15D743CBB29545BdC44D5Ad8cD](https://etherscan.io/address/0x6A8eFcba5642EB15D743CBB29545BdC44D5Ad8cD)
 - `PermissionedDisputeGame` - [0x0A780bE3eB21117b1bBCD74cf5D7624A3a482963](https://etherscan.io/address/0x0A780bE3eB21117b1bBCD74cf5D7624A3a482963)
 
+## Simulation
+
+Please see the "Simulating and Verifying the Transaction" instructions in [NESTED.md](../../../NESTED.md).
+
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/ink-001-permissionless-proofs/NestedSignFromJson.s.sol`. This ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
+
+Do NOT yet proceed to the "Execute the Transaction" section.
+
+## Signing and execution
+
+Please see the signing and execution instructions in [NESTED.md](../../../NESTED.md).
+
 ### State Validations
 
 Please see the instructions for [validation](./VALIDATION.md).
