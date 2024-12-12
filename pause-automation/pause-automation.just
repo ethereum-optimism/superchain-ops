@@ -51,10 +51,10 @@ pause:
   fi
 
   echo "🌏The address that will initiate the onchain call: $EXPLORER""address/$address"
-  echo "⚖️The balance of the address: $address is: $(cast balance $address --rpc-url $RPC_URL) ETH."
+  echo "⚖️The balance of the address: $address is: $(cast balance -e $address --rpc-url $RPC_URL) ETH."
   export PRIVATE_KEY=$privatekey
-  forge script --tc SignPauseMessage script/SignPauseMessage.s.sol --sig "signAndBrodcast(string)" $NETWORK_SELECTED $NETWORK --rpc-url $RPC_URL -vvvvv --broadcast | tee /tmp/pause.log
-  cat /tmp/pause.log | sed -n 's/.*Hash: \(\0x[a-fA-F0-9]\{64\}\).*/\1/p'
+  forge script --tc SignPauseMessage script/SignPauseMessage.s.sol --sig "signAndBrodcast(string)" $NETWORK_SELECTED $NETWORK --rpc-url $RPC_URL -vvvvv --broadcast
+  # cat /tmp/pause.log | sed -n 's/.*Hash: \(\0x[a-fA-F0-9]\{64\}\).*/\1/p'
   # echo "The Superchain has been paused on $NETWORK_SELECTED.🔒"
   # echo "Execution on of the signature onchain, using the cast send --rpc-url $RPC_URL --to $address with the signature from any address this is permissionless 🔥"
   # cast send $DEPUTYPAUSEMODULE "pause(bytes32, bytes32)" --rpc-url $RPC_URL  
