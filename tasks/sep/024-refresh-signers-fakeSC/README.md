@@ -1,6 +1,6 @@
 # Sepolia Update Signers `FakeSC`
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x343762f9c1cae4c0833f52b3cc12db3194e48066548efe69d2ec8a2925aec996)
 
 ## Objective
 
