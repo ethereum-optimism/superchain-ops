@@ -1,9 +1,7 @@
 [[chains]]
   name = "OP Mainnet"
-  identifier = ""
   chain_id = 10
 
 [[chains]]
-  name = "Base"
-  identifier = "BASE_MAINNET"
+  name = ""
   chain_id = 8453
