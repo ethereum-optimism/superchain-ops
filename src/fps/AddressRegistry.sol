@@ -107,10 +107,9 @@ contract AddressRegistry is IAddressRegistry, Test {
                     "Address already registered with this identifier and chain ID"
                 );
 
-                // todo: update this to accomodate for non-contract addresses in superchain registry
-                // _typeCheckAddress(addr, true);
+                bool isContract = _typeCheckAddress(addr);
 
-                registry[key][superchainId] = RegistryEntry(addr, true);
+                registry[key][superchainId] = RegistryEntry(addr, isContract);
                 string memory prefixedIdentifier =
                     string(abi.encodePacked(vm.replace(vm.toUppercase(superchainName), " ", "_"), "_", key));
                 vm.label(addr, prefixedIdentifier);
@@ -162,6 +161,10 @@ contract AddressRegistry is IAddressRegistry, Test {
                 abi.encodePacked("Address not found for identifier ", identifier, " on chain ", vm.toString(l2chainId))
             )
         );
+    }
+
+    function _typeCheckAddress(address addr) private view returns (bool) {
+        return addr.code.length > 0;
     }
 
     /// @notice Validates the type of an address (contract or externally owned account).
