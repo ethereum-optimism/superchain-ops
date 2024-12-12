@@ -4,16 +4,13 @@ import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet
 
 import {Test} from "forge-std/Test.sol";
 import {IAddressRegistry} from "src/fps/IAddressRegistry.sol";
+import {SUPERCHAIN_REGISTRY_PATH} from "src/fps/utils/Constants.sol";
 
 /// @title Network Address Manager
 /// @notice This contract provides a single source of truth for storing and retrieving addresses across multiple networks.
 /// @dev Handles addresses for contracts and externally owned accounts (EOAs) while ensuring correctness and uniqueness.
 contract AddressRegistry is IAddressRegistry, Test {
     using EnumerableSet for EnumerableSet.UintSet;
-
-    /// chainlist .toml -> create this file for each task
-    /// superchainRegistry
-    ///   superchain/configs/ mainnnet/<network_name>.toml
 
     /// @dev Structure for reading address details from JSON files.
     struct InputAddress {
@@ -41,7 +38,11 @@ contract AddressRegistry is IAddressRegistry, Test {
     }
 
     /// @notice Maps an identifier and l2 instance chain ID to a stored address entry.
+    /// All addresses will live on the same chain.
     mapping(string => mapping(uint256 => RegistryEntry)) private registry;
+
+    /// @notice Supported L2 chain IDs for this Address Registry instance.
+    mapping(uint256 => bool) public supportedL2ChainIds;
 
     /// @notice The task implementation chain id.
     uint256 public supportedChainId;
@@ -49,23 +50,25 @@ contract AddressRegistry is IAddressRegistry, Test {
     /// @notice Array of supported superchains and their configurations
     Superchain[] public superchains;
 
-    /// @notice Initializes the contract by loading addresses from TOML files and setting up the superchains.
-    /// @param addressFolderPath Path to the folder containing TOML files for addresses.
-    /// @param superchainListFilePath Path to the TOML file containing the list of superchains.
+    /// @notice Initializes the contract by loading addresses from TOML files and configuring the supported L2 chains.
+    /// @param addressFolderPath The path to the folder containing chain-specific TOML address files
+    /// @param superchainListFilePath The path to the TOML file containing the list of supported L2 chains
     constructor(string memory addressFolderPath, string memory superchainListFilePath) {
         supportedChainId = block.chainid;
 
         bytes memory superchainListContent = vm.parseToml(vm.readFile(superchainListFilePath), ".chains");
         superchains = abi.decode(superchainListContent, (Superchain[]));
 
-        string memory superchainAddressesFilePath = "lib/superchain-registry/superchain/extra/addresses/addresses.json";
-        string memory superchainAddressesContent = vm.readFile(superchainAddressesFilePath);
+        string memory superchainAddressesContent = vm.readFile(SUPERCHAIN_REGISTRY_PATH);
 
         for (uint256 i = 0; i < superchains.length; i++) {
             uint256 superchainId = superchains[i].chainId;
             string memory superchainName = superchains[i].name;
-            require(superchainId != 0, "Invalid chain ID in superchains");
-            require(bytes(superchainName).length > 0, "Empty name in superchains");
+            require(!supportedL2ChainIds[superchainId], "Duplicate chain ID in superchain config");
+            require(superchainId != 0, "Invalid chain ID in superchain config");
+            require(bytes(superchainName).length > 0, "Empty name in superchain config");
+
+            supportedL2ChainIds[superchainId] = true;
 
             string memory filePath =
                 string(abi.encodePacked(addressFolderPath, "/", vm.toString(superchainId), ".toml"));
@@ -107,9 +110,7 @@ contract AddressRegistry is IAddressRegistry, Test {
                     "Address already registered with this identifier and chain ID"
                 );
 
-                bool isContract = _typeCheckAddress(addr);
-
-                registry[key][superchainId] = RegistryEntry(addr, isContract);
+                registry[key][superchainId] = RegistryEntry(addr, addr.code.length > 0);
                 string memory prefixedIdentifier =
                     string(abi.encodePacked(vm.replace(vm.toUppercase(superchainName), " ", "_"), "_", key));
                 vm.label(addr, prefixedIdentifier);
@@ -117,13 +118,15 @@ contract AddressRegistry is IAddressRegistry, Test {
         }
     }
 
-    /// @notice Retrieves an address by its identifier for a specified l2 chain instance.
-    /// @param identifier The unique name associated with the address.
-    /// @param l2chainId The chain ID of the L2 superchain.
-    /// @return The address associated with the given identifier on the specified chain.
-    function getAddress(string memory identifier, uint256 l2chainId) public view returns (address) {
+    /// @notice Retrieves an address by its identifier for a specified L2 chain
+    /// @param identifier The unique identifier associated with the address
+    /// @param l2ChainId The chain ID of the L2 network
+    /// @return The address associated with the given identifier on the specified chain
+    function getAddress(string memory identifier, uint256 l2ChainId) public view returns (address) {
+        _l2ChainIdSupported(l2ChainId);
+
         // Fetch the stored registry entry
-        RegistryEntry memory entry = registry[identifier][l2chainId];
+        RegistryEntry memory entry = registry[identifier][l2ChainId];
         address resolvedAddress = entry.addr;
 
         require(resolvedAddress != address(0), "Address not found");
@@ -131,47 +134,51 @@ contract AddressRegistry is IAddressRegistry, Test {
         return resolvedAddress;
     }
 
-    /// @notice Checks if an address by its identifier is a contract for a given l2 chain instance.
-    /// @param identifier The unique name associated with the address.
-    /// @param l2chainId The chain ID of the L2 superchain.
-    /// @return True if the address is a contract, false otherwise.
-    function isAddressContract(string memory identifier, uint256 l2chainId) public view returns (bool) {
-        _checkAddressRegistered(identifier, l2chainId);
+    /// @notice Checks if an address is a contract for a given identifier and L2 chain
+    /// @param identifier The unique identifier associated with the address
+    /// @param l2ChainId The chain ID of the L2 network
+    /// @return True if the address is a contract, false otherwise
+    function isAddressContract(string memory identifier, uint256 l2ChainId) public view returns (bool) {
+        _l2ChainIdSupported(l2ChainId);
+        _checkAddressRegistered(identifier, l2ChainId);
 
-        return registry[identifier][l2chainId].isContract;
+        return registry[identifier][l2ChainId].isContract;
     }
 
-    /// @notice Checks if an address by its identifier exists for a specified L2 chain instance.
-    /// @param identifier The unique name associated with the address.
-    /// @param l2chainId The chain ID of the L2 superchain.
-    /// @return True if the address exists, false otherwise.
-    function isAddressRegistered(string memory identifier, uint256 l2chainId) public view returns (bool) {
-        return registry[identifier][l2chainId].addr != address(0);
+    /// @notice Checks if an address exists for a specified identifier and L2 chain
+    /// @param identifier The unique identifier associated with the address
+    /// @param l2ChainId The chain ID of the L2 network
+    /// @return True if the address exists, false otherwise
+    function isAddressRegistered(string memory identifier, uint256 l2ChainId) public view returns (bool) {
+        return registry[identifier][l2ChainId].addr != address(0);
     }
 
-    /// @notice Verifies that an address is registered for a given identifier on a specific chain.
-    /// @dev Ensures the address exists in the registry for the given identifier and chain ID.
-    ///      Reverts with an error message if the address is not registered.
-    /// @param identifier The unique name associated with the address.
-    /// @param l2chainId l2 superchain chain id.
-    function _checkAddressRegistered(string memory identifier, uint256 l2chainId) private view {
+    /// @notice Verifies that an address is registered for a given identifier and chain
+    /// @dev Reverts if the address is not registered
+    /// @param identifier The unique identifier associated with the address
+    /// @param l2ChainId The chain ID of the L2 network
+    function _checkAddressRegistered(string memory identifier, uint256 l2ChainId) private view {
         require(
-            isAddressRegistered(identifier, l2chainId),
+            isAddressRegistered(identifier, l2ChainId),
             string(
-                abi.encodePacked("Address not found for identifier ", identifier, " on chain ", vm.toString(l2chainId))
+                abi.encodePacked("Address not found for identifier ", identifier, " on chain ", vm.toString(l2ChainId))
             )
         );
     }
 
-    function _typeCheckAddress(address addr) private view returns (bool) {
-        return addr.code.length > 0;
+    /// @notice Verifies that the given L2 chain ID is supported
+    /// @param l2ChainId The chain ID of the L2 network to verify
+    function _l2ChainIdSupported(uint256 l2ChainId) private view {
+        require(
+            supportedL2ChainIds[l2ChainId],
+            string(abi.encodePacked("L2 Chain ID ", vm.toString(l2ChainId), " not supported"))
+        );
     }
 
-    /// @notice Validates the type of an address (contract or externally owned account).
-    /// @dev Ensures the address either contains or does not contain bytecode based on the `isContract` flag.
-    ///      Reverts with an error if the address does not meet the expected type.
-    /// @param addr The address to validate.
-    /// @param isContract True if the address is expected to be a contract, false if it is expected to be an externally owned account (EOA).
+    /// @notice Validates whether an address matches its expected type (contract or EOA)
+    /// @dev Reverts if the address type does not match the expected type
+    /// @param addr The address to validate
+    /// @param isContract True if the address should be a contract, false if it should be an EOA
     function _typeCheckAddress(address addr, bool isContract) private view {
         if (isContract) {
             require(addr.code.length > 0, "Address must contain code");
