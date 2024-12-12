@@ -197,6 +197,16 @@ jobs:
             just install
             forge --version
             forge fmt --check
+  forge_test:
+    docker:
+      - image: <<pipeline.parameters.ci_builder_image>>
+    steps:
+      - checkout
+      - run:
+          name: forge test
+          command: |
+            forge --version
+            forge test -vvv
 
   print_versions:
     docker:
@@ -217,6 +227,7 @@ workflows:
       # Forge checks.
       - forge_build
       - forge_fmt
+      - forge_test
       # RPC endpoint checks.
       - check_sepolia_rpc_endpoints
       - check_mainnet_rpc_endpoints
