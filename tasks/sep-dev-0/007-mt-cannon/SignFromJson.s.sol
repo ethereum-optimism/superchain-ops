@@ -11,7 +11,7 @@ import {Vm, VmSafe} from "forge-std/Vm.sol";
 import {DisputeGameFactory} from "@eth-optimism-bedrock/src/dispute/DisputeGameFactory.sol";
 import {FaultDisputeGame} from "@eth-optimism-bedrock/src/dispute/FaultDisputeGame.sol";
 import {PermissionedDisputeGame} from "@eth-optimism-bedrock/src/dispute/PermissionedDisputeGame.sol";
-import {GameTypes} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
+import {GameType, GameTypes} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {ISemver} from "@eth-optimism-bedrock/src/universal/ISemver.sol";
 
 contract NestedSignFromJson is OriginalSignFromJson {
@@ -71,12 +71,19 @@ contract NestedSignFromJson is OriginalSignFromJson {
     }
     
     function checkDisputeGames() internal view {
-        console.log("check dispute game implementation versions");
-        string memory fdgVersion = faultDisputeGame.version();
-        string memory permVersion = permissionedDisputeGame.version();
-        assertStringsEqual(fdgVersion, permVersion, "dg-100");
-        assertStringsEqual(fdgVersion, "1.3.1", "dg-200");
-        assertStringsEqual(permVersion, "1.3.1", "dg-300");
+        console.log("check dispute game implementations");
+        
+        checkDisputeGame(address(faultDisputeGame), GameTypes.CANNON);
+        checkDisputeGame(address(permissionedDisputeGame), GameTypes.PERMISSIONED_CANNON);
+    }
+
+    function checkDisputeGame(address implAddress, GameType gameType) internal view {
+        FaultDisputeGame gameImpl = FaultDisputeGame(implAddress);
+        string memory gameStr = LibString.toString(GameType.unwrap(gameType));
+        string memory errPrefix = concat("dg", gameStr);
+
+        console.log(concat("check dispute game implementation of type: ", gameStr));
+        assertStringsEqual(gameImpl.version(), "1.3.1", concat(errPrefix, "100"));
     }
     
     function checkVm() internal view {
@@ -86,12 +93,17 @@ contract NestedSignFromJson is OriginalSignFromJson {
         address vmAddr1 = address(permissionedDisputeGame.vm());
         ISemver vm = ISemver(vmAddr0);
         string memory vmVersion = vm.version();
+        
         require(vmAddr0 == vmAddr1, "vm-100");
         assertStringsEqual(vmVersion, "1.0.0-beta.7", "vm-200");
     }
     
     function assertStringsEqual(string memory a, string memory b, string memory errorMessage) internal pure {
         require(keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b)), errorMessage);
+    }
+    
+    function concat(string memory a, string memory b) internal pure returns (string memory) {
+        return string(abi.encodePacked(a, b));
     }
 
     function readContractAddress(string memory contractName, string memory chainId) internal view returns (address) {
