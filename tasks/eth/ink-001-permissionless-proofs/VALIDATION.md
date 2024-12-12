@@ -20,7 +20,7 @@ Note: The changes listed below do not include safe nonce updates or liveness gua
 - **Key**: `0xa6eef7e35abe7026729641147f7915573c7e97b47efa546f5f6e3230263bcb49`<br/>
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000` (Note this may have changed if games of this type resolved)<br/>
   **After**: `0x5220f9c5ebf08e84847d542576a67a3077b6fa496235d93c557d5bd5286b431a` <br/>
-  **Meaning**: Set the anchor state output root for game type 0 to 0x5220f9c5ebf08e84847d542576a67a3077b6fa496235d93c557d5bd5286b431a. Use the following command to verify: 
+  **Meaning**: Set the anchor state output root for game type 0 to 0x5220f9c5ebf08e84847d542576a67a3077b6fa496235d93c557d5bd5286b431a. If you have access to the Ink Mainnet's op-node RPC endpoint you can use the following command to verify: 
   
   ```
   cast rpc --rpc-url $OP_NODE_RPC "optimism_outputAtBlock" $(cast th 523052)
