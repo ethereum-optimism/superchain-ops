@@ -149,8 +149,10 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         console.log("Running post-deploy assertions");
 
         checkStateDiff(accesses);
-        _postcheckAnchorStateCopy(GameType.wrap(0), bytes32(0xdead000000000000000000000000000000000000000000000000000000000000), 0);
-        _postcheckHasAnchorState(GameType.wrap(1));
+        _postcheckAnchorStateCopy(GameType.wrap(0), bytes32(0x5220f9c5ebf08e84847d542576a67a3077b6fa496235d93c557d5bd5286b431a), 523052);
+        // Removing this because the current anchor state on ink mainnet is 0
+        // This is because the chain is currently less than 7 days old and hasn't had a chance to finalize any games.
+        // _postcheckHasAnchorState(GameType.wrap(1));
         _checkDisputeGameImplementation(GameType.wrap(0), 0x6A8eFcba5642EB15D743CBB29545BdC44D5Ad8cD);
         _checkDisputeGameImplementation(GameType.wrap(1), 0x0A780bE3eB21117b1bBCD74cf5D7624A3a482963);
         // INSERT NEW POST CHECKS HERE
