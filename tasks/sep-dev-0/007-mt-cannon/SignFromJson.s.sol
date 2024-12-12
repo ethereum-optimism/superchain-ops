@@ -9,7 +9,7 @@ import {stdJson} from "forge-std/StdJson.sol";
 import {LibString} from "solady/utils/LibString.sol";
 import {Vm, VmSafe} from "forge-std/Vm.sol";
 import {DisputeGameFactory} from "@eth-optimism-bedrock/src/dispute/DisputeGameFactory.sol";
-import {FaultDisputeGame} from "@eth-optimism-bedrock/src/dispute/FaultDisputeGame.sol";
+import {FaultDisputeGame, Duration, Claim, IDelayedWETH} from "@eth-optimism-bedrock/src/dispute/FaultDisputeGame.sol";
 import {PermissionedDisputeGame} from "@eth-optimism-bedrock/src/dispute/PermissionedDisputeGame.sol";
 import {GameType, GameTypes} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {ISemver} from "@eth-optimism-bedrock/src/universal/ISemver.sol";
@@ -17,12 +17,33 @@ import {ISemver} from "@eth-optimism-bedrock/src/universal/ISemver.sol";
 contract NestedSignFromJson is OriginalSignFromJson {
     using LibString for string;
 
-    // Safe contract for this task.
+    uint256 immutable l2ChainId = 11155421;
     address immutable proxyAdminOwnerSafe = vm.envAddress("OWNER_SAFE");
+
+    // Main contracts
+    address dgfProxy;
+    address faultDisputeGame;
+    address permissionedDisputeGame;
     
-    DisputeGameFactory dgfProxy;
-    FaultDisputeGame faultDisputeGame;
-    PermissionedDisputeGame permissionedDisputeGame;
+    // Expectations for DisputeGame implementations
+    string disputeGameExpectedVersion = "1.3.1";
+    bytes32 immutable absolutePrestate = 0x03b7eaa4e3cbce90381921a4b48008f4769871d64f93d113fcadca08ecee503b;
+    uint256 immutable maxGameDepth = 73;
+    uint256 immutable splitDepth = 30;
+    uint64 immutable maxClockDuration = 14400;
+    uint64 immutable clockExtension = 3600;
+    address anchorStateRegistryProxy;
+    // Expectations for PermissionedDisputeGame
+    address proposer;
+    address challenger;
+    
+    // Expectations for vm
+    string vmExpectedVersion = "1.0.0-beta.7";
+    address preimageOracle;
+    
+    // Expectations for weth
+    uint256 immutable wethDelay = 600;
+    
 
     /// @notice Sets up the contract references
     function setUp() public {
@@ -34,15 +55,14 @@ contract NestedSignFromJson is OriginalSignFromJson {
             revert(string.concat("Failed to read ", path));
         }
 
-        string memory l2ChainId = "11155421";
-
-        address dgfAddress = readContractAddress("DisputeGameFactoryProxy", l2ChainId);
-        address fdgAddress = stdJson.readAddress(inputJson, "$.transactions[0].contractInputsValues._impl");
-        address pdgAddress = stdJson.readAddress(inputJson, "$.transactions[1].contractInputsValues._impl");
-
-        dgfProxy = DisputeGameFactory(dgfAddress);
-        faultDisputeGame = FaultDisputeGame(fdgAddress);
-        permissionedDisputeGame = PermissionedDisputeGame(pdgAddress);
+        // Find contract addresses
+        dgfProxy = readContractAddress("DisputeGameFactoryProxy");
+        faultDisputeGame = stdJson.readAddress(inputJson, "$.transactions[0].contractInputsValues._impl");
+        permissionedDisputeGame = stdJson.readAddress(inputJson, "$.transactions[1].contractInputsValues._impl");
+        anchorStateRegistryProxy = readContractAddress("AnchorStateRegistryProxy");
+        proposer = readContractAddress("Proposer");
+        challenger = readContractAddress("Challenger");
+        preimageOracle = readContractAddress("PreimageOracle");
     }
 
     function getCodeExceptions() internal view override returns (address[] memory exceptions) {
@@ -51,7 +71,7 @@ contract NestedSignFromJson is OriginalSignFromJson {
 
     function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
         allowed = new address[](2);
-        allowed[0] = address(dgfProxy);
+        allowed[0] = dgfProxy;
         allowed[1] = proxyAdminOwnerSafe;
     }
 
@@ -61,52 +81,89 @@ contract NestedSignFromJson is OriginalSignFromJson {
         checkDGFProxy();
         checkDisputeGames();
         checkVm();
+        checkWeths();
         console.log("All assertions passed!");
     }
 
     function checkDGFProxy() internal view {
         console.log("check DisputeGameFactoryProxy");
-        require(address(faultDisputeGame) == address(dgfProxy.gameImpls(GameTypes.CANNON)), "dgf-100");
-        require(address(permissionedDisputeGame) == address(dgfProxy.gameImpls(GameTypes.PERMISSIONED_CANNON)), "dgf-200");
+    DisputeGameFactory dgf = DisputeGameFactory(dgfProxy);
+        
+        require(proxyAdminOwnerSafe == dgf.owner(), "dgf-100");
+        require(faultDisputeGame == address(dgf.gameImpls(GameTypes.CANNON)), "dgf-200");
+        require(permissionedDisputeGame == address(dgf.gameImpls(GameTypes.PERMISSIONED_CANNON)), "dgf-300");
     }
     
     function checkDisputeGames() internal view {
         console.log("check dispute game implementations");
         
-        checkDisputeGame(address(faultDisputeGame), GameTypes.CANNON);
-        checkDisputeGame(address(permissionedDisputeGame), GameTypes.PERMISSIONED_CANNON);
+        checkDisputeGame(faultDisputeGame, GameTypes.CANNON);
+        checkDisputeGame(permissionedDisputeGame, GameTypes.PERMISSIONED_CANNON);
     }
 
     function checkDisputeGame(address implAddress, GameType gameType) internal view {
         FaultDisputeGame gameImpl = FaultDisputeGame(implAddress);
         string memory gameStr = LibString.toString(GameType.unwrap(gameType));
-        string memory errPrefix = concat("dg", gameStr);
+        string memory errPrefix = string.concat("dg", gameStr, "-");
 
-        console.log(concat("check dispute game implementation of type: ", gameStr));
-        assertStringsEqual(gameImpl.version(), "1.3.1", concat(errPrefix, "100"));
+        console.log(string.concat("check dispute game implementation of GameType ", gameStr));
+        require(gameImpl.l2ChainId() == l2ChainId, string.concat(errPrefix, "100"));
+        require(GameType.unwrap(gameImpl.gameType()) == GameType.unwrap(gameType), string.concat(errPrefix, "200"));
+        assertStringsEqual(gameImpl.version(), disputeGameExpectedVersion, string.concat(errPrefix, "300"));
+        require(address(gameImpl.anchorStateRegistry()) == anchorStateRegistryProxy, string.concat(errPrefix, "400"));
+        require(Claim.unwrap(gameImpl.absolutePrestate()) == absolutePrestate, string.concat(errPrefix, "500"));
+        require(gameImpl.maxGameDepth() == maxGameDepth, string.concat(errPrefix, "600"));
+        require(gameImpl.splitDepth() == splitDepth, string.concat(errPrefix, "700"));
+        require(Duration.unwrap(gameImpl.maxClockDuration()) == maxClockDuration, string.concat(errPrefix, "800"));
+        require(Duration.unwrap(gameImpl.clockExtension()) == clockExtension, string.concat(errPrefix, "900"));
+
+        if(GameType.unwrap(gameType) == GameType.unwrap(GameTypes.PERMISSIONED_CANNON)) {
+            PermissionedDisputeGame permImpl = PermissionedDisputeGame(implAddress);
+            require(permImpl.proposer() == proposer, string.concat(errPrefix, "1000"));
+            require(permImpl.challenger() == challenger, string.concat(errPrefix, "1100"));
+        }
     }
     
     function checkVm() internal view {
         console.log("check VM implementation");
         
-        address vmAddr0 = address(faultDisputeGame.vm());
-        address vmAddr1 = address(permissionedDisputeGame.vm());
+        address vmAddr0 = address(FaultDisputeGame(faultDisputeGame).vm());
+        address vmAddr1 = address(PermissionedDisputeGame(permissionedDisputeGame).vm());
         ISemver vm = ISemver(vmAddr0);
         string memory vmVersion = vm.version();
         
         require(vmAddr0 == vmAddr1, "vm-100");
-        assertStringsEqual(vmVersion, "1.0.0-beta.7", "vm-200");
+        assertStringsEqual(vmVersion, vmExpectedVersion, "vm-200");
+        // TODO: check preimage oracle
+        // require(IMIPS(vmAddr0).oracle() == preimageOracle, "vm-300")
+    }
+
+    function checkWeths() internal view {
+        console.log("check IDelayedWETH implementations");
+        
+        IDelayedWETH weth0 = FaultDisputeGame(faultDisputeGame).weth();
+        IDelayedWETH weth1 = PermissionedDisputeGame(permissionedDisputeGame).weth();
+        
+        require(address(weth0) != address(weth1), "weths-100");
+        checkWeth(weth0, GameTypes.CANNON);
+        checkWeth(weth1, GameTypes.PERMISSIONED_CANNON);
+    }
+    
+    function checkWeth(IDelayedWETH weth, GameType gameType) internal view {
+        string memory gameStr = LibString.toString(GameType.unwrap(gameType));
+        string memory errPrefix = string.concat("weth", gameStr, "-");
+
+        console.log(string.concat("check IDelayedWETH implementation for GameType ", gameStr));
+        // TODO: check owner
+        // require(weth.owner() == proxyAdminOwnerSafe, string.concat(errPrefix, "100"));
+        require(weth.delay() == wethDelay, string.concat(errPrefix, "200"));
     }
     
     function assertStringsEqual(string memory a, string memory b, string memory errorMessage) internal pure {
         require(keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b)), errorMessage);
     }
-    
-    function concat(string memory a, string memory b) internal pure returns (string memory) {
-        return string(abi.encodePacked(a, b));
-    }
 
-    function readContractAddress(string memory contractName, string memory chainId) internal view returns (address) {
+    function readContractAddress(string memory contractName) internal view returns (address) {
         string memory addressesJson;
 
         // Read addresses json
@@ -118,6 +175,6 @@ contract NestedSignFromJson is OriginalSignFromJson {
             revert(string.concat("Failed to read ", path));
         }
 
-        return stdJson.readAddress(addressesJson, string.concat("$.", chainId, ".", contractName));
+        return stdJson.readAddress(addressesJson, string.concat("$.", LibString.toString(l2ChainId), ".", contractName));
     }
 }
