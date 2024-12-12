@@ -4,7 +4,7 @@ identifier = "DEPLOYER_EOA"
 isContract = false
 
 [[addresses]]
-addr = "0xc0da02939e1441f497fd74f78ce7decb17b66529"
+addr = "0xc0Da02939E1441F497fd74F78cE7Decb17B66529"
 identifier = "COMPOUND_GOVERNOR_BRAVO"
 isContract = true
 

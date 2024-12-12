@@ -11,11 +11,13 @@ contract LocalAddressRegistryTest is Test {
         // Define the path to the TOML file
         string memory tomlFilePath = "src/fps/addresses";
 
+        string memory tomlchainListPath = "src/fps/chainList.toml";
+
         // Define the chain ID to be used
         uint256 chainId = 31337; // Assuming chain ID 31337 for this test
 
         // Create the Addresses contract instance
-        addresses = new AddressRegistry(tomlFilePath, chainId);
+        addresses = new AddressRegistry(tomlFilePath, tomlchainListPath, chainId);
     }
 
     function testContractState() public view {
