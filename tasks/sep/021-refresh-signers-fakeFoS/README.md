@@ -1,6 +1,6 @@
 # Sepolia Update Signers of the `FakeFoS`
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xf82ded62c5eb6c9549579e8d35a70b5bf9a02c73d9fb39f40dbd5c0dc3276fe4)
 
 ## Objective
 
