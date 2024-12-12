@@ -19,21 +19,13 @@ Note: The changes listed below do not include safe nonce updates or liveness gua
 
 - **Key**: `0xa6eef7e35abe7026729641147f7915573c7e97b47efa546f5f6e3230263bcb49`<br/>
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000` (Note this may have changed if games of this type resolved)<br/>
-  **After**: `0xdead000000000000000000000000000000000000000000000000000000000000` <br/>
-  **Meaning**: Set the anchor state output root for game type 0 to 0xdead000000000000000000000000000000000000000000000000000000000000.
+  **After**: `0x5220f9c5ebf08e84847d542576a67a3077b6fa496235d93c557d5bd5286b431a` <br/>
+  **Meaning**: Set the anchor state output root for game type 0 to 0x5220f9c5ebf08e84847d542576a67a3077b6fa496235d93c557d5bd5286b431a.
 
 - **Key**: `0xa6eef7e35abe7026729641147f7915573c7e97b47efa546f5f6e3230263bcb4a`<br/>
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000` (Note this may have changed if games of this type resolved)<br/>
-  **After**: `0x0` <br/>
-  **Meaning**: Set the anchor state L2 block number for game type 0 to 0.
-
-### `0x10d7B35078d3baabB96Dd45a9143B94be65b12CD` (`DisputeGameFactoryProxy`)
-
-- **Key**: `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b` <br/>
-  **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
-  **After**: `0x0000000000000000000000006A8eFcba5642EB15D743CBB29545BdC44D5Ad8cD` <br/>
-  **Meaning**: Updates the implementation for game type 0. Verify that the new implementation is set using
-  `cast call 0x10d7B35078d3baabB96Dd45a9143B94be65b12CD "gameImpls(uint32)(address)" 0`.
+  **After**: `0x000000000000000000000000000000000000000000000000000000000007fb2c`<br/>
+  **Meaning**: Set the anchor state L2 block number for game type 0 to 523052.
 
 ### `0x10d7B35078d3baabB96Dd45a9143B94be65b12CD` (`DisputeGameFactoryProxy`)
 
@@ -42,3 +34,9 @@ Note: The changes listed below do not include safe nonce updates or liveness gua
   **After**: `0x0000000000000000000000000A780bE3eB21117b1bBCD74cf5D7624A3a482963` <br/>
   **Meaning**: Updates the implementation for game type 1. Verify that the new implementation is set using
   `cast call 0x10d7B35078d3baabB96Dd45a9143B94be65b12CD "gameImpls(uint32)(address)" 1`.
+
+- **Key**: `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b` <br/>
+  **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
+  **After**: `0x0000000000000000000000006A8eFcba5642EB15D743CBB29545BdC44D5Ad8cD` <br/>
+  **Meaning**: Updates the implementation for game type 0. Verify that the new implementation is set using
+  `cast call 0x10d7B35078d3baabB96Dd45a9143B94be65b12CD "gameImpls(uint32)(address)" 0`.
