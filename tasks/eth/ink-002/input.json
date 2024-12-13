@@ -1,43 +1,37 @@
 {
-  "version": "1.0",
-  "chainId": "57073",
-  "createdAt": 17340419213N,
-  "meta": {
-    "name": "Deputy Guardian - Set respected game type to permissionless cannon",
-    "description": ""
+  "chainId": 1,
+  "metadata": {
+    "name": "Deputy Guardian - Enable Permissionless Dispute Game",
+    "description": "This task updates the `respectedGameType` in the `OptimismPortal` to `CANNON`, enabling users to permissionlessly propose outputs as well as for anyone to participate in the dispute of these proposals. This action requires all in-progress withdrawals to be re-proven against a new `FaultDisputeGame` that was created after this update occurs."
   },
   "transactions": [
     {
-      "to": "0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2",
-      "value": "0",
-      "data": "0x6a76120200000000000000000000000009f7150d8c019bef34450d6920f6b3608cefdaf20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001a000000000000000000000000000000000000000000000000000000000000000247fc485040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000041000000000000000000000000c2819dc788505aac350142a7a707bf9d03e3bd0300000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000",
+      "metadata": {
+        "name": "Update `respectedGameType` in the `OptimismPortal`",
+        "description": "Update the `respectedGameType` to `CANNON` in the `OptimismPortal`, enabling permissionless proposals and challenging."
+      },
+      "to": "0xc6901F65369FC59fC1B4D6D6bE7A2318Ff38dB5B",
+      "value": "0x0",
+      "data": "0xa1155ed90000000000000000000000005d66c1782664115999c47c9fa5cd031f495d3e4f0000000000000000000000000000000000000000000000000000000000000000",
       "contractMethod": {
-         "inputs": [
-              { "internalType": "address", "name": "to", "type": "address" },
-              { "internalType": "uint256", "name": "value", "type": "uint256" },
-              { "internalType": "bytes", "name": "data", "type": "bytes" },
-              { "internalType": "enum Enum.Operation", "name": "operation", "type": "uint8" },
-              { "internalType": "uint256", "name": "safeTxGas", "type": "uint256" },
-              { "internalType": "uint256", "name": "baseGas", "type": "uint256" },
-              { "internalType": "uint256", "name": "gasPrice", "type": "uint256" },
-              { "internalType": "address", "name": "gasToken", "type": "address" },
-              { "internalType": "address payable", "name": "refundReceiver", "type": "address" },
-              { "internalType": "bytes", "name": "signatures", "type": "bytes" }
+        "type": "function",
+        "name": "setRespectedGameType",
+        "inputs": [
+          {
+            "name": "_portal",
+            "type": "address"
+          },
+          {
+            "name": "_gameType",
+            "type": "uint32"
+          }
         ],
-        "name": "execTransaction",
-        "payable": true
+        "outputs": [],
+        "stateMutability": "nonpayable"
       },
       "contractInputsValues": {
-        "to": "0x5d66c1782664115999c47c9fa5cd031f495d3e4f",
-        "value": "0",
-        "data": "0x7fc485040000000000000000000000000000000000000000000000000000000000000000",
-        "operation": "0",
-        "safeTxGas": "0",
-        "baseGas": "0",
-        "gasPrice": "0",
-        "gasToken": "0x0000000000000000000000000000000000000000",
-        "refundReceiver": "0x0000000000000000000000000000000000000000",
-        "signatures": "0x000000000000000000000000c2819dc788505aac350142a7a707bf9d03e3bd03000000000000000000000000000000000000000000000000000000000000000001"
+        "_portal": "0x5d66c1782664115999c47c9fa5cd031f495d3e4f",
+        "_gameType": "0"
       }
     }
   ]
