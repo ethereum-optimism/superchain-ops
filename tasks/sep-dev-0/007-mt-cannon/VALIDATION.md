@@ -25,7 +25,7 @@ cast index uint32 1 101
 
 **Key**: 0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b  
 **Before**: 0x000000000000000000000000e5e89e67f9715ca9e6be0bd7e50ce143d177117b  
-**After**: 0x000000000000000000000000030aca4aea0cf48bd53dca03b34e35d05b9635c7
+**After**: 0x000000000000000000000000030aca4aea0cf48bd53dca03b34e35d05b9635c7  
 **Meaning**: Updates the CANNON game type implementation. Verify that the new implementation is set using `cast call 0x2419423c72998eb1c6c15a235de2f112f8e38eff gameImpls(uint32)(address) 0`.
 Confirm the expected key slot with the following:
 ```
