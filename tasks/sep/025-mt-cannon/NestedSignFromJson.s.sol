@@ -135,23 +135,6 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         require(vm.oracle() == currentVm.oracle(), "vm-30");
     }
 
-    function _precheckAnchorStateCopy(GameType _fromType, GameType _toType) internal view {
-        console.log("pre-check anchor state copy", _toType.raw());
-
-        FaultDisputeGame fromImpl = FaultDisputeGame(address(dgfProxy.gameImpls(GameType(_fromType))));
-        // Must have existing game type implementation for the source
-        require(address(fromImpl) != address(0), "200");
-        address fromRegistry = address(fromImpl.anchorStateRegistry());
-        require(fromRegistry != address(0), "210");
-
-        FaultDisputeGame toImpl = FaultDisputeGame(address(dgfProxy.gameImpls(GameType(_toType))));
-        if (address(toImpl) != address(0)) {
-            // If there is an existing implementation, it must use the same anchor state registry.
-            address toRegistry = address(toImpl.anchorStateRegistry());
-            require(toRegistry == fromRegistry, "210");
-        }
-    }
-
     function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
         allowed = new address[](5 + extraStorageAccessAddresses.length);
         allowed[0] = address(dgfProxy);
@@ -174,7 +157,6 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         checkStateDiff(accesses);
         _checkDisputeGameImplementation(GameType.wrap(0), 0xd5016C6Eb023Fa1379F7b5777e5654D5eDEf20Aa);
         _checkDisputeGameImplementation(GameType.wrap(1), 0x4604A5cdD9f448F22401bFaB06A5157F053BE7cb);
-        // INSERT NEW POST CHECKS HERE
 
         console.log("All assertions passed!");
     }
@@ -183,29 +165,6 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         console.log("check dispute game implementations", _targetGameType.raw());
 
         require(_newImpl == address(dgfProxy.gameImpls(_targetGameType)), "check-100");
-    }
-
-    function _postcheckAnchorStateCopy(GameType _gameType, bytes32 _root, uint256 _l2BlockNumber) internal view {
-        console.log("check anchor state value", _gameType.raw());
-
-        FaultDisputeGame impl = FaultDisputeGame(address(dgfProxy.gameImpls(GameType(_gameType))));
-        (Hash root, uint256 rootBlockNumber) = FaultDisputeGame(address(impl)).anchorStateRegistry().anchors(_gameType);
-
-        require(root.raw() == _root, "check-200");
-        require(rootBlockNumber == _l2BlockNumber, "check-210");
-    }
-
-    // @notice Checks the anchor state for the source game type still exists after re-initialization.
-    // The actual anchor state may have been updated since the task was defined so just assert it exists, not that
-    // it has a specific value.
-    function _postcheckHasAnchorState(GameType _gameType) internal view {
-        console.log("check anchor state exists", _gameType.raw());
-
-        FaultDisputeGame impl = FaultDisputeGame(address(dgfProxy.gameImpls(GameType(_gameType))));
-        (Hash root, uint256 rootBlockNumber) = FaultDisputeGame(address(impl)).anchorStateRegistry().anchors(_gameType);
-
-        require(root.raw() != bytes32(0), "check-300");
-        require(rootBlockNumber != 0, "check-310");
     }
 
     function assertStringsEqual(string memory a, string memory b, string memory errorMessage) internal pure {
