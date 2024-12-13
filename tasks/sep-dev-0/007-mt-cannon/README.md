@@ -1,6 +1,6 @@
 # MTCannon Deployment
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x5002821d69ec13dcf913e6f53224141388dd96242b559ff1cc44c3bef46d48ef)
 
 ## Objective
 
