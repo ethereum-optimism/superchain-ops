@@ -37,6 +37,10 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
     // DisputeGameFactoryProxy address.
     DisputeGameFactory dgfProxy;
+    // Dispute game addresses
+    address faultDisputeGameAddr;
+    address permissionedDisputeGameAddr;
+    
     
     // Validation expectations
     address mips64Addr = vm.envAddress("MIPS64");
@@ -47,9 +51,20 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     address[] extraStorageAccessAddresses;
 
     function setUp() public {
+        string memory inputJson;
+        string memory path = "/tasks/sep/025-mt-cannon/input.json";
+        try vm.readFile(string.concat(vm.projectRoot(), path)) returns (string memory data) {
+            inputJson = data;
+        } catch {
+            revert(string.concat("Failed to read ", path));
+        }
+        
         dgfProxy = DisputeGameFactory(systemConfig.disputeGameFactory());
-        _precheckDisputeGameImplementation(GameType.wrap(0), 0xd5016C6Eb023Fa1379F7b5777e5654D5eDEf20Aa);
-        _precheckDisputeGameImplementation(GameType.wrap(1), 0x4604A5cdD9f448F22401bFaB06A5157F053BE7cb);
+        faultDisputeGameAddr = stdJson.readAddress(inputJson, "$.transactions[0].contractInputsValues._impl");
+        permissionedDisputeGameAddr = stdJson.readAddress(inputJson, "$.transactions[1].contractInputsValues._impl");
+        
+        _precheckDisputeGameImplementation(GameType.wrap(0), faultDisputeGameAddr);
+        _precheckDisputeGameImplementation(GameType.wrap(1), permissionedDisputeGameAddr);
         // INSERT NEW PRE CHECKS HERE
     }
 
@@ -155,8 +170,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         console.log("Running post-deploy assertions");
 
         checkStateDiff(accesses);
-        _checkDisputeGameImplementation(GameType.wrap(0), 0xd5016C6Eb023Fa1379F7b5777e5654D5eDEf20Aa);
-        _checkDisputeGameImplementation(GameType.wrap(1), 0x4604A5cdD9f448F22401bFaB06A5157F053BE7cb);
+        _checkDisputeGameImplementation(GameType.wrap(0), faultDisputeGameAddr);
+        _checkDisputeGameImplementation(GameType.wrap(1), permissionedDisputeGameAddr);
 
         console.log("All assertions passed!");
     }
