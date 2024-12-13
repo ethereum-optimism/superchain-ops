@@ -6,8 +6,8 @@ Status: DRAFT, NOT READY TO SIGN
 
 This task updates the fault dispute system for op-sepolia: 
 
-* Set implementation for game type 0 to 0xd5016c6eb023fa1379f7b5777e5654d5edef20aa in `DisputeGameFactory` 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1: `setImplementation(0, 0xd5016c6eb023fa1379f7b5777e5654d5edef20aa)`
-* Set implementation for game type 1 to 0x4604A5cdD9f448F22401bFaB06A5157F053BE7cb in `DisputeGameFactory` 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1: `setImplementation(1, 0x4604A5cdD9f448F22401bFaB06A5157F053BE7cb)`
+* Set implementation for game type 0 to 0x924D3d3B3b16E74bAb577e50d23b2a38990dD52C in `DisputeGameFactory` 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1: `setImplementation(0, 0x924D3d3B3b16E74bAb577e50d23b2a38990dD52C)`
+* Set implementation for game type 1 to 0x879e899523bA9a4Ab212a2d70cF1af73B906CbE5 in `DisputeGameFactory` 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1: `setImplementation(1, 0x879e899523bA9a4Ab212a2d70cF1af73B906CbE5)`
 
 Contracts upgraded are included within the
 [op-contracts/v1.9.0-rc.3](https://github.com/ethereum-optimism/optimism/tree/op-contracts/v1.9.0-rc.3) release.
@@ -15,9 +15,8 @@ Contracts upgraded are included within the
 ## Pre-deployments
 
 - `MIPS64`  - [0xa1e470b6bd25e8eea9ffcda6a1518be5eb8ee7bb](https://sepolia.etherscan.io/address/0xa1e470b6bd25e8eea9ffcda6a1518be5eb8ee7bb)
-- `FaultDisputeGame`  - [0xd5016c6eb023fa1379f7b5777e5654d5edef20aa](https://sepolia.etherscan.io/address/0xd5016c6eb023fa1379f7b5777e5654d5edef20aa)
-- `PermissionedDisputeGame` - [0x4604a5cdd9f448f22401bfab06a5157f053be7cb](https://sepolia.etherscan.io/address/0x4604a5cdd9f448f22401bfab06a5157f053be7cb)
-
+- `FaultDisputeGame`  - [0x924d3d3b3b16e74bab577e50d23b2a38990dd52c](https://sepolia.etherscan.io/address/0x924d3d3b3b16e74bab577e50d23b2a38990dd52c)
+- `PermissionedDisputeGame` - [0x879e899523bA9a4Ab212a2d70cF1af73B906CbE5](https://sepolia.etherscan.io/address/0x879e899523bA9a4Ab212a2d70cF1af73B906CbE5)
 ## Simulation
 
 Please see the "Simulating and Verifying the Transaction" instructions in [NESTED.md](../../../NESTED.md).

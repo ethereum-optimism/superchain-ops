@@ -19,7 +19,7 @@ Note: The changes listed below do not include safe nonce updates or liveness gua
 
 - **Key**: `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b` <br/>
   **Before**: `0x0000000000000000000000005e0877a8f6692ed470013e651c4357d0c4941e6c` <br/>
-  **After**: `0x000000000000000000000000d5016c6eb023fa1379f7b5777e5654d5edef20aa` <br/>
+  **After**: `0x000000000000000000000000924D3d3B3b16E74bAb577e50d23b2a38990dD52C` <br/>
   **Meaning**: Updates the implementation for game type 0. Verify that the new implementation is set using
   `cast call 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1 "gameImpls(uint32)(address)" 0`.
 
@@ -27,6 +27,6 @@ Note: The changes listed below do not include safe nonce updates or liveness gua
 
 - **Key**: `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e` <br/>
   **Before**: `0x0000000000000000000000004ed046e66c96600dae1a4ec39267bb0ce476e8cc` <br/>
-  **After**: `0x0000000000000000000000004604A5cdD9f448F22401bFaB06A5157F053BE7cb` <br/>
+  **After**: `0x000000000000000000000000879e899523bA9a4Ab212a2d70cF1af73B906CbE5` <br/>
   **Meaning**: Updates the implementation for game type 1. Verify that the new implementation is set using
   `cast call 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1 "gameImpls(uint32)(address)" 1`.
