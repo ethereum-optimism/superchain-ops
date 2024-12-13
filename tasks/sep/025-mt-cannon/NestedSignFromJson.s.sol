@@ -15,6 +15,7 @@ import {DisputeGameFactory} from "@eth-optimism-bedrock/src/dispute/DisputeGameF
 import {FaultDisputeGame} from "@eth-optimism-bedrock/src/dispute/FaultDisputeGame.sol";
 import {PermissionedDisputeGame} from "@eth-optimism-bedrock/src/dispute/PermissionedDisputeGame.sol";
 import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
+import {ISemver} from "@eth-optimism-bedrock/src/universal/ISemver.sol";
 
 contract NestedSignFromJson is OriginalNestedSignFromJson {
     using LibString for string;
@@ -36,6 +37,12 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
     // DisputeGameFactoryProxy address.
     DisputeGameFactory dgfProxy;
+    
+    // Validation expectations
+    address mips64Addr = vm.envAddress("MIPS64");
+    bytes32 immutable absolutePrestate = vm.envBytes32("ABSOLUTE_PRESTATE");
+    string expectedVmVersion = vm.envString("VM_VERSION");
+    string expectedFDGVersion = vm.envString("FDG_VERSION");
 
     address[] extraStorageAccessAddresses;
 
@@ -81,10 +88,9 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     }
 
     // _precheckDisputeGameImplementation checks that the new game being set has the same configuration as the existing
-    // implementation with the exception of the absolutePrestate. This is the most common scenario where the game
-    // implementation is upgraded to provide an updated fault proof program that supports an upcoming hard fork.
+    // implementation with the exception of the absolutePrestate and vm which should be updated.
     function _precheckDisputeGameImplementation(GameType _targetGameType, address _newImpl) internal view {
-        console.log("pre-check new game implementations", _targetGameType.raw());
+        console.log("pre-check new game implementation", _targetGameType.raw());
 
         FaultDisputeGame currentImpl = FaultDisputeGame(address(dgfProxy.gameImpls(GameType(_targetGameType))));
         // No checks are performed if there is no prior implementation.
@@ -93,7 +99,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
             return;
         }
         FaultDisputeGame faultDisputeGame = FaultDisputeGame(_newImpl);
-        require(address(currentImpl.vm()) == address(faultDisputeGame.vm()), "10");
+        require(_targetGameType.raw() == faultDisputeGame.gameType().raw(), "10");
         require(address(currentImpl.weth()) == address(faultDisputeGame.weth()), "20");
         require(address(currentImpl.anchorStateRegistry()) == address(faultDisputeGame.anchorStateRegistry()), "30");
         require(currentImpl.l2ChainId() == faultDisputeGame.l2ChainId(), "40");
@@ -102,12 +108,31 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         require(uint64(Duration.unwrap(currentImpl.maxClockDuration())) == uint64(Duration.unwrap(faultDisputeGame.maxClockDuration())), "70");
         require(uint64(Duration.unwrap(currentImpl.clockExtension())) == uint64(Duration.unwrap(faultDisputeGame.clockExtension())), "80");
 
+        // Check modified fields
+        require(mips64Addr == address(faultDisputeGame.vm()), "81");
+        require(absolutePrestate == faultDisputeGame.absolutePrestate().raw(), "82");
+        assertStringsEqual(faultDisputeGame.version(), expectedFDGVersion, "vm-20");
+
         if (_targetGameType.raw() == GameTypes.PERMISSIONED_CANNON.raw()) {
             PermissionedDisputeGame currentPDG = PermissionedDisputeGame(address(currentImpl));
             PermissionedDisputeGame permissionedDisputeGame = PermissionedDisputeGame(address(faultDisputeGame));
             require(address(currentPDG.proposer()) == address(permissionedDisputeGame.proposer()), "90");
             require(address(currentPDG.challenger()) == address(permissionedDisputeGame.challenger()), "100");
         }
+        
+        // Check configured vm
+        _precheckVm(faultDisputeGame, currentImpl);
+    }
+
+    function _precheckVm(FaultDisputeGame faultDisputeGame, FaultDisputeGame currentImpl) internal view {
+        console.log("pre-check VM implementation", faultDisputeGame.gameType().raw());
+
+        IMIPS vm = IMIPS(address(faultDisputeGame.vm()));
+        IMIPS currentVm = IMIPS(address(currentImpl.vm()));
+
+        require(address(vm) == mips64Addr, "vm-10");
+        assertStringsEqual(vm.version(), expectedVmVersion, "vm-20");
+        require(vm.oracle() == currentVm.oracle(), "vm-30");
     }
 
     function _precheckAnchorStateCopy(GameType _fromType, GameType _toType) internal view {
@@ -182,4 +207,12 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         require(root.raw() != bytes32(0), "check-300");
         require(rootBlockNumber != 0, "check-310");
     }
+
+    function assertStringsEqual(string memory a, string memory b, string memory errorMessage) internal pure {
+        require(keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b)), errorMessage);
+    }
+}
+
+interface IMIPS is ISemver {
+    function oracle() external view returns (address oracle_);
 }
