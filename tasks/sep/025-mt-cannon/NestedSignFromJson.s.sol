@@ -65,7 +65,6 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         
         _precheckDisputeGameImplementation(GameType.wrap(0), faultDisputeGameAddr);
         _precheckDisputeGameImplementation(GameType.wrap(1), permissionedDisputeGameAddr);
-        // INSERT NEW PRE CHECKS HERE
     }
 
     function getCodeExceptions() internal view override returns (address[] memory) {
@@ -108,12 +107,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         console.log("pre-check new game implementation", _targetGameType.raw());
 
         FaultDisputeGame currentImpl = FaultDisputeGame(address(dgfProxy.gameImpls(GameType(_targetGameType))));
-        // No checks are performed if there is no prior implementation.
-        // When deploying the first implementation, it is recommended to implement custom checks.
-        if (address(currentImpl) == address(0)) {
-            return;
-        }
         FaultDisputeGame faultDisputeGame = FaultDisputeGame(_newImpl);
+        
         require(_targetGameType.raw() == faultDisputeGame.gameType().raw(), "10");
         require(address(currentImpl.weth()) == address(faultDisputeGame.weth()), "20");
         require(address(currentImpl.anchorStateRegistry()) == address(faultDisputeGame.anchorStateRegistry()), "30");
