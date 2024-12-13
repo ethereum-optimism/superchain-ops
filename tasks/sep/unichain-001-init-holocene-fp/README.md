@@ -4,6 +4,8 @@ Status: EXECUTED
 
 Tx Hash: 0x10a424c2014650d3f66908180e201569390464edbe131ec65b4d1b7044df0e33
 
+The DisputeGameFactory was updated to use the Holocene FP contracts in Tx 0xfe8a204c3994f6e0a62a944ecf2f634c2de172bddec714fefab368c6f95604e2.
+
 ## Objective
 
 This task updates the fault dispute system for unichain-sepolia:
