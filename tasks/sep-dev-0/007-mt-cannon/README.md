@@ -1,6 +1,6 @@
 # MTCannon Deployment
 
-Status: Draft
+Status: READY TO SIGN
 
 ## Objective
 
