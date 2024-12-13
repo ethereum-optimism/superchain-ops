@@ -1,6 +1,8 @@
 # ProxyAdminOwner - Set Dispute Game Implementation
 
-Status: READY TO SIGN
+Status: EXECUTED
+
+Tx Hash: 0x10a424c2014650d3f66908180e201569390464edbe131ec65b4d1b7044df0e33
 
 ## Objective
 
