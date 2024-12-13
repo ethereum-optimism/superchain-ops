@@ -11,6 +11,7 @@ import {GnosisSafe} from "safe-contracts/GnosisSafe.sol";
 import {LibString} from "solady/utils/LibString.sol";
 import {Types} from "@eth-optimism-bedrock/scripts/Types.sol";
 import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
+import {AnchorStateRegistry} from "@eth-optimism-bedrock/src/dispute/AnchorStateRegistry.sol";
 import {DisputeGameFactory} from "@eth-optimism-bedrock/src/dispute/DisputeGameFactory.sol";
 import {FaultDisputeGame} from "@eth-optimism-bedrock/src/dispute/FaultDisputeGame.sol";
 import {PermissionedDisputeGame} from "@eth-optimism-bedrock/src/dispute/PermissionedDisputeGame.sol";
@@ -33,6 +34,11 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     bytes32 livenessGuardSlot = 0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8;
 
     SystemConfig systemConfig = SystemConfig(vm.envAddress("SYSTEM_CONFIG"));
+    AnchorStateRegistry anchorStateRegistryProxy = AnchorStateRegistry(vm.envAddress("ANCHOR_STATE_REGISTRY"));
+    address newFaultDisputeGameImpl = vm.envAddress("NEW_FAULT_DISPUTE_GAME_IMPL");
+    address newPermissionedDisputeGameImpl = vm.envAddress("NEW_PERMISSIONED_DISPUTE_GAME_IMPL");
+    bytes32 newAnchorStateRoot = vm.envBytes32("NEW_ANCHOR_STATE_ROOT");
+    uint256 newAnchorStateBlockNumber = vm.envUint("NEW_ANCHOR_STATE_BLOCK_NUMBER");
 
     // DisputeGameFactoryProxy address.
     DisputeGameFactory dgfProxy;
@@ -40,12 +46,12 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     address[] extraStorageAccessAddresses;
 
     function setUp() public {
+        require(address(anchorStateRegistryProxy.disputeGameFactory()) == address(systemConfig.disputeGameFactory()), "setup-100");
         dgfProxy = DisputeGameFactory(systemConfig.disputeGameFactory());
-        extraStorageAccessAddresses.push(0xde744491BcF6b2DD2F32146364Ea1487D75E2509);
+        extraStorageAccessAddresses.push(address(anchorStateRegistryProxy));
         _precheckAnchorStateCopy(GameType.wrap(1), GameType.wrap(0));
-        _precheckDisputeGameImplementation(GameType.wrap(0), 0x6A8eFcba5642EB15D743CBB29545BdC44D5Ad8cD);
-        _precheckDisputeGameImplementation(GameType.wrap(1), 0x0A780bE3eB21117b1bBCD74cf5D7624A3a482963);
-        // INSERT NEW PRE CHECKS HERE
+        _precheckDisputeGameImplementation(GameType.wrap(0), newFaultDisputeGameImpl);
+        _precheckDisputeGameImplementation(GameType.wrap(1), newPermissionedDisputeGameImpl);
     }
 
     function getCodeExceptions() internal view override returns (address[] memory) {
@@ -149,13 +155,12 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         console.log("Running post-deploy assertions");
 
         checkStateDiff(accesses);
-        _postcheckAnchorStateCopy(GameType.wrap(0), bytes32(0x5220f9c5ebf08e84847d542576a67a3077b6fa496235d93c557d5bd5286b431a), 523052);
+        _postcheckAnchorStateCopy(GameType.wrap(0), newAnchorStateRoot, newAnchorStateBlockNumber);
         // Removing this because the current anchor state on ink mainnet is 0
         // This is because the chain is currently less than 7 days old and hasn't had a chance to finalize any games.
         // _postcheckHasAnchorState(GameType.wrap(1));
-        _checkDisputeGameImplementation(GameType.wrap(0), 0x6A8eFcba5642EB15D743CBB29545BdC44D5Ad8cD);
-        _checkDisputeGameImplementation(GameType.wrap(1), 0x0A780bE3eB21117b1bBCD74cf5D7624A3a482963);
-        // INSERT NEW POST CHECKS HERE
+        _checkDisputeGameImplementation(GameType.wrap(0), newFaultDisputeGameImpl);
+        _checkDisputeGameImplementation(GameType.wrap(1), newPermissionedDisputeGameImpl);
 
         console.log("All assertions passed!");
     }
