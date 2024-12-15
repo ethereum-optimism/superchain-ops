@@ -2,21 +2,26 @@ set dotenv-load
 
 pause:
   #!/usr/bin/env bash
-  NETWORK='''sepolia\nmainnet'''
+  NETWORK='''🧪sepolia\n🔴mainnet\n🛠️localhost(Debug Test)'''
 
   NETWORK_SELECTED=$(printf $NETWORK | fzf --prompt "Select the network to pause the Superchain using arrows keys:⬆️⬇️")
   SLASH="/"
   if [[ "$NETWORK_SELECTED" == "sepolia" ]]; then
     echo "You selected the Sepolia network.✅"
     VAULTNAME="Sepolia"
-    EXPLORER="https://sepolia.etherscan.io/"
-    # RPC_URL="https://ethereum-sepolia.publicnode.com" # TODO: Not using the ETH_RPC_URL to avoid confusion an make sure every network is correctly documented.
+    RPC_URL="https://ethereum-sepolia.publicnode.com" # TODO: Not using the ETH_RPC_URL to avoid confusion an make sure every network is correctly documented.
     RPC_URL="http://localhost:8545"
   elif [[ "$NETWORK_SELECTED" == "mainnet" ]]; then
     echo "You selected the Ethereum Mainnet network.✅"
     VAULTNAME="Mainnet"
     EXPLORER="https://etherscan.io/"
     RPC_URL="https://ethereum.publicnode.com"
+  elif [[ "$NETWORK_SELECTED" == "localhost" ]]; then
+    echo "You selected the *localhost* network that is a fork of Sepolia ✅"
+    echo "Please make sure the node is running with the fork of the Sepolia on port 8545 -> (example: 'anvil -f https://ethereum-sepolia.publicnode.com')" 
+    VAULTNAME="Sepolia"
+    EXPLORER="https://sepolia.etherscan.io/"
+    RPC_URL="http://localhost:8545"
   else
     echo "ERROR: Unable to determine vault from network: $NETWORK_SELECTED, Please specify a valid network for the the vault name Ex: sepolia, mainnet"
     exit 1
