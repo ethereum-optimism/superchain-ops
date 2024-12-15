@@ -44,9 +44,6 @@ contract AddressRegistry is IAddressRegistry, Test {
     /// @notice Supported L2 chain IDs for this Address Registry instance.
     mapping(uint256 => bool) public supportedL2ChainIds;
 
-    /// @notice The task implementation chain id.
-    uint256 public supportedChainId;
-
     /// @notice Array of supported superchains and their configurations
     Superchain[] public superchains;
 
@@ -54,8 +51,6 @@ contract AddressRegistry is IAddressRegistry, Test {
     /// @param addressFolderPath The path to the folder containing chain-specific TOML address files
     /// @param superchainListFilePath The path to the TOML file containing the list of supported L2 chains
     constructor(string memory addressFolderPath, string memory superchainListFilePath) {
-        supportedChainId = block.chainid;
-
         bytes memory superchainListContent = vm.parseToml(vm.readFile(superchainListFilePath), ".chains");
         superchains = abi.decode(superchainListContent, (Superchain[]));
 
