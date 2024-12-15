@@ -103,7 +103,10 @@ contract SignPauseMessage is Script {
 
     function signAndBrodcast(string memory network) public {
         //TODO: Get from the superchain registry for sepolia the addresses required.
-        if (StringUtils.compareStrings(network, "sepolia")) {
+        if (
+            StringUtils.compareStrings(network, "sepolia") ||
+            StringUtils.compareStrings(network, "localhost") //localhost is for testing is based on a fork of sepolia.
+        ) {
             DeputyGuardian = Safe(
                 payable(address(0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B))
             );
