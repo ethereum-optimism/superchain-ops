@@ -17,7 +17,7 @@ just --justfile pause-automation.just pause
 ```
 
 The script will ask for **1** confirmation with the "yes" or "no" option.
-Once "yes" is selected, the network will be paused and the script will return the transactionHash.
+Once "yes" is selected, the network will be paused and the script will return the transaction hash.
 
 > [!WARNING]
 > There is no cancel option after the "yes" confirmation is selected.
