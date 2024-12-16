@@ -1,0 +1,9 @@
+[[addresses]]
+addr = "0x9679E26bf0C470521DE83Ad77BB1bf1e7312f739"
+identifier = "DEPLOYER_EOA"
+isContract = false
+
+[[addresses]]
+addr = "0x9679E26bf0C470521DE83Ad77BB1bf1e7312f739"
+identifier = "DEPLOYER_EOA"
+isContract = false
