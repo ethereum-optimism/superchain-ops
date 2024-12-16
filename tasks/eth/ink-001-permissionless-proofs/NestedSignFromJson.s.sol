@@ -40,6 +40,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     bytes32 newAnchorStateRoot = vm.envBytes32("NEW_ANCHOR_STATE_ROOT");
     uint256 newAnchorStateBlockNumber = vm.envUint("NEW_ANCHOR_STATE_BLOCK_NUMBER");
 
+    uint256 initBond = 0.08 ether;
+
     // DisputeGameFactoryProxy address.
     DisputeGameFactory dgfProxy;
 
@@ -159,6 +161,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         _postcheckHasAnchorState(GameType.wrap(1));
         _checkDisputeGameImplementation(GameType.wrap(0), newFaultDisputeGameImpl);
         _checkDisputeGameImplementation(GameType.wrap(1), newPermissionedDisputeGameImpl);
+        _checkInitBonds();
 
         console.log("All assertions passed!");
     }
@@ -167,6 +170,13 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         console.log("check dispute game implementations", _targetGameType.raw());
 
         require(_newImpl == address(dgfProxy.gameImpls(_targetGameType)), "check-100");
+    }
+
+    function _checkInitBonds() internal view {
+        console.log("check the initial bonds");
+
+        require(dgfProxy.initBonds(GameType.wrap(0)) == initBond, "check-bond-100");
+        require(dgfProxy.initBonds(GameType.wrap(1)) == initBond, "check-bond-200");
     }
 
     function _postcheckAnchorStateCopy(GameType _gameType, bytes32 _root, uint256 _l2BlockNumber) internal view {
