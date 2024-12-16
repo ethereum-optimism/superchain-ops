@@ -49,13 +49,9 @@ contract MainnetAddressRegistryTest is Test {
             addresses.isAddressContract("COMPOUND_CONFIGURATOR", OP_CHAIN_ID),
             "Address configurator should be a contract"
         );
-        assertFalse(
-            addresses.isAddressContract("DEPLOYER_EOA", OP_CHAIN_ID), "EOA address should not be a contract"
-        );
+        assertFalse(addresses.isAddressContract("DEPLOYER_EOA", OP_CHAIN_ID), "EOA address should not be a contract");
 
-        assertTrue(
-            addresses.isAddressRegistered("DEPLOYER_EOA", OP_CHAIN_ID), "DEPLOYER_EOA should be registered"
-        );
+        assertTrue(addresses.isAddressRegistered("DEPLOYER_EOA", OP_CHAIN_ID), "DEPLOYER_EOA should be registered");
         assertTrue(
             addresses.isAddressRegistered("COMPOUND_GOVERNOR_BRAVO", OP_CHAIN_ID),
             "COMPOUND_GOVERNOR_BRAVO should be registered"
@@ -87,20 +83,13 @@ contract MainnetAddressRegistryTest is Test {
             "OP Messenger address mismatch"
         );
 
+        assertTrue(addresses.isAddressContract("OptimismPortalProxy", OP_CHAIN_ID), "OP Portal should be a contract");
+        assertTrue(addresses.isAddressContract("L1StandardBridgeProxy", OP_CHAIN_ID), "OP Bridge should be a contract");
         assertTrue(
-            addresses.isAddressContract("OptimismPortalProxy", OP_CHAIN_ID), "OP Portal should be a contract"
-        );
-        assertTrue(
-            addresses.isAddressContract("L1StandardBridgeProxy", OP_CHAIN_ID), "OP Bridge should be a contract"
-        );
-        assertTrue(
-            addresses.isAddressContract("L1CrossDomainMessengerProxy", OP_CHAIN_ID),
-            "OP Messenger should be a contract"
+            addresses.isAddressContract("L1CrossDomainMessengerProxy", OP_CHAIN_ID), "OP Messenger should be a contract"
         );
 
-        assertTrue(
-            addresses.isAddressRegistered("OptimismPortalProxy", OP_CHAIN_ID), "OP Portal should be registered"
-        );
+        assertTrue(addresses.isAddressRegistered("OptimismPortalProxy", OP_CHAIN_ID), "OP Portal should be registered");
         assertTrue(
             addresses.isAddressRegistered("L1StandardBridgeProxy", OP_CHAIN_ID), "OP Bridge should be registered"
         );
