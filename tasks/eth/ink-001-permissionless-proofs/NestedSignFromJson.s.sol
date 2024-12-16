@@ -158,7 +158,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         _postcheckAnchorStateCopy(GameType.wrap(0), newAnchorStateRoot, newAnchorStateBlockNumber);
         // Removing this because the current anchor state on ink mainnet is 0
         // This is because the chain is currently less than 7 days old and hasn't had a chance to finalize any games.
-        // _postcheckHasAnchorState(GameType.wrap(1));
+        _postcheckHasAnchorState(GameType.wrap(1));
         _checkDisputeGameImplementation(GameType.wrap(0), newFaultDisputeGameImpl);
         _checkDisputeGameImplementation(GameType.wrap(1), newPermissionedDisputeGameImpl);
 
