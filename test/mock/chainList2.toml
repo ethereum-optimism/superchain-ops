@@ -1,0 +1,7 @@
+[[chains]]
+  name = "OP Mainnet"
+  chain_id = 10
+
+[[chains]]
+  name = ""
+  chain_id = 8453

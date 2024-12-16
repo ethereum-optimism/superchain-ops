@@ -1,0 +1,14 @@
+[[addresses]]
+addr = "0x9679E26bf0C470521DE83Ad77BB1bf1e7312f739"
+identifier = "DEPLOYER_EOA"
+isContract = true
+
+[[addresses]]
+addr = "0xc0da02939e1441f497fd74f78ce7decb17b66529"
+identifier = "COMPOUND_GOVERNOR_BRAVO"
+isContract = true
+
+[[addresses]]
+addr = "0x316f9708bB98af7dA9c68C1C3b5e79039cD336E3"
+identifier = "COMPOUND_CONFIGURATOR"
+isContract = true
