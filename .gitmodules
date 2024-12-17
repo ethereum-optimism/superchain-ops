@@ -23,9 +23,3 @@
 [submodule "lib/superchain-registry"]
 	path = lib/superchain-registry
 	url = https://github.com/ethereum-optimism/superchain-registry
-[submodule "superchain-pause-execution/lib/openzeppelin-contracts"]
-	path = superchain-pause-execution/lib/openzeppelin-contracts
-	url = https://github.com/OpenZeppelin/openzeppelin-contracts
-[submodule "superchain-pause-execution/lib/safe-smart-account"]
-	path = superchain-pause-execution/lib/safe-smart-account
-	url = https://github.com/safe-global/safe-smart-account
