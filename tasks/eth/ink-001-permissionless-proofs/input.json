@@ -136,7 +136,7 @@
     {
       "metadata": {
         "name": "Sets the bond value for permissioned game type",
-        "description": ""
+        "description": "This sets the initial bond to 0.08 ETH to deploy a PermissionedDisputeGame."
       },
       "to": "0x10d7B35078d3baabB96Dd45a9143B94be65b12CD",
       "value": "0x0",
@@ -165,7 +165,7 @@
     {
       "metadata": {
         "name": "Sets the bond value for permissionless",
-        "description": ""
+        "description": "This sets the initial bond to 0.08 ETH to deploy a FaultDisputeGame."
       },
       "to": "0x10d7B35078d3baabB96Dd45a9143B94be65b12CD",
       "value": "0x0",
