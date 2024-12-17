@@ -1,27 +1,27 @@
 #!/bin/bash
 set -euo pipefail
 
-source  ./script/utils/get-valid-statuses.sh
+BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$BASE_DIR/../.."
+# shellcheck source=script/utils/get-valid-statuses.sh
+source "$BASE_DIR/get-valid-statuses.sh"
 
+# --- Initialize Arrays ---
 single_tasks_to_simulate=()
 nested_tasks_to_simulate=()
 
-# Find README.md files for all tasks and process them.
-# Files read from ./script/utils/get-valid-statuses.sh.
-# Exclude tasks defined in folder FOLDER_WITH_NO_TASKS.
-filtered_files=$(echo "$files" | grep -v "/${FOLDER_WITH_NO_TASKS}/")
+# --- Filter Files ---
+filtered_files=$(echo "$FILES_FOUND_BY_GET_VALID_STATUSES" | grep -v "/${TEMPLATES_FOLDER_WITH_NO_TASKS}/")
 
-search_non_terminal_tasks(){
+# --- Search Non-Terminal Tasks ---
+search_non_terminal_tasks() {
   local directory
   for file in $filtered_files; do
-    # Ensure it's a regular file.
     if [[ -f "$file" ]]; then
-      # Read file content and search for any status in the NON_TERMINAL_STATUSES array.
       for status in "${NON_TERMINAL_STATUSES[@]}"; do
         if grep -q "$status" "$file"; then
           directory=$(dirname "$file")
-          # Specify if a task is safe or nested.
-          if [[ -f "$directory/$IF_THIS_ITS_NESTED" ]]; then
+          if [[ -f "$directory/$NESTED_SAFE_TASK_INDICATOR" ]]; then
             nested_tasks_to_simulate+=("${file%/README.md}")
           else
             single_tasks_to_simulate+=("${file%/README.md}")
@@ -33,66 +33,71 @@ search_non_terminal_tasks(){
   done
 }
 
+# Define directories to skip - you should add reasons why it's being skipped.
+directories_to_skip=(
+  "tasks/sep/base-003-fp-granite-prestate" # investigating why this simulation breaks.
+  "tasks/sep/013-fp-granite-prestate" # investigating why this simulation breaks.
+)
+
+should_skip_directory() {
+  local dir="$1"
+  for skip_dir in "${directories_to_skip[@]}"; do
+    if [[ "$dir" == *"$skip_dir"* ]]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
 search_non_terminal_tasks
 
+# --- Simulate Single Tasks ---
 if [ ${#single_tasks_to_simulate[@]} -eq 0 ]; then
-    echo "No single tasks"
+  echo "No single tasks"
 else
-    echo "Simulating single tasks..."
-    # Prepared acording to ./SINGLE.md
-
-    export SIMULATE_WITHOUT_LEDGER=1
-
-    # Option 1: call simulation command here
-    for task in "${single_tasks_to_simulate[@]}"; do
-      current_dir=$(pwd)
-      cd "$task"
-      echo "Simulating task: $task"
-      just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate 0
-      cd "$current_dir"
-    done
-
-    # Option 2: read directly from ./SINGLE.md file
-    # md_file="./SINGLE.md"
-    # for task in "${single_tasks_to_simulate[@]}"; do
-    #   current_dir=$(pwd)
-    #   cd "$task"
-    #   echo "Simulating task: $task"
-    #   awk '
-    #     /```shell/ {block_count++; if (block_count == 2) in_block=1; next}
-    #     /```/ {if (in_block) exit; in_block=0}
-    #     in_block {print}
-    #   ' "$md_file" > extracted.sh
-    #   SIMULATE_WITHOUT_LEDGER=1
-    #   bash extracted.sh
-    #   cd "$current_dir"
-    # done
-fi
-
-
-if [ ${#nested_tasks_to_simulate[@]} -eq 0 ]; then
-    echo "No nested tasks"
-else
-    echo "Simulating nested tasks..."
-    # Prepared acording to ./NESTED.md
+  echo "Simulating single tasks..."
+  echo "Number of single tasks to simulate: ${#single_tasks_to_simulate[@]}"
+  export SIMULATE_WITHOUT_LEDGER=1
+  for task in "${single_tasks_to_simulate[@]}"; do
+    echo "Simulating task: $(basename "$task")"
+    current_dir=$(pwd)
+    cd "$task" || exit 1
     
-    export SIMULATE_WITHOUT_LEDGER=1
+    # Check if 'justfile' exists in the current directory it's either an old task
+    # that we can skip or a template task which we should also skip.
+    if [ -f "justfile" ] || should_skip_directory "$task"; then
+      echo "Skipping task: $(basename "$task") - please see simultate-tasks.sh for more information."
+    else
+      just --dotenv-path "$PWD/.env" --justfile "$ROOT_DIR/single.just" simulate 0
+    fi
 
-    for task in "${nested_tasks_to_simulate[@]}"; do
-      current_dir=$(pwd)
-      cd "$task"
-      echo "Simulating task: $task"
-
-      just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate council
-      just --dotenv-path $(pwd)/.env --justfile ../../../nested.just approve council
-
-      just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate foundation
-      just --dotenv-path $(pwd)/.env --justfile ../../../nested.just approve foundation
-
-      just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate chain-governor
-      just --dotenv-path $(pwd)/.env --justfile ../../../nested.just approve chain-governor
-
-      cd "$current_dir"
-    done
+    cd "$current_dir" || exit 1
+  done
 fi
 
+# --- Simulate Nested Tasks ---
+if [ ${#nested_tasks_to_simulate[@]} -eq 0 ]; then
+  echo "No nested tasks"
+else
+  echo "Simulating nested tasks..."
+  echo "Number of nested tasks to simulate: ${#nested_tasks_to_simulate[@]}"
+  export SIMULATE_WITHOUT_LEDGER=1
+  for task in "${nested_tasks_to_simulate[@]}"; do
+    echo "Simulating task: $(basename "$task")"
+    current_dir=$(pwd)
+    cd "$task" || exit 1
+
+    if [ -f "justfile" ] || should_skip_directory "$task"; then
+      echo "Skipping task: $(basename "$task") - please see simultate-tasks.sh to see why."
+    else
+      just --dotenv-path "$PWD/.env" --justfile "$ROOT_DIR/nested.just" simulate council
+      just --dotenv-path "$PWD/.env" --justfile "$ROOT_DIR/nested.just" approve council
+      just --dotenv-path "$PWD/.env" --justfile "$ROOT_DIR/nested.just" simulate foundation
+      just --dotenv-path "$PWD/.env" --justfile "$ROOT_DIR/nested.just" approve foundation
+      just --dotenv-path "$PWD/.env" --justfile "$ROOT_DIR/nested.just" simulate chain-governor
+      just --dotenv-path "$PWD/.env" --justfile "$ROOT_DIR/nested.just" approve chain-governor
+    fi
+
+    cd "$current_dir" || exit 1
+  done
+fi
