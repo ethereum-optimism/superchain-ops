@@ -7,6 +7,7 @@ import {Vm, VmSafe} from "forge-std/Vm.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {console2 as console} from "forge-std/console2.sol";
 import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
+import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 
 /// @title ISemver
@@ -114,8 +115,19 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         allowed[8] = livenessGuard;
     }
 
-    function getCodeExceptions() internal pure override returns (address[] memory) {
-        address[] memory exceptions = new address[](0);
+    function getCodeExceptions() internal view override returns (address[] memory) {
+        address[] memory exceptions = new address[](4 * l2ChainIds.length);
+        for (uint256 i = 0; i < l2ChainIds.length; i += 4) {
+            SystemConfig systemConfigProxy =
+                SystemConfig(readAddressFromSuperchainRegistry(l2ChainIds[i], "SystemConfigProxy"));
+            // The following are all EOAs which will be "updated" (to their original values)
+            // When we reinit the SystemConfig. So we need to except them from the check
+            // which complains when it finds addresses in storage with no code.
+            exceptions[i] = systemConfigProxy.owner(); // NOTE this can be removed for mainnet
+            exceptions[i + 1] = address(uint160(uint256((systemConfigProxy.batcherHash()))));
+            exceptions[i + 2] = systemConfigProxy.unsafeBlockSigner();
+            exceptions[i + 3] = systemConfigProxy.batchInbox();
+        }
         return exceptions;
     }
 }
