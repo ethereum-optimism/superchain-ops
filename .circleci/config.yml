@@ -306,4 +306,8 @@ workflows:
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
       - just_simulate_ink_respected_game_type
+      # Simulate non-terminal tasks. 
+      # This process finds all non-terminal tasks that currently
+      # exist in the task list and simulates them to ensure that
+      # they are still valid.
       - simulate_non_terminal_tasks

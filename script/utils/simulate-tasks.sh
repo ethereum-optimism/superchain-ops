@@ -33,19 +33,23 @@ search_non_terminal_tasks() {
   done
 }
 
-# Define directories to skip - you should add reasons why it's being skipped.
-directories_to_skip=(
-  "tasks/sep/base-003-fp-granite-prestate" # investigating why this simulation breaks.
-  "tasks/sep/013-fp-granite-prestate" # investigating why this simulation breaks.
-)
+# Define directories to skip. If you're adding to this list, please add a comment explaining why.
+directories_to_skip=()
 
 should_skip_directory() {
   local dir="$1"
   for skip_dir in "${directories_to_skip[@]}"; do
     if [[ "$dir" == *"$skip_dir"* ]]; then
+      echo "Skipping task: $(basename "$task") because it's been marked as a directory to skip."
       return 0
     fi
   done
+  # Check if 'justfile' exists in the current directory. If it exists then it's either an old task
+  # or a template task that we can skip.
+  if [ -f "$dir/justfile" ]; then
+    echo "Skipping task: $(basename "$task") because it contains a 'justfile'."
+    return 0
+  fi
   return 1
 }
 
@@ -63,11 +67,7 @@ else
     current_dir=$(pwd)
     cd "$task" || exit 1
     
-    # Check if 'justfile' exists in the current directory it's either an old task
-    # that we can skip or a template task which we should also skip.
-    if [ -f "justfile" ] || should_skip_directory "$task"; then
-      echo "Skipping task: $(basename "$task") - please see simultate-tasks.sh for more information."
-    else
+    if ! should_skip_directory "$task"; then
       just --dotenv-path "$PWD/.env" --justfile "$ROOT_DIR/single.just" simulate 0
     fi
 
@@ -87,9 +87,7 @@ else
     current_dir=$(pwd)
     cd "$task" || exit 1
 
-    if [ -f "justfile" ] || should_skip_directory "$task"; then
-      echo "Skipping task: $(basename "$task") - please see simultate-tasks.sh to see why."
-    else
+    if ! should_skip_directory "$task"; then
       just --dotenv-path "$PWD/.env" --justfile "$ROOT_DIR/nested.just" simulate council
       just --dotenv-path "$PWD/.env" --justfile "$ROOT_DIR/nested.just" approve council
       just --dotenv-path "$PWD/.env" --justfile "$ROOT_DIR/nested.just" simulate foundation
