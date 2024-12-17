@@ -60,8 +60,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         }
         
         dgfProxy = DisputeGameFactory(systemConfig.disputeGameFactory());
-        faultDisputeGameAddr = stdJson.readAddress(inputJson, "$.transactions[0].contractInputsValues._impl");
-        permissionedDisputeGameAddr = stdJson.readAddress(inputJson, "$.transactions[1].contractInputsValues._impl");
+        faultDisputeGameAddr = 0x924D3d3B3b16E74bAb577e50d23b2a38990dD52C;
+        permissionedDisputeGameAddr = 0x879e899523bA9a4Ab212a2d70cF1af73B906CbE5;
         
         _precheckDisputeGameImplementation(GameType.wrap(0), faultDisputeGameAddr);
         _precheckDisputeGameImplementation(GameType.wrap(1), permissionedDisputeGameAddr);
