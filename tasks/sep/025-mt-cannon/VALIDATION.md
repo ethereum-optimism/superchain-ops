@@ -73,8 +73,6 @@ And we do indeed see these entries:
     0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b
     ```
 
-### `0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1` (`DisputeGameFactoryProxy`)
-
 - **Key**: `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e` <br/>
   **Before**: `0x0000000000000000000000004ed046e66c96600dae1a4ec39267bb0ce476e8cc` <br/>
   **After**: `0x000000000000000000000000879e899523bA9a4Ab212a2d70cF1af73B906CbE5` <br/>
