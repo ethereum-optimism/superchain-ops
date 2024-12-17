@@ -33,8 +33,6 @@ The two state modifications that are made by this action are:
 
 The state changes should look something like this:
 
-TODO: once we run the simulation in tenderly, screenshot the view with the optimismportal address we're using for this upgrade
-
 ![state-diff](./images/state_diff.png)
 
 Slot [`0x000000000000000000000000000000000000000000000000000000000000003b`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.6.0/packages/contracts-bedrock/snapshots/storageLayout/OptimismPortal2.json#L100-L113) in the `OptimismPortalProxy` has the following packed layout:
