@@ -33,13 +33,13 @@ contract SystemConfigUpgrade is SuperchainRegistry {
     }
 
     address public systemConfigAddress;
-    SysCfgVars expected;
+    SysCfgVars previous;
 
     constructor(string memory l1ChainName, string memory l2ChainName, string memory release)
         SuperchainRegistry(l1ChainName, l2ChainName, release)
     {
         systemConfigAddress = proxies.SystemConfig;
-        expected = getSysCfgVars(); // Set this before the tx is executed.
+        previous = getSysCfgVars(); // Set this before the tx is executed.
     }
 
     function getSysCfgVars() internal view returns (SysCfgVars memory) {
@@ -66,17 +66,17 @@ contract SystemConfigUpgrade is SuperchainRegistry {
     }
 
     /// @notice Public function that must be called by the verification script.
-    function checkSystemConfigUpgrade() public view {
+    function checkSystemConfigUpgrade() public view virtual {
         SysCfgVars memory got = getSysCfgVars();
-        require(keccak256(abi.encode(got)) == keccak256(abi.encode(expected)), "system-config-100");
+        require(keccak256(abi.encode(got)) == keccak256(abi.encode(previous)), "system-config-100");
     }
 
     function getCodeExceptions() public view returns (address[] memory) {
         address[] memory exceptions = new address[](4);
-        exceptions[0] = expected.owner; // NOTE this can be removed for mainnet
-        exceptions[1] = address(uint160(uint256((expected.batcherHash))));
-        exceptions[2] = expected.unsafeBlockSigner;
-        exceptions[3] = expected.batchInbox;
+        exceptions[0] = previous.owner; // NOTE this can be removed for mainnet
+        exceptions[1] = address(uint160(uint256((previous.batcherHash))));
+        exceptions[2] = previous.unsafeBlockSigner;
+        exceptions[3] = previous.batchInbox;
         return exceptions;
     }
 }

@@ -8,7 +8,8 @@ import {NestedSignFromJson as OriginalNestedSignFromJson} from "script/NestedSig
 import {DisputeGameUpgrade} from "script/verification/DisputeGameUpgrade.s.sol";
 import {CouncilFoundationNestedSign} from "script/verification/CouncilFoundationNestedSign.s.sol";
 import {VerificationBase, SuperchainRegistry} from "script/verification/Verification.s.sol";
-import {SystemConfigUpgrade} from "script/verification/SystemConfigUpgrade.s.sol";
+import {SystemConfigUpgradeEcotoneScalars as SystemConfigUpgrade} from
+    "script/verification/SystemConfigUpgradeEcotoneScalars.s.sol";
 
 contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNestedSign {
     string constant l1ChainName = "sepolia";
