@@ -84,7 +84,9 @@ And we do indeed see these entries:
     0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e
     ```
 
-### For the Council:
+### `0x1Eb2fFc903729a0F03966B917003800b145F56E2` (The 2/2 `ProxyAdmin` Owner)
+
+#### For the Council:
 
 - **Key:** `0x2f3f3bfd9c6f0afcf70fd2d0651e7e3d6cfa084f5cfe749581936c902a946aad` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
@@ -106,7 +108,7 @@ And we do indeed see these entries:
     ```
     And so the output of the second command matches the key above.
 
-### For the Foundation:
+#### For the Foundation:
 
 - **Key:** `0x897443051a853957c2f5696f158c7a99e2dc45c10639f593733a9fac87a449b0` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
