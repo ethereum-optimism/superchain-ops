@@ -4,7 +4,7 @@ pragma solidity ^0.8.15;
 import {console2 as console} from "forge-std/console2.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {LibString} from "solady/utils/LibString.sol";
-import {VerificationBase, SuperchainRegistry} from "script/verification/Verification.s.sol";
+import {SuperchainRegistry} from "script/verification/Verification.s.sol";
 import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {ISystemConfig} from "./ISystemConfig.sol";
 import {IResourceMetering} from "./IResourceMetering.sol";
@@ -12,7 +12,7 @@ import {MIPS} from "@eth-optimism-bedrock/src/cannon/MIPS.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {NestedMultisigBuilder} from "@base-contracts/script/universal/NestedMultisigBuilder.sol";
 
-contract SystemConfigUpgrade is VerificationBase, SuperchainRegistry {
+contract SystemConfigUpgrade is SuperchainRegistry {
     using LibString for string;
 
     struct SysCfgVars {
@@ -32,13 +32,14 @@ contract SystemConfigUpgrade is VerificationBase, SuperchainRegistry {
         address optimismMintableERC20Factory;
     }
 
+    address public systemConfigAddress;
     SysCfgVars expected;
 
     constructor(string memory l1ChainName, string memory l2ChainName, string memory release)
         SuperchainRegistry(l1ChainName, l2ChainName, release)
     {
-        expected = getSysCfgVars();
-        addAllowedStorageAccess(proxies.SystemConfig);
+        systemConfigAddress = proxies.SystemConfig;
+        expected = getSysCfgVars(); // Set this before the tx is executed.
     }
 
     function getSysCfgVars() internal view returns (SysCfgVars memory) {

@@ -7,7 +7,7 @@ import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {NestedSignFromJson as OriginalNestedSignFromJson} from "script/NestedSignFromJson.s.sol";
 import {DisputeGameUpgrade} from "script/verification/DisputeGameUpgrade.s.sol";
 import {CouncilFoundationNestedSign} from "script/verification/CouncilFoundationNestedSign.s.sol";
-import {SuperchainRegistry} from "script/verification/Verification.s.sol";
+import {VerificationBase, SuperchainRegistry} from "script/verification/Verification.s.sol";
 import {SystemConfigUpgrade} from "script/verification/SystemConfigUpgrade.s.sol";
 
 contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNestedSign {
@@ -25,6 +25,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
     constructor() {
         for (uint256 i = 0; i < l2ChainIds.length; i++) {
             sysCfgUpgrades[i] = new SystemConfigUpgrade(l1ChainName, l2ChainIds[i], release);
+            addAllowedStorageAccess(sysCfgUpgrades[i].systemConfigAddress());
         }
     }
 
