@@ -14,7 +14,7 @@ import {SystemConfigUpgradeEcotoneScalars as SystemConfigUpgrade} from
 contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNestedSign {
     string constant l1ChainName = "sepolia";
     string constant release = "v1.8.0-rc.4";
-    string[1] l2ChainIds = [
+    string[1] l2ChainNames = [
         "op" // op
             // "1740", // metal TODO
             // "919", // mode TODO
@@ -24,8 +24,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
     SystemConfigUpgrade[1] sysCfgUpgrades;
 
     constructor() {
-        for (uint256 i = 0; i < l2ChainIds.length; i++) {
-            sysCfgUpgrades[i] = new SystemConfigUpgrade(l1ChainName, l2ChainIds[i], release);
+        for (uint256 i = 0; i < l2ChainNames.length; i++) {
+            sysCfgUpgrades[i] = new SystemConfigUpgrade(l1ChainName, l2ChainNames[i], release);
             addAllowedStorageAccess(sysCfgUpgrades[i].systemConfigAddress());
             address[] memory exceptions = sysCfgUpgrades[i].getCodeExceptions();
             for (uint256 j = 0; j < exceptions.length; j++) {
@@ -37,7 +37,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
     function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory) internal view override {
         console.log("Running post-deploy assertions");
         checkStateDiff(accesses);
-        for (uint256 i = 0; i < l2ChainIds.length; i++) {
+        for (uint256 i = 0; i < l2ChainNames.length; i++) {
+            console.log("Running post-deploy assertions for chain", l2ChainNames[i], "-", l1ChainName);
             sysCfgUpgrades[i].checkSystemConfigUpgrade();
         }
         console.log("All assertions passed!");
