@@ -26,6 +26,10 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
         for (uint256 i = 0; i < l2ChainIds.length; i++) {
             sysCfgUpgrades[i] = new SystemConfigUpgrade(l1ChainName, l2ChainIds[i], release);
             addAllowedStorageAccess(sysCfgUpgrades[i].systemConfigAddress());
+            address[] memory exceptions = sysCfgUpgrades[i].getCodeExceptions();
+            for (uint256 j = 0; j < exceptions.length; j++) {
+                addCodeException(exceptions[j]);
+            }
         }
     }
 

@@ -70,4 +70,13 @@ contract SystemConfigUpgrade is SuperchainRegistry {
         SysCfgVars memory got = getSysCfgVars();
         require(keccak256(abi.encode(got)) == keccak256(abi.encode(expected)), "system-config-100");
     }
+
+    function getCodeExceptions() public view returns (address[] memory) {
+        address[] memory exceptions = new address[](4);
+        exceptions[0] = expected.owner; // NOTE this can be removed for mainnet
+        exceptions[1] = address(uint160(uint256((expected.batcherHash))));
+        exceptions[2] = expected.unsafeBlockSigner;
+        exceptions[3] = expected.batchInbox;
+        return exceptions;
+    }
 }
