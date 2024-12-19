@@ -16,6 +16,10 @@ The Holocene proposal was:
 
 The [governance proposal](https://gov.optimism.io/t/upgrade-proposal-11-holocene-network-upgrade/9313) should be treated as the source of truth and used to verify the correctness of the onchain operations.
 
+## Deployments
+
+* Mainnet: [`0x8062AbC286f5e7D9428a0Ccb9AbD71e50d93b935`](https://github.com/ethereum-optimism/superchain-registry/blob/17f539928389cdd88bcae48e6e24c07337ce3f4f/superchain/configs/mainnet/superchain.toml#L2)
+
 ## Simulation
 
 Please see the "Simulating and Verifying the Transaction" instructions in [SINGLE.md](../../../SINGLE.md).
