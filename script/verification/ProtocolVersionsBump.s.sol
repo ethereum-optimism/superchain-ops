@@ -30,7 +30,7 @@ abstract contract ProtocolVersionsBump is VerificationBase, SuperchainRegistry {
     address owner;
 
     constructor(address _owner, ProtoVer memory _reccomended, ProtoVer memory _required) {
-        owner = _owner;
+        console.log("Current Owner Safe is:", owner);
         reccomended = encodeProtocolVersion(_reccomended);
         required = encodeProtocolVersion(_required);
         console.log(owner);
@@ -70,7 +70,7 @@ abstract contract ProtocolVersionsBump is VerificationBase, SuperchainRegistry {
     function checkProtocolVersions() public view {
         console.log("Checking ProtocolVersions at ", proxies.ProtocolVersions);
         ProtocolVersions pv = ProtocolVersions(proxies.ProtocolVersions);
-        require(pv.owner() == owner, "PV not set correctly");
+        require(pv.owner() == owner, "PV.owner not expected");
         require(ProtocolVersion.unwrap(pv.required()) == required, "Required PV not set correctly");
         require(ProtocolVersion.unwrap(pv.recommended()) == reccomended, "Recommended PV not set correctly");
     }
