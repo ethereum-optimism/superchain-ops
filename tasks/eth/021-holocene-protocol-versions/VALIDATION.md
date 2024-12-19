@@ -33,13 +33,13 @@ More background on `ProtocolVersions` state validation can be found
   **Before:** `0x0000000000000000000000000000000000000008000000000000000000000000` <br/>
   **After:** `0x0000000000000000000000000000000000000009000000000000000000000000` <br/>
   **Meaning:** This bumps the major version of the *required protocol version* from 8.0.0 to 9.0.0.
-  The key is derived from `keccak256('protocolversion.required')-1`.
+  The key is derived from `keccak256('protocolversion.required')-1`. See [../../common/protocol-versions.md](../../common/protocol-versions.md) for more information.
 
 - **Key:** `0xe314dfc40f0025322aacc0ba8ef420b62fb3b702cf01e0cdf3d829117ac2ff1a` <br/>
   **Before:** `0x0000000000000000000000000000000000000008000000000000000000000000` <br/>
   **After:** `0x0000000000000000000000000000000000000009000000000000000000000000` <br/>
   **Meaning:** This bumps the major version of the *recommended protocol version* from 8.0.0 to 9.0.0.
-  The key is derived from `keccak256('protocolversion.recommended')-1`.
+  The key is derived from `keccak256('protocolversion.recommended')-1`. See [../../common/protocol-versions.md](../../common/protocol-versions.md) for more information.
 
 
 ### Nonce increments
