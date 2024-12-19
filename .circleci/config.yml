@@ -221,6 +221,13 @@ jobs:
     steps:
       - simulate:
           task: "eth/021-holocene-protocol-versions"
+
+  simulate_base_003:
+    docker:
+      - image: << pipeline.parameters.ci_builder_image >>
+    steps:
+      - simulate_nested:
+          task: "eth/base-003-holocene-fp-upgrade"
             
   forge_build:
     docker:
@@ -296,3 +303,4 @@ workflows:
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
       - simulate_eth_021
+      - simulate_base_003
