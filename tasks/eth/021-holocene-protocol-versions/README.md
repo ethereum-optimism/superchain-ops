@@ -1,5 +1,5 @@
 # Mainnet Required & Recommended Protocol Version Update (9.0.0 - Holocene)
-Status: DRAFT
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
