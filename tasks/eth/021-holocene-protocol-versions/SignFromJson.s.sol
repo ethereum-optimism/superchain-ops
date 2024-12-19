@@ -38,8 +38,4 @@ contract SignFromJson is OriginalSignFromJson, ProtocolVersionsBump {
     function getAllowedStorageAccess() internal view override returns (address[] memory) {
         return allowedStorageAccess;
     }
-
-    // function getCodeExceptions() internal view override returns (address[] memory) {
-    //     return codeExceptions;
-    // }
 }
