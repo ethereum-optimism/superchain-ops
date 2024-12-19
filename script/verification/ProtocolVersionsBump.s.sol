@@ -30,10 +30,10 @@ abstract contract ProtocolVersionsBump is VerificationBase, SuperchainRegistry {
     address owner;
 
     constructor(address _owner, ProtoVer memory _reccomended, ProtoVer memory _required) {
-        console.log("Current Owner Safe is:", owner);
+        owner = _owner;
+        console.log("Current owner is:", owner);
         reccomended = encodeProtocolVersion(_reccomended);
         required = encodeProtocolVersion(_required);
-        console.log(owner);
         console.log(
             "Will validate ProtocolVersions bump to (reccommended,required): ",
             stringifyProtoVer(_reccomended),
