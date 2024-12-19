@@ -1,0 +1,67 @@
+{
+  "chainId": 8453,
+  "metadata": {
+    "name": "Base Mainnet Holocene - Proof Contract Upgrades",
+    "description": "Upgrades the `MIPS.sol`, `FaultDisputeGame.sol`, and `PermissionedDisputeGame.sol` contracts for Holocene."
+  },
+  "transactions": [
+    {
+      "metadata": {
+        "name": "Upgrade `PERMISSIONED_CANNON` game type in `DisputeGameFactory`",
+        "description": "Upgrades the `PERMISSIONED_CANNON` game type to the new Holocene deployment, with an updated version of `op-program` as the absolute prestate hash."
+      },
+      "to": "0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e",
+      "value": "0x0",
+      "data": "$TX_1_PAYLOAD",
+      "contractMethod": {
+        "type": "function",
+        "name": "setImplementation",
+        "inputs": [
+          {
+            "name": "_gameType",
+            "type": "uint32"
+          },
+          {
+            "name": "_impl",
+            "type": "address"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_gameType": "1",
+        "_impl": "$PDG_IMPL"
+      }
+    },
+    {
+      "metadata": {
+        "name": "Upgrade `CANNON` game type in `DisputeGameFactory`",
+        "description": "Upgrades the `CANNON` game type to the new Holocene deployment, with an updated version of `op-program` as the absolute prestate hash."
+      },
+      "to": "0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e",
+      "value": "0x0",
+      "data": "$TX_2_PAYLOAD",
+      "contractMethod": {
+        "type": "function",
+        "name": "setImplementation",
+        "inputs": [
+          {
+            "name": "_gameType",
+            "type": "uint32"
+          },
+          {
+            "name": "_impl",
+            "type": "address"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_gameType": "0",
+        "_impl": "$FDG_IMPL"
+      }
+    }
+  ]
+}
