@@ -24,27 +24,28 @@ abstract contract ProtocolVersionsBump is VerificationBase, SuperchainRegistry {
         uint32 preRelease;
     }
 
-    uint256 immutable newRecommendedProtocolVersion;
-    uint256 immutable newRequiredProtocolVersion;
+    uint256 immutable reccomended;
+    uint256 immutable required;
 
-    // Safe contract for this task. TODO hardcode
-    address foundationUpgradesSafe = vm.envAddress("FOUNDATION_SAFE");
+    address owner;
 
-    constructor(ProtoVer memory reccomended, ProtoVer memory required) {
+    constructor(address _owner, ProtoVer memory _reccomended, ProtoVer memory _required) {
+        owner = _owner;
+        reccomended = encodeProtocolVersion(_reccomended);
+        required = encodeProtocolVersion(_required);
+        console.log(owner);
         console.log(
             "Will validate ProtocolVersions bump to (reccommended,required): ",
-            stringifyProtoVer(reccomended),
-            stringifyProtoVer(required)
+            stringifyProtoVer(_reccomended),
+            stringifyProtoVer(_required)
         );
         console.log(
             "Encoded versions are (reccommended,required): ",
-            LibString.toHexString(encodeProtocolVersion(reccomended), 32),
-            LibString.toHexString(encodeProtocolVersion(required), 32)
+            LibString.toHexString(reccomended, 32),
+            LibString.toHexString(required, 32)
         );
-        newRecommendedProtocolVersion = encodeProtocolVersion(reccomended);
-        newRequiredProtocolVersion = encodeProtocolVersion(required);
         addAllowedStorageAccess(proxies.ProtocolVersions);
-        addAllowedStorageAccess(foundationUpgradesSafe);
+        addAllowedStorageAccess(owner);
     }
 
     function stringifyProtoVer(ProtoVer memory pv) internal pure returns (string memory) {
@@ -69,11 +70,8 @@ abstract contract ProtocolVersionsBump is VerificationBase, SuperchainRegistry {
     function checkProtocolVersions() public view {
         console.log("Checking ProtocolVersions at ", proxies.ProtocolVersions);
         ProtocolVersions pv = ProtocolVersions(proxies.ProtocolVersions);
-        require(pv.owner() == foundationUpgradesSafe, "PV owner must be Foundation Upgrade Safe");
-        require(ProtocolVersion.unwrap(pv.required()) == newRequiredProtocolVersion, "Required PV not set correctly");
-        require(
-            ProtocolVersion.unwrap(pv.recommended()) == newRecommendedProtocolVersion,
-            "Recommended PV not set correctly"
-        );
+        require(pv.owner() == owner, "PV not set correctly");
+        require(ProtocolVersion.unwrap(pv.required()) == required, "Required PV not set correctly");
+        require(ProtocolVersion.unwrap(pv.recommended()) == reccomended, "Recommended PV not set correctly");
     }
 }

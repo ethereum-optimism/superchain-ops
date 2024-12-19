@@ -17,7 +17,7 @@ import {LibString} from "solady/utils/LibString.sol";
 contract SignFromJson is OriginalSignFromJson, ProtocolVersionsBump {
     constructor()
         SuperchainRegistry("mainnet", "op", "v1.8.0-rc.4")
-        ProtocolVersionsBump(ProtoVer(9, 0, 0, 0), ProtoVer(9, 0, 0, 0))
+        ProtocolVersionsBump(vm.envAddress("OWNER_SAFE"), ProtoVer(9, 0, 0, 0), ProtoVer(9, 0, 0, 0))
     {}
 
     /// @notice Checks the correctness of the deployment
