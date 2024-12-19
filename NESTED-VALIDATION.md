@@ -1,7 +1,7 @@
 # Validation - Nested Safe
 
-This document describes the generic validation steps for running a Mainnet or Sepolia tasks for the
-nested 2/2 Security Council/Foundation Safe.
+This document describes the generic validation steps for running a Mainnet or Sepolia tasks for any
+nested 2/2 Safe involving either the Security Council & Foundation Upgrade Safe or the Base and Foundation Operations Safe.
 
 ## State Overrides
 
@@ -10,10 +10,12 @@ The following state overrides related to the nested Safe execution must be seen:
 ### `GnosisSafeProxy` - the 2/2 `ProxyAdminOwner` Safe
 
 The `ProxyAdminOwner` has the following address:
-- Mainnet: [`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`](https://etherscan.io/address/0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A)
-- Sepolia: [`0x1Eb2fFc903729a0F03966B917003800b145F56E2`](https://sepolia.etherscan.io/address/0x1Eb2fFc903729a0F03966B917003800b145F56E2)
+- Mainnet: 
+    - Superchain: [`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`](https://etherscan.io/address/0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A)
+    - Base/OP: [0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c](https://etherscan.io/address/0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c)
+- Sepolia Superchain: [`0x1Eb2fFc903729a0F03966B917003800b145F56E2`](https://sepolia.etherscan.io/address/0x1Eb2fFc903729a0F03966B917003800b145F56E2)
 
-These addresses are attested to in the [Optimism Docs](https://docs.optimism.io/chain/security/privileged-roles#addresses).
+The Superchain addresses are attested to in the [Optimism Docs](https://docs.optimism.io/chain/security/privileged-roles#addresses).
 
 Enables the simulation by setting the threshold to 1:
 
@@ -21,16 +23,18 @@ Enables the simulation by setting the threshold to 1:
   **Value:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   **Meaning:** The threshold is set to 1.
 
-### Security Council Safe or Foundation Safe
+### Safe Signer
 
-Depending on which role (Security Council or Foundation) the task was simulated for,
+Depending on which role the task was simulated for,
 you must see the following overrides for the following address:
 - Mainnet
-    - Council Safe: [`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`](https://etherscan.io/address/0xc2819DC788505Aac350142A7A707BF9D03E3Bd03)
-    - Foundation Safe: [`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`](https://etherscan.io/address/0x847B5c174615B1B7fDF770882256e2D3E95b9D92)
+    - Security Council Safe: [`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`](https://etherscan.io/address/0xc2819DC788505Aac350142A7A707BF9D03E3Bd03)
+    - Foundation Upgrade Safe: [`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`](https://etherscan.io/address/0x847B5c174615B1B7fDF770882256e2D3E95b9D92)
+    - Foundation Operations Safe: [`0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`](https://etherscan.io/address/0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A)
+    - Base Operations Safe: [`0x9855054731540A48b28990B63DcF4f33d8AE46A1`](https://etherscan.io/address/0x9855054731540A48b28990B63DcF4f33d8AE46A1)
 - Sepolia
-    - Council Safe: [`0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`](https://sepolia.etherscan.io/address/0xf64bc17485f0B4Ea5F06A96514182FC4cB561977)
-    - Foundation Safe: [`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`](https://sepolia.etherscan.io/address/0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B)
+    - Fake Security Council Safe: [`0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`](https://sepolia.etherscan.io/address/0xf64bc17485f0B4Ea5F06A96514182FC4cB561977)
+    - Fake Foundation Upgrade Safe: [`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`](https://sepolia.etherscan.io/address/0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B)
 
 The simulated role will also be called the **Safe Signer** in the remaining document.
 
@@ -88,7 +92,7 @@ The GnosisSafe `approvedHashes` mapping is updated to indicate approval of this 
     ```
     The output of this command must match the key of the state change.
 
-### Liveness Guard
+### Liveness Guard (Security Council only)
 
 When the Security Council executes a transaction, the liveness timestamp are updated for each owner that signed the tasks.
 This is updating at the moment of the transaction is submitted (`block.timestamp`) into the [`lastLive`](https://github.com/ethereum-optimism/optimism/blob/e84868c27776fd04dc77e95176d55c8f6b1cc9a3/packages/contracts-bedrock/src/safe/LivenessGuard.sol#L41) mapping located at the slot `0`.
@@ -98,5 +102,5 @@ This is updating at the moment of the transaction is submitted (`block.timestamp
 The only other state changes related to the nested execution are _three_ nonce increments:
 
 - One on the `ProxyAdminOwner` 2/2. If this is not decoded, it corresponds to key `0x05` on a `GnosisSafeProxy`.
-- One on the Council or Foundation Safe. If this is not decoded, it corresponds to key `0x05` on a `GnosisSafeProxy`.
+- One on the Safe Signer. If this is not decoded, it corresponds to key `0x05` on a `GnosisSafeProxy`.
 - One of the EOA that is the first entry in the owner set of the simulated role.
