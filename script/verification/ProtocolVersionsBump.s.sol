@@ -2,17 +2,7 @@
 pragma solidity ^0.8.15;
 
 import {console2 as console} from "forge-std/console2.sol";
-import {Vm} from "forge-std/Vm.sol";
-import {LibString} from "solady/utils/LibString.sol";
 import {VerificationBase, SuperchainRegistry} from "script/verification/Verification.s.sol";
-import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
-import {FaultDisputeGame} from "@eth-optimism-bedrock/src/dispute/FaultDisputeGame.sol";
-import {PermissionedDisputeGame} from "@eth-optimism-bedrock/src/dispute/PermissionedDisputeGame.sol";
-import {DisputeGameFactory} from "@eth-optimism-bedrock/src/dispute/DisputeGameFactory.sol";
-import {MIPS} from "@eth-optimism-bedrock/src/cannon/MIPS.sol";
-import {ISemver} from "@eth-optimism-bedrock/src/universal/ISemver.sol";
-import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
-import {NestedMultisigBuilder} from "@base-contracts/script/universal/NestedMultisigBuilder.sol";
 import {ProtocolVersions, ProtocolVersion} from "@eth-optimism-bedrock/src/L1/ProtocolVersions.sol";
 import {LibString} from "solady/utils/LibString.sol";
 
