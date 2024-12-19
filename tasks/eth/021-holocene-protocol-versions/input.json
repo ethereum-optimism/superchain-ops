@@ -1,0 +1,27 @@
+{
+  "chainId": 1,
+  "metadata": {
+    "name": "Set ProtocolVersions to 9.0.0 (Holocene)",
+    "description": ""
+  },
+  "transactions": [
+    {
+      "metadata": {
+        "name": "Update the recommended ProtocolVersions to 9.0.0 (Holocene)",
+        "description": "calls setRecommended"
+      },
+      "to": "0x8062AbC286f5e7D9428a0Ccb9AbD71e50d93b935",
+      "value": "0x0",
+      "data": "0x5fd579af0000000000000000000000000000000000000009000000000000000000000000"
+    },
+    {
+      "metadata": {
+        "name": "Update the required ProtocolVersions to 9.0.0 (Holocene)",
+        "description": "calls setRequired"
+      },
+      "to": "0x8062AbC286f5e7D9428a0Ccb9AbD71e50d93b935",
+      "value": "0x0",
+      "data": "0x0457d6f20000000000000000000000000000000000000009000000000000000000000000"
+    }
+  ]
+}
