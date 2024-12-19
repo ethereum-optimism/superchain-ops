@@ -38,4 +38,7 @@ contract SignFromJson is OriginalSignFromJson, ProtocolVersionsBump {
     function getAllowedStorageAccess() internal view override returns (address[] memory) {
         return allowedStorageAccess;
     }
+
+    // No need to override getCodeExceptions() because we do not expect to ever trigger it.
+    // We are writing a value which is very unlikely to be interpreted as an address.
 }
