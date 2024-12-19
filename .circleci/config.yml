@@ -20,6 +20,28 @@ parameters:
     type: integer
     default: 5
 
+commands:
+  simulate_nested:
+    description: "Runs simulations of a nested task"
+    parameters:
+      task:
+        type: string
+    steps:
+      - checkout
+      - run:
+          name: "simulate nested << parameters.task >>"
+          command: |
+            just install
+            cd tasks/<< parameters.task >>
+            SIMULATE_WITHOUT_LEDGER=true just \
+              --dotenv-path $(pwd)/.env \
+              --justfile ../../../nested.just \
+              simulate foundation
+            SIMULATE_WITHOUT_LEDGER=true just \
+              --dotenv-path $(pwd)/.env \
+              --justfile ../../../nested.just \
+              simulate council
+
 jobs:
   check_sepolia_rpc_endpoints:
     circleci_ip_ranges: true
@@ -202,6 +224,7 @@ jobs:
             just install
             forge --version
             forge build --deny-warnings
+
   forge_fmt:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
