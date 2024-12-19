@@ -14,12 +14,7 @@ import {SystemConfigUpgradeEcotoneScalars as SystemConfigUpgrade} from
 contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNestedSign {
     string constant l1ChainName = "sepolia";
     string constant release = "v1.8.0-rc.4";
-    string[1] l2ChainNames = [
-        "op" // op
-            // "1740", // metal TODO
-            // "919", // mode TODO
-            // "999999999" // zora TODO
-    ];
+    string[4] l2ChainNames = ["op", "metal", "mode", "zora"];
 
     SystemConfigUpgrade[1] sysCfgUpgrades;
 
