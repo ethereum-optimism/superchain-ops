@@ -46,6 +46,9 @@ More background on `ProtocolVersions` state validation can be found
 
 The only other state changes are two nonce increments:
 
-- One on the Foundation Upgrade Safe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`). If this is not decoded, it corresponds to key `0x05` on a `GnosisSafeProxy`.
+**Key**: 0x0000000000000000000000000000000000000000000000000000000000000005
+**Before**: 0x000000000000000000000000000000000000000000000000000000000000000a
+**After**: 0x000000000000000000000000000000000000000000000000000000000000000b
+**Meaning**: Increment the nonce of the Foundation Upgrade Safe from 10 (0xa) to 11 (0xb). 
 - One on the owner on the account that sent the transaction.
 
