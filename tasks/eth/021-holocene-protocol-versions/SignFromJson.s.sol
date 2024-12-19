@@ -15,11 +15,9 @@ import {Vm, VmSafe} from "forge-std/Vm.sol";
 import {LibString} from "solady/utils/LibString.sol";
 
 contract SignFromJson is OriginalSignFromJson, ProtocolVersionsBump {
-    uint256 constant protoVerHolocene = 0x0000000000000000000000000000000000000009000000000000000000000000;
-
     constructor()
         SuperchainRegistry("mainnet", "op", "v1.8.0-rc.4")
-        ProtocolVersionsBump(protoVerHolocene, protoVerHolocene)
+        ProtocolVersionsBump(ProtoVer(9, 0, 0, 0), ProtoVer(9, 0, 0, 0))
     {}
 
     /// @notice Checks the correctness of the deployment
