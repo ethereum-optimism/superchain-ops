@@ -1,6 +1,6 @@
 # Sepolia FP Upgrade - Granite Prestate Update
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xfe610500768bc2abe92d23c86ac0bb2a9d2e086193214e104e8fb930090c679d)
 
 ## Objective
 
