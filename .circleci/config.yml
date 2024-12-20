@@ -224,25 +224,10 @@ jobs:
           
   just_simulate_permissionless_fp_upgrade:
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: << pipeline.parameters.ci_builder_image >>
     steps:
-      - checkout
-      - run:
-          name: just simulate tasks/eth/ink-001-permissionless-proofs
-          command: |
-            just install
-            cd tasks/eth/ink-001-permissionless-proofs
-            export SIMULATE_WITHOUT_LEDGER=1 
-            just \
-             --dotenv-path $(pwd)/.env \
-             --justfile ../../../nested.just \
-             simulate \
-             foundation
-            just \
-             --dotenv-path $(pwd)/.env \
-             --justfile ../../../nested.just \
-             simulate \
-             council
+      - simulate_nested:
+        task: "/eth/ink-001-permissionless-proofs"
             
   forge_build:
     docker:
