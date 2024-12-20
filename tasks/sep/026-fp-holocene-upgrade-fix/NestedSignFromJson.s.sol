@@ -14,9 +14,9 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
     constructor()
         SuperchainRegistry("sepolia", "op", "v1.8.0-rc.4")
         DisputeGameUpgrade(
-            0x03f89406817db1ed7fd8b31e13300444652cdb0b9c509a674de43483b2f83568, // absolutePrestate
-            0xe591Ebbc2Ba0EAd3db6a0867cC132Fe1c123F448, // faultDisputeGame
-            0xb51baD2d9Da9f94d6A4A5A493Ae6469005611B68 // permissionedDisputeGame
+            0x03b7eaa4e3cbce90381921a4b48008f4769871d64f93d113fcadca08ecee503b, // absolutePrestate
+            0x833a817eF459f4eCdB83Fc5A4Bf04d09A4e83f3F, // faultDisputeGame
+            0xbBD576128f71186A0f9ae2F2AAb4afb4aF2dae17 // permissionedDisputeGame
         )
     {}
 

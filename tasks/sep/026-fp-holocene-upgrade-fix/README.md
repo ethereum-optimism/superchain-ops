@@ -4,7 +4,11 @@ Status: READY TO SIGN
 
 ## Objective
 
-Upgrades the Fault Proof contracts of **OP Sepolia** for Holocene, fixing an upgrade with wrongly newly deployed `DelayedWETH` from #374.
+Upgrades the Fault Proof contracts of **OP Sepolia** for Holocene, fixing an upgrade with wrongly
+newly deployed `DelayedWETH` from #374, and then subsequent faulty upgrade to MIPS64-MT in #410,
+which again used the wrong `DelayedWETH`.
+
+Using a MIPS64 absolute prestate hash of `0x03b7eaa4e3cbce90381921a4b48008f4769871d64f93d113fcadca08ecee503b`.
 
 Governance post of the upgrade can be found at https://gov.optimism.io/t/upgrade-proposal-11-holocene-network-upgrade/9313.
 
@@ -13,9 +17,9 @@ This upgrades the Fault Proof contracts in the
 
 ## Pre-deployments
 
-- `MIPS` - `0x69470D6970Cd2A006b84B1d4d70179c892cFCE01`
-- `FaultDisputeGame` - `0xe591Ebbc2Ba0EAd3db6a0867cC132Fe1c123F448`
-- `PermissionedDisputeGame` - `0xb51baD2d9Da9f94d6A4A5A493Ae6469005611B68`
+- `MIPS64` - `0xa1e470b6bd25e8eea9ffcda6a1518be5eb8ee7bb`
+- `FaultDisputeGame` - `0x833a817eF459f4eCdB83Fc5A4Bf04d09A4e83f3F`
+- `PermissionedDisputeGame` - `0xbBD576128f71186A0f9ae2F2AAb4afb4aF2dae17`
 
 ## Simulation
 
