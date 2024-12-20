@@ -1,0 +1,67 @@
+{
+  "chainId": 1,
+  "metadata": {
+    "name": "Base Mainnet Holocene - Proof Contract Upgrades",
+    "description": "Upgrades the `MIPS.sol`, `FaultDisputeGame.sol`, and `PermissionedDisputeGame.sol` contracts for Holocene."
+  },
+  "transactions": [
+    {
+      "metadata": {
+        "name": "Upgrade `PERMISSIONED_CANNON` game type in `DisputeGameFactory`",
+        "description": "Upgrades the `PERMISSIONED_CANNON` game type to the new Holocene deployment, with an updated version of `op-program` as the absolute prestate hash."
+      },
+      "to": "0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e",
+      "value": "0x0",
+      "data": "0x14f6b1a30000000000000000000000000000000000000000000000000000000000000001000000000000000000000000f62c15e2f99d4869a925b8f57076cd85335832a2",
+      "contractMethod": {
+        "type": "function",
+        "name": "setImplementation",
+        "inputs": [
+          {
+            "name": "_gameType",
+            "type": "uint32"
+          },
+          {
+            "name": "_impl",
+            "type": "address"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_gameType": "1",
+        "_impl": "0xF62c15e2F99d4869A925B8F57076cD85335832A2"
+      }
+    },
+    {
+      "metadata": {
+        "name": "Upgrade `CANNON` game type in `DisputeGameFactory`",
+        "description": "Upgrades the `CANNON` game type to the new Holocene deployment, with an updated version of `op-program` as the absolute prestate hash."
+      },
+      "to": "0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e",
+      "value": "0x0",
+      "data": "0x14f6b1a30000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c5f3677c3c56db4031ab005a3c9c98e1b79d438e",
+      "contractMethod": {
+        "type": "function",
+        "name": "setImplementation",
+        "inputs": [
+          {
+            "name": "_gameType",
+            "type": "uint32"
+          },
+          {
+            "name": "_impl",
+            "type": "address"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_gameType": "0",
+        "_impl": "0xc5f3677c3C56DB4031ab005a3C9c98e1B79D438e"
+      }
+    }
+  ]
+}
