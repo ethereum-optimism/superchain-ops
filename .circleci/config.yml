@@ -320,6 +320,3 @@ workflows:
       - simulate_eth_022
       - simulate_base_003
       - just_simulate_permissionless_fp_upgrade
-
-
-            
