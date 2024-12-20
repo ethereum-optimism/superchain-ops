@@ -214,7 +214,7 @@ jobs:
             just simulate-council
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
-  
+
   simulate_eth_021:
     docker:
       - image: << pipeline.parameters.ci_builder_image >>
@@ -228,6 +228,13 @@ jobs:
     steps:
       - simulate_nested:
           task: "eth/base-003-holocene-fp-upgrade"
+
+  just_simulate_permissionless_fp_upgrade:
+    docker:
+      - image: << pipeline.parameters.ci_builder_image >>
+    steps:
+      - simulate_nested:
+          task: "/eth/ink-001-permissionless-proofs"
             
   forge_build:
     docker:
@@ -312,3 +319,4 @@ workflows:
       - simulate_eth_021
       - simulate_eth_022
       - simulate_base_003
+      - just_simulate_permissionless_fp_upgrade
