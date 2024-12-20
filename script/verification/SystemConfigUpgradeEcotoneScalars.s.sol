@@ -27,11 +27,11 @@ contract SystemConfigUpgradeEcotoneScalars is SystemConfigUpgrade {
         uint256 reencodedScalar =
             (uint256(0x01) << 248) | (uint256(sysCfg.blobbasefeeScalar()) << 32) | sysCfg.basefeeScalar();
         console.log(
-            "confirmed baseFeeScalar and blobbaseFeeScalar reecode to scalar: ",
+            "checking baseFeeScalar and blobbaseFeeScalar reecode to scalar: ",
             sysCfg.basefeeScalar(),
             sysCfg.blobbasefeeScalar(),
             reencodedScalar
         );
-        require(reencodedScalar == previous.scalar, "scalar-100");
+        require(reencodedScalar == previous.scalar, "scalar-100 (reencoding produced incorrect result)");
     }
 }
