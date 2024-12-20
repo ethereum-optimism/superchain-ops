@@ -214,7 +214,14 @@ jobs:
             just simulate-council
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
-  
+
+  just_simulate_set_respected_game_type:
+     docker:
+      - image: << pipeline.parameters.ci_builder_image >>
+    steps:
+      - simulate:
+          task: "eth/eth/ink-002-set-respected-game-type"
+
   simulate_eth_021:
     docker:
       - image: << pipeline.parameters.ci_builder_image >>
@@ -309,6 +316,7 @@ workflows:
       - just_simulate_sc_rehearsal_1
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
+      - just_simulate_set_respected_game_type
       - simulate_eth_021
       - simulate_eth_022
       - simulate_base_003
