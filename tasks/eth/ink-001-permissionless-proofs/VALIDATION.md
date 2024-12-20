@@ -105,9 +105,9 @@ Note: The changes listed below do not include safe nonce updates or liveness gua
 The only other state changes should be restricted to one of the following addresses:
 
 - L1 2/2 ProxyAdmin Owner Safe: `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`
-  - The nonce (slot 0x5) should be increased from 6 to 7.
+  - The nonce (slot 0x5) should be increased from 7 to 8.
   - Another key is set from 0 to 1 reflecting an entry in the `approvedHashes` mapping.
 - Security Council L1 Safe: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`
-  - The nonce (slot 0x5) should be increased from 8 to 9. This only occurs for Council signers.
+  - The nonce (slot 0x5) should be increased from 9 to 10. This only occurs for Council signers.
 - Foundation Safe: `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`
-  - The nonce (slot 0x5) should be increased from 10 to 11. This only occurs for Foundation signers.
+  - The nonce (slot 0x5) should be increased from 12 to 13. This only occurs for Foundation signers.
