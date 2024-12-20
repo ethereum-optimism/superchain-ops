@@ -16,11 +16,12 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
     string constant release = "v1.8.0-rc.4";
     string[4] l2ChainNames = ["op", "metal", "mode", "zora"];
 
-    SystemConfigUpgrade[1] sysCfgUpgrades;
+    SystemConfigUpgrade[] sysCfgUpgrades;
 
     constructor() {
         for (uint256 i = 0; i < l2ChainNames.length; i++) {
-            sysCfgUpgrades[i] = new SystemConfigUpgrade(l1ChainName, l2ChainNames[i], release);
+            console.log("Setting up verification data for chain", l2ChainNames[i], "-", l1ChainName);
+            sysCfgUpgrades.push(new SystemConfigUpgrade(l1ChainName, l2ChainNames[i], release));
             addAllowedStorageAccess(sysCfgUpgrades[i].systemConfigAddress());
             address[] memory exceptions = sysCfgUpgrades[i].getCodeExceptions();
             for (uint256 j = 0; j < exceptions.length; j++) {
