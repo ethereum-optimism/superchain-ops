@@ -22,16 +22,27 @@ contract SystemConfigUpgradeEcotoneScalars is SystemConfigUpgrade {
 
     /// @notice Public function that must be called by the verification script.
     function checkSystemConfigUpgrade() public view override {
-        super.checkSystemConfigUpgrade();
         ISystemConfig sysCfg = ISystemConfig(proxies.SystemConfig);
         uint256 reencodedScalar =
             (uint256(0x01) << 248) | (uint256(sysCfg.blobbasefeeScalar()) << 32) | sysCfg.basefeeScalar();
         console.log(
-            "checking baseFeeScalar and blobbaseFeeScalar reecode to scalar: ",
-            sysCfg.basefeeScalar(),
-            sysCfg.blobbasefeeScalar(),
-            reencodedScalar
+            "checking baseFeeScalar and blobbaseFeeScalar ",
+            LibString.toString(sysCfg.basefeeScalar()),
+            LibString.toString(sysCfg.blobbasefeeScalar())
         );
-        require(reencodedScalar == previous.scalar, "scalar-100 (reencoding produced incorrect result)");
+        if (
+            uint8(previous.scalar >> 248) == 1 // most significant bit
+        ) {
+            console.log(
+                "reencode to previous scalar: ",
+                LibString.toString(reencodedScalar),
+                LibString.toString(previous.scalar)
+            );
+            require(reencodedScalar == previous.scalar, "scalar-100 (reencoding produced incorrect result)");
+            // We do this check last because it would fail if the scalar is wrong, and we get less debug info from it.
+            // It checks  all of the other fields which should not have changed (via a hash).
+            super.checkSystemConfigUpgrade();
+        }
+        require(sysCfg.scalar() == reencodedScalar, "scalar-101");
     }
 }
