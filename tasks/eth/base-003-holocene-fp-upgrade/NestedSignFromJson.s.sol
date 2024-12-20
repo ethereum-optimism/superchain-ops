@@ -15,8 +15,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
         SuperchainRegistry("mainnet", "base", "v1.8.0-rc.4")
         DisputeGameUpgrade(
             0x03f89406817db1ed7fd8b31e13300444652cdb0b9c509a674de43483b2f83568, // absolutePrestate
-            $FDG_IMPL, // faultDisputeGame
-            $PDG_IMPL // permissionedDisputeGame
+            0xc5f3677c3C56DB4031ab005a3C9c98e1B79D438e, // faultDisputeGame
+            0xF62c15e2F99d4869A925B8F57076cD85335832A2 // permissionedDisputeGame
         )
     {}
 
@@ -26,7 +26,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
 
     function checkInput() public view {
         string memory inputJson;
-        string memory path = "/tasks/eth/022-holocene-fp-upgrade/input.json";
+        string memory path = "/tasks/eth/base-003-holocene-fp-upgrade/input.json";
         try vm.readFile(string.concat(vm.projectRoot(), path)) returns (string memory data) {
             inputJson = data;
         } catch {

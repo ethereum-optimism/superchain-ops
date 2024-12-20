@@ -1,6 +1,6 @@
 # Holocene Hardfork Upgrade
 
-Status: DRAFT, NOT READY TO SIGN
+Status: READY TO SIGN
 
 ## Objective
 
@@ -14,8 +14,8 @@ This upgrades the Fault Proof contracts in the
 ## Pre-deployments
 
 - `MIPS` - `0x5fE03a12C1236F9C22Cb6479778DDAa4bce6299C`
-- `FaultDisputeGame` - `$FDG_IMPL`
-- `PermissionedDisputeGame` - `$PDG_IMPL`
+- `FaultDisputeGame` - `0xc5f3677c3C56DB4031ab005a3C9c98e1B79D438e`
+- `PermissionedDisputeGame` - `0xF62c15e2F99d4869A925B8F57076cD85335832A2`
 
 ## Simulation
 
