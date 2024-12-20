@@ -1,5 +1,5 @@
 {
-  "chainId": 8453,
+  "chainId": 1,
   "metadata": {
     "name": "Base Mainnet Holocene - Proof Contract Upgrades",
     "description": "Upgrades the `MIPS.sol`, `FaultDisputeGame.sol`, and `PermissionedDisputeGame.sol` contracts for Holocene."
