@@ -94,8 +94,8 @@ The GnosisSafe `approvedHashes` mapping is updated to indicate approval of this 
 
 ### Liveness Guard (Security Council only)
 
-When the Security Council executes a transaction, the liveness timestamp are updated for each owner that signed the tasks.
-This is updating at the moment of the transaction is submitted (`block.timestamp`) into the [`lastLive`](https://github.com/ethereum-optimism/optimism/blob/e84868c27776fd04dc77e95176d55c8f6b1cc9a3/packages/contracts-bedrock/src/safe/LivenessGuard.sol#L41) mapping located at the slot `0`.
+When the Security Council executes a transaction, the liveness timestamps are updated for each owner that signed the task.
+This is updating at the moment when the transaction is submitted (`block.timestamp`) into the [`lastLive`](https://github.com/ethereum-optimism/optimism/blob/e84868c27776fd04dc77e95176d55c8f6b1cc9a3/packages/contracts-bedrock/src/safe/LivenessGuard.sol#L41) mapping located at the slot `0`.
 
 ### Nonce increments
 
