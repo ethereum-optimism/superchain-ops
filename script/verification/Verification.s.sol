@@ -100,12 +100,14 @@ contract SuperchainRegistry is CommonBase {
         proxies.L1CrossDomainMessenger = stdToml.readAddress(toml, "$.addresses.L1CrossDomainMessengerProxy");
         proxies.L1StandardBridge = stdToml.readAddress(toml, "$.addresses.L1StandardBridgeProxy");
         proxies.SystemConfig = stdToml.readAddress(toml, "$.addresses.SystemConfigProxy");
-        proxies.AnchorStateRegistry = stdToml.readAddress(toml, "$.addresses.AnchorStateRegistryProxy");
-        proxies.DisputeGameFactory = stdToml.readAddress(toml, "$.addresses.DisputeGameFactoryProxy");
+
+        // TODO handle chains which are missing these values:
+        // proxies.AnchorStateRegistry = stdToml.readAddress(toml, "$.addresses.AnchorStateRegistryProxy");
+        // proxies.DisputeGameFactory = stdToml.readAddress(toml, "$.addresses.DisputeGameFactoryProxy");
+        // chainConfig.unsafeBlockSigner = stdToml.readAddress(toml, "$.addresses.UnsafeBlockSigner");
 
         chainConfig.chainId = stdToml.readUint(toml, "$.chain_id");
         chainConfig.systemConfigOwner = stdToml.readAddress(toml, "$.addresses.SystemConfigOwner");
-        chainConfig.unsafeBlockSigner = stdToml.readAddress(toml, "$.addresses.UnsafeBlockSigner");
         chainConfig.batchSubmitter = stdToml.readAddress(toml, "$.addresses.BatchSubmitter");
         chainConfig.batchInbox = stdToml.readAddress(toml, "$.batch_inbox_addr");
     }
