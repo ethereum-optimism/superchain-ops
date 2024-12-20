@@ -101,6 +101,10 @@ This is updating at the moment when the transaction is submitted (`block.timesta
 
 The only other state changes related to the nested execution are _three_ nonce increments:
 
-- One on the `ProxyAdminOwner` 2/2. If this is not decoded, it corresponds to key `0x05` on a `GnosisSafeProxy`.
-- One on the Safe Signer. If this is not decoded, it corresponds to key `0x05` on a `GnosisSafeProxy`.
-- One of the EOA that is the first entry in the owner set of the simulated role.
+- One increment of the `ProxyAdminOwner` Safe nonce, located as storage slot
+`0x0000000000000000000000000000000000000000000000000000000000000005` on a
+`GnosisSafeProxy`.
+- One increment of the **Safe Signer** nonce, located as storage slot
+`0x0000000000000000000000000000000000000000000000000000000000000005` on a
+`GnosisSafeProxy`.
+- One increment of the nonce of the EOA that is the first entry in the owner set of the Safe Signer.
