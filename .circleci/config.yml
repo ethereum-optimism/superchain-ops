@@ -227,7 +227,7 @@ jobs:
       - image: << pipeline.parameters.ci_builder_image >>
     steps:
       - simulate_nested:
-        task: "/eth/ink-001-permissionless-proofs"
+          task: "/eth/ink-001-permissionless-proofs"
             
   forge_build:
     docker:
@@ -274,7 +274,14 @@ jobs:
             just --version
             yq --version
             forge --version
-  
+
+  simulate_eth_022:
+    docker:
+      - image: << pipeline.parameters.ci_builder_image >>
+    steps:
+      - simulate_nested:
+          task: "eth/022-holocene-fp-upgrade"
+
 workflows:
   main:
     jobs:
@@ -303,4 +310,5 @@ workflows:
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
       - simulate_eth_021
+      - simulate_eth_022
       - just_simulate_permissionless_fp_upgrade
