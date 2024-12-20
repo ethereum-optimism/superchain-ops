@@ -18,26 +18,34 @@ interface IASR {
     function superchainConfig() external view returns (address superchainConfig_);
 }
 
+interface IMIPS is ISemver {
+    function oracle() external view returns (address oracle_);
+}
+
 abstract contract DisputeGameUpgrade is VerificationBase, SuperchainRegistry {
     using LibString for string;
 
     bytes32 immutable expAbsolutePrestate;
     address immutable expFaultDisputeGame;
     address immutable expPermissionedDisputeGame;
+    DisputeGameFactory immutable dgfProxy;
 
     constructor(bytes32 _absolutePrestate, address _faultDisputeGame, address _permissionedDisputeGame) {
         expAbsolutePrestate = _absolutePrestate;
         expFaultDisputeGame = _faultDisputeGame;
         expPermissionedDisputeGame = _permissionedDisputeGame;
 
+        dgfProxy = DisputeGameFactory(proxies.DisputeGameFactory);
+
         addAllowedStorageAccess(proxies.DisputeGameFactory);
+
+        precheckDisputeGames();
     }
 
     /// @notice Public function that must be called by the verification script.
     function checkDisputeGameUpgrade() public view {
         console.log("check dispute game implementations");
 
-        DisputeGameFactory dgfProxy = DisputeGameFactory(proxies.DisputeGameFactory);
         FaultDisputeGame faultDisputeGame = FaultDisputeGame(address(dgfProxy.gameImpls(GameTypes.CANNON)));
         PermissionedDisputeGame permissionedDisputeGame =
             PermissionedDisputeGame(address(dgfProxy.gameImpls(GameTypes.PERMISSIONED_CANNON)));
@@ -85,5 +93,61 @@ abstract contract DisputeGameUpgrade is VerificationBase, SuperchainRegistry {
         );
 
         require(address(faultDisputeGame.weth()) != address(permissionedDisputeGame.weth()), "weth-200");
+    }
+
+    function precheckDisputeGames() internal view {
+        _precheckDisputeGameImplementation(GameType.wrap(0), expFaultDisputeGame);
+        _precheckDisputeGameImplementation(GameType.wrap(1), expPermissionedDisputeGame);
+    }
+
+    // _precheckDisputeGameImplementation checks that the new game being set has the same
+    // configuration as the existing implementation.
+    function _precheckDisputeGameImplementation(GameType _targetGameType, address _newImpl) internal view {
+        console.log("pre-check new game implementation", _targetGameType.raw());
+
+        FaultDisputeGame currentGame = FaultDisputeGame(address(dgfProxy.gameImpls(GameType(_targetGameType))));
+        FaultDisputeGame newGame = FaultDisputeGame(_newImpl);
+
+        if (vm.envOr("DISPUTE_GAME_CHANGE_WETH", false)) {
+            console.log("Expecting DelayedWETH to change");
+            require(address(currentGame.weth()) != address(newGame.weth()), "pre-10");
+        } else {
+            console.log("Expecting DelayedWETH to stay the same");
+            require(address(currentGame.weth()) == address(newGame.weth()), "pre-10");
+        }
+
+        require(_targetGameType.raw() == newGame.gameType().raw(), "pre-20");
+        require(address(currentGame.anchorStateRegistry()) == address(newGame.anchorStateRegistry()), "pre-30");
+        require(currentGame.l2ChainId() == newGame.l2ChainId(), "pre-40");
+        require(currentGame.splitDepth() == newGame.splitDepth(), "pre-50");
+        require(currentGame.maxGameDepth() == newGame.maxGameDepth(), "pre-60");
+        require(
+            uint64(Duration.unwrap(currentGame.maxClockDuration()))
+                == uint64(Duration.unwrap(newGame.maxClockDuration())),
+            "pre-70"
+        );
+        require(
+            uint64(Duration.unwrap(currentGame.clockExtension())) == uint64(Duration.unwrap(newGame.clockExtension())),
+            "pre-80"
+        );
+
+        if (_targetGameType.raw() == GameTypes.PERMISSIONED_CANNON.raw()) {
+            PermissionedDisputeGame currentPDG = PermissionedDisputeGame(address(currentGame));
+            PermissionedDisputeGame newPDG = PermissionedDisputeGame(address(newGame));
+            require(address(currentPDG.proposer()) == address(newPDG.proposer()), "pre-90");
+            require(address(currentPDG.challenger()) == address(newPDG.challenger()), "pre-100");
+        }
+
+        _precheckVm(newGame, currentGame);
+    }
+
+    // _precheckVm checks that the new VM has the same oracle as the old VM.
+    function _precheckVm(FaultDisputeGame _newGame, FaultDisputeGame _currentGame) internal view {
+        console.log("pre-check VM implementation", _newGame.gameType().raw());
+
+        IMIPS newVm = IMIPS(address(_newGame.vm()));
+        IMIPS currentVm = IMIPS(address(_currentGame.vm()));
+
+        require(newVm.oracle() == currentVm.oracle(), "vm-10");
     }
 }
