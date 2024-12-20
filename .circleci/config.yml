@@ -282,6 +282,13 @@ jobs:
       - simulate_nested:
           task: "eth/022-holocene-fp-upgrade"
 
+  simulate_sep_026:
+    docker:
+      - image: << pipeline.parameters.ci_builder_image >>
+    steps:
+      - simulate_nested:
+          task: "sep/026-fp-holocene-upgrade-fix"
+
 workflows:
   main:
     jobs:
@@ -309,6 +316,11 @@ workflows:
       - just_simulate_sc_rehearsal_1
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
+
+      # mainnet
       - simulate_eth_021
       - simulate_eth_022
       - simulate_base_003
+
+      # sepolia
+      - simulate_sep_026
