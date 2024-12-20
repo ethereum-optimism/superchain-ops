@@ -68,22 +68,22 @@ Note: The changes listed below do not include safe nonce updates or liveness gua
 - **Key**: `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e` <br/>
   **Before**: `0x000000000000000000000000a8e6a9bf1ba2df76c6787eaebe2273ae98498059` <br/>
   **After**: `0x0000000000000000000000000A780bE3eB21117b1bBCD74cf5D7624A3a482963` <br/>
-  **Meaning**: Updates the implementation for game type 1. Verify that the slot is correct using `cast index uint 1 101` where 1 is the game type and 101 is the storage slot of the `gameImpls` mapping.
+  **Meaning**: Updates the implementation for game type 1. Verify that the slot is correct using `cast index uint 1 101` where 1 is the game type and 101 is the [storage slot](https://github.com/ethereum-optimism/optimism/blob/33f06d2d5e4034125df02264a5ffe84571bd0359/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41) of the `gameImpls` mapping.
 
 - **Key**: `0x6f48904484b35701cf1f41ad9068b394adf7e2f8a59d2309a04d10a155eaa72b` <br/>
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After**: `0x000000000000000000000000000000000000000000000000011c37937e080000` <br/>
-  **Meanning**: Updates the [todo: `FaultDisputeGame` or `PermissionedDisputeGame`] initial bond amount to 0.08 ETH.
+  **Meanning**: Updates the `FaultDisputeGame` initial bond amount to 0.08 ETH. Verify that the slot is correct using `cast index uint 0 102`. Where `0` is the game type and 102 is the [storage slot](https://github.com/ethereum-optimism/optimism/blob/33f06d2d5e4034125df02264a5ffe84571bd0359/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L48).
 
 - **Key**: `0xe34b8b74e1cdcaa1b90aa77af7dd89e496ad9a4ae4a4d4759712101c7da2dce6` <br/>
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After**: `0x000000000000000000000000000000000000000000000000011c37937e080000` <br/>
-  **Meanning**: Updates the [todo: `FaultDisputeGame` or `PermissionedDisputeGame`] initial bond amount to 0.08 ETH.
+  **Meanning**: Updates the `PermissionedDisputeGame` initial bond amount to 0.08 ETH. Verify that the slot is correct using `cast index uint 1 102`. Where `1` is the game type and 102 is the [storage slot](https://github.com/ethereum-optimism/optimism/blob/33f06d2d5e4034125df02264a5ffe84571bd0359/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L48).
 
 - **Key**: `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b` <br/>
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000` <br/>
   **After**: `0x0000000000000000000000006A8eFcba5642EB15D743CBB29545BdC44D5Ad8cD` <br/>
-  **Meaning**: Updates the implementation for game type 0. Verify that the slot is correct using `cast index uint 0 101` where 0 is the game type and 101 is the storage slot of the `gameImpls` mapping.
+  **Meaning**: Updates the implementation for game type 0. Verify that the slot is correct using `cast index uint 0 101` where 0 is the game type and 101 is the [storage slot](https://github.com/ethereum-optimism/optimism/blob/33f06d2d5e4034125df02264a5ffe84571bd0359/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41) of the `gameImpls` mapping.
 
 ### `0xde744491BcF6b2DD2F32146364Ea1487D75E2509` (`AnchorStateRegistryProxy`)
 
