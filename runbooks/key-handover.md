@@ -4,7 +4,7 @@ This document describes how to generate upgrade playbooks to upgrade chains to t
 
 ## Context
 
-One of the requirement for getting to Stage, 1 as defined by [L2Beat](https://medium.com/l2beat/introducing-stages-a-framework-to-evaluate-rollups-maturity-d290bb22befe) is having a Security Council in place. The Security Council acts as a safeguard in the system, ready to step in in the event of bugs or issues with the proof system. It must function through a multisig setup consisting of at least 8 participants and require a 50% consensus threshold. Furthermore, at least half of the participants must be external to the organization running the rollup, with a minimum of two outsiders required for consensus.
+One of the requirements for getting to Stage, 1 as defined by [L2Beat](https://medium.com/l2beat/introducing-stages-a-framework-to-evaluate-rollups-maturity-d290bb22befe) is having a Security Council in place. The Security Council acts as a safeguard in the system, ready to step in in the event of bugs or issues with the proof system. It must function through a multisig setup consisting of at least 8 participants and require a 50% consensus threshold. Furthermore, at least half of the participants must be external to the organization running the rollup, with a minimum of two outsiders required for consensus.
 
 This setup ensures a diversity of viewpoints and minimizes the risk of any single party exerting undue influence. For the sake of transparency and accountability, the identities (or the pseudonyms) of the council participants should also be publicly disclosed.
 
