@@ -95,7 +95,7 @@ repo setup instructions for each.
 
 There are three just recipes in this file:
 
-- `simulate` - to simulate the transactions in the the `input.json` bundle
+- `simulate` - to simulate the transactions in the `input.json` bundle
 - `sign` - to sign the transactions in the `input.json` bundle
 - `execute` - to execute the transactions in the `input.json` bundle
 
