@@ -235,7 +235,7 @@ jobs:
     steps:
       - simulate_nested:
           task: "/eth/ink-001-permissionless-proofs"
-            
+
   forge_build:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
@@ -289,6 +289,21 @@ jobs:
       - simulate_nested:
           task: "eth/022-holocene-fp-upgrade"
 
+  simulate_sequence:
+    description: "Runs a sequence of simulations"
+    parameters:
+      prefix:
+        type: string
+      tasks:
+        type: string
+    docker:
+      - image: <<pipeline.parameters.ci_builder_image>>
+    steps:
+      - checkout
+      - run:
+          name: "Run simulation sequence for <<parameters.prefix>> tasks: <<parameters.tasks>>"
+          command: just install && bash ./script/utils/sim-sequence.sh <<parameters.prefix>> "<<parameters.tasks>>"
+
 workflows:
   main:
     jobs:
@@ -307,6 +322,10 @@ workflows:
       - check_task_statuses
       # Verify that all tasks have correctly uppercased nonce overrides.
       - check_nonce_overrides
+      # Simulate the sequencing for the Jan 3-7 signing window.
+      - simulate_sequence:
+          prefix: "eth"
+          tasks: "021 022 base-003 ink-001"
       # Task simulations.
       # Please add an invocation to `just simulate` if a ceremony is
       # active (e.g. it is the next ceremony to perform or you
