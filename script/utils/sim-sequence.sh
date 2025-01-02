@@ -62,7 +62,7 @@ cleanup() {
     mv "$backup_file" "$simulation_file"
   fi
   # Kill the anvil fork at the end
-  ps aux | grep anvil | grep -v grep | awk '{print $2}' | xargs kill
+  # ps aux | grep anvil | grep -v grep | awk '{print $2}' | xargs kill
 }
 createFork() {
   # Start a fork
@@ -158,9 +158,10 @@ for task_folder in "${task_folders[@]}"; do
   else
     echo "Task type: single"
     just --dotenv-path "${PWD}/.env" --justfile "${root_dir}/single.just" simulate \ 0 "http://localhost:8545" true
-    exit 1
   fi
+  sleep 5
   NonceDisplay "🟩After Simulation $task_folder"
+  exit 1
   popd >/dev/null || error_exit "Failed to return to previous directory."
 done
 
