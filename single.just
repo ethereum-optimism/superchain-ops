@@ -37,14 +37,17 @@ simulate hdPath='0' rpcUrlExternal="" broadcast="false":
   if [[ "{{broadcast}}" == "true" ]]; then
   echo "Broadcasting transaction..."
   echo ${rpcUrl}
-  cast rpc anvil_impersonateAccount 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --rpc-url ${rpcUrl} #Impersonate the account 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 that has prefunded ETH. 
-  cast send ${signer} --value 11ether --rpc-url ${rpcUrl} --from 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --unlocked
+  # cast rpc anvil_impersonateAccount 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --rpc-url ${rpcUrl} #Impersonate the account 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 that has prefunded ETH. 
+    # cast send ${signer} --value 10ether --rpc-url ${rpcUrl} --from 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --unlocked # Prefund some ETH
 
 
-  forge script ${script} \
+  # cast rpc anvil_stopImpersonatingAccount 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --rpc-url ${rpcUrl} #Stop impersonating the account 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+  #
+  # cast rpc anvil_setStorageAt ${ownerSafe} 0x0000000000000000000000000000000000000000000000000000000000000004 0x0000000000000000000000000000000000000000000000000000000000000001 --rpc-url ${rpcUrl} 
+  forge script -vvvvvvvv ${script} \
     --rpc-url ${rpcUrl} \
     --sig "signJson(string)" ${bundlePath} \
-    --broadcast --unlocked --sender ${signer}
+    --broadcast --unlocked --sender 0x3041BA32f451F5850c147805F5521AC206421623  # 0x3041..1623 is a signer that contains ethers.
   else
   forge script ${script} \
     --rpc-url ${rpcUrl} \
