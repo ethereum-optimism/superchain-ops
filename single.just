@@ -6,8 +6,15 @@ export bundleName := env_var_or_default('BUNDLE_NAME', 'input')
 export taskPath := invocation_directory()
 export ownerSafe := env_var('OWNER_SAFE')
 
-simulate hdPath='0':
+simulate hdPath='0' rpcUrlExternal="" broadcast="false":
   #!/usr/bin/env bash
+  if [[ {{rpcUrlExternal}} == "" ]]; then
+    rpcUrl=${rpcUrl}
+  else
+    rpcUrl={{rpcUrlExternal}}
+  fi
+  echo "rpcUrl: ${rpcUrl}"
+  echo "value of the broadcast {{broadcast}}"
   bundlePath=${taskPath}/${bundleName}.json
   script=SignFromJson
   if [ -f "${taskPath}/SignFromJson.s.sol" ]; then
@@ -27,11 +34,23 @@ simulate hdPath='0':
   echo ""
 
   forge build
+  if [[ "{{broadcast}}" == "true" ]]; then
+  echo "Broadcasting transaction..."
+  echo ${rpcUrl}
+  cast rpc anvil_impersonateAccount 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --rpc-url ${rpcUrl} #Impersonate the account 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 that has prefunded ETH. 
+  cast send ${signer} --value 11ether --rpc-url ${rpcUrl} --from 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --unlocked
+
+
+  forge script ${script} \
+    --rpc-url ${rpcUrl} \
+    --sig "signJson(string)" ${bundlePath} \
+    --broadcast --unlocked --sender ${signer}
+  else
   forge script ${script} \
     --rpc-url ${rpcUrl} \
     --sig "signJson(string)" ${bundlePath} \
     --sender ${signer}
-
+  fi
 sign hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
