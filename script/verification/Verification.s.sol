@@ -3,8 +3,9 @@ pragma solidity ^0.8.15;
 
 import {LibString} from "solady/utils/LibString.sol";
 import {Types} from "@eth-optimism-bedrock/scripts/Types.sol";
-import {CommonBase} from "forge-std/Base.sol";
+import {ScriptBase} from "forge-std/Base.sol";
 import {stdToml} from "forge-std/StdToml.sol";
+import {console2 as console} from "forge-std/console2.sol";
 
 // TODO(#427): Proposing to just merge this contract into JsonTxBuilderBase.
 contract VerificationBase {
@@ -20,7 +21,7 @@ contract VerificationBase {
     }
 }
 
-contract SuperchainRegistry is CommonBase {
+contract SuperchainRegistry is ScriptBase {
     using LibString for string;
 
     struct StandardVersion {
@@ -101,15 +102,25 @@ contract SuperchainRegistry is CommonBase {
         proxies.L1StandardBridge = stdToml.readAddress(toml, "$.addresses.L1StandardBridgeProxy");
         proxies.SystemConfig = stdToml.readAddress(toml, "$.addresses.SystemConfigProxy");
 
-        // TODO handle chains which are missing these values:
-        // proxies.AnchorStateRegistry = stdToml.readAddress(toml, "$.addresses.AnchorStateRegistryProxy");
-        // proxies.DisputeGameFactory = stdToml.readAddress(toml, "$.addresses.DisputeGameFactoryProxy");
-        // chainConfig.unsafeBlockSigner = stdToml.readAddress(toml, "$.addresses.UnsafeBlockSigner");
+        // Not all chains have the following values specified in the registry, so we will
+        // set them to the zero address if they are not found.
+        proxies.AnchorStateRegistry = tryReadAddress(toml, "$.addresses.AnchorStateRegistryProxy");
+        proxies.DisputeGameFactory = tryReadAddress(toml, "$.addresses.DisputeGameFactoryProxy");
+        chainConfig.unsafeBlockSigner = tryReadAddress(toml, "$.addresses.UnsafeBlockSigner");
 
         chainConfig.chainId = stdToml.readUint(toml, "$.chain_id");
         chainConfig.systemConfigOwner = stdToml.readAddress(toml, "$.addresses.SystemConfigOwner");
         chainConfig.batchSubmitter = stdToml.readAddress(toml, "$.addresses.BatchSubmitter");
         chainConfig.batchInbox = stdToml.readAddress(toml, "$.batch_inbox_addr");
+    }
+
+    function tryReadAddress(string memory toml, string memory key) internal pure returns (address) {
+        try vmSafe.parseTomlAddress(toml, key) returns (address a) {
+            return a;
+        } catch {
+            console.log("failed to read address for ", key);
+            return address(0);
+        }
     }
 
     function _readStandardVersions() internal {
