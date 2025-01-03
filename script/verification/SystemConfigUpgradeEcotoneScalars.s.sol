@@ -40,7 +40,7 @@ contract SystemConfigUpgradeEcotoneScalars is SystemConfigUpgrade {
             );
             require(reencodedScalar == previous.scalar, "scalar-100 (reencoding produced incorrect result)");
             // We do this check last because it would fail if the scalar is wrong, and we get less debug info from it.
-            // It checks  all of the other fields which should not have changed (via a hash).
+            // It checks all of the other fields which should not have changed (via a hash).
             super.checkSystemConfigUpgrade();
         }
         require(sysCfg.scalar() == reencodedScalar, "scalar-101");
