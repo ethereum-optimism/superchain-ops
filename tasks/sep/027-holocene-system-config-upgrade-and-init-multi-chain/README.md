@@ -4,18 +4,7 @@ Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
-Upgrades the `SystemConfig` for the Holocene hardfork.
-
-The proposal was:
-
-- [ ] Posted on the governance forum.
-- [ ] Approved by Token House voting.
-- [ ] Not vetoed by the Citizens' house.
-- [ ] Executed on OP Mainnet.
-
-The governance proposal should be treated as the source of truth and used to verify the correctness of the onchain operations.
-
-Governance post of the upgrade can be found at <placeholder>.
+Upgrades the `SystemConfig` contracts for the Holocene hardfork across multiple chains in the sepolia superchain.
 
 This upgrades the `SystemConfig` in the
 [v1.8.0-rc.4](https://github.com/ethereum-optimism/optimism/tree/v1.8.0-rc.4) release.
@@ -36,7 +25,6 @@ Please see the instructions for [validation](./VALIDATION.md).
 
 ## Execution
 
-This upgrade
-* Changes the implementation of the `SystemConfig` to hold EIP-1559 parameters for the
+This upgrade upgrades the implementation of the `SystemConfig` implementation on multiple chains and reinitializes each of the in such a way as to preserve the semantics of all existing parameters stored in that contract.
 
 See the [overview](./OVERVIEW.md) and `input.json` bundle for more details.
