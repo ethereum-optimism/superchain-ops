@@ -10,7 +10,11 @@ import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 
 contract SignFromJson is OriginalSignFromJson, ProtocolVersionsBump {
     constructor()
-        ProtocolVersionsBump(vm.envAddress("OWNER_SAFE"), ProtoVer(9, 0, 0, 0), ProtoVer(9, 0, 0, 0))
+        ProtocolVersionsBump(
+            vm.envAddress("OWNER_SAFE"),
+            ProtoVer(9, 0, 0, 0),
+            ProtoVer(9, 0, 0, 0)
+        )
         // In the next line, "op" and ""v1.8.0-rc.4" are not relevant.
         // This is because we only need to read superchain-wide information from the registry.
         // We can use any valid values here.
@@ -18,18 +22,22 @@ contract SignFromJson is OriginalSignFromJson, ProtocolVersionsBump {
     {}
 
     /// @notice Checks the correctness of the deployment
-    function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory /* simPayload */ )
-        internal
-        view
-        override
-    {
+    function _postCheck(
+        Vm.AccountAccess[] memory accesses,
+        Simulation.Payload memory /* simPayload */
+    ) internal view override {
         console.log("Running assertions");
         checkStateDiff(accesses);
         checkProtocolVersions();
         console.log("All assertions passed!");
     }
 
-    function getAllowedStorageAccess() internal view override returns (address[] memory) {
+    function getAllowedStorageAccess()
+        internal
+        view
+        override
+        returns (address[] memory)
+    {
         return allowedStorageAccess;
     }
 
