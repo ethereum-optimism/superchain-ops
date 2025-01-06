@@ -72,8 +72,7 @@ createFork() {
     echo "Port 8545 is already in use. Please make sure to kill the process using the port before running the script."
     exit 1
   fi
-  echo $ETH_RPC_URL
-  anvil --auto-impersonate -f $ETH_RPC_URL >> /tmp/anvil.logs & 
+  anvil --auto-impersonate -f $RPC_URL >> /tmp/anvil.logs & 
   sleep 5
 }
 
@@ -135,6 +134,8 @@ done
 
 source ${task_folders[0]}/.env
 echo "RPC: $ETH_RPC_URL"
+RPC_URL=$ETH_RPC_URL
+unset ETH_RPC_URL
 echo "Simulating the following tasks in order:"
 for task_folder in "${task_folders[@]}"; do
   echo "  $(realpath "$task_folder")"
