@@ -44,9 +44,12 @@ simulate hdPath='0' rpcUrlExternal="" broadcast="false":
   # cast rpc anvil_stopImpersonatingAccount 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --rpc-url ${rpcUrl} #Stop impersonating the account 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
   #
   # cast rpc anvil_setStorageAt ${ownerSafe} 0x0000000000000000000000000000000000000000000000000000000000000004 0x0000000000000000000000000000000000000000000000000000000000000001 --rpc-url ${rpcUrl} 
+
+  cast rpc anvil_setStorageAt ${ownerSafe} 0x0000000000000000000000000000000000000000000000000000000000000004 0x0000000000000000000000000000000000000000000000000000000000000001 --rpc-url ${rpcUrl}
+
   forge script -vvvvvvvv ${script} \
     --rpc-url ${rpcUrl} \
-    --sig "signJson(string)" ${bundlePath} \
+    --sig "runJson(string,bytes)" ${bundlePath} ee331951251818138a70e0844c4f733b27d981da21362cab330a3108dd436d3157e1b6d44cb98d7601eebd72607c0415a17741c303179128b5c1f297364094011c \
     --broadcast --unlocked --sender 0x3041BA32f451F5850c147805F5521AC206421623  # 0x3041..1623 is a signer that contains ethers.
   else
   forge script ${script} \
