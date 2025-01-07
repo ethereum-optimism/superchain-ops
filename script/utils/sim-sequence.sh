@@ -72,7 +72,7 @@ createFork() {
     echo "Port 8545 is already in use. Please make sure to kill the process using the port before running the script."
     exit 1
   fi
-  anvil --auto-impersonate -f $RPC_URL >> /tmp/anvil.logs & 
+  anvil --auto-impersonate -f $RPC_URL --fork-block-number 21573136 >> /tmp/anvil.logs & 
   sleep 5
 }
 
