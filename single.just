@@ -49,7 +49,7 @@ simulate hdPath='0' rpcUrlExternal="" broadcast="false":
 
   forge script -vvvvvvvv ${script} \
     --rpc-url ${rpcUrl} \
-    --sig "runJson(string,bytes)" ${bundlePath} ee331951251818138a70e0844c4f733b27d981da21362cab330a3108dd436d3157e1b6d44cb98d7601eebd72607c0415a17741c303179128b5c1f297364094011c \
+    --sig "runJson(string,bytes)" ${bundlePath} 8f9b94a443b6934cbb00b4285156da7264eb1d85773bb0a904ecfbe830d2b79a0a34afca4a77cf0e022567ac1c898010cac632ec66bdff2f6602b7dfab87c65b \
     --broadcast --unlocked --sender 0x3041BA32f451F5850c147805F5521AC206421623  # 0x3041..1623 is a signer that contains ethers.
   else
   forge script ${script} \
