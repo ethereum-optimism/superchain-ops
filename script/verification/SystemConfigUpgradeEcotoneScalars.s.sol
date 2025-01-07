@@ -42,6 +42,7 @@ contract SystemConfigUpgradeEcotoneScalars is SystemConfigUpgrade {
             // and the blobbasefeeScalar is 0,
             // the upgrade will migrate the scalar version to 1 and preserve
             // everything else.
+            // See https://specs.optimism.io/protocol/system-config.html?highlight=ecotone%20scalar#ecotone-scalar-overhead-uint256uint256-change
             require(previousScalar >> 248 == 0, "scalar-101 previous scalar version != 0 or 1");
             require(reencodedScalar >> 248 == 1, "scalar-102 reenconded scalar version != 1");
             require(sysCfg.blobbasefeeScalar() == uint32(0), "scalar-103 blobbasefeeScalar !=0");
