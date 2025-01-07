@@ -34,12 +34,21 @@ contract SystemConfigUpgradeEcotoneScalars is SystemConfigUpgrade {
         if (
             // If the scalar version (i.e. the most significant bit of the scalar)
             // is 1, we expect it to be unchanged during the upgrade.
-            // Otherwise, the upgrade will migrate the scalar from version 0 to version 1
             uint8(previousScalar >> 248) == 1
         ) {
             require(reencodedScalar == previousScalar, "scalar-100 scalar mismatch");
+        } else {
+            // Otherwise, if the scalar version is 0,
+            // and the blobbasefeeScalar is 0,
+            // the upgrade will migrate the scalar version to 1 and preserve
+            // everything else.
+            require(previousScalar >> 248 == 0, "scalar-101 previous scalar version != 0 or 1");
+            require(reencodedScalar >> 248 == 1, "scalar-102 reenconded scalar version != 1");
+            require(sysCfg.blobbasefeeScalar() == uint32(0), "scalar-103 blobbasefeeScalar !=0");
+            require(reencodedScalar << 8 == previousScalar << 8, "scalar-104 scalar mismatch");
         }
-        require(sysCfg.scalar() == reencodedScalar, "scalar-101");
+        // Check that basefeeScalar and blobbasefeeScalar are correct by re-encoding them and comparing to the new scalar value.
+        require(sysCfg.scalar() == reencodedScalar, "scalar-105");
         super.checkSystemConfigUpgrade(); // check remaining storage variables didn't change
     }
 }
