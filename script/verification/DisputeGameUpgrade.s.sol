@@ -121,15 +121,8 @@ abstract contract DisputeGameUpgrade is VerificationBase, SuperchainRegistry {
         require(currentGame.l2ChainId() == newGame.l2ChainId(), "pre-40");
         require(currentGame.splitDepth() == newGame.splitDepth(), "pre-50");
         require(currentGame.maxGameDepth() == newGame.maxGameDepth(), "pre-60");
-        require(
-            uint64(Duration.unwrap(currentGame.maxClockDuration()))
-                == uint64(Duration.unwrap(newGame.maxClockDuration())),
-            "pre-70"
-        );
-        require(
-            uint64(Duration.unwrap(currentGame.clockExtension())) == uint64(Duration.unwrap(newGame.clockExtension())),
-            "pre-80"
-        );
+        require(currentGame.maxClockDuration().raw() == newGame.maxClockDuration().raw(), "pre-70");
+        require(currentGame.clockExtension().raw() == newGame.clockExtension().raw(), "pre-80");
 
         if (_targetGameType.raw() == GameTypes.PERMISSIONED_CANNON.raw()) {
             PermissionedDisputeGame currentPDG = PermissionedDisputeGame(address(currentGame));
