@@ -104,23 +104,14 @@ contract SuperchainRegistry is ScriptBase {
 
         // Not all chains have the following values specified in the registry, so we will
         // set them to the zero address if they are not found.
-        proxies.AnchorStateRegistry = tryReadAddress(toml, "$.addresses.AnchorStateRegistryProxy");
-        proxies.DisputeGameFactory = tryReadAddress(toml, "$.addresses.DisputeGameFactoryProxy");
-        chainConfig.unsafeBlockSigner = tryReadAddress(toml, "$.addresses.UnsafeBlockSigner");
+        proxies.AnchorStateRegistry = stdToml.readAddressOr(toml, "$.addresses.AnchorStateRegistryProxy", address(0));
+        proxies.DisputeGameFactory = stdToml.readAddressOr(toml, "$.addresses.DisputeGameFactoryProxy", address(0));
+        chainConfig.unsafeBlockSigner = stdToml.readAddressOr(toml, "$.addresses.UnsafeBlockSigner", address(0));
 
         chainConfig.chainId = stdToml.readUint(toml, "$.chain_id");
         chainConfig.systemConfigOwner = stdToml.readAddress(toml, "$.addresses.SystemConfigOwner");
         chainConfig.batchSubmitter = stdToml.readAddress(toml, "$.addresses.BatchSubmitter");
         chainConfig.batchInbox = stdToml.readAddress(toml, "$.batch_inbox_addr");
-    }
-
-    function tryReadAddress(string memory toml, string memory key) internal pure returns (address) {
-        try vmSafe.parseTomlAddress(toml, key) returns (address a) {
-            return a;
-        } catch {
-            console.log("failed to read address for ", key);
-            return address(0);
-        }
     }
 
     function _readStandardVersions() internal {
