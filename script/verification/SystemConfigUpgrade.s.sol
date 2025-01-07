@@ -11,7 +11,7 @@ import {IResourceMetering} from "./IResourceMetering.sol";
 // has not changed any of the storage variables that are not expected to change.
 // It stores the prior storage variables EXCLUDING:
 // - scalar
-// - basedeeScalar
+// - basefeeScalar
 // - blobbasefeeScalar
 // of the SystemConfig contract at constructor time.
 // It exposes a method which allows the verification script to check that the storage variables have not changed.
