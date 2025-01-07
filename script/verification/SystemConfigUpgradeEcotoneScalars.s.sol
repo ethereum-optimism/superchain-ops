@@ -12,13 +12,18 @@ import {SystemConfigUpgrade} from "script/verification/SystemConfigUpgrade.s.sol
 contract SystemConfigUpgradeEcotoneScalars is SystemConfigUpgrade {
     using LibString for string;
 
+    ISystemConfig sysCfg;
+    uint256 previousScalar;
+
     constructor(string memory _l1ChainName, string memory _l2ChainName, string memory _release)
         SystemConfigUpgrade(_l1ChainName, _l2ChainName, _release)
-    {}
+    {
+        sysCfg = ISystemConfig(proxies.SystemConfig);
+        previousScalar = sysCfg.scalar();
+    }
 
     /// @notice Public function that must be called by the verification script.
     function checkSystemConfigUpgrade() public view override {
-        ISystemConfig sysCfg = ISystemConfig(proxies.SystemConfig);
         uint256 reencodedScalar =
             (uint256(0x01) << 248) | (uint256(sysCfg.blobbasefeeScalar()) << 32) | sysCfg.basefeeScalar();
         console.log(
@@ -27,18 +32,14 @@ contract SystemConfigUpgradeEcotoneScalars is SystemConfigUpgrade {
             LibString.toString(sysCfg.blobbasefeeScalar())
         );
         if (
-            uint8(previous.scalar >> 248) == 1 // most significant bit
+            // If the scalar version (i.e. the most significant bit of the scalar)
+            // is 1, we expect it to be unchanged during the upgrade.
+            // Otherwise, the upgrade will migrate the scalar from version 0 to version 1
+            uint8(previousScalar >> 248) == 1
         ) {
-            console.log(
-                "reencode to previous scalar: ",
-                LibString.toString(reencodedScalar),
-                LibString.toString(previous.scalar)
-            );
-            require(reencodedScalar == previous.scalar, "scalar-100 (reencoding produced incorrect result)");
-            // We do this check last because it would fail if the scalar is wrong, and we get less debug info from it.
-            // It checks all of the other fields which should not have changed (via a hash).
-            super.checkSystemConfigUpgrade();
+            require(reencodedScalar == previousScalar, "scalar-100 scalar mismatch");
         }
         require(sysCfg.scalar() == reencodedScalar, "scalar-101");
+        super.checkSystemConfigUpgrade(); // check remaining storage variables didn't change
     }
 }

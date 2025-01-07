@@ -9,7 +9,10 @@ import {IResourceMetering} from "./IResourceMetering.sol";
 
 // SystemConfigUpgrade is a contract that can be used to verify that an upgrade of the SystemConfig contract
 // has not changed any of the storage variables that are not expected to change.
-// It stores the prior storage variables (EXCLUDING the Ecotone Scalar variables basedeeScalat and blobbasefeeScalar)
+// It stores the prior storage variables EXCLUDING:
+// - scalar
+// - basedeeScalar
+// - blobbasefeeScalar
 // of the SystemConfig contract at constructor time.
 // It exposes a method which allows the verification script to check that the storage variables have not changed.
 contract SystemConfigUpgrade is SuperchainRegistry {
@@ -17,7 +20,6 @@ contract SystemConfigUpgrade is SuperchainRegistry {
 
     struct SysCfgVars {
         address owner;
-        uint256 scalar;
         bytes32 batcherHash;
         uint256 gasLimit;
         address unsafeBlockSigner;
@@ -49,7 +51,6 @@ contract SystemConfigUpgrade is SuperchainRegistry {
 
         return SysCfgVars({
             owner: sysCfg.owner(),
-            scalar: sysCfg.scalar(),
             batcherHash: sysCfg.batcherHash(),
             gasLimit: sysCfg.gasLimit(),
             unsafeBlockSigner: sysCfg.unsafeBlockSigner(),
