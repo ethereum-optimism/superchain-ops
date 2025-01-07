@@ -35,8 +35,8 @@ contract SystemConfigUpgrade is SuperchainRegistry {
     address public systemConfigAddress;
     SysCfgVars previous;
 
-    constructor(string memory l1ChainName, string memory l2ChainName, string memory release)
-        SuperchainRegistry(l1ChainName, l2ChainName, release)
+    constructor(string memory _l1ChainName, string memory _l2ChainName, string memory _release)
+        SuperchainRegistry(_l1ChainName, _l2ChainName, _release)
     {
         systemConfigAddress = proxies.SystemConfig;
         previous = getSysCfgVars(); // Set this before the tx is executed.
