@@ -12,8 +12,8 @@ import {SystemConfigUpgrade} from "script/verification/SystemConfigUpgrade.s.sol
 contract SystemConfigUpgradeEcotoneScalars is SystemConfigUpgrade {
     using LibString for string;
 
-    constructor(string memory l1ChainName, string memory l2ChainName, string memory release)
-        SystemConfigUpgrade(l1ChainName, l2ChainName, release)
+    constructor(string memory _l1ChainName, string memory _l2ChainName, string memory _release)
+        SystemConfigUpgrade(_l1ChainName, _l2ChainName, _release)
     {}
 
     /// @notice Public function that must be called by the verification script.
