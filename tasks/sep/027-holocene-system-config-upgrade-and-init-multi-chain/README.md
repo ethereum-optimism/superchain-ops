@@ -27,4 +27,21 @@ Please see the instructions for [validation](./VALIDATION.md).
 
 This upgrade upgrades the implementation of the `SystemConfig` implementation on multiple chains and reinitializes each of the in such a way as to preserve the semantics of all existing parameters stored in that contract.
 
-See the [overview](./OVERVIEW.md) and `input.json` bundle for more details.
+The batch will be executed on L1 chain ID `11155111`, and contains  `3n` transactions, where `n=4` is the number of L2 chains being upgraded. The chains affected are {op,metal,mode,zora}-sepolia.
+
+The below is a summary of the transaction bundle, see `input.json` for full details. 
+
+### Txs #1,#4,#7,#10: ProxyAdmin.upgrade(SystemConfigProxy, StorageSetter)
+Upgrades the `SystemConfigProxy` on each chain to the StorageSetter.
+
+**Function Signature:** `upgrade(address,address)`
+
+## Txs #2,#5,#8,#11: SystemConfigProxy.setBytes32(0,0)
+Zeroes out the initialized state variable for each chain's SystemConfigProxy, to allow reinitialization.
+
+**Function Signature:** `setBytes32(bytes32,bytes32)`
+
+### Txs #3,#6,#9,#12: ProxyAdmin.upgradeAndCall(SystemConfigProxy, SystemConfigImplementation, Initialize())
+Upgrades each chain's SystemConfig to a new implementation and initializes it.
+
+**Function Signature:** `upgradeAndCall(address,address,bytes)`
