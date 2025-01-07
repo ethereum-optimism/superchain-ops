@@ -19,6 +19,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
 
     constructor() {
         for (uint256 i = 0; i < l2ChainNames.length; i++) {
+            // Deploy a SystemConfigUpgradeEcotoneScalars instance per chain,
+            // which each contains its own bindings to an individual chain's SuperchainRegistry data.
             sysCfgUpgrades.push(new SystemConfigUpgradeEcotoneScalars(l1ChainName, l2ChainNames[i], release));
             console.log("");
             console.log("Set up verification data for chain", l2ChainNames[i], "-", l1ChainName);

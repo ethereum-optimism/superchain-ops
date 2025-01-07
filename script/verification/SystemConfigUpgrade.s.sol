@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import {console2 as console} from "forge-std/console2.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {LibString} from "solady/utils/LibString.sol";
 import {SuperchainRegistry} from "script/verification/Verification.s.sol";
-import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {ISystemConfig} from "./ISystemConfig.sol";
 import {IResourceMetering} from "./IResourceMetering.sol";
-import {MIPS} from "@eth-optimism-bedrock/src/cannon/MIPS.sol";
-import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
-import {NestedMultisigBuilder} from "@base-contracts/script/universal/NestedMultisigBuilder.sol";
 
+// SystemConfigUpgrade is a contract that can be used to verify that an upgrade of the SystemConfig contract
+// has not changed any of the storage variables that are not expected to change.
+// It stores the prior storage variables (EXCLUDING the Ecotone Scalar variables basedeeScalat and blobbasefeeScalar)
+// of the SystemConfig contract at constructor time.
+// It exposes a method which allows the verification script to check that the storage variables have not changed.
 contract SystemConfigUpgrade is SuperchainRegistry {
     using LibString for string;
 
