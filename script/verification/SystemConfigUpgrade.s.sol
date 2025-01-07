@@ -71,12 +71,13 @@ contract SystemConfigUpgrade is SuperchainRegistry {
         require(keccak256(abi.encode(got)) == keccak256(abi.encode(previous)), "system-config-100");
     }
 
-    function getCodeExceptions() public view returns (address[] memory) {
-        address[] memory exceptions = new address[](4);
-        exceptions[0] = previous.owner; // NOTE this can be removed for mainnet
-        exceptions[1] = address(uint160(uint256((previous.batcherHash))));
-        exceptions[2] = previous.unsafeBlockSigner;
-        exceptions[3] = previous.batchInbox;
-        return exceptions;
+    function getCodeExceptions() public view returns (address[] memory exceptions) {
+        uint256 len = block.chainid == 1 ? 3 : 4; // Mainnet doesn't need owner exception.
+        exceptions = new address[](len);
+        uint256 i = 0;
+        if (block.chainid != 1) exceptions[i++] = previous.owner;
+        exceptions[i++] = address(uint160(uint256((previous.batcherHash))));
+        exceptions[i++] = previous.unsafeBlockSigner;
+        exceptions[i++] = previous.batchInbox;
     }
 }
