@@ -55,20 +55,20 @@ contract SystemConfigUpgrade is SuperchainRegistry {
     function getSysCfgVars() internal view returns (SysCfgVars memory) {
         ISystemConfig sysCfg = ISystemConfig(proxies.SystemConfig);
 
-        // gasPayingToken is not available on superchainconfig 1.12.0 and 2.2.0
-        // the only supported versions to upgrade _from_.
-        // Since all supported chains are therefore non CGT chains
-        // we hardcode this:
+        // Depending on the version of the SystemConfig contract,
+        // certain variables may not be present
         address gasPayingToken;
         address disputeGameFactory;
-
         if (sysCfg.version().eq("2.3.0")) {
+            // Target Version
             disputeGameFactory = sysCfg.disputeGameFactory();
             (gasPayingToken,) = sysCfg.gasPayingToken();
         } else if (sysCfg.version().eq("2.2.0")) {
+            // Supported initial version
             disputeGameFactory = sysCfg.disputeGameFactory();
             gasPayingToken = address(0);
         } else if (sysCfg.version().eq("1.12.0")) {
+            // Supported initial version
             disputeGameFactory = address(0);
             gasPayingToken = address(0);
         } else {
