@@ -14,12 +14,26 @@ contract SystemConfigUpgradeEcotoneScalars is SystemConfigUpgrade {
 
     ISystemConfig sysCfg;
     uint256 previousScalar;
+    address targetDGF;
 
     constructor(string memory _l1ChainName, string memory _l2ChainName, string memory _release)
         SystemConfigUpgrade(_l1ChainName, _l2ChainName, _release)
     {
         sysCfg = ISystemConfig(proxies.SystemConfig);
         previousScalar = sysCfg.scalar();
+
+        if (sysCfg.version().eq("2.3.0")) {
+            // Target Version
+            targetDGF = sysCfg.disputeGameFactory();
+        } else if (sysCfg.version().eq("2.2.0")) {
+            // Supported initial version
+            targetDGF = sysCfg.disputeGameFactory();
+        } else if (sysCfg.version().eq("1.12.0")) {
+            // Supported initial version
+            targetDGF = address(0);
+        } else {
+            revert("unsupported SystemConfig version");
+        }
     }
 
     /// @notice Public function that must be called by the verification script.
@@ -50,6 +64,15 @@ contract SystemConfigUpgradeEcotoneScalars is SystemConfigUpgrade {
         }
         // Check that basefeeScalar and blobbasefeeScalar are correct by re-encoding them and comparing to the new scalar value.
         require(sysCfg.scalar() == reencodedScalar, "scalar-105");
-        super.checkSystemConfigUpgrade(); // check remaining storage variables didn't change
+
+        require(sysCfg.disputeGameFactory() == targetDGF, "scalar-106");
+
+        // upgrade does not support CGT chains, so we require the gasPayingToken to be ETH
+        (address t, uint8 d) = sysCfg.gasPayingToken();
+        require(t == 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE, "scalar-107");
+        require(d == 18, "scalar-108");
+
+        // Check remaining storage variables didn't change
+        super.checkSystemConfigUpgrade();
     }
 }

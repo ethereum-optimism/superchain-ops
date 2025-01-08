@@ -14,6 +14,8 @@ import {console2 as console} from "forge-std/console2.sol";
 // - scalar
 // - basefeeScalar
 // - blobbasefeeScalar
+// - gasPayingToken
+// - disputeGameFactory
 // of the SystemConfig contract at constructor time.
 // It exposes a method which allows the verification script to check that the storage variables have not changed.
 contract SystemConfigUpgrade is SuperchainRegistry {
@@ -26,11 +28,9 @@ contract SystemConfigUpgrade is SuperchainRegistry {
         address unsafeBlockSigner;
         IResourceMetering.ResourceConfig resourceConfig;
         address batchInbox;
-        address gasPayingToken;
         address l1CrossDomainMessenger;
         address l1StandardBridge;
         address l1ERC721Bridge;
-        address disputeGameFactory;
         address optimismPortal;
         address optimismMintableERC20Factory;
     }
@@ -55,26 +55,6 @@ contract SystemConfigUpgrade is SuperchainRegistry {
     function getSysCfgVars() internal view returns (SysCfgVars memory) {
         ISystemConfig sysCfg = ISystemConfig(proxies.SystemConfig);
 
-        // Depending on the version of the SystemConfig contract,
-        // certain variables may not be present
-        address gasPayingToken;
-        address disputeGameFactory;
-        if (sysCfg.version().eq("2.3.0")) {
-            // Target Version
-            disputeGameFactory = sysCfg.disputeGameFactory();
-            (gasPayingToken,) = sysCfg.gasPayingToken();
-        } else if (sysCfg.version().eq("2.2.0")) {
-            // Supported initial version
-            disputeGameFactory = sysCfg.disputeGameFactory();
-            gasPayingToken = address(0);
-        } else if (sysCfg.version().eq("1.12.0")) {
-            // Supported initial version
-            disputeGameFactory = address(0);
-            gasPayingToken = address(0);
-        } else {
-            revert("unsupported SystemConfig version");
-        }
-
         return SysCfgVars({
             owner: sysCfg.owner(),
             batcherHash: sysCfg.batcherHash(),
@@ -86,9 +66,7 @@ contract SystemConfigUpgrade is SuperchainRegistry {
             l1StandardBridge: sysCfg.l1StandardBridge(),
             l1ERC721Bridge: sysCfg.l1ERC721Bridge(),
             optimismPortal: sysCfg.optimismPortal(),
-            optimismMintableERC20Factory: sysCfg.optimismMintableERC20Factory(),
-            gasPayingToken: gasPayingToken,
-            disputeGameFactory: disputeGameFactory
+            optimismMintableERC20Factory: sysCfg.optimismMintableERC20Factory()
         });
     }
 
