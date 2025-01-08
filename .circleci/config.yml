@@ -302,3 +302,4 @@ workflows:
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
       - just_simulate_permissionless_fp_upgrade
+      - just_simulate_ink_set_respected_game_type
