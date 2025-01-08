@@ -3,8 +3,10 @@ pragma solidity 0.8.15;
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 import {Test} from "forge-std/Test.sol";
+
 import {IAddressRegistry} from "src/fps/IAddressRegistry.sol";
 import {SUPERCHAIN_REGISTRY_PATH} from "src/fps/utils/Constants.sol";
+import {ETHEREUM_CHAIN_ID, SEPOLIA_CHAIN_ID} from "src/fps/utils/Constants.sol";
 
 /// @title Network Address Manager
 /// @notice This contract provides a single source of truth for storing and retrieving addresses across multiple networks.
@@ -47,11 +49,14 @@ contract AddressRegistry is IAddressRegistry, Test {
     /// @notice Array of supported superchains and their configurations
     Superchain[] public superchains;
 
-    /// @notice Initializes the contract by loading addresses from TOML files and configuring the supported L2 chains.
+    /// @notice Initializes the contract by loading addresses from TOML files
+    /// and configuring the supported L2 chains.
     /// @param addressFolderPath The path to the folder containing chain-specific TOML address files
-    /// @param superchainListFilePath The path to the TOML file containing the list of supported L2 chains
-    constructor(string memory addressFolderPath, string memory superchainListFilePath) {
-        bytes memory superchainListContent = vm.parseToml(vm.readFile(superchainListFilePath), ".chains");
+    /// @param networkConfigFilePath the path to the TOML file containing the network configuration(s)
+    constructor(string memory addressFolderPath, string memory networkConfigFilePath) {
+        require(block.chainid == ETHEREUM_CHAIN_ID || block.chainid == SEPOLIA_CHAIN_ID, "Unsupported network");
+
+        bytes memory superchainListContent = vm.parseToml(vm.readFile(networkConfigFilePath), ".l2chains");
         superchains = abi.decode(superchainListContent, (Superchain[]));
 
         string memory superchainAddressesContent = vm.readFile(SUPERCHAIN_REGISTRY_PATH);
@@ -159,6 +164,12 @@ contract AddressRegistry is IAddressRegistry, Test {
                 abi.encodePacked("Address not found for identifier ", identifier, " on chain ", vm.toString(l2ChainId))
             )
         );
+    }
+
+    /// @notice Returns the list of supported superchains
+    /// @return An array of Superchain structs representing the supported superchains
+    function getSuperchains() public view returns (Superchain[] memory) {
+        return superchains;
     }
 
     /// @notice Verifies that the given L2 chain ID is supported

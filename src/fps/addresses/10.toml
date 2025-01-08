@@ -12,3 +12,38 @@ isContract = true
 addr = "0x316f9708bB98af7dA9c68C1C3b5e79039cD336E3"
 identifier = "COMPOUND_CONFIGURATOR"
 isContract = true
+
+[[addresses]]
+addr = "0xc2819DC788505Aac350142A7A707BF9D03E3Bd03"
+identifier = "COUNCIL_SAFE"
+isContract = true
+
+[[addresses]]
+addr = "0xc641A33cab81C559F2bd4b21EA34C290E2440C2B"
+identifier = "DISPUTE_GAME_FACTORY_LOGIC"
+isContract = true
+
+[[addresses]]
+addr = "0xf691F8A6d908B58C534B624cF16495b491E633BA"
+identifier = "FAULT_DISPUTE_GAME_IMPLEMENTATION"
+isContract = true
+
+[[addresses]]
+addr = "0x5dC91D01290af474CE21DE14c17335a6dEe4d2a8"
+identifier = "DEPUTY_GUARDIAN"
+isContract = true
+
+[[addresses]]
+addr = "0xe2F826324b2faf99E513D16D266c3F80aE87832B"
+identifier = "OPTIMISM_PORTAL_IMPLEMENTATION"
+isContract = true
+
+[[addresses]]
+addr = "0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552"
+identifier = "GUARDIAN_SAFE_IMPLEMENTATION"
+isContract = true
+
+[[addresses]]
+addr = "0x53c165169401764778F780a69701385eb0FF19B7"
+identifier = "SUPERCHAIN_CONFIG_IMPLEMENTATION"
+isContract = true

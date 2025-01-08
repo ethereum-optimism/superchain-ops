@@ -1,0 +1,3 @@
+safeNonce = 67
+isNestedSafe = false
+l2chains = [{name = "OP Mainnet", chainId = 10}]

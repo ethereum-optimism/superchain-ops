@@ -1,0 +1,7 @@
+# this is the file used to determine the network configuration
+
+safeNonce = 98
+isNestedSafe = false
+l2chains = [{name = "OP Mainnet", chainId = 10}]
+
+respectedGameTypes = [{gameType = 1, l2ChainId = 10, portal = "OptimismPortalProxy"}]

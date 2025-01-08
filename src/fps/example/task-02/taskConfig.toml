@@ -1,0 +1,15 @@
+[runFlags]
+doMock = true
+doBuild = true
+doSimulate = true
+doValidate = true
+doPrint = true
+
+[task]
+safeConfigChange = false
+safeOwnersChange = false
+safeAddressString = "Challenger"
+allowedStorageWriteAccesses = ["OptimismPortalProxy"]
+authorizedDelegateCalls = ["OPTIMISM_PORTAL_IMPLEMENTATION", "GUARDIAN_SAFE_IMPLEMENTATION", "SUPERCHAIN_CONFIG_IMPLEMENTATION"]
+name = "Set respected game type - Task 02"
+description = "Set the respected game type at the Optimism Portal."

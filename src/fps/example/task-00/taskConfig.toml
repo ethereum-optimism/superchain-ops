@@ -1,0 +1,15 @@
+[runFlags]
+doMock = true
+doBuild = true
+doSimulate = true
+doValidate = true
+doPrint = true
+
+[task]
+safeConfigChange = false
+safeOwnersChange = false
+safeAddressString = "SystemConfigOwner"
+allowedStorageAccesses = ["SystemConfigProxy"]
+authorizedDelegateCalls = ["SYSTEM_CONFIG_LOGIC"]
+name = "Set Gas Limit - Task 00"
+description = "Set the gas limit for the system."
