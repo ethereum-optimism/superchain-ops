@@ -1,0 +1,15 @@
+[runFlags]
+doMock = true
+doBuild = true
+doSimulate = true
+doValidate = true
+doPrint = true
+
+[task]
+safeConfigChange = false
+safeOwnersChange = false
+safeAddressString = "ProxyAdminOwner"
+allowedStorageWriteAccesses = ["DisputeGameFactoryProxy"]
+authorizedDelegateCalls = ["DISPUTE_GAME_FACTORY_LOGIC"]
+name = "Set Implementation - Task 01"
+description = "Set the implementation for the dispute game factory."

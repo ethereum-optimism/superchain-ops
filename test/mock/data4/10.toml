@@ -1,3 +1,5 @@
+# mock local addresses stored in the superchain ops repo
+
 [[addresses]]
 addr = "0x9679E26bf0C470521DE83Ad77BB1bf1e7312f739"
 identifier = "DEPLOYER_EOA"

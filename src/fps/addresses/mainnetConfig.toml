@@ -1,0 +1,4 @@
+# this is the file used to determine the network configuration
+safeNonce = 67
+isNestedSafe = false
+l2chains = [{name = "Orderly", chainId = 291}, {name = "Metal", chainId = 1750}]

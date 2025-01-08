@@ -1,0 +1,4 @@
+[[addresses]]
+addr = "0x240B3bd6b95cE40497Aafd71aD4705d0345A33CD"
+identifier = "SYSTEM_CONFIG_LOGIC"
+isContract = true
