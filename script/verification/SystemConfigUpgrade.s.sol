@@ -55,7 +55,25 @@ contract SystemConfigUpgrade is SuperchainRegistry {
     function getSysCfgVars() internal view returns (SysCfgVars memory) {
         ISystemConfig sysCfg = ISystemConfig(proxies.SystemConfig);
 
-        (address gasPayingToken,) = sysCfg.gasPayingToken();
+        // gasPayingToken is not available on superchainconfig 1.12.0 and 2.2.0
+        // the only supported versions to upgrade _from_.
+        // Since all supported chains are therefore non CGT chains
+        // we hardcode this:
+        address gasPayingToken;
+        address disputeGameFactory;
+
+        if (sysCfg.version().eq("2.3.0")) {
+            disputeGameFactory = sysCfg.disputeGameFactory();
+            (gasPayingToken,) = sysCfg.gasPayingToken();
+        } else if (sysCfg.version().eq("2.2.0")) {
+            disputeGameFactory = sysCfg.disputeGameFactory();
+            gasPayingToken = address(0);
+        } else if (sysCfg.version().eq("1.12.0")) {
+            disputeGameFactory = address(0);
+            gasPayingToken = address(0);
+        } else {
+            revert("unsupported SystemConfig version");
+        }
 
         return SysCfgVars({
             owner: sysCfg.owner(),
@@ -64,13 +82,13 @@ contract SystemConfigUpgrade is SuperchainRegistry {
             unsafeBlockSigner: sysCfg.unsafeBlockSigner(),
             resourceConfig: sysCfg.resourceConfig(),
             batchInbox: sysCfg.batchInbox(),
-            gasPayingToken: gasPayingToken,
             l1CrossDomainMessenger: sysCfg.l1CrossDomainMessenger(),
             l1StandardBridge: sysCfg.l1StandardBridge(),
             l1ERC721Bridge: sysCfg.l1ERC721Bridge(),
-            disputeGameFactory: sysCfg.disputeGameFactory(),
             optimismPortal: sysCfg.optimismPortal(),
-            optimismMintableERC20Factory: sysCfg.optimismMintableERC20Factory()
+            optimismMintableERC20Factory: sysCfg.optimismMintableERC20Factory(),
+            gasPayingToken: gasPayingToken,
+            disputeGameFactory: disputeGameFactory
         });
     }
 
