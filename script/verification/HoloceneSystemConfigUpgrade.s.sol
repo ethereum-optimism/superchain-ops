@@ -59,6 +59,8 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry {
     // The target version of the SystemConfig contract, read from the SCR @ specified release:
     string targetVersion;
 
+    // The constructor caches some information from the SCR and from the existing SystemConfig contract
+    // before the upgrade is executed.
     constructor(string memory _l1ChainName, string memory _l2ChainName, string memory _release)
         SuperchainRegistry(_l1ChainName, _l2ChainName, _release)
     {
@@ -105,6 +107,7 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry {
         exceptions[i++] = previous.batchInbox;
     }
 
+    // Checks semver of SystemConfig is correct after the upgrade
     function checkTargetVersion() internal view {
         require(
             keccak256(abi.encode(getSysCfgVersion())) == keccak256(abi.encode(targetVersion)),
@@ -113,6 +116,7 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry {
         console.log("confirmed SystemConfig upgraded to version", targetVersion);
     }
 
+    // Checks scalar, basefeeScalar, blobbasefeeScalar are set consistently:
     function checkScalar() internal view {
         uint256 reencodedScalar =
             (uint256(0x01) << 248) | (uint256(sysCfg.blobbasefeeScalar()) << 32) | sysCfg.basefeeScalar();
@@ -142,21 +146,25 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry {
         require(sysCfg.scalar() == reencodedScalar, "scalar-105");
     }
 
+    // Checks the disputeGameFactory address is set correctly after the upgrade
     function checkDGF() internal view {
         require(sysCfg.disputeGameFactory() == targetDGF, "scalar-106");
     }
 
+    // Checks gasPayingToken and its decimals are set correctly after the upgrade
     function checkGasPayingToken() internal view {
         (address t, uint8 d) = sysCfg.gasPayingToken();
         require(t == targetGasPayingToken, "scalar-107");
         require(d == targetDecimals, "scalar-108");
     }
 
+    // CHecsk the remaining storage variables are unchanged after the upgrade
     function checkBaseSysCfgVars() internal view {
         // Check remaining storage variables didn't change
         require(keccak256(abi.encode(getBaseSysCfgVars())) == keccak256(abi.encode(previous)), "system-config-100");
     }
 
+    // Reads
     function getSysCfgVersion() internal view returns (string memory) {
         return sysCfg.version();
     }
