@@ -37,13 +37,13 @@ This section describes the specific state changes of this upgrade, not related t
 ### `0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1` (`DisputeGameFactoryProxy`)
 
 - **Key**: `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b` <br/>
-  **Before**: `0x0000000000000000000000005e0877a8f6692ed470013e651c4357d0c4941e6c` <br/>
+  **Before**: `0x000000000000000000000000924d3d3b3b16e74bab577e50d23b2a38990dd52c` <br/>
   **After**: `0x000000000000000000000000833a817ef459f4ecdb83fc5a4bf04d09a4e83f3f` <br/>
   **Meaning**: Updates the CANNON game type implementation. You can verify which implementation is set using `cast call 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1 "gameImpls(uint32)(address)" 0`, where `0` is the [`CANNON` game type](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28).
-  Before this task has been executed, you will see that the returned address is `0x0000000000000000000000005e0877a8f6692ed470013e651c4357d0c4941e6c`, matching the "Before" value of this slot, demonstrating this slot is storing the address of the CANNON implementation.
+  Before this task has been executed, you will see that the returned address is `0x924D3d3B3b16E74bAb577e50d23b2a38990dD52C`, matching the "Before" value of this slot, demonstrating this slot is storing the address of the CANNON implementation.
 
 - **Key**: `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e` <br/>
-  **Before**: `0x0000000000000000000000004ed046e66c96600dae1a4ec39267bb0ce476e8cc` <br/>
+  **Before**: `0x000000000000000000000000879e899523ba9a4ab212a2d70cf1af73b906cbe5` <br/>
   **After**: `0x000000000000000000000000bbd576128f71186a0f9ae2f2aab4afb4af2dae17` <br/>
   **Meaning**: Updates the PERMISSIONED_CANNON game type implementation. You can verify which implementation is set using `cast call 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1 "gameImpls(uint32)(address)" 1`, where `1` is the [`PERMISSIONED_CANNON` game type](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L31).
-  Before this task has been executed, you will see that the returned address is `0x0000000000000000000000004ed046e66c96600dae1a4ec39267bb0ce476e8cc`, matching the "Before" value of this slot, demonstrating this slot is storing the address of the PERMISSIONED_CANNON implementation.
+  Before this task has been executed, you will see that the returned address is `0x879e899523bA9a4Ab212a2d70cF1af73B906CbE5`, matching the "Before" value of this slot, demonstrating this slot is storing the address of the PERMISSIONED_CANNON implementation.
