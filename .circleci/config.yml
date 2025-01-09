@@ -89,35 +89,6 @@ jobs:
           paths:
             - bash.env
 
-  check_mainnet_rpc_endpoints:
-    circleci_ip_ranges: true
-    docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
-    steps:
-      - checkout
-      - run:
-          name: Check Mainnet RPC Endpoints
-          command: |
-            if ops/verify-geth-endpoint.sh "<< pipeline.parameters.l1_mainnet_rpc_url >>"; then
-              if ops/verify-geth-endpoint.sh "<< pipeline.parameters.l2_mainnet_rpc_url >>"; then
-                echo "Both RPC endpoints are up to date and not syncing."
-                echo "L1_RPC_MAINNET=<< pipeline.parameters.l1_mainnet_rpc_url >>" >> $BASH_ENV
-                echo "L2_RPC_MAINNET=<< pipeline.parameters.l2_mainnet_rpc_url >>" >> $BASH_ENV
-              else
-                echo "L2 RPC endpoint failed the checks."
-                exit 1
-              fi
-            else
-              echo "L1 RPC endpoint failed the checks."
-              exit 1
-            fi
-      - run: |
-          cp $BASH_ENV bash.env
-      - persist_to_workspace:
-          root: .
-          paths:
-            - bash.env
-
   check_task_statuses:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
