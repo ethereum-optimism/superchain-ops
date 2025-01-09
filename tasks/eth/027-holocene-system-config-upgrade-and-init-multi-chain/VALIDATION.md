@@ -44,6 +44,11 @@ cast index bytes32 0xa9d41de4d2e12c5ddec5baffccc0010765fe1b4cea16a8c0c8a00415e39
   **After**: `0x00000000000000000000000000000000000f79c50000146b0000000003938700`
   **Meaning**: Updates the `basefeeScalar` and `blobbasefeeScalar` storage variables to `5227` and `1014213` respectively. These share a slot with the `gasLimit` which remains at `60000000`
 
+- **Key**: `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  **Before**: `0x000000000000000000000000f56d96b2535b932656d3c04ebf51babff241d886`
+  **After**: `0x000000000000000000000000ab9d6cb7a427c0765163a7f45bb91cafe5f2d375`
+  **Meaning**: Updates the implementation address of the Proxy to the standard SystemConfig implementation.
+
 ### `0x7BD909970B0EEdcF078De6Aeff23ce571663b8aA` (`SystemConfigProxy` for metal-mainnet)
 
 - **Key**: `0x0000000000000000000000000000000000000000000000000000000000000068`
@@ -59,7 +64,7 @@ cast index bytes32 0xa9d41de4d2e12c5ddec5baffccc0010765fe1b4cea16a8c0c8a00415e39
 - **Key**: `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   **Before**: `0x000000000000000000000000ba2492e52f45651b60b8b38d4ea5e2390c64ffb1`
   **After**: `0x000000000000000000000000ab9d6cb7a427c0765163a7f45bb91cafe5f2d375`
-  **Meaning**: TODO 
+  **Meaning**: Updates the implementation address of the Proxy to the standard SystemConfig implementation.
 
 ### `0x5e6432F18Bc5d497B1Ab2288a025Fbf9D69E2221` (`SystemConfigProxy` for mode-mainnet)
 
@@ -71,7 +76,7 @@ cast index bytes32 0xa9d41de4d2e12c5ddec5baffccc0010765fe1b4cea16a8c0c8a00415e39
 - **Key**: `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   **Before**: `0x000000000000000000000000ba2492e52f45651b60b8b38d4ea5e2390c64ffb1`
   **After**: `0x000000000000000000000000ab9d6cb7a427c0765163a7f45bb91cafe5f2d375`
-  **Meaning**: TODO 
+  **Meaning**: Updates the implementation address of the Proxy to the standard SystemConfig implementation.
 
 ### `0xA3cAB0126d5F504B071b81a3e8A2BBBF17930d86` (`SystemConfigProxy` for zora-mainnet)
 
@@ -83,7 +88,7 @@ cast index bytes32 0xa9d41de4d2e12c5ddec5baffccc0010765fe1b4cea16a8c0c8a00415e39
 - **Key**: `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   **Before**: `0x000000000000000000000000ba2492e52f45651b60b8b38d4ea5e2390c64ffb1`
   **After**: `0x000000000000000000000000ab9d6cb7a427c0765163a7f45bb91cafe5f2d375`
-  **Meaning**: TODO 
+  **Meaning**: Updates the implementation address of the Proxy to the standard SystemConfig implementation.
 
 ### `0x34A564BbD863C4bf73Eca711Cf38a77C4Ccbdd6A` (`SystemConfigProxy` for arena-z-mainnet)
 
@@ -96,6 +101,11 @@ cast index bytes32 0xa9d41de4d2e12c5ddec5baffccc0010765fe1b4cea16a8c0c8a00415e39
   **Before**: `0x0000000000000000000000000000000000000000000000000000000003938700`
   **After**: `0x0000000000000000000000000000000000000000000c3c9d0000000003938700`
   **Meaning**: Updates the `basefeeScalar` and `blobbasefeeScalar` storage variables to `801949` and `0` respectively. These share a slot with the `gasLimit` which remains at `60000000`
+
+- **Key**: `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  **Before**: `0x000000000000000000000000f56d96b2535b932656d3c04ebf51babff241d886`
+  **After**: `0x000000000000000000000000ab9d6cb7a427c0765163a7f45bb91cafe5f2d375`
+  **Meaning**: Updates the implementation address of the Proxy to the standard SystemConfig implementation.
 
 
 ### `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (`ProxyAdminOwner` for all chains in this task)
