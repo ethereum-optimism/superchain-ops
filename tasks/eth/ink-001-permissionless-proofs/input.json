@@ -1,0 +1,195 @@
+{
+  "metadata": {
+    "name": "ProxyAdminOwner - Set Dispute Game Implementation",
+    "description": "Re-initialize with anchor states for game types 0 set to 0x5220f9c5ebf08e84847d542576a67a3077b6fa496235d93c557d5bd5286b431a, 523052 Sets the implementation for game type 0 to 0x6A8eFcba5642EB15D743CBB29545BdC44D5Ad8cD in the `DisputeGameFactory`. Sets the implementation for game type 1 to 0x0A780bE3eB21117b1bBCD74cf5D7624A3a482963 in the `DisputeGameFactory`. "
+  },
+  "transactions": [
+    {
+      "metadata": {
+        "name": "Upgrade AnchorStateRegistry to StorageSetter and clear legacy initialized slot",
+        "description": "By clearing the initialized slot, we can call initialize again to set an anchor state for the new game type"
+      },
+      "to": "0xd56045e68956fce2576e680c95a4750cf8241f79",
+      "value": "0x0",
+      "data": "0x9623609d000000000000000000000000de744491bcf6b2dd2f32146364ea1487d75e2509000000000000000000000000d81f43edbcacb4c29a9ba38a13ee5d79278270cc000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000444e91db080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "contractMethod": {
+        "type": "function",
+        "name": "upgradeAndCall",
+        "inputs": [
+          {
+            "name": "_proxy",
+            "type": "address"
+          },
+          {
+            "name": "_implementation",
+            "type": "address"
+          },
+          {
+            "name": "_data",
+            "type": "bytes"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_proxy": "0xde744491BcF6b2DD2F32146364Ea1487D75E2509",
+        "_implementation": "0xd81f43eDBCAcb4c29a9bA38a13Ee5d79278270cC",
+        "_data": "0x4e91db0800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "metadata": {
+        "name": "Re-initialize the AnchorStateRegistryProxy",
+        "description": "Re-initialize with anchor states for game types 0 set to 0x5220f9c5ebf08e84847d542576a67a3077b6fa496235d93c557d5bd5286b431a, 523052"
+      },
+      "to": "0xd56045e68956fce2576e680c95a4750cf8241f79",
+      "value": "0x0",
+      "data": "0x9623609d000000000000000000000000de744491bcf6b2dd2f32146364ea1487d75e25090000000000000000000000007a78aa7d5dec2f8b368ca13f00df2fa4e5de3c3f000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000c45e05fbd0000000000000000000000000000000000000000000000000000000000000004000000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000005220f9c5ebf08e84847d542576a67a3077b6fa496235d93c557d5bd5286b431a000000000000000000000000000000000000000000000000000000000007fb2c00000000000000000000000000000000000000000000000000000000",
+      "contractMethod": {
+        "type": "function",
+        "name": "upgradeAndCall",
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_proxy",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "_implementation",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes",
+            "name": "_data",
+            "type": "bytes"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_proxy": "0xde744491BcF6b2DD2F32146364Ea1487D75E2509",
+        "_implementation": "0x7A78aa7D5dec2F8B368ca13f00Df2fA4E5De3C3F",
+        "_data": "0x5e05fbd0000000000000000000000000000000000000000000000000000000000000004000000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000005220f9c5ebf08e84847d542576a67a3077b6fa496235d93c557d5bd5286b431a000000000000000000000000000000000000000000000000000000000007fb2c"
+      }
+    },
+    {
+      "metadata": {
+        "name": "Set implementation for game type",
+        "description": "Sets the implementation for game type 0 to 0x6A8eFcba5642EB15D743CBB29545BdC44D5Ad8cD in the `DisputeGameFactory`."
+      },
+      "to": "0x10d7B35078d3baabB96Dd45a9143B94be65b12CD",
+      "value": "0x0",
+      "data": "0x14f6b1a300000000000000000000000000000000000000000000000000000000000000000000000000000000000000006a8efcba5642eb15d743cbb29545bdc44d5ad8cd",
+      "contractMethod": {
+        "type": "function",
+        "name": "setImplementation",
+        "inputs": [
+          {
+            "name": "_gameType",
+            "type": "uint32"
+          },
+          {
+            "name": "_impl",
+            "type": "address"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_gameType": "0",
+        "_impl": "0x6A8eFcba5642EB15D743CBB29545BdC44D5Ad8cD"
+      }
+    },
+    {
+      "metadata": {
+        "name": "Set implementation for game type",
+        "description": "Sets the implementation for game type 1 to 0x0A780bE3eB21117b1bBCD74cf5D7624A3a482963 in the `DisputeGameFactory`."
+      },
+      "to": "0x10d7B35078d3baabB96Dd45a9143B94be65b12CD",
+      "value": "0x0",
+      "data": "0x14f6b1a300000000000000000000000000000000000000000000000000000000000000010000000000000000000000000a780be3eb21117b1bbcd74cf5d7624a3a482963",
+      "contractMethod": {
+        "type": "function",
+        "name": "setImplementation",
+        "inputs": [
+          {
+            "name": "_gameType",
+            "type": "uint32"
+          },
+          {
+            "name": "_impl",
+            "type": "address"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_gameType": "1",
+        "_impl": "0x0A780bE3eB21117b1bBCD74cf5D7624A3a482963"
+      }
+    },
+    {
+      "metadata": {
+        "name": "Sets the bond value for permissioned game type",
+        "description": "This sets the initial bond to 0.08 ETH to deploy a PermissionedDisputeGame."
+      },
+      "to": "0x10d7B35078d3baabB96Dd45a9143B94be65b12CD",
+      "value": "0x0",
+      "data": "0x1e3342400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000011c37937e080000", 
+      "contractMethod": {
+        "type": "function",
+        "name": "setInitBond",
+        "inputs": [
+          {
+            "name": "_gameType",
+            "type": "uint32"
+          },
+          {
+            "name": "_initBond",
+            "type": "uint256"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_gameType": "1",
+        "_initBond": "80000000000000000"
+      }
+    },
+    {
+      "metadata": {
+        "name": "Sets the bond value for permissionless",
+        "description": "This sets the initial bond to 0.08 ETH to deploy a FaultDisputeGame."
+      },
+      "to": "0x10d7B35078d3baabB96Dd45a9143B94be65b12CD",
+      "value": "0x0",
+      "data": "0x1e3342400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000011c37937e080000", 
+      "contractMethod": {
+        "type": "function",
+        "name": "setInitBond",
+        "inputs": [
+          {
+            "name": "_gameType",
+            "type": "uint32"
+          },
+          {
+            "name": "_initBond",
+            "type": "uint256"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_gameType": "0",
+        "_initBond": "80000000000000000"
+      }
+    }
+  ]
+}

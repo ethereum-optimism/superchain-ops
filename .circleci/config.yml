@@ -59,7 +59,6 @@ commands:
               --justfile ../../../nested.just \
               simulate council
 
-
 jobs:
   check_sepolia_rpc_endpoints:
     circleci_ip_ranges: true
@@ -215,20 +214,20 @@ jobs:
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
 
-  just_simulate_set_respected_game_type:
+  just_simulate_ink_permissionless_fp_upgrade:
+    docker:
+      - image: << pipeline.parameters.ci_builder_image >>
+    steps:
+      - simulate_nested:
+          task: "/eth/ink-001-permissionless-proofs"
+
+  just_simulate_set_ink_respected_game_type:
      docker:
       - image: << pipeline.parameters.ci_builder_image >>
     steps:
       - simulate:
           task: "eth/eth/ink-002-set-respected-game-type"
 
-  simulate_eth_021:
-    docker:
-      - image: << pipeline.parameters.ci_builder_image >>
-    steps:
-      - simulate:
-          task: "eth/021-holocene-protocol-versions"
-            
   forge_build:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
@@ -275,13 +274,6 @@ jobs:
             yq --version
             forge --version
 
-  simulate_eth_022:
-    docker:
-      - image: << pipeline.parameters.ci_builder_image >>
-    steps:
-      - simulate_nested:
-          task: "eth/022-holocene-fp-upgrade"
-
 workflows:
   main:
     jobs:
@@ -309,6 +301,7 @@ workflows:
       - just_simulate_sc_rehearsal_1
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
-      - just_simulate_set_respected_game_type
       - simulate_eth_021
       - simulate_eth_022
+      - just_simulate_ink_permissionless_fp_upgrade
+      - just_simulate_set_ink_respected_game_type
