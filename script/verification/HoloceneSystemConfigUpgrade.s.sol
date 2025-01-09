@@ -8,7 +8,10 @@ import {IResourceMetering} from "./IResourceMetering.sol";
 import {SuperchainRegistry} from "script/verification/Verification.s.sol";
 
 // HoloceneSystemConfigUpgrade is a contract that can be used to verify the Holocene upgrade of the SystemConfig contract.
-// The upgrade paths supported are 2.2.0 -> 2.3.0 and 1.12.0 -> 2.3.0.
+// The upgrade paths supported are:
+// 1.12.0 -> 2.3.0
+//  2.2.0 -> 2.3.0
+//  2.3.0 -> 2.3.0 (this case covers where the SystemConfig contract is already at the target version but was upgraded incorrectly)
 // The verification checks that the following storage values are properly modified if appropriate:
 // - scalar (may be migrated to a different encoding version)
 // - basefeeScalar (new storage variable, needs to be set in a way which is consistent with the previous scalar)
@@ -22,7 +25,9 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry {
     address public systemConfigAddress;
     ISystemConfig sysCfg;
 
-    // Values which should not change during the upgrade
+    // Storage variables which exist in the existing and target
+    // SystemConfig contract versions irrespective of upgrade path,
+    // and which should be preserved:
     struct BaseSysCfgVars {
         address owner;
         bytes32 batcherHash;
@@ -39,8 +44,19 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry {
 
     BaseSysCfgVars previous;
 
+    // Values which may change during the upgrade, depending on the chain::
     uint256 previousScalar;
+
+    // The target value for the DisputeGameFactory address,
+    // this getter does not exist in the SystemConfig contract @ 1.12.0:
     address targetDGF;
+
+    // Target values for gasPayingToken and its decimals. This should represent ETH
+    // on all upgrade paths:
+    address constant targetGasPayingToken = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
+    uint8 constant targetDecimals = 18;
+
+    // The target version of the SystemConfig contract, read from the SCR @ specified release:
     string targetVersion;
 
     constructor(string memory _l1ChainName, string memory _l2ChainName, string memory _release)
@@ -57,7 +73,7 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry {
         targetVersion = standardVersions.SystemConfig.version;
 
         if (sysCfg.version().eq("2.3.0")) {
-            // Target Version
+            // Supported initial version
             targetDGF = sysCfg.disputeGameFactory();
         } else if (sysCfg.version().eq("2.2.0")) {
             // Supported initial version
@@ -131,10 +147,9 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry {
     }
 
     function checkGasPayingToken() internal view {
-        // upgrade does not support CGT chains, so we require the gasPayingToken to be ETH
         (address t, uint8 d) = sysCfg.gasPayingToken();
-        require(t == 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE, "scalar-107");
-        require(d == 18, "scalar-108");
+        require(t == targetGasPayingToken, "scalar-107");
+        require(d == targetDecimals, "scalar-108");
     }
 
     function checkBaseSysCfgVars() internal view {
