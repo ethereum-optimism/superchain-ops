@@ -1,4 +1,4 @@
-This runbook provides convenient scripts for generating a partial bundle transaction that sets the respected game type to permissionless cannon.
+This runbook provides convenient scripts for generating a transaction bundle that sets the respected game type to permissionless cannon.
 
 ## bundle.sh
 

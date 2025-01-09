@@ -10,23 +10,6 @@ Status: READY TO SIGN
 
 This task updates the `respectedGameType` in the `OptimismPortalProxy` to `CANNON`, enabling users to permissionlessly propose outputs as well as for anyone to participate in the dispute of these proposals. This action requires all in-progress withdrawals to be re-proven against a new `FaultDisputeGame` that was created after this update occurs. To execute, collect signatures and execute the action according to the instructions in [SINGLE.md](../../../../SINGLE.md).
 
-The batch will be executed on chain ID `1`, and contains `1` transaction.
-
-## Tx #1: Update `respectedGameType` in the `OptimismPortalProxy`
-
-Updates the `respectedGameType` to `CANNON` in the `OptimismPortalProxy`, enabling permissionless proposals and challenging.
-
-**Function Signature:** `setRespectedGameType(address,uint32)`
-
-**To:** `0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2`
-
-**Value:** `0 WEI`
-
-**Raw Input Data**
-
-|Function Selector Signature| OptimismPortalProxyAddress (left-padded to 32 bytes) | `CANNON` game type, hardcoded to 0 and left-padded |
-|--------------------------|--------------------------------------------|--------------------------------------------|
-|0xa1155ed9|0000000000000000000000005d66c1782664115999c47c9fa5cd031f495d3e4f|0000000000000000000000000000000000000000000000000000000000000000|
 
 ### State Validations
 
