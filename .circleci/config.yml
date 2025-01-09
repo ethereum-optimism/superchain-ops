@@ -225,7 +225,7 @@ jobs:
     docker:
       - image: << pipeline.parameters.ci_builder_image >>
     steps:
-      - simulate_nested:
+      - simulate:
           task: "/eth/ink-002-set-respected-game-type"
 
   forge_build:
@@ -302,4 +302,4 @@ workflows:
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
       - just_simulate_permissionless_fp_upgrade
-      - just_simulate_ink_set_respected_game_type
+      - just_simulate_uni_set_respected_game_type
