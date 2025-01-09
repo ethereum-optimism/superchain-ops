@@ -47,10 +47,14 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry {
         SuperchainRegistry(_l1ChainName, _l2ChainName, _release)
     {
         systemConfigAddress = proxies.SystemConfig;
-        targetVersion = standardVersions.SystemConfig.version;
-        previous = getBaseSysCfgVars(); // Set this before the tx is executed.
         sysCfg = ISystemConfig(proxies.SystemConfig);
+
+        // cache the values of the SystemConfig contract before the upgrade
+        previous = getBaseSysCfgVars();
         previousScalar = sysCfg.scalar();
+
+        // Read target version from SCR @ specified release
+        targetVersion = standardVersions.SystemConfig.version;
 
         if (sysCfg.version().eq("2.3.0")) {
             // Target Version
@@ -68,11 +72,32 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry {
 
     /// @notice Public function that must be called by the verification script.
     function checkSystemConfigUpgrade() public view {
+        checkTargetVersion();
+        checkScalar();
+        checkDGF();
+        checkGasPayingToken();
+        checkBaseSysCfgVars();
+    }
+
+    function getCodeExceptions() public view returns (address[] memory exceptions) {
+        uint256 len = block.chainid == 1 ? 3 : 4; // Mainnet doesn't need owner exception.
+        exceptions = new address[](len);
+        uint256 i = 0;
+        if (block.chainid != 1) exceptions[i++] = previous.owner;
+        exceptions[i++] = address(uint160(uint256((previous.batcherHash))));
+        exceptions[i++] = previous.unsafeBlockSigner;
+        exceptions[i++] = previous.batchInbox;
+    }
+
+    function checkTargetVersion() internal view {
         require(
             keccak256(abi.encode(getSysCfgVersion())) == keccak256(abi.encode(targetVersion)),
             "system-config-050: targetVersion"
         );
+        console.log("confirmed SystemConfig upgraded to version", targetVersion);
+    }
 
+    function checkScalar() internal view {
         uint256 reencodedScalar =
             (uint256(0x01) << 248) | (uint256(sysCfg.blobbasefeeScalar()) << 32) | sysCfg.basefeeScalar();
         console.log(
@@ -99,27 +124,22 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry {
         }
         // Check that basefeeScalar and blobbasefeeScalar are correct by re-encoding them and comparing to the new scalar value.
         require(sysCfg.scalar() == reencodedScalar, "scalar-105");
+    }
 
+    function checkDGF() internal view {
         require(sysCfg.disputeGameFactory() == targetDGF, "scalar-106");
+    }
 
+    function checkGasPayingToken() internal view {
         // upgrade does not support CGT chains, so we require the gasPayingToken to be ETH
         (address t, uint8 d) = sysCfg.gasPayingToken();
         require(t == 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE, "scalar-107");
         require(d == 18, "scalar-108");
-
-        // Check remaining storage variables didn't change
-        console.log("confirmed SystemConfig upgraded to version", targetVersion);
-        require(keccak256(abi.encode(getBaseSysCfgVars())) == keccak256(abi.encode(previous)), "system-config-100");
     }
 
-    function getCodeExceptions() public view returns (address[] memory exceptions) {
-        uint256 len = block.chainid == 1 ? 3 : 4; // Mainnet doesn't need owner exception.
-        exceptions = new address[](len);
-        uint256 i = 0;
-        if (block.chainid != 1) exceptions[i++] = previous.owner;
-        exceptions[i++] = address(uint160(uint256((previous.batcherHash))));
-        exceptions[i++] = previous.unsafeBlockSigner;
-        exceptions[i++] = previous.batchInbox;
+    function checkBaseSysCfgVars() internal view {
+        // Check remaining storage variables didn't change
+        require(keccak256(abi.encode(getBaseSysCfgVars())) == keccak256(abi.encode(previous)), "system-config-100");
     }
 
     function getSysCfgVersion() internal view returns (string memory) {
