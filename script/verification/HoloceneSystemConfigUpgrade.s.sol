@@ -113,7 +113,7 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry {
             keccak256(abi.encode(getSysCfgVersion())) == keccak256(abi.encode(targetVersion)),
             "system-config-050: targetVersion"
         );
-        console.log("confirmed SystemConfig upgraded to version", targetVersion);
+        console.log("confirmed SystemConfig upgraded to version", targetVersion, "\n");
     }
 
     // Checks scalar, basefeeScalar, blobbasefeeScalar are set consistently:
