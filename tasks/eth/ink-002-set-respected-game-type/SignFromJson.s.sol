@@ -17,19 +17,24 @@ contract SignFromJson is OriginalSignFromJson {
     using LibString for string;
 
     // Chains for this task.
-    address InkMainnetOptimismPortalProxy = 0x5d66C1782664115999C47c9fA5cd031f495D3e4F;
+    string constant l1ChainName = "mainnet";
+    string l2ChainName = vm.envString("L2_CHAIN_NAME");
+
+    Types.ContractSet proxies;
 
     /// @notice Sets up the contract
-    function setUp() public {}
+    function setUp() public {
+        proxies = _getContractSet();
+    }
 
     function checkRespectedGameType() internal view {
-        OptimismPortal2 portal = OptimismPortal2(payable(InkMainnetOptimismPortalProxy));
+        OptimismPortal2 portal = OptimismPortal2(payable(proxies.OptimismPortal));
         require(portal.respectedGameType().raw() == GameTypes.CANNON.raw());
     }
 
     function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
         allowed = new address[](2);
-        allowed[0] = InkMainnetOptimismPortalProxy;
+        allowed[0] = proxies.OptimismPortal;
         allowed[1] = vm.envAddress("OWNER_SAFE");
     }
 
@@ -45,5 +50,23 @@ contract SignFromJson is OriginalSignFromJson {
         checkRespectedGameType();
 
         console.log("All assertions passed!");
+    }
+
+    /// @notice Reads the contract addresses from lib/superchain-registry/superchain/configs/${l1ChainName}/${l2ChainName}.toml
+    function _getContractSet() internal view returns (Types.ContractSet memory _proxies) {
+        string memory chainConfig;
+
+        // Read chain-specific config toml file
+        string memory path = string.concat(
+            "/lib/superchain-registry/superchain/configs/", l1ChainName, "/", l2ChainName, ".toml"
+        );
+        try vm.readFile(string.concat(vm.projectRoot(), path)) returns (string memory data) {
+            chainConfig = data;
+        } catch {
+            revert(string.concat("Failed to read ", path));
+        }
+
+        // Read the chain-specific OptimismPortalProxy address
+        _proxies.OptimismPortal = stdToml.readAddress(chainConfig, "$.addresses.OptimismPortalProxy");
     }
 }
