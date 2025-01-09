@@ -28,11 +28,14 @@ Overrides:
 
 ## State Changes
 
-Note: The changes listed below do not include safe nonce updates.
 
 ###  `0x5d66c1782664115999c47c9fa5cd031f495d3e4f` (`OptimismPortalProxy`)
 
 - **Key**: `0x000000000000000000000000000000000000000000000000000000000000003b`
-  **Value**: `0x00000000000000000000000000000000000000000000000TIMESTAMP00000000`
+  **Before**: `0x0000000000000000000000000000000000000000000000006753162b00000001`
+  **After**: `0x00000000000000000000000000000000000000000000000TIMESTAMP00000000`
   **Description**: Sets the `respectedGameType` to `0` (permissionless cannon game) and sets the `respectedGameTypeUpdatedAt` timestamp to the time when the upgrade transaction was executed (this will be a dynamic value).
 
+Additionally, the following nonce changes are present:
+- The Foundation safe, `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`, has a nonce increment from 98 to 99
+- The address of your account should show a nonce increment
