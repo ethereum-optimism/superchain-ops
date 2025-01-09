@@ -267,6 +267,13 @@ jobs:
             yq --version
             forge --version
 
+  simulate_sep_026:
+    docker:
+      - image: << pipeline.parameters.ci_builder_image >>
+    steps:
+      - simulate_nested:
+          task: "sep/026-fp-holocene-upgrade-fix"
+
 workflows:
   main:
     jobs:
@@ -295,3 +302,6 @@ workflows:
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
       - just_simulate_permissionless_fp_upgrade
+
+      # sepolia
+      - simulate_sep_026
