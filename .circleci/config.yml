@@ -214,19 +214,19 @@ jobs:
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
 
-  just_simulate_ink_permissionless_fp_upgrade:
+  just_simulate_permissionless_fp_upgrade:
     docker:
       - image: << pipeline.parameters.ci_builder_image >>
     steps:
       - simulate_nested:
           task: "/eth/ink-001-permissionless-proofs"
 
-  just_simulate_set_ink_respected_game_type:
-     docker:
+  just_simulate_ink_respected_game_type:
+    docker:
       - image: << pipeline.parameters.ci_builder_image >>
     steps:
       - simulate:
-          task: "eth/eth/ink-002-set-respected-game-type"
+          task: "/eth/ink-002-set-respected-game-type"
 
   forge_build:
     docker:
@@ -301,7 +301,5 @@ workflows:
       - just_simulate_sc_rehearsal_1
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
-      - simulate_eth_021
-      - simulate_eth_022
-      - just_simulate_ink_permissionless_fp_upgrade
-      - just_simulate_set_ink_respected_game_type
+      - just_simulate_permissionless_fp_upgrade
+      - just_simulate_ink_respected_game_type
