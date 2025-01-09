@@ -8,20 +8,20 @@ import {NestedSignFromJson as OriginalNestedSignFromJson} from "script/NestedSig
 import {DisputeGameUpgrade} from "script/verification/DisputeGameUpgrade.s.sol";
 import {CouncilFoundationNestedSign} from "script/verification/CouncilFoundationNestedSign.s.sol";
 import {VerificationBase, SuperchainRegistry} from "script/verification/Verification.s.sol";
-import {SystemConfigUpgradeEcotoneScalars} from "script/verification/SystemConfigUpgradeEcotoneScalars.s.sol";
+import {HoloceneSystemConfigUpgrade} from "script/verification/HoloceneSystemConfigUpgrade.s.sol";
 
 contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNestedSign {
     string constant l1ChainName = "sepolia";
     string constant release = "v1.8.0-rc.4";
     string[4] l2ChainNames = ["op", "metal", "mode", "zora"];
 
-    SystemConfigUpgradeEcotoneScalars[] sysCfgUpgrades;
+    HoloceneSystemConfigUpgrade[] sysCfgUpgrades;
 
     constructor() {
         for (uint256 i = 0; i < l2ChainNames.length; i++) {
             // Deploy a SystemConfigUpgradeEcotoneScalars instance per chain,
             // which each contains its own bindings to an individual chain's SuperchainRegistry data.
-            sysCfgUpgrades.push(new SystemConfigUpgradeEcotoneScalars(l1ChainName, l2ChainNames[i], release));
+            sysCfgUpgrades.push(new HoloceneSystemConfigUpgrade(l1ChainName, l2ChainNames[i], release));
             console.log("");
             console.log("Set up verification data for chain", l2ChainNames[i], "-", l1ChainName);
             console.log("with SystemConfigProxy @", sysCfgUpgrades[i].systemConfigAddress());
