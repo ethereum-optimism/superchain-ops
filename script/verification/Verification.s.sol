@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
+import {console2 as console} from "forge-std/console2.sol";
 import {LibString} from "solady/utils/LibString.sol";
 import {Types} from "@eth-optimism-bedrock/scripts/Types.sol";
 import {CommonBase} from "forge-std/Base.sol";
@@ -75,6 +76,7 @@ contract SuperchainRegistry is CommonBase {
         opContractsReleaseQ = string.concat("\"op-contracts/", _opContractsRelease, "\"");
         _readSuperchainConfig();
         _readStandardVersions();
+        _applyOverrides();
     }
 
     /// @notice Reads the contract addresses from the superchain registry.
@@ -161,5 +163,16 @@ contract SuperchainRegistry is CommonBase {
         returns (StandardVersion memory sv_)
     {
         sv_.version = stdToml.readString(data, string.concat("$.RELEASE.", key, ".version"));
+    }
+
+    function _applyOverrides() internal {
+        try vm.envAddress("SCR_OVERRIDE_MIPS_ADDRESS") returns (address mips) {
+            console.log("SuperchainRegistry: overriding MIPS address to %s", mips);
+            standardVersions.MIPS.Address = mips;
+        } catch { /* Ignore, no override */ }
+        try vm.envString("SCR_OVERRIDE_MIPS_VERSION") returns (string memory ver) {
+            console.log("SuperchainRegistry: overriding MIPS version to %s", ver);
+            standardVersions.MIPS.version = ver;
+        } catch { /* Ignore, no override */ }
     }
 }
