@@ -72,14 +72,11 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry {
         // Read target version from SCR @ specified release
         targetVersion = standardVersions.SystemConfig.version;
 
-        if (sysCfg.version().eq("2.3.0")) {
-            // Supported initial version
-            targetDGF = sysCfg.disputeGameFactory();
-        } else if (sysCfg.version().eq("2.2.0")) {
-            // Supported initial version
+        if (sysCfg.version().eq("2.3.0") || sysCfg.version().eq("2.2.0")) {
+            // Supported initial versions with a getter already
             targetDGF = sysCfg.disputeGameFactory();
         } else if (sysCfg.version().eq("1.12.0")) {
-            // Supported initial version
+            // Supported initial version with no getter, so we set an empty value
             targetDGF = address(0);
         } else {
             revert("unsupported SystemConfig version");
