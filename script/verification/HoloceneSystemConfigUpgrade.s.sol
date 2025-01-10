@@ -117,35 +117,44 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry {
     }
 
     // Checks scalar, basefeeScalar, blobbasefeeScalar are set consistently.
-    // The upgrade will modify (via the initialize() method) the storage slots for scalar (pre-existing), basefeeScalar (new) and blobbasefeeScalar (new). 
-    // checkScalar() reads the variables from the new slot and reencodes them into reecondedScalar (which is a packed version). It then checks that this is equal to the scalar value before the upgrade (previousScalar). In this way, we indirectly prove that the new slots were set correctly (in a way consistent with existing data in the SystemConfig contract). 
+    // The upgrade will modify (via the initialize() method) the storage slots for scalar (pre-existing), basefeeScalar (new) and blobbasefeeScalar (new).
+    // checkScalar() reads the variables from the new slot and reencodes them into reecondedScalar (which is a packed version). It then checks that this is equal to the scalar value before the upgrade (previousScalar). In this way, we indirectly prove that the new slots were set correctly (in a way consistent with existing data in the SystemConfig contract).
     function checkScalar() internal view {
+        // Check that basefeeScalar and blobbasefeeScalar are correct by re-encoding them and comparing to the new scalar value.
         uint256 reencodedScalar =
             (uint256(0x01) << 248) | (uint256(sysCfg.blobbasefeeScalar()) << 32) | sysCfg.basefeeScalar();
         console.log(
-            "checking baseFeeScalar and blobbaseFeeScalar ",
+            "checking baseFeeScalar and blobbaseFeeScalar reencoded to ",
             LibString.toString(sysCfg.basefeeScalar()),
-            LibString.toString(sysCfg.blobbasefeeScalar())
+            LibString.toString(sysCfg.blobbasefeeScalar()),
+            LibString.toString(reencodedScalar)
         );
+        uint256 newScalar = sysCfg.scalar();
+        require(newScalar == reencodedScalar, "scalar-105");
+
+        // Next, we check that the scalar itself was migrated properly
+        uint8 previousScalarEncodingVersion = uint8(previousScalar >> 248);
+        uint8 newScalarEncodingVersion = uint8(newScalar >> 248);
+
         if (
             // If the scalar version (i.e. the most significant bit of the scalar)
             // is 1, we expect it to be unchanged during the upgrade.
-            uint8(previousScalar >> 248) == 1
+            previousScalarEncodingVersion == 1
         ) {
             require(reencodedScalar == previousScalar, "scalar-100 scalar mismatch");
         } else {
             // Otherwise, if the scalar version is 0,
-            // and the blobbasefeeScalar is 0,
+            // the blobbasefeeScalar is implicitly 0 and
             // the upgrade will migrate the scalar version to 1 and preserve
             // everything else.
             // See https://specs.optimism.io/protocol/system-config.html?highlight=ecotone%20scalar#ecotone-scalar-overhead-uint256uint256-change
-            require(previousScalar >> 248 == 0, "scalar-101 previous scalar version != 0 or 1");
-            require(reencodedScalar >> 248 == 1, "scalar-102 reenconded scalar version != 1");
+            require(previousScalarEncodingVersion == 0, "scalar-101 previous scalar version != 0 or 1");
+            require(newScalarEncodingVersion == 1, "scalar-102 reenconded scalar version != 1");
             require(sysCfg.blobbasefeeScalar() == uint32(0), "scalar-103 blobbasefeeScalar !=0");
-            require(reencodedScalar << 8 == previousScalar << 8, "scalar-104 scalar mismatch");
+
+            // The scalars should match if we add the new scalar version byte to the previous scalar.
+            require(reencodedScalar == previousScalar + (uint256(0x01) << 248), "scalar-104 scalar mismatch");
         }
-        // Check that basefeeScalar and blobbasefeeScalar are correct by re-encoding them and comparing to the new scalar value.
-        require(sysCfg.scalar() == reencodedScalar, "scalar-105");
     }
 
     // Checks the disputeGameFactory address is set correctly after the upgrade
