@@ -33,7 +33,7 @@ Overrides:
 
 - **Key**: `0x000000000000000000000000000000000000000000000000000000000000003b` <br/>
   **Before**: `0x0000000000000000000000000000000000000000000000006753162b00000001` <br/>
-  **After**: `0x00000000000000000000000000000000000000000000000TIMESTAMP00000000`
+  **After**: `0x00000000000000000000000000000000000000000000000TIMESTAMP00000000` <br/>
   **Description**: Sets the `respectedGameType` to `0` (permissionless cannon game) and sets the `respectedGameTypeUpdatedAt` timestamp to the time when the upgrade transaction was executed (this will be a dynamic value).
 
 Additionally, the following nonce changes are present:
