@@ -107,10 +107,10 @@ contract SuperchainRegistry is CommonBase {
         // set them to the zero address if they are not found.
         proxies.AnchorStateRegistry = stdToml.readAddressOr(toml, "$.addresses.AnchorStateRegistryProxy", address(0));
         proxies.DisputeGameFactory = stdToml.readAddressOr(toml, "$.addresses.DisputeGameFactoryProxy", address(0));
-        chainConfig.unsafeBlockSigner = stdToml.readAddressOr(toml, "$.addresses.UnsafeBlockSigner", address(0));
 
         chainConfig.chainId = stdToml.readUint(toml, "$.chain_id");
         chainConfig.systemConfigOwner = stdToml.readAddress(toml, "$.addresses.SystemConfigOwner");
+        chainConfig.unsafeBlockSigner = stdToml.readAddressOr(toml, "$.addresses.UnsafeBlockSigner", address(0)); // Not present on all chains, note .readAddressOr
         chainConfig.batchSubmitter = stdToml.readAddress(toml, "$.addresses.BatchSubmitter");
         chainConfig.batchInbox = stdToml.readAddress(toml, "$.batch_inbox_addr");
     }
