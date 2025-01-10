@@ -107,10 +107,7 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry {
 
     // Checks semver of SystemConfig is correct after the upgrade
     function checkTargetVersion() internal view {
-        require(
-            keccak256(abi.encode(getSysCfgVersion())) == keccak256(abi.encode(targetVersion)),
-            "system-config-050: targetVersion"
-        );
+        require(getSysCfgVersion().eq(targetVersion), "system-config-050: targetVersion");
         console.log("confirmed SystemConfig upgraded to version", targetVersion);
     }
 

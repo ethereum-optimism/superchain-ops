@@ -4,9 +4,8 @@ pragma solidity ^0.8.15;
 import {console2 as console} from "forge-std/console2.sol";
 import {LibString} from "solady/utils/LibString.sol";
 import {Types} from "@eth-optimism-bedrock/scripts/Types.sol";
-import {ScriptBase} from "forge-std/Base.sol";
+import {CommonBase} from "forge-std/Base.sol";
 import {stdToml} from "forge-std/StdToml.sol";
-import {console2 as console} from "forge-std/console2.sol";
 
 // TODO(#427): Proposing to just merge this contract into JsonTxBuilderBase.
 contract VerificationBase {
@@ -22,7 +21,7 @@ contract VerificationBase {
     }
 }
 
-contract SuperchainRegistry is ScriptBase {
+contract SuperchainRegistry is CommonBase {
     using LibString for string;
 
     struct StandardVersion {
