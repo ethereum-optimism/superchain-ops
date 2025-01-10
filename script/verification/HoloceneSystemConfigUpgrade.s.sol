@@ -116,7 +116,9 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry {
 
     // Checks scalar, basefeeScalar, blobbasefeeScalar are set consistently.
     // The upgrade will modify (via the initialize() method) the storage slots for scalar (pre-existing), basefeeScalar (new) and blobbasefeeScalar (new).
-    // checkScalar() reads the variables from the new slot and reencodes them into reecondedScalar (which is a packed version). It then checks that this is equal to the scalar value before the upgrade (previousScalar). In this way, we indirectly prove that the new slots were set correctly (in a way consistent with existing data in the SystemConfig contract).
+    // checkScalar() reads the variables from the new slot and reencodes them into reecondedScalar (which is a packed version).
+    // It then checks that this is equal to the scalar value before the upgrade (previousScalar).
+    // In this way, we indirectly prove that the new slots were set correctly (in a way consistent with existing data in the SystemConfig contract).
     function checkScalar() internal view {
         // Check that basefeeScalar and blobbasefeeScalar are correct by re-encoding them and comparing to the new scalar value.
         uint256 reencodedScalar =
@@ -167,17 +169,19 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry {
         require(d == targetDecimals, "scalar-108");
     }
 
-    // CHecsk the remaining storage variables are unchanged after the upgrade
+    // Checks the remaining storage variables are unchanged after the upgrade
     function checkBaseSysCfgVars() internal view {
         // Check remaining storage variables didn't change
         require(keccak256(abi.encode(getBaseSysCfgVars())) == keccak256(abi.encode(previous)), "system-config-100");
     }
 
-    // Reads
+    // Reads the semantic version of the SystemConfig contract
     function getSysCfgVersion() internal view returns (string memory) {
         return sysCfg.version();
     }
 
+    // Reads the base storage variables of the SystemConfig contract
+    // (the ones which are common to all versions and should not change during the upgrade)
     function getBaseSysCfgVars() internal view returns (BaseSysCfgVars memory) {
         return BaseSysCfgVars({
             owner: sysCfg.owner(),
