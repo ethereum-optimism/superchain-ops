@@ -41,14 +41,14 @@ cast index bytes32 0x28342fccf7308fc0967d8303fd5289550a30acff2de8754cf384b524ebe
 * **Key**: `0x0000000000000000000000000000000000000000000000000000000000000068`
 * **Before**: `0x0000000000000000000000000000000000000000000000000000000003938700`
 * **After**: `0x00000000000000000000000000000000000d273000001db00000000003938700`
-* **Meaning**: Updates the `basefeeScalar` and `blobbasefeeScalar` storage variables to `7600` and `862000` respectively. These share a slot with the `gasLimit` which remains at `60000000`. See the storage layout snapshot [here.](https://github.com/ethereum-optimism/optimism/blob/2073f4059bd806af3e8b76b820aa3fa0b42016d0/packages/contracts-bedrock/snapshots/storageLayout/SystemConfig.json#L58-L78)
+* **Meaning**: Updates the `basefeeScalar` and `blobbasefeeScalar` storage variables to `7600` (`cast td 0x00001db0`) and `862000` (`cast td 0x000d2730`) respectively. These share a slot with the `gasLimit` which remains at `60000000` (`cast td 0x0000000003938700`). See the storage layout snapshot [here.](https://github.com/ethereum-optimism/optimism/blob/2073f4059bd806af3e8b76b820aa3fa0b42016d0/packages/contracts-bedrock/snapshots/storageLayout/SystemConfig.json#L58-L78)
 
 ### `0x5D63A8Dc2737cE771aa4a6510D063b6Ba2c4f6F2` (`SystemConfigProxy` for metal-sepolia)
 
 * **Key**: `0x0000000000000000000000000000000000000000000000000000000000000068`
 * **Before**: `0x0000000000000000000000000000000000000000000000000000000001c9c380`
 * **After**: `0x0000000000000000000000000000000000000000000a6fe00000000001c9c380`
-* **Meaning**: Updates the `basefeeScalar` and `blobbasefeeScalar` storage variables to `684000` and `0` respectively. These share a slot with the `gasLimit` which remains at `30000000`. See the storage layout snapshot [here.](https://github.com/ethereum-optimism/optimism/blob/2073f4059bd806af3e8b76b820aa3fa0b42016d0/packages/contracts-bedrock/snapshots/storageLayout/SystemConfig.json#L58-L78)
+* **Meaning**: Updates the `basefeeScalar` and `blobbasefeeScalar` storage variables to `684000` (`cast td 0x000a6fe0`) and `0` respectively. These share a slot with the `gasLimit` which remains at `30000000` (`cast td 0x0000000001c9c380`). See the storage layout snapshot [here.](https://github.com/ethereum-optimism/optimism/blob/2073f4059bd806af3e8b76b820aa3fa0b42016d0/packages/contracts-bedrock/snapshots/storageLayout/SystemConfig.json#L58-L78)
 
 and 
 
@@ -62,14 +62,14 @@ and
 * **Key**: `0x0000000000000000000000000000000000000000000000000000000000000068`
 * **Before**: `0x0000000000000000000000000000000000000000000000000000000001c9c380`
 * **After**: `0x000000000000000000000000000000000008ee87000003d10000000001c9c380`
-* **Meaning**: Updates the `basefeeScalar` and `blobbasefeeScalar` storage variables to `977` and `585351` respectively. These share a slot with the `gasLimit` which remains at `30000000`. See the storage layout snapshot [here.](https://github.com/ethereum-optimism/optimism/blob/2073f4059bd806af3e8b76b820aa3fa0b42016d0/packages/contracts-bedrock/snapshots/storageLayout/SystemConfig.json#L58-L78)
+* **Meaning**: Updates the `basefeeScalar` and `blobbasefeeScalar` storage variables to `977` (`cast td 0x000003d1`) and `585351` (` cast td 0x0008ee87`) respectively. These share a slot with the `gasLimit` which remains at `30000000` (`cast td 0x0000000001c9c380`). See the storage layout snapshot [here.](https://github.com/ethereum-optimism/optimism/blob/2073f4059bd806af3e8b76b820aa3fa0b42016d0/packages/contracts-bedrock/snapshots/storageLayout/SystemConfig.json#L58-L78)
 
 ### `0xB54c7BFC223058773CF9b739cC5bd4095184Fb08` (`SystemConfigProxy` for zora-sepolia)
 
 * **Key**: `0x0000000000000000000000000000000000000000000000000000000000000068`
 * **Before**: `0x0000000000000000000000000000000000000000000000000000000001c9c380`
 * **After**: `0x00000000000000000000000000000000000941ad000003f40000000001c9c380`
-* **Meaning**: Updates the `basefeeScalar` and `blobbasefeeScalar` storage variables to `1012` and `606637` respectively. These share a slot with the `gasLimit` which remains at `30000000`
+* **Meaning**: Updates the `basefeeScalar` and `blobbasefeeScalar` storage variables to `1012` (`cast td 0x000003f4`) and `606637` (cast td `0x000941ad`) respectively. These share a slot with the `gasLimit` which remains at `30000000` (`cast td 0x0000000001c9c380`).
 
 
 ### `0x1Eb2fFc903729a0F03966B917003800b145F56E2` (`ProxyAdminOwner` for all chains in this task)
