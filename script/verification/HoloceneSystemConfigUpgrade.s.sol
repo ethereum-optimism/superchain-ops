@@ -116,7 +116,9 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry {
         console.log("confirmed SystemConfig upgraded to version", targetVersion);
     }
 
-    // Checks scalar, basefeeScalar, blobbasefeeScalar are set consistently:
+    // Checks scalar, basefeeScalar, blobbasefeeScalar are set consistently.
+    // The upgrade will modify (via the initialize() method) the storage slots for scalar (pre-existing), basefeeScalar (new) and blobbasefeeScalar (new). 
+    // checkScalar() reads the variables from the new slot and reencodes them into reecondedScalar (which is a packed version). It then checks that this is equal to the scalar value before the upgrade (previousScalar). In this way, we indirectly prove that the new slots were set correctly (in a way consistent with existing data in the SystemConfig contract). 
     function checkScalar() internal view {
         uint256 reencodedScalar =
             (uint256(0x01) << 248) | (uint256(sysCfg.blobbasefeeScalar()) << 32) | sysCfg.basefeeScalar();
