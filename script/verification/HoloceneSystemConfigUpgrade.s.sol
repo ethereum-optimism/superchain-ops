@@ -121,10 +121,10 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry {
         uint256 reencodedScalar =
             (uint256(0x01) << 248) | (uint256(sysCfg.blobbasefeeScalar()) << 32) | sysCfg.basefeeScalar();
         console.log(
-            "checking baseFeeScalar and blobbaseFeeScalar reencoded to ",
-            LibString.toString(sysCfg.basefeeScalar()),
-            LibString.toString(sysCfg.blobbasefeeScalar()),
-            LibString.toString(reencodedScalar)
+            "checking baseFeeScalar and blobbaseFeeScalar reencoded to scalar (respectively):",
+            sysCfg.basefeeScalar(),
+            sysCfg.blobbasefeeScalar(),
+            reencodedScalar
         );
         uint256 newScalar = sysCfg.scalar();
         require(newScalar == reencodedScalar, "scalar-105");
