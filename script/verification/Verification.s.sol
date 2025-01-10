@@ -7,6 +7,10 @@ import {Types} from "@eth-optimism-bedrock/scripts/Types.sol";
 import {CommonBase} from "forge-std/Base.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 
+interface IProxy {
+    function implementation() external view returns (address);
+}
+
 // TODO(#427): Proposing to just merge this contract into JsonTxBuilderBase.
 contract VerificationBase {
     address[] public allowedStorageAccess;
@@ -57,6 +61,7 @@ contract SuperchainRegistry is CommonBase {
     struct ChainConfig {
         uint256 chainId;
         address systemConfigOwner;
+        address proxyAdmin;
         address unsafeBlockSigner;
         address batchSubmitter;
         address batchInbox;
@@ -65,6 +70,7 @@ contract SuperchainRegistry is CommonBase {
     string l1ChainName; // e.g. "mainnet";
     string l2ChainName; // e.g. "op";
     string opContractsReleaseQ; // prefixed & quoted, e.g. '"op-contracts/v1.8.0"';
+    string chainConfigPath;
 
     Types.ContractSet proxies;
     StandardVersions standardVersions;
@@ -74,9 +80,24 @@ contract SuperchainRegistry is CommonBase {
         l1ChainName = _l1ChainName;
         l2ChainName = _l2ChainName;
         opContractsReleaseQ = string.concat("\"op-contracts/", _opContractsRelease, "\"");
+        try vm.envString("SCR_OVERRIDE_CHAIN_CONFIG_PATH") returns (string memory path) {
+            console.log("SuperchainRegistry: overriding chain config path to %s", path);
+            chainConfigPath = path;
+        } catch {
+            // default path
+            chainConfigPath =
+                string.concat("/lib/superchain-registry/superchain/configs/", l1ChainName, "/", l2ChainName, ".toml");
+        }
+
         _readSuperchainConfig();
         _readStandardVersions();
         _applyOverrides();
+    }
+
+    // reads the implementation address of a proxy contract as the proxy admin
+    function getProxyImplementation(address _proxy) public returns (address) {
+        vm.prank(chainConfig.proxyAdmin);
+        return IProxy(_proxy).implementation();
     }
 
     /// @notice Reads the contract addresses from the superchain registry.
@@ -92,11 +113,10 @@ contract SuperchainRegistry is CommonBase {
         proxies.SuperchainConfig = stdToml.readAddress(toml, "$.superchain_config_addr");
         proxies.ProtocolVersions = stdToml.readAddress(toml, "$.protocol_versions_addr");
 
-        path = string.concat("/lib/superchain-registry/superchain/configs/", l1ChainName, "/", l2ChainName, ".toml");
-        try vm.readFile(string.concat(vm.projectRoot(), path)) returns (string memory data) {
+        try vm.readFile(string.concat(vm.projectRoot(), chainConfigPath)) returns (string memory data) {
             toml = data;
         } catch {
-            revert(string.concat("Failed to read ", path));
+            revert(string.concat("Failed to read ", chainConfigPath));
         }
         proxies.OptimismPortal = stdToml.readAddress(toml, "$.addresses.OptimismPortalProxy");
         proxies.L1CrossDomainMessenger = stdToml.readAddress(toml, "$.addresses.L1CrossDomainMessengerProxy");
@@ -107,6 +127,7 @@ contract SuperchainRegistry is CommonBase {
 
         chainConfig.chainId = stdToml.readUint(toml, "$.chain_id");
         chainConfig.systemConfigOwner = stdToml.readAddress(toml, "$.addresses.SystemConfigOwner");
+        chainConfig.proxyAdmin = stdToml.readAddress(toml, "$.addresses.ProxyAdmin");
         chainConfig.unsafeBlockSigner = stdToml.readAddress(toml, "$.addresses.UnsafeBlockSigner");
         chainConfig.batchSubmitter = stdToml.readAddress(toml, "$.addresses.BatchSubmitter");
         chainConfig.batchInbox = stdToml.readAddress(toml, "$.batch_inbox_addr");

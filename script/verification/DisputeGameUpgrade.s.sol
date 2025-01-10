@@ -24,6 +24,7 @@ interface IMIPS is ISemver {
 
 abstract contract DisputeGameUpgrade is VerificationBase, SuperchainRegistry {
     using LibString for string;
+    using LibString for uint256;
 
     bytes32 immutable expAbsolutePrestate;
     address immutable expFaultDisputeGame;
@@ -105,7 +106,17 @@ abstract contract DisputeGameUpgrade is VerificationBase, SuperchainRegistry {
     function _precheckDisputeGameImplementation(GameType _targetGameType, address _newImpl) internal view {
         console.log("pre-check new game implementation", _targetGameType.raw());
 
-        FaultDisputeGame currentGame = FaultDisputeGame(address(dgfProxy.gameImpls(GameType(_targetGameType))));
+        string memory gameTypeStr = uint256(_targetGameType.raw()).toString();
+        address currentGameAddr = address(dgfProxy.gameImpls(GameType(_targetGameType)));
+        if (vm.envOr(string.concat("DISPUTE_GAME_NEW_GAME_", gameTypeStr), false)) {
+            require(currentGameAddr == address(0), "pre-00");
+            console.log("Skipping pre-checks for new game implementation");
+            return;
+        } else {
+            require(currentGameAddr != address(0), "pre-00");
+        }
+
+        FaultDisputeGame currentGame = FaultDisputeGame(currentGameAddr);
         FaultDisputeGame newGame = FaultDisputeGame(_newImpl);
 
         if (vm.envOr("DISPUTE_GAME_CHANGE_WETH", false)) {
@@ -128,7 +139,13 @@ abstract contract DisputeGameUpgrade is VerificationBase, SuperchainRegistry {
             PermissionedDisputeGame currentPDG = PermissionedDisputeGame(address(currentGame));
             PermissionedDisputeGame newPDG = PermissionedDisputeGame(address(newGame));
             require(address(currentPDG.proposer()) == address(newPDG.proposer()), "pre-90");
-            require(address(currentPDG.challenger()) == address(newPDG.challenger()), "pre-100");
+            try vm.envAddress("DISPUTE_GAME_CHANGE_PERMISSIONED_CHALLENGER") returns (address challenger) {
+                console.log("Expecting PDG challenger to change to", challenger);
+                require(challenger == address(newPDG.challenger()), "pre-100");
+            } catch {
+                console.log("Expecting PDG challenger to stay the same");
+                require(address(currentPDG.challenger()) == address(newPDG.challenger()), "pre-100");
+            }
         }
 
         _precheckVm(newGame, currentGame);
