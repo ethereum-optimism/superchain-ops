@@ -220,6 +220,13 @@ jobs:
     steps:
       - simulate_nested:
           task: "sep/027-holocene-system-config-upgrade-and-init-multi-chain"
+  
+  simulate_eth_027:
+    docker:
+      - image: << pipeline.parameters.ci_builder_image >>
+    steps:
+      - simulate_nested:
+          task: "eth/027-holocene-system-config-upgrade-and-init-multi-chain"
 
   just_simulate_permissionless_fp_upgrade:
     docker:
@@ -320,3 +327,4 @@ workflows:
       # sepolia
       - simulate_sep_026
       - simulate_sep_027
+      - simulate_eth_027
