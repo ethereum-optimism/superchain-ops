@@ -77,7 +77,7 @@ cast index bytes32 0x28342fccf7308fc0967d8303fd5289550a30acff2de8754cf384b524ebe
   **After**: `0x0000000000000000000000000000000000000000000000000000000000000010`
   **Meaning**: Nonce increments by 1
 
-- **Key**: See above.
+- **Key**: In the [`approvedHashes` section line 18](/blob/main/tasks/sep/027-holocene-system-config-upgrade-and-init-multi-chain/VALIDATION.md#L18)
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000`
   **After**: `0x0000000000000000000000000000000000000000000000000000000000000001`
   **Meaning**: approvedHashes update. See above.
