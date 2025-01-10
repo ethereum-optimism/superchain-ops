@@ -221,6 +221,13 @@ jobs:
       - simulate_nested:
           task: "/eth/ink-001-permissionless-proofs"
 
+  just_simulate_ink_respected_game_type:
+    docker:
+      - image: << pipeline.parameters.ci_builder_image >>
+    steps:
+      - simulate:
+          task: "/eth/ink-002-set-respected-game-type"
+
   forge_build:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
@@ -302,6 +309,6 @@ workflows:
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
       - just_simulate_permissionless_fp_upgrade
-
+      - just_simulate_ink_respected_game_type
       # sepolia
       - simulate_sep_026
