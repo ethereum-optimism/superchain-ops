@@ -21,7 +21,7 @@ pause:
   elif [[ "$NETWORK_SELECTED" =~ "localhost" ]]; then
     echo "You selected the *localhost* network that is a fork of Sepolia ✅"
     echo "⚠️ Please make sure the node is running with the fork of the Sepolia network on port 8545 -> (example: 'anvil -f https://ethereum-sepolia.publicnode.com')"  # TODO: In the future, make a check with curl to get the RPC of the localhost 8545 and ensure this is running!
-    VAULTNAME="Sepolia"
+    VAULTNAME="sepolia [shared]"
     EXPLORER="https://sepolia.etherscan.io/"
     RPC_URL="http://localhost:8545"
     NETWORK_SELECTED="localhost"
@@ -55,7 +55,7 @@ pause:
   item=$(op item get "DeputyPauseModulePrivateKey" --vault $VAULTNAME --format json | jq -r '"\(.fields.[1].value), \(.fields.[0].value)"') # Get the privatekey + pubkey into a variable called `item`.
   read address privatekey <<< $(echo "$item" | awk -F ',' '{print $1, $2}') # Get the address and private key from the JSON created by `jq`. 
   if [[ -z "$address" ]] || [[ -z "$privatekey" ]]; then
-    echo "ERROR: Unable to get the address or private key from the vault. Please check the vault and ensure the item is in the vault: `$VAULTNAME` and try again."
+    echo "ERROR: Unable to get the address or private key from the vault. Please check the vault and ensure the item is in the vault: $VAULTNAME and try again."
     exit 1
   fi
 
