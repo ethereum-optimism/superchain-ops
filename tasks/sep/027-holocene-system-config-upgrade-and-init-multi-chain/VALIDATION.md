@@ -41,28 +41,28 @@ cast index bytes32 0x28342fccf7308fc0967d8303fd5289550a30acff2de8754cf384b524ebe
 * **Key**: `0x0000000000000000000000000000000000000000000000000000000000000068`
 * **Before**: `0x0000000000000000000000000000000000000000000000000000000003938700`
 * **After**: `0x00000000000000000000000000000000000d273000001db00000000003938700`
-* **Meaning**: Updates the `basefeeScalar` and `blobbasefeeScalar` storage variables to `7600` and `862000` respectively. These share a slot with the `gasLimit` which remains at `60000000`
+* **Meaning**: Updates the `basefeeScalar` and `blobbasefeeScalar` storage variables to `7600` and `862000` respectively. These share a slot with the `gasLimit` which remains at `60000000`. See the storage layout snapshot [here.](https://github.com/ethereum-optimism/optimism/blob/2073f4059bd806af3e8b76b820aa3fa0b42016d0/packages/contracts-bedrock/snapshots/storageLayout/SystemConfig.json#L58-L78)
 
 ### `0x5D63A8Dc2737cE771aa4a6510D063b6Ba2c4f6F2` (`SystemConfigProxy` for metal-sepolia)
 
 * **Key**: `0x0000000000000000000000000000000000000000000000000000000000000068`
 * **Before**: `0x0000000000000000000000000000000000000000000000000000000001c9c380`
 * **After**: `0x0000000000000000000000000000000000000000000a6fe00000000001c9c380`
-* **Meaning**: Updates the `basefeeScalar` and `blobbasefeeScalar` storage variables to `684000` and `0` respectively. These share a slot with the `gasLimit` which remains at `30000000`
+* **Meaning**: Updates the `basefeeScalar` and `blobbasefeeScalar` storage variables to `684000` and `0` respectively. These share a slot with the `gasLimit` which remains at `30000000`. See the storage layout snapshot [here.](https://github.com/ethereum-optimism/optimism/blob/2073f4059bd806af3e8b76b820aa3fa0b42016d0/packages/contracts-bedrock/snapshots/storageLayout/SystemConfig.json#L58-L78)
 
 and 
 
 * **Key**: `0x0000000000000000000000000000000000000000000000000000000000000066`
 * **Before**: `0x00000000000000000000000000000000000000000000000000000000000a6fe0`
 * **After**: `0x01000000000000000000000000000000000000000000000000000000000a6fe0`
-* **Meaning**: Updates the `scalar` storage variable to reflect a scalar version of `1`.
+* **Meaning**: Updates the `scalar` storage variable to reflect a scalar version of `1`. See the storage layout snapshot [here](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.8.0/packages/contracts-bedrock/snapshots/storageLayout/SystemConfig.json#L44-L50).
 
 ### `0x15cd4f6e0CE3B4832B33cB9c6f6Fe6fc246754c2` (`SystemConfigProxy` for mode-sepolia)
 
 * **Key**: `0x0000000000000000000000000000000000000000000000000000000000000068`
 * **Before**: `0x0000000000000000000000000000000000000000000000000000000001c9c380`
 * **After**: `0x000000000000000000000000000000000008ee87000003d10000000001c9c380`
-* **Meaning**: Updates the `basefeeScalar` and `blobbasefeeScalar` storage variables to `977` and `585351` respectively. These share a slot with the `gasLimit` which remains at `30000000`
+* **Meaning**: Updates the `basefeeScalar` and `blobbasefeeScalar` storage variables to `977` and `585351` respectively. These share a slot with the `gasLimit` which remains at `30000000`. See the storage layout snapshot [here.](https://github.com/ethereum-optimism/optimism/blob/2073f4059bd806af3e8b76b820aa3fa0b42016d0/packages/contracts-bedrock/snapshots/storageLayout/SystemConfig.json#L58-L78)
 
 ### `0xB54c7BFC223058773CF9b739cC5bd4095184Fb08` (`SystemConfigProxy` for zora-sepolia)
 
