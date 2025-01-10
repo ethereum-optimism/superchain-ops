@@ -59,7 +59,7 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry {
     // The target version of the SystemConfig contract, read from the SCR @ specified release:
     string targetVersion;
 
-    // The constructor caches some information from the SCR and from the existing SystemConfig contract
+    // The constructor caches some information from the Superchain Registry and from the existing SystemConfig contract
     // before the upgrade is executed.
     constructor(string memory _l1ChainName, string memory _l2ChainName, string memory _release)
         SuperchainRegistry(_l1ChainName, _l2ChainName, _release)
