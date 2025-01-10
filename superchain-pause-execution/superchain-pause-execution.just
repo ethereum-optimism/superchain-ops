@@ -52,7 +52,7 @@ pause:
   fi
 
   # Check if the user input is yes or no (TODO: but need to check that no other input can trigger the workflow!)
-  item=$(op item get "DeputyPauseModulePrivateKey" --vault $VAULTNAME --format json | jq -r '"\(.fields.[1].value), \(.fields.[0].value)"') # Get the privatekey + pubkey into a variable called `item`.
+  item=$(op item get "DeputyPauseModulePrivateKey" --vault "$VAULTNAME" --format json | jq -r '"\(.fields.[1].value), \(.fields.[0].value)"') # Get the privatekey + pubkey into a variable called `item`.
   read address privatekey <<< $(echo "$item" | awk -F ',' '{print $1, $2}') # Get the address and private key from the JSON created by `jq`. 
   if [[ -z "$address" ]] || [[ -z "$privatekey" ]]; then
     echo "ERROR: Unable to get the address or private key from the vault. Please check the vault and ensure the item is in the vault: $VAULTNAME and try again."
