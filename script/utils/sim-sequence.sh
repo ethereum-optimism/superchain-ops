@@ -78,10 +78,10 @@ createFork() {
 
 NonceDisplay(){
   echo "=====================[$1] NONCES STATUS ==================="
-  echo "Foundation Upgrade Safe Nonce: "$(cast call $Foundation_Upgrade_Safe  "nonce()(uint256)")"."
-  echo "Foundation Operation Safe Nonce: "$(cast call $Foundation_Operation_Safe  "nonce()(uint256)")"."
-  echo "Security Council Safe Nonce: "$(cast call $Security_Council_Safe  "nonce()(uint256)")"."
-  echo "ProxyAdminOwner Nonce: "$(cast call $Proxy_Admin_Owner_Safe "nonce()(uint256)")"."
+  echo "Foundation Upgrade Safe Nonce: "$(cast call $Foundation_Upgrade_Safe  "nonce()(uint256)" --rpc-url http://localhost:8545)"."
+  echo "Foundation Operation Safe Nonce: "$(cast call $Foundation_Operation_Safe  "nonce()(uint256)" --rpc-url http://localhost:8545)"."
+  echo "Security Council Safe Nonce: "$(cast call $Security_Council_Safe  "nonce()(uint256)" --rpc-url http://localhost:8545)"."
+  echo "ProxyAdminOwner Nonce: "$(cast call $Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url http://localhost:8545)"."
  
   echo "==========================================================="
 }
