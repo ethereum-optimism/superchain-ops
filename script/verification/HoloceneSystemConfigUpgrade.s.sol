@@ -3,7 +3,7 @@ pragma solidity ^0.8.15;
 
 import {console2 as console} from "forge-std/console2.sol";
 import {LibString} from "solady/utils/LibString.sol";
-import {SuperchainRegistry} from "script/verification/Verification.s.sol";
+import {SuperchainRegistry, VerificationBase} from "script/verification/Verification.s.sol";
 
 // HoloceneSystemConfigUpgrade is a contract that can be used to verify the Holocene upgrade of the SystemConfig contract.
 // The upgrade paths supported are:
@@ -17,7 +17,7 @@ import {SuperchainRegistry} from "script/verification/Verification.s.sol";
 // - gasPayingToken (new storage variable, needs to be set to a magic value representing ETH)
 // - disputeGameFactory (does not exist @ 1.12.0, needs to be set to zero address for changes on this upgrade path)
 // It also verified that remaining storage variables are unchanged.
-contract HoloceneSystemConfigUpgrade is SuperchainRegistry {
+contract HoloceneSystemConfigUpgrade is SuperchainRegistry, VerificationBase {
     using LibString for string;
 
     address public systemConfigAddress;
@@ -81,6 +81,8 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry {
         } else {
             revert("unsupported SystemConfig version");
         }
+
+        _getCodeExceptions();
     }
 
     /// @notice Public function that must be called by the verification script.
@@ -92,14 +94,15 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry {
         checkBaseSysCfgVars();
     }
 
+    function _getCodeExceptions() internal {
+        if (block.chainid != 1) addCodeException(previous.owner);
+        addCodeException(address(uint160(uint256(previous.batcherHash))));
+        addCodeException(previous.unsafeBlockSigner);
+        addCodeException(previous.batchInbox);
+    }
+
     function getCodeExceptions() public view returns (address[] memory exceptions) {
-        uint256 len = block.chainid == 1 ? 3 : 4; // Mainnet doesn't need owner exception.
-        exceptions = new address[](len);
-        uint256 i = 0;
-        if (block.chainid != 1) exceptions[i++] = previous.owner;
-        exceptions[i++] = address(uint160(uint256((previous.batcherHash))));
-        exceptions[i++] = previous.unsafeBlockSigner;
-        exceptions[i++] = previous.batchInbox;
+        return codeExceptions;
     }
 
     // Checks semver of SystemConfig is correct after the upgrade
