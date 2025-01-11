@@ -28,7 +28,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 - **Key**: `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` <br/>
   **Before**: `0x0000000000000000000000001ffafb5fdc292393c187629968ca86b112860a3e` <br/>
   **After**: `0x00000000000000000000000095907b5069e5a2ef1029093599337a6c9dac8923` <br/>
-  **Meaning**: This upgrades the implementation of the `AnchorStateRegistryProxy` contract, where the stoage key is the standard ERC-1967 storage slot.
+  **Meaning**: This upgrades the implementation of the `AnchorStateRegistryProxy` contract, where the storage key is the standard ERC-1967 storage slot.
 
 ### `0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1` (`DisputeGameFactoryProxy`)
 
