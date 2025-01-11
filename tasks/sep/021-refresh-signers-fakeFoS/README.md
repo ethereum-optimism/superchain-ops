@@ -12,7 +12,7 @@ The **1 signer** that will be removed by this task will be:
 
 Moreover, 3 engineers will be added (_Engineer 1_: `0x41fb1d8c3262e88a056ee3099f5718405CC8cAdE`, _Engineer 2_: `0x95E774787A63f145f7B05028a1479bDc9D055f3d` and _Engineer 3_: `0xa03dafade71f1544f4b0120145eec9b89105951f`) that require to sign on Sepolia will be added as owners on both Safes.
 
-This action will be performed by swaping previous owner that was not active anymore by the new _Engineer 1_.
+This action will be performed by swapping previous owner that was not active anymore by the new _Engineer 1_.
 
 To Recap the action for swaping will be:
 | PreviousOwner | newOwner |
