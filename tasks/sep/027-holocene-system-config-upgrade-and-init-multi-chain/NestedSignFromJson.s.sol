@@ -36,7 +36,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
     function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory) internal view override {
         console.log("Running post-deploy assertions");
         checkStateDiff(accesses);
-        for (uint256 i = 0; i < l2ChainNames.length; i++) {
+        for (uint256 i = 0; i < sysCfgUpgrades.length; i++) {
             console.log("");
             console.log("Running post-deploy assertions for chain", l2ChainNames[i], "-", l1ChainName);
             sysCfgUpgrades[i].checkSystemConfigUpgrade();
