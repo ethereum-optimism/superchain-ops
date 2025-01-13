@@ -136,3 +136,5 @@ and
 - **Meaning**: approvedHashes update. See above.
 
 
+### Other nonce changes
+Depending on which hash is being approved, the Foundation or Council SAFE nonce will increment by one. See the [`.env`](./.env) file for the initial value of each nonce.
