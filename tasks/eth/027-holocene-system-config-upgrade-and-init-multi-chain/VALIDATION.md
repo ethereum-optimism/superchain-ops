@@ -87,12 +87,10 @@ and
 
 ### `0xA3cAB0126d5F504B071b81a3e8A2BBBF17930d86` (`SystemConfigProxy` for zora-mainnet)
 
-TODO this needs checking
-
 - **Key**: `0x0000000000000000000000000000000000000000000000000000000000000068`
 - **Before**: `0x0000000000000000000000000000000000000000000000000000000001c9c380`
-- **After**: `0x00000000000000000000000000000000000941ad000003f40000000001c9c380`
-- **Meaning**: Updates the `basefeeScalar` and `blobbasefeeScalar` storage variables to `1012` (`cast td 0x000003f4`) and `606637` (`cast td 0x000941ad`) respectively. These share a slot with the `gasLimit` which remans at `30000000` (`cast td 0x0000000001c9c380`).
+- **After**: `0x0000000000000000000000000000000000095506000186a00000000001c9c380`
+- **Meaning**: Updates the `basefeeScalar` and `blobbasefeeScalar` storage variables to `100000` (`cast td 0x000186a0`) and `611590` (`cast td 0x00095506`) respectively. These share a slot with the `gasLimit` which remans at `30000000` (`cast td 0x0000000001c9c380`).
 
 and
 
