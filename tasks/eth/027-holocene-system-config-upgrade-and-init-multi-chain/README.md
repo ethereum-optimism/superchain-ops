@@ -25,7 +25,7 @@ Please see the instructions for [validation](./VALIDATION.md).
 
 ## Execution
 
-This upgrade upgrades the implementation of the `SystemConfig` implementation on multiple chains and reinitializes each of the in such a way as to preserve the semantics of all existing parameters stored in that contract.
+This upgrade upgrades the implementation of the `SystemConfig` implementation on multiple chains and reinitializes each of them in such a way as to preserve the semantics of all existing parameters stored in that contract.
 
 The batch will be executed on L1 chain ID `1`, and contains  `3n` transactions, where `n=5` is the number of L2 chains being upgraded. The chains affected are {op,metal,mode,zora}-sepolia.
 
