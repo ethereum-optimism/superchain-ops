@@ -19,6 +19,12 @@ contract VerificationBase {
     function addCodeException(address addr) internal {
         codeExceptions.push(addr);
     }
+
+    function addCodeExceptions(address[] memory addrs) internal {
+        for (uint256 i = 0; i < addrs.length; i++) {
+            addCodeException(addrs[i]);
+        }
+    }
 }
 
 contract SuperchainRegistry is CommonBase {
@@ -102,12 +108,15 @@ contract SuperchainRegistry is CommonBase {
         proxies.L1CrossDomainMessenger = stdToml.readAddress(toml, "$.addresses.L1CrossDomainMessengerProxy");
         proxies.L1StandardBridge = stdToml.readAddress(toml, "$.addresses.L1StandardBridgeProxy");
         proxies.SystemConfig = stdToml.readAddress(toml, "$.addresses.SystemConfigProxy");
-        proxies.AnchorStateRegistry = stdToml.readAddress(toml, "$.addresses.AnchorStateRegistryProxy");
-        proxies.DisputeGameFactory = stdToml.readAddress(toml, "$.addresses.DisputeGameFactoryProxy");
+
+        // Not all chains have the following values specified in the registry, so we will
+        // set them to the zero address if they are not found.
+        proxies.AnchorStateRegistry = stdToml.readAddressOr(toml, "$.addresses.AnchorStateRegistryProxy", address(0));
+        proxies.DisputeGameFactory = stdToml.readAddressOr(toml, "$.addresses.DisputeGameFactoryProxy", address(0));
 
         chainConfig.chainId = stdToml.readUint(toml, "$.chain_id");
         chainConfig.systemConfigOwner = stdToml.readAddress(toml, "$.addresses.SystemConfigOwner");
-        chainConfig.unsafeBlockSigner = stdToml.readAddress(toml, "$.addresses.UnsafeBlockSigner");
+        chainConfig.unsafeBlockSigner = stdToml.readAddressOr(toml, "$.addresses.UnsafeBlockSigner", address(0)); // Not present on all chains, note .readAddressOr
         chainConfig.batchSubmitter = stdToml.readAddress(toml, "$.addresses.BatchSubmitter");
         chainConfig.batchInbox = stdToml.readAddress(toml, "$.batch_inbox_addr");
     }
