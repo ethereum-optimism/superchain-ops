@@ -1,10 +1,10 @@
 # ProxyAdminOwner - Set Dispute Game Implementation
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0x71234ec9d3df32360383a0091277b0facbeb21456f1a29accb110fa43a6b5441)
 
 ## Objective
 
-This task updates the fault dispute system for ink-mainnet: 
+This task updates the fault dispute system for ink-mainnet:
 
 * Re-initialize `AnchorStateRegistry` 0xde744491BcF6b2DD2F32146364Ea1487D75E2509 with the anchor state for game types 0 set to 0x5220f9c5ebf08e84847d542576a67a3077b6fa496235d93c557d5bd5286b431a, 523052
 * Set implementation for game type 0 to 0x6A8eFcba5642EB15D743CBB29545BdC44D5Ad8cD in `DisputeGameFactory` 0x10d7B35078d3baabB96Dd45a9143B94be65b12CD: `setImplementation(0, 0x6A8eFcba5642EB15D743CBB29545BdC44D5Ad8cD)`
