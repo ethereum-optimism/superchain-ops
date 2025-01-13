@@ -27,7 +27,7 @@ simulate hdPath='0':
   echo ""
 
   forge build
-  forge script ${script} \
+  forge script -vvvvv ${script} \
     --rpc-url ${rpcUrl} \
     --sig "signJson(string)" ${bundlePath} \
     --sender ${signer}
@@ -61,10 +61,8 @@ execute hdPath='0':
     script="${taskPath}/SignFromJson.s.sol"
   fi
   echo "Using script ${script}"
-  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+
 
   forge build
-  forge script --fork-url ${ETH_RPC_URL} ${script} \
-    --sig "runJson(string,bytes)" ${bundlePath} ${SIGNATURES} \
-    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
-    --sender ${sender}
+  forge script -vvvvv --fork-url ${ETH_RPC_URL} ${script} \
+    --sig "runJson(string,bytes)" ${bundlePath} ${SIGNATURES}
