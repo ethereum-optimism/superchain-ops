@@ -27,7 +27,7 @@ simulate hdPath='0':
   echo ""
 
   forge build
-  forge script -vvvvv ${script} \
+  forge script ${script} \
     --rpc-url ${rpcUrl} \
     --sig "signJson(string)" ${bundlePath} \
     --sender ${signer}
