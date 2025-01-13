@@ -63,10 +63,11 @@ simulate hdPath='0' rpcUrlExternal="" broadcast="false":
 
   cast call 0x847B5C174615B1B7FDF770882256E2D3E95B9D92  "getOwners()" --rpc-url http://localhost:8545
   echo "================================================"
-  forge script -vvvvvvvv ${script} \
+  forge script -vvvvvvv ${script} \
     --rpc-url ${rpcUrl} \
-    --sig "runJson(string,bytes)" ${bundlePath} 9f9b94a443b6934cbb00b4285156da7264eb1d85773bb0a904ecfbe830d2b79a0a34afca4a77cf0e022567ac1c898010cac632ec66bdff2f6602b7dfab87c65b \
-    --broadcast --unlocked --sender 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --skip-simulation   # 0x3041..1623 is a signer that contains ethers. 
+    --sig "runJson(string,bytes)" ${bundlePath} 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111 \
+    --broadcast --skip-simulation --sender  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+
   else
   forge script ${script} \
     --rpc-url ${rpcUrl} \
