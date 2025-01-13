@@ -19,6 +19,12 @@ contract VerificationBase {
     function addCodeException(address addr) internal {
         codeExceptions.push(addr);
     }
+
+    function addCodeExceptions(address[] memory addrs) internal {
+        for (uint256 i = 0; i < addrs.length; i++) {
+            addCodeException(addrs[i]);
+        }
+    }
 }
 
 contract SuperchainRegistry is CommonBase {
