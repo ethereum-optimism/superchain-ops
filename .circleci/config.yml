@@ -317,6 +317,7 @@ workflows:
       - just_simulate_sc_rehearsal_4
       - just_simulate_permissionless_fp_upgrade
       - just_simulate_ink_respected_game_type
+      - simulate_eth_027
       # sepolia
       - simulate_sep_027
-      - simulate_eth_027
+
