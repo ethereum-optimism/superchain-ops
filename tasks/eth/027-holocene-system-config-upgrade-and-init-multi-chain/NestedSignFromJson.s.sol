@@ -5,7 +5,6 @@ import {console2 as console} from "forge-std/console2.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {NestedSignFromJson as OriginalNestedSignFromJson} from "script/NestedSignFromJson.s.sol";
-import {DisputeGameUpgrade} from "script/verification/DisputeGameUpgrade.s.sol";
 import {CouncilFoundationNestedSign} from "script/verification/CouncilFoundationNestedSign.s.sol";
 import {VerificationBase, SuperchainRegistry} from "script/verification/Verification.s.sol";
 import {HoloceneSystemConfigUpgrade} from "script/verification/HoloceneSystemConfigUpgrade.s.sol";
