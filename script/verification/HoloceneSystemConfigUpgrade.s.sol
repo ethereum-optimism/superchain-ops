@@ -149,27 +149,31 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry, VerificationBase {
             require(newScalarEncodingVersion == 1, "scalar-102 reenconded scalar version != 1");
             require(sysCfg.blobbasefeeScalar() == uint32(0), "scalar-103 blobbasefeeScalar !=0");
 
+            // Sanity check the scalar "padding" is zero for legacy encodings (see spec)
+            uint256 mask = 0x00ffffffffffffffffffffffffffffffffffffffffffffffffffff00000000;
+            require((previousScalar & mask) == uint256(0), "scalar-105 previous scalar padding != 0");
+
             // The scalars should match if we add the new scalar version byte to the previous scalar.
-            require(reencodedScalar == previousScalar + (uint256(0x01) << 248), "scalar-104 scalar mismatch");
+            require(reencodedScalar == previousScalar + (uint256(0x01) << 248), "scalar-106 scalar mismatch");
         }
     }
 
     // Checks the disputeGameFactory address is set correctly after the upgrade
     function checkDGF() internal view {
-        require(sysCfg.disputeGameFactory() == targetDGF, "scalar-106");
+        require(sysCfg.disputeGameFactory() == targetDGF, "scalar-107");
     }
 
     // Checks gasPayingToken and its decimals are set correctly after the upgrade
     function checkGasPayingToken() internal view {
         (address t, uint8 d) = sysCfg.gasPayingToken();
-        require(t == targetGasPayingToken, "scalar-107");
-        require(d == targetDecimals, "scalar-108");
+        require(t == targetGasPayingToken, "scalar-108");
+        require(d == targetDecimals, "scalar-109");
     }
 
     // Checks the remaining storage variables are unchanged after the upgrade
     function checkBaseSysCfgVars() internal view {
         // Check remaining storage variables didn't change
-        require(keccak256(abi.encode(getBaseSysCfgVars())) == keccak256(abi.encode(previous)), "system-config-100");
+        require(keccak256(abi.encode(getBaseSysCfgVars())) == keccak256(abi.encode(previous)), "system-config-110");
     }
 
     // Reads the semantic version of the SystemConfig contract
