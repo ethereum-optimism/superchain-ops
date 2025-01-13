@@ -16,23 +16,23 @@ This task is executed by the nested 2/2 `ProxyAdminOwner` Safe. Refer to the
 for the expected state overrides and changes.
 
 The `approvedHashes` mapping **key** of the `ProxyAdminOwner` that should change during the simulation is
-- Council simulation: `0x4e74b1ebb91215ce41266e2a1d8a08547a88b27c05d6a9a71e608a3e9b0dba67`
-- Foundation simulation: `0x3a1aaa9f743f53313db51a37b9483fed61c6dbc6b66df0046a3328870f166f04`
+- Council simulation: `0xfae39fd96196a971566654dbfb0f11d7b98980213f6410051ccbf81f7481039`
+- Foundation simulation: `0x0595de264ad16565584215810251811f9e56d429c8fd67def448041126dbe920`
 
 calculated as explained in the nested validation doc:
 
 ```sh
 cast index address 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 8 # council
 # 0xaaf2b641eaf0bae063c4f2e5670f905e1fb7334436b902d1d880b05bd6228fbd
-cast index bytes32 0xa9d41de4d2e12c5ddec5baffccc0010765fe1b4cea16a8c0c8a00415e399711b 0xaaf2b641eaf0bae063c4f2e5670f905e1fb7334436b902d1d880b05bd6228fbdd
-# 0x4e74b1ebb91215ce41266e2a1d8a08547a88b27c05d6a9a71e608a3e9b0dba67
+cast index bytes32 0xc94a72f6ae0da3b87a2ecb6e6ce52608c8a9d722a1b5f5f46ed9cc70a54f8a03 0xaaf2b641eaf0bae063c4f2e5670f905e1fb7334436b902d1d880b05bd6228fbd
+# 0xfae39fd96196a971566654dbfb0f11d7b98980213f6410051ccbf81f74810394
 ```
 
 ```sh
 cast index address 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 8 # foundation
 # 0x13908ba1c0e379ab58c6445554ab471f3d4efb06e3c4cf966c4f5e918eca67bd
-cast index bytes32 0xa9d41de4d2e12c5ddec5baffccc0010765fe1b4cea16a8c0c8a00415e399711b 0x13908ba1c0e379ab58c6445554ab471f3d4efb06e3c4cf966c4f5e918eca67bd
-# 0x3a1aaa9f743f53313db51a37b9483fed61c6dbc6b66df0046a3328870f166f04
+cast index bytes32 0xc94a72f6ae0da3b87a2ecb6e6ce52608c8a9d722a1b5f5f46ed9cc70a54f8a03 0x13908ba1c0e379ab58c6445554ab471f3d4efb06e3c4cf966c4f5e918eca67bd
+# 0x0595de264ad16565584215810251811f9e56d429c8fd67def448041126dbe920
 ```
 
 ## State Changes
