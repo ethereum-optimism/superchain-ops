@@ -82,7 +82,7 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry, VerificationBase {
             revert("unsupported SystemConfig version");
         }
 
-        _getCodeExceptions();
+        _addCodeExceptions();
     }
 
     /// @notice Public function that must be called by the verification script.
@@ -94,7 +94,7 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry, VerificationBase {
         checkBaseSysCfgVars();
     }
 
-    function _getCodeExceptions() internal {
+    function _addCodeExceptions() internal {
         if (block.chainid != 1) addCodeException(previous.owner);
         addCodeException(address(uint160(uint256(previous.batcherHash))));
         addCodeException(previous.unsafeBlockSigner);
