@@ -26,17 +26,14 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
             console.log("Set up verification data for chain", l2ChainNames[i], "-", l1ChainName);
             console.log("with SystemConfigProxy @", sysCfgUpgrades[i].systemConfigAddress());
             addAllowedStorageAccess(sysCfgUpgrades[i].systemConfigAddress());
-            address[] memory exceptions = sysCfgUpgrades[i].getCodeExceptions();
-            for (uint256 j = 0; j < exceptions.length; j++) {
-                addCodeException(exceptions[j]);
-            }
+            addCodeExceptions(sysCfgUpgrades[i].getCodeExceptions());
         }
     }
 
     function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory) internal view override {
         console.log("Running post-deploy assertions");
         checkStateDiff(accesses);
-        for (uint256 i = 0; i < l2ChainNames.length; i++) {
+        for (uint256 i = 0; i < sysCfgUpgrades.length; i++) {
             console.log("");
             console.log("Running post-deploy assertions for chain", l2ChainNames[i], "-", l1ChainName);
             sysCfgUpgrades[i].checkSystemConfigUpgrade();
