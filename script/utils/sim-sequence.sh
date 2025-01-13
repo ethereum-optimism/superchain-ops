@@ -72,7 +72,7 @@ createFork() {
     echo "Port 8545 is already in use. Please make sure to kill the process using the port before running the script."
     exit 1
   fi
-  anvil --auto-impersonate -f $RPC_URL --fork-block-number 21573136 >> /tmp/anvil.logs & 
+  anvil -f $RPC_URL --fork-block-number 21573136 >> /tmp/anvil.logs & 
   sleep 5
 }
 
@@ -144,7 +144,7 @@ done
 createFork
 # Disable state overrides and execute tasks.
 disable_state_overrides
-export SIMULATE_WITHOUT_LEDGER=1
+# export SIMULATE_WITHOUT_LEDGER=1
 for task_folder in "${task_folders[@]}"; do
   echo -e "\n---- Simulating task $task_folder ----"
 
@@ -162,7 +162,6 @@ for task_folder in "${task_folders[@]}"; do
   fi
   sleep 5
   NonceDisplay "🟩After Simulation $task_folder"
-  exit 1
   popd >/dev/null || error_exit "Failed to return to previous directory."
 done
 
