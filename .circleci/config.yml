@@ -213,13 +213,6 @@ jobs:
             just simulate-council
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
-
-  simulate_sep_027:
-    docker:
-      - image: << pipeline.parameters.ci_builder_image >>
-    steps:
-      - simulate_nested:
-          task: "sep/027-holocene-system-config-upgrade-and-init-multi-chain"
   
   simulate_eth_027:
     docker:
@@ -227,13 +220,6 @@ jobs:
     steps:
       - simulate_nested:
           task: "eth/027-holocene-system-config-upgrade-and-init-multi-chain"
-
-  just_simulate_permissionless_fp_upgrade:
-    docker:
-      - image: << pipeline.parameters.ci_builder_image >>
-    steps:
-      - simulate_nested:
-          task: "/eth/ink-001-permissionless-proofs"
 
   just_simulate_ink_respected_game_type:
     docker:
@@ -315,9 +301,6 @@ workflows:
       - just_simulate_sc_rehearsal_1
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
-      - just_simulate_permissionless_fp_upgrade
       - just_simulate_ink_respected_game_type
       - simulate_eth_027
       # sepolia
-      - simulate_sep_027
-
