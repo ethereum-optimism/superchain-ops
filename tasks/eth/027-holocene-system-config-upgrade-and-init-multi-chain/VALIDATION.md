@@ -22,7 +22,7 @@ The `approvedHashes` mapping **key** of the `ProxyAdminOwner` that should change
 calculated as explained in the nested validation doc:
 
 ```sh
-cast index address 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 8 # council
+cast index address 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 8 # council
 # 0xaaf2b641eaf0bae063c4f2e5670f905e1fb7334436b902d1d880b05bd6228fbd
 cast index bytes32 0xc94a72f6ae0da3b87a2ecb6e6ce52608c8a9d722a1b5f5f46ed9cc70a54f8a03 0xaaf2b641eaf0bae063c4f2e5670f905e1fb7334436b902d1d880b05bd6228fbd
 # 0xfae39fd96196a971566654dbfb0f11d7b98980213f6410051ccbf81f74810394
