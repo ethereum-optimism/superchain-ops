@@ -6,6 +6,13 @@ Status: READY TO SIGN
 
 Upgrades the `SystemConfig` contracts for the Holocene hardfork across multiple chains in the mainnet superchain.
 
+The proposal was:
+
+- [X] [Posted](https://gov.optimism.io/t/upgrade-proposal-11-holocene-network-upgrade/9313) on the governance forum.
+- [X] [Approved](https://vote.optimism.io/proposals/20127877429053636874064552098716749508236019236440427814457915785398876262515) by Token House voting.
+- [X] Not vetoed by the Citizens' house.
+- [X] Executed on OP Mainnet.
+
 This upgrades the `SystemConfig` in the
 [v1.8.0-rc.4](https://github.com/ethereum-optimism/optimism/releases/tag/op-contracts%2Fv1.8.0-rc.4) release.
 
