@@ -66,3 +66,5 @@ execute hdPath='0':
   forge build
   forge script --fork-url ${ETH_RPC_URL} ${script} \
     --sig "runJson(string,bytes)" ${bundlePath} ${SIGNATURES} \
+    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
+    --sender ${sender}
