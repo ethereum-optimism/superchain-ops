@@ -7,7 +7,7 @@ Status: READY TO SIGN
 Upgrades the `SystemConfig` contracts for the Holocene hardfork across multiple chains in the mainnet superchain.
 
 This upgrades the `SystemConfig` in the
-[v1.8.0-rc.4](https://github.com/ethereum-optimism/optimism/tree/v1.8.0-rc.4) release.
+[v1.8.0-rc.4](https://github.com/ethereum-optimism/optimism/releases/tag/op-contracts%2Fv1.8.0-rc.4) release.
 
 ## Pre-deployments
 
