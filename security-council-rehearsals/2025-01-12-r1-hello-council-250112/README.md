@@ -30,8 +30,12 @@ convenience.
 cd superchain-ops
 git pull
 just install
-cd security-council-rehearsals/$(REPLACE_WITH_REHEARSAL_FOLDER)
+cd security-council-rehearsals/2025-01-12-r1-hello-council-250112
 ```
+
+Please also read the main [`README.md`](../README.md), and particularly the
+[Installation](../README.md#installation) section as there are some dependencies
+that are not installed by `just install`.
 
 ### 2. Setup Ledger
 
@@ -91,7 +95,7 @@ might be different in your simulation:
 
 Now click on the "State" tab. Verify that:
 
-1. Under address `0x73E2bc4ad747e5DA21Ec771c1a7D84B18ca4686f`, the
+1. Under address `0x5f5514DcBCe7fAB4Cf694733340435ED4dcCEA46`, the
    storage key `0x0`'s value's last byte is changed from `0x00` to
    `0x01`. This is indicating that the `HelloWorld.helloed` variable
    is successfully changed from `false` to `true`.
@@ -144,7 +148,8 @@ following:
 just sign # or just sign <hdPath>
 ```
 
-> [!IMPORTANT] This is the most security critical part of the
+> [!IMPORTANT]
+> This is the most security critical part of the
 > playbook: make sure the domain hash and message hash in the
 > following two places match:
 
@@ -199,7 +204,7 @@ UI](https://app.safe.global/new-safe/create?chain=eth).
 To make the prepartion and coordination of the ceremonies easier, we
 recommend setting the threshold (M) of the multisig to be equal to the
 number of participants, and add M+1 additional signers
-using keys owned by the Facilitator, to make it a M-of-2M+1 multisig. 
+using keys owned by the Facilitator, to make it a M-of-2M+1 multisig.
 For example, if there are 3 participants, we recommend creating a 3 of 7
 multisig with 4 additional keys owned by the Facilitator.
 
