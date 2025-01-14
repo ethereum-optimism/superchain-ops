@@ -214,13 +214,6 @@ jobs:
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
 
-  just_simulate_permissionless_fp_upgrade:
-    docker:
-      - image: << pipeline.parameters.ci_builder_image >>
-    steps:
-      - simulate_nested:
-          task: "/eth/ink-001-permissionless-proofs"
-
   just_simulate_ink_respected_game_type:
     docker:
       - image: << pipeline.parameters.ci_builder_image >>
@@ -301,5 +294,5 @@ workflows:
       - just_simulate_sc_rehearsal_1
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
-      - just_simulate_permissionless_fp_upgrade
       - just_simulate_ink_respected_game_type
+      # sepolia
