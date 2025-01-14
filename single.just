@@ -61,8 +61,8 @@ execute hdPath='0':
     script="${taskPath}/SignFromJson.s.sol"
   fi
   echo "Using script ${script}"
-
+  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
 
   forge build
-  forge script -vvvvv --fork-url ${ETH_RPC_URL} ${script} \
-    --sig "runJson(string,bytes)" ${bundlePath} ${SIGNATURES}
+  forge script --fork-url ${ETH_RPC_URL} ${script} \
+    --sig "runJson(string,bytes)" ${bundlePath} ${SIGNATURES} \
