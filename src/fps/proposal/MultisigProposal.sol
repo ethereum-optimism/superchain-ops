@@ -10,7 +10,6 @@ import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet
 import {IProposal} from "src/fps/proposal/IProposal.sol";
 import {BytesHelper} from "src/fps/utils/BytesHelper.sol";
 import {IGnosisSafe, Enum} from "src/fps/proposal/IGnosisSafe.sol";
-import {NetworkTranslator} from "src/fps/utils/NetworkTranslator.sol";
 import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
 import {
     NONCE_OFFSET,
@@ -24,7 +23,6 @@ import {
 
 abstract contract MultisigProposal is Test, Script, IProposal {
     using BytesHelper for bytes;
-    using NetworkTranslator for uint256;
     using EnumerableSet for EnumerableSet.AddressSet;
 
     /// @notice nonce used for generating the safe transaction
