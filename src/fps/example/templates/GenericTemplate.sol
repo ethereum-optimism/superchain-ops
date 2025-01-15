@@ -10,7 +10,7 @@ abstract contract GenericTemplate is MultisigProposal {
     /// @param networkConfigFilePath The path to the network configuration file.
     function run(string memory taskConfigFilePath, string memory networkConfigFilePath) public {
         Addresses _addresses = new Addresses(ADDRESSES_PATH, networkConfigFilePath);
-        
+
         _templateSetup(taskConfigFilePath, networkConfigFilePath, _addresses);
 
         _init(taskConfigFilePath, networkConfigFilePath, _addresses);
@@ -19,5 +19,7 @@ abstract contract GenericTemplate is MultisigProposal {
     }
 
     /// @notice abstract function to be implemented by the inheriting contract to setup the template
-    function _templateSetup(string memory taskConfigFilePath, string memory networkConfigFilePath, Addresses) internal virtual;
+    function _templateSetup(string memory taskConfigFilePath, string memory networkConfigFilePath, Addresses)
+        internal
+        virtual;
 }
