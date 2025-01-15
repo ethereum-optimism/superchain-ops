@@ -137,4 +137,8 @@ and
 
 
 ### Other nonce changes
-Depending on which hash is being approved, the Foundation or Council SAFE nonce will increment by one. See the [`.env`](./.env) file for the initial value of each nonce.
+To recap the expected nonces to be incremented are: 
+
+* ProxyAdminOwner (0X5A0AAE59D09FCCBDDB6C6CCEB07B7279367C3D2A): `8`-> `9` 
+* **If you are signing for the Security Council** Security Council (`0XC2819DC788505AAC350142A7A707BF9D03E3BD03`): `11` -> `12`.
+* **If you are signing for the Foundation** Foundation Upgrade Safe (`0X847B5C174615B1B7FDF770882256E2D3E95B9D92`): `14` -> `15`.
