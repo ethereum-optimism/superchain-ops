@@ -1,7 +1,7 @@
 pragma solidity 0.8.15;
 
-import {GenericTemplate} from "src/fps/example/templates/GenericTemplate.sol";
 import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
+import {GenericTemplate} from "src/fps/example/templates/GenericTemplate.sol";
 import {ADDRESSES_PATH} from "src/fps/utils/Constants.sol";
 import {OP_CHAIN_ID} from "src/fps/utils/Constants.sol";
 
@@ -22,7 +22,7 @@ contract Task02 is GenericTemplate {
 
     mapping(uint256 => SetRespectedGameType) public setRespectedGameTypes;
 
-    function run(string memory taskConfigFilePath, string memory networkConfigFilePath) public override {
+    function _templateSetup(string memory, string memory networkConfigFilePath, Addresses) internal override {
         SetRespectedGameType[] memory setRespectedGameType = abi.decode(
             vm.parseToml(vm.readFile(networkConfigFilePath), ".respectedGameTypes"), (SetRespectedGameType[])
         );
@@ -30,8 +30,6 @@ contract Task02 is GenericTemplate {
         for (uint256 i = 0; i < setRespectedGameType.length; i++) {
             setRespectedGameTypes[setRespectedGameType[i].l2ChainId] = setRespectedGameType[i];
         }
-
-        super.run(taskConfigFilePath, networkConfigFilePath);
     }
 
     function _build(uint256 chainId) internal override {
@@ -39,6 +37,7 @@ contract Task02 is GenericTemplate {
         IDeputyGuardian deputyGuardian = IDeputyGuardian(addresses.getAddress("DEPUTY_GUARDIAN", chainId));
 
         if (setRespectedGameTypes[chainId].l2ChainId != 0) {
+            /// Mutative call, recorded by Proposal.sol for generating multisig calldata
             deputyGuardian.setRespectedGameType(
                 addresses.getAddress(setRespectedGameTypes[chainId].portal, chainId),
                 setRespectedGameTypes[chainId].gameType
@@ -55,9 +54,10 @@ contract Task02 is GenericTemplate {
     }
 
     function _mock(uint256 chainId) internal override {
-        /// make the DEPUTY_GUARDIAN as a module to the Guardian safe
+        /// make the DEPUTY_GUARDIAN a module of the Guardian safe
         bytes32 deputyGuardianModuleSlot =
             keccak256(abi.encode(addresses.getAddress("DEPUTY_GUARDIAN", chainId), uint256(1)));
+
         vm.store(
             addresses.getAddress("Guardian", chainId),
             deputyGuardianModuleSlot,
