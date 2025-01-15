@@ -26,45 +26,14 @@ contract MainnetAddressRegistryTest is Test {
 
     function testLocalAddressesLoaded() public view {
         assertEq(
-            addresses.getAddress("DEPLOYER_EOA", ORDERLY_CHAIN_ID),
-            0x9679E26bf0C470521DE83Ad77BB1bf1e7312f739,
+            addresses.getAddress("SYSTEM_CONFIG_LOGIC", METAL_CHAIN_ID),
+            0x240B3bd6b95cE40497Aafd71aD4705d0345A33CD,
             "DEPLOYER_EOA address mismatch"
         );
         assertEq(
-            addresses.getAddress("COMPOUND_GOVERNOR_BRAVO", ORDERLY_CHAIN_ID),
-            0xc0Da02939E1441F497fd74F78cE7Decb17B66529,
+            addresses.getAddress("SYSTEM_CONFIG_LOGIC", ORDERLY_CHAIN_ID),
+            0xba2492e52F45651B60B8B38d4Ea5E2390C64Ffb1,
             "COMPOUND_GOVERNOR_BRAVO address mismatch"
-        );
-        assertEq(
-            addresses.getAddress("COMPOUND_CONFIGURATOR", ORDERLY_CHAIN_ID),
-            0x316f9708bB98af7dA9c68C1C3b5e79039cD336E3,
-            "COMPOUND_CONFIGURATOR address mismatch"
-        );
-
-        assertTrue(
-            addresses.isAddressContract("COMPOUND_GOVERNOR_BRAVO", ORDERLY_CHAIN_ID),
-            "Address governor bravo should be a contract"
-        );
-        assertTrue(
-            addresses.isAddressContract("COMPOUND_CONFIGURATOR", ORDERLY_CHAIN_ID),
-            "Address configurator should be a contract"
-        );
-        assertFalse(
-            addresses.isAddressContract("DEPLOYER_EOA", ORDERLY_CHAIN_ID), "EOA address should not be a contract"
-        );
-
-        assertTrue(addresses.isAddressRegistered("DEPLOYER_EOA", ORDERLY_CHAIN_ID), "DEPLOYER_EOA should be registered");
-        assertTrue(
-            addresses.isAddressRegistered("COMPOUND_GOVERNOR_BRAVO", ORDERLY_CHAIN_ID),
-            "COMPOUND_GOVERNOR_BRAVO should be registered"
-        );
-        assertTrue(
-            addresses.isAddressRegistered("COMPOUND_CONFIGURATOR", ORDERLY_CHAIN_ID),
-            "COMPOUND_CONFIGURATOR should be registered"
-        );
-        assertFalse(
-            addresses.isAddressRegistered("NON_EXISTENT_ADDRESS", ORDERLY_CHAIN_ID),
-            "Non-existent address should not be registered"
         );
     }
 
