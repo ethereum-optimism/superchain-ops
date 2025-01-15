@@ -15,11 +15,14 @@ This task is executed by the nested 2/2 `ProxyAdminOwner` Safe. Refer to the
 [generic nested Safe execution validation document](../../../NESTED-VALIDATION.md)
 for the expected state overrides and changes.
 
+Note that the value of the `NESTED_SAFE` should match the following value: 
+- **nested hash**: `0xc94a72f6ae0da3b87a2ecb6e6ce52608c8a9d722a1b5f5f46ed9cc70a54f8a03`
+
 The `approvedHashes` mapping **key** of the `ProxyAdminOwner` that should change during the simulation is
 - Council simulation: `0xfae39fd96196a971566654dbfb0f11d7b98980213f6410051ccbf81f7481039`
 - Foundation simulation: `0x0595de264ad16565584215810251811f9e56d429c8fd67def448041126dbe920`
 
-calculated as explained in the nested validation doc:
+calculated [as explained in the nested validation doc](../../../NESTED-VALIDATION.md#key-computation):
 
 ```sh
 cast index address 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 8 # council
@@ -34,6 +37,8 @@ cast index address 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 8 # foundation
 cast index bytes32 0xc94a72f6ae0da3b87a2ecb6e6ce52608c8a9d722a1b5f5f46ed9cc70a54f8a03 0x13908ba1c0e379ab58c6445554ab471f3d4efb06e3c4cf966c4f5e918eca67bd
 # 0x0595de264ad16565584215810251811f9e56d429c8fd67def448041126dbe920
 ```
+
+
 
 ## State Changes
 
