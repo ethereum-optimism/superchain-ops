@@ -2,7 +2,6 @@ pragma solidity 0.8.15;
 
 import {SystemConfig} from "src/fps/example/ISystemConfig.sol";
 import {MultisigProposal} from "src/fps/proposal/MultisigProposal.sol";
-import {NetworkTranslator} from "src/fps/utils/NetworkTranslator.sol";
 import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
 import {BASE_CHAIN_ID, OP_CHAIN_ID, ADDRESSES_PATH} from "src/fps/utils/Constants.sol";
 
