@@ -16,9 +16,7 @@ import {
     SAFE_NONCE_SLOT,
     MODULES_FETCH_AMOUNT,
     FALLBACK_HANDLER_STORAGE_SLOT,
-    MULTICALL3_ADDRESS,
-    ETHEREUM_CHAIN_ID,
-    SEPOLIA_CHAIN_ID
+    MULTICALL3_ADDRESS
 } from "src/fps/utils/Constants.sol";
 
 abstract contract MultisigProposal is Test, Script, IProposal {
@@ -191,7 +189,7 @@ abstract contract MultisigProposal is Test, Script, IProposal {
     /// @param taskConfigFilePath Path to the task configuration file
     function setTaskConfig(string memory taskConfigFilePath) public override {
         require(
-            block.chainid == ETHEREUM_CHAIN_ID || block.chainid == SEPOLIA_CHAIN_ID,
+            block.chainid == getChain("mainnet").chainId || block.chainid == getChain("sepolia").chainId,
             string.concat("Unsupported network: ", vm.toString(block.chainid))
         );
 
