@@ -1,5 +1,20 @@
 # Overview
 
+The forge proposal simulator was created to solve the problem of testing and validating governance proposals before and after they land onchain. With support for Gnosis Safes, Timelocks and Governor Bravo this tooling can be adapted to most use cases. The simulator allows developers to write tasks that simulate the state changes that would occur onchain if the proposal were to be executed. The simulator as installed in the superchain-ops repo can be run against any mainnet, sepolia, and devnet.
+
+The goal of using FPS for the superchain ops repo is to greatly simplify task development, increase security by reducing errors, reduce sharp edges, and speed development and review of tasks. The simulation is designed to simulate task runs, with all onchain state changes being run locally.
+
+## Task Development and Templates
+
+Installing FPS allows developers to create tasks without writing any Solidity code as long as a predefined template is used. The templates are designed to be as flexible as possible, allowing developers to create tasks that update multiple parameters for a single or super chain.
+
+Existing templates include:
+- DisputeGameUpgrade - Dispute Game Implementation change
+- GasConfigTemplate - Gas Limit Configuration
+- Generic Template - Allows developers to create tasks in Solidity using FPS tooling
+
+# Task Configuration File
+
 Each task will have at least 2 config files.
 
 The first file is `taskConfig.toml` which contains the task configuration.
