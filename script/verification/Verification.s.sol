@@ -3,7 +3,7 @@ pragma solidity ^0.8.15;
 
 import {console2 as console} from "forge-std/console2.sol";
 import {LibString} from "solady/utils/LibString.sol";
-import {Types} from "@eth-optimism-bedrock/scripts/Types.sol";
+import {Types} from "@eth-optimism-bedrock/scripts/libraries/Types.sol";
 import {CommonBase} from "forge-std/Base.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 
