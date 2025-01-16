@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
 // L1 Chain Ids
@@ -28,19 +29,8 @@ uint256 constant BINARY_SEPOLIA_CHAIN_ID = 625;
 
 uint256 constant LOCAL_CHAIN_ID = 31337;
 
-string constant ADDRESSES_PATH = "src/fps/addresses";
-
 string constant SUPERCHAIN_REGISTRY_PATH = "lib/superchain-registry/superchain/extra/addresses/addresses.json";
 
 address constant MULTICALL3_ADDRESS = 0xcA11bde05977b3631167028862bE2a173976CA11;
 
-// offset for the nonce variable in Gnosis Safe
-bytes32 constant NONCE_OFFSET = 0x0000000000000000000000000000000000000000000000000000000000000005;
-
 bytes32 constant SAFE_NONCE_SLOT = bytes32(uint256(5));
-
-// the amount of modules to fetch from the Gnosis Safe
-uint256 constant MODULES_FETCH_AMOUNT = 1_000;
-
-// storage slot for the fallback handler keccak256("fallback_manager.handler.address")
-bytes32 constant FALLBACK_HANDLER_STORAGE_SLOT = 0x6c9a6c4a39284e37ed1cf53d337577d14212a4870fb976a4366c693b939918d5;

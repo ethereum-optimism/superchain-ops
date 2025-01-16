@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
 import {console} from "forge-std/console.sol";
@@ -7,20 +8,15 @@ import {Test} from "forge-std/Test.sol";
 import {LibSort} from "@solady/utils/LibSort.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-import {IProposal} from "src/fps/proposal/IProposal.sol";
-import {BytesHelper} from "src/fps/utils/BytesHelper.sol";
+import {ITask} from "src/fps/proposal/ITask.sol";
 import {IGnosisSafe, Enum} from "@eth-optimism-bedrock/scripts/interfaces/IGnosisSafe.sol";
 import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
 import {
-    NONCE_OFFSET,
     SAFE_NONCE_SLOT,
-    MODULES_FETCH_AMOUNT,
-    FALLBACK_HANDLER_STORAGE_SLOT,
     MULTICALL3_ADDRESS
 } from "src/fps/utils/Constants.sol";
 
-abstract contract MultisigProposal is Test, Script, IProposal {
-    using BytesHelper for bytes;
+abstract contract MultisigTask is Test, Script, ITask {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     /// @notice nonce used for generating the safe transaction
@@ -30,13 +26,13 @@ abstract contract MultisigProposal is Test, Script, IProposal {
     /// @notice flag to determine if the safe is nested multisig
     bool public isNestedSafe;
 
-    /// @notice flag to determine if the proposal has been initialized
+    /// @notice flag to determine if the task has been initialized
     bool public initialized;
 
     /// @notice owners the safe started with
     address[] public startingOwners;
 
-    /// @notice array of L2 ChainIds this proposal will interface with
+    /// @notice array of L2 ChainIds this task will interface with
     uint256[] public l2ChainIds;
 
     /// @notice configured chain id
@@ -84,48 +80,34 @@ abstract contract MultisigProposal is Test, Script, IProposal {
         bytes32 newValue;
     }
 
-    /// @notice Struct to store information about run flags
-    /// @param doMock Flag to determine if the proposal should be mocked
-    /// @param doBuild Flag to determine if the proposal should be built
-    /// @param doSimulate Flag to determine if the proposal should be simulated
-    /// @param doValidate Flag to determine if the proposal should be validated
-    /// @param doPrint Flag to determine if the proposal should be printed
-    struct RunFlags {
-        bool doMock;
-        bool doBuild;
-        bool doSimulate;
-        bool doValidate;
-        bool doPrint;
-    }
+    /// @notice transfers during task execution
+    mapping(address => TransferInfo[]) private _taskTransfers;
 
-    /// @notice transfers during proposal execution
-    mapping(address => TransferInfo[]) private _proposalTransfers;
-
-    /// @notice state changes during proposal execution
+    /// @notice state changes during task execution
     mapping(address => StateInfo[]) private _stateInfos;
 
     /// @notice addresses involved in state changes or token transfers
-    EnumerableSet.AddressSet private _proposalTransferFromAddresses;
+    EnumerableSet.AddressSet private _taskTransferFromAddresses;
 
-    /// @notice addresses whose state is updated in proposal execution
-    EnumerableSet.AddressSet internal _proposalStateChangeAddresses;
+    /// @notice addresses whose state is updated in task execution
+    EnumerableSet.AddressSet internal _taskStateChangeAddresses;
 
-    /// @notice stores the gnosis safe accesses for the proposal
+    /// @notice stores the gnosis safe accesses for the task
     VmSafe.StorageAccess[] internal _accountAccesses;
 
     /// @notice starting snapshot of the contract state before the calls are made
     uint256 private _startSnapshot;
 
-    /// @notice list of actions to be executed, regardless of proposal type
+    /// @notice list of actions to be executed, regardless of task type
     /// they all follow the same structure
     Action[] public actions;
 
-    /// @notice proposal name, e.g. "OIP15".
-    /// @dev set in the proposal config file
+    /// @notice task name, e.g. "OIP15".
+    /// @dev set in the task config file
     string public override name;
 
-    /// @notice proposal description.
-    /// @dev set in the proposal config file
+    /// @notice task description.
+    /// @dev set in the task config file
     string public override description;
 
     /// @notice Multicall3 call data struct
@@ -151,7 +133,7 @@ abstract contract MultisigProposal is Test, Script, IProposal {
     /// @notice configuration set at initialization
     TaskConfig public config;
 
-    /// @notice flag to determine if the proposal is being simulated
+    /// @notice flag to determine if the task is being simulated
     bool private _buildStarted;
 
     /// @notice buildModifier to be used by the build function to populate the
@@ -169,7 +151,7 @@ abstract contract MultisigProposal is Test, Script, IProposal {
         _buildStarted = false;
     }
 
-    /// @notice Initialize the proposal with task and network configuration
+    /// @notice Initialize the task with task and network configuration
     /// @param taskConfigFilePath Path to the task configuration file
     /// @param networkConfigFilePath Path to the network configuration file
     /// @param _addresses Address registry contract
@@ -178,7 +160,7 @@ abstract contract MultisigProposal is Test, Script, IProposal {
     {
         require(
             !initialized && bytes(config.safeAddressString).length == 0 && address(addresses) == address(0x0),
-            "MultisigProposal: already initialized"
+            "MultisigTask: already initialized"
         );
         setTaskConfig(taskConfigFilePath);
         setL2NetworksConfig(networkConfigFilePath, _addresses);
@@ -214,7 +196,7 @@ abstract contract MultisigProposal is Test, Script, IProposal {
 
         /// get chains
         Addresses.ChainInfo[] memory chains = addresses.getChains();
-        require(chains.length > 0, "MultisigProposal: no chains found");
+        require(chains.length > 0, "MultisigTask: no chains found");
 
         /// check that the safe address is the same for all chains and then set safe in storage
         multisig = addresses.getAddress(config.safeAddressString, chains[0].chainId);
@@ -223,7 +205,7 @@ abstract contract MultisigProposal is Test, Script, IProposal {
             require(
                 multisig == addresses.getAddress(config.safeAddressString, chains[i].chainId),
                 string.concat(
-                    "MultisigProposal: safe address mismatch. Caller: ",
+                    "MultisigTask: safe address mismatch. Caller: ",
                     vm.getLabel(multisig),
                     ". Actual address: ",
                     vm.getLabel(addresses.getAddress(config.safeAddressString, chains[i].chainId))
@@ -235,6 +217,11 @@ abstract contract MultisigProposal is Test, Script, IProposal {
         IGnosisSafe safe = IGnosisSafe(multisig);
         startingOwners = safe.getOwners();
 
+        /// this loads the allowed storage write accesses to storage for this task
+        /// if this task changes storage slots outside of the allowed write accesses,
+        /// then the task will fail at runtime and the task developer will need to
+        /// update the config to include the addresses whose storage slots changed,
+        /// or figure out why the storage slots are being changed when they should not be.
         for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
             for (uint256 j = 0; j < chains.length; j++) {
                 _allowedStorageAccesses.add(
@@ -247,7 +234,7 @@ abstract contract MultisigProposal is Test, Script, IProposal {
     /// @notice function to be used by forge script.
     /// @dev use flags to determine which actions to take
     ///      this function shoudn't be overriden.
-    function _processProposal() internal override {
+    function _processTask() internal override {
         mock();
         build();
         simulate();
@@ -256,9 +243,11 @@ abstract contract MultisigProposal is Test, Script, IProposal {
     }
 
     /// @notice get the calldata to be executed by safe
+    /// @dev callable only after the build function has been run and the
+    /// calldata has been loaded up to storage
     /// @return data The calldata to be executed
     function getCalldata() public view override returns (bytes memory data) {
-        /// get proposal actions
+        /// get task actions
         (address[] memory targets, uint256[] memory values, bytes[] memory arguments) = getProposalActions();
 
         /// create calls array with targets and arguments
@@ -303,7 +292,7 @@ abstract contract MultisigProposal is Test, Script, IProposal {
         });
     }
 
-    /// @notice simulate the proposal by approving from owners and then executing
+    /// @notice simulate the task by approving from owners and then executing
     function simulate() public override {
         bytes memory data = getCalldata();
         bytes32 hash = keccak256(_getDataToSign(multisig, data));
@@ -321,7 +310,7 @@ abstract contract MultisigProposal is Test, Script, IProposal {
             MULTICALL3_ADDRESS, 0, data, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), nonce
         );
 
-        require(hash == txHash, "MultisigProposal: hash mismatch");
+        require(hash == txHash, "MultisigTask: hash mismatch");
 
         // Execute the transaction
         (bool success) = IGnosisSafe(multisig).execTransaction(
@@ -337,7 +326,7 @@ abstract contract MultisigProposal is Test, Script, IProposal {
             signatures
         );
 
-        require(success, "MultisigProposal: simulateActions failed");
+        require(success, "MultisigTask: simulateActions failed");
     }
 
     /// @notice returns the allowed storage accesses
@@ -346,38 +335,38 @@ abstract contract MultisigProposal is Test, Script, IProposal {
         return _allowedStorageAccesses.values();
     }
 
-    /// @notice execute post-proposal checks.
+    /// @notice execute post-task checks.
     ///          e.g. read state variables of the deployed contracts to make
     ///          sure they are deployed and initialized correctly, or read
     ///          states that are expected to have changed during the simulate step.
     function validate() public view override {
         /// check that all state change addresses are in allowed storage accesses
-        for (uint256 i; i < _proposalStateChangeAddresses.length(); i++) {
-            address addr = _proposalStateChangeAddresses.at(i);
+        for (uint256 i; i < _taskStateChangeAddresses.length(); i++) {
+            address addr = _taskStateChangeAddresses.at(i);
             require(
                 _allowedStorageAccesses.contains(addr),
                 string(
                     abi.encodePacked(
-                        "MultisigProposal: address ", _getAddressLabel(addr), " not in allowed storage accesses"
+                        "MultisigTask: address ", _getAddressLabel(addr), " not in allowed storage accesses"
                     )
                 )
             );
         }
 
-        /// check that all allowed storage accesses are in proposal state change addresses
+        /// check that all allowed storage accesses are in task state change addresses
         for (uint256 i; i < _allowedStorageAccesses.length(); i++) {
             address addr = _allowedStorageAccesses.at(i);
             require(
-                _proposalStateChangeAddresses.contains(addr),
+                _taskStateChangeAddresses.contains(addr),
                 string(
                     abi.encodePacked(
-                        "MultisigProposal: address ", _getAddressLabel(addr), " not in proposal state change addresses"
+                        "MultisigTask: address ", _getAddressLabel(addr), " not in task state change addresses"
                     )
                 )
             );
         }
 
-        require(IGnosisSafe(multisig).nonce() == nonce + 1, "MultisigProposal: nonce not incremented");
+        require(IGnosisSafe(multisig).nonce() == nonce + 1, "MultisigTask: nonce not incremented");
 
         Addresses.ChainInfo[] memory chains = addresses.getChains();
 
@@ -386,12 +375,12 @@ abstract contract MultisigProposal is Test, Script, IProposal {
         }
     }
 
-    /// @notice proposal specific validations
-    /// @dev override to add additional proposal specific validations
+    /// @notice task specific validations
+    /// @dev override to add additional task specific validations
     /// @param chainId The l2chainId
     function _validate(uint256 chainId) internal view virtual;
 
-    /// @notice get proposal actions
+    /// @notice get task actions
     /// @return targets The targets of the actions
     /// @return values The values of the actions
     /// @return arguments The arguments of the actions
@@ -409,11 +398,11 @@ abstract contract MultisigProposal is Test, Script, IProposal {
         arguments = new bytes[](actionsLength);
 
         for (uint256 i; i < actionsLength; i++) {
-            require(actions[i].target != address(0), "Invalid target for proposal");
+            require(actions[i].target != address(0), "Invalid target for task");
             /// if there are no args and no eth, the action is not valid
             require(
                 (actions[i].arguments.length == 0 && actions[i].value > 0) || actions[i].arguments.length > 0,
-                "Invalid arguments for proposal"
+                "Invalid arguments for task"
             );
             targets[i] = actions[i].target;
             arguments[i] = actions[i].arguments;
@@ -440,11 +429,11 @@ abstract contract MultisigProposal is Test, Script, IProposal {
         }
     }
 
-    /// @notice mock state to help build the proposal actions for a given l2chain
-    /// @dev override to add additional proposal specific mocks
+    /// @notice mock state to help build the task actions for a given l2chain
+    /// @dev override to add additional task specific mocks
     function _mock(uint256 chainId) internal virtual {}
 
-    /// @notice build the proposal actions for all l2chains in the task
+    /// @notice build the task actions for all l2chains in the task
     /// @dev contract calls must be perfomed in plain solidity.
     ///      overriden requires using buildModifier modifier to leverage
     ///      foundry snapshot and state diff recording to populate the actions array.
@@ -456,11 +445,11 @@ abstract contract MultisigProposal is Test, Script, IProposal {
         }
     }
 
-    /// @notice build the proposal actions for a given l2chain
-    /// @dev override to add additional proposal specific build logic
+    /// @notice build the task actions for a given l2chain
+    /// @dev override to add additional task specific build logic
     function _build(uint256 chainId) internal virtual;
 
-    /// @notice print proposal description, actions, transfers, state changes and EOAs datas to sign
+    /// @notice print task description, actions, transfers, state changes and EOAs datas to sign
     function print() public virtual override {
         console.log("\n---------------- Proposal Description ----------------");
         console.log(description);
@@ -474,16 +463,16 @@ abstract contract MultisigProposal is Test, Script, IProposal {
         }
 
         console.log("\n----------------- Proposal Transfers -------------------");
-        if (_proposalTransferFromAddresses.length() == 0) {
+        if (_taskTransferFromAddresses.length() == 0) {
             console.log("\nNo Transfers\n");
         }
-        for (uint256 i; i < _proposalTransferFromAddresses.length(); i++) {
-            address account = _proposalTransferFromAddresses.at(i);
+        for (uint256 i; i < _taskTransferFromAddresses.length(); i++) {
+            address account = _taskTransferFromAddresses.at(i);
 
             console.log("\n\n", string(abi.encodePacked(_getAddressLabel(account), ":")));
 
             // print token transfers
-            TransferInfo[] memory transfers = _proposalTransfers[account];
+            TransferInfo[] memory transfers = _taskTransfers[account];
             if (transfers.length > 0) {
                 console.log("\n Transfers:");
             }
@@ -515,8 +504,8 @@ abstract contract MultisigProposal is Test, Script, IProposal {
 
         console.log("\n----------------- Proposal State Changes -------------------");
         // print state changes
-        for (uint256 k; k < _proposalStateChangeAddresses.length(); k++) {
-            address account = _proposalStateChangeAddresses.at(k);
+        for (uint256 k; k < _taskStateChangeAddresses.length(); k++) {
+            address account = _taskStateChangeAddresses.at(k);
             StateInfo[] memory stateChanges = _stateInfos[account];
             if (stateChanges.length > 0) {
                 console.log("\n State Changes for account:", _getAddressLabel(account));
@@ -668,11 +657,12 @@ abstract contract MultisigProposal is Test, Script, IProposal {
     /// --------------------------------------------------------------------
     /// --------------------------------------------------------------------
 
-    /// @notice to be used by the build function to create a governance proposal
-    /// kick off the process of creating a governance proposal by:
-    ///  1). taking a snapshot of the current state of the contract
-    ///  2). starting prank as the multisig
-    ///  3). starting a recording of all calls created during the proposal
+    /// @notice to be used by the build function to capture the state changes applied by a given task.
+    /// These state changes will inform whether or not the task will be executed onchain.
+    /// steps:
+    ///  1). take a snapshot of the current state of the contract
+    ///  2). start prank as the multisig
+    ///  3). start a recording of all calls created during the task
     function _startBuild() private {
         vm.startPrank(multisig);
 
@@ -682,16 +672,16 @@ abstract contract MultisigProposal is Test, Script, IProposal {
     }
 
     /// @notice to be used at the end of the build function to snapshot
-    /// the actions performed by the proposal and revert these changes
+    /// the actions performed by the task and revert these changes
     /// then, stop the prank and record the state diffs and actions that
-    /// were taken by the proposal.
+    /// were taken by the task.
     function _endBuild() private {
         VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
 
         vm.stopPrank();
 
-        /// roll back all state changes made during the governance proposal
-        require(vm.revertTo(_startSnapshot), "failed to revert back to snapshot, unsafe state to run proposal");
+        /// roll back all state changes made during the task
+        require(vm.revertTo(_startSnapshot), "failed to revert back to snapshot, unsafe state to run task");
 
         _processStateDiffChanges(accountAccesses);
 
@@ -737,7 +727,7 @@ abstract contract MultisigProposal is Test, Script, IProposal {
         }
     }
 
-    /// @notice helper method to get transfers and state changes of proposal affected addresses
+    /// @notice helper method to get transfers and state changes of task affected addresses
     function _processStateDiffChanges(VmSafe.AccountAccess[] memory accountAccesses) internal {
         for (uint256 i = 0; i < accountAccesses.length; i++) {
             // process ETH transfer changes
@@ -751,22 +741,22 @@ abstract contract MultisigProposal is Test, Script, IProposal {
         }
     }
 
-    /// @notice helper method to get eth transfers of proposal affected addresses
+    /// @notice helper method to get eth transfers of task affected addresses
     function _processETHTransferChanges(VmSafe.AccountAccess memory accountAccess) internal {
         address account = accountAccess.account;
         // get eth transfers
         if (accountAccess.value != 0) {
-            // add address to proposal transfer from addresses array only if not already added
-            if (!_proposalTransferFromAddresses.contains(accountAccess.accessor)) {
-                _proposalTransferFromAddresses.add(accountAccess.accessor);
+            // add address to task transfer from addresses array only if not already added
+            if (!_taskTransferFromAddresses.contains(accountAccess.accessor)) {
+                _taskTransferFromAddresses.add(accountAccess.accessor);
             }
-            _proposalTransfers[accountAccess.accessor].push(
+            _taskTransfers[accountAccess.accessor].push(
                 TransferInfo({to: account, value: accountAccess.value, tokenAddress: address(0)})
             );
         }
     }
 
-    /// @notice helper method to get ERC20 token transfers of proposal affected addresses
+    /// @notice helper method to get ERC20 token transfers of task affected addresses
     function _processERC20TransferChanges(VmSafe.AccountAccess memory accountAccess) internal {
         bytes memory data = accountAccess.data;
         if (data.length <= 4) {
@@ -797,15 +787,15 @@ abstract contract MultisigProposal is Test, Script, IProposal {
             return;
         }
 
-        // add address to proposal transfer from addresses array only if not already added
-        if (!_proposalTransferFromAddresses.contains(from)) {
-            _proposalTransferFromAddresses.add(from);
+        // add address to task transfer from addresses array only if not already added
+        if (!_taskTransferFromAddresses.contains(from)) {
+            _taskTransferFromAddresses.add(from);
         }
 
-        _proposalTransfers[from].push(TransferInfo({to: to, value: value, tokenAddress: accountAccess.account}));
+        _taskTransfers[from].push(TransferInfo({to: to, value: value, tokenAddress: accountAccess.account}));
     }
 
-    /// @notice helper method to get state changes of proposal affected addresses
+    /// @notice helper method to get state changes of task affected addresses
     function _processStateChanges(VmSafe.StorageAccess[] memory storageAccess) internal {
         for (uint256 i; i < storageAccess.length; i++) {
             address account = storageAccess[i].account;
@@ -821,9 +811,9 @@ abstract contract MultisigProposal is Test, Script, IProposal {
                 );
             }
 
-            // add address to proposal state change addresses array only if not already added
-            if (!_proposalStateChangeAddresses.contains(account) && _stateInfos[account].length != 0) {
-                _proposalStateChangeAddresses.add(account);
+            // add address to task state change addresses array only if not already added
+            if (!_taskStateChangeAddresses.contains(account) && _stateInfos[account].length != 0) {
+                _taskStateChangeAddresses.add(account);
             }
         }
     }
