@@ -6,7 +6,6 @@ import {Test} from "forge-std/Test.sol";
 
 import {IAddressRegistry} from "src/fps/IAddressRegistry.sol";
 import {SUPERCHAIN_REGISTRY_PATH} from "src/fps/utils/Constants.sol";
-import {ETHEREUM_CHAIN_ID, SEPOLIA_CHAIN_ID} from "src/fps/utils/Constants.sol";
 
 /// @title Network Address Manager
 /// @notice This contract provides a single source of truth for storing and retrieving addresses across multiple networks.
@@ -34,7 +33,7 @@ contract AddressRegistry is IAddressRegistry, Test {
     }
 
     /// @dev Structure for reading chain list details from toml file
-    struct Superchain {
+    struct ChainInfo {
         uint256 chainId;
         string name;
     }
@@ -46,32 +45,32 @@ contract AddressRegistry is IAddressRegistry, Test {
     /// @notice Supported L2 chain IDs for this Address Registry instance.
     mapping(uint256 => bool) public supportedL2ChainIds;
 
-    /// @notice Array of supported superchains and their configurations
-    Superchain[] public superchains;
+    /// @notice Array of supported chains and their configurations
+    ChainInfo[] public chains;
 
     /// @notice Initializes the contract by loading addresses from TOML files
     /// and configuring the supported L2 chains.
     /// @param addressFolderPath The path to the folder containing chain-specific TOML address files
     /// @param networkConfigFilePath the path to the TOML file containing the network configuration(s)
     constructor(string memory addressFolderPath, string memory networkConfigFilePath) {
-        require(block.chainid == ETHEREUM_CHAIN_ID || block.chainid == SEPOLIA_CHAIN_ID, "Unsupported network");
+        require(block.chainid == getChain("mainnet").chainId || block.chainid == getChain("sepolia").chainId, "Unsupported network");
 
-        bytes memory superchainListContent = vm.parseToml(vm.readFile(networkConfigFilePath), ".l2chains");
-        superchains = abi.decode(superchainListContent, (Superchain[]));
+        bytes memory chainListContent = vm.parseToml(vm.readFile(networkConfigFilePath), ".l2chains");
+        chains = abi.decode(chainListContent, (ChainInfo[]));
 
-        string memory superchainAddressesContent = vm.readFile(SUPERCHAIN_REGISTRY_PATH);
+        string memory chainAddressesContent = vm.readFile(SUPERCHAIN_REGISTRY_PATH);
 
-        for (uint256 i = 0; i < superchains.length; i++) {
-            uint256 superchainId = superchains[i].chainId;
-            string memory superchainName = superchains[i].name;
-            require(!supportedL2ChainIds[superchainId], "Duplicate chain ID in superchain config");
-            require(superchainId != 0, "Invalid chain ID in superchain config");
-            require(bytes(superchainName).length > 0, "Empty name in superchain config");
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            string memory chainName = chains[i].name;
+            require(!supportedL2ChainIds[chainId], "Duplicate chain ID in chain config");
+            require(chainId != 0, "Invalid chain ID in config");
+            require(bytes(chainName).length > 0, "Empty name in config");
 
-            supportedL2ChainIds[superchainId] = true;
+            supportedL2ChainIds[chainId] = true;
 
             string memory filePath =
-                string(abi.encodePacked(addressFolderPath, "/", vm.toString(superchainId), ".toml"));
+                string(abi.encodePacked(addressFolderPath, "/", vm.toString(chainId), ".toml"));
             bytes memory fileContent = vm.parseToml(vm.readFile(filePath), ".addresses");
 
             InputAddress[] memory parsedAddresses = abi.decode(fileContent, (InputAddress[]));
@@ -83,36 +82,36 @@ contract AddressRegistry is IAddressRegistry, Test {
 
                 require(contractAddress != address(0), "Invalid address: cannot be zero");
                 require(
-                    registry[identifier][superchainId].addr == address(0),
+                    registry[identifier][chainId].addr == address(0),
                     "Address already registered with this identifier and chain ID"
                 );
 
                 _typeCheckAddress(contractAddress, isContract);
 
-                registry[identifier][superchainId] = RegistryEntry(contractAddress, isContract);
+                registry[identifier][chainId] = RegistryEntry(contractAddress, isContract);
                 string memory prefixedIdentifier =
-                    string(abi.encodePacked(vm.replace(vm.toUppercase(superchainName), " ", "_"), "_", identifier));
+                    string(abi.encodePacked(vm.replace(vm.toUppercase(chainName), " ", "_"), "_", identifier));
                 vm.label(contractAddress, prefixedIdentifier); // Add label for debugging purposes
             }
 
             string[] memory keys =
-                vm.parseJsonKeys(superchainAddressesContent, string.concat("$.", vm.toString(superchainId)));
+                vm.parseJsonKeys(chainAddressesContent, string.concat("$.", vm.toString(chainId)));
 
             for (uint256 j = 0; j < keys.length; j++) {
                 string memory key = keys[j];
                 address addr = vm.parseJsonAddress(
-                    superchainAddressesContent, string.concat("$.", vm.toString(superchainId), ".", key)
+                    chainAddressesContent, string.concat("$.", vm.toString(chainId), ".", key)
                 );
 
                 require(addr != address(0), "Invalid address: cannot be zero");
                 require(
-                    registry[key][superchainId].addr == address(0),
+                    registry[key][chainId].addr == address(0),
                     "Address already registered with this identifier and chain ID"
                 );
 
-                registry[key][superchainId] = RegistryEntry(addr, addr.code.length > 0);
+                registry[key][chainId] = RegistryEntry(addr, addr.code.length > 0);
                 string memory prefixedIdentifier =
-                    string(abi.encodePacked(vm.replace(vm.toUppercase(superchainName), " ", "_"), "_", key));
+                    string(abi.encodePacked(vm.replace(vm.toUppercase(chainName), " ", "_"), "_", key));
                 vm.label(addr, prefixedIdentifier);
             }
         }
@@ -166,10 +165,10 @@ contract AddressRegistry is IAddressRegistry, Test {
         );
     }
 
-    /// @notice Returns the list of supported superchains
-    /// @return An array of Superchain structs representing the supported superchains
-    function getSuperchains() public view returns (Superchain[] memory) {
-        return superchains;
+    /// @notice Returns the list of supported chains
+    /// @return An array of ChainInfo structs representing the supported chains
+    function getChains() public view returns (ChainInfo[] memory) {
+        return chains;
     }
 
     /// @notice Verifies that the given L2 chain ID is supported
