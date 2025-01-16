@@ -15,7 +15,7 @@ abstract contract IProposal {
     /// @notice function to process the proposal to be called from templates.
     /// @dev use flags to determine which actions to take
     ///      this function shoudn't be overriden.
-    function processProposal() internal virtual;
+    function _processProposal() internal virtual;
 
     /// @notice return proposal actions.
     /// @dev this function shoudn't be overriden.
