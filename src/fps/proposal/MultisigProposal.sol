@@ -38,64 +38,21 @@ abstract contract MultisigProposal is Test, Script, IProposal {
     /// @notice owners the safe started with
     address[] public startingOwners;
 
-    /// @notice starting safe threshold
-    uint256 public startingThreshold;
-
-    /// @notice starting modules
-    address[] public startingModules;
-
-    /// @notice starting fallback handler
-    address public startingFallbackHandler;
-
-    /// @notice starting logic contract
-    string public startingImplementationVersion;
-
-    /// @notice whether or not storage besides owners and nonce is allowed to
-    /// be modified with this proposal
-    bool public safeConfigChangeAllowed;
-
-    /// @notice whether or not owners are allowed to be modified with this proposal
-    bool public safeOwnersChangeAllowed;
-
     /// @notice array of L2 ChainIds this proposal will interface with
-    /// TODO populate this in constructor, reading in toml config file
     uint256[] public l2ChainIds;
 
     /// @notice configured chain id
     uint256 public configChainId;
 
-    /// @notice flag to initiate pre-build mocking processes, default is true
-    bool internal DO_MOCK;
-
-    /// @notice flag to transform plain solidity code into calldata encoded for the
-    /// user's governance model, default is true
-    bool internal DO_BUILD;
-
-    /// @notice flag to simulate saved actions during the `build` step, default is true
-    bool internal DO_SIMULATE;
-
-    /// @notice flag to validate the system state post-proposal simulation, default is true
-    bool internal DO_VALIDATE;
-
-    /// @notice flag to print proposal description, actions, and calldata, default is true
-    bool internal DO_PRINT;
-
     /// @notice Addresses contract
     Addresses public addresses;
 
-    /// @notice primary fork id
-    uint256 public primaryForkId;
+    /// @notice The address of the multisig for this task
+    address public multisig;
 
-    /// @notice The address of the caller for the proposal
-    /// is set in the multisig proposal constructor
-    address public caller;
-
-    /// @notice struct to store allowed storage accesses
+    /// @notice struct to store allowed storage accesses read in from config file
     /// uses OpenZeppelin EnumerableSet for allowed storage accesses
     EnumerableSet.AddressSet private _allowedStorageAccesses;
-
-    /// addresses that are allowed to be the receivers of delegate calls
-    mapping(address => bool) private _allowedDelegateCalls;
 
     /// @notice Struct to store information about an action
     /// @param target The address of the target contract
@@ -188,12 +145,9 @@ abstract contract MultisigProposal is Test, Script, IProposal {
     /// @notice Task TOML config file values
     struct TaskConfig {
         string[] allowedStorageWriteAccesses;
-        string[] authorizedDelegateCalls;
         string description;
         string name;
         string safeAddressString;
-        bool safeConfigChange;
-        bool safeOwnersChange;
     }
 
     /// @notice configuration set at initialization
@@ -205,11 +159,7 @@ abstract contract MultisigProposal is Test, Script, IProposal {
     /// @notice buildModifier to be used by the build function to populate the
     /// actions array
     modifier buildModifier() {
-        require(caller != address(0), "Must set addresses object for multisig address to be set");
-
-        if (DO_SIMULATE || DO_PRINT) {
-            require(DO_BUILD, "Cannot simulate/print without first building");
-        }
+        require(multisig != address(0), "Must set addresses object for multisig address to be set");
 
         require(!_buildStarted, "Build already started");
         _buildStarted = true;
@@ -246,18 +196,9 @@ abstract contract MultisigProposal is Test, Script, IProposal {
         );
 
         string memory taskConfigFileContents = vm.readFile(taskConfigFilePath);
-        RunFlags memory runFlags = abi.decode(vm.parseToml(taskConfigFileContents, ".runFlags"), (RunFlags));
-        DO_MOCK = runFlags.doMock;
-        DO_BUILD = runFlags.doBuild;
-        DO_SIMULATE = runFlags.doSimulate;
-        DO_VALIDATE = runFlags.doValidate;
-        DO_PRINT = runFlags.doPrint;
 
         bytes memory fileContents = vm.parseToml(taskConfigFileContents, ".task");
         config = abi.decode(fileContents, (TaskConfig));
-
-        safeConfigChangeAllowed = config.safeConfigChange;
-        safeOwnersChangeAllowed = config.safeOwnersChange;
 
         name = config.name;
         description = config.description;
@@ -278,27 +219,23 @@ abstract contract MultisigProposal is Test, Script, IProposal {
         require(chains.length > 0, "MultisigProposal: no chains found");
 
         /// check that the safe address is the same for all chains and then set safe in storage
-        caller = addresses.getAddress(config.safeAddressString, chains[0].chainId);
+        multisig = addresses.getAddress(config.safeAddressString, chains[0].chainId);
 
         for (uint256 i = 1; i < chains.length; i++) {
             require(
-                caller == addresses.getAddress(config.safeAddressString, chains[i].chainId),
+                multisig == addresses.getAddress(config.safeAddressString, chains[i].chainId),
                 string.concat(
                     "MultisigProposal: safe address mismatch. Caller: ",
-                    vm.getLabel(caller),
+                    vm.getLabel(multisig),
                     ". Actual address: ",
                     vm.getLabel(addresses.getAddress(config.safeAddressString, chains[i].chainId))
                 )
             );
         }
 
-        /// Fetch starting owners, threshold, modules, fallback handler, and logic contract from the Gnosis Safe
-        IGnosisSafe safe = IGnosisSafe(caller);
+        /// Fetch starting owners
+        IGnosisSafe safe = IGnosisSafe(multisig);
         startingOwners = safe.getOwners();
-        startingThreshold = safe.getThreshold();
-        (startingModules,) = safe.getModulesPaginated(address(0x1), MODULES_FETCH_AMOUNT);
-        startingFallbackHandler = address(uint160(uint256(vm.load(caller, FALLBACK_HANDLER_STORAGE_SLOT))));
-        startingImplementationVersion = safe.VERSION();
 
         for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
             for (uint256 j = 0; j < chains.length; j++) {
@@ -307,23 +244,17 @@ abstract contract MultisigProposal is Test, Script, IProposal {
                 );
             }
         }
-
-        for (uint256 i = 0; i < config.authorizedDelegateCalls.length; i++) {
-            for (uint256 j = 0; j < chains.length; j++) {
-                _allowedDelegateCalls[addresses.getAddress(config.authorizedDelegateCalls[i], chains[j].chainId)] = true;
-            }
-        }
     }
 
     /// @notice function to be used by forge script.
     /// @dev use flags to determine which actions to take
     ///      this function shoudn't be overriden.
-    function processProposal() internal override {
-        if (DO_MOCK) mock();
-        if (DO_BUILD) build();
-        if (DO_SIMULATE) simulate();
-        if (DO_VALIDATE) validate();
-        if (DO_PRINT) print();
+    function _processProposal() internal override {
+        mock();
+        build();
+        simulate();
+        validate();
+        print();
     }
 
     /// @notice get the calldata to be executed by safe
@@ -346,12 +277,12 @@ abstract contract MultisigProposal is Test, Script, IProposal {
 
     /// @notice print the data to sig by EOA for single multisig
     function printDataToSign() public view {
-        console.logBytes(_getDataToSign(caller, getCalldata()));
+        console.logBytes(_getDataToSign(multisig, getCalldata()));
     }
 
     /// @notice print the hash to approve by EOA for single multisig
     function printHashToApprove() public view {
-        bytes32 hash = keccak256(_getDataToSign(caller, getCalldata()));
+        bytes32 hash = keccak256(_getDataToSign(multisig, getCalldata()));
         console.logBytes32(hash);
     }
 
@@ -376,8 +307,6 @@ abstract contract MultisigProposal is Test, Script, IProposal {
 
     /// @notice simulate the proposal by approving from owners and then executing
     function simulate() public override {
-        address multisig = caller;
-
         bytes memory data = getCalldata();
         bytes32 hash = keccak256(_getDataToSign(multisig, data));
 
@@ -450,32 +379,7 @@ abstract contract MultisigProposal is Test, Script, IProposal {
             );
         }
 
-        if (!safeOwnersChangeAllowed) {
-            address[] memory owners = IGnosisSafe(caller).getOwners();
-            for (uint256 i = 0; i < owners.length; i++) {
-                require(owners[i] == startingOwners[i], "MultisigProposal: owner mismatch");
-            }
-        }
-
-        if (!safeConfigChangeAllowed) {
-            uint256 threshold = IGnosisSafe(caller).getThreshold();
-            (address[] memory modules,) = IGnosisSafe(caller).getModulesPaginated(address(0x1), MODULES_FETCH_AMOUNT);
-            address fallbackHandler = address(uint160(uint256(vm.load(caller, FALLBACK_HANDLER_STORAGE_SLOT))));
-            string memory version = IGnosisSafe(caller).VERSION();
-
-            require(
-                keccak256(abi.encodePacked(version)) == keccak256(abi.encodePacked(startingImplementationVersion)),
-                "MultisigProposal: multisig contract upgraded"
-            );
-            require(threshold == startingThreshold, "MultisigProposal: threshold changed");
-            require(fallbackHandler == startingFallbackHandler, "MultisigProposal: fallback handler changed");
-
-            for (uint256 i = 0; i < modules.length; i++) {
-                require(modules[i] == startingModules[i], "MultisigProposal: module changed");
-            }
-        }
-
-        require(IGnosisSafe(caller).nonce() == nonce + 1, "MultisigProposal: nonce not incremented");
+        require(IGnosisSafe(multisig).nonce() == nonce + 1, "MultisigProposal: nonce not incremented");
 
         Addresses.ChainInfo[] memory chains = addresses.getChains();
 
@@ -529,7 +433,7 @@ abstract contract MultisigProposal is Test, Script, IProposal {
     ///         e.g. pranking, etching, etc. Sets nonce to the task nonce by default
     /// @dev override to add additional mock logic
     function mock() public virtual override {
-        vm.store(caller, SAFE_NONCE_SLOT, bytes32(nonce));
+        vm.store(multisig, SAFE_NONCE_SLOT, bytes32(nonce));
 
         Addresses.ChainInfo[] memory chains = addresses.getChains();
 
@@ -676,18 +580,13 @@ abstract contract MultisigProposal is Test, Script, IProposal {
     function _validateAction(address target, uint256 value, bytes memory data) internal virtual {
         uint256 actionsLength = actions.length;
         for (uint256 i = 0; i < actionsLength; i++) {
-            // Check if the target, arguments and value matches with other exciting actions.
+            // Check if the target, arguments and value matches with other existing actions.
             bool isDuplicateTarget = actions[i].target == target;
             bool isDuplicateArguments = keccak256(actions[i].arguments) == keccak256(data);
             bool isDuplicateValue = actions[i].value == value;
 
             require(!(isDuplicateTarget && isDuplicateArguments && isDuplicateValue), "Duplicated action found");
         }
-    }
-
-    /// @notice validate actions
-    function _validateActions() internal virtual {
-        /// TODO implement checks for order of calls to validate different templatized operations
     }
 
     /// @notice print the calldata to be executed by safe
@@ -698,12 +597,12 @@ abstract contract MultisigProposal is Test, Script, IProposal {
 
     /// @notice helper function to generate the approveHash calldata to be executed by child multisig owner on parent multisig
     function _generateApproveMulticallData() internal view returns (bytes memory) {
-        bytes32 hash = keccak256(_getDataToSign(caller, getCalldata()));
+        bytes32 hash = keccak256(_getDataToSign(multisig, getCalldata()));
         Call3Value memory call = Call3Value({
-            target: caller,
+            target: multisig,
             allowFailure: false,
             value: 0,
-            callData: abi.encodeCall(IGnosisSafe(caller).approveHash, (hash))
+            callData: abi.encodeCall(IGnosisSafe(multisig).approveHash, (hash))
         });
 
         Call3Value[] memory calls = new Call3Value[](1);
@@ -774,10 +673,10 @@ abstract contract MultisigProposal is Test, Script, IProposal {
     /// @notice to be used by the build function to create a governance proposal
     /// kick off the process of creating a governance proposal by:
     ///  1). taking a snapshot of the current state of the contract
-    ///  2). starting prank as the caller
-    ///  3). starting a $recording of all calls created during the proposal
+    ///  2). starting prank as the multisig
+    ///  3). starting a recording of all calls created during the proposal
     function _startBuild() private {
-        vm.startPrank(caller);
+        vm.startPrank(multisig);
 
         _startSnapshot = vm.snapshot();
 
@@ -801,29 +700,21 @@ abstract contract MultisigProposal is Test, Script, IProposal {
         for (uint256 i = 0; i < accountAccesses.length; i++) {
             /// store all gnosis safe storage accesses that are writes
             for (uint256 j = 0; j < accountAccesses[i].storageAccesses.length; j++) {
-                if (accountAccesses[i].account == caller && accountAccesses[i].storageAccesses[j].isWrite) {
+                if (accountAccesses[i].account == multisig && accountAccesses[i].storageAccesses[j].isWrite) {
                     _accountAccesses.push(accountAccesses[i].storageAccesses[j]);
                 }
             }
 
-            if (accountAccesses[i].kind == VmSafe.AccountAccessKind.DelegateCall) {
-                require(
-                    _allowedDelegateCalls[accountAccesses[i].account],
-                    string.concat("Unauthorized DelegateCall to address ", vm.getLabel(accountAccesses[i].account))
-                );
-            }
-
-            /// only care about calls from the original caller,
+            /// only care about top level calls from the multisig,
             /// static calls are ignored,
             /// calls to and from Addresses and the vm contract are ignored
             /// ignore calls to vm in the build function
-            /// TODO should we remove this condition? it may filter out calls that we need
             if (
                 accountAccesses[i].account != address(addresses) && accountAccesses[i].account != address(vm)
                     && accountAccesses[i].accessor != address(addresses)
-                    && accountAccesses[i].kind == VmSafe.AccountAccessKind.Call && accountAccesses[i].accessor == caller
+                    && accountAccesses[i].kind == VmSafe.AccountAccessKind.Call && accountAccesses[i].accessor == multisig
             ) {
-                /// caller is correct, not a subcall
+                /// caller is multisig, not a subcall, check that this action is not duplicated
                 _validateAction(accountAccesses[i].account, accountAccesses[i].value, accountAccesses[i].data);
 
                 actions.push(
@@ -846,8 +737,6 @@ abstract contract MultisigProposal is Test, Script, IProposal {
                 );
             }
         }
-
-        _validateActions();
     }
 
     /// @notice helper method to get transfers and state changes of proposal affected addresses
