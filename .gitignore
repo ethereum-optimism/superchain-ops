@@ -24,5 +24,3 @@ cache/
 tmp-*.json
 draft*signer*.json
 ready-*
-
-records/
