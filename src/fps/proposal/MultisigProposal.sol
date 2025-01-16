@@ -310,8 +310,7 @@ abstract contract MultisigProposal is Test, Script, IProposal {
 
         for (uint256 i = 0; i < config.authorizedDelegateCalls.length; i++) {
             for (uint256 j = 0; j < chains.length; j++) {
-                _allowedDelegateCalls[addresses.getAddress(config.authorizedDelegateCalls[i], chains[j].chainId)] =
-                    true;
+                _allowedDelegateCalls[addresses.getAddress(config.authorizedDelegateCalls[i], chains[j].chainId)] = true;
             }
         }
     }

@@ -54,7 +54,10 @@ contract AddressRegistry is IAddressRegistry, Test {
     /// @param addressFolderPath The path to the folder containing chain-specific TOML address files
     /// @param networkConfigFilePath the path to the TOML file containing the network configuration(s)
     constructor(string memory addressFolderPath, string memory networkConfigFilePath) {
-        require(block.chainid == getChain("mainnet").chainId || block.chainid == getChain("sepolia").chainId, "Unsupported network");
+        require(
+            block.chainid == getChain("mainnet").chainId || block.chainid == getChain("sepolia").chainId,
+            "Unsupported network"
+        );
 
         bytes memory chainListContent = vm.parseToml(vm.readFile(networkConfigFilePath), ".l2chains");
         chains = abi.decode(chainListContent, (ChainInfo[]));
@@ -70,8 +73,7 @@ contract AddressRegistry is IAddressRegistry, Test {
 
             supportedL2ChainIds[chainId] = true;
 
-            string memory filePath =
-                string(abi.encodePacked(addressFolderPath, "/", vm.toString(chainId), ".toml"));
+            string memory filePath = string(abi.encodePacked(addressFolderPath, "/", vm.toString(chainId), ".toml"));
             bytes memory fileContent = vm.parseToml(vm.readFile(filePath), ".addresses");
 
             InputAddress[] memory parsedAddresses = abi.decode(fileContent, (InputAddress[]));
@@ -95,14 +97,12 @@ contract AddressRegistry is IAddressRegistry, Test {
                 vm.label(contractAddress, prefixedIdentifier); // Add label for debugging purposes
             }
 
-            string[] memory keys =
-                vm.parseJsonKeys(chainAddressesContent, string.concat("$.", vm.toString(chainId)));
+            string[] memory keys = vm.parseJsonKeys(chainAddressesContent, string.concat("$.", vm.toString(chainId)));
 
             for (uint256 j = 0; j < keys.length; j++) {
                 string memory key = keys[j];
-                address addr = vm.parseJsonAddress(
-                    chainAddressesContent, string.concat("$.", vm.toString(chainId), ".", key)
-                );
+                address addr =
+                    vm.parseJsonAddress(chainAddressesContent, string.concat("$.", vm.toString(chainId), ".", key));
 
                 require(addr != address(0), "Invalid address: cannot be zero");
                 require(
