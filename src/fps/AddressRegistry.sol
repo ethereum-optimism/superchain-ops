@@ -6,7 +6,6 @@ import {Test} from "forge-std/Test.sol";
 
 import {IAddressRegistry} from "src/fps/IAddressRegistry.sol";
 import {SUPERCHAIN_REGISTRY_PATH} from "src/fps/utils/Constants.sol";
-import {ETHEREUM_CHAIN_ID, SEPOLIA_CHAIN_ID} from "src/fps/utils/Constants.sol";
 
 /// @title Network Address Manager
 /// @notice This contract provides a single source of truth for storing and retrieving addresses across multiple networks.
