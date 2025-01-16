@@ -9,7 +9,7 @@ import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet
 
 import {IProposal} from "src/fps/proposal/IProposal.sol";
 import {BytesHelper} from "src/fps/utils/BytesHelper.sol";
-import {IGnosisSafe, Enum} from "src/fps/proposal/IGnosisSafe.sol";
+import {IGnosisSafe, Enum} from "@eth-optimism-bedrock/scripts/interfaces/IGnosisSafe.sol";
 import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
 import {
     NONCE_OFFSET,
@@ -273,21 +273,21 @@ abstract contract MultisigProposal is Test, Script, IProposal {
         nonce = abi.decode(vm.parseToml(networkConfigFileContents, ".safeNonce"), (uint256));
         isNestedSafe = abi.decode(vm.parseToml(networkConfigFileContents, ".isNestedSafe"), (bool));
 
-        /// get superchains
-        Addresses.Superchain[] memory superchains = addresses.getSuperchains();
-        require(superchains.length > 0, "MultisigProposal: no superchains found");
+        /// get chains
+        Addresses.ChainInfo[] memory chains = addresses.getChains();
+        require(chains.length > 0, "MultisigProposal: no chains found");
 
-        /// check that the safe address is the same for all superchains and then set safe in storage
-        caller = addresses.getAddress(config.safeAddressString, superchains[0].chainId);
+        /// check that the safe address is the same for all chains and then set safe in storage
+        caller = addresses.getAddress(config.safeAddressString, chains[0].chainId);
 
-        for (uint256 i = 1; i < superchains.length; i++) {
+        for (uint256 i = 1; i < chains.length; i++) {
             require(
-                caller == addresses.getAddress(config.safeAddressString, superchains[i].chainId),
+                caller == addresses.getAddress(config.safeAddressString, chains[i].chainId),
                 string.concat(
                     "MultisigProposal: safe address mismatch. Caller: ",
                     vm.getLabel(caller),
                     ". Actual address: ",
-                    vm.getLabel(addresses.getAddress(config.safeAddressString, superchains[i].chainId))
+                    vm.getLabel(addresses.getAddress(config.safeAddressString, chains[i].chainId))
                 )
             );
         }
@@ -301,16 +301,16 @@ abstract contract MultisigProposal is Test, Script, IProposal {
         startingImplementationVersion = safe.VERSION();
 
         for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
-            for (uint256 j = 0; j < superchains.length; j++) {
+            for (uint256 j = 0; j < chains.length; j++) {
                 _allowedStorageAccesses.add(
-                    addresses.getAddress(config.allowedStorageWriteAccesses[i], superchains[j].chainId)
+                    addresses.getAddress(config.allowedStorageWriteAccesses[i], chains[j].chainId)
                 );
             }
         }
 
         for (uint256 i = 0; i < config.authorizedDelegateCalls.length; i++) {
-            for (uint256 j = 0; j < superchains.length; j++) {
-                _allowedDelegateCalls[addresses.getAddress(config.authorizedDelegateCalls[i], superchains[j].chainId)] =
+            for (uint256 j = 0; j < chains.length; j++) {
+                _allowedDelegateCalls[addresses.getAddress(config.authorizedDelegateCalls[i], chains[j].chainId)] =
                     true;
             }
         }
@@ -478,10 +478,10 @@ abstract contract MultisigProposal is Test, Script, IProposal {
 
         require(IGnosisSafe(caller).nonce() == nonce + 1, "MultisigProposal: nonce not incremented");
 
-        Addresses.Superchain[] memory superchains = addresses.getSuperchains();
+        Addresses.ChainInfo[] memory chains = addresses.getChains();
 
-        for (uint256 i = 0; i < superchains.length; i++) {
-            _validate(superchains[i].chainId);
+        for (uint256 i = 0; i < chains.length; i++) {
+            _validate(chains[i].chainId);
         }
     }
 
@@ -532,10 +532,10 @@ abstract contract MultisigProposal is Test, Script, IProposal {
     function mock() public virtual override {
         vm.store(caller, SAFE_NONCE_SLOT, bytes32(nonce));
 
-        Addresses.Superchain[] memory superchains = addresses.getSuperchains();
+        Addresses.ChainInfo[] memory chains = addresses.getChains();
 
-        for (uint256 i = 0; i < superchains.length; i++) {
-            _mock(superchains[i].chainId);
+        for (uint256 i = 0; i < chains.length; i++) {
+            _mock(chains[i].chainId);
         }
     }
 
@@ -548,10 +548,10 @@ abstract contract MultisigProposal is Test, Script, IProposal {
     ///      overriden requires using buildModifier modifier to leverage
     ///      foundry snapshot and state diff recording to populate the actions array.
     function build() public override buildModifier {
-        Addresses.Superchain[] memory superchains = addresses.getSuperchains();
+        Addresses.ChainInfo[] memory chains = addresses.getChains();
 
-        for (uint256 i = 0; i < superchains.length; i++) {
-            _build(superchains[i].chainId);
+        for (uint256 i = 0; i < chains.length; i++) {
+            _build(chains[i].chainId);
         }
     }
 
