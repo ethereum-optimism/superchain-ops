@@ -11,10 +11,7 @@ import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet
 import {ITask} from "src/fps/proposal/ITask.sol";
 import {IGnosisSafe, Enum} from "@eth-optimism-bedrock/scripts/interfaces/IGnosisSafe.sol";
 import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
-import {
-    SAFE_NONCE_SLOT,
-    MULTICALL3_ADDRESS
-} from "src/fps/utils/Constants.sol";
+import {SAFE_NONCE_SLOT, MULTICALL3_ADDRESS} from "src/fps/utils/Constants.sol";
 
 abstract contract MultisigTask is Test, Script, ITask {
     using EnumerableSet for EnumerableSet.AddressSet;
