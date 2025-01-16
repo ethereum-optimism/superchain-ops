@@ -50,9 +50,8 @@ contract AddressRegistry is IAddressRegistry, Test {
 
     /// @notice Initializes the contract by loading addresses from TOML files
     /// and configuring the supported L2 chains.
-    /// @param addressFolderPath The path to the folder containing chain-specific TOML address files
     /// @param networkConfigFilePath the path to the TOML file containing the network configuration(s)
-    constructor(string memory addressFolderPath, string memory networkConfigFilePath) {
+    constructor(string memory networkConfigFilePath) {
         require(
             block.chainid == getChain("mainnet").chainId || block.chainid == getChain("sepolia").chainId,
             "Unsupported network"
@@ -71,30 +70,6 @@ contract AddressRegistry is IAddressRegistry, Test {
             require(bytes(chainName).length > 0, "Empty name in config");
 
             supportedL2ChainIds[chainId] = true;
-
-            string memory filePath = string(abi.encodePacked(addressFolderPath, "/", vm.toString(chainId), ".toml"));
-            bytes memory fileContent = vm.parseToml(vm.readFile(filePath), ".addresses");
-
-            InputAddress[] memory parsedAddresses = abi.decode(fileContent, (InputAddress[]));
-
-            for (uint256 j = 0; j < parsedAddresses.length; j++) {
-                string memory identifier = parsedAddresses[j].identifier;
-                address contractAddress = parsedAddresses[j].addr;
-                bool isContract = parsedAddresses[j].isContract;
-
-                require(contractAddress != address(0), "Invalid address: cannot be zero");
-                require(
-                    registry[identifier][chainId].addr == address(0),
-                    "Address already registered with this identifier and chain ID"
-                );
-
-                _typeCheckAddress(contractAddress, isContract);
-
-                registry[identifier][chainId] = RegistryEntry(contractAddress, isContract);
-                string memory prefixedIdentifier =
-                    string(abi.encodePacked(vm.replace(vm.toUppercase(chainName), " ", "_"), "_", identifier));
-                vm.label(contractAddress, prefixedIdentifier); // Add label for debugging purposes
-            }
 
             string[] memory keys = vm.parseJsonKeys(chainAddressesContent, string.concat("$.", vm.toString(chainId)));
 
