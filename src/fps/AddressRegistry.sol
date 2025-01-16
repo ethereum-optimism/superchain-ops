@@ -6,6 +6,7 @@ import {Test} from "forge-std/Test.sol";
 
 import {IAddressRegistry} from "src/fps/IAddressRegistry.sol";
 import {SUPERCHAIN_REGISTRY_PATH} from "src/fps/utils/Constants.sol";
+import {ETHEREUM_CHAIN_ID, SEPOLIA_CHAIN_ID} from "src/fps/utils/Constants.sol";
 
 /// @title Network Address Manager
 /// @notice This contract provides a single source of truth for storing and retrieving addresses across multiple networks.
@@ -53,7 +54,14 @@ contract AddressRegistry is IAddressRegistry, Test {
     /// @param addressFolderPath The path to the folder containing chain-specific TOML address files
     /// @param networkConfigFilePath the path to the TOML file containing the network configuration(s)
     constructor(string memory addressFolderPath, string memory networkConfigFilePath) {
+<<<<<<< HEAD
         require(block.chainid == getChain("mainnet").chainId || block.chainid == getChain("sepolia").chainId, "Unsupported network");
+=======
+        require(block.chainid == ETHEREUM_CHAIN_ID || block.chainid == SEPOLIA_CHAIN_ID, "Unsupported network");
+
+        bytes memory superchainListContent = vm.parseToml(vm.readFile(networkConfigFilePath), ".l2chains");
+        superchains = abi.decode(superchainListContent, (Superchain[]));
+>>>>>>> de721ffc12fa4af794d17e741f12f8649f4d5bb3
 
         bytes memory chainListContent = vm.parseToml(vm.readFile(networkConfigFilePath), ".l2chains");
         chains = abi.decode(chainListContent, (ChainInfo[]));

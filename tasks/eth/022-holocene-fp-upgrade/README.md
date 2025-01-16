@@ -1,6 +1,6 @@
 # Holocene Hardfork Upgrade - OP Mainnet
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0x22ab07b0bb1bc8504256835d555307ff522b78651dca33c9cd5b05591ca5b4f7)
 
 ## Objective
 
@@ -10,8 +10,8 @@ The proposal was:
 
 - [X] [Posted](https://gov.optimism.io/t/upgrade-proposal-11-holocene-network-upgrade/9313) on the governance forum.
 - [X] [Approved](https://vote.optimism.io/proposals/20127877429053636874064552098716749508236019236440427814457915785398876262515) by Token House voting.
-- [ ] Not vetoed by the Citizens' house.
-- [ ] Executed on OP Mainnet.
+- [X] Not vetoed by the Citizens' house.
+- [X] Executed on OP Mainnet.
 
 The governance proposal should be treated as the source of truth and used to verify the correctness of the onchain operations.
 
