@@ -6,12 +6,7 @@ The goal of using FPS for the superchain ops repo is to greatly simplify task de
 
 ## Task Development and Templates
 
-Installing FPS allows developers to create tasks without writing any Solidity code as long as a predefined template is used. The templates are designed to be as flexible as possible, allowing developers to create tasks that update multiple parameters for a single or super chain.
-
-Existing templates include:
-- DisputeGameUpgrade - Dispute Game Implementation change
-- GasConfigTemplate - Gas Limit Configuration
-- Generic Template - Allows developers to create tasks in Solidity using FPS tooling
+Installing FPS allows developers to create tasks without writing any Solidity code as long as a predefined template is used. The templates are designed to be as flexible as possible, allowing developers to create tasks that update multiple parameters for a single or super chain. Templates are currently in development and will be released in a future PR.
 
 # Task Configuration File
 
