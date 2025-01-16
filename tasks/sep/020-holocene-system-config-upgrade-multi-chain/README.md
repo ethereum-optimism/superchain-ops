@@ -2,7 +2,7 @@
 
 Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x88bd1d85740af3741e2ed96d6fd07f2abb4541afc667625480bf6a28451c4d6d)
 
-> ⚠️ **Warning:** This task is incorrect and is superseded by [Task 027](../027-holocene-system-config-upgrade-and-init-multi-chain/)
+> ⚠️ **Warning:** This task is incorrect and is superseded by [Task 028](../028-holocene-system-config-upgrade-and-init-multi-chain/)
 
 ## Objective
 
