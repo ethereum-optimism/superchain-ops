@@ -4,14 +4,17 @@ import {SystemConfig} from "src/fps/example/ISystemConfig.sol";
 import {MultisigProposal} from "src/fps/proposal/MultisigProposal.sol";
 import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
 import {BASE_CHAIN_ID, OP_CHAIN_ID, ADDRESSES_PATH} from "src/fps/utils/Constants.sol";
-import {IDisputeGameFactory} from "src/fps/example/IDisputeGameFactory.sol";
+import {IDisputeGameFactory} from "@eth-optimism-bedrock/src/dispute/interfaces/IDisputeGameFactory.sol";
+import {IDisputeGame} from "@eth-optimism-bedrock/src/dispute/interfaces/IDisputeGame.sol";
+
+import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 
 import "forge-std/console.sol";
 
 contract DisputeGameUpgradeTemplate is MultisigProposal {
     /// @notice struct to store information about an implementation to be set for a specific l2 chain id
     struct SetImplementation {
-        uint32 gameType;
+        GameType gameType;
         string implementation;
         uint256 l2ChainId;
     }
@@ -46,7 +49,7 @@ contract DisputeGameUpgradeTemplate is MultisigProposal {
         if (setImplementations[chainId].l2ChainId != 0) {
             disputeGameFactory.setImplementation(
                 setImplementations[chainId].gameType,
-                addresses.getAddress(setImplementations[chainId].implementation, chainId)
+                IDisputeGame(addresses.getAddress(setImplementations[chainId].implementation, chainId))
             );
         }
     }
@@ -58,7 +61,7 @@ contract DisputeGameUpgradeTemplate is MultisigProposal {
 
         if (setImplementations[chainId].l2ChainId != 0) {
             assertEq(
-                disputeGameFactory.gameImpls(setImplementations[chainId].gameType),
+                address(disputeGameFactory.gameImpls(setImplementations[chainId].gameType)),
                 addresses.getAddress(setImplementations[chainId].implementation, chainId),
                 "implementation not set"
             );
