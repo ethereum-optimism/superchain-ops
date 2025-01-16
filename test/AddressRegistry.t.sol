@@ -144,7 +144,7 @@ contract MainnetAddressRegistryTest is Test {
         string memory addressFolderPath = "src/fps/addresses";
         string memory networkConfigFilePath = "test/mock/networkConfig1.toml";
 
-        vm.expectRevert("Invalid chain ID in superchain config");
+        vm.expectRevert("Invalid chain ID in config");
         new AddressRegistry(addressFolderPath, networkConfigFilePath);
     }
 
@@ -152,7 +152,7 @@ contract MainnetAddressRegistryTest is Test {
         string memory addressFolderPath = "src/fps/addresses";
         string memory networkConfigFilePath = "test/mock/networkConfig2.toml";
 
-        vm.expectRevert("Empty name in superchain config");
+        vm.expectRevert("Empty name in config");
         new AddressRegistry(addressFolderPath, networkConfigFilePath);
     }
 
@@ -160,7 +160,7 @@ contract MainnetAddressRegistryTest is Test {
         string memory addressFolderPath = "src/fps/addresses";
         string memory networkConfigFilePath = "test/mock/networkConfig3.toml";
 
-        vm.expectRevert("Duplicate chain ID in superchain config");
+        vm.expectRevert("Duplicate chain ID in chain config");
         new AddressRegistry(addressFolderPath, networkConfigFilePath);
     }
 
