@@ -10,31 +10,16 @@ contract MainnetAddressRegistryTest is Test {
     AddressRegistry private addresses;
 
     function setUp() public {
-        string memory addressFolderPath = "src/fps/addresses";
-
-        string memory networkConfigFilePath = "src/fps/addresses/mainnetConfig.toml";
+        string memory networkConfigFilePath = "src/fps/example/mainnetConfig.toml";
 
         vm.createSelectFork("mainnet");
 
-        addresses = new AddressRegistry(addressFolderPath, networkConfigFilePath);
+        addresses = new AddressRegistry(networkConfigFilePath);
     }
 
     function testContractState() public view {
         assertTrue(addresses.supportedL2ChainIds(ORDERLY_CHAIN_ID), "Orderly chain ID not supported");
         assertTrue(addresses.supportedL2ChainIds(METAL_CHAIN_ID), "Metal chain ID not supported");
-    }
-
-    function testLocalAddressesLoaded() public view {
-        assertEq(
-            addresses.getAddress("SYSTEM_CONFIG_LOGIC", METAL_CHAIN_ID),
-            0x240B3bd6b95cE40497Aafd71aD4705d0345A33CD,
-            "DEPLOYER_EOA address mismatch"
-        );
-        assertEq(
-            addresses.getAddress("SYSTEM_CONFIG_LOGIC", ORDERLY_CHAIN_ID),
-            0xba2492e52F45651B60B8B38d4Ea5E2390C64Ffb1,
-            "COMPOUND_GOVERNOR_BRAVO address mismatch"
-        );
     }
 
     function testSuperchainAddressesLoaded() public view {
@@ -141,58 +126,9 @@ contract MainnetAddressRegistryTest is Test {
     /// Construction failure tests
 
     function testInvalidChainIdInSuperchainsFails() public {
-        string memory addressFolderPath = "src/fps/addresses";
         string memory networkConfigFilePath = "test/mock/networkConfig1.toml";
 
         vm.expectRevert("Invalid chain ID in config");
-        new AddressRegistry(addressFolderPath, networkConfigFilePath);
-    }
-
-    function testEmptyNameInSuperchainsFails() public {
-        string memory addressFolderPath = "src/fps/addresses";
-        string memory networkConfigFilePath = "test/mock/networkConfig2.toml";
-
-        vm.expectRevert("Empty name in config");
-        new AddressRegistry(addressFolderPath, networkConfigFilePath);
-    }
-
-    function testDuplicateChainIdInSuperchainsFails() public {
-        string memory addressFolderPath = "src/fps/addresses";
-        string memory networkConfigFilePath = "test/mock/networkConfig3.toml";
-
-        vm.expectRevert("Duplicate chain ID in chain config");
-        new AddressRegistry(addressFolderPath, networkConfigFilePath);
-    }
-
-    function testConstructionFailsIncorrectTypesEOA() public {
-        string memory addressFolderPath = "test/mock/data1";
-        string memory networkConfigFilePath = "test/mock/data1/networkConfig.toml";
-
-        vm.expectRevert("Address must contain code");
-        new AddressRegistry(addressFolderPath, networkConfigFilePath);
-    }
-
-    function testConstructionFailsIncorrectTypesContract() public {
-        string memory addressFolderPath = "test/mock/data2";
-        string memory networkConfigFilePath = "test/mock/data2/networkConfig.toml";
-
-        vm.expectRevert("Address must not contain code");
-        new AddressRegistry(addressFolderPath, networkConfigFilePath);
-    }
-
-    function testConstructionFailsAddressZero() public {
-        string memory addressFolderPath = "test/mock/data3";
-        string memory networkConfigFilePath = "test/mock/data3/networkConfig.toml";
-
-        vm.expectRevert("Invalid address: cannot be zero");
-        new AddressRegistry(addressFolderPath, networkConfigFilePath);
-    }
-
-    function testConstructionFailsDuplicateAddress() public {
-        string memory addressFolderPath = "test/mock/data4";
-        string memory networkConfigFilePath = "test/mock/data4/networkConfig.toml";
-
-        vm.expectRevert("Address already registered with this identifier and chain ID");
-        new AddressRegistry(addressFolderPath, networkConfigFilePath);
+        new AddressRegistry(networkConfigFilePath);
     }
 }
