@@ -267,8 +267,7 @@ abstract contract MultisigTask is Test, Script, ITask {
 
     /// @notice print the hash to approve by EOA for single multisig
     function printHashToApprove() public view {
-        bytes32 hash = keccak256(_getDataToSign(multisig, getCalldata()));
-        console.logBytes32(hash);
+        console.logBytes32(getHash());
     }
 
     /// @notice get the data to sign by EOA for single multisig
@@ -293,7 +292,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @notice simulate the task by approving from owners and then executing
     function simulate() public override {
         bytes memory data = getCalldata();
-        bytes32 hash = keccak256(_getDataToSign(multisig, data));
+        bytes32 hash = getHash();
 
         // Approve the hash from each owner
         address[] memory owners = IGnosisSafe(multisig).getOwners();
@@ -560,6 +559,13 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// --------------------------------------------------------------------
     /// --------------------------------------------------------------------
 
+    /// @notice get the hash for this safe transaction
+    /// can only be called after the build function, otherwise it reverts
+    function getHash() internal view returns (bytes32) {
+        bytes memory data = getCalldata();
+        return keccak256(_getDataToSign(multisig, data));
+    }
+
     /// @notice validate actions inclusion
     /// default implementation check for duplicate actions
     function _validateAction(address target, uint256 value, bytes memory data) internal virtual {
@@ -582,7 +588,7 @@ abstract contract MultisigTask is Test, Script, ITask {
 
     /// @notice helper function to generate the approveHash calldata to be executed by child multisig owner on parent multisig
     function _generateApproveMulticallData() internal view returns (bytes memory) {
-        bytes32 hash = keccak256(_getDataToSign(multisig, getCalldata()));
+        bytes32 hash = getHash();
         Call3Value memory call = Call3Value({
             target: multisig,
             allowFailure: false,
