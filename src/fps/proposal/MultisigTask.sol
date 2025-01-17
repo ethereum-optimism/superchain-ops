@@ -12,6 +12,7 @@ import {ITask} from "src/fps/proposal/ITask.sol";
 import {IGnosisSafe, Enum} from "@eth-optimism-bedrock/scripts/interfaces/IGnosisSafe.sol";
 import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
 import {SAFE_NONCE_SLOT, MULTICALL3_ADDRESS} from "src/fps/utils/Constants.sol";
+import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
 
 abstract contract MultisigTask is Test, Script, ITask {
     using EnumerableSet for EnumerableSet.AddressSet;
@@ -600,52 +601,8 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @return The signatures to be executed
     function prepareSignatures(address _safe, bytes32 hash) internal view returns (bytes memory) {
         // prepend the prevalidated signatures to the signatures
-        address[] memory approvers = getApprovers(_safe, hash);
-        return genPrevalidatedSignatures(approvers);
-    }
-
-    /// @notice helper function to generate the prevalidated signatures for a given list of addresses
-    function genPrevalidatedSignatures(address[] memory _addresses) internal pure returns (bytes memory) {
-        LibSort.sort(_addresses);
-        bytes memory signatures;
-        for (uint256 i; i < _addresses.length; i++) {
-            signatures = bytes.concat(signatures, genPrevalidatedSignature(_addresses[i]));
-        }
-        return signatures;
-    }
-
-    /// @notice helper function to generate the prevalidated signature for a given address
-    function genPrevalidatedSignature(address _address) internal pure returns (bytes memory) {
-        uint8 v = 1;
-        bytes32 s = bytes32(0);
-        bytes32 r = bytes32(uint256(uint160(_address)));
-        return abi.encodePacked(r, s, v);
-    }
-
-    /// @notice helper function to get the approvers for a given hash
-    function getApprovers(address _safe, bytes32 hash) internal view returns (address[] memory) {
-        // get a list of owners that have approved this transaction
-        IGnosisSafe safe = IGnosisSafe(_safe);
-        uint256 threshold = safe.getThreshold();
-        address[] memory owners = safe.getOwners();
-        address[] memory approvers = new address[](threshold);
-        uint256 approverIndex;
-        for (uint256 i; i < owners.length; i++) {
-            address owner = owners[i];
-            uint256 approved = safe.approvedHashes(owner, hash);
-            if (approved == 1) {
-                approvers[approverIndex] = owner;
-                approverIndex++;
-                if (approverIndex == threshold) {
-                    return approvers;
-                }
-            }
-        }
-        address[] memory subset = new address[](approverIndex);
-        for (uint256 i; i < approverIndex; i++) {
-            subset[i] = approvers[i];
-        }
-        return subset;
+        address[] memory approvers = Signatures.getApprovers(_safe, hash);
+        return Signatures.genPrevalidatedSignatures(approvers);
     }
 
     /// --------------------------------------------------------------------
