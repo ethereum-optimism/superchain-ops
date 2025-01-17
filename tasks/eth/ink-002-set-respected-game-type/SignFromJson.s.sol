@@ -4,7 +4,7 @@ pragma solidity ^0.8.15;
 
 import {SignFromJson as OriginalSignFromJson} from "script/SignFromJson.s.sol";
 import {OptimismPortal2, IDisputeGame} from "@eth-optimism-bedrock/src/L1/OptimismPortal2.sol";
-import {Types} from "@eth-optimism-bedrock/scripts/Types.sol";
+import {Types} from "@eth-optimism-bedrock/scripts/libraries/Types.sol";
 import {Vm, VmSafe} from "forge-std/Vm.sol";
 import {console2 as console} from "forge-std/console2.sol";
 import {stdToml} from "forge-std/StdToml.sol";
