@@ -72,7 +72,10 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry, VerificationBase {
         // Read target version from SCR @ specified release
         targetVersion = standardVersions.SystemConfig.version;
 
-        if (sysCfg.version().eq("2.3.0") || sysCfg.version().eq("2.2.0")) {
+        if (
+            sysCfg.version().eq("2.3.0") || sysCfg.version().eq("2.2.0")
+                || sysCfg.version().eq("2.2.0+max-gas-limit-400M")
+        ) {
             // Supported initial versions with a getter already
             targetDGF = sysCfg.disputeGameFactory();
         } else if (sysCfg.version().eq("1.12.0")) {
@@ -92,6 +95,16 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry, VerificationBase {
         checkDGF();
         checkGasPayingToken();
         checkBaseSysCfgVars();
+    }
+
+    /// @notice Public function that must be called by the verification script.
+    function checkSystemConfigUpgradeWithPreviousGasLimitOverride(uint256 previousGasLimitOverride) public view {
+        checkTargetVersion();
+        checkScalar();
+        checkDGF();
+        checkGasPayingToken();
+
+        checkBaseSysCfgVarsWithGasLimitOverride(previousGasLimitOverride);
     }
 
     function _addCodeExceptions() internal {
@@ -174,6 +187,15 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry, VerificationBase {
     function checkBaseSysCfgVars() internal view {
         // Check remaining storage variables didn't change
         require(keccak256(abi.encode(getBaseSysCfgVars())) == keccak256(abi.encode(previous)), "system-config-110");
+    }
+
+    // Checks the remaining storage variables are unchanged after the upgrade.
+    function checkBaseSysCfgVarsWithGasLimitOverride(uint256 previousGasLimitOverride) internal view {
+        BaseSysCfgVars memory _previous = previous;
+        _previous.gasLimit = previousGasLimitOverride;
+
+        // Check remaining storage variables didn't change
+        require(keccak256(abi.encode(getBaseSysCfgVars())) == keccak256(abi.encode(_previous)), "system-config-110.5");
     }
 
     // Reads the semantic version of the SystemConfig contract
