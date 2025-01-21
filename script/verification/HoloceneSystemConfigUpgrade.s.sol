@@ -190,6 +190,7 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry, VerificationBase {
     }
 
     // Checks the remaining storage variables are unchanged after the upgrade.
+    // NOTE: The `_gasLimit` is permitted to be updated to accommodate the new EIP-1559 parameters.
     function checkBaseSysCfgVarsWithGasLimitOverride(uint256 previousGasLimitOverride) internal view {
         BaseSysCfgVars memory _previous = previous;
         _previous.gasLimit = previousGasLimitOverride;
