@@ -1,5 +1,3 @@
 [task]
 allowedStorageAccesses = ["SystemConfigProxy"]
 safeAddressString = "SystemConfigOwner"
-name = "Set Gas Limit - Task 00"
-description = "Set the gas limit for the system."
