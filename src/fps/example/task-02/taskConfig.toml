@@ -1,0 +1,3 @@
+[task]
+safeAddressString = "Challenger"
+allowedStorageWriteAccesses = ["OptimismPortalProxy"]

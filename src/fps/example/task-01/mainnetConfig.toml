@@ -1,0 +1,6 @@
+# this is the file used to determine the network configuration
+
+isNestedSafe = true
+l2chains = [{name = "OP Mainnet", chainId = 10}]
+
+implementations = [{gameType = 0, implementation = "FAULT_DISPUTE_GAME_IMPLEMENTATION", l2ChainId = 10}]

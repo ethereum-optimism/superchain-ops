@@ -1,0 +1,6 @@
+# this is the file used to determine the network configuration for the testnet task
+isNestedSafe = false
+l2chains = [{"name": "Mode Testnet", "chainId": 919}, {"name": "Metal L2 Testnet", "chainId": 1740}, {"name": "Zora Sepolia Testnet", "chainId": 999999999}]
+
+[gasConfigs]
+gasLimits = [{chainId = 919, gasLimit = 100000000}, {chainId = 1740, gasLimit = 100000000}, {chainId = 999999999, gasLimit = 100000000}]

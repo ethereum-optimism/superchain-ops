@@ -1,0 +1,3 @@
+l2chains = [{name = "OP Mainnet", chainId = 10}]
+
+respectedGameTypes = [{gameType = 1, l2ChainId = 10, portal = "OptimismPortalProxy"}]

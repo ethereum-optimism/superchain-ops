@@ -4,15 +4,6 @@ pragma solidity 0.8.15;
 import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
 
 abstract contract ITask {
-    /// @notice task name, e.g. "BIP15".
-    /// @dev override this to set the task name.
-
-    function name() external view virtual returns (string memory);
-
-    /// @notice task description.
-    /// @dev override this to set the task description.
-    function description() external view virtual returns (string memory);
-
     /// @notice function to process the task to be called from templates.
     /// @dev use flags to determine which actions to take
     ///      this function shoudn't be overriden.

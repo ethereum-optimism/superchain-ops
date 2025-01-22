@@ -101,14 +101,6 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// they all follow the same structure
     Action[] public actions;
 
-    /// @notice task name, e.g. "OIP15".
-    /// @dev set in the task config file
-    string public override name;
-
-    /// @notice task description.
-    /// @dev set in the task config file
-    string public override description;
-
     /// @notice Multicall3 call data struct
     /// @param target The address of the target contract
     /// @param allowFailure Flag to determine if the call should be allowed to fail
@@ -124,8 +116,6 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @notice Task TOML config file values
     struct TaskConfig {
         string[] allowedStorageWriteAccesses;
-        string description;
-        string name;
         string safeAddressString;
     }
 
@@ -178,9 +168,6 @@ abstract contract MultisigTask is Test, Script, ITask {
 
         bytes memory fileContents = vm.parseToml(taskConfigFileContents, ".task");
         config = abi.decode(fileContents, (TaskConfig));
-
-        name = config.name;
-        description = config.description;
     }
 
     /// @notice Sets the L2 networks configuration
@@ -190,7 +177,6 @@ abstract contract MultisigTask is Test, Script, ITask {
         addresses = _addresses;
         string memory networkConfigFileContents = vm.readFile(networkConfigFilePath);
 
-        nonce = abi.decode(vm.parseToml(networkConfigFileContents, ".safeNonce"), (uint256));
         isNestedSafe = abi.decode(vm.parseToml(networkConfigFileContents, ".isNestedSafe"), (bool));
 
         /// get chains
@@ -199,6 +185,9 @@ abstract contract MultisigTask is Test, Script, ITask {
 
         /// check that the safe address is the same for all chains and then set safe in storage
         multisig = addresses.getAddress(config.safeAddressString, chains[0].chainId);
+
+        /// TODO change this once we implement task stacking
+        nonce = IGnosisSafe(multisig).nonce();
 
         for (uint256 i = 1; i < chains.length; i++) {
             require(
@@ -431,9 +420,6 @@ abstract contract MultisigTask is Test, Script, ITask {
 
     /// @notice print task description, actions, transfers, state changes and EOAs datas to sign
     function print() public virtual override {
-        console.log("\n---------------- Proposal Description ----------------");
-        console.log(description);
-
         console.log("\n------------------ Proposal Actions ------------------");
         for (uint256 i; i < actions.length; i++) {
             console.log("%d). %s", i + 1, actions[i].description);
