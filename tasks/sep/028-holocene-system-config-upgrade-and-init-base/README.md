@@ -4,10 +4,11 @@ Status: READY TO SIGN
 
 ## Objective
 
-Upgrades the `SystemConfig` for the Holocene hardfork.
+Upgrades the `SystemConfig` for the Holocene hardfork and sets the EIP1559 parameters
 
-This upgrades the `SystemConfig` in the
-[v1.8.0-rc.4](https://github.com/ethereum-optimism/optimism/tree/v1.8.0-rc.4) release.
+- This upgrades the `SystemConfig` in the [v1.8.0-rc.4](https://github.com/ethereum-optimism/optimism/tree/v1.8.0-rc.4) release.
+
+- This sets the EIP1559 parameters to `_denominator = 1`, `_elasticity_ = 4` 
 
 ## Pre-deployments
 
