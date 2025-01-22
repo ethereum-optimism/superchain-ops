@@ -31,10 +31,6 @@ abstract contract ITask {
     /// @notice return task calldata
     function getCalldata() external virtual returns (bytes memory data);
 
-    /// @notice helper function to mock on-chain data
-    ///         e.g. pranking, etching, etc.
-    function mock() external virtual;
-
     /// @notice build the task actions
     /// @dev contract calls must be perfomed in plain solidity.
     ///      overriden requires using buildModifier modifier to leverage

@@ -234,7 +234,6 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @dev use flags to determine which actions to take
     ///      this function shoudn't be overriden.
     function _processTask() internal override {
-        mock();
         build();
         simulate();
         validate();
@@ -413,23 +412,6 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// --------------------------- Public functions -----------------------
     /// --------------------------------------------------------------------
     /// --------------------------------------------------------------------
-
-    /// @notice helper function to mock on-chain data
-    ///         e.g. pranking, etching, etc. Sets nonce to the task nonce by default
-    /// @dev override to add additional mock logic
-    function mock() public virtual override {
-        vm.store(multisig, SAFE_NONCE_SLOT, bytes32(nonce));
-
-        Addresses.ChainInfo[] memory chains = addresses.getChains();
-
-        for (uint256 i = 0; i < chains.length; i++) {
-            _mock(chains[i].chainId);
-        }
-    }
-
-    /// @notice mock state to help build the task actions for a given l2chain
-    /// @dev override to add additional task specific mocks
-    function _mock(uint256 chainId) internal virtual {}
 
     /// @notice build the task actions for all l2chains in the task
     /// @dev contract calls must be perfomed in plain solidity.
