@@ -1,0 +1,88 @@
+# Get private key from 1password CLI based on network
+get-key:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    network=$(just get-network)
+    item=$(op item get "DeputyPauseModulePrivateKey" --vault "$network [shared]" --format json | jq -r '"\(.fields.[1].value), \(.fields.[0].value)"')
+    read address pause_deputy_privatekey <<< $(echo "$item" | awk -F ',' '{print $1, $2}')
+    if [[ -z "$address" ]] || [[ -z "$pause_deputy_privatekey" ]]; then
+        echo "ERROR: Unable to get the address or private key from the vault. Please check the vault and ensure the item is in the vault: '$network [shared]' and try again." >&2
+        exit 1
+    fi
+    echo "$pause_deputy_privatekey"
+
+# Get network name from chain ID
+get-network:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    
+    chain_id=$(cast chain-id --rpc-url $RPC_URL)
+    if [ "$chain_id" = "1" ]; then
+        echo "mainnet"
+    elif [ "$chain_id" = "11155111" ]; then
+        echo "sepolia"
+    else
+        echo "Unsupported network chain ID: $chain_id" >&2
+        exit 1
+    fi
+
+# Generate a random 32-byte nonce
+make-nonce:
+  echo "0x$(openssl rand -hex 32)"
+
+# Sign auth message for new module
+auth-sig-new creator:
+  #!/usr/bin/env bash
+  export PAUSE_DEPUTY_PRIVATE_KEY=$(just get-key)
+  export CREATE_NEW_MODULE=true
+  export DEPUTY_PAUSE_MODULE_CREATOR_ADDRESS={{creator}}
+  output=$(forge script ./script/SuperchainPause.s.sol --sig "signAuthMessage()")
+  echo "$output" | tail -n1
+
+# Sign auth message for existing module
+auth-sig module:
+  #!/usr/bin/env bash
+  export PAUSE_DEPUTY_PRIVATE_KEY=$(just get-key)
+  export CREATE_NEW_MODULE=false
+  export DEPUTY_PAUSE_MODULE_ADDRESS={{module}}
+  output=$(forge script ./script/SuperchainPause.s.sol --sig "signAuthMessage()")
+  echo "$output" | tail -n1
+
+# Generate pause signature
+pause-sig module nonce:
+  #!/usr/bin/env bash
+  export PAUSE_DEPUTY_PRIVATE_KEY=$(just get-key)
+  export CREATE_NEW_MODULE=false
+  export DEPUTY_PAUSE_MODULE_ADDRESS={{module}}
+  output=$(forge script ./script/SuperchainPause.s.sol --sig "signPauseMessage(bytes32)" {{nonce}})
+  echo "$output" | tail -n1
+
+# Execute pause with provided signature
+pause-raw module nonce sig:
+  #!/usr/bin/env bash
+  export PAUSE_DEPUTY_PRIVATE_KEY=$(just get-key)
+  export CREATE_NEW_MODULE=false
+  export DEPUTY_PAUSE_MODULE_ADDRESS={{module}}
+  forge script ./script/SuperchainPause.s.sol --sig "pause(bytes32,bytes)" {{nonce}} {{sig}} --broadcast
+
+# Complete pause flow
+pause module:
+  #!/usr/bin/env bash
+  set -euo pipefail
+
+  # Generate nonce
+  nonce=$(just make-nonce)
+  echo "Generated nonce: $nonce"
+
+  # Generate signature
+  sig=$(just pause-sig {{module}} $nonce)
+  echo "Generated signature: $sig"
+
+  # Execute pause
+  just pause-raw {{module}} $nonce $sig
+
+# Simulation flow for checking script is functional
+simulate module:
+  export DANGEROUS_SUBMIT_SIGNATURE=false
+  just pause {{module}}
