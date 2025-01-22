@@ -108,7 +108,9 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry, VerificationBase {
     }
 
     function _addCodeExceptions() internal {
-        if (block.chainid != 1) addCodeException(previous.owner);
+        if (previous.owner.code.length == 0) {
+            addCodeException(previous.owner);
+        }
         addCodeException(address(uint160(uint256(previous.batcherHash))));
         addCodeException(previous.unsafeBlockSigner);
         addCodeException(previous.batchInbox);
