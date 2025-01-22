@@ -8,8 +8,9 @@ import {Test} from "forge-std/Test.sol";
 import {LibSort} from "@solady/utils/LibSort.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-import {ITask} from "src/fps/proposal/ITask.sol";
-import {IGnosisSafe, Enum} from "@eth-optimism-bedrock/scripts/interfaces/IGnosisSafe.sol";
+import {ITask} from "src/fps/task/ITask.sol";
+import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
+
 import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
 import {SAFE_NONCE_SLOT, MULTICALL3_ADDRESS} from "src/fps/utils/Constants.sol";
 import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
