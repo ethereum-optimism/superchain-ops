@@ -1,0 +1,3 @@
+safeNonce = 66
+isNestedSafe = false
+l2chains = [{name = "Orderly", chainId = 0}, {name = "Metal", chainId = 1750}]
