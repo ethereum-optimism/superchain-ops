@@ -97,16 +97,6 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry, VerificationBase {
         checkBaseSysCfgVars();
     }
 
-    /// @notice Public function that must be called by the verification script.
-    function checkSystemConfigUpgradeWithPreviousGasLimitOverride(uint256 previousGasLimitOverride) public view {
-        checkTargetVersion();
-        checkScalar();
-        checkDGF();
-        checkGasPayingToken();
-
-        checkBaseSysCfgVarsWithGasLimitOverride(previousGasLimitOverride);
-    }
-
     function _addCodeExceptions() internal {
         if (previous.owner.code.length == 0) {
             addCodeException(previous.owner);
