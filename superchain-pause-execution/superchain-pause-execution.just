@@ -44,6 +44,7 @@ pause *args='':
   fi
 
   NETWORK_SELECTED="$network_arg"
+  echo $NETWORK_SELECTED
   if [[ "$NETWORK_SELECTED" =~ "sepolia" ]]; then
     echo "🚨 You selected the ETHEREUM SEPOLIA network 🚨"
     echo "🚨       This is a PRODUCTION network        🚨"
@@ -62,7 +63,7 @@ pause *args='':
     DEPUTY_PAUSE_MODULE_ADDRESS="0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B"
   elif [[ "$NETWORK_SELECTED" =~ "simulate" ]]; then
     echo "⚠️ You selected the SIMULATE network ⚠️"
-    echo "⚠️  This DOES NOT trigger the pause  ⚠️
+    echo "⚠️  This DOES NOT trigger the pause  ⚠️"
     VAULTNAME="sepolia [shared]"
     EXPLORER="https://sepolia.etherscan.io/"
     RPC_URL="https://ethereum-sepolia.publicnode.com"
