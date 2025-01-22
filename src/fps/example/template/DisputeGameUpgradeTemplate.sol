@@ -24,7 +24,7 @@ contract DisputeGameUpgradeTemplate is MultisigTask {
     function run(string memory taskConfigFilePath, string memory networkConfigFilePath) public {
         Addresses _addresses = new Addresses(networkConfigFilePath);
 
-        _init(taskConfigFilePath, networkConfigFilePath, _addresses);
+        _init(taskConfigFilePath, _addresses);
 
         SetImplementation[] memory setImplementation =
             abi.decode(vm.parseToml(vm.readFile(networkConfigFilePath), ".implementations"), (SetImplementation[]));

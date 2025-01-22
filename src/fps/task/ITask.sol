@@ -46,5 +46,5 @@ abstract contract ITask {
     function setTaskConfig(string memory taskConfigFilePath) external virtual;
 
     /// @notice set the L2 networks config
-    function setL2NetworksConfig(string memory networkConfigFilePath, Addresses _addresses) external virtual;
+    function setAddress(Addresses _addresses) external virtual;
 }

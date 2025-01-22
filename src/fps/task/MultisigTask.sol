@@ -142,9 +142,8 @@ abstract contract MultisigTask is Test, Script, ITask {
 
     /// @notice Initialize the task with task and network configuration
     /// @param taskConfigFilePath Path to the task configuration file
-    /// @param networkConfigFilePath Path to the network configuration file
     /// @param _addresses Address registry contract
-    function _init(string memory taskConfigFilePath, string memory networkConfigFilePath, Addresses _addresses)
+    function _init(string memory taskConfigFilePath, Addresses _addresses)
         internal
     {
         require(
@@ -152,7 +151,7 @@ abstract contract MultisigTask is Test, Script, ITask {
             "MultisigTask: already initialized"
         );
         setTaskConfig(taskConfigFilePath);
-        setL2NetworksConfig(networkConfigFilePath, _addresses);
+        setAddress(_addresses);
         initialized = true;
     }
 
@@ -171,13 +170,12 @@ abstract contract MultisigTask is Test, Script, ITask {
     }
 
     /// @notice Sets the L2 networks configuration
-    /// @param networkConfigFilePath Path to the network configuration file
     /// @param _addresses Address registry contract
-    function setL2NetworksConfig(string memory networkConfigFilePath, Addresses _addresses) public override {
+    function setAddress(Addresses _addresses) public override {
         addresses = _addresses;
-        string memory networkConfigFileContents = vm.readFile(networkConfigFilePath);
 
-        isNestedSafe = abi.decode(vm.parseToml(networkConfigFileContents, ".isNestedSafe"), (bool));
+        /// assume safe is nested unless there is an EOA owner
+        isNestedSafe = true;
 
         /// get chains
         Addresses.ChainInfo[] memory chains = addresses.getChains();
@@ -188,6 +186,12 @@ abstract contract MultisigTask is Test, Script, ITask {
 
         /// TODO change this once we implement task stacking
         nonce = IGnosisSafe(multisig).nonce();
+        address[] memory owners = IGnosisSafe(multisig).getOwners();
+        for (uint256 i = 0; i < owners.length; i++) {
+            if (owners[i].code.length > 0) {
+                isNestedSafe = false;
+            } 
+        }
 
         for (uint256 i = 1; i < chains.length; i++) {
             require(

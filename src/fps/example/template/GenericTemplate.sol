@@ -12,7 +12,7 @@ abstract contract GenericTemplate is MultisigTask {
 
         _templateSetup(taskConfigFilePath, networkConfigFilePath, _addresses);
 
-        _init(taskConfigFilePath, networkConfigFilePath, _addresses);
+        _init(taskConfigFilePath, _addresses);
 
         _processTask();
     }
