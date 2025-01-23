@@ -48,7 +48,7 @@ isNestedSafe = false
 
 ### Task Template Files
 
-Task templates allow task developers to create new tasks without writing any Solidity code. The templates are designed to be as flexible as possible, allowing developers to create tasks that update multiple parameters for a single or super chain. Templates are currently in development and will be released in a future PR.
+Task templates allow task developers to create new tasks without writing any Solidity code. The templates are designed to be as flexible as possible, allowing developers to create tasks that update multiple parameters for a single or superchain. Templates are currently in development and will be released in a future PR.
 
 The mainnet configuration file for task template example 00 can be found here: [task-00/mainnetConfig.toml](./example/task-00/mainnetConfig.toml)
 
