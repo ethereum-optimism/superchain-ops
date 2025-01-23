@@ -59,7 +59,8 @@ contract AddressRegistry is IAddressRegistry, Test {
         );
 
         bytes memory chainListContent;
-        try vm.parseToml(vm.readFile(networkConfigFilePath), ".l2chains") returns (bytes memory parsedChainListContent) {
+        try vm.parseToml(vm.readFile(networkConfigFilePath), ".l2chains") returns (bytes memory parsedChainListContent)
+        {
             chainListContent = parsedChainListContent;
         } catch {
             revert(string.concat("Failed to parse network config file path: ", networkConfigFilePath));
