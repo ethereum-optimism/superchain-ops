@@ -5,18 +5,29 @@ import {Script, console} from "forge-std/Script.sol";
 
 interface IDeputyPauseModule {
     function pause(bytes32 _nonce, bytes memory _signature) external;
+
+    function superchainConfig() external view returns (address);
+}
+
+interface ISuperchainConfig {
+    function paused() external view returns (bool);
 }
 
 contract SuperchainPause is Script {
     /// @notice Typehash for PauseMessage.
-    bytes32 internal constant PAUSE_MESSAGE_TYPEHASH = keccak256("PauseMessage(bytes32 nonce)");
+    bytes32 internal constant PAUSE_MESSAGE_TYPEHASH =
+        keccak256("PauseMessage(bytes32 nonce)");
 
     /// @notice Typehash for DeputyAuthMessage.
-    bytes32 internal constant DEPUTY_AUTH_MESSAGE_TYPEHASH = keccak256("DeputyAuthMessage(address deputy)");
+    bytes32 internal constant DEPUTY_AUTH_MESSAGE_TYPEHASH =
+        keccak256("DeputyAuthMessage(address deputy)");
 
     /// @notice Asserts that the DANGEROUS_SUBMIT_SIGNATURE environment variable is set to true.
     function assertDangerousSubmitSignature() public view {
-        bool dangerousSubmitSignature = vm.envOr("DANGEROUS_SUBMIT_SIGNATURE", false);
+        bool dangerousSubmitSignature = vm.envOr(
+            "DANGEROUS_SUBMIT_SIGNATURE",
+            false
+        );
         if (!dangerousSubmitSignature) {
             revert("DANGEROUS_SUBMIT_SIGNATURE is not set to true");
         }
@@ -29,27 +40,41 @@ contract SuperchainPause is Script {
     /// @return Address of the DeputyPauseModule.
     function getModuleAddress() public view returns (address) {
         bool createNewModule = vm.envOr("CREATE_NEW_MODULE", false);
-        address dpmAddress = vm.envOr("DEPUTY_PAUSE_MODULE_ADDRESS", address(0));
-        address creatorAddress = vm.envOr("DEPUTY_PAUSE_MODULE_CREATOR_ADDRESS", address(0));
+        address dpmAddress = vm.envOr(
+            "DEPUTY_PAUSE_MODULE_ADDRESS",
+            address(0)
+        );
+        address creatorAddress = vm.envOr(
+            "DEPUTY_PAUSE_MODULE_CREATOR_ADDRESS",
+            address(0)
+        );
 
         if (createNewModule) {
             if (dpmAddress != address(0)) {
-                revert("Cannot provide both DEPUTY_PAUSE_MODULE_ADDRESS and CREATE_NEW_MODULE");
+                revert(
+                    "Cannot provide both DEPUTY_PAUSE_MODULE_ADDRESS and CREATE_NEW_MODULE"
+                );
             }
 
             if (creatorAddress == address(0)) {
-                revert("Must provide DEPUTY_PAUSE_MODULE_CREATOR_ADDRESS when CREATE_NEW_MODULE is true");
+                revert(
+                    "Must provide DEPUTY_PAUSE_MODULE_CREATOR_ADDRESS when CREATE_NEW_MODULE is true"
+                );
             }
 
             uint64 nonce = vm.getNonce(creatorAddress);
             return vm.computeCreateAddress(creatorAddress, nonce);
         } else {
             if (creatorAddress != address(0)) {
-                revert("Cannot provide DEPUTY_PAUSE_MODULE_CREATOR_ADDRESS when CREATE_NEW_MODULE is false");
+                revert(
+                    "Cannot provide DEPUTY_PAUSE_MODULE_CREATOR_ADDRESS when CREATE_NEW_MODULE is false"
+                );
             }
 
             if (dpmAddress == address(0)) {
-                revert("Must provide DEPUTY_PAUSE_MODULE_ADDRESS when CREATE_NEW_MODULE is false");
+                revert(
+                    "Must provide DEPUTY_PAUSE_MODULE_ADDRESS when CREATE_NEW_MODULE is false"
+                );
             }
 
             return dpmAddress;
@@ -73,32 +98,41 @@ contract SuperchainPause is Script {
     /// @param _chainId Chain ID to use for the domain separator.
     /// @param _structHash The struct hash.
     /// @return The EIP-712 typed data hash.
-    function hashTypedData(address _verifyingContract, uint256 _chainId, bytes32 _structHash)
-        internal
-        pure
-        returns (bytes32)
-    {
-        return keccak256(
-            abi.encodePacked(
-                "\x19\x01",
-                keccak256(
-                    abi.encode(
-                        keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
-                        keccak256("DeputyPauseModule"),
-                        keccak256("1"),
-                        _chainId,
-                        _verifyingContract
-                    )
-                ),
-                _structHash
-            )
-        );
+    function hashTypedData(
+        address _verifyingContract,
+        uint256 _chainId,
+        bytes32 _structHash
+    ) internal pure returns (bytes32) {
+        return
+            keccak256(
+                abi.encodePacked(
+                    "\x19\x01",
+                    keccak256(
+                        abi.encode(
+                            keccak256(
+                                "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                            ),
+                            keccak256("DeputyPauseModule"),
+                            keccak256("1"),
+                            _chainId,
+                            _verifyingContract
+                        )
+                    ),
+                    _structHash
+                )
+            );
     }
 
     /// @notice Generates the signature for the auth message.
     function signAuthMessage() public {
-        bytes32 structHash = keccak256(abi.encode(DEPUTY_AUTH_MESSAGE_TYPEHASH, getPauseDeputyAddress()));
-        bytes32 digest = hashTypedData(getModuleAddress(), block.chainid, structHash);
+        bytes32 structHash = keccak256(
+            abi.encode(DEPUTY_AUTH_MESSAGE_TYPEHASH, getPauseDeputyAddress())
+        );
+        bytes32 digest = hashTypedData(
+            getModuleAddress(),
+            block.chainid,
+            structHash
+        );
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(getPauseDeputyKey(), digest);
         console.logBytes(abi.encodePacked(r, s, v));
     }
@@ -106,8 +140,14 @@ contract SuperchainPause is Script {
     /// @notice Generates the signature for the pause message.
     /// @param _nonce Nonce to use for the pause message.
     function signPauseMessage(bytes32 _nonce) public {
-        bytes32 structHash = keccak256(abi.encode(PAUSE_MESSAGE_TYPEHASH, _nonce));
-        bytes32 digest = hashTypedData(getModuleAddress(), block.chainid, structHash);
+        bytes32 structHash = keccak256(
+            abi.encode(PAUSE_MESSAGE_TYPEHASH, _nonce)
+        );
+        bytes32 digest = hashTypedData(
+            getModuleAddress(),
+            block.chainid,
+            structHash
+        );
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(getPauseDeputyKey(), digest);
         console.logBytes(abi.encodePacked(r, s, v));
     }
@@ -118,7 +158,22 @@ contract SuperchainPause is Script {
     function pause(bytes32 _nonce, bytes memory _signature) public {
         assertDangerousSubmitSignature();
         vm.startBroadcast();
+        console.log(
+            "Superchain pause status (expected to be false):",
+            ISuperchainConfig(
+                (IDeputyPauseModule(getModuleAddress()).superchainConfig())
+            ).paused()
+        );
+
         IDeputyPauseModule(getModuleAddress()).pause(_nonce, _signature);
+
+        console.log(
+            "Superchain pause status (expected to be true):",
+            ISuperchainConfig(
+                (IDeputyPauseModule(getModuleAddress()).superchainConfig())
+            ).paused()
+        );
+
         vm.stopBroadcast();
     }
 }
