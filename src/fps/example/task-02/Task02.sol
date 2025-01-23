@@ -21,10 +21,7 @@ contract Task02 is GenericTemplate {
 
     mapping(uint256 => SetRespectedGameType) public setRespectedGameTypes;
 
-    function _templateSetup(string memory taskConfigFilePath, string memory networkConfigFilePath, Addresses)
-        internal
-        override
-    {
+    function _templateSetup(string memory, string memory networkConfigFilePath, Addresses) internal override {
         SetRespectedGameType[] memory setRespectedGameType = abi.decode(
             vm.parseToml(vm.readFile(networkConfigFilePath), ".respectedGameTypes"), (SetRespectedGameType[])
         );
