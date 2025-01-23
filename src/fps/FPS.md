@@ -60,8 +60,22 @@ gasScalars = [{chainId = 291, overhead = 1000000000, scalar = 1}, {chainId = 175
 
 This toml configuration file allows task developers to set gas limits and gas scalars for the task. After the changes are applied in the simulation, validations are run that the new values are the expected values.
 
-### Running Example Task 00 to set gas configs:
+### Running Example Tasks
+
+#### Template 00 to set gas configs:
 
 ```bash
 forge script src/fps/example/template/GasConfigTemplate.sol --sig "run(string,string)" src/fps/example/task-00/taskConfig.toml src/fps/example/task-00/mainnetConfig.toml --rpc-url mainnet -vvv
+```
+
+#### Template 01 to set gas configs:
+
+```bash
+forge script src/fps/example/template/DisputeGameUpgradeTemplate.sol --sig "run(string,string)" src/fps/example/task-01/taskConfig.toml src/fps/example/task-01/mainnetConfig.toml --rpc-url mainnet -vvv
+```
+
+#### Template 02 to set respected game type:
+
+```bash
+forge script src/fps/example/task-02/Task02.sol --sig "run(string,string)" src/fps/example/task-02/taskConfig.toml src/fps/example/task-02/mainnetConfig.toml --rpc-url mainnet -vvvvv
 ```
