@@ -186,7 +186,7 @@ abstract contract MultisigTask is Test, Script, ITask {
         nonce = IGnosisSafe(multisig).nonce();
         address[] memory owners = IGnosisSafe(multisig).getOwners();
         for (uint256 i = 0; i < owners.length; i++) {
-            if (owners[i].code.length > 0) {
+            if (owners[i].code.length == 0) {
                 isNestedSafe = false;
             }
         }

@@ -11,7 +11,7 @@ contract DisputeGameUpgradeTemplate is MultisigTask {
     /// @notice struct to store information about an implementation to be set for a specific l2 chain id
     struct SetImplementation {
         GameType gameType;
-        string implementation;
+        address implementation;
         uint256 l2ChainId;
     }
 
@@ -44,8 +44,7 @@ contract DisputeGameUpgradeTemplate is MultisigTask {
 
         if (setImplementations[chainId].l2ChainId != 0) {
             disputeGameFactory.setImplementation(
-                setImplementations[chainId].gameType,
-                IDisputeGame(addresses.getAddress(setImplementations[chainId].implementation, chainId))
+                setImplementations[chainId].gameType, IDisputeGame(setImplementations[chainId].implementation)
             );
         }
     }
@@ -58,7 +57,7 @@ contract DisputeGameUpgradeTemplate is MultisigTask {
         if (setImplementations[chainId].l2ChainId != 0) {
             assertEq(
                 address(disputeGameFactory.gameImpls(setImplementations[chainId].gameType)),
-                addresses.getAddress(setImplementations[chainId].implementation, chainId),
+                setImplementations[chainId].implementation,
                 "implementation not set"
             );
         }
