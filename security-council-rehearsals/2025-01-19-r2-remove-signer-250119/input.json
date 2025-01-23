@@ -1,0 +1,42 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "meta": {
+    "name": "Signer Removal",
+    "description": "",
+    "txBuilderVersion": "1.16.3"
+  },
+  "transactions": [
+    {
+      "to": "0x348eebA2609645182872CCd75256D873e689fCFf",
+      "value": "0",
+      "data": "0xf8dc5dd90000000000000000000000006da310cc1f80ecca6618d80c5040049ded25b6b9000000000000000000000000a5a6a342dace967d152510e2f1f492d543a93eb30000000000000000000000000000000000000000000000000000000000000005",
+      "contractMethod": {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "prevOwner",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_threshold",
+            "type": "uint256"
+          }
+        ],
+        "name": "removeOwner",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "prevOwner": "0x6Da310CC1f80EcCa6618D80c5040049dED25B6b9",
+        "owner": "0xa5A6A342daCE967d152510e2f1F492d543A93eB3",
+        "_threshold": "5"
+      }
+    }
+  ]
+}
