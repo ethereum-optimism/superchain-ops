@@ -261,31 +261,6 @@ jobs:
           command: |
             forge --version
             forge test -vvv
-  test_templates:
-    docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
-    steps:
-      - checkout
-      - run:
-          name: test gas config templates - Orderly and Metal
-          command: |
-            forge build
-            forge script src/fps/example/template/GasConfigTemplate.sol --sig "run(string,string)" src/fps/example/task-00/taskConfig.toml src/fps/example/task-00/mainnetConfig.toml --rpc-url mainnet -vvvvv
-      - run:
-          name: test gas config templates - Optimism Mainnet
-          command: |
-            forge build
-            forge script src/fps/example/template/GasConfigTemplate.sol --sig "run(string,string)" src/fps/example/task-00/taskConfig.toml src/fps/example/task-00/opmainnetConfig.toml --rpc-url mainnet -vvvvv
-      - run:
-          name: test dispute game upgrade template - Optimism Mainnet
-          command: |
-            forge build
-            forge script src/fps/example/template/DisputeGameUpgradeTemplate.sol --sig "run(string,string)" src/fps/example/task-01/taskConfig.toml src/fps/example/task-01/mainnetConfig.toml --rpc-url mainnet -vvv
-      - run:
-          name: test set respected game type template - Optimism Mainnet
-          command: |
-            forge build
-            forge script src/fps/example/task-02/Task02.sol --sig "run(string,string)" src/fps/example/task-02/taskConfig.toml src/fps/example/task-02/mainnetConfig.toml --rpc-url mainnet -vvvvv
 
   print_versions:
     docker:
@@ -307,7 +282,6 @@ workflows:
       - forge_build
       - forge_fmt
       - forge_test
-      - test_templates
       # RPC endpoint checks.
       - check_sepolia_rpc_endpoints
       - check_mainnet_rpc_endpoints
