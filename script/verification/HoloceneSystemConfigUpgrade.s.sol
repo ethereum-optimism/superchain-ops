@@ -181,16 +181,6 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry, VerificationBase {
         require(keccak256(abi.encode(getBaseSysCfgVars())) == keccak256(abi.encode(previous)), "system-config-110");
     }
 
-    // Checks the remaining storage variables are unchanged after the upgrade.
-    // NOTE: The `_gasLimit` is permitted to be updated to accommodate the new EIP-1559 parameters.
-    function checkBaseSysCfgVarsWithGasLimitOverride(uint256 previousGasLimitOverride) internal view {
-        BaseSysCfgVars memory _previous = previous;
-        _previous.gasLimit = previousGasLimitOverride;
-
-        // Check remaining storage variables didn't change
-        require(keccak256(abi.encode(getBaseSysCfgVars())) == keccak256(abi.encode(_previous)), "system-config-110.5");
-    }
-
     // Reads the semantic version of the SystemConfig contract
     function getSysCfgVersion() internal view returns (string memory) {
         return sysCfg.version();
