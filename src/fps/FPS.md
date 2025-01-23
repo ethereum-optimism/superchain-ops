@@ -48,4 +48,20 @@ isNestedSafe = false
 
 ### Task Template Files
 
-TBD, will come in another PR
+Task templates allow task developers to create new tasks without writing any Solidity code. The templates are designed to be as flexible as possible, allowing developers to create tasks that update multiple parameters for a single or super chain. Templates are currently in development and will be released in a future PR.
+
+The mainnet configuration file for task template example 00 can be found here: [task-00/mainnetConfig.toml](./example/task-00/mainnetConfig.toml)
+
+```toml
+[gasConfigs]
+gasLimits = [{chainId = 291, gasLimit = 100000000}, {chainId = 1750, gasLimit = 100000000}]
+gasScalars = [{chainId = 291, overhead = 1000000000, scalar = 1}, {chainId = 1750, overhead = 1000000000, scalar = 1}]
+```
+
+This toml configuration file allows task developers to set gas limits and gas scalars for the task. After the changes are applied in the simulation, validations are run that the new values are the expected values.
+
+### Running Example Task 00 to set gas configs:
+
+```bash
+forge script src/fps/example/template/GasConfigTemplate.sol --sig "run(string,string)" src/fps/example/task-00/taskConfig.toml src/fps/example/task-00/mainnetConfig.toml --rpc-url mainnet -vvv
+```
