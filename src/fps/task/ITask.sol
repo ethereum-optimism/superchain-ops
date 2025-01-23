@@ -4,11 +4,6 @@ pragma solidity 0.8.15;
 import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
 
 abstract contract ITask {
-    /// @notice function to process the task to be called from templates.
-    /// @dev use flags to determine which actions to take
-    ///      this function shoudn't be overriden.
-    function _processTask() internal virtual;
-
     /// @notice return task actions.
     /// @dev this function shoudn't be overriden.
     function getProposalActions()
@@ -41,10 +36,4 @@ abstract contract ITask {
 
     /// @notice print task description, actions and calldata
     function print() external virtual;
-
-    /// @notice set the task config
-    function setTaskConfig(string memory taskConfigFilePath) external virtual;
-
-    /// @notice set the L2 networks config
-    function setAddress(Addresses _addresses) external virtual;
 }

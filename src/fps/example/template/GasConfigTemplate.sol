@@ -15,22 +15,23 @@ contract GasConfigTemplate is MultisigTask {
     /// @notice Mapping of chain IDs to their respective gas limits
     mapping(uint256 => uint64) public gasLimits;
 
-    /// @notice Runs the proposal with the given task and network configuration file paths. Sets the address registry, initializes the proposal and processes the proposal.
-    /// @param taskConfigFilePath The path to the task configuration file.
-    /// @param networkConfigFilePath The path to the network configuration file.
-    function run(string memory taskConfigFilePath, string memory networkConfigFilePath) public {
-        Addresses _addresses = new Addresses(networkConfigFilePath);
+    function safeAddressString() public pure override returns (string memory) {
+        return "SystemConfigOwner";
+    }
 
-        _init(taskConfigFilePath, _addresses);
+    function taskStorageWrites() internal pure override returns (string[] memory) {
+        string[] memory storageWrites = new string[](1);
+        storageWrites[0] = "SystemConfigProxy";
+        return storageWrites;
+    }
 
+    function _templateSetup(string memory networkConfigFilePath) internal override {
         GasConfig[] memory gasConfig =
             abi.decode(vm.parseToml(vm.readFile(networkConfigFilePath), ".gasConfigs.gasLimits"), (GasConfig[]));
 
         for (uint256 i = 0; i < gasConfig.length; i++) {
             gasLimits[gasConfig[i].chainId] = gasConfig[i].gasLimit;
         }
-
-        _processTask();
     }
 
     /// @notice build the actions for setting the gas limits and gas configs for a specific l2 chain id.

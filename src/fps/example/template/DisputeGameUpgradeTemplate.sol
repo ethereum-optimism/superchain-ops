@@ -18,22 +18,23 @@ contract DisputeGameUpgradeTemplate is MultisigTask {
     /// @notice maps a l2 chain id to a SetImplementation struct
     mapping(uint256 => SetImplementation) public setImplementations;
 
-    /// @notice Runs the proposal with the given task and network configuration file paths. Sets the address registry, initializes the proposal and processes the proposal.
-    /// @param taskConfigFilePath The path to the task configuration file.
-    /// @param networkConfigFilePath The path to the network configuration file.
-    function run(string memory taskConfigFilePath, string memory networkConfigFilePath) public {
-        Addresses _addresses = new Addresses(networkConfigFilePath);
+    function safeAddressString() public pure override returns (string memory) {
+        return "ProxyAdminOwner";
+    }
 
-        _init(taskConfigFilePath, _addresses);
+    function taskStorageWrites() internal pure override returns (string[] memory) {
+        string[] memory storageWrites = new string[](1);
+        storageWrites[0] = "DisputeGameFactoryProxy";
+        return storageWrites;
+    }
 
+    function _templateSetup(string memory networkConfigFilePath) internal override {
         SetImplementation[] memory setImplementation =
             abi.decode(vm.parseToml(vm.readFile(networkConfigFilePath), ".implementations"), (SetImplementation[]));
 
         for (uint256 i = 0; i < setImplementation.length; i++) {
             setImplementations[setImplementation[i].l2ChainId] = setImplementation[i];
         }
-
-        _processTask();
     }
 
     /// @notice builds setImplementation action for the given chainId. Overrrides MultisigTask._build

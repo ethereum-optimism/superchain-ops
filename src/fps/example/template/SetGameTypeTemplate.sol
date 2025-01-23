@@ -5,10 +5,10 @@ import {
 } from "@eth-optimism-bedrock/src/safe/DeputyGuardianModule.sol";
 import {LibGameType} from "@eth-optimism-bedrock/src/dispute/lib/LibUDT.sol";
 
-import {GenericTemplate} from "src/fps/example/template/GenericTemplate.sol";
+import {MultisigTask} from "src/fps/task/MultisigTask.sol";
 import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
 
-contract SetGameTypeTemplate is GenericTemplate {
+contract SetGameTypeTemplate is MultisigTask {
     using LibGameType for GameType;
 
     struct SetRespectedGameType {
@@ -20,7 +20,17 @@ contract SetGameTypeTemplate is GenericTemplate {
 
     mapping(uint256 => SetRespectedGameType) public setRespectedGameTypes;
 
-    function _templateSetup(string memory, string memory networkConfigFilePath, Addresses) internal override {
+    function safeAddressString() public pure override returns (string memory) {
+        return "Challenger";
+    }
+
+    function taskStorageWrites() internal pure override returns (string[] memory) {
+        string[] memory storageWrites = new string[](1);
+        storageWrites[0] = "OptimismPortalProxy";
+        return storageWrites;
+    }
+
+    function _templateSetup(string memory networkConfigFilePath) internal override {
         SetRespectedGameType[] memory setRespectedGameType = abi.decode(
             vm.parseToml(vm.readFile(networkConfigFilePath), ".respectedGameTypes"), (SetRespectedGameType[])
         );

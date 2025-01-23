@@ -25,9 +25,6 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @notice flag to determine if the safe is nested multisig
     bool public isNestedSafe;
 
-    /// @notice flag to determine if the task has been initialized
-    bool public initialized;
-
     /// @notice owners the safe started with
     address[] public startingOwners;
 
@@ -140,45 +137,35 @@ abstract contract MultisigTask is Test, Script, ITask {
         _buildStarted = false;
     }
 
-    /// @notice Initialize the task with task and network configuration
-    /// @param taskConfigFilePath Path to the task configuration file
-    /// @param _addresses Address registry contract
-    function _init(string memory taskConfigFilePath, Addresses _addresses) internal {
+    /// @notice abstract function to be implemented by the inheriting contract
+    /// specifies the safe address string to run the template from
+    function safeAddressString() public pure virtual returns (string memory);
+
+    /// @notice abstract function to be implemented by the inheriting contract
+    /// specifies the addresses that must have their storage written to
+    function taskStorageWrites() internal pure virtual returns (string[] memory);
+
+    /// @notice Runs the proposal with the given task and network configuration file paths. Sets the address registry, initializes the proposal and processes the proposal.
+    /// @param networkConfigFilePath The path to the network configuration file.
+    function run(string memory networkConfigFilePath) public {
+        Addresses _addresses = new Addresses(networkConfigFilePath);
+
+        _templateSetup(networkConfigFilePath);
+
+        /// set the task config
         require(
-            !initialized && bytes(config.safeAddressString).length == 0 && address(addresses) == address(0x0),
+            bytes(config.safeAddressString).length == 0 && address(addresses) == address(0x0),
             "MultisigTask: already initialized"
         );
-        setTaskConfig(taskConfigFilePath);
-        setAddress(_addresses);
-        initialized = true;
-    }
-
-    /// @notice Set the task configuration
-    /// @param taskConfigFilePath Path to the task configuration file
-    function setTaskConfig(string memory taskConfigFilePath) public override {
         require(
             block.chainid == getChain("mainnet").chainId || block.chainid == getChain("sepolia").chainId,
             string.concat("Unsupported network: ", vm.toString(block.chainid))
         );
-        string memory taskConfigFileContents;
-        try vm.readFile(taskConfigFilePath) returns (string memory fileContents) {
-            taskConfigFileContents = fileContents;
-        } catch {
-            revert(string.concat("could not read in file: ", taskConfigFilePath));
-        }
 
-        bytes memory parsedFileContents;
-        try vm.parseToml(taskConfigFileContents, ".task") returns (bytes memory parsedTaskConfigFileContents) {
-            parsedFileContents = parsedTaskConfigFileContents;
-        } catch {
-            revert(string.concat("could not parse file: ", taskConfigFilePath));
-        }
-        config = abi.decode(parsedFileContents, (TaskConfig));
-    }
+        config.safeAddressString = safeAddressString();
+        config.allowedStorageWriteAccesses = taskStorageWrites();
 
-    /// @notice Sets the L2 networks configuration
-    /// @param _addresses Address registry contract
-    function setAddress(Addresses _addresses) public override {
+        /// set the addresses object
         addresses = _addresses;
 
         /// assume safe is nested unless there is an EOA owner
@@ -229,17 +216,16 @@ abstract contract MultisigTask is Test, Script, ITask {
                 );
             }
         }
-    }
 
-    /// @notice function to be used by forge script.
-    /// @dev use flags to determine which actions to take
-    ///      this function shoudn't be overriden.
-    function _processTask() internal override {
+        /// now execute proposal
         build();
         simulate();
         validate();
         print();
     }
+
+    /// @notice abstract function to be implemented by the inheriting contract to setup the template
+    function _templateSetup(string memory networkConfigFilePath) internal virtual;
 
     /// @notice get the calldata to be executed by safe
     /// @dev callable only after the build function has been run and the
