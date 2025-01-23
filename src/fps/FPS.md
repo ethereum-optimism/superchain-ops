@@ -57,7 +57,7 @@ The mainnet configuration file for task template example 00 can be found here: [
 gasLimits = [{chainId = 291, gasLimit = 100000000}, {chainId = 1750, gasLimit = 100000000}]
 ```
 
-This toml configuration file allows task developers to set gas limits for the task. After the changes are applied in the simulation, validations are run that the new values are the expected values.
+This toml configuration file allows task developers to set gas limits for the task. After the changes are applied in the simulation, validations are run to ensure that the new values are the expected values.
 
 ### Running Example Tasks
 
@@ -67,7 +67,7 @@ This toml configuration file allows task developers to set gas limits for the ta
 forge script src/fps/example/template/GasConfigTemplate.sol --sig "run(string,string)" src/fps/example/task-00/taskConfig.toml src/fps/example/task-00/mainnetConfig.toml --rpc-url mainnet -vvv
 ```
 
-#### Template 01 to set gas configs:
+#### Template 01 to set dispute game upgrade:
 
 ```bash
 forge script src/fps/example/template/DisputeGameUpgradeTemplate.sol --sig "run(string,string)" src/fps/example/task-01/taskConfig.toml src/fps/example/task-01/mainnetConfig.toml --rpc-url mainnet -vvv
