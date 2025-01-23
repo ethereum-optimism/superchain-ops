@@ -1,0 +1,6 @@
+# this is the file used to determine the network configuration
+
+l2chains = [{name = "Optimism Mainnet", chainId = 10}]
+
+[gasConfigs]
+gasLimits = [{chainId = 10, gasLimit = 60000000}]
