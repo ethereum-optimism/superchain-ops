@@ -1,12 +1,12 @@
 # Overview
 
-The forge proposal simulator was created to solve the problem of testing and validating governance proposals before and after they land onchain. With support for Gnosis Safes, Timelocks and Governor Bravo this tooling can be adapted to most use cases. The simulator allows developers to write tasks that simulate the state changes that would occur onchain if the proposal were to be executed. The simulator as installed in the superchain-ops repo can be run against any mainnet, sepolia, and devnet.
+This new calldata simulation tooling allows developers to write tasks that simulate the state changes that would occur onchain if the proposal were to be executed. The simulator can be run against any mainnet, sepolia, and devnet.
 
-The goal of using FPS for the superchain ops repo is to greatly simplify task development, increase security by reducing errors, reduce sharp edges, and speed development and review of tasks. The simulation is designed to simulate task runs, with all onchain state changes being run locally.
+The goal of using this new task tooling for the superchain ops repo is to greatly simplify task development, increase security by reducing errors, reduce sharp edges, and speed development and review of tasks. The simulation is designed to simulate task runs, with all onchain state changes being run locally.
 
 ## Task Development and Templates
 
-Installing FPS allows developers to create tasks without writing any Solidity code as long as a predefined template is used. The templates are designed to be as flexible as possible, allowing developers to create tasks that update multiple parameters for a single or super chain. Templates are currently in development and will be released in a future PR.
+Developers can now create tasks without writing any Solidity code as long as a predefined template is used. The templates are designed to be as flexible as possible, allowing developers to create tasks that update multiple parameters for a single or super chain. Templates are currently in development and will be released in a future PR.
 
 # Task Configuration File
 
