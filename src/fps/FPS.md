@@ -55,10 +55,9 @@ The mainnet configuration file for task template example 00 can be found here: [
 ```toml
 [gasConfigs]
 gasLimits = [{chainId = 291, gasLimit = 100000000}, {chainId = 1750, gasLimit = 100000000}]
-gasScalars = [{chainId = 291, overhead = 1000000000, scalar = 1}, {chainId = 1750, overhead = 1000000000, scalar = 1}]
 ```
 
-This toml configuration file allows task developers to set gas limits and gas scalars for the task. After the changes are applied in the simulation, validations are run that the new values are the expected values.
+This toml configuration file allows task developers to set gas limits for the task. After the changes are applied in the simulation, validations are run that the new values are the expected values.
 
 ### Running Example Tasks
 
