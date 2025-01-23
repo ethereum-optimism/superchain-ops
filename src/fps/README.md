@@ -64,17 +64,17 @@ This toml configuration file allows task developers to set gas limits for the ta
 #### Template 00 to set gas configs:
 
 ```bash
-forge script src/fps/example/template/GasConfigTemplate.sol --sig "run(string,string)" src/fps/example/task-00/taskConfig.toml src/fps/example/task-00/mainnetConfig.toml --rpc-url mainnet -vvv
+forge script src/fps/example/template/GasConfigTemplate.sol --sig "run(string)" src/fps/example/task-00/mainnetConfig.toml --rpc-url mainnet -vvv
 ```
 
 #### Template 01 to set dispute game upgrade:
 
 ```bash
-forge script src/fps/example/template/DisputeGameUpgradeTemplate.sol --sig "run(string,string)" src/fps/example/task-01/taskConfig.toml src/fps/example/task-01/mainnetConfig.toml --rpc-url mainnet -vvv
+forge script src/fps/example/template/DisputeGameUpgradeTemplate.sol --sig "run(string)" src/fps/example/task-01/mainnetConfig.toml --rpc-url mainnet -vvv
 ```
 
 #### Template 02 to set respected game type:
 
 ```bash
-forge script src/fps/example/task-02/Task02.sol --sig "run(string,string)" src/fps/example/task-02/taskConfig.toml src/fps/example/task-02/mainnetConfig.toml --rpc-url mainnet -vvvvv
+forge script src/fps/example/template/SetGameTypeTemplate.sol --sig "run(string)" src/fps/example/task-02/mainnetConfig.toml --rpc-url mainnet -vvvvv
 ```
