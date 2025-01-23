@@ -1,70 +1,165 @@
 # Get private key from 1password CLI based on network
 get-key:
-    #!/usr/bin/env bash
-    set -euo pipefail
+  #!/usr/bin/env bash
+  set -euo pipefail
 
-    network=$(just get-network)
-    item=$(op item get "DeputyPauseModulePrivateKey" --vault "$network [shared]" --format json | jq -r '"\(.fields.[1].value), \(.fields.[0].value)"')
-    read address pause_deputy_privatekey <<< $(echo "$item" | awk -F ',' '{print $1, $2}')
-    if [[ -z "$address" ]] || [[ -z "$pause_deputy_privatekey" ]]; then
-        echo "ERROR: Unable to get the address or private key from the vault. Please check the vault and ensure the item is in the vault: '$network [shared]' and try again." >&2
-        exit 1
-    fi
-    echo "$pause_deputy_privatekey"
+  # Get the network
+  network=$(just get-network)
+
+  # Get the private key
+  item=$(op item get "DeputyPauseModulePrivateKey" --vault "$network [shared]" --format json | jq -r '"\(.fields.[1].value), \(.fields.[0].value)"')
+  read address pause_deputy_privatekey <<< $(echo "$item" | awk -F ',' '{print $1, $2}')
+  if [[ -z "$address" ]] || [[ -z "$pause_deputy_privatekey" ]]; then
+    echo "ERROR: Unable to get the address or private key from the vault. Please check the vault and ensure the item is in the vault: '$network [shared]' and try again." >&2
+    exit 1
+  fi
+
+  # Set the private key
+  echo "$pause_deputy_privatekey"
 
 # Get network name from chain ID
 get-network:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    
-    chain_id=$(cast chain-id --rpc-url $RPC_URL)
-    if [ "$chain_id" = "1" ]; then
-        echo "mainnet"
-    elif [ "$chain_id" = "11155111" ]; then
-        echo "sepolia"
-    else
-        echo "Unsupported network chain ID: $chain_id" >&2
-        exit 1
-    fi
+  #!/usr/bin/env bash
+  # Make sure the ETH_RPC_URL is set
+  if [ -z "$ETH_RPC_URL" ]; then
+    echo "ETH_RPC_URL is not set" >&2
+    exit 1
+  fi
+
+  # Get the chain ID
+  chain_id=$(cast chain-id --rpc-url $ETH_RPC_URL)
+
+  # Return the network name
+  if [ "$chain_id" = "1" ]; then
+    echo "mainnet"
+  elif [ "$chain_id" = "11155111" ]; then
+    echo "sepolia"
+  else
+    echo "Unsupported network chain ID: $chain_id" >&2
+    exit 1
+  fi
+
+# Ensure the network is set
+ensure-network:
+  #!/usr/bin/env bash
+  set -euo pipefail
+
+  # Get the network, but don't print it
+  just get-network > /dev/null
+
+# Ensure the private key is set
+ensure-private-key:
+  #!/usr/bin/env bash
+  # Make sure the private key is set
+  if [ -z "$PRIVATE_KEY" ]; then
+    echo "PRIVATE_KEY is not set" >&2
+    exit 1
+  fi
 
 # Generate a random 32-byte nonce
 make-nonce:
+  #!/usr/bin/env bash
+  set -euo pipefail
+
+  # Generate a random 32-byte nonce
   echo "0x$(openssl rand -hex 32)"
+
+# Parse the signature from script output
+parse-sig output:
+  #!/usr/bin/env bash
+  set -euo pipefail
+
+  # Get the output
+  output={{output}}
+
+  # Parse the signature
+  sig=$(echo "$output" | tr -d '[:space:]')
+  if ! [[ "$sig" =~ ^0x[0-9a-fA-F]{130}$ ]]; then
+    echo "Error: Expected 0x-prefixed 65-byte signature, got: $sig" >&2
+    exit 1
+  fi
+
+  # Return the parsed signature
+  echo "$sig"
 
 # Sign auth message for new module
 auth-sig-new creator:
   #!/usr/bin/env bash
+  set -euo pipefail
+
+  # Ensure network is set (no private key needed)
+  just ensure-network
+
+  # Generate auth signature
   export PAUSE_DEPUTY_PRIVATE_KEY=$(just get-key)
   export CREATE_NEW_MODULE=true
   export DEPUTY_PAUSE_MODULE_CREATOR_ADDRESS={{creator}}
-  output=$(forge script ./script/SuperchainPause.s.sol --sig "signAuthMessage()")
-  echo "$output" | tail -n1
+  output=$(forge script ./script/SuperchainPause.s.sol --sig "signAuthMessage()" --rpc-url $ETH_RPC_URL)
+  ret=$(echo "$output" | tail -n1)
+  sig=$(just parse-sig $ret)
+  echo "$sig"
 
 # Sign auth message for existing module
 auth-sig module:
   #!/usr/bin/env bash
+  set -euo pipefail
+
+  # Ensure network is set (no private key needed)
+  just ensure-network
+
+  # Generate pause signature
   export PAUSE_DEPUTY_PRIVATE_KEY=$(just get-key)
   export CREATE_NEW_MODULE=false
   export DEPUTY_PAUSE_MODULE_ADDRESS={{module}}
-  output=$(forge script ./script/SuperchainPause.s.sol --sig "signAuthMessage()")
-  echo "$output" | tail -n1
+  output=$(forge script ./script/SuperchainPause.s.sol --sig "signAuthMessage()" --rpc-url $ETH_RPC_URL)
+  ret=$(echo "$output" | tail -n1)
+  sig=$(just parse-sig $ret)
+  echo "$sig"
 
 # Generate pause signature
 pause-sig module nonce:
   #!/usr/bin/env bash
+  set -euo pipefail
+
+  # Ensure network is set (no private key needed)
+  just ensure-network
+
+  # Generate pause signature
   export PAUSE_DEPUTY_PRIVATE_KEY=$(just get-key)
   export CREATE_NEW_MODULE=false
   export DEPUTY_PAUSE_MODULE_ADDRESS={{module}}
-  output=$(forge script ./script/SuperchainPause.s.sol --sig "signPauseMessage(bytes32)" {{nonce}})
-  echo "$output" | tail -n1
+  output=$(forge script ./script/SuperchainPause.s.sol --sig "signPauseMessage(bytes32)" {{nonce}} --rpc-url $ETH_RPC_URL)
+  ret=$(echo "$output" | tail -n1)
+  sig=$(just parse-sig $ret)
+  echo "$sig"
 
 # Execute pause with provided signature
 pause-raw module nonce sig:
   #!/usr/bin/env bash
+  set -euo pipefail
+
+  # Ensure network and private key are set
+  just ensure-network
+  just ensure-private-key
+
+  # Make sure user wants to continue
+  network=$(just get-network)
+  echo "🚨 YOU ARE EXECUTING THE SUPERCHAIN-WIDE PAUSE ON >>${network^^}<<"
+  echo "🚨 THIS IS A PRODUCTION NETWORK"
+  echo "🚨 THIS IS YOUR >>FINAL<< OPPORTUNITY TO CANCEL"
+  echo "🚨 THIS ACTION CARRIES SERIOUS CONSEQUENCES"
+  echo "🚨 ARE YOU SURE YOU WANT TO CONTINUE?"
+  read -p "🚨 Enter the network name to execute the pause: " answer
+  if [ "${answer,,}" != "${network,,}" ]; then
+    echo "Aborting..."
+    exit 1
+  fi
+
+  # Execute pause
   export PAUSE_DEPUTY_PRIVATE_KEY=$(just get-key)
   export CREATE_NEW_MODULE=false
   export DEPUTY_PAUSE_MODULE_ADDRESS={{module}}
-  forge script ./script/SuperchainPause.s.sol --sig "pause(bytes32,bytes)" {{nonce}} {{sig}} --broadcast
+  forge script ./script/SuperchainPause.s.sol --sig "pause(bytes32,bytes)" {{nonce}} {{sig}} --rpc-url $ETH_RPC_URL --broadcast
 
 # Complete pause flow
 pause module:
@@ -73,16 +168,33 @@ pause module:
 
   # Generate nonce
   nonce=$(just make-nonce)
-  echo "Generated nonce: $nonce"
+  echo "✅ Nonce generated successfully"
 
   # Generate signature
   sig=$(just pause-sig {{module}} $nonce)
-  echo "Generated signature: $sig"
+  echo "✅ Pause signature generated successfully"
 
   # Execute pause
   just pause-raw {{module}} $nonce $sig
 
 # Simulation flow for checking script is functional
 simulate module:
-  export DANGEROUS_SUBMIT_SIGNATURE=false
-  just pause {{module}}
+  #!/usr/bin/env bash
+  set -euo pipefail
+
+  # Ensure network and private key are set
+  just ensure-network
+  just ensure-private-key
+
+  # We're simulating
+  echo "⚠️ THIS IS A SIMULATION ⚠️"
+  echo "⚠️ NOT TRIGGERING PAUSE ⚠️"
+
+  # Generate nonce
+  nonce=$(just make-nonce)
+
+  # Generate signature
+  sig=$(just pause-sig {{module}} $nonce)
+
+  # Ok!
+  echo "Simulation successful"

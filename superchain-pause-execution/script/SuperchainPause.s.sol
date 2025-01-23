@@ -97,6 +97,7 @@ contract SuperchainPause is Script {
 
     /// @notice Generates the signature for the auth message.
     function signAuthMessage() public {
+        console.log(block.chainid);
         bytes32 structHash = keccak256(abi.encode(DEPUTY_AUTH_MESSAGE_TYPEHASH, getPauseDeputyAddress()));
         bytes32 digest = hashTypedData(getModuleAddress(), block.chainid, structHash);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(getPauseDeputyKey(), digest);
