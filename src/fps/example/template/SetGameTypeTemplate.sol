@@ -1,20 +1,19 @@
 pragma solidity 0.8.15;
 
+import {
+    DeputyGuardianModule, IOptimismPortal2, GameType
+} from "@eth-optimism-bedrock/src/safe/DeputyGuardianModule.sol";
+import {LibGameType} from "@eth-optimism-bedrock/src/dispute/lib/LibUDT.sol";
+
 import {GenericTemplate} from "src/fps/example/template/GenericTemplate.sol";
 import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
 
-interface IDeputyGuardian {
-    function setRespectedGameType(address _portal, uint32 _gameType) external;
-}
+contract SetGameTypeTemplate is GenericTemplate {
+    using LibGameType for GameType;
 
-interface IOptimismPortal {
-    function respectedGameType() external view returns (uint32);
-}
-
-contract Task02 is GenericTemplate {
     struct SetRespectedGameType {
         address deputyGuardian;
-        uint32 gameType;
+        GameType gameType;
         uint256 l2ChainId;
         string portal;
     }
@@ -33,18 +32,23 @@ contract Task02 is GenericTemplate {
 
     function _build(uint256 chainId) internal override {
         if (setRespectedGameTypes[chainId].l2ChainId != 0) {
-            IDeputyGuardian(setRespectedGameTypes[chainId].deputyGuardian).setRespectedGameType(
-                addresses.getAddress(setRespectedGameTypes[chainId].portal, chainId),
+            DeputyGuardianModule(setRespectedGameTypes[chainId].deputyGuardian).setRespectedGameType(
+                IOptimismPortal2(payable(addresses.getAddress(setRespectedGameTypes[chainId].portal, chainId))),
                 setRespectedGameTypes[chainId].gameType
             );
         }
     }
 
     function _validate(uint256 chainId) internal view override {
-        IOptimismPortal optimismPortal = IOptimismPortal(addresses.getAddress("OptimismPortalProxy", chainId));
+        IOptimismPortal2 optimismPortal =
+            IOptimismPortal2(payable(addresses.getAddress("OptimismPortalProxy", chainId)));
 
         if (setRespectedGameTypes[chainId].l2ChainId != 0) {
-            assertEq(optimismPortal.respectedGameType(), setRespectedGameTypes[chainId].gameType, "gameType not set");
+            assertEq(
+                optimismPortal.respectedGameType().raw(),
+                setRespectedGameTypes[chainId].gameType.raw(),
+                "gameType not set"
+            );
         }
     }
 }
