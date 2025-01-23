@@ -143,9 +143,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @notice Initialize the task with task and network configuration
     /// @param taskConfigFilePath Path to the task configuration file
     /// @param _addresses Address registry contract
-    function _init(string memory taskConfigFilePath, Addresses _addresses)
-        internal
-    {
+    function _init(string memory taskConfigFilePath, Addresses _addresses) internal {
         require(
             !initialized && bytes(config.safeAddressString).length == 0 && address(addresses) == address(0x0),
             "MultisigTask: already initialized"
@@ -190,7 +188,7 @@ abstract contract MultisigTask is Test, Script, ITask {
         for (uint256 i = 0; i < owners.length; i++) {
             if (owners[i].code.length > 0) {
                 isNestedSafe = false;
-            } 
+            }
         }
 
         for (uint256 i = 1; i < chains.length; i++) {
