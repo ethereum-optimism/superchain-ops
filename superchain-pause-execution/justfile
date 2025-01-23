@@ -7,10 +7,12 @@ get-key:
   network=$(just get-network)
 
   # Get the private key
-  item=$(op item get "DeputyPauseModulePrivateKey" --vault "$network [shared]" --format json | jq -r '"\(.fields.[1].value), \(.fields.[0].value)"')
-  read address pause_deputy_privatekey <<< $(echo "$item" | awk -F ',' '{print $1, $2}')
-  if [[ -z "$address" ]] || [[ -z "$pause_deputy_privatekey" ]]; then
-    echo "ERROR: Unable to get the address or private key from the vault. Please check the vault and ensure the item is in the vault: '$network [shared]' and try again." >&2
+  item=$(op item get "DeputyPauseModulePrivateKey" --vault "$network [shared]" --format json)
+  pause_deputy_privatekey=$(echo "$item" | jq -r '.fields[] | select(.id == "password") | .value')
+  
+  # Make sure the private key is set
+  if [[ -z "$pause_deputy_privatekey" ]]; then
+    echo "ERROR: Unable to get the private key from the vault. Please check the vault and ensure the item is in the vault: '$network [shared]' and try again." >&2
     exit 1
   fi
 
