@@ -67,7 +67,7 @@ This toml configuration file allows task developers to set gas limits for the ta
 forge script src/fps/example/template/GasConfigTemplate.sol --sig "run(string,string)" src/fps/example/task-00/taskConfig.toml src/fps/example/task-00/mainnetConfig.toml --rpc-url mainnet -vvv
 ```
 
-#### Template 01 to set gas configs:
+#### Template 01 to set dispute game upgrade:
 
 ```bash
 forge script src/fps/example/template/DisputeGameUpgradeTemplate.sol --sig "run(string,string)" src/fps/example/task-01/taskConfig.toml src/fps/example/task-01/mainnetConfig.toml --rpc-url mainnet -vvv
