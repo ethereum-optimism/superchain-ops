@@ -49,12 +49,12 @@ ensure-network:
   # Get the network, but don't print it
   just get-network > /dev/null
 
-# Ensure the private key is set
-ensure-private-key:
+# Ensure the private key of the executor is set
+ensure-executor-private-key:
   #!/usr/bin/env bash
-  # Make sure the private key is set
-  if [ -z "$PRIVATE_KEY" ]; then
-    echo "PRIVATE_KEY is not set" >&2
+  # Ensure the private key of the executor is set
+  if [ -z "$EXECUTOR_PRIVATE_KEY" ]; then
+    echo "$EXECUTOR_PRIVATE_KEY is not set" >&2
     exit 1
   fi
 
@@ -127,7 +127,7 @@ pause-sig module nonce:
   just ensure-network
 
   # Generate pause signature
-  export PAUSE_DEPUTY_PRIVATE_KEY=$(just get-key)
+  # export PAUSE_DEPUTY_PRIVATE_KEY=$(just get-key) # Not needed for pause since we call from "pause" that will require this var. 
   export CREATE_NEW_MODULE=false
   export DEPUTY_PAUSE_MODULE_ADDRESS={{module}}
   output=$(forge script ./script/SuperchainPause.s.sol --sig "signPauseMessage(bytes32)" {{nonce}} --rpc-url $ETH_RPC_URL)
@@ -142,17 +142,17 @@ pause-raw module nonce sig:
 
   # Ensure network and private key are set
   just ensure-network
-  just ensure-private-key
+  just ensure-executor-private-key
 
   # Make sure user wants to continue
   network=$(just get-network)
-  echo "🚨 YOU ARE EXECUTING THE SUPERCHAIN-WIDE PAUSE ON >>${network^^}<<"
+  echo "🚨 YOU ARE EXECUTING THE SUPERCHAIN-WIDE PAUSE ON >>${network}<<"
   echo "🚨 THIS IS A PRODUCTION NETWORK"
   echo "🚨 THIS IS YOUR >>FINAL<< OPPORTUNITY TO CANCEL"
   echo "🚨 THIS ACTION CARRIES SERIOUS CONSEQUENCES"
   echo "🚨 ARE YOU SURE YOU WANT TO CONTINUE?"
   read -p "🚨 Enter the network name to execute the pause: " answer
-  if [ "${answer,,}" != "${network,,}" ]; then
+  if [ "${answer}" != "${network}" ]; then
     echo "Aborting..."
     exit 1
   fi
@@ -161,17 +161,28 @@ pause-raw module nonce sig:
   export PAUSE_DEPUTY_PRIVATE_KEY=$(just get-key)
   export CREATE_NEW_MODULE=false
   export DEPUTY_PAUSE_MODULE_ADDRESS={{module}}
-  forge script ./script/SuperchainPause.s.sol --sig "pause(bytes32,bytes)" {{nonce}} {{sig}} --rpc-url $ETH_RPC_URL --broadcast
+  forge script ./script/SuperchainPause.s.sol --sig "pause(bytes32,bytes)" {{nonce}} {{sig}} --rpc-url ${ETH_RPC_URL} --broadcast --private-key $EXECUTOR_PRIVATE_KEY 
+  echo -e "✅ Pause executed successfully, you can verify the status of the superchain by using the following command:\n-------------------------------------------------------------------------------------------------\ncast call {replace_by_superchain_address} 'paused()(bool)' --rpc-url $ETH_RPC_URL # This command should return 'true'\n--------------------------------------------------------------------------------------------------" 
+  
 
 # Complete pause flow
-pause module:
+pause module *no-1password: # in the future create a flag --no-1password to specify the key through "PAUSE_DEPUTY_PRIVATE_KEY". 
   #!/usr/bin/env bash
   set -euo pipefail
 
+  if [ "true" == "{{no-1password}}" ]; then
+    echo "🚨 Skipping 1password lookup, and reading from the environment var ($PAUSE_DEPUTY_PRIVATE_KEY)"
+    if [ -z "$PAUSE_DEPUTY_PRIVATE_KEY" ]; then
+      echo "ERROR: PAUSE_DEPUTY_PRIVATE_KEY is not set" 
+      exit 1
+    fi
+  else
+    echo "🔑 Getting private key from 1password"
+    export PAUSE_DEPUTY_PRIVATE_KEY=$(just get-key)
+  fi
   # Generate nonce
   nonce=$(just make-nonce)
   echo "✅ Nonce generated successfully"
-
   # Generate signature
   sig=$(just pause-sig {{module}} $nonce)
   echo "✅ Pause signature generated successfully"
@@ -186,7 +197,7 @@ simulate module:
 
   # Ensure network and private key are set
   just ensure-network
-  just ensure-private-key
+  just ensure-executor-private-key
 
   # We're simulating
   echo "⚠️ THIS IS A SIMULATION ⚠️"
@@ -197,6 +208,7 @@ simulate module:
 
   # Generate signature
   sig=$(just pause-sig {{module}} $nonce)
+  echo "✅ Pause signature generated successfully: $sig"
 
   # Ok!
   echo "Simulation successful"
