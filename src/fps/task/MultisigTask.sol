@@ -160,11 +160,20 @@ abstract contract MultisigTask is Test, Script, ITask {
             block.chainid == getChain("mainnet").chainId || block.chainid == getChain("sepolia").chainId,
             string.concat("Unsupported network: ", vm.toString(block.chainid))
         );
+        string memory taskConfigFileContents;
+        try vm.readFile(taskConfigFilePath) returns (string memory fileContents) {
+            taskConfigFileContents = fileContents;
+        } catch {
+            revert(string.concat("could not read in file: ", taskConfigFilePath));
+        }
 
-        string memory taskConfigFileContents = vm.readFile(taskConfigFilePath);
-
-        bytes memory fileContents = vm.parseToml(taskConfigFileContents, ".task");
-        config = abi.decode(fileContents, (TaskConfig));
+        bytes memory parsedFileContents;
+        try vm.parseToml(taskConfigFileContents, ".task") returns (bytes memory parsedTaskConfigFileContents) {
+            parsedFileContents = parsedTaskConfigFileContents;
+        } catch {
+            revert(string.concat("could not parse file: ", taskConfigFilePath));
+        }
+        config = abi.decode(parsedFileContents, (TaskConfig));
     }
 
     /// @notice Sets the L2 networks configuration
@@ -184,6 +193,7 @@ abstract contract MultisigTask is Test, Script, ITask {
 
         /// TODO change this once we implement task stacking
         nonce = IGnosisSafe(multisig).nonce();
+
         address[] memory owners = IGnosisSafe(multisig).getOwners();
         for (uint256 i = 0; i < owners.length; i++) {
             if (owners[i].code.length == 0) {
