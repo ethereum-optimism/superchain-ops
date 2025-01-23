@@ -24,9 +24,12 @@ data: `0xb40a817c000000000000000000000000000000000000000000000000000000000393870
 
 `nonce = 14`
 
-command:
+### Command
+
+**note**: you must comment out line 36 in task [file](../../../tasks/eth/020-set-gas-target/SignFromJson.s.sol)
+
 ```bash
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
+cd tasks/eth/020-set-gas-target ; SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
 ```
 
 ## New Tooling
@@ -55,3 +58,5 @@ command:
 ```bash
 forge script src/fps/example/template/GasConfigTemplate.sol --sig "run(string,string)" src/fps/example/task-00/taskConfig.toml src/fps/example/task-00/opmainnetConfig.toml --rpc-url mainnet -vvv
 ```
+
+Calldata diff can be found here https://www.diffchecker.com/HA7YFSWi/, select character comparison to see the difference.
