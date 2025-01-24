@@ -28,7 +28,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 - **Key**: `0x0000000000000000000000000000000000000000000000000000000000000068`
   - **Before**: `0x0000000000000000000000000000000000000000000000000000000003938700`
   - **After**: `0x00000000000000000000000000000000000a118b0000044d0000000003938700`
-  - **Meaning**: Sets the new `SystemConfig`'s variables `blobbasefeeScalar` to `659851` (`cast td cast td 0x000a118b`) and `basefeeScalar` to `1101` (`cast td cast td 0x0000044d`).
+  - **Meaning**: Sets the new `SystemConfig`'s variables `blobbasefeeScalar` to `659851` (`cast td cast td 0x000a118b`) and `basefeeScalar` to `1101` (`cast td cast td 0x0000044d`). These share a slot with the `gasLimit` which remains at 60000000 (`cast td 0x0000000003938700`). See storage layout snapshot [here](https://github.com/ethereum-optimism/optimism/blob/3c75cd94849b265ff9d2ed424f9d35be124b0b4e/packages/contracts-bedrock/snapshots/storageLayout/SystemConfig.json#L58-L78).
 
 - **Key**: `0x000000000000000000000000000000000000000000000000000000000000006a`
   - **Before**: `0x000000000000000000000000000000000000000000000000000000000042b1d7`
