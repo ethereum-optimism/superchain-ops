@@ -10,40 +10,17 @@ Developers can now create tasks without writing any Solidity code as long as a p
 
 # Task Configuration File
 
-Each task will have at least 2 config files.
-
-The first file is `taskConfig.toml` which contains the task configuration.
-
-## Task Fields
-
-- `safeAddressString` - the identifier of the safe in the task to run
-- `allowedStorageAccesses` - the identifiers of the storage writes that are allowed for the task. if empty, no storage writes are allowed
-- `name` - the name of the task, including the number of the task
-- `description` - what the task does
-
-# Network Configuration File
-
-The second file is `<network_name>Config.toml` which contains the network configurations to modify on L1. This file is used to configure which L2 network contracts will be used for the task on the given network. Task developers can specify up to three separate types of configuration files:
+The template configuration file is `<network_name>Config.toml` which contains the network configurations to modify on L1. This file is used to configure which L2 network contracts will be used for the task on the given network. Task developers can specify up to three separate types of configuration files:
 
 - `mainnetConfig.toml` - the mainnet configuration file, which specifies which L2 contracts will be affected on L1 mainnet
 - `sepoliaConfig.toml` - the sepolia configuration file, which specifies which L2 contracts will be affected on L1 sepolia
 - `devnetConfig.toml` - the devnet configuration file, which specifies which L2 contracts will be affected on L1 devnet (sepolia testnet)
-
-## Network Fields
-
-The network configuration file contains the following fields.
 
 ### L2Chains
 
 ```toml
 # L2Chains is a list of the L2 chains that the task will interact with
 l2chains = [{"name": "Orderly", "chainId": 291}, {"name": "Metal", "chainId": 1750}, {"name": OP Mainnet", "chainId": 10}]
-
-# Nonce for the gnosis safe that will be used for the task
-safeNonce = 67
-
-# Whether the safe is nested
-isNestedSafe = false
 ```
 
 ### Task Template Files
