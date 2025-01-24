@@ -25,9 +25,6 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @notice flag to determine if the safe is nested multisig
     bool public isNestedSafe;
 
-    /// @notice flag to determine if the task has been initialized
-    bool public initialized;
-
     /// @notice owners the safe started with
     address[] public startingOwners;
 
@@ -101,14 +98,6 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// they all follow the same structure
     Action[] public actions;
 
-    /// @notice task name, e.g. "OIP15".
-    /// @dev set in the task config file
-    string public override name;
-
-    /// @notice task description.
-    /// @dev set in the task config file
-    string public override description;
-
     /// @notice Multicall3 call data struct
     /// @param target The address of the target contract
     /// @param allowFailure Flag to determine if the call should be allowed to fail
@@ -124,8 +113,6 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @notice Task TOML config file values
     struct TaskConfig {
         string[] allowedStorageWriteAccesses;
-        string description;
-        string name;
         string safeAddressString;
     }
 
@@ -150,48 +137,40 @@ abstract contract MultisigTask is Test, Script, ITask {
         _buildStarted = false;
     }
 
-    /// @notice Initialize the task with task and network configuration
-    /// @param taskConfigFilePath Path to the task configuration file
-    /// @param networkConfigFilePath Path to the network configuration file
-    /// @param _addresses Address registry contract
-    function _init(string memory taskConfigFilePath, string memory networkConfigFilePath, Addresses _addresses)
-        internal
-    {
+    /// @notice abstract function to be implemented by the inheriting contract
+    /// specifies the safe address string to run the template from
+    function safeAddressString() public pure virtual returns (string memory);
+
+    /// @notice abstract function to be implemented by the inheriting contract
+    /// specifies the addresses that must have their storage written to
+    function _taskStorageWrites() internal pure virtual returns (string[] memory);
+
+    /// @notice Runs the task with the given configuration file paths.
+    /// Sets the address registry, initializes the task and simulates the task.
+    /// @param taskConfigFilePath The path to the task configuration file.
+    function run(string memory taskConfigFilePath) public {
+        Addresses _addresses = new Addresses(taskConfigFilePath);
+
+        _templateSetup(taskConfigFilePath);
+
+        /// set the task config
         require(
-            !initialized && bytes(config.safeAddressString).length == 0 && address(addresses) == address(0x0),
+            bytes(config.safeAddressString).length == 0 && address(addresses) == address(0x0),
             "MultisigTask: already initialized"
         );
-        setTaskConfig(taskConfigFilePath);
-        setL2NetworksConfig(networkConfigFilePath, _addresses);
-        initialized = true;
-    }
-
-    /// @notice Set the task configuration
-    /// @param taskConfigFilePath Path to the task configuration file
-    function setTaskConfig(string memory taskConfigFilePath) public override {
         require(
             block.chainid == getChain("mainnet").chainId || block.chainid == getChain("sepolia").chainId,
             string.concat("Unsupported network: ", vm.toString(block.chainid))
         );
 
-        string memory taskConfigFileContents = vm.readFile(taskConfigFilePath);
+        config.safeAddressString = safeAddressString();
+        config.allowedStorageWriteAccesses = _taskStorageWrites();
 
-        bytes memory fileContents = vm.parseToml(taskConfigFileContents, ".task");
-        config = abi.decode(fileContents, (TaskConfig));
-
-        name = config.name;
-        description = config.description;
-    }
-
-    /// @notice Sets the L2 networks configuration
-    /// @param networkConfigFilePath Path to the network configuration file
-    /// @param _addresses Address registry contract
-    function setL2NetworksConfig(string memory networkConfigFilePath, Addresses _addresses) public override {
+        /// set the addresses object
         addresses = _addresses;
-        string memory networkConfigFileContents = vm.readFile(networkConfigFilePath);
 
-        nonce = abi.decode(vm.parseToml(networkConfigFileContents, ".safeNonce"), (uint256));
-        isNestedSafe = abi.decode(vm.parseToml(networkConfigFileContents, ".isNestedSafe"), (bool));
+        /// assume safe is nested unless there is an EOA owner
+        isNestedSafe = true;
 
         /// get chains
         Addresses.ChainInfo[] memory chains = addresses.getChains();
@@ -199,6 +178,16 @@ abstract contract MultisigTask is Test, Script, ITask {
 
         /// check that the safe address is the same for all chains and then set safe in storage
         multisig = addresses.getAddress(config.safeAddressString, chains[0].chainId);
+
+        /// TODO change this once we implement task stacking
+        nonce = IGnosisSafe(multisig).nonce();
+
+        address[] memory owners = IGnosisSafe(multisig).getOwners();
+        for (uint256 i = 0; i < owners.length; i++) {
+            if (owners[i].code.length == 0) {
+                isNestedSafe = false;
+            }
+        }
 
         for (uint256 i = 1; i < chains.length; i++) {
             require(
@@ -228,17 +217,16 @@ abstract contract MultisigTask is Test, Script, ITask {
                 );
             }
         }
-    }
 
-    /// @notice function to be used by forge script.
-    /// @dev use flags to determine which actions to take
-    ///      this function shoudn't be overriden.
-    function _processTask() internal override {
+        /// now execute proposal
         build();
         simulate();
         validate();
         print();
     }
+
+    /// @notice abstract function to be implemented by the inheriting contract to setup the template
+    function _templateSetup(string memory taskConfigFilePath) internal virtual;
 
     /// @notice get the calldata to be executed by safe
     /// @dev callable only after the build function has been run and the
@@ -271,10 +259,17 @@ abstract contract MultisigTask is Test, Script, ITask {
     }
 
     /// @notice get the data to sign by EOA for single multisig
-    /// @param safe The address of the safe
     /// @param data The calldata to be executed
     /// @return The data to sign
     function _getDataToSign(address safe, bytes memory data) internal view returns (bytes memory) {
+        uint256 useNonce;
+
+        if (safe == multisig) {
+            useNonce = nonce;
+        } else {
+            useNonce = IGnosisSafe(safe).nonce();
+        }
+
         return IGnosisSafe(safe).encodeTransactionData({
             to: MULTICALL3_ADDRESS,
             value: 0,
@@ -285,7 +280,7 @@ abstract contract MultisigTask is Test, Script, ITask {
             gasPrice: 0,
             gasToken: address(0),
             refundReceiver: address(0),
-            _nonce: nonce
+            _nonce: useNonce
         });
     }
 
@@ -431,9 +426,6 @@ abstract contract MultisigTask is Test, Script, ITask {
 
     /// @notice print task description, actions, transfers, state changes and EOAs datas to sign
     function print() public virtual override {
-        console.log("\n---------------- Proposal Description ----------------");
-        console.log(description);
-
         console.log("\n------------------ Proposal Actions ------------------");
         for (uint256 i; i < actions.length; i++) {
             console.log("%d). %s", i + 1, actions[i].description);
@@ -528,7 +520,6 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @notice print the hash to approve by EOA for nested multisig
     function printNestedHashToApprove() public view {
         bytes memory callData = _generateApproveMulticallData();
-
         for (uint256 i; i < startingOwners.length; i++) {
             bytes32 hash = keccak256(_getDataToSign(startingOwners[i], callData));
             console.log("Nested multisig: %s", _getAddressLabel(startingOwners[i]));

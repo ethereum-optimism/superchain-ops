@@ -1,0 +1,5 @@
+# this is the file used to determine the network configuration
+
+l2chains = [{name = "OP Mainnet", chainId = 10}]
+
+implementations = [{gameType = 0, implementation = "0xf691F8A6d908B58C534B624cF16495b491E633BA", l2ChainId = 10}]
