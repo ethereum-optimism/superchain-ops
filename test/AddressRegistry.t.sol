@@ -126,7 +126,7 @@ contract MainnetAddressRegistryTest is Test {
     /// Construction failure tests
 
     function testInvalidChainIdInSuperchainsFails() public {
-        string memory networkConfigFilePath = "test/mock/networkConfig1.toml";
+        string memory networkConfigFilePath = "test/mock/invalidChainIdNetworkConfig.toml";
 
         vm.expectRevert("Invalid chain ID in config");
         new AddressRegistry(networkConfigFilePath);
