@@ -214,13 +214,6 @@ jobs:
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
   
-  simulate_eth_028:
-    docker:
-      - image: << pipeline.parameters.ci_builder_image >>
-    steps:
-      - simulate_nested:
-          task: "eth/028-holocene-system-config-upgrade-and-init-multi-chain"
-
   just_simulate_ink_respected_game_type:
     docker:
       - image: << pipeline.parameters.ci_builder_image >>
@@ -302,5 +295,4 @@ workflows:
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
       - just_simulate_ink_respected_game_type
-      - simulate_eth_028
       # sepolia
