@@ -249,7 +249,7 @@ abstract contract MultisigTask is Test, Script, ITask {
 
     /// @notice print the data to sig by EOA for single multisig
     function printDataToSign() public view {
-        console.logBytes(_getDataToSign(getCalldata()));
+        console.logBytes(_getDataToSign(multisig, getCalldata()));
     }
 
     /// @notice print the hash to approve by EOA for single multisig
@@ -260,8 +260,8 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @notice get the data to sign by EOA for single multisig
     /// @param data The calldata to be executed
     /// @return The data to sign
-    function _getDataToSign(bytes memory data) internal view returns (bytes memory) {
-        return IGnosisSafe(multisig).encodeTransactionData({
+    function _getDataToSign(address safe, bytes memory data) internal view returns (bytes memory) {
+        return IGnosisSafe(safe).encodeTransactionData({
             to: MULTICALL3_ADDRESS,
             value: 0,
             data: data,
@@ -501,15 +501,21 @@ abstract contract MultisigTask is Test, Script, ITask {
     function printNestedDataToSign() public view {
         bytes memory callData = _generateApproveMulticallData();
 
-        bytes memory dataToSign = _getDataToSign(callData);
-        console.logBytes(dataToSign);
+        for (uint256 i; i < startingOwners.length; i++) {
+            bytes memory dataToSign = _getDataToSign(startingOwners[i], callData);
+            console.log("Nested multisig: %s", _getAddressLabel(startingOwners[i]));
+            console.logBytes(dataToSign);
+        }
     }
 
     /// @notice print the hash to approve by EOA for nested multisig
     function printNestedHashToApprove() public view {
         bytes memory callData = _generateApproveMulticallData();
-        bytes32 hash = keccak256(_getDataToSign(callData));
-        console.logBytes32(hash);
+        for (uint256 i; i < startingOwners.length; i++) {
+            bytes32 hash = keccak256(_getDataToSign(startingOwners[i], callData));
+            console.log("Nested multisig: %s", _getAddressLabel(startingOwners[i]));
+            console.logBytes32(hash);
+        }
     }
 
     /// --------------------------------------------------------------------
@@ -522,7 +528,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// can only be called after the build function, otherwise it reverts
     function getHash() internal view returns (bytes32) {
         bytes memory data = getCalldata();
-        return keccak256(_getDataToSign(data));
+        return keccak256(_getDataToSign(multisig, data));
     }
 
     /// @notice validate actions inclusion
