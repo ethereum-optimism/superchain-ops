@@ -28,9 +28,9 @@ For each contract listed in the state diff, please verify that no contracts or s
 - **Key**: `0x0000000000000000000000000000000000000000000000000000000000000068`
   - **Before**: `0x0000000000000000000000000000000000000000000000000000000003938700`
   - **After**: `0x00000000000000000000000000000000000a118b0000044d0000000003938700`
-  - **Meaning**: Sets the new `SystemConfig`'s variables `blobbasefeeScalar` to `659851` and `basefeeScalar` to `1101`.
+  - **Meaning**: Sets the new `SystemConfig`'s variables `blobbasefeeScalar` to `659851` (`cast td cast td 0x000a118b`) and `basefeeScalar` to `1101` (`cast td cast td 0x0000044d`).
 
 - **Key**: `0x000000000000000000000000000000000000000000000000000000000000006a`
   - **Before**: `0x000000000000000000000000000000000000000000000000000000000042b1d7`
   - **After**: `0x0000000000000000000000000000000000000000000000000000000400000001`
-  - **Meaning**: Sets the new `SystemConfig`'s variables `eip1559Denominator` to `1` and `eip1559Elasticity` to `4`.
+  - **Meaning**: Sets the new `SystemConfig`'s variables `eip1559Denominator` to `1` (`cast td cast td 0x00000001`) and `eip1559Elasticity` to `4` (`cast td cast td 0x00000004`).
