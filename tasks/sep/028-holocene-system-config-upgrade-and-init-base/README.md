@@ -8,7 +8,8 @@ Upgrades the `SystemConfig` for the Holocene hardfork and sets the EIP1559 param
 
 - This upgrades the `SystemConfig` in the [v1.8.0-rc.4](https://github.com/ethereum-optimism/optimism/tree/v1.8.0-rc.4) release.
 
-- This sets the EIP1559 parameters to `_denominator = 1`, `_elasticity_ = 4` 
+- Unrelated to the Holocene upgrade itself, an additional transaction is included for convenience to adjust the EIP-1559 parameters to `_denominator = 1` and `_elasticity = 4`. While we cannot fully match mainnet in terms of gas throughput, we aim to modify the scaling factor for Sepolia ahead of mainnet. Changing `_elasticity` from `6` (currently hardcoded into the protocol) to `4`, while keeping the `_gasLimit` at 60M, corresponds to a 50% target increase, raising it from 5M to 7.5M, which we are comfortable with.
+
 
 ## Pre-deployments
 
