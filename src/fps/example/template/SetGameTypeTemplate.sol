@@ -30,9 +30,9 @@ contract SetGameTypeTemplate is MultisigTask {
         return storageWrites;
     }
 
-    function _templateSetup(string memory networkConfigFilePath) internal override {
+    function _templateSetup(string memory taskConfigFilePath) internal override {
         SetRespectedGameType[] memory setRespectedGameType = abi.decode(
-            vm.parseToml(vm.readFile(networkConfigFilePath), ".respectedGameTypes"), (SetRespectedGameType[])
+            vm.parseToml(vm.readFile(taskConfigFilePath), ".respectedGameTypes"), (SetRespectedGameType[])
         );
 
         for (uint256 i = 0; i < setRespectedGameType.length; i++) {

@@ -146,11 +146,11 @@ abstract contract MultisigTask is Test, Script, ITask {
     function taskStorageWrites() internal pure virtual returns (string[] memory);
 
     /// @notice Runs the proposal with the given task and network configuration file paths. Sets the address registry, initializes the proposal and processes the proposal.
-    /// @param networkConfigFilePath The path to the network configuration file.
-    function run(string memory networkConfigFilePath) public {
-        Addresses _addresses = new Addresses(networkConfigFilePath);
+    /// @param taskConfigFilePath The path to the task configuration file.
+    function run(string memory taskConfigFilePath) public {
+        Addresses _addresses = new Addresses(taskConfigFilePath);
 
-        _templateSetup(networkConfigFilePath);
+        _templateSetup(taskConfigFilePath);
 
         /// set the task config
         require(
@@ -225,7 +225,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     }
 
     /// @notice abstract function to be implemented by the inheriting contract to setup the template
-    function _templateSetup(string memory networkConfigFilePath) internal virtual;
+    function _templateSetup(string memory taskConfigFilePath) internal virtual;
 
     /// @notice get the calldata to be executed by safe
     /// @dev callable only after the build function has been run and the

@@ -28,9 +28,9 @@ contract DisputeGameUpgradeTemplate is MultisigTask {
         return storageWrites;
     }
 
-    function _templateSetup(string memory networkConfigFilePath) internal override {
+    function _templateSetup(string memory taskConfigFilePath) internal override {
         SetImplementation[] memory setImplementation =
-            abi.decode(vm.parseToml(vm.readFile(networkConfigFilePath), ".implementations"), (SetImplementation[]));
+            abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".implementations"), (SetImplementation[]));
 
         for (uint256 i = 0; i < setImplementation.length; i++) {
             setImplementations[setImplementation[i].l2ChainId] = setImplementation[i];

@@ -25,9 +25,9 @@ contract GasConfigTemplate is MultisigTask {
         return storageWrites;
     }
 
-    function _templateSetup(string memory networkConfigFilePath) internal override {
+    function _templateSetup(string memory taskConfigFilePath) internal override {
         GasConfig[] memory gasConfig =
-            abi.decode(vm.parseToml(vm.readFile(networkConfigFilePath), ".gasConfigs.gasLimits"), (GasConfig[]));
+            abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".gasConfigs.gasLimits"), (GasConfig[]));
 
         for (uint256 i = 0; i < gasConfig.length; i++) {
             gasLimits[gasConfig[i].chainId] = gasConfig[i].gasLimit;
