@@ -10,7 +10,7 @@ contract MainnetAddressRegistryTest is Test {
     AddressRegistry private addresses;
 
     function setUp() public {
-        string memory networkConfigFilePath = "src/fps/example/mainnetConfig.toml";
+        string memory networkConfigFilePath = "src/fps/example/task-00/mainnetConfig.toml";
 
         vm.createSelectFork("mainnet");
 
