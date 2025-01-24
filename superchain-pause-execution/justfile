@@ -211,7 +211,7 @@ simulate module:
 
   # Generate signature
   sig=$(just pause-sig {{module}} $nonce)
-  echo "✅ Pause signature generated successfully: $sig"
+  echo "✅ Pause signature generated successfully"
 
   # Ok!
   echo "Simulation successful"
