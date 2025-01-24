@@ -38,8 +38,8 @@ contract SignFromJson is OriginalSignFromJson, VerificationBase {
         sysCfgUpgrade.checkSystemConfigUpgrade();
 
         ISystemConfig systemConfig = ISystemConfig(sysCfgUpgrade.systemConfigAddress());
-        vm.assertEq(systemConfig.eip1559Denominator(), 1, "invalid EIP1559 denominator");
-        vm.assertEq(systemConfig.eip1559Elasticity(), 4, "invalid EIP1559 elasticity");
+        vm.assertEq(systemConfig.eip1559Denominator(), 1, "incorrect EIP1559 denominator");
+        vm.assertEq(systemConfig.eip1559Elasticity(), 4, "incorrect EIP1559 elasticity");
 
         console.log("All assertions passed!");
     }
