@@ -55,3 +55,9 @@ forge script src/fps/example/template/DisputeGameUpgradeTemplate.sol --sig "run(
 ```bash
 forge script src/fps/example/template/SetGameTypeTemplate.sol --sig "run(string)" src/fps/example/task-02/mainnetConfig.toml --rpc-url mainnet -vvvvv
 ```
+
+#### Template 03 to set gas config:
+
+```bash
+forge script src/fps/example/template/GasConfigTemplate.sol --sig "run(string)" src/fps/example/task-03/mainnetConfig.toml --rpc-url mainnet -vvvvv
+```
