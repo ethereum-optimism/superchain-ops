@@ -31,9 +31,8 @@ contract SetGameTypeTemplate is MultisigTask {
     }
 
     function _templateSetup(string memory taskConfigFilePath) internal override {
-        SetRespectedGameType[] memory setRespectedGameType = abi.decode(
-            vm.parseToml(vm.readFile(taskConfigFilePath), ".respectedGameTypes"), (SetRespectedGameType[])
-        );
+        SetRespectedGameType[] memory setRespectedGameType =
+            abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".respectedGameTypes"), (SetRespectedGameType[]));
 
         for (uint256 i = 0; i < setRespectedGameType.length; i++) {
             setRespectedGameTypes[setRespectedGameType[i].l2ChainId] = setRespectedGameType[i];
