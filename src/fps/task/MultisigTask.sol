@@ -180,7 +180,6 @@ abstract contract MultisigTask is Test, Script, ITask {
 
         /// TODO change this once we implement task stacking
         nonce = IGnosisSafe(multisig).nonce();
-        console.log("parent nonce", nonce);
 
         address[] memory owners = IGnosisSafe(multisig).getOwners();
         for (uint256 i = 0; i < owners.length; i++) {
@@ -222,7 +221,7 @@ abstract contract MultisigTask is Test, Script, ITask {
         build();
         simulate();
         validate();
-        // print();
+        print();
     }
 
     /// @notice abstract function to be implemented by the inheriting contract to setup the template
@@ -250,7 +249,7 @@ abstract contract MultisigTask is Test, Script, ITask {
 
     /// @notice print the data to sig by EOA for single multisig
     function printDataToSign() public view {
-        console.logBytes(getDataToSign(multisig, getCalldata()));
+        console.logBytes(_getDataToSign(multisig, getCalldata()));
     }
 
     /// @notice print the hash to approve by EOA for single multisig
@@ -261,17 +260,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @notice get the data to sign by EOA for single multisig
     /// @param data The calldata to be executed
     /// @return The data to sign
-    function getDataToSign(address safe, bytes memory data) public view returns (bytes memory) {
-        console.log(address(safe), "address");
-        console.log(IGnosisSafe(safe).nonce(), "nonce");
-        uint256 useNonce;
-
-        if (safe == multisig) {
-            useNonce = nonce;
-        } else {
-            useNonce = IGnosisSafe(safe).nonce();
-        }
-
+    function _getDataToSign(address safe, bytes memory data) internal view returns (bytes memory) {
         return IGnosisSafe(safe).encodeTransactionData({
             to: MULTICALL3_ADDRESS,
             value: 0,
@@ -282,7 +271,7 @@ abstract contract MultisigTask is Test, Script, ITask {
             gasPrice: 0,
             gasToken: address(0),
             refundReceiver: address(0),
-            _nonce: useNonce
+            _nonce: nonce
         });
     }
 
@@ -513,29 +502,20 @@ abstract contract MultisigTask is Test, Script, ITask {
         bytes memory callData = _generateApproveMulticallData();
 
         for (uint256 i; i < startingOwners.length; i++) {
-            bytes memory dataToSign = getDataToSign(startingOwners[i], callData);
+            bytes memory dataToSign = _getDataToSign(startingOwners[i], callData);
             console.log("Nested multisig: %s", _getAddressLabel(startingOwners[i]));
             console.logBytes(dataToSign);
         }
-    }
-
-    function getNestedDataToSign(address owner) public view returns (bytes memory) {
-        bytes memory callData = _generateApproveMulticallData();
-        return getDataToSign(owner, callData);
     }
 
     /// @notice print the hash to approve by EOA for nested multisig
     function printNestedHashToApprove() public view {
         bytes memory callData = _generateApproveMulticallData();
         for (uint256 i; i < startingOwners.length; i++) {
-            bytes32 hash = keccak256(getDataToSign(startingOwners[i], callData));
+            bytes32 hash = keccak256(_getDataToSign(startingOwners[i], callData));
             console.log("Nested multisig: %s", _getAddressLabel(startingOwners[i]));
             console.logBytes32(hash);
         }
-    }
-
-    function getNestedHashToApprove(address owner) public view returns (bytes32) {
-        return keccak256(getNestedDataToSign(owner));
     }
 
     /// --------------------------------------------------------------------
@@ -546,9 +526,9 @@ abstract contract MultisigTask is Test, Script, ITask {
 
     /// @notice get the hash for this safe transaction
     /// can only be called after the build function, otherwise it reverts
-    function getHash() public view returns (bytes32) {
+    function getHash() internal view returns (bytes32) {
         bytes memory data = getCalldata();
-        return keccak256(getDataToSign(multisig, data));
+        return keccak256(_getDataToSign(multisig, data));
     }
 
     /// @notice validate actions inclusion
@@ -572,7 +552,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     }
 
     /// @notice helper function to generate the approveHash calldata to be executed by child multisig owner on parent multisig
-    function _generateApproveMulticallData() public view returns (bytes memory) {
+    function _generateApproveMulticallData() internal view returns (bytes memory) {
         bytes32 hash = getHash();
         Call3Value memory call = Call3Value({
             target: multisig,
