@@ -162,7 +162,6 @@ pause-raw module nonce sig:
   export CREATE_NEW_MODULE=false
   export DEPUTY_PAUSE_MODULE_ADDRESS={{module}}
   forge script ./script/SuperchainPause.s.sol --sig "pause(bytes32,bytes)" {{nonce}} {{sig}} --rpc-url ${ETH_RPC_URL} --broadcast --private-key $EXECUTOR_PRIVATE_KEY 
-  echo -e "✅ Pause executed successfully, you can verify the status of the superchain by using the following command:\n-------------------------------------------------------------------------------------------------\ncast call {replace_by_superchain_address} 'paused()(bool)' --rpc-url $ETH_RPC_URL # This command should return 'true'\n--------------------------------------------------------------------------------------------------" 
   
 
 # Complete pause flow
@@ -189,6 +188,10 @@ pause module *no-1password: # in the future create a flag --no-1password to spec
 
   # Execute pause
   just pause-raw {{module}} $nonce $sig
+  ## retrieve the superchainConfig address
+  superchainConfig_address=$(cast call {{module}} 'superchainConfig()(address)' --rpc-url $ETH_RPC_URL)
+  ## Print the superchainConfig display status command.
+  echo -e "To verify the superchain is paused correctly please use this command:\n=========================================================================\ncast call $superchainConfig_address 'paused()(bool)' --rpc-url $ETH_RPC_URL\n=========================================================================\nThe command above should return -> 'true'"
 
 # Simulation flow for checking script is functional
 simulate module:
