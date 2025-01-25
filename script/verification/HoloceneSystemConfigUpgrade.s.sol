@@ -72,7 +72,10 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry, VerificationBase {
         // Read target version from SCR @ specified release
         targetVersion = standardVersions.SystemConfig.version;
 
-        if (sysCfg.version().eq("2.3.0") || sysCfg.version().eq("2.2.0")) {
+        if (
+            sysCfg.version().eq("2.3.0") || sysCfg.version().eq("2.2.0")
+                || sysCfg.version().eq("2.2.0+max-gas-limit-400M")
+        ) {
             // Supported initial versions with a getter already
             targetDGF = sysCfg.disputeGameFactory();
         } else if (sysCfg.version().eq("1.12.0")) {
@@ -95,7 +98,9 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry, VerificationBase {
     }
 
     function _addCodeExceptions() internal {
-        if (block.chainid != 1) addCodeException(previous.owner);
+        if (previous.owner.code.length == 0) {
+            addCodeException(previous.owner);
+        }
         addCodeException(address(uint160(uint256(previous.batcherHash))));
         addCodeException(previous.unsafeBlockSigner);
         addCodeException(previous.batchInbox);
