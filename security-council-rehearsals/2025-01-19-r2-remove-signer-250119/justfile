@@ -1,0 +1,62 @@
+set dotenv-load
+
+export rpcUrl := env_var('ETH_RPC_URL')
+export signatures := env_var_or_default('SIGNATURES', '')
+export bundle := "input"
+export location := `pwd`
+export OWNER_SAFE := env_var('COUNCIL_SAFE')
+
+simulate hdPath='0':
+  #!/usr/bin/env bash
+  echo "getting signer address..."
+  if [ t"$SIMULATE_WITHOUT_LEDGER" == t1 ]
+  then
+    signer="0xc49d46E3F834f5C9856A7FcBEB185baD052c98e7"
+  else
+    signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  fi
+  echo "Simulating with: ${signer}"
+  echo ""
+  forge build
+  forge script ./SignFromJson.s.sol:SignFromJson \
+    --rpc-url ${rpcUrl} \
+    --sig "signJson(string)" \
+    "${location}/${bundle}.json" \
+    --sender ${signer}
+
+sign hdPath='0':
+  #!/usr/bin/env bash
+  echo "getting signer address..."
+  signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  echo "Signing with: ${signer}"
+  echo ""
+  forge build
+  $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
+  forge script ./SignFromJson.s.sol:SignFromJson \
+    --rpc-url ${rpcUrl} \
+    --sig "signJson(string)" \
+    "${location}/${bundle}.json"
+
+execute hdPath='0':
+  #!/usr/bin/env bash
+  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  forge build
+  forge script --fork-url ${ETH_RPC_URL} ./SignFromJson.s.sol:SignFromJson \
+    --sig "runJson(string,bytes)" "${location}/${bundle}.json" ${SIGNATURES} \
+    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
+    --sender ${sender}
+
+get-owners:
+  #!/usr/bin/env bash
+  cast call -r ${rpcUrl} ${COUNCIL_SAFE} "getOwners()(address[])"
+
+prepare:
+  #!/usr/bin/env bash
+  threshold=$(cast call -r ${rpcUrl} ${COUNCIL_SAFE} "getThreshold()(uint256)")
+  echo "Safe: ${COUNCIL_SAFE}, Threshold: ${threshold}."
+  jq ".transactions[0].to |= \"${COUNCIL_SAFE}\"" ./input.json > ./input.tmp && mv input.tmp input.json
+  jq ".transactions[0].contractInputsValues.prevOwner |= \"${PREVIOUS_OWNER}\"" ./input.json > ./input.tmp && mv input.tmp input.json
+  jq ".transactions[0].contractInputsValues.owner |= \"${SIGNER_TO_REMOVE}\"" ./input.json > ./input.tmp && mv input.tmp input.json
+  jq ".transactions[0].contractInputsValues._threshold |= \"${threshold}\"" ./input.json > ./input.tmp && mv input.tmp input.json
+  calldata=$(cast calldata "removeOwner(address,address,uint256)" ${PREVIOUS_OWNER} ${SIGNER_TO_REMOVE} ${threshold})
+  jq ".transactions[0].data |= \"${calldata}\"" ./input.json > ./input.tmp && mv input.tmp input.json
