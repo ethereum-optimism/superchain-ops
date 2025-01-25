@@ -29,5 +29,6 @@ Please see the instructions for [validation](./VALIDATION.md).
 
 This upgrade
 * Changes the implementation of the `SystemConfig` to hold EIP-1559 parameters.
+* Initializes the EIP-1559 parameters to `_denominator = 1` and `_elasticity = 4`.
 
-See the [overview](./OVERVIEW.md) and `input.json` bundle for more details.
+See the `input.json` bundle for more details.
