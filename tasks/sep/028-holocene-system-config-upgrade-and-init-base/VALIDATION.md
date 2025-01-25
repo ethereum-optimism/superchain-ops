@@ -33,4 +33,4 @@ For each contract listed in the state diff, please verify that no contracts or s
 - **Key**: `0x000000000000000000000000000000000000000000000000000000000000006a`<br>
   **Before**: `0x000000000000000000000000000000000000000000000000000000000042b1d7`<br>
   **After**: `0x0000000000000000000000000000000000000000000000000000000400000001`<br>
-  **Meaning**: Sets the new `SystemConfig`'s variables `eip1559Denominator` to `1` (`cast td cast td 0x00000001`) and `eip1559Elasticity` to `4` (`cast td cast td 0x00000004`).
+  **Meaning**: Sets the new `SystemConfig`'s variables `eip1559Denominator` to `1` (`cast td 0x00000001`) and `eip1559Elasticity` to `4` (`cast td cast td 0x00000004`). Slot 106 was previously used to store a `startBlock` which is why it has a non-zero "before" value of 4370903 (`cast td 0x42b1d7`).
