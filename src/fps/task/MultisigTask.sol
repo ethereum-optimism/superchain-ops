@@ -508,7 +508,7 @@ abstract contract MultisigTask is Test, Script, ITask {
 
     /// @notice print the data to sign by EOA for nested multisig
     function printNestedDataToSign() public view {
-        bytes memory callData = _generateApproveMulticallData();
+        bytes memory callData = generateApproveMulticallData();
 
         for (uint256 i; i < startingOwners.length; i++) {
             bytes memory dataToSign = getDataToSign(startingOwners[i], callData);
@@ -518,13 +518,13 @@ abstract contract MultisigTask is Test, Script, ITask {
     }
 
     function getNestedDataToSign(address owner) public view returns (bytes memory) {
-        bytes memory callData = _generateApproveMulticallData();
+        bytes memory callData = generateApproveMulticallData();
         return getDataToSign(owner, callData);
     }
 
     /// @notice print the hash to approve by EOA for nested multisig
     function printNestedHashToApprove() public view {
-        bytes memory callData = _generateApproveMulticallData();
+        bytes memory callData = generateApproveMulticallData();
         for (uint256 i; i < startingOwners.length; i++) {
             bytes32 hash = keccak256(getDataToSign(startingOwners[i], callData));
             console.log("Nested multisig: %s", _getAddressLabel(startingOwners[i]));
@@ -570,7 +570,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     }
 
     /// @notice helper function to generate the approveHash calldata to be executed by child multisig owner on parent multisig
-    function _generateApproveMulticallData() public view returns (bytes memory) {
+    function generateApproveMulticallData() public view returns (bytes memory) {
         bytes32 hash = getHash();
         Call3Value memory call = Call3Value({
             target: multisig,

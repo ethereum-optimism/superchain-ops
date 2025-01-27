@@ -66,7 +66,7 @@ contract NestedMultisigTaskTest is Test {
 
         bytes memory callDataToApprove =
             abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
-        assertEq(callDataToApprove, multisigTask._generateApproveMulticallData(), "Wrong callDataToApprove");
+        assertEq(callDataToApprove, multisigTask.generateApproveMulticallData(), "Wrong callDataToApprove");
 
         for (uint256 i; i < childOwnerMultisigs.length; i++) {
             bytes memory dataToSign = multisigTask.getNestedDataToSign(childOwnerMultisigs[i]);
