@@ -6,7 +6,6 @@ import {Test} from "forge-std/Test.sol";
 import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
 import {MultisigTask} from "src/fps/task/MultisigTask.sol";
 import {DisputeGameUpgradeTemplate} from "src/fps/example/template/DisputeGameUpgradeTemplate.sol";
-import {console} from "forge-std/console.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {MULTICALL3_ADDRESS} from "src/fps/utils/Constants.sol";
 
@@ -36,7 +35,7 @@ contract NestedMultisigTaskTest is Test {
         assertEq(multisigTask.isNestedSafe(), true, "Expected isNestedSafe to be false");
     }
 
-    function testNestedDataToSign() public {
+    function testNestedDataToSignAndHashToApprove() public {
         runTask();
         addresses = multisigTask.addresses();
         IGnosisSafe parentMultisig = IGnosisSafe(multisigTask.multisig());
@@ -65,16 +64,16 @@ contract NestedMultisigTaskTest is Test {
         Call3Value[] memory calls = new Call3Value[](1);
         calls[0] = call;
 
-        bytes memory callDataToApproveHash =
+        bytes memory callDataToApprove =
             abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
-        assertEq(callDataToApproveHash, multisigTask._generateApproveMulticallData(), "Wrong callDataToApproveHash");
+        assertEq(callDataToApprove, multisigTask._generateApproveMulticallData(), "Wrong callDataToApprove");
 
         for (uint256 i; i < childOwnerMultisigs.length; i++) {
             bytes memory dataToSign = multisigTask.getNestedDataToSign(childOwnerMultisigs[i]);
             bytes memory expectedDataToSign = IGnosisSafe(childOwnerMultisigs[i]).encodeTransactionData({
                 to: MULTICALL3_ADDRESS,
                 value: 0,
-                data: callDataToApproveHash,
+                data: callDataToApprove,
                 operation: Enum.Operation.DelegateCall,
                 safeTxGas: 0,
                 baseGas: 0,
@@ -83,28 +82,22 @@ contract NestedMultisigTaskTest is Test {
                 refundReceiver: address(0),
                 _nonce: IGnosisSafe(childOwnerMultisigs[i]).nonce()
             });
-            console.log(childOwnerMultisigs[i], "childOwnerMultisigs[i]");
-            console.log(IGnosisSafe(childOwnerMultisigs[i]).nonce(), "nonce outside");
             assertEq(dataToSign, expectedDataToSign, "Wrong data to sign");
-        }
-    }
 
-    function testHashToApprove() public {
-        runTask();
-        bytes memory callData = multisigTask.getCalldata();
-        bytes32 hash = multisigTask.getHash();
-        bytes32 expectedHash = IGnosisSafe(multisigTask.multisig()).getTransactionHash(
-            MULTICALL3_ADDRESS,
-            0,
-            callData,
-            Enum.Operation.DelegateCall,
-            0,
-            0,
-            0,
-            address(0),
-            address(0),
-            IGnosisSafe(multisigTask.multisig()).nonce() - 1
-        );
-        assertEq(hash, expectedHash, "Wrong hash to approve");
+            bytes32 nestedHashToApprove = multisigTask.getNestedHashToApprove(childOwnerMultisigs[i]);
+            bytes32 expectedNestedHashToApprove = IGnosisSafe(childOwnerMultisigs[i]).getTransactionHash(
+                MULTICALL3_ADDRESS,
+                0,
+                callDataToApprove,
+                Enum.Operation.DelegateCall,
+                0,
+                0,
+                0,
+                address(0),
+                address(0),
+                IGnosisSafe(childOwnerMultisigs[i]).nonce()
+            );
+            assertEq(nestedHashToApprove, expectedNestedHashToApprove, "Wrong nested hash to approve");
+        }
     }
 }
