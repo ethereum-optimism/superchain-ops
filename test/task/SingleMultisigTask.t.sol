@@ -64,10 +64,13 @@ contract SingleMultisigTaskTest is Test {
     }
 
     function testBuild() public {
-        vm.expectRevert(bytes("No actions found"));
+        multisigTask = new GasConfigTemplate();
+
+        vm.expectRevert("No actions found");
         multisigTask.getProposalActions();
 
-        runTask();
+        multisigTask.run(taskConfigFilePath);
+
         addresses = multisigTask.addresses();
 
         (address[] memory targets, uint256[] memory values, bytes[] memory arguments) =
@@ -151,16 +154,17 @@ contract SingleMultisigTaskTest is Test {
 
     function testRevertIfUnsupportedChain() public {
         vm.chainId(10);
+        MultisigTask multisigTask = new GasConfigTemplate();
         vm.expectRevert("Unsupported network");
-        runTask();
+        multisigTask.run(taskConfigFilePath);
     }
 
     function testRevertIfDifferentL2SafeAddresses() public {
         string memory incorrectTaskConfigFilePath = "test/task/mock/IncorrectMainnetConfig.toml";
+        multisigTask = new GasConfigTemplate();
         vm.expectRevert(
             "MultisigTask: safe address mismatch. Caller: METAL_SystemConfigOwner. Actual address: OPTIMISM_MAINNET_SystemConfigOwner"
         );
-        multisigTask = new GasConfigTemplate();
         multisigTask.run(incorrectTaskConfigFilePath);
     }
 
