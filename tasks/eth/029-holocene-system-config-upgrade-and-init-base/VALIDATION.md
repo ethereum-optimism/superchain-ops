@@ -52,17 +52,17 @@ cast index bytes32 $SAFE_HASH $(cast index address $SAFE_ROLE 8)
 - **Key**: `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`<br>
   **Before**: `0x00000000000000000000000045c4e267ae21e90f72c8abf43ddb5941c953482f`<br>
   **After**:  `0x000000000000000000000000ab9d6cb7a427c0765163a7f45bb91cafe5f2d375`<br>
-  **Meaning**: Updates the `SystemConfig`'s implementation to version 2.3.0 at `0xAB9d6cB7A427c0765163A7f45BB91cAfe5f2D375`.
+  **Meaning**: Updates the `SystemConfig`'s implementation to [version 2.3.0](https://github.com/ethereum-optimism/superchain-registry/blob/53a83256dfc147710999c76e5565329f6ef0de4e/validation/standard/standard-versions-mainnet.toml#L9) at `0xAB9d6cB7A427c0765163A7f45BB91cAfe5f2D375`.
 
 - **Key**: `0x0000000000000000000000000000000000000000000000000000000000000068`<br>
   **Before**: `0x000000000000000000000000000000000000000000000000000000000fbc5200`<br>
   **After**: `0x0000000000000000000000000000000000101c12000008dd000000000a037a00`<br>
-  **Meaning**: Sets the new `SystemConfig`'s variables `blobbasefeeScalar` to `1055762` (`cast td cast td 0x00101c12`) and `basefeeScalar` to `2269` (`cast td 0x000008dd`). Sets the `gasLimit` to `168000000` (`cast td 0x000000000a037a00`). See storage layout snapshot [here](https://github.com/ethereum-optimism/optimism/blob/3c75cd94849b265ff9d2ed424f9d35be124b0b4e/packages/contracts-bedrock/snapshots/storageLayout/SystemConfig.json#L58-L78).
+  **Meaning**: Sets the new `SystemConfig`'s variables `blobbasefeeScalar` to `1055762` (`cast td 0x00101c12`) and `basefeeScalar` to `2269` (`cast td 0x000008dd`). Sets the `gasLimit` to `168000000` (`cast td 0x000000000a037a00`). See storage layout snapshot [here](https://github.com/ethereum-optimism/optimism/blob/3c75cd94849b265ff9d2ed424f9d35be124b0b4e/packages/contracts-bedrock/snapshots/storageLayout/SystemConfig.json#L58-L78).
 
 - **Key**: `0x000000000000000000000000000000000000000000000000000000000000006a`<br>
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000`<br>
   **After**: `0x0000000000000000000000000000000000000000000000000000000400000001`<br>
-  **Meaning**: Sets the new `SystemConfig`'s variables `eip1559Denominator` to `1` (`cast td 0x00000001`) and `eip1559Elasticity` to `4` (`cast td cast td 0x00000004`).
+  **Meaning**: Sets the new `SystemConfig`'s variables `eip1559Denominator` to `1` (`cast td 0x00000001`) and `eip1559Elasticity` to `4` (`cast td 0x00000004`).
 
 
 
