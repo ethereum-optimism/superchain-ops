@@ -180,7 +180,6 @@ abstract contract MultisigTask is Test, Script, ITask {
 
         /// TODO change this once we implement task stacking
         nonce = IGnosisSafe(multisig).nonce();
-        console.log("parent nonce", nonce);
 
         address[] memory owners = IGnosisSafe(multisig).getOwners();
         for (uint256 i = 0; i < owners.length; i++) {
@@ -262,8 +261,6 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @param data The calldata to be executed
     /// @return The data to sign
     function getDataToSign(address safe, bytes memory data) public view returns (bytes memory) {
-        console.log(address(safe), "address");
-        console.log(IGnosisSafe(safe).nonce(), "nonce");
         uint256 useNonce;
 
         if (safe == multisig) {
