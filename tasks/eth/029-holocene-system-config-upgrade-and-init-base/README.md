@@ -9,7 +9,11 @@ Upgrades the `SystemConfig` for the Holocene hardfork and sets the EIP1559 param
 - This upgrades the `SystemConfig` in the
 [v1.8.0-rc.4](https://github.com/ethereum-optimism/optimism/tree/v1.8.0-rc.4) release.
 
-- Unrelated to the Holocene upgrade itself, an additional transaction is included for convenience to adjust the EIP-1559 parameters to `_denominator = 1` and `_elasticity = 4`.
+- Unrelated to the Holocene upgrade itself, two additional transactions (tx 4 and 5) are included for convenience:
+
+    - Tx 4 sets the EIP-1559 parameters to `_denominator = 1` and `_elasticity = 4`. TBD at execution if the `_elasticity` needs to be changed to match whatever target we currently have.
+    
+    - Tx 5 restores the SystemConfig's owner address to its original value (`0x14536667Cd30e52C0b458BaACcB9faDA7046E056`). This is needed because the SystemConfig's owner was temporarily set to the ProxyAdmin's owner address (`0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c`) in tx 3 so that we could batch tx 4 (which has an `onlyOwner` modifier) in the same muticall transaction.
 
 ## Pre-deployments
 
