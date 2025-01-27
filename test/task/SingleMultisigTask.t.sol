@@ -162,25 +162,44 @@ contract SingleMultisigTaskTest is Test {
     function testRevertIfDifferentL2SafeAddresses() public {
         string memory incorrectTaskConfigFilePath = "test/task/mock/IncorrectMainnetConfig.toml";
         MultisigTask localMultisigTask = new GasConfigTemplate();
-        vm.expectRevert(
-            "MultisigTask: safe address mismatch. Caller: METAL_SystemConfigOwner. Actual address: OPTIMISM_MAINNET_SystemConfigOwner"
+        Addresses addressRegistry = new Addresses(incorrectTaskConfigFilePath);
+        bytes memory expectedRevertMessage = bytes(
+            string.concat(
+                "MultisigTask: safe address mismatch. Caller: ",
+                localMultisigTask.getAddressLabel(addressRegistry.getAddress("SystemConfigOwner", 291)),
+                ". Actual address: ",
+                localMultisigTask.getAddressLabel(addressRegistry.getAddress("SystemConfigOwner", 10))
+            )
         );
+        vm.expectRevert(expectedRevertMessage);
         localMultisigTask.run(incorrectTaskConfigFilePath);
     }
 
     function testRevertIfIncorrectAllowedStorageWrite() public {
         MultisigTask localMultisigTask = new IncorrectGasConfigTemplate1();
-        vm.expectRevert(
-            "MultisigTask: address ORDERLY_SystemConfigProxy @0x886B187C3D293B1449A3A0F23Ca9e2269E0f2664 not in allowed storage accesses"
+        Addresses addressRegistry = new Addresses(taskConfigFilePath);
+        bytes memory expectedRevertMessage = bytes(
+            string.concat(
+                "MultisigTask: address ",
+                localMultisigTask.getAddressLabel(addressRegistry.getAddress("SystemConfigProxy", 291)),
+                " not in allowed storage accesses"
+            )
         );
+        vm.expectRevert(expectedRevertMessage);
         localMultisigTask.run(taskConfigFilePath);
     }
 
     function testRevertIfAllowedStorageNotWritten() public {
         MultisigTask localMultisigTask = new IncorrectGasConfigTemplate2();
-        vm.expectRevert(
-            "MultisigTask: address METAL_SystemConfigOwner @0x4a4962275DF8C60a80d3a25faEc5AA7De116A746 not in task state change addresses"
+        Addresses addressRegistry = new Addresses(taskConfigFilePath);
+        bytes memory expectedRevertMessage = bytes(
+            string.concat(
+                "MultisigTask: address ",
+                localMultisigTask.getAddressLabel(addressRegistry.getAddress("SystemConfigOwner", 291)),
+                " not in task state change addresses"
+            )
         );
+        vm.expectRevert(expectedRevertMessage);
         localMultisigTask.run(taskConfigFilePath);
     }
 }

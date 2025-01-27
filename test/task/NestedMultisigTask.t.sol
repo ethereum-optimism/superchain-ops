@@ -23,21 +23,16 @@ contract NestedMultisigTaskTest is Test {
 
     function setUp() public {
         vm.createSelectFork("mainnet");
-    }
-
-    function runTask() public {
         multisigTask = new DisputeGameUpgradeTemplate();
         multisigTask.run(taskConfigFilePath);
+        addresses = multisigTask.addresses();
     }
 
-    function testSafeNested() public {
-        runTask();
+    function testSafeNested() public view {
         assertEq(multisigTask.isNestedSafe(), true, "Expected isNestedSafe to be false");
     }
 
-    function testNestedDataToSignAndHashToApprove() public {
-        runTask();
-        addresses = multisigTask.addresses();
+    function testNestedDataToSignAndHashToApprove() public view {
         IGnosisSafe parentMultisig = IGnosisSafe(multisigTask.multisig());
         address[] memory childOwnerMultisigs = parentMultisig.getOwners();
 
@@ -69,7 +64,7 @@ contract NestedMultisigTaskTest is Test {
         assertEq(callDataToApprove, multisigTask.generateApproveMulticallData(), "Wrong callDataToApprove");
 
         for (uint256 i; i < childOwnerMultisigs.length; i++) {
-            bytes memory dataToSign = multisigTask.getNestedDataToSign(childOwnerMultisigs[i]);
+            bytes memory dataToSign = getNestedDataToSign(childOwnerMultisigs[i]);
             bytes memory expectedDataToSign = IGnosisSafe(childOwnerMultisigs[i]).encodeTransactionData({
                 to: MULTICALL3_ADDRESS,
                 value: 0,
@@ -84,7 +79,7 @@ contract NestedMultisigTaskTest is Test {
             });
             assertEq(dataToSign, expectedDataToSign, "Wrong data to sign");
 
-            bytes32 nestedHashToApprove = multisigTask.getNestedHashToApprove(childOwnerMultisigs[i]);
+            bytes32 nestedHashToApprove = keccak256(getNestedDataToSign(childOwnerMultisigs[i]));
             bytes32 expectedNestedHashToApprove = IGnosisSafe(childOwnerMultisigs[i]).getTransactionHash(
                 MULTICALL3_ADDRESS,
                 0,
@@ -99,5 +94,10 @@ contract NestedMultisigTaskTest is Test {
             );
             assertEq(nestedHashToApprove, expectedNestedHashToApprove, "Wrong nested hash to approve");
         }
+    }
+
+    function getNestedDataToSign(address owner) public view returns (bytes memory) {
+        bytes memory callData = multisigTask.generateApproveMulticallData();
+        return multisigTask.getDataToSign(owner, callData);
     }
 }
