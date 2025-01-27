@@ -145,7 +145,8 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// specifies the addresses that must have their storage written to
     function _taskStorageWrites() internal pure virtual returns (string[] memory);
 
-    /// @notice Runs the proposal with the given task and network configuration file paths. Sets the address registry, initializes the proposal and processes the proposal.
+    /// @notice Runs the task with the given configuration file paths.
+    /// Sets the address registry, initializes the task and simulates the task.
     /// @param taskConfigFilePath The path to the task configuration file.
     function run(string memory taskConfigFilePath) public {
         Addresses _addresses = new Addresses(taskConfigFilePath);
