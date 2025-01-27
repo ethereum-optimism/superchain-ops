@@ -58,9 +58,17 @@ contract AddressRegistry is IAddressRegistry, Test {
             "Unsupported network"
         );
 
-        bytes memory chainListContent = vm.parseToml(vm.readFile(networkConfigFilePath), ".l2chains");
+        bytes memory chainListContent;
+        try vm.parseToml(vm.readFile(networkConfigFilePath), ".l2chains") returns (bytes memory parsedChainListContent)
+        {
+            chainListContent = parsedChainListContent;
+        } catch {
+            revert(string.concat("Failed to parse network config file path: ", networkConfigFilePath));
+        }
+
         chains = abi.decode(chainListContent, (ChainInfo[]));
 
+        /// should never revert
         string memory chainAddressesContent = vm.readFile(SUPERCHAIN_REGISTRY_PATH);
 
         for (uint256 i = 0; i < chains.length; i++) {

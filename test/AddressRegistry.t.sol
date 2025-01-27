@@ -10,7 +10,7 @@ contract MainnetAddressRegistryTest is Test {
     AddressRegistry private addresses;
 
     function setUp() public {
-        string memory networkConfigFilePath = "src/fps/example/mainnetConfig.toml";
+        string memory networkConfigFilePath = "src/fps/example/task-00/mainnetConfig.toml";
 
         vm.createSelectFork("mainnet");
 
@@ -126,7 +126,7 @@ contract MainnetAddressRegistryTest is Test {
     /// Construction failure tests
 
     function testInvalidChainIdInSuperchainsFails() public {
-        string memory networkConfigFilePath = "test/mock/networkConfig1.toml";
+        string memory networkConfigFilePath = "test/mock/invalidChainIdNetworkConfig.toml";
 
         vm.expectRevert("Invalid chain ID in config");
         new AddressRegistry(networkConfigFilePath);
