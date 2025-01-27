@@ -64,17 +64,17 @@ contract SingleMultisigTaskTest is Test {
     }
 
     function testBuild() public {
-        multisigTask = new GasConfigTemplate();
+        MultisigTask localMultisigTask = new GasConfigTemplate();
 
         vm.expectRevert("No actions found");
-        multisigTask.getProposalActions();
+        localMultisigTask.getProposalActions();
 
-        multisigTask.run(taskConfigFilePath);
+        localMultisigTask.run(taskConfigFilePath);
 
-        addresses = multisigTask.addresses();
+        addresses = localMultisigTask.addresses();
 
         (address[] memory targets, uint256[] memory values, bytes[] memory arguments) =
-            multisigTask.getProposalActions();
+            localMultisigTask.getProposalActions();
 
         assertEq(targets.length, 2, "Expected 2 targets");
         assertEq(targets[0], addresses.getAddress("SystemConfigProxy", 291), "Expected SystemConfigProxy target");
@@ -154,33 +154,33 @@ contract SingleMultisigTaskTest is Test {
 
     function testRevertIfUnsupportedChain() public {
         vm.chainId(10);
-        MultisigTask multisigTask = new GasConfigTemplate();
+        MultisigTask localMultisigTask = new GasConfigTemplate();
         vm.expectRevert("Unsupported network");
-        multisigTask.run(taskConfigFilePath);
+        localMultisigTask.run(taskConfigFilePath);
     }
 
     function testRevertIfDifferentL2SafeAddresses() public {
         string memory incorrectTaskConfigFilePath = "test/task/mock/IncorrectMainnetConfig.toml";
-        multisigTask = new GasConfigTemplate();
+        MultisigTask localMultisigTask = new GasConfigTemplate();
         vm.expectRevert(
             "MultisigTask: safe address mismatch. Caller: METAL_SystemConfigOwner. Actual address: OPTIMISM_MAINNET_SystemConfigOwner"
         );
-        multisigTask.run(incorrectTaskConfigFilePath);
+        localMultisigTask.run(incorrectTaskConfigFilePath);
     }
 
     function testRevertIfIncorrectAllowedStorageWrite() public {
-        multisigTask = new IncorrectGasConfigTemplate1();
+        MultisigTask localMultisigTask = new IncorrectGasConfigTemplate1();
         vm.expectRevert(
             "MultisigTask: address ORDERLY_SystemConfigProxy @0x886B187C3D293B1449A3A0F23Ca9e2269E0f2664 not in allowed storage accesses"
         );
-        multisigTask.run(taskConfigFilePath);
+        localMultisigTask.run(taskConfigFilePath);
     }
 
     function testRevertIfAllowedStorageNotWritten() public {
-        multisigTask = new IncorrectGasConfigTemplate2();
+        MultisigTask localMultisigTask = new IncorrectGasConfigTemplate2();
         vm.expectRevert(
             "MultisigTask: address METAL_SystemConfigOwner @0x4a4962275DF8C60a80d3a25faEc5AA7De116A746 not in task state change addresses"
         );
-        multisigTask.run(taskConfigFilePath);
+        localMultisigTask.run(taskConfigFilePath);
     }
 }
