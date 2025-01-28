@@ -441,7 +441,7 @@ abstract contract MultisigTask is Test, Script, ITask {
         for (uint256 i; i < _taskTransferFromAddresses.length(); i++) {
             address account = _taskTransferFromAddresses.at(i);
 
-            console.log("\n\n", string(abi.encodePacked(getAddressLabel(account), ":")));
+            console.log("\n\n", string.concat(getAddressLabel(account), ":"));
 
             // print token transfers
             TransferInfo[] memory transfers = _taskTransfers[account];
