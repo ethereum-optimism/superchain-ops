@@ -17,6 +17,10 @@ abstract contract ITask {
     /// @notice return task calldata
     function getCalldata() external virtual returns (bytes memory data);
 
+    /// @notice Runs the task with the given configuration file paths.
+    /// Sets the address registry, initializes the task and simulates the task.
+    function run(string memory taskConfigFilePath) external virtual;
+
     /// @notice build the task actions
     /// @dev contract calls must be perfomed in plain solidity.
     ///      overriden requires using buildModifier modifier to leverage
