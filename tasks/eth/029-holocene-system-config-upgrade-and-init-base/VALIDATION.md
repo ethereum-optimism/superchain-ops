@@ -16,20 +16,20 @@ This task is executed by the nested 2/2 `ProxyAdminOwner` Safe. Refer to the
 for the expected state overrides and changes.
 
 The `approvedHashes` mapping **key** of the `ProxyAdminOwner` that should change during the simulation is
-- Council simulation: `0xe6f00df892e461345e914ddbed8c7f9796a81b455809909ee502d0750ccf2b45`
-- Foundation simulation: `0x4e084fbb327fdb46b622acadcf9e253f7b34a8086c4cae84fdaf1399e955de42`
+- Council simulation: `0x153f429da83bae700c7df104e0445d1b1c2b59ab0544c355447505dc4bcfae87`
+- Foundation simulation: `0x7b5a6309044bc8d0ac2af15d93c04026f790b0c6f2084a00bdbb481eda8fb63c`
 
 calculated as explained in the nested validation doc:
 ```sh
-SAFE_HASH=0x170aa54c45751a683a7218ec581cc16367cbc59f4a82795b61ae89c6784e8287 # "Nested hash"
+SAFE_HASH=0xf53895eb78a389580654b2a69fc82a45d6231812f925ccc06be50a36e70af64e # "Nested hash"
 
 SAFE_ROLE=0x9855054731540A48b28990B63DcF4f33d8AE46A1 # Council
 cast index bytes32 $SAFE_HASH $(cast index address $SAFE_ROLE 8)
-# 0xe6f00df892e461345e914ddbed8c7f9796a81b455809909ee502d0750ccf2b45
+# 0x153f429da83bae700c7df104e0445d1b1c2b59ab0544c355447505dc4bcfae87
 
 SAFE_ROLE=0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A # Foundation
 cast index bytes32 $SAFE_HASH $(cast index address $SAFE_ROLE 8)
-# 0x4e084fbb327fdb46b622acadcf9e253f7b34a8086c4cae84fdaf1399e955de42
+# 0x7b5a6309044bc8d0ac2af15d93c04026f790b0c6f2084a00bdbb481eda8fb63c
 ```
 
 ## State Changes
@@ -46,7 +46,6 @@ cast index bytes32 $SAFE_HASH $(cast index address $SAFE_ROLE 8)
   **After**: `0x0000000000000000000000000000000000000000000000000000000000000001`<br>
   **Meaning**: approvedHashes update. See above.
 
-
 ### `0x73a79Fab69143498Ed3712e519A88a918e1f4072` (`SystemConfigProxy`)
 
 - **Key**: `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`<br>
@@ -56,15 +55,13 @@ cast index bytes32 $SAFE_HASH $(cast index address $SAFE_ROLE 8)
 
 - **Key**: `0x0000000000000000000000000000000000000000000000000000000000000068`<br>
   **Before**: `0x000000000000000000000000000000000000000000000000000000000fbc5200`<br>
-  **After**: `0x0000000000000000000000000000000000101c12000008dd000000000a037a00`<br>
-  **Meaning**: Sets the new `SystemConfig`'s variables `blobbasefeeScalar` to `1055762` (`cast td 0x00101c12`) and `basefeeScalar` to `2269` (`cast td 0x000008dd`). Sets the `gasLimit` to `168000000` (`cast td 0x000000000a037a00`). See storage layout snapshot [here](https://github.com/ethereum-optimism/optimism/blob/3c75cd94849b265ff9d2ed424f9d35be124b0b4e/packages/contracts-bedrock/snapshots/storageLayout/SystemConfig.json#L58-L78).
+  **After**: `0x0000000000000000000000000000000000101c12000008dd0000000005b8d800`<br>
+  **Meaning**: Sets the new `SystemConfig`'s variables `blobbasefeeScalar` to `1055762` (`cast td 0x00101c12`) and `basefeeScalar` to `2269` (`cast td 0x000008dd`). Sets the `gasLimit` to `96000000` (`cast td 0x0000000005b8d800`). See storage layout snapshot [here](https://github.com/ethereum-optimism/optimism/blob/3c75cd94849b265ff9d2ed424f9d35be124b0b4e/packages/contracts-bedrock/snapshots/storageLayout/SystemConfig.json#L58-L78).
 
 - **Key**: `0x000000000000000000000000000000000000000000000000000000000000006a`<br>
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000`<br>
-  **After**: `0x0000000000000000000000000000000000000000000000000000000400000001`<br>
-  **Meaning**: Sets the new `SystemConfig`'s variables `eip1559Denominator` to `1` (`cast td 0x00000001`) and `eip1559Elasticity` to `4` (`cast td 0x00000004`).
-
-
+  **After**: `0x00000000000000000000000000000000000000000000000000000002000000fa`<br>
+  **Meaning**: Sets the new `SystemConfig`'s variables `eip1559Denominator` to `250` (`cast td 0x000000fa`) and `eip1559Elasticity` to `4` (`cast td 0x00000002`).
 
 ### Other nonce changes
 * **If you are signing for the Security Council** Security Council (`0x9855054731540A48b28990B63DcF4f33d8AE46A1`): `17` -> `18`.

@@ -28,11 +28,11 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
         console.log("Running post-deploy assertions");
 
         checkStateDiff(accesses);
-        sysCfgUpgrade.checkSystemConfigUpgradeWithPreviousGasLimitOverride(168_000_000);
+        sysCfgUpgrade.checkSystemConfigUpgradeWithPreviousGasLimitOverride(96_000_000);
 
         ISystemConfig systemConfig = ISystemConfig(sysCfgUpgrade.systemConfigAddress());
-        vm.assertEq(systemConfig.eip1559Denominator(), 1, "incorrect EIP1559 denominator");
-        vm.assertEq(systemConfig.eip1559Elasticity(), 4, "incorrect EIP1559 elasticity");
+        vm.assertEq(systemConfig.eip1559Denominator(), 250, "incorrect EIP1559 denominator");
+        vm.assertEq(systemConfig.eip1559Elasticity(), 2, "incorrect EIP1559 elasticity");
 
         console.log("All assertions passed!");
     }
