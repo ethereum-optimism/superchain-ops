@@ -28,7 +28,7 @@ contract GasConfigTemplate is MultisigTask {
 
     /// @notice Returns the storage write permissions required for this task
     /// @return Array of storage write permissions
-    function _taskStorageWrites() internal pure override returns (string[] memory) {
+    function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
         string[] memory storageWrites = new string[](1);
         storageWrites[0] = "SystemConfigProxy";
         return storageWrites;
