@@ -267,7 +267,6 @@ jobs:
             export ETH_RPC_URL=https://ethereum.publicnode.com
             forge script src/fps/example/Runner.sol:Runner --sig "run(string)" lib/optimism/packages/contracts-bedrock/allocs.json  --rpc-url $ETH_RPC_URL
             export SUPERCHAIN_OPS_ALLOCS_PATH=./allocs.json
-            just --justfile src/fps/monorepo.just monorepo-integration
             cd lib/optimism/packages/contracts-bedrock/ && just test-upgrade
 
   print_versions:
