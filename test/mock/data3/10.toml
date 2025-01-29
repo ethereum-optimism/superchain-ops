@@ -1,4 +1,0 @@
-[[addresses]]
-addr = "0x0000000000000000000000000000000000000000"
-identifier = "DEPLOYER_EOA"
-isContract = false

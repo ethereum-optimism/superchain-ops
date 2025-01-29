@@ -10,7 +10,7 @@ import {FaultDisputeGame} from "@eth-optimism-bedrock/src/dispute/FaultDisputeGa
 import {PermissionedDisputeGame} from "@eth-optimism-bedrock/src/dispute/PermissionedDisputeGame.sol";
 import {DisputeGameFactory} from "@eth-optimism-bedrock/src/dispute/DisputeGameFactory.sol";
 import {MIPS} from "@eth-optimism-bedrock/src/cannon/MIPS.sol";
-import {ISemver} from "@eth-optimism-bedrock/src/universal/ISemver.sol";
+import {ISemver} from "@eth-optimism-bedrock/interfaces/universal/ISemver.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {NestedMultisigBuilder} from "@base-contracts/script/universal/NestedMultisigBuilder.sol";
 

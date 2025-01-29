@@ -7,7 +7,6 @@ optimizer_runs = 999999
 solc_version = "0.8.15"
 evm_version = "cancun"
 via_ir = true
-broadcast = 'records'
 fs_permissions = [{ access = "read-write", path = "./" }]
 # Enable FFI for reading lib/superchain-registry files in scripts SignFromJson.s.sol, NestedSignFromJson.s.sol within tasks
 ffi = true
@@ -20,6 +19,7 @@ remappings = [
   '@rari-capital/solmate/=lib/solmate',
   '@eth-optimism-superchain-registry/=lib/superchain-registry/',
   '@solady/=lib/optimism/packages/contracts-bedrock/lib/solady/src/',
+  '@lib-keccak/=lib/optimism/packages/contracts-bedrock/lib/lib-keccak/contracts/lib/',
   'ds-test/=lib/optimism/packages/contracts-bedrock/lib/forge-std/lib/ds-test/src',
   'forge-std/=lib/forge-std/src/',
 ]
