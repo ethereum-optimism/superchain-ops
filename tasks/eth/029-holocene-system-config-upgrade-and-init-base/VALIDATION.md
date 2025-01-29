@@ -61,7 +61,7 @@ cast index bytes32 $SAFE_HASH $(cast index address $SAFE_ROLE 8)
 - **Key**: `0x000000000000000000000000000000000000000000000000000000000000006a`<br>
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000`<br>
   **After**: `0x00000000000000000000000000000000000000000000000000000002000000fa`<br>
-  **Meaning**: Sets the new `SystemConfig`'s variables `eip1559Denominator` to `250` (`cast td 0x000000fa`) and `eip1559Elasticity` to `4` (`cast td 0x00000002`).
+  **Meaning**: Sets the new `SystemConfig`'s variables `eip1559Denominator` to `250` (`cast td 0x000000fa`) and `eip1559Elasticity` to `2` (`cast td 0x00000002`).
 
 ### Other nonce changes
 * **If you are signing for the Security Council** Security Council (`0x9855054731540A48b28990B63DcF4f33d8AE46A1`): `17` -> `18`.
