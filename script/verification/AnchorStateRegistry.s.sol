@@ -5,8 +5,8 @@ import {console2 as console} from "forge-std/console2.sol";
 import {LibString} from "solady/utils/LibString.sol";
 import {VerificationBase, SuperchainRegistry} from "script/verification/Verification.s.sol";
 import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
-import {IAnchorStateRegistry} from "@eth-optimism-bedrock/src/dispute/interfaces/IAnchorStateRegistry.sol";
-import {ISemver} from "@eth-optimism-bedrock/src/universal/ISemver.sol";
+import {IAnchorStateRegistry} from "@eth-optimism-bedrock/interfaces/dispute/IAnchorStateRegistry.sol";
+import {ISemver} from "@eth-optimism-bedrock/interfaces/universal/ISemver.sol";
 
 // Describes an initial anchor state for a game type.
 // It's not exported from the contracts package.

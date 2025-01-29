@@ -97,7 +97,8 @@ abstract contract DisputeGameUpgrade is VerificationBase, SuperchainRegistry {
     }
 
     function precheckDisputeGames() internal view {
-        _precheckDisputeGameImplementation(GameType.wrap(0), expFaultDisputeGame);
+        // Disable this check because we are changing WETH for PDG but not for FDG
+        // _precheckDisputeGameImplementation(GameType.wrap(0), expFaultDisputeGame);
         _precheckDisputeGameImplementation(GameType.wrap(1), expPermissionedDisputeGame);
     }
 

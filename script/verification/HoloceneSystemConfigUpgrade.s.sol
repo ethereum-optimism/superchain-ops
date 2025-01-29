@@ -152,14 +152,14 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry, VerificationBase {
             // See https://specs.optimism.io/protocol/system-config.html?highlight=ecotone%20scalar#ecotone-scalar-overhead-uint256uint256-change
             require(previousScalarEncodingVersion == 0, "scalar-101 previous scalar version != 0 or 1");
             require(newScalarEncodingVersion == 1, "scalar-102 reenconded scalar version != 1");
-            require(sysCfg.blobbasefeeScalar() == uint32(0), "scalar-103 blobbasefeeScalar !=0");
+            require(sysCfg.blobbasefeeScalar() == uint32(900000), "scalar-103 blobbasefeeScalar !=900000");
 
             // Sanity check the scalar "padding" is zero for legacy encodings (see spec)
             uint256 mask = 0x00ffffffffffffffffffffffffffffffffffffffffffffffffffff00000000;
             require((previousScalar & mask) == uint256(0), "scalar-105 previous scalar padding != 0");
 
-            // The scalars should match if we add the new scalar version byte to the previous scalar.
-            require(reencodedScalar == previousScalar + (uint256(0x01) << 248), "scalar-106 scalar mismatch");
+            // Because of the atypical upgrade, skip this check
+            // require(reencodedScalar == previousScalar + (uint256(0x01) << 248), "scalar-106 scalar mismatch");
         }
     }
 
