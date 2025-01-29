@@ -15,6 +15,8 @@ import {MULTICALL3_ADDRESS} from "src/fps/utils/Constants.sol";
 contract SingleMultisigTaskTest is Test {
     MultisigTask private multisigTask;
     Addresses private addresses;
+
+    /// @notice ProxyAdminOwner safe for task-00 is a single multisig.
     string taskConfigFilePath = "src/fps/example/task-00/mainnetConfig.toml";
 
     function setUp() public {
