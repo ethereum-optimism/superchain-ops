@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity 0.8.15;
 
+import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {Test} from "forge-std/Test.sol";
-import {console} from "forge-std/Test.sol";
 
 import {MultisigTask} from "src/fps/task/MultisigTask.sol";
 import {AddressRegistry} from "src/fps/AddressRegistry.sol";
@@ -11,13 +11,6 @@ import {MockMultisigTask} from "test/mock/MockMultisigTask.sol";
 contract MultisigTaskUnitTest is Test {
     AddressRegistry public addresses;
     MultisigTask public task;
-
-    struct Call3Value {
-        address target;
-        bool allowFailure;
-        uint256 value;
-        bytes callData;
-    }
 
     string constant MAINNET_CONFIG = "./src/fps/example/task-03/mainnetConfig.toml";
 
@@ -31,7 +24,47 @@ contract MultisigTaskUnitTest is Test {
         task = MultisigTask(new MockMultisigTask());
     }
 
-    function test_run() public {
+    function testRunFailsNoNetworks() public {
+        vm.expectRevert("MultisigTask: no chains found");
+        task.run("./test/mock/invalidNetworkConfig.toml");
+    }
+    
+    function testRunFailsEmptyActions() public {
+        /// add empty action that will cause a revert
+        MockMultisigTask(address(task)).addAction(address(0), "", 0, "");
+        vm.expectRevert("Invalid target for task");
+        task.run(MAINNET_CONFIG);
+    }
+    
+    function testRunFailsInvalidAction() public {
+        /// add invalid args for action that will cause a revert
+        MockMultisigTask(address(task)).addAction(address(1), "", 0, "");
+        vm.expectRevert("Invalid arguments for task");
+        task.run(MAINNET_CONFIG);
+    }
+
+    function testBuildFailsAddressesNotSet() public {
+        vm.expectRevert("Must set addresses object for multisig address to be set");
+        task.build();
+    }
+    
+    function testRunFailsDuplicateAction() public {
+        /// add duplicate action that will cause a revert
+        MockMultisigTask(address(task)).addAction(
+            addresses.getAddress("ProxyAdmin", getChain("optimism").chainId),
+            abi.encodeWithSignature(
+                "upgrade(address,address)",
+                addresses.getAddress("L1ERC721BridgeProxy", getChain("optimism").chainId),
+                MockMultisigTask(address(task)).newImplementation()
+            ),
+            0,
+            ""
+        );
+        vm.expectRevert("Duplicated action found");
+        task.run(MAINNET_CONFIG);
+    }
+
+    function testRun() public {
         vm.expectRevert("No actions found");
         task.getTaskActions();
 
@@ -62,8 +95,8 @@ contract MultisigTaskUnitTest is Test {
         );
     }
 
-    function test_simulate_fails_tx_already_executed() public {
-        test_run();
+    function testSimulateFailsTxAlreadyExecuted() public {
+        testRun();
 
         vm.expectRevert("GS025");
         task.simulate();
@@ -72,15 +105,15 @@ contract MultisigTaskUnitTest is Test {
         task.validate();
     }
 
-    function test_getCalldata() public {
-        test_run();
+    function testGetCalldata() public {
+        testRun();
 
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.getTaskActions();
 
-        Call3Value[] memory calls = new Call3Value[](targets.length);
+        IMulticall3.Call3Value[] memory calls = new IMulticall3.Call3Value[](targets.length);
 
         for (uint256 i; i < calls.length; i++) {
-            calls[i] = Call3Value({target: targets[i], allowFailure: false, value: values[i], callData: calldatas[i]});
+            calls[i] = IMulticall3.Call3Value({target: targets[i], allowFailure: false, value: values[i], callData: calldatas[i]});
         }
 
         bytes memory expectedData = abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
