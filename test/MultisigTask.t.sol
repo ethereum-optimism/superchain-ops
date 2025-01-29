@@ -28,14 +28,14 @@ contract MultisigTaskUnitTest is Test {
         vm.expectRevert("MultisigTask: no chains found");
         task.run("./test/mock/invalidNetworkConfig.toml");
     }
-    
+
     function testRunFailsEmptyActions() public {
         /// add empty action that will cause a revert
         MockMultisigTask(address(task)).addAction(address(0), "", 0, "");
         vm.expectRevert("Invalid target for task");
         task.run(MAINNET_CONFIG);
     }
-    
+
     function testRunFailsInvalidAction() public {
         /// add invalid args for action that will cause a revert
         MockMultisigTask(address(task)).addAction(address(1), "", 0, "");
@@ -47,7 +47,7 @@ contract MultisigTaskUnitTest is Test {
         vm.expectRevert("Must set addresses object for multisig address to be set");
         task.build();
     }
-    
+
     function testRunFailsDuplicateAction() public {
         /// add duplicate action that will cause a revert
         MockMultisigTask(address(task)).addAction(
@@ -113,7 +113,12 @@ contract MultisigTaskUnitTest is Test {
         IMulticall3.Call3Value[] memory calls = new IMulticall3.Call3Value[](targets.length);
 
         for (uint256 i; i < calls.length; i++) {
-            calls[i] = IMulticall3.Call3Value({target: targets[i], allowFailure: false, value: values[i], callData: calldatas[i]});
+            calls[i] = IMulticall3.Call3Value({
+                target: targets[i],
+                allowFailure: false,
+                value: values[i],
+                callData: calldatas[i]
+            });
         }
 
         bytes memory expectedData = abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
