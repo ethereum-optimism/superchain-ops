@@ -1,23 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
+import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {Test} from "forge-std/Test.sol";
 
-import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
 import {MultisigTask} from "src/fps/task/MultisigTask.sol";
-import {DisputeGameUpgradeTemplate} from "src/fps/example/template/DisputeGameUpgradeTemplate.sol";
-import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {MULTICALL3_ADDRESS} from "src/fps/utils/Constants.sol";
+import {DisputeGameUpgradeTemplate} from "src/fps/example/template/DisputeGameUpgradeTemplate.sol";
+import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
 
 /// @notice This test is used to test the nested multisig task.
 contract NestedMultisigTaskTest is Test {
-    struct Call3Value {
-        address target;
-        bool allowFailure;
-        uint256 value;
-        bytes callData;
-    }
-
     MultisigTask private multisigTask;
     Addresses private addresses;
     /// ProxyAdminOwner safe for task-01 is a nested multisig for Op mainnet L2 chain.
@@ -56,14 +50,14 @@ contract NestedMultisigTaskTest is Test {
             parentMultisig.nonce() - 1
         );
 
-        Call3Value memory call = Call3Value({
+        IMulticall3.Call3Value memory call = IMulticall3.Call3Value({
             target: address(parentMultisig),
             allowFailure: false,
             value: 0,
             callData: abi.encodeCall(parentMultisig.approveHash, (hashToApproveByChildMultisig))
         });
 
-        Call3Value[] memory calls = new Call3Value[](1);
+        IMulticall3.Call3Value[] memory calls = new IMulticall3.Call3Value[](1);
         calls[0] = call;
 
         /// callDataToApprove is the data that the child multisig has to execute to

@@ -8,18 +8,11 @@ import {MultisigTask} from "src/fps/task/MultisigTask.sol";
 import {GasConfigTemplate} from "src/fps/example/template/GasConfigTemplate.sol";
 import {IncorrectGasConfigTemplate1} from "test/task/mock/IncorrectGasConfigTemplate1.sol";
 import {IncorrectGasConfigTemplate2} from "test/task/mock/IncorrectGasConfigTemplate2.sol";
-import {console} from "forge-std/console.sol";
+import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {MULTICALL3_ADDRESS} from "src/fps/utils/Constants.sol";
 
 contract SingleMultisigTaskTest is Test {
-    struct Call3Value {
-        address target;
-        bool allowFailure;
-        uint256 value;
-        bytes callData;
-    }
-
     MultisigTask private multisigTask;
     Addresses private addresses;
     string taskConfigFilePath = "src/fps/example/task-00/mainnetConfig.toml";
@@ -67,14 +60,14 @@ contract SingleMultisigTaskTest is Test {
         MultisigTask localMultisigTask = new GasConfigTemplate();
 
         vm.expectRevert("No actions found");
-        localMultisigTask.getProposalActions();
+        localMultisigTask.getTaskActions();
 
         localMultisigTask.run(taskConfigFilePath);
 
         addresses = localMultisigTask.addresses();
 
         (address[] memory targets, uint256[] memory values, bytes[] memory arguments) =
-            localMultisigTask.getProposalActions();
+            localMultisigTask.getTaskActions();
 
         assertEq(targets.length, 2, "Expected 2 targets");
         assertEq(targets[0], addresses.getAddress("SystemConfigProxy", 291), "Expected SystemConfigProxy target");
@@ -90,13 +83,17 @@ contract SingleMultisigTaskTest is Test {
     function testGetCallData() public {
         runTask();
 
-        (address[] memory targets, uint256[] memory values, bytes[] memory arguments) =
-            multisigTask.getProposalActions();
+        (address[] memory targets, uint256[] memory values, bytes[] memory arguments) = multisigTask.getTaskActions();
 
-        Call3Value[] memory calls = new Call3Value[](targets.length);
+        IMulticall3.Call3Value[] memory calls = new IMulticall3.Call3Value[](targets.length);
 
         for (uint256 i = 0; i < targets.length; i++) {
-            calls[i] = Call3Value({target: targets[i], allowFailure: false, value: values[i], callData: arguments[i]});
+            calls[i] = IMulticall3.Call3Value({
+                target: targets[i],
+                allowFailure: false,
+                value: values[i],
+                callData: arguments[i]
+            });
         }
 
         bytes memory expectedCallData =
