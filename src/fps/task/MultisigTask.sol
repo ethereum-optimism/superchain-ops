@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
+import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import {LibSort} from "@solady/utils/LibSort.sol";
 import {console} from "forge-std/console.sol";
 import {Script} from "forge-std/Script.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {Test} from "forge-std/Test.sol";
-import {LibSort} from "@solady/utils/LibSort.sol";
-import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-import {ITask} from "src/fps/task/ITask.sol";
+import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
+import {ITask} from "src/fps/task/ITask.sol";
 import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
 import {SAFE_NONCE_SLOT, MULTICALL3_ADDRESS} from "src/fps/utils/Constants.sol";
-import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
 
 abstract contract MultisigTask is Test, Script, ITask {
     using EnumerableSet for EnumerableSet.AddressSet;
@@ -145,8 +145,8 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// specifies the addresses that must have their storage written to
     function _taskStorageWrites() internal pure virtual returns (string[] memory);
 
-    /// @notice Runs the task with the given configuration file paths.
-    /// Sets the address registry, initializes the task and simulates the task.
+    /// @notice Runs the task with the given configuration file path.
+    /// Sets the address registry, initializes and simulates the task.
     /// @param taskConfigFilePath The path to the task configuration file.
     function run(string memory taskConfigFilePath) public {
         Addresses _addresses = new Addresses(taskConfigFilePath);
