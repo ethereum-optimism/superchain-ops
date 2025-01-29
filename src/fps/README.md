@@ -1,6 +1,6 @@
 # Overview
 
-This new calldata simulation tooling allows developers to write tasks that simulate the state changes that would occur onchain if the proposal were to be executed. The simulator can be run against any mainnet, sepolia, and devnet.
+This new calldata simulation tooling allows developers to write tasks that simulate the state changes that would occur onchain if the task were to be executed. The simulator can be run against any mainnet, sepolia, and devnet.
 
 The goal of using this new task tooling for the superchain ops repo is to greatly simplify task development, increase security by reducing errors, reduce sharp edges, and speed development and review of tasks. The simulation is designed to simulate task runs, with all onchain state changes being run locally.
 
