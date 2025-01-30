@@ -103,11 +103,11 @@
     },
     {
       "metadata": {
-        "name": "SystemConfigProxy.setEIP1559Params(1,4)",
-        "description": "Set the EIP1559 `_denominator` to `1` and `_elasticity` to `4`"
+        "name": "SystemConfigProxy.setEIP1559Params(250,4)",
+        "description": "Set the EIP1559 `_denominator` to `250` and `_elasticity` to `4`"
       },
       "to": "0xf272670eb55e895584501d564AfEB048bEd26194",
-      "data": "0xc0fd4b4100000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000004",
+      "data": "0xc0fd4b4100000000000000000000000000000000000000000000000000000000000000fa0000000000000000000000000000000000000000000000000000000000000004",
       "value": "0",
       "contractMethod": {
         "inputs": [
@@ -127,7 +127,7 @@
         "outputs": []
       },
       "contractInputsValues": {
-        "_denominator": "1",
+        "_denominator": "250",
         "_elasticity": "4"
       }
     }
