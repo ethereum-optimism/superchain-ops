@@ -1,0 +1,38 @@
+{
+  "chainId": 11155111,
+  "metadata": {
+    "name": "Upgrade 13",
+    "description": "Upgrade via the OPCM contract"
+  },
+  "transactions": [
+    {
+      "metadata": {
+        "name": "OPCM.upgrade(OPChainConfigs[])",
+        "description": "Upgrades a set of chains"
+      },
+      "to": "",
+      "data": "",
+      "value": "",
+      "contractMethod": {
+        "inputs": [
+          {
+            "name": "",
+            "type": "",
+            "internalType": ""
+          },
+          {
+            "name": "",
+            "type": "",
+            "internalType": ""
+          }
+        ],
+        "name": "",
+        "payable": false,
+        "outputs": []
+      },
+      "contractInputsValues": {
+        "_proxy": "",
+        "_implementation": ""
+      }
+    }
+}
