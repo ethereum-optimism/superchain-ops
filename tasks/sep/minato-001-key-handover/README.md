@@ -1,6 +1,6 @@
 # Minato Sepolia's Key Handover Upgrade
 
-Status: DRAFT
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
