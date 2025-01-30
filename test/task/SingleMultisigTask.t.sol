@@ -111,6 +111,8 @@ contract SingleMultisigTaskTest is Test {
         bytes memory callData = multisigTask.getCalldata();
         bytes memory dataToSign = multisigTask.getDataToSign(multisigTask.multisig(), callData);
 
+        /// The nonce is decremented by 1 because we want to recreate the data to sign with the same nonce
+        /// that was used in the simulation. The nonce was incremented as part of running the simulation.
         bytes memory expectedDataToSign = IGnosisSafe(multisigTask.multisig()).encodeTransactionData({
             to: MULTICALL3_ADDRESS,
             value: 0,
