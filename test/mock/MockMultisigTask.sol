@@ -4,6 +4,7 @@ pragma solidity 0.8.15;
 import {IProxyAdmin} from "@eth-optimism-bedrock/interfaces/universal/IProxyAdmin.sol";
 import {IProxy} from "@eth-optimism-bedrock/interfaces/universal/IProxy.sol";
 
+import {MockTarget} from "test/mock/MockTarget.sol";
 import {MultisigTask} from "src/fps/task/MultisigTask.sol";
 import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
 
@@ -11,6 +12,8 @@ import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
 /// to an example implementation address
 contract MockMultisigTask is MultisigTask {
     address public constant newImplementation = address(1000);
+    uint248 private _gap;
+    address public mockTarget;
 
     /// @notice Returns the safe address string identifier
     /// @return The string "SystemConfigOwner"
@@ -35,6 +38,11 @@ contract MockMultisigTask is MultisigTask {
         proxy.upgrade(
             payable(addresses.getAddress("L1ERC721BridgeProxy", getChain("optimism").chainId)), newImplementation
         );
+
+        if (mockTarget != address(0)) {
+            /// set the snapshot ID for the MockTarget contract if the address is set
+            MockTarget(mockTarget).setSnapshotIdTask(18291864375436131);
+        }
     }
 
     function _validate(uint256 chainId) internal view override {
