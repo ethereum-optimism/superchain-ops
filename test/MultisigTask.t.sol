@@ -115,7 +115,7 @@ contract MultisigTaskUnitTest is Test {
         vm.store(address(task), bytes32(uint256(38)), bytes32(uint256(uint160(multisig))));
         /// set addresses contract
         vm.store(address(task), bytes32(uint256(37)), bytes32(uint256(uint160(address(addresses)))));
-        
+
         MockTarget target = new MockTarget();
         target.setTask(address(task));
 

@@ -11,10 +11,6 @@ contract MockTarget is Test {
     }
 
     function setSnapshotIdTask(uint256 id) public {
-        vm.store(
-            task,
-            bytes32(uint256(48)),
-            bytes32(id)
-        );
+        vm.store(task, bytes32(uint256(48)), bytes32(id));
     }
 }
