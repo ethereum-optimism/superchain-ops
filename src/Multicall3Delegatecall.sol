@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {Script} from "forge-std/Script.sol";
-
 /// @title Multicall3Delegatecall
 /// @notice Aggregate delegate calls, ensuring each returns success if required.
 ///         This contract is intended to faciliate the use of delegatecalls from a Safe, while
