@@ -1,6 +1,6 @@
 # Minato Sepolia's Key Handover Upgrade
 
-Status: Status: [PR Proposed]()
+Status: DRAFT
 
 ## Objective
 
