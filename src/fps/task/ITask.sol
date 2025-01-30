@@ -6,7 +6,7 @@ import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
 abstract contract ITask {
     /// @notice return task actions.
     /// @dev this function shoudn't be overriden.
-    function getProposalActions()
+    function getTaskActions()
         external
         virtual
         returns (address[] memory targets, uint256[] memory values, bytes[] memory arguments);

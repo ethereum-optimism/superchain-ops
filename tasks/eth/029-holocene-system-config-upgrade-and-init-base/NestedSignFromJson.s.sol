@@ -4,30 +4,23 @@ pragma solidity ^0.8.15;
 import {console2 as console} from "forge-std/console2.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
-import {SignFromJson as OriginalSignFromJson} from "script/SignFromJson.s.sol";
+import {NestedSignFromJson as OriginalNestedSignFromJson} from "script/NestedSignFromJson.s.sol";
+import {CouncilFoundationNestedSign} from "script/verification/CouncilFoundationNestedSign.s.sol";
 import {ISystemConfig, HoloceneSystemConfigUpgrade} from "script/verification/HoloceneSystemConfigUpgrade.s.sol";
-import {VerificationBase} from "script/verification/Verification.s.sol";
 
-contract SignFromJson is OriginalSignFromJson, VerificationBase {
-    string constant l1ChainName = "sepolia";
+contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNestedSign {
+    string constant l1ChainName = "mainnet";
     string constant release = "v1.8.0-rc.4";
     string constant l2ChainName = "base";
 
-    address ownerSafe = vm.envAddress("OWNER_SAFE");
-
     HoloceneSystemConfigUpgrade sysCfgUpgrade;
 
-    function setUp() public {
+    constructor() {
         sysCfgUpgrade = new HoloceneSystemConfigUpgrade(l1ChainName, l2ChainName, release);
-
         console.log("");
         console.log("Set up verification data for chain", l2ChainName, "-", l1ChainName);
         console.log("with SystemConfigProxy @", sysCfgUpgrade.systemConfigAddress());
         addAllowedStorageAccess(sysCfgUpgrade.systemConfigAddress());
-
-        // The OwnerSafe multisig nonce is incremented.
-        addAllowedStorageAccess(ownerSafe);
-
         addCodeExceptions(sysCfgUpgrade.getCodeExceptions());
     }
 
@@ -35,11 +28,11 @@ contract SignFromJson is OriginalSignFromJson, VerificationBase {
         console.log("Running post-deploy assertions");
 
         checkStateDiff(accesses);
-        sysCfgUpgrade.checkSystemConfigUpgrade();
+        sysCfgUpgrade.checkSystemConfigUpgradeWithPreviousGasLimitOverride(96_000_000);
 
         ISystemConfig systemConfig = ISystemConfig(sysCfgUpgrade.systemConfigAddress());
         vm.assertEq(systemConfig.eip1559Denominator(), 250, "incorrect EIP1559 denominator");
-        vm.assertEq(systemConfig.eip1559Elasticity(), 4, "incorrect EIP1559 elasticity");
+        vm.assertEq(systemConfig.eip1559Elasticity(), 2, "incorrect EIP1559 elasticity");
 
         console.log("All assertions passed!");
     }

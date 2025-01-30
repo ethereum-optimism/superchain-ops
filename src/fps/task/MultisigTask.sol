@@ -218,7 +218,7 @@ abstract contract MultisigTask is Test, Script, ITask {
             }
         }
 
-        /// now execute proposal
+        /// now execute task actions
         build();
         simulate();
         validate();
@@ -234,7 +234,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @return data The calldata to be executed
     function getCalldata() public view override returns (bytes memory data) {
         /// get task actions
-        (address[] memory targets, uint256[] memory values, bytes[] memory arguments) = getProposalActions();
+        (address[] memory targets, uint256[] memory values, bytes[] memory arguments) = getTaskActions();
 
         /// create calls array with targets and arguments
         Call3Value[] memory calls = new Call3Value[](targets.length);
@@ -376,7 +376,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @return targets The targets of the actions
     /// @return values The values of the actions
     /// @return arguments The arguments of the actions
-    function getProposalActions()
+    function getTaskActions()
         public
         view
         override
@@ -426,7 +426,7 @@ abstract contract MultisigTask is Test, Script, ITask {
 
     /// @notice print task description, actions, transfers, state changes and EOAs datas to sign
     function print() public virtual override {
-        console.log("\n------------------ Proposal Actions ------------------");
+        console.log("\n------------------ Task Actions ------------------");
         for (uint256 i; i < actions.length; i++) {
             console.log("%d). %s", i + 1, actions[i].description);
             console.log("target: %s\npayload", _getAddressLabel(actions[i].target));
@@ -434,7 +434,7 @@ abstract contract MultisigTask is Test, Script, ITask {
             console.log("\n");
         }
 
-        console.log("\n----------------- Proposal Transfers -------------------");
+        console.log("\n----------------- Task Transfers -------------------");
         if (_taskTransferFromAddresses.length() == 0) {
             console.log("\nNo Transfers\n");
         }
@@ -474,7 +474,7 @@ abstract contract MultisigTask is Test, Script, ITask {
             }
         }
 
-        console.log("\n----------------- Proposal State Changes -------------------");
+        console.log("\n----------------- Task State Changes -------------------");
         // print state changes
         for (uint256 k; k < _taskStateChangeAddresses.length(); k++) {
             address account = _taskStateChangeAddresses.at(k);
@@ -489,18 +489,18 @@ abstract contract MultisigTask is Test, Script, ITask {
             }
         }
 
-        _printProposalCalldata();
+        /// print calldata to be executed within the Safe
+        console.log("\n\n------------------ Task Calldata ------------------");
+        console.logBytes(getCalldata());
 
         if (isNestedSafe) {
             console.log("\n\n------------------ Nested Multisig EOAs Data to Sign ------------------");
             printNestedDataToSign();
-            // todo: check with op team if this is required
             console.log("\n\n------------------ Nested Multisig EOAs Hash to Approve ------------------");
             printNestedHashToApprove();
         } else {
             console.log("\n\n------------------ Single Multisig EOA Data to Sign ------------------");
             printDataToSign();
-            // todo: check with op team if this is required
             console.log("\n\n------------------ Single Multisig EOA Hash to Approve ------------------");
             printHashToApprove();
         }
@@ -552,12 +552,6 @@ abstract contract MultisigTask is Test, Script, ITask {
 
             require(!(isDuplicateTarget && isDuplicateArguments && isDuplicateValue), "Duplicated action found");
         }
-    }
-
-    /// @notice print the calldata to be executed by safe
-    function _printProposalCalldata() internal virtual {
-        console.log("\n\n------------------ Proposal Calldata ------------------");
-        console.logBytes(getCalldata());
     }
 
     /// @notice helper function to generate the approveHash calldata to be executed by child multisig owner on parent multisig
