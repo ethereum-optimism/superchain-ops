@@ -41,11 +41,8 @@ State changes:
 - **Key:** `0xd7fc5947853ef89905479c05a14a6f31b6840377e20c6a80d49f7b7b9bb18c44` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
   **After:**  `0x0000000000000000000000000000000000000000000000000000000000000001`<br/>
-  **Meaning**: Sets the `modules` mapping key for the new `DeputyPauseModule` at [`0x62f3972c56733aB078F0764d2414DfCaa99d574c`](https://sepolia.etherscan.io/address/0xc6f7c07047ba37116a3fdc444afb5018f6df5758) to `SENTINEL_MODULES`.
-  This is `modules[0x62f3972c56733aB078F0764d2414DfCaa99d574c]`, so the key can be derived from `cast index address 0x62f3972c56733aB078F0764d2414DfCaa99d574c 1`.
+  **Meaning**: Add the [DeputyPauseModule](https://sepolia.etherscan.io/address/0x62f3972c56733aB078F0764d2414DfCaa99d574c#code) `0x62f3972c56733aB078F0764d2414DfCaa99d574c` by *closing* the linked list by the `SENTINEL_MODULES` (0x1). Thus `0x62f3972c56733aB078F0764d2414DfCaa99d574c` -> `0x1`. Key can be derived from `cast index address 0x62f3972c56733aB078F0764d2414DfCaa99d574c 1`.
 - **Key:** `0xcc69885fda6bcc1a4ace058b4a62bf5e179ea78fd58a1ccd71c22cc9b688792f` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`<br/>
   **After:**  `0x00000000000000000000000062f3972c56733aB078F0764d2414DfCaa99d574c`<br/>
-  **Meaning:** The sentinel module (`address(0x01)`) is now pointing to the `DeputyPauseModule` at [`0x62f3972c56733aB078F0764d2414DfCaa99d574c`](https://sepolia.etherscan.io/address/0x62f3972c56733aB078F0764d2414DfCaa99d574c).
-  This is `modules[0x1]`, so the key can be
-    derived from `cast index address 0x0000000000000000000000000000000000000001 1`.
+  **Meaning:** The sentinel module (`address(0x01)`) is now pointing to the `DeputyPauseModule` at [`0x62f3972c56733aB078F0764d2414DfCaa99d574c`](https://sepolia.etherscan.io/address/0x62f3972c56733aB078F0764d2414DfCaa99d574c). This is `modules[0x1]`, so the key can be derived from `cast index address 0x0000000000000000000000000000000000000001 1`.
