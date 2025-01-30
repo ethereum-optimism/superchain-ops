@@ -4,6 +4,9 @@ pragma solidity 0.8.15;
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {Test} from "forge-std/Test.sol";
 
+import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
+
+import {MockTarget} from "test/mock/MockTarget.sol";
 import {MultisigTask} from "src/fps/task/MultisigTask.sol";
 import {AddressRegistry} from "src/fps/AddressRegistry.sol";
 import {MockMultisigTask} from "test/mock/MockMultisigTask.sol";
@@ -45,6 +48,81 @@ contract MultisigTaskUnitTest is Test {
 
     function testBuildFailsAddressesNotSet() public {
         vm.expectRevert("Must set addresses object for multisig address to be set");
+        task.build();
+    }
+
+    function testBuildFailsAddressesSetBuildStarted() public {
+        /// set multisig to a non zero address
+        vm.store(
+            address(task),
+            bytes32(uint256(38)),
+            bytes32(uint256(uint160(addresses.getAddress("SystemConfigOwner", getChain("optimism").chainId))))
+        );
+        /// set _buildStarted to true
+        vm.store(address(task), bytes32(uint256(52)), bytes32(uint256(1)));
+
+        task.addresses();
+
+        vm.expectRevert("Build already started");
+        task.build();
+    }
+
+    function testSimulateFailsHashMismatch() public {
+        /// skip the run function call so we need to write to all storage variables manually
+
+        address multisig = addresses.getAddress("SystemConfigOwner", getChain("optimism").chainId);
+        /// set multisig to a non zero address
+        vm.store(address(task), bytes32(uint256(38)), bytes32(uint256(uint160(multisig))));
+        /// set addresses contract
+        vm.store(address(task), bytes32(uint256(37)), bytes32(uint256(uint160(address(addresses)))));
+        MockMultisigTask(address(task)).addAction(
+            addresses.getAddress("ProxyAdmin", getChain("optimism").chainId),
+            abi.encodeWithSignature(
+                "upgrade(address,address)",
+                addresses.getAddress("L1ERC721BridgeProxy", getChain("optimism").chainId),
+                MockMultisigTask(address(task)).newImplementation()
+            ),
+            0,
+            ""
+        );
+
+        vm.mockCall(
+            multisig,
+            abi.encodeWithSelector(
+                IGnosisSafe.getTransactionHash.selector,
+                MULTICALL3_ADDRESS,
+                0,
+                task.getCalldata(),
+                Enum.Operation.DelegateCall,
+                0,
+                0,
+                0,
+                address(0),
+                payable(address(0)),
+                task.nonce()
+            ),
+            /// return a hash that cannot possible be what is returned by the GnosisSafe
+            abi.encode(bytes32(uint256(100)))
+        );
+
+        vm.expectRevert("MultisigTask: hash mismatch");
+        task.simulate();
+    }
+
+    function testBuildFailsRevertPreviousSnapshotFails() public {
+        address multisig = addresses.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
+        /// set multisig to a non zero address
+        vm.store(address(task), bytes32(uint256(38)), bytes32(uint256(uint160(multisig))));
+        /// set addresses contract
+        vm.store(address(task), bytes32(uint256(37)), bytes32(uint256(uint160(address(addresses)))));
+        
+        MockTarget target = new MockTarget();
+        target.setTask(address(task));
+
+        /// set mock target contract in the task contract
+        vm.store(address(task), bytes32(uint256(53)), bytes32(uint256(uint160(address(target)))));
+
+        vm.expectRevert("failed to revert back to snapshot, unsafe state to run task");
         task.build();
     }
 
