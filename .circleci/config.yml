@@ -221,7 +221,7 @@ jobs:
       - simulate:
           task: "/eth/ink-002-set-respected-game-type"
   
-  just_simulate_eth_028_holocene_system_config_upgrade_and_init_multichain:
+  just_simulate_eth_029_holocene_system_config_upgrade_and_init_base:
     docker:
       - image: << pipeline.parameters.ci_builder_image >>
     steps:
