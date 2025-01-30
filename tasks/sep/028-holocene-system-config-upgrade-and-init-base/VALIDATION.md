@@ -28,9 +28,9 @@ For each contract listed in the state diff, please verify that no contracts or s
 - **Key**: `0x0000000000000000000000000000000000000000000000000000000000000068`<br>
   **Before**: `0x0000000000000000000000000000000000000000000000000000000003938700`<br>
   **After**: `0x00000000000000000000000000000000000a118b0000044d0000000003938700`<br>
-  **Meaning**: Sets the new `SystemConfig`'s variables `blobbasefeeScalar` to `659851` (`cast td cast td 0x000a118b`) and `basefeeScalar` to `1101` (`cast td cast td 0x0000044d`). These share a slot with the `gasLimit` which remains at 60000000 (`cast td 0x0000000003938700`). See storage layout snapshot [here](https://github.com/ethereum-optimism/optimism/blob/3c75cd94849b265ff9d2ed424f9d35be124b0b4e/packages/contracts-bedrock/snapshots/storageLayout/SystemConfig.json#L58-L78).
+  **Meaning**: Sets the new `SystemConfig`'s variables `blobbasefeeScalar` to `659851` (`cast td 0x000a118b`) and `basefeeScalar` to `1101` (`cast td 0x0000044d`). These share a slot with the `gasLimit` which remains at `60000000` (`cast td 0x0000000003938700`). See storage layout snapshot [here](https://github.com/ethereum-optimism/optimism/blob/3c75cd94849b265ff9d2ed424f9d35be124b0b4e/packages/contracts-bedrock/snapshots/storageLayout/SystemConfig.json#L58-L78).
 
 - **Key**: `0x000000000000000000000000000000000000000000000000000000000000006a`<br>
   **Before**: `0x000000000000000000000000000000000000000000000000000000000042b1d7`<br>
-  **After**: `0x0000000000000000000000000000000000000000000000000000000400000001`<br>
-  **Meaning**: Sets the new `SystemConfig`'s variables `eip1559Denominator` to `1` (`cast td 0x00000001`) and `eip1559Elasticity` to `4` (`cast td cast td 0x00000004`). Slot 106 was previously used to store a `startBlock` which is why it has a non-zero "before" value of 4370903 (`cast td 0x42b1d7`).
+  **After**: `0x00000000000000000000000000000000000000000000000000000004000000fa`<br>
+  **Meaning**: Sets the new `SystemConfig`'s variables `eip1559Denominator` to `250` (`cast td 0x000000fa`) and `eip1559Elasticity` to `4` (`cast td 0x00000004`). Slot 106 was previously used to store a `startBlock` which is why it has a non-zero "before" value of `4370903` (`cast td 0x42b1d7`).
