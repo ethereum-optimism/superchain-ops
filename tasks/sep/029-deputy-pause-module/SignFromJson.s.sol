@@ -86,7 +86,7 @@ contract SignFromJson is OriginalSignFromJson {
 
         // Grab modules from the Safe.
         (address[] memory modules, address nextModule) =
-            ModuleManager(foundationOperationsSafe).getModulesPaginated(SENTINEL_MODULE, 1);
+            ModuleManager(foundationOperationsSafe).getModulesPaginated(SENTINEL_MODULE, 5);
 
         // Should only have one module.
         require(modules.length == 1, "checkDeputyPauseModule-40");
