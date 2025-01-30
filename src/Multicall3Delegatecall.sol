@@ -48,7 +48,9 @@ contract Multicall3Delegatecall {
                     revert(0x00, 0x64)
                 }
             }
-            unchecked { ++i; }
+            unchecked {
+                ++i;
+            }
         }
     }
 }
