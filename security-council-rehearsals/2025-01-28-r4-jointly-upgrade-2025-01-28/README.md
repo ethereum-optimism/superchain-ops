@@ -29,7 +29,7 @@ submit all signatures and perform the execution onchain.
 cd superchain-ops
 git pull
 just install
-cd security-council-rehearsals/2025-01-28-r4-jointly-upgrade-250128
+cd security-council-rehearsals/2025-01-28-r4-jointly-upgrade-2025-01-28
 ```
 
 ### 2. Setup Ledger
