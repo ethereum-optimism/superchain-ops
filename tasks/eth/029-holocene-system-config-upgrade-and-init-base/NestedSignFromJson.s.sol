@@ -34,6 +34,10 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
         vm.assertEq(systemConfig.eip1559Denominator(), 250, "incorrect EIP1559 denominator");
         vm.assertEq(systemConfig.eip1559Elasticity(), 2, "incorrect EIP1559 elasticity");
 
+        vm.assertEq(systemConfig.blobbasefeeScalar(), 1055762, "incorrect blobbasefeeScalar");
+        vm.assertEq(systemConfig.basefeeScalar(), 2269, "incorrect basefeeScalar");
+        vm.assertEq(systemConfig.gasLimit(), 96000000, "incorrect gasLimit");
+
         console.log("All assertions passed!");
     }
 
