@@ -138,7 +138,7 @@ Now your task folder is prepared. Navigate into that directory and execute the f
 
 ```
 SIMULATE_WITHOUT_LEDGER=1 just \
-  --dotenv-path $(pwd).env \
+  --dotenv-path $(pwd)/.env \
   --justfile ../../../single.just \
   simulate
 ```
