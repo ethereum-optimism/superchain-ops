@@ -9,7 +9,7 @@ pragma solidity 0.8.15;
 ///         This contract is based on Multicall3 deployed on many evm chains
 ///         at 0xcA11bde05977b3631167028862bE2a173976CA11. It has been modified to
 ///         1. Perform delegatecalls instead of calls.
-///         2. Utility getter functions have been removed.
+///         2. Remove utility getter functions that are unneeded for this use case.
 contract Multicall3Delegatecall {
     struct Call3 {
         address target;
