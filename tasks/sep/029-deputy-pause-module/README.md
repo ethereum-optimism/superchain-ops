@@ -1,6 +1,6 @@
 # DeputyPauseModule Installation - OP Sepolia
 
-Status: DRAFT, NOT READY TO SIGN
+Status: READY TO SIGN
 
 ## Objective
 
