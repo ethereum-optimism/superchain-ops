@@ -194,9 +194,9 @@ abstract contract MultisigTask is Test, Script, ITask {
                 multisig == addresses.getAddress(config.safeAddressString, chains[i].chainId),
                 string.concat(
                     "MultisigTask: safe address mismatch. Caller: ",
-                    vm.getLabel(multisig),
+                    getAddressLabel(multisig),
                     ". Actual address: ",
-                    vm.getLabel(addresses.getAddress(config.safeAddressString, chains[i].chainId))
+                    getAddressLabel(addresses.getAddress(config.safeAddressString, chains[i].chainId))
                 )
             );
         }
@@ -250,7 +250,7 @@ abstract contract MultisigTask is Test, Script, ITask {
 
     /// @notice print the data to sig by EOA for single multisig
     function printDataToSign() public view {
-        console.logBytes(_getDataToSign(multisig, getCalldata()));
+        console.logBytes(getDataToSign(multisig, getCalldata()));
     }
 
     /// @notice print the hash to approve by EOA for single multisig
@@ -261,7 +261,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @notice get the data to sign by EOA for single multisig
     /// @param data The calldata to be executed
     /// @return The data to sign
-    function _getDataToSign(address safe, bytes memory data) internal view returns (bytes memory) {
+    function getDataToSign(address safe, bytes memory data) public view returns (bytes memory) {
         uint256 useNonce;
 
         if (safe == multisig) {
@@ -339,7 +339,7 @@ abstract contract MultisigTask is Test, Script, ITask {
                 _allowedStorageAccesses.contains(addr),
                 string(
                     abi.encodePacked(
-                        "MultisigTask: address ", _getAddressLabel(addr), " not in allowed storage accesses"
+                        "MultisigTask: address ", getAddressLabel(addr), " not in allowed storage accesses"
                     )
                 )
             );
@@ -352,7 +352,7 @@ abstract contract MultisigTask is Test, Script, ITask {
                 _taskStateChangeAddresses.contains(addr),
                 string(
                     abi.encodePacked(
-                        "MultisigTask: address ", _getAddressLabel(addr), " not in task state change addresses"
+                        "MultisigTask: address ", getAddressLabel(addr), " not in task state change addresses"
                     )
                 )
             );
@@ -429,7 +429,7 @@ abstract contract MultisigTask is Test, Script, ITask {
         console.log("\n------------------ Task Actions ------------------");
         for (uint256 i; i < actions.length; i++) {
             console.log("%d). %s", i + 1, actions[i].description);
-            console.log("target: %s\npayload", _getAddressLabel(actions[i].target));
+            console.log("target: %s\npayload", getAddressLabel(actions[i].target));
             console.logBytes(actions[i].arguments);
             console.log("\n");
         }
@@ -441,7 +441,7 @@ abstract contract MultisigTask is Test, Script, ITask {
         for (uint256 i; i < _taskTransferFromAddresses.length(); i++) {
             address account = _taskTransferFromAddresses.at(i);
 
-            console.log("\n\n", string(abi.encodePacked(_getAddressLabel(account), ":")));
+            console.log("\n\n", string.concat(getAddressLabel(account), ":"));
 
             // print token transfers
             TransferInfo[] memory transfers = _taskTransfers[account];
@@ -453,7 +453,7 @@ abstract contract MultisigTask is Test, Script, ITask {
                     console.log(
                         string(
                             abi.encodePacked(
-                                "Sent ", vm.toString(transfers[j].value), " ETH to ", _getAddressLabel(transfers[j].to)
+                                "Sent ", vm.toString(transfers[j].value), " ETH to ", getAddressLabel(transfers[j].to)
                             )
                         )
                     );
@@ -464,9 +464,9 @@ abstract contract MultisigTask is Test, Script, ITask {
                                 "Sent ",
                                 vm.toString(transfers[j].value),
                                 " ",
-                                _getAddressLabel(transfers[j].tokenAddress),
+                                getAddressLabel(transfers[j].tokenAddress),
                                 " to ",
-                                _getAddressLabel(transfers[j].to)
+                                getAddressLabel(transfers[j].to)
                             )
                         )
                     );
@@ -480,7 +480,7 @@ abstract contract MultisigTask is Test, Script, ITask {
             address account = _taskStateChangeAddresses.at(k);
             StateInfo[] memory stateChanges = _stateInfos[account];
             if (stateChanges.length > 0) {
-                console.log("\n State Changes for account:", _getAddressLabel(account));
+                console.log("\n State Changes for account:", getAddressLabel(account));
             }
             for (uint256 j; j < stateChanges.length; j++) {
                 console.log("Slot:", vm.toString(stateChanges[j].slot));
@@ -508,21 +508,21 @@ abstract contract MultisigTask is Test, Script, ITask {
 
     /// @notice print the data to sign by EOA for nested multisig
     function printNestedDataToSign() public view {
-        bytes memory callData = _generateApproveMulticallData();
+        bytes memory callData = generateApproveMulticallData();
 
         for (uint256 i; i < startingOwners.length; i++) {
-            bytes memory dataToSign = _getDataToSign(startingOwners[i], callData);
-            console.log("Nested multisig: %s", _getAddressLabel(startingOwners[i]));
+            bytes memory dataToSign = getDataToSign(startingOwners[i], callData);
+            console.log("Nested multisig: %s", getAddressLabel(startingOwners[i]));
             console.logBytes(dataToSign);
         }
     }
 
     /// @notice print the hash to approve by EOA for nested multisig
     function printNestedHashToApprove() public view {
-        bytes memory callData = _generateApproveMulticallData();
+        bytes memory callData = generateApproveMulticallData();
         for (uint256 i; i < startingOwners.length; i++) {
-            bytes32 hash = keccak256(_getDataToSign(startingOwners[i], callData));
-            console.log("Nested multisig: %s", _getAddressLabel(startingOwners[i]));
+            bytes32 hash = keccak256(getDataToSign(startingOwners[i], callData));
+            console.log("Nested multisig: %s", getAddressLabel(startingOwners[i]));
             console.logBytes32(hash);
         }
     }
@@ -535,9 +535,9 @@ abstract contract MultisigTask is Test, Script, ITask {
 
     /// @notice get the hash for this safe transaction
     /// can only be called after the build function, otherwise it reverts
-    function getHash() internal view returns (bytes32) {
+    function getHash() public view returns (bytes32) {
         bytes memory data = getCalldata();
-        return keccak256(_getDataToSign(multisig, data));
+        return keccak256(getDataToSign(multisig, data));
     }
 
     /// @notice validate actions inclusion
@@ -555,7 +555,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     }
 
     /// @notice helper function to generate the approveHash calldata to be executed by child multisig owner on parent multisig
-    function _generateApproveMulticallData() internal view returns (bytes memory) {
+    function generateApproveMulticallData() public view returns (bytes memory) {
         bytes32 hash = getHash();
         Call3Value memory call = Call3Value({
             target: multisig,
@@ -641,7 +641,7 @@ abstract contract MultisigTask is Test, Script, ITask {
                         description: string(
                             abi.encodePacked(
                                 "calling ",
-                                _getAddressLabel(accountAccesses[i].account),
+                                getAddressLabel(accountAccesses[i].account),
                                 " with ",
                                 vm.toString(accountAccesses[i].value),
                                 " eth and ",
@@ -747,7 +747,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     }
 
     /// @notice helper method to get labels for addresses
-    function _getAddressLabel(address contractAddress) internal view returns (string memory) {
+    function getAddressLabel(address contractAddress) public view returns (string memory) {
         string memory label = vm.getLabel(contractAddress);
 
         bytes memory prefix = bytes("unlabeled:");
