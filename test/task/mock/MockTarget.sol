@@ -5,12 +5,13 @@ import {Test} from "forge-std/Test.sol";
 
 contract MockTarget is Test {
     address public task;
+    bytes32 public START_SNAPSHOT_SLOT = bytes32(uint256(48));
 
     function setTask(address _task) public {
         task = _task;
     }
 
     function setSnapshotIdTask(uint256 id) public {
-        vm.store(task, bytes32(uint256(48)), bytes32(id));
+        vm.store(task, START_SNAPSHOT_SLOT, bytes32(id));
     }
 }
