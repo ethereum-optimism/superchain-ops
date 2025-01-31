@@ -18,7 +18,7 @@ The governance proposal should be treated as the source of truth and used to ver
 This upgrades the Fault Proof contracts in the
 [op-contracts/v1.8.0](https://github.com/ethereum-optimism/optimism/releases/tag/op-contracts%2fv1.8.0) release.
 
-This upgrade uses a custom absolute prestate create by Unichain that is not part of an official release yet:
+This upgrade uses a custom absolute prestate created by Unichain that is not part of an official release yet:
 `0x0336751a224445089ba5456c8028376a0faf2bafa81d35f43fab8730258cdf37`.
 
 The `FaultDisputeGame` is a fresh deployment for game type 0, so it's not checked against a previous deployment's values.
