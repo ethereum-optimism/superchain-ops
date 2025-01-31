@@ -17,6 +17,26 @@ contract MultisigTaskUnitTest is Test {
 
     string constant MAINNET_CONFIG = "./src/fps/example/task-03/mainnetConfig.toml";
 
+    /// @notice variables that store the storage offset of different variables in the MultisigTask contract
+
+    /// @notice storage slot for the addresses contract
+    bytes32 public constant ADDRESSES_SLOT = bytes32(uint256(37));
+
+    /// @notice storage slot for the multisig address
+    bytes32 public constant MULTISIG_SLOT = bytes32(uint256(38));
+
+    /// @notice storage slot for the addresses contract
+    bytes32 public constant MOCK_TARGET_SLOT = bytes32(uint256(53));
+
+    /// Test Philosophy:
+    /// We want these tests to function as much as possible as unit tests.
+    /// In order to achieve this we have to put the contract in states that it
+    /// would not normally be in. This is because the MultisigTask contract's
+    /// main entrypoint is the run function, which sets the addresses contract
+    /// and all other storage variables. We do not call this function in some of
+    /// the tests, so we have to set the storage variables manually when we do
+    /// not call the run function.
+
     function setUp() public {
         vm.createSelectFork("mainnet");
 
@@ -52,13 +72,17 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testBuildFailsAddressesSetBuildStarted() public {
-        /// set multisig to a non zero address
+        /// set multisig storage slot in MultisigTask.sol to a non zero address
+        /// we have to do this because we do not call the run function, which
+        /// sets the addresses contract variable to a new instance of the
+        /// addresses object.
         vm.store(
             address(task),
-            bytes32(uint256(38)),
+            MULTISIG_SLOT,
             bytes32(uint256(uint160(addresses.getAddress("SystemConfigOwner", getChain("optimism").chainId))))
         );
-        /// set _buildStarted to true
+
+        /// set _buildStarted flag in MultisigTask contract to true
         vm.store(address(task), bytes32(uint256(52)), bytes32(uint256(1)));
 
         task.addresses();
@@ -69,12 +93,16 @@ contract MultisigTaskUnitTest is Test {
 
     function testSimulateFailsHashMismatch() public {
         /// skip the run function call so we need to write to all storage variables manually
-
         address multisig = addresses.getAddress("SystemConfigOwner", getChain("optimism").chainId);
-        /// set multisig to a non zero address
-        vm.store(address(task), bytes32(uint256(38)), bytes32(uint256(uint160(multisig))));
-        /// set addresses contract
-        vm.store(address(task), bytes32(uint256(37)), bytes32(uint256(uint160(address(addresses)))));
+
+        /// set multisig variable in MultisigTask to the actual multisig address
+        /// so that the simulate function does not revert and can run and create
+        /// calldata by calling the multisig functions
+        vm.store(address(task), MULTISIG_SLOT, bytes32(uint256(uint160(multisig))));
+
+        /// set addresses in MultisigTask contract to a deployed addresses
+        /// contract so that these calls work
+        vm.store(address(task), ADDRESSES_SLOT, bytes32(uint256(uint160(address(addresses)))));
         MockMultisigTask(address(task)).addAction(
             addresses.getAddress("ProxyAdmin", getChain("optimism").chainId),
             abi.encodeWithSignature(
@@ -101,7 +129,7 @@ contract MultisigTaskUnitTest is Test {
                 payable(address(0)),
                 task.nonce()
             ),
-            /// return a hash that cannot possible be what is returned by the GnosisSafe
+            /// return a hash that cannot possibly be what is returned by the GnosisSafe
             abi.encode(bytes32(uint256(100)))
         );
 
@@ -111,16 +139,24 @@ contract MultisigTaskUnitTest is Test {
 
     function testBuildFailsRevertPreviousSnapshotFails() public {
         address multisig = addresses.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
-        /// set multisig to a non zero address
-        vm.store(address(task), bytes32(uint256(38)), bytes32(uint256(uint160(multisig))));
-        /// set addresses contract
-        vm.store(address(task), bytes32(uint256(37)), bytes32(uint256(uint160(address(addresses)))));
+        /// set multisig variable in MultisigTask to the actual multisig address
+        /// so that the simulate function does not revert and can run and create
+        /// calldata by calling the multisig functions
+        vm.store(address(task), MULTISIG_SLOT, bytes32(uint256(uint160(multisig))));
+
+        /// set addresses in MultisigTask contract to a deployed addresses
+        /// contract so that these calls work
+        vm.store(address(task), ADDRESSES_SLOT, bytes32(uint256(uint160(address(addresses)))));
 
         MockTarget target = new MockTarget();
         target.setTask(address(task));
 
-        /// set mock target contract in the task contract
-        vm.store(address(task), bytes32(uint256(53)), bytes32(uint256(uint160(address(target)))));
+        /// set mock target contract in the task contract as there is no setter method,
+        /// and we need to set the target contract to a deployed contract so that the
+        /// build function will make this call, which will make the MultisigTask contract
+        /// try to revert to a previous snapshot that does not exist. It does this by
+        /// calling vm.store(task, _startSnapshot SLOT, some large number that isn't a valid snapshot id)
+        vm.store(address(task), MOCK_TARGET_SLOT, bytes32(uint256(uint160(address(target)))));
 
         vm.expectRevert("failed to revert back to snapshot, unsafe state to run task");
         task.build();
