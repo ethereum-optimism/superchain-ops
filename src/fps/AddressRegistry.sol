@@ -68,7 +68,8 @@ contract AddressRegistry is IAddressRegistry, Test {
         chains = abi.decode(chainListContent, (ChainInfo[]));
 
         /// should never revert
-        string memory chainAddressesContent = vm.readFile("lib/superchain-registry/superchain/extra/addresses/addresses.json");
+        string memory chainAddressesContent =
+            vm.readFile("lib/superchain-registry/superchain/extra/addresses/addresses.json");
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
