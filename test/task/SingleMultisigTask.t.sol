@@ -11,10 +11,19 @@ import {IncorrectGasConfigTemplate2} from "test/task/mock/IncorrectGasConfigTemp
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {MULTICALL3_ADDRESS} from "src/fps/utils/Constants.sol";
+import {LibSort} from "@solady/utils/LibSort.sol";
+import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
+import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
 
 contract SingleMultisigTaskTest is Test {
+    struct MultiSigOwner {
+        address walletAddress;
+        uint256 privateKey;
+    }
+
     MultisigTask private multisigTask;
     Addresses private addresses;
+    mapping(address => uint256) private privateKeyForOwner;
 
     /// @notice ProxyAdminOwner safe for task-00 is a single multisig.
     string taskConfigFilePath = "src/fps/example/task-00/mainnetConfig.toml";
@@ -202,5 +211,91 @@ contract SingleMultisigTaskTest is Test {
         );
         vm.expectRevert(expectedRevertMessage);
         localMultisigTask.run(taskConfigFilePath);
+    }
+
+    function testExecuteWithSignatures() public {
+        uint256 snapshotId = vm.snapshot();
+        runTask();
+        addresses = multisigTask.addresses();
+        bytes memory callData = multisigTask.getCalldata();
+        bytes memory dataToSign = multisigTask.getDataToSign(multisigTask.multisig(), callData);
+        address multisig = multisigTask.multisig();
+        address systemConfigOrderly = addresses.getAddress("SystemConfigProxy", 291);
+        address systemConfigMetal = addresses.getAddress("SystemConfigProxy", 1750);
+        /// revert to snapshot so that the safe is in the same state as before the task was run
+        vm.revertTo(snapshotId);
+
+        MultiSigOwner[] memory newOwners = new MultiSigOwner[](9);
+        (newOwners[0].walletAddress, newOwners[0].privateKey) = makeAddrAndKey("Owner0");
+        (newOwners[1].walletAddress, newOwners[1].privateKey) = makeAddrAndKey("Owner1");
+        (newOwners[2].walletAddress, newOwners[2].privateKey) = makeAddrAndKey("Owner2");
+        (newOwners[3].walletAddress, newOwners[3].privateKey) = makeAddrAndKey("Owner3");
+        (newOwners[4].walletAddress, newOwners[4].privateKey) = makeAddrAndKey("Owner4");
+        (newOwners[5].walletAddress, newOwners[5].privateKey) = makeAddrAndKey("Owner5");
+        (newOwners[6].walletAddress, newOwners[6].privateKey) = makeAddrAndKey("Owner6");
+        (newOwners[7].walletAddress, newOwners[7].privateKey) = makeAddrAndKey("Owner7");
+        (newOwners[8].walletAddress, newOwners[8].privateKey) = makeAddrAndKey("Owner8");
+
+        for (uint256 i = 0; i < newOwners.length; i++) {
+            privateKeyForOwner[newOwners[i].walletAddress] = newOwners[i].privateKey;
+        }
+
+        /// Gnosis safe SENTINEL_OWNER
+        address currentOwner = address(0x1);
+        bytes32 slot;
+        /// set the new owners of the safe
+        /// owners are stored in the form of a circular linked list using owners mapping in gnosis safe
+        /// starting from sentinel owner and cycling back to it
+        for (uint256 i = 0; i < newOwners.length; i++) {
+            /// 2 is the slot for the owners mapping
+            /// variable slot is the slot for a key in the owners mapping
+            slot = keccak256(abi.encode(currentOwner, uint256(2)));
+            vm.store(multisig, slot, bytes32(uint256(uint160(newOwners[i].walletAddress))));
+            currentOwner = newOwners[i].walletAddress;
+        }
+        /// link the last owner to the sentinel owner
+        slot = keccak256(abi.encode(currentOwner, uint256(2)));
+        vm.store(multisig, slot, bytes32(uint256(uint160(0x1))));
+
+        /// set the owners count to 9
+        vm.store(multisig, bytes32(uint256(3)), bytes32(uint256(9)));
+        /// set the threshold to 4
+        vm.store(multisig, bytes32(uint256(4)), bytes32(uint256(4)));
+
+        address[] memory getNewOwners = IGnosisSafe(multisig).getOwners();
+        assertEq(getNewOwners.length, 9, "Expected 9 owners");
+        for (uint256 i = 0; i < newOwners.length; i++) {
+            /// check that the new owners are set correctly
+            assertEq(getNewOwners[i], newOwners[i].walletAddress, "Expected owner");
+        }
+
+        uint256 threshold = IGnosisSafe(multisig).getThreshold();
+        LibSort.sort(getNewOwners);
+
+        /// sign the data to sign with the private keys of the new owners
+        bytes memory packedSignatures;
+        for (uint256 i = 0; i < threshold; i++) {
+            (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKeyForOwner[getNewOwners[i]], keccak256(dataToSign));
+            packedSignatures = bytes.concat(packedSignatures, abi.encodePacked(r, s, v));
+        }
+        /// execute the transaction with the signatures
+        IGnosisSafe(multisig).execTransaction(
+            MULTICALL3_ADDRESS,
+            0,
+            callData,
+            Enum.Operation.DelegateCall,
+            0,
+            0,
+            0,
+            address(0),
+            address(0),
+            packedSignatures
+        );
+
+        /// check that the gas limits are set correctly after the task is executed
+        SystemConfig systemConfig = SystemConfig(systemConfigOrderly);
+        assertEq(systemConfig.gasLimit(), 100000000, "l2 gas limit not set for Orderly");
+        systemConfig = SystemConfig(systemConfigMetal);
+        assertEq(systemConfig.gasLimit(), 100000000, "l2 gas limit not set for Metal");
     }
 }
