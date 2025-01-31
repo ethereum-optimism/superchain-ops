@@ -28,6 +28,9 @@ contract MultisigTaskUnitTest is Test {
     /// @notice storage slot for the addresses contract
     bytes32 public constant MOCK_TARGET_SLOT = bytes32(uint256(53));
 
+    /// @notice storage slot for the build started flag
+    bytes32 public constant BUILD_STARTED_SLOT = bytes32(uint256(52));
+
     /// Test Philosophy:
     /// We want these tests to function as much as possible as unit tests.
     /// In order to achieve this we have to put the contract in states that it
@@ -82,8 +85,10 @@ contract MultisigTaskUnitTest is Test {
             bytes32(uint256(uint160(addresses.getAddress("SystemConfigOwner", getChain("optimism").chainId))))
         );
 
-        /// set _buildStarted flag in MultisigTask contract to true
-        vm.store(address(task), bytes32(uint256(52)), bytes32(uint256(1)));
+        /// set _buildStarted flag in MultisigTask contract to true, this
+        /// allows us to hit the revert in the build function of:
+        ///     "Build already started"
+        vm.store(address(task), BUILD_STARTED_SLOT, bytes32(uint256(1)));
 
         task.addresses();
 
