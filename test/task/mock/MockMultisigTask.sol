@@ -2,6 +2,7 @@
 pragma solidity 0.8.15;
 
 import {IProxyAdmin} from "@eth-optimism-bedrock/interfaces/universal/IProxyAdmin.sol";
+import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
 import {IProxy} from "@eth-optimism-bedrock/interfaces/universal/IProxy.sol";
 
 import {MockTarget} from "test/task/mock/MockTarget.sol";
@@ -53,8 +54,7 @@ contract MockMultisigTask is MultisigTask {
 
     function _validate(uint256 chainId) internal view override {
         IProxy proxy = IProxy(payable(addresses.getAddress("L1ERC721BridgeProxy", chainId)));
-        bytes32 IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
-        bytes32 data = vm.load(address(proxy), IMPLEMENTATION_SLOT);
+        bytes32 data = vm.load(address(proxy), Constants.PROXY_IMPLEMENTATION_ADDRESS);
 
         assertEq(bytes32(uint256(uint160(newImplementation))), data, "Proxy implementation not set correctly");
     }
