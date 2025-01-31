@@ -6,7 +6,7 @@ import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {Test} from "forge-std/Test.sol";
 
 import {MultisigTask} from "src/fps/task/MultisigTask.sol";
-import {DisputeGameUpgradeTemplate} from "src/fps/example/template/DisputeGameUpgradeTemplate.sol";
+import {DisputeGameUpgradeTemplate} from "test/task/mock/example/template/DisputeGameUpgradeTemplate.sol";
 import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
 
 /// @notice This test is used to test the nested multisig task.
@@ -14,7 +14,7 @@ contract NestedMultisigTaskTest is Test {
     MultisigTask private multisigTask;
     Addresses private addresses;
     /// ProxyAdminOwner safe for task-01 is a nested multisig for Op mainnet L2 chain.
-    string taskConfigFilePath = "src/fps/example/task-01/mainnetConfig.toml";
+    string taskConfigFilePath = "test/task/mock/example/task-01/config.toml";
 
     function setUp() public {
         vm.createSelectFork("mainnet");
