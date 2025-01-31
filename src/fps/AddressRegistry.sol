@@ -6,7 +6,6 @@ import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet
 import {Test} from "forge-std/Test.sol";
 
 import {IAddressRegistry} from "src/fps/IAddressRegistry.sol";
-import {SUPERCHAIN_REGISTRY_PATH} from "src/fps/utils/Constants.sol";
 
 /// @title Network Address Manager
 /// @notice This contract provides a single source of truth for storing and retrieving addresses across multiple networks.
@@ -69,7 +68,7 @@ contract AddressRegistry is IAddressRegistry, Test {
         chains = abi.decode(chainListContent, (ChainInfo[]));
 
         /// should never revert
-        string memory chainAddressesContent = vm.readFile(SUPERCHAIN_REGISTRY_PATH);
+        string memory chainAddressesContent = vm.readFile("lib/superchain-registry/superchain/extra/addresses/addresses.json");
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
