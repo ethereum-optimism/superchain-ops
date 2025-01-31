@@ -221,17 +221,17 @@ jobs:
       - simulate:
           task: "/eth/ink-002-set-respected-game-type"
 
-  just_simulate_sep-minato-001-key-handover:
+  just_simulate_sep-soneium-minato-001-key-handover:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
     steps:
       - checkout
       - run:
-          name: just simulate sep/minato-001-key-handover
+          name: just simulate sep/soneium-minato-001-key-handover
           command: |
             go install github.com/mikefarah/yq/v4@latest
             just install
-            cd tasks/sep/minato-001-key-handover
+            cd tasks/sep/soneium-minato-001-key-handover
             export SIMULATE_WITHOUT_LEDGER=1
             just \
             --dotenv-path $(pwd)/.env \
@@ -312,5 +312,5 @@ workflows:
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
       - just_simulate_ink_respected_game_type
-      - just_simulate_sep-minato-001-key-handover
+      - just_simulate_sep-soneium-minato-001-key-handover
       # sepolia

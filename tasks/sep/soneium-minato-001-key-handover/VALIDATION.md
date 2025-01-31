@@ -11,7 +11,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 The following state overrides should be seen:
 
-### `0x4d59CccA765E1211Bd32Aa6F2A037fD37E519a25` (The current `ProxyAdmin` owner Safe for Minato)
+### `0x4d59CccA765E1211Bd32Aa6F2A037fD37E519a25` (The current `ProxyAdmin` owner Safe for Soneium Minato)
 
 Links:
 - [Etherscan](https://sepolia.etherscan.io/address/0x4d59CccA765E1211Bd32Aa6F2A037fD37E519a25)
@@ -27,7 +27,7 @@ Enables the simulation by setting the threshold to 1:
 **Notes:**
 - Check the provided links to ensure that the correct contract is described at the correct address.
 
-### `0xff9d236641962Cebf9DBFb54E7b8e91F99f10Db0` (Minato's `ProxyAdmin`)
+### `0xff9d236641962Cebf9DBFb54E7b8e91F99f10Db0` (Soneium Minato's `ProxyAdmin`)
 
 Links:
 - [Etherscan](https://sepolia.etherscan.io/address/0xff9d236641962Cebf9DBFb54E7b8e91F99f10Db0)

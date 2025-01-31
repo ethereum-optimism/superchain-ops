@@ -1,10 +1,10 @@
-# Minato Sepolia's Key Handover Upgrade
+# Soneium Minato Sepolia's Key Handover Upgrade
 
-Status: DRAFT, NOT READY TO SIGN
+Status: READY TO SIGN
 
 ## Objective
 
-This is the playbook for executing the Key Handover upgrade on Minato Sepolia.
+This is the playbook for executing the Key Handover upgrade on Soneium Minato Sepolia.
 This updates the `ProxyAdminOwner` to the same ProxyAdmin owner multisig account as OP Sepolia account.
 
 ## Simulation
