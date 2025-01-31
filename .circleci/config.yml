@@ -230,12 +230,12 @@ jobs:
       - simulate:
           task: "/eth/ink-002-set-respected-game-type"
 
-  simulate_eth_026:
+  simulate_eth_030:
     docker:
       - image: << pipeline.parameters.ci_builder_image >>
     steps:
       - simulate_nested:
-          task: "/eth/026-uni-holocene-fp-upgrade"
+          task: "/eth/030-uni-pdg-update"
           with_chain_governor: true
 
   forge_build:
@@ -312,5 +312,5 @@ workflows:
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
       - just_simulate_ink_respected_game_type
-      - simulate_eth_026
+      - simulate_eth_030
       # sepolia
