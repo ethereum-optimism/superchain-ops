@@ -4,7 +4,7 @@ pragma solidity 0.8.15;
 import {IProxyAdmin} from "@eth-optimism-bedrock/interfaces/universal/IProxyAdmin.sol";
 import {IProxy} from "@eth-optimism-bedrock/interfaces/universal/IProxy.sol";
 
-import {MockTarget} from "test/mock/MockTarget.sol";
+import {MockTarget} from "test/task/mock/MockTarget.sol";
 import {MultisigTask} from "src/fps/task/MultisigTask.sol";
 import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
 

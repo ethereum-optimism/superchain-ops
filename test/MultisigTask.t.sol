@@ -6,10 +6,10 @@ import {Test} from "forge-std/Test.sol";
 
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
-import {MockTarget} from "test/mock/MockTarget.sol";
+import {MockTarget} from "test/task/mock/MockTarget.sol";
 import {MultisigTask} from "src/fps/task/MultisigTask.sol";
 import {AddressRegistry} from "src/fps/AddressRegistry.sol";
-import {MockMultisigTask} from "test/mock/MockMultisigTask.sol";
+import {MockMultisigTask} from "test/task/mock/MockMultisigTask.sol";
 
 contract MultisigTaskUnitTest is Test {
     AddressRegistry public addresses;
@@ -49,7 +49,7 @@ contract MultisigTaskUnitTest is Test {
 
     function testRunFailsNoNetworks() public {
         vm.expectRevert("MultisigTask: no chains found");
-        task.run("./test/mock/invalidNetworkConfig.toml");
+        task.run("./test/task/mock/invalidNetworkConfig.toml");
     }
 
     function testRunFailsEmptyActions() public {
