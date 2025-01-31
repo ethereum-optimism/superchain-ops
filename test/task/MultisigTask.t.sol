@@ -57,14 +57,14 @@ contract MultisigTaskUnitTest is Test {
 
     function testRunFailsEmptyActions() public {
         /// add empty action that will cause a revert
-        MockMultisigTask(address(task)).addAction(address(0), "", 0, "");
+        _addAction(address(0), "", 0, "");
         vm.expectRevert("Invalid target for task");
         task.run(MAINNET_CONFIG);
     }
 
     function testRunFailsInvalidAction() public {
         /// add invalid args for action that will cause a revert
-        MockMultisigTask(address(task)).addAction(address(1), "", 0, "");
+        _addAction(address(1), "", 0, "");
         vm.expectRevert("Invalid arguments for task");
         task.run(MAINNET_CONFIG);
     }
@@ -108,16 +108,8 @@ contract MultisigTaskUnitTest is Test {
         /// set addresses in MultisigTask contract to a deployed addresses
         /// contract so that these calls work
         vm.store(address(task), ADDRESSES_SLOT, bytes32(uint256(uint160(address(addresses)))));
-        MockMultisigTask(address(task)).addAction(
-            addresses.getAddress("ProxyAdmin", getChain("optimism").chainId),
-            abi.encodeWithSignature(
-                "upgrade(address,address)",
-                addresses.getAddress("L1ERC721BridgeProxy", getChain("optimism").chainId),
-                MockMultisigTask(address(task)).newImplementation()
-            ),
-            0,
-            ""
-        );
+
+        _addUpgradeAction();
 
         vm.mockCall(
             multisig,
@@ -169,16 +161,7 @@ contract MultisigTaskUnitTest is Test {
 
     function testRunFailsDuplicateAction() public {
         /// add duplicate action that will cause a revert
-        MockMultisigTask(address(task)).addAction(
-            addresses.getAddress("ProxyAdmin", getChain("optimism").chainId),
-            abi.encodeWithSignature(
-                "upgrade(address,address)",
-                addresses.getAddress("L1ERC721BridgeProxy", getChain("optimism").chainId),
-                MockMultisigTask(address(task)).newImplementation()
-            ),
-            0,
-            ""
-        );
+        _addUpgradeAction();
         vm.expectRevert("Duplicated action found");
         task.run(MAINNET_CONFIG);
     }
@@ -245,5 +228,22 @@ contract MultisigTaskUnitTest is Test {
         bytes memory data = task.getCalldata();
 
         assertEq(data, expectedData, "Wrong aggregate calldata");
+    }
+
+    function _addAction(address target, bytes memory data, uint256 value, string memory description) internal {
+        MockMultisigTask(address(task)).addAction(target, data, value, description);
+    }
+
+    function _addUpgradeAction() internal {
+        _addAction(
+            addresses.getAddress("ProxyAdmin", getChain("optimism").chainId),
+            abi.encodeWithSignature(
+                "upgrade(address,address)",
+                addresses.getAddress("L1ERC721BridgeProxy", getChain("optimism").chainId),
+                MockMultisigTask(address(task)).newImplementation()
+            ),
+            0,
+            ""
+        );
     }
 }
