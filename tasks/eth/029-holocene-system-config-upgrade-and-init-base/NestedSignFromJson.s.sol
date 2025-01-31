@@ -15,7 +15,6 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
     uint256 constant GAS_LIMIT = 96_000_000;
 
     HoloceneSystemConfigUpgrade sysCfgUpgrade;
-    HoloceneSystemConfigUpgrade sysCfgUpgrade;
 
     constructor() {
         sysCfgUpgrade = new HoloceneSystemConfigUpgrade(l1ChainName, l2ChainName, release);
