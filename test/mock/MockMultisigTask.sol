@@ -12,8 +12,14 @@ import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
 /// to an example implementation address
 contract MockMultisigTask is MultisigTask {
     address public constant newImplementation = address(1000);
+
+    /// @notice gap to ease writing to storage slots in unit tests.
+    /// This occupies a full storage slot at index 52 as the first byte of slot
+    /// 52 is used to store the _buildStarted boolean flag.
     uint248 private _gap;
-    address public mockTarget;
+
+    /// @notice reference to the mock target contract
+    MockTarget public mockTarget;
 
     /// @notice Returns the safe address string identifier
     /// @return The string "SystemConfigOwner"
@@ -39,9 +45,9 @@ contract MockMultisigTask is MultisigTask {
             payable(addresses.getAddress("L1ERC721BridgeProxy", getChain("optimism").chainId)), newImplementation
         );
 
-        if (mockTarget != address(0)) {
+        if (address(mockTarget) != address(0)) {
             /// set the snapshot ID for the MockTarget contract if the address is set
-            MockTarget(mockTarget).setSnapshotIdTask(18291864375436131);
+            mockTarget.setSnapshotIdTask(18291864375436131);
         }
     }
 
