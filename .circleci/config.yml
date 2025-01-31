@@ -31,7 +31,6 @@ commands:
       - run:
           name: "simulate << parameters.task >>"
           command: |
-            just install
             cd tasks/<< parameters.task >>
             SIMULATE_WITHOUT_LEDGER=true just \
               --dotenv-path $(pwd)/.env \
@@ -48,7 +47,6 @@ commands:
       - run:
           name: "simulate nested << parameters.task >>"
           command: |
-            just install
             cd tasks/<< parameters.task >>
             SIMULATE_WITHOUT_LEDGER=true just \
               --dotenv-path $(pwd)/.env \
@@ -60,11 +58,27 @@ commands:
               simulate council
 
 jobs:
+  install_dependencies:
+    docker:
+      - image: << pipeline.parameters.ci_builder_image >>
+    steps:
+      - checkout
+      - run:
+          name: "Install dependencies"
+          command: |
+            just install
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
   check_sepolia_rpc_endpoints:
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
     steps:
+      - attach_workspace:
+          at: .
       - checkout
       - run:
           name: Check Sepolia RPC Endpoints
@@ -94,6 +108,8 @@ jobs:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
     steps:
+      - attach_workspace:
+          at: .
       - checkout
       - run:
           name: Check Mainnet RPC Endpoints
@@ -122,9 +138,9 @@ jobs:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
     steps:
-      - checkout
       - attach_workspace:
           at: .
+      - checkout
       - run:
           name: Check task statuses
           command: bash ./script/utils/check-task-statuses.sh
@@ -133,9 +149,9 @@ jobs:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
     steps:
-      - checkout
       - attach_workspace:
           at: .
+      - checkout
       - run:
           name: Check nonce overrides
           command: bash ./script/utils/check-nonce-overrides.sh
@@ -148,6 +164,7 @@ jobs:
     steps:
       - attach_workspace:
           at: .
+      - checkout
       - run: |
           cat bash.env >> $BASH_ENV
       - run:
@@ -166,11 +183,12 @@ jobs:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
     steps:
+      - attach_workspace:
+          at: .
       - checkout
       - run:
           name: just simulate r1-hello-council
           command: |
-            just install
             cd security-council-rehearsals
             just setup r1-hello-council tmp-ci
             cd *r1-hello-council-tmp-ci
@@ -183,11 +201,12 @@ jobs:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
     steps:
+      - attach_workspace:
+          at: .
       - checkout
       - run:
           name: just simulate r2-remove-signer
           command: |
-            just install
             cd security-council-rehearsals
             just setup r2-remove-signer tmp-ci
             cd *r2-remove-signer-tmp-ci
@@ -201,11 +220,12 @@ jobs:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
     steps:
+      - attach_workspace:
+          at: .
       - checkout
       - run:
           name: just simulate r4-jointly-upgrade
           command: |
-            just install
             cd security-council-rehearsals
             just setup r4-jointly-upgrade tmp-ci
             cd *r4-jointly-upgrade-tmp-ci
@@ -213,18 +233,24 @@ jobs:
             just simulate-council
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
-  
+
   just_simulate_ink_respected_game_type:
     docker:
       - image: << pipeline.parameters.ci_builder_image >>
     steps:
+      - attach_workspace:
+          at: .
+      - checkout
       - simulate:
           task: "/eth/ink-002-set-respected-game-type"
-  
+
   just_simulate_eth_029_holocene_system_config_upgrade_and_init_base:
     docker:
       - image: << pipeline.parameters.ci_builder_image >>
     steps:
+      - attach_workspace:
+          at: .
+      - checkout
       - simulate:
           task: "/eth/029-holocene-system-config-upgrade-and-init-base"
 
@@ -232,11 +258,12 @@ jobs:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
     steps:
+      - attach_workspace:
+          at: .
       - checkout
       - run:
           name: forge build
           command: |
-            just install
             forge --version
             forge build --deny-warnings
 
@@ -244,17 +271,21 @@ jobs:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
     steps:
+      - attach_workspace:
+          at: .
       - checkout
       - run:
           name: forge fmt
           command: |
-            just install
             forge --version
             forge fmt --check
+
   forge_test:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
     steps:
+      - attach_workspace:
+          at: .
       - checkout
       - run:
           name: forge test
@@ -266,6 +297,8 @@ jobs:
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
     steps:
+      - attach_workspace:
+          at: .
       - checkout
       - run:
           name: print versions
@@ -277,30 +310,46 @@ jobs:
 workflows:
   main:
     jobs:
-      - print_versions
-      # Forge checks.
-      - forge_build
-      - forge_fmt
-      - forge_test
-      # RPC endpoint checks.
-      - check_sepolia_rpc_endpoints
-      - check_mainnet_rpc_endpoints
+      - install_dependencies
+      - print_versions:
+          requires:
+            - install_dependencies
+      - forge_build:
+          requires:
+            - install_dependencies
+      - forge_fmt:
+          requires:
+            - install_dependencies
+      - forge_test:
+          requires:
+            - install_dependencies
+      - check_sepolia_rpc_endpoints:
+          requires:
+            - install_dependencies
+      - check_mainnet_rpc_endpoints:
+          requires:
+            - install_dependencies
       - example_mainnet_job:
           requires:
             - check_mainnet_rpc_endpoints
-      # Verify that all tasks have a valid status in their README.
-      - check_task_statuses
-      # Verify that all tasks have correctly uppercased nonce overrides.
-      - check_nonce_overrides
-      # Task simulations.
-      # Please add an invocation to `just simulate` if a ceremony is
-      # active (e.g. it is the next ceremony to perform or you
-      # expect the ceremony to work continuously), and remove it once
-      # the ceremony is for historical archive only (e.g. the
-      # ceremony is done).
-      - just_simulate_sc_rehearsal_1
-      - just_simulate_sc_rehearsal_2
-      - just_simulate_sc_rehearsal_4
-      - just_simulate_ink_respected_game_type
-      - just_simulate_eth_029_holocene_system_config_upgrade_and_init_base
-      # sepolia
+      - check_task_statuses:
+          requires:
+            - install_dependencies
+      - check_nonce_overrides:
+          requires:
+            - install_dependencies
+      - just_simulate_sc_rehearsal_1:
+          requires:
+            - install_dependencies
+      - just_simulate_sc_rehearsal_2:
+          requires:
+            - install_dependencies
+      - just_simulate_sc_rehearsal_4:
+          requires:
+            - install_dependencies
+      - just_simulate_ink_respected_game_type:
+          requires:
+            - install_dependencies
+      - just_simulate_eth_029_holocene_system_config_upgrade_and_init_base:
+          requires:
+            - install_dependencies
