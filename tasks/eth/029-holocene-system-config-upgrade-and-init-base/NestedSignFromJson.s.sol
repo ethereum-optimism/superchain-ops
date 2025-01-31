@@ -12,7 +12,9 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
     string constant l1ChainName = "mainnet";
     string constant release = "v1.8.0-rc.4";
     string constant l2ChainName = "base";
+    uint256 constant GAS_LIMIT = 96_000_000;
 
+    HoloceneSystemConfigUpgrade sysCfgUpgrade;
     HoloceneSystemConfigUpgrade sysCfgUpgrade;
 
     constructor() {
@@ -28,7 +30,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
         console.log("Running post-deploy assertions");
 
         checkStateDiff(accesses);
-        sysCfgUpgrade.checkSystemConfigUpgradeWithPreviousGasLimitOverride(96_000_000);
+        sysCfgUpgrade.checkSystemConfigUpgradeWithPreviousGasLimitOverride(GAS_LIMIT);
 
         ISystemConfig systemConfig = ISystemConfig(sysCfgUpgrade.systemConfigAddress());
         vm.assertEq(systemConfig.eip1559Denominator(), 250, "incorrect EIP1559 denominator");
@@ -36,7 +38,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
 
         vm.assertEq(systemConfig.blobbasefeeScalar(), 1055762, "incorrect blobbasefeeScalar");
         vm.assertEq(systemConfig.basefeeScalar(), 2269, "incorrect basefeeScalar");
-        vm.assertEq(systemConfig.gasLimit(), 96000000, "incorrect gasLimit");
+        vm.assertEq(systemConfig.gasLimit(), GAS_LIMIT, "incorrect gasLimit");
 
         console.log("All assertions passed!");
     }
