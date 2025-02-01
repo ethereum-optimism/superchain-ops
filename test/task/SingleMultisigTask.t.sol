@@ -160,7 +160,7 @@ contract SingleMultisigTaskTest is Test {
     }
 
     function testRevertIfDifferentL2SafeAddresses() public {
-        string memory incorrectTaskConfigFilePath = "test/task/mock/Incorrectconfig.toml";
+        string memory incorrectTaskConfigFilePath = "test/task/mock/IncorrectMainnetConfig.toml";
         MultisigTask localMultisigTask = new GasConfigTemplate();
         Addresses addressRegistry = new Addresses(incorrectTaskConfigFilePath);
         bytes memory expectedRevertMessage = bytes(
