@@ -225,7 +225,7 @@ jobs:
     docker:
       - image: << pipeline.parameters.ci_builder_image >>
     steps:
-      - simulate:
+      - simulate_nested:
           task: "/eth/029-holocene-system-config-upgrade-and-init-base"
 
   forge_build:
