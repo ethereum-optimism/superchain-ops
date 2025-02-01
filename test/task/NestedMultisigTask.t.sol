@@ -71,6 +71,7 @@ contract NestedMultisigTaskTest is Test {
             bytes memory dataToSign = getNestedDataToSign(childOwnerMultisigs[i]);
             /// nonce is not decremented by 1 because in task simulation approveHash is called by
             /// the child multisig which does not increment the nonce
+            uint256 nonce = IGnosisSafe(childOwnerMultisigs[i]).nonce();
             bytes memory expectedDataToSign = IGnosisSafe(childOwnerMultisigs[i]).encodeTransactionData({
                 to: MULTICALL3_ADDRESS,
                 value: 0,
@@ -81,7 +82,7 @@ contract NestedMultisigTaskTest is Test {
                 gasPrice: 0,
                 gasToken: address(0),
                 refundReceiver: address(0),
-                _nonce: IGnosisSafe(childOwnerMultisigs[i]).nonce()
+                _nonce: nonce
             });
             assertEq(dataToSign, expectedDataToSign, "Wrong data to sign");
 
@@ -98,7 +99,7 @@ contract NestedMultisigTaskTest is Test {
                 0,
                 address(0),
                 address(0),
-                IGnosisSafe(childOwnerMultisigs[i]).nonce()
+                nonce
             );
             assertEq(nestedHashToApprove, expectedNestedHashToApprove, "Wrong nested hash to approve");
         }
