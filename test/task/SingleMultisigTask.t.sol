@@ -279,7 +279,7 @@ contract SingleMultisigTaskTest is Test {
             packedSignatures = bytes.concat(packedSignatures, abi.encodePacked(r, s, v));
         }
         /// execute the transaction with the signatures
-        IGnosisSafe(multisig).execTransaction(
+        bool success = IGnosisSafe(multisig).execTransaction(
             MULTICALL3_ADDRESS,
             0,
             callData,
@@ -291,7 +291,7 @@ contract SingleMultisigTaskTest is Test {
             address(0),
             packedSignatures
         );
-
+        assertTrue(success, "Expected transaction to succeed");
         /// check that the gas limits are set correctly after the task is executed
         SystemConfig systemConfig = SystemConfig(systemConfigOrderly);
         assertEq(systemConfig.gasLimit(), 100000000, "l2 gas limit not set for Orderly");

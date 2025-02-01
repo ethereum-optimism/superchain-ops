@@ -153,6 +153,7 @@ contract NestedMultisigTaskTest is Test {
             privateKeyForOwner[newOwners[i].walletAddress] = newOwners[i].privateKey;
         }
 
+        bool success;
         for (uint256 i = 0; i < parentMultisigOwners.length; i++) {
             address childMultisig = parentMultisigOwners[i];
 
@@ -191,7 +192,7 @@ contract NestedMultisigTaskTest is Test {
             }
 
             /// execute the approve hash call with the signatures
-            IGnosisSafe(childMultisig).execTransaction(
+            success = IGnosisSafe(childMultisig).execTransaction(
                 MULTICALL3_ADDRESS,
                 0,
                 callDataToApprove,
@@ -203,11 +204,12 @@ contract NestedMultisigTaskTest is Test {
                 address(0),
                 packedSignaturesChild
             );
+            assertTrue(success, "Expected transaction to succeed");
         }
         /// generate prevalidated signatures for the parent multisig
         bytes memory packedSignaturesParent = prepareSignatures(multisig, parentHash);
         /// execute the multicall transaction that upgrades the implementation with the prevalidated signatures
-        IGnosisSafe(multisig).execTransaction(
+        success = IGnosisSafe(multisig).execTransaction(
             MULTICALL3_ADDRESS,
             0,
             callData,
@@ -219,7 +221,7 @@ contract NestedMultisigTaskTest is Test {
             address(0),
             packedSignaturesParent
         );
-
+        assertTrue(success, "Expected transaction to succeed");
         /// check that the implementation is upgraded correctly
         assertEq(
             address(disputeGameFactory.gameImpls(GameTypes.CANNON)),
