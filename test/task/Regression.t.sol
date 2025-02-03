@@ -3,9 +3,9 @@ pragma solidity 0.8.15;
 import {Test} from "forge-std/Test.sol";
 import {MultisigTask} from "src/improvements/task/MultisigTask.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
-import {GasConfigTemplate} from "test/task/mock/example/template/GasConfigTemplate.sol";
-import {SetGameTypeTemplate} from "test/task/mock/example/template/SetGameTypeTemplate.sol";
-import {DisputeGameUpgradeTemplate} from "test/task/mock/example/template/DisputeGameUpgradeTemplate.sol";
+import {GasConfigTemplate} from "src/improvements/template/GasConfigTemplate.sol";
+import {SetGameTypeTemplate} from "src/improvements/template/SetGameTypeTemplate.sol";
+import {DisputeGameUpgradeTemplate} from "src/improvements/template/DisputeGameUpgradeTemplate.sol";
 import {console} from "forge-std/console.sol";
 
 contract RegressionTest is Test {
