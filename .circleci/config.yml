@@ -213,19 +213,19 @@ jobs:
             just simulate-council
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
-  
+
   just_simulate_ink_respected_game_type:
     docker:
       - image: << pipeline.parameters.ci_builder_image >>
     steps:
       - simulate:
           task: "/eth/ink-002-set-respected-game-type"
-  
+
   just_simulate_eth_029_holocene_system_config_upgrade_and_init_base:
     docker:
       - image: << pipeline.parameters.ci_builder_image >>
     steps:
-      - simulate:
+      - simulate_nested:
           task: "/eth/029-holocene-system-config-upgrade-and-init-base"
 
   forge_build:
@@ -298,7 +298,11 @@ workflows:
       # expect the ceremony to work continuously), and remove it once
       # the ceremony is for historical archive only (e.g. the
       # ceremony is done).
-      - just_simulate_sc_rehearsal_1
+      #
+      # We skip rehearsal 1 because we already have completed this rehearsal (https://github.com/ethereum-optimism/superchain-ops/pull/459),
+      # and now it fails with stack too deep after https://github.com/ethereum-optimism/superchain-ops/pull/528.
+      # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
+      # - just_simulate_sc_rehearsal_1
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
       - just_simulate_ink_respected_game_type
