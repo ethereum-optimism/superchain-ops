@@ -22,15 +22,11 @@ contract Runner is Script {
         string memory configContent = vm.readFile(configPath);
         bytes memory rawL2Chains = vm.parseToml(configContent, ".l2chains");
         L2Chain[] memory l2chains = abi.decode(rawL2Chains, (L2Chain[]));
-        
+
         bytes memory templateNameRaw = vm.parseToml(configContent, ".templateName");
         string memory templateName = abi.decode(templateNameRaw, (string));
 
-        return TaskConfig({
-            templateName: templateName,
-            l2chains: l2chains,
-            path: configPath
-        });
+        return TaskConfig({templateName: templateName, l2chains: l2chains, path: configPath});
     }
 
     function run() public {
@@ -47,14 +43,9 @@ contract Runner is Script {
             TaskConfig memory config = _parseConfig(taskPaths[i]);
 
             // Deploy and run the template
-            string memory templatePath = string.concat(
-                "out/",
-                config.templateName,
-                ".sol/",
-                config.templateName,
-                ".json"
-            );
-            
+            string memory templatePath =
+                string.concat("out/", config.templateName, ".sol/", config.templateName, ".json");
+
             ITask task = ITask(deployCode(templatePath));
             task.run(config.path);
         }
