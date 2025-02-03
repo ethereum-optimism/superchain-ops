@@ -25,7 +25,6 @@ contract NestedMultisigTaskTest is Test {
     mapping(address => uint256) private privateKeyForOwner;
 
     /// @notice constants that describe the owner storage offsets in Gnosis Safe
-
     uint256 public constant OWNER_MAPPING_STORAGE_OFFSET = 2;
     uint256 public constant OWNER_COUNT_STORAGE_OFFSET = 3;
     uint256 public constant THRESHOLD_STORAGE_OFFSET = 4;
