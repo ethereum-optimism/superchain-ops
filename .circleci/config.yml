@@ -328,13 +328,13 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - checkout-with-mise
       - run:
           name: monorepo_integration_test
           command: |
             forge build
             export ETH_RPC_URL=https://ethereum.publicnode.com
-            forge script src/fps/example/Runner.sol:Runner --sig "run(string)" lib/optimism/packages/contracts-bedrock/allocs.json --rpc-url $ETH_RPC_URL
+            forge script test/task/mock/example/Runner.sol:Runner --sig "run(string)" lib/optimism/packages/contracts-bedrock/allocs.json --rpc-url $ETH_RPC_URL --ffi
             export SUPERCHAIN_OPS_ALLOCS_PATH=./allocs.json
             cd lib/optimism/packages/contracts-bedrock/ && just test-upgrade
 
