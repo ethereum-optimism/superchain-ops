@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
 
-import {AddressRegistry} from "src/fps/AddressRegistry.sol";
+import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
 contract MainnetAddressRegistryTest is Test {
     AddressRegistry private addresses;
@@ -12,7 +12,7 @@ contract MainnetAddressRegistryTest is Test {
     uint256 public metalChainId;
 
     function setUp() public {
-        string memory networkConfigFilePath = "src/fps/example/task-00/mainnetConfig.toml";
+        string memory networkConfigFilePath = "test/task/mock/example/task-00/config.toml";
 
         vm.createSelectFork("mainnet");
 

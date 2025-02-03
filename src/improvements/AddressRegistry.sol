@@ -5,7 +5,7 @@ import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet
 
 import {Test} from "forge-std/Test.sol";
 
-import {IAddressRegistry} from "src/fps/IAddressRegistry.sol";
+import {IAddressRegistry} from "src/improvements/IAddressRegistry.sol";
 
 /// @title Network Address Manager
 /// @notice This contract provides a single source of truth for storing and retrieving addresses across multiple networks.

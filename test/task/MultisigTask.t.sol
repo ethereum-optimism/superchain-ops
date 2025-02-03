@@ -7,15 +7,15 @@ import {Test} from "forge-std/Test.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 import {MockTarget} from "test/task/mock/MockTarget.sol";
-import {MultisigTask} from "src/fps/task/MultisigTask.sol";
-import {AddressRegistry} from "src/fps/AddressRegistry.sol";
+import {MultisigTask} from "src/improvements/task/MultisigTask.sol";
+import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 import {MockMultisigTask} from "test/task/mock/MockMultisigTask.sol";
 
 contract MultisigTaskUnitTest is Test {
     AddressRegistry public addresses;
     MultisigTask public task;
 
-    string constant MAINNET_CONFIG = "./src/fps/example/task-03/mainnetConfig.toml";
+    string constant MAINNET_CONFIG = "./test/task/mock/example/task-03/config.toml";
 
     /// @notice variables that store the storage offset of different variables in the MultisigTask contract
 

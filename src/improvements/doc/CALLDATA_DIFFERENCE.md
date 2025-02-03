@@ -56,7 +56,7 @@ data: `0xb40a817c000000000000000000000000000000000000000000000000000000000393870
 
 command:
 ```bash
-forge script src/fps/example/template/GasConfigTemplate.sol --sig "run(string)" src/fps/example/task-03/mainnetConfig.toml --rpc-url mainnet -vvv
+forge script test/task/mock/example/template/GasConfigTemplate.sol --sig "run(string)" test/task/mock/example/task-03/mainnetConfig.toml --rpc-url mainnet -vvv
 ```
 
 Calldata diff can be found here https://www.diffchecker.com/HA7YFSWi/, select character comparison to see the difference.
