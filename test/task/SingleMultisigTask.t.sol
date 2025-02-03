@@ -24,6 +24,12 @@ contract SingleMultisigTaskTest is Test {
     Addresses private addresses;
     mapping(address => uint256) private privateKeyForOwner;
 
+    /// @notice constants that describe the owner storage offsets in Gnosis Safe
+
+    uint256 public constant OWNER_MAPPING_STORAGE_OFFSET = 2;
+    uint256 public constant OWNER_COUNT_STORAGE_OFFSET = 3;
+    uint256 public constant THRESHOLD_STORAGE_OFFSET = 4;
+
     /// @notice ProxyAdminOwner safe for task-00 is a single multisig.
     string taskConfigFilePath = "src/fps/example/task-00/mainnetConfig.toml";
 
@@ -249,20 +255,20 @@ contract SingleMultisigTaskTest is Test {
             for (uint256 i = 0; i < newOwners.length; i++) {
                 /// 2 is the slot for the owners mapping
                 /// variable slot is the slot for a key in the owners mapping
-                slot = keccak256(abi.encode(currentOwner, uint256(2)));
+                slot = keccak256(abi.encode(currentOwner, OWNER_MAPPING_STORAGE_OFFSET));
                 vm.store(multisig, slot, bytes32(uint256(uint160(newOwners[i].walletAddress))));
                 currentOwner = newOwners[i].walletAddress;
             }
 
             /// link the last owner to the sentinel owner
-            slot = keccak256(abi.encode(currentOwner, uint256(2)));
+            slot = keccak256(abi.encode(currentOwner, OWNER_MAPPING_STORAGE_OFFSET));
             vm.store(multisig, slot, bytes32(uint256(uint160(0x1))));
         }
 
         /// set the owners count to 9
-        vm.store(multisig, bytes32(uint256(3)), bytes32(uint256(9)));
+        vm.store(multisig, bytes32(OWNER_COUNT_STORAGE_OFFSET), bytes32(uint256(9)));
         /// set the threshold to 4
-        vm.store(multisig, bytes32(uint256(4)), bytes32(uint256(4)));
+        vm.store(multisig, bytes32(THRESHOLD_STORAGE_OFFSET), bytes32(uint256(4)));
 
         address[] memory getNewOwners = IGnosisSafe(multisig).getOwners();
         assertEq(getNewOwners.length, 9, "Expected 9 owners");

@@ -24,6 +24,12 @@ contract NestedMultisigTaskTest is Test {
     Addresses private addresses;
     mapping(address => uint256) private privateKeyForOwner;
 
+    /// @notice constants that describe the owner storage offsets in Gnosis Safe
+
+    uint256 public constant OWNER_MAPPING_STORAGE_OFFSET = 2;
+    uint256 public constant OWNER_COUNT_STORAGE_OFFSET = 3;
+    uint256 public constant THRESHOLD_STORAGE_OFFSET = 4;
+
     /// ProxyAdminOwner safe for task-01 is a nested multisig for Op mainnet L2 chain.
     string taskConfigFilePath = "src/fps/example/task-01/mainnetConfig.toml";
 
@@ -161,18 +167,21 @@ contract NestedMultisigTaskTest is Test {
                 address currentOwner = address(0x1);
                 bytes32 slot;
                 for (uint256 j = 0; j < newOwners.length; j++) {
-                    slot = keccak256(abi.encode(currentOwner, uint256(2)));
+                    slot = keccak256(abi.encode(currentOwner, OWNER_MAPPING_STORAGE_OFFSET));
                     vm.store(childMultisig, slot, bytes32(uint256(uint160(newOwners[j].walletAddress))));
                     currentOwner = newOwners[j].walletAddress;
                 }
-                slot = keccak256(abi.encode(currentOwner, uint256(2)));
+
+                /// point the final owner back to the sentinel
+                slot = keccak256(abi.encode(currentOwner, OWNER_MAPPING_STORAGE_OFFSET));
                 vm.store(childMultisig, slot, bytes32(uint256(uint160(0x1))));
             }
 
             /// set the owners count to 9
-            vm.store(childMultisig, bytes32(uint256(3)), bytes32(uint256(9)));
+            vm.store(childMultisig, bytes32(OWNER_COUNT_STORAGE_OFFSET), bytes32(uint256(9)));
+
             /// set the threshold to 4
-            vm.store(childMultisig, bytes32(uint256(4)), bytes32(uint256(4)));
+            vm.store(childMultisig, bytes32(THRESHOLD_STORAGE_OFFSET), bytes32(uint256(4)));
 
             address[] memory getNewOwners = IGnosisSafe(childMultisig).getOwners();
             assertEq(getNewOwners.length, 9, "Expected 9 owners");
