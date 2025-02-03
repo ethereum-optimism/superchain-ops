@@ -1,44 +1,44 @@
-# Justfile
+#!/usr/bin/env bash
 
-# Create new resources with interactive prompts
-new *TYPE:
+# Create a new template or task
+# e.g. just new [template|task]
+new TYPE:
     #!/usr/bin/env bash
     set -e
     
+    # shellcheck disable=SC2194
     case "{{TYPE}}" in
         template)
-            read -p "Enter template file name: " filename
+            read -r -p "Enter template file name: " filename
             touch "template/$filename"
             echo "Created template file: $filename"
             ;;
-            
-        task)
-            read -p "Enter task directory name: " dirname
-            
+        task)    
             PS3="Select network: "
             select network in eth sep oeth sep-dev-0 "Other (specify)"; do
                 case $network in
                     "Other (specify)")
-                        read -p "Enter custom network name: " network
+                        read -r -p "Enter custom network name: " network
                         ;;
                     "")
                         echo "Invalid selection, please enter a network name manually: "
-                        read network
+                        read -r network
                         ;;
                 esac
                 break
             done
 
-            templates=($(ls -1 template/))
+            # templates=($(ls -1 template/))
+            mapfile -t templates < <(ls -1 template/)
             PS3="Select template name: "
             select template in "${templates[@]}" "Other (specify)"; do
                 case $template in
                     "Other (specify)")
-                        read -p "Enter custom template name: " template
+                        read -r -p "Enter custom template name: " template
                         ;;
                     "")
                         echo "Invalid selection, please enter a template name manually: "
-                        read template
+                        read -r template
                         ;;
                     *)
                         break
@@ -46,13 +46,46 @@ new *TYPE:
                 esac
                 break
             done
+
+            existing_dirs=$(find "tasks/$network" -maxdepth 1 -type d 2>/dev/null | sort)
+            echo "Existing directories: " 
+            echo "${existing_dirs//$'\n'/$'\n  '}"
+
+            # Find the highest number used in existing directory names
+            # This is used to suggest the next available directory name.
+            # If the number pattern is broken (001-task-name, 002-task-name, ...), this suggestion may not work.
+            highest_num=0
+            for dir in $existing_dirs; do
+                basename=$(basename "$dir")
+                if [[ $basename =~ ([0-9]{3}) ]]; then
+                    num=${BASH_REMATCH[1]}
+                    if (( 10#$num > highest_num )); then
+                        highest_num=$((10#$num))
+                    fi
+                fi
+            done
+            next_num=$((highest_num + 1))
+            suggested_name=$(printf "%03d-<enter-task-name>" $next_num)
+            most_recent_task_dir=$(echo "$existing_dirs" | tail -n1)
             
-            mkdir -p "tasks/$network/$dirname"
-            touch "tasks/$network/$dirname/config.toml"
-            echo "template = \"$template\"" > "tasks/$network/$dirname/config.toml"
-            echo "Created task directory '$dirname' with network: $network"
+            while true; do
+                read -r -p "Enter task directory name (suggested: $suggested_name): " dirname
+                if [[ -z "$dirname" ]]; then
+                    echo "Task directory name cannot be empty. Please try again."
+                elif [[ -n "$most_recent_task_dir" && "$dirname" < "$(basename "$most_recent_task_dir")" ]]; then
+                    echo "Error: '$dirname' is lexicographically earlier than existing directories."
+                    echo "The last existing directory is: $(basename "$most_recent_task_dir")"
+                    echo "Please choose a name that comes after this alphabetically."
+                else
+                    break
+                fi
+            done
+
+            mkdir -p "tasks/${network}/${dirname}"
+            config_path="tasks/${network}/${dirname}/config.toml"
+            echo "template = \"${template}\"" > "${config_path}"
+            echo "Created task directory '${dirname}' for network: ${network}"
             ;;
-            
         *)
             echo "Invalid type: {{TYPE}}"
             echo "Usage: just new [template|task]"
