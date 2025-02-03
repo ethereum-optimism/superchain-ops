@@ -267,8 +267,6 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @param data The calldata to be executed
     /// @return The data to sign
     function getDataToSign(address safe, bytes memory data) public view returns (bytes memory) {
-        uint256 useNonce = _getNonce(safe);
-
         return IGnosisSafe(safe).encodeTransactionData({
             to: MULTICALL3_ADDRESS,
             value: 0,
@@ -279,7 +277,7 @@ abstract contract MultisigTask is Test, Script, ITask {
             gasPrice: 0,
             gasToken: address(0),
             refundReceiver: address(0),
-            _nonce: useNonce
+            _nonce: _getNonce(safe)
         });
     }
 
