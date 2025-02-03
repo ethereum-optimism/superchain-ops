@@ -326,7 +326,7 @@ jobs:
             forge test -vvv
   monorepo_integration_test:
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - checkout
       - run:
