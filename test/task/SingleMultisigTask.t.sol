@@ -278,6 +278,8 @@ contract SingleMultisigTaskTest is Test {
         }
 
         uint256 threshold = IGnosisSafe(multisig).getThreshold();
+        assertEq(threshold, 4, "Expected threshold should be updated to mocked value");
+
         LibSort.sort(getNewOwners);
 
         /// sign the data to sign with the private keys of the new owners
