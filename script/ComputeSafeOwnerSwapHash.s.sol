@@ -15,27 +15,7 @@ contract ComputeSafeOwnerSwapHash is Script {
     address internal constant SENTINEL_OWNERS = address(0x1);
 
     function run(address _safe, address _oldOwner, address _newOwner) public view {
-        // Given the old owner, find the previous owner in the linked list.
-        address[] memory owners = IGnosisSafe(_safe).getOwners();
-        (address prevOwner,) = findPreviousOwner(owners, _oldOwner);
-
-        // Encode the transaction data for the swapOwner call.
-        uint256 nonce = IGnosisSafe(_safe).nonce();
-        bytes memory txData = IGnosisSafe(_safe).encodeTransactionData({
-            to: _safe,
-            value: 0,
-            data: abi.encodeCall(IGnosisSafe(_safe).swapOwner, (prevOwner, _oldOwner, _newOwner)),
-            operation: Enum.Operation.Call,
-            safeTxGas: 0,
-            baseGas: 0,
-            gasPrice: 0,
-            gasToken: address(0),
-            refundReceiver: address(0),
-            _nonce: nonce
-        });
-
-        // Compute the hash of the transaction.
-        bytes32 txHash = keccak256(txData);
+        (bytes memory txData, bytes32 txHash) = getTxDataAndHash(_safe, _oldOwner, _newOwner);
 
         // Print the data for signers to verify against.
         console.log("---\nIf submitting onchain, call Safe.approveHash on %s with the following hash:", _safe);
@@ -54,18 +34,43 @@ contract ComputeSafeOwnerSwapHash is Script {
         console.log("###############################");
     }
 
+    function getTxDataAndHash(address _safe, address _oldOwner, address _newOwner)
+        internal
+        view
+        returns (bytes memory txData_, bytes32 txHash_)
+    {
+        address[] memory owners = IGnosisSafe(_safe).getOwners();
+        (address prevOwner,) = findPreviousOwner(owners, _oldOwner);
+
+        uint256 nonce = IGnosisSafe(_safe).nonce();
+        txData_ = IGnosisSafe(_safe).encodeTransactionData({
+            to: _safe,
+            value: 0,
+            data: abi.encodeCall(IGnosisSafe(_safe).swapOwner, (prevOwner, _oldOwner, _newOwner)),
+            operation: Enum.Operation.Call,
+            safeTxGas: 0,
+            baseGas: 0,
+            gasPrice: 0,
+            gasToken: address(0),
+            refundReceiver: address(0),
+            _nonce: nonce
+        });
+
+        txHash_ = keccak256(txData_);
+    }
+
     /**
      * @dev Finds the previous owner in the linked list given an owner.
      * @param _owners The array of owner addresses in linked list order.
      * @param _owner The owner address for which to find the previous owner.
-     * @return _prevOwner The previous owner address. If _owner is the first owner in the array,
+     * @return prevOwner_ The previous owner address. If _owner is the first owner in the array,
      * the sentinel address is returned.
-     * @return _prevOwnerIndex The index of the previous owner in the array (or zero if the sentinel is returned).
+     * @return prevOwnerIndex_ The index of the previous owner in the array (or zero if the sentinel is returned).
      */
     function findPreviousOwner(address[] memory _owners, address _owner)
-        public
+        internal
         pure
-        returns (address _prevOwner, uint256 _prevOwnerIndex)
+        returns (address prevOwner_, uint256 prevOwnerIndex_)
     {
         for (uint256 i = 0; i < _owners.length; i++) {
             if (_owners[i] == _owner) {
