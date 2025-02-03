@@ -6,7 +6,6 @@ import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {Test} from "forge-std/Test.sol";
 
 import {MultisigTask} from "src/fps/task/MultisigTask.sol";
-import {MULTICALL3_ADDRESS} from "src/fps/utils/Constants.sol";
 import {DisputeGameUpgradeTemplate} from "src/fps/example/template/DisputeGameUpgradeTemplate.sol";
 import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
 
