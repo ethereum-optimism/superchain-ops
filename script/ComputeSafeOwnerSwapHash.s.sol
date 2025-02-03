@@ -14,6 +14,10 @@ import {console} from "forge-std/console.sol";
 contract ComputeSafeOwnerSwapHash is Script {
     address internal constant SENTINEL_OWNERS = address(0x1);
 
+    /// @notice Prints the expected transaction hash and data to sign for a single Safe owner swap.
+    /// @param _safe The address of the Safe.
+    /// @param _oldOwner The address of the current owner to be replaced by `_newOwner`.
+    /// @param _newOwner The address of the new owner to replace `_oldOwner`.
     function run(address _safe, address _oldOwner, address _newOwner) public view {
         (bytes memory txData, bytes32 txHash) = getTxDataAndHash(_safe, _oldOwner, _newOwner);
 
@@ -34,6 +38,12 @@ contract ComputeSafeOwnerSwapHash is Script {
         console.log("###############################");
     }
 
+    /// @notice Computes the transaction data and data hash for a Safe owner swap.
+    /// @param _safe The address of the Safe.
+    /// @param _oldOwner The address of the current owner to be replaced by `_newOwner`.
+    /// @param _newOwner The address of the new owner to replace `_oldOwner`.
+    /// @return txData_ The transaction data.
+    /// @return txHash_ The data hash.
     function getTxDataAndHash(address _safe, address _oldOwner, address _newOwner)
         internal
         view
@@ -59,14 +69,12 @@ contract ComputeSafeOwnerSwapHash is Script {
         txHash_ = keccak256(txData_);
     }
 
-    /**
-     * @dev Finds the previous owner in the linked list given an owner.
-     * @param _owners The array of owner addresses in linked list order.
-     * @param _owner The owner address for which to find the previous owner.
-     * @return prevOwner_ The previous owner address. If _owner is the first owner in the array,
-     * the sentinel address is returned.
-     * @return prevOwnerIndex_ The index of the previous owner in the array (or zero if the sentinel is returned).
-     */
+    /// @notice Finds the previous owner in the linked list given an owner.
+    /// @param _owners The array of owner addresses in linked list order.
+    /// @param _owner The owner address for which to find the previous owner.
+    /// @return prevOwner_ The previous owner address. If _owner is the first owner in the array,
+    /// the sentinel address is returned.
+    /// @return prevOwnerIndex_ The index of the previous owner in the array (or zero if the sentinel is returned).
     function findPreviousOwner(address[] memory _owners, address _owner)
         internal
         pure
