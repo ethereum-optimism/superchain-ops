@@ -6,8 +6,8 @@ import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
 import {IProxy} from "@eth-optimism-bedrock/interfaces/universal/IProxy.sol";
 
 import {MockTarget} from "test/task/mock/MockTarget.sol";
-import {MultisigTask} from "src/fps/task/MultisigTask.sol";
-import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
+import {MultisigTask} from "src/improvements/task/MultisigTask.sol";
+import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
 
 /// Mock task that upgrades the L1ERC721BridgeProxy implementation
 /// to an example implementation address

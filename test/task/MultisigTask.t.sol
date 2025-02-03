@@ -7,8 +7,8 @@ import {Test} from "forge-std/Test.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 import {MockTarget} from "test/task/mock/MockTarget.sol";
-import {MultisigTask} from "src/fps/task/MultisigTask.sol";
-import {AddressRegistry} from "src/fps/AddressRegistry.sol";
+import {MultisigTask} from "src/improvements/task/MultisigTask.sol";
+import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 import {MockMultisigTask} from "test/task/mock/MockMultisigTask.sol";
 
 contract MultisigTaskUnitTest is Test {

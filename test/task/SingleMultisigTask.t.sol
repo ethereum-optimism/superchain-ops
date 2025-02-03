@@ -3,8 +3,8 @@ pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
 
-import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
-import {MultisigTask} from "src/fps/task/MultisigTask.sol";
+import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
+import {MultisigTask} from "src/improvements/task/MultisigTask.sol";
 import {GasConfigTemplate} from "test/task/mock/example/template/GasConfigTemplate.sol";
 import {IncorrectGasConfigTemplate1} from "test/task/mock/IncorrectGasConfigTemplate1.sol";
 import {IncorrectGasConfigTemplate2} from "test/task/mock/IncorrectGasConfigTemplate2.sol";
