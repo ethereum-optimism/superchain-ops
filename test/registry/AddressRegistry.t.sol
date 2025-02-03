@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
 
-import {AddressRegistry} from "src/fps/AddressRegistry.sol";
+import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
 contract MainnetAddressRegistryTest is Test {
     AddressRegistry private addresses;

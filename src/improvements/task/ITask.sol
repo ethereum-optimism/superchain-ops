@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
+import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
 
 abstract contract ITask {
     /// @notice return task actions.

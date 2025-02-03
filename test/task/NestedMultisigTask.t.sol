@@ -5,9 +5,9 @@ import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.so
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {Test} from "forge-std/Test.sol";
 
-import {MultisigTask} from "src/fps/task/MultisigTask.sol";
+import {MultisigTask} from "src/improvements/task/MultisigTask.sol";
 import {DisputeGameUpgradeTemplate} from "test/task/mock/example/template/DisputeGameUpgradeTemplate.sol";
-import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
+import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
 import {LibSort} from "@solady/utils/LibSort.sol";
 import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
 import {IDisputeGameFactory, IDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute/IDisputeGameFactory.sol";

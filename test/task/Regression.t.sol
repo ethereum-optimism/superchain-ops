@@ -1,7 +1,7 @@
 pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
-import {MultisigTask} from "src/fps/task/MultisigTask.sol";
+import {MultisigTask} from "src/improvements/task/MultisigTask.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {GasConfigTemplate} from "test/task/mock/example/template/GasConfigTemplate.sol";
 import {SetGameTypeTemplate} from "test/task/mock/example/template/SetGameTypeTemplate.sol";

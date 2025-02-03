@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
 
 import {GasConfigTemplate} from "test/task/mock/example/template/GasConfigTemplate.sol";
-import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
+import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
 
 /// @title IncorrectGasConfigTemplate1
 /// @notice allowed storage write to incorrect address
