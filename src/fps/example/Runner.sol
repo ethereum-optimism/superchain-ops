@@ -19,7 +19,7 @@ contract Runner is Script {
             abi.decode(vm.parseToml(runnerConfigFileContents, ".tasks"), (TasksStatus[]));
         if (block.chainid == getChain("Mainnet").chainId) {
             network = "mainnet";
-        } else if (block.chainid == 11155111) {
+        } else if (block.chainid == getChain("Sepolia").chainId) {
             network = "testnet";
         } else {
             revert("Unsupported network");
