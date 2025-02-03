@@ -1,37 +1,62 @@
 pragma solidity 0.8.15;
 
-import {Script} from "forge-std/Script.sol";
-import {ITask} from "src/fps/task/ITask.sol";
+import {Script} from "lib/forge-std/src/Script.sol";
+import {ITask} from "src/improvements/task/ITask.sol";
+import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 
 contract Runner is Script {
-    string public network;
+    using Strings for uint256;
 
-    struct TasksStatus {
-        string contractName;
+    struct L2Chain {
+        uint256 chainId;
         string name;
+    }
+
+    struct TaskConfig {
+        L2Chain[] l2chains;
         string path;
-        uint256 status;
+        string templateName;
+    }
+
+    function _parseConfig(string memory configPath) internal view returns (TaskConfig memory) {
+        string memory configContent = vm.readFile(configPath);
+        bytes memory rawL2Chains = vm.parseToml(configContent, ".l2chains");
+        L2Chain[] memory l2chains = abi.decode(rawL2Chains, (L2Chain[]));
+        
+        bytes memory templateNameRaw = vm.parseToml(configContent, ".templateName");
+        string memory templateName = abi.decode(templateNameRaw, (string));
+
+        return TaskConfig({
+            templateName: templateName,
+            l2chains: l2chains,
+            path: configPath
+        });
     }
 
     function run() public {
-        string memory runnerConfigFileContents = vm.readFile("src/fps/example/runnerConfig.toml");
-        TasksStatus[] memory tasksStatuses =
-            abi.decode(vm.parseToml(runnerConfigFileContents, ".tasks"), (TasksStatus[]));
-        if (block.chainid == getChain("mainnet").chainId) {
-            network = "mainnet";
-        } else if (block.chainid == getChain("sepolia").chainId) {
-            network = "testnet";
-        } else {
-            revert("Unsupported network");
-        }
-        for (uint256 i = 0; i < tasksStatuses.length; i++) {
-            TasksStatus memory taskStatus = tasksStatuses[i];
-            /// run tasks from draft, ready, cnotingency to signed
-            /// do not run executed or cancelled tasks
-            if (taskStatus.status <= 3) {
-                string memory taskConfigFilePath = string.concat(taskStatus.path, "/", network, "Config.toml");
-                ITask(deployCode(taskStatus.contractName)).run(taskConfigFilePath);
-            }
+        string[] memory commands = new string[](1);
+        commands[0] = "./test/task/mock/example/fetch-tasks.sh";
+
+        bytes memory result = vm.ffi(commands);
+
+        string[] memory taskPaths = vm.split(string(result), "\n");
+
+        // Process each task
+        for (uint256 i = 0; i < taskPaths.length; i++) {
+            // Parse config
+            TaskConfig memory config = _parseConfig(taskPaths[i]);
+
+            // Deploy and run the template
+            string memory templatePath = string.concat(
+                "out/",
+                config.templateName,
+                ".sol/",
+                config.templateName,
+                ".json"
+            );
+            
+            ITask task = ITask(deployCode(templatePath));
+            task.run(config.path);
         }
     }
 
