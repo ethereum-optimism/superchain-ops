@@ -17,9 +17,9 @@ contract Runner is Script {
         string memory runnerConfigFileContents = vm.readFile("src/fps/example/runnerConfig.toml");
         TasksStatus[] memory tasksStatuses =
             abi.decode(vm.parseToml(runnerConfigFileContents, ".tasks"), (TasksStatus[]));
-        if (block.chainid == getChain("Mainnet").chainId) {
+        if (block.chainid == getChain("mainnet").chainId) {
             network = "mainnet";
-        } else if (block.chainid == getChain("Sepolia").chainId) {
+        } else if (block.chainid == getChain("sepolia").chainId) {
             network = "testnet";
         } else {
             revert("Unsupported network");
