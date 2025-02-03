@@ -1,9 +1,9 @@
 version: 2.1
 
 parameters:
-  ci_builder_image:
+  default_docker_image:
     type: string
-    default: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.47.3
+    default: cimg/base:2024.01
   l1_mainnet_rpc_url:
     type: string
     default: "https://ci-mainnet-l1.optimism.io"
@@ -21,6 +21,66 @@ parameters:
     default: 5
 
 commands:
+  checkout-with-mise:
+    steps:
+      - checkout
+      - run:
+          name: Initialize mise environment
+          command: |
+            # This is used to create a per-user cache key to preserve permissions across different
+            # executor types.
+            user=$(whoami)
+            echo "$user" > .executor-user
+            echo "Set executor user to $user."
+
+            if [[ "$user" == "root" ]]; then
+              # Self-hosted runners will persist this cache between runs. Cleaning it up means that we
+              # preserve the semantics of the cache regardless of executor type. It's also much faster
+              # to delete the cache and recreate it than it is to overwrite it in place.
+              rm -rf /data/mise-data
+              echo "Cleaned up cache data."
+
+              mkdir -p /data/mise-data
+              echo "Created Mise data dir."
+              mkdir -p ~/.cache
+              echo "Created Mise cache dir."
+            else
+              sudo rm -rf /data/mise-data
+              echo "Cleaned up cache data."
+              sudo mkdir -p /data/mise-data
+              sudo chown -R "$user:$user" /data/mise-data
+              echo "Created Mise data dir."
+              sudo mkdir -p ~/.cache
+              sudo chown -R "$user:$user" ~/.cache
+              echo "Created Mise cache dir."
+            fi
+      - restore_cache:
+          name: Restore mise cache
+          keys:
+            - mise-v5-{{ checksum ".executor-user" }}-{{ checksum "mise.toml" }}
+      - run:
+          name: Install mise
+          command: |
+            if command -v mise &> /dev/null; then
+              echo "mise already installed at $(command -v mise)"
+            else
+              curl https://mise.run | sh
+            fi
+
+            echo "export PATH=\"$HOME/.local/bin:\$PATH\"" >> "$BASH_ENV"
+            echo "export MISE_DATA_DIR=/data/mise-data" >> "$BASH_ENV"
+            echo "export MISE_JOBS=$(nproc)" >> "$BASH_ENV"
+            echo "eval \"\$($HOME/.local/bin/mise activate --shims)\"" >> "$BASH_ENV"
+      - run:
+          name: Install mise deps
+          command: |
+            mise install -v -y
+      - save_cache:
+          name: Save mise cache
+          key: mise-v5-{{ checksum ".executor-user" }}-{{ checksum "mise.toml" }}
+          paths:
+            - /data/mise-data
+  
   simulate:
     description: "Runs simulations of a task"
     parameters:
@@ -63,9 +123,9 @@ jobs:
   check_sepolia_rpc_endpoints:
     circleci_ip_ranges: true
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - checkout-with-mise
       - run:
           name: Check Sepolia RPC Endpoints
           command: |
@@ -92,9 +152,9 @@ jobs:
   check_mainnet_rpc_endpoints:
     circleci_ip_ranges: true
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - checkout-with-mise
       - run:
           name: Check Mainnet RPC Endpoints
           command: |
@@ -120,9 +180,9 @@ jobs:
 
   check_task_statuses:
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - checkout-with-mise
       - attach_workspace:
           at: .
       - run:
@@ -131,9 +191,9 @@ jobs:
 
   check_nonce_overrides:
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - checkout-with-mise
       - attach_workspace:
           at: .
       - run:
@@ -144,7 +204,7 @@ jobs:
   example_mainnet_job:
     circleci_ip_ranges: true
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - attach_workspace:
           at: .
@@ -164,9 +224,9 @@ jobs:
 
   just_simulate_sc_rehearsal_1:
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - checkout-with-mise
       - run:
           name: just simulate r1-hello-council
           command: |
@@ -181,9 +241,9 @@ jobs:
 
   just_simulate_sc_rehearsal_2:
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - checkout-with-mise
       - run:
           name: just simulate r2-remove-signer
           command: |
@@ -199,9 +259,9 @@ jobs:
 
   just_simulate_sc_rehearsal_4:
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - checkout-with-mise
       - run:
           name: just simulate r4-jointly-upgrade
           command: |
@@ -213,26 +273,28 @@ jobs:
             just simulate-council
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
-  
+
   just_simulate_ink_respected_game_type:
     docker:
-      - image: << pipeline.parameters.ci_builder_image >>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
+      - checkout-with-mise
       - simulate:
           task: "/eth/ink-002-set-respected-game-type"
-  
+
   just_simulate_eth_029_holocene_system_config_upgrade_and_init_base:
     docker:
-      - image: << pipeline.parameters.ci_builder_image >>
+      - image: << pipeline.parameters.default_docker_image >>
     steps:
-      - simulate:
+      - checkout-with-mise
+      - simulate_nested:
           task: "/eth/029-holocene-system-config-upgrade-and-init-base"
 
   forge_build:
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - checkout-with-mise
       - run:
           name: forge build
           command: |
@@ -242,20 +304,21 @@ jobs:
 
   forge_fmt:
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - checkout-with-mise
       - run:
           name: forge fmt
           command: |
             just install
             forge --version
             forge fmt --check
+  
   forge_test:
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - checkout-with-mise
       - run:
           name: forge test
           command: |
@@ -264,9 +327,9 @@ jobs:
 
   print_versions:
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - checkout-with-mise
       - run:
           name: print versions
           command: |
@@ -298,7 +361,11 @@ workflows:
       # expect the ceremony to work continuously), and remove it once
       # the ceremony is for historical archive only (e.g. the
       # ceremony is done).
-      - just_simulate_sc_rehearsal_1
+      #
+      # We skip rehearsal 1 because we already have completed this rehearsal (https://github.com/ethereum-optimism/superchain-ops/pull/459),
+      # and now it fails with stack too deep after https://github.com/ethereum-optimism/superchain-ops/pull/528.
+      # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
+      # - just_simulate_sc_rehearsal_1
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
       - just_simulate_ink_respected_game_type

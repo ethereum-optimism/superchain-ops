@@ -2,11 +2,9 @@
 src = "src"
 out = "out"
 libs = ["lib"]
-optimizer = true
-optimizer_runs = 999999
+optimizer = false
 solc_version = "0.8.15"
 evm_version = "cancun"
-via_ir = true
 fs_permissions = [{ access = "read-write", path = "./" }]
 # Enable FFI for reading lib/superchain-registry files in scripts SignFromJson.s.sol, NestedSignFromJson.s.sol within tasks
 ffi = true

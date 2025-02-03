@@ -9,6 +9,7 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {Test} from "forge-std/Test.sol";
 
 import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
+import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 import {ITask} from "src/fps/task/ITask.sol";
@@ -257,18 +258,14 @@ abstract contract MultisigTask is Test, Script, ITask {
         console.logBytes32(getHash());
     }
 
+    function _getNonce(address safe) internal view returns (uint256) {
+        return (safe == multisig) ? nonce : IGnosisSafe(safe).nonce();
+    }
+
     /// @notice get the data to sign by EOA for single multisig
     /// @param data The calldata to be executed
     /// @return The data to sign
     function getDataToSign(address safe, bytes memory data) public view returns (bytes memory) {
-        uint256 useNonce;
-
-        if (safe == multisig) {
-            useNonce = nonce;
-        } else {
-            useNonce = IGnosisSafe(safe).nonce();
-        }
-
         return IGnosisSafe(safe).encodeTransactionData({
             to: MULTICALL3_ADDRESS,
             value: 0,
@@ -279,7 +276,7 @@ abstract contract MultisigTask is Test, Script, ITask {
             gasPrice: 0,
             gasToken: address(0),
             refundReceiver: address(0),
-            _nonce: useNonce
+            _nonce: _getNonce(safe)
         });
     }
 
@@ -503,6 +500,8 @@ abstract contract MultisigTask is Test, Script, ITask {
             console.log("\n\n------------------ Single Multisig EOA Hash to Approve ------------------");
             printHashToApprove();
         }
+        console.log("\n\n------------------ Tenderly Simulation Link ------------------");
+        printTenderlySimulationLink();
     }
 
     /// @notice print the data to sign by EOA for nested multisig
@@ -524,6 +523,14 @@ abstract contract MultisigTask is Test, Script, ITask {
             console.log("Nested multisig: %s", getAddressLabel(startingOwners[i]));
             console.logBytes32(hash);
         }
+    }
+
+    function printTenderlySimulationLink() internal view {
+        Simulation.StateOverride[] memory overrides = new Simulation.StateOverride[](1);
+        overrides[0] = Simulation.overrideSafeThresholdOwnerAndNonce(multisig, msg.sender, _getNonce(multisig));
+        bytes memory txData =
+            _execTransationCalldata(multisig, getCalldata(), Signatures.genPrevalidatedSignature(msg.sender));
+        Simulation.logSimulationLink({_to: multisig, _data: txData, _from: msg.sender, _overrides: overrides});
     }
 
     /// --------------------------------------------------------------------
@@ -576,6 +583,28 @@ abstract contract MultisigTask is Test, Script, ITask {
         // prepend the prevalidated signatures to the signatures
         address[] memory approvers = Signatures.getApprovers(_safe, hash);
         return Signatures.genPrevalidatedSignatures(approvers);
+    }
+
+    function _execTransationCalldata(address _safe, bytes memory _data, bytes memory _signatures)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        return abi.encodeCall(
+            IGnosisSafe(_safe).execTransaction,
+            (
+                MULTICALL3_ADDRESS,
+                0,
+                _data,
+                Enum.Operation.DelegateCall,
+                0,
+                0,
+                0,
+                address(0),
+                payable(address(0)),
+                _signatures
+            )
+        );
     }
 
     /// --------------------------------------------------------------------
