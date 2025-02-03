@@ -2,7 +2,7 @@ pragma solidity 0.8.15;
 
 import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
 
-import {GasConfigTemplate} from "src/fps/example/template/GasConfigTemplate.sol";
+import {GasConfigTemplate} from "test/task/mock/example/template/GasConfigTemplate.sol";
 import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
 
 /// @title IncorrectGasConfigTemplate2

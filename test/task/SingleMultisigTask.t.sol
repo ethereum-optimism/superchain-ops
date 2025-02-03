@@ -5,7 +5,7 @@ import {Test} from "forge-std/Test.sol";
 
 import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
 import {MultisigTask} from "src/fps/task/MultisigTask.sol";
-import {GasConfigTemplate} from "src/fps/example/template/GasConfigTemplate.sol";
+import {GasConfigTemplate} from "test/task/mock/example/template/GasConfigTemplate.sol";
 import {IncorrectGasConfigTemplate1} from "test/task/mock/IncorrectGasConfigTemplate1.sol";
 import {IncorrectGasConfigTemplate2} from "test/task/mock/IncorrectGasConfigTemplate2.sol";
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
@@ -31,7 +31,7 @@ contract SingleMultisigTaskTest is Test {
     uint256 public constant THRESHOLD_STORAGE_OFFSET = 4;
 
     /// @notice ProxyAdminOwner safe for task-00 is a single multisig.
-    string taskConfigFilePath = "src/fps/example/task-00/mainnetConfig.toml";
+    string taskConfigFilePath = "test/task/mock/example/task-00/config.toml";
 
     function setUp() public {
         vm.createSelectFork("mainnet");

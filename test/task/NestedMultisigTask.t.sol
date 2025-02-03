@@ -6,7 +6,7 @@ import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {Test} from "forge-std/Test.sol";
 
 import {MultisigTask} from "src/fps/task/MultisigTask.sol";
-import {DisputeGameUpgradeTemplate} from "src/fps/example/template/DisputeGameUpgradeTemplate.sol";
+import {DisputeGameUpgradeTemplate} from "test/task/mock/example/template/DisputeGameUpgradeTemplate.sol";
 import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
 import {LibSort} from "@solady/utils/LibSort.sol";
 import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
@@ -25,13 +25,12 @@ contract NestedMultisigTaskTest is Test {
     mapping(address => uint256) private privateKeyForOwner;
 
     /// @notice constants that describe the owner storage offsets in Gnosis Safe
-
     uint256 public constant OWNER_MAPPING_STORAGE_OFFSET = 2;
     uint256 public constant OWNER_COUNT_STORAGE_OFFSET = 3;
     uint256 public constant THRESHOLD_STORAGE_OFFSET = 4;
 
     /// ProxyAdminOwner safe for task-01 is a nested multisig for Op mainnet L2 chain.
-    string taskConfigFilePath = "src/fps/example/task-01/mainnetConfig.toml";
+    string taskConfigFilePath = "test/task/mock/example/task-01/config.toml";
 
     function setUp() public {
         vm.createSelectFork("mainnet");
