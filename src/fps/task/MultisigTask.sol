@@ -13,7 +13,6 @@ import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.so
 
 import {ITask} from "src/fps/task/ITask.sol";
 import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
-import {SAFE_NONCE_SLOT, MULTICALL3_ADDRESS} from "src/fps/utils/Constants.sol";
 
 abstract contract MultisigTask is Test, Script, ITask {
     using EnumerableSet for EnumerableSet.AddressSet;

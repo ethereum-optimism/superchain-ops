@@ -10,7 +10,6 @@ import {IncorrectGasConfigTemplate1} from "test/task/mock/IncorrectGasConfigTemp
 import {IncorrectGasConfigTemplate2} from "test/task/mock/IncorrectGasConfigTemplate2.sol";
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
-import {MULTICALL3_ADDRESS} from "src/fps/utils/Constants.sol";
 import {LibSort} from "@solady/utils/LibSort.sol";
 import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
 import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
