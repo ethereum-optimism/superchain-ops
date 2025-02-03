@@ -28,7 +28,6 @@ new TYPE:
                 break
             done
 
-            # templates=($(ls -1 template/))
             mapfile -t templates < <(ls -1 template/)
             PS3="Select template name: "
             select template in "${templates[@]}" "Other (specify)"; do
