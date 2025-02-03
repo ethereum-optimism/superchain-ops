@@ -330,7 +330,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: monorepo-integration-test
+          name: monorepo_integration_test
           command: |
             forge build
             export ETH_RPC_URL=https://ethereum.publicnode.com
