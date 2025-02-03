@@ -191,6 +191,7 @@ contract NestedMultisigTaskTest is Test {
             }
 
             uint256 threshold = IGnosisSafe(childMultisig).getThreshold();
+            assertEq(threshold, 4, "Expected threshold should be updated to mocked value");
             LibSort.sort(getNewOwners);
 
             /// sign the approve hash call data to sign with the private keys of the new owners of the child multisig
