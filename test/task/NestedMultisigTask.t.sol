@@ -154,20 +154,21 @@ contract NestedMultisigTaskTest is Test {
             privateKeyForOwner[newOwners[i].walletAddress] = newOwners[i].privateKey;
         }
 
-        bool success;
         for (uint256 i = 0; i < parentMultisigOwners.length; i++) {
             address childMultisig = parentMultisigOwners[i];
 
-            /// set the new owners for the child multisig
-            address currentOwner = address(0x1);
-            bytes32 slot;
-            for (uint256 j = 0; j < newOwners.length; j++) {
+            {
+                /// set the new owners for the child multisig
+                address currentOwner = address(0x1);
+                bytes32 slot;
+                for (uint256 j = 0; j < newOwners.length; j++) {
+                    slot = keccak256(abi.encode(currentOwner, uint256(2)));
+                    vm.store(childMultisig, slot, bytes32(uint256(uint160(newOwners[j].walletAddress))));
+                    currentOwner = newOwners[j].walletAddress;
+                }
                 slot = keccak256(abi.encode(currentOwner, uint256(2)));
-                vm.store(childMultisig, slot, bytes32(uint256(uint160(newOwners[j].walletAddress))));
-                currentOwner = newOwners[j].walletAddress;
+                vm.store(childMultisig, slot, bytes32(uint256(uint160(0x1))));
             }
-            slot = keccak256(abi.encode(currentOwner, uint256(2)));
-            vm.store(childMultisig, slot, bytes32(uint256(uint160(0x1))));
 
             /// set the owners count to 9
             vm.store(childMultisig, bytes32(uint256(3)), bytes32(uint256(9)));
@@ -193,36 +194,39 @@ contract NestedMultisigTaskTest is Test {
             }
 
             /// execute the approve hash call with the signatures
-            success = IGnosisSafe(childMultisig).execTransaction(
+            assertTrue(
+                IGnosisSafe(childMultisig).execTransaction(
+                    MULTICALL3_ADDRESS,
+                    0,
+                    callDataToApprove,
+                    Enum.Operation.DelegateCall,
+                    0,
+                    0,
+                    0,
+                    address(0),
+                    address(0),
+                    packedSignaturesChild
+                )
+            );
+        }
+        /// generate prevalidated signatures for the parent multisig
+        bytes memory packedSignaturesParent = prepareSignatures(multisig, parentHash);
+        /// execute the multicall transaction that upgrades the implementation with the prevalidated signatures
+        assertTrue(
+            IGnosisSafe(multisig).execTransaction(
                 MULTICALL3_ADDRESS,
                 0,
-                callDataToApprove,
+                callData,
                 Enum.Operation.DelegateCall,
                 0,
                 0,
                 0,
                 address(0),
                 address(0),
-                packedSignaturesChild
-            );
-            assertTrue(success, "Expected transaction to succeed");
-        }
-        /// generate prevalidated signatures for the parent multisig
-        bytes memory packedSignaturesParent = prepareSignatures(multisig, parentHash);
-        /// execute the multicall transaction that upgrades the implementation with the prevalidated signatures
-        success = IGnosisSafe(multisig).execTransaction(
-            MULTICALL3_ADDRESS,
-            0,
-            callData,
-            Enum.Operation.DelegateCall,
-            0,
-            0,
-            0,
-            address(0),
-            address(0),
-            packedSignaturesParent
+                packedSignaturesParent
+            ),
+            "Expected transaction to succeed"
         );
-        assertTrue(success, "Expected transaction to succeed");
         /// check that the implementation is upgraded correctly
         assertEq(
             address(disputeGameFactory.gameImpls(GameTypes.CANNON)),

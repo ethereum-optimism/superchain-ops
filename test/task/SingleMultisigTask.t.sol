@@ -240,22 +240,25 @@ contract SingleMultisigTaskTest is Test {
             privateKeyForOwner[newOwners[i].walletAddress] = newOwners[i].privateKey;
         }
 
-        /// Gnosis safe SENTINEL_OWNER
-        address currentOwner = address(0x1);
-        bytes32 slot;
-        /// set the new owners of the safe
-        /// owners are stored in the form of a circular linked list using owners mapping in gnosis safe
-        /// starting from sentinel owner and cycling back to it
-        for (uint256 i = 0; i < newOwners.length; i++) {
-            /// 2 is the slot for the owners mapping
-            /// variable slot is the slot for a key in the owners mapping
+        {
+            /// Gnosis safe SENTINEL_OWNER
+            address currentOwner = address(0x1);
+            bytes32 slot;
+            /// set the new owners of the safe
+            /// owners are stored in the form of a circular linked list using owners mapping in gnosis safe
+            /// starting from sentinel owner and cycling back to it
+            for (uint256 i = 0; i < newOwners.length; i++) {
+                /// 2 is the slot for the owners mapping
+                /// variable slot is the slot for a key in the owners mapping
+                slot = keccak256(abi.encode(currentOwner, uint256(2)));
+                vm.store(multisig, slot, bytes32(uint256(uint160(newOwners[i].walletAddress))));
+                currentOwner = newOwners[i].walletAddress;
+            }
+
+            /// link the last owner to the sentinel owner
             slot = keccak256(abi.encode(currentOwner, uint256(2)));
-            vm.store(multisig, slot, bytes32(uint256(uint160(newOwners[i].walletAddress))));
-            currentOwner = newOwners[i].walletAddress;
+            vm.store(multisig, slot, bytes32(uint256(uint160(0x1))));
         }
-        /// link the last owner to the sentinel owner
-        slot = keccak256(abi.encode(currentOwner, uint256(2)));
-        vm.store(multisig, slot, bytes32(uint256(uint160(0x1))));
 
         /// set the owners count to 9
         vm.store(multisig, bytes32(uint256(3)), bytes32(uint256(9)));
@@ -279,19 +282,22 @@ contract SingleMultisigTaskTest is Test {
             packedSignatures = bytes.concat(packedSignatures, abi.encodePacked(r, s, v));
         }
         /// execute the transaction with the signatures
-        bool success = IGnosisSafe(multisig).execTransaction(
-            MULTICALL3_ADDRESS,
-            0,
-            callData,
-            Enum.Operation.DelegateCall,
-            0,
-            0,
-            0,
-            address(0),
-            address(0),
-            packedSignatures
+        assertTrue(
+            IGnosisSafe(multisig).execTransaction(
+                MULTICALL3_ADDRESS,
+                0,
+                callData,
+                Enum.Operation.DelegateCall,
+                0,
+                0,
+                0,
+                address(0),
+                address(0),
+                packedSignatures
+            ),
+            "Expected transaction to succeed"
         );
-        assertTrue(success, "Expected transaction to succeed");
+
         /// check that the gas limits are set correctly after the task is executed
         SystemConfig systemConfig = SystemConfig(systemConfigOrderly);
         assertEq(systemConfig.gasLimit(), 100000000, "l2 gas limit not set for Orderly");
