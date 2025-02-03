@@ -1,0 +1,61 @@
+# Justfile
+
+# Create new resources with interactive prompts
+new *TYPE:
+    #!/usr/bin/env bash
+    set -e
+    
+    case "{{TYPE}}" in
+        template)
+            read -p "Enter template file name: " filename
+            touch "template/$filename"
+            echo "Created template file: $filename"
+            ;;
+            
+        task)
+            read -p "Enter task directory name: " dirname
+            
+            PS3="Select network: "
+            select network in eth sep oeth sep-dev-0 "Other (specify)"; do
+                case $network in
+                    "Other (specify)")
+                        read -p "Enter custom network name: " network
+                        ;;
+                    "")
+                        echo "Invalid selection, please enter a network name manually: "
+                        read network
+                        ;;
+                esac
+                break
+            done
+
+            templates=($(ls -1 template/))
+            PS3="Select template name: "
+            select template in "${templates[@]}" "Other (specify)"; do
+                case $template in
+                    "Other (specify)")
+                        read -p "Enter custom template name: " template
+                        ;;
+                    "")
+                        echo "Invalid selection, please enter a template name manually: "
+                        read template
+                        ;;
+                    *)
+                        break
+                        ;;
+                esac
+                break
+            done
+            
+            mkdir -p "tasks/$network/$dirname"
+            touch "tasks/$network/$dirname/config.toml"
+            echo "template = \"$template\"" > "tasks/$network/$dirname/config.toml"
+            echo "Created task directory '$dirname' with network: $network"
+            ;;
+            
+        *)
+            echo "Invalid type: {{TYPE}}"
+            echo "Usage: just new [template|task]"
+            exit 1
+            ;;
+    esac
