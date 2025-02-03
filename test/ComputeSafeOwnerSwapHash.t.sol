@@ -69,29 +69,35 @@ contract ComputeSafeOwnerSwapHashTest is Test {
     }
 
     function test_findPreviousOwner_succeeds() public {
-        // Arrange an array of owner addresses in linked list order.
         address[] memory owners = new address[](4);
         owners[0] = SENTINEL_OWNERS;
         owners[1] = makeAddr("owner1");
         owners[2] = makeAddr("owner2");
         owners[3] = makeAddr("owner3");
 
-        // Test 1: For the first owner, the function should return the sentinel address.
+        // For the first owner, the function should return the sentinel address.
         (address prev1, uint256 index1) = harness.exposed_findPreviousOwner(owners, owners[0]);
-        assertEq(prev1, SENTINEL_OWNERS, "Test1: Expected sentinel for first owner.");
-        assertEq(index1, 0, "Test1: Expected index 0 for first owner.");
+        assertEq(prev1, SENTINEL_OWNERS, "100");
+        assertEq(index1, 0, "200");
 
-        // Test 2: For the second owner, the function should return the first owner.
+        // For the second owner, the function should return the first owner.
         (address prev2, uint256 index2) = harness.exposed_findPreviousOwner(owners, owners[1]);
-        assertEq(prev2, owners[0], "Test2: Expected first owner as previous for second owner.");
-        assertEq(index2, 0, "Test2: Expected index 0 for previous owner of second owner.");
+        assertEq(prev2, owners[0], "300");
+        assertEq(index2, 0, "400");
 
-        // Test 3: For the last owner, the function should return the third owner.
+        // For the last owner, the function should return the third owner.
         (address prev3, uint256 index3) = harness.exposed_findPreviousOwner(owners, owners[3]);
-        assertEq(prev3, owners[2], "Test3: Expected third owner as previous for fourth owner.");
-        assertEq(index3, 2, "Test3: Expected index 2 for previous owner of fourth owner.");
+        assertEq(prev3, owners[2], "500");
+        assertEq(index3, 2, "600");
+    }
 
-        // Test 4: When the owner is not found in the list, the function should revert.
+    function test_findPreviousOwner_whenOwnerIsNotFound_reverts() public {
+        address[] memory owners = new address[](4);
+        owners[0] = SENTINEL_OWNERS;
+        owners[1] = makeAddr("owner1");
+        owners[2] = makeAddr("owner2");
+        owners[3] = makeAddr("owner3");
+
         address nonOwner = makeAddr("nonOwner");
         vm.expectRevert(bytes(string.concat("Owner not found: ", vm.toString(nonOwner))));
         harness.exposed_findPreviousOwner(owners, nonOwner);
