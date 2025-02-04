@@ -289,6 +289,7 @@ contract SingleMultisigTaskTest is Test {
             packedSignatures = bytes.concat(packedSignatures, abi.encodePacked(r, s, v));
         }
 
+        /// execute the task with the signatures
         multisigTask = new GasConfigTemplate();
         multisigTask.run(taskConfigFilePath, packedSignatures);
 
