@@ -17,11 +17,8 @@ create_task() {
 
     mapfile -t templates < <(ls -1 template/)
     PS3="Select template name: "
-    select template in "${templates[@]}" "Other (specify)"; do
+    select template in "${templates[@]}"; do
         case $template in
-            "Other (specify)")
-                read -r -p "Enter custom template name: " template
-                ;;
             "")
                 echo "Invalid selection, please enter a template name manually: "
                 read -r template
