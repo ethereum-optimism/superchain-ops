@@ -19,7 +19,7 @@ new COMMAND="":
     
     # shellcheck disable=SC2050
     if [ "{{COMMAND}}" = "" ]; then
-        echo -e "\n\033[31m❌ Error: No command specified\033[0m"
+        echo -e "\n\033[31mError: No command specified\033[0m"
         show_usage
         exit 1
     fi
@@ -27,14 +27,45 @@ new COMMAND="":
     # shellcheck disable=SC2194
     case "{{COMMAND}}" in
         template)
-            ./script/create_template.sh
+            ./script/create-template.sh
             ;;
         task)    
-            ./script/create_task.sh
+            ./script/create-task.sh
             ;;
         *)
-            echo -e "\n\033[31m❌ Error: Invalid command '{{COMMAND}}'\033[0m"
+            echo -e "\n\033[31mError: Invalid command '{{COMMAND}}'\033[0m"
             show_usage
             exit 1
             ;;
     esac
+
+task COMMAND="" NETWORK="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    echo -e "\033[42m                          \033[0m"
+    echo -e "\033[42m    superchain-ops cli    \033[0m"
+    echo -e "\033[42m                          \033[0m"
+
+    if [ "{{COMMAND}}" = "" ]; then
+        echo -e "\n\033[31mError: No command specified\033[0m\n"
+        exit 1
+    fi
+
+    # shellcheck disable=SC2194
+    case "{{COMMAND}}" in
+        ls)
+            if [ -z "{{NETWORK}}" ]; then
+                echo -e "\n\033[31mError: Network must be specified\033[0m"
+                echo -e "\033[31mUsage: just task ls <network>\033[0m\n"
+                exit 1
+            fi
+            echo ""
+            ./script/sorted-tasks.sh {{NETWORK}}
+            ;;
+        *)
+            echo -e "\n\033[31mError: Invalid command '{{COMMAND}}'\033[0m\n"
+            exit 1
+            ;;
+    esac
+    

@@ -40,17 +40,17 @@ create_task() {
     done
 
     # This is an ordered list of all the tasks for a given network.
-    existing_dirs=$(find "tasks/$network" -maxdepth 1 -type d 2>/dev/null | sort)
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    sorted_existing_dirs=$("$script_dir/sorted-tasks.sh" "$network")
+    
     echo ""
-
-    most_recent_task_dir=$(echo "$existing_dirs" | tail -n1)
-
-    suggestion=""
-    if [[ -z "$most_recent_task_dir" ]]; then
+    if [[ -z "$sorted_existing_dirs" || $(echo "$sorted_existing_dirs" | wc -l) -eq 1 ]]; then
         suggestion="Note: this is the first task for this network. Please choose a name that's lexicographically sensible"
     else
+        most_recent_task_dir=$(echo "$sorted_existing_dirs" | tail -n1)
         suggestion="lexicographically after: $most_recent_task_dir"
     fi
+
     while true; do
         read -r -p "Enter task directory name ($suggestion): " dirname
         if [[ -z "$dirname" ]]; then
@@ -58,7 +58,8 @@ create_task() {
         elif [[ -n "$most_recent_task_dir" && "$dirname" < "$(basename "$most_recent_task_dir")" ]]; then
             echo -e "\033[31mError: Task name '$dirname' is lexicographically earlier than existing directories.\033[0m"
             echo -e "\033[31mThe last existing directory is: $(basename "$most_recent_task_dir")\033[0m"
-            echo -e "\033[31mPlease choose a name that comes after this lexicographically.\033[0m\n"
+            echo -e "\033[31mPlease choose a name that comes after this lexicographically.\033[0m"
+            echo -e "\033[31mAlternatively, if you know what you're doing, you can manually insert a task without this cli.\033[0m\n"
         elif [[ -n "$most_recent_task_dir" && "$dirname" == "$(basename "$most_recent_task_dir")" ]]; then
             echo -e "\033[31mError: Task name '$dirname' already exists.\033[0m"
             echo -e "\033[31mPlease choose a name that comes after this lexicographically.\033[0m\n"
