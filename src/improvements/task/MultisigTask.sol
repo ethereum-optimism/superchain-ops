@@ -148,7 +148,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @notice Runs the task with the given configuration file path.
     /// Sets the address registry, initializes and simulates the task.
     /// @param taskConfigFilePath The path to the task configuration file.
-    function run(string memory taskConfigFilePath) public {
+    function run(string memory taskConfigFilePath) public override {
         Addresses _addresses = new Addresses(taskConfigFilePath);
 
         _templateSetup(taskConfigFilePath);
