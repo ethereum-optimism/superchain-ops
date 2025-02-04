@@ -2,5 +2,7 @@
 
 l2chains = [{name = "Optimism Mainnet", chainId = 10}]
 
+templateName = "GasConfigTemplate"
+
 [gasConfigs]
 gasLimits = [{chainId = 10, gasLimit = 60000000}]
