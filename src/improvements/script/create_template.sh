@@ -3,7 +3,8 @@
 create_template() {
     while true; do
         if [ -t 0 ]; then
-            read -r -p "Enter template file name (<template_name>.sol): " filename
+            echo ""
+            read -r -p "Enter template file name (e.g. <template_name>.sol): " filename
         else
             read -r filename
         fi
@@ -12,7 +13,7 @@ create_template() {
             echo "Created template file: $filename"
             break
         else
-            echo "Error: Template file must end with .sol. Please try again."
+            echo -e "\n\033[31mTemplate file cannot be empty and must end with '.sol'. Please try again.\033[0m"
         fi
     done
 }
