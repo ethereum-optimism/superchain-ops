@@ -1,3 +1,6 @@
+export rpcUrl := env_var_or_default('ETH_RPC_URL', 'https://ethereum.publicnode.com')
+export etherscanApiKey := env_var_or_default('ETHERSCAN_API_KEY', '')
+
 install: install-contracts install-eip712sign
 
 # install dependencies
@@ -34,3 +37,15 @@ add-transaction bundlePath to sig *params:
 
 clean:
   forge clean
+
+# Deploy the Multicall3Delegatecall contract to 0x95b259eae68ba96edB128eF853fFbDffe47D2Db0, as is
+# the case on Mainnet and Sepolia.
+# Will fail if the contract is already deployed.
+# ARGS must include --private-key or --keystore in order to deploy successfully.
+deploy-multicall3-delegatecall *ARGS:
+  forge script DeployMulticall3Delegatecall \
+     --rpc-url {{rpcUrl}} \
+     --verify \
+     --verifier-api-key {{etherscanApiKey}} \
+      --broadcast \
+     {{ARGS}}

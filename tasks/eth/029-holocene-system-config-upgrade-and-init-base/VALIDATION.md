@@ -54,7 +54,7 @@ cast index bytes32 $SAFE_HASH $(cast index address $SAFE_ROLE 8)
   **Meaning**: Updates the `SystemConfig`'s implementation to [version 2.3.0](https://github.com/ethereum-optimism/superchain-registry/blob/53a83256dfc147710999c76e5565329f6ef0de4e/validation/standard/standard-versions-mainnet.toml#L9) at `0xAB9d6cB7A427c0765163A7f45BB91cAfe5f2D375`.
 
 - **Key**: `0x0000000000000000000000000000000000000000000000000000000000000068`<br>
-  **Before**: `0x000000000000000000000000000000000000000000000000000000000fbc5200`<br>
+  **Before**: `0x00000000000000000000000000000000000000000000000000000000112a8800`<br>
   **After**: `0x0000000000000000000000000000000000101c12000008dd0000000005b8d800`<br>
   **Meaning**: Sets the new `SystemConfig`'s variables `blobbasefeeScalar` to `1055762` (`cast td 0x00101c12`) and `basefeeScalar` to `2269` (`cast td 0x000008dd`). Sets the `gasLimit` to `96000000` (`cast td 0x0000000005b8d800`). See storage layout snapshot [here](https://github.com/ethereum-optimism/optimism/blob/3c75cd94849b265ff9d2ed424f9d35be124b0b4e/packages/contracts-bedrock/snapshots/storageLayout/SystemConfig.json#L58-L78). These values are checked in the `_postCheck` function in `NestedSignFromJson.s.sol`. The visual representation of the storage layout below should help you validate the state changes:
   

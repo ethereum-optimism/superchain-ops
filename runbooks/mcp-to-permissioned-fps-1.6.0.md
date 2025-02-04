@@ -1,4 +1,4 @@
-# Upgrade runbook: L2 Output Oracle to Fault Proof System
+# Upgrade runbook: L2 Output Oracle to Fault Proof System (v1.6.0)
 
 ## Summary
 
@@ -96,11 +96,11 @@ Similar to `proofMaturityDelaySeconds`, this is set to 3.5 days for both testnet
 
 The upgrade from `op-contracts/v1.3.0` to `op-contracts/v1.6.0` is designed to be carried out by a docker image to maintain a consistent environment across deployments.
 
-**Deployment deployment summary**
+### Deployment deployment summary
 
 Upgrade begins by deploying and configuring a number of new smart contracts that your system will need to upgrade to `op-contracts/v1.6.0`. Docker image will produce an output file called `deploy.log` containing a log of everything that happened during the deployment and a file called `deployments.json` that lists the newly created contract addresses.
 
-**Deployment details:**
+#### Deployment details
 
 1. Deploys `DisputeGameFactory` proxy contract
 2. Deploys `AnchorStateRegistry` proxy contract
@@ -114,11 +114,11 @@ Upgrade begins by deploying and configuring a number of new smart contracts that
 10. Transfers ownership of `DisputeGameFactory` proxy to `ProxyAdmin`
 11. Transfers ownership of `AnchorStateRegistry` to system owner
 
-**Finalization transaction generation**
+### Finalization transaction generation
 
 Once contracts have been deployed, the docker image will generate a JSON file called `bundle.json` containing transactions that are compatible with the Transaction Builder feature for the Safe smart wallet. Your system will using `op-contracts/v1.6.0` contracts once this bundle is executed. You should ONLY execute this bundle once you are ready to transition your system to `op-contracts/v1.6.0`.
 
-**Upgrade details:**
+#### Upgrade details
 
 1. Upgrades `OptimismPortalProxy` to `StorageSetterImpl`
 2. Resets `initialized` variable inside of `OptimismPortalProxy`
@@ -145,11 +145,11 @@ Once contracts have been deployed, the docker image will generate a JSON file ca
 23. Initializes `L1ERC721BridgeProxy`
 24. Upgrades `OptimismMintableERC20Factory` to `OptimismMintableERC20FactoryImpl`
 
-**Validation text generation**
+### Validation text generation
 
 After generating the finalization transaction, the docker image will generate a file named `validation.txt` that can be used to verify that the upgrade transaction is correctly changing the state of your system. This file is designed to be used alongside a Tenderly simulation of the finalization transaction bundle to manually verify the state changes shown in the Tenderly UI.
 
-**Outputs**
+#### Outputs
 
 - `deploy.log` is a full log of the execution of the deploy script
 - `bundle.json` is the finalization transaction bundle
@@ -158,7 +158,7 @@ After generating the finalization transaction, the docker image will generate a 
 - `standard-addresses.json` is the list of standard implementation addresses used
 - `transactions.json` is the list of transactions that were executed
 
-**Deployment cost**
+### Deployment cost
 
 We recommend providing the deployer account with 1 ETH on Mainnet and 10 ETH on Sepolia to minimize the chance of a failed deployment. Actual deployment cost should be significantly less than these recommended values.
 
@@ -169,36 +169,36 @@ We recommend providing the deployer account with 1 ETH on Mainnet and 10 ETH on 
 ## Executing the deployment
 
 1. Create a working directory
-    
+
     ```bash
     mkdir upgrade-dir
     cd upgrade-dir
     ```
-    
+
 2. Copy your deploy config and deployment addresses JSON files into the working directory
-    
-    > [!IMPORTANT]
-    > Please make sure that your deploy config JSON is in the standard config format used by the official OP Stack deployment script and includes all required configuration values as of `op-contracts/v1.3.0`.
-    
+
+> [!IMPORTANT]
+> Please make sure that your deploy config JSON is in the standard config format used by the official OP Stack deployment script and includes all required configuration values as of `op-contracts/v1.3.0`.
+
 3. Make sure that your files are named correctly, deploy config should be named `deploy_config.json` your deployment addresses file should be named `deployments.json`
-    
-    > [!NOTE]
-    > Standardized file names reduce the chance of errors when running this runbook.
-        
+
+> [!NOTE]
+> Standardized file names reduce the chance of errors when running this runbook.
+
 4. Create a folder called `outputs`
-    
+
     ```bash
     mkdir outputs
     ```
-    
+
 5. Create a file called `.env`
-        
+
     ```bash
     touch .env
     ```
 
 6. Add the following to `.env` and fill out all required variables
-    
+
     ```bash
     ##############################################
     #               ↓  Required  ↓               #
@@ -215,29 +215,10 @@ We recommend providing the deployer account with 1 ETH on Mainnet and 10 ETH on 
 
     # Private key used to deploy the new contracts for this upgrade
     PRIVATE_KEY=
-
-    # Check if required files and folders exist
-    if [ ! -f "./deploy_config.json" ]; then
-        echo "Error: deploy_config.json not found"
-    fi
-    if [ ! -f "./deployments.json" ]; then
-        echo "Error: deployments.json not found"
-    fi
-    if [ ! -d "./outputs" ]; then
-        echo "Error: outputs folder not found"
-    fi
     ```
-    
-7. Load the `.env` file into your environment
-    
-    If you get an error when running this command, make sure that your input files are properly named and that you have created the `outputs` folder.
 
-    ```bash
-    source .env
-    ```
-    
-8. Run the deployment process
-    
+7. Run the deployment process
+
     ```bash
     docker run -t \
         --env-file .env \
@@ -248,40 +229,38 @@ We recommend providing the deployer account with 1 ETH on Mainnet and 10 ETH on 
         /deploy_config.json \
         /deployments.json
     ```
-    
-9. Wait for the process to complete and look for outputs inside of the `outputs` folder
-    
 
-    > [!IMPORTANT]
-    > Deployment scripts can fail if your RPC has intermittent errors. Provided docker image does not handle these errors. You can safely re-execute the deployment script if the deployment fails.
+8. Wait for the process to complete and look for outputs inside of the `outputs` folder
 
-10.   **SAVE** the generated deployment artifacts
-    
-      - `deploy.log` is a log of the deployment process
-      - `deployments.json` includes the newly deployed contract addresses
-      - `bundle.json` is the finalization transaction bundle
-      - `validation.txt` is used for Tenderly state diff validation
+> [!IMPORTANT]
+> Deployment scripts can fail if your RPC has intermittent errors. Provided docker image does not handle these errors. You can safely re-execute the deployment script if the deployment fails.
+
+9. **SAVE** the generated deployment artifacts
+    - `deploy.log` is a log of the deployment process
+    - `deployments.json` includes the newly deployed contract addresses
+    - `bundle.json` is the finalization transaction bundle
+    - `validation.txt` is used for Tenderly state diff validation
 
 ## Simulate finalization transaction
 
 Before running the `op-proposer` and `op-challenger`, it is recommended to simulate and validate the upgrade finalization transaction. The `bundle.json` file that you generated in the previous step contains an transaction bundle that is compatible with the Safe web application’s Transaction Builder feature. You can use this feature alongside `validation.txt` to verify the correctness of `bundle.json`.
 
-**Creating a Tenderly Simulation**
+### Creating a Tenderly Simulation
 
 1. Open the Safe web app (app.safe.global)
-    
-    > [!NOTE]
-    > The Safe web app may not be able to import these JSON files on Firefox. Chrome and other Chromium-based browsers appear to function correctly.
-    
+
+> [!NOTE]
+> The Safe web app may not be able to import these JSON files on Firefox. Chrome and other Chromium-based browsers appear to function correctly.
+
 2. Open the relevant Safe smart wallet
 3. Click the `New transaction` button
 4. Choose `Transaction Builder`
 5. Look for `Drag and drop a JSON file or choose a file` and click `choose a file`
 6. Open `bundle.json`
-    
-    > [!NOTE]
-    > You may see a warning when opening this file that says something along the lines of “This batch contains some changed properties since you saved or downloaded it”. You can safely ignore this warning.
-    
+
+> [!NOTE]
+> You may see a warning when opening this file that says something along the lines of “This batch contains some changed properties since you saved or downloaded it”. You can safely ignore this warning.
+
 7. Click `Create Batch`
 8. Click `Simulate`
 9. Find and open the link to the generated Tenderly simulation
@@ -289,7 +268,7 @@ Before running the `op-proposer` and `op-challenger`, it is recommended to simul
 11. Compare the changes in the `State` tab to the contents of `validation.txt`
 12. Do **NOT** execute the bundle in the Safe app yet
 
-**Using the validation file**
+### Using the validation file
 
 `validation.txt` contains a list of state changes that you should observe when executing your transaction bundle. It has been designed to mirror the structure of the `State` tab in Tenderly. For each state change in the Tenderly State tab, make sure that the change is also present inside of `validation.txt`. ALL changes inside of the `State` tab should be present inside of the `validation.txt` file EXCEPT for changes to account nonces. Please notify OP Labs if you see any other state changes inside of the `State` tab that are not present in `validation.txt`.
 
@@ -297,30 +276,30 @@ Before running the `op-proposer` and `op-challenger`, it is recommended to simul
 
 You can safely run an instance of `op-proposer` and `op-challenger` after you’ve deployed the contracts for the `op-contracts/v1.6.0` upgrade and validated the upgrade bundle. It is not necessary to shut down your existing `op-proposer` instance. Once the upgrade finalization transaction is executed, the system will seamlessly transition from the `op-contracts/v1.3.0` contracts to the `op-contracts/v1.6.0` contracts.
 
-**Running a proposer**
+### Running a proposer
 
 Refer to the [Releases page](https://github.com/ethereum-optimism/optimism/releases) on the Optimism Monorepo to determine the latest OP Stack release that you should be using.
 
 `op-proposer` has already been updated to support `op-contracts/v1.6.0` if you are using the latest governance-approved version of the OP Stack. You can safely run an instance of `op-proposer` for `op-contracts/v1.6.0` in parallel with your current production instance.
 
-**Configuration**
+#### Configuration
 
 You can generally use the same configuration that you currently use for `op-proposer` with the following modifications:
 
 - `L2OOAddressFlag`
-    - `--l2oo-address, L2OO_ADDRESS`
-    - Must be empty
+  - `--l2oo-address, L2OO_ADDRESS`
+  - Must be empty
 - `DisputeGameFactoryAddressFlag`
-    - `--game-factory-address, GAME_FACTORY_ADDRESS`
-    - Must be set to the address of the `DisputeGameFactoryProxy` contract
+  - `--game-factory-address, GAME_FACTORY_ADDRESS`
+  - Must be set to the address of the `DisputeGameFactoryProxy` contract
 - `DisputeGameTypeFlag`
-    - `--game-type, GAME_TYPE`
-    - Must be set to `1`
+  - `--game-type, GAME_TYPE`
+  - Must be set to `1`
 - `ProposalIntervalFlag`
-    - `--proposal-interval, PROPOSAL_INTERVAL`
-    - Recommend setting this to `1h`
+  - `--proposal-interval, PROPOSAL_INTERVAL`
+  - Recommend setting this to `1h`
 
-**Running a challenger**
+### Running a challenger
 
 Refer to the [Releases page](https://github.com/ethereum-optimism/optimism/releases) on the Optimism Monorepo to determine the latest OP Stack release that you should be using.
 
@@ -329,28 +308,28 @@ Refer to the [Releases page](https://github.com/ethereum-optimism/optimism/relea
 
 `op-challenger` is a service that participates in the dispute game process and challenges invalid proposals. The `op-challenger` will NOT have permission to post counterclaims in the permissioned games as the EOA account it uses is not the CHALLENGER role. Under this permissioned setup, the `op-challenger` primarily serves to resolve dispute games on behalf of the proposer and can act as additional monitoring. Refer to [the Optimism Developer Docs](https://docs.optimism.io/builders/chain-operators/tools/op-challenger) for a detailed overview of how to run the `op-challenger`.
 
-**Configuration**
+#### Configuration
 
-For networks not in the [superchain-registry](https://github.com/ethereum-optimism/superchain-registry/blob/main/chainList.json) you need: 
+For networks not in the [superchain-registry](https://github.com/ethereum-optimism/superchain-registry/blob/main/chainList.json) you need:
 
 - `CannonRollupConfigFlag`
-    - `cannon-rollup-config, CANNON_ROLLUP_CONFIG`
-    - Rollup chain parameters (cannon trace type only)
+  - `cannon-rollup-config, CANNON_ROLLUP_CONFIG`
+  - Rollup chain parameters (cannon trace type only)
 - `CannonL2GenesisFlag`
-    - `cannon-l2-genesis, CANNON_L2_GENESIS`
-    - Path to the `op-geth` genesis file (cannon trace type only)
+  - `cannon-l2-genesis, CANNON_L2_GENESIS`
+  - Path to the `op-geth` genesis file (cannon trace type only)
 - `CannonPreStateFlag`
-    - `cannon-prestate, CANNON_PRESTATE`
-    - Path to absolute prestate to use when generating trace data (cannon trace type only)
-    - **Important details**
-        - This version of the op-program doesn’t account for chains recently added or not in the `superchan-registry`, but for permissioned games that is fine because it will never actually execute.
-        - The absolute prestate hash **for the contracts** must be set to `0x038512e02c4c3f7bdaec27d00edf55b7155e0905301e1a88083e4e0a6764d54c`. This is the same value as OP Mainnet because it should correspond to the latest version of the `op-program`. 
-        - **For the challenger**, the `--cannon-prestate` option is actually a file path to the preimage of that state commitment. For the permissioned game it isn't actually loaded and can be set to anything even if the file doesn't exist.
-        - The simplest option for the permissioned game, given it won’t be used for execution, is to specify a static file and omit the `CANNON_PRESTATES_URL` option. The local file doesn’t even need to exist.
-        - The `PRESTATES_URL` version is needed when moving to the permissionless game so that the challenger can download the particular prestate that matches the dispute game it needs to act on (games may have different prestates because of upgrades). When using the URL version challenger needs to find a file to download from the URL even for the permissioned game.
+  - `cannon-prestate, CANNON_PRESTATE`
+  - Path to absolute prestate to use when generating trace data (cannon trace type only)
+  - **Important details**
+    - This version of the op-program doesn’t account for chains recently added or not in the `superchan-registry`, but for permissioned games that is fine because it will never actually execute.
+    - The absolute prestate hash **for the contracts** must be set to `0x038512e02c4c3f7bdaec27d00edf55b7155e0905301e1a88083e4e0a6764d54c`. This is the same value as OP Mainnet because it should correspond to the latest version of the `op-program`. 
+    - **For the challenger**, the `--cannon-prestate` option is actually a file path to the preimage of that state commitment. For the permissioned game it isn't actually loaded and can be set to anything even if the file doesn't exist.
+    - The simplest option for the permissioned game, given it won’t be used for execution, is to specify a static file and omit the `CANNON_PRESTATES_URL` option. The local file doesn’t even need to exist.
+    - The `PRESTATES_URL` version is needed when moving to the permissionless game so that the challenger can download the particular prestate that matches the dispute game it needs to act on (games may have different prestates because of upgrades). When using the URL version challenger needs to find a file to download from the URL even for the permissioned game.
 - `TraceTypeFlag`
-    - `trace-type`, `TRACE_TYPE`
-    - Set this to `permissioned` so the challenger will act on permissioned games. The default is to act on permissionless (cannon) games.
+  - `trace-type`, `TRACE_TYPE`
+  - Set this to `permissioned` so the challenger will act on permissioned games. The default is to act on permissionless (cannon) games.
 
 ## Running a dispute monitor
 
@@ -358,22 +337,22 @@ Refer to the [Releases page](https://github.com/ethereum-optimism/optimism/relea
 
 `op-dispute-mon` is a service that monitors the status of the dispute games created by the `DisputeGameFactory`. `op-dispute-mon` is the primary monitoring tool that chain operators can use to verify that dispute games are resolving correctly. Refer to the `op-dispute-mon` [README](https://github.com/ethereum-optimism/optimism/blob/develop/op-dispute-mon/README.md) for a basic overview of the service.
 
-**Configuration**
+### Configuration
 
 You will need to set the following flags for `op-dispute-mon` at a minimum:
 
 - `L1EthRpcFlag`
-    - `--l1-eth-rpc, L1_ETH_RPC`
-    - RPC URL for a reliable and trusted L1 node
+  - `--l1-eth-rpc, L1_ETH_RPC`
+  - RPC URL for a reliable and trusted L1 node
 - `RollupRpcFlag`
-    - `--rollup-rpc, ROLLUP_RPC`
-    - RPC URL for a reliable and trusted L2 rollup node (`op-node`)
+  - `--rollup-rpc, ROLLUP_RPC`
+  - RPC URL for a reliable and trusted L2 rollup node (`op-node`)
 - `GameFactoryAddressFlag`
-    - `--game-factory-address, GAME_FACTORY_ADDRESS`
-    - Address of the `DisputeGameFactoryProxy`
+  - `--game-factory-address, GAME_FACTORY_ADDRESS`
+  - Address of the `DisputeGameFactoryProxy`
 - `HonestActorsFlag`
-    - `--honest-actors, HONEST_ACTORS_FLAG`
-    - Ensure that the address of the `Proposer` is included in this list
+  - `--honest-actors, HONEST_ACTORS_FLAG`
+  - Ensure that the address of the `Proposer` is included in this list
 
 ## Executing the finalization transaction
 
@@ -385,7 +364,8 @@ You should have generated a JSON file called `bundle.json` when you deployed the
 ## Updating the superchain-registry
 
 If your chain is in the [superchain-registry](https://github.com/ethereum-optimism/superchain-registry/tree/main), make sure to open a PR to update the chain information. You do that by:
+
 1. Updating your chain's toml file in the superchain-registry with the new fault proof contract addresses
-    - You can use OP Mainnet as a model
+  - You can use OP Mainnet as a model
 1. Then run `just codegen` to propagate these changes to the autogenerated files.
 1. Open a PR to get these updates merged into the Superchain Regsitry

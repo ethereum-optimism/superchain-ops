@@ -5,8 +5,8 @@ import {
 } from "@eth-optimism-bedrock/src/safe/DeputyGuardianModule.sol";
 import {LibGameType} from "@eth-optimism-bedrock/src/dispute/lib/LibUDT.sol";
 
-import {MultisigTask} from "src/fps/task/MultisigTask.sol";
-import {AddressRegistry as Addresses} from "src/fps/AddressRegistry.sol";
+import {MultisigTask} from "src/improvements/task/MultisigTask.sol";
+import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
 
 /// @title SetGameTypeTemplate
 /// @notice Template contract for setting game types in the Optimism system

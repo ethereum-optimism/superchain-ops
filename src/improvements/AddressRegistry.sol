@@ -5,8 +5,7 @@ import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet
 
 import {Test} from "forge-std/Test.sol";
 
-import {IAddressRegistry} from "src/fps/IAddressRegistry.sol";
-import {SUPERCHAIN_REGISTRY_PATH} from "src/fps/utils/Constants.sol";
+import {IAddressRegistry} from "src/improvements/IAddressRegistry.sol";
 
 /// @title Network Address Manager
 /// @notice This contract provides a single source of truth for storing and retrieving addresses across multiple networks.
@@ -66,10 +65,17 @@ contract AddressRegistry is IAddressRegistry, Test {
             revert(string.concat("Failed to parse network config file path: ", networkConfigFilePath));
         }
 
-        chains = abi.decode(chainListContent, (ChainInfo[]));
+        // Cannot assign the abi.decode result to `chains` directly because it's a storage array, so
+        // compiling without via-ir will fail with:
+        //    Unimplemented feature (/solidity/libsolidity/codegen/ArrayUtils.cpp:228):Copying of type struct AddressRegistry.ChainInfo memory[] memory to storage not yet supported.
+        ChainInfo[] memory _chains = abi.decode(chainListContent, (ChainInfo[]));
+        for (uint256 i = 0; i < _chains.length; i++) {
+            chains.push(_chains[i]);
+        }
 
         /// should never revert
-        string memory chainAddressesContent = vm.readFile(SUPERCHAIN_REGISTRY_PATH);
+        string memory chainAddressesContent =
+            vm.readFile("lib/superchain-registry/superchain/extra/addresses/addresses.json");
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
