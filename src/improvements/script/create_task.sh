@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 create_task() {
+    echo ""
     PS3="Select network: "
     select network in eth sep oeth sep-dev-0 "Other (specify)"; do
         case $network in
@@ -15,6 +16,7 @@ create_task() {
         break
     done
 
+    echo ""
     mapfile -t templates < <(ls -1 template/)
     PS3="Select template name: "
     select template in "${templates[@]}"; do
@@ -31,6 +33,7 @@ create_task() {
     done
 
     existing_dirs=$(find "tasks/$network" -maxdepth 1 -type d 2>/dev/null | sort)
+    echo ""
     echo "Existing directories: " 
     echo "${existing_dirs//$'\n'/$'\n  '}"
 
