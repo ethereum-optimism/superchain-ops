@@ -1,8 +1,9 @@
 pragma solidity 0.8.15;
 
-import {Script} from "lib/forge-std/src/Script.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {Script} from "forge-std/Script.sol";
+
 import {ITask} from "src/improvements/task/ITask.sol";
-import {Strings} from "lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 
 contract Runner is Script {
     using Strings for uint256;
