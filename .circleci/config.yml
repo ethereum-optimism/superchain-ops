@@ -295,17 +295,8 @@ jobs:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - checkout-with-mise
-      - run:
-          name: just simulate sep/soneium-minato-001-key-handover
-          command: |
-            go install github.com/mikefarah/yq/v4@latest
-            just install
-            cd tasks/sep/soneium-minato-001-key-handover
-            export SIMULATE_WITHOUT_LEDGER=1
-            just \
-            --dotenv-path $(pwd)/.env \
-            --justfile ../../../single.just \
-            simulate
+      - simulate:
+          task: "/sep/soneium-minato-001-key-handover"
 
   forge_build:
     docker:
