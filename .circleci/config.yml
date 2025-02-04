@@ -324,6 +324,7 @@ jobs:
           command: |
             forge --version
             forge test -vvv
+
   monorepo_integration_test:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
