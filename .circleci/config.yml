@@ -348,6 +348,7 @@ workflows:
       - forge_build
       - forge_fmt
       - forge_test
+      - shellcheck
       # RPC endpoint checks.
       - check_sepolia_rpc_endpoints
       - check_mainnet_rpc_endpoints
