@@ -18,6 +18,10 @@ create_task() {
 
     echo ""
     mapfile -t templates < <(ls -1 template/)
+    for i in "${!templates[@]}"; do
+        templates["$i"]="${templates[$i]%.sol}"
+    done
+
     PS3="Select template name: "
     select template in "${templates[@]}"; do
         case $template in
@@ -67,9 +71,12 @@ create_task() {
         fi
     done
 
-    mkdir -p "tasks/${network}/${dirname}"
-    config_path="tasks/${network}/${dirname}/config.toml"
-    echo "template = \"${template}\"" > "${config_path}"
+    task_path="tasks/${network}/${dirname}"
+    mkdir -p "$task_path"
+    config_path="$task_path/config.toml"
+    readme_path="$task_path/README.md" # TODO: Each template should have a README.md
+    echo "templateName = \"${template%.sol}\"" > "${config_path}"
+    echo "# ${dirname}" > "${readme_path}"
     echo "Created task directory '${dirname}' for network: ${network}"
 }
 
