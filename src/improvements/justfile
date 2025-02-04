@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 # Create a new template or task
 # e.g. just new [template|task]
 new TYPE:

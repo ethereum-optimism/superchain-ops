@@ -336,9 +336,8 @@ jobs:
       - checkout-with-mise
       - run:
           name: shellcheck
-          command: |
+          command: | # Justfiles are not shell scripts and should not be checked with shellcheck
             find src/improvements/script -type f -name "*.sh" | xargs shellcheck
-            shellcheck src/improvements/justfile
 
 workflows:
   main:
