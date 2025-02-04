@@ -329,6 +329,17 @@ jobs:
             yq --version
             forge --version
 
+  shellcheck:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - checkout-with-mise
+      - run:
+          name: shellcheck
+          command: |
+            find src/improvements/script -type f -name "*.sh" | xargs shellcheck
+            shellcheck src/improvements/justfile
+
 workflows:
   main:
     jobs:
