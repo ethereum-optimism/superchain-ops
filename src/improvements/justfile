@@ -1,11 +1,31 @@
 # Create a new template or task
 # e.g. just new [template|task]
-new TYPE:
+new COMMAND="":
     #!/usr/bin/env bash
-    set -e
+    set -euo pipefail
+    
+    echo -e "\033[42m                          \033[0m"
+    echo -e "\033[42m    superchain-ops cli    \033[0m"
+    echo -e "\033[42m                          \033[0m"
+
+    show_usage() {
+        echo
+        echo "Usage: just new [template|task]"
+        echo "Available commands:"
+        echo "  • template  - Create a new template"
+        echo "  • task      - Create a new task"
+        echo
+    }
+    
+    # shellcheck disable=SC2050
+    if [ "{{COMMAND}}" = "" ]; then
+        echo -e "\n\033[31m❌ Error: No command specified\033[0m"
+        show_usage
+        exit 1
+    fi
     
     # shellcheck disable=SC2194
-    case "{{TYPE}}" in
+    case "{{COMMAND}}" in
         template)
             ./script/create_template.sh
             ;;
@@ -13,8 +33,8 @@ new TYPE:
             ./script/create_task.sh
             ;;
         *)
-            echo "Invalid type: {{TYPE}}"
-            echo "Usage: just new [template|task]"
+            echo -e "\n\033[31m❌ Error: Invalid command '{{COMMAND}}'\033[0m"
+            show_usage
             exit 1
             ;;
     esac
