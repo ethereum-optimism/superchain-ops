@@ -292,9 +292,9 @@ jobs:
 
   just_simulate_sep-soneium-minato-001-key-handover:
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - checkout-with-mise
       - run:
           name: just simulate sep/soneium-minato-001-key-handover
           command: |
