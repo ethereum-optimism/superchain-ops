@@ -157,6 +157,10 @@ abstract contract MultisigTask is Test, Script, ITask {
         print();
     }
 
+    /// @notice Executes the task with the given configuration file path and signatures.
+    /// Sets the address registry, initializes and executes the task.
+    /// @param taskConfigFilePath The path to the task configuration file.
+    /// @param signatures The signatures to execute the task.
     function run(string memory taskConfigFilePath, bytes memory signatures) public {
         _taskSetup(taskConfigFilePath);
         /// now execute task actions
@@ -165,6 +169,8 @@ abstract contract MultisigTask is Test, Script, ITask {
         validate();
     }
 
+    /// @notice Sets the address registry, initializes the task.
+    /// @param taskConfigFilePath The path to the task configuration file.
     function _taskSetup(string memory taskConfigFilePath) internal {
         Addresses _addresses = new Addresses(taskConfigFilePath);
 
@@ -261,6 +267,7 @@ abstract contract MultisigTask is Test, Script, ITask {
 
     /// @notice print the data to sig by EOA for single multisig
     function printDataToSign() public view {
+        // logs required for using eip712sign binary to sign the data to sign with Ledger
         console.log("vvvvvvvv");
         console.logBytes(getDataToSign(multisig, getCalldata()));
         console.log("^^^^^^^^\n");
@@ -330,6 +337,8 @@ abstract contract MultisigTask is Test, Script, ITask {
         require(success, "MultisigTask: simulateActions failed");
     }
 
+    /// @notice Executes the task with the given signatures.
+    /// @param signatures The signatures to execute the task.
     function execute(bytes memory signatures) public {
         bytes memory data = getCalldata();
         bytes32 hash = getHash();
