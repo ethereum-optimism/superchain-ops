@@ -1,4 +1,4 @@
-# Mainnet - Gas Target Increase
+# Mainnet - Upgrade DisputeGameFactory Logic Contract
 
 Status: [DRAFT]()
 
