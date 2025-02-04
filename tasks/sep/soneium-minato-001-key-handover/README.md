@@ -1,6 +1,6 @@
 # Soneium Minato Sepolia's Key Handover Upgrade
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x22779d95be4a2578bf50c388e0be577bff7124a8f2dc55be3b6c5a1dcfcb0565)
 
 ## Objective
 
