@@ -148,7 +148,24 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @notice Runs the task with the given configuration file path.
     /// Sets the address registry, initializes and simulates the task.
     /// @param taskConfigFilePath The path to the task configuration file.
-    function run(string memory taskConfigFilePath) public override {
+    function run(string memory taskConfigFilePath) public {
+        _taskSetup(taskConfigFilePath);
+        /// now execute task actions
+        build();
+        simulate();
+        validate();
+        print();
+    }
+
+    function run(string memory taskConfigFilePath, bytes memory signatures) public {
+        _taskSetup(taskConfigFilePath);
+        /// now execute task actions
+        build();
+        execute(signatures);
+        validate();
+    }
+
+    function _taskSetup(string memory taskConfigFilePath) internal {
         Addresses _addresses = new Addresses(taskConfigFilePath);
 
         _templateSetup(taskConfigFilePath);
@@ -217,12 +234,6 @@ abstract contract MultisigTask is Test, Script, ITask {
                 );
             }
         }
-
-        /// now execute task actions
-        build();
-        simulate();
-        validate();
-        print();
     }
 
     /// @notice abstract function to be implemented by the inheriting contract to setup the template
@@ -250,7 +261,9 @@ abstract contract MultisigTask is Test, Script, ITask {
 
     /// @notice print the data to sig by EOA for single multisig
     function printDataToSign() public view {
+        console.log("vvvvvvvv");
         console.logBytes(getDataToSign(multisig, getCalldata()));
+        console.log("^^^^^^^^\n");
     }
 
     /// @notice print the hash to approve by EOA for single multisig
@@ -315,6 +328,28 @@ abstract contract MultisigTask is Test, Script, ITask {
         );
 
         require(success, "MultisigTask: simulateActions failed");
+    }
+
+    function execute(bytes memory signatures) public {
+        bytes memory data = getCalldata();
+        bytes32 hash = getHash();
+
+        signatures = Signatures.prepareSignatures(multisig, hash, signatures);
+
+        (bool success) = IGnosisSafe(multisig).execTransaction(
+            MULTICALL3_ADDRESS,
+            0,
+            data,
+            Enum.Operation.DelegateCall,
+            0,
+            0,
+            0,
+            address(0),
+            payable(address(0)),
+            signatures
+        );
+
+        require(success, "MultisigTask: execute failed");
     }
 
     /// @notice returns the allowed storage accesses
