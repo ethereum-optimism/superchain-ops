@@ -1,4 +1,4 @@
-# Mainnet - Gas Target Increase
+# Mainnet - Set Dispute Game Implementation 
 
 Status: [DRAFT]()
 
