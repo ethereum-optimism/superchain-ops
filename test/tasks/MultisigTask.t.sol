@@ -6,16 +6,16 @@ import {Test} from "forge-std/Test.sol";
 
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
-import {MockTarget} from "test/task/mock/MockTarget.sol";
+import {MockTarget} from "test/tasks/mock/MockTarget.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
-import {MockMultisigTask} from "test/task/mock/MockMultisigTask.sol";
+import {MockMultisigTask} from "test/tasks/mock/MockMultisigTask.sol";
 
 contract MultisigTaskUnitTest is Test {
     AddressRegistry public addresses;
     MultisigTask public task;
 
-    string constant MAINNET_CONFIG = "./test/task/mock/example/task-03/config.toml";
+    string constant MAINNET_CONFIG = "./test/tasks/mock/example/task-03/config.toml";
 
     /// @notice variables that store the storage offset of different variables in the MultisigTask contract
 
@@ -52,7 +52,7 @@ contract MultisigTaskUnitTest is Test {
 
     function testRunFailsNoNetworks() public {
         vm.expectRevert("MultisigTask: no chains found");
-        task.run("./test/task/mock/invalidNetworkConfig.toml");
+        task.run("./test/tasks/mock/invalidNetworkConfig.toml");
     }
 
     function testRunFailsEmptyActions() public {
