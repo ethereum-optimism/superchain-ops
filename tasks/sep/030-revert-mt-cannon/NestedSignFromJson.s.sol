@@ -40,6 +40,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
     function setUp() public {
         dgfProxy = DisputeGameFactory(systemConfig.disputeGameFactory());
+        _precheckDisputeGameImplementation(GameType.wrap(0), 0xF3CcF0C4b51D42cFe6073F0278c19A8D1900e856);
+        _precheckDisputeGameImplementation(GameType.wrap(1), 0xbbDBdfe37C02439764dE0e41C906e4396B5B3914);
         // INSERT NEW PRE CHECKS HERE
     }
 
@@ -90,7 +92,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
             return;
         }
         FaultDisputeGame faultDisputeGame = FaultDisputeGame(_newImpl);
-        require(address(currentImpl.vm()) == address(faultDisputeGame.vm()), "10");
+        require(address(0x69470D6970Cd2A006b84B1d4d70179c892cFCE01) == address(faultDisputeGame.vm()), "10");
         require(address(currentImpl.weth()) == address(faultDisputeGame.weth()), "20");
         require(address(currentImpl.anchorStateRegistry()) == address(faultDisputeGame.anchorStateRegistry()), "30");
         require(currentImpl.l2ChainId() == faultDisputeGame.l2ChainId(), "40");
@@ -144,6 +146,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         console.log("Running post-deploy assertions");
 
         checkStateDiff(accesses);
+        _checkDisputeGameImplementation(GameType.wrap(0), 0xF3CcF0C4b51D42cFe6073F0278c19A8D1900e856);
+        _checkDisputeGameImplementation(GameType.wrap(1), 0xbbDBdfe37C02439764dE0e41C906e4396B5B3914);
         // INSERT NEW POST CHECKS HERE
 
         console.log("All assertions passed!");
