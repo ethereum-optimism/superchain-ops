@@ -63,7 +63,7 @@ gasLimits = [
 5. Add template-specific configuration
 6. Test using the simulation tooling
 
-## Available Templates
+## Example Templates
 
 1. Gas Config Template (00)
    - Purpose: Set gas limits for L2 chains
