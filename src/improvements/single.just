@@ -2,7 +2,6 @@ set dotenv-load
 
 export rpcUrl := env_var('ETH_RPC_URL')
 export signatures := env_var_or_default('SIGNATURES', '')
-export configName := env_var_or_default('CONFIG_NAME', 'config')
 export taskPath := invocation_directory()
 export scriptPath := justfile_directory()
 export ownerSafe := env_var('OWNER_SAFE')
@@ -10,8 +9,8 @@ export scriptName := env_var('SCRIPT_NAME')
 
 simulate hdPath='0':
   #!/usr/bin/env bash
-  config=${taskPath}/${configName}.toml
-  script="${scriptPath}/template/${scriptName}.sol"
+  config=${taskPath}/config.toml
+  script=${scriptPath}/template/${scriptName}.sol
 
   echo "Using script ${script}"
   echo "Safe address: ${ownerSafe}"
@@ -33,8 +32,8 @@ simulate hdPath='0':
 
 sign hdPath='0':
   #!/usr/bin/env bash
-  config=${taskPath}/${configName}.toml
-  script="${scriptPath}/template/${scriptName}.sol"
+  config=${taskPath}/config.toml
+  script=${scriptPath}/template/${scriptName}.sol
 
   echo "Using script ${script}"
   echo "getting signer address..."
@@ -51,8 +50,8 @@ sign hdPath='0':
 
 execute hdPath='0':
   #!/usr/bin/env bash
-  config=${taskPath}/${configName}.toml
-  script="${scriptPath}/template/${scriptName}.sol"
+  config=${taskPath}/config.toml
+  script=${scriptPath}/template/${scriptName}.sol
   
   echo "Using script ${script}"
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
