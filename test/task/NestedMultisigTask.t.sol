@@ -205,6 +205,8 @@ contract NestedMultisigTaskTest is Test {
 
         /// no offchain signatures for the parent multisig
         bytes memory packedSignaturesParent;
+
+        /// execute the task
         multisigTask = new DisputeGameUpgradeTemplate();
         multisigTask.run(taskConfigFilePath, packedSignaturesParent);
 

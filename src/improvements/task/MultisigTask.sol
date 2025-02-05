@@ -172,6 +172,11 @@ abstract contract MultisigTask is Test, Script, ITask {
         validate();
     }
 
+    /// @notice Sets up the task and then the nested multisig approves the task
+    /// transaction hash to be executed.
+    /// @param taskConfigFilePath The path to the task configuration file.
+    /// @param approvingMultisig The address of the nested multisig that is approving the task.
+    /// @param signatures The signatures to approve the task transaction hash.
     function run(string memory taskConfigFilePath, address approvingMultisig, bytes memory signatures) public {
         _taskSetup(taskConfigFilePath);
         build();
@@ -356,6 +361,9 @@ abstract contract MultisigTask is Test, Script, ITask {
         require(success, "MultisigTask: simulateActions failed");
     }
 
+    /// @notice nested multisig approves the task to be executed.
+    /// @param approvingMultisig The address of the nested multisig that is approving the task.
+    /// @param signatures The signatures to approve the task transaction hash.
     function approve(address approvingMultisig, bytes memory signatures) public {
         bytes memory approveCalldata = generateApproveMulticallData();
         bytes32 hash = keccak256(getDataToSign(approvingMultisig, approveCalldata));
@@ -594,6 +602,7 @@ abstract contract MultisigTask is Test, Script, ITask {
 
         if (nestedMultisig != address(0)) {
             console.log("Nested multisig: %s", getAddressLabel(nestedMultisig));
+            // logs required for using eip712sign binary to sign the data to sign with Ledger
             console.log("vvvvvvvv");
             console.logBytes(getDataToSign(nestedMultisig, callData));
             console.log("^^^^^^^^\n");
@@ -621,6 +630,7 @@ abstract contract MultisigTask is Test, Script, ITask {
         }
     }
 
+    /// @notice print the tenderly simulation link with the state overrides
     function printTenderlySimulationLink() internal view {
         Simulation.StateOverride[] memory overrides = new Simulation.StateOverride[](1);
         overrides[0] = Simulation.overrideSafeThresholdOwnerAndNonce(multisig, msg.sender, _getNonce(multisig));
