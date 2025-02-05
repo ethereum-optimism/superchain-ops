@@ -55,7 +55,7 @@ gasLimits = [
 
 ## Creating a New Task Using Templates
 
-TBD once tooling lands
+TBD once justfile scaffolding tooling lands
 
 ## Example Templates
 
@@ -65,7 +65,9 @@ TBD once tooling lands
    - Example:
      ```toml
      l2chains = [{name = "Orderly", chainId = 291}, {name = "Metal", chainId = 1750}]
-     
+
+      templateName = "GasConfigTemplate"
+
      [gasConfigs]
      gasLimits = [
          {chainId = 291, gasLimit = 100000000},
