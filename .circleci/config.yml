@@ -324,6 +324,19 @@ jobs:
           command: |
             forge --version
             forge test -vvv
+  
+  monorepo_integration_test:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - checkout-with-mise
+      - run:
+          name: monorepo integration tests
+          command: |
+            forge build
+            forge script test/task/mock/example/Runner.sol:Runner --sig "run(string)" lib/optimism/packages/contracts-bedrock/allocs.json --rpc-url $ETH_RPC_URL --ffi
+            export SUPERCHAIN_OPS_ALLOCS_PATH=./allocs.json
+            cd lib/optimism/packages/contracts-bedrock/ && just test-upgrade
 
   print_versions:
     docker:
@@ -345,6 +358,7 @@ workflows:
       - forge_build
       - forge_fmt
       - forge_test
+      - monorepo_integration_test
       # RPC endpoint checks.
       - check_sepolia_rpc_endpoints
       - check_mainnet_rpc_endpoints
