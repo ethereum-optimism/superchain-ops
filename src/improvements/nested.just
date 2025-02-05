@@ -49,7 +49,7 @@ simulate whichSafe hdPath='0':
   forge script ${script} \
     --rpc-url ${rpcUrl} \
     --sender ${signer} \
-    --sig "run(string,address)" \
+    --sig "runChildMultisigSign(string,address)" \
     ${config} \
     ${safe}
 
@@ -84,7 +84,7 @@ sign whichSafe hdPath='0':
   $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
   forge script ${script} \
     --rpc-url ${rpcUrl} \
-    --sig "run(string,address)" \
+    --sig "runChildMultisigSign(string,address)" \
     ${config} \
     "${safe}"
 
@@ -117,7 +117,44 @@ approve whichSafe hdPath='0':
     --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
     --broadcast \
     --sender ${sender} \
-    --sig "run(string,address,bytes)" \
+    --sig "runChildMultisigApprove(string,address,bytes)" \
+    ${config} \
+    ${safe} \
+    ${signatures}
+
+simulate-approve whichSafe hdPath='0':
+  #!/usr/bin/env bash
+  config=${taskPath}/config.toml
+  script=${scriptPath}/template/${scriptName}.sol
+
+  echo "Using script ${script}"
+  if [ "{{whichSafe}}" == "foundation" ]; then
+    safe="{{foundationSafe}}"
+    echo "Using foundation safe at ${safe}"
+  fi
+  if [ "{{whichSafe}}" == "council" ]; then
+    safe="{{councilSafe}}"
+    echo "Using council safe at ${safe}"
+  fi
+  if [ "{{whichSafe}}" == "chain-governor" ]; then
+    if [ -z "{{chainGovernorSafe}}" ]; then
+      echo "Error: CHAIN_GOVERNOR_SAFE is not set for chain-governor." >&2
+      exit 1
+    fi
+    safe="{{chainGovernorSafe}}"
+  fi
+
+  if [ ! -z "$SIMULATE_WITHOUT_LEDGER" ]; then
+    sender=$(cast call ${safe} "getOwners()(address[])" -r ${rpcUrl} | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
+  else
+    sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  fi
+
+  forge build
+  forge script ${script} \
+    --fork-url ${rpcUrl} \
+    --sender ${sender} \
+    --sig "runChildMultisigApprove(string,address,bytes)" \
     ${config} \
     ${safe} \
     ${signatures}
@@ -136,7 +173,7 @@ execute hdPath='0':
     --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
     --broadcast \
     --sender ${sender} \
-    --sig "run(string,bytes)" \
+    --sig "runExecute(string,bytes)" \
     ${config} \
     "0x"
 
@@ -151,6 +188,6 @@ simulated-run hdPath='0':
   forge script ${script} \
     --fork-url ${rpcUrl} \
     --sender ${randomPersonEoa} \
-    --sig "run(string,bytes)" \
+    --sig "runExecute(string,bytes)" \
     ${config} \
     "0x"

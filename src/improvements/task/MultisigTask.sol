@@ -122,8 +122,8 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @notice flag to determine if the task is being simulated
     bool private _buildStarted;
 
-    /// @notice The address of the nested multisig for this task
-    address public nestedMultisig;
+    /// @notice The address of the child multisig for this task
+    address public childMultisig;
 
     /// @notice buildModifier to be used by the build function to populate the
     /// actions array
@@ -149,9 +149,12 @@ abstract contract MultisigTask is Test, Script, ITask {
     function _taskStorageWrites() internal pure virtual returns (string[] memory);
 
     /// @notice Runs the task with the given configuration file path.
-    /// Sets the address registry, initializes and simulates the task.
+    /// Sets the address registry, initializes and simulates the single multisig
+    /// as well as the nested multisig. For single multisig,
+    /// prints the data to sign and the hash to approve which is used to sign with the eip712sign binary.
+    /// For nested multisig, prints the data to sign and the hash to approve for each of the child multisigs.
     /// @param taskConfigFilePath The path to the task configuration file.
-    function run(string memory taskConfigFilePath) public override {
+    function runSimulate(string memory taskConfigFilePath) public override {
         _taskSetup(taskConfigFilePath);
         /// now execute task actions
         build();
@@ -161,10 +164,11 @@ abstract contract MultisigTask is Test, Script, ITask {
     }
 
     /// @notice Executes the task with the given configuration file path and signatures.
-    /// Sets the address registry, initializes and executes the task.
+    /// Sets the address registry, initializes and executes the task the single multisig
+    /// as well as the nested multisig.
     /// @param taskConfigFilePath The path to the task configuration file.
     /// @param signatures The signatures to execute the task.
-    function run(string memory taskConfigFilePath, bytes memory signatures) public {
+    function runExecute(string memory taskConfigFilePath, bytes memory signatures) public {
         _taskSetup(taskConfigFilePath);
         /// now execute task actions
         build();
@@ -172,24 +176,27 @@ abstract contract MultisigTask is Test, Script, ITask {
         validate();
     }
 
-    /// @notice Sets up the task and then the nested multisig approves the task
-    /// transaction hash to be executed.
+    /// @notice Child multisig of a nested multisig approves the task to be executed with the given
+    /// configuration file path and signatures.
     /// @param taskConfigFilePath The path to the task configuration file.
-    /// @param approvingMultisig The address of the nested multisig that is approving the task.
+    /// @param _childMultisig The address of the child multisig that is approving the task.
     /// @param signatures The signatures to approve the task transaction hash.
-    function run(string memory taskConfigFilePath, address approvingMultisig, bytes memory signatures) public {
+    function runChildMultisigApprove(string memory taskConfigFilePath, address _childMultisig, bytes memory signatures)
+        public
+    {
         _taskSetup(taskConfigFilePath);
         build();
-        approve(approvingMultisig, signatures);
+        approve(_childMultisig, signatures);
     }
 
-    /// @notice For nested tasks it runs and simulates the task with the given
-    /// configuration file path and the specified nested multisig.
+    /// @notice Simulates a nested multisig task with the given configuration file path for a
+    /// given child multisig. Prints the data to sign and the hash to approve corresponding to
+    /// the _childMultisig, printed data to sign is used to sign with the eip712sign binary.
     /// @param taskConfigFilePath The path to the task configuration file.
-    /// @param _nestedMultisig The address of the nested multisig.
-    function run(string memory taskConfigFilePath, address _nestedMultisig) public {
-        nestedMultisig = _nestedMultisig;
-        run(taskConfigFilePath);
+    /// @param _childMultisig The address of the child multisig.
+    function runChildMultisigSign(string memory taskConfigFilePath, address _childMultisig) public {
+        childMultisig = _childMultisig;
+        runSimulate(taskConfigFilePath);
         require(isNestedSafe, "MultisigTask: multisig must be nested");
     }
 
@@ -361,15 +368,15 @@ abstract contract MultisigTask is Test, Script, ITask {
         require(success, "MultisigTask: simulateActions failed");
     }
 
-    /// @notice nested multisig approves the task to be executed.
-    /// @param approvingMultisig The address of the nested multisig that is approving the task.
+    /// @notice child multisig approves the task to be executed.
+    /// @param _childMultisig The address of the child multisig that is approving the task.
     /// @param signatures The signatures to approve the task transaction hash.
-    function approve(address approvingMultisig, bytes memory signatures) public {
+    function approve(address _childMultisig, bytes memory signatures) public {
         bytes memory approveCalldata = generateApproveMulticallData();
-        bytes32 hash = keccak256(getDataToSign(approvingMultisig, approveCalldata));
-        signatures = Signatures.prepareSignatures(approvingMultisig, hash, signatures);
+        bytes32 hash = keccak256(getDataToSign(_childMultisig, approveCalldata));
+        signatures = Signatures.prepareSignatures(_childMultisig, hash, signatures);
 
-        bool success = IGnosisSafe(approvingMultisig).execTransaction(
+        bool success = IGnosisSafe(_childMultisig).execTransaction(
             MULTICALL3_ADDRESS,
             0,
             approveCalldata,
@@ -600,11 +607,11 @@ abstract contract MultisigTask is Test, Script, ITask {
     function printNestedDataToSign() public view {
         bytes memory callData = generateApproveMulticallData();
 
-        if (nestedMultisig != address(0)) {
-            console.log("Nested multisig: %s", getAddressLabel(nestedMultisig));
+        if (childMultisig != address(0)) {
+            console.log("Child multisig: %s", getAddressLabel(childMultisig));
             // logs required for using eip712sign binary to sign the data to sign with Ledger
             console.log("vvvvvvvv");
-            console.logBytes(getDataToSign(nestedMultisig, callData));
+            console.logBytes(getDataToSign(childMultisig, callData));
             console.log("^^^^^^^^\n");
         } else {
             for (uint256 i; i < startingOwners.length; i++) {
@@ -618,9 +625,9 @@ abstract contract MultisigTask is Test, Script, ITask {
     function printNestedHashToApprove() public view {
         bytes memory callData = generateApproveMulticallData();
 
-        if (nestedMultisig != address(0)) {
-            console.log("Nested multisig: %s", getAddressLabel(nestedMultisig));
-            console.logBytes32(keccak256(getDataToSign(nestedMultisig, callData)));
+        if (childMultisig != address(0)) {
+            console.log("Nested multisig: %s", getAddressLabel(childMultisig));
+            console.logBytes32(keccak256(getDataToSign(childMultisig, callData)));
         } else {
             for (uint256 i; i < startingOwners.length; i++) {
                 bytes32 hash = keccak256(getDataToSign(startingOwners[i], callData));

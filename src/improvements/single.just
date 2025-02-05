@@ -27,7 +27,7 @@ simulate hdPath='0':
   forge build
   forge script ${script} \
     --rpc-url ${rpcUrl} \
-    --sig "run(string)" ${config} \
+    --sig "runSimulate(string)" ${config} \
     --sender ${signer}
 
 sign hdPath='0':
@@ -46,7 +46,7 @@ sign hdPath='0':
   $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
   forge script ${script} \
     --rpc-url ${rpcUrl} \
-    --sig "run(string)" ${config}
+    --sig "runSimulate(string)" ${config}
 
 execute hdPath='0':
   #!/usr/bin/env bash
@@ -58,6 +58,6 @@ execute hdPath='0':
 
   forge build
   forge script --fork-url ${rpcUrl} ${script} \
-    --sig "run(string,bytes)" ${config} ${signatures} \
+    --sig "runExecute(string,bytes)" ${config} ${signatures} \
     --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
     --sender ${sender}
