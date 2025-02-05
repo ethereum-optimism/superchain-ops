@@ -390,12 +390,3 @@ workflows:
       - just_simulate_sc_rehearsal_4
       - just_simulate_ink_respected_game_type
       # sepolia
-
-  scheduled:
-    triggers:
-      - schedule: # Running CI on main every 4 hours
-          cron: "0 */4 * * *"
-          filters:
-            branches:
-              only:
-                - main
