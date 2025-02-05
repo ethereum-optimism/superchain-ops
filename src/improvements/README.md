@@ -91,17 +91,17 @@ forge script <template-path> --sig "run(string)" <config-directory-path>/config.
 
 #### Template 00 (Gas Config):
 ```bash
-forge script test/task/mock/example/template/GasConfigTemplate.sol --sig "run(string)" test/task/mock/example/task-00/config.toml --rpc-url mainnet -vvv
+forge script src/improvements/template/GasConfigTemplate.sol --sig "run(string)" test/task/mock/example/task-00/config.toml --rpc-url mainnet -vvv
 ```
 
 #### Template 01 (Dispute Game Upgrade):
 ```bash
-forge script test/task/mock/example/template/DisputeGameUpgradeTemplate.sol --sig "run(string)" test/task/mock/example/task-01/config.toml --rpc-url mainnet -vvv
+forge script src/improvements/template/DisputeGameUpgradeTemplate.sol --sig "run(string)" test/task/mock/example/task-01/config.toml --rpc-url mainnet -vvv
 ```
 
 #### Template 02 (Game Type):
 ```bash
-forge script test/task/mock/example/template/SetGameTypeTemplate.sol --sig "run(string)" test/task/mock/example/task-02/config.toml --rpc-url mainnet -vvv
+forge script src/improvements/template/SetGameTypeTemplate.sol --sig "run(string)" test/task/mock/example/task-02/config.toml --rpc-url mainnet -vvv
 ```
 
 ## Validation
