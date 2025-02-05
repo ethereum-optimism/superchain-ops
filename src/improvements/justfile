@@ -1,0 +1,66 @@
+# Create a new template or task
+# e.g. just new [template|task]
+new COMMAND="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    
+    echo -e "\033[42m                          \033[0m"
+    echo -e "\033[42m    superchain-ops cli    \033[0m"
+    echo -e "\033[42m                          \033[0m"
+
+    show_usage() {
+        echo
+        echo "Usage: just new [template|task]"
+        echo "Available commands:"
+        echo "  • template  - Create a new template"
+        echo "  • task      - Create a new task"
+        echo
+    }
+    
+    # shellcheck disable=SC2050
+    if [ "{{COMMAND}}" = "" ]; then
+        echo -e "\n\033[31mError: No command specified\033[0m"
+        show_usage
+        exit 1
+    fi
+    
+    # shellcheck disable=SC2194
+    case "{{COMMAND}}" in
+        template)
+            ./script/create-template.sh
+            ;;
+        task)    
+            ./script/create-task.sh
+            ;;
+        *)
+            echo -e "\n\033[31mError: Invalid command '{{COMMAND}}'\033[0m"
+            show_usage
+            exit 1
+            ;;
+    esac
+
+task COMMAND="" NETWORK="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    echo -e "\033[42m                          \033[0m"
+    echo -e "\033[42m    superchain-ops cli    \033[0m"
+    echo -e "\033[42m                          \033[0m"
+
+    if [ "{{COMMAND}}" = "" ]; then
+        echo -e "\n\033[31mError: No command specified\033[0m\n"
+        exit 1
+    fi
+
+    # shellcheck disable=SC2194
+    case "{{COMMAND}}" in
+        ls)
+            echo ""
+            ./script/sorted-tasks.sh {{NETWORK}}
+            ;;
+        *)
+            echo -e "\n\033[31mError: Invalid command '{{COMMAND}}'\033[0m\n"
+            exit 1
+            ;;
+    esac
+    
