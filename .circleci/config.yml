@@ -7,6 +7,9 @@ parameters:
   l1_mainnet_rpc_url:
     type: string
     default: "https://ci-mainnet-l1.optimism.io"
+  l1_mainnet_archive_rpc_url:
+    type: string
+    default: "https://ci-mainnet-l1-archive.optimism.io"
   l1_sepolia_rpc_url:
     type: string
     default: "https://ci-sepolia-l1.optimism.io"
@@ -327,7 +330,7 @@ jobs:
           name: monorepo integration tests
           command: |
             forge build
-            forge script test/Runner.sol:Runner --sig "run(string)" lib/optimism/packages/contracts-bedrock/allocs.json --rpc-url << pipeline.parameters.l1_mainnet_rpc_url >> --ffi
+            forge script test/Runner.sol:Runner --sig "run(string)" lib/optimism/packages/contracts-bedrock/allocs.json --rpc-url << pipeline.parameters.l1_mainnet_archive_rpc_url >> --ffi
             export SUPERCHAIN_OPS_ALLOCS_PATH=./allocs.json
             cd lib/optimism/packages/contracts-bedrock/ && just test-upgrade
 
