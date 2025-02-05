@@ -52,7 +52,7 @@ contract MultisigTaskUnitTest is Test {
 
     function testRunFailsNoNetworks() public {
         vm.expectRevert("MultisigTask: no chains found");
-        task.simulateRun("./test/task/mock/invalidNetworkConfig.toml");
+        task.simulateRun("./test/tasks/mock/invalidNetworkConfig.toml");
     }
 
     function testRunFailsEmptyActions() public {
