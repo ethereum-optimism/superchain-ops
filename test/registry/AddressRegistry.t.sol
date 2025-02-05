@@ -12,7 +12,7 @@ contract MainnetAddressRegistryTest is Test {
     uint256 public metalChainId;
 
     function setUp() public {
-        string memory networkConfigFilePath = "test/task/mock/example/task-00/config.toml";
+        string memory networkConfigFilePath = "test/tasks/mock/example/task-00/config.toml";
 
         vm.createSelectFork("mainnet");
 

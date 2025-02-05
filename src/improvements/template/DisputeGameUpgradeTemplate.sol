@@ -4,7 +4,7 @@ import {IDisputeGameFactory, IDisputeGame} from "@eth-optimism-bedrock/interface
 import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
 import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 
-import {MultisigTask} from "src/improvements/task/MultisigTask.sol";
+import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
 
 /// @title DisputeGameUpgradeTemplate
