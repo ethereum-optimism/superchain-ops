@@ -112,7 +112,7 @@ TBD once tooling lands
      ```
    - Variables:
      * deputyGuardian: Address of the deputy guardian for the game
-     * gameType: The type of game to be respected (e.g., 1)
+     * gameType: The type of game to be respected (e.g. 1)
      * l2ChainId: The chain ID where the game type will be set
      * portal: The name of the portal proxy contract
 
