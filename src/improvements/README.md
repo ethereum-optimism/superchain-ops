@@ -47,17 +47,17 @@ forge script src/improvements/template/GasConfigTemplate.sol --sig "run(string)"
 #### Template 01 to set dispute game upgrade:
 
 ```bash
-forge script src/improvements/template/DisputeGameUpgradeTemplate.sol --sig "run(string)" test/tasks/mock/example/task-01/mainnetConfig.toml --rpc-url mainnet -vvv
+forge script src/improvements/template/DisputeGameUpgradeTemplate.sol --sig "run(string)" test/tasks/mock/example/task-01/config.toml --rpc-url mainnet -vvv
 ```
 
 #### Template 02 to set respected game type:
 
 ```bash
-forge script src/improvements/template/SetGameTypeTemplate.sol --sig "run(string)" test/tasks/mock/example/task-02/mainnetConfig.toml --rpc-url mainnet -vvvvv
+forge script src/improvements/template/SetGameTypeTemplate.sol --sig "run(string)" test/tasks/mock/example/task-02/config.toml --rpc-url mainnet -vvvvv
 ```
 
 #### Template 03 to set gas config:
 
 ```bash
-forge script src/improvements/template/GasConfigTemplate.sol --sig "run(string)" test/tasks/mock/example/task-03/mainnetConfig.toml --rpc-url mainnet -vvvvv
+forge script src/improvements/template/GasConfigTemplate.sol --sig "run(string)" test/tasks/mock/example/task-03/config.toml --rpc-url mainnet -vvvvv
 ```
