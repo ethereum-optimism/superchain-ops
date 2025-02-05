@@ -328,11 +328,7 @@ jobs:
           environment:
             ETH_RPC_URL: << pipeline.parameters.l1_mainnet_rpc_url >>
           command: |
-            forge build
-            forge script test/Runner.sol:Runner --sig "run(string)" lib/optimism/packages/contracts-bedrock/allocs.json --rpc-url $ETH_RPC_URL --ffi
-            export SUPERCHAIN_OPS_ALLOCS_PATH=./allocs.json
-            cd lib/optimism/packages/contracts-bedrock/ && just test-upgrade
-
+            (cd src/improvements && just monorepo-integration-test)
   print_versions:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>

@@ -64,3 +64,11 @@ task COMMAND="" NETWORK="":
             ;;
     esac
     
+monorepo-integration-test:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    export root_dir=$(git rev-parse --show-toplevel)
+    forge build
+    forge script ${root_dir}/test/Runner.sol:Runner --sig "run(string)" ${root_dir}/lib/optimism/packages/contracts-bedrock/allocs.json --rpc-url $ETH_RPC_URL --ffi
+    export SUPERCHAIN_OPS_ALLOCS_PATH=./allocs.json
+    cd ${root_dir}/lib/optimism/packages/contracts-bedrock/ && just test-upgrade
