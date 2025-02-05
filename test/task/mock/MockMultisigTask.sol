@@ -14,11 +14,6 @@ import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol
 contract MockMultisigTask is MultisigTask {
     address public constant newImplementation = address(1000);
 
-    /// @notice gap to ease writing to storage slots in unit tests.
-    /// This occupies a full storage slot at index 52 as the first byte of slot
-    /// 52 is used to store the _buildStarted boolean flag.
-    uint248 private _gap;
-
     /// @notice reference to the mock target contract
     MockTarget public mockTarget;
 
