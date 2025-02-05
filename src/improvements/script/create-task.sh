@@ -18,7 +18,7 @@ create_task() {
     echo -e "\n\033[32mYou selected: $network\033[0m"
 
     echo ""
-    mapfile -t templates < <(ls -1 template/)
+    templates=(); while IFS= read -r line; do templates+=("$line"); done < <(ls -1 template/)
     for i in "${!templates[@]}"; do
         templates["$i"]="${templates[$i]%.sol}"
     done

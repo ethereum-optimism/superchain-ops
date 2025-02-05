@@ -1,0 +1,2 @@
+l2chains = [] # e.g. [{name = "OP Mainnet", chainId = 10}]
+templateName = "DisputeGameUpgradeTemplate"
