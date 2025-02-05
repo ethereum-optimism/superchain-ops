@@ -1,0 +1,75 @@
+No files changed, compilation skipped
+Script ran successfully.
+
+== Logs ==
+  Writing artifact to /app/packages/contracts-bedrock/deployments/11155111-deploy.json
+  Connected to network with chainid 11155111
+  Commit hash: 2073f4059bd806af3e8b76b820aa3fa0b42016d0
+  DeployConfig: reading file /app/packages/contracts-bedrock/deploy-config/deploy-config.json
+  Saving DelayedWETHProxyPDG: 0x42A0e021Fea5633131399EB46A8F374d557D7E7A
+  Saving PermissionedDisputeGame: 0x4A0973E21274c4d939c84ac8B98D4308b7c9E249
+  Saving DelayedWETHProxyFDG: 0xEd0011Aa770bed4E595ec18BA96a876E2666AB42
+  Saving FaultDisputeGame: 0xe562e81d08cD5e212661EF961B4069456e426C56
+  1. SystemConfig: 0x33b83E4C305c908B2Fc181dDa36e230213058d7d
+  2. MIPS: 0x69470D6970Cd2A006b84B1d4d70179c892cFCE01
+  3. FaultDisputeGame: 0xe562e81d08cD5e212661EF961B4069456e426C56
+  4. PermissionedDisputeGame: 0x4A0973E21274c4d939c84ac8B98D4308b7c9E249
+
+## Setting up 1 EVM.
+
+==========================
+
+Chain 11155111
+
+Estimated gas price: 41.503581467 gwei
+
+Estimated total gas used for script: 15432173
+
+Estimated amount required: 0.640490449318337791 ETH
+
+==========================
+
+
+==========================
+
+ONCHAIN EXECUTION COMPLETE & SUCCESSFUL.
+##
+Start verification for (4) contracts
+Start verifying contract `0x42A0e021Fea5633131399EB46A8F374d557D7E7A` deployed on sepolia
+
+Submitting verification for [src/universal/Proxy.sol:Proxy] 0x42A0e021Fea5633131399EB46A8F374d557D7E7A.
+Submitted contract for verification:
+	Response: `OK`
+	GUID: `ccsewkagubcjkw7yq6zuxpy25qjuvpbnxvcq6ivhqsazhxtysg`
+	URL: https://sepolia.etherscan.io/address/0x42a0e021fea5633131399eb46a8f374d557d7e7a
+Contract source code already verified
+Start verifying contract `0x4A0973E21274c4d939c84ac8B98D4308b7c9E249` deployed on sepolia
+
+Submitting verification for [src/dispute/PermissionedDisputeGame.sol:PermissionedDisputeGame] 0x4A0973E21274c4d939c84ac8B98D4308b7c9E249.
+Submitted contract for verification:
+	Response: `OK`
+	GUID: `ajeb4e4raeb7lvzqmpihs7ai5vdzjywkcepr8lsylg9s6jgfzs`
+	URL: https://sepolia.etherscan.io/address/0x4a0973e21274c4d939c84ac8b98d4308b7c9e249
+Contract successfully verified
+Start verifying contract `0xEd0011Aa770bed4E595ec18BA96a876E2666AB42` deployed on sepolia
+
+Submitting verification for [src/universal/Proxy.sol:Proxy] 0xEd0011Aa770bed4E595ec18BA96a876E2666AB42.
+Submitted contract for verification:
+	Response: `OK`
+	GUID: `a4gbqtav7y15g3hqwxh8hbxkvkyidkqzrint51pmhdfkxh17af`
+	URL: https://sepolia.etherscan.io/address/0xed0011aa770bed4e595ec18ba96a876e2666ab42
+Contract source code already verified
+Start verifying contract `0xe562e81d08cD5e212661EF961B4069456e426C56` deployed on sepolia
+
+Submitting verification for [src/dispute/FaultDisputeGame.sol:FaultDisputeGame] 0xe562e81d08cD5e212661EF961B4069456e426C56.
+Submitted contract for verification:
+	Response: `OK`
+	GUID: `3cskuk1dyedvyhkdtjf2reqr43zqucy3yrk8rdwmfy2jagkexe`
+	URL: https://sepolia.etherscan.io/address/0xe562e81d08cd5e212661ef961b4069456e426c56
+Contract successfully verified
+All (4) contracts were verified!
+
+Transactions saved to: /app/packages/contracts-bedrock/broadcast/DeployUpgrade.s.sol/11155111/deploy-latest.json
+
+Sensitive values saved to: /app/packages/contracts-bedrock/cache/DeployUpgrade.s.sol/11155111/deploy-latest.json
+
