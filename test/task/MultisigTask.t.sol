@@ -52,21 +52,21 @@ contract MultisigTaskUnitTest is Test {
 
     function testRunFailsNoNetworks() public {
         vm.expectRevert("MultisigTask: no chains found");
-        task.run("./test/task/mock/invalidNetworkConfig.toml");
+        task.runSimulate("./test/task/mock/invalidNetworkConfig.toml");
     }
 
     function testRunFailsEmptyActions() public {
         /// add empty action that will cause a revert
         _addAction(address(0), "", 0, "");
         vm.expectRevert("Invalid target for task");
-        task.run(MAINNET_CONFIG);
+        task.runSimulate(MAINNET_CONFIG);
     }
 
     function testRunFailsInvalidAction() public {
         /// add invalid args for action that will cause a revert
         _addAction(address(1), "", 0, "");
         vm.expectRevert("Invalid arguments for task");
-        task.run(MAINNET_CONFIG);
+        task.runSimulate(MAINNET_CONFIG);
     }
 
     function testBuildFailsAddressesNotSet() public {
@@ -163,14 +163,14 @@ contract MultisigTaskUnitTest is Test {
         /// add duplicate action that will cause a revert
         _addUpgradeAction();
         vm.expectRevert("Duplicated action found");
-        task.run(MAINNET_CONFIG);
+        task.runSimulate(MAINNET_CONFIG);
     }
 
     function testRun() public {
         vm.expectRevert("No actions found");
         task.getTaskActions();
 
-        task.run(MAINNET_CONFIG);
+        task.runSimulate(MAINNET_CONFIG);
 
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.getTaskActions();
 

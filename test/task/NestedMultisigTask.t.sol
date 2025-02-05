@@ -38,7 +38,7 @@ contract NestedMultisigTaskTest is Test {
 
     function runTask() internal {
         multisigTask = new DisputeGameUpgradeTemplate();
-        multisigTask.run(taskConfigFilePath);
+        multisigTask.runSimulate(taskConfigFilePath);
         addresses = multisigTask.addresses();
     }
 
@@ -200,7 +200,7 @@ contract NestedMultisigTaskTest is Test {
 
             /// execute the approve hash call with the signatures
             multisigTask = new DisputeGameUpgradeTemplate();
-            multisigTask.run(taskConfigFilePath, childMultisig, packedSignaturesChild);
+            multisigTask.runChildMultisigApprove(taskConfigFilePath, childMultisig, packedSignaturesChild);
         }
 
         /// no offchain signatures for the parent multisig
@@ -208,7 +208,7 @@ contract NestedMultisigTaskTest is Test {
 
         /// execute the task
         multisigTask = new DisputeGameUpgradeTemplate();
-        multisigTask.run(taskConfigFilePath, packedSignaturesParent);
+        multisigTask.runExecute(taskConfigFilePath, packedSignaturesParent);
 
         /// check that the implementation is upgraded correctly
         assertEq(
