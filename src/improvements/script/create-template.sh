@@ -9,8 +9,11 @@ create_template() {
             read -r filename
         fi
         if [[ "$filename" == *.sol ]]; then
-            touch "template/$filename"
-            echo "Created template file: $filename"
+            template_path="template/$filename"
+            touch "$template_path"
+            absolute_path=$(realpath "$template_path")
+            echo -e "\n\033[32mTemplate created at:\033[0m"
+            echo "$absolute_path"
             break
         else
             echo -e "\n\033[31mTemplate file cannot be empty and must end with '.sol'. Please try again.\033[0m"

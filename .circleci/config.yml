@@ -337,7 +337,7 @@ jobs:
       - run:
           name: shellcheck
           command: | # Justfiles are not shell scripts and should not be checked with shellcheck
-            find src/improvements/script -type f -name "*.sh" | xargs shellcheck
+            (cd src/improvements/script && shellcheck -x *)
 
 workflows:
   main:

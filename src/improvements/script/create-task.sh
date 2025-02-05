@@ -1,21 +1,11 @@
 #!/usr/bin/env bash
 
+# shellcheck source=./select-network.sh
+source "$(dirname "${BASH_SOURCE[0]}")/select-network.sh"
+
 create_task() {
     echo ""
-    PS3="Select network: "
-    select network in eth sep oeth sep-dev-0 "Other (specify)"; do
-        case $network in
-        "Other (specify)")
-            read -r -p "Enter custom network name: " network
-            ;;
-        "")
-            echo "Invalid selection, please enter a network name manually: "
-            read -r network
-            ;;
-        esac
-        break
-    done
-    echo -e "\n\033[32mYou selected: $network\033[0m"
+    network=$(select_network)
 
     echo ""
     templates=(); while IFS= read -r line; do templates+=("$line"); done < <(ls -1 template/)
@@ -75,6 +65,9 @@ create_task() {
     echo -e "l2chains = [] # e.g. [{name = \"OP Mainnet\", chainId = 10}]\ntemplateName = \"${template%.sol}\"" >"${config_path}"
     echo "# ${dirname}" >"${readme_path}"
     echo "Created task directory '${dirname}' for network: ${network}"
+    absolute_path=$(realpath "$task_path")
+    echo -e "\n\033[32mDirectory created at:\033[0m"
+    echo "$absolute_path"
 }
 
 # Run this function only if someone runs this script directly,

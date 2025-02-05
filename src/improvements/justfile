@@ -55,11 +55,6 @@ task COMMAND="" NETWORK="":
     # shellcheck disable=SC2194
     case "{{COMMAND}}" in
         ls)
-            if [ -z "{{NETWORK}}" ]; then
-                echo -e "\n\033[31mError: Network must be specified\033[0m"
-                echo -e "\033[31mUsage: just task ls <network>\033[0m\n"
-                exit 1
-            fi
             echo ""
             ./script/sorted-tasks.sh {{NETWORK}}
             ;;
