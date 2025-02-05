@@ -49,7 +49,7 @@ simulate whichSafe hdPath='0':
   forge script ${script} \
     --rpc-url ${rpcUrl} \
     --sender ${signer} \
-    --sig "runChildMultisigSign(string,address)" \
+    --sig "signFromChildMultisig(string,address)" \
     ${config} \
     ${safe}
 
@@ -84,7 +84,7 @@ sign whichSafe hdPath='0':
   $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
   forge script ${script} \
     --rpc-url ${rpcUrl} \
-    --sig "runChildMultisigSign(string,address)" \
+    --sig "signFromChildMultisig(string,address)" \
     ${config} \
     "${safe}"
 
@@ -117,7 +117,7 @@ approve whichSafe hdPath='0':
     --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
     --broadcast \
     --sender ${sender} \
-    --sig "runChildMultisigApprove(string,address,bytes)" \
+    --sig "approveFromChildMultisig(string,address,bytes)" \
     ${config} \
     ${safe} \
     ${signatures}
@@ -154,7 +154,7 @@ simulate-approve whichSafe hdPath='0':
   forge script ${script} \
     --fork-url ${rpcUrl} \
     --sender ${sender} \
-    --sig "runChildMultisigApprove(string,address,bytes)" \
+    --sig "approveFromChildMultisig(string,address,bytes)" \
     ${config} \
     ${safe} \
     ${signatures}
@@ -173,7 +173,7 @@ execute hdPath='0':
     --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
     --broadcast \
     --sender ${sender} \
-    --sig "runExecute(string,bytes)" \
+    --sig "executeRun(string,bytes)" \
     ${config} \
     "0x"
 
@@ -188,6 +188,6 @@ simulated-run hdPath='0':
   forge script ${script} \
     --fork-url ${rpcUrl} \
     --sender ${randomPersonEoa} \
-    --sig "runExecute(string,bytes)" \
+    --sig "executeRun(string,bytes)" \
     ${config} \
     "0x"

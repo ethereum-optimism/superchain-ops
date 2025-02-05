@@ -154,7 +154,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// prints the data to sign and the hash to approve which is used to sign with the eip712sign binary.
     /// For nested multisig, prints the data to sign and the hash to approve for each of the child multisigs.
     /// @param taskConfigFilePath The path to the task configuration file.
-    function runSimulate(string memory taskConfigFilePath) public override {
+    function simulateRun(string memory taskConfigFilePath) public override {
         _taskSetup(taskConfigFilePath);
         /// now execute task actions
         build();
@@ -168,7 +168,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// as well as the nested multisig.
     /// @param taskConfigFilePath The path to the task configuration file.
     /// @param signatures The signatures to execute the task.
-    function runExecute(string memory taskConfigFilePath, bytes memory signatures) public {
+    function executeRun(string memory taskConfigFilePath, bytes memory signatures) public {
         _taskSetup(taskConfigFilePath);
         /// now execute task actions
         build();
@@ -181,7 +181,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @param taskConfigFilePath The path to the task configuration file.
     /// @param _childMultisig The address of the child multisig that is approving the task.
     /// @param signatures The signatures to approve the task transaction hash.
-    function runChildMultisigApprove(string memory taskConfigFilePath, address _childMultisig, bytes memory signatures)
+    function approveFromChildMultisig(string memory taskConfigFilePath, address _childMultisig, bytes memory signatures)
         public
     {
         _taskSetup(taskConfigFilePath);
@@ -194,9 +194,9 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// the _childMultisig, printed data to sign is used to sign with the eip712sign binary.
     /// @param taskConfigFilePath The path to the task configuration file.
     /// @param _childMultisig The address of the child multisig.
-    function runChildMultisigSign(string memory taskConfigFilePath, address _childMultisig) public {
+    function signFromChildMultisig(string memory taskConfigFilePath, address _childMultisig) public {
         childMultisig = _childMultisig;
-        runSimulate(taskConfigFilePath);
+        simulateRun(taskConfigFilePath);
         require(isNestedSafe, "MultisigTask: multisig must be nested");
     }
 
