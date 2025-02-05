@@ -288,22 +288,10 @@ contract SingleMultisigTaskTest is Test {
             (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKeyForOwner[getNewOwners[i]], keccak256(dataToSign));
             packedSignatures = bytes.concat(packedSignatures, abi.encodePacked(r, s, v));
         }
-        /// execute the transaction with the signatures
-        assertTrue(
-            IGnosisSafe(multisig).execTransaction(
-                MULTICALL3_ADDRESS,
-                0,
-                callData,
-                Enum.Operation.DelegateCall,
-                0,
-                0,
-                0,
-                address(0),
-                address(0),
-                packedSignatures
-            ),
-            "Expected transaction to succeed"
-        );
+
+        /// execute the task with the signatures
+        multisigTask = new GasConfigTemplate();
+        multisigTask.run(taskConfigFilePath, packedSignatures);
 
         /// check that the gas limits are set correctly after the task is executed
         SystemConfig systemConfig = SystemConfig(systemConfigOrderly);
