@@ -132,7 +132,7 @@ forge script <template-path> --sig "run(string)" <config-file-path> --rpc-url <n
 
 Example:
 ```bash
-forge script test/task/mock/example/template/GasConfigTemplate.sol --sig "run(string)" test/task/mock/example/task-00/config.toml --rpc-url mainnet -vvv
+forge script src/improvements/template/GasConfigTemplate.sol --sig "run(string)" test/task/mock/example/task-00/config.toml --rpc-url mainnet -vvv
 ```
 
 ## Validation
