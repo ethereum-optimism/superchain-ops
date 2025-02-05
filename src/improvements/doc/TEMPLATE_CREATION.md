@@ -55,12 +55,7 @@ gasLimits = [
 
 ## Creating a New Task Using Templates
 
-1. Choose the appropriate template based on your task requirements
-2. Create a new task directory in `tasks/`
-3. Create the necessary config files (mainnet/sepolia/devnet)
-4. Define the L2 chains in your config files
-5. Add template-specific configuration
-6. Test using the simulation tooling
+TBD once tooling lands
 
 ## Example Templates
 
