@@ -122,6 +122,9 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @notice flag to determine if the task is being simulated
     bool private _buildStarted;
 
+    /// @notice The address of the nested multisig for this task
+    address public nestedMultisig;
+
     /// @notice buildModifier to be used by the build function to populate the
     /// actions array
     modifier buildModifier() {
@@ -167,6 +170,22 @@ abstract contract MultisigTask is Test, Script, ITask {
         build();
         execute(signatures);
         validate();
+    }
+
+    function run(string memory taskConfigFilePath, address approvingMultisig, bytes memory signatures) public {
+        _taskSetup(taskConfigFilePath);
+        build();
+        approve(approvingMultisig, signatures);
+    }
+
+    /// @notice For nested tasks it runs and simulates the task with the given
+    /// configuration file path and the specified nested multisig.
+    /// @param taskConfigFilePath The path to the task configuration file.
+    /// @param _nestedMultisig The address of the nested multisig.
+    function run(string memory taskConfigFilePath, address _nestedMultisig) public {
+        nestedMultisig = _nestedMultisig;
+        run(taskConfigFilePath);
+        require(isNestedSafe, "MultisigTask: multisig must be nested");
     }
 
     /// @notice Sets the address registry, initializes the task.
@@ -335,6 +354,27 @@ abstract contract MultisigTask is Test, Script, ITask {
         );
 
         require(success, "MultisigTask: simulateActions failed");
+    }
+
+    function approve(address approvingMultisig, bytes memory signatures) public {
+        bytes memory approveCalldata = generateApproveMulticallData();
+        bytes32 hash = keccak256(getDataToSign(approvingMultisig, approveCalldata));
+        signatures = Signatures.prepareSignatures(approvingMultisig, hash, signatures);
+
+        bool success = IGnosisSafe(approvingMultisig).execTransaction(
+            MULTICALL3_ADDRESS,
+            0,
+            approveCalldata,
+            Enum.Operation.DelegateCall,
+            0,
+            0,
+            0,
+            address(0),
+            payable(address(0)),
+            signatures
+        );
+
+        require(success, "MultisigTask: approval failed");
     }
 
     /// @notice Executes the task with the given signatures.
@@ -552,20 +592,32 @@ abstract contract MultisigTask is Test, Script, ITask {
     function printNestedDataToSign() public view {
         bytes memory callData = generateApproveMulticallData();
 
-        for (uint256 i; i < startingOwners.length; i++) {
-            bytes memory dataToSign = getDataToSign(startingOwners[i], callData);
-            console.log("Nested multisig: %s", getAddressLabel(startingOwners[i]));
-            console.logBytes(dataToSign);
+        if (nestedMultisig != address(0)) {
+            console.log("Nested multisig: %s", getAddressLabel(nestedMultisig));
+            console.log("vvvvvvvv");
+            console.logBytes(getDataToSign(nestedMultisig, callData));
+            console.log("^^^^^^^^\n");
+        } else {
+            for (uint256 i; i < startingOwners.length; i++) {
+                console.log("Nested multisig: %s", getAddressLabel(startingOwners[i]));
+                console.logBytes(getDataToSign(startingOwners[i], callData));
+            }
         }
     }
 
     /// @notice print the hash to approve by EOA for nested multisig
     function printNestedHashToApprove() public view {
         bytes memory callData = generateApproveMulticallData();
-        for (uint256 i; i < startingOwners.length; i++) {
-            bytes32 hash = keccak256(getDataToSign(startingOwners[i], callData));
-            console.log("Nested multisig: %s", getAddressLabel(startingOwners[i]));
-            console.logBytes32(hash);
+
+        if (nestedMultisig != address(0)) {
+            console.log("Nested multisig: %s", getAddressLabel(nestedMultisig));
+            console.logBytes32(keccak256(getDataToSign(nestedMultisig, callData)));
+        } else {
+            for (uint256 i; i < startingOwners.length; i++) {
+                bytes32 hash = keccak256(getDataToSign(startingOwners[i], callData));
+                console.log("Nested multisig: %s", getAddressLabel(startingOwners[i]));
+                console.logBytes32(hash);
+            }
         }
     }
 
