@@ -345,6 +345,16 @@ jobs:
             yq --version
             forge --version
 
+  shellcheck:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - checkout-with-mise
+      - run:
+          name: shellcheck
+          command: | # Justfiles are not shell scripts and should not be checked with shellcheck
+            (cd src/improvements/script && shellcheck -x *)
+
 workflows:
   main:
     jobs:
@@ -358,6 +368,7 @@ workflows:
           filters:
             branches:
               only: main
+      - shellcheck
       # RPC endpoint checks.
       - check_sepolia_rpc_endpoints
       - check_mainnet_rpc_endpoints
