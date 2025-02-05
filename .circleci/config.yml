@@ -356,7 +356,11 @@ workflows:
       - forge_build
       - forge_fmt
       - forge_test
-      - monorepo_integration_test
+      # This is a long running job, so we only run it on the main branch.
+      - monorepo_integration_test:
+          filters:
+            branches:
+              only: main
       # RPC endpoint checks.
       - check_sepolia_rpc_endpoints
       - check_mainnet_rpc_endpoints
