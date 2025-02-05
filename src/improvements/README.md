@@ -41,39 +41,23 @@ This toml configuration file allows task developers to set gas limits for the ta
 #### Template 00 to set gas configs:
 
 ```bash
-<<<<<<< HEAD
 forge script src/improvements/template/GasConfigTemplate.sol --sig "run(string)" test/tasks/mock/example/task-00/config.toml --rpc-url mainnet -vvv
-=======
-forge script src/improvements/template/GasConfigTemplate.sol --sig "run(string)" test/task/mock/example/task-00/config.toml --rpc-url mainnet -vvv
->>>>>>> df1b40e (fix: doc update)
 ```
 
 #### Template 01 to set dispute game upgrade:
 
 ```bash
-<<<<<<< HEAD
 forge script src/improvements/template/DisputeGameUpgradeTemplate.sol --sig "run(string)" test/tasks/mock/example/task-01/config.toml --rpc-url mainnet -vvv
-=======
-forge script src/improvements/template/DisputeGameUpgradeTemplate.sol --sig "run(string)" test/task/mock/example/task-01/config.toml --rpc-url mainnet -vvv
->>>>>>> df1b40e (fix: doc update)
 ```
 
 #### Template 02 to set respected game type:
 
 ```bash
-<<<<<<< HEAD
 forge script src/improvements/template/SetGameTypeTemplate.sol --sig "run(string)" test/tasks/mock/example/task-02/config.toml --rpc-url mainnet -vvvvv
-=======
-forge script src/improvements/template/SetGameTypeTemplate.sol --sig "run(string)" test/task/mock/example/task-02/config.toml --rpc-url mainnet -vvvvv
->>>>>>> df1b40e (fix: doc update)
 ```
 
 #### Template 03 to set gas config:
 
 ```bash
-<<<<<<< HEAD
 forge script src/improvements/template/GasConfigTemplate.sol --sig "run(string)" test/tasks/mock/example/task-03/config.toml --rpc-url mainnet -vvvvv
-=======
-forge script src/improvements/template/GasConfigTemplate.sol --sig "run(string)" test/task/mock/example/task-03/config.toml --rpc-url mainnet -vvvvv
->>>>>>> df1b40e (fix: doc update)
 ```

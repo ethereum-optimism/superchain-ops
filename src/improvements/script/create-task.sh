@@ -72,7 +72,7 @@ create_task() {
     mkdir -p "$task_path"
     config_path="$task_path/config.toml"
     readme_path="$task_path/README.md" # TODO: Each template should have a README.md
-    echo -e "l2chains = []\ntemplateName = \"${template%.sol}\"" >"${config_path}"
+    echo -e "l2chains = [] # e.g. [{name = \"OP Mainnet\", chainId = 10}]\ntemplateName = \"${template%.sol}\"" >"${config_path}"
     echo "# ${dirname}" >"${readme_path}"
     echo "Created task directory '${dirname}' for network: ${network}"
 }
