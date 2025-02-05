@@ -5,7 +5,7 @@ import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.so
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {Test} from "forge-std/Test.sol";
 
-import {MultisigTask} from "src/improvements/task/MultisigTask.sol";
+import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {DisputeGameUpgradeTemplate} from "src/improvements/template/DisputeGameUpgradeTemplate.sol";
 import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
 import {LibSort} from "@solady/utils/LibSort.sol";
@@ -30,7 +30,7 @@ contract NestedMultisigTaskTest is Test {
     uint256 public constant THRESHOLD_STORAGE_OFFSET = 4;
 
     /// ProxyAdminOwner safe for task-01 is a nested multisig for Op mainnet L2 chain.
-    string taskConfigFilePath = "test/task/mock/example/task-01/config.toml";
+    string taskConfigFilePath = "test/tasks/mock/example/task-01/config.toml";
 
     function setUp() public {
         vm.createSelectFork("mainnet");
