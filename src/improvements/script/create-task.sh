@@ -8,7 +8,8 @@ create_task() {
     network=$(select_network)
 
     echo ""
-    templates=(); while IFS= read -r line; do templates+=("$line"); done < <(ls -1 template/)
+    templates=()
+    while IFS= read -r line; do templates+=("$line"); done < <(ls -1 template/)
     for i in "${!templates[@]}"; do
         templates["$i"]="${templates[$i]%.sol}"
     done
@@ -32,7 +33,7 @@ create_task() {
     # This is an ordered list of all the tasks for a given network.
     script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
     sorted_existing_dirs=$("$script_dir/sorted-tasks.sh" "$network")
-    
+
     echo ""
     if [[ -z "$sorted_existing_dirs" || $(echo "$sorted_existing_dirs" | wc -l) -eq 1 ]]; then
         suggestion="Note: this is the first task for this network. Please choose a name that's lexicographically sensible"

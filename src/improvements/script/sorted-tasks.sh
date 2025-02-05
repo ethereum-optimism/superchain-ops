@@ -9,7 +9,15 @@ getSortedTaskForNetwork() {
     # If no network is specified, initiate the selection process.
     if [ -z "$network" ]; then
         network=$(select_network)
+
+        task_dir="tasks/$network"
+
+        if [ ! -d "$task_dir" ] || [ -z "$(ls -A "$task_dir")" ]; then
+            echo -e "\033[31m\nError: The directory '$task_dir' is empty or does not exist.\033[0m" >&2
+            return 1
+        fi
     fi
+
     find "tasks/$network" -maxdepth 1 -type d 2>/dev/null | sort
 }
 
