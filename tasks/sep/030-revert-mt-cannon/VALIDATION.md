@@ -67,3 +67,88 @@ and
 * **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000`
 * **After**: `0x0000000000000000000000000000000000000000000000000000000000000001`
 * **Meaning**: approvedHashes update. See above.
+
+## Verifying Dispute Games
+
+The old and new dispute game contracts can be compared with https://gist.github.com/ajsutton/28be852a36d9d19af16f7c870b267873
+
+The previous dispute game implementation can be loaded from the `DisputeGameFactory.gameImpl` function. ie:
+```
+cast call 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1 "gameImpls(uint32)(address)" 0
+cast call 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1 "gameImpls(uint32)(address)" 1
+```
+
+The second argument is the new deployment which should match the state diff above.
+
+FaultDisputeGame:
+```
+./temp/compareGames.sh 0x833a817eF459f4eCdB83Fc5A4Bf04d09A4e83f3F 0xF3CcF0C4b51D42cFe6073F0278c19A8D1900e856
+
+Matches version()(string) = "1.3.1"
+
+Mismatch absolutePrestate()(bytes32)
+Was: 0x03b7eaa4e3cbce90381921a4b48008f4769871d64f93d113fcadca08ecee503b
+Now: 0x03f89406817db1ed7fd8b31e13300444652cdb0b9c509a674de43483b2f83568
+
+Matches maxGameDepth()(uint256) = 73
+
+Matches splitDepth()(uint256) = 30
+
+Matches maxClockDuration()(uint256) = 302400 [3.024e5]
+
+Matches gameType()(uint32) = 0
+
+Matches l2ChainId()(uint256) = 11155420 [1.115e7]
+
+Matches clockExtension()(uint64) = 10800 [1.08e4]
+
+Matches anchorStateRegistry()(address) = 0x218CD9489199F321E1177b56385d333c5B598629
+Matches weth()(address)
+Comparing vm
+
+Mismatch version()(string)
+Was: "1.0.0-beta.7"
+Now: "1.2.1"
+```
+
+PermissionedDisputeGame:
+```
+./temp/compareGames.sh 0xbBD576128f71186A0f9ae2F2AAb4afb4aF2dae17 0xbbDBdfe37C02439764dE0e41C906e4396B5B3914
+
+Matches version()(string) = "1.3.1"
+
+Mismatch absolutePrestate()(bytes32)
+Was: 0x03b7eaa4e3cbce90381921a4b48008f4769871d64f93d113fcadca08ecee503b
+Now: 0x03f89406817db1ed7fd8b31e13300444652cdb0b9c509a674de43483b2f83568
+
+Matches maxGameDepth()(uint256) = 73
+
+Matches splitDepth()(uint256) = 30
+
+Matches maxClockDuration()(uint256) = 302400 [3.024e5]
+
+Matches gameType()(uint32) = 1
+
+Matches l2ChainId()(uint256) = 11155420 [1.115e7]
+
+Matches clockExtension()(uint64) = 10800 [1.08e4]
+
+Matches anchorStateRegistry()(address) = 0x218CD9489199F321E1177b56385d333c5B598629
+
+Matches proposer()(address) = 0x49277EE36A024120Ee218127354c4a3591dc90A9
+
+Matches challenger()(address) = 0xfd1D2e729aE8eEe2E146c033bf4400fE75284301
+Matches weth()(address)
+Comparing vm
+
+Mismatch version()(string)
+Was: "1.0.0-beta.7"
+Now: "1.2.1"
+```
+
+In both, there are two changes:
+
+* absolutePrestate() changes from `0x03b7eaa4e3cbce90381921a4b48008f4769871d64f93d113fcadca08ecee503b` to `0x03f89406817db1ed7fd8b31e13300444652cdb0b9c509a674de43483b2f83568`. 
+  These can be verified by comparing to the values in [releases.json](https://github.com/ethereum-optimism/optimism/blob/develop/op-program/prestates/releases.json).
+  The old absolute prestate is the cannon64 variant of the 1.4.0 release, the new one is the governance approved, single-threaded cannon version from the same 1.4.0 release.
+* vm - the MIPS.sol version. This reverts from the MIPS64.sol beta version back to the governance approved version 1.2.1 from the contracts/1.8.0 (Holocene) release.
