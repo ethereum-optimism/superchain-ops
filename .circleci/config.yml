@@ -324,6 +324,8 @@ jobs:
       - checkout-with-mise
       - run:
           name: monorepo integration tests
+          environment:
+            ETH_RPC_URL: https://ci-mainnet-l1-archive.optimism.io
           command: |
             forge build
             forge script test/Runner.sol:Runner --sig "run(string)" lib/optimism/packages/contracts-bedrock/allocs.json --rpc-url $ETH_RPC_URL --ffi
