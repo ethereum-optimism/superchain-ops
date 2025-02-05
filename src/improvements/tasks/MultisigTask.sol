@@ -12,7 +12,7 @@ import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
-import {ITask} from "src/improvements/task/ITask.sol";
+import {ITask} from "src/improvements/tasks/ITask.sol";
 import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
 
 abstract contract MultisigTask is Test, Script, ITask {

@@ -282,14 +282,6 @@ jobs:
       - simulate:
           task: "/eth/ink-002-set-respected-game-type"
 
-  just_simulate_eth_029_holocene_system_config_upgrade_and_init_base:
-    docker:
-      - image: << pipeline.parameters.default_docker_image >>
-    steps:
-      - checkout-with-mise
-      - simulate_nested:
-          task: "/eth/029-holocene-system-config-upgrade-and-init-base"
-
   forge_build:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -369,5 +361,4 @@ workflows:
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
       - just_simulate_ink_respected_game_type
-      - just_simulate_eth_029_holocene_system_config_upgrade_and_init_base
       # sepolia

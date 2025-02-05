@@ -10,11 +10,7 @@ Developers can now create tasks without writing any Solidity code as long as a p
 
 # Task Configuration File
 
-The template configuration file is `<network_name>Config.toml` which contains the network configurations to modify on L1. This file is used to configure which L2 network contracts will be used for the task on the given network. Task developers can specify up to three separate types of configuration files:
-
-- `mainnetConfig.toml` - the mainnet configuration file, which specifies which L2 contracts will be affected on L1 mainnet
-- `sepoliaConfig.toml` - the sepolia configuration file, which specifies which L2 contracts will be affected on L1 sepolia
-- `devnetConfig.toml` - the devnet configuration file, which specifies which L2 contracts will be affected on L1 devnet (sepolia testnet)
+The template configuration file is `cnfig.toml` which contains the network configurations to modify on L1.
 
 ### L2Chains
 
@@ -41,23 +37,23 @@ This toml configuration file allows task developers to set gas limits for the ta
 #### Template 00 to set gas configs:
 
 ```bash
-forge script test/task/mock/example/template/GasConfigTemplate.sol --sig "runSimulate(string)" test/task/mock/example/task-00/mainnetConfig.toml --rpc-url mainnet -vvv
+forge script src/improvements/template/GasConfigTemplate.sol --sig "run(string)" test/tasks/mock/example/task-00/config.toml --rpc-url mainnet -vvv
 ```
 
 #### Template 01 to set dispute game upgrade:
 
 ```bash
-forge script test/task/mock/example/template/DisputeGameUpgradeTemplate.sol --sig "runSimulate(string)" test/task/mock/example/task-01/mainnetConfig.toml --rpc-url mainnet -vvv
+forge script src/improvements/template/DisputeGameUpgradeTemplate.sol --sig "run(string)" test/tasks/mock/example/task-01/config.toml --rpc-url mainnet -vvv
 ```
 
 #### Template 02 to set respected game type:
 
 ```bash
-forge script test/task/mock/example/template/SetGameTypeTemplate.sol --sig "runSimulate(string)" test/task/mock/example/task-02/mainnetConfig.toml --rpc-url mainnet -vvvvv
+forge script src/improvements/template/SetGameTypeTemplate.sol --sig "run(string)" test/tasks/mock/example/task-02/config.toml --rpc-url mainnet -vvvvv
 ```
 
 #### Template 03 to set gas config:
 
 ```bash
-forge script test/task/mock/example/template/GasConfigTemplate.sol --sig "runSimulate(string)" test/task/mock/example/task-03/mainnetConfig.toml --rpc-url mainnet -vvvvv
+forge script src/improvements/template/GasConfigTemplate.sol --sig "run(string)" test/tasks/mock/example/task-03/config.toml --rpc-url mainnet -vvvvv
 ```
