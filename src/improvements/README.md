@@ -10,7 +10,7 @@ Developers can now create tasks without writing any Solidity code as long as a p
 
 # Task Configuration File
 
-The template configuration file is `cnfig.toml` which contains the network configurations to modify on L1.
+The template configuration file is `config.toml` which contains the network configurations to modify on L1.
 
 ### L2Chains
 
