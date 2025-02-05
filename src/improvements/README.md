@@ -31,8 +31,7 @@ Every config file must specify the L2 chains that the task will interact with us
 # L2Chains is a list of the L2 chains that the task will interact with
 l2chains = [
     {name = "Orderly", chainId = 291},
-    {name = "Metal", chainId = 1750},
-    {name = "OP Mainnet", chainId = 10}
+    {name = "Metal", chainId = 1750}
 ]
 ```
 
