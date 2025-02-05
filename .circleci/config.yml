@@ -6,9 +6,6 @@ parameters:
     default: cimg/base:2024.01
   l1_mainnet_rpc_url:
     type: string
-    default: "https://ci-mainnet-l1.optimism.io"
-  l1_mainnet_archive_rpc_url:
-    type: string
     default: "https://ci-mainnet-l1-archive.optimism.io"
   l1_sepolia_rpc_url:
     type: string
