@@ -36,7 +36,7 @@ prep l1='' l2='':
   CONFIG_URL="https://raw.githubusercontent.com/ethereum-optimism/superchain-registry/refs/heads/main/superchain/configs/{{l1}}/{{l2}}.toml"
   CONFIG_TOML=$(curl -s --show-error --fail "${CONFIG_URL}")
   SYSTEM_CONFIG=$(echo "${CONFIG_TOML}" | yq -p toml .addresses.SystemConfigProxy)
-  OWNER_SAFE=$(echo "${CONFIG_TOML}" | yq -p toml .addresses.ProxyAdminOwner)
+  OWNER_SAFE=$(echo "${CONFIG_TOML}" | yq -p toml .roles.ProxyAdminOwner)
   PROXY_ADMIN=$(echo "${CONFIG_TOML}" | yq -p toml .addresses.ProxyAdmin)
 
   cat >> out/.env << EOF

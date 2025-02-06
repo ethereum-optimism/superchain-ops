@@ -9,7 +9,6 @@ import {stdToml} from "forge-std/StdToml.sol";
 import {Vm, VmSafe} from "forge-std/Vm.sol";
 import {GnosisSafe} from "safe-contracts/GnosisSafe.sol";
 import {LibString} from "solady/utils/LibString.sol";
-import {Types} from "@eth-optimism-bedrock/scripts/Types.sol";
 import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {DisputeGameFactory} from "@eth-optimism-bedrock/src/dispute/DisputeGameFactory.sol";
 import {FaultDisputeGame} from "@eth-optimism-bedrock/src/dispute/FaultDisputeGame.sol";
