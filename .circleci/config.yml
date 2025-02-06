@@ -353,6 +353,10 @@ jobs:
 
 workflows:
   main:
+    when:
+      or:
+        - equal: [build_four_hours, <<pipeline.schedule.name>>]
+        - equal: [main, << pipeline.git.branch >>]
     jobs:
       - print_versions
       # Forge checks.
