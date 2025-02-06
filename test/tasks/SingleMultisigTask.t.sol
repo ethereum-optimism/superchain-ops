@@ -4,10 +4,10 @@ pragma solidity 0.8.15;
 import {Test} from "forge-std/Test.sol";
 
 import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
-import {MultisigTask} from "src/improvements/task/MultisigTask.sol";
+import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {GasConfigTemplate} from "src/improvements/template/GasConfigTemplate.sol";
-import {IncorrectGasConfigTemplate1} from "test/task/mock/IncorrectGasConfigTemplate1.sol";
-import {IncorrectGasConfigTemplate2} from "test/task/mock/IncorrectGasConfigTemplate2.sol";
+import {IncorrectGasConfigTemplate1} from "test/tasks/mock/IncorrectGasConfigTemplate1.sol";
+import {IncorrectGasConfigTemplate2} from "test/tasks/mock/IncorrectGasConfigTemplate2.sol";
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {LibSort} from "@solady/utils/LibSort.sol";
@@ -31,7 +31,7 @@ contract SingleMultisigTaskTest is Test {
     uint256 public constant THRESHOLD_STORAGE_OFFSET = 4;
 
     /// @notice ProxyAdminOwner safe for task-00 is a single multisig.
-    string taskConfigFilePath = "test/task/mock/example/task-00/config.toml";
+    string taskConfigFilePath = "test/tasks/mock/example/task-00/config.toml";
 
     function setUp() public {
         vm.createSelectFork("mainnet");
@@ -175,7 +175,7 @@ contract SingleMultisigTaskTest is Test {
     }
 
     function testRevertIfDifferentL2SafeAddresses() public {
-        string memory incorrectTaskConfigFilePath = "test/task/mock/IncorrectMainnetConfig.toml";
+        string memory incorrectTaskConfigFilePath = "test/tasks/mock/IncorrectMainnetConfig.toml";
         MultisigTask localMultisigTask = new GasConfigTemplate();
         Addresses addressRegistry = new Addresses(incorrectTaskConfigFilePath);
         bytes memory expectedRevertMessage = bytes(
@@ -288,22 +288,10 @@ contract SingleMultisigTaskTest is Test {
             (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKeyForOwner[getNewOwners[i]], keccak256(dataToSign));
             packedSignatures = bytes.concat(packedSignatures, abi.encodePacked(r, s, v));
         }
-        /// execute the transaction with the signatures
-        assertTrue(
-            IGnosisSafe(multisig).execTransaction(
-                MULTICALL3_ADDRESS,
-                0,
-                callData,
-                Enum.Operation.DelegateCall,
-                0,
-                0,
-                0,
-                address(0),
-                address(0),
-                packedSignatures
-            ),
-            "Expected transaction to succeed"
-        );
+
+        /// execute the task with the signatures
+        multisigTask = new GasConfigTemplate();
+        multisigTask.run(taskConfigFilePath, packedSignatures);
 
         /// check that the gas limits are set correctly after the task is executed
         SystemConfig systemConfig = SystemConfig(systemConfigOrderly);

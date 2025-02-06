@@ -12,7 +12,7 @@ import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
-import {ITask} from "src/improvements/task/ITask.sol";
+import {ITask} from "src/improvements/tasks/ITask.sol";
 import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
 
 abstract contract MultisigTask is Test, Script, ITask {
@@ -148,7 +148,30 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @notice Runs the task with the given configuration file path.
     /// Sets the address registry, initializes and simulates the task.
     /// @param taskConfigFilePath The path to the task configuration file.
-    function run(string memory taskConfigFilePath) public {
+    function run(string memory taskConfigFilePath) public override {
+        _taskSetup(taskConfigFilePath);
+        /// now execute task actions
+        build();
+        simulate();
+        validate();
+        print();
+    }
+
+    /// @notice Executes the task with the given configuration file path and signatures.
+    /// Sets the address registry, initializes and executes the task.
+    /// @param taskConfigFilePath The path to the task configuration file.
+    /// @param signatures The signatures to execute the task.
+    function run(string memory taskConfigFilePath, bytes memory signatures) public {
+        _taskSetup(taskConfigFilePath);
+        /// now execute task actions
+        build();
+        execute(signatures);
+        validate();
+    }
+
+    /// @notice Sets the address registry, initializes the task.
+    /// @param taskConfigFilePath The path to the task configuration file.
+    function _taskSetup(string memory taskConfigFilePath) internal {
         Addresses _addresses = new Addresses(taskConfigFilePath);
 
         _templateSetup(taskConfigFilePath);
@@ -217,12 +240,6 @@ abstract contract MultisigTask is Test, Script, ITask {
                 );
             }
         }
-
-        /// now execute task actions
-        build();
-        simulate();
-        validate();
-        print();
     }
 
     /// @notice abstract function to be implemented by the inheriting contract to setup the template
@@ -250,7 +267,10 @@ abstract contract MultisigTask is Test, Script, ITask {
 
     /// @notice print the data to sig by EOA for single multisig
     function printDataToSign() public view {
+        // logs required for using eip712sign binary to sign the data to sign with Ledger
+        console.log("vvvvvvvv");
         console.logBytes(getDataToSign(multisig, getCalldata()));
+        console.log("^^^^^^^^\n");
     }
 
     /// @notice print the hash to approve by EOA for single multisig
@@ -315,6 +335,30 @@ abstract contract MultisigTask is Test, Script, ITask {
         );
 
         require(success, "MultisigTask: simulateActions failed");
+    }
+
+    /// @notice Executes the task with the given signatures.
+    /// @param signatures The signatures to execute the task.
+    function execute(bytes memory signatures) public {
+        bytes memory data = getCalldata();
+        bytes32 hash = getHash();
+
+        signatures = Signatures.prepareSignatures(multisig, hash, signatures);
+
+        (bool success) = IGnosisSafe(multisig).execTransaction(
+            MULTICALL3_ADDRESS,
+            0,
+            data,
+            Enum.Operation.DelegateCall,
+            0,
+            0,
+            0,
+            address(0),
+            payable(address(0)),
+            signatures
+        );
+
+        require(success, "MultisigTask: execute failed");
     }
 
     /// @notice returns the allowed storage accesses

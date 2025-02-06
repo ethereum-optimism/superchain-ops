@@ -3,6 +3,7 @@
 # Core dependencies
 go = "1.22.7"
 just = "1.37.0"
+shellcheck = "0.10.0"
 yq = "4.44.5"
 
 # Foundry dependencies
