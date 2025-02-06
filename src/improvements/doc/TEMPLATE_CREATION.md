@@ -55,7 +55,35 @@ gasLimits = [
 
 ## Creating a New Task Using Templates
 
-TBD once justfile scaffolding tooling lands
+To make developers lives easier when using a pre-existing template, a justfile task has been created to easily scaffold a new task from an existing template.
+
+```
+cd src/improvements/ 
+just new task
+```
+
+Follow all instructions from the just file. This should output a new directory with a `README.md` and `config.toml` file pre-populated.
+
+
+## Creating a New Template Type
+
+To make developers lives easier when creating a new template, a justfile task has been created to easily scaffold a new template type.
+
+```
+cd src/improvements/ 
+just new task
+```
+
+Follow all instructions from the just file. This should output a new Solidity file in the `src/improvements/template/` directory.
+Go to this file and follow all instructions in the comments to create a new template. The task developer will need to fill out the following functions and data structures:
+
+- TaskConfig struct - this struct should contain all the necessary parameters for the task to run.
+- taskConfig mapping - this mapping should contain all of the necessary parameters for the task to run.
+- safeAddressString function - return the name of the multisig address that will execute the task in the superchain-registry addresses.json file.
+- _taskStorageWrites function - return the names of the addresses from the superchain-registry file whose storage will be written to in the task.
+- _templateSetup function - set up any initial state for the task by reading in the `config.toml` file, saving the needed values for each chainid to storage, and then executing.
+- _build function - build the task by executing the necessary logic for the task, specifically give instructions for how to handle each call based on the chainId passed. See the [GasConfigTemplate.sol](../template/GasConfigTemplate.sol) for an example of how to structure a _build function.
+- _validate function - validate the task by checking that the state changes match the expected values. If the task is invalid, reverts. See the [GasConfigTemplate.sol](../template/GasConfigTemplate.sol) for an example of how to structure the _validate function.
 
 ## Example Templates
 
@@ -180,9 +208,9 @@ Common issues and solutions:
 
 2. **Validation Failures**
    - Review simulation output
-   - Check parameter bounds
+   - Check parameters
    - Verify chain configurations
-   - Increase verbosity for more detailed error messages
+   - Increase forge script verbosity for more detailed error messages
 
 3. **Simulation Errors**
    - RPC endpoints can cause intermittent errors
