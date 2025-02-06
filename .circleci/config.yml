@@ -355,7 +355,8 @@ workflows:
   main:
     when:
       or:
-        - equal: ["github", << pipeline.trigger_parameters.circleci.trigger_type >>]
+        # Trigger on new commits
+        - equal: [webhook, << pipeline.trigger_source >>]
         - equal: ["build_four_hours", << pipeline.trigger_source >>]
     jobs:
       - print_versions
