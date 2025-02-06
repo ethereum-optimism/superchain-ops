@@ -6,7 +6,7 @@ parameters:
     default: cimg/base:2024.01
   l1_mainnet_rpc_url:
     type: string
-    default: "https://ci-mainnet-l1.optimism.io"
+    default: "https://ci-mainnet-l1-archive.optimism.io"
   l1_sepolia_rpc_url:
     type: string
     default: "https://ci-sepolia-l1.optimism.io"
@@ -316,7 +316,19 @@ jobs:
           command: |
             forge --version
             forge test -vvv
-
+  
+  monorepo_integration_test:
+    circleci_ip_ranges: true
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - checkout-with-mise
+      - run:
+          name: monorepo integration tests
+          environment:
+            ETH_RPC_URL: << pipeline.parameters.l1_mainnet_rpc_url >>
+          command: |
+            (cd src/improvements && just monorepo-integration-test)
   print_versions:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -329,6 +341,16 @@ jobs:
             yq --version
             forge --version
 
+  shellcheck:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - checkout-with-mise
+      - run:
+          name: shellcheck
+          command: | # Justfiles are not shell scripts and should not be checked with shellcheck
+            (cd src/improvements/script && shellcheck -x *)
+
 workflows:
   main:
     jobs:
@@ -337,6 +359,12 @@ workflows:
       - forge_build
       - forge_fmt
       - forge_test
+      # This is a long running job, so we only run it on the main branch.
+      - monorepo_integration_test:
+          filters:
+            branches:
+              only: main
+      - shellcheck
       # RPC endpoint checks.
       - check_sepolia_rpc_endpoints
       - check_mainnet_rpc_endpoints
