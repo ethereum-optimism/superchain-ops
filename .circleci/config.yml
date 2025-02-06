@@ -357,7 +357,7 @@ workflows:
       or:
         # Trigger on new commits
         - equal: [webhook, << pipeline.trigger_source >>]
-        - equal: ["build_four_hours", << pipeline.trigger_source >>]
+        - equal: ["build_four_hours", <<pipeline.schedule.name>>]
     jobs:
       - print_versions
       # Forge checks.
