@@ -352,16 +352,11 @@ jobs:
             (cd src/improvements/script && shellcheck -x *)
 
 workflows:
-  monorepo_integration_test_scheduled:
-    when:
-      equal: [build_four_hours, << pipeline.trigger_source >>]
-    jobs:
-      - print_versions
-      - monorepo_integration_test:
-          filters:
-            branches:
-              only: main
   main:
+    when:
+      or:
+        - equal: ["github", << pipeline.trigger_parameters.circleci.trigger_type >>]
+        - equal: ["build_four_hours", << pipeline.trigger_source >>]
     jobs:
       - print_versions
       # Forge checks.
