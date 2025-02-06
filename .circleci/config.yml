@@ -353,6 +353,11 @@ jobs:
 
 workflows:
   main:
+    when:
+      or:
+        - equal: [build_four_hours, << pipeline.trigger_source >>]
+        - not:
+            equal: [scheduled_pipeline, << pipeline.trigger_source >>]
     jobs:
       - print_versions
       # Forge checks.
