@@ -366,7 +366,7 @@ jobs:
       - run:
           name: shellcheck
           command: | # Justfiles are not shell scripts and should not be checked with shellcheck
-            (cd src/improvements/script && shellcheck -x *)
+            (cd src/improvements/script && shellcheck -x *.sh)
 
 workflows:
   main:

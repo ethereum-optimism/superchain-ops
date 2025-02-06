@@ -2,7 +2,6 @@ pragma solidity 0.8.15;
 
 import {Script} from "forge-std/Script.sol";
 
-
 contract GetAddressesHash is Script {
     string addressesPath = "lib/superchain-registry/superchain/extra/addresses/addresses.json";
 
@@ -12,7 +11,7 @@ contract GetAddressesHash is Script {
         vm.writeFile("hash.txt", hashString);
     }
 
-    function matchHash() public {
+    function matchHash() public view {
         bytes32 newHash = keccak256(bytes(vm.readFile(addressesPath)));
         bytes32 oldHash = vm.parseBytes32(vm.readFile("hash.txt"));
         require(newHash == oldHash, "superchain-registry is not up to date");
