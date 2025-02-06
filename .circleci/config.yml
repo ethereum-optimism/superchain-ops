@@ -211,11 +211,10 @@ jobs:
           name: Check superchain registry
           command: |
             just install
-            forge --version
-            forge build
-            forge script src/improvements/script/GetAddressesHash.s.sol
+            bash src/improvements/script/generate-hash.sh
             cd lib/superchain-registry && git pull origin main && cd ../..
-            forge script src/improvements/script/GetAddressesHash.s.sol --sig "matchHash()"
+            bash src/improvements/script/match-hash.sh
+            rm -rf hash.txt
 
   # TODO: remove/replace when there are real consumers of the RPC URLs
   example_mainnet_job:
