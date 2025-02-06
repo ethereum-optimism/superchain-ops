@@ -211,9 +211,9 @@ jobs:
           name: Check superchain registry
           command: |
             just install
-            bash src/improvements/script/generate-hash.sh
+            bash src/improvements/script/check-superchain-latest.sh
             cd lib/superchain-registry && git pull origin main && cd ../..
-            bash src/improvements/script/match-hash.sh
+            bash src/improvements/script/check-superchain-latest.sh
             rm -rf hash.txt
 
   # TODO: remove/replace when there are real consumers of the RPC URLs
