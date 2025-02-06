@@ -69,7 +69,7 @@ Please see the signing and execution instructions in [SINGLE.md](../../../SINGLE
 
 ### State
 
-On the "State" tab, you can verify that the following two state changes occured on the `SystemConfigProxy` at `0x229047fed2591dbec1ef1118d64f7af3db9eb290`:
+On the "State" tab, you can verify that the following two state changes occurred on the `SystemConfigProxy` at `0x229047fed2591dbec1ef1118d64f7af3db9eb290`:
 
 * `overhead` (key `0x65`) changed from `0xbc = 188` to `0`.
   This state diff will only be there before execution of task `005-2`, which itself sets this to `0` already.
