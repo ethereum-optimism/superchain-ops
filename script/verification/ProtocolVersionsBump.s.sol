@@ -14,7 +14,7 @@ abstract contract ProtocolVersionsBump is VerificationBase, SuperchainRegistry {
         uint32 preRelease;
     }
 
-    uint256 immutable reccomended;
+    uint256 immutable recommended;
     uint256 immutable required;
 
     address owner;
@@ -22,7 +22,7 @@ abstract contract ProtocolVersionsBump is VerificationBase, SuperchainRegistry {
     constructor(address _owner, ProtoVer memory _recommended, ProtoVer memory _required) {
         owner = _owner;
         console.log("Current owner is:", owner);
-        reccomended = encodeProtocolVersion(_recommended);
+        recommended = encodeProtocolVersion(_recommended);
         required = encodeProtocolVersion(_required);
         console.log(
             "Will validate ProtocolVersions bump to (reccommended,required): ",
@@ -31,7 +31,7 @@ abstract contract ProtocolVersionsBump is VerificationBase, SuperchainRegistry {
         );
         console.log(
             "Encoded versions are (reccommended,required): ",
-            LibString.toHexString(reccomended, 32),
+            LibString.toHexString(recommended, 32),
             LibString.toHexString(required, 32)
         );
         addAllowedStorageAccess(proxies.ProtocolVersions);
@@ -62,6 +62,6 @@ abstract contract ProtocolVersionsBump is VerificationBase, SuperchainRegistry {
         ProtocolVersions pv = ProtocolVersions(proxies.ProtocolVersions);
         require(pv.owner() == owner, "PV.owner not expected");
         require(ProtocolVersion.unwrap(pv.required()) == required, "Required PV not set correctly");
-        require(ProtocolVersion.unwrap(pv.recommended()) == reccomended, "Recommended PV not set correctly");
+        require(ProtocolVersion.unwrap(pv.recommended()) == recommended, "Recommended PV not set correctly");
     }
 }
