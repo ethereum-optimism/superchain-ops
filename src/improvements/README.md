@@ -10,11 +10,7 @@ Developers can now create tasks without writing any Solidity code as long as a p
 
 # Task Configuration File
 
-The template configuration file is `<network_name>Config.toml` which contains the network configurations to modify on L1. This file is used to configure which L2 network contracts will be used for the task on the given network. Task developers can specify up to three separate types of configuration files:
-
-- `mainnetConfig.toml` - the mainnet configuration file, which specifies which L2 contracts will be affected on L1 mainnet
-- `sepoliaConfig.toml` - the sepolia configuration file, which specifies which L2 contracts will be affected on L1 sepolia
-- `devnetConfig.toml` - the devnet configuration file, which specifies which L2 contracts will be affected on L1 devnet (sepolia testnet)
+The template configuration file is `config.toml` which contains the network configurations to modify on L1.
 
 ### L2Chains
 
