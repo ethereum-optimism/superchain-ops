@@ -1,6 +1,6 @@
 # ProxyAdminOwner - Set Dispute Game Implementation
 
-Status: DRAFT, NOT READY TO SIGN
+Status: READY TO SIGN
 
 ## Objective
 
@@ -15,3 +15,9 @@ This switches sepolia back to singlethreaded cannon, undoing the upgrade to cann
 ### State Validations
 
 Please see the instructions for [validation](./VALIDATION.md).
+
+## Simulation
+
+Please see the "Simulating and Verifying the Transaction" instructions in [NESTED.md](../../../NESTED.md).
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/sep/030-revert-mt-cannon/NestedSignFromJson.s.sol`.
+This ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
