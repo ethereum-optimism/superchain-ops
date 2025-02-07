@@ -55,7 +55,6 @@ contract MainnetAddressRegistryTest is Test {
 
             // Note: Some older chains (pre-MCP-L1) do not have a SuperchainConfig.
             address superchainConfig = getOptionalAddress("SuperchainConfig", chainId);
-            // Only assert nonzero if one is expected.
             if (superchainConfig != address(0)) {
                 assertNotEq(superchainConfig, address(0), "SuperchainConfig not loaded");
             }
