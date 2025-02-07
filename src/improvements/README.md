@@ -37,11 +37,11 @@ A powerful simulation tooling system that allows developers to write and test ta
 ## Key Features
 
 - **Template-Based Development**: Create tasks without writing Solidity code using predefined templates
-- **Cross-Network Support**: Test and deploy tasks across multiple networks
 - **Built-in Validation**: Automated checks for state changes and security
-- **Simulation First**: Test all changes locally before deployment
+- **Simulation First**: Test all changes locally before running task onchain
 
 ## Repository Structure
+The template configuration file is `config.toml` which contains the network configurations to modify on L1.
 
 ```
 superchain-ops/
