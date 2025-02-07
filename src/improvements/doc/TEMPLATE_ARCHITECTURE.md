@@ -8,7 +8,7 @@ Templates are organized in the following structure:
 
 ```
 src/improvements/
-├── template/           # Template Solidity contracts
+├── template/          # Template Solidity contracts
 ├── doc/               # Documentation
 └── tasks/             # Network-specific tasks
      ├── eth/          # Ethereum mainnet tasks
@@ -28,7 +28,7 @@ Templates are Solidity contracts located in the `src/improvements/template/` dir
 Each task requires a `config.toml` file with two main components:
 
 1. L2 Chain Configuration
-2. Template-specific parameters
+2. Template Selection
 
 #### L2 Chain Configuration
 

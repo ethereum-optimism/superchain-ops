@@ -37,6 +37,7 @@ A powerful simulation tooling system that allows developers to write and test ta
 ## Key Features
 
 - **Template-Based Development**: Create tasks without writing Solidity code using predefined templates
+- **Multi-Network Tasks**: Tasks can configure multiple networks as long as they are all part of a single superchain instance
 - **Built-in Validation**: Automated checks for state changes and security
 - **Simulation First**: Test all changes locally before running task onchain
 
