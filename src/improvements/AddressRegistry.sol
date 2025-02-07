@@ -7,6 +7,18 @@ import {Test} from "forge-std/Test.sol";
 
 import {IAddressRegistry} from "src/improvements/IAddressRegistry.sol";
 
+/// @notice Contains getters for arbitrary methods from all L1 contracts, including legacy getters
+/// that have since been deprecated.
+interface IFetcher {
+    function guardian() external view returns (address);
+    function GUARDIAN() external view returns (address);
+    function systemConfig() external view returns (address);
+    function SYSTEM_CONFIG() external view returns (address);
+    function disputeGameFactory() external view returns (address);
+    function l2OutputOracle() external view returns (address);
+    function superchainConfig() external view returns (address);
+}
+
 /// @title Network Address Manager
 /// @notice This contract provides a single source of truth for storing and retrieving addresses across multiple networks.
 /// @dev Handles addresses for contracts and externally owned accounts (EOAs) while ensuring correctness and uniqueness.
@@ -73,38 +85,81 @@ contract AddressRegistry is IAddressRegistry, Test {
             chains.push(_chains[i]);
         }
 
-        /// should never revert
         string memory chainAddressesContent =
             vm.readFile("lib/superchain-registry/superchain/extra/addresses/addresses.json");
 
         for (uint256 i = 0; i < chains.length; i++) {
-            uint256 chainId = chains[i].chainId;
-            string memory chainName = chains[i].name;
+            ChainInfo memory chain = chains[i];
+            uint256 chainId = chain.chainId; // L2 chain ID.
+
             require(!supportedL2ChainIds[chainId], "Duplicate chain ID in chain config");
             require(chainId != 0, "Invalid chain ID in config");
-            require(bytes(chainName).length > 0, "Empty name in config");
+            require(bytes(chain.name).length > 0, "Empty name in config");
 
             supportedL2ChainIds[chainId] = true;
 
-            string[] memory keys = vm.parseJsonKeys(chainAddressesContent, string.concat("$.", vm.toString(chainId)));
+            // We get the OptimismPortal proxy address from the addresses file, and fetch everything
+            // else from the chain itself to ensure all addresses are up to date. This is required
+            // because the superchain registry does not have anything in place to guarantee that the
+            // addresses in the addresses file are up to date. In later versions of the OP Stack
+            // contracts starting from the SystemConfig is preferable because it stores all other
+            // addresses, but for older contract versions, which we still need to support, starting
+            // from the OptimismPortal is the only way to go.
 
-            for (uint256 j = 0; j < keys.length; j++) {
-                string memory key = keys[j];
-                address addr =
-                    vm.parseJsonAddress(chainAddressesContent, string.concat("$.", vm.toString(chainId), ".", key));
+            // TODO we should make sure our tests of this file cover enough chains to cover a range
+            // of contract versions. For example chain ID 291 is on an older version of the contracts
+            // than chain ID 10, so make sure we test both to ensure we have robust getters in this
+            // contract.
 
-                require(addr != address(0), "Invalid address: cannot be zero");
-                require(
-                    registry[key][chainId].addr == address(0),
-                    "Address already registered with this identifier and chain ID"
-                );
+            // --- Contracts ---
+            address optimismPortalProxy = vm.parseJsonAddress(
+                chainAddressesContent, string.concat("$.", vm.toString(chainId), ".OptimismPortalProxy")
+            );
+            saveAddress("OptimismPortalProxy", chain, optimismPortalProxy);
 
-                registry[key][chainId] = RegistryEntry(addr, addr.code.length > 0);
-                string memory prefixedIdentifier =
-                    string(abi.encodePacked(vm.replace(vm.toUppercase(chainName), " ", "_"), "_", key));
-                vm.label(addr, prefixedIdentifier);
-            }
+            address systemConfigProxy = getSystemConfigProxy(optimismPortalProxy);
+            saveAddress("SystemConfigProxy", chain, systemConfigProxy);
+
+            // AddressManager
+            // AnchorStateRegistryProxy
+            // DisputeGameFactoryProxy
+            // FaultDisputeGame
+            // L1CrossDomainMessengerProxy
+            // L1ERC721BridgeProxy
+            // L1StandardBridgeProxy
+            // MIPS
+            // OptimismMintableERC20FactoryProxy
+            // OptimismPortalProxy
+            // PermissionedDisputeGame
+            // PreimageOracle
+            // SystemConfigProxy
+
+            // --- Roles ---
+            address guardian = getGuardian(optimismPortalProxy);
+            saveAddress("Guardian", chain, guardian);
+
+            // BatchSubmitter
+            // Challenger
+            // Guardian
+            // Proposer
+            // ProxyAdmin
+            // ProxyAdminOwner
+            // SystemConfigOwner
+            // UnsafeBlockSigner
         }
+    }
+
+    function saveAddress(string memory identifier, ChainInfo memory chain, address addr) internal {
+        require(addr != address(0), "Address cannot be zero");
+        require(registry[identifier][chain.chainId].addr == address(0), "Address already registered");
+
+        registry[identifier][chain.chainId] = RegistryEntry(addr, addr.code.length > 0);
+
+        // Format the chain name: uppercase it and replace spaces with underscores,
+        // then concatenate with the identifier to form a readable label.
+        string memory formattedChain = vm.replace(vm.toUppercase(chain.name), " ", "_");
+        string memory label = string.concat(formattedChain, "_", identifier);
+        vm.label(addr, label);
     }
 
     /// @notice Retrieves an address by its identifier for a specified L2 chain
@@ -179,6 +234,22 @@ contract AddressRegistry is IAddressRegistry, Test {
             require(addr.code.length > 0, "Address must contain code");
         } else {
             require(addr.code.length == 0, "Address must not contain code");
+        }
+    }
+
+    function getGuardian(address portal) internal view returns (address) {
+        try IFetcher(portal).guardian() returns (address guardian) {
+            return guardian;
+        } catch {
+            return IFetcher(portal).GUARDIAN();
+        }
+    }
+
+    function getSystemConfigProxy(address portal) internal view returns (address) {
+        try IFetcher(portal).systemConfig() returns (address systemConfig) {
+            return systemConfig;
+        } catch {
+            return IFetcher(portal).SYSTEM_CONFIG();
         }
     }
 }
