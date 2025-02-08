@@ -17,16 +17,12 @@ contract RegressionTest is Test {
         MultisigTask multisigTask = new GasConfigTemplate();
         multisigTask.simulateRun(taskConfigFilePath);
         string memory callData = vm.toString(multisigTask.getCalldata());
-        console.log("bro callData");
-        console.log(callData);
         assertEq(keccak256(bytes(callData)), keccak256(bytes(expectedCallData)));
 
         string memory expectedDataToSign =
             "0x19010f634ad56005ddbd68dc52233931a858f740b8ab706671c42b055efef561257e5ba28ec1e58ea69211eb8e875f10ae165fb3fb4052b15ca2516486f4b059135f";
         string memory dataToSign =
             vm.toString(multisigTask.getDataToSign(multisigTask.multisig(), multisigTask.getCalldata()));
-        console.log("bro");
-        console.log(dataToSign);
         assertEq(keccak256(bytes(dataToSign)), keccak256(bytes(expectedDataToSign)));
     }
 
