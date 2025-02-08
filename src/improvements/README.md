@@ -16,7 +16,7 @@ The template configuration file is `config.toml` which contains the network conf
 
 ```toml
 # L2Chains is a list of the L2 chains that the task will interact with
-l2chains = [{"name": "Orderly", "chainId": 291}, {"name": "Metal", "chainId": 1750}, {"name": OP Mainnet", "chainId": 10}]
+l2chains = [{"name": "Base", "chainId": 8453}, {"name": "Metal", "chainId": 1750}, {"name": "OP Mainnet", "chainId": 10}]
 ```
 
 ### Task Template Files

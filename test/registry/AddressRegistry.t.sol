@@ -7,11 +7,11 @@ import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 contract MainnetAddressRegistryTest is Test {
     AddressRegistry private addresses;
 
-    uint256 public orderlyChainId;
     uint256 public metalChainId;
     uint256 public baseChainId;
     uint256 public opMainnetChainId;
     uint256 public zoraChainId;
+    uint256 public modeChainId;
 
     function setUp() public {
         string memory networkConfigFilePath = "test/tasks/mock/DiscoverChainAddressesConfig.toml";
@@ -19,15 +19,14 @@ contract MainnetAddressRegistryTest is Test {
         vm.createSelectFork("mainnet");
 
         addresses = new AddressRegistry(networkConfigFilePath);
-        orderlyChainId = getChain("orderly").chainId;
         metalChainId = getChain("metal").chainId;
         baseChainId = getChain("base").chainId;
         opMainnetChainId = getChain("optimism").chainId;
         zoraChainId = getChain("zora").chainId;
+        modeChainId = getChain("mode").chainId;
     }
 
     function testContractState() public view {
-        assertTrue(addresses.supportedL2ChainIds(orderlyChainId), "Orderly chain ID not supported");
         assertTrue(addresses.supportedL2ChainIds(metalChainId), "Metal chain ID not supported");
         assertTrue(addresses.supportedL2ChainIds(baseChainId), "Base chain ID not supported");
         assertTrue(addresses.supportedL2ChainIds(opMainnetChainId), "OP Mainnet chain ID not supported");
@@ -59,12 +58,12 @@ contract MainnetAddressRegistryTest is Test {
 
             assertNotEq(addresses.getAddress("SystemConfigProxy", chainId), address(0), "SystemConfigProxy not loaded");
 
-            // Note: This is not discoverable on older chains like orderly. In these cases, it's read from the superchain registry.
+            // Note: This is not discoverable on older chains. In these cases, it's read from the superchain registry.
             assertNotEq(
                 addresses.getAddress("L1ERC721BridgeProxy", chainId), address(0), "L1ERC721BridgeProxy not loaded"
             );
 
-            // Note: This is not discoverable on older chains like orderly. In these cases, it's read from the superchain registry.
+            // Note: This is not discoverable on older chains. In these cases, it's read from the superchain registry.
             assertNotEq(
                 addresses.getAddress("OptimismMintableERC20FactoryProxy", chainId),
                 address(0),
@@ -117,7 +116,7 @@ contract MainnetAddressRegistryTest is Test {
 
     function testGetNonExistentAddressFails() public {
         vm.expectRevert("Address not found");
-        addresses.getAddress("NON_EXISTENT_ADDRESS", orderlyChainId);
+        addresses.getAddress("NON_EXISTENT_ADDRESS", opMainnetChainId);
     }
 
     function testInvalidL2ChainIdIsAddressContractFails() public {
@@ -126,8 +125,8 @@ contract MainnetAddressRegistryTest is Test {
     }
 
     function testGetIsAddressContractNonExistentAddressFails() public {
-        vm.expectRevert("Address not found for identifier NON_EXISTENT_ADDRESS on chain 291");
-        addresses.isAddressContract("NON_EXISTENT_ADDRESS", orderlyChainId);
+        vm.expectRevert("Address not found for identifier NON_EXISTENT_ADDRESS on chain 34443");
+        addresses.isAddressContract("NON_EXISTENT_ADDRESS", modeChainId);
     }
 
     /// Construction failure tests
