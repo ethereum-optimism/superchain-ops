@@ -38,7 +38,7 @@ contract NestedMultisigTaskTest is Test {
 
     function runTask() internal {
         multisigTask = new DisputeGameUpgradeTemplate();
-        multisigTask.run(taskConfigFilePath);
+        multisigTask.simulateRun(taskConfigFilePath);
         addresses = multisigTask.addresses();
     }
 
@@ -128,9 +128,6 @@ contract NestedMultisigTaskTest is Test {
     function testNestedExecuteWithSignatures() public {
         uint256 snapshotId = vm.snapshot();
         runTask();
-        bytes memory callData = multisigTask.getCalldata();
-        bytes32 parentHash = multisigTask.getHash();
-        bytes memory callDataToApprove = multisigTask.generateApproveMulticallData();
         address multisig = multisigTask.multisig();
         address[] memory parentMultisigOwners = IGnosisSafe(multisig).getOwners();
         bytes[] memory childMultisigDatasToSign = new bytes[](parentMultisigOwners.length);
@@ -202,39 +199,17 @@ contract NestedMultisigTaskTest is Test {
             }
 
             /// execute the approve hash call with the signatures
-            assertTrue(
-                IGnosisSafe(childMultisig).execTransaction(
-                    MULTICALL3_ADDRESS,
-                    0,
-                    callDataToApprove,
-                    Enum.Operation.DelegateCall,
-                    0,
-                    0,
-                    0,
-                    address(0),
-                    address(0),
-                    packedSignaturesChild
-                )
-            );
+            multisigTask = new DisputeGameUpgradeTemplate();
+            multisigTask.approveFromChildMultisig(taskConfigFilePath, childMultisig, packedSignaturesChild);
         }
-        /// generate prevalidated signatures for the parent multisig
-        bytes memory packedSignaturesParent = prepareSignatures(multisig, parentHash);
-        /// execute the multicall transaction that upgrades the implementation with the prevalidated signatures
-        assertTrue(
-            IGnosisSafe(multisig).execTransaction(
-                MULTICALL3_ADDRESS,
-                0,
-                callData,
-                Enum.Operation.DelegateCall,
-                0,
-                0,
-                0,
-                address(0),
-                address(0),
-                packedSignaturesParent
-            ),
-            "Expected transaction to succeed"
-        );
+
+        /// no offchain signatures for the parent multisig
+        bytes memory packedSignaturesParent;
+
+        /// execute the task
+        multisigTask = new DisputeGameUpgradeTemplate();
+        multisigTask.executeRun(taskConfigFilePath, packedSignaturesParent);
+
         /// check that the implementation is upgraded correctly
         assertEq(
             address(disputeGameFactory.gameImpls(GameTypes.CANNON)),
