@@ -122,12 +122,10 @@ contract AddressRegistry is IAddressRegistry, Test {
 
         supportedL2ChainIds[chainId] = true;
 
-        address optimismPortalProxy = _findOptimismPortalAndSaveEntries(chain, chainAddressesContent);
+        address optimismPortalProxy = _fetchAndSaveInitialContracts(chain, chainAddressesContent);
 
         address superchainConfig = getSuperchainConfig(optimismPortalProxy);
-        if (superchainConfig != address(0)) {
-            saveAddress("SuperchainConfig", chain, superchainConfig);
-        }
+        saveAddress("SuperchainConfig", chain, superchainConfig);
 
         address systemConfigProxy = getSystemConfigProxy(optimismPortalProxy);
         saveAddress("SystemConfigProxy", chain, systemConfigProxy);
@@ -166,7 +164,7 @@ contract AddressRegistry is IAddressRegistry, Test {
         saveAddress("UnsafeBlockSigner", chain, unsafeBlockSigner);
     }
 
-    function _findOptimismPortalAndSaveEntries(ChainInfo memory chain, string memory chainAddressesContent)
+    function _fetchAndSaveInitialContracts(ChainInfo memory chain, string memory chainAddressesContent)
         internal
         returns (address optimismPortalProxy)
     {
@@ -381,7 +379,7 @@ contract AddressRegistry is IAddressRegistry, Test {
         try IFetcher(systemConfigProxy).disputeGameFactory() returns (address disputeGameFactoryProxy) {
             return disputeGameFactoryProxy;
         } catch {
-            return address(0); // Older chains don't have a dispute game factory and it should be discovered from the SystemConfig.
+            return address(0); // Older chains don't have a dispute game factory, they have the L2OutputOracle
         }
     }
 

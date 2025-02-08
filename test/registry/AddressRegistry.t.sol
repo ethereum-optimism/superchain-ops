@@ -2,9 +2,7 @@
 pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
-
 import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
-import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
 
 contract MainnetAddressRegistryTest is Test {
     AddressRegistry private addresses;
