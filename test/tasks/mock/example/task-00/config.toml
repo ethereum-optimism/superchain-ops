@@ -1,8 +1,8 @@
 # this is the file used to determine the network configuration
 
-l2chains = [{name = "Orderly", chainId = 291}, {name = "Metal", chainId = 1750}]
+l2chains = [{name = "Mode", chainId = 34443}, {name = "Metal", chainId = 1750}]
 
 templateName = "GasConfigTemplate"
 
 [gasConfigs]
-gasLimits = [{chainId = 291, gasLimit = 100000000}, {chainId = 1750, gasLimit = 100000000}]
+gasLimits = [{chainId = 34443, gasLimit = 100000000}, {chainId = 1750, gasLimit = 100000000}]
