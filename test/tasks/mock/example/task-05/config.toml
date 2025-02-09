@@ -1,0 +1,7 @@
+# this is the file used to determine the network configuration
+
+l2chains = [{name = "Test Sepolia Devnet", chainId = 11155420}]
+
+templateName = "SafeOwnerThresholdTemplate"
+
+safeConfig = {safeAddress = "0x067855368967Df79A82EE125c3ACfF337C731dE1", addressesToAdd = ["0xbc6d2764d7f597abC4f01Ceeb0A7C49DaE60474A"], addressesToRemove = [], newThreshold = 1}
