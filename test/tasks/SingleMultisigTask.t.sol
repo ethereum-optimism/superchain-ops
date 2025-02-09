@@ -6,6 +6,7 @@ import {Test} from "forge-std/Test.sol";
 import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {GasConfigTemplate} from "src/improvements/template/GasConfigTemplate.sol";
+import {SafeOwnerThresholdTemplate} from "src/improvements/template/SafeOwnerThresholdTemplate.sol";
 import {IncorrectGasConfigTemplate1} from "test/tasks/mock/IncorrectGasConfigTemplate1.sol";
 import {IncorrectGasConfigTemplate2} from "test/tasks/mock/IncorrectGasConfigTemplate2.sol";
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
@@ -298,5 +299,33 @@ contract SingleMultisigTaskTest is Test {
         assertEq(systemConfig.gasLimit(), 100000000, "l2 gas limit not set for Mode");
         systemConfig = SystemConfig(systemConfigMetal);
         assertEq(systemConfig.gasLimit(), 100000000, "l2 gas limit not set for Metal");
+    }
+
+    function testSafeOwnerThresholdTemplateRevertsSafeAddressNotSet() public {
+        string memory path = "test/tasks/mock/IncorrectSafeAddressConfig1.toml";
+        MultisigTask localMultisigTask = new SafeOwnerThresholdTemplate();
+        vm.expectRevert("Safe address must be set");
+        localMultisigTask.simulateRun(path);
+    }
+
+    function testSafeOwnerThresholdTemplateRevertsConfigFileNotModifyingSafe() public {
+        string memory path = "test/tasks/mock/IncorrectSafeAddressConfig2.toml";
+        MultisigTask localMultisigTask = new SafeOwnerThresholdTemplate();
+        vm.expectRevert("Config file must modify safe");
+        localMultisigTask.simulateRun(path);
+    }
+
+    function testSafeOwnerThresholdTemplateRevertsThresholdNotInRange() public {
+        string memory path = "test/tasks/mock/IncorrectSafeAddressConfig3.toml";
+        MultisigTask localMultisigTask = new SafeOwnerThresholdTemplate();
+        vm.expectRevert("Safe new threshold must be in range");
+        localMultisigTask.simulateRun(path);
+    }
+
+    function testSafeOwnerThresholdTemplateRevertsTwoChains() public {
+        MultisigTask localMultisigTask = new SafeOwnerThresholdTemplate();
+        string memory path = "test/tasks/mock/IncorrectSafeAddressConfig4.toml";
+        vm.expectRevert("Only one chain is supported for this Safe task");
+        localMultisigTask.simulateRun(path);
     }
 }
