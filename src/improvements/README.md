@@ -86,7 +86,7 @@ just new task
 2. Configure the task in `config.toml`:
 ```toml
 templateName = "GasConfigTemplate"
-l2chains = [{name = "Chain1", chainId = 123}]
+l2chains = [{"name": "OP Mainnet", "chainId": 10}]
 ```
 
 3. Test the task:
