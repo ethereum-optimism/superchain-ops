@@ -1,0 +1,5 @@
+l2chains = [{name = "Test Sepolia Devnet", chainId = 11155420}]
+
+templateName = "SafeOwnerThresholdTemplate"
+
+safeConfig = {safeAddress = "0x0000000000000000000000000000000000000000", addressesToAdd = [], addressesToRemove = [], newThreshold = 1}
