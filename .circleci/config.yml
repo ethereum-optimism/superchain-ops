@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  utils: ethereum-optimism/circleci-utils@1.0.8
+
 parameters:
   default_docker_image:
     type: string
@@ -20,67 +23,7 @@ parameters:
     type: integer
     default: 5
 
-commands:
-  checkout-with-mise:
-    steps:
-      - checkout
-      - run:
-          name: Initialize mise environment
-          command: |
-            # This is used to create a per-user cache key to preserve permissions across different
-            # executor types.
-            user=$(whoami)
-            echo "$user" > .executor-user
-            echo "Set executor user to $user."
-
-            if [[ "$user" == "root" ]]; then
-              # Self-hosted runners will persist this cache between runs. Cleaning it up means that we
-              # preserve the semantics of the cache regardless of executor type. It's also much faster
-              # to delete the cache and recreate it than it is to overwrite it in place.
-              rm -rf /data/mise-data
-              echo "Cleaned up cache data."
-
-              mkdir -p /data/mise-data
-              echo "Created Mise data dir."
-              mkdir -p ~/.cache
-              echo "Created Mise cache dir."
-            else
-              sudo rm -rf /data/mise-data
-              echo "Cleaned up cache data."
-              sudo mkdir -p /data/mise-data
-              sudo chown -R "$user:$user" /data/mise-data
-              echo "Created Mise data dir."
-              sudo mkdir -p ~/.cache
-              sudo chown -R "$user:$user" ~/.cache
-              echo "Created Mise cache dir."
-            fi
-      - restore_cache:
-          name: Restore mise cache
-          keys:
-            - mise-v5-{{ checksum ".executor-user" }}-{{ checksum "mise.toml" }}
-      - run:
-          name: Install mise
-          command: |
-            if command -v mise &> /dev/null; then
-              echo "mise already installed at $(command -v mise)"
-            else
-              curl https://mise.run | sh
-            fi
-
-            echo "export PATH=\"$HOME/.local/bin:\$PATH\"" >> "$BASH_ENV"
-            echo "export MISE_DATA_DIR=/data/mise-data" >> "$BASH_ENV"
-            echo "export MISE_JOBS=$(nproc)" >> "$BASH_ENV"
-            echo "eval \"\$($HOME/.local/bin/mise activate --shims)\"" >> "$BASH_ENV"
-      - run:
-          name: Install mise deps
-          command: |
-            mise install -v -y
-      - save_cache:
-          name: Save mise cache
-          key: mise-v5-{{ checksum ".executor-user" }}-{{ checksum "mise.toml" }}
-          paths:
-            - /data/mise-data
-  
+commands:  
   simulate:
     description: "Runs simulations of a task"
     parameters:
@@ -125,7 +68,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: Check Sepolia RPC Endpoints
           command: |
@@ -154,7 +97,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: Check Mainnet RPC Endpoints
           command: |
@@ -182,7 +125,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - attach_workspace:
           at: .
       - run:
@@ -193,7 +136,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - attach_workspace:
           at: .
       - run:
@@ -226,7 +169,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: just simulate r1-hello-council
           command: |
@@ -243,7 +186,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: just simulate r2-remove-signer
           command: |
@@ -261,7 +204,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: just simulate r4-jointly-upgrade
           command: |
@@ -278,7 +221,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - simulate:
           task: "/eth/ink-002-set-respected-game-type"
 
@@ -286,7 +229,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - simulate_nested:
           task: "/sep/zora-002-fp-upgrade"
 
@@ -294,7 +237,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: forge build
           command: |
@@ -306,7 +249,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: forge fmt
           command: |
@@ -318,7 +261,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: forge test
           command: |
@@ -330,7 +273,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: monorepo integration tests
           environment:
@@ -341,7 +284,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: print versions
           command: |
@@ -353,7 +296,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: shellcheck
           command: | # Justfiles are not shell scripts and should not be checked with shellcheck
