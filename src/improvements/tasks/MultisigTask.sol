@@ -36,7 +36,6 @@ abstract contract MultisigTask is Test, Script, ITask {
 
     /// @notice struct to store allowed storage accesses read in from config file
     /// uses OpenZeppelin EnumerableSet for allowed storage accesses
-    /// @dev internal for direct use by SafeOwnerThresholdTemplate
     EnumerableSet.AddressSet internal _allowedStorageAccesses;
 
     /// @notice Struct to store information about an action
