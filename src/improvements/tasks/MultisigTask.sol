@@ -36,6 +36,7 @@ abstract contract MultisigTask is Test, Script, ITask {
 
     /// @notice struct to store allowed storage accesses read in from config file
     /// uses OpenZeppelin EnumerableSet for allowed storage accesses
+    /// @dev internal for direct use by SafeOwnerThresholdTemplate
     EnumerableSet.AddressSet internal _allowedStorageAccesses;
 
     /// @notice Struct to store information about an action
@@ -258,6 +259,7 @@ abstract contract MultisigTask is Test, Script, ITask {
             }
         }
 
+        /// call post task setup function to finalize the setup.
         _postTaskSetup();
     }
 
@@ -674,17 +676,28 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// --------------------------------------------------------------------
     /// --------------------------------------------------------------------
 
+    /// The functions are called in the following order during the task lifecycle:
+
+    /// 1. template setup is the common entrypoint to the MultisigTask regardless of which function is run
     /// @notice abstract function to be implemented by the inheriting contract to setup the template
     function _templateSetup(string memory taskConfigFilePath) internal virtual;
 
+    /// 2. to finalize the template setup, the _postTaskSetup function is called. This is default empty and
+    /// task developers do not have to implement this function unless there are special requirements for a task
     /// @notice empty function that can be implemented by the inheriting
     /// contract to finalize setting up the template
     function _postTaskSetup() internal virtual {}
 
+    /// 3. _build function is the main function for crafting calldata, it is called in a for loop, which
+    /// iterates over the chains in the task. The _build function is called with the chainId as an argument
+    /// the buildModifier captures all of the actions taken in this function.
     /// @notice build the task actions for a given l2chain
     /// @dev override to add additional task specific build logic
     function _build(uint256 chainId) internal virtual;
 
+    /// 4. _validate function is called after the build function has been run for all chains and the results
+    /// of this tasks state transitions have been applied. This checks that the state transitions are valid
+    /// and applied correctly.
     /// @notice task specific validations
     /// @dev override to add additional task specific validations
     /// @param chainId The l2chainId
