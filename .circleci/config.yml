@@ -47,7 +47,7 @@ commands:
       task:
         type: string
     steps:
-      - checkout
+      - utils/checkout-with-mise
       - run:
           name: "simulate nested << parameters.task >>"
           command: |
