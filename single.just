@@ -6,6 +6,70 @@ export bundleName := env_var_or_default('BUNDLE_NAME', 'input')
 export taskPath := invocation_directory()
 export ownerSafe := env_var('OWNER_SAFE')
 
+approvehash_in_anvil hdPath='0':
+  #!/usr/bin/env bash
+  echo "simulating in anvil"
+  localrpcUrl="http://localhost:8545"
+  bundlePath=${taskPath}/${bundleName}.json
+  script=SignFromJson
+  if [ -f "${taskPath}/SignFromJson.s.sol" ]; then
+    script="${taskPath}/SignFromJson.s.sol"
+  fi
+
+  echo "Using script ${script} with simulate_in_anvil."
+  echo "Safe address: ${ownerSafe}"
+  echo "Getting signer address..."
+
+  if [ ! -z "$SIMULATE_WITHOUT_LEDGER" ]; then
+    signer=$(cast wallet address --private-key  0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80) # corresponding to 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 private-key.
+  else
+    signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  fi
+  echo "Simulating with: ${signer}"
+  echo ""
+  
+  echo "============ OVERRIDE SAFE SETTINGS '${ownerSafe}' ============"
+  echo "1. Set the threshold to 1."
+  cast rpc anvil_setStorageAt ${ownerSafe} 0x0000000000000000000000000000000000000000000000000000000000000004 0x0000000000000000000000000000000000000000000000000000000000000001 --rpc-url ${localrpcUrl}
+
+  echo "2.set the owner count to 1."
+  ## 2. Set the owner count to 1.
+  cast rpc anvil_setStorageAt ${ownerSafe} 0x0000000000000000000000000000000000000000000000000000000000000003 0x0000000000000000000000000000000000000000000000000000000000000001 --rpc-url ${localrpcUrl}
+
+  echo "3.Insert the address 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 as the sole owner of the safe."
+  ## 3. Set the 0xf39 address to the sole signer of the safe.
+  # cast keccak 1 || 2 => 0xe90b7bceb6e7df5418fb78d8ee546e97c83a08bbccc01a0644d599ccd2a7c2e0 expected owner mapping: {0x1 -> 0xf39..., 0xf39 -> 0x1}
+  cast rpc anvil_setStorageAt ${ownerSafe} 0xe90b7bceb6e7df5418fb78d8ee546e97c83a08bbccc01a0644d599ccd2a7c2e0 0x000000000000000000000000f39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --rpc-url ${localrpcUrl}
+  ## 4. Set the owner (abi.encode(owner, uint256(2)))-> to sentinel_address (0x1).
+  echo "4.Close the mapping of the owners to the sentinel address."
+  cast rpc anvil_setStorageAt ${ownerSafe} 0xbc40fbf4394cd00f78fae9763b0c2c71b21ea442c42fdadc5b720537240ebac1  0x0000000000000000000000000000000000000000000000000000000000000001 --rpc-url ${localrpcUrl}
+
+  echo "the sole Owner of the {ownerSafe} is: $(cast call ${ownerSafe}  "getOwners()(address[])" --rpc-url http://localhost:8545)"
+  echo "================================================"
+  # sender=$(cast wallet address --private-key  0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80)
+  
+  forge build
+  outputforge=$(forge script ${script} \
+    --rpc-url ${localrpcUrl} \
+    --sig "signJson(string)" ${bundlePath} \
+    --sender ${signer})
+  echo "Outputforge: $outputforge" > /tmp/outputforge.txt
+
+  hash=$(cat /tmp/outputforge.txt | grep -A 1 "If submitting onchain, call Safe.approveHash on " | cut -d ':' -f 2 | tr -d '[:space:]')
+  echo "Value: $value" 
+  # hash=$(echo $outputforge | grep -A 1 "If submitting onchain, call Safe.approveHash" "$file_path" | tail -n 1 | awk '{print $2}')
+
+  # Check if a hash was found
+  if [[ -z "$hash" ]]; then
+      echo "Hash not found in the file."
+      exit 1
+  else
+      echo "Extracted Hash: $hash"
+  fi
+
+  ## 5. Approve the hash with the well-known private key that is the first owner of anvil selection.
+  cast send ${ownerSafe} "approveHash(bytes32)" ${hash} --rpc-url ${localrpcUrl} --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+ 
 simulate hdPath='0' rpcUrlExternal="" broadcast="false":
   #!/usr/bin/env bash
   if [[ {{rpcUrlExternal}} == "" ]]; then
@@ -94,6 +158,28 @@ sign hdPath='0':
     --rpc-url ${rpcUrl} \
     --sig "signJson(string)" \
     ${bundlePath}
+
+execute_in_anvil hdPath='0':
+  #!/usr/bin/env bash
+  localrpcUrl="http://localhost:8545" # Can be set as globla in the future
+  bundlePath=${taskPath}/${bundleName}.json
+  script=SignFromJson
+  if [ -f "${taskPath}/SignFromJson.s.sol" ]; then
+    script="${taskPath}/SignFromJson.s.sol"
+  fi
+
+  if [ ! -z "$SIMULATE_WITHOUT_LEDGER" ]; then
+    signer=$(cast wallet address --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80) # corresponding to 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 private-key.
+  else
+    signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  fi
+  echo "Simulating with: ${signer}"
+  echo "Using script ${script}"
+  forge build
+  forge script ${script} \
+    --rpc-url ${localrpcUrl} \
+    --sig "runJson(string,bytes)" ${bundlePath} 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111 \
+    --broadcast --skip-simulation --sender  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 
 execute hdPath='0':
   #!/usr/bin/env bash

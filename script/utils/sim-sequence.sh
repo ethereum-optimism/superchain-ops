@@ -62,15 +62,17 @@ cleanup() {
     mv "$backup_file" "$simulation_file"
   fi
   # Kill the anvil fork at the end
-  # ps aux | grep anvil | grep -v grep | awk '{print $2}' | xargs kill
+  ps aux | grep anvil | grep -v grep | awk '{print $2}' | xargs kill
 }
 createFork() {
   # Start a fork
   echo "Starting anvil fork..."
   # check if the port is already open
   if lsof -Pi :8545 -sTCP:LISTEN -t >/dev/null ; then
-    echo "Port 8545 is already in use. Please make sure to kill the process using the port before running the script."
-    exit 1
+    echo "Port 8545 is already in use, killing previous anvil fork..."
+    ps aux | grep anvil | grep -v grep | awk '{print $2}' | xargs kill
+
+
   fi
   anvil -f $RPC_URL --fork-block-number 21573136 >> /tmp/anvil.logs & 
   sleep 5
@@ -144,7 +146,7 @@ done
 createFork
 # Disable state overrides and execute tasks.
 disable_state_overrides
-# export SIMULATE_WITHOUT_LEDGER=1
+export SIMULATE_WITHOUT_LEDGER=1
 for task_folder in "${task_folders[@]}"; do
   echo -e "\n---- Simulating task $task_folder ----"
 
@@ -154,11 +156,21 @@ for task_folder in "${task_folders[@]}"; do
   # echo "ETH_RPC_URL=http://localhost:8545" >> "${PWD}/.env" # Replace with the anvil fork URL
   if [[ -f "${task_folder}/NestedSignFromJson.s.sol" ]]; then
     echo "Task type: nested"
-    # TODO This currently hardcodes the council but we should also run as Foundation.
-    just --dotenv-path "${PWD}/.env" --justfile "${root_dir}/nested.just" simulate council > /dev/null
+    approvalhash=$(just \
+      --dotenv-path "${PWD}/.env" \
+      --justfile "${root_dir}/nested.just" \
+      approvehash_in_anvil council)
+
+    execution=$(just \
+       --dotenv-path "${PWD}/.env" \
+       --justfile "${root_dir}/nested.just" \
+       execute_in_anvil 0)
+
   else
-    echo "Task type: single"
-    just --dotenv-path "${PWD}/.env" --justfile "${root_dir}/single.just" simulate \ 0 "http://localhost:8545" true
+    echo "Task type detected: single"
+    simulate=$(just --dotenv-path "${PWD}/.env" --justfile "${root_dir}/single.just" approvehash_in_anvil 0)
+    execution=$(just --dotenv-path "${PWD}/.env" --justfile "${root_dir}/single.just" execute_in_anvil 0)
+    echo ""
   fi
   sleep 5
   NonceDisplay "🟩After Simulation $task_folder"
