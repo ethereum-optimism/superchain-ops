@@ -124,12 +124,12 @@ contract SuperchainRegistry is CommonBase {
         addressManager = stdToml.readAddress(toml, "$.addresses.AddressManager");
 
         chainConfig.chainId = stdToml.readUint(toml, "$.chain_id");
-        chainConfig.systemConfigOwner = stdToml.readAddress(toml, "$.addresses.SystemConfigOwner");
-        chainConfig.unsafeBlockSigner = stdToml.readAddressOr(toml, "$.addresses.UnsafeBlockSigner", address(0)); // Not present on all chains, note .readAddressOr
-        chainConfig.batchSubmitter = stdToml.readAddress(toml, "$.addresses.BatchSubmitter");
+        chainConfig.systemConfigOwner = stdToml.readAddress(toml, "$.roles.SystemConfigOwner");
+        chainConfig.unsafeBlockSigner = stdToml.readAddressOr(toml, "$.roles.UnsafeBlockSigner", address(0)); // Not present on all chains, note .readAddressOr
+        chainConfig.batchSubmitter = stdToml.readAddress(toml, "$.roles.BatchSubmitter");
         chainConfig.batchInbox = stdToml.readAddress(toml, "$.batch_inbox_addr");
-        chainConfig.proposer = stdToml.readAddress(toml, "$.addresses.Proposer");
-        chainConfig.challenger = stdToml.readAddress(toml, "$.addresses.Challenger");
+        chainConfig.proposer = stdToml.readAddress(toml, "$.roles.Proposer");
+        chainConfig.challenger = stdToml.readAddress(toml, "$.roles.Challenger");
     }
 
     function _readStandardVersions() internal {
