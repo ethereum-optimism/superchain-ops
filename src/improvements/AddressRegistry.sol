@@ -108,19 +108,29 @@ contract AddressRegistry is IAddressRegistry, Test {
             vm.readFile("lib/superchain-registry/superchain/extra/addresses/addresses.json");
 
         for (uint256 i = 0; i < chains.length; i++) {
-            _processChain(chains[i], chainAddressesContent);
+            if (block.chainid == getChain("mainnet").chainId) {
+                _processMainnet(chains[i], chainAddressesContent);
+            } else {
+                _processTestnet(chains[i], chainAddressesContent);
+            }
         }
     }
 
-    /// @dev Processes all configuration for a single chain.
-    function _processChain(ChainInfo memory chain, string memory chainAddressesContent) internal {
-        uint256 chainId = chain.chainId; // L2 chain ID.
-
-        require(!supportedL2ChainIds[chainId], "Duplicate chain ID in chain config");
-        require(chainId != 0, "Invalid chain ID in config");
+    /// @notice checks if a chain has already been registered, reverts if so
+    /// otherwise saves the chain config to the supported L2 ChainId's mapping
+    function _checkAndSetChain(ChainInfo memory chain) internal {
+        require(!supportedL2ChainIds[chain.chainId], "Duplicate chain ID in chain config");
+        require(chain.chainId != 0, "Invalid chain ID in config");
         require(bytes(chain.name).length > 0, "Empty name in config");
 
-        supportedL2ChainIds[chainId] = true;
+        supportedL2ChainIds[chain.chainId] = true;
+    }
+
+    /// @dev Processes all configuration for a single chain.
+    function _processMainnet(ChainInfo memory chain, string memory chainAddressesContent) internal {
+        uint256 chainId = chain.chainId; // L2 chain ID.
+
+        _checkAndSetChain(chain);
 
         address optimismPortalProxy = _fetchAndSaveInitialContracts(chain, chainAddressesContent);
 
@@ -162,6 +172,19 @@ contract AddressRegistry is IAddressRegistry, Test {
 
         address unsafeBlockSigner = IFetcher(systemConfigProxy).unsafeBlockSigner();
         saveAddress("UnsafeBlockSigner", chain, unsafeBlockSigner);
+    }
+
+    function _processTestnet(ChainInfo memory chain, string memory chainAddressesContent) internal {
+        _checkAndSetChain(chain);
+
+        string[] memory keys = vm.parseJsonKeys(chainAddressesContent, string.concat("$.", vm.toString(chain.chainId)));
+        for (uint256 j = 0; j < keys.length; j++) {
+            string memory key = keys[j];
+            address addr =
+                vm.parseJsonAddress(chainAddressesContent, string.concat("$.", vm.toString(chain.chainId), ".", key));
+
+            saveAddress(key, chain, addr);
+        }
     }
 
     function _fetchAndSaveInitialContracts(ChainInfo memory chain, string memory chainAddressesContent)
