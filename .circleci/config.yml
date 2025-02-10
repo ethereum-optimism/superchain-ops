@@ -237,7 +237,6 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - utils/checkout-with-mise
       - simulate:
           task: "/eth/ink-002-set-respected-game-type"
 
@@ -245,7 +244,6 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - utils/checkout-with-mise
       - simulate_nested:
           task: "/sep/zora-002-fp-upgrade"
 
