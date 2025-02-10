@@ -119,6 +119,9 @@ contract AddressRegistry is IAddressRegistry, Test {
             } else {
                 _processTestnet(chains[i], chainAddressesContent);
             }
+
+            /// TODO: when reading in SystemConfigOwner, create a naming scheme for the child Safe's. e.g.
+            /// NESTED_SAFE_1, NESTED_SAFE_2, NESTED_SAFE_3
         }
     }
 
