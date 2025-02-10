@@ -30,7 +30,7 @@ commands:
       task:
         type: string
     steps:
-      - checkout
+      - utils/checkout-with-mise
       - run:
           name: "simulate << parameters.task >>"
           command: |
@@ -147,7 +147,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - attach_workspace:
           at: .
       - run:
