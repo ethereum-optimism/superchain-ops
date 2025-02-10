@@ -126,7 +126,7 @@ contract AddressRegistry is IAddressRegistry, Test {
         supportedL2ChainIds[chain.chainId] = true;
     }
 
-    /// @dev Processes all configuration for a single chain.
+    /// @dev Processes all configuration for a mainnet chain.
     function _processMainnet(ChainInfo memory chain, string memory chainAddressesContent) internal {
         uint256 chainId = chain.chainId; // L2 chain ID.
 
@@ -174,6 +174,9 @@ contract AddressRegistry is IAddressRegistry, Test {
         saveAddress("UnsafeBlockSigner", chain, unsafeBlockSigner);
     }
 
+    /// @notice load addresses for a testnet chain.
+    /// this function reads all values from the superchain-registry
+    /// addresses.json and does no onchain discovery.
     function _processTestnet(ChainInfo memory chain, string memory chainAddressesContent) internal {
         _checkAndSetChain(chain);
 
