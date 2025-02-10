@@ -30,3 +30,26 @@ Note: The changes listed below do not include safe nonce updates or liveness gua
   **After**: `0x000000000000000000000000652f0D5aB7d145C0EdB86a0B4923F2f150a5482f` <br/>
   **Meaning**: Updates the implementation for game type 1. Verify that the new implementation is set using
   `cast call 0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b "gameImpls(uint32)(address)" 1`.
+
+
+
+## Verify new absolute prestate
+
+Verify that the new absolute prestate is set correctly to `0x03dfa3b3ac66e8fae9f338824237ebacff616df928cf7dada0e14be2531bc1f4`. See [Petra notice](https://docs.optimism.io/notices/pectra-changes#verify-the-new-absolute-prestate) in docs for more details. 
+
+You can verify this absolute prestate by running the following [command](https://github.com/ethereum-optimism/optimism/blob/6819d8a4e787df2adcd09305bc3057e2ca4e58d9/Makefile#L133-L135) in the root of the monorepo:
+
+```bash
+make reproducible-prestate
+```
+
+You should expect the following output at the end of the command:
+
+```bash
+Cannon Absolute prestate hash: 
+0x03dfa3b3ac66e8fae9f338824237ebacff616df928cf7dada0e14be2531bc1f4
+Cannon64 Absolute prestate hash: 
+0x03f83792f653160f3274b0888e998077a27e1f74cb35bcb20d86021e769340aa
+CannonInterop Absolute prestate hash: 
+0x03b7658b889796c1e372f57439e48eb46a5b008f6e6a4b7e5c8c2d3bddffa797
+```
