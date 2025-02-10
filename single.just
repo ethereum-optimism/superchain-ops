@@ -68,7 +68,7 @@ approvehash_in_anvil hdPath='0':
   fi
 
   ## 5. Approve the hash with the well-known private key that is the first owner of anvil selection.
-  cast send ${ownerSafe} "approveHash(bytes32)" ${hash} --rpc-url ${localrpcUrl} --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+  cast send ${ownerSafe} "approveHash(bytes32)" ${hash} --rpc-url ${localrpcUrl} --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 &> /dev/null
  
 simulate hdPath='0' rpcUrlExternal="" broadcast="false":
   #!/usr/bin/env bash
@@ -179,7 +179,7 @@ execute_in_anvil hdPath='0':
   forge script ${script} \
     --rpc-url ${localrpcUrl} \
     --sig "runJson(string,bytes)" ${bundlePath} 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111 \
-    --broadcast --skip-simulation --sender  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+    --broadcast --skip-simulation --sender  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 &> /dev/null
 
 execute hdPath='0':
   #!/usr/bin/env bash

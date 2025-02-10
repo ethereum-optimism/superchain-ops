@@ -79,12 +79,11 @@ createFork() {
 }
 
 NonceDisplay(){
-  echo "=====================[$1] NONCES STATUS ==================="
-  echo "Foundation Upgrade Safe Nonce: "$(cast call $Foundation_Upgrade_Safe  "nonce()(uint256)" --rpc-url http://localhost:8545)"."
-  echo "Foundation Operation Safe Nonce: "$(cast call $Foundation_Operation_Safe  "nonce()(uint256)" --rpc-url http://localhost:8545)"."
-  echo "Security Council Safe Nonce: "$(cast call $Security_Council_Safe  "nonce()(uint256)" --rpc-url http://localhost:8545)"."
-  echo "ProxyAdminOwner Nonce: "$(cast call $Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url http://localhost:8545)"."
- 
+  echo "NONCES STATUS:"
+  echo "Foundation Upgrade Safe (FuS) nonce: "$(cast call $Foundation_Upgrade_Safe  "nonce()(uint256)" --rpc-url http://localhost:8545)"."
+  echo "Foundation Operation Safe (FoS) nonce: "$(cast call $Foundation_Operation_Safe  "nonce()(uint256)" --rpc-url http://localhost:8545)"."
+  echo "Security Council Safe (SC) nonce: "$(cast call $Security_Council_Safe  "nonce()(uint256)" --rpc-url http://localhost:8545)"."
+  echo "L1ProxyAdminOwner (L1PAO) nonce: "$(cast call $Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url http://localhost:8545)"."
   echo "==========================================================="
 }
 
@@ -150,16 +149,20 @@ export SIMULATE_WITHOUT_LEDGER=1
 for task_folder in "${task_folders[@]}"; do
   echo -e "\n---- Simulating task $task_folder ----"
 
-  NonceDisplay "🟧Before Simulation $(echo "$task_folder" | sed 's/.*tasks//')"
+  NonceDisplay "🟧Before Simulation)"
   pushd "$task_folder" >/dev/null || error_exit "Failed to navigate to '$task_folder'."
   # add the RPC_URL to the .env file
   # echo "ETH_RPC_URL=http://localhost:8545" >> "${PWD}/.env" # Replace with the anvil fork URL
   if [[ -f "${task_folder}/NestedSignFromJson.s.sol" ]]; then
     echo "Task type: nested"
-    approvalhash=$(just \
+    approvalhashcouncil=$(just \
       --dotenv-path "${PWD}/.env" \
       --justfile "${root_dir}/nested.just" \
       approvehash_in_anvil council)
+    approvalhashcouncil=$(just \
+      --dotenv-path "${PWD}/.env" \
+      --justfile "${root_dir}/nested.just" \
+      approvehash_in_anvil foundation)
 
     execution=$(just \
        --dotenv-path "${PWD}/.env" \
@@ -173,7 +176,7 @@ for task_folder in "${task_folders[@]}"; do
     echo ""
   fi
   sleep 5
-  NonceDisplay "🟩After Simulation $task_folder"
+  NonceDisplay "🟩After Simulation"
   popd >/dev/null || error_exit "Failed to return to previous directory."
 done
 

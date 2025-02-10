@@ -139,8 +139,8 @@ approvehash_in_anvil whichSafe hdPath='0':
   echo ""
   
   echo "============ OVERRIDE SAFES SETTINGS '${ownerSafe}' & '${safe}' ============"
-  echo "0. Set the threshold of the L1PAO to 1."
-  cast rpc anvil_setStorageAt ${ownerSafe} 0x0000000000000000000000000000000000000000000000000000000000000004 0x0000000000000000000000000000000000000000000000000000000000000001 --rpc-url ${localrpcUrl}
+  # echo "0. Set the threshold of the L1PAO to 1."
+  # cast rpc anvil_setStorageAt ${ownerSafe} 0x0000000000000000000000000000000000000000000000000000000000000004 0x0000000000000000000000000000000000000000000000000000000000000001 --rpc-url ${localrpcUrl}
   echo "1. Set the threshold to 1 of the child safe."
   cast rpc anvil_setStorageAt ${safe} 0x0000000000000000000000000000000000000000000000000000000000000004 0x0000000000000000000000000000000000000000000000000000000000000001 --rpc-url ${localrpcUrl}
 
@@ -168,7 +168,7 @@ approvehash_in_anvil whichSafe hdPath='0':
     --sender ${signer} \
     --sig "signJson(string,address)" \
     ${bundlePath} \
-    ${safe})
+    ${safe}) &> /dev/null
   echo "Outputforge: $outputforge" > /tmp/outputforge.txt
   hash=$(cat /tmp/outputforge.txt | grep -A 1 "If submitting onchain, call Safe.approveHash on " | cut -d ':' -f 2 | tr -d '[:space:]')
 
@@ -181,7 +181,7 @@ approvehash_in_anvil whichSafe hdPath='0':
   fi
   
   ## 5. Approve the hash with the well-known private key that is the first owner of anvil selection.
-  cast send ${safe} "approveHash(bytes32)" ${hash} --rpc-url ${localrpcUrl} --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+  cast send ${safe} "approveHash(bytes32)" ${hash} --rpc-url ${localrpcUrl} --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 
   forge script ${script} \
     --rpc-url ${localrpcUrl} \
     --broadcast \
@@ -189,7 +189,7 @@ approvehash_in_anvil whichSafe hdPath='0':
     --sig "approveJson(string,address,bytes)" \
     ${bundlePath} \
     ${safe} \
-    1111 # dummy signature to pass the check if the signature is not empty..
+    1111 &> /dev/null # dummy signature to pass the check if the signature is not empty..
 
 
 approve whichSafe hdPath='0':
@@ -273,7 +273,7 @@ execute_in_anvil hdPath='0':
     --rpc-url ${localrpcUrl} \
     --broadcast --sender  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 \
     --sig "runJson(string)" \
-    ${bundlePath}
+    ${bundlePath} &> /dev/null
 
 
 simulated-run hdPath='0':
