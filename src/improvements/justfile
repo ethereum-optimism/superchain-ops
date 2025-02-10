@@ -80,6 +80,3 @@ check-superchain-registry-latest:
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
     bash ${root_dir}/src/improvements/script/check-superchain-latest.sh
-    (cd ${root_dir}/lib/superchain-registry && git pull origin main)
-    bash ${root_dir}/src/improvements/script/check-superchain-latest.sh
-    rm -rf ${root_dir}/hash.txt
