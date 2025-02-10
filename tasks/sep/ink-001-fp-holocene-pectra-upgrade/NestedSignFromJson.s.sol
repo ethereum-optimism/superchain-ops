@@ -37,7 +37,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
     function setUp() public {
         string memory inputJson;
-        string memory path = "/tasks/sep/019-fp-holocene-upgrade/input.json";
+        string memory path = "/tasks/sep/ink-001-fp-holocene-pectra-upgrade/input.json";
         try vm.readFile(string.concat(vm.projectRoot(), path)) returns (string memory data) {
             inputJson = data;
         } catch {
