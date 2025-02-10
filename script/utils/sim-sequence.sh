@@ -79,7 +79,7 @@ createFork() {
 }
 
 NonceDisplay(){
-  echo "NONCES STATUS:"
+  echo " $1 NONCES STATUS:"
   echo "Foundation Upgrade Safe (FuS) nonce: "$(cast call $Foundation_Upgrade_Safe  "nonce()(uint256)" --rpc-url http://localhost:8545)"."
   echo "Foundation Operation Safe (FoS) nonce: "$(cast call $Foundation_Operation_Safe  "nonce()(uint256)" --rpc-url http://localhost:8545)"."
   echo "Security Council Safe (SC) nonce: "$(cast call $Security_Council_Safe  "nonce()(uint256)" --rpc-url http://localhost:8545)"."
@@ -149,7 +149,7 @@ export SIMULATE_WITHOUT_LEDGER=1
 for task_folder in "${task_folders[@]}"; do
   echo -e "\n---- Simulating task $task_folder ----"
 
-  NonceDisplay "🟧Before Simulation)"
+  NonceDisplay "(🟧) Before Simulation"
   pushd "$task_folder" >/dev/null || error_exit "Failed to navigate to '$task_folder'."
   # add the RPC_URL to the .env file
   # echo "ETH_RPC_URL=http://localhost:8545" >> "${PWD}/.env" # Replace with the anvil fork URL
@@ -176,7 +176,7 @@ for task_folder in "${task_folders[@]}"; do
     echo ""
   fi
   sleep 5
-  NonceDisplay "🟩After Simulation"
+  NonceDisplay "(🟩) After Simulation"
   popd >/dev/null || error_exit "Failed to return to previous directory."
 done
 
