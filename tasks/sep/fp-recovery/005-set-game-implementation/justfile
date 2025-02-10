@@ -113,7 +113,7 @@ copy-anchor-state fromGameType='' toGameTypes='':
   SUPERCHAIN_CONFIG=$(cast call "${REGISTRY_PROXY}" 'superchainConfig()(address)')
 
   # Load the current anchor state
-  ANCHOR_JSON=$(cast call -j "${REGISTRY_PROXY}" 'anchors(uint32)(bytes32,uint256)' '{{fromGameType}}')
+  ANCHOR_JSON=$(cast call --json "${REGISTRY_PROXY}" 'anchors(uint32)(bytes32,uint256)' '{{fromGameType}}')
   ANCHOR_ROOT=$(echo "${ANCHOR_JSON}" | jq -r '.[0]')
   ANCHOR_BLOCK=$(echo "${ANCHOR_JSON}" | jq -r '.[1]')
 
