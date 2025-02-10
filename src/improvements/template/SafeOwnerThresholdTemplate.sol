@@ -33,9 +33,6 @@ contract SafeOwnerThresholdTemplate is MultisigTask {
     /// @notice Safe configuration for the current task
     SafeConfig public safeConfig;
 
-    /// @notice starting threshold on the safe before any task changes
-    uint256 public startingThreshold;
-
     /// @notice Returns the safe address string identifier
     /// @return The string "SystemConfigOwner"
     function safeAddressString() public pure override returns (string memory) {
@@ -79,20 +76,9 @@ contract SafeOwnerThresholdTemplate is MultisigTask {
         require(l2chains.length == 1, "Only one chain is supported for this Safe task");
     }
 
-    function _postTaskSetup() internal override {
-        // Set the Safe address in storage
-        multisig = safeConfig.safeAddress;
-
-        /// TODO change this once we implement task stacking
-        nonce = IGnosisSafe(multisig).nonce();
-        startingThreshold = IGnosisSafe(multisig).getThreshold();
-    }
-
     /// @notice Builds the actions for managing Safe owners and threshold
     /// param chainId. The chain ID (unused in this template)
     function _build(uint256) internal override {
-        _setIsNestedSafe();
-
         // Get the minimum length between add and remove arrays
         uint256 minLength = Math.min(safeConfig.addressesToAdd.length, safeConfig.addressesToRemove.length);
 
