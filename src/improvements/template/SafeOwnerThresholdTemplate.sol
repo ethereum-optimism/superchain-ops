@@ -51,7 +51,7 @@ contract SafeOwnerThresholdTemplate is MultisigTask {
     }
 
     /// @notice Sets up the template with Safe configuration from a TOML file
-    /// @param taskConfigFilePath Path to the TOML configuration file
+    /// @param taskConfigFilePath Path to the TOML configuration file for the task
     function _templateSetup(string memory taskConfigFilePath) internal override {
         string memory configContent = vm.readFile(taskConfigFilePath);
         SafeConfig memory config = abi.decode(vm.parseToml(configContent, ".safeConfig"), (SafeConfig));
@@ -68,8 +68,10 @@ contract SafeOwnerThresholdTemplate is MultisigTask {
             + safeConfig.addressesToAdd.length - safeConfig.addressesToRemove.length;
         require(newOwnerCount >= 1 && newOwnerCount >= config.newThreshold, "Safe new threshold must be in range");
 
-        /// we can't reliably count on the safe address being in the AddressRegistry,
-        /// so we add it to the allowedStorageAccesses
+        /// We can't reliably count on the safe address being in the AddressRegistry,
+        /// because child safes, which own the parent safes will not be in the AddressRegistry,
+        /// so a task developer specifies this in their task config toml file,
+        /// and we add it to the allowedStorageAccesses.
         _allowedStorageAccesses.add(safeConfig.safeAddress);
 
         bytes memory rawL2Chains = vm.parseToml(configContent, ".l2chains");
@@ -94,7 +96,7 @@ contract SafeOwnerThresholdTemplate is MultisigTask {
         // Get the minimum length between add and remove arrays
         uint256 minLength = Math.min(safeConfig.addressesToAdd.length, safeConfig.addressesToRemove.length);
 
-        // First handle swaps for the minimum length
+        // First handle swaps for the amount of intersecting owners
         for (uint256 i = 0; i < minLength; i++) {
             address prevOwner = _getPreviousOwner(safeConfig.addressesToRemove[i]);
             IGnosisSafe(multisig).swapOwner(prevOwner, safeConfig.addressesToRemove[i], safeConfig.addressesToAdd[i]);
@@ -130,6 +132,8 @@ contract SafeOwnerThresholdTemplate is MultisigTask {
 
         // If threshold needs to be updated
         if (safeConfig.newThreshold != 0) {
+            // This call should never revert because we have already validated
+            // the new threshold after adding and removing all of the owners.
             IGnosisSafe(multisig).changeThreshold(safeConfig.newThreshold);
         }
     }
@@ -137,18 +141,24 @@ contract SafeOwnerThresholdTemplate is MultisigTask {
     /// @notice Validates the Safe configuration
     /// param The chain ID (unused in this template)
     function _validate(uint256) internal view override {
-        // Validation is handled by the Safe's built-in checks
+        // check that all expected owners were added
         for (uint256 i = 0; i < safeConfig.addressesToAdd.length; i++) {
             assertTrue(IGnosisSafe(multisig).isOwner(safeConfig.addressesToAdd[i]), "Owner not added");
         }
+
+        // check that all expected owners were removed
         for (uint256 i = 0; i < safeConfig.addressesToRemove.length; i++) {
             assertFalse(IGnosisSafe(multisig).isOwner(safeConfig.addressesToRemove[i]), "Owner not removed");
         }
 
-        assertEq(IGnosisSafe(multisig).getThreshold(), safeConfig.newThreshold, "Threshold not set correctly");
+        /// check that if the threshold was updated, it was updated correctly
+        if (safeConfig.newThreshold != 0) {
+            assertEq(IGnosisSafe(multisig).getThreshold(), safeConfig.newThreshold, "Threshold not set correctly");
+        }
     }
 
     /// @notice Helper function to get the previous owner in the linked list
+    /// for this template's safe
     /// @param owner The owner to find the previous owner for
     /// @return The address of the previous owner in the linked list
     function _getPreviousOwner(address owner) private view returns (address) {
