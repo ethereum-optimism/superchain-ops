@@ -155,15 +155,17 @@ for task_folder in "${task_folders[@]}"; do
   # echo "ETH_RPC_URL=http://localhost:8545" >> "${PWD}/.env" # Replace with the anvil fork URL
   if [[ -f "${task_folder}/NestedSignFromJson.s.sol" ]]; then
     echo "Task type: nested"
+   
     approvalhashcouncil=$(just \
       --dotenv-path "${PWD}/.env" \
       --justfile "${root_dir}/nested.just" \
       approvehash_in_anvil council)
-    approvalhashcouncil=$(just \
+   
+    approvalhashfoundation=$(just \
       --dotenv-path "${PWD}/.env" \
       --justfile "${root_dir}/nested.just" \
       approvehash_in_anvil foundation)
-
+    
     execution=$(just \
        --dotenv-path "${PWD}/.env" \
        --justfile "${root_dir}/nested.just" \
