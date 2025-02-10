@@ -108,6 +108,12 @@ contract AddressRegistry is IAddressRegistry, Test {
             vm.readFile("lib/superchain-registry/superchain/extra/addresses/addresses.json");
 
         for (uint256 i = 0; i < chains.length; i++) {
+            require(!supportedL2ChainIds[chains[i].chainId], "Duplicate chain ID in chain config");
+            require(chains[i].chainId != 0, "Invalid chain ID in config");
+            require(bytes(chains[i].name).length > 0, "Empty name in config");
+
+            supportedL2ChainIds[chains[i].chainId] = true;
+
             if (block.chainid == getChain("mainnet").chainId) {
                 _processMainnet(chains[i], chainAddressesContent);
             } else {
@@ -116,21 +122,9 @@ contract AddressRegistry is IAddressRegistry, Test {
         }
     }
 
-    /// @notice checks if a chain has already been registered, reverts if so
-    /// otherwise saves the chain config to the supported L2 ChainId's mapping
-    function _checkAndSetChain(ChainInfo memory chain) internal {
-        require(!supportedL2ChainIds[chain.chainId], "Duplicate chain ID in chain config");
-        require(chain.chainId != 0, "Invalid chain ID in config");
-        require(bytes(chain.name).length > 0, "Empty name in config");
-
-        supportedL2ChainIds[chain.chainId] = true;
-    }
-
     /// @dev Processes all configuration for a mainnet chain.
     function _processMainnet(ChainInfo memory chain, string memory chainAddressesContent) internal {
         uint256 chainId = chain.chainId; // L2 chain ID.
-
-        _checkAndSetChain(chain);
 
         address optimismPortalProxy = _fetchAndSaveInitialContracts(chain, chainAddressesContent);
 
@@ -178,8 +172,6 @@ contract AddressRegistry is IAddressRegistry, Test {
     /// this function reads all values from the superchain-registry
     /// addresses.json and does no onchain discovery.
     function _processTestnet(ChainInfo memory chain, string memory chainAddressesContent) internal {
-        _checkAndSetChain(chain);
-
         string[] memory keys = vm.parseJsonKeys(chainAddressesContent, string.concat("$.", vm.toString(chain.chainId)));
         for (uint256 j = 0; j < keys.length; j++) {
             string memory key = keys[j];
