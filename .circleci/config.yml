@@ -154,7 +154,7 @@ jobs:
           name: Check superchain registry
           command: |
             just install
-            just check-superchain-registry-latest
+            (cd src/improvements && just check-superchain-registry-latest)
 
   # TODO: remove/replace when there are real consumers of the RPC URLs
   example_mainnet_job:
