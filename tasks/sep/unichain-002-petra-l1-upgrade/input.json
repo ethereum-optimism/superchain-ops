@@ -1,0 +1,66 @@
+{
+  "metadata": {
+    "name": "ProxyAdminOwner - Set Dispute Game Implementation",
+    "description": "Sets the implementation for game type 0 to 0x517AE9d74dbB9c7df6F3277225543BE2DCeD5a87 in the `DisputeGameFactory`. Sets the implementation for game type 1 to 0x652f0D5aB7d145C0EdB86a0B4923F2f150a5482f in the `DisputeGameFactory`. "
+  },
+  "transactions": [
+    {
+      "metadata": {
+        "name": "Set implementation for game type",
+        "description": "Sets the implementation for game type 0 to 0x517AE9d74dbB9c7df6F3277225543BE2DCeD5a87 in the `DisputeGameFactory`."
+      },
+      "to": "0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b",
+      "value": "0x0",
+      "data": "0x14f6b1a30000000000000000000000000000000000000000000000000000000000000000000000000000000000000000517ae9d74dbb9c7df6f3277225543be2dced5a87",
+      "contractMethod": {
+        "type": "function",
+        "name": "setImplementation",
+        "inputs": [
+          {
+            "name": "_gameType",
+            "type": "uint32"
+          },
+          {
+            "name": "_impl",
+            "type": "address"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_gameType": "0",
+        "_impl": "0x517AE9d74dbB9c7df6F3277225543BE2DCeD5a87"
+      }
+    },
+    {
+      "metadata": {
+        "name": "Set implementation for game type",
+        "description": "Sets the implementation for game type 1 to 0x652f0D5aB7d145C0EdB86a0B4923F2f150a5482f in the `DisputeGameFactory`."
+      },
+      "to": "0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b",
+      "value": "0x0",
+      "data": "0x14f6b1a30000000000000000000000000000000000000000000000000000000000000001000000000000000000000000652f0d5ab7d145c0edb86a0b4923f2f150a5482f",
+      "contractMethod": {
+        "type": "function",
+        "name": "setImplementation",
+        "inputs": [
+          {
+            "name": "_gameType",
+            "type": "uint32"
+          },
+          {
+            "name": "_impl",
+            "type": "address"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_gameType": "1",
+        "_impl": "0x652f0D5aB7d145C0EdB86a0B4923F2f150a5482f"
+      }
+    }
+  ]
+}
