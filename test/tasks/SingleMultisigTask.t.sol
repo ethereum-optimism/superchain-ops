@@ -302,6 +302,7 @@ contract SingleMultisigTaskTest is Test {
     }
 
     function testSafeOwnerThresholdTemplateRevertsSafeAddressNotSet() public {
+        vm.createSelectFork("sepolia");
         string memory path = "test/tasks/mock/IncorrectSafeAddressConfig1.toml";
         MultisigTask localMultisigTask = new SafeOwnerThresholdTemplate();
         vm.expectRevert("Safe address must be set");
