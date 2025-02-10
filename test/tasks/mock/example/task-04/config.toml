@@ -5,4 +5,4 @@ l2chains = [{name = "OP Devnet", chainId = 20022002}]
 templateName = "GasConfigTemplate"
 
 [gasConfigs]
-gasLimits = [{chainId = 20022002, gasLimit = 60000000}]
+gasLimits = [{chainId = 20022002, gasLimit = 70000000}]
