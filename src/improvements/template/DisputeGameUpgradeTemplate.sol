@@ -1,8 +1,6 @@
 pragma solidity 0.8.15;
 
 import {IDisputeGameFactory, IDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute/IDisputeGameFactory.sol";
-import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
-import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
