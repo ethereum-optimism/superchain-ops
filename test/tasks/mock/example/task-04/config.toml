@@ -1,7 +1,0 @@
-# this is the file used to determine the network configuration
-
-l2chains = [{name = "Optimism Mainnet", chainId = 10}]
-
-templateName = "SafeOwnerThresholdTemplate"
-
-safeConfig = {safeAddress = "0x847B5c174615B1B7fDF770882256e2D3E95b9D92",addressesToAdd = ["0x95222290DD7278Aa3Ddd389Cc1E1d165CC4BAfe5", "0x1C727a55eA3c11B0ab7D3a361Fe0F3C47cE6de5d", "0x90aac9b9D1DfB93a90C60d843bEd2ABeABA27e43"],addressesToRemove = ["0x4D014f3c5F33Aa9Cd1Dc29ce29618d07Ae666d15", "0xBF93D4d727F7Ba1F753E1124C3e532dCb04Ea2c8"],newThreshold = 8}
