@@ -312,7 +312,7 @@ jobs:
           command: |
             (cd src/improvements && just monorepo-integration-test)
       - notify-failures-on-develop:
-          mentions: "@security"
+          mentions: "@security-team"
 
   print_versions:
     docker:
