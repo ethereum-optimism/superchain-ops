@@ -75,8 +75,8 @@ contract MainnetAddressRegistryTest is Test {
             address disputeGameFactoryProxy = getOptionalAddress("DisputeGameFactoryProxy", chainId);
             if (disputeGameFactoryProxy != address(0)) {
                 assertNotEq(disputeGameFactoryProxy, address(0), "DisputeGameFactoryProxy not loaded");
-                bool hasFaultGame = addresses.getAddress("FaultDisputeGame", chainId) != address(0);
-                bool hasPermissionedGame = addresses.getAddress("PermissionedDisputeGame", chainId) != address(0);
+                bool hasFaultGame = getOptionalAddress("FaultDisputeGame", chainId) != address(0);
+                bool hasPermissionedGame = getOptionalAddress("PermissionedDisputeGame", chainId) != address(0);
                 assertTrue(
                     hasFaultGame || hasPermissionedGame, "Neither FaultDisputeGame nor PermissionedDisputeGame loaded"
                 );

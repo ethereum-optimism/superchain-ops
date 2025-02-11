@@ -410,34 +410,30 @@ contract AddressRegistry is IAddressRegistry, Test {
 
     function getAnchorStateRegistryProxy(address faultDisputeGame, address permissionedDisputeGame)
         internal
-        view
         returns (address)
     {
-        try IFetcher(faultDisputeGame).anchorStateRegistry() returns (address anchorStateRegistryProxy) {
-            return anchorStateRegistryProxy;
-        } catch {
-            return IFetcher(permissionedDisputeGame).anchorStateRegistry();
-        }
+        (bool ok, bytes memory data) =
+            address(faultDisputeGame).call(abi.encodeWithSelector(IFetcher.anchorStateRegistry.selector));
+        if (ok && data.length == 32) return abi.decode(data, (address));
+
+        return IFetcher(permissionedDisputeGame).anchorStateRegistry();
     }
 
     function getDelayedWETHProxy(address faultDisputeGame, address permissionedDisputeGame)
         internal
-        view
         returns (address)
     {
-        try IFetcher(faultDisputeGame).weth() returns (address delayedWethProxy) {
-            return delayedWethProxy;
-        } catch {
-            return IFetcher(permissionedDisputeGame).weth();
-        }
+        (bool ok, bytes memory data) = address(faultDisputeGame).call(abi.encodeWithSelector(IFetcher.weth.selector));
+        if (ok && data.length == 32) return abi.decode(data, (address));
+
+        return IFetcher(permissionedDisputeGame).weth();
     }
 
-    function getMips(address faultDisputeGame, address permissionedDisputeGame) internal view returns (address) {
-        try IFetcher(faultDisputeGame).vm() returns (address mips) {
-            return mips;
-        } catch {
-            return IFetcher(permissionedDisputeGame).vm();
-        }
+    function getMips(address faultDisputeGame, address permissionedDisputeGame) internal returns (address) {
+        (bool ok, bytes memory data) = address(faultDisputeGame).call(abi.encodeWithSelector(IFetcher.vm.selector));
+        if (ok && data.length == 32) return abi.decode(data, (address));
+
+        return IFetcher(permissionedDisputeGame).vm();
     }
 
     function getBatchSubmitter(address systemConfigProxy) internal view returns (address) {
