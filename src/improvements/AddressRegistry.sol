@@ -107,19 +107,19 @@ contract AddressRegistry is IAddressRegistry, Test {
             vm.readFile("lib/superchain-registry/superchain/extra/addresses/addresses.json");
 
         for (uint256 i = 0; i < chains.length; i++) {
-            _processChain(chains[i], chainAddressesContent);
+            require(!supportedL2ChainIds[chains[i].chainId], "Duplicate chain ID in chain config");
+            require(chains[i].chainId != 0, "Invalid chain ID in config");
+            require(bytes(chains[i].name).length > 0, "Empty name in config");
+
+            supportedL2ChainIds[chains[i].chainId] = true;
+
+            _processAddresses(chains[i], chainAddressesContent);
         }
     }
 
-    /// @dev Processes all configuration for a single chain.
-    function _processChain(ChainInfo memory chain, string memory chainAddressesContent) internal {
+    /// @dev Processes all configurations for a given chain.
+    function _processAddresses(ChainInfo memory chain, string memory chainAddressesContent) internal {
         uint256 chainId = chain.chainId; // L2 chain ID.
-
-        require(!supportedL2ChainIds[chainId], "Duplicate chain ID in chain config");
-        require(chainId != 0, "Invalid chain ID in config");
-        require(bytes(chain.name).length > 0, "Empty name in config");
-
-        supportedL2ChainIds[chainId] = true;
 
         address optimismPortalProxy = _fetchAndSaveInitialContracts(chain, chainAddressesContent);
 
@@ -286,19 +286,18 @@ contract AddressRegistry is IAddressRegistry, Test {
         }
 
         address permissionedDisputeGame = getPermissionedDisputeGame(disputeGameFactoryProxy);
-        if (permissionedDisputeGame != address(0)) {
-            saveAddress("PermissionedDisputeGame", chain, permissionedDisputeGame);
-            address challenger = IFetcher(permissionedDisputeGame).challenger();
-            saveAddress("Challenger", chain, challenger);
-        }
+        saveAddress("PermissionedDisputeGame", chain, permissionedDisputeGame);
 
-        address anchorStateRegistryProxy = getAnchorStateRegistryProxy(faultDisputeGame, permissionedDisputeGame);
+        address challenger = IFetcher(permissionedDisputeGame).challenger();
+        saveAddress("Challenger", chain, challenger);
+
+        address anchorStateRegistryProxy = getAnchorStateRegistryProxy(permissionedDisputeGame);
         saveAddress("AnchorStateRegistryProxy", chain, anchorStateRegistryProxy);
 
-        address delayedWethProxy = getDelayedWETHProxy(faultDisputeGame, permissionedDisputeGame);
-        saveAddress("DelayedWETHProxy", chain, delayedWethProxy);
+        // Not retreiving delayed WETH proxy because 'n' exist based on the number of GameTypes.
+        // We will leave these addresses for the task developer to retrieve.
 
-        address mips = getMips(faultDisputeGame, permissionedDisputeGame);
+        address mips = getMips(permissionedDisputeGame);
         saveAddress("MIPS", chain, mips);
 
         address preimageOracle = IFetcher(mips).oracle();
@@ -408,36 +407,12 @@ contract AddressRegistry is IAddressRegistry, Test {
         }
     }
 
-    function getAnchorStateRegistryProxy(address faultDisputeGame, address permissionedDisputeGame)
-        internal
-        view
-        returns (address)
-    {
-        try IFetcher(faultDisputeGame).anchorStateRegistry() returns (address anchorStateRegistryProxy) {
-            return anchorStateRegistryProxy;
-        } catch {
-            return IFetcher(permissionedDisputeGame).anchorStateRegistry();
-        }
+    function getAnchorStateRegistryProxy(address permissionedDisputeGame) internal view returns (address) {
+        return IFetcher(permissionedDisputeGame).anchorStateRegistry();
     }
 
-    function getDelayedWETHProxy(address faultDisputeGame, address permissionedDisputeGame)
-        internal
-        view
-        returns (address)
-    {
-        try IFetcher(faultDisputeGame).weth() returns (address delayedWethProxy) {
-            return delayedWethProxy;
-        } catch {
-            return IFetcher(permissionedDisputeGame).weth();
-        }
-    }
-
-    function getMips(address faultDisputeGame, address permissionedDisputeGame) internal view returns (address) {
-        try IFetcher(faultDisputeGame).vm() returns (address mips) {
-            return mips;
-        } catch {
-            return IFetcher(permissionedDisputeGame).vm();
-        }
+    function getMips(address permissionedDisputeGame) internal view returns (address) {
+        return IFetcher(permissionedDisputeGame).vm();
     }
 
     function getBatchSubmitter(address systemConfigProxy) internal view returns (address) {

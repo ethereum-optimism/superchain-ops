@@ -28,12 +28,6 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @notice owners the safe started with
     address[] public startingOwners;
 
-    /// @notice array of L2 ChainIds this task will interface with
-    uint256[] public l2ChainIds;
-
-    /// @notice configured chain id
-    uint256 public configChainId;
-
     /// @notice Addresses contract
     Addresses public addresses;
 
@@ -155,7 +149,11 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// For nested multisig, prints the data to sign and the hash to approve for each of the child multisigs.
     /// @param taskConfigFilePath The path to the task configuration file.
     function simulateRun(string memory taskConfigFilePath) public override {
+        /// child multisig is set to value passed from the signFromChildMultisig function
+
+        /// sets safe to the safe specified by the current template from addresses.json
         _taskSetup(taskConfigFilePath);
+
         /// now execute task actions
         build();
         simulate();
@@ -223,9 +221,6 @@ abstract contract MultisigTask is Test, Script, ITask {
         /// set the addresses object
         addresses = _addresses;
 
-        /// assume safe is nested unless there is an EOA owner
-        isNestedSafe = true;
-
         /// get chains
         Addresses.ChainInfo[] memory chains = addresses.getChains();
         require(chains.length > 0, "MultisigTask: no chains found");
@@ -236,12 +231,7 @@ abstract contract MultisigTask is Test, Script, ITask {
         /// TODO change this once we implement task stacking
         nonce = IGnosisSafe(multisig).nonce();
 
-        address[] memory owners = IGnosisSafe(multisig).getOwners();
-        for (uint256 i = 0; i < owners.length; i++) {
-            if (owners[i].code.length == 0) {
-                isNestedSafe = false;
-            }
-        }
+        _setIsNestedSafe();
 
         for (uint256 i = 1; i < chains.length; i++) {
             require(
@@ -272,9 +262,6 @@ abstract contract MultisigTask is Test, Script, ITask {
             }
         }
     }
-
-    /// @notice abstract function to be implemented by the inheriting contract to setup the template
-    function _templateSetup(string memory taskConfigFilePath) internal virtual;
 
     /// @notice get the calldata to be executed by safe
     /// @dev callable only after the build function has been run and the
@@ -462,11 +449,6 @@ abstract contract MultisigTask is Test, Script, ITask {
         }
     }
 
-    /// @notice task specific validations
-    /// @dev override to add additional task specific validations
-    /// @param chainId The l2chainId
-    function _validate(uint256 chainId) internal view virtual;
-
     /// @notice get task actions
     /// @return targets The targets of the actions
     /// @return values The values of the actions
@@ -514,10 +496,6 @@ abstract contract MultisigTask is Test, Script, ITask {
             _build(chains[i].chainId);
         }
     }
-
-    /// @notice build the task actions for a given l2chain
-    /// @dev override to add additional task specific build logic
-    function _build(uint256 chainId) internal virtual;
 
     /// @notice print task description, actions, transfers, state changes and EOAs datas to sign
     function print() public virtual override {
@@ -646,31 +624,11 @@ abstract contract MultisigTask is Test, Script, ITask {
         Simulation.logSimulationLink({_to: multisig, _data: txData, _from: msg.sender, _overrides: overrides});
     }
 
-    /// --------------------------------------------------------------------
-    /// --------------------------------------------------------------------
-    /// ------------------------- Internal functions -----------------------
-    /// --------------------------------------------------------------------
-    /// --------------------------------------------------------------------
-
     /// @notice get the hash for this safe transaction
     /// can only be called after the build function, otherwise it reverts
     function getHash() public view returns (bytes32) {
         bytes memory data = getCalldata();
         return keccak256(getDataToSign(multisig, data));
-    }
-
-    /// @notice validate actions inclusion
-    /// default implementation check for duplicate actions
-    function _validateAction(address target, uint256 value, bytes memory data) internal virtual {
-        uint256 actionsLength = actions.length;
-        for (uint256 i = 0; i < actionsLength; i++) {
-            // Check if the target, arguments and value matches with other existing actions.
-            bool isDuplicateTarget = actions[i].target == target;
-            bool isDuplicateArguments = keccak256(actions[i].arguments) == keccak256(data);
-            bool isDuplicateValue = actions[i].value == value;
-
-            require(!(isDuplicateTarget && isDuplicateArguments && isDuplicateValue), "Duplicated action found");
-        }
     }
 
     /// @notice helper function to generate the approveHash calldata to be executed by child multisig owner on parent multisig
@@ -686,6 +644,83 @@ abstract contract MultisigTask is Test, Script, ITask {
         Call3Value[] memory calls = new Call3Value[](1);
         calls[0] = call;
         return abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
+    }
+
+    /// @notice helper method to get labels for addresses
+    function getAddressLabel(address contractAddress) public view returns (string memory) {
+        string memory label = vm.getLabel(contractAddress);
+
+        bytes memory prefix = bytes("unlabeled:");
+        bytes memory strBytes = bytes(label);
+
+        if (strBytes.length >= prefix.length) {
+            // check if address is unlabeled
+            for (uint256 i = 0; i < prefix.length; i++) {
+                if (strBytes[i] != prefix[i]) {
+                    // return "{LABEL} @{ADDRESS}" if address is labeled
+                    return string(abi.encodePacked(label, " @", vm.toString(contractAddress)));
+                }
+            }
+        } else {
+            // return "{LABEL} @{ADDRESS}" if address is labeled
+            return string(abi.encodePacked(label, " @", vm.toString(contractAddress)));
+        }
+
+        // return "UNLABELED @{ADDRESS}" if address is unlabeled
+        return string(abi.encodePacked("UNLABELED @", vm.toString(contractAddress)));
+    }
+
+    /// --------------------------------------------------------------------
+    /// --------------------------------------------------------------------
+    /// ------------------------- Internal functions -----------------------
+    /// --------------------------------------------------------------------
+    /// --------------------------------------------------------------------
+
+    /// The functions are called in the following order during the task lifecycle:
+
+    /// 1. template setup is the common entrypoint to the MultisigTask regardless of which function is run
+    /// @notice abstract function to be implemented by the inheriting contract to setup the template
+    function _templateSetup(string memory taskConfigFilePath) internal virtual;
+
+    /// 2. _build function is the main function for crafting calldata, it is called in a for loop, which
+    /// iterates over the chains in the task. The _build function is called with the chainId as an argument
+    /// the buildModifier captures all of the actions taken in this function.
+    /// @notice build the task actions for a given l2chain
+    /// @dev override to add additional task specific build logic
+    function _build(uint256 chainId) internal virtual;
+
+    /// 3. _validate function is called after the build function has been run for all chains and the results
+    /// of this tasks state transitions have been applied. This checks that the state transitions are valid
+    /// and applied correctly.
+    /// @notice task specific validations
+    /// @dev override to add additional task specific validations
+    /// @param chainId The l2chainId
+    function _validate(uint256 chainId) internal view virtual;
+
+    /// @notice validate actions inclusion
+    /// default implementation check for duplicate actions
+    function _validateAction(address target, uint256 value, bytes memory data) internal virtual {
+        uint256 actionsLength = actions.length;
+        for (uint256 i = 0; i < actionsLength; i++) {
+            // Check if the target, arguments and value matches with other existing actions.
+            bool isDuplicateTarget = actions[i].target == target;
+            bool isDuplicateArguments = keccak256(actions[i].arguments) == keccak256(data);
+            bool isDuplicateValue = actions[i].value == value;
+
+            require(!(isDuplicateTarget && isDuplicateArguments && isDuplicateValue), "Duplicated action found");
+        }
+    }
+
+    function _setIsNestedSafe() internal {
+        /// assume safe is nested unless there is an EOA owner
+        isNestedSafe = true;
+
+        address[] memory owners = IGnosisSafe(multisig).getOwners();
+        for (uint256 i = 0; i < owners.length; i++) {
+            if (owners[i].code.length == 0) {
+                isNestedSafe = false;
+            }
+        }
     }
 
     /// @notice helper function to prepare the signatures to be executed
@@ -797,7 +832,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     }
 
     /// @notice helper method to get transfers and state changes of task affected addresses
-    function _processStateDiffChanges(VmSafe.AccountAccess[] memory accountAccesses) internal {
+    function _processStateDiffChanges(VmSafe.AccountAccess[] memory accountAccesses) private {
         for (uint256 i = 0; i < accountAccesses.length; i++) {
             // process ETH transfer changes
             _processETHTransferChanges(accountAccesses[i]);
@@ -811,7 +846,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     }
 
     /// @notice helper method to get eth transfers of task affected addresses
-    function _processETHTransferChanges(VmSafe.AccountAccess memory accountAccess) internal {
+    function _processETHTransferChanges(VmSafe.AccountAccess memory accountAccess) private {
         address account = accountAccess.account;
         // get eth transfers
         if (accountAccess.value != 0) {
@@ -826,7 +861,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     }
 
     /// @notice helper method to get ERC20 token transfers of task affected addresses
-    function _processERC20TransferChanges(VmSafe.AccountAccess memory accountAccess) internal {
+    function _processERC20TransferChanges(VmSafe.AccountAccess memory accountAccess) private {
         bytes memory data = accountAccess.data;
         if (data.length <= 4) {
             return;
@@ -865,7 +900,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     }
 
     /// @notice helper method to get state changes of task affected addresses
-    function _processStateChanges(VmSafe.StorageAccess[] memory storageAccess) internal {
+    function _processStateChanges(VmSafe.StorageAccess[] memory storageAccess) private {
         for (uint256 i; i < storageAccess.length; i++) {
             address account = storageAccess[i].account;
 
@@ -885,29 +920,5 @@ abstract contract MultisigTask is Test, Script, ITask {
                 _taskStateChangeAddresses.add(account);
             }
         }
-    }
-
-    /// @notice helper method to get labels for addresses
-    function getAddressLabel(address contractAddress) public view returns (string memory) {
-        string memory label = vm.getLabel(contractAddress);
-
-        bytes memory prefix = bytes("unlabeled:");
-        bytes memory strBytes = bytes(label);
-
-        if (strBytes.length >= prefix.length) {
-            // check if address is unlabeled
-            for (uint256 i = 0; i < prefix.length; i++) {
-                if (strBytes[i] != prefix[i]) {
-                    // return "{LABEL} @{ADDRESS}" if address is labeled
-                    return string(abi.encodePacked(label, " @", vm.toString(contractAddress)));
-                }
-            }
-        } else {
-            // return "{LABEL} @{ADDRESS}" if address is labeled
-            return string(abi.encodePacked(label, " @", vm.toString(contractAddress)));
-        }
-
-        // return "UNLABELED @{ADDRESS}" if address is unlabeled
-        return string(abi.encodePacked("UNLABELED @", vm.toString(contractAddress)));
     }
 }
