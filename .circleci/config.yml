@@ -241,13 +241,11 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - utils/checkout-with-mise
       - simulate_nested:
           task: "/sep/ink-001-fp-holocene-pectra-upgrade"
 
   just_simulate_ink_sep_holocene_system_config_upgrade:
     docker:
-      - utils/checkout-with-mise
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - simulate_nested:
