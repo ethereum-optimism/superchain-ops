@@ -10,6 +10,8 @@ create_template() {
         fi
         if [[ "$filename" == *.sol ]]; then
             contract_name="${filename%.sol}"
+            template_path="templates/$filename"
+
             # Create the template file with the default Solidity code
             cat > "$template_path" << EOL
 // SPDX-License-Identifier: MIT
@@ -64,8 +66,7 @@ contract ${contract_name} is MultisigTask {
         // TODO: Implement the logic to validate that the configuration was set as expected.
     }
 }
-EOL            
-            touch "$template_path"
+EOL
             absolute_path=$(realpath "$template_path")
             echo -e "\n\033[32mTemplate created at:\033[0m"
             echo "$absolute_path"
