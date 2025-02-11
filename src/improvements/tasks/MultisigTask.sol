@@ -36,7 +36,7 @@ abstract contract MultisigTask is Test, Script, ITask {
 
     /// @notice struct to store allowed storage accesses read in from config file
     /// uses OpenZeppelin EnumerableSet for allowed storage accesses
-    EnumerableSet.AddressSet internal _allowedStorageAccesses;
+    EnumerableSet.AddressSet private _allowedStorageAccesses;
 
     /// @notice Struct to store information about an action
     /// @param target The address of the target contract
@@ -151,10 +151,8 @@ abstract contract MultisigTask is Test, Script, ITask {
     function simulateRun(string memory taskConfigFilePath) public override {
         /// child multisig is set to value passed from the signFromChildMultisig function
 
-        /// sets safe to the safe set in addresses.json
+        /// sets safe to the safe specified by the current template from addresses.json
         _taskSetup(taskConfigFilePath);
-        /// now we override it to what is set in config.toml, which is a child multisig,
-        /// then, call _setIsNestedSafe(), which flips the flag from true to false <-- this is where our error is
 
         /// now execute task actions
         build();
@@ -263,9 +261,6 @@ abstract contract MultisigTask is Test, Script, ITask {
                 );
             }
         }
-
-        /// call post task setup function to finalize the setup.
-        _postTaskSetup();
     }
 
     /// @notice get the calldata to be executed by safe
@@ -687,20 +682,14 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @notice abstract function to be implemented by the inheriting contract to setup the template
     function _templateSetup(string memory taskConfigFilePath) internal virtual;
 
-    /// 2. to finalize the template setup, the _postTaskSetup function is called. This is default empty and
-    /// task developers do not have to implement this function unless there are special requirements for a task
-    /// @notice empty function that can be implemented by the inheriting
-    /// contract to finalize setting up the template
-    function _postTaskSetup() internal virtual {}
-
-    /// 3. _build function is the main function for crafting calldata, it is called in a for loop, which
+    /// 2. _build function is the main function for crafting calldata, it is called in a for loop, which
     /// iterates over the chains in the task. The _build function is called with the chainId as an argument
     /// the buildModifier captures all of the actions taken in this function.
     /// @notice build the task actions for a given l2chain
     /// @dev override to add additional task specific build logic
     function _build(uint256 chainId) internal virtual;
 
-    /// 4. _validate function is called after the build function has been run for all chains and the results
+    /// 3. _validate function is called after the build function has been run for all chains and the results
     /// of this tasks state transitions have been applied. This checks that the state transitions are valid
     /// and applied correctly.
     /// @notice task specific validations
