@@ -113,16 +113,12 @@ contract AddressRegistry is IAddressRegistry, Test {
 
             supportedL2ChainIds[chains[i].chainId] = true;
 
-            if (block.chainid == getChain("mainnet").chainId) {
-                _processMainnet(chains[i], chainAddressesContent);
-            } else {
-                _processTestnet(chains[i], chainAddressesContent);
-            }
+            _processAddresses(chains[i], chainAddressesContent);
         }
     }
 
-    /// @dev Processes all configuration for a mainnet chain.
-    function _processMainnet(ChainInfo memory chain, string memory chainAddressesContent) internal {
+    /// @dev Processes all configurations for a given chain.
+    function _processAddresses(ChainInfo memory chain, string memory chainAddressesContent) internal {
         uint256 chainId = chain.chainId; // L2 chain ID.
 
         address optimismPortalProxy = _fetchAndSaveInitialContracts(chain, chainAddressesContent);
@@ -165,20 +161,6 @@ contract AddressRegistry is IAddressRegistry, Test {
 
         address unsafeBlockSigner = IFetcher(systemConfigProxy).unsafeBlockSigner();
         saveAddress("UnsafeBlockSigner", chain, unsafeBlockSigner);
-    }
-
-    /// @notice load addresses for a testnet chain.
-    /// this function reads all values from the superchain-registry
-    /// addresses.json and does no onchain discovery.
-    function _processTestnet(ChainInfo memory chain, string memory chainAddressesContent) internal {
-        string[] memory keys = vm.parseJsonKeys(chainAddressesContent, string.concat("$.", vm.toString(chain.chainId)));
-        for (uint256 j = 0; j < keys.length; j++) {
-            string memory key = keys[j];
-            address addr =
-                vm.parseJsonAddress(chainAddressesContent, string.concat("$.", vm.toString(chain.chainId), ".", key));
-
-            saveAddress(key, chain, addr);
-        }
     }
 
     function _fetchAndSaveInitialContracts(ChainInfo memory chain, string memory chainAddressesContent)
