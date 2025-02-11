@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   utils: ethereum-optimism/circleci-utils@1.0.8
+  slack: circleci/slack@4.10.1
 
 parameters:
   default_docker_image:
@@ -61,6 +62,23 @@ commands:
               --dotenv-path $(pwd)/.env \
               --justfile ../../../nested.just \
               simulate council
+
+  notify-failures-on-develop:
+    description: "Notify Slack"
+    parameters:
+      channel:
+        type: string
+        default: C03N11M0BBN
+      mentions:
+        type: string
+        default: ""
+    steps:
+      - slack/notify:
+          channel: << parameters.channel >>
+          event: fail
+          template: basic_fail_1
+          branch_pattern: main
+          mentions: "<< parameters.mentions >>"
 
 jobs:
   check_sepolia_rpc_endpoints:
@@ -155,6 +173,8 @@ jobs:
           command: |
             just install
             (cd src/improvements && just check-superchain-registry-latest)
+      - notify-failures-on-develop:
+          mentions: "@security"
 
   # TODO: remove/replace when there are real consumers of the RPC URLs
   example_mainnet_job:
@@ -291,6 +311,9 @@ jobs:
             ETH_RPC_URL: << pipeline.parameters.l1_mainnet_rpc_url >>
           command: |
             (cd src/improvements && just monorepo-integration-test)
+      - notify-failures-on-develop:
+          mentions: "@security"
+
   print_versions:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
