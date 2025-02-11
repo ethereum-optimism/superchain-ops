@@ -36,7 +36,7 @@ prep l1='' l2='':
   CONFIG_URL="https://raw.githubusercontent.com/ethereum-optimism/superchain-registry/refs/heads/main/superchain/configs/{{l1}}/{{l2}}.toml"
   CONFIG_TOML=$(curl -s --show-error --fail "${CONFIG_URL}")
   SYSTEM_CONFIG=$(echo "${CONFIG_TOML}" | yq -p toml .addresses.SystemConfigProxy)
-  OWNER_SAFE=$(echo "${CONFIG_TOML}" | yq -p toml .addresses.ProxyAdminOwner)
+  OWNER_SAFE=$(echo "${CONFIG_TOML}" | yq -p toml .roles.ProxyAdminOwner)
   PROXY_ADMIN=$(echo "${CONFIG_TOML}" | yq -p toml .addresses.ProxyAdmin)
 
   cat >> out/.env << EOF
@@ -113,7 +113,7 @@ copy-anchor-state fromGameType='' toGameTypes='':
   SUPERCHAIN_CONFIG=$(cast call "${REGISTRY_PROXY}" 'superchainConfig()(address)')
 
   # Load the current anchor state
-  ANCHOR_JSON=$(cast call -j "${REGISTRY_PROXY}" 'anchors(uint32)(bytes32,uint256)' '{{fromGameType}}')
+  ANCHOR_JSON=$(cast call --json "${REGISTRY_PROXY}" 'anchors(uint32)(bytes32,uint256)' '{{fromGameType}}')
   ANCHOR_ROOT=$(echo "${ANCHOR_JSON}" | jq -r '.[0]')
   ANCHOR_BLOCK=$(echo "${ANCHOR_JSON}" | jq -r '.[1]')
 
