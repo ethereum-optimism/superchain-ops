@@ -174,7 +174,7 @@ jobs:
             just install
             (cd src/improvements && just check-superchain-registry-latest)
       - notify-failures-on-develop:
-          mentions: "@security"
+          mentions: "@security-team"
 
   # TODO: remove/replace when there are real consumers of the RPC URLs
   example_mainnet_job:
