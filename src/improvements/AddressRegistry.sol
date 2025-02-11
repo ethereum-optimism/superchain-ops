@@ -294,11 +294,8 @@ contract AddressRegistry is IAddressRegistry, Test {
         address anchorStateRegistryProxy = getAnchorStateRegistryProxy(permissionedDisputeGame);
         saveAddress("AnchorStateRegistryProxy", chain, anchorStateRegistryProxy);
 
-        address delayedWethProxy = getDelayedWETHProxy(faultDisputeGame);
-        if (delayedWethProxy == address(0)) {
-            delayedWethProxy = getDelayedWETHProxy(permissionedDisputeGame);
-        }
-        saveAddress("DelayedWETHProxy", chain, delayedWethProxy);
+        // Not retreiving delayed WETH proxy because 'n' exist based on the number of GameTypes.
+        // We will leave these addresses for the task developer to retrieve.
 
         address mips = getMips(permissionedDisputeGame);
         saveAddress("MIPS", chain, mips);

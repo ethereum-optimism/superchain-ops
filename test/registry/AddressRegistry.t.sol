@@ -90,9 +90,6 @@ contract MainnetAddressRegistryTest is Test {
                 );
                 assertNotEq(addresses.getAddress("MIPS", chainId), address(0), "MIPS not loaded");
                 assertNotEq(addresses.getAddress("PreimageOracle", chainId), address(0), "PreimageOracle not loaded");
-                assertNotEq(
-                    addresses.getAddress("DelayedWETHProxy", chainId), address(0), "DelayedWETHProxy not loaded"
-                );
             } else {
                 assertNotEq(
                     addresses.getAddress("L2OutputOracleProxy", chainId), address(0), "L2OutputOracleProxy not loaded"
