@@ -10,7 +10,9 @@ import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol
 
 /// @notice base task for making calls to the Optimism Contracts Manager
 abstract contract OPCMBaseTask is MultisigTask {
-    /// @notice Optimism Contracts Manager contract reference
+    /// @notice Optimism Contracts Manager Multicall3DelegateCall contract reference
+    /// TODO can we just use the OPCM contract address here directly?
+    ///  it seems like that would be easier to reason about
     address public constant OPCM = 0x95b259eae68ba96edB128eF853fFbDffe47D2Db0;
 
     /// @notice OpChainConfig struct found in the OpContractsManager contract
@@ -21,7 +23,9 @@ abstract contract OPCMBaseTask is MultisigTask {
         /// normally typed as an IProxyAdmin, however IProxyAdmin is an interface,
         /// which is unused here, so we just store the address
         address proxyAdmin;
-        /// normally typed as type `Claim`, however Claim is a bytes32 type
+        /// normally typed as type `Claim`, however Claim is of bytes32 type
+        /// and we don't have to worry about the Claim type as we are not
+        /// calling the interface with that type
         bytes32 absolutePrestate;
     }
 
@@ -34,7 +38,7 @@ abstract contract OPCMBaseTask is MultisigTask {
         (address[] memory targets,,) = getTaskActions();
 
         /// TODO create OPCM calls array with arguments
-        // OPCMUpgrade[] memory upgradeCalls = new OPCMUpgrade[](targets.length);
+        OpChainConfig[] memory upgradeCalls = new OpChainConfig[](targets.length);
 
         for (uint256 i; i < targets.length; i++) {
             /// TODO fill this in with the real thing
@@ -43,7 +47,7 @@ abstract contract OPCMBaseTask is MultisigTask {
 
         /// generate calldata
         /// TODO change to actual function signature
-        data = abi.encodeWithSignature("upgrade((address,address,bytes32)[])", "" /*calls*/ );
+        data = abi.encodeWithSignature("upgrade((address,address,bytes32)[])", upgradeCalls);
     }
 
     /// @notice get the data to sign by EOA for single multisig
@@ -51,6 +55,7 @@ abstract contract OPCMBaseTask is MultisigTask {
     /// @return The data to sign
     function getDataToSign(address safe, bytes memory data) public view override returns (bytes memory) {
         return IGnosisSafe(safe).encodeTransactionData({
+            /// TODO: replance to with actual OPCM contract address
             to: OPCM,
             value: 0,
             data: data,
@@ -85,5 +90,17 @@ abstract contract OPCMBaseTask is MultisigTask {
         /// generate calldata
         /// TODO change to actual function signature
         return abi.encodeWithSignature("upgrade((address,address,bytes32)[])", "" /*calls*/ );
+    }
+
+    /// @notice build the task actions for all l2chains in the task
+    /// @dev contract calls must be perfomed in plain solidity.
+    ///      overriden requires using buildModifier modifier to leverage
+    ///      foundry snapshot and state diff recording to populate the actions array.
+    function build() public override buildModifier {
+        Addresses.ChainInfo[] memory chains = addresses.getChains();
+
+        bytes memory data = getCalldata();
+        (bool success, ) = OPCM.call{value: 0}(data);
+        require(success, "OPCMBaseTask: failed to build task");
     }
 }
