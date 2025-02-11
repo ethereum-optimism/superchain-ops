@@ -489,9 +489,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @dev contract calls must be perfomed in plain solidity.
     ///      overriden requires using buildModifier modifier to leverage
     ///      foundry snapshot and state diff recording to populate the actions array.
-    function build() public override buildModifier {
-        _buildSingle();
-
+    function build() public override virtual buildModifier {
         Addresses.ChainInfo[] memory chains = addresses.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {
