@@ -310,7 +310,7 @@ jobs:
           environment:
             ETH_RPC_URL: << pipeline.parameters.l1_mainnet_rpc_url >>
           command: |
-            (cd src/improvements && just monorepo-integration-test && exit 1)
+            (cd src/improvements && exit 1)
       - notify-failures-on-develop:
           mentions: "@security-team"
 
