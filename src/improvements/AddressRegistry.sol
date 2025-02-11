@@ -107,19 +107,19 @@ contract AddressRegistry is IAddressRegistry, Test {
             vm.readFile("lib/superchain-registry/superchain/extra/addresses/addresses.json");
 
         for (uint256 i = 0; i < chains.length; i++) {
-            _processChain(chains[i], chainAddressesContent);
+            require(!supportedL2ChainIds[chains[i].chainId], "Duplicate chain ID in chain config");
+            require(chains[i].chainId != 0, "Invalid chain ID in config");
+            require(bytes(chains[i].name).length > 0, "Empty name in config");
+
+            supportedL2ChainIds[chains[i].chainId] = true;
+
+            _processAddresses(chains[i], chainAddressesContent);
         }
     }
 
-    /// @dev Processes all configuration for a single chain.
-    function _processChain(ChainInfo memory chain, string memory chainAddressesContent) internal {
+    /// @dev Processes all configurations for a given chain.
+    function _processAddresses(ChainInfo memory chain, string memory chainAddressesContent) internal {
         uint256 chainId = chain.chainId; // L2 chain ID.
-
-        require(!supportedL2ChainIds[chainId], "Duplicate chain ID in chain config");
-        require(chainId != 0, "Invalid chain ID in config");
-        require(bytes(chain.name).length > 0, "Empty name in config");
-
-        supportedL2ChainIds[chainId] = true;
 
         address optimismPortalProxy = _fetchAndSaveInitialContracts(chain, chainAddressesContent);
 
