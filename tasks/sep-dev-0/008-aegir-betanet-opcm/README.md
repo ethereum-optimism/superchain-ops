@@ -1,6 +1,6 @@
 # Aegir Betanet Upgrade
 
-Status:
+Status: READY TO SIGN
 
 ## Objective
 
