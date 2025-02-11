@@ -410,6 +410,7 @@ contract AddressRegistry is IAddressRegistry, Test {
 
     function getAnchorStateRegistryProxy(address faultDisputeGame, address permissionedDisputeGame)
         internal
+        view
         returns (address)
     {
         return IFetcher(permissionedDisputeGame).anchorStateRegistry();
@@ -417,16 +418,19 @@ contract AddressRegistry is IAddressRegistry, Test {
 
     function getDelayedWETHProxy(address faultDisputeGame, address permissionedDisputeGame)
         internal
+        view
         returns (address)
     {
-        (bool ok, bytes memory data) = address(faultDisputeGame).call(abi.encodeWithSelector(IFetcher.weth.selector));
+        (bool ok, bytes memory data) =
+            address(faultDisputeGame).staticcall(abi.encodeWithSelector(IFetcher.weth.selector));
         if (ok && data.length == 32) return abi.decode(data, (address));
 
         return IFetcher(permissionedDisputeGame).weth();
     }
 
-    function getMips(address faultDisputeGame, address permissionedDisputeGame) internal returns (address) {
-        (bool ok, bytes memory data) = address(faultDisputeGame).call(abi.encodeWithSelector(IFetcher.vm.selector));
+    function getMips(address faultDisputeGame, address permissionedDisputeGame) internal view returns (address) {
+        (bool ok, bytes memory data) =
+            address(faultDisputeGame).staticcall(abi.encodeWithSelector(IFetcher.vm.selector));
         if (ok && data.length == 32) return abi.decode(data, (address));
 
         return IFetcher(permissionedDisputeGame).vm();
