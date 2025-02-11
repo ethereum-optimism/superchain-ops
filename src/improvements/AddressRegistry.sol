@@ -411,12 +411,6 @@ contract AddressRegistry is IAddressRegistry, Test {
         return IFetcher(permissionedDisputeGame).anchorStateRegistry();
     }
 
-    function getDelayedWETHProxy(address disputeGame) internal view returns (address) {
-        (bool ok, bytes memory data) = address(disputeGame).staticcall(abi.encodeWithSelector(IFetcher.weth.selector));
-        if (ok && data.length == 32) return abi.decode(data, (address));
-        else return address(0);
-    }
-
     function getMips(address permissionedDisputeGame) internal view returns (address) {
         return IFetcher(permissionedDisputeGame).vm();
     }
