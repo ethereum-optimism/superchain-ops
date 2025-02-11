@@ -286,19 +286,21 @@ contract AddressRegistry is IAddressRegistry, Test {
         }
 
         address permissionedDisputeGame = getPermissionedDisputeGame(disputeGameFactoryProxy);
-        if (permissionedDisputeGame != address(0)) {
-            saveAddress("PermissionedDisputeGame", chain, permissionedDisputeGame);
-            address challenger = IFetcher(permissionedDisputeGame).challenger();
-            saveAddress("Challenger", chain, challenger);
-        }
+        saveAddress("PermissionedDisputeGame", chain, permissionedDisputeGame);
 
-        address anchorStateRegistryProxy = getAnchorStateRegistryProxy(faultDisputeGame, permissionedDisputeGame);
+        address challenger = IFetcher(permissionedDisputeGame).challenger();
+        saveAddress("Challenger", chain, challenger);
+
+        address anchorStateRegistryProxy = getAnchorStateRegistryProxy(permissionedDisputeGame);
         saveAddress("AnchorStateRegistryProxy", chain, anchorStateRegistryProxy);
 
-        address delayedWethProxy = getDelayedWETHProxy(faultDisputeGame, permissionedDisputeGame);
+        address delayedWethProxy = getDelayedWETHProxy(faultDisputeGame);
+        if (delayedWethProxy == address(0)) {
+            delayedWethProxy = getDelayedWETHProxy(permissionedDisputeGame);
+        }
         saveAddress("DelayedWETHProxy", chain, delayedWethProxy);
 
-        address mips = getMips(faultDisputeGame, permissionedDisputeGame);
+        address mips = getMips(permissionedDisputeGame);
         saveAddress("MIPS", chain, mips);
 
         address preimageOracle = IFetcher(mips).oracle();
@@ -408,31 +410,17 @@ contract AddressRegistry is IAddressRegistry, Test {
         }
     }
 
-    function getAnchorStateRegistryProxy(address faultDisputeGame, address permissionedDisputeGame)
-        internal
-        view
-        returns (address)
-    {
+    function getAnchorStateRegistryProxy(address permissionedDisputeGame) internal view returns (address) {
         return IFetcher(permissionedDisputeGame).anchorStateRegistry();
     }
 
-    function getDelayedWETHProxy(address faultDisputeGame, address permissionedDisputeGame)
-        internal
-        view
-        returns (address)
-    {
-        (bool ok, bytes memory data) =
-            address(faultDisputeGame).staticcall(abi.encodeWithSelector(IFetcher.weth.selector));
+    function getDelayedWETHProxy(address disputeGame) internal view returns (address) {
+        (bool ok, bytes memory data) = address(disputeGame).staticcall(abi.encodeWithSelector(IFetcher.weth.selector));
         if (ok && data.length == 32) return abi.decode(data, (address));
-
-        return IFetcher(permissionedDisputeGame).weth();
+        else return address(0);
     }
 
-    function getMips(address faultDisputeGame, address permissionedDisputeGame) internal view returns (address) {
-        (bool ok, bytes memory data) =
-            address(faultDisputeGame).staticcall(abi.encodeWithSelector(IFetcher.vm.selector));
-        if (ok && data.length == 32) return abi.decode(data, (address));
-
+    function getMips(address permissionedDisputeGame) internal view returns (address) {
         return IFetcher(permissionedDisputeGame).vm();
     }
 
