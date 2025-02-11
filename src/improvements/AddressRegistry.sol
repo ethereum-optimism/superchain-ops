@@ -412,10 +412,6 @@ contract AddressRegistry is IAddressRegistry, Test {
         internal
         returns (address)
     {
-        (bool ok, bytes memory data) =
-            address(faultDisputeGame).call(abi.encodeWithSelector(IFetcher.anchorStateRegistry.selector));
-        if (ok && data.length == 32) return abi.decode(data, (address));
-
         return IFetcher(permissionedDisputeGame).anchorStateRegistry();
     }
 
