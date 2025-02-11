@@ -4,7 +4,7 @@ Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
-Upgrades the Fault Proof contracts for the Holocene hardfork and utilizes the absolute prestate that enables L1 pectra support.
+Upgrades the Fault Proof contracts for the Holocene hardfork and utilizes the absolute prestate `0x03dfa3b3ac66e8fae9f338824237ebacff616df928cf7dada0e14be2531bc1f4` that enables L1 pectra support.
 
 The proposal was:
 
