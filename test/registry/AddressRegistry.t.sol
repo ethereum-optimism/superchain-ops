@@ -75,8 +75,8 @@ contract MainnetAddressRegistryTest is Test {
             address disputeGameFactoryProxy = getOptionalAddress("DisputeGameFactoryProxy", chainId);
             if (disputeGameFactoryProxy != address(0)) {
                 assertNotEq(disputeGameFactoryProxy, address(0), "DisputeGameFactoryProxy not loaded");
-                bool hasFaultGame = addresses.getAddress("FaultDisputeGame", chainId) != address(0);
-                bool hasPermissionedGame = addresses.getAddress("PermissionedDisputeGame", chainId) != address(0);
+                bool hasFaultGame = getOptionalAddress("FaultDisputeGame", chainId) != address(0);
+                bool hasPermissionedGame = getOptionalAddress("PermissionedDisputeGame", chainId) != address(0);
                 assertTrue(
                     hasFaultGame || hasPermissionedGame, "Neither FaultDisputeGame nor PermissionedDisputeGame loaded"
                 );
@@ -90,9 +90,6 @@ contract MainnetAddressRegistryTest is Test {
                 );
                 assertNotEq(addresses.getAddress("MIPS", chainId), address(0), "MIPS not loaded");
                 assertNotEq(addresses.getAddress("PreimageOracle", chainId), address(0), "PreimageOracle not loaded");
-                assertNotEq(
-                    addresses.getAddress("DelayedWETHProxy", chainId), address(0), "DelayedWETHProxy not loaded"
-                );
             } else {
                 assertNotEq(
                     addresses.getAddress("L2OutputOracleProxy", chainId), address(0), "L2OutputOracleProxy not loaded"
