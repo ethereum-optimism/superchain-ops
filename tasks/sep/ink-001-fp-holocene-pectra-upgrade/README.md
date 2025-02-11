@@ -1,6 +1,6 @@
 # Ink Sepolia Holocene Hardfork + L1 Pectra Support Upgrade
 
-Status: DRAFT, NOT READY TO SIGN
+Status: READY TO SIGN
 
 ## Objective
 
