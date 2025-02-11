@@ -367,6 +367,9 @@ workflows:
       - check_nonce_overrides
       # check that superchain-registry is up to date
       - check_superchain_registry
+        filters:
+            branches:
+              only: main
       # Task simulations.
       # Please add an invocation to `just simulate` if a ceremony is
       # active (e.g. it is the next ceremony to perform or you

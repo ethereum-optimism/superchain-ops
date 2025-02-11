@@ -21,4 +21,5 @@ if [[ "$local_hash" != "$remote_hash" ]]; then
     exit 1
 else
     echo "The addresses file is up to date."
+    exit 1
 fi
