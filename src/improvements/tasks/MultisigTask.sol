@@ -267,7 +267,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @dev callable only after the build function has been run and the
     /// calldata has been loaded up to storage
     /// @return data The calldata to be executed
-    function getCalldata() public view virtual override returns (bytes memory data) {
+    function getCalldata() public view override returns (bytes memory data) {
         /// get task actions
         (address[] memory targets, uint256[] memory values, bytes[] memory arguments) = getTaskActions();
 
@@ -303,7 +303,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @notice get the data to sign by EOA for single multisig
     /// @param data The calldata to be executed
     /// @return The data to sign
-    function getDataToSign(address safe, bytes memory data) public view virtual returns (bytes memory) {
+    function getDataToSign(address safe, bytes memory data) public view returns (bytes memory) {
         return IGnosisSafe(safe).encodeTransactionData({
             to: MULTICALL3_ADDRESS,
             value: 0,
@@ -632,7 +632,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     }
 
     /// @notice helper function to generate the approveHash calldata to be executed by child multisig owner on parent multisig
-    function generateApproveMulticallData() public view virtual returns (bytes memory) {
+    function generateApproveMulticallData() public view returns (bytes memory) {
         bytes32 hash = getHash();
         Call3Value memory call = Call3Value({
             target: multisig,
