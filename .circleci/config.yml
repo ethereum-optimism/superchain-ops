@@ -23,7 +23,7 @@ parameters:
     type: integer
     default: 5
 
-commands:  
+commands:
   simulate:
     description: "Runs simulations of a task"
     parameters:
@@ -244,6 +244,14 @@ jobs:
       - simulate_nested:
           task: "/sep/zora-002-fp-upgrade"
 
+  just_simulate_aegir_betanet_opcm:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - utils/checkout-with-mise
+      - simulate_nested:
+          task: "/sep-dev-0/008-aegir-betanet-opcm"
+
   forge_build:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -267,7 +275,7 @@ jobs:
             just install
             forge --version
             forge fmt --check
-  
+
   forge_test:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -278,7 +286,7 @@ jobs:
           command: |
             forge --version
             forge test -vvv
-  
+
   monorepo_integration_test:
     circleci_ip_ranges: true
     docker:
@@ -360,4 +368,6 @@ workflows:
       - just_simulate_ink_respected_game_type
       # sepolia
       - just_simulate_zora_002_fp_upgrade
+      # aegir betanet
+      - just_simulate_aegir_betanet_opcm
 
