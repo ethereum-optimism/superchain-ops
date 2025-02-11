@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
-
 abstract contract ITask {
     /// @notice return task actions.
     /// @dev this function shoudn't be overriden.
@@ -19,7 +17,7 @@ abstract contract ITask {
 
     /// @notice runs all task steps
     /// 1. builds, simulates, validates and then prints the task
-    function run(string memory taskConfigFilePath) external virtual;
+    function simulateRun(string memory taskConfigFilePath) external virtual;
 
     /// @notice build the task actions
     /// @dev contract calls must be perfomed in plain solidity.

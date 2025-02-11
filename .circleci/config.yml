@@ -1,12 +1,15 @@
 version: 2.1
 
+orbs:
+  utils: ethereum-optimism/circleci-utils@1.0.8
+
 parameters:
   default_docker_image:
     type: string
     default: cimg/base:2024.01
   l1_mainnet_rpc_url:
     type: string
-    default: "https://ci-mainnet-l1.optimism.io"
+    default: "https://ci-mainnet-l1-archive.optimism.io"
   l1_sepolia_rpc_url:
     type: string
     default: "https://ci-sepolia-l1.optimism.io"
@@ -20,74 +23,14 @@ parameters:
     type: integer
     default: 5
 
-commands:
-  checkout-with-mise:
-    steps:
-      - checkout
-      - run:
-          name: Initialize mise environment
-          command: |
-            # This is used to create a per-user cache key to preserve permissions across different
-            # executor types.
-            user=$(whoami)
-            echo "$user" > .executor-user
-            echo "Set executor user to $user."
-
-            if [[ "$user" == "root" ]]; then
-              # Self-hosted runners will persist this cache between runs. Cleaning it up means that we
-              # preserve the semantics of the cache regardless of executor type. It's also much faster
-              # to delete the cache and recreate it than it is to overwrite it in place.
-              rm -rf /data/mise-data
-              echo "Cleaned up cache data."
-
-              mkdir -p /data/mise-data
-              echo "Created Mise data dir."
-              mkdir -p ~/.cache
-              echo "Created Mise cache dir."
-            else
-              sudo rm -rf /data/mise-data
-              echo "Cleaned up cache data."
-              sudo mkdir -p /data/mise-data
-              sudo chown -R "$user:$user" /data/mise-data
-              echo "Created Mise data dir."
-              sudo mkdir -p ~/.cache
-              sudo chown -R "$user:$user" ~/.cache
-              echo "Created Mise cache dir."
-            fi
-      - restore_cache:
-          name: Restore mise cache
-          keys:
-            - mise-v5-{{ checksum ".executor-user" }}-{{ checksum "mise.toml" }}
-      - run:
-          name: Install mise
-          command: |
-            if command -v mise &> /dev/null; then
-              echo "mise already installed at $(command -v mise)"
-            else
-              curl https://mise.run | sh
-            fi
-
-            echo "export PATH=\"$HOME/.local/bin:\$PATH\"" >> "$BASH_ENV"
-            echo "export MISE_DATA_DIR=/data/mise-data" >> "$BASH_ENV"
-            echo "export MISE_JOBS=$(nproc)" >> "$BASH_ENV"
-            echo "eval \"\$($HOME/.local/bin/mise activate --shims)\"" >> "$BASH_ENV"
-      - run:
-          name: Install mise deps
-          command: |
-            mise install -v -y
-      - save_cache:
-          name: Save mise cache
-          key: mise-v5-{{ checksum ".executor-user" }}-{{ checksum "mise.toml" }}
-          paths:
-            - /data/mise-data
-  
+commands:  
   simulate:
     description: "Runs simulations of a task"
     parameters:
       task:
         type: string
     steps:
-      - checkout
+      - utils/checkout-with-mise
       - run:
           name: "simulate << parameters.task >>"
           command: |
@@ -104,7 +47,7 @@ commands:
       task:
         type: string
     steps:
-      - checkout
+      - utils/checkout-with-mise
       - run:
           name: "simulate nested << parameters.task >>"
           command: |
@@ -125,7 +68,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: Check Sepolia RPC Endpoints
           command: |
@@ -154,7 +97,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: Check Mainnet RPC Endpoints
           command: |
@@ -182,7 +125,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - attach_workspace:
           at: .
       - run:
@@ -193,12 +136,25 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - attach_workspace:
           at: .
       - run:
           name: Check nonce overrides
           command: bash ./script/utils/check-nonce-overrides.sh
+
+  check_superchain_registry:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - utils/checkout-with-mise
+      - attach_workspace:
+          at: .
+      - run:
+          name: Check superchain registry
+          command: |
+            just install
+            (cd src/improvements && just check-superchain-registry-latest)
 
   # TODO: remove/replace when there are real consumers of the RPC URLs
   example_mainnet_job:
@@ -226,7 +182,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: just simulate r1-hello-council
           command: |
@@ -243,7 +199,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: just simulate r2-remove-signer
           command: |
@@ -261,7 +217,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: just simulate r4-jointly-upgrade
           command: |
@@ -278,7 +234,6 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
       - simulate:
           task: "/eth/ink-002-set-respected-game-type"
   
@@ -298,11 +253,18 @@ jobs:
       - simulate_nested:
           task: "/sep/ink-002-holocene-system-config-upgrade"
   
+  just_simulate_zora_002_fp_upgrade:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - simulate_nested:
+          task: "/sep/zora-002-fp-upgrade"
+
   forge_build:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: forge build
           command: |
@@ -314,7 +276,7 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: forge fmt
           command: |
@@ -326,18 +288,30 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: forge test
           command: |
             forge --version
             forge test -vvv
-
+  
+  monorepo_integration_test:
+    circleci_ip_ranges: true
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - utils/checkout-with-mise
+      - run:
+          name: monorepo integration tests
+          environment:
+            ETH_RPC_URL: << pipeline.parameters.l1_mainnet_rpc_url >>
+          command: |
+            (cd src/improvements && just monorepo-integration-test)
   print_versions:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: print versions
           command: |
@@ -349,20 +323,30 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: shellcheck
           command: | # Justfiles are not shell scripts and should not be checked with shellcheck
-            (cd src/improvements/script && shellcheck -x *)
+            (cd src/improvements/script && shellcheck -x *.sh)
 
 workflows:
   main:
+    when:
+      or:
+        # Trigger on new commits
+        - equal: [webhook, << pipeline.trigger_source >>]
+        - equal: ["build_four_hours", <<pipeline.schedule.name>>]
     jobs:
       - print_versions
       # Forge checks.
       - forge_build
       - forge_fmt
       - forge_test
+      # This is a long running job, so we only run it on the main branch.
+      - monorepo_integration_test:
+          filters:
+            branches:
+              only: main
       - shellcheck
       # RPC endpoint checks.
       - check_sepolia_rpc_endpoints
@@ -374,6 +358,8 @@ workflows:
       - check_task_statuses
       # Verify that all tasks have correctly uppercased nonce overrides.
       - check_nonce_overrides
+      # check that superchain-registry is up to date
+      - check_superchain_registry
       # Task simulations.
       # Please add an invocation to `just simulate` if a ceremony is
       # active (e.g. it is the next ceremony to perform or you
@@ -391,3 +377,4 @@ workflows:
       # sepolia
       - just_simulate_ink_sep_fp_holocene_pectra_upgrade
       - just_simulate_ink_sep_holocene_system_config_upgrade
+      - just_simulate_zora_002_fp_upgrade
