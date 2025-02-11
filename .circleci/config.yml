@@ -366,7 +366,7 @@ workflows:
       # Verify that all tasks have correctly uppercased nonce overrides.
       - check_nonce_overrides
       # check that superchain-registry is up to date
-      - check_superchain_registry
+      - check_superchain_registry:
           filters:
               branches:
                 only: main
