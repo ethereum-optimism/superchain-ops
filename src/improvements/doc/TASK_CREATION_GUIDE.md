@@ -27,7 +27,15 @@ src/improvements/tasks/
 
 ### Task Naming Convention
 
-Tasks follow a numbered sequence within each network directory:
+The naming convention for tasks follows a lexicographical order. To see the current lexicographical ordering of tasks in a network, you can execute just task ls. This command will list all tasks for a given network in order.
+
+The only constraint imposed at the moment is that tasks must be in lexicographical order. However, teams can build their own naming conventions on top of this constraint.
+
+For example, a structured format like [network]/[###]-[descriptive-name] can be used to maintain clarity and organization:
+- Format: [network]/[###]-[descriptive-name]
+- Example: eth/001-security-council-phase-0
+
+Please be mindful when naming tasks to ensure consistency and readability.
 - Format: `[network]/[###]-[descriptive-name]`
 - Example: `eth/001-security-council-phase-0`
 - Numbers help track task order and dependencies
