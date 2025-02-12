@@ -43,37 +43,15 @@ interface IFetcher {
 contract AddressRegistry is IAddressRegistry, Test {
     using EnumerableSet for EnumerableSet.UintSet;
 
-    /// @dev Structure for reading address details from JSON files.
-    struct InputAddress {
-        /// Blockchain network identifier
-        address addr;
-        /// contract identifier (name)
-        string identifier;
-        /// Address (contract or EOA)
-        /// Indicates if the address is a contract
-        bool isContract;
-    }
-
-    /// @dev Structure for storing address details in the contract.
-    struct RegistryEntry {
-        address addr;
-        /// Address (contract or EOA)
-        /// Indicates if the address is a contract
-        bool isContract;
-    }
-
-    /// @dev Structure for reading chain list details from toml file
-    struct ChainInfo {
-        uint256 chainId;
-        string name;
-    }
-
     /// @notice Maps an identifier and l2 instance chain ID to a stored address entry.
     /// All addresses will live on the same chain.
     mapping(string => mapping(uint256 => RegistryEntry)) private registry;
 
     /// @notice Supported L2 chain IDs for this Address Registry instance.
     mapping(uint256 => bool) public supportedL2ChainIds;
+
+    /// @notice Maps an address to its identifier and chain info.
+    mapping(address => AddressInfo) public addressInfo;
 
     /// @notice Array of supported chains and their configurations
     ChainInfo[] public chains;
@@ -193,6 +171,7 @@ contract AddressRegistry is IAddressRegistry, Test {
         require(registry[identifier][chain.chainId].addr == address(0), "Address already registered");
 
         registry[identifier][chain.chainId] = RegistryEntry(addr, addr.code.length > 0);
+        addressInfo[addr] = AddressInfo(identifier, chain);
 
         // Format the chain name: uppercase it and replace spaces with underscores,
         // then concatenate with the identifier to form a readable label.
@@ -215,6 +194,14 @@ contract AddressRegistry is IAddressRegistry, Test {
         require(resolvedAddress != address(0), "Address not found");
 
         return resolvedAddress;
+    }
+
+    /// @notice Retrieves the identifier and chain info for a given address.
+    /// @param addr The address to retrieve info for.
+    /// @return The identifier and chain info for the given address.
+    function getAddressInfo(address addr) public view returns (AddressInfo memory) {
+        require(bytes(addressInfo[addr].identifier).length != 0, "Address Info not found");
+        return addressInfo[addr];
     }
 
     /// @notice Checks if an address is a contract for a given identifier and L2 chain
