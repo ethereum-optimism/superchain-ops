@@ -15,53 +15,98 @@ import {DisputeGameFactory} from "@eth-optimism-bedrock/src/dispute/DisputeGameF
 import {FaultDisputeGame} from "@eth-optimism-bedrock/src/dispute/FaultDisputeGame.sol";
 import {PermissionedDisputeGame} from "@eth-optimism-bedrock/src/dispute/PermissionedDisputeGame.sol";
 import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
+import {SuperchainRegistry} from "script/verification/Verification.s.sol";
 
-contract SignFromJson is OriginalSignFromJson {
+contract SignFromJson is OriginalSignFromJson, SuperchainRegistry {
     using LibString for string;
 
-    // Chains for this task.
-    string l1ChainName = vm.envString("L1_CHAIN_NAME");
-    string l2ChainName = vm.envString("L2_CHAIN_NAME");
+    // // Chains for this task.
+    // string l1ChainName = vm.envString("L1_CHAIN_NAME");
+    // string l2ChainName = vm.envString("L2_CHAIN_NAME");
 
     // Safe contract for this task.
     GnosisSafe ownerSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
 
     // The slot used to store the livenessGuard address in GnosisSafe.
     // See https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/base/GuardManager.sol#L30
-    bytes32 livenessGuardSlot = 0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8;
+    bytes32 livenessGuardSlot =
+        0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8;
 
     SystemConfig systemConfig = SystemConfig(vm.envAddress("SYSTEM_CONFIG"));
 
     // DisputeGameFactoryProxy address.
     DisputeGameFactory dgfProxy;
+    FaultDisputeGame faultDisputeGame;
+    PermissionedDisputeGame permissionedDisputeGame;
 
     address[] extraStorageAccessAddresses;
 
+    constructor() SuperchainRegistry("sepolia", "unichain", "v1.8.0-rc.4") {}
+
     function setUp() public {
-        dgfProxy = DisputeGameFactory(systemConfig.disputeGameFactory());
+        dgfProxy = DisputeGameFactory(proxies.DisputeGameFactory);
+        // dgfProxy = DisputeGameFactory(systemConfig.disputeGameFactory());
         // extraStorageAccessAddresses.push(0xf971F1b0D80eb769577135b490b913825BfcF00B);
+
+        string memory inputJson;
+        string
+            memory path = "/tasks/sep/unichain-002-petra-l1-upgrade/input.json";
+        try vm.readFile(string.concat(vm.projectRoot(), path)) returns (
+            string memory data
+        ) {
+            inputJson = data;
+        } catch {
+            revert(string.concat("Failed to read ", path));
+        }
+
+        faultDisputeGame = FaultDisputeGame(
+            stdJson.readAddress(
+                inputJson,
+                "$.transactions[0].contractInputsValues._impl"
+            )
+        );
+        permissionedDisputeGame = PermissionedDisputeGame(
+            stdJson.readAddress(
+                inputJson,
+                "$.transactions[1].contractInputsValues._impl"
+            )
+        );
+
         _precheckDisputeGameImplementation(
             GameType.wrap(0),
-            0x517AE9d74dbB9c7df6F3277225543BE2DCeD5a87
+            address(faultDisputeGame)
         );
         _precheckDisputeGameImplementation(
             GameType.wrap(1),
-            0x652f0D5aB7d145C0EdB86a0B4923F2f150a5482f
+            address(permissionedDisputeGame)
         );
         // INSERT NEW PRE CHECKS HERE
     }
 
-    function getCodeExceptions() internal view override returns (address[] memory) {
+    function getCodeExceptions()
+        internal
+        view
+        override
+        returns (address[] memory)
+    {
         return new address[](0);
     }
 
     // _precheckDisputeGameImplementation checks that the new game being set has the same configuration as the existing
     // implementation with the exception of the absolutePrestate. This is the most common scenario where the game
     // implementation is upgraded to provide an updated fault proof program that supports an upcoming hard fork.
-    function _precheckDisputeGameImplementation(GameType _targetGameType, address _newImpl) internal view {
-        console.log("pre-check new game implementations", _targetGameType.raw());
+    function _precheckDisputeGameImplementation(
+        GameType _targetGameType,
+        address _newImpl
+    ) internal view {
+        console.log(
+            "pre-check new game implementations",
+            _targetGameType.raw()
+        );
 
-        FaultDisputeGame currentImpl = FaultDisputeGame(address(dgfProxy.gameImpls(GameType(_targetGameType))));
+        FaultDisputeGame currentImpl = FaultDisputeGame(
+            address(dgfProxy.gameImpls(GameType(_targetGameType)))
+        );
         // No checks are performed if there is no prior implementation.
         // When deploying the first implementation, it is recommended to implement custom checks.
         if (address(currentImpl) == address(0)) {
@@ -70,32 +115,72 @@ contract SignFromJson is OriginalSignFromJson {
         FaultDisputeGame faultDisputeGame = FaultDisputeGame(_newImpl);
         // these are both using the latest version of the MIPs contracts
         // require(address(currentImpl.vm()) != address(faultDisputeGame.vm()), "10");
-        require(address(currentImpl.weth()) != address(faultDisputeGame.weth()), "20");
-        require(address(currentImpl.anchorStateRegistry()) == address(faultDisputeGame.anchorStateRegistry()), "30");
+        require(
+            address(currentImpl.weth()) != address(faultDisputeGame.weth()),
+            "20"
+        );
+        require(
+            address(currentImpl.anchorStateRegistry()) ==
+                address(faultDisputeGame.anchorStateRegistry()),
+            "30"
+        );
         require(currentImpl.l2ChainId() == faultDisputeGame.l2ChainId(), "40");
-        require(currentImpl.splitDepth() == faultDisputeGame.splitDepth(), "50");
-        require(currentImpl.maxGameDepth() == faultDisputeGame.maxGameDepth(), "60");
-        require(uint64(Duration.unwrap(currentImpl.maxClockDuration())) == uint64(Duration.unwrap(faultDisputeGame.maxClockDuration())), "70");
-        require(uint64(Duration.unwrap(currentImpl.clockExtension())) == uint64(Duration.unwrap(faultDisputeGame.clockExtension())), "80");
+        require(
+            currentImpl.splitDepth() == faultDisputeGame.splitDepth(),
+            "50"
+        );
+        require(
+            currentImpl.maxGameDepth() == faultDisputeGame.maxGameDepth(),
+            "60"
+        );
+        require(
+            uint64(Duration.unwrap(currentImpl.maxClockDuration())) ==
+                uint64(Duration.unwrap(faultDisputeGame.maxClockDuration())),
+            "70"
+        );
+        require(
+            uint64(Duration.unwrap(currentImpl.clockExtension())) ==
+                uint64(Duration.unwrap(faultDisputeGame.clockExtension())),
+            "80"
+        );
 
         if (_targetGameType.raw() == GameTypes.PERMISSIONED_CANNON.raw()) {
-            PermissionedDisputeGame currentPDG = PermissionedDisputeGame(address(currentImpl));
-            PermissionedDisputeGame permissionedDisputeGame = PermissionedDisputeGame(address(faultDisputeGame));
-            require(address(currentPDG.proposer()) == address(permissionedDisputeGame.proposer()), "90");
-            require(address(currentPDG.challenger()) == address(permissionedDisputeGame.challenger()), "100");
+            PermissionedDisputeGame currentPDG = PermissionedDisputeGame(
+                address(currentImpl)
+            );
+            PermissionedDisputeGame permissionedDisputeGame = PermissionedDisputeGame(
+                    address(faultDisputeGame)
+                );
+            require(
+                address(currentPDG.proposer()) ==
+                    address(permissionedDisputeGame.proposer()),
+                "90"
+            );
+            require(
+                address(currentPDG.challenger()) ==
+                    address(permissionedDisputeGame.challenger()),
+                "100"
+            );
         }
     }
 
-    function _precheckAnchorStateCopy(GameType _fromType, GameType _toType) internal view {
+    function _precheckAnchorStateCopy(
+        GameType _fromType,
+        GameType _toType
+    ) internal view {
         console.log("pre-check anchor state copy", _toType.raw());
 
-        FaultDisputeGame fromImpl = FaultDisputeGame(address(dgfProxy.gameImpls(GameType(_fromType))));
+        FaultDisputeGame fromImpl = FaultDisputeGame(
+            address(dgfProxy.gameImpls(GameType(_fromType)))
+        );
         // Must have existing game type implementation for the source
         require(address(fromImpl) != address(0), "200");
         address fromRegistry = address(fromImpl.anchorStateRegistry());
         require(fromRegistry != address(0), "210");
 
-        FaultDisputeGame toImpl = FaultDisputeGame(address(dgfProxy.gameImpls(GameType(_toType))));
+        FaultDisputeGame toImpl = FaultDisputeGame(
+            address(dgfProxy.gameImpls(GameType(_toType)))
+        );
         if (address(toImpl) != address(0)) {
             // If there is an existing implementation, it must use the same anchor state registry.
             address toRegistry = address(toImpl.anchorStateRegistry());
@@ -103,7 +188,12 @@ contract SignFromJson is OriginalSignFromJson {
         }
     }
 
-    function getAllowedStorageAccess() internal view override returns (address[] memory allowed) {
+    function getAllowedStorageAccess()
+        internal
+        view
+        override
+        returns (address[] memory allowed)
+    {
         allowed = new address[](5 + extraStorageAccessAddresses.length);
         allowed[0] = address(dgfProxy);
         allowed[1] = address(ownerSafe);
@@ -115,24 +205,46 @@ contract SignFromJson is OriginalSignFromJson {
     }
 
     /// @notice Checks the correctness of the deployment
-    function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory) internal view override {
+    function _postCheck(
+        Vm.AccountAccess[] memory accesses,
+        Simulation.Payload memory
+    ) internal view override {
         console.log("Running post-deploy assertions");
 
         checkStateDiff(accesses);
-        _postcheckAnchorStateCopy(GameType.wrap(0), bytes32(0x3dd61be7c3e870294e842a0e3a7150fb5b73539260a9ec55d59151ba5f2201e9), 6801092);
+        _postcheckAnchorStateCopy(
+            GameType.wrap(0),
+            bytes32(
+                0x3dd61be7c3e870294e842a0e3a7150fb5b73539260a9ec55d59151ba5f2201e9
+            ),
+            6801092
+        );
         _postcheckHasAnchorState(GameType.wrap(1));
         // INSERT NEW POST CHECKS HERE
 
         console.log("All assertions passed!");
     }
 
-    function _checkDisputeGameImplementation(GameType _targetGameType, address _newImpl) internal view {
-        console.log("check dispute game implementations", _targetGameType.raw());
+    function _checkDisputeGameImplementation(
+        GameType _targetGameType,
+        address _newImpl
+    ) internal view {
+        console.log(
+            "check dispute game implementations",
+            _targetGameType.raw()
+        );
 
-        require(_newImpl == address(dgfProxy.gameImpls(_targetGameType)), "check-100");
+        require(
+            _newImpl == address(dgfProxy.gameImpls(_targetGameType)),
+            "check-100"
+        );
     }
 
-    function _postcheckAnchorStateCopy(GameType _gameType, bytes32 _root, uint256 _l2BlockNumber) internal view {
+    function _postcheckAnchorStateCopy(
+        GameType _gameType,
+        bytes32 _root,
+        uint256 _l2BlockNumber
+    ) internal view {
         console.log("check anchor state value", _gameType.raw());
 
         // FaultDisputeGame impl = FaultDisputeGame(address(dgfProxy.gameImpls(GameType(_gameType))));
@@ -148,8 +260,12 @@ contract SignFromJson is OriginalSignFromJson {
     function _postcheckHasAnchorState(GameType _gameType) internal view {
         console.log("check anchor state exists", _gameType.raw());
 
-        FaultDisputeGame impl = FaultDisputeGame(address(dgfProxy.gameImpls(GameType(_gameType))));
-        (Hash root, uint256 rootBlockNumber) = FaultDisputeGame(address(impl)).anchorStateRegistry().anchors(_gameType);
+        FaultDisputeGame impl = FaultDisputeGame(
+            address(dgfProxy.gameImpls(GameType(_gameType)))
+        );
+        (Hash root, uint256 rootBlockNumber) = FaultDisputeGame(address(impl))
+            .anchorStateRegistry()
+            .anchors(_gameType);
 
         require(root.raw() != bytes32(0), "check-300");
         require(rootBlockNumber != 0, "check-310");
