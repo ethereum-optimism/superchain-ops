@@ -2,16 +2,6 @@
 
 A powerful simulation tooling system that enables developers to write and test tasks that simulate onchain state changes before execution. The system supports mainnet, sepolia, and devnet environments.
 
-## Table of Contents
-
-- [Key Features](#key-features)
-- [Repository Structure](#repository-structure)
-- [Network Organization](#network-organization)
-- [Quick Start](#quick-start)
-- [Available Templates](#available-templates)
-  * [Gas Config Example](#gas-config-example)
-- [Best Practices](#best-practices)
-
 ### Detailed Documentation
 - [Template Architecture Guide](./doc/TEMPLATE_ARCHITECTURE.md)
 - [Task Creation Guide](./doc/TASK_CREATION_GUIDE.md)
