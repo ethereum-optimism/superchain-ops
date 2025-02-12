@@ -44,7 +44,7 @@ Tasks can have the following statuses in their README files:
 - `CONTINGENCY TASK, SIGN AS NEEDED`: Task that may be signed based on specific conditions, such as emergency rollback.
 - `READY TO SIGN`: Task ready for signature
 - `SIGNED`: Task signed and ready for execution
-- `EXECUTED`: Task completed successfully
+- `EXECUTED`: Task completed successfully. Once executed, this field should include a link to the transaction hash.
 - `CANCELLED`: Execution failed or abandoned
 
 ### 4. Template-Specific Configuration
