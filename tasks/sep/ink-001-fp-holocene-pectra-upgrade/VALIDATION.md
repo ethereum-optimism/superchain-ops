@@ -26,8 +26,13 @@ For each contract listed in the state diff, please verify that no contracts or s
   Before this task has been executed, you will see that the returned address is `0x000000000000000000000000a8808360f7bc16da81938e5c29400d18bea651c4`, matching the "Before" value of this slot, demonstrating this slot is storing the address of the PERMISSIONED_CANNON implementation.
 
 ## Verify Absolute Prestate
-The following is based on the **op-program/v1.5.0-rc.1** https://github.com/ethereum-optimism/optimism/tree/op-program/v1.5.0-rc.1
-You can verify the absolute prestate `0x03dfa3b3ac66e8fae9f338824237ebacff616df928cf7dada0e14be2531bc1f4` by running the following command in the root of the monorepo:
+The following is based on the **op-program/v1.5.0-rc.1**
+
+Absolute prestates can be checked in the Superchain Registry https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-prestates.toml
+
+Absolute prestates for upcoming releases, not yet included in the above toml, can be manually verified in the root of the optimism monorepo.
+
+To manually verify the prestate `0x03dfa3b3ac66e8fae9f338824237ebacff616df928cf7dada0e14be2531bc1f4`, based on **op-program/v1.5.0-rc.1**, run the below command in the root of https://github.com/ethereum-optimism/optimism/tree/op-program/v1.5.0-rc.1:
 
 make reproducible-prestate
 
