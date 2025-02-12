@@ -1,0 +1,8 @@
+# this is the file used to determine the network configuration
+
+l2chains = [{name = "OP Mainnet", chainId = 10}, {name = "OP Sepolia", chainId = 11155111}]
+
+templateName = "OPCMUpgradeTemplate"
+
+[opcmUpgrades]
+opcmUpgrades = [{chainId = 10, prestate = "0xabcd"}, {chainId = 11155111, prestate = "0xefgh"}]
