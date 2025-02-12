@@ -2,21 +2,6 @@
 
 This guide explains the architecture of the template system, including configuration structure, file organization, and validation requirements.
 
-## Directory Structure
-
-Templates are organized in the following structure:
-
-```
-src/improvements/
-├── template/          # Template Solidity contracts
-├── doc/               # Documentation
-└── tasks/             # Network-specific tasks
-     ├── eth/          # Ethereum mainnet tasks
-     ├── sep/          # Sepolia testnet tasks
-     ├── oeth/         # Optimism Ethereum tasks
-     └── opsep/        # Optimism Sepolia tasks
-```
-
 ## Template Configuration Structure
 
 ### 1. Template Location
@@ -40,6 +25,8 @@ l2chains = [
     {name = "Metal", chainId = 1750}
 ]
 ```
+
+All L2 Chains specified in a task config file must be part of the same superchain instance, i.e. have the same Gnosis Safe as their Proxy Admin Owner.
 
 #### Template Selection
 
@@ -98,59 +85,3 @@ The template system includes built-in validation:
    - Validates address formats
    - Checks value ranges
    - Check that only the expected storage slots are modified
-
-## Network Organization
-
-Tasks are organized by network in the tasks directory:
-
-1. Ethereum Mainnet (`eth/`)
-   - Production-ready tasks
-   - Strict validation requirements
-   - Full security review needed
-
-2. Sepolia Testnet (`sep/`)
-   - Testing and validation
-   - Development and staging
-   - Less strict security requirements
-
-3. Optimism Networks
-   - `oeth/`: Optimism Ethereum tasks
-   - `opsep/`: Optimism Sepolia tasks
-   - Network-specific configurations
-
-Each network directory follows a numbered sequence for tasks (e.g., 001, 002) to maintain chronological order and dependencies.
-
-## Best Practices
-
-1. Configuration Organization
-   - Keep network-specific parameters separate
-   - Use clear parameter names
-   - Document all configuration options
-
-2. Validation Rules
-   - Assert all expected state changes occurred correctly
-   - Assert no unexpected state changes occurred
-
-## Common Fields Reference
-
-Examples of some fields used in templates:
-
-1. Chain Configuration
-   ```toml
-   [l2Chains]
-   name = "Optimism"       # Chain name
-   chainId = 10            # Chain ID
-   ```
-
-2. Transaction Parameters
-   ```toml
-   [gasConfigs]
-   gasLimits = [{
-      gasLimit = number   # Gas limit
-      value = number      # Transaction value
-   }]
-   ```
-
-## Error Handling
-
-Templates should implement error handling around minimum and maximum values.
