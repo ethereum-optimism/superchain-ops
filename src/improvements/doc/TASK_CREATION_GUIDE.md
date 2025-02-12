@@ -35,12 +35,6 @@ For example, a structured format like [network]/[###]-[descriptive-name] can be 
 - Format: [network]/[###]-[descriptive-name]
 - Example: eth/001-security-council-phase-0
 
-Please be mindful when naming tasks to ensure consistency and readability.
-- Format: `[network]/[###]-[descriptive-name]`
-- Example: `eth/001-security-council-phase-0`
-- Numbers help track task order and dependencies
-- Descriptive names should be clear and concise
-
 ## Creating a New Task
 
 ### 1. Use the Task Scaffolding Tool
