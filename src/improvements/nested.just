@@ -5,11 +5,13 @@ set dotenv-load
 export TASK_PATH := invocation_directory()
 export SCRIPT_PATH := justfile_directory()
 
+# Get RPC URL based on task path
+rpc_cmd := SCRIPT_PATH + "/get-rpc-url.sh \"" + TASK_PATH + "\""
+export rpcUrl := shell(rpc_cmd)
+
 # Fetch the template name from the config.toml file
 cmd := "sed -n 's/^[[:space:]]*templateName[[:space:]]*=[[:space:]]*\\\"\\([^\\\"]*\\)\\\".*/\\1/p' " + TASK_PATH + "/config.toml"
 export SCRIPT_NAME := shell(cmd)
-
-export rpcUrl := env_var_or_default('ETH_RPC_URL', 'https://ethereum.publicnode.com')
 export signatures := env_var_or_default('SIGNATURES', '')
 randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 
