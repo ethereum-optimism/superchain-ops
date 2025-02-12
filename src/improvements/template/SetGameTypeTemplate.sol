@@ -56,7 +56,7 @@ contract SetGameTypeTemplate is MultisigTask {
 
     /// @notice Builds the actions for setting game types for a specific L2 chain ID
     /// @param chainId The ID of the L2 chain to configure
-    function _build(uint256 chainId) internal override {
+    function _buildPerChain(uint256 chainId) internal override {
         if (setRespectedGameTypes[chainId].l2ChainId != 0) {
             DeputyGuardianModule(setRespectedGameTypes[chainId].deputyGuardian).setRespectedGameType(
                 IOptimismPortal2(payable(addresses.getAddress(setRespectedGameTypes[chainId].portal, chainId))),

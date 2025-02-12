@@ -493,7 +493,7 @@ abstract contract MultisigTask is Test, Script, ITask {
         Addresses.ChainInfo[] memory chains = addresses.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {
-            _build(chains[i].chainId);
+            _buildPerChain(chains[i].chainId);
         }
     }
 
@@ -682,14 +682,21 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @notice abstract function to be implemented by the inheriting contract to setup the template
     function _templateSetup(string memory taskConfigFilePath) internal virtual;
 
-    /// 2. _build function is the main function for crafting calldata, it is called in a for loop, which
-    /// iterates over the chains in the task. The _build function is called with the chainId as an argument
-    /// the buildModifier captures all of the actions taken in this function.
+    /// 2. _buildSingle function is the main function for crafting calldata for templates that have calls to be
+    /// made outside of the for loop that iterates over the chains in the task. This function can be used for
+    /// calls to contracts that may or may not be chain specific.
+    /// Does not have to be overridden in inheriting contracts.
+    function _buildSingle() internal virtual {}
+
+    /// 3. _buildPerChain function is the main function for crafting calldata for templates that can be used across
+    /// multiple chains, it is called in a for loop, which iterates over the chains in the task. The _buildPerChain
+    /// function is called with the chainId as an argument the buildModifier captures all of the actions taken in
+    /// this function.
     /// @notice build the task actions for a given l2chain
     /// @dev override to add additional task specific build logic
-    function _build(uint256 chainId) internal virtual;
+    function _buildPerChain(uint256 chainId) internal virtual;
 
-    /// 3. _validate function is called after the build function has been run for all chains and the results
+    /// 4. _validate function is called after the build function has been run for all chains and the results
     /// of this tasks state transitions have been applied. This checks that the state transitions are valid
     /// and applied correctly.
     /// @notice task specific validations
