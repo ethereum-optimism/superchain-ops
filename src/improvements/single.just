@@ -14,32 +14,17 @@ export signatures := env_var_or_default('SIGNATURES', '')
 
 simulate hdPath='0':
   #!/usr/bin/env bash
-  # Check required environment variables
-  if [ -z "$OWNER_SAFE" ]; then
-    echo "Error: OWNER_SAFE is required for simulate" >&2
-    exit 1
-  fi
 
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
 
   echo "Using script ${script}"
-  echo "Safe address: ${OWNER_SAFE}"
-  echo "Getting signer address..."
-
-  if [ ! -z "$SIMULATE_WITHOUT_LEDGER" ]; then
-    signer=$(cast call ${OWNER_SAFE} "getOwners()(address[])" -r ${rpcUrl} | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
-  else
-    signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-  fi
-  echo "Simulating with: ${signer}"
   echo ""
 
   forge build
   forge script ${script} \
     --rpc-url ${rpcUrl} \
     --sig "simulateRun(string)" ${config} \
-    --sender ${signer}
 
 sign hdPath='0':
   #!/usr/bin/env bash
