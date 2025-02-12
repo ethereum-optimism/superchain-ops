@@ -180,7 +180,7 @@ respectedGameTypes = [...]
 
 ## Task Status Lifecycle
 
-There are two lifecycles for tasks. One for tasks that are in development for execution at a concrete future date, and one for tasks that are used for an unspecified reason in the future, such as pausing a a contract.
+There are two lifecycles for tasks. One for tasks that are in development for execution at a concrete future date, and one for tasks that are used for an unspecified reason in the future, such as pausing a contract.
 
 For tasks that are in development for execution at a concrete future date, the statuses are as follows:
 
