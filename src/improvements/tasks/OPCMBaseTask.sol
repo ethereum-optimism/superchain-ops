@@ -13,7 +13,6 @@ abstract contract OPCMBaseTask is MultisigTask {
     /// @notice Optimism Contracts Manager Multicall3DelegateCall contract reference
     /// TODO can we just use the OPCM contract address here directly?
     ///  it seems like that would be easier to reason about
-    address public constant OPCM = 0x81395Ec06F830a3B83FE64917893193380a58d11;
     address public constant MULTICALL3_DELEGATECALL_ADDRESS = 0x95b259eae68ba96edB128eF853fFbDffe47D2Db0;
 
     /// @notice OpChainConfig struct found in the OpContractsManager contract
@@ -36,19 +35,9 @@ abstract contract OPCMBaseTask is MultisigTask {
     /// @return data The calldata to be executed
     function getCalldata() public view override returns (bytes memory data) {
         /// get task actions
-        (address[] memory targets, uint256[] memory values, bytes[] memory arguments) = getTaskActions();
+        (,, bytes[] memory arguments) = getTaskActions();
 
-        /// TODO create OPCM calls array with arguments
-        OpChainConfig[] memory upgradeCalls = new OpChainConfig[](targets.length);
-
-        for (uint256 i; i < targets.length; i++) {
-            /// TODO fill this in with the real thing
-            // upgradeCalls[i] = OPCMUpgrade({callData: arguments[i]});
-        }
-
-        /// generate calldata
-        /// TODO change to actual function signature
-        data = abi.encodeWithSignature("upgrade((address,address,bytes32)[])", upgradeCalls);
+        return arguments[0];
     }
 
     /// @notice get the data to sign by EOA for single multisig
@@ -74,4 +63,8 @@ abstract contract OPCMBaseTask is MultisigTask {
             _nonce: _getNonce(safe)
         });
     }
+
+    function _build(uint256 chainId) internal override {}
+
+    function _validate(uint256 chainId) internal view override {}
 }

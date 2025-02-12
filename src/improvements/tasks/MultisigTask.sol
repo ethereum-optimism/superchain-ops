@@ -233,6 +233,9 @@ abstract contract MultisigTask is Test, Script, ITask {
 
         _setIsNestedSafe();
 
+        vm.label(address(addresses), "Addresses");
+        vm.label(address(this), "MultisigTask");
+
         for (uint256 i = 1; i < chains.length; i++) {
             require(
                 multisig == addresses.getAddress(config.safeAddressString, chains[i].chainId),
@@ -797,6 +800,12 @@ abstract contract MultisigTask is Test, Script, ITask {
         _processStateDiffChanges(accountAccesses);
 
         for (uint256 i = 0; i < accountAccesses.length; i++) {
+            console.log("accountAccesses[i].depth", accountAccesses[i].depth);
+            console.log("accountAccesses[i].kind", uint8(accountAccesses[i].kind));
+            console.log("accountAccesses[i].accessor", getAddressLabel(accountAccesses[i].accessor));
+            console.log("accountAccesses[i].account", getAddressLabel(accountAccesses[i].account));
+            console.log("accountAccesses[i].value", accountAccesses[i].value);
+            console.logBytes(accountAccesses[i].data);
             /// store all gnosis safe storage accesses that are writes
             for (uint256 j = 0; j < accountAccesses[i].storageAccesses.length; j++) {
                 if (accountAccesses[i].account == multisig && accountAccesses[i].storageAccesses[j].isWrite) {
@@ -811,7 +820,13 @@ abstract contract MultisigTask is Test, Script, ITask {
             if (
                 accountAccesses[i].account != address(addresses) && accountAccesses[i].account != address(vm)
                     && accountAccesses[i].accessor != address(addresses)
-                    && accountAccesses[i].kind == VmSafe.AccountAccessKind.Call && accountAccesses[i].accessor == multisig
+                    && (
+                        accountAccesses[i].kind == VmSafe.AccountAccessKind.Call
+                            || (
+                                accountAccesses[i].kind == VmSafe.AccountAccessKind.DelegateCall
+                                    && accountAccesses[i].depth == 1
+                            )
+                    ) && accountAccesses[i].accessor == multisig
             ) {
                 /// caller is multisig, not a subcall, check that this action is not duplicated
                 _validateAction(accountAccesses[i].account, accountAccesses[i].value, accountAccesses[i].data);

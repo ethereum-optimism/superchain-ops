@@ -1,9 +1,11 @@
 pragma solidity ^0.8.0;
 
 import {OPCMBaseTask} from "../tasks/OPCMBaseTask.sol";
+import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
+import {console} from "forge-std/console.sol";
 
 contract OPCMUpgrateTemplate is OPCMBaseTask {
-    address public constant OPCM = 0x81395Ec06F830a3B83FE64917893193380a58d11;
+    address public constant OPCM = 0x5BC817c7C3F1A8dCAA01d229Cbdeed9624C80E09;
     /// @notice Struct to store gas limits to be set for a specific L2 chain ID
     /// @param chainId The ID of the L2 chain
     /// @param gasLimit The gas limit to be set for the chain
@@ -15,7 +17,7 @@ contract OPCMUpgrateTemplate is OPCMBaseTask {
 
     /// @notice Mapping of chain IDs to their respective gas limits
     /// @dev Maps L2 chain ID to its configured gas limit
-    mapping(uint256 => bytes32) public opcmUpgrades;
+    mapping(uint256 => OPCMUpgrade) public opcmUpgrades;
 
     /// @notice Returns the safe address string identifier
     /// @return The string "SystemConfigOwner"
@@ -35,7 +37,7 @@ contract OPCMUpgrateTemplate is OPCMBaseTask {
     /// @param taskConfigFilePath Path to the TOML configuration file
     function _templateSetup(string memory taskConfigFilePath) internal override {
         OPCMUpgrade[] memory opcmUpgrade =
-            abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".opcmUpgrades"), (OPCMUpgrade[]));
+            abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".opcmUpgrades.opcmPrestates"), (OPCMUpgrade[]));
 
         for (uint256 i = 0; i < opcmUpgrade.length; i++) {
             opcmUpgrades[opcmUpgrade[i].chainId] = opcmUpgrade[i];
@@ -54,15 +56,14 @@ contract OPCMUpgrateTemplate is OPCMBaseTask {
             opcmConfigs[i] = OpChainConfig({
                 systemConfigProxy: addresses.getAddress("SystemConfigProxy", chains[i].chainId),
                 proxyAdmin: addresses.getAddress("ProxyAdmin", chains[i].chainId),
-                absolutePrestate: opcmUpgrades[chains[i].chainId]
+                absolutePrestate: opcmUpgrades[chains[i].chainId].prestate
             });
         }
+        console.log("address this", address(this));
+        vm.label(OPCM, "OPCM");
 
-        (bool success,) = OPCM.delegatecall(abi.encodeWithSignature("upgrade(OpChainConfig[])", opcmConfigs));
+        (bool success,) =
+            OPCM.delegatecall(abi.encodeWithSignature("upgrade((address,address,bytes32)[])", opcmConfigs));
         require(success, "OPCMUpgrateTemplate: failed to upgrade OPCM");
     }
-
-    /// @notice Validates that gas limits were set correctly for the specified chain ID
-    /// @param chainId The ID of the L2 chain to validate
-    function _validate(uint256 chainId) internal view override {}
 }
