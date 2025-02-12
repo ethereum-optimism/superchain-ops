@@ -35,7 +35,7 @@ Note: The changes listed below do not include safe nonce updates or liveness gua
 
 ## Verify new absolute prestate
 
-Verify that the new absolute prestate is set correctly to `0x03dfa3b3ac66e8fae9f338824237ebacff616df928cf7dada0e14be2531bc1f4`. See [Petra notice](https://docs.optimism.io/notices/pectra-changes#verify-the-new-absolute-prestate) in docs for more details. 
+Please verify that the new absolute prestate is set correctly to `0x03dfa3b3ac66e8fae9f338824237ebacff616df928cf7dada0e14be2531bc1f4`. See [Petra notice](https://docs.optimism.io/notices/pectra-changes#verify-the-new-absolute-prestate) in docs for more details. 
 
 You can verify this absolute prestate by running the following [command](https://github.com/ethereum-optimism/optimism/blob/6819d8a4e787df2adcd09305bc3057e2ca4e58d9/Makefile#L133-L135) in the root of the monorepo:
 
