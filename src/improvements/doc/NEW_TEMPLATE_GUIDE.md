@@ -135,46 +135,6 @@ parameter1 = "value1"
 parameter2 = 123
 ```
 
-## Error Handling
-
-1. Input Validation
-```solidity
-require(param > 0, "Invalid template parameter");
-require(address(contract) != address(0), "Invalid contract");
-```
-
-2. State Validation
-```solidity
-require(
-    contract.getValue() == expectedValue,
-    "Validation failed: incorrect value"
-);
-```
-
-3. Network Checks
-```solidity
-require(
-    _isValidChainId(chainId),
-    "Unsupported network"
-);
-```
-
-## Best Practices
-
-1. Code Organization
-- Clear function names
-- Good code comments
-- Logical grouping of functionality
-
-2. Security
-- Access control checks
-- Input validation
-- State change verification
-
-3. Documentation
-- Clear parameter descriptions
-- Usage examples
-
 ## Existing Templates
 
 Existing templates can be found in the [`src/improvements/template/`](../template) directory. These templates can be used as a reference for creating new templates.
