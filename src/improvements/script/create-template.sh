@@ -10,7 +10,7 @@ create_template() {
         fi
         if [[ "$filename" == *.sol ]]; then
             contract_name="${filename%.sol}"
-            template_path="templates/$filename"
+            template_path="template/$filename"
 
             # Create the template file with the default Solidity code
             cat > "$template_path" << EOL
