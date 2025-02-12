@@ -23,7 +23,6 @@ src/improvements/tasks/
 ├── sep/           # Sepolia testnet tasks
 ├── oeth/          # Optimism Ethereum tasks
 ├── opsep/         # Optimism Sepolia tasks
-└── common/        # Shared resources and documentation
 ```
 
 ### Network-Specific Organization
