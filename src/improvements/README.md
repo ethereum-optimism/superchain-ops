@@ -10,10 +10,7 @@ A powerful simulation tooling system that enables developers to write and test t
 - [Quick Start](#quick-start)
 - [Available Templates](#available-templates)
   * [Gas Config Example](#gas-config-example)
-  * [Dispute Game Example](#dispute-game-example)
-  * [Game Type Example](#game-type-example)
 - [Best Practices](#best-practices)
-- [Validation](#validation)
 
 ### Detailed Documentation
 - [Template Architecture Guide](./doc/TEMPLATE_ARCHITECTURE.md)
