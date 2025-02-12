@@ -89,7 +89,7 @@ When a new task is created, a README.md file is generated with a template that s
 
 ## Task Status Lifecycle
 
-There are two lifecycles for tasks. One for tasks that are in development for execution at a concrete future date, and one for tasks that are used for an unspecified reason in the future, such as pausing a contract.
+Tasks follow two different lifecycles: one for tasks scheduled for execution on a specific future date, and another for contingency tasks that may be executed later, such as pausing a contract.
 
 For tasks that are in development for execution at a concrete future date, the statuses are as follows:
 
