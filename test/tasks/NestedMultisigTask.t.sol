@@ -30,7 +30,7 @@ contract NestedMultisigTaskTest is Test {
     uint256 public constant THRESHOLD_STORAGE_OFFSET = 4;
 
     /// ProxyAdminOwner safe for task-01 is a nested multisig for Op mainnet L2 chain.
-    string taskConfigFilePath = "test/tasks/mock/example/task-01/config.toml";
+    string taskConfigFilePath = "test/tasks/mock/example/eth/task-01/config.toml";
 
     function setUp() public {
         vm.createSelectFork("mainnet");

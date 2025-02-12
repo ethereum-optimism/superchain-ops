@@ -31,7 +31,7 @@ contract SingleMultisigTaskTest is Test {
     uint256 public constant THRESHOLD_STORAGE_OFFSET = 4;
 
     /// @notice ProxyAdminOwner safe for task-00 is a single multisig.
-    string taskConfigFilePath = "test/tasks/mock/example/task-00/config.toml";
+    string taskConfigFilePath = "test/tasks/mock/example/eth/task-00/config.toml";
 
     function setUp() public {
         vm.createSelectFork("mainnet");

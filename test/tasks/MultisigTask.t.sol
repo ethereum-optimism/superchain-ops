@@ -15,7 +15,7 @@ contract MultisigTaskUnitTest is Test {
     AddressRegistry public addresses;
     MultisigTask public task;
 
-    string constant MAINNET_CONFIG = "./test/tasks/mock/example/task-03/config.toml";
+    string constant MAINNET_CONFIG = "./test/tasks/mock/example/eth/task-03/config.toml";
 
     /// @notice variables that store the storage offset of different variables in the MultisigTask contract
 
