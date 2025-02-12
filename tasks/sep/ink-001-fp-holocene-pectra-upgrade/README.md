@@ -4,9 +4,10 @@ Status: READY TO SIGN
 
 ## Objective
 
-Upgrades the Fault Proof contracts for the Holocene hardfork and utilizes the absolute prestate `0x03dfa3b3ac66e8fae9f338824237ebacff616df928cf7dada0e14be2531bc1f4` that enables L1 pectra support.
+Upgrades the Fault Proof contracts for the Holocene hardfork as per Upgrade Proposal #11. 
+This also utilizes the absolute prestate `0x03dfa3b3ac66e8fae9f338824237ebacff616df928cf7dada0e14be2531bc1f4` that enables L1 pectra support, to be included in Upgrade Proposal #11.
 
-The proposal was:
+The proposal #11 was:
 
 - [X] [Posted](https://gov.optimism.io/t/upgrade-proposal-11-holocene-network-upgrade/9313) on the governance forum.
 - [X] [Approved](https://vote.optimism.io/proposals/20127877429053636874064552098716749508236019236440427814457915785398876262515) by Token House voting.
