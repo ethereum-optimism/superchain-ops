@@ -56,7 +56,7 @@ function _taskStorageWrites() internal pure override returns (string[] memory) {
 }
 ```
 
-All addresses listed here must have their storage modified during task execution.
+All addresses listed here **must** have their storage modified during task execution. If an address is listed but its storage is not modified, the execution will revert.
 
 #### _templateSetup
 Initializes the task state from config.toml:
