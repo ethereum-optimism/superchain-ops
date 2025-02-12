@@ -19,10 +19,10 @@ Tasks are organized by network in the following structure:
 
 ```
 src/improvements/tasks/
-├── eth/           # Ethereum mainnet tasks
-├── sep/           # Sepolia testnet tasks
-├── oeth/          # Optimism Ethereum tasks
-├── opsep/         # Optimism Sepolia tasks
+├── eth/    # Ethereum mainnet tasks
+├── sep/    # Sepolia testnet tasks
+├── oeth/   # Optimism Ethereum tasks
+└── opsep/  # Optimism Sepolia tasks
 ```
 
 ### Task Naming Convention
