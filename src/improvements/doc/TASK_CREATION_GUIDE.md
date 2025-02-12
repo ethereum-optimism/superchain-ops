@@ -25,24 +25,6 @@ src/improvements/tasks/
 ├── opsep/         # Optimism Sepolia tasks
 ```
 
-### Network-Specific Organization
-
-1. Ethereum Mainnet (tasks/eth/)
-   - Production tasks
-   - Strict security requirements
-   - Full testing required
-   - Example: eth/001-security-council-phase-0/
-
-2. Sepolia Testnet (tasks/sep/)
-   - Testing and validation
-   - Development tasks
-   - Example: sep/001-op-extended-pause/
-
-3. Optimism Networks
-   - tasks/oeth/: Optimism Ethereum tasks
-   - tasks/opsep/: Optimism Sepolia tasks
-   - Network-specific configurations required
-
 ### Task Naming Convention
 
 Tasks follow a numbered sequence within each network directory:
@@ -61,6 +43,7 @@ just new task
 ```
 
 The tool will:
+- Attempt to create a new task that is lexicographically greater than the existing tasks
 - Create a new numbered directory
 - Generate README.md template
 - Create config.toml template
@@ -68,7 +51,7 @@ The tool will:
 
 ### 2. Configure the Task
 
-Edit config.toml to specify:
+While the `just new task` command attempts to guide users through creating a fully configured task. Users will still need to manually edit the `config.toml` file to make alertations based on the specifics of the task they are developing.
 
 1. Template Selection
 ```toml
@@ -94,88 +77,7 @@ gasLimits = [
 
 ### 3. Document the Task
 
-Update README.md with:
-- Task description
-- Requirements
-- Expected outcomes
-- Testing steps
-- Validation criteria
-- Status updates
-
-## Testing and Validation
-
-1. Local Testing
-```bash
-forge script <template-path> --sig "run(string)" <config-file-path> --rpc-url devnet -vvv
-```
-
-2. Testnet Validation
-- Deploy to Sepolia first
-- Verify state changes
-- Check validation results
-
-3. Production Deployment
-- Full security review
-- Comprehensive testing
-- Stakeholder approval
-
-## Common Task Types
-
-1. Gas Configuration
-```toml
-templateName = "GasConfigTemplate"
-[gasConfigs]
-gasLimits = [...]
-```
-
-2. Dispute Game Upgrades
-```toml
-templateName = "DisputeGameUpgradeTemplate"
-implementations = [...]
-```
-
-3. Game Type Configuration
-```toml
-templateName = "SetGameTypeTemplate"
-respectedGameTypes = [...]
-```
-
-## Best Practices
-
-1. Task Organization
-   - Use clear, descriptive names
-   - Follow network-specific conventions
-   - Maintain proper documentation
-
-2. Configuration
-   - Document all parameters
-   - Use consistent formatting
-   - Include validation checks
-
-3. Documentation
-   - Keep README.md updated
-   - Document any special requirements
-   - Include validation steps
-   - Track task status
-
-## Troubleshooting
-
-1. Configuration Issues
-   - Verify TOML syntax
-   - Check required fields
-   - Validate chain IDs
-   - Ensure proper formatting
-
-
-2. Simulation Errors
-   - Check RPC endpoints
-   - Verify function calls
-
-3. Network-Specific Issues
-   - Verify chain configuration
-   - Check network status
-   - Validate addresses
-   - Review `config.toml` file settings for each network
+When a new task is created, a README.md file is generated with a template that should be filled out with the specifics of the task. TODO's are automatically placed throughout the README to guide users on what to fill in.
 
 ## Task Status Lifecycle
 
@@ -192,4 +94,4 @@ For tasks that are used for an unspecified reason in the future, such as pausing
 
 1. "DRAFT, NOT READY TO SIGN": Initial development stage, not ready to sign
 2. "CONTINGENCY TASK, SIGN AS NEEDED": Task that may be signed based on specific conditions, such as emergency rollback
-3. "EXECUTED": Task completed successfully on chain
+3. "EXECUTED": Task completed successfully on chain. Once executed, the README should be updated to contain a link to the execution of the transaction on chain. Example [here](https://github.com/ethereum-optimism/superchain-ops/pull/543/files).
