@@ -11,7 +11,7 @@ cd src/improvements/
 just new template
 ```
 
-This will create a new Solidity file in `src/improvements/template/` with the basic structure required.
+This will create a new Solidity file in `src/improvements/template/` with the basic template structure required.
 
 ## Template Structure
 
@@ -44,7 +44,7 @@ The struct and mapping are optional and can be customized based on task requirem
 Returns the name of the multisig address from the superchain-registry:
 ```solidity
 function safeAddressString() internal pure override returns (string memory) {
-    return "OptimismMultisig";
+    return "SystemConfigOwner";
 }
 ```
 
@@ -52,7 +52,7 @@ function safeAddressString() internal pure override returns (string memory) {
 Lists addresses from superchain-registry whose storage will be modified:
 ```solidity
 function _taskStorageWrites() internal pure override returns (string[] memory) {
-    return ["SystemConfig"];
+    return ["SystemConfigProxy"];
 }
 ```
 
@@ -75,6 +75,8 @@ function _templateSetup(string memory taskConfigFilePath) internal override {
 }
 ```
 
+TODO: fix later once OPCM changes land with buildSingle and buildChain
+
 #### _build
 Implements the task logic for each chain:
 ```solidity
@@ -94,7 +96,7 @@ function _validate(uint256 chainId) internal override {
     TaskConfig memory config = taskConfig[chainId];
         
     // Verify state changes using assertEq, assertTrue, assertFalse foundry test functions
-    // make sure to user verbose error messages for better debugging
+    // make sure to use verbose error messages for better debugging
 }
 ```
 
@@ -133,36 +135,11 @@ parameter1 = "value1"
 parameter2 = 123
 ```
 
-## Cross-Network Compatibility
-
-Templates must handle:
-
-1. Network-Specific Logic
-```solidity
-if (chainId == MAINNET_CHAIN_ID) {
-    // Mainnet-specific logic
-} else if (chainId == TESTNET_CHAIN_ID) {
-    // Testnet-specific logic
-}
-```
-
-2. Address Resolution
-```solidity
-// Use registry to get network-specific addresses
-address target = _getAddress(chainId, "ContractName");
-```
-
-3. Gas Configuration
-```solidity
-// Handle different gas requirements per network
-uint256 gasLimit = _getGasLimit(chainId);
-```
-
 ## Error Handling
 
 1. Input Validation
 ```solidity
-require(param > 0, "Invalid parameter");
+require(param > 0, "Invalid template parameter");
 require(address(contract) != address(0), "Invalid contract");
 ```
 
@@ -198,76 +175,6 @@ require(
 - Clear parameter descriptions
 - Usage examples
 
-## Example Implementation
+## Existing Templates
 
-Here's a basic template example:
-
-```solidity
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
-
-import "../BaseTemplate.sol";
-
-contract ExampleTemplate is BaseTemplate {
-    struct TaskConfig {
-        uint256 value;
-        address target;
-    }
-    
-    mapping(uint256 => TaskConfig) public taskConfig;
-    
-    function safeAddressString() internal pure override returns (string memory) {
-        return "OptimismMultisig";
-    }
-    
-    function _taskStorageWrites() internal pure override returns (string[] memory) {
-        string[] memory storageWrites = new string[](1);
-        storageWrites[0] = "ExampleContract";
-        return storageWrites;
-    }
-    
-    function _templateSetup() internal override {
-        bytes memory configBytes = vm.parseToml(configFile);
-        
-        for (uint256 i; i < l2Chains.length; i++) {
-            uint256 chainId = l2Chains[i].chainId;
-            taskConfig[chainId] = TaskConfig({
-                value: // Parse from config,
-                target: // Parse from config
-            });
-        }
-    }
-    
-    function _build(uint256 chainId) internal override {
-        TaskConfig memory config = taskConfig[chainId];
-        
-        // Implement task logic
-        IExampleContract target = IExampleContract(config.target);
-        target.setValue(config.value);
-    }
-    
-    function _validate(uint256 chainId) internal override {
-        TaskConfig memory config = taskConfig[chainId];
-            
-        // Validate changes
-        IExampleContract target = IExampleContract(addresses.getAddress("ExampleContract", chainId));
-
-        assertEq(
-            config.value,
-            target.getValue(),
-            "Validation failed: incorrect value"
-        );
-    }
-}
-```
-
-## Troubleshooting
-
-1. Common Issues
-- Config parsing errors
-- Address naming issues
-
-2. Debug Tools
-- Use forge verbosity flags
-- Check simulation output
-- Review state changes
+Existing templates can be found in the [`src/improvements/template/`](../template) directory. These templates can be used as a reference for creating new templates.
