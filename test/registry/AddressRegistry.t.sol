@@ -37,6 +37,7 @@ contract MainnetAddressRegistryTest is Test {
         AddressRegistry.ChainInfo[] memory chains = addresses.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
+            string memory chainName = chains[i].name;
             assertNotEq(
                 addresses.getAddress("L1StandardBridgeProxy", chainId), address(0), "L1StandardBridgeProxy not loaded"
             );
@@ -48,6 +49,70 @@ contract MainnetAddressRegistryTest is Test {
             assertNotEq(addresses.getAddress("AddressManager", chainId), address(0), "AddressManager not loaded");
             assertNotEq(
                 addresses.getAddress("OptimismPortalProxy", chainId), address(0), "OptimismPortalProxy not loaded"
+            );
+
+            assertEq(
+                addresses.getAddressInfo(addresses.getAddress("L1StandardBridgeProxy", chainId)).identifier,
+                "L1StandardBridgeProxy",
+                "L1StandardBridgeProxy identifier not loaded"
+            );
+            assertEq(
+                addresses.getAddressInfo(addresses.getAddress("L1StandardBridgeProxy", chainId)).chainInfo.chainId,
+                chainId,
+                "L1StandardBridgeProxy chain id not loaded"
+            );
+            assertEq(
+                addresses.getAddressInfo(addresses.getAddress("L1StandardBridgeProxy", chainId)).chainInfo.name,
+                chainName,
+                "L1StandardBridgeProxy chain name not loaded"
+            );
+
+            assertEq(
+                addresses.getAddressInfo(addresses.getAddress("L1CrossDomainMessengerProxy", chainId)).identifier,
+                "L1CrossDomainMessengerProxy",
+                "L1CrossDomainMessengerProxy identifier not loaded"
+            );
+            assertEq(
+                addresses.getAddressInfo(addresses.getAddress("L1CrossDomainMessengerProxy", chainId)).chainInfo.chainId,
+                chainId,
+                "L1CrossDomainMessengerProxy chain id not loaded"
+            );
+            assertEq(
+                addresses.getAddressInfo(addresses.getAddress("L1CrossDomainMessengerProxy", chainId)).chainInfo.name,
+                chainName,
+                "L1CrossDomainMessengerProxy chain name not loaded"
+            );
+
+            assertEq(
+                addresses.getAddressInfo(addresses.getAddress("AddressManager", chainId)).identifier,
+                "AddressManager",
+                "AddressManager identifier not loaded"
+            );
+            assertEq(
+                addresses.getAddressInfo(addresses.getAddress("AddressManager", chainId)).chainInfo.chainId,
+                chainId,
+                "AddressManager chain id not loaded"
+            );
+            assertEq(
+                addresses.getAddressInfo(addresses.getAddress("AddressManager", chainId)).chainInfo.name,
+                chainName,
+                "AddressManager chain name not loaded"
+            );
+
+            assertEq(
+                addresses.getAddressInfo(addresses.getAddress("OptimismPortalProxy", chainId)).identifier,
+                "OptimismPortalProxy",
+                "OptimismPortalProxy identifier not loaded"
+            );
+            assertEq(
+                addresses.getAddressInfo(addresses.getAddress("OptimismPortalProxy", chainId)).chainInfo.chainId,
+                chainId,
+                "OptimismPortalProxy chain id not loaded"
+            );
+            assertEq(
+                addresses.getAddressInfo(addresses.getAddress("OptimismPortalProxy", chainId)).chainInfo.name,
+                chainName,
+                "OptimismPortalProxy chain name not loaded"
             );
 
             // Note: Some older chains (pre-MCP-L1) do not have a SuperchainConfig.
@@ -114,6 +179,11 @@ contract MainnetAddressRegistryTest is Test {
     function testGetNonExistentAddressFails() public {
         vm.expectRevert("Address not found");
         addresses.getAddress("NON_EXISTENT_ADDRESS", opMainnetChainId);
+    }
+
+    function testGetNonExistentAddressInfoFails() public {
+        vm.expectRevert("Address Info not found");
+        addresses.getAddressInfo(address(0x1234567890123456789012345678901234567890));
     }
 
     function testInvalidL2ChainIdIsAddressContractFails() public {
