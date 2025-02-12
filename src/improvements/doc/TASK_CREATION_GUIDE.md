@@ -46,7 +46,7 @@ just new task
 
 The tool will:
 - Attempt to create a new task that is lexicographically greater than the existing tasks
-- Create a new numbered directory
+- Create a new directory based on the directory name specified by the user
 - Generate README.md template
 - Create config.toml template
 - Set up basic structure
