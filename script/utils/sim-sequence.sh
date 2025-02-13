@@ -144,7 +144,7 @@ done
 # Create the anvil Fork 
 createFork
 # Disable state overrides and execute tasks.
-disable_state_overrides
+# disable_state_overrides
 export SIMULATE_WITHOUT_LEDGER=1
 for task_folder in "${task_folders[@]}"; do
   echo -e "\n---- Simulating task $task_folder ----"
@@ -170,6 +170,8 @@ for task_folder in "${task_folders[@]}"; do
        --dotenv-path "${PWD}/.env" \
        --justfile "${root_dir}/nested.just" \
        execute_in_anvil 0)
+
+    echo $execution
 
   else
     echo "Task type detected: single"

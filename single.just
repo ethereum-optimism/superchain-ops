@@ -6,6 +6,9 @@ export bundleName := env_var_or_default('BUNDLE_NAME', 'input')
 export taskPath := invocation_directory()
 export ownerSafe := env_var('OWNER_SAFE')
 
+PRIVATE_KEY_OWNER := "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+PRIVATE_KEY_EXECUTOR :="0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
+
 approvehash_in_anvil hdPath='0':
   #!/usr/bin/env bash
   echo "simulating in anvil"
@@ -44,11 +47,21 @@ approvehash_in_anvil hdPath='0':
   echo "4.Close the mapping of the owners to the sentinel address."
   cast rpc anvil_setStorageAt ${ownerSafe} 0xbc40fbf4394cd00f78fae9763b0c2c71b21ea442c42fdadc5b720537240ebac1  0x0000000000000000000000000000000000000000000000000000000000000001 --rpc-url ${localrpcUrl}
 
-  echo "the sole Owner of the {ownerSafe} is: $(cast call ${ownerSafe}  "getOwners()(address[])" --rpc-url http://localhost:8545)"
+  echo "the sole Owner of the ${ownerSafe} is: $(cast call ${ownerSafe}  "getOwners()(address[])" --rpc-url http://localhost:8545)"
   echo "================================================"
   # sender=$(cast wallet address --private-key  0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80)
   
   forge build
+
+  signer_tenderly=$(cast call ${ownerSafe} "getOwners()(address[])" -r ${rpcUrl} | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
+  tenderly_link=$(forge script ${script} \
+    --rpc-url ${rpcUrl} \
+    --sender ${signer_tenderly} \
+    --sig "signJson(string)" \
+    ${bundlePath})
+
+  echo "Tenderly link: $tenderly_link" 
+
   outputforge=$(forge script ${script} \
     --rpc-url ${localrpcUrl} \
     --sig "signJson(string)" ${bundlePath} \
@@ -56,7 +69,6 @@ approvehash_in_anvil hdPath='0':
   echo "Outputforge: $outputforge" > /tmp/outputforge.txt
 
   hash=$(cat /tmp/outputforge.txt | grep -A 1 "If submitting onchain, call Safe.approveHash on " | cut -d ':' -f 2 | tr -d '[:space:]')
-  echo "Value: $value" 
   # hash=$(echo $outputforge | grep -A 1 "If submitting onchain, call Safe.approveHash" "$file_path" | tail -n 1 | awk '{print $2}')
 
   # Check if a hash was found
@@ -68,7 +80,7 @@ approvehash_in_anvil hdPath='0':
   fi
 
   ## 5. Approve the hash with the well-known private key that is the first owner of anvil selection.
-  cast send ${ownerSafe} "approveHash(bytes32)" ${hash} --rpc-url ${localrpcUrl} --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 &> /dev/null
+  cast send ${ownerSafe} "approveHash(bytes32)" ${hash} --rpc-url ${localrpcUrl} --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 # &> /dev/null
  
 simulate hdPath='0' rpcUrlExternal="" broadcast="false":
   #!/usr/bin/env bash
@@ -130,7 +142,7 @@ simulate hdPath='0' rpcUrlExternal="" broadcast="false":
   forge script -vvvvvvv ${script} \
     --rpc-url ${rpcUrl} \
     --sig "runJson(string,bytes)" ${bundlePath} 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111 \
-    --broadcast --skip-simulation --sender  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+    --broadcast --skip-simulation --sender  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --private-key {{PRIVATE_KEY_OWNER}}
 
   else
   forge script ${script} \
@@ -161,7 +173,8 @@ sign hdPath='0':
 
 execute_in_anvil hdPath='0':
   #!/usr/bin/env bash
-  localrpcUrl="http://localhost:8545" # Can be set as globla in the future
+  # set -x 
+  localrpcUrl="http://localhost:8545" # Can be set as global in the future.
   bundlePath=${taskPath}/${bundleName}.json
   script=SignFromJson
   if [ -f "${taskPath}/SignFromJson.s.sol" ]; then
@@ -176,10 +189,12 @@ execute_in_anvil hdPath='0':
   echo "Simulating with: ${signer}"
   echo "Using script ${script}"
   forge build
-  forge script ${script} \
+  execution=$(forge script ${script} \
     --rpc-url ${localrpcUrl} \
     --sig "runJson(string,bytes)" ${bundlePath} 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111 \
-    --broadcast --skip-simulation --sender  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 &> /dev/null
+    --broadcast --private-key {{PRIVATE_KEY_EXECUTOR}} 2>&1) # >> /tmp/trace_execution_logs.txt 
+    echo $execution
+
 
 execute hdPath='0':
   #!/usr/bin/env bash
