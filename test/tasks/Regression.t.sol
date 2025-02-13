@@ -1,12 +1,13 @@
 pragma solidity 0.8.15;
 
+import {console} from "forge-std/console.sol";
 import {Test} from "forge-std/Test.sol";
-import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
+
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {GasConfigTemplate} from "src/improvements/template/GasConfigTemplate.sol";
 import {SetGameTypeTemplate} from "src/improvements/template/SetGameTypeTemplate.sol";
 import {DisputeGameUpgradeTemplate} from "src/improvements/template/DisputeGameUpgradeTemplate.sol";
-import {console} from "forge-std/console.sol";
 
 contract RegressionTest is Test {
     function testRegressionCallDataMatchesTask00() public {
@@ -16,6 +17,7 @@ contract RegressionTest is Test {
         vm.createSelectFork("mainnet", 21724199);
         MultisigTask multisigTask = new GasConfigTemplate();
         multisigTask.simulateRun(taskConfigFilePath);
+
         string memory callData = vm.toString(multisigTask.getCalldata());
         assertEq(keccak256(bytes(callData)), keccak256(bytes(expectedCallData)));
 
@@ -33,6 +35,7 @@ contract RegressionTest is Test {
         vm.createSelectFork("mainnet", 21724199);
         MultisigTask multisigTask = new DisputeGameUpgradeTemplate();
         multisigTask.simulateRun(taskConfigFilePath);
+
         string memory callData = vm.toString(multisigTask.getCalldata());
         assertEq(keccak256(bytes(callData)), keccak256(bytes(expectedCallData)));
 
@@ -56,6 +59,7 @@ contract RegressionTest is Test {
         vm.createSelectFork("mainnet", 21724199);
         MultisigTask multisigTask = new SetGameTypeTemplate();
         multisigTask.simulateRun(taskConfigFilePath);
+
         string memory callData = vm.toString(multisigTask.getCalldata());
         assertEq(keccak256(bytes(callData)), keccak256(bytes(expectedCallData)));
 
@@ -73,6 +77,7 @@ contract RegressionTest is Test {
         vm.createSelectFork("mainnet", 21724199);
         MultisigTask multisigTask = new GasConfigTemplate();
         multisigTask.simulateRun(taskConfigFilePath);
+
         string memory callData = vm.toString(multisigTask.getCalldata());
         assertEq(keccak256(bytes(callData)), keccak256(bytes(expectedCallData)));
 

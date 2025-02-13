@@ -43,37 +43,15 @@ interface IFetcher {
 contract AddressRegistry is IAddressRegistry, Test {
     using EnumerableSet for EnumerableSet.UintSet;
 
-    /// @dev Structure for reading address details from JSON files.
-    struct InputAddress {
-        /// Blockchain network identifier
-        address addr;
-        /// contract identifier (name)
-        string identifier;
-        /// Address (contract or EOA)
-        /// Indicates if the address is a contract
-        bool isContract;
-    }
-
-    /// @dev Structure for storing address details in the contract.
-    struct RegistryEntry {
-        address addr;
-        /// Address (contract or EOA)
-        /// Indicates if the address is a contract
-        bool isContract;
-    }
-
-    /// @dev Structure for reading chain list details from toml file
-    struct ChainInfo {
-        uint256 chainId;
-        string name;
-    }
-
     /// @notice Maps an identifier and l2 instance chain ID to a stored address entry.
     /// All addresses will live on the same chain.
     mapping(string => mapping(uint256 => RegistryEntry)) private registry;
 
     /// @notice Supported L2 chain IDs for this Address Registry instance.
     mapping(uint256 => bool) public supportedL2ChainIds;
+
+    /// @notice Maps an address to its identifier and chain info.
+    mapping(address => AddressInfo) public addressInfo;
 
     /// @notice Array of supported chains and their configurations
     ChainInfo[] public chains;
@@ -107,19 +85,19 @@ contract AddressRegistry is IAddressRegistry, Test {
             vm.readFile("lib/superchain-registry/superchain/extra/addresses/addresses.json");
 
         for (uint256 i = 0; i < chains.length; i++) {
-            _processChain(chains[i], chainAddressesContent);
+            require(!supportedL2ChainIds[chains[i].chainId], "Duplicate chain ID in chain config");
+            require(chains[i].chainId != 0, "Invalid chain ID in config");
+            require(bytes(chains[i].name).length > 0, "Empty name in config");
+
+            supportedL2ChainIds[chains[i].chainId] = true;
+
+            _processAddresses(chains[i], chainAddressesContent);
         }
     }
 
-    /// @dev Processes all configuration for a single chain.
-    function _processChain(ChainInfo memory chain, string memory chainAddressesContent) internal {
+    /// @dev Processes all configurations for a given chain.
+    function _processAddresses(ChainInfo memory chain, string memory chainAddressesContent) internal {
         uint256 chainId = chain.chainId; // L2 chain ID.
-
-        require(!supportedL2ChainIds[chainId], "Duplicate chain ID in chain config");
-        require(chainId != 0, "Invalid chain ID in config");
-        require(bytes(chain.name).length > 0, "Empty name in config");
-
-        supportedL2ChainIds[chainId] = true;
 
         address optimismPortalProxy = _fetchAndSaveInitialContracts(chain, chainAddressesContent);
 
@@ -193,6 +171,7 @@ contract AddressRegistry is IAddressRegistry, Test {
         require(registry[identifier][chain.chainId].addr == address(0), "Address already registered");
 
         registry[identifier][chain.chainId] = RegistryEntry(addr, addr.code.length > 0);
+        addressInfo[addr] = AddressInfo(identifier, chain);
 
         // Format the chain name: uppercase it and replace spaces with underscores,
         // then concatenate with the identifier to form a readable label.
@@ -215,6 +194,14 @@ contract AddressRegistry is IAddressRegistry, Test {
         require(resolvedAddress != address(0), "Address not found");
 
         return resolvedAddress;
+    }
+
+    /// @notice Retrieves the identifier and chain info for a given address.
+    /// @param addr The address to retrieve info for.
+    /// @return The identifier and chain info for the given address.
+    function getAddressInfo(address addr) public view returns (AddressInfo memory) {
+        require(bytes(addressInfo[addr].identifier).length != 0, "Address Info not found");
+        return addressInfo[addr];
     }
 
     /// @notice Checks if an address is a contract for a given identifier and L2 chain
@@ -286,19 +273,18 @@ contract AddressRegistry is IAddressRegistry, Test {
         }
 
         address permissionedDisputeGame = getPermissionedDisputeGame(disputeGameFactoryProxy);
-        if (permissionedDisputeGame != address(0)) {
-            saveAddress("PermissionedDisputeGame", chain, permissionedDisputeGame);
-            address challenger = IFetcher(permissionedDisputeGame).challenger();
-            saveAddress("Challenger", chain, challenger);
-        }
+        saveAddress("PermissionedDisputeGame", chain, permissionedDisputeGame);
 
-        address anchorStateRegistryProxy = getAnchorStateRegistryProxy(faultDisputeGame, permissionedDisputeGame);
+        address challenger = IFetcher(permissionedDisputeGame).challenger();
+        saveAddress("Challenger", chain, challenger);
+
+        address anchorStateRegistryProxy = getAnchorStateRegistryProxy(permissionedDisputeGame);
         saveAddress("AnchorStateRegistryProxy", chain, anchorStateRegistryProxy);
 
-        address delayedWethProxy = getDelayedWETHProxy(faultDisputeGame, permissionedDisputeGame);
-        saveAddress("DelayedWETHProxy", chain, delayedWethProxy);
+        // Not retreiving delayed WETH proxy because 'n' exist based on the number of GameTypes.
+        // We will leave these addresses for the task developer to retrieve.
 
-        address mips = getMips(faultDisputeGame, permissionedDisputeGame);
+        address mips = getMips(permissionedDisputeGame);
         saveAddress("MIPS", chain, mips);
 
         address preimageOracle = IFetcher(mips).oracle();
@@ -408,36 +394,12 @@ contract AddressRegistry is IAddressRegistry, Test {
         }
     }
 
-    function getAnchorStateRegistryProxy(address faultDisputeGame, address permissionedDisputeGame)
-        internal
-        view
-        returns (address)
-    {
-        try IFetcher(faultDisputeGame).anchorStateRegistry() returns (address anchorStateRegistryProxy) {
-            return anchorStateRegistryProxy;
-        } catch {
-            return IFetcher(permissionedDisputeGame).anchorStateRegistry();
-        }
+    function getAnchorStateRegistryProxy(address permissionedDisputeGame) internal view returns (address) {
+        return IFetcher(permissionedDisputeGame).anchorStateRegistry();
     }
 
-    function getDelayedWETHProxy(address faultDisputeGame, address permissionedDisputeGame)
-        internal
-        view
-        returns (address)
-    {
-        try IFetcher(faultDisputeGame).weth() returns (address delayedWethProxy) {
-            return delayedWethProxy;
-        } catch {
-            return IFetcher(permissionedDisputeGame).weth();
-        }
-    }
-
-    function getMips(address faultDisputeGame, address permissionedDisputeGame) internal view returns (address) {
-        try IFetcher(faultDisputeGame).vm() returns (address mips) {
-            return mips;
-        } catch {
-            return IFetcher(permissionedDisputeGame).vm();
-        }
+    function getMips(address permissionedDisputeGame) internal view returns (address) {
+        return IFetcher(permissionedDisputeGame).vm();
     }
 
     function getBatchSubmitter(address systemConfigProxy) internal view returns (address) {
