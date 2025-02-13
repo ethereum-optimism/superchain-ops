@@ -24,7 +24,8 @@ check_status() {
 }
 
 # Find README.md files for all tasks and process them
-files=$(find ./test/tasks/mock -type f -name 'README.md')
+root_dir=$(git rev-parse --show-toplevel)
+files=$(find "$root_dir/src/improvements/tasks/example" -type f -name 'README.md')
 for file in $files; do
   check_status "$file"
 done
