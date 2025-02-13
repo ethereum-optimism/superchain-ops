@@ -86,7 +86,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     VmSafe.StorageAccess[] internal _accountAccesses;
 
     /// @notice starting snapshot of the contract state before the calls are made
-    uint256 private _startSnapshot;
+    uint256 internal _startSnapshot;
 
     /// @notice list of actions to be executed, regardless of task type
     /// they all follow the same structure
@@ -118,6 +118,8 @@ abstract contract MultisigTask is Test, Script, ITask {
 
     /// @notice The address of the child multisig for this task
     address public childMultisig;
+
+    address public targetMulticall;
 
     /// @notice buildModifier to be used by the build function to populate the
     /// actions array
@@ -205,6 +207,8 @@ abstract contract MultisigTask is Test, Script, ITask {
 
         _templateSetup(taskConfigFilePath);
 
+        _setMulticallAddress();
+
         /// set the task config
         require(
             bytes(config.safeAddressString).length == 0 && address(addresses) == address(0x0),
@@ -270,6 +274,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @dev callable only after the build function has been run and the
     /// calldata has been loaded up to storage
     /// @return data The calldata to be executed
+
     function getCalldata() public view virtual override returns (bytes memory data) {
         /// get task actions
         (address[] memory targets, uint256[] memory values, bytes[] memory arguments) = getTaskActions();
@@ -303,12 +308,13 @@ abstract contract MultisigTask is Test, Script, ITask {
         return (safe == multisig) ? nonce : IGnosisSafe(safe).nonce();
     }
 
-    /// @notice get the data to sign by EOA for single multisig
+    /// @notice get the data to sign by EOA
+    /// @param safe The address of the safe
     /// @param data The calldata to be executed
     /// @return The data to sign
     function getDataToSign(address safe, bytes memory data) public view virtual returns (bytes memory) {
         return IGnosisSafe(safe).encodeTransactionData({
-            to: MULTICALL3_ADDRESS,
+            to: targetMulticall,
             value: 0,
             data: data,
             operation: Enum.Operation.DelegateCall,
@@ -336,23 +342,14 @@ abstract contract MultisigTask is Test, Script, ITask {
         bytes memory signatures = prepareSignatures(multisig, hash);
 
         bytes32 txHash = IGnosisSafe(multisig).getTransactionHash(
-            MULTICALL3_ADDRESS, 0, data, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), nonce
+            targetMulticall, 0, data, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), nonce
         );
 
         require(hash == txHash, "MultisigTask: hash mismatch");
 
         // Execute the transaction
         (bool success) = IGnosisSafe(multisig).execTransaction(
-            MULTICALL3_ADDRESS,
-            0,
-            data,
-            Enum.Operation.DelegateCall,
-            0,
-            0,
-            0,
-            address(0),
-            payable(address(0)),
-            signatures
+            targetMulticall, 0, data, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), signatures
         );
 
         require(success, "MultisigTask: simulateActions failed");
@@ -391,16 +388,7 @@ abstract contract MultisigTask is Test, Script, ITask {
         signatures = Signatures.prepareSignatures(multisig, hash, signatures);
 
         (bool success) = IGnosisSafe(multisig).execTransaction(
-            MULTICALL3_ADDRESS,
-            0,
-            data,
-            Enum.Operation.DelegateCall,
-            0,
-            0,
-            0,
-            address(0),
-            payable(address(0)),
-            signatures
+            targetMulticall, 0, data, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), signatures
         );
 
         require(success, "MultisigTask: execute failed");
@@ -416,7 +404,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     ///          e.g. read state variables of the deployed contracts to make
     ///          sure they are deployed and initialized correctly, or read
     ///          states that are expected to have changed during the simulate step.
-    function validate() public view override {
+    function validate() public view virtual override {
         /// check that all state change addresses are in allowed storage accesses
         for (uint256 i; i < _taskStateChangeAddresses.length(); i++) {
             address addr = _taskStateChangeAddresses.at(i);
@@ -745,13 +733,13 @@ abstract contract MultisigTask is Test, Script, ITask {
 
     function _execTransationCalldata(address _safe, bytes memory _data, bytes memory _signatures)
         internal
-        pure
+        view
         returns (bytes memory)
     {
         return abi.encodeCall(
             IGnosisSafe(_safe).execTransaction,
             (
-                MULTICALL3_ADDRESS,
+                targetMulticall,
                 0,
                 _data,
                 Enum.Operation.DelegateCall,
@@ -763,6 +751,11 @@ abstract contract MultisigTask is Test, Script, ITask {
                 _signatures
             )
         );
+    }
+
+    /// @notice set the multicall address
+    function _setMulticallAddress() internal virtual {
+        targetMulticall = MULTICALL3_ADDRESS;
     }
 
     /// --------------------------------------------------------------------
@@ -777,7 +770,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     ///  1). take a snapshot of the current state of the contract
     ///  2). start prank as the multisig
     ///  3). start a recording of all calls created during the task
-    function _startBuild() private {
+    function _startBuild() internal virtual {
         vm.startPrank(multisig);
 
         _startSnapshot = vm.snapshot();
@@ -799,13 +792,19 @@ abstract contract MultisigTask is Test, Script, ITask {
 
         _processStateDiffChanges(accountAccesses);
 
+        /// get the minimum depth of the calls, we only care about the top level calls
+        /// this is to avoid counting subcalls as actions
+        /// cannot set to constant as in tests, the depth will be constant + 1
+        /// for the same account access
+        uint256 minDepth = accountAccesses[0].depth;
+        for (uint256 i = 1; i < accountAccesses.length; i++) {
+            uint256 currentDepth = accountAccesses[i].depth;
+            if (currentDepth < minDepth) {
+                minDepth = currentDepth;
+            }
+        }
+
         for (uint256 i = 0; i < accountAccesses.length; i++) {
-            console.log("accountAccesses[i].depth", accountAccesses[i].depth);
-            console.log("accountAccesses[i].kind", uint8(accountAccesses[i].kind));
-            console.log("accountAccesses[i].accessor", getAddressLabel(accountAccesses[i].accessor));
-            console.log("accountAccesses[i].account", getAddressLabel(accountAccesses[i].account));
-            console.log("accountAccesses[i].value", accountAccesses[i].value);
-            console.logBytes(accountAccesses[i].data);
             /// store all gnosis safe storage accesses that are writes
             for (uint256 j = 0; j < accountAccesses[i].storageAccesses.length; j++) {
                 if (accountAccesses[i].account == multisig && accountAccesses[i].storageAccesses[j].isWrite) {
@@ -824,7 +823,7 @@ abstract contract MultisigTask is Test, Script, ITask {
                         accountAccesses[i].kind == VmSafe.AccountAccessKind.Call
                             || (
                                 accountAccesses[i].kind == VmSafe.AccountAccessKind.DelegateCall
-                                    && accountAccesses[i].depth == 1
+                                    && accountAccesses[i].depth == minDepth
                             )
                     ) && accountAccesses[i].accessor == multisig
             ) {

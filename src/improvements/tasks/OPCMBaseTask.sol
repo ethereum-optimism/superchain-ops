@@ -3,6 +3,7 @@ pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
 
+import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
@@ -11,8 +12,6 @@ import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol
 /// @notice base task for making calls to the Optimism Contracts Manager
 abstract contract OPCMBaseTask is MultisigTask {
     /// @notice Optimism Contracts Manager Multicall3DelegateCall contract reference
-    /// TODO can we just use the OPCM contract address here directly?
-    ///  it seems like that would be easier to reason about
     address public constant MULTICALL3_DELEGATECALL_ADDRESS = 0x95b259eae68ba96edB128eF853fFbDffe47D2Db0;
 
     /// @notice OpChainConfig struct found in the OpContractsManager contract
@@ -29,29 +28,40 @@ abstract contract OPCMBaseTask is MultisigTask {
         bytes32 absolutePrestate;
     }
 
+    /// @notice Call3 struct used in the Multicall3DelegateCall contract
+    struct Call3 {
+        address target;
+        bool allowFailure;
+        bytes callData;
+    }
+
     /// @notice get the calldata to be executed by safe
     /// @dev callable only after the build function has been run and the
     /// calldata has been loaded up to storage
     /// @return data The calldata to be executed
     function getCalldata() public view override returns (bytes memory data) {
         /// get task actions
-        (,, bytes[] memory arguments) = getTaskActions();
+        (address[] memory targets,, bytes[] memory arguments) = getTaskActions();
 
-        return arguments[0];
+        /// create calls array with targets and arguments
+        Call3[] memory calls = new Call3[](targets.length);
+
+        for (uint256 i; i < calls.length; i++) {
+            require(targets[i] != address(0), "Invalid target for multisig");
+            calls[i] = Call3({target: targets[i], allowFailure: false, callData: arguments[i]});
+        }
+
+        /// generate calldata
+        data = abi.encodeWithSignature("aggregate3((address,bool,bytes)[])", calls);
     }
 
-    /// @notice get the data to sign by EOA for single multisig
+    /// @notice get the data to sign by EOA
+    /// @param safe The address of the safe
     /// @param data The calldata to be executed
     /// @return The data to sign
     function getDataToSign(address safe, bytes memory data) public view override returns (bytes memory) {
-        address target;
-        if (safe == multisig) {
-            target = MULTICALL3_DELEGATECALL_ADDRESS;
-        } else {
-            target = MULTICALL3_ADDRESS;
-        }
         return IGnosisSafe(safe).encodeTransactionData({
-            to: target,
+            to: _getMulticallAddress(safe),
             value: 0,
             data: data,
             operation: Enum.Operation.DelegateCall,
@@ -64,7 +74,47 @@ abstract contract OPCMBaseTask is MultisigTask {
         });
     }
 
-    function _build(uint256 chainId) internal override {}
+    /// @notice execute post-task checks.
+    /// read states that are expected to have changed during the simulate step.
+    /// removes the storage write checks
+    function validate() public view override {
+        require(IGnosisSafe(multisig).nonce() == nonce + 1, "MultisigTask: nonce not incremented");
 
-    function _validate(uint256 chainId) internal view override {}
+        Addresses.ChainInfo[] memory chains = addresses.getChains();
+
+        for (uint256 i = 0; i < chains.length; i++) {
+            _validate(chains[i].chainId);
+        }
+    }
+
+    /// @notice get the multicall address for the given safe
+    /// if the safe is the parent multisig, return the delegatecall multicall address
+    /// otherwise if the safe is a child multisig, return the regular multicall address
+    /// @param safe The address of the safe
+    /// @return The address of the multicall
+    function _getMulticallAddress(address safe) internal view returns (address) {
+        return (safe == multisig) ? MULTICALL3_DELEGATECALL_ADDRESS : MULTICALL3_ADDRESS;
+    }
+
+    /// @notice overrides to start pranking the
+    /// multisig with delegatecall flag set to true
+    function _startBuild() internal override {
+        vm.startPrank(multisig, true);
+
+        _startSnapshot = vm.snapshot();
+
+        vm.startStateDiffRecording();
+    }
+
+    /// @notice set the multicall address to the delegatecall multicall address
+    function _setMulticallAddress() internal override {
+        targetMulticall = MULTICALL3_DELEGATECALL_ADDRESS;
+    }
+
+    /// @notice Returns the storage write permissions, ignored for OPCM tasks
+    /// @return Array of storage write permissions
+    function _taskStorageWrites() internal pure virtual override returns (string[] memory) {}
+
+    /// @notice overrides to do nothing per chain
+    function _build(uint256 chainId) internal override {}
 }
