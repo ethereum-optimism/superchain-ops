@@ -32,7 +32,7 @@ contract Runner is Script {
 
     function run() public {
         string[] memory commands = new string[](1);
-        commands[0] = "./test/tasks/mock/example/fetch-tasks.sh";
+        commands[0] = "./src/improvements/script/fetch-tasks.sh";
 
         bytes memory result = vm.ffi(commands);
 
