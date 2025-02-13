@@ -274,7 +274,6 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @dev callable only after the build function has been run and the
     /// calldata has been loaded up to storage
     /// @return data The calldata to be executed
-
     function getCalldata() public view virtual override returns (bytes memory data) {
         /// get task actions
         (address[] memory targets, uint256[] memory values, bytes[] memory arguments) = getTaskActions();
@@ -625,7 +624,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     }
 
     /// @notice helper function to generate the approveHash calldata to be executed by child multisig owner on parent multisig
-    function generateApproveMulticallData() public view virtual returns (bytes memory) {
+    function generateApproveMulticallData() public view returns (bytes memory) {
         bytes32 hash = getHash();
         Call3Value memory call = Call3Value({
             target: multisig,
