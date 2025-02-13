@@ -4,11 +4,11 @@ Status: READY TO SIGN
 
 ## Objective
 
-This task updates the fault dispute system for unichain-sepolia:
+This task updates the fault dispute system for unichain-sepolia: 
 
-* Set implementation for game type 0 to 0x517AE9d74dbB9c7df6F3277225543BE2DCeD5a87 in DisputeGameFactory 0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b: `setImplementation(0, 0x517AE9d74dbB9c7df6F3277225543BE2DCeD5a87)`
-* Set implementation for game type 1 to 0x652f0D5aB7d145C0EdB86a0B4923F2f150a5482f in DisputeGameFactory 0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b: `setImplementation(1, 0x652f0D5aB7d145C0EdB86a0B4923F2f150a5482f)`
-
+* Set implementation for game type 0 to 0x3d914Ba460E0bBf0b9Bca35d65f9fc8e0bcB1C9d in `DisputeGameFactory` 0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b: `setImplementation(0, 0x3d914Ba460E0bBf0b9Bca35d65f9fc8e0bcB1C9d)`
+* Set implementation for game type 1 to 0x61D1d2DFfe0C1e3E200b27ae3874190158802Fbb in `DisputeGameFactory` 0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b: `setImplementation(1, 0x61D1d2DFfe0C1e3E200b27ae3874190158802Fbb)`
+<!--NEXT TASK DESCRIPTION-->
 The proposal was: 
 - [ ] Posted on the governance forum.
 - [ ] Approved by Token House voting.
@@ -22,8 +22,8 @@ This upgrades the Fault Proof contracts in the [op-contracts/v1.8.0-rc.4](https:
 
 ## Pre-deployments 
 - `MIPS` - `0x69470D6970Cd2A006b84B1d4d70179c892cFCE01`
-- `FaultDisputeGame` - `0x517AE9d74dbB9c7df6F3277225543BE2DCeD5a87`
-- `PermissionedDisputeGame` - `0x652f0D5aB7d145C0EdB86a0B4923F2f150a5482f`
+- `FaultDisputeGame` - `0x3d914Ba460E0bBf0b9Bca35d65f9fc8e0bcB1C9d`
+- `PermissionedDisputeGame` - `0x61D1d2DFfe0C1e3E200b27ae3874190158802Fbb`
 
 ## Simulation
 
