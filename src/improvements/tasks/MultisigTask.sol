@@ -149,8 +149,6 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// For nested multisig, prints the data to sign and the hash to approve for each of the child multisigs.
     /// @param taskConfigFilePath The path to the task configuration file.
     function simulateRun(string memory taskConfigFilePath) public override {
-        /// child multisig is set to value passed from the signFromChildMultisig function
-
         /// sets safe to the safe specified by the current template from addresses.json
         _taskSetup(taskConfigFilePath);
 
@@ -387,6 +385,7 @@ abstract contract MultisigTask is Test, Script, ITask {
 
         signatures = Signatures.prepareSignatures(multisig, hash, signatures);
 
+        vm.broadcast();
         (bool success) = IGnosisSafe(multisig).execTransaction(
             MULTICALL3_ADDRESS,
             0,
