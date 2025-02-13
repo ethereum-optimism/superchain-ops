@@ -50,7 +50,7 @@ contract DisputeGameUpgradeTemplate is MultisigTask {
 
     /// @notice Builds the actions for setting dispute game implementations for a specific L2 chain ID
     /// @param chainId The ID of the L2 chain to configure
-    function _build(uint256 chainId) internal override {
+    function _buildPerChain(uint256 chainId) internal override {
         IDisputeGameFactory disputeGameFactory =
             IDisputeGameFactory(addresses.getAddress("DisputeGameFactoryProxy", chainId));
 
