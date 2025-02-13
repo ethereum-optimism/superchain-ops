@@ -1,39 +1,40 @@
 set dotenv-load
 
-export rpcUrl := env_var('ETH_RPC_URL')
+# Common variables used across multiple recipes
+# Export variables in uppercase for shell script usage
+export TASK_PATH := invocation_directory()
+export SCRIPT_PATH := justfile_directory()
+
+# Get RPC URL based on task path
+rpc_cmd := SCRIPT_PATH + "/get-rpc-url.sh \"" + TASK_PATH + "\""
+export rpcUrl := shell(rpc_cmd)
+
+# Fetch the template name from the config.toml file
+cmd := "sed -n 's/^[[:space:]]*templateName[[:space:]]*=[[:space:]]*\\\"\\([^\\\"]*\\)\\\".*/\\1/p' " + TASK_PATH + "/config.toml"
+export SCRIPT_NAME := shell(cmd)
 export signatures := env_var_or_default('SIGNATURES', '')
-export taskPath := invocation_directory()
-export scriptPath := justfile_directory()
-export ownerSafe := env_var('OWNER_SAFE')
-export scriptName := env_var('SCRIPT_NAME')
 
 simulate hdPath='0':
   #!/usr/bin/env bash
-  config=${taskPath}/config.toml
-  script=${scriptPath}/template/${scriptName}.sol
+
+  config=${TASK_PATH}/config.toml
+  script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
 
   echo "Using script ${script}"
-  echo "Safe address: ${ownerSafe}"
-  echo "Getting signer address..."
-
-  if [ ! -z "$SIMULATE_WITHOUT_LEDGER" ]; then
-    signer=$(cast call ${ownerSafe} "getOwners()(address[])" -r ${rpcUrl} | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
-  else
-    signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-  fi
-  echo "Simulating with: ${signer}"
   echo ""
 
   forge build
   forge script ${script} \
     --rpc-url ${rpcUrl} \
     --sig "simulateRun(string)" ${config} \
-    --sender ${signer}
 
 sign hdPath='0':
   #!/usr/bin/env bash
-  config=${taskPath}/config.toml
-  script=${scriptPath}/template/${scriptName}.sol
+  config=${TASK_PATH}/config.toml
+  script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
+  echo "script name: ${SCRIPT_NAME}"
+  echo "task path: ${TASK_PATH}"
+  echo "script path: ${SCRIPT_PATH}"
 
   echo "Using script ${script}"
   echo "getting signer address..."
@@ -50,8 +51,8 @@ sign hdPath='0':
 
 execute hdPath='0':
   #!/usr/bin/env bash
-  config=${taskPath}/config.toml
-  script=${scriptPath}/template/${scriptName}.sol
+  config=${TASK_PATH}/config.toml
+  script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
   
   echo "Using script ${script}"
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
