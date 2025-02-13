@@ -29,8 +29,8 @@ contract NestedMultisigTaskTest is Test {
     uint256 public constant OWNER_COUNT_STORAGE_OFFSET = 3;
     uint256 public constant THRESHOLD_STORAGE_OFFSET = 4;
 
-    /// ProxyAdminOwner safe for task-01 is a nested multisig for Op mainnet L2 chain.
-    string taskConfigFilePath = "test/tasks/mock/example/task-01/config.toml";
+    /// ProxyAdminOwner safe for the task below is a nested multisig for Op mainnet L2 chain.
+    string taskConfigFilePath = "test/tasks/mock/configs/NestedMultisigDisputeGameUpgradeTemplate.toml";
 
     function setUp() public {
         vm.createSelectFork("mainnet");
