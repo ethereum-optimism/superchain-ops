@@ -1,20 +1,15 @@
-# 000-initial-example-task TBD: Update the task description
+# 000-initial-example-task: Delete this once we have real tasks to run
 
 Status: [DRAFT]()
 
 ## Objective
 
-Todo: Describe the objective of the task
+This is an example task that should be **deleted** once we have real tasks to run. It's purpose is to have a task that runs before the monorepo-integration-test task.
 
 ### Timing
 
-Example transaction
-
 ## Transaction creation
-
-TODO
 
 ## Signing and execution
 
-Status - TODO
 
