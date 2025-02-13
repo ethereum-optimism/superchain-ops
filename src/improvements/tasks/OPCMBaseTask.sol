@@ -100,7 +100,7 @@ abstract contract OPCMBaseTask is MultisigTask {
         Addresses.ChainInfo[] memory chains = addresses.getChains();
 
         bytes memory data = getCalldata();
-        (bool success, ) = OPCM.call{value: 0}(data);
+        (bool success,) = OPCM.call{value: 0}(data);
         require(success, "OPCMBaseTask: failed to build task");
     }
 }
