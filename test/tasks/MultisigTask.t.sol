@@ -26,10 +26,13 @@ contract MultisigTaskUnitTest is Test {
     bytes32 public constant MULTISIG_SLOT = bytes32(uint256(36));
 
     /// @notice storage slot for the addresses contract
-    bytes32 public constant MOCK_TARGET_SLOT = bytes32(uint256(51));
+    bytes32 public constant MOCK_TARGET_SLOT = bytes32(uint256(54));
 
     /// @notice storage slot for the build started flag
     bytes32 public constant BUILD_STARTED_SLOT = bytes32(uint256(50));
+
+    /// @notice storage slot for the target multicall address
+    bytes32 public constant TARGET_MULTICALL_SLOT = bytes32(uint256(53));
 
     /// Test Philosophy:
     /// We want these tests to function as much as possible as unit tests.
@@ -108,6 +111,10 @@ contract MultisigTaskUnitTest is Test {
         /// set addresses in MultisigTask contract to a deployed addresses
         /// contract so that these calls work
         vm.store(address(task), ADDRESSES_SLOT, bytes32(uint256(uint160(address(addresses)))));
+
+        /// set the target multicall address in MultisigTask contract to the
+        /// multicall address
+        vm.store(address(task), TARGET_MULTICALL_SLOT, bytes32(uint256(uint160(MULTICALL3_ADDRESS))));
 
         _addUpgradeAction();
 
