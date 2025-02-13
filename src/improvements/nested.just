@@ -6,7 +6,7 @@ export TASK_PATH := invocation_directory()
 export SCRIPT_PATH := justfile_directory()
 
 # Get RPC URL based on task path
-rpc_cmd := SCRIPT_PATH + "/get-rpc-url.sh \"" + TASK_PATH + "\""
+rpc_cmd := SCRIPT_PATH + "/script/get-rpc-url.sh \"" + TASK_PATH + "\""
 export rpcUrl := shell(rpc_cmd)
 
 # Fetch the template name from the config.toml file
