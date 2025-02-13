@@ -27,13 +27,10 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
     address oracle;
     uint256 chainId;
 
-    //DisputeGameFactory constant dgfProxy = DisputeGameFactory(0x860e626c700AF381133D9f4aF31412A2d1DB3D5d);
+    //See VALIDATION.mb for absolutePrestate verification
+    bytes32 constant absolutePrestate = 0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd;
     address constant livenessGuard = 0xc26977310bC89DAee5823C2e2a73195E85382cC7;
-    bytes32 constant absolutePrestate = 0x03dfa3b3ac66e8fae9f338824237ebacff616df928cf7dada0e14be2531bc1f4;
-    //address constant newMips = 0x69470D6970Cd2A006b84B1d4d70179c892cFCE01;
-    //address constant oracle = 0x92240135b46fc1142dA181f550aE8f595B858854;
     string constant gameVersion = "1.3.1";
-    //uint256 constant chainId = 763373;
 
     // Safe contract for this task.
     GnosisSafe securityCouncilSafe = GnosisSafe(payable(vm.envAddress("COUNCIL_SAFE")));
@@ -47,21 +44,10 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
 
     function setUp() public {
         
-        console.log("Fetching DisputeGameFactory address...");
         dgfProxy = DisputeGameFactory(proxies.DisputeGameFactory);
-        console.log("DisputeGameFactory Proxy Address:", address(dgfProxy));
-
-        console.log("Fetching newMips address...");
         newMips = standardVersions.MIPS.Address;
-        console.log("Fetched newMips Address:", newMips);
-
-        console.log("Fetching oracle address...");
         oracle = standardVersions.PreimageOracle.Address;
-        console.log("Fetched Oracle Address:", oracle);
-
-        console.log("Fetching chainId...");
         chainId = chainConfig.chainId;
-        console.log("Fetched Chain ID:", chainId);
 
         string memory inputJson;
         string memory path = "/tasks/sep/ink-001-fp-holocene-pectra-upgrade/input.json";
