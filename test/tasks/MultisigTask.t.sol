@@ -15,7 +15,7 @@ contract MultisigTaskUnitTest is Test {
     AddressRegistry public addresses;
     MultisigTask public task;
 
-    string constant MAINNET_CONFIG = "./test/tasks/mock/example/task-03/config.toml";
+    string constant MAINNET_CONFIG = "./test/tasks/mock/configs/OPMainnetGasConfigTemplate.toml";
 
     /// @notice variables that store the storage offset of different variables in the MultisigTask contract
 
@@ -52,7 +52,7 @@ contract MultisigTaskUnitTest is Test {
 
     function testRunFailsNoNetworks() public {
         vm.expectRevert("MultisigTask: no chains found");
-        task.simulateRun("./test/tasks/mock/invalidNetworkConfig.toml");
+        task.simulateRun("./test/tasks/mock/configs/InvalidNetworkConfig.toml");
     }
 
     function testRunFailsEmptyActions() public {
