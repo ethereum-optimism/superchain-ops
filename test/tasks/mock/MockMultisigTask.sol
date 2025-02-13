@@ -34,7 +34,7 @@ contract MockMultisigTask is MultisigTask {
     // no-op
     function _templateSetup(string memory) internal override {}
 
-    function _build(uint256 chainId) internal override {
+    function _buildPerChain(uint256 chainId) internal override {
         IProxyAdmin proxy = IProxyAdmin(payable(addresses.getAddress("ProxyAdmin", chainId)));
 
         proxy.upgrade(
