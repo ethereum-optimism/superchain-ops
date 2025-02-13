@@ -24,7 +24,7 @@ check_status() {
 }
 
 # Find README.md files for all tasks and process them
-files=$(find ./test/tasks/mock/example -type f -name 'README.md')
+files=$(find ./test/tasks/mock -type f -name 'README.md')
 for file in $files; do
   check_status "$file"
 done
