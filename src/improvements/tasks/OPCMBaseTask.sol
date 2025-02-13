@@ -116,5 +116,5 @@ abstract contract OPCMBaseTask is MultisigTask {
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {}
 
     /// @notice overrides to do nothing per chain
-    function _build(uint256 chainId) internal override {}
+    function _buildPerChain(uint256 chainId) internal override {}
 }

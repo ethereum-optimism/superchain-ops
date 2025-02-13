@@ -481,6 +481,8 @@ abstract contract MultisigTask is Test, Script, ITask {
     ///      overriden requires using buildModifier modifier to leverage
     ///      foundry snapshot and state diff recording to populate the actions array.
     function build() public virtual override buildModifier {
+        _buildSingle();
+
         Addresses.ChainInfo[] memory chains = addresses.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {
