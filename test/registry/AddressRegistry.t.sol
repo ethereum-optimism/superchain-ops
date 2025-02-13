@@ -14,7 +14,7 @@ contract MainnetAddressRegistryTest is Test {
     uint256 public modeChainId;
 
     function setUp() public {
-        string memory networkConfigFilePath = "test/tasks/mock/DiscoverChainAddressesConfig.toml";
+        string memory networkConfigFilePath = "test/tasks/mock/configs/DiscoverChainAddressesConfig.toml";
 
         vm.createSelectFork("mainnet");
 
