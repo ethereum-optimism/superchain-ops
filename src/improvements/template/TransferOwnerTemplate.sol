@@ -4,6 +4,7 @@ import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
 import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
+import {IAddressRegistry} from "src/improvements/IAddressRegistry.sol";
 import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
 
 /// @title TransferOwnerTemplate
@@ -31,14 +32,14 @@ contract TransferOwnerTemplate is MultisigTask {
     function _templateSetup(string memory taskConfigFilePath) internal override {
         newOwner = abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".newOwner"), (address));
         /// only allow one chain to be modified at a time with this template
-        Addresses.ChainInfo[] memory _chains =
-            abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".l2chains"), (Addresses.ChainInfo[]));
+        IAddressRegistry.ChainInfo[] memory _chains =
+            abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".l2chains"), (IAddressRegistry.ChainInfo[]));
         require(_chains.length == 1, "Must specify exactly one chain id to transfer ownership for");
     }
 
     /// @notice Builds the actions for setting gas limits for a specific L2 chain ID
     /// @param chainId The ID of the L2 chain to configure
-    function _build(uint256 chainId) internal override {
+    function _buildPerChain(uint256 chainId) internal override {
         /// View only, filtered out by MultisigTask.sol
         ProxyAdmin proxyAdmin = ProxyAdmin(addresses.getAddress("ProxyAdmin", chainId));
 
