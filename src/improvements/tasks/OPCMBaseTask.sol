@@ -91,7 +91,7 @@ abstract contract OPCMBaseTask is MultisigTask {
 
     /// @notice set the multicall address to the delegatecall multicall address
     function _setMulticallAddress() internal override {
-        targetMulticall = MULTICALL3_DELEGATECALL_ADDRESS;
+        multicallTarget = MULTICALL3_DELEGATECALL_ADDRESS;
     }
 
     /// @notice overrides to do nothing per chain

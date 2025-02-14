@@ -119,7 +119,9 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @notice The address of the child multisig for this task
     address public childMultisig;
 
-    address public targetMulticall;
+    /// @notice The address of the multicall target for this task
+    /// @dev set in _setMulticallAddress
+    address public multicallTarget;
 
     /// @notice buildModifier to be used by the build function to populate the
     /// actions array
@@ -313,7 +315,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @return The data to sign
     function getDataToSign(address safe, bytes memory data) public view virtual returns (bytes memory) {
         return IGnosisSafe(safe).encodeTransactionData({
-            to: targetMulticall,
+            to: multicallTarget,
             value: 0,
             data: data,
             operation: Enum.Operation.DelegateCall,
@@ -341,14 +343,14 @@ abstract contract MultisigTask is Test, Script, ITask {
         bytes memory signatures = prepareSignatures(multisig, hash);
 
         bytes32 txHash = IGnosisSafe(multisig).getTransactionHash(
-            targetMulticall, 0, data, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), nonce
+            multicallTarget, 0, data, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), nonce
         );
 
         require(hash == txHash, "MultisigTask: hash mismatch");
 
         // Execute the transaction
         (bool success) = IGnosisSafe(multisig).execTransaction(
-            targetMulticall, 0, data, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), signatures
+            multicallTarget, 0, data, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), signatures
         );
 
         require(success, "MultisigTask: simulateActions failed");
@@ -387,7 +389,7 @@ abstract contract MultisigTask is Test, Script, ITask {
         signatures = Signatures.prepareSignatures(multisig, hash, signatures);
 
         (bool success) = IGnosisSafe(multisig).execTransaction(
-            targetMulticall, 0, data, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), signatures
+            multicallTarget, 0, data, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), signatures
         );
 
         require(success, "MultisigTask: execute failed");
@@ -740,7 +742,7 @@ abstract contract MultisigTask is Test, Script, ITask {
         return abi.encodeCall(
             IGnosisSafe(_safe).execTransaction,
             (
-                targetMulticall,
+                multicallTarget,
                 0,
                 _data,
                 Enum.Operation.DelegateCall,
@@ -755,8 +757,10 @@ abstract contract MultisigTask is Test, Script, ITask {
     }
 
     /// @notice set the multicall address
+    /// @dev override to set the multicall address to the delegatecall multicall address
+    /// in case of opcm tasks
     function _setMulticallAddress() internal virtual {
-        targetMulticall = MULTICALL3_ADDRESS;
+        multicallTarget = MULTICALL3_ADDRESS;
     }
 
     /// @notice prank the multisig

@@ -222,7 +222,7 @@ contract NestedMultisigTaskTest is Test {
         vm.createSelectFork("sepolia");
         uint256 snapshotId = vm.snapshot();
         multisigTask = new OPCMUpgradeTemplate();
-        string memory opcmTaskConfigFilePath = "test/tasks/mock/example/task-04/config.toml";
+        string memory opcmTaskConfigFilePath = "test/tasks/mock/configs/ExampleOPCMUpgradeTemplate.toml";
         multisigTask.simulateRun(opcmTaskConfigFilePath);
         addresses = multisigTask.addresses();
         address multisig = multisigTask.multisig();
