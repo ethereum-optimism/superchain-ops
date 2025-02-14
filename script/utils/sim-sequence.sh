@@ -109,7 +109,9 @@ cleanup() {
 
   # Kill the anvil fork at the end if it was started by this script
   if $DestroyAnvilAfterExecution; then
-    ps aux | grep anvil | grep -v grep | awk '{print $2}' | xargs kill
+    echo "Anvil is still open to kill it, use the command below:"
+    echo "ps aux | grep anvil | grep -v grep | awk '{print $3}' | xargs kill"
+    #TODO: In the future, we should kill the anvil fork here?
   fi
 }
 createFork() {
