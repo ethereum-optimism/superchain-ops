@@ -106,7 +106,7 @@ approvehash_in_anvil whichSafe hdPath='0':
   ANVIL_LOCALHOST_RPC="http://localhost:8545"
   bundlePath=${taskPath}/${bundleName}.json
   script=NestedSignFromJson
-  signer="BBBBB"
+  signer=""
   echo "Approving hash in Anvil.."
 
   if [ -f "${taskPath}/NestedSignFromJson.s.sol" ]; then
@@ -181,11 +181,9 @@ approvehash_in_anvil whichSafe hdPath='0':
   ## 2. Approval of this hash in the SC and FND respectively.
   ### 1. Construct the calldata for the approveHash function.
   # calldata_approveHash=$(cast calldata "approveHash(bytes32)" ${hash})
-  echo "1. Nonce of the hash:"$(cast call ${safe} "nonce()(uint256)" --rpc-url ${ANVIL_LOCALHOST_RPC})
 
   cast send ${safe} "approveHash(bytes32)" ${hash} --rpc-url ${ANVIL_LOCALHOST_RPC} --private-key {{PRIVATE_KEY_OWNER}} 2>&1 /dev/null 
 
-  echo "2. Nonce of the hash:"$(cast call ${safe} "nonce()(uint256)" --rpc-url ${ANVIL_LOCALHOST_RPC})
   ## 3. Execute the Approval permissionless on the L1PAO will revert here if there is an error with the nonce.
   forge script ${script} \
     --rpc-url ${ANVIL_LOCALHOST_RPC} \
@@ -195,14 +193,12 @@ approvehash_in_anvil whichSafe hdPath='0':
     ${bundlePath} \
     ${safe} \
     11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111 2>&1 /dev/null
-  echo "3. Nonce of the hash:"$(cast call ${safe} "nonce()(uint256)" --rpc-url ${ANVIL_LOCALHOST_RPC})
   ### 1. Construct the calldata for the approveHash function.
   calldata_approveHash=$(cast calldata "approveHash(bytes32)" ${hash})
   ### 2. Construct a signature with r=owner, s=0, v=1
   sig=$(cast abi-encode "convert(address)" ${signer})000000000000000000000000000000000000000000000000000000000000000001
   ### 3. Execute the approveHash function in the L1PAO (require to have a gas-limit set to avoid reverting from the safe 'estimateGas' function).
   # cast send ${safe} --rpc-url ${ANVIL_LOCALHOST_RPC} --private-key {{PRIVATE_KEY_OWNER}} "execTransaction(address to,uint256 value,bytes calldata data,Enum.Operation operation,uint256 safeTxGas,uint256 baseGas,uint256 gasPrice,address gasToken,address refundReceiver,bytes memory signatures)" {{ownerSafe}} 0 ${calldata_approveHash} 0 0 0 0 0x0000000000000000000000000000000000000000 0x0000000000000000000000000000000000000000 ${sig} --gas-limit 10000000 2>&1 /dev/nullnonce
-  echo "4. Nonce of the hash:"$(cast call ${safe} "nonce()(uint256)" --rpc-url ${ANVIL_LOCALHOST_RPC})
 
 ## execute_in_anvil is a function to execute hash in anvil dedicated for simulation.
 execute_in_anvil hdPath='0':
