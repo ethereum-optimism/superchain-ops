@@ -162,7 +162,7 @@ contract MultisigTaskUnitTest is Test {
         /// calling vm.store(task, _startSnapshot SLOT, some large number that isn't a valid snapshot id)
         vm.store(address(task), MOCK_TARGET_SLOT, bytes32(uint256(uint160(address(target)))));
 
-        vm.expectRevert("failed to revert back to snapshot, unsafe state to run task");
+        vm.expectRevert("MultisigTask: failed to revert back to snapshot, unsafe state to run task");
         task.build();
     }
 
