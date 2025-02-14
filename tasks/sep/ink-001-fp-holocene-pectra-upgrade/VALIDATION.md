@@ -25,7 +25,10 @@ For each contract listed in the state diff, please verify that no contracts or s
   **Meaning**: Updates the PERMISSIONED_CANNON game type implementation. You can verify which implementation is set using `cast call 0x860e626c700AF381133D9f4aF31412A2d1DB3D5d "gameImpls(uint32)(address)" 1`, where `1` is the [`PERMISSIONED_CANNON` game type](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L31).
   Before this task has been executed, you will see that the returned address is `0x000000000000000000000000a8808360f7bc16da81938e5c29400d18bea651c4`, matching the "Before" value of this slot, demonstrating this slot is storing the address of the PERMISSIONED_CANNON implementation.
 
-## Verify Absolute Prestate
+## Verify livenessGuard and Absolute Prestate
+
+The **livenessGuard** address can be verified here https://github.com/ethereum-optimism/superchain-ops/blob/b17d3037c68e50f28ad19abf03bb952e507b3ebc/tasks/sep/006-2-sc-changes/VALIDATION.md?plain=1#L89 as it was set with the superchain-ops Sepolia task **006-2-sc-changes**
+
 The following is based on the **op-program/v1.5.0-rc.2**
 
 Absolute prestates can be checked in the Superchain Registry https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-prestates.toml
