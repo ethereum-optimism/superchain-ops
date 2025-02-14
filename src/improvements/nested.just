@@ -10,7 +10,7 @@ rpc_cmd := SCRIPT_PATH + "/script/get-rpc-url.sh \"" + TASK_PATH + "\""
 export rpcUrl := shell(rpc_cmd)
 
 # Fetch the template name from the config.toml file
-cmd := "sed -n 's/^[[:space:]]*templateName[[:space:]]*=[[:space:]]*\\\"\\([^\\\"]*\\)\\\".*/\\1/p' " + TASK_PATH + "/config.toml"
+cmd := "yq '.templateName' " + TASK_PATH + "/config.toml"
 export SCRIPT_NAME := shell(cmd)
 export signatures := env_var_or_default('SIGNATURES', '')
 randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
