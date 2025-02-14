@@ -18,6 +18,10 @@ contract OPCMUpgradeTemplate is OPCMBaseTask {
     /// @notice Mapping of l2 chain IDs to their respective prestates
     mapping(uint256 => bytes32) public opcmUpgrades;
 
+    function opcm() public pure override returns (address) {
+        return OPCM;
+    }
+
     /// @notice Returns the safe address string identifier
     /// @return The string "ProxyAdminOwner"
     function safeAddressString() public pure override returns (string memory) {
@@ -59,10 +63,10 @@ contract OPCMUpgradeTemplate is OPCMBaseTask {
             });
         }
         console.log("address this", address(this));
-        vm.label(OPCM, "OPCM");
+        vm.label(opcm(), "OPCM");
 
         (bool success,) =
-            OPCM.delegatecall(abi.encodeWithSignature("upgrade((address,address,bytes32)[])", opcmConfigs));
+            opcm().delegatecall(abi.encodeWithSignature("upgrade((address,address,bytes32)[])", opcmConfigs));
         require(success, "OPCMUpgrateTemplate: failed to upgrade OPCM");
     }
 

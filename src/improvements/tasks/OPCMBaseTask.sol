@@ -55,6 +55,14 @@ abstract contract OPCMBaseTask is MultisigTask {
         data = abi.encodeWithSignature("aggregate3((address,bool,bytes)[])", calls);
     }
 
+    function validate() public view override {
+        (address[] memory targets,,) = getTaskActions();
+        require(targets.length == 1 && targets[0] == opcm(), "OPCMBaseTask: only OPCM is allowed as target");
+        super.validate();
+    }
+
+    function opcm() public view virtual returns (address);
+
     /// @notice get the multicall address for the given safe
     /// if the safe is the parent multisig, return the delegatecall multicall address
     /// otherwise if the safe is a child multisig, return the regular multicall address
