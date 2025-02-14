@@ -201,14 +201,13 @@ approvehash_in_anvil whichSafe hdPath='0':
   ### 2. Construct a signature with r=owner, s=0, v=1
   sig=$(cast abi-encode "convert(address)" ${signer})000000000000000000000000000000000000000000000000000000000000000001
   ### 3. Execute the approveHash function in the L1PAO (require to have a gas-limit set to avoid reverting from the safe 'estimateGas' function).
-  cast send ${safe} --rpc-url ${ANVIL_LOCALHOST_RPC} --private-key {{PRIVATE_KEY_OWNER}} "execTransaction(address to,uint256 value,bytes calldata data,Enum.Operation operation,uint256 safeTxGas,uint256 baseGas,uint256 gasPrice,address gasToken,address refundReceiver,bytes memory signatures)" {{ownerSafe}} 0 ${calldata_approveHash} 0 0 0 0 0x0000000000000000000000000000000000000000 0x0000000000000000000000000000000000000000 ${sig} --gas-limit 10000000 2>&1 /dev/null
+  # cast send ${safe} --rpc-url ${ANVIL_LOCALHOST_RPC} --private-key {{PRIVATE_KEY_OWNER}} "execTransaction(address to,uint256 value,bytes calldata data,Enum.Operation operation,uint256 safeTxGas,uint256 baseGas,uint256 gasPrice,address gasToken,address refundReceiver,bytes memory signatures)" {{ownerSafe}} 0 ${calldata_approveHash} 0 0 0 0 0x0000000000000000000000000000000000000000 0x0000000000000000000000000000000000000000 ${sig} --gas-limit 10000000 2>&1 /dev/nullnonce
   echo "4. Nonce of the hash:"$(cast call ${safe} "nonce()(uint256)" --rpc-url ${ANVIL_LOCALHOST_RPC})
-  exit 999
 
 ## execute_in_anvil is a function to execute hash in anvil dedicated for simulation.
 execute_in_anvil hdPath='0':
   #!/usr/bin/env bash
-  set -x
+  # set -x
   bundlePath=${taskPath}/${bundleName}.json
   script=NestedSignFromJson
   if [ -f "${taskPath}/NestedSignFromJson.s.sol" ]; then
