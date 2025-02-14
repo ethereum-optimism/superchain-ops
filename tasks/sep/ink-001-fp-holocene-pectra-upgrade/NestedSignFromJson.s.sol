@@ -134,6 +134,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
         checkStateDiff(accesses);
         checkDGFProxyAndGames();
         checkMips();
+        checkPermissionedDisputeGame();
         console.log("All assertions passed!");
     }
 
