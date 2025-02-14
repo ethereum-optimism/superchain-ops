@@ -2,7 +2,7 @@
 
 l2chains = [{name = "OP Sepolia Testnet", chainId = 11155420}, {name = "Metal L2 Testnet", chainId = 1740}]
 
-templateName = "OPCMUpgradeTemplate"
+templateName = "TestOPCMUpgradeVxyz"
 
 [opcmUpgrades]
 opcmPrestates = [{chainId = 11155420, prestate = "0xabcd"}, {chainId = 1740, prestate = "0xefgh"}]

@@ -92,9 +92,15 @@ abstract contract OPCMBaseTask is MultisigTask {
         multicallTarget = MULTICALL3_DELEGATECALL_ADDRESS;
     }
 
+    // @notice this function must be overridden in the inheriting contract
+    function _validate(uint256) internal view virtual override {
+        require(false, "You must implement the _validate function");
+    }
+
     /// @notice overrides to do nothing per chain
     /// all the chains are handled in a single call to OPCM contract
     function _buildPerChain(uint256 chainId) internal pure override {
         // We must override this function but OPCM template do not support per chain builds.
+        // We cannot revert here because this build function is called by the parent MultisigTask.
     }
 }

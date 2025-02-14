@@ -3,7 +3,9 @@ pragma solidity ^0.8.0;
 import {OPCMBaseTask} from "../tasks/OPCMBaseTask.sol";
 import {AddressRegistry as AddrRegistry} from "src/improvements/AddressRegistry.sol";
 
-contract OPCMUpgradeTemplate is OPCMBaseTask {
+/// @notice This is an example of implementing OPCMBaseTask to perform an upgrade via the OPCM contract.
+/// @dev OPCM upgrade tasks always target a specific l1 contract release version and therfore OPCM contract.
+contract TestOPCMUpgradeVxyz is OPCMBaseTask {
     address public constant OPCM = 0x5BC817c7C3F1A8dCAA01d229Cbdeed9624C80E09;
 
     /// @notice Struct to store inputs for OPCM.upgrade() function per l2 chain

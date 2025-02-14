@@ -6,7 +6,7 @@ import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {Test} from "forge-std/Test.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
-import {OPCMUpgradeTemplate} from "src/improvements/template/OPCMUpgradeTemplate.sol";
+import {TestOPCMUpgradeVxyz} from "src/improvements/template/TestOPCMUpgradeVxyz.sol";
 import {DisputeGameUpgradeTemplate} from "src/improvements/template/DisputeGameUpgradeTemplate.sol";
 import {AddressRegistry as AddrRegistry} from "src/improvements/AddressRegistry.sol";
 import {LibSort} from "@solady/utils/LibSort.sol";
@@ -225,8 +225,8 @@ contract NestedMultisigTaskTest is Test {
     function testNestedExecuteWithSignaturesOPCM() public {
         vm.createSelectFork("sepolia");
         uint256 snapshotId = vm.snapshot();
-        multisigTask = new OPCMUpgradeTemplate();
-        string memory opcmTaskConfigFilePath = "test/tasks/mock/configs/ExampleOPCMUpgradeTemplate.toml";
+        multisigTask = new TestOPCMUpgradeVxyz();
+        string memory opcmTaskConfigFilePath = "test/tasks/mock/configs/TestOPCMUpgradeVxyz.toml";
         multisigTask.simulateRun(opcmTaskConfigFilePath);
         addrRegistry = multisigTask.addrRegistry();
         address multisig = multisigTask.parentMultisig();
@@ -298,7 +298,7 @@ contract NestedMultisigTaskTest is Test {
             }
 
             /// execute the approve hash call with the signatures
-            multisigTask = new OPCMUpgradeTemplate();
+            multisigTask = new TestOPCMUpgradeVxyz();
             multisigTask.approveFromChildMultisig(opcmTaskConfigFilePath, childMultisig, packedSignaturesChild);
         }
 
@@ -306,7 +306,7 @@ contract NestedMultisigTaskTest is Test {
         bytes memory packedSignaturesParent;
 
         /// execute the task
-        multisigTask = new OPCMUpgradeTemplate();
+        multisigTask = new TestOPCMUpgradeVxyz();
         multisigTask.executeRun(opcmTaskConfigFilePath, packedSignaturesParent);
     }
 
