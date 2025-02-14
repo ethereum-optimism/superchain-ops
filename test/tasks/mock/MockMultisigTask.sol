@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity 0.8.15;
 
+import {VmSafe} from "forge-std/Vm.sol";
 import {IProxyAdmin} from "@eth-optimism-bedrock/interfaces/universal/IProxyAdmin.sol";
 import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
 import {IProxy} from "@eth-optimism-bedrock/interfaces/universal/IProxy.sol";
@@ -54,7 +55,13 @@ contract MockMultisigTask is MultisigTask {
         assertEq(bytes32(uint256(uint160(newImplementation))), data, "Proxy implementation not set correctly");
     }
 
-    function addAction(address target, bytes memory data, uint256 value, string memory description) public {
-        actions.push(Action(target, value, data, description));
+    function addAction(
+        address target,
+        bytes memory data,
+        uint256 value,
+        VmSafe.AccountAccessKind kind,
+        string memory description
+    ) public {
+        actions.push(Action(target, value, data, kind, description));
     }
 }

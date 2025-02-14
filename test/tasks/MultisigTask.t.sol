@@ -3,6 +3,7 @@ pragma solidity 0.8.15;
 
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {Test} from "forge-std/Test.sol";
+import {VmSafe} from "forge-std/Vm.sol";
 
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
@@ -12,15 +13,15 @@ import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 import {MockMultisigTask} from "test/tasks/mock/MockMultisigTask.sol";
 
 contract MultisigTaskUnitTest is Test {
-    AddressRegistry public addresses;
+    AddressRegistry public addrRegistry;
     MultisigTask public task;
 
     string constant MAINNET_CONFIG = "./test/tasks/mock/configs/OPMainnetGasConfigTemplate.toml";
 
     /// @notice variables that store the storage offset of different variables in the MultisigTask contract
 
-    /// @notice storage slot for the addresses contract
-    bytes32 public constant ADDRESSES_SLOT = bytes32(uint256(35));
+    /// @notice storage slot for the address registry contract
+    bytes32 public constant ADDRESS_REGISTRY_SLOT = bytes32(uint256(35));
 
     /// @notice storage slot for the parent multisig address
     bytes32 public constant MULTISIG_SLOT = bytes32(uint256(36));
@@ -38,7 +39,7 @@ contract MultisigTaskUnitTest is Test {
     /// We want these tests to function as much as possible as unit tests.
     /// In order to achieve this we have to put the contract in states that it
     /// would not normally be in. This is because the MultisigTask contract's
-    /// main entrypoint is the run function, which sets the addresses contract
+    /// main entrypoint is the run function, which sets the addrRegistry contract
     /// and all other storage variables. We do not call this function in some of
     /// the tests, so we have to set the storage variables manually when we do
     /// not call the run function.
@@ -46,8 +47,8 @@ contract MultisigTaskUnitTest is Test {
     function setUp() public {
         vm.createSelectFork("mainnet");
 
-        // Instantiate the Addresses contract
-        addresses = new AddressRegistry(MAINNET_CONFIG);
+        // Instantiate the AddressRegistry contract
+        addrRegistry = new AddressRegistry(MAINNET_CONFIG);
 
         // Instantiate the Mock MultisigTask contract
         task = MultisigTask(new MockMultisigTask());
@@ -60,32 +61,32 @@ contract MultisigTaskUnitTest is Test {
 
     function testRunFailsEmptyActions() public {
         /// add empty action that will cause a revert
-        _addAction(address(0), "", 0, "");
+        _addAction(address(0), "", 0, VmSafe.AccountAccessKind.Call, "");
         vm.expectRevert("Invalid target for task");
         task.simulateRun(MAINNET_CONFIG);
     }
 
     function testRunFailsInvalidAction() public {
         /// add invalid args for action that will cause a revert
-        _addAction(address(1), "", 0, "");
+        _addAction(address(1), "", 0, VmSafe.AccountAccessKind.Call, "");
         vm.expectRevert("Invalid arguments for task");
         task.simulateRun(MAINNET_CONFIG);
     }
 
-    function testBuildFailsAddressesNotSet() public {
-        vm.expectRevert("Must set addresses object for multisig address to be set");
+    function testBuildFailsAddressRegistryNotSet() public {
+        vm.expectRevert("Must set address registry for multisig address to be set");
         task.build();
     }
 
-    function testBuildFailsAddressesSetBuildStarted() public {
+    function testBuildFailsAddressRegistrySetBuildStarted() public {
         /// set multisig storage slot in MultisigTask.sol to a non zero address
         /// we have to do this because we do not call the run function, which
-        /// sets the addresses contract variable to a new instance of the
-        /// addresses object.
+        /// sets the address registry contract variable to a new instance of the
+        /// address registry object.
         vm.store(
             address(task),
             MULTISIG_SLOT,
-            bytes32(uint256(uint160(addresses.getAddress("SystemConfigOwner", getChain("optimism").chainId))))
+            bytes32(uint256(uint160(addrRegistry.getAddress("SystemConfigOwner", getChain("optimism").chainId))))
         );
 
         /// set _buildStarted flag in MultisigTask contract to true, this
@@ -101,16 +102,16 @@ contract MultisigTaskUnitTest is Test {
 
     function testSimulateFailsHashMismatch() public {
         /// skip the run function call so we need to write to all storage variables manually
-        address multisig = addresses.getAddress("SystemConfigOwner", getChain("optimism").chainId);
+        address multisig = addrRegistry.getAddress("SystemConfigOwner", getChain("optimism").chainId);
 
         /// set multisig variable in MultisigTask to the actual multisig address
         /// so that the simulate function does not revert and can run and create
         /// calldata by calling the multisig functions
         vm.store(address(task), MULTISIG_SLOT, bytes32(uint256(uint160(multisig))));
 
-        /// set addresses in MultisigTask contract to a deployed addresses
+        /// set AddressRegistry in MultisigTask contract to a deployed address registry
         /// contract so that these calls work
-        vm.store(address(task), ADDRESSES_SLOT, bytes32(uint256(uint160(address(addresses)))));
+        vm.store(address(task), ADDRESS_REGISTRY_SLOT, bytes32(uint256(uint160(address(addrRegistry)))));
 
         /// set the target multicall address in MultisigTask contract to the
         /// multicall address
@@ -142,15 +143,15 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testBuildFailsRevertPreviousSnapshotFails() public {
-        address multisig = addresses.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
+        address multisig = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
         /// set multisig variable in MultisigTask to the actual multisig address
         /// so that the simulate function does not revert and can run and create
         /// calldata by calling the multisig functions
         vm.store(address(task), MULTISIG_SLOT, bytes32(uint256(uint160(multisig))));
 
-        /// set addresses in MultisigTask contract to a deployed addresses
+        /// set AddressRegistry in MultisigTask contract to a deployed addrRegistry
         /// contract so that these calls work
-        vm.store(address(task), ADDRESSES_SLOT, bytes32(uint256(uint160(address(addresses)))));
+        vm.store(address(task), ADDRESS_REGISTRY_SLOT, bytes32(uint256(uint160(address(addrRegistry)))));
 
         MockTarget target = new MockTarget();
         target.setTask(address(task));
@@ -184,7 +185,7 @@ contract MultisigTaskUnitTest is Test {
         // check that the task targets are correct
         assertEq(targets.length, 1, "Wrong targets length");
         assertEq(
-            targets[0], addresses.getAddress("ProxyAdmin", getChain("optimism").chainId), "Wrong target at index 0"
+            targets[0], addrRegistry.getAddress("ProxyAdmin", getChain("optimism").chainId), "Wrong target at index 0"
         );
 
         // check that the task values are correct
@@ -197,7 +198,7 @@ contract MultisigTaskUnitTest is Test {
             calldatas[0],
             abi.encodeWithSignature(
                 "upgrade(address,address)",
-                addresses.getAddress("L1ERC721BridgeProxy", getChain("optimism").chainId),
+                addrRegistry.getAddress("L1ERC721BridgeProxy", getChain("optimism").chainId),
                 MockMultisigTask(address(task)).newImplementation()
             ),
             "Wrong calldata at index 0"
@@ -237,19 +238,26 @@ contract MultisigTaskUnitTest is Test {
         assertEq(data, expectedData, "Wrong aggregate calldata");
     }
 
-    function _addAction(address target, bytes memory data, uint256 value, string memory description) internal {
-        MockMultisigTask(address(task)).addAction(target, data, value, description);
+    function _addAction(
+        address target,
+        bytes memory data,
+        uint256 value,
+        VmSafe.AccountAccessKind kind,
+        string memory description
+    ) internal {
+        MockMultisigTask(address(task)).addAction(target, data, value, kind, description);
     }
 
     function _addUpgradeAction() internal {
         _addAction(
-            addresses.getAddress("ProxyAdmin", getChain("optimism").chainId),
+            addrRegistry.getAddress("ProxyAdmin", getChain("optimism").chainId),
             abi.encodeWithSignature(
                 "upgrade(address,address)",
-                addresses.getAddress("L1ERC721BridgeProxy", getChain("optimism").chainId),
+                addrRegistry.getAddress("L1ERC721BridgeProxy", getChain("optimism").chainId),
                 MockMultisigTask(address(task)).newImplementation()
             ),
             0,
+            VmSafe.AccountAccessKind.Call,
             ""
         );
     }

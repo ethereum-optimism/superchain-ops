@@ -41,11 +41,13 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @param target The address of the target contract
     /// @param value The amount of ETH to send with the action
     /// @param arguments The calldata to send with the action
+    /// @param callType The type of call to be made (e.g. "call", "delegatecall", "staticcall")
     /// @param description A description of the action
     struct Action {
         address target;
         uint256 value;
         bytes arguments;
+        VmSafe.AccountAccessKind accessKind;
         string description;
     }
 
@@ -125,7 +127,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @notice buildModifier to be used by the build function to populate the
     /// actions array
     modifier buildModifier() {
-        require(parentMultisig != address(0), "Must set addresses object for multisig address to be set");
+        require(parentMultisig != address(0), "Must set address registry for multisig address to be set");
 
         require(!_buildStarted, "Build already started");
         _buildStarted = true;
@@ -848,12 +850,20 @@ abstract contract MultisigTask is Test, Script, ITask {
             ) {
                 /// caller is multisig, not a subcall, check that this action is not duplicated
                 _validateAction(accountAccesses[i].account, accountAccesses[i].value, accountAccesses[i].data);
+                string memory kindStr = accountAccesses[i].kind == VmSafe.AccountAccessKind.Call
+                    ? "Call"
+                    : accountAccesses[i].kind == VmSafe.AccountAccessKind.DelegateCall
+                        ? "DelegateCall"
+                        : accountAccesses[i].kind == VmSafe.AccountAccessKind.Create
+                            ? "Create"
+                            : accountAccesses[i].kind == VmSafe.AccountAccessKind.StaticCall ? "StaticCall" : "Unknown";
 
                 actions.push(
                     Action({
                         value: accountAccesses[i].value,
                         target: accountAccesses[i].account,
                         arguments: accountAccesses[i].data,
+                        accessKind: accountAccesses[i].kind,
                         description: string(
                             abi.encodePacked(
                                 "calling ",
@@ -862,7 +872,9 @@ abstract contract MultisigTask is Test, Script, ITask {
                                 vm.toString(accountAccesses[i].value),
                                 " eth and ",
                                 vm.toString(accountAccesses[i].data),
-                                " data."
+                                " data.",
+                                " Access kind: ",
+                                kindStr
                             )
                         )
                     })
