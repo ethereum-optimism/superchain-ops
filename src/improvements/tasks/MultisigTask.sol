@@ -811,21 +811,19 @@ abstract contract MultisigTask is Test, Script, ITask {
         vm.stopPrank();
 
         /// roll back all state changes made during the task
-        require(vm.revertTo(_startSnapshot), "failed to revert back to snapshot, unsafe state to run task");
+        require(
+            vm.revertTo(_startSnapshot), "MultisigTask: failed to revert back to snapshot, unsafe state to run task"
+        );
 
         _processStateDiffChanges(accountAccesses);
 
+        /// there should be at least one account access
+        require(accountAccesses.length > 0, "MultisigTask: no account accesses found");
+
         /// get the minimum depth of the calls, we only care about the top level calls
-        /// this is to avoid counting subcalls as actions
-        /// cannot set to constant as in tests, the depth will be constant + 1
-        /// for the same account access
-        uint256 minDepth = accountAccesses[0].depth;
-        for (uint256 i = 1; i < accountAccesses.length; i++) {
-            uint256 currentDepth = accountAccesses[i].depth;
-            if (currentDepth < minDepth) {
-                minDepth = currentDepth;
-            }
-        }
+        /// this is to avoid counting subcalls as actions.
+        /// the account accesses are in order of the calls, so the first one is always the top level call
+        uint256 topLevelDepth = accountAccesses[0].depth;
 
         for (uint256 i = 0; i < accountAccesses.length; i++) {
             /// store all gnosis safe storage accesses that are writes
@@ -835,20 +833,20 @@ abstract contract MultisigTask is Test, Script, ITask {
                 }
             }
 
-            /// only care about top level calls from the multisig,
-            /// static calls are ignored,
             /// calls to and from Addresses and the vm contract are ignored
-            /// ignore calls to vm in the build function
+            bool accountIsNotAddressesOrVm =
+                accountAccesses[i].account != address(addresses) && accountAccesses[i].account != address(vm);
+            bool accessorIsNotAddresses = accountAccesses[i].accessor != address(addresses);
+            /// only care about calls or top leveldelegate calls from the multisig, static calls are ignored
+            bool isCall = accountAccesses[i].kind == VmSafe.AccountAccessKind.Call;
+            bool isTopLevelDelegateCall = accountAccesses[i].kind == VmSafe.AccountAccessKind.DelegateCall
+                && accountAccesses[i].depth == topLevelDepth;
+            /// only record actions from the parent multisig
+            bool accessorIsParentMultisig = accountAccesses[i].accessor == parentMultisig;
+
             if (
-                accountAccesses[i].account != address(addresses) && accountAccesses[i].account != address(vm)
-                    && accountAccesses[i].accessor != address(addresses)
-                    && (
-                        accountAccesses[i].kind == VmSafe.AccountAccessKind.Call
-                            || (
-                                accountAccesses[i].kind == VmSafe.AccountAccessKind.DelegateCall
-                                    && accountAccesses[i].depth == minDepth
-                            )
-                    ) && accountAccesses[i].accessor == parentMultisig
+                accountIsNotAddressesOrVm && accessorIsNotAddresses && (isCall || isTopLevelDelegateCall)
+                    && accessorIsParentMultisig
             ) {
                 /// caller is multisig, not a subcall, check that this action is not duplicated
                 _validateAction(accountAccesses[i].account, accountAccesses[i].value, accountAccesses[i].data);
