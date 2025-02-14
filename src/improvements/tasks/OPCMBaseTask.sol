@@ -83,14 +83,10 @@ abstract contract OPCMBaseTask is MultisigTask {
         return (safe == multisig) ? MULTICALL3_DELEGATECALL_ADDRESS : MULTICALL3_ADDRESS;
     }
 
-    /// @notice overrides to start pranking the
-    /// multisig with delegatecall flag set to true
-    function _startBuild() internal override {
+    /// @notice prank the multisig
+    /// overrides MultisigTask to prank with delegatecall flag set to true
+    function _prankMultisig() internal override {
         vm.startPrank(multisig, true);
-
-        _startSnapshot = vm.snapshot();
-
-        vm.startStateDiffRecording();
     }
 
     /// @notice set the multicall address to the delegatecall multicall address

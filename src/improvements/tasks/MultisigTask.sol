@@ -759,6 +759,13 @@ abstract contract MultisigTask is Test, Script, ITask {
         targetMulticall = MULTICALL3_ADDRESS;
     }
 
+    /// @notice prank the multisig
+    /// @dev override to prank with delegatecall flag set to true
+    /// in case of opcm tasks, the multisig is not pranked
+    function _prankMultisig() internal virtual {
+        vm.startPrank(multisig);
+    }
+
     /// --------------------------------------------------------------------
     /// --------------------------------------------------------------------
     /// ------------------------- Private functions ------------------------
@@ -771,8 +778,8 @@ abstract contract MultisigTask is Test, Script, ITask {
     ///  1). take a snapshot of the current state of the contract
     ///  2). start prank as the multisig
     ///  3). start a recording of all calls created during the task
-    function _startBuild() internal virtual {
-        vm.startPrank(multisig);
+    function _startBuild() private {
+        _prankMultisig();
 
         _startSnapshot = vm.snapshot();
 
