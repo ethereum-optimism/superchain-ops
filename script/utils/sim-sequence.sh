@@ -14,6 +14,16 @@ L1PAO_BEFORE=$MAX_NONCE_ERROR
 ## log Functions
 
 ANVIL_LOCALHOST_RPC="http://localhost:8545"
+# log the nonce with error and exit the script
+log_nonce_error() {
+  echo "est" > /tmp/rce.txt
+  echo -e "\033[0;31mFoundation Upgrade Safe (FuS) [$Foundation_Upgrade_Safe] nonce: "$FUS_BEFORE".\033[0m"
+  echo -e "\033[0;31mFoundation Operation Safe (FoS) [$Foundation_Operation_Safe] nonce: "$FOS_BEFORE".\033[0m"
+  echo -e "\033[0;31mSecurity Council Safe (SC) [$Security_Council_Safe] nonce: "$SC_BEFORE".\033[0m"
+  echo -e "\033[0;31mL1ProxyAdminOwner (L1PAO) [$Proxy_Admin_Owner_Safe] nonce: "$L1PAO_BEFORE".\033[0m"
+  exit 1
+
+}
 
 log_debug() {
     echo "[-] $(date '+%Y-%m-%d %H:%M:%S') [DEBUG] $1" | tee -a "$LOGFILE"
@@ -21,17 +31,16 @@ log_debug() {
 
 # Function to log warning messages
 log_warning() {
-    echo "[-] $(date '+%Y-%m-%d %H:%M:%S') [WARNING] $1" | tee -a "$LOGFILE"
+    echo "[⚠️] $(date '+%Y-%m-%d %H:%M:%S') [WARNING] $1" | tee -a "$LOGFILE"
 }
 
 # Function to log error messages and exit the script  
 log_error() {
-    echo "[-] $(date '+%Y-%m-%d %H:%M:%S') [ERROR] $1" | tee -a "$LOGFILE" >&2
-    exit 99
+    echo -e "\033[0;31m[❌] $(date '+%Y-%m-%d %H:%M:%S') [ERROR] $1\033[0m" | tee -a "$LOGFILE" >&2
 }
 
 log_info() {
-    echo "[+] $(date '+%Y-%m-%d %H:%M:%S') [INFO] $1" | tee -a "$LOGFILE"
+    echo -e "\033[0;34m[ℹ️] $(date '+%Y-%m-%d %H:%M:%S') [INFO] $1\033[0m" | tee -a "$LOGFILE"
 }
 
 # create a function that take the task_path and return the last folder
@@ -112,7 +121,7 @@ createFork() {
     # ps aux | grep anvil | grep -v grep | awk '{print $2}' | xargs kill
 
   else  
-    log_info "No instance of anvil is detected, starting anvil fork on \"$ANVIL_LOCALHOST_RPC\"."
+    log_info "No instance of anvil is detected, starting anvil fork on \"$ANVIL_LOCALHOST_RPC\" by forking $RPC_URL."
     anvil -f $RPC_URL --fork-block-number 21573136 >> /tmp/anvil.logs & 
     sleep 5
   fi
@@ -123,6 +132,7 @@ NonceDisplayModified(){
   echo -e "\n$1"
   if [[ $FUS_BEFORE -eq $MAX_NONCE_ERROR || $FOS_BEFORE -eq $MAX_NONCE_ERROR || $SC_BEFORE -eq $MAX_NONCE_ERROR ]]; then
     log_error "Nonce values are not available for one or more safes please investigate." 
+    exit 99
   fi
   FUS_AFTER=$(cast call $Foundation_Upgrade_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
   FOS_AFTER=$(cast call $Foundation_Operation_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
@@ -251,23 +261,35 @@ for task_folder in "${task_folders[@]}"; do
       --dotenv-path "${PWD}/.env" \
       --justfile "${root_dir}/nested.just" \
       approvehash_in_anvil foundation)
-    
+    echo "Approval Hash Foundation: $approvalhashfoundation"
+    echo "Approval Hash Council: $approvalhashcouncil"
+    if [[ $approvalhashcouncil == *"GS025"* ]]; then
+      log_error "Execution contains "GS025" meaning the task $task_folder failed during the council approval, please check the nonces below:"
+      log_nonce_error 
+      exit 99
+    fi
+    if [[ $approvalhashfoundation == *"GS025"* ]]; then
+     log_error "Execution contains "GS025" meaning the task $task_folder failed during the foundation approval, please check the nonces below:"
+     log_nonce_error 
+     exit 99
+    fi
     execution=$(just\
        --dotenv-path "${PWD}/.env" \
        --justfile "${root_dir}/nested.just" \
        execute_in_anvil 0)
-    echo "echo council"$approvalhashcouncil
 
   else
     log_info "Task type detected: single"
     BeforeNonceDisplay "(🟧) Before Simulation Nonce Values (🟧)"
     simulate=$(just --dotenv-path "${PWD}/.env" --justfile "${root_dir}/single.just" approvehash_in_anvil 0)
     execution=$(just --dotenv-path "${PWD}/.env" --justfile "${root_dir}/single.just" execute_in_anvil 0)
-  fi
-  if [[ $execution == *"GS025"* ]]; then
-    log_error "Execution contains GS025 meaning the task $task_folder failed."
-    exit 1
+    if [[ $execution == *"GS025"* ]]; then
+     log_error "Execution contains GS025 meaning the task $task_folder failed."
+     exit 99
+    fi
   fi 
+
+  
   sleep 0.2
   NonceDisplayModified "(🟩) After Simulation Nonce Values (🟩)"
   echo -e "\n---- End of Simulation for task \"$(basename "$task_folder")\" ----"
