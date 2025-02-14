@@ -233,9 +233,17 @@ source ${task_folders[0]}/.env
 RPC_URL=$ETH_RPC_URL
 unset ETH_RPC_URL
 log_info "Simulating the following tasks in order:"
+
+echo "-------------------------------------------------------"
 for task_folder in "${task_folders[@]}"; do
   echo "  $(realpath "$task_folder")"
 done
+echo "-------------------------------------------------------"
+read -p "Are the tasks above are correct? Type 'yes' to proceed with simulation: " confirmation
+if [[ "${confirmation}" != "yes" ]]; then
+  log_info "Simulation aborted by user."
+  exit 0
+fi
 # Create the anvil Fork 
 createFork
 # Disable state overrides and execute tasks.
@@ -261,8 +269,7 @@ for task_folder in "${task_folders[@]}"; do
       --dotenv-path "${PWD}/.env" \
       --justfile "${root_dir}/nested.just" \
       approvehash_in_anvil foundation)
-    echo "Approval Hash Foundation: $approvalhashfoundation"
-    echo "Approval Hash Council: $approvalhashcouncil"
+
     if [[ $approvalhashcouncil == *"GS025"* ]]; then
       log_error "Execution contains "GS025" meaning the task $task_folder failed during the council approval, please check the nonces below:"
       log_nonce_error 
