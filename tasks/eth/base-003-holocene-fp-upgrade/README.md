@@ -1,6 +1,6 @@
 # Holocene Hardfork Upgrade
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0xb6fc07450001150de1d6edcda68e7b4de5725259bb55ca3e5c22d474c7127e9c)
 
 ## Objective
 

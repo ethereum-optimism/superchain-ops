@@ -1,12 +1,16 @@
 version: 2.1
 
+orbs:
+  utils: ethereum-optimism/circleci-utils@1.0.8
+  slack: circleci/slack@4.10.1
+
 parameters:
-  ci_builder_image:
+  default_docker_image:
     type: string
-    default: us-docker.pkg.dev/oplabs-tools-artifacts/images/ci-builder:v0.47.3
+    default: cimg/base:2024.01
   l1_mainnet_rpc_url:
     type: string
-    default: "https://ci-mainnet-l1.optimism.io"
+    default: "https://ci-mainnet-l1-archive.optimism.io"
   l1_sepolia_rpc_url:
     type: string
     default: "https://ci-sepolia-l1.optimism.io"
@@ -20,14 +24,14 @@ parameters:
     type: integer
     default: 5
 
-commands:
+commands:  
   simulate:
     description: "Runs simulations of a task"
     parameters:
       task:
         type: string
     steps:
-      - checkout
+      - utils/checkout-with-mise
       - run:
           name: "simulate << parameters.task >>"
           command: |
@@ -44,7 +48,7 @@ commands:
       task:
         type: string
     steps:
-      - checkout
+      - utils/checkout-with-mise
       - run:
           name: "simulate nested << parameters.task >>"
           command: |
@@ -59,13 +63,31 @@ commands:
               --justfile ../../../nested.just \
               simulate council
 
+
+  notify-failures-on-develop:
+    description: "Notify Slack"
+    parameters:
+      channel:
+        type: string
+        default: C03N11M0BBN
+      mentions:
+        type: string
+        default: ""
+    steps:
+      - slack/notify:
+          channel: << parameters.channel >>
+          event: fail
+          template: basic_fail_1
+          branch_pattern: main
+          mentions: "<< parameters.mentions >>"
+
 jobs:
   check_sepolia_rpc_endpoints:
     circleci_ip_ranges: true
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - utils/checkout-with-mise
       - run:
           name: Check Sepolia RPC Endpoints
           command: |
@@ -92,9 +114,9 @@ jobs:
   check_mainnet_rpc_endpoints:
     circleci_ip_ranges: true
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - utils/checkout-with-mise
       - run:
           name: Check Mainnet RPC Endpoints
           command: |
@@ -120,9 +142,9 @@ jobs:
 
   check_task_statuses:
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - utils/checkout-with-mise
       - attach_workspace:
           at: .
       - run:
@@ -131,20 +153,35 @@ jobs:
 
   check_nonce_overrides:
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - utils/checkout-with-mise
       - attach_workspace:
           at: .
       - run:
           name: Check nonce overrides
           command: bash ./script/utils/check-nonce-overrides.sh
 
+  check_superchain_registry:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - utils/checkout-with-mise
+      - attach_workspace:
+          at: .
+      - run:
+          name: Check superchain registry
+          command: |
+            just install
+            (cd src/improvements && just check-superchain-registry-latest)
+      - notify-failures-on-develop:
+          mentions: "@security-team"
+
   # TODO: remove/replace when there are real consumers of the RPC URLs
   example_mainnet_job:
     circleci_ip_ranges: true
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - attach_workspace:
           at: .
@@ -164,9 +201,9 @@ jobs:
 
   just_simulate_sc_rehearsal_1:
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - utils/checkout-with-mise
       - run:
           name: just simulate r1-hello-council
           command: |
@@ -181,9 +218,9 @@ jobs:
 
   just_simulate_sc_rehearsal_2:
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - utils/checkout-with-mise
       - run:
           name: just simulate r2-remove-signer
           command: |
@@ -199,9 +236,9 @@ jobs:
 
   just_simulate_sc_rehearsal_4:
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - utils/checkout-with-mise
       - run:
           name: just simulate r4-jointly-upgrade
           command: |
@@ -214,32 +251,26 @@ jobs:
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
 
-  simulate_eth_021:
+  just_simulate_ink_respected_game_type:
     docker:
-      - image: << pipeline.parameters.ci_builder_image >>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - simulate:
-          task: "eth/021-holocene-protocol-versions"
+          task: "/eth/ink-002-set-respected-game-type"
 
-  simulate_base_003:
+  just_simulate_zora_002_fp_upgrade:
     docker:
-      - image: << pipeline.parameters.ci_builder_image >>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - simulate_nested:
-          task: "eth/base-003-holocene-fp-upgrade"
+          task: "/sep/zora-002-fp-upgrade"
 
-  just_simulate_permissionless_fp_upgrade:
-    docker:
-      - image: << pipeline.parameters.ci_builder_image >>
-    steps:
-      - simulate_nested:
-          task: "/eth/ink-001-permissionless-proofs"
 
   forge_build:
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - utils/checkout-with-mise
       - run:
           name: forge build
           command: |
@@ -249,31 +280,47 @@ jobs:
 
   forge_fmt:
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - utils/checkout-with-mise
       - run:
           name: forge fmt
           command: |
             just install
             forge --version
             forge fmt --check
+  
   forge_test:
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - utils/checkout-with-mise
       - run:
           name: forge test
           command: |
             forge --version
             forge test -vvv
+  
+  monorepo_integration_test:
+    circleci_ip_ranges: true
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - utils/checkout-with-mise
+      - run:
+          name: monorepo integration tests
+          environment:
+            ETH_RPC_URL: << pipeline.parameters.l1_mainnet_rpc_url >>
+          command: |
+            (cd src/improvements && just monorepo-integration-test)
+      - notify-failures-on-develop:
+          mentions: "@security-team"
 
   print_versions:
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - utils/checkout-with-mise
       - run:
           name: print versions
           command: |
@@ -281,12 +328,15 @@ jobs:
             yq --version
             forge --version
 
-  simulate_eth_022:
+  shellcheck:
     docker:
-      - image: << pipeline.parameters.ci_builder_image >>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - simulate_nested:
-          task: "eth/022-holocene-fp-upgrade"
+      - utils/checkout-with-mise
+      - run:
+          name: shellcheck
+          command: | # Justfiles are not shell scripts and should not be checked with shellcheck
+            (cd src/improvements/script && shellcheck -x *.sh)
 
   simulate_sequence:
     description: "Runs a sequence of simulations"
@@ -305,12 +355,23 @@ jobs:
 
 workflows:
   main:
+    when:
+      or:
+        # Trigger on new commits
+        - equal: [webhook, << pipeline.trigger_source >>]
+        - equal: ["build_four_hours", <<pipeline.schedule.name>>]
     jobs:
       - print_versions
       # Forge checks.
       - forge_build
       - forge_fmt
       - forge_test
+      # This is a long running job, so we only run it on the main branch.
+      - monorepo_integration_test:
+          filters:
+            branches:
+              only: main
+      - shellcheck
       # RPC endpoint checks.
       - check_sepolia_rpc_endpoints
       - check_mainnet_rpc_endpoints
@@ -325,16 +386,23 @@ workflows:
       - simulate_sequence:
           prefix: "eth"
           tasks: "021 022 base-003 ink-001"
+      # check that superchain-registry is up to date
+      - check_superchain_registry
+
       # Task simulations.
       # Please add an invocation to `just simulate` if a ceremony is
       # active (e.g. it is the next ceremony to perform or you
       # expect the ceremony to work continuously), and remove it once
       # the ceremony is for historical archive only (e.g. the
       # ceremony is done).
-      - just_simulate_sc_rehearsal_1
+      #
+      # We skip rehearsal 1 because we already have completed this rehearsal (https://github.com/ethereum-optimism/superchain-ops/pull/459),
+      # and now it fails with stack too deep after https://github.com/ethereum-optimism/superchain-ops/pull/528.
+      # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
+      # - just_simulate_sc_rehearsal_1
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
-      - simulate_eth_021
-      - simulate_eth_022
-      - simulate_base_003
-      - just_simulate_permissionless_fp_upgrade
+      - just_simulate_ink_respected_game_type
+      # sepolia
+      - just_simulate_zora_002_fp_upgrade
+

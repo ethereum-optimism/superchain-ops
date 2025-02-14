@@ -1,5 +1,5 @@
 # Mainnet Required & Recommended Protocol Version Update (9.0.0 - Holocene)
-Status: READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0x0c3cf835020aabd0d584a4f64f3f463edb9953c39504a1bf2f108024c327eb14)
 
 ## Objective
 

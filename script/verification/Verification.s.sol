@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
+import {console2 as console} from "forge-std/console2.sol";
 import {LibString} from "solady/utils/LibString.sol";
-import {Types} from "@eth-optimism-bedrock/scripts/Types.sol";
+import {Types} from "@eth-optimism-bedrock/scripts/libraries/Types.sol";
 import {CommonBase} from "forge-std/Base.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 
@@ -17,6 +18,12 @@ contract VerificationBase {
 
     function addCodeException(address addr) internal {
         codeExceptions.push(addr);
+    }
+
+    function addCodeExceptions(address[] memory addrs) internal {
+        for (uint256 i = 0; i < addrs.length; i++) {
+            addCodeException(addrs[i]);
+        }
     }
 }
 
@@ -59,12 +66,15 @@ contract SuperchainRegistry is CommonBase {
         address unsafeBlockSigner;
         address batchSubmitter;
         address batchInbox;
+        address proposer;
+        address challenger;
     }
 
     string l1ChainName; // e.g. "mainnet";
     string l2ChainName; // e.g. "op";
     string opContractsReleaseQ; // prefixed & quoted, e.g. '"op-contracts/v1.8.0"';
 
+    address addressManager;
     Types.ContractSet proxies;
     StandardVersions standardVersions;
     ChainConfig chainConfig;
@@ -75,6 +85,7 @@ contract SuperchainRegistry is CommonBase {
         opContractsReleaseQ = string.concat("\"op-contracts/", _opContractsRelease, "\"");
         _readSuperchainConfig();
         _readStandardVersions();
+        _applyOverrides();
     }
 
     /// @notice Reads the contract addresses from the superchain registry.
@@ -100,14 +111,25 @@ contract SuperchainRegistry is CommonBase {
         proxies.L1CrossDomainMessenger = stdToml.readAddress(toml, "$.addresses.L1CrossDomainMessengerProxy");
         proxies.L1StandardBridge = stdToml.readAddress(toml, "$.addresses.L1StandardBridgeProxy");
         proxies.SystemConfig = stdToml.readAddress(toml, "$.addresses.SystemConfigProxy");
-        proxies.AnchorStateRegistry = stdToml.readAddress(toml, "$.addresses.AnchorStateRegistryProxy");
-        proxies.DisputeGameFactory = stdToml.readAddress(toml, "$.addresses.DisputeGameFactoryProxy");
+        proxies.L1ERC721Bridge = stdToml.readAddress(toml, "$.addresses.L1ERC721BridgeProxy");
+        proxies.OptimismMintableERC20Factory =
+            stdToml.readAddress(toml, "$.addresses.OptimismMintableERC20FactoryProxy");
+
+        // Not all chains have the following values specified in the registry, so we will
+        // set them to the zero address if they are not found.
+        proxies.AnchorStateRegistry = stdToml.readAddressOr(toml, "$.addresses.AnchorStateRegistryProxy", address(0));
+        proxies.DisputeGameFactory = stdToml.readAddressOr(toml, "$.addresses.DisputeGameFactoryProxy", address(0));
+
+        // Not part of the standard proxy set so we set it as a separate variable.
+        addressManager = stdToml.readAddress(toml, "$.addresses.AddressManager");
 
         chainConfig.chainId = stdToml.readUint(toml, "$.chain_id");
-        chainConfig.systemConfigOwner = stdToml.readAddress(toml, "$.addresses.SystemConfigOwner");
-        chainConfig.unsafeBlockSigner = stdToml.readAddress(toml, "$.addresses.UnsafeBlockSigner");
-        chainConfig.batchSubmitter = stdToml.readAddress(toml, "$.addresses.BatchSubmitter");
+        chainConfig.systemConfigOwner = stdToml.readAddress(toml, "$.roles.SystemConfigOwner");
+        chainConfig.unsafeBlockSigner = stdToml.readAddressOr(toml, "$.roles.UnsafeBlockSigner", address(0)); // Not present on all chains, note .readAddressOr
+        chainConfig.batchSubmitter = stdToml.readAddress(toml, "$.roles.BatchSubmitter");
         chainConfig.batchInbox = stdToml.readAddress(toml, "$.batch_inbox_addr");
+        chainConfig.proposer = stdToml.readAddress(toml, "$.roles.Proposer");
+        chainConfig.challenger = stdToml.readAddress(toml, "$.roles.Challenger");
     }
 
     function _readStandardVersions() internal {
@@ -161,5 +183,16 @@ contract SuperchainRegistry is CommonBase {
         returns (StandardVersion memory sv_)
     {
         sv_.version = stdToml.readString(data, string.concat("$.RELEASE.", key, ".version"));
+    }
+
+    function _applyOverrides() internal {
+        try vm.envAddress("SCR_OVERRIDE_MIPS_ADDRESS") returns (address mips) {
+            console.log("SuperchainRegistry: overriding MIPS address to %s", mips);
+            standardVersions.MIPS.Address = mips;
+        } catch { /* Ignore, no override */ }
+        try vm.envString("SCR_OVERRIDE_MIPS_VERSION") returns (string memory ver) {
+            console.log("SuperchainRegistry: overriding MIPS version to %s", ver);
+            standardVersions.MIPS.version = ver;
+        } catch { /* Ignore, no override */ }
     }
 }

@@ -4,7 +4,7 @@ pragma solidity ^0.8.15;
 import {JsonTxBuilderBase} from "src/JsonTxBuilderBase.sol";
 import {MultisigBuilder} from "@base-contracts/script/universal/MultisigBuilder.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
-import {IGnosisSafe} from "@eth-optimism-bedrock/scripts/interfaces/IGnosisSafe.sol";
+import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {console} from "forge-std/console.sol";
