@@ -17,7 +17,7 @@ create_template() {
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
-import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
+import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
 /// @title ${contract_name}
 /// @notice A template contract for configuring protocol parameters.
