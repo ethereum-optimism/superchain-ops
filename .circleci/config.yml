@@ -59,7 +59,6 @@ commands:
               --justfile ../../../nested.just \
               simulate council
 
-
 jobs:
   check_sepolia_rpc_endpoints:
     circleci_ip_ranges: true
@@ -302,7 +301,7 @@ jobs:
       - checkout
       - run:
           name: "Run simulation sequence for <<parameters.prefix>> tasks: <<parameters.tasks>>"
-          command: just install && bash ./script/utils/sim-sequence.sh <<parameters.prefix>> "<<parameters.tasks>>"
+          command: just install && echo "yes" | bash ./script/utils/sim-sequence.sh <<parameters.prefix>> "<<parameters.tasks>>"
 
 workflows:
   main:
