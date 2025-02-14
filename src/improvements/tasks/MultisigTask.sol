@@ -2,7 +2,6 @@
 pragma solidity 0.8.15;
 
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import {LibSort} from "@solady/utils/LibSort.sol";
 import {console} from "forge-std/console.sol";
 import {Script} from "forge-std/Script.sol";
 import {VmSafe} from "forge-std/Vm.sol";
@@ -480,7 +479,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @dev contract calls must be perfomed in plain solidity.
     ///      overriden requires using buildModifier modifier to leverage
     ///      foundry snapshot and state diff recording to populate the actions array.
-    function build() public virtual override buildModifier {
+    function build() public override buildModifier {
         _buildSingle();
 
         Addresses.ChainInfo[] memory chains = addresses.getChains();

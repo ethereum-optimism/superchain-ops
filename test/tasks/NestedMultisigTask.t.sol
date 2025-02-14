@@ -11,7 +11,7 @@ import {DisputeGameUpgradeTemplate} from "src/improvements/template/DisputeGameU
 import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
 import {LibSort} from "@solady/utils/LibSort.sol";
 import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
-import {IDisputeGameFactory, IDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute/IDisputeGameFactory.sol";
+import {IDisputeGameFactory} from "@eth-optimism-bedrock/interfaces/dispute/IDisputeGameFactory.sol";
 import {GameTypes} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 /// @notice This test is used to test the nested multisig task.
 

@@ -2,7 +2,6 @@ pragma solidity ^0.8.0;
 
 import {OPCMBaseTask} from "../tasks/OPCMBaseTask.sol";
 import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
-import {console} from "forge-std/console.sol";
 
 contract OPCMUpgradeTemplate is OPCMBaseTask {
     address public constant OPCM = 0x5BC817c7C3F1A8dCAA01d229Cbdeed9624C80E09;
@@ -51,7 +50,7 @@ contract OPCMUpgradeTemplate is OPCMBaseTask {
 
     /// @notice build the task action for all l2chains in the task
     /// in a single call to the OPCM.upgrade() function.
-    function build() public override buildModifier {
+    function _buildSingle() internal override {
         Addresses.ChainInfo[] memory chains = addresses.getChains();
         OpChainConfig[] memory opcmConfigs = new OpChainConfig[](chains.length);
 
@@ -62,7 +61,6 @@ contract OPCMUpgradeTemplate is OPCMBaseTask {
                 absolutePrestate: opcmUpgrades[chains[i].chainId]
             });
         }
-        console.log("address this", address(this));
         vm.label(opcm(), "OPCM");
 
         (bool success,) =

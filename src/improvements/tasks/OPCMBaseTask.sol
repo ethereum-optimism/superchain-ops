@@ -1,13 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {Test} from "forge-std/Test.sol";
-
-import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
-import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
-
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
-import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
 
 /// @notice base task for making calls to the Optimism Contracts Manager
 abstract contract OPCMBaseTask is MultisigTask {
@@ -44,7 +38,8 @@ abstract contract OPCMBaseTask is MultisigTask {
 
     /// @notice get the calldata to be executed by safe
     /// @dev callable only after the build function has been run and the
-    /// calldata has been loaded up to storage
+    /// calldata has been loaded up to storage. This function uses aggregate3
+    /// instead of aggregate3Value because OPCM tasks use Multicall3DelegateCall.
     /// @return data The calldata to be executed
     function getCalldata() public view override returns (bytes memory data) {
         /// get task actions
@@ -99,5 +94,7 @@ abstract contract OPCMBaseTask is MultisigTask {
 
     /// @notice overrides to do nothing per chain
     /// all the chains are handled in a single call to OPCM contract
-    function _buildPerChain(uint256 chainId) internal override {}
+    function _buildPerChain(uint256 chainId) internal pure override {
+        // We must override this function but OPCM template do not support per chain builds.
+    }
 }
