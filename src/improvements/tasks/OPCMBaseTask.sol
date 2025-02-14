@@ -55,38 +55,20 @@ abstract contract OPCMBaseTask is MultisigTask {
         data = abi.encodeWithSignature("aggregate3((address,bool,bytes)[])", calls);
     }
 
-    /// @notice get the data to sign by EOA
-    /// @param safe The address of the safe
-    /// @param data The calldata to be executed
-    /// @return The data to sign
-    function getDataToSign(address safe, bytes memory data) public view override returns (bytes memory) {
-        return IGnosisSafe(safe).encodeTransactionData({
-            to: _getMulticallAddress(safe),
-            value: 0,
-            data: data,
-            operation: Enum.Operation.DelegateCall,
-            safeTxGas: 0,
-            baseGas: 0,
-            gasPrice: 0,
-            gasToken: address(0),
-            refundReceiver: address(0),
-            _nonce: _getNonce(safe)
-        });
-    }
-
     /// @notice get the multicall address for the given safe
     /// if the safe is the parent multisig, return the delegatecall multicall address
     /// otherwise if the safe is a child multisig, return the regular multicall address
     /// @param safe The address of the safe
     /// @return The address of the multicall
-    function _getMulticallAddress(address safe) internal view returns (address) {
-        return (safe == multisig) ? MULTICALL3_DELEGATECALL_ADDRESS : MULTICALL3_ADDRESS;
+    function _getMulticallAddress(address safe) internal view override returns (address) {
+        require(safe != address(0), "Safe address cannot be zero address");
+        return (safe == parentMultisig) ? MULTICALL3_DELEGATECALL_ADDRESS : MULTICALL3_ADDRESS;
     }
 
     /// @notice prank the multisig
     /// overrides MultisigTask to prank with delegatecall flag set to true
     function _prankMultisig() internal override {
-        vm.startPrank(multisig, true);
+        vm.startPrank(parentMultisig, true);
     }
 
     /// @notice set the multicall address to the delegatecall multicall address

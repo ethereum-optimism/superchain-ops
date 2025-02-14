@@ -51,8 +51,12 @@ contract SingleMultisigTaskTest is Test {
     function testSafeSetup() public {
         runTask();
         addresses = multisigTask.addresses();
-        assertEq(multisigTask.multisig(), addresses.getAddress("SystemConfigOwner", 34443), "Wrong safe address string");
-        assertEq(multisigTask.multisig(), addresses.getAddress("SystemConfigOwner", 1750), "Wrong safe address string");
+        assertEq(
+            multisigTask.parentMultisig(), addresses.getAddress("SystemConfigOwner", 34443), "Wrong safe address string"
+        );
+        assertEq(
+            multisigTask.parentMultisig(), addresses.getAddress("SystemConfigOwner", 1750), "Wrong safe address string"
+        );
         assertEq(multisigTask.isNestedSafe(), false, "Expected isNestedSafe to be false");
     }
 
@@ -123,11 +127,11 @@ contract SingleMultisigTaskTest is Test {
         runTask();
         addresses = multisigTask.addresses();
         bytes memory callData = multisigTask.getCalldata();
-        bytes memory dataToSign = multisigTask.getDataToSign(multisigTask.multisig(), callData);
+        bytes memory dataToSign = multisigTask.getDataToSign(multisigTask.parentMultisig(), callData);
 
         /// The nonce is decremented by 1 because we want to recreate the data to sign with the same nonce
         /// that was used in the simulation. The nonce was incremented as part of running the simulation.
-        bytes memory expectedDataToSign = IGnosisSafe(multisigTask.multisig()).encodeTransactionData({
+        bytes memory expectedDataToSign = IGnosisSafe(multisigTask.parentMultisig()).encodeTransactionData({
             to: MULTICALL3_ADDRESS,
             value: 0,
             data: callData,
@@ -137,7 +141,7 @@ contract SingleMultisigTaskTest is Test {
             gasPrice: 0,
             gasToken: address(0),
             refundReceiver: address(0),
-            _nonce: IGnosisSafe(multisigTask.multisig()).nonce() - 1
+            _nonce: IGnosisSafe(multisigTask.parentMultisig()).nonce() - 1
         });
         assertEq(dataToSign, expectedDataToSign, "Wrong data to sign");
     }
@@ -146,7 +150,7 @@ contract SingleMultisigTaskTest is Test {
         runTask();
         bytes memory callData = multisigTask.getCalldata();
         bytes32 hash = multisigTask.getHash();
-        bytes32 expectedHash = IGnosisSafe(multisigTask.multisig()).getTransactionHash(
+        bytes32 expectedHash = IGnosisSafe(multisigTask.parentMultisig()).getTransactionHash(
             MULTICALL3_ADDRESS,
             0,
             callData,
@@ -156,7 +160,7 @@ contract SingleMultisigTaskTest is Test {
             0,
             address(0),
             address(0),
-            IGnosisSafe(multisigTask.multisig()).nonce() - 1
+            IGnosisSafe(multisigTask.parentMultisig()).nonce() - 1
         );
         assertEq(hash, expectedHash, "Wrong hash to approve");
     }
@@ -223,8 +227,8 @@ contract SingleMultisigTaskTest is Test {
         runTask();
         addresses = multisigTask.addresses();
         bytes memory callData = multisigTask.getCalldata();
-        bytes memory dataToSign = multisigTask.getDataToSign(multisigTask.multisig(), callData);
-        address multisig = multisigTask.multisig();
+        bytes memory dataToSign = multisigTask.getDataToSign(multisigTask.parentMultisig(), callData);
+        address multisig = multisigTask.parentMultisig();
         address systemConfigMode = addresses.getAddress("SystemConfigProxy", 34443);
         address systemConfigMetal = addresses.getAddress("SystemConfigProxy", 1750);
         /// revert to snapshot so that the safe is in the same state as before the task was run

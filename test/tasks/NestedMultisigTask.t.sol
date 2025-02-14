@@ -48,7 +48,7 @@ contract NestedMultisigTaskTest is Test {
     function testNestedDataToSignAndHashToApprove() public {
         vm.createSelectFork("mainnet");
         runTask();
-        IGnosisSafe parentMultisig = IGnosisSafe(multisigTask.multisig());
+        IGnosisSafe parentMultisig = IGnosisSafe(multisigTask.parentMultisig());
         address[] memory childOwnerMultisigs = parentMultisig.getOwners();
 
         // child multisigs have to approve the transaction that the parent multisig is going to execute.
@@ -128,7 +128,7 @@ contract NestedMultisigTaskTest is Test {
         vm.createSelectFork("mainnet");
         uint256 snapshotId = vm.snapshot();
         runTask();
-        address multisig = multisigTask.multisig();
+        address multisig = multisigTask.parentMultisig();
         address[] memory parentMultisigOwners = IGnosisSafe(multisig).getOwners();
         bytes[] memory childMultisigDatasToSign = new bytes[](parentMultisigOwners.length);
         /// store the data to sign for each child multisig
@@ -225,7 +225,7 @@ contract NestedMultisigTaskTest is Test {
         string memory opcmTaskConfigFilePath = "test/tasks/mock/configs/ExampleOPCMUpgradeTemplate.toml";
         multisigTask.simulateRun(opcmTaskConfigFilePath);
         addresses = multisigTask.addresses();
-        address multisig = multisigTask.multisig();
+        address multisig = multisigTask.parentMultisig();
         address[] memory parentMultisigOwners = IGnosisSafe(multisig).getOwners();
         bytes[] memory childMultisigDatasToSign = new bytes[](parentMultisigOwners.length);
         /// store the data to sign for each child multisig
