@@ -714,7 +714,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     }
 
     function _setIsNestedSafe() internal {
-        /// assume safe is nested unless there is an EOA owner
+        // assume safe is nested unless there is an EOA owner
         isNestedSafe = true;
 
         address[] memory owners = IGnosisSafe(parentMultisig).getOwners();
@@ -810,45 +810,45 @@ abstract contract MultisigTask is Test, Script, ITask {
 
         vm.stopPrank();
 
-        /// roll back all state changes made during the task
+        // roll back all state changes made during the task
         require(
             vm.revertTo(_startSnapshot), "MultisigTask: failed to revert back to snapshot, unsafe state to run task"
         );
 
         _processStateDiffChanges(accountAccesses);
 
-        /// there should be at least one account access
+        // there should be at least one account access
         require(accountAccesses.length > 0, "MultisigTask: no account accesses found");
 
-        /// get the minimum depth of the calls, we only care about the top level calls
-        /// this is to avoid counting subcalls as actions.
-        /// the account accesses are in order of the calls, so the first one is always the top level call
+        // get the minimum depth of the calls, we only care about the top level calls
+        // this is to avoid counting subcalls as actions.
+        // the account accesses are in order of the calls, so the first one is always the top level call
         uint256 topLevelDepth = accountAccesses[0].depth;
 
         for (uint256 i = 0; i < accountAccesses.length; i++) {
-            /// store all gnosis safe storage accesses that are writes
+            // store all gnosis safe storage accesses that are writes
             for (uint256 j = 0; j < accountAccesses[i].storageAccesses.length; j++) {
                 if (accountAccesses[i].account == parentMultisig && accountAccesses[i].storageAccesses[j].isWrite) {
                     _accountAccesses.push(accountAccesses[i].storageAccesses[j]);
                 }
             }
 
-            /// calls to and from AddressRegistry and the vm contract are ignored
+            // calls to and from AddressRegistry and the vm contract are ignored
             bool accountIsNotAddressRegistryOrVm =
                 accountAccesses[i].account != address(addrRegistry) && accountAccesses[i].account != address(vm);
             bool accessorIsNotAddressRegistry = accountAccesses[i].accessor != address(addrRegistry);
-            /// only care about calls or top leveldelegate calls from the multisig, static calls are ignored
+            // only care about calls or top leveldelegate calls from the multisig, static calls are ignored
             bool isCall = accountAccesses[i].kind == VmSafe.AccountAccessKind.Call;
             bool isTopLevelDelegateCall = accountAccesses[i].kind == VmSafe.AccountAccessKind.DelegateCall
                 && accountAccesses[i].depth == topLevelDepth;
-            /// only record actions from the parent multisig
+            // only record actions from the parent multisig
             bool accessorIsParentMultisig = accountAccesses[i].accessor == parentMultisig;
 
             if (
                 accountIsNotAddressRegistryOrVm && accessorIsNotAddressRegistry && (isCall || isTopLevelDelegateCall)
                     && accessorIsParentMultisig
             ) {
-                /// caller is multisig, not a subcall, check that this action is not duplicated
+                // caller is multisig, not a subcall, check that this action is not duplicated
                 _validateAction(accountAccesses[i].account, accountAccesses[i].value, accountAccesses[i].data);
                 string memory kindStr = accountAccesses[i].kind == VmSafe.AccountAccessKind.Call
                     ? "Call"
@@ -891,8 +891,8 @@ abstract contract MultisigTask is Test, Script, ITask {
 
     /// @notice helper method to get transfers and state changes of task affected addresses
     function _processStateDiffChanges(VmSafe.AccountAccess[] memory accountAccesses) private {
-        /// first check that no tokens or eth were sent that should not have been
-        /// then check that all state changes that happened were in contracts that were allowed to have state changes
+        // first check that no tokens or eth were sent that should not have been
+        // then check that all state changes that happened were in contracts that were allowed to have state changes
         for (uint256 i = 0; i < accountAccesses.length; i++) {
             // process ETH transfer changes
             _processETHTransferChanges(accountAccesses[i]);

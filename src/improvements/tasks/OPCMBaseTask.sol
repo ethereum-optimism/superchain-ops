@@ -10,15 +10,15 @@ abstract contract OPCMBaseTask is MultisigTask {
 
     /// @notice OpChainConfig struct found in the OpContractsManager contract
     struct OpChainConfig {
-        /// normally typed as an ISystemConfig, however ISystemConfig is an interface,
-        /// which is unused here, so we just store the address
+        // normally typed as an ISystemConfig, however ISystemConfig is an interface,
+        // which is unused here, so we just store the address
         address systemConfigProxy;
-        /// normally typed as an IProxyAdmin, however IProxyAdmin is an interface,
-        /// which is unused here, so we just store the address
+        // normally typed as an IProxyAdmin, however IProxyAdmin is an interface,
+        // which is unused here, so we just store the address
         address proxyAdmin;
-        /// normally typed as type `Claim`, however Claim is of bytes32 type
-        /// and we don't have to worry about the Claim type as we are not
-        /// calling the interface with that type
+        // normally typed as type `Claim`, however Claim is of bytes32 type
+        // and we don't have to worry about the Claim type as we are not
+        // calling the interface with that type
         bytes32 absolutePrestate;
     }
 
@@ -42,10 +42,10 @@ abstract contract OPCMBaseTask is MultisigTask {
     /// instead of aggregate3Value because OPCM tasks use Multicall3DelegateCall.
     /// @return data The calldata to be executed
     function getCalldata() public view override returns (bytes memory data) {
-        /// get task actions
+        // get task actions
         (address[] memory targets,, bytes[] memory arguments) = getTaskActions();
 
-        /// create calls array with targets and arguments
+        // create calls array with targets and arguments
         Call3[] memory calls = new Call3[](targets.length);
 
         for (uint256 i; i < calls.length; i++) {
@@ -53,7 +53,7 @@ abstract contract OPCMBaseTask is MultisigTask {
             calls[i] = Call3({target: targets[i], allowFailure: false, callData: arguments[i]});
         }
 
-        /// generate calldata
+        // generate calldata
         data = abi.encodeWithSignature("aggregate3((address,bool,bytes)[])", calls);
     }
 

@@ -60,14 +60,14 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testRunFailsEmptyActions() public {
-        /// add empty action that will cause a revert
+        // add empty action that will cause a revert
         _addAction(address(0), "", 0, VmSafe.AccountAccessKind.Call, "");
         vm.expectRevert("Invalid target for task");
         task.simulateRun(MAINNET_CONFIG);
     }
 
     function testRunFailsInvalidAction() public {
-        /// add invalid args for action that will cause a revert
+        // add invalid args for action that will cause a revert
         _addAction(address(1), "", 0, VmSafe.AccountAccessKind.Call, "");
         vm.expectRevert("Invalid arguments for task");
         task.simulateRun(MAINNET_CONFIG);
@@ -79,19 +79,19 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testBuildFailsAddressRegistrySetBuildStarted() public {
-        /// set multisig storage slot in MultisigTask.sol to a non zero address
-        /// we have to do this because we do not call the run function, which
-        /// sets the address registry contract variable to a new instance of the
-        /// address registry object.
+        // set multisig storage slot in MultisigTask.sol to a non zero address
+        // we have to do this because we do not call the run function, which
+        // sets the address registry contract variable to a new instance of the
+        // address registry object.
         vm.store(
             address(task),
             MULTISIG_SLOT,
             bytes32(uint256(uint160(addrRegistry.getAddress("SystemConfigOwner", getChain("optimism").chainId))))
         );
 
-        /// set _buildStarted flag in MultisigTask contract to true, this
-        /// allows us to hit the revert in the build function of:
-        ///     "Build already started"
+        // set _buildStarted flag in MultisigTask contract to true, this
+        // allows us to hit the revert in the build function of:
+        //     "Build already started"
         vm.store(address(task), BUILD_STARTED_SLOT, bytes32(uint256(1)));
 
         task.addrRegistry();
@@ -101,20 +101,20 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testSimulateFailsHashMismatch() public {
-        /// skip the run function call so we need to write to all storage variables manually
+        // skip the run function call so we need to write to all storage variables manually
         address multisig = addrRegistry.getAddress("SystemConfigOwner", getChain("optimism").chainId);
 
-        /// set multisig variable in MultisigTask to the actual multisig address
-        /// so that the simulate function does not revert and can run and create
-        /// calldata by calling the multisig functions
+        // set multisig variable in MultisigTask to the actual multisig address
+        // so that the simulate function does not revert and can run and create
+        // calldata by calling the multisig functions
         vm.store(address(task), MULTISIG_SLOT, bytes32(uint256(uint160(multisig))));
 
-        /// set AddressRegistry in MultisigTask contract to a deployed address registry
-        /// contract so that these calls work
+        // set AddressRegistry in MultisigTask contract to a deployed address registry
+        // contract so that these calls work
         vm.store(address(task), ADDRESS_REGISTRY_SLOT, bytes32(uint256(uint160(address(addrRegistry)))));
 
-        /// set the target multicall address in MultisigTask contract to the
-        /// multicall address
+        // set the target multicall address in MultisigTask contract to the
+        // multicall address
         vm.store(address(task), TARGET_MULTICALL_SLOT, bytes32(uint256(uint160(MULTICALL3_ADDRESS))));
 
         _addUpgradeAction();
@@ -134,7 +134,7 @@ contract MultisigTaskUnitTest is Test {
                 payable(address(0)),
                 task.nonce()
             ),
-            /// return a hash that cannot possibly be what is returned by the GnosisSafe
+            // return a hash that cannot possibly be what is returned by the GnosisSafe
             abi.encode(bytes32(uint256(100)))
         );
 
@@ -144,23 +144,23 @@ contract MultisigTaskUnitTest is Test {
 
     function testBuildFailsRevertPreviousSnapshotFails() public {
         address multisig = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
-        /// set multisig variable in MultisigTask to the actual multisig address
-        /// so that the simulate function does not revert and can run and create
-        /// calldata by calling the multisig functions
+        // set multisig variable in MultisigTask to the actual multisig address
+        // so that the simulate function does not revert and can run and create
+        // calldata by calling the multisig functions
         vm.store(address(task), MULTISIG_SLOT, bytes32(uint256(uint160(multisig))));
 
-        /// set AddressRegistry in MultisigTask contract to a deployed addrRegistry
-        /// contract so that these calls work
+        // set AddressRegistry in MultisigTask contract to a deployed addrRegistry
+        // contract so that these calls work
         vm.store(address(task), ADDRESS_REGISTRY_SLOT, bytes32(uint256(uint160(address(addrRegistry)))));
 
         MockTarget target = new MockTarget();
         target.setTask(address(task));
 
-        /// set mock target contract in the task contract as there is no setter method,
-        /// and we need to set the target contract to a deployed contract so that the
-        /// build function will make this call, which will make the MultisigTask contract
-        /// try to revert to a previous snapshot that does not exist. It does this by
-        /// calling vm.store(task, _startSnapshot SLOT, some large number that isn't a valid snapshot id)
+        // set mock target contract in the task contract as there is no setter method,
+        // and we need to set the target contract to a deployed contract so that the
+        // build function will make this call, which will make the MultisigTask contract
+        // try to revert to a previous snapshot that does not exist. It does this by
+        // calling vm.store(task, _startSnapshot SLOT, some large number that isn't a valid snapshot id)
         vm.store(address(task), MOCK_TARGET_SLOT, bytes32(uint256(uint160(address(target)))));
 
         vm.expectRevert("MultisigTask: failed to revert back to snapshot, unsafe state to run task");
@@ -168,7 +168,7 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testRunFailsDuplicateAction() public {
-        /// add duplicate action that will cause a revert
+        // add duplicate action that will cause a revert
         _addUpgradeAction();
         vm.expectRevert("Duplicated action found");
         task.simulateRun(MAINNET_CONFIG);
@@ -211,7 +211,7 @@ contract MultisigTaskUnitTest is Test {
         vm.expectRevert("GS025");
         task.simulate();
 
-        /// validations should pass after a successful run
+        // validations should pass after a successful run
         task.validate();
     }
 

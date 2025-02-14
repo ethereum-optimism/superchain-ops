@@ -31,7 +31,7 @@ contract TransferOwnerTemplate is MultisigTask {
     /// @param taskConfigFilePath Path to the TOML configuration file
     function _templateSetup(string memory taskConfigFilePath) internal override {
         newOwner = abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".newOwner"), (address));
-        /// only allow one chain to be modified at a time with this template
+        // only allow one chain to be modified at a time with this template
         IAddressRegistry.ChainInfo[] memory _chains =
             abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".l2chains"), (IAddressRegistry.ChainInfo[]));
         require(_chains.length == 1, "Must specify exactly one chain id to transfer ownership for");
@@ -40,10 +40,10 @@ contract TransferOwnerTemplate is MultisigTask {
     /// @notice Builds the actions for setting gas limits for a specific L2 chain ID
     /// @param chainId The ID of the L2 chain to configure
     function _buildPerChain(uint256 chainId) internal override {
-        /// View only, filtered out by MultisigTask.sol
+        // View only, filtered out by MultisigTask.sol
         ProxyAdmin proxyAdmin = ProxyAdmin(addrRegistry.getAddress("ProxyAdmin", chainId));
 
-        /// Mutative call, recorded by MultisigTask.sol for generating multisig calldata
+        // Mutative call, recorded by MultisigTask.sol for generating multisig calldata
         proxyAdmin.transferOwnership(newOwner);
     }
 

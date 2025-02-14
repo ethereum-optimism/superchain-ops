@@ -13,8 +13,8 @@ import {LibSort} from "@solady/utils/LibSort.sol";
 import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
 import {IDisputeGameFactory} from "@eth-optimism-bedrock/interfaces/dispute/IDisputeGameFactory.sol";
 import {GameTypes} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
-/// @notice This test is used to test the nested multisig task.
 
+/// @notice This test is used to test the nested multisig task.
 contract NestedMultisigTaskTest is Test {
     struct MultiSigOwner {
         address walletAddress;
@@ -133,13 +133,13 @@ contract NestedMultisigTaskTest is Test {
         address multisig = multisigTask.parentMultisig();
         address[] memory parentMultisigOwners = IGnosisSafe(multisig).getOwners();
         bytes[] memory childMultisigDatasToSign = new bytes[](parentMultisigOwners.length);
-        /// store the data to sign for each child multisig
+        // store the data to sign for each child multisig
         for (uint256 i = 0; i < parentMultisigOwners.length; i++) {
             childMultisigDatasToSign[i] = getNestedDataToSign(parentMultisigOwners[i]);
         }
         IDisputeGameFactory disputeGameFactory =
             IDisputeGameFactory(addrRegistry.getAddress("DisputeGameFactoryProxy", 10));
-        /// revert to snapshot so that the safe is in the same state as before the task was run
+        // revert to snapshot so that the safe is in the same state as before the task was run
         vm.revertTo(snapshotId);
 
         MultiSigOwner[] memory newOwners = new MultiSigOwner[](9);
@@ -161,7 +161,7 @@ contract NestedMultisigTaskTest is Test {
             address childMultisig = parentMultisigOwners[i];
 
             {
-                /// set the new owners for the child multisig
+                // set the new owners for the child multisig
                 address currentOwner = address(0x1);
                 bytes32 slot;
                 for (uint256 j = 0; j < newOwners.length; j++) {
@@ -170,21 +170,21 @@ contract NestedMultisigTaskTest is Test {
                     currentOwner = newOwners[j].walletAddress;
                 }
 
-                /// point the final owner back to the sentinel
+                // point the final owner back to the sentinel
                 slot = keccak256(abi.encode(currentOwner, OWNER_MAPPING_STORAGE_OFFSET));
                 vm.store(childMultisig, slot, bytes32(uint256(uint160(0x1))));
             }
 
-            /// set the owners count to 9
+            // set the owners count to 9
             vm.store(childMultisig, bytes32(OWNER_COUNT_STORAGE_OFFSET), bytes32(uint256(9)));
 
-            /// set the threshold to 4
+            // set the threshold to 4
             vm.store(childMultisig, bytes32(THRESHOLD_STORAGE_OFFSET), bytes32(uint256(4)));
 
             address[] memory getNewOwners = IGnosisSafe(childMultisig).getOwners();
             assertEq(getNewOwners.length, 9, "Expected 9 owners");
             for (uint256 j = 0; j < newOwners.length; j++) {
-                /// check that the new owners are set correctly
+                // check that the new owners are set correctly
                 assertEq(getNewOwners[j], newOwners[j].walletAddress, "Expected owner");
             }
 
@@ -192,7 +192,7 @@ contract NestedMultisigTaskTest is Test {
             assertEq(threshold, 4, "Expected threshold should be updated to mocked value");
             LibSort.sort(getNewOwners);
 
-            /// sign the approve hash call data to sign with the private keys of the new owners of the child multisig
+            // sign the approve hash call data to sign with the private keys of the new owners of the child multisig
             bytes memory packedSignaturesChild;
             for (uint256 j = 0; j < threshold; j++) {
                 (uint8 v, bytes32 r, bytes32 s) =
@@ -200,19 +200,19 @@ contract NestedMultisigTaskTest is Test {
                 packedSignaturesChild = bytes.concat(packedSignaturesChild, abi.encodePacked(r, s, v));
             }
 
-            /// execute the approve hash call with the signatures
+            // execute the approve hash call with the signatures
             multisigTask = new DisputeGameUpgradeTemplate();
             multisigTask.approveFromChildMultisig(taskConfigFilePath, childMultisig, packedSignaturesChild);
         }
 
-        /// no offchain signatures for the parent multisig
+        // no offchain signatures for the parent multisig
         bytes memory packedSignaturesParent;
 
-        /// execute the task
+        // execute the task
         multisigTask = new DisputeGameUpgradeTemplate();
         multisigTask.executeRun(taskConfigFilePath, packedSignaturesParent);
 
-        /// check that the implementation is upgraded correctly
+        // check that the implementation is upgraded correctly
         assertEq(
             address(disputeGameFactory.gameImpls(GameTypes.CANNON)),
             0xf691F8A6d908B58C534B624cF16495b491E633BA,
@@ -232,11 +232,11 @@ contract NestedMultisigTaskTest is Test {
         address multisig = multisigTask.parentMultisig();
         address[] memory parentMultisigOwners = IGnosisSafe(multisig).getOwners();
         bytes[] memory childMultisigDatasToSign = new bytes[](parentMultisigOwners.length);
-        /// store the data to sign for each child multisig
+        // store the data to sign for each child multisig
         for (uint256 i = 0; i < parentMultisigOwners.length; i++) {
             childMultisigDatasToSign[i] = getNestedDataToSign(parentMultisigOwners[i]);
         }
-        /// revert to snapshot so that the safe is in the same state as before the task was run
+        // revert to snapshot so that the safe is in the same state as before the task was run
         vm.revertTo(snapshotId);
 
         MultiSigOwner[] memory newOwners = new MultiSigOwner[](9);
@@ -258,7 +258,7 @@ contract NestedMultisigTaskTest is Test {
             address childMultisig = parentMultisigOwners[i];
 
             {
-                /// set the new owners for the child multisig
+                // set the new owners for the child multisig
                 address currentOwner = address(0x1);
                 bytes32 slot;
                 for (uint256 j = 0; j < newOwners.length; j++) {
@@ -267,21 +267,21 @@ contract NestedMultisigTaskTest is Test {
                     currentOwner = newOwners[j].walletAddress;
                 }
 
-                /// point the final owner back to the sentinel
+                // point the final owner back to the sentinel
                 slot = keccak256(abi.encode(currentOwner, OWNER_MAPPING_STORAGE_OFFSET));
                 vm.store(childMultisig, slot, bytes32(uint256(uint160(0x1))));
             }
 
-            /// set the owners count to 9
+            // set the owners count to 9
             vm.store(childMultisig, bytes32(OWNER_COUNT_STORAGE_OFFSET), bytes32(uint256(9)));
 
-            /// set the threshold to 4
+            // set the threshold to 4
             vm.store(childMultisig, bytes32(THRESHOLD_STORAGE_OFFSET), bytes32(uint256(4)));
 
             address[] memory getNewOwners = IGnosisSafe(childMultisig).getOwners();
             assertEq(getNewOwners.length, 9, "Expected 9 owners");
             for (uint256 j = 0; j < newOwners.length; j++) {
-                /// check that the new owners are set correctly
+                // check that the new owners are set correctly
                 assertEq(getNewOwners[j], newOwners[j].walletAddress, "Expected owner");
             }
 
@@ -289,7 +289,7 @@ contract NestedMultisigTaskTest is Test {
             assertEq(threshold, 4, "Expected threshold should be updated to mocked value");
             LibSort.sort(getNewOwners);
 
-            /// sign the approve hash call data to sign with the private keys of the new owners of the child multisig
+            // sign the approve hash call data to sign with the private keys of the new owners of the child multisig
             bytes memory packedSignaturesChild;
             for (uint256 j = 0; j < threshold; j++) {
                 (uint8 v, bytes32 r, bytes32 s) =
@@ -297,15 +297,15 @@ contract NestedMultisigTaskTest is Test {
                 packedSignaturesChild = bytes.concat(packedSignaturesChild, abi.encodePacked(r, s, v));
             }
 
-            /// execute the approve hash call with the signatures
+            // execute the approve hash call with the signatures
             multisigTask = new TestOPCMUpgradeVxyz();
             multisigTask.approveFromChildMultisig(opcmTaskConfigFilePath, childMultisig, packedSignaturesChild);
         }
 
-        /// no offchain signatures for the parent multisig
+        // no offchain signatures for the parent multisig
         bytes memory packedSignaturesParent;
 
-        /// execute the task
+        // execute the task
         multisigTask = new TestOPCMUpgradeVxyz();
         multisigTask.executeRun(opcmTaskConfigFilePath, packedSignaturesParent);
     }

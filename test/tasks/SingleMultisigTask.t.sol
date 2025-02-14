@@ -133,8 +133,8 @@ contract SingleMultisigTaskTest is Test {
         bytes memory callData = multisigTask.getCalldata();
         bytes memory dataToSign = multisigTask.getDataToSign(multisigTask.parentMultisig(), callData);
 
-        /// The nonce is decremented by 1 because we want to recreate the data to sign with the same nonce
-        /// that was used in the simulation. The nonce was incremented as part of running the simulation.
+        // The nonce is decremented by 1 because we want to recreate the data to sign with the same nonce
+        // that was used in the simulation. The nonce was incremented as part of running the simulation.
         bytes memory expectedDataToSign = IGnosisSafe(multisigTask.parentMultisig()).encodeTransactionData({
             to: MULTICALL3_ADDRESS,
             value: 0,
@@ -235,7 +235,7 @@ contract SingleMultisigTaskTest is Test {
         address multisig = multisigTask.parentMultisig();
         address systemConfigMode = addrRegistry.getAddress("SystemConfigProxy", 34443);
         address systemConfigMetal = addrRegistry.getAddress("SystemConfigProxy", 1750);
-        /// revert to snapshot so that the safe is in the same state as before the task was run
+        // revert to snapshot so that the safe is in the same state as before the task was run
         vm.revertTo(snapshotId);
 
         MultiSigOwner[] memory newOwners = new MultiSigOwner[](9);
@@ -254,34 +254,34 @@ contract SingleMultisigTaskTest is Test {
         }
 
         {
-            /// Gnosis safe SENTINEL_OWNER
+            // Gnosis safe SENTINEL_OWNER
             address currentOwner = address(0x1);
             bytes32 slot;
-            /// set the new owners of the safe
-            /// owners are stored in the form of a circular linked list using owners mapping in gnosis safe
-            /// starting from sentinel owner and cycling back to it
+            // set the new owners of the safe
+            // owners are stored in the form of a circular linked list using owners mapping in gnosis safe
+            // starting from sentinel owner and cycling back to it
             for (uint256 i = 0; i < newOwners.length; i++) {
-                /// 2 is the slot for the owners mapping
-                /// variable slot is the slot for a key in the owners mapping
+                // 2 is the slot for the owners mapping
+                // variable slot is the slot for a key in the owners mapping
                 slot = keccak256(abi.encode(currentOwner, OWNER_MAPPING_STORAGE_OFFSET));
                 vm.store(multisig, slot, bytes32(uint256(uint160(newOwners[i].walletAddress))));
                 currentOwner = newOwners[i].walletAddress;
             }
 
-            /// link the last owner to the sentinel owner
+            // link the last owner to the sentinel owner
             slot = keccak256(abi.encode(currentOwner, OWNER_MAPPING_STORAGE_OFFSET));
             vm.store(multisig, slot, bytes32(uint256(uint160(0x1))));
         }
 
-        /// set the owners count to 9
+        // set the owners count to 9
         vm.store(multisig, bytes32(OWNER_COUNT_STORAGE_OFFSET), bytes32(uint256(9)));
-        /// set the threshold to 4
+        // set the threshold to 4
         vm.store(multisig, bytes32(THRESHOLD_STORAGE_OFFSET), bytes32(uint256(4)));
 
         address[] memory getNewOwners = IGnosisSafe(multisig).getOwners();
         assertEq(getNewOwners.length, 9, "Expected 9 owners");
         for (uint256 i = 0; i < newOwners.length; i++) {
-            /// check that the new owners are set correctly
+            // check that the new owners are set correctly
             assertEq(getNewOwners[i], newOwners[i].walletAddress, "Expected owner");
         }
 
@@ -290,18 +290,18 @@ contract SingleMultisigTaskTest is Test {
 
         LibSort.sort(getNewOwners);
 
-        /// sign the data to sign with the private keys of the new owners
+        // sign the data to sign with the private keys of the new owners
         bytes memory packedSignatures;
         for (uint256 i = 0; i < threshold; i++) {
             (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKeyForOwner[getNewOwners[i]], keccak256(dataToSign));
             packedSignatures = bytes.concat(packedSignatures, abi.encodePacked(r, s, v));
         }
 
-        /// execute the task with the signatures
+        // execute the task with the signatures
         multisigTask = new GasConfigTemplate();
         multisigTask.executeRun(taskConfigFilePath, packedSignatures);
 
-        /// check that the gas limits are set correctly after the task is executed
+        // check that the gas limits are set correctly after the task is executed
         SystemConfig systemConfig = SystemConfig(systemConfigMode);
         assertEq(systemConfig.gasLimit(), 100000000, "l2 gas limit not set for Mode");
         systemConfig = SystemConfig(systemConfigMetal);

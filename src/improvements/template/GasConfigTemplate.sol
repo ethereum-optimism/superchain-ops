@@ -48,11 +48,11 @@ contract GasConfigTemplate is MultisigTask {
     /// @notice Builds the actions for setting gas limits for a specific L2 chain ID
     /// @param chainId The ID of the L2 chain to configure
     function _buildPerChain(uint256 chainId) internal override {
-        /// View only, filtered out by MultisigTask.sol
+        // View only, filtered out by MultisigTask.sol
         SystemConfig systemConfig = SystemConfig(addrRegistry.getAddress("SystemConfigProxy", chainId));
 
         if (gasLimits[chainId] != 0) {
-            /// Mutative call, recorded by MultisigTask.sol for generating multisig calldata
+            // Mutative call, recorded by MultisigTask.sol for generating multisig calldata
             systemConfig.setGasLimit(gasLimits[chainId]);
         }
     }
