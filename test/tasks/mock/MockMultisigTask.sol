@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity 0.8.15;
 
-import {VmSafe} from "forge-std/Vm.sol";
 import {IProxyAdmin} from "@eth-optimism-bedrock/interfaces/universal/IProxyAdmin.sol";
 import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
 import {IProxy} from "@eth-optimism-bedrock/interfaces/universal/IProxy.sol";
 
 import {MockTarget} from "test/tasks/mock/MockTarget.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
-import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
+import {Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 /// Mock task that upgrades the L1ERC721BridgeProxy implementation
 /// to an example implementation address
@@ -59,9 +58,9 @@ contract MockMultisigTask is MultisigTask {
         address target,
         bytes memory data,
         uint256 value,
-        VmSafe.AccountAccessKind kind,
+        Enum.Operation operation,
         string memory description
     ) public {
-        actions.push(Action(target, value, data, kind, description));
+        actions.push(Action(target, value, data, operation, description));
     }
 }

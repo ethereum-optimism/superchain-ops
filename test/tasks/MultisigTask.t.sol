@@ -3,7 +3,6 @@ pragma solidity 0.8.15;
 
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {Test} from "forge-std/Test.sol";
-import {VmSafe} from "forge-std/Vm.sol";
 
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
@@ -61,14 +60,14 @@ contract MultisigTaskUnitTest is Test {
 
     function testRunFailsEmptyActions() public {
         // add empty action that will cause a revert
-        _addAction(address(0), "", 0, VmSafe.AccountAccessKind.Call, "");
+        _addAction(address(0), "", 0, Enum.Operation.Call, "");
         vm.expectRevert("Invalid target for task");
         task.simulateRun(MAINNET_CONFIG);
     }
 
     function testRunFailsInvalidAction() public {
         // add invalid args for action that will cause a revert
-        _addAction(address(1), "", 0, VmSafe.AccountAccessKind.Call, "");
+        _addAction(address(1), "", 0, Enum.Operation.Call, "");
         vm.expectRevert("Invalid arguments for task");
         task.simulateRun(MAINNET_CONFIG);
     }
@@ -242,10 +241,10 @@ contract MultisigTaskUnitTest is Test {
         address target,
         bytes memory data,
         uint256 value,
-        VmSafe.AccountAccessKind kind,
+        Enum.Operation operation,
         string memory description
     ) internal {
-        MockMultisigTask(address(task)).addAction(target, data, value, kind, description);
+        MockMultisigTask(address(task)).addAction(target, data, value, operation, description);
     }
 
     function _addUpgradeAction() internal {
@@ -257,7 +256,7 @@ contract MultisigTaskUnitTest is Test {
                 MockMultisigTask(address(task)).newImplementation()
             ),
             0,
-            VmSafe.AccountAccessKind.Call,
+            Enum.Operation.Call,
             ""
         );
     }

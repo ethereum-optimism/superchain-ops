@@ -47,7 +47,7 @@ abstract contract MultisigTask is Test, Script, ITask {
         address target;
         uint256 value;
         bytes arguments;
-        VmSafe.AccountAccessKind accessKind;
+        Enum.Operation operation;
         string description;
     }
 
@@ -850,33 +850,39 @@ abstract contract MultisigTask is Test, Script, ITask {
             ) {
                 // caller is multisig, not a subcall, check that this action is not duplicated
                 _validateAction(accountAccesses[i].account, accountAccesses[i].value, accountAccesses[i].data);
-                string memory kindStr = accountAccesses[i].kind == VmSafe.AccountAccessKind.Call
-                    ? "Call"
-                    : accountAccesses[i].kind == VmSafe.AccountAccessKind.DelegateCall
-                        ? "DelegateCall"
-                        : accountAccesses[i].kind == VmSafe.AccountAccessKind.Create
-                            ? "Create"
-                            : accountAccesses[i].kind == VmSafe.AccountAccessKind.StaticCall ? "StaticCall" : "Unknown";
+
+                string memory operationStr;
+                Enum.Operation operation;
+                if (accountAccesses[i].kind == VmSafe.AccountAccessKind.Call) {
+                    operationStr = "Call";
+                    operation = Enum.Operation.Call;
+                } else if (accountAccesses[i].kind == VmSafe.AccountAccessKind.DelegateCall) {
+                    operationStr = "DelegateCall";
+                    operation = Enum.Operation.DelegateCall;
+                } else {
+                    revert("Unknown account access kind");
+                }
+
+                string memory description = string(
+                    abi.encodePacked(
+                        operationStr,
+                        " ",
+                        getAddressLabel(accountAccesses[i].account),
+                        " with ",
+                        vm.toString(accountAccesses[i].value),
+                        " eth and ",
+                        vm.toString(accountAccesses[i].data),
+                        " data."
+                    )
+                );
 
                 actions.push(
                     Action({
                         value: accountAccesses[i].value,
                         target: accountAccesses[i].account,
                         arguments: accountAccesses[i].data,
-                        accessKind: accountAccesses[i].kind,
-                        description: string(
-                            abi.encodePacked(
-                                "calling ",
-                                getAddressLabel(accountAccesses[i].account),
-                                " with ",
-                                vm.toString(accountAccesses[i].value),
-                                " eth and ",
-                                vm.toString(accountAccesses[i].data),
-                                " data.",
-                                " Access kind: ",
-                                kindStr
-                            )
-                        )
+                        operation: operation,
+                        description: description
                     })
                 );
             }
