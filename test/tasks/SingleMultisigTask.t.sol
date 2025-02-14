@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
 
-import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
+import {AddressRegistry as AddrRegistry} from "src/improvements/AddressRegistry.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {GasConfigTemplate} from "src/improvements/template/GasConfigTemplate.sol";
 import {IncorrectGasConfigTemplate1} from "test/tasks/mock/template/IncorrectGasConfigTemplate1.sol";
@@ -21,7 +21,7 @@ contract SingleMultisigTaskTest is Test {
     }
 
     MultisigTask private multisigTask;
-    Addresses private addresses;
+    AddrRegistry private addrRegistry;
     mapping(address => uint256) private privateKeyForOwner;
 
     /// @notice constants that describe the owner storage offsets in Gnosis Safe
@@ -50,28 +50,32 @@ contract SingleMultisigTaskTest is Test {
 
     function testSafeSetup() public {
         runTask();
-        addresses = multisigTask.addresses();
+        addrRegistry = multisigTask.addrRegistry();
         assertEq(
-            multisigTask.parentMultisig(), addresses.getAddress("SystemConfigOwner", 34443), "Wrong safe address string"
+            multisigTask.parentMultisig(),
+            addrRegistry.getAddress("SystemConfigOwner", 34443),
+            "Wrong safe address string"
         );
         assertEq(
-            multisigTask.parentMultisig(), addresses.getAddress("SystemConfigOwner", 1750), "Wrong safe address string"
+            multisigTask.parentMultisig(),
+            addrRegistry.getAddress("SystemConfigOwner", 1750),
+            "Wrong safe address string"
         );
         assertEq(multisigTask.isNestedSafe(), false, "Expected isNestedSafe to be false");
     }
 
     function testAllowedStorageWrites() public {
         runTask();
-        addresses = multisigTask.addresses();
+        addrRegistry = multisigTask.addrRegistry();
         address[] memory allowedStorageAccesses = multisigTask.getAllowedStorageAccess();
         assertEq(
             allowedStorageAccesses[0],
-            addresses.getAddress("SystemConfigProxy", 34443),
+            addrRegistry.getAddress("SystemConfigProxy", 34443),
             "Wrong storage write access address"
         );
         assertEq(
             allowedStorageAccesses[1],
-            addresses.getAddress("SystemConfigProxy", 1750),
+            addrRegistry.getAddress("SystemConfigProxy", 1750),
             "Wrong storage write access address"
         );
     }
@@ -84,14 +88,14 @@ contract SingleMultisigTaskTest is Test {
 
         localMultisigTask.simulateRun(taskConfigFilePath);
 
-        addresses = localMultisigTask.addresses();
+        addrRegistry = localMultisigTask.addrRegistry();
 
         (address[] memory targets, uint256[] memory values, bytes[] memory arguments) =
             localMultisigTask.getTaskActions();
 
         assertEq(targets.length, 2, "Expected 2 targets");
-        assertEq(targets[0], addresses.getAddress("SystemConfigProxy", 34443), "Expected SystemConfigProxy target");
-        assertEq(targets[1], addresses.getAddress("SystemConfigProxy", 1750), "Expected SystemConfigProxy target");
+        assertEq(targets[0], addrRegistry.getAddress("SystemConfigProxy", 34443), "Expected SystemConfigProxy target");
+        assertEq(targets[1], addrRegistry.getAddress("SystemConfigProxy", 1750), "Expected SystemConfigProxy target");
         assertEq(values.length, 2, "Expected 2 values");
         assertEq(values[0], 0, "Expected 0 value");
         assertEq(values[1], 0, "Expected 0 value");
@@ -125,7 +129,7 @@ contract SingleMultisigTaskTest is Test {
 
     function testGetDataToSign() public {
         runTask();
-        addresses = multisigTask.addresses();
+        addrRegistry = multisigTask.addrRegistry();
         bytes memory callData = multisigTask.getCalldata();
         bytes memory dataToSign = multisigTask.getDataToSign(multisigTask.parentMultisig(), callData);
 
@@ -181,7 +185,7 @@ contract SingleMultisigTaskTest is Test {
     function testRevertIfDifferentL2SafeAddresses() public {
         string memory incorrectTaskConfigFilePath = "test/tasks/mock/configs/MultisigSafeAddressMismatch.toml";
         MultisigTask localMultisigTask = new GasConfigTemplate();
-        Addresses addressRegistry = new Addresses(incorrectTaskConfigFilePath);
+        AddrRegistry addressRegistry = new AddrRegistry(incorrectTaskConfigFilePath);
         bytes memory expectedRevertMessage = bytes(
             string.concat(
                 "MultisigTask: safe address mismatch. Caller: ",
@@ -196,7 +200,7 @@ contract SingleMultisigTaskTest is Test {
 
     function testRevertIfIncorrectAllowedStorageWrite() public {
         MultisigTask localMultisigTask = new IncorrectGasConfigTemplate1();
-        Addresses addressRegistry = new Addresses(taskConfigFilePath);
+        AddrRegistry addressRegistry = new AddrRegistry(taskConfigFilePath);
         bytes memory expectedRevertMessage = bytes(
             string.concat(
                 "MultisigTask: address ",
@@ -210,7 +214,7 @@ contract SingleMultisigTaskTest is Test {
 
     function testRevertIfAllowedStorageNotWritten() public {
         MultisigTask localMultisigTask = new IncorrectGasConfigTemplate2();
-        Addresses addressRegistry = new Addresses(taskConfigFilePath);
+        AddrRegistry addressRegistry = new AddrRegistry(taskConfigFilePath);
         bytes memory expectedRevertMessage = bytes(
             string.concat(
                 "MultisigTask: address ",
@@ -225,12 +229,12 @@ contract SingleMultisigTaskTest is Test {
     function testExecuteWithSignatures() public {
         uint256 snapshotId = vm.snapshot();
         runTask();
-        addresses = multisigTask.addresses();
+        addrRegistry = multisigTask.addrRegistry();
         bytes memory callData = multisigTask.getCalldata();
         bytes memory dataToSign = multisigTask.getDataToSign(multisigTask.parentMultisig(), callData);
         address multisig = multisigTask.parentMultisig();
-        address systemConfigMode = addresses.getAddress("SystemConfigProxy", 34443);
-        address systemConfigMetal = addresses.getAddress("SystemConfigProxy", 1750);
+        address systemConfigMode = addrRegistry.getAddress("SystemConfigProxy", 34443);
+        address systemConfigMetal = addrRegistry.getAddress("SystemConfigProxy", 1750);
         /// revert to snapshot so that the safe is in the same state as before the task was run
         vm.revertTo(snapshotId);
 

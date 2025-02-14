@@ -41,7 +41,7 @@ contract TransferOwnerTemplate is MultisigTask {
     /// @param chainId The ID of the L2 chain to configure
     function _buildPerChain(uint256 chainId) internal override {
         /// View only, filtered out by MultisigTask.sol
-        ProxyAdmin proxyAdmin = ProxyAdmin(addresses.getAddress("ProxyAdmin", chainId));
+        ProxyAdmin proxyAdmin = ProxyAdmin(addrRegistry.getAddress("ProxyAdmin", chainId));
 
         /// Mutative call, recorded by MultisigTask.sol for generating multisig calldata
         proxyAdmin.transferOwnership(newOwner);
@@ -50,7 +50,7 @@ contract TransferOwnerTemplate is MultisigTask {
     /// @notice Validates that gas limits were set correctly for the specified chain ID
     /// @param chainId The ID of the L2 chain to validate
     function _validate(uint256 chainId) internal view override {
-        ProxyAdmin proxyAdmin = ProxyAdmin(addresses.getAddress("ProxyAdmin", chainId));
+        ProxyAdmin proxyAdmin = ProxyAdmin(addrRegistry.getAddress("ProxyAdmin", chainId));
 
         assertEq(proxyAdmin.owner(), newOwner, "new owner not set correctly");
     }

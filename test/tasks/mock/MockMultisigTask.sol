@@ -35,10 +35,10 @@ contract MockMultisigTask is MultisigTask {
     function _templateSetup(string memory) internal override {}
 
     function _buildPerChain(uint256 chainId) internal override {
-        IProxyAdmin proxy = IProxyAdmin(payable(addresses.getAddress("ProxyAdmin", chainId)));
+        IProxyAdmin proxy = IProxyAdmin(payable(addrRegistry.getAddress("ProxyAdmin", chainId)));
 
         proxy.upgrade(
-            payable(addresses.getAddress("L1ERC721BridgeProxy", getChain("optimism").chainId)), newImplementation
+            payable(addrRegistry.getAddress("L1ERC721BridgeProxy", getChain("optimism").chainId)), newImplementation
         );
 
         if (address(mockTarget) != address(0)) {
@@ -48,7 +48,7 @@ contract MockMultisigTask is MultisigTask {
     }
 
     function _validate(uint256 chainId) internal view override {
-        IProxy proxy = IProxy(payable(addresses.getAddress("L1ERC721BridgeProxy", chainId)));
+        IProxy proxy = IProxy(payable(addrRegistry.getAddress("L1ERC721BridgeProxy", chainId)));
         bytes32 data = vm.load(address(proxy), Constants.PROXY_IMPLEMENTATION_ADDRESS);
 
         assertEq(bytes32(uint256(uint160(newImplementation))), data, "Proxy implementation not set correctly");

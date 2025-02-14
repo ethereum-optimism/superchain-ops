@@ -1,7 +1,7 @@
 pragma solidity ^0.8.0;
 
 import {OPCMBaseTask} from "../tasks/OPCMBaseTask.sol";
-import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
+import {AddressRegistry as AddrRegistry} from "src/improvements/AddressRegistry.sol";
 
 contract OPCMUpgradeTemplate is OPCMBaseTask {
     address public constant OPCM = 0x5BC817c7C3F1A8dCAA01d229Cbdeed9624C80E09;
@@ -51,13 +51,13 @@ contract OPCMUpgradeTemplate is OPCMBaseTask {
     /// @notice build the task action for all l2chains in the task
     /// in a single call to the OPCM.upgrade() function.
     function _buildSingle() internal override {
-        Addresses.ChainInfo[] memory chains = addresses.getChains();
+        AddrRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
         OpChainConfig[] memory opcmConfigs = new OpChainConfig[](chains.length);
 
         for (uint256 i = 0; i < chains.length; i++) {
             opcmConfigs[i] = OpChainConfig({
-                systemConfigProxy: addresses.getAddress("SystemConfigProxy", chains[i].chainId),
-                proxyAdmin: addresses.getAddress("ProxyAdmin", chains[i].chainId),
+                systemConfigProxy: addrRegistry.getAddress("SystemConfigProxy", chains[i].chainId),
+                proxyAdmin: addrRegistry.getAddress("ProxyAdmin", chains[i].chainId),
                 absolutePrestate: opcmUpgrades[chains[i].chainId]
             });
         }

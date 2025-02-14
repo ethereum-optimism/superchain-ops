@@ -93,7 +93,7 @@ contract MultisigTaskUnitTest is Test {
         ///     "Build already started"
         vm.store(address(task), BUILD_STARTED_SLOT, bytes32(uint256(1)));
 
-        task.addresses();
+        task.addrRegistry();
 
         vm.expectRevert("Build already started");
         task.build();

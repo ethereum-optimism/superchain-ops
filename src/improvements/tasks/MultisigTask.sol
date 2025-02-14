@@ -12,7 +12,7 @@ import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 import {ITask} from "src/improvements/tasks/ITask.sol";
-import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
+import {AddressRegistry as AddrRegistry} from "src/improvements/AddressRegistry.sol";
 
 abstract contract MultisigTask is Test, Script, ITask {
     using EnumerableSet for EnumerableSet.AddressSet;
@@ -27,8 +27,8 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @notice owners the safe started with
     address[] public startingOwners;
 
-    /// @notice Addresses contract
-    Addresses public addresses;
+    /// @notice AddressesRegistry contract
+    AddrRegistry public addrRegistry;
 
     /// @notice The address of the multisig for this task
     address public parentMultisig;
@@ -202,7 +202,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @notice Sets the address registry, initializes the task.
     /// @param taskConfigFilePath The path to the task configuration file.
     function _taskSetup(string memory taskConfigFilePath) internal {
-        Addresses _addresses = new Addresses(taskConfigFilePath);
+        AddrRegistry _addrRegistry = new AddrRegistry(taskConfigFilePath);
 
         _templateSetup(taskConfigFilePath);
 
@@ -210,7 +210,7 @@ abstract contract MultisigTask is Test, Script, ITask {
 
         /// set the task config
         require(
-            bytes(config.safeAddressString).length == 0 && address(addresses) == address(0x0),
+            bytes(config.safeAddressString).length == 0 && address(addrRegistry) == address(0x0),
             "MultisigTask: already initialized"
         );
         require(
@@ -221,32 +221,32 @@ abstract contract MultisigTask is Test, Script, ITask {
         config.safeAddressString = safeAddressString();
         config.allowedStorageWriteAccesses = _taskStorageWrites();
 
-        /// set the addresses object
-        addresses = _addresses;
+        /// set the AddressRegistry
+        addrRegistry = _addrRegistry;
 
         /// get chains
-        Addresses.ChainInfo[] memory chains = addresses.getChains();
+        AddrRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
         require(chains.length > 0, "MultisigTask: no chains found");
 
         /// check that the safe address is the same for all chains and then set safe in storage
-        parentMultisig = addresses.getAddress(config.safeAddressString, chains[0].chainId);
+        parentMultisig = addrRegistry.getAddress(config.safeAddressString, chains[0].chainId);
 
         /// TODO change this once we implement task stacking
         nonce = IGnosisSafe(parentMultisig).nonce();
 
         _setIsNestedSafe();
 
-        vm.label(address(addresses), "Addresses");
+        vm.label(address(addrRegistry), "AddrRegistry");
         vm.label(address(this), "MultisigTask");
 
         for (uint256 i = 1; i < chains.length; i++) {
             require(
-                parentMultisig == addresses.getAddress(config.safeAddressString, chains[i].chainId),
+                parentMultisig == addrRegistry.getAddress(config.safeAddressString, chains[i].chainId),
                 string.concat(
                     "MultisigTask: safe address mismatch. Caller: ",
                     getAddressLabel(parentMultisig),
                     ". Actual address: ",
-                    getAddressLabel(addresses.getAddress(config.safeAddressString, chains[i].chainId))
+                    getAddressLabel(addrRegistry.getAddress(config.safeAddressString, chains[i].chainId))
                 )
             );
         }
@@ -263,7 +263,7 @@ abstract contract MultisigTask is Test, Script, ITask {
         for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
             for (uint256 j = 0; j < chains.length; j++) {
                 _allowedStorageAccesses.add(
-                    addresses.getAddress(config.allowedStorageWriteAccesses[i], chains[j].chainId)
+                    addrRegistry.getAddress(config.allowedStorageWriteAccesses[i], chains[j].chainId)
                 );
             }
         }
@@ -432,7 +432,7 @@ abstract contract MultisigTask is Test, Script, ITask {
 
         require(IGnosisSafe(parentMultisig).nonce() == nonce + 1, "MultisigTask: nonce not incremented");
 
-        Addresses.ChainInfo[] memory chains = addresses.getChains();
+        AddrRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {
             _validate(chains[i].chainId);
@@ -482,7 +482,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     function build() public override buildModifier {
         _buildSingle();
 
-        Addresses.ChainInfo[] memory chains = addresses.getChains();
+        AddrRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {
             _buildPerChain(chains[i].chainId);
@@ -831,10 +831,10 @@ abstract contract MultisigTask is Test, Script, ITask {
                 }
             }
 
-            /// calls to and from Addresses and the vm contract are ignored
-            bool accountIsNotAddressesOrVm =
-                accountAccesses[i].account != address(addresses) && accountAccesses[i].account != address(vm);
-            bool accessorIsNotAddresses = accountAccesses[i].accessor != address(addresses);
+            /// calls to and from AddressRegistry and the vm contract are ignored
+            bool accountIsNotAddressRegistryOrVm =
+                accountAccesses[i].account != address(addrRegistry) && accountAccesses[i].account != address(vm);
+            bool accessorIsNotAddressRegistry = accountAccesses[i].accessor != address(addrRegistry);
             /// only care about calls or top leveldelegate calls from the multisig, static calls are ignored
             bool isCall = accountAccesses[i].kind == VmSafe.AccountAccessKind.Call;
             bool isTopLevelDelegateCall = accountAccesses[i].kind == VmSafe.AccountAccessKind.DelegateCall
@@ -843,7 +843,7 @@ abstract contract MultisigTask is Test, Script, ITask {
             bool accessorIsParentMultisig = accountAccesses[i].accessor == parentMultisig;
 
             if (
-                accountIsNotAddressesOrVm && accessorIsNotAddresses && (isCall || isTopLevelDelegateCall)
+                accountIsNotAddressRegistryOrVm && accessorIsNotAddressRegistry && (isCall || isTopLevelDelegateCall)
                     && accessorIsParentMultisig
             ) {
                 /// caller is multisig, not a subcall, check that this action is not duplicated

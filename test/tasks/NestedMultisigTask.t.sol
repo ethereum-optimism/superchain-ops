@@ -8,7 +8,7 @@ import {Test} from "forge-std/Test.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {OPCMUpgradeTemplate} from "src/improvements/template/OPCMUpgradeTemplate.sol";
 import {DisputeGameUpgradeTemplate} from "src/improvements/template/DisputeGameUpgradeTemplate.sol";
-import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
+import {AddressRegistry as AddrRegistry} from "src/improvements/AddressRegistry.sol";
 import {LibSort} from "@solady/utils/LibSort.sol";
 import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
 import {IDisputeGameFactory} from "@eth-optimism-bedrock/interfaces/dispute/IDisputeGameFactory.sol";
@@ -22,7 +22,7 @@ contract NestedMultisigTaskTest is Test {
     }
 
     MultisigTask private multisigTask;
-    Addresses private addresses;
+    AddrRegistry private addrRegistry;
     mapping(address => uint256) private privateKeyForOwner;
 
     /// @notice constants that describe the owner storage offsets in Gnosis Safe
@@ -36,7 +36,7 @@ contract NestedMultisigTaskTest is Test {
     function runTask() internal {
         multisigTask = new DisputeGameUpgradeTemplate();
         multisigTask.simulateRun(taskConfigFilePath);
-        addresses = multisigTask.addresses();
+        addrRegistry = multisigTask.addrRegistry();
     }
 
     function testSafeNested() public {
@@ -138,7 +138,7 @@ contract NestedMultisigTaskTest is Test {
             childMultisigDatasToSign[i] = getNestedDataToSign(parentMultisigOwners[i]);
         }
         IDisputeGameFactory disputeGameFactory =
-            IDisputeGameFactory(addresses.getAddress("DisputeGameFactoryProxy", 10));
+            IDisputeGameFactory(addrRegistry.getAddress("DisputeGameFactoryProxy", 10));
         /// revert to snapshot so that the safe is in the same state as before the task was run
         vm.revertTo(snapshotId);
 
@@ -228,7 +228,7 @@ contract NestedMultisigTaskTest is Test {
         multisigTask = new OPCMUpgradeTemplate();
         string memory opcmTaskConfigFilePath = "test/tasks/mock/configs/ExampleOPCMUpgradeTemplate.toml";
         multisigTask.simulateRun(opcmTaskConfigFilePath);
-        addresses = multisigTask.addresses();
+        addrRegistry = multisigTask.addrRegistry();
         address multisig = multisigTask.parentMultisig();
         address[] memory parentMultisigOwners = IGnosisSafe(multisig).getOwners();
         bytes[] memory childMultisigDatasToSign = new bytes[](parentMultisigOwners.length);
