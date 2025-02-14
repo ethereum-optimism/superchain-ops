@@ -149,8 +149,6 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// For nested multisig, prints the data to sign and the hash to approve for each of the child multisigs.
     /// @param taskConfigFilePath The path to the task configuration file.
     function simulateRun(string memory taskConfigFilePath) public override {
-        /// child multisig is set to value passed from the signFromChildMultisig function
-
         /// sets safe to the safe specified by the current template from addresses.json
         _taskSetup(taskConfigFilePath);
 
@@ -387,6 +385,7 @@ abstract contract MultisigTask is Test, Script, ITask {
 
         signatures = Signatures.prepareSignatures(multisig, hash, signatures);
 
+        vm.broadcast();
         (bool success) = IGnosisSafe(multisig).execTransaction(
             MULTICALL3_ADDRESS,
             0,
@@ -840,8 +839,16 @@ abstract contract MultisigTask is Test, Script, ITask {
         }
     }
 
+    /// @notice helper function that can be overridden by template contracts to
+    /// check the state changes applied by the task. This function can check
+    /// that only the nonce changed in the parent multisig when executing a task
+    /// by checking the slot and address where the slot changed.
+    function checkStateDiff(VmSafe.AccountAccess[] memory) internal view virtual {}
+
     /// @notice helper method to get transfers and state changes of task affected addresses
     function _processStateDiffChanges(VmSafe.AccountAccess[] memory accountAccesses) private {
+        /// first check that no tokens or eth were sent that should not have been
+        /// then check that all state changes that happened were in contracts that were allowed to have state changes
         for (uint256 i = 0; i < accountAccesses.length; i++) {
             // process ETH transfer changes
             _processETHTransferChanges(accountAccesses[i]);
@@ -852,6 +859,8 @@ abstract contract MultisigTask is Test, Script, ITask {
             // process state changes
             _processStateChanges(accountAccesses[i].storageAccesses);
         }
+
+        checkStateDiff(accountAccesses);
     }
 
     /// @notice helper method to get eth transfers of task affected addresses
