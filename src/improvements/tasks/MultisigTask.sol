@@ -12,7 +12,7 @@ import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 import {ITask} from "src/improvements/tasks/ITask.sol";
-import {AddressRegistry as AddrRegistry} from "src/improvements/AddressRegistry.sol";
+import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
 abstract contract MultisigTask is Test, Script, ITask {
     using EnumerableSet for EnumerableSet.AddressSet;
@@ -28,7 +28,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     address[] public startingOwners;
 
     /// @notice AddressesRegistry contract
-    AddrRegistry public addrRegistry;
+    AddressRegistry public addrRegistry;
 
     /// @notice The address of the multisig for this task
     address public parentMultisig;
@@ -204,7 +204,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @notice Sets the address registry, initializes the task.
     /// @param taskConfigFilePath The path to the task configuration file.
     function _taskSetup(string memory taskConfigFilePath) internal {
-        AddrRegistry _addrRegistry = new AddrRegistry(taskConfigFilePath);
+        AddressRegistry _addrRegistry = new AddressRegistry(taskConfigFilePath);
 
         _templateSetup(taskConfigFilePath);
 
@@ -223,17 +223,17 @@ abstract contract MultisigTask is Test, Script, ITask {
         config.safeAddressString = safeAddressString();
         config.allowedStorageWriteAccesses = _taskStorageWrites();
 
-        /// set the AddressRegistry
+        // set the AddressRegistry
         addrRegistry = _addrRegistry;
 
-        /// get chains
-        AddrRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
+        // get chains
+        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
         require(chains.length > 0, "MultisigTask: no chains found");
 
-        /// check that the safe address is the same for all chains and then set safe in storage
+        // check that the safe address is the same for all chains and then set safe in storage
         parentMultisig = addrRegistry.getAddress(config.safeAddressString, chains[0].chainId);
 
-        /// TODO change this once we implement task stacking
+        // TODO change this once we implement task stacking
         nonce = IGnosisSafe(parentMultisig).nonce();
 
         _setIsNestedSafe();
@@ -253,15 +253,15 @@ abstract contract MultisigTask is Test, Script, ITask {
             );
         }
 
-        /// Fetch starting owners
+        // Fetch starting owners
         IGnosisSafe safe = IGnosisSafe(parentMultisig);
         startingOwners = safe.getOwners();
 
-        /// this loads the allowed storage write accesses to storage for this task
-        /// if this task changes storage slots outside of the allowed write accesses,
-        /// then the task will fail at runtime and the task developer will need to
-        /// update the config to include the addresses whose storage slots changed,
-        /// or figure out why the storage slots are being changed when they should not be.
+        // this loads the allowed storage write accesses to storage for this task
+        // if this task changes storage slots outside of the allowed write accesses,
+        // then the task will fail at runtime and the task developer will need to
+        // update the config to include the addresses whose storage slots changed,
+        // or figure out why the storage slots are being changed when they should not be.
         for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
             for (uint256 j = 0; j < chains.length; j++) {
                 _allowedStorageAccesses.add(
@@ -276,10 +276,10 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// calldata has been loaded up to storage
     /// @return data The calldata to be executed
     function getCalldata() public view virtual override returns (bytes memory data) {
-        /// get task actions
+        // get task actions
         (address[] memory targets, uint256[] memory values, bytes[] memory arguments) = getTaskActions();
 
-        /// create calls array with targets and arguments
+        // create calls array with targets and arguments
         Call3Value[] memory calls = new Call3Value[](targets.length);
 
         for (uint256 i; i < calls.length; i++) {
@@ -287,7 +287,7 @@ abstract contract MultisigTask is Test, Script, ITask {
             calls[i] = Call3Value({target: targets[i], allowFailure: false, value: values[i], callData: arguments[i]});
         }
 
-        /// generate calldata
+        // generate calldata
         data = abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
     }
 
@@ -406,7 +406,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     ///          sure they are deployed and initialized correctly, or read
     ///          states that are expected to have changed during the simulate step.
     function validate() public view virtual override {
-        /// check that all state change addresses are in allowed storage accesses
+        // check that all state change addresses are in allowed storage accesses
         for (uint256 i; i < _taskStateChangeAddresses.length(); i++) {
             address addr = _taskStateChangeAddresses.at(i);
             require(
@@ -419,7 +419,7 @@ abstract contract MultisigTask is Test, Script, ITask {
             );
         }
 
-        /// check that all allowed storage accesses are in task state change addresses
+        // check that all allowed storage accesses are in task state change addresses
         for (uint256 i; i < _allowedStorageAccesses.length(); i++) {
             address addr = _allowedStorageAccesses.at(i);
             require(
@@ -434,7 +434,7 @@ abstract contract MultisigTask is Test, Script, ITask {
 
         require(IGnosisSafe(parentMultisig).nonce() == nonce + 1, "MultisigTask: nonce not incremented");
 
-        AddrRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
+        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {
             _validate(chains[i].chainId);
@@ -460,7 +460,7 @@ abstract contract MultisigTask is Test, Script, ITask {
 
         for (uint256 i; i < actionsLength; i++) {
             require(actions[i].target != address(0), "Invalid target for task");
-            /// if there are no args and no eth, the action is not valid
+            // if there are no args and no eth, the action is not valid
             require(
                 (actions[i].arguments.length == 0 && actions[i].value > 0) || actions[i].arguments.length > 0,
                 "Invalid arguments for task"
@@ -484,7 +484,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     function build() public override buildModifier {
         _buildSingle();
 
-        AddrRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
+        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {
             _buildPerChain(chains[i].chainId);
@@ -556,7 +556,7 @@ abstract contract MultisigTask is Test, Script, ITask {
             }
         }
 
-        /// print calldata to be executed within the Safe
+        // print calldata to be executed within the Safe
         console.log("\n\n------------------ Task Calldata ------------------");
         console.logBytes(getCalldata());
 

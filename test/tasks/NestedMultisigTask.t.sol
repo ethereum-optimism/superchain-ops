@@ -8,7 +8,7 @@ import {Test} from "forge-std/Test.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {TestOPCMUpgradeVxyz} from "src/improvements/template/TestOPCMUpgradeVxyz.sol";
 import {DisputeGameUpgradeTemplate} from "src/improvements/template/DisputeGameUpgradeTemplate.sol";
-import {AddressRegistry as AddrRegistry} from "src/improvements/AddressRegistry.sol";
+import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 import {LibSort} from "@solady/utils/LibSort.sol";
 import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
 import {IDisputeGameFactory} from "@eth-optimism-bedrock/interfaces/dispute/IDisputeGameFactory.sol";
@@ -22,7 +22,7 @@ contract NestedMultisigTaskTest is Test {
     }
 
     MultisigTask private multisigTask;
-    AddrRegistry private addrRegistry;
+    AddressRegistry private addrRegistry;
     mapping(address => uint256) private privateKeyForOwner;
 
     /// @notice constants that describe the owner storage offsets in Gnosis Safe

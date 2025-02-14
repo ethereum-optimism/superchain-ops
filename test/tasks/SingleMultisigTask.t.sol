@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
 
-import {AddressRegistry as AddrRegistry} from "src/improvements/AddressRegistry.sol";
+import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {GasConfigTemplate} from "src/improvements/template/GasConfigTemplate.sol";
 import {IncorrectGasConfigTemplate1} from "test/tasks/mock/template/IncorrectGasConfigTemplate1.sol";
@@ -21,7 +21,7 @@ contract SingleMultisigTaskTest is Test {
     }
 
     MultisigTask private multisigTask;
-    AddrRegistry private addrRegistry;
+    AddressRegistry private addrRegistry;
     mapping(address => uint256) private privateKeyForOwner;
 
     /// @notice constants that describe the owner storage offsets in Gnosis Safe
@@ -185,7 +185,7 @@ contract SingleMultisigTaskTest is Test {
     function testRevertIfDifferentL2SafeAddresses() public {
         string memory incorrectTaskConfigFilePath = "test/tasks/mock/configs/MultisigSafeAddressMismatch.toml";
         MultisigTask localMultisigTask = new GasConfigTemplate();
-        AddrRegistry addressRegistry = new AddrRegistry(incorrectTaskConfigFilePath);
+        AddressRegistry addressRegistry = new AddressRegistry(incorrectTaskConfigFilePath);
         bytes memory expectedRevertMessage = bytes(
             string.concat(
                 "MultisigTask: safe address mismatch. Caller: ",
@@ -200,7 +200,7 @@ contract SingleMultisigTaskTest is Test {
 
     function testRevertIfIncorrectAllowedStorageWrite() public {
         MultisigTask localMultisigTask = new IncorrectGasConfigTemplate1();
-        AddrRegistry addressRegistry = new AddrRegistry(taskConfigFilePath);
+        AddressRegistry addressRegistry = new AddressRegistry(taskConfigFilePath);
         bytes memory expectedRevertMessage = bytes(
             string.concat(
                 "MultisigTask: address ",
@@ -214,7 +214,7 @@ contract SingleMultisigTaskTest is Test {
 
     function testRevertIfAllowedStorageNotWritten() public {
         MultisigTask localMultisigTask = new IncorrectGasConfigTemplate2();
-        AddrRegistry addressRegistry = new AddrRegistry(taskConfigFilePath);
+        AddressRegistry addressRegistry = new AddressRegistry(taskConfigFilePath);
         bytes memory expectedRevertMessage = bytes(
             string.concat(
                 "MultisigTask: address ",

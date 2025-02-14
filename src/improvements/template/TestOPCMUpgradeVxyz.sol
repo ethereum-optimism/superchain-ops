@@ -1,7 +1,7 @@
 pragma solidity ^0.8.0;
 
 import {OPCMBaseTask} from "../tasks/OPCMBaseTask.sol";
-import {AddressRegistry as AddrRegistry} from "src/improvements/AddressRegistry.sol";
+import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
 /// @notice This is an example of implementing OPCMBaseTask to perform an upgrade via the OPCM contract.
 /// @dev OPCM upgrade tasks always target a specific l1 contract release version and therfore OPCM contract.
@@ -53,7 +53,7 @@ contract TestOPCMUpgradeVxyz is OPCMBaseTask {
     /// @notice build the task action for all l2chains in the task
     /// in a single call to the OPCM.upgrade() function.
     function _buildSingle() internal override {
-        AddrRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
+        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
         OpChainConfig[] memory opcmConfigs = new OpChainConfig[](chains.length);
 
         for (uint256 i = 0; i < chains.length; i++) {
