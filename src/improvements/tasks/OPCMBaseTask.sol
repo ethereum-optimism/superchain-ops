@@ -74,19 +74,6 @@ abstract contract OPCMBaseTask is MultisigTask {
         });
     }
 
-    /// @notice execute post-task checks.
-    /// read states that are expected to have changed during the simulate step.
-    /// removes the storage write checks
-    function validate() public view override {
-        require(IGnosisSafe(multisig).nonce() == nonce + 1, "MultisigTask: nonce not incremented");
-
-        Addresses.ChainInfo[] memory chains = addresses.getChains();
-
-        for (uint256 i = 0; i < chains.length; i++) {
-            _validate(chains[i].chainId);
-        }
-    }
-
     /// @notice get the multicall address for the given safe
     /// if the safe is the parent multisig, return the delegatecall multicall address
     /// otherwise if the safe is a child multisig, return the regular multicall address
@@ -110,10 +97,6 @@ abstract contract OPCMBaseTask is MultisigTask {
     function _setMulticallAddress() internal override {
         targetMulticall = MULTICALL3_DELEGATECALL_ADDRESS;
     }
-
-    /// @notice Returns the storage write permissions, ignored for OPCM tasks
-    /// @return Array of storage write permissions
-    function _taskStorageWrites() internal pure virtual override returns (string[] memory) {}
 
     /// @notice overrides to do nothing per chain
     function _buildPerChain(uint256 chainId) internal override {}

@@ -24,6 +24,14 @@ contract OPCMUpgradeTemplate is OPCMBaseTask {
         return "ProxyAdminOwner";
     }
 
+    /// @notice Returns the storage write permissions
+    /// currently used OPCM is a dummy so no storage writes are needed
+    /// @return Array of storage write permissions
+    function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
+        string[] memory storageWrites = new string[](0);
+        return storageWrites;
+    }
+
     /// @notice Sets up the template with gas configurations from a TOML file
     /// @param taskConfigFilePath Path to the TOML configuration file
     function _templateSetup(string memory taskConfigFilePath) internal override {
