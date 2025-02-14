@@ -27,9 +27,9 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ## Verify livenessGuard and Absolute Prestate
 
-The **livenessGuard** address can be verified here https://github.com/ethereum-optimism/superchain-ops/blob/b17d3037c68e50f28ad19abf03bb952e507b3ebc/tasks/sep/006-2-sc-changes/VALIDATION.md?plain=1#L89 as it was set with the superchain-ops Sepolia task **006-2-sc-changes**
+The **livenessGuard** address `0xc26977310bC89DAee5823C2e2a73195E85382cC7` being assigned to Security Council safe `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977` can be verified here https://sepolia.etherscan.io/address/0xc26977310bC89DAee5823C2e2a73195E85382cC7#readContract#F2. This was set with the superchain-ops Sepolia task **006-2-sc-changes** https://github.com/ethereum-optimism/superchain-ops/blob/b17d3037c68e50f28ad19abf03bb952e507b3ebc/tasks/sep/006-2-sc-changes/VALIDATION.md?plain=1#L89
 
-The following is based on the **op-program/v1.5.0-rc.2**
+The following is based on the **op-program/v1.5.0-rc.2**:
 
 Absolute prestates can be checked in the Superchain Registry https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-prestates.toml
 
