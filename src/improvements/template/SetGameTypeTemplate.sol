@@ -6,7 +6,7 @@ import {
 import {LibGameType} from "@eth-optimism-bedrock/src/dispute/lib/LibUDT.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
-import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
+import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
 /// @title SetGameTypeTemplate
 /// @notice Template contract for setting game types in the Optimism system
@@ -59,7 +59,7 @@ contract SetGameTypeTemplate is MultisigTask {
     function _buildPerChain(uint256 chainId) internal override {
         if (setRespectedGameTypes[chainId].l2ChainId != 0) {
             DeputyGuardianModule(setRespectedGameTypes[chainId].deputyGuardian).setRespectedGameType(
-                IOptimismPortal2(payable(addresses.getAddress(setRespectedGameTypes[chainId].portal, chainId))),
+                IOptimismPortal2(payable(addrRegistry.getAddress(setRespectedGameTypes[chainId].portal, chainId))),
                 setRespectedGameTypes[chainId].gameType
             );
         }
@@ -69,7 +69,7 @@ contract SetGameTypeTemplate is MultisigTask {
     /// @param chainId The ID of the L2 chain to validate
     function _validate(uint256 chainId) internal view override {
         IOptimismPortal2 optimismPortal =
-            IOptimismPortal2(payable(addresses.getAddress("OptimismPortalProxy", chainId)));
+            IOptimismPortal2(payable(addrRegistry.getAddress("OptimismPortalProxy", chainId)));
 
         if (setRespectedGameTypes[chainId].l2ChainId != 0) {
             assertEq(

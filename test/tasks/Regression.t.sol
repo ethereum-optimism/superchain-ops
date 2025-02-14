@@ -24,7 +24,7 @@ contract RegressionTest is Test {
         string memory expectedDataToSign =
             "0x19010f634ad56005ddbd68dc52233931a858f740b8ab706671c42b055efef561257e5ba28ec1e58ea69211eb8e875f10ae165fb3fb4052b15ca2516486f4b059135f";
         string memory dataToSign =
-            vm.toString(multisigTask.getDataToSign(multisigTask.multisig(), multisigTask.getCalldata()));
+            vm.toString(multisigTask.getDataToSign(multisigTask.parentMultisig(), multisigTask.getCalldata()));
         assertEq(keccak256(bytes(dataToSign)), keccak256(bytes(expectedDataToSign)));
     }
 
@@ -44,7 +44,7 @@ contract RegressionTest is Test {
             "0x1901a4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672032d168a6a75092d06448c977c02a33ee3890827ab9cc8a14a57e62494214746";
         expectedDataToSign[1] =
             "0x1901df53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce9677607901a3c2502aa70a9dcd2fa190c27cdd30d74058e9b807c3d32f1ee46100f";
-        address[] memory owners = IGnosisSafe(multisigTask.multisig()).getOwners();
+        address[] memory owners = IGnosisSafe(multisigTask.parentMultisig()).getOwners();
         for (uint256 i = 0; i < owners.length; i++) {
             string memory dataToSign =
                 vm.toString(multisigTask.getDataToSign(owners[i], multisigTask.generateApproveMulticallData()));
@@ -66,7 +66,7 @@ contract RegressionTest is Test {
         string memory expectedDataToSign =
             "0x19014e6a6554de0308f5ece8ff736beed8a1b876d16f5c27cac8e466d7de0c70389084af4d0fecafda1f7bfcaf76684bbec959187b61160bdf1d1ab14045664fe412";
         string memory dataToSign =
-            vm.toString(multisigTask.getDataToSign(multisigTask.multisig(), multisigTask.getCalldata()));
+            vm.toString(multisigTask.getDataToSign(multisigTask.parentMultisig(), multisigTask.getCalldata()));
         assertEq(keccak256(bytes(dataToSign)), keccak256(bytes(expectedDataToSign)));
     }
 
@@ -84,7 +84,7 @@ contract RegressionTest is Test {
         string memory expectedDataToSign =
             "0x1901a4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672c98bc9c1761f2e403be0ad32b16d9c5fedf228f97eb0420c722b511129ebc803";
         string memory dataToSign =
-            vm.toString(multisigTask.getDataToSign(multisigTask.multisig(), multisigTask.getCalldata()));
+            vm.toString(multisigTask.getDataToSign(multisigTask.parentMultisig(), multisigTask.getCalldata()));
         assertEq(keccak256(bytes(dataToSign)), keccak256(bytes(expectedDataToSign)));
     }
 }
