@@ -17,11 +17,34 @@ import {FaultDisputeGame} from "@eth-optimism-bedrock/src/dispute/FaultDisputeGa
 import {PermissionedDisputeGame} from "@eth-optimism-bedrock/src/dispute/PermissionedDisputeGame.sol";
 import {MIPS} from "@eth-optimism-bedrock/src/cannon/MIPS.sol";
 import {ISemver} from "@eth-optimism-bedrock/interfaces/universal/ISemver.sol";
+import {IDelayedWETH} from "@eth-optimism-bedrock/interfaces/dispute/IDelayedWETH.sol";
+import {IPermissionedDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute/IPermissionedDisputeGame.sol";
+import {IFaultDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute/IFaultDisputeGame.sol";
 
 contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
     using LibString for string;
 
-    /// Dynamically assigned to the addresses in setUp
+    /// @notice Expected address for the PermissionedDisputeGame implementation.
+    IPermissionedDisputeGame expectedPermissionedDisputeGameImpl =
+        IPermissionedDisputeGame(vm.envAddress("EXPECTED_PERMISSIONED_DISPUTE_GAME_IMPL"));
+
+    /// @notice OP Sepolia address for the PermissionedDisputeGame implementation for comparison.
+    IPermissionedDisputeGame comparisonPermissionedDisputeGameImpl =
+        IPermissionedDisputeGame(vm.envAddress("COMPARISON_PERMISSIONED_DISPUTE_GAME_IMPL"));
+
+    /// @notice Expected address for the FaultDisputeGame implementation.
+    IFaultDisputeGame expectedFaultDisputeGameImpl =
+        IFaultDisputeGame(vm.envAddress("EXPECTED_FAULT_DISPUTE_GAME_IMPL"));
+
+    /// @notice OP Sepolia address for the FaultDisputeGame implementation for comparison.
+    IFaultDisputeGame comparisonFaultDisputeGameImpl =
+        IFaultDisputeGame(vm.envAddress("COMPARISON_FAULT_DISPUTE_GAME_IMPL"));
+
+     /// @notice Expected address for the DelayedWETH proxy.
+    IDelayedWETH expectedDelayedWETHProxy =
+        IDelayedWETH(payable(vm.envAddress("EXPECTED_PERMISSIONED_DELAYED_WETH_PROXY")));
+
+    /// Dynamically assigned to these addresses in setUp
     DisputeGameFactory dgfProxy;
     address newMips;
     address oracle;
@@ -130,6 +153,67 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
 
         require(faultDisputeGame.l2ChainId() == chainId, "game-700");
         require(permissionedDisputeGame.l2ChainId() == chainId, "game-800");
+    }
+
+    /// @notice Checks that the FaultDisputeGame was handled correctly.
+    function checkFaultDisputeGame() internal view {
+        // Check that the FaultDisputeGame version is correct.
+        require(LibString.eq(expectedFaultDisputeGameImpl.version(), "1.3.1"), "checkFaultDisputeGame-21");
+
+        // Check that only bytecode diffs vs comparison contract are expected.
+        BytecodeComparison.Diff[] memory diffs = new BytecodeComparison.Diff[](12);
+        diffs[0] = BytecodeComparison.Diff({start: 1319, content: abi.encode(expectedDelayedWETHProxy)});
+        diffs[1] = BytecodeComparison.Diff({start: 1555, content: abi.encode(proxies.AnchorStateRegistry)});
+        diffs[2] = BytecodeComparison.Diff({start: 1926, content: abi.encode(absolutePrestate)});
+        diffs[3] = BytecodeComparison.Diff({start: 2590, content: abi.encode(chainConfig.chainId)});
+        diffs[4] = BytecodeComparison.Diff({start: 6026, content: abi.encode(proxies.AnchorStateRegistry)});
+        diffs[5] = BytecodeComparison.Diff({start: 6476, content: abi.encode(expectedDelayedWETHProxy)});
+        diffs[6] = BytecodeComparison.Diff({start: 9344, content: abi.encode(expectedDelayedWETHProxy)});
+        diffs[7] = BytecodeComparison.Diff({start: 9704, content: abi.encode(proxies.AnchorStateRegistry)});
+        diffs[8] = BytecodeComparison.Diff({start: 10730, content: abi.encode(expectedDelayedWETHProxy)});
+        diffs[9] = BytecodeComparison.Diff({start: 12628, content: abi.encode(absolutePrestate)});
+        diffs[10] = BytecodeComparison.Diff({start: 14649, content: abi.encode(chainConfig.chainId)});
+        diffs[11] = BytecodeComparison.Diff({start: 15892, content: abi.encode(expectedDelayedWETHProxy)});
+
+        require(
+            BytecodeComparison.compare(
+                address(comparisonFaultDisputeGameImpl), address(expectedFaultDisputeGameImpl), diffs
+            ),
+            "checkFaultDisputeGame-101"
+        );
+    }
+
+    /// @notice Checks that the PermissionedDisputeGame was handled correctly.
+    function checkPermissionedDisputeGame() internal view {
+        // Check that the PermissionedDisputeGame version is correct.
+        require(LibString.eq(expectedPermissionedDisputeGameImpl.version(), "1.3.1"), "checkPermissionedDisputeGame-20");
+
+        // Check that only bytecode diffs vs comparison contract are expected.
+        BytecodeComparison.Diff[] memory diffs = new BytecodeComparison.Diff[](16);
+ 
+        diffs[0] = BytecodeComparison.Diff({start: 1341, content: abi.encode(expectedDelayedWETHProxy)});
+        diffs[1] = BytecodeComparison.Diff({start: 1628, content: abi.encode(proxies.AnchorStateRegistry)});
+        diffs[2] = BytecodeComparison.Diff({start: 1999, content: abi.encode(absolutePrestate)});
+        diffs[3] = BytecodeComparison.Diff({start: 2254, content: abi.encode(chainConfig.proposer)});
+        diffs[4] = BytecodeComparison.Diff({start: 2714, content: abi.encode(chainConfig.chainId)});
+        diffs[5] = BytecodeComparison.Diff({start: 6150, content: abi.encode(proxies.AnchorStateRegistry)});
+        diffs[6] = BytecodeComparison.Diff({start: 6600, content: abi.encode(expectedDelayedWETHProxy)});
+        diffs[7] = BytecodeComparison.Diff({start: 6870, content: abi.encode(chainConfig.proposer)});
+        diffs[8] = BytecodeComparison.Diff({start: 7076, content: abi.encode(chainConfig.proposer)});
+        diffs[9] = BytecodeComparison.Diff({start: 8310, content: abi.encode(chainConfig.proposer)});
+        diffs[10] = BytecodeComparison.Diff({start: 9555, content: abi.encode(chainConfig.chainId)});
+        diffs[11] = BytecodeComparison.Diff({start: 10798, content: abi.encode(expectedDelayedWETHProxy)});
+        diffs[12] = BytecodeComparison.Diff({start: 13599, content: abi.encode(expectedDelayedWETHProxy)});
+        diffs[13] = BytecodeComparison.Diff({start: 13946, content: abi.encode(proxies.AnchorStateRegistry)});
+        diffs[14] = BytecodeComparison.Diff({start: 14972, content: abi.encode(expectedDelayedWETHProxy)});
+        diffs[15] = BytecodeComparison.Diff({start: 17022, content: abi.encode(absolutePrestate)});
+        
+        require(
+            BytecodeComparison.compare(
+                address(comparisonPermissionedDisputeGameImpl), address(expectedPermissionedDisputeGameImpl), diffs
+            ),
+            "checkPermissionedDisputeGame-100"
+        );
     }
 
     function checkMips() internal view{
