@@ -124,6 +124,8 @@ contract NestedMultisigTaskTest is Test {
         }
     }
 
+    /// @notice test that the data to sign generated in simulateRun for the child multisigs
+    /// is correct for MultisigTask
     function testNestedExecuteWithSignatures() public {
         vm.createSelectFork("mainnet");
         uint256 snapshotId = vm.snapshot();
@@ -218,6 +220,8 @@ contract NestedMultisigTaskTest is Test {
         );
     }
 
+    /// @notice test that the data to sign generated in simulateRun for the child multisigs
+    /// is correct for OPCMBaseTask
     function testNestedExecuteWithSignaturesOPCM() public {
         vm.createSelectFork("sepolia");
         uint256 snapshotId = vm.snapshot();

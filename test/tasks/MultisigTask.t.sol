@@ -22,10 +22,10 @@ contract MultisigTaskUnitTest is Test {
     /// @notice storage slot for the addresses contract
     bytes32 public constant ADDRESSES_SLOT = bytes32(uint256(35));
 
-    /// @notice storage slot for the multisig address
+    /// @notice storage slot for the parent multisig address
     bytes32 public constant MULTISIG_SLOT = bytes32(uint256(36));
 
-    /// @notice storage slot for the addresses contract
+    /// @notice storage slot for the mock target contract
     bytes32 public constant MOCK_TARGET_SLOT = bytes32(uint256(52));
 
     /// @notice storage slot for the build started flag
