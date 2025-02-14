@@ -7,7 +7,9 @@ import {console} from "forge-std/console.sol";
 contract OPCMUpgradeTemplate is OPCMBaseTask {
     address public constant OPCM = 0x5BC817c7C3F1A8dCAA01d229Cbdeed9624C80E09;
 
-    /// @notice Struct to store gas limits to be set for a specific L2 chain ID
+    /// @notice Struct to store inputs for OPCM.upgrade() function per l2 chain
+    /// THIS IS AN EXAMPLE STRUCT for the case where the only per-chain input is the absolute prestate.
+    /// MODIFY THIS for a specific OPCM instance.
     /// @param chainId The ID of the L2 chain
     /// @param prestate The prestate to be set for the l2 chain
     struct OPCMUpgrade {
@@ -18,25 +20,25 @@ contract OPCMUpgradeTemplate is OPCMBaseTask {
     /// @notice Mapping of l2 chain IDs to their respective prestates
     mapping(uint256 => bytes32) public opcmUpgrades;
 
+    /// @notice Returns the OPCM address
+    /// overrides the OPCMBaseTask function to return the correct OPCM address
+    /// Every OPCMUpgradeTemplate MUST IMPLEMENT THIS FUNCTION to return the correct OPCM address
+    /// @return The address of the OPCM
     function opcm() public pure override returns (address) {
         return OPCM;
     }
 
-    /// @notice Returns the safe address string identifier
-    /// @return The string "ProxyAdminOwner"
-    function safeAddressString() public pure override returns (string memory) {
-        return "ProxyAdminOwner";
-    }
-
     /// @notice Returns the storage write permissions
     /// currently used OPCM is a dummy so no storage writes are needed
+    /// update this function to return all the storage writes permissions
+    /// required as per the OPCM contract.
     /// @return Array of storage write permissions
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
         string[] memory storageWrites = new string[](0);
         return storageWrites;
     }
 
-    /// @notice Sets up the template with gas configurations from a TOML file
+    /// @notice Sets up the template with prestate inputs from a TOML file
     /// @param taskConfigFilePath Path to the TOML configuration file
     function _templateSetup(string memory taskConfigFilePath) internal override {
         OPCMUpgrade[] memory opcmUpgrade =
@@ -47,10 +49,8 @@ contract OPCMUpgradeTemplate is OPCMBaseTask {
         }
     }
 
-    /// @notice build the task actions for all l2chains in the task
-    /// @dev contract calls must be perfomed in plain solidity.
-    ///      overriden requires using buildModifier modifier to leverage
-    ///      foundry snapshot and state diff recording to populate the actions array.
+    /// @notice build the task action for all l2chains in the task
+    /// in a single call to the OPCM.upgrade() function.
     function build() public override buildModifier {
         Addresses.ChainInfo[] memory chains = addresses.getChains();
         OpChainConfig[] memory opcmConfigs = new OpChainConfig[](chains.length);
@@ -70,5 +70,8 @@ contract OPCMUpgradeTemplate is OPCMBaseTask {
         require(success, "OPCMUpgrateTemplate: failed to upgrade OPCM");
     }
 
+    /// @notice validate the task for a given l2chain
+    /// for this dummy opcm there are no validations per l2 chain
+    /// for a real OPCM instance, add the validations per l2chain
     function _validate(uint256 chainId) internal view override {}
 }

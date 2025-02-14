@@ -35,6 +35,13 @@ abstract contract OPCMBaseTask is MultisigTask {
         bytes callData;
     }
 
+    /// @notice Returns the parent multisig address string identifier
+    /// the parent multisig address should be same for all the l2chains in the task
+    /// @return The string "ProxyAdminOwner"
+    function safeAddressString() public pure override returns (string memory) {
+        return "ProxyAdminOwner";
+    }
+
     /// @notice get the calldata to be executed by safe
     /// @dev callable only after the build function has been run and the
     /// calldata has been loaded up to storage
@@ -61,6 +68,11 @@ abstract contract OPCMBaseTask is MultisigTask {
         super.validate();
     }
 
+    /// @notice get the OPCM address
+    /// @dev override in the opcm template to return the correct OPCM address based
+    /// on the network chain id of the task. This function MUST BE OVERRIDDEN in the
+    /// inheriting contract to return the correct OPCM address
+    /// @return The address of the OPCM
     function opcm() public view virtual returns (address);
 
     /// @notice get the multicall address for the given safe
@@ -79,11 +91,13 @@ abstract contract OPCMBaseTask is MultisigTask {
         vm.startPrank(parentMultisig, true);
     }
 
-    /// @notice set the multicall address to the delegatecall multicall address
+    /// @notice set the multicall address
+    /// overrides MultisigTask to set the multicall address to the delegatecall multicall address
     function _setMulticallAddress() internal override {
         multicallTarget = MULTICALL3_DELEGATECALL_ADDRESS;
     }
 
     /// @notice overrides to do nothing per chain
+    /// all the chains are handled in a single call to OPCM contract
     function _buildPerChain(uint256 chainId) internal override {}
 }
