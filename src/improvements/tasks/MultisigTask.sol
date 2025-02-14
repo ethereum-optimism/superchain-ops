@@ -843,7 +843,9 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// check the state changes applied by the task. This function can check
     /// that only the nonce changed in the parent multisig when executing a task
     /// by checking the slot and address where the slot changed.
-    function checkStateDiff(VmSafe.AccountAccess[] memory) internal view virtual {}
+    function checkStateDiff(VmSafe.AccountAccess[] memory) internal view virtual {
+        revert("checkStateDiff must be implemented");
+    }
 
     /// @notice helper method to get transfers and state changes of task affected addresses
     function _processStateDiffChanges(VmSafe.AccountAccess[] memory accountAccesses) private {

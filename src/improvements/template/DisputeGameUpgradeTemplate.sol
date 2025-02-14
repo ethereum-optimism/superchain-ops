@@ -1,6 +1,8 @@
 pragma solidity 0.8.15;
 
 import {IDisputeGameFactory, IDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute/IDisputeGameFactory.sol";
+import {VmSafe, Vm} from "forge-std/Vm.sol";
+
 import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
@@ -75,4 +77,8 @@ contract DisputeGameUpgradeTemplate is MultisigTask {
             );
         }
     }
+
+    /// @notice override checkStateDiff function to allow template to be run
+    /// TODO implement checks in a later PR
+    function checkStateDiff(VmSafe.AccountAccess[] memory) internal view override {}
 }
