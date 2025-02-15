@@ -272,7 +272,7 @@ jobs:
       tasks:
         type: string
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - checkout
       - run:
