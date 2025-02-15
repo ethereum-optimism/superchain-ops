@@ -4,7 +4,6 @@ pragma solidity 0.8.15;
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 import {Test} from "forge-std/Test.sol";
-import {IAddressRegistry} from "src/improvements/IAddressRegistry.sol";
 import {GameTypes, GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 
 /// @notice Contains getters for arbitrary methods from all L1 contracts, including legacy getters
@@ -40,8 +39,28 @@ interface IFetcher {
 /// @title Network Address Manager
 /// @notice This contract provides a single source of truth for storing and retrieving addresses across multiple networks.
 /// @dev Handles addresses for contracts and externally owned accounts (EOAs) while ensuring correctness and uniqueness.
-contract AddressRegistry is IAddressRegistry, Test {
+contract AddressRegistry is Test {
     using EnumerableSet for EnumerableSet.UintSet;
+
+    /// @dev Structure for storing address details in the contract.
+    struct RegistryEntry {
+        address addr;
+        /// Address (contract or EOA)
+        /// Indicates if the address is a contract
+        bool isContract;
+    }
+
+    /// @dev Structure for reading chain list details from toml file
+    struct ChainInfo {
+        uint256 chainId;
+        string name;
+    }
+
+    /// @dev Structure for storing address info for a given address.
+    struct AddressInfo {
+        string identifier;
+        ChainInfo chainInfo;
+    }
 
     /// @notice Maps an identifier and l2 instance chain ID to a stored address entry.
     /// All addresses will live on the same chain.
