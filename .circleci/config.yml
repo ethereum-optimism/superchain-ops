@@ -264,6 +264,21 @@ jobs:
       - simulate_nested:
           task: "/sep/zora-002-fp-upgrade"
 
+  simulate_sequence:
+    description: "Runs a sequence of simulations"
+    parameters:
+      prefix:
+        type: string
+      tasks:
+        type: string
+    docker:
+      - image: <<pipeline.parameters.ci_builder_image>>
+    steps:
+      - checkout
+      - run:
+          name: "Run simulation sequence for <<parameters.prefix>> tasks: <<parameters.tasks>>"
+          command: just install && echo "yes" | bash ./script/utils/sim-sequence.sh <<parameters.prefix>> "<<parameters.tasks>>"
+
   forge_build:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -382,5 +397,8 @@ workflows:
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
       - just_simulate_ink_respected_game_type
+      - simulate_sequence:
+          prefix: "eth"
+          tasks: "021 022 base-003 ink-001"
       # sepolia
       - just_simulate_zora_002_fp_upgrade
