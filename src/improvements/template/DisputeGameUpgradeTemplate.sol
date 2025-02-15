@@ -4,7 +4,7 @@ import {IDisputeGameFactory, IDisputeGame} from "@eth-optimism-bedrock/interface
 import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
-import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
+import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
 /// @title DisputeGameUpgradeTemplate
 /// @notice Template contract for upgrading dispute game implementations
@@ -52,7 +52,7 @@ contract DisputeGameUpgradeTemplate is MultisigTask {
     /// @param chainId The ID of the L2 chain to configure
     function _buildPerChain(uint256 chainId) internal override {
         IDisputeGameFactory disputeGameFactory =
-            IDisputeGameFactory(addresses.getAddress("DisputeGameFactoryProxy", chainId));
+            IDisputeGameFactory(addrRegistry.getAddress("DisputeGameFactoryProxy", chainId));
 
         if (setImplementations[chainId].l2ChainId != 0) {
             disputeGameFactory.setImplementation(
@@ -65,7 +65,7 @@ contract DisputeGameUpgradeTemplate is MultisigTask {
     /// @param chainId The ID of the L2 chain to validate
     function _validate(uint256 chainId) internal view override {
         IDisputeGameFactory disputeGameFactory =
-            IDisputeGameFactory(addresses.getAddress("DisputeGameFactoryProxy", chainId));
+            IDisputeGameFactory(addrRegistry.getAddress("DisputeGameFactoryProxy", chainId));
 
         if (setImplementations[chainId].l2ChainId != 0) {
             assertEq(
