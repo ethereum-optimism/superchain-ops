@@ -40,9 +40,13 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
     IFaultDisputeGame comparisonFaultDisputeGameImpl =
         IFaultDisputeGame(vm.envAddress("COMPARISON_FAULT_DISPUTE_GAME_IMPL"));
 
+     /// @notice Expected address for the Permissioned DelayedWETH proxy.
+    IDelayedWETH expectedPermissionedDelayedWETHProxy =
+        IDelayedWETH(payable(vm.envAddress("EXPECTED_PERMISSIONED_DELAYED_WETH_PROXY")));
+
      /// @notice Expected address for the DelayedWETH proxy.
     IDelayedWETH expectedDelayedWETHProxy =
-        IDelayedWETH(payable(vm.envAddress("EXPECTED_PERMISSIONED_DELAYED_WETH_PROXY")));
+        IDelayedWETH(payable(vm.envAddress("EXPECTED_DELAYED_WETH_PROXY")));
 
     /// Dynamically assigned to these addresses in setUp
     DisputeGameFactory dgfProxy;
@@ -135,6 +139,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
         checkDGFProxyAndGames();
         checkMips();
         checkPermissionedDisputeGame();
+        checkFaultDisputeGame();
         console.log("All assertions passed!");
     }
 
@@ -192,21 +197,21 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
         // Check that only bytecode diffs vs comparison contract are expected.
         BytecodeComparison.Diff[] memory diffs = new BytecodeComparison.Diff[](16);
  
-        diffs[0] = BytecodeComparison.Diff({start: 1341, content: abi.encode(expectedDelayedWETHProxy)});
+        diffs[0] = BytecodeComparison.Diff({start: 1341, content: abi.encode(expectedPermissionedDelayedWETHProxy)});
         diffs[1] = BytecodeComparison.Diff({start: 1628, content: abi.encode(proxies.AnchorStateRegistry)});
         diffs[2] = BytecodeComparison.Diff({start: 1999, content: abi.encode(absolutePrestate)});
         diffs[3] = BytecodeComparison.Diff({start: 2254, content: abi.encode(chainConfig.proposer)});
         diffs[4] = BytecodeComparison.Diff({start: 2714, content: abi.encode(chainConfig.chainId)});
         diffs[5] = BytecodeComparison.Diff({start: 6150, content: abi.encode(proxies.AnchorStateRegistry)});
-        diffs[6] = BytecodeComparison.Diff({start: 6600, content: abi.encode(expectedDelayedWETHProxy)});
+        diffs[6] = BytecodeComparison.Diff({start: 6600, content: abi.encode(expectedPermissionedDelayedWETHProxy)});
         diffs[7] = BytecodeComparison.Diff({start: 6870, content: abi.encode(chainConfig.proposer)});
         diffs[8] = BytecodeComparison.Diff({start: 7076, content: abi.encode(chainConfig.proposer)});
         diffs[9] = BytecodeComparison.Diff({start: 8310, content: abi.encode(chainConfig.proposer)});
         diffs[10] = BytecodeComparison.Diff({start: 9555, content: abi.encode(chainConfig.chainId)});
-        diffs[11] = BytecodeComparison.Diff({start: 10798, content: abi.encode(expectedDelayedWETHProxy)});
-        diffs[12] = BytecodeComparison.Diff({start: 13599, content: abi.encode(expectedDelayedWETHProxy)});
+        diffs[11] = BytecodeComparison.Diff({start: 10798, content: abi.encode(expectedPermissionedDelayedWETHProxy)});
+        diffs[12] = BytecodeComparison.Diff({start: 13599, content: abi.encode(expectedPermissionedDelayedWETHProxy)});
         diffs[13] = BytecodeComparison.Diff({start: 13946, content: abi.encode(proxies.AnchorStateRegistry)});
-        diffs[14] = BytecodeComparison.Diff({start: 14972, content: abi.encode(expectedDelayedWETHProxy)});
+        diffs[14] = BytecodeComparison.Diff({start: 14972, content: abi.encode(expectedPermissionedDelayedWETHProxy)});
         diffs[15] = BytecodeComparison.Diff({start: 17022, content: abi.encode(absolutePrestate)});
         
         require(
