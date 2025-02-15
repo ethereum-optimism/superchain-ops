@@ -279,7 +279,7 @@ jobs:
       - utils/checkout-with-mise
       - run:
           name: "Run simulation sequence for <<parameters.prefix>> tasks: <<parameters.tasks>>"
-          command: export FOUNDRY_DISABLE_NIGHTLY_WARNING=0; just install && echo "yes" | bash ./script/utils/sim-sequence.sh <<parameters.prefix>> "<<parameters.tasks>>" "<<parameters.block_number>>"
+          command: export FOUNDRY_DISABLE_NIGHTLY_WARNING=0; just clean; just install && echo "yes" | bash ./script/utils/sim-sequence.sh <<parameters.prefix>> "<<parameters.tasks>>" "<<parameters.block_number>>"
 
   forge_build:
     docker:
