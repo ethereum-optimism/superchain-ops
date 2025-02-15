@@ -120,14 +120,15 @@ createFork() {
   if lsof -Pi :8545 -sTCP:LISTEN -t >/dev/null ; then
     log_info "Anvil is detected and running on port 8545, we use the current instance of anvil."
     DestroyAnvilAfterExecution=false
-    # ps aux | grep anvil | grep -v grep | awk '{print $2}' | xargs kill
-
   else  
     log_info "No instance of anvil is detected, starting anvil fork on \"$ANVIL_LOCALHOST_RPC\" by forking $RPC_URL."
-    anvil -f $RPC_URL --fork-block-number 21573136 >> /tmp/anvil.logs & 
+    if [[ -n "$block_number" ]]; then
+      anvil -f $RPC_URL --fork-block-number $block_number >> /tmp/anvil.logs &
+    else
+      anvil -f $RPC_URL >> /tmp/anvil.logs &
+    fi
     sleep 5
   fi
-   
 }
 
 NonceDisplayModified(){
@@ -208,13 +209,22 @@ find_task_folder() {
 # --- Main Script ---
 
 # Validate input arguments
-if [[ "$#" -ne 2 ]]; then
-  echo "Usage: $0 <network> \"<array-of-task-IDs>\"" >&2
+if [[ "$#" -lt 2 || "$#" -gt 3 ]]; then
+  echo "Usage: $0 <network> \"<array-of-task-IDs>\" [block_number]" >&2
   exit 1
 fi
 
 network="$1"
 task_ids="$2"
+block_number="${3:-}" # Make block_number optional
+
+# Validate block number if provided
+if [[ -n "$block_number" ]]; then
+    if ! [[ "$block_number" =~ ^[0-9]+$ ]]; then
+        error_exit "Block number must be a valid number, got: $block_number"
+    fi
+fi
+
 # Determine root directory.
 base_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 root_dir="$base_dir/../.."
