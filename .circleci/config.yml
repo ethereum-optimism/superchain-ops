@@ -24,7 +24,7 @@ parameters:
     type: integer
     default: 5
 
-commands:  
+commands:
   simulate:
     description: "Runs simulations of a task"
     parameters:
@@ -62,7 +62,6 @@ commands:
               --dotenv-path $(pwd)/.env \
               --justfile ../../../nested.just \
               simulate council
-
 
   notify-failures-on-develop:
     description: "Notify Slack"
@@ -265,7 +264,6 @@ jobs:
       - simulate_nested:
           task: "/sep/zora-002-fp-upgrade"
 
-
   forge_build:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -289,7 +287,7 @@ jobs:
             just install
             forge --version
             forge fmt --check
-  
+
   forge_test:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -300,7 +298,7 @@ jobs:
           command: |
             forge --version
             forge test -vvv
-  
+
   monorepo_integration_test:
     circleci_ip_ranges: true
     docker:
@@ -335,23 +333,9 @@ jobs:
       - utils/checkout-with-mise
       - run:
           name: shellcheck
-          command: | # Justfiles are not shell scripts and should not be checked with shellcheck
+          command:
+            | # Justfiles are not shell scripts and should not be checked with shellcheck
             (cd src/improvements/script && shellcheck -x *.sh)
-
-  simulate_sequence:
-    description: "Runs a sequence of simulations"
-    parameters:
-      prefix:
-        type: string
-      tasks:
-        type: string
-    docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
-    steps:
-      - checkout
-      - run:
-          name: "Run simulation sequence for <<parameters.prefix>> tasks: <<parameters.tasks>>"
-          command: just install && echo "yes" | bash ./script/utils/sim-sequence.sh <<parameters.prefix>> "<<parameters.tasks>>"
 
 workflows:
   main:
@@ -382,13 +366,8 @@ workflows:
       - check_task_statuses
       # Verify that all tasks have correctly uppercased nonce overrides.
       - check_nonce_overrides
-      # Simulate the sequencing for the Jan 3-7 signing window.
-      - simulate_sequence:
-          prefix: "eth"
-          tasks: "021 022 base-003 ink-001"
       # check that superchain-registry is up to date
       - check_superchain_registry
-
       # Task simulations.
       # Please add an invocation to `just simulate` if a ceremony is
       # active (e.g. it is the next ceremony to perform or you
@@ -405,4 +384,3 @@ workflows:
       - just_simulate_ink_respected_game_type
       # sepolia
       - just_simulate_zora_002_fp_upgrade
-
