@@ -424,12 +424,6 @@ abstract contract MultisigTask is Test, Script, ITask {
         return _allowedStorageAccesses.values();
     }
 
-    /// TODO:
-    ///    - get the state diff from the result of the simulate function, and not the build function
-    ///    - have simulate function return the state diff, then pass this to the validate() function
-    ///    - all assertions on state changes should happen in the validate function
-    ///         - check state diff should be called in the validate function
-
     /// @notice execute post-task checks.
     ///          e.g. read state variables of the deployed contracts to make
     ///          sure they are deployed and initialized correctly, or read
