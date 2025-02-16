@@ -46,7 +46,7 @@ sign hdPath='0':
   $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
   forge script ${script} \
     --rpc-url ${rpcUrl} \
-    --sig "simulateRun(string,bytes)" ${config} 0x
+    --sig "simulateRun(string)" ${config}
 
 execute hdPath='0':
   #!/usr/bin/env bash
