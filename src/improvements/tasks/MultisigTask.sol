@@ -176,10 +176,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// prints the data to sign and the hash to approve which is used to sign with the eip712sign binary.
     /// For nested multisig, prints the data to sign and the hash to approve for each of the child multisigs.
     /// @param taskConfigFilePath The path to the task configuration file.
-    function simulateRun(string memory taskConfigFilePath)
-        public
-        returns (VmSafe.AccountAccess[] memory)
-    {
+    function simulateRun(string memory taskConfigFilePath) public returns (VmSafe.AccountAccess[] memory) {
         return simulateRun(taskConfigFilePath, "");
     }
 
