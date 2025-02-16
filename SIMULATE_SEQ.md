@@ -3,6 +3,11 @@
 A utility script for simulating a sequence of tasks against an Anvil fork with state overrides disabled.
 This script will lookup for the tasks in the tasks directory and simulate them in the order of the array of task IDs.
 
+
+[Demo Sim-sequence.sh](https://github.com/user-attachments/assets/50e85b69-f7dc-40fe-b689-aa1e58394400)
+
+
+
 ## Synopsis
 
 ```bash
