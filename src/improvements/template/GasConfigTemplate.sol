@@ -68,8 +68,4 @@ contract GasConfigTemplate is MultisigTask {
             assertEq(systemConfig.gasLimit(), gasLimits[chainId], "l2 gas limit not set");
         }
     }
-
-    /// @notice override checkStateDiff function to allow template to be run
-    /// TODO implement checks in a later PR
-    function checkStateDiff(VmSafe.AccountAccess[] memory) internal view override {}
 }

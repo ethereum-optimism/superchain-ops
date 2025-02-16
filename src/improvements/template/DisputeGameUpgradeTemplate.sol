@@ -78,8 +78,4 @@ contract DisputeGameUpgradeTemplate is MultisigTask {
             );
         }
     }
-
-    /// @notice override checkStateDiff function to allow template to be run
-    /// TODO implement checks in a later PR
-    function checkStateDiff(VmSafe.AccountAccess[] memory) internal view override {}
 }

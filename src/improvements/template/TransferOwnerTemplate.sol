@@ -55,8 +55,4 @@ contract TransferOwnerTemplate is MultisigTask {
 
         assertEq(proxyAdmin.owner(), newOwner, "new owner not set correctly");
     }
-
-    /// @notice override checkStateDiff function to allow template to be run
-    /// TODO implement checks in a later PR
-    function checkStateDiff(VmSafe.AccountAccess[] memory) internal view override {}
 }
