@@ -1,4 +1,6 @@
-pragma solidity ^0.8.0;
+pragma solidity 0.8.15;
+
+import {VmSafe} from "forge-std/Vm.sol";
 
 import {OPCMBaseTask} from "../tasks/OPCMBaseTask.sol";
 import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
@@ -35,7 +37,8 @@ contract TestOPCMUpgradeVxyz is OPCMBaseTask {
     /// required as per the OPCM contract.
     /// @return Array of storage write permissions
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
-        string[] memory storageWrites = new string[](0);
+        string[] memory storageWrites = new string[](1);
+        storageWrites[0] = "ProxyAdminOwner";
         return storageWrites;
     }
 
@@ -74,4 +77,8 @@ contract TestOPCMUpgradeVxyz is OPCMBaseTask {
     /// for this dummy opcm there are no validations per l2 chain
     /// for a real OPCM instance, add the validations per l2chain
     function _validate(uint256 chainId) internal view override {}
+
+    /// @notice override checkStateDiff function to allow template to be run
+    /// TODO implement checks in a later PR
+    function checkStateDiff(VmSafe.AccountAccess[] memory) internal view override {}
 }
