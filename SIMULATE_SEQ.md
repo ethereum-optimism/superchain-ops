@@ -43,7 +43,7 @@ Execution with tasks example:
 
 # Simulate single task
 ./script/utils/sim-sequence.sh eth "021"
-
+```
 
 ## Exit Codes
 
