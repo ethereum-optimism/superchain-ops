@@ -35,9 +35,8 @@ contract DisputeGameUpgradeTemplate is MultisigTask {
     /// @notice Returns the storage write permissions required for this task
     /// @return Array of storage write permissions
     function _taskStorageWrites() internal pure override returns (string[] memory) {
-        string[] memory storageWrites = new string[](2);
+        string[] memory storageWrites = new string[](1);
         storageWrites[0] = "DisputeGameFactoryProxy";
-        storageWrites[1] = "ProxyAdminOwner";
         return storageWrites;
     }
 

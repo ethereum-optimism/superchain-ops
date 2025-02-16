@@ -38,8 +38,7 @@ contract TestOPCMUpgradeVxyz is OPCMBaseTask {
     /// required as per the OPCM contract.
     /// @return Array of storage write permissions
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
-        string[] memory storageWrites = new string[](1);
-        storageWrites[0] = "ProxyAdminOwner";
+        string[] memory storageWrites = new string[](0);
         return storageWrites;
     }
 

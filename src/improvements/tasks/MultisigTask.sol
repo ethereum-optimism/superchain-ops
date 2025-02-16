@@ -234,6 +234,7 @@ abstract contract MultisigTask is Test, Script, ITask {
 
         config.safeAddressString = safeAddressString();
         config.allowedStorageWriteAccesses = _taskStorageWrites();
+        config.allowedStorageWriteAccesses.push(safeAddressString());
 
         // set the AddressRegistry
         addrRegistry = _addrRegistry;
