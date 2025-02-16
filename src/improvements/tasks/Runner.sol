@@ -48,7 +48,7 @@ contract Runner is Script {
                 string.concat("out/", config.templateName, ".sol/", config.templateName, ".json");
 
             ITask task = ITask(deployCode(templatePath));
-            task.simulateRun(config.path);
+            task.simulateRun(config.path, "");
         }
     }
 
