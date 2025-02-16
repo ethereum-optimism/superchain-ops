@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
+import {VmSafe} from "forge-std/Vm.sol";
+
 abstract contract ITask {
     /// @notice return task actions.
     /// @dev this function shoudn't be overriden.
@@ -17,7 +19,10 @@ abstract contract ITask {
 
     /// @notice runs all task steps
     /// 1. builds, simulates, validates and then prints the task
-    function simulateRun(string memory taskConfigFilePath) external virtual;
+    function simulateRun(string memory taskConfigFilePath, bytes memory signatures)
+        external
+        virtual
+        returns (VmSafe.AccountAccess[] memory);
 
     /// @notice build the task actions
     /// @dev contract calls must be perfomed in plain solidity.
@@ -28,13 +33,13 @@ abstract contract ITask {
     /// @notice actually simulates the task.
     ///         e.g. schedule and execute on Timelock Controller,
     ///         proposes, votes and execute on Governor Bravo, etc.
-    function simulate() external virtual;
+    function simulate(bytes memory signatures) external virtual returns (VmSafe.AccountAccess[] memory);
 
     /// @notice execute post-task checks.
     ///          e.g. read state variables of the changed contracts to make
     ///          sure the state transitions happened correctly, or read
     ///          states that are expected to have changed during the simulate step.
-    function validate() external virtual;
+    function validate(VmSafe.AccountAccess[] memory accountAccesses) external virtual;
 
     /// @notice print task description, actions and calldata
     function print() external virtual;
