@@ -39,7 +39,7 @@ contract SingleMultisigTaskTest is Test {
 
     function runTask() public {
         multisigTask = new GasConfigTemplate();
-        multisigTask.simulateRun(taskConfigFilePath);
+        multisigTask.simulateRun(taskConfigFilePath, "");
     }
 
     function testTemplateSetup() public {
@@ -78,7 +78,7 @@ contract SingleMultisigTaskTest is Test {
         vm.expectRevert("No actions found");
         localMultisigTask.getTaskActions();
 
-        localMultisigTask.simulateRun(taskConfigFilePath);
+        localMultisigTask.simulateRun(taskConfigFilePath, "");
 
         addresses = localMultisigTask.addresses();
 
@@ -164,14 +164,14 @@ contract SingleMultisigTaskTest is Test {
     function testRevertIfReInitialised() public {
         runTask();
         vm.expectRevert("MultisigTask: already initialized");
-        multisigTask.simulateRun(taskConfigFilePath);
+        multisigTask.simulateRun(taskConfigFilePath, "");
     }
 
     function testRevertIfUnsupportedChain() public {
         vm.chainId(10);
         MultisigTask localMultisigTask = new GasConfigTemplate();
         vm.expectRevert("Unsupported network");
-        localMultisigTask.simulateRun(taskConfigFilePath);
+        localMultisigTask.simulateRun(taskConfigFilePath, "");
     }
 
     function testRevertIfDifferentL2SafeAddresses() public {
@@ -187,7 +187,7 @@ contract SingleMultisigTaskTest is Test {
             )
         );
         vm.expectRevert(expectedRevertMessage);
-        localMultisigTask.simulateRun(incorrectTaskConfigFilePath);
+        localMultisigTask.simulateRun(incorrectTaskConfigFilePath, "");
     }
 
     function testRevertIfIncorrectAllowedStorageWrite() public {
@@ -201,7 +201,7 @@ contract SingleMultisigTaskTest is Test {
             )
         );
         vm.expectRevert(expectedRevertMessage);
-        localMultisigTask.simulateRun(taskConfigFilePath);
+        localMultisigTask.simulateRun(taskConfigFilePath, "");
     }
 
     function testRevertIfAllowedStorageNotWritten() public {
@@ -210,12 +210,12 @@ contract SingleMultisigTaskTest is Test {
         bytes memory expectedRevertMessage = bytes(
             string.concat(
                 "MultisigTask: address ",
-                localMultisigTask.getAddressLabel(addressRegistry.getAddress("SystemConfigOwner", 34443)),
-                " not in task state change addresses"
+                localMultisigTask.getAddressLabel(addressRegistry.getAddress("SystemConfigProxy", 34443)),
+                " not in allowed storage accesses"
             )
         );
         vm.expectRevert(expectedRevertMessage);
-        localMultisigTask.simulateRun(taskConfigFilePath);
+        localMultisigTask.simulateRun(taskConfigFilePath, "");
     }
 
     function testExecuteWithSignatures() public {
@@ -291,7 +291,7 @@ contract SingleMultisigTaskTest is Test {
 
         /// execute the task with the signatures
         multisigTask = new GasConfigTemplate();
-        multisigTask.executeRun(taskConfigFilePath, packedSignatures);
+        multisigTask.simulateRun(taskConfigFilePath, packedSignatures);
 
         /// check that the gas limits are set correctly after the task is executed
         SystemConfig systemConfig = SystemConfig(systemConfigMode);

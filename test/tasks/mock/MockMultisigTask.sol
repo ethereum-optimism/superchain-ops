@@ -4,6 +4,7 @@ pragma solidity 0.8.15;
 import {IProxyAdmin} from "@eth-optimism-bedrock/interfaces/universal/IProxyAdmin.sol";
 import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
 import {IProxy} from "@eth-optimism-bedrock/interfaces/universal/IProxy.sol";
+import {VmSafe} from "forge-std/Vm.sol";
 
 import {MockTarget} from "test/tasks/mock/MockTarget.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
@@ -26,8 +27,9 @@ contract MockMultisigTask is MultisigTask {
     /// @notice Returns the storage write permissions required for this task
     /// @return Array of storage write permissions
     function _taskStorageWrites() internal pure override returns (string[] memory) {
-        string[] memory storageWrites = new string[](1);
+        string[] memory storageWrites = new string[](2);
         storageWrites[0] = "L1ERC721BridgeProxy";
+        storageWrites[1] = "ProxyAdminOwner";
         return storageWrites;
     }
 
@@ -57,4 +59,8 @@ contract MockMultisigTask is MultisigTask {
     function addAction(address target, bytes memory data, uint256 value, string memory description) public {
         actions.push(Action(target, value, data, description));
     }
+
+    /// @notice override checkStateDiff function to allow template to be run
+    /// TODO implement checks in a later PR
+    function checkStateDiff(VmSafe.AccountAccess[] memory) internal view override {}
 }

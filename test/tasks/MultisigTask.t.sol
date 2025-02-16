@@ -53,21 +53,21 @@ contract MultisigTaskUnitTest is Test {
 
     function testRunFailsNoNetworks() public {
         vm.expectRevert("MultisigTask: no chains found");
-        task.simulateRun("./test/tasks/mock/configs/InvalidNetworkConfig.toml");
+        task.simulateRun("./test/tasks/mock/configs/InvalidNetworkConfig.toml", "");
     }
 
     function testRunFailsEmptyActions() public {
         /// add empty action that will cause a revert
         _addAction(address(0), "", 0, "");
         vm.expectRevert("Invalid target for task");
-        task.simulateRun(MAINNET_CONFIG);
+        task.simulateRun(MAINNET_CONFIG, "");
     }
 
     function testRunFailsInvalidAction() public {
         /// add invalid args for action that will cause a revert
         _addAction(address(1), "", 0, "");
         vm.expectRevert("Invalid arguments for task");
-        task.simulateRun(MAINNET_CONFIG);
+        task.simulateRun(MAINNET_CONFIG, "");
     }
 
     function testBuildFailsAddressesNotSet() public {
@@ -164,14 +164,14 @@ contract MultisigTaskUnitTest is Test {
         /// add duplicate action that will cause a revert
         _addUpgradeAction();
         vm.expectRevert("Duplicated action found");
-        task.simulateRun(MAINNET_CONFIG);
+        task.simulateRun(MAINNET_CONFIG, "");
     }
 
-    function testRun() public {
+    function testRun() public returns (VmSafe.AccountAccess[] memory accountAccesses) {
         vm.expectRevert("No actions found");
         task.getTaskActions();
 
-        task.simulateRun(MAINNET_CONFIG);
+        accountAccesses = task.simulateRun(MAINNET_CONFIG, "");
 
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.getTaskActions();
 
@@ -199,10 +199,10 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testSimulateFailsTxAlreadyExecuted() public {
-        testRun();
+        VmSafe.AccountAccess[] memory accountAccesses = testRun();
 
         vm.expectRevert("GS025");
-        VmSafe.AccountAccess[] memory accountAccesses = task.simulate("");
+        task.simulate("");
 
         /// validations should pass after a successful run
         task.validate(accountAccesses);

@@ -38,7 +38,7 @@ contract NestedMultisigTaskTest is Test {
 
     function runTask() internal {
         multisigTask = new DisputeGameUpgradeTemplate();
-        multisigTask.simulateRun(taskConfigFilePath);
+        multisigTask.simulateRun(taskConfigFilePath, "");
         addresses = multisigTask.addresses();
     }
 
@@ -203,12 +203,9 @@ contract NestedMultisigTaskTest is Test {
             multisigTask.approveFromChildMultisig(taskConfigFilePath, childMultisig, packedSignaturesChild);
         }
 
-        /// no offchain signatures for the parent multisig
-        bytes memory packedSignaturesParent;
-
         /// execute the task
         multisigTask = new DisputeGameUpgradeTemplate();
-        multisigTask.executeRun(taskConfigFilePath, packedSignaturesParent);
+        multisigTask.simulateRun(taskConfigFilePath, "");
 
         /// check that the implementation is upgraded correctly
         assertEq(
