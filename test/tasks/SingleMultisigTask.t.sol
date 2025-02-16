@@ -39,7 +39,7 @@ contract SingleMultisigTaskTest is Test {
 
     function runTask() public {
         multisigTask = new GasConfigTemplate();
-        multisigTask.simulateRun(taskConfigFilePath, "");
+        multisigTask.simulateRun(taskConfigFilePath);
     }
 
     function testTemplateSetup() public {
@@ -86,7 +86,7 @@ contract SingleMultisigTaskTest is Test {
         vm.expectRevert("No actions found");
         localMultisigTask.getTaskActions();
 
-        localMultisigTask.simulateRun(taskConfigFilePath, "");
+        localMultisigTask.simulateRun(taskConfigFilePath);
 
         addrRegistry = localMultisigTask.addrRegistry();
 
@@ -172,14 +172,14 @@ contract SingleMultisigTaskTest is Test {
     function testRevertIfReInitialised() public {
         runTask();
         vm.expectRevert("MultisigTask: already initialized");
-        multisigTask.simulateRun(taskConfigFilePath, "");
+        multisigTask.simulateRun(taskConfigFilePath);
     }
 
     function testRevertIfUnsupportedChain() public {
         vm.chainId(10);
         MultisigTask localMultisigTask = new GasConfigTemplate();
         vm.expectRevert("Unsupported network");
-        localMultisigTask.simulateRun(taskConfigFilePath, "");
+        localMultisigTask.simulateRun(taskConfigFilePath);
     }
 
     function testRevertIfDifferentL2SafeAddresses() public {
@@ -195,7 +195,7 @@ contract SingleMultisigTaskTest is Test {
             )
         );
         vm.expectRevert(expectedRevertMessage);
-        localMultisigTask.simulateRun(incorrectTaskConfigFilePath, "");
+        localMultisigTask.simulateRun(incorrectTaskConfigFilePath);
     }
 
     function testRevertIfIncorrectAllowedStorageWrite() public {
@@ -209,7 +209,7 @@ contract SingleMultisigTaskTest is Test {
             )
         );
         vm.expectRevert(expectedRevertMessage);
-        localMultisigTask.simulateRun(taskConfigFilePath, "");
+        localMultisigTask.simulateRun(taskConfigFilePath);
     }
 
     function testRevertIfAllowedStorageNotWritten() public {
@@ -223,7 +223,7 @@ contract SingleMultisigTaskTest is Test {
             )
         );
         vm.expectRevert(expectedRevertMessage);
-        localMultisigTask.simulateRun(taskConfigFilePath, "");
+        localMultisigTask.simulateRun(taskConfigFilePath);
     }
 
     function testExecuteWithSignatures() public {

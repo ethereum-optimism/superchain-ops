@@ -35,7 +35,7 @@ contract NestedMultisigTaskTest is Test {
 
     function runTask() internal {
         multisigTask = new DisputeGameUpgradeTemplate();
-        multisigTask.simulateRun(taskConfigFilePath, "");
+        multisigTask.simulateRun(taskConfigFilePath);
         addrRegistry = multisigTask.addrRegistry();
     }
 
@@ -207,7 +207,7 @@ contract NestedMultisigTaskTest is Test {
 
         /// execute the task
         multisigTask = new DisputeGameUpgradeTemplate();
-        multisigTask.simulateRun(taskConfigFilePath, "");
+        multisigTask.simulateRun(taskConfigFilePath);
 
         // check that the implementation is upgraded correctly
         assertEq(
@@ -224,7 +224,7 @@ contract NestedMultisigTaskTest is Test {
         uint256 snapshotId = vm.snapshot();
         multisigTask = new TestOPCMUpgradeVxyz();
         string memory opcmTaskConfigFilePath = "test/tasks/mock/configs/TestOPCMUpgradeVxyz.toml";
-        multisigTask.simulateRun(opcmTaskConfigFilePath, "");
+        multisigTask.simulateRun(opcmTaskConfigFilePath);
         addrRegistry = multisigTask.addrRegistry();
         address multisig = multisigTask.parentMultisig();
         address[] memory parentMultisigOwners = IGnosisSafe(multisig).getOwners();
@@ -299,12 +299,9 @@ contract NestedMultisigTaskTest is Test {
             multisigTask.approveFromChildMultisig(opcmTaskConfigFilePath, childMultisig, packedSignaturesChild);
         }
 
-        // no offchain signatures for the parent multisig
-        bytes memory packedSignaturesParent;
-
         // execute the task
         multisigTask = new TestOPCMUpgradeVxyz();
-        multisigTask.simulateRun(opcmTaskConfigFilePath, packedSignaturesParent);
+        multisigTask.simulateRun(opcmTaskConfigFilePath);
     }
 
     function getNestedDataToSign(address owner) internal view returns (bytes memory) {
