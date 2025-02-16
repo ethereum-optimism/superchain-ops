@@ -2,8 +2,6 @@
 
 
 LOGFILE="/tmp/sim-sequence.log"
-
-
 ## Nonce Values
 MAX_NONCE_ERROR=9999999
 FUS_BEFORE=$MAX_NONCE_ERROR
@@ -11,20 +9,8 @@ FOS_BEFORE=$MAX_NONCE_ERROR
 SC_BEFORE=$MAX_NONCE_ERROR
 L1PAO_BEFORE=$MAX_NONCE_ERROR
 
-## log Functions
-
 ANVIL_LOCALHOST_RPC="http://localhost:8545"
-# log the nonce with error and exit the script
-log_nonce_error() {
-  echo "est" > /tmp/rce.txt
-  echo -e "\033[0;31mFoundation Upgrade Safe (FuS) [$Foundation_Upgrade_Safe] nonce: "$FUS_BEFORE".\033[0m"
-  echo -e "\033[0;31mFoundation Operation Safe (FoS) [$Foundation_Operation_Safe] nonce: "$FOS_BEFORE".\033[0m"
-  echo -e "\033[0;31mSecurity Council Safe (SC) [$Security_Council_Safe] nonce: "$SC_BEFORE".\033[0m"
-  echo -e "\033[0;31mL1ProxyAdminOwner (L1PAO) [$Proxy_Admin_Owner_Safe] nonce: "$L1PAO_BEFORE".\033[0m"
-  exit 1
-
-}
-
+## LOG utilies
 log_debug() {
     echo "[-] $(date '+%Y-%m-%d %H:%M:%S') [DEBUG] $1" | tee -a "$LOGFILE"
 }
@@ -43,11 +29,19 @@ log_info() {
     echo -e "\033[0;34m[ℹ️] $(date '+%Y-%m-%d %H:%M:%S') [INFO] $1\033[0m" | tee -a "$LOGFILE"
 }
 
-# create a function that take the task_path and return the last folder
+# Log the nonce with error and exit the script.
+log_nonce_error() {
+  echo "est" > /tmp/rce.txt
+  echo -e "\033[0;31mFoundation Upgrade Safe (FuS) [$Foundation_Upgrade_Safe] nonce: "$FUS_BEFORE".\033[0m"
+  echo -e "\033[0;31mFoundation Operation Safe (FoS) [$Foundation_Operation_Safe] nonce: "$FOS_BEFORE".\033[0m"
+  echo -e "\033[0;31mSecurity Council Safe (SC) [$Security_Council_Safe] nonce: "$SC_BEFORE".\033[0m"
+  echo -e "\033[0;31mL1ProxyAdminOwner (L1PAO) [$Proxy_Admin_Owner_Safe] nonce: "$L1PAO_BEFORE".\033[0m"
+  exit 1
 
-### ADDRESS SHOULD BE GET FROM SUPERCHAIN-OPS IN THE FUTURE ###
+}
 
 
+#TODO: GET THE ADDRESSES FROM SUPERCHAIN-REGISTRY IN THE FUTURE, since they are the safes addresses this sholdn't change so often so this fine.
 ## ETHEREUM
 Security_Council_Safe=0xc2819DC788505Aac350142A7A707BF9D03E3Bd03
 Foundation_Upgrade_Safe=0x847B5c174615B1B7fDF770882256e2D3E95b9D92
@@ -165,16 +159,12 @@ NonceDisplayModified(){
     echo "L1ProxyAdminOwner (L1PAO) [$Proxy_Admin_Owner_Safe] nonce: "$(cast call $Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
   fi
 
-
-  # echo "Foundation Upgrade Safe (FuS) [$Foundation_Upgrade_Safe] nonce: "$(cast call $Foundation_Upgrade_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
-  # echo "Foundation Operation Safe (FoS) [$Foundation_Operation_Safe] nonce: "$(cast call $Foundation_Operation_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
-  # echo "Security Council Safe (SC) [$Security_Council_Safe] nonce: "$(cast call $Security_Council_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
-  # echo "L1ProxyAdminOwner (L1PAO) [$Proxy_Admin_Owner_Safe] nonce: "$(cast call $Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
 }
  
 
 
-
+# Displays the current nonce values for various safes before simulation
+# $1: Message to display before showing nonce values
 BeforeNonceDisplay(){
   echo -e "\n$1"
   FUS_BEFORE=$(cast call $Foundation_Upgrade_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
