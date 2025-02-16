@@ -148,15 +148,21 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// prints the data to sign and the hash to approve which is used to sign with the eip712sign binary.
     /// For nested multisig, prints the data to sign and the hash to approve for each of the child multisigs.
     /// @param taskConfigFilePath The path to the task configuration file.
-    function simulateRun(string memory taskConfigFilePath) public override {
+    function simulateRun(string memory taskConfigFilePath, bytes memory signatures)
+        public
+        override
+        returns (VmSafe.AccountAccess[] memory)
+    {
         /// sets safe to the safe specified by the current template from addresses.json
         _taskSetup(taskConfigFilePath);
 
         /// now execute task actions
         build();
-        VmSafe.AccountAccess[] memory accountAccesses = simulate("");
+        VmSafe.AccountAccess[] memory accountAccesses = simulate(signatures);
         validate(accountAccesses);
         print();
+
+        return accountAccesses;
     }
 
     /// @notice Executes the task with the given configuration file path and signatures.
@@ -164,13 +170,18 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// as well as the nested multisig.
     /// @param taskConfigFilePath The path to the task configuration file.
     /// @param signatures The signatures to execute the task.
-    function executeRun(string memory taskConfigFilePath, bytes memory signatures) public {
+    function executeRun(string memory taskConfigFilePath, bytes memory signatures)
+        public
+        returns (VmSafe.AccountAccess[] memory)
+    {
         _taskSetup(taskConfigFilePath);
         /// now execute task actions
         build();
         VmSafe.AccountAccess[] memory accountAccesses = simulate(signatures);
         validate(accountAccesses);
         execute(signatures);
+
+        return accountAccesses;
     }
 
     /// @notice Child multisig of a nested multisig approves the task to be executed with the given
@@ -193,7 +204,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @param _childMultisig The address of the child multisig.
     function signFromChildMultisig(string memory taskConfigFilePath, address _childMultisig) public {
         childMultisig = _childMultisig;
-        simulateRun(taskConfigFilePath);
+        simulateRun(taskConfigFilePath, "");
         require(isNestedSafe, "MultisigTask: multisig must be nested");
     }
 
@@ -321,7 +332,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     function simulate(bytes memory _signatures) public override returns (VmSafe.AccountAccess[] memory) {
         bytes memory data = getCalldata();
         bytes32 hash = getHash();
-        bytes memory signatures = prepareSignatures(multisig, hash);
+        bytes memory signatures;
 
         // Approve the hash from each owner
         address[] memory owners = IGnosisSafe(multisig).getOwners();
@@ -330,9 +341,11 @@ abstract contract MultisigTask is Test, Script, ITask {
                 vm.prank(owners[i]);
                 IGnosisSafe(multisig).approveHash(hash);
             }
+            /// gather signatures after approval hashes have been made
+            signatures = prepareSignatures(multisig, hash);
+        } else {
+            signatures = Signatures.prepareSignatures(multisig, hash, _signatures);
         }
-
-        signatures = Signatures.prepareSignatures(multisig, hash, _signatures.length > 0 ? _signatures : signatures);
 
         bytes32 txHash = IGnosisSafe(multisig).getTransactionHash(
             MULTICALL3_ADDRESS, 0, data, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), nonce
