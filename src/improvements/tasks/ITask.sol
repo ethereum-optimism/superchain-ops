@@ -19,7 +19,10 @@ abstract contract ITask {
 
     /// @notice runs all task steps
     /// 1. builds, simulates, validates and then prints the task
-    function simulateRun(string memory taskConfigFilePath) external virtual;
+    function simulateRun(string memory taskConfigFilePath, bytes memory signatures)
+        external
+        virtual
+        returns (VmSafe.AccountAccess[] memory);
 
     /// @notice build the task actions
     /// @dev contract calls must be perfomed in plain solidity.
