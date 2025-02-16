@@ -2,6 +2,7 @@
 pragma solidity 0.8.15;
 
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
+import {VmSafe} from "forge-std/Vm.sol";
 import {Test} from "forge-std/Test.sol";
 
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
@@ -131,7 +132,7 @@ contract MultisigTaskUnitTest is Test {
         );
 
         vm.expectRevert("MultisigTask: hash mismatch");
-        task.simulate();
+        task.simulate("");
     }
 
     function testBuildFailsRevertPreviousSnapshotFails() public {
@@ -201,10 +202,10 @@ contract MultisigTaskUnitTest is Test {
         testRun();
 
         vm.expectRevert("GS025");
-        task.simulate();
+        VmSafe.AccountAccess[] memory accountAccesses = task.simulate("");
 
         /// validations should pass after a successful run
-        task.validate();
+        task.validate(accountAccesses);
     }
 
     function testGetCalldata() public {

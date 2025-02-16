@@ -154,8 +154,8 @@ abstract contract MultisigTask is Test, Script, ITask {
 
         /// now execute task actions
         build();
-        simulate();
-        validate();
+        VmSafe.AccountAccess[] memory accountAccesses = simulate("");
+        validate(accountAccesses);
         print();
     }
 
@@ -168,8 +168,9 @@ abstract contract MultisigTask is Test, Script, ITask {
         _taskSetup(taskConfigFilePath);
         /// now execute task actions
         build();
+        VmSafe.AccountAccess[] memory accountAccesses = simulate(signatures);
+        validate(accountAccesses);
         execute(signatures);
-        validate();
     }
 
     /// @notice Child multisig of a nested multisig approves the task to be executed with the given
@@ -317,24 +318,29 @@ abstract contract MultisigTask is Test, Script, ITask {
     }
 
     /// @notice simulate the task by approving from owners and then executing
-    function simulate() public override {
+    function simulate(bytes memory _signatures) public override returns (VmSafe.AccountAccess[] memory) {
         bytes memory data = getCalldata();
         bytes32 hash = getHash();
+        bytes memory signatures = prepareSignatures(multisig, hash);
 
         // Approve the hash from each owner
         address[] memory owners = IGnosisSafe(multisig).getOwners();
-        for (uint256 i = 0; i < owners.length; i++) {
-            vm.prank(owners[i]);
-            IGnosisSafe(multisig).approveHash(hash);
+        if (_signatures.length == 0) {
+            for (uint256 i = 0; i < owners.length; i++) {
+                vm.prank(owners[i]);
+                IGnosisSafe(multisig).approveHash(hash);
+            }
         }
 
-        bytes memory signatures = prepareSignatures(multisig, hash);
+        signatures = Signatures.prepareSignatures(multisig, hash, _signatures.length > 0 ? _signatures : signatures);
 
         bytes32 txHash = IGnosisSafe(multisig).getTransactionHash(
             MULTICALL3_ADDRESS, 0, data, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), nonce
         );
 
         require(hash == txHash, "MultisigTask: hash mismatch");
+
+        vm.startStateDiffRecording();
 
         // Execute the transaction
         (bool success) = IGnosisSafe(multisig).execTransaction(
@@ -350,7 +356,11 @@ abstract contract MultisigTask is Test, Script, ITask {
             signatures
         );
 
+        VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
+
         require(success, "MultisigTask: simulateActions failed");
+
+        return accountAccesses;
     }
 
     /// @notice child multisig approves the task to be executed.
@@ -398,7 +408,6 @@ abstract contract MultisigTask is Test, Script, ITask {
             payable(address(0)),
             signatures
         );
-
         require(success, "MultisigTask: execute failed");
     }
 
@@ -408,11 +417,21 @@ abstract contract MultisigTask is Test, Script, ITask {
         return _allowedStorageAccesses.values();
     }
 
+    /// TODO:
+    ///    - get the state diff from the result of the simulate function, and not the build function
+    ///    - have simulate function return the state diff, then pass this to the validate() function
+    ///    - all assertions on state changes should happen in the validate function
+    ///         - check state diff should be called in the validate function
+
     /// @notice execute post-task checks.
     ///          e.g. read state variables of the deployed contracts to make
     ///          sure they are deployed and initialized correctly, or read
     ///          states that are expected to have changed during the simulate step.
-    function validate() public view override {
+    function validate(VmSafe.AccountAccess[] memory accountAccesses) public override {
+        /// check that no eth or ERC20 tokens moved that were not already approved
+        /// write all state changes to storage
+        _processStateDiffChanges(accountAccesses);
+
         /// check that all state change addresses are in allowed storage accesses
         for (uint256 i; i < _taskStateChangeAddresses.length(); i++) {
             address addr = _taskStateChangeAddresses.at(i);
@@ -446,6 +465,9 @@ abstract contract MultisigTask is Test, Script, ITask {
         for (uint256 i = 0; i < chains.length; i++) {
             _validate(chains[i].chainId);
         }
+
+        /// reverts by default and must be overridden by the child templates
+        checkStateDiff(accountAccesses);
     }
 
     /// @notice get task actions
@@ -795,8 +817,7 @@ abstract contract MultisigTask is Test, Script, ITask {
         /// roll back all state changes made during the task
         require(vm.revertTo(_startSnapshot), "failed to revert back to snapshot, unsafe state to run task");
 
-        _processStateDiffChanges(accountAccesses);
-
+        /// write the state changes to storage
         for (uint256 i = 0; i < accountAccesses.length; i++) {
             /// store all gnosis safe storage accesses that are writes
             for (uint256 j = 0; j < accountAccesses[i].storageAccesses.length; j++) {
@@ -861,8 +882,6 @@ abstract contract MultisigTask is Test, Script, ITask {
             // process state changes
             _processStateChanges(accountAccesses[i].storageAccesses);
         }
-
-        checkStateDiff(accountAccesses);
     }
 
     /// @notice helper method to get eth transfers of task affected addresses
