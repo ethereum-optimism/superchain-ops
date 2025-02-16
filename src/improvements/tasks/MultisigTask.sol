@@ -490,7 +490,7 @@ abstract contract MultisigTask is Test, Script {
     }
 
     /// @notice print task description, actions, transfers, state changes and EOAs datas to sign
-    function print() public virtual {
+    function print() public view {
         console.log("\n------------------ Task Actions ------------------");
         for (uint256 i; i < actions.length; i++) {
             console.log("%d). %s", i + 1, actions[i].description);
@@ -699,7 +699,7 @@ abstract contract MultisigTask is Test, Script {
 
     /// @notice validate actions inclusion
     /// default implementation check for duplicate actions
-    function _validateAction(address target, uint256 value, bytes memory data) internal virtual {
+    function _validateAction(address target, uint256 value, bytes memory data) internal view {
         uint256 actionsLength = actions.length;
         for (uint256 i = 0; i < actionsLength; i++) {
             // Check if the target, arguments and value matches with other existing actions.
