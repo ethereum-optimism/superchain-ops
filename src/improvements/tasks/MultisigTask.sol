@@ -219,7 +219,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @param _childMultisig The address of the child multisig.
     function signFromChildMultisig(string memory taskConfigFilePath, address _childMultisig) public {
         childMultisig = _childMultisig;
-        simulateRun(taskConfigFilePath, "");
+        simulateRun(taskConfigFilePath);
         require(isNestedSafe, "MultisigTask: multisig must be nested");
     }
 
