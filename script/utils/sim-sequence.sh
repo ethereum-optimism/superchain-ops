@@ -53,7 +53,7 @@ Security_Council_Safe=0xc2819DC788505Aac350142A7A707BF9D03E3Bd03
 Foundation_Upgrade_Safe=0x847B5c174615B1B7fDF770882256e2D3E95b9D92
 Foundation_Operation_Safe=0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A
 Proxy_Admin_Owner_Safe=0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A
-DestroyAnvilAfterExecution=true
+DESTROY_ANIVIL_AFTER_EXECUTION=true
 ##############################################################
 # Simulates a sequence of tasks for a given network by running them against an Anvil
 # fork with state overrides disabled.
@@ -108,7 +108,7 @@ cleanup() {
   fi
 
   # Kill the anvil fork at the end if it was started by this script
-  if $DestroyAnvilAfterExecution; then
+  if $DESTROY_ANIVIL_AFTER_EXECUTION; then
     echo "Anvil is still open. To kill it, please use the command below:"
     echo "ps aux | grep anvil | grep -v grep | awk '{print \$3}' | xargs kill"
     #TODO: In the future, we should kill the anvil fork here?
@@ -119,7 +119,7 @@ createFork() {
   # check if the port is already open
   if lsof -Pi :8545 -sTCP:LISTEN -t >/dev/null ; then
     log_info "Anvil is detected and running on port 8545, we use the current instance of anvil."
-    DestroyAnvilAfterExecution=false
+    DESTROY_ANIVIL_AFTER_EXECUTION=false
   else  
     log_info "No instance of anvil is detected, starting anvil fork on \"$ANVIL_LOCALHOST_RPC\" by forking $RPC_URL."
     if [[ -n "$block_number" ]]; then
