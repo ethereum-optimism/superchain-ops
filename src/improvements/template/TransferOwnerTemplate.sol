@@ -2,11 +2,9 @@
 pragma solidity 0.8.15;
 
 import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
-import {VmSafe, Vm} from "forge-std/Vm.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {IAddressRegistry} from "src/improvements/IAddressRegistry.sol";
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
 /// @title TransferOwnerTemplate
 /// @notice Template contract for transferring ownership of the proxy admin
@@ -55,8 +53,4 @@ contract TransferOwnerTemplate is MultisigTask {
 
         assertEq(proxyAdmin.owner(), newOwner, "new owner not set correctly");
     }
-
-    /// @notice override checkStateDiff function to allow template to be run
-    /// TODO implement checks in a later PR
-    function checkStateDiff(VmSafe.AccountAccess[] memory) internal view override {}
 }

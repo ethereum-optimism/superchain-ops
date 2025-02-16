@@ -24,7 +24,7 @@ parameters:
     type: integer
     default: 5
 
-commands:  
+commands:
   simulate:
     description: "Runs simulations of a task"
     parameters:
@@ -274,7 +274,7 @@ jobs:
           command: |
             just install
             forge --version
-            forge build --deny-warnings --ignored-error-codes=5740 --ignored-error-codes=5574
+            forge build --deny-warnings
 
   forge_fmt:
     docker:
@@ -287,7 +287,7 @@ jobs:
             just install
             forge --version
             forge fmt --check
-  
+
   forge_test:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -298,7 +298,7 @@ jobs:
           command: |
             forge --version
             forge test -vvv
-  
+
   monorepo_integration_test:
     circleci_ip_ranges: true
     docker:

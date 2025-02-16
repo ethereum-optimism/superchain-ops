@@ -5,10 +5,8 @@ import {
     DeputyGuardianModule, IOptimismPortal2, GameType
 } from "@eth-optimism-bedrock/src/safe/DeputyGuardianModule.sol";
 import {LibGameType} from "@eth-optimism-bedrock/src/dispute/lib/LibUDT.sol";
-import {VmSafe, Vm} from "forge-std/Vm.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
 /// @title SetGameTypeTemplate
 /// @notice Template contract for setting game types in the Optimism system
@@ -81,8 +79,4 @@ contract SetGameTypeTemplate is MultisigTask {
             );
         }
     }
-
-    /// @notice override checkStateDiff function to allow template to be run
-    /// TODO implement checks in a later PR
-    function checkStateDiff(VmSafe.AccountAccess[] memory) internal view override {}
 }

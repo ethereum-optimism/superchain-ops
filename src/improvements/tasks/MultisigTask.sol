@@ -467,7 +467,6 @@ abstract contract MultisigTask is Test, Script, ITask {
             _validate(chains[i].chainId);
         }
 
-        /// reverts by default and must be overridden by the child templates
         checkStateDiff(accountAccesses);
     }
 
@@ -921,8 +920,76 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// check the state changes applied by the task. This function can check
     /// that only the nonce changed in the parent multisig when executing a task
     /// by checking the slot and address where the slot changed.
-    function checkStateDiff(VmSafe.AccountAccess[] memory) internal view virtual {
-        revert("checkStateDiff must be implemented");
+    function checkStateDiff(VmSafe.AccountAccess[] memory accountAccesses) internal view {
+        console.log("Running assertions on the state diff");
+        require(accountAccesses.length > 0, "No account accesses");
+
+        address[] memory allowedAccesses = getAllowedStorageAccess();
+
+        for (uint256 i; i < accountAccesses.length; i++) {
+            VmSafe.AccountAccess memory accountAccess = accountAccesses[i];
+
+            // All touched accounts should have code, with the exception of precompiles.
+            bool isPrecompile = accountAccess.account >= address(0x1) && accountAccess.account <= address(0xa);
+            if (!isPrecompile) {
+                require(
+                    accountAccess.account.code.length != 0,
+                    string.concat("Account has no code: ", vm.toString(accountAccess.account))
+                );
+            }
+
+            require(
+                accountAccess.oldBalance == accountAccess.newBalance,
+                string.concat("Unexpected balance change: ", vm.toString(accountAccess.account))
+            );
+            require(
+                accountAccess.kind != VmSafe.AccountAccessKind.SelfDestruct,
+                string.concat("Self-destructed account: ", vm.toString(accountAccess.account))
+            );
+
+            for (uint256 j; j < accountAccess.storageAccesses.length; j++) {
+                VmSafe.StorageAccess memory storageAccess = accountAccess.storageAccesses[j];
+
+                if (!storageAccess.isWrite) continue; // Skip SLOADs.
+
+                uint256 value = uint256(storageAccess.newValue);
+                address account = storageAccess.account;
+                if (isLikelyAddressThatShouldHaveCode(value)) {
+                    // Log account, slot, and value if there is no code.
+                    string memory err = string.concat(
+                        "Likely address in storage has no code\n",
+                        "  account: ",
+                        vm.toString(account),
+                        "\n  slot:    ",
+                        vm.toString(storageAccess.slot),
+                        "\n  value:   ",
+                        vm.toString(bytes32(value))
+                    );
+                    require(address(uint160(value)).code.length != 0, err);
+                } else {
+                    // Log account, slot, and value if there is code.
+                    string memory err = string.concat(
+                        "Likely address in storage has unexpected code\n",
+                        "  account: ",
+                        vm.toString(account),
+                        "\n  slot:    ",
+                        vm.toString(storageAccess.slot),
+                        "\n  value:   ",
+                        vm.toString(bytes32(value))
+                    );
+                    require(address(uint160(value)).code.length == 0, err);
+                }
+
+                require(account.code.length != 0, string.concat("Storage account has no code: ", vm.toString(account)));
+                require(!storageAccess.reverted, string.concat("Storage access reverted: ", vm.toString(account)));
+
+                bool allowed;
+                for (uint256 k; k < allowedAccesses.length; k++) {
+                    allowed = allowed || (account == allowedAccesses[k]);
+                }
+                require(allowed, string.concat("Unallowed Storage access: ", vm.toString(account)));
+            }
+        }
     }
 
     /// @notice helper method to get transfers and state changes of task affected addresses
@@ -1016,5 +1083,33 @@ abstract contract MultisigTask is Test, Script, ITask {
                 _taskStateChangeAddresses.add(account);
             }
         }
+    }
+
+    /// @notice Checks that values have code on this chain.
+    ///         This method is not storage-layout-aware and therefore is not perfect. It may return erroneous
+    ///         results for cases like packed slots, and silently show that things are okay when they are not.
+    function isLikelyAddressThatShouldHaveCode(uint256 value) internal view virtual returns (bool) {
+        // If out of range (fairly arbitrary lower bound), return false.
+        if (value > type(uint160).max) return false;
+        if (value < uint256(uint160(0x00000000fFFFffffffFfFfFFffFfFffFFFfFffff))) return false;
+
+        // If the value is a L2 predeploy address it won't have code on this chain, so return false.
+        if (
+            value >= uint256(uint160(0x4200000000000000000000000000000000000000))
+                && value <= uint256(uint160(0x420000000000000000000000000000000000FffF))
+        ) return false;
+
+        // Allow known EOAs.
+        address[] memory exceptions = getCodeExceptions();
+        for (uint256 i; i < exceptions.length; i++) {
+            require(
+                exceptions[i] != address(0),
+                "getCodeExceptions includes the zero address, please make sure all entries are populated."
+            );
+            if (address(uint160(value)) == exceptions[i]) return false;
+        }
+
+        // Otherwise, this value looks like an address that we'd expect to have code.
+        return true;
     }
 }

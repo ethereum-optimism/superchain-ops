@@ -65,8 +65,4 @@ contract MockMultisigTask is MultisigTask {
     ) public {
         actions.push(Action(target, value, data, operation, description));
     }
-
-    /// @notice override checkStateDiff function to allow template to be run
-    /// TODO implement checks in a later PR
-    function checkStateDiff(VmSafe.AccountAccess[] memory) internal view override {}
 }
