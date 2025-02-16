@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
 
-import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
+import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {GasConfigTemplate} from "src/improvements/template/GasConfigTemplate.sol";
 import {IncorrectGasConfigTemplate1} from "test/tasks/mock/template/IncorrectGasConfigTemplate1.sol";
@@ -21,7 +21,7 @@ contract SingleMultisigTaskTest is Test {
     }
 
     MultisigTask private multisigTask;
-    Addresses private addresses;
+    AddressRegistry private addrRegistry;
     mapping(address => uint256) private privateKeyForOwner;
 
     /// @notice constants that describe the owner storage offsets in Gnosis Safe
@@ -50,24 +50,32 @@ contract SingleMultisigTaskTest is Test {
 
     function testSafeSetup() public {
         runTask();
-        addresses = multisigTask.addresses();
-        assertEq(multisigTask.multisig(), addresses.getAddress("SystemConfigOwner", 34443), "Wrong safe address string");
-        assertEq(multisigTask.multisig(), addresses.getAddress("SystemConfigOwner", 1750), "Wrong safe address string");
+        addrRegistry = multisigTask.addrRegistry();
+        assertEq(
+            multisigTask.parentMultisig(),
+            addrRegistry.getAddress("SystemConfigOwner", 34443),
+            "Wrong safe address string"
+        );
+        assertEq(
+            multisigTask.parentMultisig(),
+            addrRegistry.getAddress("SystemConfigOwner", 1750),
+            "Wrong safe address string"
+        );
         assertEq(multisigTask.isNestedSafe(), false, "Expected isNestedSafe to be false");
     }
 
     function testAllowedStorageWrites() public {
         runTask();
-        addresses = multisigTask.addresses();
+        addrRegistry = multisigTask.addrRegistry();
         address[] memory allowedStorageAccesses = multisigTask.getAllowedStorageAccess();
         assertEq(
             allowedStorageAccesses[0],
-            addresses.getAddress("SystemConfigProxy", 34443),
+            addrRegistry.getAddress("SystemConfigProxy", 34443),
             "Wrong storage write access address"
         );
         assertEq(
             allowedStorageAccesses[1],
-            addresses.getAddress("SystemConfigProxy", 1750),
+            addrRegistry.getAddress("SystemConfigProxy", 1750),
             "Wrong storage write access address"
         );
     }
@@ -80,14 +88,14 @@ contract SingleMultisigTaskTest is Test {
 
         localMultisigTask.simulateRun(taskConfigFilePath, "");
 
-        addresses = localMultisigTask.addresses();
+        addrRegistry = localMultisigTask.addrRegistry();
 
         (address[] memory targets, uint256[] memory values, bytes[] memory arguments) =
             localMultisigTask.getTaskActions();
 
         assertEq(targets.length, 2, "Expected 2 targets");
-        assertEq(targets[0], addresses.getAddress("SystemConfigProxy", 34443), "Expected SystemConfigProxy target");
-        assertEq(targets[1], addresses.getAddress("SystemConfigProxy", 1750), "Expected SystemConfigProxy target");
+        assertEq(targets[0], addrRegistry.getAddress("SystemConfigProxy", 34443), "Expected SystemConfigProxy target");
+        assertEq(targets[1], addrRegistry.getAddress("SystemConfigProxy", 1750), "Expected SystemConfigProxy target");
         assertEq(values.length, 2, "Expected 2 values");
         assertEq(values[0], 0, "Expected 0 value");
         assertEq(values[1], 0, "Expected 0 value");
@@ -121,13 +129,13 @@ contract SingleMultisigTaskTest is Test {
 
     function testGetDataToSign() public {
         runTask();
-        addresses = multisigTask.addresses();
+        addrRegistry = multisigTask.addrRegistry();
         bytes memory callData = multisigTask.getCalldata();
-        bytes memory dataToSign = multisigTask.getDataToSign(multisigTask.multisig(), callData);
+        bytes memory dataToSign = multisigTask.getDataToSign(multisigTask.parentMultisig(), callData);
 
-        /// The nonce is decremented by 1 because we want to recreate the data to sign with the same nonce
-        /// that was used in the simulation. The nonce was incremented as part of running the simulation.
-        bytes memory expectedDataToSign = IGnosisSafe(multisigTask.multisig()).encodeTransactionData({
+        // The nonce is decremented by 1 because we want to recreate the data to sign with the same nonce
+        // that was used in the simulation. The nonce was incremented as part of running the simulation.
+        bytes memory expectedDataToSign = IGnosisSafe(multisigTask.parentMultisig()).encodeTransactionData({
             to: MULTICALL3_ADDRESS,
             value: 0,
             data: callData,
@@ -137,7 +145,7 @@ contract SingleMultisigTaskTest is Test {
             gasPrice: 0,
             gasToken: address(0),
             refundReceiver: address(0),
-            _nonce: IGnosisSafe(multisigTask.multisig()).nonce() - 1
+            _nonce: IGnosisSafe(multisigTask.parentMultisig()).nonce() - 1
         });
         assertEq(dataToSign, expectedDataToSign, "Wrong data to sign");
     }
@@ -146,7 +154,7 @@ contract SingleMultisigTaskTest is Test {
         runTask();
         bytes memory callData = multisigTask.getCalldata();
         bytes32 hash = multisigTask.getHash();
-        bytes32 expectedHash = IGnosisSafe(multisigTask.multisig()).getTransactionHash(
+        bytes32 expectedHash = IGnosisSafe(multisigTask.parentMultisig()).getTransactionHash(
             MULTICALL3_ADDRESS,
             0,
             callData,
@@ -156,7 +164,7 @@ contract SingleMultisigTaskTest is Test {
             0,
             address(0),
             address(0),
-            IGnosisSafe(multisigTask.multisig()).nonce() - 1
+            IGnosisSafe(multisigTask.parentMultisig()).nonce() - 1
         );
         assertEq(hash, expectedHash, "Wrong hash to approve");
     }
@@ -177,7 +185,7 @@ contract SingleMultisigTaskTest is Test {
     function testRevertIfDifferentL2SafeAddresses() public {
         string memory incorrectTaskConfigFilePath = "test/tasks/mock/configs/MultisigSafeAddressMismatch.toml";
         MultisigTask localMultisigTask = new GasConfigTemplate();
-        Addresses addressRegistry = new Addresses(incorrectTaskConfigFilePath);
+        AddressRegistry addressRegistry = new AddressRegistry(incorrectTaskConfigFilePath);
         bytes memory expectedRevertMessage = bytes(
             string.concat(
                 "MultisigTask: safe address mismatch. Caller: ",
@@ -192,7 +200,7 @@ contract SingleMultisigTaskTest is Test {
 
     function testRevertIfIncorrectAllowedStorageWrite() public {
         MultisigTask localMultisigTask = new IncorrectGasConfigTemplate1();
-        Addresses addressRegistry = new Addresses(taskConfigFilePath);
+        AddressRegistry addressRegistry = new AddressRegistry(taskConfigFilePath);
         bytes memory expectedRevertMessage = bytes(
             string.concat(
                 "MultisigTask: address ",
@@ -206,7 +214,7 @@ contract SingleMultisigTaskTest is Test {
 
     function testRevertIfAllowedStorageNotWritten() public {
         MultisigTask localMultisigTask = new IncorrectGasConfigTemplate2();
-        Addresses addressRegistry = new Addresses(taskConfigFilePath);
+        AddressRegistry addressRegistry = new AddressRegistry(taskConfigFilePath);
         bytes memory expectedRevertMessage = bytes(
             string.concat(
                 "MultisigTask: address ",
@@ -221,13 +229,13 @@ contract SingleMultisigTaskTest is Test {
     function testExecuteWithSignatures() public {
         uint256 snapshotId = vm.snapshot();
         runTask();
-        addresses = multisigTask.addresses();
+        addrRegistry = multisigTask.addrRegistry();
         bytes memory callData = multisigTask.getCalldata();
-        bytes memory dataToSign = multisigTask.getDataToSign(multisigTask.multisig(), callData);
-        address multisig = multisigTask.multisig();
-        address systemConfigMode = addresses.getAddress("SystemConfigProxy", 34443);
-        address systemConfigMetal = addresses.getAddress("SystemConfigProxy", 1750);
-        /// revert to snapshot so that the safe is in the same state as before the task was run
+        bytes memory dataToSign = multisigTask.getDataToSign(multisigTask.parentMultisig(), callData);
+        address multisig = multisigTask.parentMultisig();
+        address systemConfigMode = addrRegistry.getAddress("SystemConfigProxy", 34443);
+        address systemConfigMetal = addrRegistry.getAddress("SystemConfigProxy", 1750);
+        // revert to snapshot so that the safe is in the same state as before the task was run
         vm.revertTo(snapshotId);
 
         MultiSigOwner[] memory newOwners = new MultiSigOwner[](9);
@@ -246,34 +254,34 @@ contract SingleMultisigTaskTest is Test {
         }
 
         {
-            /// Gnosis safe SENTINEL_OWNER
+            // Gnosis safe SENTINEL_OWNER
             address currentOwner = address(0x1);
             bytes32 slot;
-            /// set the new owners of the safe
-            /// owners are stored in the form of a circular linked list using owners mapping in gnosis safe
-            /// starting from sentinel owner and cycling back to it
+            // set the new owners of the safe
+            // owners are stored in the form of a circular linked list using owners mapping in gnosis safe
+            // starting from sentinel owner and cycling back to it
             for (uint256 i = 0; i < newOwners.length; i++) {
-                /// 2 is the slot for the owners mapping
-                /// variable slot is the slot for a key in the owners mapping
+                // 2 is the slot for the owners mapping
+                // variable slot is the slot for a key in the owners mapping
                 slot = keccak256(abi.encode(currentOwner, OWNER_MAPPING_STORAGE_OFFSET));
                 vm.store(multisig, slot, bytes32(uint256(uint160(newOwners[i].walletAddress))));
                 currentOwner = newOwners[i].walletAddress;
             }
 
-            /// link the last owner to the sentinel owner
+            // link the last owner to the sentinel owner
             slot = keccak256(abi.encode(currentOwner, OWNER_MAPPING_STORAGE_OFFSET));
             vm.store(multisig, slot, bytes32(uint256(uint160(0x1))));
         }
 
-        /// set the owners count to 9
+        // set the owners count to 9
         vm.store(multisig, bytes32(OWNER_COUNT_STORAGE_OFFSET), bytes32(uint256(9)));
-        /// set the threshold to 4
+        // set the threshold to 4
         vm.store(multisig, bytes32(THRESHOLD_STORAGE_OFFSET), bytes32(uint256(4)));
 
         address[] memory getNewOwners = IGnosisSafe(multisig).getOwners();
         assertEq(getNewOwners.length, 9, "Expected 9 owners");
         for (uint256 i = 0; i < newOwners.length; i++) {
-            /// check that the new owners are set correctly
+            // check that the new owners are set correctly
             assertEq(getNewOwners[i], newOwners[i].walletAddress, "Expected owner");
         }
 
@@ -282,18 +290,18 @@ contract SingleMultisigTaskTest is Test {
 
         LibSort.sort(getNewOwners);
 
-        /// sign the data to sign with the private keys of the new owners
+        // sign the data to sign with the private keys of the new owners
         bytes memory packedSignatures;
         for (uint256 i = 0; i < threshold; i++) {
             (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKeyForOwner[getNewOwners[i]], keccak256(dataToSign));
             packedSignatures = bytes.concat(packedSignatures, abi.encodePacked(r, s, v));
         }
 
-        /// execute the task with the signatures
+        // execute the task with the signatures
         multisigTask = new GasConfigTemplate();
         multisigTask.simulateRun(taskConfigFilePath, packedSignatures);
 
-        /// check that the gas limits are set correctly after the task is executed
+        // check that the gas limits are set correctly after the task is executed
         SystemConfig systemConfig = SystemConfig(systemConfigMode);
         assertEq(systemConfig.gasLimit(), 100000000, "l2 gas limit not set for Mode");
         systemConfig = SystemConfig(systemConfigMetal);
