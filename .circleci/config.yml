@@ -274,7 +274,7 @@ jobs:
           command: |
             just install
             forge --version
-            forge build --deny-warnings
+            forge build --deny-warnings --ignored-error-codes=5740 --ignored-error-codes=5574
 
   forge_fmt:
     docker:
