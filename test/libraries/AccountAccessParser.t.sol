@@ -10,6 +10,8 @@ import {IERC20} from "forge-std/interfaces/IERC20.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
 contract AccountAccessParser_decodeAndPrint_Test is Test {
+    using AccountAccessParser for VmSafe.AccountAccess[];
+
     bytes32 constant slot0 = bytes32(0);
 
     bytes32 constant byte1 = bytes32(uint256(1));
@@ -35,7 +37,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
             accesses[0] = accountAccess(addr0, storageAccesses);
 
-            address[] memory uniqueAccounts = AccountAccessParser.getUniqueWrites(accesses);
+            address[] memory uniqueAccounts = accesses.getUniqueWrites();
             assertEq(uniqueAccounts.length, 1);
             assertEq(uniqueAccounts[0], addr0);
         }
@@ -48,7 +50,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
             accesses[0] = accountAccess(addr1, storageAccesses);
 
-            address[] memory uniqueAccounts = AccountAccessParser.getUniqueWrites(accesses);
+            address[] memory uniqueAccounts = accesses.getUniqueWrites();
             assertEq(uniqueAccounts.length, 1);
             assertEq(uniqueAccounts[0], addr1);
         }
@@ -60,7 +62,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
             accesses[0] = accountAccess(addr2, storageAccesses);
 
-            address[] memory uniqueAccounts = AccountAccessParser.getUniqueWrites(accesses);
+            address[] memory uniqueAccounts = accesses.getUniqueWrites();
             assertEq(uniqueAccounts.length, 0);
         }
 
@@ -71,7 +73,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
             accesses[0] = accountAccess(addr3, storageAccesses);
 
-            address[] memory uniqueAccounts = AccountAccessParser.getUniqueWrites(accesses);
+            address[] memory uniqueAccounts = accesses.getUniqueWrites();
             assertEq(uniqueAccounts.length, 0);
         }
 
@@ -89,7 +91,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             accesses[0] = accountAccess(addr4, storageAccesses1);
             accesses[1] = accountAccess(addr5, storageAccesses2);
 
-            address[] memory uniqueAccounts = AccountAccessParser.getUniqueWrites(accesses);
+            address[] memory uniqueAccounts = accesses.getUniqueWrites();
             assertEq(uniqueAccounts.length, 2);
             assertEq(uniqueAccounts[0], addr4);
             assertEq(uniqueAccounts[1], addr5);
@@ -101,7 +103,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
             accesses[0] = accountAccess(addr6, storageAccesses);
 
-            address[] memory uniqueAccounts = AccountAccessParser.getUniqueWrites(accesses);
+            address[] memory uniqueAccounts = accesses.getUniqueWrites();
             assertEq(uniqueAccounts.length, 0);
         }
     }
@@ -114,7 +116,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
             accesses[0] = accountAccess(addr1, storageAccesses);
 
-            AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, addr1);
+            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr1);
             assertEq(diffs.length, 1);
             assertEq(diffs[0].slot, slot0);
             assertEq(diffs[0].oldValue, slot0);
@@ -129,7 +131,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
             accesses[0] = accountAccess(addr2, storageAccesses);
 
-            AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, addr2);
+            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr2);
             assertEq(diffs.length, 1);
             assertEq(diffs[0].slot, slot0);
             assertEq(diffs[0].oldValue, slot0);
@@ -143,7 +145,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
             accesses[0] = accountAccess(addr3, storageAccesses);
 
-            AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, addr3);
+            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr3);
             assertEq(diffs.length, 0);
         }
 
@@ -154,7 +156,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
             accesses[0] = accountAccess(addr4, storageAccesses);
 
-            AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, addr4);
+            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr4);
             assertEq(diffs.length, 0);
         }
 
@@ -169,7 +171,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             accesses[0] = accountAccess(addr5, storageAccesses1);
             accesses[1] = accountAccess(addr6, storageAccesses2);
 
-            AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, addr5);
+            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr5);
             assertEq(diffs.length, 1);
             assertEq(diffs[0].slot, slot0);
             assertEq(diffs[0].oldValue, slot0);
@@ -183,7 +185,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
             accesses[0] = accountAccess(addr7, storageAccesses);
 
-            AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, addr8);
+            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr8);
             assertEq(diffs.length, 0);
         }
 
@@ -193,14 +195,14 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
             accesses[0] = accountAccess(addr9, storageAccesses);
 
-            AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, addr9);
+            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr9);
             assertEq(diffs.length, 0);
         }
 
         // Test empty accesses array
         {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](0);
-            AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, addr10);
+            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr10);
             assertEq(diffs.length, 0);
         }
     }
@@ -346,7 +348,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
                 AccountAccessParser.DecodedStateDiff[] memory diffs
-            ) = AccountAccessParser.decode(accesses);
+            ) = accesses.decode();
 
             assertEq(transfers.length, 0);
             assertEq(diffs.length, 0);
@@ -362,7 +364,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
                 AccountAccessParser.DecodedStateDiff[] memory diffs
-            ) = AccountAccessParser.decode(accesses);
+            ) = accesses.decode();
 
             assertEq(transfers.length, 1);
             assertEq(transfers[0].from, addr2);
@@ -382,7 +384,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
                 AccountAccessParser.DecodedStateDiff[] memory diffs
-            ) = AccountAccessParser.decode(accesses);
+            ) = accesses.decode();
 
             assertEq(transfers.length, 1);
             assertEq(transfers[0].from, addr2);
@@ -404,7 +406,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
                 AccountAccessParser.DecodedStateDiff[] memory diffs
-            ) = AccountAccessParser.decode(accesses);
+            ) = accesses.decode();
 
             assertEq(transfers.length, 0);
             assertEq(diffs.length, 1);
@@ -428,7 +430,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
                 AccountAccessParser.DecodedStateDiff[] memory diffs
-            ) = AccountAccessParser.decode(accesses);
+            ) = accesses.decode();
 
             assertEq(transfers.length, 2);
             assertEq(diffs.length, 1);
@@ -463,7 +465,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
                 AccountAccessParser.DecodedStateDiff[] memory diffs
-            ) = AccountAccessParser.decode(accesses);
+            ) = accesses.decode();
 
             assertEq(transfers.length, 0);
             assertEq(diffs.length, 1);
@@ -483,7 +485,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
                 AccountAccessParser.DecodedStateDiff[] memory diffs
-            ) = AccountAccessParser.decode(accesses);
+            ) = accesses.decode();
 
             assertEq(transfers.length, 0);
             assertEq(diffs.length, 0);
@@ -507,7 +509,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
                 AccountAccessParser.DecodedStateDiff[] memory diffs
-            ) = AccountAccessParser.decode(accesses);
+            ) = accesses.decode();
 
             assertEq(transfers.length, 0);
             assertEq(diffs.length, 2);

@@ -118,32 +118,33 @@ library AccountAccessParser {
         noGasMetering
         returns (DecodedTransfer[] memory transfers, DecodedStateDiff[] memory stateDiffs)
     {
-        // ETH and ERC20 transfers.
-        uint256 totalTransfers = 0;
-        for (uint256 i = 0; i < _accountAccesses.length; i++) {
-            DecodedTransfer memory ethTransfer = getETHTransfer(_accountAccesses[i]);
-            if (ethTransfer.value != 0) totalTransfers++;
-
-            DecodedTransfer memory erc20Transfer = getERC20Transfer(_accountAccesses[i]);
-            if (erc20Transfer.value != 0) totalTransfers++;
-        }
-
-        transfers = new DecodedTransfer[](totalTransfers);
+        // --- Transfers ---
+        // Allocate a temporary transfers array with maximum possible size (2 transfers per access).
+        uint256 n = _accountAccesses.length;
+        DecodedTransfer[] memory tempTransfers = new DecodedTransfer[](2 * n);
         uint256 transferIndex = 0;
-        for (uint256 i = 0; i < _accountAccesses.length; i++) {
+        // Process each account access once for both ETH and ERC20 transfers.
+        for (uint256 i = 0; i < n; i++) {
             DecodedTransfer memory ethTransfer = getETHTransfer(_accountAccesses[i]);
             if (ethTransfer.value != 0) {
-                transfers[transferIndex] = ethTransfer;
+                tempTransfers[transferIndex] = ethTransfer;
                 transferIndex++;
             }
+
             DecodedTransfer memory erc20Transfer = getERC20Transfer(_accountAccesses[i]);
             if (erc20Transfer.value != 0) {
-                transfers[transferIndex] = erc20Transfer;
+                tempTransfers[transferIndex] = erc20Transfer;
                 transferIndex++;
             }
         }
 
-        // State diffs.
+        // Copy the valid transfers into an array of the correct length.
+        transfers = new DecodedTransfer[](transferIndex);
+        for (uint256 i = 0; i < transferIndex; i++) {
+            transfers[i] = tempTransfers[i];
+        }
+
+        // --- State diffs ---
         address[] memory uniqueAccounts = getUniqueWrites(_accountAccesses);
         uint256 totalDiffCount = 0;
         // Count the total number of net state diffs.
@@ -152,7 +153,7 @@ library AccountAccessParser {
             totalDiffCount += accountDiffs.length;
         }
 
-        // Step 2. Aggregate all the diffs and decode each one.
+        // Aggregate all the diffs and decode each one.
         stateDiffs = new DecodedStateDiff[](totalDiffCount);
         uint256 index = 0;
         for (uint256 i = 0; i < uniqueAccounts.length; i++) {
@@ -220,28 +221,19 @@ library AccountAccessParser {
         pure
         returns (StateDiff[] memory diffs)
     {
-        // First, count the maximum possible number of writes.
-        uint256 count = 0;
-        for (uint256 i = 0; i < accesses.length; i++) {
-            for (uint256 j = 0; j < accesses[i].storageAccesses.length; j++) {
-                VmSafe.StorageAccess memory sa = accesses[i].storageAccesses[j];
-                if (sa.account == who && sa.isWrite && sa.previousValue != sa.newValue) {
-                    count++;
-                }
-            }
-        }
-
-        // Deduplicate writes by slot and update the newValue to the latest value.
-        StateDiff[] memory temp = new StateDiff[](count);
+        // Over-allocate to the maximum possible number of diffs.
+        StateDiff[] memory temp = new StateDiff[](accesses.length);
         uint256 diffCount = 0;
+
         for (uint256 i = 0; i < accesses.length; i++) {
             for (uint256 j = 0; j < accesses[i].storageAccesses.length; j++) {
                 VmSafe.StorageAccess memory sa = accesses[i].storageAccesses[j];
                 if (sa.account == who && sa.isWrite && sa.previousValue != sa.newValue) {
+                    // Check if we already recorded a diff for this slot.
                     bool found = false;
                     for (uint256 k = 0; k < diffCount; k++) {
                         if (temp[k].slot == sa.slot) {
-                            // Update the new value to the latest value.
+                            // Update the new value.
                             temp[k].newValue = sa.newValue;
                             found = true;
                             break;
@@ -255,20 +247,19 @@ library AccountAccessParser {
             }
         }
 
-        // Filter out any diffs where the net change has been reverted (oldValue == newValue).
+        // Filter out diffs where the net change is zero.
         uint256 finalCount = 0;
         for (uint256 i = 0; i < diffCount; i++) {
             if (temp[i].oldValue != temp[i].newValue) {
+                temp[finalCount] = temp[i];
                 finalCount++;
             }
         }
+
+        // Allocate and copy the final array.
         diffs = new StateDiff[](finalCount);
-        uint256 index = 0;
-        for (uint256 i = 0; i < diffCount; i++) {
-            if (temp[i].oldValue != temp[i].newValue) {
-                diffs[index] = temp[i];
-                index++;
-            }
+        for (uint256 i = 0; i < finalCount; i++) {
+            diffs[i] = temp[i];
         }
     }
 
