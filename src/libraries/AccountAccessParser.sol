@@ -3,13 +3,16 @@ pragma solidity 0.8.15;
 
 import {Vm, VmSafe} from "forge-std/Vm.sol";
 import {console} from "forge-std/console.sol";
-import {LibString} from "@solady/utils/LibString.sol";
 import {stdJson} from "forge-std/StdJson.sol";
+import {IERC20} from "forge-std/interfaces/IERC20.sol";
+import {LibString} from "@solady/utils/LibString.sol";
 
 library AccountAccessParser {
     using LibString for string;
     using stdJson for string;
 
+    address internal constant ETH_TOKEN = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
+    address internal constant ZERO = address(0);
     address internal constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
     Vm internal constant vm = Vm(VM_ADDRESS);
 
@@ -85,12 +88,43 @@ library AccountAccessParser {
     // forgefmt: disable-end
 
     modifier noGasMetering() {
-        // We use low-level calls so we can keep cheatcodes as view functions.
+        // We use low-level staticcalls so we can keep cheatcodes as view functions.
         (bool ok,) = address(vm).staticcall(abi.encodeWithSelector(VmSafe.pauseGasMetering.selector));
         require(ok, "pauseGasMetering failed");
         _;
         (ok,) = address(vm).staticcall(abi.encodeWithSelector(VmSafe.resumeGasMetering.selector));
         require(ok, "resumeGasMetering failed");
+    }
+
+    /// @notice Decodes an ETH transfer from an account access record, and returns an empty struct
+    /// if no transfer occurred.
+    function getETHTransfer(VmSafe.AccountAccess memory access) internal pure returns (DecodedTransfer memory) {
+        return access.value != 0
+            ? DecodedTransfer({from: access.accessor, to: access.account, value: access.value, tokenAddress: ETH_TOKEN})
+            : DecodedTransfer({from: ZERO, to: ZERO, value: 0, tokenAddress: ZERO});
+    }
+
+    /// @notice Decodes an ERC20 transfer from an account access record, and returns an empty struct
+    /// if no ERC20 transfer is detected.
+    function getERC20Transfer(VmSafe.AccountAccess memory access) internal pure returns (DecodedTransfer memory) {
+        bytes memory data = access.data;
+        if (data.length <= 4) return DecodedTransfer({from: ZERO, to: ZERO, value: 0, tokenAddress: ZERO});
+
+        bytes4 selector = bytes4(data);
+        bytes memory params = new bytes(data.length - 4);
+        for (uint256 j = 0; j < data.length - 4; j++) {
+            params[j] = data[j + 4];
+        }
+
+        if (selector == IERC20.transfer.selector) {
+            (address to, uint256 value) = abi.decode(params, (address, uint256));
+            return DecodedTransfer({from: access.accessor, to: to, value: value, tokenAddress: access.account});
+        } else if (selector == IERC20.transferFrom.selector) {
+            (address from, address to, uint256 value) = abi.decode(params, (address, address, uint256));
+            return DecodedTransfer({from: from, to: to, value: value, tokenAddress: access.account});
+        } else {
+            return DecodedTransfer({from: ZERO, to: ZERO, value: 0, tokenAddress: ZERO});
+        }
     }
 
     /// @notice Prints the decoded transfers and state diffs to the console.
@@ -118,7 +152,6 @@ library AccountAccessParser {
             console.log("Raw Old Value:     %s", vm.toString(state.raw.oldValue));
             console.log("Raw New Value:     %s", vm.toString(state.raw.newValue));
 
-            // Check if decoded.kind is empty.
             if (bytes(state.decoded.kind).length == 0) {
                 console.log("\x1B[33m[WARN]\x1B[0m Slot was not decoded");
             } else {
@@ -238,19 +271,41 @@ library AccountAccessParser {
     /**
      * @notice Decodes the provided AccountAccess array into decoded transfers and state diffs.
      * @param _accountAccesses The array of account accesses to process.
-     * @return decodedTransfers An array of decoded transfers (currently empty).
+     * @return transfers An array of decoded transfers.
      * @return stateDiffs An array of decoded state differences.
      */
     function decode(VmSafe.AccountAccess[] memory _accountAccesses)
         internal
         view
         noGasMetering
-        returns (DecodedTransfer[] memory decodedTransfers, DecodedStateDiff[] memory stateDiffs)
+        returns (DecodedTransfer[] memory transfers, DecodedStateDiff[] memory stateDiffs)
     {
-        // Transfers decoding is not implemented; return an empty array.
-        decodedTransfers = new DecodedTransfer[](0);
+        // ETH and ERC20 transfers.
+        uint256 totalTransfers = 0;
+        for (uint256 i = 0; i < _accountAccesses.length; i++) {
+            DecodedTransfer memory ethTransfer = getETHTransfer(_accountAccesses[i]);
+            if (ethTransfer.value != 0) totalTransfers++;
 
-        // Step 1. Get unique accounts that have at least one changed storage write.
+            DecodedTransfer memory erc20Transfer = getERC20Transfer(_accountAccesses[i]);
+            if (erc20Transfer.value != 0) totalTransfers++;
+        }
+
+        transfers = new DecodedTransfer[](totalTransfers);
+        uint256 transferIndex = 0;
+        for (uint256 i = 0; i < _accountAccesses.length; i++) {
+            DecodedTransfer memory ethTransfer = getETHTransfer(_accountAccesses[i]);
+            if (ethTransfer.value != 0) {
+                transfers[transferIndex] = ethTransfer;
+                transferIndex++;
+            }
+            DecodedTransfer memory erc20Transfer = getERC20Transfer(_accountAccesses[i]);
+            if (erc20Transfer.value != 0) {
+                transfers[transferIndex] = erc20Transfer;
+                transferIndex++;
+            }
+        }
+
+        // State diffs.
         address[] memory uniqueAccounts = getUniqueWrites(_accountAccesses);
         uint256 totalDiffCount = 0;
         // Count the total number of net state diffs.

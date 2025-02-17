@@ -3,7 +3,8 @@ pragma solidity ^0.8.15;
 
 // Forge
 import {Test} from "forge-std/Test.sol";
-import {VmSafe} from "lib/forge-std/src/Vm.sol";
+import {VmSafe} from "forge-std/Vm.sol";
+import {IERC20} from "forge-std/interfaces/IERC20.sol";
 
 // Libraries
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
@@ -187,6 +188,333 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](0);
             AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, address(10));
             assertEq(diffs.length, 0);
+        }
+    }
+
+    function test_getETHTransfer_succeeds() public pure {
+        // Test successful ETH transfer
+        {
+            VmSafe.AccountAccess memory access = accountAccess(address(1), new VmSafe.StorageAccess[](0));
+            access.value = 100;
+            access.accessor = address(2);
+
+            AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getETHTransfer(access);
+            assertEq(transfer.from, address(2));
+            assertEq(transfer.to, address(1));
+            assertEq(transfer.value, 100);
+            assertEq(transfer.tokenAddress, AccountAccessParser.ETH_TOKEN);
+        }
+
+        // Test zero value transfer
+        {
+            VmSafe.AccountAccess memory access = accountAccess(address(1), new VmSafe.StorageAccess[](0));
+            access.value = 0;
+            access.accessor = address(2);
+
+            AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getETHTransfer(access);
+            assertEq(transfer.from, address(0));
+            assertEq(transfer.to, address(0));
+            assertEq(transfer.value, 0);
+            assertEq(transfer.tokenAddress, address(0));
+        }
+
+        // Test transfer with max uint256 value
+        {
+            VmSafe.AccountAccess memory access = accountAccess(address(1), new VmSafe.StorageAccess[](0));
+            access.value = type(uint256).max;
+            access.accessor = address(2);
+
+            AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getETHTransfer(access);
+            assertEq(transfer.from, address(2));
+            assertEq(transfer.to, address(1));
+            assertEq(transfer.value, type(uint256).max);
+            assertEq(transfer.tokenAddress, AccountAccessParser.ETH_TOKEN);
+        }
+
+        // Test transfer with zero addresses
+        {
+            VmSafe.AccountAccess memory access = accountAccess(address(0), new VmSafe.StorageAccess[](0));
+            access.value = 100;
+            access.accessor = address(0);
+
+            AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getETHTransfer(access);
+            assertEq(transfer.from, address(0));
+            assertEq(transfer.to, address(0));
+            assertEq(transfer.value, 100);
+            assertEq(transfer.tokenAddress, AccountAccessParser.ETH_TOKEN);
+        }
+    }
+
+    function test_getERC20Transfer_succeeds() public pure {
+        // Test ERC20 transfer
+        {
+            VmSafe.AccountAccess memory access = accountAccess(address(1), new VmSafe.StorageAccess[](0));
+            access.accessor = address(2);
+            access.data = abi.encodeWithSelector(IERC20.transfer.selector, address(3), 100);
+
+            AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getERC20Transfer(access);
+            assertEq(transfer.from, address(2));
+            assertEq(transfer.to, address(3));
+            assertEq(transfer.value, 100);
+            assertEq(transfer.tokenAddress, address(1));
+        }
+
+        // Test ERC20 transferFrom
+        {
+            VmSafe.AccountAccess memory access = accountAccess(address(1), new VmSafe.StorageAccess[](0));
+            access.accessor = address(2);
+            access.data = abi.encodeWithSelector(IERC20.transferFrom.selector, address(3), address(4), 100);
+
+            AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getERC20Transfer(access);
+            assertEq(transfer.from, address(3));
+            assertEq(transfer.to, address(4));
+            assertEq(transfer.value, 100);
+            assertEq(transfer.tokenAddress, address(1));
+        }
+
+        // Test invalid selector (should return zero values)
+        {
+            VmSafe.AccountAccess memory access = accountAccess(address(1), new VmSafe.StorageAccess[](0));
+            access.accessor = address(2);
+            access.data = abi.encodeWithSelector(bytes4(keccak256("invalidFunction()")), address(3), 100);
+
+            AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getERC20Transfer(access);
+            assertEq(transfer.from, address(0));
+            assertEq(transfer.to, address(0));
+            assertEq(transfer.value, 0);
+            assertEq(transfer.tokenAddress, address(0));
+        }
+
+        // Test empty data (should return zero values)
+        {
+            VmSafe.AccountAccess memory access = accountAccess(address(1), new VmSafe.StorageAccess[](0));
+            access.accessor = address(2);
+            access.data = new bytes(0);
+
+            AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getERC20Transfer(access);
+            assertEq(transfer.from, address(0));
+            assertEq(transfer.to, address(0));
+            assertEq(transfer.value, 0);
+            assertEq(transfer.tokenAddress, address(0));
+        }
+
+        // Test max uint256 value transfer
+        {
+            VmSafe.AccountAccess memory access = accountAccess(address(1), new VmSafe.StorageAccess[](0));
+            access.accessor = address(2);
+            access.data = abi.encodeWithSelector(IERC20.transfer.selector, address(3), type(uint256).max);
+
+            AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getERC20Transfer(access);
+            assertEq(transfer.from, address(2));
+            assertEq(transfer.to, address(3));
+            assertEq(transfer.value, type(uint256).max);
+            assertEq(transfer.tokenAddress, address(1));
+        }
+
+        // Test with zero addresses
+        {
+            VmSafe.AccountAccess memory access = accountAccess(address(0), new VmSafe.StorageAccess[](0));
+            access.accessor = address(0);
+            access.data = abi.encodeWithSelector(IERC20.transfer.selector, address(0), 100);
+
+            AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getERC20Transfer(access);
+            assertEq(transfer.from, address(0));
+            assertEq(transfer.to, address(0));
+            assertEq(transfer.value, 100);
+            assertEq(transfer.tokenAddress, address(0));
+        }
+    }
+
+    function test_decode_succeeds() public view {
+        // Test empty array
+        {
+            VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](0);
+            (
+                AccountAccessParser.DecodedTransfer[] memory transfers,
+                AccountAccessParser.DecodedStateDiff[] memory diffs
+            ) = AccountAccessParser.decode(accesses);
+
+            assertEq(transfers.length, 0);
+            assertEq(diffs.length, 0);
+        }
+
+        // Test ETH transfer only
+        {
+            VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
+            accesses[0] = accountAccess(address(1), new VmSafe.StorageAccess[](0));
+            accesses[0].accessor = address(2);
+            accesses[0].value = 100;
+
+            (
+                AccountAccessParser.DecodedTransfer[] memory transfers,
+                AccountAccessParser.DecodedStateDiff[] memory diffs
+            ) = AccountAccessParser.decode(accesses);
+
+            assertEq(transfers.length, 1);
+            assertEq(transfers[0].from, address(2));
+            assertEq(transfers[0].to, address(1));
+            assertEq(transfers[0].value, 100);
+            assertEq(transfers[0].tokenAddress, AccountAccessParser.ETH_TOKEN);
+            assertEq(diffs.length, 0);
+        }
+
+        // Test ERC20 transfer only
+        {
+            VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
+            accesses[0] = accountAccess(address(1), new VmSafe.StorageAccess[](0));
+            accesses[0].accessor = address(2);
+            accesses[0].data = abi.encodeWithSelector(IERC20.transfer.selector, address(3), 100);
+
+            (
+                AccountAccessParser.DecodedTransfer[] memory transfers,
+                AccountAccessParser.DecodedStateDiff[] memory diffs
+            ) = AccountAccessParser.decode(accesses);
+
+            assertEq(transfers.length, 1);
+            assertEq(transfers[0].from, address(2));
+            assertEq(transfers[0].to, address(3));
+            assertEq(transfers[0].value, 100);
+            assertEq(transfers[0].tokenAddress, address(1));
+            assertEq(diffs.length, 0);
+        }
+
+        // Test state diffs only
+        {
+            VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
+            storageAccesses[0] = storageAccess(
+                address(1), AccountAccessParser.GUARDIAN_SLOT, true, bytes32(0), bytes32(uint256(uint160(address(2))))
+            );
+
+            VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
+            accesses[0] = accountAccess(address(1), storageAccesses);
+
+            (
+                AccountAccessParser.DecodedTransfer[] memory transfers,
+                AccountAccessParser.DecodedStateDiff[] memory diffs
+            ) = AccountAccessParser.decode(accesses);
+
+            assertEq(transfers.length, 0);
+            assertEq(diffs.length, 1);
+            assertEq(diffs[0].who, address(1));
+            assertEq(diffs[0].raw.slot, AccountAccessParser.GUARDIAN_SLOT);
+            assertEq(diffs[0].raw.oldValue, bytes32(0));
+            assertEq(diffs[0].raw.newValue, bytes32(uint256(uint160(address(2)))));
+        }
+
+        // Test combination of transfers and state diffs
+        {
+            VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
+            storageAccesses[0] =
+                storageAccess(address(1), AccountAccessParser.PAUSED_SLOT, true, bytes32(uint256(0)), one);
+
+            VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](2);
+            accesses[0] = accountAccess(address(1), storageAccesses);
+            accesses[0].value = 100; // ETH transfer
+            accesses[1] = accountAccess(address(2), new VmSafe.StorageAccess[](0));
+            accesses[1].data = abi.encodeWithSelector(IERC20.transfer.selector, address(3), 200); // ERC20 transfer
+
+            (
+                AccountAccessParser.DecodedTransfer[] memory transfers,
+                AccountAccessParser.DecodedStateDiff[] memory diffs
+            ) = AccountAccessParser.decode(accesses);
+
+            assertEq(transfers.length, 2);
+            assertEq(diffs.length, 1);
+
+            // Check ETH transfer
+            assertEq(transfers[0].value, 100);
+            assertEq(transfers[0].tokenAddress, AccountAccessParser.ETH_TOKEN);
+
+            // Check ERC20 transfer
+            assertEq(transfers[1].from, address(0));
+            assertEq(transfers[1].to, address(3));
+            assertEq(transfers[1].value, 200);
+            assertEq(transfers[1].tokenAddress, address(2));
+
+            // Check state diff
+            assertEq(diffs[0].who, address(1));
+            assertEq(diffs[0].raw.slot, AccountAccessParser.PAUSED_SLOT);
+            assertEq(diffs[0].raw.oldValue, bytes32(uint256(0)));
+            assertEq(diffs[0].raw.newValue, one);
+        }
+
+        // Test multiple state diffs to same slot (should only keep final value)
+        {
+            VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](3);
+            storageAccesses[0] =
+                storageAccess(address(1), AccountAccessParser.PAUSED_SLOT, true, bytes32(uint256(0)), one);
+            storageAccesses[1] = storageAccess(address(1), AccountAccessParser.PAUSED_SLOT, true, one, two);
+            storageAccesses[2] =
+                storageAccess(address(1), AccountAccessParser.PAUSED_SLOT, true, two, bytes32(uint256(3)));
+
+            VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
+            accesses[0] = accountAccess(address(1), storageAccesses);
+
+            (
+                AccountAccessParser.DecodedTransfer[] memory transfers,
+                AccountAccessParser.DecodedStateDiff[] memory diffs
+            ) = AccountAccessParser.decode(accesses);
+
+            assertEq(transfers.length, 0);
+            assertEq(diffs.length, 1);
+            assertEq(diffs[0].raw.oldValue, bytes32(uint256(0)));
+            assertEq(diffs[0].raw.newValue, bytes32(uint256(3)));
+        }
+
+        // Test state changes that revert back to original (should not appear in diffs)
+        {
+            VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](2);
+            storageAccesses[0] =
+                storageAccess(address(1), AccountAccessParser.PAUSED_SLOT, true, bytes32(uint256(0)), one);
+            storageAccesses[1] =
+                storageAccess(address(1), AccountAccessParser.PAUSED_SLOT, true, one, bytes32(uint256(0)));
+
+            VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
+            accesses[0] = accountAccess(address(1), storageAccesses);
+
+            (
+                AccountAccessParser.DecodedTransfer[] memory transfers,
+                AccountAccessParser.DecodedStateDiff[] memory diffs
+            ) = AccountAccessParser.decode(accesses);
+
+            assertEq(transfers.length, 0);
+            assertEq(diffs.length, 0);
+        }
+
+        // Test multiple accounts with state changes
+        {
+            VmSafe.StorageAccess[] memory storageAccesses1 = new VmSafe.StorageAccess[](1);
+            storageAccesses1[0] =
+                storageAccess(address(1), AccountAccessParser.PAUSED_SLOT, true, bytes32(uint256(0)), one);
+
+            VmSafe.StorageAccess[] memory storageAccesses2 = new VmSafe.StorageAccess[](1);
+            storageAccesses2[0] = storageAccess(
+                address(2),
+                AccountAccessParser.GUARDIAN_SLOT,
+                true,
+                bytes32(uint256(0)),
+                bytes32(uint256(uint160(address(3))))
+            );
+
+            VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](2);
+            accesses[0] = accountAccess(address(1), storageAccesses1);
+            accesses[1] = accountAccess(address(2), storageAccesses2);
+
+            (
+                AccountAccessParser.DecodedTransfer[] memory transfers,
+                AccountAccessParser.DecodedStateDiff[] memory diffs
+            ) = AccountAccessParser.decode(accesses);
+
+            assertEq(transfers.length, 0);
+            assertEq(diffs.length, 2);
+            assertEq(diffs[0].who, address(1));
+            assertEq(diffs[0].raw.slot, AccountAccessParser.PAUSED_SLOT);
+            assertEq(diffs[0].raw.oldValue, bytes32(uint256(0)));
+            assertEq(diffs[0].raw.newValue, one);
+            assertEq(diffs[1].who, address(2));
+            assertEq(diffs[1].raw.slot, AccountAccessParser.GUARDIAN_SLOT);
+            assertEq(diffs[1].raw.oldValue, bytes32(uint256(0)));
+            assertEq(diffs[1].raw.newValue, bytes32(uint256(uint160(address(3)))));
         }
     }
 
