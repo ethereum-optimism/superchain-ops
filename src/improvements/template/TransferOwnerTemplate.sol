@@ -4,7 +4,7 @@ pragma solidity 0.8.15;
 import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
-import {IAddressRegistry} from "src/improvements/IAddressRegistry.sol";
+import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
 /// @title TransferOwnerTemplate
 /// @notice Template contract for transferring ownership of the proxy admin
@@ -31,8 +31,8 @@ contract TransferOwnerTemplate is MultisigTask {
     function _templateSetup(string memory taskConfigFilePath) internal override {
         newOwner = abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".newOwner"), (address));
         // only allow one chain to be modified at a time with this template
-        IAddressRegistry.ChainInfo[] memory _chains =
-            abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".l2chains"), (IAddressRegistry.ChainInfo[]));
+        AddressRegistry.ChainInfo[] memory _chains =
+            abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".l2chains"), (AddressRegistry.ChainInfo[]));
         require(_chains.length == 1, "Must specify exactly one chain id to transfer ownership for");
     }
 

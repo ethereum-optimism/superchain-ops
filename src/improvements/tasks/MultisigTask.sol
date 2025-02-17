@@ -11,10 +11,9 @@ import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
-import {ITask} from "src/improvements/tasks/ITask.sol";
 import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
-abstract contract MultisigTask is Test, Script, ITask {
+abstract contract MultisigTask is Test, Script {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     /// @notice nonce used for generating the safe transaction
@@ -155,7 +154,6 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @param taskConfigFilePath The path to the task configuration file.
     function simulateRun(string memory taskConfigFilePath, bytes memory signatures)
         public
-        override
         returns (VmSafe.AccountAccess[] memory)
     {
         /// sets safe to the safe specified by the current template from addresses.json
@@ -295,7 +293,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @dev callable only after the build function has been run and the
     /// calldata has been loaded up to storage
     /// @return data The calldata to be executed
-    function getCalldata() public view virtual override returns (bytes memory data) {
+    function getCalldata() public view virtual returns (bytes memory data) {
         // get task actions
         (address[] memory targets, uint256[] memory values, bytes[] memory arguments) = getTaskActions();
 
@@ -348,7 +346,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     }
 
     /// @notice simulate the task by approving from owners and then executing
-    function simulate(bytes memory _signatures) public override returns (VmSafe.AccountAccess[] memory) {
+    function simulate(bytes memory _signatures) public returns (VmSafe.AccountAccess[] memory) {
         bytes memory data = getCalldata();
         bytes32 hash = getHash();
         bytes memory signatures;
@@ -427,7 +425,7 @@ abstract contract MultisigTask is Test, Script, ITask {
 
     /// @notice returns the allowed storage accesses
     /// @return _allowedStorageAccesses The allowed storage accesses
-    function getAllowedStorageAccess() public view override returns (address[] memory) {
+    function getAllowedStorageAccess() public view returns (address[] memory) {
         return _allowedStorageAccesses.values();
     }
 
@@ -435,7 +433,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     ///          e.g. read state variables of the deployed contracts to make
     ///          sure they are deployed and initialized correctly, or read
     ///          states that are expected to have changed during the simulate step.
-    function validate(VmSafe.AccountAccess[] memory accountAccesses) public virtual override {
+    function validate(VmSafe.AccountAccess[] memory accountAccesses) public virtual {
         /// write all state changes to storage
         _processStateDiffChanges(accountAccesses);
 
@@ -484,7 +482,6 @@ abstract contract MultisigTask is Test, Script, ITask {
     function getTaskActions()
         public
         view
-        override
         returns (address[] memory targets, uint256[] memory values, bytes[] memory arguments)
     {
         uint256 actionsLength = actions.length;
@@ -517,7 +514,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     /// @dev contract calls must be perfomed in plain solidity.
     ///      overriden requires using buildModifier modifier to leverage
     ///      foundry snapshot and state diff recording to populate the actions array.
-    function build() public override buildModifier {
+    function build() public buildModifier {
         _buildSingle();
 
         AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
@@ -528,7 +525,7 @@ abstract contract MultisigTask is Test, Script, ITask {
     }
 
     /// @notice print task description, actions, transfers, state changes and EOAs datas to sign
-    function print() public virtual override {
+    function print() public view {
         console.log("\n------------------ Task Actions ------------------");
         for (uint256 i; i < actions.length; i++) {
             console.log("%d). %s", i + 1, actions[i].description);
@@ -737,7 +734,7 @@ abstract contract MultisigTask is Test, Script, ITask {
 
     /// @notice validate actions inclusion
     /// default implementation check for duplicate actions
-    function _validateAction(address target, uint256 value, bytes memory data) internal virtual {
+    function _validateAction(address target, uint256 value, bytes memory data) internal view {
         uint256 actionsLength = actions.length;
         for (uint256 i = 0; i < actionsLength; i++) {
             // Check if the target, arguments and value matches with other existing actions.
