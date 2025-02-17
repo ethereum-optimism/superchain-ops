@@ -2,11 +2,9 @@
 pragma solidity 0.8.15;
 
 import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
-import {VmSafe, Vm} from "forge-std/Vm.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {IAddressRegistry} from "src/improvements/IAddressRegistry.sol";
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
 /// @title TransferOwnerTemplate
 /// @notice Template contract for transferring ownership of the proxy admin

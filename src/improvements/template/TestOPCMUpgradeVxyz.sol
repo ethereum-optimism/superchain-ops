@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {VmSafe} from "forge-std/Vm.sol";
-
 import {OPCMBaseTask} from "../tasks/OPCMBaseTask.sol";
 import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
