@@ -10,41 +10,55 @@ import {IERC20} from "forge-std/interfaces/IERC20.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
 contract AccountAccessParser_decodeAndPrint_Test is Test {
-    bytes32 one = bytes32(uint256(1));
-    bytes32 two = bytes32(uint256(2));
+    bytes32 constant slot0 = bytes32(0);
 
-    function test_getUniqueWrites_succeeds() public view {
+    bytes32 constant byte1 = bytes32(uint256(1));
+    bytes32 constant byte2 = bytes32(uint256(2));
+
+    address constant addr0 = address(0);
+    address constant addr1 = address(1);
+    address constant addr2 = address(2);
+    address constant addr3 = address(3);
+    address constant addr4 = address(4);
+    address constant addr5 = address(5);
+    address constant addr6 = address(6);
+    address constant addr7 = address(7);
+    address constant addr8 = address(8);
+    address constant addr9 = address(9);
+    address constant addr10 = address(10);
+
+    function test_getUniqueWrites_succeeds() public pure {
         // Test basic case - single account with single changed write
         {
             VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
-            storageAccesses[0] = storageAccess(address(0), bytes32(0), true, bytes32(0), one);
+            storageAccesses[0] = storageAccess(addr0, slot0, true, slot0, byte1);
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
-            accesses[0] = accountAccess(address(0), storageAccesses);
+            accesses[0] = accountAccess(addr0, storageAccesses);
 
             address[] memory uniqueAccounts = AccountAccessParser.getUniqueWrites(accesses);
             assertEq(uniqueAccounts.length, 1);
-            assertEq(uniqueAccounts[0], address(0));
+            assertEq(uniqueAccounts[0], addr0);
         }
 
         // Test multiple writes to same account - should only appear once
         {
             VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](2);
-            storageAccesses[0] = storageAccess(address(1), bytes32(0), true, bytes32(0), one);
-            storageAccesses[1] = storageAccess(address(1), one, true, bytes32(0), two);
+            storageAccesses[0] = storageAccess(addr1, slot0, true, slot0, byte1);
+            storageAccesses[1] = storageAccess(addr1, byte1, true, slot0, byte2);
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
-            accesses[0] = accountAccess(address(1), storageAccesses);
+            accesses[0] = accountAccess(addr1, storageAccesses);
 
             address[] memory uniqueAccounts = AccountAccessParser.getUniqueWrites(accesses);
             assertEq(uniqueAccounts.length, 1);
-            assertEq(uniqueAccounts[0], address(1));
+            assertEq(uniqueAccounts[0], addr1);
         }
 
         // Test writes with no changes - should not be included
         {
             VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
-            storageAccesses[0] = storageAccess(address(2), bytes32(0), true, one, one); // Same value
+            storageAccesses[0] = storageAccess(addr2, slot0, true, byte1, byte1); // Same value
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
-            accesses[0] = accountAccess(address(2), storageAccesses);
+            accesses[0] = accountAccess(addr2, storageAccesses);
 
             address[] memory uniqueAccounts = AccountAccessParser.getUniqueWrites(accesses);
             assertEq(uniqueAccounts.length, 0);
@@ -53,9 +67,9 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         // Test reads - should not be included
         {
             VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
-            storageAccesses[0] = storageAccess(address(3), bytes32(0), false, bytes32(0), one); // isWrite = false
+            storageAccesses[0] = storageAccess(addr3, slot0, false, slot0, byte1); // isWrite = false
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
-            accesses[0] = accountAccess(address(3), storageAccesses);
+            accesses[0] = accountAccess(addr3, storageAccesses);
 
             address[] memory uniqueAccounts = AccountAccessParser.getUniqueWrites(accesses);
             assertEq(uniqueAccounts.length, 0);
@@ -64,112 +78,112 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         // Test multiple accounts with mixed read/writes
         {
             VmSafe.StorageAccess[] memory storageAccesses1 = new VmSafe.StorageAccess[](2);
-            storageAccesses1[0] = storageAccess(address(4), bytes32(0), true, bytes32(0), one); // Changed write
-            storageAccesses1[1] = storageAccess(address(4), one, false, bytes32(0), one); // Read
+            storageAccesses1[0] = storageAccess(addr4, slot0, true, slot0, byte1); // Changed write
+            storageAccesses1[1] = storageAccess(addr4, byte1, false, slot0, byte1); // Read
 
             VmSafe.StorageAccess[] memory storageAccesses2 = new VmSafe.StorageAccess[](2);
-            storageAccesses2[0] = storageAccess(address(5), bytes32(0), true, one, one); // Unchanged write
-            storageAccesses2[1] = storageAccess(address(5), one, true, bytes32(0), two); // Changed write
+            storageAccesses2[0] = storageAccess(addr5, slot0, true, byte1, byte1); // Unchanged write
+            storageAccesses2[1] = storageAccess(addr5, byte1, true, slot0, byte2); // Changed write
 
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](2);
-            accesses[0] = accountAccess(address(4), storageAccesses1);
-            accesses[1] = accountAccess(address(5), storageAccesses2);
+            accesses[0] = accountAccess(addr4, storageAccesses1);
+            accesses[1] = accountAccess(addr5, storageAccesses2);
 
             address[] memory uniqueAccounts = AccountAccessParser.getUniqueWrites(accesses);
             assertEq(uniqueAccounts.length, 2);
-            assertEq(uniqueAccounts[0], address(4));
-            assertEq(uniqueAccounts[1], address(5));
+            assertEq(uniqueAccounts[0], addr4);
+            assertEq(uniqueAccounts[1], addr5);
         }
 
         // Test empty storage accesses
         {
             VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](0);
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
-            accesses[0] = accountAccess(address(6), storageAccesses);
+            accesses[0] = accountAccess(addr6, storageAccesses);
 
             address[] memory uniqueAccounts = AccountAccessParser.getUniqueWrites(accesses);
             assertEq(uniqueAccounts.length, 0);
         }
     }
 
-    function test_getStateDiffFor_succeeds() public view {
+    function test_getStateDiffFor_succeeds() public pure {
         // Test single account with single changed write
         {
             VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
-            storageAccesses[0] = storageAccess(address(1), bytes32(0), true, bytes32(0), one);
+            storageAccesses[0] = storageAccess(addr1, slot0, true, slot0, byte1);
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
-            accesses[0] = accountAccess(address(1), storageAccesses);
+            accesses[0] = accountAccess(addr1, storageAccesses);
 
-            AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, address(1));
+            AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, addr1);
             assertEq(diffs.length, 1);
-            assertEq(diffs[0].slot, bytes32(0));
-            assertEq(diffs[0].oldValue, bytes32(0));
-            assertEq(diffs[0].newValue, one);
+            assertEq(diffs[0].slot, slot0);
+            assertEq(diffs[0].oldValue, slot0);
+            assertEq(diffs[0].newValue, byte1);
         }
 
         // Test single account with multiple writes to same slot (should only keep last write)
         {
             VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](2);
-            storageAccesses[0] = storageAccess(address(2), bytes32(0), true, bytes32(0), one);
-            storageAccesses[1] = storageAccess(address(2), bytes32(0), true, one, two);
+            storageAccesses[0] = storageAccess(addr2, slot0, true, slot0, byte1);
+            storageAccesses[1] = storageAccess(addr2, slot0, true, byte1, byte2);
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
-            accesses[0] = accountAccess(address(2), storageAccesses);
+            accesses[0] = accountAccess(addr2, storageAccesses);
 
-            AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, address(2));
+            AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, addr2);
             assertEq(diffs.length, 1);
-            assertEq(diffs[0].slot, bytes32(0));
-            assertEq(diffs[0].oldValue, bytes32(0));
-            assertEq(diffs[0].newValue, two);
+            assertEq(diffs[0].slot, slot0);
+            assertEq(diffs[0].oldValue, slot0);
+            assertEq(diffs[0].newValue, byte2);
         }
 
         // Test single account with unchanged write (should be excluded)
         {
             VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
-            storageAccesses[0] = storageAccess(address(3), bytes32(0), true, one, one);
+            storageAccesses[0] = storageAccess(addr3, slot0, true, byte1, byte1);
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
-            accesses[0] = accountAccess(address(3), storageAccesses);
+            accesses[0] = accountAccess(addr3, storageAccesses);
 
-            AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, address(3));
+            AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, addr3);
             assertEq(diffs.length, 0);
         }
 
         // Test single account with reads (should be excluded)
         {
             VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
-            storageAccesses[0] = storageAccess(address(4), bytes32(0), false, bytes32(0), one);
+            storageAccesses[0] = storageAccess(addr4, slot0, false, slot0, byte1);
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
-            accesses[0] = accountAccess(address(4), storageAccesses);
+            accesses[0] = accountAccess(addr4, storageAccesses);
 
-            AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, address(4));
+            AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, addr4);
             assertEq(diffs.length, 0);
         }
 
         // Test multiple accounts but only requesting one
         {
             VmSafe.StorageAccess[] memory storageAccesses1 = new VmSafe.StorageAccess[](1);
-            storageAccesses1[0] = storageAccess(address(5), bytes32(0), true, bytes32(0), one);
+            storageAccesses1[0] = storageAccess(addr5, slot0, true, slot0, byte1);
             VmSafe.StorageAccess[] memory storageAccesses2 = new VmSafe.StorageAccess[](1);
-            storageAccesses2[0] = storageAccess(address(6), bytes32(0), true, bytes32(0), two);
+            storageAccesses2[0] = storageAccess(addr6, slot0, true, slot0, byte2);
 
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](2);
-            accesses[0] = accountAccess(address(5), storageAccesses1);
-            accesses[1] = accountAccess(address(6), storageAccesses2);
+            accesses[0] = accountAccess(addr5, storageAccesses1);
+            accesses[1] = accountAccess(addr6, storageAccesses2);
 
-            AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, address(5));
+            AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, addr5);
             assertEq(diffs.length, 1);
-            assertEq(diffs[0].slot, bytes32(0));
-            assertEq(diffs[0].oldValue, bytes32(0));
-            assertEq(diffs[0].newValue, one);
+            assertEq(diffs[0].slot, slot0);
+            assertEq(diffs[0].oldValue, slot0);
+            assertEq(diffs[0].newValue, byte1);
         }
 
         // Test requesting non-existent account
         {
             VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
-            storageAccesses[0] = storageAccess(address(7), bytes32(0), true, bytes32(0), one);
+            storageAccesses[0] = storageAccess(addr7, slot0, true, slot0, byte1);
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
-            accesses[0] = accountAccess(address(7), storageAccesses);
+            accesses[0] = accountAccess(addr7, storageAccesses);
 
-            AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, address(8));
+            AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, addr8);
             assertEq(diffs.length, 0);
         }
 
@@ -177,16 +191,16 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         {
             VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](0);
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
-            accesses[0] = accountAccess(address(9), storageAccesses);
+            accesses[0] = accountAccess(addr9, storageAccesses);
 
-            AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, address(9));
+            AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, addr9);
             assertEq(diffs.length, 0);
         }
 
         // Test empty accesses array
         {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](0);
-            AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, address(10));
+            AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, addr10);
             assertEq(diffs.length, 0);
         }
     }
@@ -194,52 +208,52 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
     function test_getETHTransfer_succeeds() public pure {
         // Test successful ETH transfer
         {
-            VmSafe.AccountAccess memory access = accountAccess(address(1), new VmSafe.StorageAccess[](0));
+            VmSafe.AccountAccess memory access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
             access.value = 100;
-            access.accessor = address(2);
+            access.accessor = addr2;
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getETHTransfer(access);
-            assertEq(transfer.from, address(2));
-            assertEq(transfer.to, address(1));
+            assertEq(transfer.from, addr2);
+            assertEq(transfer.to, addr1);
             assertEq(transfer.value, 100);
             assertEq(transfer.tokenAddress, AccountAccessParser.ETH_TOKEN);
         }
 
         // Test zero value transfer
         {
-            VmSafe.AccountAccess memory access = accountAccess(address(1), new VmSafe.StorageAccess[](0));
+            VmSafe.AccountAccess memory access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
             access.value = 0;
-            access.accessor = address(2);
+            access.accessor = addr2;
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getETHTransfer(access);
-            assertEq(transfer.from, address(0));
-            assertEq(transfer.to, address(0));
+            assertEq(transfer.from, addr0);
+            assertEq(transfer.to, addr0);
             assertEq(transfer.value, 0);
-            assertEq(transfer.tokenAddress, address(0));
+            assertEq(transfer.tokenAddress, addr0);
         }
 
         // Test transfer with max uint256 value
         {
-            VmSafe.AccountAccess memory access = accountAccess(address(1), new VmSafe.StorageAccess[](0));
+            VmSafe.AccountAccess memory access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
             access.value = type(uint256).max;
-            access.accessor = address(2);
+            access.accessor = addr2;
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getETHTransfer(access);
-            assertEq(transfer.from, address(2));
-            assertEq(transfer.to, address(1));
+            assertEq(transfer.from, addr2);
+            assertEq(transfer.to, addr1);
             assertEq(transfer.value, type(uint256).max);
             assertEq(transfer.tokenAddress, AccountAccessParser.ETH_TOKEN);
         }
 
         // Test transfer with zero addresses
         {
-            VmSafe.AccountAccess memory access = accountAccess(address(0), new VmSafe.StorageAccess[](0));
+            VmSafe.AccountAccess memory access = accountAccess(addr0, new VmSafe.StorageAccess[](0));
             access.value = 100;
-            access.accessor = address(0);
+            access.accessor = addr0;
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getETHTransfer(access);
-            assertEq(transfer.from, address(0));
-            assertEq(transfer.to, address(0));
+            assertEq(transfer.from, addr0);
+            assertEq(transfer.to, addr0);
             assertEq(transfer.value, 100);
             assertEq(transfer.tokenAddress, AccountAccessParser.ETH_TOKEN);
         }
@@ -248,80 +262,80 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
     function test_getERC20Transfer_succeeds() public pure {
         // Test ERC20 transfer
         {
-            VmSafe.AccountAccess memory access = accountAccess(address(1), new VmSafe.StorageAccess[](0));
-            access.accessor = address(2);
-            access.data = abi.encodeWithSelector(IERC20.transfer.selector, address(3), 100);
+            VmSafe.AccountAccess memory access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+            access.accessor = addr2;
+            access.data = abi.encodeWithSelector(IERC20.transfer.selector, addr3, 100);
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getERC20Transfer(access);
-            assertEq(transfer.from, address(2));
-            assertEq(transfer.to, address(3));
+            assertEq(transfer.from, addr2);
+            assertEq(transfer.to, addr3);
             assertEq(transfer.value, 100);
-            assertEq(transfer.tokenAddress, address(1));
+            assertEq(transfer.tokenAddress, addr1);
         }
 
         // Test ERC20 transferFrom
         {
-            VmSafe.AccountAccess memory access = accountAccess(address(1), new VmSafe.StorageAccess[](0));
-            access.accessor = address(2);
-            access.data = abi.encodeWithSelector(IERC20.transferFrom.selector, address(3), address(4), 100);
+            VmSafe.AccountAccess memory access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+            access.accessor = addr2;
+            access.data = abi.encodeWithSelector(IERC20.transferFrom.selector, addr3, addr4, 100);
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getERC20Transfer(access);
-            assertEq(transfer.from, address(3));
-            assertEq(transfer.to, address(4));
+            assertEq(transfer.from, addr3);
+            assertEq(transfer.to, addr4);
             assertEq(transfer.value, 100);
-            assertEq(transfer.tokenAddress, address(1));
+            assertEq(transfer.tokenAddress, addr1);
         }
 
         // Test invalid selector (should return zero values)
         {
-            VmSafe.AccountAccess memory access = accountAccess(address(1), new VmSafe.StorageAccess[](0));
-            access.accessor = address(2);
-            access.data = abi.encodeWithSelector(bytes4(keccak256("invalidFunction()")), address(3), 100);
+            VmSafe.AccountAccess memory access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+            access.accessor = addr2;
+            access.data = abi.encodeWithSelector(bytes4(keccak256("invalidFunction()")), addr3, 100);
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getERC20Transfer(access);
-            assertEq(transfer.from, address(0));
-            assertEq(transfer.to, address(0));
+            assertEq(transfer.from, addr0);
+            assertEq(transfer.to, addr0);
             assertEq(transfer.value, 0);
-            assertEq(transfer.tokenAddress, address(0));
+            assertEq(transfer.tokenAddress, addr0);
         }
 
         // Test empty data (should return zero values)
         {
-            VmSafe.AccountAccess memory access = accountAccess(address(1), new VmSafe.StorageAccess[](0));
-            access.accessor = address(2);
+            VmSafe.AccountAccess memory access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+            access.accessor = addr2;
             access.data = new bytes(0);
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getERC20Transfer(access);
-            assertEq(transfer.from, address(0));
-            assertEq(transfer.to, address(0));
+            assertEq(transfer.from, addr0);
+            assertEq(transfer.to, addr0);
             assertEq(transfer.value, 0);
-            assertEq(transfer.tokenAddress, address(0));
+            assertEq(transfer.tokenAddress, addr0);
         }
 
         // Test max uint256 value transfer
         {
-            VmSafe.AccountAccess memory access = accountAccess(address(1), new VmSafe.StorageAccess[](0));
-            access.accessor = address(2);
-            access.data = abi.encodeWithSelector(IERC20.transfer.selector, address(3), type(uint256).max);
+            VmSafe.AccountAccess memory access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+            access.accessor = addr2;
+            access.data = abi.encodeWithSelector(IERC20.transfer.selector, addr3, type(uint256).max);
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getERC20Transfer(access);
-            assertEq(transfer.from, address(2));
-            assertEq(transfer.to, address(3));
+            assertEq(transfer.from, addr2);
+            assertEq(transfer.to, addr3);
             assertEq(transfer.value, type(uint256).max);
-            assertEq(transfer.tokenAddress, address(1));
+            assertEq(transfer.tokenAddress, addr1);
         }
 
         // Test with zero addresses
         {
-            VmSafe.AccountAccess memory access = accountAccess(address(0), new VmSafe.StorageAccess[](0));
-            access.accessor = address(0);
-            access.data = abi.encodeWithSelector(IERC20.transfer.selector, address(0), 100);
+            VmSafe.AccountAccess memory access = accountAccess(addr0, new VmSafe.StorageAccess[](0));
+            access.accessor = addr0;
+            access.data = abi.encodeWithSelector(IERC20.transfer.selector, addr0, 100);
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getERC20Transfer(access);
-            assertEq(transfer.from, address(0));
-            assertEq(transfer.to, address(0));
+            assertEq(transfer.from, addr0);
+            assertEq(transfer.to, addr0);
             assertEq(transfer.value, 100);
-            assertEq(transfer.tokenAddress, address(0));
+            assertEq(transfer.tokenAddress, addr0);
         }
     }
 
@@ -341,8 +355,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         // Test ETH transfer only
         {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
-            accesses[0] = accountAccess(address(1), new VmSafe.StorageAccess[](0));
-            accesses[0].accessor = address(2);
+            accesses[0] = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+            accesses[0].accessor = addr2;
             accesses[0].value = 100;
 
             (
@@ -351,8 +365,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             ) = AccountAccessParser.decode(accesses);
 
             assertEq(transfers.length, 1);
-            assertEq(transfers[0].from, address(2));
-            assertEq(transfers[0].to, address(1));
+            assertEq(transfers[0].from, addr2);
+            assertEq(transfers[0].to, addr1);
             assertEq(transfers[0].value, 100);
             assertEq(transfers[0].tokenAddress, AccountAccessParser.ETH_TOKEN);
             assertEq(diffs.length, 0);
@@ -361,9 +375,9 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         // Test ERC20 transfer only
         {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
-            accesses[0] = accountAccess(address(1), new VmSafe.StorageAccess[](0));
-            accesses[0].accessor = address(2);
-            accesses[0].data = abi.encodeWithSelector(IERC20.transfer.selector, address(3), 100);
+            accesses[0] = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+            accesses[0].accessor = addr2;
+            accesses[0].data = abi.encodeWithSelector(IERC20.transfer.selector, addr3, 100);
 
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
@@ -371,22 +385,21 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             ) = AccountAccessParser.decode(accesses);
 
             assertEq(transfers.length, 1);
-            assertEq(transfers[0].from, address(2));
-            assertEq(transfers[0].to, address(3));
+            assertEq(transfers[0].from, addr2);
+            assertEq(transfers[0].to, addr3);
             assertEq(transfers[0].value, 100);
-            assertEq(transfers[0].tokenAddress, address(1));
+            assertEq(transfers[0].tokenAddress, addr1);
             assertEq(diffs.length, 0);
         }
 
         // Test state diffs only
         {
             VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
-            storageAccesses[0] = storageAccess(
-                address(1), AccountAccessParser.GUARDIAN_SLOT, true, bytes32(0), bytes32(uint256(uint160(address(2))))
-            );
+            storageAccesses[0] =
+                storageAccess(addr1, AccountAccessParser.GUARDIAN_SLOT, true, slot0, bytes32(uint256(uint160(addr2))));
 
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
-            accesses[0] = accountAccess(address(1), storageAccesses);
+            accesses[0] = accountAccess(addr1, storageAccesses);
 
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
@@ -395,23 +408,22 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
 
             assertEq(transfers.length, 0);
             assertEq(diffs.length, 1);
-            assertEq(diffs[0].who, address(1));
+            assertEq(diffs[0].who, addr1);
             assertEq(diffs[0].raw.slot, AccountAccessParser.GUARDIAN_SLOT);
-            assertEq(diffs[0].raw.oldValue, bytes32(0));
-            assertEq(diffs[0].raw.newValue, bytes32(uint256(uint160(address(2)))));
+            assertEq(diffs[0].raw.oldValue, slot0);
+            assertEq(diffs[0].raw.newValue, bytes32(uint256(uint160(addr2))));
         }
 
         // Test combination of transfers and state diffs
         {
             VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
-            storageAccesses[0] =
-                storageAccess(address(1), AccountAccessParser.PAUSED_SLOT, true, bytes32(uint256(0)), one);
+            storageAccesses[0] = storageAccess(addr1, AccountAccessParser.PAUSED_SLOT, true, bytes32(uint256(0)), byte1);
 
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](2);
-            accesses[0] = accountAccess(address(1), storageAccesses);
+            accesses[0] = accountAccess(addr1, storageAccesses);
             accesses[0].value = 100; // ETH transfer
-            accesses[1] = accountAccess(address(2), new VmSafe.StorageAccess[](0));
-            accesses[1].data = abi.encodeWithSelector(IERC20.transfer.selector, address(3), 200); // ERC20 transfer
+            accesses[1] = accountAccess(addr2, new VmSafe.StorageAccess[](0));
+            accesses[1].data = abi.encodeWithSelector(IERC20.transfer.selector, addr3, 200); // ERC20 transfer
 
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
@@ -426,29 +438,27 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             assertEq(transfers[0].tokenAddress, AccountAccessParser.ETH_TOKEN);
 
             // Check ERC20 transfer
-            assertEq(transfers[1].from, address(0));
-            assertEq(transfers[1].to, address(3));
+            assertEq(transfers[1].from, addr0);
+            assertEq(transfers[1].to, addr3);
             assertEq(transfers[1].value, 200);
-            assertEq(transfers[1].tokenAddress, address(2));
+            assertEq(transfers[1].tokenAddress, addr2);
 
             // Check state diff
-            assertEq(diffs[0].who, address(1));
+            assertEq(diffs[0].who, addr1);
             assertEq(diffs[0].raw.slot, AccountAccessParser.PAUSED_SLOT);
             assertEq(diffs[0].raw.oldValue, bytes32(uint256(0)));
-            assertEq(diffs[0].raw.newValue, one);
+            assertEq(diffs[0].raw.newValue, byte1);
         }
 
         // Test multiple state diffs to same slot (should only keep final value)
         {
             VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](3);
-            storageAccesses[0] =
-                storageAccess(address(1), AccountAccessParser.PAUSED_SLOT, true, bytes32(uint256(0)), one);
-            storageAccesses[1] = storageAccess(address(1), AccountAccessParser.PAUSED_SLOT, true, one, two);
-            storageAccesses[2] =
-                storageAccess(address(1), AccountAccessParser.PAUSED_SLOT, true, two, bytes32(uint256(3)));
+            storageAccesses[0] = storageAccess(addr1, AccountAccessParser.PAUSED_SLOT, true, bytes32(uint256(0)), byte1);
+            storageAccesses[1] = storageAccess(addr1, AccountAccessParser.PAUSED_SLOT, true, byte1, byte2);
+            storageAccesses[2] = storageAccess(addr1, AccountAccessParser.PAUSED_SLOT, true, byte2, bytes32(uint256(3)));
 
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
-            accesses[0] = accountAccess(address(1), storageAccesses);
+            accesses[0] = accountAccess(addr1, storageAccesses);
 
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
@@ -464,13 +474,11 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         // Test state changes that revert back to original (should not appear in diffs)
         {
             VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](2);
-            storageAccesses[0] =
-                storageAccess(address(1), AccountAccessParser.PAUSED_SLOT, true, bytes32(uint256(0)), one);
-            storageAccesses[1] =
-                storageAccess(address(1), AccountAccessParser.PAUSED_SLOT, true, one, bytes32(uint256(0)));
+            storageAccesses[0] = storageAccess(addr1, AccountAccessParser.PAUSED_SLOT, true, bytes32(uint256(0)), byte1);
+            storageAccesses[1] = storageAccess(addr1, AccountAccessParser.PAUSED_SLOT, true, byte1, bytes32(uint256(0)));
 
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
-            accesses[0] = accountAccess(address(1), storageAccesses);
+            accesses[0] = accountAccess(addr1, storageAccesses);
 
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
@@ -485,20 +493,16 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         {
             VmSafe.StorageAccess[] memory storageAccesses1 = new VmSafe.StorageAccess[](1);
             storageAccesses1[0] =
-                storageAccess(address(1), AccountAccessParser.PAUSED_SLOT, true, bytes32(uint256(0)), one);
+                storageAccess(addr1, AccountAccessParser.PAUSED_SLOT, true, bytes32(uint256(0)), byte1);
 
             VmSafe.StorageAccess[] memory storageAccesses2 = new VmSafe.StorageAccess[](1);
             storageAccesses2[0] = storageAccess(
-                address(2),
-                AccountAccessParser.GUARDIAN_SLOT,
-                true,
-                bytes32(uint256(0)),
-                bytes32(uint256(uint160(address(3))))
+                addr2, AccountAccessParser.GUARDIAN_SLOT, true, bytes32(uint256(0)), bytes32(uint256(uint160(addr3)))
             );
 
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](2);
-            accesses[0] = accountAccess(address(1), storageAccesses1);
-            accesses[1] = accountAccess(address(2), storageAccesses2);
+            accesses[0] = accountAccess(addr1, storageAccesses1);
+            accesses[1] = accountAccess(addr2, storageAccesses2);
 
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
@@ -507,14 +511,14 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
 
             assertEq(transfers.length, 0);
             assertEq(diffs.length, 2);
-            assertEq(diffs[0].who, address(1));
+            assertEq(diffs[0].who, addr1);
             assertEq(diffs[0].raw.slot, AccountAccessParser.PAUSED_SLOT);
             assertEq(diffs[0].raw.oldValue, bytes32(uint256(0)));
-            assertEq(diffs[0].raw.newValue, one);
-            assertEq(diffs[1].who, address(2));
+            assertEq(diffs[0].raw.newValue, byte1);
+            assertEq(diffs[1].who, addr2);
             assertEq(diffs[1].raw.slot, AccountAccessParser.GUARDIAN_SLOT);
             assertEq(diffs[1].raw.oldValue, bytes32(uint256(0)));
-            assertEq(diffs[1].raw.newValue, bytes32(uint256(uint160(address(3)))));
+            assertEq(diffs[1].raw.newValue, bytes32(uint256(uint160(addr3))));
         }
     }
 
@@ -527,7 +531,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             chainInfo: VmSafe.ChainInfo({chainId: 1, forkId: 1}),
             kind: VmSafe.AccountAccessKind.Call,
             account: _account,
-            accessor: address(0),
+            accessor: addr0,
             initialized: true,
             oldBalance: 0,
             newBalance: 0,

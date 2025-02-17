@@ -268,12 +268,7 @@ library AccountAccessParser {
         }
     }
 
-    /**
-     * @notice Decodes the provided AccountAccess array into decoded transfers and state diffs.
-     * @param _accountAccesses The array of account accesses to process.
-     * @return transfers An array of decoded transfers.
-     * @return stateDiffs An array of decoded state differences.
-     */
+    /// @notice Decodes the provided AccountAccess array into decoded transfers and state diffs.
     function decode(VmSafe.AccountAccess[] memory _accountAccesses)
         internal
         view
@@ -336,6 +331,7 @@ library AccountAccessParser {
         }
     }
 
+    /// @notice Given an address, returns the contract name and L2 chain ID for the contract.
     function getContractInfo(address _address)
         internal
         view
