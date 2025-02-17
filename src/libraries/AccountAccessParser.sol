@@ -282,15 +282,22 @@ library AccountAccessParser {
         view
         noGasMetering
     {
-        for (uint256 i = 0; i < _transfers.length; i++) {
-            DecodedTransfer memory transfer = _transfers[i];
-            console.log("\n----- DecodedTransfer[%s] -----", i);
-            console.log("From:              %s", transfer.from);
-            console.log("To:                %s", transfer.to);
-            console.log("Value:             %s", transfer.value);
-            console.log("Token Address:     %s", transfer.tokenAddress);
+        console.log("\n----------------- Task Transfers -------------------");
+        if (_transfers.length == 0) {
+            console.log("No ETH or ERC20 transfers.");
+        } else {
+            for (uint256 i = 0; i < _transfers.length; i++) {
+                DecodedTransfer memory transfer = _transfers[i];
+                console.log("\n----- DecodedTransfer[%s] -----", i);
+                console.log("From:              %s", transfer.from);
+                console.log("To:                %s", transfer.to);
+                console.log("Value:             %s", transfer.value);
+                console.log("Token Address:     %s", transfer.tokenAddress);
+            }
         }
 
+        console.log("\n----------------- Task State Changes -------------------");
+        require(_stateDiffs.length > 0, "No state changes found, this is unexpected.");
         for (uint256 i = 0; i < _stateDiffs.length; i++) {
             DecodedStateDiff memory state = _stateDiffs[i];
             console.log("\n----- DecodedStateDiff[%s] -----", i);
