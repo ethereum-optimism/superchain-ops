@@ -477,7 +477,7 @@ abstract contract MultisigTask is Test, Script, ITask {
             _validate(chains[i].chainId);
         }
 
-        /// reverts by default and must be overridden by the child templates
+        /// can be overridden by child templates to add additional checks on storage writes
         checkStateDiff(accountAccesses);
     }
 
