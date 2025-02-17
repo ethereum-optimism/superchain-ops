@@ -7,6 +7,9 @@ import {stdJson} from "forge-std/StdJson.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 
+/// @notice Parses account accesses into decoded transfers and state diffs.
+/// The core methods intended to be part of the public interface are `decodeAndPrint`, `decode`,
+/// `getUniqueWrites`, and `getStateDiffFor`.
 library AccountAccessParser {
     using LibString for string;
     using stdJson for string;
@@ -96,78 +99,77 @@ library AccountAccessParser {
         require(ok, "resumeGasMetering failed");
     }
 
-    /// @notice Decodes an ETH transfer from an account access record, and returns an empty struct
-    /// if no transfer occurred.
-    function getETHTransfer(VmSafe.AccountAccess memory access) internal pure returns (DecodedTransfer memory) {
-        return access.value != 0
-            ? DecodedTransfer({from: access.accessor, to: access.account, value: access.value, tokenAddress: ETH_TOKEN})
-            : DecodedTransfer({from: ZERO, to: ZERO, value: 0, tokenAddress: ZERO});
-    }
-
-    /// @notice Decodes an ERC20 transfer from an account access record, and returns an empty struct
-    /// if no ERC20 transfer is detected.
-    function getERC20Transfer(VmSafe.AccountAccess memory access) internal pure returns (DecodedTransfer memory) {
-        bytes memory data = access.data;
-        if (data.length <= 4) return DecodedTransfer({from: ZERO, to: ZERO, value: 0, tokenAddress: ZERO});
-
-        bytes4 selector = bytes4(data);
-        bytes memory params = new bytes(data.length - 4);
-        for (uint256 j = 0; j < data.length - 4; j++) {
-            params[j] = data[j + 4];
-        }
-
-        if (selector == IERC20.transfer.selector) {
-            (address to, uint256 value) = abi.decode(params, (address, uint256));
-            return DecodedTransfer({from: access.accessor, to: to, value: value, tokenAddress: access.account});
-        } else if (selector == IERC20.transferFrom.selector) {
-            (address from, address to, uint256 value) = abi.decode(params, (address, address, uint256));
-            return DecodedTransfer({from: from, to: to, value: value, tokenAddress: access.account});
-        } else {
-            return DecodedTransfer({from: ZERO, to: ZERO, value: 0, tokenAddress: ZERO});
-        }
-    }
-
-    /// @notice Prints the decoded transfers and state diffs to the console.
-    function print(DecodedTransfer[] memory _transfers, DecodedStateDiff[] memory _stateDiffs)
-        internal
-        view
-        noGasMetering
-    {
-        for (uint256 i = 0; i < _transfers.length; i++) {
-            DecodedTransfer memory transfer = _transfers[i];
-            console.log("\n----- DecodedTransfer[%s] -----", i);
-            console.log("From:              %s", transfer.from);
-            console.log("To:                %s", transfer.to);
-            console.log("Value:             %s", transfer.value);
-            console.log("Token Address:     %s", transfer.tokenAddress);
-        }
-
-        for (uint256 i = 0; i < _stateDiffs.length; i++) {
-            DecodedStateDiff memory state = _stateDiffs[i];
-            console.log("\n----- DecodedStateDiff[%s] -----", i);
-            console.log("Who:               %s", state.who);
-            console.log("Contract:          %s", state.contractName);
-            console.log("Chain ID:          %s", state.l2ChainId == 0 ? "" : vm.toString(state.l2ChainId));
-            console.log("Raw Slot:          %s", vm.toString(state.raw.slot));
-            console.log("Raw Old Value:     %s", vm.toString(state.raw.oldValue));
-            console.log("Raw New Value:     %s", vm.toString(state.raw.newValue));
-
-            if (bytes(state.decoded.kind).length == 0) {
-                console.log("\x1B[33m[WARN]\x1B[0m Slot was not decoded");
-            } else {
-                console.log("Decoded Kind:      %s", state.decoded.kind);
-                console.log("Decoded Old Value: %s", state.decoded.oldValue);
-                console.log("Decoded New Value: %s", state.decoded.newValue);
-                console.log("Summary:           %s", state.decoded.summary);
-                console.log("Detail:            %s", state.decoded.detail);
-            }
-        }
-    }
+    // ==============================================================
+    // ======== Methods intended to be used as the interface ========
+    // ==============================================================
 
     /// @notice Convenience function that wraps decode and print together.
     function decodeAndPrint(VmSafe.AccountAccess[] memory _accesses) internal view {
         (DecodedTransfer[] memory transfers, DecodedStateDiff[] memory stateDiffs) = decode(_accesses);
         print(transfers, stateDiffs);
+    }
+
+    /// @notice Decodes the provided AccountAccess array into decoded transfers and state diffs.
+    function decode(VmSafe.AccountAccess[] memory _accountAccesses)
+        internal
+        view
+        noGasMetering
+        returns (DecodedTransfer[] memory transfers, DecodedStateDiff[] memory stateDiffs)
+    {
+        // ETH and ERC20 transfers.
+        uint256 totalTransfers = 0;
+        for (uint256 i = 0; i < _accountAccesses.length; i++) {
+            DecodedTransfer memory ethTransfer = getETHTransfer(_accountAccesses[i]);
+            if (ethTransfer.value != 0) totalTransfers++;
+
+            DecodedTransfer memory erc20Transfer = getERC20Transfer(_accountAccesses[i]);
+            if (erc20Transfer.value != 0) totalTransfers++;
+        }
+
+        transfers = new DecodedTransfer[](totalTransfers);
+        uint256 transferIndex = 0;
+        for (uint256 i = 0; i < _accountAccesses.length; i++) {
+            DecodedTransfer memory ethTransfer = getETHTransfer(_accountAccesses[i]);
+            if (ethTransfer.value != 0) {
+                transfers[transferIndex] = ethTransfer;
+                transferIndex++;
+            }
+            DecodedTransfer memory erc20Transfer = getERC20Transfer(_accountAccesses[i]);
+            if (erc20Transfer.value != 0) {
+                transfers[transferIndex] = erc20Transfer;
+                transferIndex++;
+            }
+        }
+
+        // State diffs.
+        address[] memory uniqueAccounts = getUniqueWrites(_accountAccesses);
+        uint256 totalDiffCount = 0;
+        // Count the total number of net state diffs.
+        for (uint256 i = 0; i < uniqueAccounts.length; i++) {
+            StateDiff[] memory accountDiffs = getStateDiffFor(_accountAccesses, uniqueAccounts[i]);
+            totalDiffCount += accountDiffs.length;
+        }
+
+        // Step 2. Aggregate all the diffs and decode each one.
+        stateDiffs = new DecodedStateDiff[](totalDiffCount);
+        uint256 index = 0;
+        for (uint256 i = 0; i < uniqueAccounts.length; i++) {
+            StateDiff[] memory accountDiffs = getStateDiffFor(_accountAccesses, uniqueAccounts[i]);
+            for (uint256 j = 0; j < accountDiffs.length; j++) {
+                address who = uniqueAccounts[i];
+                (uint256 l2ChainId, string memory contractName) = getContractInfo(who);
+                DecodedSlot memory decoded =
+                    tryDecode(contractName, accountDiffs[j].slot, accountDiffs[j].oldValue, accountDiffs[j].newValue);
+                stateDiffs[index] = DecodedStateDiff({
+                    who: who,
+                    l2ChainId: l2ChainId,
+                    contractName: contractName,
+                    raw: accountDiffs[j],
+                    decoded: decoded
+                });
+                index++;
+            }
+        }
     }
 
     /// @notice Extracts all unique storage writes (i.e. writes where the value has actually changed)
@@ -268,66 +270,75 @@ library AccountAccessParser {
         }
     }
 
-    /// @notice Decodes the provided AccountAccess array into decoded transfers and state diffs.
-    function decode(VmSafe.AccountAccess[] memory _accountAccesses)
+    // =========================================
+    // ======== Internal helper methods ========
+    // =========================================
+
+    /// @notice Prints the decoded transfers and state diffs to the console.
+    function print(DecodedTransfer[] memory _transfers, DecodedStateDiff[] memory _stateDiffs)
         internal
         view
         noGasMetering
-        returns (DecodedTransfer[] memory transfers, DecodedStateDiff[] memory stateDiffs)
     {
-        // ETH and ERC20 transfers.
-        uint256 totalTransfers = 0;
-        for (uint256 i = 0; i < _accountAccesses.length; i++) {
-            DecodedTransfer memory ethTransfer = getETHTransfer(_accountAccesses[i]);
-            if (ethTransfer.value != 0) totalTransfers++;
-
-            DecodedTransfer memory erc20Transfer = getERC20Transfer(_accountAccesses[i]);
-            if (erc20Transfer.value != 0) totalTransfers++;
+        for (uint256 i = 0; i < _transfers.length; i++) {
+            DecodedTransfer memory transfer = _transfers[i];
+            console.log("\n----- DecodedTransfer[%s] -----", i);
+            console.log("From:              %s", transfer.from);
+            console.log("To:                %s", transfer.to);
+            console.log("Value:             %s", transfer.value);
+            console.log("Token Address:     %s", transfer.tokenAddress);
         }
 
-        transfers = new DecodedTransfer[](totalTransfers);
-        uint256 transferIndex = 0;
-        for (uint256 i = 0; i < _accountAccesses.length; i++) {
-            DecodedTransfer memory ethTransfer = getETHTransfer(_accountAccesses[i]);
-            if (ethTransfer.value != 0) {
-                transfers[transferIndex] = ethTransfer;
-                transferIndex++;
-            }
-            DecodedTransfer memory erc20Transfer = getERC20Transfer(_accountAccesses[i]);
-            if (erc20Transfer.value != 0) {
-                transfers[transferIndex] = erc20Transfer;
-                transferIndex++;
+        for (uint256 i = 0; i < _stateDiffs.length; i++) {
+            DecodedStateDiff memory state = _stateDiffs[i];
+            console.log("\n----- DecodedStateDiff[%s] -----", i);
+            console.log("Who:               %s", state.who);
+            console.log("Contract:          %s", state.contractName);
+            console.log("Chain ID:          %s", state.l2ChainId == 0 ? "" : vm.toString(state.l2ChainId));
+            console.log("Raw Slot:          %s", vm.toString(state.raw.slot));
+            console.log("Raw Old Value:     %s", vm.toString(state.raw.oldValue));
+            console.log("Raw New Value:     %s", vm.toString(state.raw.newValue));
+
+            if (bytes(state.decoded.kind).length == 0) {
+                console.log("\x1B[33m[WARN]\x1B[0m Slot was not decoded");
+            } else {
+                console.log("Decoded Kind:      %s", state.decoded.kind);
+                console.log("Decoded Old Value: %s", state.decoded.oldValue);
+                console.log("Decoded New Value: %s", state.decoded.newValue);
+                console.log("Summary:           %s", state.decoded.summary);
+                console.log("Detail:            %s", state.decoded.detail);
             }
         }
+    }
 
-        // State diffs.
-        address[] memory uniqueAccounts = getUniqueWrites(_accountAccesses);
-        uint256 totalDiffCount = 0;
-        // Count the total number of net state diffs.
-        for (uint256 i = 0; i < uniqueAccounts.length; i++) {
-            StateDiff[] memory accountDiffs = getStateDiffFor(_accountAccesses, uniqueAccounts[i]);
-            totalDiffCount += accountDiffs.length;
+    /// @notice Decodes an ETH transfer from an account access record, and returns an empty struct
+    /// if no transfer occurred.
+    function getETHTransfer(VmSafe.AccountAccess memory access) internal pure returns (DecodedTransfer memory) {
+        return access.value != 0
+            ? DecodedTransfer({from: access.accessor, to: access.account, value: access.value, tokenAddress: ETH_TOKEN})
+            : DecodedTransfer({from: ZERO, to: ZERO, value: 0, tokenAddress: ZERO});
+    }
+
+    /// @notice Decodes an ERC20 transfer from an account access record, and returns an empty struct
+    /// if no ERC20 transfer is detected.
+    function getERC20Transfer(VmSafe.AccountAccess memory access) internal pure returns (DecodedTransfer memory) {
+        bytes memory data = access.data;
+        if (data.length <= 4) return DecodedTransfer({from: ZERO, to: ZERO, value: 0, tokenAddress: ZERO});
+
+        bytes4 selector = bytes4(data);
+        bytes memory params = new bytes(data.length - 4);
+        for (uint256 j = 0; j < data.length - 4; j++) {
+            params[j] = data[j + 4];
         }
 
-        // Step 2. Aggregate all the diffs and decode each one.
-        stateDiffs = new DecodedStateDiff[](totalDiffCount);
-        uint256 index = 0;
-        for (uint256 i = 0; i < uniqueAccounts.length; i++) {
-            StateDiff[] memory accountDiffs = getStateDiffFor(_accountAccesses, uniqueAccounts[i]);
-            for (uint256 j = 0; j < accountDiffs.length; j++) {
-                address who = uniqueAccounts[i];
-                (uint256 l2ChainId, string memory contractName) = getContractInfo(who);
-                DecodedSlot memory decoded =
-                    tryDecode(contractName, accountDiffs[j].slot, accountDiffs[j].oldValue, accountDiffs[j].newValue);
-                stateDiffs[index] = DecodedStateDiff({
-                    who: who,
-                    l2ChainId: l2ChainId,
-                    contractName: contractName,
-                    raw: accountDiffs[j],
-                    decoded: decoded
-                });
-                index++;
-            }
+        if (selector == IERC20.transfer.selector) {
+            (address to, uint256 value) = abi.decode(params, (address, uint256));
+            return DecodedTransfer({from: access.accessor, to: to, value: value, tokenAddress: access.account});
+        } else if (selector == IERC20.transferFrom.selector) {
+            (address from, address to, uint256 value) = abi.decode(params, (address, address, uint256));
+            return DecodedTransfer({from: from, to: to, value: value, tokenAddress: access.account});
+        } else {
+            return DecodedTransfer({from: ZERO, to: ZERO, value: 0, tokenAddress: ZERO});
         }
     }
 

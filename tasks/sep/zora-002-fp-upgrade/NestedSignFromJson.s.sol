@@ -2,7 +2,7 @@
 pragma solidity ^0.8.15;
 
 import {console2 as console} from "forge-std/console2.sol";
-import {Vm} from "forge-std/Vm.sol";
+import {Vm, VmSafe} from "forge-std/Vm.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {LibString} from "@solady/utils/LibString.sol";
@@ -33,6 +33,7 @@ interface ISystemConfigLegacy is ISystemConfig {
 }
 
 contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNestedSign, SuperchainRegistry {
+    using AccountAccessParser for VmSafe.AccountAccess[];
     /// @notice Expected address for the AnchorStateRegistry proxy.
     IAnchorStateRegistry expectedAnchorStateRegistryProxy =
         IAnchorStateRegistry(vm.envAddress("EXPECTED_ANCHOR_STATE_REGISTRY_PROXY"));
@@ -119,7 +120,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
         checkPermissionedDisputeGame();
         console.log("All assertions passed!");
 
-        AccountAccessParser.decodeAndPrint(accesses);
+        accesses.decodeAndPrint();
     }
 
     /// @notice Checks the input to the script.
