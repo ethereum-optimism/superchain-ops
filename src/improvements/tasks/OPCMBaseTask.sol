@@ -63,6 +63,11 @@ abstract contract OPCMBaseTask is MultisigTask {
         (address[] memory targets,,) = getTaskActions();
         require(targets.length == 1 && targets[0] == opcm(), "OPCMBaseTask: only OPCM is allowed as target");
         super.validate(accesses);
+        require(
+            _stateInfos[parentMultisig].length == 1,
+            "OPCMBaseTask: only nonce should be updated on upgrade controller multisig"
+        );
+        require(_stateInfos[opcm()].length == 0, "OPCMBaseTask: Storage writes are not allowed on OPCM");
     }
 
     /// @notice get the OPCM address
