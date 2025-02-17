@@ -66,4 +66,7 @@ contract GasConfigTemplate is MultisigTask {
             assertEq(systemConfig.gasLimit(), gasLimits[chainId], "l2 gas limit not set");
         }
     }
+
+    /// @notice no code exceptions for this template
+    function getCodeExceptions() internal view virtual override returns (address[] memory) {}
 }

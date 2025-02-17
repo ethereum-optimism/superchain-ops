@@ -79,4 +79,7 @@ contract SetGameTypeTemplate is MultisigTask {
             );
         }
     }
+
+    /// @notice no code exceptions for this template
+    function getCodeExceptions() internal view virtual override returns (address[] memory) {}
 }
