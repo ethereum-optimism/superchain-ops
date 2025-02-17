@@ -26,6 +26,8 @@ import {IL1ChugSplashProxy} from "@eth-optimism-bedrock/interfaces/legacy/IL1Chu
 import {IOptimismMintableERC20Factory} from
     "@eth-optimism-bedrock/interfaces/universal/IOptimismMintableERC20Factory.sol";
 
+import {StateDiffDecoder} from "src/libraries/StateDiffDecoder.sol";
+
 interface ISystemConfigLegacy is ISystemConfig {
     function l2OutputOracle() external view returns (address);
 }
@@ -116,6 +118,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
         checkDisputeGameFactory();
         checkPermissionedDisputeGame();
         console.log("All assertions passed!");
+
+        StateDiffDecoder.decode(accesses);
     }
 
     /// @notice Checks the input to the script.
