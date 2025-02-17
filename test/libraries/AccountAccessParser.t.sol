@@ -216,7 +216,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             assertEq(transfer.from, addr2);
             assertEq(transfer.to, addr1);
             assertEq(transfer.value, 100);
-            assertEq(transfer.tokenAddress, AccountAccessParser.ETH_TOKEN);
+            assertEq(transfer.tokenAddress, AccountAccessParser.ETHER);
         }
 
         // Test zero value transfer
@@ -242,7 +242,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             assertEq(transfer.from, addr2);
             assertEq(transfer.to, addr1);
             assertEq(transfer.value, type(uint256).max);
-            assertEq(transfer.tokenAddress, AccountAccessParser.ETH_TOKEN);
+            assertEq(transfer.tokenAddress, AccountAccessParser.ETHER);
         }
 
         // Test transfer with zero addresses
@@ -255,7 +255,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             assertEq(transfer.from, addr0);
             assertEq(transfer.to, addr0);
             assertEq(transfer.value, 100);
-            assertEq(transfer.tokenAddress, AccountAccessParser.ETH_TOKEN);
+            assertEq(transfer.tokenAddress, AccountAccessParser.ETHER);
         }
     }
 
@@ -368,7 +368,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             assertEq(transfers[0].from, addr2);
             assertEq(transfers[0].to, addr1);
             assertEq(transfers[0].value, 100);
-            assertEq(transfers[0].tokenAddress, AccountAccessParser.ETH_TOKEN);
+            assertEq(transfers[0].tokenAddress, AccountAccessParser.ETHER);
             assertEq(diffs.length, 0);
         }
 
@@ -435,7 +435,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
 
             // Check ETH transfer
             assertEq(transfers[0].value, 100);
-            assertEq(transfers[0].tokenAddress, AccountAccessParser.ETH_TOKEN);
+            assertEq(transfers[0].tokenAddress, AccountAccessParser.ETHER);
 
             // Check ERC20 transfer
             assertEq(transfers[1].from, addr0);

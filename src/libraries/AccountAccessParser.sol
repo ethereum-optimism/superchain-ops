@@ -14,7 +14,7 @@ library AccountAccessParser {
     using LibString for string;
     using stdJson for string;
 
-    address internal constant ETH_TOKEN = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
+    address internal constant ETHER = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     address internal constant ZERO = address(0);
     address internal constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
     Vm internal constant vm = Vm(VM_ADDRESS);
@@ -67,7 +67,9 @@ library AccountAccessParser {
     }
 
     // forgefmt: disable-start
-    bytes32 internal constant ERC1967_IMPL_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
+    bytes32 internal constant ERC1967_IMPL_SLOT = bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1);
+    bytes32 internal constant PROXY_OWNER_ADDR_SLOT = bytes32(uint256(keccak256('eip1967.proxy.admin')) - 1);
+
     bytes32 internal constant UNSAFE_BLOCK_SIGNER_SLOT = keccak256("systemconfig.unsafeblocksigner");
     bytes32 internal constant L1_CROSS_DOMAIN_MESSENGER_SLOT = bytes32(uint256(keccak256("systemconfig.l1crossdomainmessenger")) - 1);
     bytes32 internal constant L1_ERC_721_BRIDGE_SLOT = bytes32(uint256(keccak256("systemconfig.l1erc721bridge")) - 1);
@@ -315,7 +317,7 @@ library AccountAccessParser {
     /// if no transfer occurred.
     function getETHTransfer(VmSafe.AccountAccess memory access) internal pure returns (DecodedTransfer memory) {
         return access.value != 0
-            ? DecodedTransfer({from: access.accessor, to: access.account, value: access.value, tokenAddress: ETH_TOKEN})
+            ? DecodedTransfer({from: access.accessor, to: access.account, value: access.value, tokenAddress: ETHER})
             : DecodedTransfer({from: ZERO, to: ZERO, value: 0, tokenAddress: ZERO});
     }
 
@@ -383,6 +385,16 @@ library AccountAccessParser {
                 newValue: toAddress(_newValue),
                 summary: "ERC-1967 implementation slot",
                 detail: "Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard."
+            });
+        }
+
+        if (_slot == PROXY_OWNER_ADDR_SLOT) {
+            return DecodedSlot({
+                kind: "address",
+                oldValue: toAddress(_oldValue),
+                newValue: toAddress(_newValue),
+                summary: "Proxy owner address",
+                detail: "Standard slot for storing the owner address in a Proxy contract."
             });
         }
 
