@@ -189,11 +189,8 @@ abstract contract MultisigTask is Test, Script, ITask {
         public
         returns (VmSafe.AccountAccess[] memory)
     {
-        _taskSetup(taskConfigFilePath);
-        /// now execute task actions
-        build();
-        VmSafe.AccountAccess[] memory accountAccesses = simulate(signatures);
-        validate(accountAccesses);
+        /// perform all actions in simulateRun, then send the transaction on chain
+        VmSafe.AccountAccess[] memory accountAccesses = simulateRun(taskConfigFilePath, signatures);
         execute(signatures);
 
         return accountAccesses;
