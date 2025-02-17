@@ -439,7 +439,6 @@ abstract contract MultisigTask is Test, Script, ITask {
     ///          sure they are deployed and initialized correctly, or read
     ///          states that are expected to have changed during the simulate step.
     function validate(VmSafe.AccountAccess[] memory accountAccesses) public virtual override {
-        /// check that no eth or ERC20 tokens moved that were not already approved
         /// write all state changes to storage
         _processStateDiffChanges(accountAccesses);
 
@@ -477,7 +476,7 @@ abstract contract MultisigTask is Test, Script, ITask {
             _validate(chains[i].chainId);
         }
 
-        /// can be overridden by child templates to add additional checks on storage writes
+        /// check that state diff is as expected
         checkStateDiff(accountAccesses);
     }
 
