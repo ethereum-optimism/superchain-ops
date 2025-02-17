@@ -64,7 +64,7 @@ task COMMAND="" NETWORK="":
             ;;
     esac
     
-monorepo-integration-test:
+monorepo-integration-test COMMAND="":
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
@@ -72,7 +72,16 @@ monorepo-integration-test:
     forge build
     forge script ${root_dir}/src/improvements/tasks/Runner.sol:Runner --sig "run(string)" ${allocs_path} --rpc-url $ETH_RPC_URL --ffi
     export SUPERCHAIN_OPS_ALLOCS_PATH=./allocs.json
-    cd ${root_dir}/lib/optimism/packages/contracts-bedrock/ && just test-upgrade-rerun
+    cd ${root_dir}/lib/optimism/packages/contracts-bedrock/
+    # shellcheck disable=SC2194
+    case "{{COMMAND}}" in
+        rerun)
+            just test-upgrade-rerun
+            ;;
+        *)
+            just test-upgrade
+            ;;
+    esac
     rm -f ${allocs_path} # clean up
 
 check-superchain-registry-latest:
