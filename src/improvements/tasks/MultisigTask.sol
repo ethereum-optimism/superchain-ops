@@ -759,7 +759,7 @@ abstract contract MultisigTask is Test, Script {
     }
 
     /// @notice overridden in templates
-    function getCodeExceptions() internal view virtual returns (address[] memory) {}
+    function getCodeExceptions() internal view virtual returns (address[] memory);
 
     /// @notice helper function to prepare the signatures to be executed
     /// @param _safe The address of the parent multisig
