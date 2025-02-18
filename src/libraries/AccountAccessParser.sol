@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.15;
+pragma solidity ^0.8.0;
 
 import {Vm, VmSafe} from "forge-std/Vm.sol";
 import {console} from "forge-std/console.sol";
@@ -9,7 +9,30 @@ import {LibString} from "@solady/utils/LibString.sol";
 
 /// @notice Parses account accesses into decoded transfers and state diffs.
 /// The core methods intended to be part of the public interface are `decodeAndPrint`, `decode`,
-/// `getUniqueWrites`, and `getStateDiffFor`.
+/// `getUniqueWrites`, and `getStateDiffFor`. Example usage:
+///
+/// ```solidity
+/// contract MyContract {
+///     using AccountAccessParser for VmSafe.AccountAccess[];
+///
+///     function myFunction(VmSafe.AccountAccess[] memory accountAccesses) public {
+///         // Decode all state changes and ETH/ERC20 transfers and print to the terminal.
+///         accountAccesses.decodeAndPrint();
+///
+///         // Get all decoded data without printing.
+///         (
+///             AccountAccessParser.DecodedTransfer[] memory transfers,
+///             AccountAccessParser.DecodedStateDiff[] memory diffs
+///         ) = accountAccesses.decode();
+///
+///         // Get the state diff for a given account.
+///         StateDiff[] memory diffs = accountAccesses.getStateDiffFor(myContract);
+///
+///         // Get an array of all unique accounts that had state changes.
+///         address[] memory accountsWithStateChanges = accountAccesses.getUniqueWrites();
+///     }
+/// }
+/// ```
 library AccountAccessParser {
     using LibString for string;
     using stdJson for string;
@@ -96,7 +119,9 @@ library AccountAccessParser {
         // We use low-level staticcalls so we can keep cheatcodes as view functions.
         (bool ok,) = address(vm).staticcall(abi.encodeWithSelector(VmSafe.pauseGasMetering.selector));
         require(ok, "pauseGasMetering failed");
+
         _;
+
         (ok,) = address(vm).staticcall(abi.encodeWithSelector(VmSafe.resumeGasMetering.selector));
         require(ok, "resumeGasMetering failed");
     }
