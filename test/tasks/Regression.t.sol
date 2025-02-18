@@ -8,6 +8,7 @@ import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {GasConfigTemplate} from "src/improvements/template/GasConfigTemplate.sol";
 import {SetGameTypeTemplate} from "src/improvements/template/SetGameTypeTemplate.sol";
 import {DisputeGameUpgradeTemplate} from "src/improvements/template/DisputeGameUpgradeTemplate.sol";
+import {TestOPCMUpgradeVxyz} from "src/improvements/template/TestOPCMUpgradeVxyz.sol";
 
 contract RegressionTest is Test {
     function testRegressionCallDataMatches_SingleMultisigGasConfigTemplate() public {
@@ -86,5 +87,30 @@ contract RegressionTest is Test {
         string memory dataToSign =
             vm.toString(multisigTask.getDataToSign(multisigTask.parentMultisig(), multisigTask.getCalldata()));
         assertEq(keccak256(bytes(dataToSign)), keccak256(bytes(expectedDataToSign)));
+    }
+
+    function testRegressionCallDataMatches_OPCMUpgradeVxyz() public {
+        string memory taskConfigFilePath = "test/tasks/mock/configs/TestOPCMUpgradeVxyz.toml";
+        string memory expectedCallData =
+            "0x82ad56cb0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000005bc817c7c3f1a8dcaa01d229cbdeed9624c80e09000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000104ff2dd5a100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000034edd2a225f7f429a63e0f1d2084b9e0a93b538000000000000000000000000189abaaaa82dfc015a588a7dbad6f13b1d3485bc00000000000000000000000000000000000000000000000000000000000000400000000000000000000000005d63a8dc2737ce771aa4a6510d063b6ba2c4f6f2000000000000000000000000f7bc4b3a78c7dd8be9b69b3128eeb0d6776ce18a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+        vm.createSelectFork("sepolia", 7733622);
+        MultisigTask multisigTask = new TestOPCMUpgradeVxyz();
+        multisigTask.simulateRun(taskConfigFilePath);
+
+        string memory callData = vm.toString(multisigTask.getCalldata());
+        assertEq(keccak256(bytes(callData)), keccak256(bytes(expectedCallData)));
+
+        string[] memory expectedDataToSign = new string[](2);
+        expectedDataToSign[0] =
+            "0x190137e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbbd6ce457eb94b23958530ed93f69e9c5178b74c3b709b6e5d7864623dc4998d1f";
+        expectedDataToSign[1] =
+            "0x1901be081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b853345c1d45ffe973f7f85040ac9a1fa97f33862f03406b005218766234ac38e8f10";
+
+        address[] memory owners = IGnosisSafe(multisigTask.parentMultisig()).getOwners();
+        for (uint256 i = 0; i < owners.length; i++) {
+            string memory dataToSign =
+                vm.toString(multisigTask.getDataToSign(owners[i], multisigTask.generateApproveMulticallData()));
+            assertEq(keccak256(bytes(dataToSign)), keccak256(bytes(expectedDataToSign[i])));
+        }
     }
 }
