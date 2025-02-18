@@ -327,6 +327,12 @@ jobs:
             (cd src/improvements && just monorepo-integration-test)
       - notify-failures-on-develop:
           mentions: "@security-team"
+      - run:
+          name: Print failed test traces
+          environment:
+            ETH_RPC_URL: << pipeline.parameters.l1_mainnet_rpc_url >>
+          command: (cd src/improvements && just monorepo-integration-test rerun)
+          when: on_fail
 
   print_versions:
     docker:
