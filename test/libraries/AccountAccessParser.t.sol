@@ -38,8 +38,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             accesses[0] = accountAccess(addr0, storageAccesses);
 
             address[] memory uniqueAccounts = accesses.getUniqueWrites();
-            assertEq(uniqueAccounts.length, 1);
-            assertEq(uniqueAccounts[0], addr0);
+            assertEq(uniqueAccounts.length, 1, "10");
+            assertEq(uniqueAccounts[0], addr0, "20");
         }
 
         // Test multiple writes to same account - should only appear once
@@ -51,8 +51,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             accesses[0] = accountAccess(addr1, storageAccesses);
 
             address[] memory uniqueAccounts = accesses.getUniqueWrites();
-            assertEq(uniqueAccounts.length, 1);
-            assertEq(uniqueAccounts[0], addr1);
+            assertEq(uniqueAccounts.length, 1, "30");
+            assertEq(uniqueAccounts[0], addr1, "40");
         }
 
         // Test writes with no changes - should not be included
@@ -63,7 +63,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             accesses[0] = accountAccess(addr2, storageAccesses);
 
             address[] memory uniqueAccounts = accesses.getUniqueWrites();
-            assertEq(uniqueAccounts.length, 0);
+            assertEq(uniqueAccounts.length, 0, "50");
         }
 
         // Test reads - should not be included
@@ -74,7 +74,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             accesses[0] = accountAccess(addr3, storageAccesses);
 
             address[] memory uniqueAccounts = accesses.getUniqueWrites();
-            assertEq(uniqueAccounts.length, 0);
+            assertEq(uniqueAccounts.length, 0, "60");
         }
 
         // Test reverted writes - should not be included
@@ -86,7 +86,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             accesses[0] = accountAccess(addr3, storageAccesses);
 
             address[] memory uniqueAccounts = accesses.getUniqueWrites();
-            assertEq(uniqueAccounts.length, 0);
+            assertEq(uniqueAccounts.length, 0, "70");
         }
 
         // Test multiple accounts with mixed read/writes/reverts
@@ -106,9 +106,9 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             accesses[1] = accountAccess(addr5, storageAccesses2);
 
             address[] memory uniqueAccounts = accesses.getUniqueWrites();
-            assertEq(uniqueAccounts.length, 2);
-            assertEq(uniqueAccounts[0], addr4);
-            assertEq(uniqueAccounts[1], addr5);
+            assertEq(uniqueAccounts.length, 2, "80");
+            assertEq(uniqueAccounts[0], addr4, "90");
+            assertEq(uniqueAccounts[1], addr5, "100");
         }
 
         // Test empty storage accesses
@@ -118,7 +118,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             accesses[0] = accountAccess(addr6, storageAccesses);
 
             address[] memory uniqueAccounts = accesses.getUniqueWrites();
-            assertEq(uniqueAccounts.length, 0);
+            assertEq(uniqueAccounts.length, 0, "110");
         }
     }
 
@@ -131,10 +131,10 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             accesses[0] = accountAccess(addr1, storageAccesses);
 
             AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr1);
-            assertEq(diffs.length, 1);
-            assertEq(diffs[0].slot, slot0);
-            assertEq(diffs[0].oldValue, slot0);
-            assertEq(diffs[0].newValue, byte1);
+            assertEq(diffs.length, 1, "10");
+            assertEq(diffs[0].slot, slot0, "20");
+            assertEq(diffs[0].oldValue, slot0, "30");
+            assertEq(diffs[0].newValue, byte1, "40");
         }
 
         // Test single account with multiple writes to same slot (should only keep last write)
@@ -146,10 +146,10 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             accesses[0] = accountAccess(addr2, storageAccesses);
 
             AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr2);
-            assertEq(diffs.length, 1);
-            assertEq(diffs[0].slot, slot0);
-            assertEq(diffs[0].oldValue, slot0);
-            assertEq(diffs[0].newValue, byte2);
+            assertEq(diffs.length, 1, "50");
+            assertEq(diffs[0].slot, slot0, "60");
+            assertEq(diffs[0].oldValue, slot0, "70");
+            assertEq(diffs[0].newValue, byte2, "80");
         }
 
         // Test single account with unchanged write (should be excluded)
@@ -160,7 +160,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             accesses[0] = accountAccess(addr3, storageAccesses);
 
             AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr3);
-            assertEq(diffs.length, 0);
+            assertEq(diffs.length, 0, "90");
         }
 
         // Test single account with reads (should be excluded)
@@ -171,7 +171,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             accesses[0] = accountAccess(addr4, storageAccesses);
 
             AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr4);
-            assertEq(diffs.length, 0);
+            assertEq(diffs.length, 0, "100");
         }
 
         // Test single account with reverted write (should be excluded)
@@ -183,7 +183,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             accesses[0] = accountAccess(addr4, storageAccesses);
 
             AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr4);
-            assertEq(diffs.length, 0);
+            assertEq(diffs.length, 0, "110");
         }
 
         // Test multiple accounts but only requesting one
@@ -198,10 +198,10 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             accesses[1] = accountAccess(addr6, storageAccesses2);
 
             AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr5);
-            assertEq(diffs.length, 1);
-            assertEq(diffs[0].slot, slot0);
-            assertEq(diffs[0].oldValue, slot0);
-            assertEq(diffs[0].newValue, byte1);
+            assertEq(diffs.length, 1, "120");
+            assertEq(diffs[0].slot, slot0, "130");
+            assertEq(diffs[0].oldValue, slot0, "140");
+            assertEq(diffs[0].newValue, byte1, "150");
         }
 
         // Test requesting non-existent account
@@ -212,7 +212,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             accesses[0] = accountAccess(addr7, storageAccesses);
 
             AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr8);
-            assertEq(diffs.length, 0);
+            assertEq(diffs.length, 0, "160");
         }
 
         // Test empty storage accesses
@@ -222,14 +222,14 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             accesses[0] = accountAccess(addr9, storageAccesses);
 
             AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr9);
-            assertEq(diffs.length, 0);
+            assertEq(diffs.length, 0, "170");
         }
 
         // Test empty accesses array
         {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](0);
             AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr10);
-            assertEq(diffs.length, 0);
+            assertEq(diffs.length, 0, "180");
         }
     }
 
@@ -241,10 +241,10 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             access.accessor = addr2;
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getETHTransfer(access);
-            assertEq(transfer.from, addr2);
-            assertEq(transfer.to, addr1);
-            assertEq(transfer.value, 100);
-            assertEq(transfer.tokenAddress, AccountAccessParser.ETHER);
+            assertEq(transfer.from, addr2, "10");
+            assertEq(transfer.to, addr1, "20");
+            assertEq(transfer.value, 100, "30");
+            assertEq(transfer.tokenAddress, AccountAccessParser.ETHER, "40");
         }
 
         // Test reverted ETH transfer (should return zero values)
@@ -255,10 +255,10 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             access.reverted = true;
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getETHTransfer(access);
-            assertEq(transfer.from, addr0);
-            assertEq(transfer.to, addr0);
-            assertEq(transfer.value, 0);
-            assertEq(transfer.tokenAddress, addr0);
+            assertEq(transfer.from, addr0, "50");
+            assertEq(transfer.to, addr0, "60");
+            assertEq(transfer.value, 0, "70");
+            assertEq(transfer.tokenAddress, addr0, "80");
         }
 
         // Test zero value transfer
@@ -268,10 +268,10 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             access.accessor = addr2;
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getETHTransfer(access);
-            assertEq(transfer.from, addr0);
-            assertEq(transfer.to, addr0);
-            assertEq(transfer.value, 0);
-            assertEq(transfer.tokenAddress, addr0);
+            assertEq(transfer.from, addr0, "90");
+            assertEq(transfer.to, addr0, "100");
+            assertEq(transfer.value, 0, "110");
+            assertEq(transfer.tokenAddress, addr0, "120");
         }
 
         // Test transfer with max uint256 value
@@ -281,10 +281,10 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             access.accessor = addr2;
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getETHTransfer(access);
-            assertEq(transfer.from, addr2);
-            assertEq(transfer.to, addr1);
-            assertEq(transfer.value, type(uint256).max);
-            assertEq(transfer.tokenAddress, AccountAccessParser.ETHER);
+            assertEq(transfer.from, addr2, "130");
+            assertEq(transfer.to, addr1, "140");
+            assertEq(transfer.value, type(uint256).max, "150");
+            assertEq(transfer.tokenAddress, AccountAccessParser.ETHER, "160");
         }
 
         // Test transfer with zero addresses
@@ -294,10 +294,10 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             access.accessor = addr0;
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getETHTransfer(access);
-            assertEq(transfer.from, addr0);
-            assertEq(transfer.to, addr0);
-            assertEq(transfer.value, 100);
-            assertEq(transfer.tokenAddress, AccountAccessParser.ETHER);
+            assertEq(transfer.from, addr0, "170");
+            assertEq(transfer.to, addr0, "180");
+            assertEq(transfer.value, 100, "190");
+            assertEq(transfer.tokenAddress, AccountAccessParser.ETHER, "200");
         }
     }
 
@@ -309,10 +309,10 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             access.data = abi.encodeWithSelector(IERC20.transfer.selector, addr3, 100);
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getERC20Transfer(access);
-            assertEq(transfer.from, addr2);
-            assertEq(transfer.to, addr3);
-            assertEq(transfer.value, 100);
-            assertEq(transfer.tokenAddress, addr1);
+            assertEq(transfer.from, addr2, "10");
+            assertEq(transfer.to, addr3, "20");
+            assertEq(transfer.value, 100, "30");
+            assertEq(transfer.tokenAddress, addr1, "40");
         }
 
         // Test reverted ERC20 transfer (should return zero values)
@@ -323,10 +323,10 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             access.reverted = true;
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getERC20Transfer(access);
-            assertEq(transfer.from, addr0);
-            assertEq(transfer.to, addr0);
-            assertEq(transfer.value, 0);
-            assertEq(transfer.tokenAddress, addr0);
+            assertEq(transfer.from, addr0, "50");
+            assertEq(transfer.to, addr0, "60");
+            assertEq(transfer.value, 0, "70");
+            assertEq(transfer.tokenAddress, addr0, "80");
         }
 
         // Test ERC20 transferFrom
@@ -336,10 +336,10 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             access.data = abi.encodeWithSelector(IERC20.transferFrom.selector, addr3, addr4, 100);
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getERC20Transfer(access);
-            assertEq(transfer.from, addr3);
-            assertEq(transfer.to, addr4);
-            assertEq(transfer.value, 100);
-            assertEq(transfer.tokenAddress, addr1);
+            assertEq(transfer.from, addr3, "90");
+            assertEq(transfer.to, addr4, "100");
+            assertEq(transfer.value, 100, "110");
+            assertEq(transfer.tokenAddress, addr1, "120");
         }
 
         // Test reverted ERC20 transferFrom (should return zero values)
@@ -350,10 +350,10 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             access.reverted = true;
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getERC20Transfer(access);
-            assertEq(transfer.from, addr0);
-            assertEq(transfer.to, addr0);
-            assertEq(transfer.value, 0);
-            assertEq(transfer.tokenAddress, addr0);
+            assertEq(transfer.from, addr0, "130");
+            assertEq(transfer.to, addr0, "140");
+            assertEq(transfer.value, 0, "150");
+            assertEq(transfer.tokenAddress, addr0, "160");
         }
 
         // Test invalid selector (should return zero values)
@@ -363,10 +363,10 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             access.data = abi.encodeWithSelector(bytes4(keccak256("invalidFunction()")), addr3, 100);
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getERC20Transfer(access);
-            assertEq(transfer.from, addr0);
-            assertEq(transfer.to, addr0);
-            assertEq(transfer.value, 0);
-            assertEq(transfer.tokenAddress, addr0);
+            assertEq(transfer.from, addr0, "170");
+            assertEq(transfer.to, addr0, "180");
+            assertEq(transfer.value, 0, "190");
+            assertEq(transfer.tokenAddress, addr0, "200");
         }
 
         // Test empty data (should return zero values)
@@ -376,10 +376,10 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             access.data = new bytes(0);
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getERC20Transfer(access);
-            assertEq(transfer.from, addr0);
-            assertEq(transfer.to, addr0);
-            assertEq(transfer.value, 0);
-            assertEq(transfer.tokenAddress, addr0);
+            assertEq(transfer.from, addr0, "210");
+            assertEq(transfer.to, addr0, "220");
+            assertEq(transfer.value, 0, "230");
+            assertEq(transfer.tokenAddress, addr0, "240");
         }
 
         // Test max uint256 value transfer
@@ -389,10 +389,10 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             access.data = abi.encodeWithSelector(IERC20.transfer.selector, addr3, type(uint256).max);
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getERC20Transfer(access);
-            assertEq(transfer.from, addr2);
-            assertEq(transfer.to, addr3);
-            assertEq(transfer.value, type(uint256).max);
-            assertEq(transfer.tokenAddress, addr1);
+            assertEq(transfer.from, addr2, "250");
+            assertEq(transfer.to, addr3, "260");
+            assertEq(transfer.value, type(uint256).max, "270");
+            assertEq(transfer.tokenAddress, addr1, "280");
         }
 
         // Test with zero addresses
@@ -402,10 +402,10 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             access.data = abi.encodeWithSelector(IERC20.transfer.selector, addr0, 100);
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getERC20Transfer(access);
-            assertEq(transfer.from, addr0);
-            assertEq(transfer.to, addr0);
-            assertEq(transfer.value, 100);
-            assertEq(transfer.tokenAddress, addr0);
+            assertEq(transfer.from, addr0, "290");
+            assertEq(transfer.to, addr0, "300");
+            assertEq(transfer.value, 100, "310");
+            assertEq(transfer.tokenAddress, addr0, "320");
         }
     }
 
