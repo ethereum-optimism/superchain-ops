@@ -32,6 +32,7 @@ contract BytecodeComparison_compare_Test is Test {
     }
 
     /// @notice Test that different contracts with different bytecode lengths revert.
+    /// forge-config: default.allow_internal_expect_revert = true
     function test_differentBytecode_reverts() public {
         MockContract contractA = new MockContract(100);
         VeryDifferentContract contractB = new VeryDifferentContract();
@@ -55,6 +56,7 @@ contract BytecodeComparison_compare_Test is Test {
     }
 
     /// @notice Test that an unallowed diff reverts.
+    /// forge-config: default.allow_internal_expect_revert = true
     function test_unallowedDiff_reverts() public {
         bytes memory bytecodeA = hex"0011223344556677";
         bytes memory bytecodeB = hex"0011FF3344556677";
@@ -91,6 +93,7 @@ contract BytecodeComparison_compare_Test is Test {
     }
 
     /// @notice Test that a wrong diff position reverts.
+    /// forge-config: default.allow_internal_expect_revert = true
     function test_wrongDiffPosition_reverts() public {
         bytes memory bytecodeA = hex"0011223344556677";
         bytes memory bytecodeB = hex"0011FF3344556677";
@@ -106,6 +109,7 @@ contract BytecodeComparison_compare_Test is Test {
     }
 
     /// @notice Test that a wrong diff content reverts.
+    /// forge-config: default.allow_internal_expect_revert = true
     function test_wrongDiffContent_reverts() public {
         bytes memory bytecodeA = hex"0011223344556677";
         bytes memory bytecodeB = hex"0011FF3344556677";
