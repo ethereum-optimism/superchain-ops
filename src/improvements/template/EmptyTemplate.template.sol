@@ -8,11 +8,10 @@ import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 ///         This file is intentionally stripped down; please add your logic where indicated.
 contract EmptyTemplate is MultisigTask {
     /// @notice TODO: Define the struct fields for your task configuration.
+    /// (e.g., chainId, gas, implementation, gameType, etc.)
     struct ExampleTaskConfig {
         uint256 chainId;
     }
-    // TODO: Add members this template needs
-    // (e.g., chainId, gas, implementation, gameType, etc.)
 
     /// @notice TODO: Update the mapping key/value types as needed.
     mapping(uint256 => ExampleTaskConfig) public exampleTaskConfig;
