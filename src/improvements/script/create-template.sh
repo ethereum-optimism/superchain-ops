@@ -19,7 +19,6 @@ create_template() {
         fi
 
         if [[ "$filename" == *.sol ]]; then
-            # Strip the .sol extension for the contract name.
             contract_name="${filename%.sol}"
             template_path="template/$filename"
             mkdir -p "$(dirname "$template_path")"
