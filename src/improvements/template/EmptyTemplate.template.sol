@@ -3,9 +3,9 @@ pragma solidity 0.8.15;
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 
-/// @title EmptyTemplate
 /// @notice A template contract for configuring protocol parameters.
 ///         This file is intentionally stripped down; please add your logic where indicated.
+///         Please make sure to address all TODOs and remove the require() statements.
 contract EmptyTemplate is MultisigTask {
     /// @notice TODO: Define the struct fields for your task configuration.
     /// (e.g., chainId, gas, implementation, gameType, etc.)
@@ -16,27 +16,25 @@ contract EmptyTemplate is MultisigTask {
     /// @notice TODO: Update the mapping key/value types as needed.
     mapping(uint256 => ExampleTaskConfig) public exampleTaskConfig;
 
-    /// @notice Returns the safe address string identifier.
-    /// @return A string identifier.
+    /// @notice Returns the string identifier for the safe executing this transaction.
     function safeAddressString() public pure override returns (string memory) {
         require(
             false,
             "TODO: Return the actual safe address string identifier as defined in Superchain-Registry's addresses.json."
         );
-        /// Superchain-Registry's addresses.json.
+        // See superchain-registry's 'addresses.json' for allowed safe address strings.
         return "ProxyAdminOwner"; // TODO: This is an example. Change according to your task.
     }
 
-    /// @notice Returns the storage write permissions required for this task
-    /// @return Array of storage write permissions
+    /// @notice Returns string identifiers for addresses that are expected to have their storage written to.
     function _taskStorageWrites() internal pure override returns (string[] memory) {
         require(false, "TODO: Populate this array with actual storage permission identifiers.");
         string[] memory storageWrites = new string[](1);
+        storageWrites[0] = "SystemConfigProxy"; // TODO: This is an example. Change according to your task.
         return storageWrites;
     }
 
-    /// @notice Sets up the template with implementation configurations from a TOML file
-    /// @param taskConfigFilePath Path to the TOML configuration file
+    /// @notice Sets up the template with implementation configurations from a TOML file.
     function _templateSetup(string memory taskConfigFilePath) internal pure override {
         require(
             false,
@@ -45,23 +43,22 @@ contract EmptyTemplate is MultisigTask {
         taskConfigFilePath;
     }
 
-    /// @notice Builds the actions for a specific L2 chain ID
-    /// @param chainId The ID of the L2 chain to configure
+    /// @notice Write the calls that you want to execute for each l2chain in the task.
+    /// These can be written as standard Solidity calls and then get parsed as calldata.
     function _buildPerChain(uint256 chainId) internal pure override {
         // Delete this function if _buildSingle() is implemented.
         require(false, "TODO: Implement logic that executes per chain.");
         chainId;
     }
-    /// @notice Builds the task action for all l2chains in the task.
-    /// @dev Normally implemented as part of OPCM templates.
+    /// @notice Write the calls that you want to execute one time.
+    /// These can be written as standard Solidity calls and then get parsed as calldata.
 
     function _buildSingle() internal pure override {
         // Delete this function if _buildPerChain() is implemented.
         require(false, "TODO: Normally implemented as part of OPCM templates. Executes logic for all chains.");
     }
 
-    /// @notice Validates that implementations were set correctly for the specified chain ID
-    /// @param chainId The ID of the L2 chain to validate
+    /// @notice This method performs all validations and assertions that verify the calls executed as expected.
     function _validate(uint256 chainId) internal pure override {
         require(false, "TODO: Implement the logic to validate that the configuration was set as expected.");
         chainId;
