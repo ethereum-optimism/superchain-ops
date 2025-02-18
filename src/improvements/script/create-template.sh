@@ -35,7 +35,7 @@ contract ${contract_name} is MultisigTask {
     /// @return A string identifier.
     function safeAddressString() public pure override returns (string memory) {
         require(false, "TODO: Return the actual safe address string identifier as defined in Superchain-Registry's addresses.json.");
-        /// Superchain-Registry's addresses.json.
+        // Superchain-Registry's addresses.json.
         // return "ProxyAdminOwner";
     }
 
