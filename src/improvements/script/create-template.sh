@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 
 create_template() {
+    # Determine the directory of this script so we can locate the template file.
+    script_dir="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
+    template_source="${script_dir}/../template/EmptyTemplate.template.sol"
+
+    if [[ ! -f "$template_source" ]]; then
+        echo -e "\n\033[31mTemplate file not found at: ${template_source}\033[0m"
+        exit 1
+    fi
+
     while true; do
         if [ -t 0 ]; then
             echo ""
@@ -8,10 +17,14 @@ create_template() {
         else
             read -r filename
         fi
+
         if [[ "$filename" == *.sol ]]; then
+            # Strip the .sol extension for the contract name.
             contract_name="${filename%.sol}"
             template_path="template/$filename"
+            mkdir -p "$(dirname "$template_path")"
 
+<<<<<<< Updated upstream
             # Create the template file with the default Solidity code
             cat > "$template_path" << EOL
 // SPDX-License-Identifier: MIT
@@ -66,12 +79,17 @@ contract ${contract_name} is MultisigTask {
     }
 }
 EOL
+=======
+            # Replace all occurrences of "ExampleTemplate" in the template file with the chosen contract name.
+            sed "s/EmptyTemplate/${contract_name}/g" "$template_source" > "$template_path"
+
+>>>>>>> Stashed changes
             absolute_path=$(realpath "$template_path")
             echo -e "\n\033[32mTemplate created at:\033[0m"
             echo "$absolute_path"
             break
         else
-            echo -e "\n\033[31mTemplate file cannot be empty and must end with '.sol'. Please try again.\033[0m"
+            echo -e "\n\033[31mTemplate file name must end with '.sol'. Please try again.\033[0m"
         fi
     done
 }
