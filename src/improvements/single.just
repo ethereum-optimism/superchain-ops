@@ -26,7 +26,7 @@ simulate hdPath='0':
   forge build
   forge script ${script} \
     --rpc-url ${rpcUrl} \
-    --sig "simulateRun(string)" ${config} \
+    --sig "simulateRun(string)" ${config}
 
 sign hdPath='0':
   #!/usr/bin/env bash
