@@ -1,18 +1,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
+import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
+import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
+import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
+import {LibSort} from "@solady/utils/LibSort.sol";
 import {Test} from "forge-std/Test.sol";
 
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
+import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 import {GasConfigTemplate} from "src/improvements/template/GasConfigTemplate.sol";
+import {MockDisputeGameTask} from "test/tasks/mock/MockDisputeGameTask.sol";
+import {DisputeGameUpgradeTemplate} from "src/improvements/template/DisputeGameUpgradeTemplate.sol";
 import {IncorrectGasConfigTemplate1} from "test/tasks/mock/template/IncorrectGasConfigTemplate1.sol";
 import {IncorrectGasConfigTemplate2} from "test/tasks/mock/template/IncorrectGasConfigTemplate2.sol";
-import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
-import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
-import {LibSort} from "@solady/utils/LibSort.sol";
-import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
-import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
 
 contract SingleMultisigTaskTest is Test {
     struct MultiSigOwner {
@@ -224,6 +226,40 @@ contract SingleMultisigTaskTest is Test {
         );
         vm.expectRevert(expectedRevertMessage);
         localMultisigTask.simulateRun(taskConfigFilePath);
+    }
+
+    function testMockDisputeGameWithCodeExceptionsWorks() public {
+        vm.createSelectFork("mainnet");
+        string memory opcmTaskConfigFilePath = "test/tasks/mock/configs/MockDisputeGameUpgradesToEOA.toml";
+        multisigTask = new MockDisputeGameTask();
+
+        multisigTask.simulateRun(opcmTaskConfigFilePath);
+    }
+
+    function testSimulateRunDisputeGameWithoutCodeExceptionsFails() public {
+        vm.createSelectFork("mainnet");
+        string memory opcmTaskConfigFilePath = "test/tasks/mock/configs/MockDisputeGameUpgradesToEOA.toml";
+        multisigTask = new DisputeGameUpgradeTemplate();
+
+        uint256 start = vm.snapshot();
+
+        multisigTask.simulateRun("src/improvements/tasks/example/eth/001-initial-example-dg-upgrade/config.toml");
+        addrRegistry = multisigTask.addrRegistry();
+        address account = addrRegistry.getAddress("DisputeGameFactoryProxy", getChain("optimism").chainId);
+
+        vm.revertTo(start);
+
+        string memory err = string.concat(
+            "Likely address in storage has no code\n",
+            "  account: ",
+            vm.toString(account),
+            "\n  slot:    ",
+            vm.toString(bytes32(0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b)),
+            "\n  value:   ",
+            vm.toString(bytes32(0x0000000000000000000000000000000fffffffffffffffffffffffffffffffff))
+        );
+        vm.expectRevert(bytes(err));
+        multisigTask.simulateRun(opcmTaskConfigFilePath);
     }
 
     function testExecuteWithSignatures() public {
