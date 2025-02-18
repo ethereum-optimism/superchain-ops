@@ -210,25 +210,27 @@ library AccountAccessParser {
         address[] memory temp = new address[](accesses.length);
         uint256 count = 0;
         for (uint256 i = 0; i < accesses.length; i++) {
-            bool hasChangedWrite = false;
-            for (uint256 j = 0; j < accesses[i].storageAccesses.length; j++) {
-                VmSafe.StorageAccess memory sa = accesses[i].storageAccesses[j];
-                if (sa.isWrite && sa.previousValue != sa.newValue) {
-                    hasChangedWrite = true;
-                    break;
-                }
-            }
-            if (hasChangedWrite) {
-                bool exists = false;
-                for (uint256 k = 0; k < count; k++) {
-                    if (temp[k] == accesses[i].account) {
-                        exists = true;
+            if (!accesses[i].reverted) {
+                bool hasChangedWrite = false;
+                for (uint256 j = 0; j < accesses[i].storageAccesses.length; j++) {
+                    VmSafe.StorageAccess memory sa = accesses[i].storageAccesses[j];
+                    if (sa.isWrite && !sa.reverted && sa.previousValue != sa.newValue) {
+                        hasChangedWrite = true;
                         break;
                     }
                 }
-                if (!exists) {
-                    temp[count] = accesses[i].account;
-                    count++;
+                if (hasChangedWrite) {
+                    bool exists = false;
+                    for (uint256 k = 0; k < count; k++) {
+                        if (temp[k] == accesses[i].account) {
+                            exists = true;
+                            break;
+                        }
+                    }
+                    if (!exists) {
+                        temp[count] = accesses[i].account;
+                        count++;
+                    }
                 }
             }
         }
@@ -251,22 +253,25 @@ library AccountAccessParser {
         uint256 diffCount = 0;
 
         for (uint256 i = 0; i < accesses.length; i++) {
-            for (uint256 j = 0; j < accesses[i].storageAccesses.length; j++) {
-                VmSafe.StorageAccess memory sa = accesses[i].storageAccesses[j];
-                if (sa.account == who && sa.isWrite && sa.previousValue != sa.newValue) {
-                    // Check if we already recorded a diff for this slot.
-                    bool found = false;
-                    for (uint256 k = 0; k < diffCount; k++) {
-                        if (temp[k].slot == sa.slot) {
-                            // Update the new value.
-                            temp[k].newValue = sa.newValue;
-                            found = true;
-                            break;
+            if (!accesses[i].reverted) {
+                for (uint256 j = 0; j < accesses[i].storageAccesses.length; j++) {
+                    VmSafe.StorageAccess memory sa = accesses[i].storageAccesses[j];
+                    if (sa.account == who && sa.isWrite && !sa.reverted && sa.previousValue != sa.newValue) {
+                        // Check if we already recorded a diff for this slot.
+                        bool found = false;
+                        for (uint256 k = 0; k < diffCount; k++) {
+                            if (temp[k].slot == sa.slot) {
+                                // Update the new value.
+                                temp[k].newValue = sa.newValue;
+                                found = true;
+                                break;
+                            }
                         }
-                    }
-                    if (!found) {
-                        temp[diffCount] = StateDiff({slot: sa.slot, oldValue: sa.previousValue, newValue: sa.newValue});
-                        diffCount++;
+                        if (!found) {
+                            temp[diffCount] =
+                                StateDiff({slot: sa.slot, oldValue: sa.previousValue, newValue: sa.newValue});
+                            diffCount++;
+                        }
                     }
                 }
             }
@@ -339,7 +344,7 @@ library AccountAccessParser {
     /// @notice Decodes an ETH transfer from an account access record, and returns an empty struct
     /// if no transfer occurred.
     function getETHTransfer(VmSafe.AccountAccess memory access) internal pure returns (DecodedTransfer memory) {
-        return access.value != 0
+        return access.value != 0 && !access.reverted
             ? DecodedTransfer({from: access.accessor, to: access.account, value: access.value, tokenAddress: ETHER})
             : DecodedTransfer({from: ZERO, to: ZERO, value: 0, tokenAddress: ZERO});
     }
@@ -356,10 +361,11 @@ library AccountAccessParser {
             params[j] = data[j + 4];
         }
 
-        if (selector == IERC20.transfer.selector) {
+        bool reverted = access.reverted;
+        if (selector == IERC20.transfer.selector && !reverted) {
             (address to, uint256 value) = abi.decode(params, (address, uint256));
             return DecodedTransfer({from: access.accessor, to: to, value: value, tokenAddress: access.account});
-        } else if (selector == IERC20.transferFrom.selector) {
+        } else if (selector == IERC20.transferFrom.selector && !reverted) {
             (address from, address to, uint256 value) = abi.decode(params, (address, address, uint256));
             return DecodedTransfer({from: from, to: to, value: value, tokenAddress: access.account});
         } else {
