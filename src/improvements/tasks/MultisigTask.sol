@@ -74,7 +74,7 @@ abstract contract MultisigTask is Test, Script {
     mapping(address => TransferInfo[]) private _taskTransfers;
 
     /// @notice state changes during task execution
-    mapping(address => StateInfo[]) private _stateInfos;
+    mapping(address => StateInfo[]) internal _stateInfos;
 
     /// @notice addresses involved in state changes or token transfers
     EnumerableSet.AddressSet private _taskTransferFromAddresses;
