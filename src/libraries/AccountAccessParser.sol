@@ -1,15 +1,44 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.15;
+pragma solidity ^0.8.0;
 
 import {Vm, VmSafe} from "forge-std/Vm.sol";
 import {console} from "forge-std/console.sol";
-import {LibString} from "@solady/utils/LibString.sol";
 import {stdJson} from "forge-std/StdJson.sol";
+import {IERC20} from "forge-std/interfaces/IERC20.sol";
+import {LibString} from "@solady/utils/LibString.sol";
 
-library StateDiffDecoder {
+/// @notice Parses account accesses into decoded transfers and state diffs.
+/// The core methods intended to be part of the public interface are `decodeAndPrint`, `decode`,
+/// `getUniqueWrites`, and `getStateDiffFor`. Example usage:
+///
+/// ```solidity
+/// contract MyContract {
+///     using AccountAccessParser for VmSafe.AccountAccess[];
+///
+///     function myFunction(VmSafe.AccountAccess[] memory accountAccesses) public {
+///         // Decode all state changes and ETH/ERC20 transfers and print to the terminal.
+///         accountAccesses.decodeAndPrint();
+///
+///         // Get all decoded data without printing.
+///         (
+///             AccountAccessParser.DecodedTransfer[] memory transfers,
+///             AccountAccessParser.DecodedStateDiff[] memory diffs
+///         ) = accountAccesses.decode();
+///
+///         // Get the state diff for a given account.
+///         StateDiff[] memory diffs = accountAccesses.getStateDiffFor(myContract);
+///
+///         // Get an array of all unique accounts that had state changes.
+///         address[] memory accountsWithStateChanges = accountAccesses.getUniqueWrites();
+///     }
+/// }
+/// ```
+library AccountAccessParser {
     using LibString for string;
     using stdJson for string;
 
+    address internal constant ETHER = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
+    address internal constant ZERO = address(0);
     address internal constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
     Vm internal constant vm = Vm(VM_ADDRESS);
 
@@ -35,6 +64,13 @@ library StateDiffDecoder {
         DecodedSlot decoded;
     }
 
+    struct DecodedTransfer {
+        address from;
+        address to;
+        uint256 value;
+        address tokenAddress;
+    }
+
     // Temporary struct used during deduplication.
     struct TempStateChange {
         address who;
@@ -54,7 +90,9 @@ library StateDiffDecoder {
     }
 
     // forgefmt: disable-start
-    bytes32 internal constant ERC1967_IMPL_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
+    bytes32 internal constant ERC1967_IMPL_SLOT = bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1);
+    bytes32 internal constant PROXY_OWNER_ADDR_SLOT = bytes32(uint256(keccak256('eip1967.proxy.admin')) - 1);
+
     bytes32 internal constant UNSAFE_BLOCK_SIGNER_SLOT = keccak256("systemconfig.unsafeblocksigner");
     bytes32 internal constant L1_CROSS_DOMAIN_MESSENGER_SLOT = bytes32(uint256(keccak256("systemconfig.l1crossdomainmessenger")) - 1);
     bytes32 internal constant L1_ERC_721_BRIDGE_SLOT = bytes32(uint256(keccak256("systemconfig.l1erc721bridge")) - 1);
@@ -77,86 +115,212 @@ library StateDiffDecoder {
     bytes32 internal constant GAS_PAYING_TOKEN_SYMBOL_SLOT = bytes32(uint256(keccak256("opstack.gaspayingtokensymbol")) - 1);
     // forgefmt: disable-end
 
-    function decode(VmSafe.AccountAccess[] memory _accountAccesses) internal {
-        vm.pauseGasMetering();
-        // First, determine the maximum possible number of storage writes.
-        uint256 maxEntries = 0;
-        for (uint256 i = 0; i < _accountAccesses.length; i++) {
-            for (uint256 j = 0; j < _accountAccesses[i].storageAccesses.length; j++) {
-                VmSafe.StorageAccess memory storageAccess = _accountAccesses[i].storageAccesses[j];
-                if (storageAccess.isWrite && storageAccess.previousValue != storageAccess.newValue) {
-                    maxEntries++;
-                }
+    modifier noGasMetering() {
+        // We use low-level staticcalls so we can keep cheatcodes as view functions.
+        (bool ok,) = address(vm).staticcall(abi.encodeWithSelector(VmSafe.pauseGasMetering.selector));
+        require(ok, "pauseGasMetering failed");
+
+        _;
+
+        (ok,) = address(vm).staticcall(abi.encodeWithSelector(VmSafe.resumeGasMetering.selector));
+        require(ok, "resumeGasMetering failed");
+    }
+
+    // ==============================================================
+    // ======== Methods intended to be used as the interface ========
+    // ==============================================================
+
+    /// @notice Convenience function that wraps decode and print together.
+    function decodeAndPrint(VmSafe.AccountAccess[] memory _accesses) internal view {
+        (DecodedTransfer[] memory transfers, DecodedStateDiff[] memory stateDiffs) = decode(_accesses);
+        print(transfers, stateDiffs);
+    }
+
+    /// @notice Decodes the provided AccountAccess array into decoded transfers and state diffs.
+    function decode(VmSafe.AccountAccess[] memory _accountAccesses)
+        internal
+        view
+        noGasMetering
+        returns (DecodedTransfer[] memory transfers, DecodedStateDiff[] memory stateDiffs)
+    {
+        // --- Transfers ---
+        // Allocate a temporary transfers array with maximum possible size (2 transfers per access).
+        uint256 n = _accountAccesses.length;
+        DecodedTransfer[] memory tempTransfers = new DecodedTransfer[](2 * n);
+        uint256 transferIndex = 0;
+        // Process each account access once for both ETH and ERC20 transfers.
+        for (uint256 i = 0; i < n; i++) {
+            DecodedTransfer memory ethTransfer = getETHTransfer(_accountAccesses[i]);
+            if (ethTransfer.value != 0) {
+                tempTransfers[transferIndex] = ethTransfer;
+                transferIndex++;
+            }
+
+            DecodedTransfer memory erc20Transfer = getERC20Transfer(_accountAccesses[i]);
+            if (erc20Transfer.value != 0) {
+                tempTransfers[transferIndex] = erc20Transfer;
+                transferIndex++;
             }
         }
 
-        // Allocate a temporary array to deduplicate writes.
-        TempStateChange[] memory deduped = new TempStateChange[](maxEntries);
-        uint256 dedupCount = 0;
+        // Copy the valid transfers into an array of the correct length.
+        transfers = new DecodedTransfer[](transferIndex);
+        for (uint256 i = 0; i < transferIndex; i++) {
+            transfers[i] = tempTransfers[i];
+        }
 
-        // Iterate in order so that the first write encountered holds the initial (old) value.
-        for (uint256 i = 0; i < _accountAccesses.length; i++) {
-            for (uint256 j = 0; j < _accountAccesses[i].storageAccesses.length; j++) {
-                VmSafe.StorageAccess memory storageAccess = _accountAccesses[i].storageAccesses[j];
+        // --- State diffs ---
+        address[] memory uniqueAccounts = getUniqueWrites(_accountAccesses);
+        uint256 totalDiffCount = 0;
+        // Count the total number of net state diffs.
+        for (uint256 i = 0; i < uniqueAccounts.length; i++) {
+            StateDiff[] memory accountDiffs = getStateDiffFor(_accountAccesses, uniqueAccounts[i]);
+            totalDiffCount += accountDiffs.length;
+        }
 
-                // Only process writes where the value has actually changed.
-                if (storageAccess.isWrite && storageAccess.previousValue != storageAccess.newValue) {
-                    bool found = false;
+        // Aggregate all the diffs and decode each one.
+        stateDiffs = new DecodedStateDiff[](totalDiffCount);
+        uint256 index = 0;
+        for (uint256 i = 0; i < uniqueAccounts.length; i++) {
+            StateDiff[] memory accountDiffs = getStateDiffFor(_accountAccesses, uniqueAccounts[i]);
+            for (uint256 j = 0; j < accountDiffs.length; j++) {
+                address who = uniqueAccounts[i];
+                (uint256 l2ChainId, string memory contractName) = getContractInfo(who);
+                DecodedSlot memory decoded =
+                    tryDecode(contractName, accountDiffs[j].slot, accountDiffs[j].oldValue, accountDiffs[j].newValue);
+                stateDiffs[index] = DecodedStateDiff({
+                    who: who,
+                    l2ChainId: l2ChainId,
+                    contractName: contractName,
+                    raw: accountDiffs[j],
+                    decoded: decoded
+                });
+                index++;
+            }
+        }
+    }
 
-                    // Check if we've already seen this address and slot pair.
-                    for (uint256 k = 0; k < dedupCount; k++) {
-                        if (deduped[k].who == storageAccess.account && deduped[k].slot == storageAccess.slot) {
-                            // Update the new value to the latest value.
-                            deduped[k].lastNew = storageAccess.newValue;
-                            found = true;
+    /// @notice Extracts all unique storage writes (i.e. writes where the value has actually changed)
+    function getUniqueWrites(VmSafe.AccountAccess[] memory accesses)
+        internal
+        pure
+        returns (address[] memory uniqueAccounts)
+    {
+        // Temporary array sized to maximum possible length.
+        address[] memory temp = new address[](accesses.length);
+        uint256 count = 0;
+        for (uint256 i = 0; i < accesses.length; i++) {
+            if (!accesses[i].reverted) {
+                bool hasChangedWrite = false;
+                for (uint256 j = 0; j < accesses[i].storageAccesses.length; j++) {
+                    VmSafe.StorageAccess memory sa = accesses[i].storageAccesses[j];
+                    if (sa.isWrite && !sa.reverted && sa.previousValue != sa.newValue) {
+                        hasChangedWrite = true;
+                        break;
+                    }
+                }
+                if (hasChangedWrite) {
+                    bool exists = false;
+                    for (uint256 k = 0; k < count; k++) {
+                        if (temp[k] == accesses[i].account) {
+                            exists = true;
                             break;
                         }
                     }
+                    if (!exists) {
+                        temp[count] = accesses[i].account;
+                        count++;
+                    }
+                }
+            }
+        }
+        uniqueAccounts = new address[](count);
+        for (uint256 i = 0; i < count; i++) {
+            uniqueAccounts[i] = temp[i];
+        }
+    }
 
-                    // If not found, record a new change.
-                    if (!found) {
-                        deduped[dedupCount] = TempStateChange({
-                            who: storageAccess.account,
-                            slot: storageAccess.slot,
-                            firstOld: storageAccess.previousValue,
-                            lastNew: storageAccess.newValue
-                        });
-                        dedupCount++;
+    /// @notice Extracts the net state diffs for a given account from the provided account accesses.
+    /// It deduplicates writes by slot and returns an array of StateDiff structs where each slot
+    /// appears only once and for each entry oldValue != newValue.
+    function getStateDiffFor(VmSafe.AccountAccess[] memory accesses, address who)
+        internal
+        pure
+        returns (StateDiff[] memory diffs)
+    {
+        // Over-allocate to the maximum possible number of diffs.
+        StateDiff[] memory temp = new StateDiff[](accesses.length);
+        uint256 diffCount = 0;
+
+        for (uint256 i = 0; i < accesses.length; i++) {
+            if (!accesses[i].reverted) {
+                for (uint256 j = 0; j < accesses[i].storageAccesses.length; j++) {
+                    VmSafe.StorageAccess memory sa = accesses[i].storageAccesses[j];
+                    if (sa.account == who && sa.isWrite && !sa.reverted && sa.previousValue != sa.newValue) {
+                        // Check if we already recorded a diff for this slot.
+                        bool found = false;
+                        for (uint256 k = 0; k < diffCount; k++) {
+                            if (temp[k].slot == sa.slot) {
+                                // Update the new value.
+                                temp[k].newValue = sa.newValue;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            temp[diffCount] =
+                                StateDiff({slot: sa.slot, oldValue: sa.previousValue, newValue: sa.newValue});
+                            diffCount++;
+                        }
                     }
                 }
             }
         }
 
-        // Filter out state changes where the first old value equals the final new value.
-        DecodedStateDiff[] memory tempStateDiffs = new DecodedStateDiff[](dedupCount);
-        uint256 filteredCount = 0;
-        for (uint256 i = 0; i < dedupCount; i++) {
-            if (deduped[i].firstOld == deduped[i].lastNew) {
-                continue;
+        // Filter out diffs where the net change is zero.
+        uint256 finalCount = 0;
+        for (uint256 i = 0; i < diffCount; i++) {
+            if (temp[i].oldValue != temp[i].newValue) {
+                temp[finalCount] = temp[i];
+                finalCount++;
             }
-            address who = deduped[i].who;
-            (uint256 l2ChainId, string memory contractName) = getContractInfo(who);
-            DecodedSlot memory decoded =
-                tryDecode(contractName, deduped[i].slot, deduped[i].firstOld, deduped[i].lastNew);
-            tempStateDiffs[filteredCount] = DecodedStateDiff({
-                who: who,
-                l2ChainId: l2ChainId,
-                contractName: contractName,
-                raw: StateDiff({slot: deduped[i].slot, oldValue: deduped[i].firstOld, newValue: deduped[i].lastNew}),
-                decoded: decoded
-            });
-            filteredCount++;
         }
 
-        // Create the final array with the exact number of filtered entries.
-        DecodedStateDiff[] memory stateDiffs = new DecodedStateDiff[](filteredCount);
-        for (uint256 i = 0; i < filteredCount; i++) {
-            stateDiffs[i] = tempStateDiffs[i];
+        // Allocate and copy the final array.
+        diffs = new StateDiff[](finalCount);
+        for (uint256 i = 0; i < finalCount; i++) {
+            diffs[i] = temp[i];
+        }
+    }
+
+    // =========================================
+    // ======== Internal helper methods ========
+    // =========================================
+
+    /// @notice Prints the decoded transfers and state diffs to the console.
+    function print(DecodedTransfer[] memory _transfers, DecodedStateDiff[] memory _stateDiffs)
+        internal
+        view
+        noGasMetering
+    {
+        console.log("\n----------------- Task Transfers -------------------");
+        if (_transfers.length == 0) {
+            console.log("No ETH or ERC20 transfers.");
+        } else {
+            for (uint256 i = 0; i < _transfers.length; i++) {
+                DecodedTransfer memory transfer = _transfers[i];
+                console.log("\n----- DecodedTransfer[%s] -----", i);
+                console.log("From:              %s", transfer.from);
+                console.log("To:                %s", transfer.to);
+                console.log("Value:             %s", transfer.value);
+                console.log("Token Address:     %s", transfer.tokenAddress);
+            }
         }
 
-        // Lastly, print the decoded state infos.
-        for (uint256 i = 0; i < stateDiffs.length; i++) {
-            DecodedStateDiff memory state = stateDiffs[i];
+        console.log("\n----------------- Task State Changes -------------------");
+        require(_stateDiffs.length > 0, "No state changes found, this is unexpected.");
+        for (uint256 i = 0; i < _stateDiffs.length; i++) {
+            DecodedStateDiff memory state = _stateDiffs[i];
             console.log("\n----- DecodedStateDiff[%s] -----", i);
             console.log("Who:               %s", state.who);
             console.log("Contract:          %s", state.contractName);
@@ -165,7 +329,6 @@ library StateDiffDecoder {
             console.log("Raw Old Value:     %s", vm.toString(state.raw.oldValue));
             console.log("Raw New Value:     %s", vm.toString(state.raw.newValue));
 
-            // Check if decoded.kind is empty.
             if (bytes(state.decoded.kind).length == 0) {
                 console.log("\x1B[33m[WARN]\x1B[0m Slot was not decoded");
             } else {
@@ -176,9 +339,41 @@ library StateDiffDecoder {
                 console.log("Detail:            %s", state.decoded.detail);
             }
         }
-        vm.resumeGasMetering();
     }
 
+    /// @notice Decodes an ETH transfer from an account access record, and returns an empty struct
+    /// if no transfer occurred.
+    function getETHTransfer(VmSafe.AccountAccess memory access) internal pure returns (DecodedTransfer memory) {
+        return access.value != 0 && !access.reverted
+            ? DecodedTransfer({from: access.accessor, to: access.account, value: access.value, tokenAddress: ETHER})
+            : DecodedTransfer({from: ZERO, to: ZERO, value: 0, tokenAddress: ZERO});
+    }
+
+    /// @notice Decodes an ERC20 transfer from an account access record, and returns an empty struct
+    /// if no ERC20 transfer is detected.
+    function getERC20Transfer(VmSafe.AccountAccess memory access) internal pure returns (DecodedTransfer memory) {
+        bytes memory data = access.data;
+        if (data.length <= 4) return DecodedTransfer({from: ZERO, to: ZERO, value: 0, tokenAddress: ZERO});
+
+        bytes4 selector = bytes4(data);
+        bytes memory params = new bytes(data.length - 4);
+        for (uint256 j = 0; j < data.length - 4; j++) {
+            params[j] = data[j + 4];
+        }
+
+        bool reverted = access.reverted;
+        if (selector == IERC20.transfer.selector && !reverted) {
+            (address to, uint256 value) = abi.decode(params, (address, uint256));
+            return DecodedTransfer({from: access.accessor, to: to, value: value, tokenAddress: access.account});
+        } else if (selector == IERC20.transferFrom.selector && !reverted) {
+            (address from, address to, uint256 value) = abi.decode(params, (address, address, uint256));
+            return DecodedTransfer({from: from, to: to, value: value, tokenAddress: access.account});
+        } else {
+            return DecodedTransfer({from: ZERO, to: ZERO, value: 0, tokenAddress: ZERO});
+        }
+    }
+
+    /// @notice Given an address, returns the contract name and L2 chain ID for the contract.
     function getContractInfo(address _address)
         internal
         view
@@ -219,6 +414,16 @@ library StateDiffDecoder {
                 newValue: toAddress(_newValue),
                 summary: "ERC-1967 implementation slot",
                 detail: "Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard."
+            });
+        }
+
+        if (_slot == PROXY_OWNER_ADDR_SLOT) {
+            return DecodedSlot({
+                kind: "address",
+                oldValue: toAddress(_oldValue),
+                newValue: toAddress(_newValue),
+                summary: "Proxy owner address",
+                detail: "Standard slot for storing the owner address in a Proxy contract."
             });
         }
 

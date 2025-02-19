@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
 import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
@@ -65,4 +66,7 @@ contract GasConfigTemplate is MultisigTask {
             assertEq(systemConfig.gasLimit(), gasLimits[chainId], "l2 gas limit not set");
         }
     }
+
+    /// @notice no code exceptions for this template
+    function getCodeExceptions() internal view virtual override returns (address[] memory) {}
 }
