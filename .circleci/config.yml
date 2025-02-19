@@ -313,7 +313,7 @@ jobs:
           name: forge test
           command: |
             forge --version
-            forge test -vvv
+            forge test --profile $FOUNDRY_PROFILE -vvv
   
   monorepo_integration_test:
     circleci_ip_ranges: true
