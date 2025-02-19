@@ -32,6 +32,8 @@ commands:
         type: string
     steps:
       - utils/checkout-with-mise
+      - set-simulation-eth-rpc-url
+        task: "<< parameters.task >>"
       - run:
           name: "simulate << parameters.task >>"
           environment:
@@ -51,6 +53,8 @@ commands:
         type: string
     steps:
       - utils/checkout-with-mise
+      - set-simulation-eth-rpc-url
+        task: "<< parameters.task >>"
       - run:
           name: "simulate nested << parameters.task >>"
           environment:
@@ -66,6 +70,23 @@ commands:
               --dotenv-path $(pwd)/.env \
               --justfile ../../../nested.just \
               simulate council
+
+  set-simulation-eth-rpc-url:
+    description: "Sets ETH_RPC_URL according to the task being simulated"
+    parameters:
+      task:
+        type: string
+    steps:
+      - run:
+          name: "Set ETH_RPC_URL according to the task being simulated"
+          command: |
+            if echo "<< parameters.task >>" | grep -qiE "sep|sepolia"; then
+              echo "Setting ETH_RPC_URL to << parameters.l1_sepolia_rpc_url >>"
+              echo 'export ETH_RPC_URL="<< parameters.l1_sepolia_rpc_url >>"' >> $BASH_ENV
+            else
+              echo "Setting ETH_RPC_URL to << parameters.l1_mainnet_rpc_url >>"
+              echo 'export ETH_RPC_URL="<< parameters.l1_mainnet_rpc_url >>"' >> $BASH_ENV
+            fi
 
   notify-failures-on-develop:
     description: "Notify Slack"
@@ -263,8 +284,6 @@ jobs:
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
-    environment:
-      ETH_RPC_URL: << pipeline.parameters.l1_mainnet_rpc_url >>
     steps:
       - simulate:
           task: "/eth/ink-002-set-respected-game-type"
@@ -273,8 +292,6 @@ jobs:
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
-    environment:
-      ETH_RPC_URL: << pipeline.parameters.l1_sepolia_rpc_url >>
     steps:
       - simulate_nested:
           task: "/sep/zora-002-fp-upgrade"

@@ -24,6 +24,8 @@ remappings = [
 
 [profile.ci]
 deny_warnings = true
+mainnet = "https://ci-mainnet-l1-archive.optimism.io" # Must have 'circleci_ip_ranges = true' in .circleci/config.yml
+sepolia = "https://ci-sepolia-l1.optimism.io" # Must have 'circleci_ip_ranges = true' in .circleci/config.yml
 
 [profile.ci.rpc_endpoints]
 mainnet = "https://ci-mainnet-l1-archive.optimism.io" # Must have 'circleci_ip_ranges = true' in .circleci/config.yml
