@@ -210,6 +210,8 @@ jobs:
       - utils/checkout-with-mise
       - run:
           name: just simulate r1-hello-council
+          environment:
+            FOUNDRY_PROFILE: ci
           command: |
             just install
             cd security-council-rehearsals
@@ -228,6 +230,8 @@ jobs:
       - utils/checkout-with-mise
       - run:
           name: just simulate r2-remove-signer
+          environment:
+            FOUNDRY_PROFILE: ci
           command: |
             just install
             cd security-council-rehearsals
