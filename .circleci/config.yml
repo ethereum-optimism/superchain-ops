@@ -34,6 +34,8 @@ commands:
       - utils/checkout-with-mise
       - run:
           name: "simulate << parameters.task >>"
+          environment:
+            ETH_RPC_URL: << pipeline.parameters.l1_mainnet_rpc_url >>
           command: |
             just install
             cd tasks/<< parameters.task >>
@@ -51,6 +53,8 @@ commands:
       - utils/checkout-with-mise
       - run:
           name: "simulate nested << parameters.task >>"
+          environment:
+            ETH_RPC_URL: << pipeline.parameters.l1_mainnet_rpc_url >>
           command: |
             just install
             cd tasks/<< parameters.task >>
