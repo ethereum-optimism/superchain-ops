@@ -29,7 +29,7 @@ The prestate hash used for both chains is taken from [here](https://github.com/e
 The input can therefore be generated from:
 
 ```
-cast abi-encode \
+cast calldata \
   "updatePrestate((address,address,bytes32)[])" \
   "[(0x4Ca9608Fef202216bc21D543798ec854539bAAd3, 0xff9d236641962Cebf9DBFb54E7b8e91F99f10Db0, 0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd), (0x034edD2A225f7f429A63E0f1D2084B9E0A93b538, 0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc, 0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd)]"
 ```
