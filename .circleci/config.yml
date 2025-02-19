@@ -311,7 +311,7 @@ jobs:
             FOUNDRY_PROFILE: ci
           command: |
             forge --version
-            forge test --profile $FOUNDRY_PROFILE -vvv
+            forge test -vvv
   
   monorepo_integration_test:
     circleci_ip_ranges: true
