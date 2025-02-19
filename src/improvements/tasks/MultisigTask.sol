@@ -927,7 +927,7 @@ abstract contract MultisigTask is Test, Script {
     /// check the state changes applied by the task. This function can check
     /// that only the nonce changed in the parent multisig when executing a task
     /// by checking the slot and address where the slot changed.
-    function checkStateDiff(VmSafe.AccountAccess[] memory accountAccesses) internal view virtual {
+    function checkStateDiff(VmSafe.AccountAccess[] memory accountAccesses) internal virtual {
         console.log("Running assertions on the state diff");
         require(accountAccesses.length > 0, "No account accesses");
         address[] memory allowedAccesses = getAllowedStorageAccess();
