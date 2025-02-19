@@ -1,21 +1,21 @@
-# Holocene Hardfork Upgrade
+# Holocene Hardfork Upgrade + L1 Pectra Support Upgrade
 
 Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
-Upgrades the Fault Proof contracts for the Holocene hardfork.
+Upgrades the Fault Proof contracts for the Holocene hardfork as per Upgrade Proposal #11.
 
-The proposal was:
+This also utilizes the absolute prestate `0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd` that enables L1 pectra support, to be included in Upgrade Proposal #12.
 
-- [ ] Posted on the governance forum.
-- [ ] Approved by Token House voting.
-- [ ] Not vetoed by the Citizens' house.
-- [ ] Executed on OP Mainnet.
+The proposal #11 was:
+
+- [X] [Posted](https://gov.optimism.io/t/upgrade-proposal-11-holocene-network-upgrade/9313) on the governance forum.
+- [X] [Approved](https://vote.optimism.io/proposals/20127877429053636874064552098716749508236019236440427814457915785398876262515) by Token House voting.
+- [X] Not vetoed by the Citizens' house.
+- [X] Executed on OP Mainnet.
 
 The governance proposal should be treated as the source of truth and used to verify the correctness of the onchain operations.
-
-Governance post of the upgrade can be found at <placeholder>.
 
 This upgrades the Fault Proof contracts in the
 [op-contracts/v1.8.0-rc.4](https://github.com/ethereum-optimism/optimism/tree/op-contracts/v1.8.0-rc.4) release.
