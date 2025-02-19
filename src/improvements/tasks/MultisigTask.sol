@@ -416,7 +416,7 @@ abstract contract MultisigTask is Test, Script {
         signatures = Signatures.prepareSignatures(_childMultisig, hash, signatures);
 
         if (vm.isContext(VmSafe.ForgeContext.ScriptBroadcast)) {
-            /// only broadcast if we are running forge script with the --broadcast flag
+            // only broadcast if we are running forge script with the --broadcast flag
             vm.broadcast();
         }
 
