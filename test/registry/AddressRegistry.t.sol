@@ -168,6 +168,15 @@ contract MainnetAddressRegistryTest is Test {
             assertNotEq(addresses.getAddress("ProxyAdminOwner", chainId), address(0), "ProxyAdminOwner not loaded");
             assertNotEq(addresses.getAddress("SystemConfigOwner", chainId), address(0), "SystemConfigOwner not loaded");
             assertNotEq(addresses.getAddress("UnsafeBlockSigner", chainId), address(0), "UnsafeBlockSigner not loaded");
+            assertNotEq(
+                addresses.getAddress("FoundationUpgradeSafe", chainId), address(0), "FoundationUpgradeSafe not loaded"
+            );
+            assertNotEq(
+                addresses.getAddress("FoundationOperationSafe", chainId),
+                address(0),
+                "FoundationOperationSafe not loaded"
+            );
+            assertNotEq(addresses.getAddress("SecurityCouncil", chainId), address(0), "SecurityCouncil not loaded");
         }
     }
 
