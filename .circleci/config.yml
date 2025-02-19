@@ -264,6 +264,20 @@ jobs:
       - simulate_nested:
           task: "/sep/zora-002-fp-upgrade"
 
+  just_simulate_ink_003_fp_holocene_pectra_upgrade:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - simulate_nested:
+          task: "/eth/ink-003-fp-holocene-pectra-upgrade"
+
+  just_simulate_ink_004_holocene_system_config_upgrade:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - simulate_nested:
+          task: "/eth/ink-004-holocene-system-config-upgrade"
+
   forge_build:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -387,6 +401,8 @@ workflows:
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
       - just_simulate_ink_respected_game_type
+      - just_simulate_ink_003_fp_holocene_pectra_upgrade
+      - just_simulate_ink_004_holocene_system_config_upgrade
       # sepolia
       - just_simulate_zora_002_fp_upgrade
 
