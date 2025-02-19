@@ -295,6 +295,8 @@ jobs:
       - utils/checkout-with-mise
       - run:
           name: forge test
+          environment:
+            ETH_RPC_URL: << pipeline.parameters.l1_mainnet_rpc_url >>
           command: |
             forge --version
             forge test -vvv
