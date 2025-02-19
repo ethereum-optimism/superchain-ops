@@ -24,3 +24,28 @@ For each contract listed in the state diff, please verify that no contracts or s
   **After**: `0x000000000000000000000000683b566da8815e9fcd22d47f40b4ff0af6c14836` <br/>
   **Meaning**: Updates the PERMISSIONED_CANNON game type implementation. You can verify which implementation is set using `cast call 0x512A3d2c7a43BD9261d2B8E8C9c70D4bd4D503C0 "gameImpls(uint32)(address)" 1`, where `1` is the [`PERMISSIONED_CANNON` game type](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L31).
   Before this task has been executed, you will see that the returned address is `0x00000000000000000000000042d15f045159ce4ade9edc7da5704ef36056c936`, matching the "Before" value of this slot, demonstrating this slot is storing the address of the PERMISSIONED_CANNON implementation.
+
+## Verify livenessGuard and Absolute Prestate
+
+The **livenessGuard** address `0x24424336F04440b1c28685a38303aC33C9D14a25` being assigned to Security Council safe `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` can be verified here https://etherscan.io/address/0x24424336F04440b1c28685a38303aC33C9D14a25#readContract. This was set with the superchain-ops Mainnet task **006-2-sc-changes** https://github.com/ethereum-optimism/superchain-ops/blob/b17d3037c68e50f28ad19abf03bb952e507b3ebc/tasks/eth/010-2-sc-changes/VALIDATION.md
+
+The following is based on the **op-program/v1.5.0-rc.2**:
+
+Absolute prestates can be checked in the Superchain Registry https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-prestates.toml
+
+Absolute prestates for upcoming releases, not yet included in the above toml, can be manually verified in the root of the optimism monorepo.
+
+To manually verify the prestate `0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd`, based on **op-program/v1.5.0-rc.2**, run the below command in the root of https://github.com/ethereum-optimism/optimism/tree/op-program/v1.5.0-rc.2:
+
+make reproducible-prestate
+
+You should expect the following output at the end of the command:
+
+- **Cannon Absolute prestate hash**: 
+`0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd`
+
+- **Cannon64 Absolute prestate hash**: 
+`0x03a7d967025dc434a9ca65154acdb88a7b658147b9b049f0b2f5ecfb9179b0fe`
+
+- **CannonInterop Absolute prestate hash**: 
+`0x0379d61de1833af6766f07b4ed931d85b3f6282508bbcbf9f4637398d97b61c1`

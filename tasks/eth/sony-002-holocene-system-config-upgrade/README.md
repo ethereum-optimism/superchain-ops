@@ -8,14 +8,14 @@ Upgrades the `SystemConfig` for the Holocene hardfork.
 
 The proposal was:
 
-- [ ] Posted on the governance forum.
-- [ ] Approved by Token House voting.
-- [ ] Not vetoed by the Citizens' house.
-- [ ] Executed on OP Mainnet.
+- [x] [Posted](https://gov.optimism.io/t/upgrade-proposal-11-holocene-network-upgrade/9313) on the governance forum.
+- [x] [Approved](https://vote.optimism.io/proposals/20127877429053636874064552098716749508236019236440427814457915785398876262515) by Token House voting.
+- [x] Not vetoed by the Citizens' house.
+- [x] Executed on OP Mainnet.
+
+This upgrades the SystemConfig in the v1.8.0-rc.4 release.
 
 The governance proposal should be treated as the source of truth and used to verify the correctness of the onchain operations.
-
-Governance post of the upgrade can be found at <placeholder>.
 
 This upgrades the `SystemConfig` in the
 [v1.8.0-rc.4](https://github.com/ethereum-optimism/optimism/tree/v1.8.0-rc.4) release.
