@@ -3,6 +3,7 @@ pragma solidity 0.8.15;
 
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {Script} from "forge-std/Script.sol";
+import {console} from "forge-std/console.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 
@@ -33,24 +34,25 @@ contract Runner is Script {
 
     function run() public {
         string[] memory commands = new string[](1);
-        commands[0] = "./src/improvements/script/fetch-tasks.sh";
+        console.log("ETH_RPC_URL", vm.envString("ETH_RPC_URL"));
+        // commands[0] = "./src/improvements/script/fetch-tasks.sh";
 
-        bytes memory result = vm.ffi(commands);
+        // bytes memory result = vm.ffi(commands);
 
-        string[] memory taskPaths = vm.split(string(result), "\n");
+        // string[] memory taskPaths = vm.split(string(result), "\n");
 
-        // Process each task
-        for (uint256 i = 0; i < taskPaths.length; i++) {
-            // Parse config
-            TaskConfig memory config = _parseConfig(taskPaths[i]);
+        // // Process each task
+        // for (uint256 i = 0; i < taskPaths.length; i++) {
+        //     // Parse config
+        //     TaskConfig memory config = _parseConfig(taskPaths[i]);
 
-            // Deploy and run the template
-            string memory templatePath =
-                string.concat("out/", config.templateName, ".sol/", config.templateName, ".json");
+        //     // Deploy and run the template
+        //     string memory templatePath =
+        //         string.concat("out/", config.templateName, ".sol/", config.templateName, ".json");
 
-            MultisigTask task = MultisigTask(deployCode(templatePath));
-            task.simulateRun(config.path);
-        }
+        //     MultisigTask task = MultisigTask(deployCode(templatePath));
+        //     task.simulateRun(config.path);
+        // }
     }
 
     function run(string memory dumpStatePath) public {

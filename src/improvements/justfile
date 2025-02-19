@@ -70,7 +70,7 @@ monorepo-integration-test COMMAND="":
     root_dir=$(git rev-parse --show-toplevel)
     allocs_path=${root_dir}/lib/optimism/packages/contracts-bedrock/allocs.json
     forge build
-    forge script ${root_dir}/src/improvements/tasks/Runner.sol:Runner --sig "run(string)" ${allocs_path} --rpc-url $ETH_RPC_URL --ffi
+    forge script ${root_dir}/src/improvements/tasks/Runner.sol:Runner --sig "run(string)" ${allocs_path} --ffi
     export SUPERCHAIN_OPS_ALLOCS_PATH=./allocs.json
     cd ${root_dir}/lib/optimism/packages/contracts-bedrock/
     # shellcheck disable=SC2194
