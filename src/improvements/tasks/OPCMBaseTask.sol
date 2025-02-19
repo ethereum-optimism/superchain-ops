@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
+import {VmSafe} from "forge-std/Vm.sol";
+
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 
 /// @notice base task for making calls to the Optimism Contracts Manager
@@ -57,10 +59,15 @@ abstract contract OPCMBaseTask is MultisigTask {
         data = abi.encodeWithSignature("aggregate3((address,bool,bytes)[])", calls);
     }
 
-    function validate() public view override {
+    function validate(VmSafe.AccountAccess[] memory accesses) public override {
         (address[] memory targets,,) = getTaskActions();
         require(targets.length == 1 && targets[0] == opcm(), "OPCMBaseTask: only OPCM is allowed as target");
-        super.validate();
+        super.validate(accesses);
+        require(
+            _stateInfos[parentMultisig].length == 1,
+            "OPCMBaseTask: only nonce should be updated on upgrade controller multisig"
+        );
+        require(_stateInfos[opcm()].length == 0, "OPCMBaseTask: Storage writes are not allowed on OPCM");
     }
 
     /// @notice get the OPCM address

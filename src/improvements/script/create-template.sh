@@ -17,7 +17,6 @@ create_template() {
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
 /// @title ${contract_name}
 /// @notice A template contract for configuring protocol parameters.
@@ -26,7 +25,7 @@ contract ${contract_name} is MultisigTask {
     /// @notice TODO: Define the struct fields for your task configuration.
     struct TaskConfig {
         // TODO: Add members this template needs
-        //   (e.g., chainId, gas, implementation, gameType, etc.)
+        // (e.g., chainId, gas, implementation, gameType, etc.)
     }
 
     /// @notice TODO: Update the mapping key/value types as needed.
@@ -35,15 +34,15 @@ contract ${contract_name} is MultisigTask {
     /// @notice Returns the safe address string identifier.
     /// @return A string identifier.
     function safeAddressString() public pure override returns (string memory) {
-        // TODO: Return the actual safe address string identifier as defined in
-        /// Superchain-Registry's addresses.json.
+        require(false, "TODO: Return the actual safe address string identifier as defined in Superchain-Registry's addresses.json.");
+        // Superchain-Registry's addresses.json.
         // return "ProxyAdminOwner";
     }
 
     /// @notice Specifies the storage write permissions required for this task.
     /// @return An array of strings representing the storage permissions.
     function _taskStorageWrites() internal pure override returns (string[] memory) {
-        // TODO: Populate this array with actual storage permission identifiers.
+        require(false, "TODO: Populate this array with actual storage permission identifiers.");
         // string[] memory storageWrites = new string[](1);
         // return storageWrites;
     }
@@ -51,19 +50,19 @@ contract ${contract_name} is MultisigTask {
     /// @notice Sets up the template using configuration data from a file.
     /// @param taskConfigFilePath The path to the configuration file.
     function _templateSetup(string memory taskConfigFilePath) internal override {
-        // TODO: Parse the configuration file and populate the \`taskConfig\` mapping.
+        require(false, "TODO: Implement the logic to parse the configuration file and populate the \`taskConfig\` mapping.");
     }
 
     /// @notice Builds the action(s) for applying the configuration for a given chain ID.
     /// @param chainId The chain ID for which to build the configuration actions.
     function _build(uint256 chainId) internal override {
-        // TODO: Implement the logic to build the configuration action(s).
+        require(false, "TODO: Implement the logic to build the configuration action(s).");
     }
 
     /// @notice Validates that the configuration has been applied correctly.
     /// @param chainId The chain ID to validate.
     function _validate(uint256 chainId) internal view override {
-        // TODO: Implement the logic to validate that the configuration was set as expected.
+        require(false, "TODO: Implement the logic to validate that the configuration was set as expected.");
     }
 }
 EOL

@@ -1,10 +1,11 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
 import {IDisputeGameFactory, IDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute/IDisputeGameFactory.sol";
+
 import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
 /// @title DisputeGameUpgradeTemplate
 /// @notice Template contract for upgrading dispute game implementations
@@ -75,4 +76,7 @@ contract DisputeGameUpgradeTemplate is MultisigTask {
             );
         }
     }
+
+    /// @notice no code exceptions for this template
+    function getCodeExceptions() internal view virtual override returns (address[] memory) {}
 }

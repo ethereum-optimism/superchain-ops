@@ -74,7 +74,7 @@ abstract contract MultisigTask is Test, Script {
     mapping(address => TransferInfo[]) private _taskTransfers;
 
     /// @notice state changes during task execution
-    mapping(address => StateInfo[]) private _stateInfos;
+    mapping(address => StateInfo[]) internal _stateInfos;
 
     /// @notice addresses involved in state changes or token transfers
     EnumerableSet.AddressSet private _taskTransferFromAddresses;
@@ -152,15 +152,30 @@ abstract contract MultisigTask is Test, Script {
     /// prints the data to sign and the hash to approve which is used to sign with the eip712sign binary.
     /// For nested multisig, prints the data to sign and the hash to approve for each of the child multisigs.
     /// @param taskConfigFilePath The path to the task configuration file.
-    function simulateRun(string memory taskConfigFilePath) public {
+    function simulateRun(string memory taskConfigFilePath, bytes memory signatures)
+        public
+        returns (VmSafe.AccountAccess[] memory)
+    {
         /// sets safe to the safe specified by the current template from addresses.json
         _taskSetup(taskConfigFilePath);
 
         /// now execute task actions
         build();
-        simulate();
-        validate();
+        VmSafe.AccountAccess[] memory accountAccesses = simulate(signatures);
+        validate(accountAccesses);
         print();
+
+        return accountAccesses;
+    }
+
+    /// @notice Runs the task with the given configuration file path.
+    /// Sets the address registry, initializes and simulates the single multisig
+    /// as well as the nested multisig. For single multisig,
+    /// prints the data to sign and the hash to approve which is used to sign with the eip712sign binary.
+    /// For nested multisig, prints the data to sign and the hash to approve for each of the child multisigs.
+    /// @param taskConfigFilePath The path to the task configuration file.
+    function simulateRun(string memory taskConfigFilePath) public returns (VmSafe.AccountAccess[] memory) {
+        return simulateRun(taskConfigFilePath, "");
     }
 
     /// @notice Executes the task with the given configuration file path and signatures.
@@ -168,12 +183,15 @@ abstract contract MultisigTask is Test, Script {
     /// as well as the nested multisig.
     /// @param taskConfigFilePath The path to the task configuration file.
     /// @param signatures The signatures to execute the task.
-    function executeRun(string memory taskConfigFilePath, bytes memory signatures) public {
-        _taskSetup(taskConfigFilePath);
-        /// now execute task actions
-        build();
+    function executeRun(string memory taskConfigFilePath, bytes memory signatures)
+        public
+        returns (VmSafe.AccountAccess[] memory)
+    {
+        /// perform all actions in simulateRun, then send the transaction on chain
+        VmSafe.AccountAccess[] memory accountAccesses = simulateRun(taskConfigFilePath, signatures);
         execute(signatures);
-        validate();
+
+        return accountAccesses;
     }
 
     /// @notice Child multisig of a nested multisig approves the task to be executed with the given
@@ -221,6 +239,7 @@ abstract contract MultisigTask is Test, Script {
 
         config.safeAddressString = safeAddressString();
         config.allowedStorageWriteAccesses = _taskStorageWrites();
+        config.allowedStorageWriteAccesses.push(safeAddressString());
 
         // set the AddressRegistry
         addrRegistry = _addrRegistry;
@@ -327,18 +346,23 @@ abstract contract MultisigTask is Test, Script {
     }
 
     /// @notice simulate the task by approving from owners and then executing
-    function simulate() public {
+    function simulate(bytes memory _signatures) public returns (VmSafe.AccountAccess[] memory) {
         bytes memory data = getCalldata();
         bytes32 hash = getHash();
+        bytes memory signatures;
 
         // Approve the hash from each owner
         address[] memory owners = IGnosisSafe(parentMultisig).getOwners();
-        for (uint256 i = 0; i < owners.length; i++) {
-            vm.prank(owners[i]);
-            IGnosisSafe(parentMultisig).approveHash(hash);
+        if (_signatures.length == 0) {
+            for (uint256 i = 0; i < owners.length; i++) {
+                vm.prank(owners[i]);
+                IGnosisSafe(parentMultisig).approveHash(hash);
+            }
+            /// gather signatures after approval hashes have been made
+            signatures = prepareSignatures(parentMultisig, hash);
+        } else {
+            signatures = Signatures.prepareSignatures(parentMultisig, hash, _signatures);
         }
-
-        bytes memory signatures = prepareSignatures(parentMultisig, hash);
 
         bytes32 txHash = IGnosisSafe(parentMultisig).getTransactionHash(
             multicallTarget, 0, data, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), nonce
@@ -346,12 +370,18 @@ abstract contract MultisigTask is Test, Script {
 
         require(hash == txHash, "MultisigTask: hash mismatch");
 
+        vm.startStateDiffRecording();
+
         // Execute the transaction
         (bool success) = IGnosisSafe(parentMultisig).execTransaction(
             multicallTarget, 0, data, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), signatures
         );
 
+        VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
+
         require(success, "MultisigTask: simulateActions failed");
+
+        return accountAccesses;
     }
 
     /// @notice child multisig approves the task to be executed.
@@ -390,7 +420,6 @@ abstract contract MultisigTask is Test, Script {
         (bool success) = IGnosisSafe(parentMultisig).execTransaction(
             multicallTarget, 0, data, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), signatures
         );
-
         require(success, "MultisigTask: execute failed");
     }
 
@@ -404,8 +433,11 @@ abstract contract MultisigTask is Test, Script {
     ///          e.g. read state variables of the deployed contracts to make
     ///          sure they are deployed and initialized correctly, or read
     ///          states that are expected to have changed during the simulate step.
-    function validate() public view virtual {
-        // check that all state change addresses are in allowed storage accesses
+    function validate(VmSafe.AccountAccess[] memory accountAccesses) public virtual {
+        /// write all state changes to storage
+        _processStateDiffChanges(accountAccesses);
+
+        /// check that all state change addresses are in allowed storage accesses
         for (uint256 i; i < _taskStateChangeAddresses.length(); i++) {
             address addr = _taskStateChangeAddresses.at(i);
             require(
@@ -438,6 +470,9 @@ abstract contract MultisigTask is Test, Script {
         for (uint256 i = 0; i < chains.length; i++) {
             _validate(chains[i].chainId);
         }
+
+        /// check that state diff is as expected
+        checkStateDiff(accountAccesses);
     }
 
     /// @notice get task actions
@@ -723,6 +758,9 @@ abstract contract MultisigTask is Test, Script {
         }
     }
 
+    /// @notice overridden in templates
+    function getCodeExceptions() internal view virtual returns (address[] memory);
+
     /// @notice helper function to prepare the signatures to be executed
     /// @param _safe The address of the parent multisig
     /// @param hash The hash to be approved
@@ -813,8 +851,6 @@ abstract contract MultisigTask is Test, Script {
             vm.revertTo(_startSnapshot), "MultisigTask: failed to revert back to snapshot, unsafe state to run task"
         );
 
-        _processStateDiffChanges(accountAccesses);
-
         // there should be at least one account access
         require(accountAccesses.length > 0, "MultisigTask: no account accesses found");
 
@@ -891,7 +927,68 @@ abstract contract MultisigTask is Test, Script {
     /// check the state changes applied by the task. This function can check
     /// that only the nonce changed in the parent multisig when executing a task
     /// by checking the slot and address where the slot changed.
-    function checkStateDiff(VmSafe.AccountAccess[] memory) internal view virtual {}
+    function checkStateDiff(VmSafe.AccountAccess[] memory accountAccesses) internal view virtual {
+        console.log("Running assertions on the state diff");
+        require(accountAccesses.length > 0, "No account accesses");
+        address[] memory allowedAccesses = getAllowedStorageAccess();
+        for (uint256 i; i < accountAccesses.length; i++) {
+            VmSafe.AccountAccess memory accountAccess = accountAccesses[i];
+            // All touched accounts should have code, with the exception of precompiles.
+            bool isPrecompile = accountAccess.account >= address(0x1) && accountAccess.account <= address(0xa);
+            if (!isPrecompile) {
+                require(
+                    accountAccess.account.code.length != 0,
+                    string.concat("Account has no code: ", vm.toString(accountAccess.account))
+                );
+            }
+            require(
+                accountAccess.oldBalance == accountAccess.newBalance,
+                string.concat("Unexpected balance change: ", vm.toString(accountAccess.account))
+            );
+            require(
+                accountAccess.kind != VmSafe.AccountAccessKind.SelfDestruct,
+                string.concat("Self-destructed account: ", vm.toString(accountAccess.account))
+            );
+            for (uint256 j; j < accountAccess.storageAccesses.length; j++) {
+                VmSafe.StorageAccess memory storageAccess = accountAccess.storageAccesses[j];
+                if (!storageAccess.isWrite) continue; // Skip SLOADs.
+                uint256 value = uint256(storageAccess.newValue);
+                address account = storageAccess.account;
+                if (isLikelyAddressThatShouldHaveCode(value)) {
+                    // Log account, slot, and value if there is no code.
+                    string memory err = string.concat(
+                        "Likely address in storage has no code\n",
+                        "  account: ",
+                        vm.toString(account),
+                        "\n  slot:    ",
+                        vm.toString(storageAccess.slot),
+                        "\n  value:   ",
+                        vm.toString(bytes32(value))
+                    );
+                    require(address(uint160(value)).code.length != 0, err);
+                } else {
+                    // Log account, slot, and value if there is code.
+                    string memory err = string.concat(
+                        "Likely address in storage has unexpected code\n",
+                        "  account: ",
+                        vm.toString(account),
+                        "\n  slot:    ",
+                        vm.toString(storageAccess.slot),
+                        "\n  value:   ",
+                        vm.toString(bytes32(value))
+                    );
+                    require(address(uint160(value)).code.length == 0, err);
+                }
+                require(account.code.length != 0, string.concat("Storage account has no code: ", vm.toString(account)));
+                require(!storageAccess.reverted, string.concat("Storage access reverted: ", vm.toString(account)));
+                bool allowed;
+                for (uint256 k; k < allowedAccesses.length; k++) {
+                    allowed = allowed || (account == allowedAccesses[k]);
+                }
+                require(allowed, string.concat("Unallowed Storage access: ", vm.toString(account)));
+            }
+        }
+    }
 
     /// @notice helper method to get transfers and state changes of task affected addresses
     function _processStateDiffChanges(VmSafe.AccountAccess[] memory accountAccesses) private {
@@ -907,8 +1004,6 @@ abstract contract MultisigTask is Test, Script {
             // process state changes
             _processStateChanges(accountAccesses[i].storageAccesses);
         }
-
-        checkStateDiff(accountAccesses);
     }
 
     /// @notice helper method to get eth transfers of task affected addresses
@@ -986,5 +1081,30 @@ abstract contract MultisigTask is Test, Script {
                 _taskStateChangeAddresses.add(account);
             }
         }
+    }
+
+    /// @notice Checks that values have code on this chain.
+    ///         This method is not storage-layout-aware and therefore is not perfect. It may return erroneous
+    ///         results for cases like packed slots, and silently show that things are okay when they are not.
+    function isLikelyAddressThatShouldHaveCode(uint256 value) internal view virtual returns (bool) {
+        // If out of range (fairly arbitrary lower bound), return false.
+        if (value > type(uint160).max) return false;
+        if (value < uint256(uint160(0x00000000fFFFffffffFfFfFFffFfFffFFFfFffff))) return false;
+        // If the value is a L2 predeploy address it won't have code on this chain, so return false.
+        if (
+            value >= uint256(uint160(0x4200000000000000000000000000000000000000))
+                && value <= uint256(uint160(0x420000000000000000000000000000000000FffF))
+        ) return false;
+        // Allow known EOAs.
+        address[] memory exceptions = getCodeExceptions();
+        for (uint256 i; i < exceptions.length; i++) {
+            require(
+                exceptions[i] != address(0),
+                "getCodeExceptions includes the zero address, please make sure all entries are populated."
+            );
+            if (address(uint160(value)) == exceptions[i]) return false;
+        }
+        // Otherwise, this value looks like an address that we'd expect to have code.
+        return true;
     }
 }

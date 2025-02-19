@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
 import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
@@ -52,4 +53,7 @@ contract TransferOwnerTemplate is MultisigTask {
 
         assertEq(proxyAdmin.owner(), newOwner, "new owner not set correctly");
     }
+
+    /// @notice no code exceptions for this template
+    function getCodeExceptions() internal view virtual override returns (address[] memory) {}
 }
