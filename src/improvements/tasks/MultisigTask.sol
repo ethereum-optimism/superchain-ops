@@ -429,7 +429,7 @@ abstract contract MultisigTask is Test, Script {
         bytes memory data = getCalldata();
         bytes32 hash = getHash();
 
-        /// if no signatures are attached, create them
+        // if no signatures are attached, create them
         if (signatures.length == 0) {
             signatures = prepareSignatures(parentMultisig, hash);
         } else {
