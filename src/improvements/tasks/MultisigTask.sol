@@ -645,30 +645,47 @@ abstract contract MultisigTask is Test, Script {
             }
         }
 
+        printSafe();
+    }
+
+    /// @notice prints all relevant hashes to sign as well as the tenderly
+    /// simulation link
+    function printSafe() private view {
         // print calldata to be executed within the Safe
         console.log("\n\n------------------ Task Calldata ------------------");
         console.logBytes(getCalldata());
 
         if (isNestedSafe) {
-            console.log("\n\n------------------ Nested Multisig EOAs Data to Sign ------------------");
-            printNestedDataToSign();
-            console.log("\n\n------------------ Nested Multisig EOAs Hash to Approve ------------------");
-            printNestedHashToApprove();
+            printNested();
         } else {
-            console.log("\n\n------------------ Single Multisig EOA Data to Sign ------------------");
-            printDataToSign();
-            console.log("\n\n------------------ Single Multisig EOA Hash to Approve ------------------");
-            printHashToApprove();
+            printData();
         }
+
         console.log("\n\n------------------ Tenderly Simulation Link ------------------");
         printTenderlySimulationLink();
+    }
+
+    /// @notice helper function to print nested calldata
+    function printNested() private view {
+        console.log("\n\n------------------ Nested Multisig EOAs Data to Sign ------------------");
+        printNestedDataToSign();
+        console.log("\n\n------------------ Nested Multisig EOAs Hash to Approve ------------------");
+        printNestedHashToApprove();
+    }
+
+    /// @notice helper function to print non-nested safe calldata
+    function printData() private view {
+        console.log("\n\n------------------ Single Multisig EOA Data to Sign ------------------");
+        printDataToSign();
+        console.log("\n\n------------------ Single Multisig EOA Hash to Approve ------------------");
+        printHashToApprove();
     }
 
     /// @notice print the data to sign by EOA for nested multisig
     function printNestedDataToSign() public view {
         bytes memory callData = generateApproveMulticallData();
 
-        if (childMultisig != address(0) && childMultisig.code.length != 0) {
+        if (childMultisig != address(0)) {
             console.log("Child multisig: %s", getAddressLabel(childMultisig));
             // logs required for using eip712sign binary to sign the data to sign with Ledger
             console.log("vvvvvvvv");
@@ -689,7 +706,7 @@ abstract contract MultisigTask is Test, Script {
     function printNestedHashToApprove() public view {
         bytes memory callData = generateApproveMulticallData();
 
-        if (childMultisig != address(0) && childMultisig.code.length != 0) {
+        if (childMultisig != address(0)) {
             console.log("Nested multisig: %s", getAddressLabel(childMultisig));
             console.logBytes32(keccak256(getDataToSign(childMultisig, callData)));
         } else {
