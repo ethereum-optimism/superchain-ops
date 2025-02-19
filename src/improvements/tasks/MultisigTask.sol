@@ -427,8 +427,8 @@ abstract contract MultisigTask is Test, Script {
         if (signatures.length == 0) {
             signatures = prepareSignatures(parentMultisig, hash);
         } else {
-            /// otherwise we assume the signatures are already ordered
-            Signatures.sortUniqueSignatures(
+            /// otherwise we order the signatures
+            signatures = Signatures.sortUniqueSignatures(
                 parentMultisig, signatures, hash, IGnosisSafe(parentMultisig).getThreshold(), signatures.length
             );
         }
