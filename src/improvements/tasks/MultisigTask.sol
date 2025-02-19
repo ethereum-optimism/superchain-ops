@@ -423,11 +423,15 @@ abstract contract MultisigTask is Test, Script {
         bytes memory data = getCalldata();
         bytes32 hash = getHash();
 
-        // if no signatures are attached, create them
         if (signatures.length == 0) {
+            // if no signatures are attached, this means we are dealing with a
+            // nested safe that should already have all of its approve hashes in
+            // child multisigs signed already.
             signatures = prepareSignatures(parentMultisig, hash);
         } else {
-            /// otherwise we order the signatures
+            // otherwise, if signatures are attached, this means EOA's have
+            // signed, so we order the signatures based on how Gnosis Safe
+            // expects signatures to be ordered by address cast to a number
             signatures = Signatures.sortUniqueSignatures(
                 parentMultisig, signatures, hash, IGnosisSafe(parentMultisig).getThreshold(), signatures.length
             );
