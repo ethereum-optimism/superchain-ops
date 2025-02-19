@@ -218,7 +218,7 @@ abstract contract MultisigTask is Test, Script {
         approve(_childMultisig, signatures);
         console.log(
             "--------- Successfully %s Child Multisig %s Approval ---------",
-            vm.isContext(VmSafe.ForgeContext.ScriptBroadcast) ? "Broadcasted" : "Simulated",
+            vm.isContext(VmSafe.ForgeContext.ScriptBroadcast || VmSafe.ForgeContext.ScriptResume) ? "Broadcasted" : "Simulated",
             _childMultisig
         );
     }
