@@ -156,10 +156,10 @@ abstract contract MultisigTask is Test, Script {
         public
         returns (VmSafe.AccountAccess[] memory)
     {
-        /// sets safe to the safe specified by the current template from addresses.json
+        // sets safe to the safe specified by the current template from addresses.json
         _taskSetup(taskConfigFilePath);
 
-        /// now execute task actions
+        // now execute task actions
         build();
         VmSafe.AccountAccess[] memory accountAccesses = simulate(signatures);
         validate(accountAccesses);
@@ -187,19 +187,19 @@ abstract contract MultisigTask is Test, Script {
         public
         returns (VmSafe.AccountAccess[] memory)
     {
-        /// sets safe to the safe specified by the current template from addresses.json
+        // sets safe to the safe specified by the current template from addresses.json
         _taskSetup(taskConfigFilePath);
 
-        /// gather mutative calls
+        // gather mutative calls
         build();
 
-        /// now execute task actions
+        // now execute task actions
         VmSafe.AccountAccess[] memory accountAccesses = execute(signatures);
 
-        /// validate all state transitions
+        // validate all state transitions
         validate(accountAccesses);
 
-        /// print out results of execution
+        // print out results of execution
         print();
 
         return accountAccesses;
@@ -218,7 +218,7 @@ abstract contract MultisigTask is Test, Script {
         approve(_childMultisig, signatures);
         console.log(
             "--------- Successfully %s Child Multisig %s Approval ---------",
-            vm.isContext(VmSafe.ForgeContext.ScriptBroadcast || VmSafe.ForgeContext.ScriptResume) ? "Broadcasted" : "Simulated",
+            isBroadcastContext() ? "Broadcasted" : "Simulated",
             _childMultisig
         );
     }
@@ -243,7 +243,7 @@ abstract contract MultisigTask is Test, Script {
 
         _setMulticallAddress();
 
-        /// set the task config
+        // set the task config
         require(
             bytes(config.safeAddressString).length == 0 && address(addrRegistry) == address(0x0),
             "MultisigTask: already initialized"
@@ -270,17 +270,16 @@ abstract contract MultisigTask is Test, Script {
         // TODO change this once we implement task stacking
         nonce = IGnosisSafe(parentMultisig).nonce();
 
-        address[] memory owners = IGnosisSafe(parentMultisig).getOwners();
         {
-            uint256 quorum = IGnosisSafe(parentMultisig).getThreshold();
-            uint256 eoaOwnerCount;
+            // assume safe is nested unless there is an EOA owner
+            isNestedSafe = true;
+
+            address[] memory owners = IGnosisSafe(parentMultisig).getOwners();
             for (uint256 i = 0; i < owners.length; i++) {
                 if (owners[i].code.length == 0) {
-                    eoaOwnerCount++;
+                    isNestedSafe = false;
                 }
             }
-
-            isNestedSafe = eoaOwnerCount >= quorum ? false : true;
         }
 
         vm.label(address(addrRegistry), "AddrRegistry");
@@ -385,7 +384,7 @@ abstract contract MultisigTask is Test, Script {
                 vm.prank(owners[i]);
                 IGnosisSafe(parentMultisig).approveHash(hash);
             }
-            /// gather signatures after approval hashes have been made
+            // gather signatures after approval hashes have been made
             signatures = prepareSignatures(parentMultisig, hash);
         } else {
             signatures = Signatures.prepareSignatures(parentMultisig, hash, _signatures);
@@ -415,11 +414,6 @@ abstract contract MultisigTask is Test, Script {
         bytes32 hash = keccak256(getDataToSign(_childMultisig, approveCalldata));
         signatures = Signatures.prepareSignatures(_childMultisig, hash, signatures);
 
-        if (vm.isContext(VmSafe.ForgeContext.ScriptBroadcast)) {
-            // only broadcast if we are running forge script with the --broadcast flag
-            vm.broadcast();
-        }
-
         execTransaction(_childMultisig, MULTICALL3_ADDRESS, 0, approveCalldata, Enum.Operation.DelegateCall, signatures);
     }
 
@@ -440,16 +434,25 @@ abstract contract MultisigTask is Test, Script {
         }
 
         vm.startStateDiffRecording();
-        if (vm.isContext(VmSafe.ForgeContext.ScriptBroadcast)) {
-            /// only broadcast if we are running forge script with the --broadcast flag
-            vm.broadcast();
-        }
 
         execTransaction(parentMultisig, multicallTarget, 0, data, Enum.Operation.DelegateCall, signatures);
 
         return vm.stopAndReturnStateDiff();
     }
 
+    /// @notice helper function that returns whether or not the current context
+    /// is a broadcast context
+    function isBroadcastContext() internal view returns (bool) {
+        return vm.isContext(VmSafe.ForgeContext.ScriptBroadcast) || vm.isContext(VmSafe.ForgeContext.ScriptResume);
+    }
+
+    /// @notice executes a transaction to the target multisig
+    /// @param multisig to execute the transaction from
+    /// @param target to call when executing the transaction
+    /// @param value amount of value to send from the safe
+    /// @param data calldata to send from the safe
+    /// @param operationType type of operation to execute
+    /// @param signatures for the safe transaction
     function execTransaction(
         address multisig,
         address target,
@@ -458,10 +461,22 @@ abstract contract MultisigTask is Test, Script {
         Enum.Operation operationType,
         bytes memory signatures
     ) internal {
-        (bool success, bytes memory returnData) = IGnosisSafe(multisig).execTransaction(
+        if (isBroadcastContext()) {
+            vm.broadcast();
+        }
+
+        bool success = false;
+
+        try IGnosisSafe(multisig).execTransaction(
             target, value, data, operationType, 0, 0, 0, address(0), payable(address(0)), signatures
-        );
-        require(success, string.concat("MultisigTask: execute failed with error", string(returnData)));
+        ) returns (bool execStatus) {
+            success = execStatus;
+        } catch (bytes memory err) {
+            console.log("Error executing multisig transaction");
+            console.logBytes(err);
+        }
+
+        require(success, "MultisigTask: execute failed");
     }
 
     /// @notice returns the allowed storage accesses
@@ -475,10 +490,10 @@ abstract contract MultisigTask is Test, Script {
     ///          sure they are deployed and initialized correctly, or read
     ///          states that are expected to have changed during the simulate step.
     function validate(VmSafe.AccountAccess[] memory accountAccesses) public virtual {
-        /// write all state changes to storage
+        // write all state changes to storage
         _processStateDiffChanges(accountAccesses);
 
-        /// check that all state change addresses are in allowed storage accesses
+        // check that all state change addresses are in allowed storage accesses
         for (uint256 i; i < _taskStateChangeAddresses.length(); i++) {
             address addr = _taskStateChangeAddresses.at(i);
             require(
@@ -512,7 +527,7 @@ abstract contract MultisigTask is Test, Script {
             _validate(chains[i].chainId);
         }
 
-        /// check that state diff is as expected
+        // check that state diff is as expected
         checkStateDiff(accountAccesses);
     }
 
@@ -679,7 +694,7 @@ abstract contract MultisigTask is Test, Script {
             console.logBytes32(keccak256(getDataToSign(childMultisig, callData)));
         } else {
             for (uint256 i; i < startingOwners.length; i++) {
-                /// do not get data to sign if owner is an EOA (not a multisig)
+                // do not get data to sign if owner is an EOA (not a multisig)
                 if (startingOwners[i].code.length == 0) {
                     continue;
                 }
