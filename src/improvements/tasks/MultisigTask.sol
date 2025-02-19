@@ -458,10 +458,10 @@ abstract contract MultisigTask is Test, Script {
         Enum.Operation operationType,
         bytes memory signatures
     ) internal {
-        (bool success) = IGnosisSafe(multisig).execTransaction(
+        (bool success, bytes memory returnData) = IGnosisSafe(multisig).execTransaction(
             target, value, data, operationType, 0, 0, 0, address(0), payable(address(0)), signatures
         );
-        require(success, "MultisigTask: execute failed");
+        require(success, string.concat("MultisigTask: execute failed with error", string(returnData)));
     }
 
     /// @notice returns the allowed storage accesses
