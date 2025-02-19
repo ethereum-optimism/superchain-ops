@@ -20,7 +20,8 @@ abstract contract MultisigTask is Test, Script {
     /// will be set to the value specified in the config file
     uint256 public nonce;
 
-    /// @notice flag to determine if the safe is nested multisig
+    /// @notice flag to determine if the parent multisig is a nested multisig
+    /// this variable does not reflect the state of the childMultisig
     bool public isNestedSafe;
 
     /// @notice owners the safe started with
@@ -30,6 +31,7 @@ abstract contract MultisigTask is Test, Script {
     AddressRegistry public addrRegistry;
 
     /// @notice The address of the multisig for this task
+    /// This state variable is always set in the `_taskSetup` function
     address public parentMultisig;
 
     /// @notice struct to store allowed storage accesses read in from config file
@@ -117,6 +119,8 @@ abstract contract MultisigTask is Test, Script {
     bool private _buildStarted;
 
     /// @notice The address of the child multisig for this task
+    /// this state variable will only be set when function
+    /// `signFromChildMultisig` is called.
     address public childMultisig;
 
     /// @notice The address of the multicall target for this task
@@ -689,6 +693,7 @@ abstract contract MultisigTask is Test, Script {
     function printNestedDataToSign() public view {
         bytes memory callData = generateApproveMulticallData();
 
+        // this branch means the function `signFromChildMultisig` is being called
         if (childMultisig != address(0)) {
             console.log("Child multisig: %s", getAddressLabel(childMultisig));
             // logs required for using eip712sign binary to sign the data to sign with Ledger
@@ -696,6 +701,8 @@ abstract contract MultisigTask is Test, Script {
             console.logBytes(getDataToSign(childMultisig, callData));
             console.log("^^^^^^^^\n");
         } else {
+            // this branch means function `signFromChildMultisig` is not being called
+            // and this is not a nested safe
             for (uint256 i; i < startingOwners.length; i++) {
                 if (startingOwners[i].code.length == 0) {
                     continue;
@@ -710,10 +717,13 @@ abstract contract MultisigTask is Test, Script {
     function printNestedHashToApprove() public view {
         bytes memory callData = generateApproveMulticallData();
 
+        // this branch means the function `signFromChildMultisig` is being called
         if (childMultisig != address(0)) {
             console.log("Nested multisig: %s", getAddressLabel(childMultisig));
             console.logBytes32(keccak256(getDataToSign(childMultisig, callData)));
         } else {
+            // this branch means function `signFromChildMultisig` is not being called
+            // and this is not a nested safe
             for (uint256 i; i < startingOwners.length; i++) {
                 // do not get data to sign if owner is an EOA (not a multisig)
                 if (startingOwners[i].code.length == 0) {
