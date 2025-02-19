@@ -32,12 +32,10 @@ commands:
         type: string
     steps:
       - utils/checkout-with-mise
-      - set-simulation-eth-rpc-url:
-          task: "<< parameters.task >>"
-          l1_mainnet_rpc_url: "<< pipeline.parameters.l1_mainnet_rpc_url >>"
-          l1_sepolia_rpc_url: "<< pipeline.parameters.l1_sepolia_rpc_url >>"
       - run:
           name: "simulate << parameters.task >>"
+          environment:
+            FOUNDRY_PROFILE: ci
           command: |
             just install
             cd tasks/<< parameters.task >>
@@ -53,12 +51,10 @@ commands:
         type: string
     steps:
       - utils/checkout-with-mise
-      - set-simulation-eth-rpc-url:
-          task: "<< parameters.task >>"
-          l1_mainnet_rpc_url: "<< pipeline.parameters.l1_mainnet_rpc_url >>"
-          l1_sepolia_rpc_url: "<< pipeline.parameters.l1_sepolia_rpc_url >>"
       - run:
           name: "simulate nested << parameters.task >>"
+          environment:
+            FOUNDRY_PROFILE: ci
           command: |
             just install
             cd tasks/<< parameters.task >>
@@ -70,27 +66,6 @@ commands:
               --dotenv-path $(pwd)/.env \
               --justfile ../../../nested.just \
               simulate council
-
-  set-simulation-eth-rpc-url:
-    description: "Sets ETH_RPC_URL according to the task being simulated"
-    parameters:
-      task:
-        type: string
-      l1_mainnet_rpc_url:
-        type: string
-      l1_sepolia_rpc_url:
-        type: string
-    steps:
-      - run:
-          name: "Set ETH_RPC_URL according to the task being simulated"
-          command: |
-            if echo "<< parameters.task >>" | grep -qiE "sep|sepolia"; then
-              echo "Setting ETH_RPC_URL to << parameters.l1_sepolia_rpc_url >>"
-              echo 'export ETH_RPC_URL="<< parameters.l1_sepolia_rpc_url >>"' >> $BASH_ENV
-            else
-              echo "Setting ETH_RPC_URL to << parameters.l1_mainnet_rpc_url >>"
-              echo 'export ETH_RPC_URL="<< parameters.l1_mainnet_rpc_url >>"' >> $BASH_ENV
-            fi
 
   notify-failures-on-develop:
     description: "Notify Slack"
@@ -342,20 +317,18 @@ jobs:
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
+    environment:
+      FOUNDRY_PROFILE: ci
     steps:
       - utils/checkout-with-mise
       - run:
           name: monorepo integration tests
-          environment:
-            FOUNDRY_PROFILE: ci
           command: |
             (cd src/improvements && just monorepo-integration-test)
       - notify-failures-on-develop:
           mentions: "@security-team"
       - run:
           name: Print failed test traces
-          environment:
-            FOUNDRY_PROFILE: ci
           command: (cd src/improvements && just monorepo-integration-test rerun)
           when: on_fail
 
