@@ -177,6 +177,22 @@ contract MainnetAddressRegistryTest is Test {
                 "FoundationOperationSafe not loaded"
             );
             assertNotEq(addresses.getAddress("SecurityCouncil", chainId), address(0), "SecurityCouncil not loaded");
+
+            assertEq(
+                addresses.getAddress("FoundationUpgradeSafe", chainId),
+                0x847B5c174615B1B7fDF770882256e2D3E95b9D92,
+                "FoundationUpgradeSafe not properly loaded"
+            );
+            assertEq(
+                addresses.getAddress("FoundationOperationSafe", chainId),
+                0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A,
+                "FoundationOperationSafe not properly loaded"
+            );
+            assertEq(
+                addresses.getAddress("SecurityCouncil", chainId),
+                0xc2819DC788505Aac350142A7A707BF9D03E3Bd03,
+                "SecurityCouncil not properly loaded"
+            );
         }
     }
 
