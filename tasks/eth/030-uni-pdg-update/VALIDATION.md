@@ -43,6 +43,7 @@ Only during Foundation simulation.
 
 We're overriding the nonce to increment the current value `12` by `1` to account for task `ink-001`.
 The simulation will also print out
+
 ```
 Overriding nonce for safe 0x847B5c174615B1B7fDF770882256e2D3E95b9D92: 12 -> 13
 ```
@@ -75,31 +76,18 @@ above.
 
 ## State Changes
 
-### `0x2F12d621a16e2d3285929C9996f478508951dFe4` (`DisputeGameFactoryProxy`)
-
-#### One change from `setImplementation`
-
-
-- **Key**: `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e` <br/>
-  **Before**: `0x000000000000000000000000c457172937ffa9306099ec4f2317903254bf7223` <br/>
-  **After**: `0x0000000000000000000000002B9fD545CcFC6611E5F1e3bb52840010aA64C5C6` <br/>
-  **Meaning**: Updates the PERMISSIONED_CANNON game type implementation.
-    You can verify which implementation is set using `cast call 0x2F12d621a16e2d3285929C9996f478508951dFe4 "gameImpls(uint32)(address)" 1`, where `1` is the [`PERMISSIONED_CANNON` game type](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L31).
-    Before this task has been executed, you will see that the returned address is `0xc457172937ffa9306099ec4f2317903254bf7223`, matching the "Before" value of this slot, demonstrating this slot is storing the address of the PERMISSIONED_CANNON implementation.
-    The key can be verified with `cast index uint32 1 101` for game type 1 and [storage slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.8.0-rc.4/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L38C1-L43C5).
-
 ### `0xc407398d063f942feBbcC6F80a156b47F3f1BDA6` (`SystemConfigProxy`)
 
-- **Key**: 0x0000000000000000000000000000000000000000000000000000000000000066
-  **Before**: 0x00000000000000000000000000000000000000000000000000000000000dbba0
-  **After**: 0x010000000000000000000000000000000000000000000000000dbba0000007d0
-  **Meaning**: Updates the `scalar` slot to the ecotone version. The `basefeeScalar` and `blobbasefeeScalar` storage variables are `XXX` (`cast td XXX`) and `XXXX` (`cast td XXXX`) respectively. The leading byte is 0x01 to indicate the version. See [the specs for the ecotone format](https://specs.optimism.io/protocol/system-config.html#ecotone-scalar-overhead-uint256uint256-change).
+- **Key**: `0x0000000000000000000000000000000000000000000000000000000000000066`
+  **Before**: `0x00000000000000000000000000000000000000000000000000000000000dbba0`
+  **After**: `0x010000000000000000000000000000000000000000000000000dbba0000007d0`
+  **Meaning**: Updates the `SystemConfig` proxy implementation.
 
 
-- **Key**: 0x0000000000000000000000000000000000000000000000000000000000000068
-  **Before**: 0x0000000000000000000000000000000000000000000000000000000001c9c380
-  **After**: 0x00000000000000000000000000000000000dbba0000007d00000000001c9c380
-  **Meaning**: Updates the `basefeeScalar` and `blobbasefeeScalar` storage variables to `XXX` (`cast td XXX`) and `XXXX` (`cast td XXXX`) respectively. These share a slot with the `gasLimit` which remains at `30000000` (`cast td 0x0000000001c9c380`).
+- **Key**: `0x0000000000000000000000000000000000000000000000000000000000000068`
+  **Before**: `0x0000000000000000000000000000000000000000000000000000000001c9c380`
+  **After**: `0x00000000000000000000000000000000000dbba0000007d00000000001c9c380`
+  **Meaning**: Updates the `basefeeScalar` and `blobbasefeeScalar` storage variables to `2000` (`cast td 0x7d0`) and `900000` (`cast td 0xdbba0`) respectively. These share a slot with the `gasLimit` which remains at `30000000` (`cast td 0x0000000001c9c380`).
 
 - **Key**: `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   **Before**: `0x000000000000000000000000f56d96b2535b932656d3c04ebf51babff241d886`
@@ -108,13 +96,13 @@ above.
 
 
 
-### Nonce increments (TODO)
+### Nonce increments
 
 The following nonce increments, and no others, must happen (key `0x05` on Safes):
-- All simulations: PAO 3/3 `0x6d5B183F538ABB8572F5cD17109c617b994D5833`: `0` -> `1`
-- `council` simulation: SC Safe `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`: `10` -> `11`
+- All simulations: PAO 3/3 `0x6d5B183F538ABB8572F5cD17109c617b994D5833`: `1` -> `2`
+- `council` simulation: SC Safe `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`: `12` -> `13`
   - and a nonce increment for the owner EOA or Safe chosen for simulation, e.g. `0x07dC0893cAfbF810e3E72505041f2865726Fd073` for default index 0.
-- `foundation` simulation: Fnd Safe `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`: `13` -> `14`
+- `foundation` simulation: Fnd Safe `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`: `15` -> `16`
   - and a nonce increment for the owner EOA or Safe chosen for simulation, e.g. `0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64` for default index 0.
-- `chain-governor` simulation: Uni Safe `0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC`: `5` -> `6`
+- `chain-governor` simulation: Uni Safe `0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC`: `6` -> `7`
   - and a nonce increment for the owner EOA or Safe chosen for simulation, e.g. `0xf89C1b6e5D65e97c69fbc792f1BcdcB56DcCde91` for default index 0.

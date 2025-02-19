@@ -7,35 +7,6 @@
   "transactions": [
     {
       "metadata": {
-        "name": "Upgrade `PERMISSIONED_CANNON` game type in `DisputeGameFactory`",
-        "description": "Upgrades the `PERMISSIONED_CANNON` game type to use a new challenger."
-      },
-      "to": "0x2F12d621a16e2d3285929C9996f478508951dFe4",
-      "value": "0x0",
-      "data": "0x14f6b1a300000000000000000000000000000000000000000000000000000000000000010000000000000000000000002B9fD545CcFC6611E5F1e3bb52840010aA64C5C6",
-      "contractMethod": {
-        "type": "function",
-        "name": "setImplementation",
-        "inputs": [
-          {
-            "name": "_gameType",
-            "type": "uint32"
-          },
-          {
-            "name": "_impl",
-            "type": "address"
-          }
-        ],
-        "outputs": [],
-        "stateMutability": "nonpayable"
-      },
-      "contractInputsValues": {
-        "_gameType": "1",
-        "_impl": "0x2B9fD545CcFC6611E5F1e3bb52840010aA64C5C6"
-      }
-    },
-    {
-      "metadata": {
         "name": "ProxyAdmin.upgrade(SystemConfigProxy, StorageSetter)",
         "description": "Upgrades the `SystemConfigProxy`to the StorageSetter."
       },

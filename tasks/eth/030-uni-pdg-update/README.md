@@ -1,6 +1,6 @@
-# Holocene Hardfork Upgrade
+# Holocene Hardfork Upgrade - `SystemConfig`
 
-Status: DRAFT, NOT READY TO SIGN
+Status: IN REVIEW
 
 ## Objective
 
@@ -14,25 +14,17 @@ The proposal was:
 
 The governance proposal should be treated as the source of truth and used to verify the correctness of the onchain operations.
 
-This upgrades the Fault Proof contracts in the
-[op-contracts/v1.8.0](https://github.com/ethereum-optimism/optimism/releases/tag/op-contracts%2fv1.8.0) release.
-
-This upgrade uses a custom absolute prestate created by Unichain that is not part of an official release yet:
-`0x0336751a224445089ba5456c8028376a0faf2bafa81d35f43fab8730258cdf37`.
-
-The `PermissionedDisputeGame` is redeployed with a new challenger, a 1of2 with the [Optimism Foundation challenger](https://github.com/ethereum-optimism/superchain-registry/blob/c08331ab44a3645608c08d8c94f78d9be46c13c9/validation/standard/standard-config-roles-mainnet.toml#L7) `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A` and another signer.
+This upgrades the `SystemConfig` in the [v1.8.0-rc.4](https://github.com/ethereum-optimism/optimism/tree/v1.8.0-rc.4) release.
 
 
 ## Pre-deployments
 
-- `PermissionedDisputeGame` - `TODO`
-- `Challenger1of2` - `TODO`
-- `SystemConfig` - `TODO`
+- `SystemConfig` - `0xAB9d6cB7A427c0765163A7f45BB91cAfe5f2D375`
 
 ## Simulation
 
 Please see the "Simulating and Verifying the Transaction" instructions in [NESTED.md](../../../NESTED.md).
-When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/eth/026-uni-holocene-fp-upgrade/NestedSignFromJson.s.sol`.
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops-private/tasks/eth/030-uni-pdg-update/NestedSignFromJson.s.sol`.
 This ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
 
 ## State Validation
@@ -42,7 +34,6 @@ Please see the instructions for [validation](./VALIDATION.md).
 ## Execution
 
 This upgrade
-* Changes dispute game implementation of the `PERMISSIONED_CANNON` game types to update the challenger.
 * Sets the `SystemConfigProxy` implementation to the Holocene version & re-initializes it.
 
 See the `input.json` bundle for more details.
