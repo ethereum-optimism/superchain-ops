@@ -1,9 +1,9 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
 import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
-import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
 
 /// @title GasConfigTemplate
 /// @notice Template contract for configuring gas limits
@@ -47,12 +47,12 @@ contract GasConfigTemplate is MultisigTask {
 
     /// @notice Builds the actions for setting gas limits for a specific L2 chain ID
     /// @param chainId The ID of the L2 chain to configure
-    function _build(uint256 chainId) internal override {
-        /// View only, filtered out by MultisigTask.sol
-        SystemConfig systemConfig = SystemConfig(addresses.getAddress("SystemConfigProxy", chainId));
+    function _buildPerChain(uint256 chainId) internal override {
+        // View only, filtered out by MultisigTask.sol
+        SystemConfig systemConfig = SystemConfig(addrRegistry.getAddress("SystemConfigProxy", chainId));
 
         if (gasLimits[chainId] != 0) {
-            /// Mutative call, recorded by MultisigTask.sol for generating multisig calldata
+            // Mutative call, recorded by MultisigTask.sol for generating multisig calldata
             systemConfig.setGasLimit(gasLimits[chainId]);
         }
     }
@@ -60,10 +60,13 @@ contract GasConfigTemplate is MultisigTask {
     /// @notice Validates that gas limits were set correctly for the specified chain ID
     /// @param chainId The ID of the L2 chain to validate
     function _validate(uint256 chainId) internal view override {
-        SystemConfig systemConfig = SystemConfig(addresses.getAddress("SystemConfigProxy", chainId));
+        SystemConfig systemConfig = SystemConfig(addrRegistry.getAddress("SystemConfigProxy", chainId));
 
         if (gasLimits[chainId] != 0) {
             assertEq(systemConfig.gasLimit(), gasLimits[chainId], "l2 gas limit not set");
         }
     }
+
+    /// @notice no code exceptions for this template
+    function getCodeExceptions() internal view virtual override returns (address[] memory) {}
 }

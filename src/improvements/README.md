@@ -1,59 +1,70 @@
-# Overview
+# Superchain Task System
 
-This new calldata simulation tooling allows developers to write tasks that simulate the state changes that would occur onchain if the task were to be executed. The simulator can be run against any mainnet, sepolia, and devnet.
+A powerful simulation tooling system that enables developers to write and test tasks that simulate onchain state changes before execution. The system supports mainnet, sepolia, and devnet environments.
 
-The goal of using this new task tooling for the superchain ops repo is to greatly simplify task development, increase security by reducing errors, reduce sharp edges, and speed development and review of tasks. The simulation is designed to simulate task runs, with all onchain state changes being run locally.
+### Detailed Documentation
+- [Template Architecture Guide](./doc/TEMPLATE_ARCHITECTURE.md)
+- [Task Creation Guide](./doc/TASK_CREATION_GUIDE.md)
+- [New Template Guide](./doc/NEW_TEMPLATE_GUIDE.md)
+- [Address Registry](./doc/ADDRESS_REGISTRY.md)
 
-## Task Development and Templates
+## Key Features
 
-Developers can now create tasks without writing any Solidity code as long as a predefined template is used. The templates are designed to be as flexible as possible, allowing developers to create tasks that update multiple parameters for a single or super chain. Templates are currently in development and will be released in a future PR.
+- Create tasks without writing Solidity code using predefined templates.
+- Configure tasks for multiple networks as long as they are all part of a single Superchain instance.
+- Perform automated checks for state changes and security.
+- Test all changes locally before executing tasks on-chain.
 
-# Task Configuration File
+## Repository Structure
+The template configuration file is called `config.toml` which contains the network configurations for modifying L1.
 
-The template configuration file is `config.toml` which contains the network configurations to modify on L1.
-
-### L2Chains
-
-```toml
-# L2Chains is a list of the L2 chains that the task will interact with
-l2chains = [{"name": "Base", "chainId": 8453}, {"name": "Metal", "chainId": 1750}, {"name": "OP Mainnet", "chainId": 10}]
+```
+superchain-ops/
+└── src/
+    └── improvements/
+       ├── template/     # Solidity template contracts
+       └── doc/          # Detailed documentation
+       └── tasks/        # Network-specific tasks
+            ├── eth/     # Ethereum mainnet tasks
+            ├── sep/     # Sepolia testnet tasks
+            ├── oeth/    # Optimism Ethereum tasks
+            └── opsep/   # Optimism Sepolia tasks
 ```
 
-### Task Template Files
+## Quick Start
 
-Task templates allow task developers to create new tasks without writing any Solidity code. The templates are designed to be as flexible as possible, allowing developers to create tasks that update multiple parameters for a single or superchain. Templates are currently in development and will be released in a future PR.
+1. Create a new task:
+```bash
+cd src/improvements/
+just new task
+```
 
-The mainnet configuration file for task template example 00 can be found here: [task-00/mainnetConfig.toml](./example/task-00/mainnetConfig.toml)
-
+2. Configure the task in `config.toml`:
 ```toml
+templateName = "GasConfigTemplate"
+l2chains = [{"name": "OP Mainnet", "chainId": 10}]
+```
+
+3. Test the task:
+```bash
+forge script <template-path> --sig "run(string)" <config-path> --rpc-url devnet -vvv
+```
+
+## Available Templates
+
+All available templates can be found in the [template](./template/) directory. 
+
+## Example Configurations
+
+### Gas Config Example
+```toml
+templateName = "GasConfigTemplate"
+l2chains = [{name = "Orderly", chainId = 291}]
+
 [gasConfigs]
-gasLimits = [{chainId = 291, gasLimit = 100000000}, {chainId = 1750, gasLimit = 100000000}]
+gasLimits = [
+    {chainId = 291, gasLimit = 100000000}
+]
 ```
 
-This toml configuration file allows task developers to set gas limits for the task. After the changes are applied in the simulation, validations are run to ensure that the new values are the expected values.
-
-### Running Example Tasks
-
-#### Template 00 to set gas configs:
-
-```bash
-forge script src/improvements/template/GasConfigTemplate.sol --sig "run(string)" test/tasks/mock/example/task-00/config.toml --rpc-url mainnet -vvv
-```
-
-#### Template 01 to set dispute game upgrade:
-
-```bash
-forge script src/improvements/template/DisputeGameUpgradeTemplate.sol --sig "run(string)" test/tasks/mock/example/task-01/config.toml --rpc-url mainnet -vvv
-```
-
-#### Template 02 to set respected game type:
-
-```bash
-forge script src/improvements/template/SetGameTypeTemplate.sol --sig "run(string)" test/tasks/mock/example/task-02/config.toml --rpc-url mainnet -vvvvv
-```
-
-#### Template 03 to set gas config:
-
-```bash
-forge script src/improvements/template/GasConfigTemplate.sol --sig "run(string)" test/tasks/mock/example/task-03/config.toml --rpc-url mainnet -vvvvv
-```
+Other existing templates include [`DisputeGameUpgradeTemplate`](./template/DisputeGameUpgradeTemplate.sol) and [`SetGameTypeTemplate`](./template/SetGameTypeTemplate.sol).

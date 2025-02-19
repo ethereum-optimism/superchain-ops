@@ -1,9 +1,10 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {Script} from "forge-std/Script.sol";
 
-import {ITask} from "src/improvements/tasks/ITask.sol";
+import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 
 contract Runner is Script {
     using Strings for uint256;
@@ -32,7 +33,7 @@ contract Runner is Script {
 
     function run() public {
         string[] memory commands = new string[](1);
-        commands[0] = "./test/tasks/mock/example/fetch-tasks.sh";
+        commands[0] = "./src/improvements/script/fetch-tasks.sh";
 
         bytes memory result = vm.ffi(commands);
 
@@ -47,7 +48,7 @@ contract Runner is Script {
             string memory templatePath =
                 string.concat("out/", config.templateName, ".sol/", config.templateName, ".json");
 
-            ITask task = ITask(deployCode(templatePath));
+            MultisigTask task = MultisigTask(deployCode(templatePath));
             task.simulateRun(config.path);
         }
     }

@@ -1,11 +1,11 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
 import {IDisputeGameFactory, IDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute/IDisputeGameFactory.sol";
-import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
+
 import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
-import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
 
 /// @title DisputeGameUpgradeTemplate
 /// @notice Template contract for upgrading dispute game implementations
@@ -51,9 +51,9 @@ contract DisputeGameUpgradeTemplate is MultisigTask {
 
     /// @notice Builds the actions for setting dispute game implementations for a specific L2 chain ID
     /// @param chainId The ID of the L2 chain to configure
-    function _build(uint256 chainId) internal override {
+    function _buildPerChain(uint256 chainId) internal override {
         IDisputeGameFactory disputeGameFactory =
-            IDisputeGameFactory(addresses.getAddress("DisputeGameFactoryProxy", chainId));
+            IDisputeGameFactory(addrRegistry.getAddress("DisputeGameFactoryProxy", chainId));
 
         if (setImplementations[chainId].l2ChainId != 0) {
             disputeGameFactory.setImplementation(
@@ -66,7 +66,7 @@ contract DisputeGameUpgradeTemplate is MultisigTask {
     /// @param chainId The ID of the L2 chain to validate
     function _validate(uint256 chainId) internal view override {
         IDisputeGameFactory disputeGameFactory =
-            IDisputeGameFactory(addresses.getAddress("DisputeGameFactoryProxy", chainId));
+            IDisputeGameFactory(addrRegistry.getAddress("DisputeGameFactoryProxy", chainId));
 
         if (setImplementations[chainId].l2ChainId != 0) {
             assertEq(
@@ -76,4 +76,7 @@ contract DisputeGameUpgradeTemplate is MultisigTask {
             );
         }
     }
+
+    /// @notice no code exceptions for this template
+    function getCodeExceptions() internal view virtual override returns (address[] memory) {}
 }

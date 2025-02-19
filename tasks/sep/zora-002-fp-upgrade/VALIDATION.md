@@ -23,23 +23,23 @@ state overrides and changes.
 The `approvedHashes` mapping **key** of the `ProxyAdminOwner` that should change during the
 simulation is:
 
-- Council simulation: `0xb89e28dd237db50f726435f39abad77c8f8b24958de7f54a01a2077f450cd623`
-- Foundation simulation: `0x64d151f609d855a82cc7aad2b61d359b586cfb06df69371550166156a3eefd72`
+- Council simulation: `0x6ddce46c849f3c4f07b6936372b065bbb125295abeba2b69356959d97076ddf4`
+- Foundation simulation: `0xe02e538b153b500a6b10108a02ecebaae66e56e98cbd67fd4eca2a82271539e1`
 
 Calculated as explained in the nested validation doc:
 
 ```sh
 cast index address 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 8 # council
 # 0x56362ae34e37f50105bd722d564a267a69bbc15ede4cb7136e81afd747b41c4d
-cast index bytes32 0xdcbd8320e473b8ab5be269117fa4b0d4672ddc3a6fac36cc5fc7bc88dee99891 0x56362ae34e37f50105bd722d564a267a69bbc15ede4cb7136e81afd747b41c4d
-# 0xb89e28dd237db50f726435f39abad77c8f8b24958de7f54a01a2077f450cd623
+cast index bytes32 0x0af66a3041f2a03ec6be4670bf99f9d62a2f1df568e4c7c9887b7ed904f9a2d0 0x56362ae34e37f50105bd722d564a267a69bbc15ede4cb7136e81afd747b41c4d
+# 0x6ddce46c849f3c4f07b6936372b065bbb125295abeba2b69356959d97076ddf4
 ```
 
 ```sh
 cast index address 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B 8 # foundation
 # 0xc18fefc0a6b81265cf06017c3f1f91c040dc3227321d73c608cfbcf1c5253e5c
-cast index bytes32 0xdcbd8320e473b8ab5be269117fa4b0d4672ddc3a6fac36cc5fc7bc88dee99891 0xc18fefc0a6b81265cf06017c3f1f91c040dc3227321d73c608cfbcf1c5253e5c
-# 0x64d151f609d855a82cc7aad2b61d359b586cfb06df69371550166156a3eefd72
+cast index bytes32 0x0af66a3041f2a03ec6be4670bf99f9d62a2f1df568e4c7c9887b7ed904f9a2d0 0xc18fefc0a6b81265cf06017c3f1f91c040dc3227321d73c608cfbcf1c5253e5c
+# 0xe02e538b153b500a6b10108a02ecebaae66e56e98cbd67fd4eca2a82271539e1
 ```
 
 ## State Changes
