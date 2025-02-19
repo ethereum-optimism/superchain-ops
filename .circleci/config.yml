@@ -32,8 +32,8 @@ commands:
         type: string
     steps:
       - utils/checkout-with-mise
-      - set-simulation-eth-rpc-url
-        task: "<< parameters.task >>"
+      - set-simulation-eth-rpc-url:
+          task: "<< parameters.task >>"
       - run:
           name: "simulate << parameters.task >>"
           command: |
