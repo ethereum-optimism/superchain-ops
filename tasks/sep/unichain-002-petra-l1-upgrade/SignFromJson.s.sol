@@ -86,8 +86,6 @@ contract SignFromJson is OriginalSignFromJson, SuperchainRegistry {
         newMips = standardVersions.MIPS.Address;
         oracle = standardVersions.PreimageOracle.Address;
         chainId = chainConfig.chainId;
-        // dgfProxy = DisputeGameFactory(systemConfig.disputeGameFactory());
-        // extraStorageAccessAddresses.push(0xf971F1b0D80eb769577135b490b913825BfcF00B);
 
         string memory inputJson;
         string
@@ -150,16 +148,10 @@ contract SignFromJson is OriginalSignFromJson, SuperchainRegistry {
         );
         // No checks are performed if there is no prior implementation.
         // When deploying the first implementation, it is recommended to implement custom checks.
-        if (address(currentImpl) == address(0)) {
-            return;
-        }
+
         FaultDisputeGame faultDisputeGame = FaultDisputeGame(_newImpl);
         // these are both using the latest version of the MIPs contracts
         // require(address(currentImpl.vm()) != address(faultDisputeGame.vm()), "10");
-        console.log(
-            "faultDisputeGame.weth()",
-            address(faultDisputeGame.weth())
-        );
         require(
             address(currentImpl.weth()) != address(faultDisputeGame.weth()),
             "20"
@@ -294,12 +286,6 @@ contract SignFromJson is OriginalSignFromJson, SuperchainRegistry {
         uint256 _l2BlockNumber
     ) internal view {
         console.log("check anchor state value", _gameType.raw());
-
-        // FaultDisputeGame impl = FaultDisputeGame(address(dgfProxy.gameImpls(GameType(_gameType))));
-        // (Hash root, uint256 rootBlockNumber) = FaultDisputeGame(address(impl)).anchorStateRegistry().anchors(_gameType);
-
-        // require(root.raw() == _root, "check-200");
-        // require(rootBlockNumber == _l2BlockNumber, "check-210");
     }
 
     // @notice Checks the anchor state for the source game type still exists after re-initialization.
@@ -527,7 +513,6 @@ contract SignFromJson is OriginalSignFromJson, SuperchainRegistry {
 
     function checkMips() internal view {
         console.log("check MIPS");
-
         require(newMips.code.length != 0, "MIPS-100");
         vm.assertEq(ISemver(newMips).version(), "1.2.1");
         require(address(MIPS(newMips).oracle()) == oracle, "MIPS-200");
