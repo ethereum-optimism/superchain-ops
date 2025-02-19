@@ -758,7 +758,7 @@ abstract contract MultisigTask is Test, Script {
         }
     }
 
-    /// @notice overridden in templates
+    /// @notice Override to return a list of addresses that should not be checked for code length.
     function getCodeExceptions() internal view virtual returns (address[] memory);
 
     /// @notice helper function to prepare the signatures to be executed

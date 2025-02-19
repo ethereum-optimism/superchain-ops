@@ -63,4 +63,14 @@ contract EmptyTemplate is MultisigTask {
         require(false, "TODO: Implement the logic to validate that the configuration was set as expected.");
         chainId;
     }
+
+    /// @notice Override to return a list of addresses that should not be checked for code length.
+    function getCodeExceptions() internal pure override returns (address[] memory) {
+        require(
+            false, "TODO: Implement the logic to return a list of addresses that should not be checked for code length."
+        );
+        address[] memory codeExceptions = new address[](1);
+        codeExceptions[0] = address(0);
+        return codeExceptions;
+    }
 }
