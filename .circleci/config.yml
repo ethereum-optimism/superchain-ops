@@ -34,8 +34,6 @@ commands:
       - utils/checkout-with-mise
       - run:
           name: "simulate << parameters.task >>"
-          environment:
-            ETH_RPC_URL: << pipeline.parameters.l1_mainnet_rpc_url >>
           command: |
             just install
             cd tasks/<< parameters.task >>
@@ -53,8 +51,6 @@ commands:
       - utils/checkout-with-mise
       - run:
           name: "simulate nested << parameters.task >>"
-          environment:
-            ETH_RPC_URL: << pipeline.parameters.l1_mainnet_rpc_url >>
           command: |
             just install
             cd tasks/<< parameters.task >>
@@ -261,6 +257,8 @@ jobs:
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
+    environment:
+      ETH_RPC_URL: << pipeline.parameters.l1_mainnet_rpc_url >>
     steps:
       - simulate:
           task: "/eth/ink-002-set-respected-game-type"
@@ -269,6 +267,8 @@ jobs:
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
+    environment:
+      ETH_RPC_URL: << pipeline.parameters.l1_sepolia_rpc_url >>
     steps:
       - simulate_nested:
           task: "/sep/zora-002-fp-upgrade"
