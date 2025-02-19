@@ -203,6 +203,7 @@ jobs:
               # Use L1_RPC_URL and L2_RPC_URL here.
 
   just_simulate_sc_rehearsal_1:
+    circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
@@ -220,6 +221,7 @@ jobs:
             just simulate # simulate again to make sure the json is still valid
 
   just_simulate_sc_rehearsal_2:
+    circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
@@ -238,6 +240,7 @@ jobs:
             just simulate # simulate again to make sure the json is still valid
 
   just_simulate_sc_rehearsal_4:
+    circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
@@ -255,6 +258,7 @@ jobs:
             just simulate-council # simulate again to make sure the json is still valid
 
   just_simulate_ink_respected_game_type:
+    circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
@@ -262,6 +266,7 @@ jobs:
           task: "/eth/ink-002-set-respected-game-type"
 
   just_simulate_zora_002_fp_upgrade:
+    circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
@@ -293,6 +298,7 @@ jobs:
             forge fmt --check
   
   forge_test:
+    circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
