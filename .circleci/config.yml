@@ -303,12 +303,12 @@ jobs:
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
+    environment:
+      FOUNDRY_PROFILE: ci
     steps:
       - utils/checkout-with-mise
       - run:
           name: forge test
-          environment:
-            FOUNDRY_PROFILE: ci
           command: |
             forge --version
             forge test -vvv
