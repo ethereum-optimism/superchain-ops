@@ -34,6 +34,8 @@ commands:
       - utils/checkout-with-mise
       - set-simulation-eth-rpc-url:
           task: "<< parameters.task >>"
+          l1_mainnet_rpc_url: "<< pipeline.parameters.l1_mainnet_rpc_url >>"
+          l1_sepolia_rpc_url: "<< pipeline.parameters.l1_sepolia_rpc_url >>"
       - run:
           name: "simulate << parameters.task >>"
           command: |
@@ -53,6 +55,8 @@ commands:
       - utils/checkout-with-mise
       - set-simulation-eth-rpc-url:
           task: "<< parameters.task >>"
+          l1_mainnet_rpc_url: "<< pipeline.parameters.l1_mainnet_rpc_url >>"
+          l1_sepolia_rpc_url: "<< pipeline.parameters.l1_sepolia_rpc_url >>"
       - run:
           name: "simulate nested << parameters.task >>"
           command: |
