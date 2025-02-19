@@ -72,6 +72,10 @@ commands:
     parameters:
       task:
         type: string
+      l1_mainnet_rpc_url:
+        type: string
+      l1_sepolia_rpc_url:
+        type: string
     steps:
       - run:
           name: "Set ETH_RPC_URL according to the task being simulated"
