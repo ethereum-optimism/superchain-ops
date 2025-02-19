@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {Script} from "forge-std/Script.sol";
-import {console} from "forge-std/console.sol";
+
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 
 contract Runner is Script {
@@ -32,10 +32,6 @@ contract Runner is Script {
     }
 
     function run() public {
-        string[2][] memory allUrls = vm.rpcUrls();
-        console.log("allUrls", allUrls[0][0]);
-        console.log("allUrls", allUrls[0][1]);
-    
         string[] memory commands = new string[](1);
         commands[0] = "./src/improvements/script/fetch-tasks.sh";
 
