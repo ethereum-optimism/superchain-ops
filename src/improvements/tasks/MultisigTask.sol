@@ -187,9 +187,20 @@ abstract contract MultisigTask is Test, Script {
         public
         returns (VmSafe.AccountAccess[] memory)
     {
-        /// perform all actions in simulateRun, then send the transaction on chain
-        VmSafe.AccountAccess[] memory accountAccesses = simulateRun(taskConfigFilePath, signatures);
-        execute(signatures);
+        /// sets safe to the safe specified by the current template from addresses.json
+        _taskSetup(taskConfigFilePath);
+
+        /// gather mutative calls
+        build();
+
+        /// now execute task actions
+        VmSafe.AccountAccess[] memory accountAccesses = execute(signatures);
+
+        /// validate all state transitions
+        validate(accountAccesses);
+
+        /// print out results of execution
+        print();
 
         return accountAccesses;
     }
@@ -205,6 +216,11 @@ abstract contract MultisigTask is Test, Script {
         _taskSetup(taskConfigFilePath);
         build();
         approve(_childMultisig, signatures);
+        console.log(
+            "--------- Successfully %s Child Multisig %s Approval ---------",
+            vm.isContext(VmSafe.ForgeContext.ScriptBroadcast) ? "Broadcasted" : "Simulated",
+            _childMultisig
+        );
     }
 
     /// @notice Simulates a nested multisig task with the given configuration file path for a
@@ -254,7 +270,18 @@ abstract contract MultisigTask is Test, Script {
         // TODO change this once we implement task stacking
         nonce = IGnosisSafe(parentMultisig).nonce();
 
-        _setIsNestedSafe();
+        address[] memory owners = IGnosisSafe(parentMultisig).getOwners();
+        {
+            uint256 quorum = IGnosisSafe(parentMultisig).getThreshold();
+            uint256 eoaOwnerCount;
+            for (uint256 i = 0; i < owners.length; i++) {
+                if (owners[i].code.length == 0) {
+                    eoaOwnerCount++;
+                }
+            }
+
+            isNestedSafe = eoaOwnerCount >= quorum ? false : true;
+        }
 
         vm.label(address(addrRegistry), "AddrRegistry");
         vm.label(address(this), "MultisigTask");
@@ -373,13 +400,9 @@ abstract contract MultisigTask is Test, Script {
         vm.startStateDiffRecording();
 
         // Execute the transaction
-        (bool success) = IGnosisSafe(parentMultisig).execTransaction(
-            multicallTarget, 0, data, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), signatures
-        );
+        execTransaction(parentMultisig, multicallTarget, 0, data, Enum.Operation.DelegateCall, signatures);
 
         VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
-
-        require(success, "MultisigTask: simulateActions failed");
 
         return accountAccesses;
     }
@@ -392,33 +415,51 @@ abstract contract MultisigTask is Test, Script {
         bytes32 hash = keccak256(getDataToSign(_childMultisig, approveCalldata));
         signatures = Signatures.prepareSignatures(_childMultisig, hash, signatures);
 
-        bool success = IGnosisSafe(_childMultisig).execTransaction(
-            MULTICALL3_ADDRESS,
-            0,
-            approveCalldata,
-            Enum.Operation.DelegateCall,
-            0,
-            0,
-            0,
-            address(0),
-            payable(address(0)),
-            signatures
-        );
+        if (vm.isContext(VmSafe.ForgeContext.ScriptBroadcast)) {
+            /// only broadcast if we are running forge script with the --broadcast flag
+            vm.broadcast();
+        }
 
-        require(success, "MultisigTask: approval failed");
+        execTransaction(_childMultisig, MULTICALL3_ADDRESS, 0, approveCalldata, Enum.Operation.DelegateCall, signatures);
     }
 
     /// @notice Executes the task with the given signatures.
     /// @param signatures The signatures to execute the task.
-    function execute(bytes memory signatures) public {
+    function execute(bytes memory signatures) public returns (VmSafe.AccountAccess[] memory) {
         bytes memory data = getCalldata();
         bytes32 hash = getHash();
 
-        signatures = Signatures.prepareSignatures(parentMultisig, hash, signatures);
+        /// if no signatures are attached, create them
+        if (signatures.length == 0) {
+            signatures = prepareSignatures(parentMultisig, hash);
+        } else {
+            /// otherwise we assume the signatures are already ordered
+            Signatures.sortUniqueSignatures(
+                parentMultisig, signatures, hash, IGnosisSafe(parentMultisig).getThreshold(), signatures.length
+            );
+        }
 
-        vm.broadcast();
-        (bool success) = IGnosisSafe(parentMultisig).execTransaction(
-            multicallTarget, 0, data, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), signatures
+        vm.startStateDiffRecording();
+        if (vm.isContext(VmSafe.ForgeContext.ScriptBroadcast)) {
+            /// only broadcast if we are running forge script with the --broadcast flag
+            vm.broadcast();
+        }
+
+        execTransaction(parentMultisig, multicallTarget, 0, data, Enum.Operation.DelegateCall, signatures);
+
+        return vm.stopAndReturnStateDiff();
+    }
+
+    function execTransaction(
+        address multisig,
+        address target,
+        uint256 value,
+        bytes memory data,
+        Enum.Operation operationType,
+        bytes memory signatures
+    ) internal {
+        (bool success) = IGnosisSafe(multisig).execTransaction(
+            target, value, data, operationType, 0, 0, 0, address(0), payable(address(0)), signatures
         );
         require(success, "MultisigTask: execute failed");
     }
@@ -612,7 +653,7 @@ abstract contract MultisigTask is Test, Script {
     function printNestedDataToSign() public view {
         bytes memory callData = generateApproveMulticallData();
 
-        if (childMultisig != address(0)) {
+        if (childMultisig != address(0) && childMultisig.code.length != 0) {
             console.log("Child multisig: %s", getAddressLabel(childMultisig));
             // logs required for using eip712sign binary to sign the data to sign with Ledger
             console.log("vvvvvvvv");
@@ -620,6 +661,9 @@ abstract contract MultisigTask is Test, Script {
             console.log("^^^^^^^^\n");
         } else {
             for (uint256 i; i < startingOwners.length; i++) {
+                if (startingOwners[i].code.length == 0) {
+                    continue;
+                }
                 console.log("Nested multisig: %s", getAddressLabel(startingOwners[i]));
                 console.logBytes(getDataToSign(startingOwners[i], callData));
             }
@@ -630,11 +674,16 @@ abstract contract MultisigTask is Test, Script {
     function printNestedHashToApprove() public view {
         bytes memory callData = generateApproveMulticallData();
 
-        if (childMultisig != address(0)) {
+        if (childMultisig != address(0) && childMultisig.code.length != 0) {
             console.log("Nested multisig: %s", getAddressLabel(childMultisig));
             console.logBytes32(keccak256(getDataToSign(childMultisig, callData)));
         } else {
             for (uint256 i; i < startingOwners.length; i++) {
+                /// do not get data to sign if owner is an EOA (not a multisig)
+                if (startingOwners[i].code.length == 0) {
+                    continue;
+                }
+
                 bytes32 hash = keccak256(getDataToSign(startingOwners[i], callData));
                 console.log("Nested multisig: %s", getAddressLabel(startingOwners[i]));
                 console.logBytes32(hash);
@@ -743,18 +792,6 @@ abstract contract MultisigTask is Test, Script {
             bool isDuplicateValue = actions[i].value == value;
 
             require(!(isDuplicateTarget && isDuplicateArguments && isDuplicateValue), "Duplicated action found");
-        }
-    }
-
-    function _setIsNestedSafe() internal {
-        // assume safe is nested unless there is an EOA owner
-        isNestedSafe = true;
-
-        address[] memory owners = IGnosisSafe(parentMultisig).getOwners();
-        for (uint256 i = 0; i < owners.length; i++) {
-            if (owners[i].code.length == 0) {
-                isNestedSafe = false;
-            }
         }
     }
 
