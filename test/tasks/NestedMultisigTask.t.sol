@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
+import {IDisputeGameFactory} from "@eth-optimism-bedrock/interfaces/dispute/IDisputeGameFactory.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
+import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
+import {GameTypes} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
+import {LibSort} from "@solady/utils/LibSort.sol";
 import {Test} from "forge-std/Test.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
+import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 import {TestOPCMUpgradeVxyz} from "src/improvements/template/TestOPCMUpgradeVxyz.sol";
 import {DisputeGameUpgradeTemplate} from "src/improvements/template/DisputeGameUpgradeTemplate.sol";
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
-import {LibSort} from "@solady/utils/LibSort.sol";
-import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
-import {IDisputeGameFactory} from "@eth-optimism-bedrock/interfaces/dispute/IDisputeGameFactory.sol";
-import {GameTypes} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 
 /// @notice This test is used to test the nested multisig task.
 contract NestedMultisigTaskTest is Test {
@@ -205,12 +205,9 @@ contract NestedMultisigTaskTest is Test {
             multisigTask.approveFromChildMultisig(taskConfigFilePath, childMultisig, packedSignaturesChild);
         }
 
-        // no offchain signatures for the parent multisig
-        bytes memory packedSignaturesParent;
-
-        // execute the task
+        /// execute the task
         multisigTask = new DisputeGameUpgradeTemplate();
-        multisigTask.executeRun(taskConfigFilePath, packedSignaturesParent);
+        multisigTask.simulateRun(taskConfigFilePath);
 
         // check that the implementation is upgraded correctly
         assertEq(
@@ -302,12 +299,9 @@ contract NestedMultisigTaskTest is Test {
             multisigTask.approveFromChildMultisig(opcmTaskConfigFilePath, childMultisig, packedSignaturesChild);
         }
 
-        // no offchain signatures for the parent multisig
-        bytes memory packedSignaturesParent;
-
         // execute the task
         multisigTask = new TestOPCMUpgradeVxyz();
-        multisigTask.executeRun(opcmTaskConfigFilePath, packedSignaturesParent);
+        multisigTask.simulateRun(opcmTaskConfigFilePath);
     }
 
     function getNestedDataToSign(address owner) internal view returns (bytes memory) {
