@@ -34,6 +34,8 @@ commands:
       - utils/checkout-with-mise
       - run:
           name: "simulate << parameters.task >>"
+          environment:
+            FOUNDRY_PROFILE: ci
           command: |
             just install
             cd tasks/<< parameters.task >>
@@ -51,6 +53,8 @@ commands:
       - utils/checkout-with-mise
       - run:
           name: "simulate nested << parameters.task >>"
+          environment:
+            FOUNDRY_PROFILE: ci
           command: |
             just install
             cd tasks/<< parameters.task >>
@@ -199,12 +203,15 @@ jobs:
               # Use L1_RPC_URL and L2_RPC_URL here.
 
   just_simulate_sc_rehearsal_1:
+    circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - utils/checkout-with-mise
       - run:
           name: just simulate r1-hello-council
+          environment:
+            FOUNDRY_PROFILE: ci
           command: |
             just install
             cd security-council-rehearsals
@@ -216,12 +223,15 @@ jobs:
             just simulate # simulate again to make sure the json is still valid
 
   just_simulate_sc_rehearsal_2:
+    circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - utils/checkout-with-mise
       - run:
           name: just simulate r2-remove-signer
+          environment:
+            FOUNDRY_PROFILE: ci
           command: |
             just install
             cd security-council-rehearsals
@@ -234,12 +244,15 @@ jobs:
             just simulate # simulate again to make sure the json is still valid
 
   just_simulate_sc_rehearsal_4:
+    circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - utils/checkout-with-mise
       - run:
           name: just simulate r4-jointly-upgrade
+          environment:
+            FOUNDRY_PROFILE: ci
           command: |
             just install
             cd security-council-rehearsals
@@ -251,6 +264,7 @@ jobs:
             just simulate-council # simulate again to make sure the json is still valid
 
   just_simulate_ink_respected_game_type:
+    circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
@@ -258,6 +272,7 @@ jobs:
           task: "/eth/ink-002-set-respected-game-type"
 
   just_simulate_zora_002_fp_upgrade:
+    circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
@@ -289,12 +304,15 @@ jobs:
             forge fmt --check
   
   forge_test:
+    circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - utils/checkout-with-mise
       - run:
           name: forge test
+          environment:
+            FOUNDRY_PROFILE: ci
           command: |
             forge --version
             forge test -vvv
@@ -303,20 +321,18 @@ jobs:
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
+    environment:
+      FOUNDRY_PROFILE: ci
     steps:
       - utils/checkout-with-mise
       - run:
           name: monorepo integration tests
-          environment:
-            ETH_RPC_URL: << pipeline.parameters.l1_mainnet_rpc_url >>
           command: |
             (cd src/improvements && just monorepo-integration-test)
       - notify-failures-on-develop:
           mentions: "@security-team"
       - run:
           name: Print failed test traces
-          environment:
-            ETH_RPC_URL: << pipeline.parameters.l1_mainnet_rpc_url >>
           command: (cd src/improvements && just monorepo-integration-test rerun)
           when: on_fail
 
