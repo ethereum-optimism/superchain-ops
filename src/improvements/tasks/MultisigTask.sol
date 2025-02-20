@@ -743,9 +743,7 @@ abstract contract MultisigTask is Test, Script {
     }
 
     /// @notice get the hash for this safe transaction
-    /// can only be called after the build function, otherwise it reverts
     function getHash(bytes memory callData, address safe) public view returns (bytes32) {
-        // bytes memory callData = getMulticall3Calldata(actions);
         return keccak256(getEncodedTransactionData(safe, callData));
     }
 

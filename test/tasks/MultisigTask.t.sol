@@ -106,48 +106,6 @@ contract MultisigTaskUnitTest is Test {
         task.build();
     }
 
-    // function testSimulateFailsHashMismatch() public {
-    //     // skip the run function call so we need to write to all storage variables manually
-    //     address multisig = addrRegistry.getAddress("SystemConfigOwner", getChain("optimism").chainId);
-
-    //     // set multisig variable in MultisigTask to the actual multisig address
-    //     // so that the simulate function does not revert and can run and create
-    //     // calldata by calling the multisig functions
-    //     vm.store(address(task), MULTISIG_SLOT, bytes32(uint256(uint160(multisig))));
-
-    //     // set AddressRegistry in MultisigTask contract to a deployed address registry
-    //     // contract so that these calls work
-    //     vm.store(address(task), ADDRESS_REGISTRY_SLOT, bytes32(uint256(uint160(address(addrRegistry)))));
-
-    //     // set the target multicall address in MultisigTask contract to the
-    //     // multicall address
-    //     vm.store(address(task), TARGET_MULTICALL_SLOT, bytes32(uint256(uint160(MULTICALL3_ADDRESS))));
-
-    //     _addUpgradeAction();
-
-    //     vm.mockCall(
-    //         multisig,
-    //         abi.encodeWithSelector(
-    //             IGnosisSafe.getTransactionHash.selector,
-    //             MULTICALL3_ADDRESS,
-    //             0,
-    //             task.getCalldata(),
-    //             Enum.Operation.DelegateCall,
-    //             0,
-    //             0,
-    //             0,
-    //             address(0),
-    //             payable(address(0)),
-    //             task.nonce()
-    //         ),
-    //         // return a hash that cannot possibly be what is returned by the GnosisSafe
-    //         abi.encode(bytes32(uint256(100)))
-    //     );
-
-    //     vm.expectRevert("MultisigTask: hash mismatch");
-    //     task.simulate("");
-    // }
-
     function testBuildFailsRevertPreviousSnapshotFails() public {
         address multisig = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
         // set multisig variable in MultisigTask to the actual multisig address
@@ -254,18 +212,4 @@ contract MultisigTaskUnitTest is Test {
         });
         return actions;
     }
-
-    // function _addUpgradeAction() internal {
-    //     _addAction(
-    //         addrRegistry.getAddress("ProxyAdmin", getChain("optimism").chainId),
-    //         abi.encodeWithSignature(
-    //             "upgrade(address,address)",
-    //             addrRegistry.getAddress("L1ERC721BridgeProxy", getChain("optimism").chainId),
-    //             MockMultisigTask(address(task)).newImplementation()
-    //         ),
-    //         0,
-    //         Enum.Operation.Call,
-    //         ""
-    //     );
-    // }
 }
