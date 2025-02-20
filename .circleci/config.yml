@@ -226,12 +226,12 @@ jobs:
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
+    environment:
+      FOUNDRY_PROFILE: ci
     steps:
       - utils/checkout-with-mise
       - run:
           name: just simulate r2-remove-signer
-          environment:
-            FOUNDRY_PROFILE: ci
           command: |
             just install
             cd security-council-rehearsals
@@ -247,12 +247,12 @@ jobs:
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
+    environment:
+      FOUNDRY_PROFILE: ci
     steps:
       - utils/checkout-with-mise
       - run:
           name: just simulate r4-jointly-upgrade
-          environment:
-            FOUNDRY_PROFILE: ci
           command: |
             just install
             cd security-council-rehearsals
@@ -307,12 +307,12 @@ jobs:
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
+    environment:
+      FOUNDRY_PROFILE: ci
     steps:
       - utils/checkout-with-mise
       - run:
           name: forge test
-          environment:
-            FOUNDRY_PROFILE: ci
           command: |
             forge --version
             forge test -vvv
