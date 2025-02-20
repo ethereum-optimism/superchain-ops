@@ -20,9 +20,6 @@ abstract contract MultisigTask is Test, Script {
     /// will be set to the value specified in the config file
     uint256 public nonce;
 
-    /// @notice flag to determine if the safe is nested multisig
-    bool public isNestedSafe;
-
     /// @notice owners the safe started with
     address[] public startingOwners;
 
@@ -215,7 +212,7 @@ abstract contract MultisigTask is Test, Script {
     function signFromChildMultisig(string memory taskConfigFilePath, address _childMultisig) public {
         childMultisig = _childMultisig;
         simulateRun(taskConfigFilePath);
-        require(isNestedSafe, "MultisigTask: multisig must be nested");
+        require(isNestedSafe(parentMultisig), "MultisigTask: multisig must be nested");
     }
 
     /// @notice Sets the address registry, initializes the task.
@@ -254,7 +251,7 @@ abstract contract MultisigTask is Test, Script {
         // TODO change this once we implement task stacking
         nonce = IGnosisSafe(parentMultisig).nonce();
 
-        _setIsNestedSafe();
+        isNestedSafe(parentMultisig);
 
         vm.label(address(addrRegistry), "AddrRegistry");
         vm.label(address(this), "MultisigTask");
@@ -593,7 +590,7 @@ abstract contract MultisigTask is Test, Script {
         console.log("\n\n------------------ Task Calldata ------------------");
         console.logBytes(getCalldata());
 
-        if (isNestedSafe) {
+        if (isNestedSafe(parentMultisig)) {
             console.log("\n\n------------------ Nested Multisig EOAs Data to Sign ------------------");
             printNestedDataToSign();
             console.log("\n\n------------------ Nested Multisig EOAs Hash to Approve ------------------");
@@ -746,16 +743,17 @@ abstract contract MultisigTask is Test, Script {
         }
     }
 
-    function _setIsNestedSafe() internal {
+    function isNestedSafe(address safe) public view returns (bool) {
         // assume safe is nested unless there is an EOA owner
-        isNestedSafe = true;
+        bool nested = true;
 
-        address[] memory owners = IGnosisSafe(parentMultisig).getOwners();
+        address[] memory owners = IGnosisSafe(safe).getOwners();
         for (uint256 i = 0; i < owners.length; i++) {
             if (owners[i].code.length == 0) {
-                isNestedSafe = false;
+                nested = false;
             }
         }
+        return nested;
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.

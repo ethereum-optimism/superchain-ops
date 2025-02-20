@@ -113,7 +113,13 @@ simulate-all-templates:
     for task in ${root_dir}/src/improvements/tasks/example/*/*; do
         echo ""
         if [ -d "$task" ]; then
-            if ./script/is-task-nested.sh "$task/config.toml"; then
+            if [ "$task" = "${root_dir}/src/improvements/tasks/example/eth" ]; then
+                rpcUrl="mainnet"
+            else
+                rpcUrl="sepolia"
+            fi
+            is_nested=$(forge script ${root_dir}/src/improvements/tasks/IsNestedTask.s.sol --sig "isNestedTask(string)" "$task/config.toml" --rpc-url $rpcUrl)
+            if [ "$is_nested" = "true" ]; then
                 (cd $task && SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile $nested_just_file simulate foundation)
                 echo "Task $task is nested"
             else

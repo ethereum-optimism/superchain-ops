@@ -42,7 +42,7 @@ contract NestedMultisigTaskTest is Test {
     function testSafeNested() public {
         vm.createSelectFork("mainnet");
         runTask();
-        assertEq(multisigTask.isNestedSafe(), true, "Expected isNestedSafe to be false");
+        assertEq(multisigTask.isNestedSafe(multisigTask.parentMultisig()), true, "Expected isNestedSafe to be true");
     }
 
     function testNestedDataToSignAndHashToApprove() public {

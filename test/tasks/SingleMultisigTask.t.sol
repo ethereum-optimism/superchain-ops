@@ -63,7 +63,7 @@ contract SingleMultisigTaskTest is Test {
             addrRegistry.getAddress("SystemConfigOwner", 1750),
             "Wrong safe address string"
         );
-        assertEq(multisigTask.isNestedSafe(), false, "Expected isNestedSafe to be false");
+        assertEq(multisigTask.isNestedSafe(multisigTask.parentMultisig()), false, "Expected isNestedSafe to be false");
     }
 
     function testAllowedStorageWrites() public {
