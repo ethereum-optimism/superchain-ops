@@ -8,6 +8,7 @@ import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
 import {GameTypes} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {LibSort} from "@solady/utils/LibSort.sol";
 import {Test} from "forge-std/Test.sol";
+import {VmSafe} from "forge-std/Vm.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
@@ -33,9 +34,12 @@ contract NestedMultisigTaskTest is Test {
     /// ProxyAdminOwner safe for the task below is a nested multisig for Op mainnet L2 chain.
     string taskConfigFilePath = "test/tasks/mock/configs/NestedMultisigDisputeGameUpgradeTemplate.toml";
 
-    function runTask() internal {
+    function runTask()
+        internal
+        returns (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions)
+    {
         multisigTask = new DisputeGameUpgradeTemplate();
-        multisigTask.simulateRun(taskConfigFilePath);
+        (accountAccesses, actions) = multisigTask.simulateRun(taskConfigFilePath);
         addrRegistry = multisigTask.addrRegistry();
     }
 
@@ -47,7 +51,7 @@ contract NestedMultisigTaskTest is Test {
 
     function testNestedDataToSignAndHashToApprove() public {
         vm.createSelectFork("mainnet");
-        runTask();
+        (, MultisigTask.Action[] memory actions) = runTask();
         IGnosisSafe parentMultisig = IGnosisSafe(multisigTask.parentMultisig());
         address[] memory childOwnerMultisigs = parentMultisig.getOwners();
 
@@ -59,7 +63,7 @@ contract NestedMultisigTaskTest is Test {
         bytes32 hashToApproveByChildMultisig = parentMultisig.getTransactionHash(
             MULTICALL3_ADDRESS,
             0,
-            multisigTask.getCalldata(),
+            multisigTask.getMulticall3Calldata(actions),
             Enum.Operation.DelegateCall,
             0,
             0,
@@ -83,11 +87,11 @@ contract NestedMultisigTaskTest is Test {
         // approve the transaction that the parent multisig is going to execute.
         bytes memory callDataToApprove =
             abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
-        assertEq(callDataToApprove, multisigTask.generateApproveMulticallData(), "Wrong callDataToApprove");
+        assertEq(callDataToApprove, multisigTask.generateApproveMulticallData(actions), "Wrong callDataToApprove");
         for (uint256 i; i < childOwnerMultisigs.length; i++) {
             // dataToSign is the data that the EOA owners of the child multisig has to sign to help
             // execute the child multisig approval of hashToApproveByChildMultisig
-            bytes memory dataToSign = getNestedDataToSign(childOwnerMultisigs[i]);
+            bytes memory dataToSign = getNestedDataToSign(childOwnerMultisigs[i], actions);
             // nonce is not decremented by 1 because in task simulation approveHash is called by
             // the child multisig which does not increment the nonce
             uint256 nonce = IGnosisSafe(childOwnerMultisigs[i]).nonce();
@@ -129,13 +133,13 @@ contract NestedMultisigTaskTest is Test {
     function testNestedExecuteWithSignatures() public {
         vm.createSelectFork("mainnet");
         uint256 snapshotId = vm.snapshot();
-        runTask();
-        address multisig = multisigTask.parentMultisig();
-        address[] memory parentMultisigOwners = IGnosisSafe(multisig).getOwners();
+        (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions) = runTask();
+        address parentMultisig = multisigTask.parentMultisig();
+        address[] memory parentMultisigOwners = IGnosisSafe(parentMultisig).getOwners();
         bytes[] memory childMultisigDatasToSign = new bytes[](parentMultisigOwners.length);
         // store the data to sign for each child multisig
         for (uint256 i = 0; i < parentMultisigOwners.length; i++) {
-            childMultisigDatasToSign[i] = getNestedDataToSign(parentMultisigOwners[i]);
+            childMultisigDatasToSign[i] = getNestedDataToSign(parentMultisigOwners[i], actions);
         }
         IDisputeGameFactory disputeGameFactory =
             IDisputeGameFactory(addrRegistry.getAddress("DisputeGameFactoryProxy", 10));
@@ -211,7 +215,7 @@ contract NestedMultisigTaskTest is Test {
         /// snapshot before running the task so we can roll back to this pre-state
         uint256 newSnapshot = vm.snapshot();
 
-        multisigTask.simulateRun(taskConfigFilePath);
+        (accountAccesses, actions) = multisigTask.simulateRun(taskConfigFilePath);
 
         // check that the implementation is upgraded correctly
         assertEq(
@@ -220,11 +224,12 @@ contract NestedMultisigTaskTest is Test {
             "implementation not set"
         );
 
-        bytes32 taskHash = multisigTask.getHash();
+        bytes memory callData = multisigTask.getMulticall3Calldata(actions);
+        bytes32 taskHash = multisigTask.getHash(callData, parentMultisig);
 
         /// now run the executeRun flow
         vm.revertTo(newSnapshot);
-        multisigTask.executeRun(taskConfigFilePath, prepareSignatures(multisig, taskHash));
+        multisigTask.executeRun(taskConfigFilePath, prepareSignatures(parentMultisig, taskHash));
         addrRegistry = multisigTask.addrRegistry();
 
         // check that the implementation is upgraded correctly for a second time
@@ -242,14 +247,15 @@ contract NestedMultisigTaskTest is Test {
         uint256 snapshotId = vm.snapshot();
         multisigTask = new TestOPCMUpgradeVxyz();
         string memory opcmTaskConfigFilePath = "test/tasks/mock/configs/TestOPCMUpgradeVxyz.toml";
-        multisigTask.simulateRun(opcmTaskConfigFilePath);
+        (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions) =
+            multisigTask.simulateRun(opcmTaskConfigFilePath);
         addrRegistry = multisigTask.addrRegistry();
-        address multisig = multisigTask.parentMultisig();
-        address[] memory parentMultisigOwners = IGnosisSafe(multisig).getOwners();
+        address parentMultisig = multisigTask.parentMultisig();
+        address[] memory parentMultisigOwners = IGnosisSafe(parentMultisig).getOwners();
         bytes[] memory childMultisigDatasToSign = new bytes[](parentMultisigOwners.length);
         // store the data to sign for each child multisig
         for (uint256 i = 0; i < parentMultisigOwners.length; i++) {
-            childMultisigDatasToSign[i] = getNestedDataToSign(parentMultisigOwners[i]);
+            childMultisigDatasToSign[i] = getNestedDataToSign(parentMultisigOwners[i], actions);
         }
         // revert to snapshot so that the safe is in the same state as before the task was run
         vm.revertTo(snapshotId);
@@ -323,18 +329,23 @@ contract NestedMultisigTaskTest is Test {
         /// snapshot before running the task so we can roll back to this pre-state
         uint256 newSnapshot = vm.snapshot();
 
-        multisigTask.simulateRun(opcmTaskConfigFilePath);
-        bytes32 taskHash = multisigTask.getHash();
+        (accountAccesses, actions) = multisigTask.simulateRun(opcmTaskConfigFilePath);
+        bytes32 taskHash =
+            multisigTask.getHash(multisigTask.getMulticall3Calldata(actions), multisigTask.parentMultisig());
 
         /// now run the executeRun flow
         vm.revertTo(newSnapshot);
 
-        multisigTask.executeRun(opcmTaskConfigFilePath, prepareSignatures(multisig, taskHash));
+        multisigTask.executeRun(opcmTaskConfigFilePath, prepareSignatures(parentMultisig, taskHash));
     }
 
-    function getNestedDataToSign(address owner) internal view returns (bytes memory) {
-        bytes memory callData = multisigTask.generateApproveMulticallData();
-        return multisigTask.getDataToSign(owner, callData);
+    function getNestedDataToSign(address owner, MultisigTask.Action[] memory actions)
+        internal
+        view
+        returns (bytes memory)
+    {
+        bytes memory callData = multisigTask.generateApproveMulticallData(actions);
+        return multisigTask.getEncodedTransactionData(owner, callData);
     }
 
     function prepareSignatures(address _safe, bytes32 hash) internal view returns (bytes memory) {
