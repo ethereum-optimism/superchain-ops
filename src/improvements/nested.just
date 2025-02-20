@@ -13,7 +13,7 @@ export rpcUrl := shell(rpc_cmd)
 cmd := "yq '.templateName' " + TASK_PATH + "/config.toml"
 export SCRIPT_NAME := shell(cmd)
 export signatures := env_var_or_default('SIGNATURES', '')
-randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 
 simulate whichSafe hdPath='0':
   #!/usr/bin/env bash

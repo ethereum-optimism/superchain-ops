@@ -207,9 +207,27 @@ contract NestedMultisigTaskTest is Test {
 
         /// execute the task
         multisigTask = new DisputeGameUpgradeTemplate();
+
+        /// snapshot before running the task so we can roll back to this pre-state
+        uint256 newSnapshot = vm.snapshot();
+
         multisigTask.simulateRun(taskConfigFilePath);
 
         // check that the implementation is upgraded correctly
+        assertEq(
+            address(disputeGameFactory.gameImpls(GameTypes.CANNON)),
+            0xf691F8A6d908B58C534B624cF16495b491E633BA,
+            "implementation not set"
+        );
+
+        bytes32 taskHash = multisigTask.getHash();
+
+        /// now run the executeRun flow
+        vm.revertTo(newSnapshot);
+        multisigTask.executeRun(taskConfigFilePath, prepareSignatures(multisig, taskHash));
+        addrRegistry = multisigTask.addrRegistry();
+
+        // check that the implementation is upgraded correctly for a second time
         assertEq(
             address(disputeGameFactory.gameImpls(GameTypes.CANNON)),
             0xf691F8A6d908B58C534B624cF16495b491E633BA,
@@ -301,7 +319,17 @@ contract NestedMultisigTaskTest is Test {
 
         // execute the task
         multisigTask = new TestOPCMUpgradeVxyz();
+
+        /// snapshot before running the task so we can roll back to this pre-state
+        uint256 newSnapshot = vm.snapshot();
+
         multisigTask.simulateRun(opcmTaskConfigFilePath);
+        bytes32 taskHash = multisigTask.getHash();
+
+        /// now run the executeRun flow
+        vm.revertTo(newSnapshot);
+
+        multisigTask.executeRun(opcmTaskConfigFilePath, prepareSignatures(multisig, taskHash));
     }
 
     function getNestedDataToSign(address owner) internal view returns (bytes memory) {
