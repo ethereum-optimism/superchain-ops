@@ -1,8 +1,7 @@
 pragma solidity 0.8.15;
 
-import {console} from "forge-std/console.sol";
 import {Test} from "forge-std/Test.sol";
-
+import {VmSafe} from "forge-std/Vm.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {GasConfigTemplate} from "src/improvements/template/GasConfigTemplate.sol";
@@ -21,9 +20,9 @@ contract RegressionTest is Test {
             "0x174dea7100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000001200000000000000000000000005e6432f18bc5d497b1ab2288a025fbf9d69e22210000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000024b40a817c0000000000000000000000000000000000000000000000000000000005f5e100000000000000000000000000000000000000000000000000000000000000000000000000000000007bd909970b0eedcf078de6aeff23ce571663b8aa0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000024b40a817c0000000000000000000000000000000000000000000000000000000005f5e10000000000000000000000000000000000000000000000000000000000";
         vm.createSelectFork("mainnet", 21724199);
         MultisigTask multisigTask = new GasConfigTemplate();
-        multisigTask.simulateRun(taskConfigFilePath);
+        (, MultisigTask.Action[] memory actions) = multisigTask.simulateRun(taskConfigFilePath);
 
-        string memory callData = vm.toString(multisigTask.getCalldata());
+        string memory callData = vm.toString(multisigTask.getCalldata(actions));
         // assert that the call data generated in simulateRun is the same as the expected call data
         assertEq(keccak256(bytes(callData)), keccak256(bytes(expectedCallData)));
 
@@ -31,7 +30,7 @@ contract RegressionTest is Test {
         string memory expectedDataToSign =
             "0x19010f634ad56005ddbd68dc52233931a858f740b8ab706671c42b055efef561257e5ba28ec1e58ea69211eb8e875f10ae165fb3fb4052b15ca2516486f4b059135f";
         string memory dataToSign =
-            vm.toString(multisigTask.getDataToSign(multisigTask.parentMultisig(), multisigTask.getCalldata()));
+            vm.toString(multisigTask.getDataToSign(multisigTask.parentMultisig(), multisigTask.getCalldata(actions)));
         // assert that the data to sign generated in simulateRun is the same as the expected data to sign
         assertEq(keccak256(bytes(dataToSign)), keccak256(bytes(expectedDataToSign)));
     }
@@ -43,9 +42,9 @@ contract RegressionTest is Test {
             "0x174dea71000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000e5965ab5962edc7477c8520243a95517cd252fa9000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000004414f6b1a30000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f691f8a6d908b58c534b624cf16495b491e633ba00000000000000000000000000000000000000000000000000000000";
         vm.createSelectFork("mainnet", 21724199);
         MultisigTask multisigTask = new DisputeGameUpgradeTemplate();
-        multisigTask.simulateRun(taskConfigFilePath);
+        (, MultisigTask.Action[] memory actions) = multisigTask.simulateRun(taskConfigFilePath);
 
-        string memory callData = vm.toString(multisigTask.getCalldata());
+        string memory callData = vm.toString(multisigTask.getCalldata(actions));
         // assert that the call data generated in simulateRun is the same as the expected call data
         assertEq(keccak256(bytes(callData)), keccak256(bytes(expectedCallData)));
 
@@ -59,7 +58,7 @@ contract RegressionTest is Test {
         address[] memory owners = IGnosisSafe(multisigTask.parentMultisig()).getOwners();
         for (uint256 i = 0; i < owners.length; i++) {
             string memory dataToSign =
-                vm.toString(multisigTask.getDataToSign(owners[i], multisigTask.generateApproveMulticallData()));
+                vm.toString(multisigTask.getDataToSign(owners[i], multisigTask.generateApproveMulticallData(actions)));
             // assert that the data to sign generated for child multisig in simulateRun is the same
             // as the expected data to sign
             assertEq(keccak256(bytes(dataToSign)), keccak256(bytes(expectedDataToSign[i])));
@@ -73,9 +72,10 @@ contract RegressionTest is Test {
             "0x174dea71000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000c6901f65369fc59fc1b4d6d6be7a2318ff38db5b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000044a1155ed9000000000000000000000000beb5fc579115071764c7423a4f12edde41f106ed000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000";
         vm.createSelectFork("mainnet", 21724199);
         MultisigTask multisigTask = new SetGameTypeTemplate();
-        multisigTask.simulateRun(taskConfigFilePath);
+        (, MultisigTask.Action[] memory actions) =
+            multisigTask.simulateRun(taskConfigFilePath);
 
-        string memory callData = vm.toString(multisigTask.getCalldata());
+        string memory callData = vm.toString(multisigTask.getCalldata(actions));
         // assert that the call data generated in simulateRun is the same as the expected call data
         assertEq(keccak256(bytes(callData)), keccak256(bytes(expectedCallData)));
 
@@ -83,7 +83,7 @@ contract RegressionTest is Test {
         string memory expectedDataToSign =
             "0x19014e6a6554de0308f5ece8ff736beed8a1b876d16f5c27cac8e466d7de0c70389084af4d0fecafda1f7bfcaf76684bbec959187b61160bdf1d1ab14045664fe412";
         string memory dataToSign =
-            vm.toString(multisigTask.getDataToSign(multisigTask.parentMultisig(), multisigTask.getCalldata()));
+            vm.toString(multisigTask.getDataToSign(multisigTask.parentMultisig(), multisigTask.getCalldata(actions)));
         // assert that the data to sign generated in simulateRun is the same as the expected data to sign
         assertEq(keccak256(bytes(dataToSign)), keccak256(bytes(expectedDataToSign)));
     }
@@ -95,9 +95,9 @@ contract RegressionTest is Test {
             "0x174dea71000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000229047fed2591dbec1ef1118d64f7af3db9eb2900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000024b40a817c000000000000000000000000000000000000000000000000000000000393870000000000000000000000000000000000000000000000000000000000";
         vm.createSelectFork("mainnet", 21724199);
         MultisigTask multisigTask = new GasConfigTemplate();
-        multisigTask.simulateRun(taskConfigFilePath);
+        (, MultisigTask.Action[] memory actions) = multisigTask.simulateRun(taskConfigFilePath);
 
-        string memory callData = vm.toString(multisigTask.getCalldata());
+        string memory callData = vm.toString(multisigTask.getCalldata(actions));
         // assert that the call data generated in simulateRun is the same as the expected call data
         assertEq(keccak256(bytes(callData)), keccak256(bytes(expectedCallData)));
 
@@ -105,7 +105,7 @@ contract RegressionTest is Test {
         string memory expectedDataToSign =
             "0x1901a4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672c98bc9c1761f2e403be0ad32b16d9c5fedf228f97eb0420c722b511129ebc803";
         string memory dataToSign =
-            vm.toString(multisigTask.getDataToSign(multisigTask.parentMultisig(), multisigTask.getCalldata()));
+            vm.toString(multisigTask.getDataToSign(multisigTask.parentMultisig(), multisigTask.getCalldata(actions)));
         // assert that the data to sign generated in simulateRun is the same as the expected data to sign
         assertEq(keccak256(bytes(dataToSign)), keccak256(bytes(expectedDataToSign)));
     }
@@ -117,9 +117,9 @@ contract RegressionTest is Test {
             "0x82ad56cb0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000005bc817c7c3f1a8dcaa01d229cbdeed9624c80e09000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000104ff2dd5a100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000034edd2a225f7f429a63e0f1d2084b9e0a93b538000000000000000000000000189abaaaa82dfc015a588a7dbad6f13b1d3485bc00000000000000000000000000000000000000000000000000000000000000400000000000000000000000005d63a8dc2737ce771aa4a6510d063b6ba2c4f6f2000000000000000000000000f7bc4b3a78c7dd8be9b69b3128eeb0d6776ce18a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
         vm.createSelectFork("sepolia", 7733622);
         MultisigTask multisigTask = new TestOPCMUpgradeVxyz();
-        multisigTask.simulateRun(taskConfigFilePath);
+        (, MultisigTask.Action[] memory actions) = multisigTask.simulateRun(taskConfigFilePath);
 
-        string memory callData = vm.toString(multisigTask.getCalldata());
+        string memory callData = vm.toString(multisigTask.getCalldata(actions));
         // assert that the call data generated in simulateRun is the same as the expected call data
         assertEq(keccak256(bytes(callData)), keccak256(bytes(expectedCallData)));
 
@@ -134,7 +134,7 @@ contract RegressionTest is Test {
         address[] memory owners = IGnosisSafe(multisigTask.parentMultisig()).getOwners();
         for (uint256 i = 0; i < owners.length; i++) {
             string memory dataToSign =
-                vm.toString(multisigTask.getDataToSign(owners[i], multisigTask.generateApproveMulticallData()));
+                vm.toString(multisigTask.getDataToSign(owners[i], multisigTask.generateApproveMulticallData(actions)));
             // assert that the data to sign generated for child multisig in simulateRun is the same
             // as the expected data to sign
             assertEq(keccak256(bytes(dataToSign)), keccak256(bytes(expectedDataToSign[i])));

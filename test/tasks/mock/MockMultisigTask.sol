@@ -56,15 +56,15 @@ contract MockMultisigTask is MultisigTask {
         assertEq(bytes32(uint256(uint160(newImplementation))), data, "Proxy implementation not set correctly");
     }
 
-    function addAction(
-        address target,
-        bytes memory data,
-        uint256 value,
-        Enum.Operation operation,
-        string memory description
-    ) public {
-        actions.push(Action(target, value, data, operation, description));
-    }
+    // function addAction(
+    //     address target,
+    //     bytes memory data,
+    //     uint256 value,
+    //     Enum.Operation operation,
+    //     string memory description
+    // ) public {
+    //     actions.push(Action(target, value, data, operation, description));
+    // }
 
     /// @notice no code exceptions for this template
     function getCodeExceptions() internal view virtual override returns (address[] memory) {}

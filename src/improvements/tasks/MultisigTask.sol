@@ -91,8 +91,8 @@ abstract contract MultisigTask is Test, Script {
     uint256 internal _startSnapshot;
 
     /// @notice list of actions to be executed, regardless of task type
-    /// they all follow the same structure
-    Action[] public actions;
+    // /// they all follow the same structure
+    // Action[] public actions;
 
     /// @notice Multicall3 call data struct
     /// @param target The address of the target contract
@@ -127,20 +127,20 @@ abstract contract MultisigTask is Test, Script {
     /// @dev set in _setMulticallAddress
     address public multicallTarget;
 
-    /// @notice buildModifier to be used by the build function to populate the
-    /// actions array
-    modifier buildModifier() {
-        require(parentMultisig != address(0), "Must set address registry for multisig address to be set");
+    // /// @notice buildModifier to be used by the build function to populate the
+    // /// actions array
+    // modifier buildModifier() {
+    //     require(parentMultisig != address(0), "Must set address registry for multisig address to be set");
 
-        require(!_buildStarted, "Build already started");
-        _buildStarted = true;
+    //     require(!_buildStarted, "Build already started");
+    //     _buildStarted = true;
 
-        _startBuild();
-        _;
-        _endBuild();
+    //     _startBuild();
+    //     _;
+    //     _endBuild();
 
-        _buildStarted = false;
-    }
+    //     _buildStarted = false;
+    // }
 
     /// @notice abstract function to be implemented by the inheriting contract
     /// specifies the safe address string to run the template from
@@ -158,18 +158,18 @@ abstract contract MultisigTask is Test, Script {
     /// @param taskConfigFilePath The path to the task configuration file.
     function simulateRun(string memory taskConfigFilePath, bytes memory signatures)
         public
-        returns (VmSafe.AccountAccess[] memory)
+        returns (VmSafe.AccountAccess[] memory, Action[] memory)
     {
         // sets safe to the safe specified by the current template from addresses.json
         _taskSetup(taskConfigFilePath);
 
         // now execute task actions
-        build();
-        VmSafe.AccountAccess[] memory accountAccesses = simulate(signatures);
-        validate(accountAccesses);
-        print();
+        Action[] memory actions = build();
+        VmSafe.AccountAccess[] memory accountAccesses = simulate(signatures, actions);
+        validate(accountAccesses, actions);
+        print(actions);
 
-        return accountAccesses;
+        return (accountAccesses, actions);
     }
 
     /// @notice Runs the task with the given configuration file path.
@@ -178,7 +178,10 @@ abstract contract MultisigTask is Test, Script {
     /// prints the data to sign and the hash to approve which is used to sign with the eip712sign binary.
     /// For nested multisig, prints the data to sign and the hash to approve for each of the child multisigs.
     /// @param taskConfigFilePath The path to the task configuration file.
-    function simulateRun(string memory taskConfigFilePath) public returns (VmSafe.AccountAccess[] memory) {
+    function simulateRun(string memory taskConfigFilePath)
+        public
+        returns (VmSafe.AccountAccess[] memory, Action[] memory)
+    {
         return simulateRun(taskConfigFilePath, "");
     }
 
@@ -195,16 +198,16 @@ abstract contract MultisigTask is Test, Script {
         _taskSetup(taskConfigFilePath);
 
         // gather mutative calls
-        build();
+        Action[] memory actions = build();
 
         // now execute task actions
-        VmSafe.AccountAccess[] memory accountAccesses = execute(signatures);
+        VmSafe.AccountAccess[] memory accountAccesses = execute(signatures, actions);
 
         // validate all state transitions
-        validate(accountAccesses);
+        validate(accountAccesses, actions);
 
         // print out results of execution
-        print();
+        print(actions);
 
         return accountAccesses;
     }
@@ -218,8 +221,8 @@ abstract contract MultisigTask is Test, Script {
         public
     {
         _taskSetup(taskConfigFilePath);
-        build();
-        approve(_childMultisig, signatures);
+        Action[] memory actions = build();
+        approve(_childMultisig, signatures, actions);
         console.log(
             "--------- Successfully %s Child Multisig %s Approval ---------",
             isBroadcastContext() ? "Broadcasted" : "Simulated",
@@ -323,9 +326,9 @@ abstract contract MultisigTask is Test, Script {
     /// @dev callable only after the build function has been run and the
     /// calldata has been loaded up to storage
     /// @return data The calldata to be executed
-    function getCalldata() public view virtual returns (bytes memory data) {
+    function getCalldata(Action[] memory actions) public view virtual returns (bytes memory data) {
         // get task actions
-        (address[] memory targets, uint256[] memory values, bytes[] memory arguments) = getTaskActions();
+        (address[] memory targets, uint256[] memory values, bytes[] memory arguments) = getTaskActions(actions);
 
         // create calls array with targets and arguments
         Call3Value[] memory calls = new Call3Value[](targets.length);
@@ -340,16 +343,16 @@ abstract contract MultisigTask is Test, Script {
     }
 
     /// @notice print the data to sig by EOA for single multisig
-    function printDataToSign() public view {
+    function printDataToSign(Action[] memory actions) public view {
         // logs required for using eip712sign binary to sign the data to sign with Ledger
         console.log("vvvvvvvv");
-        console.logBytes(getDataToSign(parentMultisig, getCalldata()));
+        console.logBytes(getDataToSign(parentMultisig, getCalldata(actions)));
         console.log("^^^^^^^^\n");
     }
 
     /// @notice print the hash to approve by EOA for single multisig
-    function printHashToApprove() public view {
-        console.logBytes32(getHash());
+    function printHashToApprove(Action[] memory actions) public view {
+        console.logBytes32(getHash(actions));
     }
 
     function _getNonce(address safe) internal view returns (uint256) {
@@ -376,9 +379,12 @@ abstract contract MultisigTask is Test, Script {
     }
 
     /// @notice simulate the task by approving from owners and then executing
-    function simulate(bytes memory _signatures) public returns (VmSafe.AccountAccess[] memory) {
-        bytes memory data = getCalldata();
-        bytes32 hash = getHash();
+    function simulate(bytes memory _signatures, Action[] memory actions)
+        public
+        returns (VmSafe.AccountAccess[] memory)
+    {
+        bytes memory data = getCalldata(actions);
+        bytes32 hash = getHash(actions);
         bytes memory signatures;
 
         // Approve the hash from each owner
@@ -413,8 +419,8 @@ abstract contract MultisigTask is Test, Script {
     /// @notice child multisig approves the task to be executed.
     /// @param _childMultisig The address of the child multisig that is approving the task.
     /// @param signatures The signatures to approve the task transaction hash.
-    function approve(address _childMultisig, bytes memory signatures) public {
-        bytes memory approveCalldata = generateApproveMulticallData();
+    function approve(address _childMultisig, bytes memory signatures, Action[] memory actions) public {
+        bytes memory approveCalldata = generateApproveMulticallData(actions);
         bytes32 hash = keccak256(getDataToSign(_childMultisig, approveCalldata));
         signatures = Signatures.prepareSignatures(_childMultisig, hash, signatures);
 
@@ -423,9 +429,9 @@ abstract contract MultisigTask is Test, Script {
 
     /// @notice Executes the task with the given signatures.
     /// @param signatures The signatures to execute the task.
-    function execute(bytes memory signatures) public returns (VmSafe.AccountAccess[] memory) {
-        bytes memory data = getCalldata();
-        bytes32 hash = getHash();
+    function execute(bytes memory signatures, Action[] memory actions) public returns (VmSafe.AccountAccess[] memory) {
+        bytes memory data = getCalldata(actions);
+        bytes32 hash = getHash(actions);
 
         if (signatures.length == 0) {
             // if no signatures are attached, this means we are dealing with a
@@ -497,7 +503,7 @@ abstract contract MultisigTask is Test, Script {
     ///          e.g. read state variables of the deployed contracts to make
     ///          sure they are deployed and initialized correctly, or read
     ///          states that are expected to have changed during the simulate step.
-    function validate(VmSafe.AccountAccess[] memory accountAccesses) public virtual {
+    function validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory) public virtual {
         // write all state changes to storage
         _processStateDiffChanges(accountAccesses);
 
@@ -543,9 +549,9 @@ abstract contract MultisigTask is Test, Script {
     /// @return targets The targets of the actions
     /// @return values The values of the actions
     /// @return arguments The arguments of the actions
-    function getTaskActions()
+    function getTaskActions(Action[] memory actions)
         public
-        view
+        pure
         returns (address[] memory targets, uint256[] memory values, bytes[] memory arguments)
     {
         uint256 actionsLength = actions.length;
@@ -578,7 +584,14 @@ abstract contract MultisigTask is Test, Script {
     /// @dev contract calls must be perfomed in plain solidity.
     ///      overriden requires using buildModifier modifier to leverage
     ///      foundry snapshot and state diff recording to populate the actions array.
-    function build() public buildModifier {
+    function build() public returns (Action[] memory actions) {
+        require(parentMultisig != address(0), "Must set address registry for multisig address to be set");
+
+        require(!_buildStarted, "Build already started");
+        _buildStarted = true;
+
+        _startBuild();
+
         _buildSingle();
 
         AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
@@ -586,10 +599,16 @@ abstract contract MultisigTask is Test, Script {
         for (uint256 i = 0; i < chains.length; i++) {
             _buildPerChain(chains[i].chainId);
         }
+
+        actions = _endBuild();
+
+        _buildStarted = false;
+
+        return actions;
     }
 
     /// @notice print task description, actions, transfers, state changes and EOAs datas to sign
-    function print() public view {
+    function print(Action[] memory actions) public view {
         console.log("\n------------------ Task Actions ------------------");
         for (uint256 i; i < actions.length; i++) {
             console.log("%d). %s", i + 1, actions[i].description);
@@ -653,45 +672,45 @@ abstract contract MultisigTask is Test, Script {
             }
         }
 
-        printSafe();
+        printSafe(actions);
     }
 
     /// @notice prints all relevant hashes to sign as well as the tenderly
     /// simulation link
-    function printSafe() private view {
+    function printSafe(Action[] memory actions) private view {
         // print calldata to be executed within the Safe
         console.log("\n\n------------------ Task Calldata ------------------");
-        console.logBytes(getCalldata());
+        console.logBytes(getCalldata(actions));
 
         if (isNestedSafe) {
-            printNestedData();
+            printNestedData(actions);
         } else {
-            printSingleData();
+            printSingleData(actions);
         }
 
         console.log("\n\n------------------ Tenderly Simulation Link ------------------");
-        printTenderlySimulationLink();
+        printTenderlySimulationLink(actions);
     }
 
     /// @notice helper function to print nested calldata
-    function printNestedData() private view {
+    function printNestedData(Action[] memory actions) private view {
         console.log("\n\n------------------ Nested Multisig EOAs Data to Sign ------------------");
-        printNestedDataToSign();
+        printNestedDataToSign(actions);
         console.log("\n\n------------------ Nested Multisig EOAs Hash to Approve ------------------");
-        printNestedHashToApprove();
+        printNestedHashToApprove(actions);
     }
 
     /// @notice helper function to print non-nested safe calldata
-    function printSingleData() private view {
+    function printSingleData(Action[] memory actions) private view {
         console.log("\n\n------------------ Single Multisig EOA Data to Sign ------------------");
-        printDataToSign();
+        printDataToSign(actions);
         console.log("\n\n------------------ Single Multisig EOA Hash to Approve ------------------");
-        printHashToApprove();
+        printHashToApprove(actions);
     }
 
     /// @notice print the data to sign by EOA for nested multisig
-    function printNestedDataToSign() public view {
-        bytes memory callData = generateApproveMulticallData();
+    function printNestedDataToSign(Action[] memory actions) public view {
+        bytes memory callData = generateApproveMulticallData(actions);
 
         // this branch means the function `signFromChildMultisig` is being called
         if (childMultisig != address(0)) {
@@ -714,8 +733,8 @@ abstract contract MultisigTask is Test, Script {
     }
 
     /// @notice print the hash to approve by EOA for nested multisig
-    function printNestedHashToApprove() public view {
-        bytes memory callData = generateApproveMulticallData();
+    function printNestedHashToApprove(Action[] memory actions) public view {
+        bytes memory callData = generateApproveMulticallData(actions);
 
         // this branch means the function `signFromChildMultisig` is being called
         if (childMultisig != address(0)) {
@@ -738,25 +757,26 @@ abstract contract MultisigTask is Test, Script {
     }
 
     /// @notice print the tenderly simulation link with the state overrides
-    function printTenderlySimulationLink() internal view {
+    function printTenderlySimulationLink(Action[] memory actions) internal view {
         Simulation.StateOverride[] memory overrides = new Simulation.StateOverride[](1);
         overrides[0] =
             Simulation.overrideSafeThresholdOwnerAndNonce(parentMultisig, msg.sender, _getNonce(parentMultisig));
-        bytes memory txData =
-            _execTransationCalldata(parentMultisig, getCalldata(), Signatures.genPrevalidatedSignature(msg.sender));
+        bytes memory txData = _execTransationCalldata(
+            parentMultisig, getCalldata(actions), Signatures.genPrevalidatedSignature(msg.sender)
+        );
         Simulation.logSimulationLink({_to: parentMultisig, _data: txData, _from: msg.sender, _overrides: overrides});
     }
 
     /// @notice get the hash for this safe transaction
     /// can only be called after the build function, otherwise it reverts
-    function getHash() public view returns (bytes32) {
-        bytes memory data = getCalldata();
+    function getHash(Action[] memory actions) public view returns (bytes32) {
+        bytes memory data = getCalldata(actions);
         return keccak256(getDataToSign(parentMultisig, data));
     }
 
     /// @notice helper function to generate the approveHash calldata to be executed by child multisig owner on parent multisig
-    function generateApproveMulticallData() public view returns (bytes memory) {
-        bytes32 hash = getHash();
+    function generateApproveMulticallData(Action[] memory actions) public view returns (bytes memory) {
+        bytes32 hash = getHash(actions);
         Call3Value memory call = Call3Value({
             target: parentMultisig,
             allowFailure: false,
@@ -829,7 +849,7 @@ abstract contract MultisigTask is Test, Script {
 
     /// @notice validate actions inclusion
     /// default implementation check for duplicate actions
-    function _validateAction(address target, uint256 value, bytes memory data) internal view {
+    function _validateAction(address target, uint256 value, bytes memory data, Action[] memory actions) internal pure {
         uint256 actionsLength = actions.length;
         for (uint256 i = 0; i < actionsLength; i++) {
             // Check if the target, arguments and value matches with other existing actions.
@@ -924,85 +944,101 @@ abstract contract MultisigTask is Test, Script {
     /// the actions performed by the task and revert these changes
     /// then, stop the prank and record the state diffs and actions that
     /// were taken by the task.
-    function _endBuild() private {
-        VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
-
+    function _endBuild() private returns (Action[] memory) {
+        VmSafe.AccountAccess[] memory accesses = vm.stopAndReturnStateDiff();
         vm.stopPrank();
 
-        // roll back all state changes made during the task
+        // Roll back state changes.
         require(
             vm.revertTo(_startSnapshot), "MultisigTask: failed to revert back to snapshot, unsafe state to run task"
         );
+        require(accesses.length > 0, "MultisigTask: no account accesses found");
 
-        // there should be at least one account access
-        require(accountAccesses.length > 0, "MultisigTask: no account accesses found");
+        uint256 topLevelDepth = accesses[0].depth;
 
-        // get the minimum depth of the calls, we only care about the top level calls
-        // this is to avoid counting subcalls as actions.
-        // the account accesses are in order of the calls, so the first one is always the top level call
-        uint256 topLevelDepth = accountAccesses[0].depth;
-
-        for (uint256 i = 0; i < accountAccesses.length; i++) {
-            // store all gnosis safe storage accesses that are writes
-            for (uint256 j = 0; j < accountAccesses[i].storageAccesses.length; j++) {
-                if (accountAccesses[i].account == parentMultisig && accountAccesses[i].storageAccesses[j].isWrite) {
-                    _accountAccesses.push(accountAccesses[i].storageAccesses[j]);
+        // First pass: count valid actions.
+        uint256 validCount = 0;
+        for (uint256 i = 0; i < accesses.length; i++) {
+            // Record storage accesses if applicable.
+            for (uint256 j = 0; j < accesses[i].storageAccesses.length; j++) {
+                if (accesses[i].account == parentMultisig && accesses[i].storageAccesses[j].isWrite) {
+                    _accountAccesses.push(accesses[i].storageAccesses[j]);
                 }
             }
-
-            // calls to and from AddressRegistry and the vm contract are ignored
-            bool accountIsNotAddressRegistryOrVm =
-                accountAccesses[i].account != address(addrRegistry) && accountAccesses[i].account != address(vm);
-            bool accessorIsNotAddressRegistry = accountAccesses[i].accessor != address(addrRegistry);
-            // only care about calls or top leveldelegate calls from the multisig, static calls are ignored
-            bool isCall = accountAccesses[i].kind == VmSafe.AccountAccessKind.Call;
-            bool isTopLevelDelegateCall = accountAccesses[i].kind == VmSafe.AccountAccessKind.DelegateCall
-                && accountAccesses[i].depth == topLevelDepth;
-            // only record actions from the parent multisig
-            bool accessorIsParentMultisig = accountAccesses[i].accessor == parentMultisig;
-
-            if (
-                accountIsNotAddressRegistryOrVm && accessorIsNotAddressRegistry && (isCall || isTopLevelDelegateCall)
-                    && accessorIsParentMultisig
-            ) {
-                // caller is multisig, not a subcall, check that this action is not duplicated
-                _validateAction(accountAccesses[i].account, accountAccesses[i].value, accountAccesses[i].data);
-
-                string memory operationStr;
-                Enum.Operation operation;
-                if (accountAccesses[i].kind == VmSafe.AccountAccessKind.Call) {
-                    operationStr = "Call";
-                    operation = Enum.Operation.Call;
-                } else if (accountAccesses[i].kind == VmSafe.AccountAccessKind.DelegateCall) {
-                    operationStr = "DelegateCall";
-                    operation = Enum.Operation.DelegateCall;
-                } else {
-                    revert("Unknown account access kind");
-                }
-
-                string memory description = string(
-                    abi.encodePacked(
-                        operationStr,
-                        " ",
-                        getAddressLabel(accountAccesses[i].account),
-                        " with ",
-                        vm.toString(accountAccesses[i].value),
-                        " eth and ",
-                        vm.toString(accountAccesses[i].data),
-                        " data."
-                    )
-                );
-
-                actions.push(
-                    Action({
-                        value: accountAccesses[i].value,
-                        target: accountAccesses[i].account,
-                        arguments: accountAccesses[i].data,
-                        operation: operation,
-                        description: description
-                    })
-                );
+            if (_isValidAccess(accesses[i], topLevelDepth)) {
+                validCount++;
             }
+        }
+
+        // Allocate a memory array with exactly enough room.
+        Action[] memory validActions = new Action[](validCount);
+        uint256 index = 0;
+        for (uint256 i = 0; i < accesses.length; i++) {
+            if (_isValidAccess(accesses[i], topLevelDepth)) {
+                // Ensure action uniqueness.
+                _validateAction(accesses[i].account, accesses[i].value, accesses[i].data, validActions);
+
+                (string memory opStr, Enum.Operation op) = _getOperationDetails(accesses[i].kind);
+                string memory desc = _composeDescription(accesses[i], opStr);
+
+                validActions[index] = Action({
+                    value: accesses[i].value,
+                    target: accesses[i].account,
+                    arguments: accesses[i].data,
+                    operation: op,
+                    description: desc
+                });
+                index++;
+            }
+        }
+
+        return validActions;
+    }
+
+    /// @dev Returns true if the given account access should be recorded as an action.
+    function _isValidAccess(VmSafe.AccountAccess memory access, uint256 topLevelDepth) internal view returns (bool) {
+        bool accountNotRegistryOrVm = (access.account != address(addrRegistry) && access.account != address(vm));
+        bool accessorNotRegistry = access.accessor != address(addrRegistry);
+        bool isCall = access.kind == VmSafe.AccountAccessKind.Call;
+        bool isTopLevelDelegateCall =
+            (access.kind == VmSafe.AccountAccessKind.DelegateCall && access.depth == topLevelDepth);
+        bool accessorIsParent = (access.accessor == parentMultisig);
+        return accountNotRegistryOrVm && accessorNotRegistry && (isCall || isTopLevelDelegateCall) && accessorIsParent;
+    }
+
+    /// @dev Composes a description string for the given access using the provided operation string.
+    function _composeDescription(VmSafe.AccountAccess memory access, string memory opStr)
+        internal
+        view
+        returns (string memory)
+    {
+        return string(
+            abi.encodePacked(
+                opStr,
+                " ",
+                getAddressLabel(access.account),
+                " with ",
+                vm.toString(access.value),
+                " eth and ",
+                vm.toString(access.data),
+                " data."
+            )
+        );
+    }
+
+    function _getOperationDetails(VmSafe.AccountAccessKind kind)
+        private
+        pure
+        returns (string memory opStr, Enum.Operation op)
+    {
+        if (kind == VmSafe.AccountAccessKind.Call) {
+            opStr = "Call";
+            op = Enum.Operation.Call;
+        } else if (kind == VmSafe.AccountAccessKind.DelegateCall) {
+            opStr = "DelegateCall";
+            op = Enum.Operation.DelegateCall;
+        } else {
+            revert("Unknown account access kind");
         }
     }
 
