@@ -18,16 +18,17 @@ contract MockContract {
 /// @notice Library to expose the internal functions, to avoid tests stopping after hitting an expected revert.
 /// https://book.getfoundry.sh/cheatcodes/expect-revert
 library BytecodeComparisonHarness {
-
     function compare(address _contractA, address _contractB, BytecodeComparison.Diff[] memory _allowed)
-        external view
+        external
+        view
         returns (bool)
     {
         return BytecodeComparison.compare(_contractA, _contractB, _allowed);
     }
 
     function compare(bytes memory _bytecodeA, bytes memory _bytecodeB, BytecodeComparison.Diff[] memory _allowed)
-        external pure
+        external
+        pure
         returns (bool)
     {
         return BytecodeComparison.compare(_bytecodeA, _bytecodeB, _allowed);
