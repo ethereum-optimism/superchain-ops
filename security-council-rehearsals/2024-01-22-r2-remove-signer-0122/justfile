@@ -16,9 +16,16 @@ simulate hdPath='0':
   else
     signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   fi
+  
+  root_dir=$(git rev-parse --show-toplevel)
+  if [ "${FOUNDRY_PROFILE}" == "ci" ]; then
+    ETH_RPC_URL=$(yq eval ".profile.ci.rpc_endpoints.mainnet" "${root_dir}/foundry.toml")
+    export ETH_RPC_URL
+  fi
+  echo "RPC URL: ${ETH_RPC_URL}"
+
   echo "Simulating with: ${signer}"
   echo ""
-  echo "RPC URL: ${rpcUrl}"
   forge build
   forge script SignFromJson \
     --rpc-url ${rpcUrl} \

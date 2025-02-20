@@ -38,7 +38,16 @@ simulate whichSafe hdPath='0':
   fi
   signer=$(cast call ${safe} "getOwners()(address[])" -r ${rpcUrl} | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
 
-  echo "RPC URL: ${rpcUrl}"
+  root_dir=$(git rev-parse --show-toplevel)
+  if [ "${FOUNDRY_PROFILE}" == "ci" ]; then
+    if [[ "${rpcUrl}" == *"sep"* ]]; then
+      ETH_RPC_URL=$(yq eval ".profile.ci.rpc_endpoints.sepolia" "${root_dir}/foundry.toml")
+    else
+      ETH_RPC_URL=$(yq eval ".profile.ci.rpc_endpoints.mainnet" "${root_dir}/foundry.toml")
+    fi
+    export ETH_RPC_URL
+  fi
+  echo "RPC URL: ${ETH_RPC_URL}"
 
   echo "safe: $safe"
   echo "Simulating call to {{whichSafe}} at ${safe}"
