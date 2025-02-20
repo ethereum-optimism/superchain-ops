@@ -178,7 +178,9 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
     /// @notice Checks that the FaultDisputeGame was handled correctly.
     function checkFaultDisputeGame() internal view {
         // Check that the FaultDisputeGame version is correct.
-        require(LibString.eq(expectedFaultDisputeGameImpl.version(), "1.3.1"), "checkFaultDisputeGame-21");
+        require(LibString.eq(expectedFaultDisputeGameImpl.version(), standardVersions.FaultDisputeGame.version), "checkFaultDisputeGame-21");
+        require(LibString.eq(expectedPermissionedDelayedWETHProxy.version(), standardVersions.DelayedWETH.version), "checkPermissionedDelayedWETH-22");
+        require(LibString.eq(expectedDelayedWETHProxy.version(), standardVersions.DelayedWETH.version), "checkDelayedWETH-23");
 
         // Check that only bytecode diffs vs comparison contract are expected.
         BytecodeComparison.Diff[] memory diffs = new BytecodeComparison.Diff[](12);
