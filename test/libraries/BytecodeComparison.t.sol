@@ -15,6 +15,25 @@ contract MockContract {
     }
 }
 
+/// @notice Library to expose the internal functions, to avoid tests stopping after hitting an expected revert.
+/// https://book.getfoundry.sh/cheatcodes/expect-revert
+library BytecodeComparisonHarness {
+
+    function compare(address _contractA, address _contractB, BytecodeComparison.Diff[] memory _allowed)
+        external view
+        returns (bool)
+    {
+        return BytecodeComparison.compare(_contractA, _contractB, _allowed);
+    }
+
+    function compare(bytes memory _bytecodeA, bytes memory _bytecodeB, BytecodeComparison.Diff[] memory _allowed)
+        external pure
+        returns (bool)
+    {
+        return BytecodeComparison.compare(_bytecodeA, _bytecodeB, _allowed);
+    }
+}
+
 contract VeryDifferentContract {
     bytes public constant WOW =
         hex"00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF";
@@ -32,14 +51,13 @@ contract BytecodeComparison_compare_Test is Test {
     }
 
     /// @notice Test that different contracts with different bytecode lengths revert.
-    /// forge-config: default.allow_internal_expect_revert = true
     function test_differentBytecode_reverts() public {
         MockContract contractA = new MockContract(100);
         VeryDifferentContract contractB = new VeryDifferentContract();
 
         BytecodeComparison.Diff[] memory allowed = new BytecodeComparison.Diff[](0);
         vm.expectRevert("BytecodeComparison: diff in bytecode length");
-        BytecodeComparison.compare(address(contractA), address(contractB), allowed);
+        BytecodeComparisonHarness.compare(address(contractA), address(contractB), allowed);
     }
 
     /// @notice Test that a single allowed diff matches.
@@ -56,7 +74,6 @@ contract BytecodeComparison_compare_Test is Test {
     }
 
     /// @notice Test that an unallowed diff reverts.
-    /// forge-config: default.allow_internal_expect_revert = true
     function test_unallowedDiff_reverts() public {
         bytes memory bytecodeA = hex"0011223344556677";
         bytes memory bytecodeB = hex"0011FF3344556677";
@@ -64,7 +81,7 @@ contract BytecodeComparison_compare_Test is Test {
         BytecodeComparison.Diff[] memory allowed = new BytecodeComparison.Diff[](0);
 
         vm.expectRevert("BytecodeComparison: unexpected diff found at index:2, byte:0xff");
-        BytecodeComparison.compare(bytecodeA, bytecodeB, allowed);
+        BytecodeComparisonHarness.compare(bytecodeA, bytecodeB, allowed);
     }
 
     /// @notice Test that multiple allowed diffs match.
@@ -93,7 +110,6 @@ contract BytecodeComparison_compare_Test is Test {
     }
 
     /// @notice Test that a wrong diff position reverts.
-    /// forge-config: default.allow_internal_expect_revert = true
     function test_wrongDiffPosition_reverts() public {
         bytes memory bytecodeA = hex"0011223344556677";
         bytes memory bytecodeB = hex"0011FF3344556677";
@@ -105,11 +121,10 @@ contract BytecodeComparison_compare_Test is Test {
         });
 
         vm.expectRevert("BytecodeComparison: unexpected diff found at index:2, byte:0xff");
-        BytecodeComparison.compare(bytecodeA, bytecodeB, allowed);
+        BytecodeComparisonHarness.compare(bytecodeA, bytecodeB, allowed);
     }
 
     /// @notice Test that a wrong diff content reverts.
-    /// forge-config: default.allow_internal_expect_revert = true
     function test_wrongDiffContent_reverts() public {
         bytes memory bytecodeA = hex"0011223344556677";
         bytes memory bytecodeB = hex"0011FF3344556677";
@@ -121,6 +136,6 @@ contract BytecodeComparison_compare_Test is Test {
         });
 
         vm.expectRevert("BytecodeComparison: unexpected diff found at index:2, byte:0xff");
-        BytecodeComparison.compare(bytecodeA, bytecodeB, allowed);
+        BytecodeComparisonHarness.compare(bytecodeA, bytecodeB, allowed);
     }
 }
