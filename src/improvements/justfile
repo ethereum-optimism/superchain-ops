@@ -107,6 +107,7 @@ simulate-all-templates:
     root_dir=$(git rev-parse --show-toplevel)
     nested_just_file="${root_dir}/src/improvements/nested.just"
     single_just_file="${root_dir}/src/improvements/single.just"
+    forge build
 
     simulation_count=0
     
