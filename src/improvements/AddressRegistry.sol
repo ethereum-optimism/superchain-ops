@@ -62,6 +62,15 @@ contract AddressRegistry is Test {
         ChainInfo chainInfo;
     }
 
+    /// @notice Structure used to read in the following hardcoded addresses:
+    ///    - Foundation Upgrade Safe
+    ///    - Foundation Operation Safe
+    ///    - Security Council
+    struct HardcodedAddress {
+        address addr;
+        string identifier;
+    }
+
     /// @notice Maps an identifier and l2 instance chain ID to a stored address entry.
     /// All addresses will live on the same chain.
     mapping(string => mapping(uint256 => RegistryEntry)) private registry;
@@ -74,6 +83,16 @@ contract AddressRegistry is Test {
 
     /// @notice Array of supported chains and their configurations
     ChainInfo[] public chains;
+
+    /// @notice loads hardcoded foundation and security council addresses from
+    /// addresses.toml file
+    function _loadHardcodedAddresses(string memory chainKey, ChainInfo memory chain) internal {
+        HardcodedAddress[] memory hardcodedAddresses =
+            abi.decode(vm.parseToml(vm.readFile("./src/improvements/addresses.toml"), chainKey), (HardcodedAddress[]));
+        for (uint256 i = 0; i < hardcodedAddresses.length; i++) {
+            saveAddress(hardcodedAddresses[i].identifier, chain, hardcodedAddresses[i].addr);
+        }
+    }
 
     /// @notice Initializes the contract by loading addresses from TOML files
     /// and configuring the supported L2 chains.
@@ -111,6 +130,10 @@ contract AddressRegistry is Test {
             supportedL2ChainIds[chains[i].chainId] = true;
 
             _processAddresses(chains[i], chainAddressesContent);
+
+            _loadHardcodedAddresses(
+                block.chainid == getChain("mainnet").chainId ? ".mainnetAddresses" : ".testnetAddresses", chains[i]
+            );
         }
     }
 
