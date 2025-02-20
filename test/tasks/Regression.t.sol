@@ -7,8 +7,9 @@ import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {GasConfigTemplate} from "src/improvements/template/GasConfigTemplate.sol";
 import {SetGameTypeTemplate} from "src/improvements/template/SetGameTypeTemplate.sol";
-import {DisputeGameUpgradeTemplate} from "src/improvements/template/DisputeGameUpgradeTemplate.sol";
 import {TestOPCMUpgradeVxyz} from "src/improvements/template/TestOPCMUpgradeVxyz.sol";
+import {DisputeGameUpgradeTemplate} from "src/improvements/template/DisputeGameUpgradeTemplate.sol";
+import {EnableDeputyPauseModuleTemplate} from "src/improvements/template/EnableDeputyPauseModuleTemplate.sol";
 
 /// @notice test that the call data and data to sign generated in simulateRun for the multisigs
 /// are always the same. This means that if there were any bug introduced in the multisig task, or opcm base task,
@@ -107,6 +108,24 @@ contract RegressionTest is Test {
         string memory dataToSign =
             vm.toString(multisigTask.getDataToSign(multisigTask.parentMultisig(), multisigTask.getCalldata()));
         // assert that the data to sign generated in simulateRun is the same as the expected data to sign
+        assertEq(keccak256(bytes(dataToSign)), keccak256(bytes(expectedDataToSign)));
+    }
+
+    function testRegressionCallDataMatches_EnableDeputyPauseModuleTemplate() public {
+        string memory taskConfigFilePath = "test/tasks/mock/configs/EnableDeputyPauseModuleTemplate.toml";
+        string memory expectedCallData =
+            "0x174dea71000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000837de453ad5f21e89771e3c06239d8236c0efd5e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000024610b592500000000000000000000000062f3972c56733ab078f0764d2414dfcaa99d574c00000000000000000000000000000000000000000000000000000000";
+        vm.createSelectFork("sepolia", 7745524);
+        MultisigTask multisigTask = new EnableDeputyPauseModuleTemplate();
+        multisigTask.simulateRun(taskConfigFilePath);
+
+        string memory callData = vm.toString(multisigTask.getCalldata());
+        assertEq(keccak256(bytes(callData)), keccak256(bytes(expectedCallData)));
+
+        string memory expectedDataToSign =
+            "0x1901e84ad8db37faa1651b140c17c70e4c48eaa47a635e0db097ddf4ce1cc14b9ecbf55e2ed894ddff4c0045537c8239db1c4b3ac5700049164b5823ecaa045d7334";
+        string memory dataToSign =
+            vm.toString(multisigTask.getDataToSign(multisigTask.parentMultisig(), multisigTask.getCalldata()));
         assertEq(keccak256(bytes(dataToSign)), keccak256(bytes(expectedDataToSign)));
     }
 
