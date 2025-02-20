@@ -13,6 +13,13 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ### `0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3` (`SystemConfigProxy`)
 
+- **Key**: `0x0000000000000000000000000000000000000000000000000000000000000068`
+  **Before**: `0x0000000000000000000000000000000000000000000000000000000001c9c380`
+  **After**: `0x0000000000000000000000000000000000177fef000026080000000001c9c380`
+  **Meaning**: Updates the basefeeScalar and blobbasefeeScalar storage variables to 9736 (cast td 0x00002608) and 1540079 (cast td 0x00177fef) respectively. These share a slot with the gasLimit which remains at 30000000 (cast td 0x0000000001c9c380).
+
+and
+
 - **Key**: `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   **Before**: `0x000000000000000000000000f56d96b2535b932656d3c04ebf51babff241d886`
   **After**: `0x000000000000000000000000ab9d6cb7a427c0765163a7f45bb91cafe5f2d375`
