@@ -13,9 +13,11 @@ isNestedSafe() {
     template_name="$(yq -r '.templateName' "$config_file_path")"
     echo "Template name: $template_name"
     
-    local get_first_l2_chain_id
-    get_first_l2_chain_id="$(yq -r '.l2chains[0].chainId' "$config_file_path")"
-    echo "L2 chain id: $get_first_l2_chain_id"
+    # Opting to only get the first L2 chain id and assume all L2 chains have the same safeAddressString value.
+    # It's not the job of this script to validate the config file.
+    local l2_chain_id
+    l2_chain_id="$(yq -r '.l2chains[0].chainId' "$config_file_path")"
+    echo "L2 chain id: $l2_chain_id"
 
     # Get the safeAddressString from the template
     local safe_address_string
@@ -28,7 +30,7 @@ isNestedSafe() {
     local addresses_json
     addresses_json="$(curl -sL "$remote_url")"
     local owner_address
-    owner_address="$(jq -r ".[\"$get_first_l2_chain_id\"].\"$safe_address_string\"" <<< "$addresses_json")"
+    owner_address="$(jq -r ".[\"$l2_chain_id\"].\"$safe_address_string\"" <<< "$addresses_json")"
     echo "$safe_address_string: $owner_address"
 
     local contract_signer_count=0
