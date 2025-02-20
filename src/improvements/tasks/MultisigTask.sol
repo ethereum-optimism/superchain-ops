@@ -318,7 +318,7 @@ abstract contract MultisigTask is Test, Script {
     }
 
     /// @notice print the data to sig by EOA for single multisig
-    function printDataToSign(Action[] memory actions) public view {
+    function printEncodedTransactionData(Action[] memory actions) public view {
         // logs required for using eip712sign binary to sign the data to sign with Ledger
         console.log("vvvvvvvv");
         console.logBytes(getEncodedTransactionData(parentMultisig, getMulticall3Calldata(actions)));
@@ -678,7 +678,7 @@ abstract contract MultisigTask is Test, Script {
     /// @notice helper function to print non-nested safe calldata
     function printSingleData(Action[] memory actions) private view {
         console.log("\n\n------------------ Single Multisig EOA Data to Sign ------------------");
-        printDataToSign(actions);
+        printEncodedTransactionData(actions);
         console.log("\n\n------------------ Single Multisig EOA Hash to Approve ------------------");
         printParentHash(getMulticall3Calldata(actions));
     }
