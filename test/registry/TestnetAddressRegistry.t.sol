@@ -4,33 +4,24 @@ pragma solidity 0.8.15;
 import {Test} from "forge-std/Test.sol";
 import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
-contract MainnetAddressRegistryTest is Test {
+contract TestnetAddressRegistryTest is Test {
     AddressRegistry private addresses;
 
-    uint256 public metalChainId;
-    uint256 public baseChainId;
-    uint256 public opMainnetChainId;
-    uint256 public zoraChainId;
-    uint256 public modeChainId;
+    uint256 public opSepoliaChainId;
+    uint256 public metalSepoliaChainId;
 
     function setUp() public {
-        string memory networkConfigFilePath = "test/tasks/mock/configs/DiscoverChainAddressesConfig.toml";
+        string memory networkConfigFilePath = "test/tasks/mock/configs/DiscoverChainAddressesTestnetConfig.toml";
 
-        vm.createSelectFork("mainnet");
+        vm.createSelectFork("sepolia");
 
         addresses = new AddressRegistry(networkConfigFilePath);
-        metalChainId = getChain("metal").chainId;
-        baseChainId = getChain("base").chainId;
-        opMainnetChainId = getChain("optimism").chainId;
-        zoraChainId = getChain("zora").chainId;
-        modeChainId = getChain("mode").chainId;
+        opSepoliaChainId = getChain("optimism_sepolia").chainId;
+        metalSepoliaChainId = getChain("metal_sepolia").chainId;
     }
 
     function testContractState() public view {
-        assertTrue(addresses.supportedL2ChainIds(metalChainId), "Metal chain ID not supported");
-        assertTrue(addresses.supportedL2ChainIds(baseChainId), "Base chain ID not supported");
-        assertTrue(addresses.supportedL2ChainIds(opMainnetChainId), "OP Mainnet chain ID not supported");
-        assertTrue(addresses.supportedL2ChainIds(zoraChainId), "Zora chain ID not supported");
+        assertTrue(addresses.supportedL2ChainIds(opSepoliaChainId), "Op Sepolia chain ID not supported");
     }
 
     function testSuperchainAddressesLoaded() public view {
@@ -180,17 +171,17 @@ contract MainnetAddressRegistryTest is Test {
 
             assertEq(
                 addresses.getAddress("FoundationUpgradeSafe", chainId),
-                0x847B5c174615B1B7fDF770882256e2D3E95b9D92,
+                0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B,
                 "FoundationUpgradeSafe not properly loaded"
             );
             assertEq(
                 addresses.getAddress("FoundationOperationSafe", chainId),
-                0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A,
+                0x837DE453AD5F21E89771e3c06239d8236c0EFd5E,
                 "FoundationOperationSafe not properly loaded"
             );
             assertEq(
                 addresses.getAddress("SecurityCouncil", chainId),
-                0xc2819DC788505Aac350142A7A707BF9D03E3Bd03,
+                0xf64bc17485f0B4Ea5F06A96514182FC4cB561977,
                 "SecurityCouncil not properly loaded"
             );
         }
@@ -203,7 +194,7 @@ contract MainnetAddressRegistryTest is Test {
 
     function testGetNonExistentAddressFails() public {
         vm.expectRevert("Address not found");
-        addresses.getAddress("NON_EXISTENT_ADDRESS", opMainnetChainId);
+        addresses.getAddress("NON_EXISTENT_ADDRESS", opSepoliaChainId);
     }
 
     function testGetNonExistentAddressInfoFails() public {
@@ -217,8 +208,8 @@ contract MainnetAddressRegistryTest is Test {
     }
 
     function testGetIsAddressContractNonExistentAddressFails() public {
-        vm.expectRevert("Address not found for identifier NON_EXISTENT_ADDRESS on chain 34443");
-        addresses.isAddressContract("NON_EXISTENT_ADDRESS", modeChainId);
+        vm.expectRevert("Address not found for identifier NON_EXISTENT_ADDRESS on chain 11155420");
+        addresses.isAddressContract("NON_EXISTENT_ADDRESS", opSepoliaChainId);
     }
 
     /// Construction failure tests

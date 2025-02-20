@@ -208,7 +208,7 @@ contract MultisigTaskUnitTest is Test {
     function testSimulateFailsTxAlreadyExecuted() public {
         VmSafe.AccountAccess[] memory accountAccesses = testRun();
 
-        vm.expectRevert("GS025");
+        vm.expectRevert("MultisigTask: execute failed");
         task.simulate("");
 
         /// validations should pass after a successful run
