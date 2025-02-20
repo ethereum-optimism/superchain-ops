@@ -97,7 +97,7 @@ contract AddressRegistry is Test {
     /// @notice Initializes the contract by loading addresses from TOML files
     /// and configuring the supported L2 chains.
     /// @param networkConfigFilePath the path to the TOML file containing the network configuration(s)
-    constructor(string memory networkConfigFilePath, boolean localDiscovery) {
+    constructor(string memory networkConfigFilePath) {
         require(
             block.chainid == getChain("mainnet").chainId || block.chainid == getChain("sepolia").chainId,
             "Unsupported network"
