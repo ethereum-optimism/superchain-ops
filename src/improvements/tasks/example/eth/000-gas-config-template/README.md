@@ -1,4 +1,4 @@
-# 000-initial-example-task: Delete this once we have real tasks to run
+# 000-gas-config-template: Delete this once we have real tasks to run
 
 Status: [DRAFT]()
 

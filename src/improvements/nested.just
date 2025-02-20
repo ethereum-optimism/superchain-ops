@@ -41,6 +41,8 @@ simulate whichSafe hdPath='0':
     exit 1
   fi
 
+  echo "RPC URL: ${rpcUrl}"
+
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
 

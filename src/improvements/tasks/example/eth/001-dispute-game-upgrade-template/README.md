@@ -1,4 +1,4 @@
-# 000-initial-example-task: Delete this once we have real tasks to run
+# dispute-game-upgrade-template: Delete this once we have real tasks to run
 
 Status: [DRAFT]()
 

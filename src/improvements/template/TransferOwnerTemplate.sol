@@ -13,9 +13,9 @@ contract TransferOwnerTemplate is MultisigTask {
     address public newOwner;
 
     /// @notice Returns the safe address string identifier
-    /// @return The string "SystemConfigOwner"
+    /// @return The string "ProxyAdminOwner"
     function safeAddressString() public pure override returns (string memory) {
-        return "SystemConfigOwner";
+        return "ProxyAdminOwner";
     }
 
     /// @notice Returns the storage write permissions required for this task

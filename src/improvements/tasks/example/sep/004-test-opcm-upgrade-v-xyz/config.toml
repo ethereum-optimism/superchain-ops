@@ -1,0 +1,6 @@
+l2chains = [{name = "OP Sepolia Testnet", chainId = 11155420}]
+
+templateName = "TestOPCMUpgradeVxyz"
+
+[opcmUpgrades]
+opcmPrestates = [{chainId = 11155420, prestate = "0xabcd"}]

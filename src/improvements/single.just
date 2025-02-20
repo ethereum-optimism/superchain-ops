@@ -20,6 +20,8 @@ simulate hdPath='0':
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
 
+  echo "RPC URL: ${rpcUrl}"
+
   echo "Using script ${script}"
   echo ""
 

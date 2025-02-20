@@ -26,6 +26,17 @@ simulate hdPath='0':
   echo "Simulating with: ${signer}"
   echo ""
 
+  root_dir=$(git rev-parse --show-toplevel)
+  if [ "${FOUNDRY_PROFILE}" == "ci" ]; then
+    if [[ "${rpcUrl}" == *"sep"* ]]; then
+      ETH_RPC_URL=$(yq eval ".profile.ci.rpc_endpoints.sepolia" "${root_dir}/foundry.toml")
+    else
+      ETH_RPC_URL=$(yq eval ".profile.ci.rpc_endpoints.mainnet" "${root_dir}/foundry.toml")
+    fi
+    export ETH_RPC_URL
+  fi
+  echo "RPC URL: ${ETH_RPC_URL}"
+
   forge build
   forge script ${script} \
     --rpc-url ${rpcUrl} \
