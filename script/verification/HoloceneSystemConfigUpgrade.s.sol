@@ -97,6 +97,16 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry, VerificationBase {
         checkBaseSysCfgVars();
     }
 
+    /// @notice Public function that must be called by the verification script when the EIP1559 `_gasLimit` is overriden.
+    function checkSystemConfigUpgradeWithPreviousGasLimitOverride(uint256 previousGasLimitOverride) public view {
+        checkTargetVersion();
+        checkScalar();
+        checkDGF();
+        checkGasPayingToken();
+
+        checkBaseSysCfgVarsWithGasLimitOverride(previousGasLimitOverride);
+    }
+
     function _addCodeExceptions() internal {
         if (previous.owner.code.length == 0) {
             addCodeException(previous.owner);
@@ -179,6 +189,16 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry, VerificationBase {
     function checkBaseSysCfgVars() internal view {
         // Check remaining storage variables didn't change
         require(keccak256(abi.encode(getBaseSysCfgVars())) == keccak256(abi.encode(previous)), "system-config-110");
+    }
+
+    // Checks the remaining storage variables are unchanged after the upgrade.
+    // NOTE: The `_gasLimit` is permitted to be updated to accommodate the new EIP-1559 parameters.
+    function checkBaseSysCfgVarsWithGasLimitOverride(uint256 previousGasLimitOverride) internal view {
+        BaseSysCfgVars memory _previous = previous;
+        _previous.gasLimit = previousGasLimitOverride;
+
+        // Check remaining storage variables didn't change
+        require(keccak256(abi.encode(getBaseSysCfgVars())) == keccak256(abi.encode(_previous)), "system-config-110.5");
     }
 
     // Reads the semantic version of the SystemConfig contract

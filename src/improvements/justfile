@@ -1,0 +1,102 @@
+# Create a new template or task
+# e.g. just new [template|task]
+new COMMAND="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    
+    echo -e "\033[42m                          \033[0m"
+    echo -e "\033[42m    superchain-ops cli    \033[0m"
+    echo -e "\033[42m                          \033[0m"
+
+    show_usage() {
+        echo
+        echo "Usage: just new [template|task]"
+        echo "Available commands:"
+        echo "  • template  - Create a new template"
+        echo "  • task      - Create a new task"
+        echo
+    }
+    
+    # shellcheck disable=SC2050
+    if [ "{{COMMAND}}" = "" ]; then
+        echo -e "\n\033[31mError: No command specified\033[0m"
+        show_usage
+        exit 1
+    fi
+    
+    # shellcheck disable=SC2194
+    case "{{COMMAND}}" in
+        template)
+            ./script/create-template.sh
+            ;;
+        task)    
+            ./script/create-task.sh
+            ;;
+        *)
+            echo -e "\n\033[31mError: Invalid command '{{COMMAND}}'\033[0m"
+            show_usage
+            exit 1
+            ;;
+    esac
+
+task COMMAND="" NETWORK="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    echo -e "\033[42m                          \033[0m"
+    echo -e "\033[42m    superchain-ops cli    \033[0m"
+    echo -e "\033[42m                          \033[0m"
+
+    if [ "{{COMMAND}}" = "" ]; then
+        echo -e "\n\033[31mError: No command specified\033[0m\n"
+        exit 1
+    fi
+
+    # shellcheck disable=SC2194
+    case "{{COMMAND}}" in
+        ls)
+            echo ""
+            ./script/sorted-tasks.sh {{NETWORK}}
+            ;;
+        *)
+            echo -e "\n\033[31mError: Invalid command '{{COMMAND}}'\033[0m\n"
+            exit 1
+            ;;
+    esac
+    
+monorepo-integration-test COMMAND="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    # Set FOUNDRY_PROFILE, defaulting to 'default' if not already set.
+    export FOUNDRY_PROFILE="${FOUNDRY_PROFILE:-default}"
+    echo "Currently running with FOUNDRY_PROFILE: ${FOUNDRY_PROFILE}"
+
+    root_dir=$(git rev-parse --show-toplevel)
+    allocs_path="${root_dir}/lib/optimism/packages/contracts-bedrock/allocs.json"
+
+    # Running this command with mainnet RPC URL.
+    ETH_RPC_URL=$(yq eval ".profile.\"${FOUNDRY_PROFILE}\".rpc_endpoints.mainnet" "${root_dir}/foundry.toml")
+    export ETH_RPC_URL
+    echo "Using mainnet RPC: ${ETH_RPC_URL}"
+
+    forge build
+    forge script ${root_dir}/src/improvements/tasks/Runner.sol:Runner --sig "run(string)" ${allocs_path} --ffi --rpc-url $ETH_RPC_URL
+    export SUPERCHAIN_OPS_ALLOCS_PATH=./allocs.json
+    cd ${root_dir}/lib/optimism/packages/contracts-bedrock/
+    # shellcheck disable=SC2194
+    case "{{COMMAND}}" in
+        rerun)
+            just test-upgrade-rerun
+            ;;
+        *)
+            just test-upgrade
+            ;;
+    esac
+    rm -f ${allocs_path} # clean up
+
+check-superchain-registry-latest:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+    bash ${root_dir}/src/improvements/script/check-superchain-latest.sh

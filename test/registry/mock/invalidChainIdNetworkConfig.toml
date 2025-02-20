@@ -1,0 +1,1 @@
+l2chains = [{name = "OP Mainnet", chainId = 0}, {name = "Metal", chainId = 1750}]

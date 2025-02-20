@@ -1,0 +1,20 @@
+[tools]
+
+# Core dependencies
+go = "1.22.7"
+just = "1.37.0"
+shellcheck = "0.10.0"
+yq = "4.44.5"
+
+# Foundry dependencies
+# Foundry is a special case because it supplies multiple binaries at the same
+# GitHub release, so we need to use the aliasing trick to get mise to not error
+# The git ref here should be on the `stable` branch.
+forge = "stable"
+cast = "stable"
+anvil = "stable"
+
+[alias]
+forge = "ubi:foundry-rs/foundry[exe=forge]"
+cast = "ubi:foundry-rs/foundry[exe=cast]"
+anvil = "ubi:foundry-rs/foundry[exe=anvil]"
