@@ -92,14 +92,14 @@ contract SingleMultisigTaskTest is Test {
         VmSafe.AccountAccess[] memory accountAccesses;
 
         vm.expectRevert("No actions found");
-        localMultisigTask.getTaskActions(actions);
+        localMultisigTask.processTaskActions(actions);
 
         (accountAccesses, actions) = localMultisigTask.simulateRun(taskConfigFilePath);
 
         addrRegistry = localMultisigTask.addrRegistry();
 
         (address[] memory targets, uint256[] memory values, bytes[] memory arguments) =
-            localMultisigTask.getTaskActions(actions);
+            localMultisigTask.processTaskActions(actions);
 
         assertEq(targets.length, 2, "Expected 2 targets");
         assertEq(targets[0], addrRegistry.getAddress("SystemConfigProxy", 34443), "Expected SystemConfigProxy target");
@@ -116,7 +116,7 @@ contract SingleMultisigTaskTest is Test {
         (, MultisigTask.Action[] memory actions) = runTask();
 
         (address[] memory targets, uint256[] memory values, bytes[] memory arguments) =
-            multisigTask.getTaskActions(actions);
+            multisigTask.processTaskActions(actions);
 
         IMulticall3.Call3Value[] memory calls = new IMulticall3.Call3Value[](targets.length);
 
@@ -132,15 +132,15 @@ contract SingleMultisigTaskTest is Test {
         bytes memory expectedCallData =
             abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
 
-        bytes memory callData = multisigTask.getCalldata(actions);
+        bytes memory callData = multisigTask.getMulticall3Calldata(actions);
         assertEq(callData, expectedCallData, "Wrong calldata");
     }
 
     function testGetDataToSign() public {
         (, MultisigTask.Action[] memory actions) = runTask();
         addrRegistry = multisigTask.addrRegistry();
-        bytes memory callData = multisigTask.getCalldata(actions);
-        bytes memory dataToSign = multisigTask.getDataToSign(multisigTask.parentMultisig(), callData);
+        bytes memory callData = multisigTask.getMulticall3Calldata(actions);
+        bytes memory dataToSign = multisigTask.getEncodedTransactionData(multisigTask.parentMultisig(), callData);
 
         // The nonce is decremented by 1 because we want to recreate the data to sign with the same nonce
         // that was used in the simulation. The nonce was incremented as part of running the simulation.
@@ -161,8 +161,8 @@ contract SingleMultisigTaskTest is Test {
 
     function testHashToApprove() public {
         (, MultisigTask.Action[] memory actions) = runTask();
-        bytes memory callData = multisigTask.getCalldata(actions);
-        bytes32 hash = multisigTask.getHash(actions);
+        bytes memory callData = multisigTask.getMulticall3Calldata(actions);
+        bytes32 hash = multisigTask.getHash(callData, multisigTask.parentMultisig());
         bytes32 expectedHash = IGnosisSafe(multisigTask.parentMultisig()).getTransactionHash(
             MULTICALL3_ADDRESS,
             0,
@@ -273,9 +273,9 @@ contract SingleMultisigTaskTest is Test {
         uint256 snapshotId = vm.snapshot();
         (, MultisigTask.Action[] memory actions) = runTask();
         addrRegistry = multisigTask.addrRegistry();
-        multisigTask.getTaskActions(actions);
-        bytes memory callData = multisigTask.getCalldata(actions);
-        bytes memory dataToSign = multisigTask.getDataToSign(multisigTask.parentMultisig(), callData);
+        multisigTask.processTaskActions(actions);
+        bytes memory callData = multisigTask.getMulticall3Calldata(actions);
+        bytes memory dataToSign = multisigTask.getEncodedTransactionData(multisigTask.parentMultisig(), callData);
         address multisig = multisigTask.parentMultisig();
         address systemConfigMode = addrRegistry.getAddress("SystemConfigProxy", 34443);
         address systemConfigMetal = addrRegistry.getAddress("SystemConfigProxy", 1750);
@@ -343,7 +343,7 @@ contract SingleMultisigTaskTest is Test {
 
         // execute the task with the signatures
         multisigTask = new GasConfigTemplate();
-        multisigTask.simulateRun(taskConfigFilePath, packedSignatures);
+        multisigTask.simulateRun(taskConfigFilePath, packedSignatures, address(0));
 
         // check that the gas limits are set correctly after the task is executed
         SystemConfig systemConfig = SystemConfig(systemConfigMode);

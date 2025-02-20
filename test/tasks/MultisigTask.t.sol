@@ -27,13 +27,13 @@ contract MultisigTaskUnitTest is Test {
     bytes32 public constant MULTISIG_SLOT = bytes32(uint256(36));
 
     /// @notice storage slot for the mock target contract
-    bytes32 public constant MOCK_TARGET_SLOT = bytes32(uint256(51));
+    bytes32 public constant MOCK_TARGET_SLOT = bytes32(uint256(50));
 
     /// @notice storage slot for the build started flag
     bytes32 public constant BUILD_STARTED_SLOT = bytes32(uint256(49));
 
     /// @notice storage slot for the target multicall address
-    bytes32 public constant TARGET_MULTICALL_SLOT = bytes32(uint256(50));
+    bytes32 public constant TARGET_MULTICALL_SLOT = bytes32(uint256(49));
 
     /// Test Philosophy:
     /// We want these tests to function as much as possible as unit tests.
@@ -59,19 +59,25 @@ contract MultisigTaskUnitTest is Test {
         task.simulateRun("./test/tasks/mock/configs/InvalidNetworkConfig.toml");
     }
 
-    // function testRunFailsEmptyActions() public {
-    //     // add empty action that will cause a revert
-    //     _addAction(address(0), "", 0, Enum.Operation.Call, "");
-    //     vm.expectRevert("Invalid target for task");
-    //     task.simulateRun(MAINNET_CONFIG);
-    // }
+    function testRunFailsEmptyActions() public {
+        MultisigTask.Action[] memory actions = new MultisigTask.Action[](0);
+        vm.expectRevert("No actions found");
+        task.processTaskActions(actions);
+    }
 
-    // function testRunFailsInvalidAction() public {
-    //     // add invalid args for action that will cause a revert
-    //     _addAction(address(1), "", 0, Enum.Operation.Call, "");
-    //     vm.expectRevert("Invalid arguments for task");
-    //     task.simulateRun(MAINNET_CONFIG);
-    // }
+    function testRunFailsInvalidAction() public {
+        vm.expectRevert("Invalid target for task");
+        task.processTaskActions(createActions(address(0), "", 0, Enum.Operation.Call, ""));
+
+        vm.expectRevert("Invalid arguments for task");
+        task.processTaskActions(createActions(address(1), "", 0, Enum.Operation.Call, ""));
+    }
+
+    function testRunFailsDuplicateAction() public {
+        MultisigTask.Action[] memory actions = createActions(address(1), "", 0, Enum.Operation.Call, "");
+        vm.expectRevert("Duplicated action found");
+        task.validateAction(actions[0].target, actions[0].value, actions[0].arguments, actions);
+    }
 
     function testBuildFailsAddressRegistryNotSet() public {
         vm.expectRevert("Must set address registry for multisig address to be set");
@@ -167,23 +173,16 @@ contract MultisigTaskUnitTest is Test {
         task.build();
     }
 
-    // function testRunFailsDuplicateAction() public {
-    //     // add duplicate action that will cause a revert
-    //     _addUpgradeAction();
-    //     vm.expectRevert("Duplicated action found");
-    //     task.simulateRun(MAINNET_CONFIG);
-    // }
-
     function testRun()
         public
         returns (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions)
     {
         // vm.expectRevert("No actions found");
-        // task.getTaskActions();
+        // task.processTaskActions();
 
         (accountAccesses, actions) = task.simulateRun(MAINNET_CONFIG);
 
-        (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.getTaskActions(actions);
+        (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);
 
         // check that the task targets are correct
         assertEq(targets.length, 1, "Wrong targets length");
@@ -221,7 +220,7 @@ contract MultisigTaskUnitTest is Test {
     function testGetCalldata() public {
         (, MultisigTask.Action[] memory actions) = testRun();
 
-        (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.getTaskActions(actions);
+        (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);
 
         IMulticall3.Call3Value[] memory calls = new IMulticall3.Call3Value[](targets.length);
 
@@ -236,20 +235,28 @@ contract MultisigTaskUnitTest is Test {
 
         bytes memory expectedData = abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
 
-        bytes memory data = task.getCalldata(actions);
+        bytes memory data = task.getMulticall3Calldata(actions);
 
         assertEq(data, expectedData, "Wrong aggregate calldata");
     }
 
-    // function _addAction(
-    //     address target,
-    //     bytes memory data,
-    //     uint256 value,
-    //     Enum.Operation operation,
-    //     string memory description
-    // ) internal {
-    //     MockMultisigTask(address(task)).addAction(target, data, value, operation, description);
-    // }
+    function createActions(
+        address target,
+        bytes memory data,
+        uint256 value,
+        Enum.Operation operation,
+        string memory description
+    ) internal pure returns (MultisigTask.Action[] memory actions) {
+        actions = new MultisigTask.Action[](1);
+        actions[0] = MultisigTask.Action({
+            target: target,
+            value: value,
+            arguments: data,
+            operation: operation,
+            description: description
+        });
+        return actions;
+    }
 
     // function _addUpgradeAction() internal {
     //     _addAction(

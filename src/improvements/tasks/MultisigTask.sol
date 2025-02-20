@@ -90,10 +90,6 @@ abstract contract MultisigTask is Test, Script {
     /// @notice starting snapshot of the contract state before the calls are made
     uint256 internal _startSnapshot;
 
-    /// @notice list of actions to be executed, regardless of task type
-    // /// they all follow the same structure
-    // Action[] public actions;
-
     /// @notice Multicall3 call data struct
     /// @param target The address of the target contract
     /// @param allowFailure Flag to determine if the call should be allowed to fail
@@ -118,29 +114,9 @@ abstract contract MultisigTask is Test, Script {
     /// @notice flag to determine if the task is being simulated
     bool private _buildStarted;
 
-    /// @notice The address of the child multisig for this task
-    /// this state variable will only be set when function
-    /// `signFromChildMultisig` is called.
-    address public childMultisig;
-
     /// @notice The address of the multicall target for this task
     /// @dev set in _setMulticallAddress
     address public multicallTarget;
-
-    // /// @notice buildModifier to be used by the build function to populate the
-    // /// actions array
-    // modifier buildModifier() {
-    //     require(parentMultisig != address(0), "Must set address registry for multisig address to be set");
-
-    //     require(!_buildStarted, "Build already started");
-    //     _buildStarted = true;
-
-    //     _startBuild();
-    //     _;
-    //     _endBuild();
-
-    //     _buildStarted = false;
-    // }
 
     /// @notice abstract function to be implemented by the inheriting contract
     /// specifies the safe address string to run the template from
@@ -156,7 +132,7 @@ abstract contract MultisigTask is Test, Script {
     /// prints the data to sign and the hash to approve which is used to sign with the eip712sign binary.
     /// For nested multisig, prints the data to sign and the hash to approve for each of the child multisigs.
     /// @param taskConfigFilePath The path to the task configuration file.
-    function simulateRun(string memory taskConfigFilePath, bytes memory signatures)
+    function simulateRun(string memory taskConfigFilePath, bytes memory signatures, address optionalChildMultisig)
         public
         returns (VmSafe.AccountAccess[] memory, Action[] memory)
     {
@@ -167,7 +143,7 @@ abstract contract MultisigTask is Test, Script {
         Action[] memory actions = build();
         VmSafe.AccountAccess[] memory accountAccesses = simulate(signatures, actions);
         validate(accountAccesses, actions);
-        print(actions);
+        print(actions, optionalChildMultisig);
 
         return (accountAccesses, actions);
     }
@@ -182,7 +158,7 @@ abstract contract MultisigTask is Test, Script {
         public
         returns (VmSafe.AccountAccess[] memory, Action[] memory)
     {
-        return simulateRun(taskConfigFilePath, "");
+        return simulateRun(taskConfigFilePath, "", address(0));
     }
 
     /// @notice Executes the task with the given configuration file path and signatures.
@@ -207,7 +183,7 @@ abstract contract MultisigTask is Test, Script {
         validate(accountAccesses, actions);
 
         // print out results of execution
-        print(actions);
+        print(actions, address(0));
 
         return accountAccesses;
     }
@@ -236,8 +212,7 @@ abstract contract MultisigTask is Test, Script {
     /// @param taskConfigFilePath The path to the task configuration file.
     /// @param _childMultisig The address of the child multisig.
     function signFromChildMultisig(string memory taskConfigFilePath, address _childMultisig) public {
-        childMultisig = _childMultisig;
-        simulateRun(taskConfigFilePath);
+        simulateRun(taskConfigFilePath, "", _childMultisig);
         require(isNestedSafe, "MultisigTask: multisig must be nested");
     }
 
@@ -326,9 +301,9 @@ abstract contract MultisigTask is Test, Script {
     /// @dev callable only after the build function has been run and the
     /// calldata has been loaded up to storage
     /// @return data The calldata to be executed
-    function getCalldata(Action[] memory actions) public view virtual returns (bytes memory data) {
+    function getMulticall3Calldata(Action[] memory actions) public view virtual returns (bytes memory data) {
         // get task actions
-        (address[] memory targets, uint256[] memory values, bytes[] memory arguments) = getTaskActions(actions);
+        (address[] memory targets, uint256[] memory values, bytes[] memory arguments) = processTaskActions(actions);
 
         // create calls array with targets and arguments
         Call3Value[] memory calls = new Call3Value[](targets.length);
@@ -346,13 +321,13 @@ abstract contract MultisigTask is Test, Script {
     function printDataToSign(Action[] memory actions) public view {
         // logs required for using eip712sign binary to sign the data to sign with Ledger
         console.log("vvvvvvvv");
-        console.logBytes(getDataToSign(parentMultisig, getCalldata(actions)));
+        console.logBytes(getEncodedTransactionData(parentMultisig, getMulticall3Calldata(actions)));
         console.log("^^^^^^^^\n");
     }
 
-    /// @notice print the hash to approve by EOA for single multisig
-    function printHashToApprove(Action[] memory actions) public view {
-        console.logBytes32(getHash(actions));
+    /// @notice print the hash to approve by EOA for parent/root multisig
+    function printParentHash(bytes memory callData) public view {
+        console.logBytes32(getHash(callData, parentMultisig));
     }
 
     function _getNonce(address safe) internal view returns (uint256) {
@@ -363,7 +338,7 @@ abstract contract MultisigTask is Test, Script {
     /// @param safe The address of the safe
     /// @param data The calldata to be executed
     /// @return The data to sign
-    function getDataToSign(address safe, bytes memory data) public view returns (bytes memory) {
+    function getEncodedTransactionData(address safe, bytes memory data) public view returns (bytes memory) {
         return IGnosisSafe(safe).encodeTransactionData({
             to: _getMulticallAddress(safe),
             value: 0,
@@ -383,8 +358,8 @@ abstract contract MultisigTask is Test, Script {
         public
         returns (VmSafe.AccountAccess[] memory)
     {
-        bytes memory data = getCalldata(actions);
-        bytes32 hash = getHash(actions);
+        bytes memory callData = getMulticall3Calldata(actions);
+        bytes32 hash = getHash(callData, parentMultisig);
         bytes memory signatures;
 
         // Approve the hash from each owner
@@ -401,7 +376,7 @@ abstract contract MultisigTask is Test, Script {
         }
 
         bytes32 txHash = IGnosisSafe(parentMultisig).getTransactionHash(
-            multicallTarget, 0, data, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), nonce
+            multicallTarget, 0, callData, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), nonce
         );
 
         require(hash == txHash, "MultisigTask: hash mismatch");
@@ -409,7 +384,7 @@ abstract contract MultisigTask is Test, Script {
         vm.startStateDiffRecording();
 
         // Execute the transaction
-        execTransaction(parentMultisig, multicallTarget, 0, data, Enum.Operation.DelegateCall, signatures);
+        execTransaction(parentMultisig, multicallTarget, 0, callData, Enum.Operation.DelegateCall, signatures);
 
         VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
 
@@ -421,7 +396,7 @@ abstract contract MultisigTask is Test, Script {
     /// @param signatures The signatures to approve the task transaction hash.
     function approve(address _childMultisig, bytes memory signatures, Action[] memory actions) public {
         bytes memory approveCalldata = generateApproveMulticallData(actions);
-        bytes32 hash = keccak256(getDataToSign(_childMultisig, approveCalldata));
+        bytes32 hash = keccak256(getEncodedTransactionData(_childMultisig, approveCalldata));
         signatures = Signatures.prepareSignatures(_childMultisig, hash, signatures);
 
         execTransaction(_childMultisig, MULTICALL3_ADDRESS, 0, approveCalldata, Enum.Operation.DelegateCall, signatures);
@@ -430,8 +405,8 @@ abstract contract MultisigTask is Test, Script {
     /// @notice Executes the task with the given signatures.
     /// @param signatures The signatures to execute the task.
     function execute(bytes memory signatures, Action[] memory actions) public returns (VmSafe.AccountAccess[] memory) {
-        bytes memory data = getCalldata(actions);
-        bytes32 hash = getHash(actions);
+        bytes memory callData = getMulticall3Calldata(actions);
+        bytes32 hash = getHash(callData, parentMultisig);
 
         if (signatures.length == 0) {
             // if no signatures are attached, this means we are dealing with a
@@ -449,7 +424,7 @@ abstract contract MultisigTask is Test, Script {
 
         vm.startStateDiffRecording();
 
-        execTransaction(parentMultisig, multicallTarget, 0, data, Enum.Operation.DelegateCall, signatures);
+        execTransaction(parentMultisig, multicallTarget, 0, callData, Enum.Operation.DelegateCall, signatures);
 
         return vm.stopAndReturnStateDiff();
     }
@@ -549,7 +524,7 @@ abstract contract MultisigTask is Test, Script {
     /// @return targets The targets of the actions
     /// @return values The values of the actions
     /// @return arguments The arguments of the actions
-    function getTaskActions(Action[] memory actions)
+    function processTaskActions(Action[] memory actions)
         public
         pure
         returns (address[] memory targets, uint256[] memory values, bytes[] memory arguments)
@@ -608,7 +583,7 @@ abstract contract MultisigTask is Test, Script {
     }
 
     /// @notice print task description, actions, transfers, state changes and EOAs datas to sign
-    function print(Action[] memory actions) public view {
+    function print(Action[] memory actions, address optionalChildMultisig) public view {
         console.log("\n------------------ Task Actions ------------------");
         for (uint256 i; i < actions.length; i++) {
             console.log("%d). %s", i + 1, actions[i].description);
@@ -672,18 +647,18 @@ abstract contract MultisigTask is Test, Script {
             }
         }
 
-        printSafe(actions);
+        printSafe(actions, optionalChildMultisig);
     }
 
     /// @notice prints all relevant hashes to sign as well as the tenderly
     /// simulation link
-    function printSafe(Action[] memory actions) private view {
+    function printSafe(Action[] memory actions, address optionalChildMultisig) private view {
         // print calldata to be executed within the Safe
         console.log("\n\n------------------ Task Calldata ------------------");
-        console.logBytes(getCalldata(actions));
+        console.logBytes(getMulticall3Calldata(actions));
 
         if (isNestedSafe) {
-            printNestedData(actions);
+            printNestedData(actions, optionalChildMultisig);
         } else {
             printSingleData(actions);
         }
@@ -693,11 +668,11 @@ abstract contract MultisigTask is Test, Script {
     }
 
     /// @notice helper function to print nested calldata
-    function printNestedData(Action[] memory actions) private view {
+    function printNestedData(Action[] memory actions, address childMultisig) private view {
         console.log("\n\n------------------ Nested Multisig EOAs Data to Sign ------------------");
-        printNestedDataToSign(actions);
+        printNestedDataToSign(actions, childMultisig);
         console.log("\n\n------------------ Nested Multisig EOAs Hash to Approve ------------------");
-        printNestedHashToApprove(actions);
+        printChildHash(actions, childMultisig);
     }
 
     /// @notice helper function to print non-nested safe calldata
@@ -705,11 +680,11 @@ abstract contract MultisigTask is Test, Script {
         console.log("\n\n------------------ Single Multisig EOA Data to Sign ------------------");
         printDataToSign(actions);
         console.log("\n\n------------------ Single Multisig EOA Hash to Approve ------------------");
-        printHashToApprove(actions);
+        printParentHash(getMulticall3Calldata(actions));
     }
 
     /// @notice print the data to sign by EOA for nested multisig
-    function printNestedDataToSign(Action[] memory actions) public view {
+    function printNestedDataToSign(Action[] memory actions, address childMultisig) public view {
         bytes memory callData = generateApproveMulticallData(actions);
 
         // this branch means the function `signFromChildMultisig` is being called
@@ -717,7 +692,7 @@ abstract contract MultisigTask is Test, Script {
             console.log("Child multisig: %s", getAddressLabel(childMultisig));
             // logs required for using eip712sign binary to sign the data to sign with Ledger
             console.log("vvvvvvvv");
-            console.logBytes(getDataToSign(childMultisig, callData));
+            console.logBytes(getEncodedTransactionData(childMultisig, callData));
             console.log("^^^^^^^^\n");
         } else {
             // this branch means function `signFromChildMultisig` is not being called
@@ -727,19 +702,19 @@ abstract contract MultisigTask is Test, Script {
                     continue;
                 }
                 console.log("Nested multisig: %s", getAddressLabel(startingOwners[i]));
-                console.logBytes(getDataToSign(startingOwners[i], callData));
+                console.logBytes(getEncodedTransactionData(startingOwners[i], callData));
             }
         }
     }
 
     /// @notice print the hash to approve by EOA for nested multisig
-    function printNestedHashToApprove(Action[] memory actions) public view {
+    function printChildHash(Action[] memory actions, address childMultisig) public view {
         bytes memory callData = generateApproveMulticallData(actions);
 
         // this branch means the function `signFromChildMultisig` is being called
         if (childMultisig != address(0)) {
             console.log("Nested multisig: %s", getAddressLabel(childMultisig));
-            console.logBytes32(keccak256(getDataToSign(childMultisig, callData)));
+            console.logBytes32(keccak256(getEncodedTransactionData(childMultisig, callData)));
         } else {
             // this branch means function `signFromChildMultisig` is not being called
             // and this is not a nested safe
@@ -749,7 +724,7 @@ abstract contract MultisigTask is Test, Script {
                     continue;
                 }
 
-                bytes32 hash = keccak256(getDataToSign(startingOwners[i], callData));
+                bytes32 hash = keccak256(getEncodedTransactionData(startingOwners[i], callData));
                 console.log("Nested multisig: %s", getAddressLabel(startingOwners[i]));
                 console.logBytes32(hash);
             }
@@ -762,21 +737,22 @@ abstract contract MultisigTask is Test, Script {
         overrides[0] =
             Simulation.overrideSafeThresholdOwnerAndNonce(parentMultisig, msg.sender, _getNonce(parentMultisig));
         bytes memory txData = _execTransationCalldata(
-            parentMultisig, getCalldata(actions), Signatures.genPrevalidatedSignature(msg.sender)
+            parentMultisig, getMulticall3Calldata(actions), Signatures.genPrevalidatedSignature(msg.sender)
         );
         Simulation.logSimulationLink({_to: parentMultisig, _data: txData, _from: msg.sender, _overrides: overrides});
     }
 
     /// @notice get the hash for this safe transaction
     /// can only be called after the build function, otherwise it reverts
-    function getHash(Action[] memory actions) public view returns (bytes32) {
-        bytes memory data = getCalldata(actions);
-        return keccak256(getDataToSign(parentMultisig, data));
+    function getHash(bytes memory callData, address safe) public view returns (bytes32) {
+        // bytes memory callData = getMulticall3Calldata(actions);
+        return keccak256(getEncodedTransactionData(safe, callData));
     }
 
     /// @notice helper function to generate the approveHash calldata to be executed by child multisig owner on parent multisig
     function generateApproveMulticallData(Action[] memory actions) public view returns (bytes memory) {
-        bytes32 hash = getHash(actions);
+        bytes memory callData = getMulticall3Calldata(actions);
+        bytes32 hash = getHash(callData, parentMultisig);
         Call3Value memory call = Call3Value({
             target: parentMultisig,
             allowFailure: false,
@@ -849,7 +825,7 @@ abstract contract MultisigTask is Test, Script {
 
     /// @notice validate actions inclusion
     /// default implementation check for duplicate actions
-    function _validateAction(address target, uint256 value, bytes memory data, Action[] memory actions) internal pure {
+    function validateAction(address target, uint256 value, bytes memory data, Action[] memory actions) public pure {
         uint256 actionsLength = actions.length;
         for (uint256 i = 0; i < actionsLength; i++) {
             // Check if the target, arguments and value matches with other existing actions.
@@ -976,7 +952,7 @@ abstract contract MultisigTask is Test, Script {
         for (uint256 i = 0; i < accesses.length; i++) {
             if (_isValidAccess(accesses[i], topLevelDepth)) {
                 // Ensure action uniqueness.
-                _validateAction(accesses[i].account, accesses[i].value, accesses[i].data, validActions);
+                validateAction(accesses[i].account, accesses[i].value, accesses[i].data, validActions);
 
                 (string memory opStr, Enum.Operation op) = _getOperationDetails(accesses[i].kind);
                 string memory desc = _composeDescription(accesses[i], opStr);

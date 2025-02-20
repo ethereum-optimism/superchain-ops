@@ -43,9 +43,14 @@ abstract contract OPCMBaseTask is MultisigTask {
     /// calldata has been loaded up to storage. This function uses aggregate3
     /// instead of aggregate3Value because OPCM tasks use Multicall3DelegateCall.
     /// @return data The calldata to be executed
-    function getCalldata(MultisigTask.Action[] memory actions) public pure override returns (bytes memory data) {
+    function getMulticall3Calldata(MultisigTask.Action[] memory actions)
+        public
+        pure
+        override
+        returns (bytes memory data)
+    {
         // get task actions
-        (address[] memory targets,, bytes[] memory arguments) = getTaskActions(actions);
+        (address[] memory targets,, bytes[] memory arguments) = processTaskActions(actions);
 
         // create calls array with targets and arguments
         Call3[] memory calls = new Call3[](targets.length);
@@ -60,7 +65,7 @@ abstract contract OPCMBaseTask is MultisigTask {
     }
 
     function validate(VmSafe.AccountAccess[] memory accesses, MultisigTask.Action[] memory actions) public override {
-        (address[] memory targets,,) = getTaskActions(actions);
+        (address[] memory targets,,) = processTaskActions(actions);
         require(targets.length == 1 && targets[0] == opcm(), "OPCMBaseTask: only OPCM is allowed as target");
         super.validate(accesses, actions);
         require(
