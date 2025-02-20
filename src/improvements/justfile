@@ -110,7 +110,6 @@ simulate-all-templates:
 
     simulation_count=0
     
-    # As well as the eth dir i want it to run for the sep dir, can you implement this?
     for task in ${root_dir}/src/improvements/tasks/example/*/*; do
         echo ""
         if [ -d "$task" ]; then
@@ -127,7 +126,6 @@ simulate-all-templates:
 
     echo "\n$simulation_count simulations run."
 
-    # Count the number of template files in the template directory
     template_count=$(find "${root_dir}/src/improvements/template" -type f ! -name "*.template.sol" | wc -l)
 
     if [ "$simulation_count" -ne "$template_count" ]; then
