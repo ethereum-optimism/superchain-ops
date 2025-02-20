@@ -107,6 +107,8 @@ simulate-all-templates:
     root_dir=$(git rev-parse --show-toplevel)
     nested_just_file="${root_dir}/src/improvements/nested.just"
     single_just_file="${root_dir}/src/improvements/single.just"
+
+    simulation_count=0
     
     # As well as the eth dir i want it to run for the sep dir, can you implement this?
     for task in ${root_dir}/src/improvements/tasks/example/*/*; do
@@ -119,5 +121,16 @@ simulate-all-templates:
                 (cd $task && SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile $single_just_file simulate)
                 echo "Task $task is not nested"
             fi
+            simulation_count=$((simulation_count + 1))
         fi
     done
+
+    echo "\n$simulation_count simulations run."
+
+    # Count the number of template files in the template directory
+    template_count=$(find "${root_dir}/src/improvements/template" -type f ! -name "*.template.sol" | wc -l)
+
+    if [ "$simulation_count" -ne "$template_count" ]; then
+        echo "Not all templates files have a corresponding task. Please add a task for a template in ${root_dir}/src/improvements/tasks/example" >&2
+        exit 1
+    fi
