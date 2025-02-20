@@ -34,6 +34,8 @@ commands:
       - utils/checkout-with-mise
       - run:
           name: "simulate << parameters.task >>"
+          environment:
+            FOUNDRY_PROFILE: ci
           command: |
             just install
             cd tasks/<< parameters.task >>
@@ -51,6 +53,8 @@ commands:
       - utils/checkout-with-mise
       - run:
           name: "simulate nested << parameters.task >>"
+          environment:
+            FOUNDRY_PROFILE: ci
           command: |
             just install
             cd tasks/<< parameters.task >>
@@ -199,12 +203,15 @@ jobs:
               # Use L1_RPC_URL and L2_RPC_URL here.
 
   just_simulate_sc_rehearsal_1:
+    circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - utils/checkout-with-mise
       - run:
           name: just simulate r1-hello-council
+          environment:
+            FOUNDRY_PROFILE: ci
           command: |
             just install
             cd security-council-rehearsals
@@ -216,12 +223,15 @@ jobs:
             just simulate # simulate again to make sure the json is still valid
 
   just_simulate_sc_rehearsal_2:
+    circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - utils/checkout-with-mise
       - run:
           name: just simulate r2-remove-signer
+          environment:
+            FOUNDRY_PROFILE: ci
           command: |
             just install
             cd security-council-rehearsals
@@ -234,12 +244,15 @@ jobs:
             just simulate # simulate again to make sure the json is still valid
 
   just_simulate_sc_rehearsal_4:
+    circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - utils/checkout-with-mise
       - run:
           name: just simulate r4-jointly-upgrade
+          environment:
+            FOUNDRY_PROFILE: ci
           command: |
             just install
             cd security-council-rehearsals
@@ -251,6 +264,7 @@ jobs:
             just simulate-council # simulate again to make sure the json is still valid
 
   just_simulate_ink_respected_game_type:
+    circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
@@ -258,6 +272,7 @@ jobs:
           task: "/eth/ink-002-set-respected-game-type"
 
   just_simulate_zora_002_fp_upgrade:
+    circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
@@ -289,12 +304,15 @@ jobs:
             forge fmt --check
   
   forge_test:
+    circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - utils/checkout-with-mise
       - run:
           name: forge test
+          environment:
+            FOUNDRY_PROFILE: ci
           command: |
             forge --version
             forge test -vvv
@@ -303,20 +321,18 @@ jobs:
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
+    environment:
+      FOUNDRY_PROFILE: ci
     steps:
       - utils/checkout-with-mise
       - run:
           name: monorepo integration tests
-          environment:
-            ETH_RPC_URL: << pipeline.parameters.l1_mainnet_rpc_url >>
           command: |
             (cd src/improvements && just monorepo-integration-test)
       - notify-failures-on-develop:
           mentions: "@security-team"
       - run:
           name: Print failed test traces
-          environment:
-            ETH_RPC_URL: << pipeline.parameters.l1_mainnet_rpc_url >>
           command: (cd src/improvements && just monorepo-integration-test rerun)
           when: on_fail
 
@@ -350,29 +366,53 @@ workflows:
         - equal: [webhook, << pipeline.trigger_source >>]
         - equal: ["build_four_hours", <<pipeline.schedule.name>>]
     jobs:
-      - print_versions
+      - print_versions:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
       # Forge checks.
-      - forge_build
-      - forge_fmt
-      - forge_test
+      - forge_build:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+      - forge_fmt:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+      - forge_test:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
       # This is a long running job, so we only run it on the main branch.
       - monorepo_integration_test:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
           filters:
             branches:
               only: main
-      - shellcheck
+      - shellcheck:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
       # RPC endpoint checks.
-      - check_sepolia_rpc_endpoints
-      - check_mainnet_rpc_endpoints
+      - check_sepolia_rpc_endpoints:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+      - check_mainnet_rpc_endpoints:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
       - example_mainnet_job:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
           requires:
             - check_mainnet_rpc_endpoints
       # Verify that all tasks have a valid status in their README.
-      - check_task_statuses
+      - check_task_statuses:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
       # Verify that all tasks have correctly uppercased nonce overrides.
-      - check_nonce_overrides
+      - check_nonce_overrides:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
       # check that superchain-registry is up to date
-      - check_superchain_registry
+      - check_superchain_registry:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
       # Task simulations.
       # Please add an invocation to `just simulate` if a ceremony is
       # active (e.g. it is the next ceremony to perform or you
@@ -384,9 +424,17 @@ workflows:
       # and now it fails with stack too deep after https://github.com/ethereum-optimism/superchain-ops/pull/528.
       # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
       # - just_simulate_sc_rehearsal_1
-      - just_simulate_sc_rehearsal_2
-      - just_simulate_sc_rehearsal_4
-      - just_simulate_ink_respected_game_type
+      - just_simulate_sc_rehearsal_2:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+      - just_simulate_sc_rehearsal_4:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+      - just_simulate_ink_respected_game_type:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
       # sepolia
-      - just_simulate_zora_002_fp_upgrade
-
+      - just_simulate_zora_002_fp_upgrade:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+       
