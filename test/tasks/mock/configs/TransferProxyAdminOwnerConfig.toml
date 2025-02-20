@@ -1,5 +1,3 @@
-# this is the file used to determine the network configuration
-
 l2chains = [{name = "OP Devnet", chainId = 20022002}]
 
 templateName = "TransferOwnerTemplate"

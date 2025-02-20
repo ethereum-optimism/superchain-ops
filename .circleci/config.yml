@@ -335,6 +335,21 @@ jobs:
           name: Print failed test traces
           command: (cd src/improvements && just monorepo-integration-test rerun)
           when: on_fail
+  
+  template_regression_tests:
+    circleci_ip_ranges: true
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    environment:
+      FOUNDRY_PROFILE: ci
+    steps:
+      - utils/checkout-with-mise
+      - run:
+          name: Make sure all templates can be simulated.
+          command: |
+            (cd src/improvements && just simulate-all-templates)
+      # - notify-failures-on-develop:
+      #     mentions: "@security-team"
 
   print_versions:
     docker:
@@ -376,6 +391,7 @@ workflows:
           filters:
             branches:
               only: main
+      - template_regression_tests
       - shellcheck
       # RPC endpoint checks.
       - check_sepolia_rpc_endpoints
