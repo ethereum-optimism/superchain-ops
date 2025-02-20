@@ -144,7 +144,7 @@ abstract contract MultisigTask is Test, Script {
 
     /// @notice abstract function to be implemented by the inheriting contract
     /// specifies the addresses that must have their storage written to
-    function _taskStorageWrites() internal pure virtual returns (string[] memory);
+    function _taskStorageWrites() internal virtual returns (string[] memory);
 
     /// @notice Runs the task with the given configuration file path.
     /// Sets the address registry, initializes and simulates the single multisig
