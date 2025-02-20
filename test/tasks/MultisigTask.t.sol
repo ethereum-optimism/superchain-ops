@@ -177,9 +177,6 @@ contract MultisigTaskUnitTest is Test {
         public
         returns (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions)
     {
-        // vm.expectRevert("No actions found");
-        // task.processTaskActions();
-
         (accountAccesses, actions) = task.simulateRun(MAINNET_CONFIG);
 
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);
