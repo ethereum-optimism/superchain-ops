@@ -664,9 +664,9 @@ abstract contract MultisigTask is Test, Script {
         console.logBytes(getCalldata());
 
         if (isNestedSafe) {
-            printNested();
+            printNestedData();
         } else {
-            printData();
+            printSingleData();
         }
 
         console.log("\n\n------------------ Tenderly Simulation Link ------------------");
@@ -674,7 +674,7 @@ abstract contract MultisigTask is Test, Script {
     }
 
     /// @notice helper function to print nested calldata
-    function printNested() private view {
+    function printNestedData() private view {
         console.log("\n\n------------------ Nested Multisig EOAs Data to Sign ------------------");
         printNestedDataToSign();
         console.log("\n\n------------------ Nested Multisig EOAs Hash to Approve ------------------");
@@ -682,7 +682,7 @@ abstract contract MultisigTask is Test, Script {
     }
 
     /// @notice helper function to print non-nested safe calldata
-    function printData() private view {
+    function printSingleData() private view {
         console.log("\n\n------------------ Single Multisig EOA Data to Sign ------------------");
         printDataToSign();
         console.log("\n\n------------------ Single Multisig EOA Hash to Approve ------------------");
