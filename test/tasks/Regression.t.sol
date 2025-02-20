@@ -8,6 +8,7 @@ import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {GasConfigTemplate} from "src/improvements/template/GasConfigTemplate.sol";
 import {SetGameTypeTemplate} from "src/improvements/template/SetGameTypeTemplate.sol";
 import {DisputeGameUpgradeTemplate} from "src/improvements/template/DisputeGameUpgradeTemplate.sol";
+import {EnableDeputyPauseModuleTemplate} from "src/improvements/template/EnableDeputyPauseModuleTemplate.sol";
 
 contract RegressionTest is Test {
     function testRegressionCallDataMatches_SingleMultisigGasConfigTemplate() public {
@@ -83,6 +84,24 @@ contract RegressionTest is Test {
 
         string memory expectedDataToSign =
             "0x1901a4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672c98bc9c1761f2e403be0ad32b16d9c5fedf228f97eb0420c722b511129ebc803";
+        string memory dataToSign =
+            vm.toString(multisigTask.getDataToSign(multisigTask.parentMultisig(), multisigTask.getCalldata()));
+        assertEq(keccak256(bytes(dataToSign)), keccak256(bytes(expectedDataToSign)));
+    }
+
+    function testRegressionCallDataMatches_EnableDeputyPauseModuleTemplate() public {
+        string memory taskConfigFilePath = "test/tasks/mock/configs/EnableDeputyPauseModuleTemplate.toml";
+        string memory expectedCallData =
+            "0x174dea71000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000837de453ad5f21e89771e3c06239d8236c0efd5e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000024610b592500000000000000000000000062f3972c56733ab078f0764d2414dfcaa99d574c00000000000000000000000000000000000000000000000000000000";
+        vm.createSelectFork("sepolia", 7745524);
+        MultisigTask multisigTask = new EnableDeputyPauseModuleTemplate();
+        multisigTask.simulateRun(taskConfigFilePath);
+
+        string memory callData = vm.toString(multisigTask.getCalldata());
+        assertEq(keccak256(bytes(callData)), keccak256(bytes(expectedCallData)));
+
+        string memory expectedDataToSign =
+            "0x1901e84ad8db37faa1651b140c17c70e4c48eaa47a635e0db097ddf4ce1cc14b9ecbf55e2ed894ddff4c0045537c8239db1c4b3ac5700049164b5823ecaa045d7334";
         string memory dataToSign =
             vm.toString(multisigTask.getDataToSign(multisigTask.parentMultisig(), multisigTask.getCalldata()));
         assertEq(keccak256(bytes(dataToSign)), keccak256(bytes(expectedDataToSign)));
