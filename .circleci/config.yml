@@ -348,8 +348,6 @@ jobs:
           name: Make sure all templates can be simulated.
           command: |
             (cd src/improvements && just simulate-all-templates)
-      # - notify-failures-on-develop:
-      #     mentions: "@security-team"
 
   print_versions:
     docker:
