@@ -113,10 +113,10 @@ simulate-all-templates:
         echo ""
         if [ -d "$task" ]; then
             if ./script/is-task-nested.sh "$task/config.toml"; then
-                SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile  $nested_just_file simulate foundation
+                (cd $task && SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile $nested_just_file simulate foundation)
                 echo "Task $task is nested"
             else
-                (cd $task && SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile  $single_just_file simulate)
+                (cd $task && SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile $single_just_file simulate)
                 echo "Task $task is not nested"
             fi
         fi
