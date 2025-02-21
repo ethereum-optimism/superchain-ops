@@ -2,6 +2,7 @@
 pragma solidity 0.8.15;
 
 import {stdStorage, StdStorage} from "forge-std/Test.sol";
+import {IDeputyPauseModule} from "@eth-optimism-bedrock/interfaces/safe/IDeputyPauseModule.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 
 import "forge-std/Test.sol";
@@ -9,10 +10,12 @@ import "forge-std/Test.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {ModuleManager} from "lib/safe-contracts/contracts/base/ModuleManager.sol";
 import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
+import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
 /// @title EnableDeputyPauseModuleTemplate
 /// @notice Template contract for enabling a module in a Gnosis Safe
 contract EnableDeputyPauseModuleTemplate is MultisigTask {
+    using AccountAccessParser for *;
     using stdStorage for StdStorage;
 
     /// @notice Module configuration loaded from TOML
@@ -30,17 +33,6 @@ contract EnableDeputyPauseModuleTemplate is MultisigTask {
     /// @notice Gnosis Safe Module Nonce Storage Offset
     bytes32 public constant NONCE_STORAGE_OFFSET = bytes32(uint256(5));
 
-    /// @notice Chain ID of the chain being modified
-    uint256 public immutable CHAIN_ID;
-
-    /// @notice Mainnet Chain ID
-    uint256 public immutable MAINNET_CHAIN_ID;
-
-    constructor() {
-        CHAIN_ID = block.chainid;
-        MAINNET_CHAIN_ID = getChain("mainnet").chainId;
-    }
-
     /// @notice Returns the safe address string identifier
     /// @return The string "DeputyPauseSafe"
     function safeAddressString() public pure override returns (string memory) {
@@ -49,28 +41,10 @@ contract EnableDeputyPauseModuleTemplate is MultisigTask {
 
     /// @notice Returns the storage write permissions required for this task
     /// @return Array of storage write permissions
-    function _taskStorageWrites() internal view override returns (string[] memory) {
-        // if mainnet is the chain being modified, this task will write to the
-        // LivenessGuard contract
-        // hardcode the chain id for mainnet to avoid making the function
-        // mutative and overriding the pure keyword
-
-        // this code does not work:
-        //   if (block.chainid == getChain("mainnet").chainId) {
-        // because the getChain function writes to storage, making this
-        // function mutative
-        // Instead, we write the chain id for mainnet in the constructor
-
+    function _taskStorageWrites() internal pure override returns (string[] memory) {
         string[] memory storageWrites;
 
-        if (CHAIN_ID == MAINNET_CHAIN_ID) {
-            storageWrites = new string[](2);
-            storageWrites[1] = "LivenessGuard";
-        } else {
-            // otherwise, we only need to write to the Safe
-            storageWrites = new string[](1);
-        }
-
+        storageWrites = new string[](1);
         storageWrites[0] = _SAFE_ADDRESS;
 
         return storageWrites;
@@ -101,7 +75,7 @@ contract EnableDeputyPauseModuleTemplate is MultisigTask {
 
     /// @notice Validates that the module was enabled correctly
     /// @param chainId The ID of the L2 chain to validate
-    function _validate(uint256 chainId) internal view override {
+    function _validate(uint256 chainId, VmSafe.AccountAccess[] memory accountAccess) internal view override {
         (address[] memory modules, address nextModule) =
             ModuleManager(parentMultisig).getModulesPaginated(SENTINEL_MODULE, 100);
 
@@ -116,73 +90,56 @@ contract EnableDeputyPauseModuleTemplate is MultisigTask {
         }
         assertTrue(moduleFound, "Module not found in new modules list");
 
-        IDeputyGuardianModuleFetcher deputyGuardianModule = IDeputyGuardianModuleFetcher(newModule);
+        IDeputyPauseModule deputyGuardianModule = IDeputyPauseModule(newModule);
         assertEq(deputyGuardianModule.version(), "1.0.0-beta.2", "Deputy Guardian Module version not correct");
-        assertEq(deputyGuardianModule.foundationSafe(), parentMultisig, "Deputy Guardian safe pointer not correct");
         assertEq(
-            deputyGuardianModule.superchainConfig(),
+            address(deputyGuardianModule.foundationSafe()), parentMultisig, "Deputy Guardian safe pointer not correct"
+        );
+        assertEq(
+            address(deputyGuardianModule.superchainConfig()),
             addrRegistry.getAddress("SuperchainConfig", chainId),
             "Superchain config address not correct"
         );
-    }
-
-    /// @notice No code exceptions for this template
-    function getCodeExceptions() internal view override returns (address[] memory) {}
-
-    /// @notice helper function that can be overridden by template contracts to
-    /// check the state changes applied by the task. This function can check
-    /// that only the nonce changed in the parent multisig when executing a task
-    /// by checking the slot and address where the slot changed.
-    function checkStateDiff(VmSafe.AccountAccess[] memory accountAccesses) internal override {
-        super.checkStateDiff(accountAccesses);
-
-        (address[] memory modules,) = ModuleManager(parentMultisig).getModulesPaginated(SENTINEL_MODULE, 100);
 
         bytes32 moduleSlot = keccak256(abi.encode(newModule, MODULE_MAPPING_STORAGE_OFFSET));
         bytes32 sentinelSlot = keccak256(abi.encode(SENTINEL_MODULE, MODULE_MAPPING_STORAGE_OFFSET));
 
         bool moduleWriteFound;
 
-        for (uint256 i; i < accountAccesses.length; i++) {
-            VmSafe.AccountAccess memory accountAccess = accountAccesses[i];
-            for (uint256 j; j < accountAccess.storageAccesses.length; j++) {
-                VmSafe.StorageAccess memory storageAccess = accountAccess.storageAccesses[j];
-                if (!storageAccess.isWrite) continue; // Skip SLOADs.
-                if (storageAccess.isWrite && storageAccess.account == parentMultisig) {
-                    assertTrue(
-                        storageAccess.slot == NONCE_STORAGE_OFFSET || storageAccess.slot == moduleSlot
-                            || storageAccess.slot == sentinelSlot,
-                        "Only nonce and module slot should be updated on upgrade controller multisig"
-                    );
+        address[] memory uniqueWrites = accountAccess.getUniqueWrites();
+        assertEq(uniqueWrites.length, 1, "should only write to foundation ops safe");
+        assertEq(uniqueWrites[0], parentMultisig, "should only write to foundation ops safe address");
 
-                    if (storageAccess.slot == moduleSlot) {
-                        assertEq(
-                            address(uint160(uint256(storageAccess.newValue))),
-                            modules.length >= 2 ? modules[1] : SENTINEL_MODULE,
-                            "new module not correct"
-                        );
+        AccountAccessParser.StateDiff[] memory accountWrites = accountAccess.getStateDiffFor(parentMultisig);
 
-                        bytes32 sentinelModuleValue = vm.load(parentMultisig, sentinelSlot);
-                        assertEq(
-                            sentinelModuleValue,
-                            bytes32(uint256(uint160(newModule))),
-                            "sentinel does not point to new module"
-                        );
+        for (uint256 i = 0; i < accountWrites.length; i++) {
+            AccountAccessParser.StateDiff memory storageAccess = accountWrites[i];
+            assertTrue(
+                storageAccess.slot == NONCE_STORAGE_OFFSET || storageAccess.slot == moduleSlot
+                    || storageAccess.slot == sentinelSlot,
+                "Only nonce and module slot should be updated on upgrade controller multisig"
+            );
 
-                        moduleWriteFound = true;
-                    }
-                }
+            if (storageAccess.slot == moduleSlot) {
+                assertEq(
+                    address(uint160(uint256(storageAccess.newValue))),
+                    modules.length >= 2 ? modules[1] : SENTINEL_MODULE,
+                    "new module not correct"
+                );
+
+                bytes32 sentinelModuleValue = vm.load(parentMultisig, sentinelSlot);
+                assertEq(
+                    sentinelModuleValue, bytes32(uint256(uint160(newModule))), "sentinel does not point to new module"
+                );
+
+                moduleWriteFound = true;
             }
         }
 
         /// module write must be found, else revert
         assertTrue(moduleWriteFound, "Module write not found");
     }
-}
 
-interface IDeputyGuardianModuleFetcher {
-    function deputyGuardian() external view returns (address);
-    function foundationSafe() external view returns (address);
-    function superchainConfig() external view returns (address);
-    function version() external view returns (string memory);
+    /// @notice No code exceptions for this template
+    function getCodeExceptions() internal view override returns (address[] memory) {}
 }
