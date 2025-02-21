@@ -278,7 +278,7 @@ jobs:
     steps:
       - utils/checkout-with-mise
       - run:
-          name: "Run simulation sequence for <<parameters.prefix>> tasks: <<parameters.tasks>>"
+          name: "Run simulation sequence for network: <<parameters.network>> | tasks: <<parameters.tasks>>"
           command: git submodule update; just clean; just install && echo "yes" | bash ./script/utils/sim-sequence.sh <<parameters.network>> "<<parameters.tasks>>" "<<parameters.block_number>>"
 
   forge_build:
