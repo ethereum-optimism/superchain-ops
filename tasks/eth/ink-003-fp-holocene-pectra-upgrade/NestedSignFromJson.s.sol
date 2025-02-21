@@ -77,19 +77,6 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
         oracle = standardVersions.PreimageOracle.Address;
         chainId = chainConfig.chainId;
 
-        console.log("DisputeGameFactory Proxy Address:", address(dgfProxy));
-        console.log("Fetched newMips Address:", newMips);
-        console.log("Fetched Oracle Address:", oracle);
-        console.log("Fetched Chain ID:", chainId);
-        console.log("expectedDelayedWETHProxy:", address(expectedDelayedWETHProxy));
-        console.log("chainConfig.challenger:", chainConfig.challenger);
-        console.log("proxies.AnchorStateRegistry:", proxies.AnchorStateRegistry);
-        console.log("chainConfig.proposer:", chainConfig.proposer);
-        console.log("expectedFaultDisputeGameImpl:", address(expectedFaultDisputeGameImpl));
-        console.log("comparisonFaultDisputeGameImpl:", address(comparisonFaultDisputeGameImpl));
-        console.log("expectedPermissionedDisputeGameImpl:", address(expectedPermissionedDisputeGameImpl));
-        console.log("comparisonPermissionedDisputeGameImpl:", address(comparisonPermissionedDisputeGameImpl));
-
         string memory inputJson;
         string memory path = "/tasks/eth/ink-003-fp-holocene-pectra-upgrade/input.json";
         try vm.readFile(string.concat(vm.projectRoot(), path)) returns (string memory data) {
