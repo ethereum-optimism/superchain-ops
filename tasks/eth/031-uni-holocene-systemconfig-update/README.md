@@ -1,6 +1,6 @@
 # Holocene Hardfork Upgrade - `SystemConfig`
 
-Status: IN REVIEW
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
