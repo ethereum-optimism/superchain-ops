@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -euo pipefail
 
 LOGFILE=$(mktemp ${TMPDIR}/"sim-sequence.XXXXX")
 LOGFILE_ANVIL=$(mktemp ${TMPDIR}/"anvil.XXXXX")
@@ -48,27 +48,6 @@ Foundation_Upgrade_Safe=0x847B5c174615B1B7fDF770882256e2D3E95b9D92
 Foundation_Operation_Safe=0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A
 Proxy_Admin_Owner_Safe=0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A
 DESTROY_ANVIL_AFTER_EXECUTION=true
-##############################################################
-# Simulates a sequence of tasks for a given network by running them against an Anvil
-# fork with state overrides disabled.
-#
-# Usage:
-#   ./script/utils/sim-sequence.sh <network> <array-of-task-IDs>
-#
-# Example:
-#   ./script/utils/sim-sequence.sh eth "021 022 base-003 ink-001"
-
-# TODO start an anvil fork and run all simulations against the same node.
-# TODO verify the following test cases, push a commit verifying each one has the expected result in CI:
-#   - expected to pass: ./script/utils/sim-sequence.sh eth "021 022 base-003 ink-001"
-#   - expected to pass: ./script/utils/sim-sequence.sh eth "021 022 base-003"
-#   - expected to fail: ./script/utils/sim-sequence.sh eth "021 base-003 ink-001 022"
-#   - expected to fail: ./script/utils/sim-sequence.sh eth "021 base-003 ink-001"
-#   - expected to fail: ./script/utils/sim-sequence.sh eth "021 025"
-#   - expected to fail: create a dir called 021-tmp and run ./script/utils/sim-sequence.sh eth "021 022 base-003 ink-001"
-set -euo pipefail
-
-# --- Functions ---
 
 error_exit() {
   echo "Error: $1" >&2
@@ -198,6 +177,16 @@ find_task_folder() {
 }
 
 # --- Main Script ---
+# ##############################################################
+# Simulates a sequence of tasks for a given network by running them against an Anvil
+# fork with state overrides disabled.
+#
+# Usage:
+#   ./script/utils/sim-sequence.sh <network> <array-of-task-IDs>
+#
+# Example:
+#   ./script/utils/sim-sequence.sh eth "021 022 base-003 ink-001"
+
 # Validate input arguments
 if [[ "$#" -lt 2 || "$#" -gt 3 ]]; then
   echo "Usage: $0 <network> \"<array-of-task-IDs>\" [block_number]" >&2
