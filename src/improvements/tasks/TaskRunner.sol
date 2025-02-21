@@ -32,9 +32,10 @@ contract TaskRunner is Script {
         return TaskConfig({templateName: templateName, l2chains: l2chains, path: configPath});
     }
 
-    function run() public {
-        string[] memory commands = new string[](1);
+    function run(string memory network) public {
+        string[] memory commands = new string[](2);
         commands[0] = "./src/improvements/script/fetch-tasks.sh";
+        commands[1] = network;
 
         bytes memory result = vm.ffi(commands);
 
@@ -54,8 +55,8 @@ contract TaskRunner is Script {
         }
     }
 
-    function run(string memory dumpStatePath) public {
-        run();
+    function run(string memory dumpStatePath, string memory network) public {
+        run(network);
         vm.dumpState(dumpStatePath);
     }
 

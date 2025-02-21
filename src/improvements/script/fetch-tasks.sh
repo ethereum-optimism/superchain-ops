@@ -23,9 +23,12 @@ check_status() {
   fi
 }
 
-# Find README.md files for all tasks and process them
+# Find README.md files for all mainnet example tasks and process them. 
+# This script only returns mainnet tasks for now. Returning sepolia tasks too would require
+# a lot of additional logic in TaskRunner.sol to switch networks.
 root_dir=$(git rev-parse --show-toplevel)
-files=$(find "$root_dir/src/improvements/tasks/example" -type f -name 'README.md')
+network=$1
+files=$(find "$root_dir/src/improvements/tasks/example/$network" -type f -name 'README.md')
 for file in $files; do
   check_status "$file"
 done
