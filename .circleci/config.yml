@@ -49,6 +49,9 @@ commands:
     parameters:
       task:
         type: string
+      with_chain_governor:
+        type: boolean
+        default: false
     steps:
       - utils/checkout-with-mise
       - run:
@@ -66,6 +69,12 @@ commands:
               --dotenv-path $(pwd)/.env \
               --justfile ../../../nested.just \
               simulate council
+            if [ "<< parameters.with_chain_governor >>" == "true" ]; then
+              SIMULATE_WITHOUT_LEDGER=true just \
+                --dotenv-path $(pwd)/.env \
+                --justfile ../../../nested.just \
+                simulate chain-governor
+            fi
 
   notify-failures-on-develop:
     description: "Notify Slack"
@@ -411,6 +420,13 @@ workflows:
       # expect the ceremony to work continuously), and remove it once
       # the ceremony is for historical archive only (e.g. the
       # ceremony is done).
+<<<<<<< HEAD
+      - just_simulate_sc_rehearsal_1
+      - just_simulate_sc_rehearsal_2
+      - just_simulate_sc_rehearsal_4
+      - just_simulate_ink_respected_game_type
+      - simulate_eth_030
+=======
       #
       # We skip rehearsal 1 because we already have completed this rehearsal (https://github.com/ethereum-optimism/superchain-ops/pull/459),
       # and now it fails with stack too deep after https://github.com/ethereum-optimism/superchain-ops/pull/528.
@@ -425,5 +441,6 @@ workflows:
       - just_simulate_ink_respected_game_type:
           context:
             - circleci-repo-readonly-authenticated-github-token
+>>>>>>> public/main
       # sepolia
        

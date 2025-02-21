@@ -12,7 +12,8 @@ The following state overrides related to the nested Safe execution must be seen:
 The `ProxyAdminOwner` has the following address:
 - Mainnet: 
     - Superchain: [`0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`](https://etherscan.io/address/0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A)
-    - Base/OP: [0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c](https://etherscan.io/address/0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c)
+    - Base/OP: [`0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c`](https://etherscan.io/address/0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c)
+    - Unichain/OP: [`0x6d5B183F538ABB8572F5cD17109c617b994D5833`](https://etherscan.io/address/0x6d5B183F538ABB8572F5cD17109c617b994D5833)
 - Sepolia Superchain: [`0x1Eb2fFc903729a0F03966B917003800b145F56E2`](https://sepolia.etherscan.io/address/0x1Eb2fFc903729a0F03966B917003800b145F56E2)
 
 The Superchain addresses are attested to in the [Optimism Docs](https://docs.optimism.io/chain/security/privileged-roles#addresses).
@@ -32,6 +33,7 @@ you must see the following overrides for the following address:
     - Foundation Upgrade Safe: [`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`](https://etherscan.io/address/0x847B5c174615B1B7fDF770882256e2D3E95b9D92)
     - Foundation Operations Safe: [`0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`](https://etherscan.io/address/0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A)
     - Base Operations Safe: [`0x9855054731540A48b28990B63DcF4f33d8AE46A1`](https://etherscan.io/address/0x9855054731540A48b28990B63DcF4f33d8AE46A1)
+    - Unichain Operations Safe: [`0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC`](https://etherscan.io/address/0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC)
 - Sepolia
     - Fake Security Council Safe: [`0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`](https://sepolia.etherscan.io/address/0xf64bc17485f0B4Ea5F06A96514182FC4cB561977)
     - Fake Foundation Upgrade Safe: [`0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`](https://sepolia.etherscan.io/address/0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B)
@@ -67,6 +69,9 @@ And we do indeed see these entries:
   **Meaning:** This is `owners[1] -> 0xca11bde05977b3631167028862be2a173976ca11`, so the key can be
     derived from `cast index address 0x0000000000000000000000000000000000000001 2`.
 
+A fifth override is possible for the nonce key at `0x0000000000000000000000000000000000000000000000000000000000000005`,
+if an override was set for the Safe Signer.
+
 ## State Changes
 
 The following state changes related to the nested Safe execution must be seen, either for the
@@ -92,9 +97,9 @@ The GnosisSafe `approvedHashes` mapping is updated to indicate approval of this 
     ```
     The output of this command must match the key of the state change.
 
-### Liveness Guard (Security Council only)
+### Liveness Guard (usually Security Council only, possible for Chain Governor)
 
-When the Security Council executes a transaction, the liveness timestamps are updated for each owner that signed the task.
+When the Security Council (or possibly a Chain Governor) executes a transaction, the liveness timestamps are updated for each owner that signed the task.
 This is updating at the moment when the transaction is submitted (`block.timestamp`) into the [`lastLive`](https://github.com/ethereum-optimism/optimism/blob/e84868c27776fd04dc77e95176d55c8f6b1cc9a3/packages/contracts-bedrock/src/safe/LivenessGuard.sol#L41) mapping located at the slot `0`.
 
 ### Nonce increments
