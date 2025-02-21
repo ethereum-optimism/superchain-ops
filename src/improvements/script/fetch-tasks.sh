@@ -24,8 +24,6 @@ check_status() {
 }
 
 # Find README.md files for all mainnet example tasks and process them. 
-# This script only returns mainnet tasks for now. Returning sepolia tasks too would require
-# a lot of additional logic in TaskRunner.sol to switch networks.
 root_dir=$(git rev-parse --show-toplevel)
 network=$1
 if [[ -z "$network" ]]; then
