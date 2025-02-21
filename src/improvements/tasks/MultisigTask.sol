@@ -20,10 +20,6 @@ abstract contract MultisigTask is Test, Script {
     /// will be set to the value specified in the config file
     uint256 public nonce;
 
-    /// @notice flag to determine if the parent multisig is a nested multisig
-    /// this variable does not reflect the state of the childMultisig
-    bool public isNestedSafe;
-
     /// @notice owners the safe started with
     address[] public startingOwners;
 
@@ -235,7 +231,7 @@ abstract contract MultisigTask is Test, Script {
     function signFromChildMultisig(string memory taskConfigFilePath, address _childMultisig) public {
         childMultisig = _childMultisig;
         simulateRun(taskConfigFilePath);
-        require(isNestedSafe, "MultisigTask: multisig must be nested");
+        require(isNestedSafe(parentMultisig), "MultisigTask: multisig must be nested");
     }
 
     /// @notice Sets the address registry, initializes the task.
@@ -274,17 +270,7 @@ abstract contract MultisigTask is Test, Script {
         // TODO change this once we implement task stacking
         nonce = IGnosisSafe(parentMultisig).nonce();
 
-        {
-            // assume safe is nested unless there is an EOA owner
-            isNestedSafe = true;
-
-            address[] memory owners = IGnosisSafe(parentMultisig).getOwners();
-            for (uint256 i = 0; i < owners.length; i++) {
-                if (owners[i].code.length == 0) {
-                    isNestedSafe = false;
-                }
-            }
-        }
+        isNestedSafe(parentMultisig);
 
         vm.label(address(addrRegistry), "AddrRegistry");
         vm.label(address(this), "MultisigTask");
@@ -663,7 +649,7 @@ abstract contract MultisigTask is Test, Script {
         console.log("\n\n------------------ Task Calldata ------------------");
         console.logBytes(getCalldata());
 
-        if (isNestedSafe) {
+        if (isNestedSafe(parentMultisig)) {
             printNestedData();
         } else {
             printSingleData();
@@ -842,7 +828,20 @@ abstract contract MultisigTask is Test, Script {
         }
     }
 
-    /// @notice overridden in templates
+    function isNestedSafe(address safe) public view returns (bool) {
+        // assume safe is nested unless there is an EOA owner
+        bool nested = true;
+
+        address[] memory owners = IGnosisSafe(safe).getOwners();
+        for (uint256 i = 0; i < owners.length; i++) {
+            if (owners[i].code.length == 0) {
+                nested = false;
+            }
+        }
+        return nested;
+    }
+
+    /// @notice Override to return a list of addresses that should not be checked for code length.
     function getCodeExceptions() internal view virtual returns (address[] memory);
 
     /// @notice helper function to prepare the signatures to be executed

@@ -226,12 +226,12 @@ jobs:
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
+    environment:
+      FOUNDRY_PROFILE: ci
     steps:
       - utils/checkout-with-mise
       - run:
           name: just simulate r2-remove-signer
-          environment:
-            FOUNDRY_PROFILE: ci
           command: |
             just install
             cd security-council-rehearsals
@@ -247,12 +247,12 @@ jobs:
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
+    environment:
+      FOUNDRY_PROFILE: ci
     steps:
       - utils/checkout-with-mise
       - run:
           name: just simulate r4-jointly-upgrade
-          environment:
-            FOUNDRY_PROFILE: ci
           command: |
             just install
             cd security-council-rehearsals
@@ -299,12 +299,12 @@ jobs:
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
+    environment:
+      FOUNDRY_PROFILE: ci
     steps:
       - utils/checkout-with-mise
       - run:
           name: forge test
-          environment:
-            FOUNDRY_PROFILE: ci
           command: |
             forge --version
             forge test -vvv
@@ -327,6 +327,19 @@ jobs:
           name: Print failed test traces
           command: (cd src/improvements && just monorepo-integration-test rerun)
           when: on_fail
+  
+  template_regression_tests:
+    circleci_ip_ranges: true
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    environment:
+      FOUNDRY_PROFILE: ci
+    steps:
+      - utils/checkout-with-mise
+      - run:
+          name: Make sure all templates can be simulated.
+          command: |
+            (cd src/improvements && just simulate-all-templates)
 
   print_versions:
     docker:
@@ -378,6 +391,7 @@ workflows:
           filters:
             branches:
               only: main
+      - template_regression_tests
       - shellcheck:
           context:
             - circleci-repo-readonly-authenticated-github-token
