@@ -16,7 +16,12 @@ For each contract listed in the state diff, please verify that no contracts or s
 - **Key**: `0x0000000000000000000000000000000000000000000000000000000000000068`
   **Before**: `0x0000000000000000000000000000000000000000000000000000000001c9c380`
   **After**: `0x0000000000000000000000000000000000177fef000026080000000001c9c380`
-  **Meaning**: Updates the basefeeScalar and blobbasefeeScalar storage variables to 9736 (cast td 0x00002608) and 1540079 (cast td 0x00177fef) respectively. These share a slot with the gasLimit which remains at 30000000 (cast td 0x0000000001c9c380).
+  **Meaning**: Updates the basefeeScalar and blobbasefeeScalar storage variables to 9736 (cast td 0x00002608) and 1540079 (cast td 0x00177fef) respectively. These share a slot with the gasLimit which remains at 30000000 (cast td 0x0000000001c9c380). You can verify these are the current values with the following commands:
+  
+  ```
+  cast call 0x420000000000000000000000000000000000000F 'baseFeeScalar()(uint256)' --rpc-url https://rpc.soneium.org
+  cast call 0x420000000000000000000000000000000000000F 'blobBaseFeeScalar()(uint256)' --rpc-url https://rpc.soneium.org
+  ```
 
 and
 
