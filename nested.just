@@ -182,7 +182,8 @@ approvehash_in_anvil whichSafe hdPath='0':
   ## 2. Approval of this hash in the SC and FND respectively.
   cast send ${safe} "approveHash(bytes32)" ${hash} --rpc-url ${ANVIL_LOCALHOST_RPC} --private-key {{PRIVATE_KEY_OWNER}} 2>&1 /dev/null 
 
-  ## 3. Execute the Approval permissionless on the L1PAO will revert here if there is an error with the nonce.
+  ## 3. Execute the Approval from another private-key `PRIVATE_KEY_EXECUTOR` on the L1PAO. 
+  # This will revert, if there is an error with the nonce here and throw the GS025 error on the logs.
   forge script ${script} \
     --rpc-url ${ANVIL_LOCALHOST_RPC} \
     --broadcast \
