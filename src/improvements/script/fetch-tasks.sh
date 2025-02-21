@@ -23,7 +23,7 @@ check_status() {
   fi
 }
 
-# Find README.md files for all mainnet example tasks and process them. 
+# Find README.md files for all tasks and process them.
 root_dir=$(git rev-parse --show-toplevel)
 network=$1
 if [[ -z "$network" ]]; then
