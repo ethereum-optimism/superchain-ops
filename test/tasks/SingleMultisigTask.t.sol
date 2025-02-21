@@ -63,7 +63,7 @@ contract SingleMultisigTaskTest is Test {
             addrRegistry.getAddress("SystemConfigOwner", 1750),
             "Wrong safe address string"
         );
-        assertEq(multisigTask.isNestedSafe(), false, "Expected isNestedSafe to be false");
+        assertEq(multisigTask.isNestedSafe(multisigTask.parentMultisig()), false, "Expected isNestedSafe to be false");
     }
 
     function testAllowedStorageWrites() public {
@@ -243,7 +243,7 @@ contract SingleMultisigTaskTest is Test {
 
         uint256 start = vm.snapshot();
 
-        multisigTask.simulateRun("src/improvements/tasks/example/eth/001-initial-example-dg-upgrade/config.toml");
+        multisigTask.simulateRun("src/improvements/tasks/example/eth/001-dispute-game-upgrade-template/config.toml");
         addrRegistry = multisigTask.addrRegistry();
         address account = addrRegistry.getAddress("DisputeGameFactoryProxy", getChain("optimism").chainId);
 
