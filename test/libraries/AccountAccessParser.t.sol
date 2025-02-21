@@ -125,6 +125,17 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             address[] memory uniqueAccounts = accesses.getUniqueWrites();
             assertEq(uniqueAccounts.length, 0, "110");
         }
+        // Test correct unique account is returned when account access account didn't have a storage write directly
+        {
+            VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
+            storageAccesses[0] = storageAccess(addr2, slot0, isWrite, val0, val1);
+            VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
+            accesses[0] = accountAccess(addr1, storageAccesses);
+
+            address[] memory uniqueAccounts = accesses.getUniqueWrites();
+            assertEq(uniqueAccounts.length, 1, "120");
+            assertEq(uniqueAccounts[0], addr2, "130");
+        }
     }
 
     function test_getStateDiffFor_succeeds() public pure {

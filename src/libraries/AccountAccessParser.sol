@@ -212,26 +212,30 @@ library AccountAccessParser {
         for (uint256 i = 0; i < accesses.length; i++) {
             if (!accesses[i].reverted) {
                 bool hasChangedWrite = false;
+                VmSafe.StorageAccess memory sa;
                 for (uint256 j = 0; j < accesses[i].storageAccesses.length; j++) {
-                    VmSafe.StorageAccess memory sa = accesses[i].storageAccesses[j];
+                    sa = accesses[i].storageAccesses[j];
                     if (sa.isWrite && !sa.reverted && sa.previousValue != sa.newValue) {
                         hasChangedWrite = true;
+
                         break;
                     }
                 }
                 if (hasChangedWrite) {
                     bool exists = false;
                     for (uint256 k = 0; k < count; k++) {
-                        if (temp[k] == accesses[i].account) {
+                        if (temp[k] == sa.account) {
                             exists = true;
                             break;
                         }
                     }
                     if (!exists) {
-                        temp[count] = accesses[i].account;
+                        temp[count] = sa.account;
                         count++;
                     }
                 }
+            } else {
+                console.log("accesses[i].account did revert!!", accesses[i].account);
             }
         }
         uniqueAccounts = new address[](count);
