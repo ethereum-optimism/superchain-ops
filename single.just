@@ -8,6 +8,7 @@ export ownerSafe := env_var('OWNER_SAFE')
 
 PRIVATE_KEY_OWNER := "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
 PRIVATE_KEY_EXECUTOR :="0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
+export FAKE_SIG :="11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
 
 approvehash_in_anvil hdPath='0':
   #!/usr/bin/env bash
@@ -150,7 +151,7 @@ execute_in_anvil hdPath='0':
   forge build
   execution=$(forge script ${script} \
     --rpc-url ${localrpcUrl} \
-    --sig "runJson(string,bytes)" ${bundlePath} 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111 \
+    --sig "runJson(string,bytes)" ${bundlePath} ${FAKE_SIG} \
     --broadcast --private-key {{PRIVATE_KEY_EXECUTOR}} 2>&1) # >> /tmp/trace_execution_logs.txt 
     echo $execution
 
