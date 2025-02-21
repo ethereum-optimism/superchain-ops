@@ -5,6 +5,7 @@ import {
     DeputyGuardianModule, IOptimismPortal2, GameType
 } from "@eth-optimism-bedrock/src/safe/DeputyGuardianModule.sol";
 import {LibGameType} from "@eth-optimism-bedrock/src/dispute/lib/LibUDT.sol";
+import {VmSafe} from "forge-std/Vm.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 
@@ -67,7 +68,7 @@ contract SetGameTypeTemplate is MultisigTask {
 
     /// @notice Validates that game types were set correctly for the specified chain ID
     /// @param chainId The ID of the L2 chain to validate
-    function _validate(uint256 chainId) internal view override {
+    function _validate(uint256 chainId, VmSafe.AccountAccess[] memory) internal view override {
         IOptimismPortal2 optimismPortal =
             IOptimismPortal2(payable(addrRegistry.getAddress("OptimismPortalProxy", chainId)));
 

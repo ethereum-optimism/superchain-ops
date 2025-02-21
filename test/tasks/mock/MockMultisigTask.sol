@@ -49,7 +49,7 @@ contract MockMultisigTask is MultisigTask {
         }
     }
 
-    function _validate(uint256 chainId) internal view override {
+    function _validate(uint256 chainId, VmSafe.AccountAccess[] memory) internal view override {
         IProxy proxy = IProxy(payable(addrRegistry.getAddress("L1ERC721BridgeProxy", chainId)));
         bytes32 data = vm.load(address(proxy), Constants.PROXY_IMPLEMENTATION_ADDRESS);
 
