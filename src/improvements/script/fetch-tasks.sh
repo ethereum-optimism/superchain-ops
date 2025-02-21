@@ -23,9 +23,15 @@ check_status() {
   fi
 }
 
-# Find README.md files for all tasks and process them
+# Find README.md files for all tasks and process them.
 root_dir=$(git rev-parse --show-toplevel)
-files=$(find "$root_dir/src/improvements/tasks/example" -type f -name 'README.md')
+network=$1
+if [[ -z "$network" ]]; then
+  echo "Usage: $0 <network>"
+  echo "Network is required"
+  exit 1
+fi
+files=$(find "$root_dir/src/improvements/tasks/example/$network" -type f -name 'README.md')
 for file in $files; do
   check_status "$file"
 done
