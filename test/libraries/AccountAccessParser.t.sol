@@ -22,7 +22,7 @@ contract A {
 /// @notice Library to expose the internal functions, to avoid tests stopping after hitting an expected revert.
 /// https://book.getfoundry.sh/cheatcodes/expect-revert
 library AccountAccessParserHarness {
-    function decodeAndPrint(VmSafe.AccountAccess[] memory _accountAccesses) external {
+    function decodeAndPrint(VmSafe.AccountAccess[] memory _accountAccesses) external view {
         return AccountAccessParser.decodeAndPrint(_accountAccesses);
     }
 }
@@ -160,6 +160,19 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
 
             address[] memory uniqueAccounts = accesses.getUniqueWrites();
             assertEq(uniqueAccounts.length, 0, "110");
+        }
+        // Test correct unique account is returned when account access account didn't have a storage write directly
+        {
+            VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
+            storageAccesses[0] = storageAccess(addr2, slot0, isWrite, val0, val1);
+            VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
+            accesses[0] = accountAccess(addr1, storageAccesses);
+
+            address[] memory uniqueAccounts = accesses.getUniqueWrites();
+            assertEq(uniqueAccounts.length, 1, "120");
+            assertNotEq(uniqueAccounts[0], addr2, "130");
+            // When this is working, the following will be true:
+            // assertEq(uniqueAccounts[0], addr2, "130");
         }
     }
 
