@@ -126,6 +126,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             assertEq(uniqueAccounts.length, 0, "110");
         }
         // Test correct unique account is returned when account access account didn't have a storage write directly
+        // but the account's storage accesses did have a write in a different account.
         {
             VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
             storageAccesses[0] = storageAccess(addr2, slot0, isWrite, val0, val1);
