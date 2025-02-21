@@ -66,9 +66,11 @@ approvehash_in_anvil hdPath='0':
     --rpc-url ${localrpcUrl} \
     --sig "signJson(string)" ${bundlePath} \
     --sender ${signer})
-  echo "Outputforge: $outputforge" > /tmp/outputforge.txt
+  tempfile=$(mktemp)
+  echo "tmp file located to:" > $tempfile
+  echo "Outputforge: $outputforge" > $tempfile   
 
-  hash=$(cat /tmp/outputforge.txt | grep -A 1 "If submitting onchain, call Safe.approveHash on " | cut -d ':' -f 2 | tr -d '[:space:]')
+  hash=$(cat $tempfile | grep -A 1 "If submitting onchain, call Safe.approveHash on " | cut -d ':' -f 2 | tr -d '[:space:]')
   # hash=$(echo $outputforge | grep -A 1 "If submitting onchain, call Safe.approveHash" "$file_path" | tail -n 1 | awk '{print $2}')
 
   # Check if a hash was found
