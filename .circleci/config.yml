@@ -288,7 +288,6 @@ jobs:
           name: "Run simulation sequence for network: <<parameters.network>> | tasks: <<parameters.tasks>>"
           command: git submodule update; just clean; just install && echo "yes" | bash ./script/utils/sim-sequence.sh <<parameters.network>> "<<parameters.tasks>>" "<<parameters.block_number>>"
 
-
   forge_build:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -365,8 +364,7 @@ jobs:
       - utils/checkout-with-mise
       - run:
           name: shellcheck
-          command:
-            | # Justfiles are not shell scripts and should not be checked with shellcheck
+          command: | # Justfiles are not shell scripts and should not be checked with shellcheck
             (cd src/improvements/script && shellcheck -x *.sh)
 
 workflows:
@@ -448,5 +446,4 @@ workflows:
           network: "eth"
           tasks: "021 022 base-003 ink-001"
           block_number: "21573136" # If not specified, the latest block number is used.
-      # sepolia
 
