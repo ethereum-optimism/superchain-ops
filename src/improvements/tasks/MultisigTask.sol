@@ -969,7 +969,7 @@ abstract contract MultisigTask is Test, Script {
     }
 
     /// @dev Returns true if the given account access should be recorded as an action.
-    function _isValidAccess(VmSafe.AccountAccess memory access, uint256 topLevelDepth) internal view returns (bool) {
+    function _isValidAction(VmSafe.AccountAccess memory access, uint256 topLevelDepth) internal view returns (bool) {
         bool accountNotRegistryOrVm = (access.account != address(addrRegistry) && access.account != address(vm));
         bool accessorNotRegistry = access.accessor != address(addrRegistry);
         bool isCall = access.kind == VmSafe.AccountAccessKind.Call;
