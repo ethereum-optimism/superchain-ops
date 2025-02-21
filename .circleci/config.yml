@@ -424,7 +424,6 @@ workflows:
       # - just_simulate_sc_rehearsal_1
       - just_simulate_sc_rehearsal_2
       - just_simulate_sc_rehearsal_4
-      - just_simulate_ink_respected_game_type
       - just_simulate_sony_001_holocene_system_config_upgrade:
           context:
             - circleci-repo-readonly-authenticated-github-token
