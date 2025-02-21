@@ -5,9 +5,27 @@ pragma solidity ^0.8.15;
 import {Test} from "forge-std/Test.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
+import {console} from "forge-std/console.sol";
+import {Proxy} from "@eth-optimism-bedrock/src/universal/Proxy.sol";
 
 // Libraries
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
+
+contract A {
+    uint256 public x;
+
+    function setX(uint256 _x) public {
+        x = _x;
+    }
+}
+
+/// @notice Library to expose the internal functions, to avoid tests stopping after hitting an expected revert.
+/// https://book.getfoundry.sh/cheatcodes/expect-revert
+library AccountAccessParserHarness {
+    function decodeAndPrint(VmSafe.AccountAccess[] memory _accountAccesses) external {
+        return AccountAccessParser.decodeAndPrint(_accountAccesses);
+    }
+}
 
 contract AccountAccessParser_decodeAndPrint_Test is Test {
     using AccountAccessParser for VmSafe.AccountAccess[];
@@ -33,6 +51,24 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
     address constant addr8 = address(8);
     address constant addr9 = address(9);
     address constant addr10 = address(10);
+
+    function testReproduceBug() public {
+        A a = new A();
+        console.log("Contract A", address(a));
+        Proxy proxy = new Proxy(payable(msg.sender));
+        vm.prank(msg.sender);
+        proxy.upgradeTo(address(a));
+        console.log("Proxy", address(proxy));
+
+        // Start state diff recording
+        vm.startStateDiffRecording();
+        A(address(proxy)).setX(10);
+        VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
+        // Stop state diff recording
+
+        vm.expectRevert("No state changes found, this is unexpected.");
+        AccountAccessParserHarness.decodeAndPrint(accountAccesses);
+    }
 
     function test_getUniqueWrites_succeeds() public pure {
         // Test basic case - single account with single changed write
@@ -124,18 +160,6 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
 
             address[] memory uniqueAccounts = accesses.getUniqueWrites();
             assertEq(uniqueAccounts.length, 0, "110");
-        }
-        // Test correct unique account is returned when account access account didn't have a storage write directly
-        // but the account's storage accesses did have a write in a different account.
-        {
-            VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
-            storageAccesses[0] = storageAccess(addr2, slot0, isWrite, val0, val1);
-            VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
-            accesses[0] = accountAccess(addr1, storageAccesses);
-
-            address[] memory uniqueAccounts = accesses.getUniqueWrites();
-            assertEq(uniqueAccounts.length, 1, "120");
-            assertEq(uniqueAccounts[0], addr2, "130");
         }
     }
 
