@@ -28,6 +28,11 @@ check_status() {
 # a lot of additional logic in TaskRunner.sol to switch networks.
 root_dir=$(git rev-parse --show-toplevel)
 network=$1
+if [[ -z "$network" ]]; then
+  echo "Usage: $0 <network>"
+  echo "Network is required"
+  exit 1
+fi
 files=$(find "$root_dir/src/improvements/tasks/example/$network" -type f -name 'README.md')
 for file in $files; do
   check_status "$file"
