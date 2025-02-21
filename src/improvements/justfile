@@ -64,15 +64,35 @@ task COMMAND="" NETWORK="":
             ;;
     esac
     
-monorepo-integration-test:
+monorepo-integration-test COMMAND="":
     #!/usr/bin/env bash
     set -euo pipefail
+
+    # Set FOUNDRY_PROFILE, defaulting to 'default' if not already set.
+    export FOUNDRY_PROFILE="${FOUNDRY_PROFILE:-default}"
+    echo "Currently running with FOUNDRY_PROFILE: ${FOUNDRY_PROFILE}"
+
     root_dir=$(git rev-parse --show-toplevel)
-    allocs_path=${root_dir}/lib/optimism/packages/contracts-bedrock/allocs.json
+    allocs_path="${root_dir}/lib/optimism/packages/contracts-bedrock/allocs.json"
+
+    # Running this command with mainnet RPC URL.
+    ETH_RPC_URL=$(yq eval ".profile.\"${FOUNDRY_PROFILE}\".rpc_endpoints.mainnet" "${root_dir}/foundry.toml")
+    export ETH_RPC_URL
+    echo "Using mainnet RPC: ${ETH_RPC_URL}"
+
     forge build
-    forge script ${root_dir}/src/improvements/tasks/Runner.sol:Runner --sig "run(string)" ${allocs_path} --rpc-url $ETH_RPC_URL --ffi
+    forge script ${root_dir}/src/improvements/tasks/Runner.sol:Runner --sig "run(string)" ${allocs_path} --ffi --rpc-url $ETH_RPC_URL
     export SUPERCHAIN_OPS_ALLOCS_PATH=./allocs.json
-    cd ${root_dir}/lib/optimism/packages/contracts-bedrock/ && just test-upgrade
+    cd ${root_dir}/lib/optimism/packages/contracts-bedrock/
+    # shellcheck disable=SC2194
+    case "{{COMMAND}}" in
+        rerun)
+            just test-upgrade-rerun
+            ;;
+        *)
+            just test-upgrade
+            ;;
+    esac
     rm -f ${allocs_path} # clean up
 
 check-superchain-registry-latest:

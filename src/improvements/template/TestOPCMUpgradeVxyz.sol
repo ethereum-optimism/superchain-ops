@@ -1,4 +1,5 @@
-pragma solidity ^0.8.0;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.15;
 
 import {OPCMBaseTask} from "../tasks/OPCMBaseTask.sol";
 import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
@@ -74,4 +75,7 @@ contract TestOPCMUpgradeVxyz is OPCMBaseTask {
     /// for this dummy opcm there are no validations per l2 chain
     /// for a real OPCM instance, add the validations per l2chain
     function _validate(uint256 chainId) internal view override {}
+
+    /// @notice no code exceptions for this template
+    function getCodeExceptions() internal view virtual override returns (address[] memory) {}
 }
