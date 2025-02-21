@@ -210,10 +210,17 @@ library AccountAccessParser {
         address[] memory temp = new address[](accesses.length);
         uint256 count = 0;
         for (uint256 i = 0; i < accesses.length; i++) {
+            console.log("\n\n#### Account %s ####", accesses[i].account);
             if (!accesses[i].reverted) {
                 bool hasChangedWrite = false;
                 for (uint256 j = 0; j < accesses[i].storageAccesses.length; j++) {
                     VmSafe.StorageAccess memory sa = accesses[i].storageAccesses[j];
+                    console.log("#### Storage Access %s ####", sa.account);
+                    console.log("isWrite", sa.isWrite);
+                    console.log("previousValue");
+                    console.logBytes32(sa.previousValue);
+                    console.log("newValue");
+                    console.logBytes32(sa.newValue);
                     if (sa.isWrite && !sa.reverted && sa.previousValue != sa.newValue) {
                         hasChangedWrite = true;
                         break;
