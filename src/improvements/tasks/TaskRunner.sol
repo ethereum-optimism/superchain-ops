@@ -55,6 +55,9 @@ contract TaskRunner is Script {
         }
     }
 
+    /// @notice Runs the task and dumps the state to a file.
+    /// The network parameter must be equivalent to the shortname of the network.
+    /// e.g. For Ethereum Mainnet: https://github.com/ethereum-lists/chains/blob/53965b4def1d2983bef638279a66fc88e408ad7c/_data/chains/eip155-1.json#L33
     function run(string memory dumpStatePath, string memory network) public {
         run(network);
         vm.dumpState(dumpStatePath);
