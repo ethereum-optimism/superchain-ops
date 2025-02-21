@@ -270,7 +270,21 @@ jobs:
     steps:
       - simulate:
           task: "/eth/ink-002-set-respected-game-type"
+  
+  just_simulate_ink_sep_fp_holocene_pectra_upgrade:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - simulate_nested:
+          task: "/sep/ink-001-fp-holocene-pectra-upgrade"
 
+  just_simulate_ink_sep_holocene_system_config_upgrade:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - simulate_nested:
+          task: "/sep/ink-002-holocene-system-config-upgrade"
+          
   simulate_sequence:
     description: "Runs a sequence of simulations"
     parameters:
@@ -456,6 +470,14 @@ workflows:
       - just_simulate_ink_respected_game_type:
           context:
             - circleci-repo-readonly-authenticated-github-token
+      # sepolia
+      - just_simulate_ink_sep_fp_holocene_pectra_upgrade:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+      - just_simulate_ink_sep_holocene_system_config_upgrade:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+       
       - simulate_sequence:
           network: "eth"
           tasks: "021 022 base-003 ink-001"
