@@ -7,7 +7,7 @@ import {Script} from "forge-std/Script.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
-contract Runner is Script {
+contract TaskRunner is Script {
     using Strings for uint256;
 
     struct L2Chain {
