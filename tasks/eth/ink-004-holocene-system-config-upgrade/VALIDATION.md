@@ -16,14 +16,14 @@ For each contract listed in the state diff, please verify that no contracts or s
 - **Key**: `0x0000000000000000000000000000000000000000000000000000000000000066`
   **Before**: `0x00000000000000000000000000000000000000000000000000000000000c3c9d`
   **After**: `0x01000000000000000000000000000000000000000000000000000000000c3c9d`
-  **Meaning**: Updates the scalar storage variable to reflect a scalar version of .
+  **Meaning**: Updates the scalar storage variable to reflect a scalar version of 1.
 
 and
 
 - **Key**: `0x0000000000000000000000000000000000000000000000000000000000000068`
-  **Before**: `0x0000000000000000000000000000000000000000000000000000000003938700`
-  **After**: `0x0000000000000000000000000000000000000000000c3c9d0000000003938700`
-  **Meaning**: Updates the basefeeScalar storage variable to 801949 (cast td 0x0). This shares a slot with the gasLimit which remains at 30000000 (cast td 0x0).
+  **Before**: `0x0000000000000000000000000000000000000000000000000000000001c9c380`
+  **After**: `0x0000000000000000000000000000000000000000000c3c9d0000000001c9c380`
+  **Meaning**: Updates the basefeeScalar and blobbasefeeScalar storage variables to `801949` (cast td 0x0000c3c9d) and `0` respectively. These share a slot with the gasLimit which remains at 30000000 (cast td 0x0000000001c9c380).
 
 and
 
