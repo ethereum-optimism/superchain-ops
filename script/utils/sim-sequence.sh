@@ -108,6 +108,7 @@ cleanup() {
     #TODO: In the future, we should kill the anvil fork here?
   fi
 }
+
 createFork() {
   # Start a fork
   # check if the port is already open

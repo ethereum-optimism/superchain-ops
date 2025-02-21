@@ -12,6 +12,7 @@ export ownerSafe := env_var('OWNER_SAFE')
 export chainGovernorSafe := env_var_or_default('CHAIN_GOVERNOR_SAFE', '')
 export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 
+# These are two of the anvil default private keys, they are publicly known
 export PRIVATE_KEY_OWNER := "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
 export PRIVATE_KEY_EXECUTOR :="0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
 
