@@ -27,7 +27,7 @@ This script simulates a sequence of tasks for a given network by running them ag
 The script uses several environment variables that can be configured:
 
 - `ANVIL_LOCALHOST_RPC`: Default is "http://localhost:8545"
-- `DESTROY_ANIVIL_AFTER_EXECUTION`: Controls whether to destroy the Anvil instance after execution.
+- `DESTROY_ANVIL_AFTER_EXECUTION`: Controls whether to destroy the Anvil instance after execution.
 
 ## Examples
 
