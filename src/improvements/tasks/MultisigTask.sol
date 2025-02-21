@@ -129,7 +129,7 @@ abstract contract MultisigTask is Test, Script {
     /// For nested multisig, prints the data to sign and the hash to approve for each of the child multisigs.
     /// @param taskConfigFilePath The path to the task configuration file.
     function simulateRun(string memory taskConfigFilePath, bytes memory signatures, address optionalChildMultisig)
-        public
+        internal
         returns (VmSafe.AccountAccess[] memory, Action[] memory)
     {
         // sets safe to the safe specified by the current template from addresses.json
@@ -142,6 +142,11 @@ abstract contract MultisigTask is Test, Script {
         print(actions, optionalChildMultisig);
 
         return (accountAccesses, actions);
+    }
+
+    /// @notice Runs the task with the given configuration file path.
+    function simulateRun(string memory taskConfigFilePath, bytes memory signatures) public {
+        simulateRun(taskConfigFilePath, signatures, address(0));
     }
 
     /// @notice Runs the task with the given configuration file path.
@@ -927,6 +932,9 @@ abstract contract MultisigTask is Test, Script {
         );
         require(accesses.length > 0, "MultisigTask: no account accesses found");
 
+        // get the minimum depth of the calls, we only care about the top level calls
+        // this is to avoid counting subcalls as actions.
+        // the account accesses are in order of the calls, so the first one is always the top level call
         uint256 topLevelDepth = accesses[0].depth;
 
         // First pass: count valid actions.
@@ -938,7 +946,7 @@ abstract contract MultisigTask is Test, Script {
                     _accountAccesses.push(accesses[i].storageAccesses[j]);
                 }
             }
-            if (_isValidAccess(accesses[i], topLevelDepth)) {
+            if (_isValidAction(accesses[i], topLevelDepth)) {
                 validCount++;
             }
         }
@@ -947,7 +955,7 @@ abstract contract MultisigTask is Test, Script {
         Action[] memory validActions = new Action[](validCount);
         uint256 index = 0;
         for (uint256 i = 0; i < accesses.length; i++) {
-            if (_isValidAccess(accesses[i], topLevelDepth)) {
+            if (_isValidAction(accesses[i], topLevelDepth)) {
                 // Ensure action uniqueness.
                 validateAction(accesses[i].account, accesses[i].value, accesses[i].data, validActions);
 
