@@ -217,7 +217,6 @@ library AccountAccessParser {
                     sa = accesses[i].storageAccesses[j];
                     if (sa.isWrite && !sa.reverted && sa.previousValue != sa.newValue) {
                         hasChangedWrite = true;
-
                         break;
                     }
                 }
