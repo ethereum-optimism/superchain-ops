@@ -1,7 +1,8 @@
 #!/bin/bash
 
 
-LOGFILE="/tmp/sim-sequence.log"
+LOGFILE=$(mktemp ${TMPDIR}/"sim-sequence.XXXXX")
+LOGFILE_ANVIL=$(mktemp ${TMPDIR}/"anvil.XXXXX")
 ## Nonce Values
 MAX_NONCE_ERROR=9999999
 FUS_BEFORE=$MAX_NONCE_ERROR
@@ -31,7 +32,6 @@ log_info() {
 
 # Log the nonce with error and exit the script.
 log_nonce_error() {
-  echo "est" > /tmp/rce.txt
   echo -e "\033[0;31mFoundation Upgrade Safe (FuS) [$Foundation_Upgrade_Safe] nonce: "$FUS_BEFORE".\033[0m"
   echo -e "\033[0;31mFoundation Operation Safe (FoS) [$Foundation_Operation_Safe] nonce: "$FOS_BEFORE".\033[0m"
   echo -e "\033[0;31mSecurity Council Safe (SC) [$Security_Council_Safe] nonce: "$SC_BEFORE".\033[0m"
@@ -47,7 +47,7 @@ Security_Council_Safe=0xc2819DC788505Aac350142A7A707BF9D03E3Bd03
 Foundation_Upgrade_Safe=0x847B5c174615B1B7fDF770882256e2D3E95b9D92
 Foundation_Operation_Safe=0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A
 Proxy_Admin_Owner_Safe=0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A
-DESTROY_ANIVIL_AFTER_EXECUTION=true
+DESTROY_ANVIL_AFTER_EXECUTION=true
 ##############################################################
 # Simulates a sequence of tasks for a given network by running them against an Anvil
 # fork with state overrides disabled.
@@ -102,7 +102,7 @@ cleanup() {
   fi
 
   # Kill the anvil fork at the end if it was started by this script
-  if $DESTROY_ANIVIL_AFTER_EXECUTION; then
+  if $DESTROY_ANVIL_AFTER_EXECUTION; then
     echo "Anvil is still open. To kill it, please use the command below:"
     echo "ps aux | grep anvil | grep -v grep | awk '{print \$3}' | xargs kill"
     #TODO: In the future, we should kill the anvil fork here?
@@ -114,13 +114,13 @@ createFork() {
   # check if the port is already open
   if lsof -Pi :8545 -sTCP:LISTEN -t >/dev/null ; then
     log_info "Anvil is detected and running on port 8545, we use the current instance of anvil."
-    DESTROY_ANIVIL_AFTER_EXECUTION=false
+    DESTROY_ANVIL_AFTER_EXECUTION=false
   else  
     log_info "No instance of anvil is detected, starting anvil fork on \"$ANVIL_LOCALHOST_RPC\" by forking $RPC_URL."
     if [[ -n "$block_number" ]]; then
-      anvil -f $RPC_URL --fork-block-number $block_number >> /tmp/anvil.logs &
+      anvil -f $RPC_URL --fork-block-number $block_number >> $LOGFILE_ANVIL &
     else
-      anvil -f $RPC_URL >> /tmp/anvil.logs &
+      anvil -f $RPC_URL >> $LOGFILE_ANVIL &
     fi
     sleep 5
   fi
@@ -198,7 +198,6 @@ find_task_folder() {
 }
 
 # --- Main Script ---
-
 # Validate input arguments
 if [[ "$#" -lt 2 || "$#" -gt 3 ]]; then
   echo "Usage: $0 <network> \"<array-of-task-IDs>\" [block_number]" >&2
@@ -209,6 +208,9 @@ network="$1"
 task_ids="$2"
 block_number="${3:-}" # Make block_number optional
 
+log_info "Simulating tasks for network: $network"
+log_info "The \"LOGFILE\" is located in:$LOGFILE"
+log_info "The \"LOGFILE_ANVIL\" is located in: $LOGFILE_ANVIL"
 # Validate block number if provided
 if [[ -n "$block_number" ]]; then
     if ! [[ "$block_number" =~ ^[0-9]+$ ]]; then
