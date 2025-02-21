@@ -1,6 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
+if [[ -z "${TMPDIR:-}" ]]; then # Set a default value if TMPDIR is not set useful for the CI for example.
+  TMPDIR=/tmp
+fi
+
 LOGFILE=$(mktemp ${TMPDIR}/"sim-sequence.XXXXX")
 LOGFILE_ANVIL=$(mktemp ${TMPDIR}/"anvil.XXXXX")
 ## Nonce Values
