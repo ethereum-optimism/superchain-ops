@@ -273,8 +273,6 @@ execute hdPath='0':
     --sig "runJson(string)" \
     ${bundlePath}
 
-
-
 simulated-run hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
