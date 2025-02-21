@@ -284,6 +284,13 @@ jobs:
       - simulate_nested:
           task: "/sep/ink-002-holocene-system-config-upgrade"
 
+  just_simulate_031_uni_holocene_systemconfig_update:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - simulate_nested:
+          task: "/eth/031-uni-holocene-systemconfig-update"
+
   simulate_sequence:
     description: "Runs a sequence of simulations"
     parameters:
@@ -476,6 +483,9 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
       - just_simulate_ink_sep_holocene_system_config_upgrade:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+      - just_simulate_031_uni_holocene_systemconfig_update:
           context:
             - circleci-repo-readonly-authenticated-github-token
 
