@@ -4,7 +4,7 @@
 LOGFILE=$(mktemp ${TMPDIR}/"sim-sequence.XXXXX")
 LOGFILE_ANVIL=$(mktemp ${TMPDIR}/"anvil.XXXXX")
 ## Nonce Values
-MAX_NONCE_ERROR=9999999
+MAX_NONCE_ERROR=9999999 # This is a impossible value for a nonce, if the value is still this after the simulation it means there is an issue when fetching the nonce.
 FUS_BEFORE=$MAX_NONCE_ERROR
 FOS_BEFORE=$MAX_NONCE_ERROR
 SC_BEFORE=$MAX_NONCE_ERROR
