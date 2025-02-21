@@ -3,10 +3,7 @@
 A utility script for simulating a sequence of tasks against an Anvil fork with state overrides disabled.
 This script will lookup for the tasks in the tasks directory and simulate them in the order of the array of task IDs.
 
-
 [Demo Sim-sequence.sh](https://github.com/user-attachments/assets/50e85b69-f7dc-40fe-b689-aa1e58394400)
-
-
 
 ## Synopsis
 
@@ -23,7 +20,7 @@ This script simulates a sequence of tasks for a given network by running them ag
 
 - `<network>` (required): The network to simulate against (e.g., eth, base)
 - `"<array-of-task-IDs>"` (required): Space-separated list of task IDs to simulate in order
-- `[block_number]` (optional): Specific block number to fork from
+- `[block_number]` (optional): Specific block number to fork from if not specified, the latest block will be used.
 
 ## Options
 
@@ -33,7 +30,9 @@ The script uses several environment variables that can be configured:
 - `DESTROY_ANIVIL_AFTER_EXECUTION`: Controls whether to destroy the Anvil instance after execution.
 
 ## Examples
-Execution with tasks example: 
+
+Execution with tasks example:
+
 ```bash
 # Simulate multiple tasks on Ethereum
 ./script/utils/sim-sequence.sh eth "021 022 base-003 ink-001"
