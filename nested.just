@@ -166,11 +166,11 @@ approvehash_in_anvil whichSafe hdPath='0':
     --sig "signJson(string,address)" \
     ${bundlePath} \
     ${safe})
-
-  echo "Outputforge: $outputforge" > /tmp/outputforge.txt
-  
+  tempfile=$(mktemp)
+  echo "tmp file located to:" > $tempfile
+  echo "Outputforge: $outputforge" > $tempfile   
   ## 1. Generate hash for the SC and FND
-  hash=$(cat /tmp/outputforge.txt | grep -A 1 "If submitting onchain, call Safe.approveHash on " | cut -d ':' -f 2 | tr -d '[:space:]')
+  hash=$(cat $tempfile | grep -A 1 "If submitting onchain, call Safe.approveHash on " | cut -d ':' -f 2 | tr -d '[:space:]')
 
   if [[ -z "$hash" ]]; then
       echo "Hash not found in the file."
@@ -210,7 +210,7 @@ execute_in_anvil hdPath='0':
     signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   fi
 
-  ## 4. Once the L1PAO has the two approvhashes, we execute the transaction permissionlessly.
+  ## 4. Once the L1PAO has the two approvhashes, we execute the transaction permissionlessly.nested.just
   forge build
   execution=$(forge script ${script} \
     --rpc-url ${ANVIL_LOCALHOST_RPC} \
