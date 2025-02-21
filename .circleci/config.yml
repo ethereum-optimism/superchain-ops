@@ -284,15 +284,7 @@ jobs:
     steps:
       - simulate_nested:
           task: "/sep/ink-002-holocene-system-config-upgrade"
-  
-  just_simulate_zora_002_fp_upgrade:
-    circleci_ip_ranges: true
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - simulate_nested:
-          task: "/sep/zora-002-fp-upgrade"
-
+          
   forge_build:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -452,9 +444,6 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
       - just_simulate_ink_sep_holocene_system_config_upgrade:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-      - just_simulate_zora_002_fp_upgrade:
           context:
             - circleci-repo-readonly-authenticated-github-token
        
