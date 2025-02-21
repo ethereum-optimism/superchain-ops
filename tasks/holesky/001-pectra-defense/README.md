@@ -4,12 +4,13 @@ Status: READY TO SIGN
 
 ## Objective
 
-This task updates deploys new Fault Dispute games with upgrade prestate hashes. This updated
-prestate hash corresponds with the hardfork to support the L1 Pectra upgrade.
+This task updates deploys new dispute games with upgrade prestate hashes on the [balrog devnet](https://github.com/ethereum-optimism/devnets/pull/34/files#diff-ffdd0d4ec399fb055a0a8d3eb731dcffcf272cec33691f93f1ba14dfe77931ed).
+
+This updated prestate hash corresponds with the hardfork to support the L1 Pectra upgrade.
 
 ## Input data derivation:
 
-The OPPrestateUpdater contract was deployed in advance to [0xd827a8d74fef6d92b0a13bb73a32c7c3ec2626a1](https://sepolia.etherscan.io/address/0xd827a8d74fef6d92b0a13bb73a32c7c3ec2626a1).
+The OPPrestateUpdater contract was deployed in advance to [0xcF818b7407755b2dA91B0bc9462303980C062BFC](https://holesky.etherscan.io/address/0xcF818b7407755b2dA91B0bc9462303980C062BFC).
 
 The input to the `updatePrestate()` function is an array of the following struct:
 
@@ -41,5 +42,5 @@ Please see the instructions for [validation](./VALIDATION.md).
 ## Simulation
 
 Please see the "Simulating and Verifying the Transaction" instructions in [NESTED.md](../../../NESTED.md).
-When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/sep/031-pectra-defense/NestedSignFromJson.s.sol`.
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/holesky/001-pectra-defense/NestedSignFromJson.s.sol`.
 This ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
