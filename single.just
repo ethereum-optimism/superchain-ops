@@ -152,8 +152,8 @@ execute_in_anvil hdPath='0':
   execution=$(forge script ${script} \
     --rpc-url ${localrpcUrl} \
     --sig "runJson(string,bytes)" ${bundlePath} ${FAKE_SIG} \
-    --broadcast --private-key {{PRIVATE_KEY_EXECUTOR}} 2>&1) # >> /tmp/trace_execution_logs.txt 
-    echo $execution
+    --broadcast --private-key {{PRIVATE_KEY_EXECUTOR}} 2>&1)
+  echo $execution
 
 
 execute hdPath='0':
