@@ -10,7 +10,7 @@ contract DeployMulticall3Delegatecall is Script {
     function run() public {
         vm.startBroadcast();
 
-        // Deploys to 0x95b259eae68ba96edB128eF853fFbDffe47D2Db0.
+        // Deploys to 0x93dc480940585d9961bfceab58124ffd3d60f76a.
         new Multicall3Delegatecall{salt: "Multicall3Delegatecall"}();
         vm.stopBroadcast();
     }
