@@ -263,13 +263,12 @@ jobs:
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
 
-  just_simulate_ink_respected_game_type:
-    circleci_ip_ranges: true
+  just_simulate_030_sony_holocene_system_config_upgrade:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - simulate:
-          task: "/eth/ink-002-set-respected-game-type"
+      - simulate_nested:
+          task: "/eth/030-soneium-holocene-system-config-upgrade"
   
   just_simulate_ink_sep_fp_holocene_pectra_upgrade:
     docker:
@@ -461,13 +460,14 @@ workflows:
       # and now it fails with stack too deep after https://github.com/ethereum-optimism/superchain-ops/pull/528.
       # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
       # - just_simulate_sc_rehearsal_1
+
+      - just_simulate_030_sony_holocene_system_config_upgrade:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
       - just_simulate_sc_rehearsal_2:
           context:
             - circleci-repo-readonly-authenticated-github-token
       - just_simulate_sc_rehearsal_4:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-      - just_simulate_ink_respected_game_type:
           context:
             - circleci-repo-readonly-authenticated-github-token
       # sepolia
