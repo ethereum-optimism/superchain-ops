@@ -343,7 +343,7 @@ contract SingleMultisigTaskTest is Test {
 
         // execute the task with the signatures
         multisigTask = new GasConfigTemplate();
-        multisigTask.simulateRun(taskConfigFilePath, packedSignatures, address(0));
+        multisigTask.simulateRun(taskConfigFilePath, packedSignatures);
 
         // check that the gas limits are set correctly after the task is executed
         SystemConfig systemConfig = SystemConfig(systemConfigMode);
