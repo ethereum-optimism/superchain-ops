@@ -234,8 +234,6 @@ library AccountAccessParser {
                         count++;
                     }
                 }
-            } else {
-                console.log("accesses[i].account did revert!!", accesses[i].account);
             }
         }
         uniqueAccounts = new address[](count);
