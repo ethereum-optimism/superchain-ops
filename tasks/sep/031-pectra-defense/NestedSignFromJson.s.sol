@@ -6,44 +6,44 @@ import {Vm} from "forge-std/Vm.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {NestedSignFromJson as OriginalNestedSignFromJson} from "script/NestedSignFromJson.s.sol";
-import {DisputeGameUpgrade} from "script/verification/DisputeGameUpgrade.s.sol";
 import {CouncilFoundationNestedSign} from "script/verification/CouncilFoundationNestedSign.s.sol";
 import {SuperchainRegistry} from "script/verification/Verification.s.sol";
 
-contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNestedSign, DisputeGameUpgrade {
-    constructor()
-    SuperchainRegistry("sepolia", "op", "v1.8.0-rc.4")
-    DisputeGameUpgrade(
-    0x03f89406817db1ed7fd8b31e13300444652cdb0b9c509a674de43483b2f83568, // absolutePrestate
-    0xF3CcF0C4b51D42cFe6073F0278c19A8D1900e856, // faultDisputeGame
-    0xbbDBdfe37C02439764dE0e41C906e4396B5B3914 // permissionedDisputeGame
-    )
-    {}
+// Monorepo deps
+import {IFaultDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute/IFaultDisputeGame.sol";
+import {IPermissionedDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute/IPermissionedDisputeGame.sol";
+import {IDisputeGameFactory} from "@eth-optimism-bedrock/interfaces/dispute/IDisputeGameFactory.sol";
+import {GameTypes, GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 
-    function setUp() public view {
-        checkInput();
-    }
+contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNestedSign {
+    IDisputeGameFactory constant OP_DGF = IDisputeGameFactory(0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1);
+    IDisputeGameFactory constant SONEIUM_DGF = IDisputeGameFactory(0xB3Ad2c38E6e0640d7ce6aA952AB3A60E81bf7a01);
 
-    function checkInput() public view {
-        string memory inputJson;
-        string memory path = "/tasks/sep/030-revert-mt-cannon/input.json";
-        try vm.readFile(string.concat(vm.projectRoot(), path)) returns (string memory data) {
-            inputJson = data;
-        } catch {
-            revert(string.concat("Failed to read ", path));
-        }
+    mapping(IDisputeGameFactory => mapping(GameType => IFaultDisputeGame.GameConstructorParams)) public beforeParams;
 
-        address inputPermissionedDisputeGame =
-                            stdJson.readAddress(inputJson, "$.transactions[1].contractInputsValues._impl");
-        address inputFaultDisputeGame = stdJson.readAddress(inputJson, "$.transactions[0].contractInputsValues._impl");
-        require(expPermissionedDisputeGame == inputPermissionedDisputeGame, "input-pdg");
-        require(expFaultDisputeGame == inputFaultDisputeGame, "input-fdg");
+    function setUp() public {
+        addAllowedStorageAccess(address(OP_DGF));
+        addAllowedStorageAccess(address(SONEIUM_DGF));
+        beforeParams[OP_DGF][GameTypes.PERMISSIONED_CANNON] =
+            getGameConstructorParams(IFaultDisputeGame(address(OP_DGF.gameImpls(GameTypes.PERMISSIONED_CANNON))));
+
+        beforeParams[OP_DGF][GameTypes.CANNON] =
+            getGameConstructorParams(IFaultDisputeGame(address(OP_DGF.gameImpls(GameTypes.CANNON))));
+
+        beforeParams[SONEIUM_DGF][GameTypes.PERMISSIONED_CANNON] =
+            getGameConstructorParams(IFaultDisputeGame(address(SONEIUM_DGF.gameImpls(GameTypes.PERMISSIONED_CANNON))));
     }
 
     function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory) internal view override {
         console.log("Running post-deploy assertions");
         checkStateDiff(accesses);
-        checkDisputeGameUpgrade();
+        // get the game params
+        IFaultDisputeGame.GameConstructorParams memory afterParams =
+            getGameConstructorParams(IFaultDisputeGame(address(OP_DGF.gameImpls(GameTypes.PERMISSIONED_CANNON))));
+        IFaultDisputeGame.GameConstructorParams memory beforeParams_ = beforeParams[OP_DGF][GameTypes.PERMISSIONED_CANNON];
+        beforeParams_.absolutePrestate = afterParams.absolutePrestate;
+        require(keccak256(abi.encode(beforeParams_)) == keccak256(abi.encode(afterParams)), "Game params changed unexpectedly");
+
         console.log("All assertions passed!");
     }
 
@@ -53,5 +53,25 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
 
     function getCodeExceptions() internal view override returns (address[] memory) {
         return codeExceptions;
+    }
+
+    function getGameConstructorParams(IFaultDisputeGame _disputeGame)
+        internal
+        view
+        returns (IFaultDisputeGame.GameConstructorParams memory)
+    {
+        IFaultDisputeGame.GameConstructorParams memory params = IFaultDisputeGame.GameConstructorParams({
+            gameType: _disputeGame.gameType(),
+            absolutePrestate: _disputeGame.absolutePrestate(),
+            maxGameDepth: _disputeGame.maxGameDepth(),
+            splitDepth: _disputeGame.splitDepth(),
+            clockExtension: _disputeGame.clockExtension(),
+            maxClockDuration: _disputeGame.maxClockDuration(),
+            vm: _disputeGame.vm(),
+            weth: _disputeGame.weth(),
+            anchorStateRegistry: _disputeGame.anchorStateRegistry(),
+            l2ChainId: _disputeGame.l2ChainId()
+        });
+        return params;
     }
 }
