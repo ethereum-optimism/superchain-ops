@@ -5,8 +5,9 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {Script} from "forge-std/Script.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
+import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
-contract Runner is Script {
+contract TaskRunner is Script {
     using Strings for uint256;
 
     struct L2Chain {
@@ -56,5 +57,22 @@ contract Runner is Script {
     function run(string memory dumpStatePath) public {
         run();
         vm.dumpState(dumpStatePath);
+    }
+
+    /// @notice Returns Useful function to tell if a task is nested or not based on the task config
+    function isNestedTask(string memory taskConfigFilePath) public returns (bool) {
+        string memory configContent = vm.readFile(taskConfigFilePath);
+        bytes memory templateNameRaw = vm.parseToml(configContent, ".templateName");
+        string memory templateName = abi.decode(templateNameRaw, (string));
+
+        string memory templatePath = string.concat("out/", templateName, ".sol/", templateName, ".json");
+        MultisigTask task = MultisigTask(deployCode(templatePath));
+        string memory safeAddressString = task.safeAddressString();
+
+        AddressRegistry _addrRegistry = new AddressRegistry(taskConfigFilePath);
+        AddressRegistry.ChainInfo[] memory chains = _addrRegistry.getChains();
+        require(chains.length > 0, "MultisigTask: no chains found");
+        address parentMultisig = _addrRegistry.getAddress(safeAddressString, chains[0].chainId);
+        return task.isNestedSafe(parentMultisig);
     }
 }
