@@ -14,4 +14,8 @@ contract MockTarget is Test {
     function setSnapshotIdTask(uint256 id) public {
         vm.store(task, START_SNAPSHOT_SLOT, bytes32(id));
     }
+
+    function foobar() public {
+        // This function is when creating dummy/noop actions for testing.
+    }
 }

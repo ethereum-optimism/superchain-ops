@@ -108,7 +108,7 @@ abstract contract MultisigTask is Test, Script {
     TaskConfig public config;
 
     /// @notice flag to determine if the task is being simulated
-    bool private _buildStarted;
+    uint256 private _buildStarted;
 
     /// @notice The address of the multicall target for this task
     /// @dev set in _setMulticallAddress
@@ -553,8 +553,10 @@ abstract contract MultisigTask is Test, Script {
     function build() public returns (Action[] memory actions) {
         require(parentMultisig != address(0), "Must set address registry for multisig address to be set");
 
-        require(!_buildStarted, "Build already started");
-        _buildStarted = true;
+        console.log("_buildStarted");
+        console.log(_buildStarted);
+        require(_buildStarted == uint256(0), "Build already started");
+        _buildStarted = uint256(1);
 
         _startBuild();
 
@@ -568,7 +570,7 @@ abstract contract MultisigTask is Test, Script {
 
         actions = _endBuild();
 
-        _buildStarted = false;
+        _buildStarted = uint256(0);
 
         return actions;
     }

@@ -4,6 +4,7 @@ pragma solidity 0.8.15;
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {Test} from "forge-std/Test.sol";
+import {console} from "forge-std/console.sol";
 
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
@@ -27,13 +28,13 @@ contract MultisigTaskUnitTest is Test {
     bytes32 public constant MULTISIG_SLOT = bytes32(uint256(35));
 
     /// @notice storage slot for the mock target contract
-    bytes32 public constant MOCK_TARGET_SLOT = bytes32(uint256(50));
+    bytes32 public constant MOCK_TARGET_SLOT = bytes32(uint256(51));
 
     /// @notice storage slot for the build started flag
     bytes32 public constant BUILD_STARTED_SLOT = bytes32(uint256(49));
 
     /// @notice storage slot for the target multicall address
-    bytes32 public constant TARGET_MULTICALL_SLOT = bytes32(uint256(49));
+    bytes32 public constant TARGET_MULTICALL_SLOT = bytes32(uint256(50));
 
     /// Test Philosophy:
     /// We want these tests to function as much as possible as unit tests.
@@ -104,6 +105,49 @@ contract MultisigTaskUnitTest is Test {
 
         vm.expectRevert("Build already started");
         task.build();
+    }
+
+    function testSimulateFailsHashMismatch() public {
+        // skip the run function call so we need to write to all storage variables manually
+        address multisig = addrRegistry.getAddress("SystemConfigOwner", getChain("optimism").chainId);
+
+        // set multisig variable in MultisigTask to the actual multisig address
+        // so that the simulate function does not revert and can run and create
+        // calldata by calling the multisig functions
+        vm.store(address(task), MULTISIG_SLOT, bytes32(uint256(uint160(multisig))));
+
+        // set AddressRegistry in MultisigTask contract to a deployed address registry
+        // contract so that these calls work
+        vm.store(address(task), ADDRESS_REGISTRY_SLOT, bytes32(uint256(uint160(address(addrRegistry)))));
+
+        // set the target multicall address in MultisigTask contract to the
+        // multicall address
+        vm.store(address(task), TARGET_MULTICALL_SLOT, bytes32(uint256(uint160(MULTICALL3_ADDRESS))));
+
+        MockTarget mock = new MockTarget();
+        bytes memory callData = abi.encodeWithSelector(MockTarget.foobar.selector);
+        MultisigTask.Action[] memory actions = createActions(address(mock), callData, 0, Enum.Operation.Call, "");
+        vm.mockCall(
+            multisig,
+            abi.encodeWithSelector(
+                IGnosisSafe.getTransactionHash.selector,
+                MULTICALL3_ADDRESS,
+                0,
+                task.getMulticall3Calldata(actions),
+                Enum.Operation.DelegateCall,
+                0,
+                0,
+                0,
+                address(0),
+                payable(address(0)),
+                task.nonce()
+            ),
+            // return a hash that cannot possibly be what is returned by the GnosisSafe
+            abi.encode(bytes32(uint256(100)))
+        );
+
+        vm.expectRevert("MultisigTask: hash mismatch");
+        task.simulate("", actions);
     }
 
     function testBuildFailsRevertPreviousSnapshotFails() public {
