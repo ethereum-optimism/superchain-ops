@@ -70,7 +70,7 @@ simulate whichSafe hdPath='0':
     --sender ${signer} \
     --sig "signJson(string,address)" \
     ${bundlePath} \
-    "${safe}" -vvvv
+    "${safe}"
 
 sign whichSafe hdPath='0':
   #!/usr/bin/env bash
