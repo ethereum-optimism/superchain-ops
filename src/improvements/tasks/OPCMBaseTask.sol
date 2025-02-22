@@ -8,7 +8,7 @@ import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 /// @notice base task for making calls to the Optimism Contracts Manager
 abstract contract OPCMBaseTask is MultisigTask {
     /// @notice Optimism Contracts Manager Multicall3DelegateCall contract reference
-    address public constant MULTICALL3_DELEGATECALL_ADDRESS = 0x95b259eae68ba96edB128eF853fFbDffe47D2Db0;
+    address public constant MULTICALL3_DELEGATECALL_ADDRESS = 0x93dc480940585D9961bfcEab58124fFD3d60f76a;
 
     /// @notice OpChainConfig struct found in the OpContractsManager contract
     struct OpChainConfig {

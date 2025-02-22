@@ -38,7 +38,7 @@ add-transaction bundlePath to sig *params:
 clean:
   forge clean
 
-# Deploy the Multicall3Delegatecall contract to 0x95b259eae68ba96edB128eF853fFbDffe47D2Db0, as is
+# Deploy the Multicall3Delegatecall contract to 0x93dc480940585d9961bfceab58124ffd3d60f76a, as is
 # the case on Mainnet and Sepolia.
 # Will fail if the contract is already deployed.
 # ARGS must include --private-key or --keystore in order to deploy successfully.
