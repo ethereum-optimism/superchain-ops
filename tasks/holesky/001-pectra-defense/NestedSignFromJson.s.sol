@@ -12,9 +12,10 @@ import {CouncilFoundationNestedSign} from "script/verification/CouncilFoundation
 import {IFaultDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute/IFaultDisputeGame.sol";
 import {IPermissionedDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute/IPermissionedDisputeGame.sol";
 import {IDisputeGameFactory} from "@eth-optimism-bedrock/interfaces/dispute/IDisputeGameFactory.sol";
-import {IProxyAdmin} from "@eth-optimism-bedrock/interfaces/universal/IProxyAdmin.sol";
+// import {IProxyAdmin} from "@eth-optimism-bedrock/interfaces/universal/IProxyAdmin.sol";
 import {GameTypes, GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
-import {StandardValidatorV180} from "@eth-optimism-bedrock/src/L1/StandardValidator.sol";
+// import {ISystemConfig} from "@eth-optimism-bedrock/interfaces/L1/ISystemConfig.sol";
+import {StandardValidatorV180, IProxyAdmin, ISystemConfig} from "@eth-optimism-bedrock/src/L1/StandardValidator.sol";
 
 contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNestedSign {
 
@@ -68,9 +69,9 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
             "Game params changed unexpectedly"
         );
 
-        StandardValidatorV180 validator = StandardValidatorV180(0x3c6423ce73661f734f100a133fa996b5f07743c8);
-        StandardValidatorV180.InputV180 input = StandardValidatorV180.InputV180({
-            proxyAdmin: PROXY_ADMIN_ADDRESS,
+        StandardValidatorV180 validator = StandardValidatorV180(0x3C6423Ce73661f734f100A133Fa996b5F07743C8);
+        StandardValidatorV180.InputV180 memory input = StandardValidatorV180.InputV180({
+            proxyAdmin: SUPERCHAIN_PROXY_ADMIN,
             sysCfg: SYS_CFG,
             absolutePrestate: 0x03631bf3d25737500a4e483a8fd95656c68a68580d20ba1a5362cd6ba012a435,
             l2ChainID: 420110003
