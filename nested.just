@@ -53,7 +53,6 @@ simulate whichSafe hdPath='0':
     fi
     export ETH_RPC_URL
   fi
-  echo "RPC URL: ${ETH_RPC_URL}"
 
   echo "safe: $safe"
   echo "Simulating call to {{whichSafe}} at ${safe}"
