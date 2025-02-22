@@ -7,18 +7,19 @@ import {stdJson} from "forge-std/StdJson.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {NestedSignFromJson as OriginalNestedSignFromJson} from "script/NestedSignFromJson.s.sol";
 import {CouncilFoundationNestedSign} from "script/verification/CouncilFoundationNestedSign.s.sol";
-import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
 // Monorepo deps
 import {IFaultDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute/IFaultDisputeGame.sol";
 import {IPermissionedDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute/IPermissionedDisputeGame.sol";
 import {IDisputeGameFactory} from "@eth-optimism-bedrock/interfaces/dispute/IDisputeGameFactory.sol";
+import {IProxyAdmin} from "@eth-optimism-bedrock/interfaces/universal/IProxyAdmin.sol";
 import {GameTypes, GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 
 contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNestedSign {
-    using AccountAccessParser for VmSafe.AccountAccess[];
 
     IDisputeGameFactory constant OP_DGF = IDisputeGameFactory(0xF1408Ef0c263F8c42CefCc59146f90890615A191);
+    IProxyAdmin constant PROXY_ADMIN_ADDRESS = IProxyAdmin(0xbD71120fC716a431AEaB81078ce85ccc74496552);
+    IProxyAdmin constant SUPERCHAIN_PROXY_ADMIN = IProxyAdmin(0xFeE222a4FA606A9dD0B05CD0a8E1E40e60FD809a);
 
     mapping(IDisputeGameFactory => mapping(GameType => IFaultDisputeGame.GameConstructorParams)) public beforeParams;
 
@@ -32,16 +33,38 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
     }
 
     function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory) internal view override {
-        accesses.decodeAndPrint();
-
         console.log("Running post-deploy assertions");
+
+        // Does not work on Holesky because the addresses are not in the registry
+        // accesses.decodeAndPrint();
+
         checkStateDiff(accesses);
-        // get the game params
+
+        // get the before and after game params for the permissioned game
+        IFaultDisputeGame.GameConstructorParams memory beforeParams_ =
+            beforeParams[OP_DGF][GameTypes.PERMISSIONED_CANNON];
         IFaultDisputeGame.GameConstructorParams memory afterParams =
             getGameConstructorParams(IFaultDisputeGame(address(OP_DGF.gameImpls(GameTypes.PERMISSIONED_CANNON))));
-        IFaultDisputeGame.GameConstructorParams memory beforeParams_ = beforeParams[OP_DGF][GameTypes.PERMISSIONED_CANNON];
+        // Set the before params to match the after params, since that is the only thing that should have
+        // changed, the two sets of params should now have the same hash.
         beforeParams_.absolutePrestate = afterParams.absolutePrestate;
-        require(keccak256(abi.encode(beforeParams_)) == keccak256(abi.encode(afterParams)), "Game params changed unexpectedly");
+        require(
+            keccak256(abi.encode(beforeParams_)) == keccak256(abi.encode(afterParams)),
+            "Game params changed unexpectedly"
+        );
+
+        // get the before and after game params for the permissionless game
+        beforeParams_ =
+            beforeParams[OP_DGF][GameTypes.CANNON];
+        afterParams =
+            getGameConstructorParams(IFaultDisputeGame(address(OP_DGF.gameImpls(GameTypes.CANNON))));
+        // Set the before params to match the after params, since that is the only thing that should have
+        // changed, the two sets of params should now have the same hash.
+        beforeParams_.absolutePrestate = afterParams.absolutePrestate;
+        require(
+            keccak256(abi.encode(beforeParams_)) == keccak256(abi.encode(afterParams)),
+            "Game params changed unexpectedly"
+        );
 
         console.log("All assertions passed!");
     }
