@@ -14,10 +14,12 @@ import {IPermissionedDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute
 import {IDisputeGameFactory} from "@eth-optimism-bedrock/interfaces/dispute/IDisputeGameFactory.sol";
 import {IProxyAdmin} from "@eth-optimism-bedrock/interfaces/universal/IProxyAdmin.sol";
 import {GameTypes, GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
+import {StandardValidatorV180} from "@eth-optimism-bedrock/src/L1/StandardValidator.sol";
 
 contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNestedSign {
 
     IDisputeGameFactory constant OP_DGF = IDisputeGameFactory(0xF1408Ef0c263F8c42CefCc59146f90890615A191);
+    ISystemConfig constant SYS_CFG = ISystemConfig(0x9FB5e819Fed7169a8Ff03F7fA84Ee29B876D61B4);
     IProxyAdmin constant PROXY_ADMIN_ADDRESS = IProxyAdmin(0xbD71120fC716a431AEaB81078ce85ccc74496552);
     IProxyAdmin constant SUPERCHAIN_PROXY_ADMIN = IProxyAdmin(0xFeE222a4FA606A9dD0B05CD0a8E1E40e60FD809a);
 
@@ -65,6 +67,16 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
             keccak256(abi.encode(beforeParams_)) == keccak256(abi.encode(afterParams)),
             "Game params changed unexpectedly"
         );
+
+        StandardValidatorV180 validator = StandardValidatorV180(0x3c6423ce73661f734f100a133fa996b5f07743c8);
+        StandardValidatorV180.InputV180 input = StandardValidatorV180.InputV180({
+            proxyAdmin: PROXY_ADMIN_ADDRESS,
+            sysCfg: SYS_CFG,
+            absolutePrestate: 0x03631bf3d25737500a4e483a8fd95656c68a68580d20ba1a5362cd6ba012a435,
+            l2ChainID: 420110003
+        });
+
+        validator.validate(input);
 
         console.log("All assertions passed!");
     }
