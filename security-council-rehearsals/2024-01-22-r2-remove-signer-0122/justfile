@@ -22,7 +22,6 @@ simulate hdPath='0':
     ETH_RPC_URL=$(yq eval ".profile.ci.rpc_endpoints.mainnet" "${root_dir}/foundry.toml")
     export ETH_RPC_URL
   fi
-  echo "RPC URL: ${ETH_RPC_URL}"
 
   echo "Simulating with: ${signer}"
   echo ""

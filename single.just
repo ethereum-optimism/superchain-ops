@@ -114,7 +114,6 @@ simulate hdPath='0':
     fi
     export ETH_RPC_URL
   fi
-  echo "RPC URL: ${ETH_RPC_URL}"
 
   forge build
   forge script ${script} \
