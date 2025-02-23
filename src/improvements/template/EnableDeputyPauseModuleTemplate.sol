@@ -74,7 +74,8 @@ contract EnableDeputyPauseModuleTemplate is MultisigTask {
     }
 
     /// @notice Validates that the module was enabled correctly
-    /// @param chainId The ID of the L2 chain to validate
+    /// @param chainId The chain ID of the L2 chain to validate
+    /// @param accountAccess the list of account accesses performed by this task
     function _validate(uint256 chainId, VmSafe.AccountAccess[] memory accountAccess) internal view override {
         (address[] memory modules, address nextModule) =
             ModuleManager(parentMultisig).getModulesPaginated(SENTINEL_MODULE, 100);
