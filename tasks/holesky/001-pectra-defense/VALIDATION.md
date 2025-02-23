@@ -47,6 +47,7 @@ Note: The changes listed below do not include safe nonce updates or liveness gua
 
 ## Verifying Dispute Games
 
+<!-- Sepolia todo: We should convert this to solidity and run the checks in the postCheck method -->
 The old and new dispute game contracts can be compared with the [comparegames.sh](https://gist.github.com/ajsutton/28be852a36d9d19af16f7c870b267873)
 script.
 

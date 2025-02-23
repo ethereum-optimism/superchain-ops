@@ -13,7 +13,7 @@ import {IFaultDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute/IFault
 import {IPermissionedDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute/IPermissionedDisputeGame.sol";
 import {IDisputeGameFactory} from "@eth-optimism-bedrock/interfaces/dispute/IDisputeGameFactory.sol";
 // import {IProxyAdmin} from "@eth-optimism-bedrock/interfaces/universal/IProxyAdmin.sol";
-import {GameTypes, GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
+import {GameTypes, GameType, Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 // import {ISystemConfig} from "@eth-optimism-bedrock/interfaces/L1/ISystemConfig.sol";
 import {StandardValidatorV180, IProxyAdmin, ISystemConfig} from "@eth-optimism-bedrock/src/L1/StandardValidator.sol";
 
@@ -50,11 +50,11 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
         // Set the before prestate to match the after prestate, since that is the only thing that should have
         // changed, the two sets of params should now have the same hash.
         require(
-            beforeParams_.absolutePrestate != afterParams.absolutePrestate,
+            Claim.unwrap(beforeParams_.absolutePrestate) != Claim.unwrap(afterParams.absolutePrestate),
             "Prestate not updated"
         );
         require(
-            afterParams.absolutePrestate == 0x03631bf3d25737500a4e483a8fd95656c68a68580d20ba1a5362cd6ba012a435,
+            Claim.unwrap(afterParams.absolutePrestate) == 0x03631bf3d25737500a4e483a8fd95656c68a68580d20ba1a5362cd6ba012a435,
             "Prestate not updated to expected value"
         );
         beforeParams_.absolutePrestate = afterParams.absolutePrestate;
