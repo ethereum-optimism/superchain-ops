@@ -18,7 +18,6 @@ import {GameTypes, GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.s
 import {StandardValidatorV180, IProxyAdmin, ISystemConfig} from "@eth-optimism-bedrock/src/L1/StandardValidator.sol";
 
 contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNestedSign {
-
     IDisputeGameFactory constant OP_DGF = IDisputeGameFactory(0xF1408Ef0c263F8c42CefCc59146f90890615A191);
     ISystemConfig constant SYS_CFG = ISystemConfig(0x9FB5e819Fed7169a8Ff03F7fA84Ee29B876D61B4);
     IProxyAdmin constant PROXY_ADMIN_ADDRESS = IProxyAdmin(0xbD71120fC716a431AEaB81078ce85ccc74496552);
@@ -48,8 +47,16 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
             beforeParams[OP_DGF][GameTypes.PERMISSIONED_CANNON];
         IFaultDisputeGame.GameConstructorParams memory afterParams =
             getGameConstructorParams(IFaultDisputeGame(address(OP_DGF.gameImpls(GameTypes.PERMISSIONED_CANNON))));
-        // Set the before params to match the after params, since that is the only thing that should have
+        // Set the before prestate to match the after prestate, since that is the only thing that should have
         // changed, the two sets of params should now have the same hash.
+        require(
+            beforeParams_.absolutePrestate != afterParams.absolutePrestate,
+            "Prestate not updated"
+        );
+        require(
+            afterParams.absolutePrestate == 0x03631bf3d25737500a4e483a8fd95656c68a68580d20ba1a5362cd6ba012a435,
+            "Prestate not updated to expected value"
+        );
         beforeParams_.absolutePrestate = afterParams.absolutePrestate;
         require(
             keccak256(abi.encode(beforeParams_)) == keccak256(abi.encode(afterParams)),
@@ -57,11 +64,9 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
         );
 
         // get the before and after game params for the permissionless game
-        beforeParams_ =
-            beforeParams[OP_DGF][GameTypes.CANNON];
-        afterParams =
-            getGameConstructorParams(IFaultDisputeGame(address(OP_DGF.gameImpls(GameTypes.CANNON))));
-        // Set the before params to match the after params, since that is the only thing that should have
+        beforeParams_ = beforeParams[OP_DGF][GameTypes.CANNON];
+        afterParams = getGameConstructorParams(IFaultDisputeGame(address(OP_DGF.gameImpls(GameTypes.CANNON))));
+        // Set the before prestate to match the after prestate, since that is the only thing that should have
         // changed, the two sets of params should now have the same hash.
         beforeParams_.absolutePrestate = afterParams.absolutePrestate;
         require(
