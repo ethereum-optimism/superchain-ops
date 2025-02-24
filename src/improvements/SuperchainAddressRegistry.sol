@@ -301,6 +301,7 @@ contract SuperchainAddressRegistry is StdChains {
 
         // Not retreiving delayed WETH proxy because 'n' exist based on the number of GameTypes.
         // We will leave these addresses for the task developer to retrieve.
+        // https://github.com/ethereum-optimism/superchain-ops/pull/582#discussion_r1951306648
 
         address mips = getMips(permissionedDisputeGame);
         saveAddress("MIPS", chain, mips);

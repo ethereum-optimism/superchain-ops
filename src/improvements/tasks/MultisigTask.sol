@@ -562,7 +562,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         _buildStarted = 1;
 
         _startBuild();
+
         _build();
+
         actions = _endBuild();
 
         _buildStarted = 0;
@@ -855,7 +857,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @notice prank the multisig
     /// @dev override to prank with delegatecall flag set to true
     /// in case of opcm tasks, the multisig is not pranked
-    function _prankMultisig() internal virtual {
+    function _prankMultisig() internal {
         vm.startPrank(parentMultisig);
     }
 
@@ -1171,16 +1173,14 @@ abstract contract L2TaskBase is MultisigTask {
 
         console.log("Parent multisig: ", address(parentMultisig_));
 
-        // This loads the allowed storage write accesses to storage for this task.
-        // If this task changes storage slots outside of the allowed write accesses,
-        // then the task will fail at runtime and the task developer will need to
-        // update the config to include the addresses whose storage slots changed,
-        // or figure out why the storage slots are being changed when they should not be.
         for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
             for (uint256 j = 0; j < chains.length; j++) {
-                _allowedStorageAccesses.add(
-                    superchainAddrRegistry.getAddress(config.allowedStorageWriteAccesses[i], chains[j].chainId)
-                );
+                try superchainAddrRegistry.getAddress(config.allowedStorageWriteAccesses[i], chains[j].chainId)
+                returns (address addr) {
+                    _allowedStorageAccesses.add(addr);
+                } catch {
+                    _allowedStorageAccesses.add(superchainAddrRegistry.get(config.allowedStorageWriteAccesses[i]));
+                }
             }
         }
     }
