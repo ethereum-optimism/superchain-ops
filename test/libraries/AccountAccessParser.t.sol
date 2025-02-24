@@ -5,25 +5,28 @@ pragma solidity ^0.8.15;
 import {Test} from "forge-std/Test.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
-import {console} from "forge-std/console.sol";
 import {Proxy} from "@eth-optimism-bedrock/src/universal/Proxy.sol";
 
 // Libraries
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
-contract A {
-    uint256 public x;
+contract Impl {
+    uint256 public num;
+    address public proxy;
 
-    function setX(uint256 _x) public {
-        x = _x;
+    function initialize(address _proxy) public {
+        if (proxy != address(0)) {
+            revert("Already initialized");
+        }
+        proxy = _proxy;
     }
-}
 
-/// @notice Library to expose the internal functions, to avoid tests stopping after hitting an expected revert.
-/// https://book.getfoundry.sh/cheatcodes/expect-revert
-library AccountAccessParserHarness {
-    function decodeAndPrint(VmSafe.AccountAccess[] memory _accountAccesses) external view {
-        return AccountAccessParser.decodeAndPrint(_accountAccesses);
+    function setNum(uint256 _num) public {
+        num = _num;
+        if (proxy != address(0)) {
+            uint256 y = num + 1;
+            Impl(payable(proxy)).setNum(y);
+        }
     }
 }
 
@@ -52,22 +55,45 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
     address constant addr9 = address(9);
     address constant addr10 = address(10);
 
-    function testReproduceBug() public {
-        A a = new A();
-        console.log("Contract A", address(a));
-        Proxy proxy = new Proxy(payable(msg.sender));
-        vm.prank(msg.sender);
-        proxy.upgradeTo(address(a));
-        console.log("Proxy", address(proxy));
+    // Proxy1 (1 Storage Write) -> Impl1 -> Proxy2 (1 Storage Write) -> Impl2
+    // Delegate calling from a proxy to an implementation is a common pattern in our architecture.
+    // In this test, we test a more complex version of this pattern where we have two proxies.
+    // Each proxy delegates to an implementation, which then updates state on the calling proxy.
+    function test_commonProxyArchitecture_succeeds() public {
+        Proxy proxy2 = new Proxy(payable(msg.sender));
+        Impl impl2 = new Impl();
+        vm.prank(address(0));
+        proxy2.upgradeTo(address(impl2));
+
+        Proxy proxy1 = new Proxy(payable(msg.sender));
+        Impl impl1 = new Impl();
+        vm.prank(address(0));
+        proxy1.upgradeToAndCall(address(impl1), abi.encodeWithSelector(Impl.initialize.selector, address(proxy2)));
 
         // Start state diff recording
         vm.startStateDiffRecording();
-        A(address(proxy)).setX(10);
+        Impl(address(proxy1)).setNum(10);
         VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
         // Stop state diff recording
 
-        vm.expectRevert("No state changes found, this is unexpected.");
-        AccountAccessParserHarness.decodeAndPrint(accountAccesses);
+        accountAccesses.decodeAndPrint();
+
+        AccountAccessParser.StateDiff[] memory firstProxyDiffs = accountAccesses.getStateDiffFor(address(proxy1));
+        assertEq(firstProxyDiffs.length, 1, "10");
+        assertEq(firstProxyDiffs[0].slot, slot0, "20");
+        assertEq(firstProxyDiffs[0].oldValue, val0, "30");
+        assertEq(firstProxyDiffs[0].newValue, bytes32(uint256(10)), "40");
+
+        AccountAccessParser.StateDiff[] memory secondProxyDiffs = accountAccesses.getStateDiffFor(address(proxy2));
+        assertEq(secondProxyDiffs.length, 1, "50");
+        assertEq(secondProxyDiffs[0].slot, slot0, "60");
+        assertEq(secondProxyDiffs[0].oldValue, val0, "70");
+        assertEq(secondProxyDiffs[0].newValue, bytes32(uint256(11)), "80");
+
+        address[] memory uniqueAccounts = accountAccesses.getUniqueWrites();
+        assertEq(uniqueAccounts.length, 2, "90");
+        assertEq(uniqueAccounts[0], address(proxy1), "100");
+        assertEq(uniqueAccounts[1], address(proxy2), "110");
     }
 
     function test_getUniqueWrites_succeeds() public pure {
@@ -170,9 +196,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
 
             address[] memory uniqueAccounts = accesses.getUniqueWrites();
             assertEq(uniqueAccounts.length, 1, "120");
-            assertNotEq(uniqueAccounts[0], addr2, "130");
-            // When this is working, the following will be true:
-            // assertEq(uniqueAccounts[0], addr2, "130");
+            assertEq(uniqueAccounts[0], addr2, "130");
         }
     }
 
