@@ -111,10 +111,10 @@ copy-anchor-state fromGameType='' toGameTypes='':
   REGISTRY_IMPL=$(cast call "${REGISTRY_PROXY}" 'implementation()(address)')
   SUPERCHAIN_CONFIG=$(cast call "${REGISTRY_PROXY}" 'superchainConfig()(address)')
 
-  # Load the current anchor state
+  # Set the current anchor state
   ANCHOR_JSON=$(cast call --json "${REGISTRY_PROXY}" 'anchors(uint32)(bytes32,uint256)' '{{fromGameType}}')
-  ANCHOR_ROOT=0x03631bf3d25737500a4e483a8fd95656c68a68580d20ba1a5362cd6ba012a435
-  ANCHOR_BLOCK=3414741 # A recent block
+  ANCHOR_ROOT=0x630253c5afc399cbeaa927f56a7688ce21facfea555f1fe09c0004edfa05386b
+  ANCHOR_BLOCK=126455 # A recent block
 
   STORAGE_SETTER_ADDR="0x553Eb72A9F1Fc85dCFfeB2EbCE652726D06E0bBF"
   UPGRADE_AND_CALL_SIG="upgradeAndCall(address,address,bytes)"
