@@ -11,22 +11,20 @@ import {Proxy} from "@eth-optimism-bedrock/src/universal/Proxy.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
 // This is a simple implementation of a contract used in the "test_commonProxyArchitecture_succeeds" test.
+// DO NOT use in production.
 contract Impl {
     uint256 public num;
     address public proxy;
 
     function initialize(address _proxy) public {
-        if (proxy != address(0)) {
-            revert("Already initialized");
-        }
+        require(proxy == address(0), "Already initialized");
         proxy = _proxy;
     }
 
     function setNum(uint256 _num) public {
         num = _num;
         if (proxy != address(0)) {
-            uint256 y = num + 1;
-            Impl(payable(proxy)).setNum(y);
+            Impl(payable(proxy)).setNum(_num + 1);
         }
     }
 }
