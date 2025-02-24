@@ -2,6 +2,7 @@
 pragma solidity 0.8.15;
 
 import {IDisputeGameFactory, IDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute/IDisputeGameFactory.sol";
+import {VmSafe} from "forge-std/Vm.sol";
 
 import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 
@@ -64,7 +65,7 @@ contract DisputeGameUpgradeTemplate is MultisigTask {
 
     /// @notice Validates that implementations were set correctly for the specified chain ID
     /// @param chainId The ID of the L2 chain to validate
-    function _validate(uint256 chainId) internal view override {
+    function _validate(uint256 chainId, VmSafe.AccountAccess[] memory) internal view override {
         IDisputeGameFactory disputeGameFactory =
             IDisputeGameFactory(addrRegistry.getAddress("DisputeGameFactoryProxy", chainId));
 

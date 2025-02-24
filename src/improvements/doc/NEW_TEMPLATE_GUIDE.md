@@ -33,7 +33,7 @@ function safeAddressString() internal pure override returns (string memory);
 function _taskStorageWrites() internal pure override returns (string[] memory);
 function _templateSetup(string memory taskConfigFilePath) internal override;
 function _build(uint256 chainId) internal override;
-function _validate(uint256 chainId) internal override;
+function _validate(uint256 chainId, VmSafe.AccountAccess[] memory accountAccess) internal override;
 ```
 
 The struct and mapping are optional and can be customized based on task requirements. As a general rule, task developers should think of everything as a template, hence the chainId flag to the build and validate functions.
@@ -138,3 +138,11 @@ parameter2 = 123
 ## Existing Templates
 
 Existing templates can be found in the [`src/improvements/template/`](../template) directory. These templates can be used as a reference for creating new templates.
+
+## Testing
+
+Once a new template has been created and tested from the command line as a forge script, it should be tested in the [regression test suite](../../../test/tasks/Regression.t.sol). Follow the existing examples to add a new test case for the template. 
+
+1. Import the new template into the regression test suite.
+2. Add a new test case that deploys the template and tests its functionality. Make sure to lock the block number and network in the test case to avoid intermittent failures.
+3. Run the regression test suite to ensure the new template passes all tests.
