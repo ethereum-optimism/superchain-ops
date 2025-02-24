@@ -86,32 +86,6 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
     address constant addr9 = address(9);
     address constant addr10 = address(10);
 
-    function printAccountAccesses(VmSafe.AccountAccess[] memory accountAccesses) public view {
-        // Print out all account accesses and their storage changes
-        for (uint256 i = 0; i < accountAccesses.length; i++) {
-            VmSafe.AccountAccess memory access = accountAccesses[i];
-            console.log("\n=== Account Access [%d] ===", i);
-            console.log("Account (callee): %s, label %s", access.account, vm.getLabel(access.account));
-            console.log("Accessor (caller): %s, label %s", access.accessor, vm.getLabel(access.accessor));
-            console.log("Value: %d", access.value);
-            console.log("Reverted: %s", access.reverted);
-            console.log("Kind: %s", uint8(access.kind));
-
-            console.log("\n--- Storage Accesses ---");
-            for (uint256 j = 0; j < access.storageAccesses.length; j++) {
-                VmSafe.StorageAccess memory sa = access.storageAccesses[j];
-                console.log("\nStorage Access [%d]:", j);
-                console.log("  Account: %s, label: %s", sa.account, vm.getLabel(sa.account));
-                console.log("  Slot: %s", vm.toString(sa.slot));
-                console.log("  Is Write: %s", sa.isWrite);
-                console.log("  Previous Value: %s", vm.toString(sa.previousValue));
-                console.log("  New Value: %s", vm.toString(sa.newValue));
-                console.log("  Reverted: %s", sa.reverted);
-            }
-            console.log("-------------------------------------------\n\n");
-        }
-    }
-
     function testReproduceBug() public {
         A a = new A();
         Proxy proxy = new Proxy(payable(msg.sender));
@@ -123,9 +97,6 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         A(address(proxy)).setX(10);
         VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
         // Stop state diff recording
-
-        // for debugging
-        // printAccountAccesses(accountAccesses);
 
         // Get decoded transfers and state diffs
         AccountAccessParserHarness.decodeAndPrint(accountAccesses);
@@ -151,9 +122,6 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         vm.startStateDiffRecording();
         b.write();
         VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
-
-        // for debugging
-        // printAccountAccesses(accountAccesses);
 
         // Get decoded transfers and state diffs
         AccountAccessParserHarness.decodeAndPrint(accountAccesses);
