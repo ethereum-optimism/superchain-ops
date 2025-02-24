@@ -10,6 +10,7 @@ import {Proxy} from "@eth-optimism-bedrock/src/universal/Proxy.sol";
 // Libraries
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
+// This is a simple implementation of a contract used in the "test_commonProxyArchitecture_succeeds" test.
 contract Impl {
     uint256 public num;
     address public proxy;
