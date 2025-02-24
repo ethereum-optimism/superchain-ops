@@ -41,7 +41,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     function setUp() public {
         dgfProxy = DisputeGameFactory(systemConfig.disputeGameFactory());
         extraStorageAccessAddresses.push(0x45b52AFe0b60f5aB1a2657b911b57DE0c42e5E50);
-        _precheckAnchorStateCopy(GameType.wrap(1), GameType.wrap(0));
+        _precheckAnchorStateCopy(GameType.wrap(0), GameType.wrap(0));
         // INSERT NEW PRE CHECKS HERE
     }
 
@@ -146,8 +146,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         console.log("Running post-deploy assertions");
 
         checkStateDiff(accesses);
-        _postcheckAnchorStateCopy(GameType.wrap(0), bytes32(0x03631bf3d25737500a4e483a8fd95656c68a68580d20ba1a5362cd6ba012a435), 3414741);
-        // _postcheckHasAnchorState(GameType.wrap(1)); (the block number isactually zero)
+        _postcheckAnchorStateCopy(GameType.wrap(0), bytes32(0x630253c5afc399cbeaa927f56a7688ce21facfea555f1fe09c0004edfa05386b), 126455);
+        _postcheckHasAnchorState(GameType.wrap(0));
         // INSERT NEW POST CHECKS HERE
 
         console.log("All assertions passed!");

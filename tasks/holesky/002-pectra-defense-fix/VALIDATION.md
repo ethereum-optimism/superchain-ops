@@ -19,10 +19,10 @@ Note: The changes listed below do not include safe nonce updates or liveness gua
 
 - **Key**: `0xa6eef7e35abe7026729641147f7915573c7e97b47efa546f5f6e3230263bcb49`<br/>
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000` (Note this may have changed if games of this type resolved)<br/>
-  **After**: `0x03631bf3d25737500a4e483a8fd95656c68a68580d20ba1a5362cd6ba012a435` <br/>
-  **Meaning**: Set the anchor state output root for game type 0 to 0x03631bf3d25737500a4e483a8fd95656c68a68580d20ba1a5362cd6ba012a435.
+  **After**: `0x630253c5afc399cbeaa927f56a7688ce21facfea555f1fe09c0004edfa05386b` <br/>
+  **Meaning**: Set the anchor state output root for game type 0 to 0x630253c5afc399cbeaa927f56a7688ce21facfea555f1fe09c0004edfa05386b.
 
 - **Key**: `0xa6eef7e35abe7026729641147f7915573c7e97b47efa546f5f6e3230263bcb4a`<br/>
   **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000` (Note this may have changed if games of this type resolved)<br/>
-  **After**: `0x341ad5` <br/>
-  **Meaning**: Set the anchor state L2 block number for game type 0 to 3414741.
+  **After**: `0x1edf7` <br/>
+  **Meaning**: Set the anchor state L2 block number for game type 0 to 126455.
