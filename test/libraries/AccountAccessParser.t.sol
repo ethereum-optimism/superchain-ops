@@ -124,7 +124,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
         // Stop state diff recording
 
-        printAccountAccesses(accountAccesses);
+        // for debugging
+        // printAccountAccesses(accountAccesses);
 
         // Get decoded transfers and state diffs
         AccountAccessParserHarness.decodeAndPrint(accountAccesses);
