@@ -9,6 +9,22 @@ For each contract listed in the state diff, please verify that no contracts or s
 - All addresses (in section headers and storage values) match the provided name, using the Etherscan and Superchain Registry links provided. This validates the bytecode deployed at the addresses contains the correct logic.
 - All key values match the semantic meaning provided, which can be validated using the storage layout links provided.
 
+## Expected Domain and Message Hashes
+
+> [!CAUTION]
+>
+> Before signing, ensure the below hashes match what is on your ledger.
+>
+> ### Optimism Foundation
+>
+> - Domain Hash: `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
+> - Message Hash: `0xc448c32c0fd28d14639aabde8414519d797105041a70e128911445497dcb9e78`
+>
+> ### Security Council
+>
+> - Domain Hash: `df53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
+> - Message Hash: `03c889c859b636e7c7be35fdc2d12074c76f8d663c2c966775dce74dc85a6691`
+
 ## State Changes
 
 ### `0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3` (`SystemConfigProxy`)

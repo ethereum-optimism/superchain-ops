@@ -7,6 +7,10 @@ import {Script} from "forge-std/Script.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
+/// This script gathers all tasks for a given network and performs a simulation run for each task.
+/// Once all tasks are simulated, the resultant state is written to a file.
+/// This state is then applied and the monorepo integration tests are run against it.
+/// This file can only simulate tasks for one network at a time (found under tasks/example/{network}).
 contract TaskRunner is Script {
     using Strings for uint256;
 
