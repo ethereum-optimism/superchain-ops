@@ -19,6 +19,40 @@ contract A {
     }
 }
 
+contract B {
+    C public c;
+    D public d;
+
+    uint256 b;
+
+    function initB() external {
+        c = new C();
+        d = new D();
+    }
+
+    function write() external {
+        c.incrementC();
+        d.incrementD();
+        b++;
+    }
+}
+
+contract C {
+    uint256 public c;
+
+    function incrementC() external {
+        c++;
+    }
+}
+
+contract D {
+    uint256 public d;
+
+    function incrementD() external {
+        d++;
+    }
+}
+
 /// @notice Library to expose the internal functions, to avoid tests stopping after hitting an expected revert.
 /// https://book.getfoundry.sh/cheatcodes/expect-revert
 library AccountAccessParserHarness {
@@ -52,13 +86,37 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
     address constant addr9 = address(9);
     address constant addr10 = address(10);
 
+    function printAccountAccesses(VmSafe.AccountAccess[] memory accountAccesses) public view {
+        // Print out all account accesses and their storage changes
+        for (uint256 i = 0; i < accountAccesses.length; i++) {
+            VmSafe.AccountAccess memory access = accountAccesses[i];
+            console.log("\n=== Account Access [%d] ===", i);
+            console.log("Account (callee): %s, label %s", access.account, vm.getLabel(access.account));
+            console.log("Accessor (caller): %s, label %s", access.accessor, vm.getLabel(access.accessor));
+            console.log("Value: %d", access.value);
+            console.log("Reverted: %s", access.reverted);
+            console.log("Kind: %s", uint8(access.kind));
+
+            console.log("\n--- Storage Accesses ---");
+            for (uint256 j = 0; j < access.storageAccesses.length; j++) {
+                VmSafe.StorageAccess memory sa = access.storageAccesses[j];
+                console.log("\nStorage Access [%d]:", j);
+                console.log("  Account: %s, label: %s", sa.account, vm.getLabel(sa.account));
+                console.log("  Slot: %s", vm.toString(sa.slot));
+                console.log("  Is Write: %s", sa.isWrite);
+                console.log("  Previous Value: %s", vm.toString(sa.previousValue));
+                console.log("  New Value: %s", vm.toString(sa.newValue));
+                console.log("  Reverted: %s", sa.reverted);
+            }
+            console.log("-------------------------------------------\n\n");
+        }
+    }
+
     function testReproduceBug() public {
         A a = new A();
-        console.log("Contract A", address(a));
         Proxy proxy = new Proxy(payable(msg.sender));
         vm.prank(msg.sender);
         proxy.upgradeTo(address(a));
-        console.log("Proxy", address(proxy));
 
         // Start state diff recording
         vm.startStateDiffRecording();
@@ -66,8 +124,44 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
         // Stop state diff recording
 
-        vm.expectRevert("No state changes found, this is unexpected.");
+        printAccountAccesses(accountAccesses);
+
+        // Get decoded transfers and state diffs
         AccountAccessParserHarness.decodeAndPrint(accountAccesses);
+    }
+
+    function contains(address[] memory addrs, address target) private pure returns (bool) {
+        for (uint256 i = 0; i < addrs.length; i++) {
+            if (addrs[i] == target) return true;
+        }
+        return false;
+    }
+
+    function test_multi_writes_single_call() public {
+        B b = new B();
+        b.initB();
+
+        vm.label(address(b), "Contract B");
+        vm.label(address(b.c()), "Contract C");
+        vm.label(address(b.d()), "Contract D");
+        vm.label(address(this), "This Contract");
+
+        // Start state diff recording
+        vm.startStateDiffRecording();
+        b.write();
+        VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
+
+        // for debugging
+        // printAccountAccesses(accountAccesses);
+
+        // Get decoded transfers and state diffs
+        AccountAccessParserHarness.decodeAndPrint(accountAccesses);
+
+        address[] memory accesses = accountAccesses.getUniqueWrites();
+        assertEq(accesses.length, 3, "should only write to 3 unique accounts");
+        assertTrue(contains(accesses, address(b)), "should write to b");
+        assertTrue(contains(accesses, address(b.c())), "should write to c");
+        assertTrue(contains(accesses, address(b.d())), "should write to d");
     }
 
     function test_getUniqueWrites_succeeds() public pure {
@@ -170,9 +264,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
 
             address[] memory uniqueAccounts = accesses.getUniqueWrites();
             assertEq(uniqueAccounts.length, 1, "120");
-            assertNotEq(uniqueAccounts[0], addr2, "130");
             // When this is working, the following will be true:
-            // assertEq(uniqueAccounts[0], addr2, "130");
+            assertEq(uniqueAccounts[0], addr2, "130");
         }
     }
 
