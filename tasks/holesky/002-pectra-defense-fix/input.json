@@ -1,0 +1,79 @@
+{
+  "metadata": {
+    "name": "ProxyAdminOwner - Set Dispute Game Implementation",
+    "description": "Re-initialize with anchor states for game types 0 set to 0x03631bf3d25737500a4e483a8fd95656c68a68580d20ba1a5362cd6ba012a435, 3414741 "
+  },
+  "transactions": [
+    {
+      "metadata": {
+        "name": "Upgrade AnchorStateRegistry to StorageSetter and clear legacy initialized slot",
+        "description": "By clearing the initialized slot, we can call initialize again to set an anchor state for the new game type"
+      },
+      "to": "0xbd71120fc716a431aeab81078ce85ccc74496552",
+      "value": "0x0",
+      "data": "0x9623609d00000000000000000000000045b52afe0b60f5ab1a2657b911b57de0c42e5e50000000000000000000000000553eb72a9f1fc85dcffeb2ebce652726d06e0bbf000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000444e91db080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "contractMethod": {
+        "type": "function",
+        "name": "upgradeAndCall",
+        "inputs": [
+          {
+            "name": "_proxy",
+            "type": "address"
+          },
+          {
+            "name": "_implementation",
+            "type": "address"
+          },
+          {
+            "name": "_data",
+            "type": "bytes"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_proxy": "0x45b52AFe0b60f5aB1a2657b911b57DE0c42e5E50",
+        "_implementation": "0x553Eb72A9F1Fc85dCFfeB2EbCE652726D06E0bBF",
+        "_data": "0x4e91db0800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "metadata": {
+        "name": "Re-initialize the AnchorStateRegistryProxy",
+        "description": "Re-initialize with anchor states for game types 0 set to 0x03631bf3d25737500a4e483a8fd95656c68a68580d20ba1a5362cd6ba012a435, 3414741"
+      },
+      "to": "0xbd71120fc716a431aeab81078ce85ccc74496552",
+      "value": "0x0",
+      "data": "0x9623609d00000000000000000000000045b52afe0b60f5ab1a2657b911b57de0c42e5e50000000000000000000000000cf6ee75a56b5c83d0a4cffb68c7198ad37786490000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000c45e05fbd00000000000000000000000000000000000000000000000000000000000000040000000000000000000000000885c53fa5f5d03efc781a7feb8aabab67ba4e3bc0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000003631bf3d25737500a4e483a8fd95656c68a68580d20ba1a5362cd6ba012a4350000000000000000000000000000000000000000000000000000000000341ad500000000000000000000000000000000000000000000000000000000",
+      "contractMethod": {
+        "type": "function",
+        "name": "upgradeAndCall",
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_proxy",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "_implementation",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes",
+            "name": "_data",
+            "type": "bytes"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_proxy": "0x45b52AFe0b60f5aB1a2657b911b57DE0c42e5E50",
+        "_implementation": "0xCf6Ee75A56b5C83D0A4CffB68C7198AD37786490",
+        "_data": "0x5e05fbd00000000000000000000000000000000000000000000000000000000000000040000000000000000000000000885c53fa5f5d03efc781a7feb8aabab67ba4e3bc0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000003631bf3d25737500a4e483a8fd95656c68a68580d20ba1a5362cd6ba012a4350000000000000000000000000000000000000000000000000000000000341ad5"
+      }
+    }
+  ]
+}
