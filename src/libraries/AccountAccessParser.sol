@@ -201,7 +201,7 @@ library AccountAccessParser {
     }
 
     /// @notice Extracts all unique storage writes (i.e. writes where the value has actually changed)
-    function getUniqueWritesNew(VmSafe.AccountAccess[] memory accesses)
+    function getUniqueWrites(VmSafe.AccountAccess[] memory accesses)
         internal
         pure
         returns (address[] memory uniqueAccounts)
@@ -230,45 +230,6 @@ library AccountAccessParser {
                     }
                     if (!exists) {
                         temp[count] = sa.account;
-                        count++;
-                    }
-                }
-            }
-        }
-        uniqueAccounts = new address[](count);
-        for (uint256 i = 0; i < count; i++) {
-            uniqueAccounts[i] = temp[i];
-        }
-    }
-
-    function getUniqueWrites(VmSafe.AccountAccess[] memory accesses)
-        internal
-        pure
-        returns (address[] memory uniqueAccounts)
-    {
-        // Temporary array sized to maximum possible length.
-        address[] memory temp = new address[](accesses.length);
-        uint256 count = 0;
-        for (uint256 i = 0; i < accesses.length; i++) {
-            if (!accesses[i].reverted) {
-                bool hasChangedWrite = false;
-                for (uint256 j = 0; j < accesses[i].storageAccesses.length; j++) {
-                    VmSafe.StorageAccess memory sa = accesses[i].storageAccesses[j];
-                    if (sa.isWrite && !sa.reverted && sa.previousValue != sa.newValue) {
-                        hasChangedWrite = true;
-                        break;
-                    }
-                }
-                if (hasChangedWrite) {
-                    bool exists = false;
-                    for (uint256 k = 0; k < count; k++) {
-                        if (temp[k] == accesses[i].account) {
-                            exists = true;
-                            break;
-                        }
-                    }
-                    if (!exists) {
-                        temp[count] = accesses[i].account;
                         count++;
                     }
                 }
