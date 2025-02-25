@@ -221,6 +221,16 @@ contract MainnetAddressRegistryTest is Test {
         addresses.isAddressContract("NON_EXISTENT_ADDRESS", modeChainId);
     }
 
+    function testSuperchainConfigConstructionSucceeds() public {
+        string memory networkConfigFilePath = "test/registry/mock/onlySuperchainNetworkConfig.toml";
+
+        addresses = new AddressRegistry(networkConfigFilePath);
+        assertFalse(
+            addresses.supportedL2ChainIds(getChain("mainnet").chainId),
+            "Eth mainnet chain ID should not be an l2chainid"
+        );
+    }
+
     /// Construction failure tests
     function testInvalidChainIdInSuperchainsFails() public {
         string memory networkConfigFilePath = "test/registry/mock/invalidChainIdNetworkConfig.toml";

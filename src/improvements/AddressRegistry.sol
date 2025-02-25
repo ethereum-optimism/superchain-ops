@@ -3,7 +3,9 @@ pragma solidity 0.8.15;
 
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
+import {VmSafe} from "forge-std/Vm.sol";
 import {Test} from "forge-std/Test.sol";
+
 import {GameTypes, GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 
 /// @notice Contains getters for arbitrary methods from all L1 contracts, including legacy getters
@@ -103,38 +105,83 @@ contract AddressRegistry is Test {
             "Unsupported network"
         );
 
+        bool isSuperchainInstance;
+
         bytes memory chainListContent;
-        try vm.parseToml(vm.readFile(networkConfigFilePath), ".l2chains") returns (bytes memory parsedChainListContent)
-        {
-            chainListContent = parsedChainListContent;
-        } catch {
-            revert(string.concat("Failed to parse network config file path: ", networkConfigFilePath));
-        }
 
         // Cannot assign the abi.decode result to `chains` directly because it's a storage array, so
         // compiling without via-ir will fail with:
         //    Unimplemented feature (/solidity/libsolidity/codegen/ArrayUtils.cpp:228):Copying of type struct AddressRegistry.ChainInfo memory[] memory to storage not yet supported.
-        ChainInfo[] memory _chains = abi.decode(chainListContent, (ChainInfo[]));
-        for (uint256 i = 0; i < _chains.length; i++) {
-            chains.push(_chains[i]);
+        ChainInfo[] memory _chains;
+        (bool success, bytes memory parsedChainListContent) = address(vm).call(
+            abi.encodeWithSignature("parseToml(string,string)", vm.readFile(networkConfigFilePath), ".l2chains")
+        );
+        parsedChainListContent = abi.decode(parsedChainListContent, (bytes));
+
+        if (success && parsedChainListContent.length != 0) {
+            chainListContent = parsedChainListContent;
+            _chains = abi.decode(parsedChainListContent, (ChainInfo[]));
+            for (uint256 i = 0; i < _chains.length; i++) {
+                chains.push(_chains[i]);
+            }
+        } else {
+            try vm.parseToml(vm.readFile(networkConfigFilePath), ".superchainConfig") returns (
+                bytes memory _parsedChainListContent
+            ) {
+                chainListContent = _parsedChainListContent;
+
+                chainListContent = vm.parseToml(vm.readFile(networkConfigFilePath), ".superchainConfig");
+                ChainInfo memory _chain = abi.decode(chainListContent, (ChainInfo));
+                _chains = new ChainInfo[](1);
+
+                _chains[0].chainId = _chain.chainId;
+                _chains[0].name = _chain.name;
+
+                chains.push(_chain);
+                isSuperchainInstance = true;
+            } catch {
+                revert(
+                    string.concat(
+                        "Failed to parse network config file path: ",
+                        networkConfigFilePath,
+                        ". Neither .l2chains nor .superchainConfig present"
+                    )
+                );
+            }
         }
 
         string memory chainAddressesContent =
             vm.readFile("lib/superchain-registry/superchain/extra/addresses/addresses.json");
 
-        for (uint256 i = 0; i < chains.length; i++) {
-            require(!supportedL2ChainIds[chains[i].chainId], "Duplicate chain ID in chain config");
-            require(chains[i].chainId != 0, "Invalid chain ID in config");
-            require(bytes(chains[i].name).length > 0, "Empty name in config");
+        bool isMainnet = block.chainid == getChain("mainnet").chainId;
 
-            supportedL2ChainIds[chains[i].chainId] = true;
+        if (!isSuperchainInstance) {
+            for (uint256 i = 0; i < chains.length; i++) {
+                require(!supportedL2ChainIds[chains[i].chainId], "Duplicate chain ID in chain config");
+                require(chains[i].chainId != 0, "Invalid chain ID in config");
+                require(bytes(chains[i].name).length > 0, "Empty name in config");
 
-            _processAddresses(chains[i], chainAddressesContent);
+                supportedL2ChainIds[chains[i].chainId] = true;
 
-            _loadHardcodedAddresses(
-                block.chainid == getChain("mainnet").chainId ? ".mainnetAddresses" : ".testnetAddresses", chains[i]
-            );
+                _processAddresses(chains[i], chainAddressesContent);
+
+                _loadHardcodedAddresses(isMainnet ? ".mainnetAddresses" : ".testnetAddresses", chains[i]);
+            }
+        } else {
+            _processSuperchainToml(isMainnet);
         }
+    }
+
+    function _processSuperchainToml(bool isMainnet) internal {
+        string memory networkString = isMainnet ? "mainnet" : "sepolia";
+        string memory path =
+            string.concat("lib/superchain-registry/superchain/configs/", networkString, "/superchain.toml");
+
+        string memory file = vm.readFile(path);
+        address protocolVersions = vm.parseTomlAddress(file, ".protocol_versions_addr");
+
+        ChainInfo memory chain = ChainInfo(block.chainid, networkString);
+        saveAddress("ProtocolVersions", chain, protocolVersions);
     }
 
     /// @dev Processes all configurations for a given chain.
