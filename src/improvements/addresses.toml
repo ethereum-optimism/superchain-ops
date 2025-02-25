@@ -10,6 +10,9 @@ addr = "0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A"
 identifier = "SecurityCouncil"
 addr = "0xc2819DC788505Aac350142A7A707BF9D03E3Bd03"
 
+[[mainnetAddresses]]
+identifier = "ChainGovernorSafe"
+addr = "0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC"
 
 [[testnetAddresses]]
 identifier = "FoundationUpgradeSafe"
