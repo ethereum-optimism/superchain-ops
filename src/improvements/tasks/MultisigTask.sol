@@ -12,9 +12,11 @@ import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
+import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
 abstract contract MultisigTask is Test, Script {
     using EnumerableSet for EnumerableSet.AddressSet;
+    using AccountAccessParser for VmSafe.AccountAccess[];
 
     /// @notice nonce used for generating the safe transaction
     /// will be set to the value specified in the config file
@@ -163,7 +165,7 @@ abstract contract MultisigTask is Test, Script {
         build();
         VmSafe.AccountAccess[] memory accountAccesses = simulate(signatures);
         validate(accountAccesses);
-        print();
+        print(accountAccesses);
 
         return accountAccesses;
     }
@@ -200,7 +202,7 @@ abstract contract MultisigTask is Test, Script {
         validate(accountAccesses);
 
         // print out results of execution
-        print();
+        print(accountAccesses);
 
         return accountAccesses;
     }
@@ -575,7 +577,7 @@ abstract contract MultisigTask is Test, Script {
     }
 
     /// @notice print task description, actions, transfers, state changes and EOAs datas to sign
-    function print() public view {
+    function print(VmSafe.AccountAccess[] memory accountAccesses) public view {
         console.log("\n------------------ Task Actions ------------------");
         for (uint256 i; i < actions.length; i++) {
             console.log("%d). %s", i + 1, actions[i].description);
@@ -584,60 +586,7 @@ abstract contract MultisigTask is Test, Script {
             console.log("\n");
         }
 
-        console.log("\n----------------- Task Transfers -------------------");
-        if (_taskTransferFromAddresses.length() == 0) {
-            console.log("\nNo Transfers\n");
-        }
-        for (uint256 i; i < _taskTransferFromAddresses.length(); i++) {
-            address account = _taskTransferFromAddresses.at(i);
-
-            console.log("\n\n", string.concat(getAddressLabel(account), ":"));
-
-            // print token transfers
-            TransferInfo[] memory transfers = _taskTransfers[account];
-            if (transfers.length > 0) {
-                console.log("\n Transfers:");
-            }
-            for (uint256 j; j < transfers.length; j++) {
-                if (transfers[j].tokenAddress == address(0)) {
-                    console.log(
-                        string(
-                            abi.encodePacked(
-                                "Sent ", vm.toString(transfers[j].value), " ETH to ", getAddressLabel(transfers[j].to)
-                            )
-                        )
-                    );
-                } else {
-                    console.log(
-                        string(
-                            abi.encodePacked(
-                                "Sent ",
-                                vm.toString(transfers[j].value),
-                                " ",
-                                getAddressLabel(transfers[j].tokenAddress),
-                                " to ",
-                                getAddressLabel(transfers[j].to)
-                            )
-                        )
-                    );
-                }
-            }
-        }
-
-        console.log("\n----------------- Task State Changes -------------------");
-        // print state changes
-        for (uint256 k; k < _taskStateChangeAddresses.length(); k++) {
-            address account = _taskStateChangeAddresses.at(k);
-            StateInfo[] memory stateChanges = _stateInfos[account];
-            if (stateChanges.length > 0) {
-                console.log("\n State Changes for account:", getAddressLabel(account));
-            }
-            for (uint256 j; j < stateChanges.length; j++) {
-                console.log("Slot:", vm.toString(stateChanges[j].slot));
-                console.log("- ", vm.toString(stateChanges[j].oldValue));
-                console.log("+ ", vm.toString(stateChanges[j].newValue));
-            }
-        }
+        accountAccesses.decodeAndPrint();
 
         printSafe();
     }
