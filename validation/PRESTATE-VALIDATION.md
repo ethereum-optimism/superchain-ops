@@ -51,12 +51,12 @@ To calculate the prestates associated with a given `op-program` release (for exa
   ```
 * Check out your target op-program release version tag:
   ```shell
-    git fetch upstream --tags
+    git fetch <remote> --tags
     git checkout <release-tag>
   ```
   For example:
   ```shell
-    git fetch upstream --tags
+    git fetch origin --tags
     git checkout op-program/v1.5.0-rc.2
   ```
 * Run the `reproducible-prestate` task to generate the op-program prestates at this tag:
