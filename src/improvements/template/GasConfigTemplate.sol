@@ -2,6 +2,7 @@
 pragma solidity 0.8.15;
 
 import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
+import {VmSafe} from "forge-std/Vm.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 
@@ -59,7 +60,7 @@ contract GasConfigTemplate is MultisigTask {
 
     /// @notice Validates that gas limits were set correctly for the specified chain ID
     /// @param chainId The ID of the L2 chain to validate
-    function _validate(uint256 chainId) internal view override {
+    function _validate(uint256 chainId, VmSafe.AccountAccess[] memory) internal view override {
         SystemConfig systemConfig = SystemConfig(addrRegistry.getAddress("SystemConfigProxy", chainId));
 
         if (gasLimits[chainId] != 0) {

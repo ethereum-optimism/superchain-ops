@@ -8,7 +8,7 @@ import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 /// @notice base task for making calls to the Optimism Contracts Manager
 abstract contract OPCMBaseTask is MultisigTask {
     /// @notice Optimism Contracts Manager Multicall3DelegateCall contract reference
-    address public constant MULTICALL3_DELEGATECALL_ADDRESS = 0x95b259eae68ba96edB128eF853fFbDffe47D2Db0;
+    address public constant MULTICALL3_DELEGATECALL_ADDRESS = 0x93dc480940585D9961bfcEab58124fFD3d60f76a;
 
     /// @notice OpChainConfig struct found in the OpContractsManager contract
     struct OpChainConfig {
@@ -105,13 +105,13 @@ abstract contract OPCMBaseTask is MultisigTask {
     }
 
     // @notice this function must be overridden in the inheriting contract
-    function _validate(uint256) internal view virtual override {
+    function _validate(uint256, VmSafe.AccountAccess[] memory) internal view virtual override {
         require(false, "You must implement the _validate function");
     }
 
     /// @notice overrides to do nothing per chain
     /// all the chains are handled in a single call to OPCM contract
-    function _buildPerChain(uint256 chainId) internal pure override {
+    function _buildPerChain(uint256) internal pure override {
         // We must override this function but OPCM template do not support per chain builds.
         // We cannot revert here because this build function is called by the parent MultisigTask.
     }
