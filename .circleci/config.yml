@@ -351,8 +351,8 @@ jobs:
           name: monorepo integration tests
           command: |
             (cd src/improvements && just monorepo-integration-test)
-      - notify-failures-on-develop:
-          mentions: "@security-team"
+      # - notify-failures-on-develop:
+      #     mentions: "@security-team"
       - run:
           name: Print failed test traces
           command: (cd src/improvements && just monorepo-integration-test rerun)

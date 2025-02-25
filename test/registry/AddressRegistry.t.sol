@@ -177,6 +177,7 @@ contract MainnetAddressRegistryTest is Test {
                 "FoundationOperationSafe not loaded"
             );
             assertNotEq(addresses.getAddress("SecurityCouncil", chainId), address(0), "SecurityCouncil not loaded");
+            assertNotEq(addresses.getAddress("ChainGovernorSafe", chainId), address(0), "ChainGovernorSafe not loaded");
 
             assertEq(
                 addresses.getAddress("FoundationUpgradeSafe", chainId),
@@ -192,6 +193,11 @@ contract MainnetAddressRegistryTest is Test {
                 addresses.getAddress("SecurityCouncil", chainId),
                 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03,
                 "SecurityCouncil not properly loaded"
+            );
+            assertEq(
+                addresses.getAddress("ChainGovernorSafe", chainId),
+                0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC,
+                "ChainGovernorSafe not properly loaded"
             );
         }
     }
