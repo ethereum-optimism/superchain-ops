@@ -553,10 +553,8 @@ abstract contract MultisigTask is Test, Script {
     function build() public returns (Action[] memory actions) {
         require(parentMultisig != address(0), "Must set address registry for multisig address to be set");
 
-        console.log("_buildStarted");
-        console.log(_buildStarted);
         require(_buildStarted == uint256(0), "Build already started");
-        _buildStarted = uint256(1);
+        _buildStarted = 1;
 
         _startBuild();
 
@@ -570,7 +568,7 @@ abstract contract MultisigTask is Test, Script {
 
         actions = _endBuild();
 
-        _buildStarted = uint256(0);
+        _buildStarted = 0;
 
         return actions;
     }

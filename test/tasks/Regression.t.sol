@@ -126,15 +126,18 @@ contract RegressionTest is Test {
             "0x174dea71000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000837de453ad5f21e89771e3c06239d8236c0efd5e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000024610b592500000000000000000000000062f3972c56733ab078f0764d2414dfcaa99d574c00000000000000000000000000000000000000000000000000000000";
         vm.createSelectFork("sepolia", 7745524);
         MultisigTask multisigTask = new EnableDeputyPauseModuleTemplate();
-        multisigTask.simulateRun(taskConfigFilePath);
+        (, MultisigTask.Action[] memory actions) = multisigTask.simulateRun(taskConfigFilePath);
 
-        string memory callData = vm.toString(multisigTask.getCalldata());
+        string memory callData = vm.toString(multisigTask.getMulticall3Calldata(actions));
         assertEq(keccak256(bytes(callData)), keccak256(bytes(expectedCallData)));
 
         string memory expectedDataToSign =
             "0x1901e84ad8db37faa1651b140c17c70e4c48eaa47a635e0db097ddf4ce1cc14b9ecbf55e2ed894ddff4c0045537c8239db1c4b3ac5700049164b5823ecaa045d7334";
-        string memory dataToSign =
-            vm.toString(multisigTask.getDataToSign(multisigTask.parentMultisig(), multisigTask.getCalldata()));
+        string memory dataToSign = vm.toString(
+            multisigTask.getEncodedTransactionData(
+                multisigTask.parentMultisig(), multisigTask.getMulticall3Calldata(actions)
+            )
+        );
         assertEq(keccak256(bytes(dataToSign)), keccak256(bytes(expectedDataToSign)));
     }
 
