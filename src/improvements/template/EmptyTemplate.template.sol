@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
+import {VmSafe} from "forge-std/Vm.sol";
+
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 
 /// @notice A template contract for configuring protocol parameters.
@@ -59,7 +61,7 @@ contract EmptyTemplate is MultisigTask {
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
-    function _validate(uint256 chainId) internal pure override {
+    function _validate(uint256 chainId, VmSafe.AccountAccess[] memory) internal pure override {
         require(false, "TODO: Implement the logic to validate that the configuration was set as expected.");
         chainId;
     }

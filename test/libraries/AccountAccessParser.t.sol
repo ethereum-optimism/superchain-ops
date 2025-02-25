@@ -5,9 +5,29 @@ pragma solidity ^0.8.15;
 import {Test} from "forge-std/Test.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
+import {Proxy} from "@eth-optimism-bedrock/src/universal/Proxy.sol";
 
 // Libraries
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
+
+// This is a simple implementation of a contract used in the "test_commonProxyArchitecture_succeeds" test.
+// DO NOT use in production.
+contract Impl {
+    uint256 public num;
+    address public proxy;
+
+    function initialize(address _proxy) public {
+        require(proxy == address(0), "Already initialized");
+        proxy = _proxy;
+    }
+
+    function setNum(uint256 _num) public {
+        num = _num;
+        if (proxy != address(0)) {
+            Impl(payable(proxy)).setNum(_num + 1);
+        }
+    }
+}
 
 contract AccountAccessParser_decodeAndPrint_Test is Test {
     using AccountAccessParser for VmSafe.AccountAccess[];
@@ -33,6 +53,47 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
     address constant addr8 = address(8);
     address constant addr9 = address(9);
     address constant addr10 = address(10);
+
+    // Proxy1 (1 Storage Write) -> Impl1 -> Proxy2 (1 Storage Write) -> Impl2
+    // Delegate calling from a proxy to an implementation is a common pattern in our architecture.
+    // In this test, we test a more complex version of this pattern where we have two proxies.
+    // Each proxy delegates to an implementation, which then updates state on the calling proxy.
+    function test_commonProxyArchitecture_succeeds() public {
+        Proxy proxy2 = new Proxy(payable(msg.sender));
+        Impl impl2 = new Impl();
+        vm.prank(address(0));
+        proxy2.upgradeTo(address(impl2));
+
+        Proxy proxy1 = new Proxy(payable(msg.sender));
+        Impl impl1 = new Impl();
+        vm.prank(address(0));
+        proxy1.upgradeToAndCall(address(impl1), abi.encodeWithSelector(Impl.initialize.selector, address(proxy2)));
+
+        // Start state diff recording
+        vm.startStateDiffRecording();
+        Impl(address(proxy1)).setNum(10);
+        VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
+        // Stop state diff recording
+
+        accountAccesses.decodeAndPrint();
+
+        AccountAccessParser.StateDiff[] memory firstProxyDiffs = accountAccesses.getStateDiffFor(address(proxy1));
+        assertEq(firstProxyDiffs.length, 1, "10");
+        assertEq(firstProxyDiffs[0].slot, slot0, "20");
+        assertEq(firstProxyDiffs[0].oldValue, val0, "30");
+        assertEq(firstProxyDiffs[0].newValue, bytes32(uint256(10)), "40");
+
+        AccountAccessParser.StateDiff[] memory secondProxyDiffs = accountAccesses.getStateDiffFor(address(proxy2));
+        assertEq(secondProxyDiffs.length, 1, "50");
+        assertEq(secondProxyDiffs[0].slot, slot0, "60");
+        assertEq(secondProxyDiffs[0].oldValue, val0, "70");
+        assertEq(secondProxyDiffs[0].newValue, bytes32(uint256(11)), "80");
+
+        address[] memory uniqueAccounts = accountAccesses.getUniqueWrites();
+        assertEq(uniqueAccounts.length, 2, "90");
+        assertEq(uniqueAccounts[0], address(proxy1), "100");
+        assertEq(uniqueAccounts[1], address(proxy2), "110");
+    }
 
     function test_getUniqueWrites_succeeds() public pure {
         // Test basic case - single account with single changed write
@@ -124,6 +185,17 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
 
             address[] memory uniqueAccounts = accesses.getUniqueWrites();
             assertEq(uniqueAccounts.length, 0, "110");
+        }
+        // Test correct unique account is returned when account access account didn't have a storage write directly
+        {
+            VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
+            storageAccesses[0] = storageAccess(addr2, slot0, isWrite, val0, val1);
+            VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
+            accesses[0] = accountAccess(addr1, storageAccesses);
+
+            address[] memory uniqueAccounts = accesses.getUniqueWrites();
+            assertEq(uniqueAccounts.length, 1, "120");
+            assertEq(uniqueAccounts[0], addr2, "130");
         }
     }
 
