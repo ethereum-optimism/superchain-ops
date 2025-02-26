@@ -15,7 +15,7 @@ import {IPermissionedDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute
 import {IDisputeGameFactory} from "@eth-optimism-bedrock/interfaces/dispute/IDisputeGameFactory.sol";
 import {GameTypes, GameType, Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {StandardValidatorV180, IProxyAdmin, ISystemConfig} from "@eth-optimism-bedrock/src/L1/StandardValidator.sol";
-
+import {EIP1967Helper} from "@eth-optimism-bedrock/test/mocks/EIP1967Helper.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
 contract NestedSignFromJson is SuperchainRegistry, OriginalNestedSignFromJson, CouncilFoundationNestedSign {
@@ -25,7 +25,6 @@ contract NestedSignFromJson is SuperchainRegistry, OriginalNestedSignFromJson, C
     IDisputeGameFactory disputeGameFactory;
     ISystemConfig systemConfig;
     IProxyAdmin proxyAdmin;
-    IProxyAdmin superchainProxyAdmin;
 
     mapping(IDisputeGameFactory => mapping(GameType => IFaultDisputeGame.GameConstructorParams)) public beforeParams;
 
@@ -35,9 +34,7 @@ contract NestedSignFromJson is SuperchainRegistry, OriginalNestedSignFromJson, C
         // Initialize contract references using registry
         disputeGameFactory = IDisputeGameFactory(proxies.DisputeGameFactory);
         systemConfig = ISystemConfig(proxies.SystemConfig);
-        // These might need to be adjusted if they don't align with registry values
-        proxyAdmin = IProxyAdmin(0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc);
-        superchainProxyAdmin = IProxyAdmin(proxies.SuperchainConfig);
+        proxyAdmin = IProxyAdmin(EIP1967Helper.getAdmin(address(systemConfig)));
     }
 
     function setUp() public {
