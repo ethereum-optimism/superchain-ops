@@ -269,7 +269,7 @@ jobs:
     steps:
       - simulate_nested:
           task: "/eth/030-soneium-holocene-system-config-upgrade"
-  
+
   just_simulate_ink_sep_fp_holocene_pectra_upgrade:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -283,7 +283,7 @@ jobs:
     steps:
       - simulate_nested:
           task: "/sep/ink-002-holocene-system-config-upgrade"
-          
+
   simulate_sequence:
     description: "Runs a sequence of simulations"
     parameters:
@@ -351,13 +351,13 @@ jobs:
           name: monorepo integration tests
           command: |
             (cd src/improvements && just monorepo-integration-test)
-      # - notify-failures-on-develop:
-      #     mentions: "@security-team"
+      - notify-failures-on-develop:
+          mentions: "@security-team"
       - run:
           name: Print failed test traces
           command: (cd src/improvements && just monorepo-integration-test rerun)
           when: on_fail
-  
+
   template_regression_tests:
     circleci_ip_ranges: true
     docker:
@@ -390,7 +390,8 @@ jobs:
       - utils/checkout-with-mise
       - run:
           name: shellcheck
-          command: | # Justfiles are not shell scripts and should not be checked with shellcheck
+          command:
+            | # Justfiles are not shell scripts and should not be checked with shellcheck
             (cd src/improvements/script && shellcheck -x *.sh)
 
 workflows:
@@ -477,7 +478,7 @@ workflows:
       - just_simulate_ink_sep_holocene_system_config_upgrade:
           context:
             - circleci-repo-readonly-authenticated-github-token
-       
+
       - simulate_sequence:
           network: "eth"
           tasks: "021 022 base-003 ink-001"
