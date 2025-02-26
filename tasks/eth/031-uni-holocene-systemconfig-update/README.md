@@ -4,7 +4,7 @@ Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
-Upgrades the **Unichain Mainnet** Fault Proof PDG to a new challenger and upgrades the System Config to the Holocene version.
+Upgrades **Unichain Mainnet** System Config to the Holocene version.
 
 The proposal was:
 

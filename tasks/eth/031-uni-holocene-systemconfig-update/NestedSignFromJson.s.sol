@@ -20,14 +20,6 @@ contract NestedSignFromJson is
     string constant l1ChainName = "mainnet";
     string constant l2ChainName = "unichain";
     string constant release = "v1.8.0-rc.4";
-    // string[1] l2ChainNames = ["unichain"];
-
-    bytes32 constant ABSOLUTE_PRESTATE =
-        0x0336751a224445089ba5456c8028376a0faf2bafa81d35f43fab8730258cdf37;
-    address constant FAULT_DISPUTE_GAME =
-        0x08f0F8F4E792d21E16289dB7a80759323C446F61;
-    address constant PERMISSIONED_DISPUTE_GAME =
-        0x2B9fD545CcFC6611E5F1e3bb52840010aA64C5C6;
 
     HoloceneSystemConfigUpgrade sysCfgUpgrade;
 
@@ -53,37 +45,6 @@ contract NestedSignFromJson is
         addAllowedStorageAccess(sysCfgUpgrade.systemConfigAddress());
         addCodeExceptions(sysCfgUpgrade.getCodeExceptions());
     }
-
-    // HoloceneSystemConfigUpgrade sysCfgUpgrade;
-
-    // constructor()
-    //     CouncilFoundationGovernorNestedSign(true)
-    //     SuperchainRegistry("mainnet", "unichain", "v1.8.0-rc.4")
-    //     DisputeGameUpgrade(
-    //         ABSOLUTE_PRESTATE, // uni custom absolutePrestate
-    //         FAULT_DISPUTE_GAME, // faultDisputeGame (same)
-    //         PERMISSIONED_DISPUTE_GAME // permissionedDisputeGame (new)
-    //     )
-    // {
-    //     sysCfgUpgrade = new HoloceneSystemConfigUpgrade(
-    //         l1ChainName,
-    //         l2ChainName,
-    //         release
-    //     );
-    //     console.log("");
-    //     console.log(
-    //         "Set up verification data for chain",
-    //         l2ChainName,
-    //         "-",
-    //         l1ChainName
-    //     );
-    //     console.log(
-    //         "with SystemConfigProxy @",
-    //         sysCfgUpgrade.systemConfigAddress()
-    //     );
-    //     addAllowedStorageAccess(sysCfgUpgrade.systemConfigAddress());
-    //     addCodeExceptions(sysCfgUpgrade.getCodeExceptions());
-    // }
 
     function _postCheck(
         Vm.AccountAccess[] memory accesses,
