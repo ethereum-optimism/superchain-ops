@@ -32,6 +32,8 @@ Note: The changes listed below do not include safe nonce updates or liveness gua
 
 ### `0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1` (`DisputeGameFactoryProxy`)
 
+Click on 'show raw state changes'.
+
 - **Key**: `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e` <br/>
   **Before**: `0x000000000000000000000000bbdbdfe37c02439764de0e41c906e4396b5b3914` <br/>
   **After**: `0x0000000000000000000000006b8a1c71e23e103d3a81e7878656be9516733ca3` <br/>
@@ -64,13 +66,18 @@ The arguments to the script can be taken from the before and after values in the
 The only change seen here is the `absolutePrestate()` as expected.
 
 ```shell
-comparegames.sh 0xc0b6c36e14755296476d5d8343654706fe0978a8 0xd3f6b7df02d5617c7969c1e7a005170a2633c895
+comparegames.sh 0xbbdbdfe37c02439764de0e41c906e4396b5b3914 0x6b8a1c71e23e103d3a81e7878656be9516733ca3
 
-Matches version()(string) = "1.3.1"
+M~/Pro/O/sup/tasks/sep/032-op-pectra-defence on  op-sepolia-upgrade-12 (abcbe93) [$!] via S
+(09:38:21) ➜ comparegames.sh 0xbbdbdfe37c02439764de0e41c906e4396b5b3914 0x6b8a1c71e23e103d3a81e7878656be9516733ca3
+
+Mismatch version()(string)
+Was: "1.3.1"
+Now: "1.3.1-beta.3"
 
 Mismatch absolutePrestate()(bytes32)
-Was: 0x038512e02c4c3f7bdaec27d00edf55b7155e0905301e1a88083e4e0a6764d54c
-Now: 0x03631bf3d25737500a4e483a8fd95656c68a68580d20ba1a5362cd6ba012a435
+Was: 0x03f89406817db1ed7fd8b31e13300444652cdb0b9c509a674de43483b2f83568
+Now: 0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd
 
 Matches maxGameDepth()(uint256) = 73
 
@@ -80,11 +87,11 @@ Matches maxClockDuration()(uint256) = 302400 [3.024e5]
 
 Matches gameType()(uint32) = 1
 
-Matches l2ChainId()(uint256) = 420110003 [4.201e8]
+Matches l2ChainId()(uint256) = 11155420 [1.115e7]
 
 Matches clockExtension()(uint64) = 10800 [1.08e4]
 
-Matches anchorStateRegistry()(address) = 0x45b52AFe0b60f5aB1a2657b911b57DE0c42e5E50
+Matches anchorStateRegistry()(address) = 0x218CD9489199F321E1177b56385d333c5B598629
 Matches weth()(address)
 Matches vmAn()(address)
 ```
@@ -96,13 +103,13 @@ There are two changes here:
 2. The version. This is because the FDG was manually added to the balrog devnet from `develop`.
 
 ```shell
-Mismatch version()(string)
-Was: "1.4.1"
-Now: "1.3.1"
+$ comparegames.sh 0xf3ccf0c4b51d42cfe6073f0278c19a8d1900e856 0x927248cb1255e0f02413a758899db4aecffaa5fe
+
+Matches version()(string) = "1.3.1"
 
 Mismatch absolutePrestate()(bytes32)
-Was: 0x038512e02c4c3f7bdaec27d00edf55b7155e0905301e1a88083e4e0a6764d54c
-Now: 0x03631bf3d25737500a4e483a8fd95656c68a68580d20ba1a5362cd6ba012a435
+Was: 0x03f89406817db1ed7fd8b31e13300444652cdb0b9c509a674de43483b2f83568
+Now: 0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd
 
 Matches maxGameDepth()(uint256) = 73
 
@@ -112,11 +119,11 @@ Matches maxClockDuration()(uint256) = 302400 [3.024e5]
 
 Matches gameType()(uint32) = 0
 
-Matches l2ChainId()(uint256) = 420110003 [4.201e8]
+Matches l2ChainId()(uint256) = 11155420 [1.115e7]
 
 Matches clockExtension()(uint64) = 10800 [1.08e4]
 
-Matches anchorStateRegistry()(address) = 0x45b52AFe0b60f5aB1a2657b911b57DE0c42e5E50
+Matches anchorStateRegistry()(address) = 0x218CD9489199F321E1177b56385d333c5B598629
 Matches weth()(address)
 Matches vmAn()(address)
 ```
