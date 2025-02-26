@@ -17,11 +17,15 @@ import {GameTypes, GameType, Claim} from "@eth-optimism-bedrock/src/dispute/lib/
 // import {ISystemConfig} from "@eth-optimism-bedrock/interfaces/L1/ISystemConfig.sol";
 import {StandardValidatorV180, IProxyAdmin, ISystemConfig} from "@eth-optimism-bedrock/src/L1/StandardValidator.sol";
 
+import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
+
 contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNestedSign {
-    IDisputeGameFactory constant OP_DGF = IDisputeGameFactory(0xF1408Ef0c263F8c42CefCc59146f90890615A191);
-    ISystemConfig constant SYS_CFG = ISystemConfig(0x9FB5e819Fed7169a8Ff03F7fA84Ee29B876D61B4);
-    IProxyAdmin constant PROXY_ADMIN_ADDRESS = IProxyAdmin(0xbD71120fC716a431AEaB81078ce85ccc74496552);
-    IProxyAdmin constant SUPERCHAIN_PROXY_ADMIN = IProxyAdmin(0xFeE222a4FA606A9dD0B05CD0a8E1E40e60FD809a);
+    using AccountAccessParser for VmSafe.AccountAccess[];
+
+    IDisputeGameFactory constant OP_DGF = IDisputeGameFactory(0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1);
+    ISystemConfig constant SYS_CFG = ISystemConfig(0x034edD2A225f7f429A63E0f1D2084B9E0A93b538);
+    IProxyAdmin constant PROXY_ADMIN = IProxyAdmin(0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc);
+    IProxyAdmin constant SUPERCHAIN_PROXY_ADMIN = IProxyAdmin(0xC2Be75506d5724086DEB7245bd260Cc9753911Be);
 
     mapping(IDisputeGameFactory => mapping(GameType => IFaultDisputeGame.GameConstructorParams)) public beforeParams;
 
@@ -37,7 +41,6 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
     function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory) internal view override {
         console.log("Running post-deploy assertions");
 
-        // Does not work on Holesky because the addresses are not in the registry
         // accesses.decodeAndPrint();
 
         checkStateDiff(accesses);
@@ -54,7 +57,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
             "Prestate not updated"
         );
         require(
-            Claim.unwrap(afterParams.absolutePrestate) == 0x03631bf3d25737500a4e483a8fd95656c68a68580d20ba1a5362cd6ba012a435,
+            Claim.unwrap(afterParams.absolutePrestate) == 0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd,
             "Prestate not updated to expected value"
         );
         beforeParams_.absolutePrestate = afterParams.absolutePrestate;
@@ -74,17 +77,26 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
             "Game params changed unexpectedly"
         );
 
-        StandardValidatorV180 validator = StandardValidatorV180(0x3C6423Ce73661f734f100A133Fa996b5F07743C8);
+        // Run StandardValidatorV180 to check that the chain config is valid
+        StandardValidatorV180 validator = StandardValidatorV180(0x0A5bF8eBb4b177B2dcc6EbA933db726a2e2e2B4d);
         StandardValidatorV180.InputV180 memory input = StandardValidatorV180.InputV180({
-            proxyAdmin: SUPERCHAIN_PROXY_ADMIN,
+            proxyAdmin: PROXY_ADMIN,
             sysCfg: SYS_CFG,
-            absolutePrestate: 0x03631bf3d25737500a4e483a8fd95656c68a68580d20ba1a5362cd6ba012a435,
-            l2ChainID: 420110003
+            absolutePrestate: 0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd,
+            l2ChainID: 11155420
         });
 
-        // Failing to call getProxyImplementation() on some contracts
-        // It seems that the StandardValidator incorrectly assumes that  `SuperchainProxyAdmin == OpChainProxyAdmin`.
-        // console.log("Validator result:", validator.validate(input, false));
+        console.log("Running StandardValidatorV180");
+        string memory reasons = validator.validate({_input: input, _allowFailure: true});
+
+        // We expect the following errors:
+        // PDDG-20 - The permissioned game has a beta version suffix on Sepolia
+        // PDDG-ANCHORP-40 - The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
+        // PLDG-ANCHORP-40 - The anchor state registry's permissionless root is not 0xdead000000000000000000000000000000000000000000000000000000000000
+        require(
+            keccak256(bytes(reasons)) == keccak256(bytes("PDDG-20,PDDG-ANCHORP-40,PLDG-ANCHORP-40")),
+            string.concat("Unexpected errors: ", reasons)
+        );
 
         console.log("All assertions passed!");
     }

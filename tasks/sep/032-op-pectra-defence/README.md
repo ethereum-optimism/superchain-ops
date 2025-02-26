@@ -4,13 +4,13 @@ Status: READY TO SIGN
 
 ## Objective
 
-This task updates deploys new dispute games with upgrade prestate hashes on the [balrog devnet](https://github.com/ethereum-optimism/devnets/pull/34/files#diff-ffdd0d4ec399fb055a0a8d3eb731dcffcf272cec33691f93f1ba14dfe77931ed).
+This task updates deploys new dispute games with upgrade prestate hashes on OP Sepolia and Sony Minato.
 
 This updated prestate hash corresponds with the hardfork to support the L1 Pectra upgrade.
 
 ## Input data derivation:
 
-The OPPrestateUpdater contract was deployed in advance to [0xcF818b7407755b2dA91B0bc9462303980C062BFC](https://holesky.etherscan.io/address/0xcF818b7407755b2dA91B0bc9462303980C062BFC).
+The OPPrestateUpdater contract was deployed in advance to [0x86b5BFD11625FaaE6Ed5f4f51786C2C0C3359411](https://sepolia.etherscan.io/address/0x86b5BFD11625FaaE6Ed5f4f51786C2C0C3359411).
 
 The input to the `updatePrestate()` function is an array of the following struct:
 
@@ -22,14 +22,15 @@ The input to the `updatePrestate()` function is an array of the following struct
     }
 ```
 
-The prestate hash used is: `0x03631bf3d25737500a4e483a8fd95656c68a68580d20ba1a5362cd6ba012a435`
+The prestate hash used is: `0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd`.
+Which was taken from [op-program/prestates/releases.json](https://github.com/ethereum-optimism/optimism/blob/8d0dd96e494b2ba154587877351e87788336a4ec/op-program/prestates/releases.json#L9).
 
-The input can therefore be generated from:
+The input can therefore be generated [from](https://github.com/ethereum-optimism/superchain-registry/blob/fb6f538e17ee296b19536b03b8c73adc6041c60d/superchain/configs/sepolia/op.toml#L58-L59):
 
 ```
 cast calldata \
   "updatePrestate((address,address,bytes32)[])" \
-  "[(0x9fb5e819fed7169a8ff03f7fa84ee29b876d61b4, 0xbd71120fc716a431aeab81078ce85ccc74496552, 0x03631bf3d25737500a4e483a8fd95656c68a68580d20ba1a5362cd6ba012a435)]"
+  "[(0x034edD2A225f7f429A63E0f1D2084B9E0A93b538, 0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc, 0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd)]"
 ```
 
 ## State Validations
