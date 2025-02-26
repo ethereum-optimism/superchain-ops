@@ -1,7 +1,7 @@
 # Validation - Prestates
 
 This document describes the required steps to validate an absolute prestate hash ("prestate").  Prestates are used in 
-`FauldDisputeGame.sol` and `PermissionedDisputeGame.sol` contracts to define the program that will be loaded by Cannon.
+`FaultDisputeGame.sol` and `PermissionedDisputeGame.sol` contracts to define the program that will be loaded by Cannon.
 The referenced program should be a valid release of `op-program`.
 
 ## Releases.json
