@@ -7,6 +7,7 @@ import {stdJson} from "forge-std/StdJson.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {NestedSignFromJson as OriginalNestedSignFromJson} from "script/NestedSignFromJson.s.sol";
 import {CouncilFoundationNestedSign} from "script/verification/CouncilFoundationNestedSign.s.sol";
+import {SuperchainRegistry} from "script/verification/Verification.s.sol";
 
 // Monorepo deps
 import {IFaultDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute/IFaultDisputeGame.sol";
@@ -19,15 +20,27 @@ import {StandardValidatorV180, IProxyAdmin, ISystemConfig} from "@eth-optimism-b
 
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
-contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNestedSign {
+contract NestedSignFromJson is SuperchainRegistry, OriginalNestedSignFromJson, CouncilFoundationNestedSign {
     using AccountAccessParser for VmSafe.AccountAccess[];
 
-    IDisputeGameFactory constant OP_DGF = IDisputeGameFactory(0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1);
-    ISystemConfig constant SYS_CFG = ISystemConfig(0x034edD2A225f7f429A63E0f1D2084B9E0A93b538);
-    IProxyAdmin constant PROXY_ADMIN = IProxyAdmin(0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc);
-    IProxyAdmin constant SUPERCHAIN_PROXY_ADMIN = IProxyAdmin(0xC2Be75506d5724086DEB7245bd260Cc9753911Be);
+    // Using registry to get addresses instead of hardcoding
+    IDisputeGameFactory OP_DGF;
+    ISystemConfig SYS_CFG;
+    IProxyAdmin PROXY_ADMIN;
+    IProxyAdmin SUPERCHAIN_PROXY_ADMIN;
 
     mapping(IDisputeGameFactory => mapping(GameType => IFaultDisputeGame.GameConstructorParams)) public beforeParams;
+
+    constructor()
+        SuperchainRegistry("sepolia", "op", "v1.8.0-rc.4")
+    {
+        // Initialize contract references using registry
+        OP_DGF = IDisputeGameFactory(proxies.DisputeGameFactory);
+        SYS_CFG = ISystemConfig(proxies.SystemConfig);
+        // These might need to be adjusted if they don't align with registry values
+        PROXY_ADMIN = IProxyAdmin(0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc);
+        SUPERCHAIN_PROXY_ADMIN = IProxyAdmin(proxies.SuperchainConfig);
+    }
 
     function setUp() public {
         addAllowedStorageAccess(address(OP_DGF));
@@ -83,7 +96,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
             proxyAdmin: PROXY_ADMIN,
             sysCfg: SYS_CFG,
             absolutePrestate: 0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd,
-            l2ChainID: 11155420
+            l2ChainID: chainConfig.chainId
         });
 
         console.log("Running StandardValidatorV180");
