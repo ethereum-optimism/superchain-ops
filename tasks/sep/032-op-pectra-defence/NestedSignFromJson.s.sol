@@ -13,9 +13,7 @@ import {SuperchainRegistry} from "script/verification/Verification.s.sol";
 import {IFaultDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute/IFaultDisputeGame.sol";
 import {IPermissionedDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute/IPermissionedDisputeGame.sol";
 import {IDisputeGameFactory} from "@eth-optimism-bedrock/interfaces/dispute/IDisputeGameFactory.sol";
-// import {IProxyAdmin} from "@eth-optimism-bedrock/interfaces/universal/IProxyAdmin.sol";
 import {GameTypes, GameType, Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
-// import {ISystemConfig} from "@eth-optimism-bedrock/interfaces/L1/ISystemConfig.sol";
 import {StandardValidatorV180, IProxyAdmin, ISystemConfig} from "@eth-optimism-bedrock/src/L1/StandardValidator.sol";
 
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
@@ -24,10 +22,10 @@ contract NestedSignFromJson is SuperchainRegistry, OriginalNestedSignFromJson, C
     using AccountAccessParser for VmSafe.AccountAccess[];
 
     // Using registry to get addresses instead of hardcoding
-    IDisputeGameFactory OP_DGF;
-    ISystemConfig SYS_CFG;
-    IProxyAdmin PROXY_ADMIN;
-    IProxyAdmin SUPERCHAIN_PROXY_ADMIN;
+    IDisputeGameFactory disputeGameFactory;
+    ISystemConfig systemConfig;
+    IProxyAdmin proxyAdmin;
+    IProxyAdmin superchainProxyAdmin;
 
     mapping(IDisputeGameFactory => mapping(GameType => IFaultDisputeGame.GameConstructorParams)) public beforeParams;
 
@@ -35,20 +33,20 @@ contract NestedSignFromJson is SuperchainRegistry, OriginalNestedSignFromJson, C
         SuperchainRegistry("sepolia", "op", "v1.8.0-rc.4")
     {
         // Initialize contract references using registry
-        OP_DGF = IDisputeGameFactory(proxies.DisputeGameFactory);
-        SYS_CFG = ISystemConfig(proxies.SystemConfig);
+        disputeGameFactory = IDisputeGameFactory(proxies.DisputeGameFactory);
+        systemConfig = ISystemConfig(proxies.SystemConfig);
         // These might need to be adjusted if they don't align with registry values
-        PROXY_ADMIN = IProxyAdmin(0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc);
-        SUPERCHAIN_PROXY_ADMIN = IProxyAdmin(proxies.SuperchainConfig);
+        proxyAdmin = IProxyAdmin(0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc);
+        superchainProxyAdmin = IProxyAdmin(proxies.SuperchainConfig);
     }
 
     function setUp() public {
-        addAllowedStorageAccess(address(OP_DGF));
-        beforeParams[OP_DGF][GameTypes.PERMISSIONED_CANNON] =
-            getGameConstructorParams(IFaultDisputeGame(address(OP_DGF.gameImpls(GameTypes.PERMISSIONED_CANNON))));
+        addAllowedStorageAccess(address(disputeGameFactory));
+        beforeParams[disputeGameFactory][GameTypes.PERMISSIONED_CANNON] =
+            getGameConstructorParams(IFaultDisputeGame(address(disputeGameFactory.gameImpls(GameTypes.PERMISSIONED_CANNON))));
 
-        beforeParams[OP_DGF][GameTypes.CANNON] =
-            getGameConstructorParams(IFaultDisputeGame(address(OP_DGF.gameImpls(GameTypes.CANNON))));
+        beforeParams[disputeGameFactory][GameTypes.CANNON] =
+            getGameConstructorParams(IFaultDisputeGame(address(disputeGameFactory.gameImpls(GameTypes.CANNON))));
     }
 
     function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory) internal view override {
@@ -60,9 +58,9 @@ contract NestedSignFromJson is SuperchainRegistry, OriginalNestedSignFromJson, C
 
         // get the before and after game params for the permissioned game
         IFaultDisputeGame.GameConstructorParams memory beforeParams_ =
-            beforeParams[OP_DGF][GameTypes.PERMISSIONED_CANNON];
+            beforeParams[disputeGameFactory][GameTypes.PERMISSIONED_CANNON];
         IFaultDisputeGame.GameConstructorParams memory afterParams =
-            getGameConstructorParams(IFaultDisputeGame(address(OP_DGF.gameImpls(GameTypes.PERMISSIONED_CANNON))));
+            getGameConstructorParams(IFaultDisputeGame(address(disputeGameFactory.gameImpls(GameTypes.PERMISSIONED_CANNON))));
         // Set the before prestate to match the after prestate, since that is the only thing that should have
         // changed, the two sets of params should now have the same hash.
         require(
@@ -80,8 +78,8 @@ contract NestedSignFromJson is SuperchainRegistry, OriginalNestedSignFromJson, C
         );
 
         // get the before and after game params for the permissionless game
-        beforeParams_ = beforeParams[OP_DGF][GameTypes.CANNON];
-        afterParams = getGameConstructorParams(IFaultDisputeGame(address(OP_DGF.gameImpls(GameTypes.CANNON))));
+        beforeParams_ = beforeParams[disputeGameFactory][GameTypes.CANNON];
+        afterParams = getGameConstructorParams(IFaultDisputeGame(address(disputeGameFactory.gameImpls(GameTypes.CANNON))));
         // Set the before prestate to match the after prestate, since that is the only thing that should have
         // changed, the two sets of params should now have the same hash.
         beforeParams_.absolutePrestate = afterParams.absolutePrestate;
@@ -93,8 +91,8 @@ contract NestedSignFromJson is SuperchainRegistry, OriginalNestedSignFromJson, C
         // Run StandardValidatorV180 to check that the chain config is valid
         StandardValidatorV180 validator = StandardValidatorV180(0x0A5bF8eBb4b177B2dcc6EbA933db726a2e2e2B4d);
         StandardValidatorV180.InputV180 memory input = StandardValidatorV180.InputV180({
-            proxyAdmin: PROXY_ADMIN,
-            sysCfg: SYS_CFG,
+            proxyAdmin: proxyAdmin,
+            sysCfg: systemConfig,
             absolutePrestate: 0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd,
             l2ChainID: chainConfig.chainId
         });

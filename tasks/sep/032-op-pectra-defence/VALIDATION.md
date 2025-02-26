@@ -68,9 +68,6 @@ The only change seen here is the `absolutePrestate()` as expected.
 ```shell
 comparegames.sh 0xbbdbdfe37c02439764de0e41c906e4396b5b3914 0x6b8a1c71e23e103d3a81e7878656be9516733ca3
 
-M~/Pro/O/sup/tasks/sep/032-op-pectra-defence on  op-sepolia-upgrade-12 (abcbe93) [$!] via S
-(09:38:21) ➜ comparegames.sh 0xbbdbdfe37c02439764de0e41c906e4396b5b3914 0x6b8a1c71e23e103d3a81e7878656be9516733ca3
-
 Mismatch version()(string)
 Was: "1.3.1"
 Now: "1.3.1-beta.3"
