@@ -10,7 +10,7 @@ This updated prestate hash corresponds with the hardfork to support the L1 Pectr
 
 ## Input data derivation:
 
-The OPPrestateUpdater contract was deployed in advance to [0x86b5BFD11625FaaE6Ed5f4f51786C2C0C3359411](https://sepolia.etherscan.io/address/0x86b5BFD11625FaaE6Ed5f4f51786C2C0C3359411).
+The OPPrestateUpdater contract was deployed in advance to [0x8cB886373DC01CA0463E4d8DED639467Ff0989c2](https://sepolia.etherscan.io/address/0x8cB886373DC01CA0463E4d8DED639467Ff0989c2).
 
 The input to the `updatePrestate()` function is an array of the following struct:
 

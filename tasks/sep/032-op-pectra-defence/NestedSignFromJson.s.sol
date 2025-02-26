@@ -98,11 +98,10 @@ contract NestedSignFromJson is SuperchainRegistry, OriginalNestedSignFromJson, C
         string memory reasons = validator.validate({_input: input, _allowFailure: true});
 
         // We expect the following errors:
-        // PDDG-20 - The permissioned game has a beta version suffix on Sepolia
         // PDDG-ANCHORP-40 - The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
         // PLDG-ANCHORP-40 - The anchor state registry's permissionless root is not 0xdead000000000000000000000000000000000000000000000000000000000000
         require(
-            keccak256(bytes(reasons)) == keccak256(bytes("PDDG-20,PDDG-ANCHORP-40,PLDG-ANCHORP-40")),
+            keccak256(bytes(reasons)) == keccak256(bytes("PDDG-ANCHORP-40,PLDG-ANCHORP-40")),
             string.concat("Unexpected errors: ", reasons)
         );
 
