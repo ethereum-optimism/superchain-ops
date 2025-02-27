@@ -143,6 +143,10 @@ abstract contract MultisigTask is Test, Script {
         validate(accountAccesses, actions);
         print(actions, accountAccesses, optionalChildMultisig, true);
 
+        if (optionalChildMultisig != address(0)) {
+            require(isNestedSafe(parentMultisig), "MultisigTask: multisig must be nested");
+        }
+
         return (accountAccesses, actions);
     }
 
@@ -216,7 +220,6 @@ abstract contract MultisigTask is Test, Script {
     /// @param _childMultisig The address of the child multisig.
     function signFromChildMultisig(string memory taskConfigFilePath, address _childMultisig) public {
         simulateRun(taskConfigFilePath, "", _childMultisig);
-        require(isNestedSafe(parentMultisig), "MultisigTask: multisig must be nested");
     }
 
     /// @notice Sets the address registry, initializes the task.
