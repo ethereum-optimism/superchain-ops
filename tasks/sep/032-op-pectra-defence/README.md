@@ -4,7 +4,7 @@ Status: READY TO SIGN
 
 ## Objective
 
-This task updates deploys new dispute games with upgrade prestate hashes on OP Sepolia and Sony Minato.
+This task deploys new dispute games with updated prestate hashes on OP Sepolia.
 
 This updated prestate hash corresponds with the hardfork to support the L1 Pectra upgrade.
 
@@ -16,10 +16,10 @@ The input to the `updatePrestate()` function is an array of the following struct
 
 ```solidity
   struct OpChainConfig {
-        ISystemConfig systemConfigProxy;
-        IProxyAdmin proxyAdmin;
-        Claim absolutePrestate;
-    }
+      ISystemConfig systemConfigProxy;
+      IProxyAdmin proxyAdmin;
+      Claim absolutePrestate;
+  }
 ```
 
 The prestate hash used is: `0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd`.
