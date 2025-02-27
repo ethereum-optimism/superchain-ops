@@ -141,7 +141,11 @@ abstract contract MultisigTask is Test, Script {
         Action[] memory actions = build();
         VmSafe.AccountAccess[] memory accountAccesses = simulate(signatures, actions);
         validate(accountAccesses, actions);
-        print(actions, accountAccesses, optionalChildMultisig);
+        print(actions, accountAccesses, optionalChildMultisig, true);
+
+        if (optionalChildMultisig != address(0)) {
+            require(isNestedSafe(parentMultisig), "MultisigTask: multisig must be nested");
+        }
 
         return (accountAccesses, actions);
     }
@@ -186,7 +190,7 @@ abstract contract MultisigTask is Test, Script {
         validate(accountAccesses, actions);
 
         // print out results of execution
-        print(actions, accountAccesses, address(0));
+        print(actions, accountAccesses, address(0), false);
 
         return accountAccesses;
     }
@@ -216,7 +220,6 @@ abstract contract MultisigTask is Test, Script {
     /// @param _childMultisig The address of the child multisig.
     function signFromChildMultisig(string memory taskConfigFilePath, address _childMultisig) public {
         simulateRun(taskConfigFilePath, "", _childMultisig);
-        require(isNestedSafe(parentMultisig), "MultisigTask: multisig must be nested");
     }
 
     /// @notice Sets the address registry, initializes the task.
@@ -579,7 +582,8 @@ abstract contract MultisigTask is Test, Script {
     function print(
         Action[] memory actions,
         VmSafe.AccountAccess[] memory accountAccesses,
-        address optionalChildMultisig
+        address optionalChildMultisig,
+        bool isSimulate
     ) public view {
         console.log("\n------------------ Task Actions ------------------");
         for (uint256 i; i < actions.length; i++) {
@@ -591,12 +595,12 @@ abstract contract MultisigTask is Test, Script {
 
         accountAccesses.decodeAndPrint();
 
-        printSafe(actions, optionalChildMultisig);
+        printSafe(actions, optionalChildMultisig, isSimulate);
     }
 
     /// @notice prints all relevant hashes to sign as well as the tenderly
     /// simulation link
-    function printSafe(Action[] memory actions, address optionalChildMultisig) private view {
+    function printSafe(Action[] memory actions, address optionalChildMultisig, bool isSimulate) private view {
         // print calldata to be executed within the Safe
         console.log("\n\n------------------ Task Calldata ------------------");
         console.logBytes(getMulticall3Calldata(actions));
@@ -607,8 +611,10 @@ abstract contract MultisigTask is Test, Script {
             printSingleData(actions);
         }
 
-        console.log("\n\n------------------ Tenderly Simulation Link ------------------");
-        printTenderlySimulationLink(actions);
+        if (isSimulate) {
+            console.log("\n\n------------------ Tenderly Simulation Link ------------------");
+            printTenderlySimulationLink(actions);
+        }
     }
 
     /// @notice helper function to print nested calldata
