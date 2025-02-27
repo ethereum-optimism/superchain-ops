@@ -293,7 +293,6 @@ jobs:
         type: string
       block_number:
         type: string
-        default: null # If not specified, the latest block number is used.
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
@@ -484,4 +483,4 @@ workflows:
       - simulate_sequence:
           network: "eth"
           tasks: "030"
-          # block_number: "21936400" # If not specified, the latest block number is used.
+          block_number: "" # If not specified, the latest block number is used.
