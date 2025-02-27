@@ -22,8 +22,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 >
 > ### Security Council
 >
-> - Domain Hash: `df53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
-> - Message Hash: `089f920bf3a366aa1d63665ae46959257d474c0c75091126db70c8fd4e01c63e`
+> - Domain Hash: `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
+> - Message Hash: `0x089f920bf3a366aa1d63665ae46959257d474c0c75091126db70c8fd4e01c63e`
 
 ## State Changes
 
