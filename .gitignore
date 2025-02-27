@@ -27,3 +27,4 @@ draft*signer*.json
 ready-*
 broadcast/NestedSignFromJson.s.sol/1
 broadcast/NestedSignFromJson.s.sol/11155111
+broadcast/SignFromJson.s.sol/1
