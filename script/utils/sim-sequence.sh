@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-# set -x 
+# set -x
 if [[ -z "${TMPDIR:-}" ]]; then # Set a default value if TMPDIR is not set useful for the CI for example.
   TMPDIR=/tmp
 fi
@@ -48,7 +48,7 @@ log_nonce_error() {
 
 #TODO: GET THE ADDRESSES FROM SUPERCHAIN-REGISTRY IN THE FUTURE, since they are the safes addresses this sholdn't change so often so this fine.
 
-## MAINNET 
+## MAINNET
 Security_Council_Safe=0xc2819DC788505Aac350142A7A707BF9D03E3Bd03
 Foundation_Upgrade_Safe=0x847B5c174615B1B7fDF770882256e2D3E95b9D92
 Foundation_Operation_Safe=0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A
@@ -231,7 +231,7 @@ if [[ "$network" == "sep" ]]; then
   Foundation_Upgrade_Safe=$Fake_Foundation_Upgrade_Safe
   Foundation_Operation_Safe=$Fake_Foundation_Operation_Safe
   Proxy_Admin_Owner_Safe=$Fake_Proxy_Admin_Owner_Safe
-fi 
+fi
 
 log_info "Simulating tasks for network: $network"
 log_info "The \"LOGFILE\" is located in:$LOGFILE"
@@ -283,9 +283,9 @@ export SIMULATE_WITHOUT_LEDGER=1
 for task_folder in "${task_folders[@]}"; do
   execution=""
   echo -e "\n---- Simulating task \"$(basename "$task_folder")\"----"
-  # Display the nonce value from the .env file. 
-  # Check if the .env is correct with the SAFE_NONCE_XXXX or nothing but exclude the deprecated SAFE_NONCE=. 
-  check_nonce_override "${task_folder}/.env" 
+  # Display the nonce value from the .env file.
+  # Check if the .env is correct with the SAFE_NONCE_XXXX or nothing but exclude the deprecated SAFE_NONCE=.
+  check_nonce_override "${task_folder}/.env"
   nonce_from_env=$(grep -E "^SAFE_NONCE._*" "${task_folder}/.env" | awk -F'[=_ ]' '{print "Address: " $3, "Number: " $4}') || true
   log_info "Nonce from .env file:\n$nonce_from_env"
   pushd "$task_folder" >/dev/null || error_exit "Failed to navigate to '$task_folder'."
