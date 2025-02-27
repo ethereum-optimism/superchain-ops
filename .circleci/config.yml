@@ -480,7 +480,6 @@ workflows:
             - circleci-repo-readonly-authenticated-github-token
       # Simulation sequence for at the 27th of February 2025. the next tasks would be also 31 but we need to wait until this is merge and updated here.
       # tasks: "030 031"
-
       - simulate_sequence:
           network: "eth"
           tasks: "030"
