@@ -15,6 +15,11 @@ The proposal #11 was:
 - [X] Not vetoed by the Citizens' house.
 - [X] Executed on OP Mainnet.
 
+The proposal #12 was:
+
+- [X] [Posted](https://gov.optimism.io/t/upgrade-proposal-12-l1-pectra-readiness/9706)
+- [ ] Maintenance upgrade not vetoed by the Token or Citizens' house. Veto period ends March 4th.
+
 The governance proposal should be treated as the source of truth and used to verify the correctness of the onchain operations.
 
 This upgrades the Fault Proof contracts in the
