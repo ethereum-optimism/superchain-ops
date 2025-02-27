@@ -50,5 +50,5 @@ deploy-multicall3-delegatecall *ARGS:
       --broadcast \
      {{ARGS}}
 
-compare-games: before-game='' after-game=''
-  bash scripts/utils/compare-games.sh {{before-game}} {{after-game}}
+compare-games before-game='' after-game='':
+  bash script/utils/compareGames.sh {{before-game}} {{after-game}}

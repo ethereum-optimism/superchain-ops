@@ -34,8 +34,8 @@ This task is executed by the nested 2/2 `ProxyAdminOwner` Safe. Refer to the
 for the expected state overrides and changes.
 
 The `approvedHashes` mapping **key** of the `ProxyAdminOwner` that should change during the simulation is
-- Council simulation: `0x3394b41f3c05f4c1bb2767a59f18fd9cc4497d7a8781dca9206396044c5d4a80`
-- Foundation simulation: `0xfd5f9ae7ec744b3e9bbfd555849eb2f5727c46fe3e5cd532c7e102c0934e99c1`
+- Council simulation: `0x9b0798be757313db24bf52fe1666fe7f2be5416c0c6e5ea626f281f4afc14641`
+- Foundation simulation: `0x1329022094b502dadea5bcf711a39060bcad420131d2d543625c040c8d842d56`
 
 calculated as explained in the nested validation doc.
 
@@ -52,7 +52,7 @@ Click on 'show raw state changes'.
 
 - **Key**: `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e` <br/>
   **Before**: `0x000000000000000000000000bbdbdfe37c02439764de0e41c906e4396b5b3914` <br/>
-  **After**: `0x0000000000000000000000006b8a1c71e23e103d3a81e7878656be9516733ca3` <br/>
+  **After**: `0x0000000000000000000000001c3eb0ebd6195ab587e1ded358a87bdf9b56fe04` <br/>
   **Meaning**: Updates the implementation for game type 1. Verify that the old implementation is set in this slot using
   `cast call 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1 "gameImpls(uint32)(address)" 1`.
 
@@ -65,7 +65,6 @@ Click on 'show raw state changes'.
 
 ## Verifying Dispute Games
 
-<!-- Sepolia todo: We should convert this to solidity and run the checks in the postCheck method -->
 The old and new dispute game contracts can be compared with the [comparegames.sh](https://gist.github.com/ajsutton/28be852a36d9d19af16f7c870b267873)
 script.
 
@@ -82,7 +81,7 @@ The arguments to the script can be taken from the before and after values in the
 The only change seen here is the `absolutePrestate()` as expected.
 
 ```shell
-comparegames.sh 0xbbdbdfe37c02439764de0e41c906e4396b5b3914 0x6b8a1c71e23e103d3a81e7878656be9516733ca3
+$ just --justfile ../../../justfile compare-games 0xbbdbdfe37c02439764de0e41c906e4396b5b3914 0x1c3eb0ebd6195ab587e1ded358a87bdf9b56fe04
 
 Mismatch version()(string)
 Was: "1.3.1"
@@ -116,7 +115,7 @@ There are two changes here:
 2. The version. This is because the FDG was manually added to the balrog devnet from `develop`.
 
 ```shell
-$ comparegames.sh 0xf3ccf0c4b51d42cfe6073f0278c19a8d1900e856 0x927248cb1255e0f02413a758899db4aecffaa5fe
+$ just --justfile ../../../justfile compare-games 0xf3ccf0c4b51d42cfe6073f0278c19a8d1900e856 0x927248cb1255e0f02413a758899db4aecffaa5fe
 
 Matches version()(string) = "1.3.1"
 
