@@ -291,8 +291,9 @@ jobs:
         type: string
       tasks:
         type: string
-      block_number: # If not specified, the latest block number is used.
+      block_number:
         type: string
+        default: null # If not specified, the latest block number is used.
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
