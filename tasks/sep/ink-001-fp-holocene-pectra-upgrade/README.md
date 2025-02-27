@@ -1,6 +1,6 @@
 # Ink Sepolia Holocene Hardfork + L1 Pectra Support Upgrade
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xc79c08b4f417db62e1cf7561352ae2b9cd123e4573a1a4b6b62dcbb0ae5049de)
 
 ## Objective
 

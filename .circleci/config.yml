@@ -270,13 +270,6 @@ jobs:
       - simulate_nested:
           task: "/eth/030-soneium-holocene-system-config-upgrade"
 
-  just_simulate_ink_sep_fp_holocene_pectra_upgrade:
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - simulate_nested:
-          task: "/sep/ink-001-fp-holocene-pectra-upgrade"
-
   just_simulate_ink_sep_holocene_system_config_upgrade:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -472,9 +465,6 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
       # sepolia
-      - just_simulate_ink_sep_fp_holocene_pectra_upgrade:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
       - just_simulate_ink_sep_holocene_system_config_upgrade:
           context:
             - circleci-repo-readonly-authenticated-github-token
