@@ -114,6 +114,7 @@ simulate-all-templates:
 
     # If the task is nested then we only simulate as the foundation.
     # In the future we could simulate as other nested safes. 
+    # For testing purposes, we do not gain anything by simulating as other nested safes.
     nested_safe_name="foundation"
     simulation_count=0
     for task in ${root_dir}/src/improvements/tasks/example/*/*; do
