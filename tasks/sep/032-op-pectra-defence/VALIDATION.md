@@ -83,9 +83,7 @@ The only change seen here is the `absolutePrestate()` as expected.
 ```shell
 $ just --justfile ../../../justfile compare-games 0xbbdbdfe37c02439764de0e41c906e4396b5b3914 0x1c3eb0ebd6195ab587e1ded358a87bdf9b56fe04
 
-Mismatch version()(string)
-Was: "1.3.1"
-Now: "1.3.1-beta.3"
+Matches version()(string) = "1.3.1"
 
 Mismatch absolutePrestate()(bytes32)
 Was: 0x03f89406817db1ed7fd8b31e13300444652cdb0b9c509a674de43483b2f83568
@@ -105,14 +103,12 @@ Matches clockExtension()(uint64) = 10800 [1.08e4]
 
 Matches anchorStateRegistry()(address) = 0x218CD9489199F321E1177b56385d333c5B598629
 Matches weth()(address)
-Matches vmAn()(address)
+Matches vm()(address)
 ```
 
 ### FaultDisputeGame:
 
-There are two changes here:
-1. the `absolutePrestate()` as expected.
-2. The version. This is because the FDG was manually added to the balrog devnet from `develop`.
+The only change seen here is the `absolutePrestate()` as expected.
 
 ```shell
 $ just --justfile ../../../justfile compare-games 0xf3ccf0c4b51d42cfe6073f0278c19a8d1900e856 0x927248cb1255e0f02413a758899db4aecffaa5fe
