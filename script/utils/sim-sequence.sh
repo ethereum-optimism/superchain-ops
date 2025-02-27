@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-
+# set -x 
 if [[ -z "${TMPDIR:-}" ]]; then # Set a default value if TMPDIR is not set useful for the CI for example.
   TMPDIR=/tmp
 fi
@@ -22,7 +22,7 @@ log_debug() {
 
 # Function to log warning messages
 log_warning() {
-    echo "[⚠️] $(date '+%Y-%m-%d %H:%M:%S') [WARNING] $1" | tee -a "$LOGFILE"
+    echo -e "\033[0;33m[⚠️] $(date '+%Y-%m-%d %H:%M:%S') [WARNING] $1\033[0m" | tee -a "$LOGFILE"
 }
 
 # Function to log error messages and exit the script  
@@ -46,11 +46,19 @@ log_nonce_error() {
 
 
 #TODO: GET THE ADDRESSES FROM SUPERCHAIN-REGISTRY IN THE FUTURE, since they are the safes addresses this sholdn't change so often so this fine.
-## ETHEREUM
+
+## MAINNET 
 Security_Council_Safe=0xc2819DC788505Aac350142A7A707BF9D03E3Bd03
 Foundation_Upgrade_Safe=0x847B5c174615B1B7fDF770882256e2D3E95b9D92
 Foundation_Operation_Safe=0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A
 Proxy_Admin_Owner_Safe=0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A
+
+## SEPOLIA
+Fake_Security_Council_Safe=0xf64bc17485f0B4Ea5F06A96514182FC4cB561977
+Fake_Foundation_Upgrade_Safe=0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B
+Fake_Foundation_Operation_Safe=0x837DE453AD5F21E89771e3c06239d8236c0EFd5E
+Fake_Proxy_Admin_Owner_Safe=0x1Eb2fFc903729a0F03966B917003800b145F56E2
+
 DESTROY_ANVIL_AFTER_EXECUTION=true
 
 error_exit() {
@@ -201,6 +209,14 @@ network="$1"
 task_ids="$2"
 block_number="${3:-}" # Make block_number optional
 
+if [[ "$network" == "sep" ]]; then
+  Security_Council_Safe=$Fake_Security_Council_Safe
+  Foundation_Upgrade_Safe=$Fake_Foundation_Upgrade_Safe
+  Foundation_Operation_Safe=$Fake_Foundation_Operation_Safe
+  Proxy_Admin_Owner_Safe=$Fake_Proxy_Admin_Owner_Safe
+  echo "sepolia selected!"
+fi 
+
 log_info "Simulating tasks for network: $network"
 log_info "The \"LOGFILE\" is located in:$LOGFILE"
 log_info "The \"LOGFILE_ANVIL\" is located in: $LOGFILE_ANVIL"
@@ -251,6 +267,19 @@ export SIMULATE_WITHOUT_LEDGER=1
 for task_folder in "${task_folders[@]}"; do
   execution=""
   echo -e "\n---- Simulating task \"$(basename "$task_folder")\"----"
+  # Display the nonce value from the .env file. 
+  echo "${task_folder}/.env" 
+  nonce_from_env=$(grep -E "^SAFE_NONCE._*" "${task_folder}/.env" | awk -F'[=_ ]' '{print "Address: " $3, "Number: " $4}') || true
+  echo "value for"$nonce_from_env
+  if [[ -z "$nonce_from_env" ]]; then
+    echo "warning ere"
+    log_warning "No SAFE_NONCE found in .env file. Executing with current nonce. Simulation may not be useful."
+  else
+    log_info "Nonce from .env file:\n$nonce_from_env"
+  fi
+
+
+
 
   pushd "$task_folder" >/dev/null || error_exit "Failed to navigate to '$task_folder'."
   # add the RPC_URL to the .env file
