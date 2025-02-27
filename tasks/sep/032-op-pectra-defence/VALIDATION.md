@@ -25,7 +25,7 @@ are missing from this document. Additionally, please verify that for each contra
 > ### Security Council
 >
 > - Domain Hash: `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
-> - Message Hash: `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
+> - Message Hash: `0xac36a32e6cca75f2735e9391b1f234854336e4e61fb8145b7654c21431fac266`
 
 ## Nested Safe State Overrides and Changes
 
