@@ -49,21 +49,11 @@ contract MockMultisigTask is MultisigTask {
         }
     }
 
-    function _validate(uint256 chainId) internal view override {
+    function _validate(uint256 chainId, VmSafe.AccountAccess[] memory) internal view override {
         IProxy proxy = IProxy(payable(addrRegistry.getAddress("L1ERC721BridgeProxy", chainId)));
         bytes32 data = vm.load(address(proxy), Constants.PROXY_IMPLEMENTATION_ADDRESS);
 
         assertEq(bytes32(uint256(uint160(newImplementation))), data, "Proxy implementation not set correctly");
-    }
-
-    function addAction(
-        address target,
-        bytes memory data,
-        uint256 value,
-        Enum.Operation operation,
-        string memory description
-    ) public {
-        actions.push(Action(target, value, data, operation, description));
     }
 
     /// @notice no code exceptions for this template

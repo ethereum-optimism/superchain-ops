@@ -24,7 +24,7 @@ parameters:
     type: integer
     default: 5
 
-commands:  
+commands:
   simulate:
     description: "Runs simulations of a task"
     parameters:
@@ -226,12 +226,12 @@ jobs:
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
+    environment:
+      FOUNDRY_PROFILE: ci
     steps:
       - utils/checkout-with-mise
       - run:
           name: just simulate r2-remove-signer
-          environment:
-            FOUNDRY_PROFILE: ci
           command: |
             just install
             cd security-council-rehearsals
@@ -247,12 +247,12 @@ jobs:
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
+    environment:
+      FOUNDRY_PROFILE: ci
     steps:
       - utils/checkout-with-mise
       - run:
           name: just simulate r4-jointly-upgrade
-          environment:
-            FOUNDRY_PROFILE: ci
           command: |
             just install
             cd security-council-rehearsals
@@ -263,13 +263,36 @@ jobs:
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
 
-  just_simulate_ink_respected_game_type:
-    circleci_ip_ranges: true
+  just_simulate_030_sony_holocene_system_config_upgrade:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - simulate:
-          task: "/eth/ink-002-set-respected-game-type"
+      - simulate_nested:
+          task: "/eth/030-soneium-holocene-system-config-upgrade"
+
+  just_simulate_ink_sep_holocene_system_config_upgrade:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - simulate_nested:
+          task: "/sep/ink-002-holocene-system-config-upgrade"
+
+  simulate_sequence:
+    description: "Runs a sequence of simulations"
+    parameters:
+      network:
+        type: string
+      tasks:
+        type: string
+      block_number: # If not specified, the latest block number is used.
+        type: string
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - utils/checkout-with-mise
+      - run:
+          name: "Run simulation sequence for network: <<parameters.network>> | tasks: <<parameters.tasks>>"
+          command: git submodule update; just clean; just install && echo "yes" | bash ./script/utils/sim-sequence.sh <<parameters.network>> "<<parameters.tasks>>" "<<parameters.block_number>>"
 
   just_simulate_ink_003_fp_holocene_pectra_upgrade:
     docker:
@@ -308,21 +331,21 @@ jobs:
             just install
             forge --version
             forge fmt --check
-  
+
   forge_test:
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
+    environment:
+      FOUNDRY_PROFILE: ci
     steps:
       - utils/checkout-with-mise
       - run:
           name: forge test
-          environment:
-            FOUNDRY_PROFILE: ci
           command: |
             forge --version
             forge test -vvv
-  
+
   monorepo_integration_test:
     circleci_ip_ranges: true
     docker:
@@ -341,6 +364,19 @@ jobs:
           name: Print failed test traces
           command: (cd src/improvements && just monorepo-integration-test rerun)
           when: on_fail
+
+  template_regression_tests:
+    circleci_ip_ranges: true
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    environment:
+      FOUNDRY_PROFILE: ci
+    steps:
+      - utils/checkout-with-mise
+      - run:
+          name: Make sure all templates can be simulated.
+          command: |
+            (cd src/improvements && just simulate-all-templates)
 
   print_versions:
     docker:
@@ -361,7 +397,8 @@ jobs:
       - utils/checkout-with-mise
       - run:
           name: shellcheck
-          command: | # Justfiles are not shell scripts and should not be checked with shellcheck
+          command:
+            | # Justfiles are not shell scripts and should not be checked with shellcheck
             (cd src/improvements/script && shellcheck -x *.sh)
 
 workflows:
@@ -392,6 +429,7 @@ workflows:
           filters:
             branches:
               only: main
+      - template_regression_tests
       - shellcheck:
           context:
             - circleci-repo-readonly-authenticated-github-token
@@ -434,15 +472,23 @@ workflows:
       - just_simulate_ink_003_fp_holocene_pectra_upgrade
       - just_simulate_ink_004_holocene_system_config_upgrade
 
+
+      - just_simulate_030_sony_holocene_system_config_upgrade:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
       - just_simulate_sc_rehearsal_2:
           context:
             - circleci-repo-readonly-authenticated-github-token
       - just_simulate_sc_rehearsal_4:
           context:
             - circleci-repo-readonly-authenticated-github-token
-      - just_simulate_ink_respected_game_type:
+      # sepolia
+      - just_simulate_ink_sep_holocene_system_config_upgrade:
           context:
             - circleci-repo-readonly-authenticated-github-token
 
-      # sepolia
-       
+      - simulate_sequence:
+          network: "eth"
+          tasks: "021 022 base-003 ink-001"
+          block_number: "21573136" # If not specified, the latest block number is used.
+

@@ -18,28 +18,9 @@ export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 simulate whichSafe hdPath='0':
   #!/usr/bin/env bash
   # Get the appropriate safe address based on whichSafe
-  if [ "{{whichSafe}}" == "foundation" ]; then
-    if [ -z "$FOUNDATION_SAFE" ]; then
-      echo "Error: FOUNDATION_SAFE is required for foundation simulation" >&2
-      exit 1
-    fi
-    safe="$FOUNDATION_SAFE"
-  elif [ "{{whichSafe}}" == "council" ]; then
-    if [ -z "$COUNCIL_SAFE" ]; then
-      echo "Error: COUNCIL_SAFE is required for council simulation" >&2
-      exit 1
-    fi
-    safe="$COUNCIL_SAFE"
-  elif [ "{{whichSafe}}" == "chain-governor" ]; then
-    if [ -z "$CHAIN_GOVERNOR_SAFE" ]; then
-      echo "Error: CHAIN_GOVERNOR_SAFE is required for chain-governor simulation" >&2
-      exit 1
-    fi
-    safe="$CHAIN_GOVERNOR_SAFE"
-  else
-    echo "Error: Invalid safe type {{whichSafe}}" >&2
-    exit 1
-  fi
+  safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} ${SCRIPT_PATH} "{{whichSafe}}")
+
+  echo "RPC URL: ${rpcUrl}"
 
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
@@ -69,30 +50,7 @@ simulate whichSafe hdPath='0':
 sign whichSafe hdPath='0':
   #!/usr/bin/env bash
   # Get the appropriate safe address based on whichSafe
-  if [ "{{whichSafe}}" == "foundation" ]; then
-    if [ -z "$FOUNDATION_SAFE" ]; then
-      echo "Error: FOUNDATION_SAFE is required for foundation signing" >&2
-      exit 1
-    fi
-    safe="$FOUNDATION_SAFE"
-    echo "Using foundation safe at ${safe}"
-  elif [ "{{whichSafe}}" == "council" ]; then
-    if [ -z "$COUNCIL_SAFE" ]; then
-      echo "Error: COUNCIL_SAFE is required for council signing" >&2
-      exit 1
-    fi
-    safe="$COUNCIL_SAFE"
-    echo "Using council safe at ${safe}"
-  elif [ "{{whichSafe}}" == "chain-governor" ]; then
-    if [ -z "$CHAIN_GOVERNOR_SAFE" ]; then
-      echo "Error: CHAIN_GOVERNOR_SAFE is required for chain-governor signing" >&2
-      exit 1
-    fi
-    safe="$CHAIN_GOVERNOR_SAFE"
-  else
-    echo "Error: Invalid safe type {{whichSafe}}" >&2
-    exit 1
-  fi
+  safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} ${SCRIPT_PATH} "{{whichSafe}}")
 
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
@@ -113,30 +71,7 @@ sign whichSafe hdPath='0':
 approve whichSafe hdPath='0':
   #!/usr/bin/env bash
   # Get the appropriate safe address based on whichSafe
-  if [ "{{whichSafe}}" == "foundation" ]; then
-    if [ -z "$FOUNDATION_SAFE" ]; then
-      echo "Error: FOUNDATION_SAFE is required for foundation approval" >&2
-      exit 1
-    fi
-    safe="$FOUNDATION_SAFE"
-    echo "Using foundation safe at ${safe}"
-  elif [ "{{whichSafe}}" == "council" ]; then
-    if [ -z "$COUNCIL_SAFE" ]; then
-      echo "Error: COUNCIL_SAFE is required for council approval" >&2
-      exit 1
-    fi
-    safe="$COUNCIL_SAFE"
-    echo "Using council safe at ${safe}"
-  elif [ "{{whichSafe}}" == "chain-governor" ]; then
-    if [ -z "$CHAIN_GOVERNOR_SAFE" ]; then
-      echo "Error: CHAIN_GOVERNOR_SAFE is required for chain-governor approval" >&2
-      exit 1
-    fi
-    safe="$CHAIN_GOVERNOR_SAFE"
-  else
-    echo "Error: Invalid safe type {{whichSafe}}" >&2
-    exit 1
-  fi
+  safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} ${SCRIPT_PATH} "{{whichSafe}}")
 
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
@@ -156,30 +91,7 @@ approve whichSafe hdPath='0':
 simulate-approve whichSafe hdPath='0':
   #!/usr/bin/env bash
   # Get the appropriate safe address based on whichSafe
-  if [ "{{whichSafe}}" == "foundation" ]; then
-    if [ -z "$FOUNDATION_SAFE" ]; then
-      echo "Error: FOUNDATION_SAFE is required for foundation simulate-approve" >&2
-      exit 1
-    fi
-    safe="$FOUNDATION_SAFE"
-    echo "Using foundation safe at ${safe}"
-  elif [ "{{whichSafe}}" == "council" ]; then
-    if [ -z "$COUNCIL_SAFE" ]; then
-      echo "Error: COUNCIL_SAFE is required for council simulate-approve" >&2
-      exit 1
-    fi
-    safe="$COUNCIL_SAFE"
-    echo "Using council safe at ${safe}"
-  elif [ "{{whichSafe}}" == "chain-governor" ]; then
-    if [ -z "$CHAIN_GOVERNOR_SAFE" ]; then
-      echo "Error: CHAIN_GOVERNOR_SAFE is required for chain-governor simulate-approve" >&2
-      exit 1
-    fi
-    safe="$CHAIN_GOVERNOR_SAFE"
-  else
-    echo "Error: Invalid safe type {{whichSafe}}" >&2
-    exit 1
-  fi
+  safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} ${SCRIPT_PATH} "{{whichSafe}}")
 
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol

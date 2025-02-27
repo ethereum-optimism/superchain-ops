@@ -8,7 +8,7 @@ import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 /// @notice base task for making calls to the Optimism Contracts Manager
 abstract contract OPCMBaseTask is MultisigTask {
     /// @notice Optimism Contracts Manager Multicall3DelegateCall contract reference
-    address public constant MULTICALL3_DELEGATECALL_ADDRESS = 0x95b259eae68ba96edB128eF853fFbDffe47D2Db0;
+    address public constant MULTICALL3_DELEGATECALL_ADDRESS = 0x93dc480940585D9961bfcEab58124fFD3d60f76a;
 
     /// @notice OpChainConfig struct found in the OpContractsManager contract
     struct OpChainConfig {
@@ -43,9 +43,14 @@ abstract contract OPCMBaseTask is MultisigTask {
     /// calldata has been loaded up to storage. This function uses aggregate3
     /// instead of aggregate3Value because OPCM tasks use Multicall3DelegateCall.
     /// @return data The calldata to be executed
-    function getCalldata() public view override returns (bytes memory data) {
+    function getMulticall3Calldata(MultisigTask.Action[] memory actions)
+        public
+        pure
+        override
+        returns (bytes memory data)
+    {
         // get task actions
-        (address[] memory targets,, bytes[] memory arguments) = getTaskActions();
+        (address[] memory targets,, bytes[] memory arguments) = processTaskActions(actions);
 
         // create calls array with targets and arguments
         Call3[] memory calls = new Call3[](targets.length);
@@ -59,10 +64,10 @@ abstract contract OPCMBaseTask is MultisigTask {
         data = abi.encodeWithSignature("aggregate3((address,bool,bytes)[])", calls);
     }
 
-    function validate(VmSafe.AccountAccess[] memory accesses) public override {
-        (address[] memory targets,,) = getTaskActions();
+    function validate(VmSafe.AccountAccess[] memory accesses, MultisigTask.Action[] memory actions) public override {
+        (address[] memory targets,,) = processTaskActions(actions);
         require(targets.length == 1 && targets[0] == opcm(), "OPCMBaseTask: only OPCM is allowed as target");
-        super.validate(accesses);
+        super.validate(accesses, actions);
         require(
             _stateInfos[parentMultisig].length == 1,
             "OPCMBaseTask: only nonce should be updated on upgrade controller multisig"
@@ -100,13 +105,13 @@ abstract contract OPCMBaseTask is MultisigTask {
     }
 
     // @notice this function must be overridden in the inheriting contract
-    function _validate(uint256) internal view virtual override {
+    function _validate(uint256, VmSafe.AccountAccess[] memory) internal view virtual override {
         require(false, "You must implement the _validate function");
     }
 
     /// @notice overrides to do nothing per chain
     /// all the chains are handled in a single call to OPCM contract
-    function _buildPerChain(uint256 chainId) internal pure override {
+    function _buildPerChain(uint256) internal pure override {
         // We must override this function but OPCM template do not support per chain builds.
         // We cannot revert here because this build function is called by the parent MultisigTask.
     }

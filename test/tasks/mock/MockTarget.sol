@@ -5,7 +5,7 @@ import {Test} from "forge-std/Test.sol";
 
 contract MockTarget is Test {
     address public task;
-    bytes32 public START_SNAPSHOT_SLOT = bytes32(uint256(46));
+    bytes32 public START_SNAPSHOT_SLOT = bytes32(uint256(45));
 
     function setTask(address _task) public {
         task = _task;
@@ -13,5 +13,9 @@ contract MockTarget is Test {
 
     function setSnapshotIdTask(uint256 id) public {
         vm.store(task, START_SNAPSHOT_SLOT, bytes32(id));
+    }
+
+    function foobar() public {
+        // This function is when creating dummy/noop actions for testing.
     }
 }
