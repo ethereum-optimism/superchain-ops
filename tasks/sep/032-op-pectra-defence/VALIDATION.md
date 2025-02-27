@@ -11,6 +11,22 @@ are missing from this document. Additionally, please verify that for each contra
   Registry links provided. This validates the bytecode deployed at the addresses contains the correct logic.
 - All key values match the semantic meaning provided, which can be validated using the storage layout links provided.
 
+## Expected Domain and Message Hashes
+
+> [!CAUTION]
+>
+> Before signing, ensure the below hashes match what is on your ledger.
+>
+> ### Optimism Foundation
+>
+> - Domain Hash: `0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
+> - Message Hash: `0x1172cf3446b1e485bc69834e490f5a80a47e92042781908493073db030b336af`
+>
+> ### Security Council
+>
+> - Domain Hash: `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
+> - Message Hash: `0x9a60c6ed188c8db660534bcd7d96aeb1335955324e41834975a0679f92314b1c`
+
 ## Nested Safe State Overrides and Changes
 
 This task is executed by the nested 2/2 `ProxyAdminOwner` Safe. Refer to the
