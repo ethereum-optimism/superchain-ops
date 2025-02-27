@@ -5,6 +5,7 @@ if [[ -z "${TMPDIR:-}" ]]; then # Set a default value if TMPDIR is not set usefu
   TMPDIR=/tmp
 fi
 
+ANVIL_PID=""
 LOGFILE=$(mktemp ${TMPDIR}/"sim-sequence.XXXXX")
 LOGFILE_ANVIL=$(mktemp ${TMPDIR}/"anvil.XXXXX")
 ## Nonce Values
@@ -94,9 +95,8 @@ cleanup() {
 
   # Kill the anvil fork at the end if it was started by this script
   if $DESTROY_ANVIL_AFTER_EXECUTION; then
-    echo "Anvil is still open. To kill it, please use the command below:"
-    echo "ps aux | grep anvil | grep -v grep | awk '{print \$3}' | xargs kill"
-    #TODO: In the future, we should kill the anvil fork here?
+    echo "Kill anvil with the PID: \"$ANVIL_PID\" since the flag DESTROY_ANVIL_AFTER_EXECUTION is set to \"TRUE\"."
+    kill -9 $ANVIL_PID
   fi
 }
 
@@ -110,8 +110,11 @@ createFork() {
     log_info "No instance of anvil is detected, starting anvil fork on \"$ANVIL_LOCALHOST_RPC\" by forking $RPC_URL."
     if [[ -n "$block_number" ]]; then
       anvil -f $RPC_URL --fork-block-number $block_number >> $LOGFILE_ANVIL &
+      ANVIL_PID=$!
     else
       anvil -f $RPC_URL >> $LOGFILE_ANVIL &
+      ANVIL_PID=$!
+
     fi
     sleep 5
   fi
