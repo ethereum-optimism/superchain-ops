@@ -18,6 +18,7 @@ contract RegressionTest is Test {
     /// forge script src/improvements/template/GasConfigTemplate.sol
     /// --sig "simulateRun(string)" test/tasks/mock/configs/SingleMultisigGasConfigTemplate.toml
     /// --rpc-url mainnet
+    /// --fork-block-number 21724199
     /// -vv
     function testRegressionCallDataMatches_SingleMultisigGasConfigTemplate() public {
         string memory taskConfigFilePath = "test/tasks/mock/configs/SingleMultisigGasConfigTemplate.toml";
@@ -49,6 +50,7 @@ contract RegressionTest is Test {
     /// forge script src/improvements/template/DisputeGameUpgradeTemplate.sol
     /// --sig "simulateRun(string)" test/tasks/mock/configs/NestedMultisigDisputeGameUpgradeTemplate.toml
     /// --rpc-url mainnet
+    /// --fork-block-number 21724199
     /// -vv
     function testRegressionCallDataMatches_NestedMultisigDisputeGameUpgradeTemplate() public {
         string memory taskConfigFilePath = "test/tasks/mock/configs/NestedMultisigDisputeGameUpgradeTemplate.toml";
@@ -78,6 +80,7 @@ contract RegressionTest is Test {
     /// forge script src/improvements/template/SetGameTypeTemplate.sol
     /// --sig "simulateRun(string)" test/tasks/mock/configs/OPMainnetSetGameTypeTemplate.toml
     /// --rpc-url mainnet
+    /// --fork-block-number 21724199
     /// -vv
     function testRegressionCallDataMatches_OPMainnetSetGameTypeTemplate() public {
         string memory taskConfigFilePath = "test/tasks/mock/configs/OPMainnetSetGameTypeTemplate.toml";
@@ -103,6 +106,7 @@ contract RegressionTest is Test {
     /// forge script src/improvements/template/GasConfigTemplate.sol
     /// --sig "simulateRun(string)" test/tasks/mock/configs/OPMainnetGasConfigTemplate.toml
     /// --rpc-url mainnet
+    /// --fork-block-number 21724199
     /// -vv
     function testRegressionCallDataMatches_OPMainnetGasConfigTemplate() public {
         string memory taskConfigFilePath = "test/tasks/mock/configs/OPMainnetGasConfigTemplate.toml";
@@ -127,6 +131,7 @@ contract RegressionTest is Test {
     /// forge script src/improvements/template/EnableDeputyPauseModuleTemplate.sol
     /// --sig "simulateRun(string)" test/tasks/mock/configs/EnableDeputyPauseModuleTemplate.toml
     /// --rpc-url sepolia
+    /// --fork-block-number 7745524
     /// -vv
     function testRegressionCallDataMatches_EnableDeputyPauseModuleTemplate() public {
         string memory taskConfigFilePath = "test/tasks/mock/configs/EnableDeputyPauseModuleTemplate.toml";
@@ -149,6 +154,7 @@ contract RegressionTest is Test {
     /// forge script src/improvements/template/TestOPCMUpgradeVxyz.sol
     /// --sig "simulateRun(string)" test/tasks/mock/configs/TestOPCMUpgradeVxyz.toml
     /// --rpc-url sepolia
+
     /// -vv
     function testRegressionCallDataMatches_OPCMUpgradeVxyz() public {
         string memory taskConfigFilePath = "test/tasks/mock/configs/TestOPCMUpgradeVxyz.toml";
