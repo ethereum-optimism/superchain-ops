@@ -478,7 +478,7 @@ workflows:
       - just_simulate_ink_sep_holocene_system_config_upgrade:
           context:
             - circleci-repo-readonly-authenticated-github-token
-      # Simulation sequence for at the 27th of February 2025. the next tasks would be also 31 but we need to wait until this is merge and updated here.
+      # Simulation sequence for Superchain Version Sync (at the 27th of February 2025). The next task would be 31 but we need to wait until the task is 31 is merged.
       # tasks: "030 031"
       - simulate_sequence:
           network: "eth"
