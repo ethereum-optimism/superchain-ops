@@ -79,6 +79,14 @@ contract NestedSignFromJson is SuperchainRegistry, OriginalNestedSignFromJson, C
         afterParams = getGameConstructorParams(IFaultDisputeGame(address(disputeGameFactory.gameImpls(GameTypes.CANNON))));
         // Set the before prestate to match the after prestate, since that is the only thing that should have
         // changed, the two sets of params should now have the same hash.
+        require(
+            Claim.unwrap(beforeParams_.absolutePrestate) != Claim.unwrap(afterParams.absolutePrestate),
+            "Prestate not updated"
+        );
+        require(
+            Claim.unwrap(afterParams.absolutePrestate) == 0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd,
+            "Prestate not updated to expected value"
+        );
         beforeParams_.absolutePrestate = afterParams.absolutePrestate;
         require(
             keccak256(abi.encode(beforeParams_)) == keccak256(abi.encode(afterParams)),
