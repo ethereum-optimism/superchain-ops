@@ -49,3 +49,6 @@ deploy-multicall3-delegatecall *ARGS:
      --verifier-api-key {{etherscanApiKey}} \
       --broadcast \
      {{ARGS}}
+
+compare-games: before-game='' after-game=''
+  bash scripts/utils/compare-games.sh {{before-game}} {{after-game}}
