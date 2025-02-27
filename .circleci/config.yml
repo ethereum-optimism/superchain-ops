@@ -462,9 +462,9 @@ workflows:
       # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
       # - just_simulate_sc_rehearsal_1
       
-      - just_simulate_ink_003_fp_holocene_pectra_upgrade
-      - just_simulate_ink_004_holocene_system_config_upgrade
-
+      - just_simulate_ink_003_fp_holocene_pectra_upgrade:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
 
       - just_simulate_030_sony_holocene_system_config_upgrade:
           context:
