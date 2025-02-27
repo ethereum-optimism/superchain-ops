@@ -301,13 +301,6 @@ jobs:
       - simulate_nested:
           task: "/eth/ink-003-fp-holocene-pectra-upgrade"
 
-  just_simulate_ink_004_holocene_system_config_upgrade:
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - simulate_nested:
-          task: "/eth/ink-004-holocene-system-config-upgrade"
-
   forge_build:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -489,6 +482,6 @@ workflows:
 
       - simulate_sequence:
           network: "eth"
-          tasks: "021 022 base-003 ink-001"
-          block_number: "21573136" # If not specified, the latest block number is used.
+          tasks: "030-soneium ink-003"
+          block_number: "" # If not specified, the latest block number is used.
 
