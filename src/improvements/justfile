@@ -112,10 +112,13 @@ simulate-all-templates:
     root_dir=$(git rev-parse --show-toplevel)
     forge build
 
+    # If the task is nested then we only simulate as the foundation.
+    # In the future we could simulate as other nested safes. 
+    nested_safe_name="foundation"
     simulation_count=0
     for task in ${root_dir}/src/improvements/tasks/example/*/*; do
         if [ -d "$task" ]; then
-            ${root_dir}/src/improvements/script/simulate-task.sh $task
+            ${root_dir}/src/improvements/script/simulate-task.sh $task $nested_safe_name
             simulation_count=$((simulation_count + 1))
         fi
     done
