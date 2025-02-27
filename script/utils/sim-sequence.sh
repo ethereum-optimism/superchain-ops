@@ -169,6 +169,20 @@ BeforeNonceDisplay(){
   echo "L1ProxyAdminOwner (L1PAO) [$Proxy_Admin_Owner_Safe] nonce: "$L1PAO_BEFORE"."
 }
 
+
+check_nonce_override() {
+  local file_path="$1"
+  if grep -q "SAFE_NONCE=" "$file_path"; then
+    log_error "SAFE_NONCE= is found in the $file_path file, please make sure to use the SAFE_NONCE_XXXX format."
+    exit 99
+  elif grep -q "SAFE_NONCE_.*=\"\"" "$file_path"; then
+    log_warning "SAFE_NONCE_XXXX is set to empty (\"\") in the $file_path file, the simulation is about to take the current nonce values."
+  elif grep -q "SAFE_NONCE_.*=" "$file_path"; then
+    return 0  # True, no "SAFE_NONCE_*=" is found
+  else
+    log_warning "SAFE_NONCE_XXXX is not **present** in the $file_path file, the simulation is about to take the current nonce values."
+  fi
+}
 # Find unique task folder(s) for a given task ID
 find_task_folder() {
   local task_id="$1"
@@ -214,7 +228,6 @@ if [[ "$network" == "sep" ]]; then
   Foundation_Upgrade_Safe=$Fake_Foundation_Upgrade_Safe
   Foundation_Operation_Safe=$Fake_Foundation_Operation_Safe
   Proxy_Admin_Owner_Safe=$Fake_Proxy_Admin_Owner_Safe
-  echo "sepolia selected!"
 fi 
 
 log_info "Simulating tasks for network: $network"
@@ -268,19 +281,10 @@ for task_folder in "${task_folders[@]}"; do
   execution=""
   echo -e "\n---- Simulating task \"$(basename "$task_folder")\"----"
   # Display the nonce value from the .env file. 
-  echo "${task_folder}/.env" 
+  # Check if the .env is correct with the SAFE_NONCE_XXXX or nothing but exclude the deprecated SAFE_NONCE=. 
+  check_nonce_override "${task_folder}/.env" 
   nonce_from_env=$(grep -E "^SAFE_NONCE._*" "${task_folder}/.env" | awk -F'[=_ ]' '{print "Address: " $3, "Number: " $4}') || true
-  echo "value for"$nonce_from_env
-  if [[ -z "$nonce_from_env" ]]; then
-    echo "warning ere"
-    log_warning "No SAFE_NONCE found in .env file. Executing with current nonce. Simulation may not be useful."
-  else
-    log_info "Nonce from .env file:\n$nonce_from_env"
-  fi
-
-
-
-
+  log_info "Nonce from .env file:\n$nonce_from_env"
   pushd "$task_folder" >/dev/null || error_exit "Failed to navigate to '$task_folder'."
   # add the RPC_URL to the .env file
   # echo "ETH_RPC_URL=ANVIL_LOCALHOST_RPC" >> "${PWD}/.env" # Replace with the anvil fork URL
