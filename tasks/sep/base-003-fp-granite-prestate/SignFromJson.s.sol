@@ -41,7 +41,7 @@ contract SignFromJson is OriginalSignFromJson {
     address constant newPDGChallenger =
         0x8b8c52B04A38f10515C52670fcb23f3C4C44474F;
 
-    // Currenet dispute game implementations
+    // Current dispute game implementations
     FaultDisputeGame currentFDG;
     PermissionedDisputeGame currentPDG;
 
