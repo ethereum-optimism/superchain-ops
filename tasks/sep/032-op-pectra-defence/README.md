@@ -1,6 +1,6 @@
-# ProxyAdminOwner - Set Dispute Game Implementation
+# ProxyAdminOwner - Update Prestate Hash
 
-Status: READY TO SIGN
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
