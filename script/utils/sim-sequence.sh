@@ -236,10 +236,8 @@ NonceDisplayModified(){
 # $1: Message to display before showing nonce values
 BeforeNonceDisplay(){
   echo -e "\n$1"
-  # if [[ IS_3_OF_3 -eq 1 ]]; then
-  #   CG_BEFORE=$(cast call $Chain_Governor_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
-  # fi
-
+  # Get the nonce values for the safes.cccccbnrdvcdvblunuhggnrvhclnrbnckvttklvtfcrt
+  
   FUS_BEFORE=$(cast call $Foundation_Upgrade_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
   FOS_BEFORE=$(cast call $Foundation_Operation_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
   SC_BEFORE=$(cast call $Security_Council_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
