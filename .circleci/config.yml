@@ -182,7 +182,7 @@ jobs:
 
   check_task_numbering: 
     docker:
-      - image: <<pipeline.parameters.ci_builder_image>>
+      - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - checkout
       - run:
