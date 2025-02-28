@@ -49,6 +49,10 @@ log_nonce_error() {
   echo -e "\033[0;31mFoundation Operation Safe (FoS) [$Foundation_Operation_Safe] nonce: "$FOS_BEFORE".\033[0m"
   echo -e "\033[0;31mSecurity Council Safe (SC) [$Security_Council_Safe] nonce: "$SC_BEFORE".\033[0m"
   echo -e "\033[0;31mL1ProxyAdminOwner (L1PAO) [$Proxy_Admin_Owner_Safe] nonce: "$L1PAO_BEFORE".\033[0m"
+  echo -e "\033[0;31mBase Proxy Admin Owner (BL1PAO) [$Base_Proxy_Admin_Owner_safe] nonce: "$BL1PAO_BEFORE".\033[0m"
+  echo -e "\033[0;31mBase Owner (BOS) [$Base_Owner_Safe] nonce: "$BOS_BEFORE".\033[0m"
+  echo -e "\033[0;31mUnichain 3of3 (U3) [$Unichain_3of3_Safe] nonce: "$U3_BEFORE".\033[0m"
+  echo -e "\033[0;31mUnichain Owner (UOS) [$Unichain_Owner_Safe] nonce: "$UOS_BEFORE".\033[0m"
   exit 1
 
 }
@@ -392,6 +396,12 @@ for task_folder in "${task_folders[@]}"; do
         --dotenv-path "${PWD}/.env" \
         --justfile "${root_dir}/nested.just" \
         approvehash_in_anvil chain-governor)
+      if [[ $approvalchaingovernor == *"GS025"* ]]; then
+        log_error "Execution contains "GS025" meaning the task $task_folder failed during the chain-governor approval, please check the nonces below:"
+        log_nonce_error 
+      exit 99
+    fi
+
     fi 
     # Handle the 2-of-2 case anyway.
     approvalhashcouncil=$(just \
@@ -421,7 +431,6 @@ for task_folder in "${task_folders[@]}"; do
 
   else
     log_info "Task type detected: single"
-    BeforeNonceDisplay "(🟧) Before Simulation Nonce Values (🟧)"
     simulate=$(just --dotenv-path "${PWD}/.env" --justfile "${root_dir}/single.just" approvehash_in_anvil 0)
     execution=$(just --dotenv-path "${PWD}/.env" --justfile "${root_dir}/single.just" execute_in_anvil 0)
     if [[ $execution == *"GS025"* ]]; then
