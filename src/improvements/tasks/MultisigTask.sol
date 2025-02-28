@@ -115,13 +115,50 @@ abstract contract MultisigTask is Test, Script {
     /// @notice The address of the multicall target for this task
     address public multicallTarget;
 
-    /// @notice abstract function to be implemented by the inheriting contract
-    /// specifies the safe address string to run the template from
+    // ==================================================
+    // ======== Virtual, Unimplemented Functions ========
+    // ==================================================
+    // These are functions have no default implementation and MUST be implemented by the inheriting contract.
+
+    /// @notice Specifies the safe address string to run the template from. This string refers
+    /// to a named contract, where the name is read from an address registry contract.
     function safeAddressString() public pure virtual returns (string memory);
 
-    /// @notice abstract function to be implemented by the inheriting contract
-    /// specifies the addresses that must have their storage written to
+    /// @notice Returns an array of strings that refer to contract names in the address registry.
+    /// Contracts with these names are expected to have their storage written to during the task.
     function _taskStorageWrites() internal pure virtual returns (string[] memory);
+
+    /// @notice By default, any value written to storage that looks like an address is expected to
+    /// have code. Sometimes, accounts without code are expected, and this function allows you to
+    /// specify a list of those addresses.
+    function getCodeExceptions() internal view virtual returns (address[] memory);
+
+    /// @notice Different tasks have different inputs. A task template will create the appropriate
+    /// storage structures for storing and accessing these inputs. In this method, you read in the
+    /// task config file, parse the inputs from the TOML as needed, and save them off.
+    function _templateSetup(string memory taskConfigFilePath) internal virtual;
+
+    /// @notice This method is responsible for deploying the required address registry, defining
+    /// the parent multisig address, and setting the multicall target address.
+    /// This method may also set any allowed and expected storage accesses that are expected in all
+    /// use cases of the template.
+    function _configureTask(string memory configPath)
+        internal
+        virtual
+        returns (AddressRegistry, IGnosisSafe, address);
+
+    /// @notice This is essentially a solidity script of the calls you want to make, and its
+    /// contents are extracted into calldata for the task.
+    function _build() internal virtual;
+
+    /// @notice Called after the build function has been run, to execute assertions on the calls and
+    /// state diffs. This function is how you obtain confidence the transaction does what it's supposed to do.
+    function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) internal view virtual;
+
+    // =================================
+    // ======== Other functions ========
+    // =================================
+    // TODO This section is not yet organized, this will happen in a future PR.
 
     /// @notice Runs the task with the given configuration file path.
     /// Sets the address registry, initializes and simulates the single multisig
@@ -220,15 +257,6 @@ abstract contract MultisigTask is Test, Script {
     function signFromChildMultisig(string memory taskConfigFilePath, address _childMultisig) public {
         simulateRun(taskConfigFilePath, "", _childMultisig);
     }
-
-    /// @notice This method is responsible for deploying the required address registry, defining
-    /// the parent multisig address, and setting the multicall target address.
-    /// This method may also set any allowed and expected storage accesses that are expected in all
-    /// use cases of the template.
-    function _configureTask(string memory configPath)
-        internal
-        virtual
-        returns (AddressRegistry, IGnosisSafe, address);
 
     /// @notice Sets the address registry, initializes the task.
     /// @param taskConfigFilePath The path to the task configuration file.
@@ -525,10 +553,6 @@ abstract contract MultisigTask is Test, Script {
         return actions;
     }
 
-    /// @notice This is essentially a solidity script of the calls you want to make, and its
-    /// contents are extracted into calldata for the task.
-    function _build() internal virtual;
-
     /// @notice print task description, actions, transfers, state changes and EOAs datas to sign
     function print(
         Action[] memory actions,
@@ -694,16 +718,6 @@ abstract contract MultisigTask is Test, Script {
     /// --------------------------------------------------------------------
     /// --------------------------------------------------------------------
 
-    /// The functions are called in the following order during the task lifecycle:
-
-    /// 1. template setup is the common entrypoint to the MultisigTask regardless of which function is run
-    /// @notice abstract function to be implemented by the inheriting contract to setup the template
-    function _templateSetup(string memory taskConfigFilePath) internal virtual;
-
-    /// @notice Called after the build function has been run, to execute assertions on the calls and
-    /// state diffs.
-    function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) internal view virtual;
-
     /// @notice validate actions inclusion
     /// default implementation check for duplicate actions
     function validateAction(address target, uint256 value, bytes memory data, Action[] memory actions) public pure {
@@ -730,9 +744,6 @@ abstract contract MultisigTask is Test, Script {
         }
         return nested;
     }
-
-    /// @notice Override to return a list of addresses that should not be checked for code length.
-    function getCodeExceptions() internal view virtual returns (address[] memory);
 
     /// @notice helper function to prepare the signatures to be executed
     /// @param _safe The address of the parent multisig
