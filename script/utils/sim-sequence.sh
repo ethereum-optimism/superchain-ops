@@ -11,14 +11,24 @@ LOGFILE=$(mktemp ${TMPDIR}/"sim-sequence.XXXXX")
 LOGFILE_ANVIL=$(mktemp ${TMPDIR}/"anvil.XXXXX")
 ## Nonce Values
 MAX_NONCE_ERROR=9999999 # This is a impossible value for a nonce, if the value is still this after the simulation it means there is an issue when fetching the nonce.
+
+# Foundation Upgrade Safe nonce.
 FUS_BEFORE=$MAX_NONCE_ERROR
+# Foundation Operation Safe nonce.
 FOS_BEFORE=$MAX_NONCE_ERROR
+# Security Council Safe nonce.
 SC_BEFORE=$MAX_NONCE_ERROR
+# L1 Proxy Admin Owner Safe nonce.
 L1PAO_BEFORE=$MAX_NONCE_ERROR
+# Chain Governor Safe nonce.
 CG_BEFORE=$MAX_NONCE_ERROR
+# Base Proxy Admin Owner Safe nonce.
 BL1PAO_BEFORE=$MAX_NONCE_ERROR
+# Base Owner Safe nonce.
 BOS_BEFORE=$MAX_NONCE_ERROR
+# Unichain 3of3 Safe nonce.
 U3_BEFORE=$MAX_NONCE_ERROR
+# Unichain Owner Safe nonce.
 UOS_BEFORE=$MAX_NONCE_ERROR
 
 
