@@ -249,7 +249,7 @@ BeforeNonceDisplay(){
 
 check_if_task_is_3_of_3() {
   local file_path="$1"
-  Chain_Governor_Extract=$(grep "CHAIN_GOVERNOR_SAFE=" "$file_path" | awk -F '[ ]' '{print $1}')
+  Chain_Governor_Extract=$(grep "CHAIN_GOVERNOR_SAFE=" "$file_path" | awk -F '[ ]' '{print $1}') || true
 
   if [[ -n "$Chain_Governor_Extract" ]]; then
     Chain_Governor_Safe=$(echo $Chain_Governor_Extract | awk -F '[=]' '{print $2}')
@@ -384,16 +384,15 @@ for task_folder in "${task_folders[@]}"; do
   # add the RPC_URL to the .env file
   # echo "ETH_RPC_URL=ANVIL_LOCALHOST_RPC" >> "${PWD}/.env" # Replace with the anvil fork URL
   
+  BeforeNonceDisplay "(🟧) Before Simulation Nonce Values (🟧)" 
   if [[ -f "${task_folder}/NestedSignFromJson.s.sol" ]]; then
     check_if_task_is_3_of_3 "${task_folder}/.env"
     if [ $IS_3_OF_3 -eq 1 ]; then
-        BeforeNonceDisplay "(🟧) Before Simulation Nonce Values (🟧)" 
         approvalchaingovernor=$(just \
         --dotenv-path "${PWD}/.env" \
         --justfile "${root_dir}/nested.just" \
         approvehash_in_anvil chain-governor)
     fi 
-
     # Handle the 2-of-2 case anyway.
     approvalhashcouncil=$(just \
       --dotenv-path "${PWD}/.env" \
