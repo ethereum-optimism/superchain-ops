@@ -55,19 +55,9 @@ contract EmptyTemplate is MultisigTask {
         taskConfigFilePath;
     }
 
-    /// @notice Write the calls that you want to execute for each l2chain in the task.
-    /// These can be written as standard Solidity calls and then get parsed as calldata.
-    function _buildPerChain(uint256 chainId) internal pure override {
-        // Delete this function if _buildSingle() is implemented.
-        require(false, "TODO: Implement logic that executes per chain.");
-        chainId;
-    }
-    /// @notice Write the calls that you want to execute one time.
-    /// These can be written as standard Solidity calls and then get parsed as calldata.
-
-    function _buildSingle() internal pure override {
-        // Delete this function if _buildPerChain() is implemented.
-        require(false, "TODO: Normally implemented as part of OPCM templates. Executes logic for all chains.");
+    /// @notice Write the calls that you want to execute for the task.
+    function _build() internal pure override {
+        require(false, "TODO: Implement the logic to execute the task -- you can remove the pure modifier");
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.

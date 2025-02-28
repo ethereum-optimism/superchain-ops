@@ -52,15 +52,19 @@ contract DisputeGameUpgradeTemplate is L2TaskBase {
     }
 
     /// @notice Builds the actions for setting dispute game implementations for a specific L2 chain ID
-    /// @param chainId The ID of the L2 chain to configure
-    function _buildPerChain(uint256 chainId) internal override {
-        IDisputeGameFactory disputeGameFactory =
-            IDisputeGameFactory(addrRegistry.getAddress("DisputeGameFactoryProxy", chainId));
+    function _build() internal override {
+        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
 
-        if (setImplementations[chainId].l2ChainId != 0) {
-            disputeGameFactory.setImplementation(
-                setImplementations[chainId].gameType, IDisputeGame(setImplementations[chainId].implementation)
-            );
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            IDisputeGameFactory disputeGameFactory =
+                IDisputeGameFactory(addrRegistry.getAddress("DisputeGameFactoryProxy", chainId));
+
+            if (setImplementations[chainId].l2ChainId != 0) {
+                disputeGameFactory.setImplementation(
+                    setImplementations[chainId].gameType, IDisputeGame(setImplementations[chainId].implementation)
+                );
+            }
         }
     }
 

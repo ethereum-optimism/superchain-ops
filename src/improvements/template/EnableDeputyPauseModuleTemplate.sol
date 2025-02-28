@@ -64,12 +64,8 @@ contract EnableDeputyPauseModuleTemplate is L2TaskBase {
         assertEq(_chains.length, 1, "Must specify exactly one chain id to enable deputy pause module for");
     }
 
-    /// @notice Empty implementation as specified
-    /// @param chainId The ID of the L2 chain
-    function _buildPerChain(uint256 chainId) internal override {}
-
     /// @notice Builds the action for enabling the module in the Safe
-    function _buildSingle() internal override {
+    function _build() internal override {
         ModuleManager(parentMultisig).enableModule(newModule);
     }
 

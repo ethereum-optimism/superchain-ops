@@ -53,9 +53,8 @@ contract TestOPCMUpgradeVxyz is OPCMBaseTask {
         }
     }
 
-    /// @notice build the task action for all l2chains in the task
-    /// in a single call to the OPCM.upgrade() function.
-    function _buildSingle() internal override {
+    /// @notice Build the task action for all l2chains in the task in a single call to the OPCM.upgrade() function.
+    function _build() internal override {
         AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
         OpChainConfig[] memory opcmConfigs = new OpChainConfig[](chains.length);
 
@@ -68,9 +67,9 @@ contract TestOPCMUpgradeVxyz is OPCMBaseTask {
         }
         vm.label(opcm(), "OPCM");
 
-        (bool success,) =
+        (bool success, bytes memory data) =
             opcm().delegatecall(abi.encodeWithSignature("upgrade((address,address,bytes32)[])", opcmConfigs));
-        require(success, "OPCMUpgrateTemplate: failed to upgrade OPCM");
+        require(success, string.concat("OPCMUpgrateTemplate: failed to upgrade OPCM", vm.toString(data)));
     }
 
     /// @notice validate the task for a given l2chain

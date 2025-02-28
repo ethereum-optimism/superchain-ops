@@ -521,21 +521,17 @@ abstract contract MultisigTask is Test, Script {
         _buildStarted = 1;
 
         _startBuild();
-
-        _buildSingle();
-
-        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
-
-        for (uint256 i = 0; i < chains.length; i++) {
-            _buildPerChain(chains[i].chainId);
-        }
-
+        _build();
         actions = _endBuild();
 
         _buildStarted = 0;
 
         return actions;
     }
+
+    /// @notice This is essentially a solidity script of the calls you want to make, and its
+    /// contents are extracted into calldata for the task.
+    function _build() internal virtual;
 
     /// @notice print task description, actions, transfers, state changes and EOAs datas to sign
     function print(
@@ -707,20 +703,6 @@ abstract contract MultisigTask is Test, Script {
     /// 1. template setup is the common entrypoint to the MultisigTask regardless of which function is run
     /// @notice abstract function to be implemented by the inheriting contract to setup the template
     function _templateSetup(string memory taskConfigFilePath) internal virtual;
-
-    /// 2. _buildSingle function is the main function for crafting calldata for templates that have calls to be
-    /// made outside of the for loop that iterates over the chains in the task. This function can be used for
-    /// calls to contracts that may or may not be chain specific.
-    /// Does not have to be overridden in inheriting contracts.
-    function _buildSingle() internal virtual {}
-
-    /// 3. _buildPerChain function is the main function for crafting calldata for templates that can be used across
-    /// multiple chains, it is called in a for loop, which iterates over the chains in the task. The _buildPerChain
-    /// function is called with the chainId as an argument the buildModifier captures all of the actions taken in
-    /// this function.
-    /// @notice build the task actions for a given l2chain
-    /// @dev override to add additional task specific build logic
-    function _buildPerChain(uint256 chainId) internal virtual;
 
     /// 4. _validate function is called after the build function has been run for all chains and the results
     /// of this tasks state transitions have been applied. This checks that the state transitions are valid
