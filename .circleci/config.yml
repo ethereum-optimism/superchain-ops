@@ -270,13 +270,6 @@ jobs:
       - simulate_nested:
           task: "/eth/030-soneium-holocene-system-config-upgrade"
 
-  just_simulate_ink_sep_holocene_system_config_upgrade:
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - simulate_nested:
-          task: "/sep/ink-002-holocene-system-config-upgrade"
-
   simulate_sequence:
     description: "Runs a sequence of simulations"
     parameters:
@@ -462,9 +455,6 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
       # sepolia
-      - just_simulate_ink_sep_holocene_system_config_upgrade:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
 
       # Simulation sequence for Superchain Version Sync (at the 27th of February 2025). The next task would be 31 but we need to wait until it is merged.
       - simulate_sequence:
