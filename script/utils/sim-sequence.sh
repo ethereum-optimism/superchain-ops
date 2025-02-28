@@ -95,7 +95,7 @@ cleanup() {
 
   # Kill the anvil fork at the end if it was started by this script
   if $DESTROY_ANVIL_AFTER_EXECUTION; then
-    echo "Kill anvil with the PID: \"$ANVIL_PID\" since the flag DESTROY_ANVIL_AFTER_EXECUTION is set to \"TRUE\"."
+    echo "Killing anvil with the PID: \"$ANVIL_PID\" since the flag DESTROY_ANVIL_AFTER_EXECUTION is set to \"TRUE\"."
     kill -9 $ANVIL_PID
   fi
 }
