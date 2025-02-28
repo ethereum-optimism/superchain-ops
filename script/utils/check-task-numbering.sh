@@ -11,11 +11,10 @@ for NETWORK_FOLDER in "$TASK_DIR"/*/; do
     # Find matching directories, return empty string if none found
     PREFIXES=$(find "$NETWORK_FOLDER" -maxdepth 1 -type d -not -path "$NETWORK_FOLDER" | 
                awk -F'/' '{print $NF}' | 
-               grep -E '^[0-9]+-[a-zA-Z0-9_]+' || echo "")
+               grep -E '([a-zA-Z]*-)*[0-9]+-' || echo "")
 
-    # Extract just the numeric prefix part for duplicate checking
-    # This will grab only the "NNN" part
-    NUMBER_PREFIXES=$(echo "$PREFIXES" | awk -F'-' '{print $1}' | sort)
+    # Extract everything from start up to the first hyphen after a number
+    NUMBER_PREFIXES=$(echo "$PREFIXES" | sed -E 's/^(([a-zA-Z]*-)*[0-9]+)-.*$/\1/' | sort)
     
     # If no matching task directories, continue to next network
     if [ -z "$PREFIXES" ]; then
