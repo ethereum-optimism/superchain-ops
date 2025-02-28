@@ -1,10 +1,11 @@
 #!/bin/bash
 set -euo pipefail
-
+# set -x 
 if [[ -z "${TMPDIR:-}" ]]; then # Set a default value if TMPDIR is not set useful for the CI for example.
   TMPDIR=/tmp
 fi
 
+ANVIL_PID=""
 LOGFILE=$(mktemp ${TMPDIR}/"sim-sequence.XXXXX")
 LOGFILE_ANVIL=$(mktemp ${TMPDIR}/"anvil.XXXXX")
 ## Nonce Values
@@ -22,7 +23,7 @@ log_debug() {
 
 # Function to log warning messages
 log_warning() {
-    echo "[⚠️] $(date '+%Y-%m-%d %H:%M:%S') [WARNING] $1" | tee -a "$LOGFILE"
+    echo -e "\033[0;33m[⚠️] $(date '+%Y-%m-%d %H:%M:%S') [WARNING] $1\033[0m" | tee -a "$LOGFILE"
 }
 
 # Function to log error messages and exit the script  
@@ -46,11 +47,19 @@ log_nonce_error() {
 
 
 #TODO: GET THE ADDRESSES FROM SUPERCHAIN-REGISTRY IN THE FUTURE, since they are the safes addresses this sholdn't change so often so this fine.
-## ETHEREUM
+
+## MAINNET 
 Security_Council_Safe=0xc2819DC788505Aac350142A7A707BF9D03E3Bd03
 Foundation_Upgrade_Safe=0x847B5c174615B1B7fDF770882256e2D3E95b9D92
 Foundation_Operation_Safe=0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A
 Proxy_Admin_Owner_Safe=0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A
+
+## SEPOLIA
+Fake_Security_Council_Safe=0xf64bc17485f0B4Ea5F06A96514182FC4cB561977
+Fake_Foundation_Upgrade_Safe=0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B
+Fake_Foundation_Operation_Safe=0x837DE453AD5F21E89771e3c06239d8236c0EFd5E
+Fake_Proxy_Admin_Owner_Safe=0x1Eb2fFc903729a0F03966B917003800b145F56E2
+
 DESTROY_ANVIL_AFTER_EXECUTION=true
 
 error_exit() {
@@ -86,9 +95,8 @@ cleanup() {
 
   # Kill the anvil fork at the end if it was started by this script
   if $DESTROY_ANVIL_AFTER_EXECUTION; then
-    echo "Anvil is still open. To kill it, please use the command below:"
-    echo "ps aux | grep anvil | grep -v grep | awk '{print \$3}' | xargs kill"
-    #TODO: In the future, we should kill the anvil fork here?
+    echo "Killing anvil with the PID: \"$ANVIL_PID\" since the flag DESTROY_ANVIL_AFTER_EXECUTION is set to \"TRUE\"."
+    kill -9 $ANVIL_PID
   fi
 }
 
@@ -102,8 +110,11 @@ createFork() {
     log_info "No instance of anvil is detected, starting anvil fork on \"$ANVIL_LOCALHOST_RPC\" by forking $RPC_URL."
     if [[ -n "$block_number" ]]; then
       anvil -f $RPC_URL --fork-block-number $block_number >> $LOGFILE_ANVIL &
+      ANVIL_PID=$!
     else
       anvil -f $RPC_URL >> $LOGFILE_ANVIL &
+      ANVIL_PID=$!
+
     fi
     sleep 5
   fi
@@ -161,6 +172,20 @@ BeforeNonceDisplay(){
   echo "L1ProxyAdminOwner (L1PAO) [$Proxy_Admin_Owner_Safe] nonce: "$L1PAO_BEFORE"."
 }
 
+
+check_nonce_override() {
+  local file_path="$1"
+  if grep -q "SAFE_NONCE=" "$file_path"; then
+    log_error "SAFE_NONCE= is found in the $file_path file, please make sure to use the SAFE_NONCE_XXXX format."
+    exit 99
+  elif grep -q "SAFE_NONCE_.*=\"\"" "$file_path"; then
+    log_warning "SAFE_NONCE_XXXX is set to empty (\"\") in the $file_path file, the simulation is about to take the current nonce values."
+  elif grep -q "SAFE_NONCE_.*=" "$file_path"; then
+    return 0  # True, no "SAFE_NONCE_*=" is found
+  else
+    log_warning "SAFE_NONCE_XXXX is not **present** in the $file_path file, the simulation is about to take the current nonce values."
+  fi
+}
 # Find unique task folder(s) for a given task ID
 find_task_folder() {
   local task_id="$1"
@@ -200,6 +225,13 @@ fi
 network="$1"
 task_ids="$2"
 block_number="${3:-}" # Make block_number optional
+
+if [[ "$network" == "sep" ]]; then
+  Security_Council_Safe=$Fake_Security_Council_Safe
+  Foundation_Upgrade_Safe=$Fake_Foundation_Upgrade_Safe
+  Foundation_Operation_Safe=$Fake_Foundation_Operation_Safe
+  Proxy_Admin_Owner_Safe=$Fake_Proxy_Admin_Owner_Safe
+fi 
 
 log_info "Simulating tasks for network: $network"
 log_info "The \"LOGFILE\" is located in:$LOGFILE"
@@ -251,7 +283,11 @@ export SIMULATE_WITHOUT_LEDGER=1
 for task_folder in "${task_folders[@]}"; do
   execution=""
   echo -e "\n---- Simulating task \"$(basename "$task_folder")\"----"
-
+  # Display the nonce value from the .env file. 
+  # Check if the .env is correct with the SAFE_NONCE_XXXX or nothing but exclude the deprecated SAFE_NONCE=. 
+  check_nonce_override "${task_folder}/.env" 
+  nonce_from_env=$(grep -E "^SAFE_NONCE._*" "${task_folder}/.env" | awk -F'[=_ ]' '{print "Address: " $3, "Number: " $4}') || true
+  log_info "Nonce from .env file:\n$nonce_from_env"
   pushd "$task_folder" >/dev/null || error_exit "Failed to navigate to '$task_folder'."
   # add the RPC_URL to the .env file
   # echo "ETH_RPC_URL=ANVIL_LOCALHOST_RPC" >> "${PWD}/.env" # Replace with the anvil fork URL
