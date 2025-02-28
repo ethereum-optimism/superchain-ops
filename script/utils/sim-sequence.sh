@@ -136,7 +136,7 @@ createFork() {
   # Start a fork
   # check if the port is already open
   if lsof -Pi :8545 -sTCP:LISTEN -t >/dev/null ; then
-    log_info "Anvil is detected and running on port 8545, we use the current instance of anvil."
+    log_warning "Anvil is detected and running on port 8545, we use the current instance of anvil."
     DESTROY_ANVIL_AFTER_EXECUTION=false
   else  
     log_info "No instance of anvil is detected, starting anvil fork on \"$ANVIL_LOCALHOST_RPC\" by forking $RPC_URL."
