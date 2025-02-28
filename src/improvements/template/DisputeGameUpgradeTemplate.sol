@@ -6,12 +6,12 @@ import {VmSafe} from "forge-std/Vm.sol";
 
 import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 
-import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
+import {L2TaskBase} from "src/improvements/tasks/MultisigTask.sol";
 import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
 /// @title DisputeGameUpgradeTemplate
 /// @notice Template contract for upgrading dispute game implementations
-contract DisputeGameUpgradeTemplate is MultisigTask {
+contract DisputeGameUpgradeTemplate is L2TaskBase {
     /// @notice Struct containing configuration for setting a dispute game implementation
     /// @param gameType The type of game to set the implementation for
     /// @param implementation The address of the new implementation
@@ -38,10 +38,6 @@ contract DisputeGameUpgradeTemplate is MultisigTask {
         string[] memory storageWrites = new string[](1);
         storageWrites[0] = "DisputeGameFactoryProxy";
         return storageWrites;
-    }
-
-    function _deployAddressRegistry(string memory configPath) internal virtual override returns (AddressRegistry) {
-        return new AddressRegistry(configPath);
     }
 
     /// @notice Sets up the template with implementation configurations from a TOML file

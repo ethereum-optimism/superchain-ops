@@ -3,10 +3,10 @@ pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
 
-import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
+import {L2TaskBase, MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 
 /// @notice base task for making calls to the Optimism Contracts Manager
-abstract contract OPCMBaseTask is MultisigTask {
+abstract contract OPCMBaseTask is L2TaskBase {
     /// @notice Optimism Contracts Manager Multicall3DelegateCall contract reference
     address public constant MULTICALL3_DELEGATECALL_ADDRESS = 0x93dc480940585D9961bfcEab58124fFD3d60f76a;
 

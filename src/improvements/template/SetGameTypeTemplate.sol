@@ -7,12 +7,11 @@ import {
 import {LibGameType} from "@eth-optimism-bedrock/src/dispute/lib/LibUDT.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 
-import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
+import {L2TaskBase} from "src/improvements/tasks/MultisigTask.sol";
 
 /// @title SetGameTypeTemplate
 /// @notice Template contract for setting game types in the Optimism system
-contract SetGameTypeTemplate is MultisigTask {
+contract SetGameTypeTemplate is L2TaskBase {
     using LibGameType for GameType;
 
     /// @notice Struct containing configuration for setting a respected game type
@@ -35,10 +34,6 @@ contract SetGameTypeTemplate is MultisigTask {
     /// @return The string "Challenger"
     function safeAddressString() public pure override returns (string memory) {
         return "Challenger";
-    }
-
-    function _deployAddressRegistry(string memory configPath) internal override returns (AddressRegistry) {
-        return new AddressRegistry(configPath);
     }
 
     /// @notice Returns the storage write permissions required for this task

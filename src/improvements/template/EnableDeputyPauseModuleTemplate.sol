@@ -7,14 +7,14 @@ import {VmSafe} from "forge-std/Vm.sol";
 
 import "forge-std/Test.sol";
 
-import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
+import {L2TaskBase} from "src/improvements/tasks/MultisigTask.sol";
 import {ModuleManager} from "lib/safe-contracts/contracts/base/ModuleManager.sol";
 import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
 /// @title EnableDeputyPauseModuleTemplate
 /// @notice Template contract for enabling a module in a Gnosis Safe
-contract EnableDeputyPauseModuleTemplate is MultisigTask {
+contract EnableDeputyPauseModuleTemplate is L2TaskBase {
     using AccountAccessParser for *;
     using stdStorage for StdStorage;
 
@@ -48,10 +48,6 @@ contract EnableDeputyPauseModuleTemplate is MultisigTask {
         storageWrites[0] = _SAFE_ADDRESS;
 
         return storageWrites;
-    }
-
-    function _deployAddressRegistry(string memory configPath) internal override returns (AddressRegistry) {
-        return new AddressRegistry(configPath);
     }
 
     /// @notice Sets up the template with module configuration from a TOML file

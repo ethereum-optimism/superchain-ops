@@ -7,12 +7,11 @@ import {IProxy} from "@eth-optimism-bedrock/interfaces/universal/IProxy.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 
 import {MockTarget} from "test/tasks/mock/MockTarget.sol";
-import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
+import {L2TaskBase} from "src/improvements/tasks/MultisigTask.sol";
 
 /// Mock task that upgrades the L1ERC721BridgeProxy implementation
 /// to an example implementation address
-contract MockMultisigTask is MultisigTask {
+contract MockMultisigTask is L2TaskBase {
     address public constant newImplementation = address(1000);
 
     /// @notice reference to the mock target contract
@@ -58,8 +57,4 @@ contract MockMultisigTask is MultisigTask {
 
     /// @notice no code exceptions for this template
     function getCodeExceptions() internal view virtual override returns (address[] memory) {}
-
-    function _deployAddressRegistry(string memory configPath) internal override returns (AddressRegistry) {
-        return new AddressRegistry(configPath);
-    }
 }

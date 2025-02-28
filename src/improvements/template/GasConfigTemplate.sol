@@ -4,12 +4,12 @@ pragma solidity 0.8.15;
 import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 
-import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
+import {L2TaskBase} from "src/improvements/tasks/MultisigTask.sol";
 import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
 /// @title GasConfigTemplate
 /// @notice Template contract for configuring gas limits
-contract GasConfigTemplate is MultisigTask {
+contract GasConfigTemplate is L2TaskBase {
     /// @notice Struct to store gas limits to be set for a specific L2 chain ID
     /// @param chainId The ID of the L2 chain
     /// @param gasLimit The gas limit to be set for the chain
@@ -26,10 +26,6 @@ contract GasConfigTemplate is MultisigTask {
     /// @return The string "SystemConfigOwner"
     function safeAddressString() public pure override returns (string memory) {
         return "SystemConfigOwner";
-    }
-
-    function _deployAddressRegistry(string memory configPath) internal virtual override returns (AddressRegistry) {
-        return new AddressRegistry(configPath);
     }
 
     /// @notice Returns the storage write permissions required for this task

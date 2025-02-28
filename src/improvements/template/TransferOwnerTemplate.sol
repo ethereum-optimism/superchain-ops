@@ -4,12 +4,12 @@ pragma solidity 0.8.15;
 import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 
-import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
+import {L2TaskBase} from "src/improvements/tasks/MultisigTask.sol";
 import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
 /// @title TransferOwnerTemplate
 /// @notice Template contract for transferring ownership of the proxy admin
-contract TransferOwnerTemplate is MultisigTask {
+contract TransferOwnerTemplate is L2TaskBase {
     /// @notice new owner address
     address public newOwner;
 
@@ -17,10 +17,6 @@ contract TransferOwnerTemplate is MultisigTask {
     /// @return The string "ProxyAdminOwner"
     function safeAddressString() public pure override returns (string memory) {
         return "ProxyAdminOwner";
-    }
-
-    function _deployAddressRegistry(string memory configPath) internal override returns (AddressRegistry) {
-        return new AddressRegistry(configPath);
     }
 
     /// @notice Returns the storage write permissions required for this task
