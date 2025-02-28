@@ -433,7 +433,7 @@ abstract contract MultisigTask is Test, Script {
     ///          e.g. read state variables of the deployed contracts to make
     ///          sure they are deployed and initialized correctly, or read
     ///          states that are expected to have changed during the simulate step.
-    function validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory) public virtual {
+    function validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) public virtual {
         // write all state changes to storage
         _processStateDiffChanges(accountAccesses);
 
@@ -465,11 +465,7 @@ abstract contract MultisigTask is Test, Script {
 
         require(IGnosisSafe(parentMultisig).nonce() == nonce + 1, "MultisigTask: nonce not incremented");
 
-        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
-
-        for (uint256 i = 0; i < chains.length; i++) {
-            _validate(chains[i].chainId, accountAccesses);
-        }
+        _validate(accountAccesses, actions);
 
         // check that state diff is as expected
         checkStateDiff(accountAccesses);
@@ -704,14 +700,9 @@ abstract contract MultisigTask is Test, Script {
     /// @notice abstract function to be implemented by the inheriting contract to setup the template
     function _templateSetup(string memory taskConfigFilePath) internal virtual;
 
-    /// 4. _validate function is called after the build function has been run for all chains and the results
-    /// of this tasks state transitions have been applied. This checks that the state transitions are valid
-    /// and applied correctly.
-    /// @notice task specific validations
-    /// @dev override to add additional task specific validations
-    /// @param chainId The l2chainId
-    /// @param accountAccesses returned from the simulate or execute run function
-    function _validate(uint256 chainId, VmSafe.AccountAccess[] memory accountAccesses) internal view virtual;
+    /// @notice Called after the build function has been run, to execute assertions on the calls and
+    /// state diffs.
+    function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) internal view virtual;
 
     /// @notice validate actions inclusion
     /// default implementation check for duplicate actions

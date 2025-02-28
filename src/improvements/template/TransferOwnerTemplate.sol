@@ -52,12 +52,14 @@ contract TransferOwnerTemplate is L2TaskBase {
         }
     }
 
-    /// @notice Validates that gas limits were set correctly for the specified chain ID
-    /// @param chainId The ID of the L2 chain to validate
-    function _validate(uint256 chainId, VmSafe.AccountAccess[] memory) internal view override {
-        ProxyAdmin proxyAdmin = ProxyAdmin(addrRegistry.getAddress("ProxyAdmin", chainId));
+    /// @notice Validates that the owner was transferred correctly.
+    function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) internal view override {
+        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
 
-        assertEq(proxyAdmin.owner(), newOwner, "new owner not set correctly");
+        for (uint256 i = 0; i < chains.length; i++) {
+            ProxyAdmin proxyAdmin = ProxyAdmin(addrRegistry.getAddress("ProxyAdmin", chains[i].chainId));
+            assertEq(proxyAdmin.owner(), newOwner, "new owner not set correctly");
+        }
     }
 
     /// @notice no code exceptions for this template

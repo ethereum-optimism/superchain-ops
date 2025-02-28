@@ -71,18 +71,17 @@ contract SetGameTypeTemplate is L2TaskBase {
         }
     }
 
-    /// @notice Validates that game types were set correctly for the specified chain ID
-    /// @param chainId The ID of the L2 chain to validate
-    function _validate(uint256 chainId, VmSafe.AccountAccess[] memory) internal view override {
-        IOptimismPortal2 optimismPortal =
-            IOptimismPortal2(payable(addrRegistry.getAddress("OptimismPortalProxy", chainId)));
+    /// @notice Validates that game types were set correctly.abi
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory actions) internal view override {
+        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
 
-        if (setRespectedGameTypes[chainId].l2ChainId != 0) {
-            assertEq(
-                optimismPortal.respectedGameType().raw(),
-                setRespectedGameTypes[chainId].gameType.raw(),
-                "gameType not set"
-            );
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            IOptimismPortal2 portal = IOptimismPortal2(payable(addrRegistry.getAddress("OptimismPortalProxy", chainId)));
+            if (setRespectedGameTypes[chainId].l2ChainId != 0) {
+                uint256 currentGameType = portal.respectedGameType().raw();
+                assertEq(currentGameType, setRespectedGameTypes[chainId].gameType.raw(), "gameType not set");
+            }
         }
     }
 

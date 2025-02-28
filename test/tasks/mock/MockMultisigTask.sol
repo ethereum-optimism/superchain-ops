@@ -55,11 +55,16 @@ contract MockMultisigTask is L2TaskBase {
         }
     }
 
-    function _validate(uint256 chainId, VmSafe.AccountAccess[] memory) internal view override {
-        IProxy proxy = IProxy(payable(addrRegistry.getAddress("L1ERC721BridgeProxy", chainId)));
-        bytes32 data = vm.load(address(proxy), Constants.PROXY_IMPLEMENTATION_ADDRESS);
+    /// @notice Validates that the proxy implementation was set correctly.
+    function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) internal view override {
+        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
 
-        assertEq(bytes32(uint256(uint160(newImplementation))), data, "Proxy implementation not set correctly");
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            IProxy proxy = IProxy(payable(addrRegistry.getAddress("L1ERC721BridgeProxy", chainId)));
+            bytes32 data = vm.load(address(proxy), Constants.PROXY_IMPLEMENTATION_ADDRESS);
+            assertEq(bytes32(uint256(uint160(newImplementation))), data, "Proxy implementation not set correctly");
+        }
     }
 
     /// @notice no code exceptions for this template

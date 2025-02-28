@@ -62,12 +62,14 @@ contract GasConfigTemplate is L2TaskBase {
     }
 
     /// @notice Validates that gas limits were set correctly for the specified chain ID
-    /// @param chainId The ID of the L2 chain to validate
-    function _validate(uint256 chainId, VmSafe.AccountAccess[] memory) internal view override {
-        SystemConfig systemConfig = SystemConfig(addrRegistry.getAddress("SystemConfigProxy", chainId));
-
-        if (gasLimits[chainId] != 0) {
-            assertEq(systemConfig.gasLimit(), gasLimits[chainId], "l2 gas limit not set");
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            SystemConfig systemConfig = SystemConfig(addrRegistry.getAddress("SystemConfigProxy", chainId));
+            if (gasLimits[chainId] != 0) {
+                assertEq(systemConfig.gasLimit(), gasLimits[chainId], "l2 gas limit not set");
+            }
         }
     }
 

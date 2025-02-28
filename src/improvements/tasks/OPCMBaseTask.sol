@@ -110,8 +110,15 @@ abstract contract OPCMBaseTask is L2TaskBase {
         multicallTarget_ = MULTICALL3_DELEGATECALL_ADDRESS;
     }
 
-    // @notice this function must be overridden in the inheriting contract
-    function _validate(uint256, VmSafe.AccountAccess[] memory) internal view virtual override {
+    /// @notice this function must be overridden in the inheriting contract to run assertions on the state changes.
+    function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions)
+        internal
+        view
+        virtual
+        override
+    {
+        accountAccesses; // No-ops to silence unused variable compiler warnings.
+        actions;
         require(false, "You must implement the _validate function");
     }
 }

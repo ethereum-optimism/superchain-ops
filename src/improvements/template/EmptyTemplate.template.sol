@@ -61,9 +61,10 @@ contract EmptyTemplate is MultisigTask {
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
-    function _validate(uint256 chainId, VmSafe.AccountAccess[] memory) internal pure override {
+    function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) internal pure override {
+        accountAccesses; // No-ops to silence unused variable compiler warnings.
+        actions;
         require(false, "TODO: Implement the logic to validate that the configuration was set as expected.");
-        chainId;
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.

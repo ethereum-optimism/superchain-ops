@@ -72,10 +72,9 @@ contract TestOPCMUpgradeVxyz is OPCMBaseTask {
         require(success, string.concat("OPCMUpgrateTemplate: failed to upgrade OPCM", vm.toString(data)));
     }
 
-    /// @notice validate the task for a given l2chain
-    /// for this dummy opcm there are no validations per l2 chain
-    /// for a real OPCM instance, add the validations per l2chain
-    function _validate(uint256 chainId, VmSafe.AccountAccess[] memory) internal view override {}
+    /// @notice Validate the task.
+    /// For this dummy opcm there are no validations, but for a real OPCM instance, add the validations.
+    function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) internal view override {}
 
     /// @notice no code exceptions for this template
     function getCodeExceptions() internal view virtual override returns (address[] memory) {}

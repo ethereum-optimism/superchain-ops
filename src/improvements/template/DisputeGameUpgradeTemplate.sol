@@ -68,18 +68,21 @@ contract DisputeGameUpgradeTemplate is L2TaskBase {
         }
     }
 
-    /// @notice Validates that implementations were set correctly for the specified chain ID
-    /// @param chainId The ID of the L2 chain to validate
-    function _validate(uint256 chainId, VmSafe.AccountAccess[] memory) internal view override {
-        IDisputeGameFactory disputeGameFactory =
-            IDisputeGameFactory(addrRegistry.getAddress("DisputeGameFactoryProxy", chainId));
+    /// @notice Validates that implementations were set correctly.
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
 
-        if (setImplementations[chainId].l2ChainId != 0) {
-            assertEq(
-                address(disputeGameFactory.gameImpls(setImplementations[chainId].gameType)),
-                setImplementations[chainId].implementation,
-                "implementation not set"
-            );
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            IDisputeGameFactory dgf = IDisputeGameFactory(addrRegistry.getAddress("DisputeGameFactoryProxy", chainId));
+
+            if (setImplementations[chainId].l2ChainId != 0) {
+                assertEq(
+                    address(dgf.gameImpls(setImplementations[chainId].gameType)),
+                    setImplementations[chainId].implementation,
+                    "implementation not set"
+                );
+            }
         }
     }
 

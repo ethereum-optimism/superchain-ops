@@ -12,8 +12,7 @@ import {ModuleManager} from "lib/safe-contracts/contracts/base/ModuleManager.sol
 import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
-/// @title EnableDeputyPauseModuleTemplate
-/// @notice Template contract for enabling a module in a Gnosis Safe
+/// @notice Template contract for enabling the DeputyPauseModule in a Gnosis Safe
 contract EnableDeputyPauseModuleTemplate is L2TaskBase {
     using AccountAccessParser for *;
     using stdStorage for StdStorage;
@@ -69,10 +68,20 @@ contract EnableDeputyPauseModuleTemplate is L2TaskBase {
         ModuleManager(parentMultisig).enableModule(newModule);
     }
 
-    /// @notice Validates that the module was enabled correctly
-    /// @param chainId The chain ID of the L2 chain to validate
+    /// @notice Validates that the module was enabled correctly.
+    function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory) internal view override {
+        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
+
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            _validatePerChain(chainId, accountAccesses);
+        }
+    }
+
+    /// @notice Validates that the module was enabled correctly for a given chain.
+    /// @param chainId The chain ID of the chain to validate
     /// @param accountAccess the list of account accesses performed by this task
-    function _validate(uint256 chainId, VmSafe.AccountAccess[] memory accountAccess) internal view override {
+    function _validatePerChain(uint256 chainId, VmSafe.AccountAccess[] memory accountAccess) internal view {
         (address[] memory modules, address nextModule) =
             ModuleManager(parentMultisig).getModulesPaginated(SENTINEL_MODULE, 100);
 
