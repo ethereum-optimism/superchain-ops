@@ -1,6 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 # set -x 
+
 if [[ -z "${TMPDIR:-}" ]]; then # Set a default value if TMPDIR is not set useful for the CI for example.
   TMPDIR=/tmp
 fi
@@ -14,7 +15,14 @@ FUS_BEFORE=$MAX_NONCE_ERROR
 FOS_BEFORE=$MAX_NONCE_ERROR
 SC_BEFORE=$MAX_NONCE_ERROR
 L1PAO_BEFORE=$MAX_NONCE_ERROR
+CG_BEFORE=$MAX_NONCE_ERROR
+BL1PAO_BEFORE=$MAX_NONCE_ERROR
+BOS_BEFORE=$MAX_NONCE_ERROR
+U3_BEFORE=$MAX_NONCE_ERROR
+UOS_BEFORE=$MAX_NONCE_ERROR
 
+
+IS_3_OF_3=0
 ANVIL_LOCALHOST_RPC="http://localhost:8545"
 ## LOG utilies
 log_debug() {
@@ -48,17 +56,37 @@ log_nonce_error() {
 
 #TODO: GET THE ADDRESSES FROM SUPERCHAIN-REGISTRY IN THE FUTURE, since they are the safes addresses this sholdn't change so often so this fine.
 
+## Chain Governor Safe
+Chain_Governor_Safe=""
+
 ## MAINNET 
+# SC
 Security_Council_Safe=0xc2819DC788505Aac350142A7A707BF9D03E3Bd03
+# FUS
 Foundation_Upgrade_Safe=0x847B5c174615B1B7fDF770882256e2D3E95b9D92
+# FOS
 Foundation_Operation_Safe=0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A
+# L1PAO
 Proxy_Admin_Owner_Safe=0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A
+# BL1PAO
+Base_Proxy_Admin_Owner_safe=0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c
+# BOS
+Base_Owner_Safe=0x9855054731540A48b28990B63DcF4f33d8AE46A1
+# U3
+Unichain_3of3_Safe=0x6d5B183F538ABB8572F5cD17109c617b994D5833
+# UOS
+Unichain_Owner_Safe=0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC
 
 ## SEPOLIA
+#SSC
 Fake_Security_Council_Safe=0xf64bc17485f0B4Ea5F06A96514182FC4cB561977
+# SFUS
 Fake_Foundation_Upgrade_Safe=0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B
+# SFOS
 Fake_Foundation_Operation_Safe=0x837DE453AD5F21E89771e3c06239d8236c0EFd5E
+# SEPL1PAO
 Fake_Proxy_Admin_Owner_Safe=0x1Eb2fFc903729a0F03966B917003800b145F56E2
+
 
 DESTROY_ANVIL_AFTER_EXECUTION=true
 
@@ -95,7 +123,7 @@ cleanup() {
 
   # Kill the anvil fork at the end if it was started by this script
   if $DESTROY_ANVIL_AFTER_EXECUTION; then
-    echo "Killing anvil with the PID: \"$ANVIL_PID\" since the flag DESTROY_ANVIL_AFTER_EXECUTION is set to \"TRUE\"."
+    echo "Kill anvil with the PID: \"$ANVIL_PID\" since the flag DESTROY_ANVIL_AFTER_EXECUTION is set to \"TRUE\"."
     kill -9 $ANVIL_PID
   fi
 }
@@ -126,10 +154,19 @@ NonceDisplayModified(){
     log_error "Nonce values are not available for one or more safes please investigate." 
     exit 99
   fi
+
+  if [[ $IS_3_OF_3 -eq 1 ]]; then
+    IS_3_OF_3=0 #Reset the 3_OF_3 flag
+    Chain_Governor_Safe="" # Reset the Chain_Governor_Safe
+  fi
   FUS_AFTER=$(cast call $Foundation_Upgrade_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
   FOS_AFTER=$(cast call $Foundation_Operation_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
   SC_AFTER=$(cast call $Security_Council_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
   L1PAO_AFTER=$(cast call $Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+  BL1PAO_AFTER=$(cast call $Base_Proxy_Admin_Owner_safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+  BOS_AFTER=$(cast call $Base_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+  U3_AFTER=$(cast call $Unichain_3of3_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+  UOS_AFTER=$(cast call $Unichain_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
 
   if [[ $FUS_BEFORE -ne $FUS_AFTER ]]; then
     echo -e "\033[0;32mFoundation Upgrade Safe (FuS) [$Foundation_Upgrade_Safe] nonce: "$FUS_AFTER" ("$FUS_BEFORE" -> "$FUS_AFTER").\033[0m" 
@@ -153,6 +190,29 @@ NonceDisplayModified(){
   else 
     echo "L1ProxyAdminOwner (L1PAO) [$Proxy_Admin_Owner_Safe] nonce: "$(cast call $Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
   fi
+  if [[ $BOS_BEFORE -ne $BOS_AFTER ]]; then
+    echo -e "\033[0;32mBase Owner (BOS) [$Base_Owner_Safe] nonce: "$BOS_AFTER" ("$BOS_BEFORE" -> "$BOS_AFTER").\033[0m"
+  else 
+    echo "Base Owner (BOS) [$Base_Owner_Safe] nonce: "$(cast call $Base_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
+  fi
+  if [[ $BL1PAO_BEFORE -ne $BL1PAO_AFTER ]]; then
+    echo -e "\033[0;32mBase Proxy Admin Owner (BL1PAO) [$Base_Proxy_Admin_Owner_safe] nonce: "$BL1PAO_AFTER" ("$BL1PAO_BEFORE" -> "$BL1PAO_AFTER").\033[0m"
+  else 
+    echo "Base Proxy Admin Owner (BL1PAO) [$Base_Proxy_Admin_Owner_safe] nonce: "$(cast call $Base_Proxy_Admin_Owner_safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
+  fi
+  if [[ $U3_BEFORE -ne $U3_AFTER ]]; then
+    echo -e "\033[0;32mUnichain 3of3 (U3) [$Unichain_3of3_Safe] nonce: "$U3_AFTER" ("$U3_BEFORE" -> "$U3_AFTER").\033[0m"
+  else 
+    echo "Unichain 3of3 (U3) [$Unichain_3of3_Safe] nonce: "$(cast call $Unichain_3of3_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
+  fi
+  if [[ $UOS_BEFORE -ne $UOS_AFTER ]]; then
+    echo -e "\033[0;32mUnichain Owner (UOS) [$Unichain_Owner_Safe] nonce: "$UOS_AFTER" ("$UOS_BEFORE" -> "$UOS_AFTER").\033[0m"
+  else 
+    echo "Unichain Owner (UOS) [$Unichain_Owner_Safe] nonce: "$(cast call $Unichain_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
+  fi
+
+  
+  
 
 }
  
@@ -162,17 +222,49 @@ NonceDisplayModified(){
 # $1: Message to display before showing nonce values
 BeforeNonceDisplay(){
   echo -e "\n$1"
+  # if [[ IS_3_OF_3 -eq 1 ]]; then
+  #   CG_BEFORE=$(cast call $Chain_Governor_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+  # fi
+
   FUS_BEFORE=$(cast call $Foundation_Upgrade_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
   FOS_BEFORE=$(cast call $Foundation_Operation_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
   SC_BEFORE=$(cast call $Security_Council_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
   L1PAO_BEFORE=$(cast call $Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+  BL1PAO_BEFORE=$(cast call $Base_Proxy_Admin_Owner_safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+  BOS_BEFORE=$(cast call $Base_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+  U3_BEFORE=$(cast call $Unichain_3of3_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+  UOS_BEFORE=$(cast call $Unichain_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+  
   echo "Foundation Upgrade Safe (FuS) [$Foundation_Upgrade_Safe] nonce: "$FUS_BEFORE"."
   echo "Foundation Operation Safe (FoS) [$Foundation_Operation_Safe] nonce: "$FOS_BEFORE"."
   echo "Security Council Safe (SC) [$Security_Council_Safe] nonce: "$SC_BEFORE"."
   echo "L1ProxyAdminOwner (L1PAO) [$Proxy_Admin_Owner_Safe] nonce: "$L1PAO_BEFORE"."
+  echo "Base Proxy Admin Owner (BL1PAO) [$Base_Proxy_Admin_Owner_safe] nonce: "$BL1PAO_BEFORE"."
+  echo "Base Owner (BOS) [$Base_Owner_Safe] nonce: "$BOS_BEFORE"."
+  echo "Unichain 3of3 (U3) [$Unichain_3of3_Safe] nonce: "$U3_BEFORE"."
+  echo "Unichain Owner (UOS) [$Unichain_Owner_Safe] nonce: "$UOS_BEFORE"."
 }
 
 
+
+check_if_task_is_3_of_3() {
+  local file_path="$1"
+  Chain_Governor_Extract=$(grep "CHAIN_GOVERNOR_SAFE=" "$file_path" | awk -F '[ ]' '{print $1}')
+
+  if [[ -n "$Chain_Governor_Extract" ]]; then
+    Chain_Governor_Safe=$(echo $Chain_Governor_Extract | awk -F '[=]' '{print $2}')
+    if [[ -z "$Chain_Governor_Safe" ]]; then
+      log_error "The Chain Governor Safe is not set in the $file_path file."
+      exit 99
+    fi
+    log_info "Nested Task with 3 safes detected."
+    IS_3_OF_3=1
+  else 
+    log_info "Nested Task with 2 safes detected."
+    IS_3_OF_3=0
+  fi
+}
+## Check if the nonce has the correct env format. 
 check_nonce_override() {
   local file_path="$1"
   if grep -q "SAFE_NONCE=" "$file_path"; then
@@ -258,7 +350,7 @@ for task_id in $task_ids; do
   matching_folders=$(find_task_folder "$task_id")
   task_folders+=("$matching_folders")
 done
-
+## Need to investigate why we can reach here when we pass an invalid task ID.
 source ${task_folders[0]}/.env
 RPC_URL=$ETH_RPC_URL
 unset ETH_RPC_URL
@@ -291,9 +383,18 @@ for task_folder in "${task_folders[@]}"; do
   pushd "$task_folder" >/dev/null || error_exit "Failed to navigate to '$task_folder'."
   # add the RPC_URL to the .env file
   # echo "ETH_RPC_URL=ANVIL_LOCALHOST_RPC" >> "${PWD}/.env" # Replace with the anvil fork URL
+  
   if [[ -f "${task_folder}/NestedSignFromJson.s.sol" ]]; then
-    log_info "Task type: nested" 
-    BeforeNonceDisplay "(🟧) Before Simulation Nonce Values (🟧)"
+    check_if_task_is_3_of_3 "${task_folder}/.env"
+    if [ $IS_3_OF_3 -eq 1 ]; then
+        BeforeNonceDisplay "(🟧) Before Simulation Nonce Values (🟧)" 
+        approvalchaingovernor=$(just \
+        --dotenv-path "${PWD}/.env" \
+        --justfile "${root_dir}/nested.just" \
+        approvehash_in_anvil chain-governor)
+    fi 
+
+    # Handle the 2-of-2 case anyway.
     approvalhashcouncil=$(just \
       --dotenv-path "${PWD}/.env" \
       --justfile "${root_dir}/nested.just" \
