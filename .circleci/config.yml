@@ -466,9 +466,8 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
 
-      # Simulation sequence for Superchain Version Sync (at the 27th of February 2025). The next task would be 31 but we need to wait until the task is 31 is merged.
-      # tasks: "030 031"
+      # Simulation sequence for Superchain Version Sync (at the 27th of February 2025). The next task would be 31 but we need to wait until it is merged.
       - simulate_sequence:
           network: "eth"
-          tasks: ""
-          block_number: "" # If not specified, the latest block number is used.
+          tasks: "030"
+          block_number: "21938584" # If not specified, the latest block number is used.
