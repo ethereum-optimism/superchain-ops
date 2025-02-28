@@ -34,7 +34,7 @@ abstract contract MultisigTask is Test, Script {
 
     /// @notice struct to store allowed storage accesses read in from config file
     /// uses OpenZeppelin EnumerableSet for allowed storage accesses
-    EnumerableSet.AddressSet private _allowedStorageAccesses;
+    EnumerableSet.AddressSet internal _allowedStorageAccesses;
 
     /// @notice Struct to store information about an action
     /// @param target The address of the target contract
@@ -113,7 +113,6 @@ abstract contract MultisigTask is Test, Script {
     uint256 private _buildStarted;
 
     /// @notice The address of the multicall target for this task
-    /// @dev set in _setMulticallAddress
     address public multicallTarget;
 
     /// @notice abstract function to be implemented by the inheriting contract
@@ -222,63 +221,35 @@ abstract contract MultisigTask is Test, Script {
         simulateRun(taskConfigFilePath, "", _childMultisig);
     }
 
-    /// @notice Deploys the address registry, which as a key-value lookup so addresses can be
-    /// retrieved by name.
-    function _deployAddressRegistry(string memory configPath) internal virtual returns (AddressRegistry);
+    /// @notice This method is responsible for deploying the required address registry, defining
+    /// the parent multisig address, and setting the multicall target address.
+    /// This method may also set any allowed and expected storage accesses that are expected in all
+    /// use cases of the template.
+    function _configureTask(string memory configPath)
+        internal
+        virtual
+        returns (AddressRegistry, IGnosisSafe, address);
 
     /// @notice Sets the address registry, initializes the task.
     /// @param taskConfigFilePath The path to the task configuration file.
     function _taskSetup(string memory taskConfigFilePath) internal {
-        addrRegistry = _deployAddressRegistry(taskConfigFilePath);
-        _templateSetup(taskConfigFilePath);
-        _setMulticallAddress();
-
         require(bytes(config.safeAddressString).length == 0, "MultisigTask: already initialized");
 
         config.safeAddressString = safeAddressString();
         config.allowedStorageWriteAccesses = _taskStorageWrites();
         config.allowedStorageWriteAccesses.push(safeAddressString());
 
-        // get chains
-        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
+        IGnosisSafe _parentMultisig; // TODO parentMultisig should be of type IGnosisSafe
+        (addrRegistry, _parentMultisig, multicallTarget) = _configureTask(taskConfigFilePath);
+        parentMultisig = address(_parentMultisig);
 
-        // check that the safe address is the same for all chains and then set safe in storage
-        parentMultisig = addrRegistry.getAddress(config.safeAddressString, chains[0].chainId);
+        _templateSetup(taskConfigFilePath);
 
-        // TODO change this once we implement task stacking
-        nonce = IGnosisSafe(parentMultisig).nonce();
+        nonce = IGnosisSafe(parentMultisig).nonce(); // TODO change this once we implement task stacking
+        startingOwners = IGnosisSafe(parentMultisig).getOwners();
 
         vm.label(address(addrRegistry), "AddrRegistry");
         vm.label(address(this), "MultisigTask");
-
-        for (uint256 i = 1; i < chains.length; i++) {
-            require(
-                parentMultisig == addrRegistry.getAddress(config.safeAddressString, chains[i].chainId),
-                string.concat(
-                    "MultisigTask: safe address mismatch. Caller: ",
-                    getAddressLabel(parentMultisig),
-                    ". Actual address: ",
-                    getAddressLabel(addrRegistry.getAddress(config.safeAddressString, chains[i].chainId))
-                )
-            );
-        }
-
-        // Fetch starting owners
-        IGnosisSafe safe = IGnosisSafe(parentMultisig);
-        startingOwners = safe.getOwners();
-
-        // this loads the allowed storage write accesses to storage for this task
-        // if this task changes storage slots outside of the allowed write accesses,
-        // then the task will fail at runtime and the task developer will need to
-        // update the config to include the addresses whose storage slots changed,
-        // or figure out why the storage slots are being changed when they should not be.
-        for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
-            for (uint256 j = 0; j < chains.length; j++) {
-                _allowedStorageAccesses.add(
-                    addrRegistry.getAddress(config.allowedStorageWriteAccesses[i], chains[j].chainId)
-                );
-            }
-        }
     }
 
     /// @notice get the calldata to be executed by safe
@@ -822,13 +793,6 @@ abstract contract MultisigTask is Test, Script {
         );
     }
 
-    /// @notice set the multicall address
-    /// @dev override to set the multicall address to the delegatecall multicall address
-    /// in case of opcm tasks
-    function _setMulticallAddress() internal virtual {
-        multicallTarget = MULTICALL3_ADDRESS;
-    }
-
     /// @notice prank the multisig
     /// @dev override to prank with delegatecall flag set to true
     /// in case of opcm tasks, the multisig is not pranked
@@ -1098,7 +1062,44 @@ abstract contract MultisigTask is Test, Script {
 }
 
 abstract contract L2TaskBase is MultisigTask {
-    function _deployAddressRegistry(string memory taskConfigFilePath) internal override returns (AddressRegistry) {
-        return new AddressRegistry(taskConfigFilePath);
+    using EnumerableSet for EnumerableSet.AddressSet;
+
+    function _configureTask(string memory taskConfigFilePath)
+        internal
+        virtual
+        override
+        returns (AddressRegistry addrRegistry_, IGnosisSafe parentMultisig_, address multicallTarget_)
+    {
+        multicallTarget_ = MULTICALL3_ADDRESS;
+        addrRegistry_ = new AddressRegistry(taskConfigFilePath);
+
+        AddressRegistry.ChainInfo[] memory chains = addrRegistry_.getChains();
+        parentMultisig_ = IGnosisSafe(addrRegistry_.getAddress(config.safeAddressString, chains[0].chainId));
+
+        // Ensure that all chains have the same parentMultisig.
+        for (uint256 i = 1; i < chains.length; i++) {
+            require(
+                address(parentMultisig_) == addrRegistry_.getAddress(config.safeAddressString, chains[i].chainId),
+                string.concat(
+                    "MultisigTask: safe address mismatch. Caller: ",
+                    getAddressLabel(address(parentMultisig_)),
+                    ". Actual address: ",
+                    getAddressLabel(addrRegistry_.getAddress(config.safeAddressString, chains[i].chainId))
+                )
+            );
+        }
+
+        // This loads the allowed storage write accesses to storage for this task.
+        // If this task changes storage slots outside of the allowed write accesses,
+        // then the task will fail at runtime and the task developer will need to
+        // update the config to include the addresses whose storage slots changed,
+        // or figure out why the storage slots are being changed when they should not be.
+        for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
+            for (uint256 j = 0; j < chains.length; j++) {
+                _allowedStorageAccesses.add(
+                    addrRegistry_.getAddress(config.allowedStorageWriteAccesses[i], chains[j].chainId)
+                );
+            }
+        }
     }
 }

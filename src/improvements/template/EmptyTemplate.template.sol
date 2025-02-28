@@ -2,6 +2,7 @@
 pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
+import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
@@ -37,8 +38,12 @@ contract EmptyTemplate is MultisigTask {
         return storageWrites;
     }
 
-    function _deployAddressRegistry(string memory configPath) internal override returns (AddressRegistry) {
-        return new AddressRegistry(configPath);
+    function _configureTask(string memory configPath)
+        internal
+        override
+        returns (AddressRegistry addrRegistry_, IGnosisSafe parentMultisig_, address multicallTarget_)
+    {
+        return (new AddressRegistry(configPath), IGnosisSafe(address(0)), address(0));
     }
 
     /// @notice Sets up the template with implementation configurations from a TOML file.

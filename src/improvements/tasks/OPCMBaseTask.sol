@@ -2,7 +2,9 @@
 pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
+import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
+import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 import {L2TaskBase, MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 
 /// @notice base task for making calls to the Optimism Contracts Manager
@@ -98,10 +100,14 @@ abstract contract OPCMBaseTask is L2TaskBase {
         vm.startPrank(parentMultisig, true);
     }
 
-    /// @notice set the multicall address
-    /// overrides MultisigTask to set the multicall address to the delegatecall multicall address
-    function _setMulticallAddress() internal override {
-        multicallTarget = MULTICALL3_DELEGATECALL_ADDRESS;
+    function _configureTask(string memory taskConfigFilePath)
+        internal
+        override
+        returns (AddressRegistry addrRegistry_, IGnosisSafe parentMultisig_, address multicallTarget_)
+    {
+        // The only thing we change is overriding the multicall target.
+        (addrRegistry_, parentMultisig_, multicallTarget_) = super._configureTask(taskConfigFilePath);
+        multicallTarget_ = MULTICALL3_DELEGATECALL_ADDRESS;
     }
 
     // @notice this function must be overridden in the inheriting contract
