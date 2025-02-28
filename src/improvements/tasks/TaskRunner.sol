@@ -79,7 +79,6 @@ contract TaskRunner is Script {
 
         AddressRegistry _addrRegistry = new AddressRegistry(taskConfigFilePath);
         AddressRegistry.ChainInfo[] memory chains = _addrRegistry.getChains();
-        require(chains.length > 0, "MultisigTask: no chains found");
         address parentMultisig = _addrRegistry.getAddress(safeAddressString, chains[0].chainId);
         return task.isNestedSafe(parentMultisig);
     }
