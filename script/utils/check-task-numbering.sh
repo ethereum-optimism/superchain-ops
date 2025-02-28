@@ -1,6 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
+# This script checks that all task directories have a valid numbering, defined as a number
+# followed by a hyphen and optionally some text denoting the network before the number.
+
 # Directory containing network folders
 TASK_DIR="./tasks"
 
