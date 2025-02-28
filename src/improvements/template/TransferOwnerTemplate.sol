@@ -53,7 +53,7 @@ contract TransferOwnerTemplate is L2TaskBase {
     }
 
     /// @notice Validates that the owner was transferred correctly.
-    function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) internal view override {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
         AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {

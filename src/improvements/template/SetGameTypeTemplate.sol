@@ -72,7 +72,7 @@ contract SetGameTypeTemplate is L2TaskBase {
     }
 
     /// @notice Validates that game types were set correctly.abi
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory actions) internal view override {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
         AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {
