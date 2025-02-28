@@ -4,12 +4,12 @@ pragma solidity 0.8.15;
 import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 
-import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
+import {L2TaskBase} from "src/improvements/tasks/MultisigTask.sol";
 import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
 /// @title TransferOwnerTemplate
 /// @notice Template contract for transferring ownership of the proxy admin
-contract TransferOwnerTemplate is MultisigTask {
+contract TransferOwnerTemplate is L2TaskBase {
     /// @notice new owner address
     address public newOwner;
 
@@ -37,22 +37,29 @@ contract TransferOwnerTemplate is MultisigTask {
         require(_chains.length == 1, "Must specify exactly one chain id to transfer ownership for");
     }
 
-    /// @notice Builds the actions for setting gas limits for a specific L2 chain ID
-    /// @param chainId The ID of the L2 chain to configure
-    function _buildPerChain(uint256 chainId) internal override {
-        // View only, filtered out by MultisigTask.sol
-        ProxyAdmin proxyAdmin = ProxyAdmin(addrRegistry.getAddress("ProxyAdmin", chainId));
+    /// @notice Builds the actions for transferring ownership of the proxy admin
+    function _build() internal override {
+        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
 
-        // Mutative call, recorded by MultisigTask.sol for generating multisig calldata
-        proxyAdmin.transferOwnership(newOwner);
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+
+            // View only, filtered out by MultisigTask.sol
+            ProxyAdmin proxyAdmin = ProxyAdmin(addrRegistry.getAddress("ProxyAdmin", chainId));
+
+            // Mutative call, recorded by MultisigTask.sol for generating multisig calldata
+            proxyAdmin.transferOwnership(newOwner);
+        }
     }
 
-    /// @notice Validates that gas limits were set correctly for the specified chain ID
-    /// @param chainId The ID of the L2 chain to validate
-    function _validate(uint256 chainId, VmSafe.AccountAccess[] memory) internal view override {
-        ProxyAdmin proxyAdmin = ProxyAdmin(addrRegistry.getAddress("ProxyAdmin", chainId));
+    /// @notice Validates that the owner was transferred correctly.
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
 
-        assertEq(proxyAdmin.owner(), newOwner, "new owner not set correctly");
+        for (uint256 i = 0; i < chains.length; i++) {
+            ProxyAdmin proxyAdmin = ProxyAdmin(addrRegistry.getAddress("ProxyAdmin", chains[i].chainId));
+            assertEq(proxyAdmin.owner(), newOwner, "new owner not set correctly");
+        }
     }
 
     /// @notice no code exceptions for this template

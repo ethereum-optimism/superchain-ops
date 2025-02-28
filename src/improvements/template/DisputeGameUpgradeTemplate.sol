@@ -6,11 +6,12 @@ import {VmSafe} from "forge-std/Vm.sol";
 
 import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 
-import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
+import {L2TaskBase} from "src/improvements/tasks/MultisigTask.sol";
+import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
 /// @title DisputeGameUpgradeTemplate
 /// @notice Template contract for upgrading dispute game implementations
-contract DisputeGameUpgradeTemplate is MultisigTask {
+contract DisputeGameUpgradeTemplate is L2TaskBase {
     /// @notice Struct containing configuration for setting a dispute game implementation
     /// @param gameType The type of game to set the implementation for
     /// @param implementation The address of the new implementation
@@ -51,30 +52,37 @@ contract DisputeGameUpgradeTemplate is MultisigTask {
     }
 
     /// @notice Builds the actions for setting dispute game implementations for a specific L2 chain ID
-    /// @param chainId The ID of the L2 chain to configure
-    function _buildPerChain(uint256 chainId) internal override {
-        IDisputeGameFactory disputeGameFactory =
-            IDisputeGameFactory(addrRegistry.getAddress("DisputeGameFactoryProxy", chainId));
+    function _build() internal override {
+        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
 
-        if (setImplementations[chainId].l2ChainId != 0) {
-            disputeGameFactory.setImplementation(
-                setImplementations[chainId].gameType, IDisputeGame(setImplementations[chainId].implementation)
-            );
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            IDisputeGameFactory disputeGameFactory =
+                IDisputeGameFactory(addrRegistry.getAddress("DisputeGameFactoryProxy", chainId));
+
+            if (setImplementations[chainId].l2ChainId != 0) {
+                disputeGameFactory.setImplementation(
+                    setImplementations[chainId].gameType, IDisputeGame(setImplementations[chainId].implementation)
+                );
+            }
         }
     }
 
-    /// @notice Validates that implementations were set correctly for the specified chain ID
-    /// @param chainId The ID of the L2 chain to validate
-    function _validate(uint256 chainId, VmSafe.AccountAccess[] memory) internal view override {
-        IDisputeGameFactory disputeGameFactory =
-            IDisputeGameFactory(addrRegistry.getAddress("DisputeGameFactoryProxy", chainId));
+    /// @notice Validates that implementations were set correctly.
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
 
-        if (setImplementations[chainId].l2ChainId != 0) {
-            assertEq(
-                address(disputeGameFactory.gameImpls(setImplementations[chainId].gameType)),
-                setImplementations[chainId].implementation,
-                "implementation not set"
-            );
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            IDisputeGameFactory dgf = IDisputeGameFactory(addrRegistry.getAddress("DisputeGameFactoryProxy", chainId));
+
+            if (setImplementations[chainId].l2ChainId != 0) {
+                assertEq(
+                    address(dgf.gameImpls(setImplementations[chainId].gameType)),
+                    setImplementations[chainId].implementation,
+                    "implementation not set"
+                );
+            }
         }
     }
 

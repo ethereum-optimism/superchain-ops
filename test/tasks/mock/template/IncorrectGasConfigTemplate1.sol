@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
-
 import {GasConfigTemplate} from "src/improvements/template/GasConfigTemplate.sol";
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
 /// @title IncorrectGasConfigTemplate1
 /// @notice allowed storage write to incorrect address

@@ -3,7 +3,8 @@ pragma solidity 0.8.15;
 
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-import {Test} from "forge-std/Test.sol";
+import {Vm} from "forge-std/Vm.sol";
+import {StdChains} from "forge-std/StdChains.sol";
 import {GameTypes, GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 
 /// @notice Contains getters for arbitrary methods from all L1 contracts, including legacy getters
@@ -36,11 +37,14 @@ interface IFetcher {
     function weth() external view returns (address);
 }
 
-/// @title Network Address Manager
-/// @notice This contract provides a single source of truth for storing and retrieving addresses across multiple networks.
-/// @dev Handles addresses for contracts and externally owned accounts (EOAs) while ensuring correctness and uniqueness.
-contract AddressRegistry is Test {
+/// @notice This contract provides a single source of truth for storing and retrieving addresses
+/// across multiple networks. It handles addresses for contracts and externally owned accounts
+/// (EOAs) while ensuring correctness and uniqueness.
+contract AddressRegistry is StdChains {
     using EnumerableSet for EnumerableSet.UintSet;
+
+    address private constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
+    Vm private constant vm = Vm(VM_ADDRESS);
 
     /// @dev Structure for storing address details in the contract.
     struct RegistryEntry {
@@ -100,7 +104,7 @@ contract AddressRegistry is Test {
     constructor(string memory networkConfigFilePath) {
         require(
             block.chainid == getChain("mainnet").chainId || block.chainid == getChain("sepolia").chainId,
-            "Unsupported network"
+            string.concat("AddressRegistry: Unsupported task chain ID ", vm.toString(block.chainid))
         );
 
         bytes memory chainListContent;
@@ -108,7 +112,7 @@ contract AddressRegistry is Test {
         {
             chainListContent = parsedChainListContent;
         } catch {
-            revert(string.concat("Failed to parse network config file path: ", networkConfigFilePath));
+            revert(string.concat("AddressRegistry: Failed to parse network config file path ", networkConfigFilePath));
         }
 
         // Cannot assign the abi.decode result to `chains` directly because it's a storage array, so
@@ -118,6 +122,7 @@ contract AddressRegistry is Test {
         for (uint256 i = 0; i < _chains.length; i++) {
             chains.push(_chains[i]);
         }
+        require(chains.length > 0, "AddressRegistry: no chains found");
 
         string memory chainAddressesContent =
             vm.readFile("lib/superchain-registry/superchain/extra/addresses/addresses.json");
