@@ -322,6 +322,14 @@ network="$1"
 task_ids="$2"
 block_number="${3:-}" # Make block_number optional
 
+# Check if task_ids is empty
+if [[ -z "$task_ids" || "$task_ids" == '""' || "$task_ids" == "''" ]]; then
+  log_warning "No task IDs provided. Please specify at least one task ID to simulate."
+  log_info "Usage: $0 <network> \"<array-of-task-IDs>\" [block_number]"
+  log_info "Example: $0 eth \"021 022 base-003 ink-001\""
+  exit 0
+fi
+
 if [[ "$network" == "sep" ]]; then
   Security_Council_Safe=$Fake_Security_Council_Safe
   Foundation_Upgrade_Safe=$Fake_Foundation_Upgrade_Safe
