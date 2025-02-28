@@ -468,10 +468,10 @@ workflows:
       # tasks: "030 031"
       - simulate_sequence:
           network: "eth"
-          tasks: "030"
-          block_number: "21938584" # If not specified, the latest block number is used.
+          tasks: "" # If not specified, no tasks are simulated.
+          block_number: "" # If not specified, the latest block number is used.
 
       - simulate_sequence:
           network: "sep"
-          tasks: "032"
+          tasks: "" # If not specified, no tasks are simulated.
           block_number: "" # If not specified, the latest block number is used.
