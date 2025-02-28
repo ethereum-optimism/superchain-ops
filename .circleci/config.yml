@@ -180,7 +180,7 @@ jobs:
       - notify-failures-on-develop:
           mentions: "@security-team"
 
-   check_task_numbering: 
+  check_task_numbering: 
     docker:
       - image: <<pipeline.parameters.ci_builder_image>>
     steps:
