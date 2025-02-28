@@ -263,13 +263,6 @@ jobs:
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
 
-  just_simulate_030_sony_holocene_system_config_upgrade:
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - simulate_nested:
-          task: "/eth/030-soneium-holocene-system-config-upgrade"
-
   simulate_sequence:
     description: "Runs a sequence of simulations"
     parameters:
