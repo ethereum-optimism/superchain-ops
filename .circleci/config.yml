@@ -478,5 +478,5 @@ workflows:
 
       - simulate_sequence:
           network: "sep"
-          tasks: "ink-001 ink-002 032"
+          tasks: "032"
           block_number: "" # If not specified, the latest block number is used.
