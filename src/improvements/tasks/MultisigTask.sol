@@ -229,40 +229,24 @@ abstract contract MultisigTask is Test, Script {
     /// @notice Sets the address registry, initializes the task.
     /// @param taskConfigFilePath The path to the task configuration file.
     function _taskSetup(string memory taskConfigFilePath) internal {
-        AddressRegistry _addrRegistry = _deployAddressRegistry(taskConfigFilePath);
-
+        addrRegistry = _deployAddressRegistry(taskConfigFilePath);
         _templateSetup(taskConfigFilePath);
-
         _setMulticallAddress();
 
-        // set the task config
-        require(
-            bytes(config.safeAddressString).length == 0 && address(addrRegistry) == address(0x0),
-            "MultisigTask: already initialized"
-        );
-        require(
-            block.chainid == getChain("mainnet").chainId || block.chainid == getChain("sepolia").chainId,
-            string.concat("Unsupported network: ", vm.toString(block.chainid))
-        );
+        require(bytes(config.safeAddressString).length == 0, "MultisigTask: already initialized");
 
         config.safeAddressString = safeAddressString();
         config.allowedStorageWriteAccesses = _taskStorageWrites();
         config.allowedStorageWriteAccesses.push(safeAddressString());
 
-        // set the AddressRegistry
-        addrRegistry = _addrRegistry;
-
         // get chains
         AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
-        require(chains.length > 0, "MultisigTask: no chains found");
 
         // check that the safe address is the same for all chains and then set safe in storage
         parentMultisig = addrRegistry.getAddress(config.safeAddressString, chains[0].chainId);
 
         // TODO change this once we implement task stacking
         nonce = IGnosisSafe(parentMultisig).nonce();
-
-        isNestedSafe(parentMultisig);
 
         vm.label(address(addrRegistry), "AddrRegistry");
         vm.label(address(this), "MultisigTask");

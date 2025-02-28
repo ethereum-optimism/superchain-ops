@@ -55,7 +55,7 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testRunFailsNoNetworks() public {
-        vm.expectRevert("MultisigTask: no chains found");
+        vm.expectRevert("AddressRegistry: no chains found");
         task.simulateRun("./test/tasks/mock/configs/InvalidNetworkConfig.toml");
     }
 
