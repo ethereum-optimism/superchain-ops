@@ -450,12 +450,6 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
 
-      # sepolia
-      - just_simulate_nested:
-          task: "/sep/ink-002-holocene-system-config-upgrade"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-
       # Simulation sequence for Superchain Version Sync (at the 27th of February 2025). The next task would be 31 but we need to wait until the task is 31 is merged.
       # tasks: "030 031"
       - simulate_sequence:
