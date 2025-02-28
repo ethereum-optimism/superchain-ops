@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-# This script checks that all task directories have a valid numbering, defined as a number
+# This script checks that all task directories have a unique prefix, defined as a number
 # followed by a hyphen and optionally some text denoting the network before the number.
 
 # Directory containing network folders
@@ -16,7 +16,7 @@ for NETWORK_FOLDER in "$TASK_DIR"/*/; do
                awk -F'/' '{print $NF}' | 
                grep -E '([a-zA-Z]*-)*[0-9]+-' || echo "")
 
-    # Extract everything from start up to the first hyphen after a number
+    # Extract the prefix
     NUMBER_PREFIXES=$(echo "$PREFIXES" | sed -E 's/^(([a-zA-Z]*-)*[0-9]+)-.*$/\1/' | sort)
     
     # If no matching task directories, continue to next network
