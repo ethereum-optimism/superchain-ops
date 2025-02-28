@@ -455,9 +455,6 @@ workflows:
       # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
       # - just_simulate_sc_rehearsal_1
 
-      - just_simulate_030_sony_holocene_system_config_upgrade:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
       - just_simulate_sc_rehearsal_2:
           context:
             - circleci-repo-readonly-authenticated-github-token
@@ -468,9 +465,9 @@ workflows:
       - just_simulate_ink_sep_holocene_system_config_upgrade:
           context:
             - circleci-repo-readonly-authenticated-github-token
-      # Simulation sequence for Superchain Version Sync (at the 27th of February 2025). The next task would be 31 but we need to wait until the task is 31 is merged.
-      # tasks: "030 031"
+
+      # Simulation sequence for Superchain Version Sync (at the 27th of February 2025). The next task would be 31 but we need to wait until it is merged.
       - simulate_sequence:
           network: "eth"
           tasks: "030"
-          block_number: "" # If not specified, the latest block number is used.
+          block_number: "21938584" # If not specified, the latest block number is used.
