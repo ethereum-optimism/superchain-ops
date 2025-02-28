@@ -222,10 +222,14 @@ abstract contract MultisigTask is Test, Script {
         simulateRun(taskConfigFilePath, "", _childMultisig);
     }
 
+    /// @notice Deploys the address registry, which as a key-value lookup so addresses can be
+    /// retrieved by name.
+    function _deployAddressRegistry(string memory configPath) internal virtual returns (AddressRegistry);
+
     /// @notice Sets the address registry, initializes the task.
     /// @param taskConfigFilePath The path to the task configuration file.
     function _taskSetup(string memory taskConfigFilePath) internal {
-        AddressRegistry _addrRegistry = new AddressRegistry(taskConfigFilePath);
+        AddressRegistry _addrRegistry = _deployAddressRegistry(taskConfigFilePath);
 
         _templateSetup(taskConfigFilePath);
 
@@ -1166,5 +1170,11 @@ abstract contract MultisigTask is Test, Script {
         }
         // Otherwise, this value looks like an address that we'd expect to have code.
         return true;
+    }
+}
+
+abstract contract L2TaskBase is MultisigTask {
+    function _deployAddressRegistry(string memory taskConfigFilePath) internal override returns (AddressRegistry) {
+        return new AddressRegistry(taskConfigFilePath);
     }
 }

@@ -50,6 +50,10 @@ contract EnableDeputyPauseModuleTemplate is MultisigTask {
         return storageWrites;
     }
 
+    function _deployAddressRegistry(string memory configPath) internal override returns (AddressRegistry) {
+        return new AddressRegistry(configPath);
+    }
+
     /// @notice Sets up the template with module configuration from a TOML file
     /// @param taskConfigFilePath Path to the TOML configuration file
     function _templateSetup(string memory taskConfigFilePath) internal override {

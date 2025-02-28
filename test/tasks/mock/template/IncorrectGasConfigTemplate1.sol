@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
-
 import {GasConfigTemplate} from "src/improvements/template/GasConfigTemplate.sol";
 import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
@@ -14,5 +12,9 @@ contract IncorrectGasConfigTemplate1 is GasConfigTemplate {
         /// wrong address
         storageWrites[0] = "SystemConfigOwner";
         return storageWrites;
+    }
+
+    function _deployAddressRegistry(string memory configPath) internal override returns (AddressRegistry) {
+        return new AddressRegistry(configPath);
     }
 }

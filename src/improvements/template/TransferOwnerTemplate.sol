@@ -19,6 +19,10 @@ contract TransferOwnerTemplate is MultisigTask {
         return "ProxyAdminOwner";
     }
 
+    function _deployAddressRegistry(string memory configPath) internal override returns (AddressRegistry) {
+        return new AddressRegistry(configPath);
+    }
+
     /// @notice Returns the storage write permissions required for this task
     /// @return Array of storage write permissions, in this case, only the ProxyAdmin is returned
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {

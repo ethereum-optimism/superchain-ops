@@ -5,6 +5,7 @@ import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
+import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
 /// @title GasConfigTemplate
 /// @notice Template contract for configuring gas limits
@@ -25,6 +26,10 @@ contract GasConfigTemplate is MultisigTask {
     /// @return The string "SystemConfigOwner"
     function safeAddressString() public pure override returns (string memory) {
         return "SystemConfigOwner";
+    }
+
+    function _deployAddressRegistry(string memory configPath) internal virtual override returns (AddressRegistry) {
+        return new AddressRegistry(configPath);
     }
 
     /// @notice Returns the storage write permissions required for this task

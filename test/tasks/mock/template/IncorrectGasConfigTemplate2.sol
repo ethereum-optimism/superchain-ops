@@ -13,4 +13,8 @@ contract IncorrectGasConfigTemplate2 is GasConfigTemplate {
         storageWrites[0] = "SystemConfigOwner";
         return storageWrites;
     }
+
+    function _deployAddressRegistry(string memory configPath) internal override returns (AddressRegistry) {
+        return new AddressRegistry(configPath);
+    }
 }

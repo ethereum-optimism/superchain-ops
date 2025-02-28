@@ -4,6 +4,7 @@ pragma solidity 0.8.15;
 import {VmSafe} from "forge-std/Vm.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
+import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 
 /// @notice A template contract for configuring protocol parameters.
 ///         This file is intentionally stripped down; please add your logic where indicated.
@@ -34,6 +35,10 @@ contract EmptyTemplate is MultisigTask {
         string[] memory storageWrites = new string[](1);
         storageWrites[0] = "SystemConfigProxy"; // TODO: This is an example. Change according to your task.
         return storageWrites;
+    }
+
+    function _deployAddressRegistry(string memory configPath) internal override returns (AddressRegistry) {
+        return new AddressRegistry(configPath);
     }
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
