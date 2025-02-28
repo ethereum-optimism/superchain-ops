@@ -1040,72 +1040,12 @@ abstract contract MultisigTask is Test, Script {
 
     /// @notice helper method to get transfers and state changes of task affected addresses
     function _processStateDiffChanges(VmSafe.AccountAccess[] memory accountAccesses) private {
-        // first check that no tokens or eth were sent that should not have been
-        // then check that all state changes that happened were in contracts that were allowed to have state changes
         for (uint256 i = 0; i < accountAccesses.length; i++) {
-            // process ETH transfer changes
-            _processETHTransferChanges(accountAccesses[i]);
-
-            // process ERC20 transfer changes
-            _processERC20TransferChanges(accountAccesses[i]);
-
-            // process state changes
+            // TODO Once `validate` is updated to use `accountAccesses` instead of
+            // `_taskStateChangeAddresses`, we can delete the  `_processStateDiffChanges`
+            // and `_processStateChanges` methods.
             _processStateChanges(accountAccesses[i].storageAccesses);
         }
-    }
-
-    /// @notice helper method to get eth transfers of task affected addresses
-    function _processETHTransferChanges(VmSafe.AccountAccess memory accountAccess) private {
-        address account = accountAccess.account;
-        // get eth transfers
-        if (accountAccess.value != 0) {
-            // add address to task transfer from addresses array only if not already added
-            if (!_taskTransferFromAddresses.contains(accountAccess.accessor)) {
-                _taskTransferFromAddresses.add(accountAccess.accessor);
-            }
-            _taskTransfers[accountAccess.accessor].push(
-                TransferInfo({to: account, value: accountAccess.value, tokenAddress: address(0)})
-            );
-        }
-    }
-
-    /// @notice helper method to get ERC20 token transfers of task affected addresses
-    function _processERC20TransferChanges(VmSafe.AccountAccess memory accountAccess) private {
-        bytes memory data = accountAccess.data;
-        if (data.length <= 4) {
-            return;
-        }
-
-        // get function selector from calldata
-        bytes4 selector = bytes4(data);
-
-        // get function params
-        bytes memory params = new bytes(data.length - 4);
-        for (uint256 j = 0; j < data.length - 4; j++) {
-            params[j] = data[j + 4];
-        }
-
-        address from;
-        address to;
-        uint256 value;
-        // 'transfer' selector in ERC20 token
-        if (selector == 0xa9059cbb) {
-            (to, value) = abi.decode(params, (address, uint256));
-            from = accountAccess.accessor;
-        }
-        // 'transferFrom' selector in ERC20 token
-        else if (selector == 0x23b872dd) {
-            (from, to, value) = abi.decode(params, (address, address, uint256));
-        } else {
-            return;
-        }
-
-        // add address to task transfer from addresses array only if not already added
-        if (!_taskTransferFromAddresses.contains(from)) {
-            _taskTransferFromAddresses.add(from);
-        }
-
-        _taskTransfers[from].push(TransferInfo({to: to, value: value, tokenAddress: accountAccess.account}));
     }
 
     /// @notice helper method to get state changes of task affected addresses
