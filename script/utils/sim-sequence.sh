@@ -1,7 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-# set -x 
-
+# set -x # For debugging purpose only.
 if [[ -z "${TMPDIR:-}" ]]; then # Set a default value if TMPDIR is not set useful for the CI for example.
   TMPDIR=/tmp
 fi
@@ -44,7 +43,7 @@ log_warning() {
     echo -e "\033[0;33m[⚠️] $(date '+%Y-%m-%d %H:%M:%S') [WARNING] $1\033[0m" | tee -a "$LOGFILE"
 }
 
-# Function to log error messages and exit the script  
+# Function to log error messages and exit the script
 log_error() {
     echo -e "\033[0;31m[❌] $(date '+%Y-%m-%d %H:%M:%S') [ERROR] $1\033[0m" | tee -a "$LOGFILE" >&2
 }
@@ -148,7 +147,7 @@ createFork() {
   if lsof -Pi :8545 -sTCP:LISTEN -t >/dev/null ; then
     log_warning "Anvil is detected and running on port 8545, we use the current instance of anvil."
     DESTROY_ANVIL_AFTER_EXECUTION=false
-  else  
+  else
     log_info "No instance of anvil is detected, starting anvil fork on \"$ANVIL_LOCALHOST_RPC\" by forking $RPC_URL."
     if [[ -n "$block_number" ]]; then
       anvil -f $RPC_URL --fork-block-number $block_number >> $LOGFILE_ANVIL &
@@ -165,7 +164,7 @@ createFork() {
 NonceDisplayModified(){
   echo -e "\n$1"
   if [[ $FUS_BEFORE -eq $MAX_NONCE_ERROR || $FOS_BEFORE -eq $MAX_NONCE_ERROR || $SC_BEFORE -eq $MAX_NONCE_ERROR ]]; then
-    log_error "Nonce values are not available for one or more safes please investigate." 
+    log_error "Nonce values are not available for one or more safes please investigate."
     exit 99
   fi
 
@@ -183,25 +182,25 @@ NonceDisplayModified(){
   UOS_AFTER=$(cast call $Unichain_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
 
   if [[ $FUS_BEFORE -ne $FUS_AFTER ]]; then
-    echo -e "\033[0;32mFoundation Upgrade Safe (FuS) [$Foundation_Upgrade_Safe] nonce: "$FUS_AFTER" ("$FUS_BEFORE" -> "$FUS_AFTER").\033[0m" 
-  else 
+    echo -e "\033[0;32mFoundation Upgrade Safe (FuS) [$Foundation_Upgrade_Safe] nonce: "$FUS_AFTER" ("$FUS_BEFORE" -> "$FUS_AFTER").\033[0m"
+  else
     echo "Foundation Upgrade Safe (FuS) [$Foundation_Upgrade_Safe] nonce: "$(cast call $Foundation_Upgrade_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
-  fi 
+  fi
 
 
   if [[ $FOS_BEFORE -ne $FOS_AFTER ]]; then
     echo -e "\033[0;32mFoundation Operation Safe (FoS) [$Foundation_Operation_Safe] nonce: "$FOS_AFTER" ("$FOS_BEFORE" -> "$FOS_AFTER").\033[0m"
-  else 
+  else
     echo "Foundation Operation Safe (FoS) [$Foundation_Operation_Safe] nonce: "$(cast call $Foundation_Operation_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
   fi
   if [[ $SC_BEFORE -ne $SC_AFTER ]]; then
     echo -e "\033[0;32mSecurity Council Safe (SC) [$Security_Council_Safe] nonce: "$SC_AFTER" ("$SC_BEFORE" -> "$SC_AFTER").\033[0m"
-  else 
+  else
     echo "Security Council Safe (SC) [$Security_Council_Safe] nonce: "$(cast call $Security_Council_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
-  fi 
+  fi
   if [[ $L1PAO_BEFORE -ne $L1PAO_AFTER ]]; then
     echo -e "\033[0;32mL1ProxyAdminOwner (L1PAO) [$Proxy_Admin_Owner_Safe] nonce: "$L1PAO_AFTER" ("$L1PAO_BEFORE" -> "$L1PAO_AFTER").\033[0m"
-  else 
+  else
     echo "L1ProxyAdminOwner (L1PAO) [$Proxy_Admin_Owner_Safe] nonce: "$(cast call $Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
   fi
   if [[ $BOS_BEFORE -ne $BOS_AFTER ]]; then
@@ -229,7 +228,7 @@ NonceDisplayModified(){
   
 
 }
- 
+
 
 
 # Displays the current nonce values for various safes before simulation
@@ -343,7 +342,7 @@ if [[ "$network" == "sep" ]]; then
   Foundation_Upgrade_Safe=$Fake_Foundation_Upgrade_Safe
   Foundation_Operation_Safe=$Fake_Foundation_Operation_Safe
   Proxy_Admin_Owner_Safe=$Fake_Proxy_Admin_Owner_Safe
-fi 
+fi
 
 log_info "Simulating tasks for network: $network"
 log_info "The \"LOGFILE\" is located in:$LOGFILE"
@@ -386,7 +385,7 @@ if [[ "${confirmation}" != "yes" ]]; then
   log_info "Simulation aborted by user."
   exit 0
 fi
-# Create the anvil Fork 
+# Create the anvil Fork
 createFork
 # Disable state overrides and execute tasks.
 disable_state_overrides
@@ -395,9 +394,9 @@ export SIMULATE_WITHOUT_LEDGER=1
 for task_folder in "${task_folders[@]}"; do
   execution=""
   echo -e "\n---- Simulating task \"$(basename "$task_folder")\"----"
-  # Display the nonce value from the .env file. 
-  # Check if the .env is correct with the SAFE_NONCE_XXXX or nothing but exclude the deprecated SAFE_NONCE=. 
-  check_nonce_override "${task_folder}/.env" 
+  # Display the nonce value from the .env file.
+  # Check if the .env is correct with the SAFE_NONCE_XXXX or nothing but exclude the deprecated SAFE_NONCE=.
+  check_nonce_override "${task_folder}/.env"
   nonce_from_env=$(grep -E "^SAFE_NONCE._*" "${task_folder}/.env" | awk -F'[=_ ]' '{print "Address: " $3, "Number: " $4}') || true
   log_info "Nonce from .env file:\n$nonce_from_env"
   pushd "$task_folder" >/dev/null || error_exit "Failed to navigate to '$task_folder'."
@@ -424,7 +423,7 @@ for task_folder in "${task_folders[@]}"; do
       --dotenv-path "${PWD}/.env" \
       --justfile "${root_dir}/nested.just" \
       approvehash_in_anvil council)
-   
+
     approvalhashfoundation=$(just \
       --dotenv-path "${PWD}/.env" \
       --justfile "${root_dir}/nested.just" \
@@ -432,12 +431,12 @@ for task_folder in "${task_folders[@]}"; do
 
     if [[ $approvalhashcouncil == *"GS025"* ]]; then
       log_error "Execution contains "GS025" meaning the task $task_folder failed during the council approval, please check the nonces below:"
-      log_nonce_error 
+      log_nonce_error
       exit 99
     fi
     if [[ $approvalhashfoundation == *"GS025"* ]]; then
      log_error "Execution contains "GS025" meaning the task $task_folder failed during the foundation approval, please check the nonces below:"
-     log_nonce_error 
+     log_nonce_error
      exit 99
     fi
     execution=$(just\
@@ -453,9 +452,9 @@ for task_folder in "${task_folders[@]}"; do
      log_error "Execution contains GS025 meaning the task $task_folder failed."
      exit 99
     fi
-  fi 
+  fi
 
-  
+
   sleep 0.2
   NonceDisplayModified "(🟩) After Simulation Nonce Values (🟩)"
   echo -e "\n---- End of Simulation for task \"$(basename "$task_folder")\" ----"
