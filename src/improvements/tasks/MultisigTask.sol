@@ -876,7 +876,7 @@ abstract contract MultisigTask is Test, Script {
     function _isValidAction(VmSafe.AccountAccess memory access, uint256 topLevelDepth) internal view returns (bool) {
         bool accountNotRegistryOrVm = (access.account != address(addrRegistry) && access.account != address(vm));
         bool accessorNotRegistry = access.accessor != address(addrRegistry);
-        bool isCall = access.kind == VmSafe.AccountAccessKind.Call;
+        bool isCall = (access.kind == VmSafe.AccountAccessKind.Call && access.depth == topLevelDepth);
         bool isTopLevelDelegateCall =
             (access.kind == VmSafe.AccountAccessKind.DelegateCall && access.depth == topLevelDepth);
         bool accessorIsParent = (access.accessor == parentMultisig);
