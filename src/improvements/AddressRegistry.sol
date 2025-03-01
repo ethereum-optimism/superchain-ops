@@ -5,6 +5,7 @@ import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet
 
 import {Vm} from "forge-std/Vm.sol";
 import {StdChains} from "forge-std/StdChains.sol";
+import {stdToml} from "forge-std/StdToml.sol";
 import {GameTypes, GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 
 /// @notice Contains getters for arbitrary methods from all L1 contracts, including legacy getters
@@ -42,6 +43,7 @@ interface IFetcher {
 /// (EOAs) while ensuring correctness and uniqueness.
 contract AddressRegistry is StdChains {
     using EnumerableSet for EnumerableSet.UintSet;
+    using stdToml for string;
 
     address private constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
     Vm private constant vm = Vm(VM_ADDRESS);
@@ -287,6 +289,11 @@ contract AddressRegistry is StdChains {
     /// @return An array of ChainInfo structs representing the supported chains
     function getChains() public view returns (ChainInfo[] memory) {
         return chains;
+    }
+
+    /// @notice reads a ChainInfo array from a toml file
+    function readChainsFromToml(string memory toml, string memory key) public view returns (ChainInfo[] memory) {
+        return abi.decode(vm.parseToml(vm.readFile(toml), key), (ChainInfo[]));
     }
 
     /// @notice Verifies that the given L2 chain ID is supported
