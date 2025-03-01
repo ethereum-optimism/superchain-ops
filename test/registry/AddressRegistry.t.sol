@@ -2,229 +2,199 @@
 pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
+import {LibString} from "@solady/utils/LibString.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 
-contract MainnetAddressRegistryTest is Test {
-    SuperchainAddressRegistry private addresses;
+abstract contract AddressRegistryTest_Base is Test {
+    using LibString for string;
+
+    SuperchainAddressRegistry private addrRegistry;
 
     uint256 public metalChainId;
     uint256 public baseChainId;
-    uint256 public opMainnetChainId;
+    uint256 public opChainId;
     uint256 public zoraChainId;
     uint256 public modeChainId;
 
     function setUp() public {
-        string memory networkConfigFilePath = "test/tasks/mock/configs/DiscoverChainAddressesConfig.toml";
+        (string memory configPath, string memory chainName) = config();
 
-        vm.createSelectFork("mainnet");
+        vm.createSelectFork(chainName);
 
-        addresses = new SuperchainAddressRegistry(networkConfigFilePath);
-        metalChainId = getChain("metal").chainId;
-        baseChainId = getChain("base").chainId;
-        opMainnetChainId = getChain("optimism").chainId;
-        zoraChainId = getChain("zora").chainId;
-        modeChainId = getChain("mode").chainId;
+        addrRegistry = new SuperchainAddressRegistry(configPath);
+        metalChainId = getChain(string.concat("metal", chainName.eq("sepolia") ? "_sepolia" : "")).chainId;
+        baseChainId = getChain(string.concat("base", chainName.eq("sepolia") ? "_sepolia" : "")).chainId;
+        opChainId = getChain(string.concat("optimism", chainName.eq("sepolia") ? "_sepolia" : "")).chainId;
+        zoraChainId = getChain(string.concat("zora", chainName.eq("sepolia") ? "_sepolia" : "")).chainId;
+        modeChainId = getChain(string.concat("mode", chainName.eq("sepolia") ? "_sepolia" : "")).chainId;
     }
 
+    function config() internal pure virtual returns (string memory configFilePath_, string memory chainName_);
+
     function testContractState() public view {
-        assertTrue(addresses.supportedL2ChainIds(metalChainId), "Metal chain ID not supported");
-        assertTrue(addresses.supportedL2ChainIds(baseChainId), "Base chain ID not supported");
-        assertTrue(addresses.supportedL2ChainIds(opMainnetChainId), "OP Mainnet chain ID not supported");
-        assertTrue(addresses.supportedL2ChainIds(zoraChainId), "Zora chain ID not supported");
+        assertTrue(addrRegistry.supportedL2ChainIds(metalChainId), "Metal chain ID not supported");
+        assertTrue(addrRegistry.supportedL2ChainIds(baseChainId), "Base chain ID not supported");
+        assertTrue(addrRegistry.supportedL2ChainIds(opChainId), "OP chain ID not supported");
+        assertTrue(addrRegistry.supportedL2ChainIds(zoraChainId), "Zora chain ID not supported");
+        assertTrue(addrRegistry.supportedL2ChainIds(modeChainId), "Mode chain ID not supported");
     }
 
     function testSuperchainAddressesLoaded() public view {
-        SuperchainAddressRegistry.ChainInfo[] memory chains = addresses.getChains();
+        SuperchainAddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
             string memory chainName = chains[i].name;
-            assertNotEq(
-                addresses.getAddress("L1StandardBridgeProxy", chainId), address(0), "L1StandardBridgeProxy not loaded"
-            );
-            assertNotEq(
-                addresses.getAddress("L1CrossDomainMessengerProxy", chainId),
-                address(0),
-                "L1CrossDomainMessengerProxy not loaded"
-            );
-            assertNotEq(addresses.getAddress("AddressManager", chainId), address(0), "AddressManager not loaded");
-            assertNotEq(
-                addresses.getAddress("OptimismPortalProxy", chainId), address(0), "OptimismPortalProxy not loaded"
-            );
+            assertNotEq(addrRegistry.getAddress("L1StandardBridgeProxy", chainId), address(0), "10");
+            assertNotEq(addrRegistry.getAddress("L1CrossDomainMessengerProxy", chainId), address(0), "20");
+            assertNotEq(addrRegistry.getAddress("AddressManager", chainId), address(0), "30");
+            assertNotEq(addrRegistry.getAddress("OptimismPortalProxy", chainId), address(0), "40");
 
             assertEq(
-                addresses.getAddressInfo(addresses.getAddress("L1StandardBridgeProxy", chainId)).identifier,
+                addrRegistry.getAddressInfo(addrRegistry.getAddress("L1StandardBridgeProxy", chainId)).identifier,
                 "L1StandardBridgeProxy",
-                "L1StandardBridgeProxy identifier not loaded"
+                "50"
             );
             assertEq(
-                addresses.getAddressInfo(addresses.getAddress("L1StandardBridgeProxy", chainId)).chainInfo.chainId,
+                addrRegistry.getAddressInfo(addrRegistry.getAddress("L1StandardBridgeProxy", chainId)).chainInfo.chainId,
                 chainId,
-                "L1StandardBridgeProxy chain id not loaded"
+                "60"
             );
             assertEq(
-                addresses.getAddressInfo(addresses.getAddress("L1StandardBridgeProxy", chainId)).chainInfo.name,
+                addrRegistry.getAddressInfo(addrRegistry.getAddress("L1StandardBridgeProxy", chainId)).chainInfo.name,
                 chainName,
-                "L1StandardBridgeProxy chain name not loaded"
+                "70"
             );
 
             assertEq(
-                addresses.getAddressInfo(addresses.getAddress("L1CrossDomainMessengerProxy", chainId)).identifier,
+                addrRegistry.getAddressInfo(addrRegistry.getAddress("L1CrossDomainMessengerProxy", chainId)).identifier,
                 "L1CrossDomainMessengerProxy",
-                "L1CrossDomainMessengerProxy identifier not loaded"
+                "80"
             );
             assertEq(
-                addresses.getAddressInfo(addresses.getAddress("L1CrossDomainMessengerProxy", chainId)).chainInfo.chainId,
+                addrRegistry.getAddressInfo(addrRegistry.getAddress("L1CrossDomainMessengerProxy", chainId))
+                    .chainInfo
+                    .chainId,
                 chainId,
-                "L1CrossDomainMessengerProxy chain id not loaded"
+                "90"
             );
             assertEq(
-                addresses.getAddressInfo(addresses.getAddress("L1CrossDomainMessengerProxy", chainId)).chainInfo.name,
+                addrRegistry.getAddressInfo(addrRegistry.getAddress("L1CrossDomainMessengerProxy", chainId))
+                    .chainInfo
+                    .name,
                 chainName,
-                "L1CrossDomainMessengerProxy chain name not loaded"
+                "100"
             );
 
             assertEq(
-                addresses.getAddressInfo(addresses.getAddress("AddressManager", chainId)).identifier,
+                addrRegistry.getAddressInfo(addrRegistry.getAddress("AddressManager", chainId)).identifier,
                 "AddressManager",
-                "AddressManager identifier not loaded"
+                "110"
             );
             assertEq(
-                addresses.getAddressInfo(addresses.getAddress("AddressManager", chainId)).chainInfo.chainId,
+                addrRegistry.getAddressInfo(addrRegistry.getAddress("AddressManager", chainId)).chainInfo.chainId,
                 chainId,
-                "AddressManager chain id not loaded"
+                "120"
             );
             assertEq(
-                addresses.getAddressInfo(addresses.getAddress("AddressManager", chainId)).chainInfo.name,
+                addrRegistry.getAddressInfo(addrRegistry.getAddress("AddressManager", chainId)).chainInfo.name,
                 chainName,
-                "AddressManager chain name not loaded"
+                "130"
             );
 
             assertEq(
-                addresses.getAddressInfo(addresses.getAddress("OptimismPortalProxy", chainId)).identifier,
+                addrRegistry.getAddressInfo(addrRegistry.getAddress("OptimismPortalProxy", chainId)).identifier,
                 "OptimismPortalProxy",
-                "OptimismPortalProxy identifier not loaded"
+                "140"
             );
             assertEq(
-                addresses.getAddressInfo(addresses.getAddress("OptimismPortalProxy", chainId)).chainInfo.chainId,
+                addrRegistry.getAddressInfo(addrRegistry.getAddress("OptimismPortalProxy", chainId)).chainInfo.chainId,
                 chainId,
-                "OptimismPortalProxy chain id not loaded"
+                "150"
             );
             assertEq(
-                addresses.getAddressInfo(addresses.getAddress("OptimismPortalProxy", chainId)).chainInfo.name,
+                addrRegistry.getAddressInfo(addrRegistry.getAddress("OptimismPortalProxy", chainId)).chainInfo.name,
                 chainName,
-                "OptimismPortalProxy chain name not loaded"
+                "160"
             );
 
             // Note: Some older chains (pre-MCP-L1) do not have a SuperchainConfig.
             address superchainConfig = getOptionalAddress("SuperchainConfig", chainId);
             if (superchainConfig != address(0)) {
-                assertNotEq(superchainConfig, address(0), "SuperchainConfig not loaded");
+                assertNotEq(superchainConfig, address(0), "170");
             }
 
-            assertNotEq(addresses.getAddress("SystemConfigProxy", chainId), address(0), "SystemConfigProxy not loaded");
+            assertNotEq(addrRegistry.getAddress("SystemConfigProxy", chainId), address(0), "180");
 
             // Note: This is not discoverable on older chains. In these cases, it's read from the superchain registry.
-            assertNotEq(
-                addresses.getAddress("L1ERC721BridgeProxy", chainId), address(0), "L1ERC721BridgeProxy not loaded"
-            );
+            assertNotEq(addrRegistry.getAddress("L1ERC721BridgeProxy", chainId), address(0), "190");
 
             // Note: This is not discoverable on older chains. In these cases, it's read from the superchain registry.
-            assertNotEq(
-                addresses.getAddress("OptimismMintableERC20FactoryProxy", chainId),
-                address(0),
-                "OptimismMintableERC20FactoryProxy not loaded"
-            );
+            assertNotEq(addrRegistry.getAddress("OptimismMintableERC20FactoryProxy", chainId), address(0), "200");
 
             // Note: Some older chains do not have a dispute game factory.
             // TODO: Remove when we have a dispute game factory on all chains.
             address disputeGameFactoryProxy = getOptionalAddress("DisputeGameFactoryProxy", chainId);
             if (disputeGameFactoryProxy != address(0)) {
-                assertNotEq(disputeGameFactoryProxy, address(0), "DisputeGameFactoryProxy not loaded");
+                assertNotEq(disputeGameFactoryProxy, address(0), "210");
                 bool hasFaultGame = getOptionalAddress("FaultDisputeGame", chainId) != address(0);
                 bool hasPermissionedGame = getOptionalAddress("PermissionedDisputeGame", chainId) != address(0);
-                assertTrue(
-                    hasFaultGame || hasPermissionedGame, "Neither FaultDisputeGame nor PermissionedDisputeGame loaded"
-                );
+                assertTrue(hasFaultGame || hasPermissionedGame, "220");
                 if (hasPermissionedGame) {
-                    assertNotEq(addresses.getAddress("Challenger", chainId), address(0), "Challenger not loaded");
+                    assertNotEq(addrRegistry.getAddress("Challenger", chainId), address(0), "230");
                 }
-                assertNotEq(
-                    addresses.getAddress("AnchorStateRegistryProxy", chainId),
-                    address(0),
-                    "AnchorStateRegistryProxy not loaded"
-                );
-                assertNotEq(addresses.getAddress("MIPS", chainId), address(0), "MIPS not loaded");
-                assertNotEq(addresses.getAddress("PreimageOracle", chainId), address(0), "PreimageOracle not loaded");
+                assertNotEq(addrRegistry.getAddress("AnchorStateRegistryProxy", chainId), address(0), "240");
+                assertNotEq(addrRegistry.getAddress("MIPS", chainId), address(0), "250");
+                assertNotEq(addrRegistry.getAddress("PreimageOracle", chainId), address(0), "260");
             } else {
-                assertNotEq(
-                    addresses.getAddress("L2OutputOracleProxy", chainId), address(0), "L2OutputOracleProxy not loaded"
-                );
+                assertNotEq(addrRegistry.getAddress("L2OutputOracleProxy", chainId), address(0), "270");
             }
 
-            assertNotEq(addresses.getAddress("Guardian", chainId), address(0), "Guardian not loaded");
-            assertNotEq(addresses.getAddress("Proposer", chainId), address(0), "Proposer not loaded");
-            assertNotEq(addresses.getAddress("BatchSubmitter", chainId), address(0), "BatchSubmitter not loaded");
-            assertNotEq(addresses.getAddress("ProxyAdmin", chainId), address(0), "ProxyAdmin not loaded");
-            assertNotEq(addresses.getAddress("ProxyAdminOwner", chainId), address(0), "ProxyAdminOwner not loaded");
-            assertNotEq(addresses.getAddress("SystemConfigOwner", chainId), address(0), "SystemConfigOwner not loaded");
-            assertNotEq(addresses.getAddress("UnsafeBlockSigner", chainId), address(0), "UnsafeBlockSigner not loaded");
-            assertNotEq(
-                addresses.getAddress("FoundationUpgradeSafe", chainId), address(0), "FoundationUpgradeSafe not loaded"
-            );
-            assertNotEq(
-                addresses.getAddress("FoundationOperationSafe", chainId),
-                address(0),
-                "FoundationOperationSafe not loaded"
-            );
-            assertNotEq(addresses.getAddress("SecurityCouncil", chainId), address(0), "SecurityCouncil not loaded");
-            assertNotEq(addresses.getAddress("ChainGovernorSafe", chainId), address(0), "ChainGovernorSafe not loaded");
+            assertNotEq(addrRegistry.getAddress("Guardian", chainId), address(0), "280");
+            assertNotEq(addrRegistry.getAddress("Proposer", chainId), address(0), "290");
+            assertNotEq(addrRegistry.getAddress("BatchSubmitter", chainId), address(0), "300");
+            assertNotEq(addrRegistry.getAddress("ProxyAdmin", chainId), address(0), "310");
+            assertNotEq(addrRegistry.getAddress("ProxyAdminOwner", chainId), address(0), "320");
+            assertNotEq(addrRegistry.getAddress("SystemConfigOwner", chainId), address(0), "330");
+            assertNotEq(addrRegistry.getAddress("UnsafeBlockSigner", chainId), address(0), "340");
 
-            assertEq(
-                addresses.getAddress("FoundationUpgradeSafe", chainId),
-                0x847B5c174615B1B7fDF770882256e2D3E95b9D92,
-                "FoundationUpgradeSafe not properly loaded"
-            );
-            assertEq(
-                addresses.getAddress("FoundationOperationSafe", chainId),
-                0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A,
-                "FoundationOperationSafe not properly loaded"
-            );
-            assertEq(
-                addresses.getAddress("SecurityCouncil", chainId),
-                0xc2819DC788505Aac350142A7A707BF9D03E3Bd03,
-                "SecurityCouncil not properly loaded"
-            );
-            assertEq(
-                addresses.getAddress("ChainGovernorSafe", chainId),
-                0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC,
-                "ChainGovernorSafe not properly loaded"
-            );
+            // Define expected superchain auth addresses for mainnet and testnet.
+            address fus = block.chainid == 1
+                ? 0x847B5c174615B1B7fDF770882256e2D3E95b9D92
+                : 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B;
+            address fos = block.chainid == 1
+                ? 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A
+                : 0x837DE453AD5F21E89771e3c06239d8236c0EFd5E;
+            address sc = block.chainid == 1
+                ? 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03
+                : 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977;
+
+            assertEq(addrRegistry.getAddress("FoundationUpgradeSafe", chainId), fus, "350");
+            assertEq(addrRegistry.getAddress("FoundationOperationSafe", chainId), fos, "360");
+            assertEq(addrRegistry.getAddress("SecurityCouncil", chainId), sc, "370");
+            // Sepolia does not define a ChainGovernorSafe in addresses.toml, so we skip in that case.
+            if (block.chainid != 11155111) {
+                assertEq(
+                    addrRegistry.getAddress("ChainGovernorSafe", chainId),
+                    0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC,
+                    "380"
+                );
+            }
         }
     }
 
     function testInvalidL2ChainIdGetAddressFails() public {
         vm.expectRevert("L2 Chain ID 999 not supported");
-        addresses.getAddress("DEPLOYER_EOA", 999);
+        addrRegistry.getAddress("DEPLOYER_EOA", 999);
     }
 
     function testGetNonExistentAddressFails() public {
         vm.expectRevert("Address not found");
-        addresses.getAddress("NON_EXISTENT_ADDRESS", opMainnetChainId);
+        addrRegistry.getAddress("NON_EXISTENT_ADDRESS", opChainId);
     }
 
     function testGetNonExistentAddressInfoFails() public {
         vm.expectRevert("Address Info not found");
-        addresses.getAddressInfo(address(0x1234567890123456789012345678901234567890));
-    }
-
-    function testInvalidL2ChainIdIsAddressContractFails() public {
-        vm.expectRevert("L2 Chain ID 999 not supported");
-        addresses.isAddressContract("DEPLOYER_EOA", 999);
-    }
-
-    function testGetIsAddressContractNonExistentAddressFails() public {
-        vm.expectRevert("Address not found for identifier NON_EXISTENT_ADDRESS on chain 34443");
-        addresses.isAddressContract("NON_EXISTENT_ADDRESS", modeChainId);
+        addrRegistry.getAddressInfo(address(0x1234567890123456789012345678901234567890));
     }
 
     /// Construction failure tests
@@ -237,10 +207,25 @@ contract MainnetAddressRegistryTest is Test {
 
     /// Helper function to get optional addresses without reverting.
     function getOptionalAddress(string memory identifier, uint256 chainId) internal view returns (address) {
-        try addresses.getAddress(identifier, chainId) returns (address addr) {
+        require(gasleft() > 500_000, "insufficient gas for getAddress() call"); // Ensure try/catch is EIP-150 safe.
+        try addrRegistry.getAddress(identifier, chainId) returns (address addr) {
             return addr;
         } catch {
             return address(0);
         }
+    }
+}
+
+contract AddressRegistryTest_Mainnet is AddressRegistryTest_Base {
+    function config() internal pure override returns (string memory configFilePath_, string memory chainName_) {
+        configFilePath_ = "test/tasks/mock/configs/DiscoverChainAddressesConfig.toml";
+        chainName_ = "mainnet";
+    }
+}
+
+contract AddressRegistryTest_Sepolia is AddressRegistryTest_Base {
+    function config() internal pure override returns (string memory configFilePath_, string memory chainName_) {
+        configFilePath_ = "test/tasks/mock/configs/DiscoverChainAddressesTestnetConfig.toml";
+        chainName_ = "sepolia";
     }
 }

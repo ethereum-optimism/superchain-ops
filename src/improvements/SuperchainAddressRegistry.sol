@@ -244,53 +244,17 @@ contract SuperchainAddressRegistry is StdChains {
     }
 
     /// @notice Retrieves the identifier and chain info for a given address.
-    /// @param addr The address to retrieve info for.
-    /// @return The identifier and chain info for the given address.
     function getAddressInfo(address addr) public view returns (AddressInfo memory) {
         require(bytes(addressInfo[addr].identifier).length != 0, "Address Info not found");
         return addressInfo[addr];
     }
 
-    /// @notice Checks if an address is a contract for a given identifier and L2 chain
-    /// @param identifier The unique identifier associated with the address
-    /// @param l2ChainId The chain ID of the L2 network
-    /// @return True if the address is a contract, false otherwise
-    function isAddressContract(string memory identifier, uint256 l2ChainId) public view returns (bool) {
-        _l2ChainIdSupported(l2ChainId);
-        _checkAddressRegistered(identifier, l2ChainId);
-
-        return registry[identifier][l2ChainId].isContract;
-    }
-
-    /// @notice Checks if an address exists for a specified identifier and L2 chain
-    /// @param identifier The unique identifier associated with the address
-    /// @param l2ChainId The chain ID of the L2 network
-    /// @return True if the address exists, false otherwise
-    function isAddressRegistered(string memory identifier, uint256 l2ChainId) public view returns (bool) {
-        return registry[identifier][l2ChainId].addr != address(0);
-    }
-
-    /// @notice Verifies that an address is registered for a given identifier and chain
-    /// @dev Reverts if the address is not registered
-    /// @param identifier The unique identifier associated with the address
-    /// @param l2ChainId The chain ID of the L2 network
-    function _checkAddressRegistered(string memory identifier, uint256 l2ChainId) private view {
-        require(
-            isAddressRegistered(identifier, l2ChainId),
-            string(
-                abi.encodePacked("Address not found for identifier ", identifier, " on chain ", vm.toString(l2ChainId))
-            )
-        );
-    }
-
     /// @notice Returns the list of supported chains
-    /// @return An array of ChainInfo structs representing the supported chains
     function getChains() public view returns (ChainInfo[] memory) {
         return chains;
     }
 
     /// @notice Verifies that the given L2 chain ID is supported
-    /// @param l2ChainId The chain ID of the L2 network to verify
     function _l2ChainIdSupported(uint256 l2ChainId) private view {
         require(
             supportedL2ChainIds[l2ChainId],
@@ -298,17 +262,9 @@ contract SuperchainAddressRegistry is StdChains {
         );
     }
 
-    /// @notice Validates whether an address matches its expected type (contract or EOA)
-    /// @dev Reverts if the address type does not match the expected type
-    /// @param addr The address to validate
-    /// @param isContract True if the address should be a contract, false if it should be an EOA
-    function _typeCheckAddress(address addr, bool isContract) private view {
-        if (isContract) {
-            require(addr.code.length > 0, "Address must contain code");
-        } else {
-            require(addr.code.length == 0, "Address must not contain code");
-        }
-    }
+    // ========================================================
+    // ======== Superchain address discovery functions ========
+    // ========================================================
 
     /// @dev Saves all dispute game related registry entries.
     function _saveDisputeGameEntries(ChainInfo memory chain, address disputeGameFactoryProxy) internal {
