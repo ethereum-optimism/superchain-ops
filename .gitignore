@@ -27,3 +27,6 @@ draft*signer*.json
 ready-*
 
 broadcast/*
+
+# ignore specstory files
+.specstory/
