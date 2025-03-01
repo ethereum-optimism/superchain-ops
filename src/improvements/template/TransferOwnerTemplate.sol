@@ -3,6 +3,7 @@ pragma solidity 0.8.15;
 
 import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
 import {VmSafe} from "forge-std/Vm.sol";
+import {stdToml} from "forge-std/StdToml.sol";
 
 import {L2TaskBase} from "src/improvements/tasks/MultisigTask.sol";
 import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
@@ -10,6 +11,8 @@ import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 /// @title TransferOwnerTemplate
 /// @notice Template contract for transferring ownership of the proxy admin
 contract TransferOwnerTemplate is L2TaskBase {
+    using stdToml for string;
+
     /// @notice new owner address
     address public newOwner;
 
@@ -30,8 +33,10 @@ contract TransferOwnerTemplate is L2TaskBase {
     /// @notice Sets up the template with the new owner from a TOML file
     /// @param taskConfigFilePath Path to the TOML configuration file
     function _templateSetup(string memory taskConfigFilePath) internal override {
-        newOwner = abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".newOwner"), (address));
-        // only allow one chain to be modified at a time with this template
+        string memory toml = vm.readFile(taskConfigFilePath);
+        newOwner = toml.readAddress(".newOwner");
+        // only allow one chain to be modified at a time with this 
+        // we can't use stdToml here because it doesn't support decoding structs
         AddressRegistry.ChainInfo[] memory _chains =
             abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".l2chains"), (AddressRegistry.ChainInfo[]));
         require(_chains.length == 1, "Must specify exactly one chain id to transfer ownership for");
