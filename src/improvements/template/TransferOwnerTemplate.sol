@@ -35,6 +35,7 @@ contract TransferOwnerTemplate is L2TaskBase {
     function _templateSetup(string memory taskConfigFilePath) internal override {
         string memory toml = vm.readFile(taskConfigFilePath);
         newOwner = toml.readAddress(".newOwner");
+        
         // only allow one chain to be modified at a time with this 
         AddressRegistry.ChainInfo[] memory _chains = addrRegistry.readChainsFromToml(taskConfigFilePath, ".l2chains");
         require(_chains.length == 1, "Must specify exactly one chain id to transfer ownership for");
