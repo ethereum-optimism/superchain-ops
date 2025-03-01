@@ -40,7 +40,7 @@ interface IFetcher {
 /// @notice This contract provides a single source of truth for storing and retrieving addresses
 /// across multiple networks. It handles addresses for contracts and externally owned accounts
 /// (EOAs) while ensuring correctness and uniqueness.
-contract AddressRegistry is StdChains {
+contract SuperchainAddressRegistry is StdChains {
     using EnumerableSet for EnumerableSet.UintSet;
 
     address private constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));

@@ -11,8 +11,10 @@ import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
+import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
+
+type AddressRegistry is address;
 
 abstract contract MultisigTask is Test, Script {
     using EnumerableSet for EnumerableSet.AddressSet;
@@ -276,7 +278,7 @@ abstract contract MultisigTask is Test, Script {
         nonce = IGnosisSafe(parentMultisig).nonce(); // TODO change this once we implement task stacking
         startingOwners = IGnosisSafe(parentMultisig).getOwners();
 
-        vm.label(address(addrRegistry), "AddrRegistry");
+        vm.label(AddressRegistry.unwrap(addrRegistry), "AddrRegistry");
         vm.label(address(this), "MultisigTask");
     }
 
@@ -874,8 +876,9 @@ abstract contract MultisigTask is Test, Script {
 
     /// @dev Returns true if the given account access should be recorded as an action.
     function _isValidAction(VmSafe.AccountAccess memory access, uint256 topLevelDepth) internal view returns (bool) {
-        bool accountNotRegistryOrVm = (access.account != address(addrRegistry) && access.account != address(vm));
-        bool accessorNotRegistry = access.accessor != address(addrRegistry);
+        bool accountNotRegistryOrVm =
+            (access.account != AddressRegistry.unwrap(addrRegistry) && access.account != address(vm));
+        bool accessorNotRegistry = access.accessor != AddressRegistry.unwrap(addrRegistry);
         bool isCall = access.kind == VmSafe.AccountAccessKind.Call;
         bool isTopLevelDelegateCall =
             (access.kind == VmSafe.AccountAccessKind.DelegateCall && access.depth == topLevelDepth);
@@ -1048,6 +1051,8 @@ abstract contract MultisigTask is Test, Script {
 abstract contract L2TaskBase is MultisigTask {
     using EnumerableSet for EnumerableSet.AddressSet;
 
+    SuperchainAddressRegistry public superchainAddrRegistry;
+
     function _configureTask(string memory taskConfigFilePath)
         internal
         virtual
@@ -1055,20 +1060,23 @@ abstract contract L2TaskBase is MultisigTask {
         returns (AddressRegistry addrRegistry_, IGnosisSafe parentMultisig_, address multicallTarget_)
     {
         multicallTarget_ = MULTICALL3_ADDRESS;
-        addrRegistry_ = new AddressRegistry(taskConfigFilePath);
 
-        AddressRegistry.ChainInfo[] memory chains = addrRegistry_.getChains();
-        parentMultisig_ = IGnosisSafe(addrRegistry_.getAddress(config.safeAddressString, chains[0].chainId));
+        superchainAddrRegistry = new SuperchainAddressRegistry(taskConfigFilePath);
+        addrRegistry_ = AddressRegistry.wrap(address(superchainAddrRegistry));
+
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        parentMultisig_ = IGnosisSafe(superchainAddrRegistry.getAddress(config.safeAddressString, chains[0].chainId));
 
         // Ensure that all chains have the same parentMultisig.
         for (uint256 i = 1; i < chains.length; i++) {
             require(
-                address(parentMultisig_) == addrRegistry_.getAddress(config.safeAddressString, chains[i].chainId),
+                address(parentMultisig_)
+                    == superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId),
                 string.concat(
                     "MultisigTask: safe address mismatch. Caller: ",
                     getAddressLabel(address(parentMultisig_)),
                     ". Actual address: ",
-                    getAddressLabel(addrRegistry_.getAddress(config.safeAddressString, chains[i].chainId))
+                    getAddressLabel(superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId))
                 )
             );
         }
@@ -1081,7 +1089,7 @@ abstract contract L2TaskBase is MultisigTask {
         for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
             for (uint256 j = 0; j < chains.length; j++) {
                 _allowedStorageAccesses.add(
-                    addrRegistry_.getAddress(config.allowedStorageWriteAccesses[i], chains[j].chainId)
+                    superchainAddrRegistry.getAddress(config.allowedStorageWriteAccesses[i], chains[j].chainId)
                 );
             }
         }

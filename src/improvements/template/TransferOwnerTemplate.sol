@@ -5,7 +5,7 @@ import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 
 import {L2TaskBase} from "src/improvements/tasks/MultisigTask.sol";
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
+import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 
 /// @title TransferOwnerTemplate
 /// @notice Template contract for transferring ownership of the proxy admin
@@ -32,20 +32,21 @@ contract TransferOwnerTemplate is L2TaskBase {
     function _templateSetup(string memory taskConfigFilePath) internal override {
         newOwner = abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".newOwner"), (address));
         // only allow one chain to be modified at a time with this template
-        AddressRegistry.ChainInfo[] memory _chains =
-            abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".l2chains"), (AddressRegistry.ChainInfo[]));
+        SuperchainAddressRegistry.ChainInfo[] memory _chains = abi.decode(
+            vm.parseToml(vm.readFile(taskConfigFilePath), ".l2chains"), (SuperchainAddressRegistry.ChainInfo[])
+        );
         require(_chains.length == 1, "Must specify exactly one chain id to transfer ownership for");
     }
 
     /// @notice Builds the actions for transferring ownership of the proxy admin
     function _build() internal override {
-        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
 
             // View only, filtered out by MultisigTask.sol
-            ProxyAdmin proxyAdmin = ProxyAdmin(addrRegistry.getAddress("ProxyAdmin", chainId));
+            ProxyAdmin proxyAdmin = ProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chainId));
 
             // Mutative call, recorded by MultisigTask.sol for generating multisig calldata
             proxyAdmin.transferOwnership(newOwner);
@@ -54,10 +55,10 @@ contract TransferOwnerTemplate is L2TaskBase {
 
     /// @notice Validates that the owner was transferred correctly.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
-        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {
-            ProxyAdmin proxyAdmin = ProxyAdmin(addrRegistry.getAddress("ProxyAdmin", chains[i].chainId));
+            ProxyAdmin proxyAdmin = ProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chains[i].chainId));
             assertEq(proxyAdmin.owner(), newOwner, "new owner not set correctly");
         }
     }

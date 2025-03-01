@@ -2,10 +2,10 @@
 pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
+import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 
 contract TestnetAddressRegistryTest is Test {
-    AddressRegistry private addresses;
+    SuperchainAddressRegistry private addresses;
 
     uint256 public opSepoliaChainId;
     uint256 public metalSepoliaChainId;
@@ -15,7 +15,7 @@ contract TestnetAddressRegistryTest is Test {
 
         vm.createSelectFork("sepolia");
 
-        addresses = new AddressRegistry(networkConfigFilePath);
+        addresses = new SuperchainAddressRegistry(networkConfigFilePath);
         opSepoliaChainId = getChain("optimism_sepolia").chainId;
         metalSepoliaChainId = getChain("metal_sepolia").chainId;
     }
@@ -25,7 +25,7 @@ contract TestnetAddressRegistryTest is Test {
     }
 
     function testSuperchainAddressesLoaded() public view {
-        AddressRegistry.ChainInfo[] memory chains = addresses.getChains();
+        SuperchainAddressRegistry.ChainInfo[] memory chains = addresses.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
             string memory chainName = chains[i].name;
@@ -217,7 +217,7 @@ contract TestnetAddressRegistryTest is Test {
         string memory networkConfigFilePath = "test/registry/mock/invalidChainIdNetworkConfig.toml";
 
         vm.expectRevert("Invalid chain ID in config");
-        new AddressRegistry(networkConfigFilePath);
+        new SuperchainAddressRegistry(networkConfigFilePath);
     }
 
     /// Helper function to get optional addresses without reverting.
