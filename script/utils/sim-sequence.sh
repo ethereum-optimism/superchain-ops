@@ -33,6 +33,7 @@ UOS_BEFORE=$MAX_NONCE_ERROR
 
 IS_3_OF_3=0
 ANVIL_LOCALHOST_RPC="http://localhost:8545"
+IS_SEPOLIA=FALSE
 ## LOG utilies
 log_debug() {
     echo "[-] $(date '+%Y-%m-%d %H:%M:%S') [DEBUG] $1" | tee -a "$LOGFILE"
@@ -163,70 +164,104 @@ createFork() {
 
 NonceDisplayModified(){
   echo -e "\n$1"
-  if [[ $FUS_BEFORE -eq $MAX_NONCE_ERROR || $FOS_BEFORE -eq $MAX_NONCE_ERROR || $SC_BEFORE -eq $MAX_NONCE_ERROR ]]; then
-    log_error "Nonce values are not available for one or more safes please investigate."
-    exit 99
-  fi
-
-  if [[ $IS_3_OF_3 -eq 1 ]]; then
-    IS_3_OF_3=0 #Reset the 3_OF_3 flag
-    Chain_Governor_Safe="" # Reset the Chain_Governor_Safe
-  fi
-  FUS_AFTER=$(cast call $Foundation_Upgrade_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
-  FOS_AFTER=$(cast call $Foundation_Operation_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
-  SC_AFTER=$(cast call $Security_Council_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
-  L1PAO_AFTER=$(cast call $Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
-  BL1PAO_AFTER=$(cast call $Base_Proxy_Admin_Owner_safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
-  BOS_AFTER=$(cast call $Base_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
-  U3_AFTER=$(cast call $Unichain_3of3_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
-  UOS_AFTER=$(cast call $Unichain_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
-
-  if [[ $FUS_BEFORE -ne $FUS_AFTER ]]; then
-    echo -e "\033[0;32mFoundation Upgrade Safe (FuS) [$Foundation_Upgrade_Safe] nonce: "$FUS_AFTER" ("$FUS_BEFORE" -> "$FUS_AFTER").\033[0m"
-  else
-    echo "Foundation Upgrade Safe (FuS) [$Foundation_Upgrade_Safe] nonce: "$(cast call $Foundation_Upgrade_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
-  fi
-
-
-  if [[ $FOS_BEFORE -ne $FOS_AFTER ]]; then
-    echo -e "\033[0;32mFoundation Operation Safe (FoS) [$Foundation_Operation_Safe] nonce: "$FOS_AFTER" ("$FOS_BEFORE" -> "$FOS_AFTER").\033[0m"
-  else
-    echo "Foundation Operation Safe (FoS) [$Foundation_Operation_Safe] nonce: "$(cast call $Foundation_Operation_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
-  fi
-  if [[ $SC_BEFORE -ne $SC_AFTER ]]; then
-    echo -e "\033[0;32mSecurity Council Safe (SC) [$Security_Council_Safe] nonce: "$SC_AFTER" ("$SC_BEFORE" -> "$SC_AFTER").\033[0m"
-  else
-    echo "Security Council Safe (SC) [$Security_Council_Safe] nonce: "$(cast call $Security_Council_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
-  fi
-  if [[ $L1PAO_BEFORE -ne $L1PAO_AFTER ]]; then
-    echo -e "\033[0;32mL1ProxyAdminOwner (L1PAO) [$Proxy_Admin_Owner_Safe] nonce: "$L1PAO_AFTER" ("$L1PAO_BEFORE" -> "$L1PAO_AFTER").\033[0m"
-  else
-    echo "L1ProxyAdminOwner (L1PAO) [$Proxy_Admin_Owner_Safe] nonce: "$(cast call $Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
-  fi
-  if [[ $BOS_BEFORE -ne $BOS_AFTER ]]; then
-    echo -e "\033[0;32mBase Owner (BOS) [$Base_Owner_Safe] nonce: "$BOS_AFTER" ("$BOS_BEFORE" -> "$BOS_AFTER").\033[0m"
-  else 
-    echo "Base Owner (BOS) [$Base_Owner_Safe] nonce: "$(cast call $Base_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
-  fi
-  if [[ $BL1PAO_BEFORE -ne $BL1PAO_AFTER ]]; then
-    echo -e "\033[0;32mBase Proxy Admin Owner (BL1PAO) [$Base_Proxy_Admin_Owner_safe] nonce: "$BL1PAO_AFTER" ("$BL1PAO_BEFORE" -> "$BL1PAO_AFTER").\033[0m"
-  else 
-    echo "Base Proxy Admin Owner (BL1PAO) [$Base_Proxy_Admin_Owner_safe] nonce: "$(cast call $Base_Proxy_Admin_Owner_safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
-  fi
-  if [[ $U3_BEFORE -ne $U3_AFTER ]]; then
-    echo -e "\033[0;32mUnichain 3of3 (U3) [$Unichain_3of3_Safe] nonce: "$U3_AFTER" ("$U3_BEFORE" -> "$U3_AFTER").\033[0m"
-  else 
-    echo "Unichain 3of3 (U3) [$Unichain_3of3_Safe] nonce: "$(cast call $Unichain_3of3_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
-  fi
-  if [[ $UOS_BEFORE -ne $UOS_AFTER ]]; then
-    echo -e "\033[0;32mUnichain Owner (UOS) [$Unichain_Owner_Safe] nonce: "$UOS_AFTER" ("$UOS_BEFORE" -> "$UOS_AFTER").\033[0m"
-  else 
-    echo "Unichain Owner (UOS) [$Unichain_Owner_Safe] nonce: "$(cast call $Unichain_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
-  fi
-
   
-  
+  if [[ "$IS_SEPOLIA" == "TRUE" ]]; then
+    # Only get and display Sepolia safes
+    if [[ $FUS_BEFORE -eq $MAX_NONCE_ERROR || $FOS_BEFORE -eq $MAX_NONCE_ERROR || $SC_BEFORE -eq $MAX_NONCE_ERROR || $L1PAO_BEFORE -eq $MAX_NONCE_ERROR ]]; then
+      log_error "Nonce values are not available for one or more Sepolia safes please investigate."
+      exit 99
+    fi
 
+    FUS_AFTER=$(cast call $Fake_Foundation_Upgrade_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    FOS_AFTER=$(cast call $Fake_Foundation_Operation_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    SC_AFTER=$(cast call $Fake_Security_Council_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    L1PAO_AFTER=$(cast call $Fake_Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    
+    if [[ $FUS_BEFORE -ne $FUS_AFTER ]]; then
+      echo -e "\033[0;32mFake Foundation Upgrade Safe (FuS) [$Fake_Foundation_Upgrade_Safe] nonce: "$FUS_AFTER" ("$FUS_BEFORE" -> "$FUS_AFTER").\033[0m"
+    else
+      echo "Fake Foundation Upgrade Safe (FuS) [$Fake_Foundation_Upgrade_Safe] nonce: "$(cast call $Fake_Foundation_Upgrade_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
+    fi
+
+    if [[ $FOS_BEFORE -ne $FOS_AFTER ]]; then
+      echo -e "\033[0;32mFake Foundation Operation Safe (FoS) [$Fake_Foundation_Operation_Safe] nonce: "$FOS_AFTER" ("$FOS_BEFORE" -> "$FOS_AFTER").\033[0m"
+    else
+      echo "Fake Foundation Operation Safe (FoS) [$Fake_Foundation_Operation_Safe] nonce: "$(cast call $Fake_Foundation_Operation_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
+    fi
+
+    if [[ $SC_BEFORE -ne $SC_AFTER ]]; then
+      echo -e "\033[0;32mFake Security Council Safe (SC) [$Fake_Security_Council_Safe] nonce: "$SC_AFTER" ("$SC_BEFORE" -> "$SC_AFTER").\033[0m"
+    else
+      echo "Fake Security Council Safe (SC) [$Fake_Security_Council_Safe] nonce: "$(cast call $Fake_Security_Council_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
+    fi
+
+    if [[ $L1PAO_BEFORE -ne $L1PAO_AFTER ]]; then
+      echo -e "\033[0;32mFake L1ProxyAdminOwner (L1PAO) [$Fake_Proxy_Admin_Owner_Safe] nonce: "$L1PAO_AFTER" ("$L1PAO_BEFORE" -> "$L1PAO_AFTER").\033[0m"
+    else
+      echo "Fake L1ProxyAdminOwner (L1PAO) [$Fake_Proxy_Admin_Owner_Safe] nonce: "$(cast call $Fake_Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
+    fi
+  else
+    # Handle mainnet safes (existing code)
+    if [[ $FUS_BEFORE -eq $MAX_NONCE_ERROR || $FOS_BEFORE -eq $MAX_NONCE_ERROR || $SC_BEFORE -eq $MAX_NONCE_ERROR ]]; then
+      log_error "Nonce values are not available for one or more safes please investigate."
+      exit 99
+    fi
+
+    if [[ $IS_3_OF_3 -eq 1 ]]; then
+      IS_3_OF_3=0 #Reset the 3_OF_3 flag
+      Chain_Governor_Safe="" # Reset the Chain_Governor_Safe
+    fi
+    FUS_AFTER=$(cast call $Foundation_Upgrade_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    FOS_AFTER=$(cast call $Foundation_Operation_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    SC_AFTER=$(cast call $Security_Council_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    L1PAO_AFTER=$(cast call $Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    BL1PAO_AFTER=$(cast call $Base_Proxy_Admin_Owner_safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    BOS_AFTER=$(cast call $Base_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    U3_AFTER=$(cast call $Unichain_3of3_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    UOS_AFTER=$(cast call $Unichain_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+
+    if [[ $FUS_BEFORE -ne $FUS_AFTER ]]; then
+      echo -e "\033[0;32mFoundation Upgrade Safe (FuS) [$Foundation_Upgrade_Safe] nonce: "$FUS_AFTER" ("$FUS_BEFORE" -> "$FUS_AFTER").\033[0m"
+    else
+      echo "Foundation Upgrade Safe (FuS) [$Foundation_Upgrade_Safe] nonce: "$(cast call $Foundation_Upgrade_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
+    fi
+
+    if [[ $FOS_BEFORE -ne $FOS_AFTER ]]; then
+      echo -e "\033[0;32mFoundation Operation Safe (FoS) [$Foundation_Operation_Safe] nonce: "$FOS_AFTER" ("$FOS_BEFORE" -> "$FOS_AFTER").\033[0m"
+    else
+      echo "Foundation Operation Safe (FoS) [$Foundation_Operation_Safe] nonce: "$(cast call $Foundation_Operation_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
+    fi
+    if [[ $SC_BEFORE -ne $SC_AFTER ]]; then
+      echo -e "\033[0;32mSecurity Council Safe (SC) [$Security_Council_Safe] nonce: "$SC_AFTER" ("$SC_BEFORE" -> "$SC_AFTER").\033[0m"
+    else
+      echo "Security Council Safe (SC) [$Security_Council_Safe] nonce: "$(cast call $Security_Council_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
+    fi
+    if [[ $L1PAO_BEFORE -ne $L1PAO_AFTER ]]; then
+      echo -e "\033[0;32mL1ProxyAdminOwner (L1PAO) [$Proxy_Admin_Owner_Safe] nonce: "$L1PAO_AFTER" ("$L1PAO_BEFORE" -> "$L1PAO_AFTER").\033[0m"
+    else
+      echo "L1ProxyAdminOwner (L1PAO) [$Proxy_Admin_Owner_Safe] nonce: "$(cast call $Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
+    fi
+    if [[ $BOS_BEFORE -ne $BOS_AFTER ]]; then
+      echo -e "\033[0;32mBase Owner (BOS) [$Base_Owner_Safe] nonce: "$BOS_AFTER" ("$BOS_BEFORE" -> "$BOS_AFTER").\033[0m"
+    else 
+      echo "Base Owner (BOS) [$Base_Owner_Safe] nonce: "$(cast call $Base_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
+    fi
+    if [[ $BL1PAO_BEFORE -ne $BL1PAO_AFTER ]]; then
+      echo -e "\033[0;32mBase Proxy Admin Owner (BL1PAO) [$Base_Proxy_Admin_Owner_safe] nonce: "$BL1PAO_AFTER" ("$BL1PAO_BEFORE" -> "$BL1PAO_AFTER").\033[0m"
+    else 
+      echo "Base Proxy Admin Owner (BL1PAO) [$Base_Proxy_Admin_Owner_safe] nonce: "$(cast call $Base_Proxy_Admin_Owner_safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
+    fi
+    if [[ $U3_BEFORE -ne $U3_AFTER ]]; then
+      echo -e "\033[0;32mUnichain 3of3 (U3) [$Unichain_3of3_Safe] nonce: "$U3_AFTER" ("$U3_BEFORE" -> "$U3_AFTER").\033[0m"
+    else 
+      echo "Unichain 3of3 (U3) [$Unichain_3of3_Safe] nonce: "$(cast call $Unichain_3of3_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
+    fi
+    if [[ $UOS_BEFORE -ne $UOS_AFTER ]]; then
+      echo -e "\033[0;32mUnichain Owner (UOS) [$Unichain_Owner_Safe] nonce: "$UOS_AFTER" ("$UOS_BEFORE" -> "$UOS_AFTER").\033[0m"
+    else 
+      echo "Unichain Owner (UOS) [$Unichain_Owner_Safe] nonce: "$(cast call $Unichain_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
+    fi
+  fi
 }
 
 
@@ -235,25 +270,39 @@ NonceDisplayModified(){
 # $1: Message to display before showing nonce values
 BeforeNonceDisplay(){
   echo -e "\n$1"
-  # Get the nonce values for the safes.cccccbnrdvcdvblunuhggnrvhclnrbnckvttklvtfcrt
   
-  FUS_BEFORE=$(cast call $Foundation_Upgrade_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
-  FOS_BEFORE=$(cast call $Foundation_Operation_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
-  SC_BEFORE=$(cast call $Security_Council_Safe  "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
-  L1PAO_BEFORE=$(cast call $Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
-  BL1PAO_BEFORE=$(cast call $Base_Proxy_Admin_Owner_safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
-  BOS_BEFORE=$(cast call $Base_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
-  U3_BEFORE=$(cast call $Unichain_3of3_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
-  UOS_BEFORE=$(cast call $Unichain_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
-  
-  echo "Foundation Upgrade Safe (FuS) [$Foundation_Upgrade_Safe] nonce: "$FUS_BEFORE"."
-  echo "Foundation Operation Safe (FoS) [$Foundation_Operation_Safe] nonce: "$FOS_BEFORE"."
-  echo "Security Council Safe (SC) [$Security_Council_Safe] nonce: "$SC_BEFORE"."
-  echo "L1ProxyAdminOwner (L1PAO) [$Proxy_Admin_Owner_Safe] nonce: "$L1PAO_BEFORE"."
-  echo "Base Proxy Admin Owner (BL1PAO) [$Base_Proxy_Admin_Owner_safe] nonce: "$BL1PAO_BEFORE"."
-  echo "Base Owner (BOS) [$Base_Owner_Safe] nonce: "$BOS_BEFORE"."
-  echo "Unichain 3of3 (U3) [$Unichain_3of3_Safe] nonce: "$U3_BEFORE"."
-  echo "Unichain Owner (UOS) [$Unichain_Owner_Safe] nonce: "$UOS_BEFORE"."
+  if [[ "$IS_SEPOLIA" == "TRUE" ]]; then
+    # Only get and display Sepolia safes
+  # Only get and display Sepolia safes
+    FUS_BEFORE=$(cast call $Fake_Foundation_Upgrade_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    FOS_BEFORE=$(cast call $Fake_Foundation_Operation_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    SC_BEFORE=$(cast call $Fake_Security_Council_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    L1PAO_BEFORE=$(cast call $Fake_Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    
+    echo "Fake Foundation Upgrade Safe (FuS) [$Fake_Foundation_Upgrade_Safe] nonce: "$FUS_BEFORE"."
+    echo "Fake Foundation Operation Safe (FoS) [$Fake_Foundation_Operation_Safe] nonce: "$FOS_BEFORE"."
+    echo "Fake Security Council Safe (SC) [$Fake_Security_Council_Safe] nonce: "$SC_BEFORE"."
+    echo "Fake L1ProxyAdminOwner (L1PAO) [$Fake_Proxy_Admin_Owner_Safe] nonce: "$L1PAO_BEFORE"."
+  else
+    # Get and display all mainnet safes
+    FUS_BEFORE=$(cast call $Foundation_Upgrade_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    FOS_BEFORE=$(cast call $Foundation_Operation_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    SC_BEFORE=$(cast call $Security_Council_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    L1PAO_BEFORE=$(cast call $Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    BL1PAO_BEFORE=$(cast call $Base_Proxy_Admin_Owner_safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    BOS_BEFORE=$(cast call $Base_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    U3_BEFORE=$(cast call $Unichain_3of3_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    UOS_BEFORE=$(cast call $Unichain_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    
+    echo "Foundation Upgrade Safe (FuS) [$Foundation_Upgrade_Safe] nonce: "$FUS_BEFORE"."
+    echo "Foundation Operation Safe (FoS) [$Foundation_Operation_Safe] nonce: "$FOS_BEFORE"."
+    echo "Security Council Safe (SC) [$Security_Council_Safe] nonce: "$SC_BEFORE"."
+    echo "L1ProxyAdminOwner (L1PAO) [$Proxy_Admin_Owner_Safe] nonce: "$L1PAO_BEFORE"."
+    echo "Base Proxy Admin Owner (BL1PAO) [$Base_Proxy_Admin_Owner_safe] nonce: "$BL1PAO_BEFORE"."
+    echo "Base Owner (BOS) [$Base_Owner_Safe] nonce: "$BOS_BEFORE"."
+    echo "Unichain 3of3 (U3) [$Unichain_3of3_Safe] nonce: "$U3_BEFORE"."
+    echo "Unichain Owner (UOS) [$Unichain_Owner_Safe] nonce: "$UOS_BEFORE"."
+  fi
 }
 
 
@@ -338,10 +387,7 @@ if [[ -z "$task_ids" || "$task_ids" == '""' || "$task_ids" == "''" ]]; then
 fi
 
 if [[ "$network" == "sep" ]]; then
-  Security_Council_Safe=$Fake_Security_Council_Safe
-  Foundation_Upgrade_Safe=$Fake_Foundation_Upgrade_Safe
-  Foundation_Operation_Safe=$Fake_Foundation_Operation_Safe
-  Proxy_Admin_Owner_Safe=$Fake_Proxy_Admin_Owner_Safe
+  IS_SEPOLIA=TRUE
 fi
 
 log_info "Simulating tasks for network: $network"
