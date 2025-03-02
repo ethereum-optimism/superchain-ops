@@ -5,7 +5,7 @@ import {Test} from "forge-std/Test.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 
-abstract contract AddressRegistryTest_Base is Test {
+abstract contract SuperchainAddressRegistryTest_Base is Test {
     using LibString for string;
 
     SuperchainAddressRegistry private addrRegistry;
@@ -216,14 +216,14 @@ abstract contract AddressRegistryTest_Base is Test {
     }
 }
 
-contract AddressRegistryTest_Mainnet is AddressRegistryTest_Base {
+contract SuperchainAddressRegistryTest_Mainnet is SuperchainAddressRegistryTest_Base {
     function config() internal pure override returns (string memory configFilePath_, string memory chainName_) {
         configFilePath_ = "test/tasks/mock/configs/DiscoverChainAddressesConfig.toml";
         chainName_ = "mainnet";
     }
 }
 
-contract AddressRegistryTest_Sepolia is AddressRegistryTest_Base {
+contract SuperchainAddressRegistryTest_Sepolia is SuperchainAddressRegistryTest_Base {
     function config() internal pure override returns (string memory configFilePath_, string memory chainName_) {
         configFilePath_ = "test/tasks/mock/configs/DiscoverChainAddressesTestnetConfig.toml";
         chainName_ = "sepolia";
