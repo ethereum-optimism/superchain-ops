@@ -153,8 +153,7 @@ contract NestedSignFromJson is OriginalSignFromJson {
         string memory errPrefix = string.concat("weth", gameStr, "-");
 
         console.log(string.concat("check IDelayedWETH implementation for GameType ", gameStr));
-        // TODO: Fix DelayedWeth owners which are currently misconfigured
-        // require(weth.owner() == proxyAdminOwnerSafe, string.concat(errPrefix, "100"));
+        require(weth.owner() == proxyAdminOwnerSafe, string.concat(errPrefix, "100"));
         require(weth.delay() == wethDelay, string.concat(errPrefix, "200"));
     }
     
