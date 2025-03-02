@@ -203,7 +203,7 @@ contract SingleMultisigTaskTest is Test {
     function testRevertIfUnsupportedChain() public {
         vm.chainId(10);
         MultisigTask localMultisigTask = new GasConfigTemplate();
-        vm.expectRevert("AddressRegistry: Unsupported task chain ID 10");
+        vm.expectRevert("SuperchainAddressRegistry: Unsupported task chain ID 10");
         localMultisigTask.simulateRun(taskConfigFilePath);
     }
 

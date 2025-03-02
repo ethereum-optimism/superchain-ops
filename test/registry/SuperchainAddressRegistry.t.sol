@@ -32,11 +32,11 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
     function config() internal pure virtual returns (string memory configFilePath_, string memory chainName_);
 
     function testContractState() public view {
-        assertTrue(addrRegistry.supportedL2ChainIds(metalChainId), "Metal chain ID not supported");
-        assertTrue(addrRegistry.supportedL2ChainIds(baseChainId), "Base chain ID not supported");
-        assertTrue(addrRegistry.supportedL2ChainIds(opChainId), "OP chain ID not supported");
-        assertTrue(addrRegistry.supportedL2ChainIds(zoraChainId), "Zora chain ID not supported");
-        assertTrue(addrRegistry.supportedL2ChainIds(modeChainId), "Mode chain ID not supported");
+        assertTrue(addrRegistry.seenL2ChainIds(metalChainId), "Metal chain ID not supported");
+        assertTrue(addrRegistry.seenL2ChainIds(baseChainId), "Base chain ID not supported");
+        assertTrue(addrRegistry.seenL2ChainIds(opChainId), "OP chain ID not supported");
+        assertTrue(addrRegistry.seenL2ChainIds(zoraChainId), "Zora chain ID not supported");
+        assertTrue(addrRegistry.seenL2ChainIds(modeChainId), "Mode chain ID not supported");
     }
 
     function testSuperchainAddressesLoaded() public view {
@@ -183,29 +183,35 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
     }
 
     function testInvalidL2ChainIdGetAddressFails() public {
-        vm.expectRevert("L2 Chain ID 999 not supported");
+        string memory err = string.concat("SuperchainAddressRegistry: Address not found for DEPLOYER_EOA on chain 999");
+        vm.expectRevert(bytes(err));
         addrRegistry.getAddress("DEPLOYER_EOA", 999);
     }
 
     function testGetNonExistentAddressFails() public {
-        vm.expectRevert("Address not found");
+        string memory err = string.concat(
+            "SuperchainAddressRegistry: Address not found for NON_EXISTENT_ADDRESS on chain ", vm.toString(opChainId)
+        );
+        vm.expectRevert(bytes(err));
         addrRegistry.getAddress("NON_EXISTENT_ADDRESS", opChainId);
     }
 
     function testGetNonExistentAddressInfoFails() public {
-        vm.expectRevert("Address Info not found");
+        string memory err = string.concat(
+            "SuperchainAddressRegistry: Address Info not found for 0x1234567890123456789012345678901234567890"
+        );
+        vm.expectRevert(bytes(err));
         addrRegistry.getAddressInfo(address(0x1234567890123456789012345678901234567890));
     }
 
-    /// Construction failure tests
-    function testInvalidChainIdInSuperchainsFails() public {
+    function testInvalidChainIdInSuperchainsFailsInConstruction() public {
         string memory networkConfigFilePath = "test/registry/mock/invalidChainIdNetworkConfig.toml";
 
-        vm.expectRevert("Invalid chain ID in config");
+        vm.expectRevert("SuperchainAddressRegistry: Invalid chain ID in config");
         new SuperchainAddressRegistry(networkConfigFilePath);
     }
 
-    /// Helper function to get optional addresses without reverting.
+    // Helper function to get optional addresses without reverting.
     function getOptionalAddress(string memory identifier, uint256 chainId) internal view returns (address) {
         require(gasleft() > 500_000, "insufficient gas for getAddress() call"); // Ensure try/catch is EIP-150 safe.
         try addrRegistry.getAddress(identifier, chainId) returns (address addr) {
