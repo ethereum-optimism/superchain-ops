@@ -28,11 +28,23 @@ simulate_task() {
             echo "Error: this task requires a nested safe name e.g. foundation, council, chain-governor."
             exit 1
         fi
-        SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile "$nested_just_file" simulate "$nested_safe_name"
+        SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile "$nested_just_file" simulate "$nested_safe_name" | tee ./simulation_output.txt
     else
         echo "Simulating single task: $task"
-        SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile "$single_just_file" simulate
+        SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile "$single_just_file" simulate | tee ./simulation_output.txt
     fi
+
+    # Extract Tenderly payload from output and save it
+    awk '/------------------ Tenderly Simulation Payload ------------------/{flag=1;next}/------------------ End of Payload ------------------/{flag=0}flag' ./simulation_output.txt > ./tenderly_payload.json
+    
+    # Check if payload was extracted successfully
+    if [ -s ./tenderly_payload.json ]; then
+        echo "Tenderly simulation payload saved to: ./tenderly_payload.json"
+        rm ./simulation_output.txt
+    else
+        echo "Simulation output saved to: ./simulation_output.txt"
+    fi
+
     echo "Done simulating task: $task"
     popd > /dev/null
 }
