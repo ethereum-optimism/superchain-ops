@@ -4,7 +4,7 @@ pragma solidity 0.8.15;
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {Script} from "forge-std/Script.sol";
 
-import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
+import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 
 /// This script gathers all tasks for a given network and performs a simulation run for each task.
