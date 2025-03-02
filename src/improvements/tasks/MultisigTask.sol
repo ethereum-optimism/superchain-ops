@@ -685,7 +685,7 @@ abstract contract MultisigTask is Test, Script {
         // Add each storage override
         for (uint j = 0; j < stateOverrides[0].overrides.length; j++) {
             string memory comma = j < stateOverrides[0].overrides.length - 1 ? "," : "";
-            console.log("\"0x%s\":\"0x%s\"%s",
+            console.log("\"%s\":\"%s\"%s",
                 vm.toString(bytes32(stateOverrides[0].overrides[j].key)),
                 vm.toString(stateOverrides[0].overrides[j].value),
                 comma
