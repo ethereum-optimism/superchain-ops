@@ -4,16 +4,19 @@ pragma solidity 0.8.15;
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {Test} from "forge-std/Test.sol";
+import {stdStorage, StdStorage} from "forge-std/StdStorage.sol";
 
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 import {MockTarget} from "test/tasks/mock/MockTarget.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
+import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {MockMultisigTask} from "test/tasks/mock/MockMultisigTask.sol";
 
 contract MultisigTaskUnitTest is Test {
-    AddressRegistry public addrRegistry;
+    using stdStorage for StdStorage;
+
+    SuperchainAddressRegistry public addrRegistry;
     MultisigTask public task;
 
     string constant MAINNET_CONFIG = "./test/tasks/mock/configs/OPMainnetGasConfigTemplate.toml";
@@ -47,15 +50,15 @@ contract MultisigTaskUnitTest is Test {
     function setUp() public {
         vm.createSelectFork("mainnet");
 
-        // Instantiate the AddressRegistry contract
-        addrRegistry = new AddressRegistry(MAINNET_CONFIG);
+        // Instantiate the SuperchainAddressRegistry contract
+        addrRegistry = new SuperchainAddressRegistry(MAINNET_CONFIG);
 
         // Instantiate the Mock MultisigTask contract
         task = MultisigTask(new MockMultisigTask());
     }
 
     function testRunFailsNoNetworks() public {
-        vm.expectRevert("AddressRegistry: no chains found");
+        vm.expectRevert("SuperchainAddressRegistry: no chains found");
         task.simulateRun("./test/tasks/mock/configs/InvalidNetworkConfig.toml");
     }
 
@@ -151,24 +154,25 @@ contract MultisigTaskUnitTest is Test {
 
     function testBuildFailsRevertPreviousSnapshotFails() public {
         address multisig = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
-        // set multisig variable in MultisigTask to the actual multisig address
+        // Set parentMultisig variable in MultisigTask to the actual multisig address
         // so that the simulate function does not revert and can run and create
-        // calldata by calling the multisig functions
-        vm.store(address(task), MULTISIG_SLOT, bytes32(uint256(uint160(multisig))));
+        // calldata by calling the multisig functions.
+        stdstore.target(address(task)).sig("parentMultisig()").checked_write(multisig);
 
-        // set AddressRegistry in MultisigTask contract to a deployed addrRegistry
-        // contract so that these calls work
-        vm.store(address(task), ADDRESS_REGISTRY_SLOT, bytes32(uint256(uint160(address(addrRegistry)))));
+        // Set AddressRegistry in MultisigTask contract to a deployed addrRegistry contract
+        // so that these calls work. These two getters are the same value, just different types.
+        stdstore.target(address(task)).sig("addrRegistry()").checked_write(address(addrRegistry));
+        stdstore.target(address(task)).sig("superchainAddrRegistry()").checked_write(address(addrRegistry));
 
         MockTarget target = new MockTarget();
         target.setTask(address(task));
 
-        // set mock target contract in the task contract as there is no setter method,
+        // Set mock target contract in the task contract as there is no setter method,
         // and we need to set the target contract to a deployed contract so that the
         // build function will make this call, which will make the MultisigTask contract
         // try to revert to a previous snapshot that does not exist. It does this by
-        // calling vm.store(task, _startSnapshot SLOT, some large number that isn't a valid snapshot id)
-        vm.store(address(task), MOCK_TARGET_SLOT, bytes32(uint256(uint160(address(target)))));
+        // calling vm.store(task, _startSnapshot SLOT, some large number that isn't a valid snapshot id).
+        stdstore.target(address(task)).sig("mockTarget()").checked_write(address(target));
 
         vm.expectRevert("MultisigTask: failed to revert back to snapshot, unsafe state to run task");
         task.build();

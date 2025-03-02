@@ -5,7 +5,7 @@ import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 
 import {L2TaskBase} from "src/improvements/tasks/MultisigTask.sol";
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
+import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 
 /// @title GasConfigTemplate
 /// @notice Template contract for configuring gas limits
@@ -49,11 +49,11 @@ contract GasConfigTemplate is L2TaskBase {
 
     /// @notice Builds the actions for setting gas limits.
     function _build() internal override {
-        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-            SystemConfig systemConfig = SystemConfig(addrRegistry.getAddress("SystemConfigProxy", chainId));
+            SystemConfig systemConfig = SystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId));
             if (gasLimits[chainId] != 0) {
                 // Mutative call, recorded by MultisigTask.sol for generating multisig calldata
                 systemConfig.setGasLimit(gasLimits[chainId]);
@@ -63,10 +63,10 @@ contract GasConfigTemplate is L2TaskBase {
 
     /// @notice Validates that gas limits were set correctly for the specified chain ID
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
-        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-            SystemConfig systemConfig = SystemConfig(addrRegistry.getAddress("SystemConfigProxy", chainId));
+            SystemConfig systemConfig = SystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId));
             if (gasLimits[chainId] != 0) {
                 assertEq(systemConfig.gasLimit(), gasLimits[chainId], "l2 gas limit not set");
             }

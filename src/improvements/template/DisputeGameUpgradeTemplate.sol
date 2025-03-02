@@ -7,7 +7,7 @@ import {VmSafe} from "forge-std/Vm.sol";
 import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 
 import {L2TaskBase} from "src/improvements/tasks/MultisigTask.sol";
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
+import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 
 /// @title DisputeGameUpgradeTemplate
 /// @notice Template contract for upgrading dispute game implementations
@@ -53,12 +53,12 @@ contract DisputeGameUpgradeTemplate is L2TaskBase {
 
     /// @notice Builds the actions for setting dispute game implementations for a specific L2 chain ID
     function _build() internal override {
-        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
             IDisputeGameFactory disputeGameFactory =
-                IDisputeGameFactory(addrRegistry.getAddress("DisputeGameFactoryProxy", chainId));
+                IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId));
 
             if (setImplementations[chainId].l2ChainId != 0) {
                 disputeGameFactory.setImplementation(
@@ -70,11 +70,12 @@ contract DisputeGameUpgradeTemplate is L2TaskBase {
 
     /// @notice Validates that implementations were set correctly.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
-        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-            IDisputeGameFactory dgf = IDisputeGameFactory(addrRegistry.getAddress("DisputeGameFactoryProxy", chainId));
+            IDisputeGameFactory dgf =
+                IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId));
 
             if (setImplementations[chainId].l2ChainId != 0) {
                 assertEq(

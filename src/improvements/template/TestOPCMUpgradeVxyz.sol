@@ -4,7 +4,7 @@ pragma solidity 0.8.15;
 import {VmSafe} from "forge-std/Vm.sol";
 
 import {OPCMBaseTask} from "../tasks/OPCMBaseTask.sol";
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
+import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 
 /// @notice This is an example of implementing OPCMBaseTask to perform an upgrade via the OPCM contract.
 /// @dev OPCM upgrade tasks always target a specific l1 contract release version and therfore OPCM contract.
@@ -55,13 +55,13 @@ contract TestOPCMUpgradeVxyz is OPCMBaseTask {
 
     /// @notice Build the task action for all l2chains in the task in a single call to the OPCM.upgrade() function.
     function _build() internal override {
-        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         OpChainConfig[] memory opcmConfigs = new OpChainConfig[](chains.length);
 
         for (uint256 i = 0; i < chains.length; i++) {
             opcmConfigs[i] = OpChainConfig({
-                systemConfigProxy: addrRegistry.getAddress("SystemConfigProxy", chains[i].chainId),
-                proxyAdmin: addrRegistry.getAddress("ProxyAdmin", chains[i].chainId),
+                systemConfigProxy: superchainAddrRegistry.getAddress("SystemConfigProxy", chains[i].chainId),
+                proxyAdmin: superchainAddrRegistry.getAddress("ProxyAdmin", chains[i].chainId),
                 absolutePrestate: opcmUpgrades[chains[i].chainId]
             });
         }
