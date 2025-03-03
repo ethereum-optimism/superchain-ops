@@ -265,13 +265,6 @@ jobs:
               --justfile ../../../nested.just \
               simulate council
 
-  just_simulate_ink_sep_holocene_system_config_upgrade:
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - simulate_nested:
-          task: "/sep/ink-002-holocene-system-config-upgrade"
-
   just_simulate_op_sep_prestate_update:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
