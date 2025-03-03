@@ -138,7 +138,6 @@ DisplaySafeBeforeNonces() {
     if [[ "$addr_upper" == $(echo "$Unichain_3of3_Safe" | tr '[:lower:]' '[:upper:]') ]]; then
       U3_BEFORE=$(cast call $Unichain_3of3_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
       U3_NONCE_ENV=$current_nonce
-      echo "$addr_upper == $(echo "$Unichain_3of3_Safe" | tr '[:lower:]' '[:upper:]')"
       if [[ $U3_BEFORE -ne $U3_NONCE_ENV ]]; then
         log_warning "Unichain 3of3 Safe (U3) [$Unichain_3of3_Safe] on-chain nonce: $U3_BEFORE, env nonce: $U3_NONCE_ENV: $U3_BEFORE != $U3_NONCE_ENV"
       else
