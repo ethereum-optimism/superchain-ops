@@ -587,8 +587,8 @@ abstract contract MultisigTask is Test, Script {
         }
 
         if (isSimulate) {
-            console.log("\n\n------------------ Tenderly Simulation Link ------------------");
-            printTenderlySimulationLink(actions);
+            console.log("\n\n------------------ Tenderly Simulation Payload ------------------");
+            printTenderlySimulationPayload(actions);
         }
     }
 
@@ -656,31 +656,27 @@ abstract contract MultisigTask is Test, Script {
         }
     }
 
-    /// @notice print the tenderly simulation link with the state overrides
-    function printTenderlySimulationLink(Action[] memory actions) internal view {
+    /// @notice print the tenderly simulation payload with the state overrides
+    function printTenderlySimulationPayload(Action[] memory actions) internal view {
         Simulation.StateOverride[] memory stateOverrides = new Simulation.StateOverride[](1);
         stateOverrides[0] =
             Simulation.overrideSafeThresholdOwnerAndNonce(parentMultisig, msg.sender, _getNonce(parentMultisig));
         bytes memory txData = _execTransationCalldata(
             parentMultisig, getMulticall3Calldata(actions), Signatures.genPrevalidatedSignature(msg.sender)
         );
-        Simulation.logSimulationLink({_to: parentMultisig, _data: txData, _from: msg.sender, _overrides: stateOverrides});
-
-        // Log the simulation payload
-        console.log("\n\n------------------ Tenderly Simulation Payload ------------------");
         
         // Log the Tenderly JSON payload
-        string memory part1 = string.concat(
-            "{\"network_id\":\"", vm.toString(block.chainid),
-            "\",\"from\":\"", vm.toString(msg.sender),
-            "\",\"to\":\"", vm.toString(parentMultisig), "\""
+        string memory payload = string.concat(
+            '{\"network_id\":\"', vm.toString(block.chainid),'\",',
+            '\"from\":\"', vm.toString(msg.sender),'\",',
+            '\"to\":\"', vm.toString(parentMultisig), '\",',
+            '\"save\":true,',
+            '\"input\":\"', vm.toString(txData),'\",',
+            '\"value\":\"0x0\",',
+            '\"state_objects\":{\"',
+            vm.toString(parentMultisig), '\":{\"storage\":{'
         );
-        string memory part2 = string.concat(
-            ",\"input\":\"", vm.toString(txData),
-            "\",\"value\":\"0x0\",\"state_objects\":{\"",
-            vm.toString(parentMultisig), "\":{\"storage\":{"
-        );
-        console.log("%s%s", part1, part2);
+        console.log("%s", payload);
         
         // Add each storage override
         for (uint j = 0; j < stateOverrides[0].overrides.length; j++) {

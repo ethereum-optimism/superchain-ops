@@ -39,12 +39,21 @@ simulate_task() {
     
     # Check if payload was extracted successfully
     if [ -s ./tenderly_payload.json ]; then
+        echo ""
+        echo ""
         echo "Tenderly simulation payload saved to: ./tenderly_payload.json"
         rm ./simulation_output.txt
+        
+        # Simulate the task with Tenderly and extract the domain and message hashes
+        "$root_dir"/src/improvements/script/get-tenderly-trace.sh ./tenderly_payload.json
+        rm ./tenderly_payload.json
     else
         echo "Simulation output saved to: ./simulation_output.txt"
     fi
 
+    
+    echo ""
+    echo ""
     echo "Done simulating task: $task"
     popd > /dev/null
 }
