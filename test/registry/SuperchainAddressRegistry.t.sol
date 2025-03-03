@@ -5,6 +5,8 @@ import {Test} from "forge-std/Test.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 
+import {SimpleAddressRegistryTest} from "./SimpleAddressRegistry.t.sol";
+
 abstract contract SuperchainAddressRegistryTest_Base is Test {
     using LibString for string;
 
@@ -183,14 +185,14 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
     }
 
     function testInvalidL2ChainIdGetAddressFails() public {
-        string memory err = string.concat("SuperchainAddressRegistry: Address not found for DEPLOYER_EOA on chain 999");
+        string memory err = string.concat("SuperchainAddressRegistry: address not found for DEPLOYER_EOA on chain 999");
         vm.expectRevert(bytes(err));
         addrRegistry.getAddress("DEPLOYER_EOA", 999);
     }
 
     function testGetNonExistentAddressFails() public {
         string memory err = string.concat(
-            "SuperchainAddressRegistry: Address not found for NON_EXISTENT_ADDRESS on chain ", vm.toString(opChainId)
+            "SuperchainAddressRegistry: address not found for NON_EXISTENT_ADDRESS on chain ", vm.toString(opChainId)
         );
         vm.expectRevert(bytes(err));
         addrRegistry.getAddress("NON_EXISTENT_ADDRESS", opChainId);
@@ -198,7 +200,7 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
 
     function testGetNonExistentAddressInfoFails() public {
         string memory err = string.concat(
-            "SuperchainAddressRegistry: Address Info not found for 0x1234567890123456789012345678901234567890"
+            "SuperchainAddressRegistry: AddressInfo not found for 0x1234567890123456789012345678901234567890"
         );
         vm.expectRevert(bytes(err));
         addrRegistry.getAddressInfo(address(0x1234567890123456789012345678901234567890));
@@ -233,5 +235,18 @@ contract SuperchainAddressRegistryTest_Sepolia is SuperchainAddressRegistryTest_
     function config() internal pure override returns (string memory configFilePath_, string memory chainName_) {
         configFilePath_ = "test/tasks/mock/configs/DiscoverChainAddressesTestnetConfig.toml";
         chainName_ = "sepolia";
+    }
+}
+
+// We test the addresses key-value store by extending the SimpleAddressRegistryTest.
+contract SuperchainAddressRegistryTest_Addresses is SimpleAddressRegistryTest {
+    function setUp() public override {
+        vm.createSelectFork("mainnet");
+        registryName = "SuperchainAddressRegistry";
+        idReturnKind = "AddressInfo";
+    }
+
+    function _deployRegistry(string memory configFile) internal override returns (address) {
+        return address(new SuperchainAddressRegistry(_getPath(configFile)));
     }
 }
