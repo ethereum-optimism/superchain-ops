@@ -45,7 +45,7 @@ simulate_task() {
         rm ./simulation_output.txt
         
         # Simulate the task with Tenderly and extract the domain and message hashes
-        "$root_dir"/src/improvements/script/get-tenderly-trace.sh ./tenderly_payload.json
+        "$root_dir"/src/improvements/script/get-tenderly-hashes.sh ./tenderly_payload.json
         rm ./tenderly_payload.json
     else
         echo "Simulation output saved to: ./simulation_output.txt"
