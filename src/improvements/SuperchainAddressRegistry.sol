@@ -57,6 +57,11 @@ contract SuperchainAddressRegistry is StdChains {
         ChainInfo chainInfo;
     }
 
+    /// @notice Sentinel chain for generic task addresses.
+    /// Chain ID is: 18359133240529938341515463404940784280234256774636175192927404318365594808696
+    ChainInfo public sentinelChain =
+        ChainInfo({chainId: uint256(keccak256("SuperchainAddressRegistry")), name: "SuperchainAddressRegistry"});
+
     /// @notice Maps a contract identifier to an L2 chain ID to an address.
     mapping(string => mapping(uint256 => address)) private registry;
 
@@ -78,13 +83,8 @@ contract SuperchainAddressRegistry is StdChains {
             string.concat("SuperchainAddressRegistry: Unsupported task chain ID ", vm.toString(block.chainid))
         );
 
-        bytes memory chainListContent;
-        require(gasleft() > 500_000, "insufficient gas for readFile() call"); // EIP-150 safe.
-        try vm.parseToml(vm.readFile(configPath), ".l2chains") returns (bytes memory parsedChainListContent) {
-            chainListContent = parsedChainListContent;
-        } catch {
-            revert(string.concat("SuperchainAddressRegistry: Failed to parse network config file path ", configPath));
-        }
+        string memory toml = vm.readFile(configPath);
+        bytes memory chainListContent = toml.parseRaw(".l2chains");
 
         // Read in the list of OP chains from the config file.
         // Cannot assign the abi.decode result to `chains` directly because it's a storage array, so
@@ -114,6 +114,16 @@ contract SuperchainAddressRegistry is StdChains {
 
             _loadHardcodedAddresses(chainKey, chains[i]);
         }
+
+        // Lastly, we read in addresses from the `[addresses]` section of the config file.
+        if (!toml.keyExists(".addresses")) return; // If the addresses section is missing, do nothing.
+
+        string[] memory _identifiers = vm.parseTomlKeys(toml, ".addresses");
+        for (uint256 i = 0; i < _identifiers.length; i++) {
+            string memory key = _identifiers[i];
+            address who = toml.readAddress(string.concat(".addresses.", key));
+            saveAddress(key, sentinelChain, who);
+        }
     }
 
     /// @notice Reads in hardcoded addresses from the addresses.toml file.
@@ -137,8 +147,19 @@ contract SuperchainAddressRegistry is StdChains {
     }
 
     function saveAddress(string memory identifier, ChainInfo memory chain, address addr) internal {
-        require(addr != address(0), "Address cannot be zero");
-        require(registry[identifier][chain.chainId] == address(0), "Address already registered");
+        require(addr != address(0), string.concat("SuperchainAddressRegistry: zero address for ", identifier));
+        require(bytes(identifier).length > 0, "SuperchainAddressRegistry: empty key");
+        require(
+            registry[identifier][chain.chainId] == address(0),
+            string.concat(
+                "SuperchainAddressRegistry: duplicate key ", identifier, "for chain ", vm.toString(chain.chainId)
+            )
+        );
+        // TODO We should be able to have this check, but currently tests revert if uncommented.
+        // require(
+        //     bytes(addressInfo[addr].identifier).length == 0,
+        //     string.concat("SuperchainAddressRegistry: address already registered for ", vm.toString(addr))
+        // );
 
         registry[identifier][chain.chainId] = addr;
         addressInfo[addr] = AddressInfo(identifier, chain);
@@ -151,23 +172,36 @@ contract SuperchainAddressRegistry is StdChains {
     }
 
     /// @notice Retrieves an address by its identifier for a specified L2 chain
+    /// This is deprecated in favor of the `get` function.
     function getAddress(string memory identifier, uint256 l2ChainId) public view returns (address who_) {
         who_ = registry[identifier][l2ChainId];
         require(
             who_ != address(0),
             string.concat(
-                "SuperchainAddressRegistry: Address not found for ", identifier, " on chain ", vm.toString(l2ChainId)
+                "SuperchainAddressRegistry: address not found for ", identifier, " on chain ", vm.toString(l2ChainId)
             )
         );
     }
 
+    /// @notice Retrieves an address by its identifier for the sentinel chain, i.e. the
+    /// `[addresses]` section of the config file.
+    function get(string memory _identifier) public view returns (address who_) {
+        return getAddress(_identifier, sentinelChain.chainId);
+    }
+
     /// @notice Retrieves the identifier and chain info for a given address.
+    /// This is deprecated in favor of the `get` function.
     function getAddressInfo(address addr) public view returns (AddressInfo memory) {
         require(
             bytes(addressInfo[addr].identifier).length != 0,
-            string.concat("SuperchainAddressRegistry: Address Info not found for ", vm.toString(addr))
+            string.concat("SuperchainAddressRegistry: AddressInfo not found for ", vm.toString(addr))
         );
         return addressInfo[addr];
+    }
+
+    /// @notice Retrieves the identifier and chain info for a given address.
+    function get(address _who) public view returns (AddressInfo memory) {
+        return getAddressInfo(_who);
     }
 
     /// @notice Returns the list of supported chains
