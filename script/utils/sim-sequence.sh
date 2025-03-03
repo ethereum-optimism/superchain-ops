@@ -31,8 +31,21 @@ U3_BEFORE=$MAX_NONCE_ERROR
 # Unichain Owner Safe nonce.
 UOS_BEFORE=$MAX_NONCE_ERROR
 
-# Function that take an uppercase addresss and returns the nonce + name of the safe.
-GetSafeNonceAndReturnName() {
+
+# DisplaySafeBeforeNonces checks and displays the nonces of all Safe contracts
+# by comparing their on-chain nonces with the nonces specified in the environment file.
+# For each Safe contract, it:
+# 1. Fetches the on-chain nonce using cast call
+# 2. Compares it with the nonce from the env file (if present)
+# 3. Logs a warning if there's a mismatch
+# 4. For Safes not found in the env file, displays their current on-chain nonce
+#
+# Parameters:
+#   $1 - Message to display before nonce checks
+#   $2 - Path to environment file containing SAFE_NONCE entries
+#
+# The function handles both mainnet and Sepolia network Safes based on IS_SEPOLIA flag
+DisplaySafeBeforeNonces() {
 
   echo -e "\n$1"
   local env_file=$2
@@ -143,7 +156,9 @@ GetSafeNonceAndReturnName() {
         log_info "Unichain Owner Safe (UOS) [$Unichain_Owner_Safe] on-chain nonce: $UOS_BEFORE, env nonce: $UOS_NONCE_ENV: $UOS_BEFORE == $UOS_NONCE_ENV"
       fi
     fi
-      # Check for Fake Foundation Upgrade Safe (Sepolia)
+    # Sepolia
+    if [[ "$IS_SEPOLIA" == "TRUE" ]]; then
+        # Check for Fake Foundation Upgrade Safe (Sepolia)
     if [[ "$addr_upper" == $(echo "$Fake_Foundation_Upgrade_Safe" | tr '[:lower:]' '[:upper:]') ]]; then
       FUS_BEFORE=$(cast call $Fake_Foundation_Upgrade_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
       FUS_NONCE_ENV=$current_nonce
@@ -186,7 +201,7 @@ GetSafeNonceAndReturnName() {
         log_info "Fake L1 Proxy Admin Owner Safe (L1PAO) [$Fake_Proxy_Admin_Owner_Safe] on-chain nonce: $L1PAO_BEFORE, env nonce: $L1PAO_NONCE_ENV: $L1PAO_BEFORE == $L1PAO_NONCE_ENV"
       fi
     fi
-
+  fi
   done
   
   # Now display all safes that weren't found in the env file
@@ -803,7 +818,7 @@ for task_folder in "${task_folders[@]}"; do
   pushd "$task_folder" >/dev/null || error_exit "Failed to navigate to '$task_folder'."
   # add the RPC_URL to the .env file
   # echo "ETH_RPC_URL=ANVIL_LOCALHOST_RPC" >> "${PWD}/.env" # Replace with the anvil fork URL
-  GetSafeNonceAndReturnName "(🟧) Before Simulation Nonce Values (🟧)" "${task_folder}/.env"
+  DisplaySafeBeforeNonces "(🟧) Before Simulation Nonce Values (🟧)" "${task_folder}/.env"
   #DisplayNonceFromEnv "(🟧) Before Simulation Nonce Values (🟧)" "${task_folder}/.env"
   if [[ -f "${task_folder}/NestedSignFromJson.s.sol" ]]; then
     check_if_task_is_3_of_3 "${task_folder}/.env"
