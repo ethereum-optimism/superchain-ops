@@ -8,71 +8,6 @@ For each contract listed in the state diff, please verify that no contracts or s
 - All addresses (in section headers and storage values) match the provided name, using the Etherscan and Superchain Registry links provided. This validates the bytecode deployed at the addresses contains the correct logic.
 - All key values match the semantic meaning provided, which can be validated using the storage layout links provided.
 
-## Nested Safe State Overrides and Changes
-
-This task is executed by the nested 3/3 `ProxyAdminOwner` Safe with Unichain (`0x6d5B183F538ABB8572F5cD17109c617b994D5833`). 
-
-Refer to the [generic nested Safe execution validation document](../../../NESTED-VALIDATION.md) for the expected state overrides and changes - except for two active nonce overrides for the foundation and security council, which are described below.
-
-The `approvedHashes` mapping **key** of the `ProxyAdminOwner` that should change during the simulation is
-- Council simulation: `0x568b8aba0ab4ee2af4639a4fd31bba2c11adcebaec482afc2699d34c3b21f32b`
-- Foundation simulation: `0xb4a9e4ff89a9d93c76d7d832cbc444bc908574ac3e65bb031236999af8e42b74`
-- Chain Governor simulation: `0xf45c50f658f1c1156ebc02208b87c846b9f5c470124d1bd92ce765f4c696abb2`
-
-calculated as explained in the nested validation doc:
-```sh
-SAFE_HASH=0x41f0e95f184f6402520b1628e6d1f8fe9153d45d5d4b66a3b768145563f90027 # "Nested hash:"
-SAFE_ROLE=0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 # Council
-cast index bytes32 $SAFE_HASH $(cast index address $SAFE_ROLE 8)
-# 0x568b8aba0ab4ee2af4639a4fd31bba2c11adcebaec482afc2699d34c3b21f32b
-
-SAFE_ROLE=0x847B5c174615B1B7fDF770882256e2D3E95b9D92 # Foundation
-cast index bytes32 $SAFE_HASH $(cast index address $SAFE_ROLE 8)
-# 0xb4a9e4ff89a9d93c76d7d832cbc444bc908574ac3e65bb031236999af8e42b74
-
-SAFE_ROLE=0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC # Unichain
-cast index bytes32 $SAFE_HASH $(cast index address $SAFE_ROLE 8)
-# 0xf45c50f658f1c1156ebc02208b87c846b9f5c470124d1bd92ce765f4c696abb2
-```
-
-## Safe Nonce Overrides
-
-### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation `GnosisSafeProxy`)
-
-Only during Foundation simulation.
-
-We're overriding the nonce to increment the current value `12` by `1` to account for task `ink-001`.
-The simulation will also print out
-
-```
-Overriding nonce for safe 0x847B5c174615B1B7fDF770882256e2D3E95b9D92: 12 -> 13
-```
-And the state changes then show that this nonce is increased from 12 to 13 during the simulation.
-
-- **Key**: `0x0000000000000000000000000000000000000000000000000000000000000005`<br/>
-  **Value:** `0x000000000000000000000000000000000000000000000000000000000000000d` (`13`)<br/>
-  **Meaning:** The Foundation Safe nonce is bumped from 12 to 13.
-
-The other state overrides are explained in the generic nested Safe validation document referred to
-above.
-
-### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Security Council `GnosisSafeProxy`)
-
-Only during Security Council simulation.
-
-We're overriding the nonce to increment the current value `9` by `1` to account for task `ink-001`.
-The simulation will also print out
-```
-Overriding nonce for safe 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03: 9 -> 10
-```
-And the state changes then show that this nonce is increased from 9 to 10 during the simulation.
-
-- **Key**: `0x0000000000000000000000000000000000000000000000000000000000000005`<br/>
-  **Value:** `0x000000000000000000000000000000000000000000000000000000000000000a` (`10`)<br/>
-  **Meaning:** The Council Safe nonce is bumped from 9 to 10.
-
-The other state overrides are explained in the generic nested Safe validation document referred to
-above.
 
 ## State Changes
 
@@ -81,12 +16,8 @@ above.
 - **Key**: `0x0000000000000000000000000000000000000000000000000000000000000066`
   **Before**: `0x00000000000000000000000000000000000000000000000000000000000dbba0`
   **After**: `0x010000000000000000000000000000000000000000000000000dbba0000007d0`
-  **Meaning**: Updates the `SystemConfig` proxy implementation.
+  **Meaning**: Updates the scalar slot to reflect a scalar version of 1. This transaction bundles a change to the `blobBaseFeeScalar` from 0 to 900000. This is done to correct for the fact that Unichain did not set `blobBaseFeeScalar` in their previous deployment of the contracts.  The verification system expects the `blobBaseFeeScalar` to remain unchanged, however, we use an override flag to enable this change. 
 
-<<<<<<< HEAD
-=======
-
->>>>>>> bd379386d4b13dff634c3cfcd01d5f1968ae5005
 - **Key**: `0x0000000000000000000000000000000000000000000000000000000000000068`
   **Before**: `0x0000000000000000000000000000000000000000000000000000000001c9c380`
   **After**: `0x00000000000000000000000000000000000dbba0000007d00000000001c9c380`
@@ -103,9 +34,9 @@ above.
 
 The following nonce increments, and no others, must happen (key `0x05` on Safes):
 - All simulations: PAO 3/3 `0x6d5B183F538ABB8572F5cD17109c617b994D5833`: `1` -> `2`
-- `council` simulation: SC Safe `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`: `12` -> `13`
+- `council` simulation: SC Safe `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`: `18` -> `19`
   - and a nonce increment for the owner EOA or Safe chosen for simulation, e.g. `0x07dC0893cAfbF810e3E72505041f2865726Fd073` for default index 0.
-- `foundation` simulation: Fnd Safe `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`: `15` -> `16`
+- `foundation` simulation: Fnd Safe `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`: `16` -> `17`
   - and a nonce increment for the owner EOA or Safe chosen for simulation, e.g. `0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64` for default index 0.
-- `chain-governor` simulation: Uni Safe `0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC`: `6` -> `7`
+- `chain-governor` simulation: Uni Safe `0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC`: `7` -> `8`
   - and a nonce increment for the owner EOA or Safe chosen for simulation, e.g. `0xf89C1b6e5D65e97c69fbc792f1BcdcB56DcCde91` for default index 0.
