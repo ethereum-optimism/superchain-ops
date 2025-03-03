@@ -2,11 +2,12 @@
 pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
+import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
-import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
+import {L2TaskBase, MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
 
 /// @notice base task for making calls to the Optimism Contracts Manager
-abstract contract OPCMBaseTask is MultisigTask {
+abstract contract OPCMBaseTask is L2TaskBase {
     /// @notice Optimism Contracts Manager Multicall3DelegateCall contract reference
     address public constant MULTICALL3_DELEGATECALL_ADDRESS = 0x93dc480940585D9961bfcEab58124fFD3d60f76a;
 
@@ -98,21 +99,25 @@ abstract contract OPCMBaseTask is MultisigTask {
         vm.startPrank(parentMultisig, true);
     }
 
-    /// @notice set the multicall address
-    /// overrides MultisigTask to set the multicall address to the delegatecall multicall address
-    function _setMulticallAddress() internal override {
-        multicallTarget = MULTICALL3_DELEGATECALL_ADDRESS;
+    function _configureTask(string memory taskConfigFilePath)
+        internal
+        override
+        returns (AddressRegistry addrRegistry_, IGnosisSafe parentMultisig_, address multicallTarget_)
+    {
+        // The only thing we change is overriding the multicall target.
+        (addrRegistry_, parentMultisig_, multicallTarget_) = super._configureTask(taskConfigFilePath);
+        multicallTarget_ = MULTICALL3_DELEGATECALL_ADDRESS;
     }
 
-    // @notice this function must be overridden in the inheriting contract
-    function _validate(uint256, VmSafe.AccountAccess[] memory) internal view virtual override {
+    /// @notice this function must be overridden in the inheriting contract to run assertions on the state changes.
+    function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions)
+        internal
+        view
+        virtual
+        override
+    {
+        accountAccesses; // No-ops to silence unused variable compiler warnings.
+        actions;
         require(false, "You must implement the _validate function");
-    }
-
-    /// @notice overrides to do nothing per chain
-    /// all the chains are handled in a single call to OPCM contract
-    function _buildPerChain(uint256) internal pure override {
-        // We must override this function but OPCM template do not support per chain builds.
-        // We cannot revert here because this build function is called by the parent MultisigTask.
     }
 }

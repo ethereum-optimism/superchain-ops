@@ -11,8 +11,10 @@ import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
+import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
+
+type AddressRegistry is address;
 
 abstract contract MultisigTask is Test, Script {
     using EnumerableSet for EnumerableSet.AddressSet;
@@ -34,7 +36,7 @@ abstract contract MultisigTask is Test, Script {
 
     /// @notice struct to store allowed storage accesses read in from config file
     /// uses OpenZeppelin EnumerableSet for allowed storage accesses
-    EnumerableSet.AddressSet private _allowedStorageAccesses;
+    EnumerableSet.AddressSet internal _allowedStorageAccesses;
 
     /// @notice Struct to store information about an action
     /// @param target The address of the target contract
@@ -113,16 +115,52 @@ abstract contract MultisigTask is Test, Script {
     uint256 private _buildStarted;
 
     /// @notice The address of the multicall target for this task
-    /// @dev set in _setMulticallAddress
     address public multicallTarget;
 
-    /// @notice abstract function to be implemented by the inheriting contract
-    /// specifies the safe address string to run the template from
+    // ==================================================
+    // ======== Virtual, Unimplemented Functions ========
+    // ==================================================
+    // These are functions have no default implementation and MUST be implemented by the inheriting contract.
+
+    /// @notice Specifies the safe address string to run the template from. This string refers
+    /// to a named contract, where the name is read from an address registry contract.
     function safeAddressString() public pure virtual returns (string memory);
 
-    /// @notice abstract function to be implemented by the inheriting contract
-    /// specifies the addresses that must have their storage written to
+    /// @notice Returns an array of strings that refer to contract names in the address registry.
+    /// Contracts with these names are expected to have their storage written to during the task.
     function _taskStorageWrites() internal pure virtual returns (string[] memory);
+
+    /// @notice By default, any value written to storage that looks like an address is expected to
+    /// have code. Sometimes, accounts without code are expected, and this function allows you to
+    /// specify a list of those addresses.
+    function getCodeExceptions() internal view virtual returns (address[] memory);
+
+    /// @notice Different tasks have different inputs. A task template will create the appropriate
+    /// storage structures for storing and accessing these inputs. In this method, you read in the
+    /// task config file, parse the inputs from the TOML as needed, and save them off.
+    function _templateSetup(string memory taskConfigFilePath) internal virtual;
+
+    /// @notice This method is responsible for deploying the required address registry, defining
+    /// the parent multisig address, and setting the multicall target address.
+    /// This method may also set any allowed and expected storage accesses that are expected in all
+    /// use cases of the template.
+    function _configureTask(string memory configPath)
+        internal
+        virtual
+        returns (AddressRegistry, IGnosisSafe, address);
+
+    /// @notice This is essentially a solidity script of the calls you want to make, and its
+    /// contents are extracted into calldata for the task.
+    function _build() internal virtual;
+
+    /// @notice Called after the build function has been run, to execute assertions on the calls and
+    /// state diffs. This function is how you obtain confidence the transaction does what it's supposed to do.
+    function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) internal view virtual;
+
+    // =================================
+    // ======== Other functions ========
+    // =================================
+    // TODO This section is not yet organized, this will happen in a future PR.
 
     /// @notice Runs the task with the given configuration file path.
     /// Sets the address registry, initializes and simulates the single multisig
@@ -225,72 +263,23 @@ abstract contract MultisigTask is Test, Script {
     /// @notice Sets the address registry, initializes the task.
     /// @param taskConfigFilePath The path to the task configuration file.
     function _taskSetup(string memory taskConfigFilePath) internal {
-        AddressRegistry _addrRegistry = new AddressRegistry(taskConfigFilePath);
-
-        _templateSetup(taskConfigFilePath);
-
-        _setMulticallAddress();
-
-        // set the task config
-        require(
-            bytes(config.safeAddressString).length == 0 && address(addrRegistry) == address(0x0),
-            "MultisigTask: already initialized"
-        );
-        require(
-            block.chainid == getChain("mainnet").chainId || block.chainid == getChain("sepolia").chainId,
-            string.concat("Unsupported network: ", vm.toString(block.chainid))
-        );
+        require(bytes(config.safeAddressString).length == 0, "MultisigTask: already initialized");
 
         config.safeAddressString = safeAddressString();
         config.allowedStorageWriteAccesses = _taskStorageWrites();
         config.allowedStorageWriteAccesses.push(safeAddressString());
 
-        // set the AddressRegistry
-        addrRegistry = _addrRegistry;
+        IGnosisSafe _parentMultisig; // TODO parentMultisig should be of type IGnosisSafe
+        (addrRegistry, _parentMultisig, multicallTarget) = _configureTask(taskConfigFilePath);
+        parentMultisig = address(_parentMultisig);
 
-        // get chains
-        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
-        require(chains.length > 0, "MultisigTask: no chains found");
+        _templateSetup(taskConfigFilePath);
 
-        // check that the safe address is the same for all chains and then set safe in storage
-        parentMultisig = addrRegistry.getAddress(config.safeAddressString, chains[0].chainId);
+        nonce = IGnosisSafe(parentMultisig).nonce(); // TODO change this once we implement task stacking
+        startingOwners = IGnosisSafe(parentMultisig).getOwners();
 
-        // TODO change this once we implement task stacking
-        nonce = IGnosisSafe(parentMultisig).nonce();
-
-        isNestedSafe(parentMultisig);
-
-        vm.label(address(addrRegistry), "AddrRegistry");
+        vm.label(AddressRegistry.unwrap(addrRegistry), "AddrRegistry");
         vm.label(address(this), "MultisigTask");
-
-        for (uint256 i = 1; i < chains.length; i++) {
-            require(
-                parentMultisig == addrRegistry.getAddress(config.safeAddressString, chains[i].chainId),
-                string.concat(
-                    "MultisigTask: safe address mismatch. Caller: ",
-                    getAddressLabel(parentMultisig),
-                    ". Actual address: ",
-                    getAddressLabel(addrRegistry.getAddress(config.safeAddressString, chains[i].chainId))
-                )
-            );
-        }
-
-        // Fetch starting owners
-        IGnosisSafe safe = IGnosisSafe(parentMultisig);
-        startingOwners = safe.getOwners();
-
-        // this loads the allowed storage write accesses to storage for this task
-        // if this task changes storage slots outside of the allowed write accesses,
-        // then the task will fail at runtime and the task developer will need to
-        // update the config to include the addresses whose storage slots changed,
-        // or figure out why the storage slots are being changed when they should not be.
-        for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
-            for (uint256 j = 0; j < chains.length; j++) {
-                _allowedStorageAccesses.add(
-                    addrRegistry.getAddress(config.allowedStorageWriteAccesses[i], chains[j].chainId)
-                );
-            }
-        }
     }
 
     /// @notice get the calldata to be executed by safe
@@ -474,7 +463,7 @@ abstract contract MultisigTask is Test, Script {
     ///          e.g. read state variables of the deployed contracts to make
     ///          sure they are deployed and initialized correctly, or read
     ///          states that are expected to have changed during the simulate step.
-    function validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory) public virtual {
+    function validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) public virtual {
         // write all state changes to storage
         _processStateDiffChanges(accountAccesses);
 
@@ -506,11 +495,7 @@ abstract contract MultisigTask is Test, Script {
 
         require(IGnosisSafe(parentMultisig).nonce() == nonce + 1, "MultisigTask: nonce not incremented");
 
-        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
-
-        for (uint256 i = 0; i < chains.length; i++) {
-            _validate(chains[i].chainId, accountAccesses);
-        }
+        _validate(accountAccesses, actions);
 
         // check that state diff is as expected
         checkStateDiff(accountAccesses);
@@ -562,15 +547,7 @@ abstract contract MultisigTask is Test, Script {
         _buildStarted = 1;
 
         _startBuild();
-
-        _buildSingle();
-
-        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
-
-        for (uint256 i = 0; i < chains.length; i++) {
-            _buildPerChain(chains[i].chainId);
-        }
-
+        _build();
         actions = _endBuild();
 
         _buildStarted = 0;
@@ -743,35 +720,6 @@ abstract contract MultisigTask is Test, Script {
     /// --------------------------------------------------------------------
     /// --------------------------------------------------------------------
 
-    /// The functions are called in the following order during the task lifecycle:
-
-    /// 1. template setup is the common entrypoint to the MultisigTask regardless of which function is run
-    /// @notice abstract function to be implemented by the inheriting contract to setup the template
-    function _templateSetup(string memory taskConfigFilePath) internal virtual;
-
-    /// 2. _buildSingle function is the main function for crafting calldata for templates that have calls to be
-    /// made outside of the for loop that iterates over the chains in the task. This function can be used for
-    /// calls to contracts that may or may not be chain specific.
-    /// Does not have to be overridden in inheriting contracts.
-    function _buildSingle() internal virtual {}
-
-    /// 3. _buildPerChain function is the main function for crafting calldata for templates that can be used across
-    /// multiple chains, it is called in a for loop, which iterates over the chains in the task. The _buildPerChain
-    /// function is called with the chainId as an argument the buildModifier captures all of the actions taken in
-    /// this function.
-    /// @notice build the task actions for a given l2chain
-    /// @dev override to add additional task specific build logic
-    function _buildPerChain(uint256 chainId) internal virtual;
-
-    /// 4. _validate function is called after the build function has been run for all chains and the results
-    /// of this tasks state transitions have been applied. This checks that the state transitions are valid
-    /// and applied correctly.
-    /// @notice task specific validations
-    /// @dev override to add additional task specific validations
-    /// @param chainId The l2chainId
-    /// @param accountAccesses returned from the simulate or execute run function
-    function _validate(uint256 chainId, VmSafe.AccountAccess[] memory accountAccesses) internal view virtual;
-
     /// @notice validate actions inclusion
     /// default implementation check for duplicate actions
     function validateAction(address target, uint256 value, bytes memory data, Action[] memory actions) public pure {
@@ -798,9 +746,6 @@ abstract contract MultisigTask is Test, Script {
         }
         return nested;
     }
-
-    /// @notice Override to return a list of addresses that should not be checked for code length.
-    function getCodeExceptions() internal view virtual returns (address[] memory);
 
     /// @notice helper function to prepare the signatures to be executed
     /// @param _safe The address of the parent multisig
@@ -832,13 +777,6 @@ abstract contract MultisigTask is Test, Script {
                 _signatures
             )
         );
-    }
-
-    /// @notice set the multicall address
-    /// @dev override to set the multicall address to the delegatecall multicall address
-    /// in case of opcm tasks
-    function _setMulticallAddress() internal virtual {
-        multicallTarget = MULTICALL3_ADDRESS;
     }
 
     /// @notice prank the multisig
@@ -938,8 +876,9 @@ abstract contract MultisigTask is Test, Script {
 
     /// @dev Returns true if the given account access should be recorded as an action.
     function _isValidAction(VmSafe.AccountAccess memory access, uint256 topLevelDepth) internal view returns (bool) {
-        bool accountNotRegistryOrVm = (access.account != address(addrRegistry) && access.account != address(vm));
-        bool accessorNotRegistry = access.accessor != address(addrRegistry);
+        bool accountNotRegistryOrVm =
+            (access.account != AddressRegistry.unwrap(addrRegistry) && access.account != address(vm));
+        bool accessorNotRegistry = access.accessor != AddressRegistry.unwrap(addrRegistry);
         bool isCall = access.kind == VmSafe.AccountAccessKind.Call;
         bool isTopLevelDelegateCall =
             (access.kind == VmSafe.AccountAccessKind.DelegateCall && access.depth == topLevelDepth);
@@ -1052,72 +991,12 @@ abstract contract MultisigTask is Test, Script {
 
     /// @notice helper method to get transfers and state changes of task affected addresses
     function _processStateDiffChanges(VmSafe.AccountAccess[] memory accountAccesses) private {
-        // first check that no tokens or eth were sent that should not have been
-        // then check that all state changes that happened were in contracts that were allowed to have state changes
         for (uint256 i = 0; i < accountAccesses.length; i++) {
-            // process ETH transfer changes
-            _processETHTransferChanges(accountAccesses[i]);
-
-            // process ERC20 transfer changes
-            _processERC20TransferChanges(accountAccesses[i]);
-
-            // process state changes
+            // TODO Once `validate` is updated to use `accountAccesses` instead of
+            // `_taskStateChangeAddresses`, we can delete the  `_processStateDiffChanges`
+            // and `_processStateChanges` methods.
             _processStateChanges(accountAccesses[i].storageAccesses);
         }
-    }
-
-    /// @notice helper method to get eth transfers of task affected addresses
-    function _processETHTransferChanges(VmSafe.AccountAccess memory accountAccess) private {
-        address account = accountAccess.account;
-        // get eth transfers
-        if (accountAccess.value != 0) {
-            // add address to task transfer from addresses array only if not already added
-            if (!_taskTransferFromAddresses.contains(accountAccess.accessor)) {
-                _taskTransferFromAddresses.add(accountAccess.accessor);
-            }
-            _taskTransfers[accountAccess.accessor].push(
-                TransferInfo({to: account, value: accountAccess.value, tokenAddress: address(0)})
-            );
-        }
-    }
-
-    /// @notice helper method to get ERC20 token transfers of task affected addresses
-    function _processERC20TransferChanges(VmSafe.AccountAccess memory accountAccess) private {
-        bytes memory data = accountAccess.data;
-        if (data.length <= 4) {
-            return;
-        }
-
-        // get function selector from calldata
-        bytes4 selector = bytes4(data);
-
-        // get function params
-        bytes memory params = new bytes(data.length - 4);
-        for (uint256 j = 0; j < data.length - 4; j++) {
-            params[j] = data[j + 4];
-        }
-
-        address from;
-        address to;
-        uint256 value;
-        // 'transfer' selector in ERC20 token
-        if (selector == 0xa9059cbb) {
-            (to, value) = abi.decode(params, (address, uint256));
-            from = accountAccess.accessor;
-        }
-        // 'transferFrom' selector in ERC20 token
-        else if (selector == 0x23b872dd) {
-            (from, to, value) = abi.decode(params, (address, address, uint256));
-        } else {
-            return;
-        }
-
-        // add address to task transfer from addresses array only if not already added
-        if (!_taskTransferFromAddresses.contains(from)) {
-            _taskTransferFromAddresses.add(from);
-        }
-
-        _taskTransfers[from].push(TransferInfo({to: to, value: value, tokenAddress: accountAccess.account}));
     }
 
     /// @notice helper method to get state changes of task affected addresses
@@ -1166,5 +1045,53 @@ abstract contract MultisigTask is Test, Script {
         }
         // Otherwise, this value looks like an address that we'd expect to have code.
         return true;
+    }
+}
+
+abstract contract L2TaskBase is MultisigTask {
+    using EnumerableSet for EnumerableSet.AddressSet;
+
+    SuperchainAddressRegistry public superchainAddrRegistry;
+
+    function _configureTask(string memory taskConfigFilePath)
+        internal
+        virtual
+        override
+        returns (AddressRegistry addrRegistry_, IGnosisSafe parentMultisig_, address multicallTarget_)
+    {
+        multicallTarget_ = MULTICALL3_ADDRESS;
+
+        superchainAddrRegistry = new SuperchainAddressRegistry(taskConfigFilePath);
+        addrRegistry_ = AddressRegistry.wrap(address(superchainAddrRegistry));
+
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        parentMultisig_ = IGnosisSafe(superchainAddrRegistry.getAddress(config.safeAddressString, chains[0].chainId));
+
+        // Ensure that all chains have the same parentMultisig.
+        for (uint256 i = 1; i < chains.length; i++) {
+            require(
+                address(parentMultisig_)
+                    == superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId),
+                string.concat(
+                    "MultisigTask: safe address mismatch. Caller: ",
+                    getAddressLabel(address(parentMultisig_)),
+                    ". Actual address: ",
+                    getAddressLabel(superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId))
+                )
+            );
+        }
+
+        // This loads the allowed storage write accesses to storage for this task.
+        // If this task changes storage slots outside of the allowed write accesses,
+        // then the task will fail at runtime and the task developer will need to
+        // update the config to include the addresses whose storage slots changed,
+        // or figure out why the storage slots are being changed when they should not be.
+        for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
+            for (uint256 j = 0; j < chains.length; j++) {
+                _allowedStorageAccesses.add(
+                    superchainAddrRegistry.getAddress(config.allowedStorageWriteAccesses[i], chains[j].chainId)
+                );
+            }
+        }
     }
 }

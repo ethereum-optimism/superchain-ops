@@ -1,12 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity 0.8.15;
 
-import {IProxyAdmin} from "@eth-optimism-bedrock/interfaces/universal/IProxyAdmin.sol";
-import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
-import {IProxy} from "@eth-optimism-bedrock/interfaces/universal/IProxy.sol";
-import {VmSafe} from "forge-std/Vm.sol";
-
-import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {DisputeGameUpgradeTemplate} from "src/improvements/template/DisputeGameUpgradeTemplate.sol";
 
 /// Mock task that upgrades the Dispute Game implementation
