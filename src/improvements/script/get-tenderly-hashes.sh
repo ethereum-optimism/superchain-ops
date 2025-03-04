@@ -55,9 +55,6 @@ fi
 # Extract the simulation ID from the response
 SIMULATION_ID=$(echo "$RESPONSE" | jq -r '.simulation.id')
 
-# Output the Tenderly dashboard URL
-echo "View the simulation in Tenderly dashboard:"
-echo "https://dashboard.tenderly.co/$TENDERLY_USER/$TENDERLY_PROJECT_SLUG/simulator/$SIMULATION_ID"
 
 # Retrieve the full simulation details
 # echo "Retrieving full simulation details..."
@@ -97,7 +94,16 @@ if [ -z "$HASHES" ]; then
   exit 1
 fi
 
+echo -e "\n\n-------- Domain Separator and Message Hashes from Tenderly --------"
+# Extract domain separator and message hash from the full hash
+FULL_HASH=$(echo "$HASHES" | tr -d '\n')
+DOMAIN_SEPARATOR="0x${FULL_HASH:6:64}"
+MESSAGE_HASH="0x${FULL_HASH:70:64}"
+
+echo "  Domain Separator: $DOMAIN_SEPARATOR"
+echo "  Message Hash: $MESSAGE_HASH"
+
+# Output the Tenderly dashboard URL
 echo ""
-echo ""
-echo "------------------ Domain and Message Hashes ------------------"
-echo "$HASHES"
+echo "View the simulation in Tenderly dashboard:"
+echo "https://dashboard.tenderly.co/$TENDERLY_USER/$TENDERLY_PROJECT_SLUG/simulator/$SIMULATION_ID"
