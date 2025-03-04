@@ -24,8 +24,8 @@ are missing from this document. Additionally, please verify that for each contra
 >
 > ### Optimism Foundation
 >
-> - Domain Hash: `0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
-> - Message Hash: `0x328c221a924983de138c889d46f282a85088a349896b3cca109b69d5632182c1`
+> - Domain Hash: `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
+> - Message Hash: `0x7533b5a58af6220fc954597eace0dd8e26748b949f055e741834e345ef197dd7`
 
 ## Nested Safe State Overrides and Changes
 
@@ -35,7 +35,7 @@ for the expected state overrides and changes.
 
 The `approvedHashes` mapping **key** of the `ProxyAdminOwner` that should change during the simulation is
 - Council simulation: `0x1f3d94bb2ff59b288e25f3d5156c24a6b75281d29ef15cc370be4dd854bc9d20`
-- Foundation simulation: `0x63bd348b4f1617eabcac49f67f2f40a9040947fd4dad3f262041c7c65a6efce8`
+- Foundation simulation: `0x87e4e9370516859a0d997376e8302709dd490c59be62fa78fb0e0e727d510768`
 
 calculated as explained in the nested validation doc.
 
