@@ -664,7 +664,7 @@ abstract contract MultisigTask is Test, Script {
         bytes memory txData = _execTransationCalldata(
             parentMultisig, getMulticall3Calldata(actions), Signatures.genPrevalidatedSignature(msg.sender)
         );
-        
+
         // Log the Tenderly JSON payload
         // forgefmt: disable-start
         string memory payload = string.concat(
@@ -679,17 +679,18 @@ abstract contract MultisigTask is Test, Script {
         );
         // forgefmt: disable-end
         console.log("%s", payload);
-        
+
         // Add each storage override
-        for (uint j = 0; j < stateOverrides[0].overrides.length; j++) {
+        for (uint256 j = 0; j < stateOverrides[0].overrides.length; j++) {
             string memory comma = j < stateOverrides[0].overrides.length - 1 ? "," : "";
-            console.log("\"%s\":\"%s\"%s",
+            console.log(
+                "\"%s\":\"%s\"%s",
                 vm.toString(bytes32(stateOverrides[0].overrides[j].key)),
                 vm.toString(stateOverrides[0].overrides[j].value),
                 comma
             );
         }
-        
+
         // Close the JSON structure
         console.log("}}}}");
         console.log("------------------ End of Payload ------------------");
