@@ -12,7 +12,6 @@ import {IStandardValidatorV200} from "@eth-optimism-bedrock/interfaces/L1/IStand
 import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
-import {console} from "forge-std/console.sol";
 import {LibString} from "solady/utils/LibString.sol";
 
 /// @notice This template supports OPCMV200 upgrade tasks.
@@ -42,7 +41,11 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
 
     function chainHasPermissionlessDisputeGame(uint256 chainId) public pure returns (bool) {
         chainId;
-        return true; // TODO: implement for fully for chainIds going through V200 upgrade.
+        if (chainId == 1946) {
+            // Soneium Testnet Minato
+            return false;
+        }
+        return true;
     }
 
     /// @notice Returns the storage write permissions
@@ -191,15 +194,7 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
                 pddg.anchorStateRegistry() == address(newAsr),
                 "OPCMUpgradeV200: PermissionedDisputeGame anchorStateRegistry incorrect."
             );
-
             address oldAsr = superchainAddrRegistry.getAddress("AnchorStateRegistryProxy", chainId);
-            (bytes32 oldAsrRoot,) = IAnchorStateRegistry(oldAsr).anchors(uint32(0));
-
-            // PLDG-ANCHORP-40: bad permissionless dispute game ASR root
-            (bytes32 pddgASRoot,) = newAsr.anchors(uint32(1));
-            require(
-                pddgASRoot == oldAsrRoot, "OPCMUpgradeV200: PermissionedDisputeGame anchorStateRegistry root incorrect."
-            );
 
             IFaultDisputeGame pldg =
                 IFaultDisputeGame(IDisputeGameFactory(disputeGameFactoryProxy).gameImpls(uint32(0)));
@@ -224,10 +219,19 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
                     "OPCMUpgradeV200: PermissionlessDisputeGame anchorStateRegistry incorrect."
                 );
                 // PDDG-ANCHORP-40: bad permissioned dispute game ASR root
+                (bytes32 oldAsrRoot,) = IAnchorStateRegistry(oldAsr).anchors(uint32(0));
                 (bytes32 pldgASRoot,) = newAsr.anchors(uint32(0));
                 require(
                     pldgASRoot == oldAsrRoot,
                     "OPCMUpgradeV200: PermissionlessDisputeGame anchorStateRegistry root incorrect."
+                );
+            } else {
+                // PLDG-ANCHORP-40: bad permissioned dispute game ASR root
+                (bytes32 oldAsrRoot,) = IAnchorStateRegistry(oldAsr).anchors(uint32(1));
+                (bytes32 pddgASRoot,) = newAsr.anchors(uint32(1));
+                require(
+                    pddgASRoot == oldAsrRoot,
+                    "OPCMUpgradeV200: PermissionedDisputeGame anchorStateRegistry root incorrect."
                 );
             }
             // PDDG-50: bad permissioned VM address
