@@ -14,13 +14,46 @@ import {DisputeGameFactory} from "@eth-optimism-bedrock/src/dispute/DisputeGameF
 import {FaultDisputeGame} from "@eth-optimism-bedrock/src/dispute/FaultDisputeGame.sol";
 import {PermissionedDisputeGame} from "@eth-optimism-bedrock/src/dispute/PermissionedDisputeGame.sol";
 import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
+import {SuperchainRegistry} from "script/verification/Verification.s.sol";
+import {BytecodeComparison} from "src/libraries/BytecodeComparison.sol";
+import {MIPS} from "@eth-optimism-bedrock/src/cannon/MIPS.sol";
+import {ISemver} from "@eth-optimism-bedrock/interfaces/universal/ISemver.sol";
+import {IDelayedWETH} from "@eth-optimism-bedrock/interfaces/dispute/IDelayedWETH.sol";
+import {IPermissionedDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute/IPermissionedDisputeGame.sol";
+import {IFaultDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute/IFaultDisputeGame.sol";
 
-contract NestedSignFromJson is OriginalNestedSignFromJson {
+contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
     using LibString for string;
 
-    // Chains for this task.
-    string l1ChainName = vm.envString("L1_CHAIN_NAME");
-    string l2ChainName = vm.envString("L2_CHAIN_NAME");
+    /// @notice Expected address for the PermissionedDisputeGame implementation.
+    IPermissionedDisputeGame expectedPermissionedDisputeGameImpl =
+        IPermissionedDisputeGame(
+            vm.envAddress("EXPECTED_PERMISSIONED_DISPUTE_GAME_IMPL")
+        );
+
+    /// @notice OP Sepolia address for the PermissionedDisputeGame implementation for comparison.
+    IPermissionedDisputeGame comparisonPermissionedDisputeGameImpl =
+        IPermissionedDisputeGame(
+            vm.envAddress("COMPARISON_PERMISSIONED_DISPUTE_GAME_IMPL")
+        );
+
+    /// @notice Expected address for the FaultDisputeGame implementation.
+    IFaultDisputeGame expectedFaultDisputeGameImpl =
+        IFaultDisputeGame(vm.envAddress("EXPECTED_FAULT_DISPUTE_GAME_IMPL"));
+
+    /// @notice OP Sepolia address for the FaultDisputeGame implementation for comparison.
+    IFaultDisputeGame comparisonFaultDisputeGameImpl =
+        IFaultDisputeGame(vm.envAddress("COMPARISON_FAULT_DISPUTE_GAME_IMPL"));
+
+    /// @notice Expected address for the Permissioned DelayedWETH proxy.
+    IDelayedWETH expectedPermissionedDelayedWETHProxy =
+        IDelayedWETH(
+            payable(vm.envAddress("EXPECTED_PERMISSIONED_DELAYED_WETH_PROXY"))
+        );
+
+    /// @notice Expected address for the DelayedWETH proxy.
+    IDelayedWETH expectedDelayedWETHProxy =
+        IDelayedWETH(payable(vm.envAddress("EXPECTED_DELAYED_WETH_PROXY")));
 
     // Safe contract for this task.
     GnosisSafe ownerSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
@@ -30,25 +63,63 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
     // The slot used to store the livenessGuard address in GnosisSafe.
     // See https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/base/GuardManager.sol#L30
+    bytes32 constant absolutePrestate =
+        0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd;
     bytes32 livenessGuardSlot =
         0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8;
+    string constant gameVersion = "1.3.1";
 
     SystemConfig systemConfig = SystemConfig(vm.envAddress("SYSTEM_CONFIG"));
 
     // DisputeGameFactoryProxy address.
     DisputeGameFactory dgfProxy;
+    FaultDisputeGame faultDisputeGame;
+    PermissionedDisputeGame permissionedDisputeGame;
+    address newMips;
+    address oracle;
+    uint256 chainId;
 
     address[] extraStorageAccessAddresses;
 
+    constructor() SuperchainRegistry("mainnet", "unichain", "v1.8.0-rc.4") {}
+
     function setUp() public {
         dgfProxy = DisputeGameFactory(systemConfig.disputeGameFactory());
+        newMips = standardVersions.MIPS.Address;
+        oracle = standardVersions.PreimageOracle.Address;
+        chainId = chainConfig.chainId;
+
+        string memory inputJson;
+        string
+            memory path = "/tasks/eth/unichain-001-petra-l1-upgrade/input.json";
+        try vm.readFile(string.concat(vm.projectRoot(), path)) returns (
+            string memory data
+        ) {
+            inputJson = data;
+        } catch {
+            revert(string.concat("Failed to read ", path));
+        }
+
+        faultDisputeGame = FaultDisputeGame(
+            stdJson.readAddress(
+                inputJson,
+                "$.transactions[0].contractInputsValues._impl"
+            )
+        );
+        permissionedDisputeGame = PermissionedDisputeGame(
+            stdJson.readAddress(
+                inputJson,
+                "$.transactions[1].contractInputsValues._impl"
+            )
+        );
+
         _precheckDisputeGameImplementation(
             GameType.wrap(0),
-            0x171dE4f3ea4fBbf233aA9649dCf1b1d6fD70f542
+            address(faultDisputeGame)
         );
         _precheckDisputeGameImplementation(
             GameType.wrap(1),
-            0x3aFdc7cCF8a1c0d351E3E5F220AF056ea2c07733
+            address(permissionedDisputeGame)
         );
         // INSERT NEW PRE CHECKS HERE
     }
@@ -224,17 +295,13 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
         Simulation.Payload memory
     ) internal view override {
         console.log("Running post-deploy assertions");
-
         checkStateDiff(accesses);
-        _checkDisputeGameImplementation(
-            GameType.wrap(0),
-            0x171dE4f3ea4fBbf233aA9649dCf1b1d6fD70f542
-        );
-        _checkDisputeGameImplementation(
-            GameType.wrap(1),
-            0x3aFdc7cCF8a1c0d351E3E5F220AF056ea2c07733
-        );
         // INSERT NEW POST CHECKS HERE
+        checkDGFProxyAndGames();
+        checkMips();
+        // Commented out because OP Mainnet has not performed the L1 Petra Upgrade, so we dont have references to perform these checks
+        // checkFaultDisputeGame();
+        // checkPermissionedDisputeGame();
 
         console.log("All assertions passed!");
     }
@@ -287,5 +354,237 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
 
         require(root.raw() != bytes32(0), "check-300");
         require(rootBlockNumber != 0, "check-310");
+    }
+
+    function checkDGFProxyAndGames() internal view {
+        console.log("check dispute game implementations");
+        require(
+            address(faultDisputeGame) ==
+                address(dgfProxy.gameImpls(GameTypes.CANNON)),
+            "dgf-100"
+        );
+        require(
+            address(permissionedDisputeGame) ==
+                address(dgfProxy.gameImpls(GameTypes.PERMISSIONED_CANNON)),
+            "dgf-200"
+        );
+
+        require(faultDisputeGame.version().eq(gameVersion), "game-100");
+        require(permissionedDisputeGame.version().eq(gameVersion), "game-200");
+
+        require(
+            faultDisputeGame.absolutePrestate().raw() == absolutePrestate,
+            "game-300"
+        );
+        require(
+            permissionedDisputeGame.absolutePrestate().raw() ==
+                absolutePrestate,
+            "game-400"
+        );
+
+        require(address(faultDisputeGame.vm()) == newMips, "game-500");
+        require(address(permissionedDisputeGame.vm()) == newMips, "game-600");
+
+        require(faultDisputeGame.l2ChainId() == chainId, "game-700");
+        require(permissionedDisputeGame.l2ChainId() == chainId, "game-800");
+    }
+    /// @notice Checks that the FaultDisputeGame was handled correctly.
+    function checkFaultDisputeGame() internal view {
+        // Check that the FaultDisputeGame version is correct.
+        // Check that the FaultDisputeGame version is correct.
+        require(
+            LibString.eq(
+                expectedFaultDisputeGameImpl.version(),
+                standardVersions.FaultDisputeGame.version
+            ),
+            "checkFaultDisputeGame-21"
+        );
+        require(
+            LibString.eq(
+                expectedPermissionedDelayedWETHProxy.version(),
+                standardVersions.DelayedWETH.version
+            ),
+            "checkPermissionedDelayedWETH-22"
+        );
+        require(
+            LibString.eq(
+                expectedDelayedWETHProxy.version(),
+                standardVersions.DelayedWETH.version
+            ),
+            "checkDelayedWETH-23"
+        );
+
+        // Check that only bytecode diffs vs comparison contract are expected.
+        BytecodeComparison.Diff[] memory diffs = new BytecodeComparison.Diff[](
+            12
+        );
+        diffs[0] = BytecodeComparison.Diff({
+            start: 1319,
+            content: abi.encode(expectedDelayedWETHProxy)
+        });
+        diffs[1] = BytecodeComparison.Diff({
+            start: 1555,
+            content: abi.encode(proxies.AnchorStateRegistry)
+        });
+        diffs[2] = BytecodeComparison.Diff({
+            start: 1926,
+            content: abi.encode(absolutePrestate)
+        });
+        diffs[3] = BytecodeComparison.Diff({
+            start: 2590,
+            content: abi.encode(chainConfig.chainId)
+        });
+        diffs[4] = BytecodeComparison.Diff({
+            start: 6026,
+            content: abi.encode(proxies.AnchorStateRegistry)
+        });
+        diffs[5] = BytecodeComparison.Diff({
+            start: 6476,
+            content: abi.encode(expectedDelayedWETHProxy)
+        });
+        diffs[6] = BytecodeComparison.Diff({
+            start: 9344,
+            content: abi.encode(expectedDelayedWETHProxy)
+        });
+        diffs[7] = BytecodeComparison.Diff({
+            start: 9704,
+            content: abi.encode(proxies.AnchorStateRegistry)
+        });
+        diffs[8] = BytecodeComparison.Diff({
+            start: 10730,
+            content: abi.encode(expectedDelayedWETHProxy)
+        });
+        diffs[9] = BytecodeComparison.Diff({
+            start: 12628,
+            content: abi.encode(absolutePrestate)
+        });
+        diffs[10] = BytecodeComparison.Diff({
+            start: 14649,
+            content: abi.encode(chainConfig.chainId)
+        });
+        diffs[11] = BytecodeComparison.Diff({
+            start: 15892,
+            content: abi.encode(expectedDelayedWETHProxy)
+        });
+
+        require(
+            BytecodeComparison.compare(
+                address(comparisonFaultDisputeGameImpl),
+                address(expectedFaultDisputeGameImpl),
+                diffs
+            ),
+            "checkFaultDisputeGame-101"
+        );
+    }
+
+    /// @notice Checks that the PermissionedDisputeGame was handled correctly.
+    function checkPermissionedDisputeGame() internal view {
+        // Check that the PermissionedDisputeGame version is correct.
+        require(
+            LibString.eq(
+                expectedPermissionedDisputeGameImpl.version(),
+                "1.3.1"
+            ),
+            "checkPermissionedDisputeGame-20"
+        );
+
+        // Check that only bytecode diffs vs comparison contract are expected.
+        BytecodeComparison.Diff[] memory diffs = new BytecodeComparison.Diff[](
+            19
+        );
+
+        diffs[0] = BytecodeComparison.Diff({
+            start: 1341,
+            content: abi.encode(expectedPermissionedDelayedWETHProxy)
+        });
+        diffs[1] = BytecodeComparison.Diff({
+            start: 1411,
+            content: abi.encode(chainConfig.challenger)
+        });
+        diffs[2] = BytecodeComparison.Diff({
+            start: 1628,
+            content: abi.encode(proxies.AnchorStateRegistry)
+        });
+        diffs[3] = BytecodeComparison.Diff({
+            start: 1999,
+            content: abi.encode(absolutePrestate)
+        });
+        diffs[4] = BytecodeComparison.Diff({
+            start: 2254,
+            content: abi.encode(chainConfig.proposer)
+        });
+        diffs[5] = BytecodeComparison.Diff({
+            start: 2714,
+            content: abi.encode(chainConfig.chainId)
+        });
+        diffs[6] = BytecodeComparison.Diff({
+            start: 6150,
+            content: abi.encode(proxies.AnchorStateRegistry)
+        });
+        diffs[7] = BytecodeComparison.Diff({
+            start: 6600,
+            content: abi.encode(expectedPermissionedDelayedWETHProxy)
+        });
+        diffs[8] = BytecodeComparison.Diff({
+            start: 6870,
+            content: abi.encode(chainConfig.proposer)
+        });
+        diffs[9] = BytecodeComparison.Diff({
+            start: 6933,
+            content: abi.encode(chainConfig.challenger)
+        });
+        diffs[10] = BytecodeComparison.Diff({
+            start: 7076,
+            content: abi.encode(chainConfig.proposer)
+        });
+        diffs[11] = BytecodeComparison.Diff({
+            start: 8310,
+            content: abi.encode(chainConfig.proposer)
+        });
+        diffs[12] = BytecodeComparison.Diff({
+            start: 8373,
+            content: abi.encode(chainConfig.challenger)
+        });
+        diffs[13] = BytecodeComparison.Diff({
+            start: 9555,
+            content: abi.encode(chainConfig.chainId)
+        });
+        diffs[14] = BytecodeComparison.Diff({
+            start: 10798,
+            content: abi.encode(expectedPermissionedDelayedWETHProxy)
+        });
+        diffs[15] = BytecodeComparison.Diff({
+            start: 13599,
+            content: abi.encode(expectedPermissionedDelayedWETHProxy)
+        });
+        diffs[16] = BytecodeComparison.Diff({
+            start: 13946,
+            content: abi.encode(proxies.AnchorStateRegistry)
+        });
+        diffs[17] = BytecodeComparison.Diff({
+            start: 14972,
+            content: abi.encode(expectedPermissionedDelayedWETHProxy)
+        });
+        diffs[18] = BytecodeComparison.Diff({
+            start: 17022,
+            content: abi.encode(absolutePrestate)
+        });
+
+        require(
+            BytecodeComparison.compare(
+                address(comparisonPermissionedDisputeGameImpl),
+                address(expectedPermissionedDisputeGameImpl),
+                diffs
+            ),
+            "checkPermissionedDisputeGame-100"
+        );
+    }
+
+    function checkMips() internal view {
+        console.log("check MIPS");
+        require(newMips.code.length != 0, "MIPS-100");
+        console.log("newMips", address(newMips));
+        vm.assertEq(ISemver(newMips).version(), "1.2.1");
+        require(address(MIPS(newMips).oracle()) == oracle, "MIPS-200");
     }
 }
