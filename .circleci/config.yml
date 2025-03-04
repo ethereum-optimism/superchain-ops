@@ -463,13 +463,18 @@ workflows:
       - just_simulate_sc_rehearsal_4:
           context:
             - circleci-repo-readonly-authenticated-github-token
+      - just_simulate_nested:
+          task: "eth/031-op-mainnet-pectra-defense"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
 
       # Simulation sequence for Superchain Version Sync (at the 27th of February 2025). The next task would be 31 but we need to wait until the task is 31 is merged.
       # tasks: "030 031"
       - simulate_sequence:
           name: simulate_sequence_eth
           network: "eth"
-          tasks: "030"
+          tasks: "030 031"
           block_number: "21938584" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
