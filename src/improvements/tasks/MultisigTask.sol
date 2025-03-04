@@ -562,9 +562,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         _buildStarted = 1;
 
         _startBuild();
-
         _build();
-
         actions = _endBuild();
 
         _buildStarted = 0;
