@@ -52,13 +52,6 @@ contract NestedSignFromJson is
     ) internal override {
         console.log("Running post-deploy assertions");
         checkStateDiff(accesses);
-        console.log("");
-        console.log(
-            "Running post-deploy assertions for chain",
-            l2ChainName,
-            "-",
-            l1ChainName
-        );
         sysCfgUpgrade.checkSystemConfigUpgrade();
         console.log("All assertions passed!");
     }
