@@ -93,8 +93,8 @@ contract CalculateSafeHashes is Script {
 
         // Output results
         console.log("\n\n-------- Domain Separator and Message Hashes from Payload --------");
-        console.log("Domain Separator: ", vm.toString(domainSeparator));
-        console.log("Message Hash: ", vm.toString(messageHash));
+        console.log("Domain Separator:", vm.toString(domainSeparator));
+        console.log("Message Hash:", vm.toString(messageHash));
     }
 
     /// @notice Calculates the EIP-712 domain separator for a Safe
