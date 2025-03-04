@@ -21,7 +21,7 @@ contract TransferOwnerTemplate is L2TaskBase {
 
     /// @notice Returns the storage write permissions required for this task
     /// @return Array of storage write permissions, in this case, only the ProxyAdmin is returned
-    function _taskStorageWrites(string memory taskConfigFilePath)
+    function _taskStorageWrites(string memory)
         internal
         pure
         virtual
