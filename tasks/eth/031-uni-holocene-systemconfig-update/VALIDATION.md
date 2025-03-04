@@ -16,9 +16,10 @@ For each contract listed in the state diff, please verify that no contracts or s
 - **Key**: `0x0000000000000000000000000000000000000000000000000000000000000066`
   **Before**: `0x00000000000000000000000000000000000000000000000000000000000dbba0`
   **After**: `0x010000000000000000000000000000000000000000000000000dbba0000007d0`
-  **Meaning**: Updates the scalar slot to reflect a scalar version of 1. 
+  **Meaning**: Updates the scalar slot to reflect a scalar version of 1.
 
-  Note: This transaction bundles a change to the `blobBaseFeeScalar` from 0 to 900000. This adjustment addresses an oversight in the previous Unichain deployment, where the `blobBaseFeeScalar` was not properly configured. While our verification system typically expects this parameter to remain unchanged during upgrades, we've implemented a specific override to accommodate this necessary correction.
+  In addition to the standard SystemConfig upgrade, this upgrade corrects the `blobBaseFeeScalar` in SystemConfig from 0 to 900000, fixing an oversight in the previous Unichain deployment. This value now matches what's used on L2, which can be verified by checking the `blobBaseFeeScalar` value on the [L1BlockInfo contract]([url](https://unichain.blockscout.com/address/0x4200000000000000000000000000000000000015?tab=read_write_proxy&source_address=0xc0d3C0D3C0D3c0D3C0D3C0d3C0D3c0D3c0d30015#0x68d5dca6)) (`0x4200000000000000000000000000000000000015`) on Unichain mainnet.
+
 
 - **Key**: `0x0000000000000000000000000000000000000000000000000000000000000068`
   **Before**: `0x0000000000000000000000000000000000000000000000000000000001c9c380`
