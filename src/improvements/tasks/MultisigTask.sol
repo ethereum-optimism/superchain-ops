@@ -666,6 +666,7 @@ abstract contract MultisigTask is Test, Script {
         );
         
         // Log the Tenderly JSON payload
+        // forgefmt: disable-start
         string memory payload = string.concat(
             '{\"network_id\":\"', vm.toString(block.chainid),'\",',
             '\"from\":\"', vm.toString(msg.sender),'\",',
@@ -676,6 +677,7 @@ abstract contract MultisigTask is Test, Script {
             '\"state_objects\":{\"',
             vm.toString(parentMultisig), '\":{\"storage\":{'
         );
+        // forgefmt: disable-end
         console.log("%s", payload);
         
         // Add each storage override
