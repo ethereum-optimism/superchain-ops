@@ -49,19 +49,9 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
     }
 
     /// @notice Returns the storage write permissions
-    function _taskStorageWrites(string memory taskConfigFilePath)
-        internal
-        view
-        virtual
-        override
-        returns (string[] memory)
-    {
-        string memory toml = vm.readFile(taskConfigFilePath);
-        bytes memory chainListContent = toml.parseRaw(".l2chains");
-        SuperchainAddressRegistry.ChainInfo[] memory chains =
-            abi.decode(chainListContent, (SuperchainAddressRegistry.ChainInfo[]));
-        require(chains.length > 0, "OPCMUpgradeV200: no chains found");
-
+    function _taskStorageWrites() internal view virtual override returns (string[] memory) {
+        require(address(superchainAddrRegistry) != address(0), "OPCMUpgradeV200: superchainAddrRegistry not set");
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         uint256 extraWrites = 0;
         for (uint256 i = 0; i < chains.length; i++) {
             if (chainHasPermissionlessDisputeGame(chains[i].chainId)) {
@@ -103,6 +93,7 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
 
     /// @notice Sets up the template with prestate inputs from a TOML file
     function _templateSetup(string memory taskConfigFilePath) internal override {
+        super._templateSetup(taskConfigFilePath);
         string memory tomlContent = vm.readFile(taskConfigFilePath);
         OPCMUpgrade[] memory upgrades =
             abi.decode(vm.parseToml(tomlContent, ".opcmUpgrades.absolutePrestates"), (OPCMUpgrade[]));
