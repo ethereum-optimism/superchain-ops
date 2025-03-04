@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-
-import {Test} from "forge-std/Test.sol";
+import {Vm} from "forge-std/Vm.sol";
+import {StdChains} from "forge-std/StdChains.sol";
+import {stdToml} from "forge-std/StdToml.sol";
 import {GameTypes, GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 
 /// @notice Contains getters for arbitrary methods from all L1 contracts, including legacy getters
@@ -36,47 +36,37 @@ interface IFetcher {
     function weth() external view returns (address);
 }
 
-/// @title Network Address Manager
-/// @notice This contract provides a single source of truth for storing and retrieving addresses across multiple networks.
-/// @dev Handles addresses for contracts and externally owned accounts (EOAs) while ensuring correctness and uniqueness.
-contract AddressRegistry is Test {
-    using EnumerableSet for EnumerableSet.UintSet;
+/// @notice This contract provides a single source of truth for storing and retrieving addresses
+/// across multiple networks. It handles addresses for contracts and externally owned accounts
+/// (EOAs) while ensuring correctness and uniqueness.
+contract SuperchainAddressRegistry is StdChains {
+    using stdToml for string;
 
-    /// @dev Structure for storing address details in the contract.
-    struct RegistryEntry {
-        address addr;
-        /// Address (contract or EOA)
-        /// Indicates if the address is a contract
-        bool isContract;
-    }
+    address private constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
+    Vm private constant vm = Vm(VM_ADDRESS);
 
-    /// @dev Structure for reading chain list details from toml file
+    /// @notice Structure for reading chain list details from toml file
     struct ChainInfo {
         uint256 chainId;
         string name;
     }
 
-    /// @dev Structure for storing address info for a given address.
+    /// @notice Structure for storing address info for a given address.
     struct AddressInfo {
         string identifier;
         ChainInfo chainInfo;
     }
 
-    /// @notice Structure used to read in the following hardcoded addresses:
-    ///    - Foundation Upgrade Safe
-    ///    - Foundation Operation Safe
-    ///    - Security Council
-    struct HardcodedAddress {
-        address addr;
-        string identifier;
-    }
+    /// @notice Sentinel chain for generic task addresses.
+    /// Chain ID is: 18359133240529938341515463404940784280234256774636175192927404318365594808696
+    ChainInfo public sentinelChain =
+        ChainInfo({chainId: uint256(keccak256("SuperchainAddressRegistry")), name: "SuperchainAddressRegistry"});
 
-    /// @notice Maps an identifier and l2 instance chain ID to a stored address entry.
-    /// All addresses will live on the same chain.
-    mapping(string => mapping(uint256 => RegistryEntry)) private registry;
+    /// @notice Maps a contract identifier to an L2 chain ID to an address.
+    mapping(string => mapping(uint256 => address)) private registry;
 
-    /// @notice Supported L2 chain IDs for this Address Registry instance.
-    mapping(uint256 => bool) public supportedL2ChainIds;
+    /// @notice During constructions, tracks if we've seen a chain ID to avoid duplicates and misuse.
+    mapping(uint256 => bool) public seenL2ChainIds;
 
     /// @notice Maps an address to its identifier and chain info.
     mapping(address => AddressInfo) public addressInfo;
@@ -84,58 +74,144 @@ contract AddressRegistry is Test {
     /// @notice Array of supported chains and their configurations
     ChainInfo[] public chains;
 
-    /// @notice loads hardcoded foundation and security council addresses from
-    /// addresses.toml file
-    function _loadHardcodedAddresses(string memory chainKey, ChainInfo memory chain) internal {
-        HardcodedAddress[] memory hardcodedAddresses =
-            abi.decode(vm.parseToml(vm.readFile("./src/improvements/addresses.toml"), chainKey), (HardcodedAddress[]));
-        for (uint256 i = 0; i < hardcodedAddresses.length; i++) {
-            saveAddress(hardcodedAddresses[i].identifier, chain, hardcodedAddresses[i].addr);
-        }
-    }
-
     /// @notice Initializes the contract by loading addresses from TOML files
     /// and configuring the supported L2 chains.
-    /// @param networkConfigFilePath the path to the TOML file containing the network configuration(s)
-    constructor(string memory networkConfigFilePath) {
+    /// @param configPath the path to the TOML file containing the network configuration(s)
+    constructor(string memory configPath) {
         require(
             block.chainid == getChain("mainnet").chainId || block.chainid == getChain("sepolia").chainId,
-            "Unsupported network"
+            string.concat("SuperchainAddressRegistry: Unsupported task chain ID ", vm.toString(block.chainid))
         );
 
-        bytes memory chainListContent;
-        try vm.parseToml(vm.readFile(networkConfigFilePath), ".l2chains") returns (bytes memory parsedChainListContent)
-        {
-            chainListContent = parsedChainListContent;
-        } catch {
-            revert(string.concat("Failed to parse network config file path: ", networkConfigFilePath));
-        }
+        string memory toml = vm.readFile(configPath);
+        bytes memory chainListContent = toml.parseRaw(".l2chains");
 
+        // Read in the list of OP chains from the config file.
         // Cannot assign the abi.decode result to `chains` directly because it's a storage array, so
         // compiling without via-ir will fail with:
         //    Unimplemented feature (/solidity/libsolidity/codegen/ArrayUtils.cpp:228):Copying of type struct AddressRegistry.ChainInfo memory[] memory to storage not yet supported.
         ChainInfo[] memory _chains = abi.decode(chainListContent, (ChainInfo[]));
+        require(_chains.length > 0, "SuperchainAddressRegistry: no chains found");
         for (uint256 i = 0; i < _chains.length; i++) {
+            require(_chains[i].chainId != 0, "SuperchainAddressRegistry: Invalid chain ID in config");
+            require(bytes(_chains[i].name).length > 0, "SuperchainAddressRegistry: Empty name in config");
+            require(!seenL2ChainIds[_chains[i].chainId], "SuperchainAddressRegistry: Duplicate chain ID");
+
+            seenL2ChainIds[_chains[i].chainId] = true;
             chains.push(_chains[i]);
         }
 
-        string memory chainAddressesContent =
-            vm.readFile("lib/superchain-registry/superchain/extra/addresses/addresses.json");
+        // For each OP chain, read in all addresses for that OP Chain.
+        string memory chainAddrs = vm.readFile("lib/superchain-registry/superchain/extra/addresses/addresses.json");
 
         for (uint256 i = 0; i < chains.length; i++) {
-            require(!supportedL2ChainIds[chains[i].chainId], "Duplicate chain ID in chain config");
-            require(chains[i].chainId != 0, "Invalid chain ID in config");
-            require(bytes(chains[i].name).length > 0, "Empty name in config");
+            _processAddresses(chains[i], chainAddrs);
 
-            supportedL2ChainIds[chains[i].chainId] = true;
+            string memory chainKey;
+            if (block.chainid == getChain("mainnet").chainId) chainKey = ".eth";
+            else if (block.chainid == getChain("sepolia").chainId) chainKey = ".sep";
+            else revert(string.concat("SuperchainAddressRegistry: Unknown task chain ID ", vm.toString(block.chainid)));
 
-            _processAddresses(chains[i], chainAddressesContent);
+            _loadHardcodedAddresses(chainKey, chains[i]);
+        }
 
-            _loadHardcodedAddresses(
-                block.chainid == getChain("mainnet").chainId ? ".mainnetAddresses" : ".testnetAddresses", chains[i]
-            );
+        // Lastly, we read in addresses from the `[addresses]` section of the config file.
+        if (!toml.keyExists(".addresses")) return; // If the addresses section is missing, do nothing.
+
+        string[] memory _identifiers = vm.parseTomlKeys(toml, ".addresses");
+        for (uint256 i = 0; i < _identifiers.length; i++) {
+            string memory key = _identifiers[i];
+            address who = toml.readAddress(string.concat(".addresses.", key));
+            saveAddress(key, sentinelChain, who);
         }
     }
+
+    /// @notice Reads in hardcoded addresses from the addresses.toml file.
+    function _loadHardcodedAddresses(string memory chainKey, ChainInfo memory chain) internal {
+        string memory toml = vm.readFile("./src/improvements/addresses.toml");
+        string[] memory keys = vm.parseTomlKeys(toml, chainKey);
+        require(keys.length > 0, string.concat("SuperchainAddressRegistry: no keys found for ", chainKey));
+
+        for (uint256 i = 0; i < keys.length; i++) {
+            string memory identifier = keys[i];
+            address addr = toml.readAddress(string.concat(chainKey, ".", identifier));
+
+            require(addr != address(0), string.concat("SuperchainAddressRegistry: zero address for ", identifier));
+            require(
+                registry[identifier][chain.chainId] == address(0),
+                string.concat("SuperchainAddressRegistry: address already registered for ", identifier)
+            );
+
+            saveAddress(identifier, chain, addr);
+        }
+    }
+
+    function saveAddress(string memory identifier, ChainInfo memory chain, address addr) internal {
+        require(addr != address(0), string.concat("SuperchainAddressRegistry: zero address for ", identifier));
+        require(bytes(identifier).length > 0, "SuperchainAddressRegistry: empty key");
+        require(
+            registry[identifier][chain.chainId] == address(0),
+            string.concat(
+                "SuperchainAddressRegistry: duplicate key ", identifier, "for chain ", vm.toString(chain.chainId)
+            )
+        );
+        // TODO We should be able to have this check, but currently tests revert if uncommented.
+        // require(
+        //     bytes(addressInfo[addr].identifier).length == 0,
+        //     string.concat("SuperchainAddressRegistry: address already registered for ", vm.toString(addr))
+        // );
+
+        registry[identifier][chain.chainId] = addr;
+        addressInfo[addr] = AddressInfo(identifier, chain);
+
+        // Format the chain name: uppercase it and replace spaces with underscores,
+        // then concatenate with the identifier to form a readable label.
+        string memory formattedChain = vm.replace(vm.toUppercase(chain.name), " ", "_");
+        string memory label = string.concat(formattedChain, "_", identifier);
+        vm.label(addr, label);
+    }
+
+    /// @notice Retrieves an address by its identifier for a specified L2 chain
+    /// This is deprecated in favor of the `get` function.
+    function getAddress(string memory identifier, uint256 l2ChainId) public view returns (address who_) {
+        who_ = registry[identifier][l2ChainId];
+        require(
+            who_ != address(0),
+            string.concat(
+                "SuperchainAddressRegistry: address not found for ", identifier, " on chain ", vm.toString(l2ChainId)
+            )
+        );
+    }
+
+    /// @notice Retrieves an address by its identifier for the sentinel chain, i.e. the
+    /// `[addresses]` section of the config file.
+    function get(string memory _identifier) public view returns (address who_) {
+        return getAddress(_identifier, sentinelChain.chainId);
+    }
+
+    /// @notice Retrieves the identifier and chain info for a given address.
+    /// This is deprecated in favor of the `get` function.
+    function getAddressInfo(address addr) public view returns (AddressInfo memory) {
+        require(
+            bytes(addressInfo[addr].identifier).length != 0,
+            string.concat("SuperchainAddressRegistry: AddressInfo not found for ", vm.toString(addr))
+        );
+        return addressInfo[addr];
+    }
+
+    /// @notice Retrieves the identifier and chain info for a given address.
+    function get(address _who) public view returns (AddressInfo memory) {
+        return getAddressInfo(_who);
+    }
+
+    /// @notice Returns the list of supported chains
+    function getChains() public view returns (ChainInfo[] memory) {
+        return chains;
+    }
+
+    // ========================================================
+    // ======== Superchain address discovery functions ========
+    // ========================================================
 
     /// @dev Processes all configurations for a given chain.
     function _processAddresses(ChainInfo memory chain, string memory chainAddressesContent) internal {
@@ -206,103 +282,6 @@ contract AddressRegistry is Test {
         saveAddress("ProxyAdmin", chain, proxyAdmin);
         address proxyAdminOwner = IFetcher(proxyAdmin).owner();
         saveAddress("ProxyAdminOwner", chain, proxyAdminOwner);
-    }
-
-    function saveAddress(string memory identifier, ChainInfo memory chain, address addr) internal {
-        require(addr != address(0), "Address cannot be zero");
-        require(registry[identifier][chain.chainId].addr == address(0), "Address already registered");
-
-        registry[identifier][chain.chainId] = RegistryEntry(addr, addr.code.length > 0);
-        addressInfo[addr] = AddressInfo(identifier, chain);
-
-        // Format the chain name: uppercase it and replace spaces with underscores,
-        // then concatenate with the identifier to form a readable label.
-        string memory formattedChain = vm.replace(vm.toUppercase(chain.name), " ", "_");
-        string memory label = string.concat(formattedChain, "_", identifier);
-        vm.label(addr, label);
-    }
-
-    /// @notice Retrieves an address by its identifier for a specified L2 chain
-    /// @param identifier The unique identifier associated with the address
-    /// @param l2ChainId The chain ID of the L2 network
-    /// @return The address associated with the given identifier on the specified chain
-    function getAddress(string memory identifier, uint256 l2ChainId) public view returns (address) {
-        _l2ChainIdSupported(l2ChainId);
-
-        // Fetch the stored registry entry
-        RegistryEntry memory entry = registry[identifier][l2ChainId];
-        address resolvedAddress = entry.addr;
-
-        require(resolvedAddress != address(0), "Address not found");
-
-        return resolvedAddress;
-    }
-
-    /// @notice Retrieves the identifier and chain info for a given address.
-    /// @param addr The address to retrieve info for.
-    /// @return The identifier and chain info for the given address.
-    function getAddressInfo(address addr) public view returns (AddressInfo memory) {
-        require(bytes(addressInfo[addr].identifier).length != 0, "Address Info not found");
-        return addressInfo[addr];
-    }
-
-    /// @notice Checks if an address is a contract for a given identifier and L2 chain
-    /// @param identifier The unique identifier associated with the address
-    /// @param l2ChainId The chain ID of the L2 network
-    /// @return True if the address is a contract, false otherwise
-    function isAddressContract(string memory identifier, uint256 l2ChainId) public view returns (bool) {
-        _l2ChainIdSupported(l2ChainId);
-        _checkAddressRegistered(identifier, l2ChainId);
-
-        return registry[identifier][l2ChainId].isContract;
-    }
-
-    /// @notice Checks if an address exists for a specified identifier and L2 chain
-    /// @param identifier The unique identifier associated with the address
-    /// @param l2ChainId The chain ID of the L2 network
-    /// @return True if the address exists, false otherwise
-    function isAddressRegistered(string memory identifier, uint256 l2ChainId) public view returns (bool) {
-        return registry[identifier][l2ChainId].addr != address(0);
-    }
-
-    /// @notice Verifies that an address is registered for a given identifier and chain
-    /// @dev Reverts if the address is not registered
-    /// @param identifier The unique identifier associated with the address
-    /// @param l2ChainId The chain ID of the L2 network
-    function _checkAddressRegistered(string memory identifier, uint256 l2ChainId) private view {
-        require(
-            isAddressRegistered(identifier, l2ChainId),
-            string(
-                abi.encodePacked("Address not found for identifier ", identifier, " on chain ", vm.toString(l2ChainId))
-            )
-        );
-    }
-
-    /// @notice Returns the list of supported chains
-    /// @return An array of ChainInfo structs representing the supported chains
-    function getChains() public view returns (ChainInfo[] memory) {
-        return chains;
-    }
-
-    /// @notice Verifies that the given L2 chain ID is supported
-    /// @param l2ChainId The chain ID of the L2 network to verify
-    function _l2ChainIdSupported(uint256 l2ChainId) private view {
-        require(
-            supportedL2ChainIds[l2ChainId],
-            string(abi.encodePacked("L2 Chain ID ", vm.toString(l2ChainId), " not supported"))
-        );
-    }
-
-    /// @notice Validates whether an address matches its expected type (contract or EOA)
-    /// @dev Reverts if the address type does not match the expected type
-    /// @param addr The address to validate
-    /// @param isContract True if the address should be a contract, false if it should be an EOA
-    function _typeCheckAddress(address addr, bool isContract) private view {
-        if (isContract) {
-            require(addr.code.length > 0, "Address must contain code");
-        } else {
-            require(addr.code.length == 0, "Address must not contain code");
-        }
     }
 
     /// @dev Saves all dispute game related registry entries.

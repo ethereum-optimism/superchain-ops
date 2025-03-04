@@ -4,11 +4,12 @@ pragma solidity 0.8.15;
 import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 
-import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
+import {L2TaskBase} from "src/improvements/tasks/MultisigTask.sol";
+import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 
 /// @title GasConfigTemplate
 /// @notice Template contract for configuring gas limits
-contract GasConfigTemplate is MultisigTask {
+contract GasConfigTemplate is L2TaskBase {
     /// @notice Struct to store gas limits to be set for a specific L2 chain ID
     /// @param chainId The ID of the L2 chain
     /// @param gasLimit The gas limit to be set for the chain
@@ -46,25 +47,29 @@ contract GasConfigTemplate is MultisigTask {
         }
     }
 
-    /// @notice Builds the actions for setting gas limits for a specific L2 chain ID
-    /// @param chainId The ID of the L2 chain to configure
-    function _buildPerChain(uint256 chainId) internal override {
-        // View only, filtered out by MultisigTask.sol
-        SystemConfig systemConfig = SystemConfig(addrRegistry.getAddress("SystemConfigProxy", chainId));
+    /// @notice Builds the actions for setting gas limits.
+    function _build() internal override {
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
-        if (gasLimits[chainId] != 0) {
-            // Mutative call, recorded by MultisigTask.sol for generating multisig calldata
-            systemConfig.setGasLimit(gasLimits[chainId]);
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            SystemConfig systemConfig = SystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId));
+            if (gasLimits[chainId] != 0) {
+                // Mutative call, recorded by MultisigTask.sol for generating multisig calldata
+                systemConfig.setGasLimit(gasLimits[chainId]);
+            }
         }
     }
 
     /// @notice Validates that gas limits were set correctly for the specified chain ID
-    /// @param chainId The ID of the L2 chain to validate
-    function _validate(uint256 chainId, VmSafe.AccountAccess[] memory) internal view override {
-        SystemConfig systemConfig = SystemConfig(addrRegistry.getAddress("SystemConfigProxy", chainId));
-
-        if (gasLimits[chainId] != 0) {
-            assertEq(systemConfig.gasLimit(), gasLimits[chainId], "l2 gas limit not set");
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            SystemConfig systemConfig = SystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId));
+            if (gasLimits[chainId] != 0) {
+                assertEq(systemConfig.gasLimit(), gasLimits[chainId], "l2 gas limit not set");
+            }
         }
     }
 

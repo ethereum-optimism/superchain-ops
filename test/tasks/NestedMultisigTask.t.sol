@@ -10,8 +10,8 @@ import {LibSort} from "@solady/utils/LibSort.sol";
 import {Test} from "forge-std/Test.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 
-import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
+import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
+import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {TestOPCMUpgradeVxyz} from "src/improvements/template/TestOPCMUpgradeVxyz.sol";
 import {DisputeGameUpgradeTemplate} from "src/improvements/template/DisputeGameUpgradeTemplate.sol";
 
@@ -24,6 +24,7 @@ contract NestedMultisigTaskTest is Test {
 
     MultisigTask private multisigTask;
     AddressRegistry private addrRegistry;
+    SuperchainAddressRegistry private superchainAddrRegistry;
     mapping(address => uint256) private privateKeyForOwner;
 
     /// @notice constants that describe the owner storage offsets in Gnosis Safe
@@ -41,6 +42,7 @@ contract NestedMultisigTaskTest is Test {
         multisigTask = new DisputeGameUpgradeTemplate();
         (accountAccesses, actions) = multisigTask.simulateRun(taskConfigFilePath);
         addrRegistry = multisigTask.addrRegistry();
+        superchainAddrRegistry = SuperchainAddressRegistry(AddressRegistry.unwrap(addrRegistry));
     }
 
     function testSafeNested() public {
@@ -137,12 +139,14 @@ contract NestedMultisigTaskTest is Test {
         address parentMultisig = multisigTask.parentMultisig();
         address[] memory parentMultisigOwners = IGnosisSafe(parentMultisig).getOwners();
         bytes[] memory childMultisigDatasToSign = new bytes[](parentMultisigOwners.length);
+
         // store the data to sign for each child multisig
         for (uint256 i = 0; i < parentMultisigOwners.length; i++) {
             childMultisigDatasToSign[i] = getNestedDataToSign(parentMultisigOwners[i], actions);
         }
         IDisputeGameFactory disputeGameFactory =
-            IDisputeGameFactory(addrRegistry.getAddress("DisputeGameFactoryProxy", 10));
+            IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", 10));
+
         // revert to snapshot so that the safe is in the same state as before the task was run
         vm.revertTo(snapshotId);
 
