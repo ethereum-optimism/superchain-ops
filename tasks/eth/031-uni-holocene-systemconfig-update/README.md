@@ -4,11 +4,7 @@ Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
-<<<<<<< HEAD
-Upgrades **Unichain Mainnet** System Config to the Holocene version.
-=======
-Upgrades the **Unichain Mainnet** Fault Proof PDG to a new challenger and upgrades the System Config to the Holocene version.
->>>>>>> bd379386d4b13dff634c3cfcd01d5f1968ae5005
+Upgrades **Unichain Mainnet** System Config to the Holocene version. In addition to upgrading the standard SystemConfig contract, this upgrade also adjusts the (blob) base fee scalar value in the SystemConfig contract to match what is used on L2 already. See the [validation file](./VALIDATION.md). for more details. 
 
 The proposal was:
 
