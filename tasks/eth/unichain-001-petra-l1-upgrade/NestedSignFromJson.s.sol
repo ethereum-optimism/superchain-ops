@@ -60,6 +60,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
     GnosisSafe councilSafe = GnosisSafe(payable(vm.envAddress("COUNCIL_SAFE")));
     GnosisSafe foundationSafe =
         GnosisSafe(payable(vm.envAddress("FOUNDATION_SAFE")));
+    GnosisSafe chainGovernorSafe =
+        GnosisSafe(payable(vm.envAddress("CHAIN_GOVERNOR_SAFE")));
 
     // The slot used to store the livenessGuard address in GnosisSafe.
     // See https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/base/GuardManager.sol#L30
@@ -273,18 +275,26 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
         override
         returns (address[] memory allowed)
     {
-        allowed = new address[](5 + extraStorageAccessAddresses.length);
+        allowed = new address[](7 + extraStorageAccessAddresses.length);
         allowed[0] = address(dgfProxy);
         allowed[1] = address(ownerSafe);
         allowed[2] = address(councilSafe);
         allowed[3] = address(foundationSafe);
-        address livenessGuard = address(
+        allowed[4] = address(chainGovernorSafe);
+
+        address livenessGuardChainGovernorSafe = address(
+            uint160(
+                uint256(vm.load(address(chainGovernorSafe), livenessGuardSlot))
+            )
+        );
+        address livenessGuardCouncilSafe = address(
             uint160(uint256(vm.load(address(councilSafe), livenessGuardSlot)))
         );
-        allowed[4] = livenessGuard;
+        allowed[5] = livenessGuardChainGovernorSafe;
+        allowed[6] = livenessGuardCouncilSafe;
 
         for (uint256 i = 0; i < extraStorageAccessAddresses.length; i++) {
-            allowed[5 + i] = extraStorageAccessAddresses[i];
+            allowed[7 + i] = extraStorageAccessAddresses[i];
         }
         return allowed;
     }
