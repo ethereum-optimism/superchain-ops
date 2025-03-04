@@ -11,7 +11,7 @@ get_current_block() {
     echo "response: $response"
     hex=$(echo "$response" | jq -r '.result')
     trimmed_hex=${hex#0x}
-    echo $((16#$trimmed_hex))
+    echo "$((16#$trimmed_hex))"
 }
 
 # Check that the node is synced
