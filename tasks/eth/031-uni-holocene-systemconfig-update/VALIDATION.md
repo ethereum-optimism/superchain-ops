@@ -16,7 +16,9 @@ For each contract listed in the state diff, please verify that no contracts or s
 - **Key**: `0x0000000000000000000000000000000000000000000000000000000000000066`
   **Before**: `0x00000000000000000000000000000000000000000000000000000000000dbba0`
   **After**: `0x010000000000000000000000000000000000000000000000000dbba0000007d0`
-  **Meaning**: Updates the scalar slot to reflect a scalar version of 1. This transaction bundles a change to the `blobBaseFeeScalar` from 0 to 900000. This is done to correct for the fact that Unichain did not set `blobBaseFeeScalar` in their previous deployment of the contracts.  The verification system expects the `blobBaseFeeScalar` to remain unchanged, however, we use an override flag to enable this change. 
+  **Meaning**: Updates the scalar slot to reflect a scalar version of 1. 
+  
+  Note: This transaction bundles a change to the `blobBaseFeeScalar` from 0 to 900000. This is done to correct for the fact that Unichain did not set `blobBaseFeeScalar` in their previous deployment of the contracts.  The verification system expects the `blobBaseFeeScalar` to remain unchanged, however, we use an override flag to enable this change. 
 
 - **Key**: `0x0000000000000000000000000000000000000000000000000000000000000068`
   **Before**: `0x0000000000000000000000000000000000000000000000000000000001c9c380`
