@@ -128,7 +128,7 @@ abstract contract MultisigTask is Test, Script {
 
     /// @notice Returns an array of strings that refer to contract names in the address registry.
     /// Contracts with these names are expected to have their storage written to during the task.
-    function _taskStorageWrites(string memory taskConfigFilePath) internal view virtual returns (string[] memory);
+    function _taskStorageWrites() internal view virtual returns (string[] memory);
 
     /// @notice By default, any value written to storage that looks like an address is expected to
     /// have code. Sometimes, accounts without code are expected, and this function allows you to
@@ -264,14 +264,14 @@ abstract contract MultisigTask is Test, Script {
     /// @param taskConfigFilePath The path to the task configuration file.
     function _taskSetup(string memory taskConfigFilePath) internal {
         require(bytes(config.safeAddressString).length == 0, "MultisigTask: already initialized");
-
         config.safeAddressString = safeAddressString();
-        config.allowedStorageWriteAccesses = _taskStorageWrites(taskConfigFilePath);
-        config.allowedStorageWriteAccesses.push(safeAddressString());
-
+        
         IGnosisSafe _parentMultisig; // TODO parentMultisig should be of type IGnosisSafe
         (addrRegistry, _parentMultisig, multicallTarget) = _configureTask(taskConfigFilePath);
         parentMultisig = address(_parentMultisig);
+        
+        config.allowedStorageWriteAccesses = _taskStorageWrites();
+        config.allowedStorageWriteAccesses.push(safeAddressString());
 
         _templateSetup(taskConfigFilePath);
 
@@ -1080,7 +1080,10 @@ abstract contract L2TaskBase is MultisigTask {
                 )
             );
         }
+    }
 
+    function _templateSetup(string memory) internal virtual override {
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         // This loads the allowed storage write accesses to storage for this task.
         // If this task changes storage slots outside of the allowed write accesses,
         // then the task will fail at runtime and the task developer will need to

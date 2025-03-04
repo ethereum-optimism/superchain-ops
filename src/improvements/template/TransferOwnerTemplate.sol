@@ -21,7 +21,7 @@ contract TransferOwnerTemplate is L2TaskBase {
 
     /// @notice Returns the storage write permissions required for this task
     /// @return Array of storage write permissions, in this case, only the ProxyAdmin is returned
-    function _taskStorageWrites(string memory)
+    function _taskStorageWrites()
         internal
         pure
         virtual
@@ -36,6 +36,7 @@ contract TransferOwnerTemplate is L2TaskBase {
     /// @notice Sets up the template with the new owner from a TOML file
     /// @param taskConfigFilePath Path to the TOML configuration file
     function _templateSetup(string memory taskConfigFilePath) internal override {
+        super._templateSetup(taskConfigFilePath);
         newOwner = abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".newOwner"), (address));
         // only allow one chain to be modified at a time with this template
         SuperchainAddressRegistry.ChainInfo[] memory _chains = abi.decode(
