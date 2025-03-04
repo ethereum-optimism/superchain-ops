@@ -49,7 +49,7 @@ contract NestedSignFromJson is
     function _postCheck(
         Vm.AccountAccess[] memory accesses,
         Simulation.Payload memory
-    ) internal override {
+    ) internal view override {
         console.log("Running post-deploy assertions");
         checkStateDiff(accesses);
         sysCfgUpgrade.checkSystemConfigUpgrade();
