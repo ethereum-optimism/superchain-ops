@@ -5,22 +5,9 @@ import {Test} from "forge-std/Test.sol";
 import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 
-contract SimpleAddressRegistryTest is Test {
-    // Test addresses
-    address constant alice = address(1);
-    address constant bob = address(2);
-    address constant charlie = address(3);
-
+contract Helper {
     // Path to test fixture files
     string constant FIXTURES_PATH = "test/fixtures/SimpleAddressRegistry/";
-
-    string registryName; // Contract name being tested.
-    string idReturnKind; // "identifier" or "AddressInfo"
-
-    function setUp() public virtual {
-        registryName = "SimpleAddressRegistry";
-        idReturnKind = "identifier";
-    }
 
     // Helper function to read TOML from fixture file
     function _getPath(string memory configFile) internal pure returns (string memory) {
@@ -29,6 +16,21 @@ contract SimpleAddressRegistryTest is Test {
 
     function _deployRegistry(string memory configFile) internal virtual returns (address) {
         return address(new SimpleAddressRegistry(_getPath(configFile)));
+    }
+}
+
+contract SimpleAddressRegistryTest is Helper, Test {
+    // Test addresses
+    address constant alice = address(1);
+    address constant bob = address(2);
+    address constant charlie = address(3);
+
+    string registryName; // Contract name being tested.
+    string idReturnKind; // "identifier" or "AddressInfo"
+
+    function setUp() public virtual {
+        registryName = "SimpleAddressRegistry";
+        idReturnKind = "identifier";
     }
 
     function test_initialize_succeeds_withValidToml() public {
@@ -89,5 +91,39 @@ contract SimpleAddressRegistryTest is Test {
             string.concat(registryName, ": ", idReturnKind, " not found for 0x0000000000000000000000000000000000000005");
         vm.expectRevert(bytes(err));
         registry.get(address(5));
+    }
+}
+
+contract SimpleAddressRegistryTest_HardcodedAddresses is Helper, Test {
+    bool isSimpleAddressRegistry;
+
+    function setUp() public virtual {
+        isSimpleAddressRegistry = true;
+    }
+
+    function test_hardcodedAddresses_mainnet() public {
+        vm.createSelectFork("mainnet");
+        SimpleAddressRegistry registry = SimpleAddressRegistry(_deployRegistry("valid_addresses.toml"));
+        assertEq(registry.get("ChainGovernorSafe"), 0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC, "10");
+        assertEq(registry.get("FoundationOperationSafe"), 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A, "20");
+        assertEq(registry.get("FoundationUpgradeSafe"), 0x847B5c174615B1B7fDF770882256e2D3E95b9D92, "30");
+        assertEq(registry.get("SecurityCouncil"), 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03, "40");
+    }
+
+    function test_hardcodedAddresses_sepolia() public {
+        vm.createSelectFork("sepolia");
+        SimpleAddressRegistry registry = SimpleAddressRegistry(_deployRegistry("valid_addresses_sepolia.toml"));
+        assertEq(registry.get("FoundationOperationSafe"), 0x837DE453AD5F21E89771e3c06239d8236c0EFd5E, "10");
+        assertEq(registry.get("FoundationUpgradeSafe"), 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B, "20");
+        assertEq(registry.get("SecurityCouncil"), 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977, "30");
+    }
+
+    function test_hardcodedAddresses_opMainnet() public {
+        if (!isSimpleAddressRegistry) {
+            vm.skip(true, "Skipping test for opMainnet when not a SimpleAddressRegistry");
+        }
+        vm.createSelectFork("opMainnet");
+        vm.expectRevert("SimpleAddressRegistry: no keys found for .oeth");
+        _deployRegistry("valid_addresses.toml");
     }
 }
