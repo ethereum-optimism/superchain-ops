@@ -94,7 +94,7 @@ contract NestedSignFromJson is SuperchainRegistry, OriginalNestedSignFromJson, C
         );
 
         // Run StandardValidatorV180 to check that the chain config is valid
-        StandardValidatorV180 validator = StandardValidatorV180(0x0A5bF8eBb4b177B2dcc6EbA933db726a2e2e2B4d);
+        StandardValidatorV180 validator = StandardValidatorV180(0xFDa93f2Db6676541dDE71165681d0f23B25163dC);
         StandardValidatorV180.InputV180 memory input = StandardValidatorV180.InputV180({
             proxyAdmin: proxyAdmin,
             sysCfg: systemConfig,
@@ -108,8 +108,11 @@ contract NestedSignFromJson is SuperchainRegistry, OriginalNestedSignFromJson, C
         // We expect the following errors:
         // PDDG-ANCHORP-40 - The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
         // PLDG-ANCHORP-40 - The anchor state registry's permissionless root is not 0xdead000000000000000000000000000000000000000000000000000000000000
+        // PDDG-DWETH-30 - The DelayedWeth owner should match the L1PAO, but is the Foundation
+        // PLDG-DWETH-30 - The DelayedWeth owner should match the L1PAO, but is the Foundation
+
         require(
-            keccak256(bytes(reasons)) == keccak256(bytes("PDDG-ANCHORP-40,PLDG-ANCHORP-40")),
+            keccak256(bytes(reasons)) == keccak256(bytes("PDDG-DWETH-30,PDDG-ANCHORP-40,PLDG-DWETH-30,PLDG-ANCHORP-40")),
             string.concat("Unexpected errors: ", reasons)
         );
 
