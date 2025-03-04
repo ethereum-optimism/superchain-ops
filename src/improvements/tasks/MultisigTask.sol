@@ -141,7 +141,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
     /// @notice Returns an array of strings that refer to contract names in the address registry.
     /// Contracts with these names are expected to have their storage written to during the task.
-    function _taskStorageWrites(string memory taskConfigFilePath) internal view virtual returns (string[] memory);
+    function _taskStorageWrites() internal view virtual returns (string[] memory);
 
     /// @notice By default, any value written to storage that looks like an address is expected to
     /// have code. Sometimes, accounts without code are expected, and this function allows you to
@@ -280,15 +280,15 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @param taskConfigFilePath The path to the task configuration file.
     function _taskSetup(string memory taskConfigFilePath) internal {
         require(bytes(config.safeAddressString).length == 0, "MultisigTask: already initialized");
-
         config.safeAddressString = safeAddressString();
-        config.allowedStorageWriteAccesses = _taskStorageWrites(taskConfigFilePath);
-        config.allowedStorageWriteAccesses.push(safeAddressString());
 
         IGnosisSafe _parentMultisig; // TODO parentMultisig should be of type IGnosisSafe
         (addrRegistry, _parentMultisig, multicallTarget) = _configureTask(taskConfigFilePath);
 
         parentMultisig = address(_parentMultisig);
+
+        config.allowedStorageWriteAccesses = _taskStorageWrites();
+        config.allowedStorageWriteAccesses.push(safeAddressString());
 
         _templateSetup(taskConfigFilePath);
         nonce = IGnosisSafe(parentMultisig).nonce(); // Maybe be overridden later by state overrides
@@ -1168,9 +1168,10 @@ abstract contract L2TaskBase is MultisigTask {
                 )
             );
         }
+    }
 
-        console.log("Parent multisig: ", address(parentMultisig_));
-
+    function _templateSetup(string memory) internal virtual override {
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
             for (uint256 j = 0; j < chains.length; j++) {
                 try superchainAddrRegistry.getAddress(config.allowedStorageWriteAccesses[i], chains[j].chainId)

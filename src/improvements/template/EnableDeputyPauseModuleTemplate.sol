@@ -40,7 +40,7 @@ contract EnableDeputyPauseModuleTemplate is SimpleBase {
 
     /// @notice Returns the storage write permissions required for this task
     /// @return Array of storage write permissions
-    function _taskStorageWrites(string memory) internal pure override returns (string[] memory) {
+    function _taskStorageWrites() internal pure override returns (string[] memory) {
         string[] memory storageWrites;
 
         storageWrites = new string[](1);
@@ -52,6 +52,7 @@ contract EnableDeputyPauseModuleTemplate is SimpleBase {
     /// @notice Sets up the template with module configuration from a TOML file
     /// @param taskConfigFilePath Path to the TOML configuration file
     function _templateSetup(string memory taskConfigFilePath) internal override {
+        super._templateSetup(taskConfigFilePath);
         string memory file = vm.readFile(taskConfigFilePath);
         newModule = vm.parseTomlAddress(file, ".newModule");
         assertNotEq(newModule.code.length, 0, "new module must have code");

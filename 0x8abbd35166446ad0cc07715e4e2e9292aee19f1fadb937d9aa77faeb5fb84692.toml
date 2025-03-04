@@ -1,0 +1,12 @@
+l2chains = [{name = "OP Mainnet", chainId = 10}]
+
+templateName = "DisputeGameUpgradeTemplate"
+
+implementations = [{gameType = 0, implementation = "0xf691F8A6d908B58C534B624cF16495b491E633BA", l2ChainId = 10}]
+[stateOverrides]
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [
+    {key = "0x1c817c894a1443ac14bff2139acff0976be484b1fcecf627833591a0e476b5d7", value = 9999}
+]
+0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 = [
+    {key = "0x1c817c894a1443ac14bff2139acff0976be484b1fcecf627833591a0e476b5d7", value = 8888}
+]
