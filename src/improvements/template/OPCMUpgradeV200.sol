@@ -49,13 +49,7 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
     }
 
     /// @notice Returns the storage write permissions
-    function _taskStorageWrites()
-        internal
-        view
-        virtual
-        override
-        returns (string[] memory)
-    {
+    function _taskStorageWrites() internal view virtual override returns (string[] memory) {
         require(address(superchainAddrRegistry) != address(0), "OPCMUpgradeV200: superchainAddrRegistry not set");
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         uint256 extraWrites = 0;
