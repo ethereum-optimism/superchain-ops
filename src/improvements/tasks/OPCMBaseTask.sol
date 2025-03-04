@@ -13,8 +13,8 @@ import {L2TaskBase, MultisigTask, AddressRegistry} from "src/improvements/tasks/
 /// @notice base task for making calls to the Optimism Contracts Manager
 abstract contract OPCMBaseTask is L2TaskBase {
     using stdStorage for StdStorage;
-    /// @notice Optimism Contracts Manager Multicall3DelegateCall contract reference
 
+    /// @notice Optimism Contracts Manager Multicall3DelegateCall contract reference
     address public constant MULTICALL3_DELEGATECALL_ADDRESS = 0x93dc480940585D9961bfcEab58124fFD3d60f76a;
 
     /// @notice OpChainConfig struct found in the OpContractsManager contract
