@@ -11,10 +11,15 @@ import {
 import {IStandardValidatorV200} from "@eth-optimism-bedrock/interfaces/L1/IStandardValidator.sol";
 import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {VmSafe} from "forge-std/Vm.sol";
+import {stdToml} from "forge-std/StdToml.sol";
+import {console} from "forge-std/console.sol";
+import {LibString} from "solady/utils/LibString.sol";
 
 /// @notice This template supports OPCMV200 upgrade tasks.
 contract OPCMUpgradeV200 is OPCMBaseTask {
+    using stdToml for string;
     /// @notice The OPContractsManager address
+
     address public OPCM;
 
     /// @notice The StandardValidatorV200 address
@@ -35,10 +40,38 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
         return OPCM;
     }
 
+    function chainHasPermissionlessDisputeGame(uint256 chainId) public pure returns (bool) {
+        chainId;
+        return true; // TODO: implement for fully for chainIds going through V200 upgrade.
+    }
+
     /// @notice Returns the storage write permissions
-    function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
-        string[] memory storageWrites = new string[](13);
-        // Upgraded contracts
+    function _taskStorageWrites(string memory taskConfigFilePath)
+        internal
+        view
+        virtual
+        override
+        returns (string[] memory)
+    {
+        string memory toml = vm.readFile(taskConfigFilePath);
+        bytes memory chainListContent = toml.parseRaw(".l2chains");
+        SuperchainAddressRegistry.ChainInfo[] memory chains =
+            abi.decode(chainListContent, (SuperchainAddressRegistry.ChainInfo[]));
+        require(chains.length > 0, "OPCMUpgradeV200: no chains found");
+
+        uint256 extraWrites = 0;
+        for (uint256 i = 0; i < chains.length; i++) {
+            if (chainHasPermissionlessDisputeGame(chains[i].chainId)) {
+                extraWrites++;
+            }
+        }
+
+        uint256 chainWrites = (2 * chains.length) + extraWrites;
+        uint256 commonWrites = 10;
+        uint256 totalWrites = commonWrites + chainWrites;
+        string[] memory storageWrites = new string[](totalWrites);
+
+        // Common contracts
         storageWrites[0] = "OPContractsManager";
         storageWrites[1] = "SuperchainConfig";
         storageWrites[2] = "ProtocolVersions";
@@ -49,10 +82,19 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
         storageWrites[7] = "OptimismPortalProxy";
         storageWrites[8] = "OptimismMintableERC20FactoryProxy";
         storageWrites[9] = "AddressManager";
-        storageWrites[10] = "PermissionedWETH";
-        storageWrites[11] = "PermissionlessWETH";
-        // Deployed and upgraded contracts
-        storageWrites[12] = "NewAnchorStateRegistry";
+
+        uint256 index = commonWrites;
+        for (uint256 i = 0; i < chains.length; i++) {
+            string memory chainIdStr = LibString.toString(chains[i].chainId);
+            storageWrites[index] = string.concat(chainIdStr, "_PermissionedWETH");
+            index++;
+            if (chainHasPermissionlessDisputeGame(chains[i].chainId)) {
+                storageWrites[index] = string.concat(chainIdStr, "_PermissionlessWETH");
+                index++;
+            }
+            storageWrites[index] = string.concat(chainIdStr, "_NewAnchorStateRegistry");
+            index++;
+        }
         return storageWrites;
     }
 
@@ -115,6 +157,7 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
+            string memory chainIdStr = LibString.toString(chainId);
             bytes32 currentAbsolutePrestate = Claim.unwrap(opcmUpgrades[chainId]);
             address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
             address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
@@ -130,7 +173,7 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
             IFaultDisputeGame pddg =
                 IFaultDisputeGame(IDisputeGameFactory(disputeGameFactoryProxy).gameImpls(uint32(1)));
             require(
-                address(pddg) == superchainAddrRegistry.get("NewPermissionedDisputeGame"),
+                address(pddg) == superchainAddrRegistry.get(string.concat(chainIdStr, "_NewPermissionedDisputeGame")),
                 "OPCMUpgradeV200: PermissionedDisputeGame address incorrect."
             );
             // PDDG-DWETH-40: permissioned dispute game's delayed weth delay is not 1 week
@@ -142,7 +185,8 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
                 pddg.absolutePrestate() == currentAbsolutePrestate,
                 "OPCMUpgradeV200: PermissionedDisputeGame absolutePrestate incorrect."
             );
-            IAnchorStateRegistry newAsr = IAnchorStateRegistry(superchainAddrRegistry.get("NewAnchorStateRegistry"));
+            IAnchorStateRegistry newAsr =
+                IAnchorStateRegistry(superchainAddrRegistry.get(string.concat(chainIdStr, "_NewAnchorStateRegistry")));
             require(
                 pddg.anchorStateRegistry() == address(newAsr),
                 "OPCMUpgradeV200: PermissionedDisputeGame anchorStateRegistry incorrect."
@@ -161,7 +205,8 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
                 IFaultDisputeGame(IDisputeGameFactory(disputeGameFactoryProxy).gameImpls(uint32(0)));
             if (address(pldg) != address(0)) {
                 require(
-                    address(pldg) == superchainAddrRegistry.get("NewPermissionlessDisputeGame"),
+                    address(pldg)
+                        == superchainAddrRegistry.get(string.concat(chainIdStr, "_NewPermissionlessDisputeGame")),
                     "OPCMUpgradeV200: PermissionlessDisputeGame address incorrect."
                 );
                 // PLDG-DWETH-40: permissionless dispute game's delayed weth delay is not 1 week

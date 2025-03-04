@@ -30,7 +30,7 @@ contract EmptyTemplate is MultisigTask {
     }
 
     /// @notice Returns string identifiers for addresses that are expected to have their storage written to.
-    function _taskStorageWrites() internal pure override returns (string[] memory) {
+    function _taskStorageWrites(string memory taskConfigFilePath) internal pure override returns (string[] memory) {
         require(false, "TODO: Populate this array with actual storage permission identifiers.");
         string[] memory storageWrites = new string[](1);
         storageWrites[0] = "SystemConfigProxy"; // TODO: This is an example. Change according to your task.
