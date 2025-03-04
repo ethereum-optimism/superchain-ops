@@ -693,7 +693,6 @@ abstract contract MultisigTask is Test, Script {
 
         // Close the JSON structure
         console.log("}}}}");
-        console.log("------------------ End of Payload ------------------");
     }
 
     /// @notice get the hash for this safe transaction

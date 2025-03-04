@@ -35,7 +35,7 @@ simulate_task() {
     fi
 
     # Extract Tenderly payload from output and save it
-    awk '/------------------ Tenderly Simulation Payload ------------------/{flag=1;next}/------------------ End of Payload ------------------/{flag=0}flag' ./simulation_output.txt > ./tenderly_payload.json
+    awk '/------------------ Tenderly Simulation Payload ------------------/{flag=1;next}/\}\}\}\}$/{print;flag=0}flag' ./simulation_output.txt > ./tenderly_payload.json
     
     # Check if payload was extracted successfully
     if [ -s ./tenderly_payload.json ]; then
