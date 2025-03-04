@@ -34,7 +34,7 @@ contract DisputeGameUpgradeTemplate is L2TaskBase {
 
     /// @notice Returns the storage write permissions required for this task
     /// @return Array of storage write permissions
-    function _taskStorageWrites() internal pure override returns (string[] memory) {
+    function _taskStorageWrites(string memory) internal pure override returns (string[] memory) {
         string[] memory storageWrites = new string[](1);
         storageWrites[0] = "DisputeGameFactoryProxy";
         return storageWrites;

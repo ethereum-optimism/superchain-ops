@@ -128,7 +128,7 @@ abstract contract MultisigTask is Test, Script {
 
     /// @notice Returns an array of strings that refer to contract names in the address registry.
     /// Contracts with these names are expected to have their storage written to during the task.
-    function _taskStorageWrites() internal pure virtual returns (string[] memory);
+    function _taskStorageWrites(string memory taskConfigFilePath) internal view virtual returns (string[] memory);
 
     /// @notice By default, any value written to storage that looks like an address is expected to
     /// have code. Sometimes, accounts without code are expected, and this function allows you to
@@ -266,7 +266,7 @@ abstract contract MultisigTask is Test, Script {
         require(bytes(config.safeAddressString).length == 0, "MultisigTask: already initialized");
 
         config.safeAddressString = safeAddressString();
-        config.allowedStorageWriteAccesses = _taskStorageWrites();
+        config.allowedStorageWriteAccesses = _taskStorageWrites(taskConfigFilePath);
         config.allowedStorageWriteAccesses.push(safeAddressString());
 
         IGnosisSafe _parentMultisig; // TODO parentMultisig should be of type IGnosisSafe
