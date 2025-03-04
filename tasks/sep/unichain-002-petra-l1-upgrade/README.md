@@ -1,6 +1,6 @@
 # Unichain Sepolia L1 Petra Support Upgrade
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x7db018215e3af49fb2ad685eadf18e69d50903bfb13485a730648e4d5990a2b0)
 
 ## Objective
 
