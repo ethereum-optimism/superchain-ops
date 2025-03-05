@@ -1,0 +1,14 @@
+l2chains = [
+    {name = "OP Mainnet", chainId = 10}, 
+    {name = "Soneium", chainId = 1868},
+    {name = "Ink", chainId = 57073}
+]
+
+templateName = "OPCMUpgradeV200"
+
+[opcmUpgrades]
+absolutePrestates = [
+    {absolutePrestate = "", chainId = 10}, 
+    {absolutePrestate = "", chainId = 1868}, 
+    {absolutePrestate = "", chainId = 57073}
+]
