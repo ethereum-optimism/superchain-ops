@@ -1,0 +1,10 @@
+l2chains = [
+    {name = "Base", chainId = 8453}
+]
+
+templateName = "OPCMUpgradeV200"
+
+[opcmUpgrades]
+absolutePrestates = [
+    {absolutePrestate = "", chainId = 8453},
+]
