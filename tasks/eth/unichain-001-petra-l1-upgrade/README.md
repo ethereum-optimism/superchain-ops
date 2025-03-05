@@ -45,4 +45,4 @@ This upgrade:
 
 * Updates the `DisputeGameFactory` to point to the new `FaultDisputeGame` and `PermissionedDisputeGame` contracts by calling `DisputeGameFactory.setImplementation`
 
-See the [overview](./OVERVIEW.md) and `input.json` bundle for more details.
+See the `input.json` for the bundle transaction and more details.
