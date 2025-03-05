@@ -40,7 +40,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
 1. First tuple (Unichain Sepolia Testnet):
     - SystemConfigProxy: [0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/unichain.toml#L58)
     - ProxyAdmin: [0x2BF403E5353A7a082ef6bb3Ae2Be3B866D8D3ea4](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/unichain.toml#L59)
-    - AbsolutePrestate: `0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd`
+    - AbsolutePrestate: [0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd](https://github.com/ethereum-optimism/optimism/blob/63da401391e9be93517d242da5da24905aa5b84c/op-program/prestates/releases.json#L9)
     - Command to encode: `cast calldata 'upgrade((address,address,bytes32)[])' "[(0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D, 0x2BF403E5353A7a082ef6bb3Ae2Be3B866D8D3ea4, 0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd)]"`
 
 ## Tenderly State Changes
