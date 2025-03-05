@@ -27,7 +27,7 @@ are missing from this document. Additionally, please verify that for each contra
 
 ## State Changes
 
-Note: The changes listed below do not include safe nonce updates or liveness guard related changes.
+Note: The changes listed below do not include threshold and number of owners overrides or liveness guard related changes, these changes are listed in the [NESTED-VALIDATION.md](../../../NESTED-VALIDATION.md) file.
 
 ### `0x2F12d621a16e2d3285929C9996f478508951dFe4` (`DisputeGameFactoryProxy`)
 
