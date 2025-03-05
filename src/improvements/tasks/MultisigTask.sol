@@ -269,7 +269,7 @@ abstract contract MultisigTask is Test, Script {
         IGnosisSafe _parentMultisig; // TODO parentMultisig should be of type IGnosisSafe
         (addrRegistry, _parentMultisig, multicallTarget) = _configureTask(taskConfigFilePath);
         parentMultisig = address(_parentMultisig);
-        
+
         config.allowedStorageWriteAccesses = _taskStorageWrites();
         config.allowedStorageWriteAccesses.push(safeAddressString());
 
