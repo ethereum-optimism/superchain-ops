@@ -286,7 +286,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         (addrRegistry, _parentMultisig, multicallTarget) = _configureTask(taskConfigFilePath);
 
         parentMultisig = address(_parentMultisig);
-        
+
         config.allowedStorageWriteAccesses = _taskStorageWrites();
         config.allowedStorageWriteAccesses.push(safeAddressString());
 
