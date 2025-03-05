@@ -99,7 +99,7 @@ The GnosisSafe `approvedHashes` mapping is updated to indicate approval of this 
 
 When the Security Council Safe or Unichain Operation Safe executes a transaction, the liveness timestamps are updated for each owner that signed the task.
 This is updating at the moment when the transaction is submitted (`block.timestamp`) into the [`lastLive`](https://github.com/ethereum-optimism/optimism/blob/e84868c27776fd04dc77e95176d55c8f6b1cc9a3/packages/contracts-bedrock/src/safe/LivenessGuard.sol#L41) mapping located at the slot `0`.
-Livness Guard Addresses:
+Liveness Guard Addresses:
 - [Liveness Security Council Safe](https://etherscan.io/address/0x24424336f04440b1c28685a38303ac33c9d14a25)
 - [Liveness Unichain Operation Safe](https://etherscan.io/address/0x9343c452dec3251fe99D9Fd29b74c5b9CD1751a6)
 
