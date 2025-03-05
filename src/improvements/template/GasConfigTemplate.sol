@@ -6,7 +6,7 @@ import {VmSafe} from "forge-std/Vm.sol";
 
 import {L2TaskBase} from "src/improvements/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
-
+import {console} from "forge-std/console.sol";
 /// @title GasConfigTemplate
 /// @notice Template contract for configuring gas limits
 contract GasConfigTemplate is L2TaskBase {
@@ -39,6 +39,8 @@ contract GasConfigTemplate is L2TaskBase {
     /// @notice Sets up the template with gas configurations from a TOML file
     /// @param taskConfigFilePath Path to the TOML configuration file
     function _templateSetup(string memory taskConfigFilePath) internal override {
+        console.log("in template setup in GasConfigTemplate");
+        super._templateSetup(taskConfigFilePath);
         GasConfig[] memory gasConfig =
             abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".gasConfigs.gasLimits"), (GasConfig[]));
 
