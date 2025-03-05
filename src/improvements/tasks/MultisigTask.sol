@@ -103,7 +103,7 @@ abstract contract MultisigTask is Test, Script {
 
     /// @notice Task TOML config file values
     struct TaskConfig {
-        string[] allowedStorageWriteAccesses;
+        string[] allowedStorageKeys;
         string safeAddressString;
     }
 
@@ -268,9 +268,9 @@ abstract contract MultisigTask is Test, Script {
         IGnosisSafe _parentMultisig; // TODO parentMultisig should be of type IGnosisSafe
         (addrRegistry, _parentMultisig, multicallTarget) = _configureTask(taskConfigFilePath);
         parentMultisig = address(_parentMultisig);
-        
-        config.allowedStorageWriteAccesses = _taskStorageWrites();
-        config.allowedStorageWriteAccesses.push(safeAddressString());
+
+        config.allowedStorageKeys = _taskStorageWrites();
+        config.allowedStorageKeys.push(safeAddressString());
 
         _templateSetup(taskConfigFilePath);
 
@@ -1081,20 +1081,16 @@ abstract contract L2TaskBase is MultisigTask {
         }
     }
 
-    function _templateSetup(string memory) internal virtual override {
+    function _templateSetup(string memory) internal {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-        // This loads the allowed storage write accesses to storage for this task.
-        // If this task changes storage slots outside of the allowed write accesses,
-        // then the task will fail at runtime and the task developer will need to
-        // update the config to include the addresses whose storage slots changed,
-        // or figure out why the storage slots are being changed when they should not be.
-        for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
+        for (uint256 i = 0; i < config.allowedStorageKeys.length; i++) {
             for (uint256 j = 0; j < chains.length; j++) {
-                try superchainAddrRegistry.getAddress(config.allowedStorageWriteAccesses[i], chains[j].chainId)
-                returns (address addr) {
+                try superchainAddrRegistry.getAddress(config.allowedStorageKeys[i], chains[j].chainId) returns (
+                    address addr
+                ) {
                     _allowedStorageAccesses.add(addr);
                 } catch {
-                    _allowedStorageAccesses.add(superchainAddrRegistry.get(config.allowedStorageWriteAccesses[i]));
+                    _allowedStorageAccesses.add(superchainAddrRegistry.get(config.allowedStorageKeys[i]));
                 }
             }
         }
