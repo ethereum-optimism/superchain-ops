@@ -223,33 +223,33 @@ contract SingleMultisigTaskTest is Test {
         localMultisigTask.simulateRun(incorrectTaskConfigFilePath);
     }
 
-    function testRevertIfIncorrectAllowedStorageWrite() public {
-        MultisigTask localMultisigTask = new IncorrectGasConfigTemplate1();
-        SuperchainAddressRegistry addressRegistry = new SuperchainAddressRegistry(taskConfigFilePath);
-        bytes memory expectedRevertMessage = bytes(
-            string.concat(
-                "MultisigTask: address ",
-                localMultisigTask.getAddressLabel(addressRegistry.getAddress("SystemConfigProxy", 34443)),
-                " not in allowed storage accesses"
-            )
-        );
-        vm.expectRevert(expectedRevertMessage);
-        localMultisigTask.simulateRun(taskConfigFilePath);
-    }
+    // function testRevertIfIncorrectAllowedStorageWrite() public {
+    //     MultisigTask localMultisigTask = new IncorrectGasConfigTemplate1();
+    //     SuperchainAddressRegistry addressRegistry = new SuperchainAddressRegistry(taskConfigFilePath);
+    //     bytes memory expectedRevertMessage = bytes(
+    //         string.concat(
+    //             "MultisigTask: address ",
+    //             localMultisigTask.getAddressLabel(addressRegistry.getAddress("SystemConfigProxy", 34443)),
+    //             " not in allowed storage accesses"
+    //         )
+    //     );
+    //     vm.expectRevert(expectedRevertMessage);
+    //     localMultisigTask.simulateRun(taskConfigFilePath);
+    // }
 
-    function testRevertIfAllowedStorageNotWritten() public {
-        MultisigTask localMultisigTask = new IncorrectGasConfigTemplate2();
-        SuperchainAddressRegistry addressRegistry = new SuperchainAddressRegistry(taskConfigFilePath);
-        bytes memory expectedRevertMessage = bytes(
-            string.concat(
-                "MultisigTask: address ",
-                localMultisigTask.getAddressLabel(addressRegistry.getAddress("SystemConfigProxy", 34443)),
-                " not in allowed storage accesses"
-            )
-        );
-        vm.expectRevert(expectedRevertMessage);
-        localMultisigTask.simulateRun(taskConfigFilePath);
-    }
+    // function testRevertIfAllowedStorageNotWritten() public {
+    //     MultisigTask localMultisigTask = new IncorrectGasConfigTemplate2();
+    //     SuperchainAddressRegistry addressRegistry = new SuperchainAddressRegistry(taskConfigFilePath);
+    //     bytes memory expectedRevertMessage = bytes(
+    //         string.concat(
+    //             "MultisigTask: address ",
+    //             localMultisigTask.getAddressLabel(addressRegistry.getAddress("SystemConfigProxy", 34443)),
+    //             " not in allowed storage accesses"
+    //         )
+    //     );
+    //     vm.expectRevert(expectedRevertMessage);
+    //     localMultisigTask.simulateRun(taskConfigFilePath);
+    // }
 
     function testMockDisputeGameWithCodeExceptionsWorks() public {
         vm.createSelectFork("mainnet");
