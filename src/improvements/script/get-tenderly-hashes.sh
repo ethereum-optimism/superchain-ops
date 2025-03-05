@@ -14,6 +14,10 @@ fi
 
 PAYLOAD_FILE="$1"
 
+# These are not secrets so that the simulation URL shows up
+TENDERLY_USER="alberto-oplabs"
+TENDERLY_PROJECT_SLUG="project"
+
 # Check if the payload file exists
 if [ ! -f "$PAYLOAD_FILE" ]; then
   echo "Error: Payload file not found: $PAYLOAD_FILE" >&2
@@ -23,16 +27,6 @@ fi
 # Check for required environment variables
 if [ -z "${TENDERLY_ACCESS_TOKEN:-}" ]; then
   echo "Error: TENDERLY_ACCESS_TOKEN environment variable is required" >&2
-  exit 1
-fi
-
-if [ -z "${TENDERLY_USER:-}" ]; then
-  echo "Error: TENDERLY_USER environment variable is required" >&2
-  exit 1
-fi
-
-if [ -z "${TENDERLY_PROJECT_SLUG:-}" ]; then
-  echo "Error: TENDERLY_PROJECT_SLUG environment variable is required" >&2
   exit 1
 fi
 
