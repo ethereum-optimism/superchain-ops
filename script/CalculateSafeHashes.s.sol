@@ -106,9 +106,18 @@ contract CalculateSafeHashes is Script {
         pure
         returns (bytes32 domainSeparator_)
     {
-        domainSeparator_ = keccak256(
-            abi.encode(keccak256("EIP712Domain(uint256 chainId,address verifyingContract)"), _chainId, _safeAddress)
-        );
+        console.log("chainId: %s", _chainId);
+        console.log("safeAddress: %s", _safeAddress);
+
+        if (_safeAddress == 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A) { // Foundation Operations Safe - Gnosis Safe 1.1.1
+            domainSeparator_ = keccak256(
+                abi.encode(keccak256("EIP712Domain(address verifyingContract)"), _safeAddress)
+            );
+        } else {
+            domainSeparator_ = keccak256(
+                abi.encode(keccak256("EIP712Domain(uint256 chainId,address verifyingContract)"), _chainId, _safeAddress)
+            );
+        }
     }
 
     /// @notice Calculates the EIP-712 message hash from calldata and nonce

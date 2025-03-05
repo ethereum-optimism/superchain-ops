@@ -693,6 +693,10 @@ abstract contract MultisigTask is Test, Script {
 
         // Close the JSON structure
         console.log("}}}}");
+
+        // Log the simulation link
+        console.log("Simulation link:");
+        Simulation.logSimulationLink({_to: parentMultisig, _data: txData, _from: msg.sender, _overrides: stateOverrides});
     }
 
     /// @notice get the hash for this safe transaction
