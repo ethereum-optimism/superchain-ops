@@ -4,15 +4,3 @@ templateName = "OPCMUpgradeV200"
 
 [opcmUpgrades]
 absolutePrestates = [{absolutePrestate = "0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd", chainId = 11155420}]
-opcmAddress = "0x1B25F566336F47BC5E0036D66E142237DcF4640b"
-standardValidatorAddress = "0x37739a6b0a3F1E7429499a4eC4A0685439Daff5C"
-
-[addresses]
-OPContractsManager = "0x1B25F566336F47BC5E0036D66E142237DcF4640b"
-ProtocolVersions = "0x79ADD5713B383DAa0a138d3C4780C7A1804a8090"
-11155420_PermissionlessWETH = "0xcdFdC692a53B4aE9F81E0aEBd26107Da4a71dB84"
-11155420_PermissionedWETH = "0x9C7750C1c7b39E6b0eFeec06A1F2cf06190f6018"
-# Below are contracts that are deloyed by OPCMUpgradeV200. They have been retrieved from looking at the Tenderly simulation and terminal logs.
-11155420_NewAnchorStateRegistry = "0xDB2727Fc71176Bf8ED630F4142e0439733588e85" # Newly deployed ASR
-11155420_NewPermissionlessDisputeGame = "0xa4685ac20033fa5ee302792e18d5eda49a365d7a" # Newly deployed permissionless dispute game
-11155420_NewPermissionedDisputeGame = "0xeea4c0d53eea7bc27852caeee0e3585f944f9a72" # Newly deployed permissioned dispute game
