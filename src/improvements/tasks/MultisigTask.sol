@@ -6,6 +6,7 @@ import {console} from "forge-std/console.sol";
 import {Script} from "forge-std/Script.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {Test} from "forge-std/Test.sol";
+import {stdToml} from "forge-std/StdToml.sol";
 
 import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
@@ -275,7 +276,6 @@ abstract contract MultisigTask is Test, Script {
 
         _templateSetup(taskConfigFilePath);
 
-        nonce = IGnosisSafe(parentMultisig).nonce(); // TODO change this once we implement task stacking
         startingOwners = IGnosisSafe(parentMultisig).getOwners();
 
         vm.label(AddressRegistry.unwrap(addrRegistry), "AddrRegistry");
@@ -1050,8 +1050,63 @@ abstract contract MultisigTask is Test, Script {
 
 abstract contract L2TaskBase is MultisigTask {
     using EnumerableSet for EnumerableSet.AddressSet;
+    using stdToml for string;
+
+    struct StateOverride {
+        address target;
+        KeyValueOverride keyValueOverride;
+    }
+
+    struct KeyValueOverride {
+        bytes32 slot;
+        bytes32 value;
+    }
 
     SuperchainAddressRegistry public superchainAddrRegistry;
+
+    function _readStateOverrides(string memory taskConfigFilePath) internal view returns (StateOverride[] memory) {
+        string memory toml = vm.readFile(taskConfigFilePath);
+        string memory stateOverridesKey = ".stateOverrides";
+        if (!toml.keyExists(stateOverridesKey)) return new StateOverride[](0);
+
+        string[] memory targetsStrs = vm.parseTomlKeys(toml, stateOverridesKey);
+        StateOverride[] memory stateOverrides = new StateOverride[](targetsStrs.length);
+
+        address[] memory targetsAddrs = new address[](targetsStrs.length);
+        for (uint256 i = 0; i < targetsStrs.length; i++) {
+            targetsAddrs[i] = vm.parseAddress(targetsStrs[i]);
+        }
+        for (uint256 i = 0; i < targetsAddrs.length; i++) {
+            KeyValueOverride memory keyValueOverrides = abi.decode(
+                vm.parseToml(toml, string.concat(stateOverridesKey, ".", targetsStrs[i])), (KeyValueOverride)
+            );
+
+            stateOverrides[i] = StateOverride({target: targetsAddrs[i], keyValueOverride: keyValueOverrides});
+        }
+        return stateOverrides;
+    }
+
+    function _setStateOverrides(StateOverride[] memory stateOverrides, address parentMultisig) internal {
+        bool foundNonceOverride = false;
+        for (uint256 i = 0; i < stateOverrides.length; i++) {
+            bytes32 GNOSIS_SAFE_NONCE_SLOT = bytes32(uint256(0x5));
+            if (
+                stateOverrides[i].target == parentMultisig
+                    && stateOverrides[i].keyValueOverride.slot == GNOSIS_SAFE_NONCE_SLOT
+            ) {
+                foundNonceOverride = true;
+                nonce = uint256(stateOverrides[i].keyValueOverride.value);
+            }
+            vm.store(
+                address(stateOverrides[i].target),
+                stateOverrides[i].keyValueOverride.slot,
+                stateOverrides[i].keyValueOverride.value
+            );
+        }
+        if (!foundNonceOverride) {
+            nonce = IGnosisSafe(parentMultisig).nonce();
+        }
+    }
 
     function _configureTask(string memory taskConfigFilePath)
         internal
@@ -1066,6 +1121,10 @@ abstract contract L2TaskBase is MultisigTask {
 
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         parentMultisig_ = IGnosisSafe(superchainAddrRegistry.getAddress(config.safeAddressString, chains[0].chainId));
+
+        // Read and set state overrides, handling parentMultisig nonce storage variable.
+        StateOverride[] memory stateOverrides = _readStateOverrides(taskConfigFilePath);
+        _setStateOverrides(stateOverrides, address(parentMultisig_));
 
         // Ensure that all chains have the same parentMultisig.
         for (uint256 i = 1; i < chains.length; i++) {

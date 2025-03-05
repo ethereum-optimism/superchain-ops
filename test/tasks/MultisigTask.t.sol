@@ -178,11 +178,11 @@ contract MultisigTaskUnitTest is Test {
         task.build();
     }
 
-    function testRun()
+    function runTestSimulation(string memory taskConfigFilePath)
         public
         returns (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions)
     {
-        (accountAccesses, actions) = task.simulateRun(MAINNET_CONFIG);
+        (accountAccesses, actions) = task.simulateRun(taskConfigFilePath);
 
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);
 
@@ -210,7 +210,8 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testSimulateFailsTxAlreadyExecuted() public {
-        (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions) = testRun();
+        (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions) =
+            runTestSimulation(MAINNET_CONFIG);
 
         vm.expectRevert("MultisigTask: execute failed");
         task.simulate("", actions);
@@ -220,7 +221,7 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testGetCalldata() public {
-        (, MultisigTask.Action[] memory actions) = testRun();
+        (, MultisigTask.Action[] memory actions) = runTestSimulation(MAINNET_CONFIG);
 
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);
 
@@ -240,6 +241,16 @@ contract MultisigTaskUnitTest is Test {
         bytes memory data = task.getMulticall3Calldata(actions);
 
         assertEq(data, expectedData, "Wrong aggregate calldata");
+    }
+
+    function testNonceStateOverrideApplied() public {
+        string memory taskConfigFilePath = "test/tasks/mock/configs/NonceStateOverrideConfig.toml";
+        runTestSimulation(taskConfigFilePath);
+        uint256 expectedNonce = 4095;
+        // 0xFFF (4095) is the value in the config file for the nonce state override.
+        assertEq(task.nonce(), expectedNonce, "Nonce state override not applied.");
+        uint256 actualNonce = uint256(vm.load(address(task.parentMultisig()), bytes32(uint256(0x5))));
+        assertEq(actualNonce, expectedNonce + 1, "Nonce must be incremented by 1 in memory after task is run.");
     }
 
     function createActions(
