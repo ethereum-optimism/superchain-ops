@@ -49,16 +49,15 @@ CannonInterop Absolute prestate hash:
 Note: The changes listed below do not include threshold and number of owners overrides or liveness guard related changes, these changes are listed in the [NESTED-VALIDATION.md](../../../NESTED-VALIDATION.md) file.
 
 ### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Council Safe)
-We override the nonce of Security Council `OwnerSafe` contract.
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
   **Value:** `0x0000000000000000000000000000000000000000000000000000000000000014` <br/>
-  **Meaning:** Override the nonce value of the Security Council's `OwnerSafe` by increasing from 18 to 20.
+  **Meaning:** Override the nonce value of the `Security Council` by increasing from 18 to 20.
 
 
 ### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation Upgrade Safe)
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
   **Value:** `0x0000000000000000000000000000000000000000000000000000000000000012` <br/>
-  **Meaning:** Override the nonce value of the Security Council's `OwnerSafe` by increasing from 16 to 18.
+  **Meaning:** Override the nonce value of the Foundation Upgrade Safe by increasing from 16 to 18.
 
 ## State Changes
 
