@@ -4,3 +4,5 @@ templateName = "OPCMUpgradeV200"
 
 [opcmUpgrades]
 absolutePrestates = [{absolutePrestate = "0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd", chainId = 11155420}]
+opcmAddress = "0x1B25F566336F47BC5E0036D66E142237DcF4640b"
+standardValidatorV200 = "0x37739a6b0a3F1E7429499a4eC4A0685439Daff5C"
