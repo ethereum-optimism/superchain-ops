@@ -420,7 +420,6 @@ workflows:
           filters:
             branches:
               only: main
-      - template_regression_tests
       - shellcheck:
           context:
             - circleci-repo-readonly-authenticated-github-token
@@ -448,11 +447,9 @@ workflows:
       - check_superchain_registry:
           context:
             - circleci-repo-readonly-authenticated-github-token
-      
       # Simulate the template regression tests on Tenderly.
       - template_regression_tests:
           context:
-            - circleci-repo-readonly-authenticated-github-token
             - tenderly
       # Task simulations.
       # Please add an invocation to `just simulate` if a ceremony is
