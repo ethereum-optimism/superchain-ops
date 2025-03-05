@@ -359,9 +359,9 @@ jobs:
       - image: <<pipeline.parameters.default_docker_image>>
     environment:
       FOUNDRY_PROFILE: ci
-      TENDERLY_ACCESS_TOKEN: ${TENDERLY_ACCESS_TOKEN}
-      TENDERLY_PROJECT_SLUG: ${TENDERLY_PROJECT_SLUG}
-      TENDERLY_USER: ${TENDERLY_USER}
+      TENDERLY_ACCESS_TOKEN: $TENDERLY_ACCESS_TOKEN
+      TENDERLY_PROJECT_SLUG: $TENDERLY_PROJECT_SLUG
+      TENDERLY_USER: $TENDERLY_USER
     steps:
       - utils/checkout-with-mise
       - run:
