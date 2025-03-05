@@ -113,7 +113,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
     /// @notice Task TOML config file values
     struct TaskConfig {
-        string[] allowedStorageWriteAccesses;
+        string[] allowedStorageKeys;
         string safeAddressString;
     }
 
@@ -285,9 +285,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         (addrRegistry, _parentMultisig, multicallTarget) = _configureTask(taskConfigFilePath);
 
         parentMultisig = address(_parentMultisig);
-        
-        config.allowedStorageWriteAccesses = _taskStorageWrites();
-        config.allowedStorageWriteAccesses.push(safeAddressString());
+
+        config.allowedStorageKeys = _taskStorageWrites();
+        config.allowedStorageKeys.push(safeAddressString());
 
         _templateSetup(taskConfigFilePath);
         nonce = IGnosisSafe(parentMultisig).nonce(); // Maybe be overridden later by state overrides
