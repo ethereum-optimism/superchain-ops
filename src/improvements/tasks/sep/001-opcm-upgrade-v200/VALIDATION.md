@@ -35,7 +35,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
     )
 ]
 ```
-1. First tuple (OP Sepolia Testnet):
+1. First tuple (Base Sepolia Testnet):
     - SystemConfigProxy: []()
     - ProxyAdmin: []()
     - AbsolutePrestate: 0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd
