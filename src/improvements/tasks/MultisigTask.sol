@@ -35,8 +35,7 @@ abstract contract MultisigTask is Test, Script {
     address public parentMultisig;
 
     /// @notice struct to store allowed storage accesses read in from config file
-    /// uses OpenZeppelin EnumerableSet for allowed storage accesses
-    EnumerableSet.AddressSet internal _allowedStorageAccesses;
+    EnumerableSet.AddressSet public _allowedStorageAccesses;
 
     /// @notice Struct to store information about an action
     /// @param target The address of the target contract
@@ -483,14 +482,14 @@ abstract contract MultisigTask is Test, Script {
             // The application panicked (crashed).
             // Message:  missing CALL account accesses
             // Location: crates/cheatcodes/src/inspector.rs:1453
-            // require(
-            //     _allowedStorageAccesses.contains(addr) || isNewContract,
-            //     string(
-            //         abi.encodePacked(
-            //             "MultisigTask: address ", getAddressLabel(addr), " not in allowed storage accesses"
-            //         )
-            //     )
-            // );
+            require(
+                _allowedStorageAccesses.contains(addr) || isNewContract,
+                string(
+                    abi.encodePacked(
+                        "MultisigTask: address ", getAddressLabel(addr), " not in allowed storage accesses"
+                    )
+                )
+            );
         }
 
         require(IGnosisSafe(parentMultisig).nonce() == nonce + 1, "MultisigTask: nonce not incremented");
