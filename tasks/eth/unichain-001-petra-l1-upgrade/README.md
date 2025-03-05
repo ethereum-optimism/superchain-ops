@@ -10,8 +10,8 @@ This task updates the fault dispute system for unichain-mainnet:
 * Set implementation for game type 1 to 0x3aFdc7cCF8a1c0d351E3E5F220AF056ea2c07733 in `DisputeGameFactory` 0x2F12d621a16e2d3285929C9996f478508951dFe4: `setImplementation(1, 0x3aFdc7cCF8a1c0d351E3E5F220AF056ea2c07733)`
 <!--NEXT TASK DESCRIPTION-->
 The proposal was: 
-- [ ] Posted on the governance forum.
-- [ ] Approved by Token House voting.
+- [x] Posted on the [governance forum](https://gov.optimism.io/t/upgrade-proposal-12-l1-pectra-readiness/9706).
+- [x] Approved by [Token House voting](https://vote.optimism.io/proposals/38506287861710446593663598830868940900144818754960277981092485594195671514829).
 - [ ] Not vetoed by the Citizens' house.
 - [ ] Executed on OP Mainnet.
 
