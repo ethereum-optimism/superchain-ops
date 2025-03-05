@@ -12,3 +12,5 @@ absolutePrestates = [
     {absolutePrestate = "", chainId = 1868}, 
     {absolutePrestate = "", chainId = 57073}
 ]
+opcmAddress = "0x026b2F158255Beac46c1E7c6b8BbF29A4b6A7B76"
+standardValidatorV200 = "0x58b758395be69ada78fe46f9653ff838f1e85251"
