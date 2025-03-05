@@ -30,7 +30,7 @@ This upgrades the Fault Proof contracts in the [op-contracts/v1.8.0-rc.4](https:
 
 Please see the "Simulating and Verifying the Transaction" instructions in [NESTED.md](../../../NESTED.md). 
 
-When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/<path>/NestedSignFromJson.s.sol`. 
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/eth/unichain-001-petra-l1-upgrade/NestedSignFromJson.s.sol`. 
 
 This ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
 
