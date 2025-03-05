@@ -78,7 +78,9 @@ We override the nonce of Security Council `OwnerSafe` contract.
   **After**: `0x0000000000000000000000003aFdc7cCF8a1c0d351E3E5F220AF056ea2c07733` <br/>
   **Meaning**: Updates the implementation for game type 1. Verify that the new implementation is set using
   `cast call 0x2F12d621a16e2d3285929C9996f478508951dFe4 "gameImpls(uint32)(address)" 1`.
+### Liveness Guards
 
+Liveness Guard related changes are listed [here](../../../NESTED-VALIDATION.md#liveness-guard-security-council-safe-or-unichain-operation-safe-only) file.
 
 
 
