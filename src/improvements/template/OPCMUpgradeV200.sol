@@ -153,10 +153,13 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
                 "SYSCON-20,L1SB-10,L721B-10,PORTAL-10,PDDG-20,PDDG-DWETH-10,PDDG-DWETH-40,PDDG-ANCHORP-10,PDDG-ANCHORP-40,PDDG-PIMGO-10,PLDG-10";
             string memory expectedErrors_57073 =
                 "SYSCON-30,L1SB-10,L721B-10,PORTAL-10,PDDG-20,PDDG-DWETH-10,PDDG-DWETH-40,PDDG-ANCHORP-10,PDDG-ANCHORP-40,PDDG-PIMGO-10,PLDG-20,PLDG-DWETH-10,PLDG-DWETH-40,PLDG-ANCHORP-10,PLDG-ANCHORP-40,PLDG-PIMGO-10";
+            string memory expectedErrors_8453 =
+                "PROXYA-10,SYSCON-20,L1SB-10,L721B-10,PORTAL-10,DF-30,PDDG-20,PDDG-DWETH-10,PDDG-DWETH-30,PDDG-DWETH-40,PDDG-ANCHORP-10,PDDG-ANCHORP-40,PDDG-PIMGO-10,PDDG-120,PLDG-20,PLDG-DWETH-10,PLDG-DWETH-30,PLDG-DWETH-40,PLDG-ANCHORP-10,PLDG-ANCHORP-40,PLDG-PIMGO-10";
             require(
                 reasons.eq(expectedErrors_11155420) || reasons.eq(expectedErrors_1946)
                     || reasons.eq(expectedErrors_763373) || reasons.eq(expectedErrors_84532)
-                    || reasons.eq(expectedErrors_10) || reasons.eq(expectedErrors_1868) || reasons.eq(expectedErrors_57073),
+                    || reasons.eq(expectedErrors_10) || reasons.eq(expectedErrors_1868) || reasons.eq(expectedErrors_57073)
+                    || reasons.eq(expectedErrors_8453),
                 string.concat("Unexpected errors: ", reasons)
             );
         }
