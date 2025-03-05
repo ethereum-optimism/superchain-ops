@@ -12,7 +12,6 @@ import {IStandardValidatorV200} from "@eth-optimism-bedrock/interfaces/L1/IStand
 import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
-import {LibString} from "solady/utils/LibString.sol";
 
 /// @notice This template supports OPCMV200 upgrade tasks.
 contract OPCMUpgradeV200 is OPCMBaseTask {
@@ -22,8 +21,7 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
     address public OPCM;
 
     /// @notice The StandardValidatorV200 address
-    IStandardValidatorV200 public STANDARD_VALIDATOR_V200 =
-        IStandardValidatorV200(0x37739a6b0a3F1E7429499a4eC4A0685439Daff5C);
+    IStandardValidatorV200 public STANDARD_VALIDATOR_V200;
 
     /// @notice Struct to store inputs for OPCM.upgrade() function per l2 chain
     struct OPCMUpgrade {
@@ -35,8 +33,9 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
     mapping(uint256 => Claim) public opcmUpgrades;
 
     /// @notice Returns the OPCM address
-    function opcm() public pure override returns (address) {
-        return 0x1B25F566336F47BC5E0036D66E142237DcF4640b;
+    function opcm() public view override returns (address) {
+        require(OPCM != address(0), "OPCMUpgradeV200: OPCM address not set in template");
+        return OPCM;
     }
 
     /// @notice Returns the storage write permissions
@@ -55,7 +54,16 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
             opcmUpgrades[upgrades[i].chainId] = upgrades[i].absolutePrestate;
         }
 
+        address opcmAddress = tomlContent.readAddress(".opcmUpgrades.opcmAddress");
+        OPCM = opcmAddress;
+        require(OPCM != address(0), "OPCMUpgradeV200: OPCM address not set in config.toml");
         vm.label(opcm(), "OPCM");
+
+        address standardValidatorV200 = tomlContent.readAddress(".opcmUpgrades.standardValidatorV200");
+        require(
+            standardValidatorV200 != address(0), "OPCMUpgradeV200: StandardValidator address not set in config.toml"
+        );
+        STANDARD_VALIDATOR_V200 = IStandardValidatorV200(standardValidatorV200);
         vm.label(address(STANDARD_VALIDATOR_V200), "StandardValidatorV200");
     }
 
