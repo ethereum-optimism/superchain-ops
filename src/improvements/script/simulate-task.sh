@@ -42,7 +42,8 @@ simulate_task() {
         echo -e "\n\nTenderly simulation payload saved to: ./tenderly_payload.json"
         rm ./simulation_output.txt
         
-        export PAYLOAD_FILE="$(pwd)/tenderly_payload.json"
+        PAYLOAD_FILE="$(pwd)/tenderly_payload.json"
+        export PAYLOAD_FILE
 
         # Calculate locally the domain and message hashes from the Tenderly payload
         LOCAL_OUTPUT=$(forge script "$root_dir"/script/CalculateSafeHashes.s.sol -vvv)
