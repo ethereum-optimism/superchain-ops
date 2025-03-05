@@ -1,0 +1,26 @@
+l2chains = [
+    {name = "Base", chainId = 8453}
+]
+
+templateName = "OPCMUpgradeV200"
+
+[opcmUpgrades]
+absolutePrestates = [
+    {absolutePrestate = "0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9", chainId = 8453},
+]
+
+[addresses]
+OPCM = "0x026b2F158255Beac46c1E7c6b8BbF29A4b6A7B76"
+StandardValidatorV200 = "0x58b758395be69ada78fe46f9653ff838f1e85251"
+
+[stateOverrides]
+# SuperchainConfig op-contracts/v2.0.0 implementation address set. This task assumes upgrade controller has already called OPCM upgrade.
+# https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L41
+0x95703e0982140D16f8ebA6d158FccEde42f04a4C = [
+    {key = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc", value = "0x0000000000000000000000004da82a327773965b8d4d85fa3db8249b387458e7"}
+]
+# ProtocolVersions op-contracts/v2.0.0 implementation address set. This task assumes upgrade controller has already called OPCM upgrade.
+# https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L42
+0x8062AbC286f5e7D9428a0Ccb9AbD71e50d93b935 = [
+    {key = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc", value = "0x00000000000000000000000037e15e4d6dffa9e5e320ee1ec036922e563cb76c"}
+]
