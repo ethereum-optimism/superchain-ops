@@ -105,7 +105,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
     /// @notice Task TOML config file values
     struct TaskConfig {
-        string[] allowedStorageWriteAccesses;
+        string[] allowedStorageKeys;
         string safeAddressString;
     }
 
@@ -274,9 +274,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         (addrRegistry, _parentMultisig, multicallTarget) = _configureTask(taskConfigFilePath);
 
         parentMultisig = address(_parentMultisig);
-        
-        config.allowedStorageWriteAccesses = _taskStorageWrites();
-        config.allowedStorageWriteAccesses.push(safeAddressString());
+
+        config.allowedStorageKeys = _taskStorageWrites();
+        config.allowedStorageKeys.push(safeAddressString());
 
         _templateSetup(taskConfigFilePath);
         nonce = IGnosisSafe(parentMultisig).nonce(); // Maybe be overridden later by state overrides
@@ -1107,20 +1107,21 @@ abstract contract L2TaskBase is MultisigTask {
 
     function _templateSetup(string memory) internal virtual override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-        for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
+        for (uint256 i = 0; i < config.allowedStorageKeys.length; i++) {
             // TODO: This is a hack to support the EnableDeputyPauseModuleTemplate.
             // remove this once we have SimpleTaskBase contract as then this template will derive from SimpleTaskBase
             // instead of L2TaskBase.
-            if (keccak256(bytes(config.allowedStorageWriteAccesses[i])) == keccak256(bytes("FoundationOperationSafe")))
+            if (keccak256(bytes(config.allowedStorageKeys[i])) == keccak256(bytes("FoundationOperationSafe")))
             {
-                _allowedStorageAccesses.add(superchainAddrRegistry.get(config.allowedStorageWriteAccesses[i]));
+                _allowedStorageAccesses.add(superchainAddrRegistry.get(config.allowedStorageKeys[i]));
             } else {
                 for (uint256 j = 0; j < chains.length; j++) {
-                    try superchainAddrRegistry.getAddress(config.allowedStorageWriteAccesses[i], chains[j].chainId)
-                    returns (address addr) {
+                    try superchainAddrRegistry.getAddress(config.allowedStorageKeys[i], chains[j].chainId) returns (
+                        address addr
+                    ) {
                         _allowedStorageAccesses.add(addr);
                     } catch {
-                        _allowedStorageAccesses.add(superchainAddrRegistry.get(config.allowedStorageWriteAccesses[i]));
+                        _allowedStorageAccesses.add(superchainAddrRegistry.get(config.allowedStorageKeys[i]));
                     }
                 }
             }
