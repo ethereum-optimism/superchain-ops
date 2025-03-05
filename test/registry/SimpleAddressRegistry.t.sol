@@ -29,6 +29,7 @@ contract SimpleAddressRegistryTest is Helper, Test {
     string idReturnKind; // "identifier" or "AddressInfo"
 
     function setUp() public virtual {
+        vm.createSelectFork("mainnet");
         registryName = "SimpleAddressRegistry";
         idReturnKind = "identifier";
     }
