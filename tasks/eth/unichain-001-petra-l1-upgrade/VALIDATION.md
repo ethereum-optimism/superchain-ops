@@ -60,7 +60,6 @@ We override the nonce of Security Council `OwnerSafe` contract.
   **Value:** `0x0000000000000000000000000000000000000000000000000000000000000012` <br/>
   **Meaning:** Override the nonce value of the Security Council's `OwnerSafe` by increasing from 16 to 18.
 
-For details on other state overrides, please refer to the [NESTED-VALIDATION.md](../../../NESTED-VALIDATION.md) file.
 * Liveness guard related changes are listed [here](../../../NESTED-VALIDATION.md#liveness-guard-security-council-safe-or-unichain-operation-safe-only) file.
 ## State Changes
 
