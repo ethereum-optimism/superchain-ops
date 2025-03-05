@@ -35,7 +35,7 @@ abstract contract MultisigTask is Test, Script {
     address public parentMultisig;
 
     /// @notice struct to store allowed storage accesses read in from config file
-    EnumerableSet.AddressSet public _allowedStorageAccesses;
+    EnumerableSet.AddressSet internal _allowedStorageAccesses;
 
     /// @notice Struct to store information about an action
     /// @param target The address of the target contract
@@ -268,7 +268,7 @@ abstract contract MultisigTask is Test, Script {
         IGnosisSafe _parentMultisig; // TODO parentMultisig should be of type IGnosisSafe
         (addrRegistry, _parentMultisig, multicallTarget) = _configureTask(taskConfigFilePath);
         parentMultisig = address(_parentMultisig);
-
+        
         config.allowedStorageWriteAccesses = _taskStorageWrites();
         config.allowedStorageWriteAccesses.push(safeAddressString());
 
