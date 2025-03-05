@@ -36,10 +36,6 @@ if [ -z "${TENDERLY_PROJECT_SLUG:-}" ]; then
   exit 1
 fi
 
-echo "TENDERLY_ACCESS_TOKEN: $TENDERLY_ACCESS_TOKEN"
-echo "TENDERLY_USER: $TENDERLY_USER"
-echo "TENDERLY_PROJECT_SLUG: $TENDERLY_PROJECT_SLUG"
-
 # Read the payload from file
 PAYLOAD=$(cat "$PAYLOAD_FILE")
 
