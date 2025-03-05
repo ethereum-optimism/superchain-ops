@@ -45,6 +45,26 @@ Note: The changes listed below do not include safe nonce updates or liveness gua
   **Meaning**: Updates the implementation for game type 1. Verify that the new implementation is set using
   `cast call 0x2F12d621a16e2d3285929C9996f478508951dFe4 "gameImpls(uint32)(address)" 1`.
 
+
+
+## State Overrides
+The following state overrides should be seen:
+### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Council Safe)
+We override the nonce of Security Council `OwnerSafe` contract.
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
+  **Value:** `0x0000000000000000000000000000000000000000000000000000000000000014` <br/>
+  **Meaning:** Override the nonce value of the Security Council's `OwnerSafe` by increasing from 18 to 20.
+
+
+### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation Safe)
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
+  **Value:** `0x0000000000000000000000000000000000000000000000000000000000000012` <br/>
+  **Meaning:** Override the nonce value of the Security Council's `OwnerSafe` by increasing from 16 to 18.
+
+### For details on other state overrides, please refer to the [NESTED-VALIDATION.md](../../../NESTED-VALIDATION.md) file.
+
+
+
 ## Verify new absolute prestate
 
 Please verify that the new absolute prestate is set correctly to `0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd`. See [Petra notice](https://docs.optimism.io/notices/pectra-changes#verify-the-new-absolute-prestate) in docs for more details. 
