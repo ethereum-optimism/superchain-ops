@@ -121,6 +121,8 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
             // We expect many errors returned from this validation. Below are reasons for each failure which have been deemed acceptable.
             // In future versions of StandardValidator, we shouldn't be expecting any errors.
             string memory reasons = STANDARD_VALIDATOR_V200.validate({_input: input, _allowFailure: true});
+
+            // Sepolia errors
             // PDDG-50: The current mipsImpl on sepolia was deployed without using deterministic create2 deployments, so a new one was deployed.
             // PDDG-DWETH-40: Delayed WETH delay in permissioned game is not set to 1 week.
             // PDDG-ANCHORP-40: The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
@@ -143,9 +145,18 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
             // DF-30: Dispute factory owner must be l1PAOMultisig - It is checking for the OP Sepolia PAO.
             string memory expectedErrors_84532 =
                 "PROXYA-10,DF-30,PDDG-50,PDDG-DWETH-30,PDDG-DWETH-40,PDDG-ANCHORP-40,PDDG-120,PLDG-50,PLDG-DWETH-30,PLDG-DWETH-40,PLDG-ANCHORP-40";
+            
+            // Mainnet errors
+            string memory expectedErrors_10 =
+                "L1SB-10,L721B-10,PORTAL-10,PDDG-20,PDDG-DWETH-10,PDDG-DWETH-30,PDDG-DWETH-40,PDDG-ANCHORP-10,PDDG-ANCHORP-40,PDDG-PIMGO-10,PLDG-20,PLDG-DWETH-10,PLDG-DWETH-30,PLDG-DWETH-40,PLDG-ANCHORP-10,PLDG-ANCHORP-40,PLDG-PIMGO-10";
+            string memory expectedErrors_1868 =
+                "SYSCON-20,L1SB-10,L721B-10,PORTAL-10,PDDG-20,PDDG-DWETH-10,PDDG-DWETH-40,PDDG-ANCHORP-10,PDDG-ANCHORP-40,PDDG-PIMGO-10,PLDG-10";
+            string memory expectedErrors_57073 =
+                "SYSCON-30,L1SB-10,L721B-10,PORTAL-10,PDDG-20,PDDG-DWETH-10,PDDG-DWETH-40,PDDG-ANCHORP-10,PDDG-ANCHORP-40,PDDG-PIMGO-10,PLDG-20,PLDG-DWETH-10,PLDG-DWETH-40,PLDG-ANCHORP-10,PLDG-ANCHORP-40,PLDG-PIMGO-10";
             require(
                 reasons.eq(expectedErrors_11155420) || reasons.eq(expectedErrors_1946)
-                    || reasons.eq(expectedErrors_763373) || reasons.eq(expectedErrors_84532),
+                    || reasons.eq(expectedErrors_763373) || reasons.eq(expectedErrors_84532)
+                    || reasons.eq(expectedErrors_10) || reasons.eq(expectedErrors_1868) || reasons.eq(expectedErrors_57073),
                 string.concat("Unexpected errors: ", reasons)
             );
         }
