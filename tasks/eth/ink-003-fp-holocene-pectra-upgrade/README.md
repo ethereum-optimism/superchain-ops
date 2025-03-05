@@ -17,8 +17,11 @@ The proposal #11 was:
 
 The proposal #12 was:
 
-- [X] [Posted](https://gov.optimism.io/t/upgrade-proposal-12-l1-pectra-readiness/9706)
-- [ ] Maintenance upgrade not vetoed by the Token or Citizens' house. Veto period ends March 4th.
+- [X] [Posted](https://gov.optimism.io/t/upgrade-proposal-12-l1-pectra-readiness/9706) on the governance forum.
+- [x] Posted on the [governance forum](https://gov.optimism.io/t/upgrade-proposal-12-l1-pectra-readiness/9706).
+- [x] Approved by [Token House voting](https://vote.optimism.io/proposals/38506287861710446593663598830868940900144818754960277981092485594195671514829).
+- [ ] Not vetoed by the Citizens' house.
+- [ ] Executed on OP Mainnet.
 
 The governance proposal should be treated as the source of truth and used to verify the correctness of the onchain operations.
 
@@ -34,7 +37,8 @@ This upgrades the Fault Proof contracts in the
 ## Simulation
 
 Please see the "Simulating and Verifying the Transaction" instructions in [NESTED.md](../../../NESTED.md).
-When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/<path>/NestedSignFromJson.s.sol`.
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/tasks/eth/ink-003-fp-holocene-pectra-upgrade/NestedSignFromJson.s.sol
+
 This ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
 
 ## State Validation
