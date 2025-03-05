@@ -71,11 +71,6 @@ simulate_task() {
             exit 1
         fi
 
-#        PAYLOAD_FILE="$(pwd)/tenderly_payload.json"
-#        export PAYLOAD_FILE
-#        forge script "$root_dir"/script/CalculateSafeHashes.s.sol -vvv
-#        "$root_dir"/src/improvements/script/get-tenderly-hashes.sh ./tenderly_payload.json
-
         rm ./tenderly_payload.json
     else
         echo "Simulation output saved to: ./simulation_output.txt"
