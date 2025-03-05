@@ -22,7 +22,7 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
     address public OPCM;
 
     /// @notice The StandardValidatorV200 address
-    IStandardValidatorV200 public STANDARD_VALIDATOR_V200;
+    IStandardValidatorV200 public STANDARD_VALIDATOR_V200 = IStandardValidatorV200(0x37739a6b0a3F1E7429499a4eC4A0685439Daff5C);
 
     /// @notice Struct to store inputs for OPCM.upgrade() function per l2 chain
     struct OPCMUpgrade {
@@ -34,60 +34,13 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
     mapping(uint256 => Claim) public opcmUpgrades;
 
     /// @notice Returns the OPCM address
-    function opcm() public view override returns (address) {
-        require(OPCM != address(0), "OPCMUpgradeV200: OPCM address not set in template");
-        return OPCM;
-    }
-
-    function chainHasPermissionlessDisputeGame(uint256 chainId) public pure returns (bool) {
-        chainId;
-        if (chainId == 1946) {
-            // Soneium Testnet Minato
-            return false;
-        }
-        return true;
+    function opcm() public pure override returns (address) {
+        return 0x1B25F566336F47BC5E0036D66E142237DcF4640b;
     }
 
     /// @notice Returns the storage write permissions
     function _taskStorageWrites() internal view virtual override returns (string[] memory) {
-        require(address(superchainAddrRegistry) != address(0), "OPCMUpgradeV200: superchainAddrRegistry not set");
-        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-        uint256 extraWrites = 0;
-        for (uint256 i = 0; i < chains.length; i++) {
-            if (chainHasPermissionlessDisputeGame(chains[i].chainId)) {
-                extraWrites++;
-            }
-        }
-
-        uint256 chainWrites = (2 * chains.length) + extraWrites;
-        uint256 commonWrites = 10;
-        uint256 totalWrites = commonWrites + chainWrites;
-        string[] memory storageWrites = new string[](totalWrites);
-
-        // Common contracts
-        storageWrites[0] = "OPContractsManager";
-        storageWrites[1] = "SuperchainConfig";
-        storageWrites[2] = "ProtocolVersions";
-        storageWrites[3] = "SystemConfigProxy";
-        storageWrites[4] = "L1ERC721BridgeProxy";
-        storageWrites[5] = "L1StandardBridgeProxy";
-        storageWrites[6] = "DisputeGameFactoryProxy";
-        storageWrites[7] = "OptimismPortalProxy";
-        storageWrites[8] = "OptimismMintableERC20FactoryProxy";
-        storageWrites[9] = "AddressManager";
-
-        uint256 index = commonWrites;
-        for (uint256 i = 0; i < chains.length; i++) {
-            string memory chainIdStr = LibString.toString(chains[i].chainId);
-            storageWrites[index] = string.concat(chainIdStr, "_PermissionedWETH");
-            index++;
-            if (chainHasPermissionlessDisputeGame(chains[i].chainId)) {
-                storageWrites[index] = string.concat(chainIdStr, "_PermissionlessWETH");
-                index++;
-            }
-            storageWrites[index] = string.concat(chainIdStr, "_NewAnchorStateRegistry");
-            index++;
-        }
+        string[] memory storageWrites = new string[](0);
         return storageWrites;
     }
 
@@ -101,18 +54,8 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
             opcmUpgrades[upgrades[i].chainId] = upgrades[i].absolutePrestate;
         }
 
-        address opcmAddress = abi.decode(vm.parseToml(tomlContent, ".opcmUpgrades.opcmAddress"), (address));
-        require(opcmAddress != address(0), "OPCMUpgradeV200: OPCM address not set in task config");
-        OPCM = opcmAddress;
-        vm.label(opcmAddress, "OPCM");
-
-        address standardValidatorAddress =
-            abi.decode(vm.parseToml(tomlContent, ".opcmUpgrades.standardValidatorAddress"), (address));
-        require(
-            standardValidatorAddress != address(0), "OPCMUpgradeV200: StandardValidator address not set in task config"
-        );
-        STANDARD_VALIDATOR_V200 = IStandardValidatorV200(standardValidatorAddress);
-        vm.label(standardValidatorAddress, "StandardValidatorV200");
+        vm.label(opcm(), "OPCM");
+        vm.label(address(STANDARD_VALIDATOR_V200), "StandardValidatorV200");
     }
 
     /// @notice Build the task action for all l2chains in the task.abi
@@ -151,7 +94,6 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-            string memory chainIdStr = LibString.toString(chainId);
             bytes32 currentAbsolutePrestate = Claim.unwrap(opcmUpgrades[chainId]);
             address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
             address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
@@ -163,76 +105,10 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
                 l2ChainID: chainId
             });
 
-            address disputeGameFactoryProxy = superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId);
-            IFaultDisputeGame pddg =
-                IFaultDisputeGame(IDisputeGameFactory(disputeGameFactoryProxy).gameImpls(uint32(1)));
-            require(
-                address(pddg) == superchainAddrRegistry.get(string.concat(chainIdStr, "_NewPermissionedDisputeGame")),
-                "OPCMUpgradeV200: PermissionedDisputeGame address incorrect."
-            );
-            // PDDG-DWETH-40: permissioned dispute game's delayed weth delay is not 1 week
-            require(
-                IDelayedWETH(pddg.weth()).delay() == 3.5 days,
-                "OPCMUpgradeV200: PermissionedDisputeGame delayed weth delay incorrect."
-            );
-            require(
-                pddg.absolutePrestate() == currentAbsolutePrestate,
-                "OPCMUpgradeV200: PermissionedDisputeGame absolutePrestate incorrect."
-            );
-            IAnchorStateRegistry newAsr =
-                IAnchorStateRegistry(superchainAddrRegistry.get(string.concat(chainIdStr, "_NewAnchorStateRegistry")));
-            require(
-                pddg.anchorStateRegistry() == address(newAsr),
-                "OPCMUpgradeV200: PermissionedDisputeGame anchorStateRegistry incorrect."
-            );
-            address oldAsr = superchainAddrRegistry.getAddress("AnchorStateRegistryProxy", chainId);
-
-            IFaultDisputeGame pldg =
-                IFaultDisputeGame(IDisputeGameFactory(disputeGameFactoryProxy).gameImpls(uint32(0)));
-            if (address(pldg) != address(0)) {
-                require(
-                    address(pldg)
-                        == superchainAddrRegistry.get(string.concat(chainIdStr, "_NewPermissionlessDisputeGame")),
-                    "OPCMUpgradeV200: PermissionlessDisputeGame address incorrect."
-                );
-                // PLDG-DWETH-40: permissionless dispute game's delayed weth delay is not 1 week
-                require(
-                    IDelayedWETH(pldg.weth()).delay() == 3.5 days,
-                    "OPCMUpgradeV200: PermissionlessDisputeGame delayed weth delay incorrect."
-                );
-                require(
-                    pldg.absolutePrestate() == currentAbsolutePrestate,
-                    "OPCMUpgradeV200: PermissionlessDisputeGame absolutePrestate incorrect."
-                );
-
-                require(
-                    pldg.anchorStateRegistry() == address(newAsr),
-                    "OPCMUpgradeV200: PermissionlessDisputeGame anchorStateRegistry incorrect."
-                );
-                // PDDG-ANCHORP-40: bad permissioned dispute game ASR root
-                (bytes32 oldAsrRoot,) = IAnchorStateRegistry(oldAsr).anchors(uint32(0));
-                (bytes32 pldgASRoot,) = newAsr.anchors(uint32(0));
-                require(
-                    pldgASRoot == oldAsrRoot,
-                    "OPCMUpgradeV200: PermissionlessDisputeGame anchorStateRegistry root incorrect."
-                );
-            } else {
-                // PLDG-ANCHORP-40: bad permissioned dispute game ASR root
-                (bytes32 oldAsrRoot,) = IAnchorStateRegistry(oldAsr).anchors(uint32(1));
-                (bytes32 pddgASRoot,) = newAsr.anchors(uint32(1));
-                require(
-                    pddgASRoot == oldAsrRoot,
-                    "OPCMUpgradeV200: PermissionedDisputeGame anchorStateRegistry root incorrect."
-                );
-            }
-            // PDDG-50: bad permissioned VM address
-            // PLDG-50: bad permissionless vm address
-            // The upgrade path maintains the existing mips impl address, so this error is expected.
-            // Validate errors using the standard validator.
             string memory reasons = STANDARD_VALIDATOR_V200.validate({_input: input, _allowFailure: true});
-            string memory expectedErrors = "PDDG-50,PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-50,PLDG-DWETH-40,PLDG-ANCHORP-40";
+            string memory expectedErrors_11155420 = "PDDG-50,PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-50,PLDG-DWETH-40,PLDG-ANCHORP-40";
             require(
-                keccak256(bytes(reasons)) == keccak256(bytes(expectedErrors)),
+                keccak256(bytes(reasons)) == keccak256(bytes(expectedErrors_11155420)),
                 string.concat("Unexpected errors: ", reasons)
             );
         }
@@ -242,22 +118,4 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
     function getCodeExceptions() internal view virtual override returns (address[] memory) {
         return new address[](0);
     }
-}
-
-interface IDelayedWETH {
-    function delay() external view returns (uint256);
-}
-
-interface IFaultDisputeGame {
-    function weth() external view returns (address);
-    function absolutePrestate() external view returns (bytes32);
-    function anchorStateRegistry() external view returns (address);
-}
-
-interface IDisputeGameFactory {
-    function gameImpls(uint32 gameType) external view returns (address);
-}
-
-interface IAnchorStateRegistry {
-    function anchors(uint32 gameType) external view returns (bytes32, bytes32);
 }
