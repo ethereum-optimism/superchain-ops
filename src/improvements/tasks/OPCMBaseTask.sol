@@ -71,11 +71,15 @@ abstract contract OPCMBaseTask is L2TaskBase {
         );
 
         bytes32 opcmStateSlot = bytes32(uint256(stdstore.target(opcm()).sig(IOPContractsManager.isRC.selector).find()));
-        require(_stateInfos[opcm()].length == 1, "OPCMBaseTask: OPCM must only have 1 state change");
-        StateInfo storage stateInfo = _stateInfos[opcm()][0];
-        require(stateInfo.slot == opcmStateSlot, "OPCMBaseTask: Incorrect OPCM isRc slot");
-        require(stateInfo.oldValue == bytes32(uint256(1)), "OPCMBaseTask: Incorrect OPCM isRc old value");
-        require(stateInfo.newValue == bytes32(uint256(0)), "OPCMBaseTask: Incorrect OPCM isRc new value");
+        require(_stateInfos[opcm()].length <= 1, "OPCMBaseTask: OPCM must have at most 1 state change");
+        // Not all invocations of OPCM upgrade will have the isRC state change. This is because it only happens when
+        // address(this) is equal to the OPCMs 'upgradeController' address (which is an immutable).
+        if (_stateInfos[opcm()].length == 1) {
+            StateInfo storage stateInfo = _stateInfos[opcm()][0];
+            require(stateInfo.slot == opcmStateSlot, "OPCMBaseTask: Incorrect OPCM isRc slot");
+            require(stateInfo.oldValue == bytes32(uint256(1)), "OPCMBaseTask: Incorrect OPCM isRc old value");
+            require(stateInfo.newValue == bytes32(uint256(0)), "OPCMBaseTask: Incorrect OPCM isRc new value");
+        }
     }
 
     /// @notice get the OPCM address
