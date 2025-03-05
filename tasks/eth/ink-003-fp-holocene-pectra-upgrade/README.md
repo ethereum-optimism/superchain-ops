@@ -18,7 +18,10 @@ The proposal #11 was:
 The proposal #12 was:
 
 - [X] [Posted](https://gov.optimism.io/t/upgrade-proposal-12-l1-pectra-readiness/9706) on the governance forum.
-- [ ] Maintenance upgrade not vetoed by the Token or Citizens' house. Veto period ends March 4th.
+- [x] Posted on the [governance forum](https://gov.optimism.io/t/upgrade-proposal-12-l1-pectra-readiness/9706).
+- [x] Approved by [Token House voting](https://vote.optimism.io/proposals/38506287861710446593663598830868940900144818754960277981092485594195671514829).
+- [ ] Not vetoed by the Citizens' house.
+- [ ] Executed on OP Mainnet.
 
 The governance proposal should be treated as the source of truth and used to verify the correctness of the onchain operations.
 
