@@ -39,6 +39,7 @@ contract GasConfigTemplate is L2TaskBase {
     /// @notice Sets up the template with gas configurations from a TOML file
     /// @param taskConfigFilePath Path to the TOML configuration file
     function _templateSetup(string memory taskConfigFilePath) internal override {
+        super._templateSetup(taskConfigFilePath);
         GasConfig[] memory gasConfig =
             abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".gasConfigs.gasLimits"), (GasConfig[]));
 
