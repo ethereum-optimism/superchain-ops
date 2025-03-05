@@ -25,46 +25,6 @@ are missing from this document. Additionally, please verify that for each contra
 > - Domain hash: `0x4f0b6efb6c01fa7e127a0ff87beefbeb53e056d30d3216c5ac70371b909ca66d`
 > - Message hash: `0x49d5cebc73fad795ba2ece47ea8df2bb7ec20f654e78d7974bd17b82b1018f21`
 
-## State Changes
-
-Note: The changes listed below do not include threshold and number of owners overrides or liveness guard related changes, these changes are listed in the [NESTED-VALIDATION.md](../../../NESTED-VALIDATION.md) file.
-
-### `0x2F12d621a16e2d3285929C9996f478508951dFe4` (`DisputeGameFactoryProxy`)
-
-- **Key**: `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b` <br/>
-  **Before**: `0x00000000000000000000000008f0f8f4e792d21e16289db7a80759323c446f61` <br/>
-  **After**: `0x000000000000000000000000171dE4f3ea4fBbf233aA9649dCf1b1d6fD70f542` <br/>
-  **Meaning**: Updates the implementation for game type 0. Verify that the new implementation is set using
-  `cast call 0x2F12d621a16e2d3285929C9996f478508951dFe4 "gameImpls(uint32)(address)" 0`.
-
-### `0x2F12d621a16e2d3285929C9996f478508951dFe4` (`DisputeGameFactoryProxy`)
-
-- **Key**: `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e` <br/>
-  **Before**: `0x000000000000000000000000c457172937ffa9306099ec4f2317903254bf7223` <br/>
-  **After**: `0x0000000000000000000000003aFdc7cCF8a1c0d351E3E5F220AF056ea2c07733` <br/>
-  **Meaning**: Updates the implementation for game type 1. Verify that the new implementation is set using
-  `cast call 0x2F12d621a16e2d3285929C9996f478508951dFe4 "gameImpls(uint32)(address)" 1`.
-
-
-
-## State Overrides
-The following state overrides should be seen:
-### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Council Safe)
-We override the nonce of Security Council `OwnerSafe` contract.
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
-  **Value:** `0x0000000000000000000000000000000000000000000000000000000000000014` <br/>
-  **Meaning:** Override the nonce value of the Security Council's `OwnerSafe` by increasing from 18 to 20.
-
-
-### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation Safe)
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
-  **Value:** `0x0000000000000000000000000000000000000000000000000000000000000012` <br/>
-  **Meaning:** Override the nonce value of the Security Council's `OwnerSafe` by increasing from 16 to 18.
-
-### For details on other state overrides, please refer to the [NESTED-VALIDATION.md](../../../NESTED-VALIDATION.md) file.
-
-
-
 ## Verify new absolute prestate
 
 Please verify that the new absolute prestate is set correctly to `0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd`. See [Petra notice](https://docs.optimism.io/notices/pectra-changes#verify-the-new-absolute-prestate) in docs for more details. 
@@ -85,3 +45,43 @@ Cannon64 Absolute prestate hash:
 CannonInterop Absolute prestate hash: 
 0x0379d61de1833af6766f07b4ed931d85b3f6282508bbcbf9f4637398d97b61c1
 ```
+## State Changes
+
+### `0x2F12d621a16e2d3285929C9996f478508951dFe4` (`DisputeGameFactoryProxy`)
+
+- **Key**: `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b` <br/>
+  **Before**: `0x00000000000000000000000008f0f8f4e792d21e16289db7a80759323c446f61` <br/>
+  **After**: `0x000000000000000000000000171dE4f3ea4fBbf233aA9649dCf1b1d6fD70f542` <br/>
+  **Meaning**: Updates the implementation for game type 0. Verify that the new implementation is set using
+  `cast call 0x2F12d621a16e2d3285929C9996f478508951dFe4 "gameImpls(uint32)(address)" 0`.
+
+### `0x2F12d621a16e2d3285929C9996f478508951dFe4` (`DisputeGameFactoryProxy`)
+
+- **Key**: `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e` <br/>
+  **Before**: `0x000000000000000000000000c457172937ffa9306099ec4f2317903254bf7223` <br/>
+  **After**: `0x0000000000000000000000003aFdc7cCF8a1c0d351E3E5F220AF056ea2c07733` <br/>
+  **Meaning**: Updates the implementation for game type 1. Verify that the new implementation is set using
+  `cast call 0x2F12d621a16e2d3285929C9996f478508951dFe4 "gameImpls(uint32)(address)" 1`.
+
+
+
+## State Overrides
+Note: The changes listed below do not include threshold and number of owners overrides or liveness guard related changes, these changes are listed in the [NESTED-VALIDATION.md](../../../NESTED-VALIDATION.md) file.
+
+### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Council Safe)
+We override the nonce of Security Council `OwnerSafe` contract.
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
+  **Value:** `0x0000000000000000000000000000000000000000000000000000000000000014` <br/>
+  **Meaning:** Override the nonce value of the Security Council's `OwnerSafe` by increasing from 18 to 20.
+
+
+### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation Upgrade Safe)
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
+  **Value:** `0x0000000000000000000000000000000000000000000000000000000000000012` <br/>
+  **Meaning:** Override the nonce value of the Security Council's `OwnerSafe` by increasing from 16 to 18.
+
+For details on other state overrides, please refer to the [NESTED-VALIDATION.md](../../../NESTED-VALIDATION.md) file.
+* Liveness guard related changes are listed [here](../../../NESTED-VALIDATION.md#liveness-guard-security-council-safe-or-unichain-operation-safe-only) file.
+
+
+
