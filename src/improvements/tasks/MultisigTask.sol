@@ -695,7 +695,7 @@ abstract contract MultisigTask is Test, Script {
         console.log("}}}}");
 
         // Log the simulation link
-        console.log("Simulation link:");
+        console.log("\nSimulation link:");
         Simulation.logSimulationLink({_to: parentMultisig, _data: txData, _from: msg.sender, _overrides: stateOverrides});
     }
 
