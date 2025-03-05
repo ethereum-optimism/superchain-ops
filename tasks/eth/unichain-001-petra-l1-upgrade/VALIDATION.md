@@ -11,6 +11,20 @@ are missing from this document. Additionally, please verify that for each contra
   Registry links provided. This validates the bytecode deployed at the addresses contains the correct logic.
 - All key values match the semantic meaning provided, which can be validated using the storage layout links provided.
 
+## Expected Domain and Message Hashes
+
+> [!CAUTION]
+> Before signing, ensure the below hashes match what is on your ledger.
+> ### Security Council
+> - Domain hash: `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
+> - Message hash: `0x430741c0c80d12ad39f01c3367791e3ee59c73e2ff0f565add075f935fe875d6`
+> ### Optimism Foundation
+> - Domain hash: `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
+> - Message hash: `0xf4dfba4d97fb21d884a38ef84cc2219e544e5e2b3c0ba6b28779d770995e60f0`
+> ### Chain-Governor
+> - Domain hash: `0x4f0b6efb6c01fa7e127a0ff87beefbeb53e056d30d3216c5ac70371b909ca66d`
+> - Message hash: `0x49d5cebc73fad795ba2ece47ea8df2bb7ec20f654e78d7974bd17b82b1018f21`
+
 ## State Changes
 
 Note: The changes listed below do not include safe nonce updates or liveness guard related changes.
