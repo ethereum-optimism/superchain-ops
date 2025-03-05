@@ -22,7 +22,8 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
     address public OPCM;
 
     /// @notice The StandardValidatorV200 address
-    IStandardValidatorV200 public STANDARD_VALIDATOR_V200 = IStandardValidatorV200(0x37739a6b0a3F1E7429499a4eC4A0685439Daff5C);
+    IStandardValidatorV200 public STANDARD_VALIDATOR_V200 =
+        IStandardValidatorV200(0x37739a6b0a3F1E7429499a4eC4A0685439Daff5C);
 
     /// @notice Struct to store inputs for OPCM.upgrade() function per l2 chain
     struct OPCMUpgrade {
@@ -106,7 +107,8 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
             });
 
             string memory reasons = STANDARD_VALIDATOR_V200.validate({_input: input, _allowFailure: true});
-            string memory expectedErrors_11155420 = "PDDG-50,PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-50,PLDG-DWETH-40,PLDG-ANCHORP-40";
+            string memory expectedErrors_11155420 =
+                "PDDG-50,PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-50,PLDG-DWETH-40,PLDG-ANCHORP-40";
             require(
                 keccak256(bytes(reasons)) == keccak256(bytes(expectedErrors_11155420)),
                 string.concat("Unexpected errors: ", reasons)
