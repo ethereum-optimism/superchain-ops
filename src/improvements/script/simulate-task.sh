@@ -45,16 +45,24 @@ simulate_task() {
         PAYLOAD_FILE="$(pwd)/tenderly_payload.json"
         export PAYLOAD_FILE
 
-        # Calculate locally the domain and message hashes from the Tenderly payload
-        LOCAL_OUTPUT=$(forge script "$root_dir"/script/CalculateSafeHashes.s.sol -vvv 2>&1)
+        # Calculate locally the domain and message hashes from the Tenderly payload, if we get an error, print the output and exit
+        LOCAL_OUTPUT=$(forge script "$root_dir"/script/CalculateSafeHashes.s.sol -vvv 2>&1) || true
+        if [ $? -ne 0 ]; then
+            echo "$LOCAL_OUTPUT"
+            exit 1
+        fi
         echo "$LOCAL_OUTPUT"
 
         # Extract the domain and message hashes from the local output
         DOMAIN_SEPARATOR_LOCAL=$(echo "$LOCAL_OUTPUT" | awk '/Domain Separator:/{print $3}')
         MESSAGE_HASH_LOCAL=$(echo "$LOCAL_OUTPUT" | awk '/Message Hash:/{print $3}')
 
-        # Simulate the task with Tenderly and extract the domain and message hashes
-        REMOTE_OUTPUT=$("$root_dir"/src/improvements/script/get-tenderly-hashes.sh ./tenderly_payload.json 2>&1)
+        # Simulate the task with Tenderly and extract the domain and message hashes, print the output and exit
+        REMOTE_OUTPUT=$("$root_dir"/src/improvements/script/get-tenderly-hashes.sh ./tenderly_payload.json 2>&1) || true
+        if [ $? -ne 0 ]; then
+            echo "$REMOTE_OUTPUT"
+            exit 1
+        fi
         echo "$REMOTE_OUTPUT"
 
         # Extract the domain and message hashes from the remote output
