@@ -15,7 +15,7 @@ simulate_verify_task() {
     # For testing purposes, we do not gain anything by simulating as other nested safes.
     nested_safe_name="foundation"
 
-    "$root_dir"/src/improvements/script/simulate-task.sh $task $nested_safe_name | tee "$simulation_output_file"
+    "$root_dir"/src/improvements/script/simulate-task.sh "$task" "$nested_safe_name" | tee "$simulation_output_file"
 
     # Extract domain separator and message hash from the simulation output
     DOMAIN_SEPARATOR_LOCAL=$(awk '/Domain Separator:/{print $3}' "$simulation_output_file")
@@ -52,4 +52,4 @@ simulate_verify_task() {
     fi
 }
 
-simulate_verify_task $1 $2
+simulate_verify_task "$1" "$2"
