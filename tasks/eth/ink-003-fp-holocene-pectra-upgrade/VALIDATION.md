@@ -23,7 +23,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 > ### Security Council
 >
 > - Domain Hash: `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
-> - Message Hash: `0x0d7bd0ce5606110a8478ea5edbd73c0336025ef364d62a514c54fc3820fd38b1`
+> - Message Hash: 
+`0x9608627ac1f7ff7f50b47a695e9a4b70120d72d4b9f184e742ec0ddf01fc41f3`
 
 ## State Overrides
 
