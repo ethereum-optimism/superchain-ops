@@ -7,7 +7,6 @@ simulate_verify_task() {
     nested_safe_name=$2
     root_dir=$(git rev-parse --show-toplevel)
     local_output_file="./simulation_output.txt"
-    tenderly_payload_file="./tenderly_payload.json"
     remote_output_file="./remote_output.txt"
 
     # If the task is nested then we only simulate as the foundation.
