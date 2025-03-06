@@ -417,6 +417,7 @@ workflows:
           filters:
             branches:
               only: main
+      - template_regression_tests
       - shellcheck:
           context:
             - circleci-repo-readonly-authenticated-github-token
