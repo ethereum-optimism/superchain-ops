@@ -49,6 +49,7 @@ fi
 # Extract the simulation ID from the response
 SIMULATION_ID=$(echo "$RESPONSE" | jq -r '.simulation.id')
 
+
 # Retrieve the full simulation details
 # echo "Retrieving full simulation details..."
 SIMULATION_DETAILS=$(curl -s -X POST -H "X-Access-Key: $TENDERLY_ACCESS_TOKEN" \
@@ -56,9 +57,8 @@ SIMULATION_DETAILS=$(curl -s -X POST -H "X-Access-Key: $TENDERLY_ACCESS_TOKEN" \
 
 # Check if there was an error retrieving the simulation details
 if echo "$SIMULATION_DETAILS" | jq -e '.error' >/dev/null 2>&1; then
-  echo "Error retrieving simulation details:\n
-    $(echo "$RESPONSE" | jq -r '.simulation')\n
-    $(echo "$SIMULATION_DETAILS" | jq -r '.error')" >&2
+  echo $RESPONSE # DEBUG
+  echo "Error retrieving simulation details: $(echo "$SIMULATION_DETAILS" | jq -r '.error')" >&2
   exit 1
 fi
 
