@@ -2,12 +2,18 @@
 pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
+import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
+import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
+import {stdStorage, StdStorage} from "forge-std/Test.sol";
+import {IOPContractsManager} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 import {L2TaskBase, MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
 
 /// @notice base task for making calls to the Optimism Contracts Manager
 abstract contract OPCMBaseTask is L2TaskBase {
+    using stdStorage for StdStorage;
+
     /// @notice Optimism Contracts Manager Multicall3DelegateCall contract reference
     address public constant MULTICALL3_DELEGATECALL_ADDRESS = 0x93dc480940585D9961bfcEab58124fFD3d60f76a;
 
@@ -23,13 +29,6 @@ abstract contract OPCMBaseTask is L2TaskBase {
         // and we don't have to worry about the Claim type as we are not
         // calling the interface with that type
         bytes32 absolutePrestate;
-    }
-
-    /// @notice Call3 struct used in the Multicall3DelegateCall contract
-    struct Call3 {
-        address target;
-        bool allowFailure;
-        bytes callData;
     }
 
     /// @notice Returns the parent multisig address string identifier
@@ -50,18 +49,15 @@ abstract contract OPCMBaseTask is L2TaskBase {
         override
         returns (bytes memory data)
     {
-        // get task actions
         (address[] memory targets,, bytes[] memory arguments) = processTaskActions(actions);
 
-        // create calls array with targets and arguments
-        Call3[] memory calls = new Call3[](targets.length);
+        IMulticall3.Call3[] memory calls = new IMulticall3.Call3[](targets.length);
 
         for (uint256 i; i < calls.length; i++) {
             require(targets[i] != address(0), "Invalid target for multisig");
-            calls[i] = Call3({target: targets[i], allowFailure: false, callData: arguments[i]});
+            calls[i] = IMulticall3.Call3({target: targets[i], allowFailure: false, callData: arguments[i]});
         }
 
-        // generate calldata
         data = abi.encodeWithSignature("aggregate3((address,bool,bytes)[])", calls);
     }
 
@@ -73,7 +69,13 @@ abstract contract OPCMBaseTask is L2TaskBase {
             _stateInfos[parentMultisig].length == 1,
             "OPCMBaseTask: only nonce should be updated on upgrade controller multisig"
         );
-        require(_stateInfos[opcm()].length == 0, "OPCMBaseTask: Storage writes are not allowed on OPCM");
+
+        bytes32 opcmStateSlot = bytes32(uint256(stdstore.target(opcm()).sig(IOPContractsManager.isRC.selector).find()));
+        require(_stateInfos[opcm()].length == 1, "OPCMBaseTask: OPCM must only have 1 state change");
+        StateInfo storage stateInfo = _stateInfos[opcm()][0];
+        require(stateInfo.slot == opcmStateSlot, "OPCMBaseTask: Incorrect OPCM isRc slot");
+        require(stateInfo.oldValue == bytes32(uint256(1)), "OPCMBaseTask: Incorrect OPCM isRc old value");
+        require(stateInfo.newValue == bytes32(uint256(0)), "OPCMBaseTask: Incorrect OPCM isRc new value");
     }
 
     /// @notice get the OPCM address
@@ -81,7 +83,7 @@ abstract contract OPCMBaseTask is L2TaskBase {
     /// on the network chain id of the task. This function MUST BE OVERRIDDEN in the
     /// inheriting contract to return the correct OPCM address
     /// @return The address of the OPCM
-    function opcm() public view virtual returns (address);
+    function opcm() public pure virtual returns (address);
 
     /// @notice get the multicall address for the given safe
     /// if the safe is the parent multisig, return the delegatecall multicall address
@@ -91,12 +93,6 @@ abstract contract OPCMBaseTask is L2TaskBase {
     function _getMulticallAddress(address safe) internal view override returns (address) {
         require(safe != address(0), "Safe address cannot be zero address");
         return (safe == parentMultisig) ? MULTICALL3_DELEGATECALL_ADDRESS : MULTICALL3_ADDRESS;
-    }
-
-    /// @notice prank the multisig
-    /// overrides MultisigTask to prank with delegatecall flag set to true
-    function _prankMultisig() internal override {
-        vm.startPrank(parentMultisig, true);
     }
 
     function _configureTask(string memory taskConfigFilePath)
