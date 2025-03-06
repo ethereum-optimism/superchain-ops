@@ -7,6 +7,7 @@ import {Test} from "forge-std/Test.sol";
 import {stdStorage, StdStorage} from "forge-std/StdStorage.sol";
 
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 
 import {MockTarget} from "test/tasks/mock/MockTarget.sol";
@@ -331,6 +332,104 @@ contract MultisigTaskUnitTest is Test {
         runTestSimulation(fileName);
         assertNonceIncremented(100);
         vm.removeFile(fileName);
+    }
+
+    function testOnlyDefaultTenderlyStateOverridesApplied() public {
+        string memory fileName = "testOnlyDefaultTenderlyStateOverridesApplied.toml";
+        vm.writeFile(fileName, commonToml);
+        runTestSimulation(fileName);
+
+        uint256 expectedNonce = task.nonce();
+        uint256 defaultOverrides = 5;
+        _verifyDefaultStateOverrides(false, 0, expectedNonce, defaultOverrides);
+
+        vm.removeFile(fileName);
+    }
+
+    function testUserTenderlyStateOverridesTakePrecedence() public {
+        string memory toml = string.concat(
+            commonToml,
+            "[stateOverrides]\n",
+            "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [\n",
+            "    {key = 5, value = 100}\n",
+            "]"
+        );
+        string memory fileName = string.concat(LibString.toHexString(uint256(keccak256(abi.encode(toml)))), ".toml");
+        vm.writeFile(fileName, toml);
+        runTestSimulation(fileName);
+
+        uint256 expectedNonce = 100;
+        uint256 defaultOverrides = 5;
+        _verifyDefaultStateOverrides(true, 0, expectedNonce, defaultOverrides);
+
+        vm.removeFile(fileName);
+    }
+
+    function testAdditionalUserStateOverridesApplied() public {
+        // bytes32(uint256(keccak256('random.slot.testAdditionalUserStateOverridesApplied')) - 1)
+        string memory toml = string.concat(
+            commonToml,
+            "[stateOverrides]\n",
+            "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [\n",
+            "    {key = \"0x1c817c894a1443ac14bff2139acff0976be484b1fcecf627833591a0e476b5d7\", value = 9999}\n",
+            "]"
+        );
+        string memory fileName = string.concat(LibString.toHexString(uint256(keccak256(abi.encode(toml)))), ".toml");
+        vm.writeFile(fileName, toml);
+        runTestSimulation(fileName);
+
+        uint256 expectedNonce = task.nonce();
+        uint256 totalOverrides = 6;
+        Simulation.StateOverride[] memory combinedOverrides =
+            _verifyDefaultStateOverrides(true, 0, expectedNonce, totalOverrides);
+        assertEq(combinedOverrides[0].overrides[5].value, bytes32(uint256(9999)), "User override must be applied");
+
+        vm.removeFile(fileName);
+    }
+
+    function _verifyDefaultStateOverrides(
+        bool hasParentMultisigOverride,
+        uint256 parentMultisigIndex,
+        uint256 expectedNonce,
+        uint256 totalOverrides
+    ) internal view returns (Simulation.StateOverride[] memory combinedOverrides_) {
+        combinedOverrides_ = task.createCombinedOverrides(hasParentMultisigOverride, parentMultisigIndex);
+
+        assertEq(combinedOverrides_.length, 1, "Combined overrides must be 1");
+        Simulation.StateOverride memory singleOverride = combinedOverrides_[0];
+        assertEq(
+            singleOverride.contractAddress,
+            address(task.parentMultisig()),
+            "Contract address must be the parent multisig"
+        );
+        require(singleOverride.overrides.length >= 5, "overrides length must be at least 5");
+        assertEq(singleOverride.overrides.length, totalOverrides, "Overrides must be 5");
+        assertEq(singleOverride.overrides[0].key, bytes32(uint256(0x4)), "Must contain a threshold override");
+        assertEq(singleOverride.overrides[0].value, bytes32(uint256(0x1)), "Threshold override must be 1");
+        assertEq(singleOverride.overrides[1].key, bytes32(uint256(0x5)), "Must contain a nonce override");
+        assertEq(singleOverride.overrides[1].value, bytes32(expectedNonce), "Nonce override must match expected value");
+        assertEq(singleOverride.overrides[2].key, bytes32(uint256(0x3)), "Must contain an owner count override");
+        assertEq(singleOverride.overrides[2].value, bytes32(uint256(0x1)), "Owner count override must be 1");
+        // Verify owner mapping overrides
+        assertEq(
+            singleOverride.overrides[3].key,
+            bytes32(uint256(0xe90b7bceb6e7df5418fb78d8ee546e97c83a08bbccc01a0644d599ccd2a7c2e0)),
+            "Must contain first owner mapping override"
+        );
+        assertEq(
+            singleOverride.overrides[3].value,
+            bytes32(uint256(0x0000000000000000000000007fa9385be102ac3eac297483dd6233d62b3e1496)),
+            "Incorrect first owner mapping override"
+        );
+        assertEq(
+            singleOverride.overrides[4].key,
+            bytes32(uint256(0x6e10ff27cae71a13525bd61167857e5c982b4674c8e654900e4e9d5035811f78)),
+            "Must contain second owner mapping override"
+        );
+        assertEq(
+            singleOverride.overrides[4].value, bytes32(uint256(0x1)), "Must contain second owner mapping override value"
+        );
+        return combinedOverrides_;
     }
 
     function assertNonceIncremented(uint256 expectedNonce) internal view {

@@ -677,12 +677,13 @@ abstract contract MultisigTask is Test, Script {
     }
 
     /// @notice Creates combined overrides array with parent multisig overrides
-    function createCombinedOverrides(
-        bool hasParentMultisigOverride,
-        uint256 parentMultisigIndex,
-        Simulation.StateOverride memory defaultOverride
-    ) internal view returns (Simulation.StateOverride[] memory) {
+    function createCombinedOverrides(bool hasParentMultisigOverride, uint256 parentMultisigIndex)
+        public
+        view
+        returns (Simulation.StateOverride[] memory)
+    {
         Simulation.StateOverride[] memory combinedOverrides;
+        Simulation.StateOverride memory defaultOverride = createDefaultMultisigOverride();
 
         if (hasParentMultisigOverride) {
             // Create combined overrides with the existing parent multisig override
@@ -743,9 +744,8 @@ abstract contract MultisigTask is Test, Script {
                 break;
             }
         }
-        Simulation.StateOverride memory defaultOverride = createDefaultMultisigOverride();
         Simulation.StateOverride[] memory combinedOverrides =
-            createCombinedOverrides(hasParentMultisigOverride, parentMultisigIndex, defaultOverride);
+            createCombinedOverrides(hasParentMultisigOverride, parentMultisigIndex);
 
         bytes memory txData = _execTransationCalldata(
             parentMultisig, getMulticall3Calldata(actions), Signatures.genPrevalidatedSignature(msg.sender)
