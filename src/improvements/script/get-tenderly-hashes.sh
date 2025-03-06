@@ -46,6 +46,9 @@ if echo "$RESPONSE" | jq -e '.error' >/dev/null 2>&1; then
   exit 1
 fi
 
+echo -e "\n\nResponse:" # DEBUG
+echo "$RESPONSE" | jq . # DEBUG
+
 # Extract the simulation ID from the response
 SIMULATION_ID=$(echo "$RESPONSE" | jq -r '.simulation.id')
 
