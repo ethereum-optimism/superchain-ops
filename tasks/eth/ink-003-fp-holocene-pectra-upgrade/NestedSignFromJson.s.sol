@@ -54,8 +54,6 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
     address oracle;
     uint256 chainId;
 
-    //See VALIDATION.mb for absolutePrestate and livenessGuard verification
-    //livenessGuard can be found here https://etherscan.io/address/0x24424336F04440b1c28685a38303aC33C9D14a25#readContract and https://github.com/ethereum-optimism/superchain-ops/blob/b17d3037c68e50f28ad19abf03bb952e507b3ebc/tasks/eth/010-2-sc-changes/VALIDATION.md 
     bytes32 constant absolutePrestate = 0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd;
     address constant livenessGuard = 0x24424336F04440b1c28685a38303aC33C9D14a25;
     string constant gameVersion = "1.3.1";
