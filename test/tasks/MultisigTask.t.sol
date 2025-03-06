@@ -249,6 +249,13 @@ contract MultisigTaskUnitTest is Test {
         "templateName = \"DisputeGameUpgradeTemplate\"\n" "\n"
         "implementations = [{gameType = 0, implementation = \"0xf691F8A6d908B58C534B624cF16495b491E633BA\", l2ChainId = 10}]\n";
 
+    function createTempTomlFile(string memory tomlContent) internal returns (string memory) {
+        string memory fileName =
+            string.concat(LibString.toHexString(uint256(keccak256(abi.encode(tomlContent)))), ".toml");
+        vm.writeFile(fileName, tomlContent);
+        return fileName;
+    }
+
     function testNonceAndThresholdStateOverrideApplied() public {
         // This config includes both nonce and threshold state overrides.
         string memory toml = string.concat(
@@ -259,8 +266,7 @@ contract MultisigTaskUnitTest is Test {
             "    {key = \"0x0000000000000000000000000000000000000000000000000000000000000004\", value = \"0x0000000000000000000000000000000000000000000000000000000000000002\"}\n",
             "]"
         );
-        string memory fileName = string.concat(LibString.toHexString(uint256(keccak256(abi.encode(toml)))), ".toml");
-        vm.writeFile(fileName, toml);
+        string memory fileName = createTempTomlFile(toml);
         runTestSimulation(fileName);
         assertNonceIncremented(4095);
         assertEq(IGnosisSafe(task.parentMultisig()).getThreshold(), 2, "Threshold must be 2");
@@ -279,8 +285,7 @@ contract MultisigTaskUnitTest is Test {
             "    {key = \"0x0000000000000000000000000000000000000000000000000000000000000005\", value = \"0x0000000000000000000000000000000000000000000000000000000000000AAA\"}\n",
             "]"
         );
-        string memory fileName = string.concat(LibString.toHexString(uint256(keccak256(abi.encode(toml)))), ".toml");
-        vm.writeFile(fileName, toml);
+        string memory fileName = createTempTomlFile(toml);
         runTestSimulation(fileName);
         assertNonceIncremented(2730);
         vm.removeFile(fileName);
@@ -295,8 +300,7 @@ contract MultisigTaskUnitTest is Test {
             "    {key = \"0x0000000000000000000000000000000000000000000000000000000000000005\", value = \"0x0000000000000000000000000000000000000000000000000000000000000001\"}\n",
             "]"
         );
-        string memory fileName = string.concat(LibString.toHexString(uint256(keccak256(abi.encode(toml)))), ".toml");
-        vm.writeFile(fileName, toml);
+        string memory fileName = createTempTomlFile(toml);
         vm.expectRevert();
         task.simulateRun(fileName);
         vm.removeFile(fileName);
@@ -311,8 +315,7 @@ contract MultisigTaskUnitTest is Test {
             "    {key = 5, value = \"0x0000000000000000000000000000000000000000000000000000000000000001\"}\n",
             "]"
         );
-        string memory fileName = string.concat(LibString.toHexString(uint256(keccak256(abi.encode(toml)))), ".toml");
-        vm.writeFile(fileName, toml);
+        string memory fileName = createTempTomlFile(toml);
         runTestSimulation(fileName);
         assertNonceIncremented(1);
         vm.removeFile(fileName);
@@ -327,16 +330,14 @@ contract MultisigTaskUnitTest is Test {
             "    {key = 5, value = 100}\n",
             "]"
         );
-        string memory fileName = string.concat(LibString.toHexString(uint256(keccak256(abi.encode(toml)))), ".toml");
-        vm.writeFile(fileName, toml);
+        string memory fileName = createTempTomlFile(toml);
         runTestSimulation(fileName);
         assertNonceIncremented(100);
         vm.removeFile(fileName);
     }
 
     function testOnlyDefaultTenderlyStateOverridesApplied() public {
-        string memory fileName = "testOnlyDefaultTenderlyStateOverridesApplied.toml";
-        vm.writeFile(fileName, commonToml);
+        string memory fileName = createTempTomlFile(commonToml);
         runTestSimulation(fileName);
 
         uint256 expectedNonce = task.nonce();
@@ -354,8 +355,7 @@ contract MultisigTaskUnitTest is Test {
             "    {key = 5, value = 100}\n",
             "]"
         );
-        string memory fileName = string.concat(LibString.toHexString(uint256(keccak256(abi.encode(toml)))), ".toml");
-        vm.writeFile(fileName, toml);
+        string memory fileName = createTempTomlFile(toml);
         runTestSimulation(fileName);
 
         uint256 expectedNonce = 100;
@@ -374,8 +374,7 @@ contract MultisigTaskUnitTest is Test {
             "    {key = \"0x1c817c894a1443ac14bff2139acff0976be484b1fcecf627833591a0e476b5d7\", value = 9999}\n",
             "]"
         );
-        string memory fileName = string.concat(LibString.toHexString(uint256(keccak256(abi.encode(toml)))), ".toml");
-        vm.writeFile(fileName, toml);
+        string memory fileName = createTempTomlFile(toml);
         runTestSimulation(fileName);
 
         uint256 expectedNonce = task.nonce();
