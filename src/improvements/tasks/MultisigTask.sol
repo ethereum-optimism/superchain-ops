@@ -13,6 +13,8 @@ import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.so
 
 import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
+import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
+
 
 abstract contract MultisigTask is Test, Script {
     using EnumerableSet for EnumerableSet.AddressSet;
@@ -587,8 +589,8 @@ abstract contract MultisigTask is Test, Script {
         }
 
         if (isSimulate) {
-            console.log("\n\n------------------ Tenderly Simulation Payload ------------------");
-            printTenderlySimulationPayload(actions);
+            console.log("\n\n------------------ Tenderly Simulation Data ------------------");
+            printTenderlySimulationData(actions);
         }
     }
 
@@ -657,7 +659,7 @@ abstract contract MultisigTask is Test, Script {
     }
 
     /// @notice print the tenderly simulation payload with the state overrides
-    function printTenderlySimulationPayload(Action[] memory actions) internal view {
+    function printTenderlySimulationData(Action[] memory actions) internal view {
         Simulation.StateOverride[] memory stateOverrides = new Simulation.StateOverride[](1);
         stateOverrides[0] =
             Simulation.overrideSafeThresholdOwnerAndNonce(parentMultisig, msg.sender, _getNonce(parentMultisig));
@@ -665,6 +667,32 @@ abstract contract MultisigTask is Test, Script {
             parentMultisig, getMulticall3Calldata(actions), Signatures.genPrevalidatedSignature(msg.sender)
         );
 
+        // Log the Tenderly JSON payload
+        console.log("\nSimulation payload:");
+        logTenderlySimulationPayload(txData, stateOverrides[0].overrides);
+
+        // Log the simulation link
+        console.log("\nSimulation link:");
+        Simulation.logSimulationLink({_to: parentMultisig, _data: txData, _from: msg.sender, _overrides: stateOverrides});
+
+        // Calculate domain separator
+        // TODO: Read from AddressRegistry for some addresses that have non compliant domain separators, such as the mainnet Foundation Operations Safe
+        bytes32 domainSeparator = GnosisSafeHashes.calculateDomainSeparator(block.chainid, parentMultisig);
+
+        // Calculate message hash
+        bytes32 messageHash = GnosisSafeHashes.calculateMessageHashFromCalldata(txData, _getNonce(parentMultisig));
+
+        // Output results
+        console.log("\n\n-------- Domain Separator and Message Hashes from Local Simulation --------");
+        console.log("Domain Separator:", vm.toString(domainSeparator));
+        console.log("Message Hash:", vm.toString(messageHash));
+    }
+
+    /// @notice log a json payload to create a Tenderly simulation
+    function logTenderlySimulationPayload(bytes memory txData, Simulation.StorageOverride[] memory storageOverrides)
+        internal
+        view
+    {
         // Log the Tenderly JSON payload
         // forgefmt: disable-start
         string memory payload = string.concat(
@@ -681,22 +709,18 @@ abstract contract MultisigTask is Test, Script {
         console.log("%s", payload);
 
         // Add each storage override
-        for (uint256 j = 0; j < stateOverrides[0].overrides.length; j++) {
-            string memory comma = j < stateOverrides[0].overrides.length - 1 ? "," : "";
+        for (uint256 j = 0; j < storageOverrides.length; j++) {
+            string memory comma = j < storageOverrides.length - 1 ? "," : "";
             console.log(
                 "\"%s\":\"%s\"%s",
-                vm.toString(bytes32(stateOverrides[0].overrides[j].key)),
-                vm.toString(stateOverrides[0].overrides[j].value),
+                vm.toString(bytes32(storageOverrides[j].key)),
+                vm.toString(storageOverrides[j].value),
                 comma
             );
         }
 
         // Close the JSON structure
         console.log("}}}}");
-
-        // Log the simulation link
-        console.log("\nSimulation link:");
-        Simulation.logSimulationLink({_to: parentMultisig, _data: txData, _from: msg.sender, _overrides: stateOverrides});
     }
 
     /// @notice get the hash for this safe transaction

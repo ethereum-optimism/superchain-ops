@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.15;
 
-import "forge-std/Script.sol";
 import "forge-std/console.sol";
 import {GnosisSafe} from "lib/safe-contracts/contracts/GnosisSafe.sol";
 
-contract CalculateSafeHashes is Script {
+/// @title GnosisSafeHashes
+/// @notice Library for calculating domain separators and message hashes for Gnosis Safe transactions
+library GnosisSafeHashes {
     // Safe transaction type hash
     bytes32 constant SAFE_TX_TYPEHASH = keccak256(
         "SafeTx(address to,uint256 value,bytes data,uint8 operation,uint256 safeTxGas,uint256 baseGas,uint256 gasPrice,address gasToken,address refundReceiver,uint256 nonce)"
@@ -25,78 +26,6 @@ contract CalculateSafeHashes is Script {
         uint256 nonce;
     }
 
-    function run() external view {
-        string memory filePath = vm.envOr("PAYLOAD_FILE", string("tenderly_payload.json"));
-
-        // Check if file exists
-        try vm.readFile(filePath) {
-            // File exists, proceed
-        } catch {
-            console.log("\x1B[33m[WARN]\x1B[0m CalculateSafeHashes: File not found:", filePath);
-            return;
-        }
-
-        // Parse JSON payload
-        string memory json = vm.readFile(filePath);
-
-        // Use specialized parsers for each data type
-        string memory inputHex = vm.parseJsonString(json, ".input");
-        uint256 chainId = vm.parseJsonUint(json, ".network_id");
-        address payable safeAddress = payable(vm.parseJsonAddress(json, ".to"));
-
-        // Get nonce from storage or contract call
-        uint256 nonce;
-        string memory storagePath = string(
-            abi.encodePacked(
-                ".state_objects.",
-                vm.toString(safeAddress),
-                ".storage.0x0000000000000000000000000000000000000000000000000000000000000005"
-            )
-        );
-
-        try vm.parseJsonString(json, storagePath) returns (string memory nonceHex) {
-            nonce = uint256(vm.parseBytes32(nonceHex));
-        } catch {
-            // Try to get nonce from contract call
-            try GnosisSafe(safeAddress).nonce() returns (uint256 n) {
-                nonce = n;
-            } catch {
-                console.log("\x1B[33m[WARN]\x1B[0m CalculateSafeHashes: Could not determine nonce, using 0");
-            }
-        }
-
-        // Convert hex string to bytes
-        bytes memory callData = vm.parseBytes(inputHex);
-
-        // Extract function selector
-        bytes4 selector;
-        assembly {
-            // Load first 4 bytes (function selector)
-            selector := mload(add(add(callData, 32), 0))
-        }
-
-        if (
-            selector
-                != bytes4(
-                    keccak256("execTransaction(address,uint256,bytes,uint8,uint256,uint256,uint256,address,address,bytes)")
-                )
-        ) {
-            console.log("\x1B[33m[WARN]\x1B[0m CalculateSafeHashes: Input is not an execTransaction call");
-            return;
-        }
-
-        // Calculate domain separator
-        bytes32 domainSeparator = calculateDomainSeparator(chainId, safeAddress);
-
-        // Calculate message hash
-        bytes32 messageHash = calculateMessageHashFromCalldata(callData, nonce);
-
-        // Output results
-        console.log("\n\n-------- Domain Separator and Message Hashes from Payload --------");
-        console.log("Domain Separator:", vm.toString(domainSeparator));
-        console.log("Message Hash:", vm.toString(messageHash));
-    }
-
     /// @notice Calculates the EIP-712 domain separator for a Safe
     /// @param _chainId The chain ID
     /// @param _safeAddress The address of the Safe contract
@@ -106,9 +35,6 @@ contract CalculateSafeHashes is Script {
         pure
         returns (bytes32 domainSeparator_)
     {
-        console.log("chainId: %s", _chainId);
-        console.log("safeAddress: %s", _safeAddress);
-
         // TODO: Load the FoS address from the AddressRegistry
         if (_safeAddress == 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A) {
             // Foundation Operations Safe - Gnosis Safe 1.1.1
