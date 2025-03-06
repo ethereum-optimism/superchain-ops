@@ -34,6 +34,8 @@ simulate_task() {
         SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile "$single_just_file" simulate | tee ./simulation_output.txt
     fi
 
+    # TODO: This should be a separate step in CI so that we can have a just command to just run the tasks on forge, and another that also runs the Tenderly simulations.
+
     # Extract Tenderly payload from output and save it
     awk '/------------------ Tenderly Simulation Payload ------------------/{flag=1;next}/\}\}\}\}$/{print;flag=0}flag' ./simulation_output.txt > ./tenderly_payload.json
     

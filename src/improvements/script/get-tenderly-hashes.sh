@@ -56,8 +56,10 @@ SIMULATION_DETAILS=$(curl -s -X POST -H "X-Access-Key: $TENDERLY_ACCESS_TOKEN" \
 
 # Check if there was an error retrieving the simulation details
 if echo "$SIMULATION_DETAILS" | jq -e '.error' >/dev/null 2>&1; then
+  echo -e "\n\nSimulation response:" >&2
   echo "$RESPONSE" | jq 'del(.contracts)' >&2
   echo -e "\n\nError retrieving simulation details:" >&2
+  echo "$SIMULATION_DETAILS" | jq -r '.' >&2
   echo "$SIMULATION_DETAILS" | jq -r '.error' >&2
   exit 1
 fi
