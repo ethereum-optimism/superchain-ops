@@ -40,47 +40,38 @@ simulate_task() {
     # Check if payload was extracted successfully
     if [ -s ./tenderly_payload.json ]; then
         echo -e "\n\nTenderly simulation payload saved to: ./tenderly_payload.json"
-        rm ./simulation_output.txt
         
         PAYLOAD_FILE="$(pwd)/tenderly_payload.json"
         export PAYLOAD_FILE
 
-        # Calculate locally the domain and message hashes from the Tenderly payload, if we get an error, print the output and exit
-        if ! LOCAL_OUTPUT=$(forge script "$root_dir"/script/CalculateSafeHashes.s.sol -vvv 2>&1); then
-            echo "$LOCAL_OUTPUT"
-            exit 1
-        fi
-        echo "$LOCAL_OUTPUT"
+        # Calculate locally the domain and message hashes from the Tenderly payload
+        forge script "$root_dir"/script/CalculateSafeHashes.s.sol -vvv 2>&1 | tee ./local_output.txt
 
         # Extract the domain and message hashes from the local output
-        DOMAIN_SEPARATOR_LOCAL=$(echo "$LOCAL_OUTPUT" | awk '/Domain Separator:/{print $3}')
-        MESSAGE_HASH_LOCAL=$(echo "$LOCAL_OUTPUT" | awk '/Message Hash:/{print $3}')
+        DOMAIN_SEPARATOR_LOCAL=$(cat ./local_output.txt | awk '/Domain Separator:/{print $3}')
+        MESSAGE_HASH_LOCAL=$(cat ./local_output.txt | awk '/Message Hash:/{print $3}')
 
-        # Capturing the output of the get-tenderly-hashes.sh script is a pain in the proverbial
-        "$root_dir"/src/improvements/script/get-tenderly-hashes.sh ./tenderly_payload.json
+        # Simulate the task with Tenderly and extract the domain and message hashes
+        "$root_dir"/src/improvements/script/get-tenderly-hashes.sh ./tenderly_payload.json 2>&1 | tee ./remote_output.txt   
 
-#        # Simulate the task with Tenderly and extract the domain and message hashes
-#        if ! REMOTE_OUTPUT=$("$root_dir"/src/improvements/script/get-tenderly-hashes.sh ./tenderly_payload.json 2>&1); then
-#            echo "$REMOTE_OUTPUT"
-#            exit 1
-#        fi
-#        echo "$REMOTE_OUTPUT"
-#
-#        # Extract the domain and message hashes from the remote output
-#        DOMAIN_SEPARATOR_REMOTE=$(echo "$REMOTE_OUTPUT" | awk '/Domain Separator:/{print $3}')
-#        MESSAGE_HASH_REMOTE=$(echo "$REMOTE_OUTPUT" | awk '/Message Hash:/{print $3}')
-#
-#        # Compare the local and remote hashes
-#        if [ "$DOMAIN_SEPARATOR_LOCAL" != "$DOMAIN_SEPARATOR_REMOTE" ]; then
-#            echo -e "\n\n\033[1;31mDomain separator mismatch\033[0m\n"
-#            exit 1
-#        fi
-#        if [ "$MESSAGE_HASH_LOCAL" != "$MESSAGE_HASH_REMOTE" ]; then
-#            echo -e "\n\n\033[1;31mMessage hash mismatch\033[0m\n"
-#            exit 1
-#        fi
+        # Extract the domain and message hashes from the remote output
+        DOMAIN_SEPARATOR_REMOTE=$(cat ./remote_output.txt | awk '/Domain Separator:/{print $3}')
+        MESSAGE_HASH_REMOTE=$(cat ./remote_output.txt | awk '/Message Hash:/{print $3}')
 
+        # Compare the local and remote hashes
+        if [ "$DOMAIN_SEPARATOR_LOCAL" != "$DOMAIN_SEPARATOR_REMOTE" ]; then
+            echo -e "\n\n\033[1;31mDomain separator mismatch\033[0m\n"
+            exit 1
+        fi
+        if [ "$MESSAGE_HASH_LOCAL" != "$MESSAGE_HASH_REMOTE" ]; then
+            echo -e "\n\n\033[1;31mMessage hash mismatch\033[0m\n"
+            exit 1
+        fi
+
+        rm ./simulation_output.txt
         rm ./tenderly_payload.json
+        rm ./local_output.txt
+        rm ./remote_output.txt
     else
         echo "Simulation output saved to: ./simulation_output.txt"
     fi
