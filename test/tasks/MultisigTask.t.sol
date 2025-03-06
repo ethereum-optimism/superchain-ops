@@ -401,8 +401,8 @@ contract MultisigTaskUnitTest is Test {
             address(task.parentMultisig()),
             "Contract address must be the parent multisig"
         );
-        require(singleOverride.overrides.length >= 5, "overrides length must be at least 5");
-        assertEq(singleOverride.overrides.length, totalOverrides, "Overrides must be 5");
+        assertTrue(singleOverride.overrides.length >= 5, "Overrides length must be at least 5");
+        assertEq(singleOverride.overrides.length, totalOverrides, "Unexpected number of state overrides");
         assertEq(singleOverride.overrides[0].key, bytes32(uint256(0x4)), "Must contain a threshold override");
         assertEq(singleOverride.overrides[0].value, bytes32(uint256(0x1)), "Threshold override must be 1");
         assertEq(singleOverride.overrides[1].key, bytes32(uint256(0x5)), "Must contain a nonce override");
@@ -432,7 +432,7 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function assertNonceIncremented(uint256 expectedNonce) internal view {
-        assertEq(task.nonce(), expectedNonce, "Nonce state override not applied");
+        assertEq(task.nonce(), expectedNonce, string.concat("Expected nonce ", LibString.toString(expectedNonce)));
         uint256 actualNonce = uint256(vm.load(address(task.parentMultisig()), bytes32(uint256(0x5))));
         assertEq(actualNonce, expectedNonce + 1, "Nonce must be incremented by 1 in memory after task is run");
     }
