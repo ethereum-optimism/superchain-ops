@@ -143,6 +143,4 @@ simulate-verify-task TASK="":
     # For testing purposes, we do not gain anything by simulating as other nested safes.
     nested_safe_name="foundation"
 
-    ${root_dir}/src/improvements/script/simulate-task.sh {{TASK}} $nested_safe_name | tee ./simulation_output.txt
-    ${root_dir}/src/improvements/script/verify-task.sh ./simulation_output.txt
-    rm ./simulation_output.txt
+    ${root_dir}/src/improvements/script/simulate-verify-task.sh {{TASK}} $nested_safe_name

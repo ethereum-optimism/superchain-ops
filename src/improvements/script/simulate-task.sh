@@ -28,10 +28,10 @@ simulate_task() {
             echo "Error: this task requires a nested safe name e.g. foundation, council, chain-governor."
             exit 1
         fi
-        SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile "$nested_just_file" simulate "$nested_safe_name" | tee ./simulation_output.txt
+        SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile "$nested_just_file" simulate "$nested_safe_name"
     else
         echo "Simulating single task: $task"
-        SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile "$single_just_file" simulate | tee ./simulation_output.txt
+        SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile "$single_just_file" simulate
     fi
 
     echo -e "\n\nDone simulating task: $task"
