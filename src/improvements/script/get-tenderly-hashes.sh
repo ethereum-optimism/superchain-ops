@@ -15,8 +15,8 @@ fi
 PAYLOAD_FILE="$1"
 
 # These are not secrets so that the simulation URL shows up
-TENDERLY_USER="alberto-oplabs"
-TENDERLY_PROJECT_SLUG="project"
+TENDERLY_USER="${TENDERLY_USER:-oplabs}"
+TENDERLY_PROJECT_SLUG="${TENDERLY_PROJECT_SLUG:-task-simulation}"
 
 # Check if the payload file exists
 if [ ! -f "$PAYLOAD_FILE" ]; then
