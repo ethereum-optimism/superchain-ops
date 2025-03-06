@@ -79,7 +79,15 @@ contract TaskRunner is Script {
 
         SuperchainAddressRegistry _addrRegistry = new SuperchainAddressRegistry(taskConfigFilePath);
         SuperchainAddressRegistry.ChainInfo[] memory chains = _addrRegistry.getChains();
-        address parentMultisig = _addrRegistry.getAddress(safeAddressString, chains[0].chainId);
+        address parentMultisig;
+        // TODO: This is a hack to support the EnableDeputyPauseModuleTemplate.
+        // remove this once we have SimpleTaskBase contract as then this template will derive from SimpleTaskBase
+        // instead of L2TaskBase.
+        if (keccak256(bytes(safeAddressString)) == keccak256(bytes("FoundationOperationSafe"))) {
+            parentMultisig = _addrRegistry.get(safeAddressString);
+        } else {
+            parentMultisig = _addrRegistry.getAddress(safeAddressString, chains[0].chainId);
+        }
         return task.isNestedSafe(parentMultisig);
     }
 }

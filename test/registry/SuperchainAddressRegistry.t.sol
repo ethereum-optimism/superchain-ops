@@ -5,7 +5,7 @@ import {Test} from "forge-std/Test.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 
-import {SimpleAddressRegistryTest} from "./SimpleAddressRegistry.t.sol";
+import {SimpleAddressRegistryTest, SimpleAddressRegistryTest_HardcodedAddresses} from "./SimpleAddressRegistry.t.sol";
 
 abstract contract SuperchainAddressRegistryTest_Base is Test {
     using LibString for string;
@@ -158,29 +158,6 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
             assertNotEq(addrRegistry.getAddress("ProxyAdminOwner", chainId), address(0), "320");
             assertNotEq(addrRegistry.getAddress("SystemConfigOwner", chainId), address(0), "330");
             assertNotEq(addrRegistry.getAddress("UnsafeBlockSigner", chainId), address(0), "340");
-
-            // Define expected superchain auth addresses for mainnet and testnet.
-            address fus = block.chainid == 1
-                ? 0x847B5c174615B1B7fDF770882256e2D3E95b9D92
-                : 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B;
-            address fos = block.chainid == 1
-                ? 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A
-                : 0x837DE453AD5F21E89771e3c06239d8236c0EFd5E;
-            address sc = block.chainid == 1
-                ? 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03
-                : 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977;
-
-            assertEq(addrRegistry.getAddress("FoundationUpgradeSafe", chainId), fus, "350");
-            assertEq(addrRegistry.getAddress("FoundationOperationSafe", chainId), fos, "360");
-            assertEq(addrRegistry.getAddress("SecurityCouncil", chainId), sc, "370");
-            // Sepolia does not define a ChainGovernorSafe in addresses.toml, so we skip in that case.
-            if (block.chainid != 11155111) {
-                assertEq(
-                    addrRegistry.getAddress("ChainGovernorSafe", chainId),
-                    0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC,
-                    "380"
-                );
-            }
         }
     }
 
@@ -244,6 +221,18 @@ contract SuperchainAddressRegistryTest_Addresses is SimpleAddressRegistryTest {
         vm.createSelectFork("mainnet");
         registryName = "SuperchainAddressRegistry";
         idReturnKind = "AddressInfo";
+    }
+
+    function _deployRegistry(string memory configFile) internal override returns (address) {
+        return address(new SuperchainAddressRegistry(_getPath(configFile)));
+    }
+}
+
+// We test the hardcoded addresses in the SuperchainAddressRegistry by extending
+// the SimpleAddressRegistryTest_HardcodedAddresses.
+contract SuperchainAddressRegistryTest_HardcodedAddresses is SimpleAddressRegistryTest_HardcodedAddresses {
+    function setUp() public override {
+        isSimpleAddressRegistry = false;
     }
 
     function _deployRegistry(string memory configFile) internal override returns (address) {
