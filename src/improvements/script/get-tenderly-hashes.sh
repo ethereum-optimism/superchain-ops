@@ -1,37 +1,28 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# This script uses a Tenderly simulation payload as imput to execute a simulation on and retrieve
+# This script uses a Tenderly simulation payload to execute a simulation and retrieve
 # the domain and message hashes from its trace. 
-# Usage: ./get-tenderly-trace.sh payload.json
+# Usage: ./get-tenderly-trace.sh '{"json":"payload"}'
 
-# Check if a payload file was provided
+# Check if a payload was provided
 if [ $# -lt 1 ]; then
-  echo "Error: Payload file is required"
-  echo "Usage: $0 <payload_file>"
+  echo "Error: JSON payload is required"
+  echo "Usage: $0 '<json_payload>'"
   exit 1
 fi
 
-PAYLOAD_FILE="$1"
+PAYLOAD="$1"
 
 # These are not secrets so that the simulation URL shows up
 TENDERLY_USER="${TENDERLY_USER:-oplabs}"
 TENDERLY_PROJECT_SLUG="${TENDERLY_PROJECT_SLUG:-task-simulation}"
-
-# Check if the payload file exists
-if [ ! -f "$PAYLOAD_FILE" ]; then
-  echo "Error: Payload file not found: $PAYLOAD_FILE" >&2
-  exit 1
-fi
 
 # Check for required environment variables
 if [ -z "${TENDERLY_ACCESS_TOKEN:-}" ]; then
   echo "Error: TENDERLY_ACCESS_TOKEN environment variable is required" >&2
   exit 1
 fi
-
-# Read the payload from file
-PAYLOAD=$(cat "$PAYLOAD_FILE")
 
 # Call Tenderly simulation API
 RESPONSE=$(curl -s -X POST \
@@ -101,6 +92,5 @@ echo "  Domain Separator: $DOMAIN_SEPARATOR"
 echo "  Message Hash: $MESSAGE_HASH"
 
 # Output the Tenderly dashboard URL
-echo ""
-echo "View the simulation in Tenderly dashboard:"
+echo -e "\nView the simulation in Tenderly dashboard:"
 echo "https://dashboard.tenderly.co/$TENDERLY_USER/$TENDERLY_PROJECT_SLUG/simulator/$SIMULATION_ID"
