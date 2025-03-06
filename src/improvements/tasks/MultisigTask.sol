@@ -118,6 +118,8 @@ abstract contract MultisigTask is Test, Script {
     /// @notice The address of the multicall target for this task
     address public multicallTarget;
 
+    Simulation.StateOverride[] internal _stateOverrides;
+
     // ==================================================
     // ======== Virtual, Unimplemented Functions ========
     // ==================================================
@@ -658,15 +660,126 @@ abstract contract MultisigTask is Test, Script {
         }
     }
 
+    function stateOverrideEquals(Simulation.StateOverride memory a, Simulation.StateOverride memory b)
+        internal
+        pure
+        returns (bool)
+    {
+        console.log("stateOverrideEquals: ");
+        console.log("a.contractAddress: %s", a.contractAddress);
+        console.log("b.contractAddress: %s", b.contractAddress);
+        if (a.contractAddress != b.contractAddress) return false;
+        console.log("a.overrides.length: %s", a.overrides.length);
+        console.log("b.overrides.length: %s", b.overrides.length);
+        if (a.overrides.length != b.overrides.length) return false;
+        for (uint256 i = 0; i < a.overrides.length; i++) {
+            console.log("a key: ");
+            console.logBytes32(a.overrides[i].key);
+            console.log("b key: ");
+            console.logBytes32(b.overrides[i].key);
+            console.log("a value: ");
+            console.logBytes32(a.overrides[i].value);
+            console.log("b value: ");
+            console.logBytes32(b.overrides[i].value);
+            if (a.overrides[i].key != b.overrides[i].key || a.overrides[i].value != b.overrides[i].value) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /// @notice Creates a default state override for the parent multisig (nonce, threshold, owner)
+    function _createDefaultMultisigOverride() internal view returns (Simulation.StateOverride memory) {
+        Simulation.StateOverride memory defaultOverride;
+        defaultOverride.contractAddress = parentMultisig;
+        defaultOverride = Simulation.addOverride(
+            defaultOverride, Simulation.StorageOverride({key: bytes32(uint256(0x4)), value: bytes32(uint256(0x1))})
+        );
+        defaultOverride = Simulation.addOverride(
+            defaultOverride,
+            Simulation.StorageOverride({key: bytes32(uint256(0x5)), value: bytes32(_getNonce(parentMultisig))})
+        );
+        defaultOverride = Simulation.addOwnerOverride(parentMultisig, defaultOverride, msg.sender);
+        return defaultOverride;
+    }
+
     /// @notice print the tenderly simulation link with the state overrides
     function printTenderlySimulationLink(Action[] memory actions) internal view {
-        Simulation.StateOverride[] memory overrides = new Simulation.StateOverride[](1);
-        overrides[0] =
-            Simulation.overrideSafeThresholdOwnerAndNonce(parentMultisig, msg.sender, _getNonce(parentMultisig));
+        // Check if there's already an override for parent multisig
+        bool hasParentMultisigOverride = false;
+        uint256 parentMultisigIndex = 0;
+
+        for (uint256 i = 0; i < _stateOverrides.length; i++) {
+            if (_stateOverrides[i].contractAddress == parentMultisig) {
+                hasParentMultisigOverride = true;
+                parentMultisigIndex = i;
+                break;
+            }
+        }
+
+        Simulation.StateOverride[] memory combinedOverrides;
+
+        if (hasParentMultisigOverride) {
+            // Create combined overrides with the existing parent multisig override
+            combinedOverrides = new Simulation.StateOverride[](_stateOverrides.length);
+
+            // Get default override
+            Simulation.StateOverride memory defaultOverride = _createDefaultMultisigOverride();
+
+            // Create a combined override that starts with the default values
+            Simulation.StateOverride memory combined;
+            combined.contractAddress = parentMultisig;
+
+            // Add all default overrides first
+            for (uint256 j = 0; j < defaultOverride.overrides.length; j++) {
+                combined = Simulation.addOverride(combined, defaultOverride.overrides[j]);
+            }
+
+            // Then add existing overrides, potentially overwriting default values
+            for (uint256 j = 0; j < _stateOverrides[parentMultisigIndex].overrides.length; j++) {
+                // We need to check if this key already exists to avoid duplicates
+                bool keyExists = false;
+                for (uint256 k = 0; k < combined.overrides.length; k++) {
+                    if (combined.overrides[k].key == _stateOverrides[parentMultisigIndex].overrides[j].key) {
+                        // Override the value
+                        combined.overrides[k].value = _stateOverrides[parentMultisigIndex].overrides[j].value;
+                        keyExists = true;
+                        break;
+                    }
+                }
+
+                // If key doesn't exist, add it
+                if (!keyExists) {
+                    combined = Simulation.addOverride(combined, _stateOverrides[parentMultisigIndex].overrides[j]);
+                }
+            }
+
+            // Copy all overrides, replacing parent multisig override with combined one
+            for (uint256 i = 0; i < _stateOverrides.length; i++) {
+                if (i == parentMultisigIndex) {
+                    combinedOverrides[i] = combined;
+                } else {
+                    combinedOverrides[i] = _stateOverrides[i];
+                }
+            }
+        } else {
+            combinedOverrides = new Simulation.StateOverride[](_stateOverrides.length + 1);
+            for (uint256 i = 0; i < _stateOverrides.length; i++) {
+                combinedOverrides[i] = _stateOverrides[i];
+            }
+            combinedOverrides[_stateOverrides.length] = _createDefaultMultisigOverride();
+        }
+
         bytes memory txData = _execTransationCalldata(
             parentMultisig, getMulticall3Calldata(actions), Signatures.genPrevalidatedSignature(msg.sender)
         );
-        Simulation.logSimulationLink({_to: parentMultisig, _data: txData, _from: msg.sender, _overrides: overrides});
+
+        Simulation.logSimulationLink({
+            _to: parentMultisig,
+            _data: txData,
+            _from: msg.sender,
+            _overrides: combinedOverrides
+        });
     }
 
     /// @notice get the hash for this safe transaction
@@ -1054,17 +1167,13 @@ abstract contract L2TaskBase is MultisigTask {
 
     SuperchainAddressRegistry public superchainAddrRegistry;
 
-    function _readStateOverrides(string memory taskConfigFilePath)
-        internal
-        view
-        returns (Simulation.StateOverride[] memory)
-    {
+    function _readStateOverrides(string memory taskConfigFilePath) internal {
         string memory toml = vm.readFile(taskConfigFilePath);
         string memory stateOverridesKey = ".stateOverrides";
-        if (!toml.keyExists(stateOverridesKey)) return new Simulation.StateOverride[](0);
+        if (!toml.keyExists(stateOverridesKey)) return;
 
         string[] memory targetsStrs = vm.parseTomlKeys(toml, stateOverridesKey);
-        Simulation.StateOverride[] memory stateOverrides = new Simulation.StateOverride[](targetsStrs.length);
+        Simulation.StateOverride[] memory stateOverridesMemory = new Simulation.StateOverride[](targetsStrs.length);
 
         address[] memory targetsAddrs = new address[](targetsStrs.length);
         for (uint256 i = 0; i < targetsStrs.length; i++) {
@@ -1075,27 +1184,37 @@ abstract contract L2TaskBase is MultisigTask {
                 vm.parseToml(toml, string.concat(stateOverridesKey, ".", targetsStrs[i])),
                 (Simulation.StorageOverride[])
             );
-            stateOverrides[i] = Simulation.StateOverride({contractAddress: targetsAddrs[i], overrides: overrides});
+            stateOverridesMemory[i] = Simulation.StateOverride({contractAddress: targetsAddrs[i], overrides: overrides});
         }
-        return stateOverrides;
+        // Cannot assign the abi.decode result to `_stateOverrides` directly because it's a storage array, so
+        // compiling without via-ir will fail with:
+        // Unimplemented feature (/solidity/libsolidity/codegen/ArrayUtils.cpp:228):Copying of type struct Simulation.StateOverride memory[] memory to storage not yet supported.
+        for (uint256 i = 0; i < stateOverridesMemory.length; i++) {
+            // Push a new element into the storage array and get a reference to it.
+            Simulation.StateOverride storage stateOverrideStorage = _stateOverrides.push();
+            stateOverrideStorage.contractAddress = stateOverridesMemory[i].contractAddress;
+            for (uint256 j = 0; j < stateOverridesMemory[i].overrides.length; j++) {
+                stateOverrideStorage.overrides.push(stateOverridesMemory[i].overrides[j]);
+            }
+        }
     }
 
-    function _setStateOverrides(Simulation.StateOverride[] memory stateOverrides, address parentMultisig) internal {
+    function _applyStateOverrides(address parentMultisig) internal {
         bool foundNonceOverride = false;
-        for (uint256 i = 0; i < stateOverrides.length; i++) {
+        for (uint256 i = 0; i < _stateOverrides.length; i++) {
             bytes32 GNOSIS_SAFE_NONCE_SLOT = bytes32(uint256(0x5));
-            for (uint256 j = 0; j < stateOverrides[i].overrides.length; j++) {
+            for (uint256 j = 0; j < _stateOverrides[i].overrides.length; j++) {
                 if (
-                    stateOverrides[i].contractAddress == parentMultisig
-                        && stateOverrides[i].overrides[j].key == GNOSIS_SAFE_NONCE_SLOT
+                    _stateOverrides[i].contractAddress == parentMultisig
+                        && _stateOverrides[i].overrides[j].key == GNOSIS_SAFE_NONCE_SLOT
                 ) {
                     foundNonceOverride = true;
-                    nonce = uint256(stateOverrides[i].overrides[j].value);
+                    nonce = uint256(_stateOverrides[i].overrides[j].value);
                 }
                 vm.store(
-                    address(stateOverrides[i].contractAddress),
-                    stateOverrides[i].overrides[j].key,
-                    stateOverrides[i].overrides[j].value
+                    address(_stateOverrides[i].contractAddress),
+                    _stateOverrides[i].overrides[j].key,
+                    _stateOverrides[i].overrides[j].value
                 );
             }
         }
@@ -1119,8 +1238,8 @@ abstract contract L2TaskBase is MultisigTask {
         parentMultisig_ = IGnosisSafe(superchainAddrRegistry.getAddress(config.safeAddressString, chains[0].chainId));
 
         // Read and set state overrides, handling parentMultisig nonce storage variable.
-        Simulation.StateOverride[] memory stateOverrides = _readStateOverrides(taskConfigFilePath);
-        _setStateOverrides(stateOverrides, address(parentMultisig_));
+        _readStateOverrides(taskConfigFilePath);
+        _applyStateOverrides(address(parentMultisig_));
 
         // Ensure that all chains have the same parentMultisig.
         for (uint256 i = 1; i < chains.length; i++) {
