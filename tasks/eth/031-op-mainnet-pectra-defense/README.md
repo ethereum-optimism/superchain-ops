@@ -1,6 +1,6 @@
 # ProxyAdminOwner - Update Prestate Hash
 
-Status: READY TO SIGN
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
