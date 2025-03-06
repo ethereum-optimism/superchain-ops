@@ -243,14 +243,84 @@ contract MultisigTaskUnitTest is Test {
         assertEq(data, expectedData, "Wrong aggregate calldata");
     }
 
-    function testNonceStateOverrideApplied() public {
-        string memory taskConfigFilePath = "test/tasks/mock/configs/NonceStateOverrideConfig.toml";
-        runTestSimulation(taskConfigFilePath);
+    string constant commonToml = "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n"
+        "templateName = \"DisputeGameUpgradeTemplate\"\n" "\n"
+        "implementations = [{gameType = 0, implementation = \"0xf691F8A6d908B58C534B624cF16495b491E633BA\", l2ChainId = 10}]\n";
+
+    function testNonceAndThresholdStateOverrideApplied() public {
+        // This config includes both nonce and threshold state overrides.
+        string memory tomlConfig = string.concat(
+            commonToml,
+            "[stateOverrides]\n",
+            "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [\n",
+            "    {key = \"0x0000000000000000000000000000000000000000000000000000000000000005\", value = \"0x0000000000000000000000000000000000000000000000000000000000000FFF\"},\n",
+            "    {key = \"0x0000000000000000000000000000000000000000000000000000000000000004\", value = \"0x0000000000000000000000000000000000000000000000000000000000000002\"}\n",
+            "]"
+        );
+
+        vm.writeFile("tmp_config.toml", tomlConfig);
+        runTestSimulation("tmp_config.toml");
         uint256 expectedNonce = 4095;
-        // 0xFFF (4095) is the value in the config file for the nonce state override.
         assertEq(task.nonce(), expectedNonce, "Nonce state override not applied.");
         uint256 actualNonce = uint256(vm.load(address(task.parentMultisig()), bytes32(uint256(0x5))));
         assertEq(actualNonce, expectedNonce + 1, "Nonce must be incremented by 1 in memory after task is run.");
+        assertEq(IGnosisSafe(task.parentMultisig()).getThreshold(), 2, "Threshold must be 2");
+        uint256 threshold = uint256(vm.load(address(task.parentMultisig()), bytes32(uint256(0x4))));
+        assertEq(threshold, 2, "Threshold must be 2 using vm.load");
+        vm.removeFile("tmp_config.toml");
+    }
+
+    function testNonceOnlyStateOverrideApplied() public {
+        // This config only applies a nonce override.
+        // 0xAAA in hex is 2730 in decimal.
+        string memory tomlConfig = string.concat(
+            commonToml,
+            "[stateOverrides]\n",
+            "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [\n",
+            "    {key = \"0x0000000000000000000000000000000000000000000000000000000000000005\", value = \"0x0000000000000000000000000000000000000000000000000000000000000AAA\"}\n",
+            "]"
+        );
+        vm.writeFile("tmp_config.toml", tomlConfig);
+        runTestSimulation("tmp_config.toml");
+        uint256 expectedNonce = 2730;
+        assertEq(task.nonce(), expectedNonce, "Nonce state override not applied.");
+        uint256 actualNonce = uint256(vm.load(address(task.parentMultisig()), bytes32(uint256(0x5))));
+        assertEq(actualNonce, expectedNonce + 1, "Nonce must be incremented by 1 in memory after task is run.");
+        vm.removeFile("tmp_config.toml");
+    }
+
+    function testInvalidAddressInStateOverrideFails() public {
+        // Test with invalid address
+        string memory tomlConfigInvalidAddress = string.concat(
+            commonToml,
+            "[stateOverrides]\n",
+            "0x1234 = [\n", // Invalid address
+            "    {key = \"0x0000000000000000000000000000000000000000000000000000000000000005\", value = \"0x0000000000000000000000000000000000000000000000000000000000000001\"}\n",
+            "]"
+        );
+        vm.writeFile("tmp_config.toml", tomlConfigInvalidAddress);
+        vm.expectRevert();
+        task.simulateRun("tmp_config.toml");
+        vm.removeFile("tmp_config.toml");
+    }
+
+    // TODO: Support non-padded keys in config for state overrides for better UX
+    function testNonPaddedKeyInConfigForStateOverrideFails() public {
+        // Test with invalid storage slot (not 32 bytes)
+        string memory tomlConfigInvalidKey = string.concat(
+            commonToml,
+            "[stateOverrides]\n",
+            "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [\n",
+            "    {key = \"0x5\", value = \"0x0000000000000000000000000000000000000000000000000000000000000001\"}\n",
+            "]"
+        );
+        vm.writeFile("tmp_config.toml", tomlConfigInvalidKey);
+        uint256 expectedNonce = 1;
+        assertNotEq(task.nonce(), expectedNonce, "Nonce state override not applied.");
+        uint256 actualNonce = uint256(vm.load(address(task.parentMultisig()), bytes32(uint256(0x5))));
+        assertNotEq(actualNonce, expectedNonce + 1, "Nonce must be incremented by 1 in memory after task is run.");
+        task.simulateRun("tmp_config.toml");
+        vm.removeFile("tmp_config.toml");
     }
 
     function createActions(
