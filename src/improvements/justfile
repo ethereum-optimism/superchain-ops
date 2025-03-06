@@ -130,3 +130,19 @@ simulate-all-templates:
         echo "Not all templates files have a corresponding task. Please add a task for a template in ${root_dir}/src/improvements/tasks/example" >&2
         exit 1
     fi
+
+simulate-verify-task TASK="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+
+    forge build
+
+    # If the task is nested then we only simulate as the foundation.
+    # In the future we could simulate as other nested safes. 
+    # For testing purposes, we do not gain anything by simulating as other nested safes.
+    nested_safe_name="foundation"
+
+    ${root_dir}/src/improvements/script/simulate-task.sh {{TASK}} $nested_safe_name | tee ./simulation_output.txt
+    ${root_dir}/src/improvements/script/verify-task.sh ./simulation_output.txt
+    rm ./simulation_output.txt
