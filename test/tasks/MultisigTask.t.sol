@@ -7,6 +7,7 @@ import {Test} from "forge-std/Test.sol";
 import {stdStorage, StdStorage} from "forge-std/StdStorage.sol";
 
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {LibString} from "@solady/utils/LibString.sol";
 
 import {MockTarget} from "test/tasks/mock/MockTarget.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
@@ -257,17 +258,15 @@ contract MultisigTaskUnitTest is Test {
             "    {key = \"0x0000000000000000000000000000000000000000000000000000000000000004\", value = \"0x0000000000000000000000000000000000000000000000000000000000000002\"}\n",
             "]"
         );
-
-        vm.writeFile("tmp_config.toml", tomlConfig);
-        runTestSimulation("tmp_config.toml");
-        uint256 expectedNonce = 4095;
-        assertEq(task.nonce(), expectedNonce, "Nonce state override not applied.");
-        uint256 actualNonce = uint256(vm.load(address(task.parentMultisig()), bytes32(uint256(0x5))));
-        assertEq(actualNonce, expectedNonce + 1, "Nonce must be incremented by 1 in memory after task is run.");
+        string memory fileName =
+            string.concat(LibString.toHexString(uint256(keccak256(abi.encode(tomlConfigInvalidAddress)))), ".toml");
+        vm.writeFile(fileName, tomlConfig);
+        runTestSimulation(fileName);
+        assertNonceIncremented(4095);
         assertEq(IGnosisSafe(task.parentMultisig()).getThreshold(), 2, "Threshold must be 2");
         uint256 threshold = uint256(vm.load(address(task.parentMultisig()), bytes32(uint256(0x4))));
         assertEq(threshold, 2, "Threshold must be 2 using vm.load");
-        vm.removeFile("tmp_config.toml");
+        vm.removeFile(fileName);
     }
 
     function testNonceOnlyStateOverrideApplied() public {
@@ -280,13 +279,12 @@ contract MultisigTaskUnitTest is Test {
             "    {key = \"0x0000000000000000000000000000000000000000000000000000000000000005\", value = \"0x0000000000000000000000000000000000000000000000000000000000000AAA\"}\n",
             "]"
         );
-        vm.writeFile("tmp_config.toml", tomlConfig);
-        runTestSimulation("tmp_config.toml");
-        uint256 expectedNonce = 2730;
-        assertEq(task.nonce(), expectedNonce, "Nonce state override not applied.");
-        uint256 actualNonce = uint256(vm.load(address(task.parentMultisig()), bytes32(uint256(0x5))));
-        assertEq(actualNonce, expectedNonce + 1, "Nonce must be incremented by 1 in memory after task is run.");
-        vm.removeFile("tmp_config.toml");
+        string memory fileName =
+            string.concat(LibString.toHexString(uint256(keccak256(abi.encode(tomlConfigInvalidAddress)))), ".toml");
+        vm.writeFile(fileName, tomlConfig);
+        runTestSimulation(fileName);
+        assertNonceIncremented(2730);
+        vm.removeFile(fileName);
     }
 
     function testInvalidAddressInStateOverrideFails() public {
@@ -298,29 +296,52 @@ contract MultisigTaskUnitTest is Test {
             "    {key = \"0x0000000000000000000000000000000000000000000000000000000000000005\", value = \"0x0000000000000000000000000000000000000000000000000000000000000001\"}\n",
             "]"
         );
-        vm.writeFile("tmp_config.toml", tomlConfigInvalidAddress);
+        string memory fileName =
+            string.concat(LibString.toHexString(uint256(keccak256(abi.encode(tomlConfigInvalidAddress)))), ".toml");
+        vm.writeFile(fileName, tomlConfigInvalidAddress);
         vm.expectRevert();
-        task.simulateRun("tmp_config.toml");
-        vm.removeFile("tmp_config.toml");
+        task.simulateRun(fileName);
+        vm.removeFile(fileName);
     }
 
-    // TODO: Support non-padded keys in config for state overrides for better UX
-    function testNonPaddedKeyInConfigForStateOverrideFails() public {
+    function testNonPaddedKeyInConfigForStateOverridePasses() public {
         // Test with invalid storage slot (not 32 bytes)
         string memory tomlConfigInvalidKey = string.concat(
             commonToml,
             "[stateOverrides]\n",
             "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [\n",
-            "    {key = \"0x5\", value = \"0x0000000000000000000000000000000000000000000000000000000000000001\"}\n",
+            "    {key = 5, value = \"0x0000000000000000000000000000000000000000000000000000000000000001\"}\n",
             "]"
         );
-        vm.writeFile("tmp_config.toml", tomlConfigInvalidKey);
-        uint256 expectedNonce = 1;
-        assertNotEq(task.nonce(), expectedNonce, "Nonce state override not applied.");
+        string memory fileName =
+            string.concat(LibString.toHexString(uint256(keccak256(abi.encode(tomlConfigInvalidAddress)))), ".toml");
+        vm.writeFile(fileName, tomlConfigInvalidKey);
+        runTestSimulation(fileName);
+        assertNonceIncremented(1);
+        vm.removeFile(fileName);
+    }
+
+    function testNonPaddedValueInConfigForStateOverridePasses() public {
+        // Test with invalid storage slot (not 32 bytes)
+        string memory tomlConfigInvalidValue = string.concat(
+            commonToml,
+            "[stateOverrides]\n",
+            "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [\n",
+            "    {key = 5, value = 100}\n",
+            "]"
+        );
+        string memory fileName =
+            string.concat(LibString.toHexString(uint256(keccak256(abi.encode(tomlConfigInvalidAddress)))), ".toml");
+        vm.writeFile(fileName, tomlConfigInvalidValue);
+        runTestSimulation(fileName);
+        assertNonceIncremented(100);
+        vm.removeFile(fileName);
+    }
+
+    function assertNonceIncremented(uint256 expectedNonce) internal view {
+        assertEq(task.nonce(), expectedNonce, "Nonce state override not applied");
         uint256 actualNonce = uint256(vm.load(address(task.parentMultisig()), bytes32(uint256(0x5))));
-        assertNotEq(actualNonce, expectedNonce + 1, "Nonce must be incremented by 1 in memory after task is run.");
-        task.simulateRun("tmp_config.toml");
-        vm.removeFile("tmp_config.toml");
+        assertEq(actualNonce, expectedNonce + 1, "Nonce must be incremented by 1 in memory after task is run");
     }
 
     function createActions(
