@@ -15,7 +15,6 @@ import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
 
-
 abstract contract MultisigTask is Test, Script {
     using EnumerableSet for EnumerableSet.AddressSet;
     using AccountAccessParser for VmSafe.AccountAccess[];
