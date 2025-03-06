@@ -341,8 +341,8 @@ contract MultisigTaskUnitTest is Test {
         runTestSimulation(fileName);
 
         uint256 expectedNonce = task.nonce();
-        uint256 defaultOverrides = 5;
-        _verifyDefaultStateOverrides(false, 0, expectedNonce, defaultOverrides);
+        uint256 defaultOverridesLen = 5;
+        _verifyDefaultStateOverrides(0, expectedNonce, defaultOverridesLen);
 
         vm.removeFile(fileName);
     }
@@ -359,8 +359,8 @@ contract MultisigTaskUnitTest is Test {
         runTestSimulation(fileName);
 
         uint256 expectedNonce = 100;
-        uint256 defaultOverrides = 5;
-        _verifyDefaultStateOverrides(true, 0, expectedNonce, defaultOverrides);
+        uint256 defaultOverridesLen = 5;
+        _verifyDefaultStateOverrides(0, expectedNonce, defaultOverridesLen);
 
         vm.removeFile(fileName);
     }
@@ -378,21 +378,21 @@ contract MultisigTaskUnitTest is Test {
         runTestSimulation(fileName);
 
         uint256 expectedNonce = task.nonce();
-        uint256 totalOverrides = 6;
+        uint256 totalOverridesLen = 6;
         Simulation.StateOverride[] memory combinedOverrides =
-            _verifyDefaultStateOverrides(true, 0, expectedNonce, totalOverrides);
+            _verifyDefaultStateOverrides(0, expectedNonce, totalOverridesLen);
         assertEq(combinedOverrides[0].overrides[5].value, bytes32(uint256(9999)), "User override must be applied");
 
         vm.removeFile(fileName);
     }
 
-    function _verifyDefaultStateOverrides(
-        bool hasParentMultisigOverride,
-        uint256 parentMultisigIndex,
-        uint256 expectedNonce,
-        uint256 totalOverrides
-    ) internal view returns (Simulation.StateOverride[] memory combinedOverrides_) {
-        combinedOverrides_ = task.createCombinedOverrides(hasParentMultisigOverride, parentMultisigIndex);
+    function _verifyDefaultStateOverrides(uint256 parentMultisigIndex, uint256 expectedNonce, uint256 totalOverrides)
+        internal
+        view
+        returns (Simulation.StateOverride[] memory combinedOverrides_)
+    {
+        // Simulation.StateOverride memory defaultOverride = task.createDefaultTenderlyOverride();
+        combinedOverrides_ = task.createCombinedOverrides(parentMultisigIndex);
 
         assertEq(combinedOverrides_.length, 1, "Combined overrides must be 1");
         Simulation.StateOverride memory singleOverride = combinedOverrides_[0];
