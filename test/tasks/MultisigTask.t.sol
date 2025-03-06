@@ -250,7 +250,7 @@ contract MultisigTaskUnitTest is Test {
 
     function testNonceAndThresholdStateOverrideApplied() public {
         // This config includes both nonce and threshold state overrides.
-        string memory tomlConfig = string.concat(
+        string memory toml = string.concat(
             commonToml,
             "[stateOverrides]\n",
             "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [\n",
@@ -258,9 +258,8 @@ contract MultisigTaskUnitTest is Test {
             "    {key = \"0x0000000000000000000000000000000000000000000000000000000000000004\", value = \"0x0000000000000000000000000000000000000000000000000000000000000002\"}\n",
             "]"
         );
-        string memory fileName =
-            string.concat(LibString.toHexString(uint256(keccak256(abi.encode(tomlConfigInvalidAddress)))), ".toml");
-        vm.writeFile(fileName, tomlConfig);
+        string memory fileName = string.concat(LibString.toHexString(uint256(keccak256(abi.encode(toml)))), ".toml");
+        vm.writeFile(fileName, toml);
         runTestSimulation(fileName);
         assertNonceIncremented(4095);
         assertEq(IGnosisSafe(task.parentMultisig()).getThreshold(), 2, "Threshold must be 2");
@@ -269,19 +268,18 @@ contract MultisigTaskUnitTest is Test {
         vm.removeFile(fileName);
     }
 
-    function testNonceOnlyStateOverrideApplied() public {
+    function testNonceStateOverrideApplied() public {
         // This config only applies a nonce override.
         // 0xAAA in hex is 2730 in decimal.
-        string memory tomlConfig = string.concat(
+        string memory toml = string.concat(
             commonToml,
             "[stateOverrides]\n",
             "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [\n",
             "    {key = \"0x0000000000000000000000000000000000000000000000000000000000000005\", value = \"0x0000000000000000000000000000000000000000000000000000000000000AAA\"}\n",
             "]"
         );
-        string memory fileName =
-            string.concat(LibString.toHexString(uint256(keccak256(abi.encode(tomlConfigInvalidAddress)))), ".toml");
-        vm.writeFile(fileName, tomlConfig);
+        string memory fileName = string.concat(LibString.toHexString(uint256(keccak256(abi.encode(toml)))), ".toml");
+        vm.writeFile(fileName, toml);
         runTestSimulation(fileName);
         assertNonceIncremented(2730);
         vm.removeFile(fileName);
@@ -289,50 +287,47 @@ contract MultisigTaskUnitTest is Test {
 
     function testInvalidAddressInStateOverrideFails() public {
         // Test with invalid address
-        string memory tomlConfigInvalidAddress = string.concat(
+        string memory toml = string.concat(
             commonToml,
             "[stateOverrides]\n",
             "0x1234 = [\n", // Invalid address
             "    {key = \"0x0000000000000000000000000000000000000000000000000000000000000005\", value = \"0x0000000000000000000000000000000000000000000000000000000000000001\"}\n",
             "]"
         );
-        string memory fileName =
-            string.concat(LibString.toHexString(uint256(keccak256(abi.encode(tomlConfigInvalidAddress)))), ".toml");
-        vm.writeFile(fileName, tomlConfigInvalidAddress);
+        string memory fileName = string.concat(LibString.toHexString(uint256(keccak256(abi.encode(toml)))), ".toml");
+        vm.writeFile(fileName, toml);
         vm.expectRevert();
         task.simulateRun(fileName);
         vm.removeFile(fileName);
     }
 
-    function testNonPaddedKeyInConfigForStateOverridePasses() public {
-        // Test with invalid storage slot (not 32 bytes)
-        string memory tomlConfigInvalidKey = string.concat(
+    function testDecimalKeyInConfigForStateOverridePasses() public {
+        // key is a decimal number (important: not surrounded by quotes)
+        string memory toml = string.concat(
             commonToml,
             "[stateOverrides]\n",
             "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [\n",
             "    {key = 5, value = \"0x0000000000000000000000000000000000000000000000000000000000000001\"}\n",
             "]"
         );
-        string memory fileName =
-            string.concat(LibString.toHexString(uint256(keccak256(abi.encode(tomlConfigInvalidAddress)))), ".toml");
-        vm.writeFile(fileName, tomlConfigInvalidKey);
+        string memory fileName = string.concat(LibString.toHexString(uint256(keccak256(abi.encode(toml)))), ".toml");
+        vm.writeFile(fileName, toml);
         runTestSimulation(fileName);
         assertNonceIncremented(1);
         vm.removeFile(fileName);
     }
 
-    function testNonPaddedValueInConfigForStateOverridePasses() public {
-        // Test with invalid storage slot (not 32 bytes)
-        string memory tomlConfigInvalidValue = string.concat(
+    function testDecimalValuesInConfigForStateOverridePasses() public {
+        // key and value are decimal numbers (important: not surrounded by quotes)
+        string memory toml = string.concat(
             commonToml,
             "[stateOverrides]\n",
             "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [\n",
             "    {key = 5, value = 100}\n",
             "]"
         );
-        string memory fileName =
-            string.concat(LibString.toHexString(uint256(keccak256(abi.encode(tomlConfigInvalidAddress)))), ".toml");
-        vm.writeFile(fileName, tomlConfigInvalidValue);
+        string memory fileName = string.concat(LibString.toHexString(uint256(keccak256(abi.encode(toml)))), ".toml");
+        vm.writeFile(fileName, toml);
         runTestSimulation(fileName);
         assertNonceIncremented(100);
         vm.removeFile(fileName);

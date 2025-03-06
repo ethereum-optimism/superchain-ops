@@ -1052,11 +1052,6 @@ abstract contract L2TaskBase is MultisigTask {
     using EnumerableSet for EnumerableSet.AddressSet;
     using stdToml for string;
 
-    struct StorageOverrideInput {
-        uint256 key;
-        uint256 value;
-    }
-
     SuperchainAddressRegistry public superchainAddrRegistry;
 
     function _readStateOverrides(string memory taskConfigFilePath)
@@ -1076,27 +1071,11 @@ abstract contract L2TaskBase is MultisigTask {
             targetsAddrs[i] = vm.parseAddress(targetsStrs[i]);
         }
         for (uint256 i = 0; i < targetsAddrs.length; i++) {
-            StorageOverrideInput[] memory overrideInputs = abi.decode(
-                vm.parseToml(toml, string.concat(stateOverridesKey, ".", targetsStrs[i])), (StorageOverrideInput[])
+            Simulation.StorageOverride[] memory overrides = abi.decode(
+                vm.parseToml(toml, string.concat(stateOverridesKey, ".", targetsStrs[i])),
+                (Simulation.StorageOverride[])
             );
-            console.log("overrideInputs.length", overrideInputs.length);
-            console.log("key", overrideInputs[0].key);
-            console.log("value", overrideInputs[0].value);
-            Simulation.StorageOverride[] memory overrides = new Simulation.StorageOverride[](overrideInputs.length);
-            for (uint256 j = 0; j < overrideInputs.length; j++) {
-                overrides[j] = Simulation.StorageOverride({
-                    key: bytes32(overrideInputs[j].key),
-                    value: bytes32(overrideInputs[j].value)
-                });
-                console.logBytes32(overrides[j].key);
-                console.logBytes32(overrides[j].value);
-            }
             stateOverrides[i] = Simulation.StateOverride({contractAddress: targetsAddrs[i], overrides: overrides});
-            // Simulation.StorageOverride[] memory overrides = abi.decode(
-            //     vm.parseToml(toml, string.concat(stateOverridesKey, ".", targetsStrs[i])),
-            //     (Simulation.StorageOverride[])
-            // );
-            // stateOverrides[i] = Simulation.StateOverride({contractAddress: targetsAddrs[i], overrides: overrides});
         }
         return stateOverrides;
     }
