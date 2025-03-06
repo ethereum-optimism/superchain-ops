@@ -1,5 +1,4 @@
-# Holocene Hardfork Upgrade + L1 Pectra Support Upgrade
-
+# Holocene Hardfork Upgrade
 Status: READY TO SIGN
 
 ## Objective
