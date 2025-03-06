@@ -1,6 +1,6 @@
 # Unichain Mainnet L1 Petra Support Upgrade
 
-Status: READY TO SIGN
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
