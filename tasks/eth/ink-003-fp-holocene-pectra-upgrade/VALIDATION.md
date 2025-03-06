@@ -28,25 +28,6 @@ For each contract listed in the state diff, please verify that no contracts or s
 ## State Overrides
 
 Note: The changes listed below do not include threshold and number of owners overrides or liveness guard related changes, these changes are listed in the [NESTED-VALIDATION.md](../../../NESTED-VALIDATION.md) file.
-
-### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Security Council)
-
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
-  **Value:** `0x0000000000000000000000000000000000000000000000000000000000000013` <br/>
-  **Meaning:** Override the nonce value of the `Security Council` by increasing from 18 to 19.
-
-### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation Upgrade Safe)
-
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
-  **Value:** `0x0000000000000000000000000000000000000000000000000000000000000011` <br/>
-  **Meaning:** Override the nonce value of the `Foundation Upgrade Safe` by increasing from 16 to 17.
-
-### `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (L1ProxyAdminOwner)
-
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
-  **Value:** `0x000000000000000000000000000000000000000000000000000000000000000b` <br/>
-  **Meaning:** Override the nonce value of the `L1ProxyAdminOwner` increasing from 10 to 11.
-
 ## State Changes
 
 ### `0x10d7B35078d3baabB96Dd45a9143B94be65b12CD` (`DisputeGameFactoryProxy`)
