@@ -676,28 +676,17 @@ abstract contract MultisigTask is Test, Script {
         return defaultOverride;
     }
 
-    /// @notice print the tenderly simulation link with the state overrides
-    function printTenderlySimulationLink(Action[] memory actions) internal view {
-        // Check if there's already an override for parent multisig
-        bool hasParentMultisigOverride = false;
-        uint256 parentMultisigIndex = 0;
-
-        for (uint256 i = 0; i < _stateOverrides.length; i++) {
-            if (_stateOverrides[i].contractAddress == parentMultisig) {
-                hasParentMultisigOverride = true;
-                parentMultisigIndex = i;
-                break;
-            }
-        }
-
+    /// @notice Creates combined overrides array with parent multisig overrides
+    function createCombinedOverrides(
+        bool hasParentMultisigOverride,
+        uint256 parentMultisigIndex,
+        Simulation.StateOverride memory defaultOverride
+    ) internal view returns (Simulation.StateOverride[] memory) {
         Simulation.StateOverride[] memory combinedOverrides;
 
         if (hasParentMultisigOverride) {
             // Create combined overrides with the existing parent multisig override
             combinedOverrides = new Simulation.StateOverride[](_stateOverrides.length);
-
-            // Get default override
-            Simulation.StateOverride memory defaultOverride = createDefaultMultisigOverride();
 
             // Create a combined override that starts with the default values
             Simulation.StateOverride memory combined;
@@ -735,8 +724,28 @@ abstract contract MultisigTask is Test, Script {
             for (uint256 i = 0; i < _stateOverrides.length; i++) {
                 combinedOverrides[i] = _stateOverrides[i];
             }
-            combinedOverrides[_stateOverrides.length] = createDefaultMultisigOverride();
+            combinedOverrides[_stateOverrides.length] = defaultOverride;
         }
+
+        return combinedOverrides;
+    }
+
+    /// @notice print the tenderly simulation link with the state overrides
+    function printTenderlySimulationLink(Action[] memory actions) internal view {
+        // Check if there's already an override for parent multisig
+        bool hasParentMultisigOverride = false;
+        uint256 parentMultisigIndex = 0;
+
+        for (uint256 i = 0; i < _stateOverrides.length; i++) {
+            if (_stateOverrides[i].contractAddress == parentMultisig) {
+                hasParentMultisigOverride = true;
+                parentMultisigIndex = i;
+                break;
+            }
+        }
+        Simulation.StateOverride memory defaultOverride = createDefaultMultisigOverride();
+        Simulation.StateOverride[] memory combinedOverrides =
+            createCombinedOverrides(hasParentMultisigOverride, parentMultisigIndex, defaultOverride);
 
         bytes memory txData = _execTransationCalldata(
             parentMultisig, getMulticall3Calldata(actions), Signatures.genPrevalidatedSignature(msg.sender)
