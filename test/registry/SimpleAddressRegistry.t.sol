@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import {Test} from "forge-std/Test.sol";
 import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
 import {stdJson} from "forge-std/StdJson.sol";
+import {console} from "forge-std/console.sol";
 
 contract Helper {
     // Path to test fixture files
@@ -28,10 +29,12 @@ contract SimpleAddressRegistryTest is Helper, Test {
     string registryName; // Contract name being tested.
     string idReturnKind; // "identifier" or "AddressInfo"
 
+    bool isSimpleAddressRegistry;
+
     function setUp() public virtual {
-        vm.createSelectFork("mainnet");
         registryName = "SimpleAddressRegistry";
         idReturnKind = "identifier";
+        isSimpleAddressRegistry = true;
     }
 
     function test_initialize_succeeds_withValidToml() public {
@@ -93,17 +96,9 @@ contract SimpleAddressRegistryTest is Helper, Test {
         vm.expectRevert(bytes(err));
         registry.get(address(5));
     }
-}
-
-contract SimpleAddressRegistryTest_HardcodedAddresses is Helper, Test {
-    bool isSimpleAddressRegistry;
-
-    function setUp() public virtual {
-        isSimpleAddressRegistry = true;
-    }
 
     function test_hardcodedAddresses_mainnet() public {
-        vm.createSelectFork("mainnet");
+        vm.chainId(1);
         SimpleAddressRegistry registry = SimpleAddressRegistry(_deployRegistry("valid_addresses.toml"));
         assertEq(registry.get("ChainGovernorSafe"), 0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC, "10");
         assertEq(registry.get("FoundationOperationSafe"), 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A, "20");
@@ -123,8 +118,16 @@ contract SimpleAddressRegistryTest_HardcodedAddresses is Helper, Test {
         if (!isSimpleAddressRegistry) {
             vm.skip(true, "Skipping test for opMainnet when not a SimpleAddressRegistry");
         }
-        vm.createSelectFork("opMainnet");
-        vm.expectRevert("SimpleAddressRegistry: no keys found for .oeth");
-        _deployRegistry("valid_addresses.toml");
+        vm.chainId(10);
+        SimpleAddressRegistry registry = SimpleAddressRegistry(_deployRegistry("valid_addresses.toml"));
+        // no need to create error message, as this test runs only for SimpleAddressRegistry
+        vm.expectRevert("SimpleAddressRegistry: address not found for ChainGovernorSafe");
+        registry.get("ChainGovernorSafe");
+        vm.expectRevert("SimpleAddressRegistry: address not found for FoundationOperationSafe");
+        registry.get("FoundationOperationSafe");
+        vm.expectRevert("SimpleAddressRegistry: address not found for FoundationUpgradeSafe");
+        registry.get("FoundationUpgradeSafe");
+        vm.expectRevert("SimpleAddressRegistry: address not found for SecurityCouncil");
+        registry.get("SecurityCouncil");
     }
 }

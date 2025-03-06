@@ -5,7 +5,7 @@ import {Test} from "forge-std/Test.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 
-import {SimpleAddressRegistryTest, SimpleAddressRegistryTest_HardcodedAddresses} from "./SimpleAddressRegistry.t.sol";
+import {SimpleAddressRegistryTest} from "./SimpleAddressRegistry.t.sol";
 
 abstract contract SuperchainAddressRegistryTest_Base is Test {
     using LibString for string;
@@ -221,18 +221,6 @@ contract SuperchainAddressRegistryTest_Addresses is SimpleAddressRegistryTest {
         vm.createSelectFork("mainnet");
         registryName = "SuperchainAddressRegistry";
         idReturnKind = "AddressInfo";
-    }
-
-    function _deployRegistry(string memory configFile) internal override returns (address) {
-        return address(new SuperchainAddressRegistry(_getPath(configFile)));
-    }
-}
-
-// We test the hardcoded addresses in the SuperchainAddressRegistry by extending
-// the SimpleAddressRegistryTest_HardcodedAddresses.
-contract SuperchainAddressRegistryTest_HardcodedAddresses is SimpleAddressRegistryTest_HardcodedAddresses {
-    function setUp() public override {
-        isSimpleAddressRegistry = false;
     }
 
     function _deployRegistry(string memory configFile) internal override returns (address) {

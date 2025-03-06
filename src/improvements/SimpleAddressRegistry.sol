@@ -37,9 +37,8 @@ contract SimpleAddressRegistry is StdChains {
         if (block.chainid == getChain("mainnet").chainId) chainKey = ".eth";
         else if (block.chainid == getChain("sepolia").chainId) chainKey = ".sep";
         else if (block.chainid == getChain("optimism").chainId) chainKey = ".oeth";
-        else revert(string.concat("SimpleAddressRegistry: Unknown task chain ID ", vm.toString(block.chainid)));
 
-        _loadHardcodedAddresses(chainKey);
+        if (bytes(chainKey).length > 0) _loadHardcodedAddresses(chainKey);
     }
 
     /// @notice Retrieves an address by its contract identifier.
@@ -61,7 +60,6 @@ contract SimpleAddressRegistry is StdChains {
     function _loadHardcodedAddresses(string memory chainKey) internal {
         string memory toml = vm.readFile("./src/improvements/addresses.toml");
         string[] memory keyStrings = vm.parseTomlKeys(toml, chainKey);
-        require(keyStrings.length > 0, string.concat("SimpleAddressRegistry: no keys found for ", chainKey));
 
         for (uint256 i = 0; i < keyStrings.length; i++) {
             string memory key = keyStrings[i];
