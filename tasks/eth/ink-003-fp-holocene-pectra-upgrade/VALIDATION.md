@@ -48,9 +48,6 @@ Note: The changes listed below do not include threshold and number of owners ove
 
 Liveness Guard related changes are listed [here](../../../NESTED-VALIDATION.md#liveness-guard-security-council-safe-or-unichain-operation-safe-only) file.
 
-## Verify livenessGuard
-
-Liveness Guard related changes are listed [here](../../../NESTED-VALIDATION.md#liveness-guard-security-council-safe-or-unichain-operation-safe-only) file.
 
 ## Verify new Absolute Prestate
 
