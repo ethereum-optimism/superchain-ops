@@ -1001,6 +1001,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         console.log("Running assertions on the state diff");
         require(accountAccesses.length > 0, "No account accesses");
         address[] memory allowedAccesses = getAllowedStorageAccess();
+        address[] memory newContracts = accountAccesses.getNewContracts();
         for (uint256 i; i < accountAccesses.length; i++) {
             VmSafe.AccountAccess memory accountAccess = accountAccesses[i];
             // All touched accounts should have code, with the exception of precompiles.
@@ -1053,7 +1054,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                 require(!storageAccess.reverted, string.concat("Storage access reverted: ", vm.toString(account)));
                 bool allowed;
                 for (uint256 k; k < allowedAccesses.length; k++) {
-                    address[] memory newContracts = accountAccesses.getNewContracts();
                     allowed = allowed || (account == allowedAccesses[k]) || _isNewContract(account, newContracts);
                 }
                 require(allowed, string.concat("Unallowed Storage access: ", vm.toString(account)));
