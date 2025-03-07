@@ -11,6 +11,7 @@ import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
+import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
@@ -72,6 +73,11 @@ abstract contract MultisigTask is Test, Script {
         bytes32 newValue;
     }
 
+    enum TaskType {
+        L2TaskBase,
+        SimpleBase
+    }
+
     /// @notice transfers during task execution
     mapping(address => TransferInfo[]) private _taskTransfers;
 
@@ -121,6 +127,9 @@ abstract contract MultisigTask is Test, Script {
     // ======== Virtual, Unimplemented Functions ========
     // ==================================================
     // These are functions have no default implementation and MUST be implemented by the inheriting contract.
+
+    /// @notice Returns the type of task.
+    function taskType() public pure virtual returns (TaskType);
 
     /// @notice Specifies the safe address string to run the template from. This string refers
     /// to a named contract, where the name is read from an address registry contract.
@@ -1053,6 +1062,10 @@ abstract contract L2TaskBase is MultisigTask {
 
     SuperchainAddressRegistry public superchainAddrRegistry;
 
+    function taskType() public pure override returns (TaskType) {
+        return TaskType.L2TaskBase;
+    }
+
     function _configureTask(string memory taskConfigFilePath)
         internal
         virtual
@@ -1065,28 +1078,20 @@ abstract contract L2TaskBase is MultisigTask {
         addrRegistry_ = AddressRegistry.wrap(address(superchainAddrRegistry));
 
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-        // TODO: This is a hack to support the EnableDeputyPauseModuleTemplate.
-        // remove this once we have SimpleTaskBase contract as then this template will derive from SimpleTaskBase
-        // instead of L2TaskBase.
-        if (keccak256(bytes(config.safeAddressString)) == keccak256(bytes("FoundationOperationSafe"))) {
-            console.log("Using FoundationOperationSafe");
-            parentMultisig_ = IGnosisSafe(superchainAddrRegistry.get(config.safeAddressString));
-        } else {
-            parentMultisig_ =
-                IGnosisSafe(superchainAddrRegistry.getAddress(config.safeAddressString, chains[0].chainId));
-            // Ensure that all chains have the same parentMultisig.
-            for (uint256 i = 1; i < chains.length; i++) {
-                require(
-                    address(parentMultisig_)
-                        == superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId),
-                    string.concat(
-                        "MultisigTask: safe address mismatch. Caller: ",
-                        getAddressLabel(address(parentMultisig_)),
-                        ". Actual address: ",
-                        getAddressLabel(superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId))
-                    )
-                );
-            }
+        parentMultisig_ = IGnosisSafe(superchainAddrRegistry.getAddress(config.safeAddressString, chains[0].chainId));
+
+        // Ensure that all chains have the same parentMultisig.
+        for (uint256 i = 1; i < chains.length; i++) {
+            require(
+                address(parentMultisig_)
+                    == superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId),
+                string.concat(
+                    "MultisigTask: safe address mismatch. Caller: ",
+                    getAddressLabel(address(parentMultisig_)),
+                    ". Actual address: ",
+                    getAddressLabel(superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId))
+                )
+            );
         }
 
         console.log("Parent multisig: ", address(parentMultisig_));
@@ -1097,19 +1102,46 @@ abstract contract L2TaskBase is MultisigTask {
         // update the config to include the addresses whose storage slots changed,
         // or figure out why the storage slots are being changed when they should not be.
         for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
-            // TODO: This is a hack to support the EnableDeputyPauseModuleTemplate.
-            // remove this once we have SimpleTaskBase contract as then this template will derive from SimpleTaskBase
-            // instead of L2TaskBase.
-            if (keccak256(bytes(config.allowedStorageWriteAccesses[i])) == keccak256(bytes("FoundationOperationSafe")))
-            {
-                _allowedStorageAccesses.add(superchainAddrRegistry.get(config.allowedStorageWriteAccesses[i]));
-            } else {
-                for (uint256 j = 0; j < chains.length; j++) {
-                    _allowedStorageAccesses.add(
-                        superchainAddrRegistry.getAddress(config.allowedStorageWriteAccesses[i], chains[j].chainId)
-                    );
-                }
+            for (uint256 j = 0; j < chains.length; j++) {
+                _allowedStorageAccesses.add(
+                    superchainAddrRegistry.getAddress(config.allowedStorageWriteAccesses[i], chains[j].chainId)
+                );
             }
+        }
+    }
+}
+
+abstract contract SimpleBase is MultisigTask {
+    function taskType() public pure override returns (TaskType) {
+        return TaskType.SimpleBase;
+    }
+
+    using EnumerableSet for EnumerableSet.AddressSet;
+
+    SimpleAddressRegistry public simpleAddrRegistry;
+
+    function _configureTask(string memory taskConfigFilePath)
+        internal
+        virtual
+        override
+        returns (AddressRegistry addrRegistry_, IGnosisSafe parentMultisig_, address multicallTarget_)
+    {
+        multicallTarget_ = MULTICALL3_ADDRESS;
+
+        simpleAddrRegistry = new SimpleAddressRegistry(taskConfigFilePath);
+        addrRegistry_ = AddressRegistry.wrap(address(simpleAddrRegistry));
+
+        parentMultisig_ = IGnosisSafe(simpleAddrRegistry.get(config.safeAddressString));
+
+        console.log("Parent multisig: ", address(parentMultisig_));
+
+        // This loads the allowed storage write accesses to storage for this task.
+        // If this task changes storage slots outside of the allowed write accesses,
+        // then the task will fail at runtime and the task developer will need to
+        // update the config to include the addresses whose storage slots changed,
+        // or figure out why the storage slots are being changed when they should not be.
+        for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
+            _allowedStorageAccesses.add(simpleAddrRegistry.get(config.allowedStorageWriteAccesses[i]));
         }
     }
 }
