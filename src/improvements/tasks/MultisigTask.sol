@@ -14,10 +14,11 @@ import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.so
 
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
+import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
 
 type AddressRegistry is address;
 
-abstract contract MultisigTask is Test, Script {
+abstract contract MultisigTask is Test, Script, StateOverrideManager {
     using EnumerableSet for EnumerableSet.AddressSet;
     using AccountAccessParser for VmSafe.AccountAccess[];
 
@@ -117,9 +118,6 @@ abstract contract MultisigTask is Test, Script {
 
     /// @notice The address of the multicall target for this task
     address public multicallTarget;
-
-    /// @notice The state overrides for the local and tenderly simulation
-    Simulation.StateOverride[] internal _stateOverrides;
 
     // ==================================================
     // ======== Virtual, Unimplemented Functions ========
@@ -661,21 +659,6 @@ abstract contract MultisigTask is Test, Script {
         }
     }
 
-    /// @notice Creates a default state override for the parent multisig (nonce, threshold, owner).
-    function createDefaultTenderlyOverride() public view returns (Simulation.StateOverride memory) {
-        Simulation.StateOverride memory defaultOverride;
-        defaultOverride.contractAddress = parentMultisig;
-        defaultOverride = Simulation.addOverride(
-            defaultOverride, Simulation.StorageOverride({key: bytes32(uint256(0x4)), value: bytes32(uint256(0x1))})
-        );
-        defaultOverride = Simulation.addOverride(
-            defaultOverride,
-            Simulation.StorageOverride({key: bytes32(uint256(0x5)), value: bytes32(_getNonce(parentMultisig))})
-        );
-        defaultOverride = Simulation.addOwnerOverride(parentMultisig, defaultOverride, msg.sender);
-        return defaultOverride;
-    }
-
     /// @notice Combines the default Tenderly overrides with the existing parent multisig overrides.
     /// The parent multisig overrides will take precedence over the default Tenderly overrides.
     function createCombinedOverrides(uint256 parentMultisigIndex)
@@ -683,7 +666,8 @@ abstract contract MultisigTask is Test, Script {
         view
         returns (Simulation.StateOverride[] memory)
     {
-        Simulation.StateOverride memory defaultOverride = createDefaultTenderlyOverride();
+        Simulation.StateOverride memory defaultOverride =
+            createDefaultTenderlyOverride(parentMultisig, _getNonce(parentMultisig));
         Simulation.StateOverride[] memory combinedOverrides;
 
         // Check if parent multisig override exists based on valid index
