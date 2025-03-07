@@ -5,7 +5,6 @@ import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {Test} from "forge-std/Test.sol";
 import {stdStorage, StdStorage} from "forge-std/StdStorage.sol";
-
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 import {MockTarget} from "test/tasks/mock/MockTarget.sol";
@@ -24,19 +23,19 @@ contract MultisigTaskUnitTest is Test {
     /// @notice variables that store the storage offset of different variables in the MultisigTask contract
 
     /// @notice storage slot for the address registry contract
-    bytes32 public constant ADDRESS_REGISTRY_SLOT = bytes32(uint256(34));
+    bytes32 public constant ADDRESS_REGISTRY_SLOT = bytes32(uint256(35));
 
     /// @notice storage slot for the parent multisig address
-    bytes32 public constant MULTISIG_SLOT = bytes32(uint256(35));
+    bytes32 public constant MULTISIG_SLOT = bytes32(uint256(36));
 
     /// @notice storage slot for the mock target contract
-    bytes32 public constant MOCK_TARGET_SLOT = bytes32(uint256(50));
+    bytes32 public constant MOCK_TARGET_SLOT = bytes32(uint256(52));
 
     /// @notice storage slot for the build started flag
-    bytes32 public constant BUILD_STARTED_SLOT = bytes32(uint256(48));
+    bytes32 public constant BUILD_STARTED_SLOT = bytes32(uint256(49));
 
     /// @notice storage slot for the target multicall address
-    bytes32 public constant TARGET_MULTICALL_SLOT = bytes32(uint256(49));
+    bytes32 public constant TARGET_MULTICALL_SLOT = bytes32(uint256(50));
 
     /// Test Philosophy:
     /// We want these tests to function as much as possible as unit tests.
@@ -178,11 +177,11 @@ contract MultisigTaskUnitTest is Test {
         task.build();
     }
 
-    function testRun()
+    function runTestSimulation(string memory taskConfigFilePath)
         public
         returns (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions)
     {
-        (accountAccesses, actions) = task.simulateRun(MAINNET_CONFIG);
+        (accountAccesses, actions) = task.simulateRun(taskConfigFilePath);
 
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);
 
@@ -210,7 +209,8 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testSimulateFailsTxAlreadyExecuted() public {
-        (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions) = testRun();
+        (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions) =
+            runTestSimulation(MAINNET_CONFIG);
 
         vm.expectRevert("MultisigTask: execute failed");
         task.simulate("", actions);
@@ -220,7 +220,7 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testGetCalldata() public {
-        (, MultisigTask.Action[] memory actions) = testRun();
+        (, MultisigTask.Action[] memory actions) = runTestSimulation(MAINNET_CONFIG);
 
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);
 
