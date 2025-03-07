@@ -1174,11 +1174,24 @@ abstract contract L2TaskBase is MultisigTask {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
             for (uint256 j = 0; j < chains.length; j++) {
-                try superchainAddrRegistry.getAddress(config.allowedStorageWriteAccesses[i], chains[j].chainId)
-                returns (address addr) {
+                try superchainAddrRegistry.getAddress(config.allowedStorageKeys[i], chains[j].chainId) returns (
+                    address addr
+                ) {
                     _allowedStorageAccesses.add(addr);
                 } catch {
-                    _allowedStorageAccesses.add(superchainAddrRegistry.get(config.allowedStorageWriteAccesses[i]));
+                    try superchainAddrRegistry.get(config.allowedStorageKeys[i]) returns (address addr) {
+                        _allowedStorageAccesses.add(addr);
+                    } catch {
+                        console.log(
+                            "\x1B[33m[WARN]\x1B[0m Contract: %s not found for chain: '%s'",
+                            config.allowedStorageKeys[i],
+                            chains[j].name
+                        );
+                        console.log(
+                            "\x1B[33m[WARN]\x1B[0m Contract will not be added to allowed storage accesses: '%s'",
+                            config.allowedStorageKeys[i]
+                        );
+                    }
                 }
             }
         }
