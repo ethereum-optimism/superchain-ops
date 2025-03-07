@@ -841,13 +841,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         );
     }
 
-    /// @notice prank the multisig
-    /// @dev override to prank with delegatecall flag set to true
-    /// in case of opcm tasks, the multisig is not pranked
-    function _prankMultisig() internal {
-        vm.startPrank(parentMultisig);
-    }
-
     /// @notice get the multicall address for the given safe
     /// it will be the regular multicall address for parent as well as child multisigs
     /// @param safe The address of the safe
@@ -871,7 +864,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     ///  2). start prank as the multisig
     ///  3). start a recording of all calls created during the task
     function _startBuild() private {
-        _prankMultisig();
+        vm.startPrank(parentMultisig);
 
         _startSnapshot = vm.snapshot();
 
