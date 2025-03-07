@@ -8,9 +8,9 @@ templateName = "OPCMUpgradeV200"
 
 [opcmUpgrades]
 absolutePrestates = [
-    {absolutePrestate = "0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd", chainId = 11155420}, 
-    {absolutePrestate = "0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd", chainId = 1946}, 
-    {absolutePrestate = "0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd", chainId = 763373}
+    {absolutePrestate = "0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9", chainId = 11155420}, 
+    {absolutePrestate = "0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9", chainId = 1946}, 
+    {absolutePrestate = "0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9", chainId = 763373}
 ]
 standardValidatorV200 = "0x37739a6b0a3F1E7429499a4eC4A0685439Daff5C"
 
