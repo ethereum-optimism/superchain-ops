@@ -26,19 +26,19 @@ contract MultisigTaskUnitTest is Test {
     /// @notice variables that store the storage offset of different variables in the MultisigTask contract
 
     /// @notice storage slot for the address registry contract
-    bytes32 public constant ADDRESS_REGISTRY_SLOT = bytes32(uint256(34));
+    bytes32 public constant ADDRESS_REGISTRY_SLOT = bytes32(uint256(35));
 
     /// @notice storage slot for the parent multisig address
-    bytes32 public constant MULTISIG_SLOT = bytes32(uint256(35));
+    bytes32 public constant MULTISIG_SLOT = bytes32(uint256(36));
 
     /// @notice storage slot for the mock target contract
-    bytes32 public constant MOCK_TARGET_SLOT = bytes32(uint256(50));
+    bytes32 public constant MOCK_TARGET_SLOT = bytes32(uint256(52));
 
     /// @notice storage slot for the build started flag
-    bytes32 public constant BUILD_STARTED_SLOT = bytes32(uint256(48));
+    bytes32 public constant BUILD_STARTED_SLOT = bytes32(uint256(49));
 
     /// @notice storage slot for the target multicall address
-    bytes32 public constant TARGET_MULTICALL_SLOT = bytes32(uint256(49));
+    bytes32 public constant TARGET_MULTICALL_SLOT = bytes32(uint256(50));
 
     /// Test Philosophy:
     /// We want these tests to function as much as possible as unit tests.
@@ -342,7 +342,7 @@ contract MultisigTaskUnitTest is Test {
 
         uint256 expectedNonce = task.nonce();
         uint256 defaultOverridesLen = 5;
-        _verifyDefaultStateOverrides(0, expectedNonce, defaultOverridesLen);
+        _verifyDefaultStateOverrides(expectedNonce, 1, defaultOverridesLen);
 
         vm.removeFile(fileName);
     }
@@ -359,8 +359,8 @@ contract MultisigTaskUnitTest is Test {
         runTestSimulation(fileName);
 
         uint256 expectedNonce = 100;
-        uint256 defaultOverridesLen = 5;
-        _verifyDefaultStateOverrides(0, expectedNonce, defaultOverridesLen);
+        uint256 defaultParentMultisigOverridesLen = 5;
+        _verifyDefaultStateOverrides(expectedNonce, 1, defaultParentMultisigOverridesLen);
 
         vm.removeFile(fileName);
     }
@@ -378,23 +378,59 @@ contract MultisigTaskUnitTest is Test {
         runTestSimulation(fileName);
 
         uint256 expectedNonce = task.nonce();
-        uint256 totalOverridesLen = 6;
+        uint256 totalParentMultisigOverridesLen = 6;
         Simulation.StateOverride[] memory combinedOverrides =
-            _verifyDefaultStateOverrides(0, expectedNonce, totalOverridesLen);
+            _verifyDefaultStateOverrides(expectedNonce, 1, totalParentMultisigOverridesLen);
         assertEq(combinedOverrides[0].overrides[5].value, bytes32(uint256(9999)), "User override must be applied");
 
         vm.removeFile(fileName);
     }
 
-    function _verifyDefaultStateOverrides(uint256 parentMultisigIndex, uint256 expectedNonce, uint256 totalOverrides)
-        internal
-        view
-        returns (Simulation.StateOverride[] memory combinedOverrides_)
-    {
-        // Simulation.StateOverride memory defaultOverride = task.createDefaultTenderlyOverride();
-        combinedOverrides_ = task.createCombinedOverrides(parentMultisigIndex);
+    function testMultipleAddressStateOverridesApplied() public {
+        // bytes32(uint256(keccak256('random.slot.testAdditionalUserStateOverridesApplied')) - 1)
+        string memory toml = string.concat(
+            commonToml,
+            "[stateOverrides]\n",
+            "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [\n",
+            "    {key = \"0x1c817c894a1443ac14bff2139acff0976be484b1fcecf627833591a0e476b5d7\", value = 9999}\n",
+            "]\n",
+            "0x229047fed2591dbec1eF1118d64F7aF3dB9EB290 = [\n",
+            "    {key = \"0x1c817c894a1443ac14bff2139acff0976be484b1fcecf627833591a0e476b5d7\", value = 8888}\n",
+            "]"
+        );
+        string memory fileName = createTempTomlFile(toml);
+        runTestSimulation(fileName);
 
-        assertEq(combinedOverrides_.length, 1, "Combined overrides must be 1");
+        uint256 expectedNonce = task.nonce();
+        uint256 totalParentMultisigOverridesLen = 6;
+        Simulation.StateOverride[] memory combinedOverrides =
+            _verifyDefaultStateOverrides(expectedNonce, 2, totalParentMultisigOverridesLen);
+        assertEq(
+            combinedOverrides[0].overrides[5].value,
+            bytes32(uint256(9999)),
+            "First address user override must be applied"
+        );
+        assertEq(
+            combinedOverrides[1].overrides.length,
+            1,
+            "Second address is not the parent multisig so it should only have 1 override"
+        );
+        assertEq(
+            combinedOverrides[1].overrides[0].value,
+            bytes32(uint256(8888)),
+            "Second address user override must be applied"
+        );
+        vm.removeFile(fileName);
+    }
+
+    function _verifyDefaultStateOverrides(
+        uint256 expectedNonce,
+        uint256 totalOverrides,
+        uint256 totalParentMultisigOverrides
+    ) internal view returns (Simulation.StateOverride[] memory combinedOverrides_) {
+        combinedOverrides_ = task.getStateOverrides(address(task.parentMultisig()), task.nonce());
+
+        assertEq(combinedOverrides_.length, totalOverrides, "Combined overrides must be 1");
         Simulation.StateOverride memory singleOverride = combinedOverrides_[0];
         assertEq(
             singleOverride.contractAddress,
@@ -402,7 +438,7 @@ contract MultisigTaskUnitTest is Test {
             "Contract address must be the parent multisig"
         );
         assertTrue(singleOverride.overrides.length >= 5, "Overrides length must be at least 5");
-        assertEq(singleOverride.overrides.length, totalOverrides, "Unexpected number of state overrides");
+        assertEq(singleOverride.overrides.length, totalParentMultisigOverrides, "Unexpected number of state overrides");
         assertEq(singleOverride.overrides[0].key, bytes32(uint256(0x4)), "Must contain a threshold override");
         assertEq(singleOverride.overrides[0].value, bytes32(uint256(0x1)), "Threshold override must be 1");
         assertEq(singleOverride.overrides[1].key, bytes32(uint256(0x5)), "Must contain a nonce override");
