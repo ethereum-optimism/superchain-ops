@@ -1112,8 +1112,7 @@ abstract contract L2TaskBase is MultisigTask {
             // TODO: This is a hack to support the EnableDeputyPauseModuleTemplate.
             // remove this once we have SimpleTaskBase contract as then this template will derive from SimpleTaskBase
             // instead of L2TaskBase.
-            if (keccak256(bytes(config.allowedStorageKeys[i])) == keccak256(bytes("FoundationOperationSafe")))
-            {
+            if (keccak256(bytes(config.allowedStorageKeys[i])) == keccak256(bytes("FoundationOperationSafe"))) {
                 _allowedStorageAccesses.add(superchainAddrRegistry.get(config.allowedStorageKeys[i]));
             } else {
                 for (uint256 j = 0; j < chains.length; j++) {
@@ -1122,7 +1121,19 @@ abstract contract L2TaskBase is MultisigTask {
                     ) {
                         _allowedStorageAccesses.add(addr);
                     } catch {
-                        _allowedStorageAccesses.add(superchainAddrRegistry.get(config.allowedStorageKeys[i]));
+                        try superchainAddrRegistry.get(config.allowedStorageKeys[i]) returns (address addr) {
+                            _allowedStorageAccesses.add(addr);
+                        } catch {
+                            console.log(
+                                "\x1B[33m[WARN]\x1B[0m Contract: %s not found for chain: '%s'",
+                                config.allowedStorageKeys[i],
+                                chains[j].name
+                            );
+                            console.log(
+                                "\x1B[33m[WARN]\x1B[0m Contract will not be added to allowed storage accesses: '%s'",
+                                config.allowedStorageKeys[i]
+                            );
+                        }
                     }
                 }
             }
