@@ -280,6 +280,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         parentMultisig = address(_parentMultisig);
 
         _templateSetup(taskConfigFilePath);
+        nonce = IGnosisSafe(parentMultisig).nonce(); // Maybe be overridden later by state overrides
 
         startingOwners = IGnosisSafe(parentMultisig).getOwners();
 
@@ -375,9 +376,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
         // Execute the transaction
         execTransaction(parentMultisig, multicallTarget, 0, callData, Enum.Operation.DelegateCall, signatures);
-
         VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
-
         return accountAccesses;
     }
 
