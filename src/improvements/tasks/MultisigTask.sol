@@ -6,6 +6,7 @@ import {console} from "forge-std/console.sol";
 import {Script} from "forge-std/Script.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {Test} from "forge-std/Test.sol";
+import {stdToml} from "forge-std/StdToml.sol";
 
 import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
@@ -13,10 +14,11 @@ import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.so
 
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
+import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
 
 type AddressRegistry is address;
 
-abstract contract MultisigTask is Test, Script {
+abstract contract MultisigTask is Test, Script, StateOverrideManager {
     using EnumerableSet for EnumerableSet.AddressSet;
     using AccountAccessParser for VmSafe.AccountAccess[];
 
@@ -175,6 +177,9 @@ abstract contract MultisigTask is Test, Script {
         // sets safe to the safe specified by the current template from addresses.json
         _taskSetup(taskConfigFilePath);
 
+        // Overrides only get applied when simulating
+        _overrideState(taskConfigFilePath);
+
         // now execute task actions
         Action[] memory actions = build();
         VmSafe.AccountAccess[] memory accountAccesses = simulate(signatures, actions);
@@ -271,11 +276,12 @@ abstract contract MultisigTask is Test, Script {
 
         IGnosisSafe _parentMultisig; // TODO parentMultisig should be of type IGnosisSafe
         (addrRegistry, _parentMultisig, multicallTarget) = _configureTask(taskConfigFilePath);
+
         parentMultisig = address(_parentMultisig);
 
         _templateSetup(taskConfigFilePath);
+        nonce = IGnosisSafe(parentMultisig).nonce(); // Maybe be overridden later by state overrides
 
-        nonce = IGnosisSafe(parentMultisig).nonce(); // TODO change this once we implement task stacking
         startingOwners = IGnosisSafe(parentMultisig).getOwners();
 
         vm.label(AddressRegistry.unwrap(addrRegistry), "AddrRegistry");
@@ -370,9 +376,7 @@ abstract contract MultisigTask is Test, Script {
 
         // Execute the transaction
         execTransaction(parentMultisig, multicallTarget, 0, callData, Enum.Operation.DelegateCall, signatures);
-
         VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
-
         return accountAccesses;
     }
 
@@ -660,13 +664,19 @@ abstract contract MultisigTask is Test, Script {
 
     /// @notice print the tenderly simulation link with the state overrides
     function printTenderlySimulationLink(Action[] memory actions) internal view {
-        Simulation.StateOverride[] memory overrides = new Simulation.StateOverride[](1);
-        overrides[0] =
-            Simulation.overrideSafeThresholdOwnerAndNonce(parentMultisig, msg.sender, _getNonce(parentMultisig));
+        Simulation.StateOverride[] memory allStateOverrides =
+            getStateOverrides(parentMultisig, _getNonce(parentMultisig));
+
         bytes memory txData = _execTransationCalldata(
             parentMultisig, getMulticall3Calldata(actions), Signatures.genPrevalidatedSignature(msg.sender)
         );
-        Simulation.logSimulationLink({_to: parentMultisig, _data: txData, _from: msg.sender, _overrides: overrides});
+
+        Simulation.logSimulationLink({
+            _to: parentMultisig,
+            _data: txData,
+            _from: msg.sender,
+            _overrides: allStateOverrides
+        });
     }
 
     /// @notice get the hash for this safe transaction
@@ -872,6 +882,12 @@ abstract contract MultisigTask is Test, Script {
         }
 
         return validActions;
+    }
+
+    /// @notice Override the state of the task. Function is called only when simulating.
+    function _overrideState(string memory taskConfigFilePath) private {
+        _applyStateOverrides(taskConfigFilePath);
+        nonce = _getNonceOrOverride(address(parentMultisig));
     }
 
     /// @dev Returns true if the given account access should be recorded as an action.

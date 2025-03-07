@@ -1,10 +1,10 @@
-# Holocene Hardfork Upgrade + L1 Pectra Support Upgrade
-
-Status: READY TO SIGN
+# Holocene Hardfork Upgrade
+Status: DRAFT, NOT READY TO SIGN
 
 ## Objective
 
 Upgrades the Fault Proof contracts for the Holocene hardfork as per Upgrade Proposal #11.
+
 
 This also utilizes the absolute prestate `0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9` that enables L1 pectra support, to be included in Upgrade Proposal #12.
 

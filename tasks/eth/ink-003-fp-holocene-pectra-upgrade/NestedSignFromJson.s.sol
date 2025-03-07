@@ -55,6 +55,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
     uint256 chainId;
 
     bytes32 constant absolutePrestate = 0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9;
+
     address constant livenessGuard = 0x24424336F04440b1c28685a38303aC33C9D14a25;
     string constant gameVersion = "1.3.1";
 
