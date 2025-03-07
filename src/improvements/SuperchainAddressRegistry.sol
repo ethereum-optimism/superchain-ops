@@ -288,9 +288,7 @@ contract SuperchainAddressRegistry is StdChains {
         address faultDisputeGame = getFaultDisputeGame(disputeGameFactoryProxy);
         if (faultDisputeGame != address(0)) {
             saveAddress("FaultDisputeGame", chain, faultDisputeGame);
-
-            address delayedWETHProxy = getDelayedWETHProxy(faultDisputeGame);
-            saveAddress("PermissionlessWETH", chain, delayedWETHProxy);
+            saveAddress("PermissionlessWETH", chain, getDelayedWETHProxy(faultDisputeGame));
         }
 
         address permissionedDisputeGame = getPermissionedDisputeGame(disputeGameFactoryProxy);
@@ -302,8 +300,7 @@ contract SuperchainAddressRegistry is StdChains {
         address anchorStateRegistryProxy = getAnchorStateRegistryProxy(permissionedDisputeGame);
         saveAddress("AnchorStateRegistryProxy", chain, anchorStateRegistryProxy);
 
-        address delayedWETHProxy = getDelayedWETHProxy(permissionedDisputeGame);
-        saveAddress("PermissionedWETH", chain, delayedWETHProxy);
+        saveAddress("PermissionedWETH", chain, getDelayedWETHProxy(permissionedDisputeGame));
 
         address mips = getMips(permissionedDisputeGame);
         saveAddress("MIPS", chain, mips);
