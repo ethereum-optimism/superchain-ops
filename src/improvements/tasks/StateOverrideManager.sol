@@ -15,6 +15,20 @@ contract StateOverrideManager {
     /// @notice The state overrides for the local and tenderly simulation
     Simulation.StateOverride[] internal _stateOverrides;
 
+    /// @notice This function must be called first before any other function that uses state overrides.
+    function _applyStateOverrides(string memory taskConfigFilePath) internal {
+        _readStateOverrides(taskConfigFilePath);
+        for (uint256 i = 0; i < _stateOverrides.length; i++) {
+            for (uint256 j = 0; j < _stateOverrides[i].overrides.length; j++) {
+                vm.store(
+                    address(_stateOverrides[i].contractAddress),
+                    _stateOverrides[i].overrides[j].key,
+                    _stateOverrides[i].overrides[j].value
+                );
+            }
+        }
+    }
+
     function getStateOverrides(address parentMultisig, uint256 parentMultisigNonce)
         public
         view
@@ -40,19 +54,6 @@ contract StateOverrideManager {
         );
         defaultOverride = Simulation.addOwnerOverride(parentMultisig, defaultOverride, msg.sender);
         return defaultOverride;
-    }
-
-    function _applyStateOverrides(string memory taskConfigFilePath) internal {
-        _readStateOverrides(taskConfigFilePath);
-        for (uint256 i = 0; i < _stateOverrides.length; i++) {
-            for (uint256 j = 0; j < _stateOverrides[i].overrides.length; j++) {
-                vm.store(
-                    address(_stateOverrides[i].contractAddress),
-                    _stateOverrides[i].overrides[j].key,
-                    _stateOverrides[i].overrides[j].value
-                );
-            }
-        }
     }
 
     function _readStateOverrides(string memory taskConfigFilePath) private {
