@@ -40,7 +40,20 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
 
     /// @notice Returns the storage write permissions
     function _taskStorageWrites() internal view virtual override returns (string[] memory) {
-        string[] memory storageWrites = new string[](0);
+        string[] memory storageWrites = new string[](13);
+        storageWrites[0] = "OPCM";
+        storageWrites[1] = "SuperchainConfig";
+        storageWrites[2] = "ProtocolVersions";
+        storageWrites[3] = "SystemConfigProxy";
+        storageWrites[4] = "AddressManager";
+        storageWrites[5] = "L1ERC721BridgeProxy";
+        storageWrites[6] = "L1StandardBridgeProxy";
+        storageWrites[7] = "DisputeGameFactoryProxy";
+        storageWrites[8] = "OptimismPortalProxy";
+        storageWrites[9] = "OptimismMintableERC20FactoryProxy";
+        storageWrites[10] = "OptimismMintableERC20FactoryProxy";
+        storageWrites[11] = "PermissionedWETH"; // GameType 1
+        storageWrites[12] = "PermissionlessWETH"; // GameType 0
         return storageWrites;
     }
 
@@ -54,7 +67,7 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
             opcmUpgrades[upgrades[i].chainId] = upgrades[i].absolutePrestate;
         }
 
-        address opcmAddress = tomlContent.readAddress(".opcmUpgrades.opcmAddress");
+        address opcmAddress = tomlContent.readAddress(".addresses.OPCM");
         OPCM = opcmAddress;
         require(OPCM != address(0), "OPCMUpgradeV200: OPCM address not set in config.toml");
         vm.label(opcm(), "OPCM");
