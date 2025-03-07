@@ -73,6 +73,7 @@ abstract contract MultisigTask is Test, Script {
         bytes32 newValue;
     }
 
+    /// @notice Enum to determine the type of task
     enum TaskType {
         L2TaskBase,
         SimpleBase
@@ -128,7 +129,7 @@ abstract contract MultisigTask is Test, Script {
     // ==================================================
     // These are functions have no default implementation and MUST be implemented by the inheriting contract.
 
-    /// @notice Returns the type of task.
+    /// @notice Returns the type of task. L2TaskBase or SimpleBase.
     function taskType() public pure virtual returns (TaskType);
 
     /// @notice Specifies the safe address string to run the template from. This string refers
@@ -1062,10 +1063,15 @@ abstract contract L2TaskBase is MultisigTask {
 
     SuperchainAddressRegistry public superchainAddrRegistry;
 
+    /// @notice Returns the type of task. L2TaskBase.
+    /// overrides the taskType function in the MultisigTask contract.
     function taskType() public pure override returns (TaskType) {
         return TaskType.L2TaskBase;
     }
 
+    /// @notice Configures the task for L2TaskBase type tasks.
+    /// overrides the configureTask function in the MultisigTask contract.
+    /// for L2TaskBase, we need to configure the superchain address registry.
     function _configureTask(string memory taskConfigFilePath)
         internal
         virtual
@@ -1094,8 +1100,6 @@ abstract contract L2TaskBase is MultisigTask {
             );
         }
 
-        console.log("Parent multisig: ", address(parentMultisig_));
-
         // This loads the allowed storage write accesses to storage for this task.
         // If this task changes storage slots outside of the allowed write accesses,
         // then the task will fail at runtime and the task developer will need to
@@ -1112,14 +1116,19 @@ abstract contract L2TaskBase is MultisigTask {
 }
 
 abstract contract SimpleBase is MultisigTask {
-    function taskType() public pure override returns (TaskType) {
-        return TaskType.SimpleBase;
-    }
-
     using EnumerableSet for EnumerableSet.AddressSet;
 
     SimpleAddressRegistry public simpleAddrRegistry;
 
+    /// @notice Returns the type of task. SimpleBase.
+    /// overrides the taskType function in the MultisigTask contract.
+    function taskType() public pure override returns (TaskType) {
+        return TaskType.SimpleBase;
+    }
+
+    /// @notice Configures the task for SimpleBase type tasks.
+    /// overrides the configureTask function in the MultisigTask contract.
+    /// for SimpleBase, we need to configure the simple address registry.
     function _configureTask(string memory taskConfigFilePath)
         internal
         virtual
@@ -1132,8 +1141,6 @@ abstract contract SimpleBase is MultisigTask {
         addrRegistry_ = AddressRegistry.wrap(address(simpleAddrRegistry));
 
         parentMultisig_ = IGnosisSafe(simpleAddrRegistry.get(config.safeAddressString));
-
-        console.log("Parent multisig: ", address(parentMultisig_));
 
         // This loads the allowed storage write accesses to storage for this task.
         // If this task changes storage slots outside of the allowed write accesses,
