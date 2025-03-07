@@ -1066,7 +1066,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
 abstract contract L2TaskBase is MultisigTask {
     using EnumerableSet for EnumerableSet.AddressSet;
-    using stdToml for string;
 
     SuperchainAddressRegistry public superchainAddrRegistry;
 
