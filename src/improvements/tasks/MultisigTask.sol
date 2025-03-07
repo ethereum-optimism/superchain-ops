@@ -177,6 +177,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         // sets safe to the safe specified by the current template from addresses.json
         _taskSetup(taskConfigFilePath);
 
+        // Overrides only get applied when simulating
+        _overrideState(taskConfigFilePath);
+
         // now execute task actions
         Action[] memory actions = build();
         VmSafe.AccountAccess[] memory accountAccesses = simulate(signatures, actions);
@@ -882,6 +885,12 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         return validActions;
     }
 
+    /// @notice Override the state of the task. Function is called only when simulating.
+    function _overrideState(string memory taskConfigFilePath) private {
+        _applyStateOverrides(taskConfigFilePath);
+        nonce = _getNonceOrOverride(address(parentMultisig));
+    }
+
     /// @dev Returns true if the given account access should be recorded as an action.
     function _isValidAction(VmSafe.AccountAccess memory access, uint256 topLevelDepth) internal view returns (bool) {
         bool accountNotRegistryOrVm =
@@ -1075,9 +1084,6 @@ abstract contract L2TaskBase is MultisigTask {
 
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         parentMultisig_ = IGnosisSafe(superchainAddrRegistry.getAddress(config.safeAddressString, chains[0].chainId));
-
-        _applyStateOverrides(taskConfigFilePath);
-        nonce = _getNonceOrOverride(address(parentMultisig_));
 
         // Ensure that all chains have the same parentMultisig.
         for (uint256 i = 1; i < chains.length; i++) {
