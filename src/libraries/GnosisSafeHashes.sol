@@ -1,7 +1,8 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.15;
 
-import "forge-std/console.sol";
+import {LibString} from "@solady/utils/LibString.sol";
+import {JSONParserLib} from "@solady/utils/JSONParserLib.sol";
 import {GnosisSafe} from "lib/safe-contracts/contracts/GnosisSafe.sol";
 
 /// @title GnosisSafeHashes
@@ -32,12 +33,11 @@ library GnosisSafeHashes {
     /// @return domainSeparator_ The calculated domain separator
     function calculateDomainSeparator(uint256 _chainId, address _safeAddress)
         internal
-        pure
+        view
         returns (bytes32 domainSeparator_)
     {
-        // TODO: Load the FoS address from the AddressRegistry
-        if (_safeAddress == 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A) {
-            // Foundation Operations Safe - Gnosis Safe 1.1.1
+        // Gnosis Safe deployments before 1.3.0 used this domain separator without the chainId
+        if (isOldDomainSeparatorVersion(_safeAddress)) {
             domainSeparator_ = keccak256(abi.encode(keccak256("EIP712Domain(address verifyingContract)"), _safeAddress));
         } else {
             domainSeparator_ = keccak256(
@@ -136,5 +136,27 @@ library GnosisSafeHashes {
     // Helper function to get minimum of two values
     function min(uint256 a, uint256 b) internal pure returns (uint256) {
         return a < b ? a : b;
+    }
+
+    /// @notice Checks if the version is below 1.3.0. We are ignoring tags such as beta, rc, etc.
+    /// @param _safeAddress The address of the Gnosis Safe contract
+    /// @return isOldVersion_ True if the version is below 1.3.0, false otherwise
+    function isOldDomainSeparatorVersion(address _safeAddress) internal view returns (bool isOldVersion_) {
+        // Get the version from the Gnosis Safe contract
+        GnosisSafe safe = GnosisSafe(payable(_safeAddress));
+        string memory version = safe.VERSION();
+
+        // Find positions of dots
+        uint256 firstDot = LibString.indexOf(version, ".");
+        require(firstDot != type(uint256).max, "GnosisSafeHashes: Invalid version format");
+
+        uint256 secondDot = LibString.indexOf(version, ".", firstDot + 1);
+        require(secondDot != type(uint256).max, "GnosisSafeHashes: Invalid version format");
+
+        // Parse major and minor versions
+        uint256 major = JSONParserLib.parseUint(LibString.slice(version, 0, firstDot));
+        uint256 minor = JSONParserLib.parseUint(LibString.slice(version, firstDot + 1, secondDot - firstDot + 1));
+
+        isOldVersion_ = (major < 1 || (major == 1 && minor < 3));
     }
 }
