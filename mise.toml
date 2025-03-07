@@ -10,9 +10,9 @@ yq = "4.44.5"
 # Foundry is a special case because it supplies multiple binaries at the same
 # GitHub release, so we need to use the aliasing trick to get mise to not error
 # The git ref here should be on the `stable` branch.
-forge = "v1.0.0"
-cast = "v1.0.0"
-anvil = "v1.0.0"
+forge = "nightly"
+cast = "nightly"
+anvil = "nightly"
 
 [alias]
 forge = "ubi:foundry-rs/foundry[exe=forge]"
