@@ -13,6 +13,7 @@ import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.so
 
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
+import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
 
 type AddressRegistry is address;
 
@@ -589,8 +590,8 @@ abstract contract MultisigTask is Test, Script {
         }
 
         if (isSimulate) {
-            console.log("\n\n------------------ Tenderly Simulation Link ------------------");
-            printTenderlySimulationLink(actions);
+            console.log("\n\n------------------ Tenderly Simulation Data ------------------");
+            printTenderlySimulationData(actions);
         }
     }
 
@@ -658,15 +659,69 @@ abstract contract MultisigTask is Test, Script {
         }
     }
 
-    /// @notice print the tenderly simulation link with the state overrides
-    function printTenderlySimulationLink(Action[] memory actions) internal view {
-        Simulation.StateOverride[] memory overrides = new Simulation.StateOverride[](1);
-        overrides[0] =
+    /// @notice print the tenderly simulation payload with the state overrides
+    function printTenderlySimulationData(Action[] memory actions) internal view {
+        Simulation.StateOverride[] memory stateOverrides = new Simulation.StateOverride[](1);
+        stateOverrides[0] =
             Simulation.overrideSafeThresholdOwnerAndNonce(parentMultisig, msg.sender, _getNonce(parentMultisig));
         bytes memory txData = _execTransationCalldata(
             parentMultisig, getMulticall3Calldata(actions), Signatures.genPrevalidatedSignature(msg.sender)
         );
-        Simulation.logSimulationLink({_to: parentMultisig, _data: txData, _from: msg.sender, _overrides: overrides});
+
+        // Log the Tenderly JSON payload
+        console.log("\nSimulation payload:");
+        logTenderlySimulationPayload(txData, stateOverrides[0].overrides);
+
+        // Log the simulation link
+        console.log("\nSimulation link:");
+        Simulation.logSimulationLink({_to: parentMultisig, _data: txData, _from: msg.sender, _overrides: stateOverrides});
+
+        // Calculate domain separator
+        // TODO: Read from AddressRegistry for some addresses that have non compliant domain separators, such as the mainnet Foundation Operations Safe
+        bytes32 domainSeparator = GnosisSafeHashes.calculateDomainSeparator(block.chainid, parentMultisig);
+
+        // Calculate message hash
+        bytes32 messageHash = GnosisSafeHashes.calculateMessageHashFromCalldata(txData, _getNonce(parentMultisig));
+
+        // Output results
+        console.log("\n\n-------- Domain Separator and Message Hashes from Local Simulation --------");
+        console.log("Domain Separator:", vm.toString(domainSeparator));
+        console.log("Message Hash:", vm.toString(messageHash));
+    }
+
+    /// @notice log a json payload to create a Tenderly simulation
+    function logTenderlySimulationPayload(bytes memory txData, Simulation.StorageOverride[] memory storageOverrides)
+        internal
+        view
+    {
+        // Log the Tenderly JSON payload
+        // forgefmt: disable-start
+        string memory payload = string.concat(
+            '{\"network_id\":\"', vm.toString(block.chainid),'\",',
+            '\"from\":\"', vm.toString(msg.sender),'\",',
+            '\"to\":\"', vm.toString(parentMultisig), '\",',
+            '\"save\":true,',
+            '\"input\":\"', vm.toString(txData),'\",',
+            '\"value\":\"0x0\",',
+            '\"state_objects\":{\"',
+            vm.toString(parentMultisig), '\":{\"storage\":{'
+        );
+        // forgefmt: disable-end
+        console.log("%s", payload);
+
+        // Add each storage override
+        for (uint256 j = 0; j < storageOverrides.length; j++) {
+            string memory comma = j < storageOverrides.length - 1 ? "," : "";
+            console.log(
+                "\"%s\":\"%s\"%s",
+                vm.toString(bytes32(storageOverrides[j].key)),
+                vm.toString(storageOverrides[j].value),
+                comma
+            );
+        }
+
+        // Close the JSON structure
+        console.log("}}}}");
     }
 
     /// @notice get the hash for this safe transaction
