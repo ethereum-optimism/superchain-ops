@@ -487,15 +487,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
         for (uint256 i; i < accountsWithWrites.length; i++) {
             address addr = accountsWithWrites[i];
-            bool isNewContract = false;
-            for (uint256 j; j < newContracts.length; j++) {
-                if (newContracts[j] == addr) {
-                    isNewContract = true;
-                    break;
-                }
-            }
             require(
-                _allowedStorageAccesses.contains(addr) || isNewContract,
+                _allowedStorageAccesses.contains(addr) || _isNewContract(addr, newContracts),
                 string(
                     abi.encodePacked(
                         "MultisigTask: address ", getAddressLabel(addr), " not in allowed storage accesses"
@@ -949,6 +942,16 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         nonce = _getNonceOrOverride(address(parentMultisig));
     }
 
+    function _isNewContract(address addr, address[] memory newContracts) private pure returns (bool isNewContract_) {
+        isNewContract_ = false;
+        for (uint256 j; j < newContracts.length; j++) {
+            if (newContracts[j] == addr) {
+                isNewContract_ = true;
+                break;
+            }
+        }
+    }
+
     /// @dev Returns true if the given account access should be recorded as an action.
     function _isValidAction(VmSafe.AccountAccess memory access, uint256 topLevelDepth) internal view returns (bool) {
         bool accountNotRegistryOrVm =
@@ -1057,9 +1060,10 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                 require(!storageAccess.reverted, string.concat("Storage access reverted: ", vm.toString(account)));
                 bool allowed;
                 for (uint256 k; k < allowedAccesses.length; k++) {
-                    allowed = allowed || (account == allowedAccesses[k]);
+                    address[] memory newContracts = accountAccesses.getNewContracts();
+                    allowed = allowed || (account == allowedAccesses[k]) || _isNewContract(account, newContracts);
                 }
-                // require(allowed, string.concat("Unallowed Storage access: ", vm.toString(account)));
+                require(allowed, string.concat("Unallowed Storage access: ", vm.toString(account)));
             }
         }
     }
