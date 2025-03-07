@@ -15,6 +15,23 @@ contract StateOverrideManager {
     /// @notice The state overrides for the local and tenderly simulation
     Simulation.StateOverride[] internal _stateOverrides;
 
+    function getStateOverrides(address parentMultisig, uint256 parentMultisigNonce)
+        public
+        view
+        returns (Simulation.StateOverride[] memory)
+    {
+        // Append user defined overrides to the default tenderly overrides.
+        // This means that the user defined overrides take precedence over the default tenderly overrides.
+        Simulation.StateOverride memory defaultOverride =
+            _createDefaultTenderlyOverride(parentMultisig, parentMultisigNonce);
+        Simulation.StateOverride[] memory overrides = new Simulation.StateOverride[](1 + _stateOverrides.length);
+        overrides[0] = defaultOverride;
+        for (uint256 i = 0; i < _stateOverrides.length; i++) {
+            overrides[i + 1] = _stateOverrides[i];
+        }
+        return overrides;
+    }
+
     /// @notice This function must be called first before any other function that uses state overrides.
     function _applyStateOverrides(string memory taskConfigFilePath) internal {
         _readStateOverrides(taskConfigFilePath);
@@ -27,15 +44,6 @@ contract StateOverrideManager {
                 );
             }
         }
-    }
-
-    function getStateOverrides(address parentMultisig, uint256 parentMultisigNonce)
-        public
-        view
-        returns (Simulation.StateOverride[] memory)
-    {
-        uint256 parentMultisigIndex = _getParentMultisigIndex(parentMultisig);
-        return _createCombinedOverrides(parentMultisigIndex, parentMultisig, parentMultisigNonce);
     }
 
     /// @notice Creates a default state override for the parent multisig (nonce, threshold, owner).
@@ -105,76 +113,5 @@ contract StateOverrideManager {
         if (!foundNonceOverride) {
             nonce_ = IGnosisSafe(parentMultisig).nonce();
         }
-    }
-
-    function _getParentMultisigIndex(address parentMultisig) internal view returns (uint256) {
-        uint256 parentMultisigIndex = type(uint256).max; // Default to invalid index
-        for (uint256 i = 0; i < _stateOverrides.length; i++) {
-            if (_stateOverrides[i].contractAddress == parentMultisig) {
-                parentMultisigIndex = i;
-                break;
-            }
-        }
-        return parentMultisigIndex;
-    }
-
-    /// @notice Combines the default Tenderly overrides with the existing parent multisig overrides.
-    /// The parent multisig overrides will take precedence over the default Tenderly overrides.
-    function _createCombinedOverrides(uint256 parentMultisigIndex, address parentMultisig, uint256 parentMultisigNonce)
-        internal
-        view
-        returns (Simulation.StateOverride[] memory)
-    {
-        Simulation.StateOverride memory defaultOverride =
-            _createDefaultTenderlyOverride(parentMultisig, parentMultisigNonce);
-        Simulation.StateOverride[] memory combinedOverrides;
-
-        // Check if parent multisig override exists based on valid index
-        bool hasParentMultisigOverride = parentMultisigIndex < _stateOverrides.length;
-
-        if (hasParentMultisigOverride) {
-            // Create combined overrides with the existing parent multisig override
-            combinedOverrides = new Simulation.StateOverride[](_stateOverrides.length);
-
-            // Create a combined override that starts with the default values
-            Simulation.StateOverride memory combined;
-            combined.contractAddress = parentMultisig;
-            // Add all default overrides first
-            for (uint256 j = 0; j < defaultOverride.overrides.length; j++) {
-                combined = Simulation.addOverride(combined, defaultOverride.overrides[j]);
-            }
-            // Then add existing overrides, potentially overwriting default values
-            for (uint256 j = 0; j < _stateOverrides[parentMultisigIndex].overrides.length; j++) {
-                // We need to check if this key already exists to avoid duplicates
-                bool keyExists = false;
-                for (uint256 k = 0; k < combined.overrides.length; k++) {
-                    if (combined.overrides[k].key == _stateOverrides[parentMultisigIndex].overrides[j].key) {
-                        combined.overrides[k].value = _stateOverrides[parentMultisigIndex].overrides[j].value;
-                        keyExists = true;
-                        break;
-                    }
-                }
-                if (!keyExists) {
-                    combined = Simulation.addOverride(combined, _stateOverrides[parentMultisigIndex].overrides[j]);
-                }
-            }
-
-            // Copy all overrides, replacing parent multisig override with combined one
-            for (uint256 i = 0; i < _stateOverrides.length; i++) {
-                if (i == parentMultisigIndex) {
-                    combinedOverrides[i] = combined;
-                } else {
-                    combinedOverrides[i] = _stateOverrides[i];
-                }
-            }
-        } else {
-            combinedOverrides = new Simulation.StateOverride[](_stateOverrides.length + 1);
-            for (uint256 i = 0; i < _stateOverrides.length; i++) {
-                combinedOverrides[i] = _stateOverrides[i];
-            }
-            combinedOverrides[_stateOverrides.length] = defaultOverride;
-        }
-
-        return combinedOverrides;
     }
 }
