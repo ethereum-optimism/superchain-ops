@@ -288,6 +288,9 @@ contract SuperchainAddressRegistry is StdChains {
         address faultDisputeGame = getFaultDisputeGame(disputeGameFactoryProxy);
         if (faultDisputeGame != address(0)) {
             saveAddress("FaultDisputeGame", chain, faultDisputeGame);
+
+            address delayedWETHProxy = getDelayedWETHProxy(faultDisputeGame);
+            saveAddress("PermissionlessWETH", chain, delayedWETHProxy);
         }
 
         address permissionedDisputeGame = getPermissionedDisputeGame(disputeGameFactoryProxy);
@@ -299,9 +302,8 @@ contract SuperchainAddressRegistry is StdChains {
         address anchorStateRegistryProxy = getAnchorStateRegistryProxy(permissionedDisputeGame);
         saveAddress("AnchorStateRegistryProxy", chain, anchorStateRegistryProxy);
 
-        // Not retreiving delayed WETH proxy because 'n' exist based on the number of GameTypes.
-        // We will leave these addresses for the task developer to retrieve.
-        // https://github.com/ethereum-optimism/superchain-ops/pull/582#discussion_r1951306648
+        address delayedWETHProxy = getDelayedWETHProxy(permissionedDisputeGame);
+        saveAddress("PermissionedWETH", chain, delayedWETHProxy);
 
         address mips = getMips(permissionedDisputeGame);
         saveAddress("MIPS", chain, mips);
@@ -415,6 +417,12 @@ contract SuperchainAddressRegistry is StdChains {
 
     function getAnchorStateRegistryProxy(address permissionedDisputeGame) internal view returns (address) {
         return IFetcher(permissionedDisputeGame).anchorStateRegistry();
+    }
+
+    function getDelayedWETHProxy(address disputeGame) internal view returns (address) {
+        (bool ok, bytes memory data) = address(disputeGame).staticcall(abi.encodeWithSelector(IFetcher.weth.selector));
+        if (ok && data.length == 32) return abi.decode(data, (address));
+        else return address(0);
     }
 
     function getMips(address permissionedDisputeGame) internal view returns (address) {

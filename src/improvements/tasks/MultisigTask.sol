@@ -471,6 +471,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         _processStateDiffChanges(accountAccesses);
 
         address[] memory accountsWithWrites = accountAccesses.getUniqueWrites();
+        // By default, we all storage accesses to newly created contracts.
         address[] memory newContracts = accountAccesses.getNewContracts();
 
         for (uint256 i; i < accountsWithWrites.length; i++) {
@@ -482,18 +483,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                     break;
                 }
             }
-            // When this is uncommented we run into the foundry panic:
-            // The application panicked (crashed).
-            // Message:  missing CALL account accesses
-            // Location: crates/cheatcodes/src/inspector.rs:1453
-            // require(
-            //     _allowedStorageAccesses.contains(addr) || isNewContract,
-            //     string(
-            //         abi.encodePacked(
-            //             "MultisigTask: address ", getAddressLabel(addr), " not in allowed storage accesses"
-            //         )
-            //     )
-            // );
+            require(
+                _allowedStorageAccesses.contains(addr) || isNewContract,
+                string(
+                    abi.encodePacked(
+                        "MultisigTask: address ", getAddressLabel(addr), " not in allowed storage accesses"
+                    )
+                )
+            );
         }
 
         require(IGnosisSafe(parentMultisig).nonce() == nonce + 1, "MultisigTask: nonce not incremented");
