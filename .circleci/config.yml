@@ -264,13 +264,30 @@ jobs:
               --dotenv-path $(pwd)/.env \
               --justfile ../../../nested.just \
               simulate council
+      - simulate_nested:
+          task: "/eth/030-soneium-holocene-system-config-upgrade"
+
+  just_simulate_ink_sep_fp_holocene_pectra_upgrade:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - simulate_nested:
+          task: "/sep/ink-001-fp-holocene-pectra-upgrade"
 
   just_simulate_op_sep_prestate_update:
+    just_simulate_op_sep_prestate_update:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - simulate_nested:
           task: "/sep/032-op-pectra-defence"
+
+  just_simulate_031_uni_holocene_systemconfig_update:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - simulate_nested:
+          task: "/eth/031-uni-holocene-systemconfig-update"
 
   simulate_sequence:
     description: "Runs a sequence of simulations"
@@ -465,6 +482,14 @@ workflows:
           task: "eth/031-op-mainnet-pectra-defense"
           context:
             - circleci-repo-readonly-authenticated-github-token
+      - just_simulate_031_uni_holocene_systemconfig_update:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
+      - simulate_sequence:
+          network: "eth"
+          tasks: "021 022 base-003 ink-001"
+          block_number: "21573136" # If not specified, the latest block number is used.
 
       - simulate_sequence:
           name: simulate_sequence_eth
