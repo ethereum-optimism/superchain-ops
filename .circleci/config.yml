@@ -461,10 +461,6 @@ workflows:
       - just_simulate_sc_rehearsal_4:
           context:
             - circleci-repo-readonly-authenticated-github-token
-      - just_simulate_nested:
-          task: "eth/031-op-mainnet-pectra-defense"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
 
       - simulate_sequence:
           name: simulate_sequence_eth
