@@ -723,6 +723,84 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         }
     }
 
+    function test_getNewContracts_succeeds() public pure {
+        // Test empty array
+        {
+            VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](0);
+            address[] memory newContracts = accesses.getNewContracts();
+            assertEq(newContracts.length, 0, "10");
+        }
+
+        // Test single successful contract creation
+        {
+            VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
+            accesses[0] = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+            accesses[0].kind = VmSafe.AccountAccessKind.Create;
+
+            address[] memory newContracts = accesses.getNewContracts();
+            assertEq(newContracts.length, 1, "20");
+            assertEq(newContracts[0], addr1, "30");
+        }
+
+        // Test reverted contract creation (should not be included)
+        {
+            VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
+            accesses[0] = accountAccess(addr2, new VmSafe.StorageAccess[](0));
+            accesses[0].kind = VmSafe.AccountAccessKind.Create;
+            accesses[0].reverted = reverted;
+
+            address[] memory newContracts = accesses.getNewContracts();
+            assertEq(newContracts.length, 0, "40");
+        }
+
+        // Test multiple contract creations (mix of successful and reverted)
+        {
+            VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](4);
+
+            // Successful creation
+            accesses[0] = accountAccess(addr3, new VmSafe.StorageAccess[](0));
+            accesses[0].kind = VmSafe.AccountAccessKind.Create;
+
+            // Regular call (not creation)
+            accesses[1] = accountAccess(addr4, new VmSafe.StorageAccess[](0));
+            accesses[1].kind = VmSafe.AccountAccessKind.Call;
+
+            // Reverted creation
+            accesses[2] = accountAccess(addr5, new VmSafe.StorageAccess[](0));
+            accesses[2].kind = VmSafe.AccountAccessKind.Create;
+            accesses[2].reverted = reverted;
+
+            // Successful creation
+            accesses[3] = accountAccess(addr6, new VmSafe.StorageAccess[](0));
+            accesses[3].kind = VmSafe.AccountAccessKind.Create;
+
+            address[] memory newContracts = accesses.getNewContracts();
+            assertEq(newContracts.length, 2, "50");
+            assertEq(newContracts[0], addr3, "60");
+            assertEq(newContracts[1], addr6, "70");
+        }
+
+        // Test non-creation accesses
+        {
+            VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](3);
+
+            // Call
+            accesses[0] = accountAccess(addr7, new VmSafe.StorageAccess[](0));
+            accesses[0].kind = VmSafe.AccountAccessKind.Call;
+
+            // DelegateCall
+            accesses[1] = accountAccess(addr8, new VmSafe.StorageAccess[](0));
+            accesses[1].kind = VmSafe.AccountAccessKind.DelegateCall;
+
+            // StaticCall
+            accesses[2] = accountAccess(addr9, new VmSafe.StorageAccess[](0));
+            accesses[2].kind = VmSafe.AccountAccessKind.StaticCall;
+
+            address[] memory newContracts = accesses.getNewContracts();
+            assertEq(newContracts.length, 0, "80");
+        }
+    }
+
     function accountAccess(address _account, VmSafe.StorageAccess[] memory _storageAccesses)
         internal
         pure
