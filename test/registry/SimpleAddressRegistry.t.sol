@@ -3,28 +3,15 @@ pragma solidity ^0.8.0;
 
 import {Test} from "forge-std/Test.sol";
 import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
-import {stdJson} from "forge-std/StdJson.sol";
-import {console} from "forge-std/console.sol";
 
-contract Helper {
-    // Path to test fixture files
-    string constant FIXTURES_PATH = "test/fixtures/SimpleAddressRegistry/";
-
-    // Helper function to read TOML from fixture file
-    function _getPath(string memory configFile) internal pure returns (string memory) {
-        return string.concat(FIXTURES_PATH, configFile);
-    }
-
-    function _deployRegistry(string memory configFile) internal virtual returns (address) {
-        return address(new SimpleAddressRegistry(_getPath(configFile)));
-    }
-}
-
-contract SimpleAddressRegistryTest is Helper, Test {
+contract SimpleAddressRegistryTest is Test {
     // Test addresses
     address constant alice = address(1);
     address constant bob = address(2);
     address constant charlie = address(3);
+
+    // Path to test fixture files
+    string constant FIXTURES_PATH = "test/fixtures/SimpleAddressRegistry/";
 
     string registryName; // Contract name being tested.
     string idReturnKind; // "identifier" or "AddressInfo"
@@ -35,6 +22,15 @@ contract SimpleAddressRegistryTest is Helper, Test {
         registryName = "SimpleAddressRegistry";
         idReturnKind = "identifier";
         isSimpleAddressRegistry = true;
+    }
+
+    // Helper function to read TOML from fixture file
+    function _getPath(string memory configFile) internal pure returns (string memory) {
+        return string.concat(FIXTURES_PATH, configFile);
+    }
+
+    function _deployRegistry(string memory configFile) internal virtual returns (address) {
+        return address(new SimpleAddressRegistry(_getPath(configFile)));
     }
 
     function test_initialize_succeeds_withValidToml() public {
