@@ -9,7 +9,6 @@ import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {MockMultisigTask} from "test/tasks/mock/MockMultisigTask.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
-import {console2 as console} from "forge-std/console2.sol";
 
 contract StateOverrideManagerUnitTest is Test {
     function setUp() public {
