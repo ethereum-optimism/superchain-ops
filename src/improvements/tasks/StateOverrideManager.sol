@@ -9,7 +9,7 @@ import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 /// @notice Manages state overrides for transaction simulation.
 /// This contract is used by MultisigTask to simulate transactions
 /// with specific state conditions.
-contract StateOverrideManager {
+abstract contract StateOverrideManager {
     using stdToml for string;
 
     address private constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
