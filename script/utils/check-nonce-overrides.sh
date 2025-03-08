@@ -3,14 +3,14 @@
 search_dir="./tasks"
 
 # Find all .env files in the given directory and its subdirectories
-env_files=$(find "$search_dir" -type f -name "*.env")
+env_files=$(find "$search_dir" -type f -name '*.env')
 
 # Process each .env file
 for file in $env_files; do
     echo "Checking file: $file"
 
     # Process the file line by line
-    while IFS= read -r line || [[ -n "$line" ]]; do
+    while IFS= read -r line; do
         # Check if the line starts with SAFE_NONCE_
         if [[ $line == SAFE_NONCE_* ]]; then
             # Extract the variable name (part before =)
