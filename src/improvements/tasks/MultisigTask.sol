@@ -12,6 +12,7 @@ import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
+import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
@@ -74,6 +75,12 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         bytes32 newValue;
     }
 
+    /// @notice Enum to determine the type of task
+    enum TaskType {
+        L2TaskBase,
+        SimpleBase
+    }
+
     /// @notice transfers during task execution
     mapping(address => TransferInfo[]) private _taskTransfers;
 
@@ -123,6 +130,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     // ======== Virtual, Unimplemented Functions ========
     // ==================================================
     // These are functions have no default implementation and MUST be implemented by the inheriting contract.
+
+    /// @notice Returns the type of task. L2TaskBase or SimpleBase.
+    function taskType() public pure virtual returns (TaskType);
 
     /// @notice Specifies the safe address string to run the template from. This string refers
     /// to a named contract, where the name is read from an address registry contract.
@@ -1069,6 +1079,15 @@ abstract contract L2TaskBase is MultisigTask {
 
     SuperchainAddressRegistry public superchainAddrRegistry;
 
+    /// @notice Returns the type of task. L2TaskBase.
+    /// overrides the taskType function in the MultisigTask contract.
+    function taskType() public pure override returns (TaskType) {
+        return TaskType.L2TaskBase;
+    }
+
+    /// @notice Configures the task for L2TaskBase type tasks.
+    /// overrides the configureTask function in the MultisigTask contract.
+    /// for L2TaskBase, we need to configure the superchain address registry.
     function _configureTask(string memory taskConfigFilePath)
         internal
         virtual
@@ -1126,6 +1145,44 @@ abstract contract L2TaskBase is MultisigTask {
                     );
                 }
             }
+        }
+    }
+}
+
+abstract contract SimpleBase is MultisigTask {
+    using EnumerableSet for EnumerableSet.AddressSet;
+
+    SimpleAddressRegistry public simpleAddrRegistry;
+
+    /// @notice Returns the type of task. SimpleBase.
+    /// overrides the taskType function in the MultisigTask contract.
+    function taskType() public pure override returns (TaskType) {
+        return TaskType.SimpleBase;
+    }
+
+    /// @notice Configures the task for SimpleBase type tasks.
+    /// overrides the configureTask function in the MultisigTask contract.
+    /// for SimpleBase, we need to configure the simple address registry.
+    function _configureTask(string memory taskConfigFilePath)
+        internal
+        virtual
+        override
+        returns (AddressRegistry addrRegistry_, IGnosisSafe parentMultisig_, address multicallTarget_)
+    {
+        multicallTarget_ = MULTICALL3_ADDRESS;
+
+        simpleAddrRegistry = new SimpleAddressRegistry(taskConfigFilePath);
+        addrRegistry_ = AddressRegistry.wrap(address(simpleAddrRegistry));
+
+        parentMultisig_ = IGnosisSafe(simpleAddrRegistry.get(config.safeAddressString));
+
+        // This loads the allowed storage write accesses to storage for this task.
+        // If this task changes storage slots outside of the allowed write accesses,
+        // then the task will fail at runtime and the task developer will need to
+        // update the config to include the addresses whose storage slots changed,
+        // or figure out why the storage slots are being changed when they should not be.
+        for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
+            _allowedStorageAccesses.add(simpleAddrRegistry.get(config.allowedStorageWriteAccesses[i]));
         }
     }
 }
