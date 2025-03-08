@@ -4,10 +4,12 @@ pragma solidity 0.8.15;
 import {Test} from "forge-std/Test.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 
 import {MockMultisigTask} from "test/tasks/mock/MockMultisigTask.sol";
-import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
+import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
+import {console2 as console} from "forge-std/console2.sol";
 
 contract StateOverrideManagerUnitTest is Test {
     function setUp() public {
@@ -88,6 +90,31 @@ contract StateOverrideManagerUnitTest is Test {
         string memory fileName = createTempTomlFile(toml);
         MultisigTask task = createAndRunTask(fileName);
         assertNonceIncremented(1, task);
+        vm.removeFile(fileName);
+    }
+
+    function testAddressValueInConfigForStateOverridePasses() public {
+        // value is a string representation of an address
+        address expectedImplAddr = 0x4da82a327773965b8d4D85Fa3dB8249b387458E7;
+        string memory toml = string.concat(
+            commonToml,
+            "[stateOverrides]\n",
+            "0xC2Be75506d5724086DEB7245bd260Cc9753911Be = [\n",
+            "    {key = \"",
+            LibString.toHexString(uint256(Constants.PROXY_IMPLEMENTATION_ADDRESS)),
+            "\", value = \"",
+            LibString.toHexString(expectedImplAddr),
+            "\"}\n",
+            "]"
+        );
+        string memory fileName = createTempTomlFile(toml);
+        createAndRunTask(fileName);
+        address actualImplAddr = address(
+            uint160(
+                uint256(vm.load(0xC2Be75506d5724086DEB7245bd260Cc9753911Be, Constants.PROXY_IMPLEMENTATION_ADDRESS))
+            )
+        );
+        assertEq(actualImplAddr, expectedImplAddr, "Implementation address is not correct");
         vm.removeFile(fileName);
     }
 
