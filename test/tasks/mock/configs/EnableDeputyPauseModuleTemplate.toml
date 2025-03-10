@@ -1,7 +1,4 @@
 # this is the file used to determine the network configuration
-
-l2chains = [{name = "OP Testnet", chainId = 11155420}]
-
 templateName = "EnableDeputyPauseModuleTemplate"
 
 newModule = "0x62f3972c56733aB078F0764d2414DfCaa99d574c"

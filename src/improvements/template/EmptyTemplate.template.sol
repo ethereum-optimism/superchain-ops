@@ -77,4 +77,8 @@ contract EmptyTemplate is MultisigTask {
         codeExceptions[0] = address(0);
         return codeExceptions;
     }
+
+    function taskType() public pure override returns (TaskType) {
+        return TaskType.SimpleBase;
+    }
 }

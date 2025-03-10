@@ -106,14 +106,14 @@ contract SuperchainAddressRegistry is StdChains {
 
         for (uint256 i = 0; i < chains.length; i++) {
             _processAddresses(chains[i], chainAddrs);
-
-            string memory chainKey;
-            if (block.chainid == getChain("mainnet").chainId) chainKey = ".eth";
-            else if (block.chainid == getChain("sepolia").chainId) chainKey = ".sep";
-            else revert(string.concat("SuperchainAddressRegistry: Unknown task chain ID ", vm.toString(block.chainid)));
-
-            _loadHardcodedAddresses(chainKey, chains[i]);
         }
+
+        string memory chainKey;
+        if (block.chainid == getChain("mainnet").chainId) chainKey = ".eth";
+        else if (block.chainid == getChain("sepolia").chainId) chainKey = ".sep";
+        else revert(string.concat("SuperchainAddressRegistry: Unknown task chain ID ", vm.toString(block.chainid)));
+
+        _loadHardcodedAddresses(chainKey);
 
         // Lastly, we read in addresses from the `[addresses]` section of the config file.
         if (!toml.keyExists(".addresses")) return; // If the addresses section is missing, do nothing.
@@ -127,7 +127,7 @@ contract SuperchainAddressRegistry is StdChains {
     }
 
     /// @notice Reads in hardcoded addresses from the addresses.toml file.
-    function _loadHardcodedAddresses(string memory chainKey, ChainInfo memory chain) internal {
+    function _loadHardcodedAddresses(string memory chainKey) internal {
         string memory toml = vm.readFile("./src/improvements/addresses.toml");
         string[] memory keys = vm.parseTomlKeys(toml, chainKey);
         require(keys.length > 0, string.concat("SuperchainAddressRegistry: no keys found for ", chainKey));
@@ -138,11 +138,11 @@ contract SuperchainAddressRegistry is StdChains {
 
             require(addr != address(0), string.concat("SuperchainAddressRegistry: zero address for ", identifier));
             require(
-                registry[identifier][chain.chainId] == address(0),
+                registry[identifier][sentinelChain.chainId] == address(0),
                 string.concat("SuperchainAddressRegistry: address already registered for ", identifier)
             );
 
-            saveAddress(identifier, chain, addr);
+            saveAddress(identifier, sentinelChain, addr);
         }
     }
 
@@ -155,11 +155,6 @@ contract SuperchainAddressRegistry is StdChains {
                 "SuperchainAddressRegistry: duplicate key ", identifier, "for chain ", vm.toString(chain.chainId)
             )
         );
-        // TODO We should be able to have this check, but currently tests revert if uncommented.
-        // require(
-        //     bytes(addressInfo[addr].identifier).length == 0,
-        //     string.concat("SuperchainAddressRegistry: address already registered for ", vm.toString(addr))
-        // );
 
         registry[identifier][chain.chainId] = addr;
         addressInfo[addr] = AddressInfo(identifier, chain);
@@ -200,6 +195,8 @@ contract SuperchainAddressRegistry is StdChains {
     }
 
     /// @notice Retrieves the identifier and chain info for a given address.
+    /// There might be multiple infos for the same address, this function
+    /// will return the last info that was saved for the _who address.
     function get(address _who) public view returns (AddressInfo memory) {
         return getAddressInfo(_who);
     }
