@@ -66,7 +66,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
 
 
 ## Tenderly State Changes
-[Link](https://dashboard.tenderly.co/oplabs/eth-mainnet/simulator/dab3994f-5ff2-417a-9d0d-e94158485cd2)
+[Link](https://dashboard.tenderly.co/oplabs/eth-mainnet/simulator/ab8d86e3-d143-4e0b-9686-3dcab85a8609)
 
 ## Auto Generated Task State Changes
 
@@ -188,7 +188,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
   Chain ID:          10
   Raw Slot:          0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e
   Raw Old Value:     0x00000000000000000000000091a661891248d8c4916fb4a1508492a5e2cbcb87
-  Raw New Value:     0x00000000000000000000000015acd515ec355bdde9dd129ab24f6b28e19017b9
+  Raw New Value:     0x000000000000000000000000d113ad136a0df1c7ffb7f1606be1c778bcfe2f3b
   [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[10] -----
@@ -197,7 +197,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
   Chain ID:          10
   Raw Slot:          0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b
   Raw Old Value:     0x00000000000000000000000027b81db41f586016694632193b99e45b1a27b8f8
-  Raw New Value:     0x000000000000000000000000a16b866f306bd8a73990fb88af3dda0ba171e927
+  Raw New Value:     0x000000000000000000000000ba94955ca3422fc57f9d982a0bad2a9c88e2a9d0
   [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[11] -----
@@ -285,7 +285,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
   Chain ID:
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x4c4bde29e56ee16b71f5e823784072afdb17dbca0d46160b0d64ed6d4c11919d
+  Raw New Value:     0x4f96066f143d4aa5a8f7a8ac9afab1dc11ff561b4f28658528e30c3037bdb338
   [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[19] -----
@@ -294,7 +294,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
   Chain ID:
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x0000000000000000000000000000000000000000000000000000000007e80db0
+  Raw New Value:     0x0000000000000000000000000000000000000000000000000000000007eb4bae
   [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[20] -----
@@ -390,7 +390,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
   Chain ID:          1868
   Raw Slot:          0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e
   Raw Old Value:     0x00000000000000000000000042d15f045159ce4ade9edc7da5704ef36056c936
-  Raw New Value:     0x00000000000000000000000037ae16caaadfdeaaff22c0e1166625c7c87ae21f
+  Raw New Value:     0x0000000000000000000000001661af719956198628f7e67087f19f8a79524a1d
   [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[28] -----
@@ -478,7 +478,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
   Chain ID:
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x8a1309bb631d22db602c567e91123ec929397b45c139b1aaf2743f280bb78438
+  Raw New Value:     0x60f39b3111f82fb76b03cd08ce530a92496a40c708a6ab0cc1ce77f768cf4fa6
   [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[36] -----
@@ -487,7 +487,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
   Chain ID:
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x00000000000000000000000000000000000000000000000000000000003b314a
+  Raw New Value:     0x00000000000000000000000000000000000000000000000000000000003e719d
   [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[37] -----
@@ -570,7 +570,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
   Chain ID:          57073
   Raw Slot:          0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e
   Raw Old Value:     0x0000000000000000000000000a780be3eb21117b1bbcd74cf5d7624a3a482963
-  Raw New Value:     0x000000000000000000000000dda05e9fe947248b428907ecc553a9e4af71cee1
+  Raw New Value:     0x00000000000000000000000048c8483898dab69a5e43c8d057e0be33de3e4e55
   [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[44] -----
@@ -579,7 +579,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
   Chain ID:          57073
   Raw Slot:          0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b
   Raw Old Value:     0x0000000000000000000000006a8efcba5642eb15d743cbb29545bdc44d5ad8cd
-  Raw New Value:     0x00000000000000000000000018b19102e26fdbff22df6e03f3ff2d7feae87dc6
+  Raw New Value:     0x000000000000000000000000382afb0cfa3d86ce2a08676956a9ca0e901f0e2e
   [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[45] -----
@@ -667,7 +667,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
   Chain ID:
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0xd6eeb20127468572288c8e6fa282ecdeb384df1676e3af87422b59d39eccb8ff
+  Raw New Value:     0xe40bbfe4fe86f2b59d3f7283c0cb0464f02ed04c5a0fbf51d2a4703220747b78
   [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[53] -----
@@ -676,7 +676,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
   Chain ID:
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x000000000000000000000000000000000000000000000000000000000070a3e3
+  Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000773dd8
   [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[54] -----
