@@ -6,6 +6,7 @@ import {Script} from "forge-std/Script.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
 
 /// This script gathers all tasks for a given network and performs a simulation run for each task.
 /// Once all tasks are simulated, the resultant state is written to a file.
@@ -76,18 +77,19 @@ contract TaskRunner is Script {
         string memory templatePath = string.concat("out/", templateName, ".sol/", templateName, ".json");
         MultisigTask task = MultisigTask(deployCode(templatePath));
         string memory safeAddressString = task.safeAddressString();
+        MultisigTask.TaskType taskType = task.taskType();
 
-        SuperchainAddressRegistry _addrRegistry = new SuperchainAddressRegistry(taskConfigFilePath);
-        SuperchainAddressRegistry.ChainInfo[] memory chains = _addrRegistry.getChains();
         address parentMultisig;
-        // TODO: This is a hack to support the EnableDeputyPauseModuleTemplate.
-        // remove this once we have SimpleTaskBase contract as then this template will derive from SimpleTaskBase
-        // instead of L2TaskBase.
-        if (keccak256(bytes(safeAddressString)) == keccak256(bytes("FoundationOperationSafe"))) {
-            parentMultisig = _addrRegistry.get(safeAddressString);
+
+        if (taskType == MultisigTask.TaskType.SimpleBase) {
+            SimpleAddressRegistry _simpleAddrRegistry = new SimpleAddressRegistry(taskConfigFilePath);
+            parentMultisig = _simpleAddrRegistry.get(safeAddressString);
         } else {
+            SuperchainAddressRegistry _addrRegistry = new SuperchainAddressRegistry(taskConfigFilePath);
+            SuperchainAddressRegistry.ChainInfo[] memory chains = _addrRegistry.getChains();
             parentMultisig = _addrRegistry.getAddress(safeAddressString, chains[0].chainId);
         }
+
         return task.isNestedSafe(parentMultisig);
     }
 }

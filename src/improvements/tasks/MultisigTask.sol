@@ -12,8 +12,10 @@ import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
+import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
+import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
 import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
 
 type AddressRegistry is address;
@@ -74,6 +76,12 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         bytes32 newValue;
     }
 
+    /// @notice Enum to determine the type of task
+    enum TaskType {
+        L2TaskBase,
+        SimpleBase
+    }
+
     /// @notice transfers during task execution
     mapping(address => TransferInfo[]) private _taskTransfers;
 
@@ -123,6 +131,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     // ======== Virtual, Unimplemented Functions ========
     // ==================================================
     // These are functions have no default implementation and MUST be implemented by the inheriting contract.
+
+    /// @notice Returns the type of task. L2TaskBase or SimpleBase.
+    function taskType() public pure virtual returns (TaskType);
 
     /// @notice Specifies the safe address string to run the template from. This string refers
     /// to a named contract, where the name is read from an address registry contract.
@@ -593,8 +604,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         }
 
         if (isSimulate) {
-            console.log("\n\n------------------ Tenderly Simulation Link ------------------");
-            printTenderlySimulationLink(actions);
+            console.log("\n\n------------------ Tenderly Simulation Data ------------------");
+            printTenderlySimulationData(actions);
         }
     }
 
@@ -662,8 +673,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         }
     }
 
-    /// @notice print the tenderly simulation link with the state overrides
-    function printTenderlySimulationLink(Action[] memory actions) internal view {
+    /// @notice print the tenderly simulation payload with the state overrides
+    function printTenderlySimulationData(Action[] memory actions) internal view {
         Simulation.StateOverride[] memory allStateOverrides =
             getStateOverrides(parentMultisig, _getNonce(parentMultisig));
 
@@ -671,12 +682,64 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             parentMultisig, getMulticall3Calldata(actions), Signatures.genPrevalidatedSignature(msg.sender)
         );
 
+        // Log the Tenderly JSON payload
+        console.log("\nSimulation payload:");
+        logTenderlySimulationPayload(txData, allStateOverrides[0].overrides);
+
+        // Log the simulation link
+        console.log("\nSimulation link:");
         Simulation.logSimulationLink({
             _to: parentMultisig,
             _data: txData,
             _from: msg.sender,
             _overrides: allStateOverrides
         });
+
+        // Calculate domain separator
+        bytes32 domainSeparator = GnosisSafeHashes.calculateDomainSeparator(block.chainid, parentMultisig);
+
+        // Calculate message hash
+        bytes32 messageHash = GnosisSafeHashes.calculateMessageHashFromCalldata(txData, _getNonce(parentMultisig));
+
+        // Output results
+        console.log("\n\n-------- Domain Separator and Message Hashes from Local Simulation --------");
+        console.log("Domain Separator:", vm.toString(domainSeparator));
+        console.log("Message Hash:", vm.toString(messageHash));
+    }
+
+    /// @notice log a json payload to create a Tenderly simulation
+    function logTenderlySimulationPayload(bytes memory txData, Simulation.StorageOverride[] memory storageOverrides)
+        internal
+        view
+    {
+        // Log the Tenderly JSON payload
+        // forgefmt: disable-start
+        string memory payload = string.concat(
+            '{\"network_id\":\"', vm.toString(block.chainid),'\",',
+            '\"from\":\"', vm.toString(msg.sender),'\",',
+            '\"to\":\"', vm.toString(parentMultisig), '\",',
+            '\"save\":true,',
+            '\"input\":\"', vm.toString(txData),'\",',
+            '\"value\":\"0x0\",',
+            '\"state_objects\":{\"',
+            vm.toString(parentMultisig), '\":{\"storage\":{'
+        );
+        // forgefmt: disable-end
+        console.log("%s", payload);
+
+        // Add each storage override
+        for (uint256 j = 0; j < storageOverrides.length; j++) {
+            string memory comma = j < storageOverrides.length - 1 ? "," : "";
+            console.log(
+                "\"%s\":\"%s\"%s",
+                vm.toString(bytes32(storageOverrides[j].key)),
+                vm.toString(storageOverrides[j].value),
+                comma
+            );
+        }
+
+        // Close the JSON structure
+        console.log("}}}}");
     }
 
     /// @notice get the hash for this safe transaction
@@ -1069,6 +1132,15 @@ abstract contract L2TaskBase is MultisigTask {
 
     SuperchainAddressRegistry public superchainAddrRegistry;
 
+    /// @notice Returns the type of task. L2TaskBase.
+    /// Overrides the taskType function in the MultisigTask contract.
+    function taskType() public pure override returns (TaskType) {
+        return TaskType.L2TaskBase;
+    }
+
+    /// @notice Configures the task for L2TaskBase type tasks.
+    /// Overrides the configureTask function in the MultisigTask contract.
+    /// For L2TaskBase, we need to configure the superchain address registry.
     function _configureTask(string memory taskConfigFilePath)
         internal
         virtual
@@ -1081,28 +1153,20 @@ abstract contract L2TaskBase is MultisigTask {
         addrRegistry_ = AddressRegistry.wrap(address(superchainAddrRegistry));
 
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-        // TODO: This is a hack to support the EnableDeputyPauseModuleTemplate.
-        // remove this once we have SimpleTaskBase contract as then this template will derive from SimpleTaskBase
-        // instead of L2TaskBase.
-        if (keccak256(bytes(config.safeAddressString)) == keccak256(bytes("FoundationOperationSafe"))) {
-            console.log("Using FoundationOperationSafe");
-            parentMultisig_ = IGnosisSafe(superchainAddrRegistry.get(config.safeAddressString));
-        } else {
-            parentMultisig_ =
-                IGnosisSafe(superchainAddrRegistry.getAddress(config.safeAddressString, chains[0].chainId));
-            // Ensure that all chains have the same parentMultisig.
-            for (uint256 i = 1; i < chains.length; i++) {
-                require(
-                    address(parentMultisig_)
-                        == superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId),
-                    string.concat(
-                        "MultisigTask: safe address mismatch. Caller: ",
-                        getAddressLabel(address(parentMultisig_)),
-                        ". Actual address: ",
-                        getAddressLabel(superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId))
-                    )
-                );
-            }
+
+        parentMultisig_ = IGnosisSafe(superchainAddrRegistry.getAddress(config.safeAddressString, chains[0].chainId));
+        // Ensure that all chains have the same parentMultisig.
+        for (uint256 i = 1; i < chains.length; i++) {
+            require(
+                address(parentMultisig_)
+                    == superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId),
+                string.concat(
+                    "MultisigTask: safe address mismatch. Caller: ",
+                    getAddressLabel(address(parentMultisig_)),
+                    ". Actual address: ",
+                    getAddressLabel(superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId))
+                )
+            );
         }
 
         console.log("Parent multisig: ", address(parentMultisig_));
@@ -1113,19 +1177,49 @@ abstract contract L2TaskBase is MultisigTask {
         // update the config to include the addresses whose storage slots changed,
         // or figure out why the storage slots are being changed when they should not be.
         for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
-            // TODO: This is a hack to support the EnableDeputyPauseModuleTemplate.
-            // remove this once we have SimpleTaskBase contract as then this template will derive from SimpleTaskBase
-            // instead of L2TaskBase.
-            if (keccak256(bytes(config.allowedStorageWriteAccesses[i])) == keccak256(bytes("FoundationOperationSafe")))
-            {
-                _allowedStorageAccesses.add(superchainAddrRegistry.get(config.allowedStorageWriteAccesses[i]));
-            } else {
-                for (uint256 j = 0; j < chains.length; j++) {
-                    _allowedStorageAccesses.add(
-                        superchainAddrRegistry.getAddress(config.allowedStorageWriteAccesses[i], chains[j].chainId)
-                    );
-                }
+            for (uint256 j = 0; j < chains.length; j++) {
+                _allowedStorageAccesses.add(
+                    superchainAddrRegistry.getAddress(config.allowedStorageWriteAccesses[i], chains[j].chainId)
+                );
             }
+        }
+    }
+}
+
+abstract contract SimpleBase is MultisigTask {
+    using EnumerableSet for EnumerableSet.AddressSet;
+
+    SimpleAddressRegistry public simpleAddrRegistry;
+
+    /// @notice Returns the type of task. SimpleBase.
+    /// Overrides the taskType function in the MultisigTask contract.
+    function taskType() public pure override returns (TaskType) {
+        return TaskType.SimpleBase;
+    }
+
+    /// @notice Configures the task for SimpleBase type tasks.
+    /// Overrides the configureTask function in the MultisigTask contract.
+    /// For SimpleBase, we need to configure the simple address registry.
+    function _configureTask(string memory taskConfigFilePath)
+        internal
+        virtual
+        override
+        returns (AddressRegistry addrRegistry_, IGnosisSafe parentMultisig_, address multicallTarget_)
+    {
+        multicallTarget_ = MULTICALL3_ADDRESS;
+
+        simpleAddrRegistry = new SimpleAddressRegistry(taskConfigFilePath);
+        addrRegistry_ = AddressRegistry.wrap(address(simpleAddrRegistry));
+
+        parentMultisig_ = IGnosisSafe(simpleAddrRegistry.get(config.safeAddressString));
+
+        // This loads the allowed storage write accesses to storage for this task.
+        // If this task changes storage slots outside of the allowed write accesses,
+        // then the task will fail at runtime and the task developer will need to
+        // update the config to include the addresses whose storage slots changed,
+        // or figure out why the storage slots are being changed when they should not be.
+        for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
+            _allowedStorageAccesses.add(simpleAddrRegistry.get(config.allowedStorageWriteAccesses[i]));
         }
     }
 }
