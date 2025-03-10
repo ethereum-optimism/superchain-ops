@@ -2,6 +2,3 @@
 templateName = "EnableDeputyPauseModuleTemplate"
 
 newModule = "0x62f3972c56733aB078F0764d2414DfCaa99d574c"
-
-[addresses]
-SuperchainConfig = "0xC2Be75506d5724086DEB7245bd260Cc9753911Be"
