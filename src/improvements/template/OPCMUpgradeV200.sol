@@ -145,6 +145,8 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
                 "SYSCON-30,L1SB-10,L721B-10,PORTAL-10,PDDG-20,PDDG-DWETH-10,PDDG-DWETH-40,PDDG-ANCHORP-10,PDDG-ANCHORP-40,PDDG-PIMGO-10,PLDG-20,PLDG-DWETH-10,PLDG-DWETH-40,PLDG-ANCHORP-10,PLDG-ANCHORP-40,PLDG-PIMGO-10";
             string memory expectedErrors_8453 =
                 "PROXYA-10,SYSCON-20,L1SB-10,L721B-10,PORTAL-10,DF-30,PDDG-20,PDDG-DWETH-10,PDDG-DWETH-30,PDDG-DWETH-40,PDDG-ANCHORP-10,PDDG-ANCHORP-40,PDDG-PIMGO-10,PDDG-120,PLDG-20,PLDG-DWETH-10,PLDG-DWETH-30,PLDG-DWETH-40,PLDG-ANCHORP-10,PLDG-ANCHORP-40,PLDG-PIMGO-10";
+            string memory expectedErrors_130 =
+                "PROXYA-10,SYSCON-20,SYSCON-30,L1SB-10,L721B-10,PORTAL-10,DF-30,PDDG-20,PDDG-DWETH-10,PDDG-DWETH-30,PDDG-DWETH-40,PDDG-ANCHORP-10,PDDG-ANCHORP-40,PDDG-PIMGO-10,PLDG-20,PLDG-DWETH-10,PLDG-DWETH-30,PLDG-DWETH-40,PLDG-ANCHORP-10,PLDG-ANCHORP-40,PLDG-PIMGO-10";
             require(
                 keccak256(bytes(reasons)) == keccak256(bytes(expectedErrors_11155420))
                     || keccak256(bytes(reasons)) == keccak256(bytes(expectedErrors_1946))
@@ -153,7 +155,8 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
                     || keccak256(bytes(reasons)) == keccak256(bytes(expectedErrors_10))
                     || keccak256(bytes(reasons)) == keccak256(bytes(expectedErrors_1868))
                     || keccak256(bytes(reasons)) == keccak256(bytes(expectedErrors_57073))
-                    || keccak256(bytes(reasons)) == keccak256(bytes(expectedErrors_8453)),
+                    || keccak256(bytes(reasons)) == keccak256(bytes(expectedErrors_8453))
+                    || keccak256(bytes(reasons)) == keccak256(bytes(expectedErrors_130)),
                 string.concat("Unexpected errors: ", reasons)
             );
         }
