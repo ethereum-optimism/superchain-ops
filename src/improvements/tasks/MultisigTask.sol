@@ -1100,28 +1100,20 @@ abstract contract L2TaskBase is MultisigTask {
         addrRegistry_ = AddressRegistry.wrap(address(superchainAddrRegistry));
 
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-        // TODO: This is a hack to support the EnableDeputyPauseModuleTemplate.
-        // remove this once we have SimpleTaskBase contract as then this template will derive from SimpleTaskBase
-        // instead of L2TaskBase.
-        if (keccak256(bytes(config.safeAddressString)) == keccak256(bytes("FoundationOperationSafe"))) {
-            console.log("Using FoundationOperationSafe");
-            parentMultisig_ = IGnosisSafe(superchainAddrRegistry.get(config.safeAddressString));
-        } else {
-            parentMultisig_ =
-                IGnosisSafe(superchainAddrRegistry.getAddress(config.safeAddressString, chains[0].chainId));
-            // Ensure that all chains have the same parentMultisig.
-            for (uint256 i = 1; i < chains.length; i++) {
-                require(
-                    address(parentMultisig_)
-                        == superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId),
-                    string.concat(
-                        "MultisigTask: safe address mismatch. Caller: ",
-                        getAddressLabel(address(parentMultisig_)),
-                        ". Actual address: ",
-                        getAddressLabel(superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId))
-                    )
-                );
-            }
+
+        parentMultisig_ = IGnosisSafe(superchainAddrRegistry.getAddress(config.safeAddressString, chains[0].chainId));
+        // Ensure that all chains have the same parentMultisig.
+        for (uint256 i = 1; i < chains.length; i++) {
+            require(
+                address(parentMultisig_)
+                    == superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId),
+                string.concat(
+                    "MultisigTask: safe address mismatch. Caller: ",
+                    getAddressLabel(address(parentMultisig_)),
+                    ". Actual address: ",
+                    getAddressLabel(superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId))
+                )
+            );
         }
 
         console.log("Parent multisig: ", address(parentMultisig_));
@@ -1132,18 +1124,10 @@ abstract contract L2TaskBase is MultisigTask {
         // update the config to include the addresses whose storage slots changed,
         // or figure out why the storage slots are being changed when they should not be.
         for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
-            // TODO: This is a hack to support the EnableDeputyPauseModuleTemplate.
-            // remove this once we have SimpleTaskBase contract as then this template will derive from SimpleTaskBase
-            // instead of L2TaskBase.
-            if (keccak256(bytes(config.allowedStorageWriteAccesses[i])) == keccak256(bytes("FoundationOperationSafe")))
-            {
-                _allowedStorageAccesses.add(superchainAddrRegistry.get(config.allowedStorageWriteAccesses[i]));
-            } else {
-                for (uint256 j = 0; j < chains.length; j++) {
-                    _allowedStorageAccesses.add(
-                        superchainAddrRegistry.getAddress(config.allowedStorageWriteAccesses[i], chains[j].chainId)
-                    );
-                }
+            for (uint256 j = 0; j < chains.length; j++) {
+                _allowedStorageAccesses.add(
+                    superchainAddrRegistry.getAddress(config.allowedStorageWriteAccesses[i], chains[j].chainId)
+                );
             }
         }
     }
