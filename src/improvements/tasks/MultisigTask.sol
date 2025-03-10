@@ -6,16 +6,20 @@ import {console} from "forge-std/console.sol";
 import {Script} from "forge-std/Script.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {Test} from "forge-std/Test.sol";
+import {stdToml} from "forge-std/StdToml.sol";
 
 import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
+import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
+import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
 
-abstract contract MultisigTask is Test, Script {
+type AddressRegistry is address;
+
+abstract contract MultisigTask is Test, Script, StateOverrideManager {
     using EnumerableSet for EnumerableSet.AddressSet;
     using AccountAccessParser for VmSafe.AccountAccess[];
 
@@ -174,6 +178,9 @@ abstract contract MultisigTask is Test, Script {
         // sets safe to the safe specified by the current template from addresses.json
         _taskSetup(taskConfigFilePath);
 
+        // Overrides only get applied when simulating
+        _overrideState(taskConfigFilePath);
+
         // now execute task actions
         Action[] memory actions = build();
         VmSafe.AccountAccess[] memory accountAccesses = simulate(signatures, actions);
@@ -270,14 +277,15 @@ abstract contract MultisigTask is Test, Script {
 
         IGnosisSafe _parentMultisig; // TODO parentMultisig should be of type IGnosisSafe
         (addrRegistry, _parentMultisig, multicallTarget) = _configureTask(taskConfigFilePath);
+
         parentMultisig = address(_parentMultisig);
 
         _templateSetup(taskConfigFilePath);
+        nonce = IGnosisSafe(parentMultisig).nonce(); // Maybe be overridden later by state overrides
 
-        nonce = IGnosisSafe(parentMultisig).nonce(); // TODO change this once we implement task stacking
         startingOwners = IGnosisSafe(parentMultisig).getOwners();
 
-        vm.label(address(addrRegistry), "AddrRegistry");
+        vm.label(AddressRegistry.unwrap(addrRegistry), "AddrRegistry");
         vm.label(address(this), "MultisigTask");
     }
 
@@ -369,9 +377,7 @@ abstract contract MultisigTask is Test, Script {
 
         // Execute the transaction
         execTransaction(parentMultisig, multicallTarget, 0, callData, Enum.Operation.DelegateCall, signatures);
-
         VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
-
         return accountAccesses;
     }
 
@@ -659,23 +665,27 @@ abstract contract MultisigTask is Test, Script {
 
     /// @notice print the tenderly simulation payload with the state overrides
     function printTenderlySimulationData(Action[] memory actions) internal view {
-        Simulation.StateOverride[] memory stateOverrides = new Simulation.StateOverride[](1);
-        stateOverrides[0] =
-            Simulation.overrideSafeThresholdOwnerAndNonce(parentMultisig, msg.sender, _getNonce(parentMultisig));
+        Simulation.StateOverride[] memory allStateOverrides =
+            getStateOverrides(parentMultisig, _getNonce(parentMultisig));
+
         bytes memory txData = _execTransationCalldata(
             parentMultisig, getMulticall3Calldata(actions), Signatures.genPrevalidatedSignature(msg.sender)
         );
 
         // Log the Tenderly JSON payload
         console.log("\nSimulation payload:");
-        logTenderlySimulationPayload(txData, stateOverrides[0].overrides);
+        logTenderlySimulationPayload(txData, allStateOverrides[0].overrides);
 
         // Log the simulation link
         console.log("\nSimulation link:");
-        Simulation.logSimulationLink({_to: parentMultisig, _data: txData, _from: msg.sender, _overrides: stateOverrides});
+        Simulation.logSimulationLink({
+            _to: parentMultisig,
+            _data: txData,
+            _from: msg.sender,
+            _overrides: allStateOverrides
+        });
 
         // Calculate domain separator
-        // TODO: Read from AddressRegistry for some addresses that have non compliant domain separators, such as the mainnet Foundation Operations Safe
         bytes32 domainSeparator = GnosisSafeHashes.calculateDomainSeparator(block.chainid, parentMultisig);
 
         // Calculate message hash
@@ -927,10 +937,17 @@ abstract contract MultisigTask is Test, Script {
         return validActions;
     }
 
+    /// @notice Override the state of the task. Function is called only when simulating.
+    function _overrideState(string memory taskConfigFilePath) private {
+        _applyStateOverrides(taskConfigFilePath);
+        nonce = _getNonceOrOverride(address(parentMultisig));
+    }
+
     /// @dev Returns true if the given account access should be recorded as an action.
     function _isValidAction(VmSafe.AccountAccess memory access, uint256 topLevelDepth) internal view returns (bool) {
-        bool accountNotRegistryOrVm = (access.account != address(addrRegistry) && access.account != address(vm));
-        bool accessorNotRegistry = access.accessor != address(addrRegistry);
+        bool accountNotRegistryOrVm =
+            (access.account != AddressRegistry.unwrap(addrRegistry) && access.account != address(vm));
+        bool accessorNotRegistry = access.accessor != AddressRegistry.unwrap(addrRegistry);
         bool isCall = access.kind == VmSafe.AccountAccessKind.Call;
         bool isTopLevelDelegateCall =
             (access.kind == VmSafe.AccountAccessKind.DelegateCall && access.depth == topLevelDepth);
@@ -1103,6 +1120,8 @@ abstract contract MultisigTask is Test, Script {
 abstract contract L2TaskBase is MultisigTask {
     using EnumerableSet for EnumerableSet.AddressSet;
 
+    SuperchainAddressRegistry public superchainAddrRegistry;
+
     function _configureTask(string memory taskConfigFilePath)
         internal
         virtual
@@ -1110,23 +1129,36 @@ abstract contract L2TaskBase is MultisigTask {
         returns (AddressRegistry addrRegistry_, IGnosisSafe parentMultisig_, address multicallTarget_)
     {
         multicallTarget_ = MULTICALL3_ADDRESS;
-        addrRegistry_ = new AddressRegistry(taskConfigFilePath);
 
-        AddressRegistry.ChainInfo[] memory chains = addrRegistry_.getChains();
-        parentMultisig_ = IGnosisSafe(addrRegistry_.getAddress(config.safeAddressString, chains[0].chainId));
+        superchainAddrRegistry = new SuperchainAddressRegistry(taskConfigFilePath);
+        addrRegistry_ = AddressRegistry.wrap(address(superchainAddrRegistry));
 
-        // Ensure that all chains have the same parentMultisig.
-        for (uint256 i = 1; i < chains.length; i++) {
-            require(
-                address(parentMultisig_) == addrRegistry_.getAddress(config.safeAddressString, chains[i].chainId),
-                string.concat(
-                    "MultisigTask: safe address mismatch. Caller: ",
-                    getAddressLabel(address(parentMultisig_)),
-                    ". Actual address: ",
-                    getAddressLabel(addrRegistry_.getAddress(config.safeAddressString, chains[i].chainId))
-                )
-            );
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        // TODO: This is a hack to support the EnableDeputyPauseModuleTemplate.
+        // remove this once we have SimpleTaskBase contract as then this template will derive from SimpleTaskBase
+        // instead of L2TaskBase.
+        if (keccak256(bytes(config.safeAddressString)) == keccak256(bytes("FoundationOperationSafe"))) {
+            console.log("Using FoundationOperationSafe");
+            parentMultisig_ = IGnosisSafe(superchainAddrRegistry.get(config.safeAddressString));
+        } else {
+            parentMultisig_ =
+                IGnosisSafe(superchainAddrRegistry.getAddress(config.safeAddressString, chains[0].chainId));
+            // Ensure that all chains have the same parentMultisig.
+            for (uint256 i = 1; i < chains.length; i++) {
+                require(
+                    address(parentMultisig_)
+                        == superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId),
+                    string.concat(
+                        "MultisigTask: safe address mismatch. Caller: ",
+                        getAddressLabel(address(parentMultisig_)),
+                        ". Actual address: ",
+                        getAddressLabel(superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId))
+                    )
+                );
+            }
         }
+
+        console.log("Parent multisig: ", address(parentMultisig_));
 
         // This loads the allowed storage write accesses to storage for this task.
         // If this task changes storage slots outside of the allowed write accesses,
@@ -1134,10 +1166,18 @@ abstract contract L2TaskBase is MultisigTask {
         // update the config to include the addresses whose storage slots changed,
         // or figure out why the storage slots are being changed when they should not be.
         for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
-            for (uint256 j = 0; j < chains.length; j++) {
-                _allowedStorageAccesses.add(
-                    addrRegistry_.getAddress(config.allowedStorageWriteAccesses[i], chains[j].chainId)
-                );
+            // TODO: This is a hack to support the EnableDeputyPauseModuleTemplate.
+            // remove this once we have SimpleTaskBase contract as then this template will derive from SimpleTaskBase
+            // instead of L2TaskBase.
+            if (keccak256(bytes(config.allowedStorageWriteAccesses[i])) == keccak256(bytes("FoundationOperationSafe")))
+            {
+                _allowedStorageAccesses.add(superchainAddrRegistry.get(config.allowedStorageWriteAccesses[i]));
+            } else {
+                for (uint256 j = 0; j < chains.length; j++) {
+                    _allowedStorageAccesses.add(
+                        superchainAddrRegistry.getAddress(config.allowedStorageWriteAccesses[i], chains[j].chainId)
+                    );
+                }
             }
         }
     }

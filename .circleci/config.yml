@@ -265,13 +265,6 @@ jobs:
               --justfile ../../../nested.just \
               simulate council
 
-  just_simulate_ink_sep_holocene_system_config_upgrade:
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - simulate_nested:
-          task: "/sep/ink-002-holocene-system-config-upgrade"
-
   just_simulate_op_sep_prestate_update:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -456,6 +449,11 @@ workflows:
       # and now it fails with stack too deep after https://github.com/ethereum-optimism/superchain-ops/pull/528.
       # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
       # - just_simulate_sc_rehearsal_1
+      
+      - just_simulate_nested:
+          task: "/eth/ink-003-fp-holocene-pectra-upgrade"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
 
       - just_simulate_sc_rehearsal_2:
           context:
@@ -463,15 +461,23 @@ workflows:
       - just_simulate_sc_rehearsal_4:
           context:
             - circleci-repo-readonly-authenticated-github-token
+      - just_simulate_nested:
+          task: "eth/031-op-mainnet-pectra-defense"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
 
-      # Simulation sequence for Superchain Version Sync (at the 27th of February 2025). The next task would be 31 but we need to wait until the task is 31 is merged.
-      # tasks: "030 031"
       - simulate_sequence:
+          name: simulate_sequence_eth
           network: "eth"
-          tasks: "030"
-          block_number: "21938584" # If not specified, the latest block number is used.
+          tasks: "ink-003"
+          block_number: "" # If not specified, the latest block number is used.
+          context:
+            - circleci-repo-readonly-authenticated-github-token
 
       - simulate_sequence:
+          name: simulate_sequence_sep
           network: "sep"
           tasks: ""
           block_number: "" # If not specified, the latest block number is used.
+          context:
+            - circleci-repo-readonly-authenticated-github-token

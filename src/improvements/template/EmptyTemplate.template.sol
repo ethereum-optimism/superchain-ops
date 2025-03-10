@@ -4,8 +4,7 @@ pragma solidity 0.8.15;
 import {VmSafe} from "forge-std/Vm.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
-import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
+import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
 
 /// @notice A template contract for configuring protocol parameters.
 ///         This file is intentionally stripped down; please add your logic where indicated.
@@ -40,10 +39,12 @@ contract EmptyTemplate is MultisigTask {
 
     function _configureTask(string memory configPath)
         internal
+        pure // TODO: You can remove the pure modifier if needed.
         override
         returns (AddressRegistry addrRegistry_, IGnosisSafe parentMultisig_, address multicallTarget_)
     {
-        return (new AddressRegistry(configPath), IGnosisSafe(address(0)), address(0));
+        configPath; // No-op to silence unused variable compiler warnings.
+        return (AddressRegistry.wrap(address(0)), IGnosisSafe(address(0)), address(0));
     }
 
     /// @notice Sets up the template with implementation configurations from a TOML file.

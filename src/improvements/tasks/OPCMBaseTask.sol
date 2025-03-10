@@ -4,8 +4,7 @@ pragma solidity 0.8.15;
 import {VmSafe} from "forge-std/Vm.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
-import {L2TaskBase, MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
+import {L2TaskBase, MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
 
 /// @notice base task for making calls to the Optimism Contracts Manager
 abstract contract OPCMBaseTask is L2TaskBase {

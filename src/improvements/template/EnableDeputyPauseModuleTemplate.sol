@@ -9,7 +9,7 @@ import "forge-std/Test.sol";
 
 import {L2TaskBase} from "src/improvements/tasks/MultisigTask.sol";
 import {ModuleManager} from "lib/safe-contracts/contracts/base/ModuleManager.sol";
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
+import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
 /// @notice Template contract for enabling the DeputyPauseModule in a Gnosis Safe
@@ -57,8 +57,9 @@ contract EnableDeputyPauseModuleTemplate is L2TaskBase {
         assertNotEq(newModule.code.length, 0, "new module must have code");
 
         // only allow one chain to be modified at a time with this template
-        AddressRegistry.ChainInfo[] memory _chains =
-            abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".l2chains"), (AddressRegistry.ChainInfo[]));
+        SuperchainAddressRegistry.ChainInfo[] memory _chains = abi.decode(
+            vm.parseToml(vm.readFile(taskConfigFilePath), ".l2chains"), (SuperchainAddressRegistry.ChainInfo[])
+        );
 
         assertEq(_chains.length, 1, "Must specify exactly one chain id to enable deputy pause module for");
     }
@@ -70,7 +71,7 @@ contract EnableDeputyPauseModuleTemplate is L2TaskBase {
 
     /// @notice Validates that the module was enabled correctly.
     function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory) internal view override {
-        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
@@ -103,7 +104,7 @@ contract EnableDeputyPauseModuleTemplate is L2TaskBase {
         );
         assertEq(
             address(deputyGuardianModule.superchainConfig()),
-            addrRegistry.getAddress("SuperchainConfig", chainId),
+            superchainAddrRegistry.getAddress("SuperchainConfig", chainId),
             "Superchain config address not correct"
         );
 

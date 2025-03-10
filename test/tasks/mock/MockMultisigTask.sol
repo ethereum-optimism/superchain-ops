@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
 import {IProxyAdmin} from "@eth-optimism-bedrock/interfaces/universal/IProxyAdmin.sol";
@@ -6,7 +6,7 @@ import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
 import {IProxy} from "@eth-optimism-bedrock/interfaces/universal/IProxy.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
+import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {L2TaskBase} from "src/improvements/tasks/MultisigTask.sol";
 
 import {MockTarget} from "test/tasks/mock/MockTarget.sol";
@@ -38,14 +38,15 @@ contract MockMultisigTask is L2TaskBase {
     function _templateSetup(string memory) internal override {}
 
     function _build() internal override {
-        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-            IProxyAdmin proxy = IProxyAdmin(payable(addrRegistry.getAddress("ProxyAdmin", chainId)));
+            IProxyAdmin proxy = IProxyAdmin(payable(superchainAddrRegistry.getAddress("ProxyAdmin", chainId)));
 
             proxy.upgrade(
-                payable(addrRegistry.getAddress("L1ERC721BridgeProxy", getChain("optimism").chainId)), newImplementation
+                payable(superchainAddrRegistry.getAddress("L1ERC721BridgeProxy", getChain("optimism").chainId)),
+                newImplementation
             );
 
             if (address(mockTarget) != address(0)) {
@@ -57,11 +58,11 @@ contract MockMultisigTask is L2TaskBase {
 
     /// @notice Validates that the proxy implementation was set correctly.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
-        AddressRegistry.ChainInfo[] memory chains = addrRegistry.getChains();
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-            IProxy proxy = IProxy(payable(addrRegistry.getAddress("L1ERC721BridgeProxy", chainId)));
+            IProxy proxy = IProxy(payable(superchainAddrRegistry.getAddress("L1ERC721BridgeProxy", chainId)));
             bytes32 data = vm.load(address(proxy), Constants.PROXY_IMPLEMENTATION_ADDRESS);
             assertEq(bytes32(uint256(uint160(newImplementation))), data, "Proxy implementation not set correctly");
         }

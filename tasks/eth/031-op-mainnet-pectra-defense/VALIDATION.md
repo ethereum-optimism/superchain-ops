@@ -17,15 +17,15 @@ are missing from this document. Additionally, please verify that for each contra
 >
 > Before signing, ensure the below hashes match what is on your ledger.
 >
-> ### Optimism Foundation
->
-> - Domain Hash: `0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
-> - Message Hash: `0x328c221a924983de138c889d46f282a85088a349896b3cca109b69d5632182c1`
->
 > ### Security Council
 >
-> - Domain Hash: `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
-> - Message Hash: `0x2044f4436f0a27ce0697bc3fadb46ee88568d74fe8abaf1a6a31ce5ecf888c5a`
+> - Domain Hash: `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
+> - Message Hash: `0x9e9fbcadb7fc77235b206403a2cf97a462cb7e7a1b2f942aea67240b91c00335`
+>
+> ### Optimism Foundation
+>
+> - Domain Hash: `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
+> - Message Hash: `0x7533b5a58af6220fc954597eace0dd8e26748b949f055e741834e345ef197dd7`
 
 ## Nested Safe State Overrides and Changes
 
@@ -34,8 +34,8 @@ This task is executed by the nested 2/2 `ProxyAdminOwner` Safe. Refer to the
 for the expected state overrides and changes.
 
 The `approvedHashes` mapping **key** of the `ProxyAdminOwner` that should change during the simulation is
-- Council simulation: `0xe80b66d7e4042fb82e51d81480a1ad1600dd392a4af9f99842b6e1450047fce0`
-- Foundation simulation: `0x63bd348b4f1617eabcac49f67f2f40a9040947fd4dad3f262041c7c65a6efce8`
+- Council simulation: `0x1f3d94bb2ff59b288e25f3d5156c24a6b75281d29ef15cc370be4dd854bc9d20`
+- Foundation simulation: `0x87e4e9370516859a0d997376e8302709dd490c59be62fa78fb0e0e727d510768`
 
 calculated as explained in the nested validation doc.
 
@@ -46,22 +46,21 @@ Additionally, the nonces [will increment by one](../../../NESTED-VALIDATION.md#n
 Note: The changes listed below do not include safe nonce updates or liveness guard related changes. Refer to the
 [generic nested Safe execution validation document](../../../NESTED-VALIDATION.md)
 
-### `0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1` (`DisputeGameFactoryProxy`)
+### `0xe5965Ab5962eDc7477C8520243A95517CD252fA9` (`DisputeGameFactoryProxy`)
 
 Click on 'show raw state changes'.
 
 - **Key**: `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e` <br/>
-  **Before**: `0x000000000000000000000000bbdbdfe37c02439764de0e41c906e4396b5b3914` <br/>
-  **After**: `0x0000000000000000000000001c3eb0ebd6195ab587e1ded358a87bdf9b56fe04` <br/>
-  **Meaning**: Updates the implementation for game type 1. Verify that the old implementation is set in this slot using
-  `cast call 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1 "gameImpls(uint32)(address)" 1`.
+  **Before**: `0x00000000000000000000000091a661891248d8c4916fb4a1508492a5e2cbcb87` <br/>
+  **After**:  `0x00000000000000000000000060a9769ac9c216a86214869ea49201ca00ac9d2f` <br/>
+  **Meaning**: Updates the implementation for game type 1. Verify that the old implementation is set in this slot using:
+    `cast call 0xe5965Ab5962eDc7477C8520243A95517CD252fA9 "gameImpls(uint32)(address)" 1`.
 
 - **Key**: `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b` <br/>
-  **Before**: `0x000000000000000000000000f3ccf0c4b51d42cfe6073f0278c19a8d1900e856` <br/>
-  **After**: `0x000000000000000000000000927248cb1255e0f02413a758899db4aecffaa5fe` <br/>
+  **Before**: `0x00000000000000000000000027b81db41f586016694632193b99e45b1a27b8f8` <br/>
+  **After**:  `0x000000000000000000000000ec5431d51716b9edd59482d5f1ea4ffe411c5c04` <br/>
   **Meaning**: Updates the implementation for game type 0. Verify that the old implementation is set using
-  `cast call 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1 "gameImpls(uint32)(address)" 0`.
-
+    `cast call 0xe5965Ab5962eDc7477C8520243A95517CD252fA9 "gameImpls(uint32)(address)" 0`.
 
 ## Verifying Dispute Games
 
@@ -81,7 +80,7 @@ The arguments to the script can be taken from the before and after values in the
 The only change seen here is the `absolutePrestate()` as expected.
 
 ```shell
-$ just --justfile ../../../justfile compare-games 0xbbdbdfe37c02439764de0e41c906e4396b5b3914 0x1c3eb0ebd6195ab587e1ded358a87bdf9b56fe04
+$ just --justfile ../../../justfile compare-games 0x91a661891248d8c4916fb4a1508492a5e2cbcb87 0x60a9769ac9c216a86214869ea49201ca00ac9d2f
 
 Matches version()(string) = "1.3.1"
 
@@ -97,11 +96,11 @@ Matches maxClockDuration()(uint256) = 302400 [3.024e5]
 
 Matches gameType()(uint32) = 1
 
-Matches l2ChainId()(uint256) = 11155420 [1.115e7]
+Matches l2ChainId()(uint256) = 10
 
 Matches clockExtension()(uint64) = 10800 [1.08e4]
 
-Matches anchorStateRegistry()(address) = 0x218CD9489199F321E1177b56385d333c5B598629
+Matches anchorStateRegistry()(address) = 0x18DAc71c228D1C32c99489B7323d441E1175e443
 Matches weth()(address)
 Matches vm()(address)
 ```
@@ -111,7 +110,7 @@ Matches vm()(address)
 The only change seen here is the `absolutePrestate()` as expected.
 
 ```shell
-$ just --justfile ../../../justfile compare-games 0xf3ccf0c4b51d42cfe6073f0278c19a8d1900e856 0x927248cb1255e0f02413a758899db4aecffaa5fe
+$ just --justfile ../../../justfile compare-games 0x27b81db41f586016694632193b99e45b1a27b8f8 0xec5431d51716b9edd59482d5f1ea4ffe411c5c04
 
 Matches version()(string) = "1.3.1"
 
@@ -127,11 +126,11 @@ Matches maxClockDuration()(uint256) = 302400 [3.024e5]
 
 Matches gameType()(uint32) = 0
 
-Matches l2ChainId()(uint256) = 11155420 [1.115e7]
+Matches l2ChainId()(uint256) = 10
 
 Matches clockExtension()(uint64) = 10800 [1.08e4]
 
-Matches anchorStateRegistry()(address) = 0x218CD9489199F321E1177b56385d333c5B598629
+Matches anchorStateRegistry()(address) = 0x18DAc71c228D1C32c99489B7323d441E1175e443
 Matches weth()(address)
-Matches vmAn()(address)
+Matches vm()(address)
 ```
