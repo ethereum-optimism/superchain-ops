@@ -1,11 +1,12 @@
 # Holocene Hardfork Upgrade
-Status: DRAFT, NOT READY TO SIGN
+Status: READY TO SIGN
 
 ## Objective
 
 Upgrades the Fault Proof contracts for the Holocene hardfork as per Upgrade Proposal #11.
 
-This also utilizes the absolute prestate `0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd` that enables L1 pectra support, to be included in Upgrade Proposal #12.
+
+This also utilizes the absolute prestate `0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9` that enables L1 pectra support, to be included in Upgrade Proposal #12.
 
 The proposal #11 was:
 
@@ -30,8 +31,8 @@ This upgrades the Fault Proof contracts in the
 ## Pre-deployments
 
 - `MIPS` - `0x5fE03a12C1236F9C22Cb6479778DDAa4bce6299C`
-- `FaultDisputeGame` - `0xE09185Bbb538d084209EF6f1a92Dc499D313ce51`
-- `PermissionedDisputeGame` - `0xf75DA262a580cf9b2EaB9847559c5837381aE3a3`
+- `FaultDisputeGame` - `0x7e87B471e96b96955044328242456427A0D49694`
+- `PermissionedDisputeGame` - `0x8D9faaEb46cBCf487baf2182E438Ac3D0847F637`
 
 ## Simulation
 
