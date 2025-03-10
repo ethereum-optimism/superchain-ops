@@ -1165,7 +1165,7 @@ abstract contract L2TaskBase is MultisigTask {
 
     function _templateSetup(string memory) internal virtual override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-        for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
+        for (uint256 i = 0; i < config.allowedStorageKeys.length; i++) {
             for (uint256 j = 0; j < chains.length; j++) {
                 try superchainAddrRegistry.getAddress(config.allowedStorageKeys[i], chains[j].chainId) returns (
                     address addr
@@ -1217,14 +1217,11 @@ abstract contract SimpleBase is MultisigTask {
         addrRegistry_ = AddressRegistry.wrap(address(simpleAddrRegistry));
 
         parentMultisig_ = IGnosisSafe(simpleAddrRegistry.get(config.safeAddressString));
+    }
 
-        // This loads the allowed storage write accesses to storage for this task.
-        // If this task changes storage slots outside of the allowed write accesses,
-        // then the task will fail at runtime and the task developer will need to
-        // update the config to include the addresses whose storage slots changed,
-        // or figure out why the storage slots are being changed when they should not be.
-        for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
-            _allowedStorageAccesses.add(simpleAddrRegistry.get(config.allowedStorageWriteAccesses[i]));
+    function _templateSetup(string memory) internal virtual override {
+        for (uint256 i = 0; i < config.allowedStorageKeys.length; i++) {
+            _allowedStorageAccesses.add(simpleAddrRegistry.get(config.allowedStorageKeys[i]));
         }
     }
 }
