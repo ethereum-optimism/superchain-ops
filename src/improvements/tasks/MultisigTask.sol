@@ -1080,14 +1080,14 @@ abstract contract L2TaskBase is MultisigTask {
     SuperchainAddressRegistry public superchainAddrRegistry;
 
     /// @notice Returns the type of task. L2TaskBase.
-    /// overrides the taskType function in the MultisigTask contract.
+    /// Overrides the taskType function in the MultisigTask contract.
     function taskType() public pure override returns (TaskType) {
         return TaskType.L2TaskBase;
     }
 
     /// @notice Configures the task for L2TaskBase type tasks.
-    /// overrides the configureTask function in the MultisigTask contract.
-    /// for L2TaskBase, we need to configure the superchain address registry.
+    /// Overrides the configureTask function in the MultisigTask contract.
+    /// For L2TaskBase, we need to configure the superchain address registry.
     function _configureTask(string memory taskConfigFilePath)
         internal
         virtual
@@ -1139,14 +1139,14 @@ abstract contract SimpleBase is MultisigTask {
     SimpleAddressRegistry public simpleAddrRegistry;
 
     /// @notice Returns the type of task. SimpleBase.
-    /// overrides the taskType function in the MultisigTask contract.
+    /// Overrides the taskType function in the MultisigTask contract.
     function taskType() public pure override returns (TaskType) {
         return TaskType.SimpleBase;
     }
 
     /// @notice Configures the task for SimpleBase type tasks.
-    /// overrides the configureTask function in the MultisigTask contract.
-    /// for SimpleBase, we need to configure the simple address registry.
+    /// Overrides the configureTask function in the MultisigTask contract.
+    /// For SimpleBase, we need to configure the simple address registry.
     function _configureTask(string memory taskConfigFilePath)
         internal
         virtual
