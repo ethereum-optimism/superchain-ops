@@ -34,8 +34,9 @@ contract MockMultisigTask is L2TaskBase {
         return storageWrites;
     }
 
-    // no-op
-    function _templateSetup(string memory) internal override {}
+    function _templateSetup(string memory) internal override {
+        super._templateSetup("");
+    }
 
     function _build() internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
