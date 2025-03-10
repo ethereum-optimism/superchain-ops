@@ -65,7 +65,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
 - Command to encode: `cast calldata 'upgrade((address,address,bytes32)[])' "[(0x034edD2A225f7f429A63E0f1D2084B9E0A93b538,0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc,0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9),(0x4Ca9608Fef202216bc21D543798ec854539bAAd3,0xff9d236641962Cebf9DBFb54E7b8e91F99f10Db0,0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9),(0x05C993e60179f28bF649a2Bb5b00b5F4283bD525,0xd7dB319a49362b2328cf417a934300cCcB442C8d,0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9)]"`
 
 ## Tenderly State Changes
-[Link](https://dashboard.tenderly.co/oplabs/sepolia/simulator/6a590e77-a482-41f9-99da-b2ec727c3c06)
+[Link](https://dashboard.tenderly.co/oplabs/sepolia/simulator/62dedc08-ec92-4a6d-a1c9-9e681b032391)
 
 ## Auto Generated Task State Changes
 
@@ -284,7 +284,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
   Chain ID:
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0xddff63815e4468f1df3b0c778e142c6982d7b3707039f8d8601d3edcb4007805
+  Raw New Value:     0xa6dec42c80bd1b1e96ca4a968e5dbe61d44f51d8b2dee3e5a411f872f3114634
   [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[19] -----
@@ -293,7 +293,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
   Chain ID:
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x000000000000000000000000000000000000000000000000000000000179c4ac
+  Raw New Value:     0x000000000000000000000000000000000000000000000000000000000179ca15
   [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[20] -----
@@ -666,7 +666,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
   Chain ID:
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x32d64e39ace085bb76dd08e2a6d17ff7fb29ba5b939ba7f317a6d180b4a71099
+  Raw New Value:     0xf094b96f38619f8e72caa9869ccffb3c5c861a699c8e8d5e7b1694c50c0cae3a
   [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[53] -----
@@ -675,7 +675,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
   Chain ID:
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000bbdfca
+  Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000bbed9e
   [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[54] -----
