@@ -18,7 +18,6 @@ For each contract listed in the state diff, please verify that no contracts or s
 > ### Optimism Foundation
 >
 > - Domain Hash: `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-
 > - Message Hash: `0x01282fa031a597c24640050a45eccf82c75916726be89921a9e1717c5868b048`
 >
 > ### Security Council
