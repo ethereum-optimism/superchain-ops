@@ -22,6 +22,13 @@ contract SimpleAddressRegistry is StdChains {
 
     /// @notice Initializes the contract by loading addresses from the TOML config file.
     constructor(string memory _configPath) {
+        string memory chainKey;
+        if (block.chainid == getChain("mainnet").chainId) chainKey = ".eth";
+        else if (block.chainid == getChain("sepolia").chainId) chainKey = ".sep";
+        else if (block.chainid == getChain("optimism").chainId) chainKey = ".oeth";
+
+        if (bytes(chainKey).length > 0) _loadHardcodedAddresses(chainKey);
+
         string memory toml = vm.readFile(_configPath);
         if (!toml.keyExists(".addresses")) return; // If the addresses section is missing, do nothing.
 
@@ -32,13 +39,6 @@ contract SimpleAddressRegistry is StdChains {
 
             _registerAddress(key, who);
         }
-
-        string memory chainKey;
-        if (block.chainid == getChain("mainnet").chainId) chainKey = ".eth";
-        else if (block.chainid == getChain("sepolia").chainId) chainKey = ".sep";
-        else if (block.chainid == getChain("optimism").chainId) chainKey = ".oeth";
-
-        if (bytes(chainKey).length > 0) _loadHardcodedAddresses(chainKey);
     }
 
     /// @notice Retrieves an address by its contract identifier.
