@@ -44,7 +44,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
     - Command to encode: `cast calldata 'upgrade((address,address,bytes32)[])' "[(0xf272670eb55e895584501d564AfEB048bEd26194, 0x0389E59Aa0a41E4A413Ae70f0008e76CAA34b1F3, 0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9)]"`
 
 ## Tenderly State Changes
-[Link](https://dashboard.tenderly.co/oplabs/sepolia/simulator/fd0f4116-0fdd-4e1d-a910-56e59473a083)
+[Link](https://dashboard.tenderly.co/oplabs/sepolia/simulator/6b2420de-81c6-412a-bf55-ff3ccc6a1681)
 
 ## Auto Generated Task State Changes
 
