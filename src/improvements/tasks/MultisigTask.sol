@@ -14,6 +14,7 @@ import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.so
 
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
+import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
 import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
 
 type AddressRegistry is address;
@@ -593,8 +594,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         }
 
         if (isSimulate) {
-            console.log("\n\n------------------ Tenderly Simulation Link ------------------");
-            printTenderlySimulationLink(actions);
+            console.log("\n\n------------------ Tenderly Simulation Data ------------------");
+            printTenderlySimulationData(actions);
         }
     }
 
@@ -662,8 +663,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         }
     }
 
-    /// @notice print the tenderly simulation link with the state overrides
-    function printTenderlySimulationLink(Action[] memory actions) internal view {
+    /// @notice print the tenderly simulation payload with the state overrides
+    function printTenderlySimulationData(Action[] memory actions) internal view {
         Simulation.StateOverride[] memory allStateOverrides =
             getStateOverrides(parentMultisig, _getNonce(parentMultisig));
 
@@ -671,12 +672,64 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             parentMultisig, getMulticall3Calldata(actions), Signatures.genPrevalidatedSignature(msg.sender)
         );
 
+        // Log the Tenderly JSON payload
+        console.log("\nSimulation payload:");
+        logTenderlySimulationPayload(txData, allStateOverrides[0].overrides);
+
+        // Log the simulation link
+        console.log("\nSimulation link:");
         Simulation.logSimulationLink({
             _to: parentMultisig,
             _data: txData,
             _from: msg.sender,
             _overrides: allStateOverrides
         });
+
+        // Calculate domain separator
+        bytes32 domainSeparator = GnosisSafeHashes.calculateDomainSeparator(block.chainid, parentMultisig);
+
+        // Calculate message hash
+        bytes32 messageHash = GnosisSafeHashes.calculateMessageHashFromCalldata(txData, _getNonce(parentMultisig));
+
+        // Output results
+        console.log("\n\n-------- Domain Separator and Message Hashes from Local Simulation --------");
+        console.log("Domain Separator:", vm.toString(domainSeparator));
+        console.log("Message Hash:", vm.toString(messageHash));
+    }
+
+    /// @notice log a json payload to create a Tenderly simulation
+    function logTenderlySimulationPayload(bytes memory txData, Simulation.StorageOverride[] memory storageOverrides)
+        internal
+        view
+    {
+        // Log the Tenderly JSON payload
+        // forgefmt: disable-start
+        string memory payload = string.concat(
+            '{\"network_id\":\"', vm.toString(block.chainid),'\",',
+            '\"from\":\"', vm.toString(msg.sender),'\",',
+            '\"to\":\"', vm.toString(parentMultisig), '\",',
+            '\"save\":true,',
+            '\"input\":\"', vm.toString(txData),'\",',
+            '\"value\":\"0x0\",',
+            '\"state_objects\":{\"',
+            vm.toString(parentMultisig), '\":{\"storage\":{'
+        );
+        // forgefmt: disable-end
+        console.log("%s", payload);
+
+        // Add each storage override
+        for (uint256 j = 0; j < storageOverrides.length; j++) {
+            string memory comma = j < storageOverrides.length - 1 ? "," : "";
+            console.log(
+                "\"%s\":\"%s\"%s",
+                vm.toString(bytes32(storageOverrides[j].key)),
+                vm.toString(storageOverrides[j].value),
+                comma
+            );
+        }
+
+        // Close the JSON structure
+        console.log("}}}}");
     }
 
     /// @notice get the hash for this safe transaction
