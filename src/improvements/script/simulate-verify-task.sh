@@ -33,22 +33,22 @@ simulate_verify_task() {
     "$root_dir"/src/improvements/script/get-tenderly-hashes.sh "$TENDERLY_PAYLOAD" 2>&1 | tee "$remote_output_file"   
 
     # Extract the domain and message hashes from the remote output
-    domain_separator_remote=$(awk '/Remote Domain Separator:/{print $4}' "$remote_output_file")
-    message_hash_remote=$(awk '/Remote Message Hash:/{print $4}' "$remote_output_file")
+    domain_separator_remote=$(awk '/Domain Separator:/{print $3}' "$remote_output_file")
+    message_hash_remote=$(awk '/Message Hash:/{print $3}' "$remote_output_file")
 
     # Calculate the domain and message hashes locally using forge
     forge script --rpc-url "$rpcUrl" "$root_dir"/script/CalculateSafeHashes.s.sol -vvv | tee "$forge_output_file"
 
     # Extract domain separator and message hash from the simulation output
-    domain_separator_local=$(awk '/Forge Domain Separator:/{print $4}' "$forge_output_file")
-    message_hash_local=$(awk '/Forge Message Hash:/{print $4}' "$forge_output_file")
+    domain_separator_local=$(awk '/Domain Separator:/{print $3}' "$forge_output_file")
+    message_hash_local=$(awk '/Message Hash:/{print $3}' "$forge_output_file")
 
     # Parse the domain separator and message hash from the VALIDATIONS.md file
     domain_separator_validations=$(awk '/\['"$nested_safe_name"'\]/{p=1;next} /^$/{p=0} p&&/domain_hash/{print $3}' "$task/VALIDATIONS.md" | tr -d '"')
     message_hash_validations=$(awk '/\['"$nested_safe_name"'\]/{p=1;next} /^$/{p=0} p&&/message_hash/{print $3}' "$task/VALIDATIONS.md" | tr -d '"')
     echo -e "\n\n-------- Domain Separator and Message Hashes from Validations file --------"
-    echo "  VALIDATIONS Domain separator: $domain_separator_validations"
-    echo "  VALIDATIONS Message hash: $message_hash_validations"
+    echo "  Domain separator: $domain_separator_validations"
+    echo "  Message hash: $message_hash_validations"
 
     # Compare the validations and the local hashes
     if [ "$domain_separator_validations" != "$domain_separator_local" ]; then

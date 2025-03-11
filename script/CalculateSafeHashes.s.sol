@@ -33,7 +33,7 @@ contract CalculateSafeHashes is Script {
 
         // Output results
         console.log("\n\n-------- Domain Separator and Message Hashes from Local Simulation --------");
-        console.log("Forge Domain Separator:", vm.toString(domainSeparator));
-        console.log("Forge Message Hash:", vm.toString(messageHash));
+        console.log("Domain Separator:", vm.toString(domainSeparator));
+        console.log("Message Hash:", vm.toString(messageHash));
     }
 }
