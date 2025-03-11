@@ -94,7 +94,7 @@ contract EnableDeputyPauseModuleTemplate is SimpleBase {
 
         bool moduleWriteFound;
 
-        address[] memory uniqueWrites = accountAccesses.getUniqueWrites();
+        address[] memory uniqueWrites = accountAccesses.getUniqueWrites(false);
         assertEq(uniqueWrites.length, 1, "should only write to foundation ops safe");
         assertEq(uniqueWrites[0], parentMultisig, "should only write to foundation ops safe address");
 
