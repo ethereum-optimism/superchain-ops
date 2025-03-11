@@ -6,6 +6,7 @@ import {console} from "forge-std/console.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
 import {LibString} from "@solady/utils/LibString.sol";
+import {LibSort} from "@solady/utils/LibSort.sol";
 
 /// @notice Parses account accesses into decoded transfers and state diffs.
 /// The core methods intended to be part of the public interface are `decodeAndPrint`, `decode`,
@@ -198,6 +199,9 @@ library AccountAccessParser {
                 index++;
             }
         }
+
+        // Sort the account accesses and return the sorted array
+        _accountAccesses = sortAccountAccesses(_accountAccesses);
     }
 
     function getNewContracts(VmSafe.AccountAccess[] memory accesses)
@@ -715,6 +719,66 @@ library AccountAccessParser {
 
         console.log("\x1B[33m[WARN]\x1B[0m Target address not found: %s", vm.toString(target));
         return (0, "");
+    }
+
+    /// @notice Sorts an array of AccountAccess structs by account address and returns a new sorted array.
+    function sortAccountAccesses(VmSafe.AccountAccess[] memory _accountAccesses)
+        internal
+        pure
+        returns (VmSafe.AccountAccess[] memory sorted_)
+    {
+        // If array is empty or has only one element, it's already sorted
+        if (_accountAccesses.length <= 1) {
+            return _accountAccesses;
+        }
+
+        // Create a mapping structure to track original indices
+        address[] memory addresses = new address[](_accountAccesses.length);
+        uint256[] memory indices = new uint256[](_accountAccesses.length);
+
+        // Fill the arrays
+        for (uint256 i = 0; i < _accountAccesses.length; i++) {
+            addresses[i] = _accountAccesses[i].account;
+            indices[i] = i;
+        }
+
+        // Sort addresses and track index changes
+        _sortWithIndices(addresses, indices);
+
+        // Create a new array for the sorted result
+        sorted_ = new VmSafe.AccountAccess[](_accountAccesses.length);
+
+        // Fill the sorted array using the sorted indices
+        for (uint256 i = 0; i < _accountAccesses.length; i++) {
+            sorted_[i] = _accountAccesses[indices[i]];
+        }
+    }
+
+    /// @dev Helper function to sort addresses while keeping track of their original indices
+    function _sortWithIndices(address[] memory addresses, uint256[] memory indices) internal pure {
+        uint256 n = addresses.length;
+
+        // Create a temporary array of structs to hold address and index pairs
+        uint256[] memory pairs = new uint256[](n);
+
+        // Pack each address (20 bytes) with its index (max 12 bytes) into a single uint256
+        // This allows us to sort a single array and keep track of the indices
+        for (uint256 i = 0; i < n; i++) {
+            // Pack address and index into a single uint256
+            // Address in the higher bits, index in the lower bits
+            pairs[i] = (uint256(uint160(addresses[i])) << 96) | indices[i];
+        }
+
+        // Sort the pairs using LibSort
+        LibSort.sort(pairs);
+
+        // Unpack the sorted pairs back into the separate arrays
+        for (uint256 i = 0; i < n; i++) {
+            // Extract address from higher bits
+            addresses[i] = address(uint160(pairs[i] >> 96));
+            // Extract index from lower bits (mask with 2^96 - 1 to get only the lower 96 bits)
+            indices[i] = pairs[i] & ((1 << 96) - 1);
+        }
     }
 
     /// @notice Probabilistically check if an address is a GnosisSafe.
