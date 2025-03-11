@@ -4,7 +4,7 @@ Status: [DRAFT]()
 
 ## Objective
 
-- Governance Post (mainnet): [Upgrade Proposal #13: OPCM and Incident Response improvements](https://gov.optimism.io/t/upgrade-proposal-13-opcm-and-incident-response-improvements/9739)
+Governance Post (mainnet): [Upgrade Proposal #13: OPCM and Incident Response improvements](https://gov.optimism.io/t/upgrade-proposal-13-opcm-and-incident-response-improvements/9739)
 
 In summary, this task uses `op-contract/v2.0.0` [OPContractsManager](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/L1/OPContractsManager.sol) to upgrade 1 chain:
 1. Unichain Sepolia Testnet
