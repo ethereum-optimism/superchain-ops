@@ -44,8 +44,8 @@ simulate_verify_task() {
     message_hash_local=$(awk '/Forge Message Hash:/{print $4}' "$forge_output_file")
 
     # Parse the domain separator and message hash from the VALIDATIONS.md file
-    domain_separator_validations=$(grep -i "Domain Hash:" "$task/VALIDATIONS.md" | grep -o '0x[a-fA-F0-9]\{64\}')
-    message_hash_validations=$(grep -i "Message Hash:" "$task/VALIDATIONS.md" | grep -o '0x[a-fA-F0-9]\{64\}')
+    domain_separator_validations=$(awk '/\['"$nested_safe_name"'\]/{p=1;next} /^$/{p=0} p&&/domain_hash/{print $3}' "$task/VALIDATIONS.md" | tr -d '"')
+    message_hash_validations=$(awk '/\['"$nested_safe_name"'\]/{p=1;next} /^$/{p=0} p&&/message_hash/{print $3}' "$task/VALIDATIONS.md" | tr -d '"')
     echo -e "\n\n-------- Domain Separator and Message Hashes from Validations file --------"
     echo "  VALIDATIONS Domain separator: $domain_separator_validations"
     echo "  VALIDATIONS Message hash: $message_hash_validations"
