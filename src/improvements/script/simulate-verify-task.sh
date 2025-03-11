@@ -17,8 +17,13 @@ simulate_verify_task() {
     # For testing purposes, we do not gain anything by simulating as other nested safes.
     nested_safe_name="foundation"
 
-    "$root_dir"/src/improvements/script/simulate-task.sh "$task" "$nested_safe_name" | tee "$local_output_file"
+    # Check that VALIDATIONS.md exists
+    if [ ! -f "$task/VALIDATIONS.md" ]; then
+        echo -e "\n\n\033[1;31mVALIDATIONS.md file not found for task $(basename "$task")\033[0m\n"
+        exit 1
+    fi
 
+    "$root_dir"/src/improvements/script/simulate-task.sh "$task" "$nested_safe_name" | tee "$local_output_file"
 
     # Extract Tenderly payload from output into a variable
     export TENDERLY_PAYLOAD=$(awk '/Simulation payload:/{flag=1;next}/\}\}\}\}$/{print;flag=0}flag' "$local_output_file")
@@ -37,16 +42,34 @@ simulate_verify_task() {
     domain_separator_local=$(awk '/Forge Domain Separator:/{print $4}' "$forge_output_file")
     message_hash_local=$(awk '/Forge Message Hash:/{print $4}' "$forge_output_file")
 
-    # Compare the local and remote hashes
-    if [ "$domain_separator_local" != "$domain_separator_remote" ]; then
-        echo -e "\n\n\033[1;31mDomain separator mismatch\033[0m\n"
+    # Parse the domain separator and message hash from the VALIDATIONS.md file
+    domain_separator_validations=$(grep -i "Domain Hash:" "$task/VALIDATIONS.md" | grep -o '0x[a-fA-F0-9]\{64\}')
+    message_hash_validations=$(grep -i "Message Hash:" "$task/VALIDATIONS.md" | grep -o '0x[a-fA-F0-9]\{64\}')
+    echo -e "\n\n-------- Domain Separator and Message Hashes from Validations file --------"
+    echo "  VALIDATIONS Domain separator: $domain_separator_validations"
+    echo "  VALIDATIONS Message hash: $message_hash_validations"
+
+    # Compare the validations and the local hashes
+    if [ "$domain_separator_validations" != "$domain_separator_local" ]; then
+        echo -e "\n\n\033[1;31mLocal domain separator mismatch\033[0m\n"
         exit 1
     fi
-    if [ "$message_hash_local" != "$message_hash_remote" ]; then
-        echo -e "\n\n\033[1;31mMessage hash mismatch\033[0m\n"
+    if [ "$message_hash_validations" != "$message_hash_local" ]; then
+        echo -e "\n\n\033[1;31mLocal message hash mismatch\033[0m\n"
         exit 1
     fi
-    echo -e "\n\n\033[1;32mRemote/Local Domain separator and message hash match\033[0m\n"
+
+    # Compare the validations and remote hashes
+    if [ "$domain_separator_validations" != "$domain_separator_remote" ]; then
+        echo -e "\n\n\033[1;31mRemote domain separator mismatch\033[0m\n"
+        exit 1
+    fi
+    if [ "$message_hash_validations" != "$message_hash_remote" ]; then
+        echo -e "\n\n\033[1;31mRemote message hash mismatch\033[0m\n"
+        exit 1
+    fi
+
+    echo -e "\n\n\033[1;32mDomain separator and message hashes match\033[0m\n"
 
     rm "$local_output_file"
     rm "$remote_output_file"

@@ -694,17 +694,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             _from: msg.sender,
             _overrides: allStateOverrides
         });
-
-//        // Calculate domain separator
-//        bytes32 domainSeparator = GnosisSafeHashes.calculateDomainSeparator(block.chainid, parentMultisig);
-//
-//        // Calculate message hash
-//        bytes32 messageHash = GnosisSafeHashes.calculateMessageHashFromCalldata(txData, _getNonce(parentMultisig));
-//
-//        // Output results
-//        console.log("\n\n-------- Domain Separator and Message Hashes from Local Simulation --------");
-//        console.log("Forge Domain Separator:", vm.toString(domainSeparator));
-//        console.log("Forge Message Hash:", vm.toString(messageHash));
     }
 
     /// @notice log a json payload to create a Tenderly simulation

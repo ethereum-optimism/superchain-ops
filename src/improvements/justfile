@@ -131,6 +131,7 @@ simulate-all-templates:
         exit 1
     fi
 
+# Simulate a task and verify the domain separator and message hash
 simulate-verify-task TASK="":
     #!/usr/bin/env bash
     set -euo pipefail
@@ -143,8 +144,15 @@ simulate-verify-task TASK="":
     # For testing purposes, we do not gain anything by simulating as other nested safes.
     nested_safe_name="foundation"
 
-    ${root_dir}/src/improvements/script/simulate-verify-task.sh {{TASK}} $nested_safe_name
+    # If TASK doesn't start with / make it absolute using $PWD
+    if [[ "{{TASK}}" != /* ]]; then
+        task_path="$PWD/{{TASK}}"
+    else
+        task_path="{{TASK}}"
+    fi
+    ${root_dir}/src/improvements/script/simulate-verify-task.sh "$task_path" $nested_safe_name
 
+# Simulate all non-terminal tasks and verify the domain separator and message hashes
 simulate-non-terminal-tasks:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -165,50 +173,6 @@ simulate-non-terminal-tasks:
             continue
         fi
 
-        local_output_file="${root_dir}/src/improvements/script/simulate-non-terminal-tasks.log"
-        ${root_dir}/src/improvements/script/simulate-verify-task.sh $task $nested_safe_name | tee "$local_output_file"
-
-        # Parse the domain separator and message hash from the VALIDATIONS.md file, if it exists.
-        if [ -f "$task/VALIDATIONS.md" ]; then
-            domain_separator_validations=$(grep -i "Domain Hash:" "$task/VALIDATIONS.md" | grep -o '0x[a-fA-F0-9]\{64\}')
-            message_hash_validations=$(grep -i "Message Hash:" "$task/VALIDATIONS.md" | grep -o '0x[a-fA-F0-9]\{64\}')
-            echo "  VALIDATIONS Domain separator: $domain_separator_validations"
-            echo "  VALIDATIONS Message hash: $message_hash_validations"
-        else
-            echo -e "\n\n\033[1;31mNo VALIDATIONS.md file found for task $(basename "$task")\033[0m\n"
-            exit 1
-        fi
-
-        # Obtain the domain separator and message hash from local simulation
-        domain_separator_local=$(awk '/Forge Domain Separator:/{print $4}' "$local_output_file")
-        message_hash_local=$(awk '/Forge Message Hash:/{print $4}' "$local_output_file")
-
-        # Obtain the domain separator and message hash from remote simulation
-        domain_separator_remote=$(awk '/Remote Domain Separator:/{print $4}' "$local_output_file")
-        message_hash_remote=$(awk '/Remote Message Hash:/{print $4}' "$local_output_file")
-
-        # Compare the local hashes to the VALIDATIONS.md file
-        if [ "$domain_separator_local" != "$domain_separator_validations" ]; then
-            echo -e "\n\n\033[1;31mDomain separator mismatch VALIDATIONS/LOCAL\033[0m\n"
-            exit 1
-        fi
-        if [ "$message_hash_local" != "$message_hash_validations" ]; then
-            echo -e "\n\n\033[1;31mMessage hash mismatch VALIDATIONS/LOCAL\033[0m\n"
-            exit 1
-        fi
-
-        # Compare the remote hashes to the VALIDATIONS.md file
-        if [ "$domain_separator_remote" != "$domain_separator_validations" ]; then
-            echo -e "\n\n\033[1;31mDomain separator mismatch VALIDATIONS/REMOTE\033[0m\n"
-            exit 1
-        fi  
-        if [ "$message_hash_remote" != "$message_hash_validations" ]; then
-            echo -e "\n\n\033[1;31mMessage hash mismatch VALIDATIONS/REMOTE\033[0m\n"
-            exit 1
-        fi
-
-        echo -e "\n\n\033[1;32mRemote/Local/VALIDATIONS Domain separator and message hash match\033[0m\n"
-        rm "$local_output_file"
-
+        ${root_dir}/src/improvements/script/simulate-verify-task.sh $task $nested_safe_name
     done
     echo "Done simulating non-terminal tasks"
