@@ -42,7 +42,7 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry, VerificationBase {
 
     BaseSysCfgVars previous;
 
-    // Values which may change during the upgrade, depending on the chain::
+    // Values which may change during the upgrade, depending on the chain:
     uint256 previousScalar;
 
     // The target value for the DisputeGameFactory address,
@@ -64,6 +64,7 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry, VerificationBase {
     {
         systemConfigAddress = proxies.SystemConfig;
         sysCfg = ISystemConfig(proxies.SystemConfig);
+        addAllowedStorageAccess(systemConfigAddress); //TODO: check if necessary here
 
         // cache the values of the SystemConfig contract before the upgrade
         previous = getBaseSysCfgVars();
@@ -162,14 +163,45 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry, VerificationBase {
             // See https://specs.optimism.io/protocol/system-config.html?highlight=ecotone%20scalar#ecotone-scalar-overhead-uint256uint256-change
             require(previousScalarEncodingVersion == 0, "scalar-101 previous scalar version != 0 or 1");
             require(newScalarEncodingVersion == 1, "scalar-102 reenconded scalar version != 1");
-            require(sysCfg.blobbasefeeScalar() == uint32(0), "scalar-103 blobbasefeeScalar !=0");
+            uint32 expBlobBaseFeeScalar = expectedV0BlobBaseFeeScalar();
+            require(sysCfg.blobbasefeeScalar() == expBlobBaseFeeScalar, "scalar-103 blobbasefeeScalar !=0");
 
             // Sanity check the scalar "padding" is zero for legacy encodings (see spec)
             uint256 mask = 0x00ffffffffffffffffffffffffffffffffffffffffffffffffffff00000000;
             require((previousScalar & mask) == uint256(0), "scalar-105 previous scalar padding != 0");
+            console.log("previous scalar:", previousScalar);
+            require(
+                reencodedScalar
+                    == uint256(expectedV0BaseFeeScalar()) + (uint256(expBlobBaseFeeScalar) << 32) + (uint256(0x01) << 248),
+                "scalar-106 scalar mismatch"
+            );
+        }
+    }
 
+    function expectedV0BaseFeeScalar() internal view returns (uint32) {
+        string memory addr_str = LibString.toHexString(systemConfigAddress);
+        string memory env = string.concat("SYSTEM_CONFIG_OVERRIDE_BASEFEE_SCALAR_", addr_str);
+        try vm.envUint(env) returns (uint256 s) {
+            uint32 s32 = uint32(s);
+            console.log("SystemConfig(%s): overriding expected base fee to %s", addr_str, s32);
+            return s32;
+        } catch {
+            // default expected base fee is the previous scalar if the previous scalar encoding was in v0 format
+            return uint32(previousScalar);
+        }
+    }
+
+    function expectedV0BlobBaseFeeScalar() internal view returns (uint32) {
+        string memory addr_str = LibString.toHexString(systemConfigAddress);
+        string memory env = string.concat("SYSTEM_CONFIG_OVERRIDE_BLOBBASEFEE_SCALAR_", addr_str);
+        try vm.envUint(env) returns (uint256 s) {
+            uint32 s32 = uint32(s);
+            console.log("SystemConfig(%s): overriding expected blob base fee to %s", addr_str, s32);
+            return s32;
+        } catch {
+            // default expected blob base fee is 0 if the previous scalar encoding was in v0 format
+            return 0;
             // The scalars should match if we add the new scalar version byte to the previous scalar.
-            require(reencodedScalar == previousScalar + (uint256(0x01) << 248), "scalar-106 scalar mismatch");
         }
     }
 
@@ -248,26 +280,47 @@ interface ISystemConfig {
     }
 
     function BATCH_INBOX_SLOT() external view returns (bytes32);
+
     function DISPUTE_GAME_FACTORY_SLOT() external view returns (bytes32);
+
     function L1_CROSS_DOMAIN_MESSENGER_SLOT() external view returns (bytes32);
+
     function L1_ERC_721_BRIDGE_SLOT() external view returns (bytes32);
+
     function L1_STANDARD_BRIDGE_SLOT() external view returns (bytes32);
+
     function OPTIMISM_MINTABLE_ERC20_FACTORY_SLOT() external view returns (bytes32);
+
     function OPTIMISM_PORTAL_SLOT() external view returns (bytes32);
+
     function START_BLOCK_SLOT() external view returns (bytes32);
+
     function UNSAFE_BLOCK_SIGNER_SLOT() external view returns (bytes32);
+
     function VERSION() external view returns (uint256);
+
     function basefeeScalar() external view returns (uint32);
+
     function batchInbox() external view returns (address addr_);
+
     function batcherHash() external view returns (bytes32);
+
     function blobbasefeeScalar() external view returns (uint32);
+
     function disputeGameFactory() external view returns (address addr_);
+
     function gasLimit() external view returns (uint64);
+
     function eip1559Denominator() external view returns (uint32);
+
     function eip1559Elasticity() external view returns (uint32);
+
     function gasPayingToken() external view returns (address addr_, uint8 decimals_);
+
     function gasPayingTokenName() external view returns (string memory name_);
+
     function gasPayingTokenSymbol() external view returns (string memory symbol_);
+
     function initialize(
         address _owner,
         uint32 _basefeeScalar,
@@ -279,27 +332,50 @@ interface ISystemConfig {
         address _batchInbox,
         Addresses memory _addresses
     ) external;
+
     function isCustomGasToken() external view returns (bool);
+
     function l1CrossDomainMessenger() external view returns (address addr_);
+
     function l1ERC721Bridge() external view returns (address addr_);
+
     function l1StandardBridge() external view returns (address addr_);
+
     function maximumGasLimit() external pure returns (uint64);
+
     function minimumGasLimit() external view returns (uint64);
+
     function optimismMintableERC20Factory() external view returns (address addr_);
+
     function optimismPortal() external view returns (address addr_);
+
     function overhead() external view returns (uint256);
+
     function owner() external view returns (address);
+
     function renounceOwnership() external;
+
     function resourceConfig() external view returns (IResourceMetering.ResourceConfig memory);
+
     function scalar() external view returns (uint256);
+
     function setBatcherHash(bytes32 _batcherHash) external;
+
     function setGasConfig(uint256 _overhead, uint256 _scalar) external;
+
     function setGasConfigEcotone(uint32 _basefeeScalar, uint32 _blobbasefeeScalar) external;
+
     function setGasLimit(uint64 _gasLimit) external;
+
     function setUnsafeBlockSigner(address _unsafeBlockSigner) external;
+
     function setEIP1559Params(uint32 _denominator, uint32 _elasticity) external;
+
     function startBlock() external view returns (uint256 startBlock_);
+
     function transferOwnership(address newOwner) external; // nosemgrep
+
     function unsafeBlockSigner() external view returns (address addr_);
+
     function version() external pure returns (string memory);
 }
