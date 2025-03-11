@@ -64,7 +64,7 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry, VerificationBase {
     {
         systemConfigAddress = proxies.SystemConfig;
         sysCfg = ISystemConfig(proxies.SystemConfig);
-        addAllowedStorageAccess(systemConfigAddress); //TODO: check if necessary here
+        // addAllowedStorageAccess(systemConfigAddress); //TODO: check if necessary here
 
         // cache the values of the SystemConfig contract before the upgrade
         previous = getBaseSysCfgVars();
@@ -334,48 +334,26 @@ interface ISystemConfig {
     ) external;
 
     function isCustomGasToken() external view returns (bool);
-
     function l1CrossDomainMessenger() external view returns (address addr_);
-
     function l1ERC721Bridge() external view returns (address addr_);
-
     function l1StandardBridge() external view returns (address addr_);
-
     function maximumGasLimit() external pure returns (uint64);
-
     function minimumGasLimit() external view returns (uint64);
-
     function optimismMintableERC20Factory() external view returns (address addr_);
-
     function optimismPortal() external view returns (address addr_);
-
     function overhead() external view returns (uint256);
-
     function owner() external view returns (address);
-
     function renounceOwnership() external;
-
     function resourceConfig() external view returns (IResourceMetering.ResourceConfig memory);
-
     function scalar() external view returns (uint256);
-
     function setBatcherHash(bytes32 _batcherHash) external;
-
     function setGasConfig(uint256 _overhead, uint256 _scalar) external;
-
     function setGasConfigEcotone(uint32 _basefeeScalar, uint32 _blobbasefeeScalar) external;
-
     function setGasLimit(uint64 _gasLimit) external;
-
     function setUnsafeBlockSigner(address _unsafeBlockSigner) external;
-
     function setEIP1559Params(uint32 _denominator, uint32 _elasticity) external;
-
     function startBlock() external view returns (uint256 startBlock_);
-
     function transferOwnership(address newOwner) external; // nosemgrep
-
     function unsafeBlockSigner() external view returns (address addr_);
-
     function version() external pure returns (string memory);
 }
