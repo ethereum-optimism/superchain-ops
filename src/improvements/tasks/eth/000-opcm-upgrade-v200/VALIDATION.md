@@ -1,3 +1,42 @@
+# Validation
+
+This document can be used to validate the inputs and result of the execution of the upgrade transaction which you are
+signing.
+
+The steps are:
+
+1. [Validate the Domain and Message Hashes](#expected-domain-and-message-hashes)
+2. [Verifying the transaction input](#understanding-task-calldata)
+3. [Verifying the state changes](#verifying-the-state-changes)
+
+
+
+For each contract listed in the state diff, please verify that no contracts or state changes shown in the Tenderly diff
+are missing from this document. Additionally, please verify that for each contract:
+
+- The following state changes (and none others) are made to that contract. This validates that no unexpected state
+  changes occur.
+- All addresses (in section headers and storage values) match the provided name, using the Etherscan and Superchain
+  Registry links provided. This validates the bytecode deployed at the addresses contains the correct logic.
+- All key values match the semantic meaning provided, which can be validated using the storage layout links provided.
+
+## Expected Domain and Message Hashes
+
+> [!CAUTION]
+>
+> Before signing, ensure the below hashes match what is on your ledger.
+>
+> ### Security Council
+>
+> - Domain Hash: `0xdaf670b31fdf41fdaae2643ed0ebe709283539c0e61540c160b5a6403d79073f`
+> - Message Hash: `0x15b70e777a7aeac57a0d8a1fc0474253a8988bc0933fcc5962e943ae6e1609df`
+>
+> ### Optimism Foundation
+>
+> - Domain Hash: `0xdaf670b31fdf41fdaae2643ed0ebe709283539c0e61540c160b5a6403d79073f`
+> - Message Hash: `0x15b70e777a7aeac57a0d8a1fc0474253a8988bc0933fcc5962e943ae6e1609df`
+>
+
 ## Understanding Task Calldata
 
 The calldata sent from the `ProxyAdminOwner` Safe can be re-derived from data in the `config.toml` file using `cast`.
