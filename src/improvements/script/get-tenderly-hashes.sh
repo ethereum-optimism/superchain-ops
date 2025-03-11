@@ -88,8 +88,8 @@ FULL_HASH=$(echo "$HASHES" | tr -d '\n')
 DOMAIN_SEPARATOR="0x${FULL_HASH:6:64}"
 MESSAGE_HASH="0x${FULL_HASH:70:64}"
 
-echo "  Domain Separator: $DOMAIN_SEPARATOR"
-echo "  Message Hash: $MESSAGE_HASH"
+echo "  Remote Domain Separator: $DOMAIN_SEPARATOR"
+echo "  Remote Message Hash: $MESSAGE_HASH"
 
 # Output the Tenderly dashboard URL
 echo -e "\nView the simulation in Tenderly dashboard:"
