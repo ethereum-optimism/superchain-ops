@@ -15,17 +15,23 @@ import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 // DO NOT use in production.
 contract Impl {
     uint256 public num;
-    address public proxy;
+    address public proxyA;
+    address public proxyB;
 
-    function initialize(address _proxy) public {
-        require(proxy == address(0), "Already initialized");
-        proxy = _proxy;
+    function initialize(address _proxyA, address _proxyB) public {
+        require(proxyA == address(0), "ProxyA already initialized");
+        require(proxyB == address(0), "ProxyB already initialized");
+        proxyA = _proxyA;
+        proxyB = _proxyB;
     }
 
     function setNum(uint256 _num) public {
         num = _num;
-        if (proxy != address(0)) {
-            Impl(payable(proxy)).setNum(_num + 1);
+        if (proxyA != address(0)) {
+            Impl(payable(proxyA)).setNum(_num + 1);
+        }
+        if (proxyB != address(0)) {
+            Impl(payable(proxyB)).setNum(_num + 1);
         }
     }
 }
@@ -55,20 +61,28 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
     address constant addr9 = address(9);
     address constant addr10 = address(10);
 
-    // Proxy1 (1 Storage Write) -> Impl1 -> Proxy2 (1 Storage Write) -> Impl2
+    // Proxy1 (1 Storage Write) -> Impl1 -> ProxyA (1 Storage Write) -> Impl2
+    //                                   -> ProxyB (1 Storage Write) -> Impl2
     // Delegate calling from a proxy to an implementation is a common pattern in our architecture.
-    // In this test, we test a more complex version of this pattern where we have two proxies.
+    // In this test, we test a more complex version of this pattern where we have three proxies.
     // Each proxy delegates to an implementation, which then updates state on the calling proxy.
+    // Internally, Proxy1 contains two storage writes: one to ProxyA and one to ProxyB.
     function test_commonProxyArchitecture_succeeds() public {
-        Proxy proxy2 = new Proxy(payable(msg.sender));
+        Proxy proxyA = new Proxy(payable(msg.sender));
         Impl impl2 = new Impl();
         vm.prank(address(0));
-        proxy2.upgradeTo(address(impl2));
+        proxyA.upgradeTo(address(impl2));
+
+        Proxy proxyB = new Proxy(payable(msg.sender));
+        vm.prank(address(0));
+        proxyB.upgradeTo(address(impl2));
 
         Proxy proxy1 = new Proxy(payable(msg.sender));
         Impl impl1 = new Impl();
         vm.prank(address(0));
-        proxy1.upgradeToAndCall(address(impl1), abi.encodeWithSelector(Impl.initialize.selector, address(proxy2)));
+        proxy1.upgradeToAndCall(
+            address(impl1), abi.encodeWithSelector(Impl.initialize.selector, address(proxyA), address(proxyB))
+        );
 
         // Start state diff recording
         vm.startStateDiffRecording();
@@ -86,16 +100,23 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         assertEq(firstProxyDiffs[0].oldValue, val0, "30");
         assertEq(firstProxyDiffs[0].newValue, bytes32(uint256(10)), "40");
 
-        AccountAccessParser.StateDiff[] memory secondProxyDiffs = accountAccesses.getStateDiffFor(address(proxy2));
+        AccountAccessParser.StateDiff[] memory secondProxyDiffs = accountAccesses.getStateDiffFor(address(proxyA));
         assertEq(secondProxyDiffs.length, 1, "50");
         assertEq(secondProxyDiffs[0].slot, slot0, "60");
         assertEq(secondProxyDiffs[0].oldValue, val0, "70");
         assertEq(secondProxyDiffs[0].newValue, bytes32(uint256(11)), "80");
 
-        address[] memory uniqueAccounts = accountAccesses.getUniqueWrites();
-        assertEq(uniqueAccounts.length, 2, "90");
-        assertEq(uniqueAccounts[0], address(proxy1), "100");
-        assertEq(uniqueAccounts[1], address(proxy2), "110");
+        AccountAccessParser.StateDiff[] memory thirdProxyDiffs = accountAccesses.getStateDiffFor(address(proxyB));
+        assertEq(thirdProxyDiffs.length, 1, "90");
+        assertEq(thirdProxyDiffs[0].slot, slot0, "100");
+        assertEq(thirdProxyDiffs[0].oldValue, val0, "110");
+        assertEq(thirdProxyDiffs[0].newValue, bytes32(uint256(11)), "120");
+
+        address[] memory uniqueAccounts = accountAccesses.getUniqueWrites(true);
+        assertEq(uniqueAccounts.length, 3, "130");
+        assertEq(uniqueAccounts[0], address(proxyA), "140");
+        assertEq(uniqueAccounts[1], address(proxy1), "150");
+        assertEq(uniqueAccounts[2], address(proxyB), "160");
     }
 
     function test_getUniqueWrites_succeeds() public pure {
@@ -106,7 +127,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
             accesses[0] = accountAccess(addr0, storageAccesses);
 
-            address[] memory uniqueAccounts = accesses.getUniqueWrites();
+            address[] memory uniqueAccounts = accesses.getUniqueWrites(false);
             assertEq(uniqueAccounts.length, 1, "10");
             assertEq(uniqueAccounts[0], addr0, "20");
         }
@@ -119,7 +140,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
             accesses[0] = accountAccess(addr1, storageAccesses);
 
-            address[] memory uniqueAccounts = accesses.getUniqueWrites();
+            address[] memory uniqueAccounts = accesses.getUniqueWrites(false);
             assertEq(uniqueAccounts.length, 1, "30");
             assertEq(uniqueAccounts[0], addr1, "40");
         }
@@ -131,7 +152,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
             accesses[0] = accountAccess(addr2, storageAccesses);
 
-            address[] memory uniqueAccounts = accesses.getUniqueWrites();
+            address[] memory uniqueAccounts = accesses.getUniqueWrites(false);
             assertEq(uniqueAccounts.length, 0, "50");
         }
 
@@ -142,7 +163,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
             accesses[0] = accountAccess(addr3, storageAccesses);
 
-            address[] memory uniqueAccounts = accesses.getUniqueWrites();
+            address[] memory uniqueAccounts = accesses.getUniqueWrites(false);
             assertEq(uniqueAccounts.length, 0, "60");
         }
 
@@ -154,7 +175,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
             accesses[0] = accountAccess(addr3, storageAccesses);
 
-            address[] memory uniqueAccounts = accesses.getUniqueWrites();
+            address[] memory uniqueAccounts = accesses.getUniqueWrites(false);
             assertEq(uniqueAccounts.length, 0, "70");
         }
 
@@ -174,7 +195,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             accesses[0] = accountAccess(addr4, storageAccesses1);
             accesses[1] = accountAccess(addr5, storageAccesses2);
 
-            address[] memory uniqueAccounts = accesses.getUniqueWrites();
+            address[] memory uniqueAccounts = accesses.getUniqueWrites(false);
             assertEq(uniqueAccounts.length, 2, "80");
             assertEq(uniqueAccounts[0], addr4, "90");
             assertEq(uniqueAccounts[1], addr5, "100");
@@ -186,7 +207,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
             accesses[0] = accountAccess(addr6, storageAccesses);
 
-            address[] memory uniqueAccounts = accesses.getUniqueWrites();
+            address[] memory uniqueAccounts = accesses.getUniqueWrites(false);
             assertEq(uniqueAccounts.length, 0, "110");
         }
         // Test correct unique account is returned when account access account didn't have a storage write directly
@@ -196,7 +217,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
             accesses[0] = accountAccess(addr1, storageAccesses);
 
-            address[] memory uniqueAccounts = accesses.getUniqueWrites();
+            address[] memory uniqueAccounts = accesses.getUniqueWrites(false);
             assertEq(uniqueAccounts.length, 1, "120");
             assertEq(uniqueAccounts[0], addr2, "130");
         }
@@ -834,56 +855,26 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         address account1 = address(0x1111111111111111111111111111111111111111);
         address account2 = address(0x2222222222222222222222222222222222222222);
         address account3 = address(0x3333333333333333333333333333333333333333);
-        address account4 = address(0x4444444444444444444444444444444444444444);
-        address account5 = address(0x5555555555555555555555555555555555555555);
 
         // Create unsorted array of accesses (mixed order)
-        VmSafe.AccountAccess[] memory unsortedAccesses = new VmSafe.AccountAccess[](5);
+        VmSafe.StorageAccess[] memory firstStorageAccesses = new VmSafe.StorageAccess[](1);
+        firstStorageAccesses[0] = storageAccess(account3, slot0, isWrite, val0, val2);
 
-        VmSafe.StorageAccess[] memory storageAccessesAccount3 = new VmSafe.StorageAccess[](1);
-        storageAccessesAccount3[0] = storageAccess(account3, slot0, isWrite, val0, val2);
-        unsortedAccesses[0] = accountAccess(account3, storageAccessesAccount3); // 0x3333...
+        VmSafe.StorageAccess[] memory secondStorageAccesses = new VmSafe.StorageAccess[](1);
+        secondStorageAccesses[0] = storageAccess(account2, slot0, isWrite, val0, val2);
 
-        VmSafe.StorageAccess[] memory storageAccessesAccount1 = new VmSafe.StorageAccess[](1);
-        storageAccessesAccount1[0] = storageAccess(account1, slot0, isWrite, val0, val2);
-        unsortedAccesses[1] = accountAccess(account1, storageAccessesAccount1); // 0x1111...
+        VmSafe.AccountAccess[] memory unsortedAccesses = new VmSafe.AccountAccess[](2);
+        unsortedAccesses[0] = accountAccess(account1, firstStorageAccesses);
+        unsortedAccesses[1] = accountAccess(account1, secondStorageAccesses);
 
-        VmSafe.StorageAccess[] memory storageAccessesAccount5 = new VmSafe.StorageAccess[](1);
-        storageAccessesAccount5[0] = storageAccess(account5, slot0, isWrite, val0, val2);
-        unsortedAccesses[2] = accountAccess(account5, storageAccessesAccount5); // 0x5555...
-
-        VmSafe.StorageAccess[] memory storageAccessesAccount2 = new VmSafe.StorageAccess[](1);
-        storageAccessesAccount2[0] = storageAccess(account2, slot0, isWrite, val0, val2);
-        unsortedAccesses[3] = accountAccess(account2, storageAccessesAccount2); // 0x2222...
-
-        VmSafe.StorageAccess[] memory storageAccessesAccount4 = new VmSafe.StorageAccess[](1);
-        storageAccessesAccount4[0] = storageAccess(account4, slot0, isWrite, val0, val2);
-        unsortedAccesses[4] = accountAccess(account4, storageAccessesAccount4); // 0x4444...
-
-        // Sort the accesses
+        //Sort the accesses
         (, AccountAccessParser.DecodedStateDiff[] memory diffs) = AccountAccessParser.decode(unsortedAccesses, true);
         _assertStateDiffsAscending(diffs);
 
         // Verify the accesses are now in ascending numerical order by account address
-        assertEq(diffs.length, 5, "Sorted array should have same length");
-        assertEq(diffs[0].who, account1, "First should be account1 (0x1111...)");
-        assertEq(diffs[1].who, account2, "Second should be account2 (0x2222...)");
-        assertEq(diffs[2].who, account3, "Third should be account3 (0x3333...)");
-        assertEq(diffs[3].who, account4, "Fourth should be account4 (0x4444...)");
-        assertEq(diffs[4].who, account5, "Fifth should be account5 (0x5555...)");
-
-        // Test edge cases
-
-        // Single element array (should remain unchanged)
-        VmSafe.AccountAccess[] memory singleAccess = new VmSafe.AccountAccess[](1);
-        singleAccess[0] = accountAccess(account1, new VmSafe.StorageAccess[](0));
-        VmSafe.AccountAccess[] memory sortedSingle = AccountAccessParser.sortAccountAccesses(singleAccess);
-        assertEq(sortedSingle[0].account, account1, "Single element array should remain unchanged");
-
-        // Empty array (should remain empty)
-        VmSafe.AccountAccess[] memory emptyAccess = new VmSafe.AccountAccess[](0);
-        VmSafe.AccountAccess[] memory sortedEmpty = AccountAccessParser.sortAccountAccesses(emptyAccess);
-        assertEq(sortedEmpty.length, 0, "Empty array should remain empty");
+        assertEq(diffs.length, 2, "Sorted array should have same length");
+        assertEq(diffs[0].who, account2, "First should be account2 (0x2222...)");
+        assertEq(diffs[1].who, account3, "Second should be account3 (0x3333...)");
     }
 
     function accountAccess(address _account, VmSafe.StorageAccess[] memory _storageAccesses)
@@ -937,10 +928,16 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
     }
 
     function _assertStateDiffsAscending(AccountAccessParser.DecodedStateDiff[] memory _diffs) internal pure {
+        console.log("diffs.length: %s", _diffs.length);
+        for (uint256 i = 0; i < _diffs.length; i++) {
+            console.log("diffs[%s].who: %s", i, _diffs[i].who);
+        }
         if (_diffs.length == 0) {
             return;
         }
         for (uint256 i = 0; i < _diffs.length - 1; i++) {
+            console.log("diffs[%s].who: %s", i, _diffs[i].who);
+            console.log("diffs[%s].who: %s", i + 1, _diffs[i + 1].who);
             assertLt(
                 uint256(uint160(_diffs[i].who)),
                 uint256(uint160(_diffs[i + 1].who)),
