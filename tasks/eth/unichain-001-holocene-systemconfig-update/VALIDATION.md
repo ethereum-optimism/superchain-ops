@@ -94,7 +94,7 @@ The safes state changes can be found [here](../../../NESTED-VALIDATION.md#gnosis
 
  | **Key** | `0x0000000000000000000000000000000000000000000000000000000000000066` |
  |---------|----------------------------------------------------------------------------------|
- | **Before** | `0x00000000000000000000000000000000000000000000000000000000000dbba0 |
+ | **Before** | `0x00000000000000000000000000000000000000000000000000000000000dbba0` |
  | **After** | `0x010000000000000000000000000000000000000000000000000dbba0000007d0` |
 
 **Meaning**: Updates the scalar slot to reflect a scalar version of 1. 
@@ -104,17 +104,17 @@ In addition to the standard SystemConfig upgrade, this upgrade corrects the `blo
 
  | **Key** | `0x0000000000000000000000000000000000000000000000000000000000000068` |
  |---------|----------------------------------------------------------------------------------|
- | **Before** | `0x0000000000000000000000000000000000000000000000000000000001c9c380 |
+ | **Before** | `0x0000000000000000000000000000000000000000000000000000000001c9c380` |
  | **After** | `0x00000000000000000000000000000000000dbba0000007d00000000001c9c380` |
 
 **Meaning**: Updates the `basefeeScalar` and `blobbasefeeScalar` storage variables to `2000` (`cast td 0x7d0`) and `900000` (`cast td 0xdbba0`) respectively. These share a slot with the `gasLimit` which remains at `30000000` (`cast td 0x0000000001c9c380`).
 
  | **Key** | `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` |
  |---------|----------------------------------------------------------------------------------|
- | **Before** | `0x000000000000000000000000f56d96b2535b932656d3c04ebf51babff241d886 |
+ | **Before** | `0x000000000000000000000000f56d96b2535b932656d3c04ebf51babff241d886` |
  | **After** | `0x000000000000000000000000ab9d6cb7a427c0765163a7f45bb91cafe5f2d375` |
 
-**Meaning**: Updates the implementation address of the Proxy to the [standard SystemConfig implementation at op-contracts/v1.8.0-rc.4](https://github.com/ethereum-optimism/superchain-registry/blob/e2d3490729b20a649281899c2c286e6e12db57f3/validation/standard/standard-versions-mainnet.toml#L9).
+**Meaning**: Updates the implementation address of the Proxy to the [standard SystemConfig implementation at op-contracts/v1.8.0](https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/validation/standard/standard-versions-mainnet.toml#L45).
 
 ---
 ### Liveness Guards

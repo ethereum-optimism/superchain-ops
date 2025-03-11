@@ -14,7 +14,7 @@ The proposal was:
 
 The governance proposal should be treated as the source of truth and used to verify the correctness of the onchain operations.
 
-This upgrades the `SystemConfig` in the [v1.8.0-rc.4](https://github.com/ethereum-optimism/optimism/tree/v1.8.0-rc.4) release.
+This upgrades the `SystemConfig` in the [v1.8.0](https://github.com/ethereum-optimism/optimism/tree/v1.8.0) release.
 
 
 ## Pre-deployments
@@ -24,7 +24,7 @@ This upgrades the `SystemConfig` in the [v1.8.0-rc.4](https://github.com/ethereu
 ## Simulation
 
 Please see the "Simulating and Verifying the Transaction" instructions in [NESTED.md](../../../NESTED.md).
-When simulating, ensure the logs say `Using script /your/path/to/superchain-ops-private/tasks/eth/030-uni-pdg-update/NestedSignFromJson.s.sol`.
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops-private/tasks/eth/unichain-001-holocene-systemconfig-update/NestedSignFromJson.s.sol`.
 This ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
 
 ## State Validation
@@ -33,7 +33,7 @@ Please see the instructions for [validation](./VALIDATION.md).
 
 ## Execution
 
-This upgrade
+This upgrade:
 * Sets the `SystemConfigProxy` implementation to the Holocene version & re-initializes it.
 
 See the `input.json` bundle for more details.
@@ -57,8 +57,4 @@ Zeroes out the initialized state variable to allow reinitialization.
 Upgrades the SystemConfig to a new implementation and initializes it.
 
 **Function Signature:** `upgradeAndCall(address,address,bytes)`
-
-## Preparation Notes
-
-The following notes are just for future reference on how this task was prepared.
 
