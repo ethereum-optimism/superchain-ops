@@ -482,7 +482,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         _processStateDiffChanges(accountAccesses);
 
         address[] memory accountsWithWrites = accountAccesses.getUniqueWrites(false);
-        // By default, we all storage accesses to newly created contracts.
+        // By default, we allow storage accesses to newly created contracts.
         address[] memory newContracts = accountAccesses.getNewContracts();
 
         for (uint256 i; i < accountsWithWrites.length; i++) {
@@ -1163,6 +1163,7 @@ abstract contract L2TaskBase is MultisigTask {
         }
     }
 
+    /// @notice We use this function to add allowed storage accesses.
     function _templateSetup(string memory) internal virtual override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < config.allowedStorageKeys.length; i++) {
@@ -1219,6 +1220,7 @@ abstract contract SimpleBase is MultisigTask {
         parentMultisig_ = IGnosisSafe(simpleAddrRegistry.get(config.safeAddressString));
     }
 
+    /// @notice We use this function to add allowed storage accesses.
     function _templateSetup(string memory) internal virtual override {
         for (uint256 i = 0; i < config.allowedStorageKeys.length; i++) {
             _allowedStorageAccesses.add(simpleAddrRegistry.get(config.allowedStorageKeys[i]));
