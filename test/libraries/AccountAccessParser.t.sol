@@ -6,6 +6,7 @@ import {Test} from "forge-std/Test.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
 import {Proxy} from "@eth-optimism-bedrock/src/universal/Proxy.sol";
+import {console} from "forge-std/console.sol";
 
 // Libraries
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
@@ -75,6 +76,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
         // Stop state diff recording
 
+        (, AccountAccessParser.DecodedStateDiff[] memory stateDiffs) = accountAccesses.decode(true);
+        _assertStateDiffsAscending(stateDiffs);
         accountAccesses.decodeAndPrint();
 
         AccountAccessParser.StateDiff[] memory firstProxyDiffs = accountAccesses.getStateDiffFor(address(proxy1));
@@ -493,7 +496,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
                 AccountAccessParser.DecodedStateDiff[] memory diffs
-            ) = accesses.decode();
+            ) = accesses.decode(false);
 
             assertEq(transfers.length, 0, "10");
             assertEq(diffs.length, 0, "20");
@@ -511,7 +514,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
                 AccountAccessParser.DecodedStateDiff[] memory diffs
-            ) = accesses.decode();
+            ) = accesses.decode(false);
 
             assertEq(transfers.length, 1, "30");
             assertEq(transfers[0].from, addr2, "40");
@@ -534,7 +537,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
                 AccountAccessParser.DecodedStateDiff[] memory diffs
-            ) = accesses.decode();
+            ) = accesses.decode(false);
 
             assertEq(transfers.length, 0, "90");
             assertEq(diffs.length, 0, "100");
@@ -552,7 +555,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
                 AccountAccessParser.DecodedStateDiff[] memory diffs
-            ) = accesses.decode();
+            ) = accesses.decode(false);
 
             assertEq(transfers.length, 1, "110");
             assertEq(transfers[0].from, addr2, "120");
@@ -575,7 +578,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
                 AccountAccessParser.DecodedStateDiff[] memory diffs
-            ) = accesses.decode();
+            ) = accesses.decode(false);
 
             assertEq(transfers.length, 0, "170");
             assertEq(diffs.length, 0, "180");
@@ -594,7 +597,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
                 AccountAccessParser.DecodedStateDiff[] memory diffs
-            ) = accesses.decode();
+            ) = accesses.decode(false);
 
             assertEq(transfers.length, 0, "190");
             assertEq(diffs.length, 1, "200");
@@ -618,7 +621,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
                 AccountAccessParser.DecodedStateDiff[] memory diffs
-            ) = accesses.decode();
+            ) = accesses.decode(false);
 
             assertEq(transfers.length, 0, "250");
             assertEq(diffs.length, 0, "260");
@@ -640,7 +643,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
                 AccountAccessParser.DecodedStateDiff[] memory diffs
-            ) = accesses.decode();
+            ) = accesses.decode(true);
+            _assertStateDiffsAscending(diffs);
 
             assertEq(transfers.length, 2, "270");
             assertEq(diffs.length, 1, "280");
@@ -681,7 +685,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
                 AccountAccessParser.DecodedStateDiff[] memory diffs
-            ) = accesses.decode();
+            ) = accesses.decode(true);
+            _assertStateDiffsAscending(diffs);
 
             assertEq(transfers.length, 1, "390");
             assertEq(transfers[0].value, 100, "400");
@@ -705,7 +710,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
                 AccountAccessParser.DecodedStateDiff[] memory diffs
-            ) = accesses.decode();
+            ) = accesses.decode(false);
 
             assertEq(transfers.length, 0, "450");
             assertEq(diffs.length, 0, "460");
@@ -728,7 +733,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
                 AccountAccessParser.DecodedStateDiff[] memory diffs
-            ) = accesses.decode();
+            ) = accesses.decode(true);
+            _assertStateDiffsAscending(diffs);
 
             assertEq(transfers.length, 0, "470");
             assertEq(diffs.length, 2, "480");
@@ -742,19 +748,6 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             assertEq(diffs[1].raw.newValue, val3, "560");
 
             _assertAscending(accesses);
-        }
-    }
-
-    function _assertAscending(VmSafe.AccountAccess[] memory _accesses) internal pure {
-        if (_accesses.length == 0) {
-            return;
-        }
-        for (uint256 i = 0; i < _accesses.length - 1; i++) {
-            assertLt(
-                uint256(uint160(_accesses[i].account)),
-                uint256(uint160(_accesses[i + 1].account)),
-                "Accesses are not in ascending order"
-            );
         }
     }
 
@@ -836,6 +829,63 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         }
     }
 
+    function test_decode_sorts_account_accesses() public view {
+        // Create 5 test accounts with clear numerical values
+        address account1 = address(0x1111111111111111111111111111111111111111);
+        address account2 = address(0x2222222222222222222222222222222222222222);
+        address account3 = address(0x3333333333333333333333333333333333333333);
+        address account4 = address(0x4444444444444444444444444444444444444444);
+        address account5 = address(0x5555555555555555555555555555555555555555);
+
+        // Create unsorted array of accesses (mixed order)
+        VmSafe.AccountAccess[] memory unsortedAccesses = new VmSafe.AccountAccess[](5);
+
+        VmSafe.StorageAccess[] memory storageAccessesAccount3 = new VmSafe.StorageAccess[](1);
+        storageAccessesAccount3[0] = storageAccess(account3, slot0, isWrite, val0, val2);
+        unsortedAccesses[0] = accountAccess(account3, storageAccessesAccount3); // 0x3333...
+
+        VmSafe.StorageAccess[] memory storageAccessesAccount1 = new VmSafe.StorageAccess[](1);
+        storageAccessesAccount1[0] = storageAccess(account1, slot0, isWrite, val0, val2);
+        unsortedAccesses[1] = accountAccess(account1, storageAccessesAccount1); // 0x1111...
+
+        VmSafe.StorageAccess[] memory storageAccessesAccount5 = new VmSafe.StorageAccess[](1);
+        storageAccessesAccount5[0] = storageAccess(account5, slot0, isWrite, val0, val2);
+        unsortedAccesses[2] = accountAccess(account5, storageAccessesAccount5); // 0x5555...
+
+        VmSafe.StorageAccess[] memory storageAccessesAccount2 = new VmSafe.StorageAccess[](1);
+        storageAccessesAccount2[0] = storageAccess(account2, slot0, isWrite, val0, val2);
+        unsortedAccesses[3] = accountAccess(account2, storageAccessesAccount2); // 0x2222...
+
+        VmSafe.StorageAccess[] memory storageAccessesAccount4 = new VmSafe.StorageAccess[](1);
+        storageAccessesAccount4[0] = storageAccess(account4, slot0, isWrite, val0, val2);
+        unsortedAccesses[4] = accountAccess(account4, storageAccessesAccount4); // 0x4444...
+
+        // Sort the accesses
+        (, AccountAccessParser.DecodedStateDiff[] memory diffs) = AccountAccessParser.decode(unsortedAccesses, true);
+        _assertStateDiffsAscending(diffs);
+
+        // Verify the accesses are now in ascending numerical order by account address
+        assertEq(diffs.length, 5, "Sorted array should have same length");
+        assertEq(diffs[0].who, account1, "First should be account1 (0x1111...)");
+        assertEq(diffs[1].who, account2, "Second should be account2 (0x2222...)");
+        assertEq(diffs[2].who, account3, "Third should be account3 (0x3333...)");
+        assertEq(diffs[3].who, account4, "Fourth should be account4 (0x4444...)");
+        assertEq(diffs[4].who, account5, "Fifth should be account5 (0x5555...)");
+
+        // Test edge cases
+
+        // Single element array (should remain unchanged)
+        VmSafe.AccountAccess[] memory singleAccess = new VmSafe.AccountAccess[](1);
+        singleAccess[0] = accountAccess(account1, new VmSafe.StorageAccess[](0));
+        VmSafe.AccountAccess[] memory sortedSingle = AccountAccessParser.sortAccountAccesses(singleAccess);
+        assertEq(sortedSingle[0].account, account1, "Single element array should remain unchanged");
+
+        // Empty array (should remain empty)
+        VmSafe.AccountAccess[] memory emptyAccess = new VmSafe.AccountAccess[](0);
+        VmSafe.AccountAccess[] memory sortedEmpty = AccountAccessParser.sortAccountAccesses(emptyAccess);
+        assertEq(sortedEmpty.length, 0, "Empty array should remain empty");
+    }
+
     function accountAccess(address _account, VmSafe.StorageAccess[] memory _storageAccesses)
         internal
         pure
@@ -871,5 +921,31 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             newValue: _newValue,
             reverted: false
         });
+    }
+
+    function _assertAscending(VmSafe.AccountAccess[] memory _accesses) internal pure {
+        if (_accesses.length == 0) {
+            return;
+        }
+        for (uint256 i = 0; i < _accesses.length - 1; i++) {
+            assertLt(
+                uint256(uint160(_accesses[i].account)),
+                uint256(uint160(_accesses[i + 1].account)),
+                "Accesses are not in ascending order"
+            );
+        }
+    }
+
+    function _assertStateDiffsAscending(AccountAccessParser.DecodedStateDiff[] memory _diffs) internal pure {
+        if (_diffs.length == 0) {
+            return;
+        }
+        for (uint256 i = 0; i < _diffs.length - 1; i++) {
+            assertLt(
+                uint256(uint160(_diffs[i].who)),
+                uint256(uint160(_diffs[i + 1].who)),
+                "State diffs are not in ascending order"
+            );
+        }
     }
 }

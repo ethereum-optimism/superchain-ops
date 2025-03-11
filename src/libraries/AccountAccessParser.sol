@@ -31,6 +31,9 @@ import {LibSort} from "@solady/utils/LibSort.sol";
 ///
 ///         // Get an array of all unique accounts that had state changes.
 ///         address[] memory accountsWithStateChanges = accountAccesses.getUniqueWrites();
+///
+///         // Get all new contracts created.
+///         address[] memory newContracts = accountAccesses.getNewContracts();
 ///     }
 /// }
 /// ```
@@ -133,17 +136,22 @@ library AccountAccessParser {
 
     /// @notice Convenience function that wraps decode and print together.
     function decodeAndPrint(VmSafe.AccountAccess[] memory _accesses) internal view {
-        (DecodedTransfer[] memory transfers, DecodedStateDiff[] memory stateDiffs) = decode(_accesses);
+        (DecodedTransfer[] memory transfers, DecodedStateDiff[] memory stateDiffs) = decode(_accesses, true);
         print(transfers, stateDiffs);
     }
 
     /// @notice Decodes the provided AccountAccess array into decoded transfers and state diffs.
-    function decode(VmSafe.AccountAccess[] memory _accountAccesses)
+    function decode(VmSafe.AccountAccess[] memory _accountAccesses, bool _sort)
         internal
         view
         noGasMetering
         returns (DecodedTransfer[] memory transfers, DecodedStateDiff[] memory stateDiffs)
     {
+        // Sort the account accesses and return the sorted array
+        if (_sort) {
+            _accountAccesses = sortAccountAccesses(_accountAccesses);
+        }
+
         // --- Transfers ---
         // Allocate a temporary transfers array with maximum possible size (2 transfers per access).
         uint256 n = _accountAccesses.length;
@@ -199,9 +207,6 @@ library AccountAccessParser {
                 index++;
             }
         }
-
-        // Sort the account accesses and return the sorted array
-        _accountAccesses = sortAccountAccesses(_accountAccesses);
     }
 
     function getNewContracts(VmSafe.AccountAccess[] memory accesses)
