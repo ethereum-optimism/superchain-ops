@@ -497,6 +497,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
 
             assertEq(transfers.length, 0, "10");
             assertEq(diffs.length, 0, "20");
+
+            _assertAscending(accesses);
         }
 
         // Test ETH transfer only
@@ -517,6 +519,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             assertEq(transfers[0].value, 100, "60");
             assertEq(transfers[0].tokenAddress, AccountAccessParser.ETHER, "70");
             assertEq(diffs.length, 0, "80");
+
+            _assertAscending(accesses);
         }
 
         // Test reverted ETH transfer (should be excluded)
@@ -534,6 +538,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
 
             assertEq(transfers.length, 0, "90");
             assertEq(diffs.length, 0, "100");
+
+            _assertAscending(accesses);
         }
 
         // Test ERC20 transfer only
@@ -554,6 +560,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             assertEq(transfers[0].value, 100, "140");
             assertEq(transfers[0].tokenAddress, addr1, "150");
             assertEq(diffs.length, 0, "160");
+
+            _assertAscending(accesses);
         }
 
         // Test reverted ERC20 transfer (should be excluded)
@@ -571,6 +579,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
 
             assertEq(transfers.length, 0, "170");
             assertEq(diffs.length, 0, "180");
+
+            _assertAscending(accesses);
         }
 
         // Test state diffs only
@@ -592,6 +602,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             assertEq(diffs[0].raw.slot, AccountAccessParser.GUARDIAN_SLOT, "220");
             assertEq(diffs[0].raw.oldValue, val0, "230");
             assertEq(diffs[0].raw.newValue, val2, "240");
+
+            _assertAscending(accesses);
         }
 
         // Test reverted state diffs (should be excluded)
@@ -610,6 +622,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
 
             assertEq(transfers.length, 0, "250");
             assertEq(diffs.length, 0, "260");
+
+            _assertAscending(accesses);
         }
 
         // Test combination of transfers and state diffs
@@ -646,6 +660,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             assertEq(diffs[0].raw.slot, AccountAccessParser.PAUSED_SLOT, "360");
             assertEq(diffs[0].raw.oldValue, val0, "370");
             assertEq(diffs[0].raw.newValue, val1, "380");
+
+            _assertAscending(accesses);
         }
 
         // Test combination of reverted and non-reverted operations
@@ -673,6 +689,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             assertEq(diffs.length, 1, "420");
             assertEq(diffs[0].raw.oldValue, val0, "430");
             assertEq(diffs[0].raw.newValue, val1, "440");
+
+            _assertAscending(accesses);
         }
 
         // Test state changes that revert back to original (should not appear in diffs)
@@ -691,6 +709,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
 
             assertEq(transfers.length, 0, "450");
             assertEq(diffs.length, 0, "460");
+
+            _assertAscending(accesses);
         }
 
         // Test multiple accounts with state changes
@@ -720,6 +740,21 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             assertEq(diffs[1].raw.slot, AccountAccessParser.GUARDIAN_SLOT, "540");
             assertEq(diffs[1].raw.oldValue, val0, "550");
             assertEq(diffs[1].raw.newValue, val3, "560");
+
+            _assertAscending(accesses);
+        }
+    }
+
+    function _assertAscending(VmSafe.AccountAccess[] memory _accesses) internal pure {
+        if (_accesses.length == 0) {
+            return;
+        }
+        for (uint256 i = 0; i < _accesses.length - 1; i++) {
+            assertLt(
+                uint256(uint160(_accesses[i].account)),
+                uint256(uint160(_accesses[i + 1].account)),
+                "Accesses are not in ascending order"
+            );
         }
     }
 
