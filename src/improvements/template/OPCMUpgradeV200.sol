@@ -16,8 +16,8 @@ import {stdToml} from "forge-std/StdToml.sol";
 /// @notice This template supports OPCMV200 upgrade tasks.
 contract OPCMUpgradeV200 is OPCMBaseTask {
     using stdToml for string;
-    /// @notice The OPContractsManager address
 
+    /// @notice The OPContractsManager address
     address public OPCM;
 
     /// @notice The StandardValidatorV200 address
@@ -30,7 +30,7 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
     }
 
     /// @notice Mapping of l2 chain IDs to their respective prestates
-    mapping(uint256 => Claim) public opcmUpgrades;
+    mapping(uint256 => Claim) public absolutePrestates;
 
     /// @notice Returns the OPCM address
     function opcm() public view override returns (address) {
@@ -61,10 +61,12 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
     function _templateSetup(string memory taskConfigFilePath) internal override {
         super._templateSetup(taskConfigFilePath);
         string memory tomlContent = vm.readFile(taskConfigFilePath);
+
+        // For OPCMUpgradeV200, the OPCMUpgrade struct is used to store the absolutePrestate for each l2 chain.
         OPCMUpgrade[] memory upgrades =
             abi.decode(vm.parseToml(tomlContent, ".opcmUpgrades.absolutePrestates"), (OPCMUpgrade[]));
         for (uint256 i = 0; i < upgrades.length; i++) {
-            opcmUpgrades[upgrades[i].chainId] = upgrades[i].absolutePrestate;
+            absolutePrestates[upgrades[i].chainId] = upgrades[i].absolutePrestate;
         }
 
         address opcmAddress = tomlContent.readAddress(".addresses.OPCM");
@@ -91,7 +93,7 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
             opChainConfigs[i] = IOPContractsManager.OpChainConfig({
                 systemConfigProxy: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chains[i].chainId)),
                 proxyAdmin: IProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chains[i].chainId)),
-                absolutePrestate: opcmUpgrades[chains[i].chainId]
+                absolutePrestate: absolutePrestates[chains[i].chainId]
             });
         }
 
@@ -116,7 +118,7 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-            bytes32 currentAbsolutePrestate = Claim.unwrap(opcmUpgrades[chainId]);
+            bytes32 currentAbsolutePrestate = Claim.unwrap(absolutePrestates[chainId]);
             address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
             address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
 

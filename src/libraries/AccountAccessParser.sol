@@ -206,6 +206,7 @@ library AccountAccessParser {
         }
     }
 
+    /// @notice Extracts all unique contract creations from the provided account accesses.
     function getNewContracts(VmSafe.AccountAccess[] memory accesses)
         internal
         pure
