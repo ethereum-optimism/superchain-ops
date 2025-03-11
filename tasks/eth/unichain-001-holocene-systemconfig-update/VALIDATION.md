@@ -88,8 +88,9 @@ The safes state changes can be found [here](../../../NESTED-VALIDATION.md#`Gnosi
 
 **Meaning**: We increment the nonce from 1 -> 2. 
 
-### `0xc407398d063f942feBbcC6F80a156b47F3f1BDA6` (`SystemConfigProxy`)
 
+---
+### `SystemConfigProxy` 0xc407398d063f942feBbcC6F80a156b47F3f1BDA6
 
  | **Key** | `0x0000000000000000000000000000000000000000000000000000000000000066` |
  |---------|----------------------------------------------------------------------------------|
@@ -115,5 +116,6 @@ In addition to the standard SystemConfig upgrade, this upgrade corrects the `blo
 
 **Meaning**: Updates the implementation address of the Proxy to the [standard SystemConfig implementation at op-contracts/v1.8.0-rc.4](https://github.com/ethereum-optimism/superchain-registry/blob/e2d3490729b20a649281899c2c286e6e12db57f3/validation/standard/standard-versions-mainnet.toml#L9).
 
+---
 ### Liveness Guards
 Liveness Guard related changes are listed [here](../../../NESTED-VALIDATION.md#liveness-guard-security-council-safe-or-unichain-operation-safe-only) file.
