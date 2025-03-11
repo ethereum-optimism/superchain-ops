@@ -200,6 +200,31 @@ library AccountAccessParser {
         }
     }
 
+    function getNewContracts(VmSafe.AccountAccess[] memory accesses)
+        internal
+        pure
+        returns (address[] memory newContracts)
+    {
+        // Temporary array sized to maximum possible length
+        address[] memory temp = new address[](accesses.length);
+        uint256 count = 0;
+
+        for (uint256 i = 0; i < accesses.length; i++) {
+            // Check if this access is a contract creation
+            if (accesses[i].kind == VmSafe.AccountAccessKind.Create && !accesses[i].reverted) {
+                // Add the account to our list if it's a successful contract creation
+                temp[count] = accesses[i].account;
+                count++;
+            }
+        }
+
+        // Copy the valid contracts into an array of the correct length
+        newContracts = new address[](count);
+        for (uint256 i = 0; i < count; i++) {
+            newContracts[i] = temp[i];
+        }
+    }
+
     /// @notice Extracts all unique storage writes (i.e. writes where the value has actually changed)
     function getUniqueWrites(VmSafe.AccountAccess[] memory accesses)
         internal
