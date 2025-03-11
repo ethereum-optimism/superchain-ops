@@ -33,7 +33,8 @@ Note: The changes listed below do not include threshold and number of owners ove
  |---------|----------------------------------------------------------------------------------|
  | **Before** | `0x0000000000000000000000000000000000000000000000000000000000000005` |
  | **After** | `0x0000000000000000000000000000000000000000000000000000000000000013` |
-  **Meaning:** Override the nonce value of the `Security Council` by increasing from 18 to 19.
+
+**Meaning:** Override the nonce value of the `Security Council` by increasing from 18 to 19.
 
 
 ### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation Upgrade Safe)
@@ -41,7 +42,8 @@ Note: The changes listed below do not include threshold and number of owners ove
  |---------|----------------------------------------------------------------------------------|
  | **Before** | `0x0000000000000000000000000000000000000000000000000000000000000005` |
  | **After** | `0x0000000000000000000000000000000000000000000000000000000000000011` |
-  **Meaning:** Override the nonce value of the Foundation Upgrade Safe by increasing from 16 to 17.
+
+**Meaning:** Override the nonce value of the Foundation Upgrade Safe by increasing from 16 to 17.
 
 ## State Changes
 
@@ -74,6 +76,7 @@ The safes state changes can be found [here](../../../NESTED-VALIDATION.md#`Gnosi
  |---------|----------------------------------------------------------------------------------|
  | **Before** | `0x0000000000000000000000000000000000000000000000000000000000000007` |
  | **After** | `0x0000000000000000000000000000000000000000000000000000000000000008` |
+
 **Meaning**: We increment the nonce from 7 -> 8. 
 
 - UNIPAO(3/3) Safe `0x6d5B183F538ABB8572F5cD17109c617b994D5833`:
@@ -82,6 +85,7 @@ The safes state changes can be found [here](../../../NESTED-VALIDATION.md#`Gnosi
  |---------|----------------------------------------------------------------------------------|
  | **Before** | `0x0000000000000000000000000000000000000000000000000000000000000001` |
  | **After** | `0x0000000000000000000000000000000000000000000000000000000000000002` |
+
 **Meaning**: We increment the nonce from 1 -> 2. 
 
 ### `0xc407398d063f942feBbcC6F80a156b47F3f1BDA6` (`SystemConfigProxy`)
@@ -91,7 +95,8 @@ The safes state changes can be found [here](../../../NESTED-VALIDATION.md#`Gnosi
  |---------|----------------------------------------------------------------------------------|
  | **Before** | `0x00000000000000000000000000000000000000000000000000000000000dbba0 |
  | **After** | `0x010000000000000000000000000000000000000000000000000dbba0000007d0` |
-  **Meaning**: Updates the scalar slot to reflect a scalar version of 1. 
+
+**Meaning**: Updates the scalar slot to reflect a scalar version of 1. 
 
 
 In addition to the standard SystemConfig upgrade, this upgrade corrects the `blobBaseFeeScalar` in SystemConfig from 0 to 900000, fixing an oversight in the previous Unichain deployment. This value now matches what's used on L2, which can be verified by checking the `blobBaseFeeScalar` value on the [L1BlockInfo contract]([url](https://unichain.blockscout.com/address/0x4200000000000000000000000000000000000015?tab=read_write_proxy&source_address=0xc0d3C0D3C0D3c0D3C0D3C0d3C0D3c0D3c0d30015#0x68d5dca6)) (`0x4200000000000000000000000000000000000015`) on Unichain mainnet.
@@ -100,13 +105,15 @@ In addition to the standard SystemConfig upgrade, this upgrade corrects the `blo
  |---------|----------------------------------------------------------------------------------|
  | **Before** | `0x0000000000000000000000000000000000000000000000000000000001c9c380 |
  | **After** | `0x00000000000000000000000000000000000dbba0000007d00000000001c9c380` |
-  **Meaning**: Updates the `basefeeScalar` and `blobbasefeeScalar` storage variables to `2000` (`cast td 0x7d0`) and `900000` (`cast td 0xdbba0`) respectively. These share a slot with the `gasLimit` which remains at `30000000` (`cast td 0x0000000001c9c380`).
+
+**Meaning**: Updates the `basefeeScalar` and `blobbasefeeScalar` storage variables to `2000` (`cast td 0x7d0`) and `900000` (`cast td 0xdbba0`) respectively. These share a slot with the `gasLimit` which remains at `30000000` (`cast td 0x0000000001c9c380`).
 
  | **Key** | `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc` |
  |---------|----------------------------------------------------------------------------------|
  | **Before** | `0x000000000000000000000000f56d96b2535b932656d3c04ebf51babff241d886 |
  | **After** | `0x000000000000000000000000ab9d6cb7a427c0765163a7f45bb91cafe5f2d375` |
-  **Meaning**: Updates the implementation address of the Proxy to the [standard SystemConfig implementation at op-contracts/v1.8.0-rc.4](https://github.com/ethereum-optimism/superchain-registry/blob/e2d3490729b20a649281899c2c286e6e12db57f3/validation/standard/standard-versions-mainnet.toml#L9).
+
+**Meaning**: Updates the implementation address of the Proxy to the [standard SystemConfig implementation at op-contracts/v1.8.0-rc.4](https://github.com/ethereum-optimism/superchain-registry/blob/e2d3490729b20a649281899c2c286e6e12db57f3/validation/standard/standard-versions-mainnet.toml#L9).
 
 ### Liveness Guards
 Liveness Guard related changes are listed [here](../../../NESTED-VALIDATION.md#liveness-guard-security-council-safe-or-unichain-operation-safe-only) file.
