@@ -266,7 +266,7 @@ contract SingleMultisigTaskTest is Test {
 
         uint256 start = vm.snapshot();
 
-        multisigTask.simulateRun("src/improvements/tasks/example/eth/001-dispute-game-upgrade-template/config.toml");
+        multisigTask.simulateRun("test/tasks/mock/configs/DisputeGameUpgradeCodeException.toml");
         addrRegistry = multisigTask.addrRegistry();
         address account =
             toSuperchainAddrRegistry(addrRegistry).getAddress("DisputeGameFactoryProxy", getChain("optimism").chainId);
