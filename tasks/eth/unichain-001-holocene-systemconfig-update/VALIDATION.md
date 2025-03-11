@@ -14,10 +14,10 @@ For each contract listed in the state diff, please verify that no contracts or s
 > Before signing, ensure the below hashes match what is on your ledger.
 > ### Security Council
 > - Domain hash: `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
-> - Message hash: `0x0cfce1f798ce5741c4150c27a2bf097348d8d1ad23b2f153a18af1a28f7eacde`
+> - Message hash: `0x7a787c7042af73b17f356901e92fbd6f0f0c06343f8217ca7cc6b236b6af67f6`
 > ### Optimism Foundation
 > - Domain hash: `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message hash: `0xb2bc86308a63dc68081631c8a83bf6e27efecf0daa0e9796bc59d1b38c0a5574`
+> - Message hash: `0x91e52210cdc5b23b0a11851e3aa15008b9884740c160f89eb24559fac6a218fa`
 > ### Chain-Governor
 > - Domain hash: `0x4f0b6efb6c01fa7e127a0ff87beefbeb53e056d30d3216c5ac70371b909ca66d`
 > - Message hash: `0xb3e9b5fe565c711306524b74b5c1850d528929708bc04f1d398623ea1bf6bdf1`
