@@ -200,6 +200,7 @@ library AccountAccessParser {
             }
         }
 
+        // Sort the account accesses and return the sorted array
         _accountAccesses = sortAccountAccesses(_accountAccesses);
     }
 
@@ -720,10 +721,10 @@ library AccountAccessParser {
         return (0, "");
     }
 
-    /// @notice Sorts an array of AccountAccess structs in place by account address.
+    /// @notice Sorts an array of AccountAccess structs by account address and returns a new sorted array.
     function sortAccountAccesses(VmSafe.AccountAccess[] memory _accountAccesses)
         internal
-        view
+        pure
         returns (VmSafe.AccountAccess[] memory sorted_)
     {
         // If array is empty or has only one element, it's already sorted
@@ -744,14 +745,12 @@ library AccountAccessParser {
         // Sort addresses and track index changes
         _sortWithIndices(addresses, indices);
 
-        // Create the sorted result array
+        // Create a new array for the sorted result
         sorted_ = new VmSafe.AccountAccess[](_accountAccesses.length);
 
-        // Reconstruct the sorted array using the sorted indices
+        // Fill the sorted array using the sorted indices
         for (uint256 i = 0; i < _accountAccesses.length; i++) {
             sorted_[i] = _accountAccesses[indices[i]];
-            console.log(sorted_[i].account);
-            console.log(indices[i]);
         }
     }
 
