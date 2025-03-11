@@ -48,7 +48,7 @@ Note: The changes listed below do not include threshold and number of owners ove
 ## State Changes
 
 ### Safes 
-The safes state changes can be found [here](../../../NESTED-VALIDATION.md#`GnosisSafeProxy`-`approvedHashes`-mapping-update) file.
+The safes state changes can be found [here](../../../NESTED-VALIDATION.md#gnosissafeproxy---approvedhashes-mapping-update) file.
 
 **For the nonce increments**:
 
