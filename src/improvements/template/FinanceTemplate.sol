@@ -8,11 +8,13 @@ import "forge-std/Test.sol";
 import {SimpleBase} from "src/improvements/tasks/MultisigTask.sol";
 import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
 import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 
 /// @notice Template contract for enabling finance transactions
 contract FinanceTemplate is SimpleBase {
     using LibString for string;
+    using SafeERC20 for IERC20;
 
     /// @notice Operation struct
     /// @param amount The amount of tokens for the operation
@@ -90,14 +92,30 @@ contract FinanceTemplate is SimpleBase {
 
     /// @notice Builds the actions for executing the operations
     function _build() internal override {
-        console.log("block number", block.number);
-        string memory functionSig = string.concat(operationType, "(address,uint256)");
-        for (uint256 i = 0; i < operations.length; i++) {
-            Operation memory operation = operations[i];
-            (address token, address target) = _getTokenAndTarget(operation.token, operation.target);
-            bytes memory data = abi.encodeWithSignature(functionSig, target, operation.amount);
-            (bool success,) = token.call(data);
-            require(success, "operation failed");
+        if (operationTypeEnum == OperationType.Approve) {
+            for (uint256 i = 0; i < operations.length; i++) {
+                Operation memory operation = operations[i];
+                (address token, address target) = _getTokenAndTarget(operation.token, operation.target);
+                IERC20(token).safeApprove(target, operation.amount);
+            }
+        } else if (operationTypeEnum == OperationType.IncreaseAllowance) {
+            for (uint256 i = 0; i < operations.length; i++) {
+                Operation memory operation = operations[i];
+                (address token, address target) = _getTokenAndTarget(operation.token, operation.target);
+                IERC20(token).safeIncreaseAllowance(target, operation.amount);
+            }
+        } else if (operationTypeEnum == OperationType.DecreaseAllowance) {
+            for (uint256 i = 0; i < operations.length; i++) {
+                Operation memory operation = operations[i];
+                (address token, address target) = _getTokenAndTarget(operation.token, operation.target);
+                IERC20(token).safeDecreaseAllowance(target, operation.amount);
+            }
+        } else if (operationTypeEnum == OperationType.Transfer) {
+            for (uint256 i = 0; i < operations.length; i++) {
+                Operation memory operation = operations[i];
+                (address token, address target) = _getTokenAndTarget(operation.token, operation.target);
+                IERC20(token).safeTransfer(target, operation.amount);
+            }
         }
     }
 
