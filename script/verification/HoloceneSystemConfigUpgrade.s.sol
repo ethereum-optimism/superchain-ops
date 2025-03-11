@@ -280,47 +280,26 @@ interface ISystemConfig {
     }
 
     function BATCH_INBOX_SLOT() external view returns (bytes32);
-
     function DISPUTE_GAME_FACTORY_SLOT() external view returns (bytes32);
-
     function L1_CROSS_DOMAIN_MESSENGER_SLOT() external view returns (bytes32);
-
     function L1_ERC_721_BRIDGE_SLOT() external view returns (bytes32);
-
     function L1_STANDARD_BRIDGE_SLOT() external view returns (bytes32);
-
     function OPTIMISM_MINTABLE_ERC20_FACTORY_SLOT() external view returns (bytes32);
-
     function OPTIMISM_PORTAL_SLOT() external view returns (bytes32);
-
     function START_BLOCK_SLOT() external view returns (bytes32);
-
     function UNSAFE_BLOCK_SIGNER_SLOT() external view returns (bytes32);
-
     function VERSION() external view returns (uint256);
-
     function basefeeScalar() external view returns (uint32);
-
     function batchInbox() external view returns (address addr_);
-
     function batcherHash() external view returns (bytes32);
-
     function blobbasefeeScalar() external view returns (uint32);
-
     function disputeGameFactory() external view returns (address addr_);
-
     function gasLimit() external view returns (uint64);
-
     function eip1559Denominator() external view returns (uint32);
-
     function eip1559Elasticity() external view returns (uint32);
-
     function gasPayingToken() external view returns (address addr_, uint8 decimals_);
-
     function gasPayingTokenName() external view returns (string memory name_);
-
     function gasPayingTokenSymbol() external view returns (string memory symbol_);
-
     function initialize(
         address _owner,
         uint32 _basefeeScalar,
@@ -332,7 +311,6 @@ interface ISystemConfig {
         address _batchInbox,
         Addresses memory _addresses
     ) external;
-
     function isCustomGasToken() external view returns (bool);
     function l1CrossDomainMessenger() external view returns (address addr_);
     function l1ERC721Bridge() external view returns (address addr_);
