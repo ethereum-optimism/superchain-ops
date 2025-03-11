@@ -559,6 +559,11 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
 
+      - just_simulate_nested:
+          task: "/sep/unichain-003-petra-l1-upgrade-new-prestate"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
       - just_simulate_sc_rehearsal_2:
           context:
             - circleci-repo-readonly-authenticated-github-token
@@ -570,6 +575,14 @@ workflows:
           name: simulate_sequence_eth
           network: "eth"
           tasks: ""
+          block_number: "" # If not specified, the latest block number is used.
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
+      - simulate_sequence:
+          name: simulate_sequence_eth
+          network: "eth"
+          tasks: "unichain-003"
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
