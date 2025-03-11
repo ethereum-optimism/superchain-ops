@@ -43,6 +43,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
     bool constant reverted = true;
 
     bytes32 constant slot0 = bytes32(0);
+    bytes32 constant slot1 = bytes32(uint256(1));
 
     bytes32 constant val0 = bytes32(uint256(0));
     bytes32 constant val1 = bytes32(uint256(1));
@@ -521,8 +522,6 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
 
             assertEq(transfers.length, 0, "10");
             assertEq(diffs.length, 0, "20");
-
-            _assertAscending(accesses);
         }
 
         // Test ETH transfer only
@@ -543,8 +542,6 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             assertEq(transfers[0].value, 100, "60");
             assertEq(transfers[0].tokenAddress, AccountAccessParser.ETHER, "70");
             assertEq(diffs.length, 0, "80");
-
-            _assertAscending(accesses);
         }
 
         // Test reverted ETH transfer (should be excluded)
@@ -562,8 +559,6 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
 
             assertEq(transfers.length, 0, "90");
             assertEq(diffs.length, 0, "100");
-
-            _assertAscending(accesses);
         }
 
         // Test ERC20 transfer only
@@ -584,8 +579,6 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             assertEq(transfers[0].value, 100, "140");
             assertEq(transfers[0].tokenAddress, addr1, "150");
             assertEq(diffs.length, 0, "160");
-
-            _assertAscending(accesses);
         }
 
         // Test reverted ERC20 transfer (should be excluded)
@@ -603,8 +596,6 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
 
             assertEq(transfers.length, 0, "170");
             assertEq(diffs.length, 0, "180");
-
-            _assertAscending(accesses);
         }
 
         // Test state diffs only
@@ -626,8 +617,6 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             assertEq(diffs[0].raw.slot, AccountAccessParser.GUARDIAN_SLOT, "220");
             assertEq(diffs[0].raw.oldValue, val0, "230");
             assertEq(diffs[0].raw.newValue, val2, "240");
-
-            _assertAscending(accesses);
         }
 
         // Test reverted state diffs (should be excluded)
@@ -646,8 +635,6 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
 
             assertEq(transfers.length, 0, "250");
             assertEq(diffs.length, 0, "260");
-
-            _assertAscending(accesses);
         }
 
         // Test combination of transfers and state diffs
@@ -685,8 +672,6 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             assertEq(diffs[0].raw.slot, AccountAccessParser.PAUSED_SLOT, "360");
             assertEq(diffs[0].raw.oldValue, val0, "370");
             assertEq(diffs[0].raw.newValue, val1, "380");
-
-            _assertAscending(accesses);
         }
 
         // Test combination of reverted and non-reverted operations
@@ -715,8 +700,6 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             assertEq(diffs.length, 1, "420");
             assertEq(diffs[0].raw.oldValue, val0, "430");
             assertEq(diffs[0].raw.newValue, val1, "440");
-
-            _assertAscending(accesses);
         }
 
         // Test state changes that revert back to original (should not appear in diffs)
@@ -735,8 +718,6 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
 
             assertEq(transfers.length, 0, "450");
             assertEq(diffs.length, 0, "460");
-
-            _assertAscending(accesses);
         }
 
         // Test multiple accounts with state changes
@@ -767,8 +748,6 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             assertEq(diffs[1].raw.slot, AccountAccessParser.GUARDIAN_SLOT, "540");
             assertEq(diffs[1].raw.oldValue, val0, "550");
             assertEq(diffs[1].raw.newValue, val3, "560");
-
-            _assertAscending(accesses);
         }
     }
 
@@ -850,31 +829,45 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         }
     }
 
-    function test_decode_sorts_account_accesses() public view {
+    function test_decode_sorts_decoded_state_diffs() public view {
         // Create 5 test accounts with clear numerical values
         address account1 = address(0x1111111111111111111111111111111111111111);
         address account2 = address(0x2222222222222222222222222222222222222222);
         address account3 = address(0x3333333333333333333333333333333333333333);
+        address account4 = address(0x4444444444444444444444444444444444444444);
 
-        // Create unsorted array of accesses (mixed order)
+        // account4 storage write at slot0
         VmSafe.StorageAccess[] memory firstStorageAccesses = new VmSafe.StorageAccess[](1);
-        firstStorageAccesses[0] = storageAccess(account3, slot0, isWrite, val0, val2);
+        firstStorageAccesses[0] = storageAccess(account4, slot0, isWrite, val0, val2);
 
+        // account3 storage write at slot0
         VmSafe.StorageAccess[] memory secondStorageAccesses = new VmSafe.StorageAccess[](1);
-        secondStorageAccesses[0] = storageAccess(account2, slot0, isWrite, val0, val2);
+        secondStorageAccesses[0] = storageAccess(account3, slot0, isWrite, val0, val2);
 
-        VmSafe.AccountAccess[] memory unsortedAccesses = new VmSafe.AccountAccess[](2);
+        // account2 storage write at slot0
+        VmSafe.StorageAccess[] memory thirdStorageAccesses = new VmSafe.StorageAccess[](1);
+        thirdStorageAccesses[0] = storageAccess(account2, slot0, isWrite, val0, val2);
+
+        // account2 storage write at slot1
+        VmSafe.StorageAccess[] memory fourthStorageAccesses = new VmSafe.StorageAccess[](1);
+        fourthStorageAccesses[0] = storageAccess(account2, slot1, isWrite, val0, val2);
+
+        VmSafe.AccountAccess[] memory unsortedAccesses = new VmSafe.AccountAccess[](4);
         unsortedAccesses[0] = accountAccess(account1, firstStorageAccesses);
         unsortedAccesses[1] = accountAccess(account1, secondStorageAccesses);
+        unsortedAccesses[2] = accountAccess(account2, thirdStorageAccesses);
+        unsortedAccesses[3] = accountAccess(account3, fourthStorageAccesses);
 
         //Sort the accesses
         (, AccountAccessParser.DecodedStateDiff[] memory diffs) = AccountAccessParser.decode(unsortedAccesses, true);
         _assertStateDiffsAscending(diffs);
 
         // Verify the accesses are now in ascending numerical order by account address
-        assertEq(diffs.length, 2, "Sorted array should have same length");
+        assertEq(diffs.length, 4, "Sorted array should have same length");
         assertEq(diffs[0].who, account2, "First should be account2 (0x2222...)");
-        assertEq(diffs[1].who, account3, "Second should be account3 (0x3333...)");
+        assertEq(diffs[1].who, account2, "Second should be account2 (0x2222...)");
+        assertEq(diffs[2].who, account3, "Third should be account3 (0x3333...)");
+        assertEq(diffs[3].who, account4, "Fourth should be account4 (0x4444...)");
     }
 
     function accountAccess(address _account, VmSafe.StorageAccess[] memory _storageAccesses)
@@ -914,33 +907,14 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         });
     }
 
-    function _assertAscending(VmSafe.AccountAccess[] memory _accesses) internal pure {
-        if (_accesses.length == 0) {
-            return;
-        }
-        for (uint256 i = 0; i < _accesses.length - 1; i++) {
-            assertLt(
-                uint256(uint160(_accesses[i].account)),
-                uint256(uint160(_accesses[i + 1].account)),
-                "Accesses are not in ascending order"
-            );
-        }
-    }
-
     function _assertStateDiffsAscending(AccountAccessParser.DecodedStateDiff[] memory _diffs) internal pure {
-        console.log("diffs.length: %s", _diffs.length);
-        for (uint256 i = 0; i < _diffs.length; i++) {
-            console.log("diffs[%s].who: %s", i, _diffs[i].who);
-        }
         if (_diffs.length == 0) {
             return;
         }
         for (uint256 i = 0; i < _diffs.length - 1; i++) {
-            console.log("diffs[%s].who: %s", i, _diffs[i].who);
-            console.log("diffs[%s].who: %s", i + 1, _diffs[i + 1].who);
-            assertLt(
-                uint256(uint160(_diffs[i].who)),
-                uint256(uint160(_diffs[i + 1].who)),
+            // <= because storage writes can exist at multiple slots for the same account
+            assertTrue(
+                uint256(uint160(_diffs[i].who)) <= uint256(uint160(_diffs[i + 1].who)),
                 "State diffs are not in ascending order"
             );
         }

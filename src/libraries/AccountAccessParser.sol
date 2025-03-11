@@ -136,28 +136,9 @@ library AccountAccessParser {
 
     /// @notice Convenience function that wraps decode and print together.
     function decodeAndPrint(VmSafe.AccountAccess[] memory _accesses) internal view {
+        // We always want to sort all state diffs before printing them.
         (DecodedTransfer[] memory transfers, DecodedStateDiff[] memory stateDiffs) = decode(_accesses, true);
         print(transfers, stateDiffs);
-        _assertStateDiffsAscending(stateDiffs);
-    }
-
-    function _assertStateDiffsAscending(AccountAccessParser.DecodedStateDiff[] memory _diffs) internal pure {
-        if (_diffs.length == 0) {
-            return;
-        }
-        for (uint256 i = 0; i < _diffs.length - 1; i++) {
-            require(
-                uint256(uint160(_diffs[i].who)) <= uint256(uint160(_diffs[i + 1].who)),
-                string.concat(
-                    "State diffs are not in ascending order: ",
-                    vm.toString(i),
-                    " ",
-                    vm.toString(_diffs[i].who),
-                    " ",
-                    vm.toString(_diffs[i + 1].who)
-                )
-            );
-        }
     }
 
     /// @notice Decodes the provided AccountAccess array into decoded transfers and state diffs.
@@ -194,6 +175,7 @@ library AccountAccessParser {
         }
 
         // --- State diffs ---
+        // The order of 'uniqueAccounts' informs the order that the account state diffs get processed.
         address[] memory uniqueAccounts = getUniqueWrites(_accountAccesses, _sort);
         uint256 totalDiffCount = 0;
         // Count the total number of net state diffs.
