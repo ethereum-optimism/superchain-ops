@@ -481,7 +481,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         // write all state changes to storage
         _processStateDiffChanges(accountAccesses);
 
-        address[] memory accountsWithWrites = accountAccesses.getUniqueWrites();
+        address[] memory accountsWithWrites = accountAccesses.getUniqueWrites(false);
         // By default, we all storage accesses to newly created contracts.
         address[] memory newContracts = accountAccesses.getNewContracts();
 

@@ -9,10 +9,6 @@ This task uses `op-contract/v2.0.0` [OPContractsManager](https://github.com/ethe
 2. Soneium Testnet Minato
 3. Ink Sepolia
 
-### Timing
-
-Example transaction
-
 ## State Validations
 
 Please see the instructions for [validation](./VALIDATION.md).
