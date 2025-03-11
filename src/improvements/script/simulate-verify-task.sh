@@ -26,7 +26,8 @@ simulate_verify_task() {
     "$root_dir"/src/improvements/script/simulate-task.sh "$task" "$nested_safe_name" | tee "$local_output_file"
 
     # Extract Tenderly payload from output into a variable
-    export TENDERLY_PAYLOAD=$(awk '/Simulation payload:/{flag=1;next}/\}\}\}\}$/{print;flag=0}flag' "$local_output_file")
+    export TENDERLY_PAYLOAD
+    TENDERLY_PAYLOAD=$(awk '/Simulation payload:/{flag=1;next}/\}\}\}\}$/{print;flag=0}flag' "$local_output_file")
     
     # Simulate the task with Tenderly and extract the domain and message hashes
     "$root_dir"/src/improvements/script/get-tenderly-hashes.sh "$TENDERLY_PAYLOAD" 2>&1 | tee "$remote_output_file"   
