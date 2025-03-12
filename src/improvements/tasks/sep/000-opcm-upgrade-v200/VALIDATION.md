@@ -230,11 +230,11 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000000000
     [WARN] Slot was not decoded
 
-    Summary: <i>isRC</i> storage slot updated to 0.
-    Detail: Once OPContractsManager is upgraded, the <i>isRC</i> flag is set to false. 
-            This happens in the first invocation of the <i>upgrade</i> function.
-            Slot 22 is the <i>isRC</i> flag: <i>cast to-hex 22</i> -> <i>0x16</i>. 
-            Please refer to <i>'Figure 0.1'</i> at the end of this report for the storage layout of OPContractsManager.
+    Summary:          <i>isRC</i> storage slot updated to 0.
+    Detail:           Once OPContractsManager is upgraded, the <i>isRC</i> flag is set to false. 
+                      This happens in the first invocation of the <i>upgrade</i> function.
+                      Slot 22 is the <i>isRC</i> flag: <i>cast to-hex 22</i> -> <i>0x16</i>. 
+                      Please refer to <i>'Figure 0.1'</i> at the end of this report for the storage layout of OPContractsManager.
 
   ----- DecodedStateDiff[7] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/validation/standard/standard-config-roles-sepolia.toml#L3">0x1Eb2fFc903729a0F03966B917003800b145F56E2</a>
@@ -338,9 +338,23 @@ For each contract listed in the state diff, please verify that no contracts or s
   Raw New Value:     0xfc3e28704c5ab7bb943193afd784c1b2a97d1dd8d3f880519389a6574f14ae5c
   [WARN] Slot was not decoded
 
-  Summary:           Slot 4 is updated to <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L75">set startingAnchorRoot</a>
+  Summary:           Slot 4 updates the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44">'root'</a> for the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L42">startingAnchorRoot</a>
   Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
                      TODO: THIS IS DIFFERENT FROM THE TENDERLY SIMULATION. WHY? HOW IS THIS VALUE EXPLAINED?
+
+----- DecodedStateDiff[14] -----
+  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
+  Contract:          AnchorStateRegistryProxy - Soneium Testnet Minato
+  Chain ID:          1946
+
+  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
+  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+  Raw New Value:     0x00000000000000000000000000000000000000000000000000000000008baa6f
+  [WARN] Slot was not decoded
+
+  Summary:          Slot 5 updates the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44">'l2BlockNumber'</a> for the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L42">startingAnchorRoot</a>
+  Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
+                     TODO: THIS IS DIFFERENT FROM THE TENDERLY SIMULATION. WHY? HOW IS THIS VALUE EXPLAINED? 
  </pre>
 
 
@@ -352,15 +366,6 @@ For each contract listed in the state diff, please verify that no contracts or s
 #############################################################
 #############################################################
 #############################################################
-
------ DecodedStateDiff[14] -----
-  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
-  Contract:
-  Chain ID:
-  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
-  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x00000000000000000000000000000000000000000000000000000000008baa6f
-  [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[15] -----
   Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
