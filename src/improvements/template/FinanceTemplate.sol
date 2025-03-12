@@ -6,15 +6,18 @@ import {VmSafe} from "forge-std/Vm.sol";
 import "forge-std/Test.sol";
 
 import {SimpleBase} from "src/improvements/tasks/MultisigTask.sol";
-import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
 import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import {LibString} from "@solady/utils/LibString.sol";
+import {stdToml} from "lib/forge-std/src/StdToml.sol";
+import {EnumerableSet} from "lib/openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
 
 /// @notice Template contract for enabling finance transactions
 contract FinanceTemplate is SimpleBase {
     using LibString for string;
     using SafeERC20 for IERC20;
+    using stdToml for string;
+    using EnumerableSet for EnumerableSet.AddressSet;
 
     /// @notice Operation struct
     /// @param amount The amount of tokens for the operation
@@ -40,14 +43,25 @@ contract FinanceTemplate is SimpleBase {
 
     /// @notice List of operations to be executed
     Operation[] public operations;
+
     /// @notice Operation name
     string public operationType;
+
     /// @notice Operation type enum
     OperationType public operationTypeEnum;
+
     /// @notice Initial allowances, before the operations are executed
     mapping(address => mapping(address => uint256)) public initialAllowances;
+
     /// @notice Initial balances, before the operations are executed,
     mapping(address => mapping(address => uint256)) public initialBalances;
+
+    /// @notice Set of tokens that have been used in the operations
+    EnumerableSet.AddressSet internal tokens;
+
+    /// @notice Mapping of tokens to the amounts transferred
+    /// in case the operation type is Transfer
+    mapping(address => uint256) public tokensTransferred;
 
     /// @notice Returns the safe address string identifier
     /// @return The string "FoundationOperationSafe"
@@ -68,13 +82,13 @@ contract FinanceTemplate is SimpleBase {
     /// @notice Sets up the template with module configuration from a TOML file
     /// @param taskConfigFilePath Path to the TOML configuration file
     function _templateSetup(string memory taskConfigFilePath) internal override {
-        string memory file = vm.readFile(taskConfigFilePath);
-        operationType = vm.parseTomlString(file, ".operationType");
+        string memory toml = vm.readFile(taskConfigFilePath);
+        operationType = toml.readString(".operationType");
         operationTypeEnum = _getOperationType();
 
         // Cannot decode directly to storage array, decode to memory first
         // and then push to storage array
-        Operation[] memory operationsMemory = abi.decode(vm.parseToml(file, ".operations"), (Operation[]));
+        Operation[] memory operationsMemory = abi.decode(toml.parseRaw(".operations"), (Operation[]));
         for (uint256 i = 0; i < operationsMemory.length; i++) {
             operations.push(operationsMemory[i]);
         }
@@ -82,11 +96,21 @@ contract FinanceTemplate is SimpleBase {
         assertNotEq(operations.length, 0, "there must be at least one operation");
 
         // Store initial allowances and balances, before the operations are executed for validations
+        // also add the token to the set of tokens
         for (uint256 i = 0; i < operations.length; i++) {
             Operation memory operation = operations[i];
             (address token, address target) = _getTokenAndTarget(operation.token, operation.target);
+            tokens.add(token);
             initialAllowances[token][target] = IERC20(token).allowance(address(parentMultisig), target);
             initialBalances[token][target] = IERC20(token).balanceOf(target);
+            if (operationTypeEnum == OperationType.Transfer) {
+                tokensTransferred[token] += operations[i].amount;
+            }
+        }
+
+        for (uint256 i = 0; i < tokens.length(); i++) {
+            address token = tokens.at(i);
+            initialBalances[token][address(parentMultisig)] = IERC20(token).balanceOf(address(parentMultisig));
         }
     }
 
@@ -136,6 +160,14 @@ contract FinanceTemplate is SimpleBase {
         } else if (operationTypeEnum == OperationType.Transfer) {
             for (uint256 i = 0; i < operations.length; i++) {
                 _validateTransfer(operations[i].token, operations[i].target, operations[i].amount);
+            }
+            // validate that parentMultisig balance decreased by the correct amount of tokens transferred
+            for (uint256 i = 0; i < tokens.length(); i++) {
+                address token = tokens.at(i);
+                assertEq(
+                    IERC20(token).balanceOf(address(parentMultisig)),
+                    initialBalances[token][address(parentMultisig)] - tokensTransferred[token]
+                );
             }
         } else {
             revert("invalid operation type");
