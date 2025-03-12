@@ -64,8 +64,6 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry, VerificationBase {
     {
         systemConfigAddress = proxies.SystemConfig;
         sysCfg = ISystemConfig(proxies.SystemConfig);
-        // addAllowedStorageAccess(systemConfigAddress); //TODO: check if necessary here
-
         // cache the values of the SystemConfig contract before the upgrade
         previous = getBaseSysCfgVars();
         previousScalar = sysCfg.scalar();
