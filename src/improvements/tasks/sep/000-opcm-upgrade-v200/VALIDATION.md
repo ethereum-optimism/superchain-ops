@@ -174,10 +174,10 @@ For each contract listed in the state diff, please verify that no contracts or s
     Summary: Update Permissioned GameType implementation. 
     Detail: This is gameImpls[1] -> 0xf7529E269A3244921D31304171ae69c44F9c6e09
             Verify that the old implementation is set in this slot using:
-              - cast call 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1 "gameImpls(uint32)(address)" 1 --rpc-url sepolia
-              - cast storage 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1 0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e --rpc-url sepolia 
+              - <i>cast call 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1 "gameImpls(uint32)(address)" 1 --rpc-url sepolia</i>
+              - <i>cast storage 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1 0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e --rpc-url sepolia</i>
             The Raw Slot can be derived from:
-              - <b>cast index uint32 1 101</b>
+              - <i>cast index uint32 1 101</i>
         
   
   ----- DecodedStateDiff[4] -----
@@ -194,10 +194,10 @@ For each contract listed in the state diff, please verify that no contracts or s
     Detail: This is gameImpls[0] -> 0x7982afa9530a3f6b88dd49cd3974cb3121ffb00d`
             where `0` is the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28">CANNON game type</a>.
             Verify that the old implementation is set in this slot using:
-              - cast call 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1 "gameImpls(uint32)(address)" 0 --rpc-url sepolia
-              - cast storage 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1 0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b --rpc-url sepolia 
+              - <i>cast call 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1 "gameImpls(uint32)(address)" 0 --rpc-url sepolia</i>
+              - <i>cast storage 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1 0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b --rpc-url sepolia</i> 
             The Raw Slot can be derived from:
-              - cast index uint32 0 101
+              - <i>cast index uint32 0 101</i>
  </code>
 </pre>
 
