@@ -33,7 +33,8 @@ simulate_task() {
         echo "Simulating single task: $task"
         SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile "$single_just_file" simulate
     fi
-    echo "Done simulating task: $task"
+
+    echo -e "\n\nDone simulating task: $task"
     popd > /dev/null
 }
 

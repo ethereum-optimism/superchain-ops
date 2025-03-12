@@ -44,29 +44,6 @@ commands:
               --justfile ../../../single.just \
               simulate
 
-  simulate_nested:
-    description: "Runs simulations of a nested task"
-    parameters:
-      task:
-        type: string
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: "simulate nested << parameters.task >>"
-          environment:
-            FOUNDRY_PROFILE: ci
-          command: |
-            just install
-            cd tasks/<< parameters.task >>
-            SIMULATE_WITHOUT_LEDGER=true just \
-              --dotenv-path $(pwd)/.env \
-              --justfile ../../../nested.just \
-              simulate foundation
-            SIMULATE_WITHOUT_LEDGER=true just \
-              --dotenv-path $(pwd)/.env \
-              --justfile ../../../nested.just \
-              simulate council
-
   notify-failures-on-develop:
     description: "Notify Slack"
     parameters:
@@ -272,19 +249,37 @@ jobs:
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
 
-  just_simulate_030_sony_holocene_system_config_upgrade:
+  just_simulate_nested:
+    description: "Runs simulations of a nested task"
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
+    parameters:
+      task:
+        type: string
     steps:
-      - simulate_nested:
-          task: "/eth/030-soneium-holocene-system-config-upgrade"
+      - utils/checkout-with-mise
+      - run:
+          name: "simulate nested << parameters.task >>"
+          environment:
+            FOUNDRY_PROFILE: ci
+          command: |
+            just install
+            cd tasks/<< parameters.task >>
+            SIMULATE_WITHOUT_LEDGER=true just \
+              --dotenv-path $(pwd)/.env \
+              --justfile ../../../nested.just \
+              simulate foundation
+            SIMULATE_WITHOUT_LEDGER=true just \
+              --dotenv-path $(pwd)/.env \
+              --justfile ../../../nested.just \
+              simulate council
 
-  just_simulate_ink_sep_holocene_system_config_upgrade:
+  just_simulate_op_sep_prestate_update:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - simulate_nested:
-          task: "/sep/ink-002-holocene-system-config-upgrade"
+          task: "/sep/032-op-pectra-defence"
 
   simulate_sequence:
     description: "Runs a sequence of simulations"
@@ -293,7 +288,7 @@ jobs:
         type: string
       tasks:
         type: string
-      block_number: # If not specified, the latest block number is used.
+      block_number:
         type: string
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -467,23 +462,31 @@ workflows:
       # and now it fails with stack too deep after https://github.com/ethereum-optimism/superchain-ops/pull/528.
       # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
       # - just_simulate_sc_rehearsal_1
-
-      - just_simulate_030_sony_holocene_system_config_upgrade:
+      
+      - just_simulate_nested:
+          task: "/eth/ink-003-fp-holocene-pectra-upgrade"
           context:
             - circleci-repo-readonly-authenticated-github-token
+
       - just_simulate_sc_rehearsal_2:
           context:
             - circleci-repo-readonly-authenticated-github-token
       - just_simulate_sc_rehearsal_4:
           context:
             - circleci-repo-readonly-authenticated-github-token
-      # sepolia
-      - just_simulate_ink_sep_holocene_system_config_upgrade:
+
+      - simulate_sequence:
+          name: simulate_sequence_eth
+          network: "eth"
+          tasks: "ink-003"
+          block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
 
       - simulate_sequence:
-          network: "eth"
-          tasks: "021 022 base-003 ink-001"
-          block_number: "21573136" # If not specified, the latest block number is used.
-
+          name: simulate_sequence_sep
+          network: "sep"
+          tasks: ""
+          block_number: "" # If not specified, the latest block number is used.
+          context:
+            - circleci-repo-readonly-authenticated-github-token

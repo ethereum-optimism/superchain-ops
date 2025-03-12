@@ -7,11 +7,12 @@ import {
 import {LibGameType} from "@eth-optimism-bedrock/src/dispute/lib/LibUDT.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 
-import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
+import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {L2TaskBase} from "src/improvements/tasks/MultisigTask.sol";
 
 /// @title SetGameTypeTemplate
 /// @notice Template contract for setting game types in the Optimism system
-contract SetGameTypeTemplate is MultisigTask {
+contract SetGameTypeTemplate is L2TaskBase {
     using LibGameType for GameType;
 
     /// @notice Struct containing configuration for setting a respected game type
@@ -55,29 +56,33 @@ contract SetGameTypeTemplate is MultisigTask {
         }
     }
 
-    /// @notice Builds the actions for setting game types for a specific L2 chain ID
-    /// @param chainId The ID of the L2 chain to configure
-    function _buildPerChain(uint256 chainId) internal override {
-        if (setRespectedGameTypes[chainId].l2ChainId != 0) {
-            DeputyGuardianModule(setRespectedGameTypes[chainId].deputyGuardian).setRespectedGameType(
-                IOptimismPortal2(payable(addrRegistry.getAddress(setRespectedGameTypes[chainId].portal, chainId))),
-                setRespectedGameTypes[chainId].gameType
-            );
+    /// @notice Builds the actions for setting respected game types.
+    function _build() internal override {
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+
+            if (setRespectedGameTypes[chainId].l2ChainId != 0) {
+                DeputyGuardianModule dgm = DeputyGuardianModule(setRespectedGameTypes[chainId].deputyGuardian);
+                address portal = superchainAddrRegistry.getAddress(setRespectedGameTypes[chainId].portal, chainId);
+                dgm.setRespectedGameType(IOptimismPortal2(payable(portal)), setRespectedGameTypes[chainId].gameType);
+            }
         }
     }
 
-    /// @notice Validates that game types were set correctly for the specified chain ID
-    /// @param chainId The ID of the L2 chain to validate
-    function _validate(uint256 chainId, VmSafe.AccountAccess[] memory) internal view override {
-        IOptimismPortal2 optimismPortal =
-            IOptimismPortal2(payable(addrRegistry.getAddress("OptimismPortalProxy", chainId)));
+    /// @notice Validates that game types were set correctly.abi
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
-        if (setRespectedGameTypes[chainId].l2ChainId != 0) {
-            assertEq(
-                optimismPortal.respectedGameType().raw(),
-                setRespectedGameTypes[chainId].gameType.raw(),
-                "gameType not set"
-            );
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            IOptimismPortal2 portal =
+                IOptimismPortal2(payable(superchainAddrRegistry.getAddress("OptimismPortalProxy", chainId)));
+            if (setRespectedGameTypes[chainId].l2ChainId != 0) {
+                uint256 currentGameType = portal.respectedGameType().raw();
+                assertEq(currentGameType, setRespectedGameTypes[chainId].gameType.raw(), "gameType not set");
+            }
         }
     }
 

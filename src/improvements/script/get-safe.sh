@@ -23,15 +23,21 @@ fi
 
 # Check if the path contains eth/ or sep/
 if [[ "$TASK_PATH" == *"/eth/"* ]]; then
-    safe=$(yq '.mainnetAddresses[] | select(.identifier == "'"$SAFE_NAME"'") | .addr' "${TOML_PATH}"/addresses.toml)
+    safe=$(yq ".eth.\"$SAFE_NAME\"" "${TOML_PATH}/addresses.toml")
 elif [[ "$TASK_PATH" == *"/sep/"* ]]; then
     if [[ "$SAFE_NAME" == "ChainGovernorSafe" ]]; then
         echo "Error: chain-governor does not exist on sepolia" >&2
         exit 1
     fi
-    safe=$(yq '.testnetAddresses[] | select(.identifier == "'"$SAFE_NAME"'") | .addr' "${TOML_PATH}"/addresses.toml)
+    safe=$(yq ".sep.\"$SAFE_NAME\"" "${TOML_PATH}/addresses.toml")
 else
     echo "Error: Task path must contain either /eth/ or /sep/" >&2
+    exit 1
+fi
+
+# Ensure a value was found for the safe
+if [[ -z "$safe" || "$safe" == "null" ]]; then
+    echo "Error: SAFE_NAME '$SAFE_NAME' not found in ${TOML_PATH}/addresses.toml" >&2
     exit 1
 fi
 

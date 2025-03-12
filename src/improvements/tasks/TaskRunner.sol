@@ -5,7 +5,8 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {Script} from "forge-std/Script.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
+import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
 
 /// This script gathers all tasks for a given network and performs a simulation run for each task.
 /// Once all tasks are simulated, the resultant state is written to a file.
@@ -76,11 +77,19 @@ contract TaskRunner is Script {
         string memory templatePath = string.concat("out/", templateName, ".sol/", templateName, ".json");
         MultisigTask task = MultisigTask(deployCode(templatePath));
         string memory safeAddressString = task.safeAddressString();
+        MultisigTask.TaskType taskType = task.taskType();
 
-        AddressRegistry _addrRegistry = new AddressRegistry(taskConfigFilePath);
-        AddressRegistry.ChainInfo[] memory chains = _addrRegistry.getChains();
-        require(chains.length > 0, "MultisigTask: no chains found");
-        address parentMultisig = _addrRegistry.getAddress(safeAddressString, chains[0].chainId);
+        address parentMultisig;
+
+        if (taskType == MultisigTask.TaskType.SimpleBase) {
+            SimpleAddressRegistry _simpleAddrRegistry = new SimpleAddressRegistry(taskConfigFilePath);
+            parentMultisig = _simpleAddrRegistry.get(safeAddressString);
+        } else {
+            SuperchainAddressRegistry _addrRegistry = new SuperchainAddressRegistry(taskConfigFilePath);
+            SuperchainAddressRegistry.ChainInfo[] memory chains = _addrRegistry.getChains();
+            parentMultisig = _addrRegistry.getAddress(safeAddressString, chains[0].chainId);
+        }
+
         return task.isNestedSafe(parentMultisig);
     }
 }

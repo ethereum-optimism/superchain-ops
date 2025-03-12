@@ -2,8 +2,9 @@
 pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
+import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
-import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
+import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
 
 /// @notice A template contract for configuring protocol parameters.
 ///         This file is intentionally stripped down; please add your logic where indicated.
@@ -36,6 +37,16 @@ contract EmptyTemplate is MultisigTask {
         return storageWrites;
     }
 
+    function _configureTask(string memory configPath)
+        internal
+        pure // TODO: You can remove the pure modifier if needed.
+        override
+        returns (AddressRegistry addrRegistry_, IGnosisSafe parentMultisig_, address multicallTarget_)
+    {
+        configPath; // No-op to silence unused variable compiler warnings.
+        return (AddressRegistry.wrap(address(0)), IGnosisSafe(address(0)), address(0));
+    }
+
     /// @notice Sets up the template with implementation configurations from a TOML file.
     function _templateSetup(string memory taskConfigFilePath) internal pure override {
         require(
@@ -45,25 +56,16 @@ contract EmptyTemplate is MultisigTask {
         taskConfigFilePath;
     }
 
-    /// @notice Write the calls that you want to execute for each l2chain in the task.
-    /// These can be written as standard Solidity calls and then get parsed as calldata.
-    function _buildPerChain(uint256 chainId) internal pure override {
-        // Delete this function if _buildSingle() is implemented.
-        require(false, "TODO: Implement logic that executes per chain.");
-        chainId;
-    }
-    /// @notice Write the calls that you want to execute one time.
-    /// These can be written as standard Solidity calls and then get parsed as calldata.
-
-    function _buildSingle() internal pure override {
-        // Delete this function if _buildPerChain() is implemented.
-        require(false, "TODO: Normally implemented as part of OPCM templates. Executes logic for all chains.");
+    /// @notice Write the calls that you want to execute for the task.
+    function _build() internal pure override {
+        require(false, "TODO: Implement the logic to execute the task -- you can remove the pure modifier");
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
-    function _validate(uint256 chainId, VmSafe.AccountAccess[] memory) internal pure override {
+    function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) internal pure override {
+        accountAccesses; // No-ops to silence unused variable compiler warnings.
+        actions;
         require(false, "TODO: Implement the logic to validate that the configuration was set as expected.");
-        chainId;
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
@@ -74,5 +76,9 @@ contract EmptyTemplate is MultisigTask {
         address[] memory codeExceptions = new address[](1);
         codeExceptions[0] = address(0);
         return codeExceptions;
+    }
+
+    function taskType() public pure override returns (TaskType) {
+        return TaskType.SimpleBase;
     }
 }

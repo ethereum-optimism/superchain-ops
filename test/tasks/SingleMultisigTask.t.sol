@@ -9,8 +9,8 @@ import {LibSort} from "@solady/utils/LibSort.sol";
 import {Test} from "forge-std/Test.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 
-import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
-import {AddressRegistry} from "src/improvements/AddressRegistry.sol";
+import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
+import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {GasConfigTemplate} from "src/improvements/template/GasConfigTemplate.sol";
 import {MockDisputeGameTask} from "test/tasks/mock/MockDisputeGameTask.sol";
 import {DisputeGameUpgradeTemplate} from "src/improvements/template/DisputeGameUpgradeTemplate.sol";
@@ -48,6 +48,14 @@ contract SingleMultisigTaskTest is Test {
         (accountAccesses, actions) = multisigTask.simulateRun(taskConfigFilePath);
     }
 
+    function toSuperchainAddrRegistry(AddressRegistry _addrRegistry)
+        internal
+        pure
+        returns (SuperchainAddressRegistry)
+    {
+        return SuperchainAddressRegistry(AddressRegistry.unwrap(_addrRegistry));
+    }
+
     function testTemplateSetup() public {
         runTask();
         assertEq(GasConfigTemplate(address(multisigTask)).gasLimits(34443), 100000000, "Expected gas limit for 34443");
@@ -59,12 +67,12 @@ contract SingleMultisigTaskTest is Test {
         addrRegistry = multisigTask.addrRegistry();
         assertEq(
             multisigTask.parentMultisig(),
-            addrRegistry.getAddress("SystemConfigOwner", 34443),
+            toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigOwner", 34443),
             "Wrong safe address string"
         );
         assertEq(
             multisigTask.parentMultisig(),
-            addrRegistry.getAddress("SystemConfigOwner", 1750),
+            toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigOwner", 1750),
             "Wrong safe address string"
         );
         assertEq(multisigTask.isNestedSafe(multisigTask.parentMultisig()), false, "Expected isNestedSafe to be false");
@@ -76,12 +84,12 @@ contract SingleMultisigTaskTest is Test {
         address[] memory allowedStorageAccesses = multisigTask.getAllowedStorageAccess();
         assertEq(
             allowedStorageAccesses[0],
-            addrRegistry.getAddress("SystemConfigProxy", 34443),
+            toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigProxy", 34443),
             "Wrong storage write access address"
         );
         assertEq(
             allowedStorageAccesses[1],
-            addrRegistry.getAddress("SystemConfigProxy", 1750),
+            toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigProxy", 1750),
             "Wrong storage write access address"
         );
     }
@@ -102,8 +110,16 @@ contract SingleMultisigTaskTest is Test {
             localMultisigTask.processTaskActions(actions);
 
         assertEq(targets.length, 2, "Expected 2 targets");
-        assertEq(targets[0], addrRegistry.getAddress("SystemConfigProxy", 34443), "Expected SystemConfigProxy target");
-        assertEq(targets[1], addrRegistry.getAddress("SystemConfigProxy", 1750), "Expected SystemConfigProxy target");
+        assertEq(
+            targets[0],
+            toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigProxy", 34443),
+            "Expected SystemConfigProxy target"
+        );
+        assertEq(
+            targets[1],
+            toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigProxy", 1750),
+            "Expected SystemConfigProxy target"
+        );
         assertEq(values.length, 2, "Expected 2 values");
         assertEq(values[0], 0, "Expected 0 value");
         assertEq(values[1], 0, "Expected 0 value");
@@ -187,14 +203,14 @@ contract SingleMultisigTaskTest is Test {
     function testRevertIfUnsupportedChain() public {
         vm.chainId(10);
         MultisigTask localMultisigTask = new GasConfigTemplate();
-        vm.expectRevert("Unsupported network");
+        vm.expectRevert("SuperchainAddressRegistry: Unsupported task chain ID 10");
         localMultisigTask.simulateRun(taskConfigFilePath);
     }
 
     function testRevertIfDifferentL2SafeAddresses() public {
         string memory incorrectTaskConfigFilePath = "test/tasks/mock/configs/MultisigSafeAddressMismatch.toml";
         MultisigTask localMultisigTask = new GasConfigTemplate();
-        AddressRegistry addressRegistry = new AddressRegistry(incorrectTaskConfigFilePath);
+        SuperchainAddressRegistry addressRegistry = new SuperchainAddressRegistry(incorrectTaskConfigFilePath);
         bytes memory expectedRevertMessage = bytes(
             string.concat(
                 "MultisigTask: safe address mismatch. Caller: ",
@@ -209,7 +225,7 @@ contract SingleMultisigTaskTest is Test {
 
     function testRevertIfIncorrectAllowedStorageWrite() public {
         MultisigTask localMultisigTask = new IncorrectGasConfigTemplate1();
-        AddressRegistry addressRegistry = new AddressRegistry(taskConfigFilePath);
+        SuperchainAddressRegistry addressRegistry = new SuperchainAddressRegistry(taskConfigFilePath);
         bytes memory expectedRevertMessage = bytes(
             string.concat(
                 "MultisigTask: address ",
@@ -223,7 +239,7 @@ contract SingleMultisigTaskTest is Test {
 
     function testRevertIfAllowedStorageNotWritten() public {
         MultisigTask localMultisigTask = new IncorrectGasConfigTemplate2();
-        AddressRegistry addressRegistry = new AddressRegistry(taskConfigFilePath);
+        SuperchainAddressRegistry addressRegistry = new SuperchainAddressRegistry(taskConfigFilePath);
         bytes memory expectedRevertMessage = bytes(
             string.concat(
                 "MultisigTask: address ",
@@ -252,7 +268,8 @@ contract SingleMultisigTaskTest is Test {
 
         multisigTask.simulateRun("src/improvements/tasks/example/eth/001-dispute-game-upgrade-template/config.toml");
         addrRegistry = multisigTask.addrRegistry();
-        address account = addrRegistry.getAddress("DisputeGameFactoryProxy", getChain("optimism").chainId);
+        address account =
+            toSuperchainAddrRegistry(addrRegistry).getAddress("DisputeGameFactoryProxy", getChain("optimism").chainId);
 
         vm.revertTo(start);
 
@@ -277,8 +294,8 @@ contract SingleMultisigTaskTest is Test {
         bytes memory callData = multisigTask.getMulticall3Calldata(actions);
         bytes memory dataToSign = multisigTask.getEncodedTransactionData(multisigTask.parentMultisig(), callData);
         address multisig = multisigTask.parentMultisig();
-        address systemConfigMode = addrRegistry.getAddress("SystemConfigProxy", 34443);
-        address systemConfigMetal = addrRegistry.getAddress("SystemConfigProxy", 1750);
+        address systemConfigMode = toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigProxy", 34443);
+        address systemConfigMetal = toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigProxy", 1750);
         // revert to snapshot so that the safe is in the same state as before the task was run
         vm.revertTo(snapshotId);
 
