@@ -24,13 +24,13 @@ import {LibSort} from "@solady/utils/LibSort.sol";
 ///         (
 ///             AccountAccessParser.DecodedTransfer[] memory transfers,
 ///             AccountAccessParser.DecodedStateDiff[] memory diffs
-///         ) = accountAccesses.decode();
+///         ) = accountAccesses.decode(false);
 ///
 ///         // Get the state diff for a given account.
 ///         StateDiff[] memory diffs = accountAccesses.getStateDiffFor(myContract);
 ///
 ///         // Get an array of all unique accounts that had state changes.
-///         address[] memory accountsWithStateChanges = accountAccesses.getUniqueWrites();
+///         address[] memory accountsWithStateChanges = accountAccesses.getUniqueWrites(false);
 ///
 ///         // Get all new contracts created.
 ///         address[] memory newContracts = accountAccesses.getNewContracts();
@@ -206,6 +206,7 @@ library AccountAccessParser {
         }
     }
 
+    /// @notice Extracts all unique contract creations from the provided account accesses.
     function getNewContracts(VmSafe.AccountAccess[] memory accesses)
         internal
         pure
