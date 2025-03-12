@@ -17,17 +17,18 @@ are missing from this document. Additionally, please verify that for each contra
 > Before signing, ensure the below hashes match what is on your ledger.
 > ### Security Council
 > - Domain hash: `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
-> - Message hash: `0x430741c0c80d12ad39f01c3367791e3ee59c73e2ff0f565add075f935fe875d6`
+> - Message hash: `0x3a8ae85d16128fedabb4d6d57fb721bbf635902c9d7a290b5a88512e2157d52a`
 > ### Optimism Foundation
 > - Domain hash: `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message hash: `0xf4dfba4d97fb21d884a38ef84cc2219e544e5e2b3c0ba6b28779d770995e60f0`
+> - Message hash: `0x07467136b768d1c8954249fc5699f64e37a8ca3f9e981cc912a3600ae59865a6`
 > ### Chain-Governor
 > - Domain hash: `0x4f0b6efb6c01fa7e127a0ff87beefbeb53e056d30d3216c5ac70371b909ca66d`
-> - Message hash: `0x49d5cebc73fad795ba2ece47ea8df2bb7ec20f654e78d7974bd17b82b1018f21`
+> - Message hash: `0x5b9598300e5a438cde2fe20605c55d4d5932af294e9faf58b4c5004efbf1a255`
 
 ## Verify new absolute prestate
 
-Please verify that the new absolute prestate is set correctly to `0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd`. See [Petra notice](https://docs.optimism.io/notices/pectra-changes#verify-the-new-absolute-prestate) in docs for more details. 
+Please verify that the new absolute prestate is set correctly to `0x0354eee87a1775d96afee8977ef6d5d6bd3612b256170952a01bf1051610ee01
+`. See [Petra notice](https://docs.optimism.io/notices/pectra-changes#verify-the-new-absolute-prestate) in docs for more details. 
 
 You can verify this absolute prestate by running the following [command](https://github.com/ethereum-optimism/optimism/blob/6819d8a4e787df2adcd09305bc3057e2ca4e58d9/Makefile#L133-L135) in the root of the monorepo:
 
@@ -39,25 +40,46 @@ You should expect the following output at the end of the command:
 
 ```bash
 Cannon Absolute prestate hash: 
-0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd
+0x0354eee87a1775d96afee8977ef6d5d6bd3612b256170952a01bf1051610ee01
 Cannon64 Absolute prestate hash: 
-0x03a7d967025dc434a9ca65154acdb88a7b658147b9b049f0b2f5ecfb9179b0fe
+0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405
 CannonInterop Absolute prestate hash: 
-0x0379d61de1833af6766f07b4ed931d85b3f6282508bbcbf9f4637398d97b61c1
+0x03673e05a48799e6613325a3f194114c0427d5889cefc8f423eed02dfb881f23
 ```
+
+
 ## State Overrides
 Note: The changes listed below do not include threshold and number of owners overrides or liveness guard related changes, these changes are listed in the [NESTED-VALIDATION.md](../../../NESTED-VALIDATION.md) file.
 
 ### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Council Safe)
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
-  **Value:** `0x0000000000000000000000000000000000000000000000000000000000000014` <br/>
-  **Meaning:** Override the nonce value of the `Security Council` by increasing from 18 to 20.
+ | **Key** | `0x0000000000000000000000000000000000000000000000000000000000000005` |
+ |---------|----------------------------------------------------------------------------------|
+ | **After** | `0x0000000000000000000000000000000000000000000000000000000000000014` |
+
+**Meaning:** Override the nonce value of the `Security Council` by increasing from 18 to 20.
 
 
 ### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation Upgrade Safe)
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
-  **Value:** `0x0000000000000000000000000000000000000000000000000000000000000012` <br/>
-  **Meaning:** Override the nonce value of the Foundation Upgrade Safe by increasing from 16 to 18.
+ | **Key** | `0x0000000000000000000000000000000000000000000000000000000000000005` |
+ |---------|----------------------------------------------------------------------------------|
+ | **After** | `0x0000000000000000000000000000000000000000000000000000000000000012` |
+
+**Meaning:** Override the nonce value of the Foundation Upgrade Safe by increasing from 16 to 18.
+
+### `0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC` (Chain Governor Safe)
+ | **Key** | `0x0000000000000000000000000000000000000000000000000000000000000005` |
+ |---------|----------------------------------------------------------------------------------|
+ | **After** | `0x0000000000000000000000000000000000000000000000000000000000000008` |
+
+**Meaning:** Override the nonce value of the Chain Governor Safe by increasing from 7 to 8.
+
+### `0x6d5B183F538ABB8572F5cD17109c617b994D5833` (Unichain Owner Safe)
+ | **Key** | `0x0000000000000000000000000000000000000000000000000000000000000005` |
+ |---------|----------------------------------------------------------------------------------|
+ | **After** | `0x0000000000000000000000000000000000000000000000000000000000000002` |
+
+**Meaning:** Override the nonce value of the Unichain Owner Safe by increasing from 1 to 2.
+
 
 ## State Changes
 
