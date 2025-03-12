@@ -134,6 +134,7 @@ simulate-all-templates:
 # Simulate a task and verify the domain separator and message hash
 # This command is to be used during development to verify a single task, without resorting to CI.
 # In the future, this functionality will be reused to for multisig members simulation tasks they are about to sign.
+# The TASK parameter is the relative or absolute path to a task directory to be sim,ulated and verified.
 simulate-verify-task TASK="":
     #!/usr/bin/env bash
     set -euo pipefail
