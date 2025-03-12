@@ -19,7 +19,7 @@ contract NestedSignFromJson is
     uint256 constant initBond = 0.08 ether;
     string constant l1ChainName = "mainnet";
     string constant l2ChainName = "unichain";
-    string constant release = "v1.8.0-rc.4";
+    string constant release = "v1.8.0";
 
     HoloceneSystemConfigUpgrade sysCfgUpgrade;
 

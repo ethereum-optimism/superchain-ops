@@ -29,18 +29,16 @@ Note: The changes listed below do not include threshold and number of owners ove
 
  
 ### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Council Safe)
- | **Key** | `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e` |
+ | **Key** | `0x0000000000000000000000000000000000000000000000000000000000000005` |
  |---------|----------------------------------------------------------------------------------|
- | **Before** | `0x0000000000000000000000000000000000000000000000000000000000000005` |
  | **After** | `0x0000000000000000000000000000000000000000000000000000000000000013` |
 
 **Meaning:** Override the nonce value of the `Security Council` by increasing from 18 to 19.
 
 
 ### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation Upgrade Safe)
- | **Key** | `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e` |
+ | **Key** | `0x0000000000000000000000000000000000000000000000000000000000000005` |
  |---------|----------------------------------------------------------------------------------|
- | **Before** | `0x0000000000000000000000000000000000000000000000000000000000000005` |
  | **After** | `0x0000000000000000000000000000000000000000000000000000000000000011` |
 
 **Meaning:** Override the nonce value of the Foundation Upgrade Safe by increasing from 16 to 17.
@@ -100,7 +98,7 @@ The safes state changes can be found [here](../../../NESTED-VALIDATION.md#gnosis
 **Meaning**: Updates the scalar slot to reflect a scalar version of 1. 
 
 
-In addition to the standard SystemConfig upgrade, this upgrade corrects the `blobBaseFeeScalar` in SystemConfig from 0 to 900000, fixing an oversight in the previous Unichain deployment. This value now matches what's used on L2, which can be verified by checking the `blobBaseFeeScalar` value on the [L1BlockInfo contract]([url](https://unichain.blockscout.com/address/0x4200000000000000000000000000000000000015?tab=read_write_proxy&source_address=0xc0d3C0D3C0D3c0D3C0D3C0d3C0D3c0D3c0d30015#0x68d5dca6)) (`0x4200000000000000000000000000000000000015`) on Unichain mainnet.
+In addition to the standard SystemConfig upgrade, this upgrade corrects the `blobBaseFeeScalar` in SystemConfig from 0 to 900000 (0xdbba0), fixing an oversight in the previous Unichain deployment. This value now matches what's used on L2, which can be verified by checking the `blobBaseFeeScalar` value on the [L1BlockInfo contract]([url](https://unichain.blockscout.com/address/0x4200000000000000000000000000000000000015?tab=read_write_proxy&source_address=0xc0d3C0D3C0D3c0D3C0D3C0d3C0D3c0D3c0d30015#0x68d5dca6)) (`0x4200000000000000000000000000000000000015`) on Unichain mainnet.
 
  | **Key** | `0x0000000000000000000000000000000000000000000000000000000000000068` |
  |---------|----------------------------------------------------------------------------------|
