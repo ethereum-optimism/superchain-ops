@@ -1,6 +1,6 @@
 # Unichain Sepolia L1 Petra Support Upgrade
 
-Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x7db018215e3af49fb2ad685eadf18e69d50903bfb13485a730648e4d5990a2b0)
+Status: READY TO SIGN
 
 ## Objective
 
@@ -43,5 +43,3 @@ Please see the instructions for [validation](./VALIDATION.md).
 This upgrade:
 
 * Updates the `DisputeGameFactory` to point to the new `FaultDisputeGame` and `PermissionedDisputeGame` contracts by calling `DisputeGameFactory.setImplementation`
-
-See the [overview](./OVERVIEW.md) and `input.json` bundle for more details.

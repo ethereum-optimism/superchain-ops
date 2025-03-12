@@ -581,7 +581,7 @@ workflows:
 
       - simulate_sequence:
           name: simulate_sequence_eth
-          network: "eth"
+          network: "sep"
           tasks: "unichain-003"
           block_number: "" # If not specified, the latest block number is used.
           context:
