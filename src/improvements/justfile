@@ -124,9 +124,10 @@ simulate-all-templates:
     simulation_count=0
     for task in ${root_dir}/test/tasks/example/*/*; do
         if [ -d "$task" ]; then
+            current_dir=$(pwd)
             # Derive a filepath for the verify input. e.g if the task is in src/improvements/tasks/example/eth/000-gas-config-template.sol
-            # then the verify input will be in OPVerifyInputs/eth/000-gas-config-template-input.json at the root
-            op_verify_input_filepath="${root_dir}/OPVerifyInputs/$(basename "$(dirname "${task}")")/${task##*/}-input.json"
+            # then the verify input will be in current_dir/OPVerifyInputs/eth/000-gas-config-template-input.json in the current directory
+            op_verify_input_filepath="${current_dir}/OPVerifyInputs/$(basename "$(dirname "${task}")")/${task##*/}-input.json"
             # Create the directory for the verify input if it doesn't exist
             mkdir -p "$(dirname "$op_verify_input_filepath")"
             ${root_dir}/src/improvements/script/simulate-task.sh $task $nested_safe_name $gen_verify_input $op_verify_input_filepath
