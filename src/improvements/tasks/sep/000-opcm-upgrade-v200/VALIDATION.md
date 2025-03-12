@@ -197,7 +197,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
     // TODO where can I get a link to this new impl?
     Summary: Updated CANNON GameType implementation.
-    Detail: This is gameImpls[0] -> 0x7982afa9530a3f6b88dd49cd3974cb3121ffb00d`
+    Detail: This is gameImpls[0] -> 0x7982afa9530a3f6b88dd49cd3974cb3121ffb00d
             where `0` is the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28">CANNON game type</a>.
             Verify that the old implementation is set in this slot using:
               - <i>cast call 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1 "gameImpls(uint32)(address)" 0 --rpc-url sepolia</i>
