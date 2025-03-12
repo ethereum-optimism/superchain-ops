@@ -1067,7 +1067,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                 if (_checkStorageWrites()) {
                     bool allowed;
                     for (uint256 k; k < allowedAccesses.length; k++) {
-                        allowed = allowed || (account == allowedAccesses[k] || _isNewContract(account, newContracts));
+                        allowed = allowed || (account == allowedAccesses[k]) || _isNewContract(account, newContracts);
                     }
                     require(allowed, string.concat("Unallowed Storage access: ", vm.toString(account)));
                 }
