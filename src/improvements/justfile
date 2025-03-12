@@ -132,6 +132,8 @@ simulate-all-templates:
     fi
 
 # Simulate a task and verify the domain separator and message hash
+# This command is to be used during development to verify a single task, without resorting to CI.
+# In the future, this functionality will be reused to for multisig members simulation tasks they are about to sign.
 simulate-verify-task TASK="":
     #!/usr/bin/env bash
     set -euo pipefail
@@ -153,6 +155,8 @@ simulate-verify-task TASK="":
     ${root_dir}/src/improvements/script/simulate-verify-task.sh "$task_path" $nested_safe_name
 
 # Simulate all non-terminal tasks and verify the domain separator and message hashes
+# This command is expected to be run from CI, excluding all tasks in the examples directory.
+# TODO: Exclude example tasks and add to CI once we have real tasks outside of the examples directory.
 simulate-non-terminal-tasks:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -164,7 +168,8 @@ simulate-non-terminal-tasks:
     # For testing purposes, we do not gain anything by simulating as other nested safes.
     nested_safe_name="foundation"
 
-    # Later this networks list should be dynamically generated from the src/improvements/tasks directory.
+    # Later this networks list should be dynamically generated from the src/improvements/tasks directory,
+    # and we should exclude the example tasks once we have real tasks to run.
     for task in ${root_dir}/src/improvements/tasks/example/*/*; do
         # Skip tasks marked as SIGNED or EXECUTED
         status=$(grep -i "Status:" "$task/README.md" | sed -n 's/.*Status: \[\(.*\)\].*/\1/p')
