@@ -66,7 +66,7 @@ contract FinanceTemplate is SimpleBase {
     /// @notice Returns the safe address string identifier
     /// @return The string "FoundationOperationSafe"
     function safeAddressString() public pure override returns (string memory) {
-        return "FoundationOperationSafe";
+        return "SafeToSendFrom";
     }
 
     /// @notice Returns the storage write permissions required for this task
