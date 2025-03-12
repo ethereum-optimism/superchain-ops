@@ -231,8 +231,7 @@ For each contract listed in the state diff, please verify that no contracts or s
     [WARN] Slot was not decoded
 
     Summary: <i>isRC</i> storage slot updated to 0.
-    Detail: Once OPContractsManager is upgraded, the <i>isRC</i> flag is set to false. This happens in the first invocation of the <i>upgrade</i> function. <i>cast to-hex 22</i> -> <i>0x16</i>
-    ![OPContractsManager isRC flag set to false](../images/op-contracts-manager-storage-layout.png)
+    Detail: Once OPContractsManager is upgraded, the <i>isRC</i> flag is set to false. This happens in the first invocation of the <i>upgrade</i> function. Slot 22 is the <i>isRC</i> flag: <i>cast to-hex 22</i> -> <i>0x16</i>. Please refer to <i>'Figure 0.1'</i> at the end of this report for the storage layout of OPContractsManager.
  </code>
 </pre>
 
@@ -799,3 +798,9 @@ For each contract listed in the state diff, please verify that no contracts or s
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
 ```
+
+# Supplementary Material
+
+## Figure 0.1: Storage Layout of OPContractsManager
+
+![OPContractsManager isRC flag set to false](./images/op-contracts-manager-storage-layout.png)
