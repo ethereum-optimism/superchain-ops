@@ -1,15 +1,33 @@
 # Validation
 
-This document can be used to validate the state diff resulting from the execution of the upgrade transaction.
+This document can be used to validate the inputs and result of the execution of the upgrade transaction which you are
+signing.
 
-For each contract listed in the state diff, please verify that no contracts or state changes shown in the Tenderly diff
-are missing from this document. Additionally, please verify that for each contract:
+The steps are:
 
-- The following state changes (and none others) are made to that contract. This validates that no unexpected state
-  changes occur.
-- All addresses (in section headers and storage values) match the provided name, using the Etherscan and Superchain
-  Registry links provided. This validates the bytecode deployed at the addresses contains the correct logic.
-- All key values match the semantic meaning provided, which can be validated using the storage layout links provided.
+1. [Validate the Domain and Message Hashes](#expected-domain-and-message-hashes)
+2. [Verifying the transaction input](#understanding-task-calldata)
+3. [Verifying the state changes](#state-changes)
+
+## Expected Domain and Message Hashes
+
+First, we need to validate the domain and message hashes. These values should match both the values on your ledger and
+the values printed to the terminal when you run the task.
+
+> [!CAUTION]
+>
+> Before signing, ensure the below hashes match what is on your ledger.
+>
+> ### Security Council
+>
+> - Domain Hash: ``
+> - Message Hash: ``
+>
+> ### Optimism Foundation
+>
+> - Domain Hash: `0x260bd5f92cfcb40d079b1c6f6a7ff07df436553ba65d01934e15aabe1b88657f`
+> - Message Hash: `0xb491d2d776a746ea34af0f99dde9520490bbc3dcf5631afe431ffcd4ca1bab33`
+
 
 ## Understanding Task Calldata
 
@@ -77,12 +95,28 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
 
 - Command to encode: `cast calldata 'upgrade((address,address,bytes32)[])' "[(0x034edD2A225f7f429A63E0f1D2084B9E0A93b538,0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc,0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9),(0x4Ca9608Fef202216bc21D543798ec854539bAAd3,0xff9d236641962Cebf9DBFb54E7b8e91F99f10Db0,0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9),(0x05C993e60179f28bF649a2Bb5b00b5F4283bD525,0xd7dB319a49362b2328cf417a934300cCcB442C8d,0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9)]"`
 
-## Tenderly State Changes
-[Link](https://dashboard.tenderly.co/oplabs/sepolia/simulator/62dedc08-ec92-4a6d-a1c9-9e681b032391)
 
-## Auto Generated Task State Changes
+# State Changes
+
+For each contract listed in the state diff, please verify that no contracts or state changes shown in the Tenderly diff
+are missing from this document. Additionally, please verify that for each contract:
+
+- The following state changes (and none others) are made to that contract. This validates that no unexpected state
+  changes occur.
+- All addresses (in section headers and storage values) match the provided name, using the Etherscan and Superchain
+  Registry links provided. This validates the bytecode deployed at the addresses contains the correct logic.
+- All key values match the semantic meaning provided, which can be validated using the storage layout links provided.
+
+### Tenderly State Changes
+[Link](https://dashboard.tenderly.co/oplabs/sepolia/simulator/ba323cb0-771a-4b03-81f9-e99b87345b9e)
+
+### Auto Generated Task State Changes
 
 ```bash
+###################################################################################################################################################
+################################################  EVERYTHING ABOVE THIS LINE HAS ##################################################################
+##################################################        BEEN VALIDATED       ####################################################################
+###################################################################################################################################################
 ----------------- Task State Changes -------------------
 
 ----- DecodedStateDiff[0] -----
@@ -262,7 +296,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
   Chain ID:
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x40b24dd3a5e2062ac236bf737292b6a5182c1fb6ecb9a3b9b352965117b86df6
+  Raw New Value:     0x07c9e5c189412fe87404502c8f70f6d0f4dc482b7c933fc37424c91d2f7ca06a
   [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[16] -----
@@ -271,7 +305,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
   Chain ID:
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x00000000000000000000000000000000000000000000000000000000008b16b5
+  Raw New Value:     0x00000000000000000000000000000000000000000000000000000000008b969b
   [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[17] -----
@@ -608,7 +642,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
   Chain ID:
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x969544a559d298a2ee23b54b3fc393eb7bf97d1c99410fd7891d9e8cce2a40b9
+  Raw New Value:     0x742ea618a09335ea1a94c22ac2e643abf463433147dc4a09b7dfacff065342f1
   [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[46] -----
@@ -617,7 +651,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
   Chain ID:
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000bd8862
+  Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000be8162
   [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[47] -----
@@ -679,7 +713,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
   Chain ID:
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x306d7c4e5b20b8c73618b6aa5c41aaeaebf3d3adac2563bd3d3afcf30996d9dc
+  Raw New Value:     0xcad036c510dd0090bf83ce76cddc4e911c177929a3af6d7bf8fda1f7c5a2e3a7
   [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[53] -----
@@ -688,7 +722,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
   Chain ID:
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x00000000000000000000000000000000000000000000000000000000017a9c68
+  Raw New Value:     0x00000000000000000000000000000000000000000000000000000000017b19f1
   [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[54] -----
