@@ -116,7 +116,26 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ### Task State Changes
 
-### ----- DecodedStateDiff[0] -----
+<pre>
+ <code>
+  ----- DecodedStateDiff[0] -----
+    Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/superchain/configs/sepolia/op.toml#L59">0x034edD2A225f7f429A63E0f1D2084B9E0A93b538</a>
+    Contract:          SystemConfig - OP Sepolia Testnet
+    Chain ID:          11155420
+    Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
+    Raw Old Value:     0x00000000000000000000000033b83e4c305c908b2fc181dda36e230213058d7d
+    Raw New Value:     0x000000000000000000000000760c48c62a85045a6b69f07f4a9f22868659cbcc
+    Decoded Kind:      address
+    Decoded Old Value: 0x33b83E4C305c908B2Fc181dDa36e230213058d7d
+    Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/validation/standard/standard-versions-sepolia.toml#L27">0x760C48C62A85045A6B69f07F4a9f22868659CbCc</a>
+    Summary:           ERC-1967 implementation slot
+    Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+ </code>
+</pre>
+
+
+```bash
+----- DecodedStateDiff[0] -----
   Who:               [0x034edD2A225f7f429A63E0f1D2084B9E0A93b538](https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/superchain/configs/sepolia/op.toml#L59)
   Contract:          `SystemConfig` - OP Sepolia Testnet
   Chain ID:          `11155420`
@@ -125,11 +144,11 @@ For each contract listed in the state diff, please verify that no contracts or s
   Raw New Value:     `0x000000000000000000000000760c48c62a85045a6b69f07f4a9f22868659cbcc`
   Decoded Kind:      address
   Decoded Old Value: `0x33b83E4C305c908B2Fc181dDa36e230213058d7d`
-  Decoded New Value: [0x760C48C62A85045A6B69f07F4a9f22868659CbCc](https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/validation/standard/standard-versions-sepolia.toml#L27)
+  Decoded New Value: [``0x760C48C62A85045A6B69f07F4a9f22868659CbCc``](https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/validation/standard/standard-versions-sepolia.toml#L27)
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
 
-### ----- DecodedStateDiff[1] -----
+----- DecodedStateDiff[1] -----
   Who:               [0x05C993e60179f28bF649a2Bb5b00b5F4283bD525](https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/superchain/configs/sepolia/ink.toml#L59)
   Contract:          `SystemConfig` - Ink Sepolia
   Chain ID:          `763373`
@@ -759,3 +778,4 @@ For each contract listed in the state diff, please verify that no contracts or s
   Decoded New Value: 0x78972E88Ab8BBB517a36cAea23b931BAB58AD3c6
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+```
