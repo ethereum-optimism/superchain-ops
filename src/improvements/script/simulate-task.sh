@@ -1,12 +1,14 @@
 #!/bin/bash
 set -euo pipefail
 
-# Simulates a task given a path to the task directory. 
+# Simulates a task given a path to the task directory.
 # This function will determine if the task is nested or not then
-# simulate it with the appropriate justfile. 
+# simulate it with the appropriate justfile.
 simulate_task() {
     task=$1
     nested_safe_name=$2
+    gen_verify_input=$3
+    op_verify_input_filepath=$4
     root_dir=$(git rev-parse --show-toplevel)
     nested_just_file="${root_dir}/src/improvements/nested.just"
     single_just_file="${root_dir}/src/improvements/single.just"
@@ -28,14 +30,14 @@ simulate_task() {
             echo "Error: this task requires a nested safe name e.g. foundation, council, chain-governor."
             exit 1
         fi
-        SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile "$nested_just_file" simulate "$nested_safe_name"
+        SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile "$nested_just_file" simulate "$nested_safe_name" "$gen_verify_input" "$op_verify_input_filepath"
     else
         echo "Simulating single task: $task"
-        SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile "$single_just_file" simulate
+        SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile "$single_just_file" simulate "$gen_verify_input" "$op_verify_input_filepath"
     fi
 
     echo -e "\n\nDone simulating task: $task"
     popd > /dev/null
 }
 
-simulate_task "$1" "$2"
+simulate_task "$1" "$2" "$3" "$4"
