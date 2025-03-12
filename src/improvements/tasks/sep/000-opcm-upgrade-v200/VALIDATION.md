@@ -232,7 +232,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
     Summary: <i>isRC</i> storage slot updated to 0.
     Detail: Once OPContractsManager is upgraded, the <i>isRC</i> flag is set to false. This happens in the first invocation of the <i>upgrade</i> function. <i>cast to-hex 22</i> -> <i>0x16</i>
-    ![OPContractsManager isRC flag set to false](./images/op-contracts-manager-storage-layout.png)
+    ![OPContractsManager isRC flag set to false](../images/op-contracts-manager-storage-layout.png)
  </code>
 </pre>
 
