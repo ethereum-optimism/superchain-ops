@@ -14,7 +14,7 @@ simulate_verify_task() {
     # For testing purposes, we do not gain anything by simulating as other nested safes.
     nested_safe_name="foundation"
     gen_verify_input="true"
-    op_verify_input_filepath="OPVerifyInputs/$(basename $(dirname ${task}))/${task##*/}-input.json"
+    op_verify_input_filepath="${root_dir}/OPVerifyInputs/$(basename "$(dirname "${task}")")/${task##*/}-input.json"
 
     "$root_dir"/src/improvements/script/simulate-task.sh "$task" "$nested_safe_name" "$gen_verify_input" "$op_verify_input_filepath" | tee "$local_output_file"
 
