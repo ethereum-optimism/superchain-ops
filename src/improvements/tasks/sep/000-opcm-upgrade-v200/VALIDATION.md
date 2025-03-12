@@ -330,8 +330,9 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ----- DecodedStateDiff[13] -----
   Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
-  Contract:
-  Chain ID:
+  Contract:          AnchorStateRegistryProxy - Soneium Testnet Minato
+  Chain ID:          1946
+
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0xfc3e28704c5ab7bb943193afd784c1b2a97d1dd8d3f880519389a6574f14ae5c
