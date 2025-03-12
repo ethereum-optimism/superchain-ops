@@ -72,11 +72,7 @@ contract FinanceTemplate is SimpleBase {
     /// @notice Returns the storage write permissions required for this task
     /// @return Array of storage write permissions
     function _taskStorageWrites() internal pure override returns (string[] memory) {
-        string[] memory storageWrites;
-
-        storageWrites = new string[](1);
-        storageWrites[0] = "TEST";
-        return storageWrites;
+        return new string[](0);
     }
 
     /// @notice Sets up the template with module configuration from a TOML file
@@ -167,6 +163,12 @@ contract FinanceTemplate is SimpleBase {
 
     /// @notice No code exceptions for this template
     function getCodeExceptions() internal view override returns (address[] memory) {}
+
+    /// @notice No storage write checks for this template
+    /// TODO: Remove this function once we can set token storage writes in the FinanceTemplate
+    function _checkStorageWrites() internal pure override returns (bool) {
+        return false;
+    }
 
     /// @notice Returns the operation type enum
     function _getOperationType() internal view returns (OperationType) {

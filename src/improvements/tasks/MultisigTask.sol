@@ -474,6 +474,13 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         return _allowedStorageAccesses.values();
     }
 
+    /// @notice check if storage writes are allowed
+    /// override this function in FinanceTemplate to return false to avoid storage writes checks
+    /// TODO: Remove this function once we can set token storage writes in the FinanceTemplate
+    function _checkStorageWrites() internal pure virtual returns (bool) {
+        return true;
+    }
+
     /// @notice execute post-task checks.
     ///          e.g. read state variables of the deployed contracts to make
     ///          sure they are deployed and initialized correctly, or read
@@ -482,30 +489,33 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         // write all state changes to storage
         _processStateDiffChanges(accountAccesses);
 
-        // check that all state change addresses are in allowed storage accesses
-        for (uint256 i; i < _taskStateChangeAddresses.length(); i++) {
-            address addr = _taskStateChangeAddresses.at(i);
-            require(
-                _allowedStorageAccesses.contains(addr),
-                string(
-                    abi.encodePacked(
-                        "MultisigTask: address ", getAddressLabel(addr), " not in allowed storage accesses"
+        // TODO: Remove this if block once we can set token storage writes in the FinanceTemplate
+        if (_checkStorageWrites()) {
+            // check that all state change addresses are in allowed storage accesses
+            for (uint256 i; i < _taskStateChangeAddresses.length(); i++) {
+                address addr = _taskStateChangeAddresses.at(i);
+                require(
+                    _allowedStorageAccesses.contains(addr),
+                    string(
+                        abi.encodePacked(
+                            "MultisigTask: address ", getAddressLabel(addr), " not in allowed storage accesses"
+                        )
                     )
-                )
-            );
-        }
+                );
+            }
 
-        // check that all allowed storage accesses are in task state change addresses
-        for (uint256 i; i < _allowedStorageAccesses.length(); i++) {
-            address addr = _allowedStorageAccesses.at(i);
-            require(
-                _taskStateChangeAddresses.contains(addr),
-                string(
-                    abi.encodePacked(
-                        "MultisigTask: address ", getAddressLabel(addr), " not in task state change addresses"
+            // check that all allowed storage accesses are in task state change addresses
+            for (uint256 i; i < _allowedStorageAccesses.length(); i++) {
+                address addr = _allowedStorageAccesses.at(i);
+                require(
+                    _taskStateChangeAddresses.contains(addr),
+                    string(
+                        abi.encodePacked(
+                            "MultisigTask: address ", getAddressLabel(addr), " not in task state change addresses"
+                        )
                     )
-                )
-            );
+                );
+            }
         }
 
         require(IGnosisSafe(parentMultisig).nonce() == nonce + 1, "MultisigTask: nonce not incremented");
@@ -1059,11 +1069,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                 }
                 require(account.code.length != 0, string.concat("Storage account has no code: ", vm.toString(account)));
                 require(!storageAccess.reverted, string.concat("Storage access reverted: ", vm.toString(account)));
-                bool allowed;
-                for (uint256 k; k < allowedAccesses.length; k++) {
-                    allowed = allowed || (account == allowedAccesses[k]);
+                // TODO: Remove this if block once we can set token storage writes in the FinanceTemplate
+                if (_checkStorageWrites()) {
+                    bool allowed;
+                    for (uint256 k; k < allowedAccesses.length; k++) {
+                        allowed = allowed || (account == allowedAccesses[k]);
+                    }
+                    require(allowed, string.concat("Unallowed Storage access: ", vm.toString(account)));
                 }
-                require(allowed, string.concat("Unallowed Storage access: ", vm.toString(account)));
             }
         }
     }
