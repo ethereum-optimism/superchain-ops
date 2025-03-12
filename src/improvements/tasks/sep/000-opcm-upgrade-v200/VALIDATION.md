@@ -177,7 +177,7 @@ For each contract listed in the state diff, please verify that no contracts or s
         - cast call 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1 "gameImpls(uint32)(address)" 1 --rpc-url sepolia
         - cast storage 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1 0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e --rpc-url sepolia 
     The Raw Slot can be derived from:
-        - cast index uint32 1 101
+        - <code>cast index uint32 1 101</code>
         
   
   ----- DecodedStateDiff[4] -----
