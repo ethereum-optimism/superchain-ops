@@ -63,8 +63,7 @@ contract FinanceTemplate is SimpleBase {
     /// in case the operation type is Transfer
     mapping(address => uint256) public tokensTransferred;
 
-    /// @notice Returns the safe address string identifier
-    /// @return The string "FoundationOperationSafe"
+    /// @notice The safe to send this transaction from must be specified in the config file.
     function safeAddressString() public pure override returns (string memory) {
         return "SafeToSendFrom";
     }
