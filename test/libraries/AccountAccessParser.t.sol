@@ -6,7 +6,9 @@ import {Test} from "forge-std/Test.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
 import {Proxy} from "@eth-optimism-bedrock/src/universal/Proxy.sol";
-import {console} from "forge-std/console.sol";
+
+// Solady
+import {LibString} from "solady/utils/LibString.sol";
 
 // Libraries
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
@@ -95,19 +97,20 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         _assertStateDiffsAscending(stateDiffs);
         accountAccesses.decodeAndPrint();
 
-        AccountAccessParser.StateDiff[] memory firstProxyDiffs = accountAccesses.getStateDiffFor(address(proxy1));
+        AccountAccessParser.StateDiff[] memory firstProxyDiffs = accountAccesses.getStateDiffFor(address(proxy1), false);
         assertEq(firstProxyDiffs.length, 1, "10");
         assertEq(firstProxyDiffs[0].slot, slot0, "20");
         assertEq(firstProxyDiffs[0].oldValue, val0, "30");
         assertEq(firstProxyDiffs[0].newValue, bytes32(uint256(10)), "40");
 
-        AccountAccessParser.StateDiff[] memory secondProxyDiffs = accountAccesses.getStateDiffFor(address(proxyA));
+        AccountAccessParser.StateDiff[] memory secondProxyDiffs =
+            accountAccesses.getStateDiffFor(address(proxyA), false);
         assertEq(secondProxyDiffs.length, 1, "50");
         assertEq(secondProxyDiffs[0].slot, slot0, "60");
         assertEq(secondProxyDiffs[0].oldValue, val0, "70");
         assertEq(secondProxyDiffs[0].newValue, bytes32(uint256(11)), "80");
 
-        AccountAccessParser.StateDiff[] memory thirdProxyDiffs = accountAccesses.getStateDiffFor(address(proxyB));
+        AccountAccessParser.StateDiff[] memory thirdProxyDiffs = accountAccesses.getStateDiffFor(address(proxyB), false);
         assertEq(thirdProxyDiffs.length, 1, "90");
         assertEq(thirdProxyDiffs[0].slot, slot0, "100");
         assertEq(thirdProxyDiffs[0].oldValue, val0, "110");
@@ -232,7 +235,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
             accesses[0] = accountAccess(addr1, storageAccesses);
 
-            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr1);
+            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr1, false);
             assertEq(diffs.length, 1, "10");
             assertEq(diffs[0].slot, slot0, "20");
             assertEq(diffs[0].oldValue, val0, "30");
@@ -247,7 +250,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
             accesses[0] = accountAccess(addr2, storageAccesses);
 
-            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr2);
+            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr2, false);
             assertEq(diffs.length, 1, "50");
             assertEq(diffs[0].slot, slot0, "60");
             assertEq(diffs[0].oldValue, val0, "70");
@@ -261,7 +264,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
             accesses[0] = accountAccess(addr3, storageAccesses);
 
-            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr3);
+            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr3, false);
             assertEq(diffs.length, 0, "90");
         }
 
@@ -272,7 +275,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
             accesses[0] = accountAccess(addr4, storageAccesses);
 
-            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr4);
+            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr4, false);
             assertEq(diffs.length, 0, "100");
         }
 
@@ -284,7 +287,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
             accesses[0] = accountAccess(addr4, storageAccesses);
 
-            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr4);
+            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr4, false);
             assertEq(diffs.length, 0, "110");
         }
 
@@ -299,7 +302,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             accesses[0] = accountAccess(addr5, storageAccesses1);
             accesses[1] = accountAccess(addr6, storageAccesses2);
 
-            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr5);
+            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr5, false);
             assertEq(diffs.length, 1, "120");
             assertEq(diffs[0].slot, slot0, "130");
             assertEq(diffs[0].oldValue, val0, "140");
@@ -313,7 +316,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
             accesses[0] = accountAccess(addr7, storageAccesses);
 
-            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr8);
+            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr8, false);
             assertEq(diffs.length, 0, "160");
         }
 
@@ -323,14 +326,14 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
             accesses[0] = accountAccess(addr9, storageAccesses);
 
-            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr9);
+            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr9, false);
             assertEq(diffs.length, 0, "170");
         }
 
         // Test empty accesses array
         {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](0);
-            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr10);
+            AccountAccessParser.StateDiff[] memory diffs = accesses.getStateDiffFor(addr10, false);
             assertEq(diffs.length, 0, "180");
         }
     }
@@ -842,15 +845,15 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
 
         // account3 storage write at slot0
         VmSafe.StorageAccess[] memory secondStorageAccesses = new VmSafe.StorageAccess[](1);
-        secondStorageAccesses[0] = storageAccess(account3, slot0, isWrite, val0, val2);
+        secondStorageAccesses[0] = storageAccess(account3, slot1, isWrite, val0, val2);
 
         // account2 storage write at slot0
         VmSafe.StorageAccess[] memory thirdStorageAccesses = new VmSafe.StorageAccess[](1);
-        thirdStorageAccesses[0] = storageAccess(account2, slot0, isWrite, val0, val2);
+        thirdStorageAccesses[0] = storageAccess(account2, slot1, isWrite, val0, val2);
 
         // account2 storage write at slot1
         VmSafe.StorageAccess[] memory fourthStorageAccesses = new VmSafe.StorageAccess[](1);
-        fourthStorageAccesses[0] = storageAccess(account2, slot1, isWrite, val0, val2);
+        fourthStorageAccesses[0] = storageAccess(account2, slot0, isWrite, val0, val2);
 
         VmSafe.AccountAccess[] memory unsortedAccesses = new VmSafe.AccountAccess[](4);
         unsortedAccesses[0] = accountAccess(account1, firstStorageAccesses);
@@ -868,6 +871,36 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         assertEq(diffs[1].who, account2, "Second should be account2 (0x2222...)");
         assertEq(diffs[2].who, account3, "Third should be account3 (0x3333...)");
         assertEq(diffs[3].who, account4, "Fourth should be account4 (0x4444...)");
+    }
+
+    function test_decode_reverts_if_state_diffs_not_sorted() public view {
+        address account1 = address(0x1);
+        address account2 = address(0x2);
+
+        // account2 storage write at slot0
+        VmSafe.StorageAccess[] memory firstStorageAccesses = new VmSafe.StorageAccess[](1);
+        firstStorageAccesses[0] = storageAccess(account2, slot1, isWrite, val0, val2);
+
+        // account2 storage write at slot1
+        VmSafe.StorageAccess[] memory secondStorageAccesses = new VmSafe.StorageAccess[](1);
+        secondStorageAccesses[0] = storageAccess(account2, slot0, isWrite, val0, val2);
+
+        VmSafe.AccountAccess[] memory unsortedAccesses = new VmSafe.AccountAccess[](2);
+        unsortedAccesses[0] = accountAccess(account1, firstStorageAccesses);
+        unsortedAccesses[1] = accountAccess(account2, secondStorageAccesses);
+
+        // Unsorted state diffs
+        (, AccountAccessParser.DecodedStateDiff[] memory diffs) = AccountAccessParser.decode(unsortedAccesses, false);
+        assertEq(diffs.length, 2, "Invalid number of state diffs");
+        assertEq(diffs[0].who, diffs[1].who, "State diffs should have same account");
+        assertTrue(diffs[0].raw.slot > diffs[1].raw.slot, "Slots should not be sorted");
+
+        // Sorted state diffs
+        (, AccountAccessParser.DecodedStateDiff[] memory sortedDiffs) =
+            AccountAccessParser.decode(unsortedAccesses, true);
+        assertEq(sortedDiffs.length, 2, "Invalid number of state diffs");
+        assertEq(sortedDiffs[0].who, sortedDiffs[1].who, "State diffs should have same account");
+        assertTrue(sortedDiffs[0].raw.slot < sortedDiffs[1].raw.slot, "Slots should be sorted");
     }
 
     function accountAccess(address _account, VmSafe.StorageAccess[] memory _storageAccesses)
@@ -912,11 +945,30 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             return;
         }
         for (uint256 i = 0; i < _diffs.length - 1; i++) {
-            // <= because storage writes can exist at multiple slots for the same account
+            // Less than or equal to because storage writes can exist at multiple slots for the same account.
             assertTrue(
                 uint256(uint160(_diffs[i].who)) <= uint256(uint160(_diffs[i + 1].who)),
-                "State diffs are not in ascending order"
+                string.concat(
+                    "Addresses in state diffs are not in ascending order: ",
+                    LibString.toHexString(_diffs[i].who),
+                    " > ",
+                    LibString.toHexString(_diffs[i + 1].who)
+                )
             );
+            // If the accounts are the same, the slots should also be in ascending order.
+            if (_diffs[i].who == _diffs[i + 1].who) {
+                assertTrue(
+                    uint256(_diffs[i].raw.slot) <= uint256(_diffs[i + 1].raw.slot),
+                    string.concat(
+                        "Slots for address ",
+                        LibString.toHexString(_diffs[i].who),
+                        " are not in ascending order: ",
+                        LibString.toHexString(uint256(_diffs[i].raw.slot)),
+                        " > ",
+                        LibString.toHexString(uint256(_diffs[i + 1].raw.slot))
+                    )
+                );
+            }
         }
     }
 }

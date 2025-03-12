@@ -70,12 +70,12 @@ abstract contract OPCMBaseTask is L2TaskBase {
         (address[] memory targets,,) = processTaskActions(actions);
         require(targets.length == 1 && targets[0] == OPCM, "OPCMBaseTask: only OPCM is allowed as target");
         super.validate(accesses, actions);
-        AccountAccessParser.StateDiff[] memory parentMultisigDiffs = accesses.getStateDiffFor(parentMultisig);
+        AccountAccessParser.StateDiff[] memory parentMultisigDiffs = accesses.getStateDiffFor(parentMultisig, false);
         require(
             parentMultisigDiffs.length == 1, "OPCMBaseTask: only nonce should be updated on upgrade controller multisig"
         );
 
-        AccountAccessParser.StateDiff[] memory opcmDiffs = accesses.getStateDiffFor(OPCM);
+        AccountAccessParser.StateDiff[] memory opcmDiffs = accesses.getStateDiffFor(OPCM, false);
         bytes32 opcmStateSlot = bytes32(uint256(stdstore.target(OPCM).sig(IOPContractsManager.isRC.selector).find()));
         require(opcmDiffs.length <= 1, "OPCMBaseTask: OPCM must have at most 1 state change");
         // Not all invocations of OPCM upgrade will have the isRC state change. This is because it only happens when

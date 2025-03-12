@@ -99,7 +99,7 @@ contract EnableDeputyPauseModuleTemplate is SimpleBase {
         assertEq(uniqueWrites.length, 1, "should only write to foundation ops safe");
         assertEq(uniqueWrites[0], parentMultisig, "should only write to foundation ops safe address");
 
-        AccountAccessParser.StateDiff[] memory accountWrites = accountAccesses.getStateDiffFor(parentMultisig);
+        AccountAccessParser.StateDiff[] memory accountWrites = accountAccesses.getStateDiffFor(parentMultisig, false);
 
         for (uint256 i = 0; i < accountWrites.length; i++) {
             AccountAccessParser.StateDiff memory storageAccess = accountWrites[i];
