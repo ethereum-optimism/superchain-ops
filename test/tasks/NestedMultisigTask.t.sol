@@ -250,7 +250,7 @@ contract NestedMultisigTaskTest is Test {
         vm.createSelectFork("sepolia");
         uint256 snapshotId = vm.snapshot();
         multisigTask = new OPCMUpgradeV200();
-        string memory opcmTaskConfigFilePath = "src/improvements/tasks/example/sep/002-opcm-upgrade-v200/config.toml";
+        string memory opcmTaskConfigFilePath = "test/tasks/example/sep/002-opcm-upgrade-v200/config.toml";
         (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions) =
             multisigTask.simulateRun(opcmTaskConfigFilePath);
         addrRegistry = multisigTask.addrRegistry();
