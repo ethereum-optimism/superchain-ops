@@ -231,7 +231,56 @@ For each contract listed in the state diff, please verify that no contracts or s
     [WARN] Slot was not decoded
 
     Summary: <i>isRC</i> storage slot updated to 0.
-    Detail: Once OPContractsManager is upgraded, the <i>isRC</i> flag is set to false. This happens in the first invocation of the <i>upgrade</i> function. Slot 22 is the <i>isRC</i> flag: <i>cast to-hex 22</i> -> <i>0x16</i>. Please refer to <i>'Figure 0.1'</i> at the end of this report for the storage layout of OPContractsManager.
+    Detail: Once OPContractsManager is upgraded, the <i>isRC</i> flag is set to false. 
+            This happens in the first invocation of the <i>upgrade</i> function.
+            Slot 22 is the <i>isRC</i> flag: <i>cast to-hex 22</i> -> <i>0x16</i>. 
+            Please refer to <i>'Figure 0.1'</i> at the end of this report for the storage layout of OPContractsManager.
+
+  ----- DecodedStateDiff[7] -----
+    Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/validation/standard/standard-config-roles-sepolia.toml#L3">0x1Eb2fFc903729a0F03966B917003800b145F56E2</a>
+    Contract:          ProxyAdminOwner (GnosisSafe)
+    Chain ID:          11155420
+
+    Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
+    Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000016
+    Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000000017
+
+    Decoded Kind:      uint256
+    Decoded Old Value: 22
+    Decoded New Value: 23
+    Summary:           nonce
+    Detail:            The nonce of the ProxyAdminOwner contract is updated.
+
+  ----- DecodedStateDiff[8] -----
+    Who:               <a href="https://github.com/ethereum-optimism/superchain-ops/blob/82fbc1f2051072c235128d8a0222cabced2a2d6c/tasks/sep/ink-001-fp-holocene-pectra-upgrade/.env#L11">0x237840A6Bfd822039d9cC00e1E7BAE280d4F2D49</a>
+    Contract:          Permissioned Delayed WETH Proxy - OP Sepolia Testnet
+    Chain ID:          11155420
+
+    Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
+    Raw Old Value:     0x00000000000000000000000007f69b19532476c6cd03056d6bc3f1b110ab7538
+    Raw New Value:     0x0000000000000000000000005e40b9231b86984b5150507046e354dbfbed3d9e
+    
+    Decoded Kind:      address
+    Decoded Old Value: 0x07F69b19532476c6Cd03056D6BC3F1b110Ab7538
+    Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/validation/standard/standard-versions-sepolia.toml#L33">0x5e40B9231B86984b5150507046e354dbFbeD3d9e</a>
+    Summary:           ERC-1967 implementation slot
+    Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+
+----- DecodedStateDiff[9] -----
+  Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/superchain/configs/sepolia/soneium-minato.toml#L55">0x2bfb22cd534a462028771a1cA9D6240166e450c4</a>
+  Contract:          L1ERC721Bridge - Soneium Testnet Minato
+  Chain ID:          1946
+
+  Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
+  Raw Old Value:     0x000000000000000000000000ae2af01232a6c4a4d3012c5ec5b1b35059caf10d
+  Raw New Value:     0x000000000000000000000000276d3730f219f7ec22274f7263180b8452b46d47
+
+  Decoded Kind:      address
+  Decoded Old Value: 0xAE2AF01232a6c4a4d3012C5eC5b1b35059caF10d
+  Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/validation/standard/standard-versions-sepolia.toml#L37">0x276d3730f219f7ec22274f7263180b8452B46d47</a>
+  Summary:           ERC-1967 implementation slot
+  Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+                       
  </code>
 </pre>
 
@@ -244,45 +293,6 @@ For each contract listed in the state diff, please verify that no contracts or s
 #############################################################
 #############################################################
 #############################################################
-
------ DecodedStateDiff[7] -----
-  Who:               0x1Eb2fFc903729a0F03966B917003800b145F56E2
-  Contract:          ProxyAdminOwner (GnosisSafe)
-  Chain ID:          11155420
-  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
-  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000016
-  Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000000017
-  Decoded Kind:      uint256
-  Decoded Old Value: 22
-  Decoded New Value: 23
-  Summary:           nonce
-  Detail:
-
------ DecodedStateDiff[8] -----
-  Who:               0x237840A6Bfd822039d9cC00e1E7BAE280d4F2D49
-  Contract:
-  Chain ID:
-  Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
-  Raw Old Value:     0x00000000000000000000000007f69b19532476c6cd03056d6bc3f1b110ab7538
-  Raw New Value:     0x0000000000000000000000005e40b9231b86984b5150507046e354dbfbed3d9e
-  Decoded Kind:      address
-  Decoded Old Value: 0x07F69b19532476c6Cd03056D6BC3F1b110Ab7538
-  Decoded New Value: 0x5e40B9231B86984b5150507046e354dbFbeD3d9e
-  Summary:           ERC-1967 implementation slot
-  Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-
------ DecodedStateDiff[9] -----
-  Who:               0x2bfb22cd534a462028771a1cA9D6240166e450c4
-  Contract:          L1ERC721Bridge
-  Chain ID:          1946
-  Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
-  Raw Old Value:     0x000000000000000000000000ae2af01232a6c4a4d3012c5ec5b1b35059caf10d
-  Raw New Value:     0x000000000000000000000000276d3730f219f7ec22274f7263180b8452b46d47
-  Decoded Kind:      address
-  Decoded Old Value: 0xAE2AF01232a6c4a4d3012C5eC5b1b35059caF10d
-  Decoded New Value: 0x276d3730f219f7ec22274f7263180b8452B46d47
-  Summary:           ERC-1967 implementation slot
-  Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
 
 ----- DecodedStateDiff[10] -----
   Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
