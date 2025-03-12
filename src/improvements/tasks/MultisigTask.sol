@@ -455,6 +455,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
         bool success = false;
 
+        require(gasleft() > 500_000, "MultisigTask: Insufficient gas for execTransaction"); // Ensure try/catch is EIP-150 safe.
         try IGnosisSafe(multisig).execTransaction(
             target, value, data, operationType, 0, 0, 0, address(0), payable(address(0)), signatures
         ) returns (bool execStatus) {
@@ -1168,11 +1169,13 @@ abstract contract L2TaskBase is MultisigTask {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < config.allowedStorageKeys.length; i++) {
             for (uint256 j = 0; j < chains.length; j++) {
+                require(gasleft() > 500_000, "MultisigTask: Insufficient gas for initial getAddress() call"); // Ensure try/catch is EIP-150 safe.
                 try superchainAddrRegistry.getAddress(config.allowedStorageKeys[i], chains[j].chainId) returns (
                     address addr
                 ) {
                     _allowedStorageAccesses.add(addr);
                 } catch {
+                    require(gasleft() > 500_000, "MultisigTask: Insufficient gas for fallback get() call"); // Ensure try/catch is EIP-150 safe.
                     try superchainAddrRegistry.get(config.allowedStorageKeys[i]) returns (address addr) {
                         _allowedStorageAccesses.add(addr);
                     } catch {
