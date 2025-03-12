@@ -1,6 +1,8 @@
 # 000-gas-config-template: Delete this once we have real tasks to run
 
-Status: [DRAFT]()
+Status: [EXECUTED]()
+
+The status on this task has been set to EXECUTED to test the skip logic in `just simulate-non-terminal-tasks`.
 
 ## Objective
 
