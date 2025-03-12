@@ -283,8 +283,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ----- DecodedStateDiff[10] -----
   Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
-  Contract:          AnchorStateRegistryProxy - <TODO: add chain>
-  Chain ID:          <TODO: add chain id>
+  Contract:          AnchorStateRegistryProxy
+  Chain ID:          TODO: Add chain id
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000000
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x00000000000000000000c2be75506d5724086deb7245bd260cc9753911be0001
@@ -297,6 +297,21 @@ For each contract listed in the state diff, please verify that no contracts or s
                      1. <i>0x01</i> - <i>_initialized</i> flag set to 'true'
                      2. <i>0x00</i> - <i>_initializing</i> flag set to 'false'
                      3. <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/superchain/configs/sepolia/superchain.toml#L3"><i>0xc2be75506d5724086deb7245bd260cc9753911be</i><a> - Sepolia SuperchainConfig
+
+----- DecodedStateDiff[11] -----
+  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
+  Contract:          AnchorStateRegistryProxy - Soneium Testnet Minato
+  Chain ID:          1946
+  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000001
+  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+  Raw New Value:     0x000000000000000000000000b3ad2c38e6e0640d7ce6aa952ab3a60e81bf7a01
+  [WARN] Slot was not decoded
+
+  Summary:           Setting DisputeGameFactoryProxy address
+  Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
+                     <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/sepolia/soneium-minato.toml#L64C30-L64C72">0xB3Ad2c38E6e0640d7ce6aA952AB3A60E81bf7a01</a> is the
+                     DisputeGameFactoryProxy address on Soneium Testnet Minato.
+                     
  </code>
 </pre>
 
@@ -309,15 +324,6 @@ For each contract listed in the state diff, please verify that no contracts or s
 #############################################################
 #############################################################
 #############################################################
-
------ DecodedStateDiff[11] -----
-  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
-  Contract:
-  Chain ID:
-  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000001
-  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x000000000000000000000000b3ad2c38e6e0640d7ce6aa952ab3a60e81bf7a01
-  [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[12] -----
   Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
