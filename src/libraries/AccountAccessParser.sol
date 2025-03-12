@@ -31,6 +31,9 @@ import {LibSort} from "@solady/utils/LibSort.sol";
 ///
 ///         // Get an array of all unique accounts that had state changes.
 ///         address[] memory accountsWithStateChanges = accountAccesses.getUniqueWrites();
+///
+///         // Get all new contracts created.
+///         address[] memory newContracts = accountAccesses.getNewContracts();
 ///     }
 /// }
 /// ```
@@ -133,12 +136,13 @@ library AccountAccessParser {
 
     /// @notice Convenience function that wraps decode and print together.
     function decodeAndPrint(VmSafe.AccountAccess[] memory _accesses) internal view {
-        (DecodedTransfer[] memory transfers, DecodedStateDiff[] memory stateDiffs) = decode(_accesses);
+        // We always want to sort all state diffs before printing them.
+        (DecodedTransfer[] memory transfers, DecodedStateDiff[] memory stateDiffs) = decode(_accesses, true);
         print(transfers, stateDiffs);
     }
 
     /// @notice Decodes the provided AccountAccess array into decoded transfers and state diffs.
-    function decode(VmSafe.AccountAccess[] memory _accountAccesses)
+    function decode(VmSafe.AccountAccess[] memory _accountAccesses, bool _sort)
         internal
         view
         noGasMetering
@@ -171,7 +175,8 @@ library AccountAccessParser {
         }
 
         // --- State diffs ---
-        address[] memory uniqueAccounts = getUniqueWrites(_accountAccesses);
+        // The order of 'uniqueAccounts' informs the order that the account state diffs get processed.
+        address[] memory uniqueAccounts = getUniqueWrites(_accountAccesses, _sort);
         uint256 totalDiffCount = 0;
         // Count the total number of net state diffs.
         for (uint256 i = 0; i < uniqueAccounts.length; i++) {
@@ -199,9 +204,6 @@ library AccountAccessParser {
                 index++;
             }
         }
-
-        // Sort the account accesses and return the sorted array
-        _accountAccesses = sortAccountAccesses(_accountAccesses);
     }
 
     function getNewContracts(VmSafe.AccountAccess[] memory accesses)
@@ -230,7 +232,7 @@ library AccountAccessParser {
     }
 
     /// @notice Extracts all unique storage writes (i.e. writes where the value has actually changed)
-    function getUniqueWrites(VmSafe.AccountAccess[] memory accesses)
+    function getUniqueWrites(VmSafe.AccountAccess[] memory accesses, bool _sort)
         internal
         pure
         returns (address[] memory uniqueAccounts)
@@ -265,6 +267,11 @@ library AccountAccessParser {
         uniqueAccounts = new address[](count);
         for (uint256 i = 0; i < count; i++) {
             uniqueAccounts[i] = temp[i];
+        }
+
+        // sort the unique accounts
+        if (_sort) {
+            LibSort.sort(uniqueAccounts);
         }
     }
 
@@ -719,66 +726,6 @@ library AccountAccessParser {
 
         console.log("\x1B[33m[WARN]\x1B[0m Target address not found: %s", vm.toString(target));
         return (0, "");
-    }
-
-    /// @notice Sorts an array of AccountAccess structs by account address and returns a new sorted array.
-    function sortAccountAccesses(VmSafe.AccountAccess[] memory _accountAccesses)
-        internal
-        pure
-        returns (VmSafe.AccountAccess[] memory sorted_)
-    {
-        // If array is empty or has only one element, it's already sorted
-        if (_accountAccesses.length <= 1) {
-            return _accountAccesses;
-        }
-
-        // Create a mapping structure to track original indices
-        address[] memory addresses = new address[](_accountAccesses.length);
-        uint256[] memory indices = new uint256[](_accountAccesses.length);
-
-        // Fill the arrays
-        for (uint256 i = 0; i < _accountAccesses.length; i++) {
-            addresses[i] = _accountAccesses[i].account;
-            indices[i] = i;
-        }
-
-        // Sort addresses and track index changes
-        _sortWithIndices(addresses, indices);
-
-        // Create a new array for the sorted result
-        sorted_ = new VmSafe.AccountAccess[](_accountAccesses.length);
-
-        // Fill the sorted array using the sorted indices
-        for (uint256 i = 0; i < _accountAccesses.length; i++) {
-            sorted_[i] = _accountAccesses[indices[i]];
-        }
-    }
-
-    /// @dev Helper function to sort addresses while keeping track of their original indices
-    function _sortWithIndices(address[] memory addresses, uint256[] memory indices) internal pure {
-        uint256 n = addresses.length;
-
-        // Create a temporary array of structs to hold address and index pairs
-        uint256[] memory pairs = new uint256[](n);
-
-        // Pack each address (20 bytes) with its index (max 12 bytes) into a single uint256
-        // This allows us to sort a single array and keep track of the indices
-        for (uint256 i = 0; i < n; i++) {
-            // Pack address and index into a single uint256
-            // Address in the higher bits, index in the lower bits
-            pairs[i] = (uint256(uint160(addresses[i])) << 96) | indices[i];
-        }
-
-        // Sort the pairs using LibSort
-        LibSort.sort(pairs);
-
-        // Unpack the sorted pairs back into the separate arrays
-        for (uint256 i = 0; i < n; i++) {
-            // Extract address from higher bits
-            addresses[i] = address(uint160(pairs[i] >> 96));
-            // Extract index from lower bits (mask with 2^96 - 1 to get only the lower 96 bits)
-            indices[i] = pairs[i] & ((1 << 96) - 1);
-        }
     }
 
     /// @notice Probabilistically check if an address is a GnosisSafe.
