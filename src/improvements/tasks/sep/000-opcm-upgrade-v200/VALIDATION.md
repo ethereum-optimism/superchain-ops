@@ -283,16 +283,16 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ----- DecodedStateDiff[10] -----
   Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
-  Contract:          AnchorStateRegistryProxy
-  Chain ID:          TODO: Add chain id
+  Contract:          AnchorStateRegistryProxy - Soneium Testnet Minato
+  Chain ID:          1946
+
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000000
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x00000000000000000000c2be75506d5724086deb7245bd260cc9753911be0001
   [WARN] Slot was not decoded
 
-  Summary:           AnchorStateRegistryProxy 
-  Detail:            Slot 0 is subject to bit packing.
-                     Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
+  Summary:           Slot 0 is updated to set AnchorStateRegistryProxy address
+  Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
                      Reading 'Raw New Value' from Right to Left, we have:
                      1. <i>0x01</i> - <i>_initialized</i> flag set to 'true'
                      2. <i>0x00</i> - <i>_initializing</i> flag set to 'false'
@@ -302,18 +302,45 @@ For each contract listed in the state diff, please verify that no contracts or s
   Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
   Contract:          AnchorStateRegistryProxy - Soneium Testnet Minato
   Chain ID:          1946
+
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000001
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x000000000000000000000000b3ad2c38e6e0640d7ce6aa952ab3a60e81bf7a01
   [WARN] Slot was not decoded
 
-  Summary:           Setting DisputeGameFactoryProxy address
+  Summary:           Slot 1 is updated to set DisputeGameFactoryProxy address
   Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
                      <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/sepolia/soneium-minato.toml#L64C30-L64C72">0xB3Ad2c38E6e0640d7ce6aA952AB3A60E81bf7a01</a> is the
                      DisputeGameFactoryProxy address on Soneium Testnet Minato.
-                     
- </code>
-</pre>
+
+----- DecodedStateDiff[12] -----
+  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
+  Contract:          AnchorStateRegistryProxy - Soneium Testnet Minato
+  Chain ID:          1946
+
+  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000002
+  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+  Raw New Value:     0x00000000000000000000000065ea1489741a5d72ffdd8e6485b216bbdcc15af3
+  [WARN] Slot was not decoded
+
+  Summary:           Slot 2 is updated to set OptimismPortalProxy address
+  Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
+                     <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/sepolia/soneium-minato.toml#L59">0x65ea1489741A5D72fFdD8e6485B216bBdcC15Af3</a> is the
+                     OptimismPortalProxy address on Soneium Testnet Minato.
+
+----- DecodedStateDiff[13] -----
+  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
+  Contract:
+  Chain ID:
+  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
+  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+  Raw New Value:     0xfc3e28704c5ab7bb943193afd784c1b2a97d1dd8d3f880519389a6574f14ae5c
+  [WARN] Slot was not decoded
+
+  Summary:           Slot 4 is updated to <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L75">set startingAnchorRoot</a>
+  Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
+                     TODO: THIS IS DIFFERENT FROM THE TENDERLY SIMULATION. WHY? HOW IS THIS VALUE EXPLAINED?
+ </pre>
 
 
 ```bash
@@ -324,24 +351,6 @@ For each contract listed in the state diff, please verify that no contracts or s
 #############################################################
 #############################################################
 #############################################################
-
------ DecodedStateDiff[12] -----
-  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
-  Contract:
-  Chain ID:
-  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000002
-  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x00000000000000000000000065ea1489741a5d72ffdd8e6485b216bbdcc15af3
-  [WARN] Slot was not decoded
-
------ DecodedStateDiff[13] -----
-  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
-  Contract:
-  Chain ID:
-  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
-  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0xfc3e28704c5ab7bb943193afd784c1b2a97d1dd8d3f880519389a6574f14ae5c
-  [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[14] -----
   Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
