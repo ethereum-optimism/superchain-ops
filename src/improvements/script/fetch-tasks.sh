@@ -31,7 +31,7 @@ if [[ -z "$network" ]]; then
   echo "Network is required"
   exit 1
 fi
-files=$(find "$root_dir/src/improvements/tasks/example/$network" -type f -name 'README.md')
+files=$(find "$root_dir/test/tasks/example/$network" -type f -name 'README.md')
 for file in $files; do
   check_status "$file"
 done

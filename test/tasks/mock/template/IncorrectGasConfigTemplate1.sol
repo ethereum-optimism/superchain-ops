@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {GasConfigTemplate} from "src/improvements/template/GasConfigTemplate.sol";
+import {GasConfigTemplate} from "test/tasks/mock/template/GasConfigTemplate.sol";
 
 /// @title IncorrectGasConfigTemplate1
 /// @notice allowed storage write to incorrect address
