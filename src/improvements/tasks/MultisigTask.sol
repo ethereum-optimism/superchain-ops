@@ -39,7 +39,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     address public parentMultisig;
 
     /// @notice struct to store allowed storage accesses read in from config file
-    /// uses OpenZeppelin EnumerableSet for allowed storage accesses
     EnumerableSet.AddressSet internal _allowedStorageAccesses;
 
     /// @notice Struct to store information about an action
@@ -114,7 +113,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
     /// @notice Task TOML config file values
     struct TaskConfig {
-        string[] allowedStorageWriteAccesses;
+        string[] allowedStorageKeys;
         string safeAddressString;
     }
 
@@ -141,7 +140,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
     /// @notice Returns an array of strings that refer to contract names in the address registry.
     /// Contracts with these names are expected to have their storage written to during the task.
-    function _taskStorageWrites() internal pure virtual returns (string[] memory);
+    function _taskStorageWrites() internal view virtual returns (string[] memory);
 
     /// @notice By default, any value written to storage that looks like an address is expected to
     /// have code. Sometimes, accounts without code are expected, and this function allows you to
@@ -280,15 +279,15 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @param taskConfigFilePath The path to the task configuration file.
     function _taskSetup(string memory taskConfigFilePath) internal {
         require(bytes(config.safeAddressString).length == 0, "MultisigTask: already initialized");
-
         config.safeAddressString = safeAddressString();
-        config.allowedStorageWriteAccesses = _taskStorageWrites();
-        config.allowedStorageWriteAccesses.push(safeAddressString());
 
         IGnosisSafe _parentMultisig; // TODO parentMultisig should be of type IGnosisSafe
         (addrRegistry, _parentMultisig, multicallTarget) = _configureTask(taskConfigFilePath);
 
         parentMultisig = address(_parentMultisig);
+
+        config.allowedStorageKeys = _taskStorageWrites();
+        config.allowedStorageKeys.push(safeAddressString());
 
         _templateSetup(taskConfigFilePath);
         nonce = IGnosisSafe(parentMultisig).nonce(); // Maybe be overridden later by state overrides
@@ -456,6 +455,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
         bool success = false;
 
+        require(gasleft() > 500_000, "MultisigTask: Insufficient gas for execTransaction"); // Ensure try/catch is EIP-150 safe.
         try IGnosisSafe(multisig).execTransaction(
             target, value, data, operationType, 0, 0, 0, address(0), payable(address(0)), signatures
         ) returns (bool execStatus) {
@@ -491,27 +491,17 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
         // TODO: Remove this if block once we can set token storage writes in the FinanceTemplate
         if (_checkStorageWrites()) {
-            // check that all state change addresses are in allowed storage accesses
-            for (uint256 i; i < _taskStateChangeAddresses.length(); i++) {
-                address addr = _taskStateChangeAddresses.at(i);
+            address[] memory accountsWithWrites = accountAccesses.getUniqueWrites(false);
+            // By default, we allow storage accesses to newly created contracts.
+            address[] memory newContracts = accountAccesses.getNewContracts();
+
+            for (uint256 i; i < accountsWithWrites.length; i++) {
+                address addr = accountsWithWrites[i];
                 require(
-                    _allowedStorageAccesses.contains(addr),
+                    _allowedStorageAccesses.contains(addr) || _isNewContract(addr, newContracts),
                     string(
                         abi.encodePacked(
                             "MultisigTask: address ", getAddressLabel(addr), " not in allowed storage accesses"
-                        )
-                    )
-                );
-            }
-
-            // check that all allowed storage accesses are in task state change addresses
-            for (uint256 i; i < _allowedStorageAccesses.length(); i++) {
-                address addr = _allowedStorageAccesses.at(i);
-                require(
-                    _taskStateChangeAddresses.contains(addr),
-                    string(
-                        abi.encodePacked(
-                            "MultisigTask: address ", getAddressLabel(addr), " not in task state change addresses"
                         )
                     )
                 );
@@ -862,13 +852,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         );
     }
 
-    /// @notice prank the multisig
-    /// @dev override to prank with delegatecall flag set to true
-    /// in case of opcm tasks, the multisig is not pranked
-    function _prankMultisig() internal virtual {
-        vm.startPrank(parentMultisig);
-    }
-
     /// @notice get the multicall address for the given safe
     /// it will be the regular multicall address for parent as well as child multisigs
     /// @param safe The address of the safe
@@ -892,7 +875,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     ///  2). start prank as the multisig
     ///  3). start a recording of all calls created during the task
     function _startBuild() private {
-        _prankMultisig();
+        vm.startPrank(parentMultisig);
 
         _startSnapshot = vm.snapshot();
 
@@ -963,6 +946,16 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         nonce = _getNonceOrOverride(address(parentMultisig));
     }
 
+    function _isNewContract(address addr, address[] memory newContracts) private pure returns (bool isNewContract_) {
+        isNewContract_ = false;
+        for (uint256 j; j < newContracts.length; j++) {
+            if (newContracts[j] == addr) {
+                isNewContract_ = true;
+                break;
+            }
+        }
+    }
+
     /// @dev Returns true if the given account access should be recorded as an action.
     function _isValidAction(VmSafe.AccountAccess memory access, uint256 topLevelDepth) internal view returns (bool) {
         bool accountNotRegistryOrVm =
@@ -1019,6 +1012,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         console.log("Running assertions on the state diff");
         require(accountAccesses.length > 0, "No account accesses");
         address[] memory allowedAccesses = getAllowedStorageAccess();
+        address[] memory newContracts = accountAccesses.getNewContracts();
         for (uint256 i; i < accountAccesses.length; i++) {
             VmSafe.AccountAccess memory accountAccess = accountAccesses[i];
             // All touched accounts should have code, with the exception of precompiles.
@@ -1073,7 +1067,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                 if (_checkStorageWrites()) {
                     bool allowed;
                     for (uint256 k; k < allowedAccesses.length; k++) {
-                        allowed = allowed || (account == allowedAccesses[k]);
+                        allowed = allowed || (account == allowedAccesses[k] || _isNewContract(account, newContracts));
                     }
                     require(allowed, string.concat("Unallowed Storage access: ", vm.toString(account)));
                 }
@@ -1181,19 +1175,34 @@ abstract contract L2TaskBase is MultisigTask {
                 )
             );
         }
+    }
 
-        console.log("Parent multisig: ", address(parentMultisig_));
-
-        // This loads the allowed storage write accesses to storage for this task.
-        // If this task changes storage slots outside of the allowed write accesses,
-        // then the task will fail at runtime and the task developer will need to
-        // update the config to include the addresses whose storage slots changed,
-        // or figure out why the storage slots are being changed when they should not be.
-        for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
+    /// @notice We use this function to add allowed storage accesses.
+    function _templateSetup(string memory) internal virtual override {
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        for (uint256 i = 0; i < config.allowedStorageKeys.length; i++) {
             for (uint256 j = 0; j < chains.length; j++) {
-                _allowedStorageAccesses.add(
-                    superchainAddrRegistry.getAddress(config.allowedStorageWriteAccesses[i], chains[j].chainId)
-                );
+                require(gasleft() > 500_000, "MultisigTask: Insufficient gas for initial getAddress() call"); // Ensure try/catch is EIP-150 safe.
+                try superchainAddrRegistry.getAddress(config.allowedStorageKeys[i], chains[j].chainId) returns (
+                    address addr
+                ) {
+                    _allowedStorageAccesses.add(addr);
+                } catch {
+                    require(gasleft() > 500_000, "MultisigTask: Insufficient gas for fallback get() call"); // Ensure try/catch is EIP-150 safe.
+                    try superchainAddrRegistry.get(config.allowedStorageKeys[i]) returns (address addr) {
+                        _allowedStorageAccesses.add(addr);
+                    } catch {
+                        console.log(
+                            "\x1B[33m[WARN]\x1B[0m Contract: %s not found for chain: '%s'",
+                            config.allowedStorageKeys[i],
+                            chains[j].name
+                        );
+                        console.log(
+                            "\x1B[33m[WARN]\x1B[0m Contract will not be added to allowed storage accesses: '%s'",
+                            config.allowedStorageKeys[i]
+                        );
+                    }
+                }
             }
         }
     }
@@ -1225,14 +1234,12 @@ abstract contract SimpleBase is MultisigTask {
         addrRegistry_ = AddressRegistry.wrap(address(simpleAddrRegistry));
 
         parentMultisig_ = IGnosisSafe(simpleAddrRegistry.get(config.safeAddressString));
+    }
 
-        // This loads the allowed storage write accesses to storage for this task.
-        // If this task changes storage slots outside of the allowed write accesses,
-        // then the task will fail at runtime and the task developer will need to
-        // update the config to include the addresses whose storage slots changed,
-        // or figure out why the storage slots are being changed when they should not be.
-        for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
-            _allowedStorageAccesses.add(simpleAddrRegistry.get(config.allowedStorageWriteAccesses[i]));
+    /// @notice We use this function to add allowed storage accesses.
+    function _templateSetup(string memory) internal virtual override {
+        for (uint256 i = 0; i < config.allowedStorageKeys.length; i++) {
+            _allowedStorageAccesses.add(simpleAddrRegistry.get(config.allowedStorageKeys[i]));
         }
     }
 }
