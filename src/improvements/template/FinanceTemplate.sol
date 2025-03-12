@@ -116,51 +116,44 @@ contract FinanceTemplate is SimpleBase {
 
     /// @notice Builds the actions for executing the operations
     function _build() internal override {
-        if (operationTypeEnum == OperationType.Approve) {
-            for (uint256 i = 0; i < operations.length; i++) {
-                Operation memory operation = operations[i];
-                (address token, address target) = _getTokenAndTarget(operation.token, operation.target);
+        for (uint256 i = 0; i < operations.length; i++) {
+            Operation memory operation = operations[i];
+            (address token, address target) = _getTokenAndTarget(operation.token, operation.target);
+
+            if (operationTypeEnum == OperationType.Approve) {
                 IERC20(token).safeApprove(target, operation.amount);
-            }
-        } else if (operationTypeEnum == OperationType.IncreaseAllowance) {
-            for (uint256 i = 0; i < operations.length; i++) {
-                Operation memory operation = operations[i];
-                (address token, address target) = _getTokenAndTarget(operation.token, operation.target);
+            } else if (operationTypeEnum == OperationType.IncreaseAllowance) {
                 IERC20(token).safeIncreaseAllowance(target, operation.amount);
-            }
-        } else if (operationTypeEnum == OperationType.DecreaseAllowance) {
-            for (uint256 i = 0; i < operations.length; i++) {
-                Operation memory operation = operations[i];
-                (address token, address target) = _getTokenAndTarget(operation.token, operation.target);
+            } else if (operationTypeEnum == OperationType.DecreaseAllowance) {
                 IERC20(token).safeDecreaseAllowance(target, operation.amount);
-            }
-        } else if (operationTypeEnum == OperationType.Transfer) {
-            for (uint256 i = 0; i < operations.length; i++) {
-                Operation memory operation = operations[i];
-                (address token, address target) = _getTokenAndTarget(operation.token, operation.target);
+            } else if (operationTypeEnum == OperationType.Transfer) {
                 IERC20(token).safeTransfer(target, operation.amount);
+            } else {
+                revert("invalid operation type");
             }
         }
     }
 
     /// @notice Validates that the module was enabled correctly.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
-        if (operationTypeEnum == OperationType.Approve) {
-            for (uint256 i = 0; i < operations.length; i++) {
-                _validateApprove(operations[i].token, operations[i].target, operations[i].amount);
+        for (uint256 i = 0; i < operations.length; i++) {
+            Operation memory operation = operations[i];
+            (address token, address target) = _getTokenAndTarget(operation.token, operation.target);
+
+            if (operationTypeEnum == OperationType.Approve) {
+                _validateApprove(token, target, operation.amount);
+            } else if (operationTypeEnum == OperationType.IncreaseAllowance) {
+                _validateIncreaseAllowance(token, target, operation.amount);
+            } else if (operationTypeEnum == OperationType.DecreaseAllowance) {
+                _validateDecreaseAllowance(token, target, operation.amount);
+            } else if (operationTypeEnum == OperationType.Transfer) {
+                _validateTransfer(token, target, operation.amount);
+            } else {
+                revert("invalid operation type");
             }
-        } else if (operationTypeEnum == OperationType.IncreaseAllowance) {
-            for (uint256 i = 0; i < operations.length; i++) {
-                _validateIncreaseAllowance(operations[i].token, operations[i].target, operations[i].amount);
-            }
-        } else if (operationTypeEnum == OperationType.DecreaseAllowance) {
-            for (uint256 i = 0; i < operations.length; i++) {
-                _validateDecreaseAllowance(operations[i].token, operations[i].target, operations[i].amount);
-            }
-        } else if (operationTypeEnum == OperationType.Transfer) {
-            for (uint256 i = 0; i < operations.length; i++) {
-                _validateTransfer(operations[i].token, operations[i].target, operations[i].amount);
-            }
+        }
+
+        if (operationTypeEnum == OperationType.Transfer) {
             // validate that parentMultisig balance decreased by the correct amount of tokens transferred
             for (uint256 i = 0; i < tokens.length(); i++) {
                 address token = tokens.at(i);
@@ -169,8 +162,6 @@ contract FinanceTemplate is SimpleBase {
                     initialBalances[token][address(parentMultisig)] - tokensTransferred[token]
                 );
             }
-        } else {
-            revert("invalid operation type");
         }
     }
 
@@ -192,45 +183,25 @@ contract FinanceTemplate is SimpleBase {
     }
 
     /// @notice Validates approve operations
-    function _validateApprove(string memory tokenIdentifier, string memory targetIdentifier, uint256 amount)
-        internal
-        view
-    {
-        (address token, address target) = _getTokenAndTarget(tokenIdentifier, targetIdentifier);
-
+    function _validateApprove(address token, address target, uint256 amount) internal view {
         assertEq(IERC20(token).allowance(address(parentMultisig), target), amount);
         assertEq(IERC20(token).balanceOf(target), initialBalances[token][target]);
     }
 
     /// @notice Validates increase allowance operations
-    function _validateIncreaseAllowance(string memory tokenIdentifier, string memory targetIdentifier, uint256 amount)
-        internal
-        view
-    {
-        (address token, address target) = _getTokenAndTarget(tokenIdentifier, targetIdentifier);
-
+    function _validateIncreaseAllowance(address token, address target, uint256 amount) internal view {
         assertEq(IERC20(token).allowance(address(parentMultisig), target), initialAllowances[token][target] + amount);
         assertEq(IERC20(token).balanceOf(target), initialBalances[token][target]);
     }
 
     /// @notice Validates decrease allowance operations
-    function _validateDecreaseAllowance(string memory tokenIdentifier, string memory targetIdentifier, uint256 amount)
-        internal
-        view
-    {
-        (address token, address target) = _getTokenAndTarget(tokenIdentifier, targetIdentifier);
-
+    function _validateDecreaseAllowance(address token, address target, uint256 amount) internal view {
         assertEq(IERC20(token).allowance(address(parentMultisig), target), initialAllowances[token][target] - amount);
         assertEq(IERC20(token).balanceOf(target), initialBalances[token][target]);
     }
 
     /// @notice Validates transfer operations
-    function _validateTransfer(string memory tokenIdentifier, string memory targetIdentifier, uint256 amount)
-        internal
-        view
-    {
-        (address token, address target) = _getTokenAndTarget(tokenIdentifier, targetIdentifier);
-
+    function _validateTransfer(address token, address target, uint256 amount) internal view {
         assertEq(IERC20(token).allowance(address(parentMultisig), target), initialAllowances[token][target]);
         assertEq(IERC20(token).balanceOf(target), initialBalances[token][target] + amount);
     }
