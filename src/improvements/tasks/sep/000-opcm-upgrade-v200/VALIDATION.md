@@ -280,7 +280,23 @@ For each contract listed in the state diff, please verify that no contracts or s
   Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/validation/standard/standard-versions-sepolia.toml#L37">0x276d3730f219f7ec22274f7263180b8452B46d47</a>
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-                       
+
+----- DecodedStateDiff[10] -----
+  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
+  Contract:          AnchorStateRegistryProxy - <TODO: add chain>
+  Chain ID:          <TODO: add chain id>
+  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000000
+  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+  Raw New Value:     0x00000000000000000000c2be75506d5724086deb7245bd260cc9753911be0001
+  [WARN] Slot was not decoded
+
+  Summary:           AnchorStateRegistryProxy 
+  Detail:            Slot 0 is subject to bit packing.
+                     Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
+                     Reading 'Raw New Value' from Right to Left, we have:
+                     1. <i>0x01</i> - <i>_initialized</i> flag set to 'true'
+                     2. <i>0x00</i> - <i>_initializing</i> flag set to 'false'
+                     3. <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/superchain/configs/sepolia/superchain.toml#L3"><i>0xc2be75506d5724086deb7245bd260cc9753911be</i><a> - Sepolia SuperchainConfig
  </code>
 </pre>
 
@@ -294,7 +310,56 @@ For each contract listed in the state diff, please verify that no contracts or s
 #############################################################
 #############################################################
 
------ DecodedStateDiff[10] -----
+----- DecodedStateDiff[11] -----
+  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
+  Contract:
+  Chain ID:
+  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000001
+  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+  Raw New Value:     0x000000000000000000000000b3ad2c38e6e0640d7ce6aa952ab3a60e81bf7a01
+  [WARN] Slot was not decoded
+
+----- DecodedStateDiff[12] -----
+  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
+  Contract:
+  Chain ID:
+  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000002
+  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+  Raw New Value:     0x00000000000000000000000065ea1489741a5d72ffdd8e6485b216bbdcc15af3
+  [WARN] Slot was not decoded
+
+----- DecodedStateDiff[13] -----
+  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
+  Contract:
+  Chain ID:
+  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
+  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+  Raw New Value:     0xfc3e28704c5ab7bb943193afd784c1b2a97d1dd8d3f880519389a6574f14ae5c
+  [WARN] Slot was not decoded
+
+----- DecodedStateDiff[14] -----
+  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
+  Contract:
+  Chain ID:
+  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
+  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+  Raw New Value:     0x00000000000000000000000000000000000000000000000000000000008baa6f
+  [WARN] Slot was not decoded
+
+----- DecodedStateDiff[15] -----
+  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
+  Contract:
+  Chain ID:
+  Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
+  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+  Raw New Value:     0x0000000000000000000000007b465370bb7a333f99edd19599eb7fb1c2d3f8d2
+  Decoded Kind:      address
+  Decoded Old Value: 0x0000000000000000000000000000000000000000
+  Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/validation/standard/standard-versions-sepolia.toml#L32">0x7b465370BB7A333f99edd19599EB7Fb1c2D3F8D2</a>
+  Summary:           ERC-1967 implementation slot
+  Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+
+----- DecodedStateDiff[16] -----
   Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
   Contract:
   Chain ID:
@@ -306,64 +371,6 @@ For each contract listed in the state diff, please verify that no contracts or s
   Decoded New Value: 0xff9d236641962Cebf9DBFb54E7b8e91F99f10Db0
   Summary:           Proxy owner address
   Detail:            Standard slot for storing the owner address in a Proxy contract.
-
------ DecodedStateDiff[11] -----
-  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
-  Contract:
-  Chain ID:
-  Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
-  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x0000000000000000000000007b465370bb7a333f99edd19599eb7fb1c2d3f8d2
-  Decoded Kind:      address
-  Decoded Old Value: 0x0000000000000000000000000000000000000000
-  Decoded New Value: 0x7b465370BB7A333f99edd19599EB7Fb1c2D3F8D2
-  Summary:           ERC-1967 implementation slot
-  Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-
------ DecodedStateDiff[12] -----
-  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
-  Contract:
-  Chain ID:
-  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x00000000000000000000c2be75506d5724086deb7245bd260cc9753911be0001
-  [WARN] Slot was not decoded
-
------ DecodedStateDiff[13] -----
-  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
-  Contract:
-  Chain ID:
-  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000001
-  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x000000000000000000000000b3ad2c38e6e0640d7ce6aa952ab3a60e81bf7a01
-  [WARN] Slot was not decoded
-
------ DecodedStateDiff[14] -----
-  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
-  Contract:
-  Chain ID:
-  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000002
-  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x00000000000000000000000065ea1489741a5d72ffdd8e6485b216bbdcc15af3
-  [WARN] Slot was not decoded
-
------ DecodedStateDiff[15] -----
-  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
-  Contract:
-  Chain ID:
-  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
-  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x07c9e5c189412fe87404502c8f70f6d0f4dc482b7c933fc37424c91d2f7ca06a
-  [WARN] Slot was not decoded
-
------ DecodedStateDiff[16] -----
-  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
-  Contract:
-  Chain ID:
-  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
-  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x00000000000000000000000000000000000000000000000000000000008b969b
-  [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[17] -----
   Who:               0x33f60714BbD74d62b66D79213C348614DE51901C
@@ -644,16 +651,48 @@ For each contract listed in the state diff, please verify that no contracts or s
   Who:               0xDa9916204568e2A8d689f775747D9e7FE17F7560
   Contract:
   Chain ID:
-  Raw Slot:          0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103
+  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000000
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x000000000000000000000000d7db319a49362b2328cf417a934300cccb442c8d
-  Decoded Kind:      address
-  Decoded Old Value: 0x0000000000000000000000000000000000000000
-  Decoded New Value: 0xd7dB319a49362b2328cf417a934300cCcB442C8d
-  Summary:           Proxy owner address
-  Detail:            Standard slot for storing the owner address in a Proxy contract.
+  Raw New Value:     0x00000000000000000000c2be75506d5724086deb7245bd260cc9753911be0001
+  [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[41] -----
+  Who:               0xDa9916204568e2A8d689f775747D9e7FE17F7560
+  Contract:
+  Chain ID:
+  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000001
+  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+  Raw New Value:     0x000000000000000000000000860e626c700af381133d9f4af31412a2d1db3d5d
+  [WARN] Slot was not decoded
+
+----- DecodedStateDiff[42] -----
+  Who:               0xDa9916204568e2A8d689f775747D9e7FE17F7560
+  Contract:
+  Chain ID:
+  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000002
+  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+  Raw New Value:     0x0000000000000000000000005c1d29c6c9c8b0800692acc95d700bcb4966a1d7
+  [WARN] Slot was not decoded
+
+----- DecodedStateDiff[43] -----
+  Who:               0xDa9916204568e2A8d689f775747D9e7FE17F7560
+  Contract:
+  Chain ID:
+  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
+  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+  Raw New Value:     0x9222dbee533c592b5a9ed6e11600fcf210b7cedcfa47968a55ce787ba34b1215
+  [WARN] Slot was not decoded
+
+----- DecodedStateDiff[44] -----
+  Who:               0xDa9916204568e2A8d689f775747D9e7FE17F7560
+  Contract:
+  Chain ID:
+  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
+  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+  Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000beb15b
+  [WARN] Slot was not decoded
+
+----- DecodedStateDiff[45] -----
   Who:               0xDa9916204568e2A8d689f775747D9e7FE17F7560
   Contract:
   Chain ID:
@@ -666,8 +705,21 @@ For each contract listed in the state diff, please verify that no contracts or s
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
 
------ DecodedStateDiff[42] -----
+----- DecodedStateDiff[46] -----
   Who:               0xDa9916204568e2A8d689f775747D9e7FE17F7560
+  Contract:
+  Chain ID:
+  Raw Slot:          0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103
+  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+  Raw New Value:     0x000000000000000000000000d7db319a49362b2328cf417a934300cccb442c8d
+  Decoded Kind:      address
+  Decoded Old Value: 0x0000000000000000000000000000000000000000
+  Decoded New Value: 0xd7dB319a49362b2328cf417a934300cCcB442C8d
+  Summary:           Proxy owner address
+  Detail:            Standard slot for storing the owner address in a Proxy contract.
+
+----- DecodedStateDiff[47] -----
+  Who:               0xDB2727Fc71176Bf8ED630F4142e0439733588e85
   Contract:
   Chain ID:
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000000
@@ -675,43 +727,56 @@ For each contract listed in the state diff, please verify that no contracts or s
   Raw New Value:     0x00000000000000000000c2be75506d5724086deb7245bd260cc9753911be0001
   [WARN] Slot was not decoded
 
------ DecodedStateDiff[43] -----
-  Who:               0xDa9916204568e2A8d689f775747D9e7FE17F7560
+----- DecodedStateDiff[48] -----
+  Who:               0xDB2727Fc71176Bf8ED630F4142e0439733588e85
   Contract:
   Chain ID:
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000001
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x000000000000000000000000860e626c700af381133d9f4af31412a2d1db3d5d
+  Raw New Value:     0x00000000000000000000000005f9613adb30026ffd634f38e5c4dfd30a197fa1
   [WARN] Slot was not decoded
 
------ DecodedStateDiff[44] -----
-  Who:               0xDa9916204568e2A8d689f775747D9e7FE17F7560
+----- DecodedStateDiff[49] -----
+  Who:               0xDB2727Fc71176Bf8ED630F4142e0439733588e85
   Contract:
   Chain ID:
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000002
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x0000000000000000000000005c1d29c6c9c8b0800692acc95d700bcb4966a1d7
+  Raw New Value:     0x00000000000000000000000016fc5058f25648194471939df75cf27a2fdc48bc
   [WARN] Slot was not decoded
 
------ DecodedStateDiff[45] -----
-  Who:               0xDa9916204568e2A8d689f775747D9e7FE17F7560
+----- DecodedStateDiff[50] -----
+  Who:               0xDB2727Fc71176Bf8ED630F4142e0439733588e85
   Contract:
   Chain ID:
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x742ea618a09335ea1a94c22ac2e643abf463433147dc4a09b7dfacff065342f1
+  Raw New Value:     0x78d3c75b445bae5c1a76f271733a8ca87cb55455e264ba4b3d9ea1f7a4c2bf19
   [WARN] Slot was not decoded
 
------ DecodedStateDiff[46] -----
-  Who:               0xDa9916204568e2A8d689f775747D9e7FE17F7560
+----- DecodedStateDiff[51] -----
+  Who:               0xDB2727Fc71176Bf8ED630F4142e0439733588e85
   Contract:
   Chain ID:
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000be8162
+  Raw New Value:     0x00000000000000000000000000000000000000000000000000000000017b2fd4
   [WARN] Slot was not decoded
 
------ DecodedStateDiff[47] -----
+----- DecodedStateDiff[52] -----
+  Who:               0xDB2727Fc71176Bf8ED630F4142e0439733588e85
+  Contract:
+  Chain ID:
+  Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
+  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+  Raw New Value:     0x0000000000000000000000007b465370bb7a333f99edd19599eb7fb1c2d3f8d2
+  Decoded Kind:      address
+  Decoded Old Value: 0x0000000000000000000000000000000000000000
+  Decoded New Value: 0x7b465370BB7A333f99edd19599EB7Fb1c2D3F8D2
+  Summary:           ERC-1967 implementation slot
+  Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+
+----- DecodedStateDiff[53] -----
   Who:               0xDB2727Fc71176Bf8ED630F4142e0439733588e85
   Contract:
   Chain ID:
@@ -723,64 +788,6 @@ For each contract listed in the state diff, please verify that no contracts or s
   Decoded New Value: 0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc
   Summary:           Proxy owner address
   Detail:            Standard slot for storing the owner address in a Proxy contract.
-
------ DecodedStateDiff[48] -----
-  Who:               0xDB2727Fc71176Bf8ED630F4142e0439733588e85
-  Contract:
-  Chain ID:
-  Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
-  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x0000000000000000000000007b465370bb7a333f99edd19599eb7fb1c2d3f8d2
-  Decoded Kind:      address
-  Decoded Old Value: 0x0000000000000000000000000000000000000000
-  Decoded New Value: 0x7b465370BB7A333f99edd19599EB7Fb1c2D3F8D2
-  Summary:           ERC-1967 implementation slot
-  Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-
------ DecodedStateDiff[49] -----
-  Who:               0xDB2727Fc71176Bf8ED630F4142e0439733588e85
-  Contract:
-  Chain ID:
-  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x00000000000000000000c2be75506d5724086deb7245bd260cc9753911be0001
-  [WARN] Slot was not decoded
-
------ DecodedStateDiff[50] -----
-  Who:               0xDB2727Fc71176Bf8ED630F4142e0439733588e85
-  Contract:
-  Chain ID:
-  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000001
-  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x00000000000000000000000005f9613adb30026ffd634f38e5c4dfd30a197fa1
-  [WARN] Slot was not decoded
-
------ DecodedStateDiff[51] -----
-  Who:               0xDB2727Fc71176Bf8ED630F4142e0439733588e85
-  Contract:
-  Chain ID:
-  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000002
-  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x00000000000000000000000016fc5058f25648194471939df75cf27a2fdc48bc
-  [WARN] Slot was not decoded
-
------ DecodedStateDiff[52] -----
-  Who:               0xDB2727Fc71176Bf8ED630F4142e0439733588e85
-  Contract:
-  Chain ID:
-  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
-  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0xcad036c510dd0090bf83ce76cddc4e911c177929a3af6d7bf8fda1f7c5a2e3a7
-  [WARN] Slot was not decoded
-
------ DecodedStateDiff[53] -----
-  Who:               0xDB2727Fc71176Bf8ED630F4142e0439733588e85
-  Contract:
-  Chain ID:
-  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
-  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x00000000000000000000000000000000000000000000000000000000017b19f1
-  [WARN] Slot was not decoded
 
 ----- DecodedStateDiff[54] -----
   Who:               0xf6Db90462FEbEB7567fBD064d2ff14a8d0280f3E
@@ -814,3 +821,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 ## Figure 0.1: Storage Layout of OPContractsManager
 
 ![OPContractsManager isRC flag set to false](./images/op-contracts-manager-storage-layout.png)
+
+## Figure 0.2: Storage Layout of AnchorStateRegistryProxy
+
+![AnchorStateRegistryProxy](./images/anchor-state-registry-storage-layout.png)
