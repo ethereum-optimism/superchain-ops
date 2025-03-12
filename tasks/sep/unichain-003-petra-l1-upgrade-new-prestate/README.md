@@ -6,8 +6,8 @@ Status: READY TO SIGN
 
 This task updates the fault dispute system for unichain-sepolia: 
 
-* Set implementation for game type 0 to 0xd6B739681127cB2926e9c3697F089429BDB9c98D in `DisputeGameFactory` 0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b: `setImplementation(0, 0xd6B739681127cB2926e9c3697F089429BDB9c98D)`
-* Set implementation for game type 1 to 0x9d83d561781768c80Ce98C0dB3250e81b65fD9D4 in `DisputeGameFactory` 0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b: `setImplementation(1, 0x9d83d561781768c80Ce98C0dB3250e81b65fD9D4)`
+* Set implementation for game type 0 to 0x1Ca07eBBEd295C581c952Be0eB23E636aed9a2d0 in `DisputeGameFactory` 0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b: `setImplementation(0, 0x1Ca07eBBEd295C581c952Be0eB23E636aed9a2d0)`
+* Set implementation for game type 1 to 0x98b3cEA8dc27f83a6b8384F25A8eca52613A7182 in `DisputeGameFactory` 0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b: `setImplementation(1, 0x98b3cEA8dc27f83a6b8384F25A8eca52613A7182)`
   
 <!--NEXT TASK DESCRIPTION-->
 The proposal was: 
@@ -28,9 +28,9 @@ This upgrades the Fault Proof contracts in the [op-contracts/v1.8.0-rc.4](https:
 
 ## Simulation
 
-Please see the "Simulating and Verifying the Transaction" instructions in [NESTED.md](../../../NESTED.md). 
+Please see the "Simulating and Verifying the Transaction" instructions in [SINGLE.md](../../../SINGLE.md). 
 
-When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/<path>/SignFromJson.s.sol`. 
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/sep/unichain-003-petra-l1-upgrade-new-prestate/SignFromJson.s.sol`. 
 
 This ensures all safety checks are run. If the default `SignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
 

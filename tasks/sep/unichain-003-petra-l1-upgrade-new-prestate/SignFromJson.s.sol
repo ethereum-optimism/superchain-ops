@@ -195,14 +195,16 @@ contract SignFromJson is OriginalSignFromJson, SuperchainRegistry {
             // this check does NOT pass bc Unichain's current PDG challenger differs
             // from the Standard Version's. We are changing the PDG challenger to
             // match the Standard Version's here.
-            // require(
-            //     address(currentPDG.challenger()) ==
-            //         address(permissionedDisputeGame.challenger()),
-            //     "100"
-            // );
-            // modified to verify PDG challenger against Standard Version's.
+            console.log(
+                "currentPDG.challenger()",
+                address(currentPDG.challenger())
+            );
+            console.log(
+                "permissionedDisputeGame.challenger()",
+                address(permissionedDisputeGame.challenger())
+            );
             require(
-                vm.envAddress("STANDARD_CHALLENGER") ==
+                address(currentPDG.challenger()) ==
                     address(permissionedDisputeGame.challenger()),
                 "100"
             );

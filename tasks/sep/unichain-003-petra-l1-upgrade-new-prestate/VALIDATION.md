@@ -15,16 +15,8 @@ are missing from this document. Additionally, please verify that for each contra
 
 > [!CAUTION]
 > Before signing, ensure the below hashes match what is on your ledger.
-> ### Security Council
 > - Domain hash: `0x2fedecce87979400ff00d5cec4c77da942d43ab3b9db4a5ffc51bb2ef498f30b`
-> - Message hash: `0x337117449e2e13b5dc84b60b6bb5123274765d5455ca31804f48ec7728a5a1ad`
-> ### Optimism Foundation
-> - Domain hash: `0x2fedecce87979400ff00d5cec4c77da942d43ab3b9db4a5ffc51bb2ef498f30b`
-> - Message hash: `0x337117449e2e13b5dc84b60b6bb5123274765d5455ca31804f48ec7728a5a1ad`
-> ### Chain-Governor
-> - Domain hash: `0x2fedecce87979400ff00d5cec4c77da942d43ab3b9db4a5ffc51bb2ef498f30b`
-> - Message hash: `0x337117449e2e13b5dc84b60b6bb5123274765d5455ca31804f48ec7728a5a1ad`
-
+> - Message hash: `0x9bca7891bcf169d6572e1e5ecd53bc542f53455ab247859ccb3012f21278632a`
 ## Verify new absolute prestate
 
 Please verify that the new absolute prestate is set correctly to `0x0354eee87a1775d96afee8977ef6d5d6bd3612b256170952a01bf1051610ee01
@@ -56,7 +48,7 @@ Note: The changes listed below do not include safe nonce updates or liveness gua
 
 - **Key**: `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b` <br/>
   **Before**: `0x0000000000000000000000003d914ba460e0bbf0b9bca35d65f9fc8e0bcb1c9d` <br/>
-  **After**: `0x000000000000000000000000d6B739681127cB2926e9c3697F089429BDB9c98D` <br/>
+  **After**: `0x0000000000000000000000001Ca07eBBEd295C581c952Be0eB23E636aed9a2d0` <br/>
   **Meaning**: Updates the implementation for game type 0. Verify that the new implementation is set using
   `cast call 0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b "gameImpls(uint32)(address)" 0`.
 
@@ -64,6 +56,6 @@ Note: The changes listed below do not include safe nonce updates or liveness gua
 
 - **Key**: `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e` <br/>
   **Before**: `0x00000000000000000000000061d1d2dffe0c1e3e200b27ae3874190158802fbb` <br/>
-  **After**: `0x0000000000000000000000009d83d561781768c80Ce98C0dB3250e81b65fD9D4` <br/>
+  **After**: `0x00000000000000000000000098b3cEA8dc27f83a6b8384F25A8eca52613A7182` <br/>
   **Meaning**: Updates the implementation for game type 1. Verify that the new implementation is set using
   `cast call 0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b "gameImpls(uint32)(address)" 1`.
