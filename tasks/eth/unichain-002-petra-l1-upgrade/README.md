@@ -6,8 +6,9 @@ Status: DRAFT, NOT READY TO SIGN
 
 This task updates the fault dispute system for unichain-mainnet: 
 
-* Set implementation for game type 0 to 0x171dE4f3ea4fBbf233aA9649dCf1b1d6fD70f542 in `DisputeGameFactory` 0x2F12d621a16e2d3285929C9996f478508951dFe4: `setImplementation(0, 0x171dE4f3ea4fBbf233aA9649dCf1b1d6fD70f542)`
-* Set implementation for game type 1 to 0x3aFdc7cCF8a1c0d351E3E5F220AF056ea2c07733 in `DisputeGameFactory` 0x2F12d621a16e2d3285929C9996f478508951dFe4: `setImplementation(1, 0x3aFdc7cCF8a1c0d351E3E5F220AF056ea2c07733)`
+* Set implementation for game type 0 to 0x77034d8F7C0c9B01065514b15ba8b2F13AbE5e43 in `DisputeGameFactory` 0x2F12d621a16e2d3285929C9996f478508951dFe4: `setImplementation(0, 0x77034d8F7C0c9B01065514b15ba8b2F13AbE5e43)`
+* Set implementation for game type 1 to 0x9D254e2b925516bD201d726189dfd0eeA6786c58 in `DisputeGameFactory` 0x2F12d621a16e2d3285929C9996f478508951dFe4: `setImplementation(1, 0x9D254e2b925516bD201d726189dfd0eeA6786c58)`
+
 <!--NEXT TASK DESCRIPTION-->
 The proposal was: 
 - [x] Posted on the [governance forum](https://gov.optimism.io/t/upgrade-proposal-12-l1-pectra-readiness/9706).

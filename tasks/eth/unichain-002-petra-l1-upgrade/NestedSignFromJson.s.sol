@@ -66,7 +66,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
     // The slot used to store the livenessGuard address in GnosisSafe.
     // See https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/base/GuardManager.sol#L30
     bytes32 constant absolutePrestate =
-        0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd;
+        0x0354eee87a1775d96afee8977ef6d5d6bd3612b256170952a01bf1051610ee01;
     bytes32 livenessGuardSlot =
         0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8;
     string constant gameVersion = "1.3.1";
@@ -93,7 +93,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
 
         string memory inputJson;
         string
-            memory path = "/tasks/eth/unichain-001-petra-l1-upgrade/input.json";
+            memory path = "/tasks/eth/unichain-002-petra-l1-upgrade/input.json";
         try vm.readFile(string.concat(vm.projectRoot(), path)) returns (
             string memory data
         ) {
@@ -196,6 +196,11 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
             address(currentImpl.vm()) == address(faultDisputeGame.vm()),
             "10"
         );
+        console.log(
+            "faultdisputegame.weth()",
+            address(faultDisputeGame.weth())
+        );
+        console.log("currentImpl.weth()", address(currentImpl.weth()));
         // require(
         //     address(currentImpl.weth()) == address(faultDisputeGame.weth()),
         //     "20"

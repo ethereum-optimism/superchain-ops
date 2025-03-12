@@ -65,17 +65,19 @@ Note: The changes listed below do not include threshold and number of owners ove
 
 - **Key**: `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b` <br/>
   **Before**: `0x00000000000000000000000008f0f8f4e792d21e16289db7a80759323c446f61` <br/>
-  **After**: `0x000000000000000000000000171dE4f3ea4fBbf233aA9649dCf1b1d6fD70f542` <br/>
+  **After**: `0x00000000000000000000000077034d8F7C0c9B01065514b15ba8b2F13AbE5e43` <br/>
   **Meaning**: Updates the implementation for game type 0. Verify that the new implementation is set using
   `cast call 0x2F12d621a16e2d3285929C9996f478508951dFe4 "gameImpls(uint32)(address)" 0`.
+
 
 ### `0x2F12d621a16e2d3285929C9996f478508951dFe4` (`DisputeGameFactoryProxy`)
 
 - **Key**: `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e` <br/>
   **Before**: `0x000000000000000000000000c457172937ffa9306099ec4f2317903254bf7223` <br/>
-  **After**: `0x0000000000000000000000003aFdc7cCF8a1c0d351E3E5F220AF056ea2c07733` <br/>
+  **After**: `0x0000000000000000000000009D254e2b925516bD201d726189dfd0eeA6786c58` <br/>
   **Meaning**: Updates the implementation for game type 1. Verify that the new implementation is set using
   `cast call 0x2F12d621a16e2d3285929C9996f478508951dFe4 "gameImpls(uint32)(address)" 1`.
+
 ### Liveness Guards
 
 Liveness Guard related changes are listed [here](../../../NESTED-VALIDATION.md#liveness-guard-security-council-safe-or-unichain-operation-safe-only) file.
