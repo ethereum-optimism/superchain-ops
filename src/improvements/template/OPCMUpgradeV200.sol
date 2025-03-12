@@ -9,16 +9,16 @@ import {
     IProxyAdmin
 } from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {IStandardValidatorV200} from "@eth-optimism-bedrock/interfaces/L1/IStandardValidator.sol";
+import {IOPContractsManager} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
+import {LibString} from "solady/utils/LibString.sol";
 
 /// @notice This template supports OPCMV200 upgrade tasks.
 contract OPCMUpgradeV200 is OPCMBaseTask {
     using stdToml for string;
-
-    /// @notice The OPContractsManager address
-    address public OPCM;
+    using LibString for string;
 
     /// @notice The StandardValidatorV200 address
     IStandardValidatorV200 public STANDARD_VALIDATOR_V200;
@@ -31,12 +31,6 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
 
     /// @notice Mapping of l2 chain IDs to their respective prestates
     mapping(uint256 => Claim) public absolutePrestates;
-
-    /// @notice Returns the OPCM address
-    function opcm() public view override returns (address) {
-        require(OPCM != address(0), "OPCMUpgradeV200: OPCM address not set in template");
-        return OPCM;
-    }
 
     /// @notice Returns the storage write permissions
     function _taskStorageWrites() internal view virtual override returns (string[] memory) {
@@ -64,21 +58,17 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
 
         // For OPCMUpgradeV200, the OPCMUpgrade struct is used to store the absolutePrestate for each l2 chain.
         OPCMUpgrade[] memory upgrades =
-            abi.decode(vm.parseToml(tomlContent, ".opcmUpgrades.absolutePrestates"), (OPCMUpgrade[]));
+            abi.decode(tomlContent.parseRaw(".opcmUpgrades.absolutePrestates"), (OPCMUpgrade[]));
         for (uint256 i = 0; i < upgrades.length; i++) {
             absolutePrestates[upgrades[i].chainId] = upgrades[i].absolutePrestate;
         }
 
-        address opcmAddress = tomlContent.readAddress(".addresses.OPCM");
-        OPCM = opcmAddress;
-        require(OPCM != address(0), "OPCMUpgradeV200: OPCM address not set in config.toml");
-        vm.label(opcm(), "OPCM");
+        OPCM = tomlContent.readAddress(".addresses.OPCM");
+        require(IOPContractsManager(OPCM).version().eq("1.6.0"), "Incorrect OPCM");
+        vm.label(OPCM, "OPCM");
 
-        address standardValidatorV200 = tomlContent.readAddress(".opcmUpgrades.standardValidatorV200");
-        require(
-            standardValidatorV200 != address(0), "OPCMUpgradeV200: StandardValidator address not set in config.toml"
-        );
-        STANDARD_VALIDATOR_V200 = IStandardValidatorV200(standardValidatorV200);
+        STANDARD_VALIDATOR_V200 = IStandardValidatorV200(tomlContent.readAddress(".addresses.StandardValidatorV200"));
+        require(STANDARD_VALIDATOR_V200.disputeGameFactoryVersion().eq("1.0.1"), "Incorrect StandardValidatorV200");
         vm.label(address(STANDARD_VALIDATOR_V200), "StandardValidatorV200");
     }
 
@@ -108,7 +98,7 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
         //
         // As a workaround, we make the call anyway to ensure the desired OPCM account access is recorded. This is acceptable because we later simulate
         // the actual 'OPCM.upgrade()' call. However, it is crucial that the 'OPCM.upgrade()' call does not revert during the simulation.
-        (bool success,) = opcm().call(abi.encodeCall(IOPContractsManager.upgrade, (opChainConfigs)));
+        (bool success,) = OPCM.call(abi.encodeCall(IOPContractsManager.upgrade, (opChainConfigs)));
         require(!success, "OPCMUpgradeV200: Call unexpectedly succeeded; expected revert due to non-delegatecall.");
     }
 
@@ -132,10 +122,7 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
             string memory reasons = STANDARD_VALIDATOR_V200.validate({_input: input, _allowFailure: true});
             string memory expectedErrors_11155420 =
                 "PDDG-50,PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-50,PLDG-DWETH-40,PLDG-ANCHORP-40";
-            require(
-                keccak256(bytes(reasons)) == keccak256(bytes(expectedErrors_11155420)),
-                string.concat("Unexpected errors: ", reasons)
-            );
+            require(reasons.eq(expectedErrors_11155420), string.concat("Unexpected errors: ", reasons));
         }
     }
 
