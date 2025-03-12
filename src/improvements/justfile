@@ -106,6 +106,9 @@ check-superchain-registry-latest:
     root_dir=$(git rev-parse --show-toplevel)
     bash ${root_dir}/src/improvements/script/check-superchain-latest.sh
 
+# this is command is mainly for CI testing purposes and not task developers
+# task developers can run this locally, however it is expected that this
+# command will be run mostly by CI.
 simulate-all-templates:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -119,7 +122,7 @@ simulate-all-templates:
     gen_verify_input="true"
 
     simulation_count=0
-    for task in ${root_dir}/src/improvements/tasks/example/*/*; do
+    for task in ${root_dir}/test/tasks/example/*/*; do
         if [ -d "$task" ]; then
             # Derive a filepath for the verify input. e.g if the task is in src/improvements/tasks/example/eth/000-gas-config-template.sol
             # then the verify input will be in OPVerifyInputs/eth/000-gas-config-template-input.json at the root

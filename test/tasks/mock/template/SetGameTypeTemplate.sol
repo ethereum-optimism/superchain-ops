@@ -48,6 +48,7 @@ contract SetGameTypeTemplate is L2TaskBase {
     /// @notice Sets up the template with game type configurations from a TOML file
     /// @param taskConfigFilePath Path to the TOML configuration file
     function _templateSetup(string memory taskConfigFilePath) internal override {
+        super._templateSetup(taskConfigFilePath);
         SetRespectedGameType[] memory setRespectedGameType =
             abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".respectedGameTypes"), (SetRespectedGameType[]));
 

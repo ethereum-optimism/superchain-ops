@@ -12,8 +12,8 @@ import {VmSafe} from "forge-std/Vm.sol";
 
 import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
-import {TestOPCMUpgradeVxyz} from "src/improvements/template/TestOPCMUpgradeVxyz.sol";
-import {DisputeGameUpgradeTemplate} from "src/improvements/template/DisputeGameUpgradeTemplate.sol";
+import {DisputeGameUpgradeTemplate} from "test/tasks/mock/template/DisputeGameUpgradeTemplate.sol";
+import {OPCMUpgradeV200} from "src/improvements/template/OPCMUpgradeV200.sol";
 
 /// @notice This test is used to test the nested multisig task.
 contract NestedMultisigTaskTest is Test {
@@ -244,24 +244,24 @@ contract NestedMultisigTaskTest is Test {
         );
     }
 
-    /// @notice test that the data to sign generated in simulateRun for the child multisigs
-    /// is correct for OPCMBaseTask
+    /// @notice Test that the data to sign generated in simulateRun for the child multisigs
+    /// is correct for OPCMBaseTask. This test uses the OPCMUpgradeV200 template as a way to test OPCMBaseTask.
     function testNestedExecuteWithSignaturesOPCM() public {
         vm.createSelectFork("sepolia");
         uint256 snapshotId = vm.snapshot();
-        multisigTask = new TestOPCMUpgradeVxyz();
-        string memory opcmTaskConfigFilePath = "test/tasks/mock/configs/TestOPCMUpgradeVxyz.toml";
+        multisigTask = new OPCMUpgradeV200();
+        string memory opcmTaskConfigFilePath = "test/tasks/example/sep/002-opcm-upgrade-v200/config.toml";
         (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions) =
             multisigTask.simulateRun(opcmTaskConfigFilePath);
         addrRegistry = multisigTask.addrRegistry();
         address parentMultisig = multisigTask.parentMultisig();
         address[] memory parentMultisigOwners = IGnosisSafe(parentMultisig).getOwners();
         bytes[] memory childMultisigDatasToSign = new bytes[](parentMultisigOwners.length);
-        // store the data to sign for each child multisig
+        // Store the data to sign for each child multisig
         for (uint256 i = 0; i < parentMultisigOwners.length; i++) {
             childMultisigDatasToSign[i] = getNestedDataToSign(parentMultisigOwners[i], actions);
         }
-        // revert to snapshot so that the safe is in the same state as before the task was run
+        // Revert to snapshot so that the safe is in the same state as before the task was run
         vm.revertTo(snapshotId);
 
         MultiSigOwner[] memory newOwners = new MultiSigOwner[](9);
@@ -283,7 +283,7 @@ contract NestedMultisigTaskTest is Test {
             address childMultisig = parentMultisigOwners[i];
 
             {
-                // set the new owners for the child multisig
+                // Set the new owners for the child multisig
                 address currentOwner = address(0x1);
                 bytes32 slot;
                 for (uint256 j = 0; j < newOwners.length; j++) {
@@ -292,21 +292,20 @@ contract NestedMultisigTaskTest is Test {
                     currentOwner = newOwners[j].walletAddress;
                 }
 
-                // point the final owner back to the sentinel
+                // Point the final owner back to the sentinel
                 slot = keccak256(abi.encode(currentOwner, OWNER_MAPPING_STORAGE_OFFSET));
                 vm.store(childMultisig, slot, bytes32(uint256(uint160(0x1))));
             }
 
-            // set the owners count to 9
+            // Set the owners count to 9
             vm.store(childMultisig, bytes32(OWNER_COUNT_STORAGE_OFFSET), bytes32(uint256(9)));
 
-            // set the threshold to 4
+            // Set the threshold to 4
             vm.store(childMultisig, bytes32(THRESHOLD_STORAGE_OFFSET), bytes32(uint256(4)));
 
             address[] memory getNewOwners = IGnosisSafe(childMultisig).getOwners();
             assertEq(getNewOwners.length, 9, "Expected 9 owners");
             for (uint256 j = 0; j < newOwners.length; j++) {
-                // check that the new owners are set correctly
                 assertEq(getNewOwners[j], newOwners[j].walletAddress, "Expected owner");
             }
 
@@ -314,7 +313,7 @@ contract NestedMultisigTaskTest is Test {
             assertEq(threshold, 4, "Expected threshold should be updated to mocked value");
             LibSort.sort(getNewOwners);
 
-            // sign the approve hash call data to sign with the private keys of the new owners of the child multisig
+            // Sign the approve hash call data to sign with the private keys of the new owners of the child multisig
             bytes memory packedSignaturesChild;
             for (uint256 j = 0; j < threshold; j++) {
                 (uint8 v, bytes32 r, bytes32 s) =
@@ -322,24 +321,22 @@ contract NestedMultisigTaskTest is Test {
                 packedSignaturesChild = bytes.concat(packedSignaturesChild, abi.encodePacked(r, s, v));
             }
 
-            // execute the approve hash call with the signatures
-            multisigTask = new TestOPCMUpgradeVxyz();
+            // Execute the approve hash call with the signatures
+            multisigTask = new OPCMUpgradeV200();
             multisigTask.approveFromChildMultisig(opcmTaskConfigFilePath, childMultisig, packedSignaturesChild);
         }
 
-        // execute the task
-        multisigTask = new TestOPCMUpgradeVxyz();
+        // Execute the task
+        multisigTask = new OPCMUpgradeV200();
 
-        /// snapshot before running the task so we can roll back to this pre-state
+        // Snapshot before running the task so we can roll back to this pre-state
         uint256 newSnapshot = vm.snapshot();
 
         (accountAccesses, actions) = multisigTask.simulateRun(opcmTaskConfigFilePath);
         bytes32 taskHash =
             multisigTask.getHash(multisigTask.getMulticall3Calldata(actions), multisigTask.parentMultisig());
 
-        /// now run the executeRun flow
         vm.revertTo(newSnapshot);
-
         multisigTask.executeRun(opcmTaskConfigFilePath, prepareSignatures(parentMultisig, taskHash));
     }
 
