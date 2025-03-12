@@ -8,7 +8,8 @@ get_current_block() {
     data='{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
     # shellcheck disable=SC2086
     response=$(curl -s -X POST -H "Content-Type: application/json" --data "$data" $URL)
-    echo "response: $response"
+    echo "response: $response" >&2 # Display the response in the logs
+
     hex=$(echo "$response" | jq -r '.result')
     trimmed_hex=${hex#0x}
     echo $((16#$trimmed_hex))
