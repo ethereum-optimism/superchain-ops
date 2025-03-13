@@ -205,8 +205,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ----- DecodedStateDiff[7] -----
   Who:               0x5c06aDb8f7e30A6b30Ef6C91612719E8061b3Ff5
-  Contract:
-  Chain ID:
+  Contract:          AEGIR-1_DisputeGameFactoryProxy
+  Chain ID:          420110005
   Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
   Raw Old Value:     0x000000000000000000000000a51bea7e4d34206c0bcb04a776292f2f19f0beec
   Raw New Value:     0x0000000000000000000000004bba758f006ef09402ef31724203f316ab74e4a0
@@ -218,8 +218,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ----- DecodedStateDiff[8] -----
   Who:               0x5c06aDb8f7e30A6b30Ef6C91612719E8061b3Ff5
-  Contract:
-  Chain ID:
+  Contract:          AEGIR-1_DisputeGameFactoryProxy
+  Chain ID:          420110005
   Raw Slot:          0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e
   Raw Old Value:     0x0000000000000000000000009ac63d00d8410d16d20b281ff4a262318391212a
   Raw New Value:     0x00000000000000000000000072d9bbfdd2e137fbc7a3643a716f01b3548d5147
@@ -227,8 +227,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ----- DecodedStateDiff[9] -----
   Who:               0x5c06aDb8f7e30A6b30Ef6C91612719E8061b3Ff5
-  Contract:
-  Chain ID:
+  Contract:          AEGIR-1_DisputeGameFactoryProxy
+  Chain ID:          420110005
   Raw Slot:          0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b
   Raw Old Value:     0x000000000000000000000000e226983df7ac26224bdb3b46c5636270348e60d5
   Raw New Value:     0x0000000000000000000000007d281a7a165b61ca310c963986288383302744f5
@@ -236,8 +236,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ----- DecodedStateDiff[10] -----
   Who:               0x692a1aB70A03A99d09ac2b90349Be3244030bABc
-  Contract:
-  Chain ID:
+  Contract:          New AnchorStateRegistry
+  Chain ID:          420110005
   Raw Slot:          0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x0000000000000000000000006d283c3ff5b2140032bf1a9c2fa20e4c73484666
@@ -249,8 +249,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ----- DecodedStateDiff[11] -----
   Who:               0x692a1aB70A03A99d09ac2b90349Be3244030bABc
-  Contract:
-  Chain ID:
+  Contract:          New AnchorStateRegistry
+  Chain ID:          420110005
   Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x0000000000000000000000007b465370bb7a333f99edd19599eb7fb1c2d3f8d2
@@ -262,8 +262,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ----- DecodedStateDiff[12] -----
   Who:               0x692a1aB70A03A99d09ac2b90349Be3244030bABc
-  Contract:
-  Chain ID:
+  Contract:          New AnchorStateRegistry
+  Chain ID:          420110005
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000000
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x00000000000000000000c2be75506d5724086deb7245bd260cc9753911be0001
@@ -271,8 +271,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ----- DecodedStateDiff[13] -----
   Who:               0x692a1aB70A03A99d09ac2b90349Be3244030bABc
-  Contract:
-  Chain ID:
+  Contract:          New AnchorStateRegistry
+  Chain ID:          420110005
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000001
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x0000000000000000000000005c06adb8f7e30a6b30ef6c91612719e8061b3ff5
@@ -280,8 +280,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ----- DecodedStateDiff[14] -----
   Who:               0x692a1aB70A03A99d09ac2b90349Be3244030bABc
-  Contract:
-  Chain ID:
+  Contract:          New AnchorStateRegistry
+  Chain ID:          420110005
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000002
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x0000000000000000000000001dd21367755166cfe041e5d307a081a8411c8921
@@ -289,8 +289,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ----- DecodedStateDiff[15] -----
   Who:               0x692a1aB70A03A99d09ac2b90349Be3244030bABc
-  Contract:
-  Chain ID:
+  Contract:          New AnchorStateRegistry
+  Chain ID:          420110005
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x14283bda64279eb2d8dcc47717c3674389a32336494a833f46c897ff69b10280
@@ -298,8 +298,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ----- DecodedStateDiff[16] -----
   Who:               0x692a1aB70A03A99d09ac2b90349Be3244030bABc
-  Contract:
-  Chain ID:
+  Contract:          New AnchorStateRegistry
+  Chain ID:          420110005
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x000000000000000000000000000000000000000000000000000000000003a8ab
@@ -307,7 +307,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ----- DecodedStateDiff[17] -----
   Who:               0x79ADD5713B383DAa0a138d3C4780C7A1804a8090
-  Contract:
+  Contract:          ProtocolVersions
   Chain ID:
   Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
   Raw Old Value:     0x00000000000000000000000042f0bd8313ad456a38061308857b2383fe2c72a0
@@ -468,8 +468,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ----- DecodedStateDiff[30] -----
   Who:               0xEBD2464F5B7C44164982AE5DA07f666082fd727C
-  Contract:
-  Chain ID:
+  Contract:          New AnchorStateRegistry
+  Chain ID:          420110004
   Raw Slot:          0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x000000000000000000000000e323c57b8966dd6ed845715303ddded832b2672c
@@ -481,8 +481,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ----- DecodedStateDiff[31] -----
   Who:               0xEBD2464F5B7C44164982AE5DA07f666082fd727C
-  Contract:
-  Chain ID:
+  Contract:          New AnchorStateRegistry
+  Chain ID:          420110004
   Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x0000000000000000000000007b465370bb7a333f99edd19599eb7fb1c2d3f8d2
@@ -494,8 +494,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ----- DecodedStateDiff[32] -----
   Who:               0xEBD2464F5B7C44164982AE5DA07f666082fd727C
-  Contract:
-  Chain ID:
+  Contract:          New AnchorStateRegistry
+  Chain ID:          420110004
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000000
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x00000000000000000000c2be75506d5724086deb7245bd260cc9753911be0001
@@ -503,8 +503,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ----- DecodedStateDiff[33] -----
   Who:               0xEBD2464F5B7C44164982AE5DA07f666082fd727C
-  Contract:
-  Chain ID:
+  Contract:          New AnchorStateRegistry
+  Chain ID:          420110004
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000001
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x00000000000000000000000004d4b775cc4b9f0d61db2009be37052fc2fa7615
@@ -512,8 +512,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ----- DecodedStateDiff[34] -----
   Who:               0xEBD2464F5B7C44164982AE5DA07f666082fd727C
-  Contract:
-  Chain ID:
+  Contract:          New AnchorStateRegistry
+  Chain ID:          420110004
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000002
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x000000000000000000000000966ee15265c77f98584eec1f784103e0bbcd305c
@@ -521,8 +521,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ----- DecodedStateDiff[35] -----
   Who:               0xEBD2464F5B7C44164982AE5DA07f666082fd727C
-  Contract:
-  Chain ID:
+  Contract:          New AnchorStateRegistry
+  Chain ID:          420110004
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x20e6001ba6e6ea12559e47ed30ead8930eeac8af710bf9be937ea1610958caf2
@@ -530,8 +530,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ----- DecodedStateDiff[36] -----
   Who:               0xEBD2464F5B7C44164982AE5DA07f666082fd727C
-  Contract:
-  Chain ID:
+  Contract:          New AnchorStateRegistry
+  Chain ID:          420110004
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x000000000000000000000000000000000000000000000000000000000004c0e2
