@@ -867,7 +867,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     function _startBuild() private {
         vm.startPrank(parentMultisig);
 
-        _startSnapshot = vm.snapshot();
+        _startSnapshot = vm.snapshotState();
 
         vm.startStateDiffRecording();
     }
@@ -882,7 +882,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
         // Roll back state changes.
         require(
-            vm.revertTo(_startSnapshot), "MultisigTask: failed to revert back to snapshot, unsafe state to run task"
+            vm.revertToState(_startSnapshot),
+            "MultisigTask: failed to revert back to snapshot, unsafe state to run task"
         );
         require(accesses.length > 0, "MultisigTask: no account accesses found");
 

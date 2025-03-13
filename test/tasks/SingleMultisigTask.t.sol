@@ -264,14 +264,14 @@ contract SingleMultisigTaskTest is Test {
         string memory opcmTaskConfigFilePath = "test/tasks/mock/configs/MockDisputeGameUpgradesToEOA.toml";
         multisigTask = new DisputeGameUpgradeTemplate();
 
-        uint256 start = vm.snapshot();
+        uint256 start = vm.snapshotState();
 
         multisigTask.simulateRun("test/tasks/mock/configs/DisputeGameUpgradeCodeException.toml");
         addrRegistry = multisigTask.addrRegistry();
         address account =
             toSuperchainAddrRegistry(addrRegistry).getAddress("DisputeGameFactoryProxy", getChain("optimism").chainId);
 
-        vm.revertTo(start);
+        vm.revertToState(start);
 
         string memory err = string.concat(
             "Likely address in storage has no code\n",
@@ -287,7 +287,7 @@ contract SingleMultisigTaskTest is Test {
     }
 
     function testExecuteWithSignatures() public {
-        uint256 snapshotId = vm.snapshot();
+        uint256 snapshotId = vm.snapshotState();
         (, MultisigTask.Action[] memory actions) = runTask();
         addrRegistry = multisigTask.addrRegistry();
         multisigTask.processTaskActions(actions);
@@ -297,7 +297,7 @@ contract SingleMultisigTaskTest is Test {
         address systemConfigMode = toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigProxy", 34443);
         address systemConfigMetal = toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigProxy", 1750);
         // revert to snapshot so that the safe is in the same state as before the task was run
-        vm.revertTo(snapshotId);
+        vm.revertToState(snapshotId);
 
         MultiSigOwner[] memory newOwners = new MultiSigOwner[](9);
         (newOwners[0].walletAddress, newOwners[0].privateKey) = makeAddrAndKey("Owner0");
