@@ -134,7 +134,7 @@ contract NestedMultisigTaskTest is Test {
     /// is correct for MultisigTask
     function testNestedExecuteWithSignatures() public {
         vm.createSelectFork("mainnet");
-        uint256 snapshotId = vm.snapshot();
+        uint256 snapshotId = vm.snapshotState();
         (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions) = runTask();
         address parentMultisig = multisigTask.parentMultisig();
         address[] memory parentMultisigOwners = IGnosisSafe(parentMultisig).getOwners();
@@ -148,7 +148,7 @@ contract NestedMultisigTaskTest is Test {
             IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", 10));
 
         // revert to snapshot so that the safe is in the same state as before the task was run
-        vm.revertTo(snapshotId);
+        vm.revertToState(snapshotId);
 
         MultiSigOwner[] memory newOwners = new MultiSigOwner[](9);
         (newOwners[0].walletAddress, newOwners[0].privateKey) = makeAddrAndKey("Owner0");
@@ -217,7 +217,7 @@ contract NestedMultisigTaskTest is Test {
         multisigTask = new DisputeGameUpgradeTemplate();
 
         /// snapshot before running the task so we can roll back to this pre-state
-        uint256 newSnapshot = vm.snapshot();
+        uint256 newSnapshot = vm.snapshotState();
 
         (accountAccesses, actions) = multisigTask.simulateRun(taskConfigFilePath);
 
@@ -232,7 +232,7 @@ contract NestedMultisigTaskTest is Test {
         bytes32 taskHash = multisigTask.getHash(callData, parentMultisig);
 
         /// now run the executeRun flow
-        vm.revertTo(newSnapshot);
+        vm.revertToState(newSnapshot);
         multisigTask.executeRun(taskConfigFilePath, prepareSignatures(parentMultisig, taskHash));
         addrRegistry = multisigTask.addrRegistry();
 
@@ -248,7 +248,7 @@ contract NestedMultisigTaskTest is Test {
     /// is correct for OPCMBaseTask. This test uses the OPCMUpgradeV200 template as a way to test OPCMBaseTask.
     function testNestedExecuteWithSignaturesOPCM() public {
         vm.createSelectFork("sepolia");
-        uint256 snapshotId = vm.snapshot();
+        uint256 snapshotId = vm.snapshotState();
         multisigTask = new OPCMUpgradeV200();
         string memory opcmTaskConfigFilePath = "test/tasks/example/sep/002-opcm-upgrade-v200/config.toml";
         (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions) =
@@ -262,7 +262,7 @@ contract NestedMultisigTaskTest is Test {
             childMultisigDatasToSign[i] = getNestedDataToSign(parentMultisigOwners[i], actions);
         }
         // Revert to snapshot so that the safe is in the same state as before the task was run
-        vm.revertTo(snapshotId);
+        vm.revertToState(snapshotId);
 
         MultiSigOwner[] memory newOwners = new MultiSigOwner[](9);
         (newOwners[0].walletAddress, newOwners[0].privateKey) = makeAddrAndKey("Owner0");
@@ -330,13 +330,13 @@ contract NestedMultisigTaskTest is Test {
         multisigTask = new OPCMUpgradeV200();
 
         // Snapshot before running the task so we can roll back to this pre-state
-        uint256 newSnapshot = vm.snapshot();
+        uint256 newSnapshot = vm.snapshotState();
 
         (accountAccesses, actions) = multisigTask.simulateRun(opcmTaskConfigFilePath);
         bytes32 taskHash =
             multisigTask.getHash(multisigTask.getMulticall3Calldata(actions), multisigTask.parentMultisig());
 
-        vm.revertTo(newSnapshot);
+        vm.revertToState(newSnapshot);
         multisigTask.executeRun(opcmTaskConfigFilePath, prepareSignatures(parentMultisig, taskHash));
     }
 
