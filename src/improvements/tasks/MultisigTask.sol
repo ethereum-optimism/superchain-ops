@@ -17,12 +17,14 @@ import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegis
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
 import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
+import {LibString} from "solady/utils/LibString.sol";
 
 type AddressRegistry is address;
 
 abstract contract MultisigTask is Test, Script, StateOverrideManager {
     using EnumerableSet for EnumerableSet.AddressSet;
     using AccountAccessParser for VmSafe.AccountAccess[];
+    using LibString for string;
 
     /// @notice nonce used for generating the safe transaction
     /// will be set to the value specified in the config file
@@ -494,34 +496,31 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         bool genVerifyInput = vm.envOr("GEN_VERIFY_INPUT", false);
         string memory filepath = vm.envOr("OP_VERIFY_INPUT_FILEPATH", new string(0));
         if (genVerifyInput) {
-            require(
-                keccak256(abi.encodePacked(filepath)) != keccak256(abi.encodePacked("")),
-                "GEN_VERIFY_INPUT is true but OP_VERIFY_INPUT_FILEPATH is not set"
-            );
+            require(!filepath.eq(""), "GEN_VERIFY_INPUT is true but OP_VERIFY_INPUT_FILEPATH is not set");
             string memory json = string.concat(
-                '{\n   "safe":"',
+                '{\n   "safe": "',
                 vm.toString(multisig),
-                '",\n   "chain":',
+                '",\n   "chain": ',
                 vm.toString(block.chainid),
-                ',\n   "to":"',
+                ',\n   "to": "',
                 vm.toString(target),
-                '",\n   "value":',
+                '",\n   "value": ',
                 vm.toString(value),
-                ',\n   "data":"',
+                ',\n   "data": "',
                 vm.toString(data),
-                '",\n   "operation":',
+                '",\n   "operation": ',
                 vm.toString(uint8(operationType)),
-                ',\n   "safe_tx_gas":',
+                ',\n   "safe_tx_gas": ',
                 vm.toString(extraParams.safeTxGas),
-                ',\n   "base_gas":',
+                ',\n   "base_gas": ',
                 vm.toString(extraParams.baseGas),
-                ',\n   "gas_price":',
+                ',\n   "gas_price": ',
                 vm.toString(extraParams.gasPrice),
-                ',\n   "gas_token":"',
+                ',\n   "gas_token": "',
                 vm.toString(extraParams.gasToken),
-                '",\n   "refund_receiver":"',
+                '",\n   "refund_receiver": "',
                 vm.toString(extraParams.refundReceiver),
-                '",\n   "nonce":',
+                '",\n   "nonce": ',
                 vm.toString(nonce),
                 "\n}"
             );
