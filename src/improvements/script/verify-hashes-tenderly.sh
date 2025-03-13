@@ -12,7 +12,6 @@ verify_hashes() {
   safe_name=$2
   tenderly_payload=$3
   root_dir=$(git rev-parse --show-toplevel)
-  rpcUrl=$("$root_dir"/src/improvements/script/get-rpc-url.sh "$task_path")
 
   # Check that VALIDATIONS.md exists
   if [ ! -f "$task_path/VALIDATIONS.md" ]; then
