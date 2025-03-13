@@ -8,20 +8,20 @@ import {
     ISystemConfig,
     IProxyAdmin
 } from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
-import {IStandardValidatorV200} from "@eth-optimism-bedrock/interfaces/L1/IStandardValidator.sol";
+import {IStandardValidatorV300} from "@eth-optimism-bedrock/interfaces/L1/IStandardValidator.sol";
 import {IOPContractsManager} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
 
-/// @notice This template supports OPCMV200 upgrade tasks.
+/// @notice This template supports OPCMV300 upgrade tasks.
 contract OPCMUpgradeV300 is OPCMBaseTask {
     using stdToml for string;
     using LibString for string;
 
-    /// @notice The StandardValidatorV200 address
-    IStandardValidatorV200 public STANDARD_VALIDATOR_V200;
+    /// @notice The StandardValidatorV300 address
+    IStandardValidatorV300 public STANDARD_VALIDATOR_V300;
 
     /// @notice Struct to store inputs for OPCM.upgrade() function per l2 chain
     struct OPCMUpgrade {
@@ -67,9 +67,9 @@ contract OPCMUpgradeV300 is OPCMBaseTask {
         require(IOPContractsManager(OPCM).version().eq("1.6.0"), "Incorrect OPCM");
         vm.label(OPCM, "OPCM");
 
-        STANDARD_VALIDATOR_V200 = IStandardValidatorV200(tomlContent.readAddress(".addresses.StandardValidatorV200"));
-        require(STANDARD_VALIDATOR_V200.disputeGameFactoryVersion().eq("1.0.1"), "Incorrect StandardValidatorV200");
-        vm.label(address(STANDARD_VALIDATOR_V200), "StandardValidatorV200");
+        STANDARD_VALIDATOR_V300 = IStandardValidatorV300(tomlContent.readAddress(".addresses.StandardValidatorV300"));
+        require(STANDARD_VALIDATOR_V300.disputeGameFactoryVersion().eq("1.0.1"), "Incorrect StandardValidatorV300");
+        vm.label(address(STANDARD_VALIDATOR_V300), "StandardValidatorV300");
     }
 
     /// @notice Build the task action for all l2chains in the task.abi
@@ -112,14 +112,14 @@ contract OPCMUpgradeV300 is OPCMBaseTask {
             address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
             address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
 
-            IStandardValidatorV200.InputV200 memory input = IStandardValidatorV200.InputV200({
+            IStandardValidatorV300.InputV300 memory input = IStandardValidatorV300.InputV300({
                 proxyAdmin: proxyAdmin,
                 sysCfg: sysCfg,
                 absolutePrestate: currentAbsolutePrestate,
                 l2ChainID: chainId
             });
 
-            string memory reasons = STANDARD_VALIDATOR_V200.validate({_input: input, _allowFailure: true});
+            string memory reasons = STANDARD_VALIDATOR_V300.validate({_input: input, _allowFailure: true});
             string memory expectedErrors_11155420 =
                 "PDDG-50,PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-50,PLDG-DWETH-40,PLDG-ANCHORP-40";
             require(reasons.eq(expectedErrors_11155420), string.concat("Unexpected errors: ", reasons));
