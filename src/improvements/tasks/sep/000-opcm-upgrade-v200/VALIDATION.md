@@ -293,10 +293,10 @@ For each contract listed in the state diff, please verify that no contracts or s
 
     Summary:           Slot 0 is updated to set AnchorStateRegistryProxy address
     Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
-                      Reading 'Raw New Value' from Right to Left, we have:
-                      1. <i>0x01</i> - <i>_initialized</i> flag set to 'true'
-                      2. <i>0x00</i> - <i>_initializing</i> flag set to 'false'
-                      3. <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/superchain/configs/sepolia/superchain.toml#L3"><i>0xc2be75506d5724086deb7245bd260cc9753911be</i><a> - Sepolia SuperchainConfig
+                       Reading 'Raw New Value' from Right to Left, we have:
+                       1. <i>0x01</i> - <i>_initialized</i> flag set to 'true'
+                       2. <i>0x00</i> - <i>_initializing</i> flag set to 'false'
+                       3. <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/superchain/configs/sepolia/superchain.toml#L3"><i>0xc2be75506d5724086deb7245bd260cc9753911be</i><a> - Sepolia SuperchainConfig
 
   ----- DecodedStateDiff[11] -----
     Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
@@ -310,8 +310,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 
     Summary:           Slot 1 is updated to set DisputeGameFactoryProxy address
     Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
-                      <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/sepolia/soneium-minato.toml#L64C30-L64C72">0xB3Ad2c38E6e0640d7ce6aA952AB3A60E81bf7a01</a> is the
-                      DisputeGameFactoryProxy address on Soneium Testnet Minato.
+                       <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/sepolia/soneium-minato.toml#L64C30-L64C72">0xB3Ad2c38E6e0640d7ce6aA952AB3A60E81bf7a01</a> is the
+                       DisputeGameFactoryProxy address on Soneium Testnet Minato.
 
   ----- DecodedStateDiff[12] -----
     Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
@@ -325,8 +325,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 
     Summary:           Slot 2 is updated to set OptimismPortalProxy address
     Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
-                      <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/sepolia/soneium-minato.toml#L59">0x65ea1489741A5D72fFdD8e6485B216bBdcC15Af3</a> is the
-                      OptimismPortalProxy address on Soneium Testnet Minato.
+                       <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/sepolia/soneium-minato.toml#L59">0x65ea1489741A5D72fFdD8e6485B216bBdcC15Af3</a> is the
+                       OptimismPortalProxy address on Soneium Testnet Minato.
 
   ----- DecodedStateDiff[13] -----
     Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
@@ -340,9 +340,9 @@ For each contract listed in the state diff, please verify that no contracts or s
 
     Summary:           Slot 4 updates the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44">'root'</a> for the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L42">startingAnchorRoot</a>
     Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
-                      The 'Raw New Value' for this entry might be different than what is seen in the Tenderly state diff. 
-                      This is expected because the AnchorStateRegistry is being continually updated.
-                      Anyone can call <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L239"><i>'setAnchorState(IDisputeGame _game)'</i></a> so it can be updated often if the conditions are right.
+                       The 'Raw New Value' for this entry might be different than what is seen in the Tenderly state diff. 
+                       This is expected because the AnchorStateRegistry is being continually updated.
+                       Anyone can call <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L239"><i>'setAnchorState(IDisputeGame _game)'</i></a> so it can be updated often if the conditions are right.
 
   ----- DecodedStateDiff[14] -----
     Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
@@ -354,12 +354,12 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw New Value:     0x00000000000000000000000000000000000000000000000000000000008baa6f
     [WARN] Slot was not decoded
 
-    Summary:          Slot 5 updates the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44">'l2BlockNumber'</a> for the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L42">startingAnchorRoot</a>
+    Summary:           Slot 5 updates the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44">'l2BlockNumber'</a> for the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L42">startingAnchorRoot</a>
     Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
-                      The 'Raw New Value' for this entry might be different than what is seen in the Tenderly state diff. 
-                      This is expected because the AnchorStateRegistry is being continually updated.
-                      <i>cast --to-dec 0x8baa6f</i> -> <i>9153135</i>
-                      Anyone can call <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L239"><i>'setAnchorState(IDisputeGame _game)'</i></a> so it can be updated often if the conditions are right.
+                       The 'Raw New Value' for this entry might be different than what is seen in the Tenderly state diff. 
+                       This is expected because the AnchorStateRegistry is being continually updated.
+                       <i>cast --to-dec 0x8baa6f</i> -> <i>9153135</i>
+                       Anyone can call <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L239"><i>'setAnchorState(IDisputeGame _game)'</i></a> so it can be updated often if the conditions are right.
 
   ----- DecodedStateDiff[15] -----
     Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
