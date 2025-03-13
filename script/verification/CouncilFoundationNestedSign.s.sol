@@ -40,3 +40,41 @@ contract CouncilFoundationNestedSign is VerificationBase, CommonBase {
         return address(uint160(uint256(vm.load(address(councilSafe), livenessGuardSlot))));
     }
 }
+
+contract CouncilFoundationGovernorNestedSign is CouncilFoundationNestedSign {
+    GnosisSafe immutable governorSafe = GnosisSafe(payable(vm.envAddress("CHAIN_GOVERNOR_SAFE")));
+
+    function addSafe(GnosisSafe safe) internal {
+        addAllowedStorageAccess(address(safe));
+    }
+
+    function addSafeWithLivenessGuard(GnosisSafe safe) internal {
+        addSafe(safe);
+        enableLivenessGuard(GnosisSafe(safe));
+    }
+
+    function enableLivenessGuard(GnosisSafe safe) private {
+        addAllowedStorageAccess(livenessGuard(address(safe)));
+
+        // livenessGuard potentially needs storage exceptions
+        address[] memory securityCouncilSafeOwners = safe.getOwners();
+        for (uint256 i = 0; i < securityCouncilSafeOwners.length; i++) {
+            address owner = securityCouncilSafeOwners[i];
+            if (securityCouncilSafeOwners[i].code.length == 0) {
+                addCodeException(owner);
+            }
+        }
+    }
+
+    function livenessGuard(address safe) internal view returns (address) {
+        return address(uint160(uint256(vm.load(address(safe), livenessGuardSlot))));
+    }
+
+    constructor(bool governorWithLivenessGuard) {
+        if (governorWithLivenessGuard) {
+            addSafeWithLivenessGuard(governorSafe);
+        } else {
+            addSafe(governorSafe);
+        }
+    }
+}
