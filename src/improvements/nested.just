@@ -22,22 +22,21 @@ export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 simulate whichSafe hdPath='0' verify='verify-local':
   #!/usr/bin/env bash
   set -euo pipefail
+
+  root_dir=$(git rev-parse --show-toplevel)
+  echo "RPC URL: ${rpcUrl}"
   
   # Get the appropriate safe address based on whichSafe
   safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} ${SCRIPT_PATH} "{{whichSafe}}")
-
-  echo "RPC URL: ${rpcUrl}"
+  echo "Simulating call to {{whichSafe}} at ${safe}"
 
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
-  root_dir=$(git rev-parse --show-toplevel)
-
   echo "Using script ${script}"
-  echo "getting signer address for {{whichSafe}}..."
+  
+  echo "Getting signer address for {{whichSafe}}..."
   signer=$(cast call ${safe} "getOwners()(address[])" -r ${rpcUrl} | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
 
-  echo "safe: $safe"
-  echo "Simulating call to {{whichSafe}} at ${safe}"
   if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
     signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
     echo "Simulating with ledger account: ${signer}"
@@ -46,14 +45,11 @@ simulate whichSafe hdPath='0' verify='verify-local':
   fi
   echo ""
 
-  forge build
-
   # We use a file to pass the output to make sure any errors are printed to the console.
   local_output_file="./simulation_output.txt"
 
+  forge build
   # Simulate the task locally
-  # TODO: If there are reverts in the script delete and exit the script
-  # Maybe use is_nested=$(forge script "$root_dir"/src/improvements/tasks/TaskRunner.sol --sig "isNestedTask(string)" "$task/config.toml" --rpc-url "$rpcUrl" --json | jq -r '.returns["0"].value')
   forge script ${script} \
     --rpc-url ${rpcUrl} \
     --sender ${signer} \
