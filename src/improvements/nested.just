@@ -15,8 +15,14 @@ export SCRIPT_NAME := shell(cmd)
 export signatures := env_var_or_default('SIGNATURES', '')
 export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 
-simulate whichSafe hdPath='0':
+# Simulate a task
+# whichSafe is the safe name to simulate
+# hdPath is the derivation path for the safe
+# verify is optional and defaults to "verify-local". Other values are "verify-all", "verify-tenderly" and "skip-verify".
+simulate whichSafe hdPath='0' verify='verify-local':
   #!/usr/bin/env bash
+  set -euo pipefail
+  
   # Get the appropriate safe address based on whichSafe
   safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} ${SCRIPT_PATH} "{{whichSafe}}")
 
@@ -46,7 +52,7 @@ simulate whichSafe hdPath='0':
   local_output_file="./simulation_output.txt"
 
   # Simulate the task locally
-  # TODO: If there are reverts in the script stop execution
+  # TODO: If there are reverts in the script delete and exit the script
   # Maybe use is_nested=$(forge script "$root_dir"/src/improvements/tasks/TaskRunner.sol --sig "isNestedTask(string)" "$task/config.toml" --rpc-url "$rpcUrl" --json | jq -r '.returns["0"].value')
   forge script ${script} \
     --rpc-url ${rpcUrl} \
@@ -59,7 +65,15 @@ simulate whichSafe hdPath='0':
   tenderly_payload=$(awk '/Simulation payload:/{flag=1;next}/\}\}\}\}$/{print;flag=0}flag' "$local_output_file")
   rm "$local_output_file"
 
-  ${SCRIPT_PATH}/script/verify-hashes.sh "${TASK_PATH}" "{{whichSafe}}" "${tenderly_payload}"
+  if [ "{{verify}}" = "verify-local" ] || [ "{{verify}}" = "verify-all" ]; then
+    ${SCRIPT_PATH}/script/verify-hashes-local.sh "${TASK_PATH}" "{{whichSafe}}" "${tenderly_payload}"
+  fi
+  if [ "{{verify}}" = "verify-tenderly" ] || [ "{{verify}}" = "verify-all" ]; then
+    ${SCRIPT_PATH}/script/verify-hashes-tenderly.sh "${TASK_PATH}" "{{whichSafe}}" "${tenderly_payload}"
+  fi
+  if [ "{{verify}}" = "skip-verify" ]; then
+    echo "Skipping verification"
+  fi
 
 sign whichSafe hdPath='0':
   #!/usr/bin/env bash

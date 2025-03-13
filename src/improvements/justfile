@@ -119,7 +119,7 @@ simulate-all-templates:
     simulation_count=0
     for task in ${root_dir}/src/improvements/tasks/example/*/*; do
         if [ -d "$task" ]; then
-            ${root_dir}/src/improvements/script/simulate-task.sh $task $nested_safe_name
+            ${root_dir}/src/improvements/script/simulate-task.sh $task $nested_safe_name "skip-verify"
             simulation_count=$((simulation_count + 1))
         fi
     done
@@ -154,7 +154,6 @@ simulate-non-terminal-tasks:
             continue
         fi
 
-        # TODO: Add a flag to simulate-task.sh, nested.just simulate and single.just simulateto disable verification.
-        "$root_dir"/src/improvements/script/simulate-task.sh "$task_path" "$safe_name" | tee "$local_output_file"
+        "$root_dir"/src/improvements/script/simulate-task.sh "$task_path" "$safe_name" "verify-all"
     done
     echo "Done simulating non-terminal tasks"
