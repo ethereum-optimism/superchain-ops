@@ -266,95 +266,132 @@ For each contract listed in the state diff, please verify that no contracts or s
     Summary:           ERC-1967 implementation slot
     Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
 
------ DecodedStateDiff[9] -----
-  Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/superchain/configs/sepolia/soneium-minato.toml#L55">0x2bfb22cd534a462028771a1cA9D6240166e450c4</a>
-  Contract:          L1ERC721Bridge - Soneium Testnet Minato
-  Chain ID:          1946
+  ----- DecodedStateDiff[9] -----
+    Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/superchain/configs/sepolia/soneium-minato.toml#L55">0x2bfb22cd534a462028771a1cA9D6240166e450c4</a>
+    Contract:          L1ERC721Bridge - Soneium Testnet Minato
+    Chain ID:          1946
 
-  Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
-  Raw Old Value:     0x000000000000000000000000ae2af01232a6c4a4d3012c5ec5b1b35059caf10d
-  Raw New Value:     0x000000000000000000000000276d3730f219f7ec22274f7263180b8452b46d47
+    Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
+    Raw Old Value:     0x000000000000000000000000ae2af01232a6c4a4d3012c5ec5b1b35059caf10d
+    Raw New Value:     0x000000000000000000000000276d3730f219f7ec22274f7263180b8452b46d47
 
-  Decoded Kind:      address
-  Decoded Old Value: 0xAE2AF01232a6c4a4d3012C5eC5b1b35059caF10d
-  Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/validation/standard/standard-versions-sepolia.toml#L37">0x276d3730f219f7ec22274f7263180b8452B46d47</a>
-  Summary:           ERC-1967 implementation slot
-  Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+    Decoded Kind:      address
+    Decoded Old Value: 0xAE2AF01232a6c4a4d3012C5eC5b1b35059caF10d
+    Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/validation/standard/standard-versions-sepolia.toml#L37">0x276d3730f219f7ec22274f7263180b8452B46d47</a>
+    Summary:           ERC-1967 implementation slot
+    Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
 
------ DecodedStateDiff[10] -----
-  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
-  Contract:          AnchorStateRegistryProxy - Soneium Testnet Minato
-  Chain ID:          1946
+  ----- DecodedStateDiff[10] -----
+    Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
+    Contract:          AnchorStateRegistryProxy - Soneium Testnet Minato
+    Chain ID:          1946
 
-  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x00000000000000000000c2be75506d5724086deb7245bd260cc9753911be0001
-  [WARN] Slot was not decoded
+    Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000000
+    Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+    Raw New Value:     0x00000000000000000000c2be75506d5724086deb7245bd260cc9753911be0001
+    [WARN] Slot was not decoded
 
-  Summary:           Slot 0 is updated to set AnchorStateRegistryProxy address
-  Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
-                     Reading 'Raw New Value' from Right to Left, we have:
-                     1. <i>0x01</i> - <i>_initialized</i> flag set to 'true'
-                     2. <i>0x00</i> - <i>_initializing</i> flag set to 'false'
-                     3. <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/superchain/configs/sepolia/superchain.toml#L3"><i>0xc2be75506d5724086deb7245bd260cc9753911be</i><a> - Sepolia SuperchainConfig
+    Summary:           Slot 0 is updated to set AnchorStateRegistryProxy address
+    Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
+                      Reading 'Raw New Value' from Right to Left, we have:
+                      1. <i>0x01</i> - <i>_initialized</i> flag set to 'true'
+                      2. <i>0x00</i> - <i>_initializing</i> flag set to 'false'
+                      3. <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/superchain/configs/sepolia/superchain.toml#L3"><i>0xc2be75506d5724086deb7245bd260cc9753911be</i><a> - Sepolia SuperchainConfig
 
------ DecodedStateDiff[11] -----
-  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
-  Contract:          AnchorStateRegistryProxy - Soneium Testnet Minato
-  Chain ID:          1946
+  ----- DecodedStateDiff[11] -----
+    Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
+    Contract:          AnchorStateRegistryProxy - Soneium Testnet Minato
+    Chain ID:          1946
 
-  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000001
-  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x000000000000000000000000b3ad2c38e6e0640d7ce6aa952ab3a60e81bf7a01
-  [WARN] Slot was not decoded
+    Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000001
+    Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+    Raw New Value:     0x000000000000000000000000b3ad2c38e6e0640d7ce6aa952ab3a60e81bf7a01
+    [WARN] Slot was not decoded
 
-  Summary:           Slot 1 is updated to set DisputeGameFactoryProxy address
-  Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
-                     <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/sepolia/soneium-minato.toml#L64C30-L64C72">0xB3Ad2c38E6e0640d7ce6aA952AB3A60E81bf7a01</a> is the
-                     DisputeGameFactoryProxy address on Soneium Testnet Minato.
+    Summary:           Slot 1 is updated to set DisputeGameFactoryProxy address
+    Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
+                      <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/sepolia/soneium-minato.toml#L64C30-L64C72">0xB3Ad2c38E6e0640d7ce6aA952AB3A60E81bf7a01</a> is the
+                      DisputeGameFactoryProxy address on Soneium Testnet Minato.
 
------ DecodedStateDiff[12] -----
-  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
-  Contract:          AnchorStateRegistryProxy - Soneium Testnet Minato
-  Chain ID:          1946
+  ----- DecodedStateDiff[12] -----
+    Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
+    Contract:          AnchorStateRegistryProxy - Soneium Testnet Minato
+    Chain ID:          1946
 
-  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000002
-  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x00000000000000000000000065ea1489741a5d72ffdd8e6485b216bbdcc15af3
-  [WARN] Slot was not decoded
+    Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000002
+    Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+    Raw New Value:     0x00000000000000000000000065ea1489741a5d72ffdd8e6485b216bbdcc15af3
+    [WARN] Slot was not decoded
 
-  Summary:           Slot 2 is updated to set OptimismPortalProxy address
-  Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
-                     <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/sepolia/soneium-minato.toml#L59">0x65ea1489741A5D72fFdD8e6485B216bBdcC15Af3</a> is the
-                     OptimismPortalProxy address on Soneium Testnet Minato.
+    Summary:           Slot 2 is updated to set OptimismPortalProxy address
+    Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
+                      <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/sepolia/soneium-minato.toml#L59">0x65ea1489741A5D72fFdD8e6485B216bBdcC15Af3</a> is the
+                      OptimismPortalProxy address on Soneium Testnet Minato.
 
------ DecodedStateDiff[13] -----
-  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
-  Contract:          AnchorStateRegistryProxy - Soneium Testnet Minato
-  Chain ID:          1946
+  ----- DecodedStateDiff[13] -----
+    Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
+    Contract:          AnchorStateRegistryProxy - Soneium Testnet Minato
+    Chain ID:          1946
 
-  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
-  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0xfc3e28704c5ab7bb943193afd784c1b2a97d1dd8d3f880519389a6574f14ae5c
-  [WARN] Slot was not decoded
+    Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
+    Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+    Raw New Value:     0xfc3e28704c5ab7bb943193afd784c1b2a97d1dd8d3f880519389a6574f14ae5c
+    [WARN] Slot was not decoded
 
-  Summary:           Slot 4 updates the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44">'root'</a> for the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L42">startingAnchorRoot</a>
-  Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
-                     TODO: THIS IS DIFFERENT FROM THE TENDERLY SIMULATION. WHY? HOW IS THIS VALUE EXPLAINED?
+    Summary:           Slot 4 updates the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44">'root'</a> for the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L42">startingAnchorRoot</a>
+    Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
+                      The 'Raw New Value' for this entry might be different than what is seen in the Tenderly state diff. 
+                      This is expected because the AnchorStateRegistry is being continually updated.
+                      Anyone can call <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L239"><i>'setAnchorState(IDisputeGame _game)'</i></a> so it can be updated often if the conditions are right.
 
------ DecodedStateDiff[14] -----
-  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
-  Contract:          AnchorStateRegistryProxy - Soneium Testnet Minato
-  Chain ID:          1946
+  ----- DecodedStateDiff[14] -----
+    Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
+    Contract:          AnchorStateRegistryProxy - Soneium Testnet Minato
+    Chain ID:          1946
 
-  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
-  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x00000000000000000000000000000000000000000000000000000000008baa6f
-  [WARN] Slot was not decoded
+    Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
+    Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+    Raw New Value:     0x00000000000000000000000000000000000000000000000000000000008baa6f
+    [WARN] Slot was not decoded
 
-  Summary:          Slot 5 updates the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44">'l2BlockNumber'</a> for the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L42">startingAnchorRoot</a>
-  Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
-                     TODO: THIS IS DIFFERENT FROM THE TENDERLY SIMULATION. WHY? HOW IS THIS VALUE EXPLAINED? 
+    Summary:          Slot 5 updates the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44">'l2BlockNumber'</a> for the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L42">startingAnchorRoot</a>
+    Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
+                      The 'Raw New Value' for this entry might be different than what is seen in the Tenderly state diff. 
+                      This is expected because the AnchorStateRegistry is being continually updated.
+                      <i>cast --to-dec 0x8baa6f</i> -> <i>9153135</i>
+                      Anyone can call <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L239"><i>'setAnchorState(IDisputeGame _game)'</i></a> so it can be updated often if the conditions are right.
+
+  ----- DecodedStateDiff[15] -----
+    Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
+    Contract:          AnchorStateRegistryProxy - Soneium Testnet Minato
+    Chain ID:          1946
+
+    Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
+    Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+    Raw New Value:     0x0000000000000000000000007b465370bb7a333f99edd19599eb7fb1c2d3f8d2
+
+    Decoded Kind:      address
+    Decoded Old Value: 0x0000000000000000000000000000000000000000
+    Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/validation/standard/standard-versions-sepolia.toml#L32">0x7b465370BB7A333f99edd19599EB7Fb1c2D3F8D2</a>
+
+    Summary:           ERC-1967 implementation slot
+    Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+
+  ----- DecodedStateDiff[16] -----
+    Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
+    Contract:          AnchorStateRegistryProxy - Soneium Testnet Minato
+    Chain ID:          1946
+
+    Raw Slot:          0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103
+    Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+    Raw New Value:     0x000000000000000000000000ff9d236641962cebf9dbfb54e7b8e91f99f10db0
+
+    Decoded Kind:      address
+    Decoded Old Value: 0x0000000000000000000000000000000000000000
+    Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/sepolia/soneium-minato.toml#L61">0xff9d236641962Cebf9DBFb54E7b8e91F99f10Db0</a>
+    Summary:           Proxy owner address
+    Detail:            Standard slot for storing the owner address in a Proxy contract. 
+                       The owner in this case is the <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/sepolia/soneium-minato.toml#L61">ProxyAdmin</a> of Soneium Testnet Minato.
  </pre>
 
 
@@ -366,32 +403,6 @@ For each contract listed in the state diff, please verify that no contracts or s
 #############################################################
 #############################################################
 #############################################################
-
------ DecodedStateDiff[15] -----
-  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
-  Contract:
-  Chain ID:
-  Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
-  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x0000000000000000000000007b465370bb7a333f99edd19599eb7fb1c2d3f8d2
-  Decoded Kind:      address
-  Decoded Old Value: 0x0000000000000000000000000000000000000000
-  Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/validation/standard/standard-versions-sepolia.toml#L32">0x7b465370BB7A333f99edd19599EB7Fb1c2D3F8D2</a>
-  Summary:           ERC-1967 implementation slot
-  Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-
------ DecodedStateDiff[16] -----
-  Who:               0x2f3432d169128c49881Cc190520bE6096a9A8D2c
-  Contract:
-  Chain ID:
-  Raw Slot:          0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103
-  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x000000000000000000000000ff9d236641962cebf9dbfb54e7b8e91f99f10db0
-  Decoded Kind:      address
-  Decoded Old Value: 0x0000000000000000000000000000000000000000
-  Decoded New Value: 0xff9d236641962Cebf9DBFb54E7b8e91F99f10Db0
-  Summary:           Proxy owner address
-  Detail:            Standard slot for storing the owner address in a Proxy contract.
 
 ----- DecodedStateDiff[17] -----
   Who:               0x33f60714BbD74d62b66D79213C348614DE51901C
