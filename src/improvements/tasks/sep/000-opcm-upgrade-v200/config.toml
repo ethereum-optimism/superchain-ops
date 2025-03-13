@@ -1,18 +1,22 @@
 l2chains = [
-    {name = "OP Sepolia Testnet", chainId = 11155420}, 
-    {name = "Soneium Testnet Minato", chainId = 1946},
-    {name = "Ink Sepolia", chainId = 763373}
+    {name = "Aegir-0", chainId = 420110004},
+    {name = "Aegir-1", chainId = 420110005}
 ]
 
 templateName = "OPCMUpgradeV200"
 
+# Prestate from: https://oplabs-pbc.slack.com/archives/C0885T0HRCG/p1741022679358429?thread_ts=1740770336.922089&cid=C0885T0HRCG
 [opcmUpgrades]
 absolutePrestates = [
-    {absolutePrestate = "0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9", chainId = 11155420}, 
-    {absolutePrestate = "0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9", chainId = 1946}, 
-    {absolutePrestate = "0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9", chainId = 763373}
-]
+    # Chain ID from: https://github.com/ethereum-optimism/devnets/blob/115c8157d4dace0de62b6490a80c65ddf22e3f3f/betanets/aegir/aegir-0/chain.yaml#L2
+    {absolutePrestate = "0x03f206f043bb34f9e931a49716754b303e635e931b7f1294ff8ca45c969fc627", chainId = 420110004},
 
+    # Chain ID from: https://github.com/ethereum-optimism/devnets/blob/115c8157d4dace0de62b6490a80c65ddf22e3f3f/betanets/aegir/aegir-1/chain.yaml#L2
+    {absolutePrestate = "0x03f206f043bb34f9e931a49716754b303e635e931b7f1294ff8ca45c969fc627", chainId = 420110005}
+]
+standardValidatorV200 = "0x37739a6b0a3F1E7429499a4eC4A0685439Daff5C"
+
+# OPCM address from: https://github.com/ethereum-optimism/superchain-registry/blob/b65b153ceb0dfad4a880b076ec79c192339ed64f/validation/standard/standard-versions-sepolia.toml#L21
 [addresses]
 OPCM = "0x1B25F566336F47BC5E0036D66E142237DcF4640b"
 StandardValidatorV200 = "0x37739a6b0a3F1E7429499a4eC4A0685439Daff5C"
