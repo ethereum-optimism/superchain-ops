@@ -125,9 +125,13 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
                 "SYSCON-20,PDDG-50,PDDG-DWETH-30,PDDG-DWETH-40,PDDG-ANCHORP-40,PDDG-120,PLDG-10";
             string memory expectedErrors_763373 =
                 "SYSCON-20,PDDG-50,PDDG-DWETH-30,PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-50,PLDG-DWETH-30,PLDG-DWETH-40,PLDG-ANCHORP-40";
+            string memory expectedErrors_420110004 = "PDDG-50,PDDG-DWETH-40,PDDG-ANCHORP-40,PDDG-120,PLDG-10";
+            string memory expectedErrors_420110005 =
+                "PDDG-50,PDDG-DWETH-40,PDDG-ANCHORP-40,PDDG-120,PLDG-50,PLDG-DWETH-40,PLDG-ANCHORP-40";
             require(
                 reasons.eq(expectedErrors_11155420) || reasons.eq(expectedErrors_1946)
-                    || reasons.eq(expectedErrors_763373),
+                    || reasons.eq(expectedErrors_763373) || reasons.eq(expectedErrors_420110004)
+                    || reasons.eq(expectedErrors_420110005),
                 string.concat("Unexpected errors: ", reasons)
             );
         }
