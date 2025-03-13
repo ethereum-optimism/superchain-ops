@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# This script uses a Tenderly simulation payload to execute a simulation and retrieve
+# This script uses a Tenderly simulation payload to execute a simulation and scrape
 # the domain and message hashes from its trace. 
 # Usage: ./get-tenderly-trace.sh '{"json":"payload"}'
 
@@ -12,11 +12,11 @@ if [ $# -lt 1 ]; then
   exit 1
 fi
 
-PAYLOAD="$1"
+tenderly_payload="$1"
 
 # These are not secrets so that the simulation URL shows up
-TENDERLY_USER="${TENDERLY_USER:-oplabs}"
-TENDERLY_PROJECT_SLUG="${TENDERLY_PROJECT_SLUG:-task-simulation}"
+tenderly_user="${TENDERLY_USER:-oplabs}"
+tenderly_project_slug="${TENDERLY_PROJECT_SLUG:-task-simulation}"
 
 # Check for required environment variables
 if [ -z "${TENDERLY_ACCESS_TOKEN:-}" ]; then
@@ -25,47 +25,47 @@ if [ -z "${TENDERLY_ACCESS_TOKEN:-}" ]; then
 fi
 
 # Call Tenderly simulation API
-RESPONSE=$(curl -s -X POST \
+response=$(curl -s -X POST \
   -H "Content-Type: application/json" \
   -H "X-Access-Key: $TENDERLY_ACCESS_TOKEN" \
-  -d "$PAYLOAD" \
-  "https://api.tenderly.co/api/v1/account/$TENDERLY_USER/project/$TENDERLY_PROJECT_SLUG/simulate")
+  -d "$tenderly_payload" \
+  "https://api.tenderly.co/api/v1/account/$tenderly_user/project/$tenderly_project_slug/simulate")
 
 # Check if the response contains an error
-if echo "$RESPONSE" | jq -e '.error' >/dev/null 2>&1; then
-  echo "Error from Tenderly API: $(echo "$RESPONSE" | jq -r '.error')" >&2
+if echo "$response" | jq -e '.error' >/dev/null 2>&1; then
+  echo "Error from Tenderly API: $(echo "$response" | jq -r '.error')" >&2
   exit 1
 fi
 
 # Extract the simulation ID from the response
-SIMULATION_ID=$(echo "$RESPONSE" | jq -r '.simulation.id')
+simulation_id=$(echo "$response" | jq -r '.simulation.id')
 
 # Retrieve the full simulation details
 # echo "Retrieving full simulation details..."
-SIMULATION_DETAILS=$(curl -s -X POST -H "X-Access-Key: $TENDERLY_ACCESS_TOKEN" \
-  "https://api.tenderly.co/api/v1/account/$TENDERLY_USER/project/$TENDERLY_PROJECT_SLUG/simulations/$SIMULATION_ID")
+simulation_details=$(curl -s -X POST -H "X-Access-Key: $TENDERLY_ACCESS_TOKEN" \
+  "https://api.tenderly.co/api/v1/account/$tenderly_user/project/$tenderly_project_slug/simulations/$simulation_id")
 
 # Check if there was an error retrieving the simulation details
-if echo "$SIMULATION_DETAILS" | jq -e '.error' >/dev/null 2>&1; then
+if echo "$simulation_details" | jq -e '.error' >/dev/null 2>&1; then
   echo -e "\n\nSimulation response:" >&2
-  echo "$RESPONSE" | jq 'del(.contracts)' >&2
+  echo "$response" | jq 'del(.contracts)' >&2
   echo -e "\n\nError retrieving simulation details:" >&2
-  echo "$SIMULATION_DETAILS" | jq -r '.' >&2
-  echo "$SIMULATION_DETAILS" | jq -r '.error' >&2
+  echo "$simulation_details" | jq -r '.' >&2
+  echo "$simulation_details" | jq -r '.error' >&2
   exit 1
 fi
 
 # Extract the call trace from the response
-CALL_TRACE=$(echo "$SIMULATION_DETAILS" | jq -r '.transaction.transaction_info.call_trace')
+call_trace=$(echo "$simulation_details" | jq -r '.transaction.transaction_info.call_trace')
 
 # Check if there was an error extracting the call trace
-if [ "$CALL_TRACE" = "null" ]; then
+if [ "$call_trace" = "null" ]; then
   echo "Error: Could not extract call trace from simulation details" >&2
   exit 1
 fi
 
 # Run a recursive jq search for the hashes in the checkSignatures inputs.
-HASHES=$(echo "$CALL_TRACE" | jq -r '.. | objects |
+hashes=$(echo "$call_trace" | jq -r '.. | objects |
   select(
     has("function_name") and 
     .function_name != null and 
@@ -77,20 +77,20 @@ HASHES=$(echo "$CALL_TRACE" | jq -r '.. | objects |
   ')
 
 # Check if there are any hashes
-if [ -z "$HASHES" ]; then
+if [ -z "$hashes" ]; then
   echo "Error: No hashes found in the call trace" >&2
   exit 1
 fi
 
 echo -e "\n\n-------- Domain Separator and Message Hashes from Tenderly --------"
 # Extract domain separator and message hash from the full hash
-FULL_HASH=$(echo "$HASHES" | tr -d '\n')
-DOMAIN_SEPARATOR="0x${FULL_HASH:6:64}"
-MESSAGE_HASH="0x${FULL_HASH:70:64}"
+full_hash=$(echo "$hashes" | tr -d '\n')
+domain_separator="0x${full_hash:6:64}"
+message_hash="0x${full_hash:70:64}"
 
-echo "  Domain Separator: $DOMAIN_SEPARATOR"
-echo "  Message Hash: $MESSAGE_HASH"
+echo "  Domain Separator: $domain_separator"
+echo "  Message Hash: $message_hash"
 
 # Output the Tenderly dashboard URL
 echo -e "\nView the simulation in Tenderly dashboard:"
-echo "https://dashboard.tenderly.co/$TENDERLY_USER/$TENDERLY_PROJECT_SLUG/simulator/$SIMULATION_ID"
+echo "https://dashboard.tenderly.co/$tenderly_user/$tenderly_project_slug/simulator/$simulation_id"

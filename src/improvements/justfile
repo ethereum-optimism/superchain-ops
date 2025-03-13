@@ -131,30 +131,6 @@ simulate-all-templates:
         exit 1
     fi
 
-# Simulate a task and verify the domain separator and message hash
-# This command is to be used during development to verify a single task, without resorting to CI.
-# In the future, this functionality will be reused to for multisig members simulation tasks they are about to sign.
-# The TASK parameter is the relative or absolute path to a task directory to be sim,ulated and verified.
-simulate-verify-task TASK="":
-    #!/usr/bin/env bash
-    set -euo pipefail
-    root_dir=$(git rev-parse --show-toplevel)
-
-    forge build
-
-    # If the task is nested then we only simulate as the foundation.
-    # In the future we could simulate as other nested safes. 
-    # For testing purposes, we do not gain anything by simulating as other nested safes.
-    nested_safe_name="foundation"
-
-    # If TASK doesn't start with / make it absolute using $PWD
-    if [[ "{{TASK}}" != /* ]]; then
-        task_path="$PWD/{{TASK}}"
-    else
-        task_path="{{TASK}}"
-    fi
-    ${root_dir}/src/improvements/script/simulate-verify-task.sh "$task_path" $nested_safe_name
-
 # Simulate all non-terminal tasks and verify the domain separator and message hashes
 # This command is expected to be run from CI, excluding all tasks in the examples directory.
 # TODO: Exclude example tasks and add to CI once we have real tasks outside of the examples directory.
@@ -165,20 +141,20 @@ simulate-non-terminal-tasks:
     forge build
 
     # If the task is nested then we only simulate as the foundation.
-    # In the future we could simulate as other nested safes. 
-    # For testing purposes, we do not gain anything by simulating as other nested safes.
-    nested_safe_name="foundation"
+    # TODO: We should simulate and verify as other nested safes.
+    safe_name="foundation"
 
     # Later this networks list should be dynamically generated from the src/improvements/tasks directory,
     # and we should exclude the example tasks once we have real tasks to run.
-    for task in ${root_dir}/src/improvements/tasks/example/*/*; do
+    for task_path in ${root_dir}/src/improvements/tasks/example/*/*; do
         # Skip tasks marked as SIGNED or EXECUTED
-        status=$(grep -i "Status:" "$task/README.md" | sed -n 's/.*Status: \[\(.*\)\].*/\1/p')
+        status=$(grep -i "Status:" "$task_path/README.md" | sed -n 's/.*Status: \[\(.*\)\].*/\1/p')
         if [ "$status" = "SIGNED" ] || [ "$status" = "EXECUTED" ]; then
-            echo "Skipping task $(basename "$task") with status: $status"
+            echo "Skipping task $(basename "$task_path") with status: $status"
             continue
         fi
 
-        ${root_dir}/src/improvements/script/simulate-verify-task.sh $task $nested_safe_name
+        # TODO: Add a flag to simulate-task.sh, nested.just simulate and single.just simulateto disable verification.
+        "$root_dir"/src/improvements/script/simulate-task.sh "$task_path" "$safe_name" | tee "$local_output_file"
     done
     echo "Done simulating non-terminal tasks"

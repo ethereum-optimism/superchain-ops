@@ -1,7 +1,7 @@
 set dotenv-load
 
-# Common variables used across multiple recipes
-# Export variables in uppercase for shell script usage
+# # Common variables used across multiple recipes
+# # Export variables in uppercase for shell script usage
 export TASK_PATH := invocation_directory()
 export SCRIPT_PATH := justfile_directory()
 
@@ -24,6 +24,7 @@ simulate whichSafe hdPath='0':
 
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
+  root_dir=$(git rev-parse --show-toplevel)
 
   echo "Using script ${script}"
   echo "getting signer address for {{whichSafe}}..."
@@ -35,17 +36,30 @@ simulate whichSafe hdPath='0':
     signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
     echo "Simulating with ledger account: ${signer}"
   else
-      echo "Simulating without ledger using the first owner account: ${signer}"
+    echo "Simulating without ledger using the first owner account: ${signer}"
   fi
   echo ""
 
   forge build
+
+  # We use a file to pass the output to make sure any errors are printed to the console.
+  local_output_file="./simulation_output.txt"
+
+  # Simulate the task locally
+  # TODO: If there are reverts in the script stop execution
+  # Maybe use is_nested=$(forge script "$root_dir"/src/improvements/tasks/TaskRunner.sol --sig "isNestedTask(string)" "$task/config.toml" --rpc-url "$rpcUrl" --json | jq -r '.returns["0"].value')
   forge script ${script} \
     --rpc-url ${rpcUrl} \
     --sender ${signer} \
     --sig "signFromChildMultisig(string,address)" \
     ${config} \
-    ${safe}
+    ${safe} | tee "$local_output_file"
+
+  # Scrape the Tenderly payload from the output file into a variable
+  tenderly_payload=$(awk '/Simulation payload:/{flag=1;next}/\}\}\}\}$/{print;flag=0}flag' "$local_output_file")
+  rm "$local_output_file"
+
+  ${SCRIPT_PATH}/script/verify-hashes.sh "${TASK_PATH}" "{{whichSafe}}" "${tenderly_payload}"
 
 sign whichSafe hdPath='0':
   #!/usr/bin/env bash
