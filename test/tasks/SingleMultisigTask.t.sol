@@ -33,6 +33,10 @@ contract SingleMultisigTaskTest is Test {
     uint256 public constant OWNER_COUNT_STORAGE_OFFSET = 3;
     uint256 public constant THRESHOLD_STORAGE_OFFSET = 4;
 
+    /// @notice If a task is being simulated and the parent multisig is nested, then we need
+    /// the child multisig to simulate the task.
+    address securityCouncilChildMultisig = 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03;
+
     /// @notice ProxyAdminOwner safe for task-00 is a single multisig.
     string taskConfigFilePath = "test/tasks/mock/configs/SingleMultisigGasConfigTemplate.toml";
 
@@ -256,7 +260,7 @@ contract SingleMultisigTaskTest is Test {
         string memory opcmTaskConfigFilePath = "test/tasks/mock/configs/MockDisputeGameUpgradesToEOA.toml";
         multisigTask = new MockDisputeGameTask();
 
-        multisigTask.simulateRun(opcmTaskConfigFilePath);
+        multisigTask.signFromChildMultisig(opcmTaskConfigFilePath, securityCouncilChildMultisig);
     }
 
     function testSimulateRunDisputeGameWithoutCodeExceptionsFails() public {
@@ -266,7 +270,9 @@ contract SingleMultisigTaskTest is Test {
 
         uint256 start = vm.snapshotState();
 
-        multisigTask.simulateRun("test/tasks/mock/configs/DisputeGameUpgradeCodeException.toml");
+        multisigTask.signFromChildMultisig(
+            "test/tasks/mock/configs/DisputeGameUpgradeCodeException.toml", securityCouncilChildMultisig
+        );
         addrRegistry = multisigTask.addrRegistry();
         address account =
             toSuperchainAddrRegistry(addrRegistry).getAddress("DisputeGameFactoryProxy", getChain("optimism").chainId);
@@ -283,7 +289,7 @@ contract SingleMultisigTaskTest is Test {
             vm.toString(bytes32(0x0000000000000000000000000000000fffffffffffffffffffffffffffffffff))
         );
         vm.expectRevert(bytes(err));
-        multisigTask.simulateRun(opcmTaskConfigFilePath);
+        multisigTask.signFromChildMultisig(opcmTaskConfigFilePath, securityCouncilChildMultisig);
     }
 
     function testExecuteWithSignatures() public {

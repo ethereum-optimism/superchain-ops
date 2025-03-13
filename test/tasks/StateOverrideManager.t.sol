@@ -18,6 +18,7 @@ contract StateOverrideManagerUnitTest is Test {
     string constant commonToml = "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n"
         "templateName = \"DisputeGameUpgradeTemplate\"\n" "\n"
         "implementations = [{gameType = 0, implementation = \"0xf691F8A6d908B58C534B624cF16495b491E633BA\", l2ChainId = 10}]\n";
+    address constant SECURITY_COUNCIL_CHILD_MULTISIG = 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03;
 
     function createTempTomlFile(string memory tomlContent) internal returns (string memory) {
         string memory fileName =
@@ -37,7 +38,7 @@ contract StateOverrideManagerUnitTest is Test {
             "]"
         );
         string memory fileName = createTempTomlFile(toml);
-        MultisigTask task = createAndRunTask(fileName);
+        MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
         assertNonceIncremented(4095, task);
         assertEq(IGnosisSafe(task.parentMultisig()).getThreshold(), 2, "Threshold must be 2");
         uint256 threshold = uint256(vm.load(address(task.parentMultisig()), bytes32(uint256(0x4))));
@@ -56,7 +57,7 @@ contract StateOverrideManagerUnitTest is Test {
             "]"
         );
         string memory fileName = createTempTomlFile(toml);
-        MultisigTask task = createAndRunTask(fileName);
+        MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
         assertNonceIncremented(2730, task);
         vm.removeFile(fileName);
     }
@@ -87,7 +88,7 @@ contract StateOverrideManagerUnitTest is Test {
             "]"
         );
         string memory fileName = createTempTomlFile(toml);
-        MultisigTask task = createAndRunTask(fileName);
+        MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
         assertNonceIncremented(1, task);
         vm.removeFile(fileName);
     }
@@ -107,7 +108,7 @@ contract StateOverrideManagerUnitTest is Test {
             "]"
         );
         string memory fileName = createTempTomlFile(toml);
-        createAndRunTask(fileName);
+        createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
         address actualImplAddr = address(
             uint160(
                 uint256(vm.load(0xC2Be75506d5724086DEB7245bd260Cc9753911Be, Constants.PROXY_IMPLEMENTATION_ADDRESS))
@@ -127,14 +128,14 @@ contract StateOverrideManagerUnitTest is Test {
             "]"
         );
         string memory fileName = createTempTomlFile(toml);
-        MultisigTask task = createAndRunTask(fileName);
+        MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
         assertNonceIncremented(101, task);
         vm.removeFile(fileName);
     }
 
     function testOnlyDefaultTenderlyStateOverridesApplied() public {
         string memory fileName = createTempTomlFile(commonToml);
-        MultisigTask task = createAndRunTask(fileName);
+        MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
 
         uint256 expectedNonce = task.nonce();
         assertDefaultStateOverrides(expectedNonce, 1, task);
@@ -150,7 +151,7 @@ contract StateOverrideManagerUnitTest is Test {
             "]"
         );
         string memory fileName = createTempTomlFile(toml);
-        MultisigTask task = createAndRunTask(fileName);
+        MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
 
         uint256 expectedNonce = 100;
         Simulation.StateOverride[] memory allOverrides = assertDefaultStateOverrides(expectedNonce, 2, task);
@@ -177,7 +178,7 @@ contract StateOverrideManagerUnitTest is Test {
             "]"
         );
         string memory fileName = createTempTomlFile(toml);
-        MultisigTask task = createAndRunTask(fileName);
+        MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
 
         uint256 expectedNonce = task.nonce();
         uint256 expectedTotalOverrides = 2;
@@ -206,7 +207,7 @@ contract StateOverrideManagerUnitTest is Test {
             "]"
         );
         string memory fileName = createTempTomlFile(toml);
-        MultisigTask task = createAndRunTask(fileName);
+        MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
 
         uint256 expectedNonce = task.nonce();
         uint256 expectedTotalOverrides = 3; // i.e. (default + 2 user defined)
@@ -232,9 +233,9 @@ contract StateOverrideManagerUnitTest is Test {
         vm.removeFile(fileName);
     }
 
-    function createAndRunTask(string memory fileName) internal returns (MultisigTask) {
+    function createAndRunTask(string memory fileName, address childMultisig) internal returns (MultisigTask) {
         MultisigTask task = new MockMultisigTask();
-        task.simulateRun(fileName);
+        task.signFromChildMultisig(fileName, childMultisig);
         return task;
     }
 
