@@ -22,12 +22,13 @@ verify_hashes() {
   fi
 
   # Calculate the domain and message hashes locally using forge
-  # The input to the script is the tenderly_payload as an environment variable
   # We use a file to pass the output to make sure any errors are printed to the console.
   forge_output_file="./forge_output.txt"
-  export TENDERLY_PAYLOAD
-  TENDERLY_PAYLOAD="$tenderly_payload"
-  forge script --rpc-url "$rpcUrl" "$root_dir"/script/CalculateSafeHashes.s.sol -vvv | tee "$forge_output_file"
+  forge script \
+    --rpc-url "$rpcUrl" \
+    "$root_dir"/script/CalculateSafeHashes.s.sol \
+    --sig "calculateSafeHashes(string)" "$tenderly_payload" \
+    -vvv | tee "$forge_output_file"
 
   # Extract domain separator and message hash from the simulation output
   domain_separator_local=$(awk '/Domain Separator:/{print $3}' "$forge_output_file")

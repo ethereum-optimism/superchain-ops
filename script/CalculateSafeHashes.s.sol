@@ -11,12 +11,40 @@ import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
 // `logTenderlySimulationPayload` call. For more info about the JSON format see:
 // https://docs.tenderly.co/reference/api#/operations/simulateTransaction
 contract CalculateSafeHashes is Script {
+    /// @notice Calculates the domain separator and message hash for a Gnosis Safe `execTransaction` call with
+    /// a nonce override, using as input the JSON payload from a Tenderly simulation request.
+    /// The JSON payload should be stored in the `TENDERLY_PAYLOAD` environment variable before the script is executed.
     function run() external view {
+        _calculateSafeHashes(vm.envString("TENDERLY_PAYLOAD"));
+    }
+
+    /// @notice Calculates the domain separator and message hash for a Gnosis Safe `execTransaction` call with
+    /// a nonce override, using as input the JSON payload from a Tenderly simulation request
+    /// @param tenderlyPayload The JSON payload from a Tenderly simulation request
+    /// @return domainSeparator The domain separator for the Gnosis Safe
+    /// @return messageHash The message hash for the Gnosis Safe
+    function calculateSafeHashes(string memory tenderlyPayload)
+        public
+        view
+        returns (bytes32 domainSeparator, bytes32 messageHash)
+    {
+        return _calculateSafeHashes(tenderlyPayload);
+    }
+
+    /// @notice Calculates the domain separator and message hash for a Gnosis Safe `execTransaction` call with
+    /// a nonce override, using as input the JSON payload from a Tenderly simulation request
+    /// @param tenderlyPayload The JSON payload from a Tenderly simulation request
+    /// @return domainSeparator The domain separator for the Gnosis Safe
+    /// @return messageHash The message hash for the Gnosis Safe
+    function _calculateSafeHashes(string memory tenderlyPayload)
+        internal
+        view
+        returns (bytes32 domainSeparator, bytes32 messageHash)
+    {
         // Parse JSON payload
-        string memory json = vm.envString("TENDERLY_PAYLOAD");
-        string memory inputHex = vm.parseJsonString(json, ".input");
-        uint256 chainId = vm.parseJsonUint(json, ".network_id");
-        address payable safeAddress = payable(vm.parseJsonAddress(json, ".to"));
+        string memory inputHex = vm.parseJsonString(tenderlyPayload, ".input");
+        uint256 chainId = vm.parseJsonUint(tenderlyPayload, ".network_id");
+        address payable safeAddress = payable(vm.parseJsonAddress(tenderlyPayload, ".to"));
 
         // Get nonce from storage
         string memory storagePath = string(
@@ -26,16 +54,16 @@ contract CalculateSafeHashes is Script {
                 ".storage.0x0000000000000000000000000000000000000000000000000000000000000005"
             )
         );
-        uint256 nonce = uint256(vm.parseBytes32(vm.parseJsonString(json, storagePath)));
+        uint256 nonce = uint256(vm.parseBytes32(vm.parseJsonString(tenderlyPayload, storagePath)));
 
         // Convert hex string to bytes
         bytes memory callData = vm.parseBytes(inputHex);
 
         // Calculate domain separator
-        bytes32 domainSeparator = GnosisSafeHashes.calculateDomainSeparator(chainId, safeAddress);
+        domainSeparator = GnosisSafeHashes.calculateDomainSeparator(chainId, safeAddress);
 
         // Calculate message hash
-        bytes32 messageHash = GnosisSafeHashes.calculateMessageHashFromCalldata(callData, nonce);
+        messageHash = GnosisSafeHashes.calculateMessageHashFromCalldata(callData, nonce);
 
         // Output results
         console.log("\n\n-------- Domain Separator and Message Hashes from Local Simulation --------");
