@@ -303,10 +303,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// calldata has been loaded up to storage
     /// @return data The calldata to be executed
     function getMulticall3Calldata(Action[] memory actions) public view virtual returns (bytes memory data) {
-        // get task actions
         (address[] memory targets, uint256[] memory values, bytes[] memory arguments) = processTaskActions(actions);
 
-        // create calls array with targets and arguments
+        // Create calls array with targets and arguments.
         Call3Value[] memory calls = new Call3Value[](targets.length);
 
         for (uint256 i; i < calls.length; i++) {
@@ -314,7 +313,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             calls[i] = Call3Value({target: targets[i], allowFailure: false, value: values[i], callData: arguments[i]});
         }
 
-        // generate calldata
+        // Generate calldata
         data = abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
     }
 
@@ -637,13 +636,26 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         );
 
         bytes memory callData = generateApproveMulticallData(actions);
-        console.log("Nested multisig: %s", getAddressLabel(childMultisig));
+        console.log("Child multisig: %s", getAddressLabel(childMultisig));
+
+        bytes memory encodedTxData = getEncodedTransactionData(childMultisig, callData);
+        require(encodedTxData.length == 66, "MultisigTask: encodedTxData length is not 66 bytes.");
+
+        bytes32 safeTxHash;
+        assembly {
+            // 66 bytes = (bytes1(0x19), bytes1(0x01), bytes32(domainSeparator()), bytes32(safeTxHash))
+            // Retrieve the last 32 bytes of encodedTxData (safeTxHash).
+            // Memory layout of encodedTxData:
+            // - The first 32 bytes store the length (66 bytes in this case).
+            // - The actual data starts at encodedTxData + 32.
+            // - The last 32 bytes of the data (safeTxHash) start at:
+            //   encodedTxData + 32 + (66 - 32) = encodedTxData + 66.
+            safeTxHash := mload(add(encodedTxData, mload(encodedTxData)))
+        }
 
         bytes32 domainSeparator = GnosisSafeHashes.calculateDomainSeparator(block.chainid, childMultisig);
-        bytes32 messageHash = keccak256(getEncodedTransactionData(childMultisig, callData));
         console.log("Domain Hash:    ", vm.toString(domainSeparator));
-        console.log("Message Hash:   ", vm.toString(messageHash));
-        console.log("Signing as:     ", vm.toString(childMultisig));
+        console.log("Message Hash:   ", vm.toString(safeTxHash));
     }
 
     /// @notice print the tenderly simulation payload with the state overrides
