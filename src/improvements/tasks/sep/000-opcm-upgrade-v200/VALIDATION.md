@@ -25,8 +25,8 @@ the values printed to the terminal when you run the task.
 >
 > ### Optimism Foundation
 >
-> - Domain Hash: `37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
-> - Message Hash: `382f09a0cc05fcbd4fb57b9c4972cb9ec4ce02609e5d3c8f5c3ff728639c0b6a`
+> - Domain Hash: `0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
+> - Message Hash: `0x382f09a0cc05fcbd4fb57b9c4972cb9ec4ce02609e5d3c8f5c3ff728639c0b6a`
 
 
 ## Understanding Task Calldata
