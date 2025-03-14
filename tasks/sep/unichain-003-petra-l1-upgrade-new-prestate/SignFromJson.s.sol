@@ -150,11 +150,14 @@ contract SignFromJson is OriginalSignFromJson, SuperchainRegistry {
 
         FaultDisputeGame faultDisputeGame = FaultDisputeGame(_newImpl);
         // these are both using the latest version of the MIPs contracts
-        // require(address(currentImpl.vm()) != address(faultDisputeGame.vm()), "10");
         require(
-            address(currentImpl.weth()) != address(faultDisputeGame.weth()),
-            "20"
+            faultDisputeGame.gameType().raw() == _targetGameType.raw(),
+            "10"
         );
+        // require(
+        //     address(currentImpl.weth()) != address(faultDisputeGame.weth()),
+        //     "20"
+        // );
         require(
             address(currentImpl.anchorStateRegistry()) ==
                 address(faultDisputeGame.anchorStateRegistry()),
@@ -208,30 +211,6 @@ contract SignFromJson is OriginalSignFromJson, SuperchainRegistry {
                     address(permissionedDisputeGame.challenger()),
                 "100"
             );
-        }
-    }
-
-    function _precheckAnchorStateCopy(
-        GameType _fromType,
-        GameType _toType
-    ) internal view {
-        console.log("pre-check anchor state copy", _toType.raw());
-
-        FaultDisputeGame fromImpl = FaultDisputeGame(
-            address(dgfProxy.gameImpls(GameType(_fromType)))
-        );
-        // Must have existing game type implementation for the source
-        require(address(fromImpl) != address(0), "200");
-        address fromRegistry = address(fromImpl.anchorStateRegistry());
-        require(fromRegistry != address(0), "210");
-
-        FaultDisputeGame toImpl = FaultDisputeGame(
-            address(dgfProxy.gameImpls(GameType(_toType)))
-        );
-        if (address(toImpl) != address(0)) {
-            // If there is an existing implementation, it must use the same anchor state registry.
-            address toRegistry = address(toImpl.anchorStateRegistry());
-            require(toRegistry == fromRegistry, "210");
         }
     }
 

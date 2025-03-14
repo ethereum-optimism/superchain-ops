@@ -1,6 +1,6 @@
 # Unichain Sepolia L1 Petra Support Upgrade
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x93f183be38337a31ffcfb2c714930f131225b389bad4bf40dbd6c2e7adcf9543)
 
 ## Objective
 
@@ -23,7 +23,7 @@ This upgrades the Fault Proof contracts in the [op-contracts/v1.8.0-rc.4](https:
 ## Pre-deployments 
 - `MIPS` - `0x69470D6970Cd2A006b84B1d4d70179c892cFCE01`
 - `FaultDisputeGame` - `0x1Ca07eBBEd295C581c952Be0eB23E636aed9a2d0`
-- `PermissionedDisputeGame` - ``
+- `PermissionedDisputeGame` - `0x98b3cEA8dc27f83a6b8384F25A8eca52613A7182`
 
 ## Simulation
 
