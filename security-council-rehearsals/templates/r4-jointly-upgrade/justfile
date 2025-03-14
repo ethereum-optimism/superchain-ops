@@ -19,6 +19,13 @@ simulate-council hdPath='0':
   fi
   echo "Simulating with: ${signer}"
   echo ""
+
+  root_dir=$(git rev-parse --show-toplevel)
+  if [ "${FOUNDRY_PROFILE}" == "ci" ]; then
+    ETH_RPC_URL=$(yq eval ".profile.ci.rpc_endpoints.mainnet" "${root_dir}/foundry.toml")
+    export ETH_RPC_URL
+  fi
+
   forge build
   forge script ./NestedSignFromJson.s.sol:NestedSignFromJson \
     --rpc-url ${ETH_RPC_URL} \
