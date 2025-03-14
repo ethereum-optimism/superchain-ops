@@ -1170,8 +1170,9 @@ abstract contract L2TaskBase is MultisigTask {
                             chains[j].name
                         );
                         console.log(
-                            "\x1B[33m[WARN]\x1B[0m Contract will not be added to allowed storage accesses: '%s'",
-                            config.allowedStorageKeys[i]
+                            "\x1B[33m[WARN]\x1B[0m Contract will not be added to allowed storage accesses: '%s' for chain: '%s'",
+                            config.allowedStorageKeys[i],
+                            chains[j].name
                         );
                     }
                 }
