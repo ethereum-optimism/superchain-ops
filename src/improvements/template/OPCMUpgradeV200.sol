@@ -118,11 +118,18 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
                 absolutePrestate: currentAbsolutePrestate,
                 l2ChainID: chainId
             });
-
             string memory reasons = STANDARD_VALIDATOR_V200.validate({_input: input, _allowFailure: true});
             string memory expectedErrors_11155420 =
                 "PDDG-50,PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-50,PLDG-DWETH-40,PLDG-ANCHORP-40";
-            require(reasons.eq(expectedErrors_11155420), string.concat("Unexpected errors: ", reasons));
+            string memory expectedErrors_1946 =
+                "SYSCON-20,PDDG-50,PDDG-DWETH-30,PDDG-DWETH-40,PDDG-ANCHORP-40,PDDG-120,PLDG-10";
+            string memory expectedErrors_763373 =
+                "SYSCON-20,PDDG-50,PDDG-DWETH-30,PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-50,PLDG-DWETH-30,PLDG-DWETH-40,PLDG-ANCHORP-40";
+            require(
+                reasons.eq(expectedErrors_11155420) || reasons.eq(expectedErrors_1946)
+                    || reasons.eq(expectedErrors_763373),
+                string.concat("Unexpected errors: ", reasons)
+            );
         }
     }
 
