@@ -20,13 +20,13 @@ the values printed to the terminal when you run the task.
 >
 > ### Security Council
 >
-> - Domain Hash: ``
-> - Message Hash: ``
+> - Domain Hash: `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
+> - Message Hash: `0x94ce155b346db4cb94ba198fb251c0f6cddce09c36f46f764709db28fc409ef4`
 >
 > ### Optimism Foundation
 >
-> - Domain Hash: ``
-> - Message Hash: ``
+> - Domain Hash: `0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
+> - Message Hash: `0xa61d41266142bae33491923e7c486f20af3f6d72ae4d64c4b813aac228e578fa`
 
 
 ## Understanding Task Calldata
