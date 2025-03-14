@@ -8,13 +8,12 @@ This task updates the fault dispute system for unichain-sepolia:
 
 * Set implementation for game type 0 to 0x1Ca07eBBEd295C581c952Be0eB23E636aed9a2d0 in `DisputeGameFactory` 0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b: `setImplementation(0, 0x1Ca07eBBEd295C581c952Be0eB23E636aed9a2d0)`
 * Set implementation for game type 1 to 0x98b3cEA8dc27f83a6b8384F25A8eca52613A7182 in `DisputeGameFactory` 0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b: `setImplementation(1, 0x98b3cEA8dc27f83a6b8384F25A8eca52613A7182)`
-
-<!--NEXT TASK DESCRIPTION-->
+  
 The proposal was: 
-- [x] Posted on the governance forum.
-- [x] Approved by Token House voting.
-- [x] Not vetoed by the Citizens' house.
-- [ ] Executed on OP Mainnet.
+- [ ] Posted on the governance forum - NOT NECESSARY ON SEPOLIA TASK
+- [ ] Approved by Token House voting. - NOT NECESSARY ON SEPOLIA TASK
+- [ ] Not vetoed by the Citizens' house. - NOT NECESSARY ON SEPOLIA TASK
+- [ ] Executed on Sepolia.
 
 The governance proposal should be treated as the source of truth and used to verify the correctness of the onchain operations. 
 
