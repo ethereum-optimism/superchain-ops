@@ -21,7 +21,7 @@ simulate-council hdPath='0':
   echo ""
   forge build
   forge script ./NestedSignFromJson.s.sol:NestedSignFromJson \
-    --rpc-url ${rpcUrl} \
+    --rpc-url ${ETH_RPC_URL} \
     --sender ${signer} \
     --sig "signJson(string,address)" \
     "${location}/${bundle}.json" \

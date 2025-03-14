@@ -26,7 +26,7 @@ simulate hdPath='0':
 
   forge build
   forge script ./SignFromJson.s.sol:SignFromJson \
-    --rpc-url ${rpcUrl} \
+    --rpc-url ${ETH_RPC_URL} \
     --sig "signJson(string)" \
     "${location}/${bundle}.json" \
     --sender ${signer}
