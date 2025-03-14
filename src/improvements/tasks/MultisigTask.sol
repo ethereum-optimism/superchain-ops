@@ -17,12 +17,14 @@ import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegis
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
 import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
+import {LibString} from "solady/utils/LibString.sol";
 
 type AddressRegistry is address;
 
 abstract contract MultisigTask is Test, Script, StateOverrideManager {
     using EnumerableSet for EnumerableSet.AddressSet;
     using AccountAccessParser for VmSafe.AccountAccess[];
+    using LibString for string;
 
     /// @notice nonce used for generating the safe transaction
     /// will be set to the value specified in the config file
@@ -73,6 +75,16 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         bytes32 slot;
         bytes32 oldValue;
         bytes32 newValue;
+    }
+
+    /// @notice Struct to store extra parameters for the safe transaction
+    /// @dev    Used to avoid stack too deep errors
+    struct SafeTxExtraParameters {
+        uint256 safeTxGas;
+        uint256 baseGas;
+        uint256 gasPrice;
+        address gasToken;
+        address refundReceiver;
     }
 
     /// @notice Enum to determine the type of task
@@ -454,14 +466,65 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
         bool success = false;
 
+        SafeTxExtraParameters memory extraParams = SafeTxExtraParameters({
+            safeTxGas: 0,
+            baseGas: 0,
+            gasPrice: 0,
+            gasToken: address(0),
+            refundReceiver: address(0)
+        });
         require(gasleft() > 500_000, "MultisigTask: Insufficient gas for execTransaction"); // Ensure try/catch is EIP-150 safe.
         try IGnosisSafe(multisig).execTransaction(
-            target, value, data, operationType, 0, 0, 0, address(0), payable(address(0)), signatures
+            target,
+            value,
+            data,
+            operationType,
+            extraParams.safeTxGas,
+            extraParams.baseGas,
+            extraParams.gasPrice,
+            extraParams.gasToken,
+            extraParams.refundReceiver,
+            signatures
         ) returns (bool execStatus) {
             success = execStatus;
         } catch (bytes memory err) {
             console.log("Error executing multisig transaction");
             console.logBytes(err);
+        }
+
+        bool genVerifyInput = vm.envOr("GEN_VERIFY_INPUT", false);
+        string memory filepath = vm.envOr("OP_VERIFY_INPUT_FILEPATH", new string(0));
+        if (genVerifyInput) {
+            require(!filepath.eq(""), "GEN_VERIFY_INPUT is true but OP_VERIFY_INPUT_FILEPATH is not set");
+            string memory json = string.concat(
+                '{\n   "safe": "',
+                vm.toString(multisig),
+                '",\n   "chain": ',
+                vm.toString(block.chainid),
+                ',\n   "to": "',
+                vm.toString(target),
+                '",\n   "value": ',
+                vm.toString(value),
+                ',\n   "data": "',
+                vm.toString(data),
+                '",\n   "operation": ',
+                vm.toString(uint8(operationType)),
+                ',\n   "safe_tx_gas": ',
+                vm.toString(extraParams.safeTxGas),
+                ',\n   "base_gas": ',
+                vm.toString(extraParams.baseGas),
+                ',\n   "gas_price": ',
+                vm.toString(extraParams.gasPrice),
+                ',\n   "gas_token": "',
+                vm.toString(extraParams.gasToken),
+                '",\n   "refund_receiver": "',
+                vm.toString(extraParams.refundReceiver),
+                '",\n   "nonce": ',
+                vm.toString(nonce),
+                "\n}"
+            );
+            vm.writeFile(filepath, json);
+            console.log("Wrote verify input to %s", filepath);
         }
 
         require(success, "MultisigTask: execute failed");

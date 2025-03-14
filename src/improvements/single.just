@@ -14,7 +14,7 @@ cmd := "yq '.templateName' " + TASK_PATH + "/config.toml"
 export SCRIPT_NAME := shell(cmd)
 export signatures := env_var_or_default('SIGNATURES', '')
 
-simulate hdPath='0':
+simulate genVerifyInput opVerifyInputFilepath hdPath='0':
   #!/usr/bin/env bash
 
   config=${TASK_PATH}/config.toml
@@ -24,6 +24,11 @@ simulate hdPath='0':
 
   echo "Using script ${script}"
   echo ""
+
+  if [ {{genVerifyInput}} = true ]; then
+    export GEN_VERIFY_INPUT=true
+    export OP_VERIFY_INPUT_FILEPATH={{opVerifyInputFilepath}}
+  fi
 
   forge build
   forge script ${script} \

@@ -15,7 +15,7 @@ export SCRIPT_NAME := shell(cmd)
 export signatures := env_var_or_default('SIGNATURES', '')
 export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 
-simulate whichSafe hdPath='0':
+simulate whichSafe genVerifyInput opVerifyInputFilepath hdPath='0':
   #!/usr/bin/env bash
   # Get the appropriate safe address based on whichSafe
   safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} ${SCRIPT_PATH} "{{whichSafe}}")
@@ -38,6 +38,11 @@ simulate whichSafe hdPath='0':
       echo "Simulating without ledger using the first owner account: ${signer}"
   fi
   echo ""
+
+  if [ {{genVerifyInput}} = "true" ]; then
+    export GEN_VERIFY_INPUT=true
+    export OP_VERIFY_INPUT_FILEPATH={{opVerifyInputFilepath}}
+  fi
 
   forge build
   forge script ${script} \
