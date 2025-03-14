@@ -6,6 +6,7 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {Test} from "forge-std/Test.sol";
 import {stdStorage, StdStorage} from "forge-std/StdStorage.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {LibString} from "@solady/utils/LibString.sol";
 
 import {MockTarget} from "test/tasks/mock/MockTarget.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
@@ -18,7 +19,9 @@ contract MultisigTaskUnitTest is Test {
     SuperchainAddressRegistry public addrRegistry;
     MultisigTask public task;
 
-    string constant MAINNET_CONFIG = "./test/tasks/mock/configs/OPMainnetGasConfigTemplate.toml";
+    string constant commonToml =
+        "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n" "templateName = \"MockMultisigTask\"\n" "\n";
+    address securityCouncilChildMultisig = 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03;
 
     /// @notice variables that store the storage offset of different variables in the MultisigTask contract
 
@@ -49,8 +52,11 @@ contract MultisigTaskUnitTest is Test {
     function setUp() public {
         vm.createSelectFork("mainnet");
 
+        // We want the SuperchainAddressRegistry to be initialized with the OP Mainnet config
+        string memory fileName = createTempTomlFile(commonToml);
         // Instantiate the SuperchainAddressRegistry contract
-        addrRegistry = new SuperchainAddressRegistry(MAINNET_CONFIG);
+        addrRegistry = new SuperchainAddressRegistry(fileName);
+        vm.removeFile(fileName);
 
         // Instantiate the Mock MultisigTask contract
         task = MultisigTask(new MockMultisigTask());
@@ -177,11 +183,11 @@ contract MultisigTaskUnitTest is Test {
         task.build();
     }
 
-    function runTestSimulation(string memory taskConfigFilePath)
+    function runTestSimulation(string memory taskConfigFilePath, address childMultisig)
         public
         returns (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions)
     {
-        (accountAccesses, actions) = task.simulateRun(taskConfigFilePath);
+        (accountAccesses, actions) = task.signFromChildMultisig(taskConfigFilePath, childMultisig);
 
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);
 
@@ -209,8 +215,10 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testSimulateFailsTxAlreadyExecuted() public {
+        string memory fileName = createTempTomlFile(commonToml);
         (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions) =
-            runTestSimulation(MAINNET_CONFIG);
+            runTestSimulation(fileName, securityCouncilChildMultisig);
+        vm.removeFile(fileName);
 
         vm.expectRevert("MultisigTask: execute failed");
         task.simulate("", actions);
@@ -220,7 +228,9 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testGetCalldata() public {
-        (, MultisigTask.Action[] memory actions) = runTestSimulation(MAINNET_CONFIG);
+        string memory fileName = createTempTomlFile(commonToml);
+        (, MultisigTask.Action[] memory actions) = runTestSimulation(fileName, securityCouncilChildMultisig);
+        vm.removeFile(fileName);
 
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);
 
@@ -258,5 +268,12 @@ contract MultisigTaskUnitTest is Test {
             description: description
         });
         return actions;
+    }
+
+    function createTempTomlFile(string memory tomlContent) internal returns (string memory) {
+        string memory randomBytes = LibString.toHexString(uint256(bytes32(vm.randomBytes(32))));
+        string memory fileName = string.concat(randomBytes, ".toml");
+        vm.writeFile(fileName, tomlContent);
+        return fileName;
     }
 }

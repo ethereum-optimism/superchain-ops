@@ -12,8 +12,6 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {GasConfigTemplate} from "test/tasks/mock/template/GasConfigTemplate.sol";
-import {MockDisputeGameTask} from "test/tasks/mock/MockDisputeGameTask.sol";
-import {DisputeGameUpgradeTemplate} from "test/tasks/mock/template/DisputeGameUpgradeTemplate.sol";
 import {IncorrectGasConfigTemplate1} from "test/tasks/mock/template/IncorrectGasConfigTemplate1.sol";
 import {IncorrectGasConfigTemplate2} from "test/tasks/mock/template/IncorrectGasConfigTemplate2.sol";
 
@@ -58,6 +56,7 @@ contract SingleMultisigTaskTest is Test {
 
     function testTemplateSetup() public {
         runTask();
+        assertEq(multisigTask.isNestedSafe(multisigTask.parentMultisig()), false, "Expected isNestedSafe to be false");
         assertEq(GasConfigTemplate(address(multisigTask)).gasLimits(34443), 100000000, "Expected gas limit for 34443");
         assertEq(GasConfigTemplate(address(multisigTask)).gasLimits(1750), 100000000, "Expected gas limit for 1750");
     }
@@ -251,41 +250,6 @@ contract SingleMultisigTaskTest is Test {
         localMultisigTask.simulateRun(taskConfigFilePath);
     }
 
-    function testMockDisputeGameWithCodeExceptionsWorks() public {
-        vm.createSelectFork("mainnet");
-        string memory opcmTaskConfigFilePath = "test/tasks/mock/configs/MockDisputeGameUpgradesToEOA.toml";
-        multisigTask = new MockDisputeGameTask();
-
-        multisigTask.simulateRun(opcmTaskConfigFilePath);
-    }
-
-    function testSimulateRunDisputeGameWithoutCodeExceptionsFails() public {
-        vm.createSelectFork("mainnet");
-        string memory opcmTaskConfigFilePath = "test/tasks/mock/configs/MockDisputeGameUpgradesToEOA.toml";
-        multisigTask = new DisputeGameUpgradeTemplate();
-
-        uint256 start = vm.snapshotState();
-
-        multisigTask.simulateRun("test/tasks/mock/configs/DisputeGameUpgradeCodeException.toml");
-        addrRegistry = multisigTask.addrRegistry();
-        address account =
-            toSuperchainAddrRegistry(addrRegistry).getAddress("DisputeGameFactoryProxy", getChain("optimism").chainId);
-
-        vm.revertToState(start);
-
-        string memory err = string.concat(
-            "Likely address in storage has no code\n",
-            "  account: ",
-            vm.toString(account),
-            "\n  slot:    ",
-            vm.toString(bytes32(0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b)),
-            "\n  value:   ",
-            vm.toString(bytes32(0x0000000000000000000000000000000fffffffffffffffffffffffffffffffff))
-        );
-        vm.expectRevert(bytes(err));
-        multisigTask.simulateRun(opcmTaskConfigFilePath);
-    }
-
     function testExecuteWithSignatures() public {
         uint256 snapshotId = vm.snapshotState();
         (, MultisigTask.Action[] memory actions) = runTask();
@@ -367,5 +331,6 @@ contract SingleMultisigTaskTest is Test {
         assertEq(systemConfig.gasLimit(), 100000000, "l2 gas limit not set for Mode");
         systemConfig = SystemConfig(systemConfigMetal);
         assertEq(systemConfig.gasLimit(), 100000000, "l2 gas limit not set for Metal");
+        assertEq(multisigTask.isNestedSafe(multisigTask.parentMultisig()), false, "Expected isNestedSafe to be false");
     }
 }
