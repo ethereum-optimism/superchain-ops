@@ -23,11 +23,9 @@ simulate hdPath='0':
     export ETH_RPC_URL
   fi
 
-  echo "Simulating with: ${signer}"
-  echo ""
   forge build
   forge script SignFromJson \
-    --rpc-url ${rpcUrl} \
+    --rpc-url ${ETH_RPC_URL} \
     --sig "signJson(string)" \
     "${location}/${bundle}.json" \
     --sender ${signer}
