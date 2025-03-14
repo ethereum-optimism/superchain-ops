@@ -2,9 +2,10 @@
 pragma solidity 0.8.15;
 
 import {
-    DeputyGuardianModule, IOptimismPortal2, GameType
+    DeputyGuardianModule, IAnchorStateRegistry, GameType
 } from "@eth-optimism-bedrock/src/safe/DeputyGuardianModule.sol";
 import {LibGameType} from "@eth-optimism-bedrock/src/dispute/lib/LibUDT.sol";
+import {IOptimismPortal2} from "@eth-optimism-bedrock/interfaces/L1/IOptimismPortal2.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
@@ -67,7 +68,7 @@ contract SetGameTypeTemplate is L2TaskBase {
             if (setRespectedGameTypes[chainId].l2ChainId != 0) {
                 DeputyGuardianModule dgm = DeputyGuardianModule(setRespectedGameTypes[chainId].deputyGuardian);
                 address portal = superchainAddrRegistry.getAddress(setRespectedGameTypes[chainId].portal, chainId);
-                dgm.setRespectedGameType(IOptimismPortal2(payable(portal)), setRespectedGameTypes[chainId].gameType);
+                dgm.setRespectedGameType(IAnchorStateRegistry(payable(portal)), setRespectedGameTypes[chainId].gameType);
             }
         }
     }
