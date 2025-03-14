@@ -2,7 +2,9 @@
 pragma solidity 0.8.15;
 
 import {
-    DeputyGuardianModule, IAnchorStateRegistry, GameType
+    DeputyGuardianModule,
+    IAnchorStateRegistry,
+    GameType
 } from "@eth-optimism-bedrock/src/safe/DeputyGuardianModule.sol";
 import {LibGameType} from "@eth-optimism-bedrock/src/dispute/lib/LibUDT.sol";
 import {IOptimismPortal2} from "@eth-optimism-bedrock/interfaces/L1/IOptimismPortal2.sol";
