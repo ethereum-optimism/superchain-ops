@@ -483,8 +483,13 @@ workflows:
       - simulate_sequence:
           name: simulate_sequence_eth
           network: "eth"
+<<<<<<< HEAD
           tasks: "ink-003 unichain-001"
           block_number: "" # If not specified, the latest block number is used.
+=======
+          tasks: "unichain-001"
+          block_number: "21938584" # If not specified, the latest block number is used.
+>>>>>>> 7134a8d2 (add circle ci and fix casing)
           context:
             - circleci-repo-readonly-authenticated-github-token
 
