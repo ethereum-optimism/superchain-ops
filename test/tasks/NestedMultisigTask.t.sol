@@ -15,6 +15,8 @@ import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {DisputeGameUpgradeTemplate} from "test/tasks/mock/template/DisputeGameUpgradeTemplate.sol";
 import {OPCMUpgradeV200} from "src/improvements/template/OPCMUpgradeV200.sol";
+import {MockDisputeGameTask} from "test/tasks/mock/MockDisputeGameTask.sol";
+import {DisputeGameUpgradeTemplate} from "test/tasks/mock/template/DisputeGameUpgradeTemplate.sol";
 
 /// @notice This test is used to test the nested multisig task.
 contract NestedMultisigTaskTest is Test {
@@ -44,8 +46,7 @@ contract NestedMultisigTaskTest is Test {
         returns (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions)
     {
         multisigTask = new DisputeGameUpgradeTemplate();
-        string memory configFilePath =
-            createTempTomlFile(taskConfigToml, string.concat("runTask", LibString.toHexString(childMultisig)));
+        string memory configFilePath = createTempTomlFile(taskConfigToml);
         (accountAccesses, actions) = multisigTask.signFromChildMultisig(configFilePath, childMultisig);
         vm.removeFile(configFilePath);
         addrRegistry = multisigTask.addrRegistry();
@@ -140,7 +141,6 @@ contract NestedMultisigTaskTest is Test {
     /// @notice Test that the data to sign generated in signFromChildMultisig for the child multisigs
     /// is correct for MultisigTask
     function testNestedExecuteWithSignatures() public {
-        string memory testName = "testNestedExecuteWithSignatures"; // Used for creating unique temp files.
         vm.createSelectFork("mainnet");
         uint256 snapshotId = vm.snapshotState();
         (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions) =
@@ -219,8 +219,7 @@ contract NestedMultisigTaskTest is Test {
 
             // execute the approve hash call with the signatures
             multisigTask = new DisputeGameUpgradeTemplate();
-            string memory configFilePath =
-                createTempTomlFile(taskConfigToml, string.concat("approve", LibString.toString(i)));
+            string memory configFilePath = createTempTomlFile(taskConfigToml);
             multisigTask.approveFromChildMultisig(configFilePath, childMultisig, packedSignaturesChild);
             vm.removeFile(configFilePath);
         }
@@ -231,7 +230,7 @@ contract NestedMultisigTaskTest is Test {
         /// snapshot before running the task so we can roll back to this pre-state
         uint256 newSnapshot = vm.snapshotState();
 
-        string memory config = createTempTomlFile(taskConfigToml, testName);
+        string memory config = createTempTomlFile(taskConfigToml);
         (accountAccesses, actions) = multisigTask.signFromChildMultisig(config, SECURITY_COUNCIL_CHILD_MULTISIG);
         vm.removeFile(config);
 
@@ -247,7 +246,7 @@ contract NestedMultisigTaskTest is Test {
 
         /// Now run the executeRun flow
         vm.revertToState(newSnapshot);
-        string memory taskConfigFilePath = createTempTomlFile(taskConfigToml, testName);
+        string memory taskConfigFilePath = createTempTomlFile(taskConfigToml);
         multisigTask.executeRun(taskConfigFilePath, prepareSignatures(parentMultisig, taskHash));
         vm.removeFile(taskConfigFilePath);
         addrRegistry = multisigTask.addrRegistry();
@@ -358,6 +357,43 @@ contract NestedMultisigTaskTest is Test {
         multisigTask.executeRun(opcmTaskConfigFilePath, prepareSignatures(parentMultisig, taskHash));
     }
 
+    function testMockDisputeGameWithCodeExceptionsWorks() public {
+        vm.createSelectFork("mainnet");
+        string memory configFilePath = "test/tasks/mock/configs/MockDisputeGameUpgradesToEOA.toml";
+        multisigTask = new MockDisputeGameTask();
+        multisigTask.signFromChildMultisig(configFilePath, SECURITY_COUNCIL_CHILD_MULTISIG);
+        assertEq(multisigTask.isNestedSafe(multisigTask.parentMultisig()), true, "Expected isNestedSafe to be true");
+    }
+
+    function testSimulateRunDisputeGameWithoutCodeExceptionsFails() public {
+        vm.createSelectFork("mainnet");
+        string memory configFilePath = "test/tasks/mock/configs/MockDisputeGameUpgradesToEOA.toml";
+        multisigTask = new DisputeGameUpgradeTemplate();
+
+        uint256 start = vm.snapshotState();
+
+        multisigTask.signFromChildMultisig(
+            "test/tasks/mock/configs/DisputeGameUpgradeCodeException.toml", SECURITY_COUNCIL_CHILD_MULTISIG
+        );
+        addrRegistry = multisigTask.addrRegistry();
+        SuperchainAddressRegistry superchainAddrReg = SuperchainAddressRegistry(AddressRegistry.unwrap(addrRegistry));
+        address account = superchainAddrReg.getAddress("DisputeGameFactoryProxy", getChain("optimism").chainId);
+
+        vm.revertToState(start);
+
+        string memory err = string.concat(
+            "Likely address in storage has no code\n",
+            "  account: ",
+            vm.toString(account),
+            "\n  slot:    ",
+            vm.toString(bytes32(0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b)),
+            "\n  value:   ",
+            vm.toString(bytes32(0x0000000000000000000000000000000fffffffffffffffffffffffffffffffff))
+        );
+        vm.expectRevert(bytes(err));
+        multisigTask.signFromChildMultisig(configFilePath, SECURITY_COUNCIL_CHILD_MULTISIG);
+    }
+
     function getNestedDataToSign(address owner, MultisigTask.Action[] memory actions)
         internal
         view
@@ -373,9 +409,9 @@ contract NestedMultisigTaskTest is Test {
         return Signatures.genPrevalidatedSignatures(approvers);
     }
 
-    function createTempTomlFile(string memory tomlContent, string memory extraData) internal returns (string memory) {
-        string memory fileName =
-            string.concat(LibString.toHexString(uint256(keccak256(abi.encode(tomlContent)))), extraData, ".toml");
+    function createTempTomlFile(string memory tomlContent) internal returns (string memory) {
+        string memory randomBytes = LibString.toHexString(uint256(bytes32(vm.randomBytes(32))));
+        string memory fileName = string.concat(randomBytes, ".toml");
         vm.writeFile(fileName, tomlContent);
         return fileName;
     }

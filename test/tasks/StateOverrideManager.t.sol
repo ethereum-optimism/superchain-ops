@@ -20,9 +20,9 @@ contract StateOverrideManagerUnitTest is Test {
         "implementations = [{gameType = 0, implementation = \"0xf691F8A6d908B58C534B624cF16495b491E633BA\", l2ChainId = 10}]\n";
     address constant SECURITY_COUNCIL_CHILD_MULTISIG = 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03;
 
-    function createTempTomlFile(string memory tomlContent) internal returns (string memory) {
-        string memory fileName =
-            string.concat(LibString.toHexString(uint256(keccak256(abi.encode(tomlContent)))), ".toml");
+    function createTempTomlFile(string memory tomlContent) public returns (string memory) {
+        string memory randomBytes = LibString.toHexString(uint256(bytes32(vm.randomBytes(32))));
+        string memory fileName = string.concat(randomBytes, ".toml");
         vm.writeFile(fileName, tomlContent);
         return fileName;
     }

@@ -53,7 +53,7 @@ contract MultisigTaskUnitTest is Test {
         vm.createSelectFork("mainnet");
 
         // We want the SuperchainAddressRegistry to be initialized with the OP Mainnet config
-        string memory fileName = createTempTomlFile(commonToml, "setUp");
+        string memory fileName = createTempTomlFile(commonToml);
         // Instantiate the SuperchainAddressRegistry contract
         addrRegistry = new SuperchainAddressRegistry(fileName);
         vm.removeFile(fileName);
@@ -215,7 +215,7 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testSimulateFailsTxAlreadyExecuted() public {
-        string memory fileName = createTempTomlFile(commonToml, "testSimulateFailsTxAlreadyExecuted");
+        string memory fileName = createTempTomlFile(commonToml);
         (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions) =
             runTestSimulation(fileName, securityCouncilChildMultisig);
         vm.removeFile(fileName);
@@ -228,7 +228,7 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testGetCalldata() public {
-        string memory fileName = createTempTomlFile(commonToml, "testGetCalldata");
+        string memory fileName = createTempTomlFile(commonToml);
         (, MultisigTask.Action[] memory actions) = runTestSimulation(fileName, securityCouncilChildMultisig);
         vm.removeFile(fileName);
 
@@ -270,9 +270,9 @@ contract MultisigTaskUnitTest is Test {
         return actions;
     }
 
-    function createTempTomlFile(string memory tomlContent, string memory extraData) internal returns (string memory) {
-        string memory fileName =
-            string.concat(LibString.toHexString(uint256(keccak256(abi.encode(tomlContent)))), extraData, ".toml");
+    function createTempTomlFile(string memory tomlContent) internal returns (string memory) {
+        string memory randomBytes = LibString.toHexString(uint256(bytes32(vm.randomBytes(32))));
+        string memory fileName = string.concat(randomBytes, ".toml");
         vm.writeFile(fileName, tomlContent);
         return fileName;
     }
