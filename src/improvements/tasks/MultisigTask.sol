@@ -474,6 +474,13 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         return _allowedStorageAccesses.values();
     }
 
+    /// @notice check if storage writes are allowed
+    /// override this function in FinanceTemplate to return false to avoid storage writes checks
+    /// TODO: Remove this function once we can set token storage writes in the FinanceTemplate
+    function _checkStorageWrites() internal pure virtual returns (bool) {
+        return true;
+    }
+
     /// @notice execute post-task checks.
     ///          e.g. read state variables of the deployed contracts to make
     ///          sure they are deployed and initialized correctly, or read
@@ -482,20 +489,23 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         // write all state changes to storage
         _processStateDiffChanges(accountAccesses);
 
-        address[] memory accountsWithWrites = accountAccesses.getUniqueWrites(false);
-        // By default, we allow storage accesses to newly created contracts.
-        address[] memory newContracts = accountAccesses.getNewContracts();
+        // TODO: Remove this if block once we can set token storage writes in the FinanceTemplate
+        if (_checkStorageWrites()) {
+            address[] memory accountsWithWrites = accountAccesses.getUniqueWrites(false);
+            // By default, we allow storage accesses to newly created contracts.
+            address[] memory newContracts = accountAccesses.getNewContracts();
 
-        for (uint256 i; i < accountsWithWrites.length; i++) {
-            address addr = accountsWithWrites[i];
-            require(
-                _allowedStorageAccesses.contains(addr) || _isNewContract(addr, newContracts),
-                string(
-                    abi.encodePacked(
-                        "MultisigTask: address ", getAddressLabel(addr), " not in allowed storage accesses"
+            for (uint256 i; i < accountsWithWrites.length; i++) {
+                address addr = accountsWithWrites[i];
+                require(
+                    _allowedStorageAccesses.contains(addr) || _isNewContract(addr, newContracts),
+                    string(
+                        abi.encodePacked(
+                            "MultisigTask: address ", getAddressLabel(addr), " not in allowed storage accesses"
+                        )
                     )
-                )
-            );
+                );
+            }
         }
 
         require(IGnosisSafe(parentMultisig).nonce() == nonce + 1, "MultisigTask: nonce not incremented");
@@ -1054,11 +1064,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                 }
                 require(account.code.length != 0, string.concat("Storage account has no code: ", vm.toString(account)));
                 require(!storageAccess.reverted, string.concat("Storage access reverted: ", vm.toString(account)));
-                bool allowed;
-                for (uint256 k; k < allowedAccesses.length; k++) {
-                    allowed = allowed || (account == allowedAccesses[k]) || _isNewContract(account, newContracts);
+                // TODO: Remove this if block once we can set token storage writes in the FinanceTemplate
+                if (_checkStorageWrites()) {
+                    bool allowed;
+                    for (uint256 k; k < allowedAccesses.length; k++) {
+                        allowed = allowed || (account == allowedAccesses[k]) || _isNewContract(account, newContracts);
+                    }
+                    require(allowed, string.concat("Unallowed Storage access: ", vm.toString(account)));
                 }
-                require(allowed, string.concat("Unallowed Storage access: ", vm.toString(account)));
             }
         }
     }
