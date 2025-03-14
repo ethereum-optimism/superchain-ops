@@ -1,7 +1,7 @@
 set dotenv-load
 
-# # Common variables used across multiple recipes
-# # Export variables in uppercase for shell script usage
+# Common variables used across multiple recipes
+# Export variables in uppercase for shell script usage
 export TASK_PATH := invocation_directory()
 export SCRIPT_PATH := justfile_directory()
 
