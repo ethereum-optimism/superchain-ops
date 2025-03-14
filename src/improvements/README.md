@@ -67,4 +67,4 @@ gasLimits = [
 ]
 ```
 
-Other existing templates include [`DisputeGameUpgradeTemplate`](./template/DisputeGameUpgradeTemplate.sol) and [`SetGameTypeTemplate`](./template/SetGameTypeTemplate.sol).
+Other existing templates include [`DisputeGameUpgradeTemplate`](./template/DisputeGameUpgradeTemplate.sol).
