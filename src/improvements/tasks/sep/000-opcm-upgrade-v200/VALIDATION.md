@@ -25,8 +25,8 @@ the values printed to the terminal when you run the task.
 >
 > ### Optimism Foundation
 >
-> - Domain Hash: `0x260bd5f92cfcb40d079b1c6f6a7ff07df436553ba65d01934e15aabe1b88657f`
-> - Message Hash: `0xb491d2d776a746ea34af0f99dde9520490bbc3dcf5631afe431ffcd4ca1bab33`
+> - Domain Hash: ``
+> - Message Hash: ``
 
 
 ## Understanding Task Calldata
@@ -177,7 +177,6 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw New Value:     0x000000000000000000000000f7529e269a3244921d31304171ae69c44f9c6e09
     [WARN] Slot was not decoded
 
-    // TODO where can I get a link to this new impl?
     Summary:           Update Permissioned GameType implementation. 
     Detail:            This is gameImpls[1] -> 0xf7529E269A3244921D31304171ae69c44F9c6e09
                        Verify that the old implementation is set in this slot using:
@@ -195,7 +194,6 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw New Value:     0x0000000000000000000000007982afa9530a3f6b88dd49cd3974cb3121ffb00d
     [WARN] Slot was not decoded
 
-    // TODO where can I get a link to this new impl?
     Summary:           Updated CANNON GameType implementation.
     Detail:            This is gameImpls[0] -> 0x7982afa9530a3f6b88dd49cd3974cb3121ffb00d where '0' is the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28">CANNON game type</a>.
                        Verify that the old implementation is set in this slot using:
@@ -229,11 +227,11 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000000000
     [WARN] Slot was not decoded
 
-    Summary:          <i>isRC</i> storage slot updated to 0.
-    Detail:           Once OPContractsManager is upgraded, the <i>isRC</i> flag is set to false. 
-                      This happens in the first invocation of the <i>upgrade</i> function.
-                      Slot 22 is the <i>isRC</i> flag: <i>cast to-hex 22</i> -> <i>0x16</i>. 
-                      Please refer to <i>'Figure 0.1'</i> at the end of this report for the storage layout of OPContractsManager.
+    Summary:           <i>isRC</i> storage slot updated to 0.
+    Detail:            Once OPContractsManager is upgraded, the <i>isRC</i> flag is set to false. 
+                       This happens in the first invocation of the <i>upgrade</i> function.
+                       Slot 22 is the <i>isRC</i> flag: <i>cast to-hex 22</i> -> <i>0x16</i>. 
+                       Please refer to <i>'Figure 0.1'</i> at the end of this report for the storage layout of OPContractsManager.
 
   ----- DecodedStateDiff[7] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/validation/standard/standard-config-roles-sepolia.toml#L3">0x1Eb2fFc903729a0F03966B917003800b145F56E2</a>
@@ -267,7 +265,8 @@ For each contract listed in the state diff, please verify that no contracts or s
                        DelayedWETH contract for 'op-contracts/v2.0.0-rc.1'.
                        Using Ink Sepolia's <a href="https://github.com/ethereum-optimism/superchain-registry/blob/c1bcf3601dfdf72f0fd4f5bade180b9c0f94d93b/superchain/configs/sepolia/ink.toml#L64">DisputeGameFactory</a>, we can find this DelayedWETH address:
                         - <i>cast call 0x860e626c700AF381133D9f4aF31412A2d1DB3D5d "gameImpls(uint32)(address)" 1 --rpc-url sepolia</i>
-                        - <i>cast call 0x39228E51A12662d78DE478BFa1930fc7595337D8 "weth()(address)" --rpc-url sepolia</i> returns <b>0x237840A6Bfd822039d9cC00e1E7BAE280d4F2D49</b>
+                        - <i>cast call 0x39228E51A12662d78DE478BFa1930fc7595337D8 "weth()(address)" --rpc-url sepolia</i>
+                        returns <b>0x237840A6Bfd822039d9cC00e1E7BAE280d4F2D49</b>
 
   ----- DecodedStateDiff[9] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/superchain/configs/sepolia/soneium-minato.toml#L55">0x2bfb22cd534a462028771a1cA9D6240166e450c4</a>
@@ -361,7 +360,7 @@ For each contract listed in the state diff, please verify that no contracts or s
     Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
                        The 'Raw New Value' for this entry might be different than what is seen in the Tenderly state diff. 
                        This is expected because the AnchorStateRegistry is being continually updated.
-                       <i>cast --to-dec 0x8baa6f</i> -> <i>9153135</i>
+                        - <i>cast --to-dec 0x8baa6f</i> -> <i>9153135</i>
                        Anyone can call <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L239"><i>'setAnchorState(IDisputeGame _game)'</i></a> so it can be updated often if the conditions are right.
 
   ----- DecodedStateDiff[15] -----
@@ -587,7 +586,6 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw New Value:     0x00000000000000000000000083a28245b5f43a66f6199005cfd7bbff58bfeff9
     [WARN] Slot was not decoded
 
-    // TODO where can I get a link to this new impl?
     Summary:           Update Permissioned GameType implementation. 
     Detail:            This is gameImpls[1] -> 0x83a28245b5f43a66f6199005cfd7bbff58bfeff9
                        Verify that the old implementation is set in this slot using:
@@ -606,8 +604,6 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw New Value:     0x000000000000000000000000ab3ec4af07756a15533ea6e5d9388a1ab510039c
     [WARN] Slot was not decoded
 
-
-    // TODO where can I get a link to this new impl?
     Summary:           Updated CANNON GameType implementation.
     Detail:            This is gameImpls[0] -> 0xab3ec4af07756a15533ea6e5d9388a1ab510039c where '0' is the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28">CANNON game type</a>.
                        Verify that the old implementation is set in this slot using:
@@ -668,7 +664,8 @@ For each contract listed in the state diff, please verify that no contracts or s
                        DelayedWETH contract for 'op-contracts/v2.0.0-rc.1'.
                        Using OP Sepolia's <a href="https://github.com/ethereum-optimism/superchain-registry/blob/c1bcf3601dfdf72f0fd4f5bade180b9c0f94d93b/superchain/configs/sepolia/op.toml#L63">DisputeGameFactory</a>, we can find this DelayedWETH address:
                         - <i>cast call 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1 "gameImpls(uint32)(address)" 1 --rpc-url sepolia</i>
-                        - <i>cast call 0x1C3EB0EbD6195ab587e1dED358A87BdF9b56Fe04 "weth()(address)" --rpc-url sepolia</i> returns <b>0x9C7750C1c7b39E6b0eFeec06A1F2cf06190f6018</b>
+                        - <i>cast call 0x1C3EB0EbD6195ab587e1dED358A87BdF9b56Fe04 "weth()(address)" --rpc-url sepolia</i>
+                        returns <b>0x9C7750C1c7b39E6b0eFeec06A1F2cf06190f6018</b>
 
   ----- DecodedStateDiff[33] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/sepolia/soneium-minato.toml#L64">0xB3Ad2c38E6e0640d7ce6aA952AB3A60E81bf7a01</a>
@@ -696,7 +693,6 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw New Value:     0x0000000000000000000000005b107ae5823490e643295c62207285069503c364
     [WARN] Slot was not decoded
   
-    // TODO where can I get a link to this new impl?
     Summary:           Update Permissioned GameType implementation. 
     Detail:            This is gameImpls[1] -> 0x5B107aE5823490e643295C62207285069503c364
                        Verify that the old implementation is set in this slot using:
@@ -738,8 +734,8 @@ For each contract listed in the state diff, please verify that no contracts or s
                        DelayedWETH contract for 'op-contracts/v2.0.0-rc.1'.
                        Using Ink's <a href="https://github.com/ethereum-optimism/superchain-registry/blob/c1bcf3601dfdf72f0fd4f5bade180b9c0f94d93b/superchain/configs/sepolia/ink.toml#L64">DisputeGameFactory</a>, we can find this DelayedWETH address:
                         - <i>cast call 0x860e626c700AF381133D9f4aF31412A2d1DB3D5d "gameImpls(uint32)(address)" 0 --rpc-url sepolia</i>
-                        - <i>cast call 0x323d727A1a147869cEC0C02dE1d4195d1b71F2eB "weth()(address)" --rpc-url sepolia</i> returns 
-                        <b>0xc69C1ACcdAb9ae28780A238D987a1ACc8bd0FC56</b>
+                        - <i>cast call 0x323d727A1a147869cEC0C02dE1d4195d1b71F2eB "weth()(address)" --rpc-url sepolia</i>
+                        returns <b>0xc69C1ACcdAb9ae28780A238D987a1ACc8bd0FC56</b>
 
   ----- DecodedStateDiff[37] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/sepolia/op.toml#L62">0xcdFdC692a53B4aE9F81E0aEBd26107Da4a71dB84</a>
@@ -758,7 +754,8 @@ For each contract listed in the state diff, please verify that no contracts or s
                        DelayedWETH contract for 'op-contracts/v2.0.0-rc.1'.
                        Using OP Sepolia's <a href="https://github.com/ethereum-optimism/superchain-registry/blob/c1bcf3601dfdf72f0fd4f5bade180b9c0f94d93b/superchain/configs/sepolia/op.toml#L63">DisputeGameFactory</a>, we can find this DelayedWETH address:
                         - <i>cast call 0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1 "gameImpls(uint32)(address)" 0 --rpc-url sepolia</i>
-                        - <i>cast call 0x927248Cb1255e0F02413A758899db4AeCFfaA5fE "weth()(address)" --rpc-url sepolia</i> returns <b>0xcdFdC692a53B4aE9F81E0aEBd26107Da4a71dB84</b>
+                        - <i>cast call 0x927248Cb1255e0F02413A758899db4AeCFfaA5fE "weth()(address)" --rpc-url sepolia</i>
+                        returns <b>0xcdFdC692a53B4aE9F81E0aEBd26107Da4a71dB84</b>
                        
 
   ----- DecodedStateDiff[38] -----
@@ -870,7 +867,7 @@ For each contract listed in the state diff, please verify that no contracts or s
     Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
                        The 'Raw New Value' for this entry might be different than what is seen in the Tenderly state diff. 
                        This is expected because the AnchorStateRegistry is being continually updated.
-                       <i>cast --to-dec 0xbeb15b</i> -> <i>12497243</i>
+                        - <i>cast --to-dec 0xbeb15b</i> -> <i>12497243</i>
                        Anyone can call <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L239"><i>'setAnchorState(IDisputeGame _game)'</i></a> so it can be updated often if the conditions are right.
 
   ----- DecodedStateDiff[45] -----
@@ -982,7 +979,7 @@ For each contract listed in the state diff, please verify that no contracts or s
     Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
                        The 'Raw New Value' for this entry might be different than what is seen in the Tenderly state diff. 
                        This is expected because the AnchorStateRegistry is being continually updated.
-                       <i>cast --to-dec 0x17b2fd4</i> -> <i>24850388</i>
+                        - <i>cast --to-dec 0x17b2fd4</i> -> <i>24850388</i>
                        Anyone can call <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L239"><i>'setAnchorState(IDisputeGame _game)'</i></a> so it can be updated often if the conditions are right.
 
   ----- DecodedStateDiff[52] -----
@@ -1033,7 +1030,8 @@ For each contract listed in the state diff, please verify that no contracts or s
     Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                        Using Soneium Testnet Minato's <a href="https://github.com/ethereum-optimism/superchain-registry/blob/c1bcf3601dfdf72f0fd4f5bade180b9c0f94d93b/superchain/configs/sepolia/soneium-minato.toml#L64">DisputeGameFactory</a>, we can find this DelayedWETH address:
                         - <i>cast call 0xB3Ad2c38E6e0640d7ce6aA952AB3A60E81bf7a01 "gameImpls(uint32)(address)" 1 --rpc-url sepolia</i>
-                        - <i>cast call 0x3D570de1039B337bE88934A778A8ff0E9FB274D2 "weth()(address)" --rpc-url sepolia</i> returns <b>0xf6Db90462FEbEB7567fBD064d2ff14a8d0280f3E</b>
+                        - <i>cast call 0x3D570de1039B337bE88934A778A8ff0E9FB274D2 "weth()(address)" --rpc-url sepolia</i>
+                        returns <b>0xf6Db90462FEbEB7567fBD064d2ff14a8d0280f3E</b>
 
   ----- DecodedStateDiff[55] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/c1bcf3601dfdf72f0fd4f5bade180b9c0f94d93b/superchain/configs/sepolia/op.toml#L56">0xFBb0621E0B23b5478B630BD55a5f21f67730B0F1</a>
