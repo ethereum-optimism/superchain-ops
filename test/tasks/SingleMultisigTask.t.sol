@@ -54,9 +54,11 @@ contract SingleMultisigTaskTest is Test {
         return SuperchainAddressRegistry(AddressRegistry.unwrap(_addrRegistry));
     }
 
-    function testTemplateIsNotNested() public {
+    function testTemplateSetup() public {
         runTask();
         assertEq(multisigTask.isNestedSafe(multisigTask.parentMultisig()), false, "Expected isNestedSafe to be false");
+        assertEq(GasConfigTemplate(address(multisigTask)).gasLimits(34443), 100000000, "Expected gas limit for 34443");
+        assertEq(GasConfigTemplate(address(multisigTask)).gasLimits(1750), 100000000, "Expected gas limit for 1750");
     }
 
     function testSafeSetup() public {
