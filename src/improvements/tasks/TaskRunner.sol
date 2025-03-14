@@ -56,7 +56,13 @@ contract TaskRunner is Script {
                 string.concat("out/", config.templateName, ".sol/", config.templateName, ".json");
 
             MultisigTask task = MultisigTask(deployCode(templatePath));
-            task.simulateRun(config.path);
+            
+            if (isNestedTask(config.path)) {
+                // TODO: Replace with the actual child multisig address - for now we're using the mainnet Security Council.
+                task.signFromChildMultisig(config.path, 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03);
+            } else {
+                task.simulateRun(config.path);
+            }
         }
     }
 
@@ -80,7 +86,6 @@ contract TaskRunner is Script {
         MultisigTask.TaskType taskType = task.taskType();
 
         address parentMultisig;
-
         if (taskType == MultisigTask.TaskType.SimpleBase) {
             SimpleAddressRegistry _simpleAddrRegistry = new SimpleAddressRegistry(taskConfigFilePath);
             parentMultisig = _simpleAddrRegistry.get(safeAddressString);
