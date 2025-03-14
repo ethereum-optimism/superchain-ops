@@ -22,7 +22,7 @@ This upgrades the Fault Proof contracts in the [op-contracts/v1.8.0-rc.4](https:
 
 ## Pre-deployments 
 - `MIPS` - `0x69470D6970Cd2A006b84B1d4d70179c892cFCE01`
-- `FaultDisputeGame` - `0x3d914Ba460E0bBf0b9Bca35d65f9fc8e0bcB1C9d`
+- `FaultDisputeGame` - `0x1Ca07eBBEd295C581c952Be0eB23E636aed9a2d0`
 - `PermissionedDisputeGame` - ``
 
 ## Simulation
