@@ -196,11 +196,10 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
             address(currentImpl.vm()) == address(faultDisputeGame.vm()),
             "10"
         );
-        console.log(
-            "faultdisputegame.weth()",
-            address(faultDisputeGame.weth())
+        require(
+            faultDisputeGame.gameType().raw() == _targetGameType.raw(),
+            "20"
         );
-        console.log("currentImpl.weth()", address(currentImpl.weth()));
         // require(
         //     address(currentImpl.weth()) == address(faultDisputeGame.weth()),
         //     "20"
@@ -247,30 +246,6 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
                     address(permissionedDisputeGame.challenger()),
                 "100"
             );
-        }
-    }
-
-    function _precheckAnchorStateCopy(
-        GameType _fromType,
-        GameType _toType
-    ) internal view {
-        console.log("pre-check anchor state copy", _toType.raw());
-
-        FaultDisputeGame fromImpl = FaultDisputeGame(
-            address(dgfProxy.gameImpls(GameType(_fromType)))
-        );
-        // Must have existing game type implementation for the source
-        require(address(fromImpl) != address(0), "200");
-        address fromRegistry = address(fromImpl.anchorStateRegistry());
-        require(fromRegistry != address(0), "210");
-
-        FaultDisputeGame toImpl = FaultDisputeGame(
-            address(dgfProxy.gameImpls(GameType(_toType)))
-        );
-        if (address(toImpl) != address(0)) {
-            // If there is an existing implementation, it must use the same anchor state registry.
-            address toRegistry = address(toImpl.anchorStateRegistry());
-            require(toRegistry == fromRegistry, "210");
         }
     }
 
