@@ -97,9 +97,6 @@ For each contract listed in the state diff, please verify that no contracts or s
   Registry links provided. This validates the bytecode deployed at the addresses contains the correct logic.
 - All key values match the semantic meaning provided, which can be validated using the storage layout links provided.
 
-### Tenderly State Changes
-[Link](https://dashboard.tenderly.co/oplabs/sepolia/simulator/ba323cb0-771a-4b03-81f9-e99b87345b9e)
-
 ### Task State Changes
 
 <pre>
@@ -209,7 +206,8 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000000000
     [WARN] Slot was not decoded
 
-    Summary:           <i>isRC</i> storage slot updated to 0.
+    Summary:           <b>IMPORTANT: THIS STATE CHANGE MAY NOT APPEAR IN THE TENDERLY STATE DIFF.</b>
+                       <i>isRC</i> storage slot updated to 0. 
     Detail:            Once OPContractsManager is upgraded, the <i>isRC</i> flag is set to false. 
                        This happens in the first invocation of the <i>upgrade</i> function.
                        Slot 22 is the <i>isRC</i> flag: <i>cast to-hex 22</i> -> <i>0x16</i>. 
@@ -221,12 +219,12 @@ For each contract listed in the state diff, please verify that no contracts or s
     Chain ID:          11155420
 
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
-    Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000016
-    Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000000017
+    Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000017
+    Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000000018
 
     Decoded Kind:      uint256
-    Decoded Old Value: 22
-    Decoded New Value: 23
+    Decoded Old Value: 23
+    Decoded New Value: 24
     Summary:           nonce
     Detail:            The nonce of the ProxyAdminOwner contract is updated.
 
