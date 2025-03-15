@@ -26,7 +26,7 @@ check_status_and_hyperlinks() {
   done
 
   if [[ "$is_valid_status" == false ]]; then
-    errors+=("Error: Invalid status in $file_path: $status_line.")
+    errors+=("Error: Invalid status in '$file_path': $status_line")
     errors+=("Valid statuses are:")
     for valid_status in "${VALID_STATUSES[@]}"; do
       errors+=("- $valid_status")
@@ -36,7 +36,7 @@ check_status_and_hyperlinks() {
 
   # If the status is EXECUTED, require a link to the execution.
   if [[ "$status_line" == *"EXECUTED"* ]]; then
-    if ! echo "$status_line" | grep -q "http[s]*://"; then
+    if ! echo "$status_line" | grep -q "https\?://"; then
       errors+=("Error: Status is EXECUTED but no link to transaction found in $file_path")
     fi
   fi
