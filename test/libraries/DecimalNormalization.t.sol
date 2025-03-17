@@ -79,14 +79,14 @@ contract DecimalNormalizationTest is Test {
         // Test with token6 (6 decimals)
         uint8 tokenDecimals = token6.decimals();
         assertEq(tokenDecimals, 6);
-        
+
         uint256 amount = DecimalNormalization.normalizeTokenAmount("100.123", tokenDecimals);
         assertEq(amount, 100123000);
-        
+
         // Test with token18 (18 decimals)
         tokenDecimals = token18.decimals();
         assertEq(tokenDecimals, 18);
-        
+
         amount = DecimalNormalization.normalizeTokenAmount("100.123456789", tokenDecimals);
         assertEq(amount, 100123456789 * 10 ** 9); // 100.123456789 * 10^(18-9) = 100.123456789 * 10^9
     }

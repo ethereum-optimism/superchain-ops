@@ -22,7 +22,6 @@ contract FinanceTemplate is SimpleBase {
     using stdToml for string;
     using EnumerableSet for EnumerableSet.AddressSet;
 
-
     /// @notice Operation struct as read in from the `config.toml` file
     /// @param amount The amount of tokens for the operation, specified
     /// as a decimal. i.e. `100.1`
@@ -96,7 +95,7 @@ contract FinanceTemplate is SimpleBase {
     function getTokenAmount(string memory amount, address token) public view returns (uint256) {
         // Get token decimals
         uint8 tokenDecimals = ERC20(token).decimals();
-        
+
         // Use the DecimalNormalization library to normalize the token amount
         return DecimalNormalization.normalizeTokenAmount(amount, tokenDecimals);
     }

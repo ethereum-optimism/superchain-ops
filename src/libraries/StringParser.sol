@@ -43,7 +43,7 @@ library StringParser {
     /// @return components The parsed amount components
     function parseAmountComponents(string memory amount) internal pure returns (AmountComponents memory components) {
         VmSafe vm = VmSafe(address(uint160(uint256(keccak256("hevm cheat code")))));
-        
+
         string[] memory stringComponents = amount.split(".");
         validateAmountFormat(stringComponents);
 

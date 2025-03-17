@@ -8,7 +8,11 @@ contract MockStringParser {
         return StringParser.parseDecimals(amount);
     }
 
-    function parseAmountComponents(string memory amount) external pure returns (StringParser.AmountComponents memory components) {
+    function parseAmountComponents(string memory amount)
+        external
+        pure
+        returns (StringParser.AmountComponents memory components)
+    {
         return StringParser.parseAmountComponents(amount);
     }
 
