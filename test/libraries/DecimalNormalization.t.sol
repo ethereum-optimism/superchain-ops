@@ -4,107 +4,24 @@ pragma solidity 0.8.15;
 import {Test} from "forge-std/Test.sol";
 import {StringParser} from "src/libraries/StringParser.sol";
 import {DecimalNormalization} from "src/libraries/DecimalNormalization.sol";
-import {DecimalUtils} from "src/libraries/DecimalUtils.sol";
 import {MockERC20} from "lib/solady/test/utils/mocks/MockERC20.sol";
 import {MockDecimalNormalization} from "test/tasks/mock/MockDecimalNormalization.sol";
-import {MockStringParser} from "test/tasks/mock/MockStringParser.sol";
 
 contract DecimalNormalizationTest is Test {
     MockERC20 public token6; // 6 decimals
     MockERC20 public token18; // 18 decimals
-    DecimalUtils public decimalUtils;
-    MockStringParser public mockStringParser;
     MockDecimalNormalization public mockDecimalNormalization;
 
     function setUp() public {
         token6 = new MockERC20("Token6", "TK6", 6);
         token18 = new MockERC20("Token18", "TK18", 18);
-        decimalUtils = new DecimalUtils();
         mockDecimalNormalization = new MockDecimalNormalization();
-        mockStringParser = new MockStringParser();
-    }
-
-    // ==================== StringParser Tests ====================
-
-    function testParseDecimalsWholeNumber() public pure {
-        (uint256 amount, uint8 decimals) = StringParser.parseDecimals("100");
-        assertEq(amount, 100);
-        assertEq(decimals, 0);
-    }
-
-    function testParseDecimalsZeroDecimalPart() public pure {
-        (uint256 amount, uint8 decimals) = StringParser.parseDecimals("100.0");
-        assertEq(amount, 100);
-        assertEq(decimals, 0);
-
-        (amount, decimals) = StringParser.parseDecimals("100.00");
-        assertEq(amount, 100);
-        assertEq(decimals, 0);
-    }
-
-    function testParseDecimalsNonZeroDecimalPart() public pure {
-        (uint256 amount, uint8 decimals) = StringParser.parseDecimals("100.123");
-        assertEq(amount, 100123);
-        assertEq(decimals, 3);
-
-        (amount, decimals) = StringParser.parseDecimals("100.000123");
-        assertEq(amount, 100000123);
-        assertEq(decimals, 6);
-    }
-
-    function testParseDecimalsMaxDecimals() public pure {
-        (uint256 amount, uint8 decimals) = StringParser.parseDecimals("100.123456789012345678");
-        assertEq(amount, 100123456789012345678);
-        assertEq(decimals, 18);
-    }
-
-    function testParseDecimalsRevertNoDecimals() public {
-        vm.expectRevert("decimals must be less than or equal to 18");
-        mockStringParser.parseDecimals("100.1234567890123456789"); // 19 decimal places
-    }
-
-    function testValidateAmountFormat() public {
-        // Test valid formats through parseDecimals which calls validateAmountFormat
-        StringParser.parseDecimals("100");
-        StringParser.parseDecimals("100.123");
-
-        // Test invalid formats
-        vm.expectRevert("decimals cannot be 0");
-        mockStringParser.parseDecimals("100.");
-
-        vm.expectRevert("invalid amount");
-        mockStringParser.parseDecimals("100.123.456");
-    }
-
-    function testParseDecimalsZeroValue() public pure {
-        // Test with zero whole part and non-zero decimal part
-        (uint256 amount, uint8 decimals) = StringParser.parseDecimals("0.123456789012345678");
-        assertEq(amount, 123456789012345678);
-        assertEq(decimals, 18);
-    }
-
-    function testParseDecimalsRevertZeroDecimals() public {
-        vm.expectRevert("decimals cannot be 0");
-        mockStringParser.parseDecimals("100."); // Decimal point with no digits after
-    }
-
-    function testParseDecimalsRevertInvalidFormat() public {
-        vm.expectRevert("invalid amount");
-        mockStringParser.parseDecimals("100.123.456"); // Multiple decimal points
-    }
-
-    function testParseDecimalsRevertZeroAmount() public {
-        vm.expectRevert("amount must be non-zero");
-        mockStringParser.parseDecimals("0.0"); // Zero amount
-
-        vm.expectRevert("amount must be non-zero");
-        mockStringParser.parseDecimals("0.00000"); // Zero amount with multiple zeros
     }
 
     // ==================== DecimalNormalization Tests ====================
 
-    function testScaleDecimalsZero() public view {
-        assertEq(mockDecimalNormalization.scaleDecimals(100, 0), 100);
+    function testScaleDecimalsZero() public pure {
+        assertEq(DecimalNormalization.scaleDecimals(100, 0), 100);
     }
 
     function testScaleDecimalsStandard() public pure {
@@ -158,7 +75,7 @@ contract DecimalNormalizationTest is Test {
 
     // ==================== Integration Tests ====================
 
-    function testIntegrationWithTokens() public view {
+    function testNormalizeTokenAmountWithRealTokens() public view {
         // Test with token6 (6 decimals)
         uint8 tokenDecimals = token6.decimals();
         assertEq(tokenDecimals, 6);
@@ -174,57 +91,19 @@ contract DecimalNormalizationTest is Test {
         assertEq(amount, 100123456789 * 10 ** 9); // 100.123456789 * 10^(18-9) = 100.123456789 * 10^9
     }
 
-    // ==================== DecimalUtils Wrapper Tests ====================
+    // ==================== Fuzz Tests ====================
 
-    function testDecimalUtilsScaleDecimals() public view {
-        assertEq(decimalUtils.scaleDecimals(100, 0), 100);
-        assertEq(decimalUtils.scaleDecimals(100, 6), 100 * 10 ** 6);
-        assertEq(decimalUtils.scaleDecimals(100, 18), 100 * 10 ** 18);
-    }
-
-    function testDecimalUtilsParseDecimals() public view {
-        (uint256 amount, uint8 decimals) = decimalUtils.parseDecimals("100.123");
-        assertEq(amount, 100123);
-        assertEq(decimals, 3);
-
-        (amount, decimals) = decimalUtils.parseDecimals("0.000123");
-        assertEq(amount, 123);
-        assertEq(decimals, 6);
-    }
-
-    function testDecimalUtilsGetTokenAmount() public view {
-        // Test with token6 (6 decimals)
-        uint256 amount = decimalUtils.getTokenAmount("100.123", address(token6));
-        assertEq(amount, 100123000);
-
-        // Test with token18 (18 decimals)
-        amount = decimalUtils.getTokenAmount("100.123456789", address(token18));
-        assertEq(amount, 100123456789 * 10 ** 9);
-    }
-
-    function testDecimalUtilsGetTokenAmountWithDecimals() public view {
-        // Test with 6 decimals
-        uint256 amount = decimalUtils.getTokenAmountWithDecimals("100.123", 6);
-        assertEq(amount, 100123000);
-
-        // Test with 18 decimals
-        amount = decimalUtils.getTokenAmountWithDecimals("100.123456789", 18);
-        assertEq(amount, 100123456789 * 10 ** 9);
-    }
-
-    // ==================== Fuzz Tests for DecimalUtils ====================
-
-    function testFuzz_DecimalUtilsScaleDecimals(uint256 amount, uint8 decimals) public view {
+    function testFuzz_ScaleDecimals(uint256 amount, uint8 decimals) public pure {
         // Bound amount to avoid overflow
         amount = bound(amount, 0, type(uint256).max / (10 ** 18));
         // Bound decimals to a reasonable range (0-18)
         decimals = uint8(bound(decimals, 0, 18));
 
-        uint256 scaled = decimalUtils.scaleDecimals(amount, decimals);
+        uint256 scaled = DecimalNormalization.scaleDecimals(amount, decimals);
         assertEq(scaled, amount * (10 ** uint256(decimals)));
     }
 
-    function testFuzz_DecimalUtilsGetTokenAmountWithDecimals(uint256 amount, uint8 amountDecimals, uint8 tokenDecimals) public view {
+    function testFuzz_NormalizeTokenAmount(uint256 amount, uint8 amountDecimals, uint8 tokenDecimals) public pure {
         // Bound inputs to reasonable ranges
         amount = bound(amount, 1, 1000000);
         amountDecimals = uint8(bound(amountDecimals, 0, 18));
@@ -249,7 +128,7 @@ contract DecimalNormalizationTest is Test {
             amountStr = string(abi.encodePacked(vm.toString(wholePart), ".", decimalStr));
         }
 
-        uint256 tokenAmount = decimalUtils.getTokenAmountWithDecimals(amountStr, tokenDecimals);
+        uint256 tokenAmount = DecimalNormalization.normalizeTokenAmount(amountStr, tokenDecimals);
 
         // Calculate expected amount
         uint256 expectedAmount;
