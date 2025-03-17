@@ -77,16 +77,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         bytes32 newValue;
     }
 
-    /// @notice Struct to store extra parameters for the safe transaction
-    /// @dev    Used to avoid stack too deep errors
-    struct SafeTxExtraParameters {
-        uint256 safeTxGas;
-        uint256 baseGas;
-        uint256 gasPrice;
-        address gasToken;
-        address refundReceiver;
-    }
-
     /// @notice Enum to determine the type of task
     enum TaskType {
         L2TaskBase,
@@ -338,8 +328,51 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     }
 
     /// @notice print the hash to approve by EOA for parent/root multisig
-    function printParentHash(bytes memory callData) public view {
+    function printParentHash(bytes memory callData) public {
         console.logBytes32(getHash(callData, parentMultisig));
+
+        outputOPVerifyInputToFile(parentMultisig, callData);
+
+        bytes memory encodedTxData = getEncodedTransactionData(parentMultisig, callData);
+        printDomainSeparatorAndMessageHash(parentMultisig, encodedTxData);
+    }
+
+    function outputOPVerifyInputToFile(address safe, bytes memory callData) private {
+        bool genVerifyInput = vm.envOr("GEN_VERIFY_INPUT", false);
+        string memory filepath = vm.envOr("OP_VERIFY_INPUT_FILEPATH", new string(0));
+        uint256 _nonce = _getNonce(safe);
+        if (genVerifyInput) {
+            require(!filepath.eq(""), "GEN_VERIFY_INPUT is true but OP_VERIFY_INPUT_FILEPATH is not set");
+            string memory json = string.concat(
+                '{\n   "safe": "',
+                vm.toString(safe),
+                '",\n   "chain": ',
+                vm.toString(block.chainid),
+                ',\n   "to": "',
+                vm.toString(_getMulticallAddress(safe)),
+                '",\n   "value": ',
+                vm.toString(uint256(0)),
+                ',\n   "data": "',
+                vm.toString(callData),
+                '",\n   "operation": ',
+                vm.toString(uint8(Enum.Operation.DelegateCall)),
+                ',\n   "safe_tx_gas": ',
+                vm.toString(uint256(0)),
+                ',\n   "base_gas": ',
+                vm.toString(uint256(0)),
+                ',\n   "gas_price": ',
+                vm.toString(uint256(0)),
+                ',\n   "gas_token": "',
+                vm.toString(address(0)),
+                '",\n   "refund_receiver": "',
+                vm.toString(address(0)),
+                '",\n   "nonce": ',
+                vm.toString(_nonce),
+                "\n}"
+            );
+            vm.writeFile(filepath, json);
+            console.log("Wrote verify input to %s", filepath);
+        }
     }
 
     function _getNonce(address safe) internal view returns (uint256) {
@@ -466,65 +499,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
         bool success = false;
 
-        SafeTxExtraParameters memory extraParams = SafeTxExtraParameters({
-            safeTxGas: 0,
-            baseGas: 0,
-            gasPrice: 0,
-            gasToken: address(0),
-            refundReceiver: address(0)
-        });
         require(gasleft() > 500_000, "MultisigTask: Insufficient gas for execTransaction"); // Ensure try/catch is EIP-150 safe.
         try IGnosisSafe(multisig).execTransaction(
-            target,
-            value,
-            data,
-            operationType,
-            extraParams.safeTxGas,
-            extraParams.baseGas,
-            extraParams.gasPrice,
-            extraParams.gasToken,
-            extraParams.refundReceiver,
-            signatures
+            target, value, data, operationType, 0, 0, 0, address(0), payable(address(0)), signatures
         ) returns (bool execStatus) {
             success = execStatus;
         } catch (bytes memory err) {
             console.log("Error executing multisig transaction");
             console.logBytes(err);
-        }
-
-        bool genVerifyInput = vm.envOr("GEN_VERIFY_INPUT", false);
-        string memory filepath = vm.envOr("OP_VERIFY_INPUT_FILEPATH", new string(0));
-        if (genVerifyInput) {
-            require(!filepath.eq(""), "GEN_VERIFY_INPUT is true but OP_VERIFY_INPUT_FILEPATH is not set");
-            string memory json = string.concat(
-                '{\n   "safe": "',
-                vm.toString(multisig),
-                '",\n   "chain": ',
-                vm.toString(block.chainid),
-                ',\n   "to": "',
-                vm.toString(target),
-                '",\n   "value": ',
-                vm.toString(value),
-                ',\n   "data": "',
-                vm.toString(data),
-                '",\n   "operation": ',
-                vm.toString(uint8(operationType)),
-                ',\n   "safe_tx_gas": ',
-                vm.toString(extraParams.safeTxGas),
-                ',\n   "base_gas": ',
-                vm.toString(extraParams.baseGas),
-                ',\n   "gas_price": ',
-                vm.toString(extraParams.gasPrice),
-                ',\n   "gas_token": "',
-                vm.toString(extraParams.gasToken),
-                '",\n   "refund_receiver": "',
-                vm.toString(extraParams.refundReceiver),
-                '",\n   "nonce": ',
-                vm.toString(nonce),
-                "\n}"
-            );
-            vm.writeFile(filepath, json);
-            console.log("Wrote verify input to %s", filepath);
         }
 
         require(success, "MultisigTask: execute failed");
@@ -638,7 +620,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         VmSafe.AccountAccess[] memory accountAccesses,
         address optionalChildMultisig,
         bool isSimulate
-    ) public view {
+    ) public {
         console.log("\n------------------ Task Actions ------------------");
         for (uint256 i; i < actions.length; i++) {
             console.log("%d). %s", i + 1, actions[i].description);
@@ -653,7 +635,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     }
 
     /// @notice Prints all relevant hashes to sign as well as the tenderly simulation link.
-    function printSafe(Action[] memory actions, address optionalChildMultisig, bool isSimulate) private view {
+    function printSafe(Action[] memory actions, address optionalChildMultisig, bool isSimulate) private {
         // Print calldata to be executed within the Safe.
         console.log("\n\n------------------ Task Calldata ------------------");
         console.logBytes(getMulticall3Calldata(actions));
@@ -673,7 +655,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     }
 
     /// @notice Helper function to print nested calldata.
-    function printNestedData(Action[] memory actions, address childMultisig) private view {
+    function printNestedData(Action[] memory actions, address childMultisig) private {
         console.log("\n\n------------------ Nested Multisig EOAs Data to Sign ------------------");
         printNestedDataToSign(actions, childMultisig);
         console.log("\n\n------------------ Nested Multisig EOAs Hash to Approve ------------------");
@@ -681,7 +663,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     }
 
     /// @notice helper function to print non-nested safe calldata
-    function printSingleData(Action[] memory actions) private view {
+    function printSingleData(Action[] memory actions) private {
         console.log("\n\n------------------ Single Multisig EOA Data to Sign ------------------");
         printEncodedTransactionData(actions);
         console.log("\n\n------------------ Single Multisig EOA Hash to Approve ------------------");
@@ -703,7 +685,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     }
 
     /// @notice Print the hash to approve by EOA for nested multisig.
-    function printChildHash(Action[] memory actions, address childMultisig) public view {
+    function printChildHash(Action[] memory actions, address childMultisig) public {
         require(
             childMultisig != address(0), "MultisigTask: Child multisig cannot be zero address when printing child hash."
         );
@@ -714,6 +696,12 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         bytes memory encodedTxData = getEncodedTransactionData(childMultisig, callData);
         require(encodedTxData.length == 66, "MultisigTask: encodedTxData length is not 66 bytes.");
 
+        outputOPVerifyInputToFile(childMultisig, callData);
+
+        printDomainSeparatorAndMessageHash(childMultisig, encodedTxData);
+    }
+
+    function printDomainSeparatorAndMessageHash(address safe, bytes memory encodedTxData) private view {
         bytes32 safeTxHash;
         assembly {
             // 66 bytes = (bytes1(0x19), bytes1(0x01), bytes32(domainSeparator()), bytes32(safeTxHash))
@@ -726,7 +714,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             safeTxHash := mload(add(encodedTxData, mload(encodedTxData)))
         }
 
-        bytes32 domainSeparator = GnosisSafeHashes.calculateDomainSeparator(block.chainid, childMultisig);
+        bytes32 domainSeparator = GnosisSafeHashes.calculateDomainSeparator(block.chainid, safe);
         console.log("Domain Hash:    ", vm.toString(domainSeparator));
         console.log("Message Hash:   ", vm.toString(safeTxHash));
     }
