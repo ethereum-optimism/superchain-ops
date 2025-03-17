@@ -60,28 +60,3 @@ forge script src/improvements/template/GasConfigTemplate.sol --sig "simulateRun(
 ```
 
 Calldata diff can be found here https://www.diffchecker.com/HA7YFSWi/, select character comparison to see the difference.
-
-
-## Using OP Verify
-
-First we need to generate an inputs file which we would use as an input to the OP Verify tool. To do this we run this command, firstly, `cd` into the folder of the task, next run
-
-```
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/single.just simulate true "<output file name>.json"
-```
-
-This will generate a file with the name `<output file name>.json`. It will also print the domain and message hashes from the local simulation, keep note of this.
-
-Next we need to clone the OP Verify repository from https://github.com/ethereum-optimism/op-verify
-
-```bash
-git clone https://github.com/ethereum-optimism/op-verify
-```
-
-Next create a file in the `op-verify` directory called `<output file name>.json` and copy-paste the contents of the `<output file name>.json` file to it. Then run
-
-```bash
-go run ./cmd/op-verify --tx <file name>.json
-```
-
-This will output details about the transaction, including the domain and message hashes. **Compare these to the domain and message hashes you noted down earlier to check if the OP Verify tool is working correctly.**
