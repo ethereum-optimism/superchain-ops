@@ -12,6 +12,7 @@ operations = [
 ]
 
 [addresses]
+# SafeToSendFrom cannot be an address from addresses.toml
 "SafeToSendFrom" = "0xcBC62730b54BFE94173B1182FA56Db1393451d4e"
 "ETH" = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
 "TEST" = "0xBB4daAC11B4446EE1c6146De1e26ecf1Ab8b3EB6"
