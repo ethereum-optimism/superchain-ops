@@ -23,7 +23,7 @@ The input to the `updatePrestate()` function is an array of the following struct
 ```
 
 The prestate hash used is: `0x0354eee87a1775d96afee8977ef6d5d6bd3612b256170952a01bf1051610ee01`.
-Which was taken from [validation/standard/standard-prestates.toml](https://github.com/ethereum-optimism/superchain-registry/blob/2c60e5723c64b5a1b58ab72c5d3816927ff9391a/validation/standard/standard-prestates.toml#L14).
+Which was taken from [validation/standard/standard-prestates.toml](https://github.com/ethereum-optimism/superchain-registry/blob/2c60e5723c64b5a1b58ab72c5d3816927ff9391a/validation/standard/standard-prestates.toml#L6).
 
 The input can therefore be generated [from](https://github.com/ethereum-optimism/superchain-registry/blob/fb6f538e17ee296b19536b03b8c73adc6041c60d/superchain/configs/sepolia/op.toml#L58-L59):
 
