@@ -9,6 +9,7 @@ import {SimpleBase} from "src/improvements/tasks/MultisigTask.sol";
 import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import {LibString} from "@solady/utils/LibString.sol";
+import {ERC20} from "@solady/tokens/ERC20.sol";
 import {stdToml} from "lib/forge-std/src/StdToml.sol";
 import {EnumerableSet} from "lib/openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
 
@@ -19,7 +20,18 @@ contract FinanceTemplate is SimpleBase {
     using stdToml for string;
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    /// @notice Operation struct
+    /// @notice Operation struct as read in from the `config.toml` file
+    /// @param amount The amount of tokens for the operation, specified
+    /// as a decimal. i.e. `100.1`
+    /// @param target The target address for the operation
+    /// @param token The token address for the operation
+    struct FileOperation {
+        string amount;
+        string target;
+        string token;
+    }
+
+    /// @notice Operation struct that is persisted to storage
     /// @param amount The amount of tokens for the operation
     /// @param target The target address for the operation
     /// @param token The token address for the operation
@@ -74,6 +86,57 @@ contract FinanceTemplate is SimpleBase {
         return new string[](0);
     }
 
+    /// @notice add the decimals to the given amount
+    /// @param amount The amount to scale
+    /// @param decimals The number of decimals to scale by
+    function scaleDecimals(uint256 amount, uint8 decimals) public pure returns (uint256) {
+        return amount * (10 ** uint256(decimals));
+    }
+
+    /// @notice returns the amount with the length of the decimals parsed
+    /// @param amount The amount to parse
+    /// @return The amount and the number of decimals
+    function parseDecimals(string memory amount) public pure returns (uint256, uint8) {
+        string[] memory components = amount.split(".");
+        uint256 decimals;
+        if (components.length == 2) {
+            decimals = bytes(components[1]).length;
+            require(decimals != 0, "decimals cannot be 0");
+        }
+
+        /// handle the no decimal cases:
+        ///   amount is "100", or amount is "100.0" "100.00", etc
+        if (components.length == 1 || vm.parseUint(components[1]) == 0) {
+            // no decimals
+            return (vm.parseUint(components[0]), 0);
+        } else if (components.length == 2) {
+            // handle the decimals case
+            require(decimals <= 18, "decimals must be less than or equal to 18");
+            uint256 tokenAmount = vm.parseUint(components[0]);
+            require(tokenAmount != 0, "token amount must be non zero");
+
+            return (
+                scaleDecimals(tokenAmount, uint8(decimals)) + vm.parseUint(components[1]),
+                uint8(decimals)
+            );
+        }
+
+        revert("invalid amount");
+    }
+
+    /// @notice converts string to a scaled up token amount in decimal form
+    /// @param amount string representation of the amount
+    /// @param token address of the token to send, used discovering the decimals
+    /// returns the scaled up token amount
+    function getTokenAmount(string memory amount, address token) public view returns (uint256) {
+        (uint256 scaledAmount, uint8 amountDecimals) = parseDecimals(amount);
+        uint8 decimals = ERC20(token).decimals();
+
+        require(amountDecimals <= decimals, "amount decimals must be less than or equal to token decimals");
+
+        return scaleDecimals(scaledAmount, decimals - amountDecimals);
+    }
+
     /// @notice Sets up the template with module configuration from a TOML file
     /// @param taskConfigFilePath Path to the TOML configuration file
     function _templateSetup(string memory taskConfigFilePath) internal override {
@@ -83,9 +146,15 @@ contract FinanceTemplate is SimpleBase {
 
         // Cannot decode directly to storage array, decode to memory first
         // and then push to storage array
-        Operation[] memory operationsMemory = abi.decode(toml.parseRaw(".operations"), (Operation[]));
+        FileOperation[] memory operationsMemory = abi.decode(toml.parseRaw(".operations"), (FileOperation[]));
         for (uint256 i = 0; i < operationsMemory.length; i++) {
-            operations.push(operationsMemory[i]);
+            Operation memory taskOperation = Operation({
+                amount: getTokenAmount(operationsMemory[i].amount, simpleAddrRegistry.get(operationsMemory[i].token)),
+                target: operationsMemory[i].target,
+                token: operationsMemory[i].token
+            });
+
+            operations.push(taskOperation);
         }
 
         assertNotEq(operations.length, 0, "there must be at least one operation");
