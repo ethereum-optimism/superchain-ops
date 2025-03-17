@@ -100,7 +100,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 ### Task State Changes
 
 <pre>
- <code>
+  <code>
   ----- DecodedStateDiff[0] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/superchain/configs/sepolia/op.toml#L59">0x034edD2A225f7f429A63E0f1D2084B9E0A93b538</a>
     Contract:          SystemConfig - OP Sepolia Testnet
@@ -1027,6 +1027,7 @@ For each contract listed in the state diff, please verify that no contracts or s
     Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/c1bcf3601dfdf72f0fd4f5bade180b9c0f94d93b/validation/standard/standard-versions-sepolia.toml#L38">0x78972E88Ab8BBB517a36cAea23b931BAB58AD3c6</a>
     Summary:           ERC-1967 implementation slot
     Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+  </code>
  </pre>
 
 # Supplementary Material
