@@ -8,10 +8,10 @@ templateName = "OPCMUpgradeV200"
 absolutePrestates = [
     {absolutePrestate = "0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9", chainId = 84532},
 ]
-standardValidatorV200 = "0x37739a6b0a3F1E7429499a4eC4A0685439Daff5C"
 
 [addresses]
 OPCM = "0x1B25F566336F47BC5E0036D66E142237DcF4640b"
+StandardValidatorV200 = "0x37739a6b0a3F1E7429499a4eC4A0685439Daff5C"
 
 [stateOverrides]
 # SuperchainConfig op-contracts/v2.0.0 implementation address set. This task assumes upgrade controller has already called OPCM upgrade.
