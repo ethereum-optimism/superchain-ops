@@ -149,7 +149,7 @@ simulate-non-terminal-tasks:
 
     # Later this networks list should be dynamically generated from the src/improvements/tasks directory,
     # and we should exclude the example tasks once we have real tasks to run.
-    for task_path in ${root_dir}/src/improvements/tasks/example/*/*; do
+    for task_path in ${root_dir}/test/tasks/example/*/*; do
         # Skip tasks marked as SIGNED or EXECUTED
         status=$(grep -i "Status:" "$task_path/README.md" | sed -n 's/.*Status: \[\(.*\)\].*/\1/p')
         if [ "$status" = "SIGNED" ] || [ "$status" = "EXECUTED" ]; then
