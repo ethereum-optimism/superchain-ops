@@ -154,8 +154,8 @@ contract SingleMultisigTaskTest is Test {
     function testGetDataToSign() public {
         (, MultisigTask.Action[] memory actions) = runTask();
         addrRegistry = multisigTask.addrRegistry();
-        bytes memory callData = multisigTask.getMulticall3Calldata(actions);
-        bytes memory dataToSign = multisigTask.getEncodedTransactionData(multisigTask.parentMultisig(), callData);
+        (bytes memory callData, uint256 value) = multisigTask.getMulticall3CalldataAndValue(actions);
+        bytes memory dataToSign = multisigTask.getEncodedTransactionData(multisigTask.parentMultisig(), callData, value);
 
         // The nonce is decremented by 1 because we want to recreate the data to sign with the same nonce
         // that was used in the simulation. The nonce was incremented as part of running the simulation.
@@ -176,8 +176,8 @@ contract SingleMultisigTaskTest is Test {
 
     function testHashToApprove() public {
         (, MultisigTask.Action[] memory actions) = runTask();
-        bytes memory callData = multisigTask.getMulticall3Calldata(actions);
-        bytes32 hash = multisigTask.getHash(callData, multisigTask.parentMultisig());
+        (bytes memory callData, uint256 value) = multisigTask.getMulticall3CalldataAndValue(actions);
+        bytes32 hash = multisigTask.getHash(callData, multisigTask.parentMultisig(), value);
         bytes32 expectedHash = IGnosisSafe(multisigTask.parentMultisig()).getTransactionHash(
             MULTICALL3_ADDRESS,
             0,
@@ -255,8 +255,8 @@ contract SingleMultisigTaskTest is Test {
         (, MultisigTask.Action[] memory actions) = runTask();
         addrRegistry = multisigTask.addrRegistry();
         multisigTask.processTaskActions(actions);
-        bytes memory callData = multisigTask.getMulticall3Calldata(actions);
-        bytes memory dataToSign = multisigTask.getEncodedTransactionData(multisigTask.parentMultisig(), callData);
+        (bytes memory callData, uint256 value) = multisigTask.getMulticall3CalldataAndValue(actions);
+        bytes memory dataToSign = multisigTask.getEncodedTransactionData(multisigTask.parentMultisig(), callData, value);
         address multisig = multisigTask.parentMultisig();
         address systemConfigMode = toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigProxy", 34443);
         address systemConfigMetal = toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigProxy", 1750);

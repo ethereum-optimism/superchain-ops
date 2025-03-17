@@ -48,12 +48,12 @@ abstract contract OPCMTaskBase is L2TaskBase {
     /// @dev callable only after the build function has been run and the
     /// calldata has been loaded up to storage. This function uses aggregate3
     /// instead of aggregate3Value because OPCM tasks use Multicall3DelegateCall.
-    /// @return data The calldata to be executed
-    function getMulticall3Calldata(MultisigTask.Action[] memory actions)
+    /// @return data The calldata to be executed and the value to be sent set to 0
+    function getMulticall3CalldataAndValue(MultisigTask.Action[] memory actions)
         public
         pure
         override
-        returns (bytes memory data)
+        returns (bytes memory data, uint256 value)
     {
         (address[] memory targets,, bytes[] memory arguments) = processTaskActions(actions);
 
@@ -65,6 +65,8 @@ abstract contract OPCMTaskBase is L2TaskBase {
         }
 
         data = abi.encodeWithSignature("aggregate3((address,bool,bytes)[])", calls);
+        // value is 0 because we are using Multicall3DelegateCall
+        value = 0;
     }
 
     function validate(VmSafe.AccountAccess[] memory accesses, MultisigTask.Action[] memory actions) public override {
