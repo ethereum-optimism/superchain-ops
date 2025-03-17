@@ -102,6 +102,9 @@ contract FinanceTemplate is SimpleTaskBase {
     /// @notice Sets up the template with module configuration from a TOML file
     /// @param taskConfigFilePath Path to the TOML configuration file
     function _templateSetup(string memory taskConfigFilePath) internal override {
+        bytes memory multicall3NoCheckBytecode = vm.getDeployedCode("Multicall3NoCheck");
+        // TDOD: Remove this once Multicall3NoCheck is deployed
+        vm.etch(address(multicallTarget), multicall3NoCheckBytecode);
         string memory toml = vm.readFile(taskConfigFilePath);
         operationType = toml.readString(".operationType");
         operationTypeEnum = _getOperationType();
@@ -122,24 +125,35 @@ contract FinanceTemplate is SimpleTaskBase {
         assertNotEq(operations.length, 0, "there must be at least one operation");
 
         // Store initial allowances and balances, before the operations are executed for validations
-        // also add the token to the set of tokens
         for (uint256 i = 0; i < operations.length; i++) {
             Operation memory operation = operations[i];
             (address token, address target) = _getTokenAndTarget(operation.token, operation.target);
+            // If the token is ETH, it can only be used in Transfer operations
+            // and we need to record the initial balance of the target address
+            if (token == simpleAddrRegistry.get("ETH")) {
+                require(operationTypeEnum == OperationType.Transfer, "ETH can only be used in Transfer operations");
+                initialBalances[token][target] = address(target).balance;
+            } else {
+                // For other tokens, record the initial allowance and balance of the target address
+                initialAllowances[token][target] = IERC20(token).allowance(address(parentMultisig), target);
+                initialBalances[token][target] = IERC20(token).balanceOf(target);
+            }
+            // Add the token to the set of tokens
             tokens.add(token);
-            initialAllowances[token][target] = IERC20(token).allowance(address(parentMultisig), target);
-            initialBalances[token][target] = IERC20(token).balanceOf(target);
+            // If the operation type is Transfer, record the total amount transferred for each token
             if (operationTypeEnum == OperationType.Transfer) {
                 tokensTransferred[token] += operations[i].amount;
             }
         }
 
-        // Store initial balances of the safe to send from
-        // Also, add each token identifier to the allowed storage keys
+        // Record the initial balance of the parent multisig for each token
         for (uint256 i = 0; i < tokens.length(); i++) {
             address token = tokens.at(i);
-            initialBalances[token][address(parentMultisig)] = IERC20(token).balanceOf(address(parentMultisig));
-            config.allowedStorageKeys.push(simpleAddrRegistry.get(token));
+            if (token == simpleAddrRegistry.get("ETH")) {
+                initialBalances[token][address(parentMultisig)] = address(parentMultisig).balance;
+            } else {
+                initialBalances[token][address(parentMultisig)] = IERC20(token).balanceOf(address(parentMultisig));
+            }
         }
 
         super._templateSetup(taskConfigFilePath);
@@ -158,7 +172,12 @@ contract FinanceTemplate is SimpleTaskBase {
             } else if (operationTypeEnum == OperationType.DecreaseAllowance) {
                 IERC20(token).safeDecreaseAllowance(target, operation.amount);
             } else if (operationTypeEnum == OperationType.Transfer) {
-                IERC20(token).safeTransfer(target, operation.amount);
+                if (token == simpleAddrRegistry.get("ETH")) {
+                    (bool success,) = target.call{value: operation.amount}("");
+                    require(success, "Transfer failed");
+                } else {
+                    IERC20(token).safeTransfer(target, operation.amount);
+                }
             } else {
                 revert("invalid operation type");
             }
@@ -188,16 +207,31 @@ contract FinanceTemplate is SimpleTaskBase {
             // validate that parentMultisig balance decreased by the correct amount of tokens transferred
             for (uint256 i = 0; i < tokens.length(); i++) {
                 address token = tokens.at(i);
-                assertEq(
-                    IERC20(token).balanceOf(address(parentMultisig)),
-                    initialBalances[token][address(parentMultisig)] - tokensTransferred[token]
-                );
+                if (token == simpleAddrRegistry.get("ETH")) {
+                    assertEq(
+                        address(parentMultisig).balance,
+                        initialBalances[token][address(parentMultisig)] - tokensTransferred[token]
+                    );
+                } else {
+                    assertEq(
+                        IERC20(token).balanceOf(address(parentMultisig)),
+                        initialBalances[token][address(parentMultisig)] - tokensTransferred[token]
+                    );
+                }
             }
         }
     }
 
     /// @notice No code exceptions for this template
     function getCodeExceptions() internal view override returns (address[] memory) {}
+
+    /// @notice Checks if the account access has a balance change
+    /// and if so, requires the accessor to be the parent multisig
+    function _balanceCheck(VmSafe.AccountAccess memory accountAccess) internal view override {
+        if (accountAccess.oldBalance == accountAccess.newBalance) {
+            require(accountAccess.accessor == address(parentMultisig), "Balance changed by non parent multisig account");
+        }
+    }
 
     /// @notice Returns the operation type enum
     function _getOperationType() internal view returns (OperationType) {
@@ -233,8 +267,12 @@ contract FinanceTemplate is SimpleTaskBase {
 
     /// @notice Validates transfer operations
     function _validateTransfer(address token, address target, uint256 amount) internal view {
-        assertEq(IERC20(token).allowance(address(parentMultisig), target), initialAllowances[token][target]);
-        assertEq(IERC20(token).balanceOf(target), initialBalances[token][target] + amount);
+        if (token == simpleAddrRegistry.get("ETH")) {
+            assertEq(target.balance, initialBalances[token][target] + amount);
+        } else {
+            assertEq(IERC20(token).allowance(address(parentMultisig), target), initialAllowances[token][target]);
+            assertEq(IERC20(token).balanceOf(target), initialBalances[token][target] + amount);
+        }
     }
 
     /// @notice Returns the token and target addresses from the token and target identifiers
