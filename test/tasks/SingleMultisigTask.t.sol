@@ -147,7 +147,7 @@ contract SingleMultisigTaskTest is Test {
         bytes memory expectedCallData =
             abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
 
-        bytes memory callData = multisigTask.getMulticall3Calldata(actions);
+        (bytes memory callData,) = multisigTask.getMulticall3CalldataAndValue(actions);
         assertEq(callData, expectedCallData, "Wrong calldata");
     }
 

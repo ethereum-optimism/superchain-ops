@@ -135,13 +135,14 @@ contract MultisigTaskUnitTest is Test {
         MockTarget mock = new MockTarget();
         bytes memory callData = abi.encodeWithSelector(MockTarget.foobar.selector);
         MultisigTask.Action[] memory actions = createActions(address(mock), callData, 0, Enum.Operation.Call, "");
+        (bytes memory data, uint256 value) = task.getMulticall3CalldataAndValue(actions);
         vm.mockCall(
             multisig,
             abi.encodeWithSelector(
                 IGnosisSafe.getTransactionHash.selector,
                 MULTICALL3_ADDRESS,
-                0,
-                task.getMulticall3Calldata(actions),
+                value,
+                data,
                 Enum.Operation.DelegateCall,
                 0,
                 0,
@@ -248,7 +249,7 @@ contract MultisigTaskUnitTest is Test {
 
         bytes memory expectedData = abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
 
-        bytes memory data = task.getMulticall3Calldata(actions);
+        (bytes memory data,) = task.getMulticall3CalldataAndValue(actions);
 
         assertEq(data, expectedData, "Wrong aggregate calldata");
     }
