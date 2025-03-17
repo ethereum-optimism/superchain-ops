@@ -52,6 +52,7 @@ contract EnableDeputyPauseModuleTemplate is SimpleBase {
     /// @notice Sets up the template with module configuration from a TOML file
     /// @param taskConfigFilePath Path to the TOML configuration file
     function _templateSetup(string memory taskConfigFilePath) internal override {
+        super._templateSetup(taskConfigFilePath);
         string memory file = vm.readFile(taskConfigFilePath);
         newModule = vm.parseTomlAddress(file, ".newModule");
         assertNotEq(newModule.code.length, 0, "new module must have code");
@@ -94,11 +95,11 @@ contract EnableDeputyPauseModuleTemplate is SimpleBase {
 
         bool moduleWriteFound;
 
-        address[] memory uniqueWrites = accountAccesses.getUniqueWrites();
+        address[] memory uniqueWrites = accountAccesses.getUniqueWrites(false);
         assertEq(uniqueWrites.length, 1, "should only write to foundation ops safe");
         assertEq(uniqueWrites[0], parentMultisig, "should only write to foundation ops safe address");
 
-        AccountAccessParser.StateDiff[] memory accountWrites = accountAccesses.getStateDiffFor(parentMultisig);
+        AccountAccessParser.StateDiff[] memory accountWrites = accountAccesses.getStateDiffFor(parentMultisig, false);
 
         for (uint256 i = 0; i < accountWrites.length; i++) {
             AccountAccessParser.StateDiff memory storageAccess = accountWrites[i];

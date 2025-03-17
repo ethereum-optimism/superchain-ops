@@ -6,6 +6,7 @@ import {console} from "forge-std/console.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
 import {LibString} from "@solady/utils/LibString.sol";
+import {LibSort} from "@solady/utils/LibSort.sol";
 
 /// @notice Parses account accesses into decoded transfers and state diffs.
 /// The core methods intended to be part of the public interface are `decodeAndPrint`, `decode`,
@@ -23,13 +24,16 @@ import {LibString} from "@solady/utils/LibString.sol";
 ///         (
 ///             AccountAccessParser.DecodedTransfer[] memory transfers,
 ///             AccountAccessParser.DecodedStateDiff[] memory diffs
-///         ) = accountAccesses.decode();
+///         ) = accountAccesses.decode(false);
 ///
 ///         // Get the state diff for a given account.
-///         StateDiff[] memory diffs = accountAccesses.getStateDiffFor(myContract);
+///         StateDiff[] memory diffs = accountAccesses.getStateDiffFor(myContract, false);
 ///
 ///         // Get an array of all unique accounts that had state changes.
-///         address[] memory accountsWithStateChanges = accountAccesses.getUniqueWrites();
+///         address[] memory accountsWithStateChanges = accountAccesses.getUniqueWrites(false);
+///
+///         // Get all new contracts created.
+///         address[] memory newContracts = accountAccesses.getNewContracts();
 ///     }
 /// }
 /// ```
@@ -132,12 +136,13 @@ library AccountAccessParser {
 
     /// @notice Convenience function that wraps decode and print together.
     function decodeAndPrint(VmSafe.AccountAccess[] memory _accesses) internal view {
-        (DecodedTransfer[] memory transfers, DecodedStateDiff[] memory stateDiffs) = decode(_accesses);
+        // We always want to sort all state diffs before printing them.
+        (DecodedTransfer[] memory transfers, DecodedStateDiff[] memory stateDiffs) = decode(_accesses, true);
         print(transfers, stateDiffs);
     }
 
     /// @notice Decodes the provided AccountAccess array into decoded transfers and state diffs.
-    function decode(VmSafe.AccountAccess[] memory _accountAccesses)
+    function decode(VmSafe.AccountAccess[] memory _accountAccesses, bool _sort)
         internal
         view
         noGasMetering
@@ -170,11 +175,12 @@ library AccountAccessParser {
         }
 
         // --- State diffs ---
-        address[] memory uniqueAccounts = getUniqueWrites(_accountAccesses);
+        // The order of 'uniqueAccounts' informs the order that the account state diffs get processed.
+        address[] memory uniqueAccounts = getUniqueWrites(_accountAccesses, _sort);
         uint256 totalDiffCount = 0;
         // Count the total number of net state diffs.
         for (uint256 i = 0; i < uniqueAccounts.length; i++) {
-            StateDiff[] memory accountDiffs = getStateDiffFor(_accountAccesses, uniqueAccounts[i]);
+            StateDiff[] memory accountDiffs = getStateDiffFor(_accountAccesses, uniqueAccounts[i], false); // no need to sort here
             totalDiffCount += accountDiffs.length;
         }
 
@@ -182,7 +188,7 @@ library AccountAccessParser {
         stateDiffs = new DecodedStateDiff[](totalDiffCount);
         uint256 index = 0;
         for (uint256 i = 0; i < uniqueAccounts.length; i++) {
-            StateDiff[] memory accountDiffs = getStateDiffFor(_accountAccesses, uniqueAccounts[i]);
+            StateDiff[] memory accountDiffs = getStateDiffFor(_accountAccesses, uniqueAccounts[i], _sort);
             for (uint256 j = 0; j < accountDiffs.length; j++) {
                 address who = uniqueAccounts[i];
                 (uint256 l2ChainId, string memory contractName) = getContractInfo(who);
@@ -200,6 +206,7 @@ library AccountAccessParser {
         }
     }
 
+    /// @notice Extracts all unique contract creations from the provided account accesses.
     function getNewContracts(VmSafe.AccountAccess[] memory accesses)
         internal
         pure
@@ -226,7 +233,7 @@ library AccountAccessParser {
     }
 
     /// @notice Extracts all unique storage writes (i.e. writes where the value has actually changed)
-    function getUniqueWrites(VmSafe.AccountAccess[] memory accesses)
+    function getUniqueWrites(VmSafe.AccountAccess[] memory accesses, bool _sort)
         internal
         pure
         returns (address[] memory uniqueAccounts)
@@ -262,12 +269,17 @@ library AccountAccessParser {
         for (uint256 i = 0; i < count; i++) {
             uniqueAccounts[i] = temp[i];
         }
+
+        // sort the unique accounts
+        if (_sort) {
+            LibSort.sort(uniqueAccounts);
+        }
     }
 
     /// @notice Extracts the net state diffs for a given account from the provided account accesses.
     /// It deduplicates writes by slot and returns an array of StateDiff structs where each slot
     /// appears only once and for each entry oldValue != newValue.
-    function getStateDiffFor(VmSafe.AccountAccess[] memory accesses, address who)
+    function getStateDiffFor(VmSafe.AccountAccess[] memory accesses, address who, bool _sort)
         internal
         pure
         returns (StateDiff[] memory diffs)
@@ -315,11 +327,30 @@ library AccountAccessParser {
         for (uint256 i = 0; i < finalCount; i++) {
             diffs[i] = temp[i];
         }
+
+        if (_sort && finalCount > 1) {
+            sortStateDiffsBySlot(diffs);
+        }
     }
 
     // =========================================
     // ======== Internal helper methods ========
     // =========================================
+
+    /// @notice Sorts an array of StateDiff structs by their slot values in ascending order
+    function sortStateDiffsBySlot(StateDiff[] memory diffs) internal pure {
+        uint256 length = diffs.length;
+        // Simple bubble sort implementation
+        for (uint256 i = 0; i < length - 1; i++) {
+            for (uint256 j = 0; j < length - i - 1; j++) {
+                if (uint256(diffs[j].slot) > uint256(diffs[j + 1].slot)) {
+                    StateDiff memory temp = diffs[j];
+                    diffs[j] = diffs[j + 1];
+                    diffs[j + 1] = temp;
+                }
+            }
+        }
+    }
 
     /// @notice Prints the decoded transfers and state diffs to the console.
     function print(DecodedTransfer[] memory _transfers, DecodedStateDiff[] memory _stateDiffs)

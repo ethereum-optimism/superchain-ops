@@ -9,11 +9,14 @@ import {GameTypes} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {LibSort} from "@solady/utils/LibSort.sol";
 import {Test} from "forge-std/Test.sol";
 import {VmSafe} from "forge-std/Vm.sol";
+import {LibString} from "@solady/utils/LibString.sol";
 
 import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
-import {TestOPCMUpgradeVxyz} from "src/improvements/template/TestOPCMUpgradeVxyz.sol";
-import {DisputeGameUpgradeTemplate} from "src/improvements/template/DisputeGameUpgradeTemplate.sol";
+import {DisputeGameUpgradeTemplate} from "test/tasks/mock/template/DisputeGameUpgradeTemplate.sol";
+import {OPCMUpgradeV200} from "src/improvements/template/OPCMUpgradeV200.sol";
+import {MockDisputeGameTask} from "test/tasks/mock/MockDisputeGameTask.sol";
+import {DisputeGameUpgradeTemplate} from "test/tasks/mock/template/DisputeGameUpgradeTemplate.sol";
 
 /// @notice This test is used to test the nested multisig task.
 contract NestedMultisigTaskTest is Test {
@@ -32,28 +35,33 @@ contract NestedMultisigTaskTest is Test {
     uint256 public constant OWNER_COUNT_STORAGE_OFFSET = 3;
     uint256 public constant THRESHOLD_STORAGE_OFFSET = 4;
 
-    /// ProxyAdminOwner safe for the task below is a nested multisig for Op mainnet L2 chain.
-    string taskConfigFilePath = "test/tasks/mock/configs/NestedMultisigDisputeGameUpgradeTemplate.toml";
+    /// @notice ProxyAdminOwner safe for the task below is a nested multisig for Op mainnet L2 chain.
+    string constant taskConfigToml = "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n"
+        "templateName = \"DisputeGameUpgradeTemplate\"\n" "\n"
+        "implementations = [{gameType = 0, implementation = \"0xf691F8A6d908B58C534B624cF16495b491E633BA\", l2ChainId = 10}]\n";
+    address constant SECURITY_COUNCIL_CHILD_MULTISIG = 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03;
 
-    function runTask()
+    function runTask(address childMultisig)
         internal
         returns (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions)
     {
         multisigTask = new DisputeGameUpgradeTemplate();
-        (accountAccesses, actions) = multisigTask.simulateRun(taskConfigFilePath);
+        string memory configFilePath = createTempTomlFile(taskConfigToml);
+        (accountAccesses, actions) = multisigTask.signFromChildMultisig(configFilePath, childMultisig);
+        vm.removeFile(configFilePath);
         addrRegistry = multisigTask.addrRegistry();
         superchainAddrRegistry = SuperchainAddressRegistry(AddressRegistry.unwrap(addrRegistry));
     }
 
     function testSafeNested() public {
         vm.createSelectFork("mainnet");
-        runTask();
+        runTask(SECURITY_COUNCIL_CHILD_MULTISIG);
         assertEq(multisigTask.isNestedSafe(multisigTask.parentMultisig()), true, "Expected isNestedSafe to be true");
     }
 
     function testNestedDataToSignAndHashToApprove() public {
         vm.createSelectFork("mainnet");
-        (, MultisigTask.Action[] memory actions) = runTask();
+        (, MultisigTask.Action[] memory actions) = runTask(SECURITY_COUNCIL_CHILD_MULTISIG);
         IGnosisSafe parentMultisig = IGnosisSafe(multisigTask.parentMultisig());
         address[] memory childOwnerMultisigs = parentMultisig.getOwners();
 
@@ -130,12 +138,13 @@ contract NestedMultisigTaskTest is Test {
         }
     }
 
-    /// @notice test that the data to sign generated in simulateRun for the child multisigs
+    /// @notice Test that the data to sign generated in signFromChildMultisig for the child multisigs
     /// is correct for MultisigTask
     function testNestedExecuteWithSignatures() public {
         vm.createSelectFork("mainnet");
-        uint256 snapshotId = vm.snapshot();
-        (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions) = runTask();
+        uint256 snapshotId = vm.snapshotState();
+        (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions) =
+            runTask(SECURITY_COUNCIL_CHILD_MULTISIG);
         address parentMultisig = multisigTask.parentMultisig();
         address[] memory parentMultisigOwners = IGnosisSafe(parentMultisig).getOwners();
         bytes[] memory childMultisigDatasToSign = new bytes[](parentMultisigOwners.length);
@@ -148,7 +157,7 @@ contract NestedMultisigTaskTest is Test {
             IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", 10));
 
         // revert to snapshot so that the safe is in the same state as before the task was run
-        vm.revertTo(snapshotId);
+        vm.revertToState(snapshotId);
 
         MultiSigOwner[] memory newOwners = new MultiSigOwner[](9);
         (newOwners[0].walletAddress, newOwners[0].privateKey) = makeAddrAndKey("Owner0");
@@ -210,18 +219,22 @@ contract NestedMultisigTaskTest is Test {
 
             // execute the approve hash call with the signatures
             multisigTask = new DisputeGameUpgradeTemplate();
-            multisigTask.approveFromChildMultisig(taskConfigFilePath, childMultisig, packedSignaturesChild);
+            string memory configFilePath = createTempTomlFile(taskConfigToml);
+            multisigTask.approveFromChildMultisig(configFilePath, childMultisig, packedSignaturesChild);
+            vm.removeFile(configFilePath);
         }
 
-        /// execute the task
+        // execute the task
         multisigTask = new DisputeGameUpgradeTemplate();
 
         /// snapshot before running the task so we can roll back to this pre-state
-        uint256 newSnapshot = vm.snapshot();
+        uint256 newSnapshot = vm.snapshotState();
 
-        (accountAccesses, actions) = multisigTask.simulateRun(taskConfigFilePath);
+        string memory config = createTempTomlFile(taskConfigToml);
+        (accountAccesses, actions) = multisigTask.signFromChildMultisig(config, SECURITY_COUNCIL_CHILD_MULTISIG);
+        vm.removeFile(config);
 
-        // check that the implementation is upgraded correctly
+        // Check that the implementation is upgraded correctly
         assertEq(
             address(disputeGameFactory.gameImpls(GameTypes.CANNON)),
             0xf691F8A6d908B58C534B624cF16495b491E633BA,
@@ -231,12 +244,14 @@ contract NestedMultisigTaskTest is Test {
         bytes memory callData = multisigTask.getMulticall3Calldata(actions);
         bytes32 taskHash = multisigTask.getHash(callData, parentMultisig);
 
-        /// now run the executeRun flow
-        vm.revertTo(newSnapshot);
+        /// Now run the executeRun flow
+        vm.revertToState(newSnapshot);
+        string memory taskConfigFilePath = createTempTomlFile(taskConfigToml);
         multisigTask.executeRun(taskConfigFilePath, prepareSignatures(parentMultisig, taskHash));
+        vm.removeFile(taskConfigFilePath);
         addrRegistry = multisigTask.addrRegistry();
 
-        // check that the implementation is upgraded correctly for a second time
+        // Check that the implementation is upgraded correctly for a second time
         assertEq(
             address(disputeGameFactory.gameImpls(GameTypes.CANNON)),
             0xf691F8A6d908B58C534B624cF16495b491E633BA,
@@ -244,25 +259,27 @@ contract NestedMultisigTaskTest is Test {
         );
     }
 
-    /// @notice test that the data to sign generated in simulateRun for the child multisigs
-    /// is correct for OPCMBaseTask
+    /// @notice Test that the data to sign generated in simulateRun for the child multisigs
+    /// is correct for OPCMBaseTask. This test uses the OPCMUpgradeV200 template as a way to test OPCMBaseTask.
     function testNestedExecuteWithSignaturesOPCM() public {
+        address foundationChildMultisig = 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B; // sepolia
         vm.createSelectFork("sepolia");
-        uint256 snapshotId = vm.snapshot();
-        multisigTask = new TestOPCMUpgradeVxyz();
-        string memory opcmTaskConfigFilePath = "test/tasks/mock/configs/TestOPCMUpgradeVxyz.toml";
+        uint256 snapshotId = vm.snapshotState();
+        multisigTask = new OPCMUpgradeV200();
+        string memory opcmTaskConfigFilePath = "test/tasks/example/sep/002-opcm-upgrade-v200/config.toml";
         (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions) =
-            multisigTask.simulateRun(opcmTaskConfigFilePath);
+            multisigTask.signFromChildMultisig(opcmTaskConfigFilePath, foundationChildMultisig);
+
         addrRegistry = multisigTask.addrRegistry();
         address parentMultisig = multisigTask.parentMultisig();
         address[] memory parentMultisigOwners = IGnosisSafe(parentMultisig).getOwners();
         bytes[] memory childMultisigDatasToSign = new bytes[](parentMultisigOwners.length);
-        // store the data to sign for each child multisig
+        // Store the data to sign for each child multisig
         for (uint256 i = 0; i < parentMultisigOwners.length; i++) {
             childMultisigDatasToSign[i] = getNestedDataToSign(parentMultisigOwners[i], actions);
         }
-        // revert to snapshot so that the safe is in the same state as before the task was run
-        vm.revertTo(snapshotId);
+        // Revert to snapshot so that the safe is in the same state as before the task was run
+        vm.revertToState(snapshotId);
 
         MultiSigOwner[] memory newOwners = new MultiSigOwner[](9);
         (newOwners[0].walletAddress, newOwners[0].privateKey) = makeAddrAndKey("Owner0");
@@ -283,7 +300,7 @@ contract NestedMultisigTaskTest is Test {
             address childMultisig = parentMultisigOwners[i];
 
             {
-                // set the new owners for the child multisig
+                // Set the new owners for the child multisig
                 address currentOwner = address(0x1);
                 bytes32 slot;
                 for (uint256 j = 0; j < newOwners.length; j++) {
@@ -292,21 +309,20 @@ contract NestedMultisigTaskTest is Test {
                     currentOwner = newOwners[j].walletAddress;
                 }
 
-                // point the final owner back to the sentinel
+                // Point the final owner back to the sentinel
                 slot = keccak256(abi.encode(currentOwner, OWNER_MAPPING_STORAGE_OFFSET));
                 vm.store(childMultisig, slot, bytes32(uint256(uint160(0x1))));
             }
 
-            // set the owners count to 9
+            // Set the owners count to 9
             vm.store(childMultisig, bytes32(OWNER_COUNT_STORAGE_OFFSET), bytes32(uint256(9)));
 
-            // set the threshold to 4
+            // Set the threshold to 4
             vm.store(childMultisig, bytes32(THRESHOLD_STORAGE_OFFSET), bytes32(uint256(4)));
 
             address[] memory getNewOwners = IGnosisSafe(childMultisig).getOwners();
             assertEq(getNewOwners.length, 9, "Expected 9 owners");
             for (uint256 j = 0; j < newOwners.length; j++) {
-                // check that the new owners are set correctly
                 assertEq(getNewOwners[j], newOwners[j].walletAddress, "Expected owner");
             }
 
@@ -314,7 +330,7 @@ contract NestedMultisigTaskTest is Test {
             assertEq(threshold, 4, "Expected threshold should be updated to mocked value");
             LibSort.sort(getNewOwners);
 
-            // sign the approve hash call data to sign with the private keys of the new owners of the child multisig
+            // Sign the approve hash call data to sign with the private keys of the new owners of the child multisig
             bytes memory packedSignaturesChild;
             for (uint256 j = 0; j < threshold; j++) {
                 (uint8 v, bytes32 r, bytes32 s) =
@@ -322,25 +338,60 @@ contract NestedMultisigTaskTest is Test {
                 packedSignaturesChild = bytes.concat(packedSignaturesChild, abi.encodePacked(r, s, v));
             }
 
-            // execute the approve hash call with the signatures
-            multisigTask = new TestOPCMUpgradeVxyz();
+            // Execute the approve hash call with the signatures
+            multisigTask = new OPCMUpgradeV200();
             multisigTask.approveFromChildMultisig(opcmTaskConfigFilePath, childMultisig, packedSignaturesChild);
         }
 
-        // execute the task
-        multisigTask = new TestOPCMUpgradeVxyz();
+        // Execute the task
+        multisigTask = new OPCMUpgradeV200();
 
-        /// snapshot before running the task so we can roll back to this pre-state
-        uint256 newSnapshot = vm.snapshot();
+        // Snapshot before running the task so we can roll back to this pre-state
+        uint256 newSnapshot = vm.snapshotState();
 
-        (accountAccesses, actions) = multisigTask.simulateRun(opcmTaskConfigFilePath);
+        (accountAccesses, actions) = multisigTask.signFromChildMultisig(opcmTaskConfigFilePath, foundationChildMultisig);
         bytes32 taskHash =
             multisigTask.getHash(multisigTask.getMulticall3Calldata(actions), multisigTask.parentMultisig());
 
-        /// now run the executeRun flow
-        vm.revertTo(newSnapshot);
-
+        vm.revertToState(newSnapshot);
         multisigTask.executeRun(opcmTaskConfigFilePath, prepareSignatures(parentMultisig, taskHash));
+    }
+
+    function testMockDisputeGameWithCodeExceptionsWorks() public {
+        vm.createSelectFork("mainnet");
+        string memory configFilePath = "test/tasks/mock/configs/MockDisputeGameUpgradesToEOA.toml";
+        multisigTask = new MockDisputeGameTask();
+        multisigTask.signFromChildMultisig(configFilePath, SECURITY_COUNCIL_CHILD_MULTISIG);
+        assertEq(multisigTask.isNestedSafe(multisigTask.parentMultisig()), true, "Expected isNestedSafe to be true");
+    }
+
+    function testSimulateRunDisputeGameWithoutCodeExceptionsFails() public {
+        vm.createSelectFork("mainnet");
+        string memory configFilePath = "test/tasks/mock/configs/MockDisputeGameUpgradesToEOA.toml";
+        multisigTask = new DisputeGameUpgradeTemplate();
+
+        uint256 start = vm.snapshotState();
+
+        multisigTask.signFromChildMultisig(
+            "test/tasks/mock/configs/DisputeGameUpgradeCodeException.toml", SECURITY_COUNCIL_CHILD_MULTISIG
+        );
+        addrRegistry = multisigTask.addrRegistry();
+        SuperchainAddressRegistry superchainAddrReg = SuperchainAddressRegistry(AddressRegistry.unwrap(addrRegistry));
+        address account = superchainAddrReg.getAddress("DisputeGameFactoryProxy", getChain("optimism").chainId);
+
+        vm.revertToState(start);
+
+        string memory err = string.concat(
+            "Likely address in storage has no code\n",
+            "  account: ",
+            vm.toString(account),
+            "\n  slot:    ",
+            vm.toString(bytes32(0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b)),
+            "\n  value:   ",
+            vm.toString(bytes32(0x0000000000000000000000000000000fffffffffffffffffffffffffffffffff))
+        );
+        vm.expectRevert(bytes(err));
+        multisigTask.signFromChildMultisig(configFilePath, SECURITY_COUNCIL_CHILD_MULTISIG);
     }
 
     function getNestedDataToSign(address owner, MultisigTask.Action[] memory actions)
@@ -356,5 +407,12 @@ contract NestedMultisigTaskTest is Test {
         // prepend the prevalidated signatures to the signatures
         address[] memory approvers = Signatures.getApprovers(_safe, hash);
         return Signatures.genPrevalidatedSignatures(approvers);
+    }
+
+    function createTempTomlFile(string memory tomlContent) internal returns (string memory) {
+        string memory randomBytes = LibString.toHexString(uint256(bytes32(vm.randomBytes(32))));
+        string memory fileName = string.concat(randomBytes, ".toml");
+        vm.writeFile(fileName, tomlContent);
+        return fileName;
     }
 }
