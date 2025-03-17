@@ -7,6 +7,7 @@ import {GasConfigTemplate} from "test/tasks/mock/template/GasConfigTemplate.sol"
 import {SetGameTypeTemplate} from "test/tasks/mock/template/SetGameTypeTemplate.sol";
 import {DisputeGameUpgradeTemplate} from "test/tasks/mock/template/DisputeGameUpgradeTemplate.sol";
 import {EnableDeputyPauseModuleTemplate} from "src/improvements/template/EnableDeputyPauseModuleTemplate.sol";
+import {FinanceTemplate} from "src/improvements/template/FinanceTemplate.sol";
 import {OPCMUpgradeV200} from "src/improvements/template/OPCMUpgradeV200.sol";
 
 /// @notice test that the call data and data to sign generated in simulateRun for the multisigs
@@ -28,7 +29,7 @@ contract RegressionTest is Test {
         MultisigTask multisigTask = new GasConfigTemplate();
 
         MultisigTask.Action[] memory actions =
-            _setupAndSimulateRun(taskConfigFilePath, 21724199, "mainnet", multisigTask);
+            _setupAndSimulateRun(taskConfigFilePath, 21724199, "mainnet", multisigTask, address(0));
 
         _assertCallData(multisigTask, actions, expectedCallData);
 
@@ -59,8 +60,10 @@ contract RegressionTest is Test {
             "0x174dea71000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000e5965ab5962edc7477c8520243a95517cd252fa9000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000004414f6b1a30000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f691f8a6d908b58c534b624cf16495b491e633ba00000000000000000000000000000000000000000000000000000000";
 
         MultisigTask multisigTask = new DisputeGameUpgradeTemplate();
+        address securityCouncilChildMultisig = 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03;
+
         MultisigTask.Action[] memory actions =
-            _setupAndSimulateRun(taskConfigFilePath, 21724199, "mainnet", multisigTask);
+            _setupAndSimulateRun(taskConfigFilePath, 21724199, "mainnet", multisigTask, securityCouncilChildMultisig);
 
         _assertCallData(multisigTask, actions, expectedCallData);
 
@@ -90,7 +93,7 @@ contract RegressionTest is Test {
 
         MultisigTask multisigTask = new SetGameTypeTemplate();
         MultisigTask.Action[] memory actions =
-            _setupAndSimulateRun(taskConfigFilePath, 21724199, "mainnet", multisigTask);
+            _setupAndSimulateRun(taskConfigFilePath, 21724199, "mainnet", multisigTask, address(0));
 
         _assertCallData(multisigTask, actions, expectedCallData);
 
@@ -115,7 +118,7 @@ contract RegressionTest is Test {
             "0x174dea71000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000229047fed2591dbec1ef1118d64f7af3db9eb2900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000024b40a817c000000000000000000000000000000000000000000000000000000000393870000000000000000000000000000000000000000000000000000000000";
         MultisigTask multisigTask = new GasConfigTemplate();
         MultisigTask.Action[] memory actions =
-            _setupAndSimulateRun(taskConfigFilePath, 21724199, "mainnet", multisigTask);
+            _setupAndSimulateRun(taskConfigFilePath, 21724199, "mainnet", multisigTask, address(0));
 
         _assertCallData(multisigTask, actions, expectedCallData);
 
@@ -139,7 +142,7 @@ contract RegressionTest is Test {
             "0x174dea71000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000837de453ad5f21e89771e3c06239d8236c0efd5e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000024610b592500000000000000000000000062f3972c56733ab078f0764d2414dfcaa99d574c00000000000000000000000000000000000000000000000000000000";
         MultisigTask multisigTask = new EnableDeputyPauseModuleTemplate();
         MultisigTask.Action[] memory actions =
-            _setupAndSimulateRun(taskConfigFilePath, 7745524, "sepolia", multisigTask);
+            _setupAndSimulateRun(taskConfigFilePath, 7745524, "sepolia", multisigTask, address(0));
 
         _assertCallData(multisigTask, actions, expectedCallData);
 
@@ -158,8 +161,9 @@ contract RegressionTest is Test {
         string memory expectedCallData =
             "0x82ad56cb0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000001b25f566336f47bc5e0036d66e142237dcf4640b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a4ff2dd5a100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000034edd2a225f7f429a63e0f1d2084b9e0a93b538000000000000000000000000189abaaaa82dfc015a588a7dbad6f13b1d3485bc035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd00000000000000000000000000000000000000000000000000000000";
         MultisigTask multisigTask = new OPCMUpgradeV200();
+        address foundationChildMultisig = 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B; // sepolia
         MultisigTask.Action[] memory actions =
-            _setupAndSimulateRun(taskConfigFilePath, 7826712, "sepolia", multisigTask);
+            _setupAndSimulateRun(taskConfigFilePath, 7826712, "sepolia", multisigTask, foundationChildMultisig);
 
         _assertCallData(multisigTask, actions, expectedCallData);
 
@@ -174,15 +178,45 @@ contract RegressionTest is Test {
         _assertDataToSignNestedMultisig(multisigTask, actions, expectedDataToSign);
     }
 
+    /// @notice expected call data and data to sign generated by manually running the FinanceTemplate at block 7880546 on sepolia
+    /// using script:
+    /// forge script src/improvements/template/FinanceTemplate.sol
+    /// --sig "simulateRun(string)" test/tasks/mock/configs/TestFinanceTemplate.toml
+    /// --rpc-url sepolia
+    /// --fork-block-number 7880546
+    /// -vv
+    function testRegressionCallDataMatches_FinanceTemplate() public {
+        string memory taskConfigFilePath = "test/tasks/mock/configs/TestFinanceTemplate.toml";
+        // call data generated by manually running the FinanceTemplate at block 7880546 on sepolia
+        string memory expectedCallData =
+            "0x174dea710000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000140000000000000000000000000bb4daac11b4446ee1c6146de1e26ecf1ab8b3eb60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000044095ea7b3000000000000000000000000f64bc17485f0b4ea5f06a96514182fc4cb561977000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000000000000000000000bb4daac11b4446ee1c6146de1e26ecf1ab8b3eb60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000044095ea7b30000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000";
+        MultisigTask multisigTask = new FinanceTemplate();
+        MultisigTask.Action[] memory actions =
+            _setupAndSimulateRun(taskConfigFilePath, 7880546, "sepolia", multisigTask, address(0));
+
+        _assertCallData(multisigTask, actions, expectedCallData);
+
+        // data to sign generated by manually running the FinanceTemplate at block 7880546 on sepolia
+        string memory expectedDataToSign =
+            "0x190196c653b6193d04eb71ad87ac1577524661acf1e1e0c492a68c88a1deb059927fb6525061ebd285287cc9f758bd19fde972f4a8054fe4d154b8e8e3fe9ae86232";
+
+        _assertDataToSignSingleMultisig(multisigTask, actions, expectedDataToSign);
+    }
+
     /// @notice Internal function to set up the fork and run the simulateRun method
     function _setupAndSimulateRun(
         string memory taskConfigFilePath,
         uint256 blockNumber,
         string memory network,
-        MultisigTask multisigTask
+        MultisigTask multisigTask,
+        address childMultisig
     ) internal returns (MultisigTask.Action[] memory actions) {
         vm.createSelectFork(network, blockNumber);
-        (, actions) = multisigTask.simulateRun(taskConfigFilePath);
+        if (childMultisig != address(0)) {
+            (, actions) = multisigTask.signFromChildMultisig(taskConfigFilePath, childMultisig);
+        } else {
+            (, actions) = multisigTask.simulateRun(taskConfigFilePath);
+        }
     }
 
     /// @notice assert that the call data generated by the multisig task matches the expected call data
