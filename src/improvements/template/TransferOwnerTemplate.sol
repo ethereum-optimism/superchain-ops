@@ -30,6 +30,7 @@ contract TransferOwnerTemplate is L2TaskBase {
     /// @notice Sets up the template with the new owner from a TOML file
     /// @param taskConfigFilePath Path to the TOML configuration file
     function _templateSetup(string memory taskConfigFilePath) internal override {
+        super._templateSetup(taskConfigFilePath);
         newOwner = abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".newOwner"), (address));
         // only allow one chain to be modified at a time with this template
         SuperchainAddressRegistry.ChainInfo[] memory _chains = abi.decode(

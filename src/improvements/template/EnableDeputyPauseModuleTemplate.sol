@@ -7,13 +7,13 @@ import {VmSafe} from "forge-std/Vm.sol";
 
 import "forge-std/Test.sol";
 
-import {L2TaskBase} from "src/improvements/tasks/MultisigTask.sol";
+import {SimpleBase} from "src/improvements/tasks/MultisigTask.sol";
 import {ModuleManager} from "lib/safe-contracts/contracts/base/ModuleManager.sol";
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
 /// @notice Template contract for enabling the DeputyPauseModule in a Gnosis Safe
-contract EnableDeputyPauseModuleTemplate is L2TaskBase {
+contract EnableDeputyPauseModuleTemplate is SimpleBase {
     using AccountAccessParser for *;
     using stdStorage for StdStorage;
 
@@ -52,16 +52,10 @@ contract EnableDeputyPauseModuleTemplate is L2TaskBase {
     /// @notice Sets up the template with module configuration from a TOML file
     /// @param taskConfigFilePath Path to the TOML configuration file
     function _templateSetup(string memory taskConfigFilePath) internal override {
+        super._templateSetup(taskConfigFilePath);
         string memory file = vm.readFile(taskConfigFilePath);
         newModule = vm.parseTomlAddress(file, ".newModule");
         assertNotEq(newModule.code.length, 0, "new module must have code");
-
-        // only allow one chain to be modified at a time with this template
-        SuperchainAddressRegistry.ChainInfo[] memory _chains = abi.decode(
-            vm.parseToml(vm.readFile(taskConfigFilePath), ".l2chains"), (SuperchainAddressRegistry.ChainInfo[])
-        );
-
-        assertEq(_chains.length, 1, "Must specify exactly one chain id to enable deputy pause module for");
     }
 
     /// @notice Builds the action for enabling the module in the Safe
@@ -71,18 +65,6 @@ contract EnableDeputyPauseModuleTemplate is L2TaskBase {
 
     /// @notice Validates that the module was enabled correctly.
     function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory) internal view override {
-        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-
-        for (uint256 i = 0; i < chains.length; i++) {
-            uint256 chainId = chains[i].chainId;
-            _validatePerChain(chainId, accountAccesses);
-        }
-    }
-
-    /// @notice Validates that the module was enabled correctly for a given chain.
-    /// @param chainId The chain ID of the chain to validate
-    /// @param accountAccess the list of account accesses performed by this task
-    function _validatePerChain(uint256 chainId, VmSafe.AccountAccess[] memory accountAccess) internal view {
         (address[] memory modules, address nextModule) =
             ModuleManager(parentMultisig).getModulesPaginated(SENTINEL_MODULE, 100);
 
@@ -104,7 +86,7 @@ contract EnableDeputyPauseModuleTemplate is L2TaskBase {
         );
         assertEq(
             address(deputyGuardianModule.superchainConfig()),
-            superchainAddrRegistry.getAddress("SuperchainConfig", chainId),
+            simpleAddrRegistry.get("SuperchainConfig"),
             "Superchain config address not correct"
         );
 
@@ -113,11 +95,11 @@ contract EnableDeputyPauseModuleTemplate is L2TaskBase {
 
         bool moduleWriteFound;
 
-        address[] memory uniqueWrites = accountAccess.getUniqueWrites();
+        address[] memory uniqueWrites = accountAccesses.getUniqueWrites(false);
         assertEq(uniqueWrites.length, 1, "should only write to foundation ops safe");
         assertEq(uniqueWrites[0], parentMultisig, "should only write to foundation ops safe address");
 
-        AccountAccessParser.StateDiff[] memory accountWrites = accountAccess.getStateDiffFor(parentMultisig);
+        AccountAccessParser.StateDiff[] memory accountWrites = accountAccesses.getStateDiffFor(parentMultisig, false);
 
         for (uint256 i = 0; i < accountWrites.length; i++) {
             AccountAccessParser.StateDiff memory storageAccess = accountWrites[i];

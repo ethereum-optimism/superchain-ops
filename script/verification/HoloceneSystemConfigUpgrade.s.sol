@@ -42,7 +42,7 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry, VerificationBase {
 
     BaseSysCfgVars previous;
 
-    // Values which may change during the upgrade, depending on the chain::
+    // Values which may change during the upgrade, depending on the chain:
     uint256 previousScalar;
 
     // The target value for the DisputeGameFactory address,
@@ -64,7 +64,6 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry, VerificationBase {
     {
         systemConfigAddress = proxies.SystemConfig;
         sysCfg = ISystemConfig(proxies.SystemConfig);
-
         // cache the values of the SystemConfig contract before the upgrade
         previous = getBaseSysCfgVars();
         previousScalar = sysCfg.scalar();
@@ -162,14 +161,45 @@ contract HoloceneSystemConfigUpgrade is SuperchainRegistry, VerificationBase {
             // See https://specs.optimism.io/protocol/system-config.html?highlight=ecotone%20scalar#ecotone-scalar-overhead-uint256uint256-change
             require(previousScalarEncodingVersion == 0, "scalar-101 previous scalar version != 0 or 1");
             require(newScalarEncodingVersion == 1, "scalar-102 reenconded scalar version != 1");
-            require(sysCfg.blobbasefeeScalar() == uint32(0), "scalar-103 blobbasefeeScalar !=0");
+            uint32 expBlobBaseFeeScalar = expectedV0BlobBaseFeeScalar();
+            require(sysCfg.blobbasefeeScalar() == expBlobBaseFeeScalar, "scalar-103 blobbasefeeScalar !=0");
 
             // Sanity check the scalar "padding" is zero for legacy encodings (see spec)
             uint256 mask = 0x00ffffffffffffffffffffffffffffffffffffffffffffffffffff00000000;
             require((previousScalar & mask) == uint256(0), "scalar-105 previous scalar padding != 0");
+            console.log("previous scalar:", previousScalar);
+            require(
+                reencodedScalar
+                    == uint256(expectedV0BaseFeeScalar()) + (uint256(expBlobBaseFeeScalar) << 32) + (uint256(0x01) << 248),
+                "scalar-106 scalar mismatch"
+            );
+        }
+    }
 
+    function expectedV0BaseFeeScalar() internal view returns (uint32) {
+        string memory addr_str = LibString.toHexString(systemConfigAddress);
+        string memory env = string.concat("SYSTEM_CONFIG_OVERRIDE_BASEFEE_SCALAR_", addr_str);
+        try vm.envUint(env) returns (uint256 s) {
+            uint32 s32 = uint32(s);
+            console.log("SystemConfig(%s): overriding expected base fee to %s", addr_str, s32);
+            return s32;
+        } catch {
+            // default expected base fee is the previous scalar if the previous scalar encoding was in v0 format
+            return uint32(previousScalar);
+        }
+    }
+
+    function expectedV0BlobBaseFeeScalar() internal view returns (uint32) {
+        string memory addr_str = LibString.toHexString(systemConfigAddress);
+        string memory env = string.concat("SYSTEM_CONFIG_OVERRIDE_BLOBBASEFEE_SCALAR_", addr_str);
+        try vm.envUint(env) returns (uint256 s) {
+            uint32 s32 = uint32(s);
+            console.log("SystemConfig(%s): overriding expected blob base fee to %s", addr_str, s32);
+            return s32;
+        } catch {
+            // default expected blob base fee is 0 if the previous scalar encoding was in v0 format
+            return 0;
             // The scalars should match if we add the new scalar version byte to the previous scalar.
-            require(reencodedScalar == previousScalar + (uint256(0x01) << 248), "scalar-106 scalar mismatch");
         }
     }
 

@@ -1,4 +1,4 @@
-# dispute-game-upgrade-template: Delete this once we have real tasks to run
+# 005-test-finance-operation: Delete this once we have real tasks to run
 
 Status: [DRAFT]()
 

@@ -449,9 +449,8 @@ workflows:
       # and now it fails with stack too deep after https://github.com/ethereum-optimism/superchain-ops/pull/528.
       # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
       # - just_simulate_sc_rehearsal_1
-      
       - just_simulate_nested:
-          task: "/eth/ink-003-fp-holocene-pectra-upgrade"
+          task: "/eth/unichain-001-holocene-systemconfig-update"
           context:
             - circleci-repo-readonly-authenticated-github-token
 
@@ -461,15 +460,11 @@ workflows:
       - just_simulate_sc_rehearsal_4:
           context:
             - circleci-repo-readonly-authenticated-github-token
-      - just_simulate_nested:
-          task: "eth/031-op-mainnet-pectra-defense"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
 
       - simulate_sequence:
           name: simulate_sequence_eth
           network: "eth"
-          tasks: "ink-003"
+          tasks: "unichain-001"
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token

@@ -106,6 +106,9 @@ check-superchain-registry-latest:
     root_dir=$(git rev-parse --show-toplevel)
     bash ${root_dir}/src/improvements/script/check-superchain-latest.sh
 
+# this is command is mainly for CI testing purposes and not task developers
+# task developers can run this locally, however it is expected that this
+# command will be run mostly by CI.
 simulate-all-templates:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -117,7 +120,7 @@ simulate-all-templates:
     # For testing purposes, we do not gain anything by simulating as other nested safes.
     nested_safe_name="foundation"
     simulation_count=0
-    for task in ${root_dir}/src/improvements/tasks/example/*/*; do
+    for task in ${root_dir}/test/tasks/example/*/*; do
         if [ -d "$task" ]; then
             ${root_dir}/src/improvements/script/simulate-task.sh $task $nested_safe_name
             simulation_count=$((simulation_count + 1))
@@ -130,3 +133,17 @@ simulate-all-templates:
         echo "Not all templates files have a corresponding task. Please add a task for a template in ${root_dir}/src/improvements/tasks/example" >&2
         exit 1
     fi
+
+simulate-verify-task TASK="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+
+    forge build
+
+    # If the task is nested then we only simulate as the foundation.
+    # In the future we could simulate as other nested safes. 
+    # For testing purposes, we do not gain anything by simulating as other nested safes.
+    nested_safe_name="foundation"
+
+    ${root_dir}/src/improvements/script/simulate-verify-task.sh {{TASK}} $nested_safe_name
