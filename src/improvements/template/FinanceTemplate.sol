@@ -20,6 +20,14 @@ contract FinanceTemplate is SimpleBase {
     using stdToml for string;
     using EnumerableSet for EnumerableSet.AddressSet;
 
+    /// @notice Struct to hold parsed amount components
+    struct AmountComponents {
+        uint256 wholePart;
+        uint256 decimalPart;
+        uint8 decimalPlaces;
+        bool hasDecimals;
+    }
+
     /// @notice Operation struct as read in from the `config.toml` file
     /// @param amount The amount of tokens for the operation, specified
     /// as a decimal. i.e. `100.1`
@@ -93,35 +101,62 @@ contract FinanceTemplate is SimpleBase {
         return amount * (10 ** uint256(decimals));
     }
 
+    /// @notice Validates that the amount string has a valid format
+    /// @param components The split components of the amount string
+    /// reverts if components are invalid
+    function validateAmountFormat(string[] memory components) internal pure {
+        // Check for invalid format (more than one decimal point)
+        require(components.length <= 2, "invalid amount");
+
+        // If there's a decimal part, ensure it's not empty
+        if (components.length == 2) {
+            require(bytes(components[1]).length != 0, "decimals cannot be 0");
+        }
+    }
+
+    /// @notice Checks if the amount represents a non-zero value
+    /// @param wholePart The whole number part of the amount
+    /// @param decimalPart The decimal part of the amount
+    /// @return True if either part results in a non-zero value
+    function isNonZeroAmount(uint256 wholePart, uint256 decimalPart) internal pure returns (bool) {
+        return wholePart > 0 || decimalPart > 0;
+    }
+
+    /// @notice Parses a string amount into its components
+    /// @param amount The amount string to parse
+    /// @return components The parsed amount components
+    function _parseAmountComponents(string memory amount) internal pure returns (AmountComponents memory components) {
+        string[] memory stringComponents = amount.split(".");
+        validateAmountFormat(stringComponents);
+
+        components.wholePart = vm.parseUint(stringComponents[0]);
+        components.hasDecimals = stringComponents.length == 2;
+
+        if (components.hasDecimals) {
+            components.decimalPart = vm.parseUint(stringComponents[1]);
+            components.decimalPlaces = uint8(bytes(stringComponents[1]).length);
+            require(components.decimalPlaces <= 18, "decimals must be less than or equal to 18");
+        }
+
+        // Ensure the final amount is non-zero
+        require(isNonZeroAmount(components.wholePart, components.decimalPart), "amount must be non-zero");
+
+        return components;
+    }
+
     /// @notice returns the amount with the length of the decimals parsed
     /// @param amount The amount to parse
     /// @return The amount and the number of decimals
     function parseDecimals(string memory amount) public pure returns (uint256, uint8) {
-        string[] memory components = amount.split(".");
-        uint256 decimals;
-        if (components.length == 2) {
-            decimals = bytes(components[1]).length;
-            require(decimals != 0, "decimals cannot be 0");
+        AmountComponents memory components = _parseAmountComponents(amount);
+
+        if (!components.hasDecimals || components.decimalPart == 0) {
+            return (components.wholePart, 0);
         }
 
-        /// handle the no decimal cases:
-        ///   amount is "100", or amount is "100.0" "100.00", etc
-        if (components.length == 1 || vm.parseUint(components[1]) == 0) {
-            // no decimals
-            return (vm.parseUint(components[0]), 0);
-        } else if (components.length == 2) {
-            // handle the decimals case
-            require(decimals <= 18, "decimals must be less than or equal to 18");
-            uint256 tokenAmount = vm.parseUint(components[0]);
-            require(tokenAmount != 0, "token amount must be non zero");
+        uint256 finalAmount = scaleDecimals(components.wholePart, components.decimalPlaces) + components.decimalPart;
 
-            return (
-                scaleDecimals(tokenAmount, uint8(decimals)) + vm.parseUint(components[1]),
-                uint8(decimals)
-            );
-        }
-
-        revert("invalid amount");
+        return (finalAmount, components.decimalPlaces);
     }
 
     /// @notice converts string to a scaled up token amount in decimal form
@@ -129,12 +164,17 @@ contract FinanceTemplate is SimpleBase {
     /// @param token address of the token to send, used discovering the decimals
     /// returns the scaled up token amount
     function getTokenAmount(string memory amount, address token) public view returns (uint256) {
-        (uint256 scaledAmount, uint8 amountDecimals) = parseDecimals(amount);
-        uint8 decimals = ERC20(token).decimals();
+        // Get the scaled amount and decimals using parseDecimals
+        (uint256 scaledAmount, uint8 parsedDecimals) = parseDecimals(amount);
 
-        require(amountDecimals <= decimals, "amount decimals must be less than or equal to token decimals");
+        // Get token decimals
+        uint8 tokenDecimals = ERC20(token).decimals();
 
-        return scaleDecimals(scaledAmount, decimals - amountDecimals);
+        // Ensure amount decimals don't exceed token decimals
+        require(parsedDecimals <= tokenDecimals, "amount decimals must be less than or equal to token decimals");
+
+        // Scale the amount to match token decimals
+        return scaleDecimals(scaledAmount, tokenDecimals - parsedDecimals);
     }
 
     /// @notice Sets up the template with module configuration from a TOML file
