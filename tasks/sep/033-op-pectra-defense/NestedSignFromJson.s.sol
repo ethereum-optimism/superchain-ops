@@ -65,7 +65,7 @@ contract NestedSignFromJson is SuperchainRegistry, OriginalNestedSignFromJson, C
             "Prestate not updated"
         );
         require(
-            Claim.unwrap(afterParams.absolutePrestate) == 0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd,
+            Claim.unwrap(afterParams.absolutePrestate) == 0x0354eee87a1775d96afee8977ef6d5d6bd3612b256170952a01bf1051610ee01,
             "Prestate not updated to expected value"
         );
         beforeParams_.absolutePrestate = afterParams.absolutePrestate;
@@ -84,7 +84,7 @@ contract NestedSignFromJson is SuperchainRegistry, OriginalNestedSignFromJson, C
             "Prestate not updated"
         );
         require(
-            Claim.unwrap(afterParams.absolutePrestate) == 0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd,
+            Claim.unwrap(afterParams.absolutePrestate) == 0x0354eee87a1775d96afee8977ef6d5d6bd3612b256170952a01bf1051610ee01,
             "Prestate not updated to expected value"
         );
         beforeParams_.absolutePrestate = afterParams.absolutePrestate;
@@ -98,7 +98,7 @@ contract NestedSignFromJson is SuperchainRegistry, OriginalNestedSignFromJson, C
         StandardValidatorV180.InputV180 memory input = StandardValidatorV180.InputV180({
             proxyAdmin: proxyAdmin,
             sysCfg: systemConfig,
-            absolutePrestate: 0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd,
+            absolutePrestate: 0x0354eee87a1775d96afee8977ef6d5d6bd3612b256170952a01bf1051610ee01,
             l2ChainID: chainConfig.chainId
         });
 
