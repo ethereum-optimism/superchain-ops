@@ -1,11 +1,5 @@
-/**
- * Submitted for verification at Etherscan.io on 2022-05-17
- */
-
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
-
-import "forge-std/console.sol";
 
 /// @title Multicall3
 /// @notice Aggregate results from multiple function calls
@@ -16,8 +10,15 @@ import "forge-std/console.sol";
 /// @author Nick Johnson <arachnid@notdot.net>
 /// @author Andreas Bigger <andreas@nascent.xyz>
 /// @author Matt Solomon <matt@mattsolomon.dev>
-/// Multicall3 contract without msg.value == valAccumulator check
-/// in aggregate3Value function
+/// Multicall3 contract without the msg.value == valAccumulator check
+/// in the aggregate3Value function to enable ETH transfers when called via
+/// a delegatecall.
+/// Our tasks use delegate calls to call the Multicall3 contract, which then
+/// makes calls to targets using the aggregate3Value function. This function
+/// includes the check: require(msg.value == valAccumulator, "Multicall3: value mismatch");
+/// which will always fail because msg.value is always zero when aggregate3Value is
+/// called via a delegate call.
+/// Diff with Multicall3: https://www.diffchecker.com/48Cu6U8D/
 contract Multicall3NoValueCheck {
     struct Call3Value {
         address target;
@@ -46,20 +47,13 @@ contract Multicall3NoValueCheck {
         // calls we don't have the check that makes sure that
         // the msg.value is the sum of the call values
         require(address(this) != thisMulticall3, "Multicall3: only delegate call allowed");
-        uint256 valAccumulator;
         uint256 length = calls.length;
         returnData = new Result[](length);
         Call3Value calldata calli;
         for (uint256 i = 0; i < length;) {
             Result memory result = returnData[i];
             calli = calls[i];
-            uint256 val = calli.value;
-            // Humanity will be a Type V Kardashev Civilization before this overflows - andreas
-            // ~ 10^25 Wei in existence << ~ 10^76 size uint fits in a uint256
-            unchecked {
-                valAccumulator += val;
-            }
-            (result.success, result.returnData) = calli.target.call{value: val}(calli.callData);
+            (result.success, result.returnData) = calli.target.call{value: calli.value}(calli.callData);
             assembly {
                 // Revert if the call fails and failure is not allowed
                 // `allowFailure := calldataload(add(calli, 0x20))` and `success := mload(result)`
@@ -79,7 +73,5 @@ contract Multicall3NoValueCheck {
                 ++i;
             }
         }
-        // Finally, make sure the msg.value = SUM(call[0...i].value)
-        // require(msg.value == valAccumulator, "Multicall3: value mismatch");
     }
 }
