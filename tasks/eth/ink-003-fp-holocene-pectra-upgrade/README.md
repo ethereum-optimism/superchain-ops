@@ -1,6 +1,5 @@
 # Holocene Hardfork Upgrade
-Status: READY TO SIGN
-
+Status: [EXECUTED](https://etherscan.io/tx/0xd80b96282ad4d71aeb29b25e0ceee2bdf0840b258fccffedc951ce0553b6800b)
 ## Objective
 
 Upgrades the Fault Proof contracts for the Holocene hardfork as per Upgrade Proposal #11.
