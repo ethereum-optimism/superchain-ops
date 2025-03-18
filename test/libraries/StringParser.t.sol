@@ -81,7 +81,7 @@ contract StringParserTest is Test {
 
     // ==================== AmountComponents Tests ====================
 
-    function testParseAmountComponents() public {
+    function testParseAmountComponents() public view {
         // Test whole number
         StringParser.AmountComponents memory components = mockStringParser.parseAmountComponents("100");
         assertEq(components.wholePart, 100);
