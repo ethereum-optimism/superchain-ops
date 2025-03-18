@@ -1,9 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
-# Simulates a task given a path to the task directory.
+# Simulates a task given a path to the task directory. 
 # This function will determine if the task is nested or not then
-# simulate it with the appropriate justfile.
+# simulate it with the appropriate justfile. 
 simulate_task() {
     task=$1
     nested_safe_name=$2
