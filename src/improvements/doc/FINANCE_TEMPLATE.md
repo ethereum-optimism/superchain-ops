@@ -17,7 +17,7 @@ Each Finance Template transaction requires developers to create a new `.toml` fi
 - **Operations** - The operations array specifies the following for each operation:
     - **token** - A string representing the token to transfer. This string corresponds to the token's key in the `addresses` section
     - **amount** - The amount of the token to transfer to the recipient.
-    - **target** - The identifier of the receiver for this transfer. This should be the identifier of the recipient address as specified in `addresses`.
+    - **target** - A string identifying the account to receive tokens, or to adjust allowance for. The string corresponds to a key in the `addresses` section.
 
 **Addresses** - This specifies the addresses of the Gnosis Safe, tokens, and recipients relevant to this task.
  
