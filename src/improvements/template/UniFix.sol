@@ -71,16 +71,13 @@ contract BaseFix is L2TaskBase {
         assertEq(chains.length, 1);
         assertEq(chains[0].chainId, 1301);
 
-
         // Get the SuperchainConfig address for Op Sepolia.
         // https://github.com/ethereum-optimism/superchain-registry/blob/2c60e5723c64b5a1b58ab72c5d3816927ff9391a/superchain/extra/addresses/addresses.json#L64
-        IOptimismPortal2 opSepoliaOptimismPortal =
-            IOptimismPortal2(payable(0x16Fc5058F25648194471939df75CF27A2fdC48BC));
+        IOptimismPortal2 opSepoliaOptimismPortal = IOptimismPortal2(payable(0x16Fc5058F25648194471939df75CF27A2fdC48BC));
         superchainConfig = ISuperchainConfig(opSepoliaOptimismPortal.superchainConfig());
 
         // Get the ProxyAdmin address for Uni Sepolia.
         proxyAdmin = IProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", 1301));
-
 
         string memory tomlContent = vm.readFile(taskConfigFilePath);
         STANDARD_VALIDATOR_V180 = IStandardValidatorV180(tomlContent.readAddress(".addresses.StandardValidatorV180"));
@@ -153,8 +150,10 @@ contract BaseFix is L2TaskBase {
         assertEq(chains[0].chainId, 1301);
 
         uint256 chainId = chains[0].chainId;
-        IDisputeGameFactory disputeGameFactory = IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId));
-        bytes32 currentAbsolutePrestate = Claim.unwrap(IFaultDisputeGame(address(disputeGameFactory.gameImpls(GameType.wrap(1)))).absolutePrestate());
+        IDisputeGameFactory disputeGameFactory =
+            IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId));
+        bytes32 currentAbsolutePrestate =
+            Claim.unwrap(IFaultDisputeGame(address(disputeGameFactory.gameImpls(GameType.wrap(1)))).absolutePrestate());
 
         address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
 
@@ -166,15 +165,16 @@ contract BaseFix is L2TaskBase {
         });
 
         string memory reasons = STANDARD_VALIDATOR_V180.validate({_input: input, _allowFailure: true});
-                // "PROXYA-10", // Proxy admin owner must be l1PAOMultisig - This is OK because it is checking for the OP Sepolia PAO
-                // "SYSCON-20", // System config gas limit must be 60,000,000 - This is OK because we don't touch the system config
-                // "DF-30", // Dispute factory owner must be l1PAOMultisig - It is checking for the OP Sepolia PAO
-                // "PDDG-DWETH-30", // Delayed WETH owner must be l1PAOMultisig (for permissioned dispute game) - It is checking for the OP Sepolia PAO
-                // "PDDG-ANCHORP-40", // Anchor state registry root must match expected dead root (for permissioned dispute game) - This does not apply to any chain more than 1 week old
-                // "PDDG-120", // Permissioned dispute game challenger must match challenger address - It is checking for the OP Sepolia Challenger
-                // "PLDG-DWETH-30", // Delayed WETH owner must be l1PAOMultisig (for permissionless dispute game) - It is checking for the OP Sepolia PAO
-                // "PLDG-ANCHORP-40" // Anchor state registry root must match expected dead root (for permissionless dispute game) - This does not apply to any chain more than 1 week old
-        string memory expectedErrors_1310 = "PROXYA-10,SYSCON-20,DF-30,PDDG-DWETH-30,PDDG-ANCHORP-40,PDDG-120,PLDG-DWETH-30,PLDG-ANCHORP-40";
+        // "PROXYA-10", // Proxy admin owner must be l1PAOMultisig - This is OK because it is checking for the OP Sepolia PAO
+        // "SYSCON-20", // System config gas limit must be 60,000,000 - This is OK because we don't touch the system config
+        // "DF-30", // Dispute factory owner must be l1PAOMultisig - It is checking for the OP Sepolia PAO
+        // "PDDG-DWETH-30", // Delayed WETH owner must be l1PAOMultisig (for permissioned dispute game) - It is checking for the OP Sepolia PAO
+        // "PDDG-ANCHORP-40", // Anchor state registry root must match expected dead root (for permissioned dispute game) - This does not apply to any chain more than 1 week old
+        // "PDDG-120", // Permissioned dispute game challenger must match challenger address - It is checking for the OP Sepolia Challenger
+        // "PLDG-DWETH-30", // Delayed WETH owner must be l1PAOMultisig (for permissionless dispute game) - It is checking for the OP Sepolia PAO
+        // "PLDG-ANCHORP-40" // Anchor state registry root must match expected dead root (for permissionless dispute game) - This does not apply to any chain more than 1 week old
+        string memory expectedErrors_1310 =
+            "PROXYA-10,SYSCON-20,DF-30,PDDG-DWETH-30,PDDG-ANCHORP-40,PDDG-120,PLDG-DWETH-30,PLDG-ANCHORP-40";
 
         require(reasons.eq(expectedErrors_1310), string.concat("Unexpected errors: ", reasons));
     }
