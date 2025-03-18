@@ -18,7 +18,7 @@ import "forge-std/console.sol";
 /// @author Matt Solomon <matt@mattsolomon.dev>
 /// Multicall3 contract without msg.value == valAccumulator check
 /// in aggregate3Value function
-contract Multicall3NoCheck {
+contract Multicall3NoValueCheck {
     struct Call3Value {
         address target;
         bool allowFailure;

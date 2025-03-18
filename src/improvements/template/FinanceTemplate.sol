@@ -102,9 +102,9 @@ contract FinanceTemplate is SimpleTaskBase {
     /// @notice Sets up the template with module configuration from a TOML file
     /// @param taskConfigFilePath Path to the TOML configuration file
     function _templateSetup(string memory taskConfigFilePath) internal override {
-        bytes memory multicall3NoCheckBytecode = vm.getDeployedCode("Multicall3NoCheck");
-        // TDOD: Remove this once Multicall3NoCheck is deployed
-        vm.etch(address(multicallTarget), multicall3NoCheckBytecode);
+        bytes memory multicall3NoValueCheckBytecode = vm.getDeployedCode("Multicall3NoValueCheck");
+        // TDOD: Remove this once Multicall3NoValueCheck is deployed
+        vm.etch(address(multicallTarget), multicall3NoValueCheckBytecode);
         string memory toml = vm.readFile(taskConfigFilePath);
         operationType = toml.readString(".operationType");
         operationTypeEnum = _getOperationType();
