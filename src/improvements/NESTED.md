@@ -48,8 +48,7 @@ For the Security Council:
    --dotenv-path $(pwd)/.env \
    --justfile ../../../nested.just \
    simulate \
-   council \
-   true "<output file name>.json"
+   council # 0 or 1 or ...
 ```
 
 For the Foundation:
@@ -59,8 +58,7 @@ just \
    --dotenv-path $(pwd)/.env \
    --justfile ../../../nested.just \
    simulate \
-   foundation \
-   true "<output file name>.json"
+   foundation # 0 or 1 or ...
 ```
 
 For the Chain Governor:
@@ -70,11 +68,12 @@ just \
    --dotenv-path $(pwd)/.env \
    --justfile ../../../nested.just \
    simulate \
-   chain-governor \
-   true "<output file name>.json"
+   chain-governor # 0 or 1 or ...
 ```
 
-You will see a "Simulation link" from the output.
+This will generate a file with the name `src/improvements/OPVerifyInputs/<NETWORK_DIR>/<RUNBOOK_DIR>/<TASK_NAME>-input.json`. Keep note of this.
+
+You will also see a "Simulation link" from the output.
 
 Paste this URL in your browser. A prompt may ask you to choose a
 project, any project will do. You can create one if necessary.

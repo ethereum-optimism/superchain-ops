@@ -60,4 +60,3 @@ forge script src/improvements/template/GasConfigTemplate.sol --sig "simulateRun(
 ```
 
 Calldata diff can be found here https://www.diffchecker.com/HA7YFSWi/, select character comparison to see the difference.
-

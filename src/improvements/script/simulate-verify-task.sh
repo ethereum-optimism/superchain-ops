@@ -13,16 +13,8 @@ simulate_verify_task() {
     # In the future we could simulate as other nested safes. 
     # For testing purposes, we do not gain anything by simulating as other nested safes.
     nested_safe_name="foundation"
-    gen_verify_input="true"
-    
-    current_dir=$(pwd)
-    # Derive a filepath for the verify input. e.g if the task is in src/improvements/tasks/example/eth/000-gas-config-template.sol
-    # then the verify input will be in current_dir/OPVerifyInputs/eth/000-gas-config-template-input.json in the current directory
-    op_verify_input_filepath="${current_dir}/OPVerifyInputs/$(basename "$(dirname "${task}")")/${task##*/}-input.json"
-    # Create the directory for the verify input if it doesn't exist
-    mkdir -p "$(dirname "$op_verify_input_filepath")"
 
-    "$root_dir"/src/improvements/script/simulate-task.sh "$task" "$nested_safe_name" "$gen_verify_input" "$op_verify_input_filepath" | tee "$local_output_file"
+    "$root_dir"/src/improvements/script/simulate-task.sh "$task" "$nested_safe_name" | tee "$local_output_file"
 
     # Extract domain separator and message hash from the simulation output
     DOMAIN_SEPARATOR_LOCAL=$(awk '/Domain Separator:/{print $3}' "$local_output_file")

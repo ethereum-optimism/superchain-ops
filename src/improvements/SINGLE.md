@@ -51,11 +51,12 @@ just \
    --dotenv-path $(pwd)/.env \
    --justfile ../../../single.just \
    simulate \
-   0 \
-   true "<output file name>.json"
+   0 # or 1 or ...
 ```
 
-You will see a "Simulation link" from the output.
+This will generate a file with the name `src/improvements/OPVerifyInputs/<NETWORK_DIR>/<RUNBOOK_DIR>/<TASK_NAME>-input.json`. Keep note of this.
+
+You will also see a "Simulation link" from the output.
 
 Paste this URL in your browser. A prompt may ask you to choose a
 project, any project will do. You can create one if necessary.

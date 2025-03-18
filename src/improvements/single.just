@@ -14,7 +14,7 @@ cmd := "yq '.templateName' " + TASK_PATH + "/config.toml"
 export SCRIPT_NAME := shell(cmd)
 export signatures := env_var_or_default('SIGNATURES', '')
 
-simulate genVerifyInput opVerifyInputFilepath hdPath='0':
+simulate hdPath='0':
   #!/usr/bin/env bash
 
   config=${TASK_PATH}/config.toml
@@ -25,10 +25,16 @@ simulate genVerifyInput opVerifyInputFilepath hdPath='0':
   echo "Using script ${script}"
   echo ""
 
-  if [ {{genVerifyInput}} = true ]; then
-    export GEN_VERIFY_INPUT=true
-    export OP_VERIFY_INPUT_FILEPATH={{opVerifyInputFilepath}}
-  fi
+  export GEN_VERIFY_INPUT=true
+
+  current_dir=$(pwd)
+  # Derive a filepath for the verify input. e.g if the task is in src/improvements/tasks/example/eth/000-gas-config-template.sol
+  # then the verify input will be in current_dir/OPVerifyInputs/eth/000-gas-config-template-input.json in the current directory
+  op_verify_input_filepath="${current_dir}/OPVerifyInputs/$(basename "$(dirname "${TASK_PATH}")")/${TASK_PATH##*/}-input.json"
+  # Create the directory for the verify input if it does not exist
+  mkdir -p "$(dirname "$op_verify_input_filepath")"
+  echo "Created OPVerifyInputs file: ${op_verify_input_filepath}"
+  export OP_VERIFY_INPUT_FILEPATH=${op_verify_input_filepath}
 
   forge build
   forge script ${script} \
