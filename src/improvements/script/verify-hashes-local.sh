@@ -35,9 +35,17 @@ verify_hashes() {
   message_hash_local=$(awk '/Message Hash:/{print $3}' "$forge_output_file")
   rm "$forge_output_file"
 
-  # Parse the domain separator and message hash from the VALIDATIONS.md file
-  domain_separator_validations=$(awk '/\['"$safe_name"'\]/{p=1;next} /^$/{p=0} p&&/domain_hash/{print $3}' "$task_path/VALIDATIONS.md" | tr -d '"')
-  message_hash_validations=$(awk '/\['"$safe_name"'\]/{p=1;next} /^$/{p=0} p&&/message_hash/{print $3}' "$task_path/VALIDATIONS.md" | tr -d '"')
+  # Parse the domain separator and message hash from the VALIDATIONS.md file - from [validation_hashes] until two consecutive blank lines
+  validations_toml_file="./validations.toml"
+  sed -n '/^\[validation_hashes\]$/,/^$/p' "$task_path/VALIDATIONS.md" | sed '/^$/q' > "$validations_toml_file"
+
+  # Use yq to extract the domain_hash and message_hash for the specific safe
+  domain_separator_validations=$(yq -oy -r -p=toml ".\"$safe_name\".domain_hash" "$validations_toml_file")
+  message_hash_validations=$(yq -oy -r -p=toml ".\"$safe_name\".message_hash" "$validations_toml_file")
+  
+  # Clean up the temporary file
+  rm -f "$validations_toml_file"
+  
   echo -e "\n\n-------- Domain Separator and Message Hashes from Validations file --------"
   echo "  Domain separator: $domain_separator_validations"
   echo "  Message hash: $message_hash_validations"

@@ -143,10 +143,6 @@ simulate-non-terminal-tasks:
     root_dir=$(git rev-parse --show-toplevel)
     forge build
 
-    # If the task is nested then we only simulate as the foundation.
-    # TODO: We should simulate and verify as other nested safes.
-    safe_name="foundation"
-
     # Later this networks list should be dynamically generated from the src/improvements/tasks directory,
     # and we should exclude the example tasks once we have real tasks to run.
     for task_path in ${root_dir}/test/tasks/example/*/*; do
@@ -157,6 +153,33 @@ simulate-non-terminal-tasks:
             continue
         fi
 
-        "$root_dir"/src/improvements/script/simulate-task.sh "$task_path" "$safe_name" "verify-all"
+        # Create a temporary file for the TOML content
+        validations_toml_file="${task_path}/VALIDATIONS.toml"
+        
+        # Extract the TOML block using sed - from [validation_hashes] until two consecutive blank lines
+        sed -n '/^\[validation_hashes\]$/,/^$/p' "$task_path/VALIDATIONS.md" | sed '/^$/q' > "$validations_toml_file"
+        
+        # Check if we extracted any content
+        if [ -s "$validations_toml_file" ]; then
+            # Use yq to parse the TOML and extract safe names
+            safe_names=$(yq -oy -r -p=toml 'keys | .[]' "$validations_toml_file" 2>/dev/null)
+            
+            echo -e "Safe names found:\n$safe_names"
+            
+            # Loop through each safe name
+            echo "$safe_names" | while read -r current_safe_name; do
+                if [ -n "$current_safe_name" ] && [ "$current_safe_name" != "validation_hashes" ]; then
+                    echo "Simulating with safe: $current_safe_name"
+                    # Run simulation for this safe
+                    "$root_dir"/src/improvements/script/simulate-task.sh "$task_path" "$current_safe_name" "verify-all"
+                fi
+            done
+        else
+            echo "No validation hashes found in $task_path/VALIDATIONS.md"
+        fi
+        
+        # Clean up the temporary file
+        rm -f "$validations_toml_file"
     done
+
     echo "Done simulating non-terminal tasks"
