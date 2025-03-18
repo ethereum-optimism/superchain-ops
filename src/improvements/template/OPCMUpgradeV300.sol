@@ -33,13 +33,15 @@ contract OPCMUpgradeV300 is OPCMBaseTask {
 
     /// @notice Returns the storage write permissions
     function _taskStorageWrites() internal view virtual override returns (string[] memory) {
-        string[] memory storageWrites = new string[](3);
+        string[] memory storageWrites = new string[](7);
         storageWrites[0] = "OPCM";
-        storageWrites[1] = "DisputeGameFactoryProxy";
-        storageWrites[2] = "SystemConfigProxy";
-        storageWrites[8] = "OptimismPortalProxy";
-        // TODO - l1CrossDomainMessenger
-    return storageWrites;
+        storageWrites[1] = "SystemConfigProxy";
+        storageWrites[2] = "OptimismPortalProxy";
+        storageWrites[3] = "L1CrossDomainMessengerProxy";
+        storageWrites[4] = "L1ERC721BridgeProxy";
+        storageWrites[5] = "L1StandardBridgeProxy";
+        storageWrites[6] = "DisputeGameFactoryProxy";
+        return storageWrites;
     }
 
     /// @notice Sets up the template with prestate inputs from a TOML file
