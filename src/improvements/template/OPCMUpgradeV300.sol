@@ -8,7 +8,6 @@ import {
     ISystemConfig,
     IProxyAdmin
 } from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
-import {IStandardValidatorV300} from "@eth-optimism-bedrock/interfaces/L1/IStandardValidator.sol";
 import {IOPContractsManager} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {VmSafe} from "forge-std/Vm.sol";
@@ -130,4 +129,17 @@ contract OPCMUpgradeV300 is OPCMBaseTask {
     function getCodeExceptions() internal view virtual override returns (address[] memory) {
         return new address[](0);
     }
+}
+
+interface IStandardValidatorV300 {
+    struct InputV300 {
+        address proxyAdmin;
+        address sysCfg;
+        bytes32 absolutePrestate;
+        uint256 l2ChainID;
+    }
+
+    function validate(InputV300 memory _input, bool _allowFailure) external view returns (string memory);
+
+    function disputeGameFactoryVersion() external pure returns (string memory);
 }
