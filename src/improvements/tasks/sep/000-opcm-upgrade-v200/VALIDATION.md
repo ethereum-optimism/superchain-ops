@@ -524,24 +524,6 @@ For each contract listed in the state diff, please verify that no contracts or s
                         2. What is currently stored at the key:
                          - <i>cast storage 0x6e8A77673109783001150DFA770E6c662f473DA9 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url sepolia</i>
 
-  ----- NOT IN TRACE -----
-  ----- DecodedStateDiff[26] -----
-    Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/sepolia/superchain.toml#L2">0x79ADD5713B383DAa0a138d3C4780C7A1804a8090</a>
-    Contract:          ProtocolVersions - Sepolia Testnet
-    Chain ID:          11155111
-
-    Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
-    Raw Old Value:     0x00000000000000000000000042f0bd8313ad456a38061308857b2383fe2c72a0
-    Raw New Value:     0x00000000000000000000000037e15e4d6dffa9e5e320ee1ec036922e563cb76c
-
-    Decoded Kind:      address
-    Decoded Old Value: 0x42F0bD8313ad456A38061308857b2383fe2c72a0
-    Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/validation/standard/standard-versions-sepolia.toml#L42">0x37E15e4d6DFFa9e5E320Ee1eC036922E563CB76C</a>
-    Summary:           ERC-1967 implementation slot
-    Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-                       ProtocolVersions contract for 'op-contracts/v2.0.0-rc.1'.
-  ----- NOT IN TRACE -----
-
   ----- DecodedStateDiff[27] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/sepolia/ink.toml#L64">0x860e626c700AF381133D9f4aF31412A2d1DB3D5d</a>
     Contract:          DisputeGameFactory - Ink Sepolia
@@ -682,24 +664,6 @@ For each contract listed in the state diff, please verify that no contracts or s
                         - <i>cast storage 0xB3Ad2c38E6e0640d7ce6aA952AB3A60E81bf7a01 0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e --rpc-url sepolia</i>
                        The Raw Slot can be derived from:
                         - <i>cast index uint32 1 101</i>
-
-  ----- NOT IN TRACE -----
-  ----- DecodedStateDiff[35] -----
-    Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/sepolia/superchain.toml#L3">0xC2Be75506d5724086DEB7245bd260Cc9753911Be</a>
-    Contract:          SuperchainConfig - Sepolia Testnet
-    Chain ID:          11155111
-
-    Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
-    Raw Old Value:     0x00000000000000000000000044674af65d36b9d4ac6ba4717369af794c75d9ba
-    Raw New Value:     0x0000000000000000000000004da82a327773965b8d4d85fa3db8249b387458e7
-
-    Decoded Kind:      address
-    Decoded Old Value: 0x44674AF65D36b9d4AC6ba4717369AF794c75d9BA
-    Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/validation/standard/standard-versions-sepolia.toml#L41">0x4da82a327773965b8d4D85Fa3dB8249b387458E7</a>
-    Summary:           ERC-1967 implementation slot
-    Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-                       SuperchainConfig contract for 'op-contracts/v2.0.0-rc.1'.
-  ----- NOT IN TRACE -----
 
   ----- DecodedStateDiff[36] -----
     Who:               0xc69C1ACcdAb9ae28780A238D987a1ACc8bd0FC56
