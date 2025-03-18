@@ -1,0 +1,18 @@
+l2chains = [
+    {name = "OP Sepolia Testnet", chainId = 11155420}, 
+    {name = "Soneium Testnet Minato", chainId = 1946},
+    {name = "Ink Sepolia", chainId = 763373}
+]
+
+templateName = "OPCMUpgradeV300"
+
+[opcmUpgrades]
+absolutePrestates = [
+    {absolutePrestate = "0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405", chainId = 11155420}, 
+    {absolutePrestate = "0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405", chainId = 1946}, 
+    {absolutePrestate = "0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405", chainId = 763373}
+]
+
+[addresses]
+OPCM = "0xfbceed4de885645fbded164910e10f52febfab35"
+StandardValidatorV300 = "0x5fd6dc82a0cbc0db40d18963d812487772113216"
