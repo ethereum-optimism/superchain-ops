@@ -170,7 +170,6 @@ contract FinanceTemplate is SimpleBase {
     /// @notice No code exceptions for this template
     function getCodeExceptions() internal view override returns (address[] memory) {}
 
-
     /// @notice Returns the operation type enum
     function _getOperationType() internal view returns (OperationType) {
         if (operationType.eq("approve")) {
