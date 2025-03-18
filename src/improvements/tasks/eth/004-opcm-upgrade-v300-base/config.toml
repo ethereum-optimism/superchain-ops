@@ -1,0 +1,14 @@
+l2chains = [
+    {name = "Base", chainId = 8453}
+]
+
+templateName = "OPCMUpgradeV300"
+
+[opcmUpgrades]
+absolutePrestates = [
+    {absolutePrestate = "0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405", chainId = 8453}
+]
+
+[addresses]
+OPCM = "0x3a1f523a4bc09cd344a2745a108bb0398288094f"
+StandardValidatorV300 = "0x1b8f0e76bb49b60dffbe3b847e25d6429ebff3e6"
