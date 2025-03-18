@@ -71,7 +71,7 @@ just \
    chain-governor # 0 or 1 or ...
 ```
 
-This will generate a file with the name `src/improvements/OPVerifyInputs/<NETWORK_DIR>/<RUNBOOK_DIR>/<TASK_NAME>-input.json`. Keep note of this.
+This will generate a file with the name `src/improvements/op-verify-inputs/<NETWORK_DIR>/<RUNBOOK_DIR>/<TASK_NAME>-input.json`. Keep note of this.
 
 You will also see a "Simulation link" from the output.
 
@@ -85,7 +85,7 @@ message hash to approve on your Ledger:
 
 1. Validate integrity of the simulation.
 2. Validate correctness of the state diff.
-3. Validate, extract domain hash and message hash to approve and compare the output with the outputs of the OP Verify tool.
+3. Validate the domain and message hash with OP Verify.
 
 #### 3.1. Validate integrity of the simulation.
 
@@ -137,10 +137,10 @@ git clone https://github.com/ethereum-optimism/op-verify
 Next create a file in the `op-verify` directory called `<output file name>.json` and copy-paste the contents of the `<output file name>.json` file created by the simulation above to it. Then run
 
 ```bash
-go run ./cmd/op-verify --tx <file name>.json
+go run ./cmd/op-verify --tx <output file name>.json
 ```
 
-This will output details about the transaction, including the domain and message hashes. **Compare these to the domain and message hashes you noted down earlier to check if the OP Verify tool is working correctly.**
+This will output details about the transaction, including the domain and message hashes. **Compare these to the domain and message hashes you noted down earlier to ensure they are consistent BEFORE proceeding.**
 
 ### 4. Approve the signature on your ledger
 
