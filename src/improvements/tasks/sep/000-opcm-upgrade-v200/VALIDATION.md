@@ -138,7 +138,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
     Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
     Raw Old Value:     0x000000000000000000000000a51bea7e4d34206c0bcb04a776292f2f19f0beec
-    Raw New Value:     0x0000000000000000000000004bba758f006ef09402ef31724203f316ab74e4a0
+    Raw New Value:     0x000000000000000000000000760c48c62a85045a6b69f07f4a9f22868659cbcc
 
     Decoded Kind:      address
     Decoded Old Value: 0xA51bea7E4d34206c0bCB04a776292F2f19F0BeEc
@@ -317,7 +317,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
     Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-    Raw New Value:     0xfc3e28704c5ab7bb943193afd784c1b2a97d1dd8d3f880519389a6574f14ae5c
+    Raw New Value:     0xc3c5beee182d6b52ff2a9014fa31434564038eb04ae14587fb52d3871f0ba039
     [WARN] Slot was not decoded
 
     Summary:           Slot 4 updates the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44">'root'</a> for the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L42">startingAnchorRoot</a>
@@ -333,7 +333,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
     Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-    Raw New Value:     0x00000000000000000000000000000000000000000000000000000000008baa6f
+    Raw New Value:     0x00000000000000000000000000000000000000000000000000000000008f6971
     [WARN] Slot was not decoded
 
     Summary:           Slot 5 updates the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44">'l2BlockNumber'</a> for the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L42">startingAnchorRoot</a>
@@ -524,6 +524,7 @@ For each contract listed in the state diff, please verify that no contracts or s
                         2. What is currently stored at the key:
                          - <i>cast storage 0x6e8A77673109783001150DFA770E6c662f473DA9 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url sepolia</i>
 
+  ----- NOT IN TRACE -----
   ----- DecodedStateDiff[26] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/sepolia/superchain.toml#L2">0x79ADD5713B383DAa0a138d3C4780C7A1804a8090</a>
     Contract:          ProtocolVersions - Sepolia Testnet
@@ -539,6 +540,7 @@ For each contract listed in the state diff, please verify that no contracts or s
     Summary:           ERC-1967 implementation slot
     Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                        ProtocolVersions contract for 'op-contracts/v2.0.0-rc.1'.
+  ----- NOT IN TRACE -----
 
   ----- DecodedStateDiff[27] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/sepolia/ink.toml#L64">0x860e626c700AF381133D9f4aF31412A2d1DB3D5d</a>
@@ -681,6 +683,7 @@ For each contract listed in the state diff, please verify that no contracts or s
                        The Raw Slot can be derived from:
                         - <i>cast index uint32 1 101</i>
 
+  ----- NOT IN TRACE -----
   ----- DecodedStateDiff[35] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/sepolia/superchain.toml#L3">0xC2Be75506d5724086DEB7245bd260Cc9753911Be</a>
     Contract:          SuperchainConfig - Sepolia Testnet
@@ -696,6 +699,7 @@ For each contract listed in the state diff, please verify that no contracts or s
     Summary:           ERC-1967 implementation slot
     Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                        SuperchainConfig contract for 'op-contracts/v2.0.0-rc.1'.
+  ----- NOT IN TRACE -----
 
   ----- DecodedStateDiff[36] -----
     Who:               0xc69C1ACcdAb9ae28780A238D987a1ACc8bd0FC56
@@ -824,7 +828,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
     Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-    Raw New Value:     0x9222dbee533c592b5a9ed6e11600fcf210b7cedcfa47968a55ce787ba34b1215
+    Raw New Value:     0xac6ff22063ddedf4e0768144c0eff53ac9756570d2c87e53250e6985cf7e6f7f
     [WARN] Slot was not decoded
 
     Summary:           Slot 4 updates the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44">'root'</a> for the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L42">startingAnchorRoot</a>
@@ -840,7 +844,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
     Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-    Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000beb15b
+    Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000c63154
     [WARN] Slot was not decoded
 
     Summary:           Slot 5 updates the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44">'l2BlockNumber'</a> for the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L42">startingAnchorRoot</a>
@@ -936,7 +940,7 @@ For each contract listed in the state diff, please verify that no contracts or s
     
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
     Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-    Raw New Value:     0x78d3c75b445bae5c1a76f271733a8ca87cb55455e264ba4b3d9ea1f7a4c2bf19
+    Raw New Value:     0x677467c223b803272c630296b9f1bb8af58cfcc240d03fbdba0b5af0ea839bab
     [WARN] Slot was not decoded
 
     Summary:           Slot 4 updates the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44">'root'</a> for the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L42">startingAnchorRoot</a>
@@ -952,7 +956,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
     Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-    Raw New Value:     0x00000000000000000000000000000000000000000000000000000000017b2fd4
+    Raw New Value:     0x00000000000000000000000000000000000000000000000000000000017eefb6
     [WARN] Slot was not decoded
 
     Summary:           Slot 5 updates the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44">'l2BlockNumber'</a> for the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L42">startingAnchorRoot</a>
