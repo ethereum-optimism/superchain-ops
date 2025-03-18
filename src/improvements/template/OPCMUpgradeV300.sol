@@ -57,10 +57,12 @@ contract OPCMUpgradeV300 is OPCMBaseTask {
         }
 
         OPCM = tomlContent.readAddress(".addresses.OPCM");
-        require(IOPContractsManager(OPCM).version().eq("1.9.0"), "Incorrect OPCM");
+        require(OPCM.code.length > 0, "Incorrect OPCM - no code at address");
+        require(IOPContractsManager(OPCM).version().eq("1.9.0"), "Incorrect OPCM - expected version 1.9.0");
         vm.label(OPCM, "OPCM");
 
         STANDARD_VALIDATOR_V300 = IStandardValidatorV300(tomlContent.readAddress(".addresses.StandardValidatorV300"));
+        require(address(STANDARD_VALIDATOR_V300).code.length > 0, "Incorrect StandardValidatorV300 - no code at address");
         require(STANDARD_VALIDATOR_V300.mipsVersion().eq("1.0.0"), "Incorrect StandardValidatorV300 - expected mips version 1.0.0");
         require(STANDARD_VALIDATOR_V300.systemConfigVersion().eq("2.5.0"), "Incorrect StandardValidatorV300 - expected systemConfig version 2.5.0");
         vm.label(address(STANDARD_VALIDATOR_V300), "StandardValidatorV300");
