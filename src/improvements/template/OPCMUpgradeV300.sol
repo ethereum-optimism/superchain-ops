@@ -33,21 +33,13 @@ contract OPCMUpgradeV300 is OPCMBaseTask {
 
     /// @notice Returns the storage write permissions
     function _taskStorageWrites() internal view virtual override returns (string[] memory) {
-        string[] memory storageWrites = new string[](13);
+        string[] memory storageWrites = new string[](3);
         storageWrites[0] = "OPCM";
-        storageWrites[1] = "SuperchainConfig";
-        storageWrites[2] = "ProtocolVersions";
-        storageWrites[3] = "SystemConfigProxy";
-        storageWrites[4] = "AddressManager";
-        storageWrites[5] = "L1ERC721BridgeProxy";
-        storageWrites[6] = "L1StandardBridgeProxy";
-        storageWrites[7] = "DisputeGameFactoryProxy";
+        storageWrites[1] = "DisputeGameFactoryProxy";
+        storageWrites[2] = "SystemConfigProxy";
         storageWrites[8] = "OptimismPortalProxy";
-        storageWrites[9] = "OptimismMintableERC20FactoryProxy";
-        storageWrites[10] = "OptimismMintableERC20FactoryProxy";
-        storageWrites[11] = "PermissionedWETH"; // GameType 1
-        storageWrites[12] = "PermissionlessWETH"; // GameType 0
-        return storageWrites;
+        // TODO - l1CrossDomainMessenger
+    return storageWrites;
     }
 
     /// @notice Sets up the template with prestate inputs from a TOML file
@@ -63,11 +55,12 @@ contract OPCMUpgradeV300 is OPCMBaseTask {
         }
 
         OPCM = tomlContent.readAddress(".addresses.OPCM");
-        require(IOPContractsManager(OPCM).version().eq("1.6.0"), "Incorrect OPCM");
+        require(IOPContractsManager(OPCM).version().eq("1.9.0"), "Incorrect OPCM");
         vm.label(OPCM, "OPCM");
 
         STANDARD_VALIDATOR_V300 = IStandardValidatorV300(tomlContent.readAddress(".addresses.StandardValidatorV300"));
-        require(STANDARD_VALIDATOR_V300.disputeGameFactoryVersion().eq("1.0.1"), "Incorrect StandardValidatorV300");
+        require(STANDARD_VALIDATOR_V300.mipsVersion().eq("1.0.0"), "Incorrect StandardValidatorV300 - expected mips version 1.0.0");
+        require(STANDARD_VALIDATOR_V300.systemConfigVersion().eq("2.5.0"), "Incorrect StandardValidatorV300 - expected systemConfig version 2.5.0");
         vm.label(address(STANDARD_VALIDATOR_V300), "StandardValidatorV300");
     }
 
@@ -119,9 +112,10 @@ contract OPCMUpgradeV300 is OPCMBaseTask {
             });
 
             string memory reasons = STANDARD_VALIDATOR_V300.validate({_input: input, _allowFailure: true});
-            string memory expectedErrors_11155420 =
-                "PDDG-50,PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-50,PLDG-DWETH-40,PLDG-ANCHORP-40";
-            require(reasons.eq(expectedErrors_11155420), string.concat("Unexpected errors: ", reasons));
+            string memory expectedErrors = "";
+//            TODO: figure out expected errors
+//                "PDDG-50,PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-50,PLDG-DWETH-40,PLDG-ANCHORP-40";
+            require(reasons.eq(expectedErrors), string.concat("Unexpected errors: ", reasons));
         }
     }
 
@@ -141,5 +135,7 @@ interface IStandardValidatorV300 {
 
     function validate(InputV300 memory _input, bool _allowFailure) external view returns (string memory);
 
-    function disputeGameFactoryVersion() external pure returns (string memory);
+    function mipsVersion() external pure returns (string memory);
+
+    function systemConfigVersion() external pure returns (string memory);
 }
