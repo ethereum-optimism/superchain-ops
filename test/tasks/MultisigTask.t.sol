@@ -249,9 +249,7 @@ contract MultisigTaskUnitTest is Test {
 
         bytes memory expectedData = abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
 
-        (bytes memory data,) = task.getMulticall3CalldataAndValue(actions);
-
-        assertEq(data, expectedData, "Wrong aggregate calldata");
+        assertEq(task.getMulticall3Calldata(actions), expectedData, "Wrong aggregate calldata");
     }
 
     function testFuzz_ValidActionConditions(bool isCall, address randomAccount) public {
