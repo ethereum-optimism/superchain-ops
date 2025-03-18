@@ -10,7 +10,7 @@ Each Finance Template transaction requires developers to create a new `.toml` fi
 
 ```templateName = "FinanceTemplate"```
 
-**Operation Type** - This can be of type `approve`, `increaseAllowance`, `decreaseAllowance`, or `transfer`. The operation type specifies the type of operation to perform on the token being transferred. If the token is Eth, the operation type can only be `transfer`.
+**Operation Type** - This can be of type `approve`, `increaseAllowance`, `decreaseAllowance`, or `transfer`. The operation type specifies the type of operation to perform on the token being transferred. If the token is ETH, the operation type can only be `transfer`.
 
 ```operationType = "approve"```
 
