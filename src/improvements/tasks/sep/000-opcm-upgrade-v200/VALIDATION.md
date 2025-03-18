@@ -87,7 +87,7 @@ The resulting calldata sent from the ProxyAdminOwner safe is thus:
 
 In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.optimism.io/t/upgrade-proposal-13-opcm-and-incident-response-improvements/9739#p-43725-action-plan-15) section of the Governance proposal.
 
-# State Changes
+# State Validations
 
 For each contract listed in the state diff, please verify that no contracts or state changes shown in the Tenderly diff are missing from this document. Additionally, please verify that for each contract:
 
