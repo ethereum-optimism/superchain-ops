@@ -595,7 +595,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             }
 
             console.log("\n\n------------------ Tenderly Simulation Data ------------------");
-            printTenderlySimulationData(actions);
+            printTenderlySimulationData(actions, optionalChildMultisig);
         }
     }
 
@@ -658,10 +658,32 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         console.log("Message Hash:   ", vm.toString(safeTxHash));
     }
 
+    // bytes memory data = abi.encodeCall(IMulticall3.aggregate3, (_calls));
+    // IMulticall3.Call3[] memory calls = _simulateForSignerCalls(_signerSafe, _safe, data);
+
+    // // Now define the state overrides for the simulation.
+    // Simulation.StateOverride[] memory overrides = _overrides(_signerSafe, _safe);
+
+    // bytes memory txData = abi.encodeCall(IMulticall3.aggregate3, (calls));
+    // console.log("---\nSimulation link:");
+    // // solhint-disable max-line-length
+    // Simulation.logSimulationLink({_to: MULTICALL3_ADDRESS, _data: txData, _from: msg.sender, _overrides: overrides});
+
+    // // Forge simulation of the data logged in the link. If the simulation fails
+    // // we revert to make it explicit that the simulation failed.
+    // Simulation.Payload memory simPayload =
+    //     Simulation.Payload({to: MULTICALL3_ADDRESS, data: txData, from: msg.sender, stateOverrides: overrides});
+    // Vm.AccountAccess[] memory accesses = Simulation.simulateFromSimPayload(simPayload);
+    // return (accesses, simPayload);
+
     /// @notice print the tenderly simulation payload with the state overrides
-    function printTenderlySimulationData(Action[] memory actions) internal view {
+    function printTenderlySimulationData(Action[] memory actions, address optionalChildMultisig) internal view {
+        // TODO: Support child nonce as a state override. Right now we always get the latest nonce.
+        // Use the max uint256 to indicate that the child multisig nonce is not provided (zero is a valid nonce).
+        uint256 childMultisigNonce =
+            optionalChildMultisig != address(0) ? _getNonce(optionalChildMultisig) : type(uint256).max;
         Simulation.StateOverride[] memory allStateOverrides =
-            getStateOverrides(parentMultisig, _getNonce(parentMultisig));
+            getStateOverrides(parentMultisig, _getNonce(parentMultisig), optionalChildMultisig, childMultisigNonce);
 
         bytes memory txData = _execTransationCalldata(
             parentMultisig, getMulticall3Calldata(actions), Signatures.genPrevalidatedSignature(msg.sender)

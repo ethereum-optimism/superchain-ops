@@ -251,7 +251,8 @@ contract StateOverrideManagerUnitTest is Test {
         view
         returns (Simulation.StateOverride[] memory allOverrides_)
     {
-        allOverrides_ = task.getStateOverrides(address(task.parentMultisig()), task.nonce());
+        allOverrides_ =
+            task.getStateOverrides(address(task.parentMultisig()), task.nonce(), address(0), type(uint256).max);
 
         assertTrue(allOverrides_.length >= 1, "Must be at least 1 override (default + user defined)");
         assertEq(
