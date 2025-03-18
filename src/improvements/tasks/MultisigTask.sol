@@ -301,7 +301,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @notice get the calldata to be executed by safe
     /// @dev callable only after the build function has been run and the
     /// calldata has been loaded up to storage
-    /// @return data The calldata to be executed
+    /// @return data The calldata to be executed and the value to be sent
     function getMulticall3CalldataAndValue(Action[] memory actions)
         public
         view
@@ -322,6 +322,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
         // Generate calldata
         data = abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
+    }
+
+    /// @notice get the calldata to be executed by safe
+    /// @dev callable only after the build function has been run and the
+    /// calldata has been loaded up to storage
+    /// @return data The calldata to be executed
+    function getMulticall3Calldata(Action[] memory actions) public view returns (bytes memory data) {
+        (data,) = getMulticall3CalldataAndValue(actions);
     }
 
     /// @notice print the data to sig by EOA for single multisig
@@ -614,8 +622,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     function printSafe(Action[] memory actions, address optionalChildMultisig, bool isSimulate) private view {
         // Print calldata to be executed within the Safe.
         console.log("\n\n------------------ Task Calldata ------------------");
-        (bytes memory callData,) = getMulticall3CalldataAndValue(actions);
-        console.logBytes(callData);
+        console.logBytes(getMulticall3Calldata(actions));
 
         // Only print data if the task is being simulated.
         // 'isSimulate' is true when 'signFromChildMultisig' is called.
@@ -696,9 +703,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         Simulation.StateOverride[] memory allStateOverrides =
             getStateOverrides(parentMultisig, _getNonce(parentMultisig));
 
-        (bytes memory callData,) = getMulticall3CalldataAndValue(actions);
-        bytes memory txData =
-            _execTransationCalldata(parentMultisig, callData, Signatures.genPrevalidatedSignature(msg.sender));
+        bytes memory txData = _execTransationCalldata(
+            parentMultisig, getMulticall3Calldata(actions), Signatures.genPrevalidatedSignature(msg.sender)
+        );
 
         // Log the Tenderly JSON payload
         console.log("\nSimulation payload:");

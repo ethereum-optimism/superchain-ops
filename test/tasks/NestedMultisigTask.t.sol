@@ -64,7 +64,6 @@ contract NestedMultisigTaskTest is Test {
         (, MultisigTask.Action[] memory actions) = runTask(SECURITY_COUNCIL_CHILD_MULTISIG);
         IGnosisSafe parentMultisig = IGnosisSafe(multisigTask.parentMultisig());
         address[] memory childOwnerMultisigs = parentMultisig.getOwners();
-        (bytes memory data,) = multisigTask.getMulticall3CalldataAndValue(actions);
 
         // child multisigs have to approve the transaction that the parent multisig is going to execute.
         // hashToApproveByChildMultisig is the hash of the transaction that the parent multisig is going
@@ -74,7 +73,7 @@ contract NestedMultisigTaskTest is Test {
         bytes32 hashToApproveByChildMultisig = parentMultisig.getTransactionHash(
             MULTICALL3_ADDRESS,
             0,
-            data,
+            multisigTask.getMulticall3Calldata(actions),
             Enum.Operation.DelegateCall,
             0,
             0,
