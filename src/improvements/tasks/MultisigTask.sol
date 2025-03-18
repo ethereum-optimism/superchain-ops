@@ -337,6 +337,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         printDomainSeparatorAndMessageHash(parentMultisig, encodedTxData);
     }
 
+    /// @notice if the env variable GEN_VERIFY_INPUT is true and OP_VERIFY_INPUT_FILEPATH env variable is set,
+    ///         it outputs the OP Verify input json to the file, OP_VERIFY_INPUT_FILEPATH.
     function outputOPVerifyInputToFile(address safe, bytes memory callData) private {
         bool genVerifyInput = vm.envOr("GEN_VERIFY_INPUT", false);
         string memory filepath = vm.envOr("OP_VERIFY_INPUT_FILEPATH", new string(0));
