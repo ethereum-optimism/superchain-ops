@@ -29,16 +29,12 @@ verify_hashes() {
   message_hash_remote=$(awk '/Message Hash:/{print $3}' "$remote_output_file")
   rm "$remote_output_file"
 
-  # Parse the domain separator and message hash from the VALIDATIONS.md file - from [validation_hashes] until two consecutive blank lines
-  validations_toml_file="./validations.toml"
-  sed -n '/^\[validation_hashes\]$/,/^$/p' "$task_path/VALIDATIONS.md" | sed '/^$/q' > "$validations_toml_file"
+  # Extract the TOML block from [validation_hashes] until two consecutive blank lines
+  validation_hashes=$(sed -n '/^\[validation_hashes\]$/,/^$/p' "$task_path/VALIDATIONS.md" | sed '/^$/q')
 
-  # Use yq to extract the domain_hash and message_hash for the specific safe
-  domain_separator_validations=$(yq -oy -r -p=toml ".\"$safe_name\".domain_hash" "$validations_toml_file")
-  message_hash_validations=$(yq -oy -r -p=toml ".\"$safe_name\".message_hash" "$validations_toml_file")
-  
-  # Clean up the temporary file
-  rm -f "$validations_toml_file"
+  # Extract the domain_hash and message_hash for the specific safe
+  domain_separator_validations=$(echo "$validation_hashes" | yq -oy -r -p=toml ".\"$safe_name\".domain_hash")
+  message_hash_validations=$(echo "$validation_hashes" | yq -oy -r -p=toml ".\"$safe_name\".message_hash")
   
   # Compare the validations and remote hashes
   if [ "$domain_separator_validations" != "$domain_separator_remote" ]; then

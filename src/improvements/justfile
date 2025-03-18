@@ -152,17 +152,20 @@ simulate-non-terminal-tasks:
             echo "Skipping task $(basename "$task_path") with status: $status"
             continue
         fi
-
-        # Create a temporary file for the TOML content
-        validations_toml_file="${task_path}/VALIDATIONS.toml"
         
-        # Extract the TOML block using sed - from [validation_hashes] until two consecutive blank lines
-        sed -n '/^\[validation_hashes\]$/,/^$/p' "$task_path/VALIDATIONS.md" | sed '/^$/q' > "$validations_toml_file"
+        # Check if VALIDATIONS.md exists
+        if [ ! -f "$task_path/VALIDATIONS.md" ]; then
+            echo -e "\n\n\033[1;31mVALIDATIONS.md file not found for task $(basename "$task_path")\033[0m\n"
+            exit 1
+        fi
+
+        # Extract the TOML block from [validation_hashes] until two consecutive blank lines
+        validation_hashes=$(sed -n '/^\[validation_hashes\]$/,/^$/p' "$task_path/VALIDATIONS.md" | sed '/^$/q')
         
         # Check if we extracted any content
-        if [ -s "$validations_toml_file" ]; then
-            # Use yq to parse the TOML and extract safe names
-            safe_names=$(yq -oy -r -p=toml 'keys | .[]' "$validations_toml_file" 2>/dev/null)
+        if [ "$(echo "$validation_hashes" | grep -v '^\s*$')" ]; then
+            # Extract safe names
+            safe_names=$(echo "$validation_hashes" | yq -oy -r -p=toml 'keys | .[]' 2>/dev/null)
             
             echo -e "Safe names found:\n$safe_names"
             
@@ -175,11 +178,9 @@ simulate-non-terminal-tasks:
                 fi
             done
         else
-            echo "No validation hashes found in $task_path/VALIDATIONS.md"
+            echo "\n\n\033[1;31mNo validation hashes found in $task_path/VALIDATIONS.md\033[0m\n"
+            exit 1
         fi
-        
-        # Clean up the temporary file
-        rm -f "$validations_toml_file"
     done
 
     echo "Done simulating non-terminal tasks"
