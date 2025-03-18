@@ -1,6 +1,6 @@
 # Finance Template Usage
 
-The Finance Template allows members of the finance team to send tokens and Ether to multiple addresses in a single transaction.
+The Finance Template is used for approving or sending ETH or ERC20 tokens from a Safe, and allows multiple actions to be batched into a single transaction.
 
 ## Usage
 
