@@ -9,7 +9,8 @@ See [Single](../SINGLE.md) and [Nested](../NESTED.md) for details on running tas
 ## Example
 
 ```toml
-# Each Finance Template transaction requires developers to create a new `.toml` file containing the following parameters.
+# Usage of the Finance Template transaction requires creating a new `.toml` file containing the following parameters.
+# This should be done using the `just new task` command
 
 # Template Name - This specifies which template to use. For the Finance Template, the template name is FinanceTemplate.
 templateName = "FinanceTemplate"
