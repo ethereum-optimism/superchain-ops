@@ -138,7 +138,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
     Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
     Raw Old Value:     0x000000000000000000000000a51bea7e4d34206c0bcb04a776292f2f19f0beec
-    Raw New Value:     0x000000000000000000000000760c48c62a85045a6b69f07f4a9f22868659cbcc
+    Raw New Value:     0x0000000000000000000000004bba758f006ef09402ef31724203f316ab74e4a0
 
     Decoded Kind:      address
     Decoded Old Value: 0xA51bea7E4d34206c0bCB04a776292F2f19F0BeEc
