@@ -140,8 +140,8 @@ contract FinanceTemplate is SimpleBase {
                 IERC20(token).safeDecreaseAllowance(target, operation.amount);
             } else if (operationTypeEnum == OperationType.Transfer) {
                 if (token == simpleAddrRegistry.get("ETH")) {
-                    (bool success,) = target.call{value: operation.amount}("");
-                    require(success, "Transfer failed");
+                    (bool success, bytes memory data) = target.call{value: operation.amount}("");
+                    require(success, string.concat("Transfer failed: ", vm.toString(data)));
                 } else {
                     IERC20(token).safeTransfer(target, operation.amount);
                 }
