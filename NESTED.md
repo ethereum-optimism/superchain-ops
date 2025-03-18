@@ -48,8 +48,7 @@ For the Security Council:
    --dotenv-path $(pwd)/.env \
    --justfile ../../../nested.just \
    simulate \
-   council \
-   true "<output file name>.json"
+   council # 0 or 1 or ...
 ```
 
 For the Foundation:
@@ -59,8 +58,7 @@ just \
    --dotenv-path $(pwd)/.env \
    --justfile ../../../nested.just \
    simulate \
-   foundation \
-   true "<output file name>.json"
+   foundation # 0 or 1 or ...
 ```
 
 For the Chain Governor:
@@ -70,11 +68,8 @@ just \
    --dotenv-path $(pwd)/.env \
    --justfile ../../../nested.just \
    simulate \
-   chain-governor \
-   true "<output file name>.json"
+   chain-governor # 0 or 1 or ...
 ```
-
-This will generate a file with the name `<output file name>.json`. Keep note of this.
 
 You will see a "Simulation link" from the output.
 
@@ -88,7 +83,7 @@ message hash to approve on your Ledger:
 
 1. Validate integrity of the simulation.
 2. Validate correctness of the state diff.
-3. Validate, extract domain hash and message hash to approve and compare the output with the outputs of the OP Verify tool.
+3. Validate and extract domain hash and message hash to approve.
 
 #### 3.1. Validate integrity of the simulation.
 
@@ -128,22 +123,6 @@ message hash: `0x1901[domain hash][message hash]`.
 
 Note down this value. You will need to compare it with the ones
 displayed on the Ledger screen at signing.
-
-#### 3.4 Using OP Verify to verify the domain and message hashes
-
-For this step, we need to clone the OP Verify repository from https://github.com/ethereum-optimism/op-verify if we have not already done so.
-
-```bash
-git clone https://github.com/ethereum-optimism/op-verify
-```
-
-Next create a file in the `op-verify` directory called `<output file name>.json` and copy-paste the contents of the `<output file name>.json` file created by the simulation above to it. Then run
-
-```bash
-go run ./cmd/op-verify --tx <file name>.json
-```
-
-This will output details about the transaction, including the domain and message hashes. **Compare these to the domain and message hashes you noted down earlier to check if the OP Verify tool is working correctly.**
 
 ### 4. Approve the signature on your ledger
 
