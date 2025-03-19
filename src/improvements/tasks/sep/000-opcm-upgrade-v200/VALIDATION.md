@@ -536,7 +536,9 @@ For each contract listed in the state diff, please verify that no contracts or s
     Decoded Kind:      address
     Decoded Old Value: 0x42F0bD8313ad456A38061308857b2383fe2c72a0
     Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/validation/standard/standard-versions-sepolia.toml#L42">0x37E15e4d6DFFa9e5E320Ee1eC036922E563CB76C</a>
-    Summary:           ERC-1967 implementation slot
+    
+    Summary:           <b>IMPORTANT: THIS STATE CHANGE MAY NOT APPEAR IN THE TENDERLY STATE DIFF.</b>
+                       ERC-1967 implementation slot
     Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                        ProtocolVersions contract for 'op-contracts/v2.0.0-rc.1'.
 
@@ -693,7 +695,9 @@ For each contract listed in the state diff, please verify that no contracts or s
     Decoded Kind:      address
     Decoded Old Value: 0x44674AF65D36b9d4AC6ba4717369AF794c75d9BA
     Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/validation/standard/standard-versions-sepolia.toml#L41">0x4da82a327773965b8d4D85Fa3dB8249b387458E7</a>
-    Summary:           ERC-1967 implementation slot
+
+    Summary:           <b>IMPORTANT: THIS STATE CHANGE MAY NOT APPEAR IN THE TENDERLY STATE DIFF.</b>
+                       ERC-1967 implementation slot.
     Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                        SuperchainConfig contract for 'op-contracts/v2.0.0-rc.1'.
 
