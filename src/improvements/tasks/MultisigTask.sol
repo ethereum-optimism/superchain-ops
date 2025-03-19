@@ -337,25 +337,41 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         printDomainSeparatorAndMessageHash(parentMultisig, encodedTxData);
     }
 
+    struct OPVerifyOutputFunctionVars {
+        bool genVerifyInput;
+        string filepath;
+        uint256 childNonce;
+        uint256 parentNonce;
+        bool isNested;
+    }
+
     /// @notice if the env variable GEN_VERIFY_INPUT is true and OP_VERIFY_INPUT_FILEPATH env variable is set,
     ///         it outputs the OP Verify input json to the file, OP_VERIFY_INPUT_FILEPATH.
     function outputOPVerifyInputToFile(address safe, bytes memory callData) private {
-        bool genVerifyInput = vm.envOr("GEN_VERIFY_INPUT", false);
-        string memory filepath = vm.envOr("OP_VERIFY_INPUT_FILEPATH", new string(0));
-        uint256 _nonce = _getNonce(safe);
-        if (genVerifyInput) {
-            require(!filepath.eq(""), "GEN_VERIFY_INPUT is true but OP_VERIFY_INPUT_FILEPATH is not set");
+        OPVerifyOutputFunctionVars memory vars = OPVerifyOutputFunctionVars({
+            genVerifyInput: vm.envOr("GEN_VERIFY_INPUT", false),
+            filepath: vm.envOr("OP_VERIFY_INPUT_FILEPATH", new string(0)),
+            childNonce: _getNonce(safe),
+            parentNonce: _getNonce(parentMultisig),
+            isNested: isNestedSafe(parentMultisig)
+        });
+        if (vars.genVerifyInput) {
+            require(!vars.filepath.eq(""), "GEN_VERIFY_INPUT is true but OP_VERIFY_INPUT_FILEPATH is not set");
             string memory json = string.concat(
                 '{\n   "safe": "',
-                vm.toString(safe),
+                vm.toString(parentMultisig),
                 '",\n   "chain": ',
                 vm.toString(block.chainid),
                 ',\n   "to": "',
-                vm.toString(_getMulticallAddress(safe)),
+                vm.toString(_getMulticallAddress(parentMultisig)),
                 '",\n   "value": ',
                 vm.toString(uint256(0)),
                 ',\n   "data": "',
-                vm.toString(callData),
+                vm.toString(parentCalldata)
+            );
+
+            json = string.concat(
+                json,
                 '",\n   "operation": ',
                 vm.toString(uint8(Enum.Operation.DelegateCall)),
                 ',\n   "safe_tx_gas": ',
@@ -367,13 +383,34 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                 ',\n   "gas_token": "',
                 vm.toString(address(0)),
                 '",\n   "refund_receiver": "',
-                vm.toString(address(0)),
+                vm.toString(address(0))
+            );
+
+            json = string.concat(
+                json,
                 '",\n   "nonce": ',
-                vm.toString(_nonce),
+                vm.toString(vars.parentNonce),
+                vars.isNested
+                    ? string.concat(
+                        ',\n   "nested": ',
+                        '{\n    "safe": "',
+                        vm.toString(safe),
+                        '",\n    "nonce": ',
+                        vm.toString(vars.childNonce),
+                        ',\n    "operation": ',
+                        vm.toString(uint8(Enum.Operation.DelegateCall)),
+                        ',\n    "data": "',
+                        vm.toString(callData),
+                        '",\n    "to": "',
+                        vm.toString(_getMulticallAddress(safe)),
+                        '"\n   }'
+                    )
+                    : "",
                 "\n}"
             );
-            vm.writeFile(filepath, json);
-            console.log("Wrote verify input to %s", filepath);
+
+            vm.writeFile(vars.filepath, json);
+            console.log("Wrote verify input to %s", vars.filepath);
         }
     }
 
@@ -400,7 +437,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         });
     }
 
+    bytes parentCalldata;
     /// @notice simulate the task by approving from owners and then executing
+
     function simulate(bytes memory _signatures, Action[] memory actions)
         public
         returns (VmSafe.AccountAccess[] memory)
@@ -431,6 +470,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         vm.startStateDiffRecording();
 
         // Execute the transaction
+        parentCalldata = callData;
         execTransaction(parentMultisig, multicallTarget, 0, callData, Enum.Operation.DelegateCall, signatures);
         VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
         return accountAccesses;
@@ -658,6 +698,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
     /// @notice Helper function to print nested calldata.
     function printNestedData(Action[] memory actions, address childMultisig) private {
+        console.log("\n\n------------------ Nested Multisig Child's Hash to Approve ------------------");
+        console.log("Parent multisig: %s", getAddressLabel(parentMultisig));
+        console.log("Parent hashToApprove: %s", vm.toString(getHash(parentCalldata, parentMultisig)));
         console.log("\n\n------------------ Nested Multisig EOAs Data to Sign ------------------");
         printNestedDataToSign(actions, childMultisig);
         console.log("\n\n------------------ Nested Multisig EOAs Hash to Approve ------------------");
@@ -697,6 +740,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
         bytes memory encodedTxData = getEncodedTransactionData(childMultisig, callData);
         require(encodedTxData.length == 66, "MultisigTask: encodedTxData length is not 66 bytes.");
+        console.log("Child hashToApprove: %s", vm.toString(keccak256(encodedTxData)));
 
         outputOPVerifyInputToFile(childMultisig, callData);
 

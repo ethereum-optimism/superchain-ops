@@ -119,7 +119,7 @@ git clone https://github.com/ethereum-optimism/op-verify
 Next create a file in the `op-verify` directory called `<output file name>.json` and copy-paste the contents of the `<output file name>.json` file created by the simulation above to it. Then run
 
 ```bash
-go run ./cmd/op-verify --tx <output file name>.json
+go run ./cmd/op-verify offline --tx <output file name>.json
 ```
 
 This will output details about the transaction, including the domain and message hashes. **Compare these to the domain and message hashes you noted down earlier to ensure they are consistent BEFORE proceeding.**
