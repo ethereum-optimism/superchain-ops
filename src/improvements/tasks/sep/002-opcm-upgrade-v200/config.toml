@@ -1,0 +1,26 @@
+l2chains = [
+    {name = "Unichain Sepolia Testnet", chainId = 1301}
+]
+
+templateName = "OPCMUpgradeV200"
+
+[opcmUpgrades]
+absolutePrestates = [
+    {absolutePrestate = "0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9", chainId = 1301},
+]
+
+[addresses]
+OPCM = "0x1B25F566336F47BC5E0036D66E142237DcF4640b"
+StandardValidatorV200 = "0x37739a6b0a3F1E7429499a4eC4A0685439Daff5C"
+
+[stateOverrides]
+# SuperchainConfig op-contracts/v2.0.0 implementation address set. This task assumes upgrade controller has already called OPCM upgrade.
+# https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L41
+0xC2Be75506d5724086DEB7245bd260Cc9753911Be = [
+    {key = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc", value = "0x0000000000000000000000004da82a327773965b8d4d85fa3db8249b387458e7"}
+]
+# ProtocolVersions op-contracts/v2.0.0 implementation address set. This task assumes upgrade controller has already called OPCM upgrade.
+# https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L42
+0x79ADD5713B383DAa0a138d3C4780C7A1804a8090 = [
+    {key = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc", value = "0x00000000000000000000000037e15e4d6dffa9e5e320ee1ec036922e563cb76c"}
+]
