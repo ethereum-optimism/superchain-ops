@@ -6,7 +6,7 @@ The referenced program should be a valid release of `op-program`.
 
 ## Releases.json
 All `op-program` releases are documented in
-[releases.json](https://github.com/ethereum-optimism/optimism/blob/develop/op-program/prestates/releases.json).
+[releases.json](https://github.com/ethereum-optimism/optimism/blob/8d0dd96e494b2ba154587877351e87788336a4ec/op-program/prestates/releases.json).
 
 For example, here is a subset of documented releases:
 ```json
@@ -73,4 +73,4 @@ To calculate the prestates associated with a given `op-program` release (for exa
   * The "Cannon" hash is the 32-bit prestate.
   * The "Cannon64" hash is the 64-bit prestate.
 * Verify that your target prestate was calculated as expected and matches the corresponding entry in
-  [releases.json](https://github.com/ethereum-optimism/optimism/blob/develop/op-program/prestates/releases.json).
+  [releases.json](https://github.com/ethereum-optimism/optimism/blob/8d0dd96e494b2ba154587877351e87788336a4ec/op-program/prestates/releases.json).
