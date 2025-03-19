@@ -5,6 +5,7 @@ templateName = "FinanceTemplate"
 # approve, increaseAllowance, decreaseAllowance, transfer
 operationType = "transfer"
 
+# List of operations to perform. In this case, approve 100 TEST tokens to be spent by SecurityCouncil and USER1
 operations = [
   {token = "TEST", amount = 100, target = "SecurityCouncil"},
   {token = "ETH", amount = 100, target = "SecurityCouncil"}
