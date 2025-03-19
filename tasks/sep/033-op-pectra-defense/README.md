@@ -1,6 +1,6 @@
 # ProxyAdminOwner - Update Prestate Hash
 
-Status: DRAFT, NOT READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xf143768d92b4f0cd8019153571fee9e82d74a918a1ae644d3214b8f86baff830)
 
 ## Objective
 
@@ -40,5 +40,5 @@ Please see the instructions for [validation](./VALIDATION.md).
 ## Simulation
 
 Please see the "Simulating and Verifying the Transaction" instructions in [NESTED.md](../../../NESTED.md).
-When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/sep/032-op-pectra-defence/NestedSignFromJson.s.sol`.
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/sep/033-op-pectra-defense/NestedSignFromJson.s.sol`.
 This ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
