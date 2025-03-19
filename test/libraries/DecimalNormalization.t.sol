@@ -5,19 +5,13 @@ import {MockERC20} from "lib/solady/test/utils/mocks/MockERC20.sol";
 
 import {Test} from "forge-std/Test.sol";
 
-import {StringParser} from "src/libraries/StringParser.sol";
 import {DecimalNormalization} from "src/libraries/DecimalNormalization.sol";
 
-library MockDecimalNormalization {
-    function scaleDecimals(uint256 amount, uint8 decimals) external pure returns (uint256) {
-        return DecimalNormalization.scaleDecimals(amount, decimals);
-    }
-
-    function normalizeTokenAmount(string memory amount, uint8 tokenDecimals) external pure returns (uint256) {
-        return DecimalNormalization.normalizeTokenAmount(amount, tokenDecimals);
-    }
-}
-
+/// the `forge-config: default.allow_internal_expect_revert = true` field is
+/// used to allow the test to expect reverts from internal functions.
+/// This is useful for testing internal functions that are at call depth of 0.
+/// https://book.getfoundry.sh/cheatcodes/expect-revert#error
+/// https://book.getfoundry.sh/cheatcodes/expect-revert#description
 contract DecimalNormalizationTest is Test {
     MockERC20 public token6; // 6 decimals
     MockERC20 public token18; // 18 decimals
@@ -61,10 +55,11 @@ contract DecimalNormalizationTest is Test {
         assertEq(amount, 100 * 10 ** 18); // 100 * 10^(18-0) = 100 * 10^18
     }
 
+    /// forge-config: default.allow_internal_expect_revert = true
     function testNormalizeTokenAmountRevertMoreDecimals() public {
         // Test when amount decimals (8) are greater than token decimals (6)
         vm.expectRevert("amount decimals must be less than or equal to token decimals");
-        MockDecimalNormalization.normalizeTokenAmount("100.12345678", 6);
+        DecimalNormalization.normalizeTokenAmount("100.12345678", 6);
     }
 
     function testNormalizeTokenAmountSmallDecimal() public pure {
@@ -77,9 +72,10 @@ contract DecimalNormalizationTest is Test {
         assertEq(amount, 10 * 10 ** 12); // 0.00001 * 10^18 = 10 * 10^12 = 10000000000000
     }
 
+    /// forge-config: default.allow_internal_expect_revert = true
     function testNormalizeTokenAmountRevertZeroAmount() public {
         vm.expectRevert("amount must be non-zero");
-        MockDecimalNormalization.normalizeTokenAmount("0.0", 6);
+        DecimalNormalization.normalizeTokenAmount("0.0", 6);
     }
 
     // ==================== Integration Tests ====================
@@ -143,5 +139,135 @@ contract DecimalNormalizationTest is Test {
         uint256 expectedAmount = amount * (10 ** (tokenDecimals - amountDecimals));
 
         assertEq(tokenAmount, expectedAmount);
+    }
+
+    // ==================== Decimal Parsing Tests ====================
+
+    function testParseDecimalsWholeNumber() public pure {
+        (uint256 amount, uint8 decimals) = DecimalNormalization.parseDecimals("100");
+        assertEq(amount, 100);
+        assertEq(decimals, 0);
+    }
+
+    function testParseDecimalsZeroDecimalPart() public pure {
+        (uint256 amount, uint8 decimals) = DecimalNormalization.parseDecimals("100.0");
+        assertEq(amount, 100);
+        assertEq(decimals, 0);
+
+        (amount, decimals) = DecimalNormalization.parseDecimals("100.00");
+        assertEq(amount, 100);
+        assertEq(decimals, 0);
+    }
+
+    function testParseDecimalsNonZeroDecimalPart() public pure {
+        (uint256 amount, uint8 decimals) = DecimalNormalization.parseDecimals("100.123");
+        assertEq(amount, 100123);
+        assertEq(decimals, 3);
+
+        (amount, decimals) = DecimalNormalization.parseDecimals("100.000123");
+        assertEq(amount, 100000123);
+        assertEq(decimals, 6);
+    }
+
+    function testParseDecimalsMaxDecimals() public pure {
+        (uint256 amount, uint8 decimals) = DecimalNormalization.parseDecimals("100.123456789012345678");
+        assertEq(amount, 100123456789012345678);
+        assertEq(decimals, 18);
+    }
+
+    /// forge-config: default.allow_internal_expect_revert = true
+    function testParseDecimalsRevertTooManyDecimals() public {
+        vm.expectRevert("decimals must be less than or equal to 18");
+        DecimalNormalization.parseDecimals("100.1234567890123456789"); // 19 decimal places
+    }
+
+    /// forge-config: default.allow_internal_expect_revert = true
+    function testValidAndInvalidAmountFormats() public {
+        // Test valid formats through parseDecimals which calls validateAmountFormat
+        DecimalNormalization.parseDecimals("100");
+        DecimalNormalization.parseDecimals("100.123");
+
+        // Test invalid formats
+        vm.expectRevert("decimals cannot be 0");
+        DecimalNormalization.parseDecimals("100.");
+
+        vm.expectRevert("invalid amount");
+        DecimalNormalization.parseDecimals("100.123.456");
+    }
+
+    function testParseDecimalsZeroValue() public pure {
+        // Test with zero whole part and non-zero decimal part
+        (uint256 amount, uint8 decimals) = DecimalNormalization.parseDecimals("0.123456789012345678");
+        assertEq(amount, 123456789012345678);
+        assertEq(decimals, 18);
+    }
+
+    /// forge-config: default.allow_internal_expect_revert = true
+    function testParseDecimalsRevertZeroAmount() public {
+        vm.expectRevert("amount must be non-zero");
+        DecimalNormalization.parseDecimals("0.0"); // Zero amount
+
+        vm.expectRevert("amount must be non-zero");
+        DecimalNormalization.parseDecimals("0.00000"); // Zero amount with multiple zeros
+    }
+
+    // ==================== AmountComponents Tests ====================
+
+    function testParseAmountComponents() public pure {
+        // Test whole number
+        DecimalNormalization.AmountComponents memory components = DecimalNormalization.parseAmountComponents("100");
+        assertEq(components.wholePart, 100);
+        assertEq(components.decimalPart, 0);
+        assertEq(components.decimalPlaces, 0);
+        assertEq(components.hasDecimals, false);
+
+        // Test with decimal part
+        components = DecimalNormalization.parseAmountComponents("100.123");
+        assertEq(components.wholePart, 100);
+        assertEq(components.decimalPart, 123);
+        assertEq(components.decimalPlaces, 3);
+        assertEq(components.hasDecimals, true);
+
+        // Test with zero whole part
+        components = DecimalNormalization.parseAmountComponents("0.123");
+        assertEq(components.wholePart, 0);
+        assertEq(components.decimalPart, 123);
+        assertEq(components.decimalPlaces, 3);
+        assertEq(components.hasDecimals, true);
+    }
+
+    /// forge-config: default.allow_internal_expect_revert = true
+    function testParseAmountComponentsRevertInvalidFormat() public {
+        // Test with multiple decimal points
+        vm.expectRevert("invalid amount");
+        DecimalNormalization.parseAmountComponents("100.123.456");
+
+        // Test with empty decimal part
+        vm.expectRevert("decimals cannot be 0");
+        DecimalNormalization.parseAmountComponents("100.");
+
+        // Test with too many decimals
+        vm.expectRevert("decimals must be less than or equal to 18");
+        DecimalNormalization.parseAmountComponents("100.1234567890123456789"); // 19 decimal places
+    }
+
+    // ==================== isNonZeroAmount Tests ====================
+
+    function testIsNonZeroAmount() public pure {
+        // Test with non-zero whole part
+        bool result = DecimalNormalization.isNonZeroAmount(100, 0);
+        assertEq(result, true);
+
+        // Test with non-zero decimal part
+        result = DecimalNormalization.isNonZeroAmount(0, 123);
+        assertEq(result, true);
+
+        // Test with both parts non-zero
+        result = DecimalNormalization.isNonZeroAmount(100, 123);
+        assertEq(result, true);
+
+        // Test with both parts zero
+        result = DecimalNormalization.isNonZeroAmount(0, 0);
+        assertEq(result, false);
     }
 }
