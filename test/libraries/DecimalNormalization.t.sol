@@ -216,22 +216,22 @@ contract DecimalNormalizationTest is Test {
     function testParseAmountComponents() public pure {
         // Test whole number
         DecimalNormalization.AmountComponents memory components = DecimalNormalization.parseAmountComponents("100");
-        assertEq(components.wholePart, 100);
-        assertEq(components.decimalPart, 0);
+        assertEq(components.integer, 100);
+        assertEq(components.decimal, 0);
         assertEq(components.decimalPlaces, 0);
         assertEq(components.hasDecimals, false);
 
         // Test with decimal part
         components = DecimalNormalization.parseAmountComponents("100.123");
-        assertEq(components.wholePart, 100);
-        assertEq(components.decimalPart, 123);
+        assertEq(components.integer, 100);
+        assertEq(components.decimal, 123);
         assertEq(components.decimalPlaces, 3);
         assertEq(components.hasDecimals, true);
 
         // Test with zero whole part
         components = DecimalNormalization.parseAmountComponents("0.123");
-        assertEq(components.wholePart, 0);
-        assertEq(components.decimalPart, 123);
+        assertEq(components.integer, 0);
+        assertEq(components.decimal, 123);
         assertEq(components.decimalPlaces, 3);
         assertEq(components.hasDecimals, true);
     }

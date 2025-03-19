@@ -16,17 +16,17 @@ library DecimalNormalization {
 
     /// @notice Struct to hold parsed amount components
     struct AmountComponents {
-        uint256 wholePart;
-        uint256 decimalPart;
+        uint256 integer;
+        uint256 decimal;
         uint8 decimalPlaces;
         bool hasDecimals;
     }
 
     /// @notice add the decimals to the given amount
     /// @param amount The amount to scale
-    /// @param decimals The number of decimals to scale by
-    function scaleDecimals(uint256 amount, uint8 decimals) internal pure returns (uint256) {
-        return amount * (10 ** uint256(decimals));
+    /// @param decimalsToScale The number of decimals to scale amount by
+    function scaleDecimals(uint256 amount, uint8 decimalsToScale) internal pure returns (uint256) {
+        return amount * (10 ** uint256(decimalsToScale));
     }
 
     /// @notice converts string to a scaled up token amount in decimal form
@@ -75,18 +75,18 @@ library DecimalNormalization {
         string[] memory stringComponents = amount.split(".");
         validateAmountFormat(stringComponents);
 
-        components.wholePart = vm.parseUint(stringComponents[0]);
+        components.integer = vm.parseUint(stringComponents[0]);
         components.hasDecimals = stringComponents.length == 2;
 
         if (components.hasDecimals) {
-            components.decimalPart = vm.parseUint(stringComponents[1]);
+            components.decimal = vm.parseUint(stringComponents[1]);
             components.decimalPlaces = uint8(bytes(stringComponents[1]).length);
             require(components.decimalPlaces <= 18, "DecimalNormalization: decimals must be less than or equal to 18");
         }
 
         // Ensure the final amount is non-zero
         require(
-            isNonZeroAmount(components.wholePart, components.decimalPart),
+            isNonZeroAmount(components.integer, components.decimal),
             "DecimalNormalization: amount must be non-zero"
         );
 
@@ -99,11 +99,11 @@ library DecimalNormalization {
     function parseDecimals(string memory amount) internal pure returns (uint256, uint8) {
         AmountComponents memory components = parseAmountComponents(amount);
 
-        if (!components.hasDecimals || components.decimalPart == 0) {
-            return (components.wholePart, 0);
+        if (!components.hasDecimals || components.decimal == 0) {
+            return (components.integer, 0);
         }
 
-        uint256 finalAmount = components.wholePart * (10 ** uint256(components.decimalPlaces)) + components.decimalPart;
+        uint256 finalAmount = components.integer * (10 ** uint256(components.decimalPlaces)) + components.decimal;
 
         return (finalAmount, components.decimalPlaces);
     }
