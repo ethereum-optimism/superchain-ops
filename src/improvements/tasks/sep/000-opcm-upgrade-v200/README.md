@@ -6,7 +6,7 @@ Status: [DRAFT]()
 
 Executes [Upgrade 13](https://gov.optimism.io/t/upgrade-proposal-13-opcm-and-incident-response-improvements/9739) on Sepolia for the OP, Soneium, and Ink chains.
 
-In summary, this task uses `op-contract/v2.0.0` [OPContractsManager](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/L1/OPContractsManager.sol) to upgrade 3 chains:
+This task uses `op-contract/v2.0.0` [OPContractsManager](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/L1/OPContractsManager.sol) to upgrade 3 chains:
 1. OP Sepolia Testnet
 2. Soneium Testnet Minato
 3. Ink Sepolia
