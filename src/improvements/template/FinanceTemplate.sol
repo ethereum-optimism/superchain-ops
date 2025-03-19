@@ -87,7 +87,7 @@ contract FinanceTemplate is SimpleBase {
 
     /// @notice converts string to a scaled up token amount in decimal form
     /// @param amount string representation of the amount
-    /// @param token address of the token to send, used for discovering the decimals
+    /// @param token address of the token to send, used for discovering the amount of decimals
     /// returns the scaled up token amount
     function getTokenAmount(string memory amount, address token) public view returns (uint256) {
         // Get token decimals
