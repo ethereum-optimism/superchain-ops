@@ -28,38 +28,39 @@ new COMMAND="" TASK_TYPE="":
     }
     
     # shellcheck disable=SC2050
-    if [ "{{COMMAND}}" = "" ]; then
-        echo -e "\n\033[31mError: No command specified\033[0m"
-        show_usage
-        exit 1
-    fi
-
-    if [ "{{TASK_TYPE}}" = "" ]; then
-        echo -e "\n\033[31mError: No task type specified\033[0m"
-        show_task_types
-        exit 1
-    fi
-
-    case "{{TASK_TYPE}}" in
-        l2)
-            TASK_TYPE="L2TaskBase"
-            ;;
-        simple)
-            TASK_TYPE="SimpleBase"
-            ;;
-        *)
-            echo -e "\n\033[31mError: Invalid task type '{{TASK_TYPE}}'\033[0m"
-            show_task_types
+    case "{{COMMAND}}" in
+        "")
+            echo -e "\n\033[31mError: No command specified\033[0m"
+            show_usage
             exit 1
             ;;
-    esac
-
-    # shellcheck disable=SC2194
-    case "{{COMMAND}}" in
         template)
-            ./script/create-template.sh $TASK_TYPE
+            if [ -z "{{TASK_TYPE}}" ]; then
+                echo -e "\n\033[31mError: No task type specified\033[0m"
+                show_task_types
+                exit 1
+            fi
+
+            case "{{TASK_TYPE}}" in
+                l2)
+                    TASK_TYPE="L2TaskBase"
+                    ;;
+                simple)
+                    TASK_TYPE="SimpleBase"
+                    ;;
+                *)
+                    echo -e "\n\033[31mError: Invalid task type '{{TASK_TYPE}}'\033[0m"
+                    show_task_types
+                    exit 1
+                    ;;
+            esac
+            ./script/create-template.sh "$TASK_TYPE"
             ;;
-        task)    
+        task)
+            if [ -n "{{TASK_TYPE}}" ]; then
+                echo -e "\n\033[31mError: Task type should not be specified for 'task' command\033[0m"
+                exit 1
+            fi
             ./script/create-task.sh
             ;;
         *)
