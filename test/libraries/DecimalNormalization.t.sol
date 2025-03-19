@@ -131,12 +131,7 @@ contract DecimalNormalizationTest is Test {
         uint256 tokenAmount = DecimalNormalization.normalizeTokenAmount(amountStr, tokenDecimals);
 
         // Calculate expected amount
-        uint256 expectedAmount;
-        if (amountDecimals == 0) {
-            expectedAmount = amount * (10 ** tokenDecimals);
-        } else {
-            expectedAmount = amount * (10 ** (tokenDecimals - amountDecimals));
-        }
+        uint256 expectedAmount = amount * (10 ** (tokenDecimals - amountDecimals));
 
         assertEq(tokenAmount, expectedAmount);
     }
