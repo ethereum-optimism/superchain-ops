@@ -1,6 +1,6 @@
 # ProxyAdminOwner - Update Prestate Hash
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xf143768d92b4f0cd8019153571fee9e82d74a918a1ae644d3214b8f86baff830)
 
 ## Objective
 
