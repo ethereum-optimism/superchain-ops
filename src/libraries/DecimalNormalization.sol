@@ -38,7 +38,10 @@ library DecimalNormalization {
         (uint256 scaledAmount, uint8 parsedDecimals) = parseDecimals(amount);
 
         // Ensure amount decimals don't exceed token decimals
-        require(parsedDecimals <= tokenDecimals, "amount decimals must be less than or equal to token decimals");
+        require(
+            parsedDecimals <= tokenDecimals,
+            "DecimalNormalization: amount decimals must be less than or equal to token decimals"
+        );
 
         // Scale the amount to match token decimals
         return scaleDecimals(scaledAmount, tokenDecimals - parsedDecimals);
@@ -49,11 +52,11 @@ library DecimalNormalization {
     /// reverts if components are invalid
     function validateAmountFormat(string[] memory components) internal pure {
         // Check for invalid format (more than one decimal point)
-        require(components.length <= 2, "invalid amount");
+        require(components.length <= 2, "DecimalNormalization: invalid amount");
 
         // If there's a decimal part, ensure it's not empty
         if (components.length == 2) {
-            require(bytes(components[1]).length != 0, "decimals cannot be 0");
+            require(bytes(components[1]).length != 0, "DecimalNormalization: decimals cannot be 0");
         }
     }
 
@@ -78,11 +81,14 @@ library DecimalNormalization {
         if (components.hasDecimals) {
             components.decimalPart = vm.parseUint(stringComponents[1]);
             components.decimalPlaces = uint8(bytes(stringComponents[1]).length);
-            require(components.decimalPlaces <= 18, "decimals must be less than or equal to 18");
+            require(components.decimalPlaces <= 18, "DecimalNormalization: decimals must be less than or equal to 18");
         }
 
         // Ensure the final amount is non-zero
-        require(isNonZeroAmount(components.wholePart, components.decimalPart), "amount must be non-zero");
+        require(
+            isNonZeroAmount(components.wholePart, components.decimalPart),
+            "DecimalNormalization: amount must be non-zero"
+        );
 
         return components;
     }

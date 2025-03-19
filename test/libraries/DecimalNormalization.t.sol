@@ -7,9 +7,9 @@ import {Test} from "forge-std/Test.sol";
 
 import {DecimalNormalization} from "src/libraries/DecimalNormalization.sol";
 
-/// the `forge-config: default.allow_internal_expect_revert = true` field is
-/// used to allow the test to expect reverts from internal functions.
-/// This is useful for testing internal functions that are at call depth of 0.
+/// the "forge-config" comment is used to allow internal expect revert in the
+/// tests. This is useful for testing internal functions that are at call depth
+/// of 0 without creating mock contracts or libraries.
 /// https://book.getfoundry.sh/cheatcodes/expect-revert#error
 /// https://book.getfoundry.sh/cheatcodes/expect-revert#description
 contract DecimalNormalizationTest is Test {
@@ -58,7 +58,7 @@ contract DecimalNormalizationTest is Test {
     /// forge-config: default.allow_internal_expect_revert = true
     function testNormalizeTokenAmountRevertMoreDecimals() public {
         // Test when amount decimals (8) are greater than token decimals (6)
-        vm.expectRevert("amount decimals must be less than or equal to token decimals");
+        vm.expectRevert("DecimalNormalization: amount decimals must be less than or equal to token decimals");
         DecimalNormalization.normalizeTokenAmount("100.12345678", 6);
     }
 
@@ -74,7 +74,7 @@ contract DecimalNormalizationTest is Test {
 
     /// forge-config: default.allow_internal_expect_revert = true
     function testNormalizeTokenAmountRevertZeroAmount() public {
-        vm.expectRevert("amount must be non-zero");
+        vm.expectRevert("DecimalNormalization: amount must be non-zero");
         DecimalNormalization.normalizeTokenAmount("0.0", 6);
     }
 
@@ -177,7 +177,7 @@ contract DecimalNormalizationTest is Test {
 
     /// forge-config: default.allow_internal_expect_revert = true
     function testParseDecimalsRevertTooManyDecimals() public {
-        vm.expectRevert("decimals must be less than or equal to 18");
+        vm.expectRevert("DecimalNormalization: decimals must be less than or equal to 18");
         DecimalNormalization.parseDecimals("100.1234567890123456789"); // 19 decimal places
     }
 
@@ -188,10 +188,10 @@ contract DecimalNormalizationTest is Test {
         DecimalNormalization.parseDecimals("100.123");
 
         // Test invalid formats
-        vm.expectRevert("decimals cannot be 0");
+        vm.expectRevert("DecimalNormalization: decimals cannot be 0");
         DecimalNormalization.parseDecimals("100.");
 
-        vm.expectRevert("invalid amount");
+        vm.expectRevert("DecimalNormalization: invalid amount");
         DecimalNormalization.parseDecimals("100.123.456");
     }
 
@@ -204,10 +204,10 @@ contract DecimalNormalizationTest is Test {
 
     /// forge-config: default.allow_internal_expect_revert = true
     function testParseDecimalsRevertZeroAmount() public {
-        vm.expectRevert("amount must be non-zero");
+        vm.expectRevert("DecimalNormalization: amount must be non-zero");
         DecimalNormalization.parseDecimals("0.0"); // Zero amount
 
-        vm.expectRevert("amount must be non-zero");
+        vm.expectRevert("DecimalNormalization: amount must be non-zero");
         DecimalNormalization.parseDecimals("0.00000"); // Zero amount with multiple zeros
     }
 
@@ -239,15 +239,15 @@ contract DecimalNormalizationTest is Test {
     /// forge-config: default.allow_internal_expect_revert = true
     function testParseAmountComponentsRevertInvalidFormat() public {
         // Test with multiple decimal points
-        vm.expectRevert("invalid amount");
+        vm.expectRevert("DecimalNormalization: invalid amount");
         DecimalNormalization.parseAmountComponents("100.123.456");
 
         // Test with empty decimal part
-        vm.expectRevert("decimals cannot be 0");
+        vm.expectRevert("DecimalNormalization: decimals cannot be 0");
         DecimalNormalization.parseAmountComponents("100.");
 
         // Test with too many decimals
-        vm.expectRevert("decimals must be less than or equal to 18");
+        vm.expectRevert("DecimalNormalization: decimals must be less than or equal to 18");
         DecimalNormalization.parseAmountComponents("100.1234567890123456789"); // 19 decimal places
     }
 
