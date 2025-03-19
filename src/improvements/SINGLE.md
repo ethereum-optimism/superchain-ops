@@ -77,7 +77,7 @@ validate integrity of the simulation, we need to check the following:
 2. "Timestamp": Check the simulation is performed on a block with a
    recent timestamp (i.e. close to when you run the script).
 3. "Sender": Check the address shown is your signer account. If not see the derivation path Note above.
-![](./images/tenderly-overview-network.png)
+![](../../images/tenderly-overview-network.png)
 
 #### 3.2. Validate correctness of the state diff.
 
@@ -98,7 +98,7 @@ in your Ledger.
 Here is an example screenshot. Note that the hash value may be
 different:
 
-![](./images/tenderly-hash.png)
+![](../../images/tenderly-hash.png)
 
 It will be a concatenation of `0x1901`, the domain hash, and the
 message hash: `0x1901[domain hash][message hash]`.
