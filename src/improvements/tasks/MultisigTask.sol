@@ -331,10 +331,10 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     function printParentHash(bytes memory callData) public {
         console.logBytes32(getHash(callData, parentMultisig));
 
-        outputOPVerifyInputToFile(parentMultisig, callData);
-
         bytes memory encodedTxData = getEncodedTransactionData(parentMultisig, callData);
         printDomainSeparatorAndMessageHash(parentMultisig, encodedTxData);
+
+        outputOPVerifyInputToFile(parentMultisig, callData);
     }
 
     struct OPVerifyOutputFunctionVars {
@@ -410,7 +410,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             );
 
             vm.writeFile(vars.filepath, json);
-            console.log("Wrote verify input to %s", vars.filepath);
+            console.log("\nWrote verify input to %s", vars.filepath);
         }
     }
 
@@ -732,9 +732,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         require(encodedTxData.length == 66, "MultisigTask: encodedTxData length is not 66 bytes.");
         console.log("Child hashToApprove: %s", vm.toString(keccak256(encodedTxData)));
 
-        outputOPVerifyInputToFile(childMultisig, callData);
-
         printDomainSeparatorAndMessageHash(childMultisig, encodedTxData);
+
+        outputOPVerifyInputToFile(childMultisig, callData);
     }
 
     function printDomainSeparatorAndMessageHash(address safe, bytes memory encodedTxData) private view {
