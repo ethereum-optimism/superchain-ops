@@ -559,11 +559,6 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
 
-      - just_simulate_nested:
-          task: "/sep/unichain-003-petra-l1-upgrade-new-prestate"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-
       - just_simulate_sc_rehearsal_2:
           context:
             - circleci-repo-readonly-authenticated-github-token
