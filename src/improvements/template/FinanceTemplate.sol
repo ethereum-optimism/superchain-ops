@@ -3,8 +3,6 @@ pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
 
-import "forge-std/Test.sol";
-
 import {SimpleBase} from "src/improvements/tasks/MultisigTask.sol";
 import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -12,7 +10,6 @@ import {LibString} from "@solady/utils/LibString.sol";
 import {ERC20} from "@solady/tokens/ERC20.sol";
 import {stdToml} from "lib/forge-std/src/StdToml.sol";
 import {EnumerableSet} from "lib/openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
-import {StringParser} from "src/libraries/StringParser.sol";
 import {DecimalNormalization} from "src/libraries/DecimalNormalization.sol";
 
 /// @notice Template contract for enabling finance transactions
@@ -90,7 +87,7 @@ contract FinanceTemplate is SimpleBase {
 
     /// @notice converts string to a scaled up token amount in decimal form
     /// @param amount string representation of the amount
-    /// @param token address of the token to send, used discovering the decimals
+    /// @param token address of the token to send, used for discovering the decimals
     /// returns the scaled up token amount
     function getTokenAmount(string memory amount, address token) public view returns (uint256) {
         // Get token decimals
