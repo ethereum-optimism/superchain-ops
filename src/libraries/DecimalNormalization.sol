@@ -86,8 +86,7 @@ library DecimalNormalization {
 
         // Ensure the final amount is non-zero
         require(
-            isNonZeroAmount(components.integer, components.decimal),
-            "DecimalNormalization: amount must be non-zero"
+            isNonZeroAmount(components.integer, components.decimal), "DecimalNormalization: amount must be non-zero"
         );
 
         return components;
