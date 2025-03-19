@@ -1,21 +1,30 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
+import {MockERC20} from "lib/solady/test/utils/mocks/MockERC20.sol";
+
 import {Test} from "forge-std/Test.sol";
+
 import {StringParser} from "src/libraries/StringParser.sol";
 import {DecimalNormalization} from "src/libraries/DecimalNormalization.sol";
-import {MockERC20} from "lib/solady/test/utils/mocks/MockERC20.sol";
-import {MockDecimalNormalization} from "test/tasks/mock/MockDecimalNormalization.sol";
+
+library MockDecimalNormalization {
+    function scaleDecimals(uint256 amount, uint8 decimals) external pure returns (uint256) {
+        return DecimalNormalization.scaleDecimals(amount, decimals);
+    }
+
+    function normalizeTokenAmount(string memory amount, uint8 tokenDecimals) external pure returns (uint256) {
+        return DecimalNormalization.normalizeTokenAmount(amount, tokenDecimals);
+    }
+}
 
 contract DecimalNormalizationTest is Test {
     MockERC20 public token6; // 6 decimals
     MockERC20 public token18; // 18 decimals
-    MockDecimalNormalization public mockDecimalNormalization;
 
     function setUp() public {
         token6 = new MockERC20("Token6", "TK6", 6);
         token18 = new MockERC20("Token18", "TK18", 18);
-        mockDecimalNormalization = new MockDecimalNormalization();
     }
 
     // ==================== DecimalNormalization Tests ====================
@@ -55,7 +64,7 @@ contract DecimalNormalizationTest is Test {
     function testNormalizeTokenAmountRevertMoreDecimals() public {
         // Test when amount decimals (8) are greater than token decimals (6)
         vm.expectRevert("amount decimals must be less than or equal to token decimals");
-        mockDecimalNormalization.normalizeTokenAmount("100.12345678", 6);
+        MockDecimalNormalization.normalizeTokenAmount("100.12345678", 6);
     }
 
     function testNormalizeTokenAmountSmallDecimal() public pure {
@@ -70,7 +79,7 @@ contract DecimalNormalizationTest is Test {
 
     function testNormalizeTokenAmountRevertZeroAmount() public {
         vm.expectRevert("amount must be non-zero");
-        mockDecimalNormalization.normalizeTokenAmount("0.0", 6);
+        MockDecimalNormalization.normalizeTokenAmount("0.0", 6);
     }
 
     // ==================== Integration Tests ====================

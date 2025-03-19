@@ -3,15 +3,26 @@ pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
 import {StringParser} from "src/libraries/StringParser.sol";
-import {MockStringParser} from "test/tasks/mock/MockStringParser.sol";
 
-contract StringParserTest is Test {
-    MockStringParser public mockStringParser;
-
-    function setUp() public {
-        mockStringParser = new MockStringParser();
+library MockStringParser {
+    function parseDecimals(string memory amount) external pure returns (uint256, uint8) {
+        return StringParser.parseDecimals(amount);
     }
 
+    function parseAmountComponents(string memory amount)
+        external
+        pure
+        returns (StringParser.AmountComponents memory components)
+    {
+        return StringParser.parseAmountComponents(amount);
+    }
+
+    function validateAmountFormat(string[] memory components) external pure {
+        StringParser.validateAmountFormat(components);
+    }
+}
+
+contract StringParserTest is Test {
     // ==================== StringParser Tests ====================
 
     function testParseDecimalsWholeNumber() public pure {
@@ -48,7 +59,7 @@ contract StringParserTest is Test {
 
     function testParseDecimalsRevertTooManyDecimals() public {
         vm.expectRevert("decimals must be less than or equal to 18");
-        mockStringParser.parseDecimals("100.1234567890123456789"); // 19 decimal places
+        MockStringParser.parseDecimals("100.1234567890123456789"); // 19 decimal places
     }
 
     function testValidAndInvalidAmountFormats() public {
@@ -58,10 +69,10 @@ contract StringParserTest is Test {
 
         // Test invalid formats
         vm.expectRevert("decimals cannot be 0");
-        mockStringParser.parseDecimals("100.");
+        MockStringParser.parseDecimals("100.");
 
         vm.expectRevert("invalid amount");
-        mockStringParser.parseDecimals("100.123.456");
+        MockStringParser.parseDecimals("100.123.456");
     }
 
     function testParseDecimalsZeroValue() public pure {
@@ -73,31 +84,31 @@ contract StringParserTest is Test {
 
     function testParseDecimalsRevertZeroAmount() public {
         vm.expectRevert("amount must be non-zero");
-        mockStringParser.parseDecimals("0.0"); // Zero amount
+        MockStringParser.parseDecimals("0.0"); // Zero amount
 
         vm.expectRevert("amount must be non-zero");
-        mockStringParser.parseDecimals("0.00000"); // Zero amount with multiple zeros
+        MockStringParser.parseDecimals("0.00000"); // Zero amount with multiple zeros
     }
 
     // ==================== AmountComponents Tests ====================
 
-    function testParseAmountComponents() public view {
+    function testParseAmountComponents() public pure {
         // Test whole number
-        StringParser.AmountComponents memory components = mockStringParser.parseAmountComponents("100");
+        StringParser.AmountComponents memory components = MockStringParser.parseAmountComponents("100");
         assertEq(components.wholePart, 100);
         assertEq(components.decimalPart, 0);
         assertEq(components.decimalPlaces, 0);
         assertEq(components.hasDecimals, false);
 
         // Test with decimal part
-        components = mockStringParser.parseAmountComponents("100.123");
+        components = MockStringParser.parseAmountComponents("100.123");
         assertEq(components.wholePart, 100);
         assertEq(components.decimalPart, 123);
         assertEq(components.decimalPlaces, 3);
         assertEq(components.hasDecimals, true);
 
         // Test with zero whole part
-        components = mockStringParser.parseAmountComponents("0.123");
+        components = MockStringParser.parseAmountComponents("0.123");
         assertEq(components.wholePart, 0);
         assertEq(components.decimalPart, 123);
         assertEq(components.decimalPlaces, 3);
@@ -107,15 +118,15 @@ contract StringParserTest is Test {
     function testParseAmountComponentsRevertInvalidFormat() public {
         // Test with multiple decimal points
         vm.expectRevert("invalid amount");
-        mockStringParser.parseAmountComponents("100.123.456");
+        MockStringParser.parseAmountComponents("100.123.456");
 
         // Test with empty decimal part
         vm.expectRevert("decimals cannot be 0");
-        mockStringParser.parseAmountComponents("100.");
+        MockStringParser.parseAmountComponents("100.");
 
         // Test with too many decimals
         vm.expectRevert("decimals must be less than or equal to 18");
-        mockStringParser.parseAmountComponents("100.1234567890123456789"); // 19 decimal places
+        MockStringParser.parseAmountComponents("100.1234567890123456789"); // 19 decimal places
     }
 
     // ==================== isNonZeroAmount Tests ====================
