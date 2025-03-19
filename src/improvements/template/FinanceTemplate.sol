@@ -129,7 +129,6 @@ contract FinanceTemplate is SimpleBase {
             }
         }
 
-
         super._templateSetup(taskConfigFilePath);
     }
 
