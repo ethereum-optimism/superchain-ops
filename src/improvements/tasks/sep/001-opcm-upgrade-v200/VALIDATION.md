@@ -18,15 +18,10 @@ the values printed to the terminal when you run the task.
 >
 > Before signing, ensure the below hashes match what is on your ledger.
 >
-> ### Security Council
+> ### Single Safe Signer Data
 >
-> - Domain Hash: ``
-> - Message Hash: ``
->
-> ### Optimism Foundation
->
-> - Domain Hash: ``
-> - Message Hash: ``
+> - Domain Hash: `093de3a8d475125e0192f7319bbc60840b1f6b5f5afd17e837647b1f25a66471`
+> - Message Hash: `ca8f3ea7b737bc6ef03dbcf41c853a483767e8c0788ea3274314743325161f37`
 
 
 ## Understanding Task Calldata
@@ -76,7 +71,7 @@ The resulting calldata sent from the ProxyAdminOwner safe is thus:
 
 In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.optimism.io/t/upgrade-proposal-13-opcm-and-incident-response-improvements/9739#p-43725-action-plan-15) section of the Governance proposal.
 
-# State Changes
+# State Validations
 
 For each contract listed in the state diff, please verify that no contracts or state changes shown in the Tenderly diff are missing from this document. Additionally, please verify that for each contract:
 
