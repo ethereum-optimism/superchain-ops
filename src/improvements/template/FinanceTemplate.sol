@@ -82,8 +82,10 @@ contract FinanceTemplate is SimpleBase {
         return "SafeToSendFrom";
     }
 
-    /// @notice Returns the storage write permissions required for this task
-    /// @return Array of storage write permissions
+    /// @notice Returns an empty array of storage write permissions
+    /// Task storage writes are added in the _templateSetup function
+    /// instead of _taskStorageWrites because we need to read the task config
+    /// to get the list of token identifiers whose storage writes are allowed
     function _taskStorageWrites() internal pure override returns (string[] memory) {
         return new string[](0);
     }
@@ -135,10 +137,15 @@ contract FinanceTemplate is SimpleBase {
             }
         }
 
+        // Store initial balances of the safe to send from
+        // Also, add each token identifier to the allowed storage keys
         for (uint256 i = 0; i < tokens.length(); i++) {
             address token = tokens.at(i);
             initialBalances[token][address(parentMultisig)] = IERC20(token).balanceOf(address(parentMultisig));
+            config.allowedStorageKeys.push(simpleAddrRegistry.get(token));
         }
+
+        super._templateSetup(taskConfigFilePath);
     }
 
     /// @notice Builds the actions for executing the operations
@@ -194,12 +201,6 @@ contract FinanceTemplate is SimpleBase {
 
     /// @notice No code exceptions for this template
     function getCodeExceptions() internal view override returns (address[] memory) {}
-
-    /// @notice No storage write checks for this template
-    /// TODO: Remove this function once we can set token storage writes in the FinanceTemplate
-    function _checkStorageWrites() internal pure override returns (bool) {
-        return false;
-    }
 
     /// @notice Returns the operation type enum
     function _getOperationType() internal view returns (OperationType) {
