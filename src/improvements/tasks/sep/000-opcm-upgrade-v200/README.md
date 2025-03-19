@@ -22,7 +22,7 @@ which reads the inputs from the [`config.toml`](./config.toml) file.
 
 ## Signing and execution
 
-Follow the instructions in the [Nested Execution](../NESTED.md) guide for the following steps:
+Follow the instructions in the [Nested Execution](../../../NESTED.md) guide for the following steps:
 
 - [1. Update repo](../../../NESTED.md#1-update-repo)
 - [2. Setup Ledger](../../../NESTED.md#2-setup-ledger)
