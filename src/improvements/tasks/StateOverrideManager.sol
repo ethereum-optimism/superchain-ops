@@ -22,29 +22,29 @@ abstract contract StateOverrideManager is Script {
 
     /// @notice Get all state overrides for simulation. Combines default Tenderly overrides
     /// with user-defined overrides. User defined overrides are applied last.
+    /// If a child multisig is provided then we are working with a nested safe.
+    /// In this case we need additional state overrides.
     function getStateOverrides(
         address parentMultisig,
         uint256 parentMultisigNonce,
         address optionalChildMultisig,
         uint256 optionalChildMultisigNonce
-    ) public view returns (Simulation.StateOverride[] memory) {
-        Simulation.StateOverride[] memory allOverrides;
+    ) public view returns (Simulation.StateOverride[] memory allOverrides_) {
         if (optionalChildMultisig != address(0)) {
-            allOverrides = new Simulation.StateOverride[](2 + _stateOverrides.length);
-            allOverrides[0] = _createDefaultParentMultisigTenderlyOverride(parentMultisig, parentMultisigNonce);
-            allOverrides[1] =
-                _createDefaultChildMultisigTenderlyOverride(optionalChildMultisig, optionalChildMultisigNonce);
+            allOverrides_ = new Simulation.StateOverride[](2 + _stateOverrides.length);
+            allOverrides_[0] = _parentMultisigTenderlyOverride(parentMultisig, parentMultisigNonce);
+            allOverrides_[1] = _childMultisigTenderlyOverride(optionalChildMultisig, optionalChildMultisigNonce);
+            // Add user-defined overrides (these take precedence over default ones)
+            for (uint256 i = 0; i < _stateOverrides.length; i++) {
+                allOverrides_[i + 2] = _stateOverrides[i];
+            }
         } else {
-            allOverrides = new Simulation.StateOverride[](1 + _stateOverrides.length);
-            allOverrides[0] = _createDefaultParentMultisigTenderlyOverride(parentMultisig, parentMultisigNonce);
+            allOverrides_ = new Simulation.StateOverride[](1 + _stateOverrides.length);
+            allOverrides_[0] = _parentMultisigTenderlyOverride(parentMultisig, parentMultisigNonce);
+            for (uint256 i = 0; i < _stateOverrides.length; i++) {
+                allOverrides_[i + 1] = _stateOverrides[i];
+            }
         }
-
-        // Add user-defined overrides (these take precedence over default ones)
-        for (uint256 i = 0; i < _stateOverrides.length; i++) {
-            allOverrides[i + 1] = _stateOverrides[i];
-        }
-
-        return allOverrides;
     }
 
     /// @notice Apply state overrides to the current VM state.
@@ -89,7 +89,7 @@ abstract contract StateOverrideManager is Script {
     }
 
     /// @notice Create default state override for the parent multisig.
-    function _createDefaultParentMultisigTenderlyOverride(address parentMultisig, uint256 nonce)
+    function _parentMultisigTenderlyOverride(address parentMultisig, uint256 nonce)
         private
         pure
         returns (Simulation.StateOverride memory)
@@ -101,7 +101,7 @@ abstract contract StateOverrideManager is Script {
     }
 
     /// @notice Create default state override for the child multisig.
-    function _createDefaultChildMultisigTenderlyOverride(address childMultisig, uint256 nonce)
+    function _childMultisigTenderlyOverride(address childMultisig, uint256 nonce)
         private
         view
         returns (Simulation.StateOverride memory)
@@ -109,9 +109,6 @@ abstract contract StateOverrideManager is Script {
         Simulation.StateOverride memory defaultOverride;
         defaultOverride.contractAddress = childMultisig;
         defaultOverride = _overrideMultisigThresholdAndNonce(defaultOverride, 1, nonce);
-        // Set owner to the MULTICALL3_ADDRESS - We do this because we want to perform two actions during the Tenderly simulation.
-        // 1. Call approveHash from the child multisig.
-        // 2. Call execTransaction on the parent multisig (with a prevalidated signature from the previous step).
         defaultOverride = Simulation.addOwnerOverride(childMultisig, defaultOverride, MULTICALL3_ADDRESS);
         return defaultOverride;
     }
