@@ -4,7 +4,7 @@ pragma solidity 0.8.15;
 import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 
-import {L2TaskBase} from "src/improvements/tasks/MultisigTask.sol";
+import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 
 /// @title TransferOwnerTemplate
