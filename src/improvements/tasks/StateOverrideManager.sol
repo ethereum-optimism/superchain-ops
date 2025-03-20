@@ -92,28 +92,26 @@ abstract contract StateOverrideManager is CommonBase {
     function _parentMultisigTenderlyOverride(address parentMultisig, uint256 nonce)
         private
         pure
-        returns (Simulation.StateOverride memory)
+        returns (Simulation.StateOverride memory defaultOverride)
     {
-        Simulation.StateOverride memory defaultOverride;
         defaultOverride.contractAddress = parentMultisig;
         defaultOverride = _overrideMultisigThresholdAndNonce(defaultOverride, 1, nonce);
-        return defaultOverride;
     }
 
     /// @notice Create default state override for the child multisig.
     function _childMultisigTenderlyOverride(address childMultisig, uint256 nonce)
         private
         view
-        returns (Simulation.StateOverride memory)
+        returns (Simulation.StateOverride memory defaultOverride)
     {
-        Simulation.StateOverride memory defaultOverride;
         defaultOverride.contractAddress = childMultisig;
         defaultOverride = _overrideMultisigThresholdAndNonce(defaultOverride, 1, nonce);
         defaultOverride = Simulation.addOwnerOverride(childMultisig, defaultOverride, MULTICALL3_ADDRESS);
-        return defaultOverride;
     }
 
     /// @notice Helper function to override the threshold and nonce for a multisig.
+    /// We do not use the 'overrideSafeThresholdAndNonce' function in Simulation.sol
+    /// because don't want that function making a network request to get the current nonce.
     function _overrideMultisigThresholdAndNonce(
         Simulation.StateOverride memory defaultOverride,
         uint256 threshold,

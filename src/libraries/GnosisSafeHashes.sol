@@ -4,6 +4,7 @@ pragma solidity ^0.8.15;
 import {LibString} from "@solady/utils/LibString.sol";
 import {JSONParserLib} from "@solady/utils/JSONParserLib.sol";
 import {GnosisSafe} from "lib/safe-contracts/contracts/GnosisSafe.sol";
+import {console} from "forge-std/console.sol";
 
 /// @title GnosisSafeHashes
 /// @notice Library for calculating domain separators and message hashes for Gnosis Safe transactions
@@ -103,6 +104,21 @@ library GnosisSafeHashes {
 
         // Set the nonce
         _safeTx.nonce = _nonce;
+
+        console.log("In library: ");
+        console.log("SAFE_TX_TYPEHASH: ");
+        console.logBytes32(SAFE_TX_TYPEHASH);
+        console.log("to: ", _safeTx.to);
+        console.log("value: ", _safeTx.value);
+        console.log("dataHash: ");
+        console.logBytes32(_safeTx.dataHash);
+        console.log("operation: ", _safeTx.operation);
+        console.log("safeTxGas: ", _safeTx.safeTxGas);
+        console.log("baseGas: ", _safeTx.baseGas);
+        console.log("gasPrice: ", _safeTx.gasPrice);
+        console.log("gasToken: ", _safeTx.gasToken);
+        console.log("refundReceiver: ", _safeTx.refundReceiver);
+        console.log("nonce: ", _safeTx.nonce);
 
         // Calculate the message hash using the struct
         messageHash_ = keccak256(

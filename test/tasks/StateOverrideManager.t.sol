@@ -236,8 +236,10 @@ contract StateOverrideManagerUnitTest is Test {
         vm.removeFile(fileName);
     }
 
-    function testOnlyParentOverridesAppliedWhenChildMultisigIsNotSet() public {
-        vm.createSelectFork("sepolia");
+    /// @notice This test uses the 'Base Sepolia Testnet' at a block where the ProxyAdminOwner is known to be a single safe.
+    /// It verifies that the StateOverrideManager applies only the parent overrides when the child multisig is not set.
+    function testOnlyParentOverridesAppliedWhenSingleMultisig() public {
+        vm.createSelectFork("sepolia", 7944829);
         string memory nonNestedSafeToml = "l2chains = [{name = \"Base Sepolia Testnet\", chainId = 84532}]\n" "\n"
             "templateName = \"DisputeGameUpgradeTemplate\"\n" "\n"
             "implementations = [{gameType = 0, implementation = \"0x0000000FFfFFfffFffFfFffFFFfffffFffFFffFf\", l2ChainId = 84532}]\n";
@@ -245,6 +247,7 @@ contract StateOverrideManagerUnitTest is Test {
         MockDisputeGameTask dgt = new MockDisputeGameTask();
         dgt.simulateRun(fileName);
         uint256 expectedNonce = dgt.nonce();
+        // Only parent overrides will be checked because child multisig is not set.
         assertDefaultStateOverrides(expectedNonce, 1, dgt, address(0), 0);
         vm.removeFile(fileName);
     }
@@ -262,6 +265,7 @@ contract StateOverrideManagerUnitTest is Test {
     }
 
     /// @notice This function is used to assert the default state overrides for the parent multisig.
+    /// Specifically, it verifies that the parent state overrides contain a threshold and nonce override.
     function assertDefaultStateOverrides(
         uint256 expectedParentNonce,
         uint256 expectedTotalOverrides,
@@ -319,6 +323,8 @@ contract StateOverrideManagerUnitTest is Test {
         }
     }
 
+    /// @notice This function is used to assert the default state overrides for the child multisig.
+    /// Specifically, it verifies that the child state overrides contain a threshold, nonce, owner count, and owner mapping overrides.
     function assertDefaultChildStateOverrides(
         Simulation.StateOverride[] memory allOverrides,
         address childMultisig,
@@ -374,10 +380,12 @@ contract StateOverrideManagerUnitTest is Test {
         );
 
         // Verify owner mapping overrides
-        // cast keccak 0x$(cast --to-uint256 1 | cut -c3-)$(cast --to-uint256 2 | cut -c3-)
+        // Calculate the storage slot for owner mapping: keccak256(abi.encode(1, 2))
+        // where 1 is the owner index and 2 is the mapping slot in the contract
+        bytes32 ownerMappingSlot = keccak256(abi.encode(uint256(1), uint256(2)));
         assertEq(
             childDefaultOverride.overrides[3].key,
-            bytes32(uint256(0xe90b7bceb6e7df5418fb78d8ee546e97c83a08bbccc01a0644d599ccd2a7c2e0)),
+            ownerMappingSlot,
             "ChildDefaultOverride: Must contain first owner mapping override"
         );
         assertEq(
@@ -385,10 +393,13 @@ contract StateOverrideManagerUnitTest is Test {
             bytes32(uint256(uint160(MULTICALL3_ADDRESS))), // Necessary for exhaustive tenderly debug trace.
             "ChildDefaultOverride: Incorrect first owner mapping override"
         );
-        // cast keccak 0x$(cast --to-uint256 0xcA11bde05977b3631167028862bE2a173976CA11 | cut -c3-)$(cast --to-uint256 2 | cut -c3-)
+
+        // Calculate the storage slot for owner mapping: keccak256(abi.encode(MULTICALL3_ADDRESS, 2))
+        // where MULTICALL3_ADDRESS is the address of the Multicall3 contract and 2 is the mapping slot in the contract
+        bytes32 ownerMappingSlot2 = keccak256(abi.encode(uint256(uint160(MULTICALL3_ADDRESS)), uint256(2)));
         assertEq(
             childDefaultOverride.overrides[4].key,
-            bytes32(uint256(0x316a0aac0d94f5824f0b66f5bbe94a8c360a17699a1d3a233aafcf7146e9f11c)),
+            ownerMappingSlot2,
             "ChildDefaultOverride: Must contain second owner mapping override"
         );
         assertEq(

@@ -346,7 +346,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @param data The calldata to be executed
     /// @return The data to sign
     function getEncodedTransactionData(address safe, bytes memory data) public view returns (bytes memory) {
-        return IGnosisSafe(safe).encodeTransactionData({
+        bytes memory encodedTxData = IGnosisSafe(safe).encodeTransactionData({
             to: _getMulticallAddress(safe),
             value: 0,
             data: data,
@@ -358,6 +358,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             refundReceiver: address(0),
             _nonce: _getNonce(safe)
         });
+        require(encodedTxData.length == 66, "MultisigTask: encodedTxData length is not 66 bytes.");
+        return encodedTxData;
     }
 
     /// @notice simulate the task by approving from owners and then executing
@@ -658,7 +660,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                 _overrides: allStateOverrides
             });
         } else {
-            bytes memory finalExec = _execTransationCalldata(
+            bytes memory finalExec = _execTransactionCalldata(
                 parentMultisig,
                 getMulticall3Calldata(actions),
                 Signatures.genPrevalidatedSignature(msg.sender),
@@ -815,7 +817,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         return Signatures.genPrevalidatedSignatures(approvers);
     }
 
-    function _execTransationCalldata(
+    function _execTransactionCalldata(
         address _safe,
         bytes memory _data,
         bytes memory _signatures,
@@ -859,7 +861,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         Call3Value[] memory calls = new Call3Value[](2);
 
         (bytes memory approveHashCallData,,,) = getApproveTransactionInfo(actions, childMultisig);
-        bytes memory approveHashExec = _execTransationCalldata(
+        bytes memory approveHashExec = _execTransactionCalldata(
             childMultisig,
             approveHashCallData,
             Signatures.genPrevalidatedSignature(MULTICALL3_ADDRESS),
@@ -867,7 +869,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         );
         calls[0] = Call3Value({target: childMultisig, allowFailure: false, value: 0, callData: approveHashExec});
 
-        bytes memory customExec = _execTransationCalldata(
+        bytes memory customExec = _execTransactionCalldata(
             parentMultisig,
             getMulticall3Calldata(actions),
             Signatures.genPrevalidatedSignature(childMultisig),
@@ -886,7 +888,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     {
         callData = generateApproveMulticallData(actions);
         encodedTxData = getEncodedTransactionData(childMultisig, callData);
-        require(encodedTxData.length == 66, "MultisigTask: encodedTxData length is not 66 bytes.");
 
         assembly {
             // 66 bytes = (bytes1(0x19), bytes1(0x01), bytes32(domainSeparator()), bytes32(messageHash))
@@ -899,6 +900,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             messageHash := mload(add(encodedTxData, mload(encodedTxData)))
         }
 
+        GnosisSafeHashes.calculateMessageHashFromCalldata(callData, _getNonce(childMultisig));
         domainSeparator = GnosisSafeHashes.calculateDomainSeparator(block.chainid, childMultisig);
         return (callData, encodedTxData, domainSeparator, messageHash);
     }
