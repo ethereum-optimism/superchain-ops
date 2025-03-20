@@ -1,0 +1,14 @@
+l2chains = [
+    {name = "Base Sepolia Testnet", chainId = 84532}
+]
+
+templateName = "OPCMUpgradeV200"
+
+[opcmUpgrades]
+absolutePrestates = [
+    {absolutePrestate = "0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9", chainId = 84532},
+]
+
+[addresses]
+OPCM = "0x1B25F566336F47BC5E0036D66E142237DcF4640b"
+StandardValidatorV200 = "0x37739a6b0a3F1E7429499a4eC4A0685439Daff5C"
