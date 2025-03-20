@@ -5,12 +5,12 @@ import {Vm} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
-import {Script} from "forge-std/Script.sol";
+import {CommonBase} from "forge-std/Base.sol";
 
 /// @notice Manages state overrides for transaction simulation.
 /// This contract is used by MultisigTask to simulate transactions
 /// with specific state conditions.
-abstract contract StateOverrideManager is Script {
+abstract contract StateOverrideManager is CommonBase {
     using stdToml for string;
 
     /// @notice Gnosis Safe storage slots for important state variables
