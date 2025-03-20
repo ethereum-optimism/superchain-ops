@@ -1,4 +1,4 @@
-l2chains = [{name = "Uni Sepolia", chainId = 1301}]
+l2chains = [{name = "Unichain Sepolia", chainId = 1301}]
 templateName = "UniFix"
 
 [addresses]

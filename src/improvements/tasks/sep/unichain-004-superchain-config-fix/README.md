@@ -1,4 +1,4 @@
-# 002-uni-fix: Unichain Sepolia SuperchainConfig fix
+# unichain-004-superchain-config-fix: Unichain Sepolia SuperchainConfig fix
 
 Status: READY TO SIGN
 
@@ -7,10 +7,6 @@ Status: READY TO SIGN
 This task reinitializes Unichain Sepolia's L1 system contracts so they all point to the shared SuperchainConfig implementation target on Sepolia.
 
 Unichain Sepolia currently uses a non-standard SuperchainConfig. Until this task is completed, Unichain Sepolia is blocked from doing U13+ using OPCM because OPCM assumes the chain is part of the Superchain.
-
-### Timing
-
-Expected to be executed on or around 2025-03-25.
 
 ## Transaction creation
 
@@ -31,6 +27,6 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/improvements/template/UniFix.sol`.
 Navigate to the correct task directory then run the simulate command.
 ```
-cd 002-uni-fix
+cd unichain-004-superchain-config-fix
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
 ```
