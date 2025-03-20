@@ -323,7 +323,7 @@ contract StateOverrideManagerUnitTest is Test {
         Simulation.StateOverride[] memory allOverrides,
         address childMultisig,
         uint256 childMultisigNonce
-    ) internal view {
+    ) internal pure {
         assertTrue(
             allOverrides.length >= 2,
             "ChildDefaultOverride: Must be at least 2 overrides (parent default + child default)"
@@ -359,7 +359,7 @@ contract StateOverrideManagerUnitTest is Test {
         );
         assertEq(
             childDefaultOverride.overrides[1].value,
-            bytes32(0),
+            bytes32(childMultisigNonce),
             "ChildDefaultOverride: Nonce override must match expected value"
         );
         assertEq(
