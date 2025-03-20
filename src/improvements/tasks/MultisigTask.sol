@@ -677,7 +677,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             parentMultisig, getMulticall3Calldata(actions), Signatures.genPrevalidatedSignature(msg.sender)
         );
 
-        // Log the Tenderly JSON payload
+        // Log the Tenderly JSON payload - TODO: This payload won't generate the right hashes for nested multisigs unless we can extract the child multisig from it.
         console.log("\nSimulation payload:");
         logTenderlySimulationPayload(txData, allStateOverrides[0].overrides);
 
