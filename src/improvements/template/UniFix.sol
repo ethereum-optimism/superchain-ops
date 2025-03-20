@@ -135,7 +135,7 @@ contract BaseFix is L2TaskBase {
     function _writeToProxy(address proxy, bytes32 slot, bytes32 value) internal {
         address storageSetter = 0xd81f43eDBCAcb4c29a9bA38a13Ee5d79278270cC;
 
-        // Upgrade the OptimismPortalProxy to the StorageSetter.
+        // Upgrade the proxy to the StorageSetter.
         address implBefore = proxyAdmin.getProxyImplementation(proxy);
         proxyAdmin.upgrade(payable(proxy), storageSetter);
 
