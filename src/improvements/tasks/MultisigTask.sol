@@ -328,9 +328,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         console.log("Please make sure that the 'Data to sign' displayed above matches:");
         console.log("1. What you see in the Tenderly simulation.");
         console.log("2. What you see in your hardware wallet.");
-        console.log(
-            "3. What you see in the VALIDATIONS.md file viewed via a third device (which is connected to a different network)."
-        );
         console.log("This is a critical step that must not be skipped.");
         console.log("###############################");
     }
@@ -653,8 +650,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         if (optionalChildMultisig != address(0)) {
             bytes memory finalExec = getNestedSimulationMulticall3Calldata(actions, optionalChildMultisig);
 
-            logTenderlySimulationPayload(finalExec, allStateOverrides, MULTICALL3_ADDRESS);
-
             console.log("\nSimulation link:");
             Simulation.logSimulationLink({
                 _to: MULTICALL3_ADDRESS,
@@ -662,9 +657,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                 _from: msg.sender,
                 _overrides: allStateOverrides
             });
-            // TODO: Simulate the new Tenderly calldata locally (nested and non-nested).
-            // Note: Trying to simulate twice in the same execution causes 'EvmError: CreateCollision'.
-            // Specifically, a 'DeploymentFailed()' error is thrown in Blueprint.sol.
         } else {
             bytes memory finalExec = _execTransationCalldata(
                 parentMultisig,
@@ -672,8 +664,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                 Signatures.genPrevalidatedSignature(msg.sender),
                 MULTICALL3_ADDRESS
             );
-
-            logTenderlySimulationPayload(finalExec, allStateOverrides, parentMultisig);
 
             // Log the simulation link
             console.log("\nSimulation link:");
