@@ -345,8 +345,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @param safe The address of the safe
     /// @param data The calldata to be executed
     /// @return The data to sign
-    function getEncodedTransactionData(address safe, bytes memory data) public view returns (bytes memory) {
-        bytes memory encodedTxData = IGnosisSafe(safe).encodeTransactionData({
+    function getEncodedTransactionData(address safe, bytes memory data) public view returns (bytes memory encodedTxData) {
+        encodedTxData = IGnosisSafe(safe).encodeTransactionData({
             to: _getMulticallAddress(safe),
             value: 0,
             data: data,
@@ -359,7 +359,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             _nonce: _getNonce(safe)
         });
         require(encodedTxData.length == 66, "MultisigTask: encodedTxData length is not 66 bytes.");
-        return encodedTxData;
     }
 
     /// @notice simulate the task by approving from owners and then executing
