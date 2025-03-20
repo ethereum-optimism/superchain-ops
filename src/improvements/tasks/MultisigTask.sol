@@ -890,19 +890,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     {
         callData = generateApproveMulticallData(actions);
         encodedTxData = getEncodedTransactionData(childMultisig, callData);
-
-        assembly {
-            // 66 bytes = (bytes1(0x19), bytes1(0x01), bytes32(domainSeparator()), bytes32(messageHash))
-            // Retrieve the last 32 bytes of encodedTxData (messageHash).
-            // Memory layout of encodedTxData:
-            // - The first 32 bytes store the length (66 bytes in this case).
-            // - The actual data starts at encodedTxData + 32.
-            // - The last 32 bytes of the data (messageHash) start at:
-            //   encodedTxData + 32 + (66 - 32) = encodedTxData + 66.
-            messageHash := mload(add(encodedTxData, mload(encodedTxData)))
-        }
-
-        GnosisSafeHashes.calculateMessageHashFromCalldata(callData, _getNonce(childMultisig));
+        messageHash = GnosisSafeHashes.getMessageHashFromEncodedTransactionData(encodedTxData);
         domainSeparator = GnosisSafeHashes.calculateDomainSeparator(block.chainid, childMultisig);
         return (callData, encodedTxData, domainSeparator, messageHash);
     }

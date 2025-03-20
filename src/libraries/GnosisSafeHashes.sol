@@ -159,4 +159,25 @@ library GnosisSafeHashes {
 
         isOldVersion_ = (major < 1 || (major == 1 && minor < 3));
     }
+
+    /// @notice Reads the result of a call to Safe.encodeTransactionData and returns the message hash.
+    function getMessageHashFromEncodedTransactionData(bytes memory _encodedTxData)
+        internal
+        pure
+        returns (bytes32 messageHash_)
+    {
+        require(_encodedTxData.length == 66, "GnosisSafeHashes: Invalid encoded transaction data length.");
+        require(_encodedTxData[0] == bytes1(0x19), "GnosisSafeHashes: Expected 0x1901 prefix (0x19).");
+        require(_encodedTxData[1] == bytes1(0x01), "GnosisSafeHashes: Expected 0x1901 prefix (0x01).");
+        assembly {
+            // 66 bytes = (bytes1(0x19), bytes1(0x01), bytes32(domainSeparator()), bytes32(messageHash))
+            // Retrieve the last 32 bytes of encodedTxData (messageHash).
+            // Memory layout of encodedTxData:
+            // - The first 32 bytes store the length (66 bytes in this case).
+            // - The actual data starts at encodedTxData + 32.
+            // - The last 32 bytes of the data (messageHash) start at:
+            //   encodedTxData + 32 + (66 - 32) = encodedTxData + 66.
+            messageHash_ := mload(add(_encodedTxData, mload(_encodedTxData)))
+        }
+    }
 }
