@@ -345,7 +345,11 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @param safe The address of the safe
     /// @param data The calldata to be executed
     /// @return The data to sign
-    function getEncodedTransactionData(address safe, bytes memory data) public view returns (bytes memory encodedTxData) {
+    function getEncodedTransactionData(address safe, bytes memory data)
+        public
+        view
+        returns (bytes memory encodedTxData)
+    {
         encodedTxData = IGnosisSafe(safe).encodeTransactionData({
             to: _getMulticallAddress(safe),
             value: 0,
