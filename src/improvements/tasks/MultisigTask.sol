@@ -18,6 +18,7 @@ import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
 import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
 import {LibString} from "solady/utils/LibString.sol";
+import {Base64} from "solady/utils/Base64.sol";
 
 type AddressRegistry is address;
 
@@ -411,6 +412,11 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
             vm.writeFile(vars.filepath, json);
             console.log("\nWrote verify input to %s", vars.filepath);
+            string memory base64Json = Base64.encode(bytes(json));
+            console.log(
+                "\nTo verify this transaction, run `go run ./cmd/op-verify qr` on your machine, then open the following link on your mobile device: https://op-verify.optimism.io/?tx=%s",
+                base64Json
+            );
         }
     }
 
