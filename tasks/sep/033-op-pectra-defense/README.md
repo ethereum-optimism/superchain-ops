@@ -1,6 +1,6 @@
 # ProxyAdminOwner - Update Prestate Hash
 
-Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x1c25b580ff138d92f73b284ea0f0ba6ddde325876e7b20ae2047ad2b0452021f)
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xf143768d92b4f0cd8019153571fee9e82d74a918a1ae644d3214b8f86baff830)
 
 ## Objective
 
@@ -22,15 +22,15 @@ The input to the `updatePrestate()` function is an array of the following struct
   }
 ```
 
-The prestate hash used is: `0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd`.
-Which was taken from [op-program/prestates/releases.json](https://github.com/ethereum-optimism/optimism/blob/8d0dd96e494b2ba154587877351e87788336a4ec/op-program/prestates/releases.json#L9).
+The prestate hash used is: `0x0354eee87a1775d96afee8977ef6d5d6bd3612b256170952a01bf1051610ee01`.
+Which was taken from [validation/standard/standard-prestates.toml](https://github.com/ethereum-optimism/superchain-registry/blob/2c60e5723c64b5a1b58ab72c5d3816927ff9391a/validation/standard/standard-prestates.toml#L6).
 
 The input can therefore be generated [from](https://github.com/ethereum-optimism/superchain-registry/blob/fb6f538e17ee296b19536b03b8c73adc6041c60d/superchain/configs/sepolia/op.toml#L58-L59):
 
 ```
 cast calldata \
   "updatePrestate((address,address,bytes32)[])" \
-  "[(0x034edD2A225f7f429A63E0f1D2084B9E0A93b538, 0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc, 0x035ac388b5cb22acf52a2063cfde108d09b1888655d21f02f595f9c3ea6cbdcd)]"
+  "[(0x034edD2A225f7f429A63E0f1D2084B9E0A93b538, 0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc, 0x0354eee87a1775d96afee8977ef6d5d6bd3612b256170952a01bf1051610ee01)]"
 ```
 
 ## State Validations
@@ -40,5 +40,5 @@ Please see the instructions for [validation](./VALIDATION.md).
 ## Simulation
 
 Please see the "Simulating and Verifying the Transaction" instructions in [NESTED.md](../../../NESTED.md).
-When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/sep/032-op-pectra-defence/NestedSignFromJson.s.sol`.
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/sep/033-op-pectra-defense/NestedSignFromJson.s.sol`.
 This ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.

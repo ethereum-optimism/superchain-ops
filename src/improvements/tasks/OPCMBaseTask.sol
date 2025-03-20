@@ -15,8 +15,8 @@ import {L2TaskBase, MultisigTask, AddressRegistry} from "src/improvements/tasks/
 abstract contract OPCMBaseTask is L2TaskBase {
     using stdStorage for StdStorage;
     using AccountAccessParser for VmSafe.AccountAccess[];
-    /// @notice The OPContractsManager address
 
+    /// @notice The OPContractsManager address
     address public OPCM;
 
     /// @notice Optimism Contracts Manager Multicall3DelegateCall contract reference
