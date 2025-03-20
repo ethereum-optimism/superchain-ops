@@ -668,6 +668,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                 MULTICALL3_ADDRESS
             );
 
+            // Log the Tenderly JSON payload
+            logTenderlySimulationPayload(finalExec, allStateOverrides[0].overrides);
+
             // Log the simulation link
             console.log("\nSimulation link:");
             Simulation.logSimulationLink({
@@ -677,6 +680,42 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                 _overrides: allStateOverrides
             });
         }
+    }
+
+    /// @notice Log a JSON payload to create a Tenderly simulation.
+    /// Logging this data to the terminal is important for a separate process that performs Tenderly verifications.
+    function logTenderlySimulationPayload(bytes memory txData, Simulation.StorageOverride[] memory storageOverrides)
+        internal
+        view
+    {
+        console.log("\nSimulation payload:");
+        // forgefmt: disable-start
+        string memory payload = string.concat(
+            '{\"network_id\":\"', vm.toString(block.chainid),'\",',
+            '\"from\":\"', vm.toString(msg.sender),'\",',
+            '\"to\":\"', vm.toString(parentMultisig), '\",',
+            '\"save\":true,',
+            '\"input\":\"', vm.toString(txData),'\",',
+            '\"value\":\"0x0\",',
+            '\"state_objects\":{\"',
+            vm.toString(parentMultisig), '\":{\"storage\":{'
+        );
+        // forgefmt: disable-end
+        console.log("%s", payload);
+
+        // Add each storage override
+        for (uint256 j = 0; j < storageOverrides.length; j++) {
+            string memory comma = j < storageOverrides.length - 1 ? "," : "";
+            console.log(
+                "\"%s\":\"%s\"%s",
+                vm.toString(bytes32(storageOverrides[j].key)),
+                vm.toString(storageOverrides[j].value),
+                comma
+            );
+        }
+
+        // Close the JSON structure
+        console.log("}}}}");
     }
 
     /// @notice get the hash for this safe transaction
