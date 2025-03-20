@@ -368,7 +368,7 @@ jobs:
       - run:
           name: just new recipe tests
           command: |
-            (bash src/improvements/script/test-just-new.sh)
+            (cd src/improvements && bash script/test-just-new.sh)
 
   print_versions:
     docker:
