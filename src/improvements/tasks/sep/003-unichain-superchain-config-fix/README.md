@@ -27,6 +27,6 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/improvements/template/UniFix.sol`.
 Navigate to the correct task directory then run the simulate command.
 ```
-cd unichain-004-superchain-config-fix
+cd 003-unichain-superchain-config-fix
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
 ```
