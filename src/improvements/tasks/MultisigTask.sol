@@ -651,14 +651,19 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             getStateOverrides(parentMultisig, _getNonce(parentMultisig), optionalChildMultisig, childMultisigNonce);
 
         if (optionalChildMultisig != address(0)) {
+            bytes memory finalExec = getNestedSimulationMulticall3Calldata(actions, optionalChildMultisig);
+
+            logTenderlySimulationPayload(finalExec, allStateOverrides, MULTICALL3_ADDRESS);
+
+            console.log("\nSimulation link:");
             Simulation.logSimulationLink({
                 _to: MULTICALL3_ADDRESS,
-                _data: getNestedSimulationMulticall3Calldata(actions, optionalChildMultisig),
+                _data: finalExec,
                 _from: msg.sender,
                 _overrides: allStateOverrides
             });
-            // TODO: Simulate the new Tenderly calldata locally. Note: Trying to simulate twice
-            // in the same execution causes 'EvmError: CreateCollision'.
+            // TODO: Simulate the new Tenderly calldata locally (nested and non-nested).
+            // Note: Trying to simulate twice in the same execution causes 'EvmError: CreateCollision'.
             // Specifically, a 'DeploymentFailed()' error is thrown in Blueprint.sol.
         } else {
             bytes memory finalExec = _execTransationCalldata(
@@ -668,8 +673,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                 MULTICALL3_ADDRESS
             );
 
-            // Log the Tenderly JSON payload
-            logTenderlySimulationPayload(finalExec, allStateOverrides[0].overrides);
+            logTenderlySimulationPayload(finalExec, allStateOverrides, parentMultisig);
 
             // Log the simulation link
             console.log("\nSimulation link:");
@@ -684,38 +688,53 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
     /// @notice Log a JSON payload to create a Tenderly simulation.
     /// Logging this data to the terminal is important for a separate process that performs Tenderly verifications.
-    function logTenderlySimulationPayload(bytes memory txData, Simulation.StorageOverride[] memory storageOverrides)
-        internal
-        view
-    {
+    function logTenderlySimulationPayload(
+        bytes memory txData,
+        Simulation.StateOverride[] memory stateOverrides,
+        address to
+    ) internal view {
+        require(stateOverrides.length > 0, "MultisigTask: stateOverrides length must be greater than 0");
+
         console.log("\nSimulation payload:");
         // forgefmt: disable-start
         string memory payload = string.concat(
             '{\"network_id\":\"', vm.toString(block.chainid),'\",',
             '\"from\":\"', vm.toString(msg.sender),'\",',
-            '\"to\":\"', vm.toString(parentMultisig), '\",',
+            '\"to\":\"', vm.toString(to), '\",',
             '\"save\":true,',
             '\"input\":\"', vm.toString(txData),'\",',
             '\"value\":\"0x0\",',
-            '\"state_objects\":{\"',
-            vm.toString(parentMultisig), '\":{\"storage\":{'
+            '\"state_objects\":{'
         );
         // forgefmt: disable-end
-        console.log("%s", payload);
 
-        // Add each storage override
-        for (uint256 j = 0; j < storageOverrides.length; j++) {
-            string memory comma = j < storageOverrides.length - 1 ? "," : "";
-            console.log(
-                "\"%s\":\"%s\"%s",
-                vm.toString(bytes32(storageOverrides[j].key)),
-                vm.toString(storageOverrides[j].value),
-                comma
-            );
+        for (uint256 i = 0; i < stateOverrides.length && i < 2; i++) {
+            if (i > 0) payload = string.concat(payload, ",");
+            payload = string.concat(payload, formatStateOverride(stateOverrides[i]));
         }
 
-        // Close the JSON structure
-        console.log("}}}}");
+        payload = string.concat(payload, "}}");
+        console.log(payload);
+    }
+
+    /// @notice Helper function to format the state overrides for Tenderly.
+    function formatStateOverride(Simulation.StateOverride memory stateOverride) internal pure returns (string memory) {
+        // forgefmt: disable-start
+        string memory result = string.concat(
+            '\"', vm.toString(stateOverride.contractAddress), '\":{\"storage\":{'
+        );
+
+        for (uint256 j = 0; j < stateOverride.overrides.length; j++) {
+            if (j > 0) result = string.concat(result, ',');
+            result = string.concat(
+                result,
+                '\"', vm.toString(bytes32(stateOverride.overrides[j].key)), '\":\"',
+                vm.toString(stateOverride.overrides[j].value), '\"'
+            );
+        }
+        // forgefmt: disable-end
+
+        return string.concat(result, "}}");
     }
 
     /// @notice get the hash for this safe transaction
