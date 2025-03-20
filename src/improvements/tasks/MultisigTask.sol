@@ -344,7 +344,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @notice get the data to sign by EOA
     /// @param safe The address of the safe
     /// @param data The calldata to be executed
-    /// @return The data to sign
     function getEncodedTransactionData(address safe, bytes memory data)
         public
         view
