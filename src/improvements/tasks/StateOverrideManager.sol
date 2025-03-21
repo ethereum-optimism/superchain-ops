@@ -13,10 +13,6 @@ import {CommonBase} from "forge-std/Base.sol";
 abstract contract StateOverrideManager is CommonBase {
     using stdToml for string;
 
-    /// @notice Gnosis Safe storage slots for important state variables
-    uint256 private constant GNOSIS_SAFE_THRESHOLD_SLOT = 0x4;
-    uint256 private constant GNOSIS_SAFE_NONCE_SLOT = 0x5;
-
     /// @notice The state overrides for the local and tenderly simulation
     Simulation.StateOverride[] private _stateOverrides;
 
@@ -69,6 +65,7 @@ abstract contract StateOverrideManager is CommonBase {
     /// @notice Get the nonce for a Safe, preferring overridden values if available.
     /// Checks if nonce is overridden in the state overrides, otherwise gets from contract.
     function _getNonceOrOverride(address safeAddress) internal view returns (uint256 nonce_) {
+        uint256 GNOSIS_SAFE_NONCE_SLOT = 0x5;
         // Check if nonce is overridden in state overrides
         for (uint256 i = 0; i < _stateOverrides.length; i++) {
             // Skip if not the target contract
@@ -91,7 +88,7 @@ abstract contract StateOverrideManager is CommonBase {
     /// @notice Create default state override for the parent multisig.
     function _parentMultisigTenderlyOverride(address parentMultisig, uint256 nonce)
         private
-        pure
+        view
         returns (Simulation.StateOverride memory defaultOverride)
     {
         defaultOverride.contractAddress = parentMultisig;
@@ -110,20 +107,19 @@ abstract contract StateOverrideManager is CommonBase {
     }
 
     /// @notice Helper function to override the threshold and nonce for a multisig.
-    /// We do not use the 'overrideSafeThresholdAndNonce' function in Simulation.sol
-    /// because don't want that function making a network request to get the current nonce.
     function _overrideMultisigThresholdAndNonce(
         Simulation.StateOverride memory defaultOverride,
         uint256 threshold,
         uint256 nonce
-    ) private pure returns (Simulation.StateOverride memory) {
+    ) private view returns (Simulation.StateOverride memory) {
+        uint256 GNOSIS_SAFE_THRESHOLD_SLOT = 0x4;
+        // Not using Simulation.addThresholdOverride here because it doesn't allow us to specify a custom threshold.
+        // i.e. 'Simulation.addThresholdOverride' only supports setting the threshold to a value of 1.
         defaultOverride = Simulation.addOverride(
             defaultOverride,
             Simulation.StorageOverride({key: bytes32(GNOSIS_SAFE_THRESHOLD_SLOT), value: bytes32(threshold)})
         );
-        defaultOverride = Simulation.addOverride(
-            defaultOverride, Simulation.StorageOverride({key: bytes32(GNOSIS_SAFE_NONCE_SLOT), value: bytes32(nonce)})
-        );
+        defaultOverride = Simulation.addNonceOverride(defaultOverride.contractAddress, defaultOverride, nonce);
         return defaultOverride;
     }
 
