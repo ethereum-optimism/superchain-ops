@@ -167,17 +167,17 @@ library GnosisSafeHashes {
         returns (bytes32 messageHash_)
     {
         require(_encodedTxData.length == 66, "GnosisSafeHashes: Invalid encoded transaction data length.");
-        require(_encodedTxData[0] == bytes1(0x19), "GnosisSafeHashes: Expected 0x1901 prefix (0x19).");
-        require(_encodedTxData[1] == bytes1(0x01), "GnosisSafeHashes: Expected 0x1901 prefix (0x01).");
+        require(_encodedTxData[0] == bytes1(0x19), "GnosisSafeHashes: Expected prefix byte 0x19.");
+        require(_encodedTxData[1] == bytes1(0x01), "GnosisSafeHashes: Expected prefix byte 0x01.");
+
+        // Memory layout of a `bytes` array in Solidity:
+        //   - The first 32 bytes store the array length (66 bytes here).
+        //   - The actual data starts immediately after the length.
+        // Our data structure is:
+        //   [0x19][0x01][32-byte domainSeparator][32-byte messageHash]
+        // The message hash begins at offset: 32 (skip length) + 34 = 66.
         assembly {
-            // 66 bytes = (bytes1(0x19), bytes1(0x01), bytes32(domainSeparator()), bytes32(messageHash))
-            // Retrieve the last 32 bytes of encodedTxData (messageHash).
-            // Memory layout of encodedTxData:
-            // - The first 32 bytes store the length (66 bytes in this case).
-            // - The actual data starts at encodedTxData + 32.
-            // - The last 32 bytes of the data (messageHash) start at:
-            //   encodedTxData + 32 + (66 - 32) = encodedTxData + 66.
-            messageHash_ := mload(add(_encodedTxData, mload(_encodedTxData)))
+            messageHash_ := mload(add(_encodedTxData, 66))
         }
     }
 }

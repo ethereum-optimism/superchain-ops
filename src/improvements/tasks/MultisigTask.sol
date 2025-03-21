@@ -666,7 +666,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                 parentMultisig,
                 getMulticall3Calldata(actions),
                 Signatures.genPrevalidatedSignature(msg.sender),
-                MULTICALL3_ADDRESS
+                _getMulticallAddress(parentMultisig)
             );
 
             // Log the simulation link
@@ -704,7 +704,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
         for (uint256 i = 0; i < stateOverrides.length && i < 2; i++) {
             if (i > 0) payload = string.concat(payload, ",");
-            payload = string.concat(payload, formatStateOverride(stateOverrides[i]));
+            payload = string.concat(payload, tenderlyPayloadStateOverride(stateOverrides[i]));
         }
 
         payload = string.concat(payload, "}}");
@@ -712,7 +712,11 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     }
 
     /// @notice Helper function to format the state overrides for Tenderly.
-    function formatStateOverride(Simulation.StateOverride memory stateOverride) internal pure returns (string memory) {
+    function tenderlyPayloadStateOverride(Simulation.StateOverride memory stateOverride)
+        internal
+        pure
+        returns (string memory)
+    {
         // forgefmt: disable-start
         string memory result = string.concat(
             '\"', vm.toString(stateOverride.contractAddress), '\":{\"storage\":{'
