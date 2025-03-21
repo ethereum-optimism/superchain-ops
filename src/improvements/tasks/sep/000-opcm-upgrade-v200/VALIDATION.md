@@ -21,7 +21,7 @@ the values printed to the terminal when you run the task.
 > ### Security Council
 >
 > - Domain Hash: `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
-> - Message Hash: `0x73c7ae083dff69c862ccec5726a6b7b02d1fe6bbc9162e2af963df66266bc1bb`
+> - Message Hash: `0xdcce9a45b2af30011402f5249a3ac7848c01546643383cccd48e6deecbd7390c`
 >
 > ### Optimism Foundation
 >
