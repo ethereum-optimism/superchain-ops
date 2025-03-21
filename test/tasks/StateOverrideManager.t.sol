@@ -248,7 +248,9 @@ contract StateOverrideManagerUnitTest is Test {
         dgt.simulateRun(fileName);
         uint256 expectedNonce = dgt.nonce();
         // Only parent overrides will be checked because child multisig is not set.
-        assertDefaultStateOverrides(expectedNonce, 1, dgt, address(0), 0);
+        Simulation.StateOverride[] memory allOverrides =
+            assertDefaultStateOverrides(expectedNonce, 1, dgt, address(0), 0);
+        assertEq(allOverrides.length, 1, "Only parent overrides should be applied");
         vm.removeFile(fileName);
     }
 
