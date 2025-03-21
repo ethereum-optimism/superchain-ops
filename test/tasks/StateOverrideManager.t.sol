@@ -289,10 +289,11 @@ contract StateOverrideManagerUnitTest is Test {
             address(task.parentMultisig()),
             "Contract address must be the parent multisig"
         );
+        // 5 overrides: threshold, nonce, owner count, owner mapping, owner mapping 2
         assertTrue(
-            parentDefaultOverride.overrides.length == 2,
+            parentDefaultOverride.overrides.length == 5,
             string.concat(
-                "Default override must have 2 overrides, found: ",
+                "Default override must have 5 overrides, found: ",
                 LibString.toString(parentDefaultOverride.overrides.length)
             )
         );
