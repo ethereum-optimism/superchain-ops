@@ -26,7 +26,7 @@ import {LibString} from "solady/utils/LibString.sol";
 /// @notice A template contract for configuring protocol parameters.
 ///         This file is intentionally stripped down; please add your logic where indicated.
 ///         Please make sure to address all TODOs and remove the require() statements.
-contract BaseFix is L2TaskBase {
+contract UniFix is L2TaskBase {
     using stdToml for string;
     using LibString for string;
 
