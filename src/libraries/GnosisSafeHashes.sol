@@ -159,4 +159,25 @@ library GnosisSafeHashes {
 
         isOldVersion_ = (major < 1 || (major == 1 && minor < 3));
     }
+
+    /// @notice Reads the result of a call to Safe.encodeTransactionData and returns the message hash.
+    function getMessageHashFromEncodedTransactionData(bytes memory _encodedTxData)
+        internal
+        pure
+        returns (bytes32 messageHash_)
+    {
+        require(_encodedTxData.length == 66, "GnosisSafeHashes: Invalid encoded transaction data length.");
+        require(_encodedTxData[0] == bytes1(0x19), "GnosisSafeHashes: Expected prefix byte 0x19.");
+        require(_encodedTxData[1] == bytes1(0x01), "GnosisSafeHashes: Expected prefix byte 0x01.");
+
+        // Memory layout of a `bytes` array in Solidity:
+        //   - The first 32 bytes store the array length (66 bytes here).
+        //   - The actual data starts immediately after the length.
+        // Our data structure is:
+        //   [0x19][0x01][32-byte domainSeparator][32-byte messageHash]
+        // The message hash begins at offset: 32 (skip length) + 34 = 66.
+        assembly {
+            messageHash_ := mload(add(_encodedTxData, 66))
+        }
+    }
 }
