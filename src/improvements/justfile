@@ -135,7 +135,7 @@ simulate-all-templates:
     fi
 
 # Simulate a task locally and against Tenderly.
-simulate-tenderly TASK="" SAFE_NAME="":
+simulate-tenderly TASK="" SAFE_NAME="single":
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
