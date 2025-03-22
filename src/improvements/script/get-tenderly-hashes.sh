@@ -109,15 +109,15 @@ echo -e "\nView the simulation in Tenderly dashboard:"
 echo "https://dashboard.tenderly.co/$tenderly_user/$tenderly_project_slug/simulator/$simulation_id"
 
 # Retrieve the full simulation details
-echo "Retrieving full simulation details..."
+echo -e "\nRetrieving full simulation details..."
 simulation_details=$(curl -s -X POST -H "X-Access-Key: $TENDERLY_ACCESS_TOKEN" \
   "https://api.tenderly.co/api/v1/account/$tenderly_user/project/$tenderly_project_slug/simulations/$simulation_id")
 
 # Check if there was an error retrieving the simulation details
 if echo "$simulation_details" | jq -e '.error' >/dev/null 2>&1; then
-  echo -e "\n\nSimulation response:" >&2
+  echo -e "Simulation response:" >&2
   echo "$response" | jq 'del(.contracts)' >&2
-  echo -e "\n\nError retrieving simulation details:" >&2
+  echo -e "Error retrieving simulation details:" >&2
   echo "$simulation_details" | jq -r '.' >&2
   echo "$simulation_details" | jq -r '.error' >&2
   exit 1
@@ -143,7 +143,6 @@ hashes=$(echo "$call_trace" | jq -r '.. | objects |
       (.value | tostring | contains("0x1901")))
         .value
   ')
-echo "Hashes: $hashes"
 
 # Check if there are any hashes
 if [ -z "$hashes" ]; then
