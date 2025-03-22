@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# Get the task type from justfile
+# It can be L2TaskBase or SimpleBase
+TASK_TYPE="$1"
+
 create_template() {
     # Determine the directory of this script so we can locate the template file.
     script_dir="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
@@ -23,8 +27,20 @@ create_template() {
             template_path="template/$filename"
             mkdir -p "$(dirname "$template_path")"
             # Replace all occurrences of "EmptyTemplate" in the template file with the chosen contract name.
-            sed "s/EmptyTemplate/${contract_name}/g" "$template_source" > "$template_path"
+            # Replace MultisigTask with the chosen task type.
+            # Replace TASk_TYPE.sol with MultisigTask.sol
+            # Remove the _configureTask and taskType functions. As these are
+            # already implemented in the TASK_TYPE contract.
+            # TODO: Import the TASK_TYPE contract from TASK_TYPE.sol once
+            # individual task type files are created.
+            sed -e "s/EmptyTemplate/${contract_name}/g" \
+                -e "s/MultisigTask/${TASK_TYPE}/g" \
+                -e "s/${TASK_TYPE}.sol/MultisigTask.sol/g" \
+                -e '/function _configureTask/,/}/d' \
+                -e '/function taskType/,/}/d' \
+                "$template_source" > "$template_path"
             absolute_path=$(realpath "$template_path")
+            echo -e "\033[32mTask type: ${TASK_TYPE}\033[0m"
             echo -e "\n\033[32mTemplate created at:\033[0m"
             echo "$absolute_path"
             break
