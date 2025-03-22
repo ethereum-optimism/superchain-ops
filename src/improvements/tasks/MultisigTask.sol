@@ -680,37 +680,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         }
     }
 
-    /// @notice Log a JSON payload to create a Tenderly simulation.
-    /// Logging this data to the terminal is important for a separate process that performs Tenderly verifications.
-    function logTenderlySimulationPayload(
-        bytes memory txData,
-        Simulation.StateOverride[] memory stateOverrides,
-        address to
-    ) internal view {
-        require(stateOverrides.length > 0, "MultisigTask: stateOverrides length must be greater than 0");
-
-        console.log("\nSimulation payload:");
-        // forgefmt: disable-start
-        string memory payload = string.concat(
-            '{\"network_id\":\"', vm.toString(block.chainid),'\",',
-            '\"from\":\"', vm.toString(msg.sender),'\",',
-            '\"to\":\"', vm.toString(to), '\",',
-            '\"save\":true,',
-            '\"input\":\"', vm.toString(txData),'\",',
-            '\"value\":\"0x0\",',
-            '\"state_objects\":{'
-        );
-        // forgefmt: disable-end
-
-        for (uint256 i = 0; i < stateOverrides.length && i < 2; i++) {
-            if (i > 0) payload = string.concat(payload, ",");
-            payload = string.concat(payload, tenderlyPayloadStateOverride(stateOverrides[i]));
-        }
-
-        payload = string.concat(payload, "}}");
-        console.log(payload);
-    }
-
     /// @notice Helper function to format the state overrides for Tenderly.
     function tenderlyPayloadStateOverride(Simulation.StateOverride memory stateOverride)
         internal
