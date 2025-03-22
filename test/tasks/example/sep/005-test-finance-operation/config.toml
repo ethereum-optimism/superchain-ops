@@ -6,8 +6,8 @@ templateName = "FinanceTemplate"
 operationType = "approve"
 
 operations = [
-  {token = "TEST", amount = 100, target = "SecurityCouncil"},
-  {token = "TEST", amount = 100, target = "USER1"}
+  {token = "TEST", amount = "100", target = "SecurityCouncil"},
+  {token = "TEST", amount = "100", target = "USER1"}
 ]
 
 [addresses]

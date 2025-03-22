@@ -7,8 +7,8 @@ operationType = "approve"
 
 # List of operations to perform. In this case, approve 100 TEST tokens to be spent by SecurityCouncil and USER1
 operations = [
-  {token = "TEST", amount = 100, target = "SecurityCouncil"},
-  {token = "TEST", amount = 100, target = "USER1"}
+  {token = "TEST", amount = "100.000", target = "SecurityCouncil"},
+  {token = "TEST", amount = "100.0", target = "USER1"}
 ]
 
 [addresses]
