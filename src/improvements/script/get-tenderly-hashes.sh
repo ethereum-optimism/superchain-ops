@@ -103,7 +103,10 @@ fi
 # Extract the simulation ID from the response
 simulation_id=$(echo "$response" | jq -r '.simulation.id')
 echo "Simulation ID: $simulation_id"
-echo "Executed simulation at: https://dashboard.tenderly.co/$tenderly_user/$tenderly_project_slug/simulator/$simulation_id"
+
+# Output the Tenderly dashboard URL
+echo -e "\nView the simulation in Tenderly dashboard:"
+echo "https://dashboard.tenderly.co/$tenderly_user/$tenderly_project_slug/simulator/$simulation_id"
 
 # Retrieve the full simulation details
 echo "Retrieving full simulation details..."
@@ -156,7 +159,3 @@ message_hash="0x${full_hash:70:64}"
 
 echo "  Domain Separator: $domain_separator"
 echo "  Message Hash: $message_hash"
-
-# Output the Tenderly dashboard URL
-echo -e "\nView the simulation in Tenderly dashboard:"
-echo "https://dashboard.tenderly.co/$tenderly_user/$tenderly_project_slug/simulator/$simulation_id"
