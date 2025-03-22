@@ -109,7 +109,7 @@ echo -e "\nView the simulation in Tenderly dashboard:"
 echo "https://dashboard.tenderly.co/$tenderly_user/$tenderly_project_slug/simulator/$simulation_id"
 
 # Retrieve the full simulation details
-echo -e "\nRetrieving full simulation details..."
+# echo -e "\nRetrieving full simulation details..."
 simulation_details=$(curl -s -X POST -H "X-Access-Key: $TENDERLY_ACCESS_TOKEN" \
   "https://api.tenderly.co/api/v1/account/$tenderly_user/project/$tenderly_project_slug/simulations/$simulation_id")
 
@@ -120,6 +120,13 @@ if echo "$simulation_details" | jq -e '.error' >/dev/null 2>&1; then
   echo -e "Error retrieving simulation details:" >&2
   echo "$simulation_details" | jq -r '.' >&2
   echo "$simulation_details" | jq -r '.error' >&2
+  exit 1
+fi
+
+# Check if the transaction succeeded
+# echo -e "\nChecking if the transaction succeeded..."
+if echo "$simulation_details" | jq -e '.transaction.status == false' > /dev/null; then
+  echo "Error: Transaction failed in Tenderly" >&2
   exit 1
 fi
 
