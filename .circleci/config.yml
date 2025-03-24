@@ -161,7 +161,9 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout
+      - utils/checkout-with-mise
+      - attach_workspace:
+          at: .
       - run:
           name: Check Task Numbering Uniqueness
           command: |
