@@ -40,6 +40,10 @@ create_template() {
                 -e '/import {IGnosisSafe}/d' \
                 -e '/function taskType/,/}/d' \
                 "$template_source" > "$template_path"
+            # Remove the safeAddressString function if the task type is OPCMBaseTask
+            if [[ "$TASK_TYPE" == "OPCMBaseTask" ]]; then
+                sed -i '' '/function safeAddressString/,/}/d' "$template_path"
+            fi
             absolute_path=$(realpath "$template_path")
             echo -e "\033[32mTask type: ${TASK_TYPE}\033[0m"
             echo -e "\n\033[32mTemplate created at:\033[0m"
