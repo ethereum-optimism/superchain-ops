@@ -31,12 +31,13 @@ create_template() {
             # Replace TASk_TYPE.sol with MultisigTask.sol
             # Remove the _configureTask and taskType functions. As these are
             # already implemented in the TASK_TYPE contract.
-            # TODO: Import the TASK_TYPE contract from TASK_TYPE.sol once
-            # individual task type files are created.
+            # Remove the AddressRegistry and IGnosisSafe imports.
             sed -e "s/EmptyTemplate/${contract_name}/g" \
                 -e "s/MultisigTask/${TASK_TYPE}/g" \
-                -e "s/${TASK_TYPE}.sol/MultisigTask.sol/g" \
+                -e "s/${TASK_TYPE}.sol/types\/${TASK_TYPE}.sol/g" \
                 -e '/function _configureTask/,/}/d' \
+                -e "s/, AddressRegistry//g" \
+                -e '/import {IGnosisSafe}/d' \
                 -e '/function taskType/,/}/d' \
                 "$template_source" > "$template_path"
             absolute_path=$(realpath "$template_path")
