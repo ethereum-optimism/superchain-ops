@@ -22,7 +22,6 @@ simulate whichSafe hdPath='0':
   safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} ${SCRIPT_PATH} "{{whichSafe}}")
 
   echo "RPC URL: ${rpcUrl}"
-  echo ""
 
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
