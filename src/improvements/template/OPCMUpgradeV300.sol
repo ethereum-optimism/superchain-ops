@@ -27,9 +27,16 @@ contract OPCMUpgradeV300 is OPCMBaseTask {
         Claim absolutePrestate;
         uint256 chainId;
     }
+    
+    /// @notice Struct to store error expectations per l2 chain
+    struct ValidationExpectations {
+        string errors;
+        uint256 chainId;
+    }
 
     /// @notice Mapping of l2 chain IDs to their respective prestates
     mapping(uint256 => Claim) public absolutePrestates;
+    mapping(uint256 => string) public validationErrors;
 
     /// @notice Returns the storage write permissions
     function _taskStorageWrites() internal view virtual override returns (string[] memory) {
@@ -62,6 +69,13 @@ contract OPCMUpgradeV300 is OPCMBaseTask {
             abi.decode(tomlContent.parseRaw(".opcmUpgrades.absolutePrestates"), (OPCMUpgrade[]));
         for (uint256 i = 0; i < upgrades.length; i++) {
             absolutePrestates[upgrades[i].chainId] = upgrades[i].absolutePrestate;
+        }
+        
+        // Collect validation expectations
+        ValidationExpectations[] memory expectations = 
+        abi.decode(tomlContent.parseRaw(".expectations.validation"), (ValidationExpectations[]));
+        for (uint256 i = 0; i < expectations.length; i++) {
+            validationErrors[expectations[i].chainId] = expectations[i].errors;
         }
 
         OPCM = tomlContent.readAddress(".addresses.OPCM");
@@ -123,11 +137,12 @@ contract OPCMUpgradeV300 is OPCMBaseTask {
                 l2ChainID: chainId
             });
 
-            string memory reasons = STANDARD_VALIDATOR_V300.validate({_input: input, _allowFailure: true});
-            string memory expectedErrors = "";
+            string memory reasons = _normalizeErrorString(STANDARD_VALIDATOR_V300.validate({_input: input, _allowFailure: true}));
+            string memory expectedErrors = _normalizeErrorString(validationErrors[chainId]);
+
 //            TODO: figure out expected errors
 //                "PDDG-50,PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-50,PLDG-DWETH-40,PLDG-ANCHORP-40";
-            require(reasons.eq(expectedErrors), string.concat("Unexpected errors: ", reasons));
+            require(reasons.eq(expectedErrors), string.concat("Unexpected errors for chain ", LibString.toString(chainId), ": ", reasons));
         }
     }
 
