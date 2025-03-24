@@ -94,6 +94,12 @@ contract DecimalNormalizationTest is Test {
 
         amount = DecimalNormalization.normalizeTokenAmount("100.123456789", tokenDecimals);
         assertEq(amount, 100123456789 * 10 ** 9); // 100.123456789 * 10^(18-9) = 100.123456789 * 10^9
+
+        amount = DecimalNormalization.normalizeTokenAmount("1,000.123456789", tokenDecimals);
+        assertEq(amount, 1000123456789 * 10 ** 9); // 1000.123456789 * 10^(18-9) = 1000.123456789 * 10^9
+
+        amount = DecimalNormalization.normalizeTokenAmount("1,000,000.123456789", tokenDecimals);
+        assertEq(amount, 1000000123456789 * 10 ** 9); // 1000000.123456789 * 10^(18-9) = 1000000.123456789 * 10^9
     }
 
     // ==================== Fuzz Tests ====================
