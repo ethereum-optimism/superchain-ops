@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {OPCMBaseTask} from "../tasks/OPCMBaseTask.sol";
+import {OPCMBaseTask} from "../tasks/types/OPCMBaseTask.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {
     IOPContractsManager,
