@@ -32,7 +32,7 @@ approvehash_in_anvil hdPath='0':
   echo "Simulating with: ${signer}"
   echo ""
   
-  echo "============ OVERRIDE SAFE SETTINGS '${ownerSafe}' ============"
+  echo "============ OVERRIDE SAFE  SETTINGS '${ownerSafe}' ============"
   echo "1. Set the threshold to 1."
   cast rpc anvil_setStorageAt ${ownerSafe} 0x0000000000000000000000000000000000000000000000000000000000000004 0x0000000000000000000000000000000000000000000000000000000000000001 --rpc-url ${localrpcUrl}
 
