@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {Vm, VmSafe} from "forge-std/Vm.sol";
+import {Vm} from "forge-std/Vm.sol";
 
 import {LibString} from "@solady/utils/LibString.sol";
 
@@ -61,11 +61,11 @@ library DecimalNormalization {
     }
 
     /// @notice Checks if the amount represents a non-zero value
-    /// @param wholePart The whole number part of the amount
-    /// @param decimalPart The decimal part of the amount
+    /// @param integer The integer part of the amount
+    /// @param decimal The decimal part of the amount
     /// @return True if either part results in a non-zero value
-    function isNonZeroAmount(uint256 wholePart, uint256 decimalPart) internal pure returns (bool) {
-        return wholePart > 0 || decimalPart > 0;
+    function isNonZeroAmount(uint256 integer, uint256 decimal) internal pure returns (bool) {
+        return integer > 0 || decimal > 0;
     }
 
     /// @notice Parses a string amount into its components
