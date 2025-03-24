@@ -34,8 +34,8 @@ library DecimalNormalization {
     /// @param tokenDecimals number of decimals for the token
     /// returns the scaled up token amount
     function normalizeTokenAmount(string memory amount, uint8 tokenDecimals) internal pure returns (uint256) {
-        // Get the scaled amount and decimals using parseDecimals
-        (uint256 scaledAmount, uint8 parsedDecimals) = parseDecimals(amount);
+        // Get the scaled amount and decimals using parseAndScaleDecimals
+        (uint256 scaledAmount, uint8 parsedDecimals) = parseAndScaleDecimals(amount);
 
         // Ensure amount decimals don't exceed token decimals
         require(
@@ -79,10 +79,19 @@ library DecimalNormalization {
 
         components.integer = vm.parseUint(stringComponents[0]);
         components.hasDecimals = stringComponents.length == 2;
-
         if (components.hasDecimals) {
             components.decimal = vm.parseUint(stringComponents[1]);
             components.decimalPlaces = uint8(bytes(stringComponents[1]).length);
+        }
+
+        return components;
+    }
+
+    /// @notice Validates the parsed amount components
+    /// @param components The parsed amount components
+    /// reverts if components are invalid
+    function validateAmountComponents(AmountComponents memory components) internal pure {
+        if (components.hasDecimals) {
             require(components.decimalPlaces <= 18, "DecimalNormalization: decimals must be less than or equal to 18");
         }
 
@@ -90,15 +99,15 @@ library DecimalNormalization {
         require(
             isNonZeroAmount(components.integer, components.decimal), "DecimalNormalization: amount must be non-zero"
         );
-
-        return components;
     }
 
     /// @notice returns the amount with the length of the decimals parsed
     /// @param amount The amount to parse
     /// @return The amount and the number of decimals
-    function parseDecimals(string memory amount) internal pure returns (uint256, uint8) {
+    function parseAndScaleDecimals(string memory amount) internal pure returns (uint256, uint8) {
         AmountComponents memory components = parseAmountComponents(amount);
+
+        validateAmountComponents(components);
 
         if (!components.hasDecimals || components.decimal == 0) {
             return (components.integer, 0);
