@@ -444,13 +444,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         return vm.isContext(VmSafe.ForgeContext.ScriptBroadcast) || vm.isContext(VmSafe.ForgeContext.ScriptResume);
     }
 
-    /// @notice executes a transaction to the target multisig
-    /// @param multisig to execute the transaction from
-    /// @param target to call when executing the transaction
-    /// @param value amount of value to send from the safe
-    /// @param data calldata to send from the safe
-    /// @param operationType type of operation to execute
-    /// @param signatures for the safe transaction
+    /// @notice Executes a transaction to the target multisig.
     function execTransaction(
         address multisig,
         address target,
@@ -481,6 +475,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         // Otherwise, default to the remaining gas. This helps surface out-of-gas errors earlier,
         // before they would show up in Tenderly's simulation results.
         uint256 gas = vm.envOr("TENDERLY_GAS", gasleft());
+        console.log("Passing %s gas to execTransaction (from env or gasleft)", gas);
         (bool success, bytes memory returnData) = multisig.call{gas: gas}(callData);
 
         if (!success) {
