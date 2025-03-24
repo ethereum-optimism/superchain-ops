@@ -3,6 +3,7 @@ pragma solidity 0.8.15;
 
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {Script} from "forge-std/Script.sol";
+import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
@@ -24,9 +25,11 @@ contract TaskRunner is Script {
         L2Chain[] l2chains;
         string path;
         string templateName;
+        address parentMultisig;
+        bool isNested;
     }
 
-    function _parseConfig(string memory configPath) internal view returns (TaskConfig memory) {
+    function _parseConfig(string memory configPath) internal returns (TaskConfig memory) {
         string memory configContent = vm.readFile(configPath);
         bytes memory rawL2Chains = vm.parseToml(configContent, ".l2chains");
         L2Chain[] memory l2chains = abi.decode(rawL2Chains, (L2Chain[]));
@@ -34,7 +37,15 @@ contract TaskRunner is Script {
         bytes memory templateNameRaw = vm.parseToml(configContent, ".templateName");
         string memory templateName = abi.decode(templateNameRaw, (string));
 
-        return TaskConfig({templateName: templateName, l2chains: l2chains, path: configPath});
+        (bool isNested, address parentMultisig) = isNestedTask(configPath);
+
+        return TaskConfig({
+            templateName: templateName,
+            l2chains: l2chains,
+            path: configPath,
+            isNested: isNested,
+            parentMultisig: parentMultisig
+        });
     }
 
     function run(string memory network) public {
@@ -43,7 +54,6 @@ contract TaskRunner is Script {
         commands[1] = network;
 
         bytes memory result = vm.ffi(commands);
-
         string[] memory taskPaths = vm.split(string(result), "\n");
 
         // Process each task
@@ -56,7 +66,8 @@ contract TaskRunner is Script {
                 string.concat("out/", config.templateName, ".sol/", config.templateName, ".json");
 
             MultisigTask task = MultisigTask(deployCode(templatePath));
-            task.simulateRun(config.path);
+
+            executeTask(task, config);
         }
     }
 
@@ -68,8 +79,26 @@ contract TaskRunner is Script {
         vm.dumpState(dumpStatePath);
     }
 
-    /// @notice Returns Useful function to tell if a task is nested or not based on the task config
-    function isNestedTask(string memory taskConfigFilePath) public returns (bool) {
+    /// @notice Executes a task based on its configuration.
+    function executeTask(MultisigTask task, TaskConfig memory config) internal {
+        if (config.isNested) {
+            IGnosisSafe parentMultisig = IGnosisSafe(config.parentMultisig);
+            address[] memory owners = parentMultisig.getOwners();
+            require(
+                owners.length > 0,
+                string.concat(
+                    "TaskRunner: No owners found for parent multisig: ",
+                    Strings.toHexString(uint256(uint160(config.parentMultisig)), 20)
+                )
+            );
+            task.signFromChildMultisig(config.path, owners[0]);
+        } else {
+            task.simulateRun(config.path);
+        }
+    }
+
+    /// @notice Useful function to tell if a task is nested or not based on the task config.
+    function isNestedTask(string memory taskConfigFilePath) public returns (bool, address parentMultisig) {
         string memory configContent = vm.readFile(taskConfigFilePath);
         bytes memory templateNameRaw = vm.parseToml(configContent, ".templateName");
         string memory templateName = abi.decode(templateNameRaw, (string));
@@ -78,8 +107,6 @@ contract TaskRunner is Script {
         MultisigTask task = MultisigTask(deployCode(templatePath));
         string memory safeAddressString = task.safeAddressString();
         MultisigTask.TaskType taskType = task.taskType();
-
-        address parentMultisig;
 
         if (taskType == MultisigTask.TaskType.SimpleBase) {
             SimpleAddressRegistry _simpleAddrRegistry = new SimpleAddressRegistry(taskConfigFilePath);
@@ -90,6 +117,6 @@ contract TaskRunner is Script {
             parentMultisig = _addrRegistry.getAddress(safeAddressString, chains[0].chainId);
         }
 
-        return task.isNestedSafe(parentMultisig);
+        return (task.isNestedSafe(parentMultisig), parentMultisig);
     }
 }

@@ -66,5 +66,3 @@ gasLimits = [
     {chainId = 291, gasLimit = 100000000}
 ]
 ```
-
-Other existing templates include [`DisputeGameUpgradeTemplate`](./template/DisputeGameUpgradeTemplate.sol) and [`SetGameTypeTemplate`](./template/SetGameTypeTemplate.sol).
