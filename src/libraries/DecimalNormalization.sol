@@ -72,7 +72,9 @@ library DecimalNormalization {
     /// @param amount The amount string to parse
     /// @return components The parsed amount components
     function parseAmountComponents(string memory amount) internal pure returns (AmountComponents memory components) {
-        string[] memory stringComponents = amount.split(".");
+        // first remove all commas from the amount, then split the amount into
+        // its components
+        string[] memory stringComponents = amount.replace(",", "").split(".");
         validateAmountFormat(stringComponents);
 
         components.integer = vm.parseUint(stringComponents[0]);
