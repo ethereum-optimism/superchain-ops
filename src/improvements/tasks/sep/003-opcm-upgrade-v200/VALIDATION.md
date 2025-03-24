@@ -400,8 +400,16 @@ For each contract listed in the state diff, please verify that no contracts or s
                         - <i>cast storage 0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b 0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b --rpc-url sepolia</i>
                        The Raw Slot can be derived from:
                         - <i>cast index uint32 0 101</i>
-  </code>
- </pre>
+
+    ----- Additional Nonce Changes -----
+    Who:               0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38, 0x2275D0c824116aD516987048fFfaBAC6B0C3A29B, 0x4745808Cc649f290439763214fC40Ac905806d8D
+
+    Details:           Nonce Updates for all addresses listed above.
+    Summary:           All nonces go from 0 to 1.
+                        - 0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38 is address(uint160(uint256(keccak256('foundry default caller'))))
+                        - 0x2275D0c824116aD516987048fFfaBAC6B0C3A29B is Permissioned GameType Implementation.
+                        - 0x4745808Cc649f290439763214fC40Ac905806d8D is Permissionless GameType Implementation.
+  </pre>
 
 # Supplementary Material
 
