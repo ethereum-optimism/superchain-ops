@@ -164,7 +164,9 @@ jobs:
       - checkout
       - run:
           name: Check Task Numbering Uniqueness
-          command: bash ./script/utils/check-task-numbering.sh
+          command: |
+            just install
+            (cd src/improvements && just check-task-numbering)
 
   # TODO: remove/replace when there are real consumers of the RPC URLs
   example_mainnet_job:
