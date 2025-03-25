@@ -38,7 +38,6 @@ simulate whichSafe hdPath='0':
       echo "Simulating without ledger using the first owner account: ${signer}"
   fi
   echo ""
-  
   forge build
   forge script ${script} \
     --rpc-url ${rpcUrl} \
