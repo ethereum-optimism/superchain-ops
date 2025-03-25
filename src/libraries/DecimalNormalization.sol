@@ -19,14 +19,6 @@ library DecimalNormalization {
         uint256 integer;
         uint256 decimal;
         uint8 decimalPlaces;
-        bool hasDecimals;
-    }
-
-    /// @notice add the decimals to the given amount
-    /// @param amount The amount to scale
-    /// @param decimalsToScale The number of decimals to scale amount by
-    function scaleDecimals(uint256 amount, uint8 decimalsToScale) internal pure returns (uint256) {
-        return amount * (10 ** uint256(decimalsToScale));
     }
 
     /// @notice converts string to a scaled up token amount in decimal form
@@ -34,17 +26,14 @@ library DecimalNormalization {
     /// @param tokenDecimals number of decimals for the token
     /// returns the scaled up token amount
     function normalizeTokenAmount(string memory amount, uint8 tokenDecimals) internal pure returns (uint256) {
-        // Get the scaled amount and decimals using parseAndScaleDecimals
-        (uint256 scaledAmount, uint8 parsedDecimals) = parseAndScaleDecimals(amount);
+        AmountComponents memory components = parseAmountComponents(amount);
 
-        // Ensure amount decimals don't exceed token decimals
-        require(
-            parsedDecimals <= tokenDecimals,
-            "DecimalNormalization: amount decimals must be less than or equal to token decimals"
-        );
+        validateAmountComponents(components, tokenDecimals);
 
-        // Scale the amount to match token decimals
-        return scaleDecimals(scaledAmount, tokenDecimals - parsedDecimals);
+        uint256 finalAmount = components.integer * (10 ** uint256(tokenDecimals))
+            + components.decimal * (10 ** uint256(tokenDecimals - components.decimalPlaces));
+
+        return finalAmount;
     }
 
     /// @notice Validates that the amount string has a valid format
@@ -78,8 +67,7 @@ library DecimalNormalization {
         validateAmountFormat(stringComponents);
 
         components.integer = vm.parseUint(stringComponents[0]);
-        components.hasDecimals = stringComponents.length == 2;
-        if (components.hasDecimals) {
+        if (stringComponents.length == 2) {
             components.decimal = vm.parseUint(stringComponents[1]);
             components.decimalPlaces = uint8(bytes(stringComponents[1]).length);
         }
@@ -89,32 +77,18 @@ library DecimalNormalization {
 
     /// @notice Validates the parsed amount components
     /// @param components The parsed amount components
+    /// @param tokenDecimals The number of decimals for the token
     /// reverts if components are invalid
-    function validateAmountComponents(AmountComponents memory components) internal pure {
-        if (components.hasDecimals) {
-            require(components.decimalPlaces <= 18, "DecimalNormalization: decimals must be less than or equal to 18");
-        }
+    function validateAmountComponents(AmountComponents memory components, uint8 tokenDecimals) internal pure {
+        require(components.decimalPlaces <= 18, "DecimalNormalization: decimals must be less than or equal to 18");
+        require(
+            components.decimalPlaces <= tokenDecimals,
+            "DecimalNormalization: amount decimals must be less than or equal to token decimals"
+        );
 
         // Ensure the final amount is non-zero
         require(
             isNonZeroAmount(components.integer, components.decimal), "DecimalNormalization: amount must be non-zero"
         );
-    }
-
-    /// @notice returns the amount with the length of the decimals parsed
-    /// @param amount The amount to parse
-    /// @return The amount and the number of decimals
-    function parseAndScaleDecimals(string memory amount) internal pure returns (uint256, uint8) {
-        AmountComponents memory components = parseAmountComponents(amount);
-
-        validateAmountComponents(components);
-
-        if (!components.hasDecimals || components.decimal == 0) {
-            return (components.integer, 0);
-        }
-
-        uint256 finalAmount = components.integer * (10 ** uint256(components.decimalPlaces)) + components.decimal;
-
-        return (finalAmount, components.decimalPlaces);
     }
 }
