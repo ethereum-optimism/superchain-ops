@@ -70,7 +70,7 @@ contract UniFix is L2TaskBase {
         super._templateSetup(taskConfigFilePath);
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         assertEq(chains.length, 1);
-        assertEq(chains[0].chainId, 1301);
+        assertEq(chains[0].chainId, 22444422);
 
         // Get the SuperchainConfig address for Op Sepolia.
         // https://github.com/ethereum-optimism/superchain-registry/blob/2c60e5723c64b5a1b58ab72c5d3816927ff9391a/superchain/extra/addresses/addresses.json#L64
@@ -78,7 +78,7 @@ contract UniFix is L2TaskBase {
         superchainConfig = ISuperchainConfig(opSepoliaOptimismPortal.superchainConfig());
 
         // Get the ProxyAdmin address for Uni Sepolia.
-        proxyAdmin = IProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", 1301));
+        proxyAdmin = IProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", 22444422));
 
         string memory tomlContent = vm.readFile(taskConfigFilePath);
         STANDARD_VALIDATOR_V180 = IStandardValidatorV180(tomlContent.readAddress(".addresses.StandardValidatorV180"));
@@ -91,18 +91,18 @@ contract UniFix is L2TaskBase {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         // We are only operating on Uni Sepolia.
         assertEq(chains.length, 1);
-        assertEq(chains[0].chainId, 1301);
+        assertEq(chains[0].chainId, 22444422);
 
         // Get the addresses for Uni Sepolia.
-        address l1CrossDomainMessengerProxy = superchainAddrRegistry.getAddress("L1CrossDomainMessengerProxy", 1301);
-        address l1ERC721BridgeProxy = superchainAddrRegistry.getAddress("L1ERC721BridgeProxy", 1301);
-        address l1StandardBridgeProxy = superchainAddrRegistry.getAddress("L1StandardBridgeProxy", 1301);
-        address optimismPortalProxy = superchainAddrRegistry.getAddress("OptimismPortalProxy", 1301);
-        address anchorStateRegistryProxy = superchainAddrRegistry.getAddress("AnchorStateRegistryProxy", 1301);
+        address l1CrossDomainMessengerProxy = superchainAddrRegistry.getAddress("L1CrossDomainMessengerProxy", 22444422);
+        address l1ERC721BridgeProxy = superchainAddrRegistry.getAddress("L1ERC721BridgeProxy", 22444422);
+        address l1StandardBridgeProxy = superchainAddrRegistry.getAddress("L1StandardBridgeProxy", 22444422);
+        address optimismPortalProxy = superchainAddrRegistry.getAddress("OptimismPortalProxy", 22444422);
+        address anchorStateRegistryProxy = superchainAddrRegistry.getAddress("AnchorStateRegistryProxy", 22444422);
 
         // These are wrong in the registry, I queried them directly from the chain.
-        address delayedWETHPermissioned = 0x73D18d6Caa14AeEc15449d0A25A31D4e7E097a5c;
-        address delayedWETHPermissionless = 0x4E7e6dC46CE003A1E353B6848BF5a4fc1FeAC8Ae;
+        address delayedWETHPermissioned = 0xDd61fA7699F0FE78c2cE8BDa113EAe128f7a90d7;
+        address delayedWETHPermissionless = 0x9b45Ddec06abc7552B23dC87baDD4756CE0A1EC0;
 
         bytes32 superchainConfigSlotValue = bytes32(uint256(uint160(address(superchainConfig))));
 
@@ -148,7 +148,7 @@ contract UniFix is L2TaskBase {
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         assertEq(chains.length, 1);
-        assertEq(chains[0].chainId, 1301);
+        assertEq(chains[0].chainId, 22444422);
 
         uint256 chainId = chains[0].chainId;
         IDisputeGameFactory disputeGameFactory =

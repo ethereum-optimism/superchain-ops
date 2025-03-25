@@ -1,0 +1,5 @@
+l2chains = [{name = "Unichain Alphanet", chainId = 22444422}]
+templateName = "UniFix"
+
+[addresses]
+StandardValidatorV180 = "0x0a5bf8ebb4b177b2dcc6eba933db726a2e2e2b4d"
