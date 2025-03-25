@@ -124,10 +124,28 @@ contract OPCMUpgradeV300 is OPCMBaseTask {
             });
 
             string memory reasons = STANDARD_VALIDATOR_V300.validate({_input: input, _allowFailure: true});
-            string memory expectedErrors = "";
-//            TODO: figure out expected errors
-//                "PDDG-50,PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-50,PLDG-DWETH-40,PLDG-ANCHORP-40";
-            require(reasons.eq(expectedErrors), string.concat("Unexpected errors: ", reasons));
+            // PDDG-ANCHORP-40: The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
+            // PLDG-ANCHORP-40: The anchor state registry's permissionless root is not 0xdead000000000000000000000000000000000000000000000000000000000000
+            // PDDG-DWETH-40: the delayed weth delay is changing to 3.5 days for permissioned games
+            // PLDG-DWETH-40: the delayed weth delay is changing to 3.5 days for permissionless
+            string memory expectedErrors_11155420 = "PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-DWETH-40,PLDG-ANCHORP-40";
+            // SYSCON-20: System config gas limit must be 60,000,000 - This is OK because we don't touch the system config.
+            // PDDG-ANCHORP-40: The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
+            // PLDG-ANCHORP-40: The anchor state registry's permissionless root is not 0xdead000000000000000000000000000000000000000000000000000000000000
+            // PDDG-DWETH-40: the delayed weth delay is changing to 3.5 days for permissioned games
+            // PLDG-DWETH-40: the delayed weth delay is changing to 3.5 days for permissionless
+            string memory expectedErrors_1946 = "SYSCON-20,PDDG-DWETH-30,PDDG-DWETH-40,PDDG-ANCHORP-40,PDDG-120,PLDG-10";
+            // SYSCON-20: System config gas limit must be 60,000,000 - This is OK because we don't touch the system config.
+            // PDDG-ANCHORP-40: The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
+            // PLDG-ANCHORP-40: The anchor state registry's permissionless root is not 0xdead000000000000000000000000000000000000000000000000000000000000
+            // PDDG-DWETH-40: the delayed weth delay is changing to 3.5 days for permissioned games
+            // PLDG-DWETH-30: Delayed WETH owner must be l1PAOMultisig (for permissionless dispute game) - It is checking for the OP Sepolia PAO
+            // PDDG-DWETH-30: Delayed WETH owner must be l1PAOMultisig (for permissioned dispute game) - It is checking for the OP Sepolia PAO
+            // PLDG-DWETH-40: the delayed weth delay is changing to 3.5 days for permissionless
+            // PLDG-ANCHORP-40: Anchor state registry root must match expected dead root (for permissionless dispute game) - This does not apply to any chain more than 1 week old
+        string memory expectedErrors_763373 = "SYSCON-20,PDDG-DWETH-30,PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-DWETH-30,PLDG-DWETH-40,PLDG-ANCHORP-40";
+            require(reasons.eq(expectedErrors_11155420) || reasons.eq(expectedErrors_1946) || reasons.eq(expectedErrors_763373),
+                string.concat("Unexpected errors: ", reasons));
         }
     }
 
