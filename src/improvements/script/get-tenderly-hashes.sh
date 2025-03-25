@@ -3,8 +3,8 @@ set -euo pipefail
 
 # This script uses a Tenderly simulation payload to execute a simulation and retrieve
 # the domain and message hashes from its trace. 
-# Usage: ./get-tenderly-trace.sh '{"json":"payload"}'
-# Or: ./get-tenderly-trace.sh --from-link 'https://dashboard.tenderly.co/...'
+# Usage: ./get-tenderly-hashes.sh '{"json":"payload"}'
+# Or: ./get-tenderly-hashes.sh --from-link 'https://dashboard.tenderly.co/...'
 
 # Function to extract parameters from a Tenderly simulation link and build a JSON payload
 extract_payload_from_link() {

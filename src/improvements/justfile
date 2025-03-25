@@ -172,6 +172,13 @@ simulate-all-templates:
     fi
 
 # Simulate a task locally and against Tenderly.
+# TASK: The path to the task to simulate.
+# SAFE_NAME: The name of the safe to simulate the task for (council, foundation). Leave blank for non-nested tasks.
+#
+# Example:
+# cd src/improvements
+# just simulate-tenderly sep/000-opcm-upgrade-v200 council
+# just simulate-tenderly sep/003-unichain-superchain-config-fix
 simulate-tenderly TASK="" SAFE_NAME="single":
     #!/usr/bin/env bash
     set -euo pipefail
