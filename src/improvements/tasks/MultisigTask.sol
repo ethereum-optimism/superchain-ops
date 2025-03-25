@@ -654,7 +654,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         printChildHash(childMultisig, domainSeparator, messageHash);
     }
 
-    /// @notice helper function to print non-nested safe calldata
+    /// @notice Helper function to print non-nested safe calldata.
     function printSingleData(Action[] memory actions) private view {
         console.log("\n\n------------------ Single Multisig EOA Data to Sign ------------------");
         (bytes memory callData, uint256 value) = getMulticall3CalldataAndValue(actions);
@@ -674,7 +674,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         console.log("Message Hash:   ", vm.toString(messageHash));
     }
 
-    /// @notice print the tenderly simulation payload with the state overrides
+    /// @notice Print the tenderly simulation payload with the state overrides
     function printTenderlySimulationData(Action[] memory actions, address optionalChildMultisig) internal view {
         // TODO: Support child nonce as a state override. Right now we always get the latest nonce.
         // Use the max uint256 to indicate that the child multisig nonce is not provided (zero is a valid nonce).
