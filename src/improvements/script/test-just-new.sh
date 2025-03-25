@@ -9,7 +9,6 @@ test_command() {
 
     # Run the command and capture the output
     actual_output=$(eval "$command" || true)
-    echo "actual_output: $actual_output"
 
     # Check if the actual output matches the expected output
     if [[ "$actual_output" == *"$expected_output"* ]]; then
@@ -30,7 +29,7 @@ test_command "just new template invalid" "Error: Invalid task type 'invalid'"
 test_command "just new task l2" "Error: Task type should not be specified for 'task' command"
 # Test that all task types are supported by just new template
 # Iterate over all Solidity files in the types folder
-for file in $root_dir/src/improvements/tasks/types/*.sol; do
+for file in "$root_dir"/src/improvements/tasks/types/*.sol; do
     # Extract the contract name from the file
     contract_name=$(basename "$file" .sol)
     # Convert the contract name to lowercase
@@ -38,7 +37,7 @@ for file in $root_dir/src/improvements/tasks/types/*.sol; do
     
     # Construct the test command
     test_command "echo \"Example.sol\" | just new template $contract_name_lower" "Task type: $contract_name"
-    rm -rf $root_dir/src/improvements/template/Example.sol
+    rm -rf "$root_dir"/src/improvements/template/Example.sol
 done
 test_command "just new invalid" "Error: Invalid command"
 
