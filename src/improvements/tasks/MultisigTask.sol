@@ -97,9 +97,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @notice starting snapshot of the contract state before the calls are made
     uint256 internal _startSnapshot;
 
-    /// @notice cached calldata of the parent multisig
-    bytes parentCalldata;
-
     /// @notice Multicall3 call data struct
     /// @param target The address of the target contract
     /// @param allowFailure Flag to determine if the call should be allowed to fail
@@ -354,11 +351,11 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         console.log("Domain Hash:    ", vm.toString(domainSeparator));
         console.log("Message Hash:   ", vm.toString(safeTxHash));
 
-        printOPTxVerifyLink(parentMultisig, callData);
+        printOPTxVerifyLink(parentMultisig, callData, hex"");
     }
 
     /// @notice This function prints a op-txverify link which can be used for verifying the authenticity of the domain and message hashes
-    function printOPTxVerifyLink(address safe, bytes memory callData) private view {
+    function printOPTxVerifyLink(address safe, bytes memory parentCalldata, bytes memory callData) private view {
         uint256 childNonce = _getNonce(safe);
         uint256 parentNonce = _getNonce(parentMultisig);
         bool isNested = isNestedSafe(parentMultisig);
@@ -480,7 +477,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         vm.startStateDiffRecording();
 
         // Execute the transaction
-        parentCalldata = callData;
         execTransaction(parentMultisig, multicallTarget, 0, callData, Enum.Operation.DelegateCall, signatures);
         VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
         return accountAccesses;
@@ -711,6 +707,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         );
         (, bytes memory dataToSign, bytes32 domainSeparator, bytes32 messageHash) =
             getApproveTransactionInfo(actions, childMultisig);
+        bytes memory parentCalldata = getMulticall3Calldata(actions);
 
         console.log("\n\n------------------ Nested Multisig Child's Hash to Approve ------------------");
         console.log("Parent multisig: %s", getAddressLabel(parentMultisig));
@@ -719,7 +716,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         printEncodedTransactionData(dataToSign);
         console.log("\n\n------------------ Nested Multisig EOAs Hash to Approve ------------------");
         printChildHash(childMultisig, domainSeparator, messageHash);
-        printOPTxVerifyLink(childMultisig, generateApproveMulticallData(actions));
+        printOPTxVerifyLink(childMultisig, parentCalldata, generateApproveMulticallData(actions));
     }
 
     /// @notice Helper function to print non-nested safe calldata.
