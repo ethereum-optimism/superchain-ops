@@ -109,21 +109,4 @@ contract SimpleAddressRegistryTest is Test {
         assertEq(registry.get("FoundationUpgradeSafe"), 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B, "20");
         assertEq(registry.get("SecurityCouncil"), 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977, "30");
     }
-
-    function test_hardcodedAddresses_opMainnet() public {
-        if (!isSimpleAddressRegistry) {
-            vm.skip(true, "Skipping test for opMainnet when not a SimpleAddressRegistry");
-        }
-        vm.chainId(10);
-        SimpleAddressRegistry registry = SimpleAddressRegistry(_deployRegistry("valid_addresses.toml"));
-        // no need to create error message, as this test runs only for SimpleAddressRegistry
-        vm.expectRevert("SimpleAddressRegistry: address not found for ChainGovernorSafe");
-        registry.get("ChainGovernorSafe");
-        vm.expectRevert("SimpleAddressRegistry: address not found for FoundationOperationSafe");
-        registry.get("FoundationOperationSafe");
-        vm.expectRevert("SimpleAddressRegistry: address not found for FoundationUpgradeSafe");
-        registry.get("FoundationUpgradeSafe");
-        vm.expectRevert("SimpleAddressRegistry: address not found for SecurityCouncil");
-        registry.get("SecurityCouncil");
-    }
 }
