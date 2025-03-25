@@ -355,8 +355,12 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     }
 
     /// @notice This function prints a op-txverify link which can be used for verifying the authenticity of the domain and message hashes
-    function printOPTxVerifyLink(address safe, bytes memory parentCalldata, bytes memory callData) private view {
-        uint256 childNonce = _getNonce(safe);
+    function printOPTxVerifyLink(
+        address optionalChildSafe,
+        bytes memory parentCalldata,
+        bytes memory optionalChildCallData
+    ) private view {
+        uint256 childNonce = _getNonce(optionalChildSafe);
         uint256 parentNonce = _getNonce(parentMultisig);
         bool isNested = isNestedSafe(parentMultisig);
 
@@ -397,15 +401,15 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                 ? string.concat(
                     ',\n   "nested": ',
                     '{\n    "safe": "',
-                    vm.toString(safe),
+                    vm.toString(optionalChildSafe),
                     '",\n    "nonce": ',
                     vm.toString(childNonce),
                     ',\n    "operation": ',
                     vm.toString(uint8(Enum.Operation.DelegateCall)),
                     ',\n    "data": "',
-                    vm.toString(callData),
+                    vm.toString(optionalChildCallData),
                     '",\n    "to": "',
-                    vm.toString(_getMulticallAddress(safe)),
+                    vm.toString(_getMulticallAddress(optionalChildSafe)),
                     '"\n   }'
                 )
                 : "",
