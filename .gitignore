@@ -27,5 +27,3 @@ draft*signer*.json
 ready-*
 
 broadcast/*
-
-**/op-verify-inputs
