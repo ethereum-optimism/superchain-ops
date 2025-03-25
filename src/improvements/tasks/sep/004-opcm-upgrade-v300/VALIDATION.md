@@ -135,6 +135,15 @@ For each contract listed in the state diff, please verify that no contracts or s
   Raw Old Value:     0x0000000000000000000000007717296cac5d39d362eb77a94c95483bebae214e
   Raw New Value:     0x000000000000000000000000845e5382d60ec16e538051e1876a985c5339cc62
   [WARN] Slot was not decoded
+  Summary:           Set a new game implementation for game type <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L55">1 (PERMISSIONED_CANNON)<a/>.
+  Detail:            You can verify this slot corresponds to the game implementation for game type 1 by 
+                     deriving the slot value as follows:
+                     - Notice that <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57">`gameImpls` is a map from a `GameType` to a dispute game address</a>.
+                     - Notice that `GameType` is <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224-L224">equivalent to a `uint32`</a>.
+                     - Notice that the `gameImpls` is <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41-L41">stored at slot 101</a>. 
+                     - Calculate the expected slot for game type 1 using `cast index &lt;KEY_TYPE&gt; &lt;KEY&gt; &lt;SLOT_NUMBER&gt;`:
+                       - `cast index uint32 1 101`
+                     - You should derive a value matching the "Raw Slot" here: 0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e
 
 ----- DecodedStateDiff[3] -----
   Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/op.toml#L63-L63">0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1</a>
@@ -144,6 +153,15 @@ For each contract listed in the state diff, please verify that no contracts or s
   Raw Old Value:     0x0000000000000000000000001851253ad7214f7b39e541befb6626669cb2446f
   Raw New Value:     0x000000000000000000000000d46b939123d5fb1b48ee3f90caebc9d5498ed542
   [WARN] Slot was not decoded
+  Summary:           Set a new game implementation for game type <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L52">0 (CANNON)<a/>.
+  Detail:            You can verify this slot corresponds to the game implementation for game type 0 by 
+                     deriving the slot value as follows:
+                     - Notice that <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57">`gameImpls` is a map from a `GameType` to a dispute game address</a>.
+                     - Notice that `GameType` is <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224-L224">equivalent to a `uint32`</a>.                      
+                     - Notice that the `gameImpls` is <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41-L41">stored at slot 101</a>. 
+                     - Calculate the expected slot for game type 0 using `cast index &lt;KEY_TYPE&gt; &lt;KEY&gt; &lt;SLOT_NUMBER&gt;`:
+                       - `cast index uint32 0 101`
+                     - You should derive a value matching the "Raw Slot" here: 0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b
 
 ----- DecodedStateDiff[4] -----
   Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/08e3fe429c776a532c2b6dc09571fc13e6dba5d4/superchain/configs/sepolia/op.toml#L58">0x16Fc5058F25648194471939df75CF27A2fdC48BC</a>
@@ -292,6 +310,15 @@ For each contract listed in the state diff, please verify that no contracts or s
   Raw Old Value:     0x00000000000000000000000065e5ec10f922cf7e61ead974525a2795bd4fda9a
   Raw New Value:     0x000000000000000000000000de2b69153c42191eb4863a36024d80a1d426d0c8
   [WARN] Slot was not decoded
+  Summary:           Set a new game implementation for game type <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L55">1 (PERMISSIONED_CANNON)<a/>.
+  Detail:            You can verify this slot corresponds to the game implementation for game type 1 by 
+                     deriving the slot value as follows:
+                     - Notice that <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57">`gameImpls` is a map from a `GameType` to a dispute game address</a>.
+                     - Notice that `GameType` is <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224-L224">equivalent to a `uint32`</a>.
+                     - Notice that the `gameImpls` is <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41-L41">stored at slot 101</a>. 
+                     - Calculate the expected slot for game type 1 using `cast index &lt;KEY_TYPE&gt; &lt;KEY&gt; &lt;SLOT_NUMBER&gt;`:
+                       - `cast index uint32 1 101`
+                     - You should derive a value matching the "Raw Slot" here: 0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e
 
 ----- DecodedStateDiff[15] -----
   Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/08e3fe429c776a532c2b6dc09571fc13e6dba5d4/superchain/configs/sepolia/ink.toml#L64">0x860e626c700AF381133D9f4aF31412A2d1DB3D5d</a>
@@ -301,6 +328,14 @@ For each contract listed in the state diff, please verify that no contracts or s
   Raw Old Value:     0x00000000000000000000000043736de4bd35482d828b79ea673b76ab1699626f
   Raw New Value:     0x0000000000000000000000000c356f533eb009deb302bc96522e80dea6a16276
   [WARN] Slot was not decoded
+  Summary:           Set a new game implementation for game type <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L52">0 (CANNON)<a/>.
+  Detail:            You can verify this slot corresponds to the game implementation for game type 0 by 
+                     deriving the slot value as follows:
+                     - Notice that <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57">`gameImpls` is a map from a `GameType` to a dispute game address</a>.
+                     - Notice that `GameType` is <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224-L224">equivalent to a `uint32`</a>.                      - Notice that the `gameImpls` is <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41-L41">stored at slot 101</a>. 
+                     - Calculate the expected slot for game type 0 using `cast index &lt;KEY_TYPE&gt; &lt;KEY&gt; &lt;SLOT_NUMBER&gt;`:
+                       - `cast index uint32 0 101`
+                     - You should derive a value matching the "Raw Slot" here: 0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b
 
 ----- DecodedStateDiff[16] -----
   Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/op.toml#L53-L53">0x9bFE9c5609311DF1c011c47642253B78a4f33F4B</a>
@@ -327,6 +362,15 @@ For each contract listed in the state diff, please verify that no contracts or s
   Raw Old Value:     0x0000000000000000000000002087cbc6ec893a31405d56025cd1ae648da3982c
   Raw New Value:     0x000000000000000000000000697a4684576d8a76d4b11e83e9b6f3b61bf04755
   [WARN] Slot was not decoded
+  Summary:           Set a new game implementation for game type <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L55">1 (PERMISSIONED_CANNON)<a/>.
+  Detail:            You can verify this slot corresponds to the game implementation for game type 1 by 
+                     deriving the slot value as follows:
+                     - Notice that <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57">`gameImpls` is a map from a `GameType` to a dispute game address</a>.
+                     - Notice that `GameType` is <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224-L224">equivalent to a `uint32`</a>.
+                     - Notice that the `gameImpls` is <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41-L41">stored at slot 101</a>. 
+                     - Calculate the expected slot for game type 1 using `cast index &lt;KEY_TYPE&gt; &lt;KEY&gt; &lt;SLOT_NUMBER&gt;`:
+                       - `cast index uint32 1 101`
+                     - You should derive a value matching the "Raw Slot" here: 0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e
 
 ----- DecodedStateDiff[18] -----
   Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/ink.toml#L55-L55">0xd1C901BBD7796546A7bA2492e0E199911fAE68c7</a>
