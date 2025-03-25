@@ -8,14 +8,12 @@ import {stdStorage, StdStorage} from "forge-std/Test.sol";
 import {IOPContractsManager} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
-import {LibString} from "solady/utils/LibString.sol";
 
 import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 
 /// @notice base task for making calls to the Optimism Contracts Manager
 abstract contract OPCMBaseTask is L2TaskBase {
-    using LibString for string;
     using stdStorage for StdStorage;
     using AccountAccessParser for VmSafe.AccountAccess[];
 
@@ -121,29 +119,5 @@ abstract contract OPCMBaseTask is L2TaskBase {
         accountAccesses; // No-ops to silence unused variable compiler warnings.
         actions;
         require(false, "You must implement the _validate function");
-    }
-
-    function _normalizeErrorString(string memory input) internal pure returns (string memory) {
-        string[] memory parts = input.split(",");
-
-        // Sort the array using a simple bubble sort (fine for small arrays off-chain)
-        uint256 len = parts.length;
-        for (uint256 i = 0; i < len; i++) {
-            for (uint256 j = i + 1; j < len; j++) {
-                if (keccak256(bytes(parts[i])) > keccak256(bytes(parts[j]))) {
-                    string memory temp = parts[i];
-                    parts[i] = parts[j];
-                    parts[j] = temp;
-                }
-            }
-        }
-
-        // Join sorted parts into a comma-separated string
-        string memory result = parts[0];
-        for (uint256 i = 1; i < len; i++) {
-            result = string.concat(result, ",", parts[i]);
-        }
-
-        return result;
     }
 }
