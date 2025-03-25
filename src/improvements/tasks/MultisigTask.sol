@@ -341,7 +341,21 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         console.logBytes32(getHash(callData, parentMultisig));
 
         bytes memory encodedTxData = getEncodedTransactionData(parentMultisig, callData);
-        printDomainSeparatorAndMessageHash(parentMultisig, encodedTxData);
+        bytes32 safeTxHash;
+        assembly {
+            // 66 bytes = (bytes1(0x19), bytes1(0x01), bytes32(domainSeparator()), bytes32(safeTxHash))
+            // Retrieve the last 32 bytes of encodedTxData (safeTxHash).
+            // Memory layout of encodedTxData:
+            // - The first 32 bytes store the length (66 bytes in this case).
+            // - The actual data starts at encodedTxData + 32.
+            // - The last 32 bytes of the data (safeTxHash) start at:
+            //   encodedTxData + 32 + (66 - 32) = encodedTxData + 66.
+            safeTxHash := mload(add(encodedTxData, mload(encodedTxData)))
+        }
+
+        bytes32 domainSeparator = GnosisSafeHashes.calculateDomainSeparator(block.chainid, parentMultisig);
+        console.log("Domain Hash:    ", vm.toString(domainSeparator));
+        console.log("Message Hash:   ", vm.toString(safeTxHash));
 
         printOPTxVerifyLink(parentMultisig, callData);
     }
@@ -700,7 +714,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         );
         (, bytes memory dataToSign, bytes32 domainSeparator, bytes32 messageHash) =
             getApproveTransactionInfo(actions, childMultisig);
-            
+
         console.log("\n\n------------------ Nested Multisig Child's Hash to Approve ------------------");
         console.log("Parent multisig: %s", getAddressLabel(parentMultisig));
         console.log("Parent hashToApprove: %s", vm.toString(getHash(parentCalldata, parentMultisig)));
@@ -708,6 +722,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         printEncodedTransactionData(dataToSign);
         console.log("\n\n------------------ Nested Multisig EOAs Hash to Approve ------------------");
         printChildHash(childMultisig, domainSeparator, messageHash);
+        printOPTxVerifyLink(childMultisig, generateApproveMulticallData(actions));
     }
 
     /// @notice Helper function to print non-nested safe calldata.
@@ -725,30 +740,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             childMultisig != address(0), "MultisigTask: Child multisig cannot be zero address when printing child hash."
         );
         console.log("Child multisig: %s", getAddressLabel(childMultisig));
-
-        bytes memory encodedTxData = getEncodedTransactionData(childMultisig, callData);
-        require(encodedTxData.length == 66, "MultisigTask: encodedTxData length is not 66 bytes.");
-        console.log("Child hashToApprove: %s", vm.toString(keccak256(encodedTxData)));
-
-        printDomainSeparatorAndMessageHash(childMultisig, encodedTxData);
-
-        printOPTxVerifyLink(childMultisig, callData);
-    }
-
-    function printDomainSeparatorAndMessageHash(address safe, bytes memory encodedTxData) private view {
-        bytes32 safeTxHash;
-        assembly {
-            // 66 bytes = (bytes1(0x19), bytes1(0x01), bytes32(domainSeparator()), bytes32(safeTxHash))
-            // Retrieve the last 32 bytes of encodedTxData (safeTxHash).
-            // Memory layout of encodedTxData:
-            // - The first 32 bytes store the length (66 bytes in this case).
-            // - The actual data starts at encodedTxData + 32.
-            // - The last 32 bytes of the data (safeTxHash) start at:
-            //   encodedTxData + 32 + (66 - 32) = encodedTxData + 66.
-            safeTxHash := mload(add(encodedTxData, mload(encodedTxData)))
-        }
-
-        bytes32 domainSeparator = GnosisSafeHashes.calculateDomainSeparator(block.chainid, safe);
         console.log("Domain Hash:    ", vm.toString(domainSeparator));
         console.log("Message Hash:   ", vm.toString(messageHash));
     }
