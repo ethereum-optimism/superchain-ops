@@ -98,7 +98,6 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000000
     Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
     Raw New Value:     0x00000000000000000000c2be75506d5724086deb7245bd260cc9753911be0001
-    [WARN] Slot was not decoded
 
     Summary:           Slot 0 is updated to set AnchorStateRegistryProxy address
     Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
@@ -115,7 +114,6 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000001
     Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
     Raw New Value:     0x000000000000000000000000d6e6dbf4f7ea0ac412fd8b65ed297e64bb7a06e1
-    [WARN] Slot was not decoded
 
     Summary:           Slot 1 is updated to set DisputeGameFactoryProxy address
     Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
@@ -130,7 +128,6 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000002
     Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
     Raw New Value:     0x00000000000000000000000049f53e41452c74589e85ca1677426ba426459e85
-    [WARN] Slot was not decoded
 
     Summary:           Slot 2 is updated to set OptimismPortalProxy address
     Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
@@ -145,7 +142,6 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
     Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
     Raw New Value:     0xf85525bc28e0bf794d649c44802171dfd0a390a77a767614c092d468aae11627
-    [WARN] Slot was not decoded
 
     Summary:           Slot 4 updates the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44">'root'</a> for the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L42">startingAnchorRoot</a>
     Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
@@ -160,7 +156,6 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
     Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
     Raw New Value:     0x0000000000000000000000000000000000000000000000000000000001602fda
-    [WARN] Slot was not decoded
 
     Summary:           Slot 5 updates the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44">'l2BlockNumber'</a> for the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L42">startingAnchorRoot</a>
     Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
@@ -218,7 +213,7 @@ For each contract listed in the state diff, please verify that no contracts or s
     Summary:           nonce
     Detail:            The nonce of the ProxyAdminOwner contract is updated.
 
-  ----- TENDERLY ONLY STATE DIFF -----   
+  ----- TENDERLY ONLY STATE DIFF -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/2c60e5723c64b5a1b58ab72c5d3816927ff9391a/superchain/configs/sepolia/base.toml#L45">0x0fe884546476dDd290eC46318785046ef68a0BA9</a>
     Contract:          ProxyAdminOwner (GnosisSafe) - Base Sepolia Testnet
     Chain ID:          84532
@@ -310,10 +305,10 @@ For each contract listed in the state diff, please verify that no contracts or s
     Summary:           ERC-1967 implementation slot
     Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
 
-  ----- TENDERLY ONLY STATE DIFF -----   
-    Who:               0x6AF0674791925f767060Dd52f7fB20984E8639d8
+  ----- TENDERLY ONLY STATE DIFF -----
+    Who:               0x6AF0674791925f767060Dd52f7fB20984E8639d8 or 0x646132A1667ca7aD00d36616AFBA1A28116C770A
     Contract:          Child Safe 1 - Base Sepolia Testnet
-    Chain ID:          84532   
+    Chain ID:          84532
 
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
     Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
@@ -334,7 +329,6 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw Slot:          0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e
     Raw Old Value:     0x000000000000000000000000d3494713a5cfad3f5359379dfa074e2ac8c6fd65
     Raw New Value:     0x0000000000000000000000003ea6084748ed1b2a9b5d4426181f1ad8c93f6231
-    [WARN] Slot was not decoded
 
     Summary:           The name `OVM_L1CrossDomainMessenger` is set to the address of the new 'op-contracts/v2.0.0-rc.1' L1CrossDomainMessenger at <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/validation/standard/standard-versions-sepolia.toml#L36">0x3eA6084748ED1b2A9B5D4426181F1ad8C93F6231</a>.
     Detail:            This key is complicated to compute, so instead we attest to correctness of the key by
@@ -385,7 +379,6 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw Slot:          0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e
     Raw Old Value:     0x000000000000000000000000cca6a4916fa6de5d671cc77760a3b10b012cca16
     Raw New Value:     0x000000000000000000000000d53394d4f67653074acf0b264954fe5e4f72d24f
-    [WARN] Slot was not decoded
 
     Summary:           Update Permissioned GameType implementation.
     Detail:            This is gameImpls[1] -> 0xd53394d4f67653074aCf0B264954fe5E4F72D24f
@@ -402,7 +395,6 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw Slot:          0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b
     Raw Old Value:     0x0000000000000000000000009cd8b02e84df3ef61db3b34123206568490cb279
     Raw New Value:     0x000000000000000000000000861eb6dfe0fde8c8a63e8606fa487ee870f65e72
-    [WARN] Slot was not decoded
 
     Summary:           Updated CANNON GameType implementation.
     Detail:            This is gameImpls[0] -> 0x861EB6dFE0FDe8c8A63E8606Fa487ee870f65E72 where '0' is the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28">CANNON game type</a>.
@@ -443,8 +435,13 @@ For each contract listed in the state diff, please verify that no contracts or s
     Summary:           ERC-1967 implementation slot
     Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                        L1StandardBridge contract for 'op-contracts/v2.0.0-rc.1'.
-  </code>
- </pre>
+
+  ----- TENDERLY ONLY STATE DIFF -----
+
+  Three accounts will show a nonce increment:
+  - 0x861EB6dFE0FDe8c8A63E8606Fa487ee870f65E72 (the newly created Cannon dispute game)
+  - 0xd53394d4f67653074aCf0B264954fe5E4F72D24f (the newly created Permissioned dispute game)
+  - 0x7f10098BD53519c739cA8A404afE127647D94774 (the signer of the transaction, alternatively your own address may appear here)
 
 # Supplementary Material
 
