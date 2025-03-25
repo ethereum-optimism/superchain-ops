@@ -14,6 +14,7 @@ cmd := "yq '.templateName' " + TASK_PATH + "/config.toml"
 export SCRIPT_NAME := shell(cmd)
 export signatures := env_var_or_default('SIGNATURES', '')
 export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+export forkBlockNumber := env_var_or_default('FORK_BLOCK_NUMBER', '-1')
 
 simulate whichSafe hdPath='0':
   #!/usr/bin/env bash
@@ -39,8 +40,18 @@ simulate whichSafe hdPath='0':
   fi
   echo ""
 
+  # Allow simulating from a specific block by setting FORK_BLOCK_NUMBER in the task's .env file.
+  # If not set (or set to -1), default to using the latest block.
+  if [ "${forkBlockNumber}" = "-1" ]; then
+    fork_block_arg=""
+  else
+    echo "Using fork block number from env: ${forkBlockNumber}"
+    fork_block_arg="--fork-block-number ${forkBlockNumber}"
+  fi
+
   forge build
   forge script ${script} \
+    ${fork_block_arg} \
     --rpc-url ${rpcUrl} \
     --sender ${signer} \
     --sig "signFromChildMultisig(string,address)" \

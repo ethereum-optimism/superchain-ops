@@ -444,13 +444,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         return vm.isContext(VmSafe.ForgeContext.ScriptBroadcast) || vm.isContext(VmSafe.ForgeContext.ScriptResume);
     }
 
-    /// @notice executes a transaction to the target multisig
-    /// @param multisig to execute the transaction from
-    /// @param target to call when executing the transaction
-    /// @param value amount of value to send from the safe
-    /// @param data calldata to send from the safe
-    /// @param operationType type of operation to execute
-    /// @param signatures for the safe transaction
+    /// @notice Executes a transaction to the target multisig.
     function execTransaction(
         address multisig,
         address target,
@@ -463,16 +457,30 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             vm.broadcast();
         }
 
-        bool success = false;
+        bytes memory callData = abi.encodeWithSelector(
+            IGnosisSafe.execTransaction.selector,
+            target,
+            value,
+            data,
+            operationType,
+            0,
+            0,
+            0,
+            address(0),
+            payable(address(0)),
+            signatures
+        );
 
-        require(gasleft() > 500_000, "MultisigTask: Insufficient gas for execTransaction"); // Ensure try/catch is EIP-150 safe.
-        try IGnosisSafe(multisig).execTransaction(
-            target, value, data, operationType, 0, 0, 0, address(0), payable(address(0)), signatures
-        ) returns (bool execStatus) {
-            success = execStatus;
-        } catch (bytes memory err) {
+        // Use the TENDERLY_GAS environment variable to set a specific gas limit, if provided.
+        // Otherwise, default to the remaining gas. This helps surface out-of-gas errors earlier,
+        // before they would show up in Tenderly's simulation results.
+        uint256 gas = vm.envOr("TENDERLY_GAS", gasleft());
+        console.log("Passing %s gas to execTransaction (from env or gasleft)", gas);
+        (bool success, bytes memory returnData) = multisig.call{gas: gas}(callData);
+
+        if (!success) {
             console.log("Error executing multisig transaction");
-            console.logBytes(err);
+            console.logBytes(returnData);
         }
 
         require(success, "MultisigTask: execute failed");
