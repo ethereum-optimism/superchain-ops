@@ -95,7 +95,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 ----- DecodedStateDiff[0] -----
   Who:               0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A
   Contract:          ProxyAdminOwner (GnosisSafe)
-  Chain ID:          10
+  Chain ID:          10, 1868, 57073
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
   Raw Old Value:     0x000000000000000000000000000000000000000000000000000000000000000a
   Raw New Value:     0x000000000000000000000000000000000000000000000000000000000000000b
@@ -107,8 +107,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[1] -----
   Who:               0x026b2F158255Beac46c1E7c6b8BbF29A4b6A7B76
-  Contract:
-  Chain ID:
+  Contract:          OPContractsManager
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000016
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000001
   Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000000000
@@ -117,7 +116,6 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 ----- DecodedStateDiff[2] -----
   Who:               0x95703e0982140D16f8ebA6d158FccEde42f04a4C
   Contract:          SuperchainConfig
-  Chain ID:          130
   Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
   Raw Old Value:     0x00000000000000000000000053c165169401764778f780a69701385eb0ff19b7
   Raw New Value:     0x0000000000000000000000004da82a327773965b8d4d85fa3db8249b387458e7
@@ -129,8 +127,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[3] -----
   Who:               0x8062AbC286f5e7D9428a0Ccb9AbD71e50d93b935
-  Contract:
-  Chain ID:
+  Contract:          ProtocolVersions
   Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
   Raw Old Value:     0x00000000000000000000000042f0bd8313ad456a38061308857b2383fe2c72a0
   Raw New Value:     0x00000000000000000000000037e15e4d6dffa9e5e320ee1ec036922e563cb76c
@@ -190,7 +187,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[8] -----
   Who:               0xe5965Ab5962eDc7477C8520243A95517CD252fA9
-  Contract:          DisputeGameFactory
+  Contract:          DisputeGameFactory - OP Mainnet
   Chain ID:          10
   Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
   Raw Old Value:     0x000000000000000000000000c641a33cab81c559f2bd4b21ea34c290e2440c2b
@@ -203,7 +200,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[9] -----
   Who:               0xe5965Ab5962eDc7477C8520243A95517CD252fA9
-  Contract:          DisputeGameFactory
+  Contract:          DisputeGameFactory - OP Mainnet
   Chain ID:          10
   Raw Slot:          0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e
   Raw Old Value:     0x00000000000000000000000091a661891248d8c4916fb4a1508492a5e2cbcb87
@@ -212,7 +209,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[10] -----
   Who:               0xe5965Ab5962eDc7477C8520243A95517CD252fA9
-  Contract:          DisputeGameFactory
+  Contract:          DisputeGameFactory - OP Mainnet
   Chain ID:          10
   Raw Slot:          0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b
   Raw Old Value:     0x00000000000000000000000027b81db41f586016694632193b99e45b1a27b8f8
@@ -221,7 +218,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[11] -----
   Who:               0xbEb5Fc579115071764c7423A4f12eDde41f106Ed
-  Contract:          OptimismPortal2
+  Contract:          OptimismPortal2 - OP Mainnet
   Chain ID:          10
   Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
   Raw Old Value:     0x000000000000000000000000e2f826324b2faf99e513d16d266c3f80ae87832b
@@ -234,7 +231,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[12] -----
   Who:               0x75505a97BD334E7BD3C476893285569C4136Fa0F
-  Contract:          OptimismMintableERC20Factory
+  Contract:          OptimismMintableERC20Factory - OP Mainnet
   Chain ID:          10
   Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
   Raw Old Value:     0x000000000000000000000000e01efbeb1089d1d1db9c6c8b135c934c0734c846
@@ -247,8 +244,8 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[13] -----
   Who:               0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b
-  Contract:
-  Chain ID:
+  Contract:          AnchorStateRegistryProxy - OP Mainnet
+  Chain ID:          10
   Raw Slot:          0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x000000000000000000000000543ba4aadbab8f9025686bd03993043599c6fb04
@@ -260,8 +257,8 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[14] -----
   Who:               0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b
-  Contract:
-  Chain ID:
+  Contract:          AnchorStateRegistryProxy - OP Mainnet
+  Chain ID:          10
   Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x0000000000000000000000007b465370bb7a333f99edd19599eb7fb1c2d3f8d2
@@ -273,8 +270,8 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[15] -----
   Who:               0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b
-  Contract:
-  Chain ID:
+  Contract:          AnchorStateRegistryProxy - OP Mainnet
+  Chain ID:          10
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000000
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x0000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c0001
@@ -282,8 +279,8 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[16] -----
   Who:               0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b
-  Contract:
-  Chain ID:
+  Contract:          AnchorStateRegistryProxy - OP Mainnet
+  Chain ID:          10
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000001
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x000000000000000000000000e5965ab5962edc7477c8520243a95517cd252fa9
@@ -291,8 +288,8 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[17] -----
   Who:               0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b
-  Contract:
-  Chain ID:
+  Contract:          AnchorStateRegistryProxy - OP Mainnet
+  Chain ID:          10
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000002
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x000000000000000000000000beb5fc579115071764c7423a4f12edde41f106ed
@@ -300,8 +297,8 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[18] -----
   Who:               0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b
-  Contract:
-  Chain ID:
+  Contract:          AnchorStateRegistryProxy - OP Mainnet
+  Chain ID:          10
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x4f96066f143d4aa5a8f7a8ac9afab1dc11ff561b4f28658528e30c3037bdb338
@@ -309,8 +306,8 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[19] -----
   Who:               0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b
-  Contract:
-  Chain ID:
+  Contract:          AnchorStateRegistryProxy - OP Mainnet
+  Chain ID:          10
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x0000000000000000000000000000000000000000000000000000000007eb4bae
@@ -318,7 +315,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[20] -----
   Who:               0x21429aF66058BC3e4aE4a8f2EC4531AaC433ecbC
-  Contract:
+  Contract:          DelayedWeth
   Chain ID:
   Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
   Raw Old Value:     0x00000000000000000000000071e966ae981d1ce531a7b6d23dc0f27b38409087
@@ -440,8 +437,8 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[30] -----
   Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1
-  Contract:
-  Chain ID:
+  Contract:          AnchorStateRegistryProxy - Soneium
+  Chain ID:          1868
   Raw Slot:          0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x00000000000000000000000089889b569c3a505f3640ee1bd0ac1d557f436d2a
@@ -453,8 +450,8 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[31] -----
   Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1
-  Contract:
-  Chain ID:
+  Contract:          AnchorStateRegistryProxy - Soneium
+  Chain ID:          1868
   Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x0000000000000000000000007b465370bb7a333f99edd19599eb7fb1c2d3f8d2
@@ -466,8 +463,8 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[32] -----
   Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1
-  Contract:
-  Chain ID:
+  Contract:          AnchorStateRegistryProxy - Soneium
+  Chain ID:          1868
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000000
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x0000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c0001
@@ -475,8 +472,8 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[33] -----
   Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1
-  Contract:
-  Chain ID:
+  Contract:          AnchorStateRegistryProxy - Soneium
+  Chain ID:          1868
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000001
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x000000000000000000000000512a3d2c7a43bd9261d2b8e8c9c70d4bd4d503c0
@@ -484,8 +481,8 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[34] -----
   Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1
-  Contract:
-  Chain ID:
+  Contract:          AnchorStateRegistryProxy - Soneium
+  Chain ID:          1868
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000002
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x00000000000000000000000088e529a6ccd302c948689cd5156c83d4614fae92
@@ -493,8 +490,8 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[35] -----
   Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1
-  Contract:
-  Chain ID:
+  Contract:          AnchorStateRegistryProxy - Soneium
+  Chain ID:          1868
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x60f39b3111f82fb76b03cd08ce530a92496a40c708a6ab0cc1ce77f768cf4fa6
@@ -502,8 +499,8 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[36] -----
   Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1
-  Contract:
-  Chain ID:
+  Contract:          AnchorStateRegistryProxy - Soneium
+  Chain ID:          1868
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x00000000000000000000000000000000000000000000000000000000003e719d
@@ -629,8 +626,8 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[47] -----
   Who:               0x2fc99fd16D8D3F6F66d164aA84E244c567E58A3d
-  Contract:
-  Chain ID:
+  Contract:          AnchorStateRegistryProxy - Ink
+  Chain ID:          57073
   Raw Slot:          0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x000000000000000000000000d56045e68956fce2576e680c95a4750cf8241f79
@@ -642,8 +639,8 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[48] -----
   Who:               0x2fc99fd16D8D3F6F66d164aA84E244c567E58A3d
-  Contract:
-  Chain ID:
+  Contract:          AnchorStateRegistryProxy - Ink
+  Chain ID:          57073
   Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x0000000000000000000000007b465370bb7a333f99edd19599eb7fb1c2d3f8d2
@@ -655,8 +652,8 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[49] -----
   Who:               0x2fc99fd16D8D3F6F66d164aA84E244c567E58A3d
-  Contract:
-  Chain ID:
+  Contract:          AnchorStateRegistryProxy - Ink
+  Chain ID:          57073
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000000
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x0000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c0001
@@ -664,8 +661,8 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[50] -----
   Who:               0x2fc99fd16D8D3F6F66d164aA84E244c567E58A3d
-  Contract:
-  Chain ID:
+  Contract:          AnchorStateRegistryProxy - Ink
+  Chain ID:          57073
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000001
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x00000000000000000000000010d7b35078d3baabb96dd45a9143b94be65b12cd
@@ -673,8 +670,8 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[51] -----
   Who:               0x2fc99fd16D8D3F6F66d164aA84E244c567E58A3d
-  Contract:
-  Chain ID:
+  Contract:          AnchorStateRegistryProxy - Ink
+  Chain ID:          57073
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000002
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x0000000000000000000000005d66c1782664115999c47c9fa5cd031f495d3e4f
@@ -682,8 +679,8 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[52] -----
   Who:               0x2fc99fd16D8D3F6F66d164aA84E244c567E58A3d
-  Contract:
-  Chain ID:
+  Contract:          AnchorStateRegistryProxy - Ink
+  Chain ID:          57073
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0xe40bbfe4fe86f2b59d3f7283c0cb0464f02ed04c5a0fbf51d2a4703220747b78
@@ -691,8 +688,8 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 ----- DecodedStateDiff[53] -----
   Who:               0x2fc99fd16D8D3F6F66d164aA84E244c567E58A3d
-  Contract:
-  Chain ID:
+  Contract:          AnchorStateRegistryProxy - Ink
+  Chain ID:          57073
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000773dd8
