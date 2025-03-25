@@ -17,7 +17,6 @@ export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 
 simulate whichSafe hdPath='0':
   #!/usr/bin/env bash
-
   # Get the appropriate safe address based on whichSafe
   safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} ${SCRIPT_PATH} "{{whichSafe}}")
 
