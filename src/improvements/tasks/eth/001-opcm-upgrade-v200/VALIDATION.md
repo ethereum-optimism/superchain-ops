@@ -45,7 +45,6 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
 
 ## Tenderly State Changes
 
-!!!! THIS NEEDS TO BE UPDATED !!!!
 [Link](https://dashboard.tenderly.co/oplabs/op-mainnet/simulator/45e5cf11-2701-4fee-8a84-e8197aa65d11)
 
 ## Auto Generated Task State Changes
