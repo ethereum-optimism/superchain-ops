@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
 
-import {SimpleBase} from "src/improvements/tasks/MultisigTask.sol";
+import {SimpleBase} from "src/improvements/tasks/types/SimpleBase.sol";
 import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import {LibString} from "@solady/utils/LibString.sol";

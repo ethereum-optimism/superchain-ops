@@ -7,7 +7,7 @@ import {IProxy} from "@eth-optimism-bedrock/interfaces/universal/IProxy.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
-import {L2TaskBase} from "src/improvements/tasks/MultisigTask.sol";
+import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 
 import {MockTarget} from "test/tasks/mock/MockTarget.sol";
 
