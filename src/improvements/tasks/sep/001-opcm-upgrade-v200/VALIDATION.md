@@ -20,13 +20,13 @@ the values printed to the terminal when you run the task.
 >
 > ### Child Safe 1: `0x6AF0674791925f767060Dd52f7fB20984E8639d8`
 >
-> - Domain Hash: ``
-> - Message Hash: ``
+> - Domain Hash: `0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa`
+> - Message Hash: `0x6e4bcbb8105ec2efa8a58c66289071ddb349610f32570b7f72fb047f577c4f82`
 >
 > ### Child Safe 2: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`
 >
-> - Domain Hash: ``
-> - Message Hash: ``
+> - Domain Hash: `0x1d3f2566fd7b1bf017258b03d4d4d435d326d9cb051d5b7993d7c65e7ec78d0e`
+> - Message Hash: `0x6e4bcbb8105ec2efa8a58c66289071ddb349610f32570b7f72fb047f577c4f82`
 
 
 ## Understanding Task Calldata
@@ -88,7 +88,6 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ### Task State Changes
 
-TODO: Update these state diffs now that we've identified base to be nested and the addresses.toml file wasn't working as expected.
 <pre>
   <code>
   ----- DecodedStateDiff[0] -----
@@ -219,6 +218,28 @@ TODO: Update these state diffs now that we've identified base to be nested and t
     Summary:           nonce
     Detail:            The nonce of the ProxyAdminOwner contract is updated.
 
+  ----- TENDERLY ONLY STATE DIFF -----   
+    Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/2c60e5723c64b5a1b58ab72c5d3816927ff9391a/superchain/configs/sepolia/base.toml#L45">0x0fe884546476dDd290eC46318785046ef68a0BA9</a>
+    Contract:          ProxyAdminOwner (GnosisSafe) - Base Sepolia Testnet
+    Chain ID:          84532
+
+    Raw Slot:          0xfd2784b75fd99835d80ed1634e5221fd706540bb84a21d07ef5a1e8ef8081aec
+    Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+    Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000000001
+
+    Summary:           <i>approveHash(bytes32)</i> called on ProxyAdminOwner by child multisig.
+    Detail:            As part of the Tenderly simulation, we want to illustrate the <i>approveHash</i> invocation.
+                       This step isn't shown in the local simulation because the parent
+                       multisig is invoked directly, bypassing the <i>approveHash</i> calls.
+                       This slot change reflects an update to the approvedHashes mapping.
+                       Specifically, this simulation was ran as the nested safe `0x6AF0674791925f767060Dd52f7fB20984E8639d8`.
+                        - <i>res=$(cast index address 0x6AF0674791925f767060Dd52f7fB20984E8639d8 8)</i>
+                        - <i>cast index bytes32 0x2c12ddac61031f53730edf4cd4b646a6466872168458222187aed32e4c31d1b3 $res</i>
+                       Alternatively, the 'Raw Slot' value can be different if we run as `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
+                        - <i>res=$(cast index address 0x646132A1667ca7aD00d36616AFBA1A28116C770A 8)</i>
+                        - <i>cast index bytes32 0x2c12ddac61031f53730edf4cd4b646a6466872168458222187aed32e4c31d1b3 $res</i>
+                        - Alternative 'Raw Slot': <i>0x391bf55281209271d11b80934b97db98cbe49f89bcd40bacbe40179575df5518</i>
+
   ----- DecodedStateDiff[8] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/2c60e5723c64b5a1b58ab72c5d3816927ff9391a/superchain/configs/sepolia/base.toml#L55">0x21eFD066e581FA55Ef105170Cc04d74386a09190</a>
     Contract:          L1ERC721Bridge - Base Sepolia Testnet
@@ -289,6 +310,22 @@ TODO: Update these state diffs now that we've identified base to be nested and t
     Summary:           ERC-1967 implementation slot
     Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
 
+  ----- TENDERLY ONLY STATE DIFF -----   
+    Who:               0x6AF0674791925f767060Dd52f7fB20984E8639d8
+    Contract:          Child Safe 1 - Base Sepolia Testnet
+    Chain ID:          84532   
+
+    Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
+    Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+    Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000000001
+
+    Decoded Kind:      uint256
+    Decoded Old Value: 0
+    Decoded New Value: 1
+    Summary:           nonce
+    Detail:            The nonce of the Child Safe 1 contract is updated.
+                       Alternatively, the 'Raw Old Value' and 'Raw New Value' value can be different if we run as `0x646132A1667ca7aD00d36616AFBA1A28116C770A`.
+
   ----- DecodedStateDiff[12] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/2c60e5723c64b5a1b58ab72c5d3816927ff9391a/superchain/configs/sepolia/base.toml#L53">0x709c2B8ef4A9feFc629A8a2C1AF424Dc5BD6ad1B</a>
     Contract:          AddressManager - Base Sepolia Testnet
@@ -347,11 +384,11 @@ TODO: Update these state diffs now that we've identified base to be nested and t
 
     Raw Slot:          0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e
     Raw Old Value:     0x000000000000000000000000cca6a4916fa6de5d671cc77760a3b10b012cca16
-    Raw New Value:     0x000000000000000000000000f1c3c054380f6e8345099650a9cc532bb4809868
+    Raw New Value:     0x000000000000000000000000d53394d4f67653074acf0b264954fe5e4f72d24f
     [WARN] Slot was not decoded
 
     Summary:           Update Permissioned GameType implementation.
-    Detail:            This is gameImpls[1] -> 0xF1c3C054380F6E8345099650A9cc532bb4809868
+    Detail:            This is gameImpls[1] -> 0xd53394d4f67653074aCf0B264954fe5E4F72D24f
                        Verify that the old implementation is set in this slot using:
                         - <i>cast call 0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1 "gameImpls(uint32)(address)" 1 --rpc-url sepolia</i>
                         - <i>cast storage 0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1 0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e --rpc-url sepolia</i>
@@ -364,11 +401,11 @@ TODO: Update these state diffs now that we've identified base to be nested and t
     Chain ID:          84532
     Raw Slot:          0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b
     Raw Old Value:     0x0000000000000000000000009cd8b02e84df3ef61db3b34123206568490cb279
-    Raw New Value:     0x0000000000000000000000005c6a0da1775ba8193f84a1b8c6661b786e36fef6
+    Raw New Value:     0x000000000000000000000000861eb6dfe0fde8c8a63e8606fa487ee870f65e72
     [WARN] Slot was not decoded
 
     Summary:           Updated CANNON GameType implementation.
-    Detail:            This is gameImpls[0] -> 0x5C6a0dA1775BA8193F84a1B8C6661b786E36FeF6 where '0' is the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28">CANNON game type</a>.
+    Detail:            This is gameImpls[0] -> 0x861EB6dFE0FDe8c8A63E8606Fa487ee870f65E72 where '0' is the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28">CANNON game type</a>.
                        Verify that the old implementation is set in this slot using:
                         - <i>cast call 0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1 "gameImpls(uint32)(address)" 0 --rpc-url sepolia</i>
                         - <i>cast storage 0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1 0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b --rpc-url sepolia</i>
