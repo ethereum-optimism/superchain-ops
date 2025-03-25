@@ -68,7 +68,7 @@ message hash to approve on your Ledger:
 
 1. Validate integrity of the simulation.
 2. Validate correctness of the state diff.
-3. Validate and extract domain hash and message hash to approve
+3. Validate and extract domain hash and message hash to approve.
 
 #### 3.1. Validate integrity of the simulation.
 
