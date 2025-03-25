@@ -33,6 +33,9 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/improvements/template/OPCMUpgradeV200.sol`.
 Navigate to the correct task directory then run the simulate command.
 ```
-cd 001-opcm-upgrade-v200
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
+cd sep/001-opcm-upgrade-v200
+# Nested safe 1: 0x6AF0674791925f767060Dd52f7fB20984E8639d8
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate child-safe-1
+# Nested safe 2: 0x646132A1667ca7aD00d36616AFBA1A28116C770A
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate child-safe-2
 ```
