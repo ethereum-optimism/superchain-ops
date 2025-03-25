@@ -41,13 +41,6 @@ contract OPCMUpgradeV300 is OPCMBaseTask {
         storageWrites[4] = "L1ERC721BridgeProxy";
         storageWrites[5] = "L1StandardBridgeProxy";
         storageWrites[6] = "DisputeGameFactoryProxy";
-        // TODO: Add these notes to the validation file
-        // Note the addressManager is used with the L1CrossDomainMessengerProxy
-        // It is stored in AddressManager.sol under the name "OVM_L1CrossDomainMessenger"
-        // See: https://github.com/ethereum-optimism/optimism/blob/4dbde37858af8ce89f776488506974c080879d2a/packages/contracts-bedrock/src/L1/OPContractsManager.sol#L842-L842
-        // The addresses mapping (keyed by the hash of the name) in AddressManager.sol is updated
-        // cast keccak OVM_L1CrossDomainMessenger
-        // 0x3b4a6791a6879d27c0ceeea3f78f8ebe66a01905f4a1290a8c6aff3e85f4665a
         storageWrites[7] = "AddressManager";
         return storageWrites;
     }
