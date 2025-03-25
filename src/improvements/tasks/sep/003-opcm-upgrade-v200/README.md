@@ -11,7 +11,7 @@ In summary, this task uses `op-contract/v2.0.0` [OPContractsManager](https://git
 
 ### Timing
 
-Expected to be executed on or around 2025-03-25.
+Expected to be executed on or around 2025-03-28.
 
 ## Transaction creation
 
