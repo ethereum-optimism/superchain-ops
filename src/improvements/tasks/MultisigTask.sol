@@ -418,7 +418,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
         string memory base64Json = Base64.encode(bytes(json));
         console.log(
-            "\nTo verify this transaction, run `op-verify qr` on your machine, then open the following link on your mobile device: https://op-verify.optimism.io/?tx=%s",
+            "\nTo verify this transaction, run `op-txverify qr` on your machine, then open the following link on your mobile device: https://op-txverify.optimism.io/?tx=%s",
             base64Json
         );
     }
