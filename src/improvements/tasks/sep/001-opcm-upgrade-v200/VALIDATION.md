@@ -18,10 +18,15 @@ the values printed to the terminal when you run the task.
 >
 > Before signing, ensure the below hashes match what is on your ledger.
 >
-> ### Single Safe Signer Data
+> ### Child Safe 1: `0x6AF0674791925f767060Dd52f7fB20984E8639d8`
 >
-> - Domain Hash: `093de3a8d475125e0192f7319bbc60840b1f6b5f5afd17e837647b1f25a66471`
-> - Message Hash: `ca8f3ea7b737bc6ef03dbcf41c853a483767e8c0788ea3274314743325161f37`
+> - Domain Hash: ``
+> - Message Hash: ``
+>
+> ### Child Safe 2: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`
+>
+> - Domain Hash: ``
+> - Message Hash: ``
 
 
 ## Understanding Task Calldata
@@ -83,6 +88,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ### Task State Changes
 
+TODO: Update these state diffs now that we've identified base to be nested and the addresses.toml file wasn't working as expected.
 <pre>
   <code>
   ----- DecodedStateDiff[0] -----
