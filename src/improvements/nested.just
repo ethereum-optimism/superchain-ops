@@ -19,7 +19,7 @@ export forkBlockNumber := env_var_or_default('FORK_BLOCK_NUMBER', '-1')
 simulate whichSafe hdPath='0':
   #!/usr/bin/env bash
   # Get the appropriate safe address based on whichSafe
-  safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} ${SCRIPT_PATH} "{{whichSafe}}")
+  safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
 
   echo "RPC URL: ${rpcUrl}"
 
@@ -29,6 +29,7 @@ simulate whichSafe hdPath='0':
   echo "Using script ${script}"
   echo "getting signer address for {{whichSafe}}..."
   signer=$(cast call ${safe} "getOwners()(address[])" -r ${rpcUrl} | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
+  echo "signer $signer"
 
   echo "safe: $safe"
   echo "Simulating call to {{whichSafe}} at ${safe}"
