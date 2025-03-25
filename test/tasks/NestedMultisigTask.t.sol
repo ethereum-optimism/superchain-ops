@@ -259,11 +259,13 @@ contract NestedMultisigTaskTest is Test {
         );
     }
 
-    /// @notice Test that the data to sign generated in simulateRun for the child multisigs
+    /// @notice Test that the 'data to sign' generated in simulateRun for the child multisigs
     /// is correct for OPCMBaseTask. This test uses the OPCMUpgradeV200 template as a way to test OPCMBaseTask.
     function testNestedExecuteWithSignaturesOPCM() public {
-        address foundationChildMultisig = 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B; // sepolia
-        vm.createSelectFork("sepolia");
+        address foundationChildMultisig = 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B;
+        // In block 7972617, an upgrade occurred at: https://sepolia.etherscan.io/tx/0x12b76ef5c31145a3bf6bb71b9c3c7ddd3cd7f182011187353e3ceb1830891fb7
+        // Which meant this test failed. We're forking at the block before to continue to test this.
+        vm.createSelectFork("sepolia", 7972616);
         uint256 snapshotId = vm.snapshotState();
         multisigTask = new OPCMUpgradeV200();
         string memory opcmTaskConfigFilePath = "test/tasks/example/sep/002-opcm-upgrade-v200/config.toml";

@@ -6,7 +6,7 @@ import {VmSafe} from "forge-std/Vm.sol";
 
 import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 
-import {L2TaskBase} from "src/improvements/tasks/MultisigTask.sol";
+import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 
 /// @title DisputeGameUpgradeTemplate

@@ -37,13 +37,13 @@ For each chain being upgrade, the `opcm.upgrade()` function is called with a tup
 1. Base Sepolia Testnet:
     - SystemConfigProxy: [0xf272670eb55e895584501d564AfEB048bEd26194](https://github.com/ethereum-optimism/superchain-registry/blob/2c60e5723c64b5a1b58ab72c5d3816927ff9391a/superchain/configs/sepolia/base.toml#L59)
     - ProxyAdmin: [0x0389E59Aa0a41E4A413Ae70f0008e76CAA34b1F3](https://github.com/ethereum-optimism/superchain-registry/blob/2c60e5723c64b5a1b58ab72c5d3816927ff9391a/superchain/configs/sepolia/base.toml#L60)
-    - AbsolutePrestate: [0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9](https://github.com/ethereum-optimism/optimism/blob/63da401391e9be93517d242da5da24905aa5b84c/op-program/prestates/releases.json#L9)
+    - AbsolutePrestate: [0x0354eee87a1775d96afee8977ef6d5d6bd3612b256170952a01bf1051610ee01](https://github.com/ethereum-optimism/superchain-registry/blob/1ab48707d705ef7100f3ffa549e048f699cb886d/validation/standard/standard-prestates.toml#L14)
 
 
 Thus, the command to encode the calldata is:
 
 ```bash
-cast calldata 'upgrade((address,address,bytes32)[])' "[(0xf272670eb55e895584501d564AfEB048bEd26194,0x0389E59Aa0a41E4A413Ae70f0008e76CAA34b1F3,0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9)]"
+cast calldata 'upgrade((address,address,bytes32)[])' "[(0xf272670eb55e895584501d564AfEB048bEd26194,0x0389E59Aa0a41E4A413Ae70f0008e76CAA34b1F3,0x0354eee87a1775d96afee8977ef6d5d6bd3612b256170952a01bf1051610ee01)]"
 ```
 
 ### Inputs to `Multicall3DelegateCall`
@@ -60,13 +60,13 @@ Call3 struct for Multicall3DelegateCall:
 
 Command to encode:
 ```bash
-cast calldata 'aggregate3((address,bool,bytes)[])' "[(0x1B25F566336F47BC5E0036D66E142237DcF4640b,false,0xff2dd5a100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000f272670eb55e895584501d564afeb048bed261940000000000000000000000000389e59aa0a41e4a413ae70f0008e76caa34b1f3039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9)]"
+cast calldata 'aggregate3((address,bool,bytes)[])' "[(0x1B25F566336F47BC5E0036D66E142237DcF4640b,false,0xff2dd5a100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000f272670eb55e895584501d564afeb048bed261940000000000000000000000000389e59aa0a41e4a413ae70f0008e76caa34b1f30354eee87a1775d96afee8977ef6d5d6bd3612b256170952a01bf1051610ee01)]"
 ```
 
 The resulting calldata sent from the ProxyAdminOwner safe is thus:
 
 ```
-0x82ad56cb0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000001b25f566336f47bc5e0036d66e142237dcf4640b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a4ff2dd5a100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000f272670eb55e895584501d564afeb048bed261940000000000000000000000000389e59aa0a41e4a413ae70f0008e76caa34b1f3039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d900000000000000000000000000000000000000000000000000000000
+0x82ad56cb0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000001b25f566336f47bc5e0036d66e142237dcf4640b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a4ff2dd5a100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000f272670eb55e895584501d564afeb048bed261940000000000000000000000000389e59aa0a41e4a413ae70f0008e76caa34b1f30354eee87a1775d96afee8977ef6d5d6bd3612b256170952a01bf1051610ee0100000000000000000000000000000000000000000000000000000000
 ```
 
 In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.optimism.io/t/upgrade-proposal-13-opcm-and-incident-response-improvements/9739#p-43725-action-plan-15) section of the Governance proposal.
@@ -144,7 +144,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
     Summary:           Slot 4 updates the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44">'root'</a> for the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L42">startingAnchorRoot</a>
     Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
-                       The 'Raw New Value' for this entry might be different than what is seen in the Tenderly state diff. 
+                       The 'Raw New Value' for this entry might be different than what is seen in the Tenderly state diff.
                        This is expected because the AnchorStateRegistry is being continually updated.
                        Anyone can call <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L239"><i>'setAnchorState(IDisputeGame _game)'</i></a> so it can be updated often if the conditions are right.
 
@@ -159,7 +159,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
     Summary:           Slot 5 updates the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44">'l2BlockNumber'</a> for the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L42">startingAnchorRoot</a>
     Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
-                       The 'Raw New Value' for this entry might be different than what is seen in the Tenderly state diff. 
+                       The 'Raw New Value' for this entry might be different than what is seen in the Tenderly state diff.
                        This is expected because the AnchorStateRegistry is being continually updated.
                         - <i>cast --to-dec 0x1602fda</i> -> <i>23080922</i>
                        Anyone can call <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L239"><i>'setAnchorState(IDisputeGame _game)'</i></a> so it can be updated often if the conditions are right.
@@ -189,13 +189,13 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw Slot:          0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103
     Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
     Raw New Value:     0x0000000000000000000000000389e59aa0a41e4a413ae70f0008e76caa34b1f3
-    
+
     Decoded Kind:      address
     Decoded Old Value: 0x0000000000000000000000000000000000000000
     Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/2c60e5723c64b5a1b58ab72c5d3816927ff9391a/superchain/configs/sepolia/base.toml#L60">0x0389E59Aa0a41E4A413Ae70f0008e76CAA34b1F3</a>
 
     Summary:           Proxy owner address
-    Detail:            Standard slot for storing the owner address in a Proxy contract. 
+    Detail:            Standard slot for storing the owner address in a Proxy contract.
                        The owner in this case is the <a href="https://github.com/ethereum-optimism/superchain-registry/blob/2c60e5723c64b5a1b58ab72c5d3816927ff9391a/superchain/configs/sepolia/base.toml#L60">ProxyAdmin</a> of Base Sepolia Testnet.
 
   ----- DecodedStateDiff[7] -----
@@ -272,7 +272,7 @@ For each contract listed in the state diff, please verify that no contracts or s
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/2c60e5723c64b5a1b58ab72c5d3816927ff9391a/superchain/configs/sepolia/base.toml#L58">0x49f53e41452C74589E85cA1677426Ba426459e85</a>
     Contract:          OptimismPortal2 - Base Sepolia Testnet
     Chain ID:          84532
-    
+
     Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
     Raw Old Value:     0x00000000000000000000000035028bae87d71cbc192d545d38f960ba30b4b233
     Raw New Value:     0x0000000000000000000000002d7e764a0d9919e16983a46595cfa81fc34fa7cd
@@ -326,7 +326,7 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
     Raw Old Value:     0x000000000000000000000000a51bea7e4d34206c0bcb04a776292f2f19f0beec
     Raw New Value:     0x0000000000000000000000004bba758f006ef09402ef31724203f316ab74e4a0
-    
+
     Decoded Kind:      address
     Decoded Old Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/validation/standard/standard-versions-sepolia.toml#L55">0xA51bea7E4d34206c0bCB04a776292F2f19F0BeEc</a>
     Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/validation/standard/standard-versions-sepolia.toml#L34">0x4bbA758F006Ef09402eF31724203F316ab74e4a0</a>
@@ -344,7 +344,7 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw New Value:     0x000000000000000000000000f1c3c054380f6e8345099650a9cc532bb4809868
     [WARN] Slot was not decoded
 
-    Summary:           Update Permissioned GameType implementation. 
+    Summary:           Update Permissioned GameType implementation.
     Detail:            This is gameImpls[1] -> 0xF1c3C054380F6E8345099650A9cc532bb4809868
                        Verify that the old implementation is set in this slot using:
                         - <i>cast call 0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1 "gameImpls(uint32)(address)" 1 --rpc-url sepolia</i>
@@ -365,7 +365,7 @@ For each contract listed in the state diff, please verify that no contracts or s
     Detail:            This is gameImpls[0] -> 0x5C6a0dA1775BA8193F84a1B8C6661b786E36FeF6 where '0' is the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28">CANNON game type</a>.
                        Verify that the old implementation is set in this slot using:
                         - <i>cast call 0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1 "gameImpls(uint32)(address)" 0 --rpc-url sepolia</i>
-                        - <i>cast storage 0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1 0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b --rpc-url sepolia</i> 
+                        - <i>cast storage 0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1 0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b --rpc-url sepolia</i>
                        The Raw Slot can be derived from:
                         - <i>cast index uint32 0 101</i>
 
