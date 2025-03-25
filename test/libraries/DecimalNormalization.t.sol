@@ -23,26 +23,16 @@ contract DecimalNormalizationTest is Test {
 
     // ==================== DecimalNormalization Tests ====================
 
-    function testScaleDecimalsZero() public pure {
-        assertEq(DecimalNormalization.scaleDecimals(100, 0), 100);
-    }
-
-    function testScaleDecimalsStandard() public pure {
-        assertEq(DecimalNormalization.scaleDecimals(100, 6), 100 * 10 ** 6);
-        assertEq(DecimalNormalization.scaleDecimals(100, 8), 100 * 10 ** 8);
-        assertEq(DecimalNormalization.scaleDecimals(100, 18), 100 * 10 ** 18);
-    }
-
-    function testScaleDecimalsLarge() public pure {
-        // Test with a large amount but still within uint256 range
-        uint256 largeAmount = 10 ** 20;
-        assertEq(DecimalNormalization.scaleDecimals(largeAmount, 10), largeAmount * 10 ** 10);
-    }
-
     function testNormalizeTokenAmountEqualDecimals() public pure {
         // Test when amount decimals equal token decimals (6)
         uint256 amount = DecimalNormalization.normalizeTokenAmount("100.123456", 6);
         assertEq(amount, 100123456);
+    }
+
+    function testNormalizeTokenAmountLeadingDecimalZeros() public pure {
+        // Test when amount decimals equal token decimals (6)
+        uint256 amount = DecimalNormalization.normalizeTokenAmount("100.000123", 6);
+        assertEq(amount, 100000123);
     }
 
     function testNormalizeTokenAmountLessDecimals() public pure {
@@ -104,16 +94,6 @@ contract DecimalNormalizationTest is Test {
 
     // ==================== Fuzz Tests ====================
 
-    function testFuzz_ScaleDecimals(uint256 amount, uint8 decimals) public pure {
-        // Bound amount to avoid overflow
-        amount = bound(amount, 0, type(uint256).max / (10 ** 18));
-        // Bound decimals to a reasonable range (0-18)
-        decimals = uint8(bound(decimals, 0, 18));
-
-        uint256 scaled = DecimalNormalization.scaleDecimals(amount, decimals);
-        assertEq(scaled, amount * (10 ** uint256(decimals)));
-    }
-
     function testFuzz_NormalizeTokenAmount(uint256 amount, uint8 amountDecimals, uint8 tokenDecimals) public pure {
         // Bound inputs to reasonable ranges
         amount = bound(amount, 1, 1000000);
@@ -150,71 +130,67 @@ contract DecimalNormalizationTest is Test {
     // ==================== Decimal Parsing Tests ====================
 
     function testParseDecimalsWholeNumber() public pure {
-        (uint256 amount, uint8 decimals) = DecimalNormalization.parseAndScaleDecimals("100");
+        uint256 amount = DecimalNormalization.normalizeTokenAmount("100", 0);
         assertEq(amount, 100);
-        assertEq(decimals, 0);
     }
 
     function testParseDecimalsZeroDecimalPart() public pure {
-        (uint256 amount, uint8 decimals) = DecimalNormalization.parseAndScaleDecimals("100.0");
-        assertEq(amount, 100);
-        assertEq(decimals, 0);
+        uint256 amount = DecimalNormalization.normalizeTokenAmount("100.0", 1);
+        assertEq(amount, 1000);
 
-        (amount, decimals) = DecimalNormalization.parseAndScaleDecimals("100.00");
-        assertEq(amount, 100);
-        assertEq(decimals, 0);
+        amount = DecimalNormalization.normalizeTokenAmount("100.00", 2);
+        assertEq(amount, 10000);
     }
 
     function testParseDecimalsNonZeroDecimalPart() public pure {
-        (uint256 amount, uint8 decimals) = DecimalNormalization.parseAndScaleDecimals("100.123");
+        uint256 amount = DecimalNormalization.normalizeTokenAmount("100.123", 3);
         assertEq(amount, 100123);
-        assertEq(decimals, 3);
 
-        (amount, decimals) = DecimalNormalization.parseAndScaleDecimals("100.000123");
+        amount = DecimalNormalization.normalizeTokenAmount("100.000123", 6);
         assertEq(amount, 100000123);
-        assertEq(decimals, 6);
     }
 
     function testParseDecimalsMaxDecimals() public pure {
-        (uint256 amount, uint8 decimals) = DecimalNormalization.parseAndScaleDecimals("100.123456789012345678");
+        uint256 amount = DecimalNormalization.normalizeTokenAmount("100.123456789012345678", 18);
         assertEq(amount, 100123456789012345678);
-        assertEq(decimals, 18);
     }
 
     /// forge-config: default.allow_internal_expect_revert = true
     function testParseDecimalsRevertTooManyDecimals() public {
         vm.expectRevert("DecimalNormalization: decimals must be less than or equal to 18");
-        DecimalNormalization.parseAndScaleDecimals("100.1234567890123456789"); // 19 decimal places
+        DecimalNormalization.normalizeTokenAmount("100.1234567890123456789", 19); // 19 decimal places
     }
 
     /// forge-config: default.allow_internal_expect_revert = true
     function testValidAndInvalidAmountFormats() public {
         // Test valid formats through parseDecimals which calls validateAmountFormat
-        DecimalNormalization.parseAndScaleDecimals("100");
-        DecimalNormalization.parseAndScaleDecimals("100.123");
+        DecimalNormalization.normalizeTokenAmount("100", 0);
+        DecimalNormalization.normalizeTokenAmount("100.123", 3);
 
         // Test invalid formats
         vm.expectRevert("DecimalNormalization: decimals cannot be 0");
-        DecimalNormalization.parseAndScaleDecimals("100.");
+        DecimalNormalization.normalizeTokenAmount("100.", 0);
 
         vm.expectRevert("DecimalNormalization: invalid amount");
-        DecimalNormalization.parseAndScaleDecimals("100.123.456");
+        DecimalNormalization.normalizeTokenAmount("100.123.456", 3);
     }
 
     function testParseDecimalsZeroValue() public pure {
         // Test with zero whole part and non-zero decimal part
-        (uint256 amount, uint8 decimals) = DecimalNormalization.parseAndScaleDecimals("0.123456789012345678");
+        uint256 amount = DecimalNormalization.normalizeTokenAmount("0.123456789012345678", 18);
         assertEq(amount, 123456789012345678);
-        assertEq(decimals, 18);
     }
 
     /// forge-config: default.allow_internal_expect_revert = true
     function testParseDecimalsRevertZeroAmount() public {
         vm.expectRevert("DecimalNormalization: amount must be non-zero");
-        DecimalNormalization.parseAndScaleDecimals("0.0"); // Zero amount
+        DecimalNormalization.normalizeTokenAmount("0", 0); // Zero amount
 
         vm.expectRevert("DecimalNormalization: amount must be non-zero");
-        DecimalNormalization.parseAndScaleDecimals("0.00000"); // Zero amount with multiple zeros
+        DecimalNormalization.normalizeTokenAmount("0.0", 0); // Zero amount
+
+        vm.expectRevert("DecimalNormalization: amount must be non-zero");
+        DecimalNormalization.normalizeTokenAmount("0.00000", 0); // Zero amount with multiple zeros
     }
 
     // ==================== AmountComponents Tests ====================
@@ -225,21 +201,18 @@ contract DecimalNormalizationTest is Test {
         assertEq(components.integer, 100);
         assertEq(components.decimal, 0);
         assertEq(components.decimalPlaces, 0);
-        assertEq(components.hasDecimals, false);
 
         // Test with decimal part
         components = DecimalNormalization.parseAmountComponents("100.123");
         assertEq(components.integer, 100);
         assertEq(components.decimal, 123, "incorrect decimals");
         assertEq(components.decimalPlaces, 3);
-        assertEq(components.hasDecimals, true);
 
         // Test with zero whole part
         components = DecimalNormalization.parseAmountComponents("0.123");
         assertEq(components.integer, 0);
         assertEq(components.decimal, 123);
         assertEq(components.decimalPlaces, 3);
-        assertEq(components.hasDecimals, true);
     }
 
     /// forge-config: default.allow_internal_expect_revert = true
