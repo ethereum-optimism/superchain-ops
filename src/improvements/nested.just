@@ -29,7 +29,6 @@ simulate whichSafe hdPath='0':
   echo "Using script ${script}"
   echo "getting signer address for {{whichSafe}}..."
   signer=$(cast call ${safe} "getOwners()(address[])" -r ${rpcUrl} | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
-  echo "signer $signer"
 
   echo "safe: $safe"
   echo "Simulating call to {{whichSafe}} at ${safe}"
