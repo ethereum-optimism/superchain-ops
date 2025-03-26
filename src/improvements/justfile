@@ -1,6 +1,6 @@
 # Create a new template or task
 # e.g. just new [template|task]
-new COMMAND="":
+new COMMAND="" TASK_TYPE="":
     #!/usr/bin/env bash
     set -euo pipefail
     
@@ -16,20 +16,57 @@ new COMMAND="":
         echo "  • task      - Create a new task"
         echo
     }
+
+    show_task_types() {
+        echo
+        echo "Available task types:"
+        echo "  • l2taskbase - 'L2TaskBase' task type, these tasks require a superchain address registry and can iterate over multiple L2 chains"
+        echo "    eg: https://github.com/ethereum-optimism/superchain-ops/blob/main/test/tasks/mock/template/GasConfigTemplate.sol"
+        echo "  • simplebase - 'SimpleBase' task type, these tasks require simple key value registry and are independent of the L2 chains"
+        echo "    eg: https://github.com/ethereum-optimism/superchain-ops/blob/main/src/improvements/template/FinanceTemplate.sol"
+        echo "  • opcmbasetask - 'OPCMBaseTask' task type, these tasks are used to make delegate calls to the Optimism Contracts Manager and are"
+        echo "    dependent on the L2 chains and inherit from L2TaskBase"
+        echo "    e.g.: https://github.com/ethereum-optimism/superchain-ops/blob/main/src/improvements/template/OPCMUpgradeV200.sol"
+        echo
+    }
     
     # shellcheck disable=SC2050
-    if [ "{{COMMAND}}" = "" ]; then
-        echo -e "\n\033[31mError: No command specified\033[0m"
-        show_usage
-        exit 1
-    fi
-    
-    # shellcheck disable=SC2194
     case "{{COMMAND}}" in
-        template)
-            ./script/create-template.sh
+        "")
+            echo -e "\n\033[31mError: No command specified\033[0m"
+            show_usage
+            exit 1
             ;;
-        task)    
+        template)
+            if [ -z "{{TASK_TYPE}}" ]; then
+                echo -e "\n\033[31mError: No task type specified\033[0m"
+                show_task_types
+                exit 1
+            fi
+
+            case "{{TASK_TYPE}}" in
+                l2taskbase)
+                    TASK_TYPE="L2TaskBase"
+                    ;;
+                simplebase)
+                    TASK_TYPE="SimpleBase"
+                    ;;
+                opcmbasetask)
+                    TASK_TYPE="OPCMBaseTask"
+                    ;;
+                *)
+                    echo -e "\n\033[31mError: Invalid task type '{{TASK_TYPE}}'\033[0m"
+                    show_task_types
+                    exit 1
+                    ;;
+            esac
+            ./script/create-template.sh "$TASK_TYPE"
+            ;;
+        task)
+            if [ -n "{{TASK_TYPE}}" ]; then
+                echo -e "\n\033[31mError: Task type should not be specified for 'task' command\033[0m"
+                exit 1
+            fi
             ./script/create-task.sh
             ;;
         *)

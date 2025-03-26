@@ -16,3 +16,5 @@ absolutePrestates = [
 [addresses]
 OPCM = "0x1B25F566336F47BC5E0036D66E142237DcF4640b"
 StandardValidatorV200 = "0x37739a6b0a3F1E7429499a4eC4A0685439Daff5C"
+FoundationUpgradeSafe = "0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B" # Owner on the proxy admin owner
+SecurityCouncil = "0xf64bc17485f0B4Ea5F06A96514182FC4cB561977" # Owner on the proxy admin owner

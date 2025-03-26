@@ -19,7 +19,7 @@ export forkBlockNumber := env_var_or_default('FORK_BLOCK_NUMBER', '-1')
 simulate whichSafe hdPath='0':
   #!/usr/bin/env bash
   # Get the appropriate safe address based on whichSafe
-  safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} ${SCRIPT_PATH} "{{whichSafe}}")
+  safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
 
   echo "RPC URL: ${rpcUrl}"
 

@@ -15,7 +15,7 @@ install-eip712sign:
   PATH="$REPO_ROOT/bin:$PATH"
   cd $REPO_ROOT
   mkdir -p bin || true
-  GOBIN="$REPO_ROOT/bin" go install github.com/base-org/eip712sign@v0.0.10
+  GOBIN="$REPO_ROOT/bin" go install github.com/base/eip712sign@v0.0.11
 
 # Bundle path should be provided including the .json file extension.
 add-transaction bundlePath to sig *params:

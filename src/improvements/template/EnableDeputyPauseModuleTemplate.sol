@@ -7,9 +7,8 @@ import {VmSafe} from "forge-std/Vm.sol";
 
 import "forge-std/Test.sol";
 
-import {SimpleBase} from "src/improvements/tasks/MultisigTask.sol";
+import {SimpleBase} from "src/improvements/tasks/types/SimpleBase.sol";
 import {ModuleManager} from "lib/safe-contracts/contracts/base/ModuleManager.sol";
-import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
 /// @notice Template contract for enabling the DeputyPauseModule in a Gnosis Safe

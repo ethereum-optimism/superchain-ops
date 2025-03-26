@@ -9,7 +9,8 @@ import {IOPContractsManager} from "lib/optimism/packages/contracts-bedrock/inter
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
-import {L2TaskBase, MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
+import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
+import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 
 /// @notice base task for making calls to the Optimism Contracts Manager
 abstract contract OPCMBaseTask is L2TaskBase {

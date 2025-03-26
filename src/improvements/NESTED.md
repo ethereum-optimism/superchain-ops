@@ -71,7 +71,9 @@ just \
    chain-governor # 0 or 1 or ...
 ```
 
-You will see a "Simulation link" from the output.
+**This will generate an op-txverify link with instructions on how to verify the domain and message hashes. Follow and complete the instructions before proceeding.**
+
+You will also see a "Simulation link" from the output.
 
 Paste this URL in your browser. A prompt may ask you to choose a
 project, any project will do. You can create one if necessary.
