@@ -312,6 +312,7 @@ contract StateOverrideManagerUnitTest is Test {
                     LibString.toString(parentDefaultOverride.overrides.length)
                 )
             );
+            // address(this) should be the owner override for the parent multisig in a single execution.
             assertOwnerOverrides(parentDefaultOverride, address(this));
         }
         assertEq(
@@ -386,10 +387,14 @@ contract StateOverrideManagerUnitTest is Test {
             bytes32(childMultisigNonce),
             "ChildDefaultOverride: Nonce override must match expected value"
         );
+        // MULTICALL3_ADDRESS should be the owner override for the child multisig in a nested execution.
         assertOwnerOverrides(childDefaultOverride, MULTICALL3_ADDRESS);
     }
 
-    function assertOwnerOverrides(Simulation.StateOverride memory defaultOverride, address expectedOwnerOverride) private pure {
+    function assertOwnerOverrides(Simulation.StateOverride memory defaultOverride, address expectedOwnerOverride)
+        private
+        pure
+    {
         assertEq(
             defaultOverride.overrides[2].key,
             bytes32(uint256(0x3)),
