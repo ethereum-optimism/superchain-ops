@@ -98,7 +98,7 @@ abstract contract OPCMBaseTask is L2TaskBase {
     /// @return The address of the multicall
     function _getMulticallAddress(address safe) internal view override returns (address) {
         require(safe != address(0), "Safe address cannot be zero address");
-        return (safe == parentMultisig) ? MULTICALL3_DELEGATECALL_ADDRESS : MULTICALL3_ADDRESS;
+        return (safe == parentMultisig) ? MULTICALL3_DELEGATECALL_ADDRESS : MULTICALL3_NO_VALUE_CHECK_ADDRESS;
     }
 
     function _configureTask(string memory taskConfigFilePath)

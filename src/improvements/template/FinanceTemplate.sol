@@ -10,8 +10,6 @@ import {LibString} from "@solady/utils/LibString.sol";
 import {ERC20} from "@solady/tokens/ERC20.sol";
 import {stdToml} from "lib/forge-std/src/StdToml.sol";
 import {EnumerableSet} from "lib/openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
-import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
-import {AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
 import {DecimalNormalization} from "src/libraries/DecimalNormalization.sol";
 
 /// @notice Template contract for enabling finance transactions
@@ -20,9 +18,6 @@ contract FinanceTemplate is SimpleBase {
     using SafeERC20 for IERC20;
     using stdToml for string;
     using EnumerableSet for EnumerableSet.AddressSet;
-
-    /// @notice The address of the new multicall3 contract that does not have accumulated value check
-    address public constant MULTICALL3_NO_VALUE_CHECK_ADDRESS = 0x90664A63412b9B07bBfbeaCfe06c1EA5a855014c;
 
     /// @notice Operation struct
     /// @notice Operation struct as read in from the `config.toml` file
@@ -91,17 +86,6 @@ contract FinanceTemplate is SimpleBase {
     /// to get the list of token identifiers whose storage writes are allowed
     function _taskStorageWrites() internal pure override returns (string[] memory) {
         return new string[](0);
-    }
-
-    /// @notice Configures the task with the no value check multicall address
-    function _configureTask(string memory taskConfigFilePath)
-        internal
-        override
-        returns (AddressRegistry addrRegistry_, IGnosisSafe parentMultisig_, address multicallTarget_)
-    {
-        // The only thing we change is overriding the multicall target.
-        (addrRegistry_, parentMultisig_, multicallTarget_) = super._configureTask(taskConfigFilePath);
-        multicallTarget_ = MULTICALL3_NO_VALUE_CHECK_ADDRESS;
     }
 
     /// @notice converts string to a scaled up token amount in decimal form

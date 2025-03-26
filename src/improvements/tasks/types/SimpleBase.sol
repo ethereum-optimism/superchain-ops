@@ -26,7 +26,7 @@ abstract contract SimpleBase is MultisigTask {
         override
         returns (AddressRegistry addrRegistry_, IGnosisSafe parentMultisig_, address multicallTarget_)
     {
-        multicallTarget_ = MULTICALL3_ADDRESS;
+        multicallTarget_ = MULTICALL3_NO_VALUE_CHECK_ADDRESS;
 
         simpleAddrRegistry = new SimpleAddressRegistry(taskConfigFilePath);
         addrRegistry_ = AddressRegistry.wrap(address(simpleAddrRegistry));

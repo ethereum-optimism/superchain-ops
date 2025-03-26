@@ -159,7 +159,7 @@ contract SingleMultisigTaskTest is Test {
         // The nonce is decremented by 1 because we want to recreate the data to sign with the same nonce
         // that was used in the simulation. The nonce was incremented as part of running the simulation.
         bytes memory expectedDataToSign = IGnosisSafe(multisigTask.parentMultisig()).encodeTransactionData({
-            to: MULTICALL3_ADDRESS,
+            to: multisigTask.MULTICALL3_NO_VALUE_CHECK_ADDRESS(),
             value: 0,
             data: callData,
             operation: Enum.Operation.DelegateCall,
@@ -178,7 +178,7 @@ contract SingleMultisigTaskTest is Test {
         (bytes memory callData, uint256 value) = multisigTask.getMulticall3CalldataAndValue(actions);
         bytes32 hash = multisigTask.getHash(callData, multisigTask.parentMultisig(), value);
         bytes32 expectedHash = IGnosisSafe(multisigTask.parentMultisig()).getTransactionHash(
-            MULTICALL3_ADDRESS,
+            multisigTask.MULTICALL3_NO_VALUE_CHECK_ADDRESS(),
             0,
             callData,
             Enum.Operation.DelegateCall,

@@ -129,7 +129,9 @@ contract MultisigTaskUnitTest is Test {
 
         // set the target multicall address in MultisigTask contract to the
         // multicall address
-        vm.store(address(task), TARGET_MULTICALL_SLOT, bytes32(uint256(uint160(MULTICALL3_ADDRESS))));
+        vm.store(
+            address(task), TARGET_MULTICALL_SLOT, bytes32(uint256(uint160(task.MULTICALL3_NO_VALUE_CHECK_ADDRESS())))
+        );
 
         MockTarget mock = new MockTarget();
         bytes memory callData = abi.encodeWithSelector(MockTarget.foobar.selector);
@@ -139,7 +141,7 @@ contract MultisigTaskUnitTest is Test {
             multisig,
             abi.encodeWithSelector(
                 IGnosisSafe.getTransactionHash.selector,
-                MULTICALL3_ADDRESS,
+                task.MULTICALL3_NO_VALUE_CHECK_ADDRESS(),
                 value,
                 data,
                 Enum.Operation.DelegateCall,

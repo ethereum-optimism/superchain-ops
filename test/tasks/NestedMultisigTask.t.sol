@@ -71,7 +71,7 @@ contract NestedMultisigTaskTest is Test {
         // nonce is decremented by 1 because when we ran the task, in simulation, execTransaction is called
         // which increments the nonce by 1 and we want to generate the hash by using the nonce before it was incremented.
         bytes32 hashToApproveByChildMultisig = parentMultisig.getTransactionHash(
-            MULTICALL3_ADDRESS,
+            multisigTask.MULTICALL3_NO_VALUE_CHECK_ADDRESS(),
             0,
             multisigTask.getMulticall3Calldata(actions),
             Enum.Operation.DelegateCall,
@@ -106,7 +106,7 @@ contract NestedMultisigTaskTest is Test {
             // the child multisig which does not increment the nonce
             uint256 nonce = IGnosisSafe(childOwnerMultisigs[i]).nonce();
             bytes memory expectedDataToSign = IGnosisSafe(childOwnerMultisigs[i]).encodeTransactionData({
-                to: MULTICALL3_ADDRESS,
+                to: multisigTask.MULTICALL3_NO_VALUE_CHECK_ADDRESS(),
                 value: 0,
                 data: callDataToApprove,
                 operation: Enum.Operation.DelegateCall,
@@ -123,7 +123,7 @@ contract NestedMultisigTaskTest is Test {
             // execute the child multisig approval of hashToApproveByChildMultisig
             bytes32 nestedHashToApprove = keccak256(dataToSign);
             bytes32 expectedNestedHashToApprove = IGnosisSafe(childOwnerMultisigs[i]).getTransactionHash(
-                MULTICALL3_ADDRESS,
+                multisigTask.MULTICALL3_NO_VALUE_CHECK_ADDRESS(),
                 0,
                 callDataToApprove,
                 Enum.Operation.DelegateCall,

@@ -523,7 +523,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         bytes32 hash = keccak256(getEncodedTransactionData(_childMultisig, approveCalldata, 0));
         signatures = Signatures.prepareSignatures(_childMultisig, hash, signatures);
 
-        execTransaction(_childMultisig, MULTICALL3_ADDRESS, 0, approveCalldata, Enum.Operation.DelegateCall, signatures);
+        execTransaction(
+            _childMultisig,
+            MULTICALL3_NO_VALUE_CHECK_ADDRESS,
+            0,
+            approveCalldata,
+            Enum.Operation.DelegateCall,
+            signatures
+        );
     }
 
     /// @notice Executes the task with the given signatures.
@@ -799,7 +806,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
             console.log("\nSimulation link:");
             Simulation.logSimulationLink({
-                _to: MULTICALL3_ADDRESS,
+                _to: MULTICALL3_NO_VALUE_CHECK_ADDRESS,
                 _data: finalExec,
                 _from: msg.sender,
                 _overrides: allStateOverrides
@@ -1013,8 +1020,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         bytes memory approveHashExec = _execTransactionCalldata(
             childMultisig,
             approveHashCallData,
-            Signatures.genPrevalidatedSignature(MULTICALL3_ADDRESS),
-            MULTICALL3_ADDRESS
+            Signatures.genPrevalidatedSignature(MULTICALL3_NO_VALUE_CHECK_ADDRESS),
+            MULTICALL3_NO_VALUE_CHECK_ADDRESS
         );
         calls[0] = Call3Value({target: childMultisig, allowFailure: false, value: 0, callData: approveHashExec});
 

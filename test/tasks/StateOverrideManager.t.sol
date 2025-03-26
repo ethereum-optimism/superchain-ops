@@ -20,6 +20,7 @@ contract StateOverrideManagerUnitTest is Test {
         "templateName = \"DisputeGameUpgradeTemplate\"\n" "\n"
         "implementations = [{gameType = 0, implementation = \"0xf691F8A6d908B58C534B624cF16495b491E633BA\", l2ChainId = 10}]\n";
     address constant SECURITY_COUNCIL_CHILD_MULTISIG = 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03;
+    address constant MULTICALL3_NO_VALUE_CHECK_ADDRESS = 0x90664A63412b9B07bBfbeaCfe06c1EA5a855014c;
 
     function createTempTomlFile(string memory tomlContent) public returns (string memory) {
         string memory randomBytes = LibString.toHexString(uint256(bytes32(vm.randomBytes(32))));
@@ -389,7 +390,7 @@ contract StateOverrideManagerUnitTest is Test {
             "ChildDefaultOverride: Nonce override must match expected value"
         );
         // MULTICALL3_ADDRESS should be the owner override for the child multisig in a nested execution.
-        assertOwnerOverrides(childDefaultOverride, MULTICALL3_ADDRESS);
+        assertOwnerOverrides(childDefaultOverride, MULTICALL3_NO_VALUE_CHECK_ADDRESS);
     }
 
     function assertOwnerOverrides(Simulation.StateOverride memory defaultOverride, address expectedOwnerOverride)
