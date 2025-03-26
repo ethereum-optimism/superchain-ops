@@ -177,20 +177,26 @@ simulate-all-templates:
 #
 # Example:
 # cd src/improvements
-# just simulate-tenderly `pwd`/tasks/sep/000-opcm-upgrade-v200 council
-# just simulate-tenderly `pwd`/tasks/sep/003-unichain-superchain-config-fix
-simulate-tenderly TASK="" SAFE_NAME="single":
+# just simulate-tenderly tasks/sep/000-opcm-upgrade-v200 council
+# just simulate-tenderly tasks/sep/003-unichain-superchain-config-fix
+simulate-tenderly TASK="" SAFE_NAME="":
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
     forge build
 
-    ${root_dir}/src/improvements/script/simulate-tenderly.sh {{TASK}} {{SAFE_NAME}}
+    # If the task path doesn't start with a slash, append the current directory to the task path
+    task_path="{{TASK}}"
+    if [[ "$task_path" != /* ]]; then
+        task_path="${PWD}/${task_path}"
+    fi
+
+    ${root_dir}/src/improvements/script/simulate-tenderly.sh "$task_path" {{SAFE_NAME}}
 
 # Simulate all non-terminal tasks locally and against Tenderly, then verify the domain separator and message hash match against the values in the VALIDATION.md file.
 #
 # Parses these strings from the VALIDATION.md file:
-# ### Security Council / Optimism Foundation/ Single Safe Signer Data
+# ### Security Council / Optimism Foundation / Chain Governor / Child Safe 1 / Child Safe 2 / Single Safe Signer Data
 # Domain Hash: `<hash>`
 # Message Hash: `<hash>`
 verify-non-terminal-tasks:
@@ -202,10 +208,12 @@ verify-non-terminal-tasks:
 
     for task in ${root_dir}/src/improvements/tasks/*/*; do
         if [ -d "$task" ]; then
+
             # Read the README.md file and skip if it contains "Status: [SIGNED] or "Status: [EXECUTED]"
             readme_file="${task}/README.md"
             if [ -f "$readme_file" ]; then
                 if grep -q "Status: \[SIGNED\]" "$readme_file" || grep -q "Status: \[EXECUTED\]" "$readme_file"; then
+                    echo "Skipping signed/executed task: $task"
                     continue
                 fi
             fi
@@ -213,41 +221,47 @@ verify-non-terminal-tasks:
             # Read the validations file and extract the nested safe names
             validation_file="${task}/VALIDATION.md"
             
+            # The safe names and how they appear in validations are:
+            # - council - ### Security Council
+            # - foundation - ### Optimism Foundation
+            # - chain-governor - ### Chain Governor
+            # - child-safe-1 - ### Child Safe 1
+            # - child-safe-2 - ### Child Safe 2
+            # - single - ### Single Safe Signer Data
+
             if [ -f "$validation_file" ]; then
-                # Check for Security Council section
-                if grep -q "### Security Council" "$validation_file"; then
-                    echo "Security Council section found"
-                    nested_safe_name="council"
-                    domain_separator=$(grep -A 2 "### Security Council" "$validation_file" | grep "Domain Hash:" | grep -o '`[^`]*`' | tr -d '`')
-                    message_hash=$(grep -A 3 "### Security Council" "$validation_file" | grep "Message Hash:" | grep -o '`[^`]*`' | tr -d '`')
+                # We want to run at least one verification if we have a validation file
+                verification_found=false
 
-                    # Simulate and verify the task
-                    ${root_dir}/src/improvements/script/simulate-verify-task.sh $task $nested_safe_name $domain_separator $message_hash
-                fi
-                
-                # Check for Optimism Foundation section
-                if grep -q "### Optimism Foundation" "$validation_file"; then
-                    echo "Optimism Foundation section found"
-                    nested_safe_name="foundation"
-                    domain_separator=$(grep -A 2 "### Optimism Foundation" "$validation_file" | grep "Domain Hash:" | grep -o '`[^`]*`' | tr -d '`')
-                    message_hash=$(grep -A 3 "### Optimism Foundation" "$validation_file" | grep "Message Hash:" | grep -o '`[^`]*`' | tr -d '`')
+                # Check for each possible safe name in the validations file
+                for safe_full_name in "Security Council" "Optimism Foundation" "Chain Governor" "Child Safe 1" "Child Safe 2" "Single Safe Signer Data"; do
+                    case "$safe_full_name" in
+                        "Security Council") safe_short_name="council" ;;
+                        "Optimism Foundation") safe_short_name="foundation" ;;
+                        "Chain Governor") safe_short_name="chain-governor" ;;
+                        "Child Safe 1") safe_short_name="child-safe-1" ;;
+                        "Child Safe 2") safe_short_name="child-safe-2" ;;
+                        "Single Safe Signer Data") safe_short_name="single" ;;
+                        *) safe_short_name="" ;;
+                    esac
 
-                    # Simulate and verify the task
-                    ${root_dir}/src/improvements/script/simulate-verify-task.sh $task $nested_safe_name $domain_separator $message_hash
-                fi
-                
-                # Check for Single Safe Signer Data section
-                if grep -q "### Single Safe Signer Data" "$validation_file"; then
-                    echo "Single Safe Signer Data section found"
-                    nested_safe_name="single"
-                    domain_separator=$(grep -A 2 "### Single Safe Signer Data" "$validation_file" | grep "Domain Hash:" | grep -o '`[^`]*`' | tr -d '`')
-                    message_hash=$(grep -A 3 "### Single Safe Signer Data" "$validation_file" | grep "Message Hash:" | grep -o '`[^`]*`' | tr -d '`')
+                    if grep -q "### ${safe_full_name}" "$validation_file"; then
+                        verification_found=true
+                        domain_separator=$(grep -A 2 "### ${safe_full_name}" "$validation_file" | grep "Domain Hash:" | grep -o '`[^`]*`' | tr -d '`')
+                        message_hash=$(grep -A 3 "### ${safe_full_name}" "$validation_file" | grep "Message Hash:" | grep -o '`[^`]*`' | tr -d '`')
 
-                    # Simulate and verify the task
-                    ${root_dir}/src/improvements/script/simulate-verify-task.sh $task $nested_safe_name $domain_separator $message_hash
+                        # Simulate and verify the task
+                        ${root_dir}/src/improvements/script/simulate-verify-task.sh $task $safe_short_name $domain_separator $message_hash
+                    fi
+                done
+
+                if [ "$verification_found" = false ]; then
+                    echo "Error: No hashes found in VALIDATIONS.md for task $task"
+                    exit 1
                 fi
             else
-                echo "Warning: No VALIDATION.md file found for task $task"
+                echo "Error: No VALIDATION.md file found for task $task"
+                exit 1
             fi
         fi
     done
