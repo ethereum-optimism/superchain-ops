@@ -340,6 +340,13 @@ For each contract listed in the state diff, please verify that no contracts or s
                      This step isn't shown in the local simulation because the parent multisig is invoked directly, 
                      bypassing the <i>approveHash</i> calls.
                      This slot change reflects an update to the approvedHashes mapping.
+                     Specifically, this simulation was ran as the nested safe <i>0x9855054731540A48b28990B63DcF4f33d8AE46A1</i>.
+                      - <i>res=$(cast index address 0x9855054731540A48b28990B63DcF4f33d8AE46A1 8)</i>
+                      - <i>cast index bytes32 0xbc83ab0dad212b9ca5faa0ba5658e9f8a7523f575dba8e0c0486c2d06af033db $res</i>
+                     Alternatively, the 'Raw Slot' value can be different if we run as <i>0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A</i>:
+                      - <i>res=$(cast index address 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A 8)</i>
+                      - <i>cast index bytes32 0xbc83ab0dad212b9ca5faa0ba5658e9f8a7523f575dba8e0c0486c2d06af033db $res</i>
+                      - Alternative 'Raw Slot': <i>0x5052bc1a1c56acb3d26d5ad9364d818ae19a42dea54fe66de38ba9e7470acbc6</i>
 
 ----- DecodedStateDiff[16] -----
   Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/superchain/configs/mainnet/base.toml#L44">0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c</a>
@@ -412,7 +419,6 @@ For each contract listed in the state diff, please verify that no contracts or s
   Who:               0x6CD3850756b7894774Ab715D136F9dD02837De50, 0x13FbBDefa7D9B147A1777a8A5B0f30379E007ac3, 0x8BD2e80e6D1cf1e5C5f0c69972fE2f02B9C046Aa
 
   Details:           Nonce Updates for all addresses listed above.
-  Summary:           
 </pre>
 
 # Supplementary Material
