@@ -4,76 +4,21 @@ set -euo pipefail
 # This script uses a Tenderly simulation payload to execute a simulation and retrieve
 # the domain and message hashes from its trace. 
 # Usage: ./get-tenderly-hashes.sh '{"json":"payload"}'
-# Or: ./get-tenderly-hashes.sh --from-link 'https://dashboard.tenderly.co/...'
 
-# Function to extract parameters from a Tenderly simulation link and build a JSON payload
-extract_payload_from_link() {
-  link="$1"
-  
-  # Extract parameters from the URL using sed and URL decoding
-  network_id=$(echo "$link" | sed -n 's/.*network=\([^&]*\).*/\1/p')
-  contract_address=$(echo "$link" | sed -n 's/.*contractAddress=\([^&]*\).*/\1/p')
-  from_address=$(echo "$link" | sed -n 's/.*from=\([^&]*\).*/\1/p')
-  raw_input=$(echo "$link" | sed -n 's/.*rawFunctionInput=\([^&]*\).*/\1/p')
-  
-  # Extract state overrides - this is more complex due to URL encoding
-  state_overrides=$(echo "$link" | sed -n 's/.*stateOverrides=\([^&]*\).*/\1/p' | sed 's/%5B/[/g' | sed 's/%5D/]/g' | sed 's/%7B/{/g' | sed 's/%7D/}/g' | sed 's/%22/"/g' | sed 's/%3A/:/g' | sed 's/%2C/,/g')
-  
-  # Build the JSON payload
-  payload_json="{\"network_id\":\"$network_id\",\"from\":\"$from_address\",\"to\":\"$contract_address\",\"save\":true,\"input\":\"$raw_input\",\"value\":\"0x0\""
-  
-  # Add state_objects if state_overrides is not empty
-  if [ -n "$state_overrides" ]; then
-    # Extract the inner content of the state overrides array
-    state_objects=$(echo "$state_overrides" | sed -n 's/^\[\(.*\)\]$/\1/p')
-    
-    # Convert the state overrides format to the state_objects format expected by the API
-    formatted_state_objects="{}"
-    
-    # If we have valid state objects, format them properly
-    if [ -n "$state_objects" ]; then
-      # This is a simplified approach - for complex state overrides, we might need a more robust parser
-      formatted_state_objects="{\"$contract_address\":{\"storage\":{"
-
-      # Extract key-value pairs from state overrides
-      storage_items=$(echo "$state_objects" | grep -o '"key":"[^"]*","value":"[^"]*"' | sed 's/"key":"\([^"]*\)","value":"\([^"]*\)"/"\1":"\2"/g' | paste -sd "," -)
-      formatted_state_objects="$formatted_state_objects$storage_items}}}"
-    fi
-    
-    # Add state_objects to payload
-    payload_json="${payload_json},\"state_objects\":${formatted_state_objects}"
-  fi
-  
-  payload_json="$payload_json}"
-  echo "$payload_json"
-}
-
-# Check if a payload or link was provided
-if [ $# -lt 1 ]; then
-  echo "Error: JSON payload or Tenderly link is required"
+# Check that the payload was provided
+if [ $# -ne 1 ]; then
+  echo "Error: JSON payload is required"
   echo "Usage: $0 '<json_payload>'"
-  echo "   or: $0 --from-link '<tenderly_link>'"
   exit 1
 fi
 
-# Process arguments
-if [ "$1" = "--from-link" ]; then
-  if [ $# -lt 2 ]; then
-    echo "Error: Tenderly link is required with --from-link option"
-    echo "Usage: $0 --from-link '<tenderly_link>'"
-    exit 1
-  fi
-  # Make sure to quote the URL when passing it to the function
-  payload=$(extract_payload_from_link "$2")
-  
-  # Show a message about how to properly use the command with URLs
-  if [[ "$2" =~ ^[\'\"] ]]; then
-    echo "Note: When passing URLs with special characters, make sure to quote them:"
-    echo "  $0 --from-link 'https://dashboard.tenderly.co/...'"
-  fi
-else
-  payload="$1"
+# Use jq to verify the JSON is well-formed
+if ! jq -e . >/dev/null 2>&1 <<< "$1"; then
+  echo "Error: Invalid JSON payload"
+  exit 1
 fi
+
+payload="$1"
 
 # These are not secrets so that the simulation URL shows up
 tenderly_user="${TENDERLY_USER:-oplabs}"
