@@ -151,7 +151,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
                         - <i>cast index uint32 0 101</i>
 
   ----- DecodedStateDiff[4] -----
-    Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1
+    Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1 (Newly deployed during upgrade)
     Contract:          AnchorStateRegistryProxy - Soneium
     Chain ID:          1868
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000000
@@ -165,7 +165,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
                        3. <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/superchain/configs/mainnet/superchain.toml#L3">0x95703e0982140D16f8ebA6d158FccEde42f04a4C</a> - Mainnet SuperchainConfig
 
   ----- DecodedStateDiff[5] -----
-    Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1
+    Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1 (Newly deployed during upgrade)
     Contract:          AnchorStateRegistryProxy - Soneium
     Chain ID:          1868
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000001
@@ -177,7 +177,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
                        DisputeGameFactoryProxy address on Soneium.
 
   ----- DecodedStateDiff[6] -----
-    Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1
+    Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1 (Newly deployed during upgrade)
     Contract:          AnchorStateRegistryProxy - Soneium
     Chain ID:          1868
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000002
@@ -189,7 +189,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
                        OptimismPortalProxy address on Soneium.
 
   ----- DecodedStateDiff[7] -----
-    Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1
+    Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1 (Newly deployed during upgrade)
     Contract:          AnchorStateRegistryProxy - Soneium
     Chain ID:          1868
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
@@ -202,7 +202,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
                        Anyone can call <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L239"><i>'setAnchorState(IDisputeGame _game)'</i></a> so it can be updated often if the conditions are right.
 
   ----- DecodedStateDiff[8] -----
-    Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1
+    Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1 (Newly deployed during upgrade)
     Contract:          AnchorStateRegistryProxy - Soneium
     Chain ID:          1868
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
@@ -216,7 +216,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
                        Anyone can call <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L239"><i>'setAnchorState(IDisputeGame _game)'</i></a> so it can be updated often if the conditions are right.
 
   ----- DecodedStateDiff[9] -----
-    Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1
+    Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1 (Newly deployed during upgrade)
     Contract:          AnchorStateRegistryProxy - Soneium
     Chain ID:          1868
     Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
@@ -230,7 +230,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
                        AnchorStateRegistry contract for 'op-contracts/v2.0.0-rc.1'.
 
   ----- DecodedStateDiff[10] -----
-    Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1
+    Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1 (Newly deployed during upgrade)
     Contract:          AnchorStateRegistryProxy - Soneium
     Chain ID:          1868
     Raw Slot:          0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103
@@ -244,7 +244,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
                        The owner in this case is the <a href="https://github.com/ethereum-optimism/superchain-registry/blob/c1bcf3601dfdf72f0fd4f5bade180b9c0f94d93b/superchain/configs/mainnet/Soneium.toml#L59">ProxyAdmin</a> of Ink.
 
   ----- DecodedStateDiff[11] -----
-    Who:               0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b
+    Who:               0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b (Newly deployed during upgrade)
     Contract:          AnchorStateRegistryProxy - OP Mainnet
     Chain ID:          10
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000000
@@ -258,7 +258,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
                        3. <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/superchain/configs/mainnet/superchain.toml#L3">0x95703e0982140D16f8ebA6d158FccEde42f04a4C</a> - Mainnet SuperchainConfig
 
   ----- DecodedStateDiff[12] -----
-    Who:               0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b
+    Who:               0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b (Newly deployed during upgrade)
     Contract:          AnchorStateRegistryProxy - OP Mainnet
     Chain ID:          10
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000001
@@ -270,7 +270,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
                        DisputeGameFactoryProxy address on OP Mainnet.
 
   ----- DecodedStateDiff[13] -----
-    Who:               0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b
+    Who:               0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b (Newly deployed during upgrade)
     Contract:          AnchorStateRegistryProxy - OP Mainnet
     Chain ID:          10
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000002
@@ -281,7 +281,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
                        OptimismPortalProxy address on OP Mainnet.
 
   ----- DecodedStateDiff[14] -----
-    Who:               0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b
+    Who:               0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b (Newly deployed during upgrade)
     Contract:          AnchorStateRegistryProxy - OP Mainnet
     Chain ID:          10
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
@@ -294,7 +294,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
                        Anyone can call <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L239"><i>'setAnchorState(IDisputeGame _game)'</i></a> so it can be updated often if the conditions are right.
 
   ----- DecodedStateDiff[15] -----
-    Who:               0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b
+    Who:               0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b (Newly deployed during upgrade)
     Contract:          AnchorStateRegistryProxy - OP Mainnet
     Chain ID:          10
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
@@ -308,7 +308,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
                        Anyone can call <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L239"><i>'setAnchorState(IDisputeGame _game)'</i></a> so it can be updated often if the conditions are right.
 
   ----- DecodedStateDiff[16] -----
-    Who:               0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b
+    Who:               0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b (Newly deployed during upgrade)
     Contract:          AnchorStateRegistryProxy - OP Mainnet
     Chain ID:          10
     Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
@@ -322,7 +322,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
                        AnchorStateRegistry contract for 'op-contracts/v2.0.0-rc.1'.
 
   ----- DecodedStateDiff[17] -----
-    Who:               0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b
+    Who:               0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b (Newly deployed during upgrade)
     Contract:          AnchorStateRegistryProxy - OP Mainnet
     Chain ID:          10
     Raw Slot:          0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103
@@ -366,7 +366,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
     Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
 
   ----- DecodedStateDiff[20] -----
-    Who:               0x2fc99fd16D8D3F6F66d164aA84E244c567E58A3d
+    Who:               0x2fc99fd16D8D3F6F66d164aA84E244c567E58A3d (Newly deployed during upgrade)
     Contract:          AnchorStateRegistryProxy - Ink
     Chain ID:          57073
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000000
@@ -379,7 +379,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
                        3. <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/superchain/configs/mainnet/superchain.toml#L3">0x95703e0982140D16f8ebA6d158FccEde42f04a4C</a> - Mainnet SuperchainConfig
 
   ----- DecodedStateDiff[21] -----
-    Who:               0x2fc99fd16D8D3F6F66d164aA84E244c567E58A3d
+    Who:               0x2fc99fd16D8D3F6F66d164aA84E244c567E58A3d (Newly deployed during upgrade)
     Contract:          AnchorStateRegistryProxy - Ink
     Chain ID:          57073
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000001
@@ -391,7 +391,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
                        DisputeGameFactoryProxy address on Soneium.
 
   ----- DecodedStateDiff[22] -----
-    Who:               0x2fc99fd16D8D3F6F66d164aA84E244c567E58A3d
+    Who:               0x2fc99fd16D8D3F6F66d164aA84E244c567E58A3d (Newly deployed during upgrade)
     Contract:          AnchorStateRegistryProxy - Ink
     Chain ID:          57073
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000002
@@ -402,7 +402,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
                        OptimismPortalProxy address on Ink.
 
   ----- DecodedStateDiff[23] -----
-    Who:               0x2fc99fd16D8D3F6F66d164aA84E244c567E58A3d
+    Who:               0x2fc99fd16D8D3F6F66d164aA84E244c567E58A3d (Newly deployed during upgrade)
     Contract:          AnchorStateRegistryProxy - Ink
     Chain ID:          57073
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
@@ -416,7 +416,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
 
   ----- DecodedStateDiff[24] -----
-    Who:               0x2fc99fd16D8D3F6F66d164aA84E244c567E58A3d
+    Who:               0x2fc99fd16D8D3F6F66d164aA84E244c567E58A3d (Newly deployed during upgrade)
     Contract:          AnchorStateRegistryProxy - Ink
     Chain ID:          57073
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
@@ -430,7 +430,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
                        Anyone can call <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L239"><i>'setAnchorState(IDisputeGame _game)'</i></a> so it can be updated often if the conditions are right.
 
   ----- DecodedStateDiff[25] -----
-    Who:               0x2fc99fd16D8D3F6F66d164aA84E244c567E58A3d
+    Who:               0x2fc99fd16D8D3F6F66d164aA84E244c567E58A3d (Newly deployed during upgrade)
     Contract:          AnchorStateRegistryProxy - Ink
     Chain ID:          57073
     Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
@@ -445,7 +445,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
                        AnchorStateRegistry contract for 'op-contracts/v2.0.0-rc.1'.
 
   ----- DecodedStateDiff[26] -----
-    Who:               0x2fc99fd16D8D3F6F66d164aA84E244c567E58A3d
+    Who:               0x2fc99fd16D8D3F6F66d164aA84E244c567E58A3d (Newly deployed during upgrade)
     Contract:          AnchorStateRegistryProxy - Ink
     Chain ID:          57073
     Raw Slot:          0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103
@@ -764,7 +764,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
   ----- DecodedStateDiff[49] -----
     Who:               0xc4986627A41cdCf6fa33543D96f00F475bCE42f5
-    Contract:          DelayedWeth - Ink
+    Contract:          Permissioned DelayedWeth - Ink
     Chain ID:          57073
     Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
     Raw Old Value:     0x00000000000000000000000071e966ae981d1ce531a7b6d23dc0f27b38409087
