@@ -1,7 +1,3 @@
-TODO:
-- Add tenderly only sections
-- Add links to Who addresses?
-
 # Validation
 
 This document can be used to validate the inputs and result of the execution of the upgrade transaction which you are
