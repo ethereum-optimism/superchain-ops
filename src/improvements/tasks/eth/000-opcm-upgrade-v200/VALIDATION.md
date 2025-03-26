@@ -774,8 +774,8 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
     Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/c1bcf3601dfdf72f0fd4f5bade180b9c0f94d93b/validation/standard/standard-versions-mainnet.toml#L33">0x5e40B9231B86984b5150507046e354dbFbeD3d9e</a>
     Summary:           ERC-1967 implementation slot
     Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-                       Using OP Mainnet's <a href="https://github.com/ethereum-optimism/superchain-registry/blob/c1bcf3601dfdf72f0fd4f5bade180b9c0f94d93b/superchain/configs/mainnet/ink.toml#L63">DisputeGameFactory</a>, we can find this DelayedWETH address:
-                        - <i>cast call 0x10d7B35078d3baabB96Dd45a9143B94be65b12CD "gameImpls(uint32)(address)" 0 --rpc-url mainnet</i>
+                       Using Ink's <a href="https://github.com/ethereum-optimism/superchain-registry/blob/c1bcf3601dfdf72f0fd4f5bade180b9c0f94d93b/superchain/configs/mainnet/ink.toml#L63">DisputeGameFactory</a>, we can find this DelayedWETH address:
+                        - <i>cast call 0x10d7B35078d3baabB96Dd45a9143B94be65b12CD "gameImpls(uint32)(address)" 1 --rpc-url mainnet</i>
                         - <i>cast call 0x8D9faaEb46cBCf487baf2182E438Ac3D0847F637 "weth()(address)" --rpc-url mainnet</i>
                         returns <b>0x21429aF66058BC3e4aE4a8f2EC4531AaC433ecbC</b>
 
@@ -841,7 +841,7 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
 
   ----- DecodedStateDiff[55] -----
     Who:               0xf6b1554F483C391414d3830927E3600c105AaE6E
-    Contract:          DelayedWETH - Ink
+    Contract:          Permissionless DelayedWETH - Ink
     Chain ID:
     Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
     Raw Old Value:     0x00000000000000000000000071e966ae981d1ce531a7b6d23dc0f27b38409087
