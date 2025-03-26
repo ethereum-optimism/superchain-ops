@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {OPCMBaseTask} from "../tasks/OPCMBaseTask.sol";
+import {OPCMBaseTask} from "../tasks/types/OPCMBaseTask.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {
-    IOPContractsManager,
-    ISystemConfig,
-    IProxyAdmin
+IOPContractsManager,
+ISystemConfig,
+IProxyAdmin
 } from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {IOPContractsManager} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
