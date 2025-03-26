@@ -144,22 +144,36 @@ For each contract listed in the state diff, please verify that no contracts or s
                      DisputeGameFactory contract for 'op-contracts/v2.0.0-rc.1'.
 
 ----- DecodedStateDiff[4] -----
-  Who:               0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e
+  Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/base.toml#L63">0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e</a>
   Contract:          DisputeGameFactory - Base Mainnet
   Chain ID:          8453
   Raw Slot:          0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e
   Raw Old Value:     0x000000000000000000000000f62c15e2f99d4869a925b8f57076cd85335832a2
   Raw New Value:     0x0000000000000000000000008bd2e80e6d1cf1e5c5f0c69972fe2f02b9c046aa
-  [WARN] Slot was not decoded
-  
+
+  Summary:           Update Permissioned GameType implementation.
+  Detail:            This is gameImpls[1] -> 0xF62c15e2F99d4869A925B8F57076cD85335832A2
+                       Verify that the old implementation is set in this slot using:
+                        - <i>cast call 0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e "gameImpls(uint32)(address)" 1 --rpc-url mainnet</i>
+                        - <i>cast storage 0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e 0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e --rpc-url mainnet</i>
+                       The Raw Slot can be derived from:
+                        - <i>cast index uint32 1 101</i>
+
 ----- DecodedStateDiff[5] -----
-  Who:               0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e
+  Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/base.toml#L63">0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e</a>
   Contract:          DisputeGameFactory - Base Mainnet
   Chain ID:          8453
   Raw Slot:          0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b
   Raw Old Value:     0x000000000000000000000000c5f3677c3c56db4031ab005a3c9c98e1b79d438e
   Raw New Value:     0x00000000000000000000000013fbbdefa7d9b147a1777a8a5b0f30379e007ac3
-  [WARN] Slot was not decoded
+
+  Summary:           Updated CANNON GameType implementation.
+  Detail:            This is gameImpls[0] -> 0xd2C3C6f4A4c5AA777bD6c476AEa58439Db0dD844 where '0' is the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28">CANNON game type</a>.
+                     Verify that the old implementation is set in this slot using:
+                      - <i>cast call 0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e "gameImpls(uint32)(address)" 0 --rpc-url mainnet</i>
+                      - <i>cast storage 0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e 0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b --rpc-url mainnet</i>
+                     The Raw Slot can be derived from:
+                      - <i>cast index uint32 0 101</i>
   
 ----- DecodedStateDiff[6] -----
   Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/superchain/configs/mainnet/base.toml#L58">0x49048044D57e1C92A77f79988d21Fa8fAF74E97e</a>
