@@ -87,7 +87,31 @@ The resulting calldata sent from the ProxyAdminOwner safe is thus:
 <!-- TODO(#740) - Add a link to the gov post -->
 In mainnet runbooks, this calldata should appear in [Action Plan]() section of the Governance proposal.
 
-# State Validations
+# State Changes
+
+## Nested Safe State Overrides and Changes
+
+<!--TODO(#740) - I see additional overrides to the ProxyAdminSafe not documented in NESTED-VALIDATION.md -->
+This task is executed by the nested 2/2 `ProxyAdminOwner` Safe. Refer to the
+[generic nested Safe execution validation document](../../../../../NESTED-VALIDATION.md)
+for the expected state overrides and changes.
+
+<!--TODO(#740) - Figure out how to retrieve the $SAFE_HASH, I don't see it printed in the output -->
+The `approvedHashes` mapping of the `ProxyAdminOwner` should change during the simulation.
+See the ["Key Computation" section](../../../../../NESTED-VALIDATION.md#key-computation) in the nested validation doc
+for instruction on how to validate this change.  The `$SAFE_HASH` value for this calculation should be:
+- `0x7ae8800316ad25e257c77b54d034e5befc61dc38da97801125cc99f404be529e`
+
+Additionally, Safe-related nonces [will increment by one](../../../../../NESTED-VALIDATION.md#nonce-increments).
+
+## Other Nonces
+In addition to the Safe-related nonces mentioned [previously](#nested-safe-state-overrides-and-changes),
+new contracts will also have a nonce value increment from 0 to 1.
+This due to [EIP-161](https://eips.ethereum.org/EIPS/eip-161) which activated in 2016.
+
+This affects the newly deployed dispute games mentioned in ["State Diffs"](#state-diffs).
+
+## State Diffs
 
 For each contract listed in the state diff, please verify that no contracts or state changes shown in the Tenderly diff are missing from this document. Additionally, please verify that for each contract:
 
@@ -96,8 +120,6 @@ For each contract listed in the state diff, please verify that no contracts or s
 - All addresses (in section headers and storage values) match the provided name, using the Etherscan and Superchain
   Registry links provided. This validates the bytecode deployed at the addresses contains the correct logic.
 - All key values match the semantic meaning provided, which can be validated using the storage layout links provided.
-
-### Task State Changes
 
 <pre>
   <code>
