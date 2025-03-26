@@ -167,7 +167,6 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
             // PLDG-ANCHORP-40: Permissionless dispute game's AnchorStateRegistry root must be 0xdead000000000000000000000000000000000000000000000000000000000000
             //   ANCHORP-40 errors do not apply to chains over 1 week old.
             string memory expectedErrors_57073 = "SYSCON-30,PDDG-ANCHORP-40,PLDG-ANCHORP-40";
-
             require(
                 reasons.eq(expectedErrors_11155420) || reasons.eq(expectedErrors_1946)
                     || reasons.eq(expectedErrors_763373) || reasons.eq(expectedErrors_84532)
