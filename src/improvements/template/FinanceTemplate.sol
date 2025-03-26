@@ -11,6 +11,8 @@ import {SafeERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/utils/
 import {LibString} from "@solady/utils/LibString.sol";
 import {stdToml} from "lib/forge-std/src/StdToml.sol";
 import {EnumerableSet} from "lib/openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
+import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
 
 /// @notice Template contract for enabling finance transactions
 contract FinanceTemplate is SimpleBase {
@@ -18,6 +20,9 @@ contract FinanceTemplate is SimpleBase {
     using SafeERC20 for IERC20;
     using stdToml for string;
     using EnumerableSet for EnumerableSet.AddressSet;
+
+    /// @notice The address of the new multicall3 contract that does not have accumulated value check
+    address public constant MULTICALL3_NO_VALUE_CHECK_ADDRESS = 0x90664A63412b9B07bBfbeaCfe06c1EA5a855014c;
 
     /// @notice Operation struct
     /// @param amount The amount of tokens for the operation
@@ -76,12 +81,20 @@ contract FinanceTemplate is SimpleBase {
         return new string[](0);
     }
 
+    /// @notice Configures the task with the no value check multicall address
+    function _configureTask(string memory taskConfigFilePath)
+        internal
+        override
+        returns (AddressRegistry addrRegistry_, IGnosisSafe parentMultisig_, address multicallTarget_)
+    {
+        // The only thing we change is overriding the multicall target.
+        (addrRegistry_, parentMultisig_, multicallTarget_) = super._configureTask(taskConfigFilePath);
+        multicallTarget_ = MULTICALL3_NO_VALUE_CHECK_ADDRESS;
+    }
+
     /// @notice Sets up the template with module configuration from a TOML file
     /// @param taskConfigFilePath Path to the TOML configuration file
     function _templateSetup(string memory taskConfigFilePath) internal override {
-        bytes memory multicall3NoValueCheckBytecode = vm.getDeployedCode("Multicall3NoValueCheck");
-        // TDOD: Remove this once Multicall3NoValueCheck is deployed
-        vm.etch(address(multicallTarget), multicall3NoValueCheckBytecode);
         string memory toml = vm.readFile(taskConfigFilePath);
         operationType = toml.readString(".operationType");
         operationTypeEnum = _getOperationType();
