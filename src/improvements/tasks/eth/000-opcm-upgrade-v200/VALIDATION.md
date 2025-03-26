@@ -2,6 +2,8 @@ Note to AI assistant:
 - This is the mainnet runbook.
 - I am in the process of annotating the state diff, and am using the similar file in ../sep/000-opcm-upgrade-v200/VALIDATION.md as a guide.
 - When I copy a link in here, if it has the word 'sepolia' in it, please change it to 'mainnet'.
+- Follow the pattern in that file, to see what changes I'm going to make to content after I paste it in.
+  - Often I will be replacing an address with one from just above.
 
 # Validation
 
@@ -129,10 +131,10 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
     Raw Old Value:     0x0000000000000000000000008d9faaeb46cbcf487baf2182e438ac3d0847f637
     Raw New Value:     0x0000000000000000000000004699d20479dfd20e15cab4fcb6f2a7cc6fe35443
     Summary:           Update Permissioned GameType implementation.
-    Detail:            This is gameImpls[1] -> 0xf7529E269A3244921D31304171ae69c44F9c6e09
+    Detail:            This is gameImpls[1] -> 0x4699d20479dfd20e15cab4fcb6f2a7cc6fe35443
                        Verify that the old implementation is set in this slot using:
-                        - <i>cast call 0x10d7B35078d3baabB96Dd45a9143B94be65b12CD "gameImpls(uint32)(address)" 1 --rpc-url sepolia</i>
-                        - <i>cast storage 0x10d7B35078d3baabB96Dd45a9143B94be65b12CD 0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e --rpc-url sepolia</i>
+                        - <i>cast call 0x10d7B35078d3baabB96Dd45a9143B94be65b12CD "gameImpls(uint32)(address)" 1 --rpc-url mainnet</i>
+                        - <i>cast storage 0x10d7B35078d3baabB96Dd45a9143B94be65b12CD 0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e --rpc-url mainnet</i>
                        The Raw Slot can be derived from:
                         - <i>cast index uint32 1 101</i>
 
@@ -143,7 +145,13 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
     Raw Slot:          0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b
     Raw Old Value:     0x0000000000000000000000007e87b471e96b96955044328242456427a0d49694
     Raw New Value:     0x00000000000000000000000069361c9134d620b704c2a72c58523a4373ece86f
-    [WARN] Slot was not decoded
+    Summary:           Updated CANNON GameType implementation.
+    Detail:            This is gameImpls[0] -> 0x69361c9134d620b704c2a72c58523a4373ece86f where '0' is the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28">CANNON game type</a>.
+                       Verify that the old implementation is set in this slot using:
+                        - <i>cast call 0x10d7B35078d3baabB96Dd45a9143B94be65b12CD "gameImpls(uint32)(address)" 0 --rpc-url mainnet</i>
+                        - <i>cast storage 0x10d7B35078d3baabB96Dd45a9143B94be65b12CD 0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b --rpc-url mainnet</i>
+                       The Raw Slot can be derived from:
+                        - <i>cast index uint32 0 101</i>
 
   ----- DecodedStateDiff[4] -----
     Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1
@@ -152,7 +160,12 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000000
     Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
     Raw New Value:     0x0000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c0001
-    [WARN] Slot was not decoded
+    Summary:           Slot 0 is updated to set AnchorStateRegistryProxy address
+    Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
+                       Reading 'Raw New Value' from Right to Left, we have:
+                       1. <i>0x01</i> - <i>_initialized</i> flag set to 'true'
+                       2. <i>0x00</i> - <i>_initializing</i> flag set to 'false'
+                       3. <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/superchain/configs/mainnet/superchain.toml#L3">0x95703e0982140D16f8ebA6d158FccEde42f04a4C</a> - Mainnet SuperchainConfig
 
   ----- DecodedStateDiff[5] -----
     Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1
@@ -161,7 +174,10 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000001
     Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
     Raw New Value:     0x000000000000000000000000512a3d2c7a43bd9261d2b8e8c9c70d4bd4d503c0
-    [WARN] Slot was not decoded
+    Summary:           Slot 1 is updated to set DisputeGameFactoryProxy address
+    Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
+                       <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/mainnet/soneium.toml#L63">0x512A3d2c7a43BD9261d2B8E8C9c70D4bd4D503C0</a> is the
+                       DisputeGameFactoryProxy address on Soneium Testnet Minato.
 
   ----- DecodedStateDiff[6] -----
     Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1
@@ -170,7 +186,10 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000002
     Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
     Raw New Value:     0x00000000000000000000000088e529a6ccd302c948689cd5156c83d4614fae92
-    [WARN] Slot was not decoded
+    Summary:           Slot 2 is updated to set OptimismPortalProxy address
+    Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
+                       <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/mainnet/soneium.toml#L57">0x88e529a6ccd302c948689cd5156c83d4614fae92</a> is the
+                       OptimismPortalProxy address on Soneium Testnet Minato.
 
   ----- DecodedStateDiff[7] -----
     Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1
@@ -179,7 +198,11 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
     Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
     Raw New Value:     0xd1d632a1c83002b4a45f2ffc9116b8f59546921724b729d52d0787372b18c337
-    [WARN] Slot was not decoded
+    Summary:           Slot 4 updates the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44">'root'</a> for the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L42">startingAnchorRoot</a>
+    Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
+                       The 'Raw New Value' for this entry might be different than what is seen in the Tenderly state diff.
+                       This is expected because the AnchorStateRegistry is being continually updated.
+                       Anyone can call <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L239"><i>'setAnchorState(IDisputeGame _game)'</i></a> so it can be updated often if the conditions are right.
 
   ----- DecodedStateDiff[8] -----
     Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1
@@ -188,7 +211,12 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
     Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
     Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000486a0e
-    [WARN] Slot was not decoded
+    Summary:           Slot 5 updates the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44">'l2BlockNumber'</a> for the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L42">startingAnchorRoot</a>
+    Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
+                       The 'Raw New Value' for this entry might be different than what is seen in the Tenderly state diff.
+                       This is expected because the AnchorStateRegistry is being continually updated.
+                        - <i>cast --to-dec 486a0e</i> -> <i>4745742</i>
+                       Anyone can call <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L239"><i>'setAnchorState(IDisputeGame _game)'</i></a> so it can be updated often if the conditions are right.
 
   ----- DecodedStateDiff[9] -----
     Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1
@@ -199,9 +227,10 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
     Raw New Value:     0x0000000000000000000000007b465370bb7a333f99edd19599eb7fb1c2d3f8d2
     Decoded Kind:      address
     Decoded Old Value: 0x0000000000000000000000000000000000000000
-    Decoded New Value: 0x7b465370BB7A333f99edd19599EB7Fb1c2D3F8D2
+    Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/c1bcf3601dfdf72f0fd4f5bade180b9c0f94d93b/validation/standard/standard-versions-mainnet.toml#L32">0x7b465370BB7A333f99edd19599EB7Fb1c2D3F8D2</a>
     Summary:           ERC-1967 implementation slot
     Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+                       AnchorStateRegistry contract for 'op-contracts/v2.0.0-rc.1'.
 
   ----- DecodedStateDiff[10] -----
     Who:               0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1
@@ -212,9 +241,10 @@ In mainnet runbooks, this calldata should appear in the [Action Plan](https://go
     Raw New Value:     0x00000000000000000000000089889b569c3a505f3640ee1bd0ac1d557f436d2a
     Decoded Kind:      address
     Decoded Old Value: 0x0000000000000000000000000000000000000000
-    Decoded New Value: 0x89889B569c3a505f3640ee1Bd0ac1D557f436D2a
+    Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/c1bcf3601dfdf72f0fd4f5bade180b9c0f94d93b/superchain/configs/mainnet/ink.toml#L60">0xd7dB319a49362b2328cf417a934300cCcB442C8d</a>
     Summary:           Proxy owner address
     Detail:            Standard slot for storing the owner address in a Proxy contract.
+                       The owner in this case is the <a href="https://github.com/ethereum-optimism/superchain-registry/blob/c1bcf3601dfdf72f0fd4f5bade180b9c0f94d93b/superchain/configs/mainnet/ink.toml#L60">ProxyAdmin</a> of Ink.
 
   ----- DecodedStateDiff[11] -----
     Who:               0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b
