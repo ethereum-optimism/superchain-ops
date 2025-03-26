@@ -475,7 +475,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   Summary:           All nonces go from 0 to 1.
                       - 0x34154426ab842AAAeFda28F3f5d103Dd0b0FE37A is address(uint160(uint256(keccak256('foundry default caller'))))
                       - 0x5FE2BECc3dec340d3df04351DB8E728CbE4c7450 is Permissioned GameType Implementation as per <a href="https://eip.tools/eip/eip-161.md">EIP-161</a>.
-                      - 0xd2C3C6f4A4c5AA777bD6c476AEa58439Db0dD844 is Permissionless GameType Implementatio as per <a href="https://eip.tools/eip/eip-161.md">EIP-161</a>.
+                      - 0xd2C3C6f4A4c5AA777bD6c476AEa58439Db0dD844 is Permissionless GameType Implementation as per <a href="https://eip.tools/eip/eip-161.md">EIP-161</a>.
 </pre>
 
 # Supplementary Material
