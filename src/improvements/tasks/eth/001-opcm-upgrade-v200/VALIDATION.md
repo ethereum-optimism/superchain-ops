@@ -296,9 +296,9 @@ For each contract listed in the state diff, please verify that no contracts or s
                      verifying that the "Before" value currently exists in that slot, as explained below.
                      <b>Before</b> address matches both of the following cast calls:
                       1. What is returned by calling `AddressManager.getAddress()`:
-                       - <i>cast call 0x8098F676033A377b9Defe302e9fE6877cD63D575 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url mainnet</i>
+                       - <i>cast call 0x8EfB6B5c4767B09Dc9AA6Af4eAA89F749522BaE2 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url mainnet</i>
                       2. What is currently stored at the key:
-                       - <i>cast storage 0x8098F676033A377b9Defe302e9fE6877cD63D575 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url mainnet</i>
+                       - <i>cast storage 0x8EfB6B5c4767B09Dc9AA6Af4eAA89F749522BaE2 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url mainnet</i>
   
 ----- DecodedStateDiff[18] -----
   Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/superchain/configs/mainnet/base.toml#L62">0xa2f2aC6F5aF72e494A227d79Db20473Cf7A1FFE8</a>
