@@ -116,8 +116,8 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   Raw Old Value:     0x00000000000000000000000064b5a5ed26dcb17370ff4d33a8d503f0fbd06cff
   Raw New Value:     0x00000000000000000000000078972e88ab8bbb517a36caea23b931bab58ad3c6
   Decoded Kind:      address
-  Decoded Old Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/validation/standard/standard-versions-mainnet.toml#L81">0x64B5a5Ed26DCb17370Ff4d33a8D503f0fbD06CfF</a>
-  Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/validation/standard/standard-versions-mainnet.toml#L54">0x78972E88Ab8BBB517a36cAea23b931BAB58AD3c6</a>
+  Decoded Old Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/validation/standard/standard-versions-mainnet.toml#L79">0x64B5a5Ed26DCb17370Ff4d33a8D503f0fbD06CfF</a>
+  Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/validation/standard/standard-versions-mainnet.toml#L58">0x78972E88Ab8BBB517a36cAea23b931BAB58AD3c6</a>
   
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
@@ -149,8 +149,8 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   Raw Old Value:     0x000000000000000000000000c641a33cab81c559f2bd4b21ea34c290e2440c2b
   Raw New Value:     0x0000000000000000000000004bba758f006ef09402ef31724203f316ab74e4a0
   Decoded Kind:      address
-  Decoded Old Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/validation/standard/standard-versions-mainnet.toml#L76">0xc641A33cab81C559F2bd4b21EA34C290E2440C2B</a>
-  Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/validation/standard/standard-versions-mainnet.toml#L76">0x4bbA758F006Ef09402eF31724203F316ab74e4a0</a>
+  Decoded Old Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/validation/standard/standard-versions-mainnet.toml#L75">0xc641A33cab81C559F2bd4b21EA34C290E2440C2B</a>
+  Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/validation/standard/standard-versions-mainnet.toml#L54">0x4bbA758F006Ef09402eF31724203F316ab74e4a0</a>
   
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
