@@ -10,6 +10,8 @@ import {LibString} from "@solady/utils/LibString.sol";
 import {ERC20} from "@solady/tokens/ERC20.sol";
 import {stdToml} from "lib/forge-std/src/StdToml.sol";
 import {EnumerableSet} from "lib/openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
+import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
 import {DecimalNormalization} from "src/libraries/DecimalNormalization.sol";
 
 /// @notice Template contract for enabling finance transactions
@@ -19,6 +21,10 @@ contract FinanceTemplate is SimpleTaskBase {
     using stdToml for string;
     using EnumerableSet for EnumerableSet.AddressSet;
 
+    /// @notice The address of the new multicall3 contract that does not have accumulated value check
+    address public constant MULTICALL3_NO_VALUE_CHECK_ADDRESS = 0x90664A63412b9B07bBfbeaCfe06c1EA5a855014c;
+
+    /// @notice Operation struct
     /// @notice Operation struct as read in from the `config.toml` file
     /// @param amount The amount of tokens for the operation, specified
     /// as a decimal. i.e. `100.1`
@@ -87,11 +93,26 @@ contract FinanceTemplate is SimpleTaskBase {
         return new string[](0);
     }
 
+    /// @notice Configures the task with the no value check multicall address
+    function _configureTask(string memory taskConfigFilePath)
+        internal
+        override
+        returns (AddressRegistry addrRegistry_, IGnosisSafe parentMultisig_, address multicallTarget_)
+    {
+        // The only thing we change is overriding the multicall target.
+        (addrRegistry_, parentMultisig_, multicallTarget_) = super._configureTask(taskConfigFilePath);
+        multicallTarget_ = MULTICALL3_NO_VALUE_CHECK_ADDRESS;
+    }
+
     /// @notice converts string to a scaled up token amount in decimal form
     /// @param amount string representation of the amount
     /// @param token address of the token to send, used for discovering the amount of decimals
     /// returns the scaled up token amount
     function getTokenAmount(string memory amount, address token) public view returns (uint256) {
+        // Decimals for ETH are 18
+        if (token == simpleAddrRegistry.get("ETH")) {
+            return DecimalNormalization.normalizeTokenAmount(amount, 18);
+        }
         // Get token decimals
         uint8 tokenDecimals = ERC20(token).decimals();
 
@@ -102,9 +123,6 @@ contract FinanceTemplate is SimpleTaskBase {
     /// @notice Sets up the template with module configuration from a TOML file
     /// @param taskConfigFilePath Path to the TOML configuration file
     function _templateSetup(string memory taskConfigFilePath) internal override {
-        bytes memory multicall3NoValueCheckBytecode = vm.getDeployedCode("Multicall3NoValueCheck");
-        // TDOD: Remove this once Multicall3NoValueCheck is deployed
-        vm.etch(address(multicallTarget), multicall3NoValueCheckBytecode);
         string memory toml = vm.readFile(taskConfigFilePath);
         operationType = toml.readString(".operationType");
         operationTypeEnum = _getOperationType();
@@ -147,12 +165,14 @@ contract FinanceTemplate is SimpleTaskBase {
         }
 
         // Record the initial balance of the parent multisig for each token
+        // Also, add each token identifier to the allowed storage keys
         for (uint256 i = 0; i < tokens.length(); i++) {
             address token = tokens.at(i);
             if (token == simpleAddrRegistry.get("ETH")) {
                 initialBalances[token][address(parentMultisig)] = address(parentMultisig).balance;
             } else {
                 initialBalances[token][address(parentMultisig)] = IERC20(token).balanceOf(address(parentMultisig));
+                config.allowedStorageKeys.push(simpleAddrRegistry.get(token));
             }
         }
 
