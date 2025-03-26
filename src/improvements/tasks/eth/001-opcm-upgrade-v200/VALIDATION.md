@@ -114,7 +114,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ----- DecodedStateDiff[2] -----
   Who:               0x3E8a0B63f57e975c268d610ece93da5f78c01321
-  Contract:          DelayedWETH - Base Mainnet
+  Contract:          DelayedWETH - Base Mainnet (Permissioned)
   Chain ID:          8453
   Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
   Raw Old Value:     0x00000000000000000000000071e966ae981d1ce531a7b6d23dc0f27b38409087
@@ -124,7 +124,11 @@ For each contract listed in the state diff, please verify that no contracts or s
   Decoded New Value: 0x5e40B9231B86984b5150507046e354dbFbeD3d9e
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-  
+                     Using Base Mainnet's <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/base.toml#L63">DisputeGameFactory</a>, we can find this DelayedWETH address:
+                      - <i>cast call 0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e "gameImpls(uint32)(address)" 1 --rpc-url mainnet</i>
+                      - <i>cast call 0xF62c15e2F99d4869A925B8F57076cD85335832A2 "weth()(address)" --rpc-url mainnet</i>
+                        returns <b>0x3E8a0B63f57e975c268d610ece93da5f78c01321</b>
+
 ----- DecodedStateDiff[3] -----
   Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/superchain/configs/mainnet/base.toml#L63">0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e</a>
   Contract:          DisputeGameFactory - Base Mainnet
@@ -230,6 +234,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                      AnchorStateRegistry contract for 'op-contracts/v2.0.0-rc.1'.
+                     
 ----- DecodedStateDiff[13] -----
   Who:               0x496286e5eE7758de84Dd17e6d2d97afC2ACE4cc7
   Contract:          
@@ -251,8 +256,8 @@ For each contract listed in the state diff, please verify that no contracts or s
   Raw Old Value:     0x000000000000000000000000ae2af01232a6c4a4d3012c5ec5b1b35059caf10d
   Raw New Value:     0x000000000000000000000000276d3730f219f7ec22274f7263180b8452b46d47
   Decoded Kind:      address
-  Decoded Old Value: 0xAE2AF01232a6c4a4d3012C5eC5b1b35059caF10d
-  Decoded New Value: 0x276d3730f219f7ec22274f7263180b8452B46d47
+  Decoded Old Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/validation/standard/standard-versions-mainnet.toml#L78">0xAE2AF01232a6c4a4d3012C5eC5b1b35059caF10d</a>
+  Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/validation/standard/standard-versions-mainnet.toml#L57">0x276d3730f219f7ec22274f7263180b8452B46d47</a>
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                      L1ERC721Bridge contract for 'op-contracts/v2.0.0-rc.1'
@@ -302,7 +307,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   
 ----- DecodedStateDiff[18] -----
   Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/superchain/configs/mainnet/base.toml#L62">0xa2f2aC6F5aF72e494A227d79Db20473Cf7A1FFE8</a>
-  Contract:          DelayedWETH - Base Mainnet
+  Contract:          DelayedWETH - Base Mainnet (Permissionless)
   Chain ID:          8453
   Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
   Raw Old Value:     0x00000000000000000000000071e966ae981d1ce531a7b6d23dc0f27b38409087
@@ -312,6 +317,10 @@ For each contract listed in the state diff, please verify that no contracts or s
   Decoded New Value: 0x5e40B9231B86984b5150507046e354dbFbeD3d9e
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+                    Using Base Mainnet's <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/base.toml#L63">DisputeGameFactory</a>, we can find this DelayedWETH address:
+                      - <i>cast call 0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e "gameImpls(uint32)(address)" 1 --rpc-url mainnet</i>
+                      - <i>cast call 0xc5f3677c3C56DB4031ab005a3C9c98e1B79D438e "weth()(address)" --rpc-url mainnet</i>
+                        returns <b>0xa2f2aC6F5aF72e494A227d79Db20473Cf7A1FFE8</b>
 </pre>
 
 # Supplementary Material
