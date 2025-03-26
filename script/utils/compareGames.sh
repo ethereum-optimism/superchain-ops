@@ -10,12 +10,12 @@ function compare() {
   local CALL
   local A_VAL
   local B_VAL
-  A=${1}
-  B=${2}
-  CALL=${3}
+  A="${1}"
+  B="${2}"
+  CALL="${3}"
   A_VAL=$(cast call "${A}" "${CALL}")
   B_VAL=$(cast call "${B}" "${CALL}")
-  if [ "${A_VAL}" != "${B_VAL}" ]
+  if [[ "${A_VAL}" != "${B_VAL}" ]]
   then
     echo
     echo "Mismatch ${CALL}"
@@ -40,7 +40,7 @@ compare "${EXPECTED_ADDR}" "${COMPARE_ADDR}" "anchorStateRegistry()(address)"
 EXPECTED_WETH=$(cast call "${EXPECTED_ADDR}" "weth()(address)")
 COMPARE_WETH=$(cast call "${COMPARE_ADDR}" "weth()(address)")
 
-if [ "${EXPECTED_WETH}" == "${COMPARE_WETH}" ]
+if [[ "${EXPECTED_WETH}" == "${COMPARE_WETH}" ]]
 then
   echo "Matches weth()(address)"
 else
@@ -52,7 +52,7 @@ fi
 
 EXPECTED_VM=$(cast call "${EXPECTED_ADDR}" "vm()(address)")
 COMPARE_VM=$(cast call "${COMPARE_ADDR}" "vm()(address)")
-if [ "${EXPECTED_VM}" == "${COMPARE_VM}" ]
+if [[ "${EXPECTED_VM}" == "${COMPARE_VM}" ]]
 then
   echo "Matches vm()(address)"
 else
