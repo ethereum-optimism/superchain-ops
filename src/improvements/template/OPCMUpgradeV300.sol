@@ -4,9 +4,9 @@ pragma solidity 0.8.15;
 import {OPCMBaseTask} from "../tasks/types/OPCMBaseTask.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {
-IOPContractsManager,
-ISystemConfig,
-IProxyAdmin
+    IOPContractsManager,
+    ISystemConfig,
+    IProxyAdmin
 } from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {IOPContractsManager} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
@@ -63,9 +63,17 @@ contract OPCMUpgradeV300 is OPCMBaseTask {
         vm.label(OPCM, "OPCM");
 
         STANDARD_VALIDATOR_V300 = IStandardValidatorV300(tomlContent.readAddress(".addresses.StandardValidatorV300"));
-        require(address(STANDARD_VALIDATOR_V300).code.length > 0, "Incorrect StandardValidatorV300 - no code at address");
-        require(STANDARD_VALIDATOR_V300.mipsVersion().eq("1.0.0"), "Incorrect StandardValidatorV300 - expected mips version 1.0.0");
-        require(STANDARD_VALIDATOR_V300.systemConfigVersion().eq("2.5.0"), "Incorrect StandardValidatorV300 - expected systemConfig version 2.5.0");
+        require(
+            address(STANDARD_VALIDATOR_V300).code.length > 0, "Incorrect StandardValidatorV300 - no code at address"
+        );
+        require(
+            STANDARD_VALIDATOR_V300.mipsVersion().eq("1.0.0"),
+            "Incorrect StandardValidatorV300 - expected mips version 1.0.0"
+        );
+        require(
+            STANDARD_VALIDATOR_V300.systemConfigVersion().eq("2.5.0"),
+            "Incorrect StandardValidatorV300 - expected systemConfig version 2.5.0"
+        );
         vm.label(address(STANDARD_VALIDATOR_V300), "StandardValidatorV300");
     }
 
@@ -136,9 +144,13 @@ contract OPCMUpgradeV300 is OPCMBaseTask {
             // PDDG-DWETH-30: Delayed WETH owner must be l1PAOMultisig (for permissioned dispute game) - It is checking for the OP Sepolia PAO
             // PLDG-DWETH-40: the delayed weth delay is changing to 3.5 days for permissionless
             // PLDG-ANCHORP-40: Anchor state registry root must match expected dead root (for permissionless dispute game) - This does not apply to any chain more than 1 week old
-        string memory expectedErrors_763373 = "SYSCON-20,PDDG-DWETH-30,PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-DWETH-30,PLDG-DWETH-40,PLDG-ANCHORP-40";
-            require(reasons.eq(expectedErrors_11155420) || reasons.eq(expectedErrors_1946) || reasons.eq(expectedErrors_763373),
-                string.concat("Unexpected errors: ", reasons));
+            string memory expectedErrors_763373 =
+                "SYSCON-20,PDDG-DWETH-30,PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-DWETH-30,PLDG-DWETH-40,PLDG-ANCHORP-40";
+            require(
+                reasons.eq(expectedErrors_11155420) || reasons.eq(expectedErrors_1946)
+                    || reasons.eq(expectedErrors_763373),
+                string.concat("Unexpected errors: ", reasons)
+            );
         }
     }
 
