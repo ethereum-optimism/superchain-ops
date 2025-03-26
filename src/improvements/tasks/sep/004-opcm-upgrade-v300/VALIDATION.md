@@ -96,10 +96,10 @@ This task is executed by the nested 2/2 `ProxyAdminOwner` Safe. Refer to the
 [generic nested Safe execution validation document](../../../../../NESTED-VALIDATION.md)
 for the expected state overrides and changes.
 
-<!--TODO(#740) - Figure out how to retrieve the $SAFE_HASH, I don't see it printed in the output -->
 The `approvedHashes` mapping of the `ProxyAdminOwner` should change during the simulation.
 See the ["Key Computation" section](../../../../../NESTED-VALIDATION.md#key-computation) in the nested validation doc
-for instruction on how to validate this change.  The `$SAFE_HASH` value for this calculation should be:
+for instruction on how to validate this change.  You can find the target safe hash in the simulation output
+under "Nested Multisig Child's Hash to Approve", which should be:
 - `0x7ae8800316ad25e257c77b54d034e5befc61dc38da97801125cc99f404be529e`
 
 Additionally, Safe-related nonces [will increment by one](../../../../../NESTED-VALIDATION.md#nonce-increments).
