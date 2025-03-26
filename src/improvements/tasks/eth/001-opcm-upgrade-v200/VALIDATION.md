@@ -6,7 +6,7 @@ signing.
 The steps are:
 
 1. [Validate the Domain and Message Hashes](#expected-domain-and-message-hashes)
-2. [Verifying the transaction input](#  derstanding-task-calldata)
+2. [Verifying the transaction input](#understanding-task-calldata)
 3. [Verifying the state changes](#state-changes)
 
 ## Expected Domain and Message Hashes
