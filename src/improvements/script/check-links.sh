@@ -36,7 +36,7 @@ echo "$content" | sed -n 's/.*<a [^>]*href="\([^"]*\)".*>\(.*\)<\/a>.*/\1 \2/p' 
       line_content=$(curl -s "$raw_url" | sed -n "${github_line_number}p")
       echo "Content at Line $github_line_number: $line_content"
       
-      if [[ "$(echo "$line_content" | tr '[:upper:]' '[:lower:]')" =~ $content | tr '[:upper:]' '[:lower:]' ]]; then
+      if [[ "$(echo "$line_content" | tr '[:upper:]' '[:lower:]')" =~ $(echo "$content" | tr '[:upper:]' '[:lower:]') ]]; then
         echo "✅ Success: Ethereum address found on this line!"
       else
         echo "❌ Failure: Ethereum address not found on this line."
