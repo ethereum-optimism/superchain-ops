@@ -20,10 +20,20 @@ simulate hdPath='0':
 
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
+  safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} proxy-admin-owner)
 
   echo "RPC URL: ${rpcUrl}"
 
   echo "Using script ${script}"
+  echo ""
+  signer=$(cast call ${safe} "getOwners()(address[])" -r ${rpcUrl} | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
+
+  if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
+    signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+    echo "Simulating with ledger account: ${signer}"
+  else
+      echo "Simulating without ledger using the first owner account: ${signer}"
+  fi
   echo ""
 
   # Allow simulating from a specific block by setting FORK_BLOCK_NUMBER in the task's .env file.
@@ -38,6 +48,7 @@ simulate hdPath='0':
   forge build
   forge script ${script} \
     ${fork_block_arg} \
+    --sender ${signer} \
     --rpc-url ${rpcUrl} \
     --sig "simulateRun(string)" ${config}
 

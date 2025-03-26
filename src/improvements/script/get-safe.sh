@@ -15,6 +15,8 @@ elif [[ "$SAFE_NAME" == "council" ]]; then
     SAFE_NAME="SecurityCouncil"
 elif [[ "$SAFE_NAME" == "chain-governor" ]]; then
     SAFE_NAME="ChainGovernorSafe"
+elif [[ "$SAFE_NAME" == "proxy-admin-owner" ]]; then
+    SAFE_NAME="ProxyAdminOwner"
 elif [[ "$SAFE_NAME" == "child-safe-1" ]]; then
     SAFE_NAME="ChildSafe1"
 elif [[ "$SAFE_NAME" == "child-safe-2" ]]; then

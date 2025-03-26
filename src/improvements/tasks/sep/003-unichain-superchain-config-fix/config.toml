@@ -3,3 +3,4 @@ templateName = "UniFix"
 
 [addresses]
 StandardValidatorV180 = "0x0a5bf8ebb4b177b2dcc6eba933db726a2e2e2b4d"
+ProxyAdminOwner = "0xf66d0913Ee7f8518841Ae913853301Dd29b82298"
