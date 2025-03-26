@@ -115,7 +115,7 @@ The only other state changes related to the nested execution are _three_ nonce i
 `GnosisSafeProxy`.
 - One increment of the nonce of the EOA that is the first entry in the owner set of the Safe Signer.
 
-## Visualisation of State Overrides
+## Visualisation of State Overrides for Nested Execution
 
 The following diagram shows the state overrides for a nested execution. Where appropriate, some state overrides are marked as optional to indicate that they are not present for a single execution.
 
