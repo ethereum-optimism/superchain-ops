@@ -1,11 +1,10 @@
 # Validation - Nested Safe
 
-This document describes the generic validation steps for running a Mainnet or Sepolia tasks for any
-nested 2/2 Safe involving either the Security Council & Foundation Upgrade Safe or the Base and Foundation Operations Safe.
+This document describes the generic validation steps for running a Mainnet or Sepolia tasks for any nested 2/2 Safe or 3/3 Safe.
 
 ## State Overrides
 
-The following state overrides related to the nested Safe execution must be seen:
+The following state overrides are related to the nested Safe execution must be present:
 
 ### `ProxyAdminSafe` (aka 2/2 `ProxyAdminOwner` or 3/3 Safe)
 The simulated role will also be called the **ProxyAdminSafe** in the remaining document.
@@ -24,6 +23,10 @@ Enables the simulation by setting the threshold to 1:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000004` <br/>
   **Value:** `0x0000000000000000000000000000000000000000000000000000000000000001` \
   **Meaning:** The threshold is set to `1`.
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
+  **Value:** `<current nonce for the safe>` <br/>
+  **Meaning:** The nonce is set to `<current nonce for the safe>`. Note: This is only included in the new superchain-ops flow as of 26th March 2025.
 
 ### Safe Signer
 

@@ -80,6 +80,10 @@ For each contract listed in the state diff, please verify that no contracts or s
   Registry links provided. This validates the bytecode deployed at the addresses contains the correct logic.
 - All key values match the semantic meaning provided, which can be validated using the storage layout links provided.
 
+### State Overrides
+
+Note: The changes listed below do not include threshold, nonce and owner mapping overrides. These changes are listed and explained in the [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md) file.
+
 ### Task State Changes
 
 <pre>
