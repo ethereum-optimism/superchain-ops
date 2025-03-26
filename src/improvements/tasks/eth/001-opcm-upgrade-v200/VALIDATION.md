@@ -22,6 +22,11 @@ the values printed to the terminal when you run the task.
 >
 > - Domain Hash: `0x88aac3dc27cc1618ec43a87b3df21482acd24d172027ba3fbb5a5e625d895a0b`
 > - Message Hash: `0xf8bed62c979c1528f6fa8e798d59a9772b7e361eb2ef4130090ca7af3e55e820`
+>
+> ### Child Safe 2: `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`
+>
+> - Domain Hash: `0x4e6a6554de0308f5ece8ff736beed8a1b876d16f5c27cac8e466d7de0c703890`
+> - Message Hash: `0x2eef2c724007dce918a11c4f9150d4b1be4329ce2aad53d57b7b83ffecb52fd6`
 
 ## Understanding Task Calldata
 
@@ -382,7 +387,8 @@ For each contract listed in the state diff, please verify that no contracts or s
   
   Summary:           nonce
   Detail:            The nonce of the Child Safe 1 contract is updated.
-                     Alternatively, the 'Raw Old Value' and 'Raw New Value' value can be different if we run as:
+                     Alternatively, the 'Raw Old Value' and 'Raw New Value' value can be different if we run as  <i>0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A</i>
+                      
 
 ----- DecodedStateDiff[18] -----
   Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/superchain/configs/mainnet/base.toml#L62">0xa2f2aC6F5aF72e494A227d79Db20473Cf7A1FFE8</a>

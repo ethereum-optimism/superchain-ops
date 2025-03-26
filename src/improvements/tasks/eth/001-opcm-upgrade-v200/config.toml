@@ -13,6 +13,7 @@ absolutePrestates = [
 OPCM = "0x026b2F158255Beac46c1E7c6b8BbF29A4b6A7B76"
 StandardValidatorV200 = "0x58b758395be69ada78fe46f9653ff838f1e85251"
 ChildSafe1 = "0x9855054731540A48b28990B63DcF4f33d8AE46A1"
+ChildSafe2 = "0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A"
 
 [stateOverrides]
 # SuperchainConfig op-contracts/v2.0.0 implementation address set. This task assumes upgrade controller has already called OPCM upgrade.
