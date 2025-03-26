@@ -197,43 +197,66 @@ For each contract listed in the state diff, please verify that no contracts or s
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000000
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x0000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c0001
-  [WARN] Slot was not decoded
-  
+
+  Summary:           Slot 0 is updated to set AnchorStateRegistryProxy address
+  Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
+                     Reading 'Raw New Value' from Right to Left, we have:
+                      1. <i>0x01</i> - <i>_initialized</i> flag set to 'true'
+                      2. <i>0x00</i> - <i>_initializing</i> flag set to 'false'
+                      3. <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/superchain.toml#L3"><i>0x95703e0982140D16f8ebA6d158FccEde42f04a4C</i><a> - Mainnet SuperchainConfig
+                      
 ----- DecodedStateDiff[8] -----
   Who:               0x496286e5eE7758de84Dd17e6d2d97afC2ACE4cc7
-  Contract:          
-  Chain ID:          
+  Contract:          AnchorStateRegistryProxy - Base Mainnet
+  Chain ID:          8453         
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000001
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x00000000000000000000000043edb88c4b80fdd2adff2412a7bebf9df42cb40e
-  [WARN] Slot was not decoded
+
+  Summary:           Slot 1 is updated to set DisputeGameFactoryProxy address
+  Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
+                     <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/base.toml#L63">0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e</a> is the DisputeGameFactoryProxy address on Base Mainnet.
   
 ----- DecodedStateDiff[9] -----
   Who:               0x496286e5eE7758de84Dd17e6d2d97afC2ACE4cc7
-  Contract:          
-  Chain ID:          
+  Contract:          AnchorStateRegistryProxy - Base Mainnet
+  Chain ID:          8453        
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000002
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x00000000000000000000000049048044d57e1c92a77f79988d21fa8faf74e97e
-  [WARN] Slot was not decoded
+
+  Summary:           Slot 2 is updated to set OptimismPortalProxy address
+  Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
+                     <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/base.toml#L58">0x49048044D57e1C92A77f79988d21Fa8fAF74E97e</a> is the OptimismPortalProxy address on Base Mainnet.
   
 ----- DecodedStateDiff[10] -----
   Who:               0x496286e5eE7758de84Dd17e6d2d97afC2ACE4cc7
-  Contract:          
-  Chain ID:          
+  Contract:          AnchorStateRegistryProxy - Base Mainnet
+  Chain ID:          8453        
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x2e31526db0e371ebf6da52e1f3662801d3352fe8049a573040018c08d94b49cf
-  [WARN] Slot was not decoded
+
+  Summary:           Slot 4 updates the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44">'root'</a> for the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L42">startingAnchorRoot</a>
+  Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
+                     The 'Raw New Value' for this entry might be different than what is seen in the Tenderly state diff.
+                     This is expected because the AnchorStateRegistry is being continually updated.
+                     Anyone can call <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L239"><i>'setAnchorState(IDisputeGame _game)'</i></a> so it can be updated often if the conditions are right.
   
 ----- DecodedStateDiff[11] -----
   Who:               0x496286e5eE7758de84Dd17e6d2d97afC2ACE4cc7
-  Contract:          
-  Chain ID:          
+  Contract:          AnchorStateRegistryProxy - Base Mainnet
+  Chain ID:          8453        
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x0000000000000000000000000000000000000000000000000000000001aa8857
-  [WARN] Slot was not decoded
+
+  Summary:           Slot 5 updates the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44">'l2BlockNumber'</a> for the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L42">startingAnchorRoot</a>
+  Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
+                     The 'Raw New Value' for this entry might be different than what is seen in the Tenderly state diff.
+                     This is expected because the AnchorStateRegistry is being continually updated.
+                      - <i>cast --to-dec 0x8baa6f</i> -> <i>15684501</i>
+                     Anyone can call <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L239"><i>'setAnchorState(IDisputeGame _game)'</i></a> so it can be updated often if the conditions are right.
   
 ----- DecodedStateDiff[12] -----
   Who:               0x496286e5eE7758de84Dd17e6d2d97afC2ACE4cc7
@@ -251,8 +274,8 @@ For each contract listed in the state diff, please verify that no contracts or s
                      
 ----- DecodedStateDiff[13] -----
   Who:               0x496286e5eE7758de84Dd17e6d2d97afC2ACE4cc7
-  Contract:          
-  Chain ID:          
+  Contract:          AnchorStateRegistryProxy - Base Mainnet
+  Chain ID:          8453       
   Raw Slot:          0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x0000000000000000000000000475cbcaebd9ce8afa5025828d5b98dfb67e059e
