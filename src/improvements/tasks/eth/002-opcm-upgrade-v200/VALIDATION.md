@@ -292,7 +292,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
 ----- TENDERLY ONLY STATE DIFF -----   
   Who:               0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC
-  Contract:          Child Safe 1 - Unichain Mainney
+  Contract:          Child Safe 1 - Unichain Mainnet
   Chain ID:          130
 
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
