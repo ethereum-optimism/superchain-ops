@@ -13,6 +13,8 @@ absolutePrestates = [
     {absolutePrestate = "0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405", chainId = 763373}
 ]
 
+# TODO(#740) - Update StandardValidatorV300 once [this pr](https://github.com/ethereum-optimism/optimism/pull/15015)
+# is merged and a new contract is deployed
 [addresses]
 OPCM = "0xfbceed4de885645fbded164910e10f52febfab35"
 StandardValidatorV300 = "0x5fd6dc82a0cbc0db40d18963d812487772113216"
