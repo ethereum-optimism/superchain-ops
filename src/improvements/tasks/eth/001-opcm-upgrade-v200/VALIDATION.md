@@ -322,6 +322,20 @@ For each contract listed in the state diff, please verify that no contracts or s
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                      SystemConfig contract for 'op-contracts/v2.0.0-rc.1'.
 
+----- TENDERLY ONLY STATE DIFF -----   
+ Who:                
+ Contract:           ProxyAdminOwner (GnosisSafe) - Base Sepolia Testnet
+ Chain ID:           11155111
+ Raw Slot:           0x2344099c423084d4f4e9fc90f61db771ee5d89f940272e87492f1ab4e6466441
+ Raw Old Value:      0x0000000000000000000000000000000000000000000000000000000000000000
+ Raw New Value:      0x0000000000000000000000000000000000000000000000000000000000000001
+
+ Summary:            <i>approveHash(bytes32)</i> called on ProxyAdminOwner by child multisig.
+ Detail:             As part of the Tenderly simulation, we want to illustrate the <i>approveHash</i> invocation.
+                     This step isn't shown in the local simulation because the parent multisig is invoked directly, 
+                     bypassing the <i>approveHash</i> calls.
+                     This slot change reflects an update to the approvedHashes mapping.
+
 ----- DecodedStateDiff[16] -----
   Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/superchain/configs/mainnet/base.toml#L44">0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c</a>
   Contract:          ProxyAdminOwner (GnosisSafe)
@@ -353,6 +367,23 @@ For each contract listed in the state diff, please verify that no contracts or s
                       2. What is currently stored at the key:
                        - <i>cast storage 0x8EfB6B5c4767B09Dc9AA6Af4eAA89F749522BaE2 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url mainnet</i>
   
+----- TENDERLY ONLY STATE DIFF -----   
+  Who:               0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC
+  Contract:          Child Safe 1 - Base Mainnet
+  Chain ID:          8453
+
+  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
+  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000012
+  Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000000013
+
+  Decoded Kind:      uint256
+  Decoded Old Value: 12
+  Decoded New Value: 13
+  
+  Summary:           nonce
+  Detail:            The nonce of the Child Safe 1 contract is updated.
+                     Alternatively, the 'Raw Old Value' and 'Raw New Value' value can be different if we run as:
+
 ----- DecodedStateDiff[18] -----
   Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/superchain/configs/mainnet/base.toml#L62">0xa2f2aC6F5aF72e494A227d79Db20473Cf7A1FFE8</a>
   Contract:          DelayedWETH - Base Mainnet (Permissionless)
@@ -363,13 +394,19 @@ For each contract listed in the state diff, please verify that no contracts or s
   Decoded Kind:      address
   Decoded Old Value: 0x71e966Ae981d1ce531a7b6d23DC0f27B38409087
   Decoded New Value: 0x5e40B9231B86984b5150507046e354dbFbeD3d9e
-  
+
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                     Using Base Mainnet's <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/base.toml#L63">DisputeGameFactory</a>, we can find this DelayedWETH address:
                       - <i>cast call 0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e "gameImpls(uint32)(address)" 1 --rpc-url mainnet</i>
                       - <i>cast call 0xc5f3677c3C56DB4031ab005a3C9c98e1B79D438e "weth()(address)" --rpc-url mainnet</i>
                         returns <b>0xa2f2aC6F5aF72e494A227d79Db20473Cf7A1FFE8</b>
+
+----- Additional Nonce Changes -----
+  Who:               0x6CD3850756b7894774Ab715D136F9dD02837De50, 0x13FbBDefa7D9B147A1777a8A5B0f30379E007ac3, 0x8BD2e80e6D1cf1e5C5f0c69972fE2f02B9C046Aa
+
+  Details:           Nonce Updates for all addresses listed above.
+  Summary:           
 </pre>
 
 # Supplementary Material
