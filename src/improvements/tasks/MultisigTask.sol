@@ -14,6 +14,7 @@ import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.so
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
 import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
+import {Base64} from "solady/utils/Base64.sol";
 
 type AddressRegistry is address;
 
@@ -348,6 +349,94 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @notice print the hash to approve by EOA for parent/root multisig
     function printParentHash(bytes memory callData, uint256 value) public view {
         console.logBytes32(getHash(callData, parentMultisig, value));
+
+        bytes memory encodedTxData = getEncodedTransactionData(parentMultisig, callData, value);
+        bytes32 safeTxHash;
+        assembly {
+            // 66 bytes = (bytes1(0x19), bytes1(0x01), bytes32(domainSeparator()), bytes32(safeTxHash))
+            // Retrieve the last 32 bytes of encodedTxData (safeTxHash).
+            // Memory layout of encodedTxData:
+            // - The first 32 bytes store the length (66 bytes in this case).
+            // - The actual data starts at encodedTxData + 32.
+            // - The last 32 bytes of the data (safeTxHash) start at:
+            //   encodedTxData + 32 + (66 - 32) = encodedTxData + 66.
+            safeTxHash := mload(add(encodedTxData, mload(encodedTxData)))
+        }
+
+        bytes32 domainSeparator = GnosisSafeHashes.calculateDomainSeparator(block.chainid, parentMultisig);
+        console.log("Domain Hash:    ", vm.toString(domainSeparator));
+        console.log("Message Hash:   ", vm.toString(safeTxHash));
+
+        printOPTxVerifyLink(parentMultisig, callData, hex"");
+    }
+
+    /// @notice This function prints a op-txverify link which can be used for verifying the authenticity of the domain and message hashes
+    function printOPTxVerifyLink(
+        address optionalChildSafe,
+        bytes memory parentCalldata,
+        bytes memory optionalChildCallData
+    ) private view {
+        uint256 childNonce = _getNonce(optionalChildSafe);
+        uint256 parentNonce = _getNonce(parentMultisig);
+        bool isNested = isNestedSafe(parentMultisig);
+
+        string memory json = string.concat(
+            '{\n   "safe": "',
+            vm.toString(parentMultisig),
+            '",\n   "chain": ',
+            vm.toString(block.chainid),
+            ',\n   "to": "',
+            vm.toString(_getMulticallAddress(parentMultisig)),
+            '",\n   "value": ',
+            vm.toString(uint256(0)),
+            ',\n   "data": "',
+            vm.toString(parentCalldata)
+        );
+
+        json = string.concat(
+            json,
+            '",\n   "operation": ',
+            vm.toString(uint8(Enum.Operation.DelegateCall)),
+            ',\n   "safe_tx_gas": ',
+            vm.toString(uint256(0)),
+            ',\n   "base_gas": ',
+            vm.toString(uint256(0)),
+            ',\n   "gas_price": ',
+            vm.toString(uint256(0)),
+            ',\n   "gas_token": "',
+            vm.toString(address(0)),
+            '",\n   "refund_receiver": "',
+            vm.toString(address(0))
+        );
+
+        json = string.concat(
+            json,
+            '",\n   "nonce": ',
+            vm.toString(parentNonce),
+            isNested
+                ? string.concat(
+                    ',\n   "nested": ',
+                    '{\n    "safe": "',
+                    vm.toString(optionalChildSafe),
+                    '",\n    "nonce": ',
+                    vm.toString(childNonce),
+                    ',\n    "operation": ',
+                    vm.toString(uint8(Enum.Operation.DelegateCall)),
+                    ',\n    "data": "',
+                    vm.toString(optionalChildCallData),
+                    '",\n    "to": "',
+                    vm.toString(_getMulticallAddress(optionalChildSafe)),
+                    '"\n   }'
+                )
+                : "",
+            "\n}"
+        );
+
+        string memory base64Json = Base64.encode(bytes(json));
+        console.log(
+            "\nTo verify this transaction, run `op-txverify qr` on your machine, then open the following link on your mobile device: https://op-txverify.optimism.io/?tx=%s",
+            base64Json
+        );
     }
 
     function _getNonce(address safe) internal view returns (uint256) {
@@ -648,10 +737,16 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         );
         (, bytes memory dataToSign, bytes32 domainSeparator, bytes32 messageHash) =
             getApproveTransactionInfo(actions, childMultisig);
+        (bytes memory parentCalldata, uint256 parentValue) = getMulticall3CalldataAndValue(actions);
+
+        console.log("\n\n------------------ Nested Multisig Child's Hash to Approve ------------------");
+        console.log("Parent multisig: %s", getAddressLabel(parentMultisig));
+        console.log("Parent hashToApprove: %s", vm.toString(getHash(parentCalldata, parentMultisig, parentValue)));
         console.log("\n\n------------------ Nested Multisig EOAs Data to Sign ------------------");
         printEncodedTransactionData(dataToSign);
         console.log("\n\n------------------ Nested Multisig EOAs Hash to Approve ------------------");
         printChildHash(childMultisig, domainSeparator, messageHash);
+        printOPTxVerifyLink(childMultisig, parentCalldata, generateApproveMulticallData(actions));
     }
 
     /// @notice Helper function to print non-nested safe calldata.

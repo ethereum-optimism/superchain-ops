@@ -8,3 +8,4 @@ absolutePrestates = [{absolutePrestate = "0x035ac388b5cb22acf52a2063cfde108d09b1
 [addresses]
 OPCM = "0x1B25F566336F47BC5E0036D66E142237DcF4640b" # Sepolia op-contracts/v2.0.0-rc.1 https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/validation/standard/standard-versions-sepolia.toml#L40
 StandardValidatorV200 = "0x37739a6b0a3F1E7429499a4eC4A0685439Daff5C" # Sepolia op-contracts/v2.0.0-rc.1 https://github.com/ethereum-optimism/optimism/blob/2b34218fead9c5ea5608ab6be17ae6d53576e814/op-validator/pkg/validations/addresses.go#L25
+FoundationUpgradeSafe = "0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B" # Owner on the proxy admin owner

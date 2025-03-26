@@ -152,7 +152,7 @@ contract SuperchainAddressRegistry is StdChains {
         require(
             registry[identifier][chain.chainId] == address(0),
             string.concat(
-                "SuperchainAddressRegistry: duplicate key ", identifier, "for chain ", vm.toString(chain.chainId)
+                "SuperchainAddressRegistry: duplicate key ", identifier, " for chain ", vm.toString(chain.chainId)
             )
         );
 
