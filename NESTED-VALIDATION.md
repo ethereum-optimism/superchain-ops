@@ -124,7 +124,7 @@ The following diagram shows the state overrides for a nested execution. Where ap
 
 ```mermaid
 graph TD
-  subgraph Multicall3
+  subgraph Multicall3_1
     A1[aggregate3Value 0x174dea71]
     subgraph Multicall3 Calls
         A2[Call 1: execTransaction]
@@ -145,6 +145,9 @@ graph TD
 
   subgraph Multicall3_2
     C1[aggregate3Value 0x174dea71]
+    subgraph Multicall3_2 Calls
+        C2[Call 2: approveHash]
+    end
   end
 
   subgraph Parent Multisig
@@ -161,18 +164,18 @@ graph TD
 
   subgraph Multicall3DelegateCall
     E1["aggregate3 0x2ae36c5c"]
-
     subgraph Multicall3DelegateCall Calls 
-      E2[Upgrade task specific function]
+      E2[Upgrade task specific function e.g. opcm.upgrade]
     end
   end
 
   A1 --> A2
   A2 -->|1| B1
   B1 -->|2| C1
-  C1 -->|3| D1
-  A3 -->|4| D2
-  D2 -->|5| E1
+  C1 -->|3| C2
+  C2 -->|4| D1
+  A3 -->|5| D2
+  D2 -->|6| E1
   E1 --> E2
 
 
@@ -188,4 +191,5 @@ graph TD
   class D2 blue
   class E1 blue
   class E2 green
+  class C2 green
 ```
