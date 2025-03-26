@@ -6,7 +6,7 @@ signing.
 The steps are:
 
 1. [Validate the Domain and Message Hashes](#expected-domain-and-message-hashes)
-2. [Verifying the transaction input](#understanding-task-calldata)
+2. [Verifying the transaction input](#  derstanding-task-calldata)
 3. [Verifying the state changes](#state-changes)
 
 ## Expected Domain and Message Hashes
@@ -18,10 +18,10 @@ the values printed to the terminal when you run the task.
 >
 > Before signing, ensure the below hashes match what is on your ledger.
 >
-> ### Child Safe 1: `0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC`
+> ### Child Safe 1: `0x9855054731540A48b28990B63DcF4f33d8AE46A1`
 >
-> - Domain Hash: `0x4f0b6efb6c01fa7e127a0ff87beefbeb53e056d30d3216c5ac70371b909ca66d`
-> - Message Hash: `0x73a11487da1a8b8e840d4540403a34cedecf821ba4a0291efdf2cff6b081bf39`
+> - Domain Hash: `0x88aac3dc27cc1618ec43a87b3df21482acd24d172027ba3fbb5a5e625d895a0b`
+> - Message Hash: `0xf8bed62c979c1528f6fa8e798d59a9772b7e361eb2ef4130090ca7af3e55e820`
 
 ## Understanding Task Calldata
 
