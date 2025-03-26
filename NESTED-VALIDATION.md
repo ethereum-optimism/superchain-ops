@@ -120,7 +120,7 @@ The only other state changes related to the nested execution are _three_ nonce i
 The following diagram shows the state overrides for a nested execution. Where appropriate, some state overrides are marked as optional to indicate that they are not present for a single execution.
 
 ```mermaid
-graph LR
+graph TD
   subgraph Multicall3
     A1[aggregate3Value 0x174dea71]
     subgraph Multicall3 Calls
