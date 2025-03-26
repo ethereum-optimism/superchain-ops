@@ -487,26 +487,3 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 ## Figure 0.2: Storage Layout of AnchorStateRegistryProxy
 
 ![AnchorStateRegistryProxy](../../sep/000-opcm-upgrade-v200/images/anchor-state-registry-storage-layout.png)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
