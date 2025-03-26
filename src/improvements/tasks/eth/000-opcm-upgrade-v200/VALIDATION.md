@@ -88,10 +88,21 @@ The resulting calldata sent from the ProxyAdminOwner safe is thus:
 
 In mainnet runbooks, this calldata should appear in the [Action Plan](https://gov.optimism.io/t/upgrade-proposal-13-opcm-and-incident-response-improvements/9739#p-43725-action-plan-15) section of the Governance proposal.
 
-## Tenderly State Changes
-[Link](https://dashboard.tenderly.co/oplabs/eth-mainnet/simulator/ab8d86e3-d143-4e0b-9686-3dcab85a8609)
+# State Validations
 
-## Auto Generated Task State Changes
+For each contract listed in the state diff, please verify that no contracts or state changes shown in the Tenderly diff are missing from this document. Additionally, please verify that for each contract:
+
+- The following state changes (and none others) are made to that contract. This validates that no unexpected state
+  changes occur.
+- All addresses (in section headers and storage values) match the provided name, using the Etherscan and Superchain
+  Registry links provided. This validates the bytecode deployed at the addresses contains the correct logic.
+- All key values match the semantic meaning provided, which can be validated using the storage layout links provided.
+
+### State Overrides
+
+Note: The changes listed below do not include threshold, nonce and owner mapping overrides. These changes are listed and explained in the [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md) file.
+
+### Task State Changes
 
 <pre>
   <code>
