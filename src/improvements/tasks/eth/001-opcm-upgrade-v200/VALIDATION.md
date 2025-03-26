@@ -1,57 +1,89 @@
+# Validation
+
+This document can be used to validate the inputs and result of the execution of the upgrade transaction which you are
+signing.
+
+The steps are:
+
+1. [Validate the Domain and Message Hashes](#expected-domain-and-message-hashes)
+2. [Verifying the transaction input](#understanding-task-calldata)
+3. [Verifying the state changes](#state-changes)
+
+## Expected Domain and Message Hashes
+
+First, we need to validate the domain and message hashes. These values should match both the values on your ledger and
+the values printed to the terminal when you run the task.
+
+> [!CAUTION]
+>
+> Before signing, ensure the below hashes match what is on your ledger.
+>
+> ### Child Safe 1: `0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC`
+>
+> - Domain Hash: `0x4f0b6efb6c01fa7e127a0ff87beefbeb53e056d30d3216c5ac70371b909ca66d`
+> - Message Hash: `0x73a11487da1a8b8e840d4540403a34cedecf821ba4a0291efdf2cff6b081bf39`
+
 ## Understanding Task Calldata
 
-Multicall3DelegateCall calldata:
+This document provides a detailed analysis of the final calldata executed on-chain for the OPCM upgrade to v2.0.0.
+
+By reconstructing the calldata, we can confirm that the execution precisely implements the approved upgrade plan with no unexpected modifications or side effects.
+
+### Inputs to `opcm.upgrade()`
+
+For each chain being upgrade, the `opcm.upgrade()` function is called with a tuple of three elements:
+
+1. Base Mainnet:
+    - SystemConfigProxy: [0x73a79Fab69143498Ed3712e519A88a918e1f4072](https://github.com/ethereum-optimism/superchain-registry/blob/d4bb112dc979fd43ac92252c549d3ed7c4d0eb57/superchain/configs/mainnet/base.toml#L59)
+    - ProxyAdmin: [0x0475cBCAebd9CE8AfA5025828d5b98DFb67E059E](https://github.com/ethereum-optimism/superchain-registry/blob/d4bb112dc979fd43ac92252c549d3ed7c4d0eb57/superchain/configs/mainnet/base.toml#L60)
+    - AbsolutePrestate: [0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9](https://github.com/ethereum-optimism/superchain-registry/blob/1ab48707d705ef7100f3ffa549e048f699cb886d/validation/standard/standard-prestates.toml#L22)
+
+
+Thus, the command to encode the calldata is:
+
 ```bash
+cast calldata 'upgrade((address,address,bytes32)[])' "[(0x73a79Fab69143498Ed3712e519A88a918e1f4072, 0x0475cBCAebd9CE8AfA5025828d5b98DFb67E059E, 0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9)]"
+```
+
+### Inputs to `Multicall3DelegateCall`
+
+The output from the previous section becomes the `data` in the argument to the `Multicall3DelegateCall.aggregate3()` function.
+
+This function is called with a tuple of three elements:
+
+
+Call3 struct for Multicall3DelegateCall:
+- `target`: [0x026b2F158255Beac46c1E7c6b8BbF29A4b6A7B76](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/validation/standard/standard-versions-mainnet.toml#L60) - Mainnet OPContractsManager v2.0.0
+- `allowFailure`: false
+- `callData`: `0xff2dd5a1...` (output from the previous section)
+
+Command to encode:
+```bash
+cast calldata 'aggregate3((address,bool,bytes)[])' "[(0x026b2F158255Beac46c1E7c6b8BbF29A4b6A7B76,false,0xff2dd5a10000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000073a79fab69143498ed3712e519a88a918e1f40720000000000000000000000000475cbcaebd9ce8afa5025828d5b98dfb67e059e039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9)]"
+```
+
+The resulting calldata sent from the ProxyAdminOwner safe is thus:
+
+```
 0x82ad56cb000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000026b2f158255beac46c1e7c6b8bbf29a4b6a7b760000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a4ff2dd5a10000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000073a79fab69143498ed3712e519a88a918e1f40720000000000000000000000000475cbcaebd9ce8afa5025828d5b98dfb67e059e039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d900000000000000000000000000000000000000000000000000000000
 ```
 
-### Decode Multicall3DelegateCall calldata:
-```bash
-cast calldata-decode 'aggregate3((address,bool,bytes)[])' <0x82ad56cb...>
+In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.optimism.io/t/upgrade-proposal-13-opcm-and-incident-response-improvements/9739#p-43725-action-plan-15) section of the Governance proposal.
 
-[
-    (
-        0x026b2F158255Beac46c1E7c6b8BbF29A4b6A7B76,
-        false, 
-        0xff2dd5a10000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000073a79fab69143498ed3712e519a88a918e1f40720000000000000000000000000475cbcaebd9ce8afa5025828d5b98dfb67e059e039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9
-    )
-]
-```
+# State Validations
 
-1. First tuple (Call3 struct for Multicall3DelegateCall)
-    - `target`: [0x026b2F158255Beac46c1E7c6b8BbF29A4b6A7B76](https://github.com/ethereum-optimism/superchain-registry/blob/d4bb112dc979fd43ac92252c549d3ed7c4d0eb57/validation/standard/standard-versions-mainnet.toml#L21) - Mainnet OPContractsManager v2.0.0
-    - `allowFailure`: false
-    - `callData`: `0xff2dd5a1...` See below for decoding.
-        - Command to encode: `cast calldata 'aggregate3((address,bool,bytes)[])' "[(0x026b2F158255Beac46c1E7c6b8BbF29A4b6A7B76,false,0xff2dd5a10000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000073a79fab69143498ed3712e519a88a918e1f40720000000000000000000000000475cbcaebd9ce8afa5025828d5b98dfb67e059e039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9)]"`
+For each contract listed in the state diff, please verify that no contracts or state changes shown in the Tenderly diff are missing from this document. Additionally, please verify that for each contract:
 
-### Decode upgrade calldata
+- The following state changes (and none others) are made to that contract. This validates that no unexpected state
+  changes occur.
+- All addresses (in section headers and storage values) match the provided name, using the Etherscan and Superchain
+  Registry links provided. This validates the bytecode deployed at the addresses contains the correct logic.
+- All key values match the semantic meaning provided, which can be validated using the storage layout links provided.
 
-```bash
-cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
+### Task State Changes
 
-[
-    (
-        0x73a79Fab69143498Ed3712e519A88a918e1f4072,
-        0x0475cBCAebd9CE8AfA5025828d5b98DFb67E059E,
-        0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9
-    )
-]
-```
-1. First tuple (Base):
-    - SystemConfigProxy: [0x73a79Fab69143498Ed3712e519A88a918e1f4072](https://github.com/ethereum-optimism/superchain-registry/blob/d4bb112dc979fd43ac92252c549d3ed7c4d0eb57/superchain/configs/mainnet/base.toml#L59)
-    - ProxyAdmin: [0x0475cBCAebd9CE8AfA5025828d5b98DFb67E059E](https://github.com/ethereum-optimism/superchain-registry/blob/d4bb112dc979fd43ac92252c549d3ed7c4d0eb57/superchain/configs/mainnet/base.toml#L60)
-    - AbsolutePrestate: [0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/validation/standard/standard-prestates.toml#L22)
-    - Command to encode: `cast calldata 'upgrade((address,address,bytes32)[])' "[(0x73a79Fab69143498Ed3712e519A88a918e1f4072,0x0475cBCAebd9CE8AfA5025828d5b98DFb67E059E, 0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9)]"`
-
-## Tenderly State Changes
-
-[Link](https://dashboard.tenderly.co/oplabs/op-mainnet/simulator/4e0bc0ca-1b42-4ffe-bbe8-b648d9ea4971)
-
-## Auto Generated Task State Changes
-
-```bash
------------------ Task State Changes -------------------
-  
+<pre>
+<code>
 ----- DecodedStateDiff[0] -----
   Who:               0x05cc379EBD9B30BbA19C6fA282AB29218EC61D84
   Contract:          OptimismMintableERC20Factory
@@ -168,7 +200,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
   Chain ID:          
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x0c2c2c35a8e07a4bc8bfaf1047f56160cce807035f25457bd8d2dbcacd55e82f
+  Raw New Value:     0x2e31526db0e371ebf6da52e1f3662801d3352fe8049a573040018c08d94b49cf
   [WARN] Slot was not decoded
   
 ----- DecodedStateDiff[11] -----
@@ -177,7 +209,7 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
   Chain ID:          
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
-  Raw New Value:     0x0000000000000000000000000000000000000000000000000000000001aa1de3
+  Raw New Value:     0x0000000000000000000000000000000000000000000000000000000001aa8857
   [WARN] Slot was not decoded
   
 ----- DecodedStateDiff[12] -----
@@ -266,4 +298,14 @@ cast calldata-decode 'upgrade((address,address,bytes32)[])' <0xff2dd5a1...>
   Decoded New Value: 0x5e40B9231B86984b5150507046e354dbFbeD3d9e
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-```
+</pre>
+
+# Supplementary Material
+
+## Figure 0.1: Storage Layout of OPContractsManager
+
+![OPContractsManager isRC flag set to false]()
+
+## Figure 0.2: Storage Layout of AnchorStateRegistryProxy
+
+![AnchorStateRegistryProxy]()
