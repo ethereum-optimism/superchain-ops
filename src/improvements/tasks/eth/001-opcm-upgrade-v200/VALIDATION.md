@@ -94,6 +94,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   Decoded Kind:      address
   Decoded Old Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/validation/standard/standard-versions-mainnet.toml#L81">0xE01efbeb1089D1d1dB9c6c8b135C934C0734c846</a>
   Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/validation/standard/standard-versions-mainnet.toml#L59">0x5493f4677A186f64805fe7317D6993ba4863988F</a>
+
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                      OptimismMintableERC20Factory contract for 'op-contracts/v2.0.0-rc.1'.
@@ -108,6 +109,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   Decoded Kind:      address
   Decoded Old Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/validation/standard/standard-versions-mainnet.toml#L81">0x64B5a5Ed26DCb17370Ff4d33a8D503f0fbD06CfF</a>
   Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/validation/standard/standard-versions-mainnet.toml#L54">0x78972E88Ab8BBB517a36cAea23b931BAB58AD3c6</a>
+  
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                      L1StandardBridge contract for 'op-contracts/v2.0.0-rc.1'.
@@ -122,6 +124,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   Decoded Kind:      address
   Decoded Old Value: 0x71e966Ae981d1ce531a7b6d23DC0f27B38409087
   Decoded New Value: 0x5e40B9231B86984b5150507046e354dbFbeD3d9e
+
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                      Using Base Mainnet's <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/base.toml#L63">DisputeGameFactory</a>, we can find this DelayedWETH address:
@@ -139,6 +142,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   Decoded Kind:      address
   Decoded Old Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/validation/standard/standard-versions-mainnet.toml#L76">0xc641A33cab81C559F2bd4b21EA34C290E2440C2B</a>
   Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/validation/standard/standard-versions-mainnet.toml#L76">0x4bbA758F006Ef09402eF31724203F316ab74e4a0</a>
+  
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                      DisputeGameFactory contract for 'op-contracts/v2.0.0-rc.1'.
@@ -185,6 +189,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   Decoded Kind:      address
   Decoded Old Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/validation/standard/standard-versions-mainnet.toml#L72">0xe2F826324b2faf99E513D16D266c3F80aE87832B</a>
   Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/validation/standard/standard-versions-mainnet.toml#L51">0x2D7e764a0D9919e16983a46595CfA81fc34fa7Cd</a>
+
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                      OptimismPortal contract for 'op-contracts/v2.0.0-rc.1'.
@@ -268,6 +273,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   Decoded Kind:      address
   Decoded Old Value: 0x0000000000000000000000000000000000000000
   Decoded New Value: 0x7b465370BB7A333f99edd19599EB7Fb1c2D3F8D2
+
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                      AnchorStateRegistry contract for 'op-contracts/v2.0.0-rc.1'.
@@ -282,6 +288,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   Decoded Kind:      address
   Decoded Old Value: 0x0000000000000000000000000000000000000000
   Decoded New Value: 0x0475cBCAebd9CE8AfA5025828d5b98DFb67E059E
+
   Summary:           Proxy owner address
   Detail:            Standard slot for storing the owner address in a Proxy contract.
   
@@ -295,6 +302,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   Decoded Kind:      address
   Decoded Old Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/validation/standard/standard-versions-mainnet.toml#L78">0xAE2AF01232a6c4a4d3012C5eC5b1b35059caF10d</a>
   Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/validation/standard/standard-versions-mainnet.toml#L57">0x276d3730f219f7ec22274f7263180b8452B46d47</a>
+  
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                      L1ERC721Bridge contract for 'op-contracts/v2.0.0-rc.1'
@@ -309,6 +317,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   Decoded Kind:      address
   Decoded Old Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/validation/standard/standard-versions-mainnet.toml#L67">0xAB9d6cB7A427c0765163A7f45BB91cAfe5f2D375</a>
   Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/validation/standard/standard-versions-mainnet.toml#L47">0x760C48C62A85045A6B69f07F4a9f22868659CbCc</a>
+
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                      SystemConfig contract for 'op-contracts/v2.0.0-rc.1'.
@@ -323,6 +332,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   Decoded Kind:      uint256
   Decoded Old Value: 6
   Decoded New Value: 7
+
   Summary:           nonce
   Detail:            The nonce of the ProxyAdminOwner contract is updated.
   
@@ -333,6 +343,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   Raw Slot:          0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e
   Raw Old Value:     0x000000000000000000000000d3494713a5cfad3f5359379dfa074e2ac8c6fd65
   Raw New Value:     0x0000000000000000000000003ea6084748ed1b2a9b5d4426181f1ad8c93f6231
+
   Summary:           The name `OVM_L1CrossDomainMessenger` is set to the address of the new 'op-contracts/v2.0.0-rc.1' L1CrossDomainMessenger at <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/validation/standard/standard-versions-mainnet.toml#L56">0x3eA6084748ED1b2A9B5D4426181F1ad8C93F6231</a>.
   Detail:            This key is complicated to compute, so instead we attest to correctness of the key by
                      verifying that the "Before" value currently exists in that slot, as explained below.
@@ -352,6 +363,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   Decoded Kind:      address
   Decoded Old Value: 0x71e966Ae981d1ce531a7b6d23DC0f27B38409087
   Decoded New Value: 0x5e40B9231B86984b5150507046e354dbFbeD3d9e
+  
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                     Using Base Mainnet's <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/base.toml#L63">DisputeGameFactory</a>, we can find this DelayedWETH address:
