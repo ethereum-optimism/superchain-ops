@@ -14,10 +14,11 @@ cmd := "yq '.templateName' " + TASK_PATH + "/config.toml"
 export SCRIPT_NAME := shell(cmd)
 export signatures := env_var_or_default('SIGNATURES', '')
 export forkBlockNumber := env_var_or_default('FORK_BLOCK_NUMBER', '-1')
-
-# 'senderAddress' is the address you want to run this simulation as.
 # The 'senderAddress' will be the 'from' field in the Tenderly simulation. 
-simulate senderAddress="" hdPath='0':
+# Default sender: address(uint160(uint256(keccak256("foundry default caller"))))
+export senderAddress := env_var_or_default('SENDER_ADDRESS', '0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38')
+
+simulate hdPath='0':
   #!/usr/bin/env bash
 
   config=${TASK_PATH}/config.toml
@@ -27,20 +28,12 @@ simulate senderAddress="" hdPath='0':
   echo "Using script ${script}"
 
   echo "Setting sender address..."
-  # Default fallback sender: address(uint160(uint256(keccak256("foundry default caller"))))
-  default_sender=0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38
-
   if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
     sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
     echo "Simulating with ledger account: ${sender}"
   else 
-    if [ -n "{{senderAddress}}" ]; then
-      sender="{{senderAddress}}"
-      echo "Using 'senderAddress' as sender: ${sender}"
-    else
-      sender=$default_sender
-      echo "Using default sender: ${sender}"
-    fi
+    sender="{{senderAddress}}"
+    echo "Using 'senderAddress' as sender: ${sender}"
   fi
 
   # Allow simulating from a specific block by setting FORK_BLOCK_NUMBER in the task's .env file.
