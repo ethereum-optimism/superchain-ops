@@ -559,7 +559,6 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
                       - <i>cast index bytes32 0x59a9ec9c4821628a4000c73472b7a0e6fd177076b4fc03c4b3eb3ab53ece10ed $res</i>
                       - Alternative 'Raw Slot': <i>0xdcf861a51bf44cdb145c36eb23c4ff9be892b5406c6dbb604418c8777b78d95f</i>
 
-
   ----- DecodedStateDiff[32] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/mainnet/op.toml#L54">0x5a7749f83b81B301cAb5f48EB8516B986DAef23D</a>
     Contract:          L1ERC721Bridge - OP Mainet
@@ -628,7 +627,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
     Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
 
   ----- DecodedStateDiff[37] -----
-    Who:               0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3
+    Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/934ea2dd22d160e076ebbecb310582049eec071d/superchain/configs/mainnet/soneium.toml#L58">0x7A8Ed66B319911A0F3E7288BDdAB30d9c0C875c3</a>
     Contract:          SystemConfig
     Chain ID:          1868
     Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
