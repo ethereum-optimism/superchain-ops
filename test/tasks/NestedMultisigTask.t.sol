@@ -241,8 +241,8 @@ contract NestedMultisigTaskTest is Test {
             "implementation not set"
         );
 
-        bytes memory callData = multisigTask.getMulticall3Calldata(actions);
-        bytes32 taskHash = multisigTask.getHash(callData, parentMultisig);
+        (bytes memory callData, uint256 value) = multisigTask.getMulticall3CalldataAndValue(actions);
+        bytes32 taskHash = multisigTask.getHash(callData, parentMultisig, value);
 
         /// Now run the executeRun flow
         vm.revertToState(newSnapshot);
@@ -274,6 +274,7 @@ contract NestedMultisigTaskTest is Test {
 
         addrRegistry = multisigTask.addrRegistry();
         address parentMultisig = multisigTask.parentMultisig();
+
         address[] memory parentMultisigOwners = IGnosisSafe(parentMultisig).getOwners();
         bytes[] memory childMultisigDatasToSign = new bytes[](parentMultisigOwners.length);
         // Store the data to sign for each child multisig
@@ -352,8 +353,8 @@ contract NestedMultisigTaskTest is Test {
         uint256 newSnapshot = vm.snapshotState();
 
         (accountAccesses, actions) = multisigTask.signFromChildMultisig(opcmTaskConfigFilePath, foundationChildMultisig);
-        bytes32 taskHash =
-            multisigTask.getHash(multisigTask.getMulticall3Calldata(actions), multisigTask.parentMultisig());
+        (bytes memory callData, uint256 value) = multisigTask.getMulticall3CalldataAndValue(actions);
+        bytes32 taskHash = multisigTask.getHash(callData, multisigTask.parentMultisig(), value);
 
         vm.revertToState(newSnapshot);
         multisigTask.executeRun(opcmTaskConfigFilePath, prepareSignatures(parentMultisig, taskHash));
@@ -402,7 +403,7 @@ contract NestedMultisigTaskTest is Test {
         returns (bytes memory)
     {
         bytes memory callData = multisigTask.generateApproveMulticallData(actions);
-        return multisigTask.getEncodedTransactionData(owner, callData);
+        return multisigTask.getEncodedTransactionData(owner, callData, 0);
     }
 
     function prepareSignatures(address _safe, bytes32 hash) internal view returns (bytes memory) {
