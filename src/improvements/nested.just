@@ -61,7 +61,8 @@ simulate whichSafe hdPath='0':
 sign whichSafe hdPath='0':
   #!/usr/bin/env bash
   # Get the appropriate safe address based on whichSafe
-  safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} ${SCRIPT_PATH} "{{whichSafe}}")
+  safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
+
 
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
@@ -82,7 +83,7 @@ sign whichSafe hdPath='0':
 approve whichSafe hdPath='0':
   #!/usr/bin/env bash
   # Get the appropriate safe address based on whichSafe
-  safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} ${SCRIPT_PATH} "{{whichSafe}}")
+  safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
 
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
@@ -102,7 +103,7 @@ approve whichSafe hdPath='0':
 simulate-approve whichSafe hdPath='0':
   #!/usr/bin/env bash
   # Get the appropriate safe address based on whichSafe
-  safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} ${SCRIPT_PATH} "{{whichSafe}}")
+  safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
 
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol

@@ -21,12 +21,12 @@ the values printed to the terminal when you run the task.
 > ### Child Safe 1: `0x6AF0674791925f767060Dd52f7fB20984E8639d8`
 >
 > - Domain Hash: `0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa`
-> - Message Hash: `0x6e4bcbb8105ec2efa8a58c66289071ddb349610f32570b7f72fb047f577c4f82`
+> - Message Hash: `0xbdd593a729dadfa12c86ebac23914145d1ae0418ef1909ffecf78882d6720212`
 >
 > ### Child Safe 2: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`
 >
 > - Domain Hash: `0x1d3f2566fd7b1bf017258b03d4d4d435d326d9cb051d5b7993d7c65e7ec78d0e`
-> - Message Hash: `0x6e4bcbb8105ec2efa8a58c66289071ddb349610f32570b7f72fb047f577c4f82`
+> - Message Hash: `0xbdd593a729dadfa12c86ebac23914145d1ae0418ef1909ffecf78882d6720212`
 
 
 ## Understanding Task Calldata
