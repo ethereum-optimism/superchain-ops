@@ -291,14 +291,30 @@ contract StateOverrideManagerUnitTest is Test {
             address(task.parentMultisig()),
             "Contract address must be the parent multisig"
         );
-        // 5 overrides: threshold, nonce, owner count, owner mapping, owner mapping 2
-        assertTrue(
-            parentDefaultOverride.overrides.length == 5,
-            string.concat(
-                "Default override must have 5 overrides, found: ",
-                LibString.toString(parentDefaultOverride.overrides.length)
-            )
-        );
+        // 5 possible overrides: <threshold>, <nonce>, [owner count], [owner mapping], [owner mapping 2]
+        // 2 required overrides: <threshold>, <nonce>
+        // 3 optional overrides: [owner count], [owner mapping], [owner mapping 2] (Only present for nested execution)
+        if (childMultisig != address(0)) {
+            // Nested execution
+            assertTrue(
+                parentDefaultOverride.overrides.length == 2,
+                string.concat(
+                    "Parent default override must have 2 overrides, found: ",
+                    LibString.toString(parentDefaultOverride.overrides.length)
+                )
+            );
+        } else {
+            // Single execution
+            assertTrue(
+                parentDefaultOverride.overrides.length == 5,
+                string.concat(
+                    "Parent default override must have 5 overrides, found: ",
+                    LibString.toString(parentDefaultOverride.overrides.length)
+                )
+            );
+            // address(this) should be the owner override for the parent multisig in a single execution.
+            assertOwnerOverrides(parentDefaultOverride, address(this));
+        }
         assertEq(
             parentDefaultOverride.overrides[0].key,
             bytes32(uint256(0x4)),
@@ -371,13 +387,21 @@ contract StateOverrideManagerUnitTest is Test {
             bytes32(childMultisigNonce),
             "ChildDefaultOverride: Nonce override must match expected value"
         );
+        // MULTICALL3_ADDRESS should be the owner override for the child multisig in a nested execution.
+        assertOwnerOverrides(childDefaultOverride, MULTICALL3_ADDRESS);
+    }
+
+    function assertOwnerOverrides(Simulation.StateOverride memory defaultOverride, address expectedOwnerOverride)
+        private
+        pure
+    {
         assertEq(
-            childDefaultOverride.overrides[2].key,
+            defaultOverride.overrides[2].key,
             bytes32(uint256(0x3)),
             "ChildDefaultOverride: Must contain an owner count override"
         );
         assertEq(
-            childDefaultOverride.overrides[2].value,
+            defaultOverride.overrides[2].value,
             bytes32(uint256(0x1)),
             "ChildDefaultOverride: Owner count override must be 1"
         );
@@ -387,28 +411,28 @@ contract StateOverrideManagerUnitTest is Test {
         // where 1 is the owner index and 2 is the mapping slot in the contract
         bytes32 ownerMappingSlot = keccak256(abi.encode(uint256(1), uint256(2)));
         assertEq(
-            childDefaultOverride.overrides[3].key,
+            defaultOverride.overrides[3].key,
             ownerMappingSlot,
-            "ChildDefaultOverride: Must contain first owner mapping override"
+            "Owner Override: Must contain first owner mapping override"
         );
         assertEq(
-            childDefaultOverride.overrides[3].value,
-            bytes32(uint256(uint160(MULTICALL3_ADDRESS))), // Necessary for exhaustive tenderly debug trace.
-            "ChildDefaultOverride: Incorrect first owner mapping override"
+            defaultOverride.overrides[3].value,
+            bytes32(uint256(uint160(expectedOwnerOverride))), // Necessary for exhaustive tenderly debug trace.
+            "Owner Override: Incorrect first owner mapping override"
         );
 
         // Calculate the storage slot for owner mapping: keccak256(abi.encode(MULTICALL3_ADDRESS, 2))
         // where MULTICALL3_ADDRESS is the address of the Multicall3 contract and 2 is the mapping slot in the contract
-        bytes32 ownerMappingSlot2 = keccak256(abi.encode(uint256(uint160(MULTICALL3_ADDRESS)), uint256(2)));
+        bytes32 ownerMappingSlot2 = keccak256(abi.encode(uint256(uint160(expectedOwnerOverride)), uint256(2)));
         assertEq(
-            childDefaultOverride.overrides[4].key,
+            defaultOverride.overrides[4].key,
             ownerMappingSlot2,
-            "ChildDefaultOverride: Must contain second owner mapping override"
+            "Owner Override: Must contain second owner mapping override"
         );
         assertEq(
-            childDefaultOverride.overrides[4].value,
+            defaultOverride.overrides[4].value,
             bytes32(uint256(0x1)),
-            "ChildDefaultOverride: Must contain second owner mapping override value"
+            "Owner Override: Must contain second owner mapping override value"
         );
     }
 }
