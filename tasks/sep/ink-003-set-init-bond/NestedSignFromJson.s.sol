@@ -23,7 +23,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson {
     GnosisSafe councilSafe = GnosisSafe(payable(vm.envAddress("COUNCIL_SAFE")));
     GnosisSafe foundationSafe = GnosisSafe(payable(vm.envAddress("FOUNDATION_SAFE")));
 
-    // The slot used to store the livenessGuard address in GnosisSafe.
+    // The slot used to store the livenessGuard address in GnosisSafe. 
+    // See https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/base/GuardManager.sol#L30
     bytes32 livenessGuardSlot = 0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8;
 
     SystemConfig systemConfig = SystemConfig(vm.envAddress("SYSTEM_CONFIG"));
