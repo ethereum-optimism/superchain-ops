@@ -150,6 +150,8 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
     Raw Slot:          0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b
     Raw Old Value:     0x0000000000000000000000007e87b471e96b96955044328242456427a0d49694
     Raw New Value:     0x00000000000000000000000069361c9134d620b704c2a72c58523a4373ece86f
+    Decoded Old Value: 0x7e87b471e96b96955044328242456427a0d49694
+    Decoded New Value: 0x69361c9134d620b704c2a72c58523a4373ece86f
     Summary:           Updated CANNON GameType implementation.
     Detail:            This is gameImpls[0] -> 0x69361c9134d620b704c2a72c58523a4373ece86f where '0' is the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28">CANNON game type</a>.
                        Verify that the old implementation is set in this slot using:
@@ -502,6 +504,9 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
     Raw Slot:          0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e
     Raw Old Value:     0x00000000000000000000000042d15f045159ce4ade9edc7da5704ef36056c936
     Raw New Value:     0x0000000000000000000000001661af719956198628f7e67087f19f8a79524a1d
+    Decoded Kind:      address
+    Decoded Old Value: 0x42d15f045159ce4ade9edc7da5704ef36056c936
+    Decoded New Value: 0x1661af719956198628f7e67087f19f8a79524a1d
     Detail:            This is gameImpls[1] -> 0x1661af719956198628f7e67087f19f8a79524a1d
                        Verify that the old implementation is set in this slot using:
                         - <i>cast call 0x512A3d2c7a43BD9261d2B8E8C9c70D4bd4D503C0 "gameImpls(uint32)(address)" 1 --rpc-url mainnet</i>
@@ -854,6 +859,8 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
     Raw Slot:          0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e
     Raw Old Value:     0x00000000000000000000000091a661891248d8c4916fb4a1508492a5e2cbcb87
     Raw New Value:     0x000000000000000000000000d113ad136a0df1c7ffb7f1606be1c778bcfe2f3b
+    Decoded Old Value: 0x91a661891248d8c4916fb4a1508492a5e2cbcb87
+    Decoded New Value: 0xd113ad136a0df1c7ffb7f1606be1c778bcfe2f3b
     Summary:           Update Permissioned GameType implementation.
     Detail:            This is gameImpls[1] -> 0x4699d20479dfd20e15cab4fcb6f2a7cc6fe35443
                        Verify that the old implementation is set in this slot using:
@@ -869,6 +876,8 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
     Raw Slot:          0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b
     Raw Old Value:     0x00000000000000000000000027b81db41f586016694632193b99e45b1a27b8f8
     Raw New Value:     0x000000000000000000000000ba94955ca3422fc57f9d982a0bad2a9c88e2a9d0
+    Decoded Old Value: 0x27b81db41f586016694632193b99e45b1a27b8f8
+    Decoded New Value: 0xba94955ca3422fc57f9d982a0bad2a9c88e2a9d0
     Summary:           Updated CANNON GameType implementation.
     Detail:            This is gameImpls[0] -> 0x69361c9134d620b704c2a72c58523a4373ece86f where '0' is the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28">CANNON game type</a>.
                        Verify that the old implementation is set in this slot using:
@@ -906,6 +915,17 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
                         - <i>cast call 0x10d7B35078d3baabB96Dd45a9143B94be65b12CD "gameImpls(uint32)(address)" 0 --rpc-url mainnet</i>
                         - <i>cast call 0x7e87B471e96b96955044328242456427A0D49694 "weth()(address)" --rpc-url mainnet</i>
                         returns <b>0xf6b1554F483C391414d3830927E3600c105AaE6E</b>
+
+----- TENDERLY ONLY STATE DIFF -----
+
+  Four accounts will show a nonce increment:
+  - 0x4699D20479dfD20e15CaB4FCB6F2a7CC6fE35443 (Ink's newly created Permissioned dispute game)
+  - 0x69361c9134D620B704C2a72c58523a4373eCe86f (Ink's newly created Cannon dispute game)
+  - 0xbA94955CA3422fC57f9D982a0BaD2a9c88e2a9D0 (OP Mainnet's newly created Cannon dispute game)
+  - 0xd113ad136a0dF1c7FfB7F1606Be1c778bCfE2f3b (OP Mainnet's newly created Permissioned dispute game)
+  - 0x1661af719956198628f7e67087f19f8a79524a1d (Soneium's newly created Permissioned dispute game)
+  - 0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64 (the signer of the transaction, alternatively your own address may appear here)
+
   </code>
 </pre>
 
