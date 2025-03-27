@@ -14,6 +14,9 @@ cmd := "yq '.templateName' " + TASK_PATH + "/config.toml"
 export SCRIPT_NAME := shell(cmd)
 export signatures := env_var_or_default('SIGNATURES', '')
 export forkBlockNumber := env_var_or_default('FORK_BLOCK_NUMBER', '-1')
+# The 'signerAddress' will be the 'from' field in the Tenderly simulation. 
+# Default signer: address(uint160(uint256(keccak256("foundry default caller"))))
+export signerAddress := env_var_or_default('SIGNER_ADDRESS', '0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38')
 
 simulate hdPath='0':
   #!/usr/bin/env bash
@@ -22,9 +25,16 @@ simulate hdPath='0':
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
 
   echo "RPC URL: ${rpcUrl}"
-
   echo "Using script ${script}"
-  echo ""
+
+  echo "Setting signer address..."
+  if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
+    signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+    echo "Simulating with ledger account: ${signer}"
+  else 
+    signer="{{signerAddress}}"
+    echo "Using 'signerAddress' as signer: ${signer}"
+  fi
 
   # Allow simulating from a specific block by setting FORK_BLOCK_NUMBER in the task's .env file.
   # If not set (or set to -1), default to using the latest block.
@@ -39,6 +49,7 @@ simulate hdPath='0':
   forge script ${script} \
     ${fork_block_arg} \
     --rpc-url ${rpcUrl} \
+    --sender ${signer} \
     --sig "simulateRun(string)" ${config}
 
 sign hdPath='0':

@@ -351,7 +351,10 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         console.log("Domain Hash:    ", vm.toString(domainSeparator));
         console.log("Message Hash:   ", vm.toString(safeTxHash));
 
-        printOPTxVerifyLink(parentMultisig, callData, hex"");
+        // TODO: Remove this feature flag after all U13 tasks are executed.
+        if (false) {
+            printOPTxVerifyLink(parentMultisig, callData, hex"");
+        }
     }
 
     /// @notice This function prints a op-txverify link which can be used for verifying the authenticity of the domain and message hashes
@@ -720,7 +723,10 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         printEncodedTransactionData(dataToSign);
         console.log("\n\n------------------ Nested Multisig EOAs Hash to Approve ------------------");
         printChildHash(childMultisig, domainSeparator, messageHash);
-        printOPTxVerifyLink(childMultisig, parentCalldata, generateApproveMulticallData(actions));
+        // TODO: Remove this feature flag after all U13 tasks are executed.
+        if (false) {
+            printOPTxVerifyLink(childMultisig, parentCalldata, generateApproveMulticallData(actions));
+        }
     }
 
     /// @notice Helper function to print non-nested safe calldata.
