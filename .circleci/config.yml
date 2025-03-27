@@ -372,6 +372,17 @@ jobs:
           command: |
             (cd src/improvements && just simulate-all-templates)
 
+  just_new_recipe_tests:
+    circleci_ip_ranges: true
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - utils/checkout-with-mise
+      - run:
+          name: just new recipe tests
+          command: |
+            (cd src/improvements && bash script/test-just-new.sh)
+
   print_versions:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -424,6 +435,7 @@ workflows:
             branches:
               only: main
       - template_regression_tests
+      - just_new_recipe_tests
       - shellcheck:
           context:
             - circleci-repo-readonly-authenticated-github-token

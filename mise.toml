@@ -10,7 +10,7 @@ yq = "4.44.5"
 # Foundry is a special case because it supplies multiple binaries at the same
 # GitHub release, so we need to use the aliasing trick to get mise to not error
 # The git ref here should be on the `stable` branch.
-
+# WARNING: DO NOT CHANGE FORGE/CAST/ANVIL VERSIONS UNLESS ABSOLUTELY NECESSARY!
 # https://github.com/foundry-rs/foundry/releases/tag/nightly-23191fbeccfcf901f7c28590cb962d9693373c21
 # fix(forge): stack pranks, restore pranks at earlier call depths.
 forge = "nightly-23191fbeccfcf901f7c28590cb962d9693373c21"

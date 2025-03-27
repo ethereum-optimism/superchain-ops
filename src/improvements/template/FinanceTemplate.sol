@@ -3,14 +3,14 @@ pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
 
-import "forge-std/Test.sol";
-
-import {SimpleBase} from "src/improvements/tasks/MultisigTask.sol";
+import {SimpleBase} from "src/improvements/tasks/types/SimpleBase.sol";
 import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import {LibString} from "@solady/utils/LibString.sol";
+import {ERC20} from "@solady/tokens/ERC20.sol";
 import {stdToml} from "lib/forge-std/src/StdToml.sol";
 import {EnumerableSet} from "lib/openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
+import {DecimalNormalization} from "src/libraries/DecimalNormalization.sol";
 
 /// @notice Template contract for enabling finance transactions
 contract FinanceTemplate is SimpleBase {
@@ -19,7 +19,18 @@ contract FinanceTemplate is SimpleBase {
     using stdToml for string;
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    /// @notice Operation struct
+    /// @notice Operation struct as read in from the `config.toml` file
+    /// @param amount The amount of tokens for the operation, specified
+    /// as a decimal. i.e. `100.1`
+    /// @param target The target address for the operation
+    /// @param token The token address for the operation
+    struct FileOperation {
+        string amount;
+        string target;
+        string token;
+    }
+
+    /// @notice Operation struct that is persisted to storage
     /// @param amount The amount of tokens for the operation
     /// @param target The target address for the operation
     /// @param token The token address for the operation
@@ -76,6 +87,18 @@ contract FinanceTemplate is SimpleBase {
         return new string[](0);
     }
 
+    /// @notice converts string to a scaled up token amount in decimal form
+    /// @param amount string representation of the amount
+    /// @param token address of the token to send, used for discovering the amount of decimals
+    /// returns the scaled up token amount
+    function getTokenAmount(string memory amount, address token) public view returns (uint256) {
+        // Get token decimals
+        uint8 tokenDecimals = ERC20(token).decimals();
+
+        // Use the DecimalNormalization library to normalize the token amount
+        return DecimalNormalization.normalizeTokenAmount(amount, tokenDecimals);
+    }
+
     /// @notice Sets up the template with module configuration from a TOML file
     /// @param taskConfigFilePath Path to the TOML configuration file
     function _templateSetup(string memory taskConfigFilePath) internal override {
@@ -85,9 +108,15 @@ contract FinanceTemplate is SimpleBase {
 
         // Cannot decode directly to storage array, decode to memory first
         // and then push to storage array
-        Operation[] memory operationsMemory = abi.decode(toml.parseRaw(".operations"), (Operation[]));
+        FileOperation[] memory operationsMemory = abi.decode(toml.parseRaw(".operations"), (FileOperation[]));
         for (uint256 i = 0; i < operationsMemory.length; i++) {
-            operations.push(operationsMemory[i]);
+            Operation memory taskOperation = Operation({
+                amount: getTokenAmount(operationsMemory[i].amount, simpleAddrRegistry.get(operationsMemory[i].token)),
+                target: operationsMemory[i].target,
+                token: operationsMemory[i].token
+            });
+
+            operations.push(taskOperation);
         }
 
         assertNotEq(operations.length, 0, "there must be at least one operation");
