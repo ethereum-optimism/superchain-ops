@@ -13,6 +13,7 @@ import {MIPS} from "@eth-optimism-bedrock/src/cannon/MIPS.sol";
 import {ISemver} from "@eth-optimism-bedrock/interfaces/universal/ISemver.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {NestedMultisigBuilder} from "@base-contracts/script/universal/NestedMultisigBuilder.sol";
+import {Utils} from "src/libraries/Utils.sol";
 
 interface IASR {
     function superchainConfig() external view returns (address superchainConfig_);
@@ -108,7 +109,7 @@ abstract contract DisputeGameUpgrade is VerificationBase, SuperchainRegistry {
         FaultDisputeGame currentGame = FaultDisputeGame(address(dgfProxy.gameImpls(GameType(_targetGameType))));
         FaultDisputeGame newGame = FaultDisputeGame(_newImpl);
 
-        if (vm.envOr("DISPUTE_GAME_CHANGE_WETH", false)) {
+        if (Utils.isFeatureEnabled("DISPUTE_GAME_CHANGE_WETH")) {
             console.log("Expecting DelayedWETH to change");
             require(address(currentGame.weth()) != address(newGame.weth()), "pre-10");
         } else {
