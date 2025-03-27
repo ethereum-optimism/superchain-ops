@@ -843,8 +843,8 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
     Raw Old Value:     0x000000000000000000000000c641a33cab81c559f2bd4b21ea34c290e2440c2b
     Raw New Value:     0x0000000000000000000000004bba758f006ef09402ef31724203f316ab74e4a0
     Decoded Kind:      address
-    Decoded Old Value: 0xc641A33cab81C559F2bd4b21EA34C290E2440C2B
-    Decoded New Value: 0x4bbA758F006Ef09402eF31724203F316ab74e4a0
+    Decoded Old Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/validation/standard/standard-versions-mainnet.toml#L55">0xc641A33cab81C559F2bd4b21EA34C290E2440C2B</a>
+    Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/validation/standard/standard-versions-mainnet.toml#L34">0x4bbA758F006Ef09402eF31724203F316ab74e4a0</a>
     Summary:           ERC-1967 implementation slot
     Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
 
