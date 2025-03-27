@@ -11,7 +11,8 @@ absolutePrestates = [
 
 [addresses]
 OPCM = "0x1B25F566336F47BC5E0036D66E142237DcF4640b"
-StandardValidatorV200 = "0x37739a6b0a3F1E7429499a4eC4A0685439Daff5C"
+# Deployed March 27, 2025: https://sepolia.etherscan.io/tx/0xe44c3b8e8de58c5a31018f70e3c87890066092a05d91dca6db4e6f453ebb14cf
+StandardValidatorV200 = "0x1330cd53a7510437c88b1a9d392237f1d925465e"
 
 [stateOverrides]
 #############################################################################

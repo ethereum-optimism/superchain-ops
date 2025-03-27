@@ -20,8 +20,8 @@ the values printed to the terminal when you run the task.
 >
 > ### Single Safe Signer Data
 >
-> - Domain Hash: `2fedecce87979400ff00d5cec4c77da942d43ab3b9db4a5ffc51bb2ef498f30b`
-> - Message Hash: `92a19b62607299823103044c19d39f776556d1b8d99ac028145657c4ce8dc8fa`
+> - Domain Hash: `0x2fedecce87979400ff00d5cec4c77da942d43ab3b9db4a5ffc51bb2ef498f30b`
+> - Message Hash: `0x92a19b62607299823103044c19d39f776556d1b8d99ac028145657c4ce8dc8fa`
 
 ## Understanding Task Calldata
 

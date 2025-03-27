@@ -11,7 +11,8 @@ absolutePrestates = [
 
 [addresses]
 OPCM = "0x026b2F158255Beac46c1E7c6b8BbF29A4b6A7B76"
-StandardValidatorV200 = "0x58b758395be69ada78fe46f9653ff838f1e85251"
+# Deployed March 27, 2025: https://etherscan.io/tx/0x902ce895f70a72110d40c9a734a26380b2e27c370aae90721cdfa1ac972cfff8 
+StandardValidatorV200 = "0xecabaeaa1d58261f1579232520c5b460ca58a164"
 ChildSafe1 = "0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC"
 ChildSafe2 = "0x847B5c174615B1B7fDF770882256e2D3E95b9D92"
 ChildSafe3 = "0xc2819DC788505Aac350142A7A707BF9D03E3Bd03"
