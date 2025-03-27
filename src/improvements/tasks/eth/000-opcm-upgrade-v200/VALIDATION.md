@@ -582,7 +582,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
     Raw Old Value:     0x000000000000000000000000e2f826324b2faf99e513d16d266c3f80ae87832b
     Raw New Value:     0x0000000000000000000000002d7e764a0d9919e16983a46595cfa81fc34fa7cd
     Decoded Kind:      address
-    Decoded Old Value: 0xe2F826324b2faf99E513D16D266c3F80aE87832B
+    Decoded Old Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/934ea2dd22d160e076ebbecb310582049eec071d/validation/standard/standard-versions-mainnet.toml#L72">0xe2F826324b2faf99E513D16D266c3F80aE87832B</a>
     Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/validation/standard/standard-versions-mainnet.toml#L31">0x2D7e764a0D9919e16983a46595CfA81fc34fa7Cd</a>
     Summary:           ERC-1967 implementation slot
     Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.s in a proxy contract that follows the ERC-1967 standard.
@@ -784,7 +784,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
     Raw Old Value:     0x000000000000000000000000e2f826324b2faf99e513d16d266c3f80ae87832b
     Raw New Value:     0x0000000000000000000000002d7e764a0d9919e16983a46595cfa81fc34fa7cd
     Decoded Kind:      address
-    Decoded Old Value: 0xe2F826324b2faf99E513D16D266c3F80aE87832B
+    Decoded Old Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/934ea2dd22d160e076ebbecb310582049eec071d/validation/standard/standard-versions-mainnet.toml#L72">0xe2F826324b2faf99E513D16D266c3F80aE87832B</a>
     Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/validation/standard/standard-versions-mainnet.toml#L31">0x2D7e764a0D9919e16983a46595CfA81fc34fa7Cd</a>
     Summary:           ERC-1967 implementation slot
     Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.s in a proxy contract that follows the ERC-1967 standard.
