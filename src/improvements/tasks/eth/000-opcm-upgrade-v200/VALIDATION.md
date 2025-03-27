@@ -767,14 +767,14 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
     Raw Slot:          0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e
     Raw Old Value:     0x000000000000000000000000d3494713a5cfad3f5359379dfa074e2ac8c6fd65
     Raw New Value:     0x0000000000000000000000003ea6084748ed1b2a9b5d4426181f1ad8c93f6231
-    Summary:           The name `OVM_L1CrossDomainMessenger` is set to the address of the new 'op-contracts/v2.0.0-rc.1' L1CrossDomainMessenger at <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/validation/standard/standard-versions-sepolia.toml#L36">0x3eA6084748ED1b2A9B5D4426181F1ad8C93F6231</a>.
+    Summary:           The name `OVM_L1CrossDomainMessenger` is set to the address of the new 'op-contracts/v2.0.0-rc.1' L1CrossDomainMessenger at <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/validation/standard/standard-versions-mainnet.toml#L36">0x3eA6084748ED1b2A9B5D4426181F1ad8C93F6231</a>.
     Detail:            This key is complicated to compute, so instead we attest to correctness of the key by
                        verifying that the "Before" value currently exists in that slot, as explained below.
                        <b>Before</b> address matches both of the following cast calls:
                         1. What is returned by calling `AddressManager.getAddress()`:
-                         - <i>cast call 0xB24bFEeCE1B3b7A44559F4Cbc21BeD312b130b70 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url sepolia</i>
+                         - <i>cast call 0xB24bFEeCE1B3b7A44559F4Cbc21BeD312b130b70 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url mainnet</i>
                         2. What is currently stored at the key:
-                         - <i>cast storage 0xB24bFEeCE1B3b7A44559F4Cbc21BeD312b130b70 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url sepolia</i>
+                         - <i>cast storage 0xB24bFEeCE1B3b7A44559F4Cbc21BeD312b130b70 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url mainnet</i>
 
   ----- DecodedStateDiff[47] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/c1bcf3601dfdf72f0fd4f5bade180b9c0f94d93b/superchain/configs/mainnet/op.toml#L57">0xbEb5Fc579115071764c7423A4f12eDde41f106Ed</a>
@@ -826,14 +826,14 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
     Raw Slot:          0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e
     Raw Old Value:     0x000000000000000000000000d3494713a5cfad3f5359379dfa074e2ac8c6fd65
     Raw New Value:     0x0000000000000000000000003ea6084748ed1b2a9b5d4426181f1ad8c93f6231
-    Summary:           The name `OVM_L1CrossDomainMessenger` is set to the address of the new 'op-contracts/v2.0.0-rc.1' L1CrossDomainMessenger at <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/validation/standard/standard-versions-sepolia.toml#L36">0x3eA6084748ED1b2A9B5D4426181F1ad8C93F6231</a>.
+    Summary:           The name `OVM_L1CrossDomainMessenger` is set to the address of the new 'op-contracts/v2.0.0-rc.1' L1CrossDomainMessenger at <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/validation/standard/standard-versions-mainnet.toml#L36">0x3eA6084748ED1b2A9B5D4426181F1ad8C93F6231</a>.
     Detail:            This key is complicated to compute, so instead we attest to correctness of the key by
                        verifying that the "Before" value currently exists in that slot, as explained below.
                        <b>Before</b> address matches both of the following cast calls:
                         1. What is returned by calling `AddressManager.getAddress()`:
-                         - <i>cast call 0xdE1FCfB0851916CA5101820A69b13a4E276bd81F 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url sepolia</i>
+                         - <i>cast call 0xdE1FCfB0851916CA5101820A69b13a4E276bd81F 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url mainnet</i>
                         2. What is currently stored at the key:
-                         - <i>cast storage 0xdE1FCfB0851916CA5101820A69b13a4E276bd81F 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url sepolia</i>
+                         - <i>cast storage 0xdE1FCfB0851916CA5101820A69b13a4E276bd81F 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url mainnet</i>
 
   ----- DecodedStateDiff[51] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/mainnet/op.toml#L62">0xe5965Ab5962eDc7477C8520243A95517CD252fA9</a>
