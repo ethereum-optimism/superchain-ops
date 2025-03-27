@@ -14,10 +14,11 @@ cmd := "yq '.templateName' " + TASK_PATH + "/config.toml"
 export SCRIPT_NAME := shell(cmd)
 export signatures := env_var_or_default('SIGNATURES', '')
 export forkBlockNumber := env_var_or_default('FORK_BLOCK_NUMBER', '-1')
+# The 'signerAddress' will be the 'from' field in the Tenderly simulation. 
+# Default signer: address(uint160(uint256(keccak256("foundry default caller"))))
+export signerAddress := env_var_or_default('SIGNER_ADDRESS', '0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38')
 
-# 'senderAddress' is the address you want to run this simulation as.
-# The 'senderAddress' will be the 'from' field in the Tenderly simulation. 
-simulate senderAddress="" hdPath='0':
+simulate hdPath='0':
   #!/usr/bin/env bash
 
   config=${TASK_PATH}/config.toml
@@ -26,21 +27,13 @@ simulate senderAddress="" hdPath='0':
   echo "RPC URL: ${rpcUrl}"
   echo "Using script ${script}"
 
-  echo "Setting sender address..."
-  # Default fallback sender: address(uint160(uint256(keccak256("foundry default caller"))))
-  default_sender=0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38
-
+  echo "Setting signer address..."
   if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
-    sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-    echo "Simulating with ledger account: ${sender}"
+    signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+    echo "Simulating with ledger account: ${signer}"
   else 
-    if [ -n "{{senderAddress}}" ]; then
-      sender="{{senderAddress}}"
-      echo "Using 'senderAddress' as sender: ${sender}"
-    else
-      sender=$default_sender
-      echo "Using default sender: ${sender}"
-    fi
+    signer="{{signerAddress}}"
+    echo "Using 'signerAddress' as signer: ${signer}"
   fi
 
   # Allow simulating from a specific block by setting FORK_BLOCK_NUMBER in the task's .env file.
@@ -56,7 +49,7 @@ simulate senderAddress="" hdPath='0':
   forge script ${script} \
     ${fork_block_arg} \
     --rpc-url ${rpcUrl} \
-    --sender ${sender} \
+    --sender ${signer} \
     --sig "simulateRun(string)" ${config}
 
 sign hdPath='0':
