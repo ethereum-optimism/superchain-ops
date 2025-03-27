@@ -817,7 +817,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
                        Using Ink's <a href="https://github.com/ethereum-optimism/superchain-registry/blob/c1bcf3601dfdf72f0fd4f5bade180b9c0f94d93b/superchain/configs/mainnet/ink.toml#L63">DisputeGameFactory</a>, we can find this DelayedWETH address:
                         - <i>cast call 0x10d7B35078d3baabB96Dd45a9143B94be65b12CD "gameImpls(uint32)(address)" 1 --rpc-url mainnet</i>
                         - <i>cast call 0x8D9faaEb46cBCf487baf2182E438Ac3D0847F637 "weth()(address)" --rpc-url mainnet</i>
-                        returns <b>0x21429aF66058BC3e4aE4a8f2EC4531AaC433ecbC</b>
+                        returns <b>0xc4986627A41cdCf6fa33543D96f00F475bCE42f5</b>
 
   ----- DecodedStateDiff[50] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/mainnet/op.toml#L52">0xdE1FCfB0851916CA5101820A69b13a4E276bd81F</a>
