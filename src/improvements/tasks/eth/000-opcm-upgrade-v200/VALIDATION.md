@@ -615,7 +615,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
                        L1ERC721Bridge contract for 'op-contracts/v2.0.0-rc.1'.
 
   ----- DecodedStateDiff[36] -----
-    Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/mainnet/op.toml#L56">0x75505a97BD334E7BD3C476893285569C4136Fa0F
+    Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/mainnet/op.toml#L56">0x75505a97BD334E7BD3C476893285569C4136Fa0F</a>
     Contract:          OptimismMintableERC20Factory - OP Mainnet
     Chain ID:          10
     Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
@@ -697,7 +697,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
     Raw New Value:     0x0000000000000000000000004da82a327773965b8d4d85fa3db8249b387458e7
     Decoded Kind:      address
     Decoded Old Value: <a href="https://etherscan.io/address/0x53c165169401764778F780a69701385eb0FF19B7#code">0x53c165169401764778F780a69701385eb0FF19B7</a>
-    Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/validation/standard/standard-versions-sepolia.toml#L41">0x4da82a327773965b8d4D85Fa3dB8249b387458E7</a>
+    Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/validation/standard/standard-versions-mainnet.toml#L41">0x4da82a327773965b8d4D85Fa3dB8249b387458E7</a>
     Summary:           ERC-1967 implementation slot
     Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
 
@@ -738,14 +738,14 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
     Raw Slot:          0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e
     Raw Old Value:     0x000000000000000000000000d3494713a5cfad3f5359379dfa074e2ac8c6fd65
     Raw New Value:     0x0000000000000000000000003ea6084748ed1b2a9b5d4426181f1ad8c93f6231
-    Summary:           The name `OVM_L1CrossDomainMessenger` is set to the address of the new 'op-contracts/v2.0.0-rc.1' L1CrossDomainMessenger at <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/validation/standard/standard-versions-sepolia.toml#L36">0x3eA6084748ED1b2A9B5D4426181F1ad8C93F6231</a>.
+    Summary:           The name `OVM_L1CrossDomainMessenger` is set to the address of the new 'op-contracts/v2.0.0-rc.1' L1CrossDomainMessenger at <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/validation/standard/standard-versions-mainnet.toml#L36">0x3eA6084748ED1b2A9B5D4426181F1ad8C93F6231</a>.
     Detail:            This key is complicated to compute, so instead we attest to correctness of the key by
                        verifying that the "Before" value currently exists in that slot, as explained below.
                        <b>Before</b> address matches both of the following cast calls:
                         1. What is returned by calling `AddressManager.getAddress()`:
-                         - <i>cast call 0x9b7C9BbD6d540A8A4dEDd935819fC4408Ba71153 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url sepolia</i>
+                         - <i>cast call 0x9b7C9BbD6d540A8A4dEDd935819fC4408Ba71153 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url mainnet</i>
                         2. What is currently stored at the key:
-                         - <i>cast storage 0x9b7C9BbD6d540A8A4dEDd935819fC4408Ba71153 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url sepolia</i>
+                         - <i>cast storage 0x9b7C9BbD6d540A8A4dEDd935819fC4408Ba71153 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url mainnet</i>
 
   ----- DecodedStateDiff[45] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/mainnet/ink.toml#L56">0xA8B389A82e088b164cD03230e900980CcED34d29</a>
@@ -837,7 +837,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
   ----- DecodedStateDiff[51] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/mainnet/op.toml#L62">0xe5965Ab5962eDc7477C8520243A95517CD252fA9</a>
-    Contract:          DisputeGameFactory
+    Contract:          DisputeGameFactory - OP Mainnet
     Chain ID:          10
     Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
     Raw Old Value:     0x000000000000000000000000c641a33cab81c559f2bd4b21ea34c290e2440c2b
@@ -850,21 +850,33 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
   ----- DecodedStateDiff[52] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/mainnet/op.toml#L62">0xe5965Ab5962eDc7477C8520243A95517CD252fA9</a>
-    Contract:          DisputeGameFactory
+    Contract:          DisputeGameFactory - OP Mainnet
     Chain ID:          10
     Raw Slot:          0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e
     Raw Old Value:     0x00000000000000000000000091a661891248d8c4916fb4a1508492a5e2cbcb87
     Raw New Value:     0x000000000000000000000000d113ad136a0df1c7ffb7f1606be1c778bcfe2f3b
-    [WARN] Slot was not decoded
+    Summary:           Update Permissioned GameType implementation.
+    Detail:            This is gameImpls[1] -> 0x4699d20479dfd20e15cab4fcb6f2a7cc6fe35443
+                       Verify that the old implementation is set in this slot using:
+                        - <i>cast call 0xe5965Ab5962eDc7477C8520243A95517CD252fA9 "gameImpls(uint32)(address)" 1 --rpc-url mainnet</i>
+                        - <i>cast storage 0xe5965Ab5962eDc7477C8520243A95517CD252fA9 0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e --rpc-url mainnet</i>
+                       The Raw Slot can be derived from:
+                        - <i>cast index uint32 1 101</i>
 
   ----- DecodedStateDiff[53] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/mainnet/op.toml#L62">0xe5965Ab5962eDc7477C8520243A95517CD252fA9</a>
-    Contract:          DisputeGameFactory
+    Contract:          DisputeGameFactory - OP Mainnet
     Chain ID:          10
     Raw Slot:          0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b
     Raw Old Value:     0x00000000000000000000000027b81db41f586016694632193b99e45b1a27b8f8
     Raw New Value:     0x000000000000000000000000ba94955ca3422fc57f9d982a0bad2a9c88e2a9d0
-    [WARN] Slot was not decoded
+    Summary:           Updated CANNON GameType implementation.
+    Detail:            This is gameImpls[0] -> 0x69361c9134d620b704c2a72c58523a4373ece86f where '0' is the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28">CANNON game type</a>.
+                       Verify that the old implementation is set in this slot using:
+                        - <i>cast call 0xe5965Ab5962eDc7477C8520243A95517CD252fA9 "gameImpls(uint32)(address)" 0 --rpc-url mainnet</i>
+                        - <i>cast storage 0xe5965Ab5962eDc7477C8520243A95517CD252fA9 0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b --rpc-url mainnet</i>
+                       The Raw Slot can be derived from:
+                        - <i>cast index uint32 0 101</i>
 
   ----- DecodedStateDiff[54] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/mainnet/soneium.toml#L55">0xeb9bf100225c214Efc3E7C651ebbaDcF85177607</a>
