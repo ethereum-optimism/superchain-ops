@@ -264,6 +264,31 @@ jobs:
               --dotenv-path $(pwd)/.env \
               --justfile ../../../nested.just \
               simulate council
+  
+  # TODO: Remove this job once we have stacked simulations for non-terminal tasks implemented.
+  just_simulate_nested_improvements:
+    circleci_ip_ranges: true
+    description: "Runs simulations of a nested task (new superchain-ops improvements)"
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    parameters:
+      task:
+        type: string
+      signer:
+        type: string
+    steps:
+      - utils/checkout-with-mise
+      - run:
+          name: "simulate nested << parameters.task >>"
+          environment:
+            FOUNDRY_PROFILE: ci
+          command: |
+            just install
+            cd src/improvements/tasks/<< parameters.task >>
+            SIMULATE_WITHOUT_LEDGER=true just \
+              --dotenv-path $(pwd)/.env \
+              --justfile ../../../nested.just \
+              simulate << parameters.signer >>
 
   just_simulate_op_sep_prestate_update:
     docker:
@@ -461,6 +486,11 @@ workflows:
       # and now it fails with stack too deep after https://github.com/ethereum-optimism/superchain-ops/pull/528.
       # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
       # - just_simulate_sc_rehearsal_1
+      - just_simulate_nested_improvements:
+          task: "/sep/001-opcm-upgrade-v200"
+          signer: "child-safe-1"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
 
       - just_simulate_sc_rehearsal_2:
           context:
