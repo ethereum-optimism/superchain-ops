@@ -555,7 +555,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
                      bypassing the <i>approveHash</i> calls.
                      This slot change reflects an update to the approvedHashes mapping, where the
                      parent hash to be approved is (as can be seen in the `just simulate` output):
-                      - <i>parent_hasToApprove=0x59a9ec9c4821628a4000c73472b7a0e6fd177076b4fc03c4b3eb3ab53ece10ed</i>
+                      - <i>parent_hashToApprove=0x59a9ec9c4821628a4000c73472b7a0e6fd177076b4fc03c4b3eb3ab53ece10ed</i>
                      Specifically, if the simulation was run as the Foundation's nested safe <i>0x847B5c174615B1B7fDF770882256e2D3E95b9D92</i>.
                       - <i>res=$(cast index address 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 8)</i>
                       - <i>cast index bytes32 $parent_hasToApprove $res</i>
@@ -658,13 +658,15 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
     Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
 
 ----- TENDERLY ONLY STATE DIFF -----
-  Who:               <a href="TODO">0x847B5c174615B1B7fDF770882256e2D3E95b9D92</a>
+  Who:               0x847B5c174615B1B7fDF770882256e2D3E95b9D92
   Contract:          Foundation Safe
-  Chain ID:
   Raw Slot:          Key: 0x0000000000000000000000000000000000000000000000000000000000000005
   Raw Old Value:     Before: 0x0000000000000000000000000000000000000000000000000000000000000012
   Raw New Value:     After: 0x0000000000000000000000000000000000000000000000000000000000000013
   Summary:           The nonce of the Foundation Safe is incremented.
+  Detail:            The ProxyAdmin Owner is <a href="https://github.com/ethereum-optimism/superchain-registry/blob/934ea2dd22d160e076ebbecb310582049eec071d/superchain/configs/sepolia/op.toml#L45">0x1Eb2fFc903729a0F03966B917003800b145F56E2</a>:
+                     - <i>cast call 'getOwners()' 0x1Eb2fFc903729a0F03966B917003800b145F56E2 --rpc-url mainnet</i>
+                     returns [<b>0x847B5c174615B1B7fDF770882256e2D3E95b9D92</b>, 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03]
 
   ----- DecodedStateDiff[39] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/c1bcf3601dfdf72f0fd4f5bade180b9c0f94d93b/superchain/configs/mainnet/soneium.toml#L57">0x88e529A6ccd302c948689Cd5156C83D4614FAE92</a>
@@ -805,6 +807,17 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
     Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/validation/standard/standard-versions-mainnet.toml#L39">0x5493f4677A186f64805fe7317D6993ba4863988F</a>
     Summary:           ERC-1967 implementation slot
     Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+
+----- TENDERLY ONLY STATE DIFF -----
+  Who:               0xc2819DC788505Aac350142A7A707BF9D03E3Bd03
+  Contract:          Council Safe
+  Raw Slot:          Key: 0x0000000000000000000000000000000000000000000000000000000000000005
+  Raw Old Value:     Before: 0x0000000000000000000000000000000000000000000000000000000000000014
+  Raw New Value:     After: 0x0000000000000000000000000000000000000000000000000000000000000015
+  Summary:           The nonce of the Council Safe is incremented.
+  Detail:            The ProxyAdmin Owner is <a href="https://github.com/ethereum-optimism/superchain-registry/blob/934ea2dd22d160e076ebbecb310582049eec071d/superchain/configs/sepolia/op.toml#L45">0x1Eb2fFc903729a0F03966B917003800b145F56E2</a>:
+                     - <i>cast call 'getOwners()' 0x1Eb2fFc903729a0F03966B917003800b145F56E2 --rpc-url mainnet</i>
+                     returns [0x847B5c174615B1B7fDF770882256e2D3E95b9D92, <b>0xc2819DC788505Aac350142A7A707BF9D03E3Bd03</b>]
 
   ----- DecodedStateDiff[49] -----
     Who:               0xc4986627A41cdCf6fa33543D96f00F475bCE42f5
