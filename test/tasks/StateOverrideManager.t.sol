@@ -44,7 +44,7 @@ contract StateOverrideManagerUnitTest is Test {
         assertEq(IGnosisSafe(task.parentMultisig()).getThreshold(), 2, "Threshold must be 2");
         uint256 threshold = uint256(vm.load(address(task.parentMultisig()), bytes32(uint256(0x4))));
         assertEq(threshold, 2, "Threshold must be 2 using vm.load");
-        vm.removeFile(fileName);
+        removeFile(fileName);
     }
 
     function testNonceStateOverrideApplied() public {
@@ -60,7 +60,7 @@ contract StateOverrideManagerUnitTest is Test {
         string memory fileName = createTempTomlFile(toml);
         MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
         assertNonceIncremented(2730, task);
-        vm.removeFile(fileName);
+        removeFile(fileName);
     }
 
     function testInvalidAddressInStateOverrideFails() public {
@@ -76,7 +76,7 @@ contract StateOverrideManagerUnitTest is Test {
         MultisigTask task = new MockMultisigTask();
         vm.expectRevert();
         task.simulateRun(fileName);
-        vm.removeFile(fileName);
+        removeFile(fileName);
     }
 
     function testDecimalKeyInConfigForStateOverridePasses() public {
@@ -91,7 +91,7 @@ contract StateOverrideManagerUnitTest is Test {
         string memory fileName = createTempTomlFile(toml);
         MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
         assertNonceIncremented(1, task);
-        vm.removeFile(fileName);
+        removeFile(fileName);
     }
 
     function testAddressValueInConfigForStateOverridePasses() public {
@@ -116,7 +116,7 @@ contract StateOverrideManagerUnitTest is Test {
             )
         );
         assertEq(actualImplAddr, expectedImplAddr, "Implementation address is not correct");
-        vm.removeFile(fileName);
+        removeFile(fileName);
     }
 
     function testDecimalValuesInConfigForStateOverridePasses() public {
@@ -131,7 +131,7 @@ contract StateOverrideManagerUnitTest is Test {
         string memory fileName = createTempTomlFile(toml);
         MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
         assertNonceIncremented(101, task);
-        vm.removeFile(fileName);
+        removeFile(fileName);
     }
 
     function testOnlyDefaultTenderlyStateOverridesApplied() public {
@@ -140,7 +140,7 @@ contract StateOverrideManagerUnitTest is Test {
 
         uint256 expectedNonce = task.nonce();
         assertDefaultStateOverrides(expectedNonce, 2, task, SECURITY_COUNCIL_CHILD_MULTISIG, 0);
-        vm.removeFile(fileName);
+        removeFile(fileName);
     }
 
     function testUserTenderlyStateOverridesTakePrecedence() public {
@@ -164,7 +164,7 @@ contract StateOverrideManagerUnitTest is Test {
             bytes32(uint256(expectedNonce)),
             "User defined override must be applied last"
         );
-        vm.removeFile(fileName);
+        removeFile(fileName);
     }
 
     function testAdditionalUserStateOverridesApplied() public {
@@ -189,7 +189,7 @@ contract StateOverrideManagerUnitTest is Test {
         );
         assertEq(allOverrides[2].overrides[0].key, overrideKey, "User override key must match expected value");
         assertEq(allOverrides[2].overrides[0].value, bytes32(uint256(9999)), "User override must be applied last");
-        vm.removeFile(fileName);
+        removeFile(fileName);
     }
 
     function testMultipleAddressStateOverridesApplied() public {
@@ -233,7 +233,7 @@ contract StateOverrideManagerUnitTest is Test {
         assertEq(
             allOverrides[3].overrides[0].value, bytes32(uint256(8888)), "Second address user override must be applied"
         );
-        vm.removeFile(fileName);
+        removeFile(fileName);
     }
 
     /// @notice This test uses the 'Base Sepolia Testnet' at a block where the ProxyAdminOwner is known to be a single safe.
@@ -251,7 +251,7 @@ contract StateOverrideManagerUnitTest is Test {
         Simulation.StateOverride[] memory allOverrides =
             assertDefaultStateOverrides(expectedNonce, 1, dgt, address(0), 0);
         assertEq(allOverrides.length, 1, "Only parent overrides should be applied");
-        vm.removeFile(fileName);
+        removeFile(fileName);
     }
 
     function createAndRunTask(string memory fileName, address childMultisig) internal returns (MultisigTask) {
@@ -434,5 +434,11 @@ contract StateOverrideManagerUnitTest is Test {
             bytes32(uint256(0x1)),
             "Owner Override: Must contain second owner mapping override value"
         );
+    }
+
+    /// @notice This function is used to remove a file. The reason we use a try catch
+    /// is because sometimes the file may not exist and this leads to flaky tests.
+    function removeFile(string memory fileName) internal {
+        try vm.removeFile(fileName) {} catch {}
     }
 }
