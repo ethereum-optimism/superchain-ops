@@ -3,6 +3,7 @@ pragma solidity 0.8.15;
 
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {Script} from "forge-std/Script.sol";
+import {stdToml} from "forge-std/StdToml.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
@@ -10,9 +11,10 @@ import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegis
 import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
 
 /// This script gathers all tasks for a given network and performs a simulation run for each task.
-/// This file can only simulate tasks for one network at a time (found under src/improvements/tasks/{network}).
+/// This file can only simulate tasks for one network at a time (see: script/fetch-tasks.sh).
 contract TaskRunner is Script {
     using Strings for uint256;
+    using stdToml for string;
 
     struct L2Chain {
         uint256 chainId;
@@ -20,44 +22,46 @@ contract TaskRunner is Script {
     }
 
     struct TaskConfig {
-        L2Chain[] l2chains;
+        L2Chain[] optionalL2Chains;
         string path;
         string templateName;
         address parentMultisig;
         bool isNested;
+        string optionalDependsOn;
     }
 
-    function _parseConfig(string memory configPath) internal returns (TaskConfig memory) {
-        string memory configContent = vm.readFile(configPath);
-        bytes memory rawL2Chains = vm.parseToml(configContent, ".l2chains");
-        L2Chain[] memory l2chains = abi.decode(rawL2Chains, (L2Chain[]));
+    function parseConfig(string memory configPath) public returns (TaskConfig memory) {
+        string memory toml = vm.readFile(configPath);
 
-        bytes memory templateNameRaw = vm.parseToml(configContent, ".templateName");
-        string memory templateName = abi.decode(templateNameRaw, (string));
+        L2Chain[] memory optionalL2Chains;
+        if (toml.keyExists(".l2chains")) {
+            optionalL2Chains = abi.decode(toml.parseRaw(".l2chains"), (L2Chain[]));
+        }
+
+        string memory templateName = toml.readString(".templateName");
+
+        string memory optionalDependsOn;
+        if (toml.keyExists(".dependsOn")) {
+            optionalDependsOn = toml.readString(".dependsOn.task");
+        }
 
         (bool isNested, address parentMultisig) = isNestedTask(configPath);
 
         return TaskConfig({
             templateName: templateName,
-            l2chains: l2chains,
+            optionalL2Chains: optionalL2Chains,
             path: configPath,
             isNested: isNested,
-            parentMultisig: parentMultisig
+            parentMultisig: parentMultisig,
+            optionalDependsOn: optionalDependsOn
         });
     }
 
     function run(string memory network) public {
-        string[] memory commands = new string[](2);
-        commands[0] = "./src/improvements/script/fetch-tasks.sh";
-        commands[1] = network;
+        string[] memory taskPaths = getNonTerminalTasks(network);
 
-        bytes memory result = vm.ffi(commands);
-        string[] memory taskPaths = vm.split(string(result), "\n");
-
-        // Process each task
         for (uint256 i = 0; i < taskPaths.length; i++) {
-            // Parse config
-            TaskConfig memory config = _parseConfig(taskPaths[i]);
+            TaskConfig memory config = parseConfig(taskPaths[i]);
 
             // Deploy and run the template
             string memory templatePath =
@@ -67,6 +71,16 @@ contract TaskRunner is Script {
 
             executeTask(task, config);
         }
+    }
+
+    /// @notice Fetches all non-terminal tasks for a given network.
+    function getNonTerminalTasks(string memory network) public returns (string[] memory taskPaths_) {
+        string[] memory commands = new string[](2);
+        commands[0] = "./src/improvements/script/fetch-tasks.sh";
+        commands[1] = network;
+
+        bytes memory result = vm.ffi(commands);
+        taskPaths_ = vm.split(string(result), "\n");
     }
 
     /// @notice Executes a task based on its configuration.
@@ -90,8 +104,7 @@ contract TaskRunner is Script {
     /// @notice Useful function to tell if a task is nested or not based on the task config.
     function isNestedTask(string memory taskConfigFilePath) public returns (bool, address parentMultisig) {
         string memory configContent = vm.readFile(taskConfigFilePath);
-        bytes memory templateNameRaw = vm.parseToml(configContent, ".templateName");
-        string memory templateName = abi.decode(templateNameRaw, (string));
+        string memory templateName = configContent.readString(".templateName");
 
         string memory templatePath = string.concat("out/", templateName, ".sol/", templateName, ".json");
         MultisigTask task = MultisigTask(deployCode(templatePath));
@@ -112,7 +125,6 @@ contract TaskRunner is Script {
                 parentMultisig = _addrRegistry.getAddress(safeAddressString, chains[0].chainId);
             }
         }
-
         return (task.isNestedSafe(parentMultisig), parentMultisig);
     }
 }
