@@ -7,7 +7,6 @@ fi
 
 eth_address_regex="^0x[a-fA-F0-9]{40}$"
 temp_file=$(mktemp)
-failed_validations=()
 
 echo "0" > "$temp_file"
 
@@ -48,12 +47,14 @@ find "$1" -name "VALIDATION.md" -type f | while read -r file; do
           echo "$failures" > "$temp_file"
           validation_line=$(grep -n "$href" "$file" | cut -d: -f1)
           validation_content=$(sed -n "${validation_line}p" "$file")
-          echo "File: $file (line $validation_line)" >> "$temp_file.failures"
-          echo "Validation line: $validation_content" >> "$temp_file.failures"
-          echo "Target URL: $href" >> "$temp_file.failures"
-          echo "Expected address: $content" >> "$temp_file.failures"
-          echo "Found content: $line_content" >> "$temp_file.failures"
-          echo "---" >> "$temp_file.failures"
+          {
+            echo "File: $file (line $validation_line)"
+            echo "Validation line: $validation_content"
+            echo "Target URL: $href"
+            echo "Expected address: $content"
+            echo "Found content: $line_content"
+            echo "---"
+          } >> "$temp_file.failures"
         fi
       fi
       
