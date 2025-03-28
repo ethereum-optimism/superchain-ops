@@ -423,6 +423,10 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   Who:               0x6CD3850756b7894774Ab715D136F9dD02837De50, 0x13FbBDefa7D9B147A1777a8A5B0f30379E007ac3, 0x8BD2e80e6D1cf1e5C5f0c69972fE2f02B9C046Aa
 
   Details:           Nonce Updates for all addresses listed above.
+  Summary:
+    - 0x6CD3850756b7894774Ab715D136F9dD02837De50 is the caller
+    - 0x8BD2e80e6D1cf1e5C5f0c69972fE2f02B9C046Aa is Permissioned GameType Implementation as per <a href="https://eip.tools/eip/eip-161.md">EIP-161</a>.
+    - 0x13fbbdefa7d9b147a1777a8a5b0f30379e007ac3 is Permissionless GameType Implementation as per <a href="https://eip.tools/eip/eip-161.md">EIP-161</a>.
 </pre>
 
 # Supplementary Material
