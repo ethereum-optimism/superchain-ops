@@ -107,6 +107,7 @@ extract_payload_from_link() {
   contract_address=$(echo "$link" | sed -n 's/.*contractAddress=\([^&]*\).*/\1/p')
   from_address=$(echo "$link" | sed -n 's/.*from=\([^&]*\).*/\1/p')
   gas=$(echo "$link" | sed -n 's/.*gas=\([^&]*\).*/\1/p')
+  block_number=$(echo "$link" | sed -n 's/.*block=\([^&]*\).*/\1/p')
   raw_input=$(echo "$link" | sed -n 's/.*rawFunctionInput=\([^&]*\).*/\1/p')
 
   # Extract state overrides - this is more complex due to URL encoding
@@ -117,7 +118,12 @@ extract_payload_from_link() {
   payload_json="$payload_json\"network_id\":\"$network_id\","
   payload_json="$payload_json\"from\":\"$from_address\","
   payload_json="$payload_json\"to\":\"$contract_address\","
-  payload_json="$payload_json\"gas\":$gas," # TODO: Gas is optional, so is block_number
+  if [ -n "$gas" ]; then
+    payload_json="$payload_json\"gas\":$gas,"
+  fi
+  if [ -n "$block_number" ]; then
+    payload_json="$payload_json\"blockNumber\":$block_number,"
+  fi
   payload_json="$payload_json\"save\":true,"
   payload_json="$payload_json\"input\":\"$raw_input\","
   payload_json="$payload_json\"value\":\"0x0\","
