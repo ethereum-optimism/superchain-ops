@@ -264,7 +264,7 @@ jobs:
               --dotenv-path $(pwd)/.env \
               --justfile ../../../nested.just \
               simulate council
-  
+
   # TODO: Remove this job once we have stacked simulations for non-terminal tasks implemented.
   just_simulate_nested_improvements:
     circleci_ip_ranges: true
