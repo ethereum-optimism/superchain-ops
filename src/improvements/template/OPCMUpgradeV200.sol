@@ -132,6 +132,11 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
             string memory expectedErrors_11155420 =
                 "PDDG-50,PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-50,PLDG-DWETH-40,PLDG-ANCHORP-40";
 
+            // PROXYA-10: Proxy admin owner must be l1PAOMultisig - This is OK because it is checking for the OP Sepolia PAO.
+            // DF-30: Dispute factory owner must be l1PAOMultisig - It is checking for the OP Sepolia PAO.
+            string memory expectedErrors_84532 =
+                "PROXYA-10,DF-30,PDDG-50,PDDG-DWETH-30,PDDG-DWETH-40,PDDG-ANCHORP-40,PDDG-120,PLDG-50,PLDG-DWETH-30,PLDG-DWETH-40,PLDG-ANCHORP-40";
+                
             // PROXYA-10: Proxy admin owner must be l1PAOMultisig - This is OK because it is checking for the OP Mainnet PAO.
             // DF-30: Dispute factory owner must be l1PAOMultisig - It is checking for the OP Mainnet PAO.
             // PDDG-ANCHORP-40: Anchor state registry root must match expected dead root (for permissioned dispute game) - This does not apply to any chain more than 1 week old.
