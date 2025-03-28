@@ -360,8 +360,6 @@ jobs:
             (cd src/improvements && just simulate-all-templates)
 
   verify_ready_task_hashes:
-    context:
-      - tenderly
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -499,3 +497,6 @@ workflows:
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
+      - verify_ready_task_hashes:
+          context:
+            - tenderly
