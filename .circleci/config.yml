@@ -534,7 +534,7 @@ workflows:
             - circleci-repo-readonly-authenticated-github-token
      
       - just_simulate_single:
-          name: "DeputyPauseModule"
+          name: "simulate single sep/004-deputy-pause-module"
           task: "/sep/004-deputy-pause-module"
           context:
             - circleci-repo-readonly-authenticated-github-token
