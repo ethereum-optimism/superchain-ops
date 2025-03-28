@@ -359,6 +359,21 @@ jobs:
           command: |
             (cd src/improvements && just simulate-all-templates)
 
+  verify_ready_task_hashes:
+    context:
+      - tenderly
+    circleci_ip_ranges: true
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    environment:
+      FOUNDRY_PROFILE: ci
+    steps:
+      - utils/checkout-with-mise
+      - run:
+          name: Make sure all tasks described as ready to sign have correct hashes.
+          command: |
+            (cd src/improvements && just verify-ready-tasks)
+
   just_new_recipe_tests:
     circleci_ip_ranges: true
     docker:
