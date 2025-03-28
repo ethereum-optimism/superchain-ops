@@ -762,6 +762,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         // Use the max uint256 to indicate that the child multisig nonce is not provided (zero is a valid nonce).
         uint256 childMultisigNonce =
             optionalChildMultisig != address(0) ? _getNonce(optionalChildMultisig) : type(uint256).max;
+        // TODO: Pass through _startSnapshot so that inside getStateOverrides we can temporarily restore the state.
+        // For more information about this, see TODOs inside StateOverrideManager.sol.
         Simulation.StateOverride[] memory allStateOverrides =
             getStateOverrides(parentMultisig, _getNonce(parentMultisig), optionalChildMultisig, childMultisigNonce);
 

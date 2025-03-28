@@ -180,6 +180,9 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
   Summary:           nonce
   Detail:            The nonce of the ProxyAdminOwner contract is updated.
+                     Additionally, you may observe another state change here that (e.g. 'Nonce 1 -> 4').
+                     This is a state nonce increment, similar to the accounts listed at the bottom of the Tenderly State Diff page. We believe it results from an error in how Tenderly implements CREATE2, this nonce change does not occur in testing against an anvil node.
+                     We have raised this as an issue with the Tenderly team.
 
 ----- TENDERLY ONLY STATE DIFF -----   
   Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/unichain.toml#L44">0x6d5B183F538ABB8572F5cD17109c617b994D5833</a>

@@ -297,6 +297,7 @@ contract StateOverrideManagerUnitTest is Test {
         if (childMultisig != address(0)) {
             // Nested execution
             assertTrue(
+                // TODO: This should be 1 if the nonce override isn't applied. See TODO comments in StateOverrideManager.sol for more information.
                 parentDefaultOverride.overrides.length == 2,
                 string.concat(
                     "Parent default override must have 2 overrides, found: ",
