@@ -195,8 +195,14 @@ simulate-tenderly TASK="" SAFE_NAME="":
 
 # Simulate all non-terminal tasks locally and against Tenderly, then verify the domain separator and message hash match against the values in the VALIDATION.md file.
 #
+# Parses an array of safes to verify from the config.toml file, with the short name used in the scripts, and the human readable name used in the VALIDATION.md file.
+# signers = [
+#     {longName = "Optimism Foundation", shortName = "foundation"},
+#     {longName = "Security Council", shortName = "council"}
+# ]
+#
 # Parses these strings from the VALIDATION.md file:
-# ### Security Council / Optimism Foundation / Chain Governor / Child Safe 1 / Child Safe 2 / Single Safe Signer Data
+# ### <safe long name (from config.toml)>
 # Domain Hash: `<hash>`
 # Message Hash: `<hash>`
 verify-non-terminal-tasks:
@@ -208,7 +214,6 @@ verify-non-terminal-tasks:
 
     for task in ${root_dir}/src/improvements/tasks/*/*; do
         if [ -d "$task" ]; then
-
             # Read the README.md file and skip if it contains "Status: [SIGNED]" or "Status: [EXECUTED]"
             readme_file="${task}/README.md"
             if [ -f "$readme_file" ]; then
@@ -218,50 +223,49 @@ verify-non-terminal-tasks:
                 fi
             fi
 
-            # Read the validations file and extract the nested safe names
-            validation_file="${task}/VALIDATION.md"
-            
-            # The safe names and how they appear in validations are:
-            # - council - ### Security Council
-            # - foundation - ### Optimism Foundation
-            # - chain-governor - ### Chain Governor
-            # - child-safe-1 - ### Child Safe 1
-            # - child-safe-2 - ### Child Safe 2
-            # - single - ### Single Safe Signer Data
-
-            if [ -f "$validation_file" ]; then
-                # We want to run at least one verification if we have a validation file
-                verification_found=false
-
-                # Check for each possible safe name in the validations file
-                for safe_full_name in "Security Council" "Optimism Foundation" "Chain Governor" "Child Safe 1" "Child Safe 2" "Single Safe Signer Data"; do
-                    case "$safe_full_name" in
-                        "Security Council") safe_short_name="council" ;;
-                        "Optimism Foundation") safe_short_name="foundation" ;;
-                        "Chain Governor") safe_short_name="chain-governor" ;;
-                        "Child Safe 1") safe_short_name="child-safe-1" ;;
-                        "Child Safe 2") safe_short_name="child-safe-2" ;;
-                        "Single Safe Signer Data") safe_short_name="single" ;;
-                        *) safe_short_name="" ;;
-                    esac
-
-                    if grep -q "### ${safe_full_name}" "$validation_file"; then
-                        verification_found=true
-                        domain_separator=$(grep -A 2 "### ${safe_full_name}" "$validation_file" | grep "Domain Hash:" | grep -o '`[^`]*`' | tr -d '`')
-                        message_hash=$(grep -A 3 "### ${safe_full_name}" "$validation_file" | grep "Message Hash:" | grep -o '`[^`]*`' | tr -d '`')
-
-                        # Simulate and verify the task
-                        ${root_dir}/src/improvements/script/simulate-verify-task.sh $task $safe_short_name $domain_separator $message_hash
-                    fi
-                done
-
-                if [ "$verification_found" = false ]; then
-                    echo "Error: No hashes found in VALIDATIONS.md for task $task"
-                    exit 1
-                fi
-            else
+            # Check that we have a validations file and exit if not
+            validation_md="${task}/VALIDATION.md"
+            if [ ! -f "$validation_md" ]; then
                 echo "Error: No VALIDATION.md file found for task $task"
                 exit 1
             fi
+
+            # Check that we have a config.toml file and exit if not
+            config_toml="${task}/config.toml"
+            if [ ! -f "$config_toml" ]; then
+                echo "Error: No config.toml file found for task $task"
+                exit 1
+            fi
+
+            # Use yq to extract the signers section from the config and convert to JSON
+            signers=$(yq -p=toml -o=json eval '.signers' "$config_toml")
+
+            # Exit if $signers is null
+            if [ "$signers" = "null" ]; then
+                echo "Error: No signers found in config.toml for task $task"
+                exit 1
+            fi
+
+            # Loop over the signers and extract the validation and short safe names
+            echo "$signers" | jq -c '.[]' | while read -r signer; do
+                readable_name=$(echo "$signer" | jq -r '.longName')
+                short_name=$(echo "$signer" | jq -r '.shortName')
+                echo "Verifying hashes for $readable_name"
+
+                # Look for the validation name in the validation file, and then extract the domain separator and message hash
+                if grep -q "### ${readable_name}" "$validation_md"; then
+                    domain_separator=$(grep -A 2 "### ${readable_name}" "$validation_md" | grep "Domain Hash:" | grep -o '`[^`]*`' | tr -d '`')
+                    message_hash=$(grep -A 3 "### ${readable_name}" "$validation_md" | grep "Message Hash:" | grep -o '`[^`]*`' | tr -d '`')
+                    echo "Domain Separator: $domain_separator"
+                    echo "Message Hash: $message_hash"
+
+                    # Simulate and verify the task
+                    ${root_dir}/src/improvements/script/simulate-verify-task.sh $task $short_name $domain_separator $message_hash
+
+                else
+                    echo "Error: No hashes found in VALIDATIONS.md for $readable_name"
+                    exit 1
+                fi
+            done
         fi
     done
