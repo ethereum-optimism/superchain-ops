@@ -1,0 +1,66 @@
+{
+  "metadata": {
+    "name": "DisputeGameFactory - Set Init Bonds",
+    "description": "Set initial bonds (0.08 ETH) for gameTypes 0 and 1"
+  },
+  "transactions": [
+    {
+      "metadata": {
+        "name": "Sets the bond value for permissioned game type",
+        "description": "This sets the initial bond to 0.08 ETH to deploy a PermissionedDisputeGame."
+      },
+      "to": "0x860e626c700AF381133D9f4aF31412A2d1DB3D5d",
+      "value": "0x0",
+      "data": "0x1e3342400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000011c37937e080000", 
+      "contractMethod": {
+        "type": "function",
+        "name": "setInitBond",
+        "inputs": [
+          {
+            "name": "_gameType",
+            "type": "uint32"
+          },
+          {
+            "name": "_initBond",
+            "type": "uint256"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_gameType": "1",
+        "_initBond": "80000000000000000"
+      }
+    },
+    {
+      "metadata": {
+        "name": "Sets the bond value for permissionless",
+        "description": "This sets the initial bond to 0.08 ETH to deploy a FaultDisputeGame."
+      },
+      "to": "0x860e626c700AF381133D9f4aF31412A2d1DB3D5d",
+      "value": "0x0",
+      "data": "0x1e3342400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000011c37937e080000", 
+      "contractMethod": {
+        "type": "function",
+        "name": "setInitBond",
+        "inputs": [
+          {
+            "name": "_gameType",
+            "type": "uint32"
+          },
+          {
+            "name": "_initBond",
+            "type": "uint256"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_gameType": "0",
+        "_initBond": "80000000000000000"
+      }
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "chainId": 11155111,
+  "metadata": {
+    "name": "Deputy Guardian - Enable Permissioness Dispute Game",
+    "description": "This task updates the `respectedGameType` in the `OptimismPortal` to `CANNON`, enabling users to permissionlessly propose outputs as well as for anyone to participate in the dispute of these proposals. This action requires all in-progress withdrawals to be re-proven against a new `FaultDisputeGame` that was created after this update occurs."
+  },
+  "transactions": [
+    {
+      "metadata": {
+        "name": "Update `respectedGameType` in the `OptimismPortal`",
+        "description": "Updates the `respectedGameType` to `CANNON` in the `OptimismPortal`, enabling permissionless proposals and challenging."
+      },
+      "to": "0xfd7E6Ef1f6c9e4cC34F54065Bf8496cE41A4e2e8",
+      "value": "0x0",
+      "data": "0xa1155ed90000000000000000000000005c1d29c6c9c8b0800692acc95d700bcb4966a1d70000000000000000000000000000000000000000000000000000000000000000",
+      "contractMethod": {
+        "type": "function",
+        "name": "setRespectedGameType",
+        "inputs": [
+          {
+            "name": "_portal",
+            "type": "address"
+          },
+          {
+            "name": "_gameType",
+            "type": "uint32"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_gameType": "0",
+        "_portal": "0x5c1d29C6c9C8b0800692acC95D700bcb4966A1d7"
+      }
+    }
+  ]
+}
