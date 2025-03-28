@@ -240,7 +240,7 @@ jobs:
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
 
-  just_simulate_single:
+  simulate:
     description: "Runs simulations of a task"
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -533,7 +533,7 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
      
-      - just_simulate_single:
+      - simulate:
           name: "simulate single sep/004-deputy-pause-module"
           task: "/sep/004-deputy-pause-module"
           context:
