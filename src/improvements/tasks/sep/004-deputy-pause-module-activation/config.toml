@@ -1,0 +1,8 @@
+l2chains = [{name = "OP Sepolia Testnet", chainId = 11155420}] # e.g. [{name = "OP Mainnet", chainId = 10}]
+
+templateName = "EnableDeputyPauseModuleTemplate"
+
+newModule = "0xc6f7C07047ba37116A3FdC444Afb5018f6Df5758"
+[addresses]
+# FoundationUpgradeSafe = "0x847B5c174615B1B7fDF770882256e2D3E95b9D92"
+FoundationOperationSafe = "0x837DE453AD5F21E89771e3c06239d8236c0EFd5E"
