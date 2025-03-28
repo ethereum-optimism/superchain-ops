@@ -1,6 +1,6 @@
-# unichain-004-superchain-config-fix: Unichain Sepolia SuperchainConfig fix
+# 003-unichain-superchain-config-fix: Unichain Sepolia SuperchainConfig fix
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x8f1bf1fb5acdadf0575f999af12c23701f0840d03a98ad832afefc6e78f0a4de)
 
 ## Objective
 
