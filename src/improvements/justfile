@@ -192,7 +192,7 @@ simulate-tenderly TASK="" SAFE_NAME="":
         task_path="${PWD}/${task_path}"
     fi
 
-    ${root_dir}/src/improvements/script/simulate-tenderly.sh "$task_path" {{SAFE_NAME}}
+    ${root_dir}/src/improvements/script/simulate-verify-task.sh "$task_path" {{SAFE_NAME}}
 
 # Simulate all ready-to-sign tasks locally and against Tenderly, then verify the domain separator and message hash match against the values in the VALIDATION.md file.
 #
@@ -260,11 +260,11 @@ verify-ready-tasks:
                 if grep -q "### ${readable_name}" "$validation_md"; then
                     domain_separator=$(grep -A 2 "### ${readable_name}" "$validation_md" | grep "Domain Hash:" | grep -o '`[^`]*`' | tr -d '`')
                     message_hash=$(grep -A 3 "### ${readable_name}" "$validation_md" | grep "Message Hash:" | grep -o '`[^`]*`' | tr -d '`')
-                    echo "Domain Separator: $domain_separator"
-                    echo "Message Hash: $message_hash"
+                    echo "Target Domain Separator: $domain_separator"
+                    echo "Target Message Hash: $message_hash"
 
                     # Simulate and verify the task
-                    ${root_dir}/src/improvements/script/simulate-verify-task.sh $task $short_name $domain_separator $message_hash
+                    ${root_dir}/src/improvements/script/simulate-tenderly.sh $task $short_name $domain_separator $message_hash
 
                 else
                     echo "Error: No hashes found in VALIDATIONS.md for $readable_name"

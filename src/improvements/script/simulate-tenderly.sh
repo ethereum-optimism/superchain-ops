@@ -2,36 +2,97 @@
 set -euo pipefail
 
 # This script simulates a task both locally and with Tenderly.
+# If provided with a domain separator and message hash, it will verify them against both simulations.
+#
 # task: the path to the task to simulate
-# nested_safe_name: the name of the nested safe to simulate as, leave blank for single tasks
+# nested_safe_name: the name of the nested safe to simulate as, use "single" for single tasks
+# domain_separator: (optional) the domain separator to verify against
+# message_hash: (optional) the message hash to verify against
+#
+# Parses these strings from the local simulation output:
+# Domain Separator: <hash>
+# Message Hash: <hash>
+# Simulation link: <link>
+#
+# Parses these strings from get-tenderly-hashes.sh:
+# Domain Separator: <hash>
+# Message Hash: <hash>
+# Simulation link: <link>
 simulate_tenderly() {
     task=$1
     nested_safe_name=$2
-
+    domain_separator=$3
+    message_hash=$4
     root_dir=$(git rev-parse --show-toplevel)
-    
     local_output_file="./simulation_output.txt"
+    remote_output_file="./remote_output.txt"
+
     "$root_dir"/src/improvements/script/simulate-task.sh "$task" "$nested_safe_name" | tee "$local_output_file"
 
-    # Extract Tenderly simulation link from output into a variable
-    tenderly_link=$(grep -A 1 "Simulation link:" "$local_output_file" | grep -v "Simulation link:" | grep "https://" | tr -d '[:space:]')
+    # If a domain separator and message hash are provided, verify them against the local simulation
+    if [ -n "$domain_separator" ] && [ -n "$message_hash" ]; then
+        # Extract domain separator and message hash from the simulation output
+        domain_separator_local=$(awk '/Domain Hash:/{print $3}' "$local_output_file")
+        message_hash_local=$(awk '/Message Hash:/{print $3}' "$local_output_file")
 
-    # If the links is too long, the raw input will be in its own line. In that case, we append the raw input data back to the tenderly link. We will extract the data just now anyway.
+        # Compare the local and provided domain separator and message hash
+        if [ "$domain_separator_local" != "$domain_separator" ]; then
+            echo -e "\n\n\033[1;31mLocal domain separator mismatch\033[0m\n"
+            echo "Validation: $domain_separator"
+            echo "Local: $domain_separator_local"
+            exit 1
+        fi
+        if [ "$message_hash_local" != "$message_hash" ]; then
+            echo -e "\n\n\033[1;31mLocal message hash mismatch\033[0m\n"
+            echo "Validation: $message_hash"
+            echo "Local: $message_hash_local"
+            exit 1
+        fi
+        echo -e "\n\n\033[1;32mLocal hashes match\033[0m\n"
+    fi
+
+    # Extract Tenderly simulation link from output and convert into a JSON payload
+    tenderly_link=$(grep -A 1 "Simulation link:" "$local_output_file" | grep -v "Simulation link:" | grep "https://" | tr -d '[:space:]')
+    
+    # If the link is too long, the raw input will be in its own line. In that case, we append the raw input data back to the tenderly link. We will extract the data just now anyway.
     if [[ "$tenderly_link" != *"rawFunctionInput"* ]]; then
         rawFunctionInput=$(grep -A 1 "Insert the following hex into the 'Raw input data' field:" "$local_output_file" | grep -v "Insert the following hex into the 'Raw input data' field:" | tr -d '[:space:]')
         tenderly_link="$tenderly_link&rawFunctionInput=$rawFunctionInput"
     fi
+    
+    tenderly_payload=$(extract_payload_from_link "$tenderly_link")
     rm "$local_output_file"
 
-    # Convert the link to a JSON payload
-    payload=$(extract_payload_from_link "$tenderly_link")
-    
-    if [ -n "$payload" ]; then
-        # Simulate the task with Tenderly
-        "$root_dir"/src/improvements/script/get-tenderly-hashes.sh "$payload"
-    else
-        echo -e "\n\n\033[1;31mSimulation link not found in console output\033[0m\n"
+    # Exit if the payload is not well formed using jq
+    if ! jq -e . > /dev/null 2>&1 <<< "$tenderly_payload"; then
+        echo -e "Could not parse Tenderly link into JSON payload"
         exit 1
+    fi
+    
+    # Simulate the task with Tenderly and extract the domain and message hashes
+    "$root_dir"/src/improvements/script/get-tenderly-hashes.sh "$tenderly_payload" 2>&1 | tee "$remote_output_file"   
+
+    # If a domain separator and message hash are provided, verify them against the Tenderly simulation
+    if [ -n "$domain_separator" ] && [ -n "$message_hash" ]; then
+        # Extract the domain and message hashes from the remote output
+        domain_separator_tenderly=$(awk '/Domain Separator:/{print $3}' "$remote_output_file")
+        message_hash_tenderly=$(awk '/Message Hash:/{print $3}' "$remote_output_file")
+        rm "$remote_output_file"
+
+            # Compare the tenderly hashes with the provided hashes
+            if [ "$domain_separator_tenderly" != "$domain_separator" ]; then
+                echo -e "\n\n\033[1;31mTenderly domain separator mismatch\033[0m\n"
+                echo "Validation: $domain_separator"
+                echo "Tenderly: $domain_separator_tenderly"
+                exit 1
+            fi
+            if [ "$message_hash_tenderly" != "$message_hash" ]; then
+                echo -e "\n\n\033[1;31mTenderly message hash mismatch\033[0m\n"
+            echo "Validation: $message_hash"
+            echo "Tenderly: $message_hash_tenderly"
+            exit 1
+        fi
+        echo -e "\n\n\033[1;32mTenderly hashes match\033[0m\n"
     fi
 }
 
@@ -77,4 +138,4 @@ extract_payload_from_link() {
   echo "$payload_json"
 }
 
-simulate_tenderly "$1" "${2:-""}"
+simulate_tenderly "$1" "$2" "${3:-}" "${4:-}"
