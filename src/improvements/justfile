@@ -159,6 +159,7 @@ simulate-all-templates:
     simulation_count=0
     for task in ${root_dir}/test/tasks/example/*/*; do
         if [ -d "$task" ]; then
+            echo "Simulating task: $task"
             ${root_dir}/src/improvements/script/simulate-task.sh $task $nested_safe_name
             simulation_count=$((simulation_count + 1))
         fi
@@ -193,7 +194,7 @@ simulate-tenderly TASK="" SAFE_NAME="":
 
     ${root_dir}/src/improvements/script/simulate-tenderly.sh "$task_path" {{SAFE_NAME}}
 
-# Simulate all non-terminal tasks locally and against Tenderly, then verify the domain separator and message hash match against the values in the VALIDATION.md file.
+# Simulate all ready-to-sign tasks locally and against Tenderly, then verify the domain separator and message hash match against the values in the VALIDATION.md file.
 #
 # Parses an array of safes to verify from the config.toml file, with the short name used in the scripts, and the human readable name used in the VALIDATION.md file.
 # signers = [
@@ -205,7 +206,7 @@ simulate-tenderly TASK="" SAFE_NAME="":
 # ### <safe long name (from config.toml)>
 # Domain Hash: `<hash>`
 # Message Hash: `<hash>`
-verify-non-terminal-tasks:
+verify-ready-tasks:
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
@@ -214,11 +215,14 @@ verify-non-terminal-tasks:
 
     for task in ${root_dir}/src/improvements/tasks/*/*; do
         if [ -d "$task" ]; then
-            # Read the README.md file and skip if it contains "Status: [SIGNED]" or "Status: [EXECUTED]"
+            echo "Task: $task"
+
+            # Read the README.md file and skip if it does not contain "Status:.*READY.*"
             readme_file="${task}/README.md"
             if [ -f "$readme_file" ]; then
-                if grep -q "Status: \[SIGNED\]" "$readme_file" || grep -q "Status: \[EXECUTED\]" "$readme_file"; then
-                    echo "Skipping signed/executed task: $task"
+                if ! grep -q "Status:.*READY.*" "$readme_file"; then
+                    echo -e "$(grep "Status:" $readme_file)"
+                    echo -e "Skipping task\n"
                     continue
                 fi
             fi
