@@ -264,7 +264,7 @@ jobs:
               --dotenv-path $(pwd)/.env \
               --justfile ../../../nested.just \
               simulate council
-  
+
   # TODO: Remove this job once we have stacked simulations for non-terminal tasks implemented.
   just_simulate_nested_improvements:
     circleci_ip_ranges: true
@@ -418,6 +418,18 @@ jobs:
             | # Justfiles are not shell scripts and should not be checked with shellcheck
             (cd src/improvements/script && shellcheck -x *.sh)
 
+  check-links:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - checkout
+      - run:
+          name: Make script executable
+          command: chmod +x src/improvements/script/check-links.sh
+      - run:
+          name: Run link checker
+          command: ./src/improvements/script/check-links.sh src/improvements/tasks
+
 workflows:
   main:
     when:
@@ -487,8 +499,16 @@ workflows:
       # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
       # - just_simulate_sc_rehearsal_1
       - just_simulate_nested_improvements:
+          name: "simulate nested sep/001-opcm-upgrade-v200 child-safe-1"
           task: "/sep/001-opcm-upgrade-v200"
           signer: "child-safe-1"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
+      - just_simulate_nested_improvements:
+          name: "simulate nested eth/000-opcm-upgrade-v200 council"
+          task: "/eth/000-opcm-upgrade-v200"
+          signer: "council"
           context:
             - circleci-repo-readonly-authenticated-github-token
 
@@ -514,3 +534,5 @@ workflows:
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
+
+      - check-links

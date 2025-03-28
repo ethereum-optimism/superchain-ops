@@ -292,7 +292,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
     Summary:           Slot 1 is updated to set DisputeGameFactoryProxy address
     Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
-                       <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/sepolia/soneium-minato.toml#L64C30-L64C72">0xB3Ad2c38E6e0640d7ce6aA952AB3A60E81bf7a01</a> is the
+                       <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/superchain/configs/sepolia/soneium-minato.toml#L64">0xB3Ad2c38E6e0640d7ce6aA952AB3A60E81bf7a01</a> is the
                        DisputeGameFactoryProxy address on Soneium Testnet Minato.
 
   ----- DecodedStateDiff[12] -----
