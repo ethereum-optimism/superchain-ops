@@ -267,6 +267,7 @@ jobs:
   
   # TODO: Remove this job once we have stacked simulations for non-terminal tasks implemented.
   just_simulate_nested_improvements:
+    circleci_ip_ranges: true
     description: "Runs simulations of a nested task (new superchain-ops improvements)"
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
