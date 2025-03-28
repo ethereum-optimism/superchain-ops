@@ -153,23 +153,20 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
             // PDDG-ANCHORP-40: Permissioned dispute game's AnchorStateRegistry root must be 0xdead000000000000000000000000000000000000000000000000000000000000
             // PLDG-ANCHORP-40: Permissionless dispute game's AnchorStateRegistry root must be 0xdead000000000000000000000000000000000000000000000000000000000000
             //   ANCHORP-40 errors do not apply to chains over 1 week old.
-            string memory expectedErrors_10 =
-                "PDDG-DWETH-30,PDDG-ANCHORP-40,PLDG-DWETH-30,PLDG-ANCHORP-40";
+            string memory expectedErrors_10 = "PDDG-DWETH-30,PDDG-ANCHORP-40,PLDG-DWETH-30,PLDG-ANCHORP-40";
 
             // PDDG-ANCHORP-40: Permissioned dispute game's AnchorStateRegistry root must be 0xdead000000000000000000000000000000000000000000000000000000000000
             //   ANCHORP-40 errors do not apply to chains over 1 week old.
             // PLDG-10: Permissionless dispute game implementation is null (not found)
             //   This error is expect on chains which do not yet have permissionless dispute games.
-            string memory expectedErrors_1868 =
-                "PDDG-ANCHORP-40,PLDG-10";
+            string memory expectedErrors_1868 = "PDDG-ANCHORP-40,PLDG-10";
 
             // SYSCON-30: System config scalar must be 1 << 248 (first byte must be 1)
             //   SYSCON-30 is a result of the Ink system config being on an earlier
             // PDDG-ANCHORP-40: Permissioned dispute game's AnchorStateRegistry root must be 0xdead000000000000000000000000000000000000000000000000000000000000
             // PLDG-ANCHORP-40: Permissionless dispute game's AnchorStateRegistry root must be 0xdead000000000000000000000000000000000000000000000000000000000000
             //   ANCHORP-40 errors do not apply to chains over 1 week old.
-            string memory expectedErrors_57073 =
-                "SYSCON-30,PDDG-ANCHORP-40,PLDG-ANCHORP-40";
+            string memory expectedErrors_57073 = "SYSCON-30,PDDG-ANCHORP-40,PLDG-ANCHORP-40";
 
             require(
                 reasons.eq(expectedErrors_11155420) || reasons.eq(expectedErrors_1946)
