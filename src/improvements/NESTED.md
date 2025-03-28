@@ -44,7 +44,7 @@ If you wish to use a different account, append an `X` to the command to set the 
 For the Security Council:
 
 ```shell
-   just \
+just \
    --dotenv-path $(pwd)/.env \
    --justfile ../../../nested.just \
    simulate \
