@@ -722,7 +722,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
   ----- DecodedStateDiff[43] -----
     Who:               0x9AEA1FD851b63d57Ba4Fc556B0e0c170126C9EAf
-    Contract:          DelayedWeth - Soneium
+    Contract:          Permissioned DelayedWeth - Soneium
     Chain ID:          1868
     Raw Slot:          0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
     Raw Old Value:     0x00000000000000000000000071e966ae981d1ce531a7b6d23dc0f27b38409087
@@ -938,7 +938,6 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   - 0xd113ad136a0dF1c7FfB7F1606Be1c778bCfE2f3b (OP Mainnet's newly created Permissioned dispute game)
   - 0x1661af719956198628f7e67087f19f8a79524a1d (Soneium's newly created Permissioned dispute game)
   - 0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64 (the signer of the transaction, alternatively your own address may appear here)
-
   </code>
 </pre>
 
