@@ -1,6 +1,6 @@
 # 000-opcm-upgrade-v200: Mainnet OPCM v2.0.0: op, soneium, ink
 
-Status: [DRAFT]()
+Status: READY TO SIGN
 
 ## Objective
 
