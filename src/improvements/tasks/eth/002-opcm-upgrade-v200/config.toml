@@ -17,6 +17,7 @@ ChildSafe1 = "0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC"
 ChildSafe2 = "0x847B5c174615B1B7fDF770882256e2D3E95b9D92"
 ChildSafe3 = "0xc2819DC788505Aac350142A7A707BF9D03E3Bd03"
 
+# TODO: Remove entire state override section when 000-opcm-upgrade-v200 is executed.
 [stateOverrides]
 # SuperchainConfig op-contracts/v2.0.0 implementation address set. This task assumes upgrade controller has already called OPCM upgrade.
 # https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L41
