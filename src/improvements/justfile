@@ -185,7 +185,7 @@ simulate-tenderly TASK="" SAFE_NAME="":
     root_dir=$(git rev-parse --show-toplevel)
     forge build
 
-    # If the task path doesn't start with a slash, append the current directory to the task path
+    # If the task path does not start with a slash, append the current directory to the task path
     task_path="{{TASK}}"
     if [[ "$task_path" != /* ]]; then
         task_path="${PWD}/${task_path}"
@@ -209,7 +209,7 @@ verify-non-terminal-tasks:
     for task in ${root_dir}/src/improvements/tasks/*/*; do
         if [ -d "$task" ]; then
 
-            # Read the README.md file and skip if it contains "Status: [SIGNED] or "Status: [EXECUTED]"
+            # Read the README.md file and skip if it contains "Status: [SIGNED]" or "Status: [EXECUTED]"
             readme_file="${task}/README.md"
             if [ -f "$readme_file" ]; then
                 if grep -q "Status: \[SIGNED\]" "$readme_file" || grep -q "Status: \[EXECUTED\]" "$readme_file"; then
