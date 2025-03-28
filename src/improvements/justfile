@@ -174,13 +174,13 @@ simulate-all-templates:
 
 # Simulate a task locally and against Tenderly.
 # TASK: The fullpath to the task to simulate.
-# SAFE_NAME: The name of the safe to simulate the task for (council, foundation). Leave blank for non-nested tasks.
+# SAFE_NAME: The name of the safe to simulate the task for (council, foundation). Use "single" for non-nested tasks.
 #
 # Example:
 # cd src/improvements
 # just simulate-tenderly tasks/sep/000-opcm-upgrade-v200 council
 # just simulate-tenderly tasks/sep/003-unichain-superchain-config-fix
-simulate-tenderly TASK="" SAFE_NAME="":
+simulate-tenderly TASK SAFE_NAME:
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
@@ -192,7 +192,7 @@ simulate-tenderly TASK="" SAFE_NAME="":
         task_path="${PWD}/${task_path}"
     fi
 
-    ${root_dir}/src/improvements/script/simulate-verify-task.sh "$task_path" {{SAFE_NAME}}
+    ${root_dir}/src/improvements/script/simulate-tenderly.sh "$task_path" {{SAFE_NAME}}
 
 # Simulate all ready-to-sign tasks locally and against Tenderly, then verify the domain separator and message hash match against the values in the VALIDATION.md file.
 #
