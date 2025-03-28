@@ -6,8 +6,10 @@ if [ -z "$1" ]; then
 fi
 
 eth_address_regex="^0x[a-fA-F0-9]{40}$"
-temp_file=$(mktemp)  # Create a temporary file to track failures
-echo "0" > "$temp_file"  # Initialize failure count
+temp_file=$(mktemp)
+failed_validations=()
+
+echo "0" > "$temp_file"
 
 convert_to_raw_github_url() {
   if [[ "$1" =~ ^https://github.com/([^/]+)/([^/]+)/blob/(.*)#L([0-9]+)$ ]]; then
@@ -41,9 +43,17 @@ find "$1" -name "VALIDATION.md" -type f | while read -r file; do
         if [[ "$(echo "$line_content" | tr '[:upper:]' '[:lower:]')" =~ $(echo "$content" | tr '[:upper:]' '[:lower:]') ]]; then
           echo "✅ Success: Ethereum address found on this line!"
         else
-          echo "❌ Failure: Ethereum address not found on this line."
+          echo "⛔ Failure: Ethereum address not found on this line."
           failures=$(($(cat "$temp_file") + 1))
           echo "$failures" > "$temp_file"
+          validation_line=$(grep -n "$href" "$file" | cut -d: -f1)
+          validation_content=$(sed -n "${validation_line}p" "$file")
+          echo "File: $file (line $validation_line)" >> "$temp_file.failures"
+          echo "Validation line: $validation_content" >> "$temp_file.failures"
+          echo "Target URL: $href" >> "$temp_file.failures"
+          echo "Expected address: $content" >> "$temp_file.failures"
+          echo "Found content: $line_content" >> "$temp_file.failures"
+          echo "---" >> "$temp_file.failures"
         fi
       fi
       
@@ -55,12 +65,18 @@ find "$1" -name "VALIDATION.md" -type f | while read -r file; do
 done
 
 failures=$(cat "$temp_file")
-rm "$temp_file"
 
 if [ "$failures" -gt 0 ]; then
+  echo "======================="
+  echo "Failed Validations Summary:"
+  echo "======================="
+  cat "$temp_file.failures"
+  echo "======================="
   echo "Found $failures validation failure(s)"
+  rm "$temp_file" "$temp_file.failures"
   exit 1
 else
   echo "All validations passed successfully"
+  rm "$temp_file"
   exit 0
 fi
