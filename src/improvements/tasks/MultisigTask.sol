@@ -278,11 +278,15 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @param taskConfigFilePath The path to the task configuration file.
     function _taskSetup(string memory taskConfigFilePath) internal {
         require(bytes(config.safeAddressString).length == 0, "MultisigTask: already initialized");
+
         config.safeAddressString = safeAddressString();
         IGnosisSafe _parentMultisig; // TODO parentMultisig should be of type IGnosisSafe
         (addrRegistry, _parentMultisig, multicallTarget) = _configureTask(taskConfigFilePath);
 
         parentMultisig = address(_parentMultisig);
+        if (parentMultisig.code.length == 0) {
+            revert("MultisigTask: Parent multisig must have code.");
+        }
 
         config.allowedStorageKeys = _taskStorageWrites();
         config.allowedStorageKeys.push(safeAddressString());
@@ -798,13 +802,21 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         console.log("\nSimulation payload:");
         // forgefmt: disable-start
         string memory payload = string.concat(
-            '{\"network_id\":\"', vm.toString(block.chainid),'\",',
-            '\"from\":\"', vm.toString(msg.sender),'\",',
-            '\"to\":\"', vm.toString(to), '\",',
-            '\"save\":true,',
-            '\"input\":\"', vm.toString(txData),'\",',
-            '\"value\":\"0x0\",',
-            '\"state_objects\":{'
+            '{"network_id":"',
+            vm.toString(block.chainid),
+            '",',
+            '"from":"',
+            vm.toString(msg.sender),
+            '",',
+            '"to":"',
+            vm.toString(to),
+            '",',
+            '"save":true,',
+            '"input":"',
+            vm.toString(txData),
+            '",',
+            '"value":"0x0",',
+            '"state_objects":{'
         );
         // forgefmt: disable-end
 
@@ -825,15 +837,20 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     {
         // forgefmt: disable-start
         string memory result = string.concat(
-            '\"', vm.toString(stateOverride.contractAddress), '\":{\"storage\":{'
+            '"',
+            vm.toString(stateOverride.contractAddress),
+            '":{"storage":{'
         );
 
         for (uint256 j = 0; j < stateOverride.overrides.length; j++) {
-            if (j > 0) result = string.concat(result, ',');
+            if (j > 0) result = string.concat(result, ",");
             result = string.concat(
                 result,
-                '\"', vm.toString(bytes32(stateOverride.overrides[j].key)), '\":\"',
-                vm.toString(stateOverride.overrides[j].value), '\"'
+                '"',
+                vm.toString(bytes32(stateOverride.overrides[j].key)),
+                '":"',
+                vm.toString(stateOverride.overrides[j].value),
+                '"'
             );
         }
         // forgefmt: disable-end
