@@ -118,26 +118,22 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
                 absolutePrestate: currentAbsolutePrestate,
                 l2ChainID: chainId
             });
-            
+
             // We expect many errors returned from this validation. Below are reasons for each failure which have been deemed acceptable.
             // In future versions of StandardValidator, we shouldn't be expecting any errors.
             string memory reasons = STANDARD_VALIDATOR_V200.validate({_input: input, _allowFailure: true});
-        
+
             // PROXYA-10: Proxy admin owner must be l1PAOMultisig - This is OK because it is checking for the OP Mainnet PAO.
             // DF-30: Dispute factory owner must be l1PAOMultisig - It is checking for the OP Mainnet PAO.
             // PDDG-ANCHORP-40: Anchor state registry root must match expected dead root (for permissioned dispute game) - This does not apply to any chain more than 1 week old.
             // PDDG-120: Permissioned dispute game challenger must match challenger address - It is checking for the OP Mainnet Challenger
             // PLDG-DWETH-30: Delayed WETH owner must be l1PAOMultisig (for permissionless dispute game) - It is checking for the OP Mainnet PAO
             // PLDG-ANCHORP-40: Anchor state registry root must match expected dead root (for permissionless dispute game) - This does not apply to any chain more than 1 week old
-            
+
             string memory expectedErrors_1301 =
                 "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-ANCHORP-40,PDDG-120,PLDG-DWETH-30,PLDG-ANCHORP-40";
 
-            require(
-                reasons.eq(expectedErrors_1301),
-                string.concat("Unexpected errors: ", reasons)
-            );
-            
+            require(reasons.eq(expectedErrors_1301), string.concat("Unexpected errors: ", reasons));
         }
     }
 
