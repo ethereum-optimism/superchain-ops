@@ -429,8 +429,8 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
 ## Figure 0.1: Storage Layout of OPContractsManager
 
-![OPContractsManager isRC flag set to false]()
+![OPContractsManager isRC flag set to false](../000-opcm-upgrade-v200/images/op-contracts-manager-storage-layout.png)
 
 ## Figure 0.2: Storage Layout of AnchorStateRegistryProxy
 
-![AnchorStateRegistryProxy]()
+![AnchorStateRegistryProxy](../000-opcm-upgrade-v200/images/op-contracts-manager-storage-layout.png)
