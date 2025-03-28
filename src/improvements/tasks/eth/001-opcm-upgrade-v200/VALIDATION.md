@@ -131,8 +131,8 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   Raw Old Value:     0x00000000000000000000000071e966ae981d1ce531a7b6d23dc0f27b38409087
   Raw New Value:     0x0000000000000000000000005e40b9231b86984b5150507046e354dbfbed3d9e
   Decoded Kind:      address
-  Decoded Old Value: 0x71e966Ae981d1ce531a7b6d23DC0f27B38409087
-  Decoded New Value: 0x5e40B9231B86984b5150507046e354dbFbeD3d9e
+  Decoded Old Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/validation/standard/standard-versions-mainnet.toml#L74">0x71e966Ae981d1ce531a7b6d23DC0f27B38409087</a>
+  Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/validation/standard/standard-versions-mainnet.toml#L53">0x5e40B9231B86984b5150507046e354dbFbeD3d9e</a>
 
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
@@ -281,7 +281,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   Raw New Value:     0x0000000000000000000000007b465370bb7a333f99edd19599eb7fb1c2d3f8d2
   Decoded Kind:      address
   Decoded Old Value: 0x0000000000000000000000000000000000000000
-  Decoded New Value: 0x7b465370BB7A333f99edd19599EB7Fb1c2D3F8D2
+  Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/validation/standard/standard-versions-mainnet.toml#L52">0x7b465370BB7A333f99edd19599EB7Fb1c2D3F8D2</a>
 
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
@@ -296,7 +296,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   Raw New Value:     0x0000000000000000000000000475cbcaebd9ce8afa5025828d5b98dfb67e059e
   Decoded Kind:      address
   Decoded Old Value: 0x0000000000000000000000000000000000000000
-  Decoded New Value: 0x0475cBCAebd9CE8AfA5025828d5b98DFb67E059E
+  Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/d4bb112dc979fd43ac92252c549d3ed7c4d0eb57/superchain/configs/mainnet/base.toml#L60">0x0475cBCAebd9CE8AfA5025828d5b98DFb67E059E</a>
 
   Summary:           Proxy owner address
   Detail:            Standard slot for storing the owner address in a Proxy contract.
@@ -331,6 +331,20 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                      SystemConfig contract for 'op-contracts/v2.0.0-rc.1'.
 
+----- DecodedStateDiff[16] -----
+  Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/superchain/configs/mainnet/base.toml#L44">0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c</a>
+  Contract:          ProxyAdminOwner (GnosisSafe)
+  Chain ID:          8453
+  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
+  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000006
+  Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000000007
+  Decoded Kind:      uint256
+  Decoded Old Value: 6
+  Decoded New Value: 7
+
+  Summary:           nonce
+  Detail:            The nonce of the ProxyAdminOwner contract is updated.
+
 ----- TENDERLY ONLY STATE DIFF -----   
  Who:                
  Contract:           ProxyAdminOwner (GnosisSafe) - Base Sepolia Testnet
@@ -346,26 +360,12 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
                      This slot change reflects an update to the approvedHashes mapping.
                      Specifically, this simulation was ran as the nested safe <i>0x9855054731540A48b28990B63DcF4f33d8AE46A1</i>.
                       - <i>res=$(cast index address 0x9855054731540A48b28990B63DcF4f33d8AE46A1 8)</i>
-                      - <i>cast index bytes32 0xbc83ab0dad212b9ca5faa0ba5658e9f8a7523f575dba8e0c0486c2d06af033db $res</i>
+                      - <i>cast index bytes32 0xdc77f38c84a86deaa26647fc68a717121fb17ad0e50bc7d385bab4beb3347233 $res</i>
                      Alternatively, the 'Raw Slot' value can be different if we run as <i>0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A</i>:
                       - <i>res=$(cast index address 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A 8)</i>
-                      - <i>cast index bytes32 0xbc83ab0dad212b9ca5faa0ba5658e9f8a7523f575dba8e0c0486c2d06af033db $res</i>
+                      - <i>cast index bytes32 0xdc77f38c84a86deaa26647fc68a717121fb17ad0e50bc7d385bab4beb3347233 $res</i>
                       - Alternative 'Raw Slot': <i>0x5052bc1a1c56acb3d26d5ad9364d818ae19a42dea54fe66de38ba9e7470acbc6</i>
-
------ DecodedStateDiff[16] -----
-  Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/superchain/configs/mainnet/base.toml#L44">0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c</a>
-  Contract:          ProxyAdminOwner (GnosisSafe)
-  Chain ID:          8453
-  Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
-  Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000006
-  Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000000007
-  Decoded Kind:      uint256
-  Decoded Old Value: 6
-  Decoded New Value: 7
-
-  Summary:           nonce
-  Detail:            The nonce of the ProxyAdminOwner contract is updated.
-  
+ 
 ----- DecodedStateDiff[17] -----
   Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/superchain/configs/mainnet/base.toml#L52">0x8EfB6B5c4767B09Dc9AA6Af4eAA89F749522BaE2</a>
   Contract:          AddressManager - Base Mainnet
@@ -393,8 +393,8 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000000013
 
   Decoded Kind:      uint256
-  Decoded Old Value: 12
-  Decoded New Value: 13
+  Decoded Old Value: 18
+  Decoded New Value: 19
   
   Summary:           nonce
   Detail:            The nonce of the Child Safe 1 contract is updated.
@@ -409,8 +409,8 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   Raw Old Value:     0x00000000000000000000000071e966ae981d1ce531a7b6d23dc0f27b38409087
   Raw New Value:     0x0000000000000000000000005e40b9231b86984b5150507046e354dbfbed3d9e
   Decoded Kind:      address
-  Decoded Old Value: 0x71e966Ae981d1ce531a7b6d23DC0f27B38409087
-  Decoded New Value: 0x5e40B9231B86984b5150507046e354dbFbeD3d9e
+  Decoded Old Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/validation/standard/standard-versions-mainnet.toml#L74">0x71e966Ae981d1ce531a7b6d23DC0f27B38409087</a>
+  Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/validation/standard/standard-versions-mainnet.toml#L53">0x5e40B9231B86984b5150507046e354dbFbeD3d9e</a> 
 
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
