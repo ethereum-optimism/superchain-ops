@@ -179,7 +179,7 @@ simulate-all-templates:
 # Example:
 # cd src/improvements
 # just simulate-tenderly tasks/sep/000-opcm-upgrade-v200 council
-# just simulate-tenderly tasks/sep/003-unichain-superchain-config-fix
+# just simulate-tenderly tasks/sep/003-unichain-superchain-config-fix single
 simulate-tenderly TASK SAFE_NAME:
     #!/usr/bin/env bash
     set -euo pipefail

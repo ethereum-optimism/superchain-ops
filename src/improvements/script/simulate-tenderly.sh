@@ -40,12 +40,14 @@ simulate_tenderly() {
             echo -e "\n\n\033[1;31mLocal domain separator mismatch\033[0m\n"
             echo "Validation: $domain_separator"
             echo "Local: $domain_separator_local"
+            rm "$local_output_file"
             exit 1
         fi
         if [ "$message_hash_local" != "$message_hash" ]; then
             echo -e "\n\n\033[1;31mLocal message hash mismatch\033[0m\n"
             echo "Validation: $message_hash"
             echo "Local: $message_hash_local"
+            rm "$local_output_file"
             exit 1
         fi
         echo -e "\n\n\033[1;32mLocal hashes match\033[0m\n"
@@ -62,8 +64,6 @@ simulate_tenderly() {
     rm "$local_output_file"
 
     tenderly_payload=$(extract_payload_from_link "$tenderly_link")
-
-    echo "$tenderly_payload"
 
     # Exit if the payload is not well formed using jq
     # if ! jq -e '.' > /dev/null 2>&1 <<< "$tenderly_payload"; then
@@ -86,14 +86,16 @@ simulate_tenderly() {
                 echo -e "\n\n\033[1;31mTenderly domain separator mismatch\033[0m\n"
                 echo "Validation: $domain_separator"
                 echo "Tenderly: $domain_separator_tenderly"
+                rm "$remote_output_file"
                 exit 1
             fi
             if [ "$message_hash_tenderly" != "$message_hash" ]; then
                 echo -e "\n\n\033[1;31mTenderly message hash mismatch\033[0m\n"
-            echo "Validation: $message_hash"
-            echo "Tenderly: $message_hash_tenderly"
-            exit 1
-        fi
+                echo "Validation: $message_hash"
+                echo "Tenderly: $message_hash_tenderly"
+                rm "$remote_output_file"
+                exit 1
+            fi
         echo -e "\n\n\033[1;32mTenderly hashes match\033[0m\n"
     fi
 }
