@@ -66,10 +66,10 @@ simulate_tenderly() {
     tenderly_payload=$(extract_payload_from_link "$tenderly_link")
 
     # Exit if the payload is not well formed using jq
-    # if ! jq -e '.' > /dev/null 2>&1 <<< "$tenderly_payload"; then
-    #     echo -e "Could not parse Tenderly link into JSON payload"
-    #     exit 1
-    # fi
+    if ! jq -e '.' > /dev/null 2>&1 <<< "$tenderly_payload"; then
+        echo -e "Could not parse Tenderly link into JSON payload"
+        exit 1
+    fi
 
     # Simulate the task with Tenderly and extract the domain and message hashes
     "$root_dir"/src/improvements/script/get-tenderly-hashes.sh "$tenderly_payload" 2>&1 | tee "$remote_output_file"   
@@ -86,14 +86,12 @@ simulate_tenderly() {
                 echo -e "\n\n\033[1;31mTenderly domain separator mismatch\033[0m\n"
                 echo "Validation: $domain_separator"
                 echo "Tenderly: $domain_separator_tenderly"
-                rm "$remote_output_file"
                 exit 1
             fi
             if [ "$message_hash_tenderly" != "$message_hash" ]; then
                 echo -e "\n\n\033[1;31mTenderly message hash mismatch\033[0m\n"
                 echo "Validation: $message_hash"
                 echo "Tenderly: $message_hash_tenderly"
-                rm "$remote_output_file"
                 exit 1
             fi
         echo -e "\n\n\033[1;32mTenderly hashes match\033[0m\n"
