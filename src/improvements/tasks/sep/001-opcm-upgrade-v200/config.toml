@@ -4,6 +4,11 @@ l2chains = [
 
 templateName = "OPCMUpgradeV200"
 
+signers = [
+    {longName = "Child Safe 1", shortName = "child-safe-1", deployment = "ChildSafe1"},
+    {longName = "Child Safe 2", shortName = "child-safe-2", deployment = "ChildSafe2"}
+]
+
 [opcmUpgrades]
 absolutePrestates = [
     {absolutePrestate = "0x0354eee87a1775d96afee8977ef6d5d6bd3612b256170952a01bf1051610ee01", chainId = 84532},

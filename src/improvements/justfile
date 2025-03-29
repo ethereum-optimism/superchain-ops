@@ -159,6 +159,7 @@ simulate-all-templates:
     simulation_count=0
     for task in ${root_dir}/test/tasks/example/*/*; do
         if [ -d "$task" ]; then
+            echo "Simulating task: $task"
             ${root_dir}/src/improvements/script/simulate-task.sh $task $nested_safe_name
             simulation_count=$((simulation_count + 1))
         fi
@@ -171,16 +172,104 @@ simulate-all-templates:
         exit 1
     fi
 
-simulate-verify-task TASK="":
+# Simulate a task locally and against Tenderly.
+# TASK: The fullpath to the task to simulate.
+# SAFE_NAME: The name of the safe to simulate the task for (council, foundation). Use "single" for non-nested tasks.
+#
+# Example:
+# cd src/improvements
+# just simulate-tenderly tasks/sep/000-opcm-upgrade-v200 council
+# just simulate-tenderly tasks/sep/003-unichain-superchain-config-fix single
+simulate-tenderly TASK SAFE_NAME:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+    forge build
+
+    # If the task path does not start with a slash, append the current directory to the task path
+    task_path="{{TASK}}"
+    if [[ "$task_path" != /* ]]; then
+        task_path="${PWD}/${task_path}"
+    fi
+
+    ${root_dir}/src/improvements/script/simulate-tenderly.sh "$task_path" {{SAFE_NAME}}
+
+# Simulate all ready-to-sign tasks locally and against Tenderly, then verify the domain separator and message hash match against the values in the VALIDATION.md file.
+#
+# Parses an array of safes to verify from the config.toml file, with the short name used in the scripts, and the human readable name used in the VALIDATION.md file.
+# signers = [
+#     {longName = "Optimism Foundation", shortName = "foundation"},
+#     {longName = "Security Council", shortName = "council"}
+# ]
+#
+# Parses these strings from the VALIDATION.md file:
+# ### <safe long name (from config.toml)>
+# Domain Hash: `<hash>`
+# Message Hash: `<hash>`
+verify-ready-tasks:
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
 
     forge build
 
-    # If the task is nested then we only simulate as the foundation.
-    # In the future we could simulate as other nested safes. 
-    # For testing purposes, we do not gain anything by simulating as other nested safes.
-    nested_safe_name="foundation"
+    for task in ${root_dir}/src/improvements/tasks/*/*; do
+        if [ -d "$task" ]; then
+            echo "Task: $task"
 
-    ${root_dir}/src/improvements/script/simulate-verify-task.sh {{TASK}} $nested_safe_name
+            # Read the README.md file and skip if it does not contain "Status:.*READY.*"
+            readme_file="${task}/README.md"
+            if [ -f "$readme_file" ]; then
+                if ! grep -q "Status:.*READY.*" "$readme_file"; then
+                    echo -e "$(grep "Status:" $readme_file)"
+                    echo -e "Skipping task\n"
+                    continue
+                fi
+            fi
+
+            # Check that we have a validations file and exit if not
+            validation_md="${task}/VALIDATION.md"
+            if [ ! -f "$validation_md" ]; then
+                echo "Error: No VALIDATION.md file found for task $task"
+                exit 1
+            fi
+
+            # Check that we have a config.toml file and exit if not
+            config_toml="${task}/config.toml"
+            if [ ! -f "$config_toml" ]; then
+                echo "Error: No config.toml file found for task $task"
+                exit 1
+            fi
+
+            # Use yq to extract the signers section from the config and convert to JSON
+            signers=$(yq -p=toml -o=json eval '.signers' "$config_toml")
+
+            # Exit if $signers is null
+            if [ "$signers" = "null" ]; then
+                echo "Error: No signers found in config.toml for task $task"
+                exit 1
+            fi
+
+            # Loop over the signers and extract the validation and short safe names
+            echo "$signers" | jq -c '.[]' | while read -r signer; do
+                readable_name=$(echo "$signer" | jq -r '.longName')
+                short_name=$(echo "$signer" | jq -r '.shortName')
+                echo "Verifying hashes for $readable_name"
+
+                # Look for the validation name in the validation file, and then extract the domain separator and message hash
+                if grep -q "### ${readable_name}" "$validation_md"; then
+                    domain_separator=$(grep -A 2 "### ${readable_name}" "$validation_md" | grep "Domain Hash:" | grep -o '`[^`]*`' | tr -d '`')
+                    message_hash=$(grep -A 3 "### ${readable_name}" "$validation_md" | grep "Message Hash:" | grep -o '`[^`]*`' | tr -d '`')
+                    echo "Target Domain Separator: $domain_separator"
+                    echo "Target Message Hash: $message_hash"
+
+                    # Simulate and verify the task
+                    ${root_dir}/src/improvements/script/simulate-tenderly.sh $task $short_name $domain_separator $message_hash
+
+                else
+                    echo "Error: No hashes found in VALIDATIONS.md for $readable_name"
+                    exit 1
+                fi
+            done
+        fi
+    done

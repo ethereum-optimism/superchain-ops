@@ -1,5 +1,9 @@
 l2chains = [{name = "Unichain Sepolia", chainId = 1301}]
 templateName = "UniFix"
 
+signers = [
+    {longName = "Single Safe Signer Data", shortName = "single", deployment = "StandardValidatorV180"},
+]
+
 [addresses]
 StandardValidatorV180 = "0x0a5bf8ebb4b177b2dcc6eba933db726a2e2e2b4d"

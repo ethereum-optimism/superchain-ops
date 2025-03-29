@@ -384,6 +384,19 @@ jobs:
           command: |
             (cd src/improvements && just simulate-all-templates)
 
+  verify_ready_task_hashes:
+    circleci_ip_ranges: true
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    environment:
+      FOUNDRY_PROFILE: ci
+    steps:
+      - utils/checkout-with-mise
+      - run:
+          name: Make sure all tasks described as ready to sign have correct hashes.
+          command: |
+            (cd src/improvements && just verify-ready-tasks)
+
   just_new_recipe_tests:
     circleci_ip_ranges: true
     docker:
@@ -534,5 +547,7 @@ workflows:
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
-
+      - verify_ready_task_hashes:
+          context:
+            - tenderly
       - check-links
