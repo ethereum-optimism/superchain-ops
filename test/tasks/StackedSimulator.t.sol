@@ -10,10 +10,9 @@ contract StackedSimulatorUnitTest is Test {
         vm.setEnv("FETCH_TASKS_TEST_MODE", "true");
     }
 
-    function testGetDependencyTree() public {
+    function testGetOrderedTasksForNetwork() public {
         StackedSimulator stackedSimulator = new StackedSimulator();
-        string[] memory tasks = stackedSimulator.getDependentTasks("sep");
+        string[] memory tasks = stackedSimulator.getOrderedTasks("sep");
         assertEq(tasks.length, 4);
     }
-    
 }

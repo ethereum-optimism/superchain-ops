@@ -17,4 +17,4 @@ operations = [
 "SecurityCouncil" = "0xf64bc17485f0B4Ea5F06A96514182FC4cB561977"
 
 [dependsOn]
-task = "004-test-finance-operation"
+task = "004-replace-superchain-config"

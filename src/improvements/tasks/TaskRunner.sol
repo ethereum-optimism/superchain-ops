@@ -42,7 +42,23 @@ contract TaskRunner is Script {
 
         string memory optionalDependsOn;
         if (toml.keyExists(".dependsOn")) {
-            optionalDependsOn = toml.readString(".dependsOn.task");
+            string memory dependsOnTask = toml.readString(".dependsOn.task");
+
+            // Need to create a new path with the dependsOnTask. We can use the existing configPath
+            // and replace the second-to-last element with the dependsOnTask.
+            string[] memory pathParts = vm.split(configPath, "/");
+            require(pathParts.length > 2, string.concat("TaskRunner: Invalid config path: ", configPath));
+
+            pathParts[pathParts.length - 2] = dependsOnTask;
+            string memory newPath = pathParts[0];
+            for (uint256 i = 1; i < pathParts.length; i++) {
+                newPath = string.concat(newPath, "/", pathParts[i]);
+            }
+            require(
+                vm.isFile(newPath),
+                string.concat("TaskRunner: Depends on task for: ", configPath, " does not exist: ", newPath)
+            );
+            optionalDependsOn = newPath;
         }
 
         (bool isNested, address parentMultisig) = isNestedTask(configPath);
