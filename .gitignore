@@ -27,3 +27,6 @@ draft*signer*.json
 ready-*
 
 broadcast/*
+
+# Stacked simulation test files
+test/tasks/stacked-sim-testing/

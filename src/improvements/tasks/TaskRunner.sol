@@ -27,7 +27,6 @@ contract TaskRunner is Script {
         string templateName;
         address parentMultisig;
         bool isNested;
-        string optionalDependsOn;
     }
 
     function parseConfig(string memory configPath) public returns (TaskConfig memory) {
@@ -40,27 +39,6 @@ contract TaskRunner is Script {
 
         string memory templateName = toml.readString(".templateName");
 
-        string memory optionalDependsOn;
-        if (toml.keyExists(".dependsOn")) {
-            string memory dependsOnTask = toml.readString(".dependsOn.task");
-
-            // Need to create a new path with the dependsOnTask. We can use the existing configPath
-            // and replace the second-to-last element with the dependsOnTask.
-            string[] memory pathParts = vm.split(configPath, "/");
-            require(pathParts.length > 2, string.concat("TaskRunner: Invalid config path: ", configPath));
-
-            pathParts[pathParts.length - 2] = dependsOnTask;
-            string memory newPath = pathParts[0];
-            for (uint256 i = 1; i < pathParts.length; i++) {
-                newPath = string.concat(newPath, "/", pathParts[i]);
-            }
-            require(
-                vm.isFile(newPath),
-                string.concat("TaskRunner: Depends on task for: ", configPath, " does not exist: ", newPath)
-            );
-            optionalDependsOn = newPath;
-        }
-
         (bool isNested, address parentMultisig) = isNestedTask(configPath);
 
         return TaskConfig({
@@ -68,24 +46,15 @@ contract TaskRunner is Script {
             optionalL2Chains: optionalL2Chains,
             path: configPath,
             isNested: isNested,
-            parentMultisig: parentMultisig,
-            optionalDependsOn: optionalDependsOn
+            parentMultisig: parentMultisig
         });
     }
 
     function run(string memory network) public {
         string[] memory taskPaths = getNonTerminalTasks(network);
-
         for (uint256 i = 0; i < taskPaths.length; i++) {
             TaskConfig memory config = parseConfig(taskPaths[i]);
-
-            // Deploy and run the template
-            string memory templatePath =
-                string.concat("out/", config.templateName, ".sol/", config.templateName, ".json");
-
-            MultisigTask task = MultisigTask(deployCode(templatePath));
-
-            executeTask(task, config);
+            executeTask(config);
         }
     }
 
@@ -96,11 +65,45 @@ contract TaskRunner is Script {
         commands[1] = network;
 
         bytes memory result = vm.ffi(commands);
-        taskPaths_ = vm.split(string(result), "\n");
+        require(result.length > 0, "TaskRunner: No non-terminal tasks found");
+        string[] memory taskConfigFilePaths = vm.split(string(result), "\n");
+        taskPaths_ = new string[](taskConfigFilePaths.length);
+
+        for (uint256 i = 0; i < taskConfigFilePaths.length; i++) {
+            string[] memory parts = vm.split(taskConfigFilePaths[i], "/");
+            string memory baseTaskPath;
+            for (uint256 j = 0; j < parts.length - 1; j++) {
+                baseTaskPath = string.concat(baseTaskPath, parts[j], "/");
+            }
+            taskPaths_[i] = baseTaskPath;
+        }
+        // Ensure task is well-formed.
+        for (uint256 i = 0; i < taskPaths_.length; i++) {
+            validateTask(taskPaths_[i]);
+        }
+    }
+
+    function validateTask(string memory taskPath) public view {
+        require(
+            vm.isFile(string.concat(taskPath, "config.toml")),
+            string.concat("TaskRunner: config.toml file does not exist: ", taskPath)
+        );
+        require(
+            vm.isFile(string.concat(taskPath, "README.md")),
+            string.concat("TaskRunner: README.md file does not exist: ", taskPath)
+        );
+        require(
+            vm.isFile(string.concat(taskPath, "VALIDATION.md")),
+            string.concat("TaskRunner: VALIDATION.md file does not exist: ", taskPath)
+        );
     }
 
     /// @notice Executes a task based on its configuration.
-    function executeTask(MultisigTask task, TaskConfig memory config) internal {
+    function executeTask(TaskConfig memory config) public {
+        // Deploy and run the template
+        string memory templatePath = string.concat("out/", config.templateName, ".sol/", config.templateName, ".json");
+        MultisigTask task = MultisigTask(deployCode(templatePath));
+
         if (config.isNested) {
             IGnosisSafe parentMultisig = IGnosisSafe(config.parentMultisig);
             address[] memory owners = parentMultisig.getOwners();
