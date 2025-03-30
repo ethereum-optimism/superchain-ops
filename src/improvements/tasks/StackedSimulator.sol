@@ -22,8 +22,13 @@ contract StackedSimulator is Script {
         console.log("StackedSimulator.run");
     }
 
+    function simulateStack(string memory network) public {
+        TaskInfo[] memory tasks = getNonTerminalTasks(network);
+        simulateStack(network, tasks[tasks.length - 1].name);
+    }
+
     /// @notice Simulates the execution of a task and all tasks that must be executed before it.
-    function simulateStackedTasks(string memory network, string memory task) public {
+    function simulateStack(string memory network, string memory task) public {
         TaskRunner taskRunner = new TaskRunner();
         TaskInfo[] memory tasks = getNonTerminalTasks(network, task);
         TaskRunner.TaskConfig[] memory taskConfigs = new TaskRunner.TaskConfig[](tasks.length);
