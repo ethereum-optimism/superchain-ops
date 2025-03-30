@@ -37,13 +37,13 @@ if [[ -z "$network" ]]; then
   exit 1
 fi
 
-# To enable testing mode set the FETCH_TASKS_TEST_MODE environment variable in your test to true.
-is_test=$FETCH_TASKS_TEST_MODE
+# To enable testing mode set the FETCH_TASKS_TEST_DIR environment variable to the directory containing your test tasks.
+test_dir=$FETCH_TASKS_TEST_DIR
 
 task_dir="$root_dir/src/improvements/tasks/$network"
 
-if [[ "$is_test" == "true" ]]; then
-  task_dir="$root_dir/test/tasks/example/$network"
+if [[ -n "$test_dir" ]]; then
+  task_dir="$test_dir/$network"
 fi
 
 files=$(find "$task_dir" -type f -name 'README.md')

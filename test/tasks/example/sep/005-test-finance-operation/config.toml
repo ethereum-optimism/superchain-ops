@@ -15,6 +15,3 @@ operations = [
 "TEST" = "0xBB4daAC11B4446EE1c6146De1e26ecf1Ab8b3EB6"
 "USER1" = "0x0000000000000000000000000000000000000001"
 "SecurityCouncil" = "0xf64bc17485f0B4Ea5F06A96514182FC4cB561977"
-
-[dependsOn]
-task = "004-replace-superchain-config"
