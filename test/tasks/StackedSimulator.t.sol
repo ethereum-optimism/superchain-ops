@@ -39,7 +39,7 @@ contract StackedSimulatorUnitTest is AfterTest, Test {
     function testSimulateStackedTasks_SomeTasks() public checkAfterTest {
         StackedSimulator ss = new StackedSimulator();
         createTestTasks("eth", 3);
-        ss.simulateStackedTasks("eth", "001-task-name");
+        ss.simulateStack("eth", "001-task-name");
 
         // Assert that the last tasks state change is the latest state change.
         address expectedImpl = makeAddr("001-task-name");
@@ -49,7 +49,7 @@ contract StackedSimulatorUnitTest is AfterTest, Test {
     function testSimulateStackedTasks_AllTasks() public checkAfterTest {
         StackedSimulator ss = new StackedSimulator();
         createTestTasks("eth", 3);
-        ss.simulateStackedTasks("eth", "002-task-name");
+        ss.simulateStack("eth", "002-task-name");
 
         // Assert that the last tasks state change is the latest state change.
         address expectedImpl = makeAddr("002-task-name");

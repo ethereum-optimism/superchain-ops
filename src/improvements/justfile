@@ -149,3 +149,42 @@ simulate-verify-task TASK="":
     nested_safe_name="foundation"
 
     ${root_dir}/src/improvements/script/simulate-verify-task.sh {{TASK}} $nested_safe_name
+
+simulate-stack NETWORK="" TASK="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+
+    show_usage() {
+        echo
+        echo "Usage: just simulate-stack <network> [task]"
+        echo "Available arguments:"
+        echo "  • <network> - The network to simulate the stack for (e.g. 'sep', 'eth')"
+        echo "  • [task]    - The task to simulate the stack for (e.g. '001-task-name')"
+        echo
+    }
+
+    export FOUNDRY_PROFILE="${FOUNDRY_PROFILE:-default}"
+    echo "Currently running with FOUNDRY_PROFILE: ${FOUNDRY_PROFILE}"
+
+    case "{{NETWORK}}" in
+        sep)
+            ETH_RPC_URL=$(yq eval ".profile.\"${FOUNDRY_PROFILE}\".rpc_endpoints.sepolia" "${root_dir}/foundry.toml")
+            ;;
+        eth)
+            ETH_RPC_URL=$(yq eval ".profile.\"${FOUNDRY_PROFILE}\".rpc_endpoints.mainnet" "${root_dir}/foundry.toml")
+            ;;
+        *)
+            echo -e "\n\033[31mError: Invalid network '{{NETWORK}}'\033[0m"
+            show_usage
+            exit 1
+            ;;
+    esac
+    
+    if [ -z "{{TASK}}" ]; then
+        echo "Simulating all tasks for network: {{NETWORK}}"
+        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string)" {{NETWORK}} --ffi --rpc-url $ETH_RPC_URL
+    else
+        echo "Simulating task: {{TASK}} for network: {{NETWORK}}"
+        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string)" {{NETWORK}} {{TASK}} --ffi --rpc-url $ETH_RPC_URL
+    fi
