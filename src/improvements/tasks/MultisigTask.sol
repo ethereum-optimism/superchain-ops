@@ -322,12 +322,12 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         console.logBytes(dataToSign);
         console.log("^^^^^^^^\n");
 
-        console.log("########## IMPORTANT ##########");
-        console.log("Please make sure that the 'Data to sign' displayed above matches:");
-        console.log("1. What you see in the Tenderly simulation.");
-        console.log("2. What you see in your hardware wallet.");
-        console.log("This is a critical step that must not be skipped.");
-        console.log("###############################");
+        console.log("---------- ATTENTION SIGNERS ----------");
+        console.log("Please verify that the 'Data to sign' displayed above matches:");
+        console.log("1. The data shown in the Tenderly simulation.");
+        console.log("2. The data shown on your hardware wallet.");
+        console.log("This is a critical step. Do not skip this verification.");
+        console.log("---------------------------------------");
     }
 
     /// @notice print the hash to approve by EOA for parent/root multisig
@@ -667,7 +667,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         return actions;
     }
 
-    /// @notice print task description, actions, transfers, state changes and EOAs datas to sign
+    /// @notice Print task releated data for task developers and signers.
     function print(
         Action[] memory actions,
         VmSafe.AccountAccess[] memory accountAccesses,
@@ -682,6 +682,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             console.log("\n");
         }
 
+        console.log("----------------- ATTENTION TASK DEVELOPERS -------------------");
+        console.log("To properly document the task state changes, please follow these steps:");
+        console.log("1. Copy and paste the state changes printed below into the VALIDATION.md file.");
+        console.log(
+            "2. For each task, write a thorough 'Detail' and 'Summary' section explaining the state change, providing links where appropriate."
+        );
+        console.log("3. Ensure the state changes are expected and match those seen in the Tenderly simulation.");
+        console.log("----------------------------------------------------------------\n");
         accountAccesses.decodeAndPrint();
 
         printSafe(actions, optionalChildMultisig, isSimulate);
@@ -754,6 +762,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         // Use the max uint256 to indicate that the child multisig nonce is not provided (zero is a valid nonce).
         uint256 childMultisigNonce =
             optionalChildMultisig != address(0) ? _getNonce(optionalChildMultisig) : type(uint256).max;
+        // TODO: Pass through _startSnapshot so that inside getStateOverrides we can temporarily restore the state.
+        // For more information about this, see TODOs inside StateOverrideManager.sol.
         Simulation.StateOverride[] memory allStateOverrides =
             getStateOverrides(parentMultisig, _getNonce(parentMultisig), optionalChildMultisig, childMultisigNonce);
 

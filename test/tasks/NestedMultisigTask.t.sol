@@ -48,7 +48,7 @@ contract NestedMultisigTaskTest is Test {
         multisigTask = new DisputeGameUpgradeTemplate();
         string memory configFilePath = createTempTomlFile(taskConfigToml);
         (accountAccesses, actions) = multisigTask.signFromChildMultisig(configFilePath, childMultisig);
-        vm.removeFile(configFilePath);
+        removeFile(configFilePath);
         addrRegistry = multisigTask.addrRegistry();
         superchainAddrRegistry = SuperchainAddressRegistry(AddressRegistry.unwrap(addrRegistry));
     }
@@ -221,7 +221,7 @@ contract NestedMultisigTaskTest is Test {
             multisigTask = new DisputeGameUpgradeTemplate();
             string memory configFilePath = createTempTomlFile(taskConfigToml);
             multisigTask.approveFromChildMultisig(configFilePath, childMultisig, packedSignaturesChild);
-            vm.removeFile(configFilePath);
+            removeFile(configFilePath);
         }
 
         // execute the task
@@ -232,7 +232,7 @@ contract NestedMultisigTaskTest is Test {
 
         string memory config = createTempTomlFile(taskConfigToml);
         (accountAccesses, actions) = multisigTask.signFromChildMultisig(config, SECURITY_COUNCIL_CHILD_MULTISIG);
-        vm.removeFile(config);
+        removeFile(config);
 
         // Check that the implementation is upgraded correctly
         assertEq(
@@ -248,7 +248,7 @@ contract NestedMultisigTaskTest is Test {
         vm.revertToState(newSnapshot);
         string memory taskConfigFilePath = createTempTomlFile(taskConfigToml);
         multisigTask.executeRun(taskConfigFilePath, prepareSignatures(parentMultisig, taskHash));
-        vm.removeFile(taskConfigFilePath);
+        removeFile(taskConfigFilePath);
         addrRegistry = multisigTask.addrRegistry();
 
         // Check that the implementation is upgraded correctly for a second time
@@ -416,5 +416,11 @@ contract NestedMultisigTaskTest is Test {
         string memory fileName = string.concat(randomBytes, ".toml");
         vm.writeFile(fileName, tomlContent);
         return fileName;
+    }
+
+    /// @notice This function is used to remove a file. The reason we use a try catch
+    /// is because sometimes the file may not exist and this leads to flaky tests.
+    function removeFile(string memory fileName) internal {
+        try vm.removeFile(fileName) {} catch {}
     }
 }
