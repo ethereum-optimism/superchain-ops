@@ -239,28 +239,6 @@ jobs:
             just simulate-council
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
-
-  simulate:
-    description: "Runs simulations of a task"
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    parameters:
-      task:
-        type: string
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: "simulate << parameters.task >>"
-          environment:
-            FOUNDRY_PROFILE: ci
-          command: |
-            just install
-    environment:
-      FOUNDRY_PROFILE: ci
-              --dotenv-path $(pwd)/.env \
-              --justfile ../../../single.just \
-              simulate
-
   just_simulate_nested:
     description: "Runs simulations of a nested task"
     docker:
