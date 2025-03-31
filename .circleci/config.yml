@@ -25,25 +25,6 @@ parameters:
     default: 5
 
 commands:
-  simulate:
-    description: "Runs simulations of a task"
-    parameters:
-      task:
-        type: string
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: "simulate << parameters.task >>"
-          environment:
-            FOUNDRY_PROFILE: ci
-          command: |
-            just install
-            cd tasks/<< parameters.task >>
-            SIMULATE_WITHOUT_LEDGER=true just \
-              --dotenv-path $(pwd)/.env \
-              --justfile ../../../single.just \
-              simulate
-
   notify-failures-on-develop:
     description: "Notify Slack"
     parameters:
@@ -544,8 +525,8 @@ workflows:
     
     # U13 Sepolia DeputyPauseModule Activation
       - just_simulate_single_improvements:
-          name: "simulate single sep/004-deputy-pause-module"
-          task: "/sep/004-deputy-pause-module"
+          name: "simulate single sep/004-deputy-pause-module-activation"
+          task: "/sep/004-deputy-pause-module-activation"
           context:
             - circleci-repo-readonly-authenticated-github-token     
 
