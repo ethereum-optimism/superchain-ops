@@ -35,11 +35,10 @@ contract SetRespectedGameType is L2TaskBase {
 
     /// @notice Returns string identifiers for addresses that are expected to have their storage written to.
     function _taskStorageWrites() internal pure override returns (string[] memory) {
-        string[] memory storageWrites = new string[](4);
+        string[] memory storageWrites = new string[](3);
         storageWrites[0] = "DeputyGuardianModule";
         storageWrites[1] = "Guardian";
         storageWrites[2] = "OptimismPortalProxy";
-        storageWrites[3] = "FoundationOperationsSafe";
         return storageWrites;
     }
 
