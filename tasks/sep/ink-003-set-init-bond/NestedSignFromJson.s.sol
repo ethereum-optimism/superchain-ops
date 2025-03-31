@@ -10,31 +10,31 @@ import {LibString} from "solady/utils/LibString.sol";
 import {DisputeGameFactory} from "@eth-optimism-bedrock/src/dispute/DisputeGameFactory.sol";
 import {SystemConfig} from "@eth-optimism-bedrock/src/L1/SystemConfig.sol";
 import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
+import {SuperchainRegistry} from "script/verification/Verification.s.sol";
 
-contract NestedSignFromJson is OriginalNestedSignFromJson {
+contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
     using LibString for string;
-
-    // Chains for this task.
-    string l1ChainName = vm.envString("L1_CHAIN_NAME");
-    string l2ChainName = vm.envString("L2_CHAIN_NAME");
 
     // Safe contract for this task.
     GnosisSafe ownerSafe = GnosisSafe(payable(vm.envAddress("OWNER_SAFE")));
     GnosisSafe councilSafe = GnosisSafe(payable(vm.envAddress("COUNCIL_SAFE")));
     GnosisSafe foundationSafe = GnosisSafe(payable(vm.envAddress("FOUNDATION_SAFE")));
 
-    // The slot used to store the livenessGuard address in GnosisSafe. 
+    // The slot used to store the livenessGuard address in GnosisSafe.
     // See https://github.com/safe-global/safe-smart-account/blob/186a21a74b327f17fc41217a927dea7064f74604/contracts/base/GuardManager.sol#L30
     bytes32 livenessGuardSlot = 0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8;
 
-    SystemConfig systemConfig = SystemConfig(vm.envAddress("SYSTEM_CONFIG"));
+    SystemConfig systemConfig;
     DisputeGameFactory dgfProxy;
 
     uint256 initBond = 0.08 ether;
 
     address[] extraStorageAccessAddresses;
 
+    constructor() SuperchainRegistry("sepolia", vm.envString("L2_CHAIN_NAME"), "v1.8.0-rc.4") {}
+
     function setUp() public {
+        systemConfig = SystemConfig(proxies.SystemConfig); 
         dgfProxy = DisputeGameFactory(systemConfig.disputeGameFactory());
     }
 
