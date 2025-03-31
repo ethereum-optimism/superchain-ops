@@ -6,73 +6,60 @@ import {StackedSimulator} from "src/improvements/tasks/StackedSimulator.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {IDisputeGameFactory, GameType} from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
 
-abstract contract AfterTest {
-    modifier checkAfterTest() {
-        _;
-        afterTest();
-    }
-
-    function afterTest() public virtual;
-}
-
-contract StackedSimulatorUnitTest is AfterTest, Test {
+contract StackedSimulatorUnitTest is Test {
     using LibString for string;
 
     /// @notice The directory containing the test tasks.
     string internal testDirectory;
 
-    /// @notice The counter for the number of tasks created.
-    uint256 internal taskCounter;
-
     /// @notice The op mainnet address of the dispute game factory (block 22162525).
     /// https://github.com/ethereum-optimism/superchain-registry/blob/5f5334768fd1dab6e31132020c374e575c632074/superchain/configs/mainnet/op.toml#L62
     address internal disputeGameFactory = 0xe5965Ab5962eDc7477C8520243A95517CD252fA9;
 
+    /// @notice Invoked before each test case is run.
     function setUp() public {
-        vm.createSelectFork("mainnet", 22162525);
         testDirectory = "test/tasks/stacked-sim-testing";
+        vm.createSelectFork("mainnet", 22162525);
         vm.setEnv("FETCH_TASKS_TEST_DIR", testDirectory);
-        // Create a scratch directory for stacked simulation testing (added to .gitignore and deleted after tests).
-        vm.createDir(testDirectory, true);
     }
 
-    function testSimulateStackedTasks_SomeTasks() public checkAfterTest {
+    function testSimulateStackedTasks_SomeTasks() public {
         StackedSimulator ss = new StackedSimulator();
-        createTestTasks("eth", 3);
-        ss.simulateStack("eth", "001-task-name");
+        createTestTasks("eth_000", 3, 0);
+        ss.simulateStack("eth_000", "001-task-name");
 
         // Assert that the last tasks state change is the latest state change.
         address expectedImpl = makeAddr("001-task-name");
         assertEq(address(IDisputeGameFactory(disputeGameFactory).gameImpls(GameType.wrap(0))), expectedImpl);
     }
 
-    function testSimulateStackedTasks_AllTasks() public checkAfterTest {
+    function testSimulateStackedTasks_AllTasks() public {
         StackedSimulator ss = new StackedSimulator();
-        createTestTasks("eth", 3);
-        ss.simulateStack("eth", "002-task-name");
+        createTestTasks("eth_001", 3, 100);
+        ss.simulateStack("eth_001", "101-task-name");
 
         // Assert that the last tasks state change is the latest state change.
-        address expectedImpl = makeAddr("002-task-name");
+        address expectedImpl = makeAddr("101-task-name");
         assertEq(address(IDisputeGameFactory(disputeGameFactory).gameImpls(GameType.wrap(0))), expectedImpl);
     }
 
-    function testGetNonTerminalTasks_NoTask() public checkAfterTest {
+    function testGetNonTerminalTasks_NoTask() public {
         StackedSimulator ss = new StackedSimulator();
-        createTestTasks("eth", 3);
-        StackedSimulator.TaskInfo[] memory tasks = ss.getNonTerminalTasks("eth");
+        createTestTasks("eth_002", 3, 200);
+        StackedSimulator.TaskInfo[] memory tasks = ss.getNonTerminalTasks("eth_002");
 
         assertEq(tasks.length, 3);
         assertAscendingOrder(tasks);
     }
 
-    function testGetNonTerminalTasks_WithTask() public checkAfterTest {
+    function testGetNonTerminalTasks_WithTask() public {
         StackedSimulator ss = new StackedSimulator();
-        createTestTasks("eth", 3);
-        StackedSimulator.TaskInfo[] memory tasks = ss.getNonTerminalTasks("eth", "001-task-name");
+        createTestTasks("eth_003", 3, 300);
+        StackedSimulator.TaskInfo[] memory tasks = ss.getNonTerminalTasks("eth_003", "301-task-name");
 
         assertEq(tasks.length, 2);
-        assertEq(tasks[0].name, "000-task-name");
-        assertEq(tasks[1].name, "001-task-name");
+        assertEq(tasks[0].name, "300-task-name");
+        assertEq(tasks[1].name, "301-task-name");
         assertAscendingOrder(tasks);
     }
 
@@ -105,22 +92,29 @@ contract StackedSimulatorUnitTest is AfterTest, Test {
 
     function testStringConversionShortString() public {
         StackedSimulator ss = new StackedSimulator();
-        vm.expectRevert("StackedSimulator: Input string must have at least 3 characters");
+        vm.expectRevert("StackedSimulator: Prefix must have 3 characters.");
         ss.convertPrefixToUint("12"); // Input with less than 3 characters
     }
 
     function testStringConversionInvalidCharacters() public {
         StackedSimulator ss = new StackedSimulator();
-        vm.expectRevert("StackedSimulator: Invalid character in string");
+        vm.expectRevert(
+            "vm.parseUint: failed parsing \"12a\" as type `uint256`: missing hex prefix (\"0x\") for hex string"
+        );
         ss.convertPrefixToUint("12a-task-name"); // Non-numeric character in the first three characters
 
-        vm.expectRevert("StackedSimulator: Invalid character in string");
+        vm.expectRevert(
+            "vm.parseUint: failed parsing \"abc\" as type `uint256`: missing hex prefix (\"0x\") for hex string"
+        );
         ss.convertPrefixToUint("abc-task-name"); // All invalid characters in the first three characters
+
+        vm.expectRevert("StackedSimulator: Does not support hex strings.");
+        ss.convertPrefixToUint("0x1-task-name"); // Hex string
     }
 
     function testStringConversionEmptyString() public {
         StackedSimulator ss = new StackedSimulator();
-        vm.expectRevert("StackedSimulator: Input string must have at least 3 characters");
+        vm.expectRevert("StackedSimulator: Prefix must have 3 characters.");
         ss.convertPrefixToUint(""); // Empty string
     }
 
@@ -209,24 +203,22 @@ contract StackedSimulatorUnitTest is AfterTest, Test {
     /// @notice Creates a set of tasks that can be used to test the StackedSimulator.
     /// These tasks use the DisputeGameUpgradeTemplate. For each task, a different implementation is created.
     /// This helps asserting that the StackedSimulator is correctly simulating the tasks in the correct order.
-    function createTestTasks(string memory network, uint256 amount) internal returns (string[] memory taskNames_) {
+    function createTestTasks(string memory network, uint256 amount, uint256 startTaskIndex)
+        internal
+        returns (string[] memory taskNames_)
+    {
         string memory commonToml = "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n"
             "templateName = \"DisputeGameUpgradeTemplate\"\n" "\n";
         bytes memory fdpCode = address(IDisputeGameFactory(disputeGameFactory).gameImpls(GameType.wrap(0))).code;
 
         taskNames_ = new string[](amount);
         for (uint256 i = 0; i < amount; i++) {
-            string memory taskName = getNextTaskName();
+            string memory taskName = getNextTaskName(startTaskIndex + i);
+            string memory taskDir = string.concat(testDirectory, "/", network, "/", taskName);
             taskNames_[i] = taskName;
-            vm.createDir(string.concat(testDirectory, "/", network, "/", taskName), true);
-            vm.writeFile(
-                string.concat(testDirectory, "/", network, "/", taskName, "/README.md"),
-                "This is a test README.md file."
-            );
-            vm.writeFile(
-                string.concat(testDirectory, "/", network, "/", taskName, "/VALIDATION.md"),
-                "This is a test VALIDATION.md file."
-            );
+            vm.createDir(taskDir, true);
+            vm.writeFile(string.concat(taskDir, "/README.md"), "This is a test README.md file.");
+            vm.writeFile(string.concat(taskDir, "/VALIDATION.md"), "This is a test VALIDATION.md file.");
 
             address customImplAddr = makeAddr(taskName); // Predictable address for testing assertions.
             vm.etch(customImplAddr, fdpCode); // Etch fault dispute game code to the custom impl address.
@@ -236,23 +228,19 @@ contract StackedSimulatorUnitTest is AfterTest, Test {
                 LibString.toHexString(customImplAddr),
                 "\", l2ChainId = 10}]\n"
             );
-            vm.writeFile(string.concat(testDirectory, "/", network, "/", taskName, "/config.toml"), toml);
+            vm.writeFile(string.concat(taskDir, "/config.toml"), toml);
         }
     }
 
-    function getNextTaskName() internal returns (string memory taskName_) {
-        require(taskCounter <= 999, "Task counter exceeded limit");
+    function getNextTaskName(uint256 startTaskIndex) internal pure returns (string memory taskName_) {
+        require(startTaskIndex <= 999, "Task counter exceeded limit");
         // Format the task name as "XXX-task-name" where XXX is a zero-padded number
         taskName_ = string(
             abi.encodePacked(
-                taskCounter < 10 ? "00" : (taskCounter < 100 ? "0" : ""), LibString.toString(taskCounter), "-task-name"
+                startTaskIndex < 10 ? "00" : (startTaskIndex < 100 ? "0" : ""),
+                LibString.toString(startTaskIndex),
+                "-task-name"
             )
         );
-        taskCounter++;
-    }
-
-    function afterTest() public override {
-        // Delete the scratch directory
-        try vm.removeDir("test/tasks/stacked-sim-testing", true) {} catch {}
     }
 }

@@ -106,7 +106,10 @@ contract TaskRunner is Script {
         address who,
         AccountAccessParser.DecodedStateDiff[] memory stateDiffs,
         uint256 startIndex
-    ) internal pure returns (string memory) {
+    ) internal view returns (string memory) {
+        if (vm.keyExistsToml(toml, string.concat(".stateOverrides.", LibString.toHexString(who)))) {
+            return toml;
+        }
         toml = string.concat(toml, LibString.toHexString(who), " = [\n");
 
         for (uint256 j = startIndex; j < stateDiffs.length; j++) {

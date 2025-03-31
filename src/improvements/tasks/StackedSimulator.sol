@@ -92,27 +92,11 @@ contract StackedSimulator is Script {
 
     /// @notice Converts the first three characters of a task name string to a uint256.
     function convertPrefixToUint(string memory taskName) public pure returns (uint256) {
-        uint256 PREFIX_LENGTH = 3;
-        bytes memory inputBytes = bytes(taskName);
-        require(inputBytes.length >= PREFIX_LENGTH, "StackedSimulator: Input string must have at least 3 characters");
-
-        uint256 result = 0;
-        for (uint256 i = 0; i < PREFIX_LENGTH; i++) {
-            // Convert the current character from its byte representation to a uint256.
-            // First, cast the byte to uint8 to get its ASCII value.
-            uint256 c = uint256(uint8(inputBytes[i]));
-
-            // Check that the ASCII value corresponds to a valid digit ('0' to '9').
-            // https://www.ascii-code.com/48
-            // https://www.ascii-code.com/57
-            require(c >= 48 && c <= 57, "StackedSimulator: Invalid character in string");
-
-            // Multiply the current result by 10 to shift digits left (base-10 place value),
-            // then add the numeric value of the current character (c - 48 converts ASCII to digit).
-            uint256 digit = c - 48;
-            result = result * 10 + digit;
-        }
-        return result;
+        string[] memory parts = vm.split(taskName, "-");
+        require(parts.length > 0, "StackedSimulator: Invalid task name, must contain at least one '-'.");
+        require(!parts[0].contains("0x"), "StackedSimulator: Does not support hex strings.");
+        require(bytes(parts[0]).length == 3, "StackedSimulator: Prefix must have 3 characters.");
+        return vm.parseUint(parts[0]);
     }
 
     /// @notice Finds the index of a task in a list of tasks.
