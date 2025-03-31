@@ -162,6 +162,9 @@ simulate-stack NETWORK="" TASK="":
         echo "  • <network> - The network to simulate the stack for (e.g. 'sep', 'eth')"
         echo "  • [task]    - The task to simulate the stack for (e.g. '001-task-name')"
         echo
+        echo "Important: To make sure Tenderly simulations still work, you'll still have to provide the correct"
+        echo "           state overrides for each task."
+        echo
     }
 
     export FOUNDRY_PROFILE="${FOUNDRY_PROFILE:-default}"

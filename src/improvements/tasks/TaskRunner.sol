@@ -9,12 +9,18 @@ import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
+import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
+import {console} from "forge-std/console.sol";
+import {LibString} from "@solady/utils/LibString.sol";
+import {VmSafe} from "forge-std/Vm.sol";
 
 /// This script gathers all tasks for a given network and performs a simulation run for each task.
 /// This file can only simulate tasks for one network at a time (see: script/fetch-tasks.sh).
 contract TaskRunner is Script {
     using Strings for uint256;
     using stdToml for string;
+    using LibString for string;
+    using AccountAccessParser for VmSafe.AccountAccess[];
 
     struct L2Chain {
         uint256 chainId;
@@ -23,13 +29,15 @@ contract TaskRunner is Script {
 
     struct TaskConfig {
         L2Chain[] optionalL2Chains;
-        string path;
+        string basePath;
+        string configPath;
         string templateName;
         address parentMultisig;
         bool isNested;
     }
 
-    function parseConfig(string memory configPath) public returns (TaskConfig memory) {
+    function parseConfig(string memory basePath) public returns (TaskConfig memory) {
+        string memory configPath = string.concat(basePath, "config.toml");
         string memory toml = vm.readFile(configPath);
 
         L2Chain[] memory optionalL2Chains;
@@ -44,7 +52,8 @@ contract TaskRunner is Script {
         return TaskConfig({
             templateName: templateName,
             optionalL2Chains: optionalL2Chains,
-            path: configPath,
+            basePath: basePath,
+            configPath: configPath,
             isNested: isNested,
             parentMultisig: parentMultisig
         });
@@ -55,6 +64,31 @@ contract TaskRunner is Script {
         for (uint256 i = 0; i < taskPaths.length; i++) {
             TaskConfig memory config = parseConfig(taskPaths[i]);
             executeTask(config);
+        }
+    }
+
+    /// @notice Appends the state overrides to the config.toml file.
+    function appendStateOverrides(string memory configPath, AccountAccessParser.DecodedStateDiff[] memory stateDiffs)
+        public
+    {
+        if (stateDiffs.length != 0) {
+            console.log("TaskRunner: Appending state overrides to config.toml.");
+            string memory toml = vm.readFile(configPath);
+            if (!toml.contains("[stateOverrides]")) {
+                console.log("TaskRunner: Adding [stateOverrides] section to config.toml.");
+                toml = string.concat(toml, "\n[stateOverrides]\n");
+            }
+            // We assume that [stateOverrides] is already in the config.toml and that it's the last TOML table.
+            for (uint256 i = 0; i < stateDiffs.length; i++) {
+                toml = string.concat(toml, LibString.toHexString(stateDiffs[i].who), " = [\n");
+                string memory overrideKeyString = LibString.toHexString(uint256(stateDiffs[i].raw.slot), 32);
+                string memory overrideValueString = LibString.toHexString(uint256(stateDiffs[i].raw.newValue), 32);
+                toml = string.concat(
+                    toml, "    {key = \"", overrideKeyString, "\", ", "value = \"", overrideValueString, "\"}\n", "]\n"
+                );
+            }
+            console.log("TaskRunner: Wrote %s state overrides to config.toml.", stateDiffs.length);
+            vm.writeFile(configPath, toml);
         }
     }
 
@@ -99,10 +133,12 @@ contract TaskRunner is Script {
     }
 
     /// @notice Executes a task based on its configuration.
-    function executeTask(TaskConfig memory config) public {
+    function executeTask(TaskConfig memory config) public returns (VmSafe.AccountAccess[] memory accesses) {
         // Deploy and run the template
         string memory templatePath = string.concat("out/", config.templateName, ".sol/", config.templateName, ".json");
         MultisigTask task = MultisigTask(deployCode(templatePath));
+
+        setTenderlyGasEnv(config.basePath);
 
         if (config.isNested) {
             IGnosisSafe parentMultisig = IGnosisSafe(config.parentMultisig);
@@ -114,10 +150,31 @@ contract TaskRunner is Script {
                     Strings.toHexString(uint256(uint160(config.parentMultisig)), 20)
                 )
             );
-            task.signFromChildMultisig(config.path, owners[0]);
+            (accesses,) = task.signFromChildMultisig(config.configPath, owners[0]);
         } else {
-            task.simulateRun(config.path);
+            (accesses,) = task.simulateRun(config.configPath);
         }
+    }
+
+    /// @notice Sets the TENDERLY_GAS environment variable for the task if it exists.
+    function setTenderlyGasEnv(string memory basePath) public {
+        string memory envFile = string.concat(basePath, ".env");
+        if (vm.isFile(envFile)) {
+            string memory envContent = vm.readFile(envFile);
+            string[] memory lines = vm.split(envContent, "\n");
+
+            for (uint256 i = 0; i < lines.length; i++) {
+                if (lines[i].contains("TENDERLY_GAS=")) {
+                    string[] memory keyValue = vm.split(lines[i], "=");
+                    if (keyValue.length == 2) {
+                        vm.setEnv("TENDERLY_GAS", keyValue[1]);
+                        return;
+                    }
+                }
+            }
+        }
+        // If no TENDERLY_GAS is found, set it as empty.
+        vm.setEnv("TENDERLY_GAS", "");
     }
 
     /// @notice Useful function to tell if a task is nested or not based on the task config.
