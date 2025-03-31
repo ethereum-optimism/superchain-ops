@@ -5,9 +5,10 @@ templateName = "FinanceTemplate"
 # approve, increaseAllowance, decreaseAllowance, transfer
 operationType = "transfer"
 
+# List of operations to perform. In this case, approve 100 TEST tokens to be spent by SecurityCouncil and USER1
 operations = [
-  {token = "TEST", amount = 100, target = "SecurityCouncil"},
-  {token = "ETH", amount = 100, target = "SecurityCouncil"}
+  {token = "TEST", amount = "0.000000000000000100", target = "SecurityCouncil"},
+  {token = "ETH", amount = "0.000000000000000100", target = "SecurityCouncil"}
 ]
 
 [addresses]
@@ -15,4 +16,4 @@ operations = [
 "SafeToSendFrom" = "0xcBC62730b54BFE94173B1182FA56Db1393451d4e"
 "ETH" = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
 "TEST" = "0xBB4daAC11B4446EE1c6146De1e26ecf1Ab8b3EB6"
-"USER1" = "0x0000000000000000000000000000000000000001"
+"SecurityCouncil" = "0xf64bc17485f0B4Ea5F06A96514182FC4cB561977"
