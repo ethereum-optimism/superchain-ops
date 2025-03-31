@@ -57,7 +57,6 @@ contract SignFromJson is OriginalSignFromJson {
         string memory chainConfig;
 
         // Read chain-specific config toml file
-        // Unichain Mainnet is not yet public, so there is a local toml file included in this task
         string memory path = string.concat(
             "/tasks/sep/ink-004-enable-permissionless-game/", l2ChainName, ".toml"
         );
