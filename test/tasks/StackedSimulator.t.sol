@@ -253,6 +253,6 @@ contract StackedSimulatorUnitTest is AfterTest, Test {
 
     function afterTest() public override {
         // Delete the scratch directory
-        vm.removeDir("test/tasks/stacked-sim-testing", true);
+        try vm.removeDir("test/tasks/stacked-sim-testing", true) {} catch {}
     }
 }

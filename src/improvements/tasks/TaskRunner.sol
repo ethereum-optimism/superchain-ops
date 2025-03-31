@@ -36,6 +36,8 @@ contract TaskRunner is Script {
         bool isNested;
     }
 
+    mapping(address => bool) public processedStateOverride;
+
     function parseConfig(string memory basePath) public returns (TaskConfig memory) {
         string memory configPath = string.concat(basePath, "config.toml");
         string memory toml = vm.readFile(configPath);
@@ -71,25 +73,54 @@ contract TaskRunner is Script {
     function appendStateOverrides(string memory configPath, AccountAccessParser.DecodedStateDiff[] memory stateDiffs)
         public
     {
-        if (stateDiffs.length != 0) {
-            console.log("TaskRunner: Appending state overrides to config.toml.");
-            string memory toml = vm.readFile(configPath);
-            if (!toml.contains("[stateOverrides]")) {
-                console.log("TaskRunner: Adding [stateOverrides] section to config.toml.");
-                toml = string.concat(toml, "\n[stateOverrides]\n");
+        if (stateDiffs.length == 0) {
+            return; // No state diffs to process
+        }
+
+        string memory toml = vm.readFile(configPath);
+
+        if (!toml.contains("[stateOverrides]")) {
+            console.log("TaskRunner: Adding [stateOverrides] section to config.toml.");
+            toml = string.concat(toml, "\n[stateOverrides]\n");
+        }
+
+        for (uint256 i = 0; i < stateDiffs.length; i++) {
+            address who = stateDiffs[i].who;
+
+            if (processedStateOverride[who]) {
+                continue;
             }
-            // We assume that [stateOverrides] is already in the config.toml and that it's the last TOML table.
-            for (uint256 i = 0; i < stateDiffs.length; i++) {
-                toml = string.concat(toml, LibString.toHexString(stateDiffs[i].who), " = [\n");
-                string memory overrideKeyString = LibString.toHexString(uint256(stateDiffs[i].raw.slot), 32);
-                string memory overrideValueString = LibString.toHexString(uint256(stateDiffs[i].raw.newValue), 32);
+
+            processedStateOverride[who] = true;
+            console.log("TaskRunner: Appending state overrides for %s.", who);
+
+            toml = appendStateOverridesForAddress(toml, who, stateDiffs, i);
+        }
+
+        vm.writeFile(configPath, toml);
+        console.log("TaskRunner: Wrote %s state overrides to config.toml.", stateDiffs.length);
+    }
+
+    function appendStateOverridesForAddress(
+        string memory toml,
+        address who,
+        AccountAccessParser.DecodedStateDiff[] memory stateDiffs,
+        uint256 startIndex
+    ) internal pure returns (string memory) {
+        toml = string.concat(toml, LibString.toHexString(who), " = [\n");
+
+        for (uint256 j = startIndex; j < stateDiffs.length; j++) {
+            if (stateDiffs[j].who == who) {
+                string memory overrideKeyString = LibString.toHexString(uint256(stateDiffs[j].raw.slot), 32);
+                string memory overrideValueString = LibString.toHexString(uint256(stateDiffs[j].raw.newValue), 32);
+
                 toml = string.concat(
-                    toml, "    {key = \"", overrideKeyString, "\", ", "value = \"", overrideValueString, "\"}\n", "]\n"
+                    toml, "    {key = \"", overrideKeyString, "\", value = \"", overrideValueString, "\"},\n"
                 );
             }
-            console.log("TaskRunner: Wrote %s state overrides to config.toml.", stateDiffs.length);
-            vm.writeFile(configPath, toml);
         }
+
+        return string.concat(toml, "]\n");
     }
 
     /// @notice Fetches all non-terminal tasks for a given network.
