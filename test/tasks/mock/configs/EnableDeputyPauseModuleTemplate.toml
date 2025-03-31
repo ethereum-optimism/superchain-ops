@@ -2,6 +2,3 @@
 templateName = "EnableDeputyPauseModuleTemplate"
 
 newModule = "0x62f3972c56733aB078F0764d2414DfCaa99d574c"
-
-[addresses]
-FoundationOperationsSafe = "0x837DE453AD5F21E89771e3c06239d8236c0EFd5E"
