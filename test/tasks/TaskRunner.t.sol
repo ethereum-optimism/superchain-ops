@@ -52,11 +52,13 @@ contract TaskRunnerUnitTest is StateOverrideManager, Test {
 
     function testAppendStateOverrides_WithMultipleStateDiffs() public {
         TaskRunner tr = new TaskRunner();
-        AccountAccessParser.DecodedStateDiff[] memory stateDiffs = new AccountAccessParser.DecodedStateDiff[](2);
+        AccountAccessParser.DecodedStateDiff[] memory stateDiffs = new AccountAccessParser.DecodedStateDiff[](3);
         stateDiffs[0] =
             createStateDiff(makeAddr("first-state-diff"), bytes32(uint256(5)), bytes32(uint256(5)), bytes32(uint256(5)));
-        stateDiffs[1] = createStateDiff(
-            makeAddr("second-state-diff"), bytes32(uint256(6)), bytes32(uint256(6)), bytes32(uint256(6))
+        stateDiffs[1] =
+            createStateDiff(makeAddr("first-state-diff"), bytes32(uint256(6)), bytes32(uint256(6)), bytes32(uint256(6)));
+        stateDiffs[2] = createStateDiff(
+            makeAddr("second-state-diff"), bytes32(uint256(7)), bytes32(uint256(7)), bytes32(uint256(7))
         );
 
         string memory fileName = createTempTomlFile(commonToml);
@@ -65,19 +67,21 @@ contract TaskRunnerUnitTest is StateOverrideManager, Test {
         Simulation.StateOverride[] memory stateOverrides = _readStateOverridesFromConfig(fileName);
         assertEq(stateOverrides.length, 2);
         assertEq(stateOverrides[0].contractAddress, makeAddr("first-state-diff"));
-        assertEq(stateOverrides[0].overrides.length, 1);
+        assertEq(stateOverrides[0].overrides.length, 2);
         assertEq(stateOverrides[0].overrides[0].key, bytes32(uint256(5)));
         assertEq(stateOverrides[0].overrides[0].value, bytes32(uint256(5)));
+        assertEq(stateOverrides[0].overrides[1].key, bytes32(uint256(6)));
+        assertEq(stateOverrides[0].overrides[1].value, bytes32(uint256(6)));
         assertEq(stateOverrides[1].contractAddress, makeAddr("second-state-diff"));
         assertEq(stateOverrides[1].overrides.length, 1);
-        assertEq(stateOverrides[1].overrides[0].key, bytes32(uint256(6)));
-        assertEq(stateOverrides[1].overrides[0].value, bytes32(uint256(6)));
+        assertEq(stateOverrides[1].overrides[0].key, bytes32(uint256(7)));
+        assertEq(stateOverrides[1].overrides[0].value, bytes32(uint256(7)));
         removeFile(fileName);
     }
 
     function testAppendStateOverrides_WithSingleStateDiff() public {
         TaskRunner tr = new TaskRunner();
-        AccountAccessParser.DecodedStateDiff[] memory stateDiffs = new AccountAccessParser.DecodedStateDiff[](2);
+        AccountAccessParser.DecodedStateDiff[] memory stateDiffs = new AccountAccessParser.DecodedStateDiff[](1);
         stateDiffs[0] =
             createStateDiff(makeAddr("first-state-diff"), bytes32(uint256(1)), bytes32(uint256(2)), bytes32(uint256(3)));
 
@@ -85,10 +89,14 @@ contract TaskRunnerUnitTest is StateOverrideManager, Test {
         tr.appendStateOverrides(fileName, stateDiffs);
 
         Simulation.StateOverride[] memory stateOverrides = _readStateOverridesFromConfig(fileName);
-        assertEq(stateOverrides.length, 2);
-        assertEq(stateOverrides[0].contractAddress, makeAddr("first-state-diff"));
-        assertEq(stateOverrides[0].overrides.length, 1);
-        assertEq(stateOverrides[0].overrides[0].key, bytes32(uint256(1)));
+        assertEq(stateOverrides.length, 1, "TaskRunner: Expected 1 state override");
+        assertEq(
+            stateOverrides[0].contractAddress,
+            makeAddr("first-state-diff"),
+            "TaskRunner: Expected contract address to be first-state-diff"
+        );
+        assertEq(stateOverrides[0].overrides.length, 1, "TaskRunner: Expected 1 override");
+        assertEq(stateOverrides[0].overrides[0].key, bytes32(uint256(1)), "TaskRunner: Expected key to be 1");
         assertEq(stateOverrides[0].overrides[0].value, bytes32(uint256(3)));
         removeFile(fileName);
     }
