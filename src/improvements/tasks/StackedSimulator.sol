@@ -2,24 +2,23 @@
 pragma solidity 0.8.15;
 
 import {Script} from "forge-std/Script.sol";
-import {console} from "forge-std/console.sol";
 import {TaskRunner} from "src/improvements/tasks/TaskRunner.sol";
 import {LibString} from "@solady/utils/LibString.sol";
+import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
+import {console} from "forge-std/console.sol";
+import {VmSafe} from "forge-std/Vm.sol";
 
 /// This script enables stacked simulations. Stacked simulations allow us to simulate a task
 /// that depends on the state of another task that hasn't been executed yet.
 /// Only non-terminal tasks are executed as part of the stacked simulation.
 contract StackedSimulator is Script {
     using LibString for string;
+    using AccountAccessParser for VmSafe.AccountAccess[];
 
     struct TaskInfo {
         string path;
         string network;
         string name;
-    }
-
-    function run() public {
-        console.log("StackedSimulator.run");
     }
 
     function simulateStack(string memory network) public {
@@ -34,11 +33,17 @@ contract StackedSimulator is Script {
         TaskRunner.TaskConfig[] memory taskConfigs = new TaskRunner.TaskConfig[](tasks.length);
 
         for (uint256 i = 0; i < tasks.length; i++) {
-            taskConfigs[i] = taskRunner.parseConfig(string.concat(tasks[i].path, "config.toml"));
+            taskConfigs[i] = taskRunner.parseConfig(tasks[i].path);
         }
 
+        AccountAccessParser.DecodedStateDiff[] memory nextTaskStateDiffs;
         for (uint256 i = 0; i < taskConfigs.length; i++) {
-            taskRunner.executeTask(taskConfigs[i]);
+            console.log("StackedSimulator: Running task %s.", taskConfigs[i].templateName);
+            console.log("StackedSimulator: Number of state overrides: %s.", nextTaskStateDiffs.length);
+            taskRunner.appendStateOverrides(taskConfigs[i].configPath, nextTaskStateDiffs);
+            VmSafe.AccountAccess[] memory accesses = taskRunner.executeTask(taskConfigs[i]);
+            console.log("StackedSimulator: Number of accesses: %s.", accesses.length);
+            (, nextTaskStateDiffs) = accesses.decode(true);
         }
     }
 

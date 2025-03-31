@@ -76,7 +76,7 @@ contract StackedSimulatorUnitTest is AfterTest, Test {
         assertAscendingOrder(tasks);
     }
 
-    function testNoNonTerminalTasks() public {
+    function testGetNonTerminalTasks_NoTasks() public {
         StackedSimulator ss = new StackedSimulator();
         vm.expectRevert("TaskRunner: No non-terminal tasks found");
         ss.getNonTerminalTasks("fake-network");
@@ -229,7 +229,7 @@ contract StackedSimulatorUnitTest is AfterTest, Test {
             );
 
             address customImplAddr = makeAddr(taskName); // Predictable address for testing assertions.
-            vm.etch(customImplAddr, fdpCode);
+            vm.etch(customImplAddr, fdpCode); // Etch fault dispute game code to the custom impl address.
             string memory toml = string.concat(
                 commonToml,
                 "implementations = [{gameType = 0, implementation = \"",
@@ -253,6 +253,6 @@ contract StackedSimulatorUnitTest is AfterTest, Test {
 
     function afterTest() public override {
         // Delete the scratch directory
-        // vm.removeDir("test/tasks/stacked-sim-testing", true);
+        vm.removeDir("test/tasks/stacked-sim-testing", true);
     }
 }
