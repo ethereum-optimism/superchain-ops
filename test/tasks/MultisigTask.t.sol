@@ -56,7 +56,7 @@ contract MultisigTaskUnitTest is Test {
         string memory fileName = createTempTomlFile(commonToml);
         // Instantiate the SuperchainAddressRegistry contract
         addrRegistry = new SuperchainAddressRegistry(fileName);
-        vm.removeFile(fileName);
+        removeFile(fileName);
 
         // Instantiate the Mock MultisigTask contract
         task = MultisigTask(new MockMultisigTask());
@@ -219,7 +219,7 @@ contract MultisigTaskUnitTest is Test {
         string memory fileName = createTempTomlFile(commonToml);
         (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions) =
             runTestSimulation(fileName, securityCouncilChildMultisig);
-        vm.removeFile(fileName);
+        removeFile(fileName);
 
         vm.expectRevert("MultisigTask: execute failed");
         task.simulate("", actions);
@@ -231,7 +231,7 @@ contract MultisigTaskUnitTest is Test {
     function testGetCalldata() public {
         string memory fileName = createTempTomlFile(commonToml);
         (, MultisigTask.Action[] memory actions) = runTestSimulation(fileName, securityCouncilChildMultisig);
-        vm.removeFile(fileName);
+        removeFile(fileName);
 
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);
 
@@ -274,5 +274,11 @@ contract MultisigTaskUnitTest is Test {
         string memory fileName = string.concat(randomBytes, ".toml");
         vm.writeFile(fileName, tomlContent);
         return fileName;
+    }
+
+    /// @notice This function is used to remove a file. The reason we use a try catch
+    /// is because sometimes the file may not exist and this leads to flaky tests.
+    function removeFile(string memory fileName) internal {
+        try vm.removeFile(fileName) {} catch {}
     }
 }

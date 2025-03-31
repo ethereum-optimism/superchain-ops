@@ -28,7 +28,7 @@ abstract contract StateOverrideManager is CommonBase {
     ) public view returns (Simulation.StateOverride[] memory allOverrides_) {
         if (optionalChildMultisig != address(0)) {
             allOverrides_ = new Simulation.StateOverride[](2 + _stateOverrides.length);
-            allOverrides_[0] = _parentMultisigTenderlyOverride(parentMultisig, parentMultisigNonce, msg.sender);
+            allOverrides_[0] = _parentMultisigTenderlyOverride(parentMultisig, parentMultisigNonce);
             allOverrides_[1] = _childMultisigTenderlyOverride(optionalChildMultisig, optionalChildMultisigNonce);
             // Add user-defined overrides (these take precedence over default ones)
             for (uint256 i = 0; i < _stateOverrides.length; i++) {
@@ -85,7 +85,7 @@ abstract contract StateOverrideManager is CommonBase {
         return IGnosisSafe(safeAddress).nonce();
     }
 
-    /// @notice Create default state override for the parent multisig.
+    /// @notice Parent multisig override for single execution.
     function _parentMultisigTenderlyOverride(address parentMultisig, uint256 nonce, address owner)
         private
         view
@@ -95,6 +95,16 @@ abstract contract StateOverrideManager is CommonBase {
         defaultOverride = _overrideMultisigThresholdAndNonce(defaultOverride, nonce);
         // We need to override the owner on the parent multisig to ensure single safes can execute.
         defaultOverride = Simulation.addOwnerOverride(parentMultisig, defaultOverride, owner);
+    }
+
+    /// @notice Parent multisig override for nested execution.
+    function _parentMultisigTenderlyOverride(address parentMultisig, uint256 nonce)
+        private
+        view
+        returns (Simulation.StateOverride memory defaultOverride)
+    {
+        defaultOverride.contractAddress = parentMultisig;
+        defaultOverride = _overrideMultisigThresholdAndNonce(defaultOverride, nonce);
     }
 
     /// @notice Create default state override for the child multisig.
@@ -115,6 +125,9 @@ abstract contract StateOverrideManager is CommonBase {
         returns (Simulation.StateOverride memory)
     {
         defaultOverride = Simulation.addThresholdOverride(defaultOverride.contractAddress, defaultOverride);
+        // TODO: Fix so the nonce state override is only added if the nonce is actually overridden.
+        // Nonce override will always be added because base-contracts Simulation.sol calls 'IGnosisSafe(_safe).nonce()'
+        // _after_ our local simulation has completed. Our local simulation increments the nonce by 1.
         defaultOverride = Simulation.addNonceOverride(defaultOverride.contractAddress, defaultOverride, nonce);
         return defaultOverride;
     }

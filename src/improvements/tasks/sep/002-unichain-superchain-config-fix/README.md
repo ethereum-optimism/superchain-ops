@@ -1,6 +1,7 @@
-# unichain-004-superchain-config-fix: Unichain Sepolia SuperchainConfig fix
 
-Status: READY TO SIGN
+# 002-unichain-superchain-config-fix: Unichain Sepolia SuperchainConfig fix
+
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x8f1bf1fb5acdadf0575f999af12c23701f0840d03a98ad832afefc6e78f0a4de)
 
 ## Objective
 
@@ -27,6 +28,7 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/improvements/template/UniFix.sol`.
 Navigate to the correct task directory then run the simulate command.
 ```
-cd 003-unichain-superchain-config-fix
+cd 002-unichain-superchain-config-fix
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
+# Optionally set the SIGNER_ADDRESS environment variable to simulate as a specific address. Or remove SIMULATE_WITHOUT_LEDGER to simulate with Ledger. e.g. To set a custom signer: SIMULATE_WITHOUT_LEDGER=1 SIGNER_ADDRESS=0x1111111111111111111111111111111111111111
 ```
