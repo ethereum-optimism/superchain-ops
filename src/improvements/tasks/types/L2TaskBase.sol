@@ -34,19 +34,27 @@ abstract contract L2TaskBase is MultisigTask {
 
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
-        parentMultisig_ = IGnosisSafe(superchainAddrRegistry.getAddress(config.safeAddressString, chains[0].chainId));
-        // Ensure that all chains have the same parentMultisig.
-        for (uint256 i = 1; i < chains.length; i++) {
-            require(
-                address(parentMultisig_)
-                    == superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId),
-                string.concat(
-                    "MultisigTask: safe address mismatch. Caller: ",
-                    getAddressLabel(address(parentMultisig_)),
-                    ". Actual address: ",
-                    getAddressLabel(superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId))
-                )
-            );
+        // Try to get the parentMultisig globally first. If it exists globally, return it.
+        // Otherwise we assume that the safe address is defined per-chain and we need to check for
+        // each chain that all of the addresses are the same.
+        try superchainAddrRegistry.get(config.safeAddressString) returns (address addr) {
+            parentMultisig_ = IGnosisSafe(addr);
+        } catch {
+            parentMultisig_ =
+                IGnosisSafe(superchainAddrRegistry.getAddress(config.safeAddressString, chains[0].chainId));
+            // Ensure that all chains have the same parentMultisig.
+            for (uint256 i = 1; i < chains.length; i++) {
+                require(
+                    address(parentMultisig_)
+                        == superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId),
+                    string.concat(
+                        "MultisigTask: safe address mismatch. Caller: ",
+                        getAddressLabel(address(parentMultisig_)),
+                        ". Actual address: ",
+                        getAddressLabel(superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId))
+                    )
+                );
+            }
         }
     }
 
