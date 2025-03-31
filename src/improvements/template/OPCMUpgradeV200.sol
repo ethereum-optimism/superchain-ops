@@ -168,10 +168,15 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
             //   ANCHORP-40 errors do not apply to chains over 1 week old.
             string memory expectedErrors_57073 = "SYSCON-30,PDDG-ANCHORP-40,PLDG-ANCHORP-40";
 
+            string memory expectedErrors_1301 =
+                "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-ANCHORP-40,PDDG-120,PLDG-DWETH-30,PLDG-ANCHORP-40";
+            string memory expectedErrors_130 =
+                "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-ANCHORP-40,PLDG-DWETH-30,PLDG-ANCHORP-40";
             require(
                 reasons.eq(expectedErrors_11155420) || reasons.eq(expectedErrors_1946)
                     || reasons.eq(expectedErrors_763373) || reasons.eq(expectedErrors_84532)
-                    || reasons.eq(expectedErrors_10) || reasons.eq(expectedErrors_1868) || reasons.eq(expectedErrors_57073),
+                    || reasons.eq(expectedErrors_10) || reasons.eq(expectedErrors_1868) || reasons.eq(expectedErrors_57073)
+                    || reasons.eq(expectedErrors_1301) || reasons.eq(expectedErrors_130),
                 string.concat("Unexpected errors: ", reasons)
             );
         }

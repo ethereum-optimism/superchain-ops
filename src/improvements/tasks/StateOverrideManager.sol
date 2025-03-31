@@ -125,6 +125,9 @@ abstract contract StateOverrideManager is CommonBase {
         returns (Simulation.StateOverride memory)
     {
         defaultOverride = Simulation.addThresholdOverride(defaultOverride.contractAddress, defaultOverride);
+        // TODO: Fix so the nonce state override is only added if the nonce is actually overridden.
+        // Nonce override will always be added because base-contracts Simulation.sol calls 'IGnosisSafe(_safe).nonce()'
+        // _after_ our local simulation has completed. Our local simulation increments the nonce by 1.
         defaultOverride = Simulation.addNonceOverride(defaultOverride.contractAddress, defaultOverride, nonce);
         return defaultOverride;
     }

@@ -1,0 +1,31 @@
+l2chains = [
+    {name = "Unichain", chainId = 130}
+]
+
+templateName = "OPCMUpgradeV200"
+
+[opcmUpgrades]
+absolutePrestates = [
+    {absolutePrestate = "0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9", chainId = 130},
+]
+
+[addresses]
+OPCM = "0x026b2F158255Beac46c1E7c6b8BbF29A4b6A7B76"
+# Deployed March 27, 2025: https://etherscan.io/tx/0x902ce895f70a72110d40c9a734a26380b2e27c370aae90721cdfa1ac972cfff8 
+StandardValidatorV200 = "0xecabaeaa1d58261f1579232520c5b460ca58a164"
+ChildSafe1 = "0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC"
+ChildSafe2 = "0x847B5c174615B1B7fDF770882256e2D3E95b9D92"
+ChildSafe3 = "0xc2819DC788505Aac350142A7A707BF9D03E3Bd03"
+
+# TODO: Remove entire state override section when 000-opcm-upgrade-v200 is executed.
+[stateOverrides]
+# SuperchainConfig op-contracts/v2.0.0 implementation address set. This task assumes upgrade controller has already called OPCM upgrade.
+# https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L41
+0x95703e0982140D16f8ebA6d158FccEde42f04a4C = [
+    {key = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc", value = "0x0000000000000000000000004da82a327773965b8d4d85fa3db8249b387458e7"}
+]
+# ProtocolVersions op-contracts/v2.0.0 implementation address set. This task assumes upgrade controller has already called OPCM upgrade.
+# https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L42
+0x8062AbC286f5e7D9428a0Ccb9AbD71e50d93b935 = [
+    {key = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc", value = "0x00000000000000000000000037e15e4d6dffa9e5e320ee1ec036922e563cb76c"}
+]

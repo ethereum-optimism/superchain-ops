@@ -19,10 +19,12 @@ elif [[ "$SAFE_NAME" == "child-safe-1" ]]; then
     SAFE_NAME="ChildSafe1"
 elif [[ "$SAFE_NAME" == "child-safe-2" ]]; then
     SAFE_NAME="ChildSafe2"
-# Optionally add child-safe-3, child-safe-4, if necessary etc.
+elif [[ "$SAFE_NAME" == "child-safe-3" ]]; then
+    SAFE_NAME="ChildSafe3"
+# Optionally add child-safe-4, if necessary etc.
 else
     echo "Error: Invalid safe name: ${SAFE_NAME}" >&2
-    echo "Valid safe names: foundation, council, chain-governor, child-safe-1, child-safe-2" >&2
+    echo "Valid safe names: foundation, council, chain-governor, child-safe-1, child-safe-2, child-safe-3" >&2
     exit 1
 fi
 

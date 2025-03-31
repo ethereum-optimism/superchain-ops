@@ -1,11 +1,10 @@
 # Validation - Nested Safe
 
-This document describes the generic validation steps for running a Mainnet or Sepolia tasks for any
-nested 2/2 Safe involving either the Security Council & Foundation Upgrade Safe or the Base and Foundation Operations Safe.
+This document describes the generic validation steps for running a Mainnet or Sepolia tasks for any nested 2/2 Safe or 3/3 Safe.
 
 ## State Overrides
 
-The following state overrides related to the nested Safe execution must be seen:
+The following state overrides are related to the nested Safe execution must be present:
 
 ### `ProxyAdminSafe` (aka 2/2 `ProxyAdminOwner` or 3/3 Safe)
 The simulated role will also be called the **ProxyAdminSafe** in the remaining document.
@@ -24,6 +23,10 @@ Enables the simulation by setting the threshold to 1:
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000004` <br/>
   **Value:** `0x0000000000000000000000000000000000000000000000000000000000000001` \
   **Meaning:** The threshold is set to `1`.
+
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
+  **Value:** `<current nonce for the safe>` <br/>
+  **Meaning:** The nonce is set to `<current nonce for the safe>`. Note: This is only included in the new superchain-ops flow as of 26th March 2025.
 
 ### Safe Signer
 
@@ -121,7 +124,7 @@ The following diagram shows the state overrides for a nested execution. Where ap
 
 ```mermaid
 graph TD
-  subgraph Multicall3
+  subgraph Multicall3_1
     A1[aggregate3Value 0x174dea71]
     subgraph Multicall3 Calls
         A2[Call 1: execTransaction]
@@ -142,6 +145,9 @@ graph TD
 
   subgraph Multicall3_2
     C1[aggregate3Value 0x174dea71]
+    subgraph Multicall3_2 Calls
+        C2[Call 2: approveHash]
+    end
   end
 
   subgraph Parent Multisig
@@ -158,18 +164,18 @@ graph TD
 
   subgraph Multicall3DelegateCall
     E1["aggregate3 0x2ae36c5c"]
-
     subgraph Multicall3DelegateCall Calls 
-      E2[Upgrade task specific function]
+      E2[Upgrade task specific function e.g. opcm.upgrade]
     end
   end
 
   A1 --> A2
   A2 -->|1| B1
   B1 -->|2| C1
-  C1 -->|3| D1
-  A3 -->|4| D2
-  D2 -->|5| E1
+  C1 -->|3| C2
+  C2 -->|4| D1
+  A3 -->|5| D2
+  D2 -->|6| E1
   E1 --> E2
 
 
@@ -185,4 +191,5 @@ graph TD
   class D2 blue
   class E1 blue
   class E2 green
+  class C2 green
 ```
