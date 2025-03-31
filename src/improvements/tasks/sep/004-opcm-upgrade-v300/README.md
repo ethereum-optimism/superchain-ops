@@ -33,7 +33,7 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 
 ## Simulation
 
-When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/improvements/template/OPCMUpgradeV200.sol`.
+When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/improvements/template/OPCMUpgradeV300.sol`.
 Navigate to the correct task directory then run the simulate command.
 ```
 cd 004-opcm-upgrade-v300
