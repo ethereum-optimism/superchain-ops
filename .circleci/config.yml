@@ -25,7 +25,7 @@ parameters:
     default: 5
 
 commands:
-  simulate: # This command seems to not be at the right place no?
+  simulate:
     description: "Runs simulations of a task"
     parameters:
       task:
