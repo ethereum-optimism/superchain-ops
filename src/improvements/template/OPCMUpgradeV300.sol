@@ -127,8 +127,6 @@ contract OPCMUpgradeV300 is OPCMBaseTask {
             string memory reasons = STANDARD_VALIDATOR_V300.validate({_input: input, _allowFailure: true});
             // PDDG-ANCHORP-40: The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
             // PLDG-ANCHORP-40: The anchor state registry's permissionless root is not 0xdead000000000000000000000000000000000000000000000000000000000000
-            // PDDG-DWETH-40: the delayed weth delay is changing to 3.5 days for permissioned games
-            // PLDG-DWETH-40: the delayed weth delay is changing to 3.5 days for permissionless
             string memory expectedErrors_11155420 = "PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-DWETH-40,PLDG-ANCHORP-40";
             // SYSCON-20: System config gas limit must be 60,000,000 - This is OK because we don't touch the system config.
             // PDDG-ANCHORP-40: The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
