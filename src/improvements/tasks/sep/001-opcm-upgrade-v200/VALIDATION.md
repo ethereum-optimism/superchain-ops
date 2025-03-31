@@ -21,12 +21,12 @@ the values printed to the terminal when you run the task.
 > ### Child Safe 1: `0x6AF0674791925f767060Dd52f7fB20984E8639d8`
 >
 > - Domain Hash: `0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa`
-> - Message Hash: `0x6e4bcbb8105ec2efa8a58c66289071ddb349610f32570b7f72fb047f577c4f82`
+> - Message Hash: `0xbdd593a729dadfa12c86ebac23914145d1ae0418ef1909ffecf78882d6720212`
 >
 > ### Child Safe 2: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`
 >
 > - Domain Hash: `0x1d3f2566fd7b1bf017258b03d4d4d435d326d9cb051d5b7993d7c65e7ec78d0e`
-> - Message Hash: `0x6e4bcbb8105ec2efa8a58c66289071ddb349610f32570b7f72fb047f577c4f82`
+> - Message Hash: `0xbdd593a729dadfa12c86ebac23914145d1ae0418ef1909ffecf78882d6720212`
 
 
 ## Understanding Task Calldata
@@ -204,12 +204,12 @@ For each contract listed in the state diff, please verify that no contracts or s
     Chain ID:          84532
 
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
-    Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000011
-    Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000000012
+    Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000013
+    Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000000014
 
     Decoded Kind:      uint256
-    Decoded Old Value: 17
-    Decoded New Value: 18
+    Decoded Old Value: 19
+    Decoded New Value: 20
     Summary:           nonce
     Detail:            The nonce of the ProxyAdminOwner contract is updated.
 
@@ -218,7 +218,7 @@ For each contract listed in the state diff, please verify that no contracts or s
     Contract:          ProxyAdminOwner (GnosisSafe) - Base Sepolia Testnet
     Chain ID:          84532
 
-    Raw Slot:          0xfd2784b75fd99835d80ed1634e5221fd706540bb84a21d07ef5a1e8ef8081aec
+    Raw Slot:          0xb2df5133396593aefbb95e79ed4c7e08db38321b253690a5d0afe88cd55aea1c
     Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
     Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000000001
 
@@ -227,13 +227,13 @@ For each contract listed in the state diff, please verify that no contracts or s
                        This step isn't shown in the local simulation because the parent
                        multisig is invoked directly, bypassing the <i>approveHash</i> calls.
                        This slot change reflects an update to the approvedHashes mapping.
-                       Specifically, this simulation was ran as the nested safe `0x6AF0674791925f767060Dd52f7fB20984E8639d8`.
-                        - <i>res=$(cast index address 0x6AF0674791925f767060Dd52f7fB20984E8639d8 8)</i>
-                        - <i>cast index bytes32 0x2c12ddac61031f53730edf4cd4b646a6466872168458222187aed32e4c31d1b3 $res</i>
-                       Alternatively, the 'Raw Slot' value can be different if we run as `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
+                       Specifically, this simulation was ran as the nested safe `0x646132A1667ca7aD00d36616AFBA1A28116C770A`.
                         - <i>res=$(cast index address 0x646132A1667ca7aD00d36616AFBA1A28116C770A 8)</i>
-                        - <i>cast index bytes32 0x2c12ddac61031f53730edf4cd4b646a6466872168458222187aed32e4c31d1b3 $res</i>
-                        - Alternative 'Raw Slot': <i>0x391bf55281209271d11b80934b97db98cbe49f89bcd40bacbe40179575df5518</i>
+                        - <i>cast index bytes32 0x299045e8050d66c48af7217d72265e91cfea17d4af1d4a70469e26d82119d399 $res</i>
+                       Alternatively, the 'Raw Slot' value can be different if we run as `0x6AF0674791925f767060Dd52f7fB20984E8639d8`:
+                        - <i>res=$(cast index address 0x6AF0674791925f767060Dd52f7fB20984E8639d8 8)</i>
+                        - <i>cast index bytes32 0x299045e8050d66c48af7217d72265e91cfea17d4af1d4a70469e26d82119d399 $res</i>
+                        - Alternative 'Raw Slot': <i>0x5049591daa2bf73a8b81cc9e1e4d1278ca63f29fe97356d1e7e4bafa181454b1</i>
 
   ----- DecodedStateDiff[8] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/2c60e5723c64b5a1b58ab72c5d3816927ff9391a/superchain/configs/sepolia/base.toml#L55">0x21eFD066e581FA55Ef105170Cc04d74386a09190</a>
@@ -377,11 +377,11 @@ For each contract listed in the state diff, please verify that no contracts or s
     Chain ID:          84532
 
     Raw Slot:          0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e
-    Raw Old Value:     0x000000000000000000000000cca6a4916fa6de5d671cc77760a3b10b012cca16
+    Raw Old Value:     0x00000000000000000000000058d465e2e31b811fdbbe5461627a0a88c3c1be2f
     Raw New Value:     0x000000000000000000000000d53394d4f67653074acf0b264954fe5e4f72d24f
 
     Summary:           Update Permissioned GameType implementation.
-    Detail:            This is gameImpls[1] -> 0xd53394d4f67653074aCf0B264954fe5E4F72D24f
+    Detail:            This is gameImpls[1] -> 0x58d465e2e31b811fdbbe5461627a0a88c3c1be2f
                        Verify that the old implementation is set in this slot using:
                         - <i>cast call 0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1 "gameImpls(uint32)(address)" 1 --rpc-url sepolia</i>
                         - <i>cast storage 0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1 0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e --rpc-url sepolia</i>
@@ -393,7 +393,7 @@ For each contract listed in the state diff, please verify that no contracts or s
     Contract:          DisputeGameFactory
     Chain ID:          84532
     Raw Slot:          0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b
-    Raw Old Value:     0x0000000000000000000000009cd8b02e84df3ef61db3b34123206568490cb279
+    Raw Old Value:     0x00000000000000000000000076d7f861bbc8cbef20bad1a3f385eb95dd22306b
     Raw New Value:     0x000000000000000000000000861eb6dfe0fde8c8a63e8606fa487ee870f65e72
 
     Summary:           Updated CANNON GameType implementation.
