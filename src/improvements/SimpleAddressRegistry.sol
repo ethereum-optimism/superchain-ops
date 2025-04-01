@@ -74,7 +74,7 @@ contract SimpleAddressRegistry is StdChains {
         require(bytes(key).length > 0, "SimpleAddressRegistry: empty key");
         require(who != address(0), string.concat("SimpleAddressRegistry: zero address for ", key));
         require(addresses[key] == address(0), string.concat("SimpleAddressRegistry: duplicate key ", key));
-        require(bytes(keys[who]).length == 0, string.concat("SimpleAddressRegistry: address already registered: ", key));
+        require(bytes(keys[who]).length == 0, string.concat("SimpleAddressRegistry: address already registered ", key));
 
         addresses[key] = who;
         keys[who] = key;
