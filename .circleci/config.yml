@@ -221,85 +221,24 @@ jobs:
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
 
-  just_simulate_nested:
-    description: "Runs simulations of a nested task"
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    parameters:
-      task:
-        type: string
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: "simulate nested << parameters.task >>"
-          environment:
-            FOUNDRY_PROFILE: ci
-          command: |
-            just install
-            cd tasks/<< parameters.task >>
-            SIMULATE_WITHOUT_LEDGER=true just \
-              --dotenv-path $(pwd)/.env \
-              --justfile ../../../nested.just \
-              simulate foundation
-            SIMULATE_WITHOUT_LEDGER=true just \
-              --dotenv-path $(pwd)/.env \
-              --justfile ../../../nested.just \
-              simulate council
-
-  # TODO: Remove this job once we have stacked simulations for non-terminal tasks implemented.
-  just_simulate_nested_improvements:
-    circleci_ip_ranges: true
-    description: "Runs simulations of a nested task (new superchain-ops improvements)"
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    parameters:
-      task:
-        type: string
-      signer:
-        type: string
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: "simulate nested << parameters.task >>"
-          environment:
-            FOUNDRY_PROFILE: ci
-          command: |
-            just install
-            cd src/improvements/tasks/<< parameters.task >>
-            SIMULATE_WITHOUT_LEDGER=true just \
-              --dotenv-path $(pwd)/.env \
-              --justfile ../../../nested.just \
-              simulate << parameters.signer >>
-
-  # TODO: Remove this job once we have stacked simulations for non-terminal tasks implemented.
-  just_simulate_single_improvements:
-    circleci_ip_ranges: true
-    description: "Runs simulations of a single task (new superchain-ops improvements)"
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    parameters:
-      task:
-        type: string
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: "simulate single << parameters.task >>"
-          environment:
-            FOUNDRY_PROFILE: ci
-          command: |
-            just install
-            cd src/improvements/tasks/<< parameters.task >>
-            SIMULATE_WITHOUT_LEDGER=true just \
-              --dotenv-path $(pwd)/.env \
-              --justfile ../../../single.just \
-              simulate
-
   just_simulate_op_sep_prestate_update:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - simulate_nested:
           task: "/sep/032-op-pectra-defence"
+  
+  stacked_simulation:
+    description: "Runs a stacked simulation"
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - utils/checkout-with-mise
+      - run:
+          name: "Run stacked simulation for network: <<parameters.network>>"
+          command: (cd src/improvements && just simulate-stack <<parameters.network>>)
+      - notify-failures-on-develop:
+          mentions: "@security-team"
 
   simulate_sequence:
     description: "Runs a sequence of simulations"
@@ -500,6 +439,26 @@ workflows:
       - just_simulate_sc_rehearsal_4:
           context:
             - circleci-repo-readonly-authenticated-github-token
+
+      # Stacked simulations for superchain-ops improvements.
+      - stacked_simulation:
+          name: stacked_simulation_eth
+          network: "eth"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+          filters:
+            branches:
+              only: main
+
+      # Stacked simulations for superchain-ops improvements.
+      - stacked_simulation:
+          name: stacked_simulation_sep
+          network: "sep"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+          filters:
+            branches:
+              only: main  
 
       - simulate_sequence:
           name: simulate_sequence_eth
