@@ -5,6 +5,7 @@ import {Test} from "forge-std/Test.sol";
 import {StackedSimulator} from "src/improvements/tasks/StackedSimulator.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {IDisputeGameFactory, GameType} from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
+import {SimpleStorage} from "test/tasks/mock/template/StackSimulationTestTemplate.sol";
 
 contract StackedSimulatorUnitTest is Test {
     using LibString for string;
@@ -61,6 +62,33 @@ contract StackedSimulatorUnitTest is Test {
         assertEq(tasks[0].name, "300-task-name");
         assertEq(tasks[1].name, "301-task-name");
         assertAscendingOrder(tasks);
+    }
+
+    /// #############################################################
+    /// ########## END-TO-END STACKED SIMULATION TEST ###############
+    /// #############################################################
+    /// The tests using SimpleStorage ensure that laters tasks in the stack
+    /// need the state changes from previous tasks in the stack to succeed.
+    function testSimulateStackedTasks_SimpleStorageFails() public {
+        SimpleStorage simpleStorage = new SimpleStorage();
+        createSimpleStorageTask("eth_004", address(simpleStorage), 100, 0, 1);
+        // The old value is now 1, so the second task will fail.
+        createSimpleStorageTask("eth_004", address(simpleStorage), 101, 0, 2);
+
+        StackedSimulator ss = new StackedSimulator();
+        vm.expectRevert("SimpleStorage: oldValue != x");
+        ss.simulateStack("eth_004", "101-task-name");
+    }
+
+    function testSimulateStackedTasks_SimpleStoragePasses() public {
+        SimpleStorage simpleStorage = new SimpleStorage();
+        createSimpleStorageTask("eth_005", address(simpleStorage), 100, 0, 1);
+        createSimpleStorageTask("eth_005", address(simpleStorage), 101, 1, 2);
+
+        StackedSimulator ss = new StackedSimulator();
+        ss.simulateStack("eth_005", "101-task-name");
+
+        assertEq(simpleStorage.x(), 2);
     }
 
     function testGetNonTerminalTasks_NoTasks() public {
@@ -230,6 +258,36 @@ contract StackedSimulatorUnitTest is Test {
             );
             vm.writeFile(string.concat(taskDir, "/config.toml"), toml);
         }
+    }
+
+    function createSimpleStorageTask(
+        string memory network,
+        address simpleStorage,
+        uint256 startTaskIndex,
+        uint256 oldValue,
+        uint256 newValue
+    ) internal {
+        string memory taskName = getNextTaskName(startTaskIndex);
+        string memory taskDir = string.concat(testDirectory, "/", network, "/", taskName);
+        vm.createDir(taskDir, true);
+        vm.writeFile(string.concat(taskDir, "/README.md"), "This is a test README.md file.");
+        vm.writeFile(string.concat(taskDir, "/VALIDATION.md"), "This is a test VALIDATION.md file.");
+        string memory commonToml = "templateName = \"StackSimulationTestTemplate\"\n" "\n";
+        string memory toml = string.concat(
+            commonToml,
+            "oldValue = ",
+            LibString.toString(oldValue),
+            "\n",
+            "newValue = ",
+            LibString.toString(newValue),
+            "\n\n",
+            "[addresses]\n",
+            "SimpleStorage = \"",
+            LibString.toHexString(simpleStorage),
+            "\"\n",
+            "SimpleStorageOwner = \"0x847B5c174615B1B7fDF770882256e2D3E95b9D92\"\n" // Example safe, it doesn't matter for this test.
+        );
+        vm.writeFile(string.concat(taskDir, "/config.toml"), toml);
     }
 
     function getNextTaskName(uint256 startTaskIndex) internal pure returns (string memory taskName_) {
