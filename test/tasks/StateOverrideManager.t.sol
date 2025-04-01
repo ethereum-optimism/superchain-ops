@@ -10,6 +10,7 @@ import {MockMultisigTask} from "test/tasks/mock/MockMultisigTask.sol";
 import {MockDisputeGameTask} from "test/tasks/mock/MockDisputeGameTask.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
+import {replaceMulticallBytecode} from "test/tasks/utils/Helper.sol";
 
 contract StateOverrideManagerUnitTest is Test {
     function setUp() public {
@@ -246,6 +247,14 @@ contract StateOverrideManagerUnitTest is Test {
             "implementations = [{gameType = 0, implementation = \"0x0000000FFfFFfffFffFfFffFFFfffffFffFFffFf\", l2ChainId = 84532}]\n";
         string memory fileName = createTempTomlFile(nonNestedSafeToml);
         MockDisputeGameTask dgt = new MockDisputeGameTask();
+
+        // Multicall3NoValueCheck got deployed at block 7979283: https://sepolia.etherscan.io/tx/0x8168e11cd652e20f0961d334e7d82472252fcf239e52eb703a4960378701c59e
+        // At block 7972616, the Multicall3NoValueCheck was not deployed yet. We are replacing the Multicall3NoValueCheck address
+        // with the address of the old multicall3 address ca11bde05977b3631167028862be2a173976ca11.
+        bytes memory deployedBytecode = address(dgt).code;
+        deployedBytecode = replaceMulticallBytecode(deployedBytecode);
+        vm.etch(address(dgt), deployedBytecode);
+
         dgt.simulateRun(fileName);
         uint256 expectedNonce = dgt.nonce();
         // Only parent overrides will be checked because child multisig is not set.

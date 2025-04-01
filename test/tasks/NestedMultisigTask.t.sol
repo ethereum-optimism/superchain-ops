@@ -17,8 +17,9 @@ import {DisputeGameUpgradeTemplate} from "test/tasks/mock/template/DisputeGameUp
 import {OPCMUpgradeV200} from "src/improvements/template/OPCMUpgradeV200.sol";
 import {MockDisputeGameTask} from "test/tasks/mock/MockDisputeGameTask.sol";
 import {DisputeGameUpgradeTemplate} from "test/tasks/mock/template/DisputeGameUpgradeTemplate.sol";
-
+import {replaceMulticallBytecode} from "test/tasks/utils/Helper.sol";
 /// @notice This test is used to test the nested multisig task.
+
 contract NestedMultisigTaskTest is Test {
     struct MultiSigOwner {
         address walletAddress;
@@ -268,6 +269,14 @@ contract NestedMultisigTaskTest is Test {
         vm.createSelectFork("sepolia", 7972616);
         uint256 snapshotId = vm.snapshotState();
         multisigTask = new OPCMUpgradeV200();
+
+        // Multicall3NoValueCheck got deployed at block 7979283: https://sepolia.etherscan.io/tx/0x8168e11cd652e20f0961d334e7d82472252fcf239e52eb703a4960378701c59e
+        // At block 7972616, the Multicall3NoValueCheck was not deployed yet. We are replacing the Multicall3NoValueCheck address
+        // with the address of the old multicall3 address ca11bde05977b3631167028862be2a173976ca11.
+        bytes memory deployedBytecode = address(multisigTask).code;
+        deployedBytecode = replaceMulticallBytecode(deployedBytecode);
+        vm.etch(address(multisigTask), deployedBytecode);
+
         string memory opcmTaskConfigFilePath = "test/tasks/example/sep/002-opcm-upgrade-v200/config.toml";
         (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions) =
             multisigTask.signFromChildMultisig(opcmTaskConfigFilePath, foundationChildMultisig);
@@ -343,11 +352,16 @@ contract NestedMultisigTaskTest is Test {
 
             // Execute the approve hash call with the signatures
             multisigTask = new OPCMUpgradeV200();
+            // Replace the Multicall3NoValueCheck address in the deployed bytecode with the address of the old multicall3 address ca11bde05977b3631167028862be2a173976ca11.
+            vm.etch(address(multisigTask), deployedBytecode);
+
             multisigTask.approveFromChildMultisig(opcmTaskConfigFilePath, childMultisig, packedSignaturesChild);
         }
 
         // Execute the task
         multisigTask = new OPCMUpgradeV200();
+        // Replace the Multicall3NoValueCheck address in the deployed bytecode with the address of the old multicall3 address ca11bde05977b3631167028862be2a173976ca11.
+        vm.etch(address(multisigTask), deployedBytecode);
 
         // Snapshot before running the task so we can roll back to this pre-state
         uint256 newSnapshot = vm.snapshotState();
