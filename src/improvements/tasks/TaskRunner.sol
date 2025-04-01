@@ -39,7 +39,7 @@ contract TaskRunner is Script {
     mapping(address => bool) public processedStateOverride;
 
     function parseConfig(string memory basePath) public returns (TaskConfig memory) {
-        string memory configPath = string.concat(basePath, "config.toml");
+        string memory configPath = string.concat(basePath, "/", "config.toml");
         string memory toml = vm.readFile(configPath);
 
         L2Chain[] memory optionalL2Chains;
@@ -145,6 +145,14 @@ contract TaskRunner is Script {
             }
             taskPaths_[i] = baseTaskPath;
         }
+
+        // Remove last slash from each task path.
+        for (uint256 i = 0; i < taskPaths_.length; i++) {
+            if (taskPaths_[i].endsWith("/")) {
+                taskPaths_[i] = LibString.slice(taskPaths_[i], 0, bytes(taskPaths_[i]).length - 1);
+            }
+        }
+
         // Ensure task is well-formed.
         for (uint256 i = 0; i < taskPaths_.length; i++) {
             validateTask(taskPaths_[i]);
@@ -153,15 +161,15 @@ contract TaskRunner is Script {
 
     function validateTask(string memory taskPath) public view {
         require(
-            vm.isFile(string.concat(taskPath, "config.toml")),
+            vm.isFile(string.concat(taskPath, "/", "config.toml")),
             string.concat("TaskRunner: config.toml file does not exist: ", taskPath)
         );
         require(
-            vm.isFile(string.concat(taskPath, "README.md")),
+            vm.isFile(string.concat(taskPath, "/", "README.md")),
             string.concat("TaskRunner: README.md file does not exist: ", taskPath)
         );
         require(
-            vm.isFile(string.concat(taskPath, "VALIDATION.md")),
+            vm.isFile(string.concat(taskPath, "/", "VALIDATION.md")),
             string.concat("TaskRunner: VALIDATION.md file does not exist: ", taskPath)
         );
     }
@@ -192,7 +200,7 @@ contract TaskRunner is Script {
 
     /// @notice Sets the TENDERLY_GAS environment variable for the task if it exists.
     function setTenderlyGasEnv(string memory basePath) public {
-        string memory envFile = string.concat(basePath, ".env");
+        string memory envFile = string.concat(basePath, "/", ".env");
         if (vm.isFile(envFile)) {
             string memory envContent = vm.readFile(envFile);
             string[] memory lines = vm.split(envContent, "\n");

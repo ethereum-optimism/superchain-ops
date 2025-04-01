@@ -27,13 +27,32 @@ contract StackedSimulator is Script {
     }
 
     /// @notice Simulates the execution of a task and all tasks that must be executed before it.
+    /// This function copies the necessary files to a local directory that is not tracked by git.
+    /// It does this because as part of stacked simulations, we need to modify the task config.toml files
+    /// and we don't want to commit those changes to the repo.
     function simulateStack(string memory network, string memory task) public {
         TaskRunner taskRunner = new TaskRunner();
         TaskInfo[] memory tasks = getNonTerminalTasks(network, task);
         TaskRunner.TaskConfig[] memory taskConfigs = new TaskRunner.TaskConfig[](tasks.length);
 
+        // This is a gitignored directory.
+        string memory testDirectory = "test/tasks/stacked-sim-local";
+        // Duplicate each task config so that we're not modifying the original task config.toml files.
         for (uint256 i = 0; i < tasks.length; i++) {
             taskConfigs[i] = taskRunner.parseConfig(tasks[i].path);
+            string memory basePath = string.concat(testDirectory, "/", network, "/", tasks[i].name);
+            vm.createDir(basePath, true);
+            require(vm.isFile(taskConfigs[i].configPath), "StackedSimulator: config.toml file does not exist");
+            string memory configPath = string.concat(basePath, "/", "config.toml");
+            vm.copyFile(taskConfigs[i].configPath, configPath);
+
+            string memory envPath = string.concat(taskConfigs[i].basePath, "/", ".env");
+            if (vm.isFile(envPath)) {
+                vm.copyFile(envPath, string.concat(basePath, "/", ".env"));
+            }
+
+            taskConfigs[i].basePath = basePath;
+            taskConfigs[i].configPath = configPath;
         }
 
         AccountAccessParser.DecodedStateDiff[] memory nextTaskStateDiffs;
@@ -45,6 +64,8 @@ contract StackedSimulator is Script {
             console.log("StackedSimulator: Number of accesses: %s.", accesses.length);
             (, nextTaskStateDiffs) = accesses.decode(true);
         }
+        // Clean up after.
+        // removeDir(testDirectory);
     }
 
     /// @notice Returns an ordered list of non-terminal tasks that must be executed for a given task.
@@ -64,7 +85,7 @@ contract StackedSimulator is Script {
         tasks_ = new TaskInfo[](nonTerminalTasks.length);
         for (uint256 i = 0; i < nonTerminalTasks.length; i++) {
             string[] memory parts = vm.split(nonTerminalTasks[i], "/");
-            tasks_[i] = TaskInfo({path: nonTerminalTasks[i], network: network, name: parts[parts.length - 2]});
+            tasks_[i] = TaskInfo({path: nonTerminalTasks[i], network: network, name: parts[parts.length - 1]});
         }
 
         // Sort the taskNames in ascending order based on the uint value of their first three characters.
@@ -105,5 +126,11 @@ contract StackedSimulator is Script {
             if (tasks[i].name.eq(task)) return i;
         }
         revert("StackedSimulator: Task not found in non-terminal tasks");
+    }
+
+    /// @notice This function is used to remove a directory. The reason we use a try catch
+    /// is because sometimes the directory may not exist and this leads to flaky tests.
+    function removeDir(string memory dirName) internal {
+        try vm.removeDir(dirName, true) {} catch {}
     }
 }
