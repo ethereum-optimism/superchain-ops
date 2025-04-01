@@ -575,14 +575,6 @@ workflows:
             - circleci-repo-readonly-authenticated-github-token
 
       - simulate_sequence:
-          name: simulate_sequence_eth
-          network: "sep"
-          tasks: ""
-          block_number: "" # If not specified, the latest block number is used.
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-
-      - simulate_sequence:
           name: simulate_sequence_sep
           network: "sep"
           tasks: ""
