@@ -53,6 +53,10 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
         return allowed;
     }
 
+    function getCodeExceptions() internal view override returns (address[] memory) {
+        return codeExceptions;
+    }
+
     /// @notice Checks the correctness of the deployment
     function _postCheck(Vm.AccountAccess[] memory accesses, Simulation.Payload memory) internal view override {
         console.log("Running post-deploy assertions");
