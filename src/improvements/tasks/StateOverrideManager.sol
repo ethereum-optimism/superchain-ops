@@ -17,7 +17,8 @@ abstract contract StateOverrideManager is CommonBase {
     Simulation.StateOverride[] private _stateOverrides;
 
     /// @notice Get all state overrides for simulation. Combines default Tenderly overrides
-    /// with user-defined overrides. User defined overrides are applied last.
+    /// with user-defined overrides. User defined overrides either replace or append to the
+    /// default overrides.
     /// If a child multisig is provided then we are working with a nested safe.
     /// In this case we need additional state overrides.
     function getStateOverrides(address parentMultisig, address optionalChildMultisig)
@@ -25,21 +26,28 @@ abstract contract StateOverrideManager is CommonBase {
         view
         returns (Simulation.StateOverride[] memory allOverrides_)
     {
+        uint256 baseLength = (optionalChildMultisig != address(0)) ? 2 : 1;
+        allOverrides_ = new Simulation.StateOverride[](baseLength + _stateOverrides.length);
+
         if (optionalChildMultisig != address(0)) {
-            allOverrides_ = new Simulation.StateOverride[](2 + _stateOverrides.length);
             allOverrides_[0] = _parentMultisigTenderlyOverride(parentMultisig);
             allOverrides_[1] = _childMultisigTenderlyOverride(optionalChildMultisig);
-            // Add user-defined overrides (these take precedence over default ones)
-            for (uint256 i = 0; i < _stateOverrides.length; i++) {
-                allOverrides_[i + 2] = _stateOverrides[i];
-            }
         } else {
-            allOverrides_ = new Simulation.StateOverride[](1 + _stateOverrides.length);
             allOverrides_[0] = _parentMultisigTenderlyOverride(parentMultisig, msg.sender);
-            for (uint256 i = 0; i < _stateOverrides.length; i++) {
-                allOverrides_[i + 1] = _stateOverrides[i];
+        }
+
+        // Merge user-defined overrides or append them if not merged
+        for (uint256 i = 0; i < _stateOverrides.length; i++) {
+            (Simulation.StateOverride[] memory updates, bool merged) =
+                _mergeExistingOverrides(allOverrides_, _stateOverrides[i]);
+            allOverrides_ = updates;
+
+            if (!merged) {
+                allOverrides_[baseLength + i] = _stateOverrides[i];
             }
         }
+
+        allOverrides_ = _sanitizeOverrides(allOverrides_);
     }
 
     /// @notice Apply state overrides to the current VM state.
@@ -119,12 +127,15 @@ abstract contract StateOverrideManager is CommonBase {
 
     /// @notice Read state overrides from a TOML config file.
     /// Parses the TOML file and extracts state overrides for specific contracts.
-    function _readStateOverridesFromConfig(string memory taskConfigFilePath) private {
+    function _readStateOverridesFromConfig(string memory taskConfigFilePath)
+        internal
+        returns (Simulation.StateOverride[] memory)
+    {
         string memory toml = vm.readFile(taskConfigFilePath);
         string memory stateOverridesKey = ".stateOverrides";
 
         // Skip if no state overrides section is found
-        if (!toml.keyExists(stateOverridesKey)) return;
+        if (!toml.keyExists(stateOverridesKey)) return _stateOverrides;
 
         // Get all target contract addresses
         string[] memory targetStrings = vm.parseTomlKeys(toml, stateOverridesKey);
@@ -153,5 +164,76 @@ abstract contract StateOverrideManager is CommonBase {
                 stateOverrideStorage.overrides.push(parsedOverrides[i].overrides[j]);
             }
         }
+        return _stateOverrides;
+    }
+
+    /// @notice When a user defines an override that already exists in the default overrides,
+    /// we get an empty override that needs to be removed.
+    function _sanitizeOverrides(Simulation.StateOverride[] memory overrides_)
+        internal
+        pure
+        returns (Simulation.StateOverride[] memory sanitized_)
+    {
+        if (overrides_.length == 0) return overrides_;
+
+        uint256 emptyOverridesToRemove = 0;
+        for (uint256 i = 0; i < overrides_.length; i++) {
+            if (overrides_[i].contractAddress == address(0)) {
+                emptyOverridesToRemove++;
+            }
+        }
+
+        sanitized_ = new Simulation.StateOverride[](overrides_.length - emptyOverridesToRemove);
+        uint256 sanitizedIndex = 0;
+        for (uint256 i = 0; i < overrides_.length; i++) {
+            if (overrides_[i].contractAddress != address(0)) {
+                sanitized_[sanitizedIndex] = overrides_[i];
+                sanitizedIndex++;
+            }
+        }
+        return sanitized_;
+    }
+
+    /// @notice Merge existing overrides with user-defined overrides.
+    /// User-defined overrides take precedence over default ones. If a user-defined
+    /// override’s key is missing in the default overrides for the matching contract,
+    /// it is appended.
+    function _mergeExistingOverrides(
+        Simulation.StateOverride[] memory defaultOverrides_,
+        Simulation.StateOverride memory userDefinedOverride_
+    ) internal pure returns (Simulation.StateOverride[] memory updatedOverrides, bool merged_) {
+        merged_ = false;
+        for (uint256 j = 0; j < defaultOverrides_.length; j++) {
+            if (defaultOverrides_[j].contractAddress == userDefinedOverride_.contractAddress) {
+                merged_ = true;
+                // Update existing keys or append new ones
+                for (uint256 l = 0; l < userDefinedOverride_.overrides.length; l++) {
+                    bool found = false;
+
+                    for (uint256 k = 0; k < defaultOverrides_[j].overrides.length; k++) {
+                        if (defaultOverrides_[j].overrides[k].key == userDefinedOverride_.overrides[l].key) {
+                            defaultOverrides_[j].overrides[k].value = userDefinedOverride_.overrides[l].value;
+                            found = true;
+                            break;
+                        }
+                    }
+                    // Append new key if not found
+                    if (!found) {
+                        uint256 oldLength = defaultOverrides_[j].overrides.length;
+                        uint256 newLength = oldLength + 1;
+
+                        Simulation.StorageOverride[] memory newOverrides = new Simulation.StorageOverride[](newLength);
+                        for (uint256 m = 0; m < oldLength; m++) {
+                            newOverrides[m] = defaultOverrides_[j].overrides[m];
+                        }
+                        newOverrides[oldLength] = userDefinedOverride_.overrides[l];
+
+                        defaultOverrides_[j].overrides = newOverrides;
+                    }
+                }
+                break; // Exit after processing the matching contract
+            }
+        }
+        return (defaultOverrides_, merged_);
     }
 }
