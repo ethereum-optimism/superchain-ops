@@ -54,7 +54,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
     }
 
     function getCodeExceptions() internal view override returns (address[] memory) {
-        return codeExceptions;
+        return new address ;
     }
 
     /// @notice Checks the correctness of the deployment
