@@ -1,6 +1,6 @@
 # 001-opcm-upgrade-v200: Sepolia OPCM v2.0.0: Base
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xf395e42bb6c86e0efd934d0819b29469784bf46c7cd1df99e5385e49c39cc16b)
 
 ## Objective
 
