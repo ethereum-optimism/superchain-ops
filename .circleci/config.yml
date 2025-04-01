@@ -230,6 +230,9 @@ jobs:
   
   stacked_simulation:
     description: "Runs a stacked simulation"
+    parameters:
+      network:
+        type: string
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
