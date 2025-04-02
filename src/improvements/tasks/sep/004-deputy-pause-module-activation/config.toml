@@ -3,5 +3,3 @@ l2chains = [{name = "OP Sepolia Testnet", chainId = 11155420}] # e.g. [{name = "
 templateName = "EnableDeputyPauseModuleTemplate"
 
 newModule = "0xc6f7C07047ba37116A3FdC444Afb5018f6Df5758"
-[addresses]
-FoundationOperationSafe = "0x837DE453AD5F21E89771e3c06239d8236c0EFd5E"

@@ -16,7 +16,7 @@ import {GameType} from "lib/optimism/packages/contracts-bedrock/src/dispute/lib/
 /// @title SetRespectedGameType
 /// @notice This template is used to set the respected game type in the OptimismPortal2 contract
 ///         for a given chain or set of chains.
-contract SetRespectedGameType is L2TaskBase {
+contract SetRespectedGameTypeTemplate is L2TaskBase {
     using stdToml for string;
 
     /// @notice Struct representing configuration for the task.
