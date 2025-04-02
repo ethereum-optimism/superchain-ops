@@ -415,7 +415,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                     Using Base Mainnet's <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/base.toml#L63">DisputeGameFactory</a>, we can find this DelayedWETH address:
-                      - <i>cast call 0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e "gameImpls(uint32)(address)" 1 --rpc-url mainnet</i>
+                      - <i>cast call 0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e "gameImpls(uint32)(address)" 0 --rpc-url mainnet</i>
                       - <i>cast call 0xc5f3677c3C56DB4031ab005a3C9c98e1B79D438e "weth()(address)" --rpc-url mainnet</i>
                         returns <b>0xa2f2aC6F5aF72e494A227d79Db20473Cf7A1FFE8</b>
 
