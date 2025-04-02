@@ -129,18 +129,21 @@ contract MultisigTaskUnitTest is Test {
 
         // set the target multicall address in MultisigTask contract to the
         // multicall address
-        vm.store(address(task), TARGET_MULTICALL_SLOT, bytes32(uint256(uint160(MULTICALL3_ADDRESS))));
+        vm.store(
+            address(task), TARGET_MULTICALL_SLOT, bytes32(uint256(uint160(task.MULTICALL3_NO_VALUE_CHECK_ADDRESS())))
+        );
 
         MockTarget mock = new MockTarget();
         bytes memory callData = abi.encodeWithSelector(MockTarget.foobar.selector);
         MultisigTask.Action[] memory actions = createActions(address(mock), callData, 0, Enum.Operation.Call, "");
+        (bytes memory data, uint256 value) = task.getMulticall3CalldataAndValue(actions);
         vm.mockCall(
             multisig,
             abi.encodeWithSelector(
                 IGnosisSafe.getTransactionHash.selector,
-                MULTICALL3_ADDRESS,
-                0,
-                task.getMulticall3Calldata(actions),
+                task.MULTICALL3_NO_VALUE_CHECK_ADDRESS(),
+                value,
+                data,
                 Enum.Operation.DelegateCall,
                 0,
                 0,
@@ -247,9 +250,7 @@ contract MultisigTaskUnitTest is Test {
 
         bytes memory expectedData = abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
 
-        bytes memory data = task.getMulticall3Calldata(actions);
-
-        assertEq(data, expectedData, "Wrong aggregate calldata");
+        assertEq(task.getMulticall3Calldata(actions), expectedData, "Wrong aggregate calldata");
     }
 
     function createActions(

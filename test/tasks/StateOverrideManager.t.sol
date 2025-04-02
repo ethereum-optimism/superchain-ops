@@ -10,6 +10,7 @@ import {MockMultisigTask} from "test/tasks/mock/MockMultisigTask.sol";
 import {MockDisputeGameTask} from "test/tasks/mock/MockDisputeGameTask.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
+import {replaceMulticallBytecode} from "test/tasks/utils/Helper.sol";
 
 contract StateOverrideManagerUnitTest is Test {
     function setUp() public {
@@ -20,6 +21,7 @@ contract StateOverrideManagerUnitTest is Test {
         "templateName = \"DisputeGameUpgradeTemplate\"\n" "\n"
         "implementations = [{gameType = 0, implementation = \"0xf691F8A6d908B58C534B624cF16495b491E633BA\", l2ChainId = 10}]\n";
     address constant SECURITY_COUNCIL_CHILD_MULTISIG = 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03;
+    address constant MULTICALL3_NO_VALUE_CHECK_ADDRESS = 0x90664A63412b9B07bBfbeaCfe06c1EA5a855014c;
 
     function createTempTomlFile(string memory tomlContent) public returns (string memory) {
         string memory randomBytes = LibString.toHexString(uint256(bytes32(vm.randomBytes(32))));
@@ -245,6 +247,14 @@ contract StateOverrideManagerUnitTest is Test {
             "implementations = [{gameType = 0, implementation = \"0x0000000FFfFFfffFffFfFffFFFfffffFffFFffFf\", l2ChainId = 84532}]\n";
         string memory fileName = createTempTomlFile(nonNestedSafeToml);
         MockDisputeGameTask dgt = new MockDisputeGameTask();
+
+        // Multicall3NoValueCheck got deployed at block 7979283: https://sepolia.etherscan.io/tx/0x8168e11cd652e20f0961d334e7d82472252fcf239e52eb703a4960378701c59e
+        // At block 7972616, the Multicall3NoValueCheck was not deployed yet. We are replacing the Multicall3NoValueCheck address
+        // with the address of the old multicall3 address ca11bde05977b3631167028862be2a173976ca11.
+        bytes memory deployedBytecode = address(dgt).code;
+        deployedBytecode = replaceMulticallBytecode(deployedBytecode);
+        vm.etch(address(dgt), deployedBytecode);
+
         dgt.simulateRun(fileName);
         uint256 expectedNonce = dgt.nonce();
         // Only parent overrides will be checked because child multisig is not set.
@@ -389,7 +399,7 @@ contract StateOverrideManagerUnitTest is Test {
             "ChildDefaultOverride: Nonce override must match expected value"
         );
         // MULTICALL3_ADDRESS should be the owner override for the child multisig in a nested execution.
-        assertOwnerOverrides(childDefaultOverride, MULTICALL3_ADDRESS);
+        assertOwnerOverrides(childDefaultOverride, MULTICALL3_NO_VALUE_CHECK_ADDRESS);
     }
 
     function assertOwnerOverrides(Simulation.StateOverride memory defaultOverride, address expectedOwnerOverride)

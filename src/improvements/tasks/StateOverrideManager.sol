@@ -16,6 +16,9 @@ abstract contract StateOverrideManager is CommonBase {
     /// @notice The state overrides for the local and tenderly simulation
     Simulation.StateOverride[] private _stateOverrides;
 
+    /// @notice The address of the multicall3 contract that does not have accumulated value check
+    address public constant MULTICALL3_NO_VALUE_CHECK_ADDRESS = 0x90664A63412b9B07bBfbeaCfe06c1EA5a855014c;
+
     /// @notice Get all state overrides for simulation. Combines default Tenderly overrides
     /// with user-defined overrides. User defined overrides are applied last.
     /// If a child multisig is provided then we are working with a nested safe.
@@ -115,7 +118,7 @@ abstract contract StateOverrideManager is CommonBase {
     {
         defaultOverride.contractAddress = childMultisig;
         defaultOverride = _overrideMultisigThresholdAndNonce(defaultOverride, nonce);
-        defaultOverride = Simulation.addOwnerOverride(childMultisig, defaultOverride, MULTICALL3_ADDRESS);
+        defaultOverride = Simulation.addOwnerOverride(childMultisig, defaultOverride, MULTICALL3_NO_VALUE_CHECK_ADDRESS);
     }
 
     /// @notice Helper function to override the threshold and nonce for a multisig.

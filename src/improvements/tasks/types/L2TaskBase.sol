@@ -27,7 +27,7 @@ abstract contract L2TaskBase is MultisigTask {
         override
         returns (AddressRegistry addrRegistry_, IGnosisSafe parentMultisig_, address multicallTarget_)
     {
-        multicallTarget_ = MULTICALL3_ADDRESS;
+        multicallTarget_ = MULTICALL3_NO_VALUE_CHECK_ADDRESS;
 
         superchainAddrRegistry = new SuperchainAddressRegistry(taskConfigFilePath);
         addrRegistry_ = AddressRegistry.wrap(address(superchainAddrRegistry));

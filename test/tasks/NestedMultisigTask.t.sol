@@ -17,8 +17,9 @@ import {DisputeGameUpgradeTemplate} from "test/tasks/mock/template/DisputeGameUp
 import {OPCMUpgradeV200} from "src/improvements/template/OPCMUpgradeV200.sol";
 import {MockDisputeGameTask} from "test/tasks/mock/MockDisputeGameTask.sol";
 import {DisputeGameUpgradeTemplate} from "test/tasks/mock/template/DisputeGameUpgradeTemplate.sol";
-
+import {replaceMulticallBytecode} from "test/tasks/utils/Helper.sol";
 /// @notice This test is used to test the nested multisig task.
+
 contract NestedMultisigTaskTest is Test {
     struct MultiSigOwner {
         address walletAddress;
@@ -71,7 +72,7 @@ contract NestedMultisigTaskTest is Test {
         // nonce is decremented by 1 because when we ran the task, in simulation, execTransaction is called
         // which increments the nonce by 1 and we want to generate the hash by using the nonce before it was incremented.
         bytes32 hashToApproveByChildMultisig = parentMultisig.getTransactionHash(
-            MULTICALL3_ADDRESS,
+            multisigTask.MULTICALL3_NO_VALUE_CHECK_ADDRESS(),
             0,
             multisigTask.getMulticall3Calldata(actions),
             Enum.Operation.DelegateCall,
@@ -106,7 +107,7 @@ contract NestedMultisigTaskTest is Test {
             // the child multisig which does not increment the nonce
             uint256 nonce = IGnosisSafe(childOwnerMultisigs[i]).nonce();
             bytes memory expectedDataToSign = IGnosisSafe(childOwnerMultisigs[i]).encodeTransactionData({
-                to: MULTICALL3_ADDRESS,
+                to: multisigTask.MULTICALL3_NO_VALUE_CHECK_ADDRESS(),
                 value: 0,
                 data: callDataToApprove,
                 operation: Enum.Operation.DelegateCall,
@@ -123,7 +124,7 @@ contract NestedMultisigTaskTest is Test {
             // execute the child multisig approval of hashToApproveByChildMultisig
             bytes32 nestedHashToApprove = keccak256(dataToSign);
             bytes32 expectedNestedHashToApprove = IGnosisSafe(childOwnerMultisigs[i]).getTransactionHash(
-                MULTICALL3_ADDRESS,
+                multisigTask.MULTICALL3_NO_VALUE_CHECK_ADDRESS(),
                 0,
                 callDataToApprove,
                 Enum.Operation.DelegateCall,
@@ -241,8 +242,8 @@ contract NestedMultisigTaskTest is Test {
             "implementation not set"
         );
 
-        bytes memory callData = multisigTask.getMulticall3Calldata(actions);
-        bytes32 taskHash = multisigTask.getHash(callData, parentMultisig);
+        (bytes memory callData, uint256 value) = multisigTask.getMulticall3CalldataAndValue(actions);
+        bytes32 taskHash = multisigTask.getHash(callData, parentMultisig, value);
 
         /// Now run the executeRun flow
         vm.revertToState(newSnapshot);
@@ -268,12 +269,21 @@ contract NestedMultisigTaskTest is Test {
         vm.createSelectFork("sepolia", 7972616);
         uint256 snapshotId = vm.snapshotState();
         multisigTask = new OPCMUpgradeV200();
+
+        // Multicall3NoValueCheck got deployed at block 7979283: https://sepolia.etherscan.io/tx/0x8168e11cd652e20f0961d334e7d82472252fcf239e52eb703a4960378701c59e
+        // At block 7972616, the Multicall3NoValueCheck was not deployed yet. We are replacing the Multicall3NoValueCheck address
+        // with the address of the old multicall3 address ca11bde05977b3631167028862be2a173976ca11.
+        bytes memory deployedBytecode = address(multisigTask).code;
+        deployedBytecode = replaceMulticallBytecode(deployedBytecode);
+        vm.etch(address(multisigTask), deployedBytecode);
+
         string memory opcmTaskConfigFilePath = "test/tasks/example/sep/002-opcm-upgrade-v200/config.toml";
         (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions) =
             multisigTask.signFromChildMultisig(opcmTaskConfigFilePath, foundationChildMultisig);
 
         addrRegistry = multisigTask.addrRegistry();
         address parentMultisig = multisigTask.parentMultisig();
+
         address[] memory parentMultisigOwners = IGnosisSafe(parentMultisig).getOwners();
         bytes[] memory childMultisigDatasToSign = new bytes[](parentMultisigOwners.length);
         // Store the data to sign for each child multisig
@@ -342,18 +352,23 @@ contract NestedMultisigTaskTest is Test {
 
             // Execute the approve hash call with the signatures
             multisigTask = new OPCMUpgradeV200();
+            // Replace the Multicall3NoValueCheck address in the deployed bytecode with the address of the old multicall3 address ca11bde05977b3631167028862be2a173976ca11.
+            vm.etch(address(multisigTask), deployedBytecode);
+
             multisigTask.approveFromChildMultisig(opcmTaskConfigFilePath, childMultisig, packedSignaturesChild);
         }
 
         // Execute the task
         multisigTask = new OPCMUpgradeV200();
+        // Replace the Multicall3NoValueCheck address in the deployed bytecode with the address of the old multicall3 address ca11bde05977b3631167028862be2a173976ca11.
+        vm.etch(address(multisigTask), deployedBytecode);
 
         // Snapshot before running the task so we can roll back to this pre-state
         uint256 newSnapshot = vm.snapshotState();
 
         (accountAccesses, actions) = multisigTask.signFromChildMultisig(opcmTaskConfigFilePath, foundationChildMultisig);
-        bytes32 taskHash =
-            multisigTask.getHash(multisigTask.getMulticall3Calldata(actions), multisigTask.parentMultisig());
+        (bytes memory callData, uint256 value) = multisigTask.getMulticall3CalldataAndValue(actions);
+        bytes32 taskHash = multisigTask.getHash(callData, multisigTask.parentMultisig(), value);
 
         vm.revertToState(newSnapshot);
         multisigTask.executeRun(opcmTaskConfigFilePath, prepareSignatures(parentMultisig, taskHash));
@@ -402,7 +417,7 @@ contract NestedMultisigTaskTest is Test {
         returns (bytes memory)
     {
         bytes memory callData = multisigTask.generateApproveMulticallData(actions);
-        return multisigTask.getEncodedTransactionData(owner, callData);
+        return multisigTask.getEncodedTransactionData(owner, callData, 0);
     }
 
     function prepareSignatures(address _safe, bytes32 hash) internal view returns (bytes memory) {
