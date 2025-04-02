@@ -145,9 +145,6 @@ contract StateOverrideManagerUnitTest is Test {
     }
 
     /// @notice This test verifies that user-defined overrides take precedence over default overrides.
-    /// If a user defined override overrides an already existing default override, the user defined override
-    /// overrides the default one. If we simple apply the user defined overrides to the end, the Tenderly simulation
-    /// will not work.
     function testUserTenderlyStateOverridesTakePrecedence() public {
         string memory noStateOverridesFileName = createTempTomlFile(commonToml);
         MultisigTask noStateOverridesTask = createAndRunTask(noStateOverridesFileName, SECURITY_COUNCIL_CHILD_MULTISIG);
@@ -538,7 +535,8 @@ contract StateOverrideManagerUnitTest is Test {
         if (childMultisig != address(0)) {
             // Nested execution
             assertTrue(
-                // TODO: This should be 1 if the nonce override isn't applied. See TODO comments in StateOverrideManager.sol for more information.
+                // TODO: This should be >=1 if the nonce override isn't applied.
+                // See TODO comments in StateOverrideManager.sol for more information.
                 parentDefaultOverride.overrides.length >= 2,
                 string.concat(
                     "Parent default override must have >=2 overrides, found: ",
@@ -685,6 +683,8 @@ contract StateOverrideManagerUnitTest is Test {
     }
 }
 
+/// The StateOverrideManager contract is an abstract contract so we need to inherit from it
+/// to test it.
 contract MockStateOverrideManager is StateOverrideManager {
     function wrapperSanitizeOverrides(Simulation.StateOverride[] memory overrides_)
         public
