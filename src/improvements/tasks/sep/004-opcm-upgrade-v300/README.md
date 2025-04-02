@@ -4,8 +4,7 @@ Status: [DRAFT]()
 
 ## Objective
 
-<!-- TODO(#740) - Add a link to the gov post -->
-Executes [Upgrade 14]() on Sepolia for the OP, Soneium, and Ink chains.
+Executes [Upgrade 14](https://gov.optimism.io/t/upgrade-proposal-14-isthmus-l1-contracts-mt-cannon/9796) on Sepolia for the OP, Soneium, and Ink chains.
 
 In summary, this task uses `op-contract/v3.0.0` [OPContractsManager](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/L1/OPContractsManager.sol) to upgrade 3 chains:
 1. OP Sepolia Testnet
