@@ -7,15 +7,13 @@ import {stdToml} from "forge-std/StdToml.sol";
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 
-import {
-    IDeputyGuardianModule,
-    IOptimismPortal2
-} from "lib/optimism/packages/contracts-bedrock/interfaces/safe/IDeputyGuardianModule.sol";
+import {IOptimismPortal2} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/IOptimismPortal2.sol";
 import {GameType} from "lib/optimism/packages/contracts-bedrock/src/dispute/lib/Types.sol";
 
-/// @title SetRespectedGameType
 /// @notice This template is used to set the respected game type in the OptimismPortal2 contract
-///         for a given chain or set of chains.
+/// for a given chain or set of chains.
+/// This works for Optimism monorepo tag: op-contracts/v1.8.0, op-contracts/v2.0.0, op-contracts/v3.0.0-rc.2
+/// but not later versions due to changes in the DeputyGuardianModule interface.
 contract SetRespectedGameTypeTemplate is L2TaskBase {
     using stdToml for string;
 
@@ -84,4 +82,9 @@ contract SetRespectedGameTypeTemplate is L2TaskBase {
         address[] memory codeExceptions = new address[](0);
         return codeExceptions;
     }
+}
+
+// This is the interface for the DeputyGuardianModule contract at optimism monorepo commit: a10fd5259a3af9a465955b035e16f516327d51d5
+interface IDeputyGuardianModule {
+    function setRespectedGameType(IOptimismPortal2 portal, GameType gameType) external;
 }
