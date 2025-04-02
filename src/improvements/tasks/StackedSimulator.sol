@@ -64,8 +64,6 @@ contract StackedSimulator is Script {
             console.log("StackedSimulator: Number of accesses: %s.", accesses.length);
             (, nextTaskStateDiffs) = accesses.decode(true);
         }
-        // Clean up after.
-        removeDir(testDirectory);
     }
 
     /// @notice Returns an ordered list of non-terminal tasks that must be executed for a given task.
@@ -109,7 +107,7 @@ contract StackedSimulator is Script {
         console.log("Non-terminal tasks will be executed in the order they are listed below:\n");
         console.log("  Network: %s", network);
         for (uint256 i = 0; i < tasks.length; i++) {
-            console.log("    %s: %s", i+1, tasks[i].name);
+            console.log("    %s: %s", i + 1, tasks[i].name);
         }
         console.log("\n");
     }
