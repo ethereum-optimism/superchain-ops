@@ -1,6 +1,6 @@
 # 001-opcm-upgrade-v200: Mainnet OPCM v2.0.0: Base
 
-Status: [DRAFT]()
+Status: READY TO SIGN
 
 Executes [Upgrade 13](https://gov.optimism.io/t/upgrade-proposal-13-opcm-and-incident-response-improvements/9739) on Base Mainnet.
 
@@ -23,7 +23,7 @@ When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>
 Navigate to the correct task directory then run the simulate command.
 
 ```
-cd 001-opcm-upgrade-v200
+cd eth/001-opcm-upgrade-v200
 
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate child-safe-1
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate child-safe-2

@@ -256,7 +256,9 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
                      The 'Raw New Value' for this entry might be different than what is seen in the Tenderly state diff.
                      This is expected because the AnchorStateRegistry is being continually updated.
                      Anyone can call <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L239"><i>'setAnchorState(IDisputeGame _game)'</i></a> so it can be updated often if the conditions are right.
-  
+
+ATTENTION TASK REVIEWER: It is safe to continue if this state diff is different than what is seen in the Tenderly state diff.
+
 ----- DecodedStateDiff[11] -----
   Who:               0x496286e5eE7758de84Dd17e6d2d97afC2ACE4cc7
   Contract:          AnchorStateRegistryProxy - Base Mainnet
@@ -271,7 +273,9 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
                      This is expected because the AnchorStateRegistry is being continually updated.
                       - <i>cast --to-dec 0x8baa6f</i> -> <i>15684501</i>
                      Anyone can call <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L239"><i>'setAnchorState(IDisputeGame _game)'</i></a> so it can be updated often if the conditions are right.
-  
+
+ATTENTION TASK REVIEWER: It is safe to continue if this state diff is different than what is seen in the Tenderly state diff.  
+
 ----- DecodedStateDiff[12] -----
   Who:               0x496286e5eE7758de84Dd17e6d2d97afC2ACE4cc7
   Contract:          AnchorStateRegistryProxy - Base Mainnet
