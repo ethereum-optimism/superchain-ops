@@ -527,13 +527,6 @@ workflows:
           signer: "council"
           context:
             - circleci-repo-readonly-authenticated-github-token
-
-      # U13 Sepolia Unichain Upgrade
-      - just_simulate_single_improvements:
-          name: "simulate single sep/003-opcm-upgrade-v200"
-          task: "/sep/003-opcm-upgrade-v200"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
       
       # U13 Mainnet Unichain Upgrade - Child-Safe-1
       - just_simulate_nested_improvements:
