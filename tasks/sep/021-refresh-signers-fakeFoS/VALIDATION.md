@@ -10,7 +10,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ## State Changes
 
-### `0x837DE453AD5F21E89771e3c06239d8236c0EFd5E` (FoundationOperationSafe `GnosisSafe`)
+### `0x837DE453AD5F21E89771e3c06239d8236c0EFd5E` (FoundationOperationsSafe `GnosisSafe`)
 
 - **Key**: 0x0000000000000000000000000000000000000000000000000000000000000003
   **Before**: 0x0000000000000000000000000000000000000000000000000000000000000008

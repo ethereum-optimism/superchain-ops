@@ -20,7 +20,7 @@ contract EnableDeputyPauseModuleTemplate is SimpleBase {
     address public newModule;
 
     /// @notice Constant safe address string identifier
-    string constant _SAFE_ADDRESS = "FoundationOperationSafe";
+    string constant _SAFE_ADDRESS = "FoundationOperationsSafe";
 
     /// @notice Gnosis Safe Sentinel Module address
     address internal constant SENTINEL_MODULE = address(0x1);

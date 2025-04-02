@@ -114,7 +114,13 @@ contract TaskRunner is Script {
         } else {
             SuperchainAddressRegistry _addrRegistry = new SuperchainAddressRegistry(taskConfigFilePath);
             SuperchainAddressRegistry.ChainInfo[] memory chains = _addrRegistry.getChains();
-            parentMultisig = _addrRegistry.getAddress(safeAddressString, chains[0].chainId);
+
+            // Try loading the address without the chain id, then try loading with it.
+            try _addrRegistry.get(safeAddressString) returns (address addr) {
+                parentMultisig = addr;
+            } catch {
+                parentMultisig = _addrRegistry.getAddress(safeAddressString, chains[0].chainId);
+            }
         }
 
         return (task.isNestedSafe(parentMultisig), parentMultisig);
