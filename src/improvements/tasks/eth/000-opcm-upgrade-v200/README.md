@@ -1,6 +1,6 @@
 # 000-opcm-upgrade-v200: Mainnet OPCM v2.0.0: op, soneium, ink
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0x5f3530e593bbac37c61dc5b7755b6a40c06c20c1a3a1b13fca5b7d00cde65c29)
 
 ## Objective
 
