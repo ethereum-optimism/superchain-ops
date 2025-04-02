@@ -65,7 +65,7 @@ contract StackedSimulator is Script {
             (, nextTaskStateDiffs) = accesses.decode(true);
         }
         // Clean up after.
-        // removeDir(testDirectory);
+        removeDir(testDirectory);
     }
 
     /// @notice Returns an ordered list of non-terminal tasks that must be executed for a given task.
@@ -90,6 +90,28 @@ contract StackedSimulator is Script {
 
         // Sort the taskNames in ascending order based on the uint value of their first three characters.
         tasks_ = sortTasksByPrefix(tasks_);
+    }
+
+    /// @notice Lists the execution order for a stack of tasks for a given network.
+    function listStack(string memory network) public {
+        TaskInfo[] memory tasks = getNonTerminalTasks(network);
+        printStack(tasks, network);
+    }
+
+    /// @notice Lists the execution order for a stack of tasks for a given network and task.
+    function listStack(string memory network, string memory task) public {
+        TaskInfo[] memory tasks = getNonTerminalTasks(network, task);
+        printStack(tasks, network);
+    }
+
+    function printStack(TaskInfo[] memory tasks, string memory network) public pure {
+        console.log("StackedSimulator");
+        console.log("Non-terminal tasks will be executed in the order they are listed below:\n");
+        console.log("  Network: %s", network);
+        for (uint256 i = 0; i < tasks.length; i++) {
+            console.log("    %s: %s", i+1, tasks[i].name);
+        }
+        console.log("\n");
     }
 
     /// @notice Sorts the task names in ascending order based on the uint value of their first three characters.

@@ -162,9 +162,6 @@ simulate-stack NETWORK="" TASK="":
         echo "  • <network> - The network to simulate the stack for (e.g. 'sep', 'eth')"
         echo "  • [task]    - The task to simulate the stack for (e.g. '001-task-name')"
         echo
-        echo "Important: To make sure Tenderly simulations still work, you'll still have to provide the correct"
-        echo "           state overrides for each task."
-        echo
     }
 
     export FOUNDRY_PROFILE="${FOUNDRY_PROFILE:-default}"
@@ -190,4 +187,36 @@ simulate-stack NETWORK="" TASK="":
     else
         echo "Simulating task: {{TASK}} for network: {{NETWORK}}"
         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string)" {{NETWORK}} {{TASK}} --ffi --rpc-url $ETH_RPC_URL
+    fi
+
+
+list-stack NETWORK="" TASK="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+
+    show_usage() {
+        echo
+        echo "Usage: just list-stack <network> [task]"
+        echo "This command will list all the tasks that can be simulated for a given network."
+        echo "Available arguments:"
+        echo "  • <network> - The network to simulate the stack for (e.g. 'sep', 'eth')"
+        echo "  • [task]    - The task to simulate the stack for (e.g. '001-task-name')"
+        echo
+    }
+
+    # Check if network arg exists
+    if [ -z "{{NETWORK}}" ]; then
+        echo -e "\n\033[31mError: No network specified\033[0m"
+        show_usage
+        exit 1
+    fi
+
+    # Check if task arg exists
+    if [ -z "{{TASK}}" ]; then
+        echo "Listing all tasks for network: {{NETWORK}}"
+        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string)" {{NETWORK}}
+    else
+        echo "Listing all tasks for network: {{NETWORK}} up to task: {{TASK}}"
+        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string,string)" {{NETWORK}} {{TASK}}
     fi
