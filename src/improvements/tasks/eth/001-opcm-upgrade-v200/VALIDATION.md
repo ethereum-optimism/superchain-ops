@@ -181,7 +181,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   Raw New Value:     0x00000000000000000000000013fbbdefa7d9b147a1777a8a5b0f30379e007ac3
 
   Summary:           Updated CANNON GameType implementation.
-  Detail:            This is gameImpls[0] -> 0xd2C3C6f4A4c5AA777bD6c476AEa58439Db0dD844 where '0' is the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28">CANNON game type</a>.
+  Detail:            This is gameImpls[0] -> 0x13FbBDefa7D9B147A1777a8A5B0f30379E007ac3 where '0' is the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28">CANNON game type</a>.
                      Verify that the old implementation is set in this slot using:
                       - <i>cast call 0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e "gameImpls(uint32)(address)" 0 --rpc-url mainnet</i>
                       - <i>cast storage 0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e 0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b --rpc-url mainnet</i>
