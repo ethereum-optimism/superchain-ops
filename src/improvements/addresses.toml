@@ -1,9 +1,13 @@
 [eth]
 SuperchainConfig = "0x95703e0982140D16f8ebA6d158FccEde42f04a4C"
 ProtocolVersions = "0x8062AbC286f5e7D9428a0Ccb9AbD71e50d93b935" # Cannot be found by chain discovery in SuperchainAddressRegistry.sol
+DeputyGuardianModule = "0xc6901F65369FC59fC1B4D6D6bE7A2318Ff38dB5B"
+FoundationOperationsSafe = "0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A"
 
 [sep]
 SuperchainConfig = "0xC2Be75506d5724086DEB7245bd260Cc9753911Be"
 ProtocolVersions = "0x79ADD5713B383DAa0a138d3C4780C7A1804a8090" # Cannot be found by chain discovery in SuperchainAddressRegistry.sol
+DeputyGuardianModule = "0xfd7E6Ef1f6c9e4cC34F54065Bf8496cE41A4e2e8"
+FoundationOperationsSafe = "0x837DE453AD5F21E89771e3c06239d8236c0EFd5E"
 
 [oeth]

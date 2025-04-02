@@ -251,7 +251,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
     Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/c1bcf3601dfdf72f0fd4f5bade180b9c0f94d93b/superchain/configs/mainnet/soneium.toml#L59">0x89889b569c3a505f3640ee1bd0ac1d557f436d2a</a>
     Summary:           Proxy owner address
     Detail:            Standard slot for storing the owner address in a Proxy contract.
-                       The owner in this case is the <a href="https://github.com/ethereum-optimism/superchain-registry/blob/c1bcf3601dfdf72f0fd4f5bade180b9c0f94d93b/superchain/configs/mainnet/Soneium.toml#L59">ProxyAdmin</a> of Ink.
+                       The owner in this case is the <a href="https://github.com/ethereum-optimism/superchain-registry/blob/c1bcf3601dfdf72f0fd4f5bade180b9c0f94d93b/superchain/configs/mainnet/soneium.toml#L59">ProxyAdmin</a> of Ink.
 
   ----- DecodedStateDiff[11] -----
     Who:               0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b (Newly deployed during upgrade)
@@ -931,7 +931,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
 ----- TENDERLY ONLY STATE DIFF -----
 
-  Four accounts will show a nonce increment:
+  Six accounts will show a nonce increment:
   - 0x4699D20479dfD20e15CaB4FCB6F2a7CC6fE35443 (Ink's newly created Permissioned dispute game)
   - 0x69361c9134D620B704C2a72c58523a4373eCe86f (Ink's newly created Cannon dispute game)
   - 0xbA94955CA3422fC57f9D982a0BaD2a9c88e2a9D0 (OP Mainnet's newly created Cannon dispute game)
@@ -945,8 +945,8 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
 ## Figure 0.1: Storage Layout of OPContractsManager
 
-![OPContractsManager isRC flag set to false](../000-opcm-upgrade-v200/images/op-contracts-manager-storage-layout.png)
+![OPContractsManager isRC flag set to false](../../sep/000-opcm-upgrade-v200/images/op-contracts-manager-storage-layout.png)
 
 ## Figure 0.2: Storage Layout of AnchorStateRegistryProxy
 
-![AnchorStateRegistryProxy](../000-opcm-upgrade-v200/images/anchor-state-registry-storage-layout.png)
+![AnchorStateRegistryProxy](../../sep/000-opcm-upgrade-v200/images/anchor-state-registry-storage-layout.png)
