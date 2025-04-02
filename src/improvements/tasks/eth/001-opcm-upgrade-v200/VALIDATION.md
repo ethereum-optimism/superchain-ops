@@ -165,7 +165,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   Raw New Value:     0x0000000000000000000000008bd2e80e6d1cf1e5c5f0c69972fe2f02b9c046aa
 
   Summary:           Update Permissioned GameType implementation.
-  Detail:            This is gameImpls[1] -> 0xF62c15e2F99d4869A925B8F57076cD85335832A2
+  Detail:            This is gameImpls[1] -> 0x8BD2e80e6D1cf1e5C5f0c69972fE2f02B9C046Aa
                        Verify that the old implementation is set in this slot using:
                         - <i>cast call 0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e "gameImpls(uint32)(address)" 1 --rpc-url mainnet</i>
                         - <i>cast storage 0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e 0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e --rpc-url mainnet</i>
