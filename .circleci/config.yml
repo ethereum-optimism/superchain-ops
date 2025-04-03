@@ -545,7 +545,7 @@ workflows:
       - simulate_sequence:
           name: simulate_sequence_sep
           network: "sep"
-          tasks: ""
+          tasks: "ink-003 ink-004"
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
