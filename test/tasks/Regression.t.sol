@@ -212,7 +212,7 @@ contract RegressionTest is Test {
         MultisigTask multisigTask = new OPCMUpgradeV300();
         address foundationChildMultisig = 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B; // sepolia
         MultisigTask.Action[] memory actions =
-            _setupAndSimulateRun(taskConfigFilePath, 8032742, "sepolia", multisigTask, foundationChildMultisig);
+            _setupAndSimulateRun(taskConfigFilePath, 8032743, "sepolia", multisigTask, foundationChildMultisig);
 
         _assertCallData(multisigTask, actions, expectedCallData);
 
