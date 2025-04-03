@@ -1,34 +1,22 @@
-# Superchain Task System
+# Superchain Operations Task System
 
-A powerful simulation tooling system that enables developers to write and test tasks that simulate onchain state changes before execution. The system supports mainnet, sepolia, and devnet environments.
+A tooling system that enables developers to write and test tasks that simulate onchain state changes before execution.
 
-### Detailed Documentation
-- [Template Architecture Guide](./doc/TEMPLATE_ARCHITECTURE.md)
-- [Task Creation Guide](./doc/TASK_CREATION_GUIDE.md)
-- [New Template Guide](./doc/NEW_TEMPLATE_GUIDE.md)
-- [Address Registry](./doc/ADDRESS_REGISTRY.md)
-
-## Key Features
-
-- Create tasks without writing Solidity code using predefined templates.
-- Configure tasks for multiple networks as long as they are all part of a single Superchain instance.
-- Perform automated checks for state changes and security.
-- Test all changes locally before executing tasks on-chain.
+You can find more detailed documentation in the [doc](./doc/) directory.
 
 ## Repository Structure
-The template configuration file is called `config.toml` which contains the network configurations for modifying L1.
+
+The repository is organized as follows:
 
 ```
 superchain-ops/
 └── src/
     └── improvements/
-       ├── template/     # Solidity template contracts
+       ├── template/     # Solidity template contracts (Template developers create templates here)
        └── doc/          # Detailed documentation
        └── tasks/        # Network-specific tasks
-            ├── eth/     # Ethereum mainnet tasks
-            ├── sep/     # Sepolia testnet tasks
-            ├── oeth/    # Optimism Ethereum tasks
-            └── opsep/   # Optimism Sepolia tasks
+            ├── eth/     # Ethereum mainnet tasks (Task developers create tasks here)
+            └── sep/     # Sepolia testnet tasks  (Task developers create tasks here)
 ```
 
 ## Quick Start
@@ -41,28 +29,18 @@ just new task
 
 2. Configure the task in `config.toml`:
 ```toml
-templateName = "GasConfigTemplate"
 l2chains = [{"name": "OP Mainnet", "chainId": 10}]
+templateName = "GasConfigTemplate"
 ```
 
-3. Test the task:
+3. Simulate the task:
 ```bash
-forge script <template-path> --sig "run(string)" <config-path> --rpc-url devnet -vvv
+# Nested 
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate <foundation|council|chain-governor>
+# Single 
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
 ```
 
 ## Available Templates
 
 All available templates can be found in the [template](./template/) directory. 
-
-## Example Configurations
-
-### Gas Config Example
-```toml
-templateName = "GasConfigTemplate"
-l2chains = [{name = "Orderly", chainId = 291}]
-
-[gasConfigs]
-gasLimits = [
-    {chainId = 291, gasLimit = 100000000}
-]
-```
