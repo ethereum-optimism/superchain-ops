@@ -127,7 +127,26 @@ monorepo-integration-test COMMAND="":
 
     # When deciding which tests to skip, start with an empty list. Run the tests locally, 
     # record any failures, decide which are acceptable to skip, and then add those back to the list.
-    export NO_MATCH_CONTRACTS="OptimismPortal2WithMockERC20_Test\|OptimismPortal2_FinalizeWithdrawal_Test\|AnchorStateRegistry_*\|FaultDisputeGame_Test\|PermissionedDisputeGame_Test\|FaultDispute_1v1_Actors_Test\|DelayedWETH_Hold_Test\|ETHLockboxTest"
+    # SystemConfig_upgrade_Test - Should not be failing.
+    # L1CrossDomainMessenger_Test - Should not be failing.
+    # L1ERC721Bridge_Test - Should not be failing.
+    NO_MATCH_CONTRACTS="OptimismPortal2_FinalizeWithdrawal_Test\|"
+    NO_MATCH_CONTRACTS+="AnchorStateRegistry_*\|"
+    NO_MATCH_CONTRACTS+="FaultDisputeGame_Test\|"
+    NO_MATCH_CONTRACTS+="PermissionedDisputeGame_Test\|"
+    NO_MATCH_CONTRACTS+="FaultDispute_1v1_Actors_Test\|"
+    NO_MATCH_CONTRACTS+="DelayedWETH_Hold_Test\|"
+    NO_MATCH_CONTRACTS+="ETHLockboxTest\|" # has a dependency on ETHLockbox
+    NO_MATCH_CONTRACTS+="L1StandardBridge_BridgeETHTo_Test\|" # has a dependency on ETHLockbox
+    NO_MATCH_CONTRACTS+="L1StandardBridge_BridgeETH_Test\|" # has a dependency on ETHLockbox
+    NO_MATCH_CONTRACTS+="L1StandardBridge_DepositETHTo_Test\|" # has a dependency on ETHLockbox
+    NO_MATCH_CONTRACTS+="L1StandardBridge_DepositETH_Test\|" # has a dependency on ETHLockbox
+    NO_MATCH_CONTRACTS+="L1StandardBridge_Receive_Test\|" # has a dependency on ETHLockbox
+    NO_MATCH_CONTRACTS+="OptimismPortal2_LiquidityMigration_Test\|" # has a dependency on OptimismPortal migrateLiquidity function
+    NO_MATCH_CONTRACTS+="OptimismPortal2_Test\|" # has a dependency on ETHLockbox
+    NO_MATCH_CONTRACTS+="OptimismPortal2_upgrade_Test" # has a dependency on ETHLockbox
+    NO_MATCH_CONTRACTS+="L1CrossDomainMessenger_Test" # has a dependency on ETHLockbox
+    export NO_MATCH_CONTRACTS
     # shellcheck disable=SC2194
     case "{{COMMAND}}" in
         rerun)
