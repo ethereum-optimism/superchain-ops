@@ -130,10 +130,7 @@ contract OPCMUpgradeV300 is OPCMBaseTask {
             // PLDG-ANCHORP-40: The anchor state registry's permissionless root is not 0xdead000000000000000000000000000000000000000000000000000000000000
             string memory expectedErrors_11155420 = "PDDG-ANCHORP-40,PLDG-ANCHORP-40";
 
-            require(
-                reasons.eq(expectedErrors_11155420),
-                string.concat("Unexpected errors: ", reasons)
-            );
+            require(reasons.eq(expectedErrors_11155420), string.concat("Unexpected errors: ", reasons));
         }
     }
 
