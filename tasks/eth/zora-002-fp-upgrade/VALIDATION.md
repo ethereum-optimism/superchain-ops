@@ -39,8 +39,8 @@ state overrides and changes.
 The `approvedHashes` mapping **key** of the `ProxyAdminOwner` that should change during the
 simulation is:
 
-- Council simulation: `0x6ddce46c849f3c4f07b6936372b065bbb125295abeba2b69356959d97076ddf4`
-- Foundation simulation: `0xe02e538b153b500a6b10108a02ecebaae66e56e98cbd67fd4eca2a82271539e1`
+- Council simulation: `0x1e3b5ffe41447b9cf345c8c598ab59ec07ce0cbc77f39a7162ff9ee9610bb0fa`
+- Foundation simulation: `0x86889c852b8337dd38b6b954b0ca42716b95ca392672388371331cd35d11267c`
 
 Calculated as explained in the nested validation doc:
 
