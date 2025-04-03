@@ -1,0 +1,8 @@
+l2chains = [{name = "OP Mainnet", chainId = 10}]
+
+templateName = "SetRespectedGameTypeTemplate"
+
+[gameTypes]
+configs = [
+  {chainId = 10, gameType = 0}
+]

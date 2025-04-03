@@ -25,25 +25,6 @@ parameters:
     default: 5
 
 commands:
-  simulate:
-    description: "Runs simulations of a task"
-    parameters:
-      task:
-        type: string
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: "simulate << parameters.task >>"
-          environment:
-            FOUNDRY_PROFILE: ci
-          command: |
-            just install
-            cd tasks/<< parameters.task >>
-            SIMULATE_WITHOUT_LEDGER=true just \
-              --dotenv-path $(pwd)/.env \
-              --justfile ../../../single.just \
-              simulate
-
   notify-failures-on-develop:
     description: "Notify Slack"
     parameters:
@@ -521,20 +502,7 @@ workflows:
       # and now it fails with stack too deep after https://github.com/ethereum-optimism/superchain-ops/pull/528.
       # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
       # - just_simulate_sc_rehearsal_1
-      - just_simulate_nested_improvements:
-          name: "simulate nested eth/000-opcm-upgrade-v200 council"
-          task: "/eth/000-opcm-upgrade-v200"
-          signer: "council"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
 
-      # U13 Sepolia Unichain Upgrade
-      - just_simulate_single_improvements:
-          name: "simulate single sep/003-opcm-upgrade-v200"
-          task: "/sep/003-opcm-upgrade-v200"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-      
       # U13 Mainnet Unichain Upgrade - Child-Safe-1
       - just_simulate_nested_improvements:
           name: "simulate nested eth/002-opcm-upgrade-v200 child-safe-1"
