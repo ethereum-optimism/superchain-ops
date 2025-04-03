@@ -14,8 +14,6 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
 
-import { console } from "forge-std/console.sol";
-
 /// @notice This template supports OPCMV300 upgrade tasks.
 contract OPCMUpgradeV300 is OPCMBaseTask {
     using stdToml for string;
@@ -128,18 +126,14 @@ contract OPCMUpgradeV300 is OPCMBaseTask {
 
             string memory reasons = STANDARD_VALIDATOR_V300.validate({_input: input, _allowFailure: true});
 
-            console.log(reasons);
-            assert(false);
-
             // PDDG-ANCHORP-40: The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
             // PLDG-ANCHORP-40: The anchor state registry's permissionless root is not 0xdead000000000000000000000000000000000000000000000000000000000000
-            //string memory expectedErrors_11155420 = "PDDG-50,PDDG-ANCHORP-40,PLDG-50,PLDG-ANCHORP-40";
+            string memory expectedErrors_11155420 = "PDDG-ANCHORP-40,PLDG-ANCHORP-40";
 
-            //require(
-            //    reasons.eq(expectedErrors_11155420), //|| reasons.eq(expectedErrors_1946)
-                   // || reasons.eq(expectedErrors_763373),
-             //   string.concat("Unexpected errors: ", reasons)
-            //);
+            require(
+                reasons.eq(expectedErrors_11155420),
+                string.concat("Unexpected errors: ", reasons)
+            );
         }
     }
 
