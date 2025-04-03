@@ -1,6 +1,6 @@
 # ProxyAdminOwner - Set Dispute Game Implementation
 
-Status: DRAFT, NOT READY TO SIGN
+Status: READY TO SIGN
 
 ## Objective
 
