@@ -1,6 +1,6 @@
 # Deputy Guardian - Enable Permissioness Dispute Game
 
-Status: DRAFT, NOT READY TO SIGN
+Status: READY TO SIGN
 
 ## Objective
 
