@@ -14,6 +14,22 @@ Additionally, please verify that for each contract:
 - All key values match the semantic meaning provided, which can be validated using the storage
   layout links provided.
 
+## Expected Domain and Message Hashes
+
+> [!CAUTION]
+>
+> Before signing, ensure the below hashes match what is on your ledger.
+>
+> ### Security Council
+>
+> - Domain Hash: `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
+> - Message Hash: `0xbe97205c6515952baed5c1a4fba2d6598654b5e909affa117fe9664c79498653`
+>
+> ### Optimism Foundation
+>
+> - Domain Hash: `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
+> - Message Hash: `0xf715627716306b639e9c2cfe9685ff147889862c04b8f878e0d1aaaf2aa485ff`
+
 ## Nested Safe State Overrides and Changes
 
 This task is executed by the nested 2/2 `ProxyAdminOwner` Safe. Refer to the
@@ -31,15 +47,15 @@ Calculated as explained in the nested validation doc:
 ```sh
 cast index address 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 8 # council
 # 0xaaf2b641eaf0bae063c4f2e5670f905e1fb7334436b902d1d880b05bd6228fbd
-cast index bytes32 0x0af66a3041f2a03ec6be4670bf99f9d62a2f1df568e4c7c9887b7ed904f9a2d0 0xaaf2b641eaf0bae063c4f2e5670f905e1fb7334436b902d1d880b05bd6228fbd
-# 0x35d41534d61288843aa236a83f96b8a0272ee0af5963584eb1d12142773dc680
+cast index bytes32 0x496364fd87984d3d8d051b8205944ea153d9bede161b06b4653fc85b84a753ff 0xaaf2b641eaf0bae063c4f2e5670f905e1fb7334436b902d1d880b05bd6228fbd
+# 0x1e3b5ffe41447b9cf345c8c598ab59ec07ce0cbc77f39a7162ff9ee9610bb0fa
 ```
 
 ```sh
 cast index address 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 8 # foundation
 # 0x13908ba1c0e379ab58c6445554ab471f3d4efb06e3c4cf966c4f5e918eca67bd
-cast index bytes32 0xe92dca5c9b35e835d553df844235c19cb11171735fc4e244520f5e894452bded 0x13908ba1c0e379ab58c6445554ab471f3d4efb06e3c4cf966c4f5e918eca67bd
-# 0x6f51434c2e6c7008d9684c11ac52927556e83fbf7c77675d2151a3b27cde82d0
+cast index bytes32 0x496364fd87984d3d8d051b8205944ea153d9bede161b06b4653fc85b84a753ff 0x13908ba1c0e379ab58c6445554ab471f3d4efb06e3c4cf966c4f5e918eca67bd
+# 0x86889c852b8337dd38b6b954b0ca42716b95ca392672388371331cd35d11267c
 ```
 
 ## State Changes
