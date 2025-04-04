@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {console} from "forge-std/console.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {IStandardValidatorV180} from "@eth-optimism-bedrock/interfaces/L1/IStandardValidator.sol";
 
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
-import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
+import {AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 
 import {
