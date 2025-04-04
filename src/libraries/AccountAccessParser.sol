@@ -364,35 +364,59 @@ library AccountAccessParser {
         } else {
             for (uint256 i = 0; i < _transfers.length; i++) {
                 DecodedTransfer memory transfer = _transfers[i];
-                console.log("\n----- DecodedTransfer[%s] -----", i);
-                console.log("From:              %s", transfer.from);
-                console.log("To:                %s", transfer.to);
-                console.log("Value:             %s", transfer.value);
-                console.log("Token Address:     %s", transfer.tokenAddress);
+                console.log("\n#### Decoded Transfer %s", i);
+                console.log("- **From:**              `%s`", transfer.from);
+                console.log("- **To:**                `%s`", transfer.to);
+                console.log("- **Value:**             `%s`", transfer.value);
+                console.log("- **Token Address:**     `%s`", transfer.tokenAddress);
             }
         }
 
         console.log("\n----------------- Task State Changes -------------------");
+        console.log("\n--- Attention: Copy content below this line into the VALIDATION.md file. ---");
         require(_stateDiffs.length > 0, "No state changes found, this is unexpected.");
-        for (uint256 i = 0; i < _stateDiffs.length; i++) {
-            DecodedStateDiff memory state = _stateDiffs[i];
-            console.log("\n----- DecodedStateDiff[%s] -----", i);
-            console.log("Who:               %s", state.who);
-            console.log("Contract:          %s", state.contractName);
-            console.log("Chain ID:          %s", state.l2ChainId == 0 ? "" : vm.toString(state.l2ChainId));
-            console.log("Raw Slot:          %s", vm.toString(state.raw.slot));
-            console.log("Raw Old Value:     %s", vm.toString(state.raw.oldValue));
-            console.log("Raw New Value:     %s", vm.toString(state.raw.newValue));
+        printMarkdown(_stateDiffs);
+        console.log("\n\n --- Attention: Copy content above this line into the VALIDATION.md file. ---");
+    }
 
-            if (bytes(state.decoded.kind).length == 0) {
-                console.log("\x1B[33m[WARN]\x1B[0m Slot was not decoded");
-            } else {
-                console.log("Decoded Kind:      %s", state.decoded.kind);
-                console.log("Decoded Old Value: %s", state.decoded.oldValue);
-                console.log("Decoded New Value: %s", state.decoded.newValue);
-                console.log("Summary:           %s", state.decoded.summary);
-                console.log("Detail:            %s", state.decoded.detail);
+    /// @notice Prints the decoded state diffs to the console in markdown format.
+    /// This markdown is intended to be copied into the VALIDATION.md file.
+    function printMarkdown(DecodedStateDiff[] memory _stateDiffs) internal view noGasMetering {
+        address currentAddress = address(0xdead);
+        for (uint256 i = 0; i < _stateDiffs.length; i++) {
+            if (currentAddress != _stateDiffs[i].who) {
+                console.log("---"); // Add markdown horizontal rule.
+                string memory currentContractName = bytes(_stateDiffs[i].contractName).length > 0
+                    ? string.concat(_stateDiffs[i].contractName)
+                    : "TODO: enter contract name";
+                console.log(
+                    "\n### `%s`",
+                    string.concat(LibString.toHexString(_stateDiffs[i].who), " (", currentContractName, ")")
+                );
+                currentAddress = _stateDiffs[i].who;
             }
+            DecodedStateDiff memory state = _stateDiffs[i];
+            console.log("\n#### Decoded State Change: %s", i);
+            console.log("- **Contract:**          `%s`", state.contractName);
+            console.log("- **Chain ID:**          `%s`", state.l2ChainId == 0 ? "" : vm.toString(state.l2ChainId));
+
+            console.log("\n- **Key:**          `%s`", vm.toString(state.raw.slot));
+            if (bytes(state.decoded.kind).length == 0) {
+                console.log("- **Before:**     `%s`", vm.toString(state.raw.oldValue));
+                console.log("- **After:**     `%s`", vm.toString(state.raw.newValue));
+                console.log("\n- **Summary:**           %s", "");
+                console.log("- **Detail:**            %s", "");
+                console.log(
+                    "\n\x1B[33m[WARN]\x1B[0m Slot was not decoded. Please manually decode and provide a summary with the detail then remove this warning."
+                );
+            } else {
+                console.log("- **Decoded Kind:**      `%s`", state.decoded.kind);
+                console.log("- **Before:** `%s`", state.decoded.oldValue);
+                console.log("- **After:** `%s`", state.decoded.newValue);
+                console.log("\n- **Summary:**           %s", state.decoded.summary);
+                console.log("- **Detail:**            %s", state.decoded.detail);
+            }
+            console.log("\n**TODO: Insert links for this state change.**\n");
         }
     }
 
