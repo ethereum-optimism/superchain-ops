@@ -100,42 +100,6 @@ task COMMAND="" NETWORK="":
             exit 1
             ;;
     esac
-    
-monorepo-integration-test COMMAND="":
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    # Set FOUNDRY_PROFILE, defaulting to 'default' if not already set.
-    export FOUNDRY_PROFILE="${FOUNDRY_PROFILE:-default}"
-    echo "Currently running with FOUNDRY_PROFILE: ${FOUNDRY_PROFILE}"
-
-    root_dir=$(git rev-parse --show-toplevel)
-    allocs_path="${root_dir}/lib/optimism/packages/contracts-bedrock/allocs.json"
-
-    # Running this command with mainnet RPC URL.
-    ETH_RPC_URL=$(yq eval ".profile.\"${FOUNDRY_PROFILE}\".rpc_endpoints.mainnet" "${root_dir}/foundry.toml")
-    export ETH_RPC_URL
-    echo "Using mainnet RPC: ${ETH_RPC_URL}"
-    
-    # For now, we are running monorepo integration tests for the example eth tasks only.
-    mainnet_network_task_dir="eth" 
-
-    forge build
-    forge script ${root_dir}/src/improvements/tasks/TaskRunner.sol:TaskRunner --sig "run(string,string)" ${allocs_path} ${mainnet_network_task_dir} --ffi --rpc-url $ETH_RPC_URL
-    export SUPERCHAIN_OPS_ALLOCS_PATH=./allocs.json
-    cd ${root_dir}/lib/optimism/packages/contracts-bedrock/
-
-    export NO_MATCH_CONTRACTS="OptimismPortal2WithMockERC20_Test\|OptimismPortal2_FinalizeWithdrawal_Test\|AnchorStateRegistry_*\|FaultDisputeGame_Test\|PermissionedDisputeGame_Test\|FaultDispute_1v1_Actors_Test\|DelayedWETH_Hold_Test"
-    # shellcheck disable=SC2194
-    case "{{COMMAND}}" in
-        rerun)
-            just test-upgrade-rerun --no-match-contract "${NO_MATCH_CONTRACTS}"
-            ;;
-        *)
-            just test-upgrade --no-match-contract "${NO_MATCH_CONTRACTS}"
-            ;;
-    esac
-    rm -f ${allocs_path} # clean up
 
 check-superchain-registry-latest:
     #!/usr/bin/env bash

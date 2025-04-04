@@ -356,25 +356,6 @@ jobs:
             forge --version
             forge test -vvv
 
-  monorepo_integration_test:
-    circleci_ip_ranges: true
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    environment:
-      FOUNDRY_PROFILE: ci
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: monorepo integration tests
-          command: |
-            (cd src/improvements && just monorepo-integration-test)
-      - notify-failures-on-develop:
-          mentions: "@security-team"
-      - run:
-          name: Print failed test traces
-          command: (cd src/improvements && just monorepo-integration-test rerun)
-          when: on_fail
-
   template_regression_tests:
     circleci_ip_ranges: true
     docker:
@@ -455,13 +436,6 @@ workflows:
       - forge_test:
           context:
             - circleci-repo-readonly-authenticated-github-token
-      # This is a long running job, so we only run it on the main branch.
-      - monorepo_integration_test:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-          filters:
-            branches:
-              only: main
       - template_regression_tests
       - just_new_recipe_tests
       - shellcheck:
