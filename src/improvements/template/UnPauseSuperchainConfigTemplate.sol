@@ -44,23 +44,24 @@ contract UnPauseSuperchainConfig is L2TaskBase {
     }
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
-    // function _templateSetup(string memory taskConfigFilePath) internal override {
-    //     super._templateSetup(taskConfigFilePath);
-    // }
+    function _templateSetup(string memory taskConfigFilePath) internal override {
+        super._templateSetup(taskConfigFilePath);
+    }
 
     /// @notice Write the calls that you want to execute for the task.
     function _build() internal override {
         // Load the DeputyGuardianModule contract.
         IDeputyGuardianModule dgm = IDeputyGuardianModule(superchainAddrRegistry.get("DeputyGuardianModule"));
         ISuperchainConfig sc = ISuperchainConfig((superchainAddrRegistry.get("SuperchainConfig")));
-        // assertEq(sc.paused(), true, "ERR100: SuperchainConfig should be paused, to be unpaused.");
+        assertEq(sc.paused(), true, "ERR100: SuperchainConfig should be paused, to be unpaused.");
         dgm.unpause(); // Unpause the SuperchainConfig contract through the DeputyGuardianModule.
     }
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
         // Validate that the SuperchainConfig contract is unpaused.
-        ISuperchainConfig sc = ISuperchainConfig((superchainAddrRegistry.get("SuperchainConfig")));
-        IOptimismPortal2 portal2 = IOptimismPortal2(payable(superchainAddrRegistry.get("OptimismPortalProxy")));
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        ISuperchainConfig sc = ISuperchainConfig((superchainAddrRegistry.getAddress("SuperchainConfig", chains[0].chainId)));
+        IOptimismPortal2 portal2 = IOptimismPortal2(payable(superchainAddrRegistry.getAddress("OptimismPortalProxy", chains[0].chainId)));
         assertEq(portal2.paused(), false, "ERR101: OptimismPortal2 should be unpaused.");
         assertEq(sc.paused(), false, "ERR102: SuperchainConfig should be unpaused.");
     }
