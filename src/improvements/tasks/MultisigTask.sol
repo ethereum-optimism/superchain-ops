@@ -14,6 +14,7 @@ import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.so
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
 import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
+import {Utils} from "src/libraries/Utils.sol";
 import {Base64} from "solady/utils/Base64.sol";
 
 type AddressRegistry is address;
@@ -540,7 +541,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         // Otherwise, default to the remaining gas. This helps surface out-of-gas errors earlier,
         // before they would show up in Tenderly's simulation results.
         uint256 gas = vm.envOr("TENDERLY_GAS", gasleft());
-        console.log("Passing %s gas to execTransaction (from env or gasleft)", gas);
+        if (Utils.isFeatureEnabled("TASK_DEVELOPER_MODE")) {
+            console.log("Passing %s gas to execTransaction (from env or gasleft)", gas);
+        }
         (bool success, bytes memory returnData) = multisig.call{gas: gas}(callData);
 
         if (!success) {
@@ -642,14 +645,16 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         address optionalChildMultisig,
         bool isSimulate
     ) public view {
-        console.log("----------------- ATTENTION TASK DEVELOPERS -------------------");
-        console.log("To properly document the task state changes, please follow these steps:");
-        console.log("1. Copy and paste the state changes printed below into the VALIDATION.md file.");
-        console.log(
-            "2. For each task, write a thorough 'Detail' and 'Summary' section explaining the state change, providing links where appropriate."
-        );
-        console.log("3. Ensure the state changes are expected and match those seen in the Tenderly simulation.");
-        console.log("----------------------------------------------------------------\n");
+        if (Utils.isFeatureEnabled("TASK_DEVELOPER_MODE")) {
+            console.log("----------------- ATTENTION TASK DEVELOPERS -------------------");
+            console.log("To properly document the task state changes, please follow these steps:");
+            console.log("1. Copy and paste the state changes printed below into the VALIDATION.md file.");
+            console.log(
+                "2. For each task, write a thorough 'Detail' and 'Summary' section explaining the state change, providing links where appropriate."
+            );
+            console.log("3. Ensure the state changes are expected and match those seen in the Tenderly simulation.");
+            console.log("----------------------------------------------------------------\n");
+        }
         accountAccesses.decodeAndPrint();
 
         printSafe(actions, optionalChildMultisig, isSimulate);

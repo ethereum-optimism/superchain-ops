@@ -18,8 +18,12 @@ export forkBlockNumber := env_var_or_default('FORK_BLOCK_NUMBER', '-1')
 # Default signer: address(uint160(uint256(keccak256("foundry default caller"))))
 export signerAddress := env_var_or_default('SIGNER_ADDRESS', '0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38')
 
-simulate hdPath='0':
+simulate hdPath='0' verbose='false':
   #!/usr/bin/env bash
+
+  # This enables additional log output (including markdown for VALIDATION.md)
+  # if 'verbose' is set to true. Task developers should set this flag accordingly.
+  export TASK_DEVELOPER_MODE=$([[ "{{verbose}}" == "true" || "{{verbose}}" == "1" ]] && echo "true" || echo "false")
 
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
@@ -44,8 +48,10 @@ simulate hdPath='0':
     echo "Using fork block number from env: ${forkBlockNumber}"
     fork_block_arg="--fork-block-number ${forkBlockNumber}"
   fi
-
+  
+  
   forge build
+  echo "⏳ Task simulation in progress. Some steps tasks take longer than others..."
   forge script ${script} \
     ${fork_block_arg} \
     --rpc-url ${rpcUrl} \
@@ -67,6 +73,7 @@ sign hdPath='0':
   echo ""
 
   forge build
+  echo "⏳ Task signing simulation in progress. Some steps tasks take longer than others..."
   # Using the eip712sign within the repo folder since eip712sign was installed there in ./justfile.
   $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
   forge script ${script} \
@@ -82,6 +89,7 @@ execute hdPath='0':
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
 
   forge build
+  echo "⏳ Task execution in progress. Some steps tasks take longer than others..."
   forge script --fork-url ${rpcUrl} ${script} \
     --sig "executeRun(string,bytes)" ${config} ${signatures} \
     --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
