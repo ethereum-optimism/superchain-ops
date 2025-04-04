@@ -108,7 +108,7 @@ contract TaskRunner is Script {
         string memory safeAddressString = task.safeAddressString();
         MultisigTask.TaskType taskType = task.taskType();
 
-        if (taskType == MultisigTask.TaskType.SimpleBase) {
+        if (taskType == MultisigTask.TaskType.SimpleTaskBase) {
             SimpleAddressRegistry _simpleAddrRegistry = new SimpleAddressRegistry(taskConfigFilePath);
             parentMultisig = _simpleAddrRegistry.get(safeAddressString);
         } else {

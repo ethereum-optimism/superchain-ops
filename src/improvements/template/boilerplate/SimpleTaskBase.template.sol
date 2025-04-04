@@ -3,7 +3,7 @@ pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
 
-import {SimpleBase} from "src/improvements/tasks/types/SimpleBase.sol";
+import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
 import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import {LibString} from "@solady/utils/LibString.sol";
@@ -14,9 +14,9 @@ import {stdToml} from "lib/forge-std/src/StdToml.sol";
 /// Doing this avoids tight coupling to the monorepo submodule and allows you to update the monorepo submodule
 /// without having to update the template (Remove this comment when done).
 
-/// @notice A template contract for configuring SimpleBase templates.
+/// @notice A template contract for configuring SimpleTaskBase templates.
 /// Supports: <TODO: add supported tags: e.g. op-contracts/v*.*.*>
-contract SimpleBaseTemplate is SimpleBase {
+contract SimpleTaskBaseTemplate is SimpleTaskBase {
     using LibString for string;
     using SafeERC20 for IERC20;
     using stdToml for string;

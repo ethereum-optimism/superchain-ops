@@ -13,7 +13,7 @@ import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 
 /// @notice base task for making calls to the Optimism Contracts Manager
-abstract contract OPCMBaseTask is L2TaskBase {
+abstract contract OPCMTaskBase is L2TaskBase {
     using stdStorage for StdStorage;
     using AccountAccessParser for VmSafe.AccountAccess[];
 
@@ -69,23 +69,23 @@ abstract contract OPCMBaseTask is L2TaskBase {
 
     function validate(VmSafe.AccountAccess[] memory accesses, MultisigTask.Action[] memory actions) public override {
         (address[] memory targets,,) = processTaskActions(actions);
-        require(targets.length == 1 && targets[0] == OPCM, "OPCMBaseTask: only OPCM is allowed as target");
+        require(targets.length == 1 && targets[0] == OPCM, "OPCMTaskBase: only OPCM is allowed as target");
         super.validate(accesses, actions);
         AccountAccessParser.StateDiff[] memory parentMultisigDiffs = accesses.getStateDiffFor(parentMultisig, false);
         require(
-            parentMultisigDiffs.length == 1, "OPCMBaseTask: only nonce should be updated on upgrade controller multisig"
+            parentMultisigDiffs.length == 1, "OPCMTaskBase: only nonce should be updated on upgrade controller multisig"
         );
 
         AccountAccessParser.StateDiff[] memory opcmDiffs = accesses.getStateDiffFor(OPCM, false);
         bytes32 opcmStateSlot = bytes32(uint256(stdstore.target(OPCM).sig(IOPContractsManager.isRC.selector).find()));
-        require(opcmDiffs.length <= 1, "OPCMBaseTask: OPCM must have at most 1 state change");
+        require(opcmDiffs.length <= 1, "OPCMTaskBase: OPCM must have at most 1 state change");
         // Not all invocations of OPCM upgrade will have the isRC state change. This is because it only happens when
         // address(this) is equal to the OPCMs 'upgradeController' address (which is an immutable).
         if (opcmDiffs.length == 1) {
             AccountAccessParser.StateDiff memory opcmDiff = opcmDiffs[0];
-            require(opcmDiff.slot == opcmStateSlot, "OPCMBaseTask: Incorrect OPCM isRc slot");
-            require(opcmDiff.oldValue == bytes32(uint256(1)), "OPCMBaseTask: Incorrect OPCM isRc old value");
-            require(opcmDiff.newValue == bytes32(uint256(0)), "OPCMBaseTask: Incorrect OPCM isRc new value");
+            require(opcmDiff.slot == opcmStateSlot, "OPCMTaskBase: Incorrect OPCM isRc slot");
+            require(opcmDiff.oldValue == bytes32(uint256(1)), "OPCMTaskBase: Incorrect OPCM isRc old value");
+            require(opcmDiff.newValue == bytes32(uint256(0)), "OPCMTaskBase: Incorrect OPCM isRc new value");
         }
     }
 

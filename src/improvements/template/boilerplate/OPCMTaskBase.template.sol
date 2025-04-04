@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {OPCMBaseTask} from "src/improvements/tasks/types/OPCMBaseTask.sol";
+import {OPCMTaskBase} from "src/improvements/tasks/types/OPCMTaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {
     IOPContractsManager,
@@ -18,9 +18,9 @@ import {LibString} from "solady/utils/LibString.sol";
 /// Doing this avoids tight coupling to the monorepo submodule and allows you to update the monorepo submodule
 /// without having to update the template (Remove this comment when done).
 
-/// @notice A template contract for configuring OPCMBaseTask templates.
+/// @notice A template contract for configuring OPCMTaskBase templates.
 /// Supports: <TODO: add supported tags: e.g. op-contracts/v*.*.*>
-contract OPCMBaseTaskTemplate is OPCMBaseTask {
+contract OPCMTaskBaseTemplate is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
 

@@ -7,7 +7,7 @@ create_template() {
     template_source_dir="${root_dir}/src/improvements/template/boilerplate/"
 
     if [[ -z "$task_type" ]]; then
-        echo -e "\n\033[31mNo task type provided. Available task types are: L2TaskBase, SimpleBase, OPCMBaseTask\033[0m"
+        echo -e "\n\033[31mNo task type provided. Available task types are: L2TaskBase, SimpleTaskBase, OPCMTaskBase\033[0m"
         exit 1
     fi
 

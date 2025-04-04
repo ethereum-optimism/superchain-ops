@@ -22,9 +22,9 @@ new COMMAND="" TASK_TYPE="":
         echo "Available task types:"
         echo "  • l2taskbase - 'L2TaskBase' task type, these tasks require a superchain address registry and can iterate over multiple L2 chains"
         echo "    eg: https://github.com/ethereum-optimism/superchain-ops/blob/main/test/tasks/mock/template/GasConfigTemplate.sol"
-        echo "  • simplebase - 'SimpleBase' task type, these tasks require simple key value registry and are independent of the L2 chains"
+        echo "  • simpletaskbase - 'SimpleTaskBase' task type, these tasks require simple key value registry and are independent of the L2 chains"
         echo "    eg: https://github.com/ethereum-optimism/superchain-ops/blob/main/src/improvements/template/FinanceTemplate.sol"
-        echo "  • opcmbasetask - 'OPCMBaseTask' task type, these tasks are used to make delegate calls to the Optimism Contracts Manager and are"
+        echo "  • opcmtaskbase - 'OPCMTaskBase' task type, these tasks are used to make delegate calls to the Optimism Contracts Manager and are"
         echo "    dependent on the L2 chains and inherit from L2TaskBase"
         echo "    e.g.: https://github.com/ethereum-optimism/superchain-ops/blob/main/src/improvements/template/OPCMUpgradeV200.sol"
         echo
@@ -48,11 +48,11 @@ new COMMAND="" TASK_TYPE="":
                 l2taskbase)
                     TASK_TYPE="L2TaskBase"
                     ;;
-                simplebase)
-                    TASK_TYPE="SimpleBase"
+                simpletaskbase)
+                    TASK_TYPE="SimpleTaskBase"
                     ;;
-                opcmbasetask)
-                    TASK_TYPE="OPCMBaseTask"
+                opcmtaskbase)
+                    TASK_TYPE="OPCMTaskBase"
                     ;;
                 *)
                     echo -e "\n\033[31mError: Invalid task type '{{TASK_TYPE}}'\033[0m"
