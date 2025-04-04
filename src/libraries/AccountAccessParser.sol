@@ -8,6 +8,8 @@ import {IERC20} from "forge-std/interfaces/IERC20.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {LibSort} from "@solady/utils/LibSort.sol";
 
+import {Utils} from "src/libraries/Utils.sol";
+
 /// @notice Parses account accesses into decoded transfers and state diffs.
 /// The core methods intended to be part of the public interface are `decodeAndPrint`, `decode`,
 /// `getUniqueWrites`, and `getStateDiffFor`. Example usage:
@@ -138,7 +140,9 @@ library AccountAccessParser {
     function decodeAndPrint(VmSafe.AccountAccess[] memory _accesses) internal view {
         // We always want to sort all state diffs before printing them.
         (DecodedTransfer[] memory transfers, DecodedStateDiff[] memory stateDiffs) = decode(_accesses, true);
-        print(transfers, stateDiffs);
+        if (Utils.isFeatureEnabled("TASK_DEVELOPER_MODE")) {
+            print(transfers, stateDiffs);
+        }
     }
 
     /// @notice Decodes the provided AccountAccess array into decoded transfers and state diffs.
@@ -371,7 +375,6 @@ library AccountAccessParser {
                 console.log("- **Token Address:**     `%s`", transfer.tokenAddress);
             }
         }
-
         console.log("\n----------------- Task State Changes -------------------");
         console.log("\n--- Attention: Copy content below this line into the VALIDATION.md file. ---");
         require(_stateDiffs.length > 0, "No state changes found, this is unexpected.");
@@ -768,12 +771,14 @@ library AccountAccessParser {
         if (isLivenessGuard(target)) return (0, "LivenessGuard");
         if (isLivenessModule(target)) return (0, "LivenessModule");
 
-        // Log a warning if the address is not found in the superchain-registry. The superchain-registry usually lags
-        // behind the latest release and it's expected that some addresses are not yet registered.
-        console.log(
-            "\x1B[33m[WARN]\x1B[0m Target address not found in superchain-registry (this message is safe to ignore): %s",
-            vm.toString(target)
-        );
+        if (Utils.isFeatureEnabled("TASK_DEVELOPER_MODE")) {
+            // Log a warning if the address is not found in the superchain-registry. The superchain-registry usually lags
+            // behind the latest release and it's expected that some addresses are not yet registered.
+            console.log(
+                "\x1B[33m[WARN]\x1B[0m Target address not found in superchain-registry (this message is safe to ignore): %s",
+                vm.toString(target)
+            );
+        }
         return (0, "");
     }
 
