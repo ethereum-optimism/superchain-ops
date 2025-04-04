@@ -69,8 +69,6 @@ contract DisputeGameUpgradeTemplate is L2TaskBase {
         }
     }
 
-    function _standardValidatorCheck() internal view override {}
-
     /// @notice Validates that implementations were set correctly.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
