@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {OPCMBaseTask} from "../tasks/types/OPCMBaseTask.sol";
+import {OPCMTaskBase} from "../tasks/types/OPCMTaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {
     IOPContractsManager,
@@ -15,7 +15,7 @@ import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
 
 /// @notice This template supports OPCMV300 upgrade tasks.
-contract OPCMUpgradeV300 is OPCMBaseTask {
+contract OPCMUpgradeV300 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
 
