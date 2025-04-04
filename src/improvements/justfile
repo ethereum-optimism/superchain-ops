@@ -44,7 +44,7 @@ new COMMAND="" TASK_TYPE="":
                 exit 1
             fi
 
-            case "{{TASK_TYPE}}" in
+            case "$(echo {{TASK_TYPE}} | tr '[:upper:]' '[:lower:]')" in
                 l2taskbase)
                     TASK_TYPE="L2TaskBase"
                     ;;
@@ -60,6 +60,7 @@ new COMMAND="" TASK_TYPE="":
                     exit 1
                     ;;
             esac
+            echo -e "\nSelected task type: \033[33m $TASK_TYPE \033[0m"
             ./script/create-template.sh "$TASK_TYPE"
             ;;
         task)
