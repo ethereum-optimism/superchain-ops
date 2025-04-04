@@ -6,20 +6,20 @@ import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet
 import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
-abstract contract SimpleBase is MultisigTask {
+abstract contract SimpleTaskBase is MultisigTask {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     SimpleAddressRegistry public simpleAddrRegistry;
 
-    /// @notice Returns the type of task. SimpleBase.
+    /// @notice Returns the type of task. SimpleTaskBase.
     /// Overrides the taskType function in the MultisigTask contract.
     function taskType() public pure override returns (TaskType) {
-        return TaskType.SimpleBase;
+        return TaskType.SimpleTaskBase;
     }
 
-    /// @notice Configures the task for SimpleBase type tasks.
+    /// @notice Configures the task for SimpleTaskBase type tasks.
     /// Overrides the configureTask function in the MultisigTask contract.
-    /// For SimpleBase, we need to configure the simple address registry.
+    /// For SimpleTaskBase, we need to configure the simple address registry.
     function _configureTask(string memory taskConfigFilePath)
         internal
         virtual

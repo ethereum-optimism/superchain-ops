@@ -7,12 +7,12 @@ import {VmSafe} from "forge-std/Vm.sol";
 
 import "forge-std/Test.sol";
 
-import {SimpleBase} from "src/improvements/tasks/types/SimpleBase.sol";
+import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
 import {ModuleManager} from "lib/safe-contracts/contracts/base/ModuleManager.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
 /// @notice Template contract for enabling the DeputyPauseModule in a Gnosis Safe
-contract EnableDeputyPauseModuleTemplate is SimpleBase {
+contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
     using AccountAccessParser for *;
     using stdStorage for StdStorage;
 

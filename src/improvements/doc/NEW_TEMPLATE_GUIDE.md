@@ -8,7 +8,7 @@ To scaffold a new template:
 
 ```bash
 cd src/improvements/
-just new template <l2taskbase|simplebase|opcmbasetask>
+just new template <l2taskbase|simpletaskbase|opcmtaskbase>
 ```
 
 This will create a new Solidity file in `src/improvements/template/` with the basic template structure required.

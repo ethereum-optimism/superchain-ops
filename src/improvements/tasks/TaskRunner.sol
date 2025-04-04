@@ -10,9 +10,7 @@ import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegis
 import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
 
 /// This script gathers all tasks for a given network and performs a simulation run for each task.
-/// Once all tasks are simulated, the resultant state is written to a file.
-/// This state is then applied and the monorepo integration tests are run against it.
-/// This file can only simulate tasks for one network at a time (found under tasks/example/{network}).
+/// This file can only simulate tasks for one network at a time (found under src/improvements/tasks/{network}).
 contract TaskRunner is Script {
     using Strings for uint256;
 
@@ -71,14 +69,6 @@ contract TaskRunner is Script {
         }
     }
 
-    /// @notice Runs the task and dumps the state to a file.
-    /// The network parameter must be equivalent to the shortname of the network.
-    /// e.g. For Ethereum Mainnet: https://github.com/ethereum-lists/chains/blob/53965b4def1d2983bef638279a66fc88e408ad7c/_data/chains/eip155-1.json#L33
-    function run(string memory dumpStatePath, string memory network) public {
-        run(network);
-        vm.dumpState(dumpStatePath);
-    }
-
     /// @notice Executes a task based on its configuration.
     function executeTask(MultisigTask task, TaskConfig memory config) internal {
         if (config.isNested) {
@@ -108,7 +98,7 @@ contract TaskRunner is Script {
         string memory safeAddressString = task.safeAddressString();
         MultisigTask.TaskType taskType = task.taskType();
 
-        if (taskType == MultisigTask.TaskType.SimpleBase) {
+        if (taskType == MultisigTask.TaskType.SimpleTaskBase) {
             SimpleAddressRegistry _simpleAddrRegistry = new SimpleAddressRegistry(taskConfigFilePath);
             parentMultisig = _simpleAddrRegistry.get(safeAddressString);
         } else {
