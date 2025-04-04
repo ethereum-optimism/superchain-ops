@@ -120,4 +120,9 @@ abstract contract OPCMTaskBase is L2TaskBase {
         actions;
         require(false, "You must implement the _validate function");
     }
+
+    /// @notice Returns the type of task.
+    function taskType() public pure override returns (TaskType) {
+        return TaskType.OPCMTaskBase;
+    }
 }
