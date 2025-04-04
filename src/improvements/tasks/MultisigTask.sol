@@ -290,8 +290,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     }
 
     /// @notice Get the calldata to be executed by safe.
-    /// Callable only after the build function has been run and the
-    /// calldata has been loaded up to storage.
+    /// Callable only after the build function has been run and the calldata has been loaded up to storage.
     function getMulticall3Calldata(Action[] memory actions) public view virtual returns (bytes memory data) {
         (address[] memory targets, uint256[] memory values, bytes[] memory arguments) = processTaskActions(actions);
 
@@ -323,26 +322,15 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         console.log("---------------------------------------");
     }
 
-    /// @notice print the hash to approve by EOA for parent/root multisig
+    /// @notice Print the hash to approve by EOA for parent/root multisig.
     function printParentHash(bytes memory callData) public view {
         console.logBytes32(getHash(callData, parentMultisig));
 
         bytes memory encodedTxData = getEncodedTransactionData(parentMultisig, callData);
-        bytes32 safeTxHash;
-        assembly {
-            // 66 bytes = (bytes1(0x19), bytes1(0x01), bytes32(domainSeparator()), bytes32(safeTxHash))
-            // Retrieve the last 32 bytes of encodedTxData (safeTxHash).
-            // Memory layout of encodedTxData:
-            // - The first 32 bytes store the length (66 bytes in this case).
-            // - The actual data starts at encodedTxData + 32.
-            // - The last 32 bytes of the data (safeTxHash) start at:
-            //   encodedTxData + 32 + (66 - 32) = encodedTxData + 66.
-            safeTxHash := mload(add(encodedTxData, mload(encodedTxData)))
-        }
-
         bytes32 domainSeparator = GnosisSafeHashes.calculateDomainSeparator(block.chainid, parentMultisig);
+        bytes32 messageHash = GnosisSafeHashes.getMessageHashFromEncodedTransactionData(encodedTxData);
         console.log("Domain Hash:    ", vm.toString(domainSeparator));
-        console.log("Message Hash:   ", vm.toString(safeTxHash));
+        console.log("Message Hash:   ", vm.toString(messageHash));
 
         // TODO: Remove this feature flag after all U13 tasks are executed.
         if (false) {
@@ -423,9 +411,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         return (safe == parentMultisig) ? nonce : IGnosisSafe(safe).nonce();
     }
 
-    /// @notice get the data to sign by EOA
-    /// @param safe The address of the safe
-    /// @param data The calldata to be executed
+    /// @notice Get the data to sign by EOA.
     function getEncodedTransactionData(address safe, bytes memory data)
         public
         view
@@ -446,7 +432,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         require(encodedTxData.length == 66, "MultisigTask: encodedTxData length is not 66 bytes.");
     }
 
-    /// @notice simulate the task by approving from owners and then executing
+    /// @notice Simulate the task by approving from owners and then executing.
     function simulate(bytes memory _signatures, Action[] memory actions)
         public
         returns (VmSafe.AccountAccess[] memory)
@@ -482,9 +468,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         return accountAccesses;
     }
 
-    /// @notice child multisig approves the task to be executed.
-    /// @param _childMultisig The address of the child multisig that is approving the task.
-    /// @param signatures The signatures to approve the task transaction hash.
+    /// @notice Child multisig approves the task to be executed.
     function approve(address _childMultisig, bytes memory signatures, Action[] memory actions) public {
         bytes memory approveCalldata = generateApproveMulticallData(actions);
         bytes32 hash = keccak256(getEncodedTransactionData(_childMultisig, approveCalldata));
@@ -494,7 +478,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     }
 
     /// @notice Executes the task with the given signatures.
-    /// @param signatures The signatures to execute the task.
     function execute(bytes memory signatures, Action[] memory actions) public returns (VmSafe.AccountAccess[] memory) {
         bytes memory callData = getMulticall3Calldata(actions);
         bytes32 hash = getHash(callData, parentMultisig);
@@ -520,8 +503,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         return vm.stopAndReturnStateDiff();
     }
 
-    /// @notice helper function that returns whether or not the current context
-    /// is a broadcast context
+    /// @notice Helper function that returns whether or not the current context is a broadcast context.
     function isBroadcastContext() internal view returns (bool) {
         return vm.isContext(VmSafe.ForgeContext.ScriptBroadcast) || vm.isContext(VmSafe.ForgeContext.ScriptResume);
     }
@@ -568,16 +550,13 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         require(success, "MultisigTask: execute failed");
     }
 
-    /// @notice returns the allowed storage accesses
-    /// @return _allowedStorageAccesses The allowed storage accesses
+    /// @notice Returns the allowed storage accesses.
     function getAllowedStorageAccess() public view returns (address[] memory) {
         return _allowedStorageAccesses.values();
     }
 
-    /// @notice execute post-task checks.
-    ///          e.g. read state variables of the deployed contracts to make
-    ///          sure they are deployed and initialized correctly, or read
-    ///          states that are expected to have changed during the simulate step.
+    /// @notice Execute post-task checks. e.g. read state variables of the deployed contracts to make
+    /// sure they are deployed and initialized correctly, or read states that are expected to have changed during the simulate step.
     function validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) public virtual {
         // write all state changes to storage
         _processStateDiffChanges(accountAccesses);
@@ -606,10 +585,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         checkStateDiff(accountAccesses);
     }
 
-    /// @notice get task actions
-    /// @return targets The targets of the actions
-    /// @return values The values of the actions
-    /// @return arguments The arguments of the actions
+    /// @notice Get task actions. Splits the actions into targets, values, and arguments.
     function processTaskActions(Action[] memory actions)
         public
         pure
@@ -641,10 +617,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// --------------------------------------------------------------------
     /// --------------------------------------------------------------------
 
-    /// @notice build the task actions for all l2chains in the task
-    /// @dev contract calls must be perfomed in plain solidity.
-    ///      overriden requires using buildModifier modifier to leverage
-    ///      foundry snapshot and state diff recording to populate the actions array.
+    /// @notice Build the task actions for all l2chains in the task.
+    /// Contract calls must be performed in plain solidity.
     function build() public returns (Action[] memory actions) {
         require(parentMultisig != address(0), "Must set address registry for multisig address to be set");
 
@@ -741,7 +715,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         console.log("Message Hash:   ", vm.toString(messageHash));
     }
 
-    /// @notice print the tenderly simulation payload with the state overrides
+    /// @notice Print the Tenderly simulation payload with the state overrides.
     function printTenderlySimulationData(Action[] memory actions, address optionalChildMultisig) internal view {
         // TODO: Support child nonce as a state override. Right now we always get the latest nonce.
         // Use the max uint256 to indicate that the child multisig nonce is not provided (zero is a valid nonce).
@@ -836,7 +810,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         return string.concat(result, "}}");
     }
 
-    /// @notice get the hash for this safe transaction
+    /// @notice Get the hash for this safe transaction.
     function getHash(bytes memory callData, address safe) public view returns (bytes32) {
         return keccak256(getEncodedTransactionData(safe, callData));
     }
@@ -857,7 +831,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         return abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
     }
 
-    /// @notice helper method to get labels for addresses
+    /// @notice Helper method to get labels for addresses.
     function getAddressLabel(address contractAddress) public view returns (string memory) {
         string memory label = vm.getLabel(contractAddress);
 
@@ -887,8 +861,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// --------------------------------------------------------------------
     /// --------------------------------------------------------------------
 
-    /// @notice validate actions inclusion
-    /// default implementation check for duplicate actions
+    /// @notice Validate actions inclusion. Default implementation checks for duplicate actions.
     function validateAction(address target, uint256 value, bytes memory data, Action[] memory actions) public pure {
         uint256 actionsLength = actions.length;
         for (uint256 i = 0; i < actionsLength; i++) {
@@ -901,6 +874,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         }
     }
 
+    /// @notice Helper function to determine if the given safe is a nested multisig.
     function isNestedSafe(address safe) public view returns (bool) {
         // assume safe is nested unless there is an EOA owner
         bool nested = true;
@@ -914,10 +888,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         return nested;
     }
 
-    /// @notice helper function to prepare the signatures to be executed
-    /// @param _safe The address of the parent multisig
-    /// @param hash The hash to be approved
-    /// @return The signatures to be executed
+    /// @notice Helper function to prepare the signatures to be executed.
     function prepareSignatures(address _safe, bytes32 hash) internal view returns (bytes memory) {
         // prepend the prevalidated signatures to the signatures
         address[] memory approvers = Signatures.getApprovers(_safe, hash);
@@ -947,8 +918,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         );
     }
 
-    /// @notice Get the multicall address for the given safe.
-    /// Override to return required multicall address.
+    /// @notice Get the multicall address for the given safe. Override to return required multicall address.
     function _getMulticallAddress(address safe) internal view virtual returns (address) {
         // Some child contracts may override this function and return a different multicall address
         // based on the safe address (e.g. whether it's the parent or child multisig).
@@ -1020,10 +990,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         vm.startStateDiffRecording();
     }
 
-    /// @notice to be used at the end of the build function to snapshot
-    /// the actions performed by the task and revert these changes
-    /// then, stop the prank and record the state diffs and actions that
-    /// were taken by the task.
+    /// @notice To be used at the end of the build function to snapshot the actions performed by the task and revert these changes
+    /// then, stop the prank and record the state diffs and actions that were taken by the task.
     function _endBuild() private returns (Action[] memory) {
         VmSafe.AccountAccess[] memory accesses = vm.stopAndReturnStateDiff();
         vm.stopPrank();
@@ -1085,6 +1053,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         nonce = _getNonceOrOverride(address(parentMultisig));
     }
 
+    /// @notice Returns true if the given address is a new contract.
     function _isNewContract(address addr, address[] memory newContracts) private pure returns (bool isNewContract_) {
         isNewContract_ = false;
         for (uint256 j; j < newContracts.length; j++) {
@@ -1095,7 +1064,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         }
     }
 
-    /// @dev Returns true if the given account access should be recorded as an action.
+    /// @notice Returns true if the given account access should be recorded as an action.
     function _isValidAction(VmSafe.AccountAccess memory access, uint256 topLevelDepth) internal view returns (bool) {
         bool accountNotRegistryOrVm =
             (access.account != AddressRegistry.unwrap(addrRegistry) && access.account != address(vm));
@@ -1107,7 +1076,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         return accountNotRegistryOrVm && accessorNotRegistry && (isCall || isTopLevelDelegateCall) && accessorIsParent;
     }
 
-    /// @dev Composes a description string for the given access using the provided operation string.
+    /// @notice Composes a description string for the given access using the provided operation string.
     function _composeDescription(VmSafe.AccountAccess memory access, string memory opStr)
         internal
         view
@@ -1144,8 +1113,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     }
 
     /// @notice This function performs basic checks on the state diff.
-    /// It checks that all touched accounts have code, that the balances are unchanged,
-    /// and that no self-destructs occurred.
+    /// It checks that all touched accounts have code, that the balances are unchanged, and that no self-destructs occurred.
     function checkStateDiff(VmSafe.AccountAccess[] memory accountAccesses) internal view {
         require(accountAccesses.length > 0, "No account accesses");
         address[] memory allowedAccesses = getAllowedStorageAccess();
@@ -1243,8 +1211,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     }
 
     /// @notice Checks that values have code on this chain.
-    ///         This method is not storage-layout-aware and therefore is not perfect. It may return erroneous
-    ///         results for cases like packed slots, and silently show that things are okay when they are not.
+    /// This method is not storage-layout-aware and therefore is not perfect. It may return erroneous
+    /// results for cases like packed slots, and silently show that things are okay when they are not.
     function isLikelyAddressThatShouldHaveCode(uint256 value) internal view virtual returns (bool) {
         // If out of range (fairly arbitrary lower bound), return false.
         if (value > type(uint160).max) return false;
