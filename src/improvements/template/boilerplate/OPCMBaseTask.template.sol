@@ -14,6 +14,10 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
 
+/// TODO: If you need any interfaces from the Optimism monorepo submodule. Define them here instead of importing them.
+/// Doing this avoids tight coupling to the monorepo submodule and allows you to update the monorepo submodule
+/// without having to update the template (Remove this comment when done).
+
 /// @notice A template contract for configuring OPCMBaseTask templates.
 /// Supports: <TODO: add supported tags: e.g. op-contracts/v*.*.*>
 contract OPCMBaseTaskTemplate is OPCMBaseTask {
@@ -97,7 +101,3 @@ contract OPCMBaseTaskTemplate is OPCMBaseTask {
         return new address[](0);
     }
 }
-
-/// TODO: If you need any interfaces from the Optimism monorepo submodule. Define them here instead of importing them.
-/// Doing this avoids tight coupling to the monorepo submodule and allows you to update the monorepo submodule
-/// without having to update the template.

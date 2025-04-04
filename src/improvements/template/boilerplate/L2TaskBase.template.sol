@@ -6,6 +6,10 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 
+/// TODO: If you need any interfaces from the Optimism monorepo submodule. Define them here instead of importing them.
+/// Doing this avoids tight coupling to the monorepo submodule and allows you to update the monorepo submodule
+/// without having to update the template (Remove this comment when done).
+
 /// @notice A template contract for configuring L2TaskBase templates.
 /// Supports: <TODO: add supported tags: e.g. op-contracts/v*.*.*>
 contract L2TaskBaseTemplate is L2TaskBase {
@@ -69,7 +73,3 @@ contract L2TaskBaseTemplate is L2TaskBase {
         return codeExceptions;
     }
 }
-
-/// TODO: If you need any interfaces from the Optimism monorepo submodule. Define them here instead of importing them.
-/// Doing this avoids tight coupling to the monorepo submodule and allows you to update the monorepo submodule
-/// without having to update the template.

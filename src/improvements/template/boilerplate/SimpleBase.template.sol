@@ -10,6 +10,10 @@ import {LibString} from "@solady/utils/LibString.sol";
 import {ERC20} from "@solady/tokens/ERC20.sol";
 import {stdToml} from "lib/forge-std/src/StdToml.sol";
 
+/// TODO: If you need any interfaces from the Optimism monorepo submodule. Define them here instead of importing them.
+/// Doing this avoids tight coupling to the monorepo submodule and allows you to update the monorepo submodule
+/// without having to update the template (Remove this comment when done).
+
 /// @notice A template contract for configuring SimpleBase templates.
 /// Supports: <TODO: add supported tags: e.g. op-contracts/v*.*.*>
 contract SimpleBaseTemplate is SimpleBase {
@@ -59,7 +63,3 @@ contract SimpleBaseTemplate is SimpleBase {
         return new address[](0);
     }
 }
-
-/// TODO: If you need any interfaces from the Optimism monorepo submodule. Define them here instead of importing them.
-/// Doing this avoids tight coupling to the monorepo submodule and allows you to update the monorepo submodule
-/// without having to update the template.
