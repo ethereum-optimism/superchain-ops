@@ -167,12 +167,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// state diffs. This function is how you obtain confidence the transaction does what it's supposed to do.
     function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) internal view virtual;
 
-    /// @notice This function must be implemented by the inheriting contract.
-    /// Template developers must override this function and make a call to 'StandardValidator.validate()'.
-    /// This function is separate to the _validate function to encourage developers to use the StandardValidator.
-    /// See: https://github.com/ethereum-optimism/optimism/blob/6d119f/packages/contracts-bedrock/interfaces/L1/IStandardValidator.sol
-    function _standardValidatorCheck() internal view virtual;
-
     // =================================
     // ======== Other functions ========
     // =================================
@@ -614,7 +608,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         require(IGnosisSafe(parentMultisig).nonce() == nonce + 1, "MultisigTask: nonce not incremented");
 
         _validate(accountAccesses, actions);
-        _standardValidatorCheck();
 
         // check that state diff is as expected
         checkStateDiff(accountAccesses);

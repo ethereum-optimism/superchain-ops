@@ -144,8 +144,8 @@ contract UniFix is L2TaskBase {
         proxyAdmin.upgrade(payable(proxy), implBefore);
     }
 
-    /// @notice Perform a call to the relevant StandardValidator contract to validate the task.
-    function _standardValidatorCheck() internal view override {
+    /// @notice This method performs all validations and assertions that verify the calls executed as expected.
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         assertEq(chains.length, 1);
         assertEq(chains[0].chainId, 1301);
@@ -179,9 +179,6 @@ contract UniFix is L2TaskBase {
 
         require(reasons.eq(expectedErrors_1310), string.concat("Unexpected errors: ", reasons));
     }
-
-    /// @notice This method performs all validations and assertions that verify the calls executed as expected.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {}
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
     function getCodeExceptions() internal pure override returns (address[] memory) {

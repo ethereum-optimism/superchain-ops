@@ -46,15 +46,6 @@ contract SimpleBaseTemplate is SimpleBase {
         require(false, "TODO: Implement with the correct build logic.");
     }
 
-    /// @notice Template developers must override this function and make a call to 'StandardValidator.validate()'.
-    /// For some SimpleBase templates, you may not need to call StandardValidator.validate() e.g. FinanceTemplate.
-    function _standardValidatorCheck() internal pure override {
-        require(
-            false,
-            "TODO: Optionally call StandardValidator.validate() - use OP mainnet as a default chain to validate against."
-        );
-    }
-
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal pure override {
         require(false, "TODO: Implement with the correct validation logic.");

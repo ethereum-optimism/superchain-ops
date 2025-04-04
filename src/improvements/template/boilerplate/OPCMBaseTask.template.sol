@@ -80,11 +80,6 @@ contract OPCMBaseTaskTemplate is OPCMBaseTask {
         require(!success, "OPCMUpgradeV200: Call unexpectedly succeeded; expected revert due to non-delegatecall.");
     }
 
-    /// @notice Template developers must override this function and make a call to 'StandardValidator.validate()'.
-    function _standardValidatorCheck() internal pure override {
-        require(false, "TODO: Call StandardValidator.validate()");
-    }
-
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
