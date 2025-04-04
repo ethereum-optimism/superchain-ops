@@ -40,7 +40,6 @@ abstract contract L2TaskBase is MultisigTask {
         try superchainAddrRegistry.get(config.safeAddressString) returns (address addr) {
             parentMultisig_ = IGnosisSafe(addr);
         } catch {
-            console.log("Safe address not found globally. Checking per-chain.");
             parentMultisig_ =
                 IGnosisSafe(superchainAddrRegistry.getAddress(config.safeAddressString, chains[0].chainId));
             // Ensure that all chains have the same parentMultisig.

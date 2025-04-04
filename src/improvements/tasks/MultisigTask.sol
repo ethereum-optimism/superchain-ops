@@ -207,11 +207,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     }
 
     /// @notice Runs the task with the given configuration file path.
-    /// Sets the address registry, initializes and simulates the single multisig
-    /// as well as the nested multisig. For single multisig,
-    /// prints the data to sign and the hash to approve which is used to sign with the eip712sign binary.
-    /// For nested multisig, prints the data to sign and the hash to approve for each of the child multisigs.
-    /// @param taskConfigFilePath The path to the task configuration file.
     function simulateRun(string memory taskConfigFilePath)
         public
         returns (VmSafe.AccountAccess[] memory, Action[] memory)
@@ -220,10 +215,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     }
 
     /// @notice Executes the task with the given configuration file path and signatures.
-    /// Sets the address registry, initializes and executes the task the single multisig
-    /// as well as the nested multisig.
-    /// @param taskConfigFilePath The path to the task configuration file.
-    /// @param signatures The signatures to execute the task.
     function executeRun(string memory taskConfigFilePath, bytes memory signatures)
         public
         returns (VmSafe.AccountAccess[] memory)
@@ -248,9 +239,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
     /// @notice Child multisig of a nested multisig approves the task to be executed with the given
     /// configuration file path and signatures.
-    /// @param taskConfigFilePath The path to the task configuration file.
-    /// @param _childMultisig The address of the child multisig that is approving the task.
-    /// @param signatures The signatures to approve the task transaction hash.
     function approveFromChildMultisig(string memory taskConfigFilePath, address _childMultisig, bytes memory signatures)
         public
     {
@@ -265,8 +253,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     }
 
     /// @notice Simulates a nested multisig task with the given configuration file path for a
-    /// given child multisig. Prints the data to sign and the hash to approve corresponding to
-    /// the _childMultisig, printed data to sign is used to sign with the eip712sign binary.
+    /// given child multisig. Prints the 'data to sign' which is used to sign with the eip712sign binary.
     function signFromChildMultisig(string memory taskConfigFilePath, address _childMultisig)
         public
         returns (VmSafe.AccountAccess[] memory, Action[] memory)
@@ -274,8 +261,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         return simulateRun(taskConfigFilePath, "", _childMultisig);
     }
 
-    /// @notice Sets the address registry, initializes the task.
-    /// @param taskConfigFilePath The path to the task configuration file.
+    /// @notice This function performs the same functionality as signFromChildMultisig but
+    /// to keep the terminal output clean, we don't want to return the account accesses and actions.
+    function simulateAsSigner(string memory taskConfigFilePath, address _childMultisig) public {
+        simulateRun(taskConfigFilePath, "", _childMultisig);
+    }
+
+    /// @notice Using the tasks config.toml file, this function configures the task.
+    /// by performing various setup functions e.g. setting the address registry and multicall target.
     function _taskSetup(string memory taskConfigFilePath) internal {
         require(bytes(config.safeAddressString).length == 0, "MultisigTask: already initialized");
         config.safeAddressString = safeAddressString();
@@ -674,14 +667,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         address optionalChildMultisig,
         bool isSimulate
     ) public view {
-        console.log("\n------------------ Task Actions ------------------");
-        for (uint256 i; i < actions.length; i++) {
-            console.log("%d). %s", i + 1, actions[i].description);
-            console.log("target: %s\npayload", getAddressLabel(actions[i].target));
-            console.logBytes(actions[i].arguments);
-            console.log("\n");
-        }
-
         console.log("----------------- ATTENTION TASK DEVELOPERS -------------------");
         console.log("To properly document the task state changes, please follow these steps:");
         console.log("1. Copy and paste the state changes printed below into the VALIDATION.md file.");
@@ -1158,12 +1143,10 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         }
     }
 
-    /// @notice helper function that can be overridden by template contracts to
-    /// check the state changes applied by the task. This function can check
-    /// that only the nonce changed in the parent multisig when executing a task
-    /// by checking the slot and address where the slot changed.
+    /// @notice This function performs basic checks on the state diff.
+    /// It checks that all touched accounts have code, that the balances are unchanged,
+    /// and that no self-destructs occurred.
     function checkStateDiff(VmSafe.AccountAccess[] memory accountAccesses) internal view {
-        console.log("Running assertions on the state diff");
         require(accountAccesses.length > 0, "No account accesses");
         address[] memory allowedAccesses = getAllowedStorageAccess();
         address[] memory newContracts = accountAccesses.getNewContracts();

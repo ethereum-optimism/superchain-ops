@@ -54,7 +54,7 @@ simulate whichSafe hdPath='0':
     ${fork_block_arg} \
     --rpc-url ${rpcUrl} \
     --sender ${signer} \
-    --sig "signFromChildMultisig(string,address)" \
+    --sig "simulateAsSigner(string,address)" \
     ${config} \
     ${safe}
 

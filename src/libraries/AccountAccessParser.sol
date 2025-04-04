@@ -768,7 +768,12 @@ library AccountAccessParser {
         if (isLivenessGuard(target)) return (0, "LivenessGuard");
         if (isLivenessModule(target)) return (0, "LivenessModule");
 
-        console.log("\x1B[33m[WARN]\x1B[0m Target address not found: %s", vm.toString(target));
+        // Log a warning if the address is not found in the superchain-registry. The superchain-registry usually lags
+        // behind the latest release and it's expected that some addresses are not yet registered.
+        console.log(
+            "\x1B[33m[WARN]\x1B[0m Target address not found in superchain-registry (this message is safe to ignore): %s",
+            vm.toString(target)
+        );
         return (0, "");
     }
 
