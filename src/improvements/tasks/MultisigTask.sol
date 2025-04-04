@@ -76,7 +76,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @notice Enum to determine the type of task
     enum TaskType {
         L2TaskBase,
-        SimpleBase
+        SimpleTaskBase,
+        OPCMTaskBase
     }
 
     /// @notice transfers during task execution
@@ -129,7 +130,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     // ==================================================
     // These are functions have no default implementation and MUST be implemented by the inheriting contract.
 
-    /// @notice Returns the type of task. L2TaskBase or SimpleBase.
+    /// @notice Returns the type of task. L2TaskBase, SimpleTaskBase or OPCMTaskBase.
     function taskType() public pure virtual returns (TaskType);
 
     /// @notice Specifies the safe address string to run the template from. This string refers

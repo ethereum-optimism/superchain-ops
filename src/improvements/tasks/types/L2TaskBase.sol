@@ -14,7 +14,7 @@ abstract contract L2TaskBase is MultisigTask {
 
     /// @notice Returns the type of task. L2TaskBase.
     /// Overrides the taskType function in the MultisigTask contract.
-    function taskType() public pure override returns (TaskType) {
+    function taskType() public pure virtual override returns (TaskType) {
         return TaskType.L2TaskBase;
     }
 
