@@ -254,6 +254,7 @@ contract StateOverrideManagerUnitTest is Test {
         removeFile(fileName);
     }
 
+    /// @notice Helper function to create and run a task.
     function createAndRunTask(string memory fileName, address childMultisig) internal returns (MultisigTask) {
         MultisigTask task = new MockMultisigTask();
         task.signFromChildMultisig(fileName, childMultisig);
