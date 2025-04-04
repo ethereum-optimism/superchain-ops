@@ -22,16 +22,16 @@ contract OPCMUpgradeV300 is OPCMBaseTask {
     /// @notice The StandardValidatorV300 address
     IStandardValidatorV300 public STANDARD_VALIDATOR_V300;
 
-    /// @notice Struct to store inputs for OPCM.upgrade() function per l2 chain
+    /// @notice Struct to store inputs for OPCM.upgrade() function per L2 chain.
     struct OPCMUpgrade {
         Claim absolutePrestate;
         uint256 chainId;
     }
 
-    /// @notice Mapping of l2 chain IDs to their respective prestates
+    /// @notice Mapping of L2 chain IDs to their respective prestates.
     mapping(uint256 => Claim) public absolutePrestates;
 
-    /// @notice Returns the storage write permissions
+    /// @notice Returns the storage write permissions required for this task.
     function _taskStorageWrites() internal view virtual override returns (string[] memory) {
         string[] memory storageWrites = new string[](8);
         storageWrites[0] = "OPCM";
@@ -45,7 +45,7 @@ contract OPCMUpgradeV300 is OPCMBaseTask {
         return storageWrites;
     }
 
-    /// @notice Sets up the template with prestate inputs from a TOML file
+    /// @notice Sets up the template with implementation configurations from a TOML file.
     function _templateSetup(string memory taskConfigFilePath) internal override {
         super._templateSetup(taskConfigFilePath);
         string memory tomlContent = vm.readFile(taskConfigFilePath);
@@ -77,8 +77,8 @@ contract OPCMUpgradeV300 is OPCMBaseTask {
         vm.label(address(STANDARD_VALIDATOR_V300), "StandardValidatorV300");
     }
 
-    /// @notice Build the task action for all l2chains in the task.abi
-    /// A single call to OPCM.upgrade() is made for all l2 chains.
+    /// @notice Build the task action for all L2 chains in the task.
+    /// A single call to OPCM.upgrade() is made for all L2 chains.
     function _build() internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         IOPContractsManager.OpChainConfig[] memory opChainConfigs =
@@ -92,22 +92,12 @@ contract OPCMUpgradeV300 is OPCMBaseTask {
             });
         }
 
-        // Before '_build()' is invoked by the 'build()' function in 'MultisigTask.sol', we start recording all state changes using 'vm.startStateDiffRecording()'.
-        // The primary purpose of '_build()' is to trigger the necessary account accesses so they are recorded when we call 'vm.stopAndReturnStateDiff()'.
-        // These recorded accesses are then converted into actions that the safe eventually executes via MultiCall3DelegateCall (in this case).
-        // More specifically, we want to ensure that the correct target and callData are recorded for the 'Call3' struct in MultiCall3DelegateCall.
-        // In this case, the 'target' should be the OPCM address, and the 'callData' should be the ABI-encoded 'upgrade()' call.
-        //
-        // The code below is unintuitive because we expect it to revert. Due to limitations in Foundry's 'prank' cheatcode (see: https://github.com/foundry-rs/foundry/issues/9990),
-        // we cannot correctly use a delegatecall to this function without it reverting.
-        //
-        // As a workaround, we make the call anyway to ensure the desired OPCM account access is recorded. This is acceptable because we later simulate
-        // the actual 'OPCM.upgrade()' call. However, it is crucial that the 'OPCM.upgrade()' call does not revert during the simulation.
+        // See: template/OPCMUpgradeV200.sol for more information on why we expect a revert here.
         (bool success,) = OPCM.call(abi.encodeCall(IOPContractsManager.upgrade, (opChainConfigs)));
         require(!success, "OPCMUpgradeV300: Call unexpectedly succeeded; expected revert due to non-delegatecall.");
     }
 
-    /// @notice validate the task for a given l2chain
+    /// @notice Validate the task for a given L2 chain.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
@@ -134,7 +124,7 @@ contract OPCMUpgradeV300 is OPCMBaseTask {
         }
     }
 
-    /// @notice no code exceptions for this template
+    /// @notice No code exceptions for this template.
     function getCodeExceptions() internal view virtual override returns (address[] memory) {
         return new address[](0);
     }
