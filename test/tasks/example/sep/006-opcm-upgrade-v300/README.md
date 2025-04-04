@@ -1,4 +1,4 @@
-# 002-opcm-upgrade-v200: Update the task description
+# 006-opcm-upgrade-v300: Update the task description
 
 Status: [DRAFT]()
 
