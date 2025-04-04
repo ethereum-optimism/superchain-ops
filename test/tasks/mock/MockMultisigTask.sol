@@ -57,6 +57,8 @@ contract MockMultisigTask is L2TaskBase {
         }
     }
 
+    function _standardValidatorCheck() internal pure override {}
+
     /// @notice Validates that the proxy implementation was set correctly.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();

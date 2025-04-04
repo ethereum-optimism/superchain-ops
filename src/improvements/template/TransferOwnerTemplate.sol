@@ -54,6 +54,9 @@ contract TransferOwnerTemplate is L2TaskBase {
         }
     }
 
+    /// @notice Perform a call to the relevant StandardValidator contract to validate the task.
+    function _standardValidatorCheck() internal view override {}
+
     /// @notice Validates that the owner was transferred correctly.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();

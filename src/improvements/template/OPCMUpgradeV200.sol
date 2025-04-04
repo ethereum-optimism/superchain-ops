@@ -102,8 +102,8 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
         require(!success, "OPCMUpgradeV200: Call unexpectedly succeeded; expected revert due to non-delegatecall.");
     }
 
-    /// @notice validate the task for a given l2chain
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+    /// @notice Perform a call to the relevant StandardValidator contract to validate the task.
+    function _standardValidatorCheck() internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {
@@ -172,6 +172,9 @@ contract OPCMUpgradeV200 is OPCMBaseTask {
             );
         }
     }
+
+    /// @notice validate the task for a given l2chain
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {}
 
     /// @notice no code exceptions for this template
     function getCodeExceptions() internal view virtual override returns (address[] memory) {

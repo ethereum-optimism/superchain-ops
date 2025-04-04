@@ -165,6 +165,9 @@ contract FinanceTemplate is SimpleBase {
         }
     }
 
+    /// @notice Perform a call to the relevant StandardValidator contract to validate the task.
+    function _standardValidatorCheck() internal view override {}
+
     /// @notice Validates that the module was enabled correctly.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
         for (uint256 i = 0; i < operations.length; i++) {

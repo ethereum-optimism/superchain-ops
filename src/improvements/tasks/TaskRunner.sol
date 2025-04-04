@@ -3,11 +3,13 @@ pragma solidity 0.8.15;
 
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {Script} from "forge-std/Script.sol";
+import {stdToml} from "forge-std/StdToml.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
+import {LibString} from "@solady/utils/LibString.sol";
 
 /// This script gathers all tasks for a given network and performs a simulation run for each task.
 /// Once all tasks are simulated, the resultant state is written to a file.
@@ -15,6 +17,8 @@ import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol"
 /// This file can only simulate tasks for one network at a time (found under tasks/example/{network}).
 contract TaskRunner is Script {
     using Strings for uint256;
+    using stdToml for string;
+    using LibString for string;
 
     struct L2Chain {
         uint256 chainId;

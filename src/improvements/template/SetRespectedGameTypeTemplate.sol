@@ -67,6 +67,9 @@ contract SetRespectedGameTypeTemplate is L2TaskBase {
         }
     }
 
+    /// @notice Perform a call to the relevant StandardValidator contract to validate the task.
+    function _standardValidatorCheck() internal view override {}
+
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
         // Iterate over the chains and validate the respected game type.
