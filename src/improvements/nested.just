@@ -54,8 +54,8 @@ simulate whichSafe hdPath='0' verbose='false':
     fork_block_arg="--fork-block-number ${forkBlockNumber}"
   fi
 
-  forge build
   echo "⏳ Task simulation in progress. Some steps tasks take longer than others..."
+  forge build
   forge script ${script} \
     ${fork_block_arg} \
     --rpc-url ${rpcUrl} \
@@ -76,9 +76,9 @@ sign whichSafe hdPath='0':
   signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   echo "Signing with: ${signer}"
   echo ""
-
-  forge build
+  
   echo "⏳ Task signing simulation in progress. Some steps tasks take longer than others..."
+  forge build
   # Using the eip712sign within the repo folder since eip712sign was installed there in ./justfile.
   $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
   forge script ${script} \
@@ -138,8 +138,8 @@ execute hdPath='0':
   echo "Using script ${script}"
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
 
-  forge build
   echo "⏳ Task execution in progress. Some steps tasks take longer than others..."
+  forge build
   forge script ${script} \
     --fork-url ${rpcUrl} \
     --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
