@@ -308,7 +308,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
   Summary:           nonce
   Detail:            The nonce of the Child Safe 1 contract is updated.
-                     Alternatively, the 'Raw Old Value' and 'Raw New Value' value can be different if we run as <i>0x847B5c174615B1B7fDF770882256e2D3E95b9D92</i> or <i>0xc2819DC788505Aac350142A7A707BF9D03E3Bd03</i>.
+                     Alternatively, the 'Who' address can be different if we run as <i>0x847B5c174615B1B7fDF770882256e2D3E95b9D92</i> or <i>0xc2819DC788505Aac350142A7A707BF9D03E3Bd03</i>.
 
 ----- DecodedStateDiff[9] -----
   Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/unichain.toml#L58">0xc407398d063f942feBbcC6F80a156b47F3f1BDA6</a>
