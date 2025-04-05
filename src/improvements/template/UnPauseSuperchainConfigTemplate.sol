@@ -15,16 +15,8 @@ import {
 } from "lib/optimism/packages/contracts-bedrock/interfaces/safe/IDeputyGuardianModule.sol";
 
 /// @title UnPauseSuperchainConfig
-/// @notice This template is used to set the respected game type in the OptimismPortal2 contract
-///         for a given chain or set of chains.
 contract UnPauseSuperchainConfig is L2TaskBase {
     using stdToml for string;
-
-    // /// @notice Struct representing configuration for the task.
-    // struct SetRespectedGameTypeTaskConfig {
-    //     uint256 chainId;
-    //     GameType gameType;
-    // }
 
     // /// @notice Mapping of chain ID to configuration for the task.
     //
@@ -54,8 +46,8 @@ contract UnPauseSuperchainConfig is L2TaskBase {
         assertEq(sc.paused(), true, "ERR100: SuperchainConfig should be paused, to be unpaused.");
         dgm.unpause(); // Unpause the SuperchainConfig contract through the DeputyGuardianModule.
     }
-    /// @notice This method performs all validations and assertions that verify the calls executed as expected.
 
+    /// @notice This method performs all validations and assertions that verify the calls executed as expected.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
         // Validate that the SuperchainConfig contract is unpaused.
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
