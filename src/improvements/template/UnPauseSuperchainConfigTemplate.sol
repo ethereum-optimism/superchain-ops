@@ -7,9 +7,7 @@ import {stdToml} from "forge-std/StdToml.sol";
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 
-import {
-    ISuperchainConfig
-} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/ISuperchainConfig.sol";
+import {ISuperchainConfig} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/ISuperchainConfig.sol";
 
 import {
     IDeputyGuardianModule,
@@ -29,7 +27,7 @@ contract UnPauseSuperchainConfig is L2TaskBase {
     // }
 
     // /// @notice Mapping of chain ID to configuration for the task.
- //
+    //
     /// @notice Returns the string identifier for the safe executing this transaction.
     function safeAddressString() public pure override returns (string memory) {
         return "FoundationOperationsSafe";
@@ -57,11 +55,14 @@ contract UnPauseSuperchainConfig is L2TaskBase {
         dgm.unpause(); // Unpause the SuperchainConfig contract through the DeputyGuardianModule.
     }
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
+
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
         // Validate that the SuperchainConfig contract is unpaused.
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-        ISuperchainConfig sc = ISuperchainConfig((superchainAddrRegistry.getAddress("SuperchainConfig", chains[0].chainId)));
-        IOptimismPortal2 portal2 = IOptimismPortal2(payable(superchainAddrRegistry.getAddress("OptimismPortalProxy", chains[0].chainId)));
+        ISuperchainConfig sc =
+            ISuperchainConfig((superchainAddrRegistry.getAddress("SuperchainConfig", chains[0].chainId)));
+        IOptimismPortal2 portal2 =
+            IOptimismPortal2(payable(superchainAddrRegistry.getAddress("OptimismPortalProxy", chains[0].chainId)));
         assertEq(portal2.paused(), false, "ERR101: OptimismPortal2 should be unpaused.");
         assertEq(sc.paused(), false, "ERR102: SuperchainConfig should be unpaused.");
     }

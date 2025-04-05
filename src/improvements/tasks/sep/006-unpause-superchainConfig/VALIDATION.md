@@ -16,8 +16,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 > [!CAUTION]
 > Before signing, ensure the below hashes match what is on your ledger.
 > ### Optimism Foundation
-  Domain Hash:     0xe84ad8db37faa1651b140c17c70e4c48eaa47a635e0db097ddf4ce1cc14b9ecb
-  Message Hash:    0x7568016a89da160340bf4ce9379793da5e0573cd09c7c5d38bca8826179e802f
+  Domain Hash:     TBD
+  Message Hash:    TBD
 
 
 ## State Overrides
@@ -39,6 +39,13 @@ Enables the simulation by setting the threshold to 1:
   **Value:** `0x0000000000000000000000000000000000000000000000000000000000000001`<br/>
   **Meaning:** Override the nonce with the value of the current nonce of the safe. This is not required by this is present in the current version of the superchain for now and would be fixed in the future upgrade.
 
+### `0xC2Be75506d5724086DEB7245bd260Cc9753911Be` (SuperchainConfig)
+Pause the SuperchainConfig by setting the paused slot to `1` that is `true`:
+- **Key:** `0x54176ff9944c4784e5857ec4e5ef560a462c483bf534eda43f91bb01a470b1b6` <br/>
+  **Value:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+
+  **Meaning:** Override the pause bit of the SuperchainConfig by setting the *paused slot* to `1` that is equal to `true`. Since we need to unpause the superchain that is already paused.
+
 ## State Changes
 
 ### `0x837DE453AD5F21E89771e3c06239d8236c0EFd5E` (The Optimism Foundation Operations Safe)
@@ -53,11 +60,8 @@ State changes:
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`<br/>
   **After:**  `0x0000000000000000000000000000000000000000000000000000000000000002`<br/>
   **Meaning:** The Safe nonce is updated.
-- **Key:** `0xd7fc5947853ef89905479c05a14a6f31b6840377e20c6a80d49f7b7b9bb18c44` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
-  **After:**  `0x0000000000000000000000000000000000000000000000000000000000000001`<br/>
-  **Meaning**: Add the [DeputyPauseModule](https://sepolia.etherscan.io/address/0x62f3972c56733aB078F0764d2414DfCaa99d574c#code) `0x62f3972c56733aB078F0764d2414DfCaa99d574c` by *closing* the linked list by the `SENTINEL_MODULES` (0x1). Thus `0x62f3972c56733aB078F0764d2414DfCaa99d574c` -> `0x1`. Key can be derived from `cast index address 0x62f3972c56733aB078F0764d2414DfCaa99d574c 1`.
-- **Key:** `0xcc69885fda6bcc1a4ace058b4a62bf5e179ea78fd58a1ccd71c22cc9b688792f` <br/>
+- **Key:** `0x54176ff9944c4784e5857ec4e5ef560a462c483bf534eda43f91bb01a470b1b6` <br/>
   **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`<br/>
-  **After:**  `0x00000000000000000000000062f3972c56733aB078F0764d2414DfCaa99d574c`<br/>
-  **Meaning:** The sentinel module (`address(0x01)`) is now pointing to the `DeputyPauseModule` at [`0x62f3972c56733aB078F0764d2414DfCaa99d574c`](https://sepolia.etherscan.io/address/0x62f3972c56733aB078F0764d2414DfCaa99d574c). This is `modules[0x1]`, so the key can be derived from `cast index address 0x0000000000000000000000000000000000000001 1`.
+  **After:**  `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
+  **Meaning:** The SuperchainConfig is unpaused by setting the *paused slot* to `0` that is equal to `false`. Since we need to unpause the superchain that is already paused.
+
