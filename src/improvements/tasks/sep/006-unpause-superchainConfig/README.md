@@ -8,7 +8,8 @@ This task **unpause** the SuperchainConfig contract. This will first check if th
 If this is the SuperchainConfig is `paused` we will unpause the SuperchainConfig. 
 This task, is a single task and has to be signed by the **FondationOperationsSafe**.  
 
-<img width="1257" alt="image" src="https://github.com/user-attachments/assets/ddc9b120-5ab8-4bad-96e3-cfdcad2371ad" />
+<img width="1131" alt="image" src="https://github.com/user-attachments/assets/e9ff041e-07e1-4ae7-8cb0-de86c3e601fc" />
+
 
 ### Timing
 
