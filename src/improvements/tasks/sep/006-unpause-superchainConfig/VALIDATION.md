@@ -39,29 +39,38 @@ Enables the simulation by setting the threshold to 1:
   **Value:** `0x0000000000000000000000000000000000000000000000000000000000000001`<br/>
   **Meaning:** Override the nonce with the value of the current nonce of the safe. This is not required by this is present in the current version of the superchain for now and would be fixed in the future upgrade.
 
-### `0xC2Be75506d5724086DEB7245bd260Cc9753911Be` (SuperchainConfig)
-Pause the SuperchainConfig by setting the paused slot to `1` that is `true`:
-- **Key:** `0x54176ff9944c4784e5857ec4e5ef560a462c483bf534eda43f91bb01a470b1b6` <br/>
-  **Value:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+### `0x837de453ad5f21e89771e3c06239d8236c0efd5e (Unknown (GnosisSafe))`
 
-  **Meaning:** Override the pause bit of the SuperchainConfig by setting the *paused slot* to `1` that is equal to `true`. Since we need to unpause the superchain that is already paused.
+#### Decoded State Change: 0
+  - **Contract:**          `Unknown (GnosisSafe)`
+  - **Chain ID:**          ``
 
-## State Changes
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Decoded Kind:**      `uint256`
+  - **Before:** `1`
+  - **After:** `2`
 
-### `0x837DE453AD5F21E89771e3c06239d8236c0EFd5E` (The Optimism Foundation Operations Safe)
+- **Summary:**           nonce
+  - **Detail:**
 
-Links:
+**TODO: Insert links for this state change.**
 
-- [Etherscan](https://sepolia.etherscan.io/address/0x837DE453AD5F21E89771e3c06239d8236c0EFd5E)
+  ---
 
-State changes:
+### `0xc2be75506d5724086deb7245bd260cc9753911be (SuperchainConfig)`
 
-- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`<br/>
-  **After:**  `0x0000000000000000000000000000000000000000000000000000000000000002`<br/>
-  **Meaning:** The Safe nonce is updated.
-- **Key:** `0x54176ff9944c4784e5857ec4e5ef560a462c483bf534eda43f91bb01a470b1b6` <br/>
-  **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`<br/>
-  **After:**  `0x0000000000000000000000000000000000000000000000000000000000000000`<br/>
-  **Meaning:** The SuperchainConfig is unpaused by setting the *paused slot* to `0` that is equal to `false`. Since we need to unpause the superchain that is already paused.
+#### Decoded State Change: 1
+  - **Contract:**          `SuperchainConfig`
+  - **Chain ID:**          `1946`
+
+- **Key:**          `0x54176ff9944c4784e5857ec4e5ef560a462c483bf534eda43f91bb01a470b1b6`
+  - **Decoded Kind:**      `bool`
+  - **Before:** `true`
+  - **After:** `false`
+
+- **Summary:**           Superchain pause status changed from `true` to `false`. 
+  - **Detail:**            Unstructured storage slot for the pause status of the superchain.
+
+
+
 
