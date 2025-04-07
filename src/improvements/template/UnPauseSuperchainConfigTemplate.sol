@@ -15,7 +15,7 @@ import {
 } from "lib/optimism/packages/contracts-bedrock/interfaces/safe/IDeputyGuardianModule.sol";
 
 /// @title UnPauseSuperchainConfig
-contract UnPauseSuperchainConfig is L2TaskBase {
+contract UnPauseSuperchainConfigTemplate is L2TaskBase {
     using stdToml for string;
 
     // /// @notice Mapping of chain ID to configuration for the task.
