@@ -1,4 +1,4 @@
-# 004-opcm-upgrade-v300: Sepolia OPCM v3.0.0: op, soneium, ink
+# 005-opcm-upgrade-v300: Sepolia OPCM v3.0.0: op, soneium, ink
 
 Status: [DRAFT]()
 
