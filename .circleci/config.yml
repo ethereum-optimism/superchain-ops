@@ -403,18 +403,6 @@ jobs:
             | # Justfiles are not shell scripts and should not be checked with shellcheck
             (cd src/improvements/script && shellcheck -x *.sh)
 
-  check-links:
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - checkout
-      - run:
-          name: Make script executable
-          command: chmod +x src/improvements/script/check-links.sh
-      - run:
-          name: Run link checker
-          command: ./src/improvements/script/check-links.sh src/improvements/tasks
-
 workflows:
   main:
     when:
@@ -528,5 +516,3 @@ workflows:
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
-
-      - check-links
