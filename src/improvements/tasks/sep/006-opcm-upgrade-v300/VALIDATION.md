@@ -93,7 +93,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
   ---
   
-### `0x0fe884546476ddd290ec46318785046ef68a0ba9 (ProxyAdminOwner (GnosisSafe))`
+### `[0x0fe884546476ddd290ec46318785046ef68a0ba9]`(https://github.com/ethereum-optimism/superchain-registry/blob/fb900358ab5016de86f37a23265bd94ce927c9c0/superchain/configs/sepolia/base.toml#L46) `(ProxyAdminOwner (GnosisSafe))`
   
 #### Decoded State Change: 0
   - **Contract:**          `ProxyAdminOwner (GnosisSafe)`
@@ -135,7 +135,7 @@ OR if signer is on safe: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
 
   ---
   
-### `0x21efd066e581fa55ef105170cc04d74386a09190 (L1ERC721Bridge)`
+### `[`0x21efd066e581fa55ef105170cc04d74386a09190`](https://github.com/ethereum-optimism/superchain-registry/blob/fb900358ab5016de86f37a23265bd94ce927c9c0/superchain/configs/sepolia/base.toml#L56) `(L1ERC721Bridge)`
   
 #### Decoded State Change: 1
   - **Contract:**          `L1ERC721Bridge`
@@ -151,7 +151,7 @@ OR if signer is on safe: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
 
   ---
   
-### `0x49f53e41452c74589e85ca1677426ba426459e85 (OptimismPortal2)`
+### [`0x49f53e41452c74589e85ca1677426ba426459e85`](https://github.com/ethereum-optimism/superchain-registry/blob/fb900358ab5016de86f37a23265bd94ce927c9c0/superchain/configs/sepolia/base.toml#L59) `(OptimismPortal2)`
   
 #### Decoded State Change: 2
   - **Contract:**          `OptimismPortal2`
@@ -187,7 +187,7 @@ OR if signer is on safe: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
 
   ---
   
-### `0x709c2b8ef4a9fefc629a8a2c1af424dc5bd6ad1b (AddressManager)`
+### [`0x709c2b8ef4a9fefc629a8a2c1af424dc5bd6ad1b`](https://github.com/ethereum-optimism/superchain-registry/blob/fb900358ab5016de86f37a23265bd94ce927c9c0/superchain/configs/sepolia/base.toml#L54) `(AddressManager)`
   
 #### Decoded State Change: 3
   - **Contract:**          `AddressManager`
@@ -207,7 +207,7 @@ OR if signer is on safe: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
 
   ---
   
-### `0xd6e6dbf4f7ea0ac412fd8b65ed297e64bb7a06e1 (DisputeGameFactory)`
+### [`0xd6e6dbf4f7ea0ac412fd8b65ed297e64bb7a06e1`](https://github.com/ethereum-optimism/superchain-registry/blob/fb900358ab5016de86f37a23265bd94ce927c9c0/superchain/configs/sepolia/base.toml#L64) `(DisputeGameFactory)`
   
 #### Decoded State Change: 4
   - **Contract:**          `DisputeGameFactory`
@@ -243,7 +243,7 @@ OR if signer is on safe: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
 
   ---
   
-### `0xf272670eb55e895584501d564afeb048bed26194 (SystemConfig)`
+### [`0xf272670eb55e895584501d564afeb048bed26194`](https://github.com/ethereum-optimism/superchain-registry/blob/fb900358ab5016de86f37a23265bd94ce927c9c0/superchain/configs/sepolia/base.toml#L60) `(SystemConfig)`
   
 #### Decoded State Change: 6
   - **Contract:**          `SystemConfig`
@@ -259,7 +259,7 @@ OR if signer is on safe: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
 
   ---
   
-### `0xfd0bf71f60660e2f608ed56e1659c450eb113120 (L1StandardBridge)`
+### [`0xfd0bf71f60660e2f608ed56e1659c450eb113120`](https://github.com/ethereum-optimism/superchain-registry/blob/fb900358ab5016de86f37a23265bd94ce927c9c0/superchain/configs/sepolia/base.toml#L57) `(L1StandardBridge)`
   
 #### Decoded State Change: 7
   - **Contract:**          `L1StandardBridge`
