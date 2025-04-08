@@ -101,13 +101,37 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:**      `uint256`
-  - **Before:** `20`
-  - **After:** `21`
+  - **Before:** `TODO`
+  - **After:** `TODO`
   
-- **Summary:**           nonce
-  - **Detail:**            
+- **Summary:**     Nonce update
+  - **Detail:**    Nonce update for the parent multisig.        
+
+#### Decoded State Change: 0 (a) (This state diff is only shown in Tenderly)
+  - **Contract:**          `ProxyAdminOwner (GnosisSafe)`
+  - **Chain ID:**          `84532`
   
-**TODO: Insert links for this state change.**
+If signer is on safe: `0x6AF0674791925f767060Dd52f7fB20984E8639d8`:
+- **Key:**          `0xe106d26ac9e4f09d68a63c012aa21a9c70e11e1a73a3af0e56b6ac82e85107b7`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+- **Summary:**  `approveHash(bytes32)` called on ProxyAdminOwner by child multisig.
+  - **Detail:**  As part of the Tenderly simulation, we want to illustrate the <i>approveHash</i> invocation. This step isn't shown in the local simulation because the parent multisig is invoked directly, bypassing the <i>approveHash</i> calls. This slot change reflects an update to the approvedHashes mapping.
+  Specifically, this simulation was ran as the nested safe `0x6AF0674791925f767060Dd52f7fB20984E8639d8`. To verify the slot yourself, run:
+   - `res=$(cast index address 0x6AF0674791925f767060Dd52f7fB20984E8639d8 8)`
+   - `cast index bytes32 0x08731a4fb5cd8d45ad7b7fb473337694e0ee9f6fa5a25c3f43da991c387e0ecd $res`
+   - Please note: the `0x08731a4fb5cd8d45ad7b7fb473337694e0ee9f6fa5a25c3f43da991c387e0ecd` value is taken from the tenderly simulation and this is the transaction hash of the `approveHash` call.
+  
+OR if signer is on safe: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
+- **Key:**          `0x22054c07d38b900c25edfae39905682bba022fb95e948df1f9da3b426b385e40`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+- **Summary:**  `approveHash(bytes32)` called on ProxyAdminOwner by child multisig.
+  - **Detail:**  As part of the Tenderly simulation, we want to illustrate the <i>approveHash</i> invocation. This step isn't shown in the local simulation because the parent multisig is invoked directly, bypassing the <i>approveHash</i> calls. This slot change reflects an update to the approvedHashes mapping.
+  Specifically, this simulation was ran as the nested safe `0x646132A1667ca7aD00d36616AFBA1A28116C770A`. To verify the slot yourself, run:
+   - `res=$(cast index address 0x646132A1667ca7aD00d36616AFBA1A28116C770A 8)`
+   - `cast index bytes32 0x08731a4fb5cd8d45ad7b7fb473337694e0ee9f6fa5a25c3f43da991c387e0ecd $res`
+   - Please note: the `0x08731a4fb5cd8d45ad7b7fb473337694e0ee9f6fa5a25c3f43da991c387e0ecd` value is taken from the tenderly simulation and this is the transaction hash of the `approveHash` call.
 
   ---
   
@@ -120,12 +144,10 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:**      `address`
   - **Before:** `0x276d3730f219f7ec22274f7263180b8452B46d47`
-  - **After:** `0x7aE1d3BD877a4C5CA257404ce26BE93A02C98013`
+  - **After:** [`0x7aE1d3BD877a4C5CA257404ce26BE93A02C98013`](https://github.com/ethereum-optimism/superchain-registry/blob/fb900358ab5016de86f37a23265bd94ce927c9c0/validation/standard/standard-versions-sepolia.toml#L19)
   
 - **Summary:**           ERC-1967 implementation slot
-  - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-  
-**TODO: Insert links for this state change.**
+  - **Detail:**          Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard. L1ERC721Bridge contract for `op-contracts/v3.0.0-rc.2`.
 
   ---
   
@@ -138,12 +160,30 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:**      `address`
   - **Before:** `0x2D7e764a0D9919e16983a46595CfA81fc34fa7Cd`
-  - **After:** `0xB443Da3e07052204A02d630a8933dAc05a0d6fB4`
+  - **After:** [`0xB443Da3e07052204A02d630a8933dAc05a0d6fB4`](https://github.com/ethereum-optimism/superchain-registry/blob/fb900358ab5016de86f37a23265bd94ce927c9c0/validation/standard/standard-versions-sepolia.toml#L13)
   
 - **Summary:**           ERC-1967 implementation slot
-  - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+  - **Detail:**          Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard. OptimismPortal2 contract for `op-contracts/v3.0.0-rc.2`.
+
+  ---
+
+#### Decoded State Change: 2 (a) (This state diff is only shown in Tenderly)
+  - **Contract:**          `ProxyAdminOwner (GnosisSafe)`
+  - **Chain ID:**          `84532`
   
-**TODO: Insert links for this state change.**
+If signer is on safe: `0x6AF0674791925f767060Dd52f7fB20984E8639d8`:
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Before:** `TODO`
+  - **After:** `TODO`
+- **Summary:**  Nonce update
+  - **Detail:**  Nonce update for the child safe `0x6AF0674791925f767060Dd52f7fB20984E8639d8`.
+
+OR if signer is on safe: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Before:** `TODO`
+  - **After:** `TODO`
+- **Summary:**  Nonce update
+  - **Detail:**  Nonce update for the child safe `0x646132A1667ca7aD00d36616AFBA1A28116C770A`.
 
   ---
   
@@ -157,12 +197,13 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   - **Before:**     `0x0000000000000000000000003ea6084748ed1b2a9b5d4426181f1ad8c93f6231`
   - **After:**     `0x0000000000000000000000005d5a095665886119693f0b41d8dfee78da033e8b`
   
-- **Summary:**           
-  - **Detail:**            
-  
-[WARN] Slot was not decoded. Please manually decode and provide a summary with the detail then remove this warning.
-  
-**TODO: Insert links for this state change.**
+- **Summary:**   The name `OVM_L1CrossDomainMessenger` is set to the address of the new 'op-contracts/v3.0.0-rc.2' L1CrossDomainMessenger at [0x5d5a095665886119693f0b41d8dfee78da033e8b](https://github.com/ethereum-optimism/superchain-registry/blob/fb900358ab5016de86f37a23265bd94ce927c9c0/validation/standard/standard-versions-sepolia.toml#L18).
+  - **Detail:**  This key is complicated to compute, so instead we attest to correctness of the key by verifying that the "Before" value currently exists in that slot, as explained below.
+    **Before** address matches both of the following cast calls:
+      1. What is returned by calling `AddressManager.getAddress()`:
+        - `cast call 0x709c2B8ef4A9feFc629A8a2C1AF424Dc5BD6ad1B 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url sepolia`
+      2. What is currently stored at the key:
+        - `cast storage 0x709c2B8ef4A9feFc629A8a2C1AF424Dc5BD6ad1B 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url sepolia`
 
   ---
   
@@ -176,13 +217,13 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   - **Before:**     `0x000000000000000000000000d53394d4f67653074acf0b264954fe5e4f72d24f`
   - **After:**     `0x0000000000000000000000006f67e57c143321e266bac32a0d9d22d88ce1b3e5`
   
-- **Summary:**           
-  - **Detail:**            
-  
-[WARN] Slot was not decoded. Please manually decode and provide a summary with the detail then remove this warning.
-  
-**TODO: Insert links for this state change.**
-
+- **Summary:**     Updates the implementation for game type 1.
+  - **Detail:**    This is gameImpls[1] -> `0x6f67e57c143321e266bac32a0d9d22d88ce1b3e5`. The [`gameImpls` mapping](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is at [storage slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41) and is keyed by [`GameType` (`uint32`)](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224).
+  - Confirm the expected key slot with the following:
+    ``` shell
+    cast index uint32 1 101
+    0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e
+    ```
   
 #### Decoded State Change: 5
   - **Contract:**          `DisputeGameFactory`
@@ -192,12 +233,13 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   - **Before:**     `0x000000000000000000000000861eb6dfe0fde8c8a63e8606fa487ee870f65e72`
   - **After:**     `0x000000000000000000000000340c1364d299ed55b193d4efcecbad8c3fb104c4`
   
-- **Summary:**           
-  - **Detail:**            
-  
-[WARN] Slot was not decoded. Please manually decode and provide a summary with the detail then remove this warning.
-  
-**TODO: Insert links for this state change.**
+- **Summary:**  Updates the implementation for game type 0.         
+  - **Detail:**  This is gameImpls[0] -> `0x340c1364d299ed55b193d4efcecbad8c3fb104c4`. The [`gameImpls` mapping](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is at [storage slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41) and is keyed by [`GameType` (`uint32`)](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224).
+  - Confirm the expected key slot with the following:
+    ``` shell
+    cast index uint32 0 101
+    0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b
+    ```
 
   ---
   
@@ -210,12 +252,10 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:**      `address`
   - **Before:** `0x760C48C62A85045A6B69f07F4a9f22868659CbCc`
-  - **After:** `0x340f923E5c7cbB2171146f64169EC9d5a9FfE647`
+  - **After:** [`0x340f923E5c7cbB2171146f64169EC9d5a9FfE647`](https://github.com/ethereum-optimism/superchain-registry/blob/fb900358ab5016de86f37a23265bd94ce927c9c0/validation/standard/standard-versions-sepolia.toml#L9)
   
 - **Summary:**           ERC-1967 implementation slot
-  - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-  
-**TODO: Insert links for this state change.**
+  - **Detail:**          Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard. SystemConfig contract for `op-contracts/v3.0.0-rc.2`.
 
   ---
   
@@ -228,11 +268,16 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:**      `address`
   - **Before:** `0x78972E88Ab8BBB517a36cAea23b931BAB58AD3c6`
-  - **After:** `0x0b09ba359A106C9ea3b181CBc5F394570c7d2a7A`
+  - **After:** [`0x0b09ba359A106C9ea3b181CBc5F394570c7d2a7A`](https://github.com/ethereum-optimism/superchain-registry/blob/fb900358ab5016de86f37a23265bd94ce927c9c0/validation/standard/standard-versions-sepolia.toml#L20)
   
 - **Summary:**           ERC-1967 implementation slot
-  - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-  
-**TODO: Insert links for this state change.**
+  - **Detail:**          Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard. L1StandardBridge contract for `op-contracts/v3.0.0-rc.2`.
 
-# Supplementary Material
+
+### Nonce increments
+
+The only other state change are three nonce increments:
+
+- `0x340c1364D299ED55B193d4eFcecBAD8c3Fb104c4` - Permissionless GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
+- `0x6F67E57C143321e266bac32A0D9D22d88cE1b3e5` - Permissioned GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
+- `<sender-address> e.g. 0x7f10098BD53519c739cA8A404afE127647D94774` - Sender address of the Tenderly transaction (Your ledger or first owner on the nested safe).
