@@ -17,3 +17,17 @@ StandardValidatorV300 = "0x19f205b33f5637bfa584074ed040bc43eadc8586" # https://g
 # The get-safe.sh script will extract these addresses when signing for each owner fo the safe.
 ChildSafe1 = "0x6AF0674791925f767060Dd52f7fB20984E8639d8" # First owner on the proxy admin owner (i.e. child-safe-1)
 ChildSafe2 = "0x646132A1667ca7aD00d36616AFBA1A28116C770A" # Second owner on the proxy admin owner (i.e. child-safe-2)
+
+[stateOverrides]
+# Base Sepolia ProxyAdminOwner: https://github.com/ethereum-optimism/superchain-registry/blob/fb900358ab5016de86f37a23265bd94ce927c9c0/superchain/configs/sepolia/base.toml#L46
+0x0fe884546476dDd290eC46318785046ef68a0BA9 = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = "0x0000000000000000000000000000000000000000000000000000000000000014"}
+]
+# First owner on the proxy admin owner (i.e. child-safe-1)
+0x6AF0674791925f767060Dd52f7fB20984E8639d8 = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = "0x0000000000000000000000000000000000000000000000000000000000000002"}
+]
+# Second owner on the proxy admin owner (i.e. child-safe-2)
+0x646132A1667ca7aD00d36616AFBA1A28116C770A = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = "0x0000000000000000000000000000000000000000000000000000000000000002"}
+]

@@ -20,13 +20,13 @@ the values printed to the terminal when you run the task.
 >
 > ### Nested Safe 1: `0x6AF0674791925f767060Dd52f7fB20984E8639d8` 
 >
-> - Domain Hash: ``
-> - Message Hash: ``
+> - Domain Hash: `0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa`
+> - Message Hash: `0xbe0ac96269061e1431408a7eae3b3a4fef23875b1bcb2150d1c267055ec67887`
 >
 > ### Nested Safe 2: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`
 >
-> - Domain Hash: ``
-> - Message Hash: ``
+> - Domain Hash: `0x1d3f2566fd7b1bf017258b03d4d4d435d326d9cb051d5b7993d7c65e7ec78d0e`
+> - Message Hash: `0xbe0ac96269061e1431408a7eae3b3a4fef23875b1bcb2150d1c267055ec67887`
 
 ## Understanding Task Calldata
 
