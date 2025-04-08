@@ -1,6 +1,6 @@
 # Deputy Guardian - Enable Permissioness Dispute Game
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xe5b2f3851d02e90a1ed9f6730c71d80a072ed5a340229ce39558eb5febf21f2a)
 
 ## Objective
 
