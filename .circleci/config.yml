@@ -25,25 +25,6 @@ parameters:
     default: 5
 
 commands:
-  simulate:
-    description: "Runs simulations of a task"
-    parameters:
-      task:
-        type: string
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: "simulate << parameters.task >>"
-          environment:
-            FOUNDRY_PROFILE: ci
-          command: |
-            just install
-            cd tasks/<< parameters.task >>
-            SIMULATE_WITHOUT_LEDGER=true just \
-              --dotenv-path $(pwd)/.env \
-              --justfile ../../../single.just \
-              simulate
-
   notify-failures-on-develop:
     description: "Notify Slack"
     parameters:
@@ -265,6 +246,54 @@ jobs:
               --justfile ../../../nested.just \
               simulate council
 
+  # TODO: Remove this job once we have stacked simulations for non-terminal tasks implemented.
+  just_simulate_nested_improvements:
+    circleci_ip_ranges: true
+    description: "Runs simulations of a nested task (new superchain-ops improvements)"
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    parameters:
+      task:
+        type: string
+      signer:
+        type: string
+    steps:
+      - utils/checkout-with-mise
+      - run:
+          name: "simulate nested << parameters.task >>"
+          environment:
+            FOUNDRY_PROFILE: ci
+          command: |
+            just install
+            cd src/improvements/tasks/<< parameters.task >>
+            SIMULATE_WITHOUT_LEDGER=true just \
+              --dotenv-path $(pwd)/.env \
+              --justfile ../../../nested.just \
+              simulate << parameters.signer >>
+
+  # TODO: Remove this job once we have stacked simulations for non-terminal tasks implemented.
+  just_simulate_single_improvements:
+    circleci_ip_ranges: true
+    description: "Runs simulations of a single task (new superchain-ops improvements)"
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    parameters:
+      task:
+        type: string
+    steps:
+      - utils/checkout-with-mise
+      - run:
+          name: "simulate single << parameters.task >>"
+          environment:
+            FOUNDRY_PROFILE: ci
+          command: |
+            just install
+            cd src/improvements/tasks/<< parameters.task >>
+            SIMULATE_WITHOUT_LEDGER=true just \
+              --dotenv-path $(pwd)/.env \
+              --justfile ../../../single.just \
+              simulate
+
   just_simulate_op_sep_prestate_update:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -327,25 +356,6 @@ jobs:
             forge --version
             forge test -vvv
 
-  monorepo_integration_test:
-    circleci_ip_ranges: true
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    environment:
-      FOUNDRY_PROFILE: ci
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: monorepo integration tests
-          command: |
-            (cd src/improvements && just monorepo-integration-test)
-      - notify-failures-on-develop:
-          mentions: "@security-team"
-      - run:
-          name: Print failed test traces
-          command: (cd src/improvements && just monorepo-integration-test rerun)
-          when: on_fail
-
   template_regression_tests:
     circleci_ip_ranges: true
     docker:
@@ -358,6 +368,17 @@ jobs:
           name: Make sure all templates can be simulated.
           command: |
             (cd src/improvements && just simulate-all-templates)
+
+  just_new_recipe_tests:
+    circleci_ip_ranges: true
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - utils/checkout-with-mise
+      - run:
+          name: just new recipe tests
+          command: |
+            (cd src/improvements && bash script/test-just-new.sh)
 
   print_versions:
     docker:
@@ -403,14 +424,8 @@ workflows:
       - forge_test:
           context:
             - circleci-repo-readonly-authenticated-github-token
-      # This is a long running job, so we only run it on the main branch.
-      - monorepo_integration_test:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-          filters:
-            branches:
-              only: main
       - template_regression_tests
+      - just_new_recipe_tests
       - shellcheck:
           context:
             - circleci-repo-readonly-authenticated-github-token
@@ -450,6 +465,35 @@ workflows:
       # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
       # - just_simulate_sc_rehearsal_1
 
+      # U13 Mainnet Unichain Upgrade - Child-Safe-1
+      - just_simulate_nested_improvements:
+          name: "simulate nested eth/002-opcm-upgrade-v200 child-safe-1"
+          task: "/eth/002-opcm-upgrade-v200"
+          signer: "child-safe-1"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
+      # U13 Mainnet Unichain Upgrade - Child-Safe-2
+      - just_simulate_nested_improvements:
+          name: "simulate nested eth/002-opcm-upgrade-v200 child-safe-2"
+          task: "/eth/002-opcm-upgrade-v200"
+          signer: "child-safe-2"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
+      # U13 Mainnet Unichain Upgrade - Child-Safe-3
+      - just_simulate_nested_improvements:
+          name: "simulate nested eth/002-opcm-upgrade-v200 child-safe-3"
+          task: "/eth/002-opcm-upgrade-v200"
+          signer: "child-safe-3"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
+      - just_simulate_nested:
+          task: "/eth/zora-002-fp-upgrade"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
       - just_simulate_sc_rehearsal_2:
           context:
             - circleci-repo-readonly-authenticated-github-token
@@ -460,7 +504,7 @@ workflows:
       - simulate_sequence:
           name: simulate_sequence_eth
           network: "eth"
-          tasks: ""
+          tasks: "zora-002"
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
@@ -468,7 +512,7 @@ workflows:
       - simulate_sequence:
           name: simulate_sequence_sep
           network: "sep"
-          tasks: ""
+          tasks: "ink-003 ink-004"
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token

@@ -48,7 +48,7 @@ contract NestedMultisigTaskTest is Test {
         multisigTask = new DisputeGameUpgradeTemplate();
         string memory configFilePath = createTempTomlFile(taskConfigToml);
         (accountAccesses, actions) = multisigTask.signFromChildMultisig(configFilePath, childMultisig);
-        vm.removeFile(configFilePath);
+        removeFile(configFilePath);
         addrRegistry = multisigTask.addrRegistry();
         superchainAddrRegistry = SuperchainAddressRegistry(AddressRegistry.unwrap(addrRegistry));
     }
@@ -221,7 +221,7 @@ contract NestedMultisigTaskTest is Test {
             multisigTask = new DisputeGameUpgradeTemplate();
             string memory configFilePath = createTempTomlFile(taskConfigToml);
             multisigTask.approveFromChildMultisig(configFilePath, childMultisig, packedSignaturesChild);
-            vm.removeFile(configFilePath);
+            removeFile(configFilePath);
         }
 
         // execute the task
@@ -232,7 +232,7 @@ contract NestedMultisigTaskTest is Test {
 
         string memory config = createTempTomlFile(taskConfigToml);
         (accountAccesses, actions) = multisigTask.signFromChildMultisig(config, SECURITY_COUNCIL_CHILD_MULTISIG);
-        vm.removeFile(config);
+        removeFile(config);
 
         // Check that the implementation is upgraded correctly
         assertEq(
@@ -248,7 +248,7 @@ contract NestedMultisigTaskTest is Test {
         vm.revertToState(newSnapshot);
         string memory taskConfigFilePath = createTempTomlFile(taskConfigToml);
         multisigTask.executeRun(taskConfigFilePath, prepareSignatures(parentMultisig, taskHash));
-        vm.removeFile(taskConfigFilePath);
+        removeFile(taskConfigFilePath);
         addrRegistry = multisigTask.addrRegistry();
 
         // Check that the implementation is upgraded correctly for a second time
@@ -259,11 +259,13 @@ contract NestedMultisigTaskTest is Test {
         );
     }
 
-    /// @notice Test that the data to sign generated in simulateRun for the child multisigs
-    /// is correct for OPCMBaseTask. This test uses the OPCMUpgradeV200 template as a way to test OPCMBaseTask.
+    /// @notice Test that the 'data to sign' generated in simulateRun for the child multisigs
+    /// is correct for OPCMTaskBase. This test uses the OPCMUpgradeV200 template as a way to test OPCMTaskBase.
     function testNestedExecuteWithSignaturesOPCM() public {
-        address foundationChildMultisig = 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B; // sepolia
-        vm.createSelectFork("sepolia");
+        address foundationChildMultisig = 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B;
+        // In block 7972617, an upgrade occurred at: https://sepolia.etherscan.io/tx/0x12b76ef5c31145a3bf6bb71b9c3c7ddd3cd7f182011187353e3ceb1830891fb7
+        // Which meant this test failed. We're forking at the block before to continue to test this.
+        vm.createSelectFork("sepolia", 7972616);
         uint256 snapshotId = vm.snapshotState();
         multisigTask = new OPCMUpgradeV200();
         string memory opcmTaskConfigFilePath = "test/tasks/example/sep/002-opcm-upgrade-v200/config.toml";
@@ -414,5 +416,11 @@ contract NestedMultisigTaskTest is Test {
         string memory fileName = string.concat(randomBytes, ".toml");
         vm.writeFile(fileName, tomlContent);
         return fileName;
+    }
+
+    /// @notice This function is used to remove a file. The reason we use a try catch
+    /// is because sometimes the file may not exist and this leads to flaky tests.
+    function removeFile(string memory fileName) internal {
+        try vm.removeFile(fileName) {} catch {}
     }
 }

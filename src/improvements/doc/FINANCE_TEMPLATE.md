@@ -47,4 +47,4 @@ operations = [
 "USER1" = "0x0000000000000000000000000000000000000001"
 ```
 
-An example finance template can be found [here](../../../test/tasks/mock/configs/TestFinanceTemplate.toml).
+An example finance template can be found [here](../template/FinanceTemplate.sol).

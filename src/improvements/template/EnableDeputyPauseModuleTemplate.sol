@@ -7,13 +7,12 @@ import {VmSafe} from "forge-std/Vm.sol";
 
 import "forge-std/Test.sol";
 
-import {SimpleBase} from "src/improvements/tasks/MultisigTask.sol";
+import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
 import {ModuleManager} from "lib/safe-contracts/contracts/base/ModuleManager.sol";
-import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
 /// @notice Template contract for enabling the DeputyPauseModule in a Gnosis Safe
-contract EnableDeputyPauseModuleTemplate is SimpleBase {
+contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
     using AccountAccessParser for *;
     using stdStorage for StdStorage;
 
@@ -21,7 +20,7 @@ contract EnableDeputyPauseModuleTemplate is SimpleBase {
     address public newModule;
 
     /// @notice Constant safe address string identifier
-    string constant _SAFE_ADDRESS = "FoundationOperationSafe";
+    string constant _SAFE_ADDRESS = "FoundationOperationsSafe";
 
     /// @notice Gnosis Safe Sentinel Module address
     address internal constant SENTINEL_MODULE = address(0x1);

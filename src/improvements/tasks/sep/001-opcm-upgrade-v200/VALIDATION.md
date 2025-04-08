@@ -18,10 +18,15 @@ the values printed to the terminal when you run the task.
 >
 > Before signing, ensure the below hashes match what is on your ledger.
 >
-> ### Single Safe Signer Data
+> ### Child Safe 1: `0x6AF0674791925f767060Dd52f7fB20984E8639d8`
 >
-> - Domain Hash: `093de3a8d475125e0192f7319bbc60840b1f6b5f5afd17e837647b1f25a66471`
-> - Message Hash: `ca8f3ea7b737bc6ef03dbcf41c853a483767e8c0788ea3274314743325161f37`
+> - Domain Hash: `0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa`
+> - Message Hash: `0xbdd593a729dadfa12c86ebac23914145d1ae0418ef1909ffecf78882d6720212`
+>
+> ### Child Safe 2: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`
+>
+> - Domain Hash: `0x1d3f2566fd7b1bf017258b03d4d4d435d326d9cb051d5b7993d7c65e7ec78d0e`
+> - Message Hash: `0xbdd593a729dadfa12c86ebac23914145d1ae0418ef1909ffecf78882d6720212`
 
 
 ## Understanding Task Calldata
@@ -93,7 +98,6 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000000
     Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
     Raw New Value:     0x00000000000000000000c2be75506d5724086deb7245bd260cc9753911be0001
-    [WARN] Slot was not decoded
 
     Summary:           Slot 0 is updated to set AnchorStateRegistryProxy address
     Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
@@ -110,7 +114,6 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000001
     Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
     Raw New Value:     0x000000000000000000000000d6e6dbf4f7ea0ac412fd8b65ed297e64bb7a06e1
-    [WARN] Slot was not decoded
 
     Summary:           Slot 1 is updated to set DisputeGameFactoryProxy address
     Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
@@ -125,7 +128,6 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000002
     Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
     Raw New Value:     0x00000000000000000000000049f53e41452c74589e85ca1677426ba426459e85
-    [WARN] Slot was not decoded
 
     Summary:           Slot 2 is updated to set OptimismPortalProxy address
     Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
@@ -140,7 +142,6 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
     Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
     Raw New Value:     0xf85525bc28e0bf794d649c44802171dfd0a390a77a767614c092d468aae11627
-    [WARN] Slot was not decoded
 
     Summary:           Slot 4 updates the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44">'root'</a> for the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L42">startingAnchorRoot</a>
     Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
@@ -155,7 +156,6 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
     Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
     Raw New Value:     0x0000000000000000000000000000000000000000000000000000000001602fda
-    [WARN] Slot was not decoded
 
     Summary:           Slot 5 updates the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44">'l2BlockNumber'</a> for the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L42">startingAnchorRoot</a>
     Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
@@ -204,14 +204,36 @@ For each contract listed in the state diff, please verify that no contracts or s
     Chain ID:          84532
 
     Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
-    Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000011
-    Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000000012
+    Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000013
+    Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000000014
 
     Decoded Kind:      uint256
-    Decoded Old Value: 17
-    Decoded New Value: 18
+    Decoded Old Value: 19
+    Decoded New Value: 20
     Summary:           nonce
     Detail:            The nonce of the ProxyAdminOwner contract is updated.
+
+  ----- TENDERLY ONLY STATE DIFF -----
+    Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/2c60e5723c64b5a1b58ab72c5d3816927ff9391a/superchain/configs/sepolia/base.toml#L45">0x0fe884546476dDd290eC46318785046ef68a0BA9</a>
+    Contract:          ProxyAdminOwner (GnosisSafe) - Base Sepolia Testnet
+    Chain ID:          84532
+
+    Raw Slot:          0xb2df5133396593aefbb95e79ed4c7e08db38321b253690a5d0afe88cd55aea1c
+    Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+    Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000000001
+
+    Summary:           <i>approveHash(bytes32)</i> called on ProxyAdminOwner by child multisig.
+    Detail:            As part of the Tenderly simulation, we want to illustrate the <i>approveHash</i> invocation.
+                       This step isn't shown in the local simulation because the parent
+                       multisig is invoked directly, bypassing the <i>approveHash</i> calls.
+                       This slot change reflects an update to the approvedHashes mapping.
+                       Specifically, this simulation was ran as the nested safe `0x646132A1667ca7aD00d36616AFBA1A28116C770A`.
+                        - <i>res=$(cast index address 0x646132A1667ca7aD00d36616AFBA1A28116C770A 8)</i>
+                        - <i>cast index bytes32 0x299045e8050d66c48af7217d72265e91cfea17d4af1d4a70469e26d82119d399 $res</i>
+                       Alternatively, the 'Raw Slot' value can be different if we run as `0x6AF0674791925f767060Dd52f7fB20984E8639d8`:
+                        - <i>res=$(cast index address 0x6AF0674791925f767060Dd52f7fB20984E8639d8 8)</i>
+                        - <i>cast index bytes32 0x299045e8050d66c48af7217d72265e91cfea17d4af1d4a70469e26d82119d399 $res</i>
+                        - Alternative 'Raw Slot': <i>0x5049591daa2bf73a8b81cc9e1e4d1278ca63f29fe97356d1e7e4bafa181454b1</i>
 
   ----- DecodedStateDiff[8] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/2c60e5723c64b5a1b58ab72c5d3816927ff9391a/superchain/configs/sepolia/base.toml#L55">0x21eFD066e581FA55Ef105170Cc04d74386a09190</a>
@@ -283,6 +305,22 @@ For each contract listed in the state diff, please verify that no contracts or s
     Summary:           ERC-1967 implementation slot
     Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
 
+  ----- TENDERLY ONLY STATE DIFF -----
+    Who:               0x6AF0674791925f767060Dd52f7fB20984E8639d8 or 0x646132A1667ca7aD00d36616AFBA1A28116C770A
+    Contract:          Child Safe 1 - Base Sepolia Testnet
+    Chain ID:          84532
+
+    Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
+    Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
+    Raw New Value:     0x0000000000000000000000000000000000000000000000000000000000000001
+
+    Decoded Kind:      uint256
+    Decoded Old Value: 0
+    Decoded New Value: 1
+    Summary:           nonce
+    Detail:            The nonce of the Child Safe 1 contract is updated.
+                       Alternatively, the 'Raw Old Value' and 'Raw New Value' value can be different if we run as `0x646132A1667ca7aD00d36616AFBA1A28116C770A`.
+
   ----- DecodedStateDiff[12] -----
     Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/2c60e5723c64b5a1b58ab72c5d3816927ff9391a/superchain/configs/sepolia/base.toml#L53">0x709c2B8ef4A9feFc629A8a2C1AF424Dc5BD6ad1B</a>
     Contract:          AddressManager - Base Sepolia Testnet
@@ -291,7 +329,6 @@ For each contract listed in the state diff, please verify that no contracts or s
     Raw Slot:          0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e
     Raw Old Value:     0x000000000000000000000000d3494713a5cfad3f5359379dfa074e2ac8c6fd65
     Raw New Value:     0x0000000000000000000000003ea6084748ed1b2a9b5d4426181f1ad8c93f6231
-    [WARN] Slot was not decoded
 
     Summary:           The name `OVM_L1CrossDomainMessenger` is set to the address of the new 'op-contracts/v2.0.0-rc.1' L1CrossDomainMessenger at <a href="https://github.com/ethereum-optimism/superchain-registry/blob/84bce73573f130008d84bae6e924163bab589a11/validation/standard/standard-versions-sepolia.toml#L36">0x3eA6084748ED1b2A9B5D4426181F1ad8C93F6231</a>.
     Detail:            This key is complicated to compute, so instead we attest to correctness of the key by
@@ -340,12 +377,11 @@ For each contract listed in the state diff, please verify that no contracts or s
     Chain ID:          84532
 
     Raw Slot:          0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e
-    Raw Old Value:     0x000000000000000000000000cca6a4916fa6de5d671cc77760a3b10b012cca16
-    Raw New Value:     0x000000000000000000000000f1c3c054380f6e8345099650a9cc532bb4809868
-    [WARN] Slot was not decoded
+    Raw Old Value:     0x00000000000000000000000058d465e2e31b811fdbbe5461627a0a88c3c1be2f
+    Raw New Value:     0x000000000000000000000000d53394d4f67653074acf0b264954fe5e4f72d24f
 
     Summary:           Update Permissioned GameType implementation.
-    Detail:            This is gameImpls[1] -> 0xF1c3C054380F6E8345099650A9cc532bb4809868
+    Detail:            This is gameImpls[1] -> 0x58d465e2e31b811fdbbe5461627a0a88c3c1be2f
                        Verify that the old implementation is set in this slot using:
                         - <i>cast call 0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1 "gameImpls(uint32)(address)" 1 --rpc-url sepolia</i>
                         - <i>cast storage 0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1 0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e --rpc-url sepolia</i>
@@ -357,12 +393,11 @@ For each contract listed in the state diff, please verify that no contracts or s
     Contract:          DisputeGameFactory
     Chain ID:          84532
     Raw Slot:          0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b
-    Raw Old Value:     0x0000000000000000000000009cd8b02e84df3ef61db3b34123206568490cb279
-    Raw New Value:     0x0000000000000000000000005c6a0da1775ba8193f84a1b8c6661b786e36fef6
-    [WARN] Slot was not decoded
+    Raw Old Value:     0x00000000000000000000000076d7f861bbc8cbef20bad1a3f385eb95dd22306b
+    Raw New Value:     0x000000000000000000000000861eb6dfe0fde8c8a63e8606fa487ee870f65e72
 
     Summary:           Updated CANNON GameType implementation.
-    Detail:            This is gameImpls[0] -> 0x5C6a0dA1775BA8193F84a1B8C6661b786E36FeF6 where '0' is the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28">CANNON game type</a>.
+    Detail:            This is gameImpls[0] -> 0x861EB6dFE0FDe8c8A63E8606Fa487ee870f65E72 where '0' is the <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28">CANNON game type</a>.
                        Verify that the old implementation is set in this slot using:
                         - <i>cast call 0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1 "gameImpls(uint32)(address)" 0 --rpc-url sepolia</i>
                         - <i>cast storage 0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1 0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b --rpc-url sepolia</i>
@@ -400,8 +435,13 @@ For each contract listed in the state diff, please verify that no contracts or s
     Summary:           ERC-1967 implementation slot
     Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                        L1StandardBridge contract for 'op-contracts/v2.0.0-rc.1'.
-  </code>
- </pre>
+
+  ----- TENDERLY ONLY STATE DIFF -----
+
+  Three accounts will show a nonce increment:
+  - 0x861EB6dFE0FDe8c8A63E8606Fa487ee870f65E72 (the newly created Cannon dispute game)
+  - 0xd53394d4f67653074aCf0B264954fe5E4F72D24f (the newly created Permissioned dispute game)
+  - 0x7f10098BD53519c739cA8A404afE127647D94774 (the signer of the transaction, alternatively your own address may appear here)
 
 # Supplementary Material
 

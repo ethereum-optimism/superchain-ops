@@ -97,7 +97,7 @@ contract SimpleAddressRegistryTest is Test {
         vm.chainId(1);
         SimpleAddressRegistry registry = SimpleAddressRegistry(_deployRegistry("valid_addresses.toml"));
         assertEq(registry.get("ChainGovernorSafe"), 0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC, "10");
-        assertEq(registry.get("FoundationOperationSafe"), 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A, "20");
+        assertEq(registry.get("FoundationOperationsSafe"), 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A, "20");
         assertEq(registry.get("FoundationUpgradeSafe"), 0x847B5c174615B1B7fDF770882256e2D3E95b9D92, "30");
         assertEq(registry.get("SecurityCouncil"), 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03, "40");
     }
@@ -105,25 +105,8 @@ contract SimpleAddressRegistryTest is Test {
     function test_hardcodedAddresses_sepolia() public {
         vm.createSelectFork("sepolia");
         SimpleAddressRegistry registry = SimpleAddressRegistry(_deployRegistry("valid_addresses_sepolia.toml"));
-        assertEq(registry.get("FoundationOperationSafe"), 0x837DE453AD5F21E89771e3c06239d8236c0EFd5E, "10");
+        assertEq(registry.get("FoundationOperationsSafe"), 0x837DE453AD5F21E89771e3c06239d8236c0EFd5E, "10");
         assertEq(registry.get("FoundationUpgradeSafe"), 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B, "20");
         assertEq(registry.get("SecurityCouncil"), 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977, "30");
-    }
-
-    function test_hardcodedAddresses_opMainnet() public {
-        if (!isSimpleAddressRegistry) {
-            vm.skip(true, "Skipping test for opMainnet when not a SimpleAddressRegistry");
-        }
-        vm.chainId(10);
-        SimpleAddressRegistry registry = SimpleAddressRegistry(_deployRegistry("valid_addresses.toml"));
-        // no need to create error message, as this test runs only for SimpleAddressRegistry
-        vm.expectRevert("SimpleAddressRegistry: address not found for ChainGovernorSafe");
-        registry.get("ChainGovernorSafe");
-        vm.expectRevert("SimpleAddressRegistry: address not found for FoundationOperationSafe");
-        registry.get("FoundationOperationSafe");
-        vm.expectRevert("SimpleAddressRegistry: address not found for FoundationUpgradeSafe");
-        registry.get("FoundationUpgradeSafe");
-        vm.expectRevert("SimpleAddressRegistry: address not found for SecurityCouncil");
-        registry.get("SecurityCouncil");
     }
 }

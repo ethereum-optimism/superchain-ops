@@ -9,6 +9,7 @@ import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {console} from "forge-std/console.sol";
 import {Vm} from "forge-std/Vm.sol";
+import {Utils} from "src/libraries/Utils.sol";
 
 /// @title PresignPauseFromJson
 /// @notice A script that reads a JSON file and builds a series of transactions from it. This script is
@@ -31,7 +32,7 @@ contract PresignPauseFromJson is MultisigBuilder, JsonTxBuilderBase {
         // test address as defined in presigned-pause.just. This is necessary because the presigner tool requires
         // access to the private key of the address that will sign the transaction. Therefore we must insert a test
         // address into the owners list.
-        if (vm.envOr("SIMULATE_WITHOUT_LEDGER", false) || vm.envOr("SIMULATE_WITHOUT_LEDGER", uint256(0)) == 1) {
+        if (Utils.isFeatureEnabled("SIMULATE_WITHOUT_LEDGER")) {
             console.log("Adding override for test sender");
             address safe = _ownerSafe();
             uint256 nonce = _getNonce(safe);
@@ -48,7 +49,7 @@ contract PresignPauseFromJson is MultisigBuilder, JsonTxBuilderBase {
         override
         returns (Simulation.StateOverride memory override_)
     {
-        if (vm.envOr("SIMULATE_WITHOUT_LEDGER", false) || vm.envOr("SIMULATE_WITHOUT_LEDGER", uint256(0)) == 1) {
+        if (Utils.isFeatureEnabled("SIMULATE_WITHOUT_LEDGER")) {
             override_;
         } else {
             override_ = super._safeOverrides(_safe, _owner);
