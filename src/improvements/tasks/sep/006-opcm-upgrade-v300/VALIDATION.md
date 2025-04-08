@@ -200,10 +200,10 @@ OR if signer is on safe: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
 - **Summary:**   The name `OVM_L1CrossDomainMessenger` is set to the address of the new 'op-contracts/v3.0.0-rc.2' L1CrossDomainMessenger at [0x5d5a095665886119693f0b41d8dfee78da033e8b](https://github.com/ethereum-optimism/superchain-registry/blob/fb900358ab5016de86f37a23265bd94ce927c9c0/validation/standard/standard-versions-sepolia.toml#L18).
   - **Detail:**  This key is complicated to compute, so instead we attest to correctness of the key by verifying that the "Before" value currently exists in that slot, as explained below.
   **Before** address matches both of the following cast calls:
-      1. What is returned by calling `AddressManager.getAddress()`:
-        - `cast call 0x709c2B8ef4A9feFc629A8a2C1AF424Dc5BD6ad1B 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url sepolia`
-      2. What is currently stored at the key:
-        - `cast storage 0x709c2B8ef4A9feFc629A8a2C1AF424Dc5BD6ad1B 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url sepolia`
+    1. What is returned by calling `AddressManager.getAddress()`:
+      - `cast call 0x709c2B8ef4A9feFc629A8a2C1AF424Dc5BD6ad1B 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url sepolia`
+    2. What is currently stored at the key:
+      - `cast storage 0x709c2B8ef4A9feFc629A8a2C1AF424Dc5BD6ad1B 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url sepolia`
 
   ---
   
@@ -218,7 +218,7 @@ OR if signer is on safe: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
   - **After:**     `0x0000000000000000000000006f67e57c143321e266bac32a0d9d22d88ce1b3e5`
   
 - **Summary:**     Updates the implementation for game type 1.
-  - **Detail:**    This is gameImpls[1] -> `0x6f67e57c143321e266bac32a0d9d22d88ce1b3e5`. The [`gameImpls` mapping](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is at [storage slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41) and is keyed by [`GameType` (`uint32`)](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224).
+  - **Detail:**    This is `gameImpls[1]` -> `0x6f67e57c143321e266bac32a0d9d22d88ce1b3e5`. The [`gameImpls` mapping](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is at [storage slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41) and is keyed by [`GameType` (`uint32`)](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224).
     - Confirm the expected key slot with the following:
       ``` shell
       cast index uint32 1 101
@@ -234,7 +234,7 @@ OR if signer is on safe: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
   - **After:**     `0x000000000000000000000000340c1364d299ed55b193d4efcecbad8c3fb104c4`
   
 - **Summary:**  Updates the implementation for game type 0.         
-  - **Detail:**  This is gameImpls[0] -> `0x340c1364d299ed55b193d4efcecbad8c3fb104c4`. The [`gameImpls` mapping](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is at [storage slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41) and is keyed by [`GameType` (`uint32`)](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224).
+  - **Detail:**  This is `gameImpls[0]` -> `0x340c1364d299ed55b193d4efcecbad8c3fb104c4`. The [`gameImpls` mapping](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is at [storage slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41) and is keyed by [`GameType` (`uint32`)](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224).
     - Confirm the expected key slot with the following:
       ``` shell
       cast index uint32 0 101
