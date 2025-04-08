@@ -119,8 +119,17 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
             // PDDG-ANCHORP-40: The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
             // PLDG-ANCHORP-40: The anchor state registry's permissionless root is not 0xdead000000000000000000000000000000000000000000000000000000000000
             string memory expectedErrors_11155420 = "PDDG-ANCHORP-40,PLDG-ANCHORP-40";
+   
+            // PDDG-DWETH-30: Delayed WETH owner must be l1PAOMultisig (for permissioned dispute game) - It is checking for the OP Sepolia PAO
+            // PDDG-ANCHORP-40: The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
+            string memory expectedErrors_1946 = "PDDG-DWETH-30,PDDG-ANCHORP-40,PDDG-120,PLDG-10";
 
-            require(reasons.eq(expectedErrors_11155420), string.concat("Unexpected errors: ", reasons));
+            // PDDG-DWETH-30: Delayed WETH owner must be l1PAOMultisig (for permissioned dispute game) - It is checking for the OP Sepolia PAO
+            // PDDG-ANCHORP-40: The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
+            // PLDG-ANCHORP-40: The anchor state registry's permissionless root is not 0xdead000000000000000000000000000000000000000000000000000000000000
+            string memory expectedErrors_763373 = "PDDG-DWETH-30,PDDG-ANCHORP-40,PLDG-DWETH-30,PLDG-ANCHORP-40";
+
+            require(reasons.eq(expectedErrors_11155420) || reasons.eq(expectedErrors_1946) || reasons.eq(expectedErrors_763373), string.concat("Unexpected errors: ", reasons));
         }
     }
 
