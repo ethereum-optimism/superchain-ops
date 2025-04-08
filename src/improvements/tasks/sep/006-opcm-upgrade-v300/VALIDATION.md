@@ -120,7 +120,7 @@ If signer is on safe: `0x6AF0674791925f767060Dd52f7fB20984E8639d8`:
   Specifically, this simulation was ran as the nested safe `0x6AF0674791925f767060Dd52f7fB20984E8639d8`. To verify the slot yourself, run:
     - `res=$(cast index address 0x6AF0674791925f767060Dd52f7fB20984E8639d8 8)`
     - `cast index bytes32 0x08731a4fb5cd8d45ad7b7fb473337694e0ee9f6fa5a25c3f43da991c387e0ecd $res`
-    - Please note: the `0x08731a4fb5cd8d45ad7b7fb473337694e0ee9f6fa5a25c3f43da991c387e0ecd` value is taken from the tenderly simulation and this is the transaction hash of the `approveHash` call.
+    - Please note: the `0x08731a4fb5cd8d45ad7b7fb473337694e0ee9f6fa5a25c3f43da991c387e0ecd` value is taken from the Tenderly simulation and this is the transaction hash of the `approveHash` call.
   
 OR if signer is on safe: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
 - **Key:**          `0x22054c07d38b900c25edfae39905682bba022fb95e948df1f9da3b426b385e40`
@@ -131,7 +131,7 @@ OR if signer is on safe: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
   Specifically, this simulation was ran as the nested safe `0x646132A1667ca7aD00d36616AFBA1A28116C770A`. To verify the slot yourself, run:
     - `res=$(cast index address 0x646132A1667ca7aD00d36616AFBA1A28116C770A 8)`
     - `cast index bytes32 0x08731a4fb5cd8d45ad7b7fb473337694e0ee9f6fa5a25c3f43da991c387e0ecd $res`
-    - Please note: the `0x08731a4fb5cd8d45ad7b7fb473337694e0ee9f6fa5a25c3f43da991c387e0ecd` value is taken from the tenderly simulation and this is the transaction hash of the `approveHash` call.
+    - Please note: the `0x08731a4fb5cd8d45ad7b7fb473337694e0ee9f6fa5a25c3f43da991c387e0ecd` value is taken from the Tenderly simulation and this is the transaction hash of the `approveHash` call.
 
   ---
   
@@ -201,9 +201,9 @@ OR if signer is on safe: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
   - **Detail:**  This key is complicated to compute, so instead we attest to correctness of the key by verifying that the "Before" value currently exists in that slot, as explained below.
   **Before** address matches both of the following cast calls:
     1. What is returned by calling `AddressManager.getAddress()`:
-      - `cast call 0x709c2B8ef4A9feFc629A8a2C1AF424Dc5BD6ad1B 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url sepolia`
+        - `cast call 0x709c2B8ef4A9feFc629A8a2C1AF424Dc5BD6ad1B 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url sepolia`
     2. What is currently stored at the key:
-      - `cast storage 0x709c2B8ef4A9feFc629A8a2C1AF424Dc5BD6ad1B 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url sepolia`
+        - `cast storage 0x709c2B8ef4A9feFc629A8a2C1AF424Dc5BD6ad1B 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url sepolia`
 
   ---
   
