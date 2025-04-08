@@ -91,6 +91,148 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
 ### Task State Changes
 
+  ---
+  
+### `0x0fe884546476ddd290ec46318785046ef68a0ba9 (ProxyAdminOwner (GnosisSafe))`
+  
+#### Decoded State Change: 0
+  - **Contract:**          `ProxyAdminOwner (GnosisSafe)`
+  - **Chain ID:**          `84532`
+  
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Decoded Kind:**      `uint256`
+  - **Before:** `20`
+  - **After:** `21`
+  
+- **Summary:**           nonce
+  - **Detail:**            
+  
+**TODO: Insert links for this state change.**
 
+  ---
+  
+### `0x21efd066e581fa55ef105170cc04d74386a09190 (L1ERC721Bridge)`
+  
+#### Decoded State Change: 1
+  - **Contract:**          `L1ERC721Bridge`
+  - **Chain ID:**          `84532`
+  
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:**      `address`
+  - **Before:** `0x276d3730f219f7ec22274f7263180b8452B46d47`
+  - **After:** `0x7aE1d3BD877a4C5CA257404ce26BE93A02C98013`
+  
+- **Summary:**           ERC-1967 implementation slot
+  - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+  
+**TODO: Insert links for this state change.**
+
+  ---
+  
+### `0x49f53e41452c74589e85ca1677426ba426459e85 (OptimismPortal2)`
+  
+#### Decoded State Change: 2
+  - **Contract:**          `OptimismPortal2`
+  - **Chain ID:**          `84532`
+  
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:**      `address`
+  - **Before:** `0x2D7e764a0D9919e16983a46595CfA81fc34fa7Cd`
+  - **After:** `0xB443Da3e07052204A02d630a8933dAc05a0d6fB4`
+  
+- **Summary:**           ERC-1967 implementation slot
+  - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+  
+**TODO: Insert links for this state change.**
+
+  ---
+  
+### `0x709c2b8ef4a9fefc629a8a2c1af424dc5bd6ad1b (AddressManager)`
+  
+#### Decoded State Change: 3
+  - **Contract:**          `AddressManager`
+  - **Chain ID:**          `84532`
+  
+- **Key:**          `0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e`
+  - **Before:**     `0x0000000000000000000000003ea6084748ed1b2a9b5d4426181f1ad8c93f6231`
+  - **After:**     `0x0000000000000000000000005d5a095665886119693f0b41d8dfee78da033e8b`
+  
+- **Summary:**           
+  - **Detail:**            
+  
+[WARN] Slot was not decoded. Please manually decode and provide a summary with the detail then remove this warning.
+  
+**TODO: Insert links for this state change.**
+
+  ---
+  
+### `0xd6e6dbf4f7ea0ac412fd8b65ed297e64bb7a06e1 (DisputeGameFactory)`
+  
+#### Decoded State Change: 4
+  - **Contract:**          `DisputeGameFactory`
+  - **Chain ID:**          `84532`
+  
+- **Key:**          `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
+  - **Before:**     `0x000000000000000000000000d53394d4f67653074acf0b264954fe5e4f72d24f`
+  - **After:**     `0x0000000000000000000000006f67e57c143321e266bac32a0d9d22d88ce1b3e5`
+  
+- **Summary:**           
+  - **Detail:**            
+  
+[WARN] Slot was not decoded. Please manually decode and provide a summary with the detail then remove this warning.
+  
+**TODO: Insert links for this state change.**
+
+  
+#### Decoded State Change: 5
+  - **Contract:**          `DisputeGameFactory`
+  - **Chain ID:**          `84532`
+  
+- **Key:**          `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
+  - **Before:**     `0x000000000000000000000000861eb6dfe0fde8c8a63e8606fa487ee870f65e72`
+  - **After:**     `0x000000000000000000000000340c1364d299ed55b193d4efcecbad8c3fb104c4`
+  
+- **Summary:**           
+  - **Detail:**            
+  
+[WARN] Slot was not decoded. Please manually decode and provide a summary with the detail then remove this warning.
+  
+**TODO: Insert links for this state change.**
+
+  ---
+  
+### `0xf272670eb55e895584501d564afeb048bed26194 (SystemConfig)`
+  
+#### Decoded State Change: 6
+  - **Contract:**          `SystemConfig`
+  - **Chain ID:**          `84532`
+  
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:**      `address`
+  - **Before:** `0x760C48C62A85045A6B69f07F4a9f22868659CbCc`
+  - **After:** `0x340f923E5c7cbB2171146f64169EC9d5a9FfE647`
+  
+- **Summary:**           ERC-1967 implementation slot
+  - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+  
+**TODO: Insert links for this state change.**
+
+  ---
+  
+### `0xfd0bf71f60660e2f608ed56e1659c450eb113120 (L1StandardBridge)`
+  
+#### Decoded State Change: 7
+  - **Contract:**          `L1StandardBridge`
+  - **Chain ID:**          `84532`
+  
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:**      `address`
+  - **Before:** `0x78972E88Ab8BBB517a36cAea23b931BAB58AD3c6`
+  - **After:** `0x0b09ba359A106C9ea3b181CBc5F394570c7d2a7A`
+  
+- **Summary:**           ERC-1967 implementation slot
+  - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+  
+**TODO: Insert links for this state change.**
 
 # Supplementary Material
