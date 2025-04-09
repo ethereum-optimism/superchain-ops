@@ -208,8 +208,11 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     }
 
     /// @notice Runs the task with the given configuration file path.
-    function simulateRun(string memory taskConfigFilePath, bytes memory signatures) public {
-        simulateRun(taskConfigFilePath, signatures, address(0));
+    function simulateRun(string memory taskConfigFilePath, bytes memory signatures)
+        public
+        returns (VmSafe.AccountAccess[] memory, Action[] memory)
+    {
+        return simulateRun(taskConfigFilePath, signatures, address(0));
     }
 
     /// @notice Runs the task with the given configuration file path.
