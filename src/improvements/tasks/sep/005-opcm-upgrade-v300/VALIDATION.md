@@ -90,7 +90,6 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 
 ## Nested Safe State Overrides and Changes
 
-<!--TODO(#740) - I see additional overrides to the ProxyAdminSafe not documented in NESTED-VALIDATION.md -->
 This task is executed by the nested 2/2 `ProxyAdminOwner` Safe. Refer to the
 [generic nested Safe execution validation document](../../../../../NESTED-VALIDATION.md)
 for the expected state overrides and changes.
