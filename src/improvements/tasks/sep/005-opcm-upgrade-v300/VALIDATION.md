@@ -273,13 +273,12 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **After:**     `0x0000000000000000000000005d5a095665886119693f0b41d8dfee78da033e8b`
   
 - **Summary:**  The name `OVM_L1CrossDomainMessenger` is set to the address of the new 'op-contracts/v3.0.0-rc.2' L1CrossDomainMessenger at [0x5d5a095665886119693f0b41d8dfee78da033e8b](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/validation/standard/standard-versions-sepolia.toml#L18).
-  - **Detail:** This key is complicated to compute, so instead we attest to correctness of the key by
-                     verifying that the "Before" value currently exists in that slot, as explained below.
-                     **Before** address matches both of the following cast calls:
-                      1. What is returned by calling `AddressManager.getAddress()`:
-                       - cast call 0x3454F9df5E750F1383e58c1CB001401e7A4f3197 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url sepolia
-                      2. What is currently stored at the key:
-                       - cast storage 0x3454F9df5E750F1383e58c1CB001401e7A4f3197 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url sepolia
+  - **Detail:** **THIS WAS CAREFULLY VERIFIED BY RUNBOOK REVIEWERS AND NEED NOT BE CHECKED BY SIGNERS.**
+    This key is complicated to compute, so instead we attest to correctness of the key by
+    verifying that the "Before" value currently exists in that slot, as explained below.
+    **Before** address matches the following cast call to `AddressManager.getAddress()`:
+      - `cast call 0x3454F9df5E750F1383e58c1CB001401e7A4f3197 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url sepolia`
+      - returns: `0x3eA6084748ED1b2A9B5D4426181F1ad8C93F6231`
 
   ---
   
