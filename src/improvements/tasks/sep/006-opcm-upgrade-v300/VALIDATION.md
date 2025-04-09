@@ -93,7 +93,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
   ---
   
-### `[0x0fe884546476ddd290ec46318785046ef68a0ba9]`(https://github.com/ethereum-optimism/superchain-registry/blob/fb900358ab5016de86f37a23265bd94ce927c9c0/superchain/configs/sepolia/base.toml#L46) `(ProxyAdminOwner (GnosisSafe))`
+### [`0x0fe884546476ddd290ec46318785046ef68a0ba9`](https://github.com/ethereum-optimism/superchain-registry/blob/fb900358ab5016de86f37a23265bd94ce927c9c0/superchain/configs/sepolia/base.toml#L46) `(ProxyAdminOwner (GnosisSafe))`
   
 #### Decoded State Change: 0
   - **Contract:**          `ProxyAdminOwner (GnosisSafe)`
@@ -135,7 +135,7 @@ OR if signer is on safe: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
 
   ---
   
-### `[`0x21efd066e581fa55ef105170cc04d74386a09190`](https://github.com/ethereum-optimism/superchain-registry/blob/fb900358ab5016de86f37a23265bd94ce927c9c0/superchain/configs/sepolia/base.toml#L56) `(L1ERC721Bridge)`
+### [`0x21efd066e581fa55ef105170cc04d74386a09190`](https://github.com/ethereum-optimism/superchain-registry/blob/fb900358ab5016de86f37a23265bd94ce927c9c0/superchain/configs/sepolia/base.toml#L56) `(L1ERC721Bridge)`
   
 #### Decoded State Change: 1
   - **Contract:**          `L1ERC721Bridge`
