@@ -159,8 +159,8 @@ abstract contract StateOverrideManager is CommonBase {
         return _stateOverrides;
     }
 
-    /// @notice Append user-defined overrides to existing overrides.
-    /// This function will revert if a user-defined override attempts to overwrite an existing override.
+    /// @notice Append user-defined overrides to default overrides.
+    /// This function will revert if a user-defined override is duplicated or if it attempts to overwrite an existing default override.
     function _appendUserDefinedOverrides(
         Simulation.StateOverride[] memory defaultOverrides_,
         Simulation.StateOverride memory userDefinedOverride_
