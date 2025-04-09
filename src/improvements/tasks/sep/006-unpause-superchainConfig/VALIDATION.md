@@ -16,8 +16,8 @@ For each contract listed in the state diff, please verify that no contracts or s
 > [!CAUTION]
 > Before signing, ensure the below hashes match what is on your ledger.
 > ### Optimism Foundation
-  Domain Hash:     TBD
-  Message Hash:    TBD
+  Domain Hash:     0xe84ad8db37faa1651b140c17c70e4c48eaa47a635e0db097ddf4ce1cc14b9ecb
+  Message Hash:    0x2f09801a4332cfc98a8296db2438bf174c45d1d26e9be23a918f4d2cad0a745e
 
 
 ## State Overrides
