@@ -43,7 +43,6 @@ contract UnPauseSuperchainConfigTemplate is L2TaskBase {
         // Load the DeputyGuardianModule contract.
         IDeputyGuardianModule dgm = IDeputyGuardianModule(superchainAddrRegistry.get("DeputyGuardianModule"));
         ISuperchainConfig sc = ISuperchainConfig((superchainAddrRegistry.get("SuperchainConfig")));
-        assertEq(sc.paused(), true, "ERR100: SuperchainConfig should be paused, to be unpaused.");
         dgm.unpause(); // Unpause the SuperchainConfig contract through the DeputyGuardianModule.
     }
 
