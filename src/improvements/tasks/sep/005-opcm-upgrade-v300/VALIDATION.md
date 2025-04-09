@@ -122,7 +122,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
   ---
   
-### `[0x034edd2a225f7f429a63e0f1d2084b9e0a93b538](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/sepolia/op.toml#L5) (SystemConfig - OP Sepolia Testnet)`
+### [`0x034edd2a225f7f429a63e0f1d2084b9e0a93b538` ](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/sepolia/op.toml#L5) (SystemConfig - OP Sepolia Testnet)
   
 #### Decoded State Change: 0
   - **Contract:**          `SystemConfig - OP Sepolia Testnet`
@@ -138,7 +138,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   
   ---
   
-### `[0x05c993e60179f28bf649a2bb5b00b5f4283bd525](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/ink.toml#L59-L59) (SystemConfig - Ink Sepolia Testnet)`
+### [`0x05c993e60179f28bf649a2bb5b00b5f4283bd525` ](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/ink.toml#L59-L59) (SystemConfig - Ink Sepolia Testnet)
   
 #### Decoded State Change: 1
   - **Contract:**          `SystemConfig - Ink Sepolia Testnet`
@@ -154,7 +154,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
   ---
   
-### `[0x05f9613adb30026ffd634f38e5c4dfd30a197fa1](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/op.toml#L63-L63) (DisputeGameFactory)`
+### [`0x05f9613adb30026ffd634f38e5c4dfd30a197fa1` ](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/op.toml#L63-L63) (DisputeGameFactory)
   
 #### Decoded State Change: 2
   - **Contract:**          `DisputeGameFactory - OP Sepolia Testnet`
@@ -194,7 +194,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
   ---
   
-### `[0x16fc5058f25648194471939df75cf27a2fdc48bc](https://github.com/ethereum-optimism/superchain-registry/blob/08e3fe429c776a532c2b6dc09571fc13e6dba5d4/superchain/configs/sepolia/op.toml#L58) (OptimismPortal2 - OP Sepolia Testnet)`
+### [`0x16fc5058f25648194471939df75cf27a2fdc48bc` ](https://github.com/ethereum-optimism/superchain-registry/blob/08e3fe429c776a532c2b6dc09571fc13e6dba5d4/superchain/configs/sepolia/op.toml#L58) (OptimismPortal2 - OP Sepolia Testnet)
   
 #### Decoded State Change: 4
   - **Contract:**          `OptimismPortal2`
@@ -212,7 +212,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
   ---
   
-### `[0x1eb2ffc903729a0f03966b917003800b145f56e2](https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/validation/standard/standard-config-roles-sepolia.toml#L3) (ProxyAdminOwner (GnosisSafe))`
+### [`0x1eb2ffc903729a0f03966b917003800b145f56e2` ](https://github.com/ethereum-optimism/superchain-registry/blob/b40cf4289c58e28eb1c791f9ad5724380b7516a7/validation/standard/standard-config-roles-sepolia.toml#L3) (ProxyAdminOwner (GnosisSafe))`
   
 #### Decoded State Change: 5
   - **Contract:**          `ProxyAdminOwner (GnosisSafe)`
@@ -228,7 +228,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   
   ---
   
-### `[0x2bfb22cd534a462028771a1ca9d6240166e450c4](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/soneium-minato.toml#L55-L55) (L1ERC721Bridge - Soneium Testnet Minato)`
+### [`0x2bfb22cd534a462028771a1ca9d6240166e450c4` ](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/soneium-minato.toml#L55-L55) (L1ERC721Bridge - Soneium Testnet Minato)
   
 #### Decoded State Change: 6
   - **Contract:**          `L1ERC721Bridge`
@@ -242,8 +242,6 @@ For each contract listed in the state diff, please verify that no contracts or s
 - **Summary:**           ERC-1967 implementation slot
   - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
   
-**TODO: Insert links for this state change.**
-
   ---
   
 ### `[0x33f60714bbd74d62b66d79213c348614de51901c](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/ink.toml#L56-L56) (L1StandardBridge - Ink Sepolia)`
@@ -282,7 +280,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
   ---
   
-### `[0x4ca9608fef202216bc21d543798ec854539baad3](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/soneium-minato.toml#L60-L60) (SystemConfig - Soneium Testnet Minato)`
+### [`0x4ca9608fef202216bc21d543798ec854539baad3` ](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/soneium-minato.toml#L60-L60) (SystemConfig - Soneium Testnet Minato)`
   
 #### Decoded State Change: 9
   - **Contract:**          `SystemConfig`
@@ -298,7 +296,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   
   ---
   
-### `[0x5c1d29c6c9c8b0800692acc95d700bcb4966a1d7](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/ink.toml#L58-L58) (OptimismPortal2 - Ink Sepolia)`
+### [`0x5c1d29c6c9c8b0800692acc95d700bcb4966a1d7` ](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/ink.toml#L58-L58) (OptimismPortal2 - Ink Sepolia)`
   
 #### Decoded State Change: 10
   - **Contract:**          `OptimismPortal2`
@@ -367,7 +365,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
   ---
   
-### `[0x860e626c700af381133d9f4af31412a2d1db3d5d](https://github.com/ethereum-optimism/superchain-registry/blob/08e3fe429c776a532c2b6dc09571fc13e6dba5d4/superchain/configs/sepolia/ink.toml#L64) (DisputeGameFactory - Ink Sepolia)`
+### [`0x860e626c700af381133d9f4af31412a2d1db3d5d` ](https://github.com/ethereum-optimism/superchain-registry/blob/08e3fe429c776a532c2b6dc09571fc13e6dba5d4/superchain/configs/sepolia/ink.toml#L64) (DisputeGameFactory - Ink Sepolia)`
   
 #### Decoded State Change: 14
   - **Contract:**          `DisputeGameFactory`
@@ -407,7 +405,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
   ---
   
-### `[0x9bfe9c5609311df1c011c47642253b78a4f33f4b](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/op.toml#L53-L53) (AddressManager - OP Sepolia Testnet)`
+### [`0x9bfe9c5609311df1c011c47642253b78a4f33f4b` ](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/op.toml#L53-L53) (AddressManager - OP Sepolia Testnet)
   
 #### Decoded State Change: 16
   - **Contract:**          `AddressManager`
@@ -428,7 +426,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   
   ---
   
-### `[0xb3ad2c38e6e0640d7ce6aa952ab3a60e81bf7a01](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/soneium-minato.toml#L64) (DisputeGameFactory - Soneium Testnet Minato)`
+### [`0xb3ad2c38e6e0640d7ce6aa952ab3a60e81bf7a01` ](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/soneium-minato.toml#L64) (DisputeGameFactory - Soneium Testnet Minato)
   
 #### Decoded State Change: 17
   - **Contract:**          `DisputeGameFactory`
@@ -450,7 +448,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   
   ---
   
-### `[0xd1c901bbd7796546a7ba2492e0e199911fae68c7](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/ink.toml#L55-L55) (L1ERC721Bridge - Ink Sepolia)`
+### [`0xd1c901bbd7796546a7ba2492e0e199911fae68c7` ](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/ink.toml#L55-L55) (L1ERC721Bridge - Ink Sepolia)`
   
 #### Decoded State Change: 18
   - **Contract:**          `L1ERC721Bridge`
@@ -466,7 +464,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   
   ---
   
-### `[0xd83e03d576d23c9aeab8cc44fa98d058d2176d1f](https://github.com/ethereum-optimism/superchain-registry/blob/08e3fe429c776a532c2b6dc09571fc13e6dba5d4/superchain/configs/sepolia/op.toml#L55) (L1ERC721Bridge - Op Sepolia Testnet)`
+### [`0xd83e03d576d23c9aeab8cc44fa98d058d2176d1f` ](https://github.com/ethereum-optimism/superchain-registry/blob/08e3fe429c776a532c2b6dc09571fc13e6dba5d4/superchain/configs/sepolia/op.toml#L55) (L1ERC721Bridge - Op Sepolia Testnet)
   
 #### Decoded State Change: 19
   - **Contract:**          `L1ERC721Bridge`
@@ -482,7 +480,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
   ---
   
-### `[0xfbb0621e0b23b5478b630bd55a5f21f67730b0f1](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/op.toml#L56-L56) (L1StandardBridge  - OP Sepolia Testnet)`
+### [`0xfbb0621e0b23b5478b630bd55a5f21f67730b0f1` ](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/op.toml#L56-L56) (L1StandardBridge  - OP Sepolia Testnet)
   
 #### Decoded State Change: 20
   - **Contract:**          `L1StandardBridge`
@@ -497,7 +495,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
   
   
-### `[0xfbceed4de885645fbded164910e10f52febfab35](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/validation/standard/standard-versions-sepolia.toml#L22-L22) OPCM`
+### [`0xfbceed4de885645fbded164910e10f52febfab35` ](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/validation/standard/standard-versions-sepolia.toml#L22-L22) OPCM
   
 #### Decoded State Change: 21
   - **Contract:**          `OPContractsManager`
@@ -515,9 +513,6 @@ For each contract listed in the state diff, please verify that no contracts or s
                      Please refer to `'Figure 0.1'` at the end of this report for the storage layout of OPContractsManager.
   
 [WARN] Slot was not decoded. Please manually decode and provide a summary with the detail then remove this warning.
-  
-**TODO: Insert links for this state change.**
-
 
 # Supplementary Material
 
