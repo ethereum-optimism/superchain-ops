@@ -97,8 +97,8 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:**      `uint256`
-  - **Before:** `20`
-  - **After:** `21`
+  - **Before:** `See below`
+  - **After:** `See below`
   - **Summary:**   Nonce update
   - **Detail:**    Nonce update for the parent multisig.     
   
@@ -107,7 +107,7 @@ If signer is on safe: `0x6AF0674791925f767060Dd52f7fB20984E8639d8`:
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Summary:**  `approveHash(bytes32)` called on ProxyAdminOwner by child multisig.
-  - **Detail:**  As part of the Tenderly simulation, we want to illustrate the <i>approveHash</i> invocation. This step isn't shown in the local simulation because the parent multisig is invoked directly, bypassing the <i>approveHash</i> calls. This slot change reflects an update to the approvedHashes mapping.
+  - **Detail:**  **THIS WAS CAREFULLY VERIFIED BY RUNBOOK REVIEWERS AND NEED NOT BE CHECKED BY SIGNERS.** As part of the Tenderly simulation, we want to illustrate the <i>approveHash</i> invocation. This step isn't shown in the local simulation because the parent multisig is invoked directly, bypassing the <i>approveHash</i> calls. This slot change reflects an update to the approvedHashes mapping.
   Specifically, this simulation was ran as the nested safe `0x6AF0674791925f767060Dd52f7fB20984E8639d8`. To verify the slot yourself, run:
     - `res=$(cast index address 0x6AF0674791925f767060Dd52f7fB20984E8639d8 8)`
     - `cast index bytes32 0x08731a4fb5cd8d45ad7b7fb473337694e0ee9f6fa5a25c3f43da991c387e0ecd $res`
@@ -118,7 +118,7 @@ OR if signer is on safe: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Summary:**  `approveHash(bytes32)` called on ProxyAdminOwner by child multisig.
-  - **Detail:**  As part of the Tenderly simulation, we want to illustrate the <i>approveHash</i> invocation. This step isn't shown in the local simulation because the parent multisig is invoked directly, bypassing the <i>approveHash</i> calls. This slot change reflects an update to the approvedHashes mapping.
+  - **Detail:**  **THIS WAS CAREFULLY VERIFIED BY RUNBOOK REVIEWERS AND NEED NOT BE CHECKED BY SIGNERS.** As part of the Tenderly simulation, we want to illustrate the <i>approveHash</i> invocation. This step isn't shown in the local simulation because the parent multisig is invoked directly, bypassing the <i>approveHash</i> calls. This slot change reflects an update to the approvedHashes mapping.
   Specifically, this simulation was ran as the nested safe `0x646132A1667ca7aD00d36616AFBA1A28116C770A`. To verify the slot yourself, run:
     - `res=$(cast index address 0x646132A1667ca7aD00d36616AFBA1A28116C770A 8)`
     - `cast index bytes32 0x08731a4fb5cd8d45ad7b7fb473337694e0ee9f6fa5a25c3f43da991c387e0ecd $res`
@@ -168,7 +168,7 @@ OR if signer is on safe: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
   - **Before:**     `0x0000000000000000000000003ea6084748ed1b2a9b5d4426181f1ad8c93f6231`
   - **After:**     `0x0000000000000000000000005d5a095665886119693f0b41d8dfee78da033e8b`
   - **Summary:**   The name `OVM_L1CrossDomainMessenger` is set to the address of the new 'op-contracts/v3.0.0-rc.2' L1CrossDomainMessenger at [0x5d5a095665886119693f0b41d8dfee78da033e8b](https://github.com/ethereum-optimism/superchain-registry/blob/fb900358ab5016de86f37a23265bd94ce927c9c0/validation/standard/standard-versions-sepolia.toml#L18).
-  - **Detail:**  This key is complicated to compute, so instead we attest to correctness of the key by verifying that the "Before" value currently exists in that slot, as explained below.
+  - **Detail:**  **THIS WAS CAREFULLY VERIFIED BY RUNBOOK REVIEWERS AND NEED NOT BE CHECKED BY SIGNERS.** This key is complicated to compute, so instead we attest to correctness of the key by verifying that the "Before" value currently exists in that slot, as explained below.
   **Before** address matches both of the following cast calls:
     1. What is returned by calling `AddressManager.getAddress()`:
         - `cast call 0x709c2B8ef4A9feFc629A8a2C1AF424Dc5BD6ad1B 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url sepolia`
