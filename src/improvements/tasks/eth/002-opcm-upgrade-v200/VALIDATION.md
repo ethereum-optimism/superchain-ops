@@ -18,17 +18,17 @@ the values printed to the terminal when you run the task.
 >
 > Before signing, ensure the below hashes match what is on your ledger.
 >
-> ### Child Safe 1: `0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC`
+> ### Child Safe 1: `0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC` (Unichain)
 >
 > - Domain Hash: `0x4f0b6efb6c01fa7e127a0ff87beefbeb53e056d30d3216c5ac70371b909ca66d`
 > - Message Hash: `0x73a11487da1a8b8e840d4540403a34cedecf821ba4a0291efdf2cff6b081bf39`
 >
-> ### Child Safe 2: `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`
+> ### Child Safe 2: `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Optimism Foundation)
 >
 > - Domain Hash: `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
 > - Message Hash: `0x501e6580b47e5208c14734ecd591ec0e4e5400469f1d61dc16e42a7c93a1fdeb`
 >
-> ### Child Safe 3: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`
+> ### Child Safe 3: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Security Council)
 >
 > - Domain Hash: `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
 > - Message Hash: `0x83b0f4356d9af6917ed0ef821b7ccbb4ed4b05f1d066b8926f46fb303bdf7d48`
