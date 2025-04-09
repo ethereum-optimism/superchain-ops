@@ -3,7 +3,6 @@ pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
 import {LibString} from "@solady/utils/LibString.sol";
-import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 
 import {MockMultisigTask} from "test/tasks/mock/MockMultisigTask.sol";
@@ -29,22 +28,22 @@ contract StateOverrideManagerUnitTest is Test {
         return fileName;
     }
 
-    function testNonceAndThresholdStateOverrideApplied() public {
+    function testThresholdStateOverrideAppliedReverts() public {
         // This config includes both nonce and threshold state overrides.
         string memory toml = string.concat(
             commonToml,
             "[stateOverrides]\n",
             "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [\n",
-            "    {key = \"0x0000000000000000000000000000000000000000000000000000000000000005\", value = \"0x0000000000000000000000000000000000000000000000000000000000000FFF\"},\n",
             "    {key = \"0x0000000000000000000000000000000000000000000000000000000000000004\", value = \"0x0000000000000000000000000000000000000000000000000000000000000002\"}\n",
             "]"
         );
         string memory fileName = createTempTomlFile(toml);
-        MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
-        assertNonceIncremented(4095, task);
-        assertEq(IGnosisSafe(task.parentMultisig()).getThreshold(), 2, "Threshold must be 2");
-        uint256 threshold = uint256(vm.load(address(task.parentMultisig()), bytes32(uint256(0x4))));
-        assertEq(threshold, 2, "Threshold must be 2 using vm.load");
+
+        MultisigTask task = new MockMultisigTask();
+        vm.expectRevert(
+            "StateOverrideManager: User-defined override is attempting to overwrite an existing default override."
+        );
+        task.signFromChildMultisig(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
         removeFile(fileName);
     }
 
@@ -231,6 +230,7 @@ contract StateOverrideManagerUnitTest is Test {
         uint256 expectedTotalOverrides = 3; // i.e. (2 default + 1 user defined)
         Simulation.StateOverride[] memory allOverrides =
             assertDefaultStateOverrides(expectedTotalOverrides, task, SECURITY_COUNCIL_CHILD_MULTISIG);
+
         assertEq(
             allOverrides[0].overrides[1].key, overrideKey, "First address user override key must match expected value"
         );
@@ -283,58 +283,7 @@ contract StateOverrideManagerUnitTest is Test {
         removeFile(fileName);
     }
 
-    function testSanitizeOverrides_NoOverrides() public {
-        MockStateOverrideManager som = new MockStateOverrideManager();
-        Simulation.StateOverride[] memory overrides = new Simulation.StateOverride[](0);
-        Simulation.StateOverride[] memory sanitized = som.wrapperSanitizeOverrides(overrides);
-
-        assertEq(sanitized.length, 0);
-    }
-
-    function testSanitizeOverrides_AllValidOverrides() public {
-        MockStateOverrideManager som = new MockStateOverrideManager();
-        Simulation.StateOverride[] memory overrides = new Simulation.StateOverride[](3);
-        Simulation.StorageOverride[] memory storageOverrides = new Simulation.StorageOverride[](0);
-        overrides[0] = Simulation.StateOverride({contractAddress: address(0x1), overrides: storageOverrides});
-        overrides[1] = Simulation.StateOverride({contractAddress: address(0x2), overrides: storageOverrides});
-        overrides[2] = Simulation.StateOverride({contractAddress: address(0x3), overrides: storageOverrides});
-        Simulation.StateOverride[] memory sanitized = som.wrapperSanitizeOverrides(overrides);
-
-        assertEq(sanitized.length, 3);
-        assertEq(sanitized[0].contractAddress, address(0x1));
-        assertEq(sanitized[1].contractAddress, address(0x2));
-        assertEq(sanitized[2].contractAddress, address(0x3));
-    }
-
-    function testSanitizeOverrides_SomeEmptyOverrides() public {
-        MockStateOverrideManager som = new MockStateOverrideManager();
-        Simulation.StateOverride[] memory overrides = new Simulation.StateOverride[](5);
-        Simulation.StorageOverride[] memory storageOverrides = new Simulation.StorageOverride[](0);
-        overrides[0] = Simulation.StateOverride({contractAddress: address(0x1), overrides: storageOverrides});
-        overrides[1] = Simulation.StateOverride({contractAddress: address(0), overrides: storageOverrides});
-        overrides[2] = Simulation.StateOverride({contractAddress: address(0x2), overrides: storageOverrides});
-        overrides[3] = Simulation.StateOverride({contractAddress: address(0), overrides: storageOverrides});
-        overrides[4] = Simulation.StateOverride({contractAddress: address(0), overrides: storageOverrides});
-        Simulation.StateOverride[] memory sanitized = som.wrapperSanitizeOverrides(overrides);
-
-        assertEq(sanitized.length, 2);
-        assertEq(sanitized[0].contractAddress, address(0x1));
-        assertEq(sanitized[1].contractAddress, address(0x2));
-    }
-
-    function testSanitizeOverrides_AllEmptyOverrides() public {
-        MockStateOverrideManager som = new MockStateOverrideManager();
-        Simulation.StateOverride[] memory overrides = new Simulation.StateOverride[](3);
-        Simulation.StorageOverride[] memory storageOverrides = new Simulation.StorageOverride[](0);
-        overrides[0] = Simulation.StateOverride({contractAddress: address(0), overrides: storageOverrides});
-        overrides[1] = Simulation.StateOverride({contractAddress: address(0), overrides: storageOverrides});
-        overrides[2] = Simulation.StateOverride({contractAddress: address(0), overrides: storageOverrides});
-        Simulation.StateOverride[] memory sanitized = som.wrapperSanitizeOverrides(overrides);
-
-        assertEq(sanitized.length, 0);
-    }
-
-    function test_mergeExistingOverrides_updatesExistingKey() public {
+    function test_appendUserDefinedOverrides_userAttemptsToOverwriteDefaultTenderlyOverrideReverts() public {
         MockStateOverrideManager som = new MockStateOverrideManager();
         Simulation.StateOverride[] memory defaults = new Simulation.StateOverride[](1);
         defaults[0] = Simulation.StateOverride({
@@ -347,15 +296,13 @@ contract StateOverrideManagerUnitTest is Test {
             overrides: _createStorageOverrides("key1", "newValue")
         });
 
-        (Simulation.StateOverride[] memory updatedOverrides, bool merged) =
-            som.wrapperMergeExistingOverrides(defaults, userOverride);
-
-        assertTrue(merged);
-        assertEq(updatedOverrides[0].overrides.length, 1);
-        assertEq(updatedOverrides[0].overrides[0].value, _toBytes32("newValue"));
+        vm.expectRevert(
+            "StateOverrideManager: User-defined override is attempting to overwrite an existing default override."
+        );
+        som.wrapperAppendUserDefinedOverrides(defaults, userOverride);
     }
 
-    function test_mergeExistingOverrides_appendsNewKey() public {
+    function test_appendUserDefinedOverrides_appendsNewKey() public {
         MockStateOverrideManager som = new MockStateOverrideManager();
         Simulation.StateOverride[] memory defaults = new Simulation.StateOverride[](1);
         defaults[0] = Simulation.StateOverride({
@@ -368,16 +315,15 @@ contract StateOverrideManagerUnitTest is Test {
             overrides: _createStorageOverrides("key2", "value2")
         });
 
-        (Simulation.StateOverride[] memory updatedOverrides, bool merged) =
-            som.wrapperMergeExistingOverrides(defaults, userOverride);
+        Simulation.StateOverride[] memory updatedOverrides =
+            som.wrapperAppendUserDefinedOverrides(defaults, userOverride);
 
-        assertTrue(merged);
         assertEq(updatedOverrides[0].overrides.length, 2);
         assertEq(updatedOverrides[0].overrides[1].key, _toBytes32("key2"));
         assertEq(updatedOverrides[0].overrides[1].value, _toBytes32("value2"));
     }
 
-    function test_mergeExistingOverrides_contractNotFound() public {
+    function test_appendUserDefinedOverrides_contractNotFound() public {
         MockStateOverrideManager som = new MockStateOverrideManager();
         Simulation.StateOverride[] memory defaults = new Simulation.StateOverride[](1);
         defaults[0] = Simulation.StateOverride({
@@ -390,14 +336,16 @@ contract StateOverrideManagerUnitTest is Test {
             overrides: _createStorageOverrides("key2", "value2")
         });
 
-        (Simulation.StateOverride[] memory updatedOverrides, bool merged) =
-            som.wrapperMergeExistingOverrides(defaults, userOverride);
+        Simulation.StateOverride[] memory updatedOverrides =
+            som.wrapperAppendUserDefinedOverrides(defaults, userOverride);
 
-        assertFalse(merged);
         assertEq(updatedOverrides[0].overrides[0].value, _toBytes32("value1")); // Ensure no changes
+        assertEq(updatedOverrides.length, 2);
+        assertEq(updatedOverrides[0].contractAddress, address(0x123));
+        assertEq(updatedOverrides[1].contractAddress, address(0x456));
     }
 
-    function test_mergeExistingOverrides_mixedUpdatesAndAppends() public {
+    function test_appendUserDefinedOverrides_mixedAppends() public {
         MockStateOverrideManager som = new MockStateOverrideManager();
         Simulation.StateOverride[] memory defaults = new Simulation.StateOverride[](1);
         defaults[0] =
@@ -406,22 +354,23 @@ contract StateOverrideManagerUnitTest is Test {
         defaults[0].overrides[1] = Simulation.StorageOverride(_toBytes32("key2"), _toBytes32("value2"));
 
         Simulation.StateOverride memory userOverride =
-            Simulation.StateOverride({contractAddress: address(0x123), overrides: new Simulation.StorageOverride[](3)});
-        userOverride.overrides[0] = Simulation.StorageOverride(_toBytes32("key1"), _toBytes32("newValue1"));
-        userOverride.overrides[1] = Simulation.StorageOverride(_toBytes32("key3"), _toBytes32("value3"));
-        userOverride.overrides[2] = Simulation.StorageOverride(_toBytes32("key2"), _toBytes32("newValue2"));
+            Simulation.StateOverride({contractAddress: address(0x123), overrides: new Simulation.StorageOverride[](2)});
+        userOverride.overrides[0] = Simulation.StorageOverride(_toBytes32("key3"), _toBytes32("value3"));
+        userOverride.overrides[1] = Simulation.StorageOverride(_toBytes32("key5"), _toBytes32("newValue5"));
 
-        (Simulation.StateOverride[] memory updatedOverrides, bool merged) =
-            som.wrapperMergeExistingOverrides(defaults, userOverride);
+        Simulation.StateOverride[] memory updatedOverrides =
+            som.wrapperAppendUserDefinedOverrides(defaults, userOverride);
 
-        assertTrue(merged);
-        assertEq(updatedOverrides[0].overrides.length, 3);
-        assertEq(updatedOverrides[0].overrides[0].value, _toBytes32("newValue1"));
-        assertEq(updatedOverrides[0].overrides[1].value, _toBytes32("newValue2"));
+        assertEq(updatedOverrides[0].overrides.length, 4);
+        assertEq(updatedOverrides[0].overrides[0].value, _toBytes32("value1"));
+        assertEq(updatedOverrides[0].overrides[1].value, _toBytes32("value2"));
         assertEq(updatedOverrides[0].overrides[2].key, _toBytes32("key3"));
+        assertEq(updatedOverrides[0].overrides[2].value, _toBytes32("value3"));
+        assertEq(updatedOverrides[0].overrides[3].key, _toBytes32("key5"));
+        assertEq(updatedOverrides[0].overrides[3].value, _toBytes32("newValue5"));
     }
 
-    function test_mergeExistingOverrides_emptyDefaults() public {
+    function test_appendUserDefinedOverrides_emptyDefaults() public {
         MockStateOverrideManager som = new MockStateOverrideManager();
         Simulation.StateOverride[] memory defaults = new Simulation.StateOverride[](0);
         Simulation.StateOverride memory userOverride = Simulation.StateOverride({
@@ -429,14 +378,13 @@ contract StateOverrideManagerUnitTest is Test {
             overrides: _createStorageOverrides("key1", "value1")
         });
 
-        (Simulation.StateOverride[] memory updatedOverrides, bool merged) =
-            som.wrapperMergeExistingOverrides(defaults, userOverride);
+        Simulation.StateOverride[] memory updatedOverrides =
+            som.wrapperAppendUserDefinedOverrides(defaults, userOverride);
 
-        assertFalse(merged);
-        assertEq(updatedOverrides.length, 0);
+        assertEq(updatedOverrides.length, 1);
     }
 
-    function test_mergeExistingOverrides_contractMatchOnly() public {
+    function test_appendUserDefinedOverrides_contractMatchOnly() public {
         MockStateOverrideManager som = new MockStateOverrideManager();
         Simulation.StateOverride[] memory defaults = new Simulation.StateOverride[](1);
         defaults[0] = Simulation.StateOverride({
@@ -447,16 +395,15 @@ contract StateOverrideManagerUnitTest is Test {
         Simulation.StateOverride memory userOverride =
             Simulation.StateOverride({contractAddress: address(0x123), overrides: new Simulation.StorageOverride[](0)});
 
-        (Simulation.StateOverride[] memory updatedOverrides, bool merged) =
-            som.wrapperMergeExistingOverrides(defaults, userOverride);
+        Simulation.StateOverride[] memory updatedOverrides =
+            som.wrapperAppendUserDefinedOverrides(defaults, userOverride);
 
-        assertTrue(merged);
         assertEq(updatedOverrides[0].overrides.length, 1); // No changes to storage overrides
         assertEq(updatedOverrides[0].overrides[0].key, _toBytes32("key1"));
         assertEq(updatedOverrides[0].overrides[0].value, _toBytes32("value1"));
     }
 
-    function test_mergeExistingOverrides_userOverrideContainsMultipleOverridesForTheSameKey() public {
+    function test_appendUserDefinedOverrides_userOverrideContainsMultipleOverridesForTheSameKeyReverts() public {
         MockStateOverrideManager som = new MockStateOverrideManager();
         Simulation.StateOverride[] memory defaults = new Simulation.StateOverride[](1);
         defaults[0] = Simulation.StateOverride({
@@ -466,15 +413,11 @@ contract StateOverrideManagerUnitTest is Test {
 
         Simulation.StateOverride memory userOverride =
             Simulation.StateOverride({contractAddress: address(0x123), overrides: new Simulation.StorageOverride[](2)});
-        userOverride.overrides[0] = Simulation.StorageOverride(_toBytes32("key1"), _toBytes32("newValue1"));
-        userOverride.overrides[1] = Simulation.StorageOverride(_toBytes32("key1"), _toBytes32("newValue2"));
+        userOverride.overrides[0] = Simulation.StorageOverride(_toBytes32("key2"), _toBytes32("newValue1"));
+        userOverride.overrides[1] = Simulation.StorageOverride(_toBytes32("key2"), _toBytes32("newValue2"));
 
-        (Simulation.StateOverride[] memory updatedOverrides, bool merged) =
-            som.wrapperMergeExistingOverrides(defaults, userOverride);
-
-        assertTrue(merged);
-        assertEq(updatedOverrides[0].overrides.length, 1);
-        assertEq(updatedOverrides[0].overrides[0].value, _toBytes32("newValue2"));
+        vm.expectRevert("StateOverrideManager: Duplicate keys in user-defined overrides.");
+        som.wrapperAppendUserDefinedOverrides(defaults, userOverride);
     }
 
     /// @notice Helper function to convert strings to bytes32
@@ -662,18 +605,10 @@ contract StateOverrideManagerUnitTest is Test {
 /// The StateOverrideManager contract is an abstract contract so we need to inherit from it
 /// to test it.
 contract MockStateOverrideManager is StateOverrideManager {
-    function wrapperSanitizeOverrides(Simulation.StateOverride[] memory overrides_)
-        public
-        pure
-        returns (Simulation.StateOverride[] memory sanitized_)
-    {
-        return super._sanitizeOverrides(overrides_);
-    }
-
-    function wrapperMergeExistingOverrides(
+    function wrapperAppendUserDefinedOverrides(
         Simulation.StateOverride[] memory defaults,
         Simulation.StateOverride memory userOverride
-    ) public pure returns (Simulation.StateOverride[] memory updatedOverrides, bool merged_) {
-        return super._mergeExistingOverrides(defaults, userOverride);
+    ) public pure returns (Simulation.StateOverride[] memory updatedOverrides) {
+        return super._appendUserDefinedOverrides(defaults, userOverride);
     }
 }
