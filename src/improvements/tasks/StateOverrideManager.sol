@@ -166,7 +166,7 @@ abstract contract StateOverrideManager is CommonBase {
         Simulation.StateOverride memory userDefinedOverride_
     ) internal pure returns (Simulation.StateOverride[] memory) {
         // Check for duplicates in the user defined overrides first.
-        _validateNoDuplicates(userDefinedOverride_.overrides);
+        _validateNoDuplicates(userDefinedOverride_.overrides, userDefinedOverride_.contractAddress);
 
         bool foundContract;
 
@@ -174,7 +174,9 @@ abstract contract StateOverrideManager is CommonBase {
         for (uint256 j = 0; j < defaultOverrides_.length; j++) {
             if (defaultOverrides_[j].contractAddress == userDefinedOverride_.contractAddress) {
                 // Validate ALL user overrides against ORIGINAL defaults first
-                _validateAgainstDefaults(defaultOverrides_[j].overrides, userDefinedOverride_.overrides);
+                _validateAgainstDefaults(
+                    defaultOverrides_[j].overrides, userDefinedOverride_.overrides, userDefinedOverride_.contractAddress
+                );
 
                 // Append after validation
                 Simulation.StorageOverride[] memory combined = new Simulation.StorageOverride[](
@@ -209,11 +211,19 @@ abstract contract StateOverrideManager is CommonBase {
         return defaultOverrides_;
     }
 
-    function _validateNoDuplicates(Simulation.StorageOverride[] memory overrides) internal pure {
+    function _validateNoDuplicates(Simulation.StorageOverride[] memory overrides, address contractAddress)
+        internal
+        pure
+    {
         for (uint256 i = 0; i < overrides.length; i++) {
             for (uint256 j = i + 1; j < overrides.length; j++) {
                 if (overrides[i].key == overrides[j].key) {
-                    revert("StateOverrideManager: Duplicate keys in user-defined overrides.");
+                    revert(
+                        string.concat(
+                            "StateOverrideManager: Duplicate keys in user-defined overrides for contract: ",
+                            vm.toString(contractAddress)
+                        )
+                    );
                 }
             }
         }
@@ -221,13 +231,17 @@ abstract contract StateOverrideManager is CommonBase {
 
     function _validateAgainstDefaults(
         Simulation.StorageOverride[] memory defaults,
-        Simulation.StorageOverride[] memory userOverrides
+        Simulation.StorageOverride[] memory userOverrides,
+        address contractAddress
     ) internal pure {
         for (uint256 l = 0; l < userOverrides.length; l++) {
             for (uint256 k = 0; k < defaults.length; k++) {
                 if (defaults[k].key == userOverrides[l].key) {
                     revert(
-                        "StateOverrideManager: User-defined override is attempting to overwrite an existing default override."
+                        string.concat(
+                            "StateOverrideManager: User-defined override is attempting to overwrite an existing default override for contract: ",
+                            vm.toString(contractAddress)
+                        )
                     );
                 }
             }

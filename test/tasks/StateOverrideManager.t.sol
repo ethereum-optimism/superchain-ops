@@ -41,7 +41,7 @@ contract StateOverrideManagerUnitTest is Test {
 
         MultisigTask task = new MockMultisigTask();
         vm.expectRevert(
-            "StateOverrideManager: User-defined override is attempting to overwrite an existing default override."
+            "StateOverrideManager: User-defined override is attempting to overwrite an existing default override for contract: 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
         );
         task.signFromChildMultisig(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
         removeFile(fileName);
@@ -297,7 +297,7 @@ contract StateOverrideManagerUnitTest is Test {
         });
 
         vm.expectRevert(
-            "StateOverrideManager: User-defined override is attempting to overwrite an existing default override."
+            "StateOverrideManager: User-defined override is attempting to overwrite an existing default override for contract: 0x0000000000000000000000000000000000000123"
         );
         som.wrapperAppendUserDefinedOverrides(defaults, userOverride);
     }
@@ -416,7 +416,9 @@ contract StateOverrideManagerUnitTest is Test {
         userOverride.overrides[0] = Simulation.StorageOverride(_toBytes32("key2"), _toBytes32("newValue1"));
         userOverride.overrides[1] = Simulation.StorageOverride(_toBytes32("key2"), _toBytes32("newValue2"));
 
-        vm.expectRevert("StateOverrideManager: Duplicate keys in user-defined overrides.");
+        vm.expectRevert(
+            "StateOverrideManager: Duplicate keys in user-defined overrides for contract: 0x0000000000000000000000000000000000000123"
+        );
         som.wrapperAppendUserDefinedOverrides(defaults, userOverride);
     }
 
