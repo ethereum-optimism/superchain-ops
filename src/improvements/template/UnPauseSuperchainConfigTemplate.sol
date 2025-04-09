@@ -42,7 +42,6 @@ contract UnPauseSuperchainConfigTemplate is L2TaskBase {
     function _build() internal override {
         // Load the DeputyGuardianModule contract.
         IDeputyGuardianModule dgm = IDeputyGuardianModule(superchainAddrRegistry.get("DeputyGuardianModule"));
-        ISuperchainConfig sc = ISuperchainConfig((superchainAddrRegistry.get("SuperchainConfig")));
         dgm.unpause(); // Unpause the SuperchainConfig contract through the DeputyGuardianModule.
     }
 
