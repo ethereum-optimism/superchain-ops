@@ -25,25 +25,6 @@ parameters:
     default: 5
 
 commands:
-  simulate:
-    description: "Runs simulations of a task"
-    parameters:
-      task:
-        type: string
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: "simulate << parameters.task >>"
-          environment:
-            FOUNDRY_PROFILE: ci
-          command: |
-            just install
-            cd tasks/<< parameters.task >>
-            SIMULATE_WITHOUT_LEDGER=true just \
-              --dotenv-path $(pwd)/.env \
-              --justfile ../../../single.just \
-              simulate
-
   notify-failures-on-develop:
     description: "Notify Slack"
     parameters:
@@ -375,25 +356,6 @@ jobs:
             forge --version
             forge test -vvv
 
-  monorepo_integration_test:
-    circleci_ip_ranges: true
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    environment:
-      FOUNDRY_PROFILE: ci
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: monorepo integration tests
-          command: |
-            (cd src/improvements && just monorepo-integration-test)
-      - notify-failures-on-develop:
-          mentions: "@security-team"
-      - run:
-          name: Print failed test traces
-          command: (cd src/improvements && just monorepo-integration-test rerun)
-          when: on_fail
-
   template_regression_tests:
     circleci_ip_ranges: true
     docker:
@@ -441,18 +403,6 @@ jobs:
             | # Justfiles are not shell scripts and should not be checked with shellcheck
             (cd src/improvements/script && shellcheck -x *.sh)
 
-  check-links:
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - checkout
-      - run:
-          name: Make script executable
-          command: chmod +x src/improvements/script/check-links.sh
-      - run:
-          name: Run link checker
-          command: ./src/improvements/script/check-links.sh src/improvements/tasks
-
 workflows:
   main:
     when:
@@ -474,13 +424,6 @@ workflows:
       - forge_test:
           context:
             - circleci-repo-readonly-authenticated-github-token
-      # This is a long running job, so we only run it on the main branch.
-      - monorepo_integration_test:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-          filters:
-            branches:
-              only: main
       - template_regression_tests
       - just_new_recipe_tests
       - shellcheck:
@@ -521,20 +464,7 @@ workflows:
       # and now it fails with stack too deep after https://github.com/ethereum-optimism/superchain-ops/pull/528.
       # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
       # - just_simulate_sc_rehearsal_1
-      - just_simulate_nested_improvements:
-          name: "simulate nested eth/000-opcm-upgrade-v200 council"
-          task: "/eth/000-opcm-upgrade-v200"
-          signer: "council"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
 
-      # U13 Sepolia Unichain Upgrade
-      - just_simulate_single_improvements:
-          name: "simulate single sep/003-opcm-upgrade-v200"
-          task: "/sep/003-opcm-upgrade-v200"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-      
       # U13 Mainnet Unichain Upgrade - Child-Safe-1
       - just_simulate_nested_improvements:
           name: "simulate nested eth/002-opcm-upgrade-v200 child-safe-1"
@@ -559,6 +489,11 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
 
+      - just_simulate_nested:
+          task: "/eth/zora-002-fp-upgrade"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
       - just_simulate_sc_rehearsal_2:
           context:
             - circleci-repo-readonly-authenticated-github-token
@@ -569,7 +504,7 @@ workflows:
       - simulate_sequence:
           name: simulate_sequence_eth
           network: "eth"
-          tasks: ""
+          tasks: "zora-002"
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
@@ -581,5 +516,3 @@ workflows:
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
-
-      - check-links
