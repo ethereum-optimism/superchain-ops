@@ -138,8 +138,7 @@ contract StateOverrideManagerUnitTest is Test {
         string memory fileName = createTempTomlFile(commonToml);
         MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
 
-        uint256 expectedNonce = task.nonce();
-        assertDefaultStateOverrides(expectedNonce, 2, task, SECURITY_COUNCIL_CHILD_MULTISIG, 0);
+        assertDefaultStateOverrides(2, task, SECURITY_COUNCIL_CHILD_MULTISIG);
         removeFile(fileName);
     }
 
@@ -156,7 +155,7 @@ contract StateOverrideManagerUnitTest is Test {
 
         uint256 expectedNonce = 100;
         Simulation.StateOverride[] memory allOverrides =
-            assertDefaultStateOverrides(expectedNonce, 3, task, SECURITY_COUNCIL_CHILD_MULTISIG, 0);
+            assertDefaultStateOverrides(3, task, SECURITY_COUNCIL_CHILD_MULTISIG);
         // User defined override must be applied last
         assertEq(allOverrides[2].overrides[0].key, bytes32(uint256(5)), "User defined override key must be 5");
         assertEq(
@@ -182,11 +181,9 @@ contract StateOverrideManagerUnitTest is Test {
         string memory fileName = createTempTomlFile(toml);
         MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
 
-        uint256 expectedParentNonce = task.nonce();
         uint256 expectedTotalOverrides = 3;
-        Simulation.StateOverride[] memory allOverrides = assertDefaultStateOverrides(
-            expectedParentNonce, expectedTotalOverrides, task, SECURITY_COUNCIL_CHILD_MULTISIG, 0
-        );
+        Simulation.StateOverride[] memory allOverrides =
+            assertDefaultStateOverrides(expectedTotalOverrides, task, SECURITY_COUNCIL_CHILD_MULTISIG);
         assertEq(allOverrides[2].overrides[0].key, overrideKey, "User override key must match expected value");
         assertEq(allOverrides[2].overrides[0].value, bytes32(uint256(9999)), "User override must be applied last");
         removeFile(fileName);
@@ -212,10 +209,9 @@ contract StateOverrideManagerUnitTest is Test {
         string memory fileName = createTempTomlFile(toml);
         MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
 
-        uint256 expectedNonce = task.nonce();
         uint256 expectedTotalOverrides = 4; // i.e. (2 default + 2 user defined)
         Simulation.StateOverride[] memory allOverrides =
-            assertDefaultStateOverrides(expectedNonce, expectedTotalOverrides, task, SECURITY_COUNCIL_CHILD_MULTISIG, 0);
+            assertDefaultStateOverrides(expectedTotalOverrides, task, SECURITY_COUNCIL_CHILD_MULTISIG);
         assertEq(
             allOverrides[2].overrides[0].key, overrideKey, "First address user override key must match expected value"
         );
@@ -225,13 +221,33 @@ contract StateOverrideManagerUnitTest is Test {
         assertEq(
             allOverrides[3].overrides.length,
             1,
-            "Second address is not the parent multisig so it should only have 1 override"
+            "Last address is not the parent multisig so it should only have 1 override"
         );
         assertEq(
-            allOverrides[3].overrides[0].key, overrideKey, "Second address user override key must match expected value"
+            allOverrides[0].contractAddress,
+            address(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A),
+            "First address must be the parent multisig"
         );
         assertEq(
-            allOverrides[3].overrides[0].value, bytes32(uint256(8888)), "Second address user override must be applied"
+            allOverrides[1].contractAddress,
+            SECURITY_COUNCIL_CHILD_MULTISIG,
+            "Second address must be the child multisig"
+        );
+        assertEq(
+            allOverrides[2].contractAddress,
+            address(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A),
+            "Third address must be the parent multisig"
+        );
+        assertEq(
+            allOverrides[3].contractAddress,
+            address(0x229047fed2591dbec1eF1118d64F7aF3dB9EB290),
+            "Last address must be the last address in the config"
+        );
+        assertEq(
+            allOverrides[3].overrides[0].key, overrideKey, "Last address user override key must match expected value"
+        );
+        assertEq(
+            allOverrides[3].overrides[0].value, bytes32(uint256(8888)), "Last address user override must be applied"
         );
         removeFile(fileName);
     }
@@ -246,10 +262,9 @@ contract StateOverrideManagerUnitTest is Test {
         string memory fileName = createTempTomlFile(nonNestedSafeToml);
         MockDisputeGameTask dgt = new MockDisputeGameTask();
         dgt.simulateRun(fileName);
-        uint256 expectedNonce = dgt.nonce();
+
         // Only parent overrides will be checked because child multisig is not set.
-        Simulation.StateOverride[] memory allOverrides =
-            assertDefaultStateOverrides(expectedNonce, 1, dgt, address(0), 0);
+        Simulation.StateOverride[] memory allOverrides = assertDefaultStateOverrides(1, dgt, address(0));
         assertEq(allOverrides.length, 1, "Only parent overrides should be applied");
         removeFile(fileName);
     }
@@ -268,15 +283,12 @@ contract StateOverrideManagerUnitTest is Test {
 
     /// @notice This function is used to assert the default state overrides for the parent multisig.
     /// Specifically, it verifies that the parent state overrides contain a threshold and nonce override.
-    function assertDefaultStateOverrides(
-        uint256 expectedParentNonce,
-        uint256 expectedTotalOverrides,
-        MultisigTask task,
-        address childMultisig,
-        uint256 childMultisigNonce
-    ) internal view returns (Simulation.StateOverride[] memory allOverrides_) {
-        allOverrides_ =
-            task.getStateOverrides(address(task.parentMultisig()), task.nonce(), childMultisig, childMultisigNonce);
+    function assertDefaultStateOverrides(uint256 expectedTotalOverrides, MultisigTask task, address childMultisig)
+        internal
+        view
+        returns (Simulation.StateOverride[] memory allOverrides_)
+    {
+        allOverrides_ = task.getStateOverrides(address(task.parentMultisig()), childMultisig);
 
         assertTrue(allOverrides_.length >= 1, "Must be at least 1 override (parent default)");
         assertEq(
@@ -291,25 +303,25 @@ contract StateOverrideManagerUnitTest is Test {
             address(task.parentMultisig()),
             "Contract address must be the parent multisig"
         );
-        // 5 possible overrides: <threshold>, <nonce>, [owner count], [owner mapping], [owner mapping 2]
-        // 2 required overrides: <threshold>, <nonce>
+        // 4 possible overrides: <threshold>, [owner count], [owner mapping], [owner mapping 2]
+        // 1 required overrides: <threshold>
         // 3 optional overrides: [owner count], [owner mapping], [owner mapping 2] (Only present for nested execution)
         if (childMultisig != address(0)) {
             // Nested execution
             assertTrue(
                 // TODO: This should be 1 if the nonce override isn't applied. See TODO comments in StateOverrideManager.sol for more information.
-                parentDefaultOverride.overrides.length == 2,
+                parentDefaultOverride.overrides.length == 1,
                 string.concat(
-                    "Parent default override must have 2 overrides, found: ",
+                    "Parent default override must have 1 overrides, found: ",
                     LibString.toString(parentDefaultOverride.overrides.length)
                 )
             );
         } else {
             // Single execution
             assertTrue(
-                parentDefaultOverride.overrides.length == 5,
+                parentDefaultOverride.overrides.length == 4,
                 string.concat(
-                    "Parent default override must have 5 overrides, found: ",
+                    "Parent default override must have 4 overrides, found: ",
                     LibString.toString(parentDefaultOverride.overrides.length)
                 )
             );
@@ -326,30 +338,19 @@ contract StateOverrideManagerUnitTest is Test {
             bytes32(uint256(0x1)),
             "ParentDefaultOverride: Threshold override must be 1"
         );
-        assertEq(
-            parentDefaultOverride.overrides[1].key,
-            bytes32(uint256(0x5)),
-            "ParentDefaultOverride: Must contain a nonce override"
-        );
-        assertEq(
-            parentDefaultOverride.overrides[1].value,
-            bytes32(expectedParentNonce),
-            "ParentDefaultOverride: Nonce override must match expected value"
-        );
 
         // If child multisig is not set, we don't need to assert the child overrides.
         if (childMultisig != address(0)) {
-            assertDefaultChildStateOverrides(allOverrides_, childMultisig, childMultisigNonce);
+            assertDefaultChildStateOverrides(allOverrides_, childMultisig);
         }
     }
 
     /// @notice This function is used to assert the default state overrides for the child multisig.
     /// Specifically, it verifies that the child state overrides contain a threshold, nonce, owner count, and owner mapping overrides.
-    function assertDefaultChildStateOverrides(
-        Simulation.StateOverride[] memory allOverrides,
-        address childMultisig,
-        uint256 childMultisigNonce
-    ) internal pure {
+    function assertDefaultChildStateOverrides(Simulation.StateOverride[] memory allOverrides, address childMultisig)
+        internal
+        pure
+    {
         assertTrue(
             allOverrides.length >= 2,
             "ChildDefaultOverride: Must be at least 2 overrides (parent default + child default)"
@@ -362,9 +363,9 @@ contract StateOverrideManagerUnitTest is Test {
             "ChildDefaultOverride: Contract address must be the child multisig"
         );
         assertTrue(
-            childDefaultOverride.overrides.length == 5,
+            childDefaultOverride.overrides.length == 4,
             string.concat(
-                "ChildDefaultOverride: Default override must have 5 overrides, found: ",
+                "ChildDefaultOverride: Default override must have 4 overrides, found: ",
                 LibString.toString(childDefaultOverride.overrides.length)
             )
         );
@@ -378,16 +379,6 @@ contract StateOverrideManagerUnitTest is Test {
             bytes32(uint256(0x1)),
             "ChildDefaultOverride: Threshold override must be 1"
         );
-        assertEq(
-            childDefaultOverride.overrides[1].key,
-            bytes32(uint256(0x5)),
-            "ChildDefaultOverride: Must contain a nonce override"
-        );
-        assertEq(
-            childDefaultOverride.overrides[1].value,
-            bytes32(childMultisigNonce),
-            "ChildDefaultOverride: Nonce override must match expected value"
-        );
         // MULTICALL3_ADDRESS should be the owner override for the child multisig in a nested execution.
         assertOwnerOverrides(childDefaultOverride, MULTICALL3_ADDRESS);
     }
@@ -397,12 +388,12 @@ contract StateOverrideManagerUnitTest is Test {
         pure
     {
         assertEq(
-            defaultOverride.overrides[2].key,
+            defaultOverride.overrides[1].key,
             bytes32(uint256(0x3)),
             "ChildDefaultOverride: Must contain an owner count override"
         );
         assertEq(
-            defaultOverride.overrides[2].value,
+            defaultOverride.overrides[1].value,
             bytes32(uint256(0x1)),
             "ChildDefaultOverride: Owner count override must be 1"
         );
@@ -412,12 +403,12 @@ contract StateOverrideManagerUnitTest is Test {
         // where 1 is the owner index and 2 is the mapping slot in the contract
         bytes32 ownerMappingSlot = keccak256(abi.encode(uint256(1), uint256(2)));
         assertEq(
-            defaultOverride.overrides[3].key,
+            defaultOverride.overrides[2].key,
             ownerMappingSlot,
             "Owner Override: Must contain first owner mapping override"
         );
         assertEq(
-            defaultOverride.overrides[3].value,
+            defaultOverride.overrides[2].value,
             bytes32(uint256(uint160(expectedOwnerOverride))), // Necessary for exhaustive tenderly debug trace.
             "Owner Override: Incorrect first owner mapping override"
         );
@@ -426,12 +417,12 @@ contract StateOverrideManagerUnitTest is Test {
         // where MULTICALL3_ADDRESS is the address of the Multicall3 contract and 2 is the mapping slot in the contract
         bytes32 ownerMappingSlot2 = keccak256(abi.encode(uint256(uint160(expectedOwnerOverride)), uint256(2)));
         assertEq(
-            defaultOverride.overrides[4].key,
+            defaultOverride.overrides[3].key,
             ownerMappingSlot2,
             "Owner Override: Must contain second owner mapping override"
         );
         assertEq(
-            defaultOverride.overrides[4].value,
+            defaultOverride.overrides[3].value,
             bytes32(uint256(0x1)),
             "Owner Override: Must contain second owner mapping override value"
         );
