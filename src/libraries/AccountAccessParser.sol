@@ -386,20 +386,18 @@ library AccountAccessParser {
         for (uint256 i = 0; i < _stateDiffs.length; i++) {
             if (currentAddress != _stateDiffs[i].who) {
                 console.log("---"); // Add markdown horizontal rule.
+                string memory currentChainId = _stateDiffs[i].l2ChainId == 0
+                    ? ""
+                    : string.concat("- Chain ID: ", vm.toString(_stateDiffs[i].l2ChainId));
                 string memory currentContractName = bytes(_stateDiffs[i].contractName).length > 0
                     ? string.concat(_stateDiffs[i].contractName)
                     : "TODO: enter contract name";
-                console.log(
-                    "\n### `%s`",
-                    string.concat(LibString.toHexString(_stateDiffs[i].who), " (", currentContractName, ")")
-                );
+                string memory addressString =
+                    string.concat("\n### ", "`", LibString.toHexString(_stateDiffs[i].who), "`");
+                console.log(addressString, string.concat(" (", currentContractName, ") ", currentChainId));
                 currentAddress = _stateDiffs[i].who;
             }
             DecodedStateDiff memory state = _stateDiffs[i];
-            console.log("\n#### Decoded State Change: %s", i);
-            console.log("- **Contract:**          `%s`", state.contractName);
-            console.log("- **Chain ID:**          `%s`", state.l2ChainId == 0 ? "" : vm.toString(state.l2ChainId));
-
             console.log("\n- **Key:**          `%s`", vm.toString(state.raw.slot));
             if (bytes(state.decoded.kind).length == 0) {
                 console.log("- **Before:**     `%s`", vm.toString(state.raw.oldValue));
