@@ -11,6 +11,8 @@ import {
     IDeputyPauseModule
 } from "lib/optimism/packages/contracts-bedrock/interfaces/safe/IDeputyPauseModule.sol";
 
+import {console} from "forge-std/console.sol";
+
 /// @title DeputyPauseRotationKey
 contract DeputyPauseRotationKey is L2TaskBase {
     using stdToml for string;
@@ -63,11 +65,14 @@ contract DeputyPauseRotationKey is L2TaskBase {
         bytes32 deputyAuthMessageTypehash = dpm.deputyAuthMessageTypehash();
         
         // We can't directly call the internal _hashTypedDataV4 function from the contract
-        // but we can validate the signature is right by checking if it reverts when passed to setDeputy
+        // but we can validateggj§ the signature is right by checking if it reverts when passed to setDeputy
         // This serves as a pre-flight check before actual execution
         
         // Verify the new_deputy_signature is exactly 65 bytes (r, s, v format)
         require(new_deputy_signature.length == 65, "ERR104: Invalid signature length");
+        console.logBytes(new_deputy_signature);
+        console.log("new_deputy_signature.length", new_deputy_signature.length);
+        console.log("new_deputy", new_deputy);
         
         // 3. Rotate the new deputy and signature.
         dpm.setDeputy(new_deputy, new_deputy_signature);
