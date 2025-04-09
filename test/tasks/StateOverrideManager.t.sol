@@ -3,13 +3,13 @@ pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
 import {LibString} from "@solady/utils/LibString.sol";
-import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 
 import {MockMultisigTask} from "test/tasks/mock/MockMultisigTask.sol";
 import {MockDisputeGameTask} from "test/tasks/mock/MockDisputeGameTask.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
+import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
 
 contract StateOverrideManagerUnitTest is Test {
     function setUp() public {
@@ -28,22 +28,22 @@ contract StateOverrideManagerUnitTest is Test {
         return fileName;
     }
 
-    function testNonceAndThresholdStateOverrideApplied() public {
+    function testThresholdStateOverrideAppliedReverts() public {
         // This config includes both nonce and threshold state overrides.
         string memory toml = string.concat(
             commonToml,
             "[stateOverrides]\n",
             "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [\n",
-            "    {key = \"0x0000000000000000000000000000000000000000000000000000000000000005\", value = \"0x0000000000000000000000000000000000000000000000000000000000000FFF\"},\n",
             "    {key = \"0x0000000000000000000000000000000000000000000000000000000000000004\", value = \"0x0000000000000000000000000000000000000000000000000000000000000002\"}\n",
             "]"
         );
         string memory fileName = createTempTomlFile(toml);
-        MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
-        assertNonceIncremented(4095, task);
-        assertEq(IGnosisSafe(task.parentMultisig()).getThreshold(), 2, "Threshold must be 2");
-        uint256 threshold = uint256(vm.load(address(task.parentMultisig()), bytes32(uint256(0x4))));
-        assertEq(threshold, 2, "Threshold must be 2 using vm.load");
+
+        MultisigTask task = new MockMultisigTask();
+        vm.expectRevert(
+            "StateOverrideManager: User-defined override is attempting to overwrite an existing default override for contract: 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
+        );
+        task.signFromChildMultisig(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
         removeFile(fileName);
     }
 
@@ -137,35 +137,53 @@ contract StateOverrideManagerUnitTest is Test {
     function testOnlyDefaultTenderlyStateOverridesApplied() public {
         string memory fileName = createTempTomlFile(commonToml);
         MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
-
         assertDefaultStateOverrides(2, task, SECURITY_COUNCIL_CHILD_MULTISIG);
         removeFile(fileName);
     }
 
+    /// @notice This test verifies that user-defined overrides take precedence over default overrides.
     function testUserTenderlyStateOverridesTakePrecedence() public {
+        string memory noStateOverridesFileName = createTempTomlFile(commonToml);
+        MultisigTask noStateOverridesTask = createAndRunTask(noStateOverridesFileName, SECURITY_COUNCIL_CHILD_MULTISIG);
+        uint256 expectedNonce = noStateOverridesTask.nonce();
+        assertDefaultStateOverrides(2, noStateOverridesTask, SECURITY_COUNCIL_CHILD_MULTISIG);
+
         string memory toml = string.concat(
             commonToml,
             "[stateOverrides]\n",
             "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [\n",
-            "    {key = 5, value = 100}\n",
+            "    {key = 5, value = 1024},\n",
+            "    {key = 6, value = 1025}\n",
             "]"
         );
         string memory fileName = createTempTomlFile(toml);
         MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
 
-        uint256 expectedNonce = 100;
+        uint256 expectedUserOverrideNonce = 1024;
+        uint256 expectedRandomEntry = 1025;
         Simulation.StateOverride[] memory allOverrides =
-            assertDefaultStateOverrides(3, task, SECURITY_COUNCIL_CHILD_MULTISIG);
+            assertDefaultStateOverrides(2, task, SECURITY_COUNCIL_CHILD_MULTISIG);
         // User defined override must be applied last
-        assertEq(allOverrides[2].overrides[0].key, bytes32(uint256(5)), "User defined override key must be 5");
+        assertEq(allOverrides.length, 2, "Incorrect number of overrides");
+        assertEq(allOverrides[0].overrides[1].key, bytes32(uint256(5)), "User defined override key must be 5");
         assertEq(
-            allOverrides[2].overrides[0].value,
-            bytes32(uint256(expectedNonce)),
-            "User defined override must be applied last"
+            allOverrides[0].overrides[1].value,
+            bytes32(uint256(expectedUserOverrideNonce)),
+            "User defined override value must match expected value"
         );
+        assertEq(allOverrides[0].overrides[2].key, bytes32(uint256(6)), "User defined override key must be 6");
+        assertEq(
+            allOverrides[0].overrides[2].value,
+            bytes32(uint256(expectedRandomEntry)),
+            "User defined override value must match expected value"
+        );
+        assertTrue(expectedNonce != expectedUserOverrideNonce, "Real nonce must not match user override nonce.");
+        removeFile(noStateOverridesFileName);
         removeFile(fileName);
     }
 
+    /// @notice This test verifies that additional user defined overrides (that aren't already existing e.g. nonce, threshold)
+    /// are applied to the end of the array.
     function testAdditionalUserStateOverridesApplied() public {
         bytes32 overrideKey = bytes32(uint256(keccak256("random.slot.testAdditionalUserStateOverridesApplied")) - 1);
         string memory overrideKeyString = LibString.toHexString(uint256(overrideKey));
@@ -181,11 +199,11 @@ contract StateOverrideManagerUnitTest is Test {
         string memory fileName = createTempTomlFile(toml);
         MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
 
-        uint256 expectedTotalOverrides = 3;
+        uint256 expectedTotalOverrides = 2;
         Simulation.StateOverride[] memory allOverrides =
             assertDefaultStateOverrides(expectedTotalOverrides, task, SECURITY_COUNCIL_CHILD_MULTISIG);
-        assertEq(allOverrides[2].overrides[0].key, overrideKey, "User override key must match expected value");
-        assertEq(allOverrides[2].overrides[0].value, bytes32(uint256(9999)), "User override must be applied last");
+        assertEq(allOverrides[0].overrides[1].key, overrideKey, "User override key must match expected value");
+        assertEq(allOverrides[0].overrides[1].value, bytes32(uint256(9999)), "User override must be applied last");
         removeFile(fileName);
     }
 
@@ -209,19 +227,20 @@ contract StateOverrideManagerUnitTest is Test {
         string memory fileName = createTempTomlFile(toml);
         MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
 
-        uint256 expectedTotalOverrides = 4; // i.e. (2 default + 2 user defined)
+        uint256 expectedTotalOverrides = 3; // i.e. (2 default + 1 user defined)
         Simulation.StateOverride[] memory allOverrides =
             assertDefaultStateOverrides(expectedTotalOverrides, task, SECURITY_COUNCIL_CHILD_MULTISIG);
+
         assertEq(
-            allOverrides[2].overrides[0].key, overrideKey, "First address user override key must match expected value"
+            allOverrides[0].overrides[1].key, overrideKey, "First address user override key must match expected value"
         );
         assertEq(
-            allOverrides[2].overrides[0].value, bytes32(uint256(9999)), "First address user override must be applied"
+            allOverrides[0].overrides[1].value, bytes32(uint256(9999)), "First address user override must be applied"
         );
         assertEq(
-            allOverrides[3].overrides.length,
+            allOverrides[2].overrides.length,
             1,
-            "Last address is not the parent multisig so it should only have 1 override"
+            "Third address is not the parent multisig so it should only have 1 override"
         );
         assertEq(
             allOverrides[0].contractAddress,
@@ -235,19 +254,14 @@ contract StateOverrideManagerUnitTest is Test {
         );
         assertEq(
             allOverrides[2].contractAddress,
-            address(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A),
-            "Third address must be the parent multisig"
-        );
-        assertEq(
-            allOverrides[3].contractAddress,
             address(0x229047fed2591dbec1eF1118d64F7aF3dB9EB290),
-            "Last address must be the last address in the config"
+            "Third address must be the child multisig"
         );
         assertEq(
-            allOverrides[3].overrides[0].key, overrideKey, "Last address user override key must match expected value"
+            allOverrides[2].overrides[0].key, overrideKey, "Third address user override key must match expected value"
         );
         assertEq(
-            allOverrides[3].overrides[0].value, bytes32(uint256(8888)), "Last address user override must be applied"
+            allOverrides[2].overrides[0].value, bytes32(uint256(8888)), "Third address user override must be applied"
         );
         removeFile(fileName);
     }
@@ -269,10 +283,166 @@ contract StateOverrideManagerUnitTest is Test {
         removeFile(fileName);
     }
 
+    function test_appendUserDefinedOverrides_userAttemptsToOverwriteDefaultTenderlyOverrideReverts() public {
+        MockStateOverrideManager som = new MockStateOverrideManager();
+        Simulation.StateOverride[] memory defaults = new Simulation.StateOverride[](1);
+        defaults[0] = Simulation.StateOverride({
+            contractAddress: address(0x123),
+            overrides: _createStorageOverrides("key1", "value1")
+        });
+
+        Simulation.StateOverride memory userOverride = Simulation.StateOverride({
+            contractAddress: address(0x123),
+            overrides: _createStorageOverrides("key1", "newValue")
+        });
+
+        vm.expectRevert(
+            "StateOverrideManager: User-defined override is attempting to overwrite an existing default override for contract: 0x0000000000000000000000000000000000000123"
+        );
+        som.wrapperAppendUserDefinedOverrides(defaults, userOverride);
+    }
+
+    function test_appendUserDefinedOverrides_appendsNewKey() public {
+        MockStateOverrideManager som = new MockStateOverrideManager();
+        Simulation.StateOverride[] memory defaults = new Simulation.StateOverride[](1);
+        defaults[0] = Simulation.StateOverride({
+            contractAddress: address(0x123),
+            overrides: _createStorageOverrides("key1", "value1")
+        });
+
+        Simulation.StateOverride memory userOverride = Simulation.StateOverride({
+            contractAddress: address(0x123),
+            overrides: _createStorageOverrides("key2", "value2")
+        });
+
+        Simulation.StateOverride[] memory updatedOverrides =
+            som.wrapperAppendUserDefinedOverrides(defaults, userOverride);
+
+        assertEq(updatedOverrides[0].overrides.length, 2);
+        assertEq(updatedOverrides[0].overrides[1].key, _toBytes32("key2"));
+        assertEq(updatedOverrides[0].overrides[1].value, _toBytes32("value2"));
+    }
+
+    function test_appendUserDefinedOverrides_contractNotFound() public {
+        MockStateOverrideManager som = new MockStateOverrideManager();
+        Simulation.StateOverride[] memory defaults = new Simulation.StateOverride[](1);
+        defaults[0] = Simulation.StateOverride({
+            contractAddress: address(0x123),
+            overrides: _createStorageOverrides("key1", "value1")
+        });
+
+        Simulation.StateOverride memory userOverride = Simulation.StateOverride({
+            contractAddress: address(0x456),
+            overrides: _createStorageOverrides("key2", "value2")
+        });
+
+        Simulation.StateOverride[] memory updatedOverrides =
+            som.wrapperAppendUserDefinedOverrides(defaults, userOverride);
+
+        assertEq(updatedOverrides[0].overrides[0].value, _toBytes32("value1")); // Ensure no changes
+        assertEq(updatedOverrides.length, 2);
+        assertEq(updatedOverrides[0].contractAddress, address(0x123));
+        assertEq(updatedOverrides[1].contractAddress, address(0x456));
+    }
+
+    function test_appendUserDefinedOverrides_mixedAppends() public {
+        MockStateOverrideManager som = new MockStateOverrideManager();
+        Simulation.StateOverride[] memory defaults = new Simulation.StateOverride[](1);
+        defaults[0] =
+            Simulation.StateOverride({contractAddress: address(0x123), overrides: new Simulation.StorageOverride[](2)});
+        defaults[0].overrides[0] = Simulation.StorageOverride(_toBytes32("key1"), _toBytes32("value1"));
+        defaults[0].overrides[1] = Simulation.StorageOverride(_toBytes32("key2"), _toBytes32("value2"));
+
+        Simulation.StateOverride memory userOverride =
+            Simulation.StateOverride({contractAddress: address(0x123), overrides: new Simulation.StorageOverride[](2)});
+        userOverride.overrides[0] = Simulation.StorageOverride(_toBytes32("key3"), _toBytes32("value3"));
+        userOverride.overrides[1] = Simulation.StorageOverride(_toBytes32("key5"), _toBytes32("newValue5"));
+
+        Simulation.StateOverride[] memory updatedOverrides =
+            som.wrapperAppendUserDefinedOverrides(defaults, userOverride);
+
+        assertEq(updatedOverrides[0].overrides.length, 4);
+        assertEq(updatedOverrides[0].overrides[0].value, _toBytes32("value1"));
+        assertEq(updatedOverrides[0].overrides[1].value, _toBytes32("value2"));
+        assertEq(updatedOverrides[0].overrides[2].key, _toBytes32("key3"));
+        assertEq(updatedOverrides[0].overrides[2].value, _toBytes32("value3"));
+        assertEq(updatedOverrides[0].overrides[3].key, _toBytes32("key5"));
+        assertEq(updatedOverrides[0].overrides[3].value, _toBytes32("newValue5"));
+    }
+
+    function test_appendUserDefinedOverrides_emptyDefaults() public {
+        MockStateOverrideManager som = new MockStateOverrideManager();
+        Simulation.StateOverride[] memory defaults = new Simulation.StateOverride[](0);
+        Simulation.StateOverride memory userOverride = Simulation.StateOverride({
+            contractAddress: address(0x123),
+            overrides: _createStorageOverrides("key1", "value1")
+        });
+
+        Simulation.StateOverride[] memory updatedOverrides =
+            som.wrapperAppendUserDefinedOverrides(defaults, userOverride);
+
+        assertEq(updatedOverrides.length, 1);
+    }
+
+    function test_appendUserDefinedOverrides_contractMatchOnly() public {
+        MockStateOverrideManager som = new MockStateOverrideManager();
+        Simulation.StateOverride[] memory defaults = new Simulation.StateOverride[](1);
+        defaults[0] = Simulation.StateOverride({
+            contractAddress: address(0x123),
+            overrides: _createStorageOverrides("key1", "value1")
+        });
+
+        Simulation.StateOverride memory userOverride =
+            Simulation.StateOverride({contractAddress: address(0x123), overrides: new Simulation.StorageOverride[](0)});
+
+        Simulation.StateOverride[] memory updatedOverrides =
+            som.wrapperAppendUserDefinedOverrides(defaults, userOverride);
+
+        assertEq(updatedOverrides[0].overrides.length, 1); // No changes to storage overrides
+        assertEq(updatedOverrides[0].overrides[0].key, _toBytes32("key1"));
+        assertEq(updatedOverrides[0].overrides[0].value, _toBytes32("value1"));
+    }
+
+    function test_appendUserDefinedOverrides_userOverrideContainsMultipleOverridesForTheSameKeyReverts() public {
+        MockStateOverrideManager som = new MockStateOverrideManager();
+        Simulation.StateOverride[] memory defaults = new Simulation.StateOverride[](1);
+        defaults[0] = Simulation.StateOverride({
+            contractAddress: address(0x123),
+            overrides: _createStorageOverrides("key1", "value1")
+        });
+
+        Simulation.StateOverride memory userOverride =
+            Simulation.StateOverride({contractAddress: address(0x123), overrides: new Simulation.StorageOverride[](2)});
+        userOverride.overrides[0] = Simulation.StorageOverride(_toBytes32("key2"), _toBytes32("newValue1"));
+        userOverride.overrides[1] = Simulation.StorageOverride(_toBytes32("key2"), _toBytes32("newValue2"));
+
+        vm.expectRevert(
+            "StateOverrideManager: Duplicate keys in user-defined overrides for contract: 0x0000000000000000000000000000000000000123"
+        );
+        som.wrapperAppendUserDefinedOverrides(defaults, userOverride);
+    }
+
+    /// @notice Helper function to convert strings to bytes32
+    function _toBytes32(string memory s) private pure returns (bytes32) {
+        return bytes32(bytes(s));
+    }
+
+    /// @notice Helper function to create and run a task.
     function createAndRunTask(string memory fileName, address childMultisig) internal returns (MultisigTask) {
         MultisigTask task = new MockMultisigTask();
         task.signFromChildMultisig(fileName, childMultisig);
         return task;
+    }
+
+    /// @notice Helper function to create storage overrides.
+    function _createStorageOverrides(string memory key, string memory value)
+        private
+        pure
+        returns (Simulation.StorageOverride[] memory)
+    {
+        Simulation.StorageOverride[] memory overrides = new Simulation.StorageOverride[](1);
+        overrides[0] = Simulation.StorageOverride(bytes32(bytes(key)), bytes32(bytes(value)));
+        return overrides;
     }
 
     function assertNonceIncremented(uint256 expectedNonce, MultisigTask task) internal view {
@@ -309,10 +479,9 @@ contract StateOverrideManagerUnitTest is Test {
         if (childMultisig != address(0)) {
             // Nested execution
             assertTrue(
-                // TODO: This should be 1 if the nonce override isn't applied. See TODO comments in StateOverrideManager.sol for more information.
-                parentDefaultOverride.overrides.length == 1,
+                parentDefaultOverride.overrides.length >= 1,
                 string.concat(
-                    "Parent default override must have 1 overrides, found: ",
+                    "Parent default override must have >=1 overrides, found: ",
                     LibString.toString(parentDefaultOverride.overrides.length)
                 )
             );
@@ -432,5 +601,16 @@ contract StateOverrideManagerUnitTest is Test {
     /// is because sometimes the file may not exist and this leads to flaky tests.
     function removeFile(string memory fileName) internal {
         try vm.removeFile(fileName) {} catch {}
+    }
+}
+
+/// The StateOverrideManager contract is an abstract contract so we need to inherit from it
+/// to test it.
+contract MockStateOverrideManager is StateOverrideManager {
+    function wrapperAppendUserDefinedOverrides(
+        Simulation.StateOverride[] memory defaults,
+        Simulation.StateOverride memory userOverride
+    ) public pure returns (Simulation.StateOverride[] memory updatedOverrides) {
+        return super._appendUserDefinedOverrides(defaults, userOverride);
     }
 }

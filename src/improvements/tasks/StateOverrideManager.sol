@@ -17,7 +17,8 @@ abstract contract StateOverrideManager is CommonBase {
     Simulation.StateOverride[] private _stateOverrides;
 
     /// @notice Get all state overrides for simulation. Combines default Tenderly overrides
-    /// with user-defined overrides. User defined overrides are applied last.
+    /// with user-defined overrides. User defined overrides either replace or append to the
+    /// default overrides.
     /// If a child multisig is provided then we are working with a nested safe.
     /// In this case we need additional state overrides.
     function getStateOverrides(address parentMultisig, address optionalChildMultisig)
@@ -25,20 +26,19 @@ abstract contract StateOverrideManager is CommonBase {
         view
         returns (Simulation.StateOverride[] memory allOverrides_)
     {
+        Simulation.StateOverride[] memory defaultOverrides =
+            optionalChildMultisig != address(0) ? new Simulation.StateOverride[](2) : new Simulation.StateOverride[](1);
+
         if (optionalChildMultisig != address(0)) {
-            allOverrides_ = new Simulation.StateOverride[](2 + _stateOverrides.length);
-            allOverrides_[0] = _parentMultisigTenderlyOverride(parentMultisig);
-            allOverrides_[1] = _childMultisigTenderlyOverride(optionalChildMultisig);
-            // Add user-defined overrides (these take precedence over default ones)
-            for (uint256 i = 0; i < _stateOverrides.length; i++) {
-                allOverrides_[i + 2] = _stateOverrides[i];
-            }
+            defaultOverrides[0] = _parentMultisigTenderlyOverride(parentMultisig);
+            defaultOverrides[1] = _childMultisigTenderlyOverride(optionalChildMultisig);
         } else {
-            allOverrides_ = new Simulation.StateOverride[](1 + _stateOverrides.length);
-            allOverrides_[0] = _parentMultisigTenderlyOverride(parentMultisig, msg.sender);
-            for (uint256 i = 0; i < _stateOverrides.length; i++) {
-                allOverrides_[i + 1] = _stateOverrides[i];
-            }
+            defaultOverrides[0] = _parentMultisigTenderlyOverride(parentMultisig, msg.sender);
+        }
+
+        allOverrides_ = defaultOverrides;
+        for (uint256 i = 0; i < _stateOverrides.length; i++) {
+            allOverrides_ = _appendUserDefinedOverrides(allOverrides_, _stateOverrides[i]);
         }
     }
 
@@ -119,12 +119,15 @@ abstract contract StateOverrideManager is CommonBase {
 
     /// @notice Read state overrides from a TOML config file.
     /// Parses the TOML file and extracts state overrides for specific contracts.
-    function _readStateOverridesFromConfig(string memory taskConfigFilePath) private {
+    function _readStateOverridesFromConfig(string memory taskConfigFilePath)
+        internal
+        returns (Simulation.StateOverride[] memory)
+    {
         string memory toml = vm.readFile(taskConfigFilePath);
         string memory stateOverridesKey = ".stateOverrides";
 
         // Skip if no state overrides section is found
-        if (!toml.keyExists(stateOverridesKey)) return;
+        if (!toml.keyExists(stateOverridesKey)) return _stateOverrides;
 
         // Get all target contract addresses
         string[] memory targetStrings = vm.parseTomlKeys(toml, stateOverridesKey);
@@ -151,6 +154,96 @@ abstract contract StateOverrideManager is CommonBase {
 
             for (uint256 j = 0; j < parsedOverrides[i].overrides.length; j++) {
                 stateOverrideStorage.overrides.push(parsedOverrides[i].overrides[j]);
+            }
+        }
+        return _stateOverrides;
+    }
+
+    /// @notice Append user-defined overrides to default overrides.
+    /// This function will revert if a user-defined override is duplicated or if it attempts to overwrite an existing default override.
+    function _appendUserDefinedOverrides(
+        Simulation.StateOverride[] memory defaultOverrides_,
+        Simulation.StateOverride memory userDefinedOverride_
+    ) internal pure returns (Simulation.StateOverride[] memory) {
+        // Check for duplicates in the user defined overrides first.
+        _validateNoDuplicates(userDefinedOverride_.overrides, userDefinedOverride_.contractAddress);
+
+        bool foundContract;
+
+        // Check if the contract address exists in the default overrides (append if it does).
+        for (uint256 j = 0; j < defaultOverrides_.length; j++) {
+            if (defaultOverrides_[j].contractAddress == userDefinedOverride_.contractAddress) {
+                // Validate ALL user overrides against ORIGINAL defaults first
+                _validateAgainstDefaults(
+                    defaultOverrides_[j].overrides, userDefinedOverride_.overrides, userDefinedOverride_.contractAddress
+                );
+
+                // Append after validation
+                Simulation.StorageOverride[] memory combined = new Simulation.StorageOverride[](
+                    defaultOverrides_[j].overrides.length + userDefinedOverride_.overrides.length
+                );
+
+                uint256 i = 0;
+                for (; i < defaultOverrides_[j].overrides.length; i++) {
+                    combined[i] = defaultOverrides_[j].overrides[i];
+                }
+                for (uint256 l = 0; l < userDefinedOverride_.overrides.length; l++) {
+                    combined[i++] = userDefinedOverride_.overrides[l];
+                }
+
+                defaultOverrides_[j].overrides = combined;
+                foundContract = true;
+                break;
+            }
+        }
+
+        // If the contract address does not exist in the default overrides, append the user defined override.
+        if (!foundContract) {
+            Simulation.StateOverride[] memory newOverrides =
+                new Simulation.StateOverride[](defaultOverrides_.length + 1);
+            for (uint256 j = 0; j < defaultOverrides_.length; j++) {
+                newOverrides[j] = defaultOverrides_[j];
+            }
+            newOverrides[defaultOverrides_.length] = userDefinedOverride_;
+            return newOverrides;
+        }
+
+        return defaultOverrides_;
+    }
+
+    function _validateNoDuplicates(Simulation.StorageOverride[] memory overrides, address contractAddress)
+        internal
+        pure
+    {
+        for (uint256 i = 0; i < overrides.length; i++) {
+            for (uint256 j = i + 1; j < overrides.length; j++) {
+                if (overrides[i].key == overrides[j].key) {
+                    revert(
+                        string.concat(
+                            "StateOverrideManager: Duplicate keys in user-defined overrides for contract: ",
+                            vm.toString(contractAddress)
+                        )
+                    );
+                }
+            }
+        }
+    }
+
+    function _validateAgainstDefaults(
+        Simulation.StorageOverride[] memory defaults,
+        Simulation.StorageOverride[] memory userOverrides,
+        address contractAddress
+    ) internal pure {
+        for (uint256 l = 0; l < userOverrides.length; l++) {
+            for (uint256 k = 0; k < defaults.length; k++) {
+                if (defaults[k].key == userOverrides[l].key) {
+                    revert(
+                        string.concat(
+                            "StateOverrideManager: User-defined override is attempting to overwrite an existing default override for contract: ",
+                            vm.toString(contractAddress)
+                        )
+                    );
+                }
             }
         }
     }
