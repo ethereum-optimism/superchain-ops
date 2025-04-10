@@ -8,7 +8,7 @@ import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {IDeputyPauseModule} from "lib/optimism/packages/contracts-bedrock/interfaces/safe/IDeputyPauseModule.sol";
 
 /// @title DeputyPauseRotationKey
-contract DeputyPauseRotationKey is L2TaskBase {
+contract DeputyPauseRotationKey is SimpleTaskBase {
     using stdToml for string;
     /// @notice Struct to store inputs for deputyPauseModule.setDeputy() function L1.
 
