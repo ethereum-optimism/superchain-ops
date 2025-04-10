@@ -126,7 +126,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **Before:** `0x760C48C62A85045A6B69f07F4a9f22868659CbCc`
   - **After:** [`0x340f923E5c7cbB2171146f64169EC9d5a9FfE647`](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/validation/standard/standard-versions-sepolia.toml#L9)
   - **Summary:**           ERC-1967 implementation slot
-  - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+  - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard. SystemConfig contract for `op-contracts/v3.0.0-rc.2`.
 
   ---
 
