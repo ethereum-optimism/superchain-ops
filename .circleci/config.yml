@@ -494,6 +494,12 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
 
+      - just_simulate_single_improvements:
+          name: "simulate single sep/004-deputy-pause-module-activation"
+          task: "/sep/004-deputy-pause-module-activation"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
       - just_simulate_sc_rehearsal_2:
           context:
             - circleci-repo-readonly-authenticated-github-token
