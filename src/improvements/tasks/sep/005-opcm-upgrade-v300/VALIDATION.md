@@ -121,7 +121,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   - **After:** `[0x340f923E5c7cbB2171146f64169EC9d5a9FfE647](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/validation/standard/standard-versions-sepolia.toml#L9-L9)`
   - **Summary:**           ERC-1967 implementation slot
   - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard. SystemConfig contract for `op-contracts/v3.0.0-rc.2`.
-
+  - **After:** [`0x340f923E5c7cbB2171146f64169EC9d5a9FfE647`](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/validation/standard/standard-versions-sepolia.toml#L9-L9)
   ---
 
 ### [`0x05f9613adb30026ffd634f38e5c4dfd30a197fa1`]((https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/op.toml#L63-L63)) (DisputeGameFactory) - Chain ID: 11155420
