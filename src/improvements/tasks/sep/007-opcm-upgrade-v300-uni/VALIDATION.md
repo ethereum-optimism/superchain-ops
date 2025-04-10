@@ -106,6 +106,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **After:** [`0xB443Da3e07052204A02d630a8933dAc05a0d6fB4`](https://github.com/ethereum-optimism/superchain-registry/blob/9dc8a7dfb8081291315d0c0ccf871f46c7753b63/validation/standard/standard-versions-sepolia.toml#L13)
   - **Summary:**           ERC-1967 implementation slot
   - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+                           OptimismPortal2 contract for `op-contracts/v3.0.0-rc.2`.
 
   ---
 
@@ -118,6 +119,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **After:** [`0x7aE1d3BD877a4C5CA257404ce26BE93A02C98013`](https://github.com/ethereum-optimism/superchain-registry/blob/9dc8a7dfb8081291315d0c0ccf871f46c7753b63/validation/standard/standard-versions-sepolia.toml#L19)
   - **Summary:**           ERC-1967 implementation slot
   - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+                           OptimismPortal2 contract for `op-contracts/v3.0.0-rc.2`.
 
   ---
 
@@ -127,9 +129,10 @@ For each contract listed in the state diff, please verify that no contracts or s
 
   - **Decoded Kind:**      `address`
   - **Before:** `0x760C48C62A85045A6B69f07F4a9f22868659CbCc`
-  - **After:** [`0x340f923E5c7cbB2171146f64169EC9d5a9FfE647`](https://github.com/ethereum-optimism/superchain-registry/blob/9dc8a7dfb8081291315d0c0ccf871f46c7753b63/validation/standard/standard-versions-sepolia.toml#L28)
+  - **After:** [`0x340f923E5c7cbB2171146f64169EC9d5a9FfE647`](https://github.com/ethereum-optimism/superchain-registry/blob/9dc8a7dfb8081291315d0c0ccf871f46c7753b63/validation/standard/standard-versions-sepolia.toml#L9)
   - **Summary:**           ERC-1967 implementation slot
   - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+                           SystemConfig contract for `op-contracts/v3.0.0-rc.2`.
 
   ---
 
@@ -153,6 +156,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **After:** [`0x0b09ba359A106C9ea3b181CBc5F394570c7d2a7A`](https://github.com/ethereum-optimism/superchain-registry/blob/9dc8a7dfb8081291315d0c0ccf871f46c7753b63/validation/standard/standard-versions-sepolia.toml#L20)
   - **Summary:**           ERC-1967 implementation slot
   - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+                           L1StandardBridge contract for `op-contracts/v3.0.0-rc.2`.
 
 ---
 
@@ -162,7 +166,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
   - **Before:**     `0x3ea6084748ed1b2a9b5d4426181f1ad8c93f6231`
   - **After:**     `0x5d5a095665886119693f0b41d8dfee78da033e8b`
-  - **Summary:**  The name `OVM_L1CrossDomainMessenger` is set to the address of the new 'op-contracts/v3.0.0-rc.2' L1CrossDomainMessenger at [0x5d5a095665886119693f0b41d8dfee78da033e8b](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/validation/standard/standard-versions-sepolia.toml#L18).
+  - **Summary:**  The name `OVM_L1CrossDomainMessenger` is set to the address of the new `op-contracts/v3.0.0-rc.2` L1CrossDomainMessenger implementation at [0x5d5a095665886119693f0b41d8dfee78da033e8b](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/validation/standard/standard-versions-sepolia.toml#L18).
   - **Detail:** **THIS WAS CAREFULLY VERIFIED BY RUNBOOK REVIEWERS AND NEED NOT BE CHECKED BY SIGNERS.**
     This key is complicated to compute, so instead we attest to correctness of the key by
     verifying that the "Before" value currently exists in that slot, as explained below.
