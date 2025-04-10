@@ -31,6 +31,9 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
     /// @notice Mapping of L2 chain IDs to their respective prestates.
     mapping(uint256 => Claim) public absolutePrestates;
 
+    /// @notice Mapping of L2 chain IDs to their expected validation errors.
+    mapping(uint256 => string) public expectedErrors;
+
     /// @notice Returns the storage write permissions required for this task.
     function _taskStorageWrites() internal view virtual override returns (string[] memory) {
         string[] memory storageWrites = new string[](8);
@@ -55,6 +58,22 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
             abi.decode(tomlContent.parseRaw(".opcmUpgrades.absolutePrestates"), (OPCMUpgrade[]));
         for (uint256 i = 0; i < upgrades.length; i++) {
             absolutePrestates[upgrades[i].chainId] = upgrades[i].absolutePrestate;
+        }
+
+        // Read expected validation errors for each chain
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            string memory chainIdStr = vm.toString(chainId);
+            string memory errorsPath = string.concat(".validation.expectedErrors.", chainIdStr);
+
+            // Check if this path exists in the TOML
+            if (tomlContent.keyExists(errorsPath)) {
+                expectedErrors[chainId] = tomlContent.readString(errorsPath);
+            } else {
+                // If no expected errors are specified, default to empty string
+                expectedErrors[chainId] = "";
+            }
         }
 
         OPCM = tomlContent.readAddress(".addresses.OPCM");
@@ -116,11 +135,13 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
 
             string memory reasons = STANDARD_VALIDATOR_V300.validate({_input: input, _allowFailure: true});
 
-            // PDDG-ANCHORP-40: The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
-            // PLDG-ANCHORP-40: The anchor state registry's permissionless root is not 0xdead000000000000000000000000000000000000000000000000000000000000
-            string memory expectedErrors_11155420 = "PDDG-ANCHORP-40,PLDG-ANCHORP-40";
+            // Get the expected errors from config for this chain
+            string memory expectedErrorsForChain = expectedErrors[chainId];
 
-            require(reasons.eq(expectedErrors_11155420), string.concat("Unexpected errors: ", reasons));
+            require(
+                reasons.eq(expectedErrorsForChain),
+                string.concat("Unexpected errors: ", reasons, ", expected: ", expectedErrorsForChain)
+            );
         }
     }
 
