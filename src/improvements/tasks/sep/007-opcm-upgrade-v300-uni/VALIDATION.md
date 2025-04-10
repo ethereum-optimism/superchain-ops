@@ -138,6 +138,11 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ### [`0xd363339ee47775888df411a163c586a8bdea9dbf`](https://github.com/ethereum-optimism/superchain-registry/blob/9dc8a7dfb8081291315d0c0ccf871f46c7753b63/superchain/configs/sepolia/unichain.toml#L46)  (ProxyAdminOwner (GnosisSafe)) - Chain ID: 1301
 
+- **Account Nonce in State:**
+  - **Before:** 4
+  - **After:** 6
+  - **Detail:** Two new dispute games were deployed by the ProxyAdminOwner during execution, resulting in the account nonce in state being incremented twice.
+
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
 
   - **Decoded Kind:** `uint256`
