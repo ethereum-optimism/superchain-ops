@@ -492,6 +492,27 @@ workflows:
       - just_simulate_single_improvements:
           name: "simulate single sep/005-deputy-pause-key-rotation"
           task: "sep/005-deputy-pause-key-rotation"
+
+      # U14 Unichain sepolia
+      - just_simulate_single_improvements:
+          name: "simulate single sep/007-opcm-upgrade-v300-uni"
+          task: "/sep/007-opcm-upgrade-v300-uni"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
+      # U14 Sepolia Base Upgrade - Child-Safe-1
+      - just_simulate_nested_improvements:
+          name: "simulate nested sep/006-opcm-upgrade-v300 child-safe-1"
+          task: "/sep/006-opcm-upgrade-v300"
+          signer: "child-safe-1"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
+      # U14 Sepolia Base Upgrade - Child-Safe-2
+      - just_simulate_nested_improvements:
+          name: "simulate nested sep/006-opcm-upgrade-v300 child-safe-2"
+          task: "/sep/006-opcm-upgrade-v300"
+          signer: "child-safe-2"
           context:
             - circleci-repo-readonly-authenticated-github-token
 

@@ -29,4 +29,4 @@ Rotates the `DeputyPauseModule` Deputy EOA from `0xfcb2575ab431a175669ae50073641
 
 ## Signing and execution
 
-This task has to be signed by the [FakeFondationOperationsSafe](https://sepolia.etherscan.io/address/0x837DE453AD5F21E89771e3c06239d8236c0EFd5EZ)
+This task has to be signed by the [FakeFoundationOperationsSafe](https://sepolia.etherscan.io/address/0x837DE453AD5F21E89771e3c06239d8236c0EFd5E)
