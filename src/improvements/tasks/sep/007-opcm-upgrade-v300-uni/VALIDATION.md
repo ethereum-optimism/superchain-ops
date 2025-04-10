@@ -18,7 +18,7 @@ the values printed to the terminal when you run the task.
 >
 > Before signing, ensure the below hashes match what is on your ledger.
 >
-> - Domain Hash: `0xe90b7bceb6e7df5418fb78d8ee546e97c83a08bbccc01a0644d599ccd2a7c2e0`
+> - Domain Hash: `0x2fedecce87979400ff00d5cec4c77da942d43ab3b9db4a5ffc51bb2ef498f30b`
 > - Message Hash: `0x8e00a56a7c65b5adc299033bd4d7f5b81eeab33393e5eeef3c3c11363b94a908`
 
 ## Understanding Task Calldata
