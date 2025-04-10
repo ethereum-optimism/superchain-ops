@@ -4,7 +4,7 @@ Status: [READYTOSIGN]()
 
 ## Objective
 This would be part of the unpausing of sepolia following the pause of the superchain since we are testing that U13 upgrade for the Pause mechanism is working as expected.
-This task **unpause** the SuperchainConfig contract. This will first check if the Superchain is `paused`. If this is not `paused`we will skip the execution of this task.
+This task **unpause** the SuperchainConfig contract. This will first check if the Superchain is `paused`. If this is not `paused` we will skip the execution of this task.
 If this is the SuperchainConfig is `paused` we will unpause the SuperchainConfig. 
 This task, is a single task and has to be signed by the **FondationOperationsSafe**.  
 
