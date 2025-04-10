@@ -118,7 +118,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:**      `address`
   - **Before:** `0x760C48C62A85045A6B69f07F4a9f22868659CbCc`
-  - **After:** `[0x340f923E5c7cbB2171146f64169EC9d5a9FfE647](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/validation/standard/standard-versions-sepolia.toml#L9-L9)`
+  - **After:** [`0x340f923E5c7cbB2171146f64169EC9d5a9FfE647`](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/validation/standard/standard-versions-sepolia.toml#L9-L9)`
   - **Summary:**           ERC-1967 implementation slot
   - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard. SystemConfig contract for `op-contracts/v3.0.0-rc.2`.
   - **After:** [`0x340f923E5c7cbB2171146f64169EC9d5a9FfE647`](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/validation/standard/standard-versions-sepolia.toml#L9-L9)
@@ -155,7 +155,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:**      `address`
   - **Before:** `0x2D7e764a0D9919e16983a46595CfA81fc34fa7Cd`
-  - **After:** `[0xB443Da3e07052204A02d630a8933dAc05a0d6fB4](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/validation/standard/standard-versions-sepolia.toml#L13-L13)`
+  - **After:** [`0xB443Da3e07052204A02d630a8933dAc05a0d6fB4`](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/validation/standard/standard-versions-sepolia.toml#L13-L13)`
   - **Summary:**           ERC-1967 implementation slot
   - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard. OptimismPortal2 contract for `op-contracts/v3.0.0-rc.2`.
 
