@@ -186,7 +186,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **Before:** `26`
   - **After:** `27`
   - **Summary:**           nonce
-  - **Detail:**
+  - **Detail:** Nonce update for the parent multisig.
 
   ---
 
