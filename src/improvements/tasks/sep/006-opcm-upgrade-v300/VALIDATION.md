@@ -95,7 +95,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
 ### [`0x0fe884546476ddd290ec46318785046ef68a0ba9`](https://github.com/ethereum-optimism/superchain-registry/blob/fb900358ab5016de86f37a23265bd94ce927c9c0/superchain/configs/sepolia/base.toml#L46) (ProxyAdminOwner (GnosisSafe)) - Chain ID: 84532
 
-- **Account Nonce in State:**
+- **Nonce:**
   - **Before:** 4
   - **After:** 6
   - **Detail:** Two new dispute games were deployed by the ProxyAdminOwner during execution, resulting in the account nonce in state being incremented twice.
