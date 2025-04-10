@@ -116,19 +116,6 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
 
             string memory reasons = STANDARD_VALIDATOR_V300.validate({_input: input, _allowFailure: true});
 
-            // PDDG-ANCHORP-40: The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
-            // PLDG-ANCHORP-40: The anchor state registry's permissionless root is not 0xdead000000000000000000000000000000000000000000000000000000000000
-            string memory expectedErrors_11155420 = "PDDG-ANCHORP-40,PLDG-ANCHORP-40";
-
-            // PDDG-DWETH-30: Delayed WETH owner must be l1PAOMultisig (for permissioned dispute game) - It is checking for the OP Sepolia PAO
-            // PDDG-ANCHORP-40: The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
-            string memory expectedErrors_1946 = "PDDG-DWETH-30,PDDG-ANCHORP-40,PDDG-120,PLDG-10";
-
-            // PDDG-DWETH-30: Delayed WETH owner must be l1PAOMultisig (for permissioned dispute game) - It is checking for the OP Sepolia PAO
-            // PDDG-ANCHORP-40: The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
-            // PLDG-ANCHORP-40: The anchor state registry's permissionless root is not 0xdead000000000000000000000000000000000000000000000000000000000000
-            string memory expectedErrors_763373 = "PDDG-DWETH-30,PDDG-ANCHORP-40,PLDG-DWETH-30,PLDG-ANCHORP-40";
-
             // PROXYA-10: Proxy admin owner must be l1PAOMultisig - This is OK because it is checking for the OP Sepolia PAO.
             // DF-30: Dispute factory owner must be l1PAOMultisig - It is checking for the OP Sepolia PAO.
             // PDDG-DWETH-30: Delayed WETH owner must be l1PAOMultisig (for permissioned dispute game) - It is checking for the OP Sepolia PAO
@@ -140,8 +127,7 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
                 "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-ANCHORP-40,PDDG-120,PLDG-DWETH-30,PLDG-ANCHORP-40";
 
             require(
-                reasons.eq(expectedErrors_11155420) || reasons.eq(expectedErrors_1946)
-                    || reasons.eq(expectedErrors_763373) || reasons.eq(expectedErrors_1301),
+                reasons.eq(expectedErrors_1301),
                 string.concat("Unexpected errors: ", reasons)
             );
         }
