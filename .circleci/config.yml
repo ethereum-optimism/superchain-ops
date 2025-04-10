@@ -489,6 +489,12 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
 
+      - just_simulate_single_improvements:
+          name: "simulate single sep/005-deputy-pause-key-rotation"
+          task: "sep/005-deputy-pause-key-rotation"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
       - just_simulate_nested:
           task: "/eth/zora-002-fp-upgrade"
           context:
