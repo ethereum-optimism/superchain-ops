@@ -119,7 +119,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   Registry links provided. This validates the bytecode deployed at the addresses contains the correct logic.
 - All key values match the semantic meaning provided, which can be validated using the storage layout links provided.
 
-### [`0x034edd2a225f7f429a63e0f1d2084b9e0a93b538` ](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/sepolia/op.toml#L5) (SystemConfig - OP Sepolia Testnet) Chain ID: 11155420
+### [`0x034edd2a225f7f429a63e0f1d2084b9e0a93b538`](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/sepolia/op.toml#L5) (SystemConfig - OP Sepolia Testnet) Chain ID: 11155420
 
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:**      `address`
