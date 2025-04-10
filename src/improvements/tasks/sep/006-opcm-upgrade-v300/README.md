@@ -1,6 +1,6 @@
 # 006-opcm-upgrade-v300: Sepolia OPCM v3.0.0: base
 
-Status: [DRAFT]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
