@@ -18,12 +18,12 @@ the values printed to the terminal when you run the task.
 >
 > Before signing, ensure the below hashes match what is on your ledger.
 >
-> ### Child Safe 1: `0x9855054731540A48b28990B63DcF4f33d8AE46A1`
+> ### Child Safe 1: `0x9855054731540A48b28990B63DcF4f33d8AE46A1` (Base)
 >
 > - Domain Hash: `0x88aac3dc27cc1618ec43a87b3df21482acd24d172027ba3fbb5a5e625d895a0b`
 > - Message Hash: `0xf8bed62c979c1528f6fa8e798d59a9772b7e361eb2ef4130090ca7af3e55e820`
 >
-> ### Child Safe 2: `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`
+> ### Child Safe 2: `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A` (Optimism Foundation)
 >
 > - Domain Hash: `0x4e6a6554de0308f5ece8ff736beed8a1b876d16f5c27cac8e466d7de0c703890`
 > - Message Hash: `0x2eef2c724007dce918a11c4f9150d4b1be4329ce2aad53d57b7b83ffecb52fd6`
@@ -118,7 +118,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   Decoded Kind:      address
   Decoded Old Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/validation/standard/standard-versions-mainnet.toml#L79">0x64B5a5Ed26DCb17370Ff4d33a8D503f0fbD06CfF</a>
   Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/validation/standard/standard-versions-mainnet.toml#L58">0x78972E88Ab8BBB517a36cAea23b931BAB58AD3c6</a>
-  
+
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                      L1StandardBridge contract for 'op-contracts/v2.0.0-rc.1'.
@@ -151,7 +151,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   Decoded Kind:      address
   Decoded Old Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/validation/standard/standard-versions-mainnet.toml#L75">0xc641A33cab81C559F2bd4b21EA34C290E2440C2B</a>
   Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/validation/standard/standard-versions-mainnet.toml#L54">0x4bbA758F006Ef09402eF31724203F316ab74e4a0</a>
-  
+
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                      DisputeGameFactory contract for 'op-contracts/v2.0.0-rc.1'.
@@ -187,7 +187,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
                       - <i>cast storage 0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e 0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b --rpc-url mainnet</i>
                      The Raw Slot can be derived from:
                       - <i>cast index uint32 0 101</i>
-  
+
 ----- DecodedStateDiff[6] -----
   Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/superchain/configs/mainnet/base.toml#L58">0x49048044D57e1C92A77f79988d21Fa8fAF74E97e</a>
   Contract:          OptimismPortal2 - Base Mainnet
@@ -203,7 +203,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                      OptimismPortal contract for 'op-contracts/v2.0.0-rc.1'.
 
-  
+
 ----- DecodedStateDiff[7] -----
   Who:               0x496286e5eE7758de84Dd17e6d2d97afC2ACE4cc7
   Contract:          AnchorStateRegistryProxy - Base Mainnet
@@ -218,11 +218,11 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
                       1. <i>0x01</i> - <i>_initialized</i> flag set to 'true'
                       2. <i>0x00</i> - <i>_initializing</i> flag set to 'false'
                       3. <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/superchain.toml#L3"><i>0x95703e0982140D16f8ebA6d158FccEde42f04a4C</i><a> - Mainnet SuperchainConfig
-                      
+
 ----- DecodedStateDiff[8] -----
   Who:               0x496286e5eE7758de84Dd17e6d2d97afC2ACE4cc7
   Contract:          AnchorStateRegistryProxy - Base Mainnet
-  Chain ID:          8453         
+  Chain ID:          8453
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000001
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x00000000000000000000000043edb88c4b80fdd2adff2412a7bebf9df42cb40e
@@ -230,11 +230,11 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   Summary:           Slot 1 is updated to set DisputeGameFactoryProxy address
   Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
                      <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/base.toml#L63">0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e</a> is the DisputeGameFactoryProxy address on Base Mainnet.
-  
+
 ----- DecodedStateDiff[9] -----
   Who:               0x496286e5eE7758de84Dd17e6d2d97afC2ACE4cc7
   Contract:          AnchorStateRegistryProxy - Base Mainnet
-  Chain ID:          8453        
+  Chain ID:          8453
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000002
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x00000000000000000000000049048044d57e1c92a77f79988d21fa8faf74e97e
@@ -242,11 +242,11 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   Summary:           Slot 2 is updated to set OptimismPortalProxy address
   Detail:            Please refer to <i>'Figure 0.2'</i> at the end of this report for the storage layout of AnchorStateRegistry.
                      <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/base.toml#L58">0x49048044D57e1C92A77f79988d21Fa8fAF74E97e</a> is the OptimismPortalProxy address on Base Mainnet.
-  
+
 ----- DecodedStateDiff[10] -----
   Who:               0x496286e5eE7758de84Dd17e6d2d97afC2ACE4cc7
   Contract:          AnchorStateRegistryProxy - Base Mainnet
-  Chain ID:          8453        
+  Chain ID:          8453
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000004
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x2e31526db0e371ebf6da52e1f3662801d3352fe8049a573040018c08d94b49cf
@@ -262,7 +262,7 @@ ATTENTION TASK REVIEWER: It is safe to continue if this state diff is different 
 ----- DecodedStateDiff[11] -----
   Who:               0x496286e5eE7758de84Dd17e6d2d97afC2ACE4cc7
   Contract:          AnchorStateRegistryProxy - Base Mainnet
-  Chain ID:          8453        
+  Chain ID:          8453
   Raw Slot:          0x0000000000000000000000000000000000000000000000000000000000000005
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x0000000000000000000000000000000000000000000000000000000001aa8857
@@ -274,7 +274,7 @@ ATTENTION TASK REVIEWER: It is safe to continue if this state diff is different 
                       - <i>cast --to-dec 0x8baa6f</i> -> <i>15684501</i>
                      Anyone can call <a href="https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L239"><i>'setAnchorState(IDisputeGame _game)'</i></a> so it can be updated often if the conditions are right.
 
-ATTENTION TASK REVIEWER: It is safe to continue if this state diff is different than what is seen in the Tenderly state diff.  
+ATTENTION TASK REVIEWER: It is safe to continue if this state diff is different than what is seen in the Tenderly state diff.
 
 ----- DecodedStateDiff[12] -----
   Who:               0x496286e5eE7758de84Dd17e6d2d97afC2ACE4cc7
@@ -290,11 +290,11 @@ ATTENTION TASK REVIEWER: It is safe to continue if this state diff is different 
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                      AnchorStateRegistry contract for 'op-contracts/v2.0.0-rc.1'.
-                     
+
 ----- DecodedStateDiff[13] -----
   Who:               0x496286e5eE7758de84Dd17e6d2d97afC2ACE4cc7
   Contract:          AnchorStateRegistryProxy - Base Mainnet
-  Chain ID:          8453       
+  Chain ID:          8453
   Raw Slot:          0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103
   Raw Old Value:     0x0000000000000000000000000000000000000000000000000000000000000000
   Raw New Value:     0x0000000000000000000000000475cbcaebd9ce8afa5025828d5b98dfb67e059e
@@ -304,7 +304,7 @@ ATTENTION TASK REVIEWER: It is safe to continue if this state diff is different 
 
   Summary:           Proxy owner address
   Detail:            Standard slot for storing the owner address in a Proxy contract.
-  
+
 ----- DecodedStateDiff[14] -----
   Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/superchain/configs/mainnet/base.toml#L54">0x608d94945A64503E642E6370Ec598e519a2C1E53</a>
   Contract:          L1ERC721Bridge - Base Mainnet
@@ -315,7 +315,7 @@ ATTENTION TASK REVIEWER: It is safe to continue if this state diff is different 
   Decoded Kind:      address
   Decoded Old Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/validation/standard/standard-versions-mainnet.toml#L78">0xAE2AF01232a6c4a4d3012C5eC5b1b35059caF10d</a>
   Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/validation/standard/standard-versions-mainnet.toml#L57">0x276d3730f219f7ec22274f7263180b8452B46d47</a>
-  
+
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
                      L1ERC721Bridge contract for 'op-contracts/v2.0.0-rc.1'
@@ -349,17 +349,17 @@ ATTENTION TASK REVIEWER: It is safe to continue if this state diff is different 
   Summary:           nonce
   Detail:            The nonce of the ProxyAdminOwner contract is updated.
 
------ TENDERLY ONLY STATE DIFF -----   
- Who:                
- Contract:           ProxyAdminOwner (GnosisSafe) - Base Sepolia Testnet
- Chain ID:           11155111
+----- TENDERLY ONLY STATE DIFF -----
+ Who:                0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c
+ Contract:           ProxyAdminOwner (GnosisSafe)
+ Chain ID:           1
  Raw Slot:           0x2344099c423084d4f4e9fc90f61db771ee5d89f940272e87492f1ab4e6466441
  Raw Old Value:      0x0000000000000000000000000000000000000000000000000000000000000000
  Raw New Value:      0x0000000000000000000000000000000000000000000000000000000000000001
 
  Summary:            <i>approveHash(bytes32)</i> called on ProxyAdminOwner by child multisig.
  Detail:             As part of the Tenderly simulation, we want to illustrate the <i>approveHash</i> invocation.
-                     This step isn't shown in the local simulation because the parent multisig is invoked directly, 
+                     This step isn't shown in the local simulation because the parent multisig is invoked directly,
                      bypassing the <i>approveHash</i> calls.
                      This slot change reflects an update to the approvedHashes mapping.
                      Specifically, this simulation was ran as the nested safe <i>0x9855054731540A48b28990B63DcF4f33d8AE46A1</i>.
@@ -369,7 +369,7 @@ ATTENTION TASK REVIEWER: It is safe to continue if this state diff is different 
                       - <i>res=$(cast index address 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A 8)</i>
                       - <i>cast index bytes32 0xdc77f38c84a86deaa26647fc68a717121fb17ad0e50bc7d385bab4beb3347233 $res</i>
                       - Alternative 'Raw Slot': <i>0x5052bc1a1c56acb3d26d5ad9364d818ae19a42dea54fe66de38ba9e7470acbc6</i>
- 
+
 ----- DecodedStateDiff[17] -----
   Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/superchain/configs/mainnet/base.toml#L52">0x8EfB6B5c4767B09Dc9AA6Af4eAA89F749522BaE2</a>
   Contract:          AddressManager - Base Mainnet
@@ -386,9 +386,9 @@ ATTENTION TASK REVIEWER: It is safe to continue if this state diff is different 
                        - <i>cast call 0x8EfB6B5c4767B09Dc9AA6Af4eAA89F749522BaE2 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url mainnet</i>
                       2. What is currently stored at the key:
                        - <i>cast storage 0x8EfB6B5c4767B09Dc9AA6Af4eAA89F749522BaE2 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url mainnet</i>
-  
------ TENDERLY ONLY STATE DIFF -----   
-  Who:               0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC
+
+----- TENDERLY ONLY STATE DIFF -----
+  Who:               0x9855054731540A48b28990B63DcF4f33d8AE46A1
   Contract:          Child Safe 1 - Base Mainnet
   Chain ID:          8453
 
@@ -399,11 +399,11 @@ ATTENTION TASK REVIEWER: It is safe to continue if this state diff is different 
   Decoded Kind:      uint256
   Decoded Old Value: 18
   Decoded New Value: 19
-  
+
   Summary:           nonce
   Detail:            The nonce of the Child Safe 1 contract is updated.
                      Alternatively, the 'Raw Old Value' and 'Raw New Value' value can be different if we run as  <i>0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A</i>
-                      
+
 
 ----- DecodedStateDiff[18] -----
   Who:               <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/superchain/configs/mainnet/base.toml#L62">0xa2f2aC6F5aF72e494A227d79Db20473Cf7A1FFE8</a>
@@ -414,7 +414,7 @@ ATTENTION TASK REVIEWER: It is safe to continue if this state diff is different 
   Raw New Value:     0x0000000000000000000000005e40b9231b86984b5150507046e354dbfbed3d9e
   Decoded Kind:      address
   Decoded Old Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/validation/standard/standard-versions-mainnet.toml#L74">0x71e966Ae981d1ce531a7b6d23DC0f27B38409087</a>
-  Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/validation/standard/standard-versions-mainnet.toml#L53">0x5e40B9231B86984b5150507046e354dbFbeD3d9e</a> 
+  Decoded New Value: <a href="https://github.com/ethereum-optimism/superchain-registry/blob/1c314dc0698690aa30ad58ea8f3ee6e63fea858f/validation/standard/standard-versions-mainnet.toml#L53">0x5e40B9231B86984b5150507046e354dbFbeD3d9e</a>
 
   Summary:           ERC-1967 implementation slot
   Detail:            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.

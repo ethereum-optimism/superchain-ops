@@ -20,11 +20,11 @@ which reads the inputs from the [`config.toml`](./config.toml) file.
 
 ## Signing and execution
 
-Follow the instructions in the [Single Execution](../../../SINGLE.md) guide for the following steps:
+Follow the instructions in the [Nested Execution](../../../NESTED.md) guide for the following steps:
 
-- [1. Update repo](../../../SINGLE.md#1-update-repo)
-- [2. Setup Ledger](../../../SINGLE.md#2-setup-ledger)
-- [3. Simulate and validate the transaction](../../../SINGLE.md#3-simulate-and-validate-the-transaction)
+- [1. Update repo](../../../NESTED.md#1-update-repo)
+- [2. Setup Ledger](../../../NESTED.md#2-setup-ledger)
+- [3. Simulate and validate the transaction](../../../NESTED.md#3-simulate-and-validate-the-transaction)
 
 Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 
@@ -34,10 +34,12 @@ When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>
 Navigate to the correct task directory then run the simulate command.
 ```
 cd eth/002-opcm-upgrade-v200
-# Nested safe 1: 0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC
+# Nested safe 1: 0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC (Unichain)
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate child-safe-1
-# Nested safe 2: 0x847B5c174615B1B7fDF770882256e2D3E95b9D92
+
+# Nested safe 2: 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 (OptimismFoundation)
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate child-safe-2
-# Nested safe 3: 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03
+
+# Nested safe 3: 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 (Security Council)
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate child-safe-3
 ```
