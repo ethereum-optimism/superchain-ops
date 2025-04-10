@@ -154,15 +154,17 @@ For each contract listed in the state diff, please verify that no contracts or s
       0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e
       ```
 
-  - **Summary:**  Set a new game implementation for game type [CANNON]("https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L52")
-  - **Detail:** You can verify this slot corresponds to the game implementation for game type 0 by 
-                     deriving the slot value as follows:
-                     - Notice that [`gameImpls`]("https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57") is a map from a `GameType` to a dispute game address</a>.
-                     - Notice that `GameType` is [equivalent to a ]("https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224-L224") `uint32`.                      
-                     - Notice that the `gameImpls` is [stored at slot 101]("https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41-L41"). 
-                     - Calculate the expected slot for game type 0 using `cast index &lt;KEY_TYPE&gt; &lt;KEY&gt; &lt;SLOT_NUMBER&gt;`:
-                       - `cast index uint32 0 101`
-                     - You should derive a value matching the "Raw Slot" here: 0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b 
+- **Key:**          `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
+
+  - **Before:**     `0x0000000000000000000000001851253ad7214f7b39e541befb6626669cb2446f`
+  - **After:**     `0x000000000000000000000000d46b939123d5fb1b48ee3f90caebc9d5498ed542`
+  - **Summary:**  Updates the implementation for game type 0.
+  - **Detail:**  This is `gameImpls[0]` -> `0x340c1364d299ed55b193d4efcecbad8c3fb104c4`. The [`gameImpls` mapping](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is at [storage slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41) and is keyed by [`GameType` (`uint32`)](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224).
+    - Confirm the expected key slot with the following:
+      ```shell
+      cast index uint32 0 101
+      0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b
+      ```
 
   ---
 
