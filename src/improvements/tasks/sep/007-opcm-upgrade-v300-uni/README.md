@@ -1,4 +1,4 @@
-# 007-opcm-upgrade-v300-uni: Sepolia OPCM v3.0.0: op, soneium, ink
+# 007-opcm-upgrade-v300-uni: Sepolia OPCM v3.0.0: Unichain
 
 Status: READY TO SIGN
 
@@ -7,6 +7,7 @@ Status: READY TO SIGN
 Executes [Upgrade 14](https://gov.optimism.io/t/upgrade-proposal-14-isthmus-l1-contracts-mt-cannon/9796) on Unichain Sepolia.
 
 This task uses `op-contract/v3.0.0` [OPContractsManager](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/L1/OPContractsManager.sol) to upgrade 1 chain:
+
 1. Unichain Sepolia Testnet
 
 ### Timing
