@@ -73,17 +73,15 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 
 ## Single Safe State Overrides and Changes
 
-This task is executed by the single `ProxyAdminOwner` Safe. Refer to the
-[generic single Safe execution validation document](../../../../../SINGLE-VALIDATION.md)
+This task is executed by the single `ProxyAdminOwner` Safe. Refer to the [generic single Safe execution validation document](../../../../../SINGLE-VALIDATION.md)
 for the expected state overrides and changes.
 
 Additionally, Safe-related nonces [will increment by one](../../../../../SINGLE-VALIDATION.md#nonce-increments).
 
 ## Other Nonces
 
-In addition to the Safe-related nonces mentioned [previously](#single-safe-state-overrides-and-changes),
-new contracts will also have a nonce value increment from 0 to 1.
-This due to [EIP-161](https://eips.ethereum.org/EIPS/eip-161) which activated in 2016.
+In addition to the Safe-related nonces mentioned [previously](#single-safe-state-overrides-and-changes), new contracts will also have a nonce value increment from 0 to 1.
+This is due to [EIP-161](https://eips.ethereum.org/EIPS/eip-161) which activated in 2016.
 
 This affects the newly deployed dispute games mentioned in ["State Diffs"](#state-diffs).
 
@@ -156,8 +154,6 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **Summary:**           ERC-1967 implementation slot
   - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
 
-**<TODO: Insert links for this state change then remove this line.>**
-
 ---
 
 ### [`0xef1295ed471dfec101691b946fb6b4654e88f98a`](https://github.com/ethereum-optimism/superchain-registry/blob/9dc8a7dfb8081291315d0c0ccf871f46c7753b63/superchain/configs/sepolia/unichain.toml#L54)  (AddressManager) - Chain ID: 1301
@@ -172,6 +168,8 @@ For each contract listed in the state diff, please verify that no contracts or s
     verifying that the "Before" value currently exists in that slot, as explained below.
     **Before** address matches the following cast call to `AddressManager.getAddress()`:
     - `cast call 0xef1295ed471dfec101691b946fb6b4654e88f98a 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url sepolia`
+      And what is currently stored at the key:
+    - `cast storage 0xef1295ed471dfec101691b946fb6b4654e88f98a 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url mainnet`
     - returns: `0x3eA6084748ED1b2A9B5D4426181F1ad8C93F6231`
 
   ---
@@ -179,7 +177,6 @@ For each contract listed in the state diff, please verify that no contracts or s
 ### [`0xeff73e5aa3b9aec32c659aa3e00444d20a84394b`](https://github.com/ethereum-optimism/superchain-registry/blob/9dc8a7dfb8081291315d0c0ccf871f46c7753b63/superchain/configs/sepolia/unichain.toml#L64)  (DisputeGameFactory) - Chain ID: 1301
 
 - **Key:**          `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
-
   - **Before:**     `0x2275d0c824116ad516987048fffabac6b0c3a29b`
   - **After:**     `0x8660219fa74a537e6f3665e30708962b968b7b77`
   - **Summary:**  Set a new game implementation for game type [PERMISSIONED_CANNON](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L52)
@@ -191,8 +188,8 @@ For each contract listed in the state diff, please verify that no contracts or s
     - Calculate the expected slot for game type 1 using `cast index <KEY_TYPE> <KEY> <SLOT_NUMBER>`:
       - `cast index uint32 1 101`
     - You should derive a value matching the "Raw Slot" here: `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
-- **Key:**          `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
 
+- **Key:**          `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
   - **Before:**     `0x0000000000000000000000004745808cc649f290439763214fc40ac905806d8d`
   - **After:**     `0x000000000000000000000000c70a7e66c13caf0f770afb01fb701d148791d53d`
   - **Summary:**  Set a new game implementation for game type [CANNON](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L52)
