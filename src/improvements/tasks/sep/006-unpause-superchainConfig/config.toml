@@ -2,6 +2,4 @@ l2chains = [{name = "OP Sepolia Testnet", chainId = 11155420}] # e.g. [{name = "
 
 templateName = "UnPauseSuperchainConfigTemplate"
 
-[stateOverrides]
-# Pause slot that can be obtain by bytes32(uint256(keccak256("superchainConfig.paused")) - 1) = 0x54176ff9944c4784e5857ec4e5ef560a462c483bf534eda43f91bb01a470b1b6.
-0xC2Be75506d5724086DEB7245bd260Cc9753911Be = [{key = "0x54176ff9944c4784e5857ec4e5ef560a462c483bf534eda43f91bb01a470b1b6", value = 1}]
+
