@@ -5,11 +5,7 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
-
 import {IDeputyPauseModule} from "lib/optimism/packages/contracts-bedrock/interfaces/safe/IDeputyPauseModule.sol";
-
-import {console} from "forge-std/console.sol";
 
 /// @title DeputyPauseRotationKey
 contract DeputyPauseRotationKey is L2TaskBase {
