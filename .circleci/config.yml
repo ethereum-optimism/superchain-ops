@@ -489,6 +489,22 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
 
+      # U14 Sepolia Ink/Soneium/OP Upgrade - foundation
+      - just_simulate_nested_improvements:
+          name: "simulate nested sep/006-opcm-upgrade-v300 foundation"
+          task: "/sep/006-opcm-upgrade-v300"
+          signer: "foundation"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
+      # U14 Sepolia Ink/Soneium/OP Upgrade - Council
+      - just_simulate_nested_improvements:
+          name: "simulate nested sep/006-opcm-upgrade-v300 council"
+          task: "/sep/006-opcm-upgrade-v300"
+          signer: "council"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
       - just_simulate_nested:
           task: "/eth/zora-002-fp-upgrade"
           context:
