@@ -76,22 +76,17 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 
 # State Changes
 
-## Nested Safe State Overrides and Changes
+## Single Safe State Overrides and Changes
 
-This task is executed by the nested 2/2 `ProxyAdminOwner` Safe. Refer to the
-[generic nested Safe execution validation document](../../../../../NESTED-VALIDATION.md)
+This task is executed by the single `ProxyAdminOwner` Safe. Refer to the
+[generic single Safe execution validation document](../../../../../SINGLE-VALIDATION.md)
 for the expected state overrides and changes.
 
-The `approvedHashes` mapping of the `ProxyAdminOwner` should change during the simulation.
-See the ["Key Computation" section](../../../../../NESTED-VALIDATION.md#key-computation) in the nested validation doc
-for instruction on how to validate this change.  You can find the target safe hash in the simulation output
-under "Nested Multisig Child's Hash to Approve", which should be:
-- `TODO`
-
-Additionally, Safe-related nonces [will increment by one](../../../../../NESTED-VALIDATION.md#nonce-increments).
+Additionally, Safe-related nonces [will increment by one](../../../../../SINGLE-VALIDATION.md#nonce-increments).
 
 ## Other Nonces
-In addition to the Safe-related nonces mentioned [previously](#nested-safe-state-overrides-and-changes),
+
+In addition to the Safe-related nonces mentioned [previously](#single-safe-state-overrides-and-changes),
 new contracts will also have a nonce value increment from 0 to 1.
 This due to [EIP-161](https://eips.ethereum.org/EIPS/eip-161) which activated in 2016.
 
