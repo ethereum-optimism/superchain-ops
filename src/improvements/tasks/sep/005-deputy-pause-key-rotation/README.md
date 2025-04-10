@@ -4,17 +4,16 @@ Status: [DRAFT]()
 
 ## Objective
 
-Todo: Describe the objective of the task
+This task has to be signed by the **FondationOperationsSafe**.
+This will make the deputy key rotation with the parameters `newDeputy` and `NewDeputySignature` from the `config.toml`. 
+To achieve this, we will need to use the `setDeputy` function of the `DeputyPauseModule` contract.
 
 ### Timing
-
+Expected to be executed the 10 APRIL 2025
 Example transaction
 
 ## Transaction creation
 
-TODO
-
 ## Signing and execution
 
-Status - TODO
 
