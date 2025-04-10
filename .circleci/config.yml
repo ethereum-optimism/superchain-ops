@@ -489,19 +489,10 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
 
-      # U14 Unichain sepolia - Child-Safe-1
+      # U14 Unichain sepolia
       - just_simulate_single_improvements:
           name: "simulate single sep/007-opcm-upgrade-v300-uni"
           task: "/sep/007-opcm-upgrade-v300-uni"
-          signer: "child-safe-1"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-
-      # U14 Unichain sepolia - Child-Safe-2
-      - just_simulate_single_improvements:
-          name: "simulate single sep/007-opcm-upgrade-v300-uni"
-          task: "/sep/007-opcm-upgrade-v300-uni"
-          signer: "child-safe-2"
           context:
             - circleci-repo-readonly-authenticated-github-token
 
