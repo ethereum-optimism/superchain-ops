@@ -9,16 +9,15 @@ For each contract listed in the state diff, please verify that no contracts or s
 - All addresses (in section headers and storage values) match the provided name, using the Etherscan and Superchain Registry links provided. This validates the bytecode deployed at the addresses contains the correct logic.
 - All key values match the semantic meaning provided, which can be validated using the storage layout links provided.
 
-
-
 ## Expected Domain and Message Hashes
 
 > [!CAUTION]
 > Before signing, ensure the below hashes match what is on your ledger.
+>
 > ### Optimism Foundation
-  Domain Hash:     0xe84ad8db37faa1651b140c17c70e4c48eaa47a635e0db097ddf4ce1cc14b9ecb
-  Message Hash:    0xfc232e99f109db09a90ec0a319406d8e3df078659b05aeac83b22bdc64a18801
-
+>
+> Domain Hash: 0xe84ad8db37faa1651b140c17c70e4c48eaa47a635e0db097ddf4ce1cc14b9ecb
+> Message Hash: 0xfc232e99f109db09a90ec0a319406d8e3df078659b05aeac83b22bdc64a18801
 
 ## State Overrides
 
@@ -41,27 +40,25 @@ Enables the simulation by setting the threshold to 1:
 
 ## State Changes
 
-### `0x837de453ad5f21e89771e3c06239d8236c0efd5e`  (Foundation Operations Safe)
+### `0x837de453ad5f21e89771e3c06239d8236c0efd5e` (Foundation Operations Safe)
 
-- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Decoded Kind:**      `uint256`
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Decoded Kind:** `uint256`
   - **Before:** `2`
   - **After:** `3`
-  - **Summary:**           nonce
+  - **Summary:** nonce
   - **Detail:**
 
-This update the nonces of the Foundation Operations safes. 
+This update the nonces of the Foundation Operations safes.
 
-  ---
+---
 
-### `0xc6f7c07047ba37116a3fdc444afb5018f6df5758`  (DeputyPauseModule)
+### `0xc6f7c07047ba37116a3fdc444afb5018f6df5758` (DeputyPauseModule)
 
-- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000002`
-  - **Before:**     `0x000000000000000000000000fcb2575ab431a175669ae5007364193b2d298dfe`
-  - **After:**     `0x0000000000000000000000006a07d585eddba8f9a4e17587f4ea5378de1c3bac`
+- **Key:** `0x0000000000000000000000000000000000000000000000000000000000000002`
+  - **Before:** `0x000000000000000000000000fcb2575ab431a175669ae5007364193b2d298dfe`
+  - **After:** `0x0000000000000000000000006a07d585eddba8f9a4e17587f4ea5378de1c3bac`
   - **Summary:**
   - **Detail:**
 
-This update the previous deputy `0xfcb2575ab431a175669ae5007364193b2d298dfe` to `0x6a07d585eddba8f9a4e17587f4ea5378de1c3bac`. 
-
-
+This update the previous deputy `0xfcb2575ab431a175669ae5007364193b2d298dfe` to `0x6a07d585eddba8f9a4e17587f4ea5378de1c3bac`.
