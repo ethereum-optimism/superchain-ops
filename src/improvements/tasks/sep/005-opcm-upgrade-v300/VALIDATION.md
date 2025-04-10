@@ -190,7 +190,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
   ---
 
-### [`0x2bfb22cd534a462028771a1ca9d6240166e450c4`](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/soneium-minato.toml#L55-L55)  (L1ERC721Bridge - Soneium Testnet Minato) - Chain ID: 1946
+### [`0x2bfb22cd534a462028771a1ca9d6240166e450c4`](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/soneium-minato.toml#L55-L55)  (L1ERC721Bridge) - Chain ID: 1946
 
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:**      `address`
