@@ -185,7 +185,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **Decoded Kind:**      `uint256`
   - **Before:** `26`
   - **After:** `27`
-  - **Summary:**           nonce
+  - **Summary:** Nonce update
   - **Detail:** Nonce update for the parent multisig.
 
   ---
