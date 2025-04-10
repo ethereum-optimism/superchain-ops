@@ -128,7 +128,7 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
 
             // PDDG-DWETH-30: Delayed WETH owner must be l1PAOMultisig (for permissioned dispute game) - It is checking for the OP Sepolia PAO
             // PDDG-ANCHORP-40: The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
-            // PDDG-DWETH-30: Delayed WETH owner must be l1PAOMultisig (for permissioned dispute game) - It is checking for the OP Sepolia PAO
+            // PLDG-DWETH-30: Delayed WETH owner must be l1PAOMultisig (for permissioned dispute game) - It is checking for the OP Sepolia PAO
             // PLDG-ANCHORP-40: The anchor state registry's permissionless root is not 0xdead000000000000000000000000000000000000000000000000000000000000
             string memory expectedErrors_763373 = "PDDG-DWETH-30,PDDG-ANCHORP-40,PLDG-DWETH-30,PLDG-ANCHORP-40";
 
