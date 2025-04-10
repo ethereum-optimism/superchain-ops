@@ -10,11 +10,10 @@ import {IDeputyPauseModule} from "lib/optimism/packages/contracts-bedrock/interf
 /// @title DeputyPauseRotationKey
 contract DeputyPauseRotationKey is SimpleTaskBase {
     using stdToml for string;
-    /// @notice Struct to store inputs for deputyPauseModule.setDeputy() function L1.
 
     // Store the inputs
-    address new_deputy;
-    bytes new_deputy_signature;
+    address newDeputy;
+    bytes newDeputySignature;
 
     /// @notice Returns the string identifier for the safe executing this transaction.
     function safeAddressString() public pure override returns (string memory) {
@@ -58,7 +57,7 @@ contract DeputyPauseRotationKey is SimpleTaskBase {
         // bytes32 deputyAuthMessageTypehash = dpm.deputyAuthMessageTypehash();
 
         // We can't directly call the internal _hashTypedDataV4 function from the contract
-        // but we can validateggj§ the signature is right by checking if it reverts when passed to setDeputy
+        // but we can validate the signature is right by checking if it reverts when passed to setDeputy
         // This serves as a pre-flight check before actual execution
 
         // Verify the new_deputy_signature is exactly 65 bytes (r, s, v format)
