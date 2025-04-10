@@ -136,7 +136,8 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
             // PDDG-120: Permissioned dispute game challenger must match challenger address - It is checking for the OP Sepolia Challenger
             // PLDG-DWETH-30: Delayed WETH owner must be l1PAOMultisig (for permissioned dispute game) - It is checking for the OP Sepolia PAO
             // PLDG-ANCHORP-40: The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
-            string memory expectedErrors_1301 = "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-ANCHORP-40,PDDG-120,PLDG-DWETH-30,PLDG-ANCHORP-40";
+            string memory expectedErrors_1301 =
+                "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-ANCHORP-40,PDDG-120,PLDG-DWETH-30,PLDG-ANCHORP-40";
 
             require(
                 reasons.eq(expectedErrors_11155420) || reasons.eq(expectedErrors_1946)
