@@ -8,7 +8,7 @@ import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
 import {IDeputyPauseModule} from "lib/optimism/packages/contracts-bedrock/interfaces/safe/IDeputyPauseModule.sol";
 
 /// @title DeputyPauseRotationKey
-contract DeputyPauseRotationKey is SimpleTaskBase {
+contract DeputyPauseKeyRotationTemplate is SimpleTaskBase {
     using stdToml for string;
 
     // Store the inputs
