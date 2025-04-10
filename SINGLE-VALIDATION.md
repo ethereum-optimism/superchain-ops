@@ -1,6 +1,6 @@
 # Validation - Single Safe
 
-This document describes the generic validation steps for running a Mainnet or Sepolia tasks for single safe (ie. one which is not owned by other safes).
+This document describes the generic validation steps for running Mainnet or Sepolia tasks for a single safe (ie. one which is not owned by other safes).
 
 ## State Overrides
 
