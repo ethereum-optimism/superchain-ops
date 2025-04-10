@@ -489,6 +489,12 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
 
+      - just_simulate_single_improvements:
+          name: "simulate single sep/007-opcm-upgrade-v300-uni"
+          task: "/sep/007-opcm-upgrade-v300-uni"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
       - just_simulate_nested:
           task: "/eth/zora-002-fp-upgrade"
           context:
