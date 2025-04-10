@@ -1,6 +1,6 @@
 # 005-deputy-pause-key-rotation Deputy Pause Module Rotation key
 
-Status: [DRAFT]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
