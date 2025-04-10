@@ -168,7 +168,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   - **After:** 23
   - **Detail:** Five new dispute games were deployed by the ProxyAdminOwner during execution, resulting in the account nonce in state being incremented five times.
 
-- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
+- **Nonce:**
   - **Decoded Kind:**      `uint256`
   - **Before:** `26`
   - **After:** `27`
