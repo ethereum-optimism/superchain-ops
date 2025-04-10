@@ -40,8 +40,7 @@ contract DeputyPauseRotationKey is L2TaskBase {
         super._templateSetup(taskConfigFilePath);
 
         string memory file = vm.readFile(taskConfigFilePath);
-        // newModule = vm.parseTomlAddress(file, ".newModule");
-        // assertNotEq(newModule.code.length, 0, "new module must have code");
+
         // Load the inputs from the task config
         new_deputy = vm.parseTomlAddress(file, ".newDeputy");
         new_deputy_signature = vm.parseTomlBytes(file, ".newDeputySignature");
@@ -70,12 +69,6 @@ contract DeputyPauseRotationKey is L2TaskBase {
         
         // Verify the new_deputy_signature is exactly 65 bytes (r, s, v format)
         require(new_deputy_signature.length == 65, "ERR104: Invalid signature length");
-        // print the chainid 
-        console.log("chainId", block.chainid);
-        console.logBytes(new_deputy_signature);
-        console.log("new_deputy_signature.length", new_deputy_signature.length);
-        console.log("new_deputy", new_deputy);
-        
         // 3. Rotate the new deputy and signature.
         dpm.setDeputy(new_deputy, new_deputy_signature);
     }
