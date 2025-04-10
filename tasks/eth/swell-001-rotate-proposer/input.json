@@ -1,0 +1,38 @@
+{
+  "metadata": {
+    "name": "ProxyAdminOwner - Set Dispute Game Implementation",
+    "description": "Sets the implementation for game type 1 to 0x152f31030b63577096dD7AbE6B096Ee3fD29f5e8 in the `DisputeGameFactory`. "
+  },
+  "transactions": [
+    {
+      "metadata": {
+        "name": "Set implementation for game type",
+        "description": "Sets the implementation for game type 1 to 0x152f31030b63577096dD7AbE6B096Ee3fD29f5e8 in the `DisputeGameFactory`."
+      },
+      "to": "0x87690676786cDc8cCA75A472e483AF7C8F2f0F57",
+      "value": "0x0",
+      "data": 
+      "0x14f6b1a30000000000000000000000000000000000000000000000000000000000000001000000000000000000000000152f31030b63577096dd7abe6b096ee3fd29f5e8",
+      "contractMethod": {
+        "type": "function",
+        "name": "setImplementation",
+        "inputs": [
+          {
+            "name": "_gameType",
+            "type": "uint32"
+          },
+          {
+            "name": "_impl",
+            "type": "address"
+          }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+      },
+      "contractInputsValues": {
+        "_gameType": "1",
+        "_impl": "0x152f31030b63577096dD7AbE6B096Ee3fD29f5e8"
+      }
+    }
+  ]
+}

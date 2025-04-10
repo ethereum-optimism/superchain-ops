@@ -494,6 +494,11 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
 
+      - just_simulate_nested:
+          task: "/eth/swell-001-rotate-proposer"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
       - just_simulate_sc_rehearsal_2:
           context:
             - circleci-repo-readonly-authenticated-github-token
@@ -504,7 +509,7 @@ workflows:
       - simulate_sequence:
           name: simulate_sequence_eth
           network: "eth"
-          tasks: "zora-002"
+          tasks: "zora-002 swell-001"
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
