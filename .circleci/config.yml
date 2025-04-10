@@ -491,7 +491,7 @@ workflows:
 
       - just_simulate_single_improvements:
           name: "simulate single sep/005-deputy-pause-key-rotation"
-          task: "sep/005-deputy-pause-key-rotation"
+          task: "sep/008-deputy-pause-key-rotation"
 
       # U14 Unichain sepolia
       - just_simulate_single_improvements:
