@@ -41,11 +41,10 @@ contract DeputyPauseKeyRotationTemplate is SimpleTaskBase {
 
     /// @notice Write the calls that you want to execute for the task.
     function _build() internal override {
-        // Load the DeputyPauseModule contract. 
+        // Load the DeputyPauseModule contract.
         IDeputyPauseModule dpm = IDeputyPauseModule(simpleAddrRegistry.get("DeputyPauseModule"));
         // 1. In the future task we need to check that the DeputyPauseModule address is the one that is enabled in the foundation safe since in U13 task we will execute this task before activation this is different.
         // assertEq(fos.enabledmodule(address(dpm)), true, "ERR100: DeputyPauseModule is should be enabled");
-
 
         // 2. Check that the input are valid.
         assertNotEq(dpm.deputy(), address(0), "ERR101: DeputyPauseModule should have already a deputy set in the past.");
