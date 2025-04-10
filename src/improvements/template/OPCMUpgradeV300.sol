@@ -126,10 +126,7 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
             string memory expectedErrors_1301 =
                 "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-ANCHORP-40,PDDG-120,PLDG-DWETH-30,PLDG-ANCHORP-40";
 
-            require(
-                reasons.eq(expectedErrors_1301),
-                string.concat("Unexpected errors: ", reasons)
-            );
+            require(reasons.eq(expectedErrors_1301), string.concat("Unexpected errors: ", reasons));
         }
     }
 
