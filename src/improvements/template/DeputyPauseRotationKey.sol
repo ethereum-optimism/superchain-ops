@@ -62,7 +62,7 @@ contract DeputyPauseRotationKey is L2TaskBase {
         // using EIP-712 typed data with the message format "DeputyAuthMessage(address deputy)"
         
         // Get the typehash for deputy auth messages
-        bytes32 deputyAuthMessageTypehash = dpm.deputyAuthMessageTypehash();
+        // bytes32 deputyAuthMessageTypehash = dpm.deputyAuthMessageTypehash();
         
         // We can't directly call the internal _hashTypedDataV4 function from the contract
         // but we can validateggj§ the signature is right by checking if it reverts when passed to setDeputy
@@ -70,6 +70,8 @@ contract DeputyPauseRotationKey is L2TaskBase {
         
         // Verify the new_deputy_signature is exactly 65 bytes (r, s, v format)
         require(new_deputy_signature.length == 65, "ERR104: Invalid signature length");
+        // print the chainid 
+        console.log("chainId", block.chainid);
         console.logBytes(new_deputy_signature);
         console.log("new_deputy_signature.length", new_deputy_signature.length);
         console.log("new_deputy", new_deputy);
@@ -80,7 +82,6 @@ contract DeputyPauseRotationKey is L2TaskBase {
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
-        
         IDeputyPauseModule dpm = IDeputyPauseModule(superchainAddrRegistry.get("DeputyPauseModule"));
         assertEq(dpm.deputy(), new_deputy, "ERR103: DeputyPauseModule should have a the new deputy set");
         // check the foundation has the DPM enabled. 
@@ -88,8 +89,10 @@ contract DeputyPauseRotationKey is L2TaskBase {
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function getCodeExceptions() internal pure override returns (address[] memory) {
-        address[] memory codeExceptions = new address[](0);
+    function getCodeExceptions() internal view override returns (address[] memory) {
+        address[] memory codeExceptions = new address[](1);
+        codeExceptions[0] = new_deputy;
+
         return codeExceptions;
     }
 }
