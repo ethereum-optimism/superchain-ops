@@ -93,14 +93,16 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
 ---
 
-### `0x0fe884546476ddd290ec46318785046ef68a0ba9`  (ProxyAdminOwner (GnosisSafe)) - Chain ID: 84532
+### [`0x0fe884546476ddd290ec46318785046ef68a0ba9`](https://github.com/ethereum-optimism/superchain-registry/blob/08e3fe429c776a532c2b6dc09571fc13e6dba5d4/superchain/configs/sepolia/base.toml#L45)  (ProxyAdminOwner (GnosisSafe)) - Chain ID: 84532
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:**      `uint256`
   - **Before:** `21`
   - **After:** `22`
-  - **Summary:**           nonce
-  - **Detail:**
+  - **Summary:** Nonce update
+  - **Detail:** Nonce update for the parent multisig. You can verify manually with the following:
+    - Before: `cast --to-dec 0x15` = 21
+    - After: `cast --to-dec 0x16` = 22
 
 If signer is on Child Safe 1: `0x6AF0674791925f767060Dd52f7fB20984E8639d8`:
 
@@ -116,7 +118,7 @@ If signer is on Child Safe 1: `0x6AF0674791925f767060Dd52f7fB20984E8639d8`:
 
 OR if signer is on Child Safe 2: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
 
-- **Key:**      `0x197170017eeaa81ee156c4184f574f634cd8da0162a1875749a41202771f948b`
+- **Key:**      `0x8d756791beca7e82f4f71d8867bfa1c3217415c53f415e97b015e82ea7fd001c`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Summary:**  `approveHash(bytes32)` called on ProxyAdminOwner by child multisig.
@@ -128,36 +130,34 @@ OR if signer is on Child Safe 2: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
 
   ---
 
-### `0xd6e6dbf4f7ea0ac412fd8b65ed297e64bb7a06e1`  (DisputeGameFactory) - Chain ID: 84532
+### [`0xd6e6dbf4f7ea0ac412fd8b65ed297e64bb7a06e1`](https://github.com/ethereum-optimism/superchain-registry/blob/08e3fe429c776a532c2b6dc09571fc13e6dba5d4/superchain/configs/sepolia/base.toml#L63)  (DisputeGameFactory) - Chain ID: 84532
 
 - **Key:**          `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
   - **Before:**     `0x000000000000000000000000d53394d4f67653074acf0b264954fe5e4f72d24f`
   - **After:**     `0x000000000000000000000000b63663de7b5f70d50ed841dc04e62e3bbd64e72d`
-  - **Summary:**
-  - **Detail:**
-
-**<TODO: Slot was not automatically decoded. Please provide a summary with thorough detail then remove this line.>**
-
-**<TODO: Insert links for this state change then remove this line.>**
+  - **Summary:** Updates the implementation for game type 1.
+  - **Detail:** This is `gameImpls[1]` -> `0x97766954BAF17e3a2BfA43728830f0Fa647F7546`. The [`gameImpls` mapping](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is at [storage slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41) and is keyed by [`GameType` (`uint32`)](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224).
+    - Confirm the expected key slot with the following:
+      ```shell
+      cast index uint32 1 101
+      0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e
+      ```
 
 
 - **Key:**          `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
   - **Before:**     `0x000000000000000000000000861eb6dfe0fde8c8a63e8606fa487ee870f65e72`
   - **After:**     `0x00000000000000000000000097ca5600adc6a198df4c82ff9dccb74384ed3641`
-  - **Summary:**
-  - **Detail:**
-
-**<TODO: Slot was not automatically decoded. Please provide a summary with thorough detail then remove this line.>**
-
-**<TODO: Insert links for this state change then remove this line.>**
-
-
-
+  - **Detail:** This is `gameImpls[0]` -> `0xBd72dD2fB74a537B9B47B454614A15B066Cc464a`. The [`gameImpls` mapping](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is at [storage slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41) and is keyed by [`GameType` (`uint32`)](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224).
+    - Confirm the expected key slot with the following:
+      ```shell
+      cast index uint32 0 101
+      0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b
+      ```
 
 ### Nonce increments
 
 The only other state change are three nonce increments:
 
-- `0x340c1364D299ED55B193d4eFcecBAD8c3Fb104c4` - Permissionless GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
-- `0x6F67E57C143321e266bac32A0D9D22d88cE1b3e5` - Permissioned GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
+- `0x97ca5600AdC6a198DF4C82FF9DCcB74384eD3641` - Permissionless GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
+- `0xB63663DE7b5f70D50eD841DC04E62E3bbD64e72d` - Permissioned GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
 - `<sender-address> e.g. 0x7f10098BD53519c739cA8A404afE127647D94774` - Sender address of the Tenderly transaction (Your ledger or first owner on the nested safe).
