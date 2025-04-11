@@ -1,4 +1,4 @@
-# 009-opcm-upgrade-prestate-v300-op-ink: Sepolia Upgrade Prestate v3.0.0: OP and Ink
+# 010-opcm-update-prestate-v300-op-ink: Sepolia Update Prestate v3.0.0: OP and Ink
 
 Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x659ca2fe3231cdda8657ff4e0bc11f7dfd7345413d4f854d3a53c5036fce3732)
 
@@ -35,6 +35,6 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/improvements/template/OPCMUpdatePrestateV300.sol`.
 Navigate to the correct task directory then run the simulate command.
 ```
-cd src/improvements/tasks/sep/009-opcm-update-prestate-v300-op-ink
+cd src/improvements/tasks/sep/010-opcm-update-prestate-v300-op-ink
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate <foundation|council>
 ```
