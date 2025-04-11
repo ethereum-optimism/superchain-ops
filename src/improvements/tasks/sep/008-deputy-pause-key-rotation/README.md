@@ -1,10 +1,10 @@
-# 005-deputy-pause-key-rotation Deputy Pause Module Rotation key
+# 008-deputy-pause-key-rotation Deputy Pause Module Rotation key
 
 Status: [READY TO SIGN]()
 
 ## Objective
 
-Rotates the `DeputyPauseModule` Deputy EOA from `0xfcb2575ab431a175669ae5007364193b2d298dfe` to `0x6A07d585eddBa8F9A4E17587F4Ea5378De1c3bAc`. 
+Rotates the `DeputyPauseModule` Deputy EOA from `0xfcb2575ab431a175669ae5007364193b2d298dfe` to `0x6A07d585eddBa8F9A4E17587F4Ea5378De1c3bAc`.
 To achieve this, we will need to use the `setDeputy` function of the `DeputyPauseModule` contract deployed at `0xc6f7C07047ba37116A3FdC444Afb5018f6Df5758`.
 
 ![CleanShot 2025-04-10 at 10 15 35@2x](https://github.com/user-attachments/assets/042bbb15-a19b-4edf-bff1-e79adaf4e2ce)
