@@ -1,4 +1,4 @@
-templateName = "OPCMUpgradePrestateV300"
+templateName = "OPCMUpdatePrestateV300"
 
 [[l2chains]]
 chainId = 11155420

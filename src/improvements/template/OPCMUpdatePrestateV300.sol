@@ -11,16 +11,16 @@ import {stdToml} from "forge-std/StdToml.sol";
 import {console2 as console} from "forge-std/console2.sol";
 import {LibString} from "solady/utils/LibString.sol";
 
-/// @notice This template provides OPCM-based absolute prestate upgrades.
+/// @notice This template provides OPCM-based absolute prestate updates.
 /// Supports: op-contracts/v3.0.0
-contract OPCMUpgradePrestateV300 is OPCMTaskBase {
+contract OPCMUpdatePrestateV300 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
 
     /// @notice The StandardValidatorV300 address
     IStandardValidatorV300 public STANDARD_VALIDATOR_V300;
 
-    /// @notice Struct to store inputs for OPCM.upgrade() function per l2 chain
+    /// @notice Struct to store inputs for OPCM.updatePrestate() function per l2 chain
     struct OPCMUpgrade {
         Claim absolutePrestate;
         uint256 chainId;
@@ -90,7 +90,7 @@ contract OPCMUpgradePrestateV300 is OPCMTaskBase {
         (bool success,) = OPCM.call(abi.encodeWithSelector(IOPCMPrestateUpdate.updatePrestate.selector, opChainConfigs));
         require(
             !success,
-            "OPCMUpgradePrestateV300: Call unexpectedly succeeded; expected revert due to non-delegatecall in _build."
+            "OPCMUpdatePrestateV300: Call unexpectedly succeeded; expected revert due to non-delegatecall in _build."
         );
     }
 
