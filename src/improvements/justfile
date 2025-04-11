@@ -22,9 +22,9 @@ new COMMAND="" TASK_TYPE="":
         echo "Available task types:"
         echo "  • l2taskbase - 'L2TaskBase' task type, these tasks require a superchain address registry and can iterate over multiple L2 chains"
         echo "    eg: https://github.com/ethereum-optimism/superchain-ops/blob/main/test/tasks/mock/template/GasConfigTemplate.sol"
-        echo "  • simplebase - 'SimpleBase' task type, these tasks require simple key value registry and are independent of the L2 chains"
+        echo "  • simpletaskbase - 'SimpleTaskBase' task type, these tasks require simple key value registry and are independent of the L2 chains"
         echo "    eg: https://github.com/ethereum-optimism/superchain-ops/blob/main/src/improvements/template/FinanceTemplate.sol"
-        echo "  • opcmbasetask - 'OPCMBaseTask' task type, these tasks are used to make delegate calls to the Optimism Contracts Manager and are"
+        echo "  • opcmtaskbase - 'OPCMTaskBase' task type, these tasks are used to make delegate calls to the Optimism Contracts Manager and are"
         echo "    dependent on the L2 chains and inherit from L2TaskBase"
         echo "    e.g.: https://github.com/ethereum-optimism/superchain-ops/blob/main/src/improvements/template/OPCMUpgradeV200.sol"
         echo
@@ -44,15 +44,15 @@ new COMMAND="" TASK_TYPE="":
                 exit 1
             fi
 
-            case "{{TASK_TYPE}}" in
+            case "$(echo {{TASK_TYPE}} | tr '[:upper:]' '[:lower:]')" in
                 l2taskbase)
                     TASK_TYPE="L2TaskBase"
                     ;;
-                simplebase)
-                    TASK_TYPE="SimpleBase"
+                simpletaskbase)
+                    TASK_TYPE="SimpleTaskBase"
                     ;;
-                opcmbasetask)
-                    TASK_TYPE="OPCMBaseTask"
+                opcmtaskbase)
+                    TASK_TYPE="OPCMTaskBase"
                     ;;
                 *)
                     echo -e "\n\033[31mError: Invalid task type '{{TASK_TYPE}}'\033[0m"
@@ -60,6 +60,7 @@ new COMMAND="" TASK_TYPE="":
                     exit 1
                     ;;
             esac
+            echo -e "\nSelected task type: \033[33m $TASK_TYPE \033[0m"
             ./script/create-template.sh "$TASK_TYPE"
             ;;
         task)
@@ -100,42 +101,6 @@ task COMMAND="" NETWORK="":
             exit 1
             ;;
     esac
-    
-monorepo-integration-test COMMAND="":
-    #!/usr/bin/env bash
-    set -euo pipefail
-
-    # Set FOUNDRY_PROFILE, defaulting to 'default' if not already set.
-    export FOUNDRY_PROFILE="${FOUNDRY_PROFILE:-default}"
-    echo "Currently running with FOUNDRY_PROFILE: ${FOUNDRY_PROFILE}"
-
-    root_dir=$(git rev-parse --show-toplevel)
-    allocs_path="${root_dir}/lib/optimism/packages/contracts-bedrock/allocs.json"
-
-    # Running this command with mainnet RPC URL.
-    ETH_RPC_URL=$(yq eval ".profile.\"${FOUNDRY_PROFILE}\".rpc_endpoints.mainnet" "${root_dir}/foundry.toml")
-    export ETH_RPC_URL
-    echo "Using mainnet RPC: ${ETH_RPC_URL}"
-    
-    # For now, we are running monorepo integration tests for the example eth tasks only.
-    mainnet_network_task_dir="eth" 
-
-    forge build
-    forge script ${root_dir}/src/improvements/tasks/TaskRunner.sol:TaskRunner --sig "run(string,string)" ${allocs_path} ${mainnet_network_task_dir} --ffi --rpc-url $ETH_RPC_URL
-    export SUPERCHAIN_OPS_ALLOCS_PATH=./allocs.json
-    cd ${root_dir}/lib/optimism/packages/contracts-bedrock/
-
-    export NO_MATCH_CONTRACTS="OptimismPortal2WithMockERC20_Test\|OptimismPortal2_FinalizeWithdrawal_Test\|AnchorStateRegistry_*\|FaultDisputeGame_Test\|PermissionedDisputeGame_Test\|FaultDispute_1v1_Actors_Test\|DelayedWETH_Hold_Test"
-    # shellcheck disable=SC2194
-    case "{{COMMAND}}" in
-        rerun)
-            just test-upgrade-rerun --no-match-contract "${NO_MATCH_CONTRACTS}"
-            ;;
-        *)
-            just test-upgrade --no-match-contract "${NO_MATCH_CONTRACTS}"
-            ;;
-    esac
-    rm -f ${allocs_path} # clean up
 
 check-superchain-registry-latest:
     #!/usr/bin/env bash
