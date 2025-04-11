@@ -3,11 +3,7 @@ pragma solidity 0.8.15;
 
 import {OPCMTaskBase} from "src/improvements/tasks/types/OPCMTaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
-import {
-    // IOPContractsManager,
-    ISystemConfig,
-    IProxyAdmin
-} from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
+import {ISystemConfig, IProxyAdmin} from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {IOPContractsManager} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {VmSafe} from "forge-std/Vm.sol";
@@ -38,7 +34,6 @@ contract OPCMUpgradePrestateV300 is OPCMTaskBase {
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
         string[] memory storageWrites = new string[](1);
         storageWrites[0] = "DisputeGameFactoryProxy";
-        // storageWrites[1] = "OPCM";
         return storageWrites;
     }
 
@@ -47,8 +42,7 @@ contract OPCMUpgradePrestateV300 is OPCMTaskBase {
         super._templateSetup(taskConfigFilePath);
         string memory tomlContent = vm.readFile(taskConfigFilePath);
 
-        OPCMUpgrade[] memory _upgrades =
-            abi.decode(tomlContent.parseRaw(".opcmUpgrades"), (OPCMUpgrade[]));
+        OPCMUpgrade[] memory _upgrades = abi.decode(tomlContent.parseRaw(".opcmUpgrades"), (OPCMUpgrade[]));
         for (uint256 i = 0; i < _upgrades.length; i++) {
             console.log("Adding upgrade - chainID: %s, absolutePrestate:", _upgrades[i].chainId);
             console.logBytes32(Claim.unwrap(_upgrades[i].absolutePrestate));
@@ -75,7 +69,7 @@ contract OPCMUpgradePrestateV300 is OPCMTaskBase {
         vm.label(address(STANDARD_VALIDATOR_V300), "StandardValidatorV300");
     }
 
-    /// @notice A single call to OPCM.updatePrestae() is made for all l2 chains.
+    /// @notice A single call to OPCM.updatePrestate() is made for all l2 chains that are defined in a tasks config.toml.
     function _build() internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         IOPContractsManager.OpChainConfig[] memory opChainConfigs =
@@ -93,10 +87,10 @@ contract OPCMUpgradePrestateV300 is OPCMTaskBase {
         // We expect this call to revert when invoked from the _build() function.
         // The _build function's job is to record the high-level calls that will later be executed by the L1 Proxy Admin Owner safe.
         // It is not responsible for ensuring correct execution — that responsibility lies with the 'execTransaction' function in MultisigTask.sol.
-        (bool success,) =
-            OPCM.call(abi.encodeWithSelector(IOPCMPrestateUpdate.updatePrestate.selector, opChainConfigs));
+        (bool success,) = OPCM.call(abi.encodeWithSelector(IOPCMPrestateUpdate.updatePrestate.selector, opChainConfigs));
         require(
-            !success, "OPCMUpgradePrestateV300: Call unexpectedly succeeded; expected revert due to non-delegatecall in _build."
+            !success,
+            "OPCMUpgradePrestateV300: Call unexpectedly succeeded; expected revert due to non-delegatecall in _build."
         );
     }
 
