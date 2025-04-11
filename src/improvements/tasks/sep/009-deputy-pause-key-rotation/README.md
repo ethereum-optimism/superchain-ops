@@ -1,4 +1,4 @@
-# 008-deputy-pause-key-rotation Deputy Pause Module Rotation key
+# 009-deputy-pause-key-rotation Deputy Pause Module Rotation key
 
 Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x15eea8c7a5b7a2d6ec5f9434265db54504aec463dbb39b2cc341d15e15fb508f)
 
