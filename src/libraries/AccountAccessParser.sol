@@ -135,7 +135,7 @@ library AccountAccessParser {
     // ==============================================================
 
     /// @notice Convenience function that wraps decode and print together.
-    function decodeAndPrint(VmSafe.AccountAccess[] memory _accesses) internal view {
+    function decodeAndPrint(VmSafe.AccountAccess[] memory _accesses) internal {
         // We always want to sort all state diffs before printing them.
         (DecodedTransfer[] memory transfers, DecodedStateDiff[] memory stateDiffs) = decode(_accesses, true);
         print(transfers, stateDiffs);
@@ -353,11 +353,7 @@ library AccountAccessParser {
     }
 
     /// @notice Prints the decoded transfers and state diffs to the console.
-    function print(DecodedTransfer[] memory _transfers, DecodedStateDiff[] memory _stateDiffs)
-        internal
-        view
-        noGasMetering
-    {
+    function print(DecodedTransfer[] memory _transfers, DecodedStateDiff[] memory _stateDiffs) internal noGasMetering {
         console.log("\n----------------- Task Transfers -------------------");
         if (_transfers.length == 0) {
             console.log("No ETH or ERC20 transfers.");
@@ -381,7 +377,7 @@ library AccountAccessParser {
 
     /// @notice Prints the decoded state diffs to the console in markdown format.
     /// This markdown is intended to be copied into the VALIDATION.md file.
-    function printMarkdown(DecodedStateDiff[] memory _stateDiffs) internal view noGasMetering {
+    function printMarkdown(DecodedStateDiff[] memory _stateDiffs) internal noGasMetering {
         address currentAddress = address(0xdead);
         for (uint256 i = 0; i < _stateDiffs.length; i++) {
             if (currentAddress != _stateDiffs[i].who) {
@@ -392,9 +388,11 @@ library AccountAccessParser {
                 string memory currentContractName = bytes(_stateDiffs[i].contractName).length > 0
                     ? string.concat(_stateDiffs[i].contractName)
                     : "<TODO: enter contract name>";
-                string memory addressString =
-                    string.concat("\n### ", "`", LibString.toHexString(_stateDiffs[i].who), "`");
-                console.log(addressString, string.concat(" (", currentContractName, ") ", currentChainId));
+
+                string memory linkedString = getLinkedAddress(_stateDiffs[i].who);
+                string memory linkString = string.concat("\n### ", linkedString);
+
+                console.log(linkString, string.concat(" (", currentContractName, ") ", currentChainId));
                 currentAddress = _stateDiffs[i].who;
             }
             DecodedStateDiff memory state = _stateDiffs[i];
@@ -407,6 +405,13 @@ library AccountAccessParser {
                 console.log(
                     "\n**<TODO: Slot was not automatically decoded. Please provide a summary with thorough detail then remove this line.>**"
                 );
+            } else if (state.decoded.kind.eq(string("address"))) {
+                string memory linkedString = getLinkedAddress(address(uint160(uint256(state.raw.newValue))));
+                console.log("- **Decoded Kind:**      `%s`", state.decoded.kind);
+                console.log("- **Before:** `%s`", state.decoded.oldValue);
+                console.log("- **After:** %s", linkedString);
+                console.log("- **Summary:**           %s", state.decoded.summary);
+                console.log("- **Detail:**            %s", state.decoded.detail);
             } else {
                 console.log("- **Decoded Kind:**      `%s`", state.decoded.kind);
                 console.log("- **Before:** `%s`", state.decoded.oldValue);
@@ -416,6 +421,17 @@ library AccountAccessParser {
             }
             console.log("\n**<TODO: Insert links for this state change then remove this line.>**\n");
         }
+    }
+
+    /// @param account The address to generate a linked markdown version of.
+    /// @return linkString The markdown string to link to the address.
+    function getLinkedAddress(address account) internal returns (string memory linkString) {
+        string[] memory cmds = new string[](3);
+        cmds[0] = "./op-whois/main";
+        cmds[1] = "link";
+        cmds[2] = LibString.toHexString(account);
+        bytes memory linkOutput = vm.ffi(cmds);
+        linkString = string(linkOutput);
     }
 
     /// @notice Decodes an ETH transfer from an account access record, and returns an empty struct

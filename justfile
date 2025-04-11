@@ -17,6 +17,13 @@ install-eip712sign:
   mkdir -p bin || true
   GOBIN="$REPO_ROOT/bin" go install github.com/base/eip712sign@v0.0.11
 
+install-whois:
+    #!/usr/bin/env bash
+    REPO_ROOT=`git rev-parse --show-toplevel`
+    PATH="$REPO_ROOT/bin:$PATH"
+    cd $REPO_ROOT
+    go build -C op-whois
+
 # Bundle path should be provided including the .json file extension.
 add-transaction bundlePath to sig *params:
   #!/usr/bin/env bash
