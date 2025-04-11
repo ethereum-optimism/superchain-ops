@@ -102,7 +102,29 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   - **Summary:**           nonce
   - **Detail:**
 
-**<TODO: Insert links for this state change then remove this line.>**
+If signer is on Child Safe 1: `0x6AF0674791925f767060Dd52f7fB20984E8639d8`:
+
+- **Key:**      `0x791fae0bcf3dd62c15434661e854630af982fdfefb63ed5ff80632964121d8ac`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **Summary:**  `approveHash(bytes32)` called on ProxyAdminOwner by child multisig.
+  - **Detail:** **THIS WAS CAREFULLY VERIFIED BY RUNBOOK REVIEWERS AND NEED NOT BE CHECKED BY SIGNERS.** As part of the Tenderly simulation, we want to illustrate the <i>approveHash</i> invocation. This step isn't shown in the local simulation because the parent multisig is invoked directly, bypassing the <i>approveHash</i> calls. This slot change reflects an update to the approvedHashes mapping.
+    Specifically, this simulation was ran as the nested safe ``. To verify the slot yourself, run:
+    - `res=$(cast index address 0x6AF0674791925f767060Dd52f7fB20984E8639d8 8)`
+    - `cast index bytes32 0xf7f42d9617b2d58b07ebbba60ac231142f29f643c82bef5752250bcaa0ef9b34 $res`
+    - Please note: the `0xf7f42d9617b2d58b07ebbba60ac231142f29f643c82bef5752250bcaa0ef9b34` value is taken from the Tenderly simulation and this is the transaction hash of the `approveHash` call.
+
+OR if signer is on Child Safe 2: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
+
+- **Key:**      `0x197170017eeaa81ee156c4184f574f634cd8da0162a1875749a41202771f948b`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **Summary:**  `approveHash(bytes32)` called on ProxyAdminOwner by child multisig.
+  - **Detail:** **THIS WAS CAREFULLY VERIFIED BY RUNBOOK REVIEWERS AND NEED NOT BE CHECKED BY SIGNERS.** As part of the Tenderly simulation, we want to illustrate the <i>approveHash</i> invocation. This step isn't shown in the local simulation because the parent multisig is invoked directly, bypassing the <i>approveHash</i> calls. This slot change reflects an update to the approvedHashes mapping.
+    Specifically, this simulation was ran as the nested safe ``. To verify the slot yourself, run:
+    - `res=$(cast index address 0x646132A1667ca7aD00d36616AFBA1A28116C770A 8)`
+    - `cast index bytes32 0xf7f42d9617b2d58b07ebbba60ac231142f29f643c82bef5752250bcaa0ef9b34 $res`
+    - Please note: the `0xf7f42d9617b2d58b07ebbba60ac231142f29f643c82bef5752250bcaa0ef9b34` value is taken from the Tenderly simulation and this is the transaction hash of the `approveHash` call.
 
   ---
 
