@@ -1,6 +1,6 @@
 # 005-opcm-upgrade-v300: Sepolia OPCM v3.0.0: op, soneium, ink
 
-Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xdf275380d59054da780262b940ae5b21ad4efbf60432f9699621ac32d35ea44d)
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xf5dd502d3703736e7f91123250f058d68af1b48a25380450b3477c4f1900c554)
 
 ## Objective
 
