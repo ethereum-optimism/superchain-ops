@@ -386,37 +386,35 @@ library AccountAccessParser {
         for (uint256 i = 0; i < _stateDiffs.length; i++) {
             if (currentAddress != _stateDiffs[i].who) {
                 console.log("---"); // Add markdown horizontal rule.
+                string memory currentChainId = _stateDiffs[i].l2ChainId == 0
+                    ? ""
+                    : string.concat("- Chain ID: ", vm.toString(_stateDiffs[i].l2ChainId));
                 string memory currentContractName = bytes(_stateDiffs[i].contractName).length > 0
                     ? string.concat(_stateDiffs[i].contractName)
-                    : "TODO: enter contract name";
-                console.log(
-                    "\n### `%s`",
-                    string.concat(LibString.toHexString(_stateDiffs[i].who), " (", currentContractName, ")")
-                );
+                    : "<TODO: enter contract name>";
+                string memory addressString =
+                    string.concat("\n### ", "`", LibString.toHexString(_stateDiffs[i].who), "`");
+                console.log(addressString, string.concat(" (", currentContractName, ") ", currentChainId));
                 currentAddress = _stateDiffs[i].who;
             }
             DecodedStateDiff memory state = _stateDiffs[i];
-            console.log("\n#### Decoded State Change: %s", i);
-            console.log("- **Contract:**          `%s`", state.contractName);
-            console.log("- **Chain ID:**          `%s`", state.l2ChainId == 0 ? "" : vm.toString(state.l2ChainId));
-
             console.log("\n- **Key:**          `%s`", vm.toString(state.raw.slot));
             if (bytes(state.decoded.kind).length == 0) {
                 console.log("- **Before:**     `%s`", vm.toString(state.raw.oldValue));
                 console.log("- **After:**     `%s`", vm.toString(state.raw.newValue));
-                console.log("\n- **Summary:**           %s", "");
+                console.log("- **Summary:**           %s", "");
                 console.log("- **Detail:**            %s", "");
                 console.log(
-                    "\n\x1B[33m[WARN]\x1B[0m Slot was not decoded. Please manually decode and provide a summary with the detail then remove this warning."
+                    "\n**<TODO: Slot was not automatically decoded. Please provide a summary with thorough detail then remove this line.>**"
                 );
             } else {
                 console.log("- **Decoded Kind:**      `%s`", state.decoded.kind);
                 console.log("- **Before:** `%s`", state.decoded.oldValue);
                 console.log("- **After:** `%s`", state.decoded.newValue);
-                console.log("\n- **Summary:**           %s", state.decoded.summary);
+                console.log("- **Summary:**           %s", state.decoded.summary);
                 console.log("- **Detail:**            %s", state.decoded.detail);
             }
-            console.log("\n**TODO: Insert links for this state change.**\n");
+            console.log("\n**<TODO: Insert links for this state change then remove this line.>**\n");
         }
     }
 
