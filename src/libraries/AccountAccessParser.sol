@@ -353,10 +353,7 @@ library AccountAccessParser {
     }
 
     /// @notice Prints the decoded transfers and state diffs to the console.
-    function print(DecodedTransfer[] memory _transfers, DecodedStateDiff[] memory _stateDiffs)
-        internal
-        noGasMetering
-    {
+    function print(DecodedTransfer[] memory _transfers, DecodedStateDiff[] memory _stateDiffs) internal noGasMetering {
         console.log("\n----------------- Task Transfers -------------------");
         if (_transfers.length == 0) {
             console.log("No ETH or ERC20 transfers.");
@@ -391,10 +388,10 @@ library AccountAccessParser {
                 string memory currentContractName = bytes(_stateDiffs[i].contractName).length > 0
                     ? string.concat(_stateDiffs[i].contractName)
                     : "<TODO: enter contract name>";
-                
+
                 string memory linkedString = getLinkedAddress(_stateDiffs[i].who);
                 string memory linkString = string.concat("\n### ", linkedString);
-                
+
                 console.log(linkString, string.concat(" (", currentContractName, ") ", currentChainId));
                 currentAddress = _stateDiffs[i].who;
             }
@@ -426,7 +423,7 @@ library AccountAccessParser {
         }
     }
 
-    /// @param account The address to generate a linked markdown version of. 
+    /// @param account The address to generate a linked markdown version of.
     /// @return linkString The markdown string to link to the address.
     function getLinkedAddress(address account) internal returns (string memory linkString) {
         string[] memory cmds = new string[](3);

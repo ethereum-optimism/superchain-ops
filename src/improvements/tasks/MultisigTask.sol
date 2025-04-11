@@ -655,9 +655,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     }
 
     /// @notice Print task releated data for task developers and signers.
-    function print(Action[] memory actions, VmSafe.AccountAccess[] memory accountAccesses, bool isSimulate)
-        public
-    {
+    function print(Action[] memory actions, VmSafe.AccountAccess[] memory accountAccesses, bool isSimulate) public {
         console.log("----------------- ATTENTION TASK DEVELOPERS -------------------");
         console.log("To properly document the task state changes, please follow these steps:");
         console.log("1. Copy and paste the state changes printed below into the VALIDATION.md file.");
