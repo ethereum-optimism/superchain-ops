@@ -1085,11 +1085,13 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         bool accountNotRegistryOrVm =
             (access.account != AddressRegistry.unwrap(addrRegistry) && access.account != address(vm));
         bool accessorNotRegistry = access.accessor != AddressRegistry.unwrap(addrRegistry);
-        bool isCall = access.kind == VmSafe.AccountAccessKind.Call;
+        bool isCall = (access.kind == VmSafe.AccountAccessKind.Call && access.depth == topLevelDepth);
         bool isTopLevelDelegateCall =
             (access.kind == VmSafe.AccountAccessKind.DelegateCall && access.depth == topLevelDepth);
         bool accessorIsParent = (access.accessor == parentMultisig);
-        return accountNotRegistryOrVm && accessorNotRegistry && (isCall || isTopLevelDelegateCall) && accessorIsParent;
+        bool isValid =
+            accountNotRegistryOrVm && accessorNotRegistry && (isCall || isTopLevelDelegateCall) && accessorIsParent;
+        return isValid;
     }
 
     /// @notice Composes a description string for the given access using the provided operation string.

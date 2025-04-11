@@ -84,14 +84,10 @@ contract OPCMUpdatePrestateV300 is OPCMTaskBase {
             });
         }
 
-        // We expect this call to revert when invoked from the _build() function.
-        // The _build function's job is to record the high-level calls that will later be executed by the L1 Proxy Admin Owner safe.
-        // It is not responsible for ensuring correct execution — that responsibility lies with the 'execTransaction' function in MultisigTask.sol.
-        (bool success,) = OPCM.call(abi.encodeWithSelector(IOPCMPrestateUpdate.updatePrestate.selector, opChainConfigs));
-        require(
-            !success,
-            "OPCMUpdatePrestateV300: Call unexpectedly succeeded; expected revert due to non-delegatecall in _build."
-        );
+        vm.startPrank(parentMultisig, true);
+        (bool success,) =
+            OPCM.delegatecall(abi.encodeWithSelector(IOPCMPrestateUpdate.updatePrestate.selector, opChainConfigs));
+        require(success, "OPCMUpdatePrestateV300: Delegatecall failed.");
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
