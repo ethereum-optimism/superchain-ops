@@ -514,16 +514,16 @@ workflows:
       
       # U15 Sepolia OP,Ink Update Prestate - foundation
       - just_simulate_nested_improvements:
-          name: "simulate nested sep/009-opcm-upgrade-prestate-v300-op-ink foundation"
-          task: "/sep/009-opcm-upgrade-prestate-v300-op-ink"
+          name: "simulate nested sep/009-opcm-update-prestate-v300-op-ink foundation"
+          task: "/sep/009-opcm-update-prestate-v300-op-ink"
           signer: "foundation"
           context:
             - circleci-repo-readonly-authenticated-github-token
       
       # U15 Sepolia OP,Ink Update Prestate - council
       - just_simulate_nested_improvements:
-          name: "simulate nested sep/009-opcm-upgrade-prestate-v300-op-ink council"
-          task: "/sep/009-opcm-upgrade-prestate-v300-op-ink"
+          name: "simulate nested sep/009-opcm-update-prestate-v300-op-ink council"
+          task: "/sep/009-opcm-update-prestate-v300-op-ink"
           signer: "council"
           context:
             - circleci-repo-readonly-authenticated-github-token
