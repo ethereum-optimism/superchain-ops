@@ -18,15 +18,8 @@ the values printed to the terminal when you run the task.
 >
 > Before signing, ensure the below hashes match what is on your ledger.
 >
-> ### Optimism Foundation
->
-> - Domain Hash: ``
-> - Message Hash: ``
->
-> ### Security Council
->
-> - Domain Hash: ``
-> - Message Hash: ``
+> - Domain Hash: `0x2fedecce87979400ff00d5cec4c77da942d43ab3b9db4a5ffc51bb2ef498f30b`
+> - Message Hash: `0x3f060669a35f5e427a46039a88858c7fba405c20241a856141512d15e1118537`
 
 ## Understanding Task Calldata
 
@@ -91,13 +84,54 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
 ### Task State Changes
 
+  ---
+  
+### [`0xd363339ee47775888df411a163c586a8bdea9dbf`](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/unichain.toml#L45) (ProxyAdminOwner (GnosisSafe)) - Chain ID: 1301
+
+- **Nonce:**
+  - **Before:** 4
+  - **After:** 6
+  - **Detail:** Two new dispute games were deployed by the ProxyAdminOwner during execution, resulting in the account nonce in state being incremented two times.
+  
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Decoded Kind:**      `uint256`
+  - **Before:** `30`
+  - **After:** `31`
+  - **Summary:** Nonce update
+  - **Detail:** Nonce update for the parent multisig. You can verify manually with the following:
+    - Before: `cast --to-dec 0x1e` = 30
+    - After: `cast --to-dec 0x1f` = 31
+
+  ---
+  
+### [`0xeff73e5aa3b9aec32c659aa3e00444d20a84394b`](https://github.com/ethereum-optimism/superchain-registry/blob/00208555c3c356d6596feedb619da989de478ed7/superchain/configs/sepolia/unichain.toml#L63) (DisputeGameFactory) - Chain ID: 1301
+  
+- **Key:**          `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
+  - **Before:**     `0x0000000000000000000000002275d0c824116ad516987048fffabac6b0c3a29b`
+  - **After:**     `0x00000000000000000000000009fea91e99d4fb4f208053f35c45a3a20a15dad5`
+  - **Summary:** Updates the implementation for game type 1.
+  - **Detail:** This is `gameImpls[1]` -> `0x09feA91e99d4fb4F208053F35C45A3a20A15daD5`. The [`gameImpls` mapping](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is at [storage slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41) and is keyed by [`GameType` (`uint32`)](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224).
+    - Confirm the expected key slot with the following:
+      ```shell
+      cast index uint32 1 101
+      0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e
+      ```      
+  
+- **Key:**          `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
+  - **Before:**     `0x0000000000000000000000004745808cc649f290439763214fc40ac905806d8d`
+  - **After:**     `0x0000000000000000000000003d8843a195fa8446d7c86b9d803a398f32130671`
+  - **Summary:** Updates the implementation for game type 0.
+  - **Detail:** This is `gameImpls[0]` -> `0x3d8843A195FA8446D7c86B9d803a398F32130671`. The [`gameImpls` mapping](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is at [storage slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41) and is keyed by [`GameType` (`uint32`)](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224).
+    - Confirm the expected key slot with the following:
+      ```shell
+      cast index uint32 0 101
+      0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b
+      ```
 
 ### Nonce increments
 
 The only other state change are the nonce increments as follows:
 
-- `<sender-address> e.g. 0xA03DaFadE71F1544f4b0120145eEC9b89105951f or 0x1084092Ac2f04c866806CF3d4a385Afa4F6A6C97` - Sender address of the Tenderly transaction (Your ledger or first owner on the nested safe).
-- `0x38c2b9A214cDc3bBBc4915Dae8c2F0a7917952Dd` - Permissionless GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
-- `0x3dbfB370be95Eb598C8b89B45d7c101dC1679AB9` - Permissioned GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
-- `0x97766954BAF17e3a2BfA43728830f0Fa647F7546` - Permissioned GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
-- `0xBd72dD2fB74a537B9B47B454614A15B066Cc464a` - Permissionless GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
+- `0x09feA91e99d4fb4F208053F35C45A3a20A15daD5` - Permissioned GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
+- `<sender-address> e.g. 0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38` - Sender address of the Tenderly transaction (Your ledger address).
+- `0x3d8843A195FA8446D7c86B9d803a398F32130671` - Permissionless GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
