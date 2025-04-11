@@ -1080,7 +1080,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         }
     }
 
-    /// @notice Returns true if the given account access should be recorded as an action.
+    /// @notice Returns true if the given account access should be recorded as an action. This function is used to filter out
+    /// actions that we defined in the _build function of our template. The actions selected by this function will get executed
+    /// by the relevant Multicall3 contract.
     function _isValidAction(VmSafe.AccountAccess memory access, uint256 topLevelDepth) internal view returns (bool) {
         bool accountNotRegistryOrVm =
             (access.account != AddressRegistry.unwrap(addrRegistry) && access.account != address(vm));
@@ -1089,9 +1091,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         bool isTopLevelDelegateCall =
             (access.kind == VmSafe.AccountAccessKind.DelegateCall && access.depth == topLevelDepth);
         bool accessorIsParent = (access.accessor == parentMultisig);
-        bool isValid =
-            accountNotRegistryOrVm && accessorNotRegistry && (isCall || isTopLevelDelegateCall) && accessorIsParent;
-        return isValid;
+        return accountNotRegistryOrVm && accessorNotRegistry && (isCall || isTopLevelDelegateCall) && accessorIsParent;
     }
 
     /// @notice Composes a description string for the given access using the provided operation string.
