@@ -1,6 +1,6 @@
 # 009-opcm-upgrade-prestate-v300-op-ink: Sepolia Upgrade Prestate v3.0.0: OP and Ink
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x659ca2fe3231cdda8657ff4e0bc11f7dfd7345413d4f854d3a53c5036fce3732)
 
 ## Objective
 
