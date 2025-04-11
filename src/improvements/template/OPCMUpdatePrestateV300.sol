@@ -84,7 +84,6 @@ contract OPCMUpdatePrestateV300 is OPCMTaskBase {
             });
         }
 
-        vm.startPrank(parentMultisig, true);
         (bool success,) =
             OPCM.delegatecall(abi.encodeWithSelector(IOPCMPrestateUpdate.updatePrestate.selector, opChainConfigs));
         require(success, "OPCMUpdatePrestateV300: Delegatecall failed.");

@@ -871,6 +871,13 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// --------------------------------------------------------------------
     /// --------------------------------------------------------------------
 
+    /// @notice Prank as the multisig.
+    /// Override to prank with delegatecall flag set to true
+    /// in case of OPCM tasks.
+    function _prankMultisig() internal virtual {
+        vm.startPrank(parentMultisig);
+    }
+
     /// @notice Validate actions inclusion. Default implementation checks for duplicate actions.
     function validateAction(address target, uint256 value, bytes memory data, Action[] memory actions) public pure {
         uint256 actionsLength = actions.length;
@@ -993,7 +1000,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     ///  2). start prank as the multisig
     ///  3). start a recording of all calls created during the task
     function _startBuild() private {
-        vm.startPrank(parentMultisig);
+        _prankMultisig();
 
         _startSnapshot = vm.snapshotState();
 
