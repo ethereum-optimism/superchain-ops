@@ -6,7 +6,7 @@ Status: [EXECUTED](https://etherscan.io/tx/0x220c443aebcd9bb04d6eb79e975c6bbe710
 
 This is the playbook to update the gas scalar configuration on the `SystemConfig` contract for OP Mainnet.
 Fjord uses the same configuration parameters as Ecotone, that is, the _base fee_ and _blob base fee scalars_.
-Because [Fjord updates the L1 cost function to be based on a compression estimation using FastLZ](https://github.com/ethereum-optimism/specs/blob/main/specs/fjord/exec-engine.md#fees),
+Because [Fjord updates the L1 cost function to be based on a compression estimation using FastLZ](https://github.com/ethereum-optimism/specs/blob/main/specs/protocol/fjord/exec-engine.md#fees),
 these scalars have to be adjusted.
 Details on the transaction input can be found in the validation file, see below.
 
