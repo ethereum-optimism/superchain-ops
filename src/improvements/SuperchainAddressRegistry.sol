@@ -5,7 +5,7 @@ import {Vm} from "forge-std/Vm.sol";
 import {StdChains} from "forge-std/StdChains.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {GameTypes, GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
-
+import {console} from "forge-std/console.sol";
 /// @notice Contains getters for arbitrary methods from all L1 contracts, including legacy getters
 /// that have since been deprecated.
 interface IFetcher {
@@ -105,7 +105,18 @@ contract SuperchainAddressRegistry is StdChains {
         string memory chainAddrs = vm.readFile("lib/superchain-registry/superchain/extra/addresses/addresses.json");
 
         for (uint256 i = 0; i < chains.length; i++) {
-            _processAddresses(chains[i], chainAddrs);
+            if(vm.envString("FOUNDRY_PROFILE") != "ci") {
+                _processAddresses(chains[i], chainAddrs);
+            } else {
+                console.log("SuperchainAddressRegistry: Executing in CI mode. Reading addresses directly from the superchain-registry without doing onchain discovery.");
+                // Read all addresses directly from the superchain-registry without doing onchain discovery.
+                string[] memory keys = vm.parseJsonKeys(chainAddrs, string.concat("$.", vm.toString(chains[i].chainId)));
+                for (uint256 j = 0; j < keys.length; j++) {
+                    string memory key = keys[j];
+                    address addr = vm.parseJsonAddress(chainAddrs, string.concat("$.", vm.toString(chains[i].chainId), ".", key));
+                    saveAddress(key, chains[i], addr);
+                }
+            }
         }
 
         string memory chainKey;
