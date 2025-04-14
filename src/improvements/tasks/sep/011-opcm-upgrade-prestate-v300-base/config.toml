@@ -9,7 +9,17 @@ chainId = 84532
 # Absolute prestate pulled from https://github.com/ethereum-optimism/superchain-registry/blob/712a84f44501322ca61901c2729aa3a56726a602/validation/standard/standard-prestates.toml#L10
 # op-program/v1.6.0-rc.2-64 - https://www.notion.so/oplabs/Isthmus-Sepolia-Mainnet-1d2f153ee162800880abe1b47910c071
 absolutePrestate = "0x03682932cec7ce0a3874b19675a6bbc923054a7b321efc7d3835187b172494b6"
-expectedValidationErrors = "PDDG-ANCHORP-40,PLDG-ANCHORP-40" # not a fresh ASR
+
+# SPRCFG-10: SuperchainConfig version mismatch - temporary remove this when sepolia unpaused
+# The following are expected errors related to Base Sepolia having a different L1PAO
+#    PROXYA-10: ProxyAdmin owner is not set to L1 PAO multisig - expected
+#    DF-30: DisputeGameFactory owner is not set to L1 PAO multisig - expected
+#    PDDG-DWETH-30: Permissioned dispute game delayed WETH owner mismatch - expected
+#    PLDG-DWETH-30: Permissionless dispute game delayed WETH owner mismatch
+# PDDG-120: Permissioned dispute game challenger address mismatch - expected, each chain has a different challenger
+# PDDG-ANCHORP-40: Permissioned dispute game anchor state registry root hash mismatch - expected, this is not a fresh ASR
+# PLDG-ANCHORP-40: Permissionless dispute game anchor state registry root hash mismatch - expected, this is not a fresh ASR
+expectedValidationErrors = "SPRCFG-10,PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-ANCHORP-40,PDDG-120,PLDG-DWETH-30,PLDG-ANCHORP-40"
 
 [addresses]
 # Base Sepolia ProxyAdminOwner: 0x0fe884546476dDd290eC46318785046ef68a0BA9
