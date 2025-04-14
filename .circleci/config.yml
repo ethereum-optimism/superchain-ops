@@ -362,6 +362,7 @@ jobs:
       - image: <<pipeline.parameters.default_docker_image>>
     environment:
       FOUNDRY_PROFILE: ci
+      TEMPLATE_REGRESSION_TESTS_CI: true
     steps:
       - utils/checkout-with-mise
       - run:
