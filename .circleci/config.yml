@@ -316,7 +316,16 @@ jobs:
       - utils/checkout-with-mise
       - run:
           name: "Run simulation sequence for network: <<parameters.network>> | tasks: <<parameters.tasks>>"
-          command: git submodule update; just clean; just install && echo "yes" | bash ./script/utils/sim-sequence.sh <<parameters.network>> "<<parameters.tasks>>" "<<parameters.block_number>>"
+       
+  whois_build:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - utils/checkout-with-mise
+      - run:
+          name: op-whois build
+          command: |
+            just go-install
 
   forge_build:
     docker:
