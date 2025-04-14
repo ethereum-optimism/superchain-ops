@@ -108,11 +108,13 @@ contract SuperchainAddressRegistry is StdChains {
         string memory chainAddrs = vm.readFile("lib/superchain-registry/superchain/extra/addresses/addresses.json");
 
         for (uint256 i = 0; i < chains.length; i++) {
-            if (vm.envString("FOUNDRY_PROFILE").eq("ci")) {
+            if (!vm.envString("FOUNDRY_PROFILE").eq("ci")) {
+                console.log("SuperchainAddressRegistry: Performing onchain discovery for chain ", chains[i].name);
                 _processAddresses(chains[i], chainAddrs);
             } else {
                 console.log(
-                    "SuperchainAddressRegistry: Executing in CI mode. Reading addresses directly from the superchain-registry without doing onchain discovery."
+                    "SuperchainAddressRegistry: Executing in CI mode. Skipping onchain discovery for chain ",
+                    chains[i].name
                 );
                 // Read all addresses directly from the superchain-registry without doing onchain discovery.
                 string[] memory keys = vm.parseJsonKeys(chainAddrs, string.concat("$.", vm.toString(chains[i].chainId)));
