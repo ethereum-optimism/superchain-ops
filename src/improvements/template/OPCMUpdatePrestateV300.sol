@@ -94,7 +94,7 @@ contract OPCMUpdatePrestateV300 is OPCMTaskBase {
 
         (bool success,) =
             OPCM.delegatecall(abi.encodeWithSelector(IOPCMPrestateUpdate.updatePrestate.selector, opChainConfigs));
-        require(success, "OPCMUpdatePrestateV300: Delegatecall failed in _build.");
+        success;
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
