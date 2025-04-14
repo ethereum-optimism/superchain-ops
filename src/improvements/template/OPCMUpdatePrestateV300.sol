@@ -69,7 +69,15 @@ contract OPCMUpdatePrestateV300 is OPCMTaskBase {
         vm.label(address(STANDARD_VALIDATOR_V300), "StandardValidatorV300");
     }
 
-    /// @notice A single call to OPCM.updatePrestate() is made for all l2 chains that are defined in a tasks config.toml.
+    /// @notice Before implementing the `_build` function, template developers must consider the following:
+    /// 1. Which Multicall contract does this template use — `Multicall3` or `Multicall3Delegatecall`?
+    /// 2. Based on the contract, should the target be called using `call` or `delegatecall`?
+    /// 3. Ensure that the call to the target uses the appropriate method (`call` or `delegatecall`) accordingly.
+    /// Guidelines:
+    /// - `Multicall3Delegatecall`:
+    ///   If the template inherits from `OPCMTaskBase`, it uses the `Multicall3Delegatecall` contract.
+    ///   In this case, calls to the target **must** use `delegatecall`, e.g.:
+    ///   `(bool success,) = OPCM.delegatecall(abi.encodeWithSelector(IOPCMPrestateUpdate.upgrade.selector, opChainConfigs));`
     function _build() internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         IOPContractsManager.OpChainConfig[] memory opChainConfigs =
@@ -86,7 +94,7 @@ contract OPCMUpdatePrestateV300 is OPCMTaskBase {
 
         (bool success,) =
             OPCM.delegatecall(abi.encodeWithSelector(IOPCMPrestateUpdate.updatePrestate.selector, opChainConfigs));
-        require(success, "OPCMUpdatePrestateV300: Delegatecall failed.");
+        require(success, "OPCMUpdatePrestateV300: Delegatecall failed in _build.");
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
