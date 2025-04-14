@@ -109,6 +109,13 @@ abstract contract OPCMTaskBase is L2TaskBase {
         multicallTarget_ = MULTICALL3_DELEGATECALL_ADDRESS;
     }
 
+    /// @notice Prank as the multisig.
+    function _prankMultisig() internal override {
+        // If delegateCall value is true then sets msg.sender for all subsequent delegate calls.
+        // We want this functionality for OPCM tasks.
+        vm.startPrank(parentMultisig, true);
+    }
+
     /// @notice this function must be overridden in the inheriting contract to run assertions on the state changes.
     function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions)
         internal

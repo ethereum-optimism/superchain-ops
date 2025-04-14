@@ -64,7 +64,15 @@ contract OPCMTaskBaseTemplate is OPCMTaskBase {
         require(false, "TODO: Implement with the correct template setup.");
     }
 
-    /// @notice A single call to OPCM.upgrade() is made for all l2 chains.
+    /// @notice Before implementing the `_build` function, task developers must consider the following:
+    /// 1. Which Multicall contract does this template use — `Multicall3` or `Multicall3Delegatecall`?
+    /// 2. Based on the contract, should the target be called using `call` or `delegatecall`?
+    /// 3. Ensure that the call to the target uses the appropriate method (`call` or `delegatecall`) accordingly.
+    /// Guidelines:
+    /// - `Multicall3Delegatecall`:
+    ///   If the template inherits from `OPCMTaskBase`, it uses the `Multicall3Delegatecall` contract.
+    ///   In this case, calls to the target **must** use `delegatecall`, e.g.:
+    ///   `(bool success,) = OPCM.delegatecall(abi.encodeWithSelector(IOPContractsManager.upgrade, opChainConfigs));`
     function _build() internal override {
         require(false, "TODO: Implement with the correct build logic.");
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
@@ -79,9 +87,10 @@ contract OPCMTaskBaseTemplate is OPCMTaskBase {
             });
         }
 
-        // See: template/OPCMUpgradeV200.sol for more information on why we expect a revert here.
-        (bool success,) = OPCM.call(abi.encodeCall(IOPContractsManager.upgrade, (opChainConfigs)));
-        require(!success, "OPCMUpgradeV200: Call unexpectedly succeeded; expected revert due to non-delegatecall.");
+        // TODO: This may execute the OPCM.upgrade() function or a different OPCM function. We're using the OPCM.upgrade() function as an example.
+        (bool success,) =
+            OPCM.delegatecall(abi.encodeWithSelector(IOPContractsManager.upgrade.selector, opChainConfigs));
+        require(success, "OPCMTaskBaseTemplate: Delegatecall failed in _build.");
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
