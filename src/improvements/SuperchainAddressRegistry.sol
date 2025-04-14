@@ -106,9 +106,8 @@ contract SuperchainAddressRegistry is StdChains {
 
         // For each OP chain, read in all addresses for that OP Chain.
         string memory chainAddrs = vm.readFile("lib/superchain-registry/superchain/extra/addresses/addresses.json");
-
         for (uint256 i = 0; i < chains.length; i++) {
-            if (!vm.envString("FOUNDRY_PROFILE").eq("ci")) {
+            if (!vm.envOr("FOUNDRY_PROFILE", string("")).eq("x")) {
                 console.log("SuperchainAddressRegistry: Performing onchain discovery for chain ", chains[i].name);
                 _processAddresses(chains[i], chainAddrs);
             } else {
@@ -117,13 +116,7 @@ contract SuperchainAddressRegistry is StdChains {
                     chains[i].name
                 );
                 // Read all addresses directly from the superchain-registry without doing onchain discovery.
-                string[] memory keys = vm.parseJsonKeys(chainAddrs, string.concat("$.", vm.toString(chains[i].chainId)));
-                for (uint256 j = 0; j < keys.length; j++) {
-                    string memory key = keys[j];
-                    address addr =
-                        vm.parseJsonAddress(chainAddrs, string.concat("$.", vm.toString(chains[i].chainId), ".", key));
-                    saveAddress(key, chains[i], addr);
-                }
+                readAddressesFromSuperchainRegistry(chainAddrs, chains[i]);
             }
         }
 
@@ -453,5 +446,36 @@ contract SuperchainAddressRegistry is StdChains {
     function getProxyAdmin(address systemConfigProxy) internal returns (address) {
         vm.prank(address(0));
         return IFetcher(systemConfigProxy).admin();
+    }
+
+    function readAddressesFromSuperchainRegistry(string memory chainAddressesContent, ChainInfo memory chain)
+        internal
+    {
+        string[] memory keys = vm.parseJsonKeys(chainAddressesContent, string.concat("$.", vm.toString(chain.chainId)));
+        for (uint256 j = 0; j < keys.length; j++) {
+            string memory key = keys[j];
+
+            if (
+                key.eq("FaultDisputeGame") || key.eq("PermissionlessWETH") || key.eq("PermissionedDisputeGame")
+                    || key.eq("PermissionedWETH") || key.eq("Challenger") || key.eq("AnchorStateRegistryProxy")
+                    || key.eq("MIPS") || key.eq("PreimageOracle") || key.eq("Proposer")
+            ) {
+                continue;
+            }
+
+            // Perform onchain discovery for dispute game related contracts. The superchain registry
+            // sometimes misses these.
+            if (key.eq("DisputeGameFactoryProxy")) {
+                address disputeGameFactoryProxy = vm.parseJsonAddress(
+                    chainAddressesContent, string.concat("$.", vm.toString(chain.chainId), ".", key)
+                );
+                _saveDisputeGameEntries(chain, disputeGameFactoryProxy);
+            } else {
+                address addr = vm.parseJsonAddress(
+                    chainAddressesContent, string.concat("$.", vm.toString(chain.chainId), ".", key)
+                );
+                saveAddress(key, chain, addr);
+            }
+        }
     }
 }
