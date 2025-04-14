@@ -95,6 +95,11 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
 ### [`0x0fe884546476ddd290ec46318785046ef68a0ba9`](https://github.com/ethereum-optimism/superchain-registry/blob/08e3fe429c776a532c2b6dc09571fc13e6dba5d4/superchain/configs/sepolia/base.toml#L45)  (ProxyAdminOwner (GnosisSafe)) - Chain ID: 84532
 
+- **Nonce:**
+  - **Before:** 6
+  - **After:** 8
+  - **Detail:** Two new dispute games were deployed by the ProxyAdminOwner during execution, resulting in the account nonce in state being incremented twice.
+
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:**      `uint256`
   - **Before:** `21`
@@ -111,7 +116,7 @@ If signer is on Child Safe 1: `0x6AF0674791925f767060Dd52f7fB20984E8639d8`:
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Summary:**  `approveHash(bytes32)` called on ProxyAdminOwner by child multisig.
   - **Detail:** **THIS WAS CAREFULLY VERIFIED BY RUNBOOK REVIEWERS AND NEED NOT BE CHECKED BY SIGNERS.** As part of the Tenderly simulation, we want to illustrate the <i>approveHash</i> invocation. This step isn't shown in the local simulation because the parent multisig is invoked directly, bypassing the <i>approveHash</i> calls. This slot change reflects an update to the approvedHashes mapping.
-    Specifically, this simulation was ran as the nested safe ``. To verify the slot yourself, run:
+    To verify the slot yourself, run:
     - `res=$(cast index address 0x6AF0674791925f767060Dd52f7fB20984E8639d8 8)`
     - `cast index bytes32 0xf7f42d9617b2d58b07ebbba60ac231142f29f643c82bef5752250bcaa0ef9b34 $res`
     - Please note: the `0xf7f42d9617b2d58b07ebbba60ac231142f29f643c82bef5752250bcaa0ef9b34` value is taken from the Tenderly simulation and this is the transaction hash of the `approveHash` call.
@@ -123,7 +128,7 @@ OR if signer is on Child Safe 2: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Summary:**  `approveHash(bytes32)` called on ProxyAdminOwner by child multisig.
   - **Detail:** **THIS WAS CAREFULLY VERIFIED BY RUNBOOK REVIEWERS AND NEED NOT BE CHECKED BY SIGNERS.** As part of the Tenderly simulation, we want to illustrate the <i>approveHash</i> invocation. This step isn't shown in the local simulation because the parent multisig is invoked directly, bypassing the <i>approveHash</i> calls. This slot change reflects an update to the approvedHashes mapping.
-    Specifically, this simulation was ran as the nested safe ``. To verify the slot yourself, run:
+    To verify the slot yourself, run:
     - `res=$(cast index address 0x646132A1667ca7aD00d36616AFBA1A28116C770A 8)`
     - `cast index bytes32 0xf7f42d9617b2d58b07ebbba60ac231142f29f643c82bef5752250bcaa0ef9b34 $res`
     - Please note: the `0xf7f42d9617b2d58b07ebbba60ac231142f29f643c82bef5752250bcaa0ef9b34` value is taken from the Tenderly simulation and this is the transaction hash of the `approveHash` call.
@@ -161,21 +166,20 @@ OR if signer is on Child Safe 2: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
 ### [`0xd6e6dbf4f7ea0ac412fd8b65ed297e64bb7a06e1`](https://github.com/ethereum-optimism/superchain-registry/blob/08e3fe429c776a532c2b6dc09571fc13e6dba5d4/superchain/configs/sepolia/base.toml#L63)  (DisputeGameFactory) - Chain ID: 84532
 
 - **Key:**          `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
-  - **Before:**     `0x000000000000000000000000d53394d4f67653074acf0b264954fe5e4f72d24f`
-  - **After:**     `0x000000000000000000000000b63663de7b5f70d50ed841dc04e62e3bbd64e72d`
+  - **Before:**     `0x0000000000000000000000006f67e57c143321e266bac32a0d9d22d88ce1b3e5`
+  - **After:**     `0x00000000000000000000000057893745965a135800ef124a16718cfe1380379f`
   - **Summary:** Updates the implementation for game type 1.
-  - **Detail:** This is `gameImpls[1]` -> `0x97766954BAF17e3a2BfA43728830f0Fa647F7546`. The [`gameImpls` mapping](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is at [storage slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41) and is keyed by [`GameType` (`uint32`)](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224).
+  - **Detail:** This is `gameImpls[1]` -> `0x57893745965a135800ef124a16718cfe1380379f`. The [`gameImpls` mapping](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is at [storage slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41) and is keyed by [`GameType` (`uint32`)](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224).
     - Confirm the expected key slot with the following:
       ```shell
       cast index uint32 1 101
       0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e
       ```
 
-
 - **Key:**          `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
-  - **Before:**     `0x000000000000000000000000861eb6dfe0fde8c8a63e8606fa487ee870f65e72`
-  - **After:**     `0x00000000000000000000000097ca5600adc6a198df4c82ff9dccb74384ed3641`
-  - **Detail:** This is `gameImpls[0]` -> `0xBd72dD2fB74a537B9B47B454614A15B066Cc464a`. The [`gameImpls` mapping](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is at [storage slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41) and is keyed by [`GameType` (`uint32`)](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224).
+  - **Before:**     `0x000000000000000000000000340c1364d299ed55b193d4efcecbad8c3fb104c4`
+  - **After:**     `0x00000000000000000000000000ce6dba88c8f3a95671fec55609c04f83ff6c09`
+  - **Detail:** This is `gameImpls[0]` -> `0x00ce6dba88c8f3a95671fec55609c04f83ff6c09`. The [`gameImpls` mapping](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is at [storage slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41) and is keyed by [`GameType` (`uint32`)](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224).
     - Confirm the expected key slot with the following:
       ```shell
       cast index uint32 0 101
@@ -186,6 +190,6 @@ OR if signer is on Child Safe 2: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
 
 The only other state change are three nonce increments:
 
-- `0x97ca5600AdC6a198DF4C82FF9DCcB74384eD3641` - Permissionless GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
-- `0xB63663DE7b5f70D50eD841DC04E62E3bbD64e72d` - Permissioned GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
+- `0x00ce6dba88c8f3a95671fec55609c04f83ff6c09` - Permissionless GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
+- `0x57893745965a135800ef124a16718cfe1380379f` - Permissioned GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
 - `<sender-address> e.g. 0x7f10098BD53519c739cA8A404afE127647D94774` - Sender address of the Tenderly transaction (Your ledger or first owner on the nested safe).
