@@ -130,6 +130,34 @@ OR if signer is on Child Safe 2: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`:
 
   ---
 
+### `0x6AF0674791925f767060Dd52f7fB20984E8639d8` (GnosisSafe) - Child Safe 1
+
+**Note: You'll only see this state diff if signer is on Child Safe 1: `0x6AF0674791925f767060Dd52f7fB20984E8639d8`. Ignore if you're signing for Child Safe 2: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`.**
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Before:** `3`
+  - **After:** `4`
+  - **Summary:**  Nonce update
+  - **Detail:**  Nonce update for the child safe. You can verify manually with the following:
+    - Before: `cast --to-dec 0x3` = 3
+    - After: `cast --to-dec 0x4` = 4
+
+---
+
+### `0x646132A1667ca7aD00d36616AFBA1A28116C770A` (GnosisSafe) - Child Safe 2
+
+**Note: You'll only see this state diff if signer is on Child Safe 2: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`. Ignore if you're signing for Child Safe 1: `0x6AF0674791925f767060Dd52f7fB20984E8639d8`.**
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Before:** `3`
+  - **After:** `4`
+  - **Summary:**  Nonce update
+  - **Detail:**  Nonce update for the child safe. You can verify manually with the following:
+    - Before: `cast --to-dec 0x3` = 3
+    - After: `cast --to-dec 0x4` = 4
+
+---
+
 ### [`0xd6e6dbf4f7ea0ac412fd8b65ed297e64bb7a06e1`](https://github.com/ethereum-optimism/superchain-registry/blob/08e3fe429c776a532c2b6dc09571fc13e6dba5d4/superchain/configs/sepolia/base.toml#L63)  (DisputeGameFactory) - Chain ID: 84532
 
 - **Key:**          `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
