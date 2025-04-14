@@ -8,6 +8,8 @@ import {GameTypes, GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.s
 import {console} from "forge-std/console.sol";
 import {LibString} from "solady/utils/LibString.sol";
 
+import {Utils} from "src/libraries/Utils.sol";
+
 /// @notice Contains getters for arbitrary methods from all L1 contracts, including legacy getters
 /// that have since been deprecated.
 interface IFetcher {
@@ -107,7 +109,7 @@ contract SuperchainAddressRegistry is StdChains {
         // For each OP chain, read in all addresses for that OP Chain.
         string memory chainAddrs = vm.readFile("lib/superchain-registry/superchain/extra/addresses/addresses.json");
         for (uint256 i = 0; i < chains.length; i++) {
-            if (vm.envOr("TEMPLATE_REGRESSION_TESTS_CI", bool(false))) {
+            if (Utils.isFeatureEnabled("TEMPLATE_REGRESSION_TESTS_CI")) {
                 console.log(
                     "SuperchainAddressRegistry: Executing in CI mode. Skipping onchain discovery for chain ",
                     chains[i].name
