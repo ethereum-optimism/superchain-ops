@@ -7,7 +7,7 @@ templateName = "OPCMUpdatePrestateV300"
 [[opcmUpgrades]]
 chainId = 84532
 # Absolute prestate pulled from https://github.com/ethereum-optimism/superchain-registry/blob/712a84f44501322ca61901c2729aa3a56726a602/validation/standard/standard-prestates.toml#L10
-# op-program/v1.6.0-rc.2-64
+# op-program/v1.6.0-rc.2-64 - https://www.notion.so/oplabs/Isthmus-Sepolia-Mainnet-1d2f153ee162800880abe1b47910c071
 absolutePrestate = "0x03682932cec7ce0a3874b19675a6bbc923054a7b321efc7d3835187b172494b6"
 expectedValidationErrors = "PDDG-ANCHORP-40,PLDG-ANCHORP-40" # not a fresh ASR
 

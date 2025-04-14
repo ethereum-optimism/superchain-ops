@@ -26,7 +26,7 @@ the values printed to the terminal when you run the task.
 > ### Nested Safe 2: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`
 >
 > - Domain Hash: `0x1d3f2566fd7b1bf017258b03d4d4d435d326d9cb051d5b7993d7c65e7ec78d0e`
-> - Message Hash: `0x4cdac20368824e0bf4725fa51adbab279fb9e378750085a2255937b69e4b7c06`
+> - Message Hash: `0xff5166e1a86ea2e7a78192844ea6332b1357d136f1de36bd4230a70fc952d1c4`
 
 ## Understanding Task Calldata
 
@@ -34,9 +34,9 @@ This document provides a detailed analysis of the final calldata executed on-cha
 
 By reconstructing the calldata, we can confirm that the execution precisely implements the approved upgrade plan with no unexpected modifications or side effects.
 
-### Inputs to `opcm.upgrade()`
+### Inputs to `opcm.updatePrestate()`
 
-For each chain being upgrade, the `opcm.upgrade()` function is called with a tuple of three elements:
+For each chain being upgrade, the `opcm.updatePrestate()` function is called with a tuple of three elements:
 
 1. Base Sepolia Testnet:
    - SystemConfigProxy: [0xf272670eb55e895584501d564AfEB048bEd26194](https://github.com/ethereum-optimism/superchain-registry/blob/2c60e5723c64b5a1b58ab72c5d3816927ff9391a/superchain/configs/sepolia/base.toml#L59)
