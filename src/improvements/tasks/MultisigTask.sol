@@ -1093,11 +1093,16 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     function _isValidAction(VmSafe.AccountAccess memory access, uint256 topLevelDepth) internal view returns (bool) {
         bool accountNotRegistryOrVm =
             (access.account != AddressRegistry.unwrap(addrRegistry) && access.account != address(vm));
+        console.log("accountNotRegistryOrVm", accountNotRegistryOrVm);
         bool accessorNotRegistry = access.accessor != AddressRegistry.unwrap(addrRegistry);
+        console.log("accessorNotRegistry", accessorNotRegistry);
         bool isCall = (access.kind == VmSafe.AccountAccessKind.Call && access.depth == topLevelDepth);
+        console.log("isCall", isCall);
         bool isTopLevelDelegateCall =
             (access.kind == VmSafe.AccountAccessKind.DelegateCall && access.depth == topLevelDepth);
+        console.log("isTopLevelDelegateCall", isTopLevelDelegateCall);
         bool accessorIsParent = (access.accessor == parentMultisig);
+        console.log("accessorIsParent", accessorIsParent);
         return accountNotRegistryOrVm && accessorNotRegistry && (isCall || isTopLevelDelegateCall) && accessorIsParent;
     }
 

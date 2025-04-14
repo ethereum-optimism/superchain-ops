@@ -7,6 +7,7 @@ import {Test} from "forge-std/Test.sol";
 import {stdStorage, StdStorage} from "forge-std/StdStorage.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {LibString} from "@solady/utils/LibString.sol";
+import {console} from "forge-std/console.sol";
 
 import {MockTarget} from "test/tasks/mock/MockTarget.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
@@ -250,6 +251,23 @@ contract MultisigTaskUnitTest is Test {
         bytes memory data = task.getMulticall3Calldata(actions);
 
         assertEq(data, expectedData, "Wrong aggregate calldata");
+    }
+
+    function testFuzz_ValidActionConditions(bool isCall, address randomAccount) public {
+        vm.assume(randomAccount != address(addrRegistry));
+        vm.assume(randomAccount != VM_ADDRESS);
+        uint256 topLevelDepth = 1;
+
+        address parentMultisig = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
+        MockMultisigTask harness = new MockMultisigTask();
+        stdstore.target(address(harness)).sig("parentMultisig()").checked_write(parentMultisig);
+        stdstore.target(address(harness)).sig("addrRegistry()").checked_write(address(addrRegistry));
+
+        VmSafe.AccountAccessKind kind = isCall ? VmSafe.AccountAccessKind.Call : VmSafe.AccountAccessKind.DelegateCall;
+
+        VmSafe.AccountAccess memory access = createAccess(kind, randomAccount, parentMultisig, uint64(topLevelDepth));
+
+        assertTrue(harness.wrapperIsValidAction(access, topLevelDepth));
     }
 
     function test_validAction_validCall() public {
