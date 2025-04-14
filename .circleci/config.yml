@@ -474,16 +474,16 @@ workflows:
 
       # U15 Sepolia Base Upgrade - Child-Safe-1
       - just_simulate_nested_improvements:
-          name: "simulate nested sep/011-opcm-upgrade-prestate-v300-base child-safe-1"
-          task: "/sep/011-opcm-upgrade-prestate-v300-base"
+          name: "simulate nested sep/011-opcm-update-prestate-v300-base child-safe-1"
+          task: "/sep/011-opcm-update-prestate-v300-base"
           signer: "child-safe-1"
           context:
             - circleci-repo-readonly-authenticated-github-token
 
       # U15 Sepolia Base Upgrade - Child-Safe-2
       - just_simulate_nested_improvements:
-          name: "simulate nested sep/011-opcm-upgrade-prestate-v300-base child-safe-2"
-          task: "/sep/011-opcm-upgrade-prestate-v300-base"
+          name: "simulate nested sep/011-opcm-update-prestate-v300-base child-safe-2"
+          task: "/sep/011-opcm-update-prestate-v300-base"
           signer: "child-safe-2"
           context:
             - circleci-repo-readonly-authenticated-github-token
