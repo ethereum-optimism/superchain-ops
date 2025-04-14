@@ -1020,9 +1020,10 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         );
         require(accesses.length > 0, "MultisigTask: no account accesses found");
 
-        // get the minimum depth of the calls, we only care about the top level calls
-        // this is to avoid counting subcalls as actions.
-        // the account accesses are in order of the calls, so the first one is always the top level call
+        // Determine the minimum call depth to isolate top-level calls only.
+        // This ensures subcalls are excluded when counting actions.
+        // Since account accesses are ordered by call execution (in Foundry),
+        // the first entry always corresponds to a top-level call.
         uint256 topLevelDepth = accesses[0].depth;
 
         // First pass: count valid actions.
@@ -1088,21 +1089,16 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     }
 
     /// @notice Returns true if the given account access should be recorded as an action. This function is used to filter out
-    /// actions that we defined in the _build function of our template. The actions selected by this function will get executed
-    /// by the relevant Multicall3 contract.
+    /// actions that we defined in the `_build` function of our template. The actions selected by this function will get executed
+    /// by the relevant Multicall3 contract (e.g. `Multicall3` or `Multicall3DelegateCall`).
     function _isValidAction(VmSafe.AccountAccess memory access, uint256 topLevelDepth) internal view returns (bool) {
         bool accountNotRegistryOrVm =
             (access.account != AddressRegistry.unwrap(addrRegistry) && access.account != address(vm));
-        console.log("accountNotRegistryOrVm", accountNotRegistryOrVm);
         bool accessorNotRegistry = access.accessor != AddressRegistry.unwrap(addrRegistry);
-        console.log("accessorNotRegistry", accessorNotRegistry);
         bool isCall = (access.kind == VmSafe.AccountAccessKind.Call && access.depth == topLevelDepth);
-        console.log("isCall", isCall);
         bool isTopLevelDelegateCall =
             (access.kind == VmSafe.AccountAccessKind.DelegateCall && access.depth == topLevelDepth);
-        console.log("isTopLevelDelegateCall", isTopLevelDelegateCall);
         bool accessorIsParent = (access.accessor == parentMultisig);
-        console.log("accessorIsParent", accessorIsParent);
         return accountNotRegistryOrVm && accessorNotRegistry && (isCall || isTopLevelDelegateCall) && accessorIsParent;
     }
 
