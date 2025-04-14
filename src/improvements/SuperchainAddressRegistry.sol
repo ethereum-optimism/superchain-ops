@@ -107,7 +107,7 @@ contract SuperchainAddressRegistry is StdChains {
         // For each OP chain, read in all addresses for that OP Chain.
         string memory chainAddrs = vm.readFile("lib/superchain-registry/superchain/extra/addresses/addresses.json");
         for (uint256 i = 0; i < chains.length; i++) {
-            if (!vm.envOr("FOUNDRY_PROFILE", string("")).eq("x")) {
+            if (!vm.envOr("FOUNDRY_PROFILE", string("")).eq("ci")) {
                 console.log("SuperchainAddressRegistry: Performing onchain discovery for chain ", chains[i].name);
                 _processAddresses(chains[i], chainAddrs);
             } else {
