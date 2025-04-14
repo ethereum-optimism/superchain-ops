@@ -102,7 +102,7 @@ contract SuperchainAddressRegistry is StdChains {
         }
 
         // For each OP chain, read in all addresses for that OP Chain.
-        string memory chainAddrs = vm.readFile("src/improvements/tasks/sep/003-alphanet-opcm-upgrade-v200/addresses.json");
+        string memory chainAddrs = vm.readFile("src/improvements/tasks/sep/unichain_alphanet_addresses.json");
 
         for (uint256 i = 0; i < chains.length; i++) {
             _processAddresses(chains[i], chainAddrs);

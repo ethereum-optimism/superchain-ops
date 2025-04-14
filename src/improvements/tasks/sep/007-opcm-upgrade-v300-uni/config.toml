@@ -1,12 +1,12 @@
 l2chains = [
-    {name = "Unichain Sepolia Testnet", chainId = 1301}
+    {name = "Unichain Sepolia Alphanet", chainId = 22444422}
 ]
 
 templateName = "OPCMUpgradeV300"
 
 [opcmUpgrades]
 absolutePrestates = [
-    {absolutePrestate = "0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405", chainId = 1301},
+    {absolutePrestate = "0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405", chainId = 22444422},
 ] # Absolute prestates pulled from https://github.com/ethereum-optimism/superchain-registry/blob/fb900358ab5016de86f37a23265bd94ce927c9c0/validation/standard/standard-prestates.toml#L18
 
 [addresses]
