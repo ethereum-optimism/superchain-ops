@@ -22,7 +22,7 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
     /// @notice The StandardValidatorV300 address
     IStandardValidatorV300 public STANDARD_VALIDATOR_V300;
 
-    /// @notice Struct to store inputs for OPCM.upgrade() function per L2 chain.
+    /// @notice Struct to store inputs data for each L2 chain.
     struct OPCMUpgrade {
         Claim absolutePrestate;
         uint256 chainId;

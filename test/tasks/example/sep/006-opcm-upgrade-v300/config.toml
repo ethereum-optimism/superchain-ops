@@ -6,7 +6,7 @@ name = "OP Sepolia Testnet"
 
 [[opcmUpgrades]]
 chainId = 11155420
-absolutePrestate = "0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405" # op-program/v1.6.0-rc.2-64 - https://www.notion.so/oplabs/Isthmus-Sepolia-Mainnet-1d2f153ee162800880abe1b47910c071
+absolutePrestate = "0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405"
 # PDDG-ANCHORP-40: The anchor state registry's permissionless root is not 0xdead000000000000000000000000000000000000000000000000000000000000
 # PLDG-ANCHORP-40: The anchor state registry's permissionless root is not 0xdead000000000000000000000000000000000000000000000000000000000000
 expectedValidationErrors = "PDDG-ANCHORP-40,PLDG-ANCHORP-40"
