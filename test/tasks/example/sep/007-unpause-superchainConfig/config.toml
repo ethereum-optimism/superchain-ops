@@ -1,0 +1,4 @@
+l2chains = [{name = "OP Sepolia Testnet", chainId = 11155420}] # e.g. [{name = "OP Mainnet", chainId = 10}]
+
+templateName = "UnPauseSuperchainConfigTemplate"
+

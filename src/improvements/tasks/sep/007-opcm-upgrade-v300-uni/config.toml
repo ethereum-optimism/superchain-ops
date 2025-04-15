@@ -1,0 +1,21 @@
+l2chains = [
+    {name = "Unichain Sepolia Testnet", chainId = 1301}
+]
+
+templateName = "OPCMUpgradeV300"
+
+[opcmUpgrades]
+absolutePrestates = [
+    {absolutePrestate = "0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405", chainId = 1301},
+] # Absolute prestates pulled from https://github.com/ethereum-optimism/superchain-registry/blob/fb900358ab5016de86f37a23265bd94ce927c9c0/validation/standard/standard-prestates.toml#L18
+
+[addresses]
+OPCM = "0xfbceed4de885645fbded164910e10f52febfab35" # https://github.com/ethereum-optimism/superchain-registry/blob/f86350dcf5f8c9e439fac0c0eb2d1bd3078b28b8/validation/standard/standard-versions-sepolia.toml#L22
+StandardValidatorV300 = "0x2d56022cb84ce6b961c3b4288ca36386bcd9024c" # Sepolia https://github.com/ethereum-optimism/optimism/blob/f79ed8b9c9cbdbf8bb492074f3f98da7f072e21a/op-validator/pkg/validations/addresses.go#L30
+FoundationUpgradeSafe = "0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B" # Owner on the proxy admin owner
+SecurityCouncil = "0xf64bc17485f0B4Ea5F06A96514182FC4cB561977" # Owner on the proxy admin owner
+
+# Unlike Unichain Mainnet, Unichain Sepolia is owned by a single (non-nested safe), which does not
+# own other nested safes.
+# We therefore do not override the nonce on the proxy admin owner, and do not need to specify
+# the child safe addresses.

@@ -252,6 +252,162 @@ contract MultisigTaskUnitTest is Test {
         assertEq(data, expectedData, "Wrong aggregate calldata");
     }
 
+    function testFuzz_ValidActionConditions(bool isCall, address randomAccount) public {
+        vm.assume(randomAccount != address(addrRegistry));
+        vm.assume(randomAccount != VM_ADDRESS);
+        uint256 topLevelDepth = 1;
+
+        address parentMultisig = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
+        MockMultisigTask harness = new MockMultisigTask();
+        stdstore.target(address(harness)).sig("parentMultisig()").checked_write(parentMultisig);
+        stdstore.target(address(harness)).sig("addrRegistry()").checked_write(address(addrRegistry));
+
+        VmSafe.AccountAccessKind kind = isCall ? VmSafe.AccountAccessKind.Call : VmSafe.AccountAccessKind.DelegateCall;
+
+        VmSafe.AccountAccess memory access = createAccess(kind, randomAccount, parentMultisig, uint64(topLevelDepth));
+
+        assertTrue(harness.wrapperIsValidAction(access, topLevelDepth));
+    }
+
+    function test_validAction_validCall() public {
+        MockMultisigTask harness = new MockMultisigTask();
+        address parentMultisig = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
+        stdstore.target(address(harness)).sig("parentMultisig()").checked_write(parentMultisig);
+        uint256 topLevelDepth = 1;
+        VmSafe.AccountAccess memory access = createAccess(
+            VmSafe.AccountAccessKind.Call,
+            address(0x5678), // Random account
+            parentMultisig, // Valid accessor
+            uint64(topLevelDepth)
+        );
+        assertTrue(harness.wrapperIsValidAction(access, topLevelDepth));
+    }
+
+    function test_validAction_validDelegateCall() public {
+        MockMultisigTask harness = new MockMultisigTask();
+        address parentMultisig = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
+        stdstore.target(address(harness)).sig("parentMultisig()").checked_write(parentMultisig);
+        uint256 topLevelDepth = 1;
+        VmSafe.AccountAccess memory access = createAccess(
+            VmSafe.AccountAccessKind.DelegateCall,
+            address(0x5678), // Random account
+            parentMultisig, // Valid accessor
+            uint64(topLevelDepth)
+        );
+        assertTrue(harness.wrapperIsValidAction(access, topLevelDepth));
+    }
+
+    function test_invalidAction_accountIsRegistry() public {
+        MockMultisigTask harness = new MockMultisigTask();
+        address parentMultisig = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
+        address registryAddr = address(0xcafe1234);
+        stdstore.target(address(harness)).sig("addrRegistry()").checked_write(address(registryAddr));
+        stdstore.target(address(harness)).sig("parentMultisig()").checked_write(parentMultisig);
+        uint256 topLevelDepth = 1;
+        VmSafe.AccountAccess memory access = createAccess(
+            VmSafe.AccountAccessKind.Call,
+            registryAddr, // Invalid account
+            parentMultisig,
+            uint64(topLevelDepth)
+        );
+        assertFalse(harness.wrapperIsValidAction(access, topLevelDepth));
+    }
+
+    function test_invalidAction_accountIsVm() public {
+        MockMultisigTask harness = new MockMultisigTask();
+        address parentMultisig = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
+        stdstore.target(address(harness)).sig("parentMultisig()").checked_write(parentMultisig);
+        uint256 topLevelDepth = 1;
+        VmSafe.AccountAccess memory access = createAccess(
+            VmSafe.AccountAccessKind.Call,
+            VM_ADDRESS, // Invalid account
+            parentMultisig,
+            uint64(topLevelDepth)
+        );
+        assertFalse(harness.wrapperIsValidAction(access, topLevelDepth));
+    }
+
+    function test_invalidAction_accessorIsRegistry() public {
+        MockMultisigTask harness = new MockMultisigTask();
+        address parentMultisig = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
+        address registryAddr = address(0xcafe1234);
+        stdstore.target(address(harness)).sig("addrRegistry()").checked_write(address(registryAddr));
+        stdstore.target(address(harness)).sig("parentMultisig()").checked_write(parentMultisig);
+        uint256 topLevelDepth = 1;
+        VmSafe.AccountAccess memory access = createAccess(
+            VmSafe.AccountAccessKind.Call,
+            address(0x5678),
+            registryAddr, // Invalid accessor
+            uint64(topLevelDepth)
+        );
+        assertFalse(harness.wrapperIsValidAction(access, topLevelDepth));
+    }
+
+    function test_invalidAction_wrongAccessor() public {
+        MockMultisigTask harness = new MockMultisigTask();
+        address parentMultisig = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
+        stdstore.target(address(harness)).sig("parentMultisig()").checked_write(parentMultisig);
+        uint256 topLevelDepth = 1;
+        VmSafe.AccountAccess memory access = createAccess(
+            VmSafe.AccountAccessKind.Call,
+            address(0x5678),
+            address(0x9999), // Wrong accessor
+            uint64(topLevelDepth)
+        );
+        assertFalse(harness.wrapperIsValidAction(access, topLevelDepth));
+    }
+
+    function test_invalidAction_wrongDepth() public {
+        MockMultisigTask harness = new MockMultisigTask();
+        address parentMultisig = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
+        stdstore.target(address(harness)).sig("parentMultisig()").checked_write(parentMultisig);
+        uint256 topLevelDepth = 1;
+        VmSafe.AccountAccess memory access = createAccess(
+            VmSafe.AccountAccessKind.Call,
+            address(0x5678),
+            parentMultisig,
+            uint64(topLevelDepth + 1) // Wrong depth
+        );
+        assertFalse(harness.wrapperIsValidAction(access, topLevelDepth));
+    }
+
+    function test_invalidAction_wrongKind() public {
+        MockMultisigTask harness = new MockMultisigTask();
+        address parentMultisig = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
+        stdstore.target(address(harness)).sig("parentMultisig()").checked_write(parentMultisig);
+        uint256 topLevelDepth = 1;
+        VmSafe.AccountAccess memory access = createAccess(
+            VmSafe.AccountAccessKind.StaticCall, // Invalid kind
+            address(0x5678),
+            parentMultisig,
+            uint64(topLevelDepth)
+        );
+        assertFalse(harness.wrapperIsValidAction(access, topLevelDepth));
+    }
+
+    // Helper to create AccountAccess struct
+    function createAccess(VmSafe.AccountAccessKind kind, address account, address accessor, uint64 depth)
+        internal
+        pure
+        returns (VmSafe.AccountAccess memory)
+    {
+        return VmSafe.AccountAccess({
+            chainInfo: VmSafe.ChainInfo({forkId: 0, chainId: 1}),
+            kind: kind,
+            account: account,
+            accessor: accessor,
+            initialized: false,
+            oldBalance: 0,
+            newBalance: 0,
+            deployedCode: "",
+            value: 0,
+            data: "",
+            reverted: false,
+            storageAccesses: new VmSafe.StorageAccess[](0),
+            depth: depth
+        });
+    }
+
     function createActions(
         address target,
         bytes memory data,
