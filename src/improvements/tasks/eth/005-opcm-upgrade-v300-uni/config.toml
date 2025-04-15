@@ -4,10 +4,21 @@ l2chains = [
 
 templateName = "OPCMUpgradeV300"
 
-[opcmUpgrades]
-absolutePrestates = [
-    {absolutePrestate = "0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405", chainId = 130},
-] # op-program/v1.5.1-rc.1-64 - https://www.notion.so/oplabs/Upgrade-14-MTCannon-1d6f153ee1628024af26cd0098d3bdfe?pvs=4
+[[opcmUpgrades]]
+chainId = 130
+# https://www.notion.so/oplabs/Upgrade-14-MTCannon-1d6f153ee1628024af26cd0098d3bdfe
+absolutePrestate = "0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405"
+# PROXYA-10: Proxy admin owner must be l1PAOMultisig - This is OK because it is checking for the OP Sepolia PAO.
+# SYSCON-20: System config gas limit must be 60,000,000 - This check is wrong. The config requirement is no greater than 200,000,000.
+#  https://specs.optimism.io/protocol/configurability.html?highlight=configuration#gas-limit
+# DF-30: Dispute factory owner must be l1PAOMultisig - It is checking for the OP Sepolia PAO.
+# PDDG-DWETH-30: Delayed WETH owner must be l1PAOMultisig (for permissioned dispute game) - It is checking for the OP Sepolia PAO
+# PDDG-ANCHORP-40: The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
+# PDDG-120: Permissioned dispute game challenger must match challenger address - It is checking for the OP Sepolia Challenger
+# PLDG-DWETH-30: Delayed WETH owner must be l1PAOMultisig (for permissioned dispute game) - It is checking for the OP Sepolia PAO
+# PLDG-ANCHORP-40: The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
+expectedValidationErrors = "PROXYA-10,SYSCON-20,DF-30,PDDG-DWETH-30,PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-DWETH-30,PLDG-DWETH-40,PLDG-ANCHORP-40"
+
 
 [addresses]
 OPCM = "0x3a1f523a4bc09cd344a2745a108bb0398288094f" # v1.9.0 https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L22
