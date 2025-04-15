@@ -871,6 +871,13 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// --------------------------------------------------------------------
     /// --------------------------------------------------------------------
 
+    /// @notice Prank as the multisig.
+    /// Override to prank with delegatecall flag set to true
+    /// in case of OPCM tasks.
+    function _prankMultisig() internal virtual {
+        vm.startPrank(parentMultisig);
+    }
+
     /// @notice Validate actions inclusion. Default implementation checks for duplicate actions.
     function validateAction(address target, uint256 value, bytes memory data, Action[] memory actions) public pure {
         uint256 actionsLength = actions.length;
@@ -993,7 +1000,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     ///  2). start prank as the multisig
     ///  3). start a recording of all calls created during the task
     function _startBuild() private {
-        vm.startPrank(parentMultisig);
+        _prankMultisig();
 
         _startSnapshot = vm.snapshotState();
 
@@ -1013,9 +1020,10 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         );
         require(accesses.length > 0, "MultisigTask: no account accesses found");
 
-        // get the minimum depth of the calls, we only care about the top level calls
-        // this is to avoid counting subcalls as actions.
-        // the account accesses are in order of the calls, so the first one is always the top level call
+        // Determine the minimum call depth to isolate top-level calls only.
+        // This ensures subcalls are excluded when counting actions.
+        // Since account accesses are ordered by call execution (in Foundry),
+        // the first entry always corresponds to a top-level call.
         uint256 topLevelDepth = accesses[0].depth;
 
         // First pass: count valid actions.
@@ -1080,12 +1088,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         }
     }
 
-    /// @notice Returns true if the given account access should be recorded as an action.
+    /// @notice Returns true if the given account access should be recorded as an action. This function is used to filter out
+    /// actions that we defined in the `_build` function of our template. The actions selected by this function will get executed
+    /// by the relevant Multicall3 contract (e.g. `Multicall3` or `Multicall3DelegateCall`).
     function _isValidAction(VmSafe.AccountAccess memory access, uint256 topLevelDepth) internal view returns (bool) {
         bool accountNotRegistryOrVm =
             (access.account != AddressRegistry.unwrap(addrRegistry) && access.account != address(vm));
         bool accessorNotRegistry = access.accessor != AddressRegistry.unwrap(addrRegistry);
-        bool isCall = access.kind == VmSafe.AccountAccessKind.Call;
+        bool isCall = (access.kind == VmSafe.AccountAccessKind.Call && access.depth == topLevelDepth);
         bool isTopLevelDelegateCall =
             (access.kind == VmSafe.AccountAccessKind.DelegateCall && access.depth == topLevelDepth);
         bool accessorIsParent = (access.accessor == parentMultisig);
