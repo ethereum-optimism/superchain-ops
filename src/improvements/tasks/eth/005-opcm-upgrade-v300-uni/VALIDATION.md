@@ -108,116 +108,104 @@ For each contract listed in the state diff, please verify that no contracts or s
 
   ---
 
-### [`0x0d83dab629f0e0f9d36c0cbc89b69a489f0751bd`](https://github.com/ethereum-optimism/superchain-registry/blob/9dc8a7dfb8081291315d0c0ccf871f46c7753b63/superchain/configs/sepolia/unichain.toml#L59)  (OptimismPortal2) - Chain ID: 1301
+### `0x0bd48f6b86a26d3a217d0fa6ffe2b491b956a7a2`  (OptimismPortal2) - Chain ID: 130
 
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
-
   - **Decoded Kind:**      `address`
   - **Before:** `0x2D7e764a0D9919e16983a46595CfA81fc34fa7Cd`
-  - **After:** [`0xB443Da3e07052204A02d630a8933dAc05a0d6fB4`](https://github.com/ethereum-optimism/superchain-registry/blob/9dc8a7dfb8081291315d0c0ccf871f46c7753b63/validation/standard/standard-versions-sepolia.toml#L13)
+  - **After:** `0xB443Da3e07052204A02d630a8933dAc05a0d6fB4`
   - **Summary:**           ERC-1967 implementation slot
   - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-                           OptimismPortal2 contract for `op-contracts/v3.0.0-rc.2`.
+
+**<TODO: Insert links for this state change then remove this line.>**
 
   ---
 
-### [`0x4696b5e042755103fe558738bcd1ecee7a45ebfe`](https://github.com/ethereum-optimism/superchain-registry/blob/9dc8a7dfb8081291315d0c0ccf871f46c7753b63/superchain/configs/sepolia/unichain.toml#L56)  (L1ERC721Bridge) - Chain ID: 1301
+### `0x2f12d621a16e2d3285929c9996f478508951dfe4`  (DisputeGameFactory) - Chain ID: 130
 
-- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+- **Key:**          `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
+  - **Before:**     `0x0000000000000000000000005fe2becc3dec340d3df04351db8e728cbe4c7450`
+  - **After:**     `0x00000000000000000000000067d59ac1166ba17612be0edf275187e38cbf9b99`
+  - **Summary:**
+  - **Detail:**
 
-  - **Decoded Kind:**      `address`
-  - **Before:** `0x276d3730f219f7ec22274f7263180b8452B46d47`
-  - **After:** [`0x7aE1d3BD877a4C5CA257404ce26BE93A02C98013`](https://github.com/ethereum-optimism/superchain-registry/blob/9dc8a7dfb8081291315d0c0ccf871f46c7753b63/validation/standard/standard-versions-sepolia.toml#L19)
-  - **Summary:**           ERC-1967 implementation slot
-  - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-                           OptimismPortal2 contract for `op-contracts/v3.0.0-rc.2`.
+**<TODO: Slot was not automatically decoded. Please provide a summary with thorough detail then remove this line.>**
+
+**<TODO: Insert links for this state change then remove this line.>**
+
+
+- **Key:**          `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
+  - **Before:**     `0x000000000000000000000000d2c3c6f4a4c5aa777bd6c476aea58439db0dd844`
+  - **After:**     `0x00000000000000000000000056ebb9eae4f33ceaed3672446e3812d77f8a8a2c`
+  - **Summary:**
+  - **Detail:**
+
+**<TODO: Slot was not automatically decoded. Please provide a summary with thorough detail then remove this line.>**
+
+**<TODO: Insert links for this state change then remove this line.>**
 
   ---
 
-### [`0xaee94b9ab7752d3f7704bde212c0c6a0b701571d`](https://github.com/ethereum-optimism/superchain-registry/blob/9dc8a7dfb8081291315d0c0ccf871f46c7753b63/superchain/configs/sepolia/unichain.toml#L60)  (SystemConfig) - Chain ID: 1301
-
-- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
-
-  - **Decoded Kind:**      `address`
-  - **Before:** `0x760C48C62A85045A6B69f07F4a9f22868659CbCc`
-  - **After:** [`0x340f923E5c7cbB2171146f64169EC9d5a9FfE647`](https://github.com/ethereum-optimism/superchain-registry/blob/9dc8a7dfb8081291315d0c0ccf871f46c7753b63/validation/standard/standard-versions-sepolia.toml#L9)
-  - **Summary:**           ERC-1967 implementation slot
-  - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-                           SystemConfig contract for `op-contracts/v3.0.0-rc.2`.
-
-  ---
-
-### [`0xd363339ee47775888df411a163c586a8bdea9dbf`](https://github.com/ethereum-optimism/superchain-registry/blob/9dc8a7dfb8081291315d0c0ccf871f46c7753b63/superchain/configs/sepolia/unichain.toml#L46)  (ProxyAdminOwner (GnosisSafe)) - Chain ID: 1301
-
-- **Account Nonce in State:**
-  - **Before:** 4
-  - **After:** 6
-  - **Detail:** Two new dispute games were deployed by the ProxyAdminOwner during execution, resulting in the account nonce in state being incremented twice.
+### `0x6d5b183f538abb8572f5cd17109c617b994d5833`  (ProxyAdminOwner (GnosisSafe)) - Chain ID: 130
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Decoded Kind:**      `uint256`
+  - **Before:** `3`
+  - **After:** `4`
+  - **Summary:**           nonce
+  - **Detail:**
 
-  - **Decoded Kind:** `uint256`
-  - **Before:** `29`
-  - **After:** `30`
-  - **Summary:** nonce
-  - **Detail:**  The nonce of the ProxyAdminOwner contract is updated.
+**<TODO: Insert links for this state change then remove this line.>**
 
   ---
 
-### [`0xea58fca6849d79ead1f26608855c2d6407d54ce2`](https://github.com/ethereum-optimism/superchain-registry/blob/9dc8a7dfb8081291315d0c0ccf871f46c7753b63/superchain/configs/sepolia/unichain.toml#L57)  (L1StandardBridge) - Chain ID: 1301
+### `0x8098f676033a377b9defe302e9fe6877cd63d575`  (AddressManager) - Chain ID: 130
+
+- **Key:**          `0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e`
+  - **Before:**     `0x0000000000000000000000003ea6084748ed1b2a9b5d4426181f1ad8c93f6231`
+  - **After:**     `0x0000000000000000000000005d5a095665886119693f0b41d8dfee78da033e8b`
+  - **Summary:**
+  - **Detail:**
+
+**<TODO: Slot was not automatically decoded. Please provide a summary with thorough detail then remove this line.>**
+
+**<TODO: Insert links for this state change then remove this line.>**
+
+  ---
+
+### `0x81014f44b0a345033bb2b3b21c7a1a308b35feea`  (L1StandardBridge) - Chain ID: 130
 
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:**      `address`
   - **Before:** `0x78972E88Ab8BBB517a36cAea23b931BAB58AD3c6`
-  - **After:** [`0x0b09ba359A106C9ea3b181CBc5F394570c7d2a7A`](https://github.com/ethereum-optimism/superchain-registry/blob/9dc8a7dfb8081291315d0c0ccf871f46c7753b63/validation/standard/standard-versions-sepolia.toml#L20)
+  - **After:** `0x0b09ba359A106C9ea3b181CBc5F394570c7d2a7A`
   - **Summary:**           ERC-1967 implementation slot
   - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-                           L1StandardBridge contract for `op-contracts/v3.0.0-rc.2`.
 
----
-
-### [`0xef1295ed471dfec101691b946fb6b4654e88f98a`](https://github.com/ethereum-optimism/superchain-registry/blob/9dc8a7dfb8081291315d0c0ccf871f46c7753b63/superchain/configs/sepolia/unichain.toml#L54)  (AddressManager) - Chain ID: 1301
-
-- **Key:**          `0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e`
-
-  - **Before:**     `0x3ea6084748ed1b2a9b5d4426181f1ad8c93f6231`
-  - **After:**     `0x5d5a095665886119693f0b41d8dfee78da033e8b`
-  - **Summary:**  The name `OVM_L1CrossDomainMessenger` is set to the address of the new `op-contracts/v3.0.0-rc.2` L1CrossDomainMessenger implementation at [0x5d5a095665886119693f0b41d8dfee78da033e8b](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/validation/standard/standard-versions-sepolia.toml#L18).
-  - **Detail:** **THIS WAS CAREFULLY VERIFIED BY RUNBOOK REVIEWERS AND NEED NOT BE CHECKED BY SIGNERS.**
-    This key is complicated to compute, so instead we attest to correctness of the key by
-    verifying that the "Before" value currently exists in that slot, as explained below.
-    **Before** address matches the following cast call to `AddressManager.getAddress()`:
-    - `cast call 0xef1295ed471dfec101691b946fb6b4654e88f98a 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url sepolia`
-      And what is currently stored at the key:
-    - `cast storage 0xef1295ed471dfec101691b946fb6b4654e88f98a 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url mainnet`
-    - returns: `0x3eA6084748ED1b2A9B5D4426181F1ad8C93F6231`
+**<TODO: Insert links for this state change then remove this line.>**
 
   ---
 
-### [`0xeff73e5aa3b9aec32c659aa3e00444d20a84394b`](https://github.com/ethereum-optimism/superchain-registry/blob/9dc8a7dfb8081291315d0c0ccf871f46c7753b63/superchain/configs/sepolia/unichain.toml#L64)  (DisputeGameFactory) - Chain ID: 1301
+### `0xc407398d063f942febbcc6f80a156b47f3f1bda6`  (SystemConfig) - Chain ID: 130
 
-- **Key:**          `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
-  - **Before:**     `0x2275d0c824116ad516987048fffabac6b0c3a29b`
-  - **After:**     `0x8660219fa74a537e6f3665e30708962b968b7b77`
-  - **Summary:**  Set a new game implementation for game type [PERMISSIONED_CANNON](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L52)
-  - **Detail:** **THIS WAS CAREFULLY VERIFIED BY RUNBOOK REVIEWERS AND NEED NOT BE CHECKED BY SIGNERS.**
-    You can verify this slot corresponds to the game implementation for game type 0 by deriving the slot value as follows:
-    - Notice that [`gameImpls`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is a map from a `GameType` to a dispute game address.
-    - Notice that `GameType` is [equivalent to a](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224-L224) `uint32`.
-    - Notice that the `gameImpls` is [stored at slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41-L41).
-    - Calculate the expected slot for game type 1 using `cast index <KEY_TYPE> <KEY> <SLOT_NUMBER>`:
-      - `cast index uint32 1 101`
-    - You should derive a value matching the "Raw Slot" here: `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:**      `address`
+  - **Before:** `0x760C48C62A85045A6B69f07F4a9f22868659CbCc`
+  - **After:** `0x340f923E5c7cbB2171146f64169EC9d5a9FfE647`
+  - **Summary:**           ERC-1967 implementation slot
+  - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
 
-- **Key:**          `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
-  - **Before:**     `0x0000000000000000000000004745808cc649f290439763214fc40ac905806d8d`
-  - **After:**     `0x000000000000000000000000c70a7e66c13caf0f770afb01fb701d148791d53d`
-  - **Summary:**  Set a new game implementation for game type [CANNON](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L52)
-  - **Detail:** **THIS WAS CAREFULLY VERIFIED BY RUNBOOK REVIEWERS AND NEED NOT BE CHECKED BY SIGNERS.**
-    You can verify this slot corresponds to the game implementation for game type 0 by deriving the slot value as follows:
-    - Notice that [`gameImpls`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is a map from a `GameType` to a dispute game address.
-    - Notice that `GameType` is [equivalent to a](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224-L224) `uint32`.
-    - Notice that the `gameImpls` is [stored at slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41-L41).
-    - Calculate the expected slot for game type 1 using `cast index <KEY_TYPE> <KEY> <SLOT_NUMBER>`:
-      - `cast index uint32 0 101`
-    - You should derive a value matching the "Raw Slot" here: `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
+**<TODO: Insert links for this state change then remove this line.>**
+
+  ---
+
+### `0xd04d0d87e0bd4d2e50286760a3ef323fea6849cf`  (L1ERC721Bridge) - Chain ID: 130
+
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:**      `address`
+  - **Before:** `0x276d3730f219f7ec22274f7263180b8452B46d47`
+  - **After:** `0x7aE1d3BD877a4C5CA257404ce26BE93A02C98013`
+  - **Summary:**           ERC-1967 implementation slot
+  - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+
+**<TODO: Insert links for this state change then remove this line.>**
