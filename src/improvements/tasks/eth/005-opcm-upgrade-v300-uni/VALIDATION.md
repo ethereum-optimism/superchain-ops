@@ -116,8 +116,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **After:** `0xB443Da3e07052204A02d630a8933dAc05a0d6fB4`
   - **Summary:**           ERC-1967 implementation slot
   - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-
-**<TODO: Insert links for this state change then remove this line.>**
+                           OptimismPortal2 contract for `op-contracts/v3.0.0`.
 
   ---
 
@@ -126,24 +125,31 @@ For each contract listed in the state diff, please verify that no contracts or s
 - **Key:**          `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
   - **Before:**     `0x0000000000000000000000005fe2becc3dec340d3df04351db8e728cbe4c7450`
   - **After:**     `0x00000000000000000000000067d59ac1166ba17612be0edf275187e38cbf9b99`
-  - **Summary:**
-  - **Detail:**
-
-**<TODO: Slot was not automatically decoded. Please provide a summary with thorough detail then remove this line.>**
-
-**<TODO: Insert links for this state change then remove this line.>**
+  - **Summary:**  Set a new game implementation for game type [PERMISSIONED_CANNON](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L52)
+  - **Detail:** Set a new game implementation for game type [PERMISSIONED_CANNON](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L52).
+              **THIS WAS CAREFULLY VERIFIED BY RUNBOOK REVIEWERS AND NEED NOT BE CHECKED BY SIGNERS.**
+              You can verify this slot corresponds to the game implementation for game type 1 by deriving the slot value as follows:
+              - Notice that [`gameImpls`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is a map from a `GameType` to a dispute game address.
+              - Notice that `GameType` is [equivalent to a](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224-L224) `uint32`.
+              - Notice that the `gameImpls` is [stored at slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41-L41).
+              - Calculate the expected slot for game type 1 using `cast index <KEY_TYPE> <KEY> <SLOT_NUMBER>`:
+                - `cast index uint32 1 101`
+              - You should derive a value matching the "Raw Slot" here: `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
 
 
 - **Key:**          `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
   - **Before:**     `0x000000000000000000000000d2c3c6f4a4c5aa777bd6c476aea58439db0dd844`
   - **After:**     `0x00000000000000000000000056ebb9eae4f33ceaed3672446e3812d77f8a8a2c`
-  - **Summary:**
-  - **Detail:**
-
-**<TODO: Slot was not automatically decoded. Please provide a summary with thorough detail then remove this line.>**
-
-**<TODO: Insert links for this state change then remove this line.>**
-
+  - **Summary:**  Set a new game implementation for game type [CANNON](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L52)
+  - **Detail:** Set a new game implementation for game type [CANNON](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L52).
+              **THIS WAS CAREFULLY VERIFIED BY RUNBOOK REVIEWERS AND NEED NOT BE CHECKED BY SIGNERS.**
+              You can verify this slot corresponds to the game implementation for game type 0 by deriving the slot value as follows:
+              - Notice that [`gameImpls`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is a map from a `GameType` to a dispute game address.
+              - Notice that `GameType` is [equivalent to a](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224-L224) `uint32`.
+              - Notice that the `gameImpls` is [stored at slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41-L41).
+              - Calculate the expected slot for game type 0 using `cast index <KEY_TYPE> <KEY> <SLOT_NUMBER>`:
+                - `cast index uint32 0 101`
+              - You should derive a value matching the "Raw Slot" here: `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
   ---
 
 ### [`0x6d5B183F538ABB8572F5cD17109c617b994D5833`](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/unichain.toml#L44)  (ProxyAdminOwner (GnosisSafe)) - Chain ID: 130
@@ -153,9 +159,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **Before:** `3`
   - **After:** `4`
   - **Summary:**           nonce
-  - **Detail:**
-
-**<TODO: Insert links for this state change then remove this line.>**
+  - **Detail:**            The nonce of the ProxyAdminOwner contract is updated.
 
   ---
 
@@ -164,12 +168,16 @@ For each contract listed in the state diff, please verify that no contracts or s
 - **Key:**          `0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e`
   - **Before:**     `0x0000000000000000000000003ea6084748ed1b2a9b5d4426181f1ad8c93f6231`
   - **After:**     `0x0000000000000000000000005d5a095665886119693f0b41d8dfee78da033e8b`
-  - **Summary:**
-  - **Detail:**
-
-**<TODO: Slot was not automatically decoded. Please provide a summary with thorough detail then remove this line.>**
-
-**<TODO: Insert links for this state change then remove this line.>**
+  - **Summary:**  The name `OVM_L1CrossDomainMessenger` is set to the address of the new `op-contracts/v3.0.0` L1CrossDomainMessenger implementation at [`0x5d5a095665886119693f0b41d8dfee78da033e8b`](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/validation/standard/standard-versions-mainnet.toml#L18).
+  - **Detail:** The name `OVM_L1CrossDomainMessenger` is set to the address of the new `op-contracts/v3.0.0` L1CrossDomainMessenger implementation at `0x5d5a095665886119693f0b41d8dfee78da033e8b`.
+             **THIS WAS CAREFULLY VERIFIED BY RUNBOOK REVIEWERS AND NEED NOT BE CHECKED BY SIGNERS.**
+             This key is complicated to compute, so instead we attest to correctness of the key by
+             verifying that the "Before" value currently exists in that slot, as explained below.
+             **Before** address matches the following cast call to `AddressManager.getAddress()`:
+             - `cast call 0x8098F676033A377b9Defe302e9fE6877cD63D575 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url mainnet`
+               And what is currently stored at the key:
+             - `cast storage 0x8098F676033A377b9Defe302e9fE6877cD63D575 0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e --rpc-url mainnet`
+             - returns: `0x3eA6084748ED1b2A9B5D4426181F1ad8C93F6231`
 
   ---
 
@@ -181,8 +189,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **After:** `0x0b09ba359A106C9ea3b181CBc5F394570c7d2a7A`
   - **Summary:**           ERC-1967 implementation slot
   - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-
-**<TODO: Insert links for this state change then remove this line.>**
+                           L1StandardBridge contract for `op-contracts/v3.0.0`.
 
   ---
 
@@ -191,21 +198,3 @@ For each contract listed in the state diff, please verify that no contracts or s
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:**      `address`
   - **Before:** `0x760C48C62A85045A6B69f07F4a9f22868659CbCc`
-  - **After:** `0x340f923E5c7cbB2171146f64169EC9d5a9FfE647`
-  - **Summary:**           ERC-1967 implementation slot
-  - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-
-**<TODO: Insert links for this state change then remove this line.>**
-
-  ---
-
-### `0xd04d0d87e0bd4d2e50286760a3ef323fea6849cf`  (L1ERC721Bridge) - Chain ID: 130
-
-- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
-  - **Decoded Kind:**      `address`
-  - **Before:** `0x276d3730f219f7ec22274f7263180b8452B46d47`
-  - **After:** `0x7aE1d3BD877a4C5CA257404ce26BE93A02C98013`
-  - **Summary:**           ERC-1967 implementation slot
-  - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-
-**<TODO: Insert links for this state change then remove this line.>**
