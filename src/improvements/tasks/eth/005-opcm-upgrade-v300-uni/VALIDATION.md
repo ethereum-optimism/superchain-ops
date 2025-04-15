@@ -108,7 +108,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
   ---
 
-### `0x0bd48f6b86a26d3a217d0fa6ffe2b491b956a7a2`  (OptimismPortal2) - Chain ID: 130
+### [`0x0bd48f6B86a26D3a217d0Fa6FfE2B491B956A7a2`](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/unichain.toml#L57)  (OptimismPortal2) - Chain ID: 130
 
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:**      `address`
@@ -121,7 +121,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
   ---
 
-### `0x2f12d621a16e2d3285929c9996f478508951dfe4`  (DisputeGameFactory) - Chain ID: 130
+### [`0x2F12d621a16e2d3285929C9996f478508951dFe4`](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/unichain.toml#L63)  (DisputeGameFactory) - Chain ID: 130
 
 - **Key:**          `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
   - **Before:**     `0x0000000000000000000000005fe2becc3dec340d3df04351db8e728cbe4c7450`
@@ -146,7 +146,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
   ---
 
-### `0x6d5b183f538abb8572f5cd17109c617b994d5833`  (ProxyAdminOwner (GnosisSafe)) - Chain ID: 130
+### [`0x6d5B183F538ABB8572F5cD17109c617b994D5833`](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/unichain.toml#L44)  (ProxyAdminOwner (GnosisSafe)) - Chain ID: 130
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:**      `uint256`
@@ -159,7 +159,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
   ---
 
-### `0x8098f676033a377b9defe302e9fe6877cd63d575`  (AddressManager) - Chain ID: 130
+### [`0x8098F676033A377b9Defe302e9fE6877cD63D575`](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/unichain.toml#L52)  (AddressManager) - Chain ID: 130
 
 - **Key:**          `0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e`
   - **Before:**     `0x0000000000000000000000003ea6084748ed1b2a9b5d4426181f1ad8c93f6231`
@@ -173,7 +173,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
   ---
 
-### `0x81014f44b0a345033bb2b3b21c7a1a308b35feea`  (L1StandardBridge) - Chain ID: 130
+### [`0x81014F44b0a345033bB2b3B21C7a1A308B35fEeA`](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/unichain.toml#L55)  (L1StandardBridge) - Chain ID: 130
 
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:**      `address`
@@ -186,7 +186,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
   ---
 
-### `0xc407398d063f942febbcc6f80a156b47f3f1bda6`  (SystemConfig) - Chain ID: 130
+### [`0xc407398d063f942feBbcC6F80a156b47F3f1BDA6`](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/unichain.toml#L58)  (SystemConfig) - Chain ID: 130
 
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:**      `address`
