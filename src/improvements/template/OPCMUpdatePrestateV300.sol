@@ -92,6 +92,8 @@ contract OPCMUpdatePrestateV300 is OPCMTaskBase {
             });
         }
 
+        // TODO: 'success' is false for Base Sepolia, but it works when executed later. Debug why this step doesn't work for Base Sepolia.
+        // This is not a blocker.
         (bool success,) =
             OPCM.delegatecall(abi.encodeWithSelector(IOPCMPrestateUpdate.updatePrestate.selector, opChainConfigs));
         success;
