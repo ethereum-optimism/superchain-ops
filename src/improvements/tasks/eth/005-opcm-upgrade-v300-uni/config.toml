@@ -1,0 +1,43 @@
+l2chains = [
+    {name = "Unichain Mainnet", chainId = 130}
+]
+
+templateName = "OPCMUpgradeV300"
+
+[opcmUpgrades]
+absolutePrestates = [
+    {absolutePrestate = "0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405", chainId = 130},
+] # op-program/v1.5.1-rc.1-64 - https://www.notion.so/oplabs/Upgrade-14-MTCannon-1d6f153ee1628024af26cd0098d3bdfe?pvs=4
+
+[addresses]
+OPCM = "0x3a1f523a4bc09cd344a2745a108bb0398288094f" # v1.9.0 https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L22
+StandardValidatorV200 = "0xecabaeaa1d58261f1579232520c5b460ca58a164" # V300 not deployed/standardized for mainnet, using V200 from previous task
+ChildSafe1 = "0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC"
+ChildSafe2 = "0x847B5c174615B1B7fDF770882256e2D3E95b9D92"
+ChildSafe3 = "0xc2819DC788505Aac350142A7A707BF9D03E3Bd03"
+
+[stateOverrides]
+0x6d5B183F538ABB8572F5cD17109c617b994D5833 = [ # L1PAO
+    {
+        key = "0x0000000000000000000000000000000000000000000000000000000000000005",
+        value = "0x000000000000000000000000000000000000000000000000000000000000001b"
+    }
+]
+0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC = [ # Unichain Chain Operator
+    {
+        key = "0x0000000000000000000000000000000000000000000000000000000000000005",
+        value = "0x0000000000000000000000000000000000000000000000000000000000000009" # 9
+    }
+]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # FoundationUpgradeSafe
+    {
+        key = "0x0000000000000000000000000000000000000000000000000000000000000005",
+        value = "0x0000000000000000000000000000000000000000000000000000000000000016" # 22
+    }
+]
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # SecurityCouncil
+    {
+        key = "0x0000000000000000000000000000000000000000000000000000000000000005",
+        value = "0x000000000000000000000000000000000000000000000000000000000000018" # 24
+    }
+]
