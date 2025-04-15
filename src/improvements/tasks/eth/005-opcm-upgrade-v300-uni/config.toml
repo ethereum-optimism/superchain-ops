@@ -11,7 +11,7 @@ absolutePrestates = [
 
 [addresses]
 OPCM = "0x3a1f523a4bc09cd344a2745a108bb0398288094f" # v1.9.0 https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L22
-StandardValidatorV200 = "0xecabaeaa1d58261f1579232520c5b460ca58a164" # V300 not deployed/standardized for mainnet, using V200 from previous task
+StandardValidatorV300 = "0x1b8f0e76bb49b60dffbe3b847e25d6429ebff3e6" # V300 not deployed/standardized for mainnet, using V200 from previous task
 ChildSafe1 = "0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC"
 ChildSafe2 = "0x847B5c174615B1B7fDF770882256e2D3E95b9D92"
 ChildSafe3 = "0xc2819DC788505Aac350142A7A707BF9D03E3Bd03"
