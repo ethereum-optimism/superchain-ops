@@ -32,8 +32,8 @@ By reconstructing the calldata, we can confirm that the execution precisely impl
 For each chain being updated, the `opcm.updatePrestate()` function is called with a single tuple:
 
 1. Unichain Sepolia Testnet:
-- SystemConfigProxy: [0xaeE94b9aB7752D3F7704bDE212c0C6A0b701571D](https://github.com/ethereum-optimism/superchain-registry/blob/9dc8a7dfb8081291315d0c0ccf871f46c7753b63/superchain/configs/sepolia/unichain.toml#L60)
-- ProxyAdmin: [0x2BF403E5353A7a082ef6bb3Ae2Be3B866D8D3ea4](https://github.com/ethereum-optimism/superchain-registry/blob/9dc8a7dfb8081291315d0c0ccf871f46c7753b63/superchain/configs/sepolia/unichain.toml#L61)
+- SystemConfigProxy: 0x039711C1E4E9b22b4b7d739AA3afc4fbCeDD1e3e
+- ProxyAdmin: 0xD22859dD87eA47Ce8549153A14BBc13c110C2dD2
 - AbsolutePrestate: [0x03682932cec7ce0a3874b19675a6bbc923054a7b321efc7d3835187b172494b6](https://www.notion.so/oplabs/Isthmus-Sepolia-Mainnet-1d2f153ee162800880abe1b47910c071)
 
 
