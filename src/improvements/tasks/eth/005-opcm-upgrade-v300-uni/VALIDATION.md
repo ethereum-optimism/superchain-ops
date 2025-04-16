@@ -26,12 +26,12 @@ the values printed to the terminal when you run the task.
 > ### Child Safe 2: `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Optimism Foundation)
 >
 > - Domain Hash: `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `TODO`
+> - Message Hash: `0x1d58e937f6530c6dd2bd40784894a44be093f6c13d75fc97bfda60c6578f8e20`
 >
 > ### Child Safe 3: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Security Council)
 >
 > - Domain Hash: `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
-> - Message Hash: `TODO`
+> - Message Hash: `0x931197752921d464fede71b237583d933e3b654b133707a191056c0d986c9dc9`
 
 ## Understanding Task Calldata
 
@@ -163,14 +163,30 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **Summary:**           nonce
   - **Detail:**            The nonce of the ProxyAdminOwner contract is updated.
 
-- **Key:**          `0xd933059d587e09e3c1d3d0056ab9246d0ab102abd5a0dbec43ccae45a87bfa57`
+<!-- TODO: I think this is probably confusing for signers other than the first address -->
+- **Key:** `0xd933059d587e09e3c1d3d0056ab9246d0ab102abd5a0dbec43ccae45a87bfa57`
+  or ``
+  or `0xfcda2750e0678aba47833e49ab511d900c078a75599f9ac8d5f9ffceba130696`
   - **Decoded Kind:**      `uint256`
-  - **Before:** `3`
-  - **After:** `4`
-  - **Summary:**           nonce
-  - **Detail:**            The nonce of the ProxyAdminOwner contract is updated.
-
-
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **Summary:**  `approveHash(bytes32)` called on ProxyAdminOwner by child multisig.
+  - **Detail:**  As part of the Tenderly simulation, we want to illustrate the `approveHash` invocation.
+    This step isn't shown in the local simulation because the parent multisig is invoked directly,
+    bypassing the `approveHash` calls.
+    This slot change reflects an update to the `approvedHashes` mapping.
+    Specifically, this simulation was ran as the nested safe `0xb0c4c487c5cf6d67807bc2008c66fa7e2ce744ec`.
+    - `res=$(cast index address 0xb0c4c487c5cf6d67807bc2008c66fa7e2ce744ec 8)`
+    - `cast index bytes32 0xdc1e62cfd7e0f70e33179b0a59e3579936c0152298088dd3252c5813a6432b27 $res`
+    Alternatively, the 'Raw Slot' value can be different if we run as `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`:
+    - `res=$(cast index address 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 8)`
+    - `cast index bytes32 0xdc1e62cfd7e0f70e33179b0a59e3579936c0152298088dd3252c5813a6432b27 $res`
+    - Alternative 'Raw Slot': `0x62ca13b93a2c45b3219cfcdbbdb5b550d27b358eab61e476b375540c1c92c949`
+    Or if we run as `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`:
+    - `res=$(cast index address 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 8)`
+    - `cast index bytes32 0xdc1e62cfd7e0f70e33179b0a59e3579936c0152298088dd3252c5813a6432b27 $res`
+    - Alternative 'Raw Slot': `0x52ae8914197b131df3798d231a9ba1ab02adf66da792b6f3a826e88e5c54ecd5`
+    Please note: the `0xdc1e62cfd7e0f70e33179b0a59e3579936c0152298088dd3252c5813a6432b27` value is taken from the Tenderly simulation and this is the transaction hash of the `approveHash` call.
 
   ---
 
@@ -201,7 +217,25 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **After:** `0x0b09ba359A106C9ea3b181CBc5F394570c7d2a7A`
   - **Summary:**           ERC-1967 implementation slot
   - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-    L1StandardBridge contract for `op-contracts/v3.0.0`.
+    The implementation of the L1StandardBridge contract is set to [`0x0b09ba359a106c9ea3b181cbc5f394570c7d2a7a`](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/validation/standard/standard-versions-mainnet.toml#L20) for `op-contracts/v3.0.0`.
+
+  ---
+
+### `0x9343c452dec3251fe99D9Fd29b74c5b9CD1751a6` (Unichain LivenessGuard) - Chain ID: 130
+- **Key:**          `0xee4378be6a15d4c71cb07a5a47d8ddc4aba235142e05cb828bb7141206657e27`
+-
+  - **Before:**     `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:**     `0x0000000000000000000000000000000000000000000000000000000067f7ef19`
+  - **Summary:**   LivenessGuard timestamp update.
+  - **Detail:**    - **Detail:** **THIS STATE DIFF ONLY APPEARS WHEN SIGNING FOR UNICHAIN AND DOES NOT NEED TO BE CHECKED BY SIGNERS.**
+                   When the security council safe executes a transaction, the liveness timestamps are updated.
+                   This is updating at the moment when the  transaction is submitted (`block.timestamp`) into the [`lastLive`](https://github.com/ethereum-optimism/optimism/blob/e84868c27776fd04dc77e95176d55c8f6b1cc9a3/packages/contracts-bedrock/src/safe/LivenessGuard.sol#L41) mapping located at the slot 0.
+
+  ---
+
+### `0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC` (Unichain - Child Safe 1)
+
+
 
   ---
 
@@ -210,3 +244,20 @@ For each contract listed in the state diff, please verify that no contracts or s
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:**      `address`
   - **Before:** `0x760C48C62A85045A6B69f07F4a9f22868659CbCc`
+  - **After:** `0x340f923E5c7cbB2171146f64169EC9d5a9FfE647`
+  - **Summary:**           ERC-1967 implementation slot
+  - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+  The implementation of the SystemConfig contract is set to [`0x340f923E5c7cbB2171146f64169EC9d5a9FfE647`](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/validation/standard/standard-versions-mainnet.toml#L9) for `op-contracts/v3.0.0`.
+
+  ---
+
+### [`0xd04d0d87e0bd4d2e50286760a3ef323fea6849cf`](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/unichain.toml#L54)  (L1ERC721Bridge) - Chain ID: 130
+
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:**      `address`
+  - **Before:** `0x276d3730f219f7ec22274f7263180b8452B46d47`
+  - **After:** `0x7aE1d3BD877a4C5CA257404ce26BE93A02C98013`
+  - **Summary:**           ERC-1967 implementation slot
+  - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+  The implementation of the L1ERC721Bridge contract is set to [`0x7aE1d3BD877a4C5CA257404ce26BE93A02C98013`](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/validation/standard/standard-versions-mainnet.toml#L19) for `op-contracts/v3.0.0`.
+
