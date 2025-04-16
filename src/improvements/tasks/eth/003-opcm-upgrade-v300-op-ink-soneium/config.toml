@@ -1,17 +1,36 @@
-l2chains = [
-    {name = "OP Mainnet", chainId = 10},
-    {name = "Soneium", chainId = 1868},
-    {name = "Ink", chainId = 57073}
-]
-
 templateName = "OPCMUpgradeV300"
 
-[opcmUpgrades]
-absolutePrestates = [
-    {absolutePrestate = "0x0000000000000000000000000000000000000000000000000000000000000001", chainId = 10},
-    {absolutePrestate = "0x0000000000000000000000000000000000000000000000000000000000000001", chainId = 1868},
-    {absolutePrestate = "0x0000000000000000000000000000000000000000000000000000000000000001", chainId = 57073}
-]
+[[l2chains]]
+chainId = 10
+name = "OP Mainnet"
+
+[[l2chains]]
+chainId = 1868
+name = "Soneium"
+
+[[l2chains]]
+chainId = 57073
+name = "Ink"
+
+
+[[opcmUpgrades]]
+chainId = 10
+# https://www.notion.so/oplabs/Upgrade-14-MTCannon-1d6f153ee1628024af26cd0098d3bdfe
+absolutePrestate = "0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405"
+expectedValidationErrors = "PDDG-DWETH-30,PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-DWETH-30,PLDG-DWETH-40,PLDG-ANCHORP-40"
+
+[[opcmUpgrades]]
+chainId = 1868
+# https://www.notion.so/oplabs/Upgrade-14-MTCannon-1d6f153ee1628024af26cd0098d3bdfe
+absolutePrestate = "0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405"
+expectedValidationErrors = "SYSCON-20,PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-10"
+
+[[opcmUpgrades]]
+chainId = 57073
+# https://www.notion.so/oplabs/Upgrade-14-MTCannon-1d6f153ee1628024af26cd0098d3bdfe
+absolutePrestate = "0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405"
+expectedValidationErrors = "SYSCON-30,PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-DWETH-40,PLDG-ANCHORP-40"
+
 
 [addresses]
 OPCM = "0x3a1f523a4bc09cd344a2745a108bb0398288094f" # https://github.com/ethereum-optimism/superchain-registry/blob/b3d020de42abeebeb5786ea5508aa08d12bdf4cd/validation/standard/standard-versions-mainnet.toml#L22C56-L22C98

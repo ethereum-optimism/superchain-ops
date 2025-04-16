@@ -13,6 +13,7 @@ import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
+import {console} from "forge-std/console.sol";
 
 /// @notice This template supports OPCMV300 upgrade tasks.
 contract OPCMUpgradeV300 is OPCMTaskBase {
@@ -54,6 +55,8 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
         // For OPCMUpgradeV300, the OPCMUpgrade struct is used to store the absolutePrestate and expectedValidationErrors for each l2 chain.
         OPCMUpgrade[] memory _upgrades = abi.decode(tomlContent.parseRaw(".opcmUpgrades"), (OPCMUpgrade[]));
         for (uint256 i = 0; i < _upgrades.length; i++) {
+            console.log("chainId", _upgrades[i].chainId);
+            console.log("expectedValidationErrors", _upgrades[i].expectedValidationErrors);
             upgrades[_upgrades[i].chainId] = _upgrades[i];
         }
 
