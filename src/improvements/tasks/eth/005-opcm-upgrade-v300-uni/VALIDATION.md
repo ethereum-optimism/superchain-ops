@@ -121,6 +121,21 @@ For each contract listed in the state diff, please verify that no contracts or s
 
   ---
 
+### `0x24424336F04440b1c28685a38303aC33C9D14a25` (Foundation LivenessGuard)
+
+> [!WARNING] Foundation Only
+
+- **Key:**          `0xee4378be6a15d4c71cb07a5a47d8ddc4aba235142e05cb828bb7141206657e27`
+-
+  - **Before:**     `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:**     `0x0000000000000000000000000000000000000000000000000000000067f7ef19`
+  - **Summary:**   LivenessGuard timestamp update.
+  - **Detail:**    **THIS STATE DIFF ONLY APPEARS WHEN SIGNING FOR THE FOUNDATION AND DOES NOT NEED TO BE CHECKED BY SIGNERS.**
+                   When the security council safe executes a transaction, the liveness timestamps are updated.
+                   This is updating at the moment when the  transaction is submitted (`block.timestamp`) into the [`lastLive`](https://github.com/ethereum-optimism/optimism/blob/e84868c27776fd04dc77e95176d55c8f6b1cc9a3/packages/contracts-bedrock/src/safe/LivenessGuard.sol#L41) mapping located at the slot 0.
+
+  ---
+
 ### [`0x2F12d621a16e2d3285929C9996f478508951dFe4`](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/unichain.toml#L63)  (DisputeGameFactory) - Chain ID: 130
 
 - **Key:**          `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
@@ -137,6 +152,7 @@ For each contract listed in the state diff, please verify that no contracts or s
     - Calculate the expected slot for game type 1 using `cast index <KEY_TYPE> <KEY> <SLOT_NUMBER>`:
     - `cast index uint32 1 101`
     - You should derive a value matching the "Raw Slot" here: `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
+
 - **Key:**          `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
 
   - **Before:**     `0x000000000000000000000000d2c3c6f4a4c5aa777bd6c476aea58439db0dd844`
@@ -156,6 +172,11 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ### [`0x6d5B183F538ABB8572F5cD17109c617b994D5833`](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/unichain.toml#L44)  (ProxyAdminOwner (GnosisSafe)) - Chain ID: 130
 
+- **Nonce:**
+  - **Before:** 4
+  - **After:** 6
+  - **Detail:** Two new dispute games were deployed by the ProxyAdminOwner during execution, resulting in the account nonce being incremented twice.
+
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:**      `uint256`
   - **Before:** `3`
@@ -164,36 +185,43 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **Detail:**            The nonce of the ProxyAdminOwner contract is updated.
 
 <!-- TODO: I think this is probably confusing for signers other than the first address -->
-- **Key:** `0xd933059d587e09e3c1d3d0056ab9246d0ab102abd5a0dbec43ccae45a87bfa57`
-  or ``
-  or `0xfcda2750e0678aba47833e49ab511d900c078a75599f9ac8d5f9ffceba130696`
+- **Key:** Depending on which child safe is being used:  <br/>
+  `0xd933059d587e09e3c1d3d0056ab9246d0ab102abd5a0dbec43ccae45a87bfa57` or<br/>
+  `0xfcda2750e0678aba47833e49ab511d900c078a75599f9ac8d5f9ffceba130696` or <br/>
+  `0xc6bf1a0b91980d7374cb69e1ce46fbaf261f74f7b98ceb364479114dd3656c30`
   - **Decoded Kind:**      `uint256`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Summary:**  `approveHash(bytes32)` called on ProxyAdminOwner by child multisig.
-  - **Detail:**  As part of the Tenderly simulation, we want to illustrate the `approveHash` invocation.
+  - **Detail:**  **THE KEY COMPUTATION WAS CAREFULLY VERIFIED BY RUNBOOK REVIEWERS AND NEED NOT BE CHECKED BY SIGNERS.**
+    **SIGNERS SHOULD STILL VERIFY THAT THE CORRECT KEY APPEARS IN THE SIMULATION**
+  As part of the Tenderly simulation, we want to illustrate the `approveHash` invocation.
     This step isn't shown in the local simulation because the parent multisig is invoked directly,
     bypassing the `approveHash` calls.
     This slot change reflects an update to the `approvedHashes` mapping.
-    Specifically, this simulation was ran as the nested safe `0xb0c4c487c5cf6d67807bc2008c66fa7e2ce744ec`.
+
+    If this simulation was run as the child safe `0xb0c4c487c5cf6d67807bc2008c66fa7e2ce744ec`:
     - `res=$(cast index address 0xb0c4c487c5cf6d67807bc2008c66fa7e2ce744ec 8)`
     - `cast index bytes32 0xdc1e62cfd7e0f70e33179b0a59e3579936c0152298088dd3252c5813a6432b27 $res`
-    Alternatively, the 'Raw Slot' value can be different if we run as `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`:
+    - returns `0xd933059d587e09e3c1d3d0056ab9246d0ab102abd5a0dbec43ccae45a87bfa57`
+
+    If this simulation was run as the child safe `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`:
     - `res=$(cast index address 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 8)`
     - `cast index bytes32 0xdc1e62cfd7e0f70e33179b0a59e3579936c0152298088dd3252c5813a6432b27 $res`
-    - Alternative 'Raw Slot': `0x62ca13b93a2c45b3219cfcdbbdb5b550d27b358eab61e476b375540c1c92c949`
-    Or if we run as `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`:
+    - returns `0xfcda2750e0678aba47833e49ab511d900c078a75599f9ac8d5f9ffceba130696`
+
+    If this simulation was run as the child safe `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`:
     - `res=$(cast index address 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 8)`
     - `cast index bytes32 0xdc1e62cfd7e0f70e33179b0a59e3579936c0152298088dd3252c5813a6432b27 $res`
     - Alternative 'Raw Slot': `0x52ae8914197b131df3798d231a9ba1ab02adf66da792b6f3a826e88e5c54ecd5`
-    Please note: the `0xdc1e62cfd7e0f70e33179b0a59e3579936c0152298088dd3252c5813a6432b27` value is taken from the Tenderly simulation and this is the transaction hash of the `approveHash` call.
+    - returns `0xc6bf1a0b91980d7374cb69e1ce46fbaf261f74f7b98ceb364479114dd3656c30`
+  - Please note: the `0xdc1e62cfd7e0f70e33179b0a59e3579936c0152298088dd3252c5813a6432b27` value is taken from the Tenderly simulation and this is the transaction hash of the `approveHash` call.
 
   ---
 
 ### [`0x8098F676033A377b9Defe302e9fE6877cD63D575`](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/superchain/configs/mainnet/unichain.toml#L52)  (AddressManager) - Chain ID: 130
 
 - **Key:**          `0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e`
-
   - **Before:**     `0x0000000000000000000000003ea6084748ed1b2a9b5d4426181f1ad8c93f6231`
   - **After:**     `0x0000000000000000000000005d5a095665886119693f0b41d8dfee78da033e8b`
   - **Summary:**  The name `OVM_L1CrossDomainMessenger` is set to the address of the new `op-contracts/v3.0.0` L1CrossDomainMessenger implementation at [`0x5d5a095665886119693f0b41d8dfee78da033e8b`](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/validation/standard/standard-versions-mainnet.toml#L18).
@@ -221,13 +249,45 @@ For each contract listed in the state diff, please verify that no contracts or s
 
   ---
 
+### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Security Council - Child Safe 3)
+
+> [!WARNING] Security Council Only
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Decoded Kind:**      `uint256`
+  - **Before:** `24`
+  - **After:** `25`
+  - **Summary:**           nonce
+  - **Detail:**            The nonce of the ProxyAdminOwner contract is updated.
+    **THIS STATE DIFF ONLY APPEARS WHEN SIGNING FOR THE SECURITY SAFE.**
+
+  ---
+
+
+### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation - Child Safe 2)
+
+> [!WARNING] Foundation Only
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Decoded Kind:**      `uint256`
+  - **Before:** `22`
+  - **After:** `23`
+  - **Summary:**           nonce
+  - **Detail:**            The nonce of the ProxyAdminOwner contract is updated.
+    **THIS STATE DIFF ONLY APPEARS WHEN SIGNING FOR THE FOUNDATION SAFE.**
+
+  ---
+
 ### `0x9343c452dec3251fe99D9Fd29b74c5b9CD1751a6` (Unichain LivenessGuard) - Chain ID: 130
+
+> [!WARNING] Unichain Safe Only
+
 - **Key:**          `0xee4378be6a15d4c71cb07a5a47d8ddc4aba235142e05cb828bb7141206657e27`
 -
   - **Before:**     `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:**     `0x0000000000000000000000000000000000000000000000000000000067f7ef19`
   - **Summary:**   LivenessGuard timestamp update.
-  - **Detail:**    - **Detail:** **THIS STATE DIFF ONLY APPEARS WHEN SIGNING FOR UNICHAIN AND DOES NOT NEED TO BE CHECKED BY SIGNERS.**
+  - **Detail:**    **THIS STATE DIFF ONLY APPEARS WHEN SIGNING FOR UNICHAIN AND DOES NOT NEED TO BE CHECKED BY SIGNERS.**
                    When the security council safe executes a transaction, the liveness timestamps are updated.
                    This is updating at the moment when the  transaction is submitted (`block.timestamp`) into the [`lastLive`](https://github.com/ethereum-optimism/optimism/blob/e84868c27776fd04dc77e95176d55c8f6b1cc9a3/packages/contracts-bedrock/src/safe/LivenessGuard.sol#L41) mapping located at the slot 0.
 
@@ -235,7 +295,15 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ### `0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC` (Unichain - Child Safe 1)
 
+> [!WARNING] Unichain Safe Only
 
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Decoded Kind:**      `uint256`
+  - **Before:** `9`
+  - **After:** `10`
+  - **Summary:**           nonce
+  - **Detail:**            The nonce of the ProxyAdminOwner contract is updated.
+    **THIS STATE DIFF ONLY APPEARS WHEN SIGNING FOR THE UNICHAIN SAFE.**
 
   ---
 
@@ -261,3 +329,10 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
   The implementation of the L1ERC721Bridge contract is set to [`0x7aE1d3BD877a4C5CA257404ce26BE93A02C98013`](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/validation/standard/standard-versions-mainnet.toml#L19) for `op-contracts/v3.0.0`.
 
+### Nonce increments
+
+The only other state change are the nonce increments as follows:
+
+- `<sender-address> - Sender address of the Tenderly transaction (Your ledger address).
+- `0x56ebb9eaE4f33ceaED3672446E3812D77F8a8A2c` - Permissionless GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
+- `0x67d59AC1166bA17612BE0Edf275187E38Cbf9B99` - Permissioned GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
