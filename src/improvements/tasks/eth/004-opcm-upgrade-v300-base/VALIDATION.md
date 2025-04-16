@@ -183,4 +183,4 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
     verifying that the "Before" value currently exists in that slot, as explained below.
     **Before** address matches the following cast call to `AddressManager.getAddress()`:
       - `cast call 0x8EfB6B5c4767B09Dc9AA6Af4eAA89F749522BaE2 'getAddress(string)(address)' 'OVM_L1CrossDomainMessenger' --rpc-url mainnet`
-      - returns: `0x5d5a095665886119693f0b41d8dfee78da033e8b`x        
+      - returns: `0x5d5a095665886119693f0b41d8dfee78da033e8b`
