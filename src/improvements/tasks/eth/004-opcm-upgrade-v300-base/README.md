@@ -35,5 +35,9 @@ When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>
 Navigate to the correct task directory then run the simulate command.
 ```
 cd src/improvements/tasks/eth/004-opcm-upgrade-v300-base
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate <foundation|council>
+# BaseUpgradeSafe: 0x9855054731540A48b28990B63DcF4f33d8AE46A1 (Base)
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate child-safe-1
+
+# FoundationOpSafe 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A (Optimism Foundation)
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate child-safe-2
 ```

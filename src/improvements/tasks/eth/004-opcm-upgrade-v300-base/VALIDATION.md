@@ -18,15 +18,15 @@ the values printed to the terminal when you run the task.
 >
 > Before signing, ensure the below hashes match what is on your ledger.
 >
-> ### Security Council - `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`
+> ### Base Operations Multisig - `0x9855054731540A48b28990B63DcF4f33d8AE46A1`
 >
-> - Domain Hash: ``
-> - Message Hash: ``
+> - Domain Hash: `0x88aac3dc27cc1618ec43a87b3df21482acd24d172027ba3fbb5a5e625d895a0b`
+> - Message Hash: `0xfdf1e28011d0975ba7f55f16844c4a4a166897f289bc9f3a852b67f12d68218e`
 >
-> ### Optimism Foundation - `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`
+> ### Optimism Foundation - `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`
 >
-> - Domain Hash: ``
-> - Message Hash: ``
+> - Domain Hash: `0x4e6a6554de0308f5ece8ff736beed8a1b876d16f5c27cac8e466d7de0c703890`
+> - Message Hash: `0xa4472e9d5c2fa87cc744a492bf8326f7ec29f3de4a508c055ccb1d0175c5833f`
 
 ## Understanding Task Calldata
 
