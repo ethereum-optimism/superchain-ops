@@ -71,12 +71,12 @@ just \
    chain-governor # 0 or 1 or ...
 ```
 
-You will see a "Simulation link" from the output.
+You will see a "Simulation link" from the output. However, due to changes in how Base prints simulation links, you will also see a separate "Raw input data" field. Follow these steps:
 
-Paste this URL in your browser. A prompt may ask you to choose a
-project, any project will do. You can create one if necessary.
-
-Click "Simulate Transaction".
+1. Copy the simulation link and paste it into your browser. A prompt may ask you to choose a project; any project will do. You can create one if necessary.
+2. Once the simulation page opens, locate the "Raw input data" field in the Tenderly interface.
+3. Copy the raw input data printed in the console and paste it into the "Raw input data" field on the Tenderly page.
+4. Click "Simulate Transaction".
 
 We will be performing 3 validations and extract the domain hash and
 message hash to approve on your Ledger:
