@@ -123,7 +123,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ### `0x24424336F04440b1c28685a38303aC33C9D14a25` (Foundation LivenessGuard)
 
-> [!WARNING]
+> [!IMPORTANT]
 > Foundation Only
 
 - **Key:**          `0xee4378be6a15d4c71cb07a5a47d8ddc4aba235142e05cb828bb7141206657e27`
@@ -185,7 +185,6 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **Summary:**           nonce
   - **Detail:**            The nonce of the ProxyAdminOwner contract is updated.
 
-<!-- TODO: I think this is probably confusing for signers other than the first address -->
 - **Key:** Depending on which child safe is being used:  <br/>
   `0xd933059d587e09e3c1d3d0056ab9246d0ab102abd5a0dbec43ccae45a87bfa57` or<br/>
   `0xfcda2750e0678aba47833e49ab511d900c078a75599f9ac8d5f9ffceba130696` or <br/>
@@ -252,7 +251,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Security Council - Child Safe 3)
 
-> [!WARNING]
+> [!IMPORTANT]
 > Security Council Only
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
@@ -268,7 +267,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation - Child Safe 2)
 
-> [!WARNING]
+> [!IMPORTANT]
 > Foundation Only
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
@@ -283,7 +282,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ### `0x9343c452dec3251fe99D9Fd29b74c5b9CD1751a6` (Unichain LivenessGuard) - Chain ID: 130
 
-> [!WARNING]
+> [!IMPORTANT]
 > Unichain Safe Only
 
 - **Key:**          `0xee4378be6a15d4c71cb07a5a47d8ddc4aba235142e05cb828bb7141206657e27`
@@ -299,7 +298,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ### `0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC` (Unichain - Child Safe 1)
 
-> [!WARNING]
+> [!IMPORTANT]
 > Unichain Safe Only
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
