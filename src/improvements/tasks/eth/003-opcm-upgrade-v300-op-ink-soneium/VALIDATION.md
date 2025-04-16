@@ -211,6 +211,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
 > [!IMPORTANT]
 > Foundation Only
+
 If signer is on foundation safe: `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`:
 
 - **Key:**      `0xb83cd9f113d329914a61adce818feb77eb750bf02115fdb71f059425216265be`
@@ -225,6 +226,7 @@ If signer is on foundation safe: `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`:
 
 > [!IMPORTANT]
 > Security Council Only
+
 OR if signer is on council safe: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`:
 
 - **Key:**      `0x5a885a773b6d96648c59349af0d248450dd37b147ea53bb5b02a1eb5964bb78e`
