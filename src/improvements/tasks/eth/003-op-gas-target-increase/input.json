@@ -1,0 +1,63 @@
+{
+  "chainId": 1,
+  "metadata": {
+    "name": "op-mainnet gas target increase",
+    "description": "Increases SystemConfig gas target 10M/blk -> 20M/blk"
+  },
+  "transactions": [
+    {
+      "metadata": {
+        "name": "SystemConfig.setGasLimit(40M)",
+        "description": "Sets the gas limit to 40M"
+      },
+      "to": "0x229047fed2591dbec1eF1118d64F7aF3dB9EB290",
+      "data": "0xb40a817c0000000000000000000000000000000000000000000000000000000002625a00",
+      "value": "0",
+      "contractMethod": {
+        "inputs": [
+          {
+            "name": "_gasLimit",
+            "type": "uint64",
+            "internalType": "uint64"
+          }
+        ],
+        "name": "setGasLimit",
+        "payable": false,
+        "outputs": []
+      },
+      "contractInputsValues": {
+        "_gasLimit": "40000000"
+      }
+    },
+    {
+      "metadata": {
+        "name": "SystemConfig.setEIP1559Params(250, 2)",
+        "description": "Sets EIP-1559 parameters: denominator to 250 and elasticity to 2"
+      },
+      "to": "0x229047fed2591dbec1eF1118d64F7aF3dB9EB290",
+      "data": "0xc0fd4b4100000000000000000000000000000000000000000000000000000000000000fa0000000000000000000000000000000000000000000000000000000000000003",
+      "value": "0",
+      "contractMethod": {
+        "inputs": [
+          {
+            "name": "_denominator",
+            "type": "uint32",
+            "internalType": "uint32"
+          },
+          {
+            "name": "_elasticity",
+            "type": "uint32",
+            "internalType": "uint32"
+          }
+        ],
+        "name": "setEIP1559Params",
+        "payable": false,
+        "outputs": []
+      },
+      "contractInputsValues": {
+        "_denominator": "250",
+        "_elasticity": "2"
+      }
+    }
+  ]
+}
