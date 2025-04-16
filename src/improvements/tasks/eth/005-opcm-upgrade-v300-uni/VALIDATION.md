@@ -69,7 +69,7 @@ Call3 struct for Multicall3DelegateCall:
 Command to encode:
 
 ```bash
-cast calldata 'aggregate3((address,bool,bytes)[])' "[(0x026b2F158255Beac46c1E7c6b8BbF29A4b6A7B76,false,0xff2dd5a100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000c407398d063f942febbcc6f80a156b47f3f1bda60000000000000000000000003b73fa8d82f511a3cae17b5a26e4e1a2d5e2f2a403ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405)]"
+cast calldata 'aggregate3((address,bool,bytes)[])' "[(0x3a1f523a4bc09cd344a2745a108bb0398288094f,false,0xff2dd5a100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000c407398d063f942febbcc6f80a156b47f3f1bda60000000000000000000000003b73fa8d82f511a3cae17b5a26e4e1a2d5e2f2a403ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405)]"
 ```
 
 The resulting calldata sent from the ProxyAdminOwner safe is thus:
@@ -114,14 +114,14 @@ For each contract listed in the state diff, please verify that no contracts or s
 
   - **Decoded Kind:**      `address`
   - **Before:** `0x2D7e764a0D9919e16983a46595CfA81fc34fa7Cd`
-  - **After:** `0xB443Da3e07052204A02d630a8933dAc05a0d6fB4`
+  - **After:** [`0xb443da3e07052204a02d630a8933dac05a0d6fb4`](https://github.com/ethereum-optimism/superchain-registry/blob/51804a33655ddb4feeb0ad88960d9a81acdf6e62/validation/standard/standard-versions-mainnet.toml#L13)
   - **Summary:**           ERC-1967 implementation slot
   - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
     OptimismPortal2 contract for `op-contracts/v3.0.0`.
 
   ---
 
-### `0x24424336F04440b1c28685a38303aC33C9D14a25` (Foundation LivenessGuard)
+### [`0x24424336f04440b1c28685a38303ac33c9d14a25`](https://etherscan.io/address/0x24424336f04440b1c28685a38303ac33c9d14a25) (Foundation LivenessGuard)
 
 > [!IMPORTANT]
 > Foundation Only
@@ -144,8 +144,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **Before:**     `0x0000000000000000000000005fe2becc3dec340d3df04351db8e728cbe4c7450`
   - **After:**     `0x00000000000000000000000067d59ac1166ba17612be0edf275187e38cbf9b99`
   - **Summary:**  Set a new game implementation for game type [PERMISSIONED_CANNON](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L52)
-  - **Detail:** Set a new game implementation for game type [PERMISSIONED_CANNON](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L52).
-    **THIS WAS CAREFULLY VERIFIED BY RUNBOOK REVIEWERS AND NEED NOT BE CHECKED BY SIGNERS.**
+  - **Detail:** **THIS WAS CAREFULLY VERIFIED BY RUNBOOK REVIEWERS AND NEED NOT BE CHECKED BY SIGNERS.**
     You can verify this slot corresponds to the game implementation for game type 1 by deriving the slot value as follows:
     - Notice that [`gameImpls`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is a map from a `GameType` to a dispute game address.
     - Notice that `GameType` is [equivalent to a](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224-L224) `uint32`.
@@ -159,8 +158,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **Before:**     `0x000000000000000000000000d2c3c6f4a4c5aa777bd6c476aea58439db0dd844`
   - **After:**     `0x00000000000000000000000056ebb9eae4f33ceaed3672446e3812d77f8a8a2c`
   - **Summary:**  Set a new game implementation for game type [CANNON](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L52)
-  - **Detail:** Set a new game implementation for game type [CANNON](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/Types.sol#L52).
-    **THIS WAS CAREFULLY VERIFIED BY RUNBOOK REVIEWERS AND NEED NOT BE CHECKED BY SIGNERS.**
+  - **Detail:** **THIS WAS CAREFULLY VERIFIED BY RUNBOOK REVIEWERS AND NEED NOT BE CHECKED BY SIGNERS.**
     You can verify this slot corresponds to the game implementation for game type 0 by deriving the slot value as follows:
     - Notice that [`gameImpls`](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is a map from a `GameType` to a dispute game address.
     - Notice that `GameType` is [equivalent to a](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v2.0.0-rc.1/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224-L224) `uint32`.
@@ -200,17 +198,17 @@ For each contract listed in the state diff, please verify that no contracts or s
     bypassing the `approveHash` calls.
     This slot change reflects an update to the `approvedHashes` mapping.
 
-    If this simulation was run as the child safe `0xb0c4c487c5cf6d67807bc2008c66fa7e2ce744ec`:
+    If this simulation was run as the child safe `0xb0c4c487c5cf6d67807bc2008c66fa7e2ce744ec` (Unichain):
     - `res=$(cast index address 0xb0c4c487c5cf6d67807bc2008c66fa7e2ce744ec 8)`
     - `cast index bytes32 0xdc1e62cfd7e0f70e33179b0a59e3579936c0152298088dd3252c5813a6432b27 $res`
     - returns `0xd933059d587e09e3c1d3d0056ab9246d0ab102abd5a0dbec43ccae45a87bfa57`
 
-    If this simulation was run as the child safe `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`:
+    If this simulation was run as the child safe `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation):
     - `res=$(cast index address 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 8)`
     - `cast index bytes32 0xdc1e62cfd7e0f70e33179b0a59e3579936c0152298088dd3252c5813a6432b27 $res`
     - returns `0xfcda2750e0678aba47833e49ab511d900c078a75599f9ac8d5f9ffceba130696`
 
-    If this simulation was run as the child safe `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`:
+    If this simulation was run as the child safe `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Security Council):
     - `res=$(cast index address 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 8)`
     - `cast index bytes32 0xdc1e62cfd7e0f70e33179b0a59e3579936c0152298088dd3252c5813a6432b27 $res`
     - Alternative 'Raw Slot': `0x52ae8914197b131df3798d231a9ba1ab02adf66da792b6f3a826e88e5c54ecd5`
@@ -337,6 +335,6 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 The only other state change are the nonce increments as follows:
 
-- `<sender-address> - Sender address of the Tenderly transaction (Your ledger address).
+- sender-address - Sender address of the Tenderly transaction (Your ledger address).
 - `0x56ebb9eaE4f33ceaED3672446E3812D77F8a8A2c` - Permissionless GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
 - `0x67d59AC1166bA17612BE0Edf275187E38Cbf9B99` - Permissioned GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
