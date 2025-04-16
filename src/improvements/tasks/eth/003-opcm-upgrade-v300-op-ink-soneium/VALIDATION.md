@@ -142,6 +142,10 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   ---
 
 ### [`0x24424336F04440b1c28685a38303aC33C9D14a25`](https://github.com/ethereum-optimism/superchain-ops/blob/2b33763cbae24bf5af1467f510e66a31b1b98b4a/NESTED-VALIDATION.md?plain=1#L106) (LivenessGuard)
+
+> [!IMPORTANT]
+> Security Council Only
+
 **THIS STATE DIFF ONLY APPEARS WHEN SIGNING FOR THE COUNCIL AND DOES NOT NEED TO BE CHECKED BY SIGNERS.**
 
 - **Key:**          `0xee4378be6a15d4c71cb07a5a47d8ddc4aba235142e05cb828bb7141206657e27`
@@ -205,6 +209,8 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   - **Summary:**  nonce updated to 14.
   - **Detail:**  This is the nonce of the ProxyAdminOwner (GnosisSafe) contract.
 
+> [!IMPORTANT]
+> Foundation Only
 If signer is on foundation safe: `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`:
 
 - **Key:**      `0xb83cd9f113d329914a61adce818feb77eb750bf02115fdb71f059425216265be`
@@ -217,6 +223,8 @@ If signer is on foundation safe: `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`:
     - `cast index bytes32 0x0d1a3b425e64a0c9bd90f6933632c1cc0042896a1c5831ac8ef290cab8205e83 $res`
     - Please note: the `0x0d1a3b425e64a0c9bd90f6933632c1cc0042896a1c5831ac8ef290cab8205e83` value is taken from the Tenderly simulation and this is the transaction hash of the `approveHash` call.
 
+> [!IMPORTANT]
+> Security Council Only
 OR if signer is on council safe: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`:
 
 - **Key:**      `0x5a885a773b6d96648c59349af0d248450dd37b147ea53bb5b02a1eb5964bb78e`
@@ -287,6 +295,9 @@ OR if signer is on council safe: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`:
   ---
 
 ### [`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`](https://github.com/ethereum-optimism/superchain-ops/blob/2b33763cbae24bf5af1467f510e66a31b1b98b4a/NESTED-VALIDATION.md?plain=1#L37) (GnosisSafe) - Foundation Safe
+
+> [!IMPORTANT]
+> Foundation Only
 
 **Note: You'll only see this state diff if signer is on foundation safe: `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`. Ignore if you're signing for the council safe: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`.**
 
@@ -376,6 +387,9 @@ OR if signer is on council safe: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`:
 
 ### [`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`](https://github.com/ethereum-optimism/superchain-ops/blob/2b33763cbae24bf5af1467f510e66a31b1b98b4a/NESTED-VALIDATION.md?plain=1#L36) (GnosisSafe) - Council Safe
 
+> [!IMPORTANT]
+> Security Council Only
+
 **Note: You'll only see this state diff if signer is on the counil safe: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`. Ignore if you're signing for the foundation safe: `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`.**
 
 - **Key:**    `0x0000000000000000000000000000000000000000000000000000000000000005`
@@ -444,7 +458,7 @@ OR if signer is on council safe: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`:
 
 - `0x1Ae178eBFEECd51709432EA5f37845Da0414EdFe` - Permissioned GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
 - `0x3D56d47b9E7E34A46612BadC70377F74051E6b17` - Permissioned GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
-- `<sender-address> e.g. 0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64 (foundation) or 0x07dC0893cAfbF810e3E72505041f2865726Fd073 (council)` - Sender address of the Tenderly transaction (Your ledger or first owner on the nested safe).
+- `<sender-address> e.g. 0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64 (foundation) or 0x07dC0893cAfbF810e3E72505041f2865726Fd073 (council)` - Sender address of the Tenderly transaction (Your ledger or first owner on the nested safe (if you're simulating)).
 - `0x436BaC2Efe273e3f13eEFeda2b3689C34591bca1` - Permissioned GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
 - `0x499E30a3b1BDB03f554fFFFAe4c9c5Edf31ca554` - Permissionless GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
 - `0x5738a876359b48A65d35482C93B43e2c1147B32B` - Permissionless GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
