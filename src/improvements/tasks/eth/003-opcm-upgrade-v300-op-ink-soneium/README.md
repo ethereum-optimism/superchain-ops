@@ -37,5 +37,13 @@ When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>
 Navigate to the correct task directory then run the simulate command.
 ```
 cd src/improvements/tasks/eth/003-opcm-upgrade-v300-op-ink-soneium
+
+# Foundation: 0x847B5c174615B1B7fDF770882256e2D3E95b9D92
+just --dotenv-path $(pwd)/.env --justfile ../../../nested.just sign foundation
+
+# Security Council: 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03
+just --dotenv-path $(pwd)/.env --justfile ../../../nested.just sign council
+
+# If you're simulating without a ledger, you can use the following command:
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate <foundation|council>
 ```
