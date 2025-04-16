@@ -260,7 +260,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **Before:** `24`
   - **After:** `25`
   - **Summary:**           nonce
-  - **Detail:**            The nonce of the ProxyAdminOwner contract is updated.
+  - **Detail:**            The nonce of the signing safe contract is updated.
     **THIS STATE DIFF ONLY APPEARS WHEN SIGNING FOR THE SECURITY SAFE.**
 
   ---
@@ -276,7 +276,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **Before:** `22`
   - **After:** `23`
   - **Summary:**           nonce
-  - **Detail:**            The nonce of the ProxyAdminOwner contract is updated.
+  - **Detail:**            The nonce of the signing safe contract is updated.
     **THIS STATE DIFF ONLY APPEARS WHEN SIGNING FOR THE FOUNDATION SAFE.**
 
   ---
@@ -307,7 +307,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **Before:** `9`
   - **After:** `10`
   - **Summary:**           nonce
-  - **Detail:**            The nonce of the ProxyAdminOwner contract is updated.
+  - **Detail:**            The nonce of the signing safe is updated.
     **THIS STATE DIFF ONLY APPEARS WHEN SIGNING FOR THE UNICHAIN SAFE.**
 
   ---
