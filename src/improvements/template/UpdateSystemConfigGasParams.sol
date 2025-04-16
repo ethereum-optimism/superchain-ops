@@ -15,7 +15,6 @@ interface ISystemConfig {
     function eip1559Elasticity() external view returns (uint32);
 }
 
-
 /// @notice A template contract for configuring L2TaskBase templates.
 /// Supports: anything after Holocene
 contract UpdateSystemConfigGasParams is L2TaskBase {
@@ -45,16 +44,16 @@ contract UpdateSystemConfigGasParams is L2TaskBase {
     /// @notice Sets up the template with implementation configurations from a TOML file.
     function _templateSetup(string memory taskConfigFilePath) internal override {
         super._templateSetup(taskConfigFilePath);
-    
-        // Read chain information
-        SuperchainAddressRegistry.ChainInfo[] memory _chains = abi.decode(
-            vm.parseToml(vm.readFile(taskConfigFilePath), ".l2chains"), (SuperchainAddressRegistry.ChainInfo[])
-        );
-        // Read gas parameters directly from the TOML file
-        uint64 gasLimit = uint64(vm.parseTomlUint(vm.readFile(taskConfigFilePath), ".gasParams.gasLimit"));
-        uint32 eip1559Elasticity = uint32(vm.parseTomlUint(vm.readFile(taskConfigFilePath), ".gasParams.eip1559Elasticity"));
-        uint32 eip1559Denominator = uint32(vm.parseTomlUint(vm.readFile(taskConfigFilePath), ".gasParams.eip1559Denominator"));
-    
+
+        string memory tomlContent = vm.readFile(taskConfigFilePath);
+        SuperchainAddressRegistry.ChainInfo[] memory _chains =
+            abi.decode(vm.parseToml(tomlContent, ".l2chains"), (SuperchainAddressRegistry.ChainInfo[]));
+
+        // Read gas parameters from the cached TOML content
+        uint64 gasLimit = uint64(vm.parseTomlUint(tomlContent, ".gasParams.gasLimit"));
+        uint32 eip1559Elasticity = uint32(vm.parseTomlUint(tomlContent, ".gasParams.eip1559Elasticity"));
+        uint32 eip1559Denominator = uint32(vm.parseTomlUint(tomlContent, ".gasParams.eip1559Denominator"));
+
         // Set the configuration for each chain
         for (uint256 i = 0; i < _chains.length; i++) {
             uint256 chainId = _chains[i].chainId;
@@ -71,10 +70,10 @@ contract UpdateSystemConfigGasParams is L2TaskBase {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-            TaskInputs memory taskInputs = cfg[chainId];
+            TaskInputs memory taskInput = cfg[chainId];
             address systemConfigProxy = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
-            ISystemConfig(systemConfigProxy).setGasLimit(taskInputs.gasLimit);
-            ISystemConfig(systemConfigProxy).setEIP1559Params(taskInputs.eip1559Denominator, taskInputs.eip1559Elasticity);
+            ISystemConfig(systemConfigProxy).setGasLimit(taskInput.gasLimit);
+            ISystemConfig(systemConfigProxy).setEIP1559Params(taskInput.eip1559Denominator, taskInput.eip1559Elasticity);
         }
     }
 
@@ -84,10 +83,16 @@ contract UpdateSystemConfigGasParams is L2TaskBase {
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
             address systemConfigProxy = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
-            TaskInputs memory taskInputs = cfg[chainId];
-            require(ISystemConfig(systemConfigProxy).gasLimit() == taskInputs.gasLimit, "Gas limit mismatch");
-            require(ISystemConfig(systemConfigProxy).eip1559Denominator() == taskInputs.eip1559Denominator, "EIP1559 denominator mismatch");
-            require(ISystemConfig(systemConfigProxy).eip1559Elasticity() == taskInputs.eip1559Elasticity, "EIP1559 elasticity mismatch");
+            TaskInputs memory taskInput = cfg[chainId];
+            require(ISystemConfig(systemConfigProxy).gasLimit() == taskInput.gasLimit, "Gas limit mismatch");
+            require(
+                ISystemConfig(systemConfigProxy).eip1559Denominator() == taskInput.eip1559Denominator,
+                "EIP1559 denominator mismatch"
+            );
+            require(
+                ISystemConfig(systemConfigProxy).eip1559Elasticity() == taskInput.eip1559Elasticity,
+                "EIP1559 elasticity mismatch"
+            );
         }
     }
 
