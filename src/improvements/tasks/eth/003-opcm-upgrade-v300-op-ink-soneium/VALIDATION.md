@@ -286,7 +286,7 @@ OR if signer is on council safe: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`:
 
   ---
 
-### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (GnosisSafe) - Foundation Safe
+### [`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`](https://github.com/ethereum-optimism/superchain-ops/blob/2b33763cbae24bf5af1467f510e66a31b1b98b4a/NESTED-VALIDATION.md?plain=1#L37) (GnosisSafe) - Foundation Safe
 
 **Note: You'll only see this state diff if signer is on foundation safe: `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`. Ignore if you're signing for the council safe: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`.**
 
@@ -437,6 +437,8 @@ OR if signer is on council safe: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`:
   - **After:** [`0x0b09ba359A106C9ea3b181CBc5F394570c7d2a7A`](https://github.com/ethereum-optimism/superchain-registry/blob/b3d020de42abeebeb5786ea5508aa08d12bdf4cd/validation/standard/standard-versions-mainnet.toml#L20)
   - **Summary:**           ERC-1967 implementation slot
   - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard. L1StandardBridge contract for `op-contracts/v3.0.0-rc.2`.
+
+  ---
 
 ### Nonce increments
 
