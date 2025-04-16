@@ -38,11 +38,11 @@ Navigate to the correct task directory then run the simulate command.
 cd src/improvements/tasks/eth/005-opcm-upgrade-v300-uni
 
 # Nested safe 1: 0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC (Unichain)
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate child-safe-1
+just --dotenv-path $(pwd)/.env --justfile ../../../nested.just sign child-safe-1
 
 # Nested safe 2: 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 (OptimismFoundation)
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate child-safe-2
+just --dotenv-path $(pwd)/.env --justfile ../../../nested.just sign child-safe-2
 
 # Nested safe 3: 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 (Security Council)
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate child-safe-3
+just --dotenv-path $(pwd)/.env --justfile ../../../nested.just sign child-safe-3
 ```
