@@ -1,0 +1,17 @@
+l2chains = [
+    {name = "OP Mainnet", chainId = 10},
+    {name = "Soneium", chainId = 1868},
+    {name = "Ink", chainId = 57073}
+]
+
+templateName = "OPCMUpgradeV300"
+
+[opcmUpgrades]
+absolutePrestates = [
+    {absolutePrestate = "0x03682932cec7ce0a3874b19675a6bbc923054a7b321efc7d3835187b172494b6", chainId = 10},
+    {absolutePrestate = "0x03682932cec7ce0a3874b19675a6bbc923054a7b321efc7d3835187b172494b6", chainId = 1868},
+    {absolutePrestate = "0x03682932cec7ce0a3874b19675a6bbc923054a7b321efc7d3835187b172494b6", chainId = 57073}
+] # https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-prestates.toml#L10C9-L10C75
+
+[addresses]
+
