@@ -24,14 +24,15 @@ contract OPCMTaskBaseTemplate is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
 
-    /// @notice Struct to store inputs for OPCM.upgrade() function per l2 chain
+    /// @notice Struct to store inputs data for each L2 chain.
     struct OPCMUpgrade {
         Claim absolutePrestate;
         uint256 chainId;
+        string expectedValidationErrors;
     }
 
-    /// @notice Mapping of l2 chain IDs to their respective prestates
-    mapping(uint256 => Claim) public absolutePrestates;
+    /// @notice Mapping of L2 chain IDs to their respective OPCMUpgrade structs.
+    mapping(uint256 => OPCMUpgrade) public upgrades;
 
     /// @notice Returns the storage write permissions required for this task
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
@@ -44,11 +45,10 @@ contract OPCMTaskBaseTemplate is OPCMTaskBase {
         super._templateSetup(taskConfigFilePath);
         string memory tomlContent = vm.readFile(taskConfigFilePath);
 
-        // For OPCMUpgradeV200, the OPCMUpgrade struct is used to store the absolutePrestate for each l2 chain.
-        OPCMUpgrade[] memory upgrades =
-            abi.decode(tomlContent.parseRaw(".opcmUpgrades.absolutePrestates"), (OPCMUpgrade[]));
-        for (uint256 i = 0; i < upgrades.length; i++) {
-            absolutePrestates[upgrades[i].chainId] = upgrades[i].absolutePrestate;
+        // OPCMUpgrade struct is used to store the absolutePrestate and expectedValidationErrors for each l2 chain.
+        OPCMUpgrade[] memory _upgrades = abi.decode(tomlContent.parseRaw(".opcmUpgrades"), (OPCMUpgrade[]));
+        for (uint256 i = 0; i < _upgrades.length; i++) {
+            upgrades[_upgrades[i].chainId] = _upgrades[i];
         }
 
         OPCM = tomlContent.readAddress(".addresses.OPCM");
@@ -60,11 +60,18 @@ contract OPCMTaskBaseTemplate is OPCMTaskBase {
         // STANDARD_VALIDATOR_V200 = IStandardValidatorV200(tomlContent.readAddress(".addresses.StandardValidatorV200"));
         // require(STANDARD_VALIDATOR_V200.disputeGameFactoryVersion().eq("1.0.1"), "Incorrect StandardValidatorV200");
         // vm.label(address(STANDARD_VALIDATOR_V200), "StandardValidatorV200");
-
         require(false, "TODO: Implement with the correct template setup.");
     }
 
-    /// @notice A single call to OPCM.upgrade() is made for all l2 chains.
+    /// @notice Before implementing the `_build` function, task developers must consider the following:
+    /// 1. Which Multicall contract does this template use — `Multicall3` or `Multicall3Delegatecall`?
+    /// 2. Based on the contract, should the target be called using `call` or `delegatecall`?
+    /// 3. Ensure that the call to the target uses the appropriate method (`call` or `delegatecall`) accordingly.
+    /// Guidelines:
+    /// - `Multicall3Delegatecall`:
+    ///   If the template inherits from `OPCMTaskBase`, it uses the `Multicall3Delegatecall` contract.
+    ///   In this case, calls to the target **must** use `delegatecall`, e.g.:
+    ///   `(bool success,) = OPCM.delegatecall(abi.encodeWithSelector(IOPContractsManager.upgrade, opChainConfigs));`
     function _build() internal override {
         require(false, "TODO: Implement with the correct build logic.");
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
@@ -72,22 +79,35 @@ contract OPCMTaskBaseTemplate is OPCMTaskBase {
             new IOPContractsManager.OpChainConfig[](chains.length);
 
         for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
             opChainConfigs[i] = IOPContractsManager.OpChainConfig({
-                systemConfigProxy: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chains[i].chainId)),
-                proxyAdmin: IProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chains[i].chainId)),
-                absolutePrestate: absolutePrestates[chains[i].chainId]
+                systemConfigProxy: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
+                proxyAdmin: IProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chainId)),
+                absolutePrestate: upgrades[chainId].absolutePrestate
             });
         }
 
-        // See: template/OPCMUpgradeV200.sol for more information on why we expect a revert here.
-        (bool success,) = OPCM.call(abi.encodeCall(IOPContractsManager.upgrade, (opChainConfigs)));
-        require(!success, "OPCMUpgradeV200: Call unexpectedly succeeded; expected revert due to non-delegatecall.");
+        // TODO: This may execute the OPCM.upgrade() function or a different OPCM function.
+        // We're using the OPCM.upgrade() function as an example here.
+        (bool success,) =
+            OPCM.delegatecall(abi.encodeWithSelector(IOPContractsManager.upgrade.selector, opChainConfigs));
+        require(success, "OPCMTaskBaseTemplate: Delegatecall failed in _build.");
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            bytes32 expAbsolutePrestate = Claim.unwrap(upgrades[chainId].absolutePrestate);
+            string memory expErrors = upgrades[chainId].expectedValidationErrors;
+            address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
+            address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
+            chainId;
+            expAbsolutePrestate;
+            expErrors;
+            proxyAdmin;
+            sysCfg;
             require(false, "TODO: Implement with the correct validation logic.");
             require(false, "TODO: Call StandardValidator.validate()");
         }

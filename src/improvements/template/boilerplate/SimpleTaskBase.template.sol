@@ -43,7 +43,15 @@ contract SimpleTaskBaseTemplate is SimpleTaskBase {
         require(false, "TODO: Implement with the correct template setup.");
     }
 
-    /// @notice Write the calls that you want to execute for the task.
+    /// @notice Before implementing the `_build` function, template developers must consider the following:
+    /// 1. Which Multicall contract does this template use — `Multicall3` or `Multicall3Delegatecall`?
+    /// 2. Based on the contract, should the target be called using `call` or `delegatecall`?
+    /// 3. Ensure that the call to the target uses the appropriate method (`call` or `delegatecall`) accordingly.
+    /// Guidelines:
+    /// - `Multicall3`:
+    ///  If the template directlyinherits from `L2TaskBase` or `SimpleTaskBase`, it uses the `Multicall3` contract.
+    ///  In this case, calls to the target **must** use `call`, e.g.:
+    ///  ` dgm.setRespectedGameType(IOptimismPortal2(payable(portalAddress)), cfg[chainId].gameType);`
     function _build() internal override {
         simpleAddrRegistry;
         exampleVariable = 1;
