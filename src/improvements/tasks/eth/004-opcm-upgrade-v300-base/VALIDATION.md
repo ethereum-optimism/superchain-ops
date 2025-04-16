@@ -99,6 +99,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   - **After:** [`0x0b09ba359a106c9ea3b181cbc5f394570c7d2a7a`](https://github.com/ethereum-optimism/superchain-registry/blob/51804a33655ddb4feeb0ad88960d9a81acdf6e62/validation/standard/standard-versions-mainnet.toml#L20)
   - **Summary:**           ERC-1967 implementation slot
   - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+    The implementation of the L1StandardBridge contract is set to `0x0b09ba359a106c9ea3b181cbc5f394570c7d2a7a`.
 
   ---
 
@@ -136,6 +137,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   - **After:** [`0xb443da3e07052204a02d630a8933dac05a0d6fb4`](https://github.com/ethereum-optimism/superchain-registry/blob/51804a33655ddb4feeb0ad88960d9a81acdf6e62/validation/standard/standard-versions-mainnet.toml#L13)
   - **Summary:**           ERC-1967 implementation slot
   - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+    The implementation of the OptimismPortal2 contract is set to `0xb443da3e07052204a02d630a8933dac05a0d6fb4`.
 
   ---
 
@@ -147,7 +149,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   - **After:** [`0x7ae1d3bd877a4c5ca257404ce26be93a02c98013`](https://github.com/ethereum-optimism/superchain-registry/blob/51804a33655ddb4feeb0ad88960d9a81acdf6e62/validation/standard/standard-versions-mainnet.toml#L19)
   - **Summary:**           ERC-1967 implementation slot
   - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-
+    The implementation of the L1ERC721Bridge contract is set to `0x7ae1d3bd877a4c5ca257404ce26be93a02c98013`.
   ---
 
 ### [`0x73a79Fab69143498Ed3712e519A88a918e1f4072`](https://github.com/ethereum-optimism/superchain-registry/blob/51804a33655ddb4feeb0ad88960d9a81acdf6e62/superchain/configs/mainnet/base.toml#L59)  (SystemConfig) - Chain ID: 8453
@@ -158,7 +160,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   - **After:** [`0x340f923e5c7cbb2171146f64169ec9d5a9ffe647`](https://github.com/ethereum-optimism/superchain-registry/blob/51804a33655ddb4feeb0ad88960d9a81acdf6e62/validation/standard/standard-versions-mainnet.toml#L9)
   - **Summary:**           ERC-1967 implementation slot
   - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-
+    The implementation of the SystemConfig contract is set to `0x340f923e5c7cbb2171146f64169ec9d5a9ffe647`.
   ---
 
 ### [`0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c`](https://github.com/ethereum-optimism/superchain-registry/blob/51804a33655ddb4feeb0ad88960d9a81acdf6e62/superchain/configs/mainnet/base.toml#L44)  (ProxyAdminOwner (GnosisSafe)) - Chain ID: 8453
