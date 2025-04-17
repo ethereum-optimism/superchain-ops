@@ -62,7 +62,6 @@ Resulting calldata:
 0xb40a817c0000000000000000000000000000000000000000000000000000000002625a00
 ```
 
-
 ### Inputs to `SystemConfig.setEIP1559Params(uint32 _denominator, uint32 _elasticity)`
 
 This function is called with the following inputs:
@@ -79,6 +78,37 @@ cast calldata “setEIP1559Params(uint32,uint32)” 250 2
 Resulting calldata:
 ```
 0xc0fd4b4100000000000000000000000000000000000000000000000000000000000000fa0000000000000000000000000000000000000000000000000000000000000002
+```
+
+### Inputs to `Multicall3DelegateCall`
+
+The output from the previous section becomes the `data` in the argument to the `Multicall3DelegateCall.aggregate3Value()` function.
+
+This function is called with a tuple of three elements:
+
+Call3 struct for Multicall3DelegateCall SystemConfig tx_1:
+
+- `target`: [0x229047fed2591dbec1ef1118d64f7af3db9eb290](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L59) - op-mainnet SystemConfig
+- `allowFailure`: false
+- `value`: 0
+- `callData`: `0xb40a817c0000000000000000000000000000000000000000000000000000000002625a00` (output from the previous section)
+
+Call3 struct for Multicall3DelegateCall SystemConfig tx_2:
+
+- `target`: [0x229047fed2591dbec1ef1118d64f7af3db9eb290](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L59) - op-mainnet SystemConfig
+- `allowFailure`: false
+- `value`: 0
+- `callData`: `0xc0fd4b4100000000000000000000000000000000000000000000000000000000000000fa0000000000000000000000000000000000000000000000000000000000000002` (output from the previous section)
+
+Command to encode:
+
+```bash
+cast calldata 'aggregate3Value((address,bool,uint256,bytes)[])' "[(0x229047fed2591dbec1ef1118d64f7af3db9eb290,false,0,0xb40a817c0000000000000000000000000000000000000000000000000000000002625a00),(0x229047fed2591dbec1ef1118d64f7af3db9eb290,false,0,0xc0fd4b4100000000000000000000000000000000000000000000000000000000000000fa0000000000000000000000000000000000000000000000000000000000000002)]"
+```
+
+The resulting calldata sent from the `FoundationUpgradesSafe` is thus:
+```
+0x174dea710000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000120000000000000000000000000229047fed2591dbec1ef1118d64f7af3db9eb2900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000024b40a817c0000000000000000000000000000000000000000000000000000000002625a0000000000000000000000000000000000000000000000000000000000000000000000000000000000229047fed2591dbec1ef1118d64f7af3db9eb2900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000044c0fd4b4100000000000000000000000000000000000000000000000000000000000000fa000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000
 ```
 
 # State Changes
@@ -106,24 +136,18 @@ For each contract listed in the state diff, please verify that no contracts or s
   
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000068`
   - **Decoded Kind:** `uint64`
-  - **Before:** `60000000`
-  - **After:** `40000000`
+  - **Before:** `0x00000000000000000000000000000000000f79c50000146b0000000003938700`
+  - **After:** `0x00000000000000000000000000000000000f79c50000146b0000000002625a00`
   - **Summary:** gasLimit changes from 60M -> 40M
   - **Detail:** Sets the gas limit per op-mainnet block to 40M
   
 - **Key:** `0x000000000000000000000000000000000000000000000000000000000000006a`
-  - **Decoded Kind:** `uint32`
-  - **Before:** `0`
-  - **After:** `250`
-  - **Summary:** eip1559Denominator changes from 0 (unset) to 250
-  - **Detail:** Sets the eip1559Denominator to 250, which is no change from [the current default value used](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L27). We must set this value since we are also changing the eip1559Elasticity in the same tx.
-  
-- **Key:** `0x000000000000000000000000000000000000000000000000000000000000006a`
-  - **Decoded Kind:** `uint32`
-  - **Before:** `0`
-  - **After:** `2`
-  - **Summary:** eip1559Elasticity changes from 0 (unset) to 2
-  - **Detail:** Sets the eip1559Denominator to 2. Its currently using [the default value of 6](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L25).
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x00000000000000000000000000000000000000000000000000000002000000fa`
+  - **Summary:** eip1559Denominator and eip1559Elasticity changes
+  - **Detail:** Changes two params, which share the same storage slot.
+      * Sets the eip1559Denominator to 250, which is no change from [the current default value used](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L27). We must set this value since we are also changing the eip1559Elasticity in the same tx. 
+      * Sets the eip1559Denominator to 2: it's currently using [the default value of 6](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L25).
   
   ---
   
