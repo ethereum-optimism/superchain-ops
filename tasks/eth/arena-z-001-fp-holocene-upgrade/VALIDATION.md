@@ -18,40 +18,40 @@ For each contract listed in the state diff, please verify that no contracts or s
 > ### Optimism Foundation
 >
 > - Domain Hash: `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0x01282fa031a597c24640050a45eccf82c75916726be89921a9e1717c5868b048`
+> - Message Hash: `0x1392ac9c2cb4b1293dac641440c07bd9d010425f2125ad24ce5c272c44dc734e`
 >
 > ### Security Council
 >
 > - Domain Hash: `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
 > - Message Hash: 
-`0x07f0641948ec865a6f115e021adb5972373dc2aa40903746f1ca314a0731c7e6`
+`0xd60064b367bd29465c61304950f24b3e999959f2b6f6b183a20eaafda0288e0c`
 
 ## State Overrides
 
 Note: The changes listed below do not include threshold and number of owners overrides or liveness guard related changes, these changes are listed in the [NESTED-VALIDATION.md](../../../NESTED-VALIDATION.md) file.
 ## State Changes
 
-### `0x10d7B35078d3baabB96Dd45a9143B94be65b12CD` (`DisputeGameFactoryProxy`)  
+### `0x658656A14AFdf9c507096aC406564497d13EC754` (`DisputeGameFactoryProxy`)  
 
  | **Key** | `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e` |
  |---------|----------------------------------------------------------------------------------|
- | **Before** | `0x0000000000000000000000000a780be3eb21117b1bbcd74cf5d7624a3a482963` |
- | **After** | `0x0000000000000000000000008d9faaeb46cbcf487baf2182e438ac3d0847f637` |
+ | **Before** | `0x000000000000000000000000227882E5972EbAd990dcF04E2dbe2fC84094E146` |
+ | **After** | `0x00000000000000000000000080533687a66A1bB366094A9B622873a6CA8415a5` |
  
 > [!NOTE]  
-> **Meaning**: Updates the PERMISSIONED_CANNON game type implementation. You can verify which implementation is set using `cast call 0x10d7B35078d3baabB96Dd45a9143B94be65b12CD "gameImpls(uint32)(address)" 1`, where `1` is the [`PERMISSIONED_CANNON` game type](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L31). \
-  Before this task has been executed, you will see that the returned address is `0x0000000000000000000000000a780be3eb21117b1bbcd74cf5d7624a3a482963`, matching the "Before" value of this slot, demonstrating this slot is storing the address of the PERMISSIONED_CANNON implementation.
+> **Meaning**: Updates the PERMISSIONED_CANNON game type implementation. You can verify which implementation is set using `cast call 0x658656A14AFdf9c507096aC406564497d13EC754 "gameImpls(uint32)(address)" 1`, where `1` is the [`PERMISSIONED_CANNON` game type](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L31). \
+  Before this task has been executed, you will see that the returned address is `0x0000000000000000000000000227882E5972EbAd990dcF04E2dbe2fC84094E146`, matching the "Before" value of this slot, demonstrating this slot is storing the address of the PERMISSIONED_CANNON implementation.
 
 
 
  | **Key** | `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b` |
  |---------|----------------------------------------------------------------------------------|
- | **Before** | `0x0000000000000000000000006a8efcba5642eb15d743cbb29545bdc44d5ad8cd` |
- | **After** | `0x0000000000000000000000007e87b471e96b96955044328242456427a0d49694` |
+ | **Before** | `0x0000000000000000000000000000000000000000000000000000000000000000` |
+ | **After** | `0x000000000000000000000000733a80Ce3bAec1f27869b6e4C8bc0E358C121045` |
 
 > [!NOTE]  
-  **Meaning**: Updates the CANNON game type implementation. You can verify which implementation is set using `cast call 0x10d7B35078d3baabB96Dd45a9143B94be65b12CD "gameImpls(uint32)(address)" 0`, where `0` is the [`CANNON` game type](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28).
-  Before this task has been executed, you will see that the returned address is `0x0000000000000000000000006a8efcba5642eb15d743cbb29545bdc44d5ad8cd`, matching the "Before" value of this slot, demonstrating this slot is storing the address of the CANNON implementation.
+  **Meaning**: Updates the CANNON game type implementation. You can verify which implementation is set using `cast call 0x658656A14AFdf9c507096aC406564497d13EC754 "gameImpls(uint32)(address)" 0`, where `0` is the [`CANNON` game type](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28).
+  Before this task has been executed, you will see that the returned address is `0x0000000000000000000000000000000000000000000000000000000000000000`, matching the "Before" value of this slot, demonstrating this slot is storing the address of the CANNON implementation.
 
 ### SC Liveness Guard
 Liveness Guard related changes are listed [here](../../../NESTED-VALIDATION.md#liveness-guard-security-council-safe-or-unichain-operation-safe-only) file.
@@ -60,12 +60,12 @@ Liveness Guard related changes are listed [here](../../../NESTED-VALIDATION.md#l
 ## Verify new Absolute Prestate
 
 
-The following is based on the **op-program/v1.5.0-rc.3**: \
+The following is based on the **op-program/v1.6.0-rc.1**: \
 Absolute prestates can be checked in the Superchain Registry [standard-prestates.toml](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-prestates.toml). 
 
-Please, verify that the new absolute prestate is set correctly to `0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9`. \
+Please, verify that the new absolute prestate is set correctly to `0x03526dfe02ab00a178e0ab77f7539561aaf5b5e3b46cd3be358f1e501b06d8a9`. \
 See [Pectra notice](https://docs.optimism.io/notices/pectra-changes#verify-the-new-absolute-prestate) in docs for more details. \
-To manually verify the prestate `0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9`, based on **op-program/v1.5.0-rc.3**, run the below command in the root of https://github.com/ethereum-optimism/optimism/tree/op-program/v1.5.0-rc.3:
+To manually verify the prestate `0x03526dfe02ab00a178e0ab77f7539561aaf5b5e3b46cd3be358f1e501b06d8a9`, based on **op-program/v1.6.0-rc.1**, run the below command in the root of https://github.com/ethereum-optimism/optimism/tree/op-program/v1.6.0-rc.1:
 
 You can verify this absolute prestate by running the following [command](https://github.com/ethereum-optimism/optimism/blob/6819d8a4e787df2adcd09305bc3057e2ca4e58d9/Makefile#L133-L135) in the root of the monorepo:
 
@@ -77,9 +77,9 @@ You should expect the following output at the end of the command:
 
 ```bash
 Cannon Absolute prestate hash: 
-0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9
+0x03526dfe02ab00a178e0ab77f7539561aaf5b5e3b46cd3be358f1e501b06d8a9
 Cannon64 Absolute prestate hash: 
-0x039970872142f48b189d18dcbc03a3737338d098b0101713dc2d6710f9deb5ef
+0x03394563dd4a36e95e6d51ce7267ecceeb05fad23e68d2f9eed1affa73e5641a
 CannonInterop Absolute prestate hash: 
 0x03a806c966e97816f1ff8d4f04a8ec823099e8f9c32e1d0cfca814f545b85115
 ```

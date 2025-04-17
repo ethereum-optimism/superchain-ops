@@ -1,11 +1,11 @@
 # Holocene Hardfork Upgrade
-Status: [EXECUTED](https://etherscan.io/tx/0xd80b96282ad4d71aeb29b25e0ceee2bdf0840b258fccffedc951ce0553b6800b)
+Status: [DRAFT, NOT READY TO SIGN]
 ## Objective
 
 Upgrades the Fault Proof contracts for the Holocene hardfork as per Upgrade Proposal #11.
 
 
-This also utilizes the absolute prestate `0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9` that enables L1 pectra support, to be included in Upgrade Proposal #12.
+This also utilizes the absolute prestate `0x03526dfe02ab00a178e0ab77f7539561aaf5b5e3b46cd3be358f1e501b06d8a9` that enables L1 pectra support, to be included in Upgrade Proposal #12.
 
 The proposal #11 was:
 
@@ -30,13 +30,13 @@ This upgrades the Fault Proof contracts in the
 ## Pre-deployments
 
 - `MIPS` - `0x5fE03a12C1236F9C22Cb6479778DDAa4bce6299C`
-- `FaultDisputeGame` - `0x7e87B471e96b96955044328242456427A0D49694`
-- `PermissionedDisputeGame` - `0x8D9faaEb46cBCf487baf2182E438Ac3D0847F637`
+- `FaultDisputeGame` - `0x733a80Ce3bAec1f27869b6e4C8bc0E358C121045`
+- `PermissionedDisputeGame` - `0x80533687a66A1bB366094A9B622873a6CA8415a5`
 
 ## Simulation
 
 Please see the "Simulating and Verifying the Transaction" instructions in [NESTED.md](../../../NESTED.md).
-When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/tasks/eth/ink-003-fp-holocene-pectra-upgrade/NestedSignFromJson.s.sol
+When simulating, ensure the logs say `Using script /your/path/to/superchain-ops/tasks/tasks/eth/arena-z-001-fp-holocene-upgrade/NestedSignFromJson.s.sol
 
 This ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown (without the full path), something is wrong and the safety checks will not run.
 

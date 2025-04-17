@@ -54,7 +54,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
     address oracle;
     uint256 chainId;
 
-    bytes32 constant absolutePrestate = 0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9;
+    bytes32 constant absolutePrestate = 0x03526dfe02ab00a178e0ab77f7539561aaf5b5e3b46cd3be358f1e501b06d8a9;
 
     address constant livenessGuard = 0x24424336F04440b1c28685a38303aC33C9D14a25;
     string constant gameVersion = "1.3.1";
@@ -67,7 +67,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
     FaultDisputeGame faultDisputeGame;
     PermissionedDisputeGame permissionedDisputeGame;
 
-    constructor() SuperchainRegistry("mainnet", "ink", "v1.8.0-rc.4") {}
+    constructor() SuperchainRegistry("mainnet", "arena-z", "v1.8.0-rc.4") {}
 
     function setUp() public {
         
@@ -77,7 +77,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, SuperchainRegistry {
         chainId = chainConfig.chainId;
 
         string memory inputJson;
-        string memory path = "/tasks/eth/ink-003-fp-holocene-pectra-upgrade/input.json";
+        string memory path = "/tasks/eth/arena-z-001-fp-holocene-upgrade/input.json";
         try vm.readFile(string.concat(vm.projectRoot(), path)) returns (string memory data) {
             inputJson = data;
         } catch {
