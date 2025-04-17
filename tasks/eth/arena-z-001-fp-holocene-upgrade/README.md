@@ -5,7 +5,7 @@ Status: [DRAFT, NOT READY TO SIGN]
 Upgrades the Fault Proof contracts for the Holocene hardfork as per Upgrade Proposal #11.
 
 
-This also utilizes the absolute prestate `0x03526dfe02ab00a178e0ab77f7539561aaf5b5e3b46cd3be358f1e501b06d8a9` that enables L1 pectra support, to be included in Upgrade Proposal #12.
+This also utilizes the absolute prestate `0x03526dfe02ab00a178e0ab77f7539561aaf5b5e3b46cd3be358f1e501b06d8a9` that enables L1 pectra support, included in Standard Prestates' TOML file as defined in Upgrade Proposal #12.
 
 The proposal #11 was:
 
