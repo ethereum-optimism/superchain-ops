@@ -45,6 +45,43 @@ UOS_BEFORE=$MAX_NONCE_ERROR
 #   $2 - Path to environment file containing SAFE_NONCE entries
 #
 # The function handles both mainnet and Sepolia network Safes based on IS_SEPOLIA flag
+
+
+DisplaySafeBeforev20() {
+  echo -e "\n$1"
+  
+  if [[ "$IS_SEPOLIA" == "TRUE" ]]; then
+    # Handle Sepolia safes
+    local all_safes=(
+      "$Fake_Foundation_Upgrade_Safe:FUS:Foundation Upgrade Safe"
+      "$Fake_Foundation_Operation_Safe:FOS:Foundation Operation Safe"
+      "$Fake_Security_Council_Safe:SC:Security Council Safe"
+      "$Fake_Proxy_Admin_Owner_Safe:L1PAO:L1 Proxy Admin Owner Safe"
+    )
+  else
+    # Handle mainnet safes
+    local all_safes=(
+      "$Foundation_Upgrade_Safe:FUS:Foundation Upgrade Safe"
+      "$Foundation_Operation_Safe:FOS:Foundation Operation Safe"
+      "$Security_Council_Safe:SC:Security Council Safe"
+      "$Proxy_Admin_Owner_Safe:L1PAO:L1 Proxy Admin Owner Safe"
+      "$Base_Proxy_Admin_Owner_safe:BL1PAO:Base Proxy Admin Owner Safe"
+      "$Base_Owner_Safe:BOS:Base Owner Safe"
+      "$Unichain_3of3_Safe:U3:Unichain 3of3 Safe"
+      "$Unichain_Owner_Safe:UOS:Unichain Owner Safe"
+    )
+  fi
+  
+  # Display current nonce for all safes
+  for safe_info in "${all_safes[@]}"; do
+    IFS=':' read -r safe_addr var_name safe_name <<< "$safe_info"
+    local current_nonce=$(cast call $safe_addr "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    # Set the corresponding variable
+    eval "${var_name}_BEFORE=$current_nonce"
+    echo "[+] $(date '+%Y-%m-%d %H:%M:%S') $safe_name ($var_name) [$safe_addr] current nonce: $current_nonce"
+  done
+}
+
 DisplaySafeBeforeNonces() {
 
   echo -e "\n$1"
@@ -686,10 +723,10 @@ check_if_task_is_3_of_3() {
       log_error "The Chain Governor Safe is not set in the $file_path file."
       exit 99
     fi
-    log_info "Nested Task with 3 safes detected."
+    log_info "Nested Task with 3 safes detected. This is using the superchain-ops v1.0"
     IS_3_OF_3=1
   else 
-    log_info "Nested Task with 2 safes detected."
+    log_info "Nested Task with 2 safes detected. This is using the superchain-ops v1.0"
     IS_3_OF_3=0
   fi
 }
@@ -710,10 +747,12 @@ check_nonce_override() {
 # Find unique task folder(s) for a given task ID
 find_task_folder() {
   local task_id="$1"
-  matching_folders=$(find "$task_base_dir" -name "${task_id}*" -type d)
+  
+  # Search in both directories
+  matching_folders=$(find "$task_base_dir" "$root_dir/src/improvements/tasks/${network}" -name "${task_id}*" -type d)
 
   if [[ -z "$matching_folders" ]]; then
-    error_exit "No folder found matching task ID '$task_id'."
+    error_exit "No folder found matching task ID '$task_id' in either tasks/${network} or src/improvements/tasks/${network}."
   fi
 
   matching_count=$(echo "$matching_folders" | wc -l)
@@ -784,9 +823,16 @@ for task_id in $task_ids; do
   matching_folders=$(find_task_folder "$task_id")
   task_folders+=("$matching_folders")
 done
+
 ## Need to investigate why we can reach here when we pass an invalid task ID.
-source ${task_folders[0]}/.env
-RPC_URL=$ETH_RPC_URL
+# Skip sourcing .env if the task is under improvements folder
+# Set RPC URL based on network
+if [[ "$network" == "sep" ]]; then
+  RPC_URL=https://ethereum-sepolia-rpc.publicnode.com
+elif [[ "$network" == "eth" ]]; then
+  RPC_URL=https://ethereum.publicnode.com
+fi
+
 unset ETH_RPC_URL
 log_info "Simulating the following tasks in order:"
 
@@ -809,15 +855,17 @@ export SIMULATE_WITHOUT_LEDGER=1
 for task_folder in "${task_folders[@]}"; do
   execution=""
   echo -e "\n---- Simulating task \"$(basename "$task_folder")\"----"
-  # Display the nonce value from the .env file.
-  # Check if the .env is correct with the SAFE_NONCE_XXXX or nothing but exclude the deprecated SAFE_NONCE=.
-  check_nonce_override "${task_folder}/.env"
-  # nonce_from_env=$(grep -E "^SAFE_NONCE._*" "${task_folder}/.env" | awk -F'[=_ ]' '{print "Address: " $3, "Number: " $4}') || true
-  # log_info "Nonce from .env file:\n$nonce_from_env"
-  pushd "$task_folder" >/dev/null || error_exit "Failed to navigate to '$task_folder'."
+  if [[ "${task_folder}" != *"src/improvements"* ]]; then
+    # Check if the .env is correct with the SAFE_NONCE_XXXX or nothing but exclude the deprecated SAFE_NONCE=. 
+    check_nonce_override "${task_folder}/.env"
+    # nonce_from_env=$(grep -E "^SAFE_NONCE._*" "${task_folder}/.env" | awk -F'[=_ ]' '{print "Address: " $3, "Number: " $4}') || true
+    # log_info "Nonce from .env file:\n$nonce_from_env"
+    pushd "$task_folder" >/dev/null || error_exit "Failed to navigate to '$task_folder'."
+
+    DisplaySafeBeforeNonces "(🟧) Before Simulation Nonce Values (🟧)" "${task_folder}/.env"
+  fi
   # add the RPC_URL to the .env file
   # echo "ETH_RPC_URL=ANVIL_LOCALHOST_RPC" >> "${PWD}/.env" # Replace with the anvil fork URL
-  DisplaySafeBeforeNonces "(🟧) Before Simulation Nonce Values (🟧)" "${task_folder}/.env"
   #DisplayNonceFromEnv "(🟧) Before Simulation Nonce Values (🟧)" "${task_folder}/.env"
   if [[ -f "${task_folder}/NestedSignFromJson.s.sol" ]]; then
     check_if_task_is_3_of_3 "${task_folder}/.env"
@@ -859,16 +907,70 @@ for task_folder in "${task_folders[@]}"; do
        --justfile "${root_dir}/nested.just" \
        execute_in_anvil 0)
 
-  else
-    log_info "Task type detected: single"
+  elif [[ -f "${task_folder}/SignFromJson.s.sol" ]]; then
+    log_info "Task type detected: single. This is using the superchain-ops v1.0"
     simulate=$(just --dotenv-path "${PWD}/.env" --justfile "${root_dir}/single.just" approvehash_in_anvil 0)
     execution=$(just --dotenv-path "${PWD}/.env" --justfile "${root_dir}/single.just" execute_in_anvil 0)
     if [[ $execution == *"GS025"* ]]; then
      log_error "Execution contains GS025 meaning the task $task_folder failed."
      exit 99
     fi
-  fi
+   
+  elif [[ -f "${task_folder}/config.toml" ]]; then
 
+    # TODO:check if necessary in the future check_nonce_override "${task_folder}/.env"
+    # nonce_from_env=$(grep -E "^SAFE_NONCE._*" "${task_folder}/.env" | awk -F'[=_ ]' '{print "Address: " $3, "Number: " $4}') || true
+    # log_info "Nonce from .env file:\n$nonce_from_env"
+    # pushd "$task_folder" >/dev/null || error_exit "Failed to navigate to '$task_folder'."
+
+    DisplaySafeBeforev20 "(🟧) Before Simulation Nonce Values (🟧)" "${task_folder}/config.toml"
+    # check if the task is nested or single:
+    output=$(forge script TaskRunner --sig "isNestedTask" "${task_folder}/config.toml" --rpc-url http://localhost:8545)
+    read bool_value parent_multisig <<< $(echo "$output" | awk '
+        /0: bool/ {bool=$3}
+        /parentMultisig:/ {multisig=$3}
+        END {print bool, multisig}
+    ')
+    echo "Bool value: $bool_value"
+    echo "Parent Multisig: $parent_multisig"
+    cd "${task_folder}" # change the directory to the task folder to run the justfile from the task folder
+    if [[ $bool_value == "true" ]]; then
+      log_info "This is a nested task. This is using the superchain-ops v2.0"
+       
+        # Handle the 2-of-2 case anyway.
+        approvalhashcouncil=$(just \
+          --justfile "${root_dir}/src/improvements/nested.just" \
+          approvehash_in_anvil2 council)
+
+        approvalhashfoundation=$(just \
+          --justfile "${root_dir}/src/improvements/nested.just" \
+          approvehash_in_anvil2 foundation)
+
+        if [[ $approvalhashcouncil == *"GS025"* ]]; then
+          log_error "Execution contains "GS025" meaning the task $task_folder failed during the council approval, please check the nonces below:"
+          log_nonce_error
+          exit 99
+        fi
+        if [[ $approvalhashfoundation == *"GS025"* ]]; then
+          log_error "Execution contains "GS025" meaning the task $task_folder failed during the foundation approval, please check the nonces below:"
+          log_nonce_error
+          exit 99
+        fi
+
+      execution=$(just --justfile "${root_dir}/src/improvements/nested.just" execute_in_anvil)
+      echo "execution: $execution"
+      else
+        log_info "This is a single task. This is using the superchain-ops v2.0"
+        approval=$(just \
+          --justfile "${root_dir}/src/improvements/single.just" \
+          sign_and_execute_in_anvil $parent_multisig)
+        if [[ $approval == *"GS025"* ]]; then
+          log_error "Execution contains "GS025" meaning the task $task_folder failed during the council approval, please check the nonces below:"
+          log_nonce_error
+          exit 99
+        fi
+      fi
+    fi
 
   sleep 0.2
   NonceDisplayModified "(🟩) After Simulation Nonce Values (🟩)"
