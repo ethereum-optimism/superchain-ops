@@ -307,7 +307,7 @@ OR if signer is on council safe: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`:
   - **Before:** `21`
   - **After:** `22`
   - **Summary:**  Nonce update
-  - **Detail:**  Nonce update for the child safe `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`. You can verify manually with the following:
+  - **Detail:**            Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard. SystemConfig contract for `op-contracts/v3.0.0-rc.2`.
     - Before: `cast --to-dec 0x15` = 21
     - After: `cast --to-dec 0x16` = 22
 
