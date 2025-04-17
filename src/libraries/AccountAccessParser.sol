@@ -571,8 +571,8 @@ library AccountAccessParser {
         if (_slot == START_BLOCK_SLOT) {
             return DecodedSlot({
                 kind: "uint256",
-                oldValue: toUint(_oldValue),
-                newValue: toUint(_newValue),
+                oldValue: toUint256(_oldValue),
+                newValue: toUint256(_newValue),
                 summary: "Start block",
                 detail: "Unstructured storage slot for the start block number."
             });
@@ -620,8 +620,8 @@ library AccountAccessParser {
         if (_slot == REQUIRED_SLOT) {
             return DecodedSlot({
                 kind: "uint256",
-                oldValue: toUint(_oldValue),
-                newValue: toUint(_newValue),
+                oldValue: toUint256(_oldValue),
+                newValue: toUint256(_newValue),
                 summary: "Required protocol version",
                 detail: "Unstructured storage slot for the required protocol version."
             });
@@ -629,8 +629,8 @@ library AccountAccessParser {
         if (_slot == RECOMMENDED_SLOT) {
             return DecodedSlot({
                 kind: "uint256",
-                oldValue: toUint(_oldValue),
-                newValue: toUint(_newValue),
+                oldValue: toUint256(_oldValue),
+                newValue: toUint256(_newValue),
                 summary: "Recommended protocol version",
                 detail: "Unstructured storage slot for the recommended protocol version."
             });
@@ -705,9 +705,17 @@ library AccountAccessParser {
                 } else if (kind.eq("address")) {
                     oldValue = toAddress(_oldValue, offset);
                     newValue = toAddress(_newValue, offset);
-                } else if (kind.contains("uint")) {
-                    oldValue = toUint(_oldValue, offset);
-                    newValue = toUint(_newValue, offset);
+                    // We're not exhaustively handling all uint types here.
+                    // We will add more as needed.
+                } else if (kind.contains("uint32")) {
+                    oldValue = toUint32(_oldValue, offset);
+                    newValue = toUint32(_newValue, offset);
+                } else if (kind.contains("uint64")) {
+                    oldValue = toUint64(_oldValue, offset);
+                    newValue = toUint64(_newValue, offset);
+                } else if (kind.contains("uint256")) {
+                    oldValue = toUint256(_oldValue, offset);
+                    newValue = toUint256(_newValue, offset);
                 }
 
                 string memory label = layout[i]._label;
@@ -813,11 +821,19 @@ library AccountAccessParser {
         return vm.toString(address(uint160(uint256(_value) >> (_offset * 8))));
     }
 
-    function toUint(bytes32 _value) internal pure returns (string memory) {
-        return toUint(_value, 0);
+    function toUint256(bytes32 _value) internal pure returns (string memory) {
+        return toUint256(_value, 0);
     }
 
-    function toUint(bytes32 _value, uint256 _offset) internal pure returns (string memory) {
+    function toUint256(bytes32 _value, uint256 _offset) internal pure returns (string memory) {
         return vm.toString(uint256(_value) >> (_offset * 8));
+    }
+
+    function toUint32(bytes32 _value, uint256 _offset) internal pure returns (string memory) {
+        return vm.toString(uint32(uint256(_value) >> (_offset * 8)));
+    }
+
+    function toUint64(bytes32 _value, uint256 _offset) internal pure returns (string memory) {
+        return vm.toString(uint64(uint256(_value) >> (_offset * 8)));
     }
 }
