@@ -17,7 +17,7 @@ interface ISystemConfig {
 
 /// @notice A template contract for configuring L2TaskBase templates.
 /// Supports: anything after Holocene
-contract UpdateSystemConfigGasParams is L2TaskBase {
+contract SystemConfigGasParams is L2TaskBase {
     /// @notice Optional: struct representing configuration for the task.
     struct TaskInputs {
         uint64 gasLimit;

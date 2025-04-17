@@ -1,6 +1,6 @@
 l2chains = [ {name = "OP Mainnet", chainId = 10} ]
 
-templateName = "UpdateSystemConfigGasParams"
+templateName = "SystemConfigGasParams"
 
 [gasParams]
 gasLimit = 40000000
