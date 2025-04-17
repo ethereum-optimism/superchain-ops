@@ -458,12 +458,12 @@ OR if signer is on council safe: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`:
 
 ### Nonce increments
 
-- `0x1Ae178eBFEECd51709432EA5f37845Da0414EdFe` - Permissioned GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
-- `0x3D56d47b9E7E34A46612BadC70377F74051E6b17` - Permissioned GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
-- `<sender-address> e.g. 0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64 (foundation) or 0x07dC0893cAfbF810e3E72505041f2865726Fd073 (council)` - Sender address of the Tenderly transaction (Your ledger or first owner on the nested safe (if you're simulating)).
-- `0x436BaC2Efe273e3f13eEFeda2b3689C34591bca1` - Permissioned GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
-- `0x499E30a3b1BDB03f554fFFFAe4c9c5Edf31ca554` - Permissionless GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
-- `0x5738a876359b48A65d35482C93B43e2c1147B32B` - Permissionless GameType Implementation as per [EIP-161](https://eip.tools/eip/eip-161.md)
+- `0x1Ae178eBFEECd51709432EA5f37845Da0414EdFe` - Permissioned GameType Implementation for OP Mainnet
+- `0x3D56d47b9E7E34A46612BadC70377F74051E6b17` - Permissioned GameType Implementation for Soneium
+- <sender-address> - Sender address of the Tenderly transaction (Your ledger or first owner on the nested safe (if you're simulating)).
+- `0x436BaC2Efe273e3f13eEFeda2b3689C34591bca1` - Permissioned GameType Implementation for Ink
+- `0x499E30a3b1BDB03f554fFFFAe4c9c5Edf31ca554` - Permissionless GameType Implementation for Ink
+- `0x5738a876359b48A65d35482C93B43e2c1147B32B` - Permissionless GameType Implementation for OP Mainnet
   
 # Supplementary Material
 
