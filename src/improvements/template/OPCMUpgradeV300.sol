@@ -22,14 +22,15 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
     /// @notice The StandardValidatorV300 address
     IStandardValidatorV300 public STANDARD_VALIDATOR_V300;
 
-    /// @notice Struct to store inputs for OPCM.upgrade() function per L2 chain.
+    /// @notice Struct to store inputs data for each L2 chain.
     struct OPCMUpgrade {
         Claim absolutePrestate;
         uint256 chainId;
+        string expectedValidationErrors;
     }
 
-    /// @notice Mapping of L2 chain IDs to their respective prestates.
-    mapping(uint256 => Claim) public absolutePrestates;
+    /// @notice Mapping of L2 chain IDs to their respective OPCMUpgrade structs.
+    mapping(uint256 => OPCMUpgrade) public upgrades;
 
     /// @notice Returns the storage write permissions required for this task.
     function _taskStorageWrites() internal view virtual override returns (string[] memory) {
@@ -50,11 +51,10 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
         super._templateSetup(taskConfigFilePath);
         string memory tomlContent = vm.readFile(taskConfigFilePath);
 
-        // For OPCMUpgradeV300, the OPCMUpgrade struct is used to store the absolutePrestate for each l2 chain.
-        OPCMUpgrade[] memory upgrades =
-            abi.decode(tomlContent.parseRaw(".opcmUpgrades.absolutePrestates"), (OPCMUpgrade[]));
-        for (uint256 i = 0; i < upgrades.length; i++) {
-            absolutePrestates[upgrades[i].chainId] = upgrades[i].absolutePrestate;
+        // For OPCMUpgradeV300, the OPCMUpgrade struct is used to store the absolutePrestate and expectedValidationErrors for each l2 chain.
+        OPCMUpgrade[] memory _upgrades = abi.decode(tomlContent.parseRaw(".opcmUpgrades"), (OPCMUpgrade[]));
+        for (uint256 i = 0; i < _upgrades.length; i++) {
+            upgrades[_upgrades[i].chainId] = _upgrades[i];
         }
 
         OPCM = tomlContent.readAddress(".addresses.OPCM");
@@ -85,10 +85,11 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
             new IOPContractsManager.OpChainConfig[](chains.length);
 
         for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
             opChainConfigs[i] = IOPContractsManager.OpChainConfig({
-                systemConfigProxy: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chains[i].chainId)),
-                proxyAdmin: IProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chains[i].chainId)),
-                absolutePrestate: absolutePrestates[chains[i].chainId]
+                systemConfigProxy: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
+                proxyAdmin: IProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chainId)),
+                absolutePrestate: upgrades[chainId].absolutePrestate
             });
         }
 
@@ -103,53 +104,21 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-            bytes32 currentAbsolutePrestate = Claim.unwrap(absolutePrestates[chainId]);
+            bytes32 expAbsolutePrestate = Claim.unwrap(upgrades[chainId].absolutePrestate);
+            string memory expErrors = upgrades[chainId].expectedValidationErrors;
             address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
             address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
 
             IStandardValidatorV300.InputV300 memory input = IStandardValidatorV300.InputV300({
                 proxyAdmin: proxyAdmin,
                 sysCfg: sysCfg,
-                absolutePrestate: currentAbsolutePrestate,
+                absolutePrestate: expAbsolutePrestate,
                 l2ChainID: chainId
             });
 
-            string memory reasons = STANDARD_VALIDATOR_V300.validate({_input: input, _allowFailure: true});
+            string memory errors = STANDARD_VALIDATOR_V300.validate({_input: input, _allowFailure: true});
 
-            // PDDG-ANCHORP-40: The anchor state registry's permissionless root is not 0xdead000000000000000000000000000000000000000000000000000000000000
-            // PLDG-ANCHORP-40: The anchor state registry's permissionless root is not 0xdead000000000000000000000000000000000000000000000000000000000000
-            string memory expectedErrors_11155420 = "PDDG-ANCHORP-40,PLDG-ANCHORP-40";
-
-            // PDDG-DWETH-30: Delayed WETH owner must be l1PAOMultisig (for permissioned dispute game) - It is checking for the OP Sepolia PAO
-            // PDDG-ANCHORP-40: The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
-            // PDDG-120: Non-standard testnet challenger - Sony runs their own for testnet
-            // PLDG-10: Still on Permissioned games, so Permissionless dispute games are not needed
-            string memory expectedErrors_1946 = "PDDG-DWETH-30,PDDG-ANCHORP-40,PDDG-120,PLDG-10";
-
-            // PDDG-DWETH-30: Delayed WETH owner must be l1PAOMultisig (for permissioned dispute game) - It is checking for the OP Sepolia PAO
-            // PDDG-ANCHORP-40: The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
-            // PLDG-DWETH-30: Delayed WETH owner must be l1PAOMultisig (for permissioned dispute game) - It is checking for the OP Sepolia PAO
-            // PLDG-ANCHORP-40: The anchor state registry's permissionless root is not 0xdead000000000000000000000000000000000000000000000000000000000000
-            string memory expectedErrors_763373 = "PDDG-DWETH-30,PDDG-ANCHORP-40,PLDG-DWETH-30,PLDG-ANCHORP-40";
-
-            // PROXYA-10: Proxy admin owner must be l1PAOMultisig - This is OK because it is checking for the OP Sepolia PAO.
-            // DF-30: Dispute factory owner must be l1PAOMultisig - It is checking for the OP Sepolia PAO.
-            // PDDG-DWETH-30: Delayed WETH owner must be l1PAOMultisig (for permissioned dispute game) - It is checking for the OP Sepolia PAO
-            // PDDG-ANCHORP-40: The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
-            // PDDG-120: Permissioned dispute game challenger must match challenger address - It is checking for the OP Sepolia Challenger
-            // PLDG-DWETH-30: Delayed WETH owner must be l1PAOMultisig (for permissioned dispute game) - It is checking for the OP Sepolia PAO
-            // PLDG-ANCHORP-40: The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
-            string memory expectedErrors_1301 =
-                "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-ANCHORP-40,PDDG-120,PLDG-DWETH-30,PLDG-ANCHORP-40";
-
-            // Base Sepolia and Unichain Sepolia have the same expected errors.
-            string memory expectedErrors_Base_84532 = expectedErrors_1301;
-
-            require(
-                reasons.eq(expectedErrors_11155420) || reasons.eq(expectedErrors_Base_84532)
-                    || reasons.eq(expectedErrors_1946) || reasons.eq(expectedErrors_763373),
-                string.concat("Unexpected errors: ", reasons)
-            );
+            require(errors.eq(expErrors), string.concat("Unexpected errors: ", errors, "; expected: ", expErrors));
         }
     }
 
