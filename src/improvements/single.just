@@ -51,7 +51,7 @@ simulate hdPath='0':
     ${fork_block_arg} \
     --rpc-url ${rpcUrl} \
     --sender ${signer} \
-    --sig "simulateRun(string)" ${config}
+    --sig "simulateRun(string)" ${config} -vvvv
 
 sign hdPath='0':
   #!/usr/bin/env bash
