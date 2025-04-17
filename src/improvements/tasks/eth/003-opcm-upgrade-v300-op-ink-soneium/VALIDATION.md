@@ -222,7 +222,7 @@ If signer is on foundation safe: `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`:
     Specifically, this simulation was ran as the nested safe `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`. To verify the slot yourself, run:
     - `res=$(cast index address 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 8)`
     - `cast index bytes32 0x0d1a3b425e64a0c9bd90f6933632c1cc0042896a1c5831ac8ef290cab8205e83 $res`
-    - Please note: the `0x0d1a3b425e64a0c9bd90f6933632c1cc0042896a1c5831ac8ef290cab8205e83` value is taken from the Tenderly simulation and this is the transaction hash of the `approveHash` call.
+    - Please note: the `0x0d1a3b425e64a0c9bd90f6933632c1cc0042896a1c5831ac8ef290cab8205e83` value is taken from the Terminal output and this is the transaction hash of the `approveHash` call.
 
 > [!IMPORTANT]
 > Security Council Only
@@ -237,7 +237,7 @@ OR if signer is on council safe: `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`:
     Specifically, this simulation was ran as the nested safe `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`. To verify the slot yourself, run:
     - `res=$(cast index address 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 8)`
     - `cast index bytes32 0x0d1a3b425e64a0c9bd90f6933632c1cc0042896a1c5831ac8ef290cab8205e83 $res`
-    - Please note: the `0x0d1a3b425e64a0c9bd90f6933632c1cc0042896a1c5831ac8ef290cab8205e83` value is taken from the Tenderly simulation and this is the transaction hash of the `approveHash` call.
+    - Please note: the `0x0d1a3b425e64a0c9bd90f6933632c1cc0042896a1c5831ac8ef290cab8205e83` value is taken from the Terminal output and this is the transaction hash of the `approveHash` call.
 
   ---
 
