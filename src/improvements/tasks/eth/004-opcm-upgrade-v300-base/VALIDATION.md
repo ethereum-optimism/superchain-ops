@@ -199,7 +199,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
     If this simulation was run as the child safe `0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A`:
     - `res=$(cast index address 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A 8)`
     - `cast index bytes32 0xf89e28c90e5fa13d7a53c649df4a92c7a227e435c7187b1ce12446c7820ab41f $res`
-    - returns `0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e`
+    - returns `0xe75bb0f2794963f76678258d624e347c3cdd277fc086090a6e78d346314954b7`
   - Please note: the `0xf89e28c90e5fa13d7a53c649df4a92c7a227e435c7187b1ce12446c7820ab41f` value is taken from the Tenderly simulation and this is the transaction hash of the `approveHash` call.
 
   ---
