@@ -693,6 +693,11 @@ library AccountAccessParser {
 
         // Iterate over the storage layout and look for the slot.
         for (uint256 i = 0; i < layout.length; i++) {
+            // If the slot is tightly packed do not decode it. Leave this as a task for the developer.
+            if (isSlotShared(layout, _slot)) {
+                return DecodedSlot({kind: "", oldValue: "", newValue: "", summary: "", detail: ""});
+            }
+
             if (vm.parseUint(layout[i]._slot) == uint256(_slot)) {
                 // Decode the 32-byte value based on the size and offset of the slot.
                 string memory kind = layout[i]._type;
@@ -722,6 +727,19 @@ library AccountAccessParser {
                 return DecodedSlot({kind: kind, oldValue: oldValue, newValue: newValue, summary: label, detail: ""});
             }
         }
+    }
+
+    /// @notice Returns true if a storage slot appears more than once in the layout, indicating tight packing.
+    /// A tightly packed (shared) slot is one reused by multiple storage variables.
+    function isSlotShared(JsonStorageLayout[] memory layout, bytes32 slot) internal pure returns (bool) {
+        uint256 occurrences = 0;
+        for (uint256 i = 0; i < layout.length; i++) {
+            if (vm.parseUint(layout[i]._slot) == uint256(slot)) {
+                occurrences++;
+                if (occurrences > 1) return true;
+            }
+        }
+        return false;
     }
 
     /// @notice Given the path to a JSON file and a target address, returns the first chain ID and

@@ -35,6 +35,7 @@ simulate hdPath='0':
     signer="{{signerAddress}}"
     echo "Using 'signerAddress' as signer: ${signer}"
   fi
+  echo ""
 
   # Allow simulating from a specific block by setting FORK_BLOCK_NUMBER in the task's .env file.
   # If not set (or set to -1), default to using the latest block.
