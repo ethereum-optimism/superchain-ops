@@ -1,6 +1,6 @@
 # 006-gas-params-op: (Ethereum) Increase gas target : OP Mainnet
 
-Status: TODO
+Status: [READY TO SIGN]()
 
 ## Objective
 
