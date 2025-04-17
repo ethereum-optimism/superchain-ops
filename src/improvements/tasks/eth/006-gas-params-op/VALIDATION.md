@@ -143,6 +143,12 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **Summary:** nonce increments from 23 to 24
   - **Detail:** Increments the SystemConfigOwner (FoundationUpgradesSafe) nonce
 
+### Nonce increments
+
+The only other state change are the nonce increments as follows:
+
+- sender-address - Sender address of the Tenderly transaction (Your ledger address).
+
 # Supplementary Material
 Figure 1: SystemConfig storage layout
 ![Storage Layout](./images/storage_layout.png)
