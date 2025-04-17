@@ -174,7 +174,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 - **Key:**          `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
   - **Before:**     `0x0000000000000000000000001661af719956198628f7e67087f19f8a79524a1d`
   - **After:**     `0x0000000000000000000000003d56d47b9e7e34a46612badc70377f74051e6b17`
-  - **Summary:** Updates the implementation for game type 1.
+  - **Summary:**  Set a new game implementation for game type [PERMISSIONED_CANNON](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/lib/Types.sol#L55)
   - **Detail:**  This is `gameImpls[1]` -> `0x3D56d47b9E7E34A46612BadC70377F74051E6b17`. The [`gameImpls` mapping](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is at [storage slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41) and is keyed by [`GameType` (`uint32`)](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224).
     - Confirm the expected key slot with the following:
       ```shell
