@@ -119,11 +119,10 @@ For each contract listed in the state diff, please verify that no contracts or s
 ### `0x229047fed2591dbec1ef1118d64f7af3db9eb290`  ([SystemConfig](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L59)) - Chain ID: 10
   
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000068`
-  - **Decoded Kind:** `uint64`
   - **Before:** `0x00000000000000000000000000000000000f79c50000146b0000000003938700`
   - **After:** `0x00000000000000000000000000000000000f79c50000146b0000000002625a00`
   - **Summary:** gasLimit changes from 60M -> 40M
-  - **Detail:** Sets the gas limit per op-mainnet block to 40M
+  - **Detail:** Sets the gas limit per op-mainnet block to 40M. ([Slot 104](#supplementary-material) contains this value)
   
 - **Key:** `0x000000000000000000000000000000000000000000000000000000000000006a`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -131,7 +130,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **Summary:** eip1559Denominator and eip1559Elasticity changes
   - **Detail:** Changes two params, which share the same storage slot.
       * Sets the eip1559Denominator to 250, which is no change from [the current default value used](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L27). We must set this value since we are also changing the eip1559Elasticity in the same tx. 
-      * Sets the eip1559Denominator to 2: it's currently using [the default value of 6](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L25).
+      * Sets the eip1559Denominator to 2: it's currently using [the default value of 6](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L25). ([Slot 106](#supplementary-material) contains these values)
   
   ---
   
@@ -143,3 +142,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **After:** `24`
   - **Summary:** nonce increments from 23 to 24
   - **Detail:** Increments the SystemConfigOwner (FoundationUpgradesSafe) nonce
+
+# Supplementary Material
+Figure 1: SystemConfig storage layout
+![Storage Layout](./images/storage_layout.png)
