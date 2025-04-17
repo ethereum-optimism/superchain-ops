@@ -903,6 +903,18 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         assertTrue(sortedDiffs[0].raw.slot < sortedDiffs[1].raw.slot, "Slots should be sorted");
     }
 
+    function test_tight_variable_packing_extractions_uint() public pure {
+        // [offset: 12, bytes: 4, value: 0x000f79c5, name: blobbasefeeScalar][offset: 8, bytes: 4, value: 0x0000146b, name: basefeeScalar] [offset: 0, bytes: 8, value: 60_000_000, name: gasLimit]
+        // Example taken from: lib/optimism/packages/contracts-bedrock/snapshots/storageLayout/SystemConfig.json (slot: 104)
+        bytes32 slotValue = bytes32(uint256(0x00000000000000000000000000000000000f79c50000146b0000000003938700));
+        string memory gasLimit = AccountAccessParser.toUint64(slotValue, 0);
+        assertEq(gasLimit, "60000000", "Failed to extract uint64 from bytes32");
+        string memory basefeeScalar = AccountAccessParser.toUint32(slotValue, 8);
+        assertEq(basefeeScalar, "5227", "Failed to extract uint32 from bytes32");
+        string memory blobbasefeeScalar = AccountAccessParser.toUint32(slotValue, 12);
+        assertEq(blobbasefeeScalar, "1014213", "Failed to extract uint32 from bytes32");
+    }
+
     function accountAccess(address _account, VmSafe.StorageAccess[] memory _storageAccesses)
         internal
         pure
