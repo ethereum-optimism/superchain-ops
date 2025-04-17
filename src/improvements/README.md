@@ -1,4 +1,4 @@
-# Superchain Operations Task System
+# Superchain-ops Task System
 
 A tooling system that enables developers to write and test tasks that simulate onchain state changes before execution.
 
@@ -30,13 +30,15 @@ just new task
 2. Configure the task in `config.toml`:
 ```toml
 l2chains = [{"name": "OP Mainnet", "chainId": 10}]
-templateName = "GasConfigTemplate"
+templateName = "<TEMPLATE_NAME>"
+
+# Add template-specific config here (note: the template structure can change based on the template type)
 ```
 
 3. Simulate the task:
 ```bash
 # Nested 
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate <foundation|council|chain-governor>
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate <foundation|council|chain-governor|child-safe-1|child-safe-2|child-safe-3>
 # Single 
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
 ```
