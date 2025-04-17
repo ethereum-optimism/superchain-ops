@@ -18,26 +18,10 @@ the values printed to the terminal when you run the task.
 >
 > Before signing, ensure the below hashes match what is on your ledger.
 >
-```
------------------- Single Multisig EOA Data to Sign ------------------
-  
-Data to sign:
-  vvvvvvvv
-  0x1901a4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b73267260635470abc96835e98346a9345dea820004b4360eefad78fbfe5a627bb33c81
-  ^^^^^^^^
-
-  ---------- ATTENTION SIGNERS ----------
-  Please verify that the 'Data to sign' displayed above matches:
-  1. The data shown in the Tenderly simulation.
-  2. The data shown on your hardware wallet.
-  This is a critical step. Do not skip this verification.
-  ---------------------------------------
-
------------------- Single Multisig EOA Hash to Approve ------------------
-  0x743dd706945320e177596c79787ef320b3edea48de695c69b3d4bea2810521d7
-  Domain Hash:     0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672
-  Message Hash:    0x60635470abc96835e98346a9345dea820004b4360eefad78fbfe5a627bb33c81
-```
+> ### FoundationUpgradeSafe: `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`
+>
+> - Domain Hash: `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
+> - Message Hash: `0x60635470abc96835e98346a9345dea820004b4360eefad78fbfe5a627bb33c81`
 
 ## Understanding Task Calldata
 
