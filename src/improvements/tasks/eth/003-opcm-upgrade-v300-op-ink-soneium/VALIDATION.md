@@ -165,7 +165,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   - **After:**     `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Summary:**  `isRC` storage slot updated to 0.
     - **Detail:**  Once OPContractsManager is upgraded, the `isRC` flag is set to false.
-                   This happens in the first invocation of the `upgrade` function. Please refer to `'Figure 0.1'` at the end of this report for the storage layout of OPContractsManager (slot 1 is the `isRC` flag).
+                   This happens in the first invocation of the `upgrade` function. Please refer to `'Figure 0.1'` at the end of this report for the storage layout of OPContractsManager ([slot 1](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/snapshots/storageLayout/OPContractsManager.json#L16) is the `isRC` flag).
 
   ---
 
