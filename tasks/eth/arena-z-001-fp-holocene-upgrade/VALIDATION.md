@@ -81,5 +81,5 @@ Cannon Absolute prestate hash:
 Cannon64 Absolute prestate hash: 
 0x03394563dd4a36e95e6d51ce7267ecceeb05fad23e68d2f9eed1affa73e5641a
 CannonInterop Absolute prestate hash: 
-0x03a806c966e97816f1ff8d4f04a8ec823099e8f9c32e1d0cfca814f545b85115
+0x03ada038f8a81526c68596586dfc762eb5412d4d5bb7cb46110d8c47ee570d7e
 ```
