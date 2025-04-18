@@ -59,7 +59,7 @@ simulate whichSafe hdPath='0':
   forge build
   forge script ${script} \
     ${fork_block_arg} \
-    --rpc-url ${ANVIL_LOCALHOST_RPC} \
+    --rpc-url ${rpcUrl} \
     --sender ${signer} \
     --sig "simulateAsSigner(string,address)" \
     ${config} \
