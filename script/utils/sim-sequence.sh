@@ -1,6 +1,5 @@
 #!/bin/bash
 set -euo pipefail
-#set -x 
 if [[ -z "${TMPDIR:-}" ]]; then # Set a default value if TMPDIR is not set useful for the CI for example.
   TMPDIR=/tmp
 fi
@@ -356,41 +355,6 @@ DisplaySafeBeforeNoncesv20() {
             log_info "Unichain Owner Safe (UOS) [$Unichain_Owner_Safe] on-chain nonce: $UOS_BEFORE (not in env file)"
           fi
     fi
-}
-
-DisplaySafeBeforev20() {
-  echo -e "\n$1"
-  
-  if [[ "$IS_SEPOLIA" == "TRUE" ]]; then
-    # Handle Sepolia safes
-    local all_safes=(
-      "$Fake_Foundation_Upgrade_Safe:FUS:Foundation Upgrade Safe"
-      "$Fake_Foundation_Operation_Safe:FOS:Foundation Operation Safe"
-      "$Fake_Security_Council_Safe:SC:Security Council Safe"
-      "$Fake_Proxy_Admin_Owner_Safe:L1PAO:L1 Proxy Admin Owner Safe"
-    )
-  else
-    # Handle mainnet safes
-    local all_safes=(
-      "$Foundation_Upgrade_Safe:FUS:Foundation Upgrade Safe"
-      "$Foundation_Operation_Safe:FOS:Foundation Operation Safe"
-      "$Security_Council_Safe:SC:Security Council Safe"
-      "$Proxy_Admin_Owner_Safe:L1PAO:L1 Proxy Admin Owner Safe"
-      "$Base_Proxy_Admin_Owner_safe:BL1PAO:Base Proxy Admin Owner Safe"
-      "$Base_Owner_Safe:BOS:Base Owner Safe"
-      "$Unichain_3of3_Safe:U3:Unichain 3of3 Safe"
-      "$Unichain_Owner_Safe:UOS:Unichain Owner Safe"
-    )
-  fi
-  
-  # Display current nonce for all safes
-  for safe_info in "${all_safes[@]}"; do
-    IFS=':' read -r safe_addr var_name safe_name <<< "$safe_info"
-    local current_nonce=$(cast call $safe_addr "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
-    # Set the corresponding variable
-    eval "${var_name}_BEFORE=$current_nonce"
-    echo "[+] $(date '+%Y-%m-%d %H:%M:%S') $safe_name ($var_name) [$safe_addr] current nonce: $current_nonce"
-  done
 }
 
 DisplaySafeBeforeNonces() {
@@ -1244,93 +1208,109 @@ for task_folder in "${task_folders[@]}"; do
         /parentMultisig:/ {multisig=$3}
         END {print bool, multisig}
     ')
-    echo "Bool value: $bool_value"
-    echo "Parent Multisig: $parent_multisig"
     cd "${task_folder}" # change the directory to the task folder to run the justfile from the task folder
     if [[ $bool_value == "true" ]]; then
       log_info "This is a nested task. This is using the superchain-ops v2.0"
       # We iterate over the [addresses] section of the config.toml file and for each childsafe or foundation or council we execute the command.
       read_addresses "${task_folder}/config.toml" | while read -r key value; do
-        log_warning "Processing $key with address $value"
+
         case $key in 
           "ChildSafe1")
+            log_info "Processing $key with address $value"
+            set +e
             approvalhash_result=$(just \
               --justfile "${root_dir}/src/improvements/nested.just" \
-              approvehash_in_anvil2 child-safe-1 $parent_multisig)
-            if [[ $approvalhash_result == *"not enough signatures"* ]]; then
-              log_error "Execution contains not enough signatures: meaning the task $task_folder failed during the child-safe-1 approval, please check the nonces below:"
+              approvehash_in_anvil2 child-safe-1 $parent_multisig 2>&1)
+            set -e
+            if [[ $approvalhash_result == *"Signature is incorrect"* || $approvalhash_result == *"revert"* ]]; then
+              log_error "Nonce is invalid for $task_folder for child-safe-1 approval, please check the nonces below:"
               log_nonce_error
               exit 99
             fi
           ;;
           "ChildSafe2")
+            log_info "Processing $key with address $value"
+            set +e
             approvalhash_result=$(just \
               --justfile "${root_dir}/src/improvements/nested.just" \
-              approvehash_in_anvil2 child-safe-2 $parent_multisig)
-            if [[ $approvalhash_result == *"not enough signatures"* ]]; then
-              log_error "Execution contains not enough signatures: meaning the task $task_folder failed during the child-safe-2 approval, please check the nonces below:"
+              approvehash_in_anvil2 child-safe-2 $parent_multisig 2>&1)
+            set -e
+            if [[ $approvalhash_result == *"Signature is incorrect"* || $approvalhash_result == *"revert"* ]]; then
+              log_error "Nonce is invalid for $task_folder for child-safe-2 approval, please check the nonces below:"
               log_nonce_error
               exit 99
             fi
           ;;
           "ChildSafe3")
+            log_info "Processing $key with address $value"
+            set +e
             approvalhash_result=$(just \
               --justfile "${root_dir}/src/improvements/nested.just" \
-              approvehash_in_anvil2 child-safe-3 $parent_multisig)
-            if [[ $approvalhash_result == *"not enough signatures"* ]]; then
-              log_error "Execution contains not enough signatures: meaning the task $task_folder failed during the child-safe-3 approval, please check the nonces below:"
+              approvehash_in_anvil2 child-safe-3 $parent_multisig 2>&1)
+            set -e
+            if [[ $approvalhash_result == *"Signature is incorrect"* || $approvalhash_result == *"revert"* ]]; then
+              log_error "Nonce is invalid for $task_folder for child-safe-3 approval, please check the nonces below:"
               log_nonce_error
               exit 99
             fi
           ;;
           "FoundationUpgradeSafe")
+            log_info "Processing $key with address $value"
+            set +e
             approvalhash_result=$(just \
               --justfile "${root_dir}/src/improvements/nested.just" \
-              approvehash_in_anvil2 foundation $parent_multisig)
-            if [[ $approvalhash_result == *"not enough signatures"* ]]; then
-              log_error "Execution contains not enough signatures: meaning the task $task_folder failed during the foundation approval, please check the nonces below:"
+              approvehash_in_anvil2 foundation $parent_multisig 2>&1)
+            set -e
+            if [[ $approvalhash_result == *"Signature is incorrect"* || $approvalhash_result == *"revert"* ]]; then
+             log_error "Nonce is invalid for $task_folder for foundation approval, please check the nonces below:"
               log_nonce_error
               exit 99
             fi
           ;;
           "SecurityCouncil")
+            log_info "Processing $key with address $value"
+            set +e
             approvalhash_result=$(just \
-             --justfile "${root_dir}/src/improvements/nested.just" \
-              approvehash_in_anvil2 council $parent_multisig)
-            if [[ $approvalhash_result == *"not enough signatures"* ]]; then
-              log_error "Execution contains not enough signatures: meaning the task $task_folder failed during the council approval, please check the nonces below:"
+              --justfile "${root_dir}/src/improvements/nested.just" \
+              approvehash_in_anvil2 council $parent_multisig 2>&1)
+            set -e
+            if [[ $approvalhash_result == *"Signature is incorrect"* || $approvalhash_result == *"revert"* ]]; then
+             log_error "Nonce is invalid for $task_folder for council approval, please check the nonces below:"
               log_nonce_error
               exit 99
             fi
             ;;
           "FoundationOperations")
+            log_info "Processing $key with address $value"
+            set +e
             approvalhash_result=$(just \
               --justfile "${root_dir}/src/improvements/nested.just" \
-              approvehash_in_anvil2 foundation $parent_multisig)
-            if [[ $approvalhash_result == *"not enough signatures"* ]]; then
-              log_error "Execution contains not enough signatures: meaning the task $task_folder failed during the foundation approval, please check the nonces below:"
+              approvehash_in_anvil2 foundation $parent_multisig 2>&1)
+            set -e
+            if [[ $approvalhash_result == *"Signature is incorrect"* || $approvalhash_result == *"revert"* ]]; then
+             log_error "Nonce is invalid for $task_folder for foundation approval, please check the nonces below:"
               log_nonce_error
               exit 99
             fi
         esac
       done
 
-      execution=$(just --justfile "${root_dir}/src/improvements/nested.just" execute_in_anvil)
-
-      echo "execution: $execution"
+      execution=$(just --justfile "${root_dir}/src/improvements/nested.just" execute_in_anvil &>2)
       else
         log_info "This is a single task. This is using the superchain-ops v2.0"
+        set +e
         approval=$(just \
           --justfile "${root_dir}/src/improvements/single.just" \
-          sign_and_execute_in_anvil $parent_multisig)
-        if [[ $approval == *"not enough signatures"* ]]; then
-          log_error "Execution contains not enough signatures: meaning the task $task_folder failed during the council approval, please check the nonces below:"
+          sign_and_execute_in_anvil $parent_multisig &>2)
+        set -e
+        if [[ $approval == *"not enough signatures"* || $approval == *"revert"* ]]; then
+          log_error "Nonce is invalid for $task_folder for council approval, please check the nonces below:"
           log_nonce_error
           exit 99
         fi
       fi
     fi
-
+  set -e
   sleep 0.2
   NonceDisplayModified "(🟩) After Simulation Nonce Values (🟩)"
   echo -e "\n---- End of Simulation for task \"$(basename "$task_folder")\" ----"
