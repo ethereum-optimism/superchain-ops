@@ -337,7 +337,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
     /// @notice Print the hash to approve by EOA for parent/root multisig.
     function printParentHash(bytes memory callData) public view {
-        console.logBytes32(getHash(callData, parentMultisig));
+        console.log("Safe Transaction Hash: ", vm.toString(getHash(callData, parentMultisig)));
 
         bytes memory encodedTxData = getEncodedTransactionData(parentMultisig, callData);
         bytes32 domainSeparator = GnosisSafeHashes.calculateDomainSeparator(block.chainid, parentMultisig);

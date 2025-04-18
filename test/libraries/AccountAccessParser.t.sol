@@ -915,6 +915,46 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         assertEq(blobbasefeeScalar, "1014213", "Failed to extract uint32 from bytes32");
     }
 
+    function test_EmptyLayout() public pure {
+        AccountAccessParser.JsonStorageLayout[] memory layout = new AccountAccessParser.JsonStorageLayout[](0);
+        assertEq(AccountAccessParser.isSlotShared(layout, 0), false);
+    }
+
+    function test_SingleSlotNotShared() public pure {
+        AccountAccessParser.JsonStorageLayout[] memory layout = new AccountAccessParser.JsonStorageLayout[](1);
+        layout[0] = AccountAccessParser.JsonStorageLayout("32", "a", 0, "0", "uint256");
+        assertEq(AccountAccessParser.isSlotShared(layout, 0), false);
+    }
+
+    function test_SharedSlot() public pure {
+        AccountAccessParser.JsonStorageLayout[] memory layout = new AccountAccessParser.JsonStorageLayout[](2);
+        layout[0] = AccountAccessParser.JsonStorageLayout("32", "a", 0, "0", "uint256");
+        layout[1] = AccountAccessParser.JsonStorageLayout("32", "b", 32, "0", "uint256");
+        assertEq(AccountAccessParser.isSlotShared(layout, 0), true);
+    }
+
+    function test_HexSlotFormat() public pure {
+        AccountAccessParser.JsonStorageLayout[] memory layout = new AccountAccessParser.JsonStorageLayout[](2);
+        layout[0] = AccountAccessParser.JsonStorageLayout("32", "a", 0, "0x0", "uint256");
+        layout[1] = AccountAccessParser.JsonStorageLayout("32", "b", 32, "0x0", "uint256");
+        assertEq(AccountAccessParser.isSlotShared(layout, 0), true);
+    }
+
+    function test_NonExistentSlot() public pure {
+        AccountAccessParser.JsonStorageLayout[] memory layout = new AccountAccessParser.JsonStorageLayout[](2);
+        layout[0] = AccountAccessParser.JsonStorageLayout("32", "a", 0, "1", "uint256");
+        layout[1] = AccountAccessParser.JsonStorageLayout("32", "b", 32, "2", "uint256");
+        assertEq(AccountAccessParser.isSlotShared(layout, 0), false);
+    }
+
+    function test_MultipleOccurrences() public pure {
+        AccountAccessParser.JsonStorageLayout[] memory layout = new AccountAccessParser.JsonStorageLayout[](3);
+        layout[0] = AccountAccessParser.JsonStorageLayout("32", "a", 0, "0", "uint256");
+        layout[1] = AccountAccessParser.JsonStorageLayout("32", "b", 32, "0", "uint256");
+        layout[2] = AccountAccessParser.JsonStorageLayout("32", "c", 64, "0", "uint256");
+        assertEq(AccountAccessParser.isSlotShared(layout, 0), true);
+    }
+
     function accountAccess(address _account, VmSafe.StorageAccess[] memory _storageAccesses)
         internal
         pure
