@@ -110,9 +110,13 @@ approve whichSafe hdPath='0':
 
 approve_in_anvil whichSafe signature:
   #!/usr/bin/env bash
+  # set -x
   # Get the appropriate safe address based on whichSafe
   safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
-
+  threshold=$(cast call $safe "getThreshold()(uint256)" --rpc-url ${ANVIL_LOCALHOST_RPC})
+  echo "Threshold: $threshold"
+  getOwners=$(cast call $safe "getOwners()(address[])" --rpc-url ${ANVIL_LOCALHOST_RPC})
+  echo "Owners: $getOwners"
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
   sender=$(cast wallet address --private-key ${PRIVATE_KEY_EXECUTOR})
@@ -186,19 +190,22 @@ simulated-run hdPath='0':
     "0x"
 
 
-approvehash_in_anvil2 whichSafe hdPath='0':
+approvehash_in_anvil2 whichSafe parentSafe:
   #!/usr/bin/env bash
+  # set -x
   # Get the appropriate safe address based on whichSafe
-
-
   safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
   echo "safe: $safe"
+  if [ -z "$safe" ]; then
+    echo "Error: safe is empty"
+    exit 1
+  fi
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
   
   sender=$(cast wallet address --private-key ${PRIVATE_KEY_OWNER})
-  ownerSafe=${safe}
-  echo "============ OVERRIDE SAFES SETTINGS Parent Safe:'${ownerSafe}' & Child Safe: '${safe}' ============"
+  
+  echo "============ OVERRIDE SAFES SETTINGS Parent Safe:'{{parentSafe}}' & Child Safe: '${safe}' ============"
   echo "1. Set the threshold to 1 of the child safe."
   cast rpc anvil_setStorageAt ${safe} 0x0000000000000000000000000000000000000000000000000000000000000004 0x0000000000000000000000000000000000000000000000000000000000000001 --rpc-url ${ANVIL_LOCALHOST_RPC}
 
