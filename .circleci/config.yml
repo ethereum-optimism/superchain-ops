@@ -561,6 +561,13 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
 
+      # Gas Params Upgrade - FoundationUpgradeSafe
+      - just_simulate_single_improvements:
+          name: "simulate single eth/006-gas-params-op"
+          task: "/eth/006-gas-params-op"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
       - just_simulate_nested:
           task: "/eth/zora-002-fp-upgrade"
           context:
