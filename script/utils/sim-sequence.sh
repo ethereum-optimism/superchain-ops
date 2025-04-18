@@ -245,7 +245,7 @@ DisplaySafeBeforeNoncesv20() {
                 log_info "Fake Foundation Upgrade Safe (FUS) [$Foundation_Upgrade_Safe] on-chain nonce: $FUS_BEFORE, env nonce: $FUS_NONCE_CONFIG: $FUS_BEFORE == $FUS_NONCE_CONFIG"
               fi
             else 
-              echo "[+] $(date '+%Y-%m-%d %H:%M:%S')Fake Foundation Upgrade Safe (FUS) [$Foundation_Upgrade_Safe] on-chain nonce: $FUS_BEFORE (not in env file)"
+              echo "[+] $(date '+%Y-%m-%d %H:%M:%S') Fake Foundation Upgrade Safe (FUS) [$Foundation_Upgrade_Safe] on-chain nonce: $FUS_BEFORE (not in env file)"
             fi
             FOS_BEFORE=$(cast call $Fake_Foundation_Operation_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
             if [[ $FOS_NONCE_CONFIG -ne $MAX_NONCE_ERROR ]]; then
@@ -255,7 +255,7 @@ DisplaySafeBeforeNoncesv20() {
                 log_info "Fake Foundation Operation Safe (FOS) [$Fake_Foundation_Operation_Safe] on-chain nonce: $FOS_BEFORE, env nonce: $FOS_NONCE_CONFIG: $FOS_BEFORE == $FOS_NONCE_CONFIG"
               fi
             else 
-              echo "[+] $(date '+%Y-%m-%d %H:%M:%S')Fake Foundation Operation Safe (FOS) [$Fake_Foundation_Operation_Safe] on-chain nonce: $FOS_BEFORE (not in env file)"
+              echo "[+] $(date '+%Y-%m-%d %H:%M:%S') Fake Foundation Operation Safe (FOS) [$Fake_Foundation_Operation_Safe] on-chain nonce: $FOS_BEFORE (not in env file)"
             fi
             SC_BEFORE=$(cast call $Fake_Security_Council_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
             if [[ $SC_NONCE_CONFIG -ne $MAX_NONCE_ERROR ]]; then
@@ -265,7 +265,7 @@ DisplaySafeBeforeNoncesv20() {
                 log_info "Fake Security Council Safe (SC) [$Fake_Security_Council_Safe] on-chain nonce: $SC_BEFORE, env nonce: $SC_NONCE_CONFIG: $SC_BEFORE == $SC_NONCE_CONFIG"
               fi
             else 
-              log_debug "Fake Security Council Safe (SC) [$Fake_Security_Council_Safe] on-chain nonce: $SC_BEFORE (not in env file)"
+              echo "[+] $(date '+%Y-%m-%d %H:%M:%S') Fake Security Council Safe (SC) [$Fake_Security_Council_Safe] on-chain nonce: $SC_BEFORE (not in env file)"
             fi
             L1PAO_BEFORE=$(cast call $Fake_Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
             if [[ $L1PAO_NONCE_CONFIG -ne $MAX_NONCE_ERROR ]]; then
