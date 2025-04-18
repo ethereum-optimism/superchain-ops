@@ -229,7 +229,7 @@ approvehash_in_anvil2 whichSafe parentSafe:
   # Using the eip712sign within the repo folder since eip712sign was installed there in ./justfile.
   # We remove the 2 first characters of the private key ${PRIVATE_KEY_OWNER}
   privateKey=${PRIVATE_KEY_OWNER:2}
-  res_sig=$(eip712sign --private-key ${privateKey}  -- \
+  res_sig=$($(git rev-parse --show-toplevel)/bin/eip712sign --private-key ${privateKey}  -- \
   forge script ${script} \
     --rpc-url ${ANVIL_LOCALHOST_RPC} \
     --sig "signFromChildMultisig(string,address)" \

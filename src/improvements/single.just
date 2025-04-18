@@ -137,7 +137,7 @@ sign_and_execute_in_anvil parentSafe:
   # sender=$(cast wallet address --private-key  0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80)
   forge build
   # Using the eip712sign within the repo folder since eip712sign was installed there in ./justfile.
-  signature=$(eip712sign --private-key ${PRIVATE_KEY_OWNER:2} -- \
+  signature=$($(git rev-parse --show-toplevel)/bin/eip712sign --private-key ${PRIVATE_KEY_OWNER:2} -- \
   forge script ${script} \
     --rpc-url ${ANVIL_LOCALHOST_RPC} \
     --sig "simulateRun(string)" ${config})
