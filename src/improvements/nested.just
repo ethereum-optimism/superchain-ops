@@ -192,7 +192,9 @@ simulated-run hdPath='0':
 
 approvehash_in_anvil2 whichSafe parentSafe:
   #!/usr/bin/env bash
-  # set -x
+  #set -x
+  # Disable exit on error temporarily
+  
   # Get the appropriate safe address based on whichSafe
   safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
   echo "safe: $safe"
@@ -222,11 +224,7 @@ approvehash_in_anvil2 whichSafe parentSafe:
   cast rpc anvil_setStorageAt ${safe} 0xbc40fbf4394cd00f78fae9763b0c2c71b21ea442c42fdadc5b720537240ebac1  0x0000000000000000000000000000000000000000000000000000000000000001 --rpc-url ${ANVIL_LOCALHOST_RPC}
   echo "The sole Owner of the \"${safe}\" is: $(cast call ${safe}  "getOwners()(address[])" --rpc-url http://localhost:8545)"
   echo "================================================"
-  
   forge build
-
-  
-
   # Using the eip712sign within the repo folder since eip712sign was installed there in ./justfile.
   # We remove the 2 first characters of the private key ${PRIVATE_KEY_OWNER}
   privateKey=${PRIVATE_KEY_OWNER:2}
@@ -246,9 +244,14 @@ approvehash_in_anvil2 whichSafe parentSafe:
       echo "[ERROR] No signature found extracted from signFromChildMultisig(string,address)"
       exit 1
   fi
-  echo $(pwd)
   cd ${TASK_PATH}
-  just --justfile ${SCRIPT_PATH}/nested.just approve_in_anvil {{whichSafe}} ${signature}
+  
+  # Run the command and capture both stdout and stderr
+  approve_res=$(just --justfile ${SCRIPT_PATH}/nested.just approve_in_anvil {{whichSafe}} ${signature} 2>&1)
+  if [[ $approve_res == *"not enough signatures"* ]]; then
+    echo "Signature is incorrect"
+    exit 100
+  fi
 
 
 execute_in_anvil:
