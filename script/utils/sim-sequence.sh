@@ -1283,7 +1283,7 @@ for task_folder in "${task_folders[@]}"; do
               exit 99
             fi
           ;;
-          "FoundationUpgrade")
+          "FoundationUpgradeSafe")
             approvalhash_result=$(just \
               --justfile "${root_dir}/src/improvements/nested.just" \
               approvehash_in_anvil2 foundation $parent_multisig)
