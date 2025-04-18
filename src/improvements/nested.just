@@ -70,6 +70,7 @@ sign whichSafe hdPath='0':
   # Get the appropriate safe address based on whichSafe
   safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
 
+  export SIGNING_MODE_IN_PROGRESS=true
 
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol

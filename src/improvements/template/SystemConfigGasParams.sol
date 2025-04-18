@@ -5,7 +5,6 @@ import {VmSafe} from "forge-std/Vm.sol";
 
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
-import {console} from "forge-std/console.sol";
 
 interface ISystemConfig {
     function setGasLimit(uint64 _gasLimit) external;

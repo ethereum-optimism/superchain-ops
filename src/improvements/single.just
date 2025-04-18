@@ -42,6 +42,7 @@ simulate hdPath='0':
     signer="{{signerAddress}}"
     echo "Using 'signerAddress' as signer: ${signer}"
   fi
+  echo ""
 
   # Allow simulating from a specific block by setting FORK_BLOCK_NUMBER in the tasks .env file.
   # If not set (or set to -1), default to using the latest block.
@@ -67,6 +68,8 @@ sign hdPath='0':
   echo "script name: ${SCRIPT_NAME}"
   echo "task path: ${TASK_PATH}"
   echo "script path: ${SCRIPT_PATH}"
+
+  export SIGNING_MODE_IN_PROGRESS=true
 
   echo "Using script ${script}"
   echo "getting signer address..."

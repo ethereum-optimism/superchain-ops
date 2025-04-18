@@ -7,6 +7,8 @@ import {stdJson} from "forge-std/StdJson.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {LibSort} from "@solady/utils/LibSort.sol";
+import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {Utils} from "src/libraries/Utils.sol";
 
 /// @notice Parses account accesses into decoded transfers and state diffs.
 /// The core methods intended to be part of the public interface are `decodeAndPrint`, `decode`,
@@ -135,10 +137,15 @@ library AccountAccessParser {
     // ==============================================================
 
     /// @notice Convenience function that wraps decode and print together.
-    function decodeAndPrint(VmSafe.AccountAccess[] memory _accesses) internal view {
+    function decodeAndPrint(VmSafe.AccountAccess[] memory _accesses, address _multisig, bytes32 _txHash)
+        internal
+        view
+    {
         // We always want to sort all state diffs before printing them.
         (DecodedTransfer[] memory transfers, DecodedStateDiff[] memory stateDiffs) = decode(_accesses, true);
-        print(transfers, stateDiffs);
+        if (!Utils.isFeatureEnabled("SIGNING_MODE_IN_PROGRESS")) {
+            print(transfers, stateDiffs, _multisig, _txHash);
+        }
     }
 
     /// @notice Decodes the provided AccountAccess array into decoded transfers and state diffs.
@@ -353,11 +360,12 @@ library AccountAccessParser {
     }
 
     /// @notice Prints the decoded transfers and state diffs to the console.
-    function print(DecodedTransfer[] memory _transfers, DecodedStateDiff[] memory _stateDiffs)
-        internal
-        view
-        noGasMetering
-    {
+    function print(
+        DecodedTransfer[] memory _transfers,
+        DecodedStateDiff[] memory _stateDiffs,
+        address _multisig,
+        bytes32 _txHash
+    ) internal view noGasMetering {
         console.log("\n----------------- Task Transfers -------------------");
         if (_transfers.length == 0) {
             console.log("No ETH or ERC20 transfers.");
@@ -375,13 +383,17 @@ library AccountAccessParser {
         console.log("\n----------------- Task State Changes -------------------");
         console.log("\n--- Attention: Copy content below this line into the VALIDATION.md file. ---");
         require(_stateDiffs.length > 0, "No state changes found, this is unexpected.");
-        printMarkdown(_stateDiffs);
+        printMarkdown(_stateDiffs, _multisig, _txHash);
         console.log("\n\n --- Attention: Copy content above this line into the VALIDATION.md file. ---");
     }
 
     /// @notice Prints the decoded state diffs to the console in markdown format.
     /// This markdown is intended to be copied into the VALIDATION.md file.
-    function printMarkdown(DecodedStateDiff[] memory _stateDiffs) internal view noGasMetering {
+    function printMarkdown(DecodedStateDiff[] memory _stateDiffs, address _multisig, bytes32 _txHash)
+        internal
+        view
+        noGasMetering
+    {
         address currentAddress = address(0xdead);
         for (uint256 i = 0; i < _stateDiffs.length; i++) {
             if (currentAddress != _stateDiffs[i].who) {
@@ -414,7 +426,11 @@ library AccountAccessParser {
                 console.log("- **Summary:**           %s", state.decoded.summary);
                 console.log("- **Detail:**            %s", state.decoded.detail);
             }
-            console.log("\n**<TODO: Insert links for this state change then remove this line.>**\n");
+            console.log("\n**<TODO: Insert links for this state change then remove this line.>**");
+            if (state.who == _multisig) {
+                // May need to log additional information here about approveHash writes.
+                printApproveHashInfo(_multisig, _txHash, state.raw.slot);
+            }
         }
     }
 
@@ -571,8 +587,8 @@ library AccountAccessParser {
         if (_slot == START_BLOCK_SLOT) {
             return DecodedSlot({
                 kind: "uint256",
-                oldValue: toUint(_oldValue),
-                newValue: toUint(_newValue),
+                oldValue: toUint256(_oldValue),
+                newValue: toUint256(_newValue),
                 summary: "Start block",
                 detail: "Unstructured storage slot for the start block number."
             });
@@ -620,8 +636,8 @@ library AccountAccessParser {
         if (_slot == REQUIRED_SLOT) {
             return DecodedSlot({
                 kind: "uint256",
-                oldValue: toUint(_oldValue),
-                newValue: toUint(_newValue),
+                oldValue: toUint256(_oldValue),
+                newValue: toUint256(_newValue),
                 summary: "Required protocol version",
                 detail: "Unstructured storage slot for the required protocol version."
             });
@@ -629,8 +645,8 @@ library AccountAccessParser {
         if (_slot == RECOMMENDED_SLOT) {
             return DecodedSlot({
                 kind: "uint256",
-                oldValue: toUint(_oldValue),
-                newValue: toUint(_newValue),
+                oldValue: toUint256(_oldValue),
+                newValue: toUint256(_newValue),
                 summary: "Recommended protocol version",
                 detail: "Unstructured storage slot for the recommended protocol version."
             });
@@ -693,6 +709,11 @@ library AccountAccessParser {
 
         // Iterate over the storage layout and look for the slot.
         for (uint256 i = 0; i < layout.length; i++) {
+            // If the slot is tightly packed do not decode it. Leave this as a task for the developer.
+            if (isSlotShared(layout, _slot)) {
+                return DecodedSlot({kind: "", oldValue: "", newValue: "", summary: "", detail: ""});
+            }
+
             if (vm.parseUint(layout[i]._slot) == uint256(_slot)) {
                 // Decode the 32-byte value based on the size and offset of the slot.
                 string memory kind = layout[i]._type;
@@ -705,15 +726,36 @@ library AccountAccessParser {
                 } else if (kind.eq("address")) {
                     oldValue = toAddress(_oldValue, offset);
                     newValue = toAddress(_newValue, offset);
-                } else if (kind.contains("uint")) {
-                    oldValue = toUint(_oldValue, offset);
-                    newValue = toUint(_newValue, offset);
+                    // We're not exhaustively handling all uint types here.
+                    // We will add more as needed.
+                } else if (kind.contains("uint32")) {
+                    oldValue = toUint32(_oldValue, offset);
+                    newValue = toUint32(_newValue, offset);
+                } else if (kind.contains("uint64")) {
+                    oldValue = toUint64(_oldValue, offset);
+                    newValue = toUint64(_newValue, offset);
+                } else if (kind.contains("uint256")) {
+                    oldValue = toUint256(_oldValue, offset);
+                    newValue = toUint256(_newValue, offset);
                 }
 
                 string memory label = layout[i]._label;
                 return DecodedSlot({kind: kind, oldValue: oldValue, newValue: newValue, summary: label, detail: ""});
             }
         }
+    }
+
+    /// @notice Returns true if a storage slot appears more than once in the layout, indicating tight packing.
+    /// A tightly packed (shared) slot is one reused by multiple storage variables.
+    function isSlotShared(JsonStorageLayout[] memory layout, bytes32 slot) internal pure returns (bool) {
+        uint256 occurrences = 0;
+        for (uint256 i = 0; i < layout.length; i++) {
+            if (vm.parseUint(layout[i]._slot) == uint256(slot)) {
+                occurrences++;
+                if (occurrences > 1) return true;
+            }
+        }
+        return false;
     }
 
     /// @notice Given the path to a JSON file and a target address, returns the first chain ID and
@@ -768,10 +810,12 @@ library AccountAccessParser {
 
         // Log a warning if the address is not found in the superchain-registry. The superchain-registry usually lags
         // behind the latest release and it's expected that some addresses are not yet registered.
-        console.log(
-            "\x1B[33m[WARN]\x1B[0m Target address not found in superchain-registry (this message is safe to ignore): %s",
-            vm.toString(target)
-        );
+        if (!Utils.isFeatureEnabled("SIGNING_MODE_IN_PROGRESS")) {
+            console.log(
+                "\x1B[33m[WARN]\x1B[0m Target address not found in superchain-registry (this message is safe to ignore): %s",
+                vm.toString(target)
+            );
+        }
         return (0, "");
     }
 
@@ -796,6 +840,35 @@ library AccountAccessParser {
         return ok && data.length == 32;
     }
 
+    /// @notice Prints information about the `approveHash` state changes.
+    /// During local simulation, we call `approveHash` for each multisig owner.
+    /// In some GnosisSafe versions, the `approveHash` mapping resets to zero during execution.
+    /// These state changes are normal in simulation but uncommon in production, where signers typically provide signatures directly.
+    /// This function prints more information for the task developer to understand the state changes when writing each task's VALIDATION.md file.
+    function printApproveHashInfo(address _multisig, bytes32 _hash, bytes32 _slot) internal view {
+        // Pre-calculate all hash approval slots
+        address[] memory owners = IGnosisSafe(_multisig).getOwners();
+        bytes32[] memory hashSlots = new bytes32[](owners.length);
+        for (uint256 i = 0; i < owners.length; i++) {
+            bytes32 ownerSlot = keccak256(abi.encode(owners[i], uint256(8)));
+            hashSlots[i] = keccak256(abi.encode(_hash, ownerSlot));
+        }
+
+        for (uint256 k = 0; k < hashSlots.length; k++) {
+            if (_slot == hashSlots[k]) {
+                console.log(
+                    "\n**<TODO: This slot is an approveHash write for the owner %s on the multisig: %s>**",
+                    vm.toString(owners[k]),
+                    vm.toString(_multisig)
+                );
+                console.log(
+                    "\n**<TODO: Consider removing this write from state changes in the VALIDATION.md file (Note: please ask internally if you are unsure).>**\n"
+                );
+                break;
+            }
+        }
+    }
+
     function toBool(bytes32 _value) internal pure returns (string memory) {
         return toBool(_value, 0);
     }
@@ -813,11 +886,19 @@ library AccountAccessParser {
         return vm.toString(address(uint160(uint256(_value) >> (_offset * 8))));
     }
 
-    function toUint(bytes32 _value) internal pure returns (string memory) {
-        return toUint(_value, 0);
+    function toUint256(bytes32 _value) internal pure returns (string memory) {
+        return toUint256(_value, 0);
     }
 
-    function toUint(bytes32 _value, uint256 _offset) internal pure returns (string memory) {
+    function toUint256(bytes32 _value, uint256 _offset) internal pure returns (string memory) {
         return vm.toString(uint256(_value) >> (_offset * 8));
+    }
+
+    function toUint32(bytes32 _value, uint256 _offset) internal pure returns (string memory) {
+        return vm.toString(uint32(uint256(_value) >> (_offset * 8)));
+    }
+
+    function toUint64(bytes32 _value, uint256 _offset) internal pure returns (string memory) {
+        return vm.toString(uint64(uint256(_value) >> (_offset * 8)));
     }
 }

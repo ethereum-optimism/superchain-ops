@@ -84,10 +84,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 
 ## Single Safe State Overrides and Changes
 
-This task is executed by the single `ProxyAdminOwner` Safe. Refer to the [generic single Safe execution validation document](../../../../../SINGLE-VALIDATION.md)
-for the expected state overrides and changes.
-
-Additionally, Safe-related nonces [will increment by one](../../../../../SINGLE-VALIDATION.md#nonce-increments).
+Note: The changes listed below do not include threshold, nonce and owner mapping overrides. These changes are listed and explained in the [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md) file.
 
 ## Other Nonces
 
