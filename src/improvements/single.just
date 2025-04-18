@@ -61,6 +61,8 @@ sign hdPath='0':
   echo "task path: ${TASK_PATH}"
   echo "script path: ${SCRIPT_PATH}"
 
+  export SIGNING_MODE_IN_PROGRESS=true
+
   echo "Using script ${script}"
   echo "getting signer address..."
   signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
