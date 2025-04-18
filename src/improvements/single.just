@@ -99,7 +99,6 @@ execute hdPath='0':
 
 sign_and_execute_in_anvil parentSafe:
   #!/usr/bin/env bash
-  set -x
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
   config=${TASK_PATH}/config.toml
