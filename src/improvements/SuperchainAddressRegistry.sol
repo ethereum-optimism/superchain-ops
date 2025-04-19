@@ -5,6 +5,10 @@ import {Vm} from "forge-std/Vm.sol";
 import {StdChains} from "forge-std/StdChains.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {GameTypes, GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
+import {console} from "forge-std/console.sol";
+import {LibString} from "solady/utils/LibString.sol";
+
+import {Utils} from "src/libraries/Utils.sol";
 
 /// @notice Contains getters for arbitrary methods from all L1 contracts, including legacy getters
 /// that have since been deprecated.
@@ -41,6 +45,7 @@ interface IFetcher {
 /// (EOAs) while ensuring correctness and uniqueness.
 contract SuperchainAddressRegistry is StdChains {
     using stdToml for string;
+    using LibString for string;
 
     address private constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
     Vm private constant vm = Vm(VM_ADDRESS);
@@ -103,9 +108,18 @@ contract SuperchainAddressRegistry is StdChains {
 
         // For each OP chain, read in all addresses for that OP Chain.
         string memory chainAddrs = vm.readFile("lib/superchain-registry/superchain/extra/addresses/addresses.json");
-
         for (uint256 i = 0; i < chains.length; i++) {
-            _processAddresses(chains[i], chainAddrs);
+            if (Utils.isFeatureEnabled("TEMPLATE_REGRESSION_TESTS_CI")) {
+                console.log(
+                    "SuperchainAddressRegistry: Executing in CI mode. Skipping onchain discovery for chain ",
+                    chains[i].name
+                );
+                // Read all addresses directly from the superchain-registry without doing onchain discovery.
+                readAddressesFromSuperchainRegistry(chainAddrs, chains[i]);
+            } else {
+                console.log("SuperchainAddressRegistry: Performing onchain discovery for chain ", chains[i].name);
+                _processAddresses(chains[i], chainAddrs);
+            }
         }
 
         string memory chainKey;
@@ -434,5 +448,36 @@ contract SuperchainAddressRegistry is StdChains {
     function getProxyAdmin(address systemConfigProxy) internal returns (address) {
         vm.prank(address(0));
         return IFetcher(systemConfigProxy).admin();
+    }
+
+    function readAddressesFromSuperchainRegistry(string memory chainAddressesContent, ChainInfo memory chain)
+        internal
+    {
+        string[] memory keys = vm.parseJsonKeys(chainAddressesContent, string.concat("$.", vm.toString(chain.chainId)));
+        for (uint256 j = 0; j < keys.length; j++) {
+            string memory key = keys[j];
+
+            if (
+                key.eq("FaultDisputeGame") || key.eq("PermissionlessWETH") || key.eq("PermissionedDisputeGame")
+                    || key.eq("PermissionedWETH") || key.eq("Challenger") || key.eq("AnchorStateRegistryProxy")
+                    || key.eq("MIPS") || key.eq("PreimageOracle") || key.eq("Proposer")
+            ) {
+                continue;
+            }
+
+            // Perform onchain discovery for dispute game related contracts. The superchain registry
+            // sometimes misses these.
+            if (key.eq("DisputeGameFactoryProxy")) {
+                address disputeGameFactoryProxy = vm.parseJsonAddress(
+                    chainAddressesContent, string.concat("$.", vm.toString(chain.chainId), ".", key)
+                );
+                _saveDisputeGameEntries(chain, disputeGameFactoryProxy);
+            } else {
+                address addr = vm.parseJsonAddress(
+                    chainAddressesContent, string.concat("$.", vm.toString(chain.chainId), ".", key)
+                );
+                saveAddress(key, chain, addr);
+            }
+        }
     }
 }
