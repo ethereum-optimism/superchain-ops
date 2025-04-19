@@ -413,14 +413,17 @@ library AccountAccessParser {
             DecodedStateDiff memory state = _stateDiffs[i];
             console.log("\n- **Key:**          `%s`", vm.toString(state.raw.slot));
             if (bytes(state.decoded.kind).length == 0) {
+                string memory optionalSummary = bytes(state.decoded.summary).length > 0 ? state.decoded.summary : "";
                 string memory optionalDetail = bytes(state.decoded.detail).length > 0 ? state.decoded.detail : "";
                 console.log("- **Before:** `%s`", vm.toString(state.raw.oldValue));
                 console.log("- **After:** `%s`", vm.toString(state.raw.newValue));
-                console.log("- **Summary:** %s", "");
+                console.log("- **Summary:** %s", optionalSummary);
                 console.log("- **Detail:** %s", optionalDetail);
-                console.log(
-                    "\n**<TODO: Slot was not automatically decoded. Please provide a summary with thorough detail then remove this line.>**"
-                );
+                if (bytes(optionalDetail).length == 0) {
+                    console.log(
+                        "\n**<TODO: Slot was not automatically decoded. Please provide a summary with thorough detail then remove this line.>**"
+                    );
+                }
             } else {
                 console.log("- **Decoded Kind:** `%s`", state.decoded.kind);
                 console.log("- **Before:** `%s`", state.decoded.oldValue);
@@ -711,19 +714,9 @@ library AccountAccessParser {
 
         // Iterate over the storage layout and look for the slot.
         for (uint256 i = 0; i < layout.length; i++) {
-            // Decode the slot if it is shared and add the info to the detail section.
+            // Decode the slot if it is shared and add the info to the summary and detail sections.
             if (isSlotShared(layout, _slot)) {
-                JsonStorageLayout[] memory sharedItems_ = getSharedSlotItems(layout, _slot);
-                string memory detail = "";
-                for (uint256 j = 0; j < sharedItems_.length; j++) {
-                    DecodedSlot memory decoded = decodeSlot(sharedItems_[j], _oldValue, _newValue);
-                    if (!decoded.oldValue.eq(decoded.newValue)) {
-                        string memory kind = string.concat("(`", decoded.kind, "`)");
-                        // forgefmt: disable-next-line
-                        detail = string.concat(detail, "", kind, " ", sharedItems_[j]._label, " `", decoded.oldValue, "` &rarr; `", decoded.newValue, "`,");
-                    }
-                }
-                return DecodedSlot({kind: "", oldValue: "", newValue: "", summary: "", detail: detail});
+                return decodeSharedSlot(layout, _slot, _oldValue, _newValue);
             }
 
             if (vm.parseUint(layout[i]._slot) == uint256(_slot)) {
@@ -732,6 +725,27 @@ library AccountAccessParser {
         }
     }
 
+    /// @notice Decodes a shared storage slot.
+    function decodeSharedSlot(JsonStorageLayout[] memory layout, bytes32 slot, bytes32 _oldValue, bytes32 _newValue)
+        internal
+        pure
+        returns (DecodedSlot memory decoded_)
+    {
+        JsonStorageLayout[] memory layouts = getSharedSlotLayouts(layout, slot);
+        string memory summary = "Multiple variables share this storage slot. Details below.";
+        string memory detail;
+        for (uint256 j = 0; j < layouts.length; j++) {
+            DecodedSlot memory decoded = decodeSlot(layouts[j], _oldValue, _newValue);
+            if (!decoded.oldValue.eq(decoded.newValue)) {
+                string memory kind = string.concat("(`", decoded.kind, "`)");
+                // forgefmt: disable-next-line
+                detail = string.concat(detail, "", kind, " ", layouts[j]._label, " `", decoded.oldValue, "` &rarr; `", decoded.newValue, "`, ");
+            }
+        }
+        return DecodedSlot({kind: "", oldValue: "", newValue: "", summary: summary, detail: detail});
+    }
+
+    /// @notice Decodes a non-shared storage slot.
     function decodeSlot(JsonStorageLayout memory item, bytes32 _oldValue, bytes32 _newValue)
         internal
         pure
@@ -778,10 +792,10 @@ library AccountAccessParser {
         return false;
     }
 
-    function getSharedSlotItems(JsonStorageLayout[] memory layout, bytes32 slot)
+    function getSharedSlotLayouts(JsonStorageLayout[] memory layout, bytes32 slot)
         internal
         pure
-        returns (JsonStorageLayout[] memory sharedItems_)
+        returns (JsonStorageLayout[] memory layouts_)
     {
         // Count matching items
         uint256 occurrences = 0;
@@ -792,17 +806,17 @@ library AccountAccessParser {
         }
 
         // Create appropriately sized array
-        sharedItems_ = new JsonStorageLayout[](occurrences);
+        layouts_ = new JsonStorageLayout[](occurrences);
 
         uint256 resultIndex = 0;
         for (uint256 i = 0; i < layout.length; i++) {
             if (vm.parseUint(layout[i]._slot) == uint256(slot)) {
-                sharedItems_[resultIndex] = layout[i];
+                layouts_[resultIndex] = layout[i];
                 resultIndex++;
             }
         }
 
-        return sharedItems_;
+        return layouts_;
     }
 
     /// @notice Given the path to a JSON file and a target address, returns the first chain ID and
