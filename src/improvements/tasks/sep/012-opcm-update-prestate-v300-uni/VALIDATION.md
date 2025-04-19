@@ -19,7 +19,7 @@ the values printed to the terminal when you run the task.
 > Before signing, ensure the below hashes match what is on your ledger.
 >
 > - Domain Hash: `0x2fedecce87979400ff00d5cec4c77da942d43ab3b9db4a5ffc51bb2ef498f30b`
-> - Message Hash: `0x3f060669a35f5e427a46039a88858c7fba405c20241a856141512d15e1118537`
+> - Message Hash: `0xae2f771c19884236a99b653504109a869d048a9782ff69d28788ac73dae52a2f`
 
 ## Understanding Task Calldata
 
@@ -95,12 +95,12 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:**      `uint256`
-  - **Before:** `30`
-  - **After:** `31`
+  - **Before:** `31`
+  - **After:** `32`
   - **Summary:** Nonce update
   - **Detail:** Nonce update for the parent multisig. You can verify manually with the following:
-    - Before: `cast --to-dec 0x1e` = 30
-    - After: `cast --to-dec 0x1f` = 31
+    - Before: `cast --to-dec 0x1f` = 31
+    - After: `cast --to-dec 0x20` = 32
 
   ---
   

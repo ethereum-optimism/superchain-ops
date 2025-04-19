@@ -418,6 +418,15 @@ jobs:
           command:
             | # Justfiles are not shell scripts and should not be checked with shellcheck
             (cd src/improvements/script && shellcheck -x *.sh)
+  # Check that all task directories have valid names and there are no duplicate prefixes.
+  check_task_names:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - utils/checkout-with-mise
+      - run:
+          name: check task names
+          command: (cd src/improvements/script && ./check-task-names.sh)
   close-issue:
     machine:
       image: ubuntu-2204:2024.08.1
@@ -469,6 +478,7 @@ workflows:
       - shellcheck:
           context:
             - circleci-repo-readonly-authenticated-github-token
+      - check_task_names
       # RPC endpoint checks.
       - check_sepolia_rpc_endpoints:
           context:
@@ -505,10 +515,56 @@ workflows:
       # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
       # - just_simulate_sc_rehearsal_1
 
-      # U15 Sepolia Unichain
+      # U14 Mainnet OPCM v3.0.0: op, soneium, ink - foundation
+      - just_simulate_nested_improvements:
+          name: "simulate nested eth/003-opcm-upgrade-v300-op-ink-soneium foundation"
+          task: "/eth/003-opcm-upgrade-v300-op-ink-soneium"
+          signer: "foundation"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
+      # U14 Mainnet OPCM v3.0.0: op, soneium, ink - council
+      - just_simulate_nested_improvements:
+          name: "simulate nested eth/003-opcm-upgrade-v300-op-ink-soneium council"
+          task: "/eth/003-opcm-upgrade-v300-op-ink-soneium"
+          signer: "council"
+
+      # U14 Mainnet Base Upgrade - Child-Safe-1
+      - just_simulate_nested_improvements:
+          name: "simulate nested eth/004-opcm-upgrade-v300-base child-safe-1"
+          task: "/eth/004-opcm-upgrade-v300-base"
+          signer: "child-safe-1"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
+      # U14 Mainnet Base Upgrade - Child-Safe-2
+      - just_simulate_nested_improvements:
+          name: "simulate nested eth/004-opcm-upgrade-v300-base child-safe-2"
+          task: "/eth/004-opcm-upgrade-v300-base"
+          signer: "child-safe-2"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+    
+      # U14 Mainnet Unichain Upgrade - Child-Safe-2
+      - just_simulate_nested_improvements:
+          name: "simulate nested eth/005-opcm-upgrade-v300-uni child-safe-2"
+          task: "/eth/005-opcm-upgrade-v300-uni"
+          signer: "child-safe-2"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
+      # U14 Mainnet Unichain Upgrade - Child-Safe-3
+      - just_simulate_nested_improvements:
+          name: "simulate nested eth/005-opcm-upgrade-v300-uni child-safe-3"
+          task: "/eth/005-opcm-upgrade-v300-uni"
+          signer: "child-safe-3"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
+      # Gas Params Upgrade - FoundationUpgradeSafe
       - just_simulate_single_improvements:
-          name: "simulate single sep/012-opcm-update-prestate-v300-uni"
-          task: "/sep/012-opcm-update-prestate-v300-uni"
+          name: "simulate single eth/006-gas-params-op"
+          task: "/eth/006-gas-params-op"
           context:
             - circleci-repo-readonly-authenticated-github-token
 
@@ -527,7 +583,7 @@ workflows:
       - simulate_sequence:
           name: simulate_sequence_eth
           network: "eth"
-          tasks: "zora-002"
+          tasks: "zora-002-fp-upgrade 003-opcm-upgrade-v300 004-opcm-upgrade-v300 005-opcm-upgrade-v300-uni 006-gas-params-op"
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token

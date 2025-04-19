@@ -126,7 +126,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
         checkPermissionedDisputeGame();
         console.log("All assertions passed!");
 
-        accesses.decodeAndPrint();
+        accesses.decodeAndPrint(address(0), bytes32(0));
     }
 
     /// @notice Checks the input to the script.
