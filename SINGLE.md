@@ -54,7 +54,7 @@ just \
    0 # or 1 or ...
 ```
 
-You will see a "Simulation link" from the output. However, due to changes in how Base prints simulation links, you will also see a separate "Raw input data" field. Follow these steps:
+You will see a "Simulation link" and a "Raw input data" field from the output. Follow these steps:
 
 1. Copy the simulation link and paste it into your browser. A prompt may ask you to choose a project; any project will do. You can create one if necessary.
 2. Once the simulation page opens, locate the "Raw input data" field in the Tenderly interface.
