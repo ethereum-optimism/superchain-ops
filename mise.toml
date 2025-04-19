@@ -11,9 +11,8 @@ yq = "4.44.5"
 # GitHub release, so we need to use the aliasing trick to get mise to not error
 # The git ref here should be on the `stable` branch.
 # WARNING: DO NOT CHANGE FORGE/CAST/ANVIL VERSIONS UNLESS ABSOLUTELY NECESSARY!
-# https://github.com/foundry-rs/foundry/releases/tag/nightly-7a7ad4ea7282c30477d7fc0f39bf631acde7e7bd
-# fix(forge): apply startPrank with delegate only for top calls
-forge = "nightly-7a7ad4ea7282c30477d7fc0f39bf631acde7e7bd"
+# The forge release below includes a fix for: https://github.com/foundry-rs/foundry/issues/10302
+forge = "rc" # TODO: Blaine, change this to v1.1.0 when it's released here: https://github.com/foundry-rs/foundry/releases/tag/v1.1.0
 cast = "v1.0.0"
 anvil = "v1.0.0"
 

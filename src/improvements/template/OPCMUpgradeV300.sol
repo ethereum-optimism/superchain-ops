@@ -93,9 +93,8 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
             });
         }
 
-        // See: template/OPCMUpgradeV200.sol for more information on why we expect a revert here.
-        (bool success,) = OPCM.call(abi.encodeCall(IOPContractsManager.upgrade, (opChainConfigs)));
-        require(!success, "OPCMUpgradeV300: Call unexpectedly succeeded; expected revert due to non-delegatecall.");
+        (bool success,) = OPCM.delegatecall(abi.encodeCall(IOPContractsManager.upgrade, (opChainConfigs)));
+        require(success, "OPCMUpgradeV300: upgrade call failed in _build.");
     }
 
     /// @notice Validate the task for a given L2 chain.
