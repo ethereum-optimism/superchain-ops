@@ -1,0 +1,6 @@
+templateName = "DelayedWETHOwnershipTemplate"
+
+[addresses]
+DelayedWETH = "0x323dFC63c9B83CB83f40325AaB74b245937cbdF0"
+PermissionedDelayedWETH = "0x21429aF66058BC3e4aE4a8f2EC4531AaC433ecbC"
+ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
