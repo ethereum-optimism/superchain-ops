@@ -471,6 +471,15 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             for (uint256 i = 0; i < owners.length; i++) {
                 vm.prank(owners[i]);
                 IGnosisSafe(parentMultisig).approveHash(hash);
+                // If the owner is a contract, we need to increment the nonce manually.
+                // This is in lieu of executing approveHash from the owner contract.
+                if (address(owners[i]).code.length > 0) {
+                    uint256 currentOwnerNonce = IGnosisSafe(owners[i]).nonce();
+                    vm.store(owners[i], bytes32(uint256(0x5)), bytes32(uint256(currentOwnerNonce + 1)));
+                } else {
+                    uint256 currentOwnerNonce = vm.getNonce(owners[i]);
+                    vm.setNonce(owners[i], uint64(currentOwnerNonce + 1));
+                }
             }
             // gather signatures after approval hashes have been made
             signatures = prepareSignatures(parentMultisig, hash);
@@ -1083,11 +1092,13 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// ensuring subsequent calldata generation uses the correct
     /// nonce values even after the task has been executed locally.
     function _overrideState(string memory taskConfigFilePath) private {
-        _applyStateOverrides(taskConfigFilePath);
+        _readStateOverridesFromConfig(taskConfigFilePath); // sets global _stateOverrides
         nonce = _getNonceOrOverride(address(parentMultisig));
         if (childMultisig != address(0)) {
             childNonce = _getNonceOrOverride(address(childMultisig));
         }
+        // We must do this after setting the nonces above. It allows us to make sure we're reading the correct network state when setting the nonces.
+        _applyStateOverrides(); // applies _stateOverrides to the current state
     }
 
     /// @notice Returns true if the given address is a new contract.

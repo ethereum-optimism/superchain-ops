@@ -55,14 +55,11 @@ contract StackedSimulator is Script {
             taskConfigs[i].configPath = configPath;
         }
 
-        AccountAccessParser.DecodedStateDiff[] memory nextTaskStateDiffs;
         for (uint256 i = 0; i < taskConfigs.length; i++) {
             console.log("StackedSimulator: Running task %s.", taskConfigs[i].templateName);
-            console.log("StackedSimulator: Number of state overrides: %s.", nextTaskStateDiffs.length);
-            taskRunner.appendStateOverrides(taskConfigs[i].configPath, nextTaskStateDiffs);
-            VmSafe.AccountAccess[] memory accesses = taskRunner.executeTask(taskConfigs[i]);
-            console.log("StackedSimulator: Number of accesses: %s.", accesses.length);
-            (, nextTaskStateDiffs) = accesses.decode(true);
+            // If we wanted to ensure that all Tenderly links worked for each task, we would need to build a cumulative list of all state overrides
+            // and append them to the next task's config.toml file. For now, we are skipping this functionality.
+            taskRunner.executeTask(taskConfigs[i]);
         }
     }
 

@@ -10,7 +10,6 @@ import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
-import {console} from "forge-std/console.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 
@@ -67,63 +66,6 @@ contract TaskRunner is Script {
             TaskConfig memory config = parseConfig(taskPaths[i]);
             executeTask(config);
         }
-    }
-
-    /// @notice Appends the state overrides to the config.toml file.
-    function appendStateOverrides(string memory configPath, AccountAccessParser.DecodedStateDiff[] memory stateDiffs)
-        public
-    {
-        if (stateDiffs.length == 0) {
-            return; // No state diffs to process
-        }
-
-        string memory toml = vm.readFile(configPath);
-
-        if (!toml.contains("[stateOverrides]")) {
-            console.log("TaskRunner: Adding [stateOverrides] section to config.toml.");
-            toml = string.concat(toml, "\n[stateOverrides]\n");
-        }
-
-        for (uint256 i = 0; i < stateDiffs.length; i++) {
-            address who = stateDiffs[i].who;
-
-            if (processedStateOverride[who]) {
-                continue;
-            }
-
-            processedStateOverride[who] = true;
-            console.log("TaskRunner: Appending state overrides for %s.", who);
-
-            toml = appendStateOverridesForAddress(toml, who, stateDiffs, i);
-        }
-
-        vm.writeFile(configPath, toml);
-        console.log("TaskRunner: Wrote %s state overrides to config.toml.", stateDiffs.length);
-    }
-
-    function appendStateOverridesForAddress(
-        string memory toml,
-        address who,
-        AccountAccessParser.DecodedStateDiff[] memory stateDiffs,
-        uint256 startIndex
-    ) internal view returns (string memory) {
-        if (vm.keyExistsToml(toml, string.concat(".stateOverrides.", LibString.toHexString(who)))) {
-            return toml;
-        }
-        toml = string.concat(toml, LibString.toHexString(who), " = [\n");
-
-        for (uint256 j = startIndex; j < stateDiffs.length; j++) {
-            if (stateDiffs[j].who == who) {
-                string memory overrideKeyString = LibString.toHexString(uint256(stateDiffs[j].raw.slot), 32);
-                string memory overrideValueString = LibString.toHexString(uint256(stateDiffs[j].raw.newValue), 32);
-
-                toml = string.concat(
-                    toml, "    {key = \"", overrideKeyString, "\", value = \"", overrideValueString, "\"},\n"
-                );
-            }
-        }
-
-        return string.concat(toml, "]\n");
     }
 
     /// @notice Fetches all non-terminal tasks for a given network.

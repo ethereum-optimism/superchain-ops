@@ -7,11 +7,18 @@ import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 
 contract SimpleStorage {
-    uint256 public x;
+    uint256 public first = type(uint256).max;
+    uint256 public current;
 
-    function set(uint256 oldValue, uint256 newValue) public {
-        require(oldValue == x, "SimpleStorage: oldValue != x");
-        x = newValue;
+    function set(uint256 firstValue, uint256 oldValue, uint256 newValue) public {
+        require(oldValue == current, "SimpleStorage: oldValue != current");
+        current = newValue;
+
+        if (first == type(uint256).max) {
+            first = firstValue; // only set the first value once.
+        } else {
+            require(first == firstValue, "SimpleStorage: firstValue != first");
+        }
     }
 }
 
@@ -21,6 +28,7 @@ contract StackSimulationTestTemplate is SimpleTaskBase {
 
     uint256 public oldValue;
     uint256 public newValue;
+    uint256 public firstValue;
 
     function safeAddressString() public pure override returns (string memory) {
         return "SimpleStorageOwner";
@@ -38,16 +46,18 @@ contract StackSimulationTestTemplate is SimpleTaskBase {
         string memory toml = vm.readFile(taskConfigFilePath);
         oldValue = toml.readUint(".oldValue");
         newValue = toml.readUint(".newValue");
+        firstValue = toml.readUint(".firstValue");
     }
 
     function _build() internal override {
         SimpleStorage simpleStorage = SimpleStorage(simpleAddrRegistry.get("SimpleStorage"));
-        simpleStorage.set(oldValue, newValue);
+        simpleStorage.set(firstValue, oldValue, newValue);
     }
 
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
         SimpleStorage simpleStorage = SimpleStorage(simpleAddrRegistry.get("SimpleStorage"));
-        assertEq(simpleStorage.x(), newValue);
+        assertEq(simpleStorage.current(), newValue);
+        assertEq(simpleStorage.first(), firstValue);
     }
 
     function getCodeExceptions() internal view virtual override returns (address[] memory) {}

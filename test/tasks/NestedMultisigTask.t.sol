@@ -17,6 +17,7 @@ import {DisputeGameUpgradeTemplate} from "test/tasks/mock/template/DisputeGameUp
 import {OPCMUpgradeV200} from "src/improvements/template/OPCMUpgradeV200.sol";
 import {MockDisputeGameTask} from "test/tasks/mock/MockDisputeGameTask.sol";
 import {DisputeGameUpgradeTemplate} from "test/tasks/mock/template/DisputeGameUpgradeTemplate.sol";
+import {MultisigTaskTestHelper} from "test/tasks/MultisigTask.t.sol";
 
 /// @notice This test is used to test the nested multisig task.
 contract NestedMultisigTaskTest is Test {
@@ -102,9 +103,9 @@ contract NestedMultisigTaskTest is Test {
             // dataToSign is the data that the EOA owners of the child multisig has to sign to help
             // execute the child multisig approval of hashToApproveByChildMultisig
             bytes memory dataToSign = getNestedDataToSign(childOwnerMultisigs[i], actions);
-            // nonce is not decremented by 1 because in task simulation approveHash is called by
-            // the child multisig which does not increment the nonce
-            uint256 nonce = IGnosisSafe(childOwnerMultisigs[i]).nonce();
+            // Nonce is not decremented by 1 because decrementNonceHelper is called in getNestedDataToSign.
+            uint256 nonce = (IGnosisSafe(childOwnerMultisigs[i]).nonce());
+
             bytes memory expectedDataToSign = IGnosisSafe(childOwnerMultisigs[i]).encodeTransactionData({
                 to: MULTICALL3_ADDRESS,
                 value: 0,
@@ -396,11 +397,9 @@ contract NestedMultisigTaskTest is Test {
         multisigTask.signFromChildMultisig(configFilePath, SECURITY_COUNCIL_CHILD_MULTISIG);
     }
 
-    function getNestedDataToSign(address owner, MultisigTask.Action[] memory actions)
-        internal
-        view
-        returns (bytes memory)
-    {
+    function getNestedDataToSign(address owner, MultisigTask.Action[] memory actions) internal returns (bytes memory) {
+        // Decrement the nonces by 1 because in task simulation child multisig nonces are incremented.
+        MultisigTaskTestHelper.decrementNonceAfterSimulation(owner);
         bytes memory callData = multisigTask.generateApproveMulticallData(actions);
         return multisigTask.getEncodedTransactionData(owner, callData);
     }

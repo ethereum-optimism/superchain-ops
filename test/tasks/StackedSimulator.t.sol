@@ -6,6 +6,7 @@ import {StackedSimulator} from "src/improvements/tasks/StackedSimulator.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {IDisputeGameFactory, GameType} from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {SimpleStorage} from "test/tasks/mock/template/StackSimulationTestTemplate.sol";
+import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 contract StackedSimulatorUnitTest is Test {
     using LibString for string;
@@ -16,6 +17,9 @@ contract StackedSimulatorUnitTest is Test {
     /// @notice The op mainnet address of the dispute game factory (block 22162525).
     /// https://github.com/ethereum-optimism/superchain-registry/blob/5f5334768fd1dab6e31132020c374e575c632074/superchain/configs/mainnet/op.toml#L62
     address internal disputeGameFactory = 0xe5965Ab5962eDc7477C8520243A95517CD252fA9;
+
+    address internal parentMultisig = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A;
+    address internal childMultisig = 0x847B5c174615B1B7fDF770882256e2D3E95b9D92;
 
     /// @notice Invoked before each test case is run.
     function setUp() public {
@@ -70,25 +74,95 @@ contract StackedSimulatorUnitTest is Test {
     /// The tests using SimpleStorage ensure that laters tasks in the stack
     /// need the state changes from previous tasks in the stack to succeed.
     function testSimulateStackedTasks_SimpleStorageFails() public {
+        string memory network = "eth_004";
         SimpleStorage simpleStorage = new SimpleStorage();
-        createSimpleStorageTask("eth_004", address(simpleStorage), 100, 0, 1);
+        uint256 firstValue = 2002;
+        createSimpleStorageTaskWithoutNonce(network, address(simpleStorage), 100, firstValue, 0, 1);
         // The old value is now 1, so the second task will fail.
-        createSimpleStorageTask("eth_004", address(simpleStorage), 101, 0, 2);
+        string memory taskName2 =
+            createSimpleStorageTaskWithoutNonce(network, address(simpleStorage), 101, firstValue, 0, 2);
 
         StackedSimulator ss = new StackedSimulator();
-        vm.expectRevert("SimpleStorage: oldValue != x");
-        ss.simulateStack("eth_004", "101-task-name");
+        vm.expectRevert("SimpleStorage: oldValue != current");
+        ss.simulateStack(network, taskName2);
     }
 
     function testSimulateStackedTasks_SimpleStoragePasses() public {
+        string memory network = "eth_005";
         SimpleStorage simpleStorage = new SimpleStorage();
-        createSimpleStorageTask("eth_005", address(simpleStorage), 100, 0, 1);
-        createSimpleStorageTask("eth_005", address(simpleStorage), 101, 1, 2);
+        uint256 firstValue = 2003;
+        createSimpleStorageTaskWithoutNonce(network, address(simpleStorage), 100, firstValue, 0, 1);
+        createSimpleStorageTaskWithoutNonce(network, address(simpleStorage), 101, firstValue, 1, 2);
+        string memory taskName3 =
+            createSimpleStorageTaskWithoutNonce(network, address(simpleStorage), 102, firstValue, 2, 3);
 
         StackedSimulator ss = new StackedSimulator();
-        ss.simulateStack("eth_005", "101-task-name");
+        ss.simulateStack(network, taskName3);
 
-        assertEq(simpleStorage.x(), 2);
+        assertEq(simpleStorage.current(), 3);
+    }
+
+    function testSimulateStackedTasks_SimpleStorageFailsWithParentNonceMismanagement() public {
+        vm.createSelectFork("mainnet", 22306611); // starting nonce for parent is 12 and for child is 20 at this block.
+        string memory network = "eth_006";
+        SimpleStorage simpleStorage = new SimpleStorage();
+        uint256 firstValue = 2003;
+        uint256 parentNonce = 12;
+        uint256 childNonce = 20;
+        createSimpleStorageTaskWithNonce(
+            network, address(simpleStorage), 100, firstValue, 0, 1, parentNonce, childNonce
+        );
+        string memory taskName2 = createSimpleStorageTaskWithNonce(
+            network, address(simpleStorage), 101, firstValue, 1, 2, parentNonce, ++childNonce
+        );
+
+        StackedSimulator ss = new StackedSimulator();
+        vm.expectRevert(
+            "StateOverrideManager: User-defined nonce (12) is less than current actual nonce (13) for contract: 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
+        );
+        ss.simulateStack(network, taskName2);
+    }
+
+    function testSimulateStackedTasks_SimpleStorageFailsWithChildNonceMismanagement() public {
+        vm.createSelectFork("mainnet", 22306611); // starting nonce for parent is 12 and for child is 20 at this block.
+        string memory network = "eth_007";
+        SimpleStorage simpleStorage = new SimpleStorage();
+        uint256 firstValue = 2003;
+        uint256 parentNonce = 12;
+        uint256 childNonce = 20;
+        createSimpleStorageTaskWithNonce(
+            network, address(simpleStorage), 100, firstValue, 0, 1, parentNonce, childNonce
+        );
+        string memory taskName2 = createSimpleStorageTaskWithNonce(
+            network, address(simpleStorage), 101, firstValue, 1, 2, ++parentNonce, childNonce
+        );
+
+        StackedSimulator ss = new StackedSimulator();
+        vm.expectRevert(
+            "StateOverrideManager: User-defined nonce (20) is less than current actual nonce (21) for contract: 0x847B5c174615B1B7fDF770882256e2D3E95b9D92"
+        );
+        ss.simulateStack(network, taskName2);
+    }
+
+    function testSimulateStackedTasks_SimpleStoragePassesWithNonceManagement() public {
+        vm.createSelectFork("mainnet", 22306611); // starting nonce for parent is 12 and for child is 20 at this block.
+        string memory network = "eth_008";
+        SimpleStorage simpleStorage = new SimpleStorage();
+        uint256 parentNonce = 12;
+        uint256 childNonce = 20;
+        uint256 firstValue = 2003;
+        createSimpleStorageTaskWithNonce(
+            network, address(simpleStorage), 100, firstValue, 0, 1, parentNonce, childNonce
+        );
+        string memory taskName2 = createSimpleStorageTaskWithNonce(
+            network, address(simpleStorage), 101, firstValue, 1, 2, ++parentNonce, ++childNonce
+        );
+
+        StackedSimulator ss = new StackedSimulator();
+        ss.simulateStack(network, taskName2);
+        assertEq(simpleStorage.current(), 2);
+        assertEq(IGnosisSafe(parentMultisig).nonce(), 14);
+        assertEq(IGnosisSafe(childMultisig).nonce(), 22);
     }
 
     function testGetNonTerminalTasks_NoTasks() public {
@@ -244,9 +318,7 @@ contract StackedSimulatorUnitTest is Test {
             string memory taskName = getNextTaskName(startTaskIndex + i);
             string memory taskDir = string.concat(testDirectory, "/", network, "/", taskName);
             taskNames_[i] = taskName;
-            vm.createDir(taskDir, true);
-            vm.writeFile(string.concat(taskDir, "/README.md"), "This is a test README.md file.");
-            vm.writeFile(string.concat(taskDir, "/VALIDATION.md"), "This is a test VALIDATION.md file.");
+            _setupTaskDir(taskDir);
 
             address customImplAddr = makeAddr(taskName); // Predictable address for testing assertions.
             vm.etch(customImplAddr, fdpCode); // Etch fault dispute game code to the custom impl address.
@@ -260,21 +332,24 @@ contract StackedSimulatorUnitTest is Test {
         }
     }
 
-    function createSimpleStorageTask(
-        string memory network,
-        address simpleStorage,
-        uint256 startTaskIndex,
-        uint256 oldValue,
-        uint256 newValue
-    ) internal {
-        string memory taskName = getNextTaskName(startTaskIndex);
-        string memory taskDir = string.concat(testDirectory, "/", network, "/", taskName);
+    // Helper to handle common directory setup
+    function _setupTaskDir(string memory taskDir) internal {
         vm.createDir(taskDir, true);
         vm.writeFile(string.concat(taskDir, "/README.md"), "This is a test README.md file.");
         vm.writeFile(string.concat(taskDir, "/VALIDATION.md"), "This is a test VALIDATION.md file.");
-        string memory commonToml = "templateName = \"StackSimulationTestTemplate\"\n" "\n";
-        string memory toml = string.concat(
-            commonToml,
+    }
+
+    // Base TOML configuration builder
+    function _buildBaseToml(address simpleStorage, uint256 firstValue, uint256 oldValue, uint256 newValue)
+        internal
+        view
+        returns (string memory)
+    {
+        return string.concat(
+            "templateName = \"StackSimulationTestTemplate\"\n\n",
+            "firstValue = ",
+            LibString.toString(firstValue),
+            "\n",
             "oldValue = ",
             LibString.toString(oldValue),
             "\n",
@@ -285,9 +360,65 @@ contract StackedSimulatorUnitTest is Test {
             "SimpleStorage = \"",
             LibString.toHexString(simpleStorage),
             "\"\n",
-            "SimpleStorageOwner = \"0x847B5c174615B1B7fDF770882256e2D3E95b9D92\"\n" // Example safe, it doesn't matter for this test.
+            "SimpleStorageOwner = \"",
+            LibString.toHexString(parentMultisig),
+            "\"\n"
         );
+    }
+
+    // With nonce wrapper
+    function createSimpleStorageTaskWithNonce(
+        string memory network,
+        address simpleStorage,
+        uint256 startTaskIndex,
+        uint256 firstValue,
+        uint256 oldValue,
+        uint256 newValue,
+        uint256 parentNonce,
+        uint256 childNonce
+    ) internal returns (string memory taskName_) {
+        string memory taskName = getNextTaskName(startTaskIndex);
+        string memory taskDir = string.concat(testDirectory, "/", network, "/", taskName);
+        _setupTaskDir(taskDir);
+
+        string memory toml = string.concat(
+            _buildBaseToml(simpleStorage, firstValue, oldValue, newValue),
+            "\n[stateOverrides]\n",
+            LibString.toHexString(parentMultisig),
+            " = [\n",
+            "    {key = 5, value = ",
+            vm.toString(parentNonce),
+            "}]",
+            "\n",
+            LibString.toHexString(childMultisig),
+            " = [\n",
+            "    {key = 5, value = ",
+            vm.toString(childNonce),
+            "}",
+            "\n]\n"
+        );
+
         vm.writeFile(string.concat(taskDir, "/config.toml"), toml);
+        return taskName;
+    }
+
+    // Without nonce wrapper
+    function createSimpleStorageTaskWithoutNonce(
+        string memory network,
+        address simpleStorage,
+        uint256 startTaskIndex,
+        uint256 firstValue,
+        uint256 oldValue,
+        uint256 newValue
+    ) internal returns (string memory taskName_) {
+        string memory taskName = getNextTaskName(startTaskIndex);
+        string memory taskDir = string.concat(testDirectory, "/", network, "/", taskName);
+        _setupTaskDir(taskDir);
+
+        vm.writeFile(
+            string.concat(taskDir, "/config.toml"), _buildBaseToml(simpleStorage, firstValue, oldValue, newValue)
+        );
+        return taskName;
     }
 
     function getNextTaskName(uint256 startTaskIndex) internal pure returns (string memory taskName_) {

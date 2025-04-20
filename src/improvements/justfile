@@ -155,6 +155,10 @@ simulate-stack NETWORK="" TASK="":
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
 
+    echo -e "\033[42m                                         \033[0m"
+    echo -e "\033[42m    superchain-ops stacked simulator     \033[0m"
+    echo -e "\033[42m                                         \033[0m"
+
     show_usage() {
         echo
         echo "Usage: just simulate-stack <network> [task]"
@@ -165,7 +169,6 @@ simulate-stack NETWORK="" TASK="":
     }
 
     export FOUNDRY_PROFILE="${FOUNDRY_PROFILE:-default}"
-    echo "Currently running with FOUNDRY_PROFILE: ${FOUNDRY_PROFILE}"
 
     case "{{NETWORK}}" in
         sep)
@@ -181,11 +184,12 @@ simulate-stack NETWORK="" TASK="":
             ;;
     esac
     
+    echo -e "\n⏳ Stacked Task simulation in progress. This may take a while..."
     if [ -z "{{TASK}}" ]; then
-        echo "Simulating all tasks for network: {{NETWORK}}"
+        echo -e "⏳ You are simulating all tasks for network: {{NETWORK}}\n"
         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string)" {{NETWORK}} --ffi --rpc-url $ETH_RPC_URL
     else
-        echo "Simulating task: {{TASK}} for network: {{NETWORK}}"
+        echo -e "⏳ You are simulating the task: {{TASK}} for network: {{NETWORK}}\n"
         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string)" {{NETWORK}} {{TASK}} --ffi --rpc-url $ETH_RPC_URL
     fi
 

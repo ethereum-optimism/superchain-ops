@@ -4,11 +4,13 @@ pragma solidity 0.8.15;
 import {Test} from "forge-std/Test.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
+import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {Vm} from "forge-std/Vm.sol";
+import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
 
 import {MockMultisigTask} from "test/tasks/mock/MockMultisigTask.sol";
 import {MockDisputeGameTask} from "test/tasks/mock/MockDisputeGameTask.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
-import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
 import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
 
 contract StateOverrideManagerUnitTest is Test {
@@ -80,17 +82,18 @@ contract StateOverrideManagerUnitTest is Test {
     }
 
     function testDecimalKeyInConfigForStateOverridePasses() public {
+        vm.createSelectFork("mainnet", 22306974); // Pinning to a block to avoid nonce errors.
         // key is a decimal number (important: not surrounded by quotes)
         string memory toml = string.concat(
             commonToml,
             "[stateOverrides]\n",
             "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [\n",
-            "    {key = 5, value = \"0x0000000000000000000000000000000000000000000000000000000000000001\"}\n",
+            "    {key = 5, value = \"0x000000000000000000000000000000000000000000000000000000000000000c\"}\n",
             "]"
         );
         string memory fileName = createTempTomlFile(toml);
         MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
-        assertNonceIncremented(1, task);
+        assertNonceIncremented(12, task);
         removeFile(fileName);
     }
 
