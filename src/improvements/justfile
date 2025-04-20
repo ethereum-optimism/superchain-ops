@@ -156,7 +156,7 @@ simulate-stack NETWORK="" TASK="":
     root_dir=$(git rev-parse --show-toplevel)
 
     echo -e "\033[42m                                         \033[0m"
-    echo -e "\033[42m    superchain-ops stacked simulator     \033[0m"
+    echo -e "\033[42m    superchain-ops stacked simulation    \033[0m"
     echo -e "\033[42m                                         \033[0m"
 
     show_usage() {
@@ -187,11 +187,14 @@ simulate-stack NETWORK="" TASK="":
     echo -e "\n⏳ Stacked Task simulation in progress. This may take a while..."
     if [ -z "{{TASK}}" ]; then
         echo -e "⏳ You are simulating all tasks for network: {{NETWORK}}\n"
+        just list-stack {{NETWORK}}
         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string)" {{NETWORK}} --ffi --rpc-url $ETH_RPC_URL
     else
         echo -e "⏳ You are simulating the task: {{TASK}} for network: {{NETWORK}}\n"
+        just list-stack {{NETWORK}} {{TASK}}
         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string)" {{NETWORK}} {{TASK}} --ffi --rpc-url $ETH_RPC_URL
     fi
+    echo -e "\n⚠️ Please note: some Tenderly links may not work when running a stacked simulation.⚠️"
 
 
 list-stack NETWORK="" TASK="":
