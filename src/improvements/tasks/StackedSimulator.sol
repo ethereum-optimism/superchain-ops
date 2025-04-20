@@ -55,8 +55,15 @@ contract StackedSimulator is Script {
             taskConfigs[i].configPath = configPath;
         }
 
+        // Setting this env variable to reduce logging for stack simulations.
+        vm.setEnv("SIGNING_MODE_IN_PROGRESS", "true");
+
         for (uint256 i = 0; i < taskConfigs.length; i++) {
-            console.log("StackedSimulator: Running task %s.", taskConfigs[i].templateName);
+            console.log(
+                "StackedSimulator: Executing task %s with template %s.",
+                taskConfigs[i].basePath,
+                taskConfigs[i].templateName
+            );
             // If we wanted to ensure that all Tenderly links worked for each task, we would need to build a cumulative list of all state overrides
             // and append them to the next task's config.toml file. For now, we are skipping this functionality.
             taskRunner.executeTask(taskConfigs[i]);
