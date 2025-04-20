@@ -47,9 +47,9 @@ contract NestedMultisigTaskTest is Test {
         returns (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions)
     {
         multisigTask = new DisputeGameUpgradeTemplate();
-        string memory configFilePath = createTempTomlFile(taskConfigToml);
+        string memory configFilePath = MultisigTaskTestHelper.createTempTomlFile(taskConfigToml);
         (accountAccesses, actions) = multisigTask.signFromChildMultisig(configFilePath, childMultisig);
-        removeFile(configFilePath);
+        MultisigTaskTestHelper.removeFile(configFilePath);
         addrRegistry = multisigTask.addrRegistry();
         superchainAddrRegistry = SuperchainAddressRegistry(AddressRegistry.unwrap(addrRegistry));
     }
@@ -220,9 +220,9 @@ contract NestedMultisigTaskTest is Test {
 
             // execute the approve hash call with the signatures
             multisigTask = new DisputeGameUpgradeTemplate();
-            string memory configFilePath = createTempTomlFile(taskConfigToml);
+            string memory configFilePath = MultisigTaskTestHelper.createTempTomlFile(taskConfigToml);
             multisigTask.approveFromChildMultisig(configFilePath, childMultisig, packedSignaturesChild);
-            removeFile(configFilePath);
+            MultisigTaskTestHelper.removeFile(configFilePath);
         }
 
         // execute the task
@@ -231,9 +231,9 @@ contract NestedMultisigTaskTest is Test {
         /// snapshot before running the task so we can roll back to this pre-state
         uint256 newSnapshot = vm.snapshotState();
 
-        string memory config = createTempTomlFile(taskConfigToml);
+        string memory config = MultisigTaskTestHelper.createTempTomlFile(taskConfigToml);
         (accountAccesses, actions) = multisigTask.signFromChildMultisig(config, SECURITY_COUNCIL_CHILD_MULTISIG);
-        removeFile(config);
+        MultisigTaskTestHelper.removeFile(config);
 
         // Check that the implementation is upgraded correctly
         assertEq(
@@ -247,9 +247,9 @@ contract NestedMultisigTaskTest is Test {
 
         /// Now run the executeRun flow
         vm.revertToState(newSnapshot);
-        string memory taskConfigFilePath = createTempTomlFile(taskConfigToml);
+        string memory taskConfigFilePath = MultisigTaskTestHelper.createTempTomlFile(taskConfigToml);
         multisigTask.executeRun(taskConfigFilePath, prepareSignatures(parentMultisig, taskHash));
-        removeFile(taskConfigFilePath);
+        MultisigTaskTestHelper.removeFile(taskConfigFilePath);
         addrRegistry = multisigTask.addrRegistry();
 
         // Check that the implementation is upgraded correctly for a second time
@@ -408,18 +408,5 @@ contract NestedMultisigTaskTest is Test {
         // prepend the prevalidated signatures to the signatures
         address[] memory approvers = Signatures.getApprovers(_safe, hash);
         return Signatures.genPrevalidatedSignatures(approvers);
-    }
-
-    function createTempTomlFile(string memory tomlContent) internal returns (string memory) {
-        string memory randomBytes = LibString.toHexString(uint256(bytes32(vm.randomBytes(32))));
-        string memory fileName = string.concat(randomBytes, ".toml");
-        vm.writeFile(fileName, tomlContent);
-        return fileName;
-    }
-
-    /// @notice This function is used to remove a file. The reason we use a try catch
-    /// is because sometimes the file may not exist and this leads to flaky tests.
-    function removeFile(string memory fileName) internal {
-        try vm.removeFile(fileName) {} catch {}
     }
 }

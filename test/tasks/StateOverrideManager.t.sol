@@ -4,7 +4,6 @@ pragma solidity 0.8.15;
 import {Test} from "forge-std/Test.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
-import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
 
@@ -12,6 +11,7 @@ import {MockMultisigTask} from "test/tasks/mock/MockMultisigTask.sol";
 import {MockDisputeGameTask} from "test/tasks/mock/MockDisputeGameTask.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
+import {MultisigTaskTestHelper as helper} from "test/tasks/MultisigTask.t.sol";
 
 contract StateOverrideManagerUnitTest is Test {
     function setUp() public {
@@ -23,13 +23,6 @@ contract StateOverrideManagerUnitTest is Test {
         "implementations = [{gameType = 0, implementation = \"0xf691F8A6d908B58C534B624cF16495b491E633BA\", l2ChainId = 10}]\n";
     address constant SECURITY_COUNCIL_CHILD_MULTISIG = 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03;
 
-    function createTempTomlFile(string memory tomlContent) public returns (string memory) {
-        string memory randomBytes = LibString.toHexString(uint256(bytes32(vm.randomBytes(32))));
-        string memory fileName = string.concat(randomBytes, ".toml");
-        vm.writeFile(fileName, tomlContent);
-        return fileName;
-    }
-
     function testThresholdStateOverrideAppliedReverts() public {
         // This config includes both nonce and threshold state overrides.
         string memory toml = string.concat(
@@ -39,14 +32,14 @@ contract StateOverrideManagerUnitTest is Test {
             "    {key = \"0x0000000000000000000000000000000000000000000000000000000000000004\", value = \"0x0000000000000000000000000000000000000000000000000000000000000002\"}\n",
             "]"
         );
-        string memory fileName = createTempTomlFile(toml);
+        string memory fileName = helper.createTempTomlFile(toml);
 
         MultisigTask task = new MockMultisigTask();
         vm.expectRevert(
             "StateOverrideManager: User-defined override is attempting to overwrite an existing default override for contract: 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
         );
         task.signFromChildMultisig(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
-        removeFile(fileName);
+        helper.removeFile(fileName);
     }
 
     function testNonceStateOverrideApplied() public {
@@ -59,10 +52,10 @@ contract StateOverrideManagerUnitTest is Test {
             "    {key = \"0x0000000000000000000000000000000000000000000000000000000000000005\", value = \"0x0000000000000000000000000000000000000000000000000000000000000AAA\"}\n",
             "]"
         );
-        string memory fileName = createTempTomlFile(toml);
+        string memory fileName = helper.createTempTomlFile(toml);
         MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
         assertNonceIncremented(2730, task);
-        removeFile(fileName);
+        helper.removeFile(fileName);
     }
 
     function testInvalidAddressInStateOverrideFails() public {
@@ -74,11 +67,11 @@ contract StateOverrideManagerUnitTest is Test {
             "    {key = \"0x0000000000000000000000000000000000000000000000000000000000000005\", value = \"0x0000000000000000000000000000000000000000000000000000000000000001\"}\n",
             "]"
         );
-        string memory fileName = createTempTomlFile(toml);
+        string memory fileName = helper.createTempTomlFile(toml);
         MultisigTask task = new MockMultisigTask();
         vm.expectRevert();
         task.simulateRun(fileName);
-        removeFile(fileName);
+        helper.removeFile(fileName);
     }
 
     function testDecimalKeyInConfigForStateOverridePasses() public {
@@ -91,10 +84,10 @@ contract StateOverrideManagerUnitTest is Test {
             "    {key = 5, value = \"0x000000000000000000000000000000000000000000000000000000000000000c\"}\n",
             "]"
         );
-        string memory fileName = createTempTomlFile(toml);
+        string memory fileName = helper.createTempTomlFile(toml);
         MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
         assertNonceIncremented(12, task);
-        removeFile(fileName);
+        helper.removeFile(fileName);
     }
 
     function testAddressValueInConfigForStateOverridePasses() public {
@@ -111,7 +104,7 @@ contract StateOverrideManagerUnitTest is Test {
             "\"}\n",
             "]"
         );
-        string memory fileName = createTempTomlFile(toml);
+        string memory fileName = helper.createTempTomlFile(toml);
         createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
         address actualImplAddr = address(
             uint160(
@@ -119,7 +112,7 @@ contract StateOverrideManagerUnitTest is Test {
             )
         );
         assertEq(actualImplAddr, expectedImplAddr, "Implementation address is not correct");
-        removeFile(fileName);
+        helper.removeFile(fileName);
     }
 
     function testDecimalValuesInConfigForStateOverridePasses() public {
@@ -131,22 +124,22 @@ contract StateOverrideManagerUnitTest is Test {
             "    {key = 5, value = 101}\n",
             "]"
         );
-        string memory fileName = createTempTomlFile(toml);
+        string memory fileName = helper.createTempTomlFile(toml);
         MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
         assertNonceIncremented(101, task);
-        removeFile(fileName);
+        helper.removeFile(fileName);
     }
 
     function testOnlyDefaultTenderlyStateOverridesApplied() public {
-        string memory fileName = createTempTomlFile(commonToml);
+        string memory fileName = helper.createTempTomlFile(commonToml);
         MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
         assertDefaultStateOverrides(2, task, SECURITY_COUNCIL_CHILD_MULTISIG);
-        removeFile(fileName);
+        helper.removeFile(fileName);
     }
 
     /// @notice This test verifies that user-defined overrides take precedence over default overrides.
     function testUserTenderlyStateOverridesTakePrecedence() public {
-        string memory noStateOverridesFileName = createTempTomlFile(commonToml);
+        string memory noStateOverridesFileName = helper.createTempTomlFile(commonToml);
         MultisigTask noStateOverridesTask = createAndRunTask(noStateOverridesFileName, SECURITY_COUNCIL_CHILD_MULTISIG);
         uint256 expectedNonce = noStateOverridesTask.nonce();
         assertDefaultStateOverrides(2, noStateOverridesTask, SECURITY_COUNCIL_CHILD_MULTISIG);
@@ -159,7 +152,7 @@ contract StateOverrideManagerUnitTest is Test {
             "    {key = 6, value = 1025}\n",
             "]"
         );
-        string memory fileName = createTempTomlFile(toml);
+        string memory fileName = helper.createTempTomlFile(toml);
         MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
 
         uint256 expectedUserOverrideNonce = 1024;
@@ -181,8 +174,8 @@ contract StateOverrideManagerUnitTest is Test {
             "User defined override value must match expected value"
         );
         assertTrue(expectedNonce != expectedUserOverrideNonce, "Real nonce must not match user override nonce.");
-        removeFile(noStateOverridesFileName);
-        removeFile(fileName);
+        helper.removeFile(noStateOverridesFileName);
+        helper.removeFile(fileName);
     }
 
     /// @notice This test verifies that additional user defined overrides (that aren't already existing e.g. nonce, threshold)
@@ -199,7 +192,7 @@ contract StateOverrideManagerUnitTest is Test {
             "\", value = 9999}\n",
             "]"
         );
-        string memory fileName = createTempTomlFile(toml);
+        string memory fileName = helper.createTempTomlFile(toml);
         MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
 
         uint256 expectedTotalOverrides = 2;
@@ -207,7 +200,7 @@ contract StateOverrideManagerUnitTest is Test {
             assertDefaultStateOverrides(expectedTotalOverrides, task, SECURITY_COUNCIL_CHILD_MULTISIG);
         assertEq(allOverrides[0].overrides[1].key, overrideKey, "User override key must match expected value");
         assertEq(allOverrides[0].overrides[1].value, bytes32(uint256(9999)), "User override must be applied last");
-        removeFile(fileName);
+        helper.removeFile(fileName);
     }
 
     function testMultipleAddressStateOverridesApplied() public {
@@ -227,7 +220,7 @@ contract StateOverrideManagerUnitTest is Test {
             "\", value = 8888}\n",
             "]"
         );
-        string memory fileName = createTempTomlFile(toml);
+        string memory fileName = helper.createTempTomlFile(toml);
         MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
 
         uint256 expectedTotalOverrides = 3; // i.e. (2 default + 1 user defined)
@@ -266,7 +259,7 @@ contract StateOverrideManagerUnitTest is Test {
         assertEq(
             allOverrides[2].overrides[0].value, bytes32(uint256(8888)), "Third address user override must be applied"
         );
-        removeFile(fileName);
+        helper.removeFile(fileName);
     }
 
     /// @notice This test uses the 'Base Sepolia Testnet' at a block where the ProxyAdminOwner is known to be a single safe.
@@ -276,14 +269,14 @@ contract StateOverrideManagerUnitTest is Test {
         string memory nonNestedSafeToml = "l2chains = [{name = \"Base Sepolia Testnet\", chainId = 84532}]\n" "\n"
             "templateName = \"DisputeGameUpgradeTemplate\"\n" "\n"
             "implementations = [{gameType = 0, implementation = \"0x0000000FFfFFfffFffFfFffFFFfffffFffFFffFf\", l2ChainId = 84532}]\n";
-        string memory fileName = createTempTomlFile(nonNestedSafeToml);
+        string memory fileName = helper.createTempTomlFile(nonNestedSafeToml);
         MockDisputeGameTask dgt = new MockDisputeGameTask();
         dgt.simulateRun(fileName);
 
         // Only parent overrides will be checked because child multisig is not set.
         Simulation.StateOverride[] memory allOverrides = assertDefaultStateOverrides(1, dgt, address(0));
         assertEq(allOverrides.length, 1, "Only parent overrides should be applied");
-        removeFile(fileName);
+        helper.removeFile(fileName);
     }
 
     function test_appendUserDefinedOverrides_userAttemptsToOverwriteDefaultTenderlyOverrideReverts() public {
@@ -598,12 +591,6 @@ contract StateOverrideManagerUnitTest is Test {
             bytes32(uint256(0x1)),
             "Owner Override: Must contain second owner mapping override value"
         );
-    }
-
-    /// @notice This function is used to remove a file. The reason we use a try catch
-    /// is because sometimes the file may not exist and this leads to flaky tests.
-    function removeFile(string memory fileName) internal {
-        try vm.removeFile(fileName) {} catch {}
     }
 }
 

@@ -471,15 +471,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             for (uint256 i = 0; i < owners.length; i++) {
                 vm.prank(owners[i]);
                 IGnosisSafe(parentMultisig).approveHash(hash);
-                // If the owner is a contract, we need to increment the nonce manually.
-                // This is in lieu of executing approveHash from the owner contract.
-                if (address(owners[i]).code.length > 0) {
-                    uint256 currentOwnerNonce = IGnosisSafe(owners[i]).nonce();
-                    vm.store(owners[i], bytes32(uint256(0x5)), bytes32(uint256(currentOwnerNonce + 1)));
-                } else {
-                    uint256 currentOwnerNonce = vm.getNonce(owners[i]);
-                    vm.setNonce(owners[i], uint64(currentOwnerNonce + 1));
-                }
+                _incrementOwnerNonce(owners[i]);
             }
             // gather signatures after approval hashes have been made
             signatures = prepareSignatures(parentMultisig, hash);
@@ -1159,6 +1151,19 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             op = Enum.Operation.DelegateCall;
         } else {
             revert("Unknown account access kind");
+        }
+    }
+
+    /// @notice Increments the nonce of the given owner.
+    /// If the owner is a contract, we need to increment the nonce manually.
+    /// This is in lieu of executing approveHash from the owner contract.
+    function _incrementOwnerNonce(address owner) private {
+        if (address(owner).code.length > 0) {
+            uint256 currentOwnerNonce = IGnosisSafe(owner).nonce();
+            vm.store(owner, bytes32(uint256(0x5)), bytes32(uint256(currentOwnerNonce + 1)));
+        } else {
+            uint256 currentOwnerNonce = vm.getNonce(owner);
+            vm.setNonce(owner, uint64(currentOwnerNonce + 1));
         }
     }
 
