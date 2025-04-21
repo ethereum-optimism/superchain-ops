@@ -1232,6 +1232,7 @@ for task_folder in "${task_folders[@]}"; do
               approvehash_in_anvil2 child-safe-1 $parent_multisig 2>&1)
             set -e
             if [[ $approvalhash_result == *"Signature is incorrect"* || $approvalhash_result == *"revert"* ]]; then
+              echo "approvalhash_result: $approvalhash_result"
               log_error "Nonce is invalid for $task_folder for child-safe-1 approval, please check the nonces below:"
               log_nonce_error
               exit 99
@@ -1245,6 +1246,7 @@ for task_folder in "${task_folders[@]}"; do
               approvehash_in_anvil2 child-safe-2 $parent_multisig 2>&1)
             set -e
             if [[ $approvalhash_result == *"Signature is incorrect"* || $approvalhash_result == *"revert"* ]]; then
+              echo "approvalhash_result: $approvalhash_result"
               log_error "Nonce is invalid for $task_folder for child-safe-2 approval, please check the nonces below:"
               log_nonce_error
               exit 99
@@ -1258,6 +1260,7 @@ for task_folder in "${task_folders[@]}"; do
               approvehash_in_anvil2 child-safe-3 $parent_multisig 2>&1)
             set -e
             if [[ $approvalhash_result == *"Signature is incorrect"* || $approvalhash_result == *"revert"* ]]; then
+              echo "approvalhash_result: $approvalhash_result"
               log_error "Nonce is invalid for $task_folder for child-safe-3 approval, please check the nonces below:"
               log_nonce_error
               exit 99
@@ -1284,7 +1287,8 @@ for task_folder in "${task_folders[@]}"; do
               approvehash_in_anvil2 council $parent_multisig 2>&1)
             set -e
             if [[ $approvalhash_result == *"Signature is incorrect"* || $approvalhash_result == *"revert"* ]]; then
-             log_error "Nonce is invalid for $task_folder for council approval, please check the nonces below:"
+             echo "approvalhash_result: $approvalhash_result"
+              log_error "Nonce is invalid for $task_folder for council approval, please check the nonces below:"
               log_nonce_error
               exit 99
             fi
@@ -1297,6 +1301,7 @@ for task_folder in "${task_folders[@]}"; do
               approvehash_in_anvil2 foundation $parent_multisig 2>&1)
             set -e
             if [[ $approvalhash_result == *"Signature is incorrect"* || $approvalhash_result == *"revert"* ]]; then
+             echo "approvalhash_result: $approvalhash_result"
              log_error "Nonce is invalid for $task_folder for foundation approval, please check the nonces below:"
               log_nonce_error
               exit 99
@@ -1312,7 +1317,9 @@ for task_folder in "${task_folders[@]}"; do
           --justfile "${root_dir}/src/improvements/single.just" \
           sign_and_execute_in_anvil $parent_multisig 2>&1)
         set -e
-        if [[ $approval == *"not enough signatures"* || $approval == *"revert"* ]]; then
+        echo "approval: $approval"
+        if [[ $approval == *"not enough signatures"* ]]; then
+          echo "approval: $approval"
           log_error "Nonce is invalid for $task_folder for council approval, please check the nonces below:"
           log_nonce_error
           exit 99
