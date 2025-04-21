@@ -1310,7 +1310,7 @@ for task_folder in "${task_folders[@]}"; do
         set +e
         approval=$(just \
           --justfile "${root_dir}/src/improvements/single.just" \
-          sign_and_execute_in_anvil $parent_multisig &>2)
+          sign_and_execute_in_anvil $parent_multisig 2>&1)
         set -e
         if [[ $approval == *"not enough signatures"* || $approval == *"revert"* ]]; then
           log_error "Nonce is invalid for $task_folder for council approval, please check the nonces below:"
