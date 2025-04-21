@@ -6,16 +6,22 @@ import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 
+/// @notice A simple contract that's used to test stacked simulations.
+/// It's setup in such a way that later tasks in the stack depend on the state changes
+/// from previous tasks in the stack.
 contract SimpleStorage {
+    /// @notice This is the first value that is set. We include this variable to make sure this state persists across multiple simulations.
     uint256 public first = type(uint256).max;
+    /// @notice This is the current value of the storage slot.
     uint256 public current;
 
+    /// @notice Function that allows us to check if state is persistent across multiple simulations.
     function set(uint256 firstValue, uint256 oldValue, uint256 newValue) public {
         require(oldValue == current, "SimpleStorage: oldValue != current");
         current = newValue;
 
         if (first == type(uint256).max) {
-            first = firstValue; // only set the first value once.
+            first = firstValue; // Only set the first value once.
         } else {
             require(first == firstValue, "SimpleStorage: firstValue != first");
         }

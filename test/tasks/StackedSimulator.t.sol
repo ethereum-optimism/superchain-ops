@@ -140,6 +140,7 @@ contract StackedSimulatorUnitTest is Test {
         );
 
         StackedSimulator ss = new StackedSimulator();
+        // Child has the wrong nonce, so this should revert.
         vm.expectRevert(
             "StateOverrideManager: User-defined nonce (20) is less than current actual nonce (21) for contract: 0x847B5c174615B1B7fDF770882256e2D3E95b9D92"
         );
@@ -147,7 +148,7 @@ contract StackedSimulatorUnitTest is Test {
     }
 
     function testSimulateStackedTasks_SimpleStoragePassesWithNonceManagement() public {
-        vm.createSelectFork("mainnet", 22306611); // starting nonce for parent is 12 and for child is 20 at this block.
+        vm.createSelectFork("mainnet", 22306611); // Starting nonce for parent is 12 and for child is 20 at this block.
         string memory network = "eth_008";
         SimpleStorage simpleStorage = new SimpleStorage();
         uint256 parentNonce = 12;
@@ -166,6 +167,9 @@ contract StackedSimulatorUnitTest is Test {
         assertEq(IGnosisSafe(parentMultisig).nonce(), 14);
         assertEq(IGnosisSafe(childMultisig).nonce(), 22);
     }
+    /// #############################################################
+    /// #############################################################
+    /// #############################################################
 
     function testGetNonTerminalTasks_NoTasks() public {
         StackedSimulator ss = new StackedSimulator();
