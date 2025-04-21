@@ -13,7 +13,6 @@ import {LibString} from "solady/utils/LibString.sol";
 
 // Libraries
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
-import {console} from "forge-std/console.sol";
 
 // This is a simple implementation of a contract used in the "test_commonProxyArchitecture_succeeds" test.
 // DO NOT use in production.
