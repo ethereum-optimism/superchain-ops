@@ -588,7 +588,7 @@ workflows:
       - simulate_sequence:
           name: simulate_sequence_eth
           network: "eth"
-          tasks: "zora-002-fp-upgrade 003-opcm-upgrade-v300 004-opcm-upgrade-v300 005-opcm-upgrade-v300-uni 006-gas-params-op"
+          tasks: "zora-002-fp-upgrade 003-opcm-upgrade-v300 004-opcm-upgrade-v300 005-opcm-upgrade-v300-uni 006-gas-params-op arena-z-001"
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
