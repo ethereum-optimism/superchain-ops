@@ -514,7 +514,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         }
     }
 
-    function test_decode_succeeds() public view {
+    function test_decode_succeeds() public {
         // Test empty array
         {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](0);
@@ -832,7 +832,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         }
     }
 
-    function test_decode_sorts_decoded_state_diffs() public view {
+    function test_decode_sorts_decoded_state_diffs() public {
         // Create 5 test accounts with clear numerical values
         address account1 = address(0x1111111111111111111111111111111111111111);
         address account2 = address(0x2222222222222222222222222222222222222222);
@@ -873,7 +873,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         assertEq(diffs[3].who, account4, "Fourth should be account4 (0x4444...)");
     }
 
-    function test_decode_reverts_if_state_diffs_not_sorted() public view {
+    function test_decode_reverts_if_state_diffs_not_sorted() public {
         address account1 = address(0x1);
         address account2 = address(0x2);
 

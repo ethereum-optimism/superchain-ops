@@ -137,10 +137,7 @@ library AccountAccessParser {
     // ==============================================================
 
     /// @notice Convenience function that wraps decode and print together.
-    function decodeAndPrint(VmSafe.AccountAccess[] memory _accesses, address _multisig, bytes32 _txHash)
-        internal
-        view
-    {
+    function decodeAndPrint(VmSafe.AccountAccess[] memory _accesses, address _multisig, bytes32 _txHash) internal {
         // We always want to sort all state diffs before printing them.
         (DecodedTransfer[] memory transfers, DecodedStateDiff[] memory stateDiffs) = decode(_accesses, true);
         if (!Utils.isFeatureEnabled("SIGNING_MODE_IN_PROGRESS")) {
@@ -151,7 +148,6 @@ library AccountAccessParser {
     /// @notice Decodes the provided AccountAccess array into decoded transfers and state diffs.
     function decode(VmSafe.AccountAccess[] memory _accountAccesses, bool _sort)
         internal
-        view
         noGasMetering
         returns (DecodedTransfer[] memory transfers, DecodedStateDiff[] memory stateDiffs)
     {
@@ -480,7 +476,6 @@ library AccountAccessParser {
     /// @notice Attempts to decode a storage slot.
     function tryDecode(string memory _contractName, bytes32 _slot, bytes32 _oldValue, bytes32 _newValue)
         internal
-        view
         returns (DecodedSlot memory decoded_)
     {
         decoded_ = tryUnstructuredSlot(_slot, _oldValue, _newValue);
@@ -682,28 +677,31 @@ library AccountAccessParser {
         }
     }
 
+    /// @notice Fetches the latest storage layout for a contract from the remote superchain-registry.
+    function fetchLatestStorageLayout(string memory _contractName) internal returns (string memory) {
+        string[] memory commands = new string[](2);
+        commands[0] = "./src/improvements/script/fetch-latest-storage-layout.sh";
+        commands[1] = _contractName;
+        bytes memory result = vm.ffi(commands);
+        return string(result);
+    }
+
     /// @notice Given a contract name and a slot, looks up the storage layout for the contract and
     /// returns the decoded slot if it is found.
     function tryStorageLayoutLookup(string memory _contractName, bytes32 _slot, bytes32 _oldValue, bytes32 _newValue)
         internal
-        view
         returns (DecodedSlot memory decoded_)
     {
-        // Lookup the storage layout for the contract.
-        // TODO: For now this just uses the submodule's version of the monorepo. A future improvement
-        // would be to look up the latest release from the registry and fetch the storage layout
-        // from the monorepo at that tag.
-        string memory basePath = "/lib/optimism/packages/contracts-bedrock/snapshots/storageLayout/";
         string memory artifactName = _contractName.endsWith("(GnosisSafe)") ? "GnosisSafe" : _contractName;
-        string memory path = string.concat(vm.projectRoot(), basePath, artifactName, ".json");
-
-        string memory storageLayout;
-        try vm.readFile(path) returns (string memory result) {
-            storageLayout = result;
-        } catch {
-            console.log("\x1B[33m[WARN]\x1B[0m Failed to read storage layout file at %s", path);
+        string memory storageLayout = fetchLatestStorageLayout(artifactName);
+        if (bytes(storageLayout).length == 0) {
+            console.log(
+                "\x1B[33m[WARN]\x1B[0m Failed to read storage layout file from remote superchain-registry for contract %s.",
+                _contractName
+            );
             return DecodedSlot({kind: "", oldValue: "", newValue: "", summary: "", detail: ""});
         }
+
         bytes memory parsedStorageLayout = vm.parseJson(storageLayout, "$");
         JsonStorageLayout[] memory layout = abi.decode(parsedStorageLayout, (JsonStorageLayout[]));
 

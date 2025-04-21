@@ -666,7 +666,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         VmSafe.AccountAccess[] memory accountAccesses,
         bool isSimulate,
         bytes32 txHash
-    ) public view {
+    ) public {
         if (!Utils.isFeatureEnabled("SIGNING_MODE_IN_PROGRESS")) {
             console.log("----------------- ATTENTION TASK DEVELOPERS -------------------");
             console.log("To properly document the task state changes, please follow these steps:");
