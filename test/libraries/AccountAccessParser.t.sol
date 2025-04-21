@@ -1140,8 +1140,12 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
 
         // Create the expected AccountStateDiff array
         AccountAccessParser.AccountStateDiff[] memory expectedArray = new AccountAccessParser.AccountStateDiff[](1);
-        expectedArray[0] =
-            AccountAccessParser.AccountStateDiff({who: RANDOM_CONTRACT_ADDR, slot: slot1, firstOld: val0, lastNew: val2});
+        expectedArray[0] = AccountAccessParser.AccountStateDiff({
+            who: RANDOM_CONTRACT_ADDR,
+            slot: slot1,
+            firstOld: val0,
+            lastNew: val2
+        });
 
         bytes32 expectedHash = keccak256(abi.encode(expectedArray));
         assertEq(hash, expectedHash, "Hash should match the expected AccountStateDiff");
@@ -1177,8 +1181,12 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
 
         // Manually construct what we expect the normalized state to be using AccountStateDiff
         AccountAccessParser.AccountStateDiff[] memory expectedArray = new AccountAccessParser.AccountStateDiff[](1);
-        expectedArray[0] =
-            AccountAccessParser.AccountStateDiff({who: RANDOM_CONTRACT_ADDR, slot: slot1, firstOld: val0, lastNew: val2});
+        expectedArray[0] = AccountAccessParser.AccountStateDiff({
+            who: RANDOM_CONTRACT_ADDR,
+            slot: slot1,
+            firstOld: val0,
+            lastNew: val2
+        });
 
         bytes32 expectedHash = keccak256(abi.encode(expectedArray));
 
