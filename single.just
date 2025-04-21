@@ -143,7 +143,6 @@ sign hdPath='0':
 
 execute_in_anvil hdPath='0':
   #!/usr/bin/env bash
-  # set -x 
   localrpcUrl="http://localhost:8545" # Can be set as global in the future.
   bundlePath=${taskPath}/${bundleName}.json
   script=SignFromJson

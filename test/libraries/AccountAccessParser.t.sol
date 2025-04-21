@@ -95,7 +95,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
 
         (, AccountAccessParser.DecodedStateDiff[] memory stateDiffs) = accountAccesses.decode(true);
         _assertStateDiffsAscending(stateDiffs);
-        accountAccesses.decodeAndPrint();
+        accountAccesses.decodeAndPrint(address(0), bytes32(0));
 
         AccountAccessParser.StateDiff[] memory firstProxyDiffs = accountAccesses.getStateDiffFor(address(proxy1), false);
         assertEq(firstProxyDiffs.length, 1, "10");
