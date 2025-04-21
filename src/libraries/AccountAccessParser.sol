@@ -78,6 +78,7 @@ library AccountAccessParser {
     }
 
     // Temporary struct used during deduplication.
+    // TODO Rename this, as it's also now used in `normalizedStateDiffHash`.
     struct TempStateChange {
         address who;
         bytes32 slot;
@@ -342,6 +343,10 @@ library AccountAccessParser {
         // which is a characteristic of an approve hash operation. We assume that if such a storage
         // change is seen in a very large slot, it is an approve hash operation. Setting modules
         // and guards in storage would not result in the slot having a value of 1.
+        // TODO Consider making this more robust to compute slots, if it adds value. In the safe
+        // storage layout, the only other mapping that sets slots to 1 is the `signedMessages`
+        // mapping but we don't use that. (The owners linked list can also have a value of 1 for the
+        // sentinel owner but that is only written when the safe is originally setup)
         return _diff.oldValue == bytes32(0) && _diff.newValue == bytes32(uint256(1))
             && _diff.slot > bytes32(uint256(0x1000000000));
     }
