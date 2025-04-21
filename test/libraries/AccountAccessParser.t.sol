@@ -6,12 +6,14 @@ import {Test} from "forge-std/Test.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
 import {Proxy} from "@eth-optimism-bedrock/src/universal/Proxy.sol";
+import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 // Solady
 import {LibString} from "solady/utils/LibString.sol";
 
 // Libraries
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
+import {console} from "forge-std/console.sol";
 
 // This is a simple implementation of a contract used in the "test_commonProxyArchitecture_succeeds" test.
 // DO NOT use in production.
@@ -1030,6 +1032,7 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
     using AccountAccessParser for VmSafe.AccountAccess[];
 
     bytes32 internal constant GNOSIS_SAFE_NONCE_SLOT = bytes32(uint256(5));
+    bytes32 internal constant GNOSIS_SAFE_APPROVE_HASHES_SLOT = bytes32(uint256(8));
 
     bool constant isWrite = true;
     bool constant reverted = true;
@@ -1066,7 +1069,7 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
         accesses[0] = accountAccess(EOA_ADDR, storageAccesses);
 
         // Get the normalized hash
-        bytes32 hash = accesses.normalizedStateDiffHash();
+        bytes32 hash = accesses.normalizedStateDiffHash(address(0), bytes32(0));
 
         // Since this is just an EOA nonce increment, the normalized array should be empty
         // and the hash should match an empty array
@@ -1087,7 +1090,7 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
         accesses[0] = accountAccess(SAFE_ADDR, storageAccesses);
 
         // Get the normalized hash
-        bytes32 hash = accesses.normalizedStateDiffHash();
+        bytes32 hash = accesses.normalizedStateDiffHash(address(0), bytes32(0));
 
         // Since this is just a Safe nonce increment, the normalized array should be empty
         // and the hash should match an empty array
@@ -1097,21 +1100,23 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
         assertEq(hash, expectedHash, "Gnosis Safe nonce increment should be removed");
     }
 
+    /// This test uses a real transaction that was approved on mainnet.
+    /// Find more details here: https://github.com/ethereum-optimism/superchain-ops/blob/main/src/improvements/tasks/eth/003-opcm-upgrade-v300-op-ink-soneium/VALIDATION.md
     function test_normalizedStateDiffHash_GnosisSafeApproveHash() public {
-        setupTests();
+        vm.createSelectFork("mainnet", 22319975);
 
-        // Create a fake approved hash slot, this is a simplification since actual slot number doesn't matter
-        bytes32 approveHashSlot = keccak256(abi.encode(0xaaaa));
+        address multisig = address(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A);
+        bytes32 approveHashSlot = 0xb83cd9f113d329914a61adce818feb77eb750bf02115fdb71f059425216265be;
 
         // Create a state diff for a Gnosis Safe approve hash (should be removed)
         VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
-        storageAccesses[0] = storageAccess(SAFE_ADDR, approveHashSlot, isWrite, val0, val1); // approve hash
+        storageAccesses[0] = storageAccess(multisig, approveHashSlot, isWrite, val0, val1); // approve hash
 
         VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
-        accesses[0] = accountAccess(SAFE_ADDR, storageAccesses);
+        accesses[0] = accountAccess(multisig, storageAccesses);
 
-        // Get the normalized hash
-        bytes32 hash = accesses.normalizedStateDiffHash();
+        bytes32 txHash = 0x0d1a3b425e64a0c9bd90f6933632c1cc0042896a1c5831ac8ef290cab8205e83;
+        bytes32 hash = accesses.normalizedStateDiffHash(multisig, txHash);
 
         // Since this is just a Safe approve hash, the normalized array should be empty
         // and the hash should match an empty array
@@ -1132,7 +1137,7 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
         accesses[0] = accountAccess(RANDOM_CONTRACT_ADDR, storageAccesses);
 
         // Get the normalized hash
-        bytes32 hash = accesses.normalizedStateDiffHash();
+        bytes32 hash = accesses.normalizedStateDiffHash(address(0), bytes32(0));
 
         // This should be included in the normalized array
         AccountAccessParser.TempStateChange[] memory emptyArray = new AccountAccessParser.TempStateChange[](0);
@@ -1148,11 +1153,13 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
     }
 
     function test_normalizedStateDiffHash_MixedChanges() public {
+        vm.createSelectFork("mainnet", 22319975);
         setupTests();
 
-        // Create a fake approved hash slot for the Safe
-        bytes32 approveHashSlot = keccak256(abi.encode(0xbbbb));
-
+        address multisig = address(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A);
+        bytes32 txHash = keccak256("fake tx hash");
+        bytes32 ownerSlot = keccak256(abi.encode(IGnosisSafe(multisig).getOwners()[0], GNOSIS_SAFE_APPROVE_HASHES_SLOT));
+        bytes32 fakeApproveHashSlot = keccak256(abi.encode(txHash, ownerSlot));
         // Create the combined account accesses array with all our test cases
         VmSafe.AccountAccess[] memory allAccesses = new VmSafe.AccountAccess[](3);
 
@@ -1163,9 +1170,9 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
 
         // 2. Gnosis Safe changes (should be filtered out)
         VmSafe.StorageAccess[] memory safeStorageAccesses = new VmSafe.StorageAccess[](2);
-        safeStorageAccesses[0] = storageAccess(SAFE_ADDR, GNOSIS_SAFE_NONCE_SLOT, isWrite, val0, val1); // nonce increment
-        safeStorageAccesses[1] = storageAccess(SAFE_ADDR, approveHashSlot, isWrite, val0, val1); // approve hash
-        allAccesses[1] = accountAccess(SAFE_ADDR, safeStorageAccesses);
+        safeStorageAccesses[0] = storageAccess(multisig, GNOSIS_SAFE_NONCE_SLOT, isWrite, val0, val1); // nonce increment
+        safeStorageAccesses[1] = storageAccess(multisig, fakeApproveHashSlot, isWrite, val0, val1); // approve hash
+        allAccesses[1] = accountAccess(multisig, safeStorageAccesses);
 
         // 3. Regular contract change (should be kept)
         VmSafe.StorageAccess[] memory regularStorageAccesses = new VmSafe.StorageAccess[](1);
@@ -1173,7 +1180,7 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
         allAccesses[2] = accountAccess(RANDOM_CONTRACT_ADDR, regularStorageAccesses);
 
         // Get the normalized hash
-        bytes32 hash = allAccesses.normalizedStateDiffHash();
+        bytes32 hash = allAccesses.normalizedStateDiffHash(multisig, txHash);
 
         // Manually construct what we expect the normalized state to be using TempStateChange
         AccountAccessParser.TempStateChange[] memory expectedArray = new AccountAccessParser.TempStateChange[](1);
