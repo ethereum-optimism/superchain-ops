@@ -222,7 +222,7 @@ contract StackedSimulatorUnitTest is Test {
 
     function testStringConversionEmptyString() public {
         StackedSimulator ss = new StackedSimulator();
-        vm.expectRevert("StackedSimulator: Prefix must have 3 characters.");
+        vm.expectRevert("StackedSimulator: Task name must not be empty.");
         ss.convertPrefixToUint(""); // Empty string
     }
 
