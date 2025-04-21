@@ -363,7 +363,7 @@ library AccountAccessParser {
         return false;
     }
 
-    /// @notice Checks if the given slot matches any liveness guard timestamp for the multisig owners.
+    /// @notice Checks if the given slot matches any liveness guard timestamp for the signers on child multisigs.
     function isLivenessGuardTimestamp(address _account, StateDiff memory _diff, address _parentMultisig)
         internal
         view
@@ -373,8 +373,10 @@ library AccountAccessParser {
             address[] memory owners = IGnosisSafe(_parentMultisig).getOwners();
             for (uint256 i = 0; i < owners.length; i++) {
                 if (isGnosisSafe(owners[i])) {
+                    // Get the owners of the nested Gnosis Safe.
                     address[] memory nestedSafeOwners = IGnosisSafe(owners[i]).getOwners();
                     for (uint256 j = 0; j < nestedSafeOwners.length; j++) {
+                        // Check if the slot matches any liveness guard timestamp for the nested safe owners.
                         bytes32 ownerSlot =
                             keccak256(abi.encode(address(nestedSafeOwners[j]), LIVENESS_GUARD_LAST_LIVE_SLOT));
                         if (_diff.slot == ownerSlot) {
