@@ -1032,6 +1032,7 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
 
     bytes32 internal constant GNOSIS_SAFE_NONCE_SLOT = bytes32(uint256(5));
     bytes32 internal constant GNOSIS_SAFE_APPROVE_HASHES_SLOT = bytes32(uint256(8));
+    bytes32 internal constant LIVENESS_GUARD_LAST_LIVE_SLOT = bytes32(uint256(0));
 
     bool constant isWrite = true;
     bool constant reverted = true;
@@ -1204,6 +1205,33 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
         );
 
         assertEq(hash, expectedHash, "Normalized hash should match expected state with only regular contract changes");
+    }
+
+    /// This test uses data from a real liveness guard timestamp update on mainnet.
+    /// Find more details here: https://github.com/ethereum-optimism/superchain-ops/blob/main/src/improvements/tasks/eth/003-opcm-upgrade-v300-op-ink-soneium/VALIDATION.md
+    function test_normalizedStateDiffHash_LivenessGuardTimestamp() public {
+        vm.createSelectFork("mainnet", 22319975);
+        setupTests();
+
+        address livenessGuard = address(0x24424336F04440b1c28685a38303aC33C9D14a25);
+        address firstOwnerOnSecurityCouncil = address(0x07dC0893cAfbF810e3E72505041f2865726Fd073);
+        bytes32 lastLiveSlot = keccak256(abi.encode(firstOwnerOnSecurityCouncil, LIVENESS_GUARD_LAST_LIVE_SLOT));
+
+        VmSafe.AccountAccess[] memory allAccesses = new VmSafe.AccountAccess[](1);
+        // Create a state diff for a LivenessGuard timestamp (should be removed)
+        VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
+        storageAccesses[0] = storageAccess(livenessGuard, lastLiveSlot, isWrite, val0, val1);
+        allAccesses[0] = accountAccess(livenessGuard, storageAccesses);
+
+        address parentMultisig = address(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A);
+        bytes32 hash = allAccesses.normalizedStateDiffHash(parentMultisig, bytes32(0));
+
+        // Since this is just a LivenessGuard timestamp update, the normalized array should be empty
+        // and the hash should match an empty array
+        AccountAccessParser.AccountStateDiff[] memory emptyArray = new AccountAccessParser.AccountStateDiff[](0);
+        bytes32 expectedHash = keccak256(abi.encode(emptyArray));
+
+        assertEq(hash, expectedHash, "LivenessGuard timestamp update should be removed");
     }
 
     // Helper functions similar to those in AccountAccessParser.t.sol
