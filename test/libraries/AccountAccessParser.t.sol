@@ -1024,3 +1024,209 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         }
     }
 }
+
+// TODO Add integration tests in a follow up PR that actually send transactions and use the recorded state diff.
+contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
+    using AccountAccessParser for VmSafe.AccountAccess[];
+
+    bytes32 internal constant GNOSIS_SAFE_NONCE_SLOT = bytes32(uint256(5));
+
+    bool constant isWrite = true;
+    bool constant reverted = true;
+
+    bytes32 constant slot0 = bytes32(uint256(0));
+    bytes32 constant slot1 = bytes32(uint256(1));
+    bytes32 constant slot2 = bytes32(uint256(2));
+
+    bytes32 constant val0 = bytes32(uint256(0));
+    bytes32 constant val1 = bytes32(uint256(1));
+    bytes32 constant val2 = bytes32(uint256(2));
+
+    address constant EOA_ADDR = address(0x1111);
+    address constant SAFE_ADDR = address(0x2222);
+    address constant RANDOM_CONTRACT_ADDR = address(0x3333);
+
+    function setupTests() public {
+        bytes memory safeCode = hex"01";
+        vm.etch(SAFE_ADDR, safeCode);
+        vm.mockCall(SAFE_ADDR, abi.encodeWithSignature("getThreshold()"), abi.encode(uint256(1)));
+
+        assertTrue(AccountAccessParser.isGnosisSafe(SAFE_ADDR), "SAFE_ADDR should be detected as a Gnosis Safe");
+        assertEq(EOA_ADDR.code.length, 0, "EOA_ADDR should have no code");
+    }
+
+    function test_normalizedStateDiffHash_EOANonceIncrement() public {
+        setupTests();
+
+        // Create a state diff for an EOA nonce increment (should be removed)
+        VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
+        storageAccesses[0] = storageAccess(EOA_ADDR, slot0, isWrite, val0, val1); // nonce 0 -> 1
+
+        VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
+        accesses[0] = accountAccess(EOA_ADDR, storageAccesses);
+
+        // Get the normalized hash
+        bytes32 hash = accesses.normalizedStateDiffHash();
+
+        // Since this is just an EOA nonce increment, the normalized array should be empty
+        // and the hash should match an empty array
+        AccountAccessParser.TempStateChange[] memory emptyArray = new AccountAccessParser.TempStateChange[](0);
+        bytes32 expectedHash = keccak256(abi.encode(emptyArray));
+
+        assertEq(hash, expectedHash, "EOA nonce increment should be removed");
+    }
+
+    function test_normalizedStateDiffHash_GnosisSafeNonceIncrement() public {
+        setupTests();
+
+        // Create a state diff for a Gnosis Safe nonce increment (should be removed)
+        VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
+        storageAccesses[0] = storageAccess(SAFE_ADDR, GNOSIS_SAFE_NONCE_SLOT, isWrite, val0, val1); // nonce 0 -> 1
+
+        VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
+        accesses[0] = accountAccess(SAFE_ADDR, storageAccesses);
+
+        // Get the normalized hash
+        bytes32 hash = accesses.normalizedStateDiffHash();
+
+        // Since this is just a Safe nonce increment, the normalized array should be empty
+        // and the hash should match an empty array
+        AccountAccessParser.TempStateChange[] memory emptyArray = new AccountAccessParser.TempStateChange[](0);
+        bytes32 expectedHash = keccak256(abi.encode(emptyArray));
+
+        assertEq(hash, expectedHash, "Gnosis Safe nonce increment should be removed");
+    }
+
+    function test_normalizedStateDiffHash_GnosisSafeApproveHash() public {
+        setupTests();
+
+        // Create a fake approved hash slot, this is a simplification since actual slot number doesn't matter
+        bytes32 approveHashSlot = keccak256(abi.encode(0xaaaa));
+
+        // Create a state diff for a Gnosis Safe approve hash (should be removed)
+        VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
+        storageAccesses[0] = storageAccess(SAFE_ADDR, approveHashSlot, isWrite, val0, val1); // approve hash
+
+        VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
+        accesses[0] = accountAccess(SAFE_ADDR, storageAccesses);
+
+        // Get the normalized hash
+        bytes32 hash = accesses.normalizedStateDiffHash();
+
+        // Since this is just a Safe approve hash, the normalized array should be empty
+        // and the hash should match an empty array
+        AccountAccessParser.TempStateChange[] memory emptyArray = new AccountAccessParser.TempStateChange[](0);
+        bytes32 expectedHash = keccak256(abi.encode(emptyArray));
+
+        assertEq(hash, expectedHash, "Gnosis Safe approve hash should be removed");
+    }
+
+    function test_normalizedStateDiffHash_OtherChanges() public {
+        setupTests();
+
+        // Create a state diff for a regular contract (should be included)
+        VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
+        storageAccesses[0] = storageAccess(RANDOM_CONTRACT_ADDR, slot1, isWrite, val0, val2); // some random change
+
+        VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
+        accesses[0] = accountAccess(RANDOM_CONTRACT_ADDR, storageAccesses);
+
+        // Get the normalized hash
+        bytes32 hash = accesses.normalizedStateDiffHash();
+
+        // This should be included in the normalized array
+        AccountAccessParser.TempStateChange[] memory emptyArray = new AccountAccessParser.TempStateChange[](0);
+        assertNotEq(hash, keccak256(abi.encode(emptyArray)), "Regular state change should be included");
+
+        // Create the expected TempStateChange array
+        AccountAccessParser.TempStateChange[] memory expectedArray = new AccountAccessParser.TempStateChange[](1);
+        expectedArray[0] =
+            AccountAccessParser.TempStateChange({who: RANDOM_CONTRACT_ADDR, slot: slot1, firstOld: val0, lastNew: val2});
+
+        bytes32 expectedHash = keccak256(abi.encode(expectedArray));
+        assertEq(hash, expectedHash, "Hash should match the expected TempStateChange");
+    }
+
+    function test_normalizedStateDiffHash_MixedChanges() public {
+        setupTests();
+
+        // Create a fake approved hash slot for the Safe
+        bytes32 approveHashSlot = keccak256(abi.encode(0xbbbb));
+
+        // Create the combined account accesses array with all our test cases
+        VmSafe.AccountAccess[] memory allAccesses = new VmSafe.AccountAccess[](3);
+
+        // 1. EOA nonce increment (should be filtered out)
+        VmSafe.StorageAccess[] memory eoaStorageAccesses = new VmSafe.StorageAccess[](1);
+        eoaStorageAccesses[0] = storageAccess(EOA_ADDR, slot0, isWrite, val0, val1);
+        allAccesses[0] = accountAccess(EOA_ADDR, eoaStorageAccesses);
+
+        // 2. Gnosis Safe changes (should be filtered out)
+        VmSafe.StorageAccess[] memory safeStorageAccesses = new VmSafe.StorageAccess[](2);
+        safeStorageAccesses[0] = storageAccess(SAFE_ADDR, GNOSIS_SAFE_NONCE_SLOT, isWrite, val0, val1); // nonce increment
+        safeStorageAccesses[1] = storageAccess(SAFE_ADDR, approveHashSlot, isWrite, val0, val1); // approve hash
+        allAccesses[1] = accountAccess(SAFE_ADDR, safeStorageAccesses);
+
+        // 3. Regular contract change (should be kept)
+        VmSafe.StorageAccess[] memory regularStorageAccesses = new VmSafe.StorageAccess[](1);
+        regularStorageAccesses[0] = storageAccess(RANDOM_CONTRACT_ADDR, slot1, isWrite, val0, val2);
+        allAccesses[2] = accountAccess(RANDOM_CONTRACT_ADDR, regularStorageAccesses);
+
+        // Get the normalized hash
+        bytes32 hash = allAccesses.normalizedStateDiffHash();
+
+        // Manually construct what we expect the normalized state to be using TempStateChange
+        AccountAccessParser.TempStateChange[] memory expectedArray = new AccountAccessParser.TempStateChange[](1);
+        expectedArray[0] =
+            AccountAccessParser.TempStateChange({who: RANDOM_CONTRACT_ADDR, slot: slot1, firstOld: val0, lastNew: val2});
+
+        bytes32 expectedHash = keccak256(abi.encode(expectedArray));
+
+        // Now let's check that the regular contract write is included and other writes are excluded
+        AccountAccessParser.TempStateChange[] memory emptyArray = new AccountAccessParser.TempStateChange[](0);
+        assertTrue(
+            hash != keccak256(abi.encode(emptyArray)),
+            "Hash should not be of an empty array (regular writes should be included)"
+        );
+
+        assertEq(hash, expectedHash, "Normalized hash should match expected state with only regular contract changes");
+    }
+
+    // Helper functions similar to those in AccountAccessParser.t.sol
+    function accountAccess(address _account, VmSafe.StorageAccess[] memory _storageAccesses)
+        internal
+        pure
+        returns (VmSafe.AccountAccess memory)
+    {
+        return VmSafe.AccountAccess({
+            chainInfo: VmSafe.ChainInfo({chainId: 1, forkId: 1}),
+            kind: VmSafe.AccountAccessKind.Call,
+            account: _account,
+            accessor: address(0),
+            initialized: true,
+            oldBalance: 0,
+            newBalance: 0,
+            deployedCode: new bytes(0),
+            value: 0,
+            data: new bytes(0),
+            reverted: false,
+            storageAccesses: _storageAccesses,
+            depth: 0
+        });
+    }
+
+    function storageAccess(address _account, bytes32 _slot, bool _isWrite, bytes32 _previousValue, bytes32 _newValue)
+        internal
+        pure
+        returns (VmSafe.StorageAccess memory)
+    {
+        return VmSafe.StorageAccess({
+            account: _account,
+            slot: _slot,
+            isWrite: _isWrite,
+            previousValue: _previousValue,
+            newValue: _newValue,
+            reverted: false
+        });
+    }
+}

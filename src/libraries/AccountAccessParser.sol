@@ -78,6 +78,7 @@ library AccountAccessParser {
     }
 
     // Temporary struct used during deduplication.
+    // TODO Rename this, as it's also now used in `normalizedStateDiffHash`.
     struct TempStateChange {
         address who;
         bytes32 slot;
@@ -119,6 +120,8 @@ library AccountAccessParser {
     bytes32 internal constant GAS_PAYING_TOKEN_SLOT = bytes32(uint256(keccak256("opstack.gaspayingtoken")) - 1);
     bytes32 internal constant GAS_PAYING_TOKEN_NAME_SLOT = bytes32(uint256(keccak256("opstack.gaspayingtokenname")) - 1);
     bytes32 internal constant GAS_PAYING_TOKEN_SYMBOL_SLOT = bytes32(uint256(keccak256("opstack.gaspayingtokensymbol")) - 1);
+
+    bytes32 internal constant GNOSIS_SAFE_NONCE_SLOT = bytes32(uint256(5));
     // forgefmt: disable-end
 
     modifier noGasMetering() {
@@ -237,6 +240,131 @@ library AccountAccessParser {
         for (uint256 i = 0; i < count; i++) {
             newContracts[i] = temp[i];
         }
+    }
+
+    /// @notice Computes a hash of the normalized state diff from account accesses. The spec for
+    /// method is:
+    ///   1. The input is an array of `VmSafe.AccountAccess[]` containing all storage writes.
+    ///   2. It calls `AccountAccessParser.getUniqueWrites` to filter down all storage writes to a state diff
+    ///   3. With that state diff, we normalize it by removing data from the state diff array that
+    ///      may change between initial simulation and execution. Removal is done by simply removing
+    ///      the entry from the `AccountAccess[]` array. The set of state changes to remove is:
+    ///       1. If the state change is an EOA nonce increment, remove it.
+    ///       2. Remove the following state changes from Gnosis Safes:
+    ///           1. Nonce increments.
+    ///           2. Setting an approve hash in storage (the hash is dependent on the nonce, which may change)
+    ///       3. If the storage slot contains a timestamp, normalize that timestamp to be all zeroes.
+    ///           1. This will have to be informed by knowing the storage layouts, which is ok
+    ///           2. We should only normalize the specific section of the slot corresponding to the
+    ///              timestamp, since some timestamps are packed into slots with other data.
+    ///   4. The hash to return is computed as `keccak256(abi.encode(normalizedArray))`.
+    /// @return bytes32 hash of the normalized state diff
+    function normalizedStateDiffHash(VmSafe.AccountAccess[] memory _accountAccesses) internal view returns (bytes32) {
+        // Get all storage writes as a state diff.
+        address[] memory uniqueAddresses = getUniqueWrites({accesses: _accountAccesses, _sort: false});
+
+        // Create a temporary array to store normalized state changes.
+        // We set the size to 1000 because we will likely never have more than 1000 state changes.
+        uint256 maxStateChanges = 1000;
+        TempStateChange[] memory normalizedChanges = new TempStateChange[](maxStateChanges);
+        uint256 normalizedCount = 0;
+
+        // Process each account with storage writes.
+        for (uint256 i = 0; i < uniqueAddresses.length; i++) {
+            address account = uniqueAddresses[i];
+            StateDiff[] memory diffs = getStateDiffFor({accesses: _accountAccesses, who: account, _sort: false});
+
+            // Process each diff and apply normalization logic.
+            for (uint256 j = 0; j < diffs.length; j++) {
+                StateDiff memory diff = diffs[j];
+                bool shouldInclude = true;
+
+                // 1. If the state change is an EOA nonce increment, remove it.
+                if (isEOANonceIncrement(account, diff)) {
+                    shouldInclude = false;
+                }
+                // 2. Remove Gnosis Safe nonce increment and approve hash changes.
+                else if (isGnosisSafe(account)) {
+                    // 2.1 Nonce increment.
+                    if (isGnosisSafeNonceIncrement(diff)) {
+                        shouldInclude = false;
+                    }
+                    // 2.2 Setting an approve hash in storage.
+                    else if (isGnosisSafeApproveHash(diff)) {
+                        shouldInclude = false;
+                    }
+                }
+                // 3. If the slot contains a timestamp, normalize it to zeroes.
+                else if (slotContainsTimestamp(account, diff)) {
+                    diff = normalizeTimestamp(diff);
+                }
+
+                // Include the diff in our normalized array if it should be included.
+                if (shouldInclude) {
+                    normalizedChanges[normalizedCount] = TempStateChange({
+                        who: account,
+                        slot: diff.slot,
+                        firstOld: diff.oldValue,
+                        lastNew: diff.newValue
+                    });
+                    normalizedCount++;
+                    require(normalizedCount < maxStateChanges, "AccountAccessParser: Max state changes reached");
+                }
+            }
+        }
+
+        // Create the final array with the correct size.
+        TempStateChange[] memory finalArray = new TempStateChange[](normalizedCount);
+        for (uint256 i = 0; i < normalizedCount; i++) {
+            finalArray[i] = normalizedChanges[i];
+        }
+
+        // Return keccak256 hash of the abi-encoded normalized array.
+        return keccak256(abi.encode(finalArray));
+    }
+
+    /// @notice Checks if the state diff represents an EOA nonce increment
+    function isEOANonceIncrement(address _account, StateDiff memory _diff) internal view returns (bool) {
+        uint256 codeSize = _account.code.length;
+        return codeSize == 0 && _diff.slot == bytes32(0) && uint256(_diff.newValue) == uint256(_diff.oldValue) + 1;
+    }
+
+    /// @notice Checks if the state diff represents a Gnosis Safe nonce increment
+    function isGnosisSafeNonceIncrement(StateDiff memory _diff) internal pure returns (bool) {
+        // In Gnosis Safe, the nonce is stored at slot 5. See `GnosisSafeStorage.sol` to verify.
+        return _diff.slot == GNOSIS_SAFE_NONCE_SLOT && uint256(_diff.newValue) == uint256(_diff.oldValue) + 1;
+    }
+
+    /// @notice Checks if the state diff represents setting an approve hash in a Gnosis Safe
+    function isGnosisSafeApproveHash(StateDiff memory _diff) internal pure returns (bool) {
+        // In Gnosis Safe, approvedHashes is a mapping at slot 8
+        // The slot for a specific hash approval is calculated with the keccak256 hash of the address
+        // and slot. We can't know the specific slot value here, but we can detect a change from 0 to 1
+        // which is a characteristic of an approve hash operation. We assume that if such a storage
+        // change is seen in a very large slot, it is an approve hash operation. Setting modules
+        // and guards in storage would not result in the slot having a value of 1.
+        // TODO Consider making this more robust to compute slots, if it adds value. In the safe
+        // storage layout, the only other mapping that sets slots to 1 is the `signedMessages`
+        // mapping but we don't use that. (The owners linked list can also have a value of 1 for the
+        // sentinel owner but that is only written when the safe is originally setup)
+        return _diff.oldValue == bytes32(0) && _diff.newValue == bytes32(uint256(1))
+            && _diff.slot > bytes32(uint256(0x1000000000));
+    }
+
+    /// @notice Checks if the storage slot contains a timestamp that should be normalized
+    function slotContainsTimestamp(address _account, StateDiff memory _diff) internal pure returns (bool) {
+        // TODO Check out the storage layout snapshots and hardcode the slots that contain timestamps.
+        // We will have to call getter methods on _account to infer what protocol contract it is.
+        _account;
+        _diff;
+        return false;
+    }
+
+    /// @notice Normalizes a timestamp in a storage slot by zeroing out only the timestamp portion
+    function normalizeTimestamp(StateDiff memory _diff) internal pure returns (StateDiff memory) {
+        // This is a placeholder that should be implemented based on specific contract knowledge
+        // For now, just return the original diff unchanged
+        return _diff;
     }
 
     /// @notice Extracts all unique storage writes (i.e. writes where the value has actually changed)
