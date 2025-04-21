@@ -7,6 +7,7 @@ import {LibString} from "@solady/utils/LibString.sol";
 import {IDisputeGameFactory, GameType} from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {SimpleStorage} from "test/tasks/mock/template/StackSimulationTestTemplate.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {console} from "forge-std/console.sol";
 
 contract StackedSimulatorUnitTest is Test {
     using LibString for string;
@@ -41,6 +42,7 @@ contract StackedSimulatorUnitTest is Test {
     function testSimulateStackedTasks_AllTasks() public {
         StackedSimulator ss = new StackedSimulator();
         createTestTasks("eth_001", 3, 100);
+        console.log("StackedSimulatorUnitTest: testSimulateStackedTasks_AllTasks");
         ss.simulateStack("eth_001", "101-task-name");
 
         // Assert that the last tasks state change is the latest state change.

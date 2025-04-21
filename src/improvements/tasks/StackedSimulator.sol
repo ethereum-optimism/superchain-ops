@@ -27,32 +27,13 @@ contract StackedSimulator is Script {
     }
 
     /// @notice Simulates the execution of a task and all tasks that must be executed before it.
-    /// This function copies the necessary files to a local directory that is not tracked by git.
-    /// It does this because as part of stacked simulations, we need to modify the task config.toml files
-    /// and we don't want to commit those changes to the repo.
     function simulateStack(string memory network, string memory task) public {
         TaskRunner taskRunner = new TaskRunner();
         TaskInfo[] memory tasks = getNonTerminalTasks(network, task);
         TaskRunner.TaskConfig[] memory taskConfigs = new TaskRunner.TaskConfig[](tasks.length);
 
-        // This is a gitignored directory.
-        string memory testDirectory = "test/tasks/stacked-sim-local";
-        // Duplicate each task config so that we're not modifying the original task config.toml files.
         for (uint256 i = 0; i < tasks.length; i++) {
             taskConfigs[i] = taskRunner.parseConfig(tasks[i].path);
-            string memory basePath = string.concat(testDirectory, "/", network, "/", tasks[i].name);
-            vm.createDir(basePath, true);
-            require(vm.isFile(taskConfigs[i].configPath), "StackedSimulator: config.toml file does not exist");
-            string memory configPath = string.concat(basePath, "/", "config.toml");
-            vm.copyFile(taskConfigs[i].configPath, configPath);
-
-            string memory envPath = string.concat(taskConfigs[i].basePath, "/", ".env");
-            if (vm.isFile(envPath)) {
-                vm.copyFile(envPath, string.concat(basePath, "/", ".env"));
-            }
-
-            taskConfigs[i].basePath = basePath;
-            taskConfigs[i].configPath = configPath;
         }
 
         // Setting this env variable to reduce logging for stack simulations.

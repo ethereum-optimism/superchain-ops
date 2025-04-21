@@ -30,5 +30,3 @@ broadcast/*
 
 # Stacked simulation test files
 test/tasks/stacked-sim-testing/
-# When running locally, we use a different directory so that we don't commit the local changes to config.toml files.
-test/tasks/stacked-sim-local/
