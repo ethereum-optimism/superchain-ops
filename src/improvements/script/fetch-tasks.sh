@@ -51,5 +51,5 @@ for file in $files; do
   check_status "$file"
 done
 
-# Output the list of tasks to run in a format suitable for the Runner contract
+# Output the list of tasks to run in a suitable format for consuming contracts.
 printf '%s\n' "${tasks_to_run[@]}"

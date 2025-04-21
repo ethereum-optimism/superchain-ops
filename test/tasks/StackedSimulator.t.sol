@@ -173,7 +173,7 @@ contract StackedSimulatorUnitTest is Test {
 
     function testGetNonTerminalTasks_NoTasks() public {
         StackedSimulator ss = new StackedSimulator();
-        vm.expectRevert("TaskRunner: No non-terminal tasks found");
+        vm.expectRevert("TaskManager: No non-terminal tasks found");
         ss.getNonTerminalTasks("fake-network");
     }
 

@@ -2,7 +2,7 @@
 pragma solidity 0.8.15;
 
 import {Script} from "forge-std/Script.sol";
-import {TaskRunner} from "src/improvements/tasks/TaskRunner.sol";
+import {TaskManager} from "src/improvements/tasks/TaskManager.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {console} from "forge-std/console.sol";
@@ -28,12 +28,12 @@ contract StackedSimulator is Script {
 
     /// @notice Simulates the execution of a task and all tasks that must be executed before it.
     function simulateStack(string memory network, string memory task) public {
-        TaskRunner taskRunner = new TaskRunner();
+        TaskManager taskManager = new TaskManager();
         TaskInfo[] memory tasks = getNonTerminalTasks(network, task);
-        TaskRunner.TaskConfig[] memory taskConfigs = new TaskRunner.TaskConfig[](tasks.length);
+        TaskManager.TaskConfig[] memory taskConfigs = new TaskManager.TaskConfig[](tasks.length);
 
         for (uint256 i = 0; i < tasks.length; i++) {
-            taskConfigs[i] = taskRunner.parseConfig(tasks[i].path);
+            taskConfigs[i] = taskManager.parseConfig(tasks[i].path);
         }
 
         // Setting this env variable to reduce logging for stack simulations.
@@ -47,7 +47,7 @@ contract StackedSimulator is Script {
             );
             // If we wanted to ensure that all Tenderly links worked for each task, we would need to build a cumulative list of all state overrides
             // and append them to the next task's config.toml file. For now, we are skipping this functionality.
-            taskRunner.executeTask(taskConfigs[i]);
+            taskManager.executeTask(taskConfigs[i]);
         }
     }
 
@@ -63,8 +63,8 @@ contract StackedSimulator is Script {
 
     /// @notice Returns an ordered list of non-terminal tasks for a given network.
     function getNonTerminalTasks(string memory network) public returns (TaskInfo[] memory tasks_) {
-        TaskRunner taskRunner = new TaskRunner();
-        string[] memory nonTerminalTasks = taskRunner.getNonTerminalTasks(network);
+        TaskManager taskManager = new TaskManager();
+        string[] memory nonTerminalTasks = taskManager.getNonTerminalTasks(network);
         tasks_ = new TaskInfo[](nonTerminalTasks.length);
         for (uint256 i = 0; i < nonTerminalTasks.length; i++) {
             string[] memory parts = vm.split(nonTerminalTasks[i], "/");
@@ -118,6 +118,7 @@ contract StackedSimulator is Script {
 
     /// @notice Converts the first three characters of a task name string to a uint256.
     function convertPrefixToUint(string memory taskName) public pure returns (uint256) {
+        require(bytes(taskName).length > 0, "StackedSimulator: Task name must not be empty.");
         string[] memory parts = vm.split(taskName, "-");
         require(parts.length > 0, "StackedSimulator: Invalid task name, must contain at least one '-'.");
         require(!parts[0].contains("0x"), "StackedSimulator: Does not support hex strings.");

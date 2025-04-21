@@ -3,11 +3,11 @@ pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
 import {LibString} from "@solady/utils/LibString.sol";
-import {TaskRunner} from "src/improvements/tasks/TaskRunner.sol";
+import {TaskManager} from "src/improvements/tasks/TaskManager.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
 
-contract TaskRunnerUnitTest is StateOverrideManager, Test {
+contract TaskManagerUnitTest is StateOverrideManager, Test {
     using LibString for string;
 
     string constant commonToml = "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n"
@@ -17,24 +17,24 @@ contract TaskRunnerUnitTest is StateOverrideManager, Test {
     function setUp() public {}
 
     function testSetTenderlyGasEnv() public {
-        TaskRunner tr = new TaskRunner();
+        TaskManager tm = new TaskManager();
 
-        tr.setTenderlyGasEnv("./src/improvements/tasks/sep/000-opcm-upgrade-v200/");
+        tm.setTenderlyGasEnv("./src/improvements/tasks/sep/000-opcm-upgrade-v200/");
         assertEq(vm.envString("TENDERLY_GAS"), "30000000");
 
-        tr.setTenderlyGasEnv("./src/improvements/tasks/sep/001-opcm-upgrade-v200/");
+        tm.setTenderlyGasEnv("./src/improvements/tasks/sep/001-opcm-upgrade-v200/");
         assertEq(vm.envString("TENDERLY_GAS"), "16000000");
 
-        tr.setTenderlyGasEnv("./src/improvements/tasks/sep/002-unichain-superchain-config-fix/");
+        tm.setTenderlyGasEnv("./src/improvements/tasks/sep/002-unichain-superchain-config-fix/");
         assertEq(vm.envString("TENDERLY_GAS"), "");
 
-        tr.setTenderlyGasEnv("./src/improvements/tasks/sep/003-opcm-upgrade-v200/");
+        tm.setTenderlyGasEnv("./src/improvements/tasks/sep/003-opcm-upgrade-v200/");
         assertEq(vm.envString("TENDERLY_GAS"), "16000000");
 
-        tr.setTenderlyGasEnv("./src/improvements/tasks/eth/000-opcm-upgrade-v200/");
+        tm.setTenderlyGasEnv("./src/improvements/tasks/eth/000-opcm-upgrade-v200/");
         assertEq(vm.envString("TENDERLY_GAS"), "30000000");
 
-        tr.setTenderlyGasEnv("./src/improvements/tasks/eth/002-opcm-upgrade-v200/");
+        tm.setTenderlyGasEnv("./src/improvements/tasks/eth/002-opcm-upgrade-v200/");
         assertEq(vm.envString("TENDERLY_GAS"), "16000000");
     }
 

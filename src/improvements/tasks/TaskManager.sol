@@ -13,9 +13,9 @@ import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 
-/// This script gathers all tasks for a given network and performs a simulation run for each task.
+/// This script provides a collection of functions that can be used to manage tasks.
 /// This file can only simulate tasks for one network at a time (see: script/fetch-tasks.sh).
-contract TaskRunner is Script {
+contract TaskManager is Script {
     using Strings for uint256;
     using stdToml for string;
     using LibString for string;
@@ -60,14 +60,6 @@ contract TaskRunner is Script {
         });
     }
 
-    function run(string memory network) public {
-        string[] memory taskPaths = getNonTerminalTasks(network);
-        for (uint256 i = 0; i < taskPaths.length; i++) {
-            TaskConfig memory config = parseConfig(taskPaths[i]);
-            executeTask(config);
-        }
-    }
-
     /// @notice Fetches all non-terminal tasks for a given network.
     function getNonTerminalTasks(string memory network) public returns (string[] memory taskPaths_) {
         string[] memory commands = new string[](2);
@@ -75,7 +67,7 @@ contract TaskRunner is Script {
         commands[1] = network;
 
         bytes memory result = vm.ffi(commands);
-        require(result.length > 0, "TaskRunner: No non-terminal tasks found");
+        require(result.length > 0, "TaskManager: No non-terminal tasks found");
         string[] memory taskConfigFilePaths = vm.split(string(result), "\n");
         taskPaths_ = new string[](taskConfigFilePaths.length);
 
@@ -101,18 +93,19 @@ contract TaskRunner is Script {
         }
     }
 
+    /// @notice Basic sanity checks to ensure the task is well-formed.
     function validateTask(string memory taskPath) public view {
         require(
             vm.isFile(string.concat(taskPath, "/", "config.toml")),
-            string.concat("TaskRunner: config.toml file does not exist: ", taskPath)
+            string.concat("TaskManager: config.toml file does not exist: ", taskPath)
         );
         require(
             vm.isFile(string.concat(taskPath, "/", "README.md")),
-            string.concat("TaskRunner: README.md file does not exist: ", taskPath)
+            string.concat("TaskManager: README.md file does not exist: ", taskPath)
         );
         require(
             vm.isFile(string.concat(taskPath, "/", "VALIDATION.md")),
-            string.concat("TaskRunner: VALIDATION.md file does not exist: ", taskPath)
+            string.concat("TaskManager: VALIDATION.md file does not exist: ", taskPath)
         );
     }
 
@@ -130,7 +123,7 @@ contract TaskRunner is Script {
             require(
                 owners.length > 0,
                 string.concat(
-                    "TaskRunner: No owners found for parent multisig: ",
+                    "TaskManager: No owners found for parent multisig: ",
                     Strings.toHexString(uint256(uint160(config.parentMultisig)), 20)
                 )
             );
