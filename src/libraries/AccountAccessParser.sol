@@ -77,9 +77,8 @@ library AccountAccessParser {
         address tokenAddress;
     }
 
-    // Temporary struct used during deduplication.
-    // TODO Rename this, as it's also now used in `normalizedStateDiffHash`.
-    struct TempStateChange {
+    // This struct represents a state change with the account information
+    struct AccountStateDiff {
         address who;
         bytes32 slot;
         bytes32 firstOld;
@@ -271,7 +270,7 @@ library AccountAccessParser {
         // Create a temporary array to store normalized state changes.
         // We set the size to 1000 because we will likely never have more than 1000 state changes.
         uint256 maxStateChanges = 1000;
-        TempStateChange[] memory normalizedChanges = new TempStateChange[](maxStateChanges);
+        AccountStateDiff[] memory normalizedChanges = new AccountStateDiff[](maxStateChanges);
         uint256 normalizedCount = 0;
 
         // Process each account with storage writes.
@@ -306,7 +305,7 @@ library AccountAccessParser {
 
                 // Include the diff in our normalized array if it should be included.
                 if (shouldInclude) {
-                    normalizedChanges[normalizedCount] = TempStateChange({
+                    normalizedChanges[normalizedCount] = AccountStateDiff({
                         who: account,
                         slot: diff.slot,
                         firstOld: diff.oldValue,
@@ -319,7 +318,7 @@ library AccountAccessParser {
         }
 
         // Create the final array with the correct size.
-        TempStateChange[] memory finalArray = new TempStateChange[](normalizedCount);
+        AccountStateDiff[] memory finalArray = new AccountStateDiff[](normalizedCount);
         for (uint256 i = 0; i < normalizedCount; i++) {
             finalArray[i] = normalizedChanges[i];
         }

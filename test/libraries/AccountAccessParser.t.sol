@@ -1072,7 +1072,7 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
 
         // Since this is just an EOA nonce increment, the normalized array should be empty
         // and the hash should match an empty array
-        AccountAccessParser.TempStateChange[] memory emptyArray = new AccountAccessParser.TempStateChange[](0);
+        AccountAccessParser.AccountStateDiff[] memory emptyArray = new AccountAccessParser.AccountStateDiff[](0);
         bytes32 expectedHash = keccak256(abi.encode(emptyArray));
 
         assertEq(hash, expectedHash, "EOA nonce increment should be removed");
@@ -1093,7 +1093,7 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
 
         // Since this is just a Safe nonce increment, the normalized array should be empty
         // and the hash should match an empty array
-        AccountAccessParser.TempStateChange[] memory emptyArray = new AccountAccessParser.TempStateChange[](0);
+        AccountAccessParser.AccountStateDiff[] memory emptyArray = new AccountAccessParser.AccountStateDiff[](0);
         bytes32 expectedHash = keccak256(abi.encode(emptyArray));
 
         assertEq(hash, expectedHash, "Gnosis Safe nonce increment should be removed");
@@ -1119,7 +1119,7 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
 
         // Since this is just a Safe approve hash, the normalized array should be empty
         // and the hash should match an empty array
-        AccountAccessParser.TempStateChange[] memory emptyArray = new AccountAccessParser.TempStateChange[](0);
+        AccountAccessParser.AccountStateDiff[] memory emptyArray = new AccountAccessParser.AccountStateDiff[](0);
         bytes32 expectedHash = keccak256(abi.encode(emptyArray));
 
         assertEq(hash, expectedHash, "Gnosis Safe approve hash should be removed");
@@ -1139,16 +1139,20 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
         bytes32 hash = accesses.normalizedStateDiffHash(address(0), bytes32(0));
 
         // This should be included in the normalized array
-        AccountAccessParser.TempStateChange[] memory emptyArray = new AccountAccessParser.TempStateChange[](0);
+        AccountAccessParser.AccountStateDiff[] memory emptyArray = new AccountAccessParser.AccountStateDiff[](0);
         assertNotEq(hash, keccak256(abi.encode(emptyArray)), "Regular state change should be included");
 
-        // Create the expected TempStateChange array
-        AccountAccessParser.TempStateChange[] memory expectedArray = new AccountAccessParser.TempStateChange[](1);
-        expectedArray[0] =
-            AccountAccessParser.TempStateChange({who: RANDOM_CONTRACT_ADDR, slot: slot1, firstOld: val0, lastNew: val2});
+        // Create the expected AccountStateDiff array
+        AccountAccessParser.AccountStateDiff[] memory expectedArray = new AccountAccessParser.AccountStateDiff[](1);
+        expectedArray[0] = AccountAccessParser.AccountStateDiff({
+            who: RANDOM_CONTRACT_ADDR,
+            slot: slot1,
+            firstOld: val0,
+            lastNew: val2
+        });
 
         bytes32 expectedHash = keccak256(abi.encode(expectedArray));
-        assertEq(hash, expectedHash, "Hash should match the expected TempStateChange");
+        assertEq(hash, expectedHash, "Hash should match the expected AccountStateDiff");
     }
 
     function test_normalizedStateDiffHash_MixedChanges() public {
@@ -1181,15 +1185,19 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
         // Get the normalized hash
         bytes32 hash = allAccesses.normalizedStateDiffHash(multisig, txHash);
 
-        // Manually construct what we expect the normalized state to be using TempStateChange
-        AccountAccessParser.TempStateChange[] memory expectedArray = new AccountAccessParser.TempStateChange[](1);
-        expectedArray[0] =
-            AccountAccessParser.TempStateChange({who: RANDOM_CONTRACT_ADDR, slot: slot1, firstOld: val0, lastNew: val2});
+        // Manually construct what we expect the normalized state to be using AccountStateDiff
+        AccountAccessParser.AccountStateDiff[] memory expectedArray = new AccountAccessParser.AccountStateDiff[](1);
+        expectedArray[0] = AccountAccessParser.AccountStateDiff({
+            who: RANDOM_CONTRACT_ADDR,
+            slot: slot1,
+            firstOld: val0,
+            lastNew: val2
+        });
 
         bytes32 expectedHash = keccak256(abi.encode(expectedArray));
 
         // Now let's check that the regular contract write is included and other writes are excluded
-        AccountAccessParser.TempStateChange[] memory emptyArray = new AccountAccessParser.TempStateChange[](0);
+        AccountAccessParser.AccountStateDiff[] memory emptyArray = new AccountAccessParser.AccountStateDiff[](0);
         assertTrue(
             hash != keccak256(abi.encode(emptyArray)),
             "Hash should not be of an empty array (regular writes should be included)"
