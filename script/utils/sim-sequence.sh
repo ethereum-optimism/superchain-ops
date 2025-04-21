@@ -1317,8 +1317,9 @@ for task_folder in "${task_folders[@]}"; do
           --justfile "${root_dir}/src/improvements/single.just" \
           sign_and_execute_in_anvil $parent_multisig 2>&1)
         set -e
+
         if [[ $approval == *"not enough signatures"* ]]; then
-          echo "approval: $approval"
+          echo "approval: $approval" # display the approval error in the CI to debug the issues. 
           log_error "Nonce is invalid for $task_folder for council approval, please check the nonces below:"
           log_nonce_error
           exit 99
