@@ -1,0 +1,36 @@
+[[safes]]
+name = "op-pao"
+address = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
+owners = ["sc", "fus"]
+nonce = 28
+
+[[safes]]
+name = "sc"
+address = "0xf64bc17485f0B4Ea5F06A96514182FC4cB561977"
+nonce = 37
+
+[[safes]]
+name = "fus"
+address = "0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B"
+nonce = 42
+
+[[safes]]
+name = "base-pao"
+address = "0x0fe884546476dDd290eC46318785046ef68a0BA9"
+owners = ["base-safe-a", "base-safe-b"]
+nonce = 22
+
+[[safes]]
+name = "base-safe-a"
+address = "0x6AF0674791925f767060Dd52f7fB20984E8639d8"
+nonce = 5
+
+[[safes]]
+name = "base-safe-b"
+address = "0x646132A1667ca7aD00d36616AFBA1A28116C770A"
+nonce = 5
+
+[[safes]]
+name = "uni-pao"
+address = "0xd363339eE47775888Df411A163c586a8BdEA9dbf"
+nonce = 32
