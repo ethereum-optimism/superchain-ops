@@ -6,9 +6,11 @@ import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegis
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {console} from "forge-std/console.sol";
+import {StdStyle} from "forge-std/StdStyle.sol";
 
 abstract contract L2TaskBase is MultisigTask {
     using EnumerableSet for EnumerableSet.AddressSet;
+    using StdStyle for string;
 
     SuperchainAddressRegistry public superchainAddrRegistry;
 
