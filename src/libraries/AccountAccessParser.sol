@@ -532,7 +532,11 @@ library AccountAccessParser {
         address _parentMultisig,
         bytes32 _txHash
     ) internal view noGasMetering {
-        console.log("\n----------------- Task Transfers -------------------");
+        console.log("");
+        console.log(string.concat("\x1b[36mTASK TRANSFERS\x1b[0m"));
+        // forgefmt: disable-start
+        console.log(string.concat("\x1b[36m", unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "\x1b[0m"));
+        // forgefmt: disable-end
         if (_transfers.length == 0) {
             console.log("No ETH or ERC20 transfers.");
         } else {
@@ -546,11 +550,21 @@ library AccountAccessParser {
             }
         }
 
-        console.log("\n----------------- Task State Changes -------------------");
-        console.log("\n--- Attention: Copy content below this line into the VALIDATION.md file. ---");
+        console.log("");
+        console.log(string.concat("\x1b[36mTASK STATE CHANGES\x1b[0m"));
+        // forgefmt: disable-start
+        console.log(string.concat("\x1b[36m", unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "\x1b[0m"));
+        // forgefmt: disable-end
+        printCopyHelper("below");
         require(_stateDiffs.length > 0, "No state changes found, this is unexpected.");
         printMarkdown(_stateDiffs, _parentMultisig, _txHash);
-        console.log("\n\n --- Attention: Copy content above this line into the VALIDATION.md file. ---");
+        printCopyHelper("above");
+    }
+
+    function printCopyHelper(string memory _text) internal view noGasMetering {
+        // forgefmt: disable-start
+        console.log(string.concat("\x1b[33m", unicode"━━━━━", " Attention: Copy content ", _text, " this line into the VALIDATION.md file. ", unicode"━━━━━", "\x1b[0m"));
+        // forgefmt: disable-end
     }
 
     /// @notice Prints the decoded state diffs to the console in markdown format.

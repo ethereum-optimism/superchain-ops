@@ -323,17 +323,24 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @notice Print the data to sign.
     function printEncodedTransactionData(bytes memory dataToSign) public pure {
         // logs required for using eip712sign binary to sign the data to sign with Ledger
-        console.log("\nData to sign:");
+        printTitle("DATA TO SIGN");
         console.log("vvvvvvvv");
         console.logBytes(dataToSign);
         console.log("^^^^^^^^\n");
 
-        console.log("---------- ATTENTION SIGNERS ----------");
+        printTitle("ATTENTION SIGNERS");
         console.log("Please verify that the 'Data to sign' displayed above matches:");
         console.log("1. The data shown in the Tenderly simulation.");
         console.log("2. The data shown on your hardware wallet.");
         console.log("This is a critical step. Do not skip this verification.");
-        console.log("---------------------------------------");
+    }
+
+    function printTitle(string memory title) private pure {
+        // forgefmt: disable-start
+        console.log("");
+        console.log(string.concat("\x1b[1m\x1b[36m", vm.toUppercase(title), "\x1b[0m"));
+        console.log(string.concat("\x1b[36m", unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "\x1b[0m"));
+        // forgefmt: disable-end
     }
 
     /// @notice Print the hash to approve by EOA for parent/root multisig.
@@ -346,10 +353,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         console.log("Domain Hash:    ", vm.toString(domainSeparator));
         console.log("Message Hash:   ", vm.toString(messageHash));
 
-        // TODO: Remove this feature flag after all U13 tasks are executed.
-        if (false) {
-            printOPTxVerifyLink(callData, hex"");
-        }
+        printOPTxVerifyLink(callData, hex"");
     }
 
     /// @notice This function prints a op-txverify link which can be used for verifying the authenticity of the domain and message hashes
@@ -409,8 +413,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         );
 
         string memory base64Json = Base64.encode(bytes(json));
+        printTitle("OP-TXVERIFY LINK");
         console.log(
-            "\nTo verify this transaction, run `op-txverify qr` on your machine, then open the following link on your mobile device: https://op-txverify.optimism.io/?tx=%s",
+            "To verify this transaction, run `op-txverify qr` on your machine, then open the following link on your mobile device: https://op-txverify.optimism.io/?tx=%s",
             base64Json
         );
     }
@@ -667,25 +672,48 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         bool isSimulate,
         bytes32 txHash
     ) public view {
+        console.log("");
+        // forgefmt: disable-start
+        console.log(string.concat("\x1b[36m", unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "\x1b[0m"));
+        console.log("\x1b[1m\x1b[36m                 WELCOME TO SUPERCHAIN-OPS\x1b[0m");
+        console.log(string.concat("\x1b[36m", unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "\x1b[0m"));
         if (!Utils.isFeatureEnabled("SIGNING_MODE_IN_PROGRESS")) {
-            console.log("----------------- ATTENTION TASK DEVELOPERS -------------------");
+            printTitle("ATTENTION TASK DEVELOPERS");
             console.log("To properly document the task state changes, please follow these steps:");
             console.log("1. Copy and paste the state changes printed below into the VALIDATION.md file.");
-            console.log(
-                "2. For each task, write a thorough 'Detail' and 'Summary' section explaining the state change, providing links where appropriate."
-            );
+            console.log("2. For each task, write a thorough 'Detail' and 'Summary' section explaining the state change, providing links where appropriate.");
             console.log("3. Ensure the state changes are expected and match those seen in the Tenderly simulation.");
-            console.log("----------------------------------------------------------------\n");
+            // forgefmt: disable-end
         }
+
         accountAccesses.decodeAndPrint(parentMultisig, txHash);
 
         printSafe(actions, isSimulate);
+
+        printAuditReportInfo(accountAccesses, parentMultisig, txHash);
+    }
+
+    /// @notice Prints the audit report information.
+    function printAuditReportInfo(VmSafe.AccountAccess[] memory _accAccesses, address _parentMultisig, bytes32 _txHash)
+        private
+        view
+    {
+        console.log("");
+        printTitle("AUDIT REPORT INFORMATION");
+        // forgefmt: disable-start
+        console.log("The normalized state diff hash MUST match the hash created by the state changes attested to in the audit report.");
+        console.log("As a signer, you are responsible for making sure this hash is correct. Please compare the hash below with the hash in the audit report.");
+        bytes32 normalizedHash = AccountAccessParser.normalizedStateDiffHash(_accAccesses, _parentMultisig, _txHash);
+        console.log("");
+        console.log("Normalized hash: %s", vm.toString(normalizedHash));
+        console.log("");
+        // forgefmt: disable-end
     }
 
     /// @notice Prints all relevant hashes to sign as well as the tenderly simulation link.
     function printSafe(Action[] memory actions, bool isSimulate) private view {
         // Print calldata to be executed within the Safe.
-        console.log("\n\n------------------ Task Calldata ------------------");
+        printTitle("TASK CALLLDATA");
         console.logBytes(getMulticall3Calldata(actions));
 
         // Only print data if the task is being simulated.
@@ -696,7 +724,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                 printSingleData(actions);
             }
 
-            console.log("\n\n------------------ Tenderly Simulation Data ------------------");
+            printTitle("TENDERLY SIMULATION DATA");
             printTenderlySimulationData(actions);
         }
     }
@@ -710,25 +738,20 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         (, bytes memory dataToSign, bytes32 domainSeparator, bytes32 messageHash) = getApproveTransactionInfo(actions);
         bytes memory parentCalldata = getMulticall3Calldata(actions);
 
-        console.log("\n\n------------------ Nested Multisig Child's Hash to Approve ------------------");
+        printTitle("NESTED MULTISIG CHILD'S HASH TO APPROVE");
         console.log("Parent multisig: %s", getAddressLabel(parentMultisig));
         console.log("Parent hashToApprove: %s", vm.toString(getHash(parentCalldata, parentMultisig)));
-        console.log("\n\n------------------ Nested Multisig EOAs Data to Sign ------------------");
         printEncodedTransactionData(dataToSign);
-        console.log("\n\n------------------ Nested Multisig EOAs Hash to Approve ------------------");
+        printTitle("NESTED MULTISIG EOAS HASH TO APPROVE");
         printChildHash(domainSeparator, messageHash);
-        // TODO: Remove this feature flag after all U13 tasks are executed.
-        if (false) {
-            printOPTxVerifyLink(parentCalldata, generateApproveMulticallData(actions));
-        }
+        printOPTxVerifyLink(parentCalldata, generateApproveMulticallData(actions));
     }
 
     /// @notice Helper function to print non-nested safe calldata.
     function printSingleData(Action[] memory actions) private view {
-        console.log("\n\n------------------ Single Multisig EOA Data to Sign ------------------");
         bytes memory dataToSign = getEncodedTransactionData(parentMultisig, getMulticall3Calldata(actions));
         printEncodedTransactionData(dataToSign);
-        console.log("\n\n------------------ Single Multisig EOA Hash to Approve ------------------");
+        printTitle("SINGLE MULTISIG EOA HASH TO APPROVE");
         printParentHash(getMulticall3Calldata(actions));
     }
 
