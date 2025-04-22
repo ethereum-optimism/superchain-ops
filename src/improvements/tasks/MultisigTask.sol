@@ -6,6 +6,7 @@ import {console} from "forge-std/console.sol";
 import {Script} from "forge-std/Script.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {Test} from "forge-std/Test.sol";
+import {StdStyle} from "forge-std/StdStyle.sol";
 
 import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
@@ -22,6 +23,7 @@ type AddressRegistry is address;
 abstract contract MultisigTask is Test, Script, StateOverrideManager {
     using EnumerableSet for EnumerableSet.AddressSet;
     using AccountAccessParser for VmSafe.AccountAccess[];
+    using StdStyle for string;
 
     /// @notice Parent nonce used for generating the safe transaction.
     uint256 public nonce;
@@ -338,8 +340,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     function printTitle(string memory title) private pure {
         // forgefmt: disable-start
         console.log("");
-        console.log(string.concat("\x1b[1m\x1b[36m", vm.toUppercase(title), "\x1b[0m"));
-        console.log(string.concat("\x1b[36m", unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "\x1b[0m"));
+        console.log(vm.toUppercase(title).cyan().bold());
+        string memory line = unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
+        console.log(line.cyan().bold());
         // forgefmt: disable-end
     }
 
@@ -674,9 +677,10 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     ) public view {
         console.log("");
         // forgefmt: disable-start
-        console.log(string.concat("\x1b[36m", unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "\x1b[0m"));
-        console.log("\x1b[1m\x1b[36m                 WELCOME TO SUPERCHAIN-OPS\x1b[0m");
-        console.log(string.concat("\x1b[36m", unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "\x1b[0m"));
+        string memory line = unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
+        console.log(line.cyan().bold());
+        console.log("                 WELCOME TO SUPERCHAIN-OPS");
+        console.log(line.cyan().bold());
         if (!Utils.isFeatureEnabled("SIGNING_MODE_IN_PROGRESS")) {
             printTitle("ATTENTION TASK DEVELOPERS");
             console.log("To properly document the task state changes, please follow these steps:");
@@ -701,7 +705,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         console.log("");
         printTitle("AUDIT REPORT INFORMATION");
         // forgefmt: disable-start
-        console.log("The normalized state diff hash MUST match the hash created by the state changes attested to in the audit report.");
+        console.log("The normalized state diff hash MUST match the hash created by the state changes attested to in the state diff audit report.");
         console.log("As a signer, you are responsible for making sure this hash is correct. Please compare the hash below with the hash in the audit report.");
         bytes32 normalizedHash = AccountAccessParser.normalizedStateDiffHash(_accAccesses, _parentMultisig, _txHash);
         console.log("");
