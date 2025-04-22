@@ -5,6 +5,7 @@ import {Vm, VmSafe} from "forge-std/Vm.sol";
 import {console} from "forge-std/console.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
+import {StdStyle} from "forge-std/StdStyle.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {LibSort} from "@solady/utils/LibSort.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
@@ -42,6 +43,7 @@ import {Utils} from "src/libraries/Utils.sol";
 library AccountAccessParser {
     using LibString for string;
     using stdJson for string;
+    using StdStyle for string;
 
     address internal constant ETHER = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     address internal constant ZERO = address(0);
@@ -265,7 +267,7 @@ library AccountAccessParser {
         VmSafe.AccountAccess[] memory _accountAccesses,
         address _parentMultisig,
         bytes32 _txHash
-    ) internal view returns (bytes32) {
+    ) internal view noGasMetering returns (bytes32) {
         // Get all storage writes as a state diff.
         address[] memory uniqueAddresses = getUniqueWrites({accesses: _accountAccesses, _sort: false});
 
@@ -283,33 +285,7 @@ library AccountAccessParser {
             // Process each diff and apply normalization logic.
             for (uint256 j = 0; j < diffs.length; j++) {
                 StateDiff memory diff = diffs[j];
-                bool shouldInclude = true;
-
-                // 1. If the state change is an EOA nonce increment, remove it.
-                if (isEOANonceIncrement(account, diff)) {
-                    shouldInclude = false;
-                }
-                // 2. Remove Gnosis Safe nonce increment and approve hash changes.
-                else if (isGnosisSafe(account)) {
-                    // 2.1 Nonce increment.
-                    if (isGnosisSafeNonceIncrement(diff)) {
-                        shouldInclude = false;
-                    }
-                    // 2.2 Setting an approve hash in storage.
-                    else if (isGnosisSafeApproveHash(diff, _parentMultisig, _txHash)) {
-                        shouldInclude = false;
-                    }
-                }
-                // 3. If the slot contains a timestamp, normalize it to zeroes.
-                else if (slotContainsTimestamp(account, diff)) {
-                    diff = normalizeTimestamp(diff);
-                    // 4. If the slot is on the LivenessGuard, don't include it.
-                } else if (isLivenessGuardTimestamp(account, diff, _parentMultisig)) {
-                    shouldInclude = false;
-                }
-
-                // Include the diff in our normalized array if it should be included.
-                if (shouldInclude) {
+                if (shouldIncludeDiff(account, diff, _parentMultisig, _txHash)) {
                     normalizedChanges[normalizedCount] = AccountStateDiff({
                         who: account,
                         slot: diff.slot,
@@ -330,6 +306,30 @@ library AccountAccessParser {
 
         // Return keccak256 hash of the abi-encoded normalized array.
         return keccak256(abi.encode(finalArray));
+    }
+
+    function shouldIncludeDiff(address account, StateDiff memory diff, address _parentMultisig, bytes32 _txHash)
+        internal
+        view
+        returns (bool)
+    {
+        if (isEOANonceIncrement(account, diff)) {
+            // 1. If the state change is an EOA nonce increment, remove it.
+            return false;
+        } else if (isGnosisSafe(account)) {
+            // 2. Remove Gnosis Safe nonce increment and approve hash changes.
+            if (isGnosisSafeNonceIncrement(diff) || isGnosisSafeApproveHash(diff, _parentMultisig, _txHash)) {
+                // 2.1 Nonce increment or 2.2 Setting an approve hash in storage.
+                return false;
+            }
+        } else if (slotContainsTimestamp(account, diff)) {
+            // 3. If the slot contains a timestamp, normalize it to zeroes.
+            diff = normalizeTimestamp(diff);
+        } else if (isLivenessGuardTimestamp(account, diff, _parentMultisig)) {
+            // 4. If the slot is on the LivenessGuard, don't include it.
+            return false;
+        }
+        return true;
     }
 
     /// @notice Checks if the state diff represents an EOA nonce increment
@@ -354,7 +354,9 @@ library AccountAccessParser {
         for (uint256 i = 0; i < hashSlots.length; i++) {
             if (_diff.slot == hashSlots[i]) {
                 require(
-                    _diff.oldValue == bytes32(0) && _diff.newValue == bytes32(uint256(1)),
+                    (_diff.oldValue == bytes32(0) && _diff.newValue == bytes32(uint256(1)))
+                    // Some Gnosis Safe versions set approvedHashes to zero upon execution e.g. mainnet FoundationOperationsSafe.
+                    || (_diff.oldValue == bytes32(uint256(1)) && _diff.newValue == bytes32(0)),
                     "AccountAccessParser: Unexpected approve hash state change."
                 );
                 return true;
@@ -532,7 +534,10 @@ library AccountAccessParser {
         address _parentMultisig,
         bytes32 _txHash
     ) internal view noGasMetering {
-        console.log("\n----------------- Task Transfers -------------------");
+        console.log("");
+        string memory line = unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
+        console.log(string("TASK TRANSFERS").cyan().bold());
+        console.log(line.cyan().bold());
         if (_transfers.length == 0) {
             console.log("No ETH or ERC20 transfers.");
         } else {
@@ -546,11 +551,21 @@ library AccountAccessParser {
             }
         }
 
-        console.log("\n----------------- Task State Changes -------------------");
-        console.log("\n--- Attention: Copy content below this line into the VALIDATION.md file. ---");
+        console.log("");
+        console.log(string("TASK STATE CHANGES").cyan().bold());
+        console.log(line.cyan().bold());
+        printCopyHelper("below");
         require(_stateDiffs.length > 0, "No state changes found, this is unexpected.");
         printMarkdown(_stateDiffs, _parentMultisig, _txHash);
-        console.log("\n\n --- Attention: Copy content above this line into the VALIDATION.md file. ---");
+        printCopyHelper("above");
+    }
+
+    function printCopyHelper(string memory _text) internal view noGasMetering {
+        string memory line = unicode"━━━━━";
+        // forgefmt: disable-start
+        string memory helper = string.concat(line, " Attention: Copy content ", _text, " this line into the VALIDATION.md file. ", line);
+        // forgefmt: disable-end
+        console.log(helper.yellow().bold());
     }
 
     /// @notice Prints the decoded state diffs to the console in markdown format.
@@ -867,7 +882,7 @@ library AccountAccessParser {
         try vm.readFile(path) returns (string memory result) {
             storageLayout = result;
         } catch {
-            console.log("\x1B[33m[WARN]\x1B[0m Failed to read storage layout file at %s", path);
+            console.log(string.concat(string("[WARN]").yellow().bold(), "Failed to read storage layout file at ", path));
             return DecodedSlot({kind: "", oldValue: "", newValue: "", summary: "", detail: ""});
         }
         bytes memory parsedStorageLayout = vm.parseJson(storageLayout, "$");
@@ -978,8 +993,11 @@ library AccountAccessParser {
         // behind the latest release and it's expected that some addresses are not yet registered.
         if (!Utils.isFeatureEnabled("SIGNING_MODE_IN_PROGRESS")) {
             console.log(
-                "\x1B[33m[WARN]\x1B[0m Target address not found in superchain-registry (this message is safe to ignore): %s",
-                vm.toString(target)
+                string.concat(
+                    string("[WARN]").yellow().bold(),
+                    " Target address not found in superchain-registry (this message is safe to ignore): ",
+                    vm.toString(target)
+                )
             );
         }
         return (0, "");
