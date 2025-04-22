@@ -265,7 +265,7 @@ library AccountAccessParser {
         VmSafe.AccountAccess[] memory _accountAccesses,
         address _parentMultisig,
         bytes32 _txHash
-    ) internal view returns (bytes32) {
+    ) internal view noGasMetering returns (bytes32) {
         // Get all storage writes as a state diff.
         address[] memory uniqueAddresses = getUniqueWrites({accesses: _accountAccesses, _sort: false});
 
@@ -283,33 +283,7 @@ library AccountAccessParser {
             // Process each diff and apply normalization logic.
             for (uint256 j = 0; j < diffs.length; j++) {
                 StateDiff memory diff = diffs[j];
-                bool shouldInclude = true;
-
-                // 1. If the state change is an EOA nonce increment, remove it.
-                if (isEOANonceIncrement(account, diff)) {
-                    shouldInclude = false;
-                }
-                // 2. Remove Gnosis Safe nonce increment and approve hash changes.
-                else if (isGnosisSafe(account)) {
-                    // 2.1 Nonce increment.
-                    if (isGnosisSafeNonceIncrement(diff)) {
-                        shouldInclude = false;
-                    }
-                    // 2.2 Setting an approve hash in storage.
-                    else if (isGnosisSafeApproveHash(diff, _parentMultisig, _txHash)) {
-                        shouldInclude = false;
-                    }
-                }
-                // 3. If the slot contains a timestamp, normalize it to zeroes.
-                else if (slotContainsTimestamp(account, diff)) {
-                    diff = normalizeTimestamp(diff);
-                    // 4. If the slot is on the LivenessGuard, don't include it.
-                } else if (isLivenessGuardTimestamp(account, diff, _parentMultisig)) {
-                    shouldInclude = false;
-                }
-
-                // Include the diff in our normalized array if it should be included.
-                if (shouldInclude) {
+                if (shouldIncludeDiff(account, diff, _parentMultisig, _txHash)) {
                     normalizedChanges[normalizedCount] = AccountStateDiff({
                         who: account,
                         slot: diff.slot,
@@ -330,6 +304,30 @@ library AccountAccessParser {
 
         // Return keccak256 hash of the abi-encoded normalized array.
         return keccak256(abi.encode(finalArray));
+    }
+
+    function shouldIncludeDiff(address account, StateDiff memory diff, address _parentMultisig, bytes32 _txHash)
+        internal
+        view
+        returns (bool)
+    {
+        // 1. If the state change is an EOA nonce increment, remove it.
+        if (isEOANonceIncrement(account, diff)) {
+            return false;
+            // 2. Remove Gnosis Safe nonce increment and approve hash changes.
+        } else if (isGnosisSafe(account)) {
+            // 2.1 Nonce increment or 2.2 Setting an approve hash in storage.
+            if (isGnosisSafeNonceIncrement(diff) || isGnosisSafeApproveHash(diff, _parentMultisig, _txHash)) {
+                return false;
+            }
+            // 3. If the slot contains a timestamp, normalize it to zeroes.
+        } else if (slotContainsTimestamp(account, diff)) {
+            diff = normalizeTimestamp(diff);
+            // 4. If the slot is on the LivenessGuard, don't include it.
+        } else if (isLivenessGuardTimestamp(account, diff, _parentMultisig)) {
+            return false;
+        }
+        return true;
     }
 
     /// @notice Checks if the state diff represents an EOA nonce increment
@@ -353,8 +351,15 @@ library AccountAccessParser {
         bytes32[] memory hashSlots = calculateApproveHashSlots(IGnosisSafe(_parentMultisig).getOwners(), _txHash);
         for (uint256 i = 0; i < hashSlots.length; i++) {
             if (_diff.slot == hashSlots[i]) {
+                console.log("approve hash slot found");
+                console.logBytes32(_diff.slot);
+                console.logBytes32(hashSlots[i]);
+                console.logBytes32(_diff.oldValue);
+                console.logBytes32(_diff.newValue);
                 require(
-                    _diff.oldValue == bytes32(0) && _diff.newValue == bytes32(uint256(1)),
+                    (_diff.oldValue == bytes32(0) && _diff.newValue == bytes32(uint256(1)))
+                    // Some Gnosis Safe versions set approvedHashes to zero upon execution e.g. mainnet FoundationOperationsSafe.
+                    || (_diff.oldValue == bytes32(uint256(1)) && _diff.newValue == bytes32(0)),
                     "AccountAccessParser: Unexpected approve hash state change."
                 );
                 return true;
