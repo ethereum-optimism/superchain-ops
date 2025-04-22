@@ -351,11 +351,6 @@ library AccountAccessParser {
         bytes32[] memory hashSlots = calculateApproveHashSlots(IGnosisSafe(_parentMultisig).getOwners(), _txHash);
         for (uint256 i = 0; i < hashSlots.length; i++) {
             if (_diff.slot == hashSlots[i]) {
-                console.log("approve hash slot found");
-                console.logBytes32(_diff.slot);
-                console.logBytes32(hashSlots[i]);
-                console.logBytes32(_diff.oldValue);
-                console.logBytes32(_diff.newValue);
                 require(
                     (_diff.oldValue == bytes32(0) && _diff.newValue == bytes32(uint256(1)))
                     // Some Gnosis Safe versions set approvedHashes to zero upon execution e.g. mainnet FoundationOperationsSafe.
