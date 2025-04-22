@@ -15,6 +15,7 @@ import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
 import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
 import {Base64} from "solady/utils/Base64.sol";
+import {Utils} from "src/libraries/Utils.sol";
 
 type AddressRegistry is address;
 
@@ -196,9 +197,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
         // now execute task actions
         Action[] memory actions = build();
-        VmSafe.AccountAccess[] memory accountAccesses = simulate(signatures, actions);
+        (VmSafe.AccountAccess[] memory accountAccesses, bytes32 txHash) = simulate(signatures, actions);
         validate(accountAccesses, actions);
-        print(actions, accountAccesses, true);
+        print(actions, accountAccesses, true, txHash);
 
         if (optionalChildMultisig != address(0)) {
             require(isNestedSafe(parentMultisig), "MultisigTask: multisig must be nested");
@@ -232,13 +233,13 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         Action[] memory actions = build();
 
         // now execute task actions
-        VmSafe.AccountAccess[] memory accountAccesses = execute(signatures, actions);
+        (VmSafe.AccountAccess[] memory accountAccesses, bytes32 txHash) = execute(signatures, actions);
 
         // validate all state transitions
         validate(accountAccesses, actions);
 
         // print out results of execution
-        print(actions, accountAccesses, false);
+        print(actions, accountAccesses, false, txHash);
 
         return accountAccesses;
     }
@@ -337,7 +338,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
     /// @notice Print the hash to approve by EOA for parent/root multisig.
     function printParentHash(bytes memory callData) public view {
-        console.logBytes32(getHash(callData, parentMultisig));
+        console.log("Safe Transaction Hash: ", vm.toString(getHash(callData, parentMultisig)));
 
         bytes memory encodedTxData = getEncodedTransactionData(parentMultisig, callData);
         bytes32 domainSeparator = GnosisSafeHashes.calculateDomainSeparator(block.chainid, parentMultisig);
@@ -455,7 +456,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @notice Simulate the task by approving from owners and then executing.
     function simulate(bytes memory _signatures, Action[] memory actions)
         public
-        returns (VmSafe.AccountAccess[] memory)
+        returns (VmSafe.AccountAccess[] memory, bytes32 txHash_)
     {
         bytes memory callData = getMulticall3Calldata(actions);
         bytes32 hash = getHash(callData, parentMultisig);
@@ -474,18 +475,18 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             signatures = Signatures.prepareSignatures(parentMultisig, hash, _signatures);
         }
 
-        bytes32 txHash = IGnosisSafe(parentMultisig).getTransactionHash(
+        txHash_ = IGnosisSafe(parentMultisig).getTransactionHash(
             multicallTarget, 0, callData, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), nonce
         );
 
-        require(hash == txHash, "MultisigTask: hash mismatch");
+        require(hash == txHash_, "MultisigTask: hash mismatch");
 
         vm.startStateDiffRecording();
 
         // Execute the transaction
         execTransaction(parentMultisig, multicallTarget, 0, callData, Enum.Operation.DelegateCall, signatures);
         VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
-        return accountAccesses;
+        return (accountAccesses, txHash_);
     }
 
     /// @notice Child multisig approves the task to be executed.
@@ -498,21 +499,24 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     }
 
     /// @notice Executes the task with the given signatures.
-    function execute(bytes memory signatures, Action[] memory actions) public returns (VmSafe.AccountAccess[] memory) {
+    function execute(bytes memory signatures, Action[] memory actions)
+        public
+        returns (VmSafe.AccountAccess[] memory, bytes32 txHash_)
+    {
         bytes memory callData = getMulticall3Calldata(actions);
-        bytes32 hash = getHash(callData, parentMultisig);
+        txHash_ = getHash(callData, parentMultisig);
 
         if (signatures.length == 0) {
             // if no signatures are attached, this means we are dealing with a
             // nested safe that should already have all of its approve hashes in
             // child multisigs signed already.
-            signatures = prepareSignatures(parentMultisig, hash);
+            signatures = prepareSignatures(parentMultisig, txHash_);
         } else {
             // otherwise, if signatures are attached, this means EOA's have
             // signed, so we order the signatures based on how Gnosis Safe
             // expects signatures to be ordered by address cast to a number
             signatures = Signatures.sortUniqueSignatures(
-                parentMultisig, signatures, hash, IGnosisSafe(parentMultisig).getThreshold(), signatures.length
+                parentMultisig, signatures, txHash_, IGnosisSafe(parentMultisig).getThreshold(), signatures.length
             );
         }
 
@@ -520,7 +524,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
         execTransaction(parentMultisig, multicallTarget, 0, callData, Enum.Operation.DelegateCall, signatures);
 
-        return vm.stopAndReturnStateDiff();
+        return (vm.stopAndReturnStateDiff(), txHash_);
     }
 
     /// @notice Helper function that returns whether or not the current context is a broadcast context.
@@ -559,7 +563,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         // Otherwise, default to the remaining gas. This helps surface out-of-gas errors earlier,
         // before they would show up in Tenderly's simulation results.
         uint256 gas = vm.envOr("TENDERLY_GAS", gasleft());
-        console.log("Passing %s gas to execTransaction (from env or gasleft)", gas);
+        if (!Utils.isFeatureEnabled("SIGNING_MODE_IN_PROGRESS")) {
+            console.log("Passing %s gas to execTransaction (from env or gasleft)", gas);
+        }
         (bool success, bytes memory returnData) = multisig.call{gas: gas}(callData);
 
         if (!success) {
@@ -655,19 +661,23 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     }
 
     /// @notice Print task releated data for task developers and signers.
-    function print(Action[] memory actions, VmSafe.AccountAccess[] memory accountAccesses, bool isSimulate)
-        public
-        view
-    {
-        console.log("----------------- ATTENTION TASK DEVELOPERS -------------------");
-        console.log("To properly document the task state changes, please follow these steps:");
-        console.log("1. Copy and paste the state changes printed below into the VALIDATION.md file.");
-        console.log(
-            "2. For each task, write a thorough 'Detail' and 'Summary' section explaining the state change, providing links where appropriate."
-        );
-        console.log("3. Ensure the state changes are expected and match those seen in the Tenderly simulation.");
-        console.log("----------------------------------------------------------------\n");
-        accountAccesses.decodeAndPrint();
+    function print(
+        Action[] memory actions,
+        VmSafe.AccountAccess[] memory accountAccesses,
+        bool isSimulate,
+        bytes32 txHash
+    ) public view {
+        if (!Utils.isFeatureEnabled("SIGNING_MODE_IN_PROGRESS")) {
+            console.log("----------------- ATTENTION TASK DEVELOPERS -------------------");
+            console.log("To properly document the task state changes, please follow these steps:");
+            console.log("1. Copy and paste the state changes printed below into the VALIDATION.md file.");
+            console.log(
+                "2. For each task, write a thorough 'Detail' and 'Summary' section explaining the state change, providing links where appropriate."
+            );
+            console.log("3. Ensure the state changes are expected and match those seen in the Tenderly simulation.");
+            console.log("----------------------------------------------------------------\n");
+        }
+        accountAccesses.decodeAndPrint(parentMultisig, txHash);
 
         printSafe(actions, isSimulate);
     }
