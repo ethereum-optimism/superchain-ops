@@ -3,6 +3,7 @@ l2chains = [
 ]
 templateName = "OPCMUpdatePrestateV300"
 
+safe = "base-pao"
 
 [[opcmUpgrades]]
 chainId = 84532

@@ -1,5 +1,13 @@
 templateName = "OPCMUpdatePrestateV300"
 
+safe = "op-pao"
+executed = "0x659ca2fe3231cdda8657ff4e0bc11f7dfd7345413d4f854d3a53c5036fce3732"
+
+[nonces]
+  op-pao = "27"
+  fus = "41"
+  sc = "36"
+
 [[l2chains]]
 chainId = 11155420
 name = "OP Sepolia Testnet"

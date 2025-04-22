@@ -34,3 +34,9 @@ nonce = 5
 name = "uni-pao"
 address = "0xd363339eE47775888Df411A163c586a8BdEA9dbf"
 nonce = 32
+
+[[safes]]
+name = "test-pao"
+address = "0xdeadbeef00000000000000000000000000000000"
+owners = ["op-pao", "base-pao", "uni-pao"]
+nonce = 1
