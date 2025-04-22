@@ -1,1 +1,11 @@
 safe = "test-pao"
+
+[nonces]
+sc = 37
+op-pao = 28
+test-pao = 1
+base-pao = 23
+base-safe-a = 6
+fus = 42
+uni-pao = 33
+base-safe-b = 6

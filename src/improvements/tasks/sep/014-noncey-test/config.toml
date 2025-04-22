@@ -1,1 +1,6 @@
 safe = "op-pao"
+
+[nonces]
+fus = 43
+sc = 38
+op-pao = 29
