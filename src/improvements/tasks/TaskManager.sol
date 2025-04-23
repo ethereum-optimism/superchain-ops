@@ -12,6 +12,8 @@ import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol"
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {VmSafe} from "forge-std/Vm.sol";
+import {StdStyle} from "forge-std/StdStyle.sol";
+import {console} from "forge-std/console.sol";
 
 /// This script provides a collection of functions that can be used to manage tasks.
 /// This file can only simulate tasks for one network at a time (see: script/fetch-tasks.sh).
@@ -20,6 +22,7 @@ contract TaskManager is Script {
     using stdToml for string;
     using LibString for string;
     using AccountAccessParser for VmSafe.AccountAccess[];
+    using StdStyle for string;
 
     struct L2Chain {
         uint256 chainId;
@@ -117,6 +120,11 @@ contract TaskManager is Script {
 
         setTenderlyGasEnv(config.basePath);
 
+        string[] memory parts = vm.split(config.basePath, "/");
+        string memory taskName = parts[parts.length - 1];
+
+        string memory line =
+            unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
         if (config.isNested) {
             IGnosisSafe parentMultisig = IGnosisSafe(config.parentMultisig);
             address[] memory owners = parentMultisig.getOwners();
@@ -127,8 +135,19 @@ contract TaskManager is Script {
                     Strings.toHexString(uint256(uint160(config.parentMultisig)), 20)
                 )
             );
+
+            // forgefmt: disable-start
+            console.log(string.concat("SIMULATING NESTED TASK (", taskName, ") FOR OWNER: ", vm.toString(owners[0]), " ON ", vm.toString(config.parentMultisig)).green().bold());
+            // forgefmt: disable-end
+            console.log(line.green().bold());
+            console.log("");
             (accesses,) = task.signFromChildMultisig(config.configPath, owners[0]);
         } else {
+            // forgefmt: disable-start
+            console.log(string.concat("SIMULATING SINGLE TASK: ", taskName, " ON ", vm.toString(config.parentMultisig)).green().bold());
+            console.log(line.green().bold());
+            console.log("");
+            // forgefmt: disable-end
             (accesses,) = task.simulateRun(config.configPath);
         }
     }
