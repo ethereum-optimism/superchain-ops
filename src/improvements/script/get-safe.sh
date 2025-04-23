@@ -26,10 +26,7 @@ elif [[ "$SAFE_NAME" == "foundation-operations" ]]; then
     SAFE_NAME="FoundationOperationsSafe"
 elif [[ "$SAFE_NAME" == "base-operations" ]]; then
     SAFE_NAME="BaseOperationsSafe"
-else 
-    SAFE_NAME="$SAFE_NAME" # This is the custom name for the owners of the proxy admin owner e.g. base sepolia proxy admin owners
 fi
-
 
 root_dir=$(git rev-parse --show-toplevel)
 get_safe_fallback() {
