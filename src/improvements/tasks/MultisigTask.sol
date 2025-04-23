@@ -1113,7 +1113,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// ensuring subsequent calldata generation uses the correct
     /// nonce values even after the task has been executed locally.
     function _overrideState(string memory taskConfigFilePath) private {
-        _readStateOverridesFromConfig(taskConfigFilePath); // Sets global '_stateOverrides' variable.
+        _setStateOverridesFromConfig(taskConfigFilePath); // Sets global '_stateOverrides' variable.
         nonce = _getNonceOrOverride(address(parentMultisig));
         if (childMultisig != address(0)) {
             childNonce = _getNonceOrOverride(address(childMultisig));

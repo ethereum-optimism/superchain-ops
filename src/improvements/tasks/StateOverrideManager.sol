@@ -131,7 +131,7 @@ abstract contract StateOverrideManager is CommonBase {
 
     /// @notice Read state overrides from a TOML config file.
     /// Parses the TOML file and extracts state overrides for specific contracts.
-    function _readStateOverridesFromConfig(string memory taskConfigFilePath)
+    function _setStateOverridesFromConfig(string memory taskConfigFilePath)
         internal
         returns (Simulation.StateOverride[] memory)
     {
