@@ -5,9 +5,16 @@ TASK_PATH="$1"
 # Get the safe name from the third argument
 SAFE_NAME="$2"
 
+
+if [[ -z "$SAFE_NAME" || "$SAFE_NAME" == "null" ]]; then
+    echo "Error: Invalid safe name: ${SAFE_NAME}" >&2
+    echo "Valid safe names: foundation, council, chain-governor, foundation-operations, base-operations, <custom-safe-name>" >&2
+    exit 1
+fi
+
 # Convert safe name to the correct format to read the config.toml file.
 # In the cases where the safe name is not one of foundation, council, chain-governor, foundation-operations, base-operations then
-# tasks should use the nested-safe-1 and nested-safe-2 to represent the owners of the proxy admin owner. They should put these safes
+# tasks should use a custom name to represent the owners of the proxy admin owner. They should put these safes
 # under the addresses section of the config.toml file.
 if [[ "$SAFE_NAME" == "foundation" ]]; then
     SAFE_NAME="FoundationUpgradeSafe"
@@ -19,25 +26,18 @@ elif [[ "$SAFE_NAME" == "foundation-operations" ]]; then
     SAFE_NAME="FoundationOperationsSafe"
 elif [[ "$SAFE_NAME" == "base-operations" ]]; then
     SAFE_NAME="BaseOperationsSafe"
-elif [[ "$SAFE_NAME" == "nested-safe-1" ]]; then
-    SAFE_NAME="NestedSafe1"
-elif [[ "$SAFE_NAME" == "nested-safe-2" ]]; then
-    SAFE_NAME="NestedSafe2"
-else
-    echo "Error: Invalid safe name: ${SAFE_NAME}" >&2
-    echo "Valid safe names: foundation, council, chain-governor, foundation-operations, base-operations, nested-safe-1, nested-safe-2" >&2
-    exit 1
+else 
+    SAFE_NAME="$SAFE_NAME" # This is the custom name for the owners of the proxy admin owner e.g. base sepolia proxy admin owners
 fi
 
+
 root_dir=$(git rev-parse --show-toplevel)
-get_safe_fallbacks() {
+get_safe_fallback() {
     local config_path="$1"
+    local safe_name="$2"
     local fallback_safe
 
-    fallback_safe=$(yq ".addresses.NestedSafe1" "$config_path")
-    if [[ -z "$fallback_safe" ]]; then
-        fallback_safe=$(yq ".addresses.NestedSafe2" "$config_path")
-    fi
+    fallback_safe=$(yq ".addresses.\"$safe_name\"" "$config_path")
 
     echo "$fallback_safe"
 }
@@ -46,7 +46,7 @@ get_safe_fallbacks() {
 case "$TASK_PATH" in
     *"/eth/"*)
         safe=$(yq ".eth.\"$SAFE_NAME\"" "${root_dir}/src/improvements/addresses.toml")
-        [[ -z "$safe" || "$safe" == "null" ]] && safe=$(get_safe_fallbacks "${TASK_PATH}/config.toml")
+        [[ -z "$safe" || "$safe" == "null" ]] && safe=$(get_safe_fallback "${TASK_PATH}/config.toml" "$SAFE_NAME")
         ;;
     *"/sep/"*)
         if [[ "$SAFE_NAME" == "ChainGovernorSafe" ]]; then
@@ -54,7 +54,7 @@ case "$TASK_PATH" in
             exit 1
         fi
         safe=$(yq ".sep.\"$SAFE_NAME\"" "${root_dir}/src/improvements/addresses.toml")
-        [[ -z "$safe" || "$safe" == "null" ]] && safe=$(get_safe_fallbacks "${TASK_PATH}/config.toml")
+        [[ -z "$safe" || "$safe" == "null" ]] && safe=$(get_safe_fallback "${TASK_PATH}/config.toml" "$SAFE_NAME")
         ;;
     *)
         echo "Error: Task path must contain either /eth/ or /sep/" >&2
