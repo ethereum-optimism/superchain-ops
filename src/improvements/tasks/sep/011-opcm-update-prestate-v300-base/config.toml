@@ -23,8 +23,8 @@ expectedValidationErrors = "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-ANCHORP-40,PDDG-1
 [addresses]
 # Base Sepolia ProxyAdminOwner: 0x0fe884546476dDd290eC46318785046ef68a0BA9
 # The get-safe.sh script will extract these addresses when signing for each owner fo the safe.
-ChildSafe1 = "0x6AF0674791925f767060Dd52f7fB20984E8639d8" # First owner on the proxy admin owner (i.e. child-safe-1)
-ChildSafe2 = "0x646132A1667ca7aD00d36616AFBA1A28116C770A" # Second owner on the proxy admin owner (i.e. child-safe-2)
+NestedSafe1 = "0x6AF0674791925f767060Dd52f7fB20984E8639d8" # First owner on the proxy admin owner (i.e. child-safe-1)
+NestedSafe2 = "0x646132A1667ca7aD00d36616AFBA1A28116C770A" # Second owner on the proxy admin owner (i.e. child-safe-2)
 OPCM = "0xfbceed4de885645fbded164910e10f52febfab35" # Sepolia op-contracts/v3.0.0-rc.2 https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L22
 StandardValidatorV300 = "0x2d56022cb84ce6b961c3b4288ca36386bcd9024c" # Sepolia https://github.com/ethereum-optimism/optimism/blob/f79ed8b9c9cbdbf8bb492074f3f98da7f072e21a/op-validator/pkg/validations/addresses.go#L30
 
