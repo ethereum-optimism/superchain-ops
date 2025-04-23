@@ -1221,7 +1221,7 @@ for task_folder in "${task_folders[@]}"; do
     if [[ $bool_value == "true" ]]; then
       log_info "This is a nested task. This is using the superchain-ops v2.0"
       # We iterate over the [addresses] section of the config.toml file and for each childsafe or foundation or council we execute the command.
-      read_addresses "${task_folder}/config.toml" | while read -r key value; do
+      read_addresses "${root_dir}/src/improvements/addresses.toml" | while read -r key value; do
 
         case $key in 
           "ChildSafe1")
