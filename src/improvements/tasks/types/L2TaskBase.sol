@@ -6,9 +6,11 @@ import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegis
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {console} from "forge-std/console.sol";
+import {StdStyle} from "forge-std/StdStyle.sol";
 
 abstract contract L2TaskBase is MultisigTask {
     using EnumerableSet for EnumerableSet.AddressSet;
+    using StdStyle for string;
 
     SuperchainAddressRegistry public superchainAddrRegistry;
 
@@ -73,16 +75,11 @@ abstract contract L2TaskBase is MultisigTask {
                     try superchainAddrRegistry.get(config.allowedStorageKeys[i]) returns (address addr) {
                         _allowedStorageAccesses.add(addr);
                     } catch {
-                        console.log(
-                            "\x1B[33m[WARN]\x1B[0m Contract: %s not found for chain: '%s'",
-                            config.allowedStorageKeys[i],
-                            chains[j].name
-                        );
-                        console.log(
-                            "\x1B[33m[WARN]\x1B[0m Contract will not be added to allowed storage accesses: '%s' for chain: '%s'",
-                            config.allowedStorageKeys[i],
-                            chains[j].name
-                        );
+                        string memory warn = string("[WARN]").yellow().bold();
+                        // forgefmt: disable-start
+                        console.log(string.concat(warn, " Contract: ", config.allowedStorageKeys[i], " not found for chain: ", chains[j].name));
+                        console.log(string.concat(warn, " Contract will not be added to allowed storage accesses: ", config.allowedStorageKeys[i], " for chain: ", chains[j].name));
+                        // forgefmt: disable-end
                     }
                 }
             }
