@@ -60,7 +60,7 @@ simulate whichSafe hdPath='0':
     signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
     echo "Simulating with ledger account: ${signer}"
   else
-      echo "Simulating without ledger using the first owner account: ${signer}"
+    echo "Simulating without ledger using the first owner account: ${signer}"
   fi
   echo ""
 
@@ -96,19 +96,33 @@ sign whichSafe hdPath='0':
     fi
     safe="{{chainGovernorSafe}}"
   fi
-  echo "getting signer address..."
-  signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-  echo "Signing with: ${signer}"
-  echo ""
+  
+  if [ ! -z "$APPROVE_WITHOUT_LEDGER" ]; then
+    signer=$(cast call ${safe} "getOwners()(address[])" -r ${rpcUrl} | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
+    echo "Signing without ledger using the first owner account: ${signer}"
+    
+    forge build
+    forge script ${script} \
+      --rpc-url ${rpcUrl} \
+      --sender ${signer} \
+      --sig "signJson(string,address)" \
+      ${bundlePath} \
+      "${safe}"
+  else
+    echo "getting signer address..."
+    signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+    echo "Signing with: ${signer}"
+    echo ""
 
-  forge build
-  # Using the eip712sign within the repo folder since eip712sign was installed there in ./justfile.
-  $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
-  forge script ${script} \
-    --rpc-url ${rpcUrl} \
-    --sig "signJson(string,address)" \
-    ${bundlePath} \
-    "${safe}"
+    forge build
+    # Using the eip712sign within the repo folder since eip712sign was installed there in ./justfile.
+    $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
+    forge script ${script} \
+      --rpc-url ${rpcUrl} \
+      --sig "signJson(string,address)" \
+      ${bundlePath} \
+      "${safe}"
+  fi
 
 ## approvehash_in_anvil is a function to generate the nested hash and approve the hash for the given safes (SC, or FND) for later executing during the simulation using the execute_in_anvil function.
 approvehash_in_anvil whichSafe hdPath='0':
@@ -253,18 +267,35 @@ approve whichSafe hdPath='0':
     fi
     safe="{{chainGovernorSafe}}"
   fi
-  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-
-  forge build
-  forge script ${script} \
-    --fork-url ${rpcUrl} \
-    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
-    --broadcast \
-    --sender ${sender} \
-    --sig "approveJson(string,address,bytes)" \
-    ${bundlePath} \
-    ${safe} \
-    ${signatures}
+  
+  if [ ! -z "$APPROVE_WITHOUT_LEDGER" ]; then
+    sender=$(cast call ${safe} "getOwners()(address[])" -r ${rpcUrl} | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
+    echo "Approving without ledger using the first owner account: ${sender}"
+    
+    forge build
+    forge script ${script} \
+      --fork-url ${rpcUrl} \
+      --sender ${sender} \
+      --broadcast \
+      --sig "approveJson(string,address,bytes)" \
+      ${bundlePath} \
+      ${safe} \
+      ${signatures}
+  else
+    sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+    echo "Approving with ledger account: ${sender}"
+    
+    forge build
+    forge script ${script} \
+      --fork-url ${rpcUrl} \
+      --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
+      --broadcast \
+      --sender ${sender} \
+      --sig "approveJson(string,address,bytes)" \
+      ${bundlePath} \
+      ${safe} \
+      ${signatures}
+  fi
 
 execute hdPath='0':
   #!/usr/bin/env bash
@@ -275,15 +306,30 @@ execute hdPath='0':
     echo "Running script with assertions"
   fi
   echo "Using script ${script}"
-  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-
-  forge script ${script} \
-    --fork-url ${rpcUrl} \
-    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
-    --broadcast \
-    --sender ${sender} \
-    --sig "runJson(string)" \
-    ${bundlePath}
+  
+  if [ ! -z "$EXECUTE_WITHOUT_LEDGER" ]; then
+    sender=$(cast call ${ownerSafe} "getOwners()(address[])" -r ${rpcUrl} | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
+    echo "Executing without ledger using the first owner account: ${sender}"
+    
+    forge build
+    forge script ${script} \
+      --fork-url ${rpcUrl} \
+      --sender ${sender} \
+      --broadcast \
+      --sig "runJson(string)" \
+      ${bundlePath}
+  else
+    sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+    echo "Executing with ledger account: ${sender}"
+    
+    forge script ${script} \
+      --fork-url ${rpcUrl} \
+      --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
+      --broadcast \
+      --sender ${sender} \
+      --sig "runJson(string)" \
+      ${bundlePath}
+  fi
 
 simulated-run hdPath='0':
   #!/usr/bin/env bash
