@@ -38,6 +38,8 @@ Make sure your ledger is still unlocked and run the following commands depending
 
 Note: during development of the Solidity script, simulations can be run without any Ledger by exporting `SIMULATE_WITHOUT_LEDGER=1` in your shell, or by adding it to the `.env` file.
 
+Similarly, you can run approvals and executions without a Ledger device for testing purposes by using `APPROVE_WITHOUT_LEDGER=1` and `EXECUTE_WITHOUT_LEDGER=1` respectively.
+
 **Note:** Remember that by default the script will assume the derivation path of your address is `m/44'/60'/0'/0/0`.
 If you wish to use a different account, append an `X` to the command to set the derivation path of the address that you want to use. For example by adding a `1` to the end, it will derive the address using `m/44'/60'/1'/0/0` instead.
 
