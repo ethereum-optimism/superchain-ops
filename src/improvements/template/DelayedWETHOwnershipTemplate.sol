@@ -6,7 +6,6 @@ import {stdToml} from "forge-std/StdToml.sol";
 
 import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
 
-import {IDeputyPauseModule} from "lib/optimism/packages/contracts-bedrock/interfaces/safe/IDeputyPauseModule.sol";
 import {IDelayedWETH} from "lib/optimism/packages/contracts-bedrock/interfaces/dispute/IDelayedWETH.sol";
 
 /// @title DelayedWETHOwnershipTemplate
