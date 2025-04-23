@@ -5,7 +5,6 @@ TASK_PATH="$1"
 # Get the safe name from the third argument
 SAFE_NAME="$2"
 
-
 if [[ -z "$SAFE_NAME" || "$SAFE_NAME" == "null" ]]; then
     echo "Error: Invalid safe name: ${SAFE_NAME}" >&2
     echo "Valid safe names: foundation, council, chain-governor, foundation-operations, base-operations, <custom-safe-name>" >&2

@@ -35,7 +35,7 @@ Navigate to the correct task directory then run the simulate command.
 ```
 cd eth/002-opcm-upgrade-v200
 # Chain Governor Safe: 0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC (Unichain)
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate chain-governor-safe
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate chain-governor
 
 # Foundation Upgrade Safe: 0x847B5c174615B1B7fDF770882256e2D3E95b9D92
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate foundation
