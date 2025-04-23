@@ -150,7 +150,7 @@ simulate-verify-task TASK="":
 
     ${root_dir}/src/improvements/script/simulate-verify-task.sh {{TASK}} $nested_safe_name
 
-simulate-stack NETWORK="" TASK="":
+simulate-stack NETWORK="" TASK="" OWNER_ADDRESS="0x0000000000000000000000000000000000000000":
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
@@ -161,10 +161,11 @@ simulate-stack NETWORK="" TASK="":
 
     show_usage() {
         echo
-        echo "Usage: just simulate-stack <network> [task]"
+        echo "Usage: just simulate-stack <network> [task] [owner-address]"
         echo "Available arguments:"
         echo "  • <network> - The network to simulate the stack for (e.g. 'sep', 'eth')"
         echo "  • [task]    - The task to simulate the stack for (e.g. '001-task-name')"
+        echo "  • [owner-address]  - This is the address of the owner on the parent multisig that you want to simulate as. If not specified, the first owner will be used."
         echo
     }
 
@@ -192,7 +193,7 @@ simulate-stack NETWORK="" TASK="":
     else
         echo -e "⏳ You are simulating the task: {{TASK}} for network: {{NETWORK}}\n"
         just list-stack {{NETWORK}} {{TASK}}
-        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string)" {{NETWORK}} {{TASK}} --ffi --rpc-url $ETH_RPC_URL
+        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address)" {{NETWORK}} {{TASK}} {{OWNER_ADDRESS}} --ffi --rpc-url $ETH_RPC_URL
     fi
     echo -e "\n⚠️ Please note: Some Tenderly links may not work when running a stacked simulation.⚠️"
 

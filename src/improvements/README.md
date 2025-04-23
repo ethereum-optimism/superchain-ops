@@ -47,7 +47,7 @@ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../sin
 
 Stacked simulations are supported. To use this feature, you can use the following command:
 ```bash
-just simulate-stack <network> [task-name]
+just simulate-stack <network> [task] [owner-address]
 ```
 
 e.g. 
@@ -56,6 +56,8 @@ e.g.
 just simulate-stack eth
 # OR to simulate up to and including a specific task. Useful if you don't care about simulating tasks after a certain point.
 just simulate-stack eth 002-opcm-upgrade-v200
+# OR to simulate up to and including a specific task, and specify the owner address to simulate as (useful for getting the correct domain and message hash).
+just simulate-stack eth 002-opcm-upgrade-v200 0x847B5c174615B1B7fDF770882256e2D3E95b9D92
 ```
 
 ## Available Templates

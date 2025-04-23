@@ -113,10 +113,14 @@ contract TaskManager is Script {
     }
 
     /// @notice Executes a task based on its configuration.
-    function executeTask(TaskConfig memory config) public returns (VmSafe.AccountAccess[] memory accesses) {
+    function executeTask(TaskConfig memory config, address optionalOwnerAddress)
+        public
+        returns (VmSafe.AccountAccess[] memory accesses)
+    {
         // Deploy and run the template
         string memory templatePath = string.concat("out/", config.templateName, ".sol/", config.templateName, ".json");
         MultisigTask task = MultisigTask(deployCode(templatePath));
+        string memory formattedParentMultisig = vm.toString(config.parentMultisig).green().bold();
 
         setTenderlyGasEnv(config.basePath);
 
@@ -136,15 +140,23 @@ contract TaskManager is Script {
                 )
             );
 
+            address ownerAddress = optionalOwnerAddress != address(0) ? optionalOwnerAddress : owners[0];
             // forgefmt: disable-start
-            console.log(string.concat("SIMULATING NESTED TASK (", taskName, ") FOR OWNER: ", vm.toString(owners[0]), " ON ", vm.toString(config.parentMultisig)).green().bold());
+            console.log(string.concat("SIMULATING NESTED TASK (", taskName, ") FOR OWNER: ", vm.toString(ownerAddress), " ON ", formattedParentMultisig));
             // forgefmt: disable-end
             console.log(line.green().bold());
             console.log("");
-            (accesses,) = task.signFromChildMultisig(config.configPath, owners[0]);
+            require(
+                contains(owners, ownerAddress),
+                string.concat(
+                    "TaskManager: ownerAddress must be an owner of the parent multisig: ",
+                    vm.toString(config.parentMultisig)
+                )
+            );
+            (accesses,) = task.signFromChildMultisig(config.configPath, ownerAddress);
         } else {
             // forgefmt: disable-start
-            console.log(string.concat("SIMULATING SINGLE TASK: ", taskName, " ON ", vm.toString(config.parentMultisig)).green().bold());
+            console.log(string.concat("SIMULATING SINGLE TASK: ", taskName, " ON ", formattedParentMultisig));
             console.log(line.green().bold());
             console.log("");
             // forgefmt: disable-end
@@ -198,5 +210,12 @@ contract TaskManager is Script {
             }
         }
         return (task.isNestedSafe(parentMultisig), parentMultisig);
+    }
+
+    function contains(address[] memory list, address addr) public pure returns (bool) {
+        for (uint256 i = 0; i < list.length; i++) {
+            if (list[i] == addr) return true;
+        }
+        return false;
     }
 }

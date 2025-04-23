@@ -23,11 +23,11 @@ contract StackedSimulator is Script {
 
     function simulateStack(string memory network) public {
         TaskInfo[] memory tasks = getNonTerminalTasks(network);
-        simulateStack(network, tasks[tasks.length - 1].name);
+        simulateStack(network, tasks[tasks.length - 1].name, address(0));
     }
 
     /// @notice Simulates the execution of a task and all tasks that must be executed before it.
-    function simulateStack(string memory network, string memory task) public {
+    function simulateStack(string memory network, string memory task, address optionalOwnerAddress) public {
         TaskManager taskManager = new TaskManager();
         TaskInfo[] memory tasks = getNonTerminalTasks(network, task);
         TaskManager.TaskConfig[] memory taskConfigs = new TaskManager.TaskConfig[](tasks.length);
@@ -42,7 +42,7 @@ contract StackedSimulator is Script {
         for (uint256 i = 0; i < taskConfigs.length; i++) {
             // If we wanted to ensure that all Tenderly links worked for each task, we would need to build a cumulative list of all state overrides
             // and append them to the next task's config.toml file. For now, we are skipping this functionality.
-            taskManager.executeTask(taskConfigs[i]);
+            taskManager.executeTask(taskConfigs[i], optionalOwnerAddress);
         }
     }
 
