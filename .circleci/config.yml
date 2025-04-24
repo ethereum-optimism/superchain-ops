@@ -514,36 +514,6 @@ workflows:
       # and now it fails with stack too deep after https://github.com/ethereum-optimism/superchain-ops/pull/528.
       # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
       # - just_simulate_sc_rehearsal_1
-
-      # U14 Mainnet OPCM v3.0.0: op, soneium, ink - foundation
-      - just_simulate_nested_improvements:
-          name: "simulate nested eth/003-opcm-upgrade-v300-op-ink-soneium foundation"
-          task: "/eth/003-opcm-upgrade-v300-op-ink-soneium"
-          signer: "foundation"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-
-      # U14 Mainnet OPCM v3.0.0: op, soneium, ink - council
-      - just_simulate_nested_improvements:
-          name: "simulate nested eth/003-opcm-upgrade-v300-op-ink-soneium council"
-          task: "/eth/003-opcm-upgrade-v300-op-ink-soneium"
-          signer: "council"
-
-      # U14 Mainnet Base Upgrade - Base Operations
-      - just_simulate_nested_improvements:
-          name: "simulate nested eth/004-opcm-upgrade-v300-base base-operations"
-          task: "/eth/004-opcm-upgrade-v300-base"
-          signer: "base-operations"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-
-      # U14 Mainnet Base Upgrade - Foundation Operations
-      - just_simulate_nested_improvements:
-          name: "simulate nested eth/004-opcm-upgrade-v300-base foundation-operations"
-          task: "/eth/004-opcm-upgrade-v300-base"
-          signer: "foundation-operations"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
     
       # U14 Mainnet Unichain Upgrade - Foundation
       - just_simulate_nested_improvements:
@@ -576,11 +546,6 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
 
-      - just_simulate_nested:
-          task: "/eth/zora-002-fp-upgrade"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-
       - just_simulate_sc_rehearsal_2:
           context:
             - circleci-repo-readonly-authenticated-github-token
@@ -591,7 +556,7 @@ workflows:
       - simulate_sequence:
           name: simulate_sequence_eth
           network: "eth"
-          tasks: "zora-002-fp-upgrade 003-opcm-upgrade-v300 004-opcm-upgrade-v300 005-opcm-upgrade-v300-uni 006-gas-params-op"
+          tasks: ""
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
