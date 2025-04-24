@@ -538,14 +538,6 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
 
-      # U14 Mainnet Unichain Upgrade - Child-Safe-3
-      - just_simulate_nested_improvements:
-          name: "simulate nested eth/005-opcm-upgrade-v300-uni child-safe-3"
-          task: "/eth/005-opcm-upgrade-v300-uni"
-          signer: "child-safe-3"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-
       # Gas Params Upgrade - FoundationUpgradeSafe
       - just_simulate_single_improvements:
           name: "simulate single eth/006-gas-params-op"
