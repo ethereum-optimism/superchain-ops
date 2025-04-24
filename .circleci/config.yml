@@ -539,6 +539,13 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
 
+      # Delayed WETH Xfer - FoundationOperationsSafe
+      - just_simulate_single_improvements:
+          name: "simulate single eth/007-delayedweth-xfer"
+          task: "/eth/007-delayedweth-xfer"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
       - just_simulate_sc_rehearsal_2:
           context:
             - circleci-repo-readonly-authenticated-github-token
