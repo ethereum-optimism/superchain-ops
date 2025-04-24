@@ -91,14 +91,17 @@ The GnosisSafe `approvedHashes` mapping is updated to indicate approval of this 
     - The location (`8`) of the `approvedHashes` mapping in the [GnosisSafe storage layout](https://github.com/safe-global/safe-contracts/blob/v1.4.0/contracts/libraries/SafeStorage.sol#L23)
     - The address of the Safe Signer, stored at the env var `$SAFE_SIGNER` in the following cast script command.
     - The safe hash to approve, stored at the env var `$SAFE_HASH` in the following cast script command.
-      It's the value after "Nested hash:" in the simulation output logs.
+      It's the value after "Nested hash:" (legacy) or **"Parent hashToApprove:"** in the simulation output logs.
 - Then using `cast index`, we can compute the key with
     ```shell
       $ cast index bytes32 $SAFE_HASH $(cast index address $SAFE_SIGNER 8)
     ```
     The output of this command must match the key of the state change.
 
-### Liveness Guard (Security Council Safe or Unichain Operation Safe only)
+### Liveness Guard
+
+> [!IMPORTANT]
+> Security Council Safe or Unichain Operation Safe only
 
 When the Security Council Safe or Unichain Operation Safe executes a transaction, the liveness timestamps are updated for each owner that signed the task.
 This is updating at the moment when the transaction is submitted (`block.timestamp`) into the [`lastLive`](https://github.com/ethereum-optimism/optimism/blob/e84868c27776fd04dc77e95176d55c8f6b1cc9a3/packages/contracts-bedrock/src/safe/LivenessGuard.sol#L41) mapping located at the slot `0`. \
