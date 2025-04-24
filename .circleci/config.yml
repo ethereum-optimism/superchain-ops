@@ -248,7 +248,9 @@ jobs:
       - utils/checkout-with-mise
       - run:
           name: "Run stacked simulation for network: <<parameters.network>>"
-          command: (cd src/improvements && just simulate-stack <<parameters.network>>)
+          command: |
+            just install
+            (cd src/improvements && just simulate-stack <<parameters.network>>)
       - notify-failures-on-develop:
           mentions: "@security-team"
 

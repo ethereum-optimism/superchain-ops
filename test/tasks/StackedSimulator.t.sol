@@ -186,8 +186,8 @@ contract StackedSimulatorUnitTest is Test {
 
     function testGetNonTerminalTasks_NoTasks() public {
         StackedSimulator ss = new StackedSimulator();
-        vm.expectRevert("TaskManager: No non-terminal tasks found");
-        ss.getNonTerminalTasks("fake-network");
+        StackedSimulator.TaskInfo[] memory tasks = ss.getNonTerminalTasks("fake-network");
+        assertEq(tasks.length, 0);
     }
 
     function testStringConversionValidInput() public {
@@ -297,8 +297,8 @@ contract StackedSimulatorUnitTest is Test {
     function testSortTasksEmptyArray() public {
         StackedSimulator ss = new StackedSimulator();
         StackedSimulator.TaskInfo[] memory input = new StackedSimulator.TaskInfo[](0);
-        vm.expectRevert("StackedSimulator: Input array must not be empty");
-        ss.sortTasksByPrefix(input);
+        StackedSimulator.TaskInfo[] memory sorted = ss.sortTasksByPrefix(input);
+        assertEq(sorted.length, 0);
     }
 
     function testSortTasksLargeNumbers() public {

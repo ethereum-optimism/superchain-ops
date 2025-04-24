@@ -94,8 +94,8 @@ contract StackedSimulator is Script {
 
     /// @notice Sorts the task names in ascending order based on the uint value of their first three characters.
     function sortTasksByPrefix(TaskInfo[] memory tasks_) public pure returns (TaskInfo[] memory sortedTasks_) {
-        require(tasks_.length > 0, "StackedSimulator: Input array must not be empty");
         sortedTasks_ = new TaskInfo[](tasks_.length);
+        if (tasks_.length == 0) return sortedTasks_;
         for (uint256 i = 0; i < tasks_.length - 1; i++) {
             for (uint256 j = i + 1; j < tasks_.length; j++) {
                 uint256 uintValueI = convertPrefixToUint(tasks_[i].name);
