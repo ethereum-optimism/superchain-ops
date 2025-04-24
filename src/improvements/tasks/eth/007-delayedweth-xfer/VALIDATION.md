@@ -15,7 +15,7 @@ The steps are:
 > Before signing, ensure the below hashes match what is on your ledger.
 > ### Optimism Foundation Operations Safe
   Domain Hash:     0x4e6a6554de0308f5ece8ff736beed8a1b876d16f5c27cac8e466d7de0c703890
-  Message Hash:    0xf7dc3fa5c006c36415873755d67abc106de0c3e4156a1228535ce0cf2908bcbf
+  Message Hash:    0xb8b13da617762a29a6ca91db63ff91252839fdf80838f90932031378427c965c
 
 ## Understanding Task Calldata
 
@@ -77,7 +77,7 @@ For each contract listed in the state diff, please verify that no contracts or s
   
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:** `uint256`
-  - **Before:** `102`
-  - **After:** `103`
+  - **Before:** `103`
+  - **After:** `104`
   - **Summary:** nonce
   - **Detail:** Nonce for the Foundation Operations Safe is bumped to 103
