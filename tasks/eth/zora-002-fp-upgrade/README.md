@@ -1,6 +1,6 @@
 # Zora Mainnet Permissioned Fault Proofs
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0x557cab0b43928b8382105655a8bef75c3bd925d8ff3ecd157b9cee57361fd0bd)
 
 ## Objective
 
