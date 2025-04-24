@@ -589,12 +589,6 @@ workflows:
           filters:
             branches:
               only: main  
-      
-      - stacked_simulation:
-          name: stacked_simulation_sep_X
-          network: "sep"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
           
   close-issue-workflow:
     when:

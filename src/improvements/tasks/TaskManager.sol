@@ -70,7 +70,8 @@ contract TaskManager is Script {
         commands[1] = network;
 
         bytes memory result = vm.ffi(commands);
-        require(result.length > 0, "TaskManager: No non-terminal tasks found");
+        if (result.length == 0) return new string[](0);
+
         string[] memory taskConfigFilePaths = vm.split(string(result), "\n");
         taskPaths_ = new string[](taskConfigFilePaths.length);
 
