@@ -298,7 +298,6 @@ contract StackedSimulatorUnitTest is Test {
         StackedSimulator ss = new StackedSimulator();
         StackedSimulator.TaskInfo[] memory input = new StackedSimulator.TaskInfo[](0);
         StackedSimulator.TaskInfo[] memory sorted = ss.sortTasksByPrefix(input);
-        console.log("Sorted length: %s", sorted.length);
         assertEq(sorted.length, 0);
     }
 
