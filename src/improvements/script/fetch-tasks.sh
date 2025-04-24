@@ -52,4 +52,4 @@ for file in $files; do
 done
 
 # Output the list of tasks to run in a suitable format for consuming contracts.
-printf '%s\n' "${tasks_to_run[@]}"
+printf '%s\n' "${tasks_to_run[@]+"${tasks_to_run[@]}"}"

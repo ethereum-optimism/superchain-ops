@@ -23,6 +23,10 @@ contract StackedSimulator is Script {
 
     function simulateStack(string memory network) public {
         TaskInfo[] memory tasks = getNonTerminalTasks(network);
+        if (tasks.length == 0) {
+            console.log("No non-terminal tasks found for network: %s", network);
+            return;
+        }
         simulateStack(network, tasks[tasks.length - 1].name, address(0));
     }
 
@@ -73,6 +77,10 @@ contract StackedSimulator is Script {
     /// @notice Lists the execution order for a stack of tasks for a given network.
     function listStack(string memory network) public {
         TaskInfo[] memory tasks = getNonTerminalTasks(network);
+        if (tasks.length == 0) {
+            console.log("No non-terminal tasks found for network: %s", network);
+            return;
+        }
         printStack(tasks, network);
     }
 
