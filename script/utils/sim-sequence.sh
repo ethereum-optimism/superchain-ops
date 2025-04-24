@@ -1211,7 +1211,7 @@ for task_folder in "${task_folders[@]}"; do
     #DisplaySafeBeforev20 "(🟧) Before Simulation Nonce Values (🟧)" "${task_folder}/config.toml"
     DisplaySafeBeforeNoncesv20 "(🟧) Before Simulation Nonce Values (🟧)" "${task_folder}/config.toml"
     # check if the task is nested or single:
-    output=$(forge script TaskRunner --sig "isNestedTask" "${task_folder}/config.toml" --rpc-url http://localhost:8545)
+    output=$(forge script TaskManager --sig "isNestedTask" "${task_folder}/config.toml" --rpc-url http://localhost:8545)
     read bool_value parent_multisig <<< $(echo "$output" | awk '
         /0: bool/ {bool=$3}
         /parentMultisig:/ {multisig=$3}

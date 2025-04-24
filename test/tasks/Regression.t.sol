@@ -14,6 +14,7 @@ import {OPCMUpdatePrestateV300} from "src/improvements/template/OPCMUpdatePresta
 import {SetRespectedGameTypeTemplate} from "src/improvements/template/SetRespectedGameTypeTemplate.sol";
 import {UpdateRetirementTimestampTemplate} from "src/improvements/template/UpdateRetirementTimestampTemplate.sol";
 import {SystemConfigGasParams} from "src/improvements/template/SystemConfigGasParams.sol";
+import {MultisigTaskTestHelper} from "test/tasks/MultisigTask.t.sol";
 
 /// @notice Ensures that simulating the task consistently produces the same call data and data to sign.
 /// This guarantees determinism—if a bug is introduced in the task logic, the call data or data to sign
@@ -349,9 +350,11 @@ contract RegressionTest is Test {
         MultisigTask multisigTask,
         MultisigTask.Action[] memory actions,
         string[] memory expectedDataToSign
-    ) internal view {
+    ) internal {
         address[] memory owners = IGnosisSafe(multisigTask.parentMultisig()).getOwners();
         for (uint256 i = 0; i < owners.length; i++) {
+            // Decrement the nonces by 1 because in task simulation child multisig nonces are incremented.
+            MultisigTaskTestHelper.decrementNonceAfterSimulation(owners[i]);
             string memory dataToSign = vm.toString(
                 multisigTask.getEncodedTransactionData(owners[i], multisigTask.generateApproveMulticallData(actions))
             );
