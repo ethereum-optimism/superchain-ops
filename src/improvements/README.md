@@ -33,7 +33,7 @@ just new task
 2. Configure the task in `config.toml` e.g.
 ```toml
 l2chains = [{"name": "OP Mainnet", "chainId": 10}]
-templateName = "<TEMPLATE_NAME>"
+templateName = "<TEMPLATE_NAME>" # e.g. OPCMUpgradeV200
 
 # Add template-specific config here.
 
