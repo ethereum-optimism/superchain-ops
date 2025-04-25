@@ -43,6 +43,23 @@ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nes
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
 ```
 
+### How do I run a task that depends on another task?
+
+Stacked simulations are supported. To use this feature, you can use the following command:
+```bash
+just simulate-stack <network> [task] [owner-address]
+```
+
+e.g. 
+```bash
+# Simulate all tasks up to and including the latest non-terminal task.
+just simulate-stack eth
+# OR to simulate up to and including a specific task. Useful if you don't care about simulating tasks after a certain point.
+just simulate-stack eth 002-opcm-upgrade-v200
+# OR to simulate up to and including a specific task, and specify the owner address to simulate as (useful for getting the correct domain and message hash).
+just simulate-stack eth 002-opcm-upgrade-v200 0x847B5c174615B1B7fDF770882256e2D3E95b9D92
+```
+
 ## Available Templates
 
 All available templates can be found in the [template](./template/) directory. 

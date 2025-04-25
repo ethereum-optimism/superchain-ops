@@ -7,6 +7,7 @@ import {Test} from "forge-std/Test.sol";
 import {stdStorage, StdStorage} from "forge-std/StdStorage.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {LibString} from "@solady/utils/LibString.sol";
+import {Vm} from "forge-std/Vm.sol";
 
 import {MockTarget} from "test/tasks/mock/MockTarget.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
@@ -53,10 +54,10 @@ contract MultisigTaskUnitTest is Test {
         vm.createSelectFork("mainnet");
 
         // We want the SuperchainAddressRegistry to be initialized with the OP Mainnet config
-        string memory fileName = createTempTomlFile(commonToml);
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml);
         // Instantiate the SuperchainAddressRegistry contract
         addrRegistry = new SuperchainAddressRegistry(fileName);
-        removeFile(fileName);
+        MultisigTaskTestHelper.removeFile(fileName);
 
         // Instantiate the Mock MultisigTask contract
         task = MultisigTask(new MockMultisigTask());
@@ -215,10 +216,10 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testSimulateFailsTxAlreadyExecuted() public {
-        string memory fileName = createTempTomlFile(commonToml);
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml);
         (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions) =
             runTestSimulation(fileName, securityCouncilChildMultisig);
-        removeFile(fileName);
+        MultisigTaskTestHelper.removeFile(fileName);
 
         vm.expectRevert("MultisigTask: execute failed");
         task.simulate("", actions);
@@ -228,9 +229,9 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testGetCalldata() public {
-        string memory fileName = createTempTomlFile(commonToml);
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml);
         (, MultisigTask.Action[] memory actions) = runTestSimulation(fileName, securityCouncilChildMultisig);
-        removeFile(fileName);
+        MultisigTaskTestHelper.removeFile(fileName);
 
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);
 
@@ -425,6 +426,11 @@ contract MultisigTaskUnitTest is Test {
         });
         return actions;
     }
+}
+
+library MultisigTaskTestHelper {
+    address internal constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
+    Vm internal constant vm = Vm(VM_ADDRESS);
 
     function createTempTomlFile(string memory tomlContent) internal returns (string memory) {
         string memory randomBytes = LibString.toHexString(uint256(bytes32(vm.randomBytes(32))));
@@ -437,5 +443,19 @@ contract MultisigTaskUnitTest is Test {
     /// is because sometimes the file may not exist and this leads to flaky tests.
     function removeFile(string memory fileName) internal {
         try vm.removeFile(fileName) {} catch {}
+    }
+
+    /// @notice This function is used to decrement the nonce of an EOA or contract.
+    /// It's specifically useful for decrementing the nonce of a child multisig after the simulation
+    /// of a nested multisig task.
+    function decrementNonceAfterSimulation(address owner) public {
+        // Decrement the nonces by 1 because in task simulation child multisig nonces are incremented.
+        if (address(owner).code.length > 0) {
+            uint256 currentOwnerNonce = IGnosisSafe(owner).nonce();
+            vm.store(owner, bytes32(uint256(0x5)), bytes32(uint256(--currentOwnerNonce)));
+        } else {
+            uint256 currentOwnerNonce = vm.getNonce(owner);
+            vm.setNonce(owner, uint64(--currentOwnerNonce));
+        }
     }
 }
