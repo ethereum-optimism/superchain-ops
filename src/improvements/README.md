@@ -38,7 +38,7 @@ templateName = "<TEMPLATE_NAME>"
 # Add template-specific config here.
 
 [addresses]
-# Addresses that are not automatically discovered (e.g. OPCM, StandardValidator).
+# Addresses that are not automatically discovered (e.g. OPCM, StandardValidator or safes that are not found in addresses.toml).
 
 [stateOverrides]
 # State overrides (e.g. specify a Safe nonce).
