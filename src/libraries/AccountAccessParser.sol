@@ -10,7 +10,6 @@ import {LibString} from "@solady/utils/LibString.sol";
 import {LibSort} from "@solady/utils/LibSort.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {Utils} from "src/libraries/Utils.sol";
-import {console} from "forge-std/console.sol";
 
 /// @notice Parses account accesses into decoded transfers and state diffs.
 /// The core methods intended to be part of the public interface are `decodeAndPrint`, `decode`,
@@ -280,6 +279,7 @@ library AccountAccessParser {
         // Get all storage writes as a state diff.
         address[] memory uniqueAddresses = getUniqueWrites({accesses: _accountAccesses, _sort: false});
 
+        // Create a temporary array to store normalized state changes.
         AccountStateDiff[] memory normalizedChanges = new AccountStateDiff[](MAX_STATE_CHANGES);
         uint256 normalizedCount = 0;
 
@@ -465,6 +465,7 @@ library AccountAccessParser {
         pure
         returns (StateDiff[] memory diffs)
     {
+        // Over-allocate to the maximum possible number of diffs.
         StateDiff[] memory temp = new StateDiff[](MAX_STATE_CHANGES);
         uint256 diffCount = 0;
 
