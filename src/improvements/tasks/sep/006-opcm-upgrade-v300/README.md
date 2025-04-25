@@ -35,7 +35,7 @@ Navigate to the correct task directory then run the simulate command.
 ```
 cd src/improvements/tasks/sep/006-opcm-upgrade-v300
 # Nested safe 1: 0x6AF0674791925f767060Dd52f7fB20984E8639d8
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate child-safe-1
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate NestedSafe1
 # Nested safe 2: 0x646132A1667ca7aD00d36616AFBA1A28116C770A
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate child-safe-2
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate NestedSafe2
 ```
