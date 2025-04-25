@@ -10,10 +10,11 @@ import {LibString} from "@solady/utils/LibString.sol";
 import {LibSort} from "@solady/utils/LibSort.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {Utils} from "src/libraries/Utils.sol";
+import {console} from "forge-std/console.sol";
 
 /// @notice Parses account accesses into decoded transfers and state diffs.
 /// The core methods intended to be part of the public interface are `decodeAndPrint`, `decode`,
-/// `getUniqueWrites`, and `getStateDiffFor`. Example usage:
+/// `getUniqueWrites`, `getStateDiffFor`, and `normalizedStateDiffHash`. Example usage:
 ///
 /// ```solidity
 /// contract MyContract {
@@ -37,6 +38,9 @@ import {Utils} from "src/libraries/Utils.sol";
 ///
 ///         // Get all new contracts created.
 ///         address[] memory newContracts = accountAccesses.getNewContracts();
+///
+///         // Get the normalized state diff hash.
+///         bytes32 normalizedStateDiffHash = accountAccesses.normalizedStateDiffHash(parentMultisig, txHash);
 ///     }
 /// }
 /// ```
@@ -49,6 +53,11 @@ library AccountAccessParser {
     address internal constant ZERO = address(0);
     address internal constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
     Vm internal constant vm = Vm(VM_ADDRESS);
+
+    /// It's possible for there to be more state changes than number of accesses. We choose an arbitarily large number
+    /// to ensure we have enough space to capture all state changes for any given access trace. If we exceed this limit,
+    /// the code will: panic: array out-of-bounds access.
+    uint256 internal constant MAX_STATE_CHANGES = 1000;
 
     struct StateDiff {
         bytes32 slot;
@@ -271,10 +280,7 @@ library AccountAccessParser {
         // Get all storage writes as a state diff.
         address[] memory uniqueAddresses = getUniqueWrites({accesses: _accountAccesses, _sort: false});
 
-        // Create a temporary array to store normalized state changes.
-        // We set the size to 1000 because we will likely never have more than 1000 state changes.
-        uint256 maxStateChanges = 1000;
-        AccountStateDiff[] memory normalizedChanges = new AccountStateDiff[](maxStateChanges);
+        AccountStateDiff[] memory normalizedChanges = new AccountStateDiff[](MAX_STATE_CHANGES);
         uint256 normalizedCount = 0;
 
         // Process each account with storage writes.
@@ -293,7 +299,7 @@ library AccountAccessParser {
                         lastNew: diff.newValue
                     });
                     normalizedCount++;
-                    require(normalizedCount < maxStateChanges, "AccountAccessParser: Max state changes reached");
+                    require(normalizedCount < MAX_STATE_CHANGES, "AccountAccessParser: Max state changes reached");
                 }
             }
         }
@@ -414,7 +420,7 @@ library AccountAccessParser {
         returns (address[] memory uniqueAccounts)
     {
         // Temporary array sized to maximum possible length.
-        address[] memory temp = new address[](accesses.length);
+        address[] memory temp = new address[](MAX_STATE_CHANGES);
         uint256 count = 0;
         for (uint256 i = 0; i < accesses.length; i++) {
             bool hasChangedWrite = false;
@@ -459,8 +465,7 @@ library AccountAccessParser {
         pure
         returns (StateDiff[] memory diffs)
     {
-        // Over-allocate to the maximum possible number of diffs.
-        StateDiff[] memory temp = new StateDiff[](accesses.length);
+        StateDiff[] memory temp = new StateDiff[](MAX_STATE_CHANGES);
         uint256 diffCount = 0;
 
         for (uint256 i = 0; i < accesses.length; i++) {
@@ -487,7 +492,6 @@ library AccountAccessParser {
                 }
             }
         }
-
         // Filter out diffs where the net change is zero.
         uint256 finalCount = 0;
         for (uint256 i = 0; i < diffCount; i++) {
