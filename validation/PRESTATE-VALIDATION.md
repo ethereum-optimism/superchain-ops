@@ -6,7 +6,7 @@ The referenced program should be a valid release of `op-program`.
 
 ## Releases.json
 All `op-program` releases are documented in
-[releases.json](https://github.com/ethereum-optimism/optimism/blob/develop/op-program/prestates/releases.json).
+[fetcher.go](https://github.com/ethereum-optimism/optimism/blob/develop/op-program/prestates/fetcher.go).
 
 For example, here is a subset of documented releases:
 ```json
