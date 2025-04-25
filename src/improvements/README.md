@@ -22,7 +22,7 @@ superchain-ops/
 ## Quick Start
 
 > Prerequisites:
-> Make sure you have just, foundry, and yq installed.
+> Make sure you have `mise` installed. Follow the [CONTRIBUTING.md](../../CONTRIBUTING.md) guide to install mise.
 
 1. Create a new task:
 ```bash
