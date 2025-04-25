@@ -33,13 +33,6 @@ for the expected state overrides and changes.
 
 Additionally, Safe-related nonces [will increment by one](../../../../../SINGLE-VALIDATION.md#nonce-increments).
 
-## Other Nonces
-
-In addition to the Safe-related nonces mentioned [previously](#single-safe-state-overrides-and-changes), new contracts will also have a nonce value increment from 0 to 1.
-This is due to [EIP-161](https://eips.ethereum.org/EIPS/eip-161) which activated in 2016.
-
-This affects the newly deployed dispute games mentioned in ["State Diffs"](#state-diffs).
-
 ## State Diffs
 
 For each contract listed in the state diff, please verify that no contracts or state changes shown in the Tenderly diff are missing from this document. Additionally, please verify that for each contract:
@@ -60,6 +53,14 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **Summary:** Owner of the DelayedWETH contract for the PermissionedDisputeGame transferred to the ProxyAdmin owner.
   - **Detail:** Address of the ProxyAdmin owner can be verified in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/b3d020de42abeebeb5786ea5508aa08d12bdf4cd/superchain/configs/mainnet/op.toml#L45).
 
+Address of the `DelayedWETH` contract can be verified by pulling it from the
+[PermissionedDisputeGame for OP Mainnet](https://github.com/ethereum-optimism/superchain-registry/blob/0831c2509152b457d865634616925ca6240b219e/superchain/configs/mainnet/op.toml#L66).
+Using `cast` run:
+
+```sh
+cast call 0x1Ae178eBFEECd51709432EA5f37845Da0414EdFe "weth()(address)"
+```
+
   ---
 
 ### `0x323dfc63c9b83cb83f40325aab74b245937cbdf0`  (DelayedWETH for FaultDisputeGame) - Chain ID: 10
@@ -70,6 +71,14 @@ For each contract listed in the state diff, please verify that no contracts or s
   - **After:** `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`
   - **Summary:**           _owner
   - **Detail:** Address of the ProxyAdmin owner can be verified in the [Superchain Registry](https://github.com/ethereum-optimism/superchain-registry/blob/b3d020de42abeebeb5786ea5508aa08d12bdf4cd/superchain/configs/mainnet/op.toml#L45).
+
+Address of the `DelayedWETH` contract can be verified by pulling it from the
+[FaultDisputeGame for OP Mainnet](https://github.com/ethereum-optimism/superchain-registry/blob/0831c2509152b457d865634616925ca6240b219e/superchain/configs/mainnet/op.toml#L64).
+Using `cast` run:
+
+```sh
+cast call 0x5738a876359b48A65d35482C93B43e2c1147B32B "weth()(address)"
+```
 
   ---
   
