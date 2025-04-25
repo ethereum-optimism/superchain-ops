@@ -57,6 +57,8 @@ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nes
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
 ```
 
+4. Fill out the `README.md` and `VALIDATION.md` files.
+
 ### How do I run a task that depends on another task?
 
 Stacked simulations are supported. To use this feature, you can use the following command:
