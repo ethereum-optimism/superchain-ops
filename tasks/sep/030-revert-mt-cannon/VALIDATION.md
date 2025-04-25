@@ -125,6 +125,6 @@ Now: "1.2.1"
 In both, there are two changes:
 
 * absolutePrestate() changes from `0x03b7eaa4e3cbce90381921a4b48008f4769871d64f93d113fcadca08ecee503b` to `0x03f89406817db1ed7fd8b31e13300444652cdb0b9c509a674de43483b2f83568`. 
-  These can be verified by comparing to the values in [releases.json](https://github.com/ethereum-optimism/optimism/blob/develop/op-program/prestates/releases.json).
+  These can be verified by comparing to the values in [fetcher.go](https://github.com/ethereum-optimism/optimism/blob/develop/op-program/prestates/fetcher.go).
   The old absolute prestate is the cannon64 variant of the 1.4.0 release, the new one is the governance approved, single-threaded cannon version from the same 1.4.0 release.
 * vm - the MIPS.sol version. This reverts from the MIPS64.sol beta version back to the governance approved version 1.2.1 from the contracts/1.8.0 (Holocene) release.
