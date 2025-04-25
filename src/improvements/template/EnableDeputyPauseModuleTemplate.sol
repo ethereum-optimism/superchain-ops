@@ -11,6 +11,10 @@ import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
 import {ModuleManager} from "lib/safe-contracts/contracts/base/ModuleManager.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
+interface Isafe {
+    function getModules() external view returns (address[] memory);
+}
+
 /// @notice Template contract for enabling the DeputyPauseModule in a Gnosis Safe
 contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
     using AccountAccessParser for *;
@@ -67,7 +71,7 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
         (address[] memory modules, address nextModule) =
             ModuleManager(parentMultisig).getModulesPaginated(SENTINEL_MODULE, 100);
 
-        assertTrue(ModuleManager(parentMultisig).isModuleEnabled(newModule), "Module not enabled");
+        assertTrue(Isafe(parentMultisig).getModules()[0] == newModule, "Module not enabled"); // version 1.1.1 doesn't support isModuleEnabled. 
         assertEq(nextModule, SENTINEL_MODULE, "Next module not correct");
 
         bool moduleFound;
