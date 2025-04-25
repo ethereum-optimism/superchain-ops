@@ -4,7 +4,7 @@ Status: [DRAFT]()
 
 ## Objective
 
-Executes [Upgrade 15](https://gov.optimism.io/t/upgrade-proposal-15-isthmus-hard-fork/9804) on OP Sepolia and Ink Sepolia.
+Executes [Upgrade 15](https://gov.optimism.io/t/upgrade-proposal-15-isthmus-hard-fork/9804) on **Unichain Mainnet**.
 
 This task uses `op-contract/v3.0.0` [OPContractsManager](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/L1/OPContractsManager.sol) to update the prestates of **Unichain Mainnet**.
 

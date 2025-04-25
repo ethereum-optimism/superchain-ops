@@ -32,8 +32,8 @@ the values printed to the terminal when you run the task.
 >
 > ### Security Council (`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`)
 >
-> - Domain Hash: ``
-> - Message Hash: ``
+> - Domain Hash: `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
+> - Message Hash: `0xbfe796bd508232de1207a8668e26b13a3c4fdd8486b7b6a0636586bb045cb489`
 
 ## Normalized State Diff Hash Attestation
 
@@ -109,13 +109,13 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
 ---
 
-### `0xe5965ab5962edc7477c8520243a95517cd252fa9`  (DisputeGameFactory) - Chain ID: 10
+### `0x2f12d621a16e2d3285929c9996f478508951dfe4`  (DisputeGameFactory) - Chain ID: 130
 
 - **Key:**          `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
-  - **Before:**     `0x0000000000000000000000001ae178ebfeecd51709432ea5f37845da0414edfe`
-  - **After:**     `0x000000000000000000000000a1e0bacde89d899b3f24eef3d179cc335a24e777`
+  - **Before:**     `0x00000000000000000000000067d59ac1166ba17612be0edf275187e38cbf9b99`
+  - **After:**     `0x000000000000000000000000485272c0703020e1354328a1aba3ca767997bed3`
   - **Summary:**  Set a new game implementation for game type [PERMISSIONED_CANNON](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/lib/Types.sol#L55)
-  - **Detail:**  This is `gameImpls[1]` -> `0xa1e0bacde89d899b3f24eef3d179cc335a24e777`. The [`gameImpls` mapping](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is at [storage slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41) and is keyed by [`GameType` (`uint32`)](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224).
+  - **Detail:**  This is `gameImpls[1]` -> `0x485272c0703020e1354328A1aBa3ca767997BEd3`. The [`gameImpls` mapping](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is at [storage slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41) and is keyed by [`GameType` (`uint32`)](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224).
     - Confirm the expected key slot with the following:
       ```shell
       cast index uint32 1 101
@@ -123,31 +123,38 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
       ```
 
 - **Key:**          `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
-  - **Before:**     `0x0000000000000000000000005738a876359b48a65d35482c93b43e2c1147b32b`
-  - **After:**     `0x00000000000000000000000089d68b1d63aaa0db4af1163e81f56b76934292f8`
+  - **Before:**     `0x00000000000000000000000056ebb9eae4f33ceaed3672446e3812d77f8a8a2c`
+  - **After:**     `0x00000000000000000000000057a3b42698dc1e4fb905c9ab970154e178296991`
   - **Summary:**  Set a new game implementation for game type [CANNON](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/lib/Types.sol#L52)
-  - **Detail:**  This is `gameImpls[0]` -> `0x89d68b1d63aaa0db4af1163e81f56b76934292f8`. The [`gameImpls` mapping](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is at [storage slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41) and is keyed by [`GameType` (`uint32`)](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224).
+  - **Detail:**  This is `gameImpls[0]` -> `0x57a3B42698DC1e4Fb905c9ab970154e178296991`. The [`gameImpls` mapping](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L57) is at [storage slot 101](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L41) and is keyed by [`GameType` (`uint32`)](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v3.0.0-rc.2/packages/contracts-bedrock/src/dispute/lib/LibUDT.sol#L224).
     - Confirm the expected key slot with the following:
       ```shell
       cast index uint32 0 101
       0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b
       ```
+
 ---
 
-### [`0x24424336F04440b1c28685a38303aC33C9D14a25`](https://github.com/ethereum-optimism/superchain-ops/blob/2b33763cbae24bf5af1467f510e66a31b1b98b4a/NESTED-VALIDATION.md?plain=1#L106) (LivenessGuard)
+### `0x9343c452dec3251fe99D9Fd29b74c5b9CD1751a6` (LivenessGuard Unichain)
+
+> [!IMPORTANT]
+> Unichain Safe Only
+
+**THIS STATE DIFF ONLY APPEARS WHEN SIGNING FOR THE UNICHAIN SAFE AND DOES NOT NEED TO BE CHECKED BY SIGNERS.**
+
+The details are explained in [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md#liveness-guard).
+
+---
+
+### `0x24424336F04440b1c28685a38303aC33C9D14a25` (LivenessGuard Security Council)
 
 > [!IMPORTANT]
 > Security Council Only
 
 **THIS STATE DIFF ONLY APPEARS WHEN SIGNING FOR THE COUNCIL AND DOES NOT NEED TO BE CHECKED BY SIGNERS.**
 
-- **Key:**      `0xee4378be6a15d4c71cb07a5a47d8ddc4aba235142e05cb828bb7141206657e27`
-  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
-  - **After:**  `0x00000000000000000000000000000000000000000000000000000000680a79a5`
-  - **Summary:**  LivenessGuard timestamp update.
-  - **Detail:**  **THIS STATE DIFF ONLY APPEARS WHEN SIGNING FOR THE COUNCIL AND DOES NOT NEED TO BE CHECKED BY SIGNERS.**
-                   When the security council safe executes a transaction, the liveness timestamps are updated.
-                   This is updating at the moment when the  transaction is submitted (`block.timestamp`) into the [`lastLive`](https://github.com/ethereum-optimism/optimism/blob/e84868c27776fd04dc77e95176d55c8f6b1cc9a3/packages/contracts-bedrock/src/safe/LivenessGuard.sol#L41) mapping located at the slot 0.
+The details are explained in [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md#liveness-guard).
+
 ---
 
 ### `0x6d5B183F538ABB8572F5cD17109c617b994D5833` (Unichain ProxyAdminOwner)
@@ -161,33 +168,36 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
     SAFE_HASH=0x1ddd958de5bc75389847abb6cd0d8551f0ecfdaf763b9c80e935dbb1c37a3948
     cast index bytes32 $SAFE_HASH $(cast index address $SAFE_SIGNER 8)
     ```
+    Key: `0xf8504c099de345eb1c403a30d49833b4834f40d609b6b2107b81927e309b987a`
   - **Optimism Foundation only**
     ```
     SAFE_SIGNER=0x847B5c174615B1B7fDF770882256e2D3E95b9D92
     SAFE_HASH=0x1ddd958de5bc75389847abb6cd0d8551f0ecfdaf763b9c80e935dbb1c37a3948
     cast index bytes32 $SAFE_HASH $(cast index address $SAFE_SIGNER 8)
     ```
+    Key: `0xab2f364801a9ab669e9ddf4ec9b8d06c52acca51c9626e5242dd8a9b79a1f0aa`
   - **Security Council only**
     ```
     SAFE_SIGNER=0xc2819DC788505Aac350142A7A707BF9D03E3Bd03
     SAFE_HASH=0x1ddd958de5bc75389847abb6cd0d8551f0ecfdaf763b9c80e935dbb1c37a3948
     cast index bytes32 $SAFE_HASH $(cast index address $SAFE_SIGNER 8)
     ```
+    Key: `0x488861e7a26dcec539aebd39e2015ecbaaa7c5924c668939a8cfe1af67718786`
 
 ---
 
 ### Nonce increments
 
 - Contract deployments are shown as nonce increments from 0 to 1
-  - `0x3cCF7C31a3A8C1b8aaA9A18FC2d010dDE4262342` - Permissionless GameType Implementation for Ink
-  - `0x40641A4023f0F4C66D7f8Ade16497f4C947A7163` - Permissioned GameType Implementation for Ink
-  - `0x89D68b1D63AAA0db4af1163e81f56B76934292F8` - Permissionless GameType Implementation for OP Mainnet
-  - `0xa1E0baCde89d899B3f24eEF3D179cC335A24E777` - Permissioned GameType Implementation for OP Mainnet
+  - `0x485272c0703020e1354328A1aBa3ca767997BEd3` - Permissioned GameType Implementation for Unichain Mainnet
+  - `0x57a3B42698DC1e4Fb905c9ab970154e178296991` - Permissionless GameType Implementation for Unichain Mainnet
 - The remaining nonce increments are for the Safes and EOAs that are involved in the simulation.
   The details are described in the generic [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md) document.
   - <sender-address> - Sender address of the Tenderly transaction (Your ledger or first owner on the nested safe (if you're simulating)).
-  - `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` - Superchain ProxyAdminOwner
-    - Contract nonce `14 -> 18` - four contract deployments above
-    - Safe nonce (slot `0x5`) `14 -> 15`
-  - `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` - Foundation Upgrade Safe `25 -> 26`
-  - `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` - Security Council Safe `26 -> 27`
+  - `0x6d5B183F538ABB8572F5cD17109c617b994D5833` - Unichain ProxyAdminOwner
+    - Contract nonce `6 -> 8` - two contract deployments above
+    - Safe nonce (slot `0x5`) `4 -> 5`
+  - Only one of the following nonce increments, depending on which Owner Safe is simulated
+    - `0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC` - Unichain Operations Safe `10 -> 11`
+    - `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` - Foundation Upgrade Safe `25 -> 26`
+    - `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` - Security Council Safe `26 -> 27`
