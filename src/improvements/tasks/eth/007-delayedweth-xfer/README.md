@@ -1,6 +1,6 @@
 # DelayedWETH Ownership Transfer - OP Mainnet
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://etherscan.io/tx/0x0fa256d2f49d9bf94abf6bfcd3defcbb29dcd2edeb1e3750a68c3fa7993aea95)
 
 ## Objective
 
