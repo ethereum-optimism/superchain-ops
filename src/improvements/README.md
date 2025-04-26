@@ -1,8 +1,8 @@
 # Superchain-ops Task System
 
-A tooling system that enables developers to write and test tasks that simulate onchain state changes before execution.
+A tooling system for developers to write, test, and simulate onchain state changes safely before execution.
 
-You can find more detailed documentation in the [doc](./doc/) directory.
+> 📚 More detailed documentation can be found in the [doc](./doc/) directory.
 
 ## Repository Structure
 
@@ -21,27 +21,43 @@ superchain-ops/
 
 ## Quick Start
 
+> Prerequisites:
+> Make sure you have `mise` installed. Follow the [CONTRIBUTING.md](../../CONTRIBUTING.md) guide to install mise.
+
 1. Create a new task:
 ```bash
 cd src/improvements/
 just new task
 ```
 
-2. Configure the task in `config.toml`:
+2. Configure the task in `config.toml` e.g.
 ```toml
 l2chains = [{"name": "OP Mainnet", "chainId": 10}]
-templateName = "<TEMPLATE_NAME>"
+templateName = "<TEMPLATE_NAME>" # e.g. OPCMUpgradeV200
 
-# Add template-specific config here (note: the template structure can change based on the template type)
+# Add template-specific config here.
+
+[addresses]
+# Addresses that are not automatically discovered (e.g. OPCM, StandardValidator or safes that are not found in addresses.toml).
+
+[stateOverrides]
+# State overrides (e.g. specify a Safe nonce).
 ```
 
 3. Simulate the task:
 ```bash
-# Nested 
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate <foundation|council|chain-governor|child-safe-1|child-safe-2|child-safe-3>
+# Nested
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate <foundation|council|chain-governor|foundation-operations|base-operations|[custom-safe-name]>
+```
+> ℹ️ [custom-safe-name] refers to a Safe name defined manually by the task developer in config.toml
+> Example: NestedSafe1 in sep/001-opcm-upgrade-v200/config.toml.
+
+```bash
 # Single 
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
 ```
+
+4. Fill out the `README.md` and `VALIDATION.md` files.
 
 ### How do I run a task that depends on another task?
 

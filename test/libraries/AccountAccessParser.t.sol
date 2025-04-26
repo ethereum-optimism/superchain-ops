@@ -1234,7 +1234,21 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
         assertEq(hash, expectedHash, "LivenessGuard timestamp update should be removed");
     }
 
-    // Helper functions similar to those in AccountAccessParser.t.sol
+    /// It's possible for there to be more storage writes than accesses.
+    /// This test checks that the function handles this case correctly.
+    function test_more_storage_writes_than_accesses_passes() public pure {
+        address who = address(0xabcd);
+        VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
+        VmSafe.StorageAccess[] memory sa = new VmSafe.StorageAccess[](2);
+        sa[0] = storageAccess(who, bytes32(uint256(0x1)), isWrite, val0, val1);
+        sa[1] = storageAccess(who, bytes32(uint256(0x2)), isWrite, val0, val1);
+        accesses[0] = accountAccess(who, sa);
+
+        AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, who, false);
+        assertEq(diffs.length, sa.length, "The number of diffs should be equal to the number of storage writes");
+    }
+
+    /// Helper functions similar to those in AccountAccessParser.t.sol
     function accountAccess(address _account, VmSafe.StorageAccess[] memory _storageAccesses)
         internal
         pure
