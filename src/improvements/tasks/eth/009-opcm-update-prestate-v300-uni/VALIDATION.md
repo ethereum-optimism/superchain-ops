@@ -19,7 +19,7 @@ the values printed to the terminal when you run the task.
 >
 > Before signing, ensure the below hashes match what is on your ledger.
 
-> ### Unichain Upgrade Safe (`0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC`)
+> ### Unichain Upgrade Safe (Chain Governor) (`0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC`)
 >
 > - Domain Hash:  `0x4f0b6efb6c01fa7e127a0ff87beefbeb53e056d30d3216c5ac70371b909ca66d`
 > - Message Hash: `0x393727497cdd4c2a8f2a198643b44956ce007757d0400d6d977191318d06aea8`
