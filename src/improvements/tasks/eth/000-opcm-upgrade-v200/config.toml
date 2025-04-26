@@ -16,5 +16,3 @@ absolutePrestates = [
 [addresses]
 OPCM = "0x026b2F158255Beac46c1E7c6b8BbF29A4b6A7B76"
 StandardValidatorV200 = "0xecabaeaa1d58261f1579232520c5b460ca58a164"
-FoundationUpgradeSafe = "0x847B5c174615B1B7fDF770882256e2D3E95b9D92"
-SecurityCouncil = "0xc2819DC788505Aac350142A7A707BF9D03E3Bd03"

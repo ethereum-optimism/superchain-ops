@@ -20,9 +20,6 @@ expectedValidationErrors = "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-ANCHORP-40,PLDG-D
 [addresses]
 OPCM = "0x3a1f523a4bc09cd344a2745a108bb0398288094f" # v1.9.0 https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L22
 StandardValidatorV300 = "0xf989df70fb46c581ba6157ab335c0833ba60e1f0"
-ChildSafe1 = "0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC"
-ChildSafe2 = "0x847B5c174615B1B7fDF770882256e2D3E95b9D92"
-ChildSafe3 = "0xc2819DC788505Aac350142A7A707BF9D03E3Bd03"
 
 [stateOverrides]
 0x6d5B183F538ABB8572F5cD17109c617b994D5833 = [ # L1PAO: 3
