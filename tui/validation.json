@@ -8,6 +8,8 @@
   },
   "multisig": {
     "structure": "nested",
+    "name": "Superchain ProxyAdmin Owner",
+    "address": "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A",
     "components": [
       {
         "name": "Optimism Foundation Upgrades Safe",
@@ -25,7 +27,7 @@
       "contract": "OPContractsManager",
       "address": {
         "value": "0x026b2F158255Beac46c1E7c6b8BbF29A4b6A7B76",
-        "reference": "https://github.com/ethereum-optimism/optimism/blob/8d0dd96e494b2ba154587877351e87788336a4ec/packages/contracts-bedrock/snapshots/storageLayout/OPContractsManager.json#L23-L29"
+        "reference": "https://github.com/ethereum-optimism/superchain-registry/blob/34b33cfdd9164d0bdc7924091911c9b73fbeb4f5/validation/standard/standard-versions-mainnet.toml#L60"
       },
       "key": {
         "value": "0x0000000000000000000000000000000000000000000000000000000000000016",
@@ -34,7 +36,7 @@
       },
       "val": {
         "value": "0x0000000000000000000000000000000000000000000000000000000000000000",
-        "note": "Value of this variable is being set to 0, which marks isRC as false."
+        "note": "isRC storage slot is being set to 0, which marks isRC as false."
       },
       "summary": "Value of the isRC variable is set to 0 when the OPCM is triggered for the first time."
     },

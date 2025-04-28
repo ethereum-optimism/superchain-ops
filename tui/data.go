@@ -45,6 +45,8 @@ type MultisigComponent struct {
 // Represents the multisig section of the JSON
 type JSONMultisig struct {
 	Structure  string              `json:"structure"` // "single" or "nested"
+	Name       string              `json:"name"`      // Name of the multisig
+	Address    string              `json:"address"`   // Address of the multisig
 	Components []MultisigComponent `json:"components"`
 }
 
@@ -84,13 +86,4 @@ func loadValidationData(filePath string) (ValidationData, error) {
 	}
 
 	return data, nil
-}
-
-// Helper to format lists for display
-func formatComponentList(items []MultisigComponent) string {
-	var s string
-	for _, item := range items {
-		s += fmt.Sprintf("  - %s (%s)\n", item.Name, item.Address)
-	}
-	return s
 }
