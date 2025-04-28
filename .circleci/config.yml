@@ -39,7 +39,6 @@ parameters:
     type: string
     default: "__not_set__"
 
-
 commands:
   notify-failures-on-develop:
     description: "Notify Slack"
@@ -236,7 +235,7 @@ jobs:
             just simulate-council
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
-  
+
   stacked_simulation:
     description: "Runs a stacked simulation"
     parameters:
@@ -549,7 +548,7 @@ workflows:
       - simulate_sequence:
           name: simulate_sequence_eth
           network: "eth"
-          tasks: ""
+          tasks: "007-delayedweth 008-deputy-pause-module"
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
@@ -561,7 +560,7 @@ workflows:
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
-            
+
       # Stacked simulations for superchain-ops on Mainnet.
       - stacked_simulation:
           name: stacked_simulation_eth
@@ -580,8 +579,8 @@ workflows:
             - circleci-repo-readonly-authenticated-github-token
           filters:
             branches:
-              only: main  
-          
+              only: main
+
   close-issue-workflow:
     when:
       and:
@@ -590,10 +589,11 @@ workflows:
         - equal: [<< pipeline.parameters.github-event-action >>, "labeled"]
     jobs:
       - close-issue:
-         label_name: "auto-close-trivial-contribution"
-         message: "Thank you for your interest in contributing!
-                At this time, we are not accepting contributions that primarily fix spelling, stylistic, or grammatical errors in documentation, code, or elsewhere.
-                Please check our [contribution guidelines](https://github.com/ethereum-optimism/optimism/blob/develop/CONTRIBUTING.md#contributions-related-to-spelling-and-grammar) for more information.
-                This issue will be closed now."
-         context:
-          - circleci-repo-superchain-ops
+          label_name: "auto-close-trivial-contribution"
+          message: "Thank you for your interest in contributing!
+            At this time, we are not accepting contributions that primarily fix spelling, stylistic, or grammatical errors in documentation, code, or elsewhere.
+            Please check our [contribution guidelines](https://github.com/ethereum-optimism/optimism/blob/develop/CONTRIBUTING.md#contributions-related-to-spelling-and-grammar) for more information.
+            This issue will be closed now."
+          context:
+            - circleci-repo-superchain-ops
+
