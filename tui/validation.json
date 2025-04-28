@@ -1,0 +1,96 @@
+{
+  "overview": {
+    "id": "000-opcm-upgrade-v200",
+    "title": "Upgrade OP Mainnet, Soneium Mainnet, and Ink Mainnet to OP Stack v2.0.0 using OPCM",
+    "chain": 1,
+    "description": "This task executes the OPCM upgrade function on the v2.0.0 OPContractsManager contract. This function call will upgrade the L1 smart contracts for OP Mainnet, Soneium Mainnet, and Ink Mainnet to version 2.0.0 of the OP Stack.",
+    "governance": "https://gov.optimism.io/t/upgrade-proposal-13-opcm-and-incident-response-improvements/9739"
+  },
+  "multisig": {
+    "structure": "nested",
+    "components": [
+      {
+        "name": "Optimism Foundation Upgrades Safe",
+        "address": "0x847B5c174615B1B7fDF770882256e2D3E95b9D92"
+      },
+      {
+        "name": "Optimism Security Council",
+        "address": "0xc2819DC788505Aac350142A7A707BF9D03E3Bd03"
+      }
+    ]
+  },
+  "overrides": [],
+  "diffs": [
+    {
+      "contract": "OPContractsManager",
+      "address": {
+        "value": "0x026b2F158255Beac46c1E7c6b8BbF29A4b6A7B76",
+        "reference": "https://github.com/ethereum-optimism/optimism/blob/8d0dd96e494b2ba154587877351e87788336a4ec/packages/contracts-bedrock/snapshots/storageLayout/OPContractsManager.json#L23-L29"
+      },
+      "key": {
+        "value": "0x0000000000000000000000000000000000000000000000000000000000000016",
+        "variable": "isRC",
+        "reference": "https://github.com/ethereum-optimism/optimism/blob/8d0dd96e494b2ba154587877351e87788336a4ec/packages/contracts-bedrock/snapshots/storageLayout/OPContractsManager.json#L23-L29"
+      },
+      "val": {
+        "value": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "note": "Value of this variable is being set to 0, which marks isRC as false."
+      },
+      "summary": "Value of the isRC variable is set to 0 when the OPCM is triggered for the first time."
+    },
+    {
+      "contract": "DisputeGameFactory",
+      "address": {
+        "value": "0x10d7B35078d3baabB96Dd45a9143B94be65b12CD",
+        "reference": "https://github.com/ethereum-optimism/superchain-registry/blob/34b33cfdd9164d0bdc7924091911c9b73fbeb4f5/superchain/configs/mainnet/ink.toml#L64"
+      },
+      "key": {
+        "value": "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
+        "reference": "https://eips.ethereum.org/EIPS/eip-1967"
+      },
+      "val": {
+        "value": "0x0000000000000000000000004bba758f006ef09402ef31724203f316ab74e4a0",
+        "reference": "https://github.com/ethereum-optimism/superchain-registry/blob/34b33cfdd9164d0bdc7924091911c9b73fbeb4f5/validation/standard/standard-versions-mainnet.toml#L54"
+      },
+      "summary": "Standard ERC-1967 proxy implementation storage slot is set to the address of the standard DisputeGameFactory implementation for v2.0.0 of the OP Stack."
+    },
+    {
+      "contract": "DisputeGameFactory",
+      "address": {
+        "value": "0x10d7B35078d3baabB96Dd45a9143B94be65b12CD",
+        "reference": "https://github.com/ethereum-optimism/superchain-registry/blob/34b33cfdd9164d0bdc7924091911c9b73fbeb4f5/superchain/configs/mainnet/ink.toml#L64"
+      },
+      "key": {
+        "value": "0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e",
+        "variable": "gameImpls",
+        "reference": "https://github.com/ethereum-optimism/optimism/blob/8d0dd96e494b2ba154587877351e87788336a4ec/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L37-L43",
+        "command": "cast index uint32 1 101"
+      },
+      "val": {
+        "value": "0x0000000000000000000000004699d20479dfd20e15cab4fcb6f2a7cc6fe35443",
+        "reference": "https://github.com/ethereum-optimism/optimism/blob/8d0dd96e494b2ba154587877351e87788336a4ec/packages/contracts-bedrock/src/L1/OPContractsManager.sol#L589-L598",
+        "note": "PermissionedDisputeGame implementation is not yet standardized and is deployed by OPCM."
+      },
+      "summary": "Sets the implementation for the PERMISSIONED game type (type 1) to the address of the PermissionedDisputeGame implementation for Ink."
+    },
+    {
+      "contract": "DisputeGameFactory",
+      "address": {
+        "value": "0x10d7B35078d3baabB96Dd45a9143B94be65b12CD",
+        "reference": "https://github.com/ethereum-optimism/superchain-registry/blob/34b33cfdd9164d0bdc7924091911c9b73fbeb4f5/superchain/configs/mainnet/ink.toml#L64"
+      },
+      "key": {
+        "value": "0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b",
+        "variable": "gameImpls",
+        "reference": "https://github.com/ethereum-optimism/optimism/blob/8d0dd96e494b2ba154587877351e87788336a4ec/packages/contracts-bedrock/snapshots/storageLayout/DisputeGameFactory.json#L37-L43",
+        "command": "cast index uint32 0 101"
+      },
+      "val": {
+        "value": "0x00000000000000000000000069361c9134d620b704c2a72c58523a4373ece86f",
+        "reference": "https://github.com/ethereum-optimism/optimism/blob/8d0dd96e494b2ba154587877351e87788336a4ec/packages/contracts-bedrock/src/L1/OPContractsManager.sol#L589-L598",
+        "note": "FaultDisputeGame implementation is not yet standardized and is deployed by OPCM."
+      },
+      "summary": "Sets the implementation for the CANNON game type (type 0) to the address of the FaultDisputeGame implementation for Ink."
+    }
+  ]
+}
