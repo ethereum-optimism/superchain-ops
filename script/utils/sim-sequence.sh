@@ -67,23 +67,24 @@ reset_nonce() {
 }
 
 read_addresses() {
-    local config_file="$1"
+    local addresses_file="$1"
+    local network="$2"
     
     # Check if config file exists
-    if [[ ! -f "$config_file" ]]; then
-        echo "Error: Config file not found: $config_file" >&2
+    if [[ ! -f "$addresses_file" ]]; then
+        echo "Error: addresses.toml file not found: $addresses_file" >&2
         return 1
     fi
 
     # Use yq to read the addresses section directly
-    yq -p=toml -o=json '.addresses' "$config_file" | jq -r 'to_entries[] | "\(.key) \(.value)"'
+    yq -p=toml -o=json ".$network" "$addresses_file" | jq -r 'to_entries[] | "\(.key) \(.value)"'
 }
 
 display_addresses() {
     local config_file="$1"
     
     echo "Addresses from $config_file:"
-    read_addresses "$config_file" | while read -r key value; do
+    read_addresses "$config_file" "$network" | while read -r key value; do
         echo "  $key: $value"
     done
 }
@@ -1211,7 +1212,7 @@ for task_folder in "${task_folders[@]}"; do
     #DisplaySafeBeforev20 "(🟧) Before Simulation Nonce Values (🟧)" "${task_folder}/config.toml"
     DisplaySafeBeforeNoncesv20 "(🟧) Before Simulation Nonce Values (🟧)" "${task_folder}/config.toml"
     # check if the task is nested or single:
-    output=$(forge script TaskRunner --sig "isNestedTask" "${task_folder}/config.toml" --rpc-url http://localhost:8545)
+    output=$(forge script TaskManager --sig "isNestedTask" "${task_folder}/config.toml" --rpc-url http://localhost:8545)
     read bool_value parent_multisig <<< $(echo "$output" | awk '
         /0: bool/ {bool=$3}
         /parentMultisig:/ {multisig=$3}
@@ -1221,7 +1222,7 @@ for task_folder in "${task_folders[@]}"; do
     if [[ $bool_value == "true" ]]; then
       log_info "This is a nested task. This is using the superchain-ops v2.0"
       # We iterate over the [addresses] section of the config.toml file and for each childsafe or foundation or council we execute the command.
-      read_addresses "${task_folder}/config.toml" | while read -r key value; do
+      read_addresses "${root_dir}/src/improvements/addresses.toml" "$network" | while read -r key value; do
 
         case $key in 
           "ChildSafe1")
@@ -1232,6 +1233,7 @@ for task_folder in "${task_folders[@]}"; do
               approvehash_in_anvil2 child-safe-1 $parent_multisig 2>&1)
             set -e
             if [[ $approvalhash_result == *"Signature is incorrect"* || $approvalhash_result == *"revert"* ]]; then
+              echo "approvalhash_result: $approvalhash_result"
               log_error "Nonce is invalid for $task_folder for child-safe-1 approval, please check the nonces below:"
               log_nonce_error
               exit 99
@@ -1245,6 +1247,7 @@ for task_folder in "${task_folders[@]}"; do
               approvehash_in_anvil2 child-safe-2 $parent_multisig 2>&1)
             set -e
             if [[ $approvalhash_result == *"Signature is incorrect"* || $approvalhash_result == *"revert"* ]]; then
+              echo "approvalhash_result: $approvalhash_result"
               log_error "Nonce is invalid for $task_folder for child-safe-2 approval, please check the nonces below:"
               log_nonce_error
               exit 99
@@ -1258,6 +1261,7 @@ for task_folder in "${task_folders[@]}"; do
               approvehash_in_anvil2 child-safe-3 $parent_multisig 2>&1)
             set -e
             if [[ $approvalhash_result == *"Signature is incorrect"* || $approvalhash_result == *"revert"* ]]; then
+              echo "approvalhash_result: $approvalhash_result"
               log_error "Nonce is invalid for $task_folder for child-safe-3 approval, please check the nonces below:"
               log_nonce_error
               exit 99
@@ -1284,7 +1288,8 @@ for task_folder in "${task_folders[@]}"; do
               approvehash_in_anvil2 council $parent_multisig 2>&1)
             set -e
             if [[ $approvalhash_result == *"Signature is incorrect"* || $approvalhash_result == *"revert"* ]]; then
-             log_error "Nonce is invalid for $task_folder for council approval, please check the nonces below:"
+             echo "approvalhash_result: $approvalhash_result"
+              log_error "Nonce is invalid for $task_folder for council approval, please check the nonces below:"
               log_nonce_error
               exit 99
             fi
@@ -1297,6 +1302,7 @@ for task_folder in "${task_folders[@]}"; do
               approvehash_in_anvil2 foundation $parent_multisig 2>&1)
             set -e
             if [[ $approvalhash_result == *"Signature is incorrect"* || $approvalhash_result == *"revert"* ]]; then
+             echo "approvalhash_result: $approvalhash_result"
              log_error "Nonce is invalid for $task_folder for foundation approval, please check the nonces below:"
               log_nonce_error
               exit 99
@@ -1310,9 +1316,11 @@ for task_folder in "${task_folders[@]}"; do
         set +e
         approval=$(just \
           --justfile "${root_dir}/src/improvements/single.just" \
-          sign_and_execute_in_anvil $parent_multisig &>2)
+          sign_and_execute_in_anvil $parent_multisig 2>&1)
         set -e
-        if [[ $approval == *"not enough signatures"* || $approval == *"revert"* ]]; then
+
+        if [[ $approval == *"not enough signatures"* ]]; then
+          echo "approval: $approval" # display the approval error in the CI to debug the issues. 
           log_error "Nonce is invalid for $task_folder for council approval, please check the nonces below:"
           log_nonce_error
           exit 99

@@ -5,6 +5,7 @@ import {Vm, VmSafe} from "forge-std/Vm.sol";
 import {console} from "forge-std/console.sol";
 import {stdJson} from "forge-std/StdJson.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
+import {StdStyle} from "forge-std/StdStyle.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {LibSort} from "@solady/utils/LibSort.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
@@ -12,7 +13,7 @@ import {Utils} from "src/libraries/Utils.sol";
 
 /// @notice Parses account accesses into decoded transfers and state diffs.
 /// The core methods intended to be part of the public interface are `decodeAndPrint`, `decode`,
-/// `getUniqueWrites`, and `getStateDiffFor`. Example usage:
+/// `getUniqueWrites`, `getStateDiffFor`, and `normalizedStateDiffHash`. Example usage:
 ///
 /// ```solidity
 /// contract MyContract {
@@ -36,17 +37,26 @@ import {Utils} from "src/libraries/Utils.sol";
 ///
 ///         // Get all new contracts created.
 ///         address[] memory newContracts = accountAccesses.getNewContracts();
+///
+///         // Get the normalized state diff hash.
+///         bytes32 normalizedStateDiffHash = accountAccesses.normalizedStateDiffHash(parentMultisig, txHash);
 ///     }
 /// }
 /// ```
 library AccountAccessParser {
     using LibString for string;
     using stdJson for string;
+    using StdStyle for string;
 
     address internal constant ETHER = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     address internal constant ZERO = address(0);
     address internal constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
     Vm internal constant vm = Vm(VM_ADDRESS);
+
+    /// It's possible for there to be more state changes than number of accesses. We choose an arbitarily large number
+    /// to ensure we have enough space to capture all state changes for any given access trace. If we exceed this limit,
+    /// the code will: panic: array out-of-bounds access.
+    uint256 internal constant MAX_STATE_CHANGES = 1000;
 
     struct StateDiff {
         bytes32 slot;
@@ -77,8 +87,8 @@ library AccountAccessParser {
         address tokenAddress;
     }
 
-    // Temporary struct used during deduplication.
-    struct TempStateChange {
+    // This struct represents a state change with the account information
+    struct AccountStateDiff {
         address who;
         bytes32 slot;
         bytes32 firstOld;
@@ -119,6 +129,11 @@ library AccountAccessParser {
     bytes32 internal constant GAS_PAYING_TOKEN_SLOT = bytes32(uint256(keccak256("opstack.gaspayingtoken")) - 1);
     bytes32 internal constant GAS_PAYING_TOKEN_NAME_SLOT = bytes32(uint256(keccak256("opstack.gaspayingtokenname")) - 1);
     bytes32 internal constant GAS_PAYING_TOKEN_SYMBOL_SLOT = bytes32(uint256(keccak256("opstack.gaspayingtokensymbol")) - 1);
+
+    bytes32 internal constant GNOSIS_SAFE_NONCE_SLOT = bytes32(uint256(5));
+    bytes32 internal constant GNOSIS_SAFE_APPROVE_HASHES_SLOT = bytes32(uint256(8));
+
+    bytes32 internal constant LIVENESS_GUARD_LAST_LIVE_SLOT = bytes32(uint256(0));
     // forgefmt: disable-end
 
     modifier noGasMetering() {
@@ -137,14 +152,14 @@ library AccountAccessParser {
     // ==============================================================
 
     /// @notice Convenience function that wraps decode and print together.
-    function decodeAndPrint(VmSafe.AccountAccess[] memory _accesses, address _multisig, bytes32 _txHash)
+    function decodeAndPrint(VmSafe.AccountAccess[] memory _accesses, address _parentMultisig, bytes32 _txHash)
         internal
         view
     {
         // We always want to sort all state diffs before printing them.
         (DecodedTransfer[] memory transfers, DecodedStateDiff[] memory stateDiffs) = decode(_accesses, true);
         if (!Utils.isFeatureEnabled("SIGNING_MODE_IN_PROGRESS")) {
-            print(transfers, stateDiffs, _multisig, _txHash);
+            print(transfers, stateDiffs, _parentMultisig, _txHash);
         }
     }
 
@@ -239,6 +254,165 @@ library AccountAccessParser {
         }
     }
 
+    /// @notice Computes a hash of the normalized state diff from account accesses. The spec for
+    /// method is:
+    ///   1. The input is an array of `VmSafe.AccountAccess[]` containing all storage writes.
+    ///   2. It calls `AccountAccessParser.getUniqueWrites` to filter down all storage writes to a state diff
+    ///   3. With that state diff, we normalize it by removing data from the state diff array that
+    ///      may change between initial simulation and execution. Removal is done by simply removing
+    ///      the entry from the `AccountAccess[]` array. The set of state changes to remove is:
+    ///       1. If the state change is an EOA nonce increment, remove it.
+    ///       2. Remove the following state changes from Gnosis Safes:
+    ///           1. Nonce increments.
+    ///           2. Setting an approve hash in storage (the hash is dependent on the nonce, which may change)
+    ///       3. If the storage slot contains a timestamp, normalize that timestamp to be all zeroes.
+    ///           1. This will have to be informed by knowing the storage layouts, which is ok
+    ///           2. We should only normalize the specific section of the slot corresponding to the
+    ///              timestamp, since some timestamps are packed into slots with other data.
+    ///   4. The hash to return is computed as `keccak256(abi.encode(normalizedArray))`.
+    /// @return bytes32 hash of the normalized state diff
+    function normalizedStateDiffHash(
+        VmSafe.AccountAccess[] memory _accountAccesses,
+        address _parentMultisig,
+        bytes32 _txHash
+    ) internal view noGasMetering returns (bytes32) {
+        // Get all storage writes as a state diff.
+        address[] memory uniqueAddresses = getUniqueWrites({accesses: _accountAccesses, _sort: false});
+
+        // Create a temporary array to store normalized state changes.
+        AccountStateDiff[] memory normalizedChanges = new AccountStateDiff[](MAX_STATE_CHANGES);
+        uint256 normalizedCount = 0;
+
+        // Process each account with storage writes.
+        for (uint256 i = 0; i < uniqueAddresses.length; i++) {
+            address account = uniqueAddresses[i];
+            StateDiff[] memory diffs = getStateDiffFor({accesses: _accountAccesses, who: account, _sort: false});
+
+            // Process each diff and apply normalization logic.
+            for (uint256 j = 0; j < diffs.length; j++) {
+                StateDiff memory diff = diffs[j];
+                if (shouldIncludeDiff(account, diff, _parentMultisig, _txHash)) {
+                    normalizedChanges[normalizedCount] = AccountStateDiff({
+                        who: account,
+                        slot: diff.slot,
+                        firstOld: diff.oldValue,
+                        lastNew: diff.newValue
+                    });
+                    normalizedCount++;
+                    require(normalizedCount < MAX_STATE_CHANGES, "AccountAccessParser: Max state changes reached");
+                }
+            }
+        }
+
+        // Create the final array with the correct size.
+        AccountStateDiff[] memory finalArray = new AccountStateDiff[](normalizedCount);
+        for (uint256 i = 0; i < normalizedCount; i++) {
+            finalArray[i] = normalizedChanges[i];
+        }
+
+        // Return keccak256 hash of the abi-encoded normalized array.
+        return keccak256(abi.encode(finalArray));
+    }
+
+    function shouldIncludeDiff(address account, StateDiff memory diff, address _parentMultisig, bytes32 _txHash)
+        internal
+        view
+        returns (bool)
+    {
+        if (isEOANonceIncrement(account, diff)) {
+            // 1. If the state change is an EOA nonce increment, remove it.
+            return false;
+        } else if (isGnosisSafe(account)) {
+            // 2. Remove Gnosis Safe nonce increment and approve hash changes.
+            if (isGnosisSafeNonceIncrement(diff) || isGnosisSafeApproveHash(diff, _parentMultisig, _txHash)) {
+                // 2.1 Nonce increment or 2.2 Setting an approve hash in storage.
+                return false;
+            }
+        } else if (slotContainsTimestamp(account, diff)) {
+            // 3. If the slot contains a timestamp, normalize it to zeroes.
+            diff = normalizeTimestamp(diff);
+        } else if (isLivenessGuardTimestamp(account, diff, _parentMultisig)) {
+            // 4. If the slot is on the LivenessGuard, don't include it.
+            return false;
+        }
+        return true;
+    }
+
+    /// @notice Checks if the state diff represents an EOA nonce increment
+    function isEOANonceIncrement(address _account, StateDiff memory _diff) internal view returns (bool) {
+        uint256 codeSize = _account.code.length;
+        return codeSize == 0 && _diff.slot == bytes32(0) && uint256(_diff.newValue) == uint256(_diff.oldValue) + 1;
+    }
+
+    /// @notice Checks if the state diff represents a Gnosis Safe nonce increment
+    function isGnosisSafeNonceIncrement(StateDiff memory _diff) internal pure returns (bool) {
+        // In Gnosis Safe, the nonce is stored at slot 5. See `GnosisSafeStorage.sol` to verify.
+        return _diff.slot == GNOSIS_SAFE_NONCE_SLOT && uint256(_diff.newValue) == uint256(_diff.oldValue) + 1;
+    }
+
+    /// @notice Checks if the state diff represents setting an approve hash in a Gnosis Safe
+    function isGnosisSafeApproveHash(StateDiff memory _diff, address _parentMultisig, bytes32 _txHash)
+        internal
+        view
+        returns (bool)
+    {
+        bytes32[] memory hashSlots = calculateApproveHashSlots(IGnosisSafe(_parentMultisig).getOwners(), _txHash);
+        for (uint256 i = 0; i < hashSlots.length; i++) {
+            if (_diff.slot == hashSlots[i]) {
+                require(
+                    (_diff.oldValue == bytes32(0) && _diff.newValue == bytes32(uint256(1)))
+                    // Some Gnosis Safe versions set approvedHashes to zero upon execution e.g. mainnet FoundationOperationsSafe.
+                    || (_diff.oldValue == bytes32(uint256(1)) && _diff.newValue == bytes32(0)),
+                    "AccountAccessParser: Unexpected approve hash state change."
+                );
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /// @notice Checks if the given slot matches any liveness guard timestamp for the signers on child multisigs.
+    function isLivenessGuardTimestamp(address _account, StateDiff memory _diff, address _parentMultisig)
+        internal
+        view
+        returns (bool)
+    {
+        if (isLivenessGuard(_account)) {
+            address[] memory owners = IGnosisSafe(_parentMultisig).getOwners();
+            for (uint256 i = 0; i < owners.length; i++) {
+                if (isGnosisSafe(owners[i])) {
+                    // Get the owners of the nested Gnosis Safe.
+                    address[] memory nestedSafeOwners = IGnosisSafe(owners[i]).getOwners();
+                    for (uint256 j = 0; j < nestedSafeOwners.length; j++) {
+                        // Check if the slot matches any liveness guard timestamp for the nested safe owners.
+                        bytes32 ownerSlot =
+                            keccak256(abi.encode(address(nestedSafeOwners[j]), LIVENESS_GUARD_LAST_LIVE_SLOT));
+                        if (_diff.slot == ownerSlot) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /// @notice Checks if the storage slot contains a timestamp that should be normalized
+    function slotContainsTimestamp(address _account, StateDiff memory _diff) internal pure returns (bool) {
+        // TODO Check out the storage layout snapshots and hardcode the slots that contain timestamps.
+        // We will have to call getter methods on _account to infer what protocol contract it is.
+        _account;
+        _diff;
+        return false;
+    }
+
+    /// @notice Normalizes a timestamp in a storage slot by zeroing out only the timestamp portion
+    function normalizeTimestamp(StateDiff memory _diff) internal pure returns (StateDiff memory) {
+        // This is a placeholder that should be implemented based on specific contract knowledge
+        // For now, just return the original diff unchanged
+        return _diff;
+    }
+
     /// @notice Extracts all unique storage writes (i.e. writes where the value has actually changed)
     function getUniqueWrites(VmSafe.AccountAccess[] memory accesses, bool _sort)
         internal
@@ -246,7 +420,7 @@ library AccountAccessParser {
         returns (address[] memory uniqueAccounts)
     {
         // Temporary array sized to maximum possible length.
-        address[] memory temp = new address[](accesses.length);
+        address[] memory temp = new address[](MAX_STATE_CHANGES);
         uint256 count = 0;
         for (uint256 i = 0; i < accesses.length; i++) {
             bool hasChangedWrite = false;
@@ -292,7 +466,7 @@ library AccountAccessParser {
         returns (StateDiff[] memory diffs)
     {
         // Over-allocate to the maximum possible number of diffs.
-        StateDiff[] memory temp = new StateDiff[](accesses.length);
+        StateDiff[] memory temp = new StateDiff[](MAX_STATE_CHANGES);
         uint256 diffCount = 0;
 
         for (uint256 i = 0; i < accesses.length; i++) {
@@ -319,7 +493,6 @@ library AccountAccessParser {
                 }
             }
         }
-
         // Filter out diffs where the net change is zero.
         uint256 finalCount = 0;
         for (uint256 i = 0; i < diffCount; i++) {
@@ -363,10 +536,13 @@ library AccountAccessParser {
     function print(
         DecodedTransfer[] memory _transfers,
         DecodedStateDiff[] memory _stateDiffs,
-        address _multisig,
+        address _parentMultisig,
         bytes32 _txHash
     ) internal view noGasMetering {
-        console.log("\n----------------- Task Transfers -------------------");
+        console.log("");
+        string memory line = unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
+        console.log(string("TASK TRANSFERS").cyan().bold());
+        console.log(line.cyan().bold());
         if (_transfers.length == 0) {
             console.log("No ETH or ERC20 transfers.");
         } else {
@@ -380,16 +556,26 @@ library AccountAccessParser {
             }
         }
 
-        console.log("\n----------------- Task State Changes -------------------");
-        console.log("\n--- Attention: Copy content below this line into the VALIDATION.md file. ---");
+        console.log("");
+        console.log(string("TASK STATE CHANGES").cyan().bold());
+        console.log(line.cyan().bold());
+        printCopyHelper("below");
         require(_stateDiffs.length > 0, "No state changes found, this is unexpected.");
-        printMarkdown(_stateDiffs, _multisig, _txHash);
-        console.log("\n\n --- Attention: Copy content above this line into the VALIDATION.md file. ---");
+        printMarkdown(_stateDiffs, _parentMultisig, _txHash);
+        printCopyHelper("above");
+    }
+
+    function printCopyHelper(string memory _text) internal view noGasMetering {
+        string memory line = unicode"━━━━━";
+        // forgefmt: disable-start
+        string memory helper = string.concat(line, " Attention: Copy content ", _text, " this line into the VALIDATION.md file. ", line);
+        // forgefmt: disable-end
+        console.log(helper.yellow().bold());
     }
 
     /// @notice Prints the decoded state diffs to the console in markdown format.
     /// This markdown is intended to be copied into the VALIDATION.md file.
-    function printMarkdown(DecodedStateDiff[] memory _stateDiffs, address _multisig, bytes32 _txHash)
+    function printMarkdown(DecodedStateDiff[] memory _stateDiffs, address _parentMultisig, bytes32 _txHash)
         internal
         view
         noGasMetering
@@ -432,9 +618,9 @@ library AccountAccessParser {
                 console.log("- **Detail:** %s", state.decoded.detail);
             }
             console.log("\n**<TODO: Insert links for this state change then remove this line.>**");
-            if (state.who == _multisig) {
+            if (state.who == _parentMultisig) {
                 // May need to log additional information here about approveHash writes.
-                printApproveHashInfo(_multisig, _txHash, state.raw.slot);
+                printApproveHashInfo(_parentMultisig, _txHash, state.raw.slot);
             }
         }
     }
@@ -706,7 +892,7 @@ library AccountAccessParser {
         try vm.readFile(path) returns (string memory result) {
             storageLayout = result;
         } catch {
-            console.log("\x1B[33m[WARN]\x1B[0m Failed to read storage layout file at %s", path);
+            console.log(string.concat(string("[WARN]").yellow().bold(), "Failed to read storage layout file at ", path));
             return DecodedSlot({kind: "", oldValue: "", newValue: "", summary: "", detail: ""});
         }
         bytes memory parsedStorageLayout = vm.parseJson(storageLayout, "$");
@@ -873,8 +1059,11 @@ library AccountAccessParser {
         // behind the latest release and it's expected that some addresses are not yet registered.
         if (!Utils.isFeatureEnabled("SIGNING_MODE_IN_PROGRESS")) {
             console.log(
-                "\x1B[33m[WARN]\x1B[0m Target address not found in superchain-registry (this message is safe to ignore): %s",
-                vm.toString(target)
+                string.concat(
+                    string("[WARN]").yellow().bold(),
+                    " Target address not found in superchain-registry (this message is safe to ignore): ",
+                    vm.toString(target)
+                )
             );
         }
         return (0, "");
@@ -901,26 +1090,34 @@ library AccountAccessParser {
         return ok && data.length == 32;
     }
 
+    /// @notice Pre-calculate all hash approval slots for a given multisig and hash.
+    function calculateApproveHashSlots(address[] memory _owners, bytes32 _hash)
+        internal
+        pure
+        returns (bytes32[] memory)
+    {
+        bytes32[] memory hashSlots = new bytes32[](_owners.length);
+        for (uint256 i = 0; i < _owners.length; i++) {
+            bytes32 ownerSlot = keccak256(abi.encode(_owners[i], GNOSIS_SAFE_APPROVE_HASHES_SLOT));
+            hashSlots[i] = keccak256(abi.encode(_hash, ownerSlot));
+        }
+        return hashSlots;
+    }
+
     /// @notice Prints information about the `approveHash` state changes.
     /// During local simulation, we call `approveHash` for each multisig owner.
     /// In some GnosisSafe versions, the `approveHash` mapping resets to zero during execution.
     /// These state changes are normal in simulation but uncommon in production, where signers typically provide signatures directly.
     /// This function prints more information for the task developer to understand the state changes when writing each task's VALIDATION.md file.
-    function printApproveHashInfo(address _multisig, bytes32 _hash, bytes32 _slot) internal view {
-        // Pre-calculate all hash approval slots
-        address[] memory owners = IGnosisSafe(_multisig).getOwners();
-        bytes32[] memory hashSlots = new bytes32[](owners.length);
-        for (uint256 i = 0; i < owners.length; i++) {
-            bytes32 ownerSlot = keccak256(abi.encode(owners[i], uint256(8)));
-            hashSlots[i] = keccak256(abi.encode(_hash, ownerSlot));
-        }
-
+    function printApproveHashInfo(address _parentMultisig, bytes32 _hash, bytes32 _slot) internal view {
+        address[] memory owners = IGnosisSafe(_parentMultisig).getOwners();
+        bytes32[] memory hashSlots = calculateApproveHashSlots(owners, _hash);
         for (uint256 k = 0; k < hashSlots.length; k++) {
             if (_slot == hashSlots[k]) {
                 console.log(
                     "\n**<TODO: This slot is an approveHash write for the owner %s on the multisig: %s>**",
                     vm.toString(owners[k]),
-                    vm.toString(_multisig)
+                    vm.toString(_parentMultisig)
                 );
                 console.log(
                     "\n**<TODO: Consider removing this write from state changes in the VALIDATION.md file (Note: please ask internally if you are unsure).>**\n"

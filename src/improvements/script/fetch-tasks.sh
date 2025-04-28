@@ -1,6 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
+# This file finds non-terminal tasks for a specifc network.
+# It prints these tasks to the console. Other processes can use this output
+# to execute the tasks locally.
+
 # Array to store tasks that should be executed
 declare -a tasks_to_run=()
 
@@ -26,15 +30,26 @@ check_status() {
 # Find README.md files for all tasks and process them.
 root_dir=$(git rev-parse --show-toplevel)
 network=$1
+
 if [[ -z "$network" ]]; then
   echo "Usage: $0 <network>"
   echo "Network is required"
   exit 1
 fi
-files=$(find "$root_dir/test/tasks/example/$network" -type f -name 'README.md')
+
+# To enable testing mode set the FETCH_TASKS_TEST_DIR environment variable to the directory containing your test tasks.
+test_dir=${FETCH_TASKS_TEST_DIR:-}
+
+task_dir="$root_dir/src/improvements/tasks/$network"
+
+if [[ -n "$test_dir" ]]; then
+  task_dir="$test_dir/$network"
+fi
+
+files=$(find "$task_dir" -type f -name 'README.md')
 for file in $files; do
   check_status "$file"
 done
 
-# Output the list of tasks to run in a format suitable for the Runner contract
-printf '%s\n' "${tasks_to_run[@]}"
+# Output the list of tasks to run in a suitable format for consuming contracts.
+printf '%s\n' "${tasks_to_run[@]+"${tasks_to_run[@]}"}"
