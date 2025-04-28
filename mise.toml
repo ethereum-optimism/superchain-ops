@@ -13,8 +13,8 @@ yq = "4.44.5"
 # WARNING: DO NOT CHANGE FORGE/CAST/ANVIL VERSIONS UNLESS ABSOLUTELY NECESSARY!
 # The forge release below includes a fix for: https://github.com/foundry-rs/foundry/issues/10302
 forge = "v1.1.0" # https://github.com/foundry-rs/foundry/releases/tag/v1.1.0
-cast = "v1.0.0"
-anvil = "v1.0.0"
+cast = "v1.1.0"
+anvil = "v1.1.0"
 
 [alias]
 forge = "ubi:foundry-rs/foundry[exe=forge]"
