@@ -70,7 +70,7 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
     function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory) internal view override {
         (address[] memory modules, address nextModule) =
             ModuleManager(parentMultisig).getModulesPaginated(SENTINEL_MODULE, 100);
-        if (keccak256(abi.encodePacked(Isafe(parentMultisig).VERSION())) == keccak256(abi.encodePacked("1.1.1"))) {
+        if (keccak256(abi.encodePacked(ISafe(parentMultisig).VERSION())) == keccak256(abi.encodePacked("1.1.1"))) {
             console.log("[INFO] Old version of safe detected 1.1.1.");
             assertTrue(modules[0] == newModule, "Module not enabled"); // version 1.1.1 doesn't support isModuleEnabled.
         } else {
@@ -110,7 +110,7 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
 
         for (uint256 i = 0; i < accountWrites.length; i++) {
             AccountAccessParser.StateDiff memory storageAccess = accountWrites[i];
-            if (keccak256(abi.encodePacked(Isafe(parentMultisig).VERSION())) != keccak256(abi.encodePacked("1.1.1"))) {
+            if (keccak256(abi.encodePacked(ISafe(parentMultisig).VERSION())) != keccak256(abi.encodePacked("1.1.1"))) {
                 assertTrue(
                     storageAccess.slot == NONCE_STORAGE_OFFSET || storageAccess.slot == moduleSlot
                         || storageAccess.slot == sentinelSlot,
