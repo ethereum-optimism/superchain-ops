@@ -11,7 +11,7 @@ import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
 import {ModuleManager} from "lib/safe-contracts/contracts/base/ModuleManager.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
-interface Isafe {
+interface ISafe {
     function VERSION() external view returns (string memory);
 }
 
