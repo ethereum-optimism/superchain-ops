@@ -11,10 +11,6 @@ import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
 import {ModuleManager} from "lib/safe-contracts/contracts/base/ModuleManager.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
-interface Isafe {
-    function getModules() external view returns (address[] memory);
-}
-
 /// @notice Template contract for enabling the DeputyPauseModule in a Gnosis Safe
 contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
     using AccountAccessParser for *;
@@ -34,8 +30,6 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
 
     /// @notice Gnosis Safe Module Nonce Storage Offset
     bytes32 public constant NONCE_STORAGE_OFFSET = bytes32(uint256(5));
-
-    // bytes32 public slot_enable_module =
 
     /// @notice Returns the safe address string identifier
     /// @return The string "DeputyPauseSafe"
