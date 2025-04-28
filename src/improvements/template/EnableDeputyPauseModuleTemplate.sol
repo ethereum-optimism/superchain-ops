@@ -71,7 +71,7 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
         (address[] memory modules, address nextModule) =
             ModuleManager(parentMultisig).getModulesPaginated(SENTINEL_MODULE, 100);
 
-        assertTrue(Isafe(parentMultisig).getModules()[0] == newModule, "Module not enabled"); // version 1.1.1 doesn't support isModuleEnabled. 
+        assertTrue(Isafe(parentMultisig).getModules()[0] == newModule, "Module not enabled"); // version 1.1.1 doesn't support isModuleEnabled.
         assertEq(nextModule, SENTINEL_MODULE, "Next module not correct");
 
         bool moduleFound;
