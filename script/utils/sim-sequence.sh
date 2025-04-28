@@ -67,23 +67,24 @@ reset_nonce() {
 }
 
 read_addresses() {
-    local config_file="$1"
+    local addresses_file="$1"
+    local network="$2"
     
     # Check if config file exists
-    if [[ ! -f "$config_file" ]]; then
-        echo "Error: Config file not found: $config_file" >&2
+    if [[ ! -f "$addresses_file" ]]; then
+        echo "Error: addresses.toml file not found: $addresses_file" >&2
         return 1
     fi
 
     # Use yq to read the addresses section directly
-    yq -p=toml -o=json '.addresses' "$config_file" | jq -r 'to_entries[] | "\(.key) \(.value)"'
+    yq -p=toml -o=json ".$network" "$addresses_file" | jq -r 'to_entries[] | "\(.key) \(.value)"'
 }
 
 display_addresses() {
     local config_file="$1"
     
     echo "Addresses from $config_file:"
-    read_addresses "$config_file" | while read -r key value; do
+    read_addresses "$config_file" "$network" | while read -r key value; do
         echo "  $key: $value"
     done
 }
@@ -1221,7 +1222,7 @@ for task_folder in "${task_folders[@]}"; do
     if [[ $bool_value == "true" ]]; then
       log_info "This is a nested task. This is using the superchain-ops v2.0"
       # We iterate over the [addresses] section of the config.toml file and for each childsafe or foundation or council we execute the command.
-      read_addresses "${task_folder}/config.toml" | while read -r key value; do
+      read_addresses "${root_dir}/src/improvements/addresses.toml" "$network" | while read -r key value; do
 
         case $key in 
           "ChildSafe1")
