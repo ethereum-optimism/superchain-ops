@@ -110,13 +110,13 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
 
         for (uint256 i = 0; i < accountWrites.length; i++) {
             AccountAccessParser.StateDiff memory storageAccess = accountWrites[i];
-            // assertTrue(
-            //     storageAccess.slot == NONCE_STORAGE_OFFSET ||
-            //         storageAccess.slot == moduleSlot ||
-            //         storageAccess.slot == sentinelSlot,
-            //     "Only nonce and module slot should be updated on upgrade controller multisig"
-            // );
-
+            if (keccak256(abi.encodePacked(Isafe(parentMultisig).VERSION())) != keccak256(abi.encodePacked("1.1.1"))) {
+                assertTrue(
+                    storageAccess.slot == NONCE_STORAGE_OFFSET || storageAccess.slot == moduleSlot
+                        || storageAccess.slot == sentinelSlot,
+                    "Only nonce and module slot should be updated on upgrade controller multisig"
+                );
+            }
             if (storageAccess.slot == moduleSlot) {
                 assertEq(
                     address(uint160(uint256(storageAccess.newValue))),
