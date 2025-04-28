@@ -1,6 +1,6 @@
 # 012-opcm-update-prestate-v300-uni: Sepolia Update Prestate v3.0.0: Unichain Sepolia
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xa781f19379990806ca91690e1abce8ce065016b3676c7a6a542389054c44b4dc)
 
 ## Objective
 

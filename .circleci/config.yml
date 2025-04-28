@@ -236,6 +236,23 @@ jobs:
             just simulate-council
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
+  
+  stacked_simulation:
+    description: "Runs a stacked simulation"
+    parameters:
+      network:
+        type: string
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - utils/checkout-with-mise
+      - run:
+          name: "Run stacked simulation for network: <<parameters.network>>"
+          command: |
+            just install
+            (cd src/improvements && just simulate-stack <<parameters.network>>)
+      - notify-failures-on-develop:
+          mentions: "@security-team"
 
   just_simulate_nested:
     description: "Runs simulations of a nested task"
@@ -418,6 +435,15 @@ jobs:
           command:
             | # Justfiles are not shell scripts and should not be checked with shellcheck
             (cd src/improvements/script && shellcheck -x *.sh)
+  # Check that all task directories have valid names and there are no duplicate prefixes.
+  check_task_names:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - utils/checkout-with-mise
+      - run:
+          name: check task names
+          command: (cd src/improvements/script && ./check-task-names.sh)
   close-issue:
     machine:
       image: ubuntu-2204:2024.08.1
@@ -469,6 +495,7 @@ workflows:
       - shellcheck:
           context:
             - circleci-repo-readonly-authenticated-github-token
+      - check_task_names
       # RPC endpoint checks.
       - check_sepolia_rpc_endpoints:
           context:
@@ -505,15 +532,10 @@ workflows:
       # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
       # - just_simulate_sc_rehearsal_1
 
-      # U15 Sepolia Unichain
+      # Gas Params Upgrade - FoundationUpgradeSafe
       - just_simulate_single_improvements:
-          name: "simulate single sep/012-opcm-update-prestate-v300-uni"
-          task: "/sep/012-opcm-update-prestate-v300-uni"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-
-      - just_simulate_nested:
-          task: "/eth/zora-002-fp-upgrade"
+          name: "simulate single eth/006-gas-params-op"
+          task: "/eth/006-gas-params-op"
           context:
             - circleci-repo-readonly-authenticated-github-token
 
@@ -527,7 +549,7 @@ workflows:
       - simulate_sequence:
           name: simulate_sequence_eth
           network: "eth"
-          tasks: "zora-002"
+          tasks: ""
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
@@ -539,6 +561,27 @@ workflows:
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
+            
+      # Stacked simulations for superchain-ops on Mainnet.
+      - stacked_simulation:
+          name: stacked_simulation_eth
+          network: "eth"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+          filters:
+            branches:
+              only: main
+
+      # Stacked simulations for superchain-ops on Sepolia.
+      - stacked_simulation:
+          name: stacked_simulation_sep
+          network: "sep"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+          filters:
+            branches:
+              only: main  
+          
   close-issue-workflow:
     when:
       and:
