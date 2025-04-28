@@ -1,15 +1,14 @@
-# 009 - Unpause the SuperchainConfig
+# 011 - Unpause the SuperchainConfig
 
 Status: [READY TO SIGN]()
 
 ## Objective
 
 This task will unpause mainnet `SuperchainConfig` following the pause of the Superchain. This will occurs, since we are testing that U13 upgrade and the most particulary if the Pause Mechanism is working as expected.
-This task **UnPause** the SuperchainConfig contract. This will first check if the Superchain is `paused`. 
-Worth noting that, if this is not `paused` this task will **do nothing** and revert earlier to not consume a nonce of the FoS. 
+This task **UnPause** the SuperchainConfig contract. This will first check if the Superchain is `paused`.
+Worth noting that, if this is not `paused` this task will **do nothing** and revert earlier to not consume a nonce of the FoS.
 If the `SuperchainConfig` is `paused` this will unpause the `SuperchainConfig` contract.
 This task, is a single task and has to be signed by the **FoundationOperationsSafe**.
-
 
 ### Timing
 
