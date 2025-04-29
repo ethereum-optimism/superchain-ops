@@ -1381,6 +1381,36 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
         assertEq(hash, expectedHash, "LivenessGuard timestamp update should be removed");
     }
 
+    function test_normalizedStateDiffHash_AnchorStateRegistryRetirementTimestamp() public {
+        vm.createSelectFork("mainnet", 22319975);
+        setupTests();
+
+        address anchorStateRegistry = address(0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b);
+        bytes32 retirementTimestampSlot = bytes32(uint256(6));
+        bytes32 retirementTimestamp =
+            bytes32(uint256(0x0000000000000000000000000000000000000000FFFFFFFFFFFFFFFF00000000));
+        VmSafe.AccountAccess[] memory allAccesses = new VmSafe.AccountAccess[](1);
+        VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
+        storageAccesses[0] =
+            storageAccess(anchorStateRegistry, retirementTimestampSlot, isWrite, val0, retirementTimestamp);
+        allAccesses[0] = accountAccess(anchorStateRegistry, storageAccesses);
+
+        address parentMultisig = address(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A);
+        bytes32 hash = allAccesses.normalizedStateDiffHash(parentMultisig, bytes32(0));
+        bytes32 expectedHash = bytes32(0x241e6b7219e7929518322ed65cbe52a5d3f6c3e61439ae8fdae8e842d3f8f500);
+
+        assertEq(hash, expectedHash, "AnchorStateRegistry should match the expected hash");
+
+        bytes32 retirementTimestamp2 =
+            bytes32(uint256(0x0000000000000000000000000000000000000000AAAAAAAAAAAAAAAA00000000));
+        storageAccesses[0] =
+            storageAccess(anchorStateRegistry, retirementTimestampSlot, isWrite, val0, retirementTimestamp2);
+        allAccesses[0] = accountAccess(anchorStateRegistry, storageAccesses);
+
+        bytes32 hash2 = allAccesses.normalizedStateDiffHash(parentMultisig, bytes32(0));
+        assertEq(hash2, expectedHash, "AnchorStateRegistry should still match the expected hash");
+    }
+
     /// It's possible for there to be more storage writes than accesses.
     /// This test checks that the function handles this case correctly.
     function test_more_storage_writes_than_accesses_passes() public pure {
