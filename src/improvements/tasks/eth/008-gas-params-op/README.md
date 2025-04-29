@@ -4,8 +4,7 @@ Status: [READY TO SIGN]()
 
 ## Objective
 
-Sets the following gas params in the SystemConfig contract for OP Mainnet:
-* gasLimit: 60_000_000 (60Mgas/block)
+Sets the following gas param in the SystemConfig contract for OP Mainnet:
 * gasTarget: 15_000_000 (15Mgas/block)
 
 1. OP Mainnet
