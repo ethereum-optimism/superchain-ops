@@ -1,4 +1,4 @@
-# 006-gas-params-op: (Ethereum) Increase gas target : OP Mainnet
+# 008-gas-params-op: (Ethereum) Increase gas target : OP Mainnet
 
 Status: [READY TO SIGN]()
 
@@ -35,7 +35,7 @@ When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>
 Navigate to the correct task directory then run the simulate command.
 
 ```
-cd src/improvements/tasks/eth/006-gas-params-op
+cd src/improvements/tasks/eth/008-gas-params-op
 
 # Safe: 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 (FoundationUpgradeSafe)
 just --dotenv-path $(pwd)/.env --justfile ../../../single.just sign
