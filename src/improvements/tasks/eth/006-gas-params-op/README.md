@@ -1,6 +1,8 @@
 # 006-gas-params-op: (Ethereum) Increase gas target : OP Mainnet
 
-Status: [READY TO SIGN]()
+Status: [CANCELLED]()
+
+(This task was cancelled in favor of created two new tasks. The idea is to opt of a more incremental approach to increasing the gas target.)
 
 ## Objective
 

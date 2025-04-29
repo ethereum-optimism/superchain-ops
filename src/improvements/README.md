@@ -58,6 +58,7 @@ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../sin
 ```
 
 4. Fill out the `README.md` and `VALIDATION.md` files.
+    - If your task status is not `EXECUTED` or `CANCELLED`, it is considered non-terminal and will automatically be included in stacked simulations (which run on the main branch).
 
 ### How do I run a task that depends on another task?
 
