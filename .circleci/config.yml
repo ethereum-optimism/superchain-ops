@@ -548,7 +548,7 @@ workflows:
       - simulate_sequence:
           name: simulate_sequence_eth
           network: "eth"
-          tasks: "" # tasks: "011-unpause-superchainConfig"
+          tasks: "010-deputy-pause-module-activation 011-unpause-superchainConfig"
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
