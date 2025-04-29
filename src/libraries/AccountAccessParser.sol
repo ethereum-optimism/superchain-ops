@@ -216,7 +216,7 @@ library AccountAccessParser {
             for (uint256 j = 0; j < accountDiffs.length; j++) {
                 address who = uniqueAccounts[i];
                 (uint256 l2ChainId, string memory contractName) = getContractInfo(who);
-                (DecodedSlot memory decoded,) =
+                DecodedSlot memory decoded =
                     tryDecode(contractName, accountDiffs[j].slot, accountDiffs[j].oldValue, accountDiffs[j].newValue);
                 stateDiffs[index] = DecodedStateDiff({
                     who: who,
@@ -670,13 +670,13 @@ library AccountAccessParser {
     function tryDecode(string memory _contractName, bytes32 _slot, bytes32 _oldValue, bytes32 _newValue)
         internal
         view
-        returns (DecodedSlot memory decoded_, JsonStorageLayout[] memory layout_)
+        returns (DecodedSlot memory decoded_)
     {
         decoded_ = tryUnstructuredSlot(_slot, _oldValue, _newValue);
-        if (bytes(decoded_.kind).length > 0) return (decoded_, new JsonStorageLayout[](0));
+        if (bytes(decoded_.kind).length > 0) return decoded_;
 
         // If the contract name is empty, we cannot attempt further decoding.
-        if (bytes(_contractName).length == 0) return (decoded_, new JsonStorageLayout[](0));
+        if (bytes(_contractName).length == 0) return decoded_;
 
         return tryStorageLayoutLookup(_contractName, _slot, _oldValue, _newValue);
     }
@@ -876,7 +876,7 @@ library AccountAccessParser {
     function tryStorageLayoutLookup(string memory _contractName, bytes32 _slot, bytes32 _oldValue, bytes32 _newValue)
         internal
         view
-        returns (DecodedSlot memory decoded_, JsonStorageLayout[] memory layout_)
+        returns (DecodedSlot memory decoded_)
     {
         // Lookup the storage layout for the contract.
         // TODO: For now this just uses the submodule's version of the monorepo. A future improvement
@@ -891,9 +891,7 @@ library AccountAccessParser {
             storageLayout = result;
         } catch {
             console.log(string.concat(string("[WARN]").yellow().bold(), "Failed to read storage layout file at ", path));
-            return (
-                DecodedSlot({kind: "", oldValue: "", newValue: "", summary: "", detail: ""}), new JsonStorageLayout[](0)
-            );
+            return DecodedSlot({kind: "", oldValue: "", newValue: "", summary: "", detail: ""});
         }
         bytes memory parsedStorageLayout = vm.parseJson(storageLayout, "$");
         JsonStorageLayout[] memory layout = abi.decode(parsedStorageLayout, (JsonStorageLayout[]));
@@ -902,11 +900,11 @@ library AccountAccessParser {
         for (uint256 i = 0; i < layout.length; i++) {
             // Decode the slot if it is shared and add the info to the summary and detail sections.
             if (isSlotShared(layout, _slot)) {
-                return (decodeSharedSlot(layout, _slot, _oldValue, _newValue), layout);
+                return decodeSharedSlot(layout, _slot, _oldValue, _newValue);
             }
 
             if (vm.parseUint(layout[i]._slot) == uint256(_slot)) {
-                return (decodeSlot(layout[i], _oldValue, _newValue), layout);
+                return decodeSlot(layout[i], _oldValue, _newValue);
             }
         }
     }
