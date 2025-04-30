@@ -1,20 +1,17 @@
-# 006-gas-params-op: (Ethereum) Increase gas target : OP Mainnet
+# 008-gas-params-op: (Ethereum) Increase gas target : OP Mainnet
 
-Status: [CANCELLED]()
-
-(This task was cancelled in favor of created two new tasks. The idea is to opt of a more incremental approach to increasing the gas target.)
+Status: [READY TO SIGN]()
 
 ## Objective
 
-Sets the following gas params in the SystemConfig contract for OP Mainnet:
-* gasLimit: 40_000_000 (40Mgas/block)
-* gasTarget: 20_000_000 (20Mgas/block)
+Sets the following gas param in the SystemConfig contract for OP Mainnet:
+* gasTarget: 15_000_000 (15Mgas/block)
 
 1. OP Mainnet
 
 ### Timing
 
-Expected to be executed on April 25, 2025.
+Expected to be executed on May 5, 2025.
 
 ## Transaction creation
 
@@ -37,7 +34,7 @@ When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>
 Navigate to the correct task directory then run the simulate command.
 
 ```
-cd src/improvements/tasks/eth/006-gas-params-op
+cd src/improvements/tasks/eth/008-gas-params-op
 
 # Safe: 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 (FoundationUpgradeSafe)
 just --dotenv-path $(pwd)/.env --justfile ../../../single.just sign
