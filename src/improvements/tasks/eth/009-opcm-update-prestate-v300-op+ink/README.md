@@ -1,4 +1,4 @@
-# 008-opcm-update-prestate-v300-op+ink: Mainnet Update Isthmus Prestate: OP and Ink
+# 009-opcm-update-prestate-v300-op+ink: Mainnet Update Isthmus Prestate: OP and Ink
 
 Status: [READY TO SIGN]()
 
@@ -35,7 +35,7 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/improvements/template/OPCMUpdatePrestateV300.sol`.
 Navigate to the correct task directory then run the simulate command.
 ```
-cd src/improvements/tasks/eth/008-opcm-update-prestate-v300-op+ink
+cd src/improvements/tasks/eth/009-opcm-update-prestate-v300-op+ink
 
 # Foundation Upgrade Safe: 0x847B5c174615B1B7fDF770882256e2D3E95b9D92
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate foundation
