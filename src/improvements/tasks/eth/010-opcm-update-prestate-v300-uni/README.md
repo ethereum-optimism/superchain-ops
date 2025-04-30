@@ -1,4 +1,4 @@
-# 009-opcm-update-prestate-v300-uni: Mainnet Update Isthmus Prestate: Unichain
+# 010-opcm-update-prestate-v300-uni: Mainnet Update Isthmus Prestate: Unichain
 
 Status: [DRAFT]()
 
@@ -32,7 +32,7 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/improvements/template/OPCMUpdatePrestateV300.sol`.
 Navigate to the correct task directory then run the simulate command.
 ```
-cd src/improvements/tasks/eth/009-opcm-update-prestate-v300-uni
+cd src/improvements/tasks/eth/010-opcm-update-prestate-v300-uni
 
 # Chain Governor Safe: 0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC 
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate chain-governor 
