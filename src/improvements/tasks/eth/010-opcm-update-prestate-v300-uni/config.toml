@@ -1,0 +1,36 @@
+templateName = "OPCMUpdatePrestateV300"
+
+[[l2chains]]
+chainId = 130
+name = "Unichain Mainnet"
+
+[[opcmUpgrades]]
+chainId = 130
+# https://www.notion.so/oplabs/Isthmus-Sepolia-Mainnet-1d2f153ee162800880abe1b47910c071
+absolutePrestate = "0x03682932cec7ce0a3874b19675a6bbc923054a7b321efc7d3835187b172494b6"
+# PROXYA-10: Proxy admin owner must be l1PAOMultisig - This is OK because it is checking for the OP Mainnet PAO., but this uses the Unichain PAO
+# DF-30: Dispute game factory owner must be l1PAOMultisig - It is checking for the OP Mainnet PAO., but this uses the Unichain PAO
+# PDDG-DWETH-30: Delayed WETH owner must be l1PAOMultisig (for permissioned dispute game) - It is checking for the OP Mainnet PAO, but this uses the Unichain PAO
+# PDDG-ANCHORP-40: The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
+# PLDG-DWETH-30: Delayed WETH owner must be l1PAOMultisig (for permissionless dispute game) - It is checking for the OP Mainnet PAO, but this uses the Unichain PAO
+# PLDG-ANCHORP-40: The anchor state registry's permissionless root is not 0xdead000000000000000000000000000000000000000000000000000000000000
+expectedValidationErrors = "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-ANCHORP-40,PLDG-DWETH-30,PLDG-ANCHORP-40"
+
+
+[addresses]
+OPCM = "0x3a1f523a4bc09cd344a2745a108bb0398288094f" # v1.9.0 https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L22
+StandardValidatorV300 = "0xf989df70fb46c581ba6157ab335c0833ba60e1f0"
+
+[stateOverrides]
+0x6d5B183F538ABB8572F5cD17109c617b994D5833 = [ # Unichain PAO
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 4}
+]
+0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC = [ # Unichain Chain Operator (ChildSafe1)
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 10}
+]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # FoundationUpgradeSafe (ChildSafe2)
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 25}
+]
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # SecurityCouncil (ChildSafe3)
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 26}
+]

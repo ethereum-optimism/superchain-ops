@@ -1,4 +1,4 @@
-# 010 - DeputyPauseModule Installation - OP Mainnet
+# 011 - DeputyPauseModule Installation - OP Mainnet
 
 Status: [READY TO SIGN]()
 
