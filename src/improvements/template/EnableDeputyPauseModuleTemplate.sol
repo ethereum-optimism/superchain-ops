@@ -11,6 +11,10 @@ import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
 import {ModuleManager} from "lib/safe-contracts/contracts/base/ModuleManager.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
+interface ISafe {
+    function VERSION() external view returns (string memory);
+}
+
 /// @notice Template contract for enabling the DeputyPauseModule in a Gnosis Safe
 contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
     using AccountAccessParser for *;
@@ -66,8 +70,12 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
     function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory) internal view override {
         (address[] memory modules, address nextModule) =
             ModuleManager(parentMultisig).getModulesPaginated(SENTINEL_MODULE, 100);
-
-        assertTrue(ModuleManager(parentMultisig).isModuleEnabled(newModule), "Module not enabled");
+        if (keccak256(abi.encodePacked(ISafe(parentMultisig).VERSION())) == keccak256(abi.encodePacked("1.1.1"))) {
+            console.log("[INFO] Old version of safe detected 1.1.1.");
+            assertTrue(modules[0] == newModule, "Module not enabled"); // version 1.1.1 doesn't support isModuleEnabled.
+        } else {
+            assertTrue(ModuleManager(parentMultisig).isModuleEnabled(newModule), "Module not enabled");
+        }
         assertEq(nextModule, SENTINEL_MODULE, "Next module not correct");
 
         bool moduleFound;
@@ -102,12 +110,13 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
 
         for (uint256 i = 0; i < accountWrites.length; i++) {
             AccountAccessParser.StateDiff memory storageAccess = accountWrites[i];
-            assertTrue(
-                storageAccess.slot == NONCE_STORAGE_OFFSET || storageAccess.slot == moduleSlot
-                    || storageAccess.slot == sentinelSlot,
-                "Only nonce and module slot should be updated on upgrade controller multisig"
-            );
-
+            if (keccak256(abi.encodePacked(ISafe(parentMultisig).VERSION())) != keccak256(abi.encodePacked("1.1.1"))) {
+                assertTrue(
+                    storageAccess.slot == NONCE_STORAGE_OFFSET || storageAccess.slot == moduleSlot
+                        || storageAccess.slot == sentinelSlot,
+                    "Only nonce and module slot should be updated on upgrade controller multisig"
+                );
+            }
             if (storageAccess.slot == moduleSlot) {
                 assertEq(
                     address(uint160(uint256(storageAccess.newValue))),
@@ -124,7 +133,7 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
             }
         }
 
-        /// module write must be found, else revert
+        // module write must be found, else revert
         assertTrue(moduleWriteFound, "Module write not found");
     }
 
