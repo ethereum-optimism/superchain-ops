@@ -51,6 +51,6 @@ Enables the simulation by setting the threshold to 1:
   - **Decoded Kind:** `bool`
   - **Before:** `true`
   - **After:** `false`
-  - **Summary:** Superchain pause status changed from `true` to `false`.
+  - **Summary:** Superchain pause slot that can be computed in chisel by: (`bytes32(uint256(keccak256("superchainConfig.paused")) - 1)`)  status changed from `true` to `false`.
   - **Detail:** Unstructured storage slot for the pause status of the superchain.
 
