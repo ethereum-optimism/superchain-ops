@@ -404,7 +404,7 @@ library AccountAccessParser {
         if (contractName.eq("AnchorStateRegistry") && _diff.slot == ANCHOR_STATE_REGISTRY_RETIREMENT_TIMESTAMP_SLOT) {
             // The retirementTimestamp is introduced in the AnchorStateRegistry post op-contracts/v3.0.0-rc.2.
             // Define a static mask to zero out 64 bits at offset 4 in little-endian format
-            bytes32 MASK = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000000000000FFFFFFFF;
+            bytes32 MASK = bytes32(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000000000000FFFFFFFF);
             // Apply the static mask to zero out the specified bytes in the new value
             _diff.newValue &= MASK;
         }
