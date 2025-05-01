@@ -134,6 +134,8 @@ library AccountAccessParser {
     bytes32 internal constant GNOSIS_SAFE_APPROVE_HASHES_SLOT = bytes32(uint256(8));
 
     bytes32 internal constant LIVENESS_GUARD_LAST_LIVE_SLOT = bytes32(uint256(0));
+
+    bytes32 internal constant ANCHOR_STATE_REGISTRY_RETIREMENT_TIMESTAMP_SLOT = bytes32(uint256(6));
     // forgefmt: disable-end
 
     modifier noGasMetering() {
@@ -269,7 +271,8 @@ library AccountAccessParser {
     ///           1. This will have to be informed by knowing the storage layouts, which is ok
     ///           2. We should only normalize the specific section of the slot corresponding to the
     ///              timestamp, since some timestamps are packed into slots with other data.
-    ///   4. The hash to return is computed as `keccak256(abi.encode(normalizedArray))`.
+    ///       4. If the slot is on the LivenessGuard, remove it.
+    ///   5. The hash to return is computed as `keccak256(abi.encode(normalizedArray))`.
     /// @return bytes32 hash of the normalized state diff
     function normalizedStateDiffHash(
         VmSafe.AccountAccess[] memory _accountAccesses,
@@ -328,13 +331,11 @@ library AccountAccessParser {
                 // 2.1 Nonce increment or 2.2 Setting an approve hash in storage.
                 return false;
             }
-        } else if (slotContainsTimestamp(account, diff)) {
-            // 3. If the slot contains a timestamp, normalize it to zeroes.
-            diff = normalizeTimestamp(diff);
         } else if (isLivenessGuardTimestamp(account, diff, _parentMultisig)) {
             // 4. If the slot is on the LivenessGuard, don't include it.
             return false;
         }
+        diff = normalizeTimestamp(account, diff);
         return true;
     }
 
@@ -397,19 +398,16 @@ library AccountAccessParser {
         return false;
     }
 
-    /// @notice Checks if the storage slot contains a timestamp that should be normalized
-    function slotContainsTimestamp(address _account, StateDiff memory _diff) internal pure returns (bool) {
-        // TODO Check out the storage layout snapshots and hardcode the slots that contain timestamps.
-        // We will have to call getter methods on _account to infer what protocol contract it is.
-        _account;
-        _diff;
-        return false;
-    }
-
-    /// @notice Normalizes a timestamp in a storage slot by zeroing out only the timestamp portion
-    function normalizeTimestamp(StateDiff memory _diff) internal pure returns (StateDiff memory) {
-        // This is a placeholder that should be implemented based on specific contract knowledge
-        // For now, just return the original diff unchanged
+    /// @notice Normalizes a timestamp in a storage slot by zeroing out only the timestamp portion if present.
+    function normalizeTimestamp(address _account, StateDiff memory _diff) internal view returns (StateDiff memory) {
+        (, string memory contractName) = getContractInfo(_account);
+        if (contractName.eq("AnchorStateRegistry") && _diff.slot == ANCHOR_STATE_REGISTRY_RETIREMENT_TIMESTAMP_SLOT) {
+            // The retirementTimestamp is introduced in the AnchorStateRegistry post op-contracts/v3.0.0-rc.2.
+            // Define a static mask to zero out 64 bits at offset 4 in little-endian format
+            bytes32 MASK = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000000000000FFFFFFFF;
+            // Apply the static mask to zero out the specified bytes in the new value
+            _diff.newValue &= MASK;
+        }
         return _diff;
     }
 
