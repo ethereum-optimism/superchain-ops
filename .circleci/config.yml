@@ -385,6 +385,7 @@ jobs:
       - run:
           name: forge test
           command: |
+            just install
             forge --version
             forge test -vvv
 
