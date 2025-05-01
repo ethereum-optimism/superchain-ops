@@ -1,0 +1,13 @@
+l2chains = [ {name = "OP Mainnet", chainId = 10} ]
+
+templateName = "SystemConfigGasParams"
+
+[gasParams]
+gasLimit = 60000000
+eip1559Elasticity = 4
+eip1559Denominator = 250
+
+[stateOverrides]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # FoundationUpgradeSafe: 23
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = "0x0000000000000000000000000000000000000000000000000000000000000017" }
+]
