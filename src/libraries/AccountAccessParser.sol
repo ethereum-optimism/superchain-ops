@@ -335,7 +335,7 @@ library AccountAccessParser {
             // 4. If the slot is on the LivenessGuard, don't include it.
             return false;
         }
-        diff = normalizeTimestamp(account, diff);
+        // diff = normalizeTimestamp(account, diff);
         return true;
     }
 
