@@ -20,7 +20,8 @@ contract StackedSimulatorUnitTest is Test {
     address internal disputeGameFactory = 0xe5965Ab5962eDc7477C8520243A95517CD252fA9;
 
     address internal parentMultisig = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A;
-    address internal childMultisig = 0x847B5c174615B1B7fDF770882256e2D3E95b9D92;
+    address internal childMultisig = 0x847B5c174615B1B7fDF770882256e2D3E95b9D92; // foundation
+    address internal childMultisig2 = 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03; // security council
 
     /// @notice Invoked before each test case is run.
     function setUp() public {
@@ -111,11 +112,12 @@ contract StackedSimulatorUnitTest is Test {
         uint256 firstValue = 2003;
         uint256 parentNonce = 12;
         uint256 childNonce = 20;
+        uint256 childNonce2 = 22;
         createSimpleStorageTaskWithNonce(
-            network, address(simpleStorage), 100, firstValue, 0, 1, parentNonce, childNonce
+            network, address(simpleStorage), 100, firstValue, 0, 1, parentNonce, childNonce, childNonce2
         );
         string memory taskName2 = createSimpleStorageTaskWithNonce(
-            network, address(simpleStorage), 101, firstValue, 1, 2, parentNonce, ++childNonce
+            network, address(simpleStorage), 101, firstValue, 1, 2, parentNonce, ++childNonce, ++childNonce2
         );
 
         StackedSimulator ss = new StackedSimulator();
@@ -125,18 +127,19 @@ contract StackedSimulatorUnitTest is Test {
         ss.simulateStack(network, taskName2, address(0));
     }
 
-    function testSimulateStackedTasks_SimpleStorageFailsWithChildNonceMismanagement() public {
+    function testSimulateStackedTasks_SimpleStorageFailsWithFirstChildNonceMismanagement() public {
         vm.createSelectFork("mainnet", 22306611); // starting nonce for parent is 12 and for child is 20 at this block.
         string memory network = "eth_007";
         SimpleStorage simpleStorage = new SimpleStorage();
         uint256 firstValue = 2003;
         uint256 parentNonce = 12;
         uint256 childNonce = 20;
+        uint256 childNonce2 = 22;
         createSimpleStorageTaskWithNonce(
-            network, address(simpleStorage), 100, firstValue, 0, 1, parentNonce, childNonce
+            network, address(simpleStorage), 100, firstValue, 0, 1, parentNonce, childNonce, childNonce2
         );
         string memory taskName2 = createSimpleStorageTaskWithNonce(
-            network, address(simpleStorage), 101, firstValue, 1, 2, ++parentNonce, childNonce
+            network, address(simpleStorage), 101, firstValue, 1, 2, ++parentNonce, childNonce, ++childNonce2
         );
 
         StackedSimulator ss = new StackedSimulator();
@@ -147,18 +150,42 @@ contract StackedSimulatorUnitTest is Test {
         ss.simulateStack(network, taskName2, address(0));
     }
 
+    function testSimulateStackedTasks_SimpleStorageFailsWithSecondChildNonceMismanagement2() public {
+        vm.createSelectFork("mainnet", 22306611);
+        string memory network = "eth_008";
+        SimpleStorage simpleStorage = new SimpleStorage();
+        uint256 firstValue = 2003;
+        uint256 parentNonce = 12;
+        uint256 childNonce = 20;
+        uint256 childNonce2 = 22;
+        createSimpleStorageTaskWithNonce(
+            network, address(simpleStorage), 100, firstValue, 0, 1, parentNonce, childNonce, childNonce2
+        );
+        string memory taskName2 = createSimpleStorageTaskWithNonce(
+            network, address(simpleStorage), 101, firstValue, 1, 2, ++parentNonce, ++childNonce, childNonce2
+        );
+
+        StackedSimulator ss = new StackedSimulator();
+        // Child has the wrong nonce, so this should revert.
+        vm.expectRevert(
+            "StateOverrideManager: User-defined nonce (22) is less than current actual nonce (23) for contract: 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03"
+        );
+        ss.simulateStack(network, taskName2, address(0));
+    }
+
     function testSimulateStackedTasks_SimpleStoragePassesWithNonceManagement() public {
         vm.createSelectFork("mainnet", 22306611); // Starting nonce for parent is 12 and for child is 20 at this block.
-        string memory network = "eth_008";
+        string memory network = "eth_009";
         SimpleStorage simpleStorage = new SimpleStorage();
         uint256 parentNonce = 12;
         uint256 childNonce = 20;
+        uint256 childNonce2 = 22;
         uint256 firstValue = 2003;
         createSimpleStorageTaskWithNonce(
-            network, address(simpleStorage), 100, firstValue, 0, 1, parentNonce, childNonce
+            network, address(simpleStorage), 100, firstValue, 0, 1, parentNonce, childNonce, childNonce2
         );
         string memory taskName2 = createSimpleStorageTaskWithNonce(
-            network, address(simpleStorage), 101, firstValue, 1, 2, ++parentNonce, ++childNonce
+            network, address(simpleStorage), 101, firstValue, 1, 2, ++parentNonce, ++childNonce, ++childNonce2
         );
 
         StackedSimulator ss = new StackedSimulator();
@@ -166,14 +193,15 @@ contract StackedSimulatorUnitTest is Test {
         assertEq(simpleStorage.current(), 2);
         assertEq(IGnosisSafe(parentMultisig).nonce(), 14);
         assertEq(IGnosisSafe(childMultisig).nonce(), 22);
+        assertEq(IGnosisSafe(childMultisig2).nonce(), 24);
     }
 
     function testSimulateStackedTasks_SimpleStorageFailsWithWrongOwner() public {
         vm.createSelectFork("mainnet", 22306611); // We know the owners and nonces at this point.
-        string memory network = "eth_008";
+        string memory network = "eth_010";
         SimpleStorage simpleStorage = new SimpleStorage();
         string memory taskName =
-            createSimpleStorageTaskWithNonce(network, address(simpleStorage), 100, 2000, 0, 1, 12, 20);
+            createSimpleStorageTaskWithNonce(network, address(simpleStorage), 100, 2000, 0, 1, 12, 20, 22);
         StackedSimulator ss = new StackedSimulator();
         vm.expectRevert(
             "TaskManager: ownerAddress must be an owner of the parent multisig: 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
@@ -394,7 +422,8 @@ contract StackedSimulatorUnitTest is Test {
         uint256 oldValue,
         uint256 newValue,
         uint256 parentNonce,
-        uint256 childNonce
+        uint256 childNonce1,
+        uint256 childNonce2
     ) internal returns (string memory taskName_) {
         string memory taskName = getNextTaskName(startTaskIndex);
         string memory taskDir = string.concat(testDirectory, "/", network, "/", taskName);
@@ -412,7 +441,13 @@ contract StackedSimulatorUnitTest is Test {
             LibString.toHexString(childMultisig),
             " = [\n",
             "    {key = 5, value = ",
-            vm.toString(childNonce),
+            vm.toString(childNonce1),
+            "}]",
+            "\n",
+            LibString.toHexString(childMultisig2),
+            " = [\n",
+            "    {key = 5, value = ",
+            vm.toString(childNonce2),
             "}",
             "\n]\n"
         );

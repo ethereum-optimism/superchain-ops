@@ -1116,7 +1116,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         _setStateOverridesFromConfig(taskConfigFilePath); // Sets global '_stateOverrides' variable.
         nonce = _getNonceOrOverride(address(parentMultisig));
         if (childMultisig != address(0)) {
-            childNonce = _getNonceOrOverride(address(childMultisig));
+            address[] memory owners = IGnosisSafe(parentMultisig).getOwners();
+            for (uint256 i = 0; i < owners.length; i++) {
+                if (owners[i] == childMultisig) {
+                    childNonce = _getNonceOrOverride(address(childMultisig));
+                } else {
+                    _getNonceOrOverride(owners[i]); // Nonce safety checks must be performed for each owner.
+                }
+            }
         }
         // We must do this after setting the nonces above. It allows us to make sure we're reading the correct network state when setting the nonces.
         _applyStateOverrides(); // Applies '_stateOverrides' to the current state.
