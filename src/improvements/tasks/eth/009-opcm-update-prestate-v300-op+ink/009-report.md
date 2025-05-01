@@ -38,7 +38,7 @@ As a signer, you are responsible for making sure this hash is correct. Please co
 
 ## Understanding Task Calldata
 
-This document provides a detailed analysis of the final calldata executed on-chain. By reconstructing the calldata, we can confirm that the execution precisely implements the approved upgrade plan with no unexpected modifications or side effects.
+This document provides a detailed analysis of the final calldata executed on-chain. By reconstructing the calldata and simulating it, we can confirm that the execution precisely implements the approved upgrade plan with no unexpected modifications or side effects.
 
 The calldata provided in the [governance proposal](https://gov.optimism.io/t/upgrade-proposal-15a-absolute-prestate-updates-for-isthmus-activation-blob-preimage-fix/9869#p-44190-action-plan-10) is:
 
