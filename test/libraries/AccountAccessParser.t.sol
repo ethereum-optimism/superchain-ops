@@ -956,6 +956,81 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         assertEq(AccountAccessParser.isSlotShared(layout, 0), true);
     }
 
+    function test_ReturnsSingleMatch() public pure {
+        AccountAccessParser.JsonStorageLayout[] memory input = new AccountAccessParser.JsonStorageLayout[](1);
+        input[0] = AccountAccessParser.JsonStorageLayout("32", "label1", 0, "123", "uint256");
+
+        AccountAccessParser.JsonStorageLayout[] memory result =
+            AccountAccessParser.getSharedSlotLayouts(input, bytes32(uint256(123)));
+
+        assertEq(result.length, 1);
+        assertEq(result[0]._slot, "123");
+    }
+
+    function test_ReturnsMultipleMatches() public pure {
+        AccountAccessParser.JsonStorageLayout[] memory input = new AccountAccessParser.JsonStorageLayout[](3);
+        input[0] = AccountAccessParser.JsonStorageLayout("32", "label1", 0, "456", "uint256");
+        input[1] = AccountAccessParser.JsonStorageLayout("32", "label2", 32, "456", "address");
+        input[2] = AccountAccessParser.JsonStorageLayout("32", "label3", 64, "456", "bytes32");
+
+        AccountAccessParser.JsonStorageLayout[] memory result =
+            AccountAccessParser.getSharedSlotLayouts(input, bytes32(uint256(456)));
+
+        assertEq(result.length, 3);
+        for (uint256 i = 0; i < 3; i++) {
+            assertEq(result[i]._slot, "456");
+        }
+    }
+
+    function test_ReturnsEmptyForNoMatches() public pure {
+        AccountAccessParser.JsonStorageLayout[] memory input = new AccountAccessParser.JsonStorageLayout[](2);
+        input[0] = AccountAccessParser.JsonStorageLayout("32", "label1", 0, "789", "uint256");
+        input[1] = AccountAccessParser.JsonStorageLayout("32", "label2", 32, "999", "address");
+
+        AccountAccessParser.JsonStorageLayout[] memory result =
+            AccountAccessParser.getSharedSlotLayouts(input, bytes32(uint256(111)));
+
+        assertEq(result.length, 0);
+    }
+
+    function test_FiltersNonMatchingEntries() public pure {
+        AccountAccessParser.JsonStorageLayout[] memory input = new AccountAccessParser.JsonStorageLayout[](5);
+        input[0] = AccountAccessParser.JsonStorageLayout("32", "match1", 0, "0x123", "uint256");
+        input[1] = AccountAccessParser.JsonStorageLayout("20", "nonmatch", 32, "456", "address");
+        input[2] = AccountAccessParser.JsonStorageLayout("32", "match2", 64, "0x123", "bytes32");
+        input[3] = AccountAccessParser.JsonStorageLayout("1", "nonmatch", 96, "789", "bool");
+        input[4] = AccountAccessParser.JsonStorageLayout("32", "match3", 128, "0x123", "string");
+
+        AccountAccessParser.JsonStorageLayout[] memory result =
+            AccountAccessParser.getSharedSlotLayouts(input, bytes32(uint256(0x123)));
+
+        assertEq(result.length, 3);
+        assertEq(result[0]._label, "match1");
+        assertEq(result[1]._label, "match2");
+        assertEq(result[2]._label, "match3");
+    }
+
+    function test_HandlesEmptyInput() public pure {
+        AccountAccessParser.JsonStorageLayout[] memory input = new AccountAccessParser.JsonStorageLayout[](0);
+
+        AccountAccessParser.JsonStorageLayout[] memory result =
+            AccountAccessParser.getSharedSlotLayouts(input, bytes32(uint256(123)));
+
+        assertEq(result.length, 0);
+    }
+
+    function test_MatchesZeroSlot() public pure {
+        AccountAccessParser.JsonStorageLayout[] memory input = new AccountAccessParser.JsonStorageLayout[](2);
+        input[0] = AccountAccessParser.JsonStorageLayout("32", "zero1", 0, "0", "uint256");
+        input[1] = AccountAccessParser.JsonStorageLayout("32", "nonzero", 32, "1", "address");
+
+        AccountAccessParser.JsonStorageLayout[] memory result =
+            AccountAccessParser.getSharedSlotLayouts(input, bytes32(uint256(0)));
+
+        assertEq(result.length, 1);
+        assertEq(result[0]._label, "zero1");
+    }
+
     function accountAccess(address _account, VmSafe.StorageAccess[] memory _storageAccesses)
         internal
         pure
@@ -1234,7 +1309,21 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
         assertEq(hash, expectedHash, "LivenessGuard timestamp update should be removed");
     }
 
-    // Helper functions similar to those in AccountAccessParser.t.sol
+    /// It's possible for there to be more storage writes than accesses.
+    /// This test checks that the function handles this case correctly.
+    function test_more_storage_writes_than_accesses_passes() public pure {
+        address who = address(0xabcd);
+        VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
+        VmSafe.StorageAccess[] memory sa = new VmSafe.StorageAccess[](2);
+        sa[0] = storageAccess(who, bytes32(uint256(0x1)), isWrite, val0, val1);
+        sa[1] = storageAccess(who, bytes32(uint256(0x2)), isWrite, val0, val1);
+        accesses[0] = accountAccess(who, sa);
+
+        AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, who, false);
+        assertEq(diffs.length, sa.length, "The number of diffs should be equal to the number of storage writes");
+    }
+
+    /// Helper functions similar to those in AccountAccessParser.t.sol
     function accountAccess(address _account, VmSafe.StorageAccess[] memory _storageAccesses)
         internal
         pure
