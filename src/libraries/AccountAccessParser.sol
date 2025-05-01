@@ -399,7 +399,7 @@ library AccountAccessParser {
     }
 
     /// @notice Normalizes a timestamp in a storage slot by zeroing out only the timestamp portion if present.
-    function normalizeTimestamp(address _account, StateDiff memory _diff) internal view returns (StateDiff memory) {
+    function normalizeTimestamp(address _account, StateDiff memory _diff) internal pure returns (StateDiff memory) {
         // (, string memory contractName) = getContractInfo(_account);
         _account;
         _diff;
