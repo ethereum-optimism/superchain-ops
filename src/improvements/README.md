@@ -62,6 +62,9 @@ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../sin
 
 ### How do I run a task that depends on another task?
 
+> Note:
+> Tasks get executed in the order they are defined in the `tasks/<network>/` directory. We use 3 digit prefixes to order the tasks e.g. `001-` is executed before `002-`, etc.
+
 Stacked simulations are supported. To use this feature, you can use the following command:
 ```bash
 just simulate-stack <network> [task] [owner-address]
@@ -75,6 +78,18 @@ just simulate-stack eth
 just simulate-stack eth 002-opcm-upgrade-v200
 # OR to simulate up to and including a specific task, and specify the owner address to simulate as (useful for getting the correct domain and message hash).
 just simulate-stack eth 002-opcm-upgrade-v200 0x847B5c174615B1B7fDF770882256e2D3E95b9D92
+```
+
+Another useful command is to list the tasks that will be simulated in a stacked simulation:
+```bash
+just list-stack <network> [task]
+```
+
+e.g.
+```bash
+just list-stack eth
+# OR if you want to list the tasks up to and including a specific task.
+just list-stack eth <your-task-name>
 ```
 
 ## Available Templates
