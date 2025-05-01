@@ -531,13 +531,6 @@ workflows:
       # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
       # - just_simulate_sc_rehearsal_1
 
-      # Gas Params Upgrade - FoundationUpgradeSafe
-      - just_simulate_single_improvements:
-          name: "simulate single eth/006-gas-params-op"
-          task: "/eth/006-gas-params-op"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-
       - just_simulate_sc_rehearsal_2:
           context:
             - circleci-repo-readonly-authenticated-github-token
