@@ -1,4 +1,4 @@
-# 011 - Unpause the SuperchainConfig
+# 012 - Unpause the SuperchainConfig
 
 Status: [READY TO SIGN]()
 
@@ -24,7 +24,7 @@ When simulating, ensure the logs say: `Using script src/improvements/template/Un
 Navigate to the correct task directory then run the simulate command:
 
 ```bash
-cd eth/009-unpause-superchain-config \
+cd eth/012-unpause-superchain-config \
 SIMULATE_WITHOUT_LEDGER=1 just \
    --dotenv-path $(pwd)/.env \
    --justfile ../../../single.just \
