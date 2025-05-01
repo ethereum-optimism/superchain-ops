@@ -400,14 +400,14 @@ library AccountAccessParser {
 
     /// @notice Normalizes a timestamp in a storage slot by zeroing out only the timestamp portion if present.
     function normalizeTimestamp(address _account, StateDiff memory _diff) internal view returns (StateDiff memory) {
-        // (, string memory contractName) = getContractInfo(_account);
-        // if (contractName.eq("AnchorStateRegistry") && _diff.slot == ANCHOR_STATE_REGISTRY_RETIREMENT_TIMESTAMP_SLOT) {
-        //     // The retirementTimestamp is introduced in the AnchorStateRegistry post op-contracts/v3.0.0-rc.2.
-        //     // Define a static mask to zero out 64 bits at offset 4 in little-endian format
-        //     bytes32 MASK = bytes32(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000000000000FFFFFFFF);
-        //     // Apply the static mask to zero out the specified bytes in the new value
-        //     _diff.newValue &= MASK;
-        // }
+        (, string memory contractName) = getContractInfo(_account);
+        if (contractName.eq("AnchorStateRegistry") && _diff.slot == ANCHOR_STATE_REGISTRY_RETIREMENT_TIMESTAMP_SLOT) {
+            // The retirementTimestamp is introduced in the AnchorStateRegistry post op-contracts/v3.0.0-rc.2.
+            // Define a static mask to zero out 64 bits at offset 4 in little-endian format
+            bytes32 MASK = bytes32(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000000000000FFFFFFFF);
+            // Apply the static mask to zero out the specified bytes in the new value
+            _diff.newValue &= MASK;
+        }
         return _diff;
     }
 
