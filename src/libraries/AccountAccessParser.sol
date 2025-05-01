@@ -295,6 +295,7 @@ library AccountAccessParser {
             for (uint256 j = 0; j < diffs.length; j++) {
                 StateDiff memory diff = diffs[j];
                 if (shouldIncludeDiff(account, diff, _parentMultisig, _txHash)) {
+                    diff = normalizeTimestamp(account, diff); // Normalize the timestamp if present.
                     normalizedChanges[normalizedCount] = AccountStateDiff({
                         who: account,
                         slot: diff.slot,
@@ -335,7 +336,6 @@ library AccountAccessParser {
             // 4. If the slot is on the LivenessGuard, don't include it.
             return false;
         }
-        // diff = normalizeTimestamp(account, diff);
         return true;
     }
 
