@@ -916,6 +916,78 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         assertEq(blobbasefeeScalar, "1014213", "Failed to extract uint32 from bytes32");
     }
 
+    // /// The retirementTimestamp is introduced in the AnchorStateRegistry post op-contracts/v3.0.0-rc.2
+    function test_normalizeTimestamp_AnchorStateRegistry_retirementTimestamp() public view {
+        address anchorStateRegistry = address(0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b); // op mainnet AnchorStateRegistryProxy
+        // [offset: 8, bytes: 8, value: 0xFFFFFFFFFFFFFFFF, name: retirementTimestamp]
+        bytes32 newValue1 = bytes32(uint256(0x0000000000000000000000000000000000000000FFFFFFFFFFFFFFFF00000000));
+        AccountAccessParser.StateDiff memory diff1 = AccountAccessParser.StateDiff({
+            slot: bytes32(uint256(6)),
+            oldValue: bytes32(uint256(0)),
+            newValue: newValue1
+        });
+        AccountAccessParser.normalizeTimestamp(anchorStateRegistry, diff1);
+        assertEq(diff1.newValue, bytes32(uint256(0)));
+
+        bytes32 newValue2 = bytes32(uint256(0x0000000000000000000000000000000000000000000000000000000000000000));
+        AccountAccessParser.StateDiff memory diff2 = AccountAccessParser.StateDiff({
+            slot: bytes32(uint256(6)),
+            oldValue: bytes32(uint256(0)),
+            newValue: newValue2
+        });
+        AccountAccessParser.normalizeTimestamp(anchorStateRegistry, diff2);
+        assertEq(diff2.newValue, bytes32(uint256(0)), "Value changed for op mainnet AnchorStateRegistryProxy");
+
+        bytes32 newValue3 = bytes32(uint256(0x0000000000000000000000000000000000000000FFFFFF0FFFFFFFFF00000000));
+        AccountAccessParser.StateDiff memory diff3 = AccountAccessParser.StateDiff({
+            slot: bytes32(uint256(6)),
+            oldValue: bytes32(uint256(0)),
+            newValue: newValue3
+        });
+        AccountAccessParser.normalizeTimestamp(anchorStateRegistry, diff3);
+        assertEq(diff3.newValue, bytes32(uint256(0)), "Value changed for op mainnet AnchorStateRegistryProxy");
+
+        bytes32 newValue4 = bytes32(uint256(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000010000000FFFFFFFF));
+        AccountAccessParser.StateDiff memory diff4 = AccountAccessParser.StateDiff({
+            slot: bytes32(uint256(6)),
+            oldValue: bytes32(uint256(0)),
+            newValue: newValue4
+        });
+        AccountAccessParser.normalizeTimestamp(anchorStateRegistry, diff4);
+        assertEq(
+            diff4.newValue,
+            bytes32(uint256(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000000000000FFFFFFFF)),
+            "Value changed for op mainnet AnchorStateRegistryProxy"
+        );
+    }
+
+    function test_normalizeTimestamp_noChangeOnWrongContract() public view {
+        bytes32 original = bytes32(uint256(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF));
+
+        AccountAccessParser.StateDiff memory diff =
+            AccountAccessParser.StateDiff({slot: bytes32(uint256(6)), oldValue: bytes32(0), newValue: original});
+
+        diff = AccountAccessParser.normalizeTimestamp(address(0x1234), diff); // wrong contract
+
+        // Should remain unchanged because contract doesn't match
+        assertEq(diff.newValue, original, "Value changed for wrong contract");
+    }
+
+    function test_normalizeTimestamp_noChangeOnWrongSlot() public view {
+        bytes32 original = bytes32(uint256(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF));
+
+        AccountAccessParser.StateDiff memory diff = AccountAccessParser.StateDiff({
+            slot: bytes32(uint256(999)), // wrong slot
+            oldValue: bytes32(0),
+            newValue: original
+        });
+
+        diff = AccountAccessParser.normalizeTimestamp(address(0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b), diff);
+
+        // Should remain unchanged because slot doesn't match
+        assertEq(diff.newValue, original, "Value changed for wrong slot");
+    }
+
     function test_EmptyLayout() public pure {
         AccountAccessParser.JsonStorageLayout[] memory layout = new AccountAccessParser.JsonStorageLayout[](0);
         assertEq(AccountAccessParser.isSlotShared(layout, 0), false);
@@ -1307,6 +1379,36 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
         bytes32 expectedHash = keccak256(abi.encode(emptyArray));
 
         assertEq(hash, expectedHash, "LivenessGuard timestamp update should be removed");
+    }
+
+    function test_normalizedStateDiffHash_AnchorStateRegistryRetirementTimestamp() public {
+        vm.createSelectFork("mainnet", 22319975);
+        setupTests();
+
+        address anchorStateRegistry = address(0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b);
+        bytes32 retirementTimestampSlot = bytes32(uint256(6));
+        bytes32 retirementTimestamp =
+            bytes32(uint256(0x0000000000000000000000000000000000000000FFFFFFFFFFFFFFFF00000000));
+        VmSafe.AccountAccess[] memory allAccesses = new VmSafe.AccountAccess[](1);
+        VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
+        storageAccesses[0] =
+            storageAccess(anchorStateRegistry, retirementTimestampSlot, isWrite, val0, retirementTimestamp);
+        allAccesses[0] = accountAccess(anchorStateRegistry, storageAccesses);
+
+        address parentMultisig = address(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A);
+        bytes32 hash = allAccesses.normalizedStateDiffHash(parentMultisig, bytes32(0));
+        bytes32 expectedHash = bytes32(0x241e6b7219e7929518322ed65cbe52a5d3f6c3e61439ae8fdae8e842d3f8f500);
+
+        assertEq(hash, expectedHash, "AnchorStateRegistry should match the expected hash");
+
+        bytes32 retirementTimestamp2 =
+            bytes32(uint256(0x0000000000000000000000000000000000000000AAAAAAAAAAAAAAAA00000000));
+        storageAccesses[0] =
+            storageAccess(anchorStateRegistry, retirementTimestampSlot, isWrite, val0, retirementTimestamp2);
+        allAccesses[0] = accountAccess(anchorStateRegistry, storageAccesses);
+
+        bytes32 hash2 = allAccesses.normalizedStateDiffHash(parentMultisig, bytes32(0));
+        assertEq(hash2, expectedHash, "AnchorStateRegistry should still match the expected hash");
     }
 
     /// It's possible for there to be more storage writes than accesses.
