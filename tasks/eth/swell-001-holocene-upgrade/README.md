@@ -15,6 +15,7 @@ The proposal was:
 - [x] Posted on the [governance forum](https://gov.optimism.io/t/upgrade-proposal-11-holocene-network-upgrade/9313).
 - [x] Approved by Token House voting.
 - [x] Not vetoed by the Citizens' house.
+- [x] Executed on OP Mainnet
 
 ## Pre-deployments
 

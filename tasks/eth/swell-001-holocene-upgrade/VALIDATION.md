@@ -15,8 +15,13 @@ are missing from this document. Additionally, please verify that for each contra
 
 > [!CAUTION]
 > Before signing, ensure the below hashes match what is on your ledger.
+> ### Security Council
 > - Domain hash: `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
-> - Message hash: `0xf5fbd3618880ab8abb95dbe97fb4ac921021ba84b56956b92dfbfa1cdfb107e9`
+> - Message hash: `0x0d975c956fd25be3f8303b3ed3c60bafecaf45ce80ffc0744e4f585b83852e1e`
+> ### Optimism Foundation
+> - Domain hash: `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
+> - Message hash: `0x7f326067f1fd183dfd22efb1b67cc88afdf2acd2ce22d8d1816611bfaeb5f7fe`
+
 
 ## Verify new absolute prestate
 
@@ -33,7 +38,7 @@ You should expect the following output at the end of the command:
 
 ```bash
 Cannon Absolute prestate hash: 
-0x0354eee87a1775d96afee8977ef6d5d6bd3612b256170952a01bf1051610ee01
+0x03526dfe02ab00a178e0ab77f7539561aaf5b5e3b46cd3be358f1e501b06d8a9
 Cannon64 Absolute prestate hash: 
 0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405
 CannonInterop Absolute prestate hash: 
@@ -106,6 +111,6 @@ Note: The changes listed below do not include safe nonce updates or liveness gua
 
 - **Key**: `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e` <br/>
   **Before**: `0x000000000000000000000000a0cfbe3402d6e0a74e96d3c360f74d5ea4fa6893` <br/>
-  **After**: `0x0000000000000000000000001380Cc0E11Bfe6b5b399D97995a6B3D158Ed61a6` <br/>
+  **After**: `0x0000000000000000000000001380cc0e11bfe6b5b399d97995a6b3d158ed61a6` <br/>
   **Meaning**: Updates the implementation for game type 1. Verify that the new implementation is set using
   `cast call 0x87690676786cDc8cCA75A472e483AF7C8F2f0F57 "gameImpls(uint32)(address)" 1`.
