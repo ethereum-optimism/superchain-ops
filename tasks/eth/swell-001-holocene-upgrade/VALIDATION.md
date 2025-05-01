@@ -24,9 +24,12 @@ are missing from this document. Additionally, please verify that for each contra
 
 
 ## Verify new absolute prestate
+The following is based on the **op-program/v1.6.0-rc.1**: \
+Absolute prestates can be checked in the Superchain Registry [standard-prestates.toml](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-prestates.toml). 
 
-Please verify that the new absolute prestate is set correctly to `0x0354eee87a1775d96afee8977ef6d5d6bd3612b256170952a01bf1051610ee01
-`. See [Petra notice](https://docs.optimism.io/notices/pectra-changes#verify-the-new-absolute-prestate) in docs for more details. 
+Please, verify that the new absolute prestate is set correctly to `0x03526dfe02ab00a178e0ab77f7539561aaf5b5e3b46cd3be358f1e501b06d8a9`. \
+See [Pectra notice](https://docs.optimism.io/notices/pectra-changes#verify-the-new-absolute-prestate) in docs for more details. \
+To manually verify the prestate `0x03526dfe02ab00a178e0ab77f7539561aaf5b5e3b46cd3be358f1e501b06d8a9`, based on **op-program/v1.6.0-rc.1**, run the below command in the root of https://github.com/ethereum-optimism/optimism/tree/op-program/v1.6.0-rc.1:
 
 You can verify this absolute prestate by running the following [command](https://github.com/ethereum-optimism/optimism/blob/6819d8a4e787df2adcd09305bc3057e2ca4e58d9/Makefile#L133-L135) in the root of the monorepo:
 
@@ -40,9 +43,9 @@ You should expect the following output at the end of the command:
 Cannon Absolute prestate hash: 
 0x03526dfe02ab00a178e0ab77f7539561aaf5b5e3b46cd3be358f1e501b06d8a9
 Cannon64 Absolute prestate hash: 
-0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405
+0x03394563dd4a36e95e6d51ce7267ecceeb05fad23e68d2f9eed1affa73e5641a
 CannonInterop Absolute prestate hash: 
-0x03673e05a48799e6613325a3f194114c0427d5889cefc8f423eed02dfb881f23
+0x03ada038f8a81526c68596586dfc762eb5412d4d5bb7cb46110d8c47ee570d7e
 ```
 
 ## State Overrides
