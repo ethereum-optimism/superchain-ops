@@ -399,8 +399,8 @@ library AccountAccessParser {
     }
 
     /// @notice Normalizes a timestamp in a storage slot by zeroing out only the timestamp portion if present.
-    function normalizeTimestamp(address _account, StateDiff memory _diff) internal pure returns (StateDiff memory) {
-        // (, string memory contractName) = getContractInfo(_account);
+    function normalizeTimestamp(address _account, StateDiff memory _diff) internal view returns (StateDiff memory) {
+        getContractInfo(_account);
         _account;
         _diff;
         // if (contractName.eq("AnchorStateRegistry") && _diff.slot == ANCHOR_STATE_REGISTRY_RETIREMENT_TIMESTAMP_SLOT) {
