@@ -61,6 +61,8 @@ abstract contract StateOverrideManager is CommonBase {
 
     /// @notice Get the nonce for a Safe, preferring overridden values if available.
     /// Checks if nonce is overridden in the state overrides, otherwise gets from contract.
+    /// An important part of this function is to perform nonce safety checks. It ensures that
+    /// user-defined nonces are not less than the current actual nonce.
     function _getNonceOrOverride(address safeAddress) internal view returns (uint256 nonce_) {
         uint256 currentActualNonce = IGnosisSafe(safeAddress).nonce();
 

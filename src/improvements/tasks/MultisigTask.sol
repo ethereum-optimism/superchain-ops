@@ -1115,13 +1115,13 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     function _overrideState(string memory taskConfigFilePath) private {
         _setStateOverridesFromConfig(taskConfigFilePath); // Sets global '_stateOverrides' variable.
         nonce = _getNonceOrOverride(address(parentMultisig));
-        address[] memory owners = IGnosisSafe(parentMultisig).getOwners();
         if (childMultisig != address(0)) {
+            address[] memory owners = IGnosisSafe(parentMultisig).getOwners();
             for (uint256 i = 0; i < owners.length; i++) {
                 if (owners[i] == childMultisig) {
                     childNonce = _getNonceOrOverride(address(childMultisig));
                 } else {
-                    _getNonceOrOverride(owners[i]); // Nonce safety checks need to be performed for each owner.
+                    _getNonceOrOverride(owners[i]); // Nonce safety checks must be performed for each owner.
                 }
             }
         }
