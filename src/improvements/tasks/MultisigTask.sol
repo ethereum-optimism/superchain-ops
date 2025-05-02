@@ -775,13 +775,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         printEncodedTransactionData(dataToSign);
         printTitle("SINGLE MULTISIG EOA HASH TO APPROVE");
         printParentHash(parentCalldata, value);
-
-        bytes memory callData = generateApproveMulticallData(actions);
-        console.log("Child multisig: %s", getAddressLabel(childMultisig));
-        // Logs required for using eip712sign binary to sign the data to sign with Ledger
-        console.log("vvvvvvvv");
-        console.logBytes(getEncodedTransactionData(childMultisig, callData, 0));
-        console.log("^^^^^^^^\n");
     }
 
     /// @notice Print the hash to approve by EOA for nested multisig.
