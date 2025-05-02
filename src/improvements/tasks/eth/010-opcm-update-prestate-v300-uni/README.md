@@ -1,6 +1,6 @@
 # 010-opcm-update-prestate-v300-uni: Mainnet Update Isthmus Prestate: Unichain
 
-Status: [DRAFT]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
