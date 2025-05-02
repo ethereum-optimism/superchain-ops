@@ -1,0 +1,8 @@
+l2chains = [ {name = "OP Mainnet", chainId = 10} ]
+
+templateName = "SystemConfigGasParams"
+
+[gasParams]
+gasLimit = 40000000
+eip1559Elasticity = 2
+eip1559Denominator = 250
