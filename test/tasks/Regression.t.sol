@@ -371,9 +371,11 @@ contract RegressionTest is Test {
         MultisigTask multisigTask,
         MultisigTask.Action[] memory actions,
         string[] memory expectedDataToSign
-    ) internal view {
+    ) internal {
         address[] memory owners = IGnosisSafe(multisigTask.parentMultisig()).getOwners();
         for (uint256 i = 0; i < owners.length; i++) {
+            // Decrement the nonces by 1 because in task simulation child multisig nonces are incremented.
+            MultisigTaskTestHelper.decrementNonceAfterSimulation(owners[i]);
             string memory dataToSign = vm.toString(
                 multisigTask.getEncodedTransactionData(owners[i], multisigTask.generateApproveMulticallData(actions), 0)
             );

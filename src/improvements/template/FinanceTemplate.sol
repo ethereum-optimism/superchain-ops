@@ -13,9 +13,8 @@ import {EnumerableSet} from "lib/openzeppelin-contracts/contracts/utils/structs/
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
 import {DecimalNormalization} from "src/libraries/DecimalNormalization.sol";
-import {console} from "forge-std/console.sol";
-/// @notice Template contract for enabling finance transactions
 
+/// @notice Template contract for enabling finance transactions
 contract FinanceTemplate is SimpleTaskBase {
     using LibString for string;
     using SafeERC20 for IERC20;
@@ -124,76 +123,54 @@ contract FinanceTemplate is SimpleTaskBase {
     /// @notice Sets up the template with module configuration from a TOML file
     /// @param taskConfigFilePath Path to the TOML configuration file
     function _templateSetup(string memory taskConfigFilePath) internal override {
-        console.log("got here 1");
         string memory toml = vm.readFile(taskConfigFilePath);
-        console.log("got here 2");
         operationType = toml.readString(".operationType");
-        console.log("got here 3");
         operationTypeEnum = _getOperationType();
-        console.log("got here 4");
 
         // Cannot decode directly to storage array, decode to memory first
         // and then push to storage array
         FileOperation[] memory operationsMemory = abi.decode(toml.parseRaw(".operations"), (FileOperation[]));
-        console.log("got here 5");
         for (uint256 i = 0; i < operationsMemory.length; i++) {
             Operation memory taskOperation = Operation({
                 amount: getTokenAmount(operationsMemory[i].amount, simpleAddrRegistry.get(operationsMemory[i].token)),
                 target: operationsMemory[i].target,
                 token: operationsMemory[i].token
             });
-            console.log("got here 6");
             operations.push(taskOperation);
         }
-        console.log("got here 7");
         assertNotEq(operations.length, 0, "there must be at least one operation");
-        console.log("got here 8");
         // Store initial allowances and balances, before the operations are executed for validations
         for (uint256 i = 0; i < operations.length; i++) {
-            console.log("got here 9");
             Operation memory operation = operations[i];
             (address token, address target) = _getTokenAndTarget(operation.token, operation.target);
-            console.log("got here 10");
             // If the token is ETH, it can only be used in Transfer operations
             // and we need to record the initial balance of the target address
             if (token == simpleAddrRegistry.get("ETH")) {
-                console.log("got here 11");
                 require(operationTypeEnum == OperationType.Transfer, "ETH can only be used in Transfer operations");
                 initialBalances[token][target] = address(target).balance;
-                console.log("got here 12");
             } else {
                 // For other tokens, record the initial allowance and balance of the target address
                 initialAllowances[token][target] = IERC20(token).allowance(address(parentMultisig), target);
                 initialBalances[token][target] = IERC20(token).balanceOf(target);
-                console.log("got here 13");
             }
             // Add the token to the set of tokens
             tokens.add(token);
-            console.log("got here 14");
             // If the operation type is Transfer, record the total amount transferred for each token
             if (operationTypeEnum == OperationType.Transfer) {
                 tokensTransferred[token] += operations[i].amount;
-                console.log("got here 15");
             }
         }
-        console.log("got here 16");
         // Record the initial balance of the parent multisig for each token
         // Also, add each token identifier to the allowed storage keys
         for (uint256 i = 0; i < tokens.length(); i++) {
-            console.log("got here 17");
             address token = tokens.at(i);
             if (token == simpleAddrRegistry.get("ETH")) {
                 initialBalances[token][address(parentMultisig)] = address(parentMultisig).balance;
-                console.log("got here 18");
             } else {
                 initialBalances[token][address(parentMultisig)] = IERC20(token).balanceOf(address(parentMultisig));
-                console.log("got here 19");
                 config.allowedStorageKeys.push(simpleAddrRegistry.get(token));
-                console.log("got here 20");
             }
         }
-        console.log("got here 21");
-
         super._templateSetup(taskConfigFilePath);
     }
 
