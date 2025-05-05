@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"math"
 	"os"
 	"strings"
 	"time"
@@ -19,14 +20,65 @@ const (
 	pageFinalConfirm = "finalconfirm"
 	pageSigning      = "signing"
 	pageDone         = "done"
+
+	// Define the number of steps within each state diff verification
+	stateDiffSubStepCount = 5 // Explanation, Address, Key, Value, Tenderly
 )
 
 // Shared application state
 type AppState struct {
-	data             ValidationData
-	currentItemIndex int
-	signature        string
-	pageHistory      []string // Add page history for back navigation
+	data                 ValidationData
+	currentItemIndex     int // Index for Overrides or State Diffs list
+	currentDiffSubStep   int // Current sub-step within a state diff (0 to stateDiffSubStepCount-1)
+	signature            string
+	pageHistory          []string // Add page history for back navigation
+	totalCalculatedSteps int      // Store the dynamically calculated total steps
+}
+
+// Define the sequence for progress calculation (order matters)
+var pageSequence = []string{
+	pageOverview,
+	pageMultisig,
+	pageOverrides,
+	pageStateDiffs,
+	pageFinalConfirm,
+	pageSigning,
+	pageDone,
+}
+
+// Map page IDs to user-friendly names for the progress bar
+var pageFriendlyNames = map[string]string{
+	pageOverview:     "Overview",
+	pageMultisig:     "Multisig",
+	pageOverrides:    "Overrides",
+	pageStateDiffs:   "State Diffs",
+	pageFinalConfirm: "Final Confirm",
+	pageSigning:      "Signing",
+	pageDone:         "Done",
+}
+
+// Calculate the total number of granular steps
+func calculateTotalSteps(data ValidationData) int {
+	total := 0
+	for _, pageID := range pageSequence {
+		switch pageID {
+		case pageOverview, pageMultisig, pageFinalConfirm, pageSigning, pageDone:
+			total += 1
+		case pageOverrides:
+			if len(data.Overrides) == 0 {
+				total += 1 // Even if empty, it's one step to pass through
+			} else {
+				total += len(data.Overrides)
+			}
+		case pageStateDiffs:
+			if len(data.Diffs) == 0 {
+				total += 1 // Even if empty, it's one step to pass through
+			} else {
+				total += len(data.Diffs) * stateDiffSubStepCount
+			}
+		}
+	}
+	return total
 }
 
 func main() {
@@ -43,6 +95,9 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Error loading validation data: %v\n", err)
 		os.Exit(1)
 	}
+
+	// Calculate total steps after loading data
+	appState.totalCalculatedSteps = calculateTotalSteps(appState.data)
 
 	// --- tview Application Setup ---
 	app := tview.NewApplication()
@@ -63,27 +118,143 @@ func main() {
 	infoBox.SetText("Press Tab to switch focus, Space to confirm, Enter to continue. Press 'b' to go back. Press Ctrl+C to quit.")
 	infoBox.SetTextColor(tcell.ColorWhite)
 
+	// Add Progress Bar widget
+	progressBar := tview.NewTextView()
+	progressBar.SetDynamicColors(true).
+		SetTextAlign(tview.AlignCenter).
+		SetTextColor(tcell.ColorYellow)
+	progressBar.SetBorder(true).SetTitle("Progress")
+
+	// --- Helper function for progress bar update ---
+	// Update this function to calculate based on granular state
+	var updateProgressBar func() // Declare updateProgressBar
+	updateProgressBar = func() { // Removed parameters, gets info from appState & pages
+		currentPageName, _ := pages.GetFrontPage()
+		currentStep := 0
+		foundCurrent := false
+
+		for _, pageID := range pageSequence {
+			if foundCurrent {
+				break // Already calculated steps up to the current page
+			}
+
+			switch pageID {
+			case pageOverview, pageMultisig, pageFinalConfirm, pageSigning, pageDone:
+				if pageID == currentPageName {
+					currentStep++ // Add the step for the current fixed page
+					foundCurrent = true
+				} else {
+					currentStep++ // Add step for pages before the current one
+				}
+			case pageOverrides:
+				numOverrides := len(appState.data.Overrides)
+				if numOverrides == 0 {
+					numOverrides = 1 // Count as 1 step even if empty
+				}
+				if pageID == currentPageName {
+					// Add steps for completed items + 1 for the current item
+					currentStep += appState.currentItemIndex + 1
+					foundCurrent = true
+				} else {
+					currentStep += numOverrides // Add all steps for this page if we passed it
+				}
+			case pageStateDiffs:
+				numDiffs := len(appState.data.Diffs)
+				if numDiffs == 0 {
+					currentStep += 1 // Count as 1 step even if empty
+					if pageID == currentPageName {
+						foundCurrent = true
+					}
+				} else {
+					totalDiffSteps := numDiffs * stateDiffSubStepCount
+					if pageID == currentPageName {
+						// Steps for completed diffs + steps within the current diff
+						stepsForCompletedDiffs := appState.currentItemIndex * stateDiffSubStepCount
+						stepsInCurrentDiff := appState.currentDiffSubStep + 1
+						currentStep += stepsForCompletedDiffs + stepsInCurrentDiff
+						foundCurrent = true
+					} else {
+						currentStep += totalDiffSteps // Add all steps for this page if we passed it
+					}
+				}
+			}
+		}
+
+		totalSteps := appState.totalCalculatedSteps
+		if totalSteps == 0 {
+			totalSteps = 1
+		} // Avoid division by zero if calculation failed
+		if currentStep > totalSteps {
+			currentStep = totalSteps
+		} // Cap at total
+
+		// Calculate progress percentage and bar display
+		percentage := 0.0
+		if totalSteps > 0 {
+			percentage = float64(currentStep) / float64(totalSteps) * 100
+		}
+		barWidth := 20 // Width of the progress bar in characters
+		filledBlocks := int(math.Round(float64(currentStep) / float64(totalSteps) * float64(barWidth)))
+		emptyBlocks := barWidth - filledBlocks
+		if filledBlocks < 0 {
+			filledBlocks = 0
+		}
+		if emptyBlocks < 0 {
+			emptyBlocks = 0
+		}
+
+		bar := "[" + strings.Repeat("█", filledBlocks) + strings.Repeat("░", emptyBlocks) + "]"
+		friendlyName := pageFriendlyNames[currentPageName]
+		if friendlyName == "" {
+			friendlyName = currentPageName // Fallback to ID if no friendly name
+		}
+
+		// progressText := fmt.Sprintf("%s %d/%d (%s) %.0f%%", bar, currentStep, totalSteps, friendlyName, percentage)
+		// Modified to remove the page name
+		progressText := fmt.Sprintf("%s %d/%d %.0f%%", bar, currentStep, totalSteps, percentage)
+		progressBar.SetText(progressText)
+	}
+
 	// --- Helper function for page navigation ---
 	// Function to navigate to a page, tracking history
-	navigateToPage := func(nextPage string) {
+	navigateToPage := func(nextPage string) { // Removed appState, pages, progressBar - uses closures
 		currentPage, _ := pages.GetFrontPage()
 		if currentPage != nextPage {
 			appState.pageHistory = append(appState.pageHistory, nextPage)
+
+			// Reset indices when moving *to* a list page
+			if nextPage == pageOverrides || nextPage == pageStateDiffs {
+				appState.currentItemIndex = 0
+				appState.currentDiffSubStep = 0
+			}
+
 			pages.SwitchToPage(nextPage)
+			updateProgressBar() // Update progress bar on navigation
 			// Update info box with initial instruction
 			infoBox.SetText("Press Tab to switch focus, Space to confirm, Enter to continue. Press 'b' to go back. Press Ctrl+C to quit.")
 		}
 	}
 
 	// Function to go back to the previous page
-	goBack := func() {
+	goBack := func() { // Removed appState, pages, progressBar - uses closures
 		// Need at least 2 items in history to go back
 		if len(appState.pageHistory) > 1 {
 			// Remove the current page from history
 			appState.pageHistory = appState.pageHistory[:len(appState.pageHistory)-1]
 			// Get the previous page
 			previousPage := appState.pageHistory[len(appState.pageHistory)-1]
+
+			// *** Important: Reset indices when going back TO a dynamic page ***
+			// This is complex because we don't know the *exact* previous state.
+			// Simplification: Assume going back to the *start* of the list/diffs page.
+			// A more robust solution would store index/substep in history.
+			if previousPage == pageOverrides || previousPage == pageStateDiffs {
+				appState.currentItemIndex = 0
+				appState.currentDiffSubStep = 0
+			}
+
 			pages.SwitchToPage(previousPage)
+			updateProgressBar() // Update progress bar on going back
 		}
 	}
 
@@ -108,8 +279,8 @@ func main() {
 		return textView
 	}
 
-	// Modify createListPage function to include a checkbox
-	createListPageWithCheckbox := func(title string, items []string, isOverrides bool, nextPage string) *tview.Flex {
+	// Modify createListPage function to include a checkbox and update progress
+	createListPageWithCheckbox := func(title string, items []string, isOverrides bool, nextPage string, updateProgress func()) *tview.Flex { // Added updateProgress func
 		textView := tview.NewTextView().
 			SetDynamicColors(true).
 			SetScrollable(true).
@@ -165,6 +336,7 @@ func main() {
 			}
 			textView.SetText(content).ScrollToBeginning()
 			checkbox.SetChecked(false) // Reset checkbox when content changes
+			updateProgress()
 		}
 
 		flex.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
@@ -229,7 +401,7 @@ func main() {
 	overviewContent := formatOverview(appState.data.Overview)
 	multisigContent := formatMultisig(appState.data.Multisig)
 	overrideItems := formatOverrides(appState.data.Overrides)
-	diffItems := formatDiffs(appState.data.Diffs)
+	// diffItems := formatDiffs(appState.data.Diffs) // Removed, diffs formatted step-by-step
 	finalConfirmContent := formatFinalConfirm()
 	signingContent := "[::b]Interacting with hardware wallet...[-:-]\n\n(This is a simulation, no actual signing is happening yet.)"
 	// doneContent needs signature, set later
@@ -328,18 +500,10 @@ func main() {
 	})
 
 	// Create the list pages with checkboxes
-	overridesTitle := "State Overrides"
-	if len(overrideItems) > 0 {
-		overridesTitle += fmt.Sprintf(" (1/%d)", len(overrideItems))
-	}
-	overridesPage := createListPageWithCheckbox(overridesTitle, overrideItems, true, pageStateDiffs)
+	overridesPage := createListPageWithCheckbox("State Overrides", overrideItems, true, pageStateDiffs, updateProgressBar)
 
-	// State diffs
-	diffsTitle := "State Changes"
-	if len(diffItems) > 0 {
-		diffsTitle += fmt.Sprintf(" (1/%d)", len(diffItems))
-	}
-	diffsPage := createStepByStepDiffPage(app, pages, appState, infoBox, diffsTitle, appState.data.Diffs, pageFinalConfirm, navigateToPage, goBack)
+	// State diffs page creation needs modification to update progress
+	diffsPage := createStepByStepDiffPage(app, pages, appState, infoBox, progressBar, "State Changes", appState.data.Diffs, pageFinalConfirm, navigateToPage, goBack, updateProgressBar)
 
 	// Special handling for signing page
 	signingPage := tview.NewModal().
@@ -378,7 +542,7 @@ func main() {
 		AddItem(finalConfirmText, 0, 1, true).
 		AddItem(finalCheckboxContainer, 3, 0, false)
 
-	// Update finalConfirmFlex input handler with back navigation
+	// Update finalConfirmFlex input handler with back navigation and 's' key
 	finalConfirmFlex.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		// Add Tab key to switch focus between text view and checkbox
 		if event.Key() == tcell.KeyTab {
@@ -393,7 +557,37 @@ func main() {
 			// Only proceed if checkbox is checked
 			if checkbox.IsChecked() {
 				navigateToPage(pageSigning)
+				// Simulate signing immediately after navigating
+				go func() {
+					time.Sleep(2 * time.Second) // Simulate signing delay
+					appState.signature = "0xmockTviewSignature67890"
+					doneText := fmt.Sprintf("Transaction signing process simulated successfully!\nSignature: %s", appState.signature)
+					app.QueueUpdateDraw(func() { // Important: UI updates must be in the main goroutine
+						doneModal.SetText(doneText)
+						navigateToPage(pageDone)
+					})
+				}()
+				return nil // Event handled
+			} else {
+				// Update info box to indicate checkbox must be checked
+				infoBox.SetText("Please check the confirmation box to continue.")
 				return nil
+			}
+		} else if event.Key() == tcell.KeyRune && event.Rune() == 's' { // Handle 's' key here
+			// Only proceed if checkbox is checked
+			if checkbox.IsChecked() {
+				navigateToPage(pageSigning)
+				// Simulate signing immediately after navigating
+				go func() {
+					time.Sleep(2 * time.Second) // Simulate signing delay
+					appState.signature = "0xmockTviewSignature67890"
+					doneText := fmt.Sprintf("Transaction signing process simulated successfully!\nSignature: %s", appState.signature)
+					app.QueueUpdateDraw(func() { // Important: UI updates must be in the main goroutine
+						doneModal.SetText(doneText)
+						navigateToPage(pageDone)
+					})
+				}()
+				return nil // Event handled
 			} else {
 				// Update info box to indicate checkbox must be checked
 				infoBox.SetText("Please check the confirmation box to continue.")
@@ -418,29 +612,7 @@ func main() {
 	// --- Global Input Capture ---
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		currentPage, _ := pages.GetFrontPage()
-		if currentPage == pageFinalConfirm {
-			if event.Key() == tcell.KeyRune && event.Rune() == 's' {
-				// Only proceed if checkbox is checked
-				if checkbox.IsChecked() {
-					navigateToPage(pageSigning)
-					// Simulate signing and switch to done page
-					go func() {
-						time.Sleep(2 * time.Second) // Simulate signing delay
-						appState.signature = "0xmockTviewSignature67890"
-						doneText := fmt.Sprintf("Transaction signing process simulated successfully!\nSignature: %s", appState.signature)
-						app.QueueUpdateDraw(func() { // Important: UI updates must be in the main goroutine
-							doneModal.SetText(doneText)
-							navigateToPage(pageDone)
-						})
-					}()
-					return nil // Event handled
-				} else {
-					// Update info box to indicate checkbox must be checked
-					infoBox.SetText("Please check the confirmation box to continue.")
-					return nil
-				}
-			}
-		} else if currentPage == pageDone {
+		if currentPage == pageDone {
 			// Allow going back from the done page
 			if event.Key() == tcell.KeyRune && event.Rune() == 'b' {
 				goBack()
@@ -453,10 +625,12 @@ func main() {
 	// --- Layout ---
 	// Use a Flex layout to put pages and the info box together
 	flex := tview.NewFlex().SetDirection(tview.FlexRow).
-		AddItem(pages, 0, 1, true).   // Pages take up most space, have focus
-		AddItem(infoBox, 3, 0, false) // Info box is fixed size at the bottom
+		AddItem(pages, 0, 1, true).       // Pages take up most space, have focus
+		AddItem(infoBox, 3, 0, false).    // Info box is fixed size at the bottom
+		AddItem(progressBar, 3, 0, false) // Add progress bar below info box
 
 	// --- Run Application ---
+	updateProgressBar() // Initial progress bar state
 	if err := app.SetRoot(flex, true).Run(); err != nil {
 		panic(err)
 	}
@@ -628,11 +802,13 @@ func createStepByStepDiffPage(
 	pages *tview.Pages,
 	appState *AppState,
 	infoBox *tview.TextView,
+	progressBar *tview.TextView, // Re-added progressBar to match linter expectation
 	title string,
 	diffs []JSONStateDiff,
 	nextPage string,
 	navigateToPage func(string),
 	goBack func(),
+	updateProgress func(), // Added updateProgress func
 ) *tview.Flex {
 	// Main flex container for the whole page
 	mainFlex := tview.NewFlex().SetDirection(tview.FlexRow)
@@ -661,17 +837,18 @@ func createStepByStepDiffPage(
 		AddItem(checkboxContainer, 3, 0, false)
 
 	// Current state tracking
-	currentDiffIndex := 0
-	currentStep := 0
+	currentDiffIndex := 0 // Use appState.currentItemIndex
+	currentStep := 0      // Use appState.currentDiffSubStep
 
-	// Define the steps for each diff
+	// Define the steps for each diff - MOVED TO GLOBAL CONST
+	// Define the steps locally again
 	const (
 		stepExplanation = 0
 		stepAddress     = 1
 		stepKey         = 2
 		stepValue       = 3
 		stepTenderly    = 4
-		stepCount       = 5
+	// stepCount is now global stateDiffSubStepCount
 	)
 
 	// Function to update content based on current diff and step
@@ -682,15 +859,23 @@ func createStepByStepDiffPage(
 		// If no diffs, show a message and allow skipping
 		if len(diffs) == 0 {
 			contentView.SetText("There are no state diffs for this transaction.")
+			// Ensure progress is updated even for empty state
+			appState.currentItemIndex = 0
+			appState.currentDiffSubStep = 0
+			updateProgress()
 			return
 		}
+
+		// Update appState with current indices
+		appState.currentItemIndex = currentDiffIndex
+		appState.currentDiffSubStep = currentStep
 
 		// Get current diff
 		diff := diffs[currentDiffIndex]
 
 		// Update title
 		newTitle := fmt.Sprintf("%s (%d/%d) - Step %d/%d",
-			"State Changes", currentDiffIndex+1, len(diffs), currentStep+1, stepCount)
+			"State Changes", currentDiffIndex+1, len(diffs), currentStep+1, stateDiffSubStepCount)
 		contentView.SetTitle(newTitle)
 
 		var content strings.Builder
@@ -708,7 +893,7 @@ func createStepByStepDiffPage(
 		switch currentStep {
 		case stepExplanation:
 			content.WriteString(fmt.Sprintf("[#ffffff::b]Step %d/%d: Explanation[white:-:-]\n\n",
-				currentStep+1, stepCount))
+				currentStep+1, stateDiffSubStepCount))
 
 			// Just show a simple explanation without technical details
 			content.WriteString(fmt.Sprintf("[#ffffff]%s[white:-:-]\n\n", diff.Summary))
@@ -717,7 +902,7 @@ func createStepByStepDiffPage(
 
 		case stepAddress:
 			content.WriteString(fmt.Sprintf("[#ffffff::b]Step %d/%d: Contract Address Validation[white:-:-]\n\n",
-				currentStep+1, stepCount))
+				currentStep+1, stateDiffSubStepCount))
 			content.WriteString(fmt.Sprintf("[#ffffff]Address: [#ff0000]%s[white:-:-]\n\n", diff.Address.Value))
 
 			if diff.Address.Reference != "" {
@@ -728,7 +913,7 @@ func createStepByStepDiffPage(
 
 		case stepKey:
 			content.WriteString(fmt.Sprintf("[#ffffff::b]Step %d/%d: Storage Key Validation[white:-:-]\n\n",
-				currentStep+1, stepCount))
+				currentStep+1, stateDiffSubStepCount))
 			content.WriteString(fmt.Sprintf("[#ffffff]The storage slot being modified is: [#ff0000]%s[white:-:-]\n", diff.Key.Value))
 
 			if diff.Key.Variable != "" {
@@ -747,7 +932,7 @@ func createStepByStepDiffPage(
 
 		case stepValue:
 			content.WriteString(fmt.Sprintf("[#ffffff::b]Step %d/%d: New Value Validation[white:-:-]\n\n",
-				currentStep+1, stepCount))
+				currentStep+1, stateDiffSubStepCount))
 			content.WriteString(fmt.Sprintf("[#ffffff]The storage slot will be set to: [#ff0000]%s[white:-:-]\n\n", diff.Val.Value))
 
 			if diff.Val.Reference != "" {
@@ -762,7 +947,7 @@ func createStepByStepDiffPage(
 
 		case stepTenderly:
 			content.WriteString(fmt.Sprintf("[#ffffff::b]Step %d/%d: Tenderly Verification[white:-:-]\n\n",
-				currentStep+1, stepCount))
+				currentStep+1, stateDiffSubStepCount))
 			content.WriteString("[#ffffff]Please verify that you see this same state diff in Tenderly:[white:-:-]\n\n")
 			content.WriteString(fmt.Sprintf("[#ffffff]Contract: [#ffff00]%s[white:-:-]\n", diff.Contract))
 			content.WriteString(fmt.Sprintf("[#ffffff]Address: [#ff0000]%s[white:-:-]\n", diff.Address.Value))
@@ -774,20 +959,19 @@ func createStepByStepDiffPage(
 
 		contentView.SetText(content.String())
 		contentView.ScrollToBeginning()
+		updateProgress()
 	}
 
 	// Function to go to the next step or diff
 	goToNextStep := func() {
 		currentStep++
-		if currentStep >= stepCount {
+		if currentStep >= stateDiffSubStepCount {
 			// Move to the next diff or to the next page
 			currentStep = 0
 			currentDiffIndex++
 
 			if currentDiffIndex >= len(diffs) {
 				// We've gone through all diffs, move to the next page
-				currentDiffIndex = 0          // Reset for next time
-				appState.currentItemIndex = 0 // Reset the global index
 				navigateToPage(nextPage)
 				return
 			}
@@ -835,10 +1019,12 @@ func createStepByStepDiffPage(
 				} else if currentDiffIndex > 0 {
 					// If at first step but not first diff, go to last step of previous diff
 					currentDiffIndex--
-					currentStep = stepCount - 1
+					currentStep = stateDiffSubStepCount - 1
 					updateContent()
 				} else {
 					// Only go back to previous page if at first step of first diff
+					// Need to potentially reset appState indices if going back from diffs
+					// The goBack() function now handles some of this reset.
 					goBack()
 				}
 				return nil
