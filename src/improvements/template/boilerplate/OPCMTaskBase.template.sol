@@ -34,7 +34,8 @@ contract OPCMTaskBaseTemplate is OPCMTaskBase {
     /// @notice Mapping of L2 chain IDs to their respective OPCMUpgrade structs.
     mapping(uint256 => OPCMUpgrade) public upgrades;
 
-    /// @notice Returns the storage write permissions required for this task
+    /// @notice Returns the storage write permissions required for this task. This is an array of
+    /// contract names that are expected to be written to during the execution of the task.
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
         require(false, "TODO: Implement with the correct storage writes.");
         return new string[](0);
