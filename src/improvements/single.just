@@ -18,48 +18,11 @@ export forkBlockNumber := env_var_or_default('FORK_BLOCK_NUMBER', '-1')
 # Default signer: address(uint160(uint256(keccak256("foundry default caller"))))
 export signerAddress := env_var_or_default('SIGNER_ADDRESS', '0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38')
 
-
 # Simulate sequence execution variables
 export ANVIL_LOCALHOST_RPC :="http://localhost:8545"
 export PRIVATE_KEY_OWNER := "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
 export PRIVATE_KEY_EXECUTOR :="0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
 export FAKE_SIG :="11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
-
-simulate hdPath='0':
-  #!/usr/bin/env bash
-
-  config=${TASK_PATH}/config.toml
-  script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
-
-  echo "RPC URL: ${rpcUrl}"
-  echo "Using script ${script}"
-
-  echo "Setting signer address..."
-  if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
-    signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-    echo "Simulating with ledger account: ${signer}"
-  else
-    signer="{{signerAddress}}"
-    echo "Using 'signerAddress' as signer: ${signer}"
-  fi
-  echo ""
-
-  # Allow simulating from a specific block by setting FORK_BLOCK_NUMBER in the tasks .env file.
-  # If not set (or set to -1), default to using the latest block.
-  if [ "${forkBlockNumber}" = "-1" ]; then
-    fork_block_arg=""
-  else
-    echo "Using fork block number from env: ${forkBlockNumber}"
-    fork_block_arg="--fork-block-number ${forkBlockNumber}"
-  fi
-
-  echo "⏳ Task simulation in progress. Some tasks take longer than others..."
-  forge build
-  forge script ${script} \
-    ${fork_block_arg} \
-    --rpc-url ${rpcUrl} \
-    --sender ${signer} \
-    --sig "simulateRun(string)" ${config}
 
 sign hdPath='0':
   #!/usr/bin/env bash

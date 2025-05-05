@@ -22,49 +22,6 @@ export PRIVATE_KEY_OWNER := "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efca
 export PRIVATE_KEY_EXECUTOR :="0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
 export FAKE_SIG :="11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
 
-simulate whichSafe hdPath='0':
-  #!/usr/bin/env bash
-  # Get the appropriate safe address based on whichSafe
-  safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
-
-  echo "RPC URL: ${rpcUrl}"
-
-  config=${TASK_PATH}/config.toml
-  script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
-
-  echo "Using script ${script}"
-  echo "getting signer address for {{whichSafe}}..."
-  signer=$(cast call ${safe} "getOwners()(address[])" -r ${rpcUrl} | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
-
-  echo "safe: $safe"
-  echo "Simulating call to {{whichSafe}} at ${safe}"
-  if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
-    signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-    echo "Simulating with ledger account: ${signer}"
-  else
-      echo "Simulating without ledger using the first owner account: ${signer}"
-  fi
-  echo ""
-
-  # Allow simulating from a specific block by setting FORK_BLOCK_NUMBER in the tasks .env file.
-  # If not set (or set to -1), default to using the latest block.
-  if [ "${forkBlockNumber}" = "-1" ]; then
-    fork_block_arg=""
-  else
-    echo "Using fork block number from env: ${forkBlockNumber}"
-    fork_block_arg="--fork-block-number ${forkBlockNumber}"
-  fi
-
-  echo "⏳ Task simulation in progress. Some tasks take longer than others..."
-  forge build
-  forge script ${script} \
-    ${fork_block_arg} \
-    --rpc-url ${rpcUrl} \
-    --sender ${signer} \
-    --sig "simulateAsSigner(string,address)" \
-    ${config} \
-    ${safe}
-
 sign whichSafe hdPath='0':
   #!/usr/bin/env bash
   # Get the appropriate safe address based on whichSafe
