@@ -42,7 +42,7 @@ For each of these steps, if you already have some version of the software instal
 
 ### Installing mise
 
-Make sure you have `mise` installed. Follow the [CONTRIBUTING.md](../../CONTRIBUTING.md) guide to install mise. We use mise to install the other required tools (go, just, foundry, etc).
+Make sure you have `mise` installed. Follow the [CONTRIBUTING.md](./CONTRIBUTING.md) guide to install mise. We use mise to install the other required tools (go, just, foundry, etc).
 
 ### Installing git
 
