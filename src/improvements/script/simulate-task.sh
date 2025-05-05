@@ -8,8 +8,7 @@ simulate_task() {
     task=$1
     nested_safe_name=$2
     root_dir=$(git rev-parse --show-toplevel)
-    nested_just_file="${root_dir}/src/improvements/nested.just"
-    single_just_file="${root_dir}/src/improvements/single.just"
+    just_file="${root_dir}/src/improvements/justfile"
 
     if [ -z "$task" ]; then
         echo "Error: task path is required"
@@ -28,10 +27,10 @@ simulate_task() {
             echo "Error: this task requires a nested safe name e.g. foundation, council, chain-governor."
             exit 1
         fi
-        SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile "$nested_just_file" simulate "$nested_safe_name"
+        SIMULATE_WITHOUT_LEDGER=1 just --justfile "$just_file" simulate "$nested_safe_name"
     else
         echo "Simulating single task: $task"
-        SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile "$single_just_file" simulate
+        SIMULATE_WITHOUT_LEDGER=1 just --justfile "$just_file" simulate
     fi
 
     echo -e "\n\nDone simulating task: $task"
