@@ -178,20 +178,7 @@ simulate-stack NETWORK="" TASK="" OWNER_ADDRESS="0x00000000000000000000000000000
     }
 
     export FOUNDRY_PROFILE="${FOUNDRY_PROFILE:-default}"
-
-    case "{{NETWORK}}" in
-        sep)
-            ETH_RPC_URL=$(yq eval ".profile.\"${FOUNDRY_PROFILE}\".rpc_endpoints.sepolia" "${root_dir}/foundry.toml")
-            ;;
-        eth)
-            ETH_RPC_URL=$(yq eval ".profile.\"${FOUNDRY_PROFILE}\".rpc_endpoints.mainnet" "${root_dir}/foundry.toml")
-            ;;
-        *)
-            echo -e "\n\033[31mError: Invalid network '{{NETWORK}}'\033[0m"
-            show_usage
-            exit 1
-            ;;
-    esac
+    ETH_RPC_URL=$(just _fetch-rpc-url "{{NETWORK}}")
     
     echo -e "\n⏳ Stacked Task simulation in progress. This may take a while..."
     if [ -z "{{TASK}}" ]; then
@@ -237,7 +224,102 @@ list-stack NETWORK="" TASK="":
         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string,string)" {{NETWORK}} {{TASK}}
     fi
 
+########################
+## Simulate command ##
+########################
+
+# This command is used to simulate a task. It automatically figures out if the safe is nested or not.
+[no-cd] # This means that the $PWD is wherever this command is executed from.
+simulate whichSafe="" hdPath="0":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+
+    echo -e "\033[42m                                         \033[0m"
+    echo -e "\033[42m     superchain-ops task simulation      \033[0m"
+    echo -e "\033[42m                                         \033[0m"
+
+    show_usage() {
+        echo
+        echo "Usage: just simulate [safe-name] [hd-path]"
+        echo "Available arguments:"
+        echo "  • [safe-name]  - e.g. foundation, council, chain-governor, foundation-operations, base-operations"
+        echo "  • [hd-path]    - e.g. '0' for 'm/44'/60'/[hd-path]'/0/0' "
+        echo ""
+        echo "Environment variables:"
+        echo "  • SIMULATE_WITHOUT_LEDGER - If set, the simulation will not use a ledger account. Instead, it will use the default foundry account (e.g. '1' or 'true')."
+        echo "  • FORK_BLOCK_NUMBER - If set, the simulation will use a specific block number for the fork. Otherwise, it will use the latest block. (e.g. '22420467')"
+    }
+
+    if [ "{{whichSafe}}" = "-h" ] || [ "{{whichSafe}}" = "--help" ]; then
+        show_usage
+        exit 0
+    fi
+
+    network=$(basename "$(dirname "$PWD")")
+    export FOUNDRY_PROFILE="${FOUNDRY_PROFILE:-default}"
+    ETH_RPC_URL=$(just _fetch-rpc-url $network)
+    safe=$(just _fetch-safe "{{whichSafe}}")
+    signer=$(just _fetch-signer "{{hdPath}}")
+    fork_block_arg=$(just _fetch-fork-block-number)
+    task_path=$(PWD)
+
+    echo "⏳ Task simulation in progress. Some tasks take longer than others..."
+    if [ -n "$task_path" ]; then
+        echo -e "⏳ You are simulating task: $task_path\n"
+        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateTask(string,address)" $task_path $safe --ffi --rpc-url $ETH_RPC_URL --sender $signer $fork_block_arg 
+    fi
+
 test:
     forge build
     forge test
     just simulate-all-templates
+
+########################
+## Helper functions ##
+########################
+# not intended for end users
+_fetch-rpc-url NETWORK="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    profile="${FOUNDRY_PROFILE:-default}"
+    case "{{NETWORK}}" in
+      sep)  yq eval ".profile.\"${profile}\".rpc_endpoints.sepolia" "$(git rev-parse --show-toplevel)/foundry.toml" ;;
+      eth)  yq eval ".profile.\"${profile}\".rpc_endpoints.mainnet" "$(git rev-parse --show-toplevel)/foundry.toml" ;;
+      *)    echo "Error: Invalid network '{{NETWORK}}'" >&2; exit 1 ;;
+    esac
+
+_fetch-fork-block-number:
+    #!/usr/bin/env bash
+    FORK_BLOCK_NUMBER=${FORK_BLOCK_NUMBER:-"-1"}
+    if [ "${FORK_BLOCK_NUMBER}" = "-1" ]; then
+        fork_block_arg=""
+    else
+        echo "⏳ Using fork block number from env: ${FORK_BLOCK_NUMBER}" >&2
+        echo "--fork-block-number ${FORK_BLOCK_NUMBER}"
+    fi
+
+_fetch-signer hdPath:
+    #!/usr/bin/env bash
+    SIMULATE_WITHOUT_LEDGER=${SIMULATE_WITHOUT_LEDGER:-}
+    if [ -z "${SIMULATE_WITHOUT_LEDGER}" ]; then
+        signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+        echo "⏳ Simulating with ledger account: ${signer}" >&2
+    else
+        # Default signer: address(uint160(uint256(keccak256("foundry default caller"))))
+        signer="0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38"
+        echo "⏳ Simulating without ledger using the default foundry account: ${signer}" >&2
+    fi
+    echo "${signer}"
+
+[no-cd] 
+_fetch-safe whichSafe:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+    safe="0x0000000000000000000000000000000000000000" # Default to zero address for non-nested safes
+    if [ -n "{{whichSafe}}" ]; then
+        safe=$(bash ${root_dir}/src/improvements/script/get-safe.sh $PWD "{{whichSafe}}")
+        echo "⏳ You're simulating as safe: $safe ({{whichSafe}})" >&2
+    fi
+    echo "${safe}"
