@@ -142,6 +142,15 @@ contract TaskManager is Script {
             );
 
             address ownerAddress = optionalOwnerAddress != address(0) ? optionalOwnerAddress : owners[0];
+
+            if (optionalOwnerAddress == address(0)) {
+                string memory warn = string("[WARN]").yellow().bold();
+                // forgefmt: disable-start
+                console.log(line.yellow().bold());
+                console.log(string.concat(warn, " No safe specified for nested task. Using first owner address: ", vm.toString(ownerAddress), " ", warn));
+                console.log(line.yellow().bold());
+                // forgefmt: disable-end
+            }
             // forgefmt: disable-start
             console.log(string.concat("SIMULATING NESTED TASK (", taskName, ") FOR OWNER: ", vm.toString(ownerAddress), " ON ", formattedParentMultisig));
             // forgefmt: disable-end
@@ -156,6 +165,7 @@ contract TaskManager is Script {
             );
             (accesses,) = task.signFromChildMultisig(config.configPath, ownerAddress);
         } else {
+            require(optionalOwnerAddress == address(0), "TaskManager: Must not specify a safe for non-nested tasks.");
             // forgefmt: disable-start
             console.log(string.concat("SIMULATING SINGLE TASK: ", taskName, " ON ", formattedParentMultisig));
             console.log(line.green().bold());
