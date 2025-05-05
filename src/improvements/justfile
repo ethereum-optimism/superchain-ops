@@ -234,6 +234,7 @@ simulate whichSafe="" hdPath="0":
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
+    root_just_file="${root_dir}/src/improvements/justfile"
 
     echo -e "\033[42m                                         \033[0m"
     echo -e "\033[42m     superchain-ops task simulation      \033[0m"
@@ -258,10 +259,11 @@ simulate whichSafe="" hdPath="0":
 
     network=$(basename "$(dirname "$PWD")")
     export FOUNDRY_PROFILE="${FOUNDRY_PROFILE:-default}"
-    ETH_RPC_URL=$(just _fetch-rpc-url $network)
-    safe=$(just _fetch-safe "{{whichSafe}}")
-    signer=$(just _fetch-signer "{{hdPath}}")
-    fork_block_arg=$(just _fetch-fork-block-number)
+    # ETH_RPC_URL=$(just _fetch-rpc-url $network)
+    ETH_RPC_URL=$(just --justfile="$root_just_file" _fetch-rpc-url "$network")
+    safe=$(just --justfile="$root_just_file" _fetch-safe "{{whichSafe}}")
+    signer=$(just --justfile="$root_just_file" _fetch-signer "{{hdPath}}")
+    fork_block_arg=$(just --justfile="$root_just_file" _fetch-fork-block-number)
     task_path=$(PWD)
 
     echo "⏳ Task simulation in progress. Some tasks take longer than others..."
