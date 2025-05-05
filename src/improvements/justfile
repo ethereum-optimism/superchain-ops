@@ -264,7 +264,7 @@ simulate whichSafe="" hdPath="0":
     safe=$(just --justfile="$root_just_file" _fetch-safe "{{whichSafe}}")
     signer=$(just --justfile="$root_just_file" _fetch-signer "{{hdPath}}")
     fork_block_arg=$(just --justfile="$root_just_file" _fetch-fork-block-number)
-    task_path=$(PWD)
+    task_path="$PWD"
 
     echo "⏳ Task simulation in progress. Some tasks take longer than others..."
     if [ -n "$task_path" ]; then
