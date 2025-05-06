@@ -39,7 +39,6 @@ parameters:
     type: string
     default: "__not_set__"
 
-
 commands:
   notify-failures-on-develop:
     description: "Notify Slack"
@@ -236,6 +235,23 @@ jobs:
             just simulate-council
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
+
+  stacked_simulation:
+    description: "Runs a stacked simulation"
+    parameters:
+      network:
+        type: string
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - utils/checkout-with-mise
+      - run:
+          name: "Run stacked simulation for network: <<parameters.network>>"
+          command: |
+            just install
+            (cd src/improvements && just simulate-stack <<parameters.network>>)
+      - notify-failures-on-develop:
+          mentions: "@security-team"
 
   just_simulate_nested:
     description: "Runs simulations of a nested task"
@@ -515,69 +531,13 @@ workflows:
       # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
       # - just_simulate_sc_rehearsal_1
 
-      # U14 Mainnet OPCM v3.0.0: op, soneium, ink - foundation
-      - just_simulate_nested_improvements:
-          name: "simulate nested eth/003-opcm-upgrade-v300-op-ink-soneium foundation"
-          task: "/eth/003-opcm-upgrade-v300-op-ink-soneium"
-          signer: "foundation"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
 
-      # U14 Mainnet OPCM v3.0.0: op, soneium, ink - council
-      - just_simulate_nested_improvements:
-          name: "simulate nested eth/003-opcm-upgrade-v300-op-ink-soneium council"
-          task: "/eth/003-opcm-upgrade-v300-op-ink-soneium"
-          signer: "council"
-
-      # U14 Mainnet Base Upgrade - Child-Safe-1
-      - just_simulate_nested_improvements:
-          name: "simulate nested eth/004-opcm-upgrade-v300-base child-safe-1"
-          task: "/eth/004-opcm-upgrade-v300-base"
-          signer: "child-safe-1"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-
-      # U14 Mainnet Base Upgrade - Child-Safe-2
-      - just_simulate_nested_improvements:
-          name: "simulate nested eth/004-opcm-upgrade-v300-base child-safe-2"
-          task: "/eth/004-opcm-upgrade-v300-base"
-          signer: "child-safe-2"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-    
-      # U14 Mainnet Unichain Upgrade - Child-Safe-2
-      - just_simulate_nested_improvements:
-          name: "simulate nested eth/005-opcm-upgrade-v300-uni child-safe-2"
-          task: "/eth/005-opcm-upgrade-v300-uni"
-          signer: "child-safe-2"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-
-      # U14 Mainnet Unichain Upgrade - Child-Safe-3
-      - just_simulate_nested_improvements:
-          name: "simulate nested eth/005-opcm-upgrade-v300-uni child-safe-3"
-          task: "/eth/005-opcm-upgrade-v300-uni"
-          signer: "child-safe-3"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-
-      # Gas Params Upgrade - FoundationUpgradeSafe
-      - just_simulate_single_improvements:
-          name: "simulate single eth/006-gas-params-op"
-          task: "/eth/006-gas-params-op"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-
-      - just_simulate_nested:
-          task: "/eth/zora-002-fp-upgrade"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
 
       - just_simulate_nested:
           task: "/eth/arena-z-001-fp-holocene-upgrade"
           context:
             - circleci-repo-readonly-authenticated-github-token
-
+          
       - just_simulate_sc_rehearsal_2:
           context:
             - circleci-repo-readonly-authenticated-github-token
@@ -588,7 +548,7 @@ workflows:
       - simulate_sequence:
           name: simulate_sequence_eth
           network: "eth"
-          tasks: "zora-002-fp-upgrade 003-opcm-upgrade-v300 004-opcm-upgrade-v300 005-opcm-upgrade-v300-uni 006-gas-params-op arena-z-001"
+          tasks: "arena-z-001"
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
@@ -600,6 +560,27 @@ workflows:
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
+
+      # Stacked simulations for superchain-ops on Mainnet.
+      - stacked_simulation:
+          name: stacked_simulation_eth
+          network: "eth"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+          filters:
+            branches:
+              only: main
+
+      # Stacked simulations for superchain-ops on Sepolia.
+      - stacked_simulation:
+          name: stacked_simulation_sep
+          network: "sep"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+          filters:
+            branches:
+              only: main
+
   close-issue-workflow:
     when:
       and:
@@ -608,10 +589,10 @@ workflows:
         - equal: [<< pipeline.parameters.github-event-action >>, "labeled"]
     jobs:
       - close-issue:
-         label_name: "auto-close-trivial-contribution"
-         message: "Thank you for your interest in contributing!
-                At this time, we are not accepting contributions that primarily fix spelling, stylistic, or grammatical errors in documentation, code, or elsewhere.
-                Please check our [contribution guidelines](https://github.com/ethereum-optimism/optimism/blob/develop/CONTRIBUTING.md#contributions-related-to-spelling-and-grammar) for more information.
-                This issue will be closed now."
-         context:
-          - circleci-repo-superchain-ops
+          label_name: "auto-close-trivial-contribution"
+          message: "Thank you for your interest in contributing!
+            At this time, we are not accepting contributions that primarily fix spelling, stylistic, or grammatical errors in documentation, code, or elsewhere.
+            Please check our [contribution guidelines](https://github.com/ethereum-optimism/optimism/blob/develop/CONTRIBUTING.md#contributions-related-to-spelling-and-grammar) for more information.
+            This issue will be closed now."
+          context:
+            - circleci-repo-superchain-ops

@@ -27,7 +27,8 @@ contract L2TaskBaseTemplate is L2TaskBase {
         return "";
     }
 
-    /// @notice Returns the storage write permissions required for this task
+    /// @notice Returns the storage write permissions required for this task. This is an array of
+    /// contract names that are expected to be written to during the execution of the task.
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
         require(false, "TODO: Implement with the correct storage writes.");
         return new string[](0);

@@ -149,3 +149,82 @@ simulate-verify-task TASK="":
     nested_safe_name="foundation"
 
     ${root_dir}/src/improvements/script/simulate-verify-task.sh {{TASK}} $nested_safe_name
+
+simulate-stack NETWORK="" TASK="" OWNER_ADDRESS="0x0000000000000000000000000000000000000000":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+
+    echo -e "\033[42m                                         \033[0m"
+    echo -e "\033[42m    superchain-ops stacked simulation    \033[0m"
+    echo -e "\033[42m                                         \033[0m"
+
+    show_usage() {
+        echo
+        echo "Usage: just simulate-stack <network> [task] [owner-address]"
+        echo "Available arguments:"
+        echo "  • <network> - The network to simulate the stack for (e.g. 'sep', 'eth')"
+        echo "  • [task]    - The task to simulate the stack for (e.g. '001-task-name')"
+        echo "  • [owner-address]  - This is the address of the owner on the parent multisig that you want to simulate as. If not specified, the first owner will be used."
+        echo
+    }
+
+    export FOUNDRY_PROFILE="${FOUNDRY_PROFILE:-default}"
+
+    case "{{NETWORK}}" in
+        sep)
+            ETH_RPC_URL=$(yq eval ".profile.\"${FOUNDRY_PROFILE}\".rpc_endpoints.sepolia" "${root_dir}/foundry.toml")
+            ;;
+        eth)
+            ETH_RPC_URL=$(yq eval ".profile.\"${FOUNDRY_PROFILE}\".rpc_endpoints.mainnet" "${root_dir}/foundry.toml")
+            ;;
+        *)
+            echo -e "\n\033[31mError: Invalid network '{{NETWORK}}'\033[0m"
+            show_usage
+            exit 1
+            ;;
+    esac
+    
+    echo -e "\n⏳ Stacked Task simulation in progress. This may take a while..."
+    if [ -z "{{TASK}}" ]; then
+        echo -e "⏳ You are simulating all tasks for network: {{NETWORK}}\n"
+        just list-stack {{NETWORK}}
+        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string)" {{NETWORK}} --ffi --rpc-url $ETH_RPC_URL
+    else
+        echo -e "⏳ You are simulating the task: {{TASK}} for network: {{NETWORK}}\n"
+        just list-stack {{NETWORK}} {{TASK}}
+        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address)" {{NETWORK}} {{TASK}} {{OWNER_ADDRESS}} --ffi --rpc-url $ETH_RPC_URL
+    fi
+    echo -e "\n⚠️ Please note: Some Tenderly links may not work when running a stacked simulation.⚠️"
+
+
+list-stack NETWORK="" TASK="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+
+    show_usage() {
+        echo
+        echo "Usage: just list-stack <network> [task]"
+        echo "This command will list all the tasks that can be simulated for a given network."
+        echo "Available arguments:"
+        echo "  • <network> - The network to simulate the stack for (e.g. 'sep', 'eth')"
+        echo "  • [task]    - The task to simulate the stack for (e.g. '001-task-name')"
+        echo
+    }
+
+    # Check if network arg exists
+    if [ -z "{{NETWORK}}" ]; then
+        echo -e "\n\033[31mError: No network specified\033[0m"
+        show_usage
+        exit 1
+    fi
+
+    # Check if task arg exists
+    if [ -z "{{TASK}}" ]; then
+        echo "Listing all tasks for network: {{NETWORK}}"
+        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string)" {{NETWORK}}
+    else
+        echo "Listing all tasks for network: {{NETWORK}} up to task: {{TASK}}"
+        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string,string)" {{NETWORK}} {{TASK}}
+    fi

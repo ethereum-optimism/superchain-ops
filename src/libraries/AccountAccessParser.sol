@@ -13,7 +13,7 @@ import {Utils} from "src/libraries/Utils.sol";
 
 /// @notice Parses account accesses into decoded transfers and state diffs.
 /// The core methods intended to be part of the public interface are `decodeAndPrint`, `decode`,
-/// `getUniqueWrites`, and `getStateDiffFor`. Example usage:
+/// `getUniqueWrites`, `getStateDiffFor`, and `normalizedStateDiffHash`. Example usage:
 ///
 /// ```solidity
 /// contract MyContract {
@@ -37,6 +37,9 @@ import {Utils} from "src/libraries/Utils.sol";
 ///
 ///         // Get all new contracts created.
 ///         address[] memory newContracts = accountAccesses.getNewContracts();
+///
+///         // Get the normalized state diff hash.
+///         bytes32 normalizedStateDiffHash = accountAccesses.normalizedStateDiffHash(parentMultisig, txHash);
 ///     }
 /// }
 /// ```
@@ -49,6 +52,11 @@ library AccountAccessParser {
     address internal constant ZERO = address(0);
     address internal constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
     Vm internal constant vm = Vm(VM_ADDRESS);
+
+    /// It's possible for there to be more state changes than number of accesses. We choose an arbitarily large number
+    /// to ensure we have enough space to capture all state changes for any given access trace. If we exceed this limit,
+    /// the code will: panic: array out-of-bounds access.
+    uint256 internal constant MAX_STATE_CHANGES = 1000;
 
     struct StateDiff {
         bytes32 slot;
@@ -272,9 +280,7 @@ library AccountAccessParser {
         address[] memory uniqueAddresses = getUniqueWrites({accesses: _accountAccesses, _sort: false});
 
         // Create a temporary array to store normalized state changes.
-        // We set the size to 1000 because we will likely never have more than 1000 state changes.
-        uint256 maxStateChanges = 1000;
-        AccountStateDiff[] memory normalizedChanges = new AccountStateDiff[](maxStateChanges);
+        AccountStateDiff[] memory normalizedChanges = new AccountStateDiff[](MAX_STATE_CHANGES);
         uint256 normalizedCount = 0;
 
         // Process each account with storage writes.
@@ -293,7 +299,7 @@ library AccountAccessParser {
                         lastNew: diff.newValue
                     });
                     normalizedCount++;
-                    require(normalizedCount < maxStateChanges, "AccountAccessParser: Max state changes reached");
+                    require(normalizedCount < MAX_STATE_CHANGES, "AccountAccessParser: Max state changes reached");
                 }
             }
         }
@@ -414,7 +420,7 @@ library AccountAccessParser {
         returns (address[] memory uniqueAccounts)
     {
         // Temporary array sized to maximum possible length.
-        address[] memory temp = new address[](accesses.length);
+        address[] memory temp = new address[](MAX_STATE_CHANGES);
         uint256 count = 0;
         for (uint256 i = 0; i < accesses.length; i++) {
             bool hasChangedWrite = false;
@@ -460,7 +466,7 @@ library AccountAccessParser {
         returns (StateDiff[] memory diffs)
     {
         // Over-allocate to the maximum possible number of diffs.
-        StateDiff[] memory temp = new StateDiff[](accesses.length);
+        StateDiff[] memory temp = new StateDiff[](MAX_STATE_CHANGES);
         uint256 diffCount = 0;
 
         for (uint256 i = 0; i < accesses.length; i++) {
@@ -487,7 +493,6 @@ library AccountAccessParser {
                 }
             }
         }
-
         // Filter out diffs where the net change is zero.
         uint256 finalCount = 0;
         for (uint256 i = 0; i < diffCount; i++) {
@@ -578,6 +583,7 @@ library AccountAccessParser {
         address currentAddress = address(0xdead);
         for (uint256 i = 0; i < _stateDiffs.length; i++) {
             if (currentAddress != _stateDiffs[i].who) {
+                console.log("");
                 console.log("---"); // Add markdown horizontal rule.
                 string memory currentChainId = _stateDiffs[i].l2ChainId == 0
                     ? ""
@@ -593,19 +599,23 @@ library AccountAccessParser {
             DecodedStateDiff memory state = _stateDiffs[i];
             console.log("\n- **Key:**          `%s`", vm.toString(state.raw.slot));
             if (bytes(state.decoded.kind).length == 0) {
-                console.log("- **Before:**     `%s`", vm.toString(state.raw.oldValue));
-                console.log("- **After:**     `%s`", vm.toString(state.raw.newValue));
-                console.log("- **Summary:**           %s", "");
-                console.log("- **Detail:**            %s", "");
-                console.log(
-                    "\n**<TODO: Slot was not automatically decoded. Please provide a summary with thorough detail then remove this line.>**"
-                );
+                string memory optionalSummary = bytes(state.decoded.summary).length > 0 ? state.decoded.summary : "";
+                string memory optionalDetail = bytes(state.decoded.detail).length > 0 ? state.decoded.detail : "";
+                console.log("- **Before:** `%s`", vm.toString(state.raw.oldValue));
+                console.log("- **After:** `%s`", vm.toString(state.raw.newValue));
+                console.log("- **Summary:** %s", optionalSummary);
+                console.log("- **Detail:** %s", optionalDetail);
+                if (bytes(optionalDetail).length == 0) {
+                    console.log(
+                        "\n**<TODO: Slot was not automatically decoded. Please provide a summary with thorough detail then remove this line.>**"
+                    );
+                }
             } else {
-                console.log("- **Decoded Kind:**      `%s`", state.decoded.kind);
+                console.log("- **Decoded Kind:** `%s`", state.decoded.kind);
                 console.log("- **Before:** `%s`", state.decoded.oldValue);
                 console.log("- **After:** `%s`", state.decoded.newValue);
-                console.log("- **Summary:**           %s", state.decoded.summary);
-                console.log("- **Detail:**            %s", state.decoded.detail);
+                console.log("- **Summary:** %s", state.decoded.summary);
+                console.log("- **Detail:** %s", state.decoded.detail);
             }
             console.log("\n**<TODO: Insert links for this state change then remove this line.>**");
             if (state.who == _parentMultisig) {
@@ -890,40 +900,69 @@ library AccountAccessParser {
 
         // Iterate over the storage layout and look for the slot.
         for (uint256 i = 0; i < layout.length; i++) {
-            // If the slot is tightly packed do not decode it. Leave this as a task for the developer.
+            // Decode the slot if it is shared and add the info to the summary and detail sections.
             if (isSlotShared(layout, _slot)) {
-                return DecodedSlot({kind: "", oldValue: "", newValue: "", summary: "", detail: ""});
+                return decodeSharedSlot(layout, _slot, _oldValue, _newValue);
             }
 
             if (vm.parseUint(layout[i]._slot) == uint256(_slot)) {
-                // Decode the 32-byte value based on the size and offset of the slot.
-                string memory kind = layout[i]._type;
-                uint256 offset = layout[i]._offset;
-                string memory oldValue;
-                string memory newValue;
-                if (kind.eq("bool")) {
-                    oldValue = toBool(_oldValue, offset);
-                    newValue = toBool(_newValue, offset);
-                } else if (kind.eq("address")) {
-                    oldValue = toAddress(_oldValue, offset);
-                    newValue = toAddress(_newValue, offset);
-                    // We're not exhaustively handling all uint types here.
-                    // We will add more as needed.
-                } else if (kind.contains("uint32")) {
-                    oldValue = toUint32(_oldValue, offset);
-                    newValue = toUint32(_newValue, offset);
-                } else if (kind.contains("uint64")) {
-                    oldValue = toUint64(_oldValue, offset);
-                    newValue = toUint64(_newValue, offset);
-                } else if (kind.contains("uint256")) {
-                    oldValue = toUint256(_oldValue, offset);
-                    newValue = toUint256(_newValue, offset);
-                }
-
-                string memory label = layout[i]._label;
-                return DecodedSlot({kind: kind, oldValue: oldValue, newValue: newValue, summary: label, detail: ""});
+                return decodeSlot(layout[i], _oldValue, _newValue);
             }
         }
+    }
+
+    /// @notice Decodes a shared storage slot.
+    function decodeSharedSlot(JsonStorageLayout[] memory layout, bytes32 slot, bytes32 _oldValue, bytes32 _newValue)
+        internal
+        pure
+        returns (DecodedSlot memory decoded_)
+    {
+        JsonStorageLayout[] memory layouts = getSharedSlotLayouts(layout, slot);
+        string memory summary = "Multiple variables share this storage slot. Details below.";
+        string memory detail;
+        for (uint256 j = 0; j < layouts.length; j++) {
+            DecodedSlot memory decoded = decodeSlot(layouts[j], _oldValue, _newValue);
+            if (!decoded.oldValue.eq(decoded.newValue)) {
+                string memory kind = string.concat("(`", decoded.kind, "`)");
+                // forgefmt: disable-next-line
+                detail = string.concat(detail, "", kind, " ", layouts[j]._label, " `", decoded.oldValue, "` &rarr; `", decoded.newValue, "`, ");
+            }
+        }
+        return DecodedSlot({kind: "", oldValue: "", newValue: "", summary: summary, detail: detail});
+    }
+
+    /// @notice Decodes a non-shared storage slot.
+    function decodeSlot(JsonStorageLayout memory item, bytes32 _oldValue, bytes32 _newValue)
+        internal
+        pure
+        returns (DecodedSlot memory decoded_)
+    {
+        // Decode the 32-byte value based on the size and offset of the slot.
+        string memory kind = item._type;
+        uint256 offset = item._offset;
+        string memory oldValue;
+        string memory newValue;
+        if (kind.eq("bool")) {
+            oldValue = toBool(_oldValue, offset);
+            newValue = toBool(_newValue, offset);
+        } else if (kind.eq("address")) {
+            oldValue = toAddress(_oldValue, offset);
+            newValue = toAddress(_newValue, offset);
+            // We're not exhaustively handling all uint types here.
+            // We will add more as needed.
+        } else if (kind.contains("uint32")) {
+            oldValue = toUint32(_oldValue, offset);
+            newValue = toUint32(_newValue, offset);
+        } else if (kind.contains("uint64")) {
+            oldValue = toUint64(_oldValue, offset);
+            newValue = toUint64(_newValue, offset);
+        } else if (kind.contains("uint256")) {
+            oldValue = toUint256(_oldValue, offset);
+            newValue = toUint256(_newValue, offset);
+        }
+
+        string memory label = item._label;
+        return DecodedSlot({kind: kind, oldValue: oldValue, newValue: newValue, summary: label, detail: ""});
     }
 
     /// @notice Returns true if a storage slot appears more than once in the layout, indicating tight packing.
@@ -937,6 +976,33 @@ library AccountAccessParser {
             }
         }
         return false;
+    }
+
+    function getSharedSlotLayouts(JsonStorageLayout[] memory layout, bytes32 slot)
+        internal
+        pure
+        returns (JsonStorageLayout[] memory layouts_)
+    {
+        // Count matching items
+        uint256 occurrences = 0;
+        for (uint256 i = 0; i < layout.length; i++) {
+            if (vm.parseUint(layout[i]._slot) == uint256(slot)) {
+                occurrences++;
+            }
+        }
+
+        // Create appropriately sized array
+        layouts_ = new JsonStorageLayout[](occurrences);
+
+        uint256 resultIndex = 0;
+        for (uint256 i = 0; i < layout.length; i++) {
+            if (vm.parseUint(layout[i]._slot) == uint256(slot)) {
+                layouts_[resultIndex] = layout[i];
+                resultIndex++;
+            }
+        }
+
+        return layouts_;
     }
 
     /// @notice Given the path to a JSON file and a target address, returns the first chain ID and

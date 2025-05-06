@@ -17,6 +17,7 @@ import {DisputeGameUpgradeTemplate} from "test/tasks/mock/template/DisputeGameUp
 import {OPCMUpgradeV200} from "src/improvements/template/OPCMUpgradeV200.sol";
 import {MockDisputeGameTask} from "test/tasks/mock/MockDisputeGameTask.sol";
 import {DisputeGameUpgradeTemplate} from "test/tasks/mock/template/DisputeGameUpgradeTemplate.sol";
+import {MultisigTaskTestHelper} from "test/tasks/MultisigTask.t.sol";
 
 /// @notice This test is used to test the nested multisig task.
 contract NestedMultisigTaskTest is Test {
@@ -46,9 +47,9 @@ contract NestedMultisigTaskTest is Test {
         returns (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions)
     {
         multisigTask = new DisputeGameUpgradeTemplate();
-        string memory configFilePath = createTempTomlFile(taskConfigToml);
+        string memory configFilePath = MultisigTaskTestHelper.createTempTomlFile(taskConfigToml);
         (accountAccesses, actions) = multisigTask.signFromChildMultisig(configFilePath, childMultisig);
-        removeFile(configFilePath);
+        MultisigTaskTestHelper.removeFile(configFilePath);
         addrRegistry = multisigTask.addrRegistry();
         superchainAddrRegistry = SuperchainAddressRegistry(AddressRegistry.unwrap(addrRegistry));
     }
@@ -102,9 +103,9 @@ contract NestedMultisigTaskTest is Test {
             // dataToSign is the data that the EOA owners of the child multisig has to sign to help
             // execute the child multisig approval of hashToApproveByChildMultisig
             bytes memory dataToSign = getNestedDataToSign(childOwnerMultisigs[i], actions);
-            // nonce is not decremented by 1 because in task simulation approveHash is called by
-            // the child multisig which does not increment the nonce
-            uint256 nonce = IGnosisSafe(childOwnerMultisigs[i]).nonce();
+            // Nonce is not decremented by 1 because decrementNonceHelper is called in getNestedDataToSign.
+            uint256 nonce = (IGnosisSafe(childOwnerMultisigs[i]).nonce());
+
             bytes memory expectedDataToSign = IGnosisSafe(childOwnerMultisigs[i]).encodeTransactionData({
                 to: MULTICALL3_ADDRESS,
                 value: 0,
@@ -219,9 +220,9 @@ contract NestedMultisigTaskTest is Test {
 
             // execute the approve hash call with the signatures
             multisigTask = new DisputeGameUpgradeTemplate();
-            string memory configFilePath = createTempTomlFile(taskConfigToml);
+            string memory configFilePath = MultisigTaskTestHelper.createTempTomlFile(taskConfigToml);
             multisigTask.approveFromChildMultisig(configFilePath, childMultisig, packedSignaturesChild);
-            removeFile(configFilePath);
+            MultisigTaskTestHelper.removeFile(configFilePath);
         }
 
         // execute the task
@@ -230,9 +231,9 @@ contract NestedMultisigTaskTest is Test {
         /// snapshot before running the task so we can roll back to this pre-state
         uint256 newSnapshot = vm.snapshotState();
 
-        string memory config = createTempTomlFile(taskConfigToml);
+        string memory config = MultisigTaskTestHelper.createTempTomlFile(taskConfigToml);
         (accountAccesses, actions) = multisigTask.signFromChildMultisig(config, SECURITY_COUNCIL_CHILD_MULTISIG);
-        removeFile(config);
+        MultisigTaskTestHelper.removeFile(config);
 
         // Check that the implementation is upgraded correctly
         assertEq(
@@ -246,9 +247,9 @@ contract NestedMultisigTaskTest is Test {
 
         /// Now run the executeRun flow
         vm.revertToState(newSnapshot);
-        string memory taskConfigFilePath = createTempTomlFile(taskConfigToml);
+        string memory taskConfigFilePath = MultisigTaskTestHelper.createTempTomlFile(taskConfigToml);
         multisigTask.executeRun(taskConfigFilePath, prepareSignatures(parentMultisig, taskHash));
-        removeFile(taskConfigFilePath);
+        MultisigTaskTestHelper.removeFile(taskConfigFilePath);
         addrRegistry = multisigTask.addrRegistry();
 
         // Check that the implementation is upgraded correctly for a second time
@@ -396,11 +397,9 @@ contract NestedMultisigTaskTest is Test {
         multisigTask.signFromChildMultisig(configFilePath, SECURITY_COUNCIL_CHILD_MULTISIG);
     }
 
-    function getNestedDataToSign(address owner, MultisigTask.Action[] memory actions)
-        internal
-        view
-        returns (bytes memory)
-    {
+    function getNestedDataToSign(address owner, MultisigTask.Action[] memory actions) internal returns (bytes memory) {
+        // Decrement the nonces by 1 because in task simulation child multisig nonces are incremented.
+        MultisigTaskTestHelper.decrementNonceAfterSimulation(owner);
         bytes memory callData = multisigTask.generateApproveMulticallData(actions);
         return multisigTask.getEncodedTransactionData(owner, callData);
     }
@@ -409,18 +408,5 @@ contract NestedMultisigTaskTest is Test {
         // prepend the prevalidated signatures to the signatures
         address[] memory approvers = Signatures.getApprovers(_safe, hash);
         return Signatures.genPrevalidatedSignatures(approvers);
-    }
-
-    function createTempTomlFile(string memory tomlContent) internal returns (string memory) {
-        string memory randomBytes = LibString.toHexString(uint256(bytes32(vm.randomBytes(32))));
-        string memory fileName = string.concat(randomBytes, ".toml");
-        vm.writeFile(fileName, tomlContent);
-        return fileName;
-    }
-
-    /// @notice This function is used to remove a file. The reason we use a try catch
-    /// is because sometimes the file may not exist and this leads to flaky tests.
-    function removeFile(string memory fileName) internal {
-        try vm.removeFile(fileName) {} catch {}
     }
 }
