@@ -79,6 +79,9 @@ sign whichSafe hdPath='0':
   echo "Signing with: ${signer}"
   echo ""
 
+  # Reverts if signer is not an owner on the safe.
+  forge script TaskManager --rpc-url ${rpcUrl} --sig "requireSignerOnSafe(address,address)" $signer $safe
+
   echo "⏳ Task signing in progress. Some tasks take longer than others..."
   forge build
   # Using the eip712sign within the repo folder since eip712sign was installed there in ./justfile.
