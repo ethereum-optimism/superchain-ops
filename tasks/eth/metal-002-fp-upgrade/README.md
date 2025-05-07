@@ -1,6 +1,6 @@
 # Metal Mainnet Permissioned Fault Proofs
 
-Status: [DRAFT]
+Status: [DRAFT, NOT READY TO SIGN]
 
 ## Objective
 
