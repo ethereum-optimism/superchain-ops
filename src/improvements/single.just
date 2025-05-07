@@ -91,14 +91,14 @@ execute hdPath='0':
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
   
   echo "Using script ${script}"
-  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  # sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
 
   echo "⏳ Task execution in progress. Some tasks take longer than others..."
   forge build
   forge script --fork-url ${rpcUrl} ${script} \
     --sig "executeRun(string,bytes)" ${config} ${signatures} \
-    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
-    --sender ${sender}
+    --broadcast \
+    --private-key $EVM_SAFETY_PRIVATE_KEY
 
 sign_and_execute_in_anvil parentSafe:
   #!/usr/bin/env bash
