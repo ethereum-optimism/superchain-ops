@@ -165,6 +165,23 @@ contract TaskManager is Script {
         }
     }
 
+    /// @notice Requires that a signer is an owner on a safe.
+    function requireSignerOnSafe(address signer, string memory taskPath) public {
+        TaskConfig memory config = parseConfig(taskPath);
+        requireSignerOnSafe(signer, config.parentMultisig);
+    }
+
+    /// @notice Requires that a signer is an owner on a safe.
+    function requireSignerOnSafe(address signer, address safe) public view {
+        address[] memory owners = IGnosisSafe(safe).getOwners();
+        require(
+            contains(owners, signer),
+            string.concat(
+                "TaskManager: signer ", vm.toString(signer), " is not an owner on the safe: ", vm.toString(safe)
+            )
+        );
+    }
+
     /// @notice Sets the TENDERLY_GAS environment variable for the task if it exists.
     function setTenderlyGasEnv(string memory basePath) public {
         string memory envFile = string.concat(basePath, "/", ".env");
