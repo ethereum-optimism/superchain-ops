@@ -20,8 +20,8 @@ The proposal #12 was:
 - [X] [Posted](https://gov.optimism.io/t/upgrade-proposal-12-l1-pectra-readiness/9706) on the governance forum.
 - [x] Posted on the [governance forum](https://gov.optimism.io/t/upgrade-proposal-12-l1-pectra-readiness/9706).
 - [x] Approved by [Token House voting](https://vote.optimism.io/proposals/38506287861710446593663598830868940900144818754960277981092485594195671514829).
-- [ ] Not vetoed by the Citizens' house.
-- [ ] Executed on OP Mainnet.
+- [x] Not vetoed by the Citizens' house.
+- [x] Executed on OP Mainnet.
 
 
 This upgrade does the following: 
@@ -35,6 +35,7 @@ This upgrade does the following:
 - `MIPS` - `0x5fE03a12C1236F9C22Cb6479778DDAa4bce6299C`
 - `FaultDisputeGame` - `0x2DabFf87A9a634f6c769b983aFBbF4D856aDD0bF`
 - `PermissionedDisputeGame` - `0x1380Cc0E11Bfe6b5b399D97995a6B3D158Ed61a6`
+- New proposer address - `0xA2Acb8142b64fabda103DA19b0075aBB56d29FbD`
 
 ## Simulation
 
