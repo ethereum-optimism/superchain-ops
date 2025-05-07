@@ -12,6 +12,7 @@ import {SuperchainRegistry} from "script/verification/Verification.s.sol";
 import {BytecodeComparison} from "src/libraries/BytecodeComparison.sol";
 import {GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {IProxy} from "@eth-optimism-bedrock/interfaces/universal/IProxy.sol";
+import {IProxyAdmin} from "@eth-optimism-bedrock/interfaces/universal/IProxyAdmin.sol";
 import {IDisputeGameFactory} from "@eth-optimism-bedrock/interfaces/dispute/IDisputeGameFactory.sol";
 import {IPermissionedDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute/IPermissionedDisputeGame.sol";
 import {IAnchorStateRegistry} from "@eth-optimism-bedrock/interfaces/dispute/IAnchorStateRegistry.sol";
@@ -25,7 +26,6 @@ import {IAddressManager} from "@eth-optimism-bedrock/interfaces/legacy/IAddressM
 import {IL1ChugSplashProxy} from "@eth-optimism-bedrock/interfaces/legacy/IL1ChugSplashProxy.sol";
 import {IOptimismMintableERC20Factory} from
     "@eth-optimism-bedrock/interfaces/universal/IOptimismMintableERC20Factory.sol";
-
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
 interface ISystemConfigLegacy is ISystemConfig {
@@ -34,6 +34,7 @@ interface ISystemConfigLegacy is ISystemConfig {
 
 contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNestedSign, SuperchainRegistry {
     using AccountAccessParser for VmSafe.AccountAccess[];
+
     /// @notice Expected address for the AnchorStateRegistry proxy.
     IAnchorStateRegistry expectedAnchorStateRegistryProxy =
         IAnchorStateRegistry(vm.envAddress("EXPECTED_ANCHOR_STATE_REGISTRY_PROXY"));
@@ -62,8 +63,17 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
     IDisputeGameFactory expectedDisputeGameFactoryProxy =
         IDisputeGameFactory(vm.envAddress("EXPECTED_DISPUTE_GAME_FACTORY_PROXY"));
 
+    /// @notice Expected prestate.
+    bytes32 expectedPrestate = vm.envBytes32("EXPECTED_PRESTATE");
+
+    /// @notice Expected guardian address.
+    address expectedGuardian = vm.envAddress("EXPECTED_GUARDIAN");
+
+    /// @notice Expected proposer address.
+    address expectedProposer = vm.envAddress("EXPECTED_PROPOSER");
+
     /// @notice Script constructor.
-    constructor() SuperchainRegistry("sepolia", "zora", "v1.8.0-rc.4") {}
+    constructor() SuperchainRegistry("sepolia", "metal", "v1.8.0-rc.4") {}
 
     /// @notice Sets up the script.
     function setUp() public view {
@@ -73,11 +83,10 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
     /// @notice Returns addresses that are allowed to not have any code.
     /// @return allowed_ The addresses that are allowed to not have any code.
     function getCodeExceptions() internal view override returns (address[] memory allowed_) {
-        allowed_ = new address[](4);
-        allowed_[0] = ISystemConfig(proxies.SystemConfig).owner();
-        allowed_[1] = address(uint160(uint256(ISystemConfig(proxies.SystemConfig).batcherHash())));
-        allowed_[2] = ISystemConfig(proxies.SystemConfig).unsafeBlockSigner();
-        allowed_[3] = ISystemConfig(proxies.SystemConfig).batchInbox();
+        allowed_ = new address[](3);
+        allowed_[0] = address(uint160(uint256(ISystemConfig(proxies.SystemConfig).batcherHash())));
+        allowed_[1] = ISystemConfig(proxies.SystemConfig).unsafeBlockSigner();
+        allowed_[2] = ISystemConfig(proxies.SystemConfig).batchInbox();
     }
 
     /// @notice Returns addresses that are allowed to access storage.
@@ -120,13 +129,13 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
         checkPermissionedDisputeGame();
         console.log("All assertions passed!");
 
-        accesses.decodeAndPrint();
+        accesses.decodeAndPrint(address(0), bytes32(0));
     }
 
     /// @notice Checks the input to the script.
     function checkInputJson() internal view {
         string memory inputJson;
-        string memory path = "/tasks/sep/zora-002-fp-upgrade/input.json";
+        string memory path = "/tasks/sep/metal-002-fp-upgrade/input.json";
         try vm.readFile(string.concat(vm.projectRoot(), path)) returns (string memory data) {
             inputJson = data;
         } catch {
@@ -237,6 +246,9 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
 
         // Check that the OptimismPortal's l2Sender is the default sender.
         require(optimismPortal.l2Sender() == address(0xdead), "checkOptimismPortal-140");
+
+        // Check that the OptimismPortal's guardian is correct.
+        require(optimismPortal.guardian() == expectedGuardian, "checkOptimismPortal-160");
     }
 
     /// @notice Checks that the SystemConfig was handled correctly.
@@ -385,7 +397,15 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
             ),
             "checkAnchorStateRegistry-100"
         );
-    }
+
+        // Grab the ProxyAdminOwner address from the DisputeGameFactory.
+        vm.prank(address(0));
+        address proxyAdmin = IProxy(payable(address(expectedDisputeGameFactoryProxy))).admin();
+        address proxyAdminOwner = IProxyAdmin(proxyAdmin).owner();
+
+        // Check that the ProxyAdminOwner and DisputeGameFactoryProxyAdminOwner are the same.
+        require(proxyAdminOwner == _ownerSafe(), "checkAnchorStateRegistry-120");
+    }   
 
     /// @notice Checks that the DelayedWETH was handled correctly.
     function checkDelayedWETH() internal {
@@ -406,6 +426,14 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
 
         // Check that the DelayedWETH's SuperchainConfig reference is correct.
         require(address(expectedDelayedWETHProxy.config()) == proxies.SuperchainConfig, "checkDelayedWETH-60");
+
+        // Check that the DelayedWETH's ProxyAdminOwner is correct.
+        vm.prank(address(0));
+        address proxyAdmin = IProxy(payable(expectedDelayedWETHProxy)).admin();
+        address proxyAdminOwner = IProxyAdmin(proxyAdmin).owner();
+
+        // Check that the DelayedWETH's ProxyAdminOwner is correct.
+        require(proxyAdminOwner == _ownerSafe(), "checkDelayedWETH-80");
     }
 
     /// @notice Checks that the DisputeGameFactory was handled correctly.
@@ -438,6 +466,14 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
             address(expectedDisputeGameFactoryProxy.gameImpls(GameType.wrap(0))) == address(0),
             "checkDisputeGameFactory-100"
         );
+
+        // Check that the DisputeGameFactory's ProxyAdminOwner is correct.
+        vm.prank(address(0));
+        address proxyAdmin = IProxy(payable(address(expectedDisputeGameFactoryProxy))).admin();
+        address proxyAdminOwner = IProxyAdmin(proxyAdmin).owner();
+
+        // Check that the DisputeGameFactory's ProxyAdminOwner is correct.
+        require(proxyAdminOwner == _ownerSafe(), "checkDisputeGameFactory-120");
     }
 
     /// @notice Checks that the PermissionedDisputeGame was handled correctly.
@@ -445,30 +481,39 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
         // Check that the PermissionedDisputeGame version is correct.
         require(LibString.eq(expectedPermissionedDisputeGameImpl.version(), "1.3.1"), "checkPermissionedDisputeGame-20");
 
+        // Check that the PermissionedDisputeGame's prestate is correct.
+        require(expectedPermissionedDisputeGameImpl.absolutePrestate().raw() == expectedPrestate, "checkPermissionedDisputeGame-40");
+
+        // Check that the PermissionedDisputeGame's Challenger is correct.
+        // Should be the same as the reference implementation.
+        require(expectedPermissionedDisputeGameImpl.challenger() == comparisonPermissionedDisputeGameImpl.challenger(), "checkPermissionedDisputeGame-60");
+
         // Check that only bytecode diffs vs comparison contract are expected.
         BytecodeComparison.Diff[] memory diffs = new BytecodeComparison.Diff[](19);
         diffs[0] = BytecodeComparison.Diff({start: 1341, content: abi.encode(expectedDelayedWETHProxy)});
         diffs[1] = BytecodeComparison.Diff({start: 1411, content: abi.encode(chainConfig.challenger)});
         diffs[2] = BytecodeComparison.Diff({start: 1628, content: abi.encode(expectedAnchorStateRegistryProxy)});
-        diffs[3] = BytecodeComparison.Diff({start: 2254, content: abi.encode(chainConfig.proposer)});
-        diffs[4] = BytecodeComparison.Diff({start: 2714, content: abi.encode(chainConfig.chainId)});
-        diffs[5] = BytecodeComparison.Diff({start: 6150, content: abi.encode(expectedAnchorStateRegistryProxy)});
-        diffs[6] = BytecodeComparison.Diff({start: 6600, content: abi.encode(expectedDelayedWETHProxy)});
-        diffs[7] = BytecodeComparison.Diff({start: 6870, content: abi.encode(chainConfig.proposer)});
-        diffs[8] = BytecodeComparison.Diff({start: 6933, content: abi.encode(chainConfig.challenger)});
-        diffs[9] = BytecodeComparison.Diff({start: 7076, content: abi.encode(chainConfig.proposer)});
-        diffs[10] = BytecodeComparison.Diff({start: 8310, content: abi.encode(chainConfig.proposer)});
-        diffs[11] = BytecodeComparison.Diff({start: 8373, content: abi.encode(chainConfig.challenger)});
-        diffs[12] = BytecodeComparison.Diff({start: 9555, content: abi.encode(chainConfig.chainId)});
-        diffs[13] = BytecodeComparison.Diff({start: 10798, content: abi.encode(expectedDelayedWETHProxy)});
-        diffs[14] = BytecodeComparison.Diff({start: 13599, content: abi.encode(expectedDelayedWETHProxy)});
-        diffs[15] = BytecodeComparison.Diff({start: 13946, content: abi.encode(expectedAnchorStateRegistryProxy)});
-        diffs[16] = BytecodeComparison.Diff({start: 14972, content: abi.encode(expectedDelayedWETHProxy)});
+        diffs[3] = BytecodeComparison.Diff({start: 1999, content: abi.encode(expectedPrestate)});
+        diffs[4] = BytecodeComparison.Diff({start: 2254, content: abi.encode(expectedProposer)});
+        diffs[5] = BytecodeComparison.Diff({start: 2714, content: abi.encode(chainConfig.chainId)});
+        diffs[6] = BytecodeComparison.Diff({start: 6150, content: abi.encode(expectedAnchorStateRegistryProxy)});
+        diffs[7] = BytecodeComparison.Diff({start: 6600, content: abi.encode(expectedDelayedWETHProxy)});
+        diffs[8] = BytecodeComparison.Diff({start: 6870, content: abi.encode(expectedProposer)});
+        diffs[9] = BytecodeComparison.Diff({start: 6933, content: abi.encode(chainConfig.challenger)});
+        diffs[10] = BytecodeComparison.Diff({start: 7076, content: abi.encode(expectedProposer)});
+        diffs[11] = BytecodeComparison.Diff({start: 8310, content: abi.encode(expectedProposer)});
+        diffs[12] = BytecodeComparison.Diff({start: 8373, content: abi.encode(chainConfig.challenger)});
+        diffs[13] = BytecodeComparison.Diff({start: 9555, content: abi.encode(chainConfig.chainId)});
+        diffs[14] = BytecodeComparison.Diff({start: 10798, content: abi.encode(expectedDelayedWETHProxy)});
+        diffs[15] = BytecodeComparison.Diff({start: 13599, content: abi.encode(expectedDelayedWETHProxy)});
+        diffs[16] = BytecodeComparison.Diff({start: 13946, content: abi.encode(expectedAnchorStateRegistryProxy)});
+        diffs[17] = BytecodeComparison.Diff({start: 14972, content: abi.encode(expectedDelayedWETHProxy)});
+        diffs[18] = BytecodeComparison.Diff({start: 17022, content: abi.encode(expectedPrestate)});
         require(
             BytecodeComparison.compare(
                 address(comparisonPermissionedDisputeGameImpl), address(expectedPermissionedDisputeGameImpl), diffs
             ),
-            "checkPermissionedDisputeGame-100"
+            "checkPermissionedDisputeGame-80"
         );
     }
 

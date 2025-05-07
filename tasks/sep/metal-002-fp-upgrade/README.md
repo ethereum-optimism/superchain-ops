@@ -14,7 +14,7 @@ Please see "Simulating and Verifying the Transaction" in [NESTED.md](../../../NE
 When simulating, ensure the logs say:
 
 ```sh
-Using script /your/path/to/superchain-ops/tasks/sep/zora-002-fp-upgrade/NestedSignFromJson.s.sol
+Using script /your/path/to/superchain-ops/tasks/sep/metal-002-fp-upgrade/NestedSignFromJson.s.sol
 ```
 
 This ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown
@@ -32,7 +32,7 @@ section of [NESTED.md](../../../NESTED.md).
 When executing, ensure the logs say:
 
 ```sh
-Using script Using script /your/path/to/superchain-ops/tasks/sep/010-op-l2-predeploy-upgrade-from-l1/NestedSignFromJson.s.sol
+Using script Using script /your/path/to/superchain-ops/tasks/sep/metal-002-fp-upgrade/NestedSignFromJson.s.sol
 ```
 
 This ensures all safety checks are run. If the default `NestedSignFromJson.s.sol` script is shown
