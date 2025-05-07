@@ -1,6 +1,6 @@
 # 011 - DeputyPauseModule Installation - OP Mainnet
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://etherscan.io/tx/0x5580a50fd248f0d4034f5eb270636202e2d957b84a6975f7bd7b8c72ff541233)
 
 ## Objective
 

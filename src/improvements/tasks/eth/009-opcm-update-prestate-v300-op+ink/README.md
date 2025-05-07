@@ -1,6 +1,6 @@
 # 009-opcm-update-prestate-v300-op+ink: Mainnet Update Isthmus Prestate: OP and Ink
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://etherscan.io/tx/0xc4a7089a92c96b83475a7c20e40b4c888a277a90208d649c81df243ecdceb587)
 
 ## Objective
 
