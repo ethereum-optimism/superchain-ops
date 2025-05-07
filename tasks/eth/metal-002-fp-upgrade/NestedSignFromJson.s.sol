@@ -70,7 +70,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
     address expectedGuardian = vm.envAddress("EXPECTED_GUARDIAN");
 
     /// @notice Script constructor.
-    constructor() SuperchainRegistry("mainnet", "zora", "v1.8.0-rc.4") {}
+    constructor() SuperchainRegistry("mainnet", "metal", "v1.8.0-rc.4") {}
 
     /// @notice Sets up the script.
     function setUp() public view {
@@ -132,7 +132,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
     /// @notice Checks the input to the script.
     function checkInputJson() internal view {
         string memory inputJson;
-        string memory path = "/tasks/eth/zora-002-fp-upgrade/input.json";
+        string memory path = "/tasks/eth/metal-002-fp-upgrade/input.json";
         try vm.readFile(string.concat(vm.projectRoot(), path)) returns (string memory data) {
             inputJson = data;
         } catch {
