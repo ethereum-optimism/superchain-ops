@@ -1,6 +1,6 @@
-# Zora Sepolia Permissioned Fault Proofs
+# Mode Sepolia Permissioned Fault Proofs
 
-Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x977342de5843db8b5ae71b61862ee1e52cd2a0eec08c7b4df7ef38fba16a2b4f)
+Status: [DRAFT, NOT READY TO SIGN]
 
 ## Objective
 
