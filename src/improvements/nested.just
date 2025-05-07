@@ -96,13 +96,14 @@ approve whichSafe hdPath='0':
 
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
-  # sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
 
   forge build
   forge script ${script} \
     --fork-url ${rpcUrl} \
+    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
     --broadcast \
-    --private-key $EVM_SAFETY_PRIVATE_KEY \
+    --sender ${sender} \
     --sig "approveFromChildMultisig(string,address,bytes)" \
     ${config} \
     ${safe} \
@@ -161,14 +162,15 @@ execute hdPath='0':
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
 
   echo "Using script ${script}"
-  # sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
 
   echo "⏳ Task execution in progress. Some tasks take longer than others..."
   forge build
   forge script ${script} \
     --fork-url ${rpcUrl} \
+    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
     --broadcast \
-    --private-key $EVM_SAFETY_PRIVATE_KEY \
+    --sender ${sender} \
     --sig "executeRun(string,bytes)" \
     ${config} \
     "0x"

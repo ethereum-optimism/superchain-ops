@@ -25,42 +25,6 @@ export PRIVATE_KEY_OWNER := "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efca
 export PRIVATE_KEY_EXECUTOR :="0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
 export FAKE_SIG :="11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
 
-simulate hdPath='0':
-  #!/usr/bin/env bash
-
-  config=${TASK_PATH}/config.toml
-  script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
-
-  echo "RPC URL: ${rpcUrl}"
-  echo "Using script ${script}"
-
-  echo "Setting signer address..."
-  if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
-    signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-    echo "Simulating with ledger account: ${signer}"
-  else 
-    signer="{{signerAddress}}"
-    echo "Using 'signerAddress' as signer: ${signer}"
-  fi
-  echo ""
-
-  # Allow simulating from a specific block by setting FORK_BLOCK_NUMBER in the tasks .env file.
-  # If not set (or set to -1), default to using the latest block.
-  if [ "${forkBlockNumber}" = "-1" ]; then
-    fork_block_arg=""
-  else
-    echo "Using fork block number from env: ${forkBlockNumber}"
-    fork_block_arg="--fork-block-number ${forkBlockNumber}"
-  fi
-
-  echo "⏳ Task simulation in progress. Some tasks take longer than others..."
-  forge build
-  forge script ${script} \
-    ${fork_block_arg} \
-    --rpc-url ${rpcUrl} \
-    --sender ${signer} \
-    --sig "simulateRun(string)" ${config}
-
 sign hdPath='0':
   #!/usr/bin/env bash
   config=${TASK_PATH}/config.toml
@@ -91,14 +55,14 @@ execute hdPath='0':
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
   
   echo "Using script ${script}"
-  # sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
 
   echo "⏳ Task execution in progress. Some tasks take longer than others..."
   forge build
   forge script --fork-url ${rpcUrl} ${script} \
     --sig "executeRun(string,bytes)" ${config} ${signatures} \
-    --broadcast \
-    --private-key $EVM_SAFETY_PRIVATE_KEY
+    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
+    --sender ${sender}
 
 sign_and_execute_in_anvil parentSafe:
   #!/usr/bin/env bash
