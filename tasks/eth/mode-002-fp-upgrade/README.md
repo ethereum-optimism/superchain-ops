@@ -1,6 +1,6 @@
-# Zora Mainnet Permissioned Fault Proofs
+# Mode Mainnet Permissioned Fault Proofs
 
-Status: [DRAFT]
+Status: [DRAFT, NOT READY TO SIGN]
 
 ## Objective
 
