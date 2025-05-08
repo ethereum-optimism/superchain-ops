@@ -21,9 +21,6 @@ superchain-ops/
 
 ## Quick Start
 
-> Prerequisites:
-> Make sure you have `mise` installed. Follow the [CONTRIBUTING.md](../../CONTRIBUTING.md) guide to install mise.
-
 1. Install dependencies:
 ```bash
 cd src/improvements/
@@ -31,6 +28,9 @@ cd src/improvements/
 # Follow instructions in log output to activate mise in your shell
 just --justfile ../../justfile install
 ```
+
+> Additional `mise` info:
+> For more information on `mise`, please refer to the [CONTRIBUTING.md](../../CONTRIBUTING.md) guide.
 
 2. Create a new task:
 ```bash
