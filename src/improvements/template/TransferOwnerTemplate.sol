@@ -14,11 +14,12 @@ contract TransferOwnerTemplate is L2TaskBase {
     /// If it is aliased, you must set `unaliasedOwner` to the unaliased owner address.
     address public newOwner;
 
-    /// @notice This is only set if the new owner is an aliased address.
+    /// @notice This is only set if `newOwner` is an aliased address.
     /// e.g. An example of when this is set is if we are updating an L2PAO to be the aliased L1PAO:
     /// newOwner = 0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b
     /// unaliasedOwner = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A
-    address public unaliasedOwner;
+    /// See more at: https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/src/vendor/AddressAliasHelper.sol
+    address public unaliasedOwner = address(0);
 
     /// @notice Returns the safe address string identifier
     function safeAddressString() public pure override returns (string memory) {
