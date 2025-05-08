@@ -63,7 +63,7 @@ abstract contract L2TaskBase is MultisigTask {
     /// @notice We use this function to add allowed storage accesses and allowed balance changes.
     function _templateSetup(string memory) internal virtual override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-        
+
         // Add allowed storage accesses
         for (uint256 i = 0; i < config.allowedStorageKeys.length; i++) {
             for (uint256 j = 0; j < chains.length; j++) {

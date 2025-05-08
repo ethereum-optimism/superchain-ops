@@ -40,10 +40,10 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
     /// @notice struct to store allowed storage accesses read in from config file
     EnumerableSet.AddressSet internal _allowedStorageAccesses;
-    
+
     /// @notice struct to store allowed balance changes read in from config file
     EnumerableSet.AddressSet internal _allowedBalanceChanges;
-    
+
     /// @notice Struct to store information about an action
     /// @param target The address of the target contract
     /// @param value The amount of ETH to send with the action
@@ -606,7 +606,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     function getAllowedStorageAccess() public view returns (address[] memory) {
         return _allowedStorageAccesses.values();
     }
-
 
     /// @notice Execute post-task checks. e.g. read state variables of the deployed contracts to make
     /// sure they are deployed and initialized correctly, or read states that are expected to have changed during the simulate step.
@@ -1232,10 +1231,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                     string.concat("Account has no code: ", vm.toString(accountAccess.account))
                 );
             }
-            
-            bool balanceChangeAllowed = _allowedBalanceChanges.contains(accountAccess.account) || _isNewContract(accountAccess.account, newContracts);
-            
-            if (!balanceChangeAllowed) {
+
+            if (!_allowedBalanceChanges.contains(accountAccess.account)) {
                 require(
                     accountAccess.oldBalance == accountAccess.newBalance,
                     string.concat("Unexpected balance change: ", vm.toString(accountAccess.account))
