@@ -62,6 +62,7 @@ You must follow the remaining instructions in the log output to fully activate m
 
 
 **Step 2: Verify your setup**
+
 Run:
 ```sh
 mise doctor
