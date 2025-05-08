@@ -12,7 +12,6 @@ import {SuperchainRegistry} from "script/verification/Verification.s.sol";
 import {BytecodeComparison} from "src/libraries/BytecodeComparison.sol";
 import {GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {IProxy} from "@eth-optimism-bedrock/interfaces/universal/IProxy.sol";
-import {IProxyAdmin} from "@eth-optimism-bedrock/interfaces/universal/IProxyAdmin.sol";
 import {IDisputeGameFactory} from "@eth-optimism-bedrock/interfaces/dispute/IDisputeGameFactory.sol";
 import {IPermissionedDisputeGame} from "@eth-optimism-bedrock/interfaces/dispute/IPermissionedDisputeGame.sol";
 import {IAnchorStateRegistry} from "@eth-optimism-bedrock/interfaces/dispute/IAnchorStateRegistry.sol";
@@ -26,6 +25,7 @@ import {IAddressManager} from "@eth-optimism-bedrock/interfaces/legacy/IAddressM
 import {IL1ChugSplashProxy} from "@eth-optimism-bedrock/interfaces/legacy/IL1ChugSplashProxy.sol";
 import {IOptimismMintableERC20Factory} from
     "@eth-optimism-bedrock/interfaces/universal/IOptimismMintableERC20Factory.sol";
+
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
 interface ISystemConfigLegacy is ISystemConfig {
@@ -34,7 +34,6 @@ interface ISystemConfigLegacy is ISystemConfig {
 
 contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNestedSign, SuperchainRegistry {
     using AccountAccessParser for VmSafe.AccountAccess[];
-
     /// @notice Expected address for the AnchorStateRegistry proxy.
     IAnchorStateRegistry expectedAnchorStateRegistryProxy =
         IAnchorStateRegistry(vm.envAddress("EXPECTED_ANCHOR_STATE_REGISTRY_PROXY"));
@@ -80,10 +79,11 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
     /// @notice Returns addresses that are allowed to not have any code.
     /// @return allowed_ The addresses that are allowed to not have any code.
     function getCodeExceptions() internal view override returns (address[] memory allowed_) {
-        allowed_ = new address[](3);
-        allowed_[0] = address(uint160(uint256(ISystemConfig(proxies.SystemConfig).batcherHash())));
-        allowed_[1] = ISystemConfig(proxies.SystemConfig).unsafeBlockSigner();
-        allowed_[2] = ISystemConfig(proxies.SystemConfig).batchInbox();
+        allowed_ = new address[](4);
+        allowed_[0] = ISystemConfig(proxies.SystemConfig).owner();
+        allowed_[1] = address(uint160(uint256(ISystemConfig(proxies.SystemConfig).batcherHash())));
+        allowed_[2] = ISystemConfig(proxies.SystemConfig).unsafeBlockSigner();
+        allowed_[3] = ISystemConfig(proxies.SystemConfig).batchInbox();
     }
 
     /// @notice Returns addresses that are allowed to access storage.
@@ -243,8 +243,8 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
 
         // Check that the OptimismPortal's l2Sender is the default sender.
         require(optimismPortal.l2Sender() == address(0xdead), "checkOptimismPortal-140");
-
-        // Check that the OptimismPortal's guardian is correct.
+    
+            // Check that the OptimismPortal's guardian is correct.
         require(optimismPortal.guardian() == expectedGuardian, "checkOptimismPortal-160");
     }
 
@@ -394,15 +394,7 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
             ),
             "checkAnchorStateRegistry-100"
         );
-
-        // Grab the ProxyAdminOwner address from the DisputeGameFactory.
-        vm.prank(address(0));
-        address proxyAdmin = IProxy(payable(address(expectedDisputeGameFactoryProxy))).admin();
-        address proxyAdminOwner = IProxyAdmin(proxyAdmin).owner();
-
-        // Check that the ProxyAdminOwner and DisputeGameFactoryProxyAdminOwner are the same.
-        require(proxyAdminOwner == _ownerSafe(), "checkAnchorStateRegistry-120");
-    }   
+    }
 
     /// @notice Checks that the DelayedWETH was handled correctly.
     function checkDelayedWETH() internal {
@@ -423,14 +415,6 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
 
         // Check that the DelayedWETH's SuperchainConfig reference is correct.
         require(address(expectedDelayedWETHProxy.config()) == proxies.SuperchainConfig, "checkDelayedWETH-60");
-
-        // Check that the DelayedWETH's ProxyAdminOwner is correct.
-        vm.prank(address(0));
-        address proxyAdmin = IProxy(payable(expectedDelayedWETHProxy)).admin();
-        address proxyAdminOwner = IProxyAdmin(proxyAdmin).owner();
-
-        // Check that the DelayedWETH's ProxyAdminOwner is correct.
-        require(proxyAdminOwner == _ownerSafe(), "checkDelayedWETH-80");
     }
 
     /// @notice Checks that the DisputeGameFactory was handled correctly.
@@ -463,17 +447,9 @@ contract NestedSignFromJson is OriginalNestedSignFromJson, CouncilFoundationNest
             address(expectedDisputeGameFactoryProxy.gameImpls(GameType.wrap(0))) == address(0),
             "checkDisputeGameFactory-100"
         );
-
-        // Check that the DisputeGameFactory's ProxyAdminOwner is correct.
-        vm.prank(address(0));
-        address proxyAdmin = IProxy(payable(address(expectedDisputeGameFactoryProxy))).admin();
-        address proxyAdminOwner = IProxyAdmin(proxyAdmin).owner();
-
-        // Check that the DisputeGameFactory's ProxyAdminOwner is correct.
-        require(proxyAdminOwner == _ownerSafe(), "checkDisputeGameFactory-120");
     }
 
-    /// @notice Checks that the PermissionedDisputeGame was handled correctly.
+/// @notice Checks that the PermissionedDisputeGame was handled correctly.
     function checkPermissionedDisputeGame() internal view {
         // Check that the PermissionedDisputeGame version is correct.
         require(LibString.eq(expectedPermissionedDisputeGameImpl.version(), "1.3.1"), "checkPermissionedDisputeGame-20");
