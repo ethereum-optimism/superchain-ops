@@ -126,7 +126,7 @@ If you're not sure which shell you're using, run:
 echo $SHELL
 ```
 
-If your shell profile file (like ~/.zshrc or ~/.bashrc) doesn’t exist yet, you can create it and paste in the relevant eval command.
+If your shell profile file (like `~/.zshrc` or `~/.bashrc`) doesn’t exist yet, you can create it and paste in the relevant eval command.
 
 **Step 2: Verify your setup**
 Run:
