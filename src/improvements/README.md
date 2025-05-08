@@ -24,8 +24,7 @@ superchain-ops/
 1. Install dependencies:
 ```bash
 cd src/improvements/
-./script/install-mise.sh
-# Follow instructions in log output to activate mise in your shell
+./script/install-mise.sh # Follow the instructions in the log output from this command to activate mise in your shell.
 just --justfile ../../justfile install
 ```
 
