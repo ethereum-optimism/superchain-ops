@@ -28,10 +28,53 @@ working inside of the `optimism` directory.
 
 #### Install `mise`
 
-Install `mise` by following the instructions provided on the
-[Getting Started page](https://mise.jdx.dev/getting-started.html#_1-install-mise-cli).
+> [!IMPORTANT] **Do not** update `mise` to a newer version unless you're told to do so by the maintainers of this repository. We pin to specific allowed versions of `mise` to reduce the likelihood of installing a vulnerable version of `mise`.
 
-#### Trust the `mise.toml` file
+**Step 1: Install and activate `mise`**
+
+To run an installation of `mise` you **must use** the following script. We want a local, static version of the script to reduce the likelihood of installing a vulnerable version of `mise`.
+
+```bash
+./src/improvements/scripts/install-mise.sh
+```
+
+Verify the installation:
+
+```bash
+~/.local/bin/mise --version
+```
+
+To ensure `mise` works correctly, you must activate it in your shell, which sets up the proper environment for your tools (like forge, just, go, etc.).
+
+After running the installation script above, you will see the following log output:
+
+```bash
+mise: installing mise...
+#################### 100.0%
+mise: installed successfully to /Users/<username>/.local/bin/mise
+mise: run the following to activate mise in your shell:
+echo "eval \"\$(/Users/<username>/.local/bin/mise activate zsh)\"" >> "/Users/<username>/.zshrc"
+
+mise: run `mise doctor` to verify this is setup correctly
+```
+
+You must follow the remaining instructions in the log output to fully activate mise in your shell (i.e. add the eval command to your shell profile). Please note, the log output may be different for you depending on your shell.
+
+
+**Step 2: Verify your setup**
+Run:
+```sh
+mise doctor
+```
+You should see:
+
+```yaml
+activated: yes
+```
+If that’s true, you’re all set. For full instructions, see the official [mise docs](https://github.com/foundry-rs/mise).
+
+
+**Step 3: Trust the `mise.toml` file**
 
 `mise` requires that you explicitly trust the `mise.toml` file which lists the dependencies that
 this repository uses. After you've installed `mise` you'll be able to trust the file via:
@@ -40,15 +83,13 @@ this repository uses. After you've installed `mise` you'll be able to trust the 
 mise trust mise.toml
 ```
 
-#### Install dependencies
+**Step 4: Install dependencies**
 
 Use `mise` to install the correct versions for all of the required tools:
 
 ```bash
 mise install
 ```
-
-#### Installing updates
 
 `mise` will notify you if any dependencies are outdated. Simply run `mise install` again to install
 the latest versions of the dependencies if you receive these notifications.
@@ -80,46 +121,3 @@ Pull Requests that ignore this guideline will be closed, and may be aggregated i
 ## Code of Conduct
 
 Interactions within this repository are subject to a [Code of Conduct](https://github.com/ethereum-optimism/.github/blob/master/CODE_OF_CONDUCT.md) adapted from the [Contributor Covenant](https://www.contributor-covenant.org/version/1/4/code-of-conduct/).
-
-## Troubleshooting
-
-### Having trouble with mise?
-
-To ensure `mise` works correctly, you must activate it in your shell, which sets up the proper environment for your tools (like forge, just, go, etc.).
-
-**Step 1: Add mise activate to your shell profile** 
-Depending on your shell, add one of the following:
-
-For zsh (common on macOS):
-
-```sh
-echo 'eval "$(~/.local/bin/mise activate zsh)"' >> ~/.zshrc
-source ~/.zshrc
-```
-
-For bash:
-
-```bash
-echo 'eval "$(~/.local/bin/mise activate bash)"' >> ~/.bashrc
-source ~/.bashrc
-```
-
-If you're not sure which shell you're using, run:
-
-```sh
-echo $SHELL
-```
-
-If your shell profile file (like `~/.zshrc` or `~/.bashrc`) doesn’t exist yet, you can create it and paste in the relevant eval command.
-
-**Step 2: Verify your setup**
-Run:
-```sh
-mise doctor
-```
-You should see:
-
-```yaml
-activated: yes
-```
-If that’s true, you’re all set. For full instructions, see the official [mise docs](https://github.com/foundry-rs/mise).
