@@ -3,35 +3,40 @@ pragma solidity 0.8.15;
 
 import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
 import {VmSafe} from "forge-std/Vm.sol";
+import {AddressAliasHelper} from "@eth-optimism-bedrock/src/vendor/AddressAliasHelper.sol";
 
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 
-/// @title TransferOwnerTemplate
-/// @notice Template contract for transferring ownership of the proxy admin
+/// @notice Template contract for transferring ownership of the proxy admin.
 contract TransferOwnerTemplate is L2TaskBase {
-    /// @notice new owner address
+    /// @notice New owner address. This can be aliased or unaliased.
+    /// If it is aliased, you must set `unaliasedOwner` to the unaliased owner address.
     address public newOwner;
 
+    /// @notice This is only set if the new owner is an aliased address.
+    /// e.g. An example of when this is set is if we are updating an L2PAO to be the aliased L1PAO:
+    /// newOwner = 0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b
+    /// unaliasedOwner = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A
+    address public unaliasedOwner;
+
     /// @notice Returns the safe address string identifier
-    /// @return The string "ProxyAdminOwner"
     function safeAddressString() public pure override returns (string memory) {
         return "ProxyAdminOwner";
     }
 
-    /// @notice Returns the storage write permissions required for this task
-    /// @return Array of storage write permissions, in this case, only the ProxyAdmin is returned
+    /// @notice Returns the storage write permissions required for this task.
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
         string[] memory storageWrites = new string[](1);
         storageWrites[0] = "ProxyAdmin";
         return storageWrites;
     }
 
-    /// @notice Sets up the template with the new owner from a TOML file
-    /// @param taskConfigFilePath Path to the TOML configuration file
+    /// @notice Sets up the template with the new owner from a TOML file.
     function _templateSetup(string memory taskConfigFilePath) internal override {
         super._templateSetup(taskConfigFilePath);
         newOwner = abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".newOwner"), (address));
+        unaliasedOwner = abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".unaliasedOwner"), (address));
         // only allow one chain to be modified at a time with this template
         SuperchainAddressRegistry.ChainInfo[] memory _chains = abi.decode(
             vm.parseToml(vm.readFile(taskConfigFilePath), ".l2chains"), (SuperchainAddressRegistry.ChainInfo[])
@@ -39,17 +44,13 @@ contract TransferOwnerTemplate is L2TaskBase {
         require(_chains.length == 1, "Must specify exactly one chain id to transfer ownership for");
     }
 
-    /// @notice Builds the actions for transferring ownership of the proxy admin
+    /// @notice Builds the actions for transferring ownership of the proxy admin.
     function _build() internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-
-            // View only, filtered out by MultisigTask.sol
             ProxyAdmin proxyAdmin = ProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chainId));
-
-            // Mutative call, recorded by MultisigTask.sol for generating multisig calldata
             proxyAdmin.transferOwnership(newOwner);
         }
     }
@@ -60,7 +61,15 @@ contract TransferOwnerTemplate is L2TaskBase {
 
         for (uint256 i = 0; i < chains.length; i++) {
             ProxyAdmin proxyAdmin = ProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chains[i].chainId));
-            assertEq(proxyAdmin.owner(), newOwner, "new owner not set correctly");
+            if (unaliasedOwner != address(0)) {
+                assertEq(
+                    proxyAdmin.owner(),
+                    AddressAliasHelper.applyL1ToL2Alias(unaliasedOwner),
+                    "aliased new owner not set correctly"
+                );
+            } else {
+                assertEq(proxyAdmin.owner(), newOwner, "new owner not set correctly");
+            }
         }
     }
 
