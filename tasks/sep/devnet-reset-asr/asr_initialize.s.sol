@@ -10,7 +10,6 @@ import {Vm} from "forge-std/Vm.sol";
 import {IDisputeGameFactory} from "@eth-optimism-bedrock/interfaces/dispute/IDisputeGameFactory.sol";
 import {ISystemConfig} from "@eth-optimism-bedrock/interfaces/L1/ISystemConfig.sol";
 import {GameType, Hash} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
-import {IMulticall3} from "forge-std/interfaces/IMultiCall3.sol";
 import {IProxyAdmin} from "@eth-optimism-bedrock/interfaces/universal/IProxyAdmin.sol";
 
 interface IStorageSetter {
@@ -34,8 +33,6 @@ struct Proposal {
 }
 
 contract ASRInitialize is Script {
-    IMulticall3 constant multicall = IMulticall3(0xcA11bde05977b3631167028862bE2a173976CA11);
-
     IAnchorStateRegistry internal asrProxy;
     IProxyAdmin internal proxyAdmin;
     ISystemConfig internal systemConfigProxy;
