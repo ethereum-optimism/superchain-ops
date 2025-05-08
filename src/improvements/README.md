@@ -24,13 +24,19 @@ superchain-ops/
 > Prerequisites:
 > Make sure you have `mise` installed. Follow the [CONTRIBUTING.md](../../CONTRIBUTING.md) guide to install mise.
 
-1. Create a new task:
+1. Install dependencies:
+```bash
+mise install
+just install
+```
+
+2. Create a new task:
 ```bash
 cd src/improvements/
 just new task
 ```
 
-2. Configure the task in `config.toml` e.g.
+3. Configure the task in `config.toml` e.g.
 ```toml
 l2chains = [{"name": "OP Mainnet", "chainId": 10}]
 templateName = "<TEMPLATE_NAME>" # e.g. OPCMUpgradeV200
@@ -44,7 +50,7 @@ templateName = "<TEMPLATE_NAME>" # e.g. OPCMUpgradeV200
 # State overrides (e.g. specify a Safe nonce).
 ```
 
-3. Simulate the task:
+4. Simulate the task:
 ```bash
 # Nested
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate <foundation|council|chain-governor|foundation-operations|base-operations|[custom-safe-name]>
@@ -57,7 +63,7 @@ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nes
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
 ```
 
-4. Fill out the `README.md` and `VALIDATION.md` files.
+5. Fill out the `README.md` and `VALIDATION.md` files.
     - If your task status is not `EXECUTED` or `CANCELLED`, it is considered non-terminal and will automatically be included in stacked simulations (which run on the main branch).
 
 ### How do I run a task that depends on another task?
