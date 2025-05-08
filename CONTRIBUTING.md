@@ -80,3 +80,46 @@ Pull Requests that ignore this guideline will be closed, and may be aggregated i
 ## Code of Conduct
 
 Interactions within this repository are subject to a [Code of Conduct](https://github.com/ethereum-optimism/.github/blob/master/CODE_OF_CONDUCT.md) adapted from the [Contributor Covenant](https://www.contributor-covenant.org/version/1/4/code-of-conduct/).
+
+## Troubleshooting
+
+### Having trouble with mise?
+
+To ensure `mise` works correctly, you must activate it in your shell, which sets up the proper environment for your tools (like forge, just, go, etc.).
+
+**Step 1: Add mise activate to your shell profile** 
+Depending on your shell, add one of the following:
+
+For zsh (common on macOS):
+
+```sh
+echo 'eval "$(~/.local/bin/mise activate zsh)"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+For bash:
+
+```bash
+echo 'eval "$(~/.local/bin/mise activate bash)"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+If you're not sure which shell you're using, run:
+
+```sh
+echo $SHELL
+```
+
+If your shell profile file (like `~/.zshrc` or `~/.bashrc`) doesn’t exist yet, you can create it and paste in the relevant eval command.
+
+**Step 2: Verify your setup**
+Run:
+```sh
+mise doctor
+```
+You should see:
+
+```yaml
+activated: yes
+```
+If that’s true, you’re all set. For full instructions, see the official [mise docs](https://github.com/foundry-rs/mise).
