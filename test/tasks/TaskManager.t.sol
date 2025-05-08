@@ -6,6 +6,7 @@ import {LibString} from "@solady/utils/LibString.sol";
 import {TaskManager} from "src/improvements/tasks/TaskManager.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
+import {Vm} from "forge-std/Vm.sol";
 
 contract TaskManagerUnitTest is StateOverrideManager, Test {
     using LibString for string;
@@ -56,5 +57,27 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
                 detail: "N/A"
             })
         });
+    }
+
+    function testRequireSignerOnSafe_FailsIfSignerIsNotOwner() public {
+        vm.createSelectFork("mainnet", 22433511); // Pinning to a block.
+        TaskManager tm = new TaskManager();
+        string memory errorMessage =
+            "TaskManager: signer 0xEbE2cdF322646D8Aa36CED4A3072FCAe7F0a9B0b is not an owner on the safe: 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A";
+        vm.expectRevert(bytes(errorMessage));
+        address signer = 0xEbE2cdF322646D8Aa36CED4A3072FCAe7F0a9B0b;
+        address safe = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A;
+        tm.requireSignerOnSafe(signer, "src/improvements/tasks/eth/011-deputy-pause-module-activation");
+        vm.expectRevert(bytes(errorMessage));
+        tm.requireSignerOnSafe(signer, safe);
+    }
+
+    function testRequireSignerOnSafe_PassesIfSignerIsOwner() public {
+        vm.createSelectFork("mainnet", 22433511); // Pinning to a block.
+        TaskManager tm = new TaskManager();
+        address signer = 0xBF93D4d727F7Ba1F753E1124C3e532dCb04Ea2c8;
+        address safe = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A;
+        tm.requireSignerOnSafe(signer, "src/improvements/tasks/eth/011-deputy-pause-module-activation");
+        tm.requireSignerOnSafe(signer, safe);
     }
 }
