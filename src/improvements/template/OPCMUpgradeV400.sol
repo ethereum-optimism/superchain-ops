@@ -19,8 +19,8 @@ import {LibString} from "solady/utils/LibString.sol";
 /// without having to update the template (Remove this comment when done).
 
 /// @notice A template contract for configuring OPCMTaskBase templates.
-/// Supports: <TODO: add supported tags: e.g. op-contracts/v*.*.*>
-contract OPCMStage1 is OPCMTaskBase {
+/// Supports: op-contracts/v4.0.0-rc.2>
+contract OPCMUpgradeV400 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
 
@@ -36,8 +36,17 @@ contract OPCMStage1 is OPCMTaskBase {
 
     /// @notice Returns the storage write permissions required for this task
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
-        string[] memory storageWrites = new string[](1);
+        string[] memory storageWrites = new string[](10);
         storageWrites[0] = "ProxyAdminOwner";
+        storageWrites[1] = "OPCM";
+        storageWrites[2] = "SuperchainConfig";
+        storageWrites[3] = "DisputeGameFactoryProxy";
+        storageWrites[4] = "SystemConfigProxy";
+        storageWrites[5] = "OptimismPortalProxy";
+        storageWrites[6] = "AddressManager";
+        storageWrites[7] = "L1CrossDomainMessengerProxy";
+        storageWrites[8] = "L1StandardBridgeProxy";
+        storageWrites[9] = "L1ERC721BridgeProxy";
         return storageWrites;
     }
 
@@ -53,7 +62,7 @@ contract OPCMStage1 is OPCMTaskBase {
         }
 
         OPCM = tomlContent.readAddress(".addresses.OPCM");
-        require(IOPContractsManager(OPCM).version().eq("2.2.0"), "Incorrect OPCM");
+        require(IOPContractsManager(OPCM).version().eq("2.3.0"), "Incorrect OPCM");
         vm.label(OPCM, "OPCM");
 
         // require(false, "TODO: Perform a StandardValidatorV200 version check e.g. see comments below.");
@@ -89,7 +98,7 @@ contract OPCMStage1 is OPCMTaskBase {
         // Delegatecall the OPCM.upgrade() function
         (bool success,) =
             OPCM.delegatecall(abi.encodeWithSelector(IOPContractsManager.upgrade.selector, opChainConfigs));
-        require(success, "OPCMStage1: Delegatecall failed in _build.");
+        require(success, "OPCMUpgradeV400: Delegatecall failed in _build.");
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.

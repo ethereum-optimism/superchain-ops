@@ -1,4 +1,4 @@
-templateName = "OPCMStage1"
+templateName = "OPCMUpgradeV400"
 
 [[l2chains]]
 chainId = 11155420
@@ -6,7 +6,8 @@ name = "OP Sepolia Testnet"
 
 [[opcmUpgrades]]
 chainId = 11155420
+absolutePrestate="0x0000000000000000000000000000000000000000"
 expectedValidationErrors = ""
 
 [addresses]
-OPCM = "0xca8ab3fb24999ca30c07640873b5c3115e79b34e" # Coming from interop warrom
+OPCM = "0x355fd2a98fc11f5e4a91d9aa4c0041d252a77583" # Coming from interop warrom
