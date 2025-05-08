@@ -28,7 +28,6 @@ cd src/improvements/
 just --justfile ../../justfile install
 ```
 
-> Additional `mise` info:
 > For more information on `mise`, please refer to the [CONTRIBUTING.md](../../CONTRIBUTING.md) guide.
 
 2. Create a new task:
