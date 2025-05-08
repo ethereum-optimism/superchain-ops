@@ -3,6 +3,8 @@ set -eu
 
 # Sourced from https://mise.run/.
 # A local, static copy is maintained to reduce the risk of introducing a vulnerable `mise` version.
+# To update, replace the contents of this file with the latest script from https://mise.run/ to ensure you're using the most recent version.
+# Use caution when updating, as changes may affect setup or security.
 
 #region logging setup
 if [ "${MISE_DEBUG-}" = "true" ] || [ "${MISE_DEBUG-}" = "1" ]; then
