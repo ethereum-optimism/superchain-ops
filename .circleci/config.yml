@@ -532,6 +532,11 @@ workflows:
       # - just_simulate_sc_rehearsal_1
 
       - just_simulate_nested:
+          task: "/eth/swell-001-holocene-upgrade"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
+      - just_simulate_nested:
           task: "/eth/arena-z-001-fp-holocene-upgrade"
           context:
             - circleci-repo-readonly-authenticated-github-token
