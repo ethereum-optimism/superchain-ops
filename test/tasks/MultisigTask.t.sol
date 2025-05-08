@@ -33,13 +33,13 @@ contract MultisigTaskUnitTest is Test {
     bytes32 public constant MULTISIG_SLOT = bytes32(uint256(36));
 
     /// @notice storage slot for the mock target contract
-    bytes32 public constant MOCK_TARGET_SLOT = bytes32(uint256(52));
+    bytes32 public constant MOCK_TARGET_SLOT = bytes32(uint256(54));
 
     /// @notice storage slot for the build started flag
-    bytes32 public constant BUILD_STARTED_SLOT = bytes32(uint256(49));
+    bytes32 public constant BUILD_STARTED_SLOT = bytes32(uint256(52));
 
     /// @notice storage slot for the target multicall address
-    bytes32 public constant TARGET_MULTICALL_SLOT = bytes32(uint256(50));
+    bytes32 public constant TARGET_MULTICALL_SLOT = bytes32(uint256(53));
 
     /// Test Philosophy:
     /// We want these tests to function as much as possible as unit tests.
