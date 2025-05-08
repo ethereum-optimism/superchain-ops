@@ -67,46 +67,42 @@ abstract contract L2TaskBase is MultisigTask {
         // Add allowed storage accesses
         for (uint256 i = 0; i < config.allowedStorageKeys.length; i++) {
             for (uint256 j = 0; j < chains.length; j++) {
-                require(gasleft() > 500_000, "MultisigTask: Insufficient gas for initial getAddress() call"); // Ensure try/catch is EIP-150 safe.
-                try superchainAddrRegistry.getAddress(config.allowedStorageKeys[i], chains[j].chainId) returns (
-                    address addr
-                ) {
-                    _allowedStorageAccesses.add(addr);
-                } catch {
-                    require(gasleft() > 500_000, "MultisigTask: Insufficient gas for fallback get() call"); // Ensure try/catch is EIP-150 safe.
-                    try superchainAddrRegistry.get(config.allowedStorageKeys[i]) returns (address addr) {
-                        _allowedStorageAccesses.add(addr);
-                    } catch {
-                        string memory warn = string("[WARN]").yellow().bold();
-                        // forgefmt: disable-start
-                        console.log(string.concat(warn, " Contract: ", config.allowedStorageKeys[i], " not found for chain: ", chains[j].name));
-                        console.log(string.concat(warn, " Contract will not be added to allowed storage accesses: ", config.allowedStorageKeys[i], " for chain: ", chains[j].name));
-                        // forgefmt: disable-end
-                    }
-                }
+                _tryAddAddress(
+                    config.allowedStorageKeys[i], chains[j], _allowedStorageAccesses, "allowed storage accesses"
+                );
             }
         }
 
         // Add allowed balance changes
         for (uint256 i = 0; i < config.allowedBalanceChanges.length; i++) {
             for (uint256 j = 0; j < chains.length; j++) {
-                require(gasleft() > 500_000, "MultisigTask: Insufficient gas for initial getAddress() call"); // Ensure try/catch is EIP-150 safe.
-                try superchainAddrRegistry.getAddress(config.allowedBalanceChanges[i], chains[j].chainId) returns (
-                    address addr
-                ) {
-                    _allowedBalanceChanges.add(addr);
-                } catch {
-                    require(gasleft() > 500_000, "MultisigTask: Insufficient gas for fallback get() call"); // Ensure try/catch is EIP-150 safe.
-                    try superchainAddrRegistry.get(config.allowedBalanceChanges[i]) returns (address addr) {
-                        _allowedBalanceChanges.add(addr);
-                    } catch {
-                        string memory warn = string("[WARN]").yellow().bold();
-                        // forgefmt: disable-start
-                        console.log(string.concat(warn, " Contract: ", config.allowedBalanceChanges[i], " not found for chain: ", chains[j].name));
-                        console.log(string.concat(warn, " Contract will not be added to allowed balance changes: ", config.allowedBalanceChanges[i], " for chain: ", chains[j].name));
-                        // forgefmt: disable-end
-                    }
-                }
+                _tryAddAddress(
+                    config.allowedBalanceChanges[i], chains[j], _allowedBalanceChanges, "allowed balance changes"
+                );
+            }
+        }
+    }
+
+    /// @notice Helper to try adding an address to the target set for a given key and chain
+    function _tryAddAddress(
+        string memory key,
+        SuperchainAddressRegistry.ChainInfo memory chain,
+        EnumerableSet.AddressSet storage targetSet,
+        string memory context
+    ) private {
+        require(gasleft() > 500_000, "MultisigTask: Insufficient gas for initial getAddress() call"); // Ensure try/catch is EIP-150 safe.
+        try superchainAddrRegistry.getAddress(key, chain.chainId) returns (address addr) {
+            targetSet.add(addr);
+        } catch {
+            require(gasleft() > 500_000, "MultisigTask: Insufficient gas for fallback get() call"); // Ensure try/catch is EIP-150 safe.
+            try superchainAddrRegistry.get(key) returns (address addr) {
+                targetSet.add(addr);
+            } catch {
+                string memory warn = string("[WARN]").yellow().bold();
+                // forgefmt: disable-start
+                console.log(string.concat(warn, " Contract: ", key, " not found for chain: ", chain.name));
+                console.log(string.concat(warn, " Contract will not be added to ", context, ": ", key, " for chain: ", chain.name));
+                // forgefmt: disable-end
             }
         }
     }

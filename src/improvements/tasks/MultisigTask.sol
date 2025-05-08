@@ -38,10 +38,10 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// This state variable is always set in the `_taskSetup` function
     address public parentMultisig;
 
-    /// @notice struct to store allowed storage accesses read in from config file
+    /// @notice struct to store the addresses that are expected to have storage accesses
     EnumerableSet.AddressSet internal _allowedStorageAccesses;
 
-    /// @notice struct to store allowed balance changes read in from config file
+    /// @notice struct to store the addresses that are expected to have balance changes
     EnumerableSet.AddressSet internal _allowedBalanceChanges;
 
     /// @notice Struct to store information about an action
@@ -155,7 +155,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
     /// @notice Returns an array of strings that refer to contract names in the address registry.
     /// Contracts with these names are expected to have their balance changes during the task.
-    /// @dev By default returns an empty array. Override this function if your task expects balance changes.
+    /// By default returns an empty array. Override this function if your task expects balance changes.
     function _taskBalanceChanges() internal view virtual returns (string[] memory) {
         return new string[](0);
     }
