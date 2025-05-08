@@ -52,17 +52,29 @@ CannonInterop Absolute prestate hash:
 
 The following state overrides should be seen:
 
-### `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (The 2/2 `ProxyAdmin` Owner)
-
-Links:
-- [Etherscan](https://etherscan.io/address/0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A)
-
-| **Key** | `0x0000000000000000000000000000000000000000000000000000000000000004` |
+### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Security Council Safe)
+| **Key** | `0x0000000000000000000000000000000000000000000000000000000000000005` |
 |---------|----------------------------------------------------------------------------------|
-| **Value** | `0x0000000000000000000000000000000000000000000000000000000000000001` |
-| **Meaning** | Enables the simulation by setting the threshold to 1. The key can be validated by the location of the `threshold` variable in the [Safe's Storage Layout](https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/examples/libraries/GnosisSafeStorage.sol#L14). |
+| **After** | `0x000000000000000000000000000000000000000000000000000000000000001c` |
 
-### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Council Safe) or `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation Safe)
+**Meaning:** Override the nonce value of the `Security Council` by increasing from 27 to 28.
+
+
+### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation Upgrade Safe)
+ | **Key** | `0x0000000000000000000000000000000000000000000000000000000000000005` |
+ |---------|----------------------------------------------------------------------------------|
+ | **After** | `0x000000000000000000000000000000000000000000000000000000000000001b` |
+
+**Meaning:** Override the nonce value of the Foundation Upgrade Safe by increasing from 26 to 27.
+
+
+### `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (L1PAO Safe)
+| **Key** | `0x0000000000000000000000000000000000000000000000000000000000000005` |
+|---------|----------------------------------------------------------------------------------|
+| **After** | `0x0000000000000000000000000000000000000000000000000000000000000010` |
+
+**Meaning:** Override the nonce value of the L1PAO by increasing from 15 to 16.
+
 
 Links:
 - [Etherscan (Council Safe)](https://etherscan.io/address/0xc2819DC788505Aac350142A7A707BF9D03E3Bd03). This address is attested to in the [Optimism docs](https://docs.optimism.io/chain/security/privileged-roles#l1-proxy-admin), as it's one of the signers of the L1 Proxy Admin owner.
