@@ -530,7 +530,7 @@ workflows:
       # and now it fails with stack too deep after https://github.com/ethereum-optimism/superchain-ops/pull/528.
       # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
       # - just_simulate_sc_rehearsal_1
-
+      
       - just_simulate_nested:
           task: "/eth/arena-z-001-fp-holocene-upgrade"
           context:
