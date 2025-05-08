@@ -60,9 +60,11 @@ abstract contract L2TaskBase is MultisigTask {
         }
     }
 
-    /// @notice We use this function to add allowed storage accesses.
+    /// @notice We use this function to add allowed storage accesses and allowed balance changes.
     function _templateSetup(string memory) internal virtual override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        
+        // Add allowed storage accesses
         for (uint256 i = 0; i < config.allowedStorageKeys.length; i++) {
             for (uint256 j = 0; j < chains.length; j++) {
                 require(gasleft() > 500_000, "MultisigTask: Insufficient gas for initial getAddress() call"); // Ensure try/catch is EIP-150 safe.
@@ -79,6 +81,29 @@ abstract contract L2TaskBase is MultisigTask {
                         // forgefmt: disable-start
                         console.log(string.concat(warn, " Contract: ", config.allowedStorageKeys[i], " not found for chain: ", chains[j].name));
                         console.log(string.concat(warn, " Contract will not be added to allowed storage accesses: ", config.allowedStorageKeys[i], " for chain: ", chains[j].name));
+                        // forgefmt: disable-end
+                    }
+                }
+            }
+        }
+
+        // Add allowed balance changes
+        for (uint256 i = 0; i < config.allowedBalanceChanges.length; i++) {
+            for (uint256 j = 0; j < chains.length; j++) {
+                require(gasleft() > 500_000, "MultisigTask: Insufficient gas for initial getAddress() call"); // Ensure try/catch is EIP-150 safe.
+                try superchainAddrRegistry.getAddress(config.allowedBalanceChanges[i], chains[j].chainId) returns (
+                    address addr
+                ) {
+                    _allowedBalanceChanges.add(addr);
+                } catch {
+                    require(gasleft() > 500_000, "MultisigTask: Insufficient gas for fallback get() call"); // Ensure try/catch is EIP-150 safe.
+                    try superchainAddrRegistry.get(config.allowedBalanceChanges[i]) returns (address addr) {
+                        _allowedBalanceChanges.add(addr);
+                    } catch {
+                        string memory warn = string("[WARN]").yellow().bold();
+                        // forgefmt: disable-start
+                        console.log(string.concat(warn, " Contract: ", config.allowedBalanceChanges[i], " not found for chain: ", chains[j].name));
+                        console.log(string.concat(warn, " Contract will not be added to allowed balance changes: ", config.allowedBalanceChanges[i], " for chain: ", chains[j].name));
                         // forgefmt: disable-end
                     }
                 }

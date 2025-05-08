@@ -40,7 +40,10 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
     /// @notice struct to store allowed storage accesses read in from config file
     EnumerableSet.AddressSet internal _allowedStorageAccesses;
-
+    
+    /// @notice struct to store allowed balance changes read in from config file
+    EnumerableSet.AddressSet internal _allowedBalanceChanges;
+    
     /// @notice Struct to store information about an action
     /// @param target The address of the target contract
     /// @param value The amount of ETH to send with the action
@@ -115,6 +118,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @notice Task TOML config file values
     struct TaskConfig {
         string[] allowedStorageKeys;
+        string[] allowedBalanceChanges;
         string safeAddressString;
     }
 
@@ -148,6 +152,13 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @notice Returns an array of strings that refer to contract names in the address registry.
     /// Contracts with these names are expected to have their storage written to during the task.
     function _taskStorageWrites() internal view virtual returns (string[] memory);
+
+    /// @notice Returns an array of strings that refer to contract names in the address registry.
+    /// Contracts with these names are expected to have their balance changes during the task.
+    /// @dev By default returns an empty array. Override this function if your task expects balance changes.
+    function _taskBalanceChanges() internal view virtual returns (string[] memory) {
+        return new string[](0);
+    }
 
     /// @notice By default, any value written to storage that looks like an address is expected to
     /// have code. Sometimes, accounts without code are expected, and this function allows you to
@@ -292,6 +303,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
         config.allowedStorageKeys = _taskStorageWrites();
         config.allowedStorageKeys.push(safeAddressString());
+        config.allowedBalanceChanges = _taskBalanceChanges();
 
         _templateSetup(taskConfigFilePath);
         // Both parent and child nonce are set here.
@@ -594,6 +606,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     function getAllowedStorageAccess() public view returns (address[] memory) {
         return _allowedStorageAccesses.values();
     }
+
 
     /// @notice Execute post-task checks. e.g. read state variables of the deployed contracts to make
     /// sure they are deployed and initialized correctly, or read states that are expected to have changed during the simulate step.
@@ -1204,7 +1217,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     }
 
     /// @notice This function performs basic checks on the state diff.
-    /// It checks that all touched accounts have code, that the balances are unchanged, and that no self-destructs occurred.
+    /// It checks that all touched accounts have code, that the balances are unchanged if not expected, and that no self-destructs occurred.
     function checkStateDiff(VmSafe.AccountAccess[] memory accountAccesses) internal view {
         require(accountAccesses.length > 0, "No account accesses");
         address[] memory allowedAccesses = getAllowedStorageAccess();
@@ -1219,10 +1232,16 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                     string.concat("Account has no code: ", vm.toString(accountAccess.account))
                 );
             }
-            require(
-                accountAccess.oldBalance == accountAccess.newBalance,
-                string.concat("Unexpected balance change: ", vm.toString(accountAccess.account))
-            );
+            
+            bool balanceChangeAllowed = _allowedBalanceChanges.contains(accountAccess.account) || _isNewContract(accountAccess.account, newContracts);
+            
+            if (!balanceChangeAllowed) {
+                require(
+                    accountAccess.oldBalance == accountAccess.newBalance,
+                    string.concat("Unexpected balance change: ", vm.toString(accountAccess.account))
+                );
+            }
+
             require(
                 accountAccess.kind != VmSafe.AccountAccessKind.SelfDestruct,
                 string.concat("Self-destructed account: ", vm.toString(accountAccess.account))
