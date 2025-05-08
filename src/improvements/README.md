@@ -26,8 +26,10 @@ superchain-ops/
 
 1. Install dependencies:
 ```bash
-mise install
-just install
+cd src/improvements/
+./script/install-mise.sh
+# Follow instructions in log output to activate mise in your shell
+just --justfile ../../justfile install
 ```
 
 2. Create a new task:
