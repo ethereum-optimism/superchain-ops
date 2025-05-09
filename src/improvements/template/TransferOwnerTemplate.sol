@@ -3,6 +3,7 @@ pragma solidity 0.8.15;
 
 import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
 import {VmSafe} from "forge-std/Vm.sol";
+import {stdToml} from "forge-std/StdToml.sol";
 import {AddressAliasHelper} from "@eth-optimism-bedrock/src/vendor/AddressAliasHelper.sol";
 
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
@@ -10,8 +11,10 @@ import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegis
 
 /// @notice Template contract for transferring ownership of the proxy admin.
 contract TransferOwnerTemplate is L2TaskBase {
+    using stdToml for string;
     /// @notice New owner address. This can be aliased or unaliased.
     /// If it is aliased, you must set `unaliasedOwner` to the unaliased owner address.
+
     address public newOwner;
 
     /// @notice This is only set if `newOwner` is an aliased address.
@@ -36,12 +39,17 @@ contract TransferOwnerTemplate is L2TaskBase {
     /// @notice Sets up the template with the new owner from a TOML file.
     function _templateSetup(string memory taskConfigFilePath) internal override {
         super._templateSetup(taskConfigFilePath);
-        newOwner = abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".newOwner"), (address));
-        unaliasedOwner = abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".unaliasedOwner"), (address));
+        string memory toml = vm.readFile(taskConfigFilePath);
+        newOwner = abi.decode(vm.parseToml(toml, ".newOwner"), (address));
+
+        // Set the unaliased owner if it exists.
+        if (toml.keyExists(".unaliasedOwner")) {
+            unaliasedOwner = abi.decode(vm.parseToml(toml, ".unaliasedOwner"), (address));
+        }
+
         // only allow one chain to be modified at a time with this template
-        SuperchainAddressRegistry.ChainInfo[] memory _chains = abi.decode(
-            vm.parseToml(vm.readFile(taskConfigFilePath), ".l2chains"), (SuperchainAddressRegistry.ChainInfo[])
-        );
+        SuperchainAddressRegistry.ChainInfo[] memory _chains =
+            abi.decode(vm.parseToml(toml, ".l2chains"), (SuperchainAddressRegistry.ChainInfo[]));
         require(_chains.length == 1, "Must specify exactly one chain id to transfer ownership for");
     }
 
