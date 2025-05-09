@@ -7,28 +7,24 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 
-/// @title TransferOwnerTemplate
-/// @notice Template contract for transferring ownership of the proxy admin
+/// @notice Template contract for transferring ownership of the proxy admin.
 contract TransferOwnerTemplate is L2TaskBase {
     /// @notice new owner address
     address public newOwner;
 
     /// @notice Returns the safe address string identifier
-    /// @return The string "ProxyAdminOwner"
     function safeAddressString() public pure override returns (string memory) {
         return "ProxyAdminOwner";
     }
 
-    /// @notice Returns the storage write permissions required for this task
-    /// @return Array of storage write permissions, in this case, only the ProxyAdmin is returned
+    /// @notice Returns the storage write permissions required for this task.
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
         string[] memory storageWrites = new string[](1);
         storageWrites[0] = "ProxyAdmin";
         return storageWrites;
     }
 
-    /// @notice Sets up the template with the new owner from a TOML file
-    /// @param taskConfigFilePath Path to the TOML configuration file
+    /// @notice Sets up the template with the new owner from a TOML file.
     function _templateSetup(string memory taskConfigFilePath) internal override {
         super._templateSetup(taskConfigFilePath);
         newOwner = abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".newOwner"), (address));
@@ -39,17 +35,13 @@ contract TransferOwnerTemplate is L2TaskBase {
         require(_chains.length == 1, "Must specify exactly one chain id to transfer ownership for");
     }
 
-    /// @notice Builds the actions for transferring ownership of the proxy admin
+    /// @notice Builds the actions for transferring ownership of the proxy admin.
     function _build() internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-
-            // View only, filtered out by MultisigTask.sol
             ProxyAdmin proxyAdmin = ProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chainId));
-
-            // Mutative call, recorded by MultisigTask.sol for generating multisig calldata
             proxyAdmin.transferOwnership(newOwner);
         }
     }

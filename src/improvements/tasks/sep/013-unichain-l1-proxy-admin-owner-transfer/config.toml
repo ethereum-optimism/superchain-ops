@@ -1,0 +1,14 @@
+l2chains = [
+    {name = "Unichain Sepolia Testnet", chainId = 1301}
+]
+templateName = "TransferOwnerTemplate"
+
+# 2-of-2 multisig on Sepolia
+# https://github.com/ethereum-optimism/superchain-registry/blob/a9b57281842bf5742cf9e69114c6b81c622ca186/superchain/configs/sepolia/op.toml#L46
+newOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
+
+# TODO: Add the expected nonces for each multisig involved in signing this task.
+[stateOverrides]
+0xd363339ee47775888df411a163c586a8bdea9dbf = [
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 32 } # TODO: insert nonce
+]
