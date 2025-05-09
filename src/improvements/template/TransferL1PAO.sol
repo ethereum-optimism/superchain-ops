@@ -4,25 +4,17 @@ pragma solidity 0.8.15;
 import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
-import {AddressAliasHelper} from "@eth-optimism-bedrock/src/vendor/AddressAliasHelper.sol";
 
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 
-/// @notice Template contract for transferring ownership of the proxy admin.
-contract TransferOwnerTemplate is L2TaskBase {
+/// @notice Template contract for transferring ownership of the L1 ProxyAdmin.
+/// ATTENTION: Please use caution when using this template. Transferring ownership is high risk.
+contract TransferL1PAO is L2TaskBase {
     using stdToml for string;
-    /// @notice New owner address. This can be aliased or unaliased.
-    /// If it is aliased, you must set `unaliasedOwner` to the unaliased owner address.
 
+    /// @notice New owner address. This is unaliased.
     address public newOwner;
-
-    /// @notice This is only set if `newOwner` is an aliased address.
-    /// e.g. An example of when this is set is if we are updating an L2PAO to be the aliased L1PAO:
-    /// newOwner = 0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b
-    /// unaliasedOwner = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A
-    /// See more at: https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.3.0/packages/contracts-bedrock/src/vendor/AddressAliasHelper.sol
-    address public unaliasedOwner = address(0);
 
     /// @notice Returns the safe address string identifier
     function safeAddressString() public pure override returns (string memory) {
@@ -41,11 +33,6 @@ contract TransferOwnerTemplate is L2TaskBase {
         super._templateSetup(taskConfigFilePath);
         string memory toml = vm.readFile(taskConfigFilePath);
         newOwner = abi.decode(vm.parseToml(toml, ".newOwner"), (address));
-
-        // Set the unaliased owner if it exists.
-        if (toml.keyExists(".unaliasedOwner")) {
-            unaliasedOwner = abi.decode(vm.parseToml(toml, ".unaliasedOwner"), (address));
-        }
 
         // only allow one chain to be modified at a time with this template
         SuperchainAddressRegistry.ChainInfo[] memory _chains =
@@ -70,15 +57,7 @@ contract TransferOwnerTemplate is L2TaskBase {
 
         for (uint256 i = 0; i < chains.length; i++) {
             ProxyAdmin proxyAdmin = ProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chains[i].chainId));
-            if (unaliasedOwner != address(0)) {
-                assertEq(
-                    proxyAdmin.owner(),
-                    AddressAliasHelper.applyL1ToL2Alias(unaliasedOwner),
-                    "aliased new owner not set correctly"
-                );
-            } else {
-                assertEq(proxyAdmin.owner(), newOwner, "new owner not set correctly");
-            }
+            assertEq(proxyAdmin.owner(), newOwner, "new owner not set correctly");
         }
     }
 
