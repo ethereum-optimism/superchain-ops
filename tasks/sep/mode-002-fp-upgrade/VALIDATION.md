@@ -14,6 +14,14 @@ Additionally, please verify that for each contract:
 - All key values match the semantic meaning provided, which can be validated using the storage
   layout links provided.
 
+## Predeploys
+
+- **DisputeGameFactoryProxy**: `0x7Bb634B42373A87712Da14064deD13Db8b8b14f4`
+- **AnchorStateRegistryProxy**: `0x5C30E13389686AE0ddF41859FbD4BD2CBE2Aaf1D`
+- **AnchorStateRegistryImpl**: `0x43c0EA5cf1614a3F16b51804F3283f95d09a903f`
+- **PermissionedDelayedWETHProxy**: `0xD92Bf98a4049097C4b2288734748dce90803E1C1`
+- **PermissionedDisputeGame**: `0xdC0c2Cb09512490B0b81292b9153415C3f092D4b`
+
 ## Expected Domain and Message Hashes
 
 > [!CAUTION]
@@ -22,13 +30,13 @@ Additionally, please verify that for each contract:
 >
 > ### Security Council
 >
-> - Domain Hash: `INSERT`
-> - Message Hash: `INSERT`
+> - Domain Hash: `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
+> - Message Hash: `0xbc522fd52b91ac9639f0058838fadfa2ef69ed5ba7937cdeb220a44cf8d70bf1`
 >
 > ### Optimism Foundation
 >
-> - Domain Hash: `INSERT`
-> - Message Hash: `INSERT`
+> - Domain Hash: `0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
+> - Message Hash: `0x1dfa5b291917dc6fa60b42a0d8dc0e928f2c83524beac422454070bae22620c0`
 
 ## Nested Safe State Overrides and Changes
 
@@ -39,45 +47,29 @@ state overrides and changes.
 The `approvedHashes` mapping **key** of the `ProxyAdminOwner` that should change during the
 simulation is:
 
-- Council simulation: `INSERT`
-- Foundation simulation: `INSERT`
-
-Calculated as explained in the nested validation doc:
-
-```sh
-cast index address 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 8 # council
-# 0x56362ae34e37f50105bd722d564a267a69bbc15ede4cb7136e81afd747b41c4d
-cast index bytes32 0x0af66a3041f2a03ec6be4670bf99f9d62a2f1df568e4c7c9887b7ed904f9a2d0 0x56362ae34e37f50105bd722d564a267a69bbc15ede4cb7136e81afd747b41c4d
-# 0x6ddce46c849f3c4f07b6936372b065bbb125295abeba2b69356959d97076ddf4
-```
-
-```sh
-cast index address 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B 8 # foundation
-# 0xc18fefc0a6b81265cf06017c3f1f91c040dc3227321d73c608cfbcf1c5253e5c
-cast index bytes32 0x0af66a3041f2a03ec6be4670bf99f9d62a2f1df568e4c7c9887b7ed904f9a2d0 0xc18fefc0a6b81265cf06017c3f1f91c040dc3227321d73c608cfbcf1c5253e5c
-# 0xe02e538b153b500a6b10108a02ecebaae66e56e98cbd67fd4eca2a82271539e1
-```
+- Council simulation: `0xc8975897b3a17dd64187fa6ed2bab49497341305f1b6a2e7f2e53dbe56217eb4`
+- Foundation simulation: `0x7023b0002c2f5b2122afd072918fee774d8f036da616618afaf3b870bac96692`
 
 ## State Changes
 
-### `0x5D63A8Dc2737cE771aa4a6510D063b6Ba2c4f6F2` (`SystemConfigProxy` on Metal Sepolia)
+### `0xA3cAB0126d5F504B071b81a3e8A2BBBF17930d86` (`SystemConfigProxy` on Mode Sepolia)
 
 - **Key**: `0x52322a25d9f59ea17656545543306b7aef62bc0cc53a0e65ccfa0c75b97aa906`
 - **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000`
-- **After**: `0x000000000000000000000000d9A68F90B2d2DEbe18a916859B672D70f79eEbe3`
+- **After**: `0x0000000000000000000000007bb634b42373a87712da14064ded13db8b8b14f4`
 - **Meaning**: Slot at keccak(systemconfig.disputegamefactory)-1 set to address of
   DisputeGameFactoryProxy deployed via upgrade script
 
 - **Key**: `0xe52a667f71ec761b9b381c7b76ca9b852adf7e8905da0e0ad49986a0a6871815`
-- **Before**: `0x00000000000000000000000075a6B961c8da942Ee03CA641B09C322549f6FA98`
+- **Before**: `0x0000000000000000000000002634BD65ba27AB63811c74A63118ACb312701Bfa`
 - **After**: `0x0000000000000000000000000000000000000000000000000000000000000000`
 - **Meaning**: Slot at keccak(systemconfig.l2outputoracle)-1 deleted
 
-### `0x01D4dfC994878682811b2980653D03E589f093cB` (`OptimismPortalProxy` on Metal Sepolia)
+### `0x1a0ad011913A150f69f6A19DF447A0CfD9551054` (`OptimismPortalProxy` on Mode Sepolia)
 
 - **Key**: `0x0000000000000000000000000000000000000000000000000000000000000038`
 - **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000`
-- **After**: `0x000000000000000000000000d9A68F90B2d2DEbe18a916859B672D70f79eEbe3`
+- **After**: `0x0000000000000000000000007bb634b42373a87712da14064ded13db8b8b14f4`
 - **Meaning**: DisputeGameFactory address variable set to the address deployed in upgrade script
 
 - **Key**: `0x000000000000000000000000000000000000000000000000000000000000003b`
@@ -88,13 +80,6 @@ cast index bytes32 0x0af66a3041f2a03ec6be4670bf99f9d62a2f1df568e4c7c9887b7ed904f
   be a dynamic value)
 
 - **Key**: `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
-- **Before**: `0x0000000000000000000000002D778797049FE9259d947D1ED8e5442226dFB589`
-- **After**: `0x00000000000000000000000035028bAe87D71cbC192d545d38F960BA30B4B233`
+- **Before**: `0x0000000000000000000000002d778797049fe9259d947d1ed8e5442226dfb589`
+- **After**: `0x00000000000000000000000035028bae87d71cbc192d545d38f960ba30b4b233`
 - **Meaning**: Implementation address updated
-
-### `0x1Eb2fFc903729a0F03966B917003800b145F56E2` (`SystemOwnerSafe` on Metal Sepolia)
-
-- **Key**: `0x0000000000000000000000000000000000000000000000000000000000000005`
-- **Before**: `0x000000000000000000000000000000000000000000000000000000000000001f`
-- **After**: `0x0000000000000000000000000000000000000000000000000000000000000020`
-- **Meaning**: Nonce bumped by 1 in the SystemOwnerSafe
