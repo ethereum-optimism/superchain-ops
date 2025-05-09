@@ -36,6 +36,8 @@ cd src/improvements/
 just new task
 ```
 
+Follow the interactive prompts from the `just new task` command to create a new task. This will create a new directory in the `tasks/` directory with the task name you provided. Please make sure to complete all the TODOs in the created files before submitting your task for review.
+
 3. Configure the task in `config.toml` e.g.
 ```toml
 l2chains = [{"name": "OP Mainnet", "chainId": 10}]

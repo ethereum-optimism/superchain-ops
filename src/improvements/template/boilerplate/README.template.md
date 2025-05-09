@@ -1,4 +1,4 @@
-# <task-name> <short-description>
+# <task-name><short-description>
 
 Status: [DRAFT]()
 
@@ -11,11 +11,11 @@ Todo: Describe the objective of the task
 Simulation commands for each safe:
 ```bash
 <navigate-to-simulation-command>
-<add-simulation-commands-for-each-safe>
+<TODO-add-simulation-commands-for-each-safe>
 ```
 
 Signing commands for each safe:
 ```bash
 <navigate-to-signing-command>
-<add-signing-commands-for-each-safe>
+<TODO-add-signing-commands-for-each-safe>
 ```
