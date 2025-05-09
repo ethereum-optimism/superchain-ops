@@ -50,6 +50,10 @@ templateName = "<TEMPLATE_NAME>" # e.g. OPCMUpgradeV200
 # State overrides (e.g. specify a Safe nonce).
 ```
 
+The `[addresses]` TOML [table](https://toml.io/en/v1.0.0#table) is optional. It can be used to specify the addresses of the contracts involved in an upgrade. You can see an example of its use in this [task](./tasks/eth/009-opcm-update-prestate-v300-op+ink/config.toml).
+
+The `[stateOverrides]` TOML table is optional, but in most cases we use it to specify the nonces of the multisig safes involved in an upgrade. Selecting the correct nonce is important and requires careful consideration. You can see an example of its use in this [task](./tasks/eth/009-opcm-update-prestate-v300-op+ink/config.toml).
+
 4. Simulate the task:
 ```bash
 # Nested
