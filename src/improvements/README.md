@@ -38,6 +38,8 @@ just new task
 
 Follow the interactive prompts from the `just new task` command to create a new task. This will create a new directory in the `tasks/` directory with the task name you provided. Please make sure to complete all the TODOs in the created files before submitting your task for review.
 
+> Note: An `.env` file will be created in the new tasks directory. Please make sure to fill out the `TENDERLY_GAS` variable with a high enough value to simulate the task.
+
 3. Configure the task in `config.toml` e.g.
 ```toml
 l2chains = [{"name": "OP Mainnet", "chainId": 10}]
@@ -61,8 +63,8 @@ The `[stateOverrides]` TOML table is optional, but in most cases we use it to sp
 # Nested
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate <foundation|council|chain-governor|foundation-operations|base-operations|[custom-safe-name]>
 ```
-> ℹ️ [custom-safe-name] refers to a Safe name defined manually by the task developer in config.toml
-> Example: NestedSafe1 in sep/001-opcm-upgrade-v200/config.toml.
+> ℹ️ [custom-safe-name] refers to a Safe name defined manually by the task developer under the `[addresses]` table in the config.toml file.
+> Example: NestedSafe1 in [sep/001-opcm-upgrade-v200/config.toml](./tasks/sep/001-opcm-upgrade-v200/config.toml).
 
 ```bash
 # Single 
