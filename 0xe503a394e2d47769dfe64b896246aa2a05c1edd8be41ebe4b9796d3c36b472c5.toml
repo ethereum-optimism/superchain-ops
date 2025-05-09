@@ -1,0 +1,5 @@
+l2chains = [{name = "Base Sepolia Testnet", chainId = 84532}]
+
+templateName = "DisputeGameUpgradeTemplate"
+
+implementations = [{gameType = 0, implementation = "0x0000000FFfFFfffFffFfFffFFFfffffFffFFffFf", l2ChainId = 84532}]
