@@ -129,7 +129,7 @@ simulate-all-templates:
         fi
     done
     echo "$simulation_count simulations run."
-    template_count=$(find src/improvements/template -type f ! -name "*.template.sol" ! -path "*/boilerplate/*" | wc -l | xargs)
+    template_count=$(find "${root_dir}/src/improvements/template" -type f ! -name "*.template.sol" ! -path "*/boilerplate/*" | wc -l | xargs)
 
     echo ""
     if [ "$simulation_count" -ne "$template_count" ]; then
