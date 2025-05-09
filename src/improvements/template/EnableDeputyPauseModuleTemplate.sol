@@ -24,7 +24,7 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
     address public newModule;
 
     /// @notice Constant safe address string identifier
-    string constant _SAFE_ADDRESS = "FoundationOperationsSafe";
+    string _safeAddressString;
 
     /// @notice Gnosis Safe Sentinel Module address
     address internal constant SENTINEL_MODULE = address(0x1);
@@ -37,27 +37,26 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
 
     /// @notice Returns the safe address string identifier
     /// @return The string "DeputyPauseSafe"
-    function safeAddressString() public pure override returns (string memory) {
-        return _SAFE_ADDRESS;
+    function safeAddressString() public view override returns (string memory) {
+        return _safeAddressString;
     }
 
     /// @notice Returns the storage write permissions required for this task
     /// @return Array of storage write permissions
-    function _taskStorageWrites() internal pure override returns (string[] memory) {
+    function _taskStorageWrites() internal view override returns (string[] memory) {
         string[] memory storageWrites;
 
+        // storageWrites = new string[](0);
         storageWrites = new string[](1);
-        storageWrites[0] = _SAFE_ADDRESS;
+        storageWrites[0] = safeAddressString();
 
         return storageWrites;
     }
 
-    /// @notice Sets up the template with module configuration from a TOML file
-    /// @param taskConfigFilePath Path to the TOML configuration file
-    function _templateSetup(string memory taskConfigFilePath) internal override {
-        super._templateSetup(taskConfigFilePath);
+    function _templateSetupBefore(string memory taskConfigFilePath) internal override {
         string memory file = vm.readFile(taskConfigFilePath);
         newModule = vm.parseTomlAddress(file, ".newModule");
+        _safeAddressString = vm.parseTomlString(file, ".safeAddressString");
         assertNotEq(newModule.code.length, 0, "new module must have code");
     }
 
