@@ -21,6 +21,8 @@ superchain-ops/
 
 ## Quick Start
 
+> ⚠️ **IMPORTANT**: **Do not** update `mise` to a newer version unless you're told to do so by the maintainers of this repository. We pin to specific allowed versions of `mise` to reduce the likelihood of installing a vulnerable version of `mise`. You **must** use the `install-mise.sh` script to install `mise`.
+
 1. Install dependencies:
 ```bash
 cd src/improvements/
