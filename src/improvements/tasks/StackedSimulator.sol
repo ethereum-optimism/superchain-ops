@@ -21,6 +21,7 @@ contract StackedSimulator is Script {
         string name;
     }
 
+    /// @notice Simulates the execution of all non-terminal tasks for a given network.
     function simulateStack(string memory network) public {
         TaskInfo[] memory tasks = getNonTerminalTasks(network);
         if (tasks.length == 0) {
@@ -40,6 +41,20 @@ contract StackedSimulator is Script {
             taskConfigs[i] = taskManager.parseConfig(tasks[i].path);
         }
 
+        simulateTasks(taskConfigs, optionalOwnerAddress);
+    }
+
+    /// @notice Simulates the execution of a single task.
+    function simulateTask(string memory taskPath, address optionalOwnerAddress) public {
+        TaskManager taskManager = new TaskManager();
+        TaskManager.TaskConfig[] memory taskConfigs = new TaskManager.TaskConfig[](1);
+        taskConfigs[0] = taskManager.parseConfig(taskPath);
+        simulateTasks(taskConfigs, optionalOwnerAddress);
+    }
+
+    /// @notice Given a list of task configs, simulates the execution of each task.
+    function simulateTasks(TaskManager.TaskConfig[] memory taskConfigs, address optionalOwnerAddress) public {
+        TaskManager taskManager = new TaskManager();
         // Setting this env variable to reduce logging for stack simulations.
         vm.setEnv("SIGNING_MODE_IN_PROGRESS", "true");
 

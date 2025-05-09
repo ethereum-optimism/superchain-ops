@@ -340,6 +340,15 @@ contract StackedSimulatorUnitTest is Test {
         assertAscendingOrder(sorted);
     }
 
+    function testSimulateTask_NoSafe() public {
+        StackedSimulator ss = new StackedSimulator();
+        createSingleTestTasks("eth_004", 1, 100);
+
+        StackedSimulator.TaskInfo[] memory tasks = ss.getNonTerminalTasks("eth_004");
+        vm.expectRevert("TaskManager: Must not specify a safe for non-nested tasks.");
+        ss.simulateTask(tasks[0].path, address(1));
+    }
+
     function assertAscendingOrder(StackedSimulator.TaskInfo[] memory input) internal {
         StackedSimulator ss = new StackedSimulator();
         for (uint256 i = 0; i < input.length - 1; i++) {
@@ -376,6 +385,26 @@ contract StackedSimulatorUnitTest is Test {
                 "\", l2ChainId = 10}]\n"
             );
             vm.writeFile(string.concat(taskDir, "/config.toml"), toml);
+        }
+    }
+
+    /// @notice Creates a set of tasks where the executing multisig is not a nested multisig.
+    function createSingleTestTasks(string memory network, uint256 amount, uint256 startTaskIndex)
+        internal
+        returns (string[] memory taskNames_)
+    {
+        {
+            string memory commonToml = "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n"
+                "templateName = \"SystemConfigGasParams\"\n"
+                "\n [gasParams] \ngasLimit = 60000000 \neip1559Elasticity = 4 \neip1559Denominator = 250";
+            taskNames_ = new string[](amount);
+            for (uint256 i = 0; i < amount; i++) {
+                string memory taskName = getNextTaskName(startTaskIndex + i);
+                string memory taskDir = string.concat(testDirectory, "/", network, "/", taskName);
+                taskNames_[i] = taskName;
+                _setupTaskDir(taskDir);
+                vm.writeFile(string.concat(taskDir, "/config.toml"), commonToml);
+            }
         }
     }
 
