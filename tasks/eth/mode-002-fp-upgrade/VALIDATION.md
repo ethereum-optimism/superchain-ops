@@ -23,12 +23,12 @@ Additionally, please verify that for each contract:
 > ### Security Council
 >
 > - Domain Hash: `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
-> - Message Hash: `0x2aad820ae16105867ec9cddf51a1fdbfdc771635ff7605e0dbd6639fc419bf44`
+> - Message Hash: `INSERT`
 >
 > ### Optimism Foundation
 >
 > - Domain Hash: `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0x44a80fb9661c9682ee398183198b43fc05a04b8bc6eedd3787e8f82876c20a2b`
+> - Message Hash: `INSERT`
 
 ## Nested Safe State Overrides and Changes
 
@@ -60,11 +60,11 @@ cast index bytes32 0x496364fd87984d3d8d051b8205944ea153d9bede161b06b4653fc85b84a
 
 ## State Changes
 
-### `0xA3cAB0126d5F504B071b81a3e8A2BBBF17930d86` (`SystemConfigProxy` on zora mainnet)
+### `0xA3cAB0126d5F504B071b81a3e8A2BBBF17930d86` (`SystemConfigProxy` on Mode Mainnet)
 
 - **Key**: `0x52322a25d9f59ea17656545543306b7aef62bc0cc53a0e65ccfa0c75b97aa906`
 - **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000`
-- **After**: `0x000000000000000000000000B0F15106fa1e473Ddb39790f197275BC979Aa37e`
+- **After**: `0x000000000000000000000000d9A68F90B2d2DEbe18a916859B672D70f79eEbe3`
 - **Meaning**: Slot at keccak(systemconfig.disputegamefactory)-1 set to address of
   DisputeGameFactoryProxy deployed via upgrade script
 
@@ -73,11 +73,11 @@ cast index bytes32 0x496364fd87984d3d8d051b8205944ea153d9bede161b06b4653fc85b84a
 - **After**: `0x0000000000000000000000000000000000000000000000000000000000000000`
 - **Meaning**: Slot at keccak(systemconfig.l2outputoracle)-1 deleted
 
-### `0x1a0ad011913A150f69f6A19DF447A0CfD9551054` (`OptimismPortalProxy` on zora mainnet)
+### `0x1a0ad011913A150f69f6A19DF447A0CfD9551054` (`OptimismPortalProxy` on Mode Mainnet)
 
 - **Key**: `0x0000000000000000000000000000000000000000000000000000000000000038`
 - **Before**: `0x0000000000000000000000000000000000000000000000000000000000000000`
-- **After**: `0x000000000000000000000000b0f15106fa1e473ddb39790f197275bc979aa37e`
+- **After**: `0x000000000000000000000000d9A68F90B2d2DEbe18a916859B672D70f79eEbe3`
 - **Meaning**: DisputeGameFactory address variable set to the address deployed in upgrade script
 
 - **Key**: `0x000000000000000000000000000000000000000000000000000000000000003b`
@@ -89,5 +89,12 @@ cast index bytes32 0x496364fd87984d3d8d051b8205944ea153d9bede161b06b4653fc85b84a
 
 - **Key**: `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
 - **Before**: `0x0000000000000000000000002d778797049fe9259d947d1ed8e5442226dfb589`
-- **After**: `0x000000000000000000000000e2f826324b2faf99e513d16d266c3f80ae87832b`
-- **Meaning**: Implementation address changed to 0xe2f826324b2faf99e513d16d266c3f80ae87832b
+- **After**: `0x00000000000000000000000035028bAe87D71cbC192d545d38F960BA30B4B233`
+- **Meaning**: Implementation address updated
+
+### `0x1Eb2fFc903729a0F03966B917003800b145F56E2` (`SystemOwnerSafe` on Mode Mainnet)
+
+- **Key**: `0x0000000000000000000000000000000000000000000000000000000000000005`
+- **Before**: `0x000000000000000000000000000000000000000000000000000000000000001f`
+- **After**: `0x0000000000000000000000000000000000000000000000000000000000000020`
+- **Meaning**: Nonce bumped by 1 in the SystemOwnerSafe
