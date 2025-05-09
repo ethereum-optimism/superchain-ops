@@ -157,6 +157,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @notice Different tasks have different inputs. A task template will create the appropriate
     /// storage structures for storing and accessing these inputs. In this method, you read in the
     /// task config file, parse the inputs from the TOML as needed, and save them off.
+    /// This method is called at the beginning of the task setup, and can be used to read in
+    /// any config values that are needed before the task is configured.
     function _templateSetupBefore(string memory taskConfigFilePath) internal virtual {}
 
     /// @notice Different tasks have different inputs. A task template will create the appropriate
@@ -289,6 +291,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     function _taskSetup(string memory taskConfigFilePath, address optionalChildMultisig) internal {
         require(bytes(config.safeAddressString).length == 0, "MultisigTask: already initialized");
 
+        // This function is empty by default, but can be overridden by the task template to read in
+        // any config values (such as safeAddressString) that are needed before the rest of the
+        // task setup is performed.
         _templateSetupBefore(taskConfigFilePath);
 
         config.safeAddressString = safeAddressString();
@@ -313,6 +318,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
         vm.label(AddressRegistry.unwrap(addrRegistry), "AddrRegistry");
         vm.label(address(this), "MultisigTask");
+
+        // Complete the task setup.
         _templateSetup(taskConfigFilePath);
     }
 
