@@ -25,7 +25,7 @@ superchain-ops/
 ```bash
 cd src/improvements/
 ./script/install-mise.sh # Follow the instructions in the log output from this command to activate mise in your shell.
-mise trust mise.toml
+mise trust ../../mise.toml
 mise install
 just --justfile ../../justfile install
 ```
