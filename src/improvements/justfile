@@ -129,11 +129,19 @@ simulate-all-templates:
         fi
     done
     echo "$simulation_count simulations run."
-    template_count=$(find "${root_dir}/src/improvements/template" -type f ! -name "*.template.sol" | wc -l)
+    template_count=$(find "${root_dir}/src/improvements/template" -type f ! -name "*.template.sol" ! -path "*/boilerplate/*" | wc -l | xargs)
 
+    echo ""
     if [ "$simulation_count" -ne "$template_count" ]; then
-        echo "Not all templates files have a corresponding task. Please add a task for a template in ${root_dir}/src/improvements/tasks/example" >&2
+        echo ""
+        echo -e "\033[31mError: Not all templates files have a corresponding task. Please add a task for a template in ${root_dir}/src/improvements/tasks/example\033[0m" >&2
+        echo -e "\033[31mSimulated $simulation_count out of $template_count templates\033[0m" >&2
+        echo ""
         exit 1
+    else
+        echo -e "\033[32mSuccess: All templates have a corresponding task.\033[0m"
+        echo ""
+        exit 0
     fi
 
 simulate-verify-task TASK="":

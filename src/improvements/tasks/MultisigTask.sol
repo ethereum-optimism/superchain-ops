@@ -203,8 +203,11 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         validate(accountAccesses, actions);
         print(actions, accountAccesses, true, txHash);
 
+        // Revert with meaningful error message if the user is trying to simulate with the wrong command.
         if (optionalChildMultisig != address(0)) {
-            require(isNestedSafe(parentMultisig), "MultisigTask: multisig must be nested");
+            require(isNestedSafe(parentMultisig), "MultisigTask: multisig must be a nested safe.");
+        } else {
+            require(!isNestedSafe(parentMultisig), "MultisigTask: multisig must be a single safe.");
         }
 
         return (accountAccesses, actions);
