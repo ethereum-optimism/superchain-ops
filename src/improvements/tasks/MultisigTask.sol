@@ -143,7 +143,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
     /// @notice Specifies the safe address string to run the template from. This string refers
     /// to a named contract, where the name is read from an address registry contract.
-    function safeAddressString() public pure virtual returns (string memory);
+    function safeAddressString() public virtual returns (string memory);
 
     /// @notice Returns an array of strings that refer to contract names in the address registry.
     /// Contracts with these names are expected to have their storage written to during the task.
@@ -153,6 +153,11 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// have code. Sometimes, accounts without code are expected, and this function allows you to
     /// specify a list of those addresses.
     function getCodeExceptions() internal view virtual returns (address[] memory);
+
+    /// @notice Different tasks have different inputs. A task template will create the appropriate
+    /// storage structures for storing and accessing these inputs. In this method, you read in the
+    /// task config file, parse the inputs from the TOML as needed, and save them off.
+    function _templateSetupBefore(string memory taskConfigFilePath) internal virtual {}
 
     /// @notice Different tasks have different inputs. A task template will create the appropriate
     /// storage structures for storing and accessing these inputs. In this method, you read in the
@@ -283,6 +288,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// by performing various setup functions e.g. setting the address registry and multicall target.
     function _taskSetup(string memory taskConfigFilePath, address optionalChildMultisig) internal {
         require(bytes(config.safeAddressString).length == 0, "MultisigTask: already initialized");
+
+        _templateSetupBefore(taskConfigFilePath);
+
         config.safeAddressString = safeAddressString();
         IGnosisSafe _parentMultisig; // TODO parentMultisig should be of type IGnosisSafe
         (addrRegistry, _parentMultisig, multicallTarget) = _configureTask(taskConfigFilePath);
@@ -293,7 +301,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         config.allowedStorageKeys = _taskStorageWrites();
         config.allowedStorageKeys.push(safeAddressString());
 
-        _templateSetup(taskConfigFilePath);
         // Both parent and child nonce are set here.
         // They may be overridden later by user-defined state overrides.
         // See: '_overrideState(string memory taskConfigFilePath)'
@@ -306,6 +313,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
         vm.label(AddressRegistry.unwrap(addrRegistry), "AddrRegistry");
         vm.label(address(this), "MultisigTask");
+        _templateSetup(taskConfigFilePath);
     }
 
     /// @notice Get the calldata to be executed by safe.
