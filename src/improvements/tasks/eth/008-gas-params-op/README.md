@@ -1,6 +1,6 @@
 # 008-gas-params-op: (Ethereum) Increase gas target : OP Mainnet
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://etherscan.io/tx/0x19268ee4773853d9abd592e6d33e856dbdb3fe2cc0817a4a5323fa7432bdb92a)
 
 ## Objective
 
