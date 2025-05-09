@@ -19,9 +19,11 @@ create_template() {
     while true; do
         if [ -t 0 ]; then
             echo ""
-            echo "Enter template file name (e.g. <template_name>.sol)."
+            echo -e "Enter template file name (e.g.\033[33m <template_name>.sol\033[0m)."
             echo "    - Ideally, the name should start with a verb like 'Transfer', 'Update', 'Set'."
-            echo "    - Make the name generic so other developers know it is reusable."
+            echo "    - Make the name generic enough so that other developers know it is reusable."
+            echo -e "\033[33mTip: When writing a template think about how it can be reused by other developers in the future.\033[0m"
+            echo ""
             read -r -p "Filename: " filename
         else
             read -r filename
