@@ -36,7 +36,7 @@ Additionally, please verify that for each contract:
 > ### Optimism Foundation
 >
 > - Domain Hash: `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `beef171b59535d7b25ff0d5c9fb72b9ee3a42c317dfa9ddf1bb7f3760fd38db1`
+> - Message Hash: `0xbeef171b59535d7b25ff0d5c9fb72b9ee3a42c317dfa9ddf1bb7f3760fd38db1`
 
 ## Nested Safe State Overrides and Changes
 
