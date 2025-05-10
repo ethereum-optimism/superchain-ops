@@ -39,5 +39,9 @@ abstract contract SimpleTaskBase is MultisigTask {
         for (uint256 i = 0; i < config.allowedStorageKeys.length; i++) {
             _allowedStorageAccesses.add(simpleAddrRegistry.get(config.allowedStorageKeys[i]));
         }
+
+        for (uint256 i = 0; i < config.allowedBalanceChanges.length; i++) {
+            _allowedBalanceChanges.add(simpleAddrRegistry.get(config.allowedBalanceChanges[i]));
+        }
     }
 }
