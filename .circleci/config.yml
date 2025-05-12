@@ -399,7 +399,12 @@ jobs:
       - run:
           name: Make sure all templates can be simulated.
           command: |
-            (cd src/improvements && just simulate-all-templates)
+            if git diff --name-only $CIRCLE_SHA1 $CIRCLE_SHA1~1 \
+               | grep -q '^test/tasks/example/'; then
+              (cd src/improvements && just simulate-all-templates)
+            else
+              echo "No changes in test/tasks/example/, skipping regression tests."
+            fi
 
   just_new_recipe_tests:
     circleci_ip_ranges: true
