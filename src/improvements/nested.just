@@ -57,7 +57,7 @@ simulate whichSafe hdPath='0':
 
   echo "⏳ Task simulation in progress. Some tasks take longer than others..."
   forge build
-  forge script -vvvv ${script} \
+  forge script ${script} \
     ${fork_block_arg} \
     --rpc-url ${rpcUrl} \
     --sender ${signer} \

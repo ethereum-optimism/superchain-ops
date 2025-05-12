@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import { console2 as console } from "forge-std/console2.sol";
-
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {console} from "forge-std/console.sol";
 import {Script} from "forge-std/Script.sol";
