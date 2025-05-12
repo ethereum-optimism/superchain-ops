@@ -21,16 +21,30 @@ superchain-ops/
 
 ## Quick Start
 
-> Prerequisites:
-> Make sure you have `mise` installed. Follow the [CONTRIBUTING.md](../../CONTRIBUTING.md) guide to install mise.
+> ⚠️ **IMPORTANT**: **Do not** update `mise` to a newer version unless you're told to do so by the maintainers of this repository. We pin to specific allowed versions of `mise` to reduce the likelihood of installing a vulnerable version of `mise`. You **must** use the `install-mise.sh` script to install `mise`.
 
-1. Create a new task:
+1. Install dependencies:
+```bash
+cd src/improvements/
+./script/install-mise.sh # Follow the instructions in the log output from this command to activate mise in your shell.
+mise trust ../../mise.toml
+mise install
+just --justfile ../../justfile install
+```
+
+> For more information on `mise`, please refer to the [CONTRIBUTING.md](../../CONTRIBUTING.md) guide.
+
+2. Create a new task:
 ```bash
 cd src/improvements/
 just new task
 ```
 
-2. Configure the task in `config.toml` e.g.
+Follow the interactive prompts from the `just new task` command to create a new task. This will create a new directory in the `tasks/` directory with the task name you provided. Please make sure to complete all the TODOs in the created files before submitting your task for review.
+
+> Note: An `.env` file will be created in the new tasks directory. Please make sure to fill out the `TENDERLY_GAS` variable with a high enough value to simulate the task.
+
+3. Configure the task in `config.toml` e.g.
 ```toml
 l2chains = [{"name": "OP Mainnet", "chainId": 10}]
 templateName = "<TEMPLATE_NAME>" # e.g. OPCMUpgradeV200
@@ -44,20 +58,24 @@ templateName = "<TEMPLATE_NAME>" # e.g. OPCMUpgradeV200
 # State overrides (e.g. specify a Safe nonce).
 ```
 
-3. Simulate the task:
+The `[addresses]` TOML [table](https://toml.io/en/v1.0.0#table) is optional. It can be used to specify the addresses of the contracts involved in an upgrade. You can see an example of its use in this [task](./tasks/eth/009-opcm-update-prestate-v300-op+ink/config.toml).
+
+The `[stateOverrides]` TOML table is optional, but in most cases we use it to specify the nonces of the multisig safes involved in an upgrade. Selecting the correct nonce is important and requires careful consideration. You can see an example of its use in this [task](./tasks/eth/009-opcm-update-prestate-v300-op+ink/config.toml).
+
+4. Simulate the task:
 ```bash
 # Nested
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate <foundation|council|chain-governor|foundation-operations|base-operations|[custom-safe-name]>
 ```
-> ℹ️ [custom-safe-name] refers to a Safe name defined manually by the task developer in config.toml
-> Example: NestedSafe1 in sep/001-opcm-upgrade-v200/config.toml.
+> ℹ️ [custom-safe-name] refers to a Safe name defined manually by the task developer under the `[addresses]` table in the config.toml file.
+> Example: NestedSafe1 in [sep/001-opcm-upgrade-v200/config.toml](./tasks/sep/001-opcm-upgrade-v200/config.toml).
 
 ```bash
 # Single 
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
 ```
 
-4. Fill out the `README.md` and `VALIDATION.md` files.
+5. Fill out the `README.md` and `VALIDATION.md` files.
     - If your task status is not `EXECUTED` or `CANCELLED`, it is considered non-terminal and will automatically be included in stacked simulations (which run on the main branch).
 
 ### How do I run a task that depends on another task?
