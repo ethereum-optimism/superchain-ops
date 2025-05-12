@@ -115,7 +115,7 @@ create_task() {
         cp "template/boilerplate/VALIDATION.template.md" "$validation_path"
     fi
 
-    # make .env file with TENDERLY_GAS set to 10000000 
+    # Make .env file with TENDERLY_GAS set to 10000000 
     env_path="$task_path/.env"
     echo "TENDERLY_GAS=10000000" > "$env_path"
     if [[ "$is_test_task" == "true" ]]; then
