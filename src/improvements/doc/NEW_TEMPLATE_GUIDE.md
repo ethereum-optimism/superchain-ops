@@ -26,3 +26,4 @@ Once a new template has been created and tested from the command line as a forge
 ## Existing Templates
 
 Existing templates can be found in the [`src/improvements/template/`](../template) directory. These templates can be used as a reference for creating new templates.
+
