@@ -26,6 +26,10 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
     /// @notice Constant safe address string identifier
     string _safeAddressString;
 
+    /// @notice Constant foundation safe address string identifier
+    /// Used to verify the foundation safe address in the DeputyPauseModule
+    string public foundationSafeString;
+
     /// @notice Gnosis Safe Sentinel Module address
     address internal constant SENTINEL_MODULE = address(0x1);
 
@@ -54,6 +58,7 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
         super._templateSetup(taskConfigFilePath);
         string memory file = vm.readFile(taskConfigFilePath);
         newModule = vm.parseTomlAddress(file, ".newModule");
+        foundationSafeString = vm.parseTomlString(file, ".foundationSafeString");
         assertNotEq(newModule.code.length, 0, "new module must have code");
     }
 
@@ -87,7 +92,7 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
         assertEq(
             address(deputyPauseModule.foundationSafe()),
             // TODO: make this parameterizable
-            simpleAddrRegistry.get("FoundationUpgradeSafe"),
+            simpleAddrRegistry.get(foundationSafeString),
             "DeputyPauseModule foundation safe pointer not correct"
         );
         assertEq(
