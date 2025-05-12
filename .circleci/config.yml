@@ -499,10 +499,6 @@ workflows:
       - template_regression_tests:
           context:
             - circleci-repo-readonly-authenticated-github-token
-          filters:
-            paths:
-              only:
-                - "test/tasks/example/**"
       - just_new_recipe_tests
       - shellcheck:
           context:
