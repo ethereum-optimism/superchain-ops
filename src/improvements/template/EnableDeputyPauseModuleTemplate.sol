@@ -24,7 +24,7 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
     address public newModule;
 
     /// @notice Constant safe address string identifier
-    string constant _SAFE_ADDRESS = "FoundationOperationsSafe";
+    string _safeAddressString;
 
     /// @notice Gnosis Safe Sentinel Module address
     address internal constant SENTINEL_MODULE = address(0x1);
@@ -36,18 +36,16 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
     bytes32 public constant NONCE_STORAGE_OFFSET = bytes32(uint256(5));
 
     /// @notice Returns the safe address string identifier
-    /// @return The string "DeputyPauseSafe"
-    function safeAddressString() public pure override returns (string memory) {
-        return _SAFE_ADDRESS;
+    function safeAddressString() public view override returns (string memory) {
+        return _safeAddressString;
     }
 
     /// @notice Returns the storage write permissions required for this task
     /// @return Array of storage write permissions
-    function _taskStorageWrites() internal pure override returns (string[] memory) {
+    function _taskStorageWrites() internal view override returns (string[] memory) {
         string[] memory storageWrites;
 
-        storageWrites = new string[](1);
-        storageWrites[0] = _SAFE_ADDRESS;
+        storageWrites = new string[](0);
 
         return storageWrites;
     }
