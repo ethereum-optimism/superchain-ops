@@ -20,9 +20,11 @@ create_template() {
         if [ -t 0 ]; then
             echo ""
             echo -e "Enter template file name (e.g.\033[33m <template_name>.sol\033[0m)."
-            echo "    - Ideally, the name should start with a verb like 'Transfer', 'Update', 'Set'."
             echo "    - Make the name generic enough so that other developers know it is reusable."
-            echo -e "\033[33mTip: When writing a template think about how it can be reused by other developers in the future.\033[0m"
+            echo "    - Follow single responsibility: one task per template (see: TransferL1PAO and TransferL2PAO)."
+            echo "    - Ideally, the name should start with a verb like 'Transfer', 'Update', 'Set'."
+            echo "    - Avoid using 'Template' in the name."
+            echo -e "\033[33mTip: Name with future reuse in mind.\033[0m"
             echo ""
             read -r -p "Filename: " filename
         else
