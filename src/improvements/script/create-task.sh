@@ -11,7 +11,12 @@ create_task() {
     templates=()
     while IFS= read -r line; do templates+=("$line"); done < <(ls -1 template/)
     for i in "${!templates[@]}"; do
-        templates["$i"]="${templates[$i]%.sol}"
+        # Don't add directories to the list of templates i.e. boilerplate/ directory.
+        if [[ -d "template/${templates[$i]}" ]]; then
+            unset 'templates[$i]'
+        else
+            templates["$i"]="${templates[$i]%.sol}"
+        fi
     done
 
     PS3="Select template name: "
@@ -39,7 +44,7 @@ create_task() {
         suggestion="Note: this is the first task for this network. Please choose a name that's lexicographically sensible"
     else
         most_recent_task_dir=$(echo "$sorted_existing_dirs" | tail -n1)
-        suggestion="lexicographically after: $most_recent_task_dir"
+        suggestion="lexicographically after: $(basename "$most_recent_task_dir")"
     fi
 
     while true; do
@@ -59,37 +64,39 @@ create_task() {
         fi
     done
 
+
+    echo ""
+    read -r -p "Enter optional short description of the task (hit enter to leave blank): " short_description
+    if [[ -n "$short_description" ]]; then
+        short_description=": $short_description"
+    fi
+
     task_path="tasks/${network}/${dirname}"
     mkdir -p "$task_path"
     config_path="$task_path/config.toml"
-    readme_path="$task_path/README.md" # TODO: Each template should have a README.md
-
-
+    
     echo -e "l2chains = [] # e.g. [{name = \"OP Mainnet\", chainId = 10}]\ntemplateName = \"${template%.sol}\"" >"${config_path}"
-    echo "# ${dirname}" >"${readme_path}"
 
-    cat > "$readme_path" <<EOL
-# ${dirname} TBD: Update the task description
+    # copy the readme template to readme_path
+    readme_path="$task_path/README.md" 
+    cp "template/boilerplate/README.template.md" "$readme_path"
 
-Status: [DRAFT]()
+    navigate_to_task_command="cd src/improvements/tasks/$network/$dirname"
 
-## Objective
+    sed -e "s|<task-name>|$dirname|g" \
+    -e "s|<short-description>|$short_description|g" \
+    -e "s|<navigate-to-simulation-command>|$navigate_to_task_command|g" \
+    -e "s|<navigate-to-signing-command>|$navigate_to_task_command|g" \
+    "$readme_path" > "${readme_path}.tmp" \
+    && mv "${readme_path}.tmp" "$readme_path"
 
-Todo: Describe the objective of the task
+    # copy the validation template to validation_path
+    validation_path="$task_path/VALIDATION.md"
+    cp "template/boilerplate/VALIDATION.template.md" "$validation_path"
 
-### Timing
-
-Example transaction
-
-## Transaction creation
-
-TODO
-
-## Signing and execution
-
-Status - TODO
-
-EOL
+    # make .env file with TENDERLY_GAS set to 10000000 
+    env_path="$task_path/.env"
+    echo "TENDERLY_GAS=10000000" > "$env_path"
 
     echo "Created task directory '${dirname}' for network: ${network}"
     absolute_path=$(realpath "$task_path")
