@@ -30,6 +30,9 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
     /// Used to verify the foundation safe address in the DeputyPauseModule
     string public foundationSafeString;
 
+    /// @notice Constant deputy pause module version
+    string public deputyPauseModuleVersion;
+
     /// @notice Gnosis Safe Sentinel Module address
     address internal constant SENTINEL_MODULE = address(0x1);
 
@@ -59,6 +62,7 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
         string memory file = vm.readFile(taskConfigFilePath);
         newModule = vm.parseTomlAddress(file, ".newModule");
         foundationSafeString = vm.parseTomlString(file, ".foundationSafeString");
+        deputyPauseModuleVersion = vm.parseTomlString(file, ".deputyPauseModuleVersion");
         assertNotEq(newModule.code.length, 0, "new module must have code");
     }
 
@@ -88,7 +92,7 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
         assertTrue(moduleFound, "Module not found in new modules list");
 
         IDeputyPauseModule deputyPauseModule = IDeputyPauseModule(newModule);
-        // assertEq(deputyPauseModule.version(), "1.0.0-beta.2", "DeputyPauseModule version not correct");
+        assertEq(deputyPauseModule.version(), deputyPauseModuleVersion, "DeputyPauseModule version not correct");
         assertEq(
             address(deputyPauseModule.foundationSafe()),
             // TODO: make this parameterizable
