@@ -286,7 +286,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// by performing various setup functions e.g. setting the address registry and multicall target.
     function _taskSetup(string memory taskConfigFilePath, address optionalChildMultisig) internal {
         require(bytes(config.safeAddressString).length == 0, "MultisigTask: already initialized");
-        config.safeAddressString = getOrReadSafeAddressString(taskConfigFilePath);
+        config.safeAddressString = loadSafeAddressString(taskConfigFilePath);
         IGnosisSafe _parentMultisig; // TODO parentMultisig should be of type IGnosisSafe
         (addrRegistry, _parentMultisig, multicallTarget) = _configureTask(taskConfigFilePath);
 
@@ -313,7 +313,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
     /// @notice Get the safe address string from the config file.
     /// If the string is not found, use the value from the template.
-    function getOrReadSafeAddressString(string memory taskConfigFilePath) internal view returns (string memory) {
+    function loadSafeAddressString(string memory taskConfigFilePath) internal view returns (string memory) {
         string memory file = vm.readFile(taskConfigFilePath);
         try vm.parseTomlString(file, ".safeAddressString") returns (string memory _safeAddressString) {
             console.log("Safe address string found in config file: %s", _safeAddressString);
