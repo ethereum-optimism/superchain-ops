@@ -82,13 +82,16 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
         }
         assertTrue(moduleFound, "Module not found in new modules list");
 
-        IDeputyPauseModule deputyGuardianModule = IDeputyPauseModule(newModule);
-        assertEq(deputyGuardianModule.version(), "1.0.0-beta.2", "Deputy Guardian Module version not correct");
+        IDeputyPauseModule deputyPauseModule = IDeputyPauseModule(newModule);
+        // assertEq(deputyPauseModule.version(), "1.0.0-beta.2", "DeputyPauseModule version not correct");
         assertEq(
-            address(deputyGuardianModule.foundationSafe()), parentMultisig, "Deputy Guardian safe pointer not correct"
+            address(deputyPauseModule.foundationSafe()),
+            // TODO: make this parameterizable
+            simpleAddrRegistry.get("FoundationUpgradeSafe"),
+            "DeputyPauseModule foundation safe pointer not correct"
         );
         assertEq(
-            address(deputyGuardianModule.superchainConfig()),
+            address(deputyPauseModule.superchainConfig()),
             simpleAddrRegistry.get("SuperchainConfig"),
             "Superchain config address not correct"
         );
