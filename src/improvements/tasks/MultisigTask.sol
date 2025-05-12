@@ -313,7 +313,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
     /// @notice Get the safe address string from the config file.
     /// If the string is not found, use the value from the template.
-    function loadSafeAddressString(string memory taskConfigFilePath) internal view returns (string memory) {
+    function loadSafeAddressString(string memory taskConfigFilePath) public view returns (string memory) {
         string memory file = vm.readFile(taskConfigFilePath);
         try vm.parseTomlString(file, ".safeAddressString") returns (string memory _safeAddressString) {
             console.log("Safe address string found in config file: %s", _safeAddressString);
