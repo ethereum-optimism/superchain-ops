@@ -42,7 +42,7 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
 
     /// @notice Returns the storage write permissions required for this task
     /// @return Array of storage write permissions
-    function _taskStorageWrites() internal view override returns (string[] memory) {
+    function _taskStorageWrites() internal pure override returns (string[] memory) {
         // The only storage write is the safe address string, which is handled in
         // MultisigTask._taskSetup().
         return new string[](0);
