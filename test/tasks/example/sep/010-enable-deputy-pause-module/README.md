@@ -1,4 +1,4 @@
-# 001-enable-deputy-pause-module
+# 010-enable-deputy-pause-module
 
 Status: [DRAFT]()
 
