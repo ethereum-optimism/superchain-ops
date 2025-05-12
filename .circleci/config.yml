@@ -496,7 +496,8 @@ workflows:
             - circleci-repo-readonly-authenticated-github-token
           filters:
             paths:
-              only: ["test/tasks/example/**"]
+              only:
+                - "test/tasks/example/**"
       - just_new_recipe_tests
       - shellcheck:
           context:
