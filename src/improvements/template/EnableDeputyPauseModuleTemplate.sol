@@ -95,7 +95,6 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
         assertEq(deputyPauseModule.version(), deputyPauseModuleVersion, "DeputyPauseModule version not correct");
         assertEq(
             address(deputyPauseModule.foundationSafe()),
-            // TODO: make this parameterizable
             simpleAddrRegistry.get(foundationSafeString),
             "DeputyPauseModule foundation safe pointer not correct"
         );
