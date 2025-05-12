@@ -44,6 +44,7 @@ create_task() {
         echo -e "\033[32mYou selected: Yes\033[0m"
         dest_dir="../../test/tasks/example"
         suggestion="This is a test task"
+        is_test_task="true"
         echo ""
     else 
         echo -e "\033[32mYou selected: No\033[0m"
@@ -59,6 +60,7 @@ create_task() {
             most_recent_task_dir=$(echo "$sorted_existing_dirs" | tail -n1)
             suggestion="lexicographically after: $(basename "$most_recent_task_dir")"
         fi
+        is_test_task="false"
     fi
 
     while true; do
@@ -96,7 +98,7 @@ create_task() {
     cp "template/boilerplate/README.template.md" "$readme_path"
 
     # Write empty readme and validation files for test tasks
-    if [[ "$is_test_task" == "Y" || "$is_test_task" == "y" ]]; then
+    if [[ "$is_test_task" == "true" ]]; then
         echo "" > "$readme_path"
         echo "" > "$validation_path"
     else
@@ -116,7 +118,10 @@ create_task() {
     # make .env file with TENDERLY_GAS set to 10000000 
     env_path="$task_path/.env"
     echo "TENDERLY_GAS=10000000" > "$env_path"
-    echo "FORK_BLOCK_NUMBER=" >> "$env_path"
+    if [[ "$is_test_task" == "true" ]]; then
+        # Only add a fork block number if this is a test task. We want the test task to consistently use the same block number.
+        echo "FORK_BLOCK_NUMBER=" >> "$env_path"
+    fi
 
     echo "Created task directory '${dirname}' for network: ${network}"
     absolute_path=$(realpath "$task_path")
