@@ -40,7 +40,7 @@ parameters:
     default: "__not_set__"
 
 commands:
-  notify-failures-on-develop:
+  notify-failures-on-main:
     description: "Notify Slack"
     parameters:
       channel:
@@ -150,7 +150,7 @@ jobs:
           command: |
             just install
             (cd src/improvements && just check-superchain-registry-latest)
-      - notify-failures-on-develop:
+      - notify-failures-on-main:
           mentions: "@security-team"
 
   # TODO: remove/replace when there are real consumers of the RPC URLs
@@ -250,7 +250,7 @@ jobs:
           command: |
             just install
             (cd src/improvements && just simulate-stack <<parameters.network>>)
-      - notify-failures-on-develop:
+      - notify-failures-on-main:
           mentions: "@security-team"
 
   just_simulate_nested:
@@ -277,54 +277,6 @@ jobs:
               --dotenv-path $(pwd)/.env \
               --justfile ../../../nested.just \
               simulate council
-
-  # TODO: Remove this job once we have stacked simulations for non-terminal tasks implemented.
-  just_simulate_nested_improvements:
-    circleci_ip_ranges: true
-    description: "Runs simulations of a nested task (new superchain-ops improvements)"
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    parameters:
-      task:
-        type: string
-      signer:
-        type: string
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: "simulate nested << parameters.task >>"
-          environment:
-            FOUNDRY_PROFILE: ci
-          command: |
-            just install
-            cd src/improvements/tasks/<< parameters.task >>
-            SIMULATE_WITHOUT_LEDGER=true just \
-              --dotenv-path $(pwd)/.env \
-              --justfile ../../../nested.just \
-              simulate << parameters.signer >>
-
-  # TODO: Remove this job once we have stacked simulations for non-terminal tasks implemented.
-  just_simulate_single_improvements:
-    circleci_ip_ranges: true
-    description: "Runs simulations of a single task (new superchain-ops improvements)"
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    parameters:
-      task:
-        type: string
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: "simulate single << parameters.task >>"
-          environment:
-            FOUNDRY_PROFILE: ci
-          command: |
-            just install
-            cd src/improvements/tasks/<< parameters.task >>
-            SIMULATE_WITHOUT_LEDGER=true just \
-              --dotenv-path $(pwd)/.env \
-              --justfile ../../../single.just \
-              simulate
 
   just_simulate_op_sep_prestate_update:
     docker:
@@ -400,6 +352,8 @@ jobs:
           name: Make sure all templates can be simulated.
           command: |
             (cd src/improvements && just simulate-all-templates)
+      - notify-failures-on-main:
+          mentions: "@security-team"
 
   just_new_recipe_tests:
     circleci_ip_ranges: true
