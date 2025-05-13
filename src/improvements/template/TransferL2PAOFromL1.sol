@@ -13,6 +13,11 @@ import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegis
 /// This template creates a transaction that executes on L1 via the OptimismPortal which is then forwarded to the L2.
 /// See: https://docs.optimism.io/stack/transactions/deposit-flow
 /// ATTENTION: Please use caution when using this template. Transferring ownership is high risk.
+///
+/// Post-Execution Checks
+/// 1. Find the L2 deposit transaction by identifying the alias of the L1 ProxyAdmin owner safe.
+/// 2. The transaction you're looking for should be the most recent transaction sent from the aliased L1PAO adress on L2. If it's not, then it should be a _recent_ transaction from that was interacting with the L1 ProxyAdmin 0x4200000000000000000000000000000000000018.
+/// 3. Once you've found the correct transaction, verify that the expected log event was emitted i.e. 'emit OwnershipTransferred(oldOwner, newOwner)'.
 contract TransferL2PAOfromL1 is L2TaskBase {
     using stdToml for string;
 
