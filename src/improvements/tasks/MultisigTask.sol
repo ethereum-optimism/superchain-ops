@@ -1248,7 +1248,10 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                 );
             }
 
-            if (!_allowedBalanceChanges.contains(accountAccess.account)) {
+            if (
+                !_allowedBalanceChanges.contains(accountAccess.account)
+                    || _isNewContract(accountAccess.account, newContracts)
+            ) {
                 require(
                     accountAccess.oldBalance == accountAccess.newBalance,
                     string.concat("Unexpected balance change: ", vm.toString(accountAccess.account))
