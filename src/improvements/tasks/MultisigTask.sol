@@ -38,8 +38,11 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// This state variable is always set in the `_taskSetup` function
     address public parentMultisig;
 
-    /// @notice struct to store allowed storage accesses read in from config file
+    /// @notice struct to store the addresses that are expected to have storage accesses
     EnumerableSet.AddressSet internal _allowedStorageAccesses;
+
+    /// @notice struct to store the addresses that are expected to have balance changes
+    EnumerableSet.AddressSet internal _allowedBalanceChanges;
 
     /// @notice Struct to store information about an action
     /// @param target The address of the target contract
@@ -115,6 +118,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @notice Task TOML config file values
     struct TaskConfig {
         string[] allowedStorageKeys;
+        string[] allowedBalanceChanges;
         string safeAddressString;
     }
 
@@ -148,6 +152,13 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @notice Returns an array of strings that refer to contract names in the address registry.
     /// Contracts with these names are expected to have their storage written to during the task.
     function _taskStorageWrites() internal view virtual returns (string[] memory);
+
+    /// @notice Returns an array of strings that refer to contract names in the address registry.
+    /// Contracts with these names are expected to have their balance changes during the task.
+    /// By default returns an empty array. Override this function if your task expects balance changes.
+    function _taskBalanceChanges() internal view virtual returns (string[] memory) {
+        return new string[](0);
+    }
 
     /// @notice By default, any value written to storage that looks like an address is expected to
     /// have code. Sometimes, accounts without code are expected, and this function allows you to
@@ -295,6 +306,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
         config.allowedStorageKeys = _taskStorageWrites();
         config.allowedStorageKeys.push(config.safeAddressString);
+        config.allowedBalanceChanges = _taskBalanceChanges();
 
         _templateSetup(taskConfigFilePath);
         // Both parent and child nonce are set here.
@@ -1220,7 +1232,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     }
 
     /// @notice This function performs basic checks on the state diff.
-    /// It checks that all touched accounts have code, that the balances are unchanged, and that no self-destructs occurred.
+    /// It checks that all touched accounts have code, that the balances are unchanged if not expected, and that no self-destructs occurred.
     function checkStateDiff(VmSafe.AccountAccess[] memory accountAccesses) internal view {
         require(accountAccesses.length > 0, "No account accesses");
         address[] memory allowedAccesses = getAllowedStorageAccess();
@@ -1235,10 +1247,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                     string.concat("Account has no code: ", vm.toString(accountAccess.account))
                 );
             }
-            require(
-                accountAccess.oldBalance == accountAccess.newBalance,
-                string.concat("Unexpected balance change: ", vm.toString(accountAccess.account))
-            );
+
+            if (!_allowedBalanceChanges.contains(accountAccess.account)) {
+                require(
+                    accountAccess.oldBalance == accountAccess.newBalance,
+                    string.concat("Unexpected balance change: ", vm.toString(accountAccess.account))
+                );
+            }
+
             require(
                 accountAccess.kind != VmSafe.AccountAccessKind.SelfDestruct,
                 string.concat("Self-destructed account: ", vm.toString(accountAccess.account))
