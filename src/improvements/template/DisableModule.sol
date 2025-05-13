@@ -104,15 +104,13 @@ contract DisableModule is SimpleTaskBase {
                 );
             }
             if (storageAccess.slot == moduleSlot) {
-                assertEq(
-                    address(uint160(uint256(storageAccess.newValue))),
-                    address(0),
-                    "module not disabled"
-                );
+                assertEq(address(uint160(uint256(storageAccess.newValue))), address(0), "module not disabled");
 
                 bytes32 sentinelModuleValue = vm.load(parentMultisig, sentinelSlot);
                 assertEq(
-                    sentinelModuleValue, bytes32(uint256(uint160(previousModule))), "sentinel does not point to previous module"
+                    sentinelModuleValue,
+                    bytes32(uint256(uint160(previousModule))),
+                    "sentinel does not point to previous module"
                 );
 
                 moduleWriteFound = true;
