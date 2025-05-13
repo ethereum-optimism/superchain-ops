@@ -1248,6 +1248,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                 );
             }
 
+            // If the account is not in the allowed balance changes array or is a new contract,
+            // we expect the balance to be unchanged.
             if (
                 !_allowedBalanceChanges.contains(accountAccess.account)
                     || _isNewContract(accountAccess.account, newContracts)

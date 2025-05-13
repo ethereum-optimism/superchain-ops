@@ -36,6 +36,7 @@ contract L2TaskBaseTemplate is L2TaskBase {
 
     /// @notice Returns an array of strings that refer to contract names in the address registry.
     /// Contracts with these names are expected to have their balance changes during the task.
+    /// Keep in mind that freshly deployed contracts will not be checked for balance changes.
     /// By default returns an empty array. Override this function if your task expects balance changes.
     function _taskBalanceChanges() internal view virtual override returns (string[] memory) {
         require(false, "TODO: Implement with the correct balance changes.");
