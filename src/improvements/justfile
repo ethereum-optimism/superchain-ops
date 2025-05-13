@@ -242,3 +242,8 @@ list-stack NETWORK="" TASK="":
         echo "Listing all tasks for network: {{NETWORK}} up to task: {{TASK}}"
         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string,string)" {{NETWORK}} {{TASK}}
     fi
+
+test:
+    forge build
+    forge test
+    just simulate-all-templates
