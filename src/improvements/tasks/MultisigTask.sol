@@ -38,8 +38,11 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// This state variable is always set in the `_taskSetup` function
     address public parentMultisig;
 
-    /// @notice struct to store allowed storage accesses read in from config file
+    /// @notice struct to store the addresses that are expected to have storage accesses
     EnumerableSet.AddressSet internal _allowedStorageAccesses;
+
+    /// @notice struct to store the addresses that are expected to have balance changes
+    EnumerableSet.AddressSet internal _allowedBalanceChanges;
 
     /// @notice Struct to store information about an action
     /// @param target The address of the target contract
@@ -115,6 +118,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @notice Task TOML config file values
     struct TaskConfig {
         string[] allowedStorageKeys;
+        string[] allowedBalanceChanges;
         string safeAddressString;
     }
 
@@ -143,11 +147,18 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
     /// @notice Specifies the safe address string to run the template from. This string refers
     /// to a named contract, where the name is read from an address registry contract.
-    function safeAddressString() public pure virtual returns (string memory);
+    function safeAddressString() public view virtual returns (string memory);
 
     /// @notice Returns an array of strings that refer to contract names in the address registry.
     /// Contracts with these names are expected to have their storage written to during the task.
     function _taskStorageWrites() internal view virtual returns (string[] memory);
+
+    /// @notice Returns an array of strings that refer to contract names in the address registry.
+    /// Contracts with these names are expected to have their balance changes during the task.
+    /// By default returns an empty array. Override this function if your task expects balance changes.
+    function _taskBalanceChanges() internal view virtual returns (string[] memory) {
+        return new string[](0);
+    }
 
     /// @notice By default, any value written to storage that looks like an address is expected to
     /// have code. Sometimes, accounts without code are expected, and this function allows you to
@@ -203,8 +214,11 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         validate(accountAccesses, actions);
         print(actions, accountAccesses, true, txHash);
 
+        // Revert with meaningful error message if the user is trying to simulate with the wrong command.
         if (optionalChildMultisig != address(0)) {
-            require(isNestedSafe(parentMultisig), "MultisigTask: multisig must be nested");
+            require(isNestedSafe(parentMultisig), "MultisigTask: multisig must be a nested safe.");
+        } else {
+            require(!isNestedSafe(parentMultisig), "MultisigTask: multisig must be a single safe.");
         }
 
         return (accountAccesses, actions);
@@ -283,7 +297,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// by performing various setup functions e.g. setting the address registry and multicall target.
     function _taskSetup(string memory taskConfigFilePath, address optionalChildMultisig) internal {
         require(bytes(config.safeAddressString).length == 0, "MultisigTask: already initialized");
-        config.safeAddressString = safeAddressString();
+        config.safeAddressString = loadSafeAddressString(taskConfigFilePath);
         IGnosisSafe _parentMultisig; // TODO parentMultisig should be of type IGnosisSafe
         (addrRegistry, _parentMultisig, multicallTarget) = _configureTask(taskConfigFilePath);
 
@@ -291,7 +305,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         childMultisig = optionalChildMultisig;
 
         config.allowedStorageKeys = _taskStorageWrites();
-        config.allowedStorageKeys.push(safeAddressString());
+        config.allowedStorageKeys.push(config.safeAddressString);
+        config.allowedBalanceChanges = _taskBalanceChanges();
 
         _templateSetup(taskConfigFilePath);
         // Both parent and child nonce are set here.
@@ -306,6 +321,19 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
         vm.label(AddressRegistry.unwrap(addrRegistry), "AddrRegistry");
         vm.label(address(this), "MultisigTask");
+    }
+
+    /// @notice Get the safe address string from the config file.
+    /// If the string is not found, use the value from the template.
+    function loadSafeAddressString(string memory taskConfigFilePath) public view returns (string memory) {
+        string memory file = vm.readFile(taskConfigFilePath);
+        try vm.parseTomlString(file, ".safeAddressString") returns (string memory _safeAddressString) {
+            console.log("Safe address string found in config file: %s", _safeAddressString);
+            return _safeAddressString;
+        } catch (bytes memory) {
+            console.log("Error parsing safeAddressString from config file, using value from template.");
+            return safeAddressString();
+        }
     }
 
     /// @notice Get the calldata to be executed by safe.
@@ -1204,7 +1232,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     }
 
     /// @notice This function performs basic checks on the state diff.
-    /// It checks that all touched accounts have code, that the balances are unchanged, and that no self-destructs occurred.
+    /// It checks that all touched accounts have code, that the balances are unchanged if not expected, and that no self-destructs occurred.
     function checkStateDiff(VmSafe.AccountAccess[] memory accountAccesses) internal view {
         require(accountAccesses.length > 0, "No account accesses");
         address[] memory allowedAccesses = getAllowedStorageAccess();
@@ -1219,10 +1247,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                     string.concat("Account has no code: ", vm.toString(accountAccess.account))
                 );
             }
-            require(
-                accountAccess.oldBalance == accountAccess.newBalance,
-                string.concat("Unexpected balance change: ", vm.toString(accountAccess.account))
-            );
+
+            if (!_allowedBalanceChanges.contains(accountAccess.account)) {
+                require(
+                    accountAccess.oldBalance == accountAccess.newBalance,
+                    string.concat("Unexpected balance change: ", vm.toString(accountAccess.account))
+                );
+            }
+
             require(
                 accountAccess.kind != VmSafe.AccountAccessKind.SelfDestruct,
                 string.concat("Self-destructed account: ", vm.toString(accountAccess.account))

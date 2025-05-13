@@ -34,9 +34,18 @@ contract OPCMTaskBaseTemplate is OPCMTaskBase {
     /// @notice Mapping of L2 chain IDs to their respective OPCMUpgrade structs.
     mapping(uint256 => OPCMUpgrade) public upgrades;
 
-    /// @notice Returns the storage write permissions required for this task
+    /// @notice Returns the storage write permissions required for this task. This is an array of
+    /// contract names that are expected to be written to during the execution of the task.
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
         require(false, "TODO: Implement with the correct storage writes.");
+        return new string[](0);
+    }
+
+    /// @notice Returns an array of strings that refer to contract names in the address registry.
+    /// Contracts with these names are expected to have their balance changes during the task.
+    /// By default returns an empty array. Override this function if your task expects balance changes.
+    function _taskBalanceChanges() internal view virtual override returns (string[] memory) {
+        require(false, "TODO: Implement with the correct balance changes.");
         return new string[](0);
     }
 
