@@ -14,7 +14,7 @@ cmd := "yq '.templateName' " + TASK_PATH + "/config.toml"
 export SCRIPT_NAME := shell(cmd)
 export signatures := env_var_or_default('SIGNATURES', '')
 export forkBlockNumber := env_var_or_default('FORK_BLOCK_NUMBER', '-1')
-# The 'signerAddress' will be the 'from' field in the Tenderly simulation. 
+# The 'signerAddress' will be the 'from' field in the Tenderly simulation.
 # Default signer: address(uint160(uint256(keccak256("foundry default caller"))))
 export signerAddress := env_var_or_default('SIGNER_ADDRESS', '0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38')
 
@@ -38,7 +38,7 @@ simulate hdPath='0':
   if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
     signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
     echo "Simulating with ledger account: ${signer}"
-  else 
+  else
     signer="{{signerAddress}}"
     echo "Using 'signerAddress' as signer: ${signer}"
   fi
@@ -92,7 +92,7 @@ execute hdPath='0':
   #!/usr/bin/env bash
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
-  
+
   echo "Using script ${script}"
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
 
@@ -119,7 +119,7 @@ sign_and_execute_in_anvil parentSafe:
   echo ""
 
   ownerSafe={{parentSafe}}
-  
+
   echo "============ OVERRIDE SAFE SETTINGS '${ownerSafe}' ============"
   echo "1. Set the threshold to 1."
   cast rpc anvil_setStorageAt ${ownerSafe} 0x0000000000000000000000000000000000000000000000000000000000000004 0x0000000000000000000000000000000000000000000000000000000000000001 --rpc-url ${ANVIL_LOCALHOST_RPC}
@@ -145,7 +145,7 @@ sign_and_execute_in_anvil parentSafe:
     --rpc-url ${ANVIL_LOCALHOST_RPC} \
     --sig "simulateRun(string)" ${config})
   signature=$(echo "${signature}" | grep -o "Signature: [0-9a-f]\{130\}" | cut -d' ' -f2)
-  
+
   forge script ${script} \
     --sig "executeRun(string,bytes)" ${config} ${signature} \
     --broadcast \

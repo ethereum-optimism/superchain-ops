@@ -147,7 +147,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
     /// @notice Specifies the safe address string to run the template from. This string refers
     /// to a named contract, where the name is read from an address registry contract.
-    function safeAddressString() public pure virtual returns (string memory);
+    function safeAddressString() public view virtual returns (string memory);
 
     /// @notice Returns an array of strings that refer to contract names in the address registry.
     /// Contracts with these names are expected to have their storage written to during the task.
@@ -214,8 +214,11 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         validate(accountAccesses, actions);
         print(actions, accountAccesses, true, txHash);
 
+        // Revert with meaningful error message if the user is trying to simulate with the wrong command.
         if (optionalChildMultisig != address(0)) {
-            require(isNestedSafe(parentMultisig), "MultisigTask: multisig must be nested");
+            require(isNestedSafe(parentMultisig), "MultisigTask: multisig must be a nested safe.");
+        } else {
+            require(!isNestedSafe(parentMultisig), "MultisigTask: multisig must be a single safe.");
         }
 
         return (accountAccesses, actions);
@@ -294,7 +297,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// by performing various setup functions e.g. setting the address registry and multicall target.
     function _taskSetup(string memory taskConfigFilePath, address optionalChildMultisig) internal {
         require(bytes(config.safeAddressString).length == 0, "MultisigTask: already initialized");
-        config.safeAddressString = safeAddressString();
+        config.safeAddressString = loadSafeAddressString(taskConfigFilePath);
         IGnosisSafe _parentMultisig; // TODO parentMultisig should be of type IGnosisSafe
         (addrRegistry, _parentMultisig, multicallTarget) = _configureTask(taskConfigFilePath);
 
@@ -318,6 +321,19 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
         vm.label(AddressRegistry.unwrap(addrRegistry), "AddrRegistry");
         vm.label(address(this), "MultisigTask");
+    }
+
+    /// @notice Get the safe address string from the config file.
+    /// If the string is not found, use the value from the template.
+    function loadSafeAddressString(string memory taskConfigFilePath) public view returns (string memory) {
+        string memory file = vm.readFile(taskConfigFilePath);
+        try vm.parseTomlString(file, ".safeAddressString") returns (string memory _safeAddressString) {
+            console.log("Safe address string found in config file: %s", _safeAddressString);
+            return _safeAddressString;
+        } catch (bytes memory) {
+            console.log("Error parsing safeAddressString from config file, using value from template.");
+            return safeAddressString();
+        }
     }
 
     /// @notice Get the calldata to be executed by safe.
