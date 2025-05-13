@@ -11,3 +11,4 @@ expectedValidationErrors = ""
 
 [addresses]
 OPCM = "0x355fd2a98fc11f5e4a91d9aa4c0041d252a77583" # Coming from interop warrom
+StandardValidatorV300 = "0x2d56022cb84ce6b961c3b4288ca36386bcd9024c" # Sepolia https://github.com/ethereum-optimism/optimism/blob/f79ed8b9c9cbdbf8bb492074f3f98da7f072e21a/op-validator/pkg/validations/addresses.go#L30

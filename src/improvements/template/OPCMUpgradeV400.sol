@@ -14,15 +14,14 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
 
-/// TODO: If you need any interfaces from the Optimism monorepo submodule. Define them here instead of importing them.
-/// Doing this avoids tight coupling to the monorepo submodule and allows you to update the monorepo submodule
-/// without having to update the template (Remove this comment when done).
-
 /// @notice A template contract for configuring OPCMTaskBase templates.
 /// Supports: op-contracts/v4.0.0-rc.2>
 contract OPCMUpgradeV400 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
+
+    /// @notice The StandardValidatorV300 address temorarily while we don't have the V400 version
+    IStandardValidatorV300 public STANDARD_VALIDATOR_V300;
 
     /// @notice Struct to store inputs data for each L2 chain.
     struct OPCMUpgrade {
@@ -65,11 +64,19 @@ contract OPCMUpgradeV400 is OPCMTaskBase {
         require(IOPContractsManager(OPCM).version().eq("2.3.0"), "Incorrect OPCM");
         vm.label(OPCM, "OPCM");
 
-        // require(false, "TODO: Perform a StandardValidatorV200 version check e.g. see comments below.");
-        // STANDARD_VALIDATOR_V200 = IStandardValidatorV200(tomlContent.readAddress(".addresses.StandardValidatorV200"));
-        // require(STANDARD_VALIDATOR_V200.disputeGameFactoryVersion().eq("1.0.1"), "Incorrect StandardValidatorV200");
-        // vm.label(address(STANDARD_VALIDATOR_V200), "StandardValidatorV200");
-        // require(false, "TODO: Implement with the correct template setup.");
+        STANDARD_VALIDATOR_V300 = IStandardValidatorV300(tomlContent.readAddress(".addresses.StandardValidatorV300"));
+        require(
+            address(STANDARD_VALIDATOR_V300).code.length > 0, "Incorrect StandardValidatorV300 - no code at address"
+        );
+        require(
+            STANDARD_VALIDATOR_V300.mipsVersion().eq("1.0.0"),
+            "Incorrect StandardValidatorV300 - expected mips version 1.0.0"
+        );
+        require(
+            STANDARD_VALIDATOR_V300.systemConfigVersion().eq("2.5.0"),
+            "Incorrect StandardValidatorV300 - expected systemConfig version 2.5.0"
+        );
+        vm.label(address(STANDARD_VALIDATOR_V300), "StandardValidatorV300");
     }
 
     /// @notice Before implementing the `_build` function, task developers must consider the following:
@@ -110,14 +117,17 @@ contract OPCMUpgradeV400 is OPCMTaskBase {
             string memory expErrors = upgrades[chainId].expectedValidationErrors;
             address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
             address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
-            chainId;
-            expAbsolutePrestate;
-            expErrors;
-            proxyAdmin;
-            sysCfg;
-            //require(false, "TODO: Implement with the correct validation logic.");
-            // Standard Validator is not yet finished
-            //require(false, "TODO: Call StandardValidator.validate()");
+
+            IStandardValidatorV300.InputV300 memory input = IStandardValidatorV300.InputV300({
+                proxyAdmin: proxyAdmin,
+                sysCfg: sysCfg,
+                absolutePrestate: expAbsolutePrestate,
+                l2ChainID: chainId
+            });
+
+            string memory errors = STANDARD_VALIDATOR_V300.validate({_input: input, _allowFailure: true});
+
+            require(errors.eq(expErrors), string.concat("Unexpected errors: ", errors, "; expected: ", expErrors));
         }
     }
 
@@ -125,4 +135,19 @@ contract OPCMUpgradeV400 is OPCMTaskBase {
     function getCodeExceptions() internal view virtual override returns (address[] memory) {
         return new address[](0);
     }
+}
+
+interface IStandardValidatorV300 {
+    struct InputV300 {
+        address proxyAdmin;
+        address sysCfg;
+        bytes32 absolutePrestate;
+        uint256 l2ChainID;
+    }
+
+    function validate(InputV300 memory _input, bool _allowFailure) external view returns (string memory);
+
+    function mipsVersion() external pure returns (string memory);
+
+    function systemConfigVersion() external pure returns (string memory);
 }
