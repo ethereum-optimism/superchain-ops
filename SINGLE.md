@@ -56,6 +56,13 @@ just \
 
 You will see a "Simulation link" from the output.
 
+If you are running a simulation on Base and the output also includes a message like:
+```
+Insert the following hex into the 'Raw input data' field:
+<hex data>
+```
+you should open the simulation link in your browser, paste the provided hex data into the "Raw input data" field in the Tenderly UI, and then click "Simulate Transaction" to proceed. This step is required for Base simulations with large calldata, as the full calldata cannot be embedded in the URL.
+
 Paste this URL in your browser. A prompt may ask you to choose a
 project, any project will do. You can create one if necessary.
 
