@@ -198,7 +198,7 @@ approvehash_in_anvil2 whichSafe parentSafe:
   #!/usr/bin/env bash
   #set -x
   # Disable exit on error temporarily
-  
+
   # Get the appropriate safe address based on whichSafe
   safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
   echo "safe: $safe"
@@ -208,9 +208,9 @@ approvehash_in_anvil2 whichSafe parentSafe:
   fi
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
-  
+
   sender=$(cast wallet address --private-key ${PRIVATE_KEY_OWNER})
-  
+
   echo "============ OVERRIDE SAFES SETTINGS Parent Safe:'{{parentSafe}}' & Child Safe: '${safe}' ============"
   echo "1. Set the threshold to 1 of the child safe."
   cast rpc anvil_setStorageAt ${safe} 0x0000000000000000000000000000000000000000000000000000000000000004 0x0000000000000000000000000000000000000000000000000000000000000001 --rpc-url ${ANVIL_LOCALHOST_RPC}
@@ -222,7 +222,7 @@ approvehash_in_anvil2 whichSafe parentSafe:
   # cast index address 0x0000000000000000000000000000000000000001 2 => 0xe90b7bceb6e7df5418fb78d8ee546e97c83a08bbccc01a0644d599ccd2a7c2e0 expected owner mapping: {0x1 -> 0xf39..., 0xf39 -> 0x1}
   echo "3. Insert the address 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 as the sole owner of the safe."
   cast rpc anvil_setStorageAt ${safe} 0xe90b7bceb6e7df5418fb78d8ee546e97c83a08bbccc01a0644d599ccd2a7c2e0 0x000000000000000000000000f39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --rpc-url ${ANVIL_LOCALHOST_RPC}
-  
+
   echo "4. Close the mapping of the owners to the sentinel address."
   # cast index address 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 2 => 0xbc40fbf4394cd00f78fae9763b0c2c71b21ea442c42fdadc5b720537240ebac1
   cast rpc anvil_setStorageAt ${safe} 0xbc40fbf4394cd00f78fae9763b0c2c71b21ea442c42fdadc5b720537240ebac1  0x0000000000000000000000000000000000000000000000000000000000000001 --rpc-url ${ANVIL_LOCALHOST_RPC}
@@ -238,9 +238,9 @@ approvehash_in_anvil2 whichSafe parentSafe:
     --sig "signFromChildMultisig(string,address)" \
     ${config} \
     "${safe}")
-  
+
   signature=$(echo "$res_sig" | grep -o 'Signature: [a-fA-F0-9]\{130\}' | cut -d' ' -f2)
-  
+
   # Check if the signature is not empty
   if [ -n "$signature" ]; then
       echo "Signature found: $signature"
@@ -249,7 +249,7 @@ approvehash_in_anvil2 whichSafe parentSafe:
       exit 1
   fi
   cd ${TASK_PATH}
-  
+
   # Run the command and capture both stdout and stderr
   approve_res=$(just --justfile ${SCRIPT_PATH}/nested.just approve_in_anvil {{whichSafe}} ${signature} 2>&1)
   if [[ $approve_res == *"not enough signatures"* ]]; then

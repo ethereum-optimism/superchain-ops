@@ -34,7 +34,20 @@ just --justfile ../../justfile install
 
 > For more information on `mise`, please refer to the [CONTRIBUTING.md](../../CONTRIBUTING.md) guide.
 
-2. Create a new task:
+2. Run tests:
+Run all tests:
+```bash
+cd src/improvements/
+just test # Run this command before asking for a review on any PR.
+```
+
+Run individual test suites:
+```bash
+forge test # Run solidity tests.
+just simulate-all-templates # Run template regression tests.
+```
+
+3. Create a new task:
 ```bash
 cd src/improvements/
 just new task
@@ -44,7 +57,7 @@ Follow the interactive prompts from the `just new task` command to create a new 
 
 > Note: An `.env` file will be created in the new tasks directory. Please make sure to fill out the `TENDERLY_GAS` variable with a high enough value to simulate the task.
 
-3. Configure the task in `config.toml` e.g.
+4. Configure the task in `config.toml` e.g.
 ```toml
 l2chains = [{"name": "OP Mainnet", "chainId": 10}]
 templateName = "<TEMPLATE_NAME>" # e.g. OPCMUpgradeV200
@@ -62,7 +75,7 @@ The `[addresses]` TOML [table](https://toml.io/en/v1.0.0#table) is optional. It 
 
 The `[stateOverrides]` TOML table is optional, but in most cases we use it to specify the nonces of the multisig safes involved in an upgrade. Selecting the correct nonce is important and requires careful consideration. You can see an example of its use in this [task](./tasks/eth/009-opcm-update-prestate-v300-op+ink/config.toml).
 
-4. Simulate the task:
+5. Simulate the task:
 ```bash
 # Nested
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate <foundation|council|chain-governor|foundation-operations|base-operations|[custom-safe-name]>
@@ -75,7 +88,7 @@ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nes
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
 ```
 
-5. Fill out the `README.md` and `VALIDATION.md` files.
+6. Fill out the `README.md` and `VALIDATION.md` files.
     - If your task status is not `EXECUTED` or `CANCELLED`, it is considered non-terminal and will automatically be included in stacked simulations (which run on the main branch).
 
 ### How do I run a task that depends on another task?

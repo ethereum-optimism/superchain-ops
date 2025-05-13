@@ -23,6 +23,8 @@ Once a new template has been created and tested from the command line as a forge
 4. Make sure to pin the block number in the test case to avoid intermittent failures (you can do this using the `.env` file).
 5. Run the regression test suite to ensure the new template passes all tests.
 
+> ⚠️ Note: The CI job `template_regression_tests` will fail if you do not include an example task for your new template. This job only runs on the `main` branch because it is a long running job. It's encouraged that task developers run this locally before pushing changes. You can do this by running `just simulate-all-templates` from `src/improvements/`.
+
 ## Existing Templates
 
 Existing templates can be found in the [`src/improvements/template/`](../template) directory. These templates can be used as a reference for creating new templates.
