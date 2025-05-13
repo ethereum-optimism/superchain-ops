@@ -64,6 +64,7 @@ contract OPCMUpgradeV400 is OPCMTaskBase {
         require(IOPContractsManager(OPCM).version().eq("2.3.0"), "Incorrect OPCM");
         vm.label(OPCM, "OPCM");
 
+        // The StandadValidator400 is not yet finished, so we use the V300 version temporarily
         STANDARD_VALIDATOR_V300 = IStandardValidatorV300(tomlContent.readAddress(".addresses.StandardValidatorV300"));
         require(
             address(STANDARD_VALIDATOR_V300).code.length > 0, "Incorrect StandardValidatorV300 - no code at address"
