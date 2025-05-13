@@ -593,7 +593,7 @@ library AccountAccessParser {
                     : "<TODO: enter contract name>";
                 string memory addressString =
                     string.concat("\n### ", "`", LibString.toHexString(_stateDiffs[i].who), "`");
-                console.log(addressString, string.concat(" (", currentContractName, ") ", currentChainId));
+                console.log(addressString, string.concat("(", currentContractName, ") ", currentChainId));
                 currentAddress = _stateDiffs[i].who;
             }
             DecodedStateDiff memory state = _stateDiffs[i];

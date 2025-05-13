@@ -490,7 +490,15 @@ workflows:
       - forge_test:
           context:
             - circleci-repo-readonly-authenticated-github-token
-      - template_regression_tests
+      # This is a long running job, so we only run it on the main branch. It's encouraged that task
+      # developers run this locally before pushing changes. We should keep this job running on main 
+      # until we have performance improvements to the job (e.g. https://github.com/foundry-rs/foundry/issues/5363).
+      - template_regression_tests:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+          filters:
+            branches:
+              only: main
       - just_new_recipe_tests
       - shellcheck:
           context:
@@ -531,6 +539,16 @@ workflows:
       # and now it fails with stack too deep after https://github.com/ethereum-optimism/superchain-ops/pull/528.
       # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
       # - just_simulate_sc_rehearsal_1
+      
+      - just_simulate_nested:
+          task: "/eth/swell-001-holocene-upgrade"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
+      - just_simulate_nested:
+          task: "/eth/arena-z-001-fp-holocene-upgrade"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
 
       - just_simulate_sc_rehearsal_2:
           context:
@@ -542,7 +560,7 @@ workflows:
       - simulate_sequence:
           name: simulate_sequence_eth
           network: "eth"
-          tasks: ""
+          tasks: "arena-z-001 swell-001-holocene"
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
@@ -590,3 +608,4 @@ workflows:
             This issue will be closed now."
           context:
             - circleci-repo-superchain-ops
+            

@@ -35,6 +35,7 @@ simulate_task() {
     fi
 
     echo -e "\n\nDone simulating task: $task"
+    echo ""
     popd > /dev/null
 }
 
