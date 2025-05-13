@@ -305,7 +305,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         childMultisig = optionalChildMultisig;
 
         config.allowedStorageKeys = _taskStorageWrites();
-        config.allowedStorageKeys.push(safeAddressString());
+        config.allowedStorageKeys.push(config.safeAddressString);
         config.allowedBalanceChanges = _taskBalanceChanges();
 
         _templateSetup(taskConfigFilePath);
