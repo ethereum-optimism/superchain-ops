@@ -3,7 +3,7 @@
 new COMMAND="" TASK_TYPE="":
     #!/usr/bin/env bash
     set -euo pipefail
-    
+
     echo -e "\033[42m                          \033[0m"
     echo -e "\033[42m    superchain-ops cli    \033[0m"
     echo -e "\033[42m                          \033[0m"
@@ -131,17 +131,23 @@ simulate-all-templates:
     echo "$simulation_count simulations run."
     template_count=$(find "${root_dir}/src/improvements/template" -type f ! -name "*.template.sol" ! -path "*/boilerplate/*" | wc -l | xargs)
 
+    # Verify that every template file is referenced by at least one example task config.
+    missing_templates=()
+    while IFS= read -r template_file; do
+        tmpl_name=$(basename "$template_file" .sol)
+        if ! grep -R --quiet "templateName = \"${tmpl_name}\"" "${root_dir}/test/tasks/example"/*/*/config.toml 2>/dev/null; then
+            missing_templates+=("$tmpl_name")
+        fi
+    done < <(find "${root_dir}/src/improvements/template" -type f ! -name "*.template.sol" ! -path "*/boilerplate/*")
+
     echo ""
-    if [ "$simulation_count" -ne "$template_count" ]; then
-        echo ""
-        echo -e "\033[31mError: Not all templates files have a corresponding task. Please add a task for a template in ${root_dir}/src/improvements/tasks/example\033[0m" >&2
-        echo -e "\033[31mSimulated $simulation_count out of $template_count templates\033[0m" >&2
-        echo ""
-        exit 1
-    else
+    if [ ${#missing_templates[@]} -ne 0 ]; then
+        echo -e "\033[31mError: The following template(s) do not have an example task referencing them:\033[0m" >&2
+        for t in "${missing_templates[@]}"; do
+            echo -e "\033[31m  • $t\033[0m" >&2
+        done
         echo -e "\033[32mSuccess: All templates have a corresponding task.\033[0m"
-        echo ""
-        exit 0
+        exit 1
     fi
 
 simulate-verify-task TASK="":
@@ -236,3 +242,8 @@ list-stack NETWORK="" TASK="":
         echo "Listing all tasks for network: {{NETWORK}} up to task: {{TASK}}"
         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string,string)" {{NETWORK}} {{TASK}}
     fi
+
+test:
+    forge build
+    forge test
+    just simulate-all-templates
