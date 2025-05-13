@@ -18,3 +18,9 @@ FoundationUpgradeSafe = "0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B"
 SecurityCouncil = "0xf64bc17485f0B4Ea5F06A96514182FC4cB561977"
 FoundationOperationsSafe = "0x837DE453AD5F21E89771e3c06239d8236c0EFd5E"
 GuardianSafe = "0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E"
+
+# Found by getting the L2PAO, unaliasing it to get the L1PAO, then getting the owners from the L1PAO.
+[unichain]
+FoundationUpgradeSafe = "0x847B5c174615B1B7fDF770882256e2D3E95b9D92"
+SecurityCouncil = "0xc2819DC788505Aac350142A7A707BF9D03E3Bd03"
+ChainGovernorSafe = "0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC"

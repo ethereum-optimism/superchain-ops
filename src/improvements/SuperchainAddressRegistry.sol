@@ -5,6 +5,8 @@ import {Vm} from "forge-std/Vm.sol";
 import {StdChains} from "forge-std/StdChains.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {GameTypes, GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
+import {LibString} from "@solady/utils/LibString.sol";
+import {Predeploys} from "@eth-optimism-bedrock/src/libraries/Predeploys.sol";
 
 /// @notice Contains getters for arbitrary methods from all L1 contracts, including legacy getters
 /// that have since been deprecated.
@@ -40,6 +42,7 @@ interface IFetcher {
 /// across multiple networks. It handles addresses for contracts and externally owned accounts
 /// (EOAs) while ensuring correctness and uniqueness.
 contract SuperchainAddressRegistry is StdChains {
+    using LibString for string;
     using stdToml for string;
 
     address private constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
@@ -169,13 +172,28 @@ contract SuperchainAddressRegistry is StdChains {
     /// @notice Retrieves an address by its identifier for a specified L2 chain
     /// This is deprecated in favor of the `get` function.
     function getAddress(string memory identifier, uint256 l2ChainId) public view returns (address who_) {
-        who_ = registry[identifier][l2ChainId];
-        require(
-            who_ != address(0),
-            string.concat(
-                "SuperchainAddressRegistry: address not found for ", identifier, " on chain ", vm.toString(l2ChainId)
-            )
-        );
+        if (identifier.startsWith("L2_")) {
+            who_ = getL2Predeploy(identifier);
+        } else {
+            who_ = registry[identifier][l2ChainId];
+            require(
+                who_ != address(0),
+                string.concat(
+                    "SuperchainAddressRegistry: address not found for ",
+                    identifier,
+                    " on chain ",
+                    vm.toString(l2ChainId)
+                )
+            );
+        }
+    }
+
+    function getL2Predeploy(string memory identifier) public pure returns (address who_) {
+        if (identifier.eq("L2_ProxyAdmin")) {
+            who_ = Predeploys.PROXY_ADMIN;
+        } else {
+            who_ = address(0);
+        }
     }
 
     /// @notice Retrieves an address by its identifier for the sentinel chain, i.e. the

@@ -5,10 +5,6 @@ set dotenv-load
 export TASK_PATH := invocation_directory()
 export SCRIPT_PATH := justfile_directory()
 
-# Get RPC URL based on task path
-rpc_cmd := SCRIPT_PATH + "/script/get-rpc-url.sh \"" + TASK_PATH + "\""
-export rpcUrl := shell(rpc_cmd)
-
 # Fetch the template name from the config.toml file
 cmd := "yq '.templateName' " + TASK_PATH + "/config.toml"
 export SCRIPT_NAME := shell(cmd)
@@ -26,23 +22,23 @@ simulate whichSafe hdPath='0':
   #!/usr/bin/env bash
   # Get the appropriate safe address based on whichSafe
   safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
-
+  rpcUrl=$(bash ${SCRIPT_PATH}/script/get-rpc-url.sh ${TASK_PATH})
   echo "RPC URL: ${rpcUrl}"
 
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
 
   echo "Using script ${script}"
-  echo "getting signer address for {{whichSafe}}..."
-  signer=$(cast call ${safe} "getOwners()(address[])" -r ${rpcUrl} | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
 
-  echo "safe: $safe"
   echo "Simulating call to {{whichSafe}} at ${safe}"
+  echo "Getting signer address for {{whichSafe}}..."
   if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
     signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-    echo "Simulating with ledger account: ${signer}"
+    echo "⏳ Simulating with ledger account: ${signer}" >&2
   else
-      echo "Simulating without ledger using the first owner account: ${signer}"
+    # Default signer: address(uint160(uint256(keccak256("foundry default caller"))))
+    signer="0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38"
+    echo "⏳ Simulating without ledger using the default foundry account: ${signer}" >&2
   fi
   echo ""
 
@@ -69,6 +65,7 @@ sign whichSafe hdPath='0':
   #!/usr/bin/env bash
   # Get the appropriate safe address based on whichSafe
   safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
+  rpcUrl=$(bash ${SCRIPT_PATH}/script/get-rpc-url.sh ${TASK_PATH})
 
   export SIGNING_MODE_IN_PROGRESS=true
 
@@ -96,6 +93,7 @@ approve whichSafe hdPath='0':
   #!/usr/bin/env bash
   # Get the appropriate safe address based on whichSafe
   safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
+  rpcUrl=$(bash ${SCRIPT_PATH}/script/get-rpc-url.sh ${TASK_PATH})
 
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
@@ -140,6 +138,7 @@ simulate-approve whichSafe hdPath='0':
   #!/usr/bin/env bash
   # Get the appropriate safe address based on whichSafe
   safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
+  rpcUrl=$(bash ${SCRIPT_PATH}/script/get-rpc-url.sh ${TASK_PATH})
 
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol

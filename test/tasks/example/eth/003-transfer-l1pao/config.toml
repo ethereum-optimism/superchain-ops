@@ -1,6 +1,0 @@
-l2chains = [{name = "OP Mainnet", chainId = 10}]
-
-templateName = "TransferL1PAO"
-
-# For example, give Security Council direct ownership of the L1 ProxyAdmin.
-newOwner = "0xc2819DC788505Aac350142A7A707BF9D03E3Bd03"

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {AddressAliasHelper} from "@eth-optimism-bedrock/src/vendor/AddressAliasHelper.sol";
@@ -11,12 +10,17 @@ import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegis
 
 /// @notice Template contract to transfer ownership of the L2 ProxyAdmin to the aliased L1 ProxyAdmin owner.
 /// The user provides the unaliased L1 PAO owner, and this template aliases the address and transfers ownership.
+/// This template creates a transaction that executes on L1 via the OptimismPortal which is then forwarded to the L2.
+/// See: https://docs.optimism.io/stack/transactions/deposit-flow
 /// ATTENTION: Please use caution when using this template. Transferring ownership is high risk.
-contract TransferL2PAO is L2TaskBase {
+contract TransferL2PAOfromL1 is L2TaskBase {
     using stdToml for string;
 
     /// @notice The aliased L1 PAO owner.
     address public aliasedNewOwner;
+
+    /// @notice The L2 ProxyAdmin predeploy address.
+    ProxyAdmin public l2ProxyAdminPredeploy;
 
     /// @notice Returns the safe address string identifier
     function safeAddressString() public pure override returns (string memory) {
@@ -26,7 +30,7 @@ contract TransferL2PAO is L2TaskBase {
     /// @notice Returns the storage write permissions required for this task.
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
         string[] memory storageWrites = new string[](1);
-        storageWrites[0] = "ProxyAdmin";
+        storageWrites[0] = "OptimismPortalProxy";
         return storageWrites;
     }
 
@@ -40,31 +44,33 @@ contract TransferL2PAO is L2TaskBase {
         // Apply the alias to the new owner.
         aliasedNewOwner = AddressAliasHelper.applyL1ToL2Alias(newOwnerToAlias);
 
-        // only allow one chain to be modified at a time with this template
+        // Only allow one chain to be modified at a time with this template.
         SuperchainAddressRegistry.ChainInfo[] memory _chains =
             abi.decode(vm.parseToml(toml, ".l2chains"), (SuperchainAddressRegistry.ChainInfo[]));
         require(_chains.length == 1, "Must specify exactly one chain id to transfer ownership for");
+
+        l2ProxyAdminPredeploy = ProxyAdmin(superchainAddrRegistry.get("L2_ProxyAdmin"));
     }
 
-    /// @notice Builds the actions for transferring ownership of the proxy admin.
+    /// @notice Builds the actions for transferring ownership of the proxy admin on the L2.
     function _build() internal override {
+        uint64 gasLimit = 200000; // This gas limit was used for an example task previously: tasks/sep/010-op-l2-predeploy-upgrade-from-l1/input.json
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-
-        for (uint256 i = 0; i < chains.length; i++) {
-            uint256 chainId = chains[i].chainId;
-            ProxyAdmin proxyAdmin = ProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chainId));
-            proxyAdmin.transferOwnership(aliasedNewOwner);
-        }
+        OptimismPortal optimismPortal =
+            OptimismPortal(superchainAddrRegistry.getAddress("OptimismPortalProxy", chains[0].chainId));
+        optimismPortal.depositTransaction(
+            address(l2ProxyAdminPredeploy),
+            0,
+            gasLimit,
+            false,
+            abi.encodeWithSelector(ProxyAdmin.transferOwnership.selector, aliasedNewOwner)
+        );
     }
 
     /// @notice Validates that the owner was transferred correctly.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
-        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-
-        for (uint256 i = 0; i < chains.length; i++) {
-            ProxyAdmin proxyAdmin = ProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chains[i].chainId));
-            assertEq(proxyAdmin.owner(), aliasedNewOwner, "aliased new owner not set correctly");
-        }
+        // TODO: We can't currently perform an assertion on the L2 because the transaction is only simulated and not actually executed.
+        // assertEq(ProxyAdmin(l2ProxyAdminPredeploy).owner(), aliasedNewOwner, "aliased new owner not set correctly");
     }
 
     /// @notice Aliased new owner is a code exception. This is because the aliased address is not a contract.
@@ -73,4 +79,16 @@ contract TransferL2PAO is L2TaskBase {
         codeExceptions[0] = aliasedNewOwner;
         return codeExceptions;
     }
+}
+
+/// OptimismPortal2.sol
+interface OptimismPortal {
+    function depositTransaction(address _to, uint256 _value, uint64 _gasLimit, bool _isCreation, bytes memory _data)
+        external
+        payable;
+}
+
+interface ProxyAdmin {
+    function owner() external view returns (address);
+    function transferOwnership(address newOwner) external;
 }
