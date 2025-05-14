@@ -61,6 +61,7 @@ abstract contract L2TaskBase is MultisigTask {
     }
 
     /// @notice We use this function to add allowed storage accesses and allowed balance changes.
+    /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
     function _templateSetup(string memory) internal virtual override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 

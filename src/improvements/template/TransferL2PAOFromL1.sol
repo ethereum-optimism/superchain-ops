@@ -24,6 +24,9 @@ import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegis
 contract TransferL2PAOFromL1 is L2TaskBase {
     using stdToml for string;
 
+    /// @notice The new owner address. This address is unaliased.
+    address public newOwnerToAlias;
+
     /// @notice The aliased L1 PAO owner.
     address public aliasedNewOwner;
 
@@ -45,7 +48,7 @@ contract TransferL2PAOFromL1 is L2TaskBase {
         string memory toml = vm.readFile(taskConfigFilePath);
 
         // New owner address. This address is unaliased.
-        address newOwnerToAlias = abi.decode(vm.parseToml(toml, ".newOwnerToAlias"), (address));
+        newOwnerToAlias = abi.decode(vm.parseToml(toml, ".newOwnerToAlias"), (address));
         // Apply the alias to the new owner.
         aliasedNewOwner = AddressAliasHelper.applyL1ToL2Alias(newOwnerToAlias);
 
@@ -55,10 +58,15 @@ contract TransferL2PAOFromL1 is L2TaskBase {
         require(_chains.length == 1, "Must specify exactly one chain id to transfer ownership for");
     }
 
-    /// @notice Builds the actions for transferring ownership of the proxy admin on the L2.
+    /// @notice Builds the actions for transferring ownership of the proxy admin on the L2. It does this by calling the L1
+    /// OptimismPortal's depositTransaction function.
     function _build() internal override {
-        uint64 gasLimit = 200000; // This gas limit was used for an example task previously: tasks/sep/010-op-l2-predeploy-upgrade-from-l1/input.json
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        // Verify that the new owner is the current L1PAO owner. This template assumes that all L1 ownership transfers have already been completed.
+        ProxyAdmin proxyAdmin = ProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chains[0].chainId));
+        require(proxyAdmin.owner() == newOwnerToAlias, "New owner is not the current L1PAO owner");
+
+        uint64 gasLimit = 200000; // This gas limit is was used for an example task previously: tasks/sep/010-op-l2-predeploy-upgrade-from-l1/input.json
         OptimismPortal optimismPortal =
             OptimismPortal(superchainAddrRegistry.getAddress("OptimismPortalProxy", chains[0].chainId));
         optimismPortal.depositTransaction(
@@ -66,7 +74,7 @@ contract TransferL2PAOFromL1 is L2TaskBase {
             0,
             gasLimit,
             false,
-            abi.encodeWithSelector(ProxyAdmin.transferOwnership.selector, aliasedNewOwner)
+            abi.encodeCall(ProxyAdmin.transferOwnership, (aliasedNewOwner))
         );
     }
 
@@ -80,13 +88,11 @@ contract TransferL2PAOFromL1 is L2TaskBase {
 
     /// @notice Aliased new owner is a code exception. This is because the aliased address is not a contract.
     function getCodeExceptions() internal view virtual override returns (address[] memory) {
-        address[] memory codeExceptions = new address[](1);
-        codeExceptions[0] = aliasedNewOwner;
+        address[] memory codeExceptions = new address[](0);
         return codeExceptions;
     }
 }
 
-/// OptimismPortal2.sol
 interface OptimismPortal {
     function depositTransaction(address _to, uint256 _value, uint64 _gasLimit, bool _isCreation, bytes memory _data)
         external

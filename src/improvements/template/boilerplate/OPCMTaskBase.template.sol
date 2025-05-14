@@ -50,6 +50,7 @@ contract OPCMTaskBaseTemplate is OPCMTaskBase {
     }
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
+    /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
     function _templateSetup(string memory taskConfigFilePath) internal override {
         super._templateSetup(taskConfigFilePath);
         string memory tomlContent = vm.readFile(taskConfigFilePath);

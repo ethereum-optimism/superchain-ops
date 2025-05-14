@@ -168,6 +168,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @notice Different tasks have different inputs. A task template will create the appropriate
     /// storage structures for storing and accessing these inputs. In this method, you read in the
     /// task config file, parse the inputs from the TOML as needed, and save them off.
+    /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
     function _templateSetup(string memory taskConfigFilePath) internal virtual;
 
     /// @notice This method is responsible for deploying the required address registry, defining
