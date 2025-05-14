@@ -630,8 +630,9 @@ library AccountAccessParser {
         return getETHTransfer(access).value != 0 || getERC20Transfer(access).value != 0;
     }
 
-    /// @notice Decodes an ETH transfer from an account access record, and returns an empty struct
-    /// if no transfer occurred. This function does not yet support Create or SelfDestruct ETH transfers.
+    /// @notice Decodes an ETH transfer from an account access and returns an empty struct
+    /// if no transfer occurred. This function does not yet support Create or SelfDestruct ETH transfers. It also
+    /// assumes that accesses with DelegateCall kind are not ETH transfers.
     function getETHTransfer(VmSafe.AccountAccess memory access) internal pure returns (DecodedTransfer memory) {
         bool isEthTransfer = access.value != 0 && !access.reverted && access.oldBalance != access.newBalance;
         if (isEthTransfer) {
