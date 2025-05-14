@@ -1250,10 +1250,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             }
 
             if (!_allowedBalanceChanges.contains(accountAccess.account)) {
-                require(
-                    !accountAccess.containsValueTransfer(),
-                    string.concat("Unexpected balance change: ", vm.toString(accountAccess.account))
-                );
+                // Skip balance change checks for newly deployed contracts.
+                // Ensure that existing contracts, that haven't been allow listed, do not contain a value transfer.
+                if (!_isNewContract(accountAccess.account, newContracts)) {
+                    require(
+                        !accountAccess.containsValueTransfer(),
+                        string.concat("Unexpected balance change: ", vm.toString(accountAccess.account))
+                    );
+                }
             }
 
             require(
