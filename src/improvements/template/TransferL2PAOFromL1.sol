@@ -16,7 +16,7 @@ import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegis
 ///
 /// Post-Execution Checks
 /// 1. Find the L2 deposit transaction by identifying the alias of the L1 ProxyAdmin owner safe.
-/// 2. The transaction you're looking for should be the most recent transaction sent from the aliased L1PAO adress on L2. If it's not, then it should be a _recent_ transaction from that was interacting with the L1 ProxyAdmin 0x4200000000000000000000000000000000000018.
+/// 2. The transaction you're looking for should be the most recent transaction sent from the aliased L1PAO adress on L2. If it's not, then it should be a recent transaction from that was interacting with the L1 ProxyAdmin 0x4200000000000000000000000000000000000018.
 /// 3. Once you've found the correct transaction, verify that the expected log event was emitted i.e. 'emit OwnershipTransferred(oldOwner, newOwner)'.
 contract TransferL2PAOfromL1 is L2TaskBase {
     using stdToml for string;
