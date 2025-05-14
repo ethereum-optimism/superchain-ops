@@ -1,6 +1,6 @@
 # 012 - Unpause the SuperchainConfig
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://etherscan.io/tx/0x758b4196114928b4e43c2f3b6d65e0737dde9f1ed6f346eac16843f5fd3fac74)
 
 ## Objective
 
