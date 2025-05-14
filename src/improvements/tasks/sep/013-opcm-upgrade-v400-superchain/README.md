@@ -1,0 +1,1 @@
+SIMULATE_WITHOUT_LEDGER=true just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/single.just foundation
