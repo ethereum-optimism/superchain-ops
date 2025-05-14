@@ -12,4 +12,3 @@ expectedValidationErrors = ""
 [addresses]
 OPCM = "0x355fd2a98fc11f5e4a91d9aa4c0041d252a77583" # Freshly deployed on Sepolia
 StandardValidatorV400 = "0xd0233aa63b11c2b93f68e306a16f2786fb11d0d1" # Freshly deployed on Sepolia
-EthLockboxProxy = "0x40B7b580090D22727aed809B3845559aDcf15711" # Freshly deployed on Sepolia
