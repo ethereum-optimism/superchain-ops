@@ -625,10 +625,15 @@ library AccountAccessParser {
         }
     }
 
+    /// @notice Given an account access record, returns true if it contains a value transfer. Either an ETH transfer or an ERC20 transfer.
+    function containsValueTransfer(VmSafe.AccountAccess memory access) internal pure returns (bool) {
+        return getETHTransfer(access).value != 0 || getERC20Transfer(access).value != 0;
+    }
+
     /// @notice Decodes an ETH transfer from an account access record, and returns an empty struct
     /// if no transfer occurred.
     function getETHTransfer(VmSafe.AccountAccess memory access) internal pure returns (DecodedTransfer memory) {
-        return access.value != 0 && !access.reverted
+        return access.value != 0 && !access.reverted && access.oldBalance != access.newBalance
             ? DecodedTransfer({from: access.accessor, to: access.account, value: access.value, tokenAddress: ETHER})
             : DecodedTransfer({from: ZERO, to: ZERO, value: 0, tokenAddress: ZERO});
     }
