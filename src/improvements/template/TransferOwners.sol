@@ -12,7 +12,7 @@ import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegis
 
 /// @notice Template contract for doing a batch transfer of ownership for a chain.
 /// This includes the L1ProxyAdminOwner, DisputeGameFactory and Permissioned/Permissionless DelayedWETH contracts.
-/// Some chains may not have a PermissionedDWETH or PermissionlessDWETH so we handle this accordingly.
+/// Some chains may not have a PermissionedWETH or PermissionlessWETH so we handle this accordingly.
 /// ATTENTION: Please use caution when using this template. Transferring ownership is high risk.
 contract TransferOwners is L2TaskBase {
     using stdToml for string;
@@ -21,11 +21,14 @@ contract TransferOwners is L2TaskBase {
     /// @notice New owner address. This is unaliased.
     address public newOwner;
 
-    /// @notice StorageSetter implementation address.
+    /// @notice StorageSetter address.
     address public STORAGE_SETTER;
 
-    address public permissionedDWETH;
-    address public permissionlessDWETH;
+    /// @notice PermissionedDWETH address.
+    address public permissionedWETH;
+
+    /// @notice PermissionlessDWETH address.
+    address public permissionlessWETH;
 
     /// @notice Returns the safe address string identifier.
     function safeAddressString() public pure override returns (string memory) {
@@ -65,8 +68,8 @@ contract TransferOwners is L2TaskBase {
         uint256 chainId = chains[0].chainId;
         ProxyAdmin proxyAdmin = ProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chainId));
         address dgfProxy = superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId);
-        permissionedDWETH = _getDWETH("PermissionedWETH", chainId);
-        permissionlessDWETH = _getDWETH("PermissionlessWETH", chainId);
+        permissionedWETH = _getDWETH("PermissionedWETH", chainId);
+        permissionlessWETH = _getDWETH("PermissionlessWETH", chainId);
 
         // Get the current implementation of the DisputeGameFactory before the storage setter is set.
         address originalDGFImpl = getEIP1967Impl(dgfProxy);
@@ -77,10 +80,10 @@ contract TransferOwners is L2TaskBase {
             payable(dgfProxy), originalDGFImpl, abi.encodeCall(DisputeGameFactory.initialize, (newOwner))
         );
 
-        // Transfer ownership of the PermissionedDWETH to the new owner.
-        _upgradeDWETH(proxyAdmin, permissionedDWETH, newOwner);
-        // Transfer ownership of the PermissionlessDWETH to the new owner.
-        _upgradeDWETH(proxyAdmin, permissionlessDWETH, newOwner);
+        // Transfer ownership of the PermissionedWETH to the new owner.
+        _upgradeDWETH(proxyAdmin, permissionedWETH, newOwner);
+        // Transfer ownership of the PermissionlessWETH to the new owner.
+        _upgradeDWETH(proxyAdmin, permissionlessWETH, newOwner);
         // Transfer ownership of the ProxyAdmin to the new owner. This must be performed last.
         proxyAdmin.transferOwnership(newOwner);
     }
@@ -95,20 +98,15 @@ contract TransferOwners is L2TaskBase {
         assertEq(dgfProxy.owner(), newOwner, "new owner not set correctly on DisputeGameFactory");
         assertEq(proxyAdmin.owner(), newOwner, "new owner not set correctly on ProxyAdmin");
 
-        if (permissionedDWETH != address(0)) {
-            assertEq(
-                DelayedWETH(permissionedDWETH).owner(), newOwner, "new owner not set correctly on PermissionedDWETH"
-            );
+        if (permissionedWETH != address(0)) {
+            assertEq(DelayedWETH(permissionedWETH).owner(), newOwner, "new owner not set correctly on PermissionedWETH");
         }
 
-        if (permissionlessDWETH != address(0)) {
-            DelayedWETH permissionlessDWETHProxy = DelayedWETH(permissionlessDWETH);
-            assertEq(permissionlessDWETHProxy.owner(), newOwner, "new owner not set correctly on PermissionlessDWETH");
+        if (permissionlessWETH != address(0)) {
+            DelayedWETH permissionlessWETHProxy = DelayedWETH(permissionlessWETH);
+            assertEq(permissionlessWETHProxy.owner(), newOwner, "new owner not set correctly on PermissionlessWETH");
         }
     }
-
-    /// @notice no code exceptions for this template
-    function getCodeExceptions() internal view virtual override returns (address[] memory) {}
 
     /// @notice Sets the initialized slot to zero for the given proxy using the StorageSetter contract.
     function setInitializedToZero(ProxyAdmin _proxyAdmin, address _proxy) internal {
@@ -143,6 +141,9 @@ contract TransferOwners is L2TaskBase {
             );
         }
     }
+
+    /// @notice no code exceptions for this template
+    function getCodeExceptions() internal view virtual override returns (address[] memory) {}
 }
 
 interface StorageSetter {
