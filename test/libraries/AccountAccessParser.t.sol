@@ -135,7 +135,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         assertEq(uniqueAccounts[2], address(proxyB), "160");
     }
 
-    /// @notice Test that a single ETH transfer is recorded correctly.
+    /// @notice Test that a single ETH transfer is recorded correctly. The Foundry account access that
+    /// has an access kind of DelegateCall is not a valid ETH transfer and should be ignored.
     function testSingleEtherTransfer() external {
         Proxy sourceProxy = new Proxy(msg.sender);
         Impl2 sourceImpl = new Impl2();
