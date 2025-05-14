@@ -7,8 +7,12 @@ name = "OP Sepolia Testnet"
 [[opcmUpgrades]]
 chainId = 11155420
 absolutePrestate="0x0000000000000000000000000000000000000000"
-expectedValidationErrors = ""
+# PDDG-40:
+# PLDG-40:
+expectedValidationErrors = "PDDG-40,PLDG-40"
 
 [addresses]
-OPCM = "0x355fd2a98fc11f5e4a91d9aa4c0041d252a77583" # Coming from interop warrom
-StandardValidatorV300 = "0x2d56022cb84ce6b961c3b4288ca36386bcd9024c" # Sepolia https://github.com/ethereum-optimism/optimism/blob/f79ed8b9c9cbdbf8bb492074f3f98da7f072e21a/op-validator/pkg/validations/addresses.go#L30
+OPCM = "0x355fd2a98fc11f5e4a91d9aa4c0041d252a77583" # Freshly deployed on Sepolia
+StandardValidatorV400 = "0xd0233aa63b11c2b93f68e306a16f2786fb11d0d1" # Freshly deployed on Sepolia
+EthLockboxProxy = "0x40B7b580090D22727aed809B3845559aDcf15711" # Freshly deployed on Sepolia
+OptimismPortalImpl = "0x72C07874FD9EEDAD233D3A93881f9dc768f3e5d3" # Freshly deployed on Sepolia

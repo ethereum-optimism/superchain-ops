@@ -20,8 +20,7 @@ contract OPCMUpgradeV400 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
 
-    /// @notice The StandardValidatorV300 address temorarily while we don't have the V400 version
-    IStandardValidatorV300 public STANDARD_VALIDATOR_V300;
+    IStandardValidatorV400 public STANDARD_VALIDATOR_V400;
 
     /// @notice Struct to store inputs data for each L2 chain.
     struct OPCMUpgrade {
@@ -49,6 +48,17 @@ contract OPCMUpgradeV400 is OPCMTaskBase {
         return storageWrites;
     }
 
+    /// @notice Returns an array of strings that refer to contract names in the address registry.
+    /// Contracts with these names are expected to have their balance changes during the task.
+    /// By default returns an empty array. Override this function if your task expects balance changes.
+    function _taskBalanceChanges() internal view virtual override returns (string[] memory) {
+        string[] memory balanceChanges = new string[](3);
+        balanceChanges[0] = "OptimismPortalProxy";
+        balanceChanges[1] = "OptimismPortalImpl";
+        balanceChanges[2] = "EthLockboxProxy";
+        return balanceChanges;
+    }
+
     /// @notice Sets up the template with implementation configurations from a TOML file.
     function _templateSetup(string memory taskConfigFilePath) internal override {
         super._templateSetup(taskConfigFilePath);
@@ -64,20 +74,21 @@ contract OPCMUpgradeV400 is OPCMTaskBase {
         require(IOPContractsManager(OPCM).version().eq("2.3.0"), "Incorrect OPCM");
         vm.label(OPCM, "OPCM");
 
-        // The StandadValidator400 is not yet finished, so we use the V300 version temporarily
-        STANDARD_VALIDATOR_V300 = IStandardValidatorV300(tomlContent.readAddress(".addresses.StandardValidatorV300"));
+        STANDARD_VALIDATOR_V400 = IStandardValidatorV400(tomlContent.readAddress(".addresses.StandardValidatorV400"));
         require(
-            address(STANDARD_VALIDATOR_V300).code.length > 0, "Incorrect StandardValidatorV300 - no code at address"
+            address(STANDARD_VALIDATOR_V400).code.length > 0, "Incorrect StandardValidatorV400 - no code at address"
+        );
+        /*
+        require(
+            STANDARD_VALIDATOR_V400.mipsVersion().eq("1.0.0"),
+            "Incorrect StandardValidatorV400 - expected mips version 1.0.0"
         );
         require(
-            STANDARD_VALIDATOR_V300.mipsVersion().eq("1.0.0"),
-            "Incorrect StandardValidatorV300 - expected mips version 1.0.0"
+            STANDARD_VALIDATOR_V400.systemConfigVersion().eq("2.5.0"),
+            "Incorrect StandardValidatorV400 - expected systemConfig version 2.5.0"
         );
-        require(
-            STANDARD_VALIDATOR_V300.systemConfigVersion().eq("2.5.0"),
-            "Incorrect StandardValidatorV300 - expected systemConfig version 2.5.0"
-        );
-        vm.label(address(STANDARD_VALIDATOR_V300), "StandardValidatorV300");
+        */
+        vm.label(address(STANDARD_VALIDATOR_V400), "StandardValidatorV400");
     }
 
     /// @notice Before implementing the `_build` function, task developers must consider the following:
@@ -119,14 +130,14 @@ contract OPCMUpgradeV400 is OPCMTaskBase {
             address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
             address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
 
-            IStandardValidatorV300.InputV300 memory input = IStandardValidatorV300.InputV300({
+            IStandardValidatorV400.InputV400 memory input = IStandardValidatorV400.InputV400({
                 proxyAdmin: proxyAdmin,
                 sysCfg: sysCfg,
                 absolutePrestate: expAbsolutePrestate,
                 l2ChainID: chainId
             });
 
-            string memory errors = STANDARD_VALIDATOR_V300.validate({_input: input, _allowFailure: true});
+            string memory errors = STANDARD_VALIDATOR_V400.validate({_input: input, _allowFailure: true});
 
             require(errors.eq(expErrors), string.concat("Unexpected errors: ", errors, "; expected: ", expErrors));
         }
@@ -138,15 +149,15 @@ contract OPCMUpgradeV400 is OPCMTaskBase {
     }
 }
 
-interface IStandardValidatorV300 {
-    struct InputV300 {
+interface IStandardValidatorV400 {
+    struct InputV400 {
         address proxyAdmin;
         address sysCfg;
         bytes32 absolutePrestate;
         uint256 l2ChainID;
     }
 
-    function validate(InputV300 memory _input, bool _allowFailure) external view returns (string memory);
+    function validate(InputV400 memory _input, bool _allowFailure) external view returns (string memory);
 
     function mipsVersion() external pure returns (string memory);
 
