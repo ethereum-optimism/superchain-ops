@@ -14,8 +14,8 @@ import {LibString} from "solady/utils/LibString.sol";
 // Libraries
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
-// This is a simple implementation of a contract used in the "test_commonProxyArchitecture_succeeds" test.
-// DO NOT use in production.
+/// This is a simple implementation of a contract used in the "test_commonProxyArchitecture_succeeds" test.
+/// DO NOT use in production.
 contract Impl {
     uint256 public num;
     address public proxyA;
@@ -39,8 +39,19 @@ contract Impl {
     }
 }
 
+/// @notice A simple implementation that can send ETH to another address.
+contract Impl2 {
+    function sendEther(address to) public payable {
+        (bool success,) = payable(to).call{value: msg.value}("");
+        require(success, "Transfer failed");
+    }
+
+    receive() external payable {}
+}
+
 contract AccountAccessParser_decodeAndPrint_Test is Test {
     using AccountAccessParser for VmSafe.AccountAccess[];
+    using AccountAccessParser for VmSafe.AccountAccess;
 
     bool constant isWrite = true;
     bool constant reverted = true;
@@ -122,6 +133,32 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         assertEq(uniqueAccounts[0], address(proxyA), "140");
         assertEq(uniqueAccounts[1], address(proxy1), "150");
         assertEq(uniqueAccounts[2], address(proxyB), "160");
+    }
+
+    /// @notice Test that a single ETH transfer is recorded correctly. The Foundry account access that
+    /// has an access kind of DelegateCall is not a valid ETH transfer and should be ignored.
+    function testSingleEtherTransfer() external {
+        Proxy sourceProxy = new Proxy(msg.sender);
+        Impl2 sourceImpl = new Impl2();
+        vm.prank(msg.sender);
+        sourceProxy.upgradeTo(address(sourceImpl));
+
+        Proxy destinationProxy = new Proxy(msg.sender);
+        Impl2 destinationImpl = new Impl2();
+        vm.prank(msg.sender);
+        destinationProxy.upgradeTo(address(destinationImpl));
+
+        vm.startStateDiffRecording();
+        Impl2(payable(address(sourceProxy))).sendEther{value: 1 ether}(address(destinationProxy));
+        VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
+
+        uint256 balanceChanges = 0;
+        for (uint256 i = 0; i < accountAccesses.length; i++) {
+            if (accountAccesses[i].containsValueTransfer()) {
+                balanceChanges++;
+            }
+        }
+        assertEq(balanceChanges, 1);
     }
 
     function test_getUniqueWrites_succeeds() public pure {
@@ -924,7 +961,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         access.value = 100;
         access.oldBalance = 0;
         access.newBalance = 100;
-        assertTrue(AccountAccessParser.containsValueTransfer(access), "ETH_TRANSFER");
+        assertTrue(AccountAccessParser.containsValueTransfer(access), "10");
 
         // Case 2: Reverted ETH Transfer
         access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
@@ -932,44 +969,44 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         access.oldBalance = 0;
         access.newBalance = 0; // Balance doesn't change due to revert
         access.reverted = true;
-        assertFalse(AccountAccessParser.containsValueTransfer(access), "ETH_TRANSFER_REVERTED");
+        assertFalse(AccountAccessParser.containsValueTransfer(access), "20");
 
         // Case 3: ERC20 transfer
         access = accountAccess(addr1, new VmSafe.StorageAccess[](0)); // addr1 is token address
         access.accessor = addr2; // from
         access.data = abi.encodeWithSelector(IERC20.transfer.selector, addr3, 100); // to, value
-        assertTrue(AccountAccessParser.containsValueTransfer(access), "ERC20_TRANSFER");
+        assertTrue(AccountAccessParser.containsValueTransfer(access), "30");
 
         // Case 4: Reverted ERC20 transfer
         access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
         access.accessor = addr2;
         access.data = abi.encodeWithSelector(IERC20.transfer.selector, addr3, 100);
         access.reverted = true;
-        assertFalse(AccountAccessParser.containsValueTransfer(access), "ERC20_TRANSFER_REVERTED");
+        assertFalse(AccountAccessParser.containsValueTransfer(access), "40");
 
         // Case 5: ERC20 transferFrom
         access = accountAccess(addr1, new VmSafe.StorageAccess[](0)); // addr1 is token address
         access.accessor = addr2; // spender
         access.data = abi.encodeWithSelector(IERC20.transferFrom.selector, addr3, addr4, 100); // from, to, value
-        assertTrue(AccountAccessParser.containsValueTransfer(access), "ERC20_TRANSFER_FROM");
+        assertTrue(AccountAccessParser.containsValueTransfer(access), "50");
 
         // Case 6: Reverted ERC20 transferFrom
         access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
         access.accessor = addr2;
         access.data = abi.encodeWithSelector(IERC20.transferFrom.selector, addr3, addr4, 100);
         access.reverted = true;
-        assertFalse(AccountAccessParser.containsValueTransfer(access), "ERC20_TRANSFER_FROM_REVERTED");
+        assertFalse(AccountAccessParser.containsValueTransfer(access), "60");
 
         // Case 7: No transfer (simple call, no value, no relevant data)
         access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
         access.data = abi.encodeWithSelector(bytes4(keccak256("someOtherFunction()")));
-        assertFalse(AccountAccessParser.containsValueTransfer(access), "NO_TRANSFER_SIMPLE_CALL");
+        assertFalse(AccountAccessParser.containsValueTransfer(access), "70");
 
         // Case 8: No transfer (storage write only)
         VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
         storageAccesses[0] = storageAccess(addr1, slot0, isWrite, val0, val1);
         access = accountAccess(addr1, storageAccesses);
-        assertFalse(AccountAccessParser.containsValueTransfer(access), "NO_TRANSFER_STORAGE_WRITE");
+        assertFalse(AccountAccessParser.containsValueTransfer(access), "80");
 
         // Case 9: Both ETH and ERC20 transfer (valid)
         access = accountAccess(addr1, new VmSafe.StorageAccess[](0)); // addr1 is token address
