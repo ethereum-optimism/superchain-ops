@@ -93,15 +93,12 @@ create_task() {
     
     echo -e "l2chains = [] # e.g. [{name = \"OP Mainnet\", chainId = 10}]\ntemplateName = \"${template%.sol}\"" >"${config_path}"
 
-    # copy the readme template to readme_path
-    readme_path="$task_path/README.md" 
-    cp "template/boilerplate/README.template.md" "$readme_path"
-
-    # Write empty readme and validation files for test tasks
-    if [[ "$is_test_task" == "true" ]]; then
-        echo "" > "$readme_path"
-        echo "" > "$validation_path"
-    else
+    # Don't write the readme and validation files for test tasks.
+    if [[ "$is_test_task" == "false" ]]; then
+        # copy the readme template to readme_path
+        readme_path="$task_path/README.md" 
+        cp "template/boilerplate/README.template.md" "$readme_path"
+        
         navigate_to_task_command="cd src/improvements/${dest_dir}/${network}/${dirname}"
         sed -e "s|<task-name>|$dirname|g" \
         -e "s|<short-description>|$short_description|g" \
