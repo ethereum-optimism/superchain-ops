@@ -15,7 +15,7 @@ import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegis
 /// See: https://docs.optimism.io/stack/transactions/deposit-flow
 /// ATTENTION: Please use caution when using this template. Transferring ownership is high risk.
 ///
-/// Post-Execution Checks
+/// Manual Post-Execution checks to follow when executing this task:
 /// 1. Find the L2 deposit transaction by identifying the alias of the L1 ProxyAdmin owner safe.
 /// 2. The transaction you're looking for should be the most recent transaction sent from the aliased L1PAO adress on L2. If it's not, then it should be a recent transaction from that was interacting with the L1 ProxyAdmin 0x4200000000000000000000000000000000000018.
 /// 3. Once you've found the correct transaction, verify that the expected log event was emitted i.e. 'emit OwnershipTransferred(oldOwner, newOwner)'.
