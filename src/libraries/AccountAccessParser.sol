@@ -634,6 +634,7 @@ library AccountAccessParser {
     /// if no transfer occurred.
     function getETHTransfer(VmSafe.AccountAccess memory access) internal pure returns (DecodedTransfer memory) {
         return access.value != 0 && !access.reverted && access.oldBalance != access.newBalance
+            && access.kind == VmSafe.AccountAccessKind.Call
             ? DecodedTransfer({from: access.accessor, to: access.account, value: access.value, tokenAddress: ETHER})
             : DecodedTransfer({from: ZERO, to: ZERO, value: 0, tokenAddress: ZERO});
     }

@@ -14,8 +14,8 @@ import {LibString} from "solady/utils/LibString.sol";
 // Libraries
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
-// This is a simple implementation of a contract used in the "test_commonProxyArchitecture_succeeds" test.
-// DO NOT use in production.
+/// This is a simple implementation of a contract used in the "test_commonProxyArchitecture_succeeds" test.
+/// DO NOT use in production.
 contract Impl {
     uint256 public num;
     address public proxyA;
@@ -39,8 +39,19 @@ contract Impl {
     }
 }
 
+/// @notice A simple implementation that can send ETH to another address.
+contract Impl2 {
+    function sendEther(address to) public payable {
+        (bool success,) = payable(to).call{value: msg.value}("");
+        require(success, "Transfer failed");
+    }
+
+    receive() external payable {}
+}
+
 contract AccountAccessParser_decodeAndPrint_Test is Test {
     using AccountAccessParser for VmSafe.AccountAccess[];
+    using AccountAccessParser for VmSafe.AccountAccess;
 
     bool constant isWrite = true;
     bool constant reverted = true;
@@ -122,6 +133,31 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         assertEq(uniqueAccounts[0], address(proxyA), "140");
         assertEq(uniqueAccounts[1], address(proxy1), "150");
         assertEq(uniqueAccounts[2], address(proxyB), "160");
+    }
+
+    /// @notice Test that a single ETH transfer is recorded correctly.
+    function testSingleEtherTransfer() external {
+        Proxy sourceProxy = new Proxy(msg.sender);
+        Impl2 sourceImpl = new Impl2();
+        vm.prank(msg.sender);
+        sourceProxy.upgradeTo(address(sourceImpl));
+
+        Proxy destinationProxy = new Proxy(msg.sender);
+        Impl2 destinationImpl = new Impl2();
+        vm.prank(msg.sender);
+        destinationProxy.upgradeTo(address(destinationImpl));
+
+        vm.startStateDiffRecording();
+        Impl2(payable(address(sourceProxy))).sendEther{value: 1 ether}(address(destinationProxy));
+        VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
+
+        uint256 balanceChanges = 0;
+        for (uint256 i = 0; i < accountAccesses.length; i++) {
+            if (accountAccesses[i].containsValueTransfer()) {
+                balanceChanges++;
+            }
+        }
+        assertEq(balanceChanges, 1);
     }
 
     function test_getUniqueWrites_succeeds() public pure {
