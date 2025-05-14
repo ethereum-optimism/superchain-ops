@@ -23,6 +23,7 @@ type AddressRegistry is address;
 abstract contract MultisigTask is Test, Script, StateOverrideManager {
     using EnumerableSet for EnumerableSet.AddressSet;
     using AccountAccessParser for VmSafe.AccountAccess[];
+    using AccountAccessParser for VmSafe.AccountAccess;
     using StdStyle for string;
 
     /// @notice Parent nonce used for generating the safe transaction.
@@ -1249,10 +1250,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             }
 
             if (!_allowedBalanceChanges.contains(accountAccess.account)) {
-                require(
-                    accountAccess.oldBalance == accountAccess.newBalance,
-                    string.concat("Unexpected balance change: ", vm.toString(accountAccess.account))
-                );
+                // Skip balance change checks for newly deployed contracts.
+                // Ensure that existing contracts, that haven't been allow listed, do not contain a value transfer.
+                if (!_isNewContract(accountAccess.account, newContracts)) {
+                    require(
+                        !accountAccess.containsValueTransfer(),
+                        string.concat("Unexpected balance change: ", vm.toString(accountAccess.account))
+                    );
+                }
             }
 
             require(
