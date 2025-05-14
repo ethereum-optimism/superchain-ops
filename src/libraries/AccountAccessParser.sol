@@ -631,7 +631,7 @@ library AccountAccessParser {
     }
 
     /// @notice Decodes an ETH transfer from an account access record, and returns an empty struct
-    /// if no transfer occurred.
+    /// if no transfer occurred. This function does not yet support Create or SelfDestruct ETH transfers.
     function getETHTransfer(VmSafe.AccountAccess memory access) internal pure returns (DecodedTransfer memory) {
         return access.value != 0 && !access.reverted && access.oldBalance != access.newBalance
             && access.kind == VmSafe.AccountAccessKind.Call
