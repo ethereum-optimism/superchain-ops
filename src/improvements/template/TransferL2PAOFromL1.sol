@@ -4,6 +4,7 @@ pragma solidity 0.8.15;
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {AddressAliasHelper} from "@eth-optimism-bedrock/src/vendor/AddressAliasHelper.sol";
+import {Predeploys} from "@eth-optimism-bedrock/src/libraries/Predeploys.sol";
 
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
@@ -23,9 +24,6 @@ contract TransferL2PAOfromL1 is L2TaskBase {
 
     /// @notice The aliased L1 PAO owner.
     address public aliasedNewOwner;
-
-    /// @notice The L2 ProxyAdmin predeploy address.
-    ProxyAdmin public l2ProxyAdminPredeploy;
 
     /// @notice Returns the safe address string identifier
     function safeAddressString() public pure override returns (string memory) {
@@ -53,8 +51,6 @@ contract TransferL2PAOfromL1 is L2TaskBase {
         SuperchainAddressRegistry.ChainInfo[] memory _chains =
             abi.decode(vm.parseToml(toml, ".l2chains"), (SuperchainAddressRegistry.ChainInfo[]));
         require(_chains.length == 1, "Must specify exactly one chain id to transfer ownership for");
-
-        l2ProxyAdminPredeploy = ProxyAdmin(superchainAddrRegistry.get("L2_ProxyAdmin"));
     }
 
     /// @notice Builds the actions for transferring ownership of the proxy admin on the L2.
@@ -64,7 +60,7 @@ contract TransferL2PAOfromL1 is L2TaskBase {
         OptimismPortal optimismPortal =
             OptimismPortal(superchainAddrRegistry.getAddress("OptimismPortalProxy", chains[0].chainId));
         optimismPortal.depositTransaction(
-            address(l2ProxyAdminPredeploy),
+            address(Predeploys.PROXY_ADMIN),
             0,
             gasLimit,
             false,
