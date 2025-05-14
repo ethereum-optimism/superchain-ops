@@ -52,9 +52,9 @@ contract OPCMUpgradeV400 is OPCMTaskBase {
     /// Contracts with these names are expected to have their balance changes during the task.
     /// By default returns an empty array. Override this function if your task expects balance changes.
     function _taskBalanceChanges() internal view virtual override returns (string[] memory) {
-        string[] memory balanceChanges = new string[](2);
+        string[] memory balanceChanges = new string[](1);
         balanceChanges[0] = "OptimismPortalProxy";
-        balanceChanges[1] = "EthLockboxProxy";
+        // Not adding EthLockboxProxy because we do not perform balance checks on newly deployed contracts.
         return balanceChanges;
     }
 

@@ -953,6 +953,43 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         assertTrue(sortedDiffs[0].raw.slot < sortedDiffs[1].raw.slot, "Slots should be sorted");
     }
 
+    /// forge-config: default.allow_internal_expect_revert = true
+    function test_containsValueTransfer_revertsWithCreateAccessKind() public {
+        VmSafe.AccountAccess memory access;
+        // Case 13: ETH transfer with Create access kind
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.value = 100;
+        access.oldBalance = 0;
+        access.newBalance = 100;
+        access.kind = VmSafe.AccountAccessKind.Create;
+        vm.expectRevert("ETH transfer with Create is not yet supported");
+        access.containsValueTransfer();
+    }
+
+    /// forge-config: default.allow_internal_expect_revert = true
+    function test_containsValueTransfer_revertsWithSelfDestructAccessKind() public {
+        // Case 14: ETH transfer with SelfDestruct access kind
+        VmSafe.AccountAccess memory access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.value = 100;
+        access.oldBalance = 0;
+        access.newBalance = 100;
+        access.kind = VmSafe.AccountAccessKind.SelfDestruct;
+        vm.expectRevert("ETH transfer with SelfDestruct is not yet supported");
+        access.containsValueTransfer();
+    }
+
+    /// forge-config: default.allow_internal_expect_revert = true
+    function test_containsValueTransfer_revertsWithUnexpectedAccessKind() public {
+        // Case 15: ETH transfer with Unexpected access kind
+        VmSafe.AccountAccess memory access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.value = 100;
+        access.oldBalance = 0;
+        access.newBalance = 100;
+        access.kind = VmSafe.AccountAccessKind.Resume;
+        vm.expectRevert("Expected kind to be DelegateCall.");
+        access.containsValueTransfer();
+    }
+
     function test_containsValueTransfer_succeeds() public pure {
         VmSafe.AccountAccess memory access;
 
@@ -961,7 +998,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         access.value = 100;
         access.oldBalance = 0;
         access.newBalance = 100;
-        assertTrue(AccountAccessParser.containsValueTransfer(access), "10");
+        assertTrue(access.containsValueTransfer(), "10");
 
         // Case 2: Reverted ETH Transfer
         access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
@@ -969,44 +1006,44 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         access.oldBalance = 0;
         access.newBalance = 0; // Balance doesn't change due to revert
         access.reverted = true;
-        assertFalse(AccountAccessParser.containsValueTransfer(access), "20");
+        assertFalse(access.containsValueTransfer(), "20");
 
         // Case 3: ERC20 transfer
         access = accountAccess(addr1, new VmSafe.StorageAccess[](0)); // addr1 is token address
         access.accessor = addr2; // from
         access.data = abi.encodeWithSelector(IERC20.transfer.selector, addr3, 100); // to, value
-        assertTrue(AccountAccessParser.containsValueTransfer(access), "30");
+        assertTrue(access.containsValueTransfer(), "30");
 
         // Case 4: Reverted ERC20 transfer
         access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
         access.accessor = addr2;
         access.data = abi.encodeWithSelector(IERC20.transfer.selector, addr3, 100);
         access.reverted = true;
-        assertFalse(AccountAccessParser.containsValueTransfer(access), "40");
+        assertFalse(access.containsValueTransfer(), "40");
 
         // Case 5: ERC20 transferFrom
         access = accountAccess(addr1, new VmSafe.StorageAccess[](0)); // addr1 is token address
         access.accessor = addr2; // spender
         access.data = abi.encodeWithSelector(IERC20.transferFrom.selector, addr3, addr4, 100); // from, to, value
-        assertTrue(AccountAccessParser.containsValueTransfer(access), "50");
+        assertTrue(access.containsValueTransfer(), "50");
 
         // Case 6: Reverted ERC20 transferFrom
         access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
         access.accessor = addr2;
         access.data = abi.encodeWithSelector(IERC20.transferFrom.selector, addr3, addr4, 100);
         access.reverted = true;
-        assertFalse(AccountAccessParser.containsValueTransfer(access), "60");
+        assertFalse(access.containsValueTransfer(), "60");
 
         // Case 7: No transfer (simple call, no value, no relevant data)
         access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
         access.data = abi.encodeWithSelector(bytes4(keccak256("someOtherFunction()")));
-        assertFalse(AccountAccessParser.containsValueTransfer(access), "70");
+        assertFalse(access.containsValueTransfer(), "70");
 
         // Case 8: No transfer (storage write only)
         VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
         storageAccesses[0] = storageAccess(addr1, slot0, isWrite, val0, val1);
         access = accountAccess(addr1, storageAccesses);
-        assertFalse(AccountAccessParser.containsValueTransfer(access), "80");
+        assertFalse(access.containsValueTransfer(), "80");
 
         // Case 9: Both ETH and ERC20 transfer (valid)
         access = accountAccess(addr1, new VmSafe.StorageAccess[](0)); // addr1 is token address
@@ -1015,7 +1052,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         access.newBalance = 50;
         access.accessor = addr2; // from for ERC20, accessor for ETH
         access.data = abi.encodeWithSelector(IERC20.transfer.selector, addr3, 100); // to, value for ERC20
-        assertTrue(AccountAccessParser.containsValueTransfer(access), "BOTH_ETH_AND_ERC20");
+        assertTrue(access.containsValueTransfer(), "90");
 
         // Case 10: ETH transfer indicated by value, but oldBalance == newBalance (getETHTransfer should filter out)
         access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
@@ -1023,7 +1060,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         access.oldBalance = 500;
         access.newBalance = 500;
         access.accessor = addr2;
-        assertFalse(AccountAccessParser.containsValueTransfer(access), "ETH_VALUE_NO_BALANCE_CHANGE");
+        assertFalse(access.containsValueTransfer(), "100");
 
         // Case 11: ETH transfer with value, oldBalance != newBalance, but access.reverted is true
         access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
@@ -1033,7 +1070,15 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         access.reverted = true;
         // Even though newBalance is set as if the transfer happened, getETHTransfer checks for access.reverted
         // and also checks oldBalance != newBalance for the *actual* final state if not reverted.
-        assertFalse(AccountAccessParser.containsValueTransfer(access), "ETH_TRANSFER_VALUE_BALANCE_MISMATCH_REVERTED");
+        assertFalse(access.containsValueTransfer(), "110");
+
+        // Case 12: ETH transfer with delegatecall access kind
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.value = 100;
+        access.oldBalance = 0;
+        access.newBalance = 100;
+        access.kind = VmSafe.AccountAccessKind.DelegateCall;
+        assertFalse(access.containsValueTransfer(), "120");
     }
 
     function test_tight_variable_packing_extractions_uint() public pure {
