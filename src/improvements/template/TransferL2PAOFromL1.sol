@@ -72,7 +72,9 @@ contract TransferL2PAOFromL1 is L2TaskBase {
 
     /// @notice Validates that the owner was transferred correctly.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
-        // TODO: We can't currently perform an assertion on the L2 because the transaction is only simulated and not actually executed.
+        // We can't currently perform an assertion on the L2 because the transaction is only simulated and not actually executed,
+        // so it's up to the user to manually assert that. See the manual post-execution checks documented in the comments
+        // at the top of this file.
         // assertEq(ProxyAdmin(l2ProxyAdminPredeploy).owner(), aliasedNewOwner, "aliased new owner not set correctly");
     }
 
