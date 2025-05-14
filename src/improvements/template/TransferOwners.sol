@@ -5,6 +5,7 @@ import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
+import {LibString} from "solady/utils/LibString.sol";
 
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
@@ -15,12 +16,13 @@ import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegis
 /// ATTENTION: Please use caution when using this template. Transferring ownership is high risk.
 contract TransferOwners is L2TaskBase {
     using stdToml for string;
+    using LibString for string;
 
     /// @notice New owner address. This is unaliased.
     address public newOwner;
 
     /// @notice StorageSetter implementation address.
-    address public constant STORAGE_SETTER = 0xd81f43eDBCAcb4c29a9bA38a13Ee5d79278270cC;
+    address public STORAGE_SETTER;
 
     address public permissionedDWETH;
     address public permissionlessDWETH;
@@ -46,68 +48,62 @@ contract TransferOwners is L2TaskBase {
         string memory toml = vm.readFile(taskConfigFilePath);
         newOwner = abi.decode(vm.parseToml(toml, ".newOwner"), (address));
 
-        // only allow one chain to be modified at a time with this template
+        // Only allow one chain to be modified at a time with this template.
         SuperchainAddressRegistry.ChainInfo[] memory _chains =
             abi.decode(vm.parseToml(toml, ".l2chains"), (SuperchainAddressRegistry.ChainInfo[]));
-
         require(_chains.length == 1, "Must specify exactly one chain id to transfer ownership for");
+
+        STORAGE_SETTER = abi.decode(vm.parseToml(toml, ".addresses.StorageSetter"), (address));
+        require(address(STORAGE_SETTER).code.length > 0, "Incorrect StorageSetter - no code at address");
+        require(StorageSetter(STORAGE_SETTER).version().eq("1.1.0"), "Incorrect StorageSetter version");
     }
 
     /// @notice Builds the actions for transferring ownership of the DisputeGameFactory, DWETH contracts and ProxyAdmin.
     function _build() internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
-        for (uint256 i = 0; i < chains.length; i++) {
-            uint256 chainId = chains[i].chainId;
-            ProxyAdmin proxyAdmin = ProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chainId));
-            address dgfProxy = superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId);
-            permissionedDWETH = _getDWETH("PermissionedWETH", chainId);
-            permissionlessDWETH = _getDWETH("PermissionlessWETH", chainId);
+        uint256 chainId = chains[0].chainId;
+        ProxyAdmin proxyAdmin = ProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chainId));
+        address dgfProxy = superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId);
+        permissionedDWETH = _getDWETH("PermissionedWETH", chainId);
+        permissionlessDWETH = _getDWETH("PermissionlessWETH", chainId);
 
-            // Get the current implementation of the DisputeGameFactory before the storage setter is set.
-            address originalDGFImpl = getEIP1967Impl(dgfProxy);
-            // Set initialized slot to zero.
-            setInitializedToZero(proxyAdmin, dgfProxy);
-            // Reinitialize the DisputeGameFactory with the new owner.
-            proxyAdmin.upgradeAndCall(
-                payable(dgfProxy),
-                originalDGFImpl,
-                abi.encodeWithSelector(DisputeGameFactory.initialize.selector, newOwner)
-            );
+        // Get the current implementation of the DisputeGameFactory before the storage setter is set.
+        address originalDGFImpl = getEIP1967Impl(dgfProxy);
+        // Set initialized slot to zero.
+        setInitializedToZero(proxyAdmin, dgfProxy);
+        // Reinitialize the DisputeGameFactory with the new owner.
+        proxyAdmin.upgradeAndCall(
+            payable(dgfProxy), originalDGFImpl, abi.encodeCall(DisputeGameFactory.initialize, (newOwner))
+        );
 
-            // Transfer ownership of the PermissionedDWETH to the new owner.
-            _upgradeDWETH(proxyAdmin, permissionedDWETH, newOwner);
-            // Transfer ownership of the PermissionlessDWETH to the new owner.
-            _upgradeDWETH(proxyAdmin, permissionlessDWETH, newOwner);
-
-            // Transfer ownership of the ProxyAdmin to the new owner.
-            proxyAdmin.transferOwnership(newOwner);
-        }
+        // Transfer ownership of the PermissionedDWETH to the new owner.
+        _upgradeDWETH(proxyAdmin, permissionedDWETH, newOwner);
+        // Transfer ownership of the PermissionlessDWETH to the new owner.
+        _upgradeDWETH(proxyAdmin, permissionlessDWETH, newOwner);
+        // Transfer ownership of the ProxyAdmin to the new owner. This must be performed last.
+        proxyAdmin.transferOwnership(newOwner);
     }
 
     /// @notice Validates that the owner was transferred correctly.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
-        for (uint256 i = 0; i < chains.length; i++) {
-            ProxyAdmin proxyAdmin = ProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chains[i].chainId));
-            DisputeGameFactory dgfProxy =
-                DisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chains[i].chainId));
-            assertEq(dgfProxy.owner(), newOwner, "new owner not set correctly on DisputeGameFactory");
-            assertEq(proxyAdmin.owner(), newOwner, "new owner not set correctly on ProxyAdmin");
+        ProxyAdmin proxyAdmin = ProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chains[0].chainId));
+        DisputeGameFactory dgfProxy =
+            DisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chains[0].chainId));
+        assertEq(dgfProxy.owner(), newOwner, "new owner not set correctly on DisputeGameFactory");
+        assertEq(proxyAdmin.owner(), newOwner, "new owner not set correctly on ProxyAdmin");
 
-            if (permissionedDWETH != address(0)) {
-                assertEq(
-                    DelayedWETH(permissionedDWETH).owner(), newOwner, "new owner not set correctly on PermissionedDWETH"
-                );
-            }
+        if (permissionedDWETH != address(0)) {
+            assertEq(
+                DelayedWETH(permissionedDWETH).owner(), newOwner, "new owner not set correctly on PermissionedDWETH"
+            );
+        }
 
-            if (permissionlessDWETH != address(0)) {
-                DelayedWETH permissionlessDWETHProxy = DelayedWETH(permissionlessDWETH);
-                assertEq(
-                    permissionlessDWETHProxy.owner(), newOwner, "new owner not set correctly on PermissionlessDWETH"
-                );
-            }
+        if (permissionlessDWETH != address(0)) {
+            DelayedWETH permissionlessDWETHProxy = DelayedWETH(permissionlessDWETH);
+            assertEq(permissionlessDWETHProxy.owner(), newOwner, "new owner not set correctly on PermissionlessDWETH");
         }
     }
 
@@ -118,7 +114,7 @@ contract TransferOwners is L2TaskBase {
     function setInitializedToZero(ProxyAdmin _proxyAdmin, address _proxy) internal {
         bytes32 ZERO = bytes32(uint256(0));
         _proxyAdmin.upgradeAndCall(
-            payable(_proxy), STORAGE_SETTER, abi.encodeWithSelector(StorageSetter.setBytes32.selector, ZERO, ZERO)
+            payable(_proxy), STORAGE_SETTER, abi.encodeCall(StorageSetter.setBytes32, (ZERO, ZERO))
         );
     }
 
@@ -127,11 +123,12 @@ contract TransferOwners is L2TaskBase {
         impl_ = address(uint160(uint256((vm.load(_proxy, Constants.PROXY_IMPLEMENTATION_ADDRESS)))));
     }
 
-    /// @notice Gets the DWETH contract address for the given chain id.
+    /// @notice Gets the DWETH contract address for the given chain id. Trying to call the superchain address registry
+    /// with a key that does not exist will normally revert. We handle this gracefully and return address(0) because we
+    /// want to proceed and not error.
     function _getDWETH(string memory _key, uint256 _chainId) internal returns (address) {
-        (bool success, bytes memory data) = address(superchainAddrRegistry).call(
-            abi.encodeWithSelector(SuperchainAddressRegistry.getAddress.selector, _key, _chainId)
-        );
+        (bool success, bytes memory data) =
+            address(superchainAddrRegistry).call(abi.encodeCall(SuperchainAddressRegistry.getAddress, (_key, _chainId)));
         return success ? abi.decode(data, (address)) : address(0);
     }
 
@@ -142,15 +139,14 @@ contract TransferOwners is L2TaskBase {
             address originalImpl = getEIP1967Impl(_dweth);
             setInitializedToZero(_proxyAdmin, _dweth);
             _proxyAdmin.upgradeAndCall(
-                payable(_dweth),
-                originalImpl,
-                abi.encodeWithSelector(DelayedWETH.initialize.selector, _newOwner, superchainConfig)
+                payable(_dweth), originalImpl, abi.encodeCall(DelayedWETH.initialize, (_newOwner, superchainConfig))
             );
         }
     }
 }
 
 interface StorageSetter {
+    function version() external view returns (string memory);
     function setBytes32(bytes32 _slot, bytes32 _value) external;
 }
 
