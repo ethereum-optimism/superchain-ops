@@ -351,7 +351,7 @@ contract RegressionTest is Test {
         string[] memory expectedDataToSign = new string[](1);
         // Council
         expectedDataToSign[0] =
-            "0x1901be081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b85333997b21b81b9631ba75feb33fa25f4971e4a8793872ad4766e95e9aa51febb7b";
+            "0x1901be081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b85339654f9ead3f00526f2118928a8d9c125a15e37c6ba8b92430dc207ac54928c2f";
         _assertDataToSignNestedMultisig(multisigTask, actions, expectedDataToSign);
     }
 
