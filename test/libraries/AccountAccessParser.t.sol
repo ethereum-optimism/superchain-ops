@@ -961,7 +961,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         access.value = 100;
         access.oldBalance = 0;
         access.newBalance = 100;
-        assertTrue(AccountAccessParser.containsValueTransfer(access), "ETH_TRANSFER");
+        assertTrue(AccountAccessParser.containsValueTransfer(access), "10");
 
         // Case 2: Reverted ETH Transfer
         access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
@@ -969,44 +969,44 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         access.oldBalance = 0;
         access.newBalance = 0; // Balance doesn't change due to revert
         access.reverted = true;
-        assertFalse(AccountAccessParser.containsValueTransfer(access), "ETH_TRANSFER_REVERTED");
+        assertFalse(AccountAccessParser.containsValueTransfer(access), "20");
 
         // Case 3: ERC20 transfer
         access = accountAccess(addr1, new VmSafe.StorageAccess[](0)); // addr1 is token address
         access.accessor = addr2; // from
         access.data = abi.encodeWithSelector(IERC20.transfer.selector, addr3, 100); // to, value
-        assertTrue(AccountAccessParser.containsValueTransfer(access), "ERC20_TRANSFER");
+        assertTrue(AccountAccessParser.containsValueTransfer(access), "30");
 
         // Case 4: Reverted ERC20 transfer
         access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
         access.accessor = addr2;
         access.data = abi.encodeWithSelector(IERC20.transfer.selector, addr3, 100);
         access.reverted = true;
-        assertFalse(AccountAccessParser.containsValueTransfer(access), "ERC20_TRANSFER_REVERTED");
+        assertFalse(AccountAccessParser.containsValueTransfer(access), "40");
 
         // Case 5: ERC20 transferFrom
         access = accountAccess(addr1, new VmSafe.StorageAccess[](0)); // addr1 is token address
         access.accessor = addr2; // spender
         access.data = abi.encodeWithSelector(IERC20.transferFrom.selector, addr3, addr4, 100); // from, to, value
-        assertTrue(AccountAccessParser.containsValueTransfer(access), "ERC20_TRANSFER_FROM");
+        assertTrue(AccountAccessParser.containsValueTransfer(access), "50");
 
         // Case 6: Reverted ERC20 transferFrom
         access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
         access.accessor = addr2;
         access.data = abi.encodeWithSelector(IERC20.transferFrom.selector, addr3, addr4, 100);
         access.reverted = true;
-        assertFalse(AccountAccessParser.containsValueTransfer(access), "ERC20_TRANSFER_FROM_REVERTED");
+        assertFalse(AccountAccessParser.containsValueTransfer(access), "60");
 
         // Case 7: No transfer (simple call, no value, no relevant data)
         access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
         access.data = abi.encodeWithSelector(bytes4(keccak256("someOtherFunction()")));
-        assertFalse(AccountAccessParser.containsValueTransfer(access), "NO_TRANSFER_SIMPLE_CALL");
+        assertFalse(AccountAccessParser.containsValueTransfer(access), "70");
 
         // Case 8: No transfer (storage write only)
         VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
         storageAccesses[0] = storageAccess(addr1, slot0, isWrite, val0, val1);
         access = accountAccess(addr1, storageAccesses);
-        assertFalse(AccountAccessParser.containsValueTransfer(access), "NO_TRANSFER_STORAGE_WRITE");
+        assertFalse(AccountAccessParser.containsValueTransfer(access), "80");
 
         // Case 9: Both ETH and ERC20 transfer (valid)
         access = accountAccess(addr1, new VmSafe.StorageAccess[](0)); // addr1 is token address
