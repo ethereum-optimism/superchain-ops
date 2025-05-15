@@ -92,11 +92,14 @@ abstract contract L2TaskBase is MultisigTask {
         string memory context
     ) private {
         require(gasleft() > 500_000, "MultisigTask: Insufficient gas for initial getAddress() call"); // Ensure try/catch is EIP-150 safe.
-        try superchainAddrRegistry.getAddress(key, chain.chainId) returns (address addr) {
+        //Addresses that are not discovered automatically (e.g. OPCM, StandardValidator, or safes missing from addresses.toml).
+        //IMPORTANT: If an address is defined in the config.toml and also discovered onchain, this value takes precedence.
+
+        try superchainAddrRegistry.get(key) returns (address addr) {
             targetSet.add(addr);
         } catch {
             require(gasleft() > 500_000, "MultisigTask: Insufficient gas for fallback get() call"); // Ensure try/catch is EIP-150 safe.
-            try superchainAddrRegistry.get(key) returns (address addr) {
+            try superchainAddrRegistry.getAddress(key, chain.chainId) returns (address addr) {
                 targetSet.add(addr);
             } catch {
                 string memory warn = string("[WARN]").yellow().bold();
