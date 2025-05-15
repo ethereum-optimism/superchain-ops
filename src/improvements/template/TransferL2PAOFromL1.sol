@@ -70,7 +70,8 @@ contract TransferL2PAOFromL1 is L2TaskBase {
         ProxyAdmin proxyAdmin = ProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chains[0].chainId));
         require(proxyAdmin.owner() == newOwnerToAlias, "New owner is not the current L1PAO owner");
 
-        uint64 gasLimit = 200000; // This gas limit is was used for an example task previously: tasks/sep/010-op-l2-predeploy-upgrade-from-l1/input.json
+        // See this Tenderly simulation for an example of this gas limit working: https://www.tdly.co/shared/simulation/d5028138-469c-4bb2-97fd-50f5f4bb8515
+        uint64 gasLimit = 200000;
         OptimismPortal optimismPortal =
             OptimismPortal(superchainAddrRegistry.getAddress("OptimismPortalProxy", chains[0].chainId));
         optimismPortal.depositTransaction(
