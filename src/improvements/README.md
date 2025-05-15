@@ -65,7 +65,8 @@ templateName = "<TEMPLATE_NAME>" # e.g. OPCMUpgradeV200
 # Add template-specific config here.
 
 [addresses]
-# Addresses that are not automatically discovered (e.g. OPCM, StandardValidator or safes that are not found in addresses.toml).
+# Addresses that are not discovered automatically (e.g. OPCM, StandardValidator, or safes missing from addresses.toml).
+# IMPORTANT: If an address is defined here and also discovered onchain, this value takes precedence (e.g. ProxyAdminOwner).
 
 [stateOverrides]
 # State overrides (e.g. specify a Safe nonce).
