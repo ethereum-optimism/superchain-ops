@@ -21,9 +21,6 @@ contract TransferOwners is L2TaskBase {
     /// @notice New owner address. This is unaliased.
     address public newOwner;
 
-    /// @notice StorageSetter address.
-    address public STORAGE_SETTER;
-
     /// @notice PermissionedWETH address.
     address public permissionedWETH;
 
