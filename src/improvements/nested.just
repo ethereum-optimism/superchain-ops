@@ -26,9 +26,7 @@ simulate whichSafe hdPath='0':
   #!/usr/bin/env bash
   # Get the appropriate safe address based on whichSafe
   safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
-
   echo "RPC URL: ${rpcUrl}"
-
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
 
@@ -92,25 +90,43 @@ sign whichSafe hdPath='0':
     ${config} \
     "${safe}"
 
-approve whichSafe hdPath='0':
+approve whichSafe hdPath='0' ledger='true':
   #!/usr/bin/env bash
   # Get the appropriate safe address based on whichSafe
   safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
 
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
-  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  if {{ledger}}; then
+    echo "Using ledger account"
+    # Get the sender address from the ledger wallet
+    sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
 
-  forge build
-  forge script ${script} \
-    --fork-url ${rpcUrl} \
-    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
-    --broadcast \
-    --sender ${sender} \
-    --sig "approveFromChildMultisig(string,address,bytes)" \
-    ${config} \
-    ${safe} \
-    ${signatures}
+    forge build
+    forge script ${script} \
+      --fork-url ${rpcUrl} \
+      --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
+      --broadcast \
+      --sender ${sender} \
+      --sig "approveFromChildMultisig(string,address,bytes)" \
+      ${config} \
+      ${safe} \
+      ${signatures}
+  else
+    echo "Ledger is false. Please enter your private key:"
+    read -s PRIVATE_KEY_INPUT
+    sender=$(cast wallet address --private-key ${PRIVATE_KEY_INPUT})
+    forge build
+    forge script ${script} \
+      --fork-url ${rpcUrl} \
+      --broadcast \
+      --sender ${sender} \
+      --sig "approveFromChildMultisig(string,address,bytes)" \
+      --private-key ${PRIVATE_KEY_INPUT} \
+      ${config} \
+      ${safe} \
+      ${signatures}
+    
 
 approve_in_anvil whichSafe signature:
   #!/usr/bin/env bash
