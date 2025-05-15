@@ -18,7 +18,7 @@ The following steps describe how to simulate an L2 deposit transaction prior to 
         }
       ```
 
-4. Using the data in the `TransactionDeposited` event, create a new Tenderly simulation via this [link](https://dashboard.tenderly.co/oplabs/eth-mainnet/simulator/new?block=&blockIndex=0&from=0x0000000000000000000000000000000000000000&gas=8000000&gasPrice=0&value=0&contractAddress=&headerBlockNumber=&headerTimestamp=).
+4. Using the data in the `TransactionDeposited` event, create a new Tenderly simulation via this [link](https://dashboard.tenderly.co/TENDERLY_USERNAME/TENDERLY_PROJECT/simulator/new?block=&blockIndex=0&from=0x0000000000000000000000000000000000000000&gas=8000000&gasPrice=0&value=0&contractAddress=&headerBlockNumber=&headerTimestamp=).
 5. Insert the `to` address (`0x4200000000000000000000000000000000000018`) as the destination address and select the correct L2 network (in this case, Unichain mainnet).
 6. Next, we need to create the calldata from the `opaqueData` field in the `TransactionDeposited` event. This is going to go into the `Enter raw input data` field. We know this particular transaction is a `transferOwnership` call to the `ProxyAdmin` contract. We can identify the start of the relevant calldata by extracting the function selector:
     ```bash
