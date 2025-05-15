@@ -280,7 +280,7 @@ approve whichSafe hdPath='0' ledger='true':
       ${safe} \
       ${signatures}
   fi
-execute hdPath='0':
+execute hdPath='0' ledger='true':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
   script=NestedSignFromJson
@@ -289,15 +289,27 @@ execute hdPath='0':
     echo "Running script with assertions"
   fi
   echo "Using script ${script}"
-  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-
-  forge script ${script} \
-    --fork-url ${rpcUrl} \
-    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
-    --broadcast \
-    --sender ${sender} \
-    --sig "runJson(string)" \
-    ${bundlePath}
+  if {{ledger}}; then
+    sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+    forge script ${script} \
+      --fork-url ${rpcUrl} \
+      --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
+      --broadcast \
+      --sender ${sender} \
+      --sig "runJson(string)" \
+      ${bundlePath}
+  else
+    echo "Ledger is false. Please enter your private key:"
+    read -s PRIVATE_KEY_INPUT
+    sender=$(cast wallet address --private-key ${PRIVATE_KEY_INPUT})
+    forge script ${script} \
+      --fork-url ${rpcUrl} \
+      --broadcast \
+      --sender ${sender} \
+      --sig "runJson(string)" \
+      --private-key ${PRIVATE_KEY_INPUT} \
+      ${bundlePath}
+  fi
 
 simulated-run hdPath='0':
   #!/usr/bin/env bash
