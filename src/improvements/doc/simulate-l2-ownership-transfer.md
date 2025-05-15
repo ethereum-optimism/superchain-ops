@@ -33,7 +33,16 @@ The following steps describe how to simulate an L2 deposit transaction prior to 
     We must put `0xf2fde38b0000000000000000000000006b1bae59d09fccbddb6c6cceb07b7279367c4e3b` in the `Enter raw input data` field.
     ![Enter Raw Input Data](./images/tenderly-raw-input-data.png)
 8. Double-check that the address returned from the `cast calldata-decode` step matches the aliased L1 ProxyAdmin owner (L1PAO) for the target chain. In this case, the L1PAO is `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A`. Confirm this by manually unaliasing the address using [chisel](https://book.getfoundry.sh/chisel/).
-    ![Unalias via Chisel](./images/unalias-via-chisel.png)
+    ```bash
+    > uint160 constant offset = uint160(0x1111000000000000000000000000000000001111)
+    > function undoL1ToL2Alias(address l2Address) internal pure returns (address l1Address) {
+        unchecked {
+            l1Address = address(uint160(l2Address) - offset);
+        }
+    }
+    > undoL1ToL2Alias(0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b)
+    # returns: 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A
+    ```
 9. Next we need to fill out the `Transaction Parameters` section on the right of the UI. Specifically, fill out the `From` address and `Gas` fields. The `From` address should be the aliased L1PAO address obtained in the previous step (i.e. `0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b`). The `Gas` field should be set to `200000`. You can get this number by further parsing the opaque data and extracting the gas limit.
     ```bash
     cast --to-dec 0x30d40
