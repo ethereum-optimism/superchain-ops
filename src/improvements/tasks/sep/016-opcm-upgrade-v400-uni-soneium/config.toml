@@ -1,6 +1,6 @@
 l2chains = [
-    {name = "Unichain Sepolia Testnet", chainId = 1301}
-    #{name = "Soneium Testnet Minato", chainId = 1946}
+    {name = "Unichain Sepolia Testnet", chainId = 1301},
+    {name = "Soneium Testnet Minato", chainId = 1946}
 ]
 
 templateName = "OPCMUpgradeV400"
@@ -14,30 +14,15 @@ absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b7
 expectedValidationErrors = "PDDG-120"
 
 # Soneium Testnet Minato
-#[[opcmUpgrades]]
-#chainId = 1946
+[[opcmUpgrades]]
+chainId = 1946
 #prestates."1.6.1-rc.1
 # https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/validation/standard/standard-prestates.toml#L6
-#absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
+absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
 # TODO: Check why this errors get triggered and add a comment explaining why.
 # I think they still are on permissioned dispute games
-#expectedValidationErrors = "PDDG-120,PLDG-10"
+expectedValidationErrors = "PDDG-120,PLDG-10"
 
 [addresses]
 OPCM = "0x355fd2a98fc11f5e4a91d9aa4c0041d252a77583" # Freshly deployed on Sepolia
 StandardValidatorV400 = "0xd0233aa63b11c2b93f68e306a16f2786fb11d0d1" # Freshly deployed on Sepolia
-ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
-
-[stateOverrides]
-0x2BF403E5353A7a082ef6bb3Ae2Be3B866D8D3ea4 = [ # ProxyAdmin, change owner to the PAO
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000000", value = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"}
-]
-0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b = [ # DisputeGameFactoryProxy, change owner to the PAO
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000033", value = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"}
-]
-0x4E7e6dC46CE003A1E353B6848BF5a4fc1FeAC8Ae = [ # DWETH, change owner to the PAO
-     {key = "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103", value = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"}
-]
-0x73D18d6Caa14AeEc15449d0A25A31D4e7E097a5c = [ # DWETH, change owner to the PAO
-     {key = "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103", value = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"}
-]
