@@ -36,14 +36,11 @@ contract StackedSimulator is Script {
         TaskInfo[] memory tasks = getNonTerminalTasks(network, task);
         TaskManager.TaskConfig[] memory taskConfigs = new TaskManager.TaskConfig[](tasks.length);
 
-        for (uint256 i = 0; i < tasks.length; i++) {
-            taskConfigs[i] = taskManager.parseConfig(tasks[i].path);
-        }
-
         // Setting this env variable to reduce logging for stack simulations.
         vm.setEnv("SIGNING_MODE_IN_PROGRESS", "true");
 
-        for (uint256 i = 0; i < taskConfigs.length; i++) {
+        for (uint256 i = 0; i < tasks.length; i++) {
+            taskConfigs[i] = taskManager.parseConfig(tasks[i].path);
             // If we wanted to ensure that all Tenderly links worked for each task, we would need to build a cumulative list of all state overrides
             // and append them to the next task's config.toml file. For now, we are skipping this functionality.
             taskManager.executeTask(taskConfigs[i], optionalOwnerAddress);
