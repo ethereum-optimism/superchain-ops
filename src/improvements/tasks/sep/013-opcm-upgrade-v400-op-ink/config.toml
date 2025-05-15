@@ -1,0 +1,27 @@
+l2chains = [    
+    {name = "OP Sepolia Testnet", chainId = 11155420},
+    {name = "Ink Sepolia Testnet", chainId = 763373}
+]
+
+templateName = "OPCMUpgradeV400"
+
+# OP Sepolia Testnet
+[[opcmUpgrades]]
+chainId = 11155420
+# prestates."1.6.1-rc.1
+# https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/validation/standard/standard-prestates.toml#L6
+absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
+expectedValidationErrors = ""
+
+# Ink Sepolia Testnet
+[[opcmUpgrades]]
+chainId = 763373
+# prestates."1.6.1-rc.1
+# https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/validation/standard/standard-prestates.toml#L6
+
+absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
+expectedValidationErrors = ""
+
+[addresses]
+OPCM = "0x355fd2a98fc11f5e4a91d9aa4c0041d252a77583" # Freshly deployed on Sepolia
+StandardValidatorV400 = "0xd0233aa63b11c2b93f68e306a16f2786fb11d0d1" # Freshly deployed on Sepolia
