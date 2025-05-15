@@ -13,7 +13,11 @@ import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegis
 /// The user provides the unaliased L1 PAO owner, and this template aliases the address and transfers ownership.
 /// This template creates a transaction that executes on L1 via the OptimismPortal which is then forwarded to the L2.
 /// See: https://docs.optimism.io/stack/transactions/deposit-flow
-/// ATTENTION: Please use caution when using this template. Transferring ownership is high risk.
+///
+/// ATTENTION: Use caution when using this template — transferring ownership is high risk.
+/// To gain additional assurance that the corresponding L2 deposit transaction works as expected,
+/// you must follow the steps outlined in the documentation: ../doc/simulate-l2-ownership-transfer.md
+/// Add the results of the simulation to the VALIDATION.md file for the task.
 ///
 /// Manual Post-Execution checks to follow when executing this task:
 /// 1. Find the L2 deposit transaction by identifying the alias of the L1 ProxyAdmin owner safe.
