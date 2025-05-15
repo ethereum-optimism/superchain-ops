@@ -541,6 +541,7 @@ library AccountAccessParser {
     ) internal view noGasMetering {
         console.log("");
         string memory line = unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
+        printCopyHelper("below");
         console.log(string("TASK TRANSFERS").cyan().bold());
         console.log(line.cyan().bold());
         if (_transfers.length == 0) {
@@ -559,7 +560,6 @@ library AccountAccessParser {
         console.log("");
         console.log(string("TASK STATE CHANGES").cyan().bold());
         console.log(line.cyan().bold());
-        printCopyHelper("below");
         require(_stateDiffs.length > 0, "No state changes found, this is unexpected.");
         printMarkdown(_stateDiffs, _parentMultisig, _txHash);
         printCopyHelper("above");
