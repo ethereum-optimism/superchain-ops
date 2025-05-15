@@ -1,5 +1,0 @@
-l2chains = [{name = "OP Devnet", chainId = 20022002}]
-
-templateName = "TransferOwnerTemplate"
-
-newOwner = "0x5cd0D260AF719ed8Ec66dfaf23d338d534EDbb4F"
