@@ -229,7 +229,7 @@ execute_in_anvil hdPath='0':
     --sig "runJson(string)" \
     ${bundlePath} 2>&1)
 
-approve whichSafe hdPath='0':
+approve whichSafe hdPath='0' ledger='true':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
   script=NestedSignFromJson
@@ -253,19 +253,33 @@ approve whichSafe hdPath='0':
     fi
     safe="{{chainGovernorSafe}}"
   fi
-  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-
-  forge build
-  forge script ${script} \
-    --fork-url ${rpcUrl} \
-    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
-    --broadcast \
-    --sender ${sender} \
-    --sig "approveJson(string,address,bytes)" \
-    ${bundlePath} \
-    ${safe} \
-    ${signatures}
-
+  if {{ledger}}; then
+    sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+    forge build
+    forge script ${script} \
+      --fork-url ${rpcUrl} \
+      --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
+      --broadcast \
+      --sender ${sender} \
+      --sig "approveJson(string,address,bytes)" \
+      ${bundlePath} \
+      ${safe} \
+      ${signatures}
+  else
+    echo "Ledger is false. Please enter your private key:"
+    read -s PRIVATE_KEY_INPUT
+    sender=$(cast wallet address --private-key ${PRIVATE_KEY_INPUT})
+    forge build
+    forge script ${script} \
+      --fork-url ${rpcUrl} \
+      --broadcast \
+      --sender ${sender} \
+      --sig "approveJson(string,address,bytes)" \
+      --private-key ${PRIVATE_KEY_INPUT} \
+      ${bundlePath} \
+      ${safe} \
+      ${signatures}
+  fi
 execute hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
