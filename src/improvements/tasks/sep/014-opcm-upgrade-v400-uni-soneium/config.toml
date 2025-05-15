@@ -1,4 +1,4 @@
-l2chains = [    
+l2chains = [
     {name = "Unichain Sepolia Testnet", chainId = 1301}
     #{name = "Soneium Testnet Minato", chainId = 1946}
 ]
@@ -26,6 +26,7 @@ expectedValidationErrors = "PDDG-120,PLDG-10"
 [addresses]
 OPCM = "0x355fd2a98fc11f5e4a91d9aa4c0041d252a77583" # Freshly deployed on Sepolia
 StandardValidatorV400 = "0xd0233aa63b11c2b93f68e306a16f2786fb11d0d1" # Freshly deployed on Sepolia
+ProxyAdminOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
 
 [stateOverrides]
 0x2BF403E5353A7a082ef6bb3Ae2Be3B866D8D3ea4 = [ # ProxyAdmin, change owner to the PAO
