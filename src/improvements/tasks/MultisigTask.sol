@@ -330,10 +330,13 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     function loadSafeAddressString(string memory taskConfigFilePath) public view returns (string memory) {
         string memory file = vm.readFile(taskConfigFilePath);
         try vm.parseTomlString(file, ".safeAddressString") returns (string memory _safeAddressString) {
-            console.log("Safe address string found in config file: %s", _safeAddressString);
+            console.log(
+                vm.toUppercase("[INFO]").green().bold(),
+                "Safe address string found in config file, this takes precedence over the template value:",
+                _safeAddressString
+            );
             return _safeAddressString;
         } catch (bytes memory) {
-            console.log("Error parsing safeAddressString from config file, using value from template.");
             return safeAddressString();
         }
     }
@@ -381,6 +384,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
     /// @notice Print the hash to approve by EOA for parent/root multisig.
     function printParentHash(bytes memory callData) public view {
+        console.log("Parent Multisig: ", getAddressLabel(parentMultisig));
         console.log("Safe Transaction Hash: ", vm.toString(getHash(callData, parentMultisig)));
 
         bytes memory encodedTxData = getEncodedTransactionData(parentMultisig, callData);

@@ -541,12 +541,12 @@ library AccountAccessParser {
     ) internal view noGasMetering {
         console.log("");
         string memory line = unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
-        printCopyHelper("below");
         console.log(string("TASK TRANSFERS").cyan().bold());
         console.log(line.cyan().bold());
         if (_transfers.length == 0) {
             console.log("No ETH or ERC20 transfers.");
         } else {
+            printCopyHelper("below");
             for (uint256 i = 0; i < _transfers.length; i++) {
                 DecodedTransfer memory transfer = _transfers[i];
                 console.log("\n#### Decoded Transfer %s", i);
@@ -555,11 +555,13 @@ library AccountAccessParser {
                 console.log("- **Value:**             `%s`", transfer.value);
                 console.log("- **Token Address:**     `%s`", transfer.tokenAddress);
             }
+            printCopyHelper("above");
         }
 
         console.log("");
         console.log(string("TASK STATE CHANGES").cyan().bold());
         console.log(line.cyan().bold());
+        printCopyHelper("below");
         require(_stateDiffs.length > 0, "No state changes found, this is unexpected.");
         printMarkdown(_stateDiffs, _parentMultisig, _txHash);
         printCopyHelper("above");
