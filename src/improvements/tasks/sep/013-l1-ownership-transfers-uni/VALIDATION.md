@@ -43,7 +43,7 @@ First lets define all the contracts that will have their ownership transferred:
     cast call 0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b "gameImpls(uint32)(address)" 0 --rpc-url sepolia
     # returns 0xA84cF3aAB33A5Ac812F46A46601b0E39A03E07F1
     # Call weth on the Permissionless FDG to get the Permissionless DelayedWETHProxy
-    cast call 0xA84cF3aAB33A5Ac812F46A46601b0E39A03E07F1 "weth():(address)" --rpc-url sepolia
+    cast call 0xA84cF3aAB33A5Ac812F46A46601b0E39A03E07F1 "weth()(address)" --rpc-url sepolia
     # returns 0x4E7e6dC46CE003A1E353B6848BF5a4fc1FeAC8Ae
     ```
 - ProxyAdmin: [`0x2BF403E5353A7a082ef6bb3Ae2Be3B866D8D3ea4`](https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/sepolia/unichain.toml#L61)
@@ -90,60 +90,75 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   - **Decoded Kind:** `address`
   - **Before:** `0xd363339eE47775888Df411A163c586a8BdEA9dbf`
   - **After:** [`0x1Eb2fFc903729a0F03966B917003800b145F56E2`](https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/sepolia/op.toml#L46)
-  - **Summary:** ProxyAdmin owner update to new 
-  - **Detail:** 
-  
-**<TODO: Insert links for this state change then remove this line.>**
+  - **Summary:** ProxyAdmin owner update to new Superchain L1PAO
   
   ---
   
-### `0x4e7e6dc46ce003a1e353b6848bf5a4fc1feac8ae` (DelayedWETH) - Chain ID: 1301
+### `0x4e7e6dc46ce003a1e353b6848bf5a4fc1feac8ae` (Permissionless DelayedWETH) - Chain ID: 1301
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000033`
   - **Decoded Kind:** `address`
-  - **Before:** `0xd363339eE47775888Df411A163c586a8BdEA9dbf`
-  - **After:** `0x1Eb2fFc903729a0F03966B917003800b145F56E2`
-  - **Summary:** _owner
-  - **Detail:** 
-  
-**<TODO: Insert links for this state change then remove this line.>**
-  
+  - **Before:** [`0xd363339eE47775888Df411A163c586a8BdEA9dbf`](https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/sepolia/unichain.toml#L46)
+  - **After:** [`0x1Eb2fFc903729a0F03966B917003800b145F56E2`](https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/sepolia/op.toml#L46)
+  - **Summary:** Permissionless DelayedWETH owner update to new Superchain L1PAO
+  - **Detail:** The superchain registry does not have a link for this contract, so we manually retrieved the address from the DisputeGameFactoryProxy.
+    ```bash
+    # Call the DisputeGameFactoryProxy to get the Permissionless FDG - https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/sepolia/unichain.toml#L65C30-L65C72
+    cast call 0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b "gameImpls(uint32)(address)" 0 --rpc-url sepolia
+    # returns 0xA84cF3aAB33A5Ac812F46A46601b0E39A03E07F1
+    # Call weth on the Permissionless FDG to get the Permissionless DelayedWETHProxy
+    cast call 0xA84cF3aAB33A5Ac812F46A46601b0E39A03E07F1 "weth()(address)" --rpc-url sepolia
+    # returns 0x4E7e6dC46CE003A1E353B6848BF5a4fc1FeAC8Ae
+    ```
+    Also you can check that the slot `0x0000000000000000000000000000000000000000000000000000000000000033` is correct by running the following command and observing that the output is the same as the `Before` value:
+    ```bash
+    cast storage 0x4E7e6dC46CE003A1E353B6848BF5a4fc1FeAC8Ae 0x0000000000000000000000000000000000000000000000000000000000000033 --rpc-url sepolia
+    # returns 0x000000000000000000000000d363339ee47775888df411a163c586a8bdea9dbf
+    cast call 0x4E7e6dC46CE003A1E353B6848BF5a4fc1FeAC8Ae "owner()(address)" --rpc-url sepolia
+    # returns 0xd363339eE47775888Df411A163c586a8BdEA9dbf
+    ```
+    
   ---
   
-### `0x73d18d6caa14aeec15449d0a25a31d4e7e097a5c` (<TODO: enter contract name>) 
+### [`0x73D18d6Caa14AeEc15449d0A25A31D4e7E097a5c`](https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/sepolia/unichain.toml#L64) (Permissioned DelayedWETH) - Chain ID: 1301
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000033`
   - **Before:** `0x000000000000000000000000d363339ee47775888df411a163c586a8bdea9dbf`
-  - **After:** `0x0000000000000000000000001eb2ffc903729a0f03966b917003800b145f56e2`
-  - **Summary:** 
-  - **Detail:** 
-  
-**<TODO: Slot was not automatically decoded. Please provide a summary with thorough detail then remove this line.>**
-  
-**<TODO: Insert links for this state change then remove this line.>**
+  - **After:** [`0x0000000000000000000000001eb2ffc903729a0f03966b917003800b145f56e2`](https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/sepolia/op.toml#L46)
+  - **Summary:** Permissionless DelayedWETH owner update to new Superchain L1PAO
+  - **Detail:** Verify the slot `0x0000000000000000000000000000000000000000000000000000000000000033` is correct by running the following command and observing that the output is the same as the `Before` value:
+    ```bash
+    cast storage 0x73D18d6Caa14AeEc15449d0A25A31D4e7E097a5c 0x0000000000000000000000000000000000000000000000000000000000000033 --rpc-url sepolia
+    # returns 0x000000000000000000000000d363339ee47775888df411a163c586a8bdea9dbf
+    cast call 0x73D18d6Caa14AeEc15449d0A25A31D4e7E097a5c "owner()(address)" --rpc-url sepolia
+    # returns 0xd363339eE47775888Df411A163c586a8BdEA9dbf
+    ```
   
   ---
   
-### `0xd363339ee47775888df411a163c586a8bdea9dbf` (ProxyAdminOwner (GnosisSafe)) - Chain ID: 1301
+### [`0xd363339ee47775888df411a163c586a8bdea9dbf`](https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/sepolia/unichain.toml#L46) (ProxyAdminOwner (GnosisSafe)) - Chain ID: 1301
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:** `uint256`
   - **Before:** `32`
   - **After:** `33`
   - **Summary:** nonce
-  - **Detail:** 
-  
-**<TODO: Insert links for this state change then remove this line.>**
-  
+  - **Detail:** Nonce update for the parent multisig.
+    
   ---
   
-### `0xeff73e5aa3b9aec32c659aa3e00444d20a84394b` (DisputeGameFactory) - Chain ID: 1301
+### [`0xeff73e5aa3b9aec32c659aa3e00444d20a84394b`](https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/sepolia/unichain.toml#L65) (DisputeGameFactory) - Chain ID: 1301
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000033`
   - **Decoded Kind:** `address`
   - **Before:** `0xd363339eE47775888Df411A163c586a8BdEA9dbf`
-  - **After:** `0x1Eb2fFc903729a0F03966B917003800b145F56E2`
-  - **Summary:** _owner
-  - **Detail:** 
+  - **After:** [`0x1Eb2fFc903729a0F03966B917003800b145F56E2`](https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/sepolia/op.toml#L46)
+  - **Summary:** DisputeGameFactory owner update to new Superchain L1PAO
+  - **Detail:** Verify the slot `0x0000000000000000000000000000000000000000000000000000000000000033` is correct by running the following command and observing that the output is the same as the `Before` value:
+    ```bash
+    cast storage 0xeff73e5aa3b9aec32c659aa3e00444d20a84394b 0x0000000000000000000000000000000000000000000000000000000000000033 --rpc-url sepolia
+    # returns 0x000000000000000000000000d363339ee47775888df411a163c586a8bdea9dbf
+    cast call 0xeff73e5aa3b9aec32c659aa3e00444d20a84394b "owner()(address)" --rpc-url sepolia
+    # returns 0xd363339eE47775888Df411A163c586a8BdEA9dbf
+    ```
   
-**<TODO: Insert links for this state change then remove this line.>**
