@@ -48,7 +48,7 @@ First lets define all the contracts that will have their ownership transferred:
     ```
 - ProxyAdmin: [`0x2BF403E5353A7a082ef6bb3Ae2Be3B866D8D3ea4`](https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/sepolia/unichain.toml#L61)
 
-Then we know that we call `transferOwnership` on each of these contracts with the new owner being `0x1eb2ffc903729a0f03966b917003800b145f56e2`.
+Then we know that we call `transferOwnership` on each of these contracts with the new owner being [`0x1eb2ffc903729a0f03966b917003800b145f56e2`](https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/sepolia/op.toml#L46).
 Therefore, this calldata should be encoded as:
 
 ```bash
@@ -84,13 +84,13 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   
   ---
   
-### `0x2bf403e5353a7a082ef6bb3ae2be3b866d8d3ea4` (ProxyAdmin) - Chain ID: 1301
+### [`0x2bf403e5353a7a082ef6bb3ae2be3b866d8d3ea4`](https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/sepolia/unichain.toml#L61) (ProxyAdmin) - Chain ID: 1301
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Decoded Kind:** `address`
   - **Before:** `0xd363339eE47775888Df411A163c586a8BdEA9dbf`
-  - **After:** `0x1Eb2fFc903729a0F03966B917003800b145F56E2`
-  - **Summary:** _owner
+  - **After:** [`0x1Eb2fFc903729a0F03966B917003800b145F56E2`](https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/sepolia/op.toml#L46)
+  - **Summary:** ProxyAdmin owner update to new 
   - **Detail:** 
   
 **<TODO: Insert links for this state change then remove this line.>**
