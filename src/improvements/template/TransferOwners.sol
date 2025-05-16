@@ -18,15 +18,11 @@ contract TransferOwners is L2TaskBase {
     using stdToml for string;
     using LibString for string;
 
-    /// @notice OP Mainnet OptimismPortal address. We assume OP Mainnet always adheres to the standard config
-    /// and that the OptimismPortal proxy address is always the same.
-    IOptimismPortal internal constant OP_MAINNET_OPTIMISM_PORTAL =
-        IOptimismPortal(0xbEb5Fc579115071764c7423A4f12eDde41f106Ed);
+    SuperchainAddressRegistry.ChainInfo internal opMainnetChainInfo =
+        SuperchainAddressRegistry.ChainInfo({chainId: 10, name: "OP Mainnet"});
 
-    /// @notice OP Sepolia OptimismPortal address. We assume OP Sepolia always adheres to the standard config and that the
-    /// OptimismPortal proxy address is always the same.
-    IOptimismPortal internal constant OP_SEPOLIA_OPTIMISM_PORTAL =
-        IOptimismPortal(0x16Fc5058F25648194471939df75CF27A2fdC48BC);
+    SuperchainAddressRegistry.ChainInfo internal opSepoliaChainInfo =
+        SuperchainAddressRegistry.ChainInfo({chainId: 11155420, name: "OP Sepolia Testnet"});
 
     /// @notice New owner address. This is unaliased.
     address internal newOwner;
@@ -62,20 +58,27 @@ contract TransferOwners is L2TaskBase {
         activeChainInfo = _parsedChains[0]; // Store the ChainInfo struct
 
         // The discovered SuperchainConfig address must match the SuperchainConfig address in the standard config.
-        // We must not perform the transfer if it does not match. We assume that OP Mainnet and OP Sepolia are always
-        // using the standard config and that their OptimismPortal proxies are always the same.
         address superchainConfig = superchainAddrRegistry.getAddress("SuperchainConfig", activeChainInfo.chainId);
+
+        // Discover OP Mainnet and OP Sepolia chains. We do this to get access to the latest SuperchainConfig addresses.
+        // We assume that these chains are always using the standard config.
         string[] memory parts = vm.split(_taskConfigFilePath, "/");
         require(parts.length >= 3, "Task config file path must contain at least 3 parts to extract the network.");
         string memory network = parts[parts.length - 3];
         if (network.eq("eth")) {
+            superchainAddrRegistry.discoverNewChain(opMainnetChainInfo);
+            address opMainnetSuperchainConfig =
+                superchainAddrRegistry.getAddress("SuperchainConfig", opMainnetChainInfo.chainId);
             require(
-                superchainConfig == OP_MAINNET_OPTIMISM_PORTAL.superchainConfig(),
+                superchainConfig == opMainnetSuperchainConfig,
                 "SuperchainConfig does not match OP Mainnet's SuperchainConfig"
             );
         } else {
+            superchainAddrRegistry.discoverNewChain(opSepoliaChainInfo);
+            address opSepoliaSuperchainConfig =
+                superchainAddrRegistry.getAddress("SuperchainConfig", opSepoliaChainInfo.chainId);
             require(
-                superchainConfig == OP_SEPOLIA_OPTIMISM_PORTAL.superchainConfig(),
+                superchainConfig == opSepoliaSuperchainConfig,
                 "SuperchainConfig does not match OP Sepolia's SuperchainConfig"
             );
         }
@@ -169,8 +172,4 @@ interface IDisputeGameFactory {
 
 interface IDelayedWETH {
     function owner() external view returns (address);
-}
-
-interface IOptimismPortal {
-    function superchainConfig() external view returns (address);
 }

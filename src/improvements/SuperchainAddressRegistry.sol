@@ -210,6 +210,14 @@ contract SuperchainAddressRegistry is StdChains {
     // ======== Superchain address discovery functions ========
     // ========================================================
 
+    /// @notice After instantiation of this contract, you can continue to discover new chains by calling this function.
+    /// This makes addresses on these chains available by using the getAddress function.
+    function discoverNewChain(ChainInfo memory chain) public {
+        string memory chainAddressesContent =
+            vm.readFile("lib/superchain-registry/superchain/extra/addresses/addresses.json");
+        _processAddresses(chain, chainAddressesContent);
+    }
+
     /// @dev Processes all configurations for a given chain.
     function _processAddresses(ChainInfo memory chain, string memory chainAddressesContent) internal {
         uint256 chainId = chain.chainId; // L2 chain ID.
