@@ -124,14 +124,14 @@ contract TransferOwners is L2TaskBase {
     function getCodeExceptions() internal view virtual override returns (address[] memory) {}
 }
 
-interface Ownable {
+interface IOwnable {
     function transferOwnership(address newOwner) external;
 }
 
-interface DisputeGameFactory {
+interface IDisputeGameFactory {
     function owner() external view returns (address);
 }
 
-interface DelayedWETH {
+interface IDelayedWETH {
     function owner() external view returns (address);
 }
