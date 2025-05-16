@@ -18,11 +18,13 @@ contract TransferOwners is L2TaskBase {
     using stdToml for string;
     using LibString for string;
 
-    /// @notice OP Mainnet OptimismPortal address. We assume OP Mainnet is always adheres to the standard config.
+    /// @notice OP Mainnet OptimismPortal address. We assume OP Mainnet always adheres to the standard config
+    /// and that the OptimismPortal proxy address is always the same.
     IOptimismPortal internal constant OP_MAINNET_OPTIMISM_PORTAL =
         IOptimismPortal(0xbEb5Fc579115071764c7423A4f12eDde41f106Ed);
 
-    /// @notice OP Sepolia OptimismPortal address. We assume OP Sepolia is always adheres to the standard config.
+    /// @notice OP Sepolia OptimismPortal address. We assume OP Sepolia always adheres to the standard config and that the
+    /// OptimismPortal proxy address is always the same.
     IOptimismPortal internal constant OP_SEPOLIA_OPTIMISM_PORTAL =
         IOptimismPortal(0x16Fc5058F25648194471939df75CF27A2fdC48BC);
 
