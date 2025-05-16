@@ -1,13 +1,13 @@
 # Validation
 
-This document can be used to validate the inputs and result of the execution of the SystemConfig gas param transactions which you are
-signing.
+This document can be used to validate the inputs and result of the execution of the SystemConfig gas param transactions you are signing.
 
 The steps are:
 
 1. [Validate the Domain and Message Hashes](#expected-domain-and-message-hashes)
-2. [Verifying the transaction input](#understanding-task-calldata)
-3. [Verifying the state changes](#state-changes)
+2. [Verifying the state changes via the normalized state diff hash](#normalized-state-diff-hash-attestation)
+3. [Verifying the transaction input](#understanding-task-calldata)
+4. [Verifying the state changes](#task-state-changes)
 
 ## Expected Domain and Message Hashes
 
@@ -23,6 +23,12 @@ the values printed to the terminal when you run the task.
 > - Safe Transaction Hash: `0x2b791100e1aaa7cdddf0a11846412dcd20595abd7011d3fbb946a5cf5e2b5c5b`
 > - Domain Hash: `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
 > - Message Hash: `0xf654f4cec87ea0aee5f1632a35fe9184a0ab53cd9a6c3d86fdcd0fdb446abf76`
+
+## Normalized State Diff Hash Attestation
+
+The normalized state diff hash **MUST** match the hash produced by the state changes attested to in the state diff audit report. As a signer, you are responsible for verifying that this hash is correct. Please compare the hash below with the one in the audit report. If no audit report is available for this task, you must still ensure that the normalized state diff hash matches the output in your terminal.
+
+**Normalized hash:** `0x2576512ad010b917c049a392e916bb02de1c168477fe29c4f8cbc4fcb016a4b0`
 
 ## Understanding Task Calldata
 
@@ -101,7 +107,7 @@ The resulting calldata sent from the `FoundationUpgradesSafe` is thus:
 0x174dea710000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000120000000000000000000000000229047fed2591dbec1ef1118d64f7af3db9eb2900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000024b40a817c0000000000000000000000000000000000000000000000000000000002625a0000000000000000000000000000000000000000000000000000000000000000000000000000000000229047fed2591dbec1ef1118d64f7af3db9eb2900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000044c0fd4b4100000000000000000000000000000000000000000000000000000000000000fa000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000
 ```
 
-# State Changes
+# State Validations
 
 ## Single Safe State Overrides and Changes
 
@@ -110,7 +116,7 @@ for the expected state overrides and changes.
 
 Additionally, Safe-related nonces [will increment by one](../../../../../SINGLE-VALIDATION.md#nonce-increments).
 
-## State Diffs
+### Task State Changes
 
 For each contract listed in the state diff, please verify that no contracts or state changes shown in the Tenderly diff are missing from this document. Additionally, please verify that for each contract:
 
@@ -127,7 +133,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000068`
   - **Before:** `0x00000000000000000000000000000000000f79c50000146b0000000003938700`
   - **After:** `0x00000000000000000000000000000000000f79c50000146b0000000002625a00`
-  - **Summary:** gasLimit change
+  - **Summary:** (`uint64`) gasLimit change from 60M to 40M
   - **Detail:** gasLimit, basefeeScalar, and blobbasefeeScalar share this same storage slot
       * Changes onchain gasLimit from `60_000_000` to `40_000_000`
       * basefeeScalar and blobbasefeeScalar are unchanged
@@ -136,9 +142,9 @@ For each contract listed in the state diff, please verify that no contracts or s
 - **Key:** `0x000000000000000000000000000000000000000000000000000000000000006a`
   - **Before:** `0x00000000000000000000000000000000000000000000000000000004000000fa`
   - **After:** `0x00000000000000000000000000000000000000000000000000000002000000fa`
-  - **Summary:** eip1559Elasticity change
+  - **Summary:** (`uint32`) eip1559Elasticity change
   - **Detail:** eip1559Elasticity and eip1559Denominator share this same storage slot
-      * Sets the eip1559Denominator to 250, which is no change from its previous value. We must set this value since we are also changing the eip1559Elasticity in the same tx. 
+      * Sets the eip1559Denominator to 250, which is no change from its previous value. We must provide this value since we are also changing the eip1559Elasticity in the same tx. 
       * Sets the eip1559Denominator to 2: it's currently set to 4. ([Slot 106](#supplementary-material) contains these values)
   
   ---
