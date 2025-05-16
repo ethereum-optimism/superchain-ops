@@ -14,15 +14,13 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
 
-/// TODO: If you need any interfaces from the Optimism monorepo submodule. Define them here instead of importing them.
-/// Doing this avoids tight coupling to the monorepo submodule and allows you to update the monorepo submodule
-/// without having to update the template (Remove this comment when done).
-
 /// @notice A template contract for configuring OPCMTaskBase templates.
-/// Supports: <TODO: add supported tags: e.g. op-contracts/v*.*.*>
-contract OPCMTaskBaseTemplate is OPCMTaskBase {
+/// Supports: op-contracts/v4.0.0-rc.2>
+contract OPCMUpgradeV400 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
+
+    IStandardValidatorV400 public STANDARD_VALIDATOR_V400;
 
     /// @notice Struct to store inputs data for each L2 chain.
     struct OPCMUpgrade {
@@ -34,23 +32,33 @@ contract OPCMTaskBaseTemplate is OPCMTaskBase {
     /// @notice Mapping of L2 chain IDs to their respective OPCMUpgrade structs.
     mapping(uint256 => OPCMUpgrade) public upgrades;
 
-    /// @notice Returns the storage write permissions required for this task. This is an array of
-    /// contract names that are expected to be written to during the execution of the task.
+    /// @notice Returns the storage write permissions required for this task
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
-        require(false, "TODO: Implement with the correct storage writes.");
-        return new string[](0);
+        string[] memory storageWrites = new string[](10);
+        storageWrites[0] = "ProxyAdminOwner";
+        storageWrites[1] = "OPCM";
+        storageWrites[2] = "SuperchainConfig";
+        storageWrites[3] = "DisputeGameFactoryProxy";
+        storageWrites[4] = "SystemConfigProxy";
+        storageWrites[5] = "OptimismPortalProxy";
+        storageWrites[6] = "AddressManager";
+        storageWrites[7] = "L1CrossDomainMessengerProxy";
+        storageWrites[8] = "L1StandardBridgeProxy";
+        storageWrites[9] = "L1ERC721BridgeProxy";
+        return storageWrites;
     }
 
     /// @notice Returns an array of strings that refer to contract names in the address registry.
     /// Contracts with these names are expected to have their balance changes during the task.
     /// By default returns an empty array. Override this function if your task expects balance changes.
     function _taskBalanceChanges() internal view virtual override returns (string[] memory) {
-        require(false, "TODO: Implement with the correct balance changes.");
-        return new string[](0);
+        string[] memory balanceChanges = new string[](1);
+        balanceChanges[0] = "OptimismPortalProxy";
+        // Not adding EthLockboxProxy because we do not perform balance checks on newly deployed contracts.
+        return balanceChanges;
     }
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
-    /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
     function _templateSetup(string memory taskConfigFilePath) internal override {
         super._templateSetup(taskConfigFilePath);
         string memory tomlContent = vm.readFile(taskConfigFilePath);
@@ -62,15 +70,24 @@ contract OPCMTaskBaseTemplate is OPCMTaskBase {
         }
 
         OPCM = tomlContent.readAddress(".addresses.OPCM");
-        require(false, "TODO: Perform an OPCM version check e.g. see comments below.");
-        // require(IOPContractsManager(OPCM).version().eq("1.6.0"), "Incorrect OPCM");
+        require(IOPContractsManager(OPCM).version().eq("2.3.0"), "Incorrect OPCM");
         vm.label(OPCM, "OPCM");
 
-        require(false, "TODO: Perform a StandardValidatorV200 version check e.g. see comments below.");
-        // STANDARD_VALIDATOR_V200 = IStandardValidatorV200(tomlContent.readAddress(".addresses.StandardValidatorV200"));
-        // require(STANDARD_VALIDATOR_V200.disputeGameFactoryVersion().eq("1.0.1"), "Incorrect StandardValidatorV200");
-        // vm.label(address(STANDARD_VALIDATOR_V200), "StandardValidatorV200");
-        require(false, "TODO: Implement with the correct template setup.");
+        STANDARD_VALIDATOR_V400 = IStandardValidatorV400(tomlContent.readAddress(".addresses.StandardValidatorV400"));
+        require(
+            address(STANDARD_VALIDATOR_V400).code.length > 0, "Incorrect StandardValidatorV400 - no code at address"
+        );
+        /*
+        require(
+            STANDARD_VALIDATOR_V400.mipsVersion().eq("1.0.0"),
+            "Incorrect StandardValidatorV400 - expected mips version 1.0.0"
+        );
+        require(
+            STANDARD_VALIDATOR_V400.systemConfigVersion().eq("2.5.0"),
+            "Incorrect StandardValidatorV400 - expected systemConfig version 2.5.0"
+        );
+        */
+        vm.label(address(STANDARD_VALIDATOR_V400), "StandardValidatorV400");
     }
 
     /// @notice Before implementing the `_build` function, task developers must consider the following:
@@ -83,7 +100,6 @@ contract OPCMTaskBaseTemplate is OPCMTaskBase {
     ///   In this case, calls to the target **must** use `delegatecall`, e.g.:
     ///   `(bool success,) = OPCM.delegatecall(abi.encodeWithSelector(IOPContractsManager.upgrade, opChainConfigs));`
     function _build() internal override {
-        require(false, "TODO: Implement with the correct build logic.");
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         IOPContractsManager.OpChainConfig[] memory opChainConfigs =
             new IOPContractsManager.OpChainConfig[](chains.length);
@@ -97,11 +113,10 @@ contract OPCMTaskBaseTemplate is OPCMTaskBase {
             });
         }
 
-        // TODO: This may execute the OPCM.upgrade() function or a different OPCM function.
-        // We're using the OPCM.upgrade() function as an example here.
+        // Delegatecall the OPCM.upgrade() function
         (bool success,) =
             OPCM.delegatecall(abi.encodeWithSelector(IOPContractsManager.upgrade.selector, opChainConfigs));
-        require(success, "OPCMTaskBaseTemplate: Delegatecall failed in _build.");
+        require(success, "OPCMUpgradeV400: Delegatecall failed in _build.");
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
@@ -113,21 +128,37 @@ contract OPCMTaskBaseTemplate is OPCMTaskBase {
             string memory expErrors = upgrades[chainId].expectedValidationErrors;
             address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
             address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
-            chainId;
-            expAbsolutePrestate;
-            expErrors;
-            proxyAdmin;
-            sysCfg;
-            require(false, "TODO: Implement with the correct validation logic.");
-            require(false, "TODO: Call StandardValidator.validate()");
+
+            IStandardValidatorV400.InputV400 memory input = IStandardValidatorV400.InputV400({
+                proxyAdmin: proxyAdmin,
+                sysCfg: sysCfg,
+                absolutePrestate: expAbsolutePrestate,
+                l2ChainID: chainId
+            });
+
+            string memory errors = STANDARD_VALIDATOR_V400.validate({_input: input, _allowFailure: true});
+
+            require(errors.eq(expErrors), string.concat("Unexpected errors: ", errors, "; expected: ", expErrors));
         }
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
     function getCodeExceptions() internal view virtual override returns (address[] memory) {
-        require(
-            false, "TODO: Implement the logic to return a list of addresses that should not be checked for code length."
-        );
         return new address[](0);
     }
+}
+
+interface IStandardValidatorV400 {
+    struct InputV400 {
+        address proxyAdmin;
+        address sysCfg;
+        bytes32 absolutePrestate;
+        uint256 l2ChainID;
+    }
+
+    function validate(InputV400 memory _input, bool _allowFailure) external view returns (string memory);
+
+    function mipsVersion() external pure returns (string memory);
+
+    function systemConfigVersion() external pure returns (string memory);
 }

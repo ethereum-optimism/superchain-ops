@@ -625,12 +625,40 @@ library AccountAccessParser {
         }
     }
 
-    /// @notice Decodes an ETH transfer from an account access record, and returns an empty struct
-    /// if no transfer occurred.
+    /// @notice Given an account access record, returns true if it contains a value transfer. Either an ETH transfer or an ERC20 transfer.
+    function containsValueTransfer(VmSafe.AccountAccess memory access) internal pure returns (bool) {
+        return getETHTransfer(access).value != 0 || getERC20Transfer(access).value != 0;
+    }
+
+    /// @notice Decodes an ETH transfer from an account access and returns an empty struct
+    /// if no transfer occurred. This function does not yet support Create or SelfDestruct ETH transfers. It also
+    /// assumes that accesses with DelegateCall kind are not ETH transfers.
     function getETHTransfer(VmSafe.AccountAccess memory access) internal pure returns (DecodedTransfer memory) {
-        return access.value != 0 && !access.reverted
-            ? DecodedTransfer({from: access.accessor, to: access.account, value: access.value, tokenAddress: ETHER})
-            : DecodedTransfer({from: ZERO, to: ZERO, value: 0, tokenAddress: ZERO});
+        bool isEthTransfer = access.value != 0 && !access.reverted && access.oldBalance != access.newBalance;
+        if (isEthTransfer) {
+            require(
+                access.kind != VmSafe.AccountAccessKind.SelfDestruct,
+                "ETH transfer with SelfDestruct is not yet supported"
+            );
+            require(access.kind != VmSafe.AccountAccessKind.Create, "ETH transfer with Create is not yet supported");
+            if (access.kind == VmSafe.AccountAccessKind.Call) {
+                return DecodedTransfer({
+                    from: access.accessor,
+                    to: access.account,
+                    value: access.value,
+                    tokenAddress: ETHER
+                });
+            } else {
+                require(access.kind == VmSafe.AccountAccessKind.DelegateCall, "Expected kind to be DelegateCall.");
+                console.log(
+                    string.concat(
+                        string("[INFO]").green().bold(),
+                        " ETH transfers via DelegateCall are not possible so this foundry account access will be ignored."
+                    )
+                );
+            }
+        }
+        return DecodedTransfer({from: ZERO, to: ZERO, value: 0, tokenAddress: ZERO});
     }
 
     /// @notice Decodes an ERC20 transfer from an account access record, and returns an empty struct
