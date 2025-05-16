@@ -90,7 +90,10 @@ contract TransferOwners is L2TaskBase {
         IDelayedWETH permissionlessWETH = _getDWETH("PermissionlessWETH", activeChainInfo.chainId);
         assertEq(disputeGameFactory.owner(), newOwner, "new owner not set correctly on DisputeGameFactory");
         assertEq(proxyAdmin.owner(), newOwner, "new owner not set correctly on ProxyAdmin");
-        assertEq(permissionedWETH.owner(), newOwner, "new owner not set correctly on PermissionedWETH");
+
+        if (address(permissionedWETH) != address(0)) {
+            assertEq(permissionedWETH.owner(), newOwner, "new owner not set correctly on PermissionedWETH");
+        }
 
         if (address(permissionlessWETH) != address(0)) {
             assertEq(permissionlessWETH.owner(), newOwner, "new owner not set correctly on PermissionlessWETH");
