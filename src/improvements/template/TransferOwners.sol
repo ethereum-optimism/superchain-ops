@@ -11,8 +11,8 @@ import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 
 /// @notice Template contract for doing a batch transfer of ownership for a chain.
-/// This includes the L1ProxyAdminOwner, DisputeGameFactory and Permissioned/Permissionless DelayedWETH contracts.
-/// Some chains may not have a PermissionedWETH or PermissionlessWETH so we handle this accordingly.
+/// This includes the L1ProxyAdminOwner, DisputeGameFactory and optionally the Permissioned/Permissionless DelayedWETH contracts.
+/// Some chains may not have a PermissionedWETH or PermissionlessWETH and or may not be ownable. We handle this accordingly.
 /// ATTENTION: Please use caution when using this template. Transferring ownership is high risk.
 contract TransferOwners is L2TaskBase {
     using stdToml for string;
@@ -63,15 +63,15 @@ contract TransferOwners is L2TaskBase {
         // Transfer ownership of the DisputeGameFactory to the new owner.
         performOwnershipTransfer(address(disputeGameFactory), newOwner);
 
-        // Transfer ownership of the PermissionedWETH to the new owner.
-        if (address(permissionedWETH) != address(0)) {
+        // Check if PermissionedWETH exists and is ownable. If it is, transfer ownership to the new owner.
+        if (_isDWETHOwnable(permissionedWETH) && address(permissionedWETH) != address(0)) {
             performOwnershipTransfer(address(permissionedWETH), newOwner);
         } else {
             console.log("PermissionedWETH not found on chain %s, not performing transfer", activeChainInfo.chainId);
         }
 
-        // Transfer ownership of the PermissionlessWETH to the new owner.
-        if (address(permissionlessWETH) != address(0)) {
+        // Check if PermissionlessWETH exists and is ownable. If it is, transfer ownership to the new owner.
+        if (_isDWETHOwnable(permissionlessWETH) && address(permissionlessWETH) != address(0)) {
             performOwnershipTransfer(address(permissionlessWETH), newOwner);
         } else {
             console.log("PermissionlessWETH not found on chain %s, not performing transfer", activeChainInfo.chainId);
@@ -91,11 +91,13 @@ contract TransferOwners is L2TaskBase {
         assertEq(disputeGameFactory.owner(), newOwner, "new owner not set correctly on DisputeGameFactory");
         assertEq(proxyAdmin.owner(), newOwner, "new owner not set correctly on ProxyAdmin");
 
-        if (address(permissionedWETH) != address(0)) {
+        // Check if the PermissionedWETH is ownable and if it is, check if the owner is set correctly.
+        if (_isDWETHOwnable(permissionedWETH) && address(permissionedWETH) != address(0)) {
             assertEq(permissionedWETH.owner(), newOwner, "new owner not set correctly on PermissionedWETH");
         }
 
-        if (address(permissionlessWETH) != address(0)) {
+        // Check if the PermissionlessWETH is ownable and if it is, check if the owner is set correctly.
+        if (_isDWETHOwnable(permissionlessWETH) && address(permissionlessWETH) != address(0)) {
             assertEq(permissionlessWETH.owner(), newOwner, "new owner not set correctly on PermissionlessWETH");
         }
     }
@@ -110,6 +112,13 @@ contract TransferOwners is L2TaskBase {
         return success ? abi.decode(data, (IDelayedWETH)) : IDelayedWETH(address(0));
     }
 
+    /// @notice Checks if the given DWETH is ownable. Post U16 DWETHs are not ownable and therefor we should not attempt
+    /// to transfer ownership of them.
+    function _isDWETHOwnable(IDelayedWETH _dweth) internal view returns (bool) {
+        (bool success, bytes memory data) = address(_dweth).staticcall(abi.encodeCall(IOwnable.owner, ()));
+        return success ? abi.decode(data, (address)) != address(0) : false;
+    }
+
     /// @notice Performs an ownership transfer for the given target. If the target is address(0) we will not perform
     /// the transfer.
     function performOwnershipTransfer(address _target, address _newOwner) internal {
@@ -121,6 +130,7 @@ contract TransferOwners is L2TaskBase {
 }
 
 interface IOwnable {
+    function owner() external view returns (address);
     function transferOwnership(address newOwner) external;
 }
 
