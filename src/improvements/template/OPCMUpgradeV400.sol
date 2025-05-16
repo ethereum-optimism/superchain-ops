@@ -70,23 +70,13 @@ contract OPCMUpgradeV400 is OPCMTaskBase {
         }
 
         OPCM = tomlContent.readAddress(".addresses.OPCM");
-        require(IOPContractsManager(OPCM).version().eq("2.3.0"), "Incorrect OPCM");
+        require(IOPContractsManager(OPCM).version().eq("2.4.0"), "Incorrect OPCM");
         vm.label(OPCM, "OPCM");
 
         STANDARD_VALIDATOR_V400 = IStandardValidatorV400(tomlContent.readAddress(".addresses.StandardValidatorV400"));
         require(
             address(STANDARD_VALIDATOR_V400).code.length > 0, "Incorrect StandardValidatorV400 - no code at address"
         );
-        /*
-        require(
-            STANDARD_VALIDATOR_V400.mipsVersion().eq("1.0.0"),
-            "Incorrect StandardValidatorV400 - expected mips version 1.0.0"
-        );
-        require(
-            STANDARD_VALIDATOR_V400.systemConfigVersion().eq("2.5.0"),
-            "Incorrect StandardValidatorV400 - expected systemConfig version 2.5.0"
-        );
-        */
         vm.label(address(STANDARD_VALIDATOR_V400), "StandardValidatorV400");
     }
 

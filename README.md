@@ -1,7 +1,7 @@
 > 🚨 Deprecation Notice (Effective Q1 2025)
 > We’re migrating all task definitions from the old superchain-ops repo (`tasks/`) into the new improvements repo (`src/improvements/tasks/`).
 >
-> • New tasks: please use the improvements flow.
+> • New tasks: please use the [improvements flow](./src/improvements) and refer to the [README](./src/improvements/README.md) for more information.
 > • Need help? Reach out in [#superchain-ops](https://discord.com/channels/1244729134312198194/1342572064175030293) on Discord.
 >
 > The old flow will be retired as soon as we don't need the old tasks anymore.

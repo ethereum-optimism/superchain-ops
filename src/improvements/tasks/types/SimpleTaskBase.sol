@@ -6,6 +6,7 @@ import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet
 import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
+/// @notice This contract is used for all simple task types. It overrides various functions in the MultisigTask contract.
 abstract contract SimpleTaskBase is MultisigTask {
     using EnumerableSet for EnumerableSet.AddressSet;
 
