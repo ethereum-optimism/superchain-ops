@@ -72,7 +72,7 @@ contract TransferOwners is L2TaskBase {
         if (permissionedWETH != address(0)) {
             performOwnershipTransfer(permissionedWETH, newOwner);
         } else {
-            console.log("PermissionedWETH not found on chain %s not performing transfer", activeChainInfo.chainId);
+            console.log("PermissionedWETH not found on chain %s, not performing transfer", activeChainInfo.chainId);
         }
 
         // Transfer ownership of the PermissionlessWETH to the new owner.
