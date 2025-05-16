@@ -181,8 +181,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         virtual
         returns (AddressRegistry, IGnosisSafe, address);
 
-    /// @notice This is essentially a solidity script of the calls you want to make, and its
-    /// contents are extracted into calldata for the task.
+    /// @notice This is a solidity script of the calls you want to make, and its
+    /// contents are extracted into calldata for the task. WARNING: Any state written to in this function will be reverted
+    /// after the build function has been run.
     function _build() internal virtual;
 
     /// @notice Called after the build function has been run, to execute assertions on the calls and

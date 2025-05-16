@@ -1,0 +1,4 @@
+l2chains = [{name = "Unichain", chainId = 130}]
+templateName = "TransferOwners"
+
+newOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
