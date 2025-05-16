@@ -241,6 +241,7 @@ jobs:
     parameters:
       network:
         type: string
+    circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     environment:
