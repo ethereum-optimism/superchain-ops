@@ -19,10 +19,13 @@ contract TransferOwners is L2TaskBase {
     using LibString for string;
 
     SuperchainAddressRegistry.ChainInfo internal opMainnetChainInfo =
-        SuperchainAddressRegistry.ChainInfo({chainId: 10, name: "OP Mainnet"});
+        SuperchainAddressRegistry.ChainInfo({chainId: 10, name: "OP Mainnet", optionalCustomAddressesPath: ""});
 
-    SuperchainAddressRegistry.ChainInfo internal opSepoliaChainInfo =
-        SuperchainAddressRegistry.ChainInfo({chainId: 11155420, name: "OP Sepolia Testnet"});
+    SuperchainAddressRegistry.ChainInfo internal opSepoliaChainInfo = SuperchainAddressRegistry.ChainInfo({
+        chainId: 11155420,
+        name: "OP Sepolia Testnet",
+        optionalCustomAddressesPath: ""
+    });
 
     /// @notice New owner address. This is unaliased.
     address internal newOwner;

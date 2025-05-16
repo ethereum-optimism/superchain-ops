@@ -5,6 +5,8 @@ import {Vm} from "forge-std/Vm.sol";
 import {StdChains} from "forge-std/StdChains.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {GameTypes, GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
+import {console} from "forge-std/console.sol";
+import {StdStyle} from "forge-std/StdStyle.sol";
 
 /// @notice Contains getters for arbitrary methods from all L1 contracts, including legacy getters
 /// that have since been deprecated.
@@ -41,6 +43,7 @@ interface IFetcher {
 /// (EOAs) while ensuring correctness and uniqueness.
 contract SuperchainAddressRegistry is StdChains {
     using stdToml for string;
+    using StdStyle for string;
 
     address private constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
     Vm private constant vm = Vm(VM_ADDRESS);
@@ -49,6 +52,7 @@ contract SuperchainAddressRegistry is StdChains {
     struct ChainInfo {
         uint256 chainId;
         string name;
+        string optionalCustomAddressesPath;
     }
 
     /// @notice Structure for storing address info for a given address.
@@ -59,8 +63,11 @@ contract SuperchainAddressRegistry is StdChains {
 
     /// @notice Sentinel chain for generic task addresses.
     /// Chain ID is: 18359133240529938341515463404940784280234256774636175192927404318365594808696
-    ChainInfo public sentinelChain =
-        ChainInfo({chainId: uint256(keccak256("SuperchainAddressRegistry")), name: "SuperchainAddressRegistry"});
+    ChainInfo public sentinelChain = ChainInfo({
+        chainId: uint256(keccak256("SuperchainAddressRegistry")),
+        name: "SuperchainAddressRegistry",
+        optionalCustomAddressesPath: ""
+    });
 
     /// @notice Maps a contract identifier to an L2 chain ID to an address.
     mapping(string => mapping(uint256 => address)) private registry;
@@ -73,6 +80,10 @@ contract SuperchainAddressRegistry is StdChains {
 
     /// @notice Array of supported chains and their configurations
     ChainInfo[] public chains;
+
+    /// @notice The path to the addresses.json file in the superchain-registry repo.
+    string public constant SUPERCHAIN_REGISTRY_ADDRESSES_PATH =
+        "lib/superchain-registry/superchain/extra/addresses/addresses.json";
 
     /// @notice Initializes the contract by loading addresses from TOML files
     /// and configuring the supported L2 chains.
@@ -102,10 +113,37 @@ contract SuperchainAddressRegistry is StdChains {
         }
 
         // For each OP chain, read in all addresses for that OP Chain.
-        string memory chainAddrs = vm.readFile("lib/superchain-registry/superchain/extra/addresses/addresses.json");
+        string memory superchainRegistryChainAddrs = vm.readFile(SUPERCHAIN_REGISTRY_ADDRESSES_PATH);
 
+        // Check if the chainId exists in the addresses.json file.
         for (uint256 i = 0; i < chains.length; i++) {
-            _processAddresses(chains[i], chainAddrs);
+            string memory chainIdKey = vm.toString(chains[i].chainId);
+            string memory expectedJsonPath = string.concat(".", chainIdKey);
+            // If the chainId exists in the addresses.json file, process the addresses via onchain discovery.
+            if (vm.keyExists(superchainRegistryChainAddrs, expectedJsonPath)) {
+                _processAddresses(chains[i], superchainRegistryChainAddrs, true);
+            } else {
+                // If the chainId does not exist in the addresses.json file, use the custom addresses path and
+                // don't perform onchain discovery.
+                console.log(
+                    string.concat(
+                        string("[INFO]").green().bold(),
+                        " Using custom addresses for ",
+                        chains[i].name,
+                        " (chainId: ",
+                        vm.toString(chains[i].chainId),
+                        ") reading from ",
+                        chains[i].optionalCustomAddressesPath
+                    )
+                );
+                require(
+                    bytes(chains[i].optionalCustomAddressesPath).length > 0,
+                    string.concat("SuperchainAddressRegistry: No custom addresses path for chain ", chains[i].name)
+                );
+                // Task developer can supply their own addresses.json file for a chain.
+                string memory customAddresses = vm.readFile(chains[i].optionalCustomAddressesPath);
+                _processAddresses(chains[i], customAddresses, false);
+            }
         }
 
         string memory chainKey;
@@ -213,14 +251,18 @@ contract SuperchainAddressRegistry is StdChains {
     /// @notice After instantiation of this contract, you can continue to discover new chains by calling this function.
     /// This makes addresses on these chains available by using the getAddress function.
     function discoverNewChain(ChainInfo memory chain) public {
-        string memory chainAddressesContent =
-            vm.readFile("lib/superchain-registry/superchain/extra/addresses/addresses.json");
-        _processAddresses(chain, chainAddressesContent);
+        string memory chainAddressesContent = vm.readFile(SUPERCHAIN_REGISTRY_ADDRESSES_PATH);
+        _processAddresses(chain, chainAddressesContent, true);
     }
 
     /// @dev Processes all configurations for a given chain.
-    function _processAddresses(ChainInfo memory chain, string memory chainAddressesContent) internal {
+    function _processAddresses(ChainInfo memory chain, string memory chainAddressesContent, bool discovery) internal {
         uint256 chainId = chain.chainId; // L2 chain ID.
+
+        if (!discovery) {
+            saveAllAddressesLocal(chainAddressesContent, chain);
+            return;
+        }
 
         address optimismPortalProxy = _fetchAndSaveInitialContracts(chain, chainAddressesContent);
 
@@ -318,6 +360,17 @@ contract SuperchainAddressRegistry is StdChains {
 
         address proposer = IFetcher(permissionedDisputeGame).proposer();
         saveAddress("Proposer", chain, proposer);
+    }
+
+    /// @notice Saves all addresses for a given chain from the addresses.json file. This does not perform any onchain discovery.
+    function saveAllAddressesLocal(string memory chainAddressesContent, ChainInfo memory chain) internal {
+        string[] memory keys = vm.parseJsonKeys(chainAddressesContent, string.concat("$.", vm.toString(chain.chainId)));
+        for (uint256 j = 0; j < keys.length; j++) {
+            string memory key = keys[j];
+            address addr =
+                vm.parseJsonAddress(chainAddressesContent, string.concat("$.", vm.toString(chain.chainId), ".", key));
+            saveAddress(key, chain, addr);
+        }
     }
 
     function parseContractAddress(
