@@ -19,13 +19,7 @@ contract TransferOwners is L2TaskBase {
     using LibString for string;
 
     /// @notice New owner address. This is unaliased.
-    address public newOwner;
-
-    /// @notice PermissionedWETH address.
-    address public permissionedWETH;
-
-    /// @notice PermissionlessWETH address.
-    address public permissionlessWETH;
+    address internal newOwner;
 
     /// @notice Stores the chain information after setup.
     SuperchainAddressRegistry.ChainInfo internal activeChainInfo;
@@ -61,23 +55,24 @@ contract TransferOwners is L2TaskBase {
     /// @notice Builds the actions for transferring ownership of the DisputeGameFactory, DWETH contracts and ProxyAdmin.
     function _build() internal override {
         ProxyAdmin proxyAdmin = ProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", activeChainInfo.chainId));
-        address dgfProxy = superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", activeChainInfo.chainId);
-        permissionedWETH = _getDWETH("PermissionedWETH", activeChainInfo.chainId);
-        permissionlessWETH = _getDWETH("PermissionlessWETH", activeChainInfo.chainId);
+        IDisputeGameFactory disputeGameFactory =
+            IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", activeChainInfo.chainId));
+        IDelayedWETH permissionedWETH = _getDWETH("PermissionedWETH", activeChainInfo.chainId);
+        IDelayedWETH permissionlessWETH = _getDWETH("PermissionlessWETH", activeChainInfo.chainId);
 
         // Transfer ownership of the DisputeGameFactory to the new owner.
-        performOwnershipTransfer(dgfProxy, newOwner);
+        performOwnershipTransfer(address(disputeGameFactory), newOwner);
 
         // Transfer ownership of the PermissionedWETH to the new owner.
-        if (permissionedWETH != address(0)) {
-            performOwnershipTransfer(permissionedWETH, newOwner);
+        if (address(permissionedWETH) != address(0)) {
+            performOwnershipTransfer(address(permissionedWETH), newOwner);
         } else {
             console.log("PermissionedWETH not found on chain %s, not performing transfer", activeChainInfo.chainId);
         }
 
         // Transfer ownership of the PermissionlessWETH to the new owner.
-        if (permissionlessWETH != address(0)) {
-            performOwnershipTransfer(permissionlessWETH, newOwner);
+        if (address(permissionlessWETH) != address(0)) {
+            performOwnershipTransfer(address(permissionlessWETH), newOwner);
         } else {
             console.log("PermissionlessWETH not found on chain %s, not performing transfer", activeChainInfo.chainId);
         }
@@ -89,35 +84,33 @@ contract TransferOwners is L2TaskBase {
     /// @notice Validates that the owner was transferred correctly.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
         ProxyAdmin proxyAdmin = ProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", activeChainInfo.chainId));
-        DisputeGameFactory dgfProxy =
-            DisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", activeChainInfo.chainId));
-        assertEq(dgfProxy.owner(), newOwner, "new owner not set correctly on DisputeGameFactory");
+        IDisputeGameFactory disputeGameFactory =
+            IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", activeChainInfo.chainId));
+        IDelayedWETH permissionedWETH = _getDWETH("PermissionedWETH", activeChainInfo.chainId);
+        IDelayedWETH permissionlessWETH = _getDWETH("PermissionlessWETH", activeChainInfo.chainId);
+        assertEq(disputeGameFactory.owner(), newOwner, "new owner not set correctly on DisputeGameFactory");
         assertEq(proxyAdmin.owner(), newOwner, "new owner not set correctly on ProxyAdmin");
+        assertEq(permissionedWETH.owner(), newOwner, "new owner not set correctly on PermissionedWETH");
 
-        if (permissionedWETH != address(0)) {
-            assertEq(DelayedWETH(permissionedWETH).owner(), newOwner, "new owner not set correctly on PermissionedWETH");
-        }
-
-        if (permissionlessWETH != address(0)) {
-            DelayedWETH permissionlessWETHProxy = DelayedWETH(permissionlessWETH);
-            assertEq(permissionlessWETHProxy.owner(), newOwner, "new owner not set correctly on PermissionlessWETH");
+        if (address(permissionlessWETH) != address(0)) {
+            assertEq(permissionlessWETH.owner(), newOwner, "new owner not set correctly on PermissionlessWETH");
         }
     }
 
     /// @notice Gets the DWETH contract address for the given chain id. Trying to call the superchain address registry
     /// with a key that does not exist will normally revert. We handle this gracefully and return address(0) because we
     /// want to proceed and not error.
-    function _getDWETH(string memory _key, uint256 _chainId) internal returns (address) {
-        (bool success, bytes memory data) =
-            address(superchainAddrRegistry).call(abi.encodeCall(SuperchainAddressRegistry.getAddress, (_key, _chainId)));
-        return success ? abi.decode(data, (address)) : address(0);
+    function _getDWETH(string memory _key, uint256 _chainId) internal view returns (IDelayedWETH) {
+        (bool success, bytes memory data) = address(superchainAddrRegistry).staticcall(
+            abi.encodeCall(SuperchainAddressRegistry.getAddress, (_key, _chainId))
+        );
+        return success ? abi.decode(data, (IDelayedWETH)) : IDelayedWETH(address(0));
     }
 
     /// @notice Performs an ownership transfer for the given target. If the target is address(0) we will not perform
     /// the transfer.
     function performOwnershipTransfer(address _target, address _newOwner) internal {
-        if (_target == address(0)) return;
-        Ownable(_target).transferOwnership(_newOwner);
+        IOwnable(_target).transferOwnership(_newOwner);
     }
 
     /// @notice no code exceptions for this template
