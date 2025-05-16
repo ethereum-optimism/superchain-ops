@@ -21,7 +21,8 @@ contract StackedSimulator is Script {
         string name;
     }
 
-    function simulateStack(string memory network) public {
+    /// @notice Simulates the execution of all non-terminal tasks for a given network. No gas metering is used.
+    function simulateStack(string memory network) public noGasMetering {
         TaskInfo[] memory tasks = getNonTerminalTasks(network);
         if (tasks.length == 0) {
             console.log("No non-terminal tasks found for network: %s", network);
@@ -30,13 +31,17 @@ contract StackedSimulator is Script {
         simulateStack(network, tasks[tasks.length - 1].name, address(0));
     }
 
-    /// @notice Simulates the execution of a task and all tasks that must be executed before it.
-    function simulateStack(string memory network, string memory task, address optionalOwnerAddress) public {
+    /// @notice Simulates the execution of a task and all tasks that must be executed before it. No gas metering is used.
+    function simulateStack(string memory network, string memory task, address optionalOwnerAddress)
+        public
+        noGasMetering
+    {
         TaskManager taskManager = new TaskManager();
         TaskInfo[] memory tasks = getNonTerminalTasks(network, task);
         TaskManager.TaskConfig[] memory taskConfigs = new TaskManager.TaskConfig[](tasks.length);
 
         // Setting this env variable to reduce logging for stack simulations.
+        // Comment out this line if you want to see the full output (i.e. state diffs etc).
         vm.setEnv("SIGNING_MODE_IN_PROGRESS", "true");
 
         for (uint256 i = 0; i < tasks.length; i++) {
