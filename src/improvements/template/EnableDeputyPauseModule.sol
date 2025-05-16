@@ -16,7 +16,7 @@ interface ISafe {
 }
 
 /// @notice Template contract for enabling the DeputyPauseModule in a Gnosis Safe
-contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
+contract EnableDeputyPauseModule is SimpleTaskBase {
     using AccountAccessParser for *;
     using stdStorage for StdStorage;
 
