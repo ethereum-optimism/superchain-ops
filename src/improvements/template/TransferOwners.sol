@@ -18,6 +18,14 @@ contract TransferOwners is L2TaskBase {
     using stdToml for string;
     using LibString for string;
 
+    /// @notice OP Mainnet OptimismPortal address. We assume OP Mainnet is always adheres to the standard config.
+    IOptimismPortal internal constant OP_MAINNET_OPTIMISM_PORTAL =
+        IOptimismPortal(0xbEb5Fc579115071764c7423A4f12eDde41f106Ed);
+
+    /// @notice OP Sepolia OptimismPortal address. We assume OP Sepolia is always adheres to the standard config.
+    IOptimismPortal internal constant OP_SEPOLIA_OPTIMISM_PORTAL =
+        IOptimismPortal(0x16Fc5058F25648194471939df75CF27A2fdC48BC);
+
     /// @notice New owner address. This is unaliased.
     address internal newOwner;
 
@@ -50,6 +58,25 @@ contract TransferOwners is L2TaskBase {
             abi.decode(vm.parseToml(toml, ".l2chains"), (SuperchainAddressRegistry.ChainInfo[]));
         require(_parsedChains.length == 1, "Must specify exactly one chain id to transfer ownership for");
         activeChainInfo = _parsedChains[0]; // Store the ChainInfo struct
+
+        // The discovered SuperchainConfig address must match the SuperchainConfig address in the standard config.
+        // We must not perform the transfer if it does not match. We assume that OP Mainnet and OP Sepolia are always
+        // using the standard config and that their OptimismPortal proxies are always the same.
+        address superchainConfig = superchainAddrRegistry.getAddress("SuperchainConfig", activeChainInfo.chainId);
+        string[] memory parts = vm.split(_taskConfigFilePath, "/");
+        require(parts.length >= 3, "Task config file path must contain at least 3 parts to extract the network.");
+        string memory network = parts[parts.length - 3];
+        if (network.eq("eth")) {
+            require(
+                superchainConfig == OP_MAINNET_OPTIMISM_PORTAL.superchainConfig(),
+                "SuperchainConfig does not match OP Mainnet's SuperchainConfig"
+            );
+        } else {
+            require(
+                superchainConfig == OP_SEPOLIA_OPTIMISM_PORTAL.superchainConfig(),
+                "SuperchainConfig does not match OP Sepolia's SuperchainConfig"
+            );
+        }
     }
 
     /// @notice Builds the actions for transferring ownership of the DisputeGameFactory, DWETH contracts and ProxyAdmin.
@@ -140,4 +167,8 @@ interface IDisputeGameFactory {
 
 interface IDelayedWETH {
     function owner() external view returns (address);
+}
+
+interface IOptimismPortal {
+    function superchainConfig() external view returns (address);
 }
