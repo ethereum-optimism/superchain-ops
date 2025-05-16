@@ -79,7 +79,7 @@ contract TransferOwners is L2TaskBase {
         if (permissionlessWETH != address(0)) {
             performOwnershipTransfer(permissionlessWETH, newOwner);
         } else {
-            console.log("PermissionlessWETH not found on chain %s not performing transfer", activeChainInfo.chainId);
+            console.log("PermissionlessWETH not found on chain %s, not performing transfer", activeChainInfo.chainId);
         }
 
         // Transfer ownership of the ProxyAdmin to the new owner. This must be performed last.
