@@ -202,13 +202,15 @@ contract StackedSimulatorUnitTest is Test {
         vm.createSelectFork("mainnet", 22306611); // We know the owners and nonces at this point.
         string memory network = "eth_010";
         SimpleStorage simpleStorage = new SimpleStorage();
+        address[] memory owners = new address[](1);
+        owners[0] = makeAddr("addr0");
         string memory taskName =
             createSimpleStorageTaskWithNonce(network, address(simpleStorage), 100, 2000, 0, 1, 12, 20, 22);
         StackedSimulator ss = new StackedSimulator();
         vm.expectRevert(
             "TaskManager: ownerAddress must be an owner of the parent multisig: 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
         );
-        ss.simulateStack(network, taskName, EMPTY_ADDRESS_ARRAY);
+        ss.simulateStack(network, taskName, owners);
     }
     /// #############################################################
     /// #############################################################
