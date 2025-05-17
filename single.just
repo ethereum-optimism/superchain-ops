@@ -165,7 +165,7 @@ execute_in_anvil hdPath='0':
   echo $execution
 
 
-execute hdPath='0':
+execute hdPath='0' ledger='true':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
   script=SignFromJson
@@ -173,10 +173,21 @@ execute hdPath='0':
     script="${taskPath}/SignFromJson.s.sol"
   fi
   echo "Using script ${script}"
-  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-
-  forge build
-  forge script --fork-url ${ETH_RPC_URL} ${script} \
-    --sig "runJson(string,bytes)" ${bundlePath} ${SIGNATURES} \
-    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
-    --sender ${sender}
+  if {{ledger}}; then
+    sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+    forge build
+    forge script --fork-url ${ETH_RPC_URL} ${script} \
+      --sig "runJson(string,bytes)" ${bundlePath} ${SIGNATURES} \
+      --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
+      --sender ${sender}
+  else
+    echo "Ledger is false. Please enter your private key:"
+    read -s PRIVATE_KEY_INPUT
+    sender=$(cast wallet address --private-key ${PRIVATE_KEY_INPUT})
+    forge build
+    forge script --fork-url ${ETH_RPC_URL} ${script} \
+      --sig "runJson(string,bytes)" ${bundlePath} ${SIGNATURES} \
+      --broadcast \
+      --sender ${sender} \
+      --private-key ${PRIVATE_KEY_INPUT}
+  fi

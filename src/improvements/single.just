@@ -88,20 +88,32 @@ sign hdPath='0':
     --rpc-url ${rpcUrl} \
     --sig "simulateRun(string)" ${config}
 
-execute hdPath='0':
+execute hdPath='0' ledger='true':
   #!/usr/bin/env bash
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
 
   echo "Using script ${script}"
-  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-
-  echo "⏳ Task execution in progress. Some tasks take longer than others..."
-  forge build
-  forge script --fork-url ${rpcUrl} ${script} \
-    --sig "executeRun(string,bytes)" ${config} ${signatures} \
-    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
-    --sender ${sender}
+  if {{ledger}}; then
+    sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+    echo "Using ledger account: ${sender}"
+    forge build
+    forge script --fork-url ${rpcUrl} ${script} \
+      --sig "executeRun(string,bytes)" ${config} ${signatures} \
+      --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
+      --sender ${sender}
+  else
+    echo "Ledger is false. Please enter your private key:"
+    read -s PRIVATE_KEY_INPUT
+    sender=$(cast wallet address --private-key ${PRIVATE_KEY_INPUT})
+    echo "Using private key account: ${sender}"
+    forge build
+    forge script --fork-url ${rpcUrl} ${script} \
+      --sig "executeRun(string,bytes)" ${config} ${signatures} \
+      --broadcast \
+      --sender ${sender} \
+      --private-key ${PRIVATE_KEY_INPUT}
+  fi
 
 sign_and_execute_in_anvil parentSafe:
   #!/usr/bin/env bash
