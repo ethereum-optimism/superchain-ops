@@ -46,9 +46,7 @@ contract L2TaskBaseTemplate is L2TaskBase {
     /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
     function _templateSetup(string memory taskConfigFilePath) internal override {
         super._templateSetup(taskConfigFilePath);
-        SuperchainAddressRegistry.ChainInfo[] memory _chains = abi.decode(
-            vm.parseToml(vm.readFile(taskConfigFilePath), ".l2chains"), (SuperchainAddressRegistry.ChainInfo[])
-        );
+        SuperchainAddressRegistry.ChainInfo[] memory _chains = superchainAddrRegistry.getChains();
         _chains;
 
         require(false, "TODO: Implement with the correct template setup.");

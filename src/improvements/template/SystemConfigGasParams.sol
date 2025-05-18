@@ -45,8 +45,7 @@ contract SystemConfigGasParams is L2TaskBase {
         super._templateSetup(taskConfigFilePath);
 
         string memory tomlContent = vm.readFile(taskConfigFilePath);
-        SuperchainAddressRegistry.ChainInfo[] memory _chains =
-            abi.decode(vm.parseToml(tomlContent, ".l2chains"), (SuperchainAddressRegistry.ChainInfo[]));
+        SuperchainAddressRegistry.ChainInfo[] memory _chains = superchainAddrRegistry.getChains();
 
         // Read gas parameters from the cached TOML content
         uint64 gasLimit = uint64(vm.parseTomlUint(tomlContent, ".gasParams.gasLimit"));
