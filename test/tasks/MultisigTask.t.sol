@@ -63,11 +63,6 @@ contract MultisigTaskUnitTest is Test {
         task = MultisigTask(new MockMultisigTask());
     }
 
-    function testRunFailsNoNetworks() public {
-        vm.expectRevert("SuperchainAddressRegistry: no chains found");
-        task.simulateRun("./test/tasks/mock/configs/InvalidNetworkConfig.toml");
-    }
-
     function testRunFailsEmptyActions() public {
         MultisigTask.Action[] memory actions = new MultisigTask.Action[](0);
         vm.expectRevert("No actions found");

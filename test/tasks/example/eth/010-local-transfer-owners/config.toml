@@ -1,0 +1,4 @@
+l2ChainsLocal = [{name = "Unichain", chainId = 1333330, path = "test/tasks/example/eth/010-local-transfer-owners/addresses.json"}]
+templateName = "TransferOwners"
+
+newOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"

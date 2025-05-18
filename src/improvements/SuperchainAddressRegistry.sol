@@ -48,11 +48,17 @@ contract SuperchainAddressRegistry is StdChains {
     address private constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
     Vm private constant vm = Vm(VM_ADDRESS);
 
+    /// @notice Structure for parsing .l2ChainsLocal entries from TOML.
+    struct LocalChainInfo {
+        uint256 chainId;
+        string name;
+        string path;
+    }
+
     /// @notice Structure for reading chain list details from toml file
     struct ChainInfo {
         uint256 chainId;
         string name;
-        string optionalCustomAddressesPath;
     }
 
     /// @notice Structure for storing address info for a given address.
@@ -63,11 +69,8 @@ contract SuperchainAddressRegistry is StdChains {
 
     /// @notice Sentinel chain for generic task addresses.
     /// Chain ID is: 18359133240529938341515463404940784280234256774636175192927404318365594808696
-    ChainInfo public sentinelChain = ChainInfo({
-        chainId: uint256(keccak256("SuperchainAddressRegistry")),
-        name: "SuperchainAddressRegistry",
-        optionalCustomAddressesPath: ""
-    });
+    ChainInfo public sentinelChain =
+        ChainInfo({chainId: uint256(keccak256("SuperchainAddressRegistry")), name: "SuperchainAddressRegistry"});
 
     /// @notice Maps a contract identifier to an L2 chain ID to an address.
     mapping(string => mapping(uint256 => address)) private registry;
@@ -95,54 +98,90 @@ contract SuperchainAddressRegistry is StdChains {
         );
 
         string memory toml = vm.readFile(configPath);
-        bytes memory chainListContent = toml.parseRaw(".l2chains");
+        bool l2ChainsKeyExists = toml.keyExists(".l2chains");
+        bool l2ChainsLocalKeyExists = toml.keyExists(".l2ChainsLocal");
+        _validateL2ChainsConfig(l2ChainsKeyExists, l2ChainsLocalKeyExists);
 
-        // Read in the list of OP chains from the config file.
-        // Cannot assign the abi.decode result to `chains` directly because it's a storage array, so
-        // compiling without via-ir will fail with:
-        //    Unimplemented feature (/solidity/libsolidity/codegen/ArrayUtils.cpp:228):Copying of type struct AddressRegistry.ChainInfo memory[] memory to storage not yet supported.
-        ChainInfo[] memory _chains = abi.decode(chainListContent, (ChainInfo[]));
-        require(_chains.length > 0, "SuperchainAddressRegistry: no chains found");
-        for (uint256 i = 0; i < _chains.length; i++) {
-            require(_chains[i].chainId != 0, "SuperchainAddressRegistry: Invalid chain ID in config");
-            require(bytes(_chains[i].name).length > 0, "SuperchainAddressRegistry: Empty name in config");
-            require(!seenL2ChainIds[_chains[i].chainId], "SuperchainAddressRegistry: Duplicate chain ID");
+        ChainInfo[] memory _chainsMemory;
+        bool fromLocalConfigOnly = false;
+        LocalChainInfo[] memory localChainInfosForProcessing; // To hold localChainInfos if needed in the second loop
 
-            seenL2ChainIds[_chains[i].chainId] = true;
-            chains.push(_chains[i]);
+        if (l2ChainsLocalKeyExists) {
+            bytes memory chainListContent = toml.parseRaw(".l2ChainsLocal");
+            LocalChainInfo[] memory localChainInfos = abi.decode(chainListContent, (LocalChainInfo[]));
+
+            require(localChainInfos.length > 0, "SuperchainAddressRegistry: .l2ChainsLocal list is empty");
+            _chainsMemory = new ChainInfo[](localChainInfos.length);
+            for (uint256 i = 0; i < localChainInfos.length; i++) {
+                require(
+                    localChainInfos[i].chainId != 0,
+                    "SuperchainAddressRegistry: Invalid chain ID in .l2ChainsLocal config"
+                );
+                require(
+                    bytes(localChainInfos[i].name).length > 0,
+                    "SuperchainAddressRegistry: Empty name in .l2ChainsLocal config"
+                );
+                require(
+                    bytes(localChainInfos[i].path).length > 0,
+                    "SuperchainAddressRegistry: Empty path in .l2ChainsLocal config"
+                );
+
+                // ChainInfo now only has chainId and name. Path is handled separately.
+                _chainsMemory[i] = ChainInfo({chainId: localChainInfos[i].chainId, name: localChainInfos[i].name});
+            }
+            localChainInfosForProcessing = localChainInfos; // Keep for the processing loop
+            fromLocalConfigOnly = true;
+        } else {
+            // l2ChainsKeyExists must be true
+            bytes memory chainListContent = toml.parseRaw(".l2chains");
+            _chainsMemory = abi.decode(chainListContent, (ChainInfo[]));
+            require(_chainsMemory.length > 0, "SuperchainAddressRegistry: .l2chains list is empty");
         }
 
-        // For each OP chain, read in all addresses for that OP Chain.
+        require(_chainsMemory.length > 0, "SuperchainAddressRegistry: no chains found in config");
+        for (uint256 i = 0; i < _chainsMemory.length; i++) {
+            require(_chainsMemory[i].chainId != 0, "SuperchainAddressRegistry: Invalid chain ID in config");
+            require(bytes(_chainsMemory[i].name).length > 0, "SuperchainAddressRegistry: Empty name in config");
+            require(!seenL2ChainIds[_chainsMemory[i].chainId], "SuperchainAddressRegistry: Duplicate chain ID");
+
+            seenL2ChainIds[_chainsMemory[i].chainId] = true;
+            chains.push(_chainsMemory[i]);
+        }
+
+        // For each chain, read in all addresses.
         string memory superchainRegistryChainAddrs = vm.readFile(SUPERCHAIN_REGISTRY_ADDRESSES_PATH);
 
-        // Check if the chainId exists in the addresses.json file.
         for (uint256 i = 0; i < chains.length; i++) {
-            string memory chainIdKey = vm.toString(chains[i].chainId);
-            string memory expectedJsonPath = string.concat(".", chainIdKey);
-            // If the chainId exists in the addresses.json file, process the addresses via onchain discovery.
-            if (vm.keyExists(superchainRegistryChainAddrs, expectedJsonPath)) {
-                _processAddresses(chains[i], superchainRegistryChainAddrs, true);
-            } else {
-                // If the chainId does not exist in the addresses.json file, use the custom addresses path and
-                // don't perform onchain discovery.
+            // Create a copy of the chain info from storage.
+            ChainInfo memory currentChain = chains[i];
+
+            if (fromLocalConfigOnly) {
+                // All chains came from .l2ChainsLocal. Path is mandatory.
+                require(
+                    i < localChainInfosForProcessing.length,
+                    "SuperchainAddressRegistry: Mismatch in local config processing index"
+                );
+                string memory currentLocalAddressesPath = localChainInfosForProcessing[i].path;
+                require(
+                    bytes(currentLocalAddressesPath).length > 0,
+                    "SuperchainAddressRegistry: Empty path retrieved for local chain config"
+                );
+
                 console.log(
                     string.concat(
                         string("[INFO]").green().bold(),
-                        " Using custom addresses for ",
-                        chains[i].name,
+                        " Using local addresses for ",
+                        currentChain.name,
                         " (chainId: ",
-                        vm.toString(chains[i].chainId),
+                        vm.toString(currentChain.chainId),
                         ") reading from ",
-                        chains[i].optionalCustomAddressesPath
+                        currentLocalAddressesPath
                     )
                 );
-                require(
-                    bytes(chains[i].optionalCustomAddressesPath).length > 0,
-                    string.concat("SuperchainAddressRegistry: No custom addresses path for chain ", chains[i].name)
-                );
-                // Task developer can supply their own addresses.json file for a chain.
-                string memory customAddresses = vm.readFile(chains[i].optionalCustomAddressesPath);
-                _processAddresses(chains[i], customAddresses, false);
+                string memory customAddresses = vm.readFile(currentLocalAddressesPath);
+                _processAddresses(currentChain, customAddresses, false); // false = skip discovery, load from file
+            } else {
+                _processAddresses(currentChain, superchainRegistryChainAddrs, true); // true = perform discovery
             }
         }
 
@@ -162,6 +201,18 @@ contract SuperchainAddressRegistry is StdChains {
             address who = toml.readAddress(string.concat(".addresses.", key));
             saveAddress(key, sentinelChain, who);
         }
+    }
+
+    /// @notice Validates the presence and exclusivity of .l2chains and .l2ChainsLocal keys in the config.
+    function _validateL2ChainsConfig(bool l2ChainsKeyExists, bool l2ChainsLocalKeyExists) internal pure {
+        require(
+            !(l2ChainsKeyExists && l2ChainsLocalKeyExists),
+            "SuperchainAddressRegistry: .l2chains and .l2ChainsLocal cannot coexist in the config.toml file"
+        );
+        require(
+            l2ChainsKeyExists || l2ChainsLocalKeyExists,
+            "SuperchainAddressRegistry: Either .l2chains or .l2ChainsLocal must be present in the config.toml file"
+        );
     }
 
     /// @notice Reads in hardcoded addresses from the addresses.toml file.

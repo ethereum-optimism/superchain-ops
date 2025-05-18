@@ -57,8 +57,7 @@ contract TransferL2PAOFromL1 is L2TaskBase {
         aliasedNewOwner = AddressAliasHelper.applyL1ToL2Alias(newOwnerToAlias);
 
         // Only allow one chain to be modified at a time with this template.
-        SuperchainAddressRegistry.ChainInfo[] memory _chains =
-            abi.decode(vm.parseToml(toml, ".l2chains"), (SuperchainAddressRegistry.ChainInfo[]));
+        SuperchainAddressRegistry.ChainInfo[] memory _chains = superchainAddrRegistry.getChains();
         require(_chains.length == 1, "Must specify exactly one chain id to transfer ownership for");
     }
 
