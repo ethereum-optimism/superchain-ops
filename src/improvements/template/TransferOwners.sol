@@ -52,8 +52,7 @@ contract TransferOwners is L2TaskBase {
         newOwner = abi.decode(vm.parseToml(toml, ".newOwner"), (address));
 
         // Only allow one chain to be modified at a time with this template.
-        SuperchainAddressRegistry.ChainInfo[] memory _parsedChains =
-            abi.decode(vm.parseToml(toml, ".l2chains"), (SuperchainAddressRegistry.ChainInfo[]));
+        SuperchainAddressRegistry.ChainInfo[] memory _parsedChains = superchainAddrRegistry.getChains();
         require(_parsedChains.length == 1, "Must specify exactly one chain id to transfer ownership for");
         activeChainInfo = _parsedChains[0]; // Store the ChainInfo struct
 
