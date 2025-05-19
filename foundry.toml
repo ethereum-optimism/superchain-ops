@@ -32,5 +32,5 @@ sepolia = "https://ci-sepolia-l1-archive.optimism.io" # Must have 'circleci_ip_r
 [profile.default.rpc_endpoints]
 localhost = "http://127.0.0.1:8545"
 mainnet = "https://ethereum.publicnode.com"
-sepolia = "https://gateway.tenderly.co/public/sepolia"
+sepolia = "https://sepolia.gateway.tenderly.co"
 opMainnet = "https://mainnet.optimism.io"

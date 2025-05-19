@@ -46,9 +46,7 @@ contract L2TaskBaseTemplate is L2TaskBase {
     /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
     function _templateSetup(string memory taskConfigFilePath) internal override {
         super._templateSetup(taskConfigFilePath);
-        SuperchainAddressRegistry.ChainInfo[] memory _chains = abi.decode(
-            vm.parseToml(vm.readFile(taskConfigFilePath), ".l2chains"), (SuperchainAddressRegistry.ChainInfo[])
-        );
+        SuperchainAddressRegistry.ChainInfo[] memory _chains = superchainAddrRegistry.getChains();
         _chains;
 
         require(false, "TODO: Implement with the correct template setup.");
@@ -60,10 +58,13 @@ contract L2TaskBaseTemplate is L2TaskBase {
     /// 3. Ensure that the call to the target uses the appropriate method (`call` or `delegatecall`) accordingly.
     /// Guidelines:
     /// - `Multicall3`:
-    ///  If the template directlyinherits from `L2TaskBase` or `SimpleTaskBase`, it uses the `Multicall3` contract.
+    ///  If the template directly inherits from `L2TaskBase` or `SimpleTaskBase`, it uses the `Multicall3` contract.
     ///  In this case, calls to the target **must** use `call`, e.g.:
     ///  ` dgm.setRespectedGameType(IOptimismPortal2(payable(portalAddress)), cfg[chainId].gameType);`
+    /// WARNING: Any state written to in this function will be reverted after the build function has been run.
+    /// Do not rely on setting global variables in this function.
     function _build() internal override {
+        // Do not set global variables in this function, see natspec above.
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
