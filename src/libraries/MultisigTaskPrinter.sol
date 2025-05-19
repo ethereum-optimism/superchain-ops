@@ -88,16 +88,6 @@ library MultisigTaskPrinter {
     // ======= Verification Information ========
     // ==========================================
 
-    /// @notice Prints the hash information for a parent safe transaction
-    /// @param safeTxHash The safe transaction hash
-    /// @param domainSeparator The domain separator hash
-    /// @param messageHash The message hash
-    function printParentSafeHashInfo(bytes32 safeTxHash, bytes32 domainSeparator, bytes32 messageHash) internal pure {
-        console.log("Safe Transaction Hash: ", vm.toString(safeTxHash));
-        console.log("Domain Hash:    ", vm.toString(domainSeparator));
-        console.log("Message Hash:   ", vm.toString(messageHash));
-    }
-
     /// @notice Prints the hash information for a child safe transaction
     /// @param childMultisigLabel The label of the child multisig
     /// @param domainSeparator The domain separator hash

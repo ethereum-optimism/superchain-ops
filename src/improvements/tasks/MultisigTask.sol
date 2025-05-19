@@ -741,14 +741,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         printParentHash(taskCallData);
     }
 
-    /// @notice Print the hash to approve by EOA for nested multisig.
-    function printChildHash(bytes32 domainSeparator, bytes32 messageHash) public view {
-        require(
-            childMultisig != address(0), "MultisigTask: Child multisig cannot be zero address when printing child hash."
-        );
-        MultisigTaskPrinter.printChildSafeHashInfo(getAddressLabel(childMultisig), domainSeparator, messageHash);
-    }
-
     /// @notice Print the Tenderly simulation payload with the state overrides.
     function printTenderlySimulationData(Action[] memory actions) internal view {
         console.log("");
@@ -783,85 +775,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                 _overrides: getStateOverrides(parentMultisig, childMultisig)
             });
         }
-    }
-
-    /// @notice Log a JSON payload to create a Tenderly simulation.
-    /// Logging this data to the terminal is important for a separate process that performs Tenderly verifications.
-    /// @param txData The transaction data.
-    /// @param stateOverrides The state overrides for the simulation.
-    /// @param to The target address for the simulation.
-    function logTenderlySimulationPayload(
-        bytes memory txData,
-        Simulation.StateOverride[] memory stateOverrides,
-        address to
-    ) internal view {
-        require(stateOverrides.length > 0, "MultisigTask: stateOverrides length must be greater than 0");
-        printTenderlySimulationJsonPayload(block.chainid, msg.sender, to, txData, stateOverrides);
-    }
-
-    /// @notice Formats a Tenderly state override payload for a single contract
-    /// @param stateOverride The state override to format
-    /// @return A formatted JSON string representing the state override
-    function formatTenderlyStateOverridePayload(Simulation.StateOverride memory stateOverride)
-        internal
-        pure
-        returns (string memory)
-    {
-        // forgefmt: disable-start
-        string memory result = string.concat(
-            '"', vm.toString(stateOverride.contractAddress), '":{"storage":{'
-        );
-
-        for (uint256 j = 0; j < stateOverride.overrides.length; j++) {
-            if (j > 0) result = string.concat(result, ',');
-            result = string.concat(
-                result,
-                '"', vm.toString(bytes32(stateOverride.overrides[j].key)), '":"',
-                vm.toString(stateOverride.overrides[j].value), '"'
-            );
-        }
-        // forgefmt: disable-end
-        return string.concat(result, "}}");
-    }
-
-    /// @notice Prints a Tenderly simulation JSON payload
-    /// @param chainId The chain ID
-    /// @param from The sender address
-    /// @param to The target address
-    /// @param txData The transaction data
-    /// @param stateOverrides The state overrides to apply
-    function printTenderlySimulationJsonPayload(
-        uint256 chainId,
-        address from,
-        address to,
-        bytes memory txData,
-        Simulation.StateOverride[] memory stateOverrides
-    ) internal pure {
-        console.log("");
-        console.log(vm.toUppercase("TENDERLY SIMULATION PAYLOAD").cyan().bold());
-        string memory line = unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
-        console.log(line.cyan().bold());
-
-        // forgefmt: disable-start
-        string memory payload = string.concat(
-            '{"network_id":"', vm.toString(chainId),'",',
-            '"from":"', vm.toString(from),'",',
-            '"to":"', vm.toString(to), '",',
-            '"save":true,',
-            '"input":"', vm.toString(txData),'",',
-            '"value":"0x0",',
-            '"state_objects":{'
-        );
-        // forgefmt: disable-end
-
-        uint256 maxOverridesToPrint = stateOverrides.length < 2 ? stateOverrides.length : 2;
-        for (uint256 i = 0; i < maxOverridesToPrint; i++) {
-            if (i > 0) payload = string.concat(payload, ",");
-            payload = string.concat(payload, formatTenderlyStateOverridePayload(stateOverrides[i]));
-        }
-
-        payload = string.concat(payload, "}}");
-        console.log(payload);
     }
 
     /// @notice Get the hash for this safe transaction.
