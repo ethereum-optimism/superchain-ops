@@ -11,21 +11,23 @@ import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 
 /// @notice Template contract for doing a batch transfer of ownership for a chain.
-/// This includes the L1ProxyAdminOwner, DisputeGameFactory and Permissioned/Permissionless DelayedWETH contracts.
-/// Some chains may not have a PermissionedWETH or PermissionlessWETH so we handle this accordingly.
+/// This includes the L1ProxyAdminOwner, DisputeGameFactory and optionally the Permissioned/Permissionless DelayedWETH contracts.
+/// Some chains may not have a PermissionedWETH or PermissionlessWETH and or may not be ownable. We handle this accordingly.
 /// ATTENTION: Please use caution when using this template. Transferring ownership is high risk.
 contract TransferOwners is L2TaskBase {
     using stdToml for string;
     using LibString for string;
 
+    /// @notice OP Mainnet chain info.
+    SuperchainAddressRegistry.ChainInfo internal opMainnetChainInfo =
+        SuperchainAddressRegistry.ChainInfo({chainId: 10, name: "OP Mainnet"});
+
+    /// @notice OP Sepolia chain info.
+    SuperchainAddressRegistry.ChainInfo internal opSepoliaChainInfo =
+        SuperchainAddressRegistry.ChainInfo({chainId: 11155420, name: "OP Sepolia Testnet"});
+
     /// @notice New owner address. This is unaliased.
-    address public newOwner;
-
-    /// @notice PermissionedWETH address.
-    address public permissionedWETH;
-
-    /// @notice PermissionlessWETH address.
-    address public permissionlessWETH;
+    address internal newOwner;
 
     /// @notice Stores the chain information after setup.
     SuperchainAddressRegistry.ChainInfo internal activeChainInfo;
@@ -52,34 +54,41 @@ contract TransferOwners is L2TaskBase {
         newOwner = abi.decode(vm.parseToml(toml, ".newOwner"), (address));
 
         // Only allow one chain to be modified at a time with this template.
-        SuperchainAddressRegistry.ChainInfo[] memory _parsedChains =
-            abi.decode(vm.parseToml(toml, ".l2chains"), (SuperchainAddressRegistry.ChainInfo[]));
+        SuperchainAddressRegistry.ChainInfo[] memory _parsedChains = superchainAddrRegistry.getChains();
         require(_parsedChains.length == 1, "Must specify exactly one chain id to transfer ownership for");
         activeChainInfo = _parsedChains[0]; // Store the ChainInfo struct
+
+        // The discovered SuperchainConfig address must match the SuperchainConfig address in the standard config.
+        address superchainConfig = superchainAddrRegistry.getAddress("SuperchainConfig", activeChainInfo.chainId);
+
+        // Discover OP Mainnet and OP Sepolia chains. We do this to get access to the latest SuperchainConfig addresses.
+        // We assume that these chains are always using the standard config.
+        _validateSuperchainConfig(superchainConfig);
     }
 
     /// @notice Builds the actions for transferring ownership of the DisputeGameFactory, DWETH contracts and ProxyAdmin.
     function _build() internal override {
         ProxyAdmin proxyAdmin = ProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", activeChainInfo.chainId));
-        address dgfProxy = superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", activeChainInfo.chainId);
-        permissionedWETH = _getDWETH("PermissionedWETH", activeChainInfo.chainId);
-        permissionlessWETH = _getDWETH("PermissionlessWETH", activeChainInfo.chainId);
+        IDisputeGameFactory disputeGameFactory =
+            IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", activeChainInfo.chainId));
+        IDelayedWETH permissionedWETH = _getDWETH("PermissionedWETH", activeChainInfo.chainId);
+        IDelayedWETH permissionlessWETH = _getDWETH("PermissionlessWETH", activeChainInfo.chainId);
 
         // Transfer ownership of the DisputeGameFactory to the new owner.
-        performOwnershipTransfer(dgfProxy, newOwner);
+        performOwnershipTransfer(address(disputeGameFactory), newOwner);
 
-        // Transfer ownership of the PermissionedWETH to the new owner.
-        if (permissionedWETH != address(0)) {
-            performOwnershipTransfer(permissionedWETH, newOwner);
+        // Check if PermissionedWETH exists and is ownable. If it is, transfer ownership to the new owner.
+        if (_isDWETHOwnable(permissionedWETH) && address(permissionedWETH) != address(0)) {
+            performOwnershipTransfer(address(permissionedWETH), newOwner);
         } else {
-            console.log("PermissionedWETH not found on chain %s not performing transfer", activeChainInfo.chainId);
+            console.log("PermissionedWETH not found on chain %s, not performing transfer", activeChainInfo.chainId);
         }
 
-        // Transfer ownership of the PermissionlessWETH to the new owner.
-        if (permissionlessWETH != address(0)) {
-            performOwnershipTransfer(permissionlessWETH, newOwner);
+        // Check if PermissionlessWETH exists and is ownable. If it is, transfer ownership to the new owner.
+        if (_isDWETHOwnable(permissionlessWETH) && address(permissionlessWETH) != address(0)) {
+            performOwnershipTransfer(address(permissionlessWETH), newOwner);
         } else {
-            console.log("PermissionlessWETH not found on chain %s not performing transfer", activeChainInfo.chainId);
+            console.log("PermissionlessWETH not found on chain %s, not performing transfer", activeChainInfo.chainId);
         }
 
         // Transfer ownership of the ProxyAdmin to the new owner. This must be performed last.
@@ -89,49 +98,84 @@ contract TransferOwners is L2TaskBase {
     /// @notice Validates that the owner was transferred correctly.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
         ProxyAdmin proxyAdmin = ProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", activeChainInfo.chainId));
-        DisputeGameFactory dgfProxy =
-            DisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", activeChainInfo.chainId));
-        assertEq(dgfProxy.owner(), newOwner, "new owner not set correctly on DisputeGameFactory");
+        IDisputeGameFactory disputeGameFactory =
+            IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", activeChainInfo.chainId));
+        IDelayedWETH permissionedWETH = _getDWETH("PermissionedWETH", activeChainInfo.chainId);
+        IDelayedWETH permissionlessWETH = _getDWETH("PermissionlessWETH", activeChainInfo.chainId);
+        assertEq(disputeGameFactory.owner(), newOwner, "new owner not set correctly on DisputeGameFactory");
         assertEq(proxyAdmin.owner(), newOwner, "new owner not set correctly on ProxyAdmin");
 
-        if (permissionedWETH != address(0)) {
-            assertEq(DelayedWETH(permissionedWETH).owner(), newOwner, "new owner not set correctly on PermissionedWETH");
+        // Check if the PermissionedWETH is ownable and if it is, check if the owner is set correctly.
+        if (_isDWETHOwnable(permissionedWETH) && address(permissionedWETH) != address(0)) {
+            assertEq(permissionedWETH.owner(), newOwner, "new owner not set correctly on PermissionedWETH");
         }
 
-        if (permissionlessWETH != address(0)) {
-            DelayedWETH permissionlessWETHProxy = DelayedWETH(permissionlessWETH);
-            assertEq(permissionlessWETHProxy.owner(), newOwner, "new owner not set correctly on PermissionlessWETH");
+        // Check if the PermissionlessWETH is ownable and if it is, check if the owner is set correctly.
+        if (_isDWETHOwnable(permissionlessWETH) && address(permissionlessWETH) != address(0)) {
+            assertEq(permissionlessWETH.owner(), newOwner, "new owner not set correctly on PermissionlessWETH");
         }
     }
 
     /// @notice Gets the DWETH contract address for the given chain id. Trying to call the superchain address registry
     /// with a key that does not exist will normally revert. We handle this gracefully and return address(0) because we
     /// want to proceed and not error.
-    function _getDWETH(string memory _key, uint256 _chainId) internal returns (address) {
-        (bool success, bytes memory data) =
-            address(superchainAddrRegistry).call(abi.encodeCall(SuperchainAddressRegistry.getAddress, (_key, _chainId)));
-        return success ? abi.decode(data, (address)) : address(0);
+    function _getDWETH(string memory _key, uint256 _chainId) internal view returns (IDelayedWETH) {
+        (bool success, bytes memory data) = address(superchainAddrRegistry).staticcall(
+            abi.encodeCall(SuperchainAddressRegistry.getAddress, (_key, _chainId))
+        );
+        return success ? abi.decode(data, (IDelayedWETH)) : IDelayedWETH(address(0));
+    }
+
+    /// @notice Checks if the given DWETH is ownable. Post U16 DWETHs are not ownable and therefor we should not attempt
+    /// to transfer ownership of them.
+    function _isDWETHOwnable(IDelayedWETH _dweth) internal view returns (bool) {
+        (bool success, bytes memory data) = address(_dweth).staticcall(abi.encodeCall(IOwnable.owner, ()));
+        return success ? abi.decode(data, (address)) != address(0) : false;
     }
 
     /// @notice Performs an ownership transfer for the given target. If the target is address(0) we will not perform
     /// the transfer.
     function performOwnershipTransfer(address _target, address _newOwner) internal {
-        if (_target == address(0)) return;
-        Ownable(_target).transferOwnership(_newOwner);
+        IOwnable(_target).transferOwnership(_newOwner);
+    }
+
+    /// @notice Validates the SuperchainConfig address against the OP Mainnet or OP Sepolia chain.
+    function _validateSuperchainConfig(address _superchainConfig) internal {
+        // 'block.chainId' will be set to whatever the network the current rpc url is pointing to.
+        if (block.chainid == getChain("mainnet").chainId) {
+            superchainAddrRegistry.discoverNewChain(opMainnetChainInfo);
+            address opMainnetSuperchainConfig =
+                superchainAddrRegistry.getAddress("SuperchainConfig", opMainnetChainInfo.chainId);
+            require(
+                _superchainConfig == opMainnetSuperchainConfig,
+                "SuperchainConfig does not match OP Mainnet's SuperchainConfig"
+            );
+        } else if (block.chainid == getChain("sepolia").chainId) {
+            superchainAddrRegistry.discoverNewChain(opSepoliaChainInfo);
+            address opSepoliaSuperchainConfig =
+                superchainAddrRegistry.getAddress("SuperchainConfig", opSepoliaChainInfo.chainId);
+            require(
+                _superchainConfig == opSepoliaSuperchainConfig,
+                "SuperchainConfig does not match OP Sepolia's SuperchainConfig"
+            );
+        } else {
+            revert("Unsupported chain id");
+        }
     }
 
     /// @notice no code exceptions for this template
     function getCodeExceptions() internal view virtual override returns (address[] memory) {}
 }
 
-interface Ownable {
+interface IOwnable {
+    function owner() external view returns (address);
     function transferOwnership(address newOwner) external;
 }
 
-interface DisputeGameFactory {
+interface IDisputeGameFactory {
     function owner() external view returns (address);
 }
 
-interface DelayedWETH {
+interface IDelayedWETH {
     function owner() external view returns (address);
 }

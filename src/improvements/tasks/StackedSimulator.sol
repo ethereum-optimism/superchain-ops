@@ -27,14 +27,20 @@ contract StackedSimulator is Script {
             console.log("No non-terminal tasks found for network: %s", network);
             return;
         }
-        simulateStack(network, tasks[tasks.length - 1].name, address(0));
+        simulateStack(network, tasks[tasks.length - 1].name, new address[](0));
     }
 
-    /// @notice Simulates the execution of a task and all tasks that must be executed before it.
-    function simulateStack(string memory network, string memory task, address optionalOwnerAddress) public {
+    /// @notice Simulates the execution of a task and all tasks that must be executed before it. No gas metering is used.
+    /// The optionalOwnerAddresses array is used to specify the owner addresses for each nested task. It must be either empty or
+    /// have the same length as the number of tasks. If it is empty, the first owner on the parent multisig will be used for each task.
+    function simulateStack(string memory network, string memory task, address[] memory optionalOwnerAddresses) public {
         TaskManager taskManager = new TaskManager();
         TaskInfo[] memory tasks = getNonTerminalTasks(network, task);
         TaskManager.TaskConfig[] memory taskConfigs = new TaskManager.TaskConfig[](tasks.length);
+        require(
+            optionalOwnerAddresses.length == 0 || optionalOwnerAddresses.length == tasks.length,
+            "StackedSimulator: Invalid owner addresses array length. Must be empty or match the number of tasks being simulated."
+        );
 
         for (uint256 i = 0; i < tasks.length; i++) {
             taskConfigs[i] = taskManager.parseConfig(tasks[i].path);
@@ -46,7 +52,9 @@ contract StackedSimulator is Script {
         for (uint256 i = 0; i < taskConfigs.length; i++) {
             // If we wanted to ensure that all Tenderly links worked for each task, we would need to build a cumulative list of all state overrides
             // and append them to the next task's config.toml file. For now, we are skipping this functionality.
-            taskManager.executeTask(taskConfigs[i], optionalOwnerAddress);
+            address ownerAddress =
+                optionalOwnerAddresses.length == tasks.length ? optionalOwnerAddresses[i] : address(0);
+            taskManager.executeTask(taskConfigs[i], ownerAddress);
         }
     }
 
