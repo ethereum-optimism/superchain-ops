@@ -148,11 +148,11 @@ contract TransferOwners is L2TaskBase {
         SuperchainAddressRegistry.ChainInfo memory chainInfo;
         string memory chainName;
         if (block.chainid == getChain("mainnet").chainId) {
-            string memory mainnetName = "OP Mainnet";
+            string memory mainnetName = "optimism";
             chainInfo = getChainInfo(mainnetName);
             chainName = mainnetName;
         } else if (block.chainid == getChain("sepolia").chainId) {
-            string memory sepoliaName = "OP Sepolia Testnet";
+            string memory sepoliaName = "optimism_sepolia";
             chainInfo = getChainInfo(sepoliaName);
             chainName = sepoliaName;
         } else {
