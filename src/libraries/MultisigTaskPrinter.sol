@@ -6,6 +6,7 @@ import {Vm} from "forge-std/Vm.sol";
 import {StdStyle} from "forge-std/StdStyle.sol";
 import {Base64} from "solady/utils/Base64.sol";
 import {Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {Utils} from "src/libraries/Utils.sol";
 
 /// @title MultisigTaskPrinter
@@ -104,6 +105,18 @@ library MultisigTaskPrinter {
         console.log("1. The data shown in the Tenderly simulation.");
         console.log("2. The data shown on your hardware wallet.");
         console.log("This is a critical step. Do not skip this verification.");
+    }
+
+    /// @notice Prints the Tenderly simulation payload with the state overrides.
+    function printTenderlySimulationData(
+        address targetAddress,
+        bytes memory finalExec,
+        address sender,
+        Simulation.StateOverride[] memory overrides
+    ) internal view {
+        printTitle("TENDERLY SIMULATION DATA");
+        console.log("\nSimulation link:");
+        Simulation.logSimulationLink({_to: targetAddress, _data: finalExec, _from: sender, _overrides: overrides});
     }
 
     // ==========================================
@@ -214,9 +227,9 @@ library MultisigTaskPrinter {
         );
     }
 
-    // ==========================================
-    // ============ Status Messages ============
-    // ==========================================
+    // ===================================================
+    // ============ Status Messages / Helpers ============
+    // ===================================================
 
     /// @notice Prints gas information for execTransaction if not in signing mode
     /// @param gas The amount of gas to use
@@ -232,5 +245,29 @@ library MultisigTaskPrinter {
     function printErrorExecutingMultisigTransaction(bytes memory returnData) internal pure {
         console.log("Error executing multisig transaction");
         console.logBytes(returnData);
+    }
+
+    /// @notice Helper method to get labels for addresses.
+    function getAddressLabel(address contractAddress) public view returns (string memory) {
+        string memory label = vm.getLabel(contractAddress);
+
+        bytes memory prefix = bytes("unlabeled:");
+        bytes memory strBytes = bytes(label);
+
+        if (strBytes.length >= prefix.length) {
+            // check if address is unlabeled
+            for (uint256 i = 0; i < prefix.length; i++) {
+                if (strBytes[i] != prefix[i]) {
+                    // return "{LABEL} @{ADDRESS}" if address is labeled
+                    return string(abi.encodePacked(label, " @", vm.toString(contractAddress)));
+                }
+            }
+        } else {
+            // return "{LABEL} @{ADDRESS}" if address is labeled
+            return string(abi.encodePacked(label, " @", vm.toString(contractAddress)));
+        }
+
+        // return "UNLABELED @{ADDRESS}" if address is unlabeled
+        return string(abi.encodePacked("UNLABELED @", vm.toString(contractAddress)));
     }
 }

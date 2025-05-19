@@ -9,6 +9,7 @@ import {LibSort} from "@solady/utils/LibSort.sol";
 import {Test} from "forge-std/Test.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 
+import {MultisigTaskPrinter} from "src/libraries/MultisigTaskPrinter.sol";
 import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {GasConfigTemplate} from "test/tasks/mock/template/GasConfigTemplate.sol";
@@ -213,9 +214,9 @@ contract SingleMultisigTaskTest is Test {
         bytes memory expectedRevertMessage = bytes(
             string.concat(
                 "MultisigTask: safe address mismatch. Caller: ",
-                localMultisigTask.getAddressLabel(addressRegistry.getAddress("SystemConfigOwner", 8453)),
+                MultisigTaskPrinter.getAddressLabel(addressRegistry.getAddress("SystemConfigOwner", 8453)),
                 ". Actual address: ",
-                localMultisigTask.getAddressLabel(addressRegistry.getAddress("SystemConfigOwner", 1750))
+                MultisigTaskPrinter.getAddressLabel(addressRegistry.getAddress("SystemConfigOwner", 1750))
             )
         );
         vm.expectRevert(expectedRevertMessage);
@@ -228,7 +229,7 @@ contract SingleMultisigTaskTest is Test {
         bytes memory expectedRevertMessage = bytes(
             string.concat(
                 "MultisigTask: address ",
-                localMultisigTask.getAddressLabel(addressRegistry.getAddress("SystemConfigProxy", 34443)),
+                MultisigTaskPrinter.getAddressLabel(addressRegistry.getAddress("SystemConfigProxy", 34443)),
                 " not in allowed storage accesses"
             )
         );
@@ -242,7 +243,7 @@ contract SingleMultisigTaskTest is Test {
         bytes memory expectedRevertMessage = bytes(
             string.concat(
                 "MultisigTask: address ",
-                localMultisigTask.getAddressLabel(addressRegistry.getAddress("SystemConfigProxy", 34443)),
+                MultisigTaskPrinter.getAddressLabel(addressRegistry.getAddress("SystemConfigProxy", 34443)),
                 " not in allowed storage accesses"
             )
         );

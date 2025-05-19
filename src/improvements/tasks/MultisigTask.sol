@@ -355,26 +355,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         data = abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
     }
 
-    /// @notice Print the data to sign.
-    function printEncodedTransactionData(bytes memory dataToSign) public pure {
-        // logs required for using eip712sign binary to sign the data to sign with Ledger
-        console.log("");
-        console.log(vm.toUppercase("DATA TO SIGN").cyan().bold());
-        string memory line = unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
-        console.log(line.cyan().bold());
-        console.log("vvvvvvvv");
-        console.logBytes(dataToSign);
-        console.log("^^^^^^^^\n");
-
-        console.log("");
-        console.log(vm.toUppercase("ATTENTION SIGNERS").cyan().bold());
-        console.log(line.cyan().bold());
-        console.log("Please verify that the 'Data to sign' displayed above matches:");
-        console.log("1. The data shown in the Tenderly simulation.");
-        console.log("2. The data shown on your hardware wallet.");
-        console.log("This is a critical step. Do not skip this verification.");
-    }
-
     /// @notice Print the hash to approve by EOA for parent/root multisig.
     function printParentHash(bytes memory callData) public view {
         bytes32 safeTxHash = getHash(callData, parentMultisig);
@@ -582,7 +562,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                 _allowedStorageAccesses.contains(addr) || _isNewContract(addr, newContracts),
                 string(
                     abi.encodePacked(
-                        "MultisigTask: address ", getAddressLabel(addr), " not in allowed storage accesses"
+                        "MultisigTask: address ",
+                        MultisigTaskPrinter.getAddressLabel(addr),
+                        " not in allowed storage accesses"
                     )
                 )
             );
@@ -645,7 +627,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         return actions;
     }
 
-    /// @notice Print task releated data for task developers and signers.
+    /// @notice Print task related data for task developers and signers.
     function print(
         Action[] memory actions,
         VmSafe.AccountAccess[] memory accountAccesses,
@@ -658,15 +640,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         accountAccesses.decodeAndPrint(parentMultisig, txHash);
 
         printSafe(actions, accountAccesses, isSimulate, txHash);
-    }
-
-    /// @notice Prints the audit report information.
-    function printAuditReportInfo(VmSafe.AccountAccess[] memory _accAccesses, address _parentMultisig, bytes32 _txHash)
-        private
-        view
-    {
-        bytes32 normalizedHash = AccountAccessParser.normalizedStateDiffHash(_accAccesses, _parentMultisig, _txHash);
-        MultisigTaskPrinter.printAuditReportInfo(normalizedHash);
     }
 
     /// @notice Prints all relevant hashes to sign as well as the tenderly simulation link.
@@ -689,10 +662,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
             printTenderlySimulationData(actions);
         }
-        // Audit report info is now printed at the end of the main print function,
-        // but it's better to print it once after all other simulation details.
-        // Moved call from main print to here to ensure it's part of "safe" related printing.
-        printAuditReportInfo(accountAccesses, parentMultisig, txHash);
+        bytes32 normalizedHash = AccountAccessParser.normalizedStateDiffHash(accountAccesses, parentMultisig, txHash);
+        MultisigTaskPrinter.printAuditReportInfo(normalizedHash);
     }
 
     /// @notice Helper function to print nested calldata.
@@ -706,8 +677,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         bytes32 parentHashToApprove = getHash(parentCallDataForLink, parentMultisig);
 
         MultisigTaskPrinter.printNestedDataInfo(
-            getAddressLabel(parentMultisig),
-            getAddressLabel(childMultisig),
+            MultisigTaskPrinter.getAddressLabel(parentMultisig),
+            MultisigTaskPrinter.getAddressLabel(childMultisig),
             parentHashToApprove,
             dataToSign,
             domainSeparator,
@@ -731,50 +702,32 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     function printSingleData(Action[] memory actions) private view {
         bytes memory taskCallData = getMulticall3Calldata(actions);
         bytes memory dataToSign = getEncodedTransactionData(parentMultisig, taskCallData);
-        printEncodedTransactionData(dataToSign);
+        MultisigTaskPrinter.printEncodedTransactionData(dataToSign);
 
-        console.log("");
-        console.log(vm.toUppercase("SINGLE MULTISIG EOA HASH TO APPROVE").cyan().bold());
-        string memory line = unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
-        console.log(line.cyan().bold());
-        // printParentHash already calls the printer for hash info and op-txverify link
+        MultisigTaskPrinter.printTitle("SINGLE MULTISIG EOA HASH TO APPROVE");
         printParentHash(taskCallData);
     }
 
     /// @notice Print the Tenderly simulation payload with the state overrides.
     function printTenderlySimulationData(Action[] memory actions) internal view {
-        console.log("");
-        console.log(vm.toUppercase("TENDERLY SIMULATION DATA").cyan().bold());
-        string memory line = unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
-        console.log(line.cyan().bold());
-
+        address targetAddress;
+        bytes memory finalExec;
         if (childMultisig != address(0)) {
-            bytes memory finalExec = getNestedSimulationMulticall3Calldata(actions);
-
-            console.log("\nSimulation link:");
-            Simulation.logSimulationLink({
-                _to: MULTICALL3_ADDRESS,
-                _data: finalExec,
-                _from: msg.sender,
-                _overrides: getStateOverrides(parentMultisig, childMultisig)
-            });
+            targetAddress = MULTICALL3_ADDRESS;
+            finalExec = getNestedSimulationMulticall3Calldata(actions);
         } else {
-            bytes memory finalExec = _execTransactionCalldata(
+            targetAddress = parentMultisig;
+            finalExec = _execTransactionCalldata(
                 parentMultisig,
                 getMulticall3Calldata(actions),
                 Signatures.genPrevalidatedSignature(msg.sender),
                 _getMulticallAddress(parentMultisig)
             );
-
-            // Log the simulation link
-            console.log("\nSimulation link:");
-            Simulation.logSimulationLink({
-                _to: parentMultisig,
-                _data: finalExec,
-                _from: msg.sender,
-                _overrides: getStateOverrides(parentMultisig, childMultisig)
-            });
         }
+
+        MultisigTaskPrinter.printTenderlySimulationData(
+            parentMultisig, finalExec, msg.sender, getStateOverrides(parentMultisig, childMultisig)
+        );
     }
 
     /// @notice Get the hash for this safe transaction.
@@ -796,30 +749,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         Call3Value[] memory calls = new Call3Value[](1);
         calls[0] = call;
         return abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
-    }
-
-    /// @notice Helper method to get labels for addresses.
-    function getAddressLabel(address contractAddress) public view returns (string memory) {
-        string memory label = vm.getLabel(contractAddress);
-
-        bytes memory prefix = bytes("unlabeled:");
-        bytes memory strBytes = bytes(label);
-
-        if (strBytes.length >= prefix.length) {
-            // check if address is unlabeled
-            for (uint256 i = 0; i < prefix.length; i++) {
-                if (strBytes[i] != prefix[i]) {
-                    // return "{LABEL} @{ADDRESS}" if address is labeled
-                    return string(abi.encodePacked(label, " @", vm.toString(contractAddress)));
-                }
-            }
-        } else {
-            // return "{LABEL} @{ADDRESS}" if address is labeled
-            return string(abi.encodePacked(label, " @", vm.toString(contractAddress)));
-        }
-
-        // return "UNLABELED @{ADDRESS}" if address is unlabeled
-        return string(abi.encodePacked("UNLABELED @", vm.toString(contractAddress)));
     }
 
     /// --------------------------------------------------------------------
@@ -1078,7 +1007,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             abi.encodePacked(
                 opStr,
                 " ",
-                getAddressLabel(access.account),
+                MultisigTaskPrinter.getAddressLabel(access.account),
                 " with ",
                 vm.toString(access.value),
                 " eth and ",
