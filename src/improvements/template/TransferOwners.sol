@@ -63,25 +63,7 @@ contract TransferOwners is L2TaskBase {
 
         // Discover OP Mainnet and OP Sepolia chains. We do this to get access to the latest SuperchainConfig addresses.
         // We assume that these chains are always using the standard config.
-        if (block.chainid == getChain("mainnet").chainId) {
-            superchainAddrRegistry.discoverNewChain(opMainnetChainInfo);
-            address opMainnetSuperchainConfig =
-                superchainAddrRegistry.getAddress("SuperchainConfig", opMainnetChainInfo.chainId);
-            require(
-                superchainConfig == opMainnetSuperchainConfig,
-                "SuperchainConfig does not match OP Mainnet's SuperchainConfig"
-            );
-        } else if (block.chainid == getChain("sepolia").chainId) {
-            superchainAddrRegistry.discoverNewChain(opSepoliaChainInfo);
-            address opSepoliaSuperchainConfig =
-                superchainAddrRegistry.getAddress("SuperchainConfig", opSepoliaChainInfo.chainId);
-            require(
-                superchainConfig == opSepoliaSuperchainConfig,
-                "SuperchainConfig does not match OP Sepolia's SuperchainConfig"
-            );
-        } else {
-            revert("Unsupported chain id");
-        }
+        _validateSuperchainConfig(superchainConfig);
     }
 
     /// @notice Builds the actions for transferring ownership of the DisputeGameFactory, DWETH contracts and ProxyAdmin.
@@ -155,6 +137,30 @@ contract TransferOwners is L2TaskBase {
     /// the transfer.
     function performOwnershipTransfer(address _target, address _newOwner) internal {
         IOwnable(_target).transferOwnership(_newOwner);
+    }
+
+    /// @notice Validates the SuperchainConfig address against the OP Mainnet or OP Sepolia chain.
+    function _validateSuperchainConfig(address _superchainConfig) internal {
+        // 'block.chainId' will be set to whatever the network the current rpc url is pointing to.
+        if (block.chainid == getChain("mainnet").chainId) {
+            superchainAddrRegistry.discoverNewChain(opMainnetChainInfo);
+            address opMainnetSuperchainConfig =
+                superchainAddrRegistry.getAddress("SuperchainConfig", opMainnetChainInfo.chainId);
+            require(
+                _superchainConfig == opMainnetSuperchainConfig,
+                "SuperchainConfig does not match OP Mainnet's SuperchainConfig"
+            );
+        } else if (block.chainid == getChain("sepolia").chainId) {
+            superchainAddrRegistry.discoverNewChain(opSepoliaChainInfo);
+            address opSepoliaSuperchainConfig =
+                superchainAddrRegistry.getAddress("SuperchainConfig", opSepoliaChainInfo.chainId);
+            require(
+                _superchainConfig == opSepoliaSuperchainConfig,
+                "SuperchainConfig does not match OP Sepolia's SuperchainConfig"
+            );
+        } else {
+            revert("Unsupported chain id");
+        }
     }
 
     /// @notice no code exceptions for this template
