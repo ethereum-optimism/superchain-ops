@@ -37,7 +37,7 @@ The commands to encode the calldata is:
 First lets define all the contracts that will have their ownership transferred:
 - DisputeGameFactoryProxy: [`0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b`](https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/sepolia/unichain.toml#L65)
 - Permissioned DelayedWETHProxy: [`0x73D18d6Caa14AeEc15449d0A25A31D4e7E097a5c`](https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/sepolia/unichain.toml#L64)
-- Permissionless DelayedWETHProxy: `0x4E7e6dC46CE003A1E353B6848BF5a4fc1FeAC8Ae` - This address is not references in the superchain registry so we show how to manually retrieve it below.
+- Permissionless DelayedWETHProxy: `0x4E7e6dC46CE003A1E353B6848BF5a4fc1FeAC8Ae` - This address is not referenced in the superchain registry so we show how to manually retrieve it below.
     ```bash
     # Call the DisputeGameFactoryProxy to get the Permissionless FDG - https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/sepolia/unichain.toml#L65C30-L65C72
     cast call 0xeff73e5aa3B9AEC32c659Aa3E00444d20a84394b "gameImpls(uint32)(address)" 0 --rpc-url sepolia
