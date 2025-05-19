@@ -18,14 +18,6 @@ contract TransferOwners is L2TaskBase {
     using stdToml for string;
     using LibString for string;
 
-    /// @notice OP Mainnet chain info.
-    SuperchainAddressRegistry.ChainInfo internal opMainnetChainInfo =
-        SuperchainAddressRegistry.ChainInfo({chainId: 10, name: "OP Mainnet"});
-
-    /// @notice OP Sepolia chain info.
-    SuperchainAddressRegistry.ChainInfo internal opSepoliaChainInfo =
-        SuperchainAddressRegistry.ChainInfo({chainId: 11155420, name: "OP Sepolia Testnet"});
-
     /// @notice New owner address. This is unaliased.
     address internal newOwner;
 
@@ -51,7 +43,7 @@ contract TransferOwners is L2TaskBase {
     function _templateSetup(string memory _taskConfigFilePath) internal override {
         super._templateSetup(_taskConfigFilePath);
         string memory toml = vm.readFile(_taskConfigFilePath);
-        newOwner = abi.decode(vm.parseToml(toml, ".newOwner"), (address));
+        newOwner = toml.readAddress(".newOwner");
 
         // Only allow one chain to be modified at a time with this template.
         SuperchainAddressRegistry.ChainInfo[] memory _parsedChains = superchainAddrRegistry.getChains();
@@ -81,14 +73,20 @@ contract TransferOwners is L2TaskBase {
         if (_isDWETHOwnable(permissionedWETH) && address(permissionedWETH) != address(0)) {
             performOwnershipTransfer(address(permissionedWETH), newOwner);
         } else {
-            console.log("PermissionedWETH not found on chain %s, not performing transfer", activeChainInfo.chainId);
+            console.log(
+                "PermissionedWETH not found or not ownable on chain %s, not performing transfer",
+                activeChainInfo.chainId
+            );
         }
 
         // Check if PermissionlessWETH exists and is ownable. If it is, transfer ownership to the new owner.
         if (_isDWETHOwnable(permissionlessWETH) && address(permissionlessWETH) != address(0)) {
             performOwnershipTransfer(address(permissionlessWETH), newOwner);
         } else {
-            console.log("PermissionlessWETH not found on chain %s, not performing transfer", activeChainInfo.chainId);
+            console.log(
+                "PermissionlessWETH not found or not ownable on chain %s, not performing transfer",
+                activeChainInfo.chainId
+            );
         }
 
         // Transfer ownership of the ProxyAdmin to the new owner. This must be performed last.
@@ -126,7 +124,7 @@ contract TransferOwners is L2TaskBase {
         return success ? abi.decode(data, (IDelayedWETH)) : IDelayedWETH(address(0));
     }
 
-    /// @notice Checks if the given DWETH is ownable. Post U16 DWETHs are not ownable and therefor we should not attempt
+    /// @notice Checks if the given DWETH is ownable. Post U16 DWETHs are not ownable and therefore we should not attempt
     /// to transfer ownership of them.
     function _isDWETHOwnable(IDelayedWETH _dweth) internal view returns (bool) {
         (bool success, bytes memory data) = address(_dweth).staticcall(abi.encodeCall(IOwnable.owner, ()));
@@ -139,28 +137,34 @@ contract TransferOwners is L2TaskBase {
         IOwnable(_target).transferOwnership(_newOwner);
     }
 
+    /// @notice Gets the chain info for the given chain name.
+    function getChainInfo(string memory _chainName) internal returns (SuperchainAddressRegistry.ChainInfo memory) {
+        return SuperchainAddressRegistry.ChainInfo({chainId: getChain(_chainName).chainId, name: _chainName});
+    }
+
     /// @notice Validates the SuperchainConfig address against the OP Mainnet or OP Sepolia chain.
     function _validateSuperchainConfig(address _superchainConfig) internal {
         // 'block.chainId' will be set to whatever the network the current rpc url is pointing to.
+        SuperchainAddressRegistry.ChainInfo memory chainInfo;
+        string memory chainName;
         if (block.chainid == getChain("mainnet").chainId) {
-            superchainAddrRegistry.discoverNewChain(opMainnetChainInfo);
-            address opMainnetSuperchainConfig =
-                superchainAddrRegistry.getAddress("SuperchainConfig", opMainnetChainInfo.chainId);
-            require(
-                _superchainConfig == opMainnetSuperchainConfig,
-                "SuperchainConfig does not match OP Mainnet's SuperchainConfig"
-            );
+            string memory mainnetName = "OP Mainnet";
+            chainInfo = getChainInfo(mainnetName);
+            chainName = mainnetName;
         } else if (block.chainid == getChain("sepolia").chainId) {
-            superchainAddrRegistry.discoverNewChain(opSepoliaChainInfo);
-            address opSepoliaSuperchainConfig =
-                superchainAddrRegistry.getAddress("SuperchainConfig", opSepoliaChainInfo.chainId);
-            require(
-                _superchainConfig == opSepoliaSuperchainConfig,
-                "SuperchainConfig does not match OP Sepolia's SuperchainConfig"
-            );
+            string memory sepoliaName = "OP Sepolia Testnet";
+            chainInfo = getChainInfo(sepoliaName);
+            chainName = sepoliaName;
         } else {
             revert("Unsupported chain id");
         }
+
+        superchainAddrRegistry.discoverNewChain(chainInfo);
+        address expectedSuperchainConfig = superchainAddrRegistry.getAddress("SuperchainConfig", chainInfo.chainId);
+        require(
+            _superchainConfig == expectedSuperchainConfig,
+            string.concat("SuperchainConfig does not match ", chainName, "'s SuperchainConfig")
+        );
     }
 
     /// @notice no code exceptions for this template

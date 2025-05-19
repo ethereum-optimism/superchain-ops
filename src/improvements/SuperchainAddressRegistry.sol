@@ -219,6 +219,7 @@ contract SuperchainAddressRegistry is StdChains {
     function discoverNewChain(ChainInfo memory chain) public {
         string memory chainAddressesContent = vm.readFile(SUPERCHAIN_REGISTRY_ADDRESSES_PATH);
         _processAddresses(chain, chainAddressesContent);
+        chains.push(chain);
     }
 
     /// @dev Processes all configurations for a given chain.
