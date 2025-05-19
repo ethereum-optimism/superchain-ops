@@ -18,9 +18,11 @@ contract TransferOwners is L2TaskBase {
     using stdToml for string;
     using LibString for string;
 
+    /// @notice OP Mainnet chain info.
     SuperchainAddressRegistry.ChainInfo internal opMainnetChainInfo =
         SuperchainAddressRegistry.ChainInfo({chainId: 10, name: "OP Mainnet"});
 
+    /// @notice OP Sepolia chain info.
     SuperchainAddressRegistry.ChainInfo internal opSepoliaChainInfo =
         SuperchainAddressRegistry.ChainInfo({chainId: 11155420, name: "OP Sepolia Testnet"});
 
@@ -61,10 +63,7 @@ contract TransferOwners is L2TaskBase {
 
         // Discover OP Mainnet and OP Sepolia chains. We do this to get access to the latest SuperchainConfig addresses.
         // We assume that these chains are always using the standard config.
-        string[] memory parts = vm.split(_taskConfigFilePath, "/");
-        require(parts.length >= 3, "Task config file path must contain at least 3 parts to extract the network.");
-        string memory network = parts[parts.length - 3];
-        if (network.eq("eth")) {
+        if (block.chainid == getChain("mainnet").chainId) {
             superchainAddrRegistry.discoverNewChain(opMainnetChainInfo);
             address opMainnetSuperchainConfig =
                 superchainAddrRegistry.getAddress("SuperchainConfig", opMainnetChainInfo.chainId);
@@ -72,7 +71,7 @@ contract TransferOwners is L2TaskBase {
                 superchainConfig == opMainnetSuperchainConfig,
                 "SuperchainConfig does not match OP Mainnet's SuperchainConfig"
             );
-        } else {
+        } else if (block.chainid == getChain("sepolia").chainId) {
             superchainAddrRegistry.discoverNewChain(opSepoliaChainInfo);
             address opSepoliaSuperchainConfig =
                 superchainAddrRegistry.getAddress("SuperchainConfig", opSepoliaChainInfo.chainId);
@@ -80,6 +79,8 @@ contract TransferOwners is L2TaskBase {
                 superchainConfig == opSepoliaSuperchainConfig,
                 "SuperchainConfig does not match OP Sepolia's SuperchainConfig"
             );
+        } else {
+            revert("Unsupported chain id");
         }
     }
 
