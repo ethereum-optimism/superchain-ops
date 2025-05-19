@@ -9,7 +9,6 @@ import {Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {Utils} from "src/libraries/Utils.sol";
 
-/// @title MultisigTaskPrinter
 /// @notice A library for handling all console output related to MultisigTask operations.
 /// This library centralizes UI formatting, transaction data printing, and status message logging
 /// to reduce code duplication and maintain consistent output formats. It also allows
