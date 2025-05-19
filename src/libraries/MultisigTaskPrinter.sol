@@ -2,16 +2,17 @@
 pragma solidity 0.8.15;
 
 import {console} from "forge-std/console.sol";
-import {Vm, VmSafe} from "forge-std/Vm.sol";
+import {Vm} from "forge-std/Vm.sol";
 import {StdStyle} from "forge-std/StdStyle.sol";
 import {Base64} from "solady/utils/Base64.sol";
-import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {Utils} from "src/libraries/Utils.sol";
 
 /// @title MultisigTaskPrinter
 /// @notice A library for handling all console output related to MultisigTask operations.
 /// This library centralizes UI formatting, transaction data printing, and status message logging
-/// to reduce code duplication and maintain consistent output formats.
+/// to reduce code duplication and maintain consistent output formats. It also allows
+/// `MultisigTask.sol` to focus simply on business logic, and not be concerned with formatting.
 library MultisigTaskPrinter {
     using StdStyle for string;
 
@@ -21,21 +22,17 @@ library MultisigTaskPrinter {
     // =========== Core UI Elements ============
     // ==========================================
 
-    /// @notice Prints a formatted title with decorative elements
-    /// @param title The title text to display
+    /// @notice Prints a formatted title with decorative elements.
     function printTitle(string memory title) internal pure {
-        // forgefmt: disable-start
         console.log("");
         console.log(vm.toUppercase(title).cyan().bold());
         string memory line = unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
         console.log(line.cyan().bold());
-        // forgefmt: disable-end
     }
 
-    /// @notice Prints the welcome message and conditionally the developer attention preamble
+    /// @notice Prints the welcome message and conditionally the developer attention preamble.
     function printWelcomeMessage() internal view {
         console.log("");
-        // forgefmt: disable-start
         string memory line = unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
         console.log(line.cyan().bold());
         console.log("                 WELCOME TO SUPERCHAIN-OPS");
@@ -43,10 +40,9 @@ library MultisigTaskPrinter {
         if (!Utils.isFeatureEnabled("SIGNING_MODE_IN_PROGRESS")) {
             printDeveloperAttentionPreamble();
         }
-        // forgefmt: disable-end
     }
 
-    /// @notice Prints the developer attention preamble with instructions
+    /// @notice Prints the developer attention preamble with instructions.
     function printDeveloperAttentionPreamble() internal pure {
         printTitle("ATTENTION TASK DEVELOPERS");
         console.log("To properly document the task state changes, please follow these steps:");
@@ -61,17 +57,43 @@ library MultisigTaskPrinter {
     // =========== Transaction Data ============
     // ==========================================
 
-    /// @notice Prints task calldata in a formatted section
-    /// @param taskCalldata The calldata to print
+    /// @notice Prints raw task calldata bytes within a formatted title section.
     function printTaskCalldata(bytes memory taskCalldata) internal pure {
-        printTitle("TASK CALLLDATA");
+        printTitle("TASK CALLDATA");
         console.logBytes(taskCalldata);
     }
 
-    /// @notice Prints encoded transaction data with formatted header and footer
-    /// and instructions for signers
-    /// @param dataToSign The encoded transaction data to sign
+    /// @notice Prints all information related to nested multisig transactions
+    /// @param parentMultisigLabel The label of the parent multisig
+    /// @param childMultisigLabel The label of the child multisig
+    /// @param parentHashToApprove The hash that the child multisig needs to approve
+    /// @param dataToSign The encoded transaction data for the child to sign
+    /// @param domainSeparator The domain separator for the child multisig
+    /// @param messageHash The message hash for the child multisig
+    function printNestedDataInfo(
+        string memory parentMultisigLabel,
+        string memory childMultisigLabel,
+        bytes32 parentHashToApprove,
+        bytes memory dataToSign,
+        bytes32 domainSeparator,
+        bytes32 messageHash
+    ) internal pure {
+        console.log("");
+        printTitle("NESTED MULTISIG CHILD'S HASH TO APPROVE");
+        console.log("Parent multisig: %s", parentMultisigLabel);
+        console.log("Parent hashToApprove: %s", vm.toString(parentHashToApprove));
+        printEncodedTransactionData(dataToSign);
+
+        console.log("");
+        printTitle("NESTED MULTISIG EOAS HASH TO APPROVE");
+        printChildSafeHashInfo(childMultisigLabel, domainSeparator, messageHash);
+    }
+
+    /// @notice Prints encoded transaction data with formatted header and footer and instructions for signers.
+    /// @param dataToSign The encoded transaction data to sign.
     function printEncodedTransactionData(bytes memory dataToSign) internal pure {
+        // NOTE: Do not change the vvvvvvvv and ^^^^^^^^ lines, as the eip712sign tool explicitly
+        // looks for those specific lines to identify the data to sign.
         printTitle("DATA TO SIGN");
         console.log("vvvvvvvv");
         console.logBytes(dataToSign);
@@ -88,10 +110,7 @@ library MultisigTaskPrinter {
     // ======= Verification Information ========
     // ==========================================
 
-    /// @notice Prints the hash information for a child safe transaction
-    /// @param childMultisigLabel The label of the child multisig
-    /// @param domainSeparator The domain separator hash
-    /// @param messageHash The message hash
+    /// @notice Prints the hash information for a child safe transaction.
     function printChildSafeHashInfo(string memory childMultisigLabel, bytes32 domainSeparator, bytes32 messageHash)
         internal
         pure
@@ -101,29 +120,28 @@ library MultisigTaskPrinter {
         console.log("Message Hash:   ", vm.toString(messageHash));
     }
 
-    /// @notice Prints audit report information with normalized hash
-    /// @param normalizedHash The normalized state diff hash
-    function printAuditReportInfo(bytes32 normalizedHash) internal pure {
+    /// @notice Prints audit report information with normalized state diff hash.
+    function printAuditReportInfo(bytes32 normalizedStateDiffHash) internal pure {
         printTitle("AUDIT REPORT INFORMATION");
         // forgefmt: disable-start
         console.log("The normalized state diff hash MUST match the hash created by the state changes attested to in the state diff audit report.");
         console.log("As a signer, you are responsible for making sure this hash is correct. Please compare the hash below with the hash in the audit report.");
         console.log("");
-        console.log("Normalized hash: %s", vm.toString(normalizedHash));
+        console.log("Normalized hash: %s", vm.toString(normalizedStateDiffHash));
         console.log("");
         // forgefmt: disable-end
     }
 
-    /// @notice Prints an OP-TxVerify link for transaction verification
-    /// @param parentMultisig The address of the parent multisig
-    /// @param chainId The chain ID
-    /// @param childMultisig The address of the child multisig (can be address(0) if not nested)
-    /// @param parentCalldata The calldata for the parent multisig
+    /// @notice Prints an OP-TxVerify link for transaction verification.
+    /// @param parentMultisig The address of the parent multisig.
+    /// @param chainId The chain ID.
+    /// @param childMultisig The address of the child multisig (can be address(0) if not nested).
+    /// @param parentCalldata The calldata for the parent multisig.
     /// @param optionalChildCallData The calldata for the child multisig (can be empty if not nested)
     /// @param parentNonce The nonce of the parent multisig
     /// @param childNonce The nonce of the child multisig (can be 0 if not nested)
     /// @param parentMulticallTarget The target address for the parent multicall
-    /// @param childMulticallTarget The target address for the child multicall (can be address(0) if not nested)
+    /// @param childMulticallTarget The target address for the child multicall (can be address(0) if not nested and matches parentMulticallTarget behavior
     function printOPTxVerifyLink(
         address parentMultisig,
         uint256 chainId,
@@ -199,29 +217,6 @@ library MultisigTaskPrinter {
     // ==========================================
     // ============ Status Messages ============
     // ==========================================
-
-    /// @notice Prints a message when a safe address string is found in a source
-    /// @param sourceDescription Description of the source (e.g., "config file")
-    /// @param addressString The safe address string that was found
-    function printSafeAddressSourceFound(string memory sourceDescription, string memory addressString) internal pure {
-        console.log("Safe address string found in %s: %s", sourceDescription, addressString);
-    }
-
-    /// @notice Prints an error message when parsing the safe address string fails
-    function printSafeAddressSourceError() internal pure {
-        console.log("Error parsing safeAddressString from config file, using value from template.");
-    }
-
-    /// @notice Prints a message confirming child multisig approval status
-    /// @param isBroadcast Whether the transaction is being broadcast
-    /// @param childMultisig The address of the child multisig
-    function printChildMultisigApprovalStatus(bool isBroadcast, address childMultisig) internal pure {
-        console.log(
-            "--------- Successfully %s Child Multisig %s Approval ---------",
-            isBroadcast ? "Broadcasted" : "Simulated",
-            childMultisig
-        );
-    }
 
     /// @notice Prints gas information for execTransaction if not in signing mode
     /// @param gas The amount of gas to use

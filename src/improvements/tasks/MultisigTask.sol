@@ -273,7 +273,11 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         _taskSetup(taskConfigFilePath, _childMultisig);
         Action[] memory actions = build();
         approve(_childMultisig, signatures, actions);
-        MultisigTaskPrinter.printChildMultisigApprovalStatus(isBroadcastContext(), _childMultisig);
+        console.log(
+            "--------- Successfully %s Child Multisig %s Approval ---------",
+            isBroadcastContext() ? "Broadcasted" : "Simulated",
+            _childMultisig
+        );
     }
 
     /// @notice Simulates a nested multisig task with the given configuration file path for a
@@ -326,10 +330,10 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     function loadSafeAddressString(string memory taskConfigFilePath) public view returns (string memory) {
         string memory file = vm.readFile(taskConfigFilePath);
         try vm.parseTomlString(file, ".safeAddressString") returns (string memory _safeAddressString) {
-            MultisigTaskPrinter.printSafeAddressSourceFound("config file", _safeAddressString);
+            console.log("Safe address string found in config file: %s", _safeAddressString);
             return _safeAddressString;
         } catch (bytes memory) {
-            MultisigTaskPrinter.printSafeAddressSourceError();
+            console.log("Error parsing safeAddressString from config file, using value from template.");
             return safeAddressString();
         }
     }
@@ -553,9 +557,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
         if (!success) {
             MultisigTaskPrinter.printErrorExecutingMultisigTransaction(returnData);
+            revert("MultisigTask: execute failed");
         }
-
-        require(success, "MultisigTask: execute failed");
     }
 
     /// @notice Returns the allowed storage accesses.
@@ -700,19 +703,16 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         );
         (, bytes memory dataToSign, bytes32 domainSeparator, bytes32 messageHash) = getApproveTransactionInfo(actions);
         bytes memory parentCallDataForLink = getMulticall3Calldata(actions); // For OPVerifyLink and hash display
+        bytes32 parentHashToApprove = getHash(parentCallDataForLink, parentMultisig);
 
-        console.log("");
-        console.log(vm.toUppercase("NESTED MULTISIG CHILD'S HASH TO APPROVE").cyan().bold());
-        string memory line = unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
-        console.log(line.cyan().bold());
-        console.log("Parent multisig: %s", getAddressLabel(parentMultisig));
-        console.log("Parent hashToApprove: %s", vm.toString(getHash(parentCallDataForLink, parentMultisig))); // Hash child will approve
-        printEncodedTransactionData(dataToSign); // This is the encoded tx for child to sign (approveHash on parent)
-
-        console.log("");
-        console.log(vm.toUppercase("NESTED MULTISIG EOAS HASH TO APPROVE").cyan().bold());
-        console.log(line.cyan().bold());
-        MultisigTaskPrinter.printChildSafeHashInfo(getAddressLabel(childMultisig), domainSeparator, messageHash);
+        MultisigTaskPrinter.printNestedDataInfo(
+            getAddressLabel(parentMultisig),
+            getAddressLabel(childMultisig),
+            parentHashToApprove,
+            dataToSign,
+            domainSeparator,
+            messageHash
+        );
 
         MultisigTaskPrinter.printOPTxVerifyLink(
             parentMultisig,
