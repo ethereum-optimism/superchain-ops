@@ -74,6 +74,10 @@ contract SuperchainAddressRegistry is StdChains {
     /// @notice Array of supported chains and their configurations
     ChainInfo[] public chains;
 
+    /// @notice The path to the addresses.json file in the superchain-registry repo.
+    string public constant SUPERCHAIN_REGISTRY_ADDRESSES_PATH =
+        "lib/superchain-registry/superchain/extra/addresses/addresses.json";
+
     /// @notice Initializes the contract by loading addresses from TOML files
     /// and configuring the supported L2 chains.
     /// @param configPath the path to the TOML file containing the network configuration(s)
@@ -102,7 +106,7 @@ contract SuperchainAddressRegistry is StdChains {
         }
 
         // For each OP chain, read in all addresses for that OP Chain.
-        string memory chainAddrs = vm.readFile("lib/superchain-registry/superchain/extra/addresses/addresses.json");
+        string memory chainAddrs = vm.readFile(SUPERCHAIN_REGISTRY_ADDRESSES_PATH);
 
         for (uint256 i = 0; i < chains.length; i++) {
             _processAddresses(chains[i], chainAddrs);
@@ -209,6 +213,14 @@ contract SuperchainAddressRegistry is StdChains {
     // ========================================================
     // ======== Superchain address discovery functions ========
     // ========================================================
+
+    /// @notice After instantiation of this contract, you can continue to discover new chains by calling this function.
+    /// This makes addresses on these chains available by using the getAddress function.
+    function discoverNewChain(ChainInfo memory chain) public {
+        string memory chainAddressesContent = vm.readFile(SUPERCHAIN_REGISTRY_ADDRESSES_PATH);
+        _processAddresses(chain, chainAddressesContent);
+        chains.push(chain);
+    }
 
     /// @dev Processes all configurations for a given chain.
     function _processAddresses(ChainInfo memory chain, string memory chainAddressesContent) internal {
