@@ -7,6 +7,7 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
 import {Proxy} from "@eth-optimism-bedrock/src/universal/Proxy.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {IResourceMetering} from "@eth-optimism-bedrock/interfaces/L1/IResourceMetering.sol";
 
 // Solady
 import {LibString} from "solady/utils/LibString.sol";
@@ -1285,6 +1286,7 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
     bytes32 internal constant GNOSIS_SAFE_NONCE_SLOT = bytes32(uint256(5));
     bytes32 internal constant GNOSIS_SAFE_APPROVE_HASHES_SLOT = bytes32(uint256(8));
     bytes32 internal constant LIVENESS_GUARD_LAST_LIVE_SLOT = bytes32(uint256(0));
+    bytes32 internal constant OPTIMISM_PORTAL_RESOURCE_PARAMS_SLOT = bytes32(uint256(1));
 
     bool constant isWrite = true;
     bool constant reverted = true;
@@ -1498,6 +1500,39 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
 
         AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, who, false);
         assertEq(diffs.length, sa.length, "The number of diffs should be equal to the number of storage writes");
+    }
+
+    function test_normalizedStateDiffHash_OptimismPortalResourceMetering() public {
+        setupTests();
+        vm.createSelectFork("mainnet", 22319975); // Use a realistic block number
+        VmSafe.AccountAccess[] memory allAccesses = new VmSafe.AccountAccess[](1);
+        // Create a state diff for OptimismPortal ResourceMetering
+        address who = address(0xabcd);
+        VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
+        IResourceMetering.ResourceParams memory resourceParams = IResourceMetering.ResourceParams({
+            prevBaseFee: uint128(5),
+            prevBoughtGas: uint64(6),
+            prevBlockNum: uint64(block.number)
+        });
+        bytes32 resourceParamsSlot = packResourceParams(resourceParams);
+        storageAccesses[0] =
+            storageAccess(who, OPTIMISM_PORTAL_RESOURCE_PARAMS_SLOT, isWrite, bytes32(uint256(0)), resourceParamsSlot);
+        allAccesses[0] = accountAccess(who, storageAccesses);
+        bytes32 hash = allAccesses.normalizedStateDiffHash(address(1), bytes32(0));
+
+        AccountAccessParser.AccountStateDiff[] memory emptyArray = new AccountAccessParser.AccountStateDiff[](0);
+        bytes32 expectedHash = keccak256(abi.encode(emptyArray));
+        assertEq(hash, expectedHash, "OptimismPortal ResourceParams update should be removed");
+    }
+
+    /// @notice Packs the resource params into a bytes32. Where prevBlockNum is the most significant 64 bits, prevBoughtGas is the next 64 bits, and prevBaseFee is the least significant 128 bits.
+    function packResourceParams(IResourceMetering.ResourceParams memory resourceParams)
+        internal
+        pure
+        returns (bytes32)
+    {
+        return (bytes32(uint256(resourceParams.prevBlockNum)) << (128 + 64))
+            | (bytes32(uint256(resourceParams.prevBoughtGas)) << 128) | (bytes32(uint256(resourceParams.prevBaseFee)));
     }
 
     /// Helper functions similar to those in AccountAccessParser.t.sol

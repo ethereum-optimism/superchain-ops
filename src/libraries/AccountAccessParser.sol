@@ -10,6 +10,7 @@ import {LibString} from "@solady/utils/LibString.sol";
 import {LibSort} from "@solady/utils/LibSort.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {Utils} from "src/libraries/Utils.sol";
+import {IResourceMetering} from "@eth-optimism-bedrock/interfaces/L1/IResourceMetering.sol";
 
 /// @notice Parses account accesses into decoded transfers and state diffs.
 /// The core methods intended to be part of the public interface are `decodeAndPrint`, `decode`,
@@ -134,6 +135,8 @@ library AccountAccessParser {
     bytes32 internal constant GNOSIS_SAFE_APPROVE_HASHES_SLOT = bytes32(uint256(8));
 
     bytes32 internal constant LIVENESS_GUARD_LAST_LIVE_SLOT = bytes32(uint256(0));
+
+    bytes32 internal constant OPTIMISM_PORTAL_RESOURCE_PARAMS_SLOT = bytes32(uint256(1));
     // forgefmt: disable-end
 
     modifier noGasMetering() {
@@ -334,8 +337,26 @@ library AccountAccessParser {
         } else if (isLivenessGuardTimestamp(account, diff, _parentMultisig)) {
             // 4. If the slot is on the LivenessGuard, don't include it.
             return false;
+        } else if (isOptimismPortalResourceMetering(diff)) {
+            // 5. If the slot is on the OptimismPortalResourceParams, don't include it.
+            return false;
         }
         return true;
+    }
+
+    /// @notice Any function in the OptimismPortal that has the 'metered' modifier will have a non-deterministic state change.
+    function isOptimismPortalResourceMetering(StateDiff memory _diff) internal view returns (bool) {
+        if (_diff.slot == OPTIMISM_PORTAL_RESOURCE_PARAMS_SLOT) {
+            uint256 newValUint = uint256(_diff.newValue);
+            IResourceMetering.ResourceParams memory newValue = IResourceMetering.ResourceParams({
+                prevBaseFee: uint128(newValUint),
+                prevBoughtGas: uint64(newValUint >> 128),
+                prevBlockNum: uint64(newValUint >> (128 + 64))
+            });
+            // If the current block number is equal to the new values prevBlockNum, then we should remove this state change.
+            return block.number == newValue.prevBlockNum;
+        }
+        return false;
     }
 
     /// @notice Checks if the state diff represents an EOA nonce increment
