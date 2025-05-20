@@ -112,11 +112,11 @@ After verifying the L1 state changes below, you **must** continue to the L2 stat
   - **Before:** `0x000000000157b450000000000007df760000000000000000000000003b9aca00`
   - **After:** `0x000000000157b4760000000000030d400000000000000000000000003b9aca00`
   - **Summary:** Resource Metering Data Updated
-  - **Detail:**  The `ResourceParams` struct was updated. Note that `prevBaseFee` and `prevBlockNum` are non-deterministic and may differ slightly from what you see on Tenderly. However, `prevBoughtGas` should be `200000`. You can confirm this by extracting 64 bits starting at the 9th byte from the left and converting to decimal:
+  - **Detail:**  The `ResourceParams` struct was updated. **Please note that `prevBaseFee` and `prevBlockNum` are non-deterministic and may differ slightly from what you see on Tenderly**. However, `prevBoughtGas` should be `200000`. You can confirm this by extracting 64 bits starting at the 9th byte from the left and converting to decimal:
   ```bash
   cast --to-dec 0x0000000000030d40 # 200,000
   ```
-The figure below demonstracts how the resource param variables are laid out in the slot. Remember, `prevBaseFee` and `prevBlockNum` values may be different on Tenderly.
+The figure below demonstracts how the resource param variables are laid out in the slot. Remember, `prevBaseFee` and `prevBlockNum` values **may be different on Tenderly**.
 ![Example slot layout](./imgs/resource-params-layout-example.png)
   
   ---
@@ -198,10 +198,9 @@ As mentioned, L1 and L2 state changes cannot be simulated in a single Tenderly l
 #### Validate that the link is configured correctly.
 
 The Tenderly link above **must** be correctly configured. It’s the signer's responsibility to ensure that the `blue`, `red`, and `green` values (circled) shown in the simulation match those in the `TransactionDeposited` event under the `Events` tab.
-
 ![L2 Tenderly Config](./imgs/l2-tenderly-config.png)
 
-Below is an example of the `Events` tab from the L1 Tenderly simulation. You **must** use your own L1 Tenderly simulation link to verify that the L2 simulation is configured correctly.
+Below is an example screenshot of the `Events` tab from an L1 Tenderly simulation. You **must** use your own L1 Tenderly simulation link to verify that the L2 simulation is configured correctly.
 ![L1 Tenderly Events](./imgs/l1-tenderly-event.png)
 
 - `Blue circle`: `from` address must be `0x4200000000000000000000000000000000000018` (the L2ProxyAdmin address)
@@ -214,6 +213,18 @@ cast --to-dec 0x30d40
 ```bash
 cast calldata-decode "transferOwnership(address)" 0xf2fde38b0000000000000000000000006b1bae59d09fccbddb6c6cceb07b7279367c4e3b
 # Returns: 0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b
+```
+- `from` address must be `0x7e6c183f538abb8572f5cd17109c617b994d6944` which is the alias of the old L1PAO for Unichain: `0x6d5B183F538ABB8572F5cD17109c617b994D5833` (the safe that this transaction is being executed from):
+```bash
+# Open chisel
+> uint160 constant offset = uint160(0x1111000000000000000000000000000000001111)
+> function undoL1ToL2Alias(address l2Address) internal pure returns (address l1Address) {
+    unchecked {
+        l1Address = address(uint160(l2Address) - offset);
+    }
+}
+> undoL1ToL2Alias(0x7e6c183f538abb8572f5cd17109c617b994d6944)
+# Returns: 0x6d5B183F538ABB8572F5cD17109c617b994D5833
 ```
 
 #### Validate that the L2 state changes are correct.
