@@ -9,6 +9,7 @@ executors:
   default:
     machine:
       image: ubuntu-2204:2024.08.1
+    resource_class: xlarge
 
 parameters:
   default_docker_image:
