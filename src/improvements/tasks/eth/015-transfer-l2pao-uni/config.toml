@@ -1,0 +1,26 @@
+l2chains = [{name = "Unichain", chainId = 130}]
+
+templateName = "TransferL2PAOFromL1"
+
+# The new owner address to alias.
+newOwnerToAlias = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
+
+[stateOverrides]
+# Set the current L1PAO to the new owner.
+# The TransferL2PAOFromL1 template assumes all L1 ownership transfers have already been completed.
+# This task is being bundled with the L1PAO transfer so we won't have this state set yet for the check to pass.
+0x3B73Fa8d82f511A3caE17B5a26E4E1a2d5E2f2A4 = [ 
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000000", value = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"}
+]
+0x6d5B183F538ABB8572F5cD17109c617b994D5833 = [ # Unichain PAO
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 6}
+]
+0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC = [ # Unichain Chain Operator
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 12}
+]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ # FoundationUpgradeSafe 
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 30}
+]
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [ # SecurityCouncil
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 30}
+]
