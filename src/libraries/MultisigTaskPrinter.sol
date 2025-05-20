@@ -247,7 +247,7 @@ library MultisigTaskPrinter {
     }
 
     /// @notice Helper method to get labels for addresses.
-    function getAddressLabel(address contractAddress) public view returns (string memory) {
+    function getAddressLabel(address contractAddress) internal view returns (string memory) {
         string memory label = vm.getLabel(contractAddress);
 
         bytes memory prefix = bytes("unlabeled:");
