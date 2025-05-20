@@ -398,6 +398,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         string memory json = string.concat(
             '{\n   "safe": "',
             vm.toString(parentMultisig),
+            '",\n    "safe_version": "',
+            IGnosisSafe(parentMultisig).VERSION(),
             '",\n   "chain": ',
             vm.toString(block.chainid),
             ',\n   "to": "',
@@ -433,6 +435,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                     ',\n   "nested": ',
                     '{\n    "safe": "',
                     vm.toString(childMultisig),
+                    '",\n    "safe_version": "',
+                    IGnosisSafe(childMultisig).VERSION(),
                     '",\n    "nonce": ',
                     vm.toString(_nonceBeforeSim(childMultisig)),
                     ',\n    "operation": ',
