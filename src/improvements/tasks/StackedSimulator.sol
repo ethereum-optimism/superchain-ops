@@ -42,9 +42,11 @@ contract StackedSimulator is Script {
             "StackedSimulator: Invalid owner addresses array length. Must be empty or match the number of tasks being simulated."
         );
 
-        // Setting this env variable to reduce logging for stack simulations.
-        // Comment out this line if you want to see the full output (i.e. state diffs etc).
-        vm.setEnv("SIGNING_MODE_IN_PROGRESS", "true");
+        // Setting this env variable to true by default to reduce logging for stack simulations.
+        // Use SIGNING_MODE_IN_PROGRESS=false to see print the full output.
+        if (vm.envOr("SIGNING_MODE_IN_PROGRESS", true)) {
+            vm.setEnv("SIGNING_MODE_IN_PROGRESS", "true");
+        }
 
         for (uint256 i = 0; i < tasks.length; i++) {
             taskConfigs[i] = taskManager.parseConfig(tasks[i].path);
