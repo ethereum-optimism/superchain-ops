@@ -4,7 +4,7 @@ Status: [DRAFT]()
 
 ## Objective
 
-Executes [Upgrade 16]() on Base Sepolia.
+Executes Upgrade 16 on Base Sepolia.
 
 This task uses `op-contract/v4.0.0` [OPContractsManager](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.0.0-rc.3/packages/contracts-bedrock/src/L1/OPContractsManager.sol) to upgrade the following chains:
 

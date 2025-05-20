@@ -4,7 +4,7 @@ Status: [DRAFT]()
 
 ## Objective
 
-Executes [Upgrade 16]() on Unichain Sepolia Testnet and Soneium Testnet Minato.
+Executes Upgrade 16 on Unichain Sepolia Testnet and Soneium Testnet Minato.
 
 This task uses `op-contract/v4.0.0` [OPContractsManager](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.0.0-rc.3/packages/contracts-bedrock/src/L1/OPContractsManager.sol) to upgrade the following chains:
 
@@ -42,5 +42,5 @@ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nes
 Keep in mind that to simulate this task correctly using the previous command, the op and ink task in this same upgrade must have been executed successfully. To test this if the previous task has not been executed yet, you can run the following command:
 ```
 cd src/improvements
-just simulate-stack sep 016-opcm-upgrade-v400-uni-soneium
+just simulate-stack sep 015-opcm-upgrade-v400-uni-soneium
 ```

@@ -4,7 +4,7 @@ Status: [DRAFT]()
 
 ## Objective
 
-Executes [Upgrade 16]() on OP Sepolia Testnet and Ink Sepolia Testnet.
+Executes Upgrade 16 on OP Sepolia Testnet and Ink Sepolia Testnet.
 
 This task uses `op-contract/v4.0.0` [OPContractsManager](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.0.0-rc.3/packages/contracts-bedrock/src/L1/OPContractsManager.sol) to upgrade the following chains:
 
