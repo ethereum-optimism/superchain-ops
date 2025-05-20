@@ -29,9 +29,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @notice Parent nonce used for generating the safe transaction.
     uint256 public nonce;
 
-    /// @notice owners the safe started with
-    address[] public startingOwners;
-
     /// @notice AddressesRegistry contract
     AddressRegistry public addrRegistry;
 
@@ -86,14 +83,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         OPCMTaskBase
     }
 
-    /// @notice transfers during task execution
-    mapping(address => TransferInfo[]) private _taskTransfers;
-
     /// @notice state changes during task execution
     mapping(address => StateInfo[]) internal _stateInfos;
-
-    /// @notice addresses involved in state changes or token transfers
-    EnumerableSet.AddressSet private _taskTransferFromAddresses;
 
     /// @notice addresses whose state is updated in task execution
     EnumerableSet.AddressSet internal _taskStateChangeAddresses;
@@ -320,8 +311,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             childNonce = IGnosisSafe(childMultisig).nonce();
         }
 
-        startingOwners = IGnosisSafe(parentMultisig).getOwners();
-
         vm.label(AddressRegistry.unwrap(addrRegistry), "AddrRegistry");
         vm.label(address(this), "MultisigTask");
     }
@@ -357,7 +346,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     }
 
     /// @notice Print the hash to approve by EOA for parent/root multisig.
-    function printParentHash(bytes memory callData) public view {
+    function _printParentHash(bytes memory callData) internal view {
         bytes32 safeTxHash = getHash(callData, parentMultisig);
         console.log("Safe Transaction Hash: ", vm.toString(safeTxHash));
 
@@ -706,7 +695,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         MultisigTaskPrinter.printEncodedTransactionData(dataToSign);
 
         MultisigTaskPrinter.printTitle("SINGLE MULTISIG EOA HASH TO APPROVE");
-        printParentHash(taskCallData);
+        _printParentHash(taskCallData);
     }
 
     /// @notice Print the Tenderly simulation payload with the state overrides.
