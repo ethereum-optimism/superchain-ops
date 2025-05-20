@@ -42,13 +42,43 @@ The normalized state diff hash **MUST** match the hash produced by the state cha
 
 ## Understanding Task Calldata
 
-The command to encode the calldata is:
 
-TODO: Explain with commands how to encode the calldata. You may not need to do this section if the upgrade isn't part of a governance proposal.
+- [OptimismPortalProxy](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/unichain.toml#L58C26-L58C68): `0x0bd48f6B86a26D3a217d0Fa6FfE2B491B956A7a2`
+- [L2ProxyAdmin](https://github.com/ethereum-optimism/optimism/blob/7c59c8c262d4495bf6d982c67cfbd2804b7db1a7/packages/contracts-bedrock/src/libraries/Predeploys.sol#L63): `0x4200000000000000000000000000000000000018`
+- [Aliased L1PAO](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L45): `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` -> `0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b`.
+To recompute open `chisel` and run: 
+```bash
+    > uint160 constant offset = uint160(0x1111000000000000000000000000000000001111)
+    > function undoL1ToL2Alias(address l2Address) internal pure returns (address l1Address) {
+        unchecked {
+            l1Address = address(uint160(l2Address) - offset);
+        }
+    }
+    > undoL1ToL2Alias(0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b)
+    # returns: 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A
+```
+
+1. Craft `transferOwnership` calldata.
+```
+cast calldata 'transferOwnership(address)' 0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b
+# Returns: 0xf2fde38b0000000000000000000000006b1bae59d09fccbddb6c6cceb07b7279367c4e3b
+```
+
+2. Craft `depositTransaction` calldata.
+```
+cast calldata 'depositTransaction(address,uint256,uint64,bool,bytes)' 0x4200000000000000000000000000000000000018 0 200000 false 0xf2fde38b0000000000000000000000006b1bae59d09fccbddb6c6cceb07b7279367c4e3b
+# Returns: 0xe9e05c42000000000000000000000000420000000000000000000000000000000000001800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000030d40000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000024f2fde38b0000000000000000000000006b1bae59d09fccbddb6c6cceb07b7279367c4e3b00000000000000000000000000000000000000000000000000000000
+```
+
+3. Craft `aggregate3Value` calldata.
+```
+cast calldata 'aggregate3Value((address,bool,uint256,bytes)[])' "[(0x0bd48f6B86a26D3a217d0Fa6FfE2B491B956A7a2, false, 0, 0xe9e05c42000000000000000000000000420000000000000000000000000000000000001800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000030d40000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000024f2fde38b0000000000000000000000006b1bae59d09fccbddb6c6cceb07b7279367c4e3b00000000000000000000000000000000000000000000000000000000)]"
+# Returns: See below
+```
 
 The resulting calldata:
 ```
-TODO: add calldata here
+0x174dea710000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000bd48f6b86a26d3a217d0fa6ffe2b491b956a7a20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000104e9e05c42000000000000000000000000420000000000000000000000000000000000001800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000030d40000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000024f2fde38b0000000000000000000000006b1bae59d09fccbddb6c6cceb07b7279367c4e3b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 ```
 
 # State Validations
@@ -67,28 +97,132 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
 ### Task State Changes
 
+Note: The Tenderly link printed to the terminal after simulation only shows L1 state changes. L2 state changes are not included. To view L2 state changes, you’ll need to manually craft a Tenderly simulation using the event emitted from Unichain’s OptimismPortalProxy contract.
+
+After verifying the L1 state changes below, you **must** continue to the L2 state changes section and follow the instructions there.
+
+### L1 State Changes:
+
   ---
   
-### `0x0bd48f6b86a26d3a217d0fa6ffe2b491b956a7a2` (OptimismPortal2) - Chain ID: 130
+### [`0x0bd48f6b86a26d3a217d0fa6ffe2b491b956a7a2`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/unichain.toml#L58) (OptimismPortal2) - Chain ID: 130
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Decoded Kind:** `struct ResourceMetering.ResourceParams`
-  - **Before:** ``
-  - **After:** ``
-  - **Summary:** params
-  - **Detail:** 
-  
-**<TODO: Insert links for this state change then remove this line.>**
+  - **Before:** `0x000000000157b450000000000007df760000000000000000000000003b9aca00`
+  - **After:** `0x000000000157b4760000000000030d400000000000000000000000003b9aca00`
+  - **Summary:** Resource Metering Data Updated
+  - **Detail:**  The `ResourceParams` struct was updated. Note that `prevBaseFee` and `prevBlockNum` are non-deterministic and may differ slightly from what you see on Tenderly. However, `prevBoughtGas` should be `200000`. You can confirm this by extracting 64 bits starting at the 9th byte from the left and converting to decimal:
+  ```bash
+  cast --to-dec 0x0000000000030d40 # 200,000
+  ```
+The figure below demonstracts how the resource param variables are laid out in the slot. Remember, `prevBaseFee` and `prevBlockNum` values may be different on Tenderly.
+![Example slot layout](./imgs/resource-params-layout-example.png)
   
   ---
+
+### `0x24424336F04440b1c28685a38303aC33C9D14a25` (LivenessGuard Security Council)
+
+> [!IMPORTANT]
+> Security Council Only
+
+**THIS STATE DIFF ONLY APPEARS WHEN SIGNING FOR THE COUNCIL AND DOES NOT NEED TO BE CHECKED BY SIGNERS.**
+
+The details are explained in [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md#liveness-guard).
+
+### `0x9343c452dec3251fe99D9Fd29b74c5b9CD1751a6` (LivenessGuard Unichain)
+
+> [!IMPORTANT]
+> Unichain Safe Only
+
+**THIS STATE DIFF ONLY APPEARS WHEN SIGNING FOR THE UNICHAIN SAFE AND DOES NOT NEED TO BE CHECKED BY SIGNERS.**
+
+The details are explained in [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md#liveness-guard).
+
+---
+
+### [`0x6d5B183F538ABB8572F5cD17109c617b994D5833`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/unichain.toml#L45) (Unichain ProxyAdminOwner)
+
+- Nonce increments see [below](#nonce-increments)
+- `approvedHashes` mapping updates are explained in detail in [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md#key-computation).
+  The key computations are:
+  - **Unichain Safe only**
+    ```
+    SAFE_SIGNER=0xb0c4c487c5cf6d67807bc2008c66fa7e2ce744ec
+    SAFE_HASH=0x9ee573bf1dfc7a12a8a124d6ca9f4b985a8dc3765132f24958f7b5637cc3cd60
+    cast index bytes32 $SAFE_HASH $(cast index address $SAFE_SIGNER 8)
+    ```
+    Key: `0x3d1eae4557d840988055c8f211db3df61890c8c7f49ed5ac36d9dae8a7bcf8d3`
+  - **Optimism Foundation only**
+    ```
+    SAFE_SIGNER=0x847B5c174615B1B7fDF770882256e2D3E95b9D92
+    SAFE_HASH=0x9ee573bf1dfc7a12a8a124d6ca9f4b985a8dc3765132f24958f7b5637cc3cd60
+    cast index bytes32 $SAFE_HASH $(cast index address $SAFE_SIGNER 8)
+    ```
+    Key: `0x6a386039e5a2e68b409668e3eac067db3afcd8e9045b9b3f102df8f579ea8d6a`
+  - **Security Council only**
+    ```
+    SAFE_SIGNER=0xc2819DC788505Aac350142A7A707BF9D03E3Bd03
+    SAFE_HASH=0x9ee573bf1dfc7a12a8a124d6ca9f4b985a8dc3765132f24958f7b5637cc3cd60
+    cast index bytes32 $SAFE_HASH $(cast index address $SAFE_SIGNER 8)
+    ```
+    Key: `0x5208aa03111f0b7f7136fc9cf9bb6dd12a010434203893ccde2cf7ec6030ebe6`
+
+---
+
+
+### Nonce increments
+
+- The remaining nonce increments are for the Safes and EOAs that are involved in the simulation.
+  The details are described in the generic [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md) document.
+  - <sender-address> - Sender address of the Tenderly transaction (Your ledger or first owner on the nested safe (if you're simulating)).
+  - `0x6d5B183F538ABB8572F5cD17109c617b994D5833` - Unichain ProxyAdminOwner
+    - Safe nonce (slot `0x5`) `6 -> 7`
+  - Only one of the following nonce increments, depending on which Owner Safe is simulated
+    - `0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC` - Unichain Operations Safe `12 -> 13`
+    - `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` - Foundation Upgrade Safe `30 -> 31`
+    - `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` - Security Council Safe `30 -> 31`
+
+
+### L2 (Unichain Mainnet) State Changes:
+
+**Only verify these L2 state changes after you've completed the L1 verification above.**
+
+As mentioned, L1 and L2 state changes cannot be simulated in a single Tenderly link. To save time, the task developers have prepared a separate Tenderly simulation for the L2 side. It's the signer’s responsibility to:
+
+1. Confirm the simulation link is correctly configured.
+2. Verify that the L2 state changes are accurate.
+
+- L2 Simulation Tenderly Link: [link](https://dashboard.tenderly.co/oplabs/eth-mainnet/simulator/962777e2-5a18-4b4f-ae6e-2fbf72cafcd5)
+
+#### Validate that the link is configured correctly.
+
+The Tenderly link above **must** be correctly configured. It’s the signer's responsibility to ensure that the `blue`, `red`, and `green` values (circled) shown in the simulation match those in the `TransactionDeposited` event under the `Events` tab.
+
+![L2 Tenderly Config](./imgs/l2-tenderly-config.png)
+
+Below is an example of the `Events` tab from the L1 Tenderly simulation. You **must** use your own L1 Tenderly simulation link to verify that the L2 simulation is configured correctly.
+![L1 Tenderly Events](./imgs/l1-tenderly-event.png)
+
+- `Blue circle`: `from` address must be `0x4200000000000000000000000000000000000018` (the L2ProxyAdmin address)
+- `Red circle`: `_gasLimit` must be `200000`. You can confirm by decoding:
+```bash
+cast --to-dec 0x30d40
+# Returns: 200000
+```
+- `Green circle`: raw input must be the calldata for the transferOwnership function. You can decode it like this:
+```bash
+cast calldata-decode "transferOwnership(address)" 0xf2fde38b0000000000000000000000006b1bae59d09fccbddb6c6cceb07b7279367c4e3b
+# Returns: 0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b
+```
+
+#### Validate that the L2 state changes are correct.
+
+### [`0x4200000000000000000000000000000000000018`](https://github.com/ethereum-optimism/optimism/blob/7c59c8c262d4495bf6d982c67cfbd2804b7db1a7/packages/contracts-bedrock/src/libraries/Predeploys.sol#L63) (L2ProxyAdmin) - Chain ID: 130
   
-### `0x6d5b183f538abb8572f5cd17109c617b994d5833` (ProxyAdminOwner (GnosisSafe)) - Chain ID: 130
-  
-- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
-  - **Decoded Kind:** `uint256`
-  - **Before:** `6`
-  - **After:** `7`
-  - **Summary:** nonce
-  - **Detail:** 
-  
-**<TODO: Insert links for this state change then remove this line.>**
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **Before:** `0x0000000000000000000000007e6c183f538abb8572f5cd17109c617b994d6944`
+  - **After:** `0x0000000000000000000000006b1bae59d09fccbddb6c6cceb07b7279367c4e3b`
+  - **Summary:** Setting new L2PAO as the aliased L1PAO
+  - **Detail:**  As you've seen in the [Understanding Task Calldata](#understanding-task-calldata) section, the new L2PAO value should be `0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b` which is the alias for the `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` L1PAO (same as [OP Mainnet](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L45)).
+
