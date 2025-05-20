@@ -299,7 +299,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @notice Using the tasks config.toml file, this function configures the task.
     /// by performing various setup functions e.g. setting the address registry and multicall target.
     function _taskSetup(string memory taskConfigFilePath, address optionalChildMultisig) internal {
-        require(bytes(config.safeAddressString).length == 0, "MultisigTask: already initialized");
+        require(parentMultisig == address(0), "MultisigTask: already initialized");
         config.safeAddressString = loadSafeAddressString(taskConfigFilePath);
         IGnosisSafe _parentMultisig; // TODO parentMultisig should be of type IGnosisSafe
         (addrRegistry, _parentMultisig, multicallTarget) = _configureTask(taskConfigFilePath);
