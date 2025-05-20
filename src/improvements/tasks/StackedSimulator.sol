@@ -21,7 +21,8 @@ contract StackedSimulator is Script {
         string name;
     }
 
-    function simulateStack(string memory network) public {
+    /// @notice Simulates the execution of all non-terminal tasks for a given network. No gas metering is used.
+    function simulateStack(string memory network) public noGasMetering {
         TaskInfo[] memory tasks = getNonTerminalTasks(network);
         if (tasks.length == 0) {
             console.log("No non-terminal tasks found for network: %s", network);
@@ -30,7 +31,6 @@ contract StackedSimulator is Script {
         simulateStack(network, tasks[tasks.length - 1].name, new address[](0));
     }
 
-    /// @notice Simulates the execution of a task and all tasks that must be executed before it. No gas metering is used.
     /// The optionalOwnerAddresses array is used to specify the owner addresses for each nested task. It must be either empty or
     /// have the same length as the number of tasks. If it is empty, the first owner on the parent multisig will be used for each task.
     function simulateStack(string memory network, string memory task, address[] memory optionalOwnerAddresses) public {
@@ -42,14 +42,12 @@ contract StackedSimulator is Script {
             "StackedSimulator: Invalid owner addresses array length. Must be empty or match the number of tasks being simulated."
         );
 
-        for (uint256 i = 0; i < tasks.length; i++) {
-            taskConfigs[i] = taskManager.parseConfig(tasks[i].path);
-        }
-
         // Setting this env variable to reduce logging for stack simulations.
+        // Comment out this line if you want to see the full output (i.e. state diffs etc).
         vm.setEnv("SIGNING_MODE_IN_PROGRESS", "true");
 
-        for (uint256 i = 0; i < taskConfigs.length; i++) {
+        for (uint256 i = 0; i < tasks.length; i++) {
+            taskConfigs[i] = taskManager.parseConfig(tasks[i].path);
             // If we wanted to ensure that all Tenderly links worked for each task, we would need to build a cumulative list of all state overrides
             // and append them to the next task's config.toml file. For now, we are skipping this functionality.
             address ownerAddress =
