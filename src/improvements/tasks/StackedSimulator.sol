@@ -66,7 +66,19 @@ contract StackedSimulator is Script {
             // and append them to the next task's config.toml file. For now, we are skipping this functionality.
             address ownerAddress =
                 _optionalOwnerAddresses.length == tasks.length ? _optionalOwnerAddresses[i] : address(0);
-            taskManager.executeTask(taskConfigs[i], ownerAddress);
+            VmSafe.AccountAccess[] memory accesses = taskManager.executeTask(taskConfigs[i], ownerAddress);
+            (, AccountAccessParser.DecodedStateDiff[] memory stateDiffs) = accesses.decode(false);
+            for (uint256 j = 0; j < stateDiffs.length; j++) {
+                string memory overrideValue = string.concat(
+                    vm.toString(stateDiffs[j].who),
+                    " = [{key = ",
+                    vm.toString(stateDiffs[j].raw.slot),
+                    ", value = ",
+                    vm.toString(stateDiffs[j].raw.newValue),
+                    "}]"
+                );
+                console.log(overrideValue);
+            }
         }
     }
 
