@@ -10,7 +10,6 @@ import {LibString} from "@solady/utils/LibString.sol";
 import {LibSort} from "@solady/utils/LibSort.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {Utils} from "src/libraries/Utils.sol";
-import {IResourceMetering} from "@eth-optimism-bedrock/interfaces/L1/IResourceMetering.sol";
 
 /// @notice Parses account accesses into decoded transfers and state diffs.
 /// The core methods intended to be part of the public interface are `decodeAndPrint`, `decode`,
@@ -347,14 +346,12 @@ library AccountAccessParser {
     /// @notice Any function in the OptimismPortal that has the 'metered' modifier will have a non-deterministic state change.
     function isOptimismPortalResourceMetering(StateDiff memory _diff) internal view returns (bool) {
         if (_diff.slot == OPTIMISM_PORTAL_RESOURCE_PARAMS_SLOT) {
-            uint256 newValUint = uint256(_diff.newValue);
-            IResourceMetering.ResourceParams memory newValue = IResourceMetering.ResourceParams({
-                prevBaseFee: uint128(newValUint),
-                prevBoughtGas: uint64(newValUint >> 128),
-                prevBlockNum: uint64(newValUint >> (128 + 64))
-            });
-            // If the current block number is equal to the new values prevBlockNum, then we should remove this state change.
-            return block.number == newValue.prevBlockNum;
+            // Extract prevBlockNum from the packed value. It's located in the most significant 64 bits.
+            // ResourceParams is packed as follows: prevBlockNum (64 bits) | prevBoughtGas (64 bits) | prevBaseFee (128 bits)
+            uint256 prevBlockNum = uint64(uint256(_diff.newValue) >> (128 + 64));
+            // If the current block number is equal to the new values prevBlockNum, then we should remove this
+            // state change because it means we have a nondeterministic change based on block number at simulation time
+            return block.number == prevBlockNum;
         }
         return false;
     }
