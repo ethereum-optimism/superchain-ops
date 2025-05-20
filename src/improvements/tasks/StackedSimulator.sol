@@ -33,7 +33,10 @@ contract StackedSimulator is Script {
 
     /// The optionalOwnerAddresses array is used to specify the owner addresses for each nested task. It must be either empty or
     /// have the same length as the number of tasks. If it is empty, the first owner on the parent multisig will be used for each task.
-    function simulateStack(string memory network, string memory task, address[] memory optionalOwnerAddresses) public {
+    function simulateStack(string memory network, string memory task, address[] memory optionalOwnerAddresses)
+        public
+        noGasMetering
+    {
         TaskManager taskManager = new TaskManager();
         TaskInfo[] memory tasks = getNonTerminalTasks(network, task);
         TaskManager.TaskConfig[] memory taskConfigs = new TaskManager.TaskConfig[](tasks.length);
@@ -54,7 +57,19 @@ contract StackedSimulator is Script {
             // and append them to the next task's config.toml file. For now, we are skipping this functionality.
             address ownerAddress =
                 optionalOwnerAddresses.length == tasks.length ? optionalOwnerAddresses[i] : address(0);
-            taskManager.executeTask(taskConfigs[i], ownerAddress);
+            VmSafe.AccountAccess[] memory accesses = taskManager.executeTask(taskConfigs[i], ownerAddress);
+            (, AccountAccessParser.DecodedStateDiff[] memory stateDiffs) = accesses.decode(false);
+            for (uint256 j = 0; j < stateDiffs.length; j++) {
+                string memory overrideValue = string.concat(
+                    vm.toString(stateDiffs[j].who),
+                    " = [{key = ",
+                    vm.toString(stateDiffs[j].raw.slot),
+                    ", value = ",
+                    vm.toString(stateDiffs[j].raw.newValue),
+                    "}]"
+                );
+                console.log(overrideValue);
+            }
         }
     }
 
