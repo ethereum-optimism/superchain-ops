@@ -2,6 +2,7 @@
 pragma solidity 0.8.15;
 
 import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
+import {MultisigTaskPrinter} from "src/libraries/MultisigTaskPrinter.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
@@ -53,9 +54,11 @@ abstract contract L2TaskBase is MultisigTask {
                         == superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId),
                     string.concat(
                         "MultisigTask: safe address mismatch. Caller: ",
-                        getAddressLabel(address(parentMultisig_)),
+                        MultisigTaskPrinter.getAddressLabel(address(parentMultisig_)),
                         ". Actual address: ",
-                        getAddressLabel(superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId))
+                        MultisigTaskPrinter.getAddressLabel(
+                            superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId)
+                        )
                     )
                 );
             }

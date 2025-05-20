@@ -15,8 +15,8 @@ import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.so
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
 import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
-import {Base64} from "solady/utils/Base64.sol";
 import {Utils} from "src/libraries/Utils.sol";
+import {MultisigTaskPrinter} from "src/libraries/MultisigTaskPrinter.sol";
 
 type AddressRegistry is address;
 
@@ -28,9 +28,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
     /// @notice Parent nonce used for generating the safe transaction.
     uint256 public nonce;
-
-    /// @notice owners the safe started with
-    address[] public startingOwners;
 
     /// @notice AddressesRegistry contract
     AddressRegistry public addrRegistry;
@@ -86,14 +83,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         OPCMTaskBase
     }
 
-    /// @notice transfers during task execution
-    mapping(address => TransferInfo[]) private _taskTransfers;
-
     /// @notice state changes during task execution
     mapping(address => StateInfo[]) internal _stateInfos;
-
-    /// @notice addresses involved in state changes or token transfers
-    EnumerableSet.AddressSet private _taskTransferFromAddresses;
 
     /// @notice addresses whose state is updated in task execution
     EnumerableSet.AddressSet internal _taskStateChangeAddresses;
@@ -320,8 +311,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             childNonce = IGnosisSafe(childMultisig).nonce();
         }
 
-        startingOwners = IGnosisSafe(parentMultisig).getOwners();
-
         vm.label(AddressRegistry.unwrap(addrRegistry), "AddrRegistry");
         vm.label(address(this), "MultisigTask");
     }
@@ -359,34 +348,11 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         data = abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
     }
 
-    /// @notice Print the data to sign.
-    function printEncodedTransactionData(bytes memory dataToSign) public pure {
-        // logs required for using eip712sign binary to sign the data to sign with Ledger
-        printTitle("DATA TO SIGN");
-        console.log("vvvvvvvv");
-        console.logBytes(dataToSign);
-        console.log("^^^^^^^^\n");
-
-        printTitle("ATTENTION SIGNERS");
-        console.log("Please verify that the 'Data to sign' displayed above matches:");
-        console.log("1. The data shown in the Tenderly simulation.");
-        console.log("2. The data shown on your hardware wallet.");
-        console.log("This is a critical step. Do not skip this verification.");
-    }
-
-    function printTitle(string memory title) private pure {
-        // forgefmt: disable-start
-        console.log("");
-        console.log(vm.toUppercase(title).cyan().bold());
-        string memory line = unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
-        console.log(line.cyan().bold());
-        // forgefmt: disable-end
-    }
-
     /// @notice Print the hash to approve by EOA for parent/root multisig.
-    function printParentHash(bytes memory callData) public view {
-        console.log("Parent Multisig: ", getAddressLabel(parentMultisig));
-        console.log("Safe Transaction Hash: ", vm.toString(getHash(callData, parentMultisig)));
+    function _printParentHash(bytes memory callData) internal view {
+        console.log("Parent Multisig: ", MultisigTaskPrinter.getAddressLabel(parentMultisig));
+        bytes32 safeTxHash = getHash(callData, parentMultisig);
+        console.log("Safe Transaction Hash: ", vm.toString(safeTxHash));
 
         bytes memory encodedTxData = getEncodedTransactionData(parentMultisig, callData);
         bytes32 domainSeparator = GnosisSafeHashes.calculateDomainSeparator(block.chainid, parentMultisig);
@@ -394,70 +360,17 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         console.log("Domain Hash:    ", vm.toString(domainSeparator));
         console.log("Message Hash:   ", vm.toString(messageHash));
 
-        printOPTxVerifyLink(callData, hex"");
-    }
-
-    /// @notice This function prints a op-txverify link which can be used for verifying the authenticity of the domain and message hashes
-    function printOPTxVerifyLink(bytes memory parentCalldata, bytes memory optionalChildCallData) private view {
-        uint256 parentNonce = _nonceBeforeSim(parentMultisig);
-        bool isNested = isNestedSafe(parentMultisig);
-        string memory json = string.concat(
-            '{\n   "safe": "',
-            vm.toString(parentMultisig),
-            '",\n   "chain": ',
-            vm.toString(block.chainid),
-            ',\n   "to": "',
-            vm.toString(_getMulticallAddress(parentMultisig)),
-            '",\n   "value": ',
-            vm.toString(uint256(0)),
-            ',\n   "data": "',
-            vm.toString(parentCalldata)
-        );
-
-        json = string.concat(
-            json,
-            '",\n   "operation": ',
-            vm.toString(uint8(Enum.Operation.DelegateCall)),
-            ',\n   "safe_tx_gas": ',
-            vm.toString(uint256(0)),
-            ',\n   "base_gas": ',
-            vm.toString(uint256(0)),
-            ',\n   "gas_price": ',
-            vm.toString(uint256(0)),
-            ',\n   "gas_token": "',
-            vm.toString(address(0)),
-            '",\n   "refund_receiver": "',
-            vm.toString(address(0))
-        );
-
-        json = string.concat(
-            json,
-            '",\n   "nonce": ',
-            vm.toString(parentNonce),
-            isNested
-                ? string.concat(
-                    ',\n   "nested": ',
-                    '{\n    "safe": "',
-                    vm.toString(childMultisig),
-                    '",\n    "nonce": ',
-                    vm.toString(_nonceBeforeSim(childMultisig)),
-                    ',\n    "operation": ',
-                    vm.toString(uint8(Enum.Operation.DelegateCall)),
-                    ',\n    "data": "',
-                    vm.toString(optionalChildCallData),
-                    '",\n    "to": "',
-                    vm.toString(_getMulticallAddress(childMultisig)),
-                    '"\n   }'
-                )
-                : "",
-            "\n}"
-        );
-
-        string memory base64Json = Base64.encode(bytes(json));
-        printTitle("OP-TXVERIFY LINK");
-        console.log(
-            "To verify this transaction, run `op-txverify qr` on your machine, then open the following link on your mobile device: https://op-txverify.optimism.io/?tx=%s",
-            base64Json
+        // Call the printer version of printOPTxVerifyLink
+        MultisigTaskPrinter.printOPTxVerifyLink(
+            parentMultisig,
+            block.chainid,
+            address(0), // No child multisig for single parent hash context
+            callData,
+            hex"", // No child calldata
+            _nonceBeforeSim(parentMultisig),
+            0, // No child nonce
+            _getMulticallAddress(parentMultisig),
+            address(0) // No child multicall target
         );
     }
 
@@ -612,17 +525,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         // Otherwise, default to the remaining gas. This helps surface out-of-gas errors earlier,
         // before they would show up in Tenderly's simulation results.
         uint256 gas = vm.envOr("TENDERLY_GAS", gasleft());
-        if (!Utils.isFeatureEnabled("SIGNING_MODE_IN_PROGRESS")) {
-            console.log("Passing %s gas to execTransaction (from env or gasleft)", gas);
-        }
+        MultisigTaskPrinter.printGasForExecTransaction(gas);
+
         (bool success, bytes memory returnData) = multisig.call{gas: gas}(callData);
 
         if (!success) {
-            console.log("Error executing multisig transaction");
-            console.logBytes(returnData);
+            MultisigTaskPrinter.printErrorExecutingMultisigTransaction(returnData);
+            revert("MultisigTask: execute failed");
         }
-
-        require(success, "MultisigTask: execute failed");
     }
 
     /// @notice Returns the allowed storage accesses.
@@ -646,7 +556,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                 _allowedStorageAccesses.contains(addr) || _isNewContract(addr, newContracts),
                 string(
                     abi.encodePacked(
-                        "MultisigTask: address ", getAddressLabel(addr), " not in allowed storage accesses"
+                        "MultisigTask: address ",
+                        MultisigTaskPrinter.getAddressLabel(addr),
+                        " not in allowed storage accesses"
                     )
                 )
             );
@@ -709,7 +621,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         return actions;
     }
 
-    /// @notice Print task releated data for task developers and signers.
+    /// @notice Print task related data for task developers and signers.
     function print(
         Action[] memory actions,
         VmSafe.AccountAccess[] memory accountAccesses,
@@ -717,49 +629,22 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         bytes32 txHash
     ) public view {
         console.log("");
-        // forgefmt: disable-start
-        string memory line = unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
-        console.log(line.cyan().bold());
-        console.log("                 WELCOME TO SUPERCHAIN-OPS");
-        console.log(line.cyan().bold());
-        if (!Utils.isFeatureEnabled("SIGNING_MODE_IN_PROGRESS")) {
-            printTitle("ATTENTION TASK DEVELOPERS");
-            console.log("To properly document the task state changes, please follow these steps:");
-            console.log("1. Copy and paste the state changes printed below into the VALIDATION.md file.");
-            console.log("2. For each task, write a thorough 'Detail' and 'Summary' section explaining the state change, providing links where appropriate.");
-            console.log("3. Ensure the state changes are expected and match those seen in the Tenderly simulation.");
-            // forgefmt: disable-end
-        }
+        MultisigTaskPrinter.printWelcomeMessage();
 
         accountAccesses.decodeAndPrint(parentMultisig, txHash);
 
-        printSafe(actions, isSimulate);
-
-        printAuditReportInfo(accountAccesses, parentMultisig, txHash);
-    }
-
-    /// @notice Prints the audit report information.
-    function printAuditReportInfo(VmSafe.AccountAccess[] memory _accAccesses, address _parentMultisig, bytes32 _txHash)
-        private
-        view
-    {
-        console.log("");
-        printTitle("AUDIT REPORT INFORMATION");
-        // forgefmt: disable-start
-        console.log("The normalized state diff hash MUST match the hash created by the state changes attested to in the state diff audit report.");
-        console.log("As a signer, you are responsible for making sure this hash is correct. Please compare the hash below with the hash in the audit report.");
-        bytes32 normalizedHash = AccountAccessParser.normalizedStateDiffHash(_accAccesses, _parentMultisig, _txHash);
-        console.log("");
-        console.log("Normalized hash: %s", vm.toString(normalizedHash));
-        console.log("");
-        // forgefmt: disable-end
+        printSafe(actions, accountAccesses, isSimulate, txHash);
     }
 
     /// @notice Prints all relevant hashes to sign as well as the tenderly simulation link.
-    function printSafe(Action[] memory actions, bool isSimulate) private view {
+    function printSafe(
+        Action[] memory actions,
+        VmSafe.AccountAccess[] memory accountAccesses,
+        bool isSimulate,
+        bytes32 txHash
+    ) private view {
         // Print calldata to be executed within the Safe.
-        printTitle("TASK CALLLDATA");
-        console.logBytes(getMulticall3Calldata(actions));
+        MultisigTaskPrinter.printTaskCalldata(getMulticall3Calldata(actions));
 
         // Only print data if the task is being simulated.
         if (isSimulate) {
@@ -769,9 +654,10 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                 printSingleData(actions);
             }
 
-            printTitle("TENDERLY SIMULATION DATA");
             printTenderlySimulationData(actions);
         }
+        bytes32 normalizedHash = AccountAccessParser.normalizedStateDiffHash(accountAccesses, parentMultisig, txHash);
+        MultisigTaskPrinter.printAuditReportInfo(normalizedHash);
     }
 
     /// @notice Helper function to print nested calldata.
@@ -781,121 +667,61 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             "MultisigTask: Child multisig cannot be zero address when printing nested data to sign."
         );
         (, bytes memory dataToSign, bytes32 domainSeparator, bytes32 messageHash) = getApproveTransactionInfo(actions);
-        bytes memory parentCalldata = getMulticall3Calldata(actions);
+        bytes memory parentCallDataForLink = getMulticall3Calldata(actions); // For OPVerifyLink and hash display
+        bytes32 parentHashToApprove = getHash(parentCallDataForLink, parentMultisig);
 
-        printTitle("NESTED MULTISIG CHILD'S HASH TO APPROVE");
-        console.log("Parent multisig: %s", getAddressLabel(parentMultisig));
-        console.log("Parent hashToApprove: %s", vm.toString(getHash(parentCalldata, parentMultisig)));
-        printEncodedTransactionData(dataToSign);
-        printTitle("NESTED MULTISIG EOAS HASH TO APPROVE");
-        printChildHash(domainSeparator, messageHash);
-        printOPTxVerifyLink(parentCalldata, generateApproveMulticallData(actions));
+        MultisigTaskPrinter.printNestedDataInfo(
+            MultisigTaskPrinter.getAddressLabel(parentMultisig),
+            MultisigTaskPrinter.getAddressLabel(childMultisig),
+            parentHashToApprove,
+            dataToSign,
+            domainSeparator,
+            messageHash
+        );
+
+        MultisigTaskPrinter.printOPTxVerifyLink(
+            parentMultisig,
+            block.chainid,
+            childMultisig,
+            parentCallDataForLink,
+            generateApproveMulticallData(actions), // This is the child's multicall calldata for approving parent
+            _nonceBeforeSim(parentMultisig),
+            _nonceBeforeSim(childMultisig),
+            _getMulticallAddress(parentMultisig),
+            _getMulticallAddress(childMultisig)
+        );
     }
 
     /// @notice Helper function to print non-nested safe calldata.
     function printSingleData(Action[] memory actions) private view {
-        bytes memory dataToSign = getEncodedTransactionData(parentMultisig, getMulticall3Calldata(actions));
-        printEncodedTransactionData(dataToSign);
-        printTitle("SINGLE MULTISIG EOA HASH TO APPROVE");
-        printParentHash(getMulticall3Calldata(actions));
-    }
+        bytes memory taskCallData = getMulticall3Calldata(actions);
+        bytes memory dataToSign = getEncodedTransactionData(parentMultisig, taskCallData);
+        MultisigTaskPrinter.printEncodedTransactionData(dataToSign);
 
-    /// @notice Print the hash to approve by EOA for nested multisig.
-    function printChildHash(bytes32 domainSeparator, bytes32 messageHash) public view {
-        require(
-            childMultisig != address(0), "MultisigTask: Child multisig cannot be zero address when printing child hash."
-        );
-        console.log("Child multisig: %s", getAddressLabel(childMultisig));
-        console.log("Domain Hash:    ", vm.toString(domainSeparator));
-        console.log("Message Hash:   ", vm.toString(messageHash));
+        MultisigTaskPrinter.printTitle("SINGLE MULTISIG EOA HASH TO APPROVE");
+        _printParentHash(taskCallData);
     }
 
     /// @notice Print the Tenderly simulation payload with the state overrides.
     function printTenderlySimulationData(Action[] memory actions) internal view {
-        Simulation.StateOverride[] memory allStateOverrides = getStateOverrides(parentMultisig, childMultisig);
-
+        address targetAddress;
+        bytes memory finalExec;
         if (childMultisig != address(0)) {
-            bytes memory finalExec = getNestedSimulationMulticall3Calldata(actions);
-
-            console.log("\nSimulation link:");
-            Simulation.logSimulationLink({
-                _to: MULTICALL3_ADDRESS,
-                _data: finalExec,
-                _from: msg.sender,
-                _overrides: allStateOverrides
-            });
+            targetAddress = MULTICALL3_ADDRESS;
+            finalExec = getNestedSimulationMulticall3Calldata(actions);
         } else {
-            bytes memory finalExec = _execTransactionCalldata(
+            targetAddress = parentMultisig;
+            finalExec = _execTransactionCalldata(
                 parentMultisig,
                 getMulticall3Calldata(actions),
                 Signatures.genPrevalidatedSignature(msg.sender),
                 _getMulticallAddress(parentMultisig)
             );
-
-            // Log the simulation link
-            console.log("\nSimulation link:");
-            Simulation.logSimulationLink({
-                _to: parentMultisig,
-                _data: finalExec,
-                _from: msg.sender,
-                _overrides: allStateOverrides
-            });
         }
-    }
 
-    /// @notice Log a JSON payload to create a Tenderly simulation.
-    /// Logging this data to the terminal is important for a separate process that performs Tenderly verifications.
-    function logTenderlySimulationPayload(
-        bytes memory txData,
-        Simulation.StateOverride[] memory stateOverrides,
-        address to
-    ) internal view {
-        require(stateOverrides.length > 0, "MultisigTask: stateOverrides length must be greater than 0");
-
-        console.log("\nSimulation payload:");
-        // forgefmt: disable-start
-        string memory payload = string.concat(
-            '{\"network_id\":\"', vm.toString(block.chainid),'\",',
-            '\"from\":\"', vm.toString(msg.sender),'\",',
-            '\"to\":\"', vm.toString(to), '\",',
-            '\"save\":true,',
-            '\"input\":\"', vm.toString(txData),'\",',
-            '\"value\":\"0x0\",',
-            '\"state_objects\":{'
+        MultisigTaskPrinter.printTenderlySimulationData(
+            parentMultisig, finalExec, msg.sender, getStateOverrides(parentMultisig, childMultisig)
         );
-        // forgefmt: disable-end
-
-        for (uint256 i = 0; i < stateOverrides.length && i < 2; i++) {
-            if (i > 0) payload = string.concat(payload, ",");
-            payload = string.concat(payload, tenderlyPayloadStateOverride(stateOverrides[i]));
-        }
-
-        payload = string.concat(payload, "}}");
-        console.log(payload);
-    }
-
-    /// @notice Helper function to format the state overrides for Tenderly.
-    function tenderlyPayloadStateOverride(Simulation.StateOverride memory stateOverride)
-        internal
-        pure
-        returns (string memory)
-    {
-        // forgefmt: disable-start
-        string memory result = string.concat(
-            '\"', vm.toString(stateOverride.contractAddress), '\":{\"storage\":{'
-        );
-
-        for (uint256 j = 0; j < stateOverride.overrides.length; j++) {
-            if (j > 0) result = string.concat(result, ',');
-            result = string.concat(
-                result,
-                '\"', vm.toString(bytes32(stateOverride.overrides[j].key)), '\":\"',
-                vm.toString(stateOverride.overrides[j].value), '\"'
-            );
-        }
-        // forgefmt: disable-end
-
-        return string.concat(result, "}}");
     }
 
     /// @notice Get the hash for this safe transaction.
@@ -917,30 +743,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         Call3Value[] memory calls = new Call3Value[](1);
         calls[0] = call;
         return abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
-    }
-
-    /// @notice Helper method to get labels for addresses.
-    function getAddressLabel(address contractAddress) public view returns (string memory) {
-        string memory label = vm.getLabel(contractAddress);
-
-        bytes memory prefix = bytes("unlabeled:");
-        bytes memory strBytes = bytes(label);
-
-        if (strBytes.length >= prefix.length) {
-            // check if address is unlabeled
-            for (uint256 i = 0; i < prefix.length; i++) {
-                if (strBytes[i] != prefix[i]) {
-                    // return "{LABEL} @{ADDRESS}" if address is labeled
-                    return string(abi.encodePacked(label, " @", vm.toString(contractAddress)));
-                }
-            }
-        } else {
-            // return "{LABEL} @{ADDRESS}" if address is labeled
-            return string(abi.encodePacked(label, " @", vm.toString(contractAddress)));
-        }
-
-        // return "UNLABELED @{ADDRESS}" if address is unlabeled
-        return string(abi.encodePacked("UNLABELED @", vm.toString(contractAddress)));
     }
 
     /// --------------------------------------------------------------------
@@ -1199,7 +1001,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             abi.encodePacked(
                 opStr,
                 " ",
-                getAddressLabel(access.account),
+                MultisigTaskPrinter.getAddressLabel(access.account),
                 " with ",
                 vm.toString(access.value),
                 " eth and ",
