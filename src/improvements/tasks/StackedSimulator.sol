@@ -68,16 +68,29 @@ contract StackedSimulator is Script {
                 _optionalOwnerAddresses.length == tasks.length ? _optionalOwnerAddresses[i] : address(0);
             VmSafe.AccountAccess[] memory accesses = taskManager.executeTask(taskConfigs[i], ownerAddress);
             (, AccountAccessParser.DecodedStateDiff[] memory stateDiffs) = accesses.decode(false);
-            for (uint256 j = 0; j < stateDiffs.length; j++) {
-                string memory overrideValue = string.concat(
-                    vm.toString(stateDiffs[j].who),
-                    " = [{key = ",
-                    vm.toString(stateDiffs[j].raw.slot),
-                    ", value = ",
-                    vm.toString(stateDiffs[j].raw.newValue),
-                    "}]"
-                );
-                console.log(overrideValue);
+            address[] memory uniqueWrites = accesses.getUniqueWrites(false);
+            for (uint256 a = 0; a < uniqueWrites.length; a++) {
+                string memory keyPart = string.concat(vm.toString(uniqueWrites[a]), " = [");
+                string memory middlePart = "";
+                bool isFirst = true;
+                for (uint256 b = 0; b < stateDiffs.length; b++) {
+                    if (stateDiffs[b].who == uniqueWrites[a]) {
+                        string memory optComma = isFirst ? "" : ",";
+                        middlePart = string.concat(
+                            middlePart,
+                            optComma,
+                            "{key = \"",
+                            vm.toString(stateDiffs[b].raw.slot),
+                            "\", value = \"",
+                            vm.toString(stateDiffs[b].raw.newValue),
+                            "\"",
+                            "}"
+                        );
+                        isFirst = false;
+                    }
+                }
+                string memory endPart = "]";
+                console.log(string.concat(keyPart, middlePart, endPart));
             }
         }
     }
