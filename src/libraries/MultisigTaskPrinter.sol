@@ -7,6 +7,7 @@ import {StdStyle} from "forge-std/StdStyle.sol";
 import {Base64} from "solady/utils/Base64.sol";
 import {Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
+import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {Utils} from "src/libraries/Utils.sol";
 
 /// @notice A library for handling all console output related to MultisigTask operations.
@@ -127,9 +128,11 @@ library MultisigTaskPrinter {
         internal
         pure
     {
+        bytes32 safeTxHash = keccak256(abi.encodePacked(hex"1901", domainSeparator, messageHash));
         console.log("Child multisig: %s", childMultisigLabel);
-        console.log("Domain Hash:    ", vm.toString(domainSeparator));
-        console.log("Message Hash:   ", vm.toString(messageHash));
+        console.log("Safe Transaction Hash: ", vm.toString(safeTxHash));
+        console.log("Domain Hash:           ", vm.toString(domainSeparator));
+        console.log("Message Hash:          ", vm.toString(messageHash));
     }
 
     /// @notice Prints audit report information with normalized state diff hash.
@@ -164,11 +167,13 @@ library MultisigTaskPrinter {
         uint256 childNonce, // Can be 0 if not nested
         address parentMulticallTarget,
         address childMulticallTarget // Can be address(0) if not nested and matches parentMulticallTarget behavior
-    ) internal pure {
+    ) internal view {
         bool isNested = childMultisig != address(0);
         string memory json = string.concat(
             '{\n   "safe": "',
             vm.toString(parentMultisig),
+            '",\n    "safe_version": "',
+            IGnosisSafe(parentMultisig).VERSION(),
             '",\n   "chain": ',
             vm.toString(chainId),
             ',\n   "to": "',
@@ -204,6 +209,8 @@ library MultisigTaskPrinter {
                     ',\n   "nested": ',
                     '{\n    "safe": "',
                     vm.toString(childMultisig),
+                    '",\n    "safe_version": "',
+                    IGnosisSafe(childMultisig).VERSION(),
                     '",\n    "nonce": ',
                     vm.toString(childNonce),
                     ',\n    "operation": ',
