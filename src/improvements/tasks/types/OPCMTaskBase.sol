@@ -12,7 +12,7 @@ import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 
-/// @notice base task for making calls to the Optimism Contracts Manager
+/// @notice This contract is used for all OPCM task types. It overrides various functions in the L2TaskBase contract.
 abstract contract OPCMTaskBase is L2TaskBase {
     using stdStorage for StdStorage;
     using AccountAccessParser for VmSafe.AccountAccess[];

@@ -1,0 +1,12 @@
+l2chains = [{name = "Unichain Sepolia Testnet", chainId = 1301}]
+
+templateName = "TransferOwners"
+
+# Sepolia L1PAO - https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/sepolia/op.toml#L46
+newOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
+
+[stateOverrides]
+# https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/sepolia/unichain.toml#L46
+0xd363339ee47775888df411a163c586a8bdea9dbf = [ # Current owner of the ProxyAdmin before this task is executed
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 32}
+]
