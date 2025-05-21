@@ -35,3 +35,7 @@ just --dotenv-path $(pwd)/.env --justfile ../../../nested.just sign foundation
 # Security Council: 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03
 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just sign council
 ```
+
+## Approval and Execution Instructions
+
+You can find the approval and execution instructions in the [NESTED.md](../../../NESTED.md) file.
