@@ -720,7 +720,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         }
 
         MultisigTaskPrinter.printTenderlySimulationData(
-            parentMultisig, finalExec, msg.sender, getStateOverrides(parentMultisig, childMultisig)
+            targetAddress, finalExec, msg.sender, getStateOverrides(parentMultisig, childMultisig)
         );
     }
 
