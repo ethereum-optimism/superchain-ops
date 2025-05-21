@@ -1526,13 +1526,13 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
     }
 
     /// @notice Packs the resource params into a bytes32. Where prevBlockNum is the most significant 64 bits, prevBoughtGas is the next 64 bits, and prevBaseFee is the least significant 128 bits.
-    function packResourceParams(IResourceMetering.ResourceParams memory resourceParams)
+    function packResourceParams(IResourceMetering.ResourceParams memory _resourceParams)
         internal
         pure
         returns (bytes32)
     {
-        return (bytes32(uint256(resourceParams.prevBlockNum)) << (128 + 64))
-            | (bytes32(uint256(resourceParams.prevBoughtGas)) << 128) | (bytes32(uint256(resourceParams.prevBaseFee)));
+        return (bytes32(uint256(_resourceParams.prevBlockNum)) << (128 + 64))
+            | (bytes32(uint256(_resourceParams.prevBoughtGas)) << 128) | (bytes32(uint256(_resourceParams.prevBaseFee)));
     }
 
     /// Helper functions similar to those in AccountAccessParser.t.sol
