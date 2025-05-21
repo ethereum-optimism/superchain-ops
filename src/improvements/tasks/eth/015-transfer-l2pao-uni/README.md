@@ -4,7 +4,7 @@ Status: [READY TO SIGN]()
 
 ## Objective
 
-Transfer the L2PAO to the owner defined in the standard configuration. For this task, it means transferring the L2PAO to the aliaed L1PAO i.e. `alias(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` => `0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b` (aliased).
+Transfer the L2PAO to the owner defined in the standard configuration. For this task, it means transferring the L2PAO to the aliaed L1PAO i.e. `alias(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` => `0x6B1BAE59D09fCcbdDB6C6cceb07B7279367C4E3b` (aliased) via a deposit transaction.
 
 ## Simulation & Signing
 
