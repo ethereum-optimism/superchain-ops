@@ -37,7 +37,7 @@ contract TransferL2PAOFromL1 is L2TaskBase {
     /// @notice Returns the safe address string identifier
     function safeAddressString() public pure override returns (string memory) {
         // It may not be the ProxyAdminOwner so we use this string so that the user must manually add the safe address to their config.toml.
-        return "L1Safe"; 
+        return "L1Safe";
     }
 
     /// @notice Returns the storage write permissions required for this task.
