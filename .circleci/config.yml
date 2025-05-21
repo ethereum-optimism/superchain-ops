@@ -393,14 +393,15 @@ jobs:
             | # Justfiles are not shell scripts and should not be checked with shellcheck
             (cd src/improvements/script && shellcheck -x *.sh)
   # Check that all task directories have valid names and there are no duplicate prefixes.
-  check_task_names:
+  # Also check that all state overrides are 66-character hex strings.
+  check_tasks:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - utils/checkout-with-mise
       - run:
-          name: check task names
-          command: (cd src/improvements/script && ./check-task-names.sh)
+          name: check task names and state overrides
+          command: (cd src/improvements/script && ./check-task-names.sh && ./check-state-overrides.sh)
   close-issue:
     machine:
       image: ubuntu-2204:2024.08.1
@@ -460,7 +461,7 @@ workflows:
       - shellcheck:
           context:
             - circleci-repo-readonly-authenticated-github-token
-      - check_task_names
+      - check_tasks
       # RPC endpoint checks.
       - check_sepolia_rpc_endpoints:
           context:
