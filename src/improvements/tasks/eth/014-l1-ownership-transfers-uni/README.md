@@ -1,6 +1,6 @@
 # 014-l1-ownership-transfers-uni: Transfer L1 owners for Unichain Mainnet (DGF, PermissionlessWETH and L1PAO)
 
-Status: [DRAFT]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
