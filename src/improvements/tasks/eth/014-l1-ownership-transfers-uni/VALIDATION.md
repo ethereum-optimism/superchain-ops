@@ -21,17 +21,17 @@ the values printed to the terminal when you run the task.
 > ### Unichain Upgrade Safe (Chain Governor) (`0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC`)
 >
 > - Domain Hash:  `0x4f0b6efb6c01fa7e127a0ff87beefbeb53e056d30d3216c5ac70371b909ca66d`
-> - Message Hash: `0xaf6de905cc07ab8e11c11b1ff3747f5a8acd86776ef09fd34e44e5601b9a14a0`
+> - Message Hash: `0x279940ab2c692b1cf17afc08b3fedccaed9ba765091d1ac17ac89af8abdfc994`
 >
 > ### Optimism Foundation Upgrade Safe (`0x847B5c174615B1B7fDF770882256e2D3E95b9D92`)
 >
 > - Domain Hash:  `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0xb49c66fa395afe0af0b6c7ad4b05dc8e21f66e577f3b0181127556f57e4347fc`
+> - Message Hash: `0x6357f5a4baab32792453775ee2ee34f1d8735126fd91cc5343ea613e197a8ade`
 >
 > ### Security Council (`0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`)
 >
 > - Domain Hash: `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
-> - Message Hash: `0x0489d523fd713500cc9902e04c1fbf4584add97c9a3b02933e2816edf5a377c5`
+> - Message Hash: `0x6357f5a4baab32792453775ee2ee34f1d8735126fd91cc5343ea613e197a8ade`
 
 ## Normalized State Diff Hash Attestation
 
