@@ -167,7 +167,7 @@ abstract contract StateOverrideManager is CommonBase {
             );
             require(
                 keccak256(reencoded) == keccak256(tomlOverrides),
-                "StateOverrideManager: Failed to reencode overrides, ensure all values are encoded as bytes32 strings"
+                "StateOverrideManager: Failed to reencode overrides, ensure any decimal numbers are not in quotes"
             );
 
             parsedOverrides[i] =
