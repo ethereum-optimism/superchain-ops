@@ -21,7 +21,53 @@ which reads the inputs from the [`config.toml`](./config.toml) file.
 
 ## Signing and execution
 
-Follow the instructions in the [Nested Execution](../../../NESTED.md) guide for the following steps:
+Signing and execution instructions for this task are unique because of the extra layer of nesting.
+The L1 ProxyAdmin Owner (L1PAO) is setup as following for Base Sepolia:
+
+```text
+┌───────┐┌───────┐┌───────┐┌───────┐┌───────┐┌───────┐
+│Signer1││Signer2││Signer3││Signer4││Signer5││Signer6│
+└┬──────┘└┬──────┘└┬──────┘└┬──────┘└┬──────┘└┬──────┘
+┌▽────────▽┐┌──────▽────────▽┐┌──────▽────────▽┐
+│Base      ││SC              ││FND             │
+└┬─────────┘└┬───────────────┘└┬───────────────┘
+┌▽───────────▽┐                │
+BaseNested    │                │
+└┬────────────┘                │
+┌▽─────────────────────────────▽┐
+│L1PAO                          │
+└┬──────────────────────────────┘
+┌▽─────────┐
+│ProxyAdmin│
+└──────────┘
+```
+
+where:
+
+- L1PAO is `0x0fe884546476dDd290eC46318785046ef68a0BA9`
+- FND is `0x6AF0674791925f767060Dd52f7fB20984E8639d8`
+- BaseNested is `0x646132A1667ca7aD00d36616AFBA1A28116C770A`
+- Base is `0x6AF0674791925f767060Dd52f7fB20984E8639d8` (on Sepolia, the Base and FND safes are the same)
+- SC is `0x5dfEB066334B67355A15dc9b67317fD2a2e1f77f`
+- `SignerN` represent arbitrary signers for Safes
+
+### Facilitator Instructions
+
+1. Simulate this task from the `BaseNested` 2/2 by running `SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate base_nested`
+2. In the terminal logs, directly above the Domain Hash and Message Hash, this will log the Safe Transaction Hash.
+3. Run `just new task ApproveSafeHash` to create a new task, and update the config file so this Safe Transaction Hash is used.
+
+Now, wait for the Base and Security Council signers to complete [their steps](#base-and-security-council-signer-instructions).
+Once you received signatures from Base and Security Council signers:
+
+1. In the separate safe transaction approval hash task, run the approvals and execution. This will approve their nested hash on the `BaseNested` 2/2.
+2. Now, run the standard foundation approvals in this task. (This step may be swapped with the prior step if desired).
+3. At this point, this task may be executed.
+
+### Foundation Signer Instructions
+
+If you are a foundation signer, you will sign as normal. Follow the instructions in the
+[Nested Execution](../../../NESTED.md) guide for the following steps:
 
 - [1. Update repo](../../../NESTED.md#1-update-repo)
 - [2. Setup Ledger](../../../NESTED.md#2-setup-ledger)
@@ -29,7 +75,22 @@ Follow the instructions in the [Nested Execution](../../../NESTED.md) guide for 
 
 Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 
+### Base and Security Council Signer Instructions
+
+If you are a base or security council signer, you will actually sign in this task directory: TODO.
+
+Your ceremony facilitator will have performed the first three steps listed in the [Facilitator Instructions](#facilitator-instructions) section.
+
+Once that is done, your instructions as a signer are as follows:
+
+1. In this directory, run the same command as step 1 above and save off the Safe Transaction Hash.
+2. Navigate to your TODO directory, and follow the instructions to sign as normal.
+3. When performing the validation step, additionally ensure the data you are signing should match the Safe Transaction Hash you saved off in step 1.
+4. Send the signature to your ceremony facilitator.
+
 ## Simulation
+
+TODO these simulation commands don't seem to work?
 
 When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/improvements/template/OPCMUpgradeV400.sol`.
 Navigate to the correct task directory then run the simulate command.
