@@ -157,9 +157,12 @@ abstract contract StateOverrideManager is CommonBase {
             bytes memory tomlOverrides = vm.parseToml(toml, overridesPath);
             Simulation.StorageOverride[] memory storageOverrides =
                 abi.decode(tomlOverrides, (Simulation.StorageOverride[]));
+
+            // Reencode the overrides back to bytes and ensure that the roundtrip encoding is the same as the original.
+            // This is a hacky form of type safety to make up for the lack of it in the toml parser.
             bytes memory reencoded = abi.encode(storageOverrides);
-            require(reencoded.length == tomlOverrides.length, "StateOverrideManager: Failed to reencode overrides");
-            require(keccak256(reencoded) == keccak256(tomlOverrides), "StateOverrideManager: Failed to reencode overrides");
+            require(reencoded.length == tomlOverrides.length, "StateOverrideManager: Failed to reencode overrides, ensure all values are encoded as bytes32 strings");
+            require(keccak256(reencoded) == keccak256(tomlOverrides), "StateOverrideManager: Failed to reencode overrides, ensure all values are encoded as bytes32 strings");
 
             parsedOverrides[i] =
                 Simulation.StateOverride({contractAddress: targetAddresses[i], overrides: storageOverrides});
