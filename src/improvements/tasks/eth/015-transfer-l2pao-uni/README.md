@@ -1,6 +1,6 @@
 # 015-transfer-l2pao-uni: Transfer L2PAO to the owner defined in standard configuration.
 
-Status: [DRAFT]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
