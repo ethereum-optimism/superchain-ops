@@ -154,8 +154,12 @@ abstract contract StateOverrideManager is CommonBase {
         Simulation.StateOverride[] memory parsedOverrides = new Simulation.StateOverride[](targetAddresses.length);
         for (uint256 i = 0; i < targetAddresses.length; i++) {
             string memory overridesPath = string.concat(stateOverridesKey, ".", targetStrings[i]);
+            bytes memory tomlOverrides = vm.parseToml(toml, overridesPath);
             Simulation.StorageOverride[] memory storageOverrides =
-                abi.decode(vm.parseToml(toml, overridesPath), (Simulation.StorageOverride[]));
+                abi.decode(tomlOverrides, (Simulation.StorageOverride[]));
+            bytes memory reencoded = abi.encode(storageOverrides);
+            require(reencoded.length == tomlOverrides.length, "StateOverrideManager: Failed to reencode overrides");
+            require(keccak256(reencoded) == keccak256(tomlOverrides), "StateOverrideManager: Failed to reencode overrides");
 
             parsedOverrides[i] =
                 Simulation.StateOverride({contractAddress: targetAddresses[i], overrides: storageOverrides});
