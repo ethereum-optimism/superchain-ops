@@ -429,7 +429,7 @@ contract StateOverrideManagerUnitTest is Test {
         string memory fileName = helper.createTempTomlFile(toml);
         MultisigTask task = new MockMultisigTask();
         vm.expectRevert(
-            "StateOverrideManager: Failed to reencode overrides, ensure all values are encoded as bytes32 strings"
+            "StateOverrideManager: Failed to reencode overrides, ensure any decimal numbers are not in quotes"
         );
         task.signFromChildMultisig(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
     }
