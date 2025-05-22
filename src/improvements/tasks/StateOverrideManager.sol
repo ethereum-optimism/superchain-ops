@@ -162,10 +162,6 @@ abstract contract StateOverrideManager is CommonBase {
             // This is a hacky form of type safety to make up for the lack of it in the toml parser.
             bytes memory reencoded = abi.encode(storageOverrides);
             require(
-                reencoded.length == tomlOverrides.length,
-                "StateOverrideManager: Failed to reencode overrides, ensure all values are encoded as bytes32 strings"
-            );
-            require(
                 keccak256(reencoded) == keccak256(tomlOverrides),
                 "StateOverrideManager: Failed to reencode overrides, ensure any decimal numbers are not in quotes"
             );
