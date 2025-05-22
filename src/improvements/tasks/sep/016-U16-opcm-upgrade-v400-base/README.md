@@ -24,23 +24,29 @@ which reads the inputs from the [`config.toml`](./config.toml) file.
 Signing and execution instructions for this task are unique because of the extra layer of nesting.
 The L1 ProxyAdmin Owner (L1PAO) is setup as following for Base Sepolia:
 
-```text
-┌───────┐┌───────┐┌───────┐┌───────┐┌───────┐┌───────┐
-│Signer1││Signer2││Signer3││Signer4││Signer5││Signer6│
-└┬──────┘└┬──────┘└┬──────┘└┬──────┘└┬──────┘└┬──────┘
-┌▽────────▽┐┌──────▽────────▽┐┌──────▽────────▽┐
-│Base      ││SC              ││FND             │
-└┬─────────┘└┬───────────────┘└┬───────────────┘
-┌▽───────────▽┐                │
-BaseNested    │                │
-└┬────────────┘                │
-┌▽─────────────────────────────▽┐
-│L1PAO                          │
-└┬──────────────────────────────┘
-┌▽─────────┐
-│ProxyAdmin│
-└──────────┘
-```
+```mermaid
+graph TD
+  subgraph Signers
+    Signer1[Signer1]
+    Signer2[Signer2]
+    Signer3[Signer3]
+    Signer4[Signer4]
+    Signer5[Signer5]
+    Signer6[Signer6]
+  end
+
+  Signer1 --> Base
+  Signer2 --> Base
+  Signer3 --> SC
+  Signer4 --> SC
+  Signer5 --> FND
+  Signer6 --> FND
+
+  Base --> BaseNested --> L1PAO
+  SC --> BaseNested
+  FND --> L1PAO
+  L1PAO --> ProxyAdmin
+ ```
 
 where:
 
@@ -53,9 +59,12 @@ where:
 
 ### Facilitator Instructions
 
+The facilitator, or someone acting on behalf of the facilitator, must perform the following steps:
+
 1. Simulate this task from the `BaseNested` 2/2 by running `SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate base_nested`
-2. In the terminal logs, directly above the Domain Hash and Message Hash, this will log the Safe Transaction Hash.
+2. In the terminal logs, directly above the Domain Hash and Message Hash, this will log the Safe Transaction Hash. See the [Simulation](#simulation) section for more details on how to do this step.
 3. Run `just new task ApproveSafeHash` to create a new task, and update the config file so this Safe Transaction Hash is used.
+4. Edit the numbers in the task directories such that the approve hash is prefixed with `XXX-1-*` and the primary task is `XXX-2-*`, where `XXX` is the task number such as `016`.
 
 Now, wait for the Base and Security Council signers to complete [their steps](#base-and-security-council-signer-instructions).
 Once you received signatures from Base and Security Council signers:
@@ -83,24 +92,20 @@ Your ceremony facilitator will have performed the first three steps listed in th
 
 Once that is done, your instructions as a signer are as follows:
 
-1. In this directory, run the same command as step 1 above and save off the Safe Transaction Hash.
-2. Navigate to your TODO directory, and follow the instructions to sign as normal.
+1. In this directory, run the simulation as described in the [Simulation](#simulation) section and save off the Safe Transaction Hash. Perform the validation for this task as normal.
+2. Navigate to your TODO directory, and follow the instructions to sign and validate that approval hash as normal.
 3. When performing the validation step, additionally ensure the data you are signing should match the Safe Transaction Hash you saved off in step 1.
 4. Send the signature to your ceremony facilitator.
 
 ## Simulation
 
-TODO these simulation commands don't seem to work?
+Simulate the stack of queued tasks for this network by running:
 
-When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/improvements/template/OPCMUpgradeV400.sol`.
-Navigate to the correct task directory then run the simulate command.
-```
-cd src/improvements/tasks/sep/016-U16-opcm-upgrade-v400-base
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate foundation
-```
-
-Keep in mind that to simulate this task correctly using the previous command, the op and ink task in this same upgrade must have been executed successfully. To test this if the previous task has not been executed yet, you can run the following command:
-```
+```sh
 cd src/improvements
 just simulate-stack sep 016-U16-opcm-upgrade-v400-base
 ```
+
+In the simulation logs, search for the string `016-U16-opcm-upgrade-v400-base` to find the logs
+for this task's output. You will see the Safe Transaction Hash logged to a line beginning with
+`Safe Transaction Hash:`. That is the hash signers on the Base or Security Council safes will approve.
