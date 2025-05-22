@@ -1,7 +1,7 @@
 templateName = "DisableModule"
 
 safeAddressString = "GuardianSafe"
-moduleToDisable = "0xfd7E6Ef1f6c9e4cC34F54065Bf8496cE41A4e2e8"
+moduleToDisable = "0xB4cF8346d890441d70764225E0D9922F53Ad75CC"
 
 # This is the module in the list of modules returned by calling the getModulesPaginated function
 # on the Safe contract. If there is only one module in the list, then this can be set to the
