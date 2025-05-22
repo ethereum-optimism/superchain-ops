@@ -134,6 +134,8 @@ library AccountAccessParser {
     bytes32 internal constant GNOSIS_SAFE_APPROVE_HASHES_SLOT = bytes32(uint256(8));
 
     bytes32 internal constant LIVENESS_GUARD_LAST_LIVE_SLOT = bytes32(uint256(0));
+
+    bytes32 internal constant OPTIMISM_PORTAL_RESOURCE_PARAMS_SLOT = bytes32(uint256(1));
     // forgefmt: disable-end
 
     modifier noGasMetering() {
@@ -334,8 +336,24 @@ library AccountAccessParser {
         } else if (isLivenessGuardTimestamp(account, diff, _parentMultisig)) {
             // 4. If the slot is on the LivenessGuard, don't include it.
             return false;
+        } else if (isOptimismPortalResourceMetering(diff)) {
+            // 5. If the slot is on the OptimismPortalResourceParams, don't include it.
+            return false;
         }
         return true;
+    }
+
+    /// @notice Any function in the OptimismPortal that has the 'metered' modifier will have a non-deterministic state change.
+    function isOptimismPortalResourceMetering(StateDiff memory _diff) internal view returns (bool) {
+        if (_diff.slot == OPTIMISM_PORTAL_RESOURCE_PARAMS_SLOT) {
+            // Extract prevBlockNum from the packed value. It's located in the most significant 64 bits.
+            // ResourceParams is packed as follows: prevBlockNum (64 bits) | prevBoughtGas (64 bits) | prevBaseFee (128 bits)
+            uint256 prevBlockNum = uint64(uint256(_diff.newValue) >> (128 + 64));
+            // If the current block number is equal to the new values prevBlockNum, then we should remove this
+            // state change because it means we have a nondeterministic change based on block number at simulation time
+            return block.number == prevBlockNum;
+        }
+        return false;
     }
 
     /// @notice Checks if the state diff represents an EOA nonce increment
