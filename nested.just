@@ -4,6 +4,8 @@ export rpcUrl := env_var_or_default('ETH_RPC_URL', 'https://ethereum.publicnode.
 export signatures := env_var_or_default('SIGNATURES', '')
 export bundleName := env_var_or_default('BUNDLE_NAME', 'input')
 export taskPath := invocation_directory()
+
+# Keystore variables
 export keystorePathBase := "~/.foundry/keystores/"
 
 # Accounts
