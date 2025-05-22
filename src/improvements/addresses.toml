@@ -9,12 +9,12 @@ FoundationOperationsSafe = "0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A"
 BaseOperationsSafe = "0x9855054731540A48b28990B63DcF4f33d8AE46A1" # base mainnet 2-of-2
 GuardianSafe = "0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2"
 
-[sep]
-SuperchainConfig = "0xC2Be75506d5724086DEB7245bd260Cc9753911Be"
-ProtocolVersions = "0x79ADD5713B383DAa0a138d3C4780C7A1804a8090" # Cannot be found by chain discovery in SuperchainAddressRegistry.sol
-DeputyGuardianModule = "0xfd7E6Ef1f6c9e4cC34F54065Bf8496cE41A4e2e8"
-DeputyPauseModule = "0xc6f7C07047ba37116A3FdC444Afb5018f6Df5758"
-FoundationUpgradeSafe = "0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B"
-SecurityCouncil = "0xf64bc17485f0B4Ea5F06A96514182FC4cB561977"
-FoundationOperationsSafe = "0x837DE453AD5F21E89771e3c06239d8236c0EFd5E"
-GuardianSafe = "0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E"
+[sep] # these are addresse for the Eris betanet, not to be merged to main
+SuperchainConfig = "0x5a39b33b354e7e9a8d4d212cbdeb7b9b645d8e6e"
+ProtocolVersions = "0x16870d66b90942864e5d65b00534429f12c6cf5e" # Cannot be found by chain discovery in SuperchainAddressRegistry.sol
+DeputyGuardianModule = "0xbD068C35c78872DeD790d5E7D78851BD85A4C645"
+DeputyPauseModule = "0xB4cF8346d890441d70764225E0D9922F53Ad75CC"
+FoundationUpgradeSafe = "0xC736bBAe6be1a949a4A8509D191Ff0EE1383f1e2"
+SecurityCouncil = "0xf7256865A7C27da427056A8e8F3df248deFCd128"
+FoundationOperationsSafe = "0x14E91CCEb5abEA4AAc40f3bf6590BbAFA8Bd4613"
+GuardianSafe = "0xFbBE1d8bd1Efc1Aa2895ae60581019a92b2Df1F2"
