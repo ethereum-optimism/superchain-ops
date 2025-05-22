@@ -1502,7 +1502,7 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
         assertEq(diffs.length, sa.length, "The number of diffs should be equal to the number of storage writes");
     }
 
-    function test_normalizedStateDiffHash_OptimismPortalResourceMetering() public {
+    function test_normalizedStateDiffHash_OptimismPortalResourceMetering_succeeds() public {
         setupTests();
         vm.createSelectFork("mainnet", 22319975); // Use a realistic block number
         VmSafe.AccountAccess[] memory allAccesses = new VmSafe.AccountAccess[](1);
