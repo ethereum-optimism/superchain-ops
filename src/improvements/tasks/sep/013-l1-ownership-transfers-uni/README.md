@@ -1,6 +1,6 @@
 # 013-l1-ownership-transfers-uni: Transfer L1 owners for Unichain Sepolia (DGF, PermissionlessWETH, PermissionedWETH and L1PAO)
 
-Status: [DRAFT]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
