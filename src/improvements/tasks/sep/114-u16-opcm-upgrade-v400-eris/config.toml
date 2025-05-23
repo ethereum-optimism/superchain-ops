@@ -11,19 +11,17 @@ chainId = 420110011
 # Eris prestate:
 # https://oplabs-pbc.slack.com/archives/C0885T0HRCG/p1747868937467689
 absolutePrestate = "0x039fb00f964358d326de5804afb4e70a1ca34f9e56c60350b6c8a41fff302490"
-#L721B-20: L1ERC721Bridge implementation address mismatch
 #PDDG-130: The challenger is not the standard one
 #PLDG-10: Permissionless dispute game implementation not found
-expectedValidationErrors = "L721B-20,PDDG-130,PLDG-10"
+expectedValidationErrors = "PDDG-130,PLDG-10"
 
 [[opcmUpgrades]]
 chainId = 420110012
 # Eris prestate:
 # https://oplabs-pbc.slack.com/archives/C0885T0HRCG/p1747868937467689
 absolutePrestate = "0x039fb00f964358d326de5804afb4e70a1ca34f9e56c60350b6c8a41fff302490"
-#L721B-20: L1ERC721Bridge implementation address mismatch
-expectedValidationErrors = "L721B-20"
+expectedValidationErrors = ""
 
 [addresses]
 OPCM = "0x8bcd3e8b9caf150b7de9242ef12b863a362430f4" # Freshly deployed on Sepolia
-StandardValidatorV400 = "0x664f2FbB0259b208Ccff79b388c11AF771e0010F" # Freshly deployed on Sepolia
+StandardValidatorV400 = "0x5342bf0bc5f5ba0a83727137584e4825bf82d5d6" # Freshly deployed on Sepolia
