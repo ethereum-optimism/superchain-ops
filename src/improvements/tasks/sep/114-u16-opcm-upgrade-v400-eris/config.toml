@@ -1,7 +1,7 @@
 # Using OP Sepolia Testnet as the reference chain even though it's the eris betanet with overriden addresses on the scr
 l2chains = [
     {name = "eris-0", chainId = 420110011},
-    {name = "eris-1", chainId = 420110012},
+    {name = "eris-1", chainId = 420110012}
 ]
 
 templateName = "OPCMUpgradeV400"
@@ -11,14 +11,18 @@ chainId = 420110011
 # Eris prestate:
 # https://oplabs-pbc.slack.com/archives/C0885T0HRCG/p1747868937467689
 absolutePrestate = "0x039fb00f964358d326de5804afb4e70a1ca34f9e56c60350b6c8a41fff302490"
-expectedValidationErrors = ""
+#L721B-20: L1ERC721Bridge implementation address mismatch
+#PDDG-130: The challenger is not the standard one
+#PLDG-10: Permissionless dispute game implementation not found
+expectedValidationErrors = "L721B-20,PDDG-130,PLDG-10"
 
 [[opcmUpgrades]]
 chainId = 420110012
 # Eris prestate:
 # https://oplabs-pbc.slack.com/archives/C0885T0HRCG/p1747868937467689
 absolutePrestate = "0x039fb00f964358d326de5804afb4e70a1ca34f9e56c60350b6c8a41fff302490"
-expectedValidationErrors = ""
+#L721B-20: L1ERC721Bridge implementation address mismatch
+expectedValidationErrors = "L721B-20"
 
 [addresses]
 OPCM = "0x8bcd3e8b9caf150b7de9242ef12b863a362430f4" # Freshly deployed on Sepolia
