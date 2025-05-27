@@ -27,4 +27,8 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 
 ## Simulation
 
+Navigate to the correct task directory then run the simulate command.
+```
+cd src/improvements/tasks/sep/014-U16-enable-dpm
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate foundation
+```

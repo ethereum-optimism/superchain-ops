@@ -27,4 +27,8 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 
 ## Simulation
 
+Navigate to the correct task directory then run the simulate command.
+```
+cd src/improvements/tasks/sep/018-U16-remove-dpm
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
+```
