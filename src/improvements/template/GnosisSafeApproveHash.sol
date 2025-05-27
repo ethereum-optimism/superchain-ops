@@ -34,7 +34,7 @@ import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 ///   2. The Base facilitator calls `approveHash` on the Base Nested contract. The transaction being
 ///      approved is an `approveHash` call from the BaseNested contract to the L1PAO.
 ///   3. The SC facilitator calls `approveHash` on the Base Nested contract. This is approving the
-///      the same transactions as step 2.
+///      same transactions as step 2.
 ///   4. A facilitator can now execute this task. This will result in BaseNested calling `approveHash`
 ///      on the L1PAO. This enables the L1PAO to execute the transaction once it receives the
 ///      Optimism Foundation's approval, which happens outside of this task.
@@ -72,8 +72,8 @@ contract GnosisSafeApproveHash is L2TaskBase {
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
     /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
-    function _templateSetup(string memory taskConfigFilePath) internal override {
-        super._templateSetup(taskConfigFilePath);
+    function _templateSetup(string memory _taskConfigFilePath) internal override {
+        super._templateSetup(_taskConfigFilePath);
 
         // Only allow one chain to be modified at a time with this template.
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
@@ -84,7 +84,7 @@ contract GnosisSafeApproveHash is L2TaskBase {
         baseNested = superchainAddrRegistry.get("BaseNested");
 
         // Read the safeTxHash from the TOML file and validate it.
-        string memory toml = vm.readFile(taskConfigFilePath);
+        string memory toml = vm.readFile(_taskConfigFilePath);
         safeTxHash = toml.readBytes32(".safeTxHash");
         require(safeTxHash != bytes32(0), "safeTxHash is required");
         require(!isHashApprovedOnL1PAO(safeTxHash), "safeTxHash is already approved");
