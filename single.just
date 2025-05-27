@@ -153,26 +153,21 @@ sign hdPath='0' ledger='true':
   echo "getting signer address..."
   if {{ledger}}; then
     signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-    echo "Signing with: ${signer}"
-    echo ""
-
-    forge build
-    # Using the eip712sign within the repo folder since eip712sign was installed there in ./justfile.
-    $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
-    forge script ${script} \
-      --rpc-url ${rpcUrl} \
-      --sig "signJson(string)" \
-      ${bundlePath}
+    signer_args="--ledger --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
   else
     signer_private_key=$(just --justfile={{justfile()}} get-keystore-private-key)
-    forge build
-    # Using the eip712sign within the repo folder since eip712sign was installed there in ./justfile. #0x prefix is removed from the private key
-    $(git rev-parse --show-toplevel)/bin/eip712sign --private-key ${signer_private_key#0x} -- \
-    forge script ${script} \
-      --rpc-url ${rpcUrl} \
-      --sig "signJson(string)" \
-      ${bundlePath}
+    signer=$(cast wallet address --private-key ${signer_private_key})
+    signer_args="--private-key ${signer_private_key#0x}"
   fi
+  echo "Signing with: ${signer}"
+
+  forge build
+  # Using the eip712sign within the repo folder since eip712sign was installed there in ./justfile.
+  $(git rev-parse --show-toplevel)/bin/eip712sign ${signer_args} -- \
+  forge script ${script} \
+    --rpc-url ${rpcUrl} \
+    --sig "signJson(string)" \
+    ${bundlePath}
 
 execute_in_anvil hdPath='0':
   #!/usr/bin/env bash
@@ -208,18 +203,17 @@ execute hdPath='0' ledger='true':
   echo "Using script ${script}"
   if {{ledger}}; then
     sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-    forge build
-    forge script --fork-url ${ETH_RPC_URL} ${script} \
-      --sig "runJson(string,bytes)" ${bundlePath} ${SIGNATURES} \
-      --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
-      --sender ${sender}
+    signer_args="--ledger --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
   else
     signer_private_key=$(just --justfile={{justfile()}} get-keystore-private-key)
     sender=$(cast wallet address --private-key ${signer_private_key})
-    forge build
-    forge script --fork-url ${ETH_RPC_URL} ${script} \
-      --sig "runJson(string,bytes)" ${bundlePath} ${SIGNATURES} \
-      --broadcast \
-      --sender ${sender} \
-      --private-key ${signer_private_key}
+    signer_args="--private-key ${signer_private_key}"
   fi
+  echo "Executing with sender: ${sender}"
+
+  forge build
+  forge script --fork-url ${ETH_RPC_URL} ${script} \
+    --sig "runJson(string,bytes)" ${bundlePath} ${SIGNATURES} \
+    --broadcast \
+    --sender ${sender} \
+    ${signer_args}

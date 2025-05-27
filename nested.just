@@ -31,8 +31,6 @@ get-keystore-private-key:
   # Expand the home directory in the path
   keystorePath=$(echo ${keystorePath} | sed "s|^~|$HOME|")
   signer_private_key=$(cast wallet pk --keystore ${keystorePath})
-  sender=$(cast wallet address --private-key ${signer_private_key})
-  echo "Signing with the signer: ${sender}" >&2
   if [ -z "${signer_private_key}" ]; then
     echo "Error: Failed to get private key for keystore ${keystorePath}" >&2
     exit 1
@@ -118,31 +116,25 @@ sign whichSafe hdPath='0' ledger='true':
     safe="{{chainGovernorSafe}}"
   fi
   echo "getting signer address..."
+  
   if {{ledger}}; then
     signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-
-    echo "Signing with: ${signer}"
-    echo ""
-
-    forge build
-    # Using the eip712sign within the repo folder since eip712sign was installed there in ./justfile.
-    $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
-    forge script ${script} \
-      --rpc-url ${rpcUrl} \
-      --sig "signJson(string,address)" \
-      ${bundlePath} \
-      "${safe}"
+    signer_args="--ledger --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
   else
     signer_private_key=$(just --justfile={{justfile()}} get-keystore-private-key)
-    forge build
-    # Using the eip712sign within the repo folder since eip712sign was installed there in ./justfile. #0x prefix is removed from the private key
-    $(git rev-parse --show-toplevel)/bin/eip712sign --private-key ${signer_private_key#0x} -- \
-    forge script ${script} \
-      --rpc-url ${rpcUrl} \
-      --sig "signJson(string,address)" \
-      ${bundlePath} \
-      "${safe}"
+    signer=$(cast wallet address --private-key ${signer_private_key})
+    signer_args="--private-key ${signer_private_key#0x}"
   fi
+  echo "Signing with: ${signer}"
+
+  forge build
+  # Using the eip712sign within the repo folder since eip712sign was installed there in ./justfile.
+  $(git rev-parse --show-toplevel)/bin/eip712sign ${signer_args} -- \
+  forge script ${script} \
+    --rpc-url ${rpcUrl} \
+    --sig "signJson(string,address)" \
+    ${bundlePath} \
+    "${safe}"
 
 ## approvehash_in_anvil is a function to generate the nested hash and approve the hash for the given safes (SC, or FND) for later executing during the simulation using the execute_in_anvil function.
 approvehash_in_anvil whichSafe hdPath='0':
@@ -289,29 +281,22 @@ approve whichSafe hdPath='0' ledger='true':
   fi
   if {{ledger}}; then
     sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-    forge build
-    forge script ${script} \
-      --fork-url ${rpcUrl} \
-      --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
-      --broadcast \
-      --sender ${sender} \
-      --sig "approveJson(string,address,bytes)" \
-      ${bundlePath} \
-      ${safe} \
-      ${signatures}
+    signer_args="--ledger --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
   else
     signer_private_key=$(just --justfile={{justfile()}} get-keystore-private-key)
-    forge build
-    forge script ${script} \
-      --fork-url ${rpcUrl} \
-      --broadcast \
-      --sender ${sender} \
-      --sig "approveJson(string,address,bytes)" \
-      --private-key ${signer_private_key} \
-      ${bundlePath} \
-      ${safe} \
-      ${signatures}
+    signer_args="--private-key ${signer_private_key}"
   fi
+
+  forge build
+  forge script ${script} \
+    --fork-url ${rpcUrl} \
+    --broadcast \
+    --sender ${sender} \
+    --sig "approveJson(string,address,bytes)" \
+    ${signer_args} \
+    ${bundlePath} \
+    ${safe} \
+    ${signatures}
 
 execute hdPath='0' ledger='true':
   #!/usr/bin/env bash
@@ -324,24 +309,22 @@ execute hdPath='0' ledger='true':
   echo "Using script ${script}"
   if {{ledger}}; then
     sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-    forge script ${script} \
-      --fork-url ${rpcUrl} \
-      --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
-      --broadcast \
-      --sender ${sender} \
-      --sig "runJson(string)" \
-      ${bundlePath}
+    signer_args="--ledger --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
   else
     signer_private_key=$(just --justfile={{justfile()}} get-keystore-private-key)
-    forge build
-    forge script ${script} \
-      --fork-url ${rpcUrl} \
-      --broadcast \
-      --sender ${sender} \
-      --sig "runJson(string)" \
-      --private-key ${signer_private_key} \
-      ${bundlePath}
+    sender=$(cast wallet address --private-key ${signer_private_key})
+    signer_args="--private-key ${signer_private_key}"
   fi
+  echo "Executed with sender: ${sender}"
+
+  forge build
+  forge script ${script} \
+    --fork-url ${rpcUrl} \
+    --broadcast \
+    --sender ${sender} \
+    --sig "runJson(string)" \
+    ${signer_args} \
+    ${bundlePath}
 
 simulated-run hdPath='0':
   #!/usr/bin/env bash
