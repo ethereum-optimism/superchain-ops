@@ -79,34 +79,25 @@ sign hdPath='0' ledger='true':
   echo "getting signer address..."
   if {{ledger}}; then
     signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-    echo "Signing with: ${signer}"
-    echo ""
-
-    # Reverts if signer is not an owner on the safe which executes this transaction.
-    forge script TaskManager --rpc-url ${rpcUrl} --sig "requireSignerOnSafe(address,string)" $signer $TASK_PATH
-
-    echo "⏳ Task signing in progress. Some tasks take longer than others..."
-    forge build
-    # Using the eip712sign within the repo folder since eip712sign was installed there in ./justfile.
-    $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
-    forge script ${script} \
-      --rpc-url ${rpcUrl} \
-      --sig "simulateRun(string)" ${config}
+    signer_args="--ledger --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
   else
     cd ${TASK_PATH}
     signer_private_key=$(just --justfile={{justfile()}} get-keystore-private-key)
-
-    # Reverts if signer is not an owner on the safe which executes this transaction.
-    forge script TaskManager --rpc-url ${rpcUrl} --sig "requireSignerOnSafe(address,string)" $signer $TASK_PATH
-
-    echo "⏳ Task signing in progress. Some tasks take longer than others..."
-    forge build
-    # Using the eip712sign within the repo folder since eip712sign was installed there in ./justfile.
-    $(git rev-parse --show-toplevel)/bin/eip712sign --private-key ${signer_private_key#0x} -- \
-    forge script ${script} \
-      --rpc-url ${rpcUrl} \
-      --sig "simulateRun(string)" ${config}
+    signer=$(cast wallet address --private-key ${signer_private_key})
+    signer_args="--private-key ${signer_private_key}"
   fi
+  echo "Signing with: ${signer}"
+
+  # Reverts if signer is not an owner on the safe which executes this transaction.
+  # forge script TaskManager --rpc-url ${rpcUrl} --sig "requireSignerOnSafe(address,string)" $signer $TASK_PATH
+
+  echo "⏳ Task signing in progress. Some tasks take longer than others..."
+  forge build
+  # Using the eip712sign within the repo folder since eip712sign was installed there in ./justfile.
+  $(git rev-parse --show-toplevel)/bin/eip712sign ${signer_args} -- \
+  forge script ${script} \
+    --rpc-url ${rpcUrl} \
+    --sig "simulateRun(string)" ${config}
 
 execute hdPath='0' ledger='true':
   #!/usr/bin/env bash
@@ -116,21 +107,21 @@ execute hdPath='0' ledger='true':
   echo "Using script ${script}"
   if {{ledger}}; then
     sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-    echo "Using ledger account: ${sender}"
-    forge build
-    forge script --fork-url ${rpcUrl} ${script} \
-      --sig "executeRun(string,bytes)" ${config} ${signatures} \
-      --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
-      --sender ${sender}
+    signer_args="--ledger --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
   else
     cd ${TASK_PATH}
     signer_private_key=$(just --justfile={{justfile()}} get-keystore-private-key)
-    forge build
-    forge script --fork-url ${rpcUrl} ${script} \
-      --sig "executeRun(string,bytes)" ${config} ${signatures} \
-      --broadcast \
-      --private-key ${signer_private_key}
+    sender=$(cast wallet address --private-key ${signer_private_key})
+    signer_args="--private-key ${signer_private_key}"
   fi
+  echo "Executing with sender: ${sender}"
+
+  forge build
+  forge script --fork-url ${rpcUrl} ${script} \
+    --sig "executeRun(string,bytes)" ${config} ${signatures} \
+    --broadcast \
+    --sender ${sender} \
+    ${signer_args}
 
 sign_and_execute_in_anvil parentSafe:
   #!/usr/bin/env bash
