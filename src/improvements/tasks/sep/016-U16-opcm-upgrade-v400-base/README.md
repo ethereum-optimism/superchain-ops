@@ -63,7 +63,7 @@ The facilitator, or someone acting on behalf of the facilitator, must perform th
 
 1. Simulate this task from the `BaseNested` 2/2 by running `SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate base_nested`
 2. In the terminal logs, directly above the Domain Hash and Message Hash, this will log the Safe Transaction Hash. See the [Simulation](#simulation) section for more details on how to do this step.
-3. Run `just new task ApproveSafeHash` to create a new task, and update the config file so this Safe Transaction Hash is used.
+3. Run `just new task GnosisSafeApproveHash` to create a new task, and update the config file so this Safe Transaction Hash is used.
 4. Edit the numbers in the task directories such that the approve hash is prefixed with `XXX-1-*` and the primary task is `XXX-2-*`, where `XXX` is the task number such as `016`.
 
 Now, wait for the Base and Security Council signers to complete [their steps](#base-and-security-council-signer-instructions).
