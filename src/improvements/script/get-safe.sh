@@ -25,6 +25,15 @@ elif [[ "$SAFE_NAME" == "foundation-operations" ]]; then
     SAFE_NAME="FoundationOperationsSafe"
 elif [[ "$SAFE_NAME" == "base-operations" ]]; then
     SAFE_NAME="BaseOperationsSafe"
+elif [[ "$SAFE_NAME" == "base" ]]; then
+    # This is Base's safe, which is on a 2/2 between Base and the Base Security
+    # Council (SC), which rolls up into a 2/2 between that Safe and the Optimism
+    # Foundation for Base's L1PAO.
+    SAFE_NAME="BaseSafe"
+elif [[ "$SAFE_NAME" == "council-base" ]]; then
+    # This is Base's Security Council (SC) safe, see the prior branch's comments
+    # for more details.
+    SAFE_NAME="BaseNested"
 fi
 
 root_dir=$(git rev-parse --show-toplevel)
