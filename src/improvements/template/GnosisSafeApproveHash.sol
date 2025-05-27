@@ -77,7 +77,7 @@ contract GnosisSafeApproveHash is L2TaskBase {
 
         // Only allow one chain to be modified at a time with this template.
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-        require(chains.length == 1, "Must specify exactly one chain id to transfer ownership for");
+        require(chains.length == 1, "Must specify exactly one chain id to approve a hash for");
 
         // Read safe addresses from the address registry.
         l1PAO = superchainAddrRegistry.getAddress("ProxyAdminOwner", chains[0].chainId);
@@ -106,9 +106,9 @@ contract GnosisSafeApproveHash is L2TaskBase {
     }
 
     /// @notice Helper method to return whether or not a given hash is already approved.
-    function isHashApprovedOnL1PAO(bytes32 hash) internal view returns (bool) {
+    function isHashApprovedOnL1PAO(bytes32 _hash) internal view returns (bool) {
         require(l1PAO != address(0), "l1PAO is not set");
         require(baseNested != address(0), "baseNested is not set");
-        return IGnosisSafe(l1PAO).approvedHashes(baseNested, hash) == 1;
+        return IGnosisSafe(l1PAO).approvedHashes(baseNested, _hash) == 1;
     }
 }
