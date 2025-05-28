@@ -37,7 +37,16 @@ contract SimpleTaskBaseTemplate is SimpleTaskBase {
         return new string[](0);
     }
 
+    /// @notice Returns an array of strings that refer to contract names in the address registry.
+    /// Contracts with these names are expected to have their balance changes during the task.
+    /// By default returns an empty array. Override this function if your task expects balance changes.
+    function _taskBalanceChanges() internal view virtual override returns (string[] memory) {
+        require(false, "TODO: Implement with the correct balance changes.");
+        return new string[](0);
+    }
+
     /// @notice Sets up the template with implementation configurations from a TOML file.
+    /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
     function _templateSetup(string memory taskConfigFilePath) internal override {
         super._templateSetup(taskConfigFilePath);
         simpleAddrRegistry;
@@ -50,12 +59,14 @@ contract SimpleTaskBaseTemplate is SimpleTaskBase {
     /// 3. Ensure that the call to the target uses the appropriate method (`call` or `delegatecall`) accordingly.
     /// Guidelines:
     /// - `Multicall3`:
-    ///  If the template directlyinherits from `L2TaskBase` or `SimpleTaskBase`, it uses the `Multicall3` contract.
+    ///  If the template directly inherits from `L2TaskBase` or `SimpleTaskBase`, it uses the `Multicall3` contract.
     ///  In this case, calls to the target **must** use `call`, e.g.:
     ///  ` dgm.setRespectedGameType(IOptimismPortal2(payable(portalAddress)), cfg[chainId].gameType);`
+    /// WARNING: Any state written to in this function will be reverted after the build function has been run.
+    /// Do not rely on setting global variables in this function.
     function _build() internal override {
         simpleAddrRegistry;
-        exampleVariable = 1;
+        exampleVariable = 1; // Do not set global variables in this function, see natspec above.
         require(false, "TODO: Implement with the correct build logic.");
     }
 

@@ -418,6 +418,22 @@ contract StateOverrideManagerUnitTest is Test {
         som.wrapperAppendUserDefinedOverrides(defaults, userOverride);
     }
 
+    function testDecimalValuesInConfigForStateOverrideFails() public {
+        string memory toml = string.concat(
+            commonToml,
+            "[stateOverrides]\n",
+            "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [\n",
+            "    {key = 5, value = \"101\"}\n",
+            "]"
+        );
+        string memory fileName = helper.createTempTomlFile(toml);
+        MultisigTask task = new MockMultisigTask();
+        vm.expectRevert(
+            "StateOverrideManager: Failed to reencode overrides, ensure any decimal numbers are not in quotes"
+        );
+        task.signFromChildMultisig(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
+    }
+
     /// @notice Helper function to convert strings to bytes32
     function _toBytes32(string memory s) private pure returns (bytes32) {
         return bytes32(bytes(s));
