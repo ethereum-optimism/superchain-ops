@@ -1,4 +1,4 @@
-# 018-U16-remove-dpm: Remove Old Deputy Pause Module on Sepolia
+# 020-U16-remove-dpm: Remove Old Deputy Pause Module on Sepolia
 
 Status: [DRAFT]()
 
@@ -29,6 +29,6 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 
 Navigate to the correct task directory then run the simulate command.
 ```
-cd src/improvements/tasks/sep/018-U16-remove-dpm
+cd src/improvements/tasks/sep/020-U16-remove-dpm
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
 ```

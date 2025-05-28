@@ -1,4 +1,4 @@
-# 017-U16-opcm-upgrade-v400-base: Upgrade 16: Base Sepolia
+# 018-U16-opcm-upgrade-v400-base: Upgrade 16: Base Sepolia
 
 Status: [DRAFT]()
 
@@ -103,9 +103,9 @@ Simulate the stack of queued tasks for this network by running:
 
 ```sh
 cd src/improvements
-just simulate-stack sep 017-U16-opcm-upgrade-v400-base
+just simulate-stack sep 018-U16-opcm-upgrade-v400-base
 ```
 
-In the simulation logs, search for the string `017-U16-opcm-upgrade-v400-base` to find the logs
+In the simulation logs, search for the string `018-U16-opcm-upgrade-v400-base` to find the logs
 for this task's output. You will see the Safe Transaction Hash logged to a line beginning with
 `Safe Transaction Hash:`. That is the hash signers on the Base or Security Council safes will approve.
