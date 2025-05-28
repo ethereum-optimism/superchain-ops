@@ -21,11 +21,11 @@ which reads the inputs from the [`config.toml`](./config.toml) file.
 
 ## Signing and execution
 
-Follow the instructions in the [Nested Execution](../../../NESTED.md) guide for the following steps:
+Follow the instructions in the [Single Execution](../../../SINGLE.md) guide for the following steps:
 
-- [1. Update repo](../../../NESTED.md#1-update-repo)
-- [2. Setup Ledger](../../../NESTED.md#2-setup-ledger)
-- [3. Simulate and validate the transaction](../../../NESTED.md#3-simulate-and-validate-the-transaction)
+- [1. Update repo](../../../SINGLE.md#1-update-repo)
+- [2. Setup Ledger](../../../SINGLE.md#2-setup-ledger)
+- [3. Simulate and validate the transaction](../../../SINGLE.md#3-simulate-and-validate-the-transaction)
 
 Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 
@@ -35,7 +35,7 @@ When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>
 Navigate to the correct task directory then run the simulate command.
 ```
 cd src/improvements/tasks/sep/017-U16-opcm-upgrade-v400-uni
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate foundation
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate foundation
 ```
 
 Keep in mind that to simulate this task correctly using the previous command, the op and ink task in this same upgrade must have been executed successfully. To test this if the previous task has not been executed yet, you can run the following command:
