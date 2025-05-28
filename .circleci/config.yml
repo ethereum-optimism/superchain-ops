@@ -253,6 +253,7 @@ jobs:
           name: "Run stacked simulation for network: <<parameters.network>>"
           command: |
             just install
+            export SIGNING_MODE_IN_PROGRESS=true
             (cd src/improvements && just simulate-stack <<parameters.network>>)
       - notify-failures-on-main:
           mentions: "@security-team"
