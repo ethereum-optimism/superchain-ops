@@ -38,7 +38,8 @@ contract TaskManager is Script {
         bool isNested;
     }
 
-    mapping(address => bool) public processedStateOverride;
+    /// @notice Cache of MultisigTask instances for each task indexed by the tasks config path.
+    mapping(string => MultisigTask) public taskCache;
 
     function parseConfig(string memory basePath) public returns (TaskConfig memory) {
         string memory configPath = string.concat(basePath, "/", "config.toml");
@@ -120,7 +121,7 @@ contract TaskManager is Script {
     {
         // Deploy and run the template
         string memory templatePath = string.concat("out/", config.templateName, ".sol/", config.templateName, ".json");
-        MultisigTask task = MultisigTask(deployCode(templatePath));
+        MultisigTask task = getCachedTask(config.configPath, templatePath);
         string memory formattedParentMultisig = vm.toString(config.parentMultisig).green().bold();
 
         setTenderlyGasEnv(config.basePath);
@@ -209,7 +210,7 @@ contract TaskManager is Script {
         string memory templateName = configContent.readString(".templateName");
 
         string memory templatePath = string.concat("out/", templateName, ".sol/", templateName, ".json");
-        MultisigTask task = MultisigTask(deployCode(templatePath));
+        MultisigTask task = getCachedTask(taskConfigFilePath, templatePath);
         string memory safeAddressString = task.loadSafeAddressString(taskConfigFilePath);
         MultisigTask.TaskType taskType = task.taskType();
 
@@ -230,6 +231,16 @@ contract TaskManager is Script {
         return (task.isNestedSafe(parentMultisig), parentMultisig);
     }
 
+    /// @notice Returns a cached MultisigTask instance for a given template path or deploys a new one.
+    function getCachedTask(string memory taskPath, string memory templatePath) internal returns (MultisigTask task) {
+        task = taskCache[taskPath];
+        if (address(task) == address(0)) {
+            task = MultisigTask(deployCode(templatePath));
+            taskCache[taskPath] = task;
+        }
+    }
+
+    /// @notice Returns true if a list contains an address.
     function contains(address[] memory list, address addr) public pure returns (bool) {
         for (uint256 i = 0; i < list.length; i++) {
             if (list[i] == addr) return true;

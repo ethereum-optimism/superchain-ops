@@ -2,16 +2,19 @@
 pragma solidity 0.8.15;
 
 import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
+import {MultisigTaskPrinter} from "src/libraries/MultisigTaskPrinter.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {console} from "forge-std/console.sol";
 import {StdStyle} from "forge-std/StdStyle.sol";
 
+/// @notice This contract is used for all L2 task types. It overrides various functions in the MultisigTask contract.
 abstract contract L2TaskBase is MultisigTask {
     using EnumerableSet for EnumerableSet.AddressSet;
     using StdStyle for string;
 
+    /// @notice The superchain address registry.
     SuperchainAddressRegistry public superchainAddrRegistry;
 
     /// @notice Returns the type of task. L2TaskBase.
@@ -51,9 +54,11 @@ abstract contract L2TaskBase is MultisigTask {
                         == superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId),
                     string.concat(
                         "MultisigTask: safe address mismatch. Caller: ",
-                        getAddressLabel(address(parentMultisig_)),
+                        MultisigTaskPrinter.getAddressLabel(address(parentMultisig_)),
                         ". Actual address: ",
-                        getAddressLabel(superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId))
+                        MultisigTaskPrinter.getAddressLabel(
+                            superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId)
+                        )
                     )
                 );
             }
@@ -84,7 +89,11 @@ abstract contract L2TaskBase is MultisigTask {
         }
     }
 
-    /// @notice Helper to try adding an address to the target set for a given key and chain
+    /// @notice Attempts to add an address to the target set for a given key and chain.
+    /// The order of resolution is important: we first call `superchainAddrRegistry.get()`,
+    /// which checks config-defined addresses (e.g. `[addresses]` in `config.toml` or `addresses.toml`).
+    /// If that fails, we fall back to `superchainAddrRegistry.getAddress()`, which discovers addresses onchain.
+    /// This ensures config-defined addresses take precedence over onchain discovery.
     function _tryAddAddress(
         string memory key,
         SuperchainAddressRegistry.ChainInfo memory chain,
@@ -92,11 +101,12 @@ abstract contract L2TaskBase is MultisigTask {
         string memory context
     ) private {
         require(gasleft() > 500_000, "MultisigTask: Insufficient gas for initial getAddress() call"); // Ensure try/catch is EIP-150 safe.
-        try superchainAddrRegistry.getAddress(key, chain.chainId) returns (address addr) {
+        // Addresses that are not discovered automatically (e.g. OPCM, StandardValidator, or safes missing from addresses.toml).
+        try superchainAddrRegistry.get(key) returns (address addr) {
             targetSet.add(addr);
         } catch {
             require(gasleft() > 500_000, "MultisigTask: Insufficient gas for fallback get() call"); // Ensure try/catch is EIP-150 safe.
-            try superchainAddrRegistry.get(key) returns (address addr) {
+            try superchainAddrRegistry.getAddress(key, chain.chainId) returns (address addr) {
                 targetSet.add(addr);
             } catch {
                 string memory warn = string("[WARN]").yellow().bold();

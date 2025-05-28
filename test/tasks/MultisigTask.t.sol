@@ -26,20 +26,8 @@ contract MultisigTaskUnitTest is Test {
 
     /// @notice variables that store the storage offset of different variables in the MultisigTask contract
 
-    /// @notice storage slot for the address registry contract
-    bytes32 public constant ADDRESS_REGISTRY_SLOT = bytes32(uint256(35));
-
-    /// @notice storage slot for the parent multisig address
-    bytes32 public constant MULTISIG_SLOT = bytes32(uint256(36));
-
-    /// @notice storage slot for the mock target contract
-    bytes32 public constant MOCK_TARGET_SLOT = bytes32(uint256(54));
-
-    /// @notice storage slot for the build started flag
-    bytes32 public constant BUILD_STARTED_SLOT = bytes32(uint256(52));
-
-    /// @notice storage slot for the target multicall address
-    bytes32 public constant TARGET_MULTICALL_SLOT = bytes32(uint256(53));
+    /// @notice storage slot for the build started flag. Used because _buildStarted is private.
+    bytes32 public constant BUILD_STARTED_SLOT = bytes32(uint256(48));
 
     /// Test Philosophy:
     /// We want these tests to function as much as possible as unit tests.
@@ -98,15 +86,17 @@ contract MultisigTaskUnitTest is Test {
         // we have to do this because we do not call the run function, which
         // sets the address registry contract variable to a new instance of the
         // address registry object.
-        vm.store(
-            address(task),
-            MULTISIG_SLOT,
-            bytes32(uint256(uint160(addrRegistry.getAddress("SystemConfigOwner", getChain("optimism").chainId))))
+        stdstore.target(address(task)).sig("parentMultisig()").checked_write(
+            addrRegistry.getAddress("SystemConfigOwner", getChain("optimism").chainId)
         );
 
         // set _buildStarted flag in MultisigTask contract to true, this
         // allows us to hit the revert in the build function of:
         //     "Build already started"
+        // TODO: Replace with stdStorage if possible, or find slot and use vm.store if necessary.
+        // We may also be able to simply read the storage layout JSON like we do in the monorepo.
+        // For now, keeping vm.store for _buildStarted as it's a private variable without a getter.
+        // stdStorage relies on getters to find slots typically.
         vm.store(address(task), BUILD_STARTED_SLOT, bytes32(uint256(1)));
 
         task.addrRegistry();
@@ -122,15 +112,15 @@ contract MultisigTaskUnitTest is Test {
         // set multisig variable in MultisigTask to the actual multisig address
         // so that the simulate function does not revert and can run and create
         // calldata by calling the multisig functions
-        vm.store(address(task), MULTISIG_SLOT, bytes32(uint256(uint160(multisig))));
+        stdstore.target(address(task)).sig("parentMultisig()").checked_write(multisig);
 
         // set AddressRegistry in MultisigTask contract to a deployed address registry
         // contract so that these calls work
-        vm.store(address(task), ADDRESS_REGISTRY_SLOT, bytes32(uint256(uint160(address(addrRegistry)))));
+        stdstore.target(address(task)).sig("addrRegistry()").checked_write(address(addrRegistry));
 
         // set the target multicall address in MultisigTask contract to the
         // multicall address
-        vm.store(address(task), TARGET_MULTICALL_SLOT, bytes32(uint256(uint160(MULTICALL3_ADDRESS))));
+        stdstore.target(address(task)).sig("multicallTarget()").checked_write(MULTICALL3_ADDRESS);
 
         MockTarget mock = new MockTarget();
         bytes memory callData = abi.encodeWithSelector(MockTarget.foobar.selector);
