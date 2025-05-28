@@ -65,7 +65,8 @@ templateName = "<TEMPLATE_NAME>" # e.g. OPCMUpgradeV200
 # Add template-specific config here.
 
 [addresses]
-# Addresses that are not automatically discovered (e.g. OPCM, StandardValidator or safes that are not found in addresses.toml).
+# Addresses that are not discovered automatically (e.g. OPCM, StandardValidator, or safes missing from addresses.toml).
+# IMPORTANT: If an address is defined here and also discovered onchain, this value takes precedence (e.g. ProxyAdminOwner).
 
 [stateOverrides]
 # State overrides (e.g. specify a Safe nonce).
@@ -73,7 +74,33 @@ templateName = "<TEMPLATE_NAME>" # e.g. OPCMUpgradeV200
 
 The `[addresses]` TOML [table](https://toml.io/en/v1.0.0#table) is optional. It can be used to specify the addresses of the contracts involved in an upgrade. You can see an example of its use in this [task](./tasks/eth/009-opcm-update-prestate-v300-op+ink/config.toml).
 
-The `[stateOverrides]` TOML table is optional, but in most cases we use it to specify the nonces of the multisig safes involved in an upgrade. Selecting the correct nonce is important and requires careful consideration. You can see an example of its use in this [task](./tasks/eth/009-opcm-update-prestate-v300-op+ink/config.toml).
+The `[stateOverrides]` TOML table is optional, but in most cases we use it to specify the nonces of the multisig safes involved in an upgrade. Selecting the correct nonce is important and requires careful consideration. You can see an example of its use in this [task](./tasks/eth/009-opcm-update-prestate-v300-op+ink/config.toml). If you're unsure about the format of the `key` and `value` fields, you must default to using 66-character hex strings (i.e. `0x` followed by 64 hex characters). For example, setting the nonce for a Safe to `23` would look like:
+
+```toml
+# USE HEX ENCODED STRINGS WHEN POSSIBLE.
+[stateOverrides]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ 
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = "0x0000000000000000000000000000000000000000000000000000000000000017" }
+]
+```
+
+However, in some cases it's possible to use the decimal value directly:
+```toml
+# IN SOME CASES, YOU CAN USE THE DECIMAL VALUE DIRECTLY.
+[stateOverrides]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ 
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 23 }
+]
+```
+
+But **do not** pass the decimal value as a string—this will cause undefined behavior:
+```toml
+# ❌ INCORRECT: DO NOT USE STRINGIFIED DECIMALS.
+[stateOverrides]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ 
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = "23" }
+]
+```
 
 5. Simulate the task:
 ```bash

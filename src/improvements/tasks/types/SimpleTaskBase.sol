@@ -6,6 +6,7 @@ import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet
 import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
+/// @notice This contract is used for all simple task types. It overrides various functions in the MultisigTask contract.
 abstract contract SimpleTaskBase is MultisigTask {
     using EnumerableSet for EnumerableSet.AddressSet;
 
@@ -35,9 +36,14 @@ abstract contract SimpleTaskBase is MultisigTask {
     }
 
     /// @notice We use this function to add allowed storage accesses.
+    /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
     function _templateSetup(string memory) internal virtual override {
         for (uint256 i = 0; i < config.allowedStorageKeys.length; i++) {
             _allowedStorageAccesses.add(simpleAddrRegistry.get(config.allowedStorageKeys[i]));
+        }
+
+        for (uint256 i = 0; i < config.allowedBalanceChanges.length; i++) {
+            _allowedBalanceChanges.add(simpleAddrRegistry.get(config.allowedBalanceChanges[i]));
         }
     }
 }
