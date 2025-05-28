@@ -83,7 +83,7 @@ sign whichSafe hdPath='0' ledger='true':
     cd ${TASK_PATH}
     signer_private_key=$(just --justfile=${JUSTFILE_PATH} get-keystore-private-key)
     signer=$(cast wallet address --private-key ${signer_private_key})
-    signer_args="--private-key ${signer_private_key}"
+    signer_args="--private-key ${signer_private_key#0x}"
   fi
   echo "Signing with: ${signer}"
 
