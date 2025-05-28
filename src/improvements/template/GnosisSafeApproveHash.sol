@@ -81,7 +81,7 @@ contract GnosisSafeApproveHash is L2TaskBase {
 
         // Read safe addresses from the address registry.
         l1PAO = superchainAddrRegistry.getAddress("ProxyAdminOwner", chains[0].chainId);
-        baseNested = superchainAddrRegistry.get("BaseNested");
+        baseNested = superchainAddrRegistry.get("BaseNestedSafe");
 
         // Read the safeTxHash from the TOML file and validate it.
         string memory toml = vm.readFile(_taskConfigFilePath);
