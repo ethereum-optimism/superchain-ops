@@ -7,6 +7,7 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
 import {Proxy} from "@eth-optimism-bedrock/src/universal/Proxy.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {IResourceMetering} from "@eth-optimism-bedrock/interfaces/L1/IResourceMetering.sol";
 
 // Solady
 import {LibString} from "solady/utils/LibString.sol";
@@ -14,8 +15,8 @@ import {LibString} from "solady/utils/LibString.sol";
 // Libraries
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
-// This is a simple implementation of a contract used in the "test_commonProxyArchitecture_succeeds" test.
-// DO NOT use in production.
+/// This is a simple implementation of a contract used in the "test_commonProxyArchitecture_succeeds" test.
+/// DO NOT use in production.
 contract Impl {
     uint256 public num;
     address public proxyA;
@@ -39,8 +40,19 @@ contract Impl {
     }
 }
 
+/// @notice A simple implementation that can send ETH to another address.
+contract Impl2 {
+    function sendEther(address to) public payable {
+        (bool success,) = payable(to).call{value: msg.value}("");
+        require(success, "Transfer failed");
+    }
+
+    receive() external payable {}
+}
+
 contract AccountAccessParser_decodeAndPrint_Test is Test {
     using AccountAccessParser for VmSafe.AccountAccess[];
+    using AccountAccessParser for VmSafe.AccountAccess;
 
     bool constant isWrite = true;
     bool constant reverted = true;
@@ -122,6 +134,32 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         assertEq(uniqueAccounts[0], address(proxyA), "140");
         assertEq(uniqueAccounts[1], address(proxy1), "150");
         assertEq(uniqueAccounts[2], address(proxyB), "160");
+    }
+
+    /// @notice Test that a single ETH transfer is recorded correctly. The Foundry account access that
+    /// has an access kind of DelegateCall is not a valid ETH transfer and should be ignored.
+    function testSingleEtherTransfer() external {
+        Proxy sourceProxy = new Proxy(msg.sender);
+        Impl2 sourceImpl = new Impl2();
+        vm.prank(msg.sender);
+        sourceProxy.upgradeTo(address(sourceImpl));
+
+        Proxy destinationProxy = new Proxy(msg.sender);
+        Impl2 destinationImpl = new Impl2();
+        vm.prank(msg.sender);
+        destinationProxy.upgradeTo(address(destinationImpl));
+
+        vm.startStateDiffRecording();
+        Impl2(payable(address(sourceProxy))).sendEther{value: 1 ether}(address(destinationProxy));
+        VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
+
+        uint256 balanceChanges = 0;
+        for (uint256 i = 0; i < accountAccesses.length; i++) {
+            if (accountAccesses[i].containsValueTransfer()) {
+                balanceChanges++;
+            }
+        }
+        assertEq(balanceChanges, 1);
     }
 
     function test_getUniqueWrites_succeeds() public pure {
@@ -345,6 +383,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess memory access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
             access.value = 100;
             access.accessor = addr2;
+            access.oldBalance = 0;
+            access.newBalance = 100;
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getETHTransfer(access);
             assertEq(transfer.from, addr2, "10");
@@ -385,6 +425,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess memory access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
             access.value = type(uint256).max;
             access.accessor = addr2;
+            access.oldBalance = 0;
+            access.newBalance = type(uint256).max;
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getETHTransfer(access);
             assertEq(transfer.from, addr2, "130");
@@ -398,6 +440,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess memory access = accountAccess(addr0, new VmSafe.StorageAccess[](0));
             access.value = 100;
             access.accessor = addr0;
+            access.oldBalance = 0;
+            access.newBalance = 100;
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getETHTransfer(access);
             assertEq(transfer.from, addr0, "170");
@@ -534,6 +578,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             accesses[0] = accountAccess(addr1, new VmSafe.StorageAccess[](0));
             accesses[0].accessor = addr2;
             accesses[0].value = 100;
+            accesses[0].oldBalance = 0;
+            accesses[0].newBalance = 100;
 
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
@@ -649,6 +695,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](2);
             accesses[0] = accountAccess(addr1, storageAccesses);
             accesses[0].value = 100; // ETH transfer
+            accesses[0].oldBalance = 0;
+            accesses[0].newBalance = 100;
             accesses[1] = accountAccess(addr2, new VmSafe.StorageAccess[](0));
             accesses[1].data = abi.encodeWithSelector(IERC20.transfer.selector, addr3, 200); // ERC20 transfer
 
@@ -688,6 +736,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](2);
             accesses[0] = accountAccess(addr1, storageAccesses);
             accesses[0].value = 100; // ETH transfer
+            accesses[0].oldBalance = 0;
+            accesses[0].newBalance = 100;
             accesses[1] = accountAccess(addr2, new VmSafe.StorageAccess[](0));
             accesses[1].data = abi.encodeWithSelector(IERC20.transfer.selector, addr3, 200); // ERC20 transfer
             accesses[1].reverted = reverted;
@@ -902,6 +952,134 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         assertEq(sortedDiffs.length, 2, "Invalid number of state diffs");
         assertEq(sortedDiffs[0].who, sortedDiffs[1].who, "State diffs should have same account");
         assertTrue(sortedDiffs[0].raw.slot < sortedDiffs[1].raw.slot, "Slots should be sorted");
+    }
+
+    /// forge-config: default.allow_internal_expect_revert = true
+    function test_containsValueTransfer_revertsWithCreateAccessKind() public {
+        VmSafe.AccountAccess memory access;
+        // Case 13: ETH transfer with Create access kind
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.value = 100;
+        access.oldBalance = 0;
+        access.newBalance = 100;
+        access.kind = VmSafe.AccountAccessKind.Create;
+        vm.expectRevert("ETH transfer with Create is not yet supported");
+        access.containsValueTransfer();
+    }
+
+    /// forge-config: default.allow_internal_expect_revert = true
+    function test_containsValueTransfer_revertsWithSelfDestructAccessKind() public {
+        // Case 14: ETH transfer with SelfDestruct access kind
+        VmSafe.AccountAccess memory access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.value = 100;
+        access.oldBalance = 0;
+        access.newBalance = 100;
+        access.kind = VmSafe.AccountAccessKind.SelfDestruct;
+        vm.expectRevert("ETH transfer with SelfDestruct is not yet supported");
+        access.containsValueTransfer();
+    }
+
+    /// forge-config: default.allow_internal_expect_revert = true
+    function test_containsValueTransfer_revertsWithUnexpectedAccessKind() public {
+        // Case 15: ETH transfer with Unexpected access kind
+        VmSafe.AccountAccess memory access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.value = 100;
+        access.oldBalance = 0;
+        access.newBalance = 100;
+        access.kind = VmSafe.AccountAccessKind.Resume;
+        vm.expectRevert("Expected kind to be DelegateCall.");
+        access.containsValueTransfer();
+    }
+
+    function test_containsValueTransfer_succeeds() public pure {
+        VmSafe.AccountAccess memory access;
+
+        // Case 1: ETH Transfer
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.value = 100;
+        access.oldBalance = 0;
+        access.newBalance = 100;
+        assertTrue(access.containsValueTransfer(), "10");
+
+        // Case 2: Reverted ETH Transfer
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.value = 100;
+        access.oldBalance = 0;
+        access.newBalance = 0; // Balance doesn't change due to revert
+        access.reverted = true;
+        assertFalse(access.containsValueTransfer(), "20");
+
+        // Case 3: ERC20 transfer
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0)); // addr1 is token address
+        access.accessor = addr2; // from
+        access.data = abi.encodeWithSelector(IERC20.transfer.selector, addr3, 100); // to, value
+        assertTrue(access.containsValueTransfer(), "30");
+
+        // Case 4: Reverted ERC20 transfer
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.accessor = addr2;
+        access.data = abi.encodeWithSelector(IERC20.transfer.selector, addr3, 100);
+        access.reverted = true;
+        assertFalse(access.containsValueTransfer(), "40");
+
+        // Case 5: ERC20 transferFrom
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0)); // addr1 is token address
+        access.accessor = addr2; // spender
+        access.data = abi.encodeWithSelector(IERC20.transferFrom.selector, addr3, addr4, 100); // from, to, value
+        assertTrue(access.containsValueTransfer(), "50");
+
+        // Case 6: Reverted ERC20 transferFrom
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.accessor = addr2;
+        access.data = abi.encodeWithSelector(IERC20.transferFrom.selector, addr3, addr4, 100);
+        access.reverted = true;
+        assertFalse(access.containsValueTransfer(), "60");
+
+        // Case 7: No transfer (simple call, no value, no relevant data)
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.data = abi.encodeWithSelector(bytes4(keccak256("someOtherFunction()")));
+        assertFalse(access.containsValueTransfer(), "70");
+
+        // Case 8: No transfer (storage write only)
+        VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
+        storageAccesses[0] = storageAccess(addr1, slot0, isWrite, val0, val1);
+        access = accountAccess(addr1, storageAccesses);
+        assertFalse(access.containsValueTransfer(), "80");
+
+        // Case 9: Both ETH and ERC20 transfer (valid)
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0)); // addr1 is token address
+        access.value = 50;
+        access.oldBalance = 0;
+        access.newBalance = 50;
+        access.accessor = addr2; // from for ERC20, accessor for ETH
+        access.data = abi.encodeWithSelector(IERC20.transfer.selector, addr3, 100); // to, value for ERC20
+        assertTrue(access.containsValueTransfer(), "90");
+
+        // Case 10: ETH transfer indicated by value, but oldBalance == newBalance (getETHTransfer should filter out)
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.value = 100;
+        access.oldBalance = 500;
+        access.newBalance = 500;
+        access.accessor = addr2;
+        assertFalse(access.containsValueTransfer(), "100");
+
+        // Case 11: ETH transfer with value, oldBalance != newBalance, but access.reverted is true
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.value = 100;
+        access.oldBalance = 0;
+        access.newBalance = 100;
+        access.reverted = true;
+        // Even though newBalance is set as if the transfer happened, getETHTransfer checks for access.reverted
+        // and also checks oldBalance != newBalance for the *actual* final state if not reverted.
+        assertFalse(access.containsValueTransfer(), "110");
+
+        // Case 12: ETH transfer with delegatecall access kind
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.value = 100;
+        access.oldBalance = 0;
+        access.newBalance = 100;
+        access.kind = VmSafe.AccountAccessKind.DelegateCall;
+        assertFalse(access.containsValueTransfer(), "120");
     }
 
     function test_tight_variable_packing_extractions_uint() public pure {
@@ -1180,6 +1358,7 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
     bytes32 internal constant GNOSIS_SAFE_NONCE_SLOT = bytes32(uint256(5));
     bytes32 internal constant GNOSIS_SAFE_APPROVE_HASHES_SLOT = bytes32(uint256(8));
     bytes32 internal constant LIVENESS_GUARD_LAST_LIVE_SLOT = bytes32(uint256(0));
+    bytes32 internal constant OPTIMISM_PORTAL_RESOURCE_PARAMS_SLOT = bytes32(uint256(1));
 
     bool constant isWrite = true;
     bool constant reverted = true;
@@ -1423,6 +1602,39 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
 
         AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, who, false);
         assertEq(diffs.length, sa.length, "The number of diffs should be equal to the number of storage writes");
+    }
+
+    function test_normalizedStateDiffHash_OptimismPortalResourceMetering() public {
+        setupTests();
+        vm.createSelectFork("mainnet", 22319975); // Use a realistic block number
+        VmSafe.AccountAccess[] memory allAccesses = new VmSafe.AccountAccess[](1);
+        // Create a state diff for OptimismPortal ResourceMetering
+        address who = address(0xabcd);
+        VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
+        IResourceMetering.ResourceParams memory resourceParams = IResourceMetering.ResourceParams({
+            prevBaseFee: uint128(5),
+            prevBoughtGas: uint64(6),
+            prevBlockNum: uint64(block.number)
+        });
+        bytes32 resourceParamsSlot = packResourceParams(resourceParams);
+        storageAccesses[0] =
+            storageAccess(who, OPTIMISM_PORTAL_RESOURCE_PARAMS_SLOT, isWrite, bytes32(uint256(0)), resourceParamsSlot);
+        allAccesses[0] = accountAccess(who, storageAccesses);
+        bytes32 hash = allAccesses.normalizedStateDiffHash(address(1), bytes32(0));
+
+        AccountAccessParser.AccountStateDiff[] memory emptyArray = new AccountAccessParser.AccountStateDiff[](0);
+        bytes32 expectedHash = keccak256(abi.encode(emptyArray));
+        assertEq(hash, expectedHash, "OptimismPortal ResourceParams update should be removed");
+    }
+
+    /// @notice Packs the resource params into a bytes32. Where prevBlockNum is the most significant 64 bits, prevBoughtGas is the next 64 bits, and prevBaseFee is the least significant 128 bits.
+    function packResourceParams(IResourceMetering.ResourceParams memory _resourceParams)
+        internal
+        pure
+        returns (bytes32)
+    {
+        return (bytes32(uint256(_resourceParams.prevBlockNum)) << (128 + 64))
+            | (bytes32(uint256(_resourceParams.prevBoughtGas)) << 128) | (bytes32(uint256(_resourceParams.prevBaseFee)));
     }
 
     /// Helper functions similar to those in AccountAccessParser.t.sol

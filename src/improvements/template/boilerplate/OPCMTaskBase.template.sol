@@ -50,6 +50,7 @@ contract OPCMTaskBaseTemplate is OPCMTaskBase {
     }
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
+    /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
     function _templateSetup(string memory taskConfigFilePath) internal override {
         super._templateSetup(taskConfigFilePath);
         string memory tomlContent = vm.readFile(taskConfigFilePath);
@@ -80,8 +81,11 @@ contract OPCMTaskBaseTemplate is OPCMTaskBase {
     /// - `Multicall3Delegatecall`:
     ///   If the template inherits from `OPCMTaskBase`, it uses the `Multicall3Delegatecall` contract.
     ///   In this case, calls to the target **must** use `delegatecall`, e.g.:
-    ///   `(bool success,) = OPCM.delegatecall(abi.encodeWithSelector(IOPContractsManager.upgrade, opChainConfigs));`
+    ///   `(bool success,) = OPCM.delegatecall(abi.encodeWithSelector(IOPContractsManager.upgrade, opChainConfigs));
+    /// WARNING: Any state written to in this function will be reverted after the build function has been run.
+    /// Do not rely on setting global variables in this function.
     function _build() internal override {
+        // Do not set global variables in this function, see natspec above.
         require(false, "TODO: Implement with the correct build logic.");
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         IOPContractsManager.OpChainConfig[] memory opChainConfigs =

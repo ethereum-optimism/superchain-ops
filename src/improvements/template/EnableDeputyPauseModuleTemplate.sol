@@ -26,6 +26,13 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
     /// @notice Constant safe address string identifier
     string _safeAddressString;
 
+    /// @notice Constant foundation safe address string identifier
+    /// Used to verify the foundation safe address in the DeputyPauseModule
+    string public foundationSafeString;
+
+    /// @notice Constant deputy pause module version
+    string public deputyPauseModuleVersion;
+
     /// @notice Gnosis Safe Sentinel Module address
     address internal constant SENTINEL_MODULE = address(0x1);
 
@@ -54,6 +61,8 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
         super._templateSetup(taskConfigFilePath);
         string memory file = vm.readFile(taskConfigFilePath);
         newModule = vm.parseTomlAddress(file, ".newModule");
+        foundationSafeString = vm.parseTomlString(file, ".foundationSafeString");
+        deputyPauseModuleVersion = vm.parseTomlString(file, ".deputyPauseModuleVersion");
         assertNotEq(newModule.code.length, 0, "new module must have code");
     }
 
@@ -82,13 +91,15 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
         }
         assertTrue(moduleFound, "Module not found in new modules list");
 
-        IDeputyPauseModule deputyGuardianModule = IDeputyPauseModule(newModule);
-        assertEq(deputyGuardianModule.version(), "1.0.0-beta.2", "Deputy Guardian Module version not correct");
+        IDeputyPauseModule deputyPauseModule = IDeputyPauseModule(newModule);
+        assertEq(deputyPauseModule.version(), deputyPauseModuleVersion, "DeputyPauseModule version not correct");
         assertEq(
-            address(deputyGuardianModule.foundationSafe()), parentMultisig, "Deputy Guardian safe pointer not correct"
+            address(deputyPauseModule.foundationSafe()),
+            simpleAddrRegistry.get(foundationSafeString),
+            "DeputyPauseModule foundation safe pointer not correct"
         );
         assertEq(
-            address(deputyGuardianModule.superchainConfig()),
+            address(deputyPauseModule.superchainConfig()),
             simpleAddrRegistry.get("SuperchainConfig"),
             "Superchain config address not correct"
         );

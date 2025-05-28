@@ -135,7 +135,11 @@ library AccountAccessParser {
 
     bytes32 internal constant LIVENESS_GUARD_LAST_LIVE_SLOT = bytes32(uint256(0));
 
+
     bytes32 internal constant ANCHOR_STATE_REGISTRY_RETIREMENT_TIMESTAMP_SLOT = bytes32(uint256(6));
+
+    bytes32 internal constant OPTIMISM_PORTAL_RESOURCE_PARAMS_SLOT = bytes32(uint256(1));
+
     // forgefmt: disable-end
 
     modifier noGasMetering() {
@@ -335,8 +339,24 @@ library AccountAccessParser {
         } else if (isLivenessGuardTimestamp(account, diff, _parentMultisig)) {
             // 4. If the slot is on the LivenessGuard, don't include it.
             return false;
+        } else if (isOptimismPortalResourceMetering(diff)) {
+            // 5. If the slot is on the OptimismPortalResourceParams, don't include it.
+            return false;
         }
         return true;
+    }
+
+    /// @notice Any function in the OptimismPortal that has the 'metered' modifier will have a non-deterministic state change.
+    function isOptimismPortalResourceMetering(StateDiff memory _diff) internal view returns (bool) {
+        if (_diff.slot == OPTIMISM_PORTAL_RESOURCE_PARAMS_SLOT) {
+            // Extract prevBlockNum from the packed value. It's located in the most significant 64 bits.
+            // ResourceParams is packed as follows: prevBlockNum (64 bits) | prevBoughtGas (64 bits) | prevBaseFee (128 bits)
+            uint256 prevBlockNum = uint64(uint256(_diff.newValue) >> (128 + 64));
+            // If the current block number is equal to the new values prevBlockNum, then we should remove this
+            // state change because it means we have a nondeterministic change based on block number at simulation time
+            return block.number == prevBlockNum;
+        }
+        return false;
     }
 
     /// @notice Checks if the state diff represents an EOA nonce increment
@@ -546,6 +566,7 @@ library AccountAccessParser {
         if (_transfers.length == 0) {
             console.log("No ETH or ERC20 transfers.");
         } else {
+            printCopyHelper("below");
             for (uint256 i = 0; i < _transfers.length; i++) {
                 DecodedTransfer memory transfer = _transfers[i];
                 console.log("\n#### Decoded Transfer %s", i);
@@ -554,6 +575,7 @@ library AccountAccessParser {
                 console.log("- **Value:**             `%s`", transfer.value);
                 console.log("- **Token Address:**     `%s`", transfer.tokenAddress);
             }
+            printCopyHelper("above");
         }
 
         console.log("");
@@ -625,12 +647,40 @@ library AccountAccessParser {
         }
     }
 
-    /// @notice Decodes an ETH transfer from an account access record, and returns an empty struct
-    /// if no transfer occurred.
+    /// @notice Given an account access record, returns true if it contains a value transfer. Either an ETH transfer or an ERC20 transfer.
+    function containsValueTransfer(VmSafe.AccountAccess memory access) internal pure returns (bool) {
+        return getETHTransfer(access).value != 0 || getERC20Transfer(access).value != 0;
+    }
+
+    /// @notice Decodes an ETH transfer from an account access and returns an empty struct
+    /// if no transfer occurred. This function does not yet support Create or SelfDestruct ETH transfers. It also
+    /// assumes that accesses with DelegateCall kind are not ETH transfers.
     function getETHTransfer(VmSafe.AccountAccess memory access) internal pure returns (DecodedTransfer memory) {
-        return access.value != 0 && !access.reverted
-            ? DecodedTransfer({from: access.accessor, to: access.account, value: access.value, tokenAddress: ETHER})
-            : DecodedTransfer({from: ZERO, to: ZERO, value: 0, tokenAddress: ZERO});
+        bool isEthTransfer = access.value != 0 && !access.reverted && access.oldBalance != access.newBalance;
+        if (isEthTransfer) {
+            require(
+                access.kind != VmSafe.AccountAccessKind.SelfDestruct,
+                "ETH transfer with SelfDestruct is not yet supported"
+            );
+            require(access.kind != VmSafe.AccountAccessKind.Create, "ETH transfer with Create is not yet supported");
+            if (access.kind == VmSafe.AccountAccessKind.Call) {
+                return DecodedTransfer({
+                    from: access.accessor,
+                    to: access.account,
+                    value: access.value,
+                    tokenAddress: ETHER
+                });
+            } else {
+                require(access.kind == VmSafe.AccountAccessKind.DelegateCall, "Expected kind to be DelegateCall.");
+                console.log(
+                    string.concat(
+                        string("[INFO]").green().bold(),
+                        " ETH transfers via DelegateCall are not possible so this foundry account access will be ignored."
+                    )
+                );
+            }
+        }
+        return DecodedTransfer({from: ZERO, to: ZERO, value: 0, tokenAddress: ZERO});
     }
 
     /// @notice Decodes an ERC20 transfer from an account access record, and returns an empty struct
