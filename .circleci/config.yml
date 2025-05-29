@@ -450,7 +450,7 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
       # This is a long running job, so we only run it on the main branch. It's encouraged that task
-      # developers run this locally before pushing changes. We should keep this job running on main 
+      # developers run this locally before pushing changes. We should keep this job running on main
       # until we have performance improvements to the job (e.g. https://github.com/foundry-rs/foundry/issues/5363).
       - template_regression_tests:
           context:
@@ -532,9 +532,6 @@ workflows:
           network: "eth"
           context:
             - circleci-repo-readonly-authenticated-github-token
-          filters:
-            branches:
-              only: main
 
       # Stacked simulations for superchain-ops on Sepolia.
       - stacked_simulation:
@@ -542,9 +539,6 @@ workflows:
           network: "sep"
           context:
             - circleci-repo-readonly-authenticated-github-token
-          filters:
-            branches:
-              only: main
 
   close-issue-workflow:
     when:
@@ -561,4 +555,4 @@ workflows:
             This issue will be closed now."
           context:
             - circleci-repo-superchain-ops
-            
+
