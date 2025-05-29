@@ -506,6 +506,10 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
       - just_simulate_nested:
+          task: "/sep/mode-002-fp-upgrade"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+      - just_simulate_nested:
           task: "/sep/metal-002-fp-upgrade"
           context:
             - circleci-repo-readonly-authenticated-github-token
