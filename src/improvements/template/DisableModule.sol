@@ -85,6 +85,7 @@ contract DisableModule is SimpleTaskBase {
 
         bytes32 moduleSlot = keccak256(abi.encode(moduleToDisable, MODULE_MAPPING_STORAGE_OFFSET));
         bytes32 sentinelSlot = keccak256(abi.encode(SENTINEL_MODULE, MODULE_MAPPING_STORAGE_OFFSET));
+        bytes32 previousModuleSlot = keccak256(abi.encode(previousModule, MODULE_MAPPING_STORAGE_OFFSET));
 
         bool moduleWriteFound;
 
@@ -99,7 +100,7 @@ contract DisableModule is SimpleTaskBase {
             if (keccak256(abi.encodePacked(ISafe(parentMultisig).VERSION())) != keccak256(abi.encodePacked("1.1.1"))) {
                 assertTrue(
                     storageAccess.slot == NONCE_STORAGE_OFFSET || storageAccess.slot == moduleSlot
-                        || storageAccess.slot == sentinelSlot,
+                        || storageAccess.slot == sentinelSlot || storageAccess.slot == previousModuleSlot,
                     "Only nonce and module slot should be updated on upgrade controller multisig"
                 );
             }
