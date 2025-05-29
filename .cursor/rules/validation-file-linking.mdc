@@ -1,0 +1,39 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# VALIDATION.md Address Linking
+
+## Address Heading Format
+State diff sections use headings like:
+```
+### [`0xaddress`](mdc:link-to-definition) (ContractName) - Chain ID: XXX
+```
+
+## Linking Rules
+**IMPORTANT**: Keep the original addresses in headings - these represent specific contracts involved in the state diff.
+
+### Finding Address Definitions
+Search for each address in superchain-registry files:
+- [lib/superchain-registry/superchain/configs/mainnet/](mdc:lib/superchain-registry/superchain/configs/mainnet) - Mainnet contract addresses
+- [lib/superchain-registry/superchain/configs/sepolia/](mdc:lib/superchain-registry/superchain/configs/sepolia) - Sepolia contract addresses
+- [lib/superchain-registry/validation/standard/](mdc:lib/superchain-registry/validation/standard) - Standard contract versions
+
+### Example Process
+1. Keep address: `0x0d83dab629f0e0f9d36c0cbc89b69a489f0751bd`
+2. Search: `grep -r "0x0d83dab629f0e0f9d36c0cbc89b69a489f0751bd" lib/superchain-registry/`
+3. Found in: `lib/superchain-registry/superchain/configs/sepolia/unichain.toml#L58`
+4. Update link: `https://github.com/ethereum-optimism/superchain-ops/blob/main/lib/superchain-registry/superchain/configs/sepolia/unichain.toml#L58`
+
+### Link Format
+Always use the full GitHub path with line number:
+```
+https://github.com/ethereum-optimism/superchain-ops/blob/main/[file-path]#L[line-number]
+```
+
+## Common Address Locations
+- `OptimismPortalProxy`, `SystemConfigProxy`: Usually in network config files
+- `ProxyAdmin`, `AddressManager`: Network-specific addresses
+- Implementation addresses: Often in standard-versions files
+- `OPCM` addresses: In standard-versions files by upgrade version

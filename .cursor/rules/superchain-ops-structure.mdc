@@ -1,0 +1,27 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Superchain-Ops Repository Structure
+
+## Task Organization
+- Tasks are organized under `src/improvements/tasks/<network>/<task-number>-<description>/`
+- Networks include: `eth/` (Ethereum mainnet), `sep/` (Sepolia testnet), etc.
+- Each task directory contains: `README.md`, `config.toml`, `.env`, `VALIDATION.md`
+
+## Key Template Files
+- [src/improvements/template/OPCMUpgradeV300.sol](mdc:src/improvements/template/OPCMUpgradeV300.sol) - Template script for OPCM v3.0.0 upgrades
+- [src/improvements/template/OPCMUpgradeV200.sol](mdc:src/improvements/template/OPCMUpgradeV200.sol) - Template script for OPCM v2.0.0 upgrades
+
+## Execution Guides
+- [src/improvements/SINGLE.md](mdc:src/improvements/SINGLE.md) - Guide for single safe execution
+- [src/improvements/NESTED.md](mdc:src/improvements/NESTED.md) - Guide for nested safe execution
+- [src/improvements/single.just](mdc:src/improvements/single.just) - Justfile for single safe tasks
+- [src/improvements/nested.just](mdc:src/improvements/nested.just) - Justfile for nested safe tasks
+
+## Configuration References
+- [lib/superchain-registry/superchain/configs/mainnet/unichain.toml](mdc:lib/superchain-registry/superchain/configs/mainnet/unichain.toml) - Unichain mainnet addresses
+- [lib/superchain-registry/superchain/configs/sepolia/unichain.toml](mdc:lib/superchain-registry/superchain/configs/sepolia/unichain.toml) - Unichain Sepolia addresses
+- [lib/superchain-registry/validation/standard/standard-versions-mainnet.toml](mdc:lib/superchain-registry/validation/standard/standard-versions-mainnet.toml) - Mainnet contract versions
+- [lib/superchain-registry/validation/standard/standard-prestates.toml](mdc:lib/superchain-registry/validation/standard/standard-prestates.toml) - Absolute prestates for different versions

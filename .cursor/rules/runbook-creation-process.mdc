@@ -1,0 +1,46 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Creating a new runbook from examples
+
+## Two Reference Runbooks Required
+When creating a new runbook task, you need:
+
+1. **Network-Specific Reference**: Previous task on the same target network (e.g., [src/improvements/tasks/eth/002-opcm-upgrade-v200/](mdc:src/improvements/tasks/eth/002-opcm-upgrade-v200)) for:
+   - Safe structure (single vs nested)
+   - Network-specific addresses
+   - Chain ID and network configuration
+
+2. **Upgrade-Specific Reference**: Task with same upgrade type on different network (e.g., [src/improvements/tasks/sep/007-opcm-upgrade-v300-uni/](mdc:src/improvements/tasks/sep/007-opcm-upgrade-v300-uni)) for:
+   - Template script references
+   - Upgrade documentation structure
+   - State diff sections
+
+## File Update Process
+
+### README.md Updates
+- Title, task number, target network name
+- Chain name (e.g., "Unichain Mainnet" vs "Unichain Sepolia")
+- Execution type: Check network reference for single vs nested safe
+- Simulation commands: Update directory path and justfile reference
+
+### config.toml Updates
+- `l2chains`: Update name and chainId for target network
+- `absolutePrestates`: Use correct prestate hash for upgrade version
+- `OPCM`: Address for upgrade version on target network
+- `StandardValidatorVX`: Validator address for upgrade version
+- Child safe addresses (if nested structure)
+
+### VALIDATION.md Updates
+- Domain/Message hashes: Set as TBD initially, update after simulation
+- Address links: Find each address in superchain-registry toml files
+- State diffs: Verify all addresses, chain IDs, and state values
+- Before/After values: Must match actual simulation results
+
+## Critical Verification Points
+- All addresses must exist in superchain-registry for target network
+- State diff values must match simulation output
+- Links must point to correct line numbers in toml files
+- Chain IDs must be consistent throughout all files
