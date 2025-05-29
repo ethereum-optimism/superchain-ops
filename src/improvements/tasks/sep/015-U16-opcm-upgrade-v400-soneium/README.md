@@ -1,15 +1,14 @@
-# 015-U16-opcm-upgrade-v400-uni-soneium: Upgrade 16: Unichain Sepolia Testnet and Soneium Testnet Minato
+# 015-U16-opcm-upgrade-v400-soneium: Upgrade 16: Soneium Testnet Minato
 
 Status: [DRAFT]()
 
 ## Objective
 
-Executes Upgrade 16 on Unichain Sepolia Testnet and Soneium Testnet Minato.
+Executes Upgrade 16 on Soneium Testnet Minato.
 
 This task uses `op-contract/v4.0.0` [OPContractsManager](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.0.0-rc.3/packages/contracts-bedrock/src/L1/OPContractsManager.sol) to upgrade the following chains:
 
-1. Unichain Sepolia Testnet
-2. Soneium Testnet Minato
+1. Soneium Testnet Minato
 
 ### Timing
 
@@ -35,7 +34,7 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/improvements/template/OPCMUpgradeV400.sol`.
 Navigate to the correct task directory then run the simulate command.
 ```
-cd src/improvements/tasks/sep/015-U16-opcm-upgrade-v400-uni-soneium
+cd src/improvements/tasks/sep/015-U16-opcm-upgrade-v400-soneium
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate foundation
 ```
 
