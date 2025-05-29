@@ -61,7 +61,7 @@ where:
 
 The facilitator, or someone acting on behalf of the facilitator, must perform the following steps:
 
-1. Simulate this task from the `BaseNested` 2/2 by running `just simulate-stack sep 017-U16-opcm-upgrade-v400-base "[0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x646132A1667ca7aD00d36616AFBA1A28116C770A]"`
+1. Simulate this task from the `BaseNested` 2/2 by running `just simulate-stack sep 017-U16-opcm-upgrade-v400-base "[0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x646132A1667ca7aD00d36616AFBA1A28116C770A]"`
 2. In the terminal logs, search for `017-U16-opcm-upgrade-v400-base` to find where the logs for this task begin. Directly above the Domain Hash and Message Hash, the Safe Transaction Hash will be logged. See the [Simulation](#simulation) section for more details on how to do this step.
 3. Run `just new task GnosisSafeApproveHash` to create a new task, and update the config file so this Safe Transaction Hash is used.
 4. Edit the numbers in the task directories such that the approve hash is prefixed with `XXX-1-*` and the primary task is `XXX-2-*`, where `XXX` is the task number such as `016`.
@@ -103,7 +103,7 @@ Simulate the stack of queued tasks for this network by running:
 
 ```sh
 cd src/improvements
-`just simulate-stack sep 017-U16-opcm-upgrade-v400-base "[0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x646132A1667ca7aD00d36616AFBA1A28116C770A]"`
+`just simulate-stack sep 017-U16-opcm-upgrade-v400-base "[0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x646132A1667ca7aD00d36616AFBA1A28116C770A]"`
 ```
 
 In the simulation logs, search for the string `017-U16-opcm-upgrade-v400-base` to find the logs
