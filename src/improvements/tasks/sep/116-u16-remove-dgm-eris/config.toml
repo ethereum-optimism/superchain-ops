@@ -6,4 +6,4 @@ moduleToDisable = "0xbD068C35c78872DeD790d5E7D78851BD85A4C645"
 # This is the module in the list of modules returned by calling the getModulesPaginated function
 # on the Safe contract. If there is only one module in the list, then this can be set to the
 # SENTINEL_MODULE address (0x1).
-previousModule = "0x0000000000000000000000000000000000000001"
+previousModule = "0xEB4e480de616FEDe3D03597e42c013282BF9bEcF"
