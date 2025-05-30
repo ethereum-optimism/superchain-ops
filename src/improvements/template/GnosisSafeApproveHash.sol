@@ -3,11 +3,11 @@ pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
+import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
-
-import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice A template for calling `approveHash` on a Gnosis Safe. This is intended to be used for
 /// Base's L1 ProxyAdmin Owner (L1PAO) which has an additional level of nesting than the OP-governed
