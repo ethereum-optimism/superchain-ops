@@ -1,0 +1,5 @@
+l2chains = [{name = "Worldchain Sepolia", chainId = 4801}] # e.g. [{name = "OP Mainnet", chainId = 10}]
+templateName = "TransferOwners"
+
+# Sepolia L1PAO - https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/sepolia/op.toml#L46
+newOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
