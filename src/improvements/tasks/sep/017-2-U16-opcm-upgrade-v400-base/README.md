@@ -1,4 +1,4 @@
-# 017-U16-opcm-upgrade-v400-base: Upgrade 16: Base Sepolia
+# 017-2-U16-opcm-upgrade-v400-base: Upgrade 16: Base Sepolia
 
 Status: [DRAFT]()
 
@@ -61,8 +61,8 @@ where:
 
 The facilitator, or someone acting on behalf of the facilitator, must perform the following steps:
 
-1. Simulate this task from the `BaseNested` 2/2 by running `just simulate-stack sep 017-U16-opcm-upgrade-v400-base "[0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x646132A1667ca7aD00d36616AFBA1A28116C770A]"`
-2. In the terminal logs, search for `017-U16-opcm-upgrade-v400-base` to find where the logs for this task begin. Directly above the Domain Hash and Message Hash, the Safe Transaction Hash will be logged. See the [Simulation](#simulation) section for more details on how to do this step.
+1. Simulate this task from the `BaseNested` 2/2 by running `just simulate-stack sep 017-2-U16-opcm-upgrade-v400-base "[0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x646132A1667ca7aD00d36616AFBA1A28116C770A]"`
+2. In the terminal logs, search for `017-2-U16-opcm-upgrade-v400-base` to find where the logs for this task begin. Directly above the Domain Hash and Message Hash, the Safe Transaction Hash will be logged. See the [Simulation](#simulation) section for more details on how to do this step.
 3. Run `just new task` and select the `GnosisSafeApproveHash` option to create a new task, and update the config file so this Safe Transaction Hash is used. Your config file should contain this:
 
     ```toml
@@ -70,7 +70,7 @@ The facilitator, or someone acting on behalf of the facilitator, must perform th
     safeTxHash = "<safe-transaction-hash>"
     ```
 
-4. Edit the numbers in the task directories such that the approve hash is prefixed with `XXX-1-*` and the primary task is `XXX-2-*`, where `XXX` is the task number such as `017`. For example, if this task folder was originally named `017-U16-opcm-upgrade-v400-base`, rename it to `017-2-U16-opcm-upgrade-v400-base` and the new `GnosisSafeApproveHash` folder name is `017-1-U16-opcm-upgrade-v400-base-approveHash`.
+4. Edit the numbers in the task directories such that the approve hash is prefixed with `XXX-1-*` and the primary task is `XXX-2-*`, where `XXX` is the task number such as `017`. For example, if this task folder was originally named `017-2-U16-opcm-upgrade-v400-base`, rename it to `017-2-U16-opcm-upgrade-v400-base` and the new `GnosisSafeApproveHash` folder name is `017-1-U16-opcm-upgrade-v400-base-approveHash`.
 5. This new task will be a nested task, so signers can sign with `just --dotenv-path $(pwd)/.env --justfile ../../../nested.just sign <base-council|base-operations>`
 
 Now, wait for the Base and Security Council signers to complete [their steps](#base-and-security-council-signer-instructions).
@@ -110,9 +110,9 @@ Simulate the stack of queued tasks for this network by running:
 
 ```sh
 cd src/improvements
-just simulate-stack sep 017-U16-opcm-upgrade-v400-base "[0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x646132A1667ca7aD00d36616AFBA1A28116C770A]"
+just simulate-stack sep 017-2-U16-opcm-upgrade-v400-base "[0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x646132A1667ca7aD00d36616AFBA1A28116C770A]"
 ```
 
-In the simulation logs, search for the string `017-U16-opcm-upgrade-v400-base` to find the logs
+In the simulation logs, search for the string `017-2-U16-opcm-upgrade-v400-base` to find the logs
 for this task's output. You will see the Safe Transaction Hash logged to a line beginning with
 `Safe Transaction Hash:`. That is the hash signers on the Base or Security Council safes will approve.

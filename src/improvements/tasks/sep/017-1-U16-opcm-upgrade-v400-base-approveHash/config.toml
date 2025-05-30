@@ -1,0 +1,5 @@
+l2chains = [{ name = "Base Sepolia", chainId = 84532 }]
+templateName = "GnosisSafeApproveHash"
+
+safeAddressString = "BaseNestedSafe"
+safeTxHash = "0x20fbba77794fb96cb7d0e3be668f05d1a3852ade7eb3e595ff6a4165a444a5a7"
