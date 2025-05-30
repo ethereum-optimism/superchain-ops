@@ -1,6 +1,6 @@
 l2chains = [{name = "OP Mainnet", chainId = 10}] # e.g. [{name = "OP Mainnet", chainId = 10}]
 
-templateName = "EnableDeputyPauseModuleTemplate"
+templateName = "EnableDeputyPauseModule"
 
 newModule = "0x126a736b18e0a64fba19d421647a530e327e112c"
 
