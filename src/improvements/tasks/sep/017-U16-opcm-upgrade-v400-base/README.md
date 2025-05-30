@@ -61,10 +61,17 @@ where:
 
 The facilitator, or someone acting on behalf of the facilitator, must perform the following steps:
 
-1. Simulate this task from the `BaseNested` 2/2 by running `SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate base_nested`
-2. In the terminal logs, directly above the Domain Hash and Message Hash, this will log the Safe Transaction Hash. See the [Simulation](#simulation) section for more details on how to do this step.
-3. Run `just new task ApproveSafeHash` to create a new task, and update the config file so this Safe Transaction Hash is used.
-4. Edit the numbers in the task directories such that the approve hash is prefixed with `XXX-1-*` and the primary task is `XXX-2-*`, where `XXX` is the task number such as `016`.
+1. Simulate this task from the `BaseNested` 2/2 by running `just simulate-stack sep 017-U16-opcm-upgrade-v400-base "[0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x646132A1667ca7aD00d36616AFBA1A28116C770A]"`
+2. In the terminal logs, search for `017-U16-opcm-upgrade-v400-base` to find where the logs for this task begin. Directly above the Domain Hash and Message Hash, the Safe Transaction Hash will be logged. See the [Simulation](#simulation) section for more details on how to do this step.
+3. Run `just new task` and select the `GnosisSafeApproveHash` option to create a new task, and update the config file so this Safe Transaction Hash is used. Your config file should contain this:
+
+    ```toml
+    safeAddressString = "BaseNestedSafe"
+    safeTxHash = "<safe-transaction-hash>"
+    ```
+
+4. Edit the numbers in the task directories such that the approve hash is prefixed with `XXX-1-*` and the primary task is `XXX-2-*`, where `XXX` is the task number such as `017`. For example, if this task folder was originally named `017-U16-opcm-upgrade-v400-base`, rename it to `017-2-U16-opcm-upgrade-v400-base` and the new `GnosisSafeApproveHash` folder name is `017-1-U16-opcm-upgrade-v400-base-approveHash`.
+5. This new task will be a nested task, so signers can sign with `just --dotenv-path $(pwd)/.env --justfile ../../../nested.just sign <base-council|base-operations>`
 
 Now, wait for the Base and Security Council signers to complete [their steps](#base-and-security-council-signer-instructions).
 Once you received signatures from Base and Security Council signers:
@@ -93,7 +100,7 @@ Your ceremony facilitator will have performed the first three steps listed in th
 Once that is done, your instructions as a signer are as follows:
 
 1. In this directory, run the simulation as described in the [Simulation](#simulation) section and save off the Safe Transaction Hash. Perform the validation for this task as normal.
-2. Navigate to your TODO directory, and follow the instructions to sign and validate that approval hash as normal.
+2. Navigate to your GnosisSafeApproveHash task's directory, and follow the instructions to sign and validate that approval hash as normal.
 3. When performing the validation step, additionally ensure the data you are signing should match the Safe Transaction Hash you saved off in step 1.
 4. Send the signature to your ceremony facilitator.
 
@@ -103,7 +110,7 @@ Simulate the stack of queued tasks for this network by running:
 
 ```sh
 cd src/improvements
-just simulate-stack sep 017-U16-opcm-upgrade-v400-base
+just simulate-stack sep 017-U16-opcm-upgrade-v400-base "[0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x0000000000000000000000000000000000000000,0x646132A1667ca7aD00d36616AFBA1A28116C770A]"
 ```
 
 In the simulation logs, search for the string `017-U16-opcm-upgrade-v400-base` to find the logs
