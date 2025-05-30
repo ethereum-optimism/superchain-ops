@@ -127,14 +127,29 @@ contract StackedSimulator is Script {
         sortedTasks_ = tasks_;
     }
 
-    /// @notice Converts the first three characters of a task name string to a uint256.
+    /// @notice Converts the leading numerical portion of a task directory a uint256 for sorting.
     function convertPrefixToUint(string memory taskName) public pure returns (uint256) {
         require(bytes(taskName).length > 0, "StackedSimulator: Task name must not be empty.");
         string[] memory parts = vm.split(taskName, "-");
         require(parts.length > 0, "StackedSimulator: Invalid task name, must contain at least one '-'.");
         require(!parts[0].contains("0x"), "StackedSimulator: Does not support hex strings.");
         require(bytes(parts[0]).length == 3, "StackedSimulator: Prefix must have 3 characters.");
-        return vm.parseUint(parts[0]);
+
+        uint256 primaryValue = vm.parseUint(parts[0]);
+
+        // If there's a second part, try to parse it as a number for secondary sorting. This is
+        // useful to allow a logical grouping of tasks to start with the same prefix, such as
+        // `017-1-U16-opcm-upgrade-v400-base-approveHash` and `017-2-U16-opcm-upgrade-v400-base`.
+        uint256 secondaryValue = 0;
+        if (parts.length > 1 && bytes(parts[1]).length > 0) {
+            try vm.parseUint(parts[1]) returns (uint256 val) {
+                secondaryValue = val;
+            } catch {
+                // If not a number, secondary value remains 0
+            }
+        }
+
+        return primaryValue * 1000 + secondaryValue;
     }
 
     /// @notice Finds the index of a task in a list of tasks.
