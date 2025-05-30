@@ -14,10 +14,10 @@ Simulation commands for each safe:
 cd src/improvements/tasks/sep/017-1-U16-opcm-upgrade-v400-base-approveHash
 
 # For Base
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../src/improvements/nested.just simulate base-operations
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate base-operations
 
 # For Base Security Council
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../src/improvements/nested.just simulate base-council
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate base-council
 ```
 
 Signing commands for each safe:
@@ -26,8 +26,8 @@ Signing commands for each safe:
 cd src/improvements/tasks/sep/017-1-U16-opcm-upgrade-v400-base-approveHash
 
 # For Base
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../src/improvements/nested.just sign base-operations
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just sign base-operations
 
 # For Base Security Council
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../src/improvements/nested.just sign base-council
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just sign base-council
 ```
