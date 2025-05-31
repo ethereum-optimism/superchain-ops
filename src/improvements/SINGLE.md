@@ -46,6 +46,13 @@ Make sure your ledger is still unlocked and run the following command.
 **Note:** Remember that by default the script will assume the derivation path of your address is `m/44'/60'/0'/0/0`.
 If you wish to use a different account, append an `X` to the command to set the derivation path of the address that you want to use. For example by adding a `1` to the end, it will derive the address using `m/44'/60'/1'/0/0` instead.
 
+**Development Note:** During development or testing, you can run simulations, approvals, and executions without a Ledger device by using the following environment variables:
+- `SIMULATE_WITHOUT_LEDGER=1`: Simulates the transaction without requiring a Ledger device
+- `APPROVE_WITHOUT_LEDGER=1`: Approves the transaction without requiring a Ledger device
+- `EXECUTE_WITHOUT_LEDGER=1`: Executes the transaction without requiring a Ledger device
+
+These can be exported in your shell or added to the `.env` file.
+
 ```shell
 just \
    --dotenv-path $(pwd)/.env \
