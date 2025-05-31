@@ -153,6 +153,19 @@ jobs:
       - notify-failures-on-main:
           mentions: "@evm-safety-team"
 
+  check_task_numbering: 
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - utils/checkout-with-mise
+      - attach_workspace:
+          at: .
+      - run:
+          name: Check Task Numbering Uniqueness
+          command: |
+            just install
+            (cd src/improvements && just check-task-numbering)
+
   # TODO: remove/replace when there are real consumers of the RPC URLs
   example_mainnet_job:
     circleci_ip_ranges: true
@@ -485,6 +498,10 @@ workflows:
             - circleci-repo-readonly-authenticated-github-token
       # check that superchain-registry is up to date
       - check_superchain_registry:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+      # check that all task directories have a valid numbering
+      - check_task_numbering:
           context:
             - circleci-repo-readonly-authenticated-github-token
       # Task simulations.
