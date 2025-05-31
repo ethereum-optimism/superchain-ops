@@ -5,6 +5,9 @@ export signatures := env_var_or_default('SIGNATURES', '')
 export bundleName := env_var_or_default('BUNDLE_NAME', 'input')
 export taskPath := invocation_directory()
 
+# Keystore variables
+export keystorePathBase := "~/.foundry/keystores/"
+
 # Accounts
 export councilSafe := env_var("COUNCIL_SAFE")
 export foundationSafe := env_var("FOUNDATION_SAFE")
@@ -15,9 +18,25 @@ export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 # These are two of the anvil default private keys, they are publicly known
 export PRIVATE_KEY_OWNER := "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
 export PRIVATE_KEY_EXECUTOR :="0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
-
 export ANVIL_LOCALHOST_RPC :="http://localhost:8545"
 export FAKE_SIG :="11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
+
+# Helper function to handle keystore selection and private key extraction
+get-keystore-private-key:
+  #!/usr/bin/env bash
+  echo "Enter your foundry keystore path (e.g. ~/.foundry/keystores/sep-test-private-key):" >&2
+  keystorePath=$keystorePathBase$(cd ~/.foundry/keystores/ && fzf --header="Searching your keystore in $PWD" --prompt="Keystore for signing:")
+  cd ${taskPath}
+  echo "Keystore path: ${keystorePath}" >&2
+  # Expand the home directory in the path
+  keystorePath=$(echo ${keystorePath} | sed "s|^~|$HOME|")
+  signer_private_key=$(cast wallet pk --keystore ${keystorePath})
+  if [ -z "${signer_private_key}" ]; then
+    echo "Error: Failed to get private key for keystore ${keystorePath}" >&2
+    exit 1
+  fi
+  echo "${signer_private_key}"
+
 simulate whichSafe hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
@@ -72,7 +91,7 @@ simulate whichSafe hdPath='0':
     ${bundlePath} \
     "${safe}"
 
-sign whichSafe hdPath='0':
+sign whichSafe hdPath='0' ledger='true':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
   script=NestedSignFromJson
@@ -97,13 +116,20 @@ sign whichSafe hdPath='0':
     safe="{{chainGovernorSafe}}"
   fi
   echo "getting signer address..."
-  signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  
+  if {{ledger}}; then
+    signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+    signer_args="--ledger --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
+  else
+    signer_private_key=$(just --justfile={{justfile()}} get-keystore-private-key)
+    signer=$(cast wallet address --private-key ${signer_private_key})
+    signer_args="--private-key ${signer_private_key#0x}"
+  fi
   echo "Signing with: ${signer}"
-  echo ""
 
   forge build
   # Using the eip712sign within the repo folder since eip712sign was installed there in ./justfile.
-  $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
+  $(git rev-parse --show-toplevel)/bin/eip712sign ${signer_args} -- \
   forge script ${script} \
     --rpc-url ${rpcUrl} \
     --sig "signJson(string,address)" \
@@ -229,7 +255,7 @@ execute_in_anvil hdPath='0':
     --sig "runJson(string)" \
     ${bundlePath} 2>&1)
 
-approve whichSafe hdPath='0':
+approve whichSafe hdPath='0' ledger='true':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
   script=NestedSignFromJson
@@ -253,20 +279,26 @@ approve whichSafe hdPath='0':
     fi
     safe="{{chainGovernorSafe}}"
   fi
-  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  if {{ledger}}; then
+    sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+    signer_args="--ledger --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
+  else
+    signer_private_key=$(just --justfile={{justfile()}} get-keystore-private-key)
+    signer_args="--private-key ${signer_private_key}"
+  fi
 
   forge build
   forge script ${script} \
     --fork-url ${rpcUrl} \
-    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
     --broadcast \
     --sender ${sender} \
     --sig "approveJson(string,address,bytes)" \
+    ${signer_args} \
     ${bundlePath} \
     ${safe} \
     ${signatures}
 
-execute hdPath='0':
+execute hdPath='0' ledger='true':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
   script=NestedSignFromJson
@@ -275,14 +307,23 @@ execute hdPath='0':
     echo "Running script with assertions"
   fi
   echo "Using script ${script}"
-  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  if {{ledger}}; then
+    sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+    signer_args="--ledger --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
+  else
+    signer_private_key=$(just --justfile={{justfile()}} get-keystore-private-key)
+    sender=$(cast wallet address --private-key ${signer_private_key})
+    signer_args="--private-key ${signer_private_key}"
+  fi
+  echo "Executed with sender: ${sender}"
 
+  forge build
   forge script ${script} \
     --fork-url ${rpcUrl} \
-    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
     --broadcast \
     --sender ${sender} \
     --sig "runJson(string)" \
+    ${signer_args} \
     ${bundlePath}
 
 simulated-run hdPath='0':
@@ -301,3 +342,4 @@ simulated-run hdPath='0':
     --sender ${randomPersonEoa} \
     --sig "runJson(string)" \
     ${bundlePath}
+
