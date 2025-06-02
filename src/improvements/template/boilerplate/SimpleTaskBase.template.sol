@@ -2,13 +2,14 @@
 pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
-
-import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
 import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {ERC20} from "@solady/tokens/ERC20.sol";
 import {stdToml} from "lib/forge-std/src/StdToml.sol";
+
+import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// TODO: If you need any interfaces from the Optimism monorepo submodule. Define them here instead of importing them.
 /// Doing this avoids tight coupling to the monorepo submodule and allows you to update the monorepo submodule

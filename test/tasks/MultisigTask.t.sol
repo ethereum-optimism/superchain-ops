@@ -9,10 +9,11 @@ import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.so
 import {LibString} from "@solady/utils/LibString.sol";
 import {Vm} from "forge-std/Vm.sol";
 
-import {MockTarget} from "test/tasks/mock/MockTarget.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 import {MockMultisigTask} from "test/tasks/mock/MockMultisigTask.sol";
+import {MockTarget} from "test/tasks/mock/MockTarget.sol";
 
 contract MultisigTaskUnitTest is Test {
     using stdStorage for StdStorage;
@@ -57,7 +58,7 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testRunFailsEmptyActions() public {
-        MultisigTask.Action[] memory actions = new MultisigTask.Action[](0);
+        Action[] memory actions = new Action[](0);
         vm.expectRevert("No actions found");
         task.processTaskActions(actions);
     }
@@ -71,7 +72,7 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testRunFailsDuplicateAction() public {
-        MultisigTask.Action[] memory actions = createActions(address(1), "", 0, Enum.Operation.Call, "");
+        Action[] memory actions = createActions(address(1), "", 0, Enum.Operation.Call, "");
         vm.expectRevert("Duplicated action found");
         task.validateAction(actions[0].target, actions[0].value, actions[0].arguments, actions);
     }
@@ -124,7 +125,7 @@ contract MultisigTaskUnitTest is Test {
 
         MockTarget mock = new MockTarget();
         bytes memory callData = abi.encodeWithSelector(MockTarget.foobar.selector);
-        MultisigTask.Action[] memory actions = createActions(address(mock), callData, 0, Enum.Operation.Call, "");
+        Action[] memory actions = createActions(address(mock), callData, 0, Enum.Operation.Call, "");
         vm.mockCall(
             multisig,
             abi.encodeWithSelector(
@@ -176,7 +177,7 @@ contract MultisigTaskUnitTest is Test {
 
     function runTestSimulation(string memory taskConfigFilePath, address childMultisig)
         public
-        returns (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions)
+        returns (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions)
     {
         (accountAccesses, actions) = task.signFromChildMultisig(taskConfigFilePath, childMultisig);
 
@@ -207,7 +208,7 @@ contract MultisigTaskUnitTest is Test {
 
     function testSimulateFailsTxAlreadyExecuted() public {
         string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml);
-        (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions) =
+        (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) =
             runTestSimulation(fileName, securityCouncilChildMultisig);
         MultisigTaskTestHelper.removeFile(fileName);
 
@@ -220,7 +221,7 @@ contract MultisigTaskUnitTest is Test {
 
     function testGetCalldata() public {
         string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml);
-        (, MultisigTask.Action[] memory actions) = runTestSimulation(fileName, securityCouncilChildMultisig);
+        (, Action[] memory actions) = runTestSimulation(fileName, securityCouncilChildMultisig);
         MultisigTaskTestHelper.removeFile(fileName);
 
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);
@@ -405,15 +406,10 @@ contract MultisigTaskUnitTest is Test {
         uint256 value,
         Enum.Operation operation,
         string memory description
-    ) internal pure returns (MultisigTask.Action[] memory actions) {
-        actions = new MultisigTask.Action[](1);
-        actions[0] = MultisigTask.Action({
-            target: target,
-            value: value,
-            arguments: data,
-            operation: operation,
-            description: description
-        });
+    ) internal pure returns (Action[] memory actions) {
+        actions = new Action[](1);
+        actions[0] =
+            Action({target: target, value: value, arguments: data, operation: operation, description: description});
         return actions;
     }
 }

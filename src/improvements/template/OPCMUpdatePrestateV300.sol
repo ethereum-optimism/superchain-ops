@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {OPCMTaskBase} from "src/improvements/tasks/types/OPCMTaskBase.sol";
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {ISystemConfig, IProxyAdmin} from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {IOPContractsManager} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
@@ -10,6 +8,10 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {console2 as console} from "forge-std/console2.sol";
 import {LibString} from "solady/utils/LibString.sol";
+
+import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {OPCMTaskBase} from "src/improvements/tasks/types/OPCMTaskBase.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice This template provides OPCM-based absolute prestate updates.
 /// Supports: op-contracts/v3.0.0

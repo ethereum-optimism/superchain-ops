@@ -9,6 +9,7 @@ import {console} from "forge-std/console.sol";
 
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice Template contract for doing a batch transfer of ownership for a chain.
 /// This includes the L1ProxyAdminOwner, DisputeGameFactory and optionally the Permissioned/Permissionless DelayedWETH contracts.
