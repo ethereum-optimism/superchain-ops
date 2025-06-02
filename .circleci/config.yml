@@ -151,7 +151,7 @@ jobs:
             just install
             (cd src/improvements && just check-superchain-registry-latest)
       - notify-failures-on-main:
-          mentions: "@security-team"
+          mentions: "@evm-safety-team"
 
   # TODO: remove/replace when there are real consumers of the RPC URLs
   example_mainnet_job:
@@ -255,7 +255,7 @@ jobs:
             just install
             (cd src/improvements && just simulate-stack <<parameters.network>>)
       - notify-failures-on-main:
-          mentions: "@security-team"
+          mentions: "@evm-safety-team"
 
   just_simulate_nested:
     description: "Runs simulations of a nested task"
@@ -359,7 +359,7 @@ jobs:
           command: |
             (cd src/improvements && just simulate-all-templates)
       - notify-failures-on-main:
-          mentions: "@security-team"
+          mentions: "@evm-safety-team"
 
   just_new_recipe_tests:
     circleci_ip_ranges: true

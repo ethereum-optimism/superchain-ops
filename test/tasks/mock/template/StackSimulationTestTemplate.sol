@@ -2,9 +2,11 @@
 pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
-import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
-import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
 import {stdToml} from "forge-std/StdToml.sol";
+import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
+
+import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice A simple contract that's used to test stacked simulations.
 /// It's setup in such a way that later tasks in the stack depend on the state changes
