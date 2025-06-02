@@ -3,12 +3,12 @@ pragma solidity 0.8.15;
 
 import {stdStorage, StdStorage} from "forge-std/Test.sol";
 import {VmSafe} from "forge-std/Vm.sol";
-
-import "forge-std/Test.sol";
+import {console} from "forge-std/console.sol";
+import {ModuleManager} from "lib/safe-contracts/contracts/base/ModuleManager.sol";
 
 import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
-import {ModuleManager} from "lib/safe-contracts/contracts/base/ModuleManager.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 interface ISafe {
     function VERSION() external view returns (string memory);
@@ -85,6 +85,7 @@ contract DisableModule is SimpleTaskBase {
 
         bytes32 moduleSlot = keccak256(abi.encode(moduleToDisable, MODULE_MAPPING_STORAGE_OFFSET));
         bytes32 sentinelSlot = keccak256(abi.encode(SENTINEL_MODULE, MODULE_MAPPING_STORAGE_OFFSET));
+        bytes32 previousModuleSlot = keccak256(abi.encode(previousModule, MODULE_MAPPING_STORAGE_OFFSET));
 
         bool moduleWriteFound;
 
@@ -99,7 +100,7 @@ contract DisableModule is SimpleTaskBase {
             if (keccak256(abi.encodePacked(ISafe(parentMultisig).VERSION())) != keccak256(abi.encodePacked("1.1.1"))) {
                 assertTrue(
                     storageAccess.slot == NONCE_STORAGE_OFFSET || storageAccess.slot == moduleSlot
-                        || storageAccess.slot == sentinelSlot,
+                        || storageAccess.slot == sentinelSlot || storageAccess.slot == previousModuleSlot,
                     "Only nonce and module slot should be updated on upgrade controller multisig"
                 );
             }
