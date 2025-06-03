@@ -50,6 +50,9 @@ commands:
         type: string
         default: ""
     steps:
+      - when:
+          condition: << pipeline.git.branch >> == "main"
+          steps: []
       - slack/notify:
           channel: << parameters.channel >>
           event: fail
