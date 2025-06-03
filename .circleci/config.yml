@@ -513,11 +513,15 @@ workflows:
           task: "/sep/metal-002-fp-upgrade"
           context:
             - circleci-repo-readonly-authenticated-github-token
+      - just_simulate_nested:
+          task: "/eth/mode-002-fp-upgrade"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
 
       - simulate_sequence:
           name: simulate_sequence_eth
           network: "eth"
-          tasks: ""
+          tasks: "metal-002 mode-002"
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
