@@ -85,7 +85,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
 - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
 - **Summary:** This is setting the approved hash for the Base Operations safe. You can compute the slot using ....
-- **Detail:**
+- **Summary:** `approveHash(bytes32)` called on ProxyAdminOwner by Base Nested Safe multisig.
 
   ---
 
