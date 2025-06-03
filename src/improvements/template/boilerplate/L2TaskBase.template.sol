@@ -5,6 +5,7 @@ import {VmSafe} from "forge-std/Vm.sol";
 
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// TODO: If you need any interfaces from the Optimism monorepo submodule. Define them here instead of importing them.
 /// Doing this avoids tight coupling to the monorepo submodule and allows you to update the monorepo submodule

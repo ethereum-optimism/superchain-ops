@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {ProxyAdmin} from "@eth-optimism-bedrock/src/universal/ProxyAdmin.sol";
+import {IProxyAdmin} from "@eth-optimism-bedrock/interfaces/universal/IProxyAdmin.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
@@ -9,6 +9,8 @@ import {console} from "forge-std/console.sol";
 
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
+import {StorageSetter} from "@eth-optimism-bedrock/src/universal/StorageSetter.sol";
 
 /// @notice Template contract for doing a batch transfer of ownership for a chain.
 /// This includes the L1ProxyAdminOwner, DisputeGameFactory and optionally the Permissioned/Permissionless DelayedWETH contracts.
@@ -20,6 +22,9 @@ contract TransferOwners is L2TaskBase {
 
     /// @notice New owner address. This is unaliased.
     address internal newOwner;
+
+    /// @notice The ProxyAdmin contract.
+    IProxyAdmin public proxyAdmin;
 
     /// @notice Stores the chain information after setup.
     SuperchainAddressRegistry.ChainInfo internal activeChainInfo;
@@ -53,6 +58,8 @@ contract TransferOwners is L2TaskBase {
         // The discovered SuperchainConfig address must match the SuperchainConfig address in the standard config.
         address superchainConfig = superchainAddrRegistry.getAddress("SuperchainConfig", activeChainInfo.chainId);
 
+        proxyAdmin = IProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", activeChainInfo.chainId));
+
         // Discover OP Mainnet and OP Sepolia chains. We do this to get access to the latest SuperchainConfig addresses.
         // We assume that these chains are always using the standard config.
         _validateSuperchainConfig(superchainConfig);
@@ -60,7 +67,6 @@ contract TransferOwners is L2TaskBase {
 
     /// @notice Builds the actions for transferring ownership of the DisputeGameFactory, DWETH contracts and ProxyAdmin.
     function _build() internal override {
-        ProxyAdmin proxyAdmin = ProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", activeChainInfo.chainId));
         IDisputeGameFactory disputeGameFactory =
             IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", activeChainInfo.chainId));
         IDelayedWETH permissionedWETH = _getDWETH("PermissionedWETH", activeChainInfo.chainId);
@@ -70,8 +76,8 @@ contract TransferOwners is L2TaskBase {
         performOwnershipTransfer(address(disputeGameFactory), newOwner);
 
         // Check if PermissionedWETH exists and is ownable. If it is, transfer ownership to the new owner.
-        if (_isDWETHOwnable(permissionedWETH) && address(permissionedWETH) != address(0)) {
-            performOwnershipTransfer(address(permissionedWETH), newOwner);
+        if (address(permissionedWETH) != address(0) && _isDWETHOwnable(permissionedWETH)) {
+            performWethOwnershipTransfer(address(permissionedWETH), newOwner);
         } else {
             console.log(
                 "PermissionedWETH not found or not ownable on chain %s, not performing transfer",
@@ -80,8 +86,8 @@ contract TransferOwners is L2TaskBase {
         }
 
         // Check if PermissionlessWETH exists and is ownable. If it is, transfer ownership to the new owner.
-        if (_isDWETHOwnable(permissionlessWETH) && address(permissionlessWETH) != address(0)) {
-            performOwnershipTransfer(address(permissionlessWETH), newOwner);
+        if (address(permissionlessWETH) != address(0) && _isDWETHOwnable(permissionlessWETH)) {
+            performWethOwnershipTransfer(address(permissionlessWETH), newOwner);
         } else {
             console.log(
                 "PermissionlessWETH not found or not ownable on chain %s, not performing transfer",
@@ -95,7 +101,6 @@ contract TransferOwners is L2TaskBase {
 
     /// @notice Validates that the owner was transferred correctly.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
-        ProxyAdmin proxyAdmin = ProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", activeChainInfo.chainId));
         IDisputeGameFactory disputeGameFactory =
             IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", activeChainInfo.chainId));
         IDelayedWETH permissionedWETH = _getDWETH("PermissionedWETH", activeChainInfo.chainId);
@@ -104,12 +109,12 @@ contract TransferOwners is L2TaskBase {
         assertEq(proxyAdmin.owner(), newOwner, "new owner not set correctly on ProxyAdmin");
 
         // Check if the PermissionedWETH is ownable and if it is, check if the owner is set correctly.
-        if (_isDWETHOwnable(permissionedWETH) && address(permissionedWETH) != address(0)) {
+        if (address(permissionedWETH) != address(0) && _isDWETHOwnable(permissionedWETH)) {
             assertEq(permissionedWETH.owner(), newOwner, "new owner not set correctly on PermissionedWETH");
         }
 
         // Check if the PermissionlessWETH is ownable and if it is, check if the owner is set correctly.
-        if (_isDWETHOwnable(permissionlessWETH) && address(permissionlessWETH) != address(0)) {
+        if (address(permissionlessWETH) != address(0) && _isDWETHOwnable(permissionlessWETH)) {
             assertEq(permissionlessWETH.owner(), newOwner, "new owner not set correctly on PermissionlessWETH");
         }
     }
@@ -135,6 +140,28 @@ contract TransferOwners is L2TaskBase {
     /// the transfer.
     function performOwnershipTransfer(address _target, address _newOwner) internal {
         IOwnable(_target).transferOwnership(_newOwner);
+    }
+
+    /// @notice Performs an ownership transfer by writing the new owner directly to the owner slot.
+    function performWethOwnershipTransfer(address _target, address _newOwner) internal {
+        _writeToProxy(_target, bytes32(uint256(51)), bytes32(uint256(uint160(_newOwner))));
+    }
+
+    /// @notice Writes a value to a proxy contract.
+    /// @dev This is accomplished by upgrading the proxy to the StorageSetter, writing the value,
+    /// and then upgrading the proxy back to the previous implementation.
+    /// @param proxy The address of the proxy contract.
+    /// @param slot The slot to write to.
+    /// @param value The value to write.
+    function _writeToProxy(address proxy, bytes32 slot, bytes32 value) internal {
+        address storageSetter = 0xd81f43eDBCAcb4c29a9bA38a13Ee5d79278270cC;
+
+        // Upgrade the proxy to the StorageSetter.
+        address implBefore = proxyAdmin.getProxyImplementation(proxy);
+        proxyAdmin.upgrade(payable(proxy), storageSetter);
+
+        StorageSetter(proxy).setBytes32(slot, value);
+        proxyAdmin.upgrade(payable(proxy), implBefore);
     }
 
     /// @notice Gets the chain info for the given chain name.
