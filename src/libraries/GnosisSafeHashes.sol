@@ -4,6 +4,7 @@ pragma solidity ^0.8.15;
 import {LibString} from "@solady/utils/LibString.sol";
 import {JSONParserLib} from "@solady/utils/JSONParserLib.sol";
 import {GnosisSafe} from "lib/safe-contracts/contracts/GnosisSafe.sol";
+import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 /// @title GnosisSafeHashes
 /// @notice Library for calculating domain separators and message hashes for Gnosis Safe transactions
@@ -179,5 +180,26 @@ library GnosisSafeHashes {
         assembly {
             messageHash_ := mload(add(_encodedTxData, 66))
         }
+    }
+
+    /// @notice Expose GnosisSafe.encodeTransactionData function. This function assumes the operation is DelegateCall.
+    function getEncodedTransactionData(address _safe, address _to, bytes memory _data, uint256 _nonce)
+        internal
+        view
+        returns (bytes memory encodedTxData)
+    {
+        encodedTxData = IGnosisSafe(_safe).encodeTransactionData({
+            to: _to,
+            value: 0,
+            data: _data,
+            operation: Enum.Operation.DelegateCall,
+            safeTxGas: 0,
+            baseGas: 0,
+            gasPrice: 0,
+            gasToken: address(0),
+            refundReceiver: address(0),
+            _nonce: _nonce
+        });
+        require(encodedTxData.length == 66, "MultisigTask: encodedTxData length is not 66 bytes.");
     }
 }

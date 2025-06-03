@@ -372,19 +372,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         view
         returns (bytes memory encodedTxData)
     {
-        encodedTxData = IGnosisSafe(safe).encodeTransactionData({
-            to: _getMulticallAddress(safe),
-            value: 0,
-            data: data,
-            operation: Enum.Operation.DelegateCall,
-            safeTxGas: 0,
-            baseGas: 0,
-            gasPrice: 0,
-            gasToken: address(0),
-            refundReceiver: address(0),
-            _nonce: _nonceBeforeSim(safe)
-        });
-        require(encodedTxData.length == 66, "MultisigTask: encodedTxData length is not 66 bytes.");
+        return GnosisSafeHashes.getEncodedTransactionData(safe, _getMulticallAddress(safe), data, _nonceBeforeSim(safe));
     }
 
     /// @notice Simulate the task by approving from owners and then executing.

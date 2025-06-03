@@ -1104,6 +1104,7 @@ library AccountAccessParser {
                     // We make a call to see if the contract is a Safe.
                     if (isGnosisSafe(target)) {
                         contractName = string.concat(contractName, " (GnosisSafe)");
+                        chainId = "0"; // Set chainId to 0 for any GnosisSafes because they're commonly used across chains (devnets etc.).
                     }
 
                     return (vm.parseUint(chainId), contractName);

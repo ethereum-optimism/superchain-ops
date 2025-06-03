@@ -70,7 +70,7 @@ The facilitator, or someone acting on behalf of the facilitator, must perform th
     safeTxHash = "<safe-transaction-hash>"
     ```
 
-4. Edit the numbers in the task directories such that the approve hash is prefixed with `XXX-1-*` and the primary task is `XXX-2-*`, where `XXX` is the task number such as `017`. For example, if this task folder was originally named `017-2-U16-opcm-upgrade-v400-base`, rename it to `017-2-U16-opcm-upgrade-v400-base` and the new `GnosisSafeApproveHash` folder name is `017-1-U16-opcm-upgrade-v400-base-approveHash`.
+4. Edit the numbers in the task directories such that the approve hash is prefixed with `XXX-1-*` and the primary task is `XXX-2-*`, where `XXX` is the task number such as `017`. For example, if this task folder was originally named `017-1-U16-opcm-upgrade-v400-base`, rename it to `017-2-U16-opcm-upgrade-v400-base` and the new `GnosisSafeApproveHash` folder name is `017-1-U16-opcm-upgrade-v400-base-approveHash`.
 5. This new task will be a nested task, so signers can sign with `just --dotenv-path $(pwd)/.env --justfile ../../../nested.just sign <base-council|base-operations>`
 
 Now, wait for the Base and Security Council signers to complete [their steps](#base-and-security-council-signer-instructions).
@@ -93,14 +93,14 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 
 ### Base and Security Council Signer Instructions
 
-If you are a base or security council signer, you will actually sign in this task directory: TODO.
+If you are a base or security council signer, you will actually sign in this task directory: [`017-1-U16-opcm-upgrade-v400-base-approveHash`](../017-1-U16-opcm-upgrade-v400-base-approveHash/README.md).
 
 Your ceremony facilitator will have performed the first three steps listed in the [Facilitator Instructions](#facilitator-instructions) section.
 
 Once that is done, your instructions as a signer are as follows:
 
 1. In this directory, run the simulation as described in the [Simulation](#simulation) section and save off the Safe Transaction Hash. Perform the validation for this task as normal.
-2. Navigate to your GnosisSafeApproveHash task's directory, and follow the instructions to sign and validate that approval hash as normal.
+2. Navigate to your GnosisSafeApproveHash task's directory [`017-1-U16-opcm-upgrade-v400-base-approveHash`](../017-1-U16-opcm-upgrade-v400-base-approveHash/README.md), and follow the instructions to sign and validate that approval hash as normal.
 3. When performing the validation step, additionally ensure the data you are signing should match the Safe Transaction Hash you saved off in step 1.
 4. Send the signature to your ceremony facilitator.
 
@@ -115,4 +115,4 @@ just simulate-stack sep 017-2-U16-opcm-upgrade-v400-base "[0x0000000000000000000
 
 In the simulation logs, search for the string `017-2-U16-opcm-upgrade-v400-base` to find the logs
 for this task's output. You will see the Safe Transaction Hash logged to a line beginning with
-`Safe Transaction Hash:`. That is the hash signers on the Base or Security Council safes will approve.
+`Safe Transaction Hash:`. That is the hash signers on the Base or Security Council safes will approve (it should be the same as the `safeTxHash` in the config.toml in the task directory).
