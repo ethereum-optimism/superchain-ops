@@ -1,0 +1,7 @@
+# this is the file used to determine the network configuration
+templateName = "EnableDeputyPauseModuleTemplate"
+
+newModule = "0xc10dac07d477215a1ebebae1dd0221c1f5d241d2"
+safeAddressString = "GuardianSafe"
+foundationSafeString = "FoundationUpgradeSafe"
+deputyPauseModuleVersion = "2.1.0"
