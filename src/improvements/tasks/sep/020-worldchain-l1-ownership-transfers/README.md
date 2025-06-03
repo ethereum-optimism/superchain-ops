@@ -4,7 +4,7 @@ Status: [READY TO SIGN]()
 
 ## Objective
 
-Transfer the L1 owners for the Worldchain Sepolia (DGF, PermissionlessWETH, PermissionedWETH and L1PAO).
+Transfer the L1 owners for the Worldchain Sepolia (DisputeGameFactory, PermissionlessWETH, PermissionedWETH and L1PAO).
 
 ## Simulation & Signing
 
