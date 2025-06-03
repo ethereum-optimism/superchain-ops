@@ -28,3 +28,37 @@ struct Call3Value {
     uint256 value;
     bytes callData;
 }
+
+/// @notice Struct to store information about a token/Eth transfer
+/// @param to The address of the recipient
+/// @param value The amount of tokens/Eth to transfer
+/// @param tokenAddress The address of the token contract
+struct TransferInfo {
+    address to;
+    uint256 value;
+    address tokenAddress;
+}
+
+/// @notice Struct to store information about a state change
+/// @param slot The storage slot that is being updated
+/// @param oldValue The old value of the storage slot
+/// @param newValue The new value of the storage slot
+struct StateInfo {
+    bytes32 slot;
+    bytes32 oldValue;
+    bytes32 newValue;
+}
+
+/// @notice Enum to determine the type of task
+enum TaskType {
+    L2TaskBase,
+    SimpleTaskBase,
+    OPCMTaskBase
+}
+
+/// @notice Task TOML config file values
+struct TaskConfig {
+    string[] allowedStorageKeys;
+    string[] allowedBalanceChanges;
+    string safeAddressString;
+}

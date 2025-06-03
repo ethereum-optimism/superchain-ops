@@ -5,6 +5,7 @@ import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {TaskType} from "src/libraries/MultisigTypes.sol";
 
 /// @notice This contract is used for all simple task types. It overrides various functions in the MultisigTask contract.
 abstract contract SimpleTaskBase is MultisigTask {
