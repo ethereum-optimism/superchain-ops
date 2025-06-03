@@ -127,7 +127,7 @@ contract StackedSimulator is Script {
         sortedTasks_ = tasks_;
     }
 
-    /// @notice Converts the leading numerical portion of a task directory to a uint256 for sorting.
+    /// @notice Converts a task name with a 3-digit numeric prefix (optionally followed by a secondary number) into a uint256 for sorting.
     function convertPrefixToUint(string memory taskName) public pure returns (uint256) {
         require(bytes(taskName).length > 0, "StackedSimulator: Task name must not be empty.");
         string[] memory parts = vm.split(taskName, "-");
