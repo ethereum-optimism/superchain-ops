@@ -1,6 +1,6 @@
 # Mode Sepolia Permissioned Fault Proofs
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [READY TO SIGN]
 
 ## Objective
 
