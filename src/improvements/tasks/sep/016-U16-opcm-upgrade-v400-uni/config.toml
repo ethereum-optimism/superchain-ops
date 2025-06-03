@@ -19,4 +19,4 @@ expectedValidationErrors = "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-130,PLDG-DWETH-30
 
 [addresses]
 OPCM = "0x44c191ce5ce35131e703532af75fa9ca221e2398" # Freshly deployed on Sepolia
-StandardValidatorV400 = "0x482160a136b7aA13d05441cDB6f09a61AF36b935" # Freshly deployed on Sepolia
+StandardValidatorV400 = "0xA8a1529547306FEC7A32a001705160f2110451aE" # Freshly deployed on Sepolia
