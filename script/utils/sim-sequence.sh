@@ -241,9 +241,9 @@ DisplaySafeBeforeNoncesv20() {
             FUS_BEFORE=$(cast call $Fake_Foundation_Upgrade_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
             if [[ $FUS_NONCE_CONFIG -ne $MAX_NONCE_ERROR ]]; then
               if [[ $FUS_BEFORE -ne $FUS_NONCE_CONFIG ]]; then
-                log_warning "Fake Foundation Upgrade Safe (FUS) [$Foundation_Upgrade_Safe] on-chain nonce: $FUS_BEFORE, env nonce: $FUS_NONCE_CONFIG: $FUS_BEFORE != $FUS_NONCE_CONFIG"
+                log_warning "Fake Foundation Upgrade Safe (FUS) [$Fake_Foundation_Upgrade_Safe] on-chain nonce: $FUS_BEFORE, env nonce: $FUS_NONCE_CONFIG: $FUS_BEFORE != $FUS_NONCE_CONFIG"
               else
-                log_info "Fake Foundation Upgrade Safe (FUS) [$Foundation_Upgrade_Safe] on-chain nonce: $FUS_BEFORE, env nonce: $FUS_NONCE_CONFIG: $FUS_BEFORE == $FUS_NONCE_CONFIG"
+                log_info "Fake Foundation Upgrade Safe (FUS) [$Fake_Foundation_Upgrade_Safe] on-chain nonce: $FUS_BEFORE, env nonce: $FUS_NONCE_CONFIG: $FUS_BEFORE == $FUS_NONCE_CONFIG"
               fi
             else
               echo "[+] $(date '+%Y-%m-%d %H:%M:%S') Fake Foundation Upgrade Safe (FUS) [$Foundation_Upgrade_Safe] on-chain nonce: $FUS_BEFORE (not in env file)"
@@ -1109,13 +1109,18 @@ for task_id in $task_ids; do
   task_folders+=("$matching_folders")
 done
 
-## Need to investigate why we can reach here when we pass an invalid task ID.
-# Skip sourcing .env if the task is under improvements folder
-# Set RPC URL based on network
-if [[ "$network" == "sep" ]]; then
-  RPC_URL=https://ethereum-sepolia-rpc.publicnode.com
-elif [[ "$network" == "eth" ]]; then
-  RPC_URL=https://ethereum.publicnode.com
+# Set RPC URL based on network or use environment variable if set
+if [[ -n "${RPC_URL:-}" ]]; then
+  # Use the RPC_URL from environment if it's set
+  log_info "Using RPC_URL from environment: $RPC_URL"
+else
+  # Fall back to default RPC URLs based on network
+  if [[ "$network" == "sep" ]]; then
+    RPC_URL=https://ethereum-sepolia-rpc.publicnode.com
+  elif [[ "$network" == "eth" ]]; then
+    RPC_URL=https://ethereum.publicnode.com
+  fi
+  log_info "Using default RPC_URL for $network: $RPC_URL"
 fi
 
 unset ETH_RPC_URL
@@ -1277,6 +1282,7 @@ for task_folder in "${task_folders[@]}"; do
               approvehash_in_anvil2 foundation $parent_multisig 2>&1)
             set -e
             if [[ $approvalhash_result == *"Signature is incorrect"* || $approvalhash_result == *"revert"* ]]; then
+            echo "approvalhash_result: $approvalhash_result"
              log_error "Nonce is invalid for $task_folder for foundation approval, please check the nonces below:"
               log_nonce_error
               exit 99
@@ -1296,7 +1302,7 @@ for task_folder in "${task_folders[@]}"; do
               exit 99
             fi
             ;;
-          "FoundationOperations")
+          "FoundationOperationsSafe")
             log_info "Processing $key with address $value"
             set +e
             approvalhash_result=$(just \
