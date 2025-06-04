@@ -255,11 +255,9 @@ jobs:
             just install
             cd src/improvements
             just simulate-stack <<parameters.network>> > stack-simulation-output.txt
-            tail -n 100 stack-simulation-output.txt > stack-simulation-output-tail.txt
+            tail -n 100 stack-simulation-output.txt
       - store_artifacts:
           path: src/improvements/stack-simulation-output.txt
-      - store_artifacts:
-          path: src/improvements/stack-simulation-output-tail.txt
       - notify-failures-on-main:
           mentions: "@evm-safety-team"
 
