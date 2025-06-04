@@ -24,4 +24,4 @@ expectedValidationErrors = ""
 [addresses]
 # https://github.com/ethereum-optimism/superchain-registry/blob/a0e62ab68db1d6e0f0fc2e449747146f3d9b312e/validation/standard/standard-versions-mainnet.toml#L22
 OPCM = "0x4fefd0c327d08143be8037c45f8a29fa0d711e50"
-StandardValidatorV400 = "0x7514298705D683eCE9810282E1488fD98e6722Ad"
+StandardValidatorV400 = "0x3dfc5e44043DC5998928E0b8280136b7352d3F70"
