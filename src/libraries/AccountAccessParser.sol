@@ -135,8 +135,9 @@ library AccountAccessParser {
 
     bytes32 internal constant LIVENESS_GUARD_LAST_LIVE_SLOT = bytes32(uint256(0));
 
-
     bytes32 internal constant ANCHOR_STATE_REGISTRY_RETIREMENT_TIMESTAMP_SLOT = bytes32(uint256(6));
+    bytes32 internal constant ANCHOR_STATE_REGISTRY_PROPOSAL_ROOT_SLOT = bytes32(uint256(3));
+    bytes32 internal constant ANCHOR_STATE_REGISTRY_PROPOSAL_L2_SEQUENCE_NUMBER_SLOT = bytes32(uint256(4));
 
     bytes32 internal constant OPTIMISM_PORTAL_RESOURCE_PARAMS_SLOT = bytes32(uint256(1));
 
@@ -342,6 +343,9 @@ library AccountAccessParser {
         } else if (isOptimismPortalResourceMetering(diff)) {
             // 5. If the slot is on the OptimismPortalResourceParams, don't include it.
             return false;
+        } else if (isAnchorStateRegistryProposal(account, diff)) {
+            // 6. If the diff is an AnchorStateRegistry Proposal, don't include it.
+            return false;
         }
         return true;
     }
@@ -418,11 +422,19 @@ library AccountAccessParser {
         return false;
     }
 
+    function isAnchorStateRegistryProposal(address _account, StateDiff memory _diff) internal view returns (bool) {
+        if (isAnchorStateRegistry(_account)) {
+            // The proposal is stored in slot 3 and 4.
+            return _diff.slot == ANCHOR_STATE_REGISTRY_PROPOSAL_ROOT_SLOT
+                || _diff.slot == ANCHOR_STATE_REGISTRY_PROPOSAL_L2_SEQUENCE_NUMBER_SLOT;
+        }
+        return false;
+    }
+
     /// @notice Normalizes a timestamp in a storage slot by zeroing out only the timestamp portion if present.
     function normalizeTimestamp(address _account, StateDiff memory _diff) internal view returns (StateDiff memory) {
         if (_diff.slot == ANCHOR_STATE_REGISTRY_RETIREMENT_TIMESTAMP_SLOT) {
-            (, string memory contractName) = getContractInfo(_account);
-            if (contractName.eq("AnchorStateRegistry")) {
+            if (isAnchorStateRegistry(_account)) {
                 // The retirementTimestamp is introduced in the AnchorStateRegistry post op-contracts/v3.0.0-rc.2.
                 // Define a static mask to zero out 64 bits at offset 4 in little-endian format
                 bytes32 MASK = bytes32(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000000000000FFFFFFFF);
@@ -1138,6 +1150,15 @@ library AccountAccessParser {
         bytes memory callData = abi.encodeWithSelector(bytes4(keccak256("ownershipTransferredToFallback()")));
         (bool ok, bytes memory data) = _who.staticcall(callData);
         return ok && data.length == 32;
+    }
+
+    /// @notice Probabilistically check if an address is an AnchorStateRegistry.
+    function isAnchorStateRegistry(address _who) internal view returns (bool) {
+        bytes memory callData = abi.encodeWithSelector(bytes4(keccak256("getAnchorRoot()")));
+        (bool ok, bytes memory data) = _who.staticcall(callData);
+        console.log("who", vm.toString(_who));
+        console.log("Data length", data.length);
+        return ok && data.length == 64;
     }
 
     /// @notice Pre-calculate all hash approval slots for a given multisig and hash.
