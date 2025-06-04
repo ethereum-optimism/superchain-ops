@@ -254,7 +254,12 @@ jobs:
           command: |
             just install
             cd src/improvements
-            just simulate-stack <<parameters.network>> | tee stack-simulation-output.txt; tail -n 100 stack-simulation-output.txt
+            just simulate-stack <<parameters.network>> > stack-simulation-output.txt
+      - run:
+          name: "Print last 100 lines of stack simulation output"
+          command: |
+            cd src/improvements
+            tail -n 100 stack-simulation-output.txt
       - store_artifacts:
           path: src/improvements/stack-simulation-output.txt
       - notify-failures-on-main:

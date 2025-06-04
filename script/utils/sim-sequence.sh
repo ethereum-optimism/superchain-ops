@@ -69,7 +69,7 @@ reset_nonce() {
 read_addresses() {
     local addresses_file="$1"
     local network="$2"
-    
+
     # Check if config file exists
     if [[ ! -f "$addresses_file" ]]; then
         echo "Error: addresses.toml file not found: $addresses_file" >&2
@@ -82,7 +82,7 @@ read_addresses() {
 
 display_addresses() {
     local config_file="$1"
-    
+
     echo "Addresses from $config_file:"
     read_addresses "$config_file" "$network" | while read -r key value; do
         echo "  $key: $value"
@@ -90,7 +90,7 @@ display_addresses() {
 }
 read_nonce_v20() {
     local config_file="$1"
-    
+
     # Check if config file exists
     if [[ ! -f "$config_file" ]]; then
         echo "Error: Config file not found: $config_file" >&2
@@ -108,9 +108,9 @@ read_nonce_v20() {
         # Remove quotes and whitespace
         addr=$(echo "$addr" | tr -d '"' | tr -d ' ')
         value=$(echo "$value" | tr -d '"' | tr -d ' ')
-        
+
         # Convert hex to decimal
-        local nonce_decimal=$(echo $((value)))       
+        local nonce_decimal=$(echo $((value)))
         # Get safe name based on address
         local safe_name=""
         if [[ "$IS_SEPOLIA" == "TRUE" ]]; then
@@ -162,7 +162,7 @@ read_nonce_v20() {
                     ;;
             esac
         fi
-        
+
         # Output the safe name and nonce
         echo "$safe_name=$nonce_decimal"
         echo "${safe_name}_ADDR=$addr"
@@ -171,26 +171,26 @@ read_nonce_v20() {
 
 # Function to display nonce values from config.toml
 DisplaySafeBeforeNoncesv20() {
-  
+
     local message="$1"
     local config_file="$2"
-    
+
     echo -e "\n$message"
-    
+
     # Get nonce values from config.toml
     local nonce_values=$(read_nonce_v20 "$config_file")
-    
+
     # Process each nonce value
     while IFS='=' read -r key value; do
         if [[ $key == *_ADDR ]]; then
             # Skip address entries
             continue
         fi
-        
+
         # Get the address for this safe
         local addr_key="${key}_ADDR"
         local addr=$(echo "$nonce_values" | grep "^$addr_key=" | cut -d'=' -f2)
-        
+
         # Set the appropriate BEFORE variable
         if [[ "$IS_SEPOLIA" == "TRUE" ]]; then
             case $key in
@@ -245,7 +245,7 @@ DisplaySafeBeforeNoncesv20() {
               else
                 log_info "Fake Foundation Upgrade Safe (FUS) [$Foundation_Upgrade_Safe] on-chain nonce: $FUS_BEFORE, env nonce: $FUS_NONCE_CONFIG: $FUS_BEFORE == $FUS_NONCE_CONFIG"
               fi
-            else 
+            else
               echo "[+] $(date '+%Y-%m-%d %H:%M:%S') Fake Foundation Upgrade Safe (FUS) [$Foundation_Upgrade_Safe] on-chain nonce: $FUS_BEFORE (not in env file)"
             fi
             FOS_BEFORE=$(cast call $Fake_Foundation_Operation_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
@@ -255,7 +255,7 @@ DisplaySafeBeforeNoncesv20() {
               else
                 log_info "Fake Foundation Operation Safe (FOS) [$Fake_Foundation_Operation_Safe] on-chain nonce: $FOS_BEFORE, env nonce: $FOS_NONCE_CONFIG: $FOS_BEFORE == $FOS_NONCE_CONFIG"
               fi
-            else 
+            else
               echo "[+] $(date '+%Y-%m-%d %H:%M:%S') Fake Foundation Operation Safe (FOS) [$Fake_Foundation_Operation_Safe] on-chain nonce: $FOS_BEFORE (not in env file)"
             fi
             SC_BEFORE=$(cast call $Fake_Security_Council_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
@@ -265,7 +265,7 @@ DisplaySafeBeforeNoncesv20() {
               else
                 log_info "Fake Security Council Safe (SC) [$Fake_Security_Council_Safe] on-chain nonce: $SC_BEFORE, env nonce: $SC_NONCE_CONFIG: $SC_BEFORE == $SC_NONCE_CONFIG"
               fi
-            else 
+            else
               echo "[+] $(date '+%Y-%m-%d %H:%M:%S') Fake Security Council Safe (SC) [$Fake_Security_Council_Safe] on-chain nonce: $SC_BEFORE (not in env file)"
             fi
             L1PAO_BEFORE=$(cast call $Fake_Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
@@ -275,10 +275,10 @@ DisplaySafeBeforeNoncesv20() {
               else
                 log_info "Fake L1 Proxy Admin Owner Safe (L1PAO) [$Fake_Proxy_Admin_Owner_Safe] on-chain nonce: $L1PAO_BEFORE, env nonce: $L1PAO_NONCE_CONFIG: $L1PAO_BEFORE == $L1PAO_NONCE_CONFIG"
               fi
-            else 
+            else
               echo "[+] $(date '+%Y-%m-%d %H:%M:%S')Fake L1 Proxy Admin Owner Safe (L1PAO) [$Fake_Proxy_Admin_Owner_Safe] on-chain nonce: $L1PAO_BEFORE (not in env file)"
             fi
-    else 
+    else
           FOS_BEFORE=$(cast call $Foundation_Operation_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
           if [[ $FOS_NONCE_CONFIG -ne $MAX_NONCE_ERROR ]]; then
             if [[ $FOS_BEFORE -ne $FOS_NONCE_CONFIG ]]; then
@@ -286,7 +286,7 @@ DisplaySafeBeforeNoncesv20() {
             else
             log_info "Foundation Operation Safe (FOS) [$Foundation_Operation_Safe] on-chain nonce: $FOS_BEFORE, env nonce: $FOS_NONCE_CONFIG: $FOS_BEFORE == $FOS_NONCE_CONFIG"
           fi
-          else 
+          else
             echo "[+] $(date '+%Y-%m-%d %H:%M:%S')Foundation Operation Safe (FOS) [$Foundation_Operation_Safe] on-chain nonce: $FOS_BEFORE (not in env file)"
           fi
           FUS_BEFORE=$(cast call $Foundation_Upgrade_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
@@ -296,7 +296,7 @@ DisplaySafeBeforeNoncesv20() {
             else
               log_info "Foundation Upgrade Safe (FUS) [$Foundation_Upgrade_Safe] on-chain nonce: $FUS_BEFORE, env nonce: $FUS_NONCE_CONFIG: $FUS_BEFORE == $FUS_NONCE_CONFIG"
             fi
-          else 
+          else
             echo "[+] $(date '+%Y-%m-%d %H:%M:%S')Foundation Upgrade Safe (FUS) [$Foundation_Upgrade_Safe] on-chain nonce: $FUS_BEFORE (not in env file)"
           fi
 
@@ -307,7 +307,7 @@ DisplaySafeBeforeNoncesv20() {
             else
               log_info "Security Council Safe (SC) [$Security_Council_Safe] on-chain nonce: $SC_BEFORE, env nonce: $SC_NONCE_CONFIG: $SC_BEFORE == $SC_NONCE_CONFIG"
             fi
-          else 
+          else
             echo "[+] $(date '+%Y-%m-%d %H:%M:%S')Security Council Safe (SC) [$Security_Council_Safe] on-chain nonce: $SC_BEFORE (not in env file)"
           fi
 
@@ -318,7 +318,7 @@ DisplaySafeBeforeNoncesv20() {
           else
             log_info "L1 Proxy Admin Owner Safe (L1PAO) [$Proxy_Admin_Owner_Safe] on-chain nonce: $L1PAO_BEFORE, env nonce: $L1PAO_NONCE_CONFIG: $L1PAO_BEFORE == $L1PAO_NONCE_CONFIG"
           fi
-          else 
+          else
             echo "[+] $(date '+%Y-%m-%d %H:%M:%S')L1 Proxy Admin Owner Safe (L1PAO) [$Proxy_Admin_Owner_Safe] on-chain nonce: $L1PAO_BEFORE (not in env file)"
           fi
 
@@ -329,7 +329,7 @@ DisplaySafeBeforeNoncesv20() {
           else
             log_info "Base Owner Safe (BOS) [$Base_Owner_Safe] on-chain nonce: $BOS_BEFORE, env nonce: $BOS_NONCE_CONFIG: $BOS_BEFORE == $BOS_NONCE_CONFIG"
           fi
-          else 
+          else
             echo "[+] $(date '+%Y-%m-%d %H:%M:%S')Base Owner Safe (BOS) [$Base_Owner_Safe] on-chain nonce: $BOS_BEFORE (not in env file)"
           fi
           BL1PAO_BEFORE=$(cast call $Base_Proxy_Admin_Owner_safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
@@ -339,7 +339,7 @@ DisplaySafeBeforeNoncesv20() {
             else
               log_info "Base Proxy Admin Owner Safe (BL1PAO) [$Base_Proxy_Admin_Owner_safe] on-chain nonce: $BL1PAO_BEFORE, env nonce: $BL1PAO_NONCE_CONFIG: $BL1PAO_BEFORE == $BL1PAO_NONCE_CONFIG"
             fi
-          else 
+          else
             echo "[+] $(date '+%Y-%m-%d %H:%M:%S')Base Proxy Admin Owner Safe (BL1PAO) [$Base_Proxy_Admin_Owner_safe] on-chain nonce: $BL1PAO_BEFORE (not in env file)"
           fi
 
@@ -350,7 +350,7 @@ DisplaySafeBeforeNoncesv20() {
           else
             log_info "Unichain 3of3 Safe (U3) [$Unichain_3of3_Safe] on-chain nonce: $U3_BEFORE, env nonce: $U3_NONCE_CONFIG: $U3_BEFORE == $U3_NONCE_CONFIG"
           fi
-          else 
+          else
             echo "[+] $(date '+%Y-%m-%d %H:%M:%S')Unichain 3of3 Safe (U3) [$Unichain_3of3_Safe] on-chain nonce: $U3_BEFORE (not in env file)"
           fi
 
@@ -361,7 +361,7 @@ DisplaySafeBeforeNoncesv20() {
             else
               log_info "Unichain Owner Safe (UOS) [$Unichain_Owner_Safe] on-chain nonce: $UOS_BEFORE, env nonce: $UOS_NONCE_CONFIG: $UOS_BEFORE == $UOS_NONCE_CONFIG"
             fi
-          else 
+          else
             echo "[+] $(date '+%Y-%m-%d %H:%M:%S')Unichain Owner Safe (UOS) [$Unichain_Owner_Safe] on-chain nonce: $UOS_BEFORE (not in env file)"
           fi
     fi
@@ -371,13 +371,13 @@ DisplaySafeBeforeNonces() {
 
   echo -e "\n$1"
   local env_file=$2
-  
+
   # Extract all SAFE_NONCE entries from the env file
   local safe_nonces=$(grep -E "^SAFE_NONCE_" "$env_file" || echo "")
-  
+
   # Create arrays to track which addresses have been found in the env file
   local found_addresses=()
-  
+
   # Loop through each SAFE_NONCE entry
   for nonce_entry in $safe_nonces; do
     # Extract the address part (after SAFE_NONCE_)
@@ -385,10 +385,10 @@ DisplaySafeBeforeNonces() {
     local current_nonce=$(echo "$nonce_entry" | cut -d'=' -f2 | tr -d '"')
     # Convert to uppercase for case-insensitive comparison
     local addr_upper=$(echo "$addr" | tr '[:lower:]' '[:upper:]')
-    
+
     # Add to found addresses list
     found_addresses+=("$addr_upper")
-    
+
     # Check for Foundation Upgrade Safe
     if [[ "$addr_upper" == $(echo "$Foundation_Upgrade_Safe" | tr '[:lower:]' '[:upper:]') ]]; then
       FUS_BEFORE=$(cast call $Foundation_Upgrade_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
@@ -399,7 +399,7 @@ DisplaySafeBeforeNonces() {
         log_info "Foundation Upgrade Safe (FUS) [$Foundation_Upgrade_Safe] on-chain nonce: $FUS_BEFORE, env nonce: $FUS_NONCE_ENV: $FUS_BEFORE == $FUS_NONCE_ENV"
       fi
     fi
-    
+
     # Check for Foundation Operation Safe
     if [[ "$addr_upper" == $(echo "$Foundation_Operation_Safe" | tr '[:lower:]' '[:upper:]') ]]; then
       FOS_BEFORE=$(cast call $Foundation_Operation_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
@@ -410,7 +410,7 @@ DisplaySafeBeforeNonces() {
         log_info "Foundation Operation Safe (FOS) [$Foundation_Operation_Safe] on-chain nonce: $FOS_BEFORE, env nonce: $FOS_NONCE_ENV: $FOS_BEFORE == $FOS_NONCE_ENV"
       fi
     fi
-    
+
     # Check for Security Council Safe
     if [[ "$addr_upper" == $(echo "$Security_Council_Safe" | tr '[:lower:]' '[:upper:]') ]]; then
       SC_BEFORE=$(cast call $Security_Council_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
@@ -421,7 +421,7 @@ DisplaySafeBeforeNonces() {
         log_info "Security Council Safe (SC) [$Security_Council_Safe] on-chain nonce: $SC_BEFORE, env nonce: $SC_NONCE_ENV: $SC_BEFORE == $SC_NONCE_ENV"
       fi
     fi
-    
+
     # Check for L1 Proxy Admin Owner Safe
     if [[ "$addr_upper" == $(echo "$Proxy_Admin_Owner_Safe" | tr '[:lower:]' '[:upper:]') ]]; then
       L1PAO_BEFORE=$(cast call $Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
@@ -432,7 +432,7 @@ DisplaySafeBeforeNonces() {
         log_info "L1 Proxy Admin Owner Safe (L1PAO) [$Proxy_Admin_Owner_Safe] on-chain nonce: $L1PAO_BEFORE, env nonce: $L1PAO_NONCE_ENV: $L1PAO_BEFORE == $L1PAO_NONCE_ENV"
       fi
     fi
-    
+
     # Check for Base Proxy Admin Owner Safe
     if [[ "$addr_upper" == $(echo "$Base_Proxy_Admin_Owner_safe" | tr '[:lower:]' '[:upper:]') ]]; then
       BL1PAO_BEFORE=$(cast call $Base_Proxy_Admin_Owner_safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
@@ -443,7 +443,7 @@ DisplaySafeBeforeNonces() {
         log_info "Base Proxy Admin Owner Safe (BL1PAO) [$Base_Proxy_Admin_Owner_safe] on-chain nonce: $BL1PAO_BEFORE, env nonce: $BL1PAO_NONCE_ENV: $BL1PAO_BEFORE == $BL1PAO_NONCE_ENV"
       fi
     fi
-    
+
     # Check for Base Owner Safe
     if [[ "$addr_upper" == $(echo "$Base_Owner_Safe" | tr '[:lower:]' '[:upper:]') ]]; then
       BOS_BEFORE=$(cast call $Base_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
@@ -454,9 +454,9 @@ DisplaySafeBeforeNonces() {
         log_info "Base Owner Safe (BOS) [$Base_Owner_Safe] on-chain nonce: $BOS_BEFORE, env nonce: $BOS_NONCE_ENV: $BOS_BEFORE == $BOS_NONCE_ENV"
       fi
     fi
-    
+
     # Check for Unichain 3of3 Safe
-  
+
     if [[ "$addr_upper" == $(echo "$Unichain_3of3_Safe" | tr '[:lower:]' '[:upper:]') ]]; then
       U3_BEFORE=$(cast call $Unichain_3of3_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
       U3_NONCE_ENV=$current_nonce
@@ -466,7 +466,7 @@ DisplaySafeBeforeNonces() {
         log_info "Unichain 3of3 Safe (U3) [$Unichain_3of3_Safe] on-chain nonce: $U3_BEFORE, env nonce: $U3_NONCE_ENV: $U3_BEFORE == $U3_NONCE_ENV"
       fi
     fi
-    
+
     # Check for Unichain Owner Safe
     if [[ "$addr_upper" == $(echo "$Unichain_Owner_Safe" | tr '[:lower:]' '[:upper:]') ]]; then
       UOS_BEFORE=$(cast call $Unichain_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
@@ -489,7 +489,7 @@ DisplaySafeBeforeNonces() {
         log_info "Fake Foundation Upgrade Safe (FUS) [$Fake_Foundation_Upgrade_Safe] on-chain nonce: $FUS_BEFORE, env nonce: $FUS_NONCE_ENV: $FUS_BEFORE == $FUS_NONCE_ENV"
       fi
     fi
-    
+
     # Check for Fake Foundation Operation Safe (Sepolia)
     if [[ "$addr_upper" == $(echo "$Fake_Foundation_Operation_Safe" | tr '[:lower:]' '[:upper:]') ]]; then
       FOS_BEFORE=$(cast call $Fake_Foundation_Operation_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
@@ -500,7 +500,7 @@ DisplaySafeBeforeNonces() {
         log_info "Fake Foundation Operation Safe (FOS) [$Fake_Foundation_Operation_Safe] on-chain nonce: $FOS_BEFORE, env nonce: $FOS_NONCE_ENV: $FOS_BEFORE == $FOS_NONCE_ENV"
       fi
     fi
-    
+
     # Check for Fake Security Council Safe (Sepolia)
     if [[ "$addr_upper" == $(echo "$Fake_Security_Council_Safe" | tr '[:lower:]' '[:upper:]') ]]; then
       SC_BEFORE=$(cast call $Fake_Security_Council_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
@@ -511,7 +511,7 @@ DisplaySafeBeforeNonces() {
         log_info "Fake Security Council Safe (SC) [$Fake_Security_Council_Safe] on-chain nonce: $SC_BEFORE, env nonce: $SC_NONCE_ENV: $SC_BEFORE == $SC_NONCE_ENV"
       fi
     fi
-    
+
     # Check for Fake Proxy Admin Owner Safe (Sepolia)
     if [[ "$addr_upper" == $(echo "$Fake_Proxy_Admin_Owner_Safe" | tr '[:lower:]' '[:upper:]') ]]; then
       L1PAO_BEFORE=$(cast call $Fake_Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
@@ -524,7 +524,7 @@ DisplaySafeBeforeNonces() {
     fi
   fi
   done
-  
+
   # Now display all safes that weren't found in the env file
   if [[ "$IS_SEPOLIA" == "TRUE" ]]; then
     # Handle Sepolia safes
@@ -547,13 +547,13 @@ DisplaySafeBeforeNonces() {
       "$Unichain_Owner_Safe:UOS:Unichain Owner Safe"
     )
   fi
-  
+
   # Display safes not found in env file
   # set -x
   for safe_info in "${all_safes[@]}"; do
     IFS=':' read -r safe_addr var_name safe_name <<< "$safe_info"
     local safe_addr_upper=$(echo "$safe_addr" | tr '[:lower:]' '[:upper:]')
-    
+
     # Check if this address was already found in the env file
     local found=false
     if [[ ${#found_addresses[@]} -gt 0 ]]; then
@@ -564,7 +564,7 @@ DisplaySafeBeforeNonces() {
         fi
       done
     fi
-  
+
     if [[ "$found" == "false" ]]; then
       local current_nonce=$(cast call $safe_addr "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
       # Set the corresponding variable
@@ -616,7 +616,7 @@ log_nonce_error() {
 ## Chain Governor Safe
 Chain_Governor_Safe=""
 
-## MAINNET 
+## MAINNET
 # SC
 Security_Council_Safe=0xc2819DC788505Aac350142A7A707BF9D03E3Bd03
 # FUS
@@ -707,7 +707,7 @@ createFork() {
 
 NonceDisplayModified(){
   echo -e "\n$1"
-  
+
   if [[ "$IS_SEPOLIA" == "TRUE" ]]; then
     # Only get and display Sepolia safes
     if [[ $FUS_BEFORE -eq $MAX_NONCE_ERROR || $FOS_BEFORE -eq $MAX_NONCE_ERROR || $SC_BEFORE -eq $MAX_NONCE_ERROR || $L1PAO_BEFORE -eq $MAX_NONCE_ERROR ]]; then
@@ -719,7 +719,7 @@ NonceDisplayModified(){
     FOS_AFTER=$(cast call $Fake_Foundation_Operation_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
     SC_AFTER=$(cast call $Fake_Security_Council_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
     L1PAO_AFTER=$(cast call $Fake_Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
-    
+
     if [[ $FUS_BEFORE -ne $FUS_AFTER ]]; then
       echo -e "\033[0;32mFake Foundation Upgrade Safe (FuS) [$Fake_Foundation_Upgrade_Safe] nonce: "$FUS_AFTER" ("$FUS_BEFORE" -> "$FUS_AFTER").\033[0m"
     else
@@ -786,22 +786,22 @@ NonceDisplayModified(){
     fi
     if [[ $BOS_BEFORE -ne $BOS_AFTER ]]; then
       echo -e "\033[0;32mBase Owner (BOS) [$Base_Owner_Safe] nonce: "$BOS_AFTER" ("$BOS_BEFORE" -> "$BOS_AFTER").\033[0m"
-    else 
+    else
       echo "Base Owner (BOS) [$Base_Owner_Safe] nonce: "$(cast call $Base_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
     fi
     if [[ $BL1PAO_BEFORE -ne $BL1PAO_AFTER ]]; then
       echo -e "\033[0;32mBase Proxy Admin Owner (BL1PAO) [$Base_Proxy_Admin_Owner_safe] nonce: "$BL1PAO_AFTER" ("$BL1PAO_BEFORE" -> "$BL1PAO_AFTER").\033[0m"
-    else 
+    else
       echo "Base Proxy Admin Owner (BL1PAO) [$Base_Proxy_Admin_Owner_safe] nonce: "$(cast call $Base_Proxy_Admin_Owner_safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
     fi
     if [[ $U3_BEFORE -ne $U3_AFTER ]]; then
       echo -e "\033[0;32mUnichain 3of3 (U3) [$Unichain_3of3_Safe] nonce: "$U3_AFTER" ("$U3_BEFORE" -> "$U3_AFTER").\033[0m"
-    else 
+    else
       echo "Unichain 3of3 (U3) [$Unichain_3of3_Safe] nonce: "$(cast call $Unichain_3of3_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
     fi
     if [[ $UOS_BEFORE -ne $UOS_AFTER ]]; then
       echo -e "\033[0;32mUnichain Owner (UOS) [$Unichain_Owner_Safe] nonce: "$UOS_AFTER" ("$UOS_BEFORE" -> "$UOS_AFTER").\033[0m"
-    else 
+    else
       echo "Unichain Owner (UOS) [$Unichain_Owner_Safe] nonce: "$(cast call $Unichain_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)"."
     fi
   fi
@@ -811,35 +811,35 @@ NonceDisplayModified(){
 # and showing the difference with on-chain values
 DisplayNonceFromEnv() {
   echo -e "\n$1"
-  
+
   # Read nonce values from .env file
   local env_file="$2"
   log_info "env_file: $env_file"
-  
+
   # Read all SAFE_NONCE entries from the env file
   local safe_nonces=$(grep -E "^SAFE_NONCE_" "$env_file" || echo "")
-  
+
   if [[ "$IS_SEPOLIA" == "TRUE" ]]; then
     # Get current on-chain nonces for Sepolia
     local fus_chain=$(cast call $Fake_Foundation_Upgrade_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
     local fos_chain=$(cast call $Fake_Foundation_Operation_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
     local sc_chain=$(cast call $Fake_Security_Council_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
     local l1pao_chain=$(cast call $Fake_Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
-    
+
     # Display Sepolia nonces
     echo "Fake Foundation Upgrade Safe (FuS) [$Fake_Foundation_Upgrade_Safe] nonce: $fus_chain"
     echo "Fake Foundation Operation Safe (FoS) [$Fake_Foundation_Operation_Safe] nonce: $fos_chain"
     echo "Fake Security Council Safe (SC) [$Fake_Security_Council_Safe] nonce: $sc_chain"
     echo "Fake L1ProxyAdminOwner (L1PAO) [$Fake_Proxy_Admin_Owner_Safe] nonce: $l1pao_chain"
-    
+
     # Check if any of these addresses have nonce overrides in the env file
     for nonce_entry in $safe_nonces; do
       local addr=$(echo "$nonce_entry" | cut -d'=' -f1 | cut -d'_' -f2)
       local value=$(echo "$nonce_entry" | cut -d'=' -f2 | tr -d '"')
-      
+
       # Convert to uppercase for case-insensitive comparison
       local addr_upper=$(echo "$addr" | tr '[:lower:]' '[:upper:]')
-      
+
       # Check each Sepolia safe address
       for safe_addr in "$Fake_Foundation_Upgrade_Safe" "$Fake_Foundation_Operation_Safe" "$Fake_Security_Council_Safe" "$Fake_Proxy_Admin_Owner_Safe"; do
         local safe_upper=$(echo "$safe_addr" | tr '[:lower:]' '[:upper:]')
@@ -855,7 +855,7 @@ DisplayNonceFromEnv() {
           elif [[ "$safe_addr" == "$Fake_Proxy_Admin_Owner_Safe" ]]; then
             safe_name="Fake L1ProxyAdminOwner (L1PAO)"
           fi
-          
+
           # Get current chain nonce
           local chain_nonce=""
           if [[ "$safe_addr" == "$Fake_Foundation_Upgrade_Safe" ]]; then
@@ -867,7 +867,7 @@ DisplayNonceFromEnv() {
           elif [[ "$safe_addr" == "$Fake_Proxy_Admin_Owner_Safe" ]]; then
             chain_nonce="$l1pao_chain"
           fi
-          
+
           echo -e "\033[0;33m$safe_name [$safe_addr] nonce: $chain_nonce (ENV: $value)\033[0m"
         fi
       done
@@ -886,7 +886,7 @@ DisplayNonceFromEnv() {
     # Get the nonce address and identify them from the env file
     local safe_nonces=$(grep -E "^SAFE_NONCE_" "$env_file" || echo "")
 
-    
+
     # Display mainnet nonces
     echo "Foundation Upgrade Safe (FuS) [$Foundation_Upgrade_Safe] nonce: $fus_chain"
     echo "Foundation Operation Safe (FoS) [$Foundation_Operation_Safe] nonce: $fos_chain"
@@ -896,15 +896,15 @@ DisplayNonceFromEnv() {
     echo "Base Owner (BOS) [$Base_Owner_Safe] nonce: $bos_chain"
     echo "Unichain 3of3 (U3) [$Unichain_3of3_Safe] nonce: $u3_chain"
     echo "Unichain Owner (UOS) [$Unichain_Owner_Safe] nonce: $uos_chain"
-    
+
     # Check if any of these addresses have nonce overrides in the env file
     for nonce_entry in $safe_nonces; do
       local addr=$(echo "$nonce_entry" | cut -d'=' -f1 | cut -d'_' -f2)
       local value=$(echo "$nonce_entry" | cut -d'=' -f2 | tr -d '"')
-      
+
       # Convert to uppercase for case-insensitive comparison
       local addr_upper=$(echo "$addr" | tr '[:lower:]' '[:upper:]')
-      
+
       # Check each mainnet safe address
       for safe_addr in "$Foundation_Upgrade_Safe" "$Foundation_Operation_Safe" "$Security_Council_Safe" "$Proxy_Admin_Owner_Safe" "$Base_Proxy_Admin_Owner_safe" "$Base_Owner_Safe" "$Unichain_3of3_Safe" "$Unichain_Owner_Safe"; do
         local safe_upper=$(echo "$safe_addr" | tr '[:lower:]' '[:upper:]')
@@ -928,7 +928,7 @@ DisplayNonceFromEnv() {
           elif [[ "$safe_addr" == "$Unichain_Owner_Safe" ]]; then
             safe_name="Unichain Owner (UOS)"
           fi
-          
+
           # Get current chain nonce
           local chain_nonce=""
           if [[ "$safe_addr" == "$Foundation_Upgrade_Safe" ]]; then
@@ -948,7 +948,7 @@ DisplayNonceFromEnv() {
           elif [[ "$safe_addr" == "$Unichain_Owner_Safe" ]]; then
             chain_nonce="$uos_chain"
           fi
-          
+
           echo -e "\033[0;33m$safe_name [$safe_addr] nonce: $chain_nonce (ENV: $value)\033[0m"
         fi
       done
@@ -961,7 +961,7 @@ DisplayNonceFromEnv() {
 # $1: Message to display before showing nonce values
 BeforeNonceDisplay(){
   echo -e "\n$1"
-  
+
   if [[ "$IS_SEPOLIA" == "TRUE" ]]; then
     # Only get and display Sepolia safes
   # Only get and display Sepolia safes
@@ -969,7 +969,7 @@ BeforeNonceDisplay(){
     FOS_BEFORE=$(cast call $Fake_Foundation_Operation_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
     SC_BEFORE=$(cast call $Fake_Security_Council_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
     L1PAO_BEFORE=$(cast call $Fake_Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
-    
+
     echo "Fake Foundation Upgrade Safe (FuS) [$Fake_Foundation_Upgrade_Safe] nonce: "$FUS_BEFORE"."
     echo "Fake Foundation Operation Safe (FoS) [$Fake_Foundation_Operation_Safe] nonce: "$FOS_BEFORE"."
     echo "Fake Security Council Safe (SC) [$Fake_Security_Council_Safe] nonce: "$SC_BEFORE"."
@@ -984,7 +984,7 @@ BeforeNonceDisplay(){
     BOS_BEFORE=$(cast call $Base_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
     U3_BEFORE=$(cast call $Unichain_3of3_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
     UOS_BEFORE=$(cast call $Unichain_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
-    
+
     echo "Foundation Upgrade Safe (FuS) [$Foundation_Upgrade_Safe] nonce: "$FUS_BEFORE"."
     echo "Foundation Operation Safe (FoS) [$Foundation_Operation_Safe] nonce: "$FOS_BEFORE"."
     echo "Security Council Safe (SC) [$Security_Council_Safe] nonce: "$SC_BEFORE"."
@@ -1010,12 +1010,12 @@ check_if_task_is_3_of_3() {
     fi
     log_info "Nested Task with 3 safes detected. This is using the superchain-ops v1.0"
     IS_3_OF_3=1
-  else 
+  else
     log_info "Nested Task with 2 safes detected. This is using the superchain-ops v1.0"
     IS_3_OF_3=0
   fi
 }
-## Check if the nonce has the correct env format. 
+## Check if the nonce has the correct env format.
 check_nonce_override() {
   local file_path="$1"
   if grep -q "SAFE_NONCE=" "$file_path"; then
@@ -1032,7 +1032,7 @@ check_nonce_override() {
 # Find unique task folder(s) for a given task ID
 find_task_folder() {
   local task_id="$1"
-  
+
   # Search in both directories
   matching_folders=$(find "$task_base_dir" "$root_dir/src/improvements/tasks/${network}" -name "${task_id}*" -type d)
 
@@ -1141,7 +1141,8 @@ for task_folder in "${task_folders[@]}"; do
   execution=""
   echo -e "\n---- Simulating task \"$(basename "$task_folder")\"----"
   if [[ "${task_folder}" != *"src/improvements"* ]]; then
-    # Check if the .env is correct with the SAFE_NONCE_XXXX or nothing but exclude the deprecated SAFE_NONCE=. 
+    echo Simulating legacy task: $(basename "$task_folder")
+    # Check if the .env is correct with the SAFE_NONCE_XXXX or nothing but exclude the deprecated SAFE_NONCE=.
     check_nonce_override "${task_folder}/.env"
     # nonce_from_env=$(grep -E "^SAFE_NONCE._*" "${task_folder}/.env" | awk -F'[=_ ]' '{print "Address: " $3, "Number: " $4}') || true
     # log_info "Nonce from .env file:\n$nonce_from_env"
@@ -1162,11 +1163,11 @@ for task_folder in "${task_folders[@]}"; do
         approvehash_in_anvil chain-governor)
       if [[ $approvalchaingovernor == *"GS025"* ]]; then
         log_error "Execution contains "GS025" meaning the task $task_folder failed during the chain-governor approval, please check the nonces below:"
-        log_nonce_error 
+        log_nonce_error
       exit 99
     fi
 
-    fi 
+    fi
     # Handle the 2-of-2 case anyway.
     approvalhashcouncil=$(just \
       --dotenv-path "${PWD}/.env" \
@@ -1201,8 +1202,9 @@ for task_folder in "${task_folders[@]}"; do
      log_error "Execution contains GS025 meaning the task $task_folder failed."
      exit 99
     fi
-   
+
   elif [[ -f "${task_folder}/config.toml" ]]; then
+    echo Simulating superchain-ops v2.0 task: $(basename "$task_folder")
 
     # TODO:check if necessary in the future check_nonce_override "${task_folder}/.env"
     # nonce_from_env=$(grep -E "^SAFE_NONCE._*" "${task_folder}/.env" | awk -F'[=_ ]' '{print "Address: " $3, "Number: " $4}') || true
@@ -1224,7 +1226,7 @@ for task_folder in "${task_folders[@]}"; do
       # We iterate over the [addresses] section of the config.toml file and for each childsafe or foundation or council we execute the command.
       read_addresses "${root_dir}/src/improvements/addresses.toml" "$network" | while read -r key value; do
 
-        case $key in 
+        case $key in
           "ChildSafe1")
             log_info "Processing $key with address $value"
             set +e
@@ -1320,7 +1322,7 @@ for task_folder in "${task_folders[@]}"; do
         set -e
 
         if [[ $approval == *"not enough signatures"* ]]; then
-          echo "approval: $approval" # display the approval error in the CI to debug the issues. 
+          echo "approval: $approval" # display the approval error in the CI to debug the issues.
           log_error "Nonce is invalid for $task_folder for council approval, please check the nonces below:"
           log_nonce_error
           exit 99
