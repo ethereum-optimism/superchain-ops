@@ -1156,8 +1156,6 @@ library AccountAccessParser {
     function isAnchorStateRegistry(address _who) internal view returns (bool) {
         bytes memory callData = abi.encodeWithSelector(bytes4(keccak256("getAnchorRoot()")));
         (bool ok, bytes memory data) = _who.staticcall(callData);
-        console.log("who", vm.toString(_who));
-        console.log("Data length", data.length);
         return ok && data.length == 64;
     }
 
