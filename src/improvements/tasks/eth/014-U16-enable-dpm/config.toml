@@ -1,7 +1,7 @@
 # this is the file used to determine the network configuration
 templateName = "EnableDeputyPauseModuleTemplate"
 
-newModule = "0xc10dac07d477215a1ebebae1dd0221c1f5d241d2"
+newModule = "0x76fc2f971fb355d0453cf9f64d3f9e4f640e1754"
 safeAddressString = "GuardianSafe"
 foundationSafeString = "FoundationUpgradeSafe"
 deputyPauseModuleVersion = "2.1.0"
