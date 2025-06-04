@@ -1140,6 +1140,13 @@ library AccountAccessParser {
         return ok && data.length == 32;
     }
 
+    /// @notice Probabilistically check if an address is an AnchorStateRegistry.
+    function isAnchorStateRegistry(address _who) internal view returns (bool) {
+        bytes memory callData = abi.encodeWithSelector(bytes4(keccak256("getAnchorRoot()")));
+        (bool ok, bytes memory data) = _who.staticcall(callData);
+        return ok && data.length == 64;
+    }
+
     /// @notice Pre-calculate all hash approval slots for a given multisig and hash.
     function calculateApproveHashSlots(address[] memory _owners, bytes32 _hash)
         internal
