@@ -197,6 +197,7 @@ simulated-run hdPath='0':
 approvehash_in_anvil2 whichSafe parentSafe:
   #!/usr/bin/env bash
   #set -x
+  export DISABLE_OVERRIDE_NONCE_CHECK=true
   # Disable exit on error temporarily
 
   # Get the appropriate safe address based on whichSafe
