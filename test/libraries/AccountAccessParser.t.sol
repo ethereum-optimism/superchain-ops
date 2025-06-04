@@ -1095,7 +1095,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
     }
 
     /// The retirementTimestamp is introduced in the AnchorStateRegistry post op-contracts/v3.0.0-rc.2
-    function test_normalizeTimestamp_AnchorStateRegistry_retirementTimestamp() public view {
+    function test_normalizeTimestamp_AnchorStateRegistry_retirementTimestamp() public {
+        vm.createSelectFork("mainnet", 22319975);
         address anchorStateRegistry = address(0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b); // op mainnet AnchorStateRegistryProxy
         // [offset: 8, bytes: 8, value: 0xFFFFFFFFFFFFFFFF, name: retirementTimestamp]
         bytes32 newValue1 = bytes32(uint256(0x0000000000000000000000000000000000000000FFFFFFFFFFFFFFFF00000000));
@@ -1588,6 +1589,33 @@ contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
 
         bytes32 hash2 = allAccesses.normalizedStateDiffHash(parentMultisig, bytes32(0));
         assertEq(hash2, expectedHash, "AnchorStateRegistry should still match the expected hash");
+    }
+
+    function test_normalizedStateDiffHash_AnchorStateRegistryProposal() public {
+        vm.createSelectFork("mainnet", 22319975);
+        setupTests();
+
+        address anchorStateRegistry = address(0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b);
+        bytes32 proposalRootSlot = bytes32(uint256(3));
+        bytes32 proposalRoot = bytes32(uint256(0x08ce0a407e15a1776bd43cd669328edc6825fcab988b8e2052258774251c25d2));
+        bytes32 proposalL2SequenceNumberSlot = bytes32(uint256(4));
+        bytes32 proposalL2SequenceNumber =
+            bytes32(uint256(0x0000000000000000000000000000000000000000000000000000000001287b8d));
+
+        VmSafe.AccountAccess[] memory allAccesses = new VmSafe.AccountAccess[](1);
+        VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](2);
+        storageAccesses[0] = storageAccess(anchorStateRegistry, proposalRootSlot, isWrite, val0, proposalRoot);
+        storageAccesses[1] =
+            storageAccess(anchorStateRegistry, proposalL2SequenceNumberSlot, isWrite, val0, proposalL2SequenceNumber);
+        allAccesses[0] = accountAccess(anchorStateRegistry, storageAccesses);
+
+        address parentMultisig = address(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A);
+        bytes32 hash = allAccesses.normalizedStateDiffHash(parentMultisig, bytes32(0));
+
+        AccountAccessParser.AccountStateDiff[] memory emptyArray = new AccountAccessParser.AccountStateDiff[](0);
+        bytes32 expectedHash = keccak256(abi.encode(emptyArray));
+
+        assertEq(hash, expectedHash, "AnchorStateRegistry proposal should be removed");
     }
 
     /// It's possible for there to be more storage writes than accesses.
