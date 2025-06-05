@@ -3,15 +3,15 @@ pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
-
-import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
-
 import {
     IDeputyGuardianModule,
     IOptimismPortal2
 } from "lib/optimism/packages/contracts-bedrock/interfaces/safe/IDeputyGuardianModule.sol";
 import {GameType} from "lib/optimism/packages/contracts-bedrock/src/dispute/lib/Types.sol";
+
+import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
+import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @title UpdateRetirementTimestampTemplate
 /// @notice This template is used to update the retirement timestamp in the OptimismPortal2

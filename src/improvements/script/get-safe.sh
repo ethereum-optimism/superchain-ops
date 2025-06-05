@@ -23,8 +23,17 @@ elif [[ "$SAFE_NAME" == "chain-governor" ]]; then
     SAFE_NAME="ChainGovernorSafe"
 elif [[ "$SAFE_NAME" == "foundation-operations" ]]; then
     SAFE_NAME="FoundationOperationsSafe"
+elif [[ "$SAFE_NAME" == "base-nested" ]]; then
+    # This is Base's nested safe, which is a 2/2 between Base and the Base Security
+    # Council (SC), which rolls up into a 2/2 between that Safe and the Optimism
+    # Foundation for Base's L1PAO.
+    SAFE_NAME="BaseNestedSafe"
 elif [[ "$SAFE_NAME" == "base-operations" ]]; then
+    # This is Base's safe, which one signer on the BaseNestedSafe 2/2.
     SAFE_NAME="BaseOperationsSafe"
+elif [[ "$SAFE_NAME" == "base-council" ]]; then
+    # This is Base's Security Council safe, which is the other signer on the BaseNestedSafe 2/2.
+    SAFE_NAME="BaseSCSafe"
 fi
 
 root_dir=$(git rev-parse --show-toplevel)
