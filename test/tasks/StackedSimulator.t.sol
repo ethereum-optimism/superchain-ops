@@ -236,13 +236,13 @@ contract StackedSimulatorUnitTest is Test {
     function testStringConversionValidInput() public {
         StackedSimulator ss = new StackedSimulator();
         uint256 result = ss.convertPrefixToUint("123-task-name");
-        assertEq(result, 123, "Expected 123 for input '123-task-name'");
+        assertEq(result, 123000, "Expected 123 for input '123-task-name'");
 
         result = ss.convertPrefixToUint("001-task-name");
-        assertEq(result, 1, "Expected 1 for input '001-task-name'");
+        assertEq(result, 1000, "Expected 1 for input '001-task-name'");
 
         result = ss.convertPrefixToUint("999-task-name");
-        assertEq(result, 999, "Expected 999 for input '999-task-name'");
+        assertEq(result, 999000, "Expected 999 for input '999-task-name'");
     }
 
     function testStringConversionLeadingZeros() public {
@@ -251,7 +251,7 @@ contract StackedSimulatorUnitTest is Test {
         assertEq(result, 0, "Expected 0 for input '000-task-name'");
 
         result = ss.convertPrefixToUint("007-task-name");
-        assertEq(result, 7, "Expected 7 for input '007-task-name'");
+        assertEq(result, 7000, "Expected 7000 for input '007-task-name'");
     }
 
     function testStringConversionShortString() public {
