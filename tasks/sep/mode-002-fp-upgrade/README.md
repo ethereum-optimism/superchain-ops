@@ -1,6 +1,6 @@
 # Mode Sepolia Permissioned Fault Proofs
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [[EXECUTED](https://sepolia.etherscan.io/tx/0x6aa6d9b5ae6920a3d017ff282e54bc59892635c56cab25b3f9094c97dd060486)]
 
 ## Objective
 
