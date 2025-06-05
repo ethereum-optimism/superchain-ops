@@ -78,7 +78,7 @@ abstract contract StateOverrideManager is CommonBase {
             for (uint256 j = 0; j < _stateOverrides[i].overrides.length; j++) {
                 if (_stateOverrides[i].overrides[j].key == nonceSlot) {
                     uint256 userDefinedNonce = uint256(_stateOverrides[i].overrides[j].value);
-                    if (Utils.isFeatureEnabled("DISABLE_OVERRIDE_NONCE_CHECK")) {
+                    if (!Utils.isFeatureEnabled("DISABLE_OVERRIDE_NONCE_CHECK")) {
                         // This is an important safety check. Users should not be able to set the nonce to a value less than the current actual nonce.
                         require(
                             userDefinedNonce >= currentActualNonce,

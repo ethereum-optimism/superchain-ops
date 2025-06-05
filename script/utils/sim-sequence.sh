@@ -206,6 +206,12 @@ DisplaySafeBeforeNoncesv20() {
                 "Fake L1PAO")
                     L1PAO_NONCE_CONFIG=$value
                     ;;
+                "Fake Base Owner Safe")
+                    BOS_NONCE_CONFIG=$value
+                    ;;
+                "Fake Base Proxy Admin Owner Safe")
+                    BL1PAO_NONCE_CONFIG=$value
+                    ;;
             esac
         else
             case $key in
@@ -278,6 +284,27 @@ DisplaySafeBeforeNoncesv20() {
             else
               echo "[+] $(date '+%Y-%m-%d %H:%M:%S')Fake L1 Proxy Admin Owner Safe (L1PAO) [$Fake_Proxy_Admin_Owner_Safe] on-chain nonce: $L1PAO_BEFORE (not in env file)"
             fi
+            BOS_BEFORE=$(cast call $Fake_Base_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+            if [[ $BOS_NONCE_CONFIG -ne $MAX_NONCE_ERROR ]]; then
+              if [[ $BOS_BEFORE -ne $BOS_NONCE_CONFIG ]]; then
+              log_warning "Fake Base Owner Safe (BOS) [$Fake_Base_Owner_Safe] on-chain nonce: $BOS_BEFORE, env nonce: $BOS_NONCE_CONFIG: $BOS_BEFORE != $BOS_NONCE_CONFIG"
+            else
+              log_info " Fake Base Owner Safe (BOS) [$Fake_Base_Owner_Safe] on-chain nonce: $BOS_BEFORE, env nonce: $BOS_NONCE_CONFIG: $BOS_BEFORE == $BOS_NONCE_CONFIG"
+            fi
+            else
+              echo "[+] $(date '+%Y-%m-%d %H:%M:%S')Fake Base Owner Safe (BOS) [$Fake_Base_Owner_Safe] on-chain nonce: $BOS_BEFORE (not in env file)"
+            fi
+            BL1PAO_BEFORE=$(cast call $Fake_Base_Proxy_Admin_Owner_safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+            if [[ $BL1PAO_NONCE_CONFIG -ne $MAX_NONCE_ERROR ]]; then
+              if [[ $BL1PAO_BEFORE -ne $BL1PAO_NONCE_CONFIG ]]; then
+                log_warning "Fake Base Proxy Admin Owner Safe (BL1PAO) [$Fake_Base_Proxy_Admin_Owner_safe] on-chain nonce: $BL1PAO_BEFORE, env nonce: $BL1PAO_NONCE_CONFIG: $BL1PAO_BEFORE != $BL1PAO_NONCE_CONFIG"
+              else
+                log_info " Fake Base Proxy Admin Owner Safe (BL1PAO) [$Fake_Base_Proxy_Admin_Owner_safe] on-chain nonce: $BL1PAO_BEFORE, env nonce: $BL1PAO_NONCE_CONFIG: $BL1PAO_BEFORE == $BL1PAO_NONCE_CONFIG"
+              fi
+            else
+              echo "[+] $(date '+%Y-%m-%d %H:%M:%S')Fake Base Proxy Admin Owner Safe (BL1PAO) [$Fake_Base_Proxy_Admin_Owner_safe] on-chain nonce: $BL1PAO_BEFORE (not in env file)"
+            fi
+
     else
           FOS_BEFORE=$(cast call $Foundation_Operation_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
           if [[ $FOS_NONCE_CONFIG -ne $MAX_NONCE_ERROR ]]; then
@@ -643,7 +670,12 @@ Fake_Foundation_Upgrade_Safe=0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B
 Fake_Foundation_Operation_Safe=0x837DE453AD5F21E89771e3c06239d8236c0EFd5E
 # SEPL1PAO
 Fake_Proxy_Admin_Owner_Safe=0x1Eb2fFc903729a0F03966B917003800b145F56E2
-
+# Fake BOS 
+Fake_Base_Owner_Safe=0x6AF0674791925f767060Dd52f7fB20984E8639d8
+# Fake BL1PAO
+Fake_Base_Proxy_Admin_Owner_safe=0x0fe884546476dDd290eC46318785046ef68a0BA9
+# Fake Nested Safe
+Fake_Base_Nested_Safe=0x5dfEB066334B67355A15dc9b67317fD2a2e1f77f
 
 DESTROY_ANVIL_AFTER_EXECUTION=true
 
@@ -969,11 +1001,18 @@ BeforeNonceDisplay(){
     FOS_BEFORE=$(cast call $Fake_Foundation_Operation_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
     SC_BEFORE=$(cast call $Fake_Security_Council_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
     L1PAO_BEFORE=$(cast call $Fake_Proxy_Admin_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    BOS_BEFORE=$(cast call $Fake_Base_Owner_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    BL1PAO_BEFORE=$(cast call $Fake_Base_Proxy_Admin_Owner_safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+    NESTED_BEFORE=$(cast call $Fake_Base_Nested_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
+
 
     echo "Fake Foundation Upgrade Safe (FuS) [$Fake_Foundation_Upgrade_Safe] nonce: "$FUS_BEFORE"."
     echo "Fake Foundation Operation Safe (FoS) [$Fake_Foundation_Operation_Safe] nonce: "$FOS_BEFORE"."
     echo "Fake Security Council Safe (SC) [$Fake_Security_Council_Safe] nonce: "$SC_BEFORE"."
     echo "Fake L1ProxyAdminOwner (L1PAO) [$Fake_Proxy_Admin_Owner_Safe] nonce: "$L1PAO_BEFORE"."
+    echo "Fake Base Owner (BOS) [$Fake_Base_Owner_Safe] nonce: "$BOS_BEFORE"."
+    echo "Fake Base Proxy Admin Owner (BL1PAO) [$Fake_Base_Proxy_Admin_Owner_safe] nonce: "$BL1PAO_BEFORE"."
+    echo "Fake Base Nested Safe (Nested) [$Fake_Base_Nested_Safe] nonce: "$NESTED_BEFORE"."
   else
     # Get and display all mainnet safes
     FUS_BEFORE=$(cast call $Foundation_Upgrade_Safe "nonce()(uint256)" --rpc-url $ANVIL_LOCALHOST_RPC)
@@ -1225,61 +1264,73 @@ for task_folder in "${task_folders[@]}"; do
         /parentMultisig:/ {multisig=$3}
         END {print bool, multisig}
     ')
+
+
     cd "${task_folder}" # change the directory to the task folder to run the justfile from the task folder
     if [[ $bool_value == "true" ]]; then
-      log_info "This is a nested task. This is using the superchain-ops v2.0"
-      # We iterate over the [addresses] section of the config.toml file and for each childsafe or foundation or council we execute the command.
-      read_addresses "${root_dir}/src/improvements/addresses.toml" "$network" | while read -r key value; do
+    echo "parent_multisig: $parent_multisig"
+    # get the child from the parent multisig
+    child_safes=$(cast call $parent_multisig "getOwners()(address[])" --rpc-url $ANVIL_LOCALHOST_RPC)
+    value=$(echo "$child_safes" | sed 's/[][]//g')
+    IFS=',' read -a child_safes_array <<< "$value"
+    log_info "This is a nested task. This is using the superchain-ops v2.0"
+    echo "child_safes_array: ${child_safes_array[@]}"
+    SignatureCount=0 # count the number of signatures approved for the task can be useful to debug if one of the safes didn't signed. 
+    for child_safe in ${child_safes_array[@]}; do
+      # get the name of the child safe from the address
+      addresses_file="${root_dir}/src/improvements/addresses.toml"
+      child_safe_name=$(yq ".${network} | to_entries | .[] | select(.value == \"$child_safe\") | .key" $addresses_file)
 
-        case $key in
-          "ChildSafe1")
-            log_info "Processing $key with address $value"
+      # We iterate over the [addresses] section of the config.toml file and for each childsafe or foundation or council we execute the command.
+      echo "child_safe_name: $child_safe_name"
+        case $child_safe_name in
+          "ChainGovernorSafe")
             set +e
             approvalhash_result=$(just \
               --justfile "${root_dir}/src/improvements/nested.just" \
-              approvehash_in_anvil2 child-safe-1 $parent_multisig 2>&1)
+              sign_and_approve_in_anvil chain-governor $parent_multisig 2>&1)
             set -e
             if [[ $approvalhash_result == *"Signature is incorrect"* || $approvalhash_result == *"revert"* ]]; then
               echo "approvalhash_result: $approvalhash_result"
-              log_error "Nonce is invalid for $task_folder for child-safe-1 approval, please check the nonces below:"
+              log_error "Nonce is invalid for $task_folder for chain-governor approval, please check the nonces below:"
               log_nonce_error
               exit 99
             fi
+            SignatureCount=$((SignatureCount + 1))
           ;;
-          "ChildSafe2")
-            log_info "Processing $key with address $value"
+          "BaseOperationsSafe")
             set +e
             approvalhash_result=$(just \
               --justfile "${root_dir}/src/improvements/nested.just" \
-              approvehash_in_anvil2 child-safe-2 $parent_multisig 2>&1)
+              sign_and_approve_in_anvil base-operations $parent_multisig 2>&1)
             set -e
             if [[ $approvalhash_result == *"Signature is incorrect"* || $approvalhash_result == *"revert"* ]]; then
               echo "approvalhash_result: $approvalhash_result"
-              log_error "Nonce is invalid for $task_folder for child-safe-2 approval, please check the nonces below:"
+              log_error "Nonce is invalid for $task_folder for base-operations approval, please check the nonces below:"
               log_nonce_error
               exit 99
             fi
+            SignatureCount=$((SignatureCount + 1))
           ;;
-          "ChildSafe3")
-            log_info "Processing $key with address $value"
+          "BaseNestedSafe")
             set +e
             approvalhash_result=$(just \
               --justfile "${root_dir}/src/improvements/nested.just" \
-              approvehash_in_anvil2 child-safe-3 $parent_multisig 2>&1)
+              sign_and_approve_in_anvil BaseNestedSafe $parent_multisig 2>&1)
             set -e
             if [[ $approvalhash_result == *"Signature is incorrect"* || $approvalhash_result == *"revert"* ]]; then
               echo "approvalhash_result: $approvalhash_result"
-              log_error "Nonce is invalid for $task_folder for child-safe-3 approval, please check the nonces below:"
+              log_error "Nonce is invalid for $task_folder for BaseNestedSafe approval, please check the nonces below:"
               log_nonce_error
               exit 99
             fi
+            SignatureCount=$((SignatureCount + 1))
           ;;
           "FoundationUpgradeSafe")
-            log_info "Processing $key with address $value"
             set +e
             approvalhash_result=$(just \
               --justfile "${root_dir}/src/improvements/nested.just" \
-              approvehash_in_anvil2 foundation $parent_multisig 2>&1)
+              sign_and_approve_in_anvil foundation $parent_multisig 2>&1)
             set -e
             if [[ $approvalhash_result == *"Signature is incorrect"* || $approvalhash_result == *"revert"* ]]; then
             echo "approvalhash_result: $approvalhash_result"
@@ -1287,13 +1338,13 @@ for task_folder in "${task_folders[@]}"; do
               log_nonce_error
               exit 99
             fi
+            SignatureCount=$((SignatureCount + 1))
           ;;
           "SecurityCouncil")
-            log_info "Processing $key with address $value"
             set +e
-            approvalhash_result=$(just \
-              --justfile "${root_dir}/src/improvements/nested.just" \
-              approvehash_in_anvil2 council $parent_multisig 2>&1)
+             approvalhash_result=$(just \
+               --justfile "${root_dir}/src/improvements/nested.just" \
+               sign_and_approve_in_anvil council $parent_multisig 2>&1)
             set -e
             if [[ $approvalhash_result == *"Signature is incorrect"* || $approvalhash_result == *"revert"* ]]; then
              echo "approvalhash_result: $approvalhash_result"
@@ -1301,24 +1352,28 @@ for task_folder in "${task_folders[@]}"; do
               log_nonce_error
               exit 99
             fi
+            SignatureCount=$((SignatureCount + 1))
             ;;
           "FoundationOperationsSafe")
-            log_info "Processing $key with address $value"
             set +e
             approvalhash_result=$(just \
               --justfile "${root_dir}/src/improvements/nested.just" \
-              approvehash_in_anvil2 foundation $parent_multisig 2>&1)
+              sign_and_approve_in_anvil foundation-operations $parent_multisig 2>&1)
             set -e
             if [[ $approvalhash_result == *"Signature is incorrect"* || $approvalhash_result == *"revert"* ]]; then
              echo "approvalhash_result: $approvalhash_result"
-             log_error "Nonce is invalid for $task_folder for foundation approval, please check the nonces below:"
+             log_error "Nonce is invalid for $task_folder for foundation-operations approval, please check the nonces below:"
               log_nonce_error
               exit 99
             fi
+            SignatureCount=$((SignatureCount + 1))
         esac
       done
-
+      if [[ $SignatureCount -gt 0 ]]; then # if the signature count is greater than 0, then we can execute the task
       execution=$(just --justfile "${root_dir}/src/improvements/nested.just" execute_in_anvil &>2)
+      else
+        log_warning "The task $task_folder has not been approved by all the safes and has been skipped, this can be in case of safes that we don't control or new scheme architcture this require the engineer to manually verify here."
+      fi
       else
         log_info "This is a single task. This is using the superchain-ops v2.0"
         set +e

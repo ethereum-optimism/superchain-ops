@@ -114,13 +114,16 @@ approve whichSafe hdPath='0':
 
 approve_in_anvil whichSafe signature:
   #!/usr/bin/env bash
-  # set -x
+  #set -x
+  echo "{{whichSafe}}"
+  echo "{{signature}}"
+
   # Get the appropriate safe address based on whichSafe
   safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
   threshold=$(cast call $safe "getThreshold()(uint256)" --rpc-url ${ANVIL_LOCALHOST_RPC})
-  echo "Threshold: $threshold"
+  # echo "Threshold: $threshold"
   getOwners=$(cast call $safe "getOwners()(address[])" --rpc-url ${ANVIL_LOCALHOST_RPC})
-  echo "Owners: $getOwners"
+  # echo "Owners: $getOwners"
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
   sender=$(cast wallet address --private-key ${PRIVATE_KEY_EXECUTOR})
@@ -194,10 +197,11 @@ simulated-run hdPath='0':
     "0x"
 
 
-approvehash_in_anvil2 whichSafe parentSafe:
+sign_and_approve_in_anvil whichSafe parentSafe:
   #!/usr/bin/env bash
-  #set -x
-  export DISABLE_OVERRIDE_NONCE_CHECK=true
+
+  # set -x
+  export DISABLE_OVERRIDE_NONCE_CHECK=1
   # Disable exit on error temporarily
 
   # Get the appropriate safe address based on whichSafe
@@ -239,7 +243,6 @@ approvehash_in_anvil2 whichSafe parentSafe:
     --sig "signFromChildMultisig(string,address)" \
     ${config} \
     "${safe}")
-
   signature=$(echo "$res_sig" | grep -o 'Signature: [a-fA-F0-9]\{130\}' | cut -d' ' -f2)
 
   # Check if the signature is not empty
