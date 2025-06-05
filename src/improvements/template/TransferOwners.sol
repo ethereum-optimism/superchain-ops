@@ -76,8 +76,8 @@ contract TransferOwners is L2TaskBase {
         performOwnershipTransfer(address(disputeGameFactory), newOwner);
 
         // Check if PermissionedWETH exists and is ownable. If it is, transfer ownership to the new owner.
-        if (address(permissionedWETH) != address(0) && _isDWETHOwnable(permissionedWETH)) {
-            performWethOwnershipTransfer(address(permissionedWETH), newOwner);
+        if (address(permissionedWETH) != address(0)) {
+            performTransferIfOwnable(address(permissionedWETH), newOwner);
         } else {
             console.log(
                 "PermissionedWETH not found or not ownable on chain %s, not performing transfer",
@@ -86,8 +86,8 @@ contract TransferOwners is L2TaskBase {
         }
 
         // Check if PermissionlessWETH exists and is ownable. If it is, transfer ownership to the new owner.
-        if (address(permissionlessWETH) != address(0) && _isDWETHOwnable(permissionlessWETH)) {
-            performWethOwnershipTransfer(address(permissionlessWETH), newOwner);
+        if (address(permissionlessWETH) != address(0)) {
+            performTransferIfOwnable(address(permissionlessWETH), newOwner);
         } else {
             console.log(
                 "PermissionlessWETH not found or not ownable on chain %s, not performing transfer",
@@ -142,9 +142,14 @@ contract TransferOwners is L2TaskBase {
         IOwnable(_target).transferOwnership(_newOwner);
     }
 
-    /// @notice Performs an ownership transfer by writing the new owner directly to the owner slot.
-    function performWethOwnershipTransfer(address _target, address _newOwner) internal {
-        _writeToProxy(_target, bytes32(uint256(51)), bytes32(uint256(uint160(_newOwner))));
+    /// @notice If the target is Ownable, performs an ownership transfer by writing the new owner
+    /// directly to the owner slot.
+    function performTransferIfOwnable(address _target, address _newOwner) internal {
+        if (_isDWETHOwnable(_target)) {
+            _writeToProxy(_target, bytes32(uint256(51)), bytes32(uint256(uint160(_newOwner))));
+        } else {
+            console.log("Target is not ownable, not performing transfer");
+        }
     }
 
     /// @notice Writes a value to a proxy contract.
