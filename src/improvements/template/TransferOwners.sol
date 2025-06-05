@@ -145,7 +145,7 @@ contract TransferOwners is L2TaskBase {
     /// @notice If the target is Ownable, performs an ownership transfer by writing the new owner
     /// directly to the owner slot.
     function performTransferIfOwnable(address _target, address _newOwner) internal {
-        if (_isDWETHOwnable(_target)) {
+        if (_isDWETHOwnable(IDelayedWETH(_target))) {
             _writeToProxy(_target, bytes32(uint256(51)), bytes32(uint256(uint160(_newOwner))));
         } else {
             console.log("Target is not ownable, not performing transfer");
