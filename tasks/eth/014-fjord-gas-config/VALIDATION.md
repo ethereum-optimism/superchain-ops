@@ -17,7 +17,7 @@ We override the ownership of the `SystemConfig` contract (task#011).
 
 - **Key:** `0x0000000000000000000000000000000000000000000000000000000000000033` <br/>
   **Value:** `0x000000000000000000000000847b5c174615b1b7fdf770882256e2d3e95b9d92` <br/>
-  **Meaning:** Overrides ownership of `SystemConfig` to the Foundation Upgrades Safe, as if task#011 had been exectued.
+  **Meaning:** Overrides ownership of `SystemConfig` to the Foundation Upgrades Safe, as if task#011 had been executed.
       It can also be validated in that tasks's validation description that this change occurs.
 
 ### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation Upgrade Safe)
