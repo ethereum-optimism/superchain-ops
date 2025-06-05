@@ -7,8 +7,3 @@ moduleToDisable = "0xc6f7C07047ba37116A3FdC444Afb5018f6Df5758"
 # on the Safe contract. If there is only one module in the list, then this can be set to the
 # SENTINEL_MODULE address (0x1).
 previousModule = "0x0000000000000000000000000000000000000001"
-
-[stateOverrides]
-0x837DE453AD5F21E89771e3c06239d8236c0EFd5E = [
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 5}
-]
