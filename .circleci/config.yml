@@ -506,14 +506,6 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
       - just_simulate_nested:
-          task: "/sep/mode-002-fp-upgrade"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-      - just_simulate_nested:
-          task: "/sep/metal-002-fp-upgrade"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-      - just_simulate_nested:
           task: "/eth/metal-002-fp-upgrade"
           context:
             - circleci-repo-readonly-authenticated-github-token
@@ -533,7 +525,7 @@ workflows:
       - simulate_sequence:
           name: simulate_sequence_sep
           network: "sep"
-          tasks: "mode-002 metal-002"
+          tasks: ""
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token

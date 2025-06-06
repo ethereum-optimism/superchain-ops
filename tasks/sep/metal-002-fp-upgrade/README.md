@@ -1,6 +1,6 @@
 # Metal Sepolia Permissioned Fault Proofs
 
-Status: [DRAFT, NOT READY TO SIGN]
+Status: [[EXECUTED](https://sepolia.etherscan.io/tx/0xa360b8dc9abcf8bfa4aa3ffdb95de34f0481c57c88fa4778951cdd9286e5ef68)]
 
 ## Objective
 
