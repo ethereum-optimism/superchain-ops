@@ -8,7 +8,7 @@ import {VmSafe} from "forge-std/Vm.sol";
 
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
-
+import {Action} from "src/libraries/MultisigTypes.sol";
 import {MockTarget} from "test/tasks/mock/MockTarget.sol";
 
 /// Mock task that upgrades the L1ERC721BridgeProxy implementation

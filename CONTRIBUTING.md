@@ -35,7 +35,7 @@ working inside of the `optimism` directory.
 To run an installation of `mise` you **must use** the following script. We want a local, static version of the script to reduce the likelihood of installing a vulnerable version of `mise`.
 
 ```bash
-./src/improvements/scripts/install-mise.sh
+./src/improvements/script/install-mise.sh
 ```
 
 Verify the installation:
@@ -72,7 +72,7 @@ You should see:
 ```yaml
 activated: yes
 ```
-If that’s true, you’re all set. For full instructions, see the official [mise docs](https://github.com/foundry-rs/mise).
+If that’s true, you’re all set. For full instructions, see the official [mise docs](https://github.com/jdx/mise).
 
 
 **Step 3: Trust the `mise.toml` file**
@@ -101,7 +101,7 @@ You must install all of the required [Software Dependencies](#software-dependenc
 repo. Once you've done so, run the following command to build:
 
 ```bash
-just build
+just install
 ```
 
 ### Running tests
@@ -110,7 +110,8 @@ Before running tests: **follow the above instructions to get everything built**.
 Once done, you can run tests as follows:
 
 ```bash
-just test
+cd src/improvements/
+just test # Run this command before asking for a review on any PR.
 ```
 
 ## Contributions Related to Spelling and Grammar

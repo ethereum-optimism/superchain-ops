@@ -2,14 +2,15 @@
 pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
-
-import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
 import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {ERC20} from "@solady/tokens/ERC20.sol";
 import {stdToml} from "lib/forge-std/src/StdToml.sol";
 import {EnumerableSet} from "lib/openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
+
+import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 import {DecimalNormalization} from "src/libraries/DecimalNormalization.sol";
 
 /// @notice Template contract for enabling finance transactions

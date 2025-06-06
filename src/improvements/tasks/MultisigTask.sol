@@ -14,6 +14,7 @@ import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.so
 
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
+import {Action, Call3Value} from "src/libraries/MultisigTypes.sol";
 import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
 import {Utils} from "src/libraries/Utils.sol";
 import {MultisigTaskPrinter} from "src/libraries/MultisigTaskPrinter.sol";
@@ -41,20 +42,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
     /// @notice struct to store the addresses that are expected to have balance changes
     EnumerableSet.AddressSet internal _allowedBalanceChanges;
-
-    /// @notice Struct to store information about an action
-    /// @param target The address of the target contract
-    /// @param value The amount of ETH to send with the action
-    /// @param arguments The calldata to send with the action
-    /// @param callType The type of call to be made (e.g. "call", "delegatecall", "staticcall")
-    /// @param description A description of the action
-    struct Action {
-        address target;
-        uint256 value;
-        bytes arguments;
-        Enum.Operation operation;
-        string description;
-    }
 
     /// @notice Struct to store information about a token/Eth transfer
     /// @param to The address of the recipient
@@ -94,18 +81,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
     /// @notice starting snapshot of the contract state before the calls are made
     uint256 internal _startSnapshot;
-
-    /// @notice Multicall3 call data struct
-    /// @param target The address of the target contract
-    /// @param allowFailure Flag to determine if the call should be allowed to fail
-    /// @param value The amount of ETH to send with the call
-    /// @param callData The calldata to send with the call
-    struct Call3Value {
-        address target;
-        bool allowFailure;
-        uint256 value;
-        bytes callData;
-    }
 
     /// @notice Task TOML config file values
     struct TaskConfig {

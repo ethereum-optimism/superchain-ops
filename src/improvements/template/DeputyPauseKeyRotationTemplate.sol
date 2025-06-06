@@ -3,9 +3,10 @@ pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
+import {IDeputyPauseModule} from "lib/optimism/packages/contracts-bedrock/interfaces/safe/IDeputyPauseModule.sol";
 
 import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
-import {IDeputyPauseModule} from "lib/optimism/packages/contracts-bedrock/interfaces/safe/IDeputyPauseModule.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @title DeputyPauseRotationKey
 contract DeputyPauseKeyRotationTemplate is SimpleTaskBase {

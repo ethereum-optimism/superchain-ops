@@ -151,7 +151,7 @@ jobs:
             just install
             (cd src/improvements && just check-superchain-registry-latest)
       - notify-failures-on-main:
-          mentions: "@security-team"
+          mentions: "@evm-safety-team"
 
   # TODO: remove/replace when there are real consumers of the RPC URLs
   example_mainnet_job:
@@ -255,7 +255,7 @@ jobs:
             just install
             (cd src/improvements && just simulate-stack <<parameters.network>>)
       - notify-failures-on-main:
-          mentions: "@security-team"
+          mentions: "@evm-safety-team"
 
   just_simulate_nested:
     description: "Runs simulations of a nested task"
@@ -334,6 +334,7 @@ jobs:
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
+    resource_class: xlarge
     environment:
       FOUNDRY_PROFILE: ci
     steps:
@@ -341,6 +342,7 @@ jobs:
       - run:
           name: forge test
           command: |
+            just install
             forge --version
             forge test -vvv
 
@@ -357,7 +359,7 @@ jobs:
           command: |
             (cd src/improvements && just simulate-all-templates)
       - notify-failures-on-main:
-          mentions: "@security-team"
+          mentions: "@evm-safety-team"
 
   just_new_recipe_tests:
     circleci_ip_ranges: true
@@ -393,15 +395,14 @@ jobs:
             | # Justfiles are not shell scripts and should not be checked with shellcheck
             (cd src/improvements/script && shellcheck -x *.sh)
   # Check that all task directories have valid names and there are no duplicate prefixes.
-  # Also check that all state overrides are 66-character hex strings.
-  check_tasks:
+  check_task_names:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
       - utils/checkout-with-mise
       - run:
-          name: check task names and state overrides
-          command: (cd src/improvements/script && ./check-task-names.sh && ./check-state-overrides.sh)
+          name: check task names
+          command: (cd src/improvements/script && ./check-task-names.sh)
   close-issue:
     machine:
       image: ubuntu-2204:2024.08.1
@@ -449,7 +450,7 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
       # This is a long running job, so we only run it on the main branch. It's encouraged that task
-      # developers run this locally before pushing changes. We should keep this job running on main 
+      # developers run this locally before pushing changes. We should keep this job running on main
       # until we have performance improvements to the job (e.g. https://github.com/foundry-rs/foundry/issues/5363).
       - template_regression_tests:
           context:
@@ -461,7 +462,7 @@ workflows:
       - shellcheck:
           context:
             - circleci-repo-readonly-authenticated-github-token
-      - check_tasks
+      - check_task_names
       # RPC endpoint checks.
       - check_sepolia_rpc_endpoints:
           context:
@@ -504,11 +505,19 @@ workflows:
       - just_simulate_sc_rehearsal_4:
           context:
             - circleci-repo-readonly-authenticated-github-token
+      - just_simulate_nested:
+          task: "/eth/metal-002-fp-upgrade"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+      - just_simulate_nested:
+          task: "/eth/mode-002-fp-upgrade"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
 
       - simulate_sequence:
           name: simulate_sequence_eth
           network: "eth"
-          tasks: ""
+          tasks: "metal-002 mode-002"
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
@@ -527,9 +536,6 @@ workflows:
           network: "eth"
           context:
             - circleci-repo-readonly-authenticated-github-token
-          filters:
-            branches:
-              only: main
 
       # Stacked simulations for superchain-ops on Sepolia.
       - stacked_simulation:
@@ -537,9 +543,6 @@ workflows:
           network: "sep"
           context:
             - circleci-repo-readonly-authenticated-github-token
-          filters:
-            branches:
-              only: main
 
   close-issue-workflow:
     when:
@@ -556,4 +559,4 @@ workflows:
             This issue will be closed now."
           context:
             - circleci-repo-superchain-ops
-            
+

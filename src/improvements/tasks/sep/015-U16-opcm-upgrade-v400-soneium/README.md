@@ -1,14 +1,14 @@
-# 016-U16-opcm-upgrade-v400-base: Upgrade 16: Base Sepolia
+# 015-U16-opcm-upgrade-v400-soneium: Upgrade 16: Soneium Testnet Minato
 
 Status: [DRAFT]()
 
 ## Objective
 
-Executes Upgrade 16 on Base Sepolia.
+Executes Upgrade 16 on Soneium Testnet Minato.
 
 This task uses `op-contract/v4.0.0` [OPContractsManager](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.0.0-rc.3/packages/contracts-bedrock/src/L1/OPContractsManager.sol) to upgrade the following chains:
 
-1. Base Sepolia
+1. Soneium Testnet Minato
 
 ### Timing
 
@@ -34,12 +34,12 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/improvements/template/OPCMUpgradeV400.sol`.
 Navigate to the correct task directory then run the simulate command.
 ```
-cd src/improvements/tasks/sep/016-U16-opcm-upgrade-v400-base
+cd src/improvements/tasks/sep/015-U16-opcm-upgrade-v400-soneium
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate foundation
 ```
 
 Keep in mind that to simulate this task correctly using the previous command, the op and ink task in this same upgrade must have been executed successfully. To test this if the previous task has not been executed yet, you can run the following command:
 ```
 cd src/improvements
-just simulate-stack sep 016-U16-opcm-upgrade-v400-base
+just simulate-stack sep 015-U16-opcm-upgrade-v400-uni-soneium
 ```

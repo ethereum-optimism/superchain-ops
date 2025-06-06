@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {OPCMTaskBase} from "src/improvements/tasks/types/OPCMTaskBase.sol";
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {
     IOPContractsManager,
     ISystemConfig,
@@ -13,6 +11,10 @@ import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
+
+import {OPCMTaskBase} from "src/improvements/tasks/types/OPCMTaskBase.sol";
+import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// TODO: If you need any interfaces from the Optimism monorepo submodule. Define them here instead of importing them.
 /// Doing this avoids tight coupling to the monorepo submodule and allows you to update the monorepo submodule

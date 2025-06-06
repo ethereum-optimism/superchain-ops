@@ -2,13 +2,9 @@
 pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
+import {stdToml} from "forge-std/StdToml.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {IStandardValidatorV180} from "@eth-optimism-bedrock/interfaces/L1/IStandardValidator.sol";
-
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
-import {AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
-import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
-
 import {
     IOptimismPortal2,
     IProxyAdmin,
@@ -19,9 +15,12 @@ import {
     Claim
 } from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {StorageSetter} from "@eth-optimism-bedrock/src/universal/StorageSetter.sol";
-
-import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
+
+import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
+import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice A template contract for configuring protocol parameters.
 ///         This file is intentionally stripped down; please add your logic where indicated.

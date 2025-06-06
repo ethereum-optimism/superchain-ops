@@ -8,6 +8,7 @@ import {Predeploys} from "@eth-optimism-bedrock/src/libraries/Predeploys.sol";
 
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice Template contract to transfer ownership of the L2 ProxyAdmin to the aliased L1 ProxyAdmin owner.
 /// The user provides the unaliased L1 PAO owner, and this template aliases the address and transfers ownership.

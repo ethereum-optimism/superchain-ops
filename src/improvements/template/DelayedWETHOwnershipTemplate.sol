@@ -5,6 +5,7 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 
 import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 import {IDelayedWETH} from "lib/optimism/packages/contracts-bedrock/interfaces/dispute/IDelayedWETH.sol";
 
