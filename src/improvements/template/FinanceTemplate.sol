@@ -140,7 +140,7 @@ contract FinanceTemplate is SimpleTaskBase {
         for (uint256 i = 0; i < tokens.length(); i++) {
             address token = tokens.at(i);
             initialBalances[token][address(parentMultisig)] = IERC20(token).balanceOf(address(parentMultisig));
-            config.allowedStorageKeys.push(simpleAddrRegistry.get(token));
+            templateConfig.allowedStorageKeys.push(simpleAddrRegistry.get(token));
         }
 
         super._templateSetup(taskConfigFilePath);

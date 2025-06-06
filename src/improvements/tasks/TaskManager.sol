@@ -14,7 +14,7 @@ import {LibString} from "@solady/utils/LibString.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {StdStyle} from "forge-std/StdStyle.sol";
 import {console} from "forge-std/console.sol";
-import {TaskType} from "src/libraries/MultisigTypes.sol";
+import {TaskType, TaskConfig, L2Chain} from "src/libraries/MultisigTypes.sol";
 import {Utils} from "src/libraries/Utils.sol";
 
 /// This script provides a collection of functions that can be used to manage tasks.
@@ -25,20 +25,6 @@ contract TaskManager is Script {
     using LibString for string;
     using AccountAccessParser for VmSafe.AccountAccess[];
     using StdStyle for string;
-
-    struct L2Chain {
-        uint256 chainId;
-        string name;
-    }
-
-    struct TaskConfig {
-        L2Chain[] optionalL2Chains;
-        string basePath;
-        string configPath;
-        string templateName;
-        address parentMultisig;
-        bool isNested;
-    }
 
     /// @notice Cache of MultisigTask instances for each task indexed by the tasks config path.
     mapping(string => MultisigTask) public taskCache;
@@ -241,7 +227,7 @@ contract TaskManager is Script {
 
         string memory templatePath = string.concat("out/", templateName, ".sol/", templateName, ".json");
         MultisigTask task = getCachedTask(taskConfigFilePath, templatePath);
-        string memory safeAddressString = task.loadSafeAddressString(taskConfigFilePath);
+        string memory safeAddressString = loadSafeAddressString(task, taskConfigFilePath);
         TaskType taskType = task.taskType();
 
         if (taskType == TaskType.SimpleTaskBase) {
@@ -258,7 +244,7 @@ contract TaskManager is Script {
                 parentMultisig = _addrRegistry.getAddress(safeAddressString, chains[0].chainId);
             }
         }
-        return (task.isNestedSafe(parentMultisig), parentMultisig);
+        return (isNestedSafe(parentMultisig), parentMultisig);
     }
 
     /// @notice Returns a cached MultisigTask instance for a given template path or deploys a new one.
@@ -268,5 +254,38 @@ contract TaskManager is Script {
             task = MultisigTask(deployCode(templatePath));
             taskCache[taskPath] = task;
         }
+    }
+
+    /// @notice Get the safe address string from the config file. If the string is not found, use the value from the template.
+    function loadSafeAddressString(MultisigTask task, string memory taskConfigFilePath)
+        public
+        view
+        returns (string memory)
+    {
+        string memory file = vm.readFile(taskConfigFilePath);
+        try vm.parseTomlString(file, ".safeAddressString") returns (string memory _safeAddressString) {
+            console.log(
+                vm.toUppercase("[INFO]").green().bold(),
+                "Safe address string found in config file, this takes precedence over the template value:",
+                _safeAddressString
+            );
+            return _safeAddressString;
+        } catch (bytes memory) {
+            return task.safeAddressString();
+        }
+    }
+
+    /// @notice Helper function to determine if the given safe is a nested multisig.
+    function isNestedSafe(address safe) public view returns (bool) {
+        // assume safe is nested unless there is an EOA owner
+        bool nested = true;
+
+        address[] memory owners = IGnosisSafe(safe).getOwners();
+        for (uint256 i = 0; i < owners.length; i++) {
+            if (owners[i].code.length == 0) {
+                nested = false;
+            }
+        }
+        return nested;
     }
 }

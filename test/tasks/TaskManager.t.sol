@@ -6,6 +6,7 @@ import {LibString} from "@solady/utils/LibString.sol";
 import {TaskManager} from "src/improvements/tasks/TaskManager.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
+import {TaskConfig, L2Chain} from "src/libraries/MultisigTypes.sol";
 import {Vm} from "forge-std/Vm.sol";
 
 contract TaskManagerUnitTest is StateOverrideManager, Test {
@@ -79,8 +80,8 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
 
     function testNormalizedHashCheck_Passes() public {
         TaskManager tm = new TaskManager();
-        TaskManager.TaskConfig memory config = TaskManager.TaskConfig({
-            optionalL2Chains: new TaskManager.L2Chain[](0),
+        TaskConfig memory config = TaskConfig({
+            optionalL2Chains: new L2Chain[](0),
             basePath: "test/tasks/example/eth/004-fp-set-respected-game-type",
             configPath: "",
             templateName: "",
@@ -102,8 +103,8 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
 
     function testNormalizedHashCheck_Fails() public {
         TaskManager tm = new TaskManager();
-        TaskManager.TaskConfig memory config = TaskManager.TaskConfig({
-            optionalL2Chains: new TaskManager.L2Chain[](0),
+        TaskConfig memory config = TaskConfig({
+            optionalL2Chains: new L2Chain[](0),
             basePath: "src/improvements/tasks/eth/013-gas-params-op",
             configPath: "",
             templateName: "",
