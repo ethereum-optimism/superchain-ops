@@ -169,7 +169,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @param taskConfigFilePath The path to the task configuration file.
     function simulateRun(string memory taskConfigFilePath, bytes memory signatures, address optionalChildMultisig)
         internal
-        returns (VmSafe.AccountAccess[] memory, Action[] memory)
+        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32 normalizedHash_)
     {
         // Sets safe to the safe specified by the current template from addresses.json
         _taskSetup(taskConfigFilePath, optionalChildMultisig);
@@ -181,7 +181,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         Action[] memory actions = build();
         (VmSafe.AccountAccess[] memory accountAccesses, bytes32 txHash) = simulate(signatures, actions);
         validate(accountAccesses, actions);
-        print(actions, accountAccesses, true, txHash);
+        normalizedHash_ = print(actions, accountAccesses, true, txHash);
 
         // Revert with meaningful error message if the user is trying to simulate with the wrong command.
         if (optionalChildMultisig != address(0)) {
@@ -190,13 +190,13 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             require(!isNestedSafe(parentMultisig), "MultisigTask: multisig must be a single safe.");
         }
 
-        return (accountAccesses, actions);
+        return (accountAccesses, actions, normalizedHash_);
     }
 
     /// @notice Runs the task with the given configuration file path.
     function simulateRun(string memory taskConfigFilePath, bytes memory signatures)
         public
-        returns (VmSafe.AccountAccess[] memory, Action[] memory)
+        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32)
     {
         return simulateRun(taskConfigFilePath, signatures, address(0));
     }
@@ -204,7 +204,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @notice Runs the task with the given configuration file path.
     function simulateRun(string memory taskConfigFilePath)
         public
-        returns (VmSafe.AccountAccess[] memory, Action[] memory)
+        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32)
     {
         return simulateRun(taskConfigFilePath, "", address(0));
     }
@@ -251,7 +251,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// given child multisig. Prints the 'data to sign' which is used to sign with the eip712sign binary.
     function signFromChildMultisig(string memory taskConfigFilePath, address _childMultisig)
         public
-        returns (VmSafe.AccountAccess[] memory, Action[] memory)
+        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32)
     {
         return simulateRun(taskConfigFilePath, "", _childMultisig);
     }
@@ -602,13 +602,13 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         VmSafe.AccountAccess[] memory accountAccesses,
         bool isSimulate,
         bytes32 txHash
-    ) public view {
+    ) public view returns (bytes32 normalizedHash_) {
         console.log("");
         MultisigTaskPrinter.printWelcomeMessage();
 
         accountAccesses.decodeAndPrint(parentMultisig, txHash);
 
-        printSafe(actions, accountAccesses, isSimulate, txHash);
+        return printSafe(actions, accountAccesses, isSimulate, txHash);
     }
 
     /// @notice Prints all relevant hashes to sign as well as the tenderly simulation link.
@@ -617,7 +617,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         VmSafe.AccountAccess[] memory accountAccesses,
         bool isSimulate,
         bytes32 txHash
-    ) private view {
+    ) private view returns (bytes32 normalizedHash_) {
         // Print calldata to be executed within the Safe.
         MultisigTaskPrinter.printTaskCalldata(getMulticall3Calldata(actions));
 
@@ -631,8 +631,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
             printTenderlySimulationData(actions);
         }
-        bytes32 normalizedHash = AccountAccessParser.normalizedStateDiffHash(accountAccesses, parentMultisig, txHash);
-        MultisigTaskPrinter.printAuditReportInfo(normalizedHash);
+        normalizedHash_ = AccountAccessParser.normalizedStateDiffHash(accountAccesses, parentMultisig, txHash);
+        MultisigTaskPrinter.printAuditReportInfo(normalizedHash_);
     }
 
     /// @notice Helper function to print nested calldata.

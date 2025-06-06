@@ -11,10 +11,6 @@ import {Vm} from "forge-std/Vm.sol";
 contract TaskManagerUnitTest is StateOverrideManager, Test {
     using LibString for string;
 
-    string constant commonToml = "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n"
-        "templateName = \"DisputeGameUpgradeTemplate\"\n" "\n"
-        "implementations = [{gameType = 0, implementation = \"0xf691F8A6d908B58C534B624cF16495b491E633BA\", l2ChainId = 10}]\n";
-
     function setUp() public {}
 
     function testSetTenderlyGasEnv() public {
@@ -79,5 +75,42 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         address safe = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A;
         tm.requireSignerOnSafe(signer, "src/improvements/tasks/eth/011-deputy-pause-module-activation");
         tm.requireSignerOnSafe(signer, safe);
+    }
+
+    function testNormalizedHashCheck_Passes() public {
+        TaskManager tm = new TaskManager();
+        TaskManager.TaskConfig memory config = TaskManager.TaskConfig({
+            optionalL2Chains: new TaskManager.L2Chain[](0),
+            basePath: "test/tasks/example/eth/004-fp-set-respected-game-type",
+            configPath: "",
+            templateName: "",
+            parentMultisig: address(0),
+            isNested: true
+        });
+        // Doesn't have a VALIDATION markdown file.
+        assertTrue(tm.checkNormalizedHash(bytes32(hex"1230"), config));
+        assertTrue(tm.checkNormalizedHash(bytes32(hex"1234"), config));
+
+        // Does have a VALIDATION markdown file and hash matches.
+        config.basePath = "src/improvements/tasks/eth/013-gas-params-op";
+        assertTrue(
+            tm.checkNormalizedHash(
+                bytes32(hex"2576512ad010b917c049a392e916bb02de1c168477fe29c4f8cbc4fcb016a4b0"), config
+            )
+        );
+    }
+
+    function testNormalizedHashCheck_Fails() public {
+        TaskManager tm = new TaskManager();
+        TaskManager.TaskConfig memory config = TaskManager.TaskConfig({
+            optionalL2Chains: new TaskManager.L2Chain[](0),
+            basePath: "src/improvements/tasks/eth/013-gas-params-op",
+            configPath: "",
+            templateName: "",
+            parentMultisig: address(0),
+            isNested: true
+        });
+        // Does have a VALIDATION markdown file and hash does not match.
+        assertFalse(tm.checkNormalizedHash(bytes32(hex"10"), config));
     }
 }

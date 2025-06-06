@@ -398,7 +398,6 @@ contract StackedSimulatorUnitTest is Test {
     function _setupTaskDir(string memory taskDir) internal {
         vm.createDir(taskDir, true);
         vm.writeFile(string.concat(taskDir, "/README.md"), "This is a test README.md file.");
-        vm.writeFile(string.concat(taskDir, "/VALIDATION.md"), "This is a test VALIDATION.md file.");
     }
 
     // Base TOML configuration builder
