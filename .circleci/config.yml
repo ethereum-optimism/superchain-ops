@@ -253,7 +253,10 @@ jobs:
           name: "Run stacked simulation for network: <<parameters.network>>"
           command: |
             just install
-            (cd src/improvements && just simulate-stack <<parameters.network>>)
+            cd src/improvements
+            just simulate-stack <<parameters.network>> > stack-simulation-output.txt
+      - store_artifacts:
+          path: src/improvements/stack-simulation-output.txt
       - notify-failures-on-main:
           mentions: "@evm-safety-team"
 
@@ -506,18 +509,18 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
       - just_simulate_nested:
-          task: "/sep/mode-002-fp-upgrade"
+          task: "/eth/metal-002-fp-upgrade"
           context:
             - circleci-repo-readonly-authenticated-github-token
       - just_simulate_nested:
-          task: "/sep/metal-002-fp-upgrade"
+          task: "/eth/mode-002-fp-upgrade"
           context:
             - circleci-repo-readonly-authenticated-github-token
 
       - simulate_sequence:
           name: simulate_sequence_eth
           network: "eth"
-          tasks: ""
+          tasks: "metal-002 mode-002"
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
@@ -525,7 +528,7 @@ workflows:
       - simulate_sequence:
           name: simulate_sequence_sep
           network: "sep"
-          tasks: "mode-002 metal-002"
+          tasks: "013-U16-enable-dpm 014-U16-opcm-upgrade-v400-op-ink 015-U16-opcm-upgrade-v400-soneium 016-U16-opcm-upgrade-v400-uni 017-U16-opcm-upgrade-v400-base 018-U16-remove-dgm 019-U16-remove-dpm"
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
