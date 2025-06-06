@@ -4,6 +4,7 @@ pragma solidity 0.8.15;
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
 
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
@@ -50,6 +51,12 @@ contract GnosisSafeApproveHash is L2TaskBase {
     /// @notice The BaseNested Safe that is approving a hash on the L1PAO.
     address public baseNested;
 
+    /// @notice The specific Multicall3 contract.
+    address public multicall3;
+
+    /// @notice The nonce of the parent multisig.
+    uint256 public parentMultisigNonce;
+
     /// @notice Returns the safe address string identifier.
     function safeAddressString() public pure override returns (string memory) {
         revert("safeAddressString must be set in the config file");
@@ -82,12 +89,21 @@ contract GnosisSafeApproveHash is L2TaskBase {
         // Read safe addresses from the address registry.
         l1PAO = superchainAddrRegistry.getAddress("ProxyAdminOwner", chains[0].chainId);
         baseNested = superchainAddrRegistry.get("BaseNestedSafe");
+        multicall3 = superchainAddrRegistry.get("Multicall3");
 
         // Read the safeTxHash from the TOML file and validate it.
         string memory toml = vm.readFile(_taskConfigFilePath);
         safeTxHash = toml.readBytes32(".safeTxHash");
+        bytes memory taskCalldata = toml.readBytes(".taskCalldata");
+        parentMultisigNonce = toml.readUint(".parentMultisigNonce");
+
         require(safeTxHash != bytes32(0), "safeTxHash is required");
+        require(taskCalldata.length != 0, "taskCalldata is required");
         require(!isHashApprovedOnL1PAO(safeTxHash), "safeTxHash is already approved");
+
+        bytes memory encodedTxData =
+            GnosisSafeHashes.getEncodedTransactionData(l1PAO, multicall3, taskCalldata, parentMultisigNonce);
+        require(keccak256(encodedTxData) == safeTxHash, "safeTxHash is not the same as the encoded transaction data");
     }
 
     /// @notice Builds the actions for executing the operations
