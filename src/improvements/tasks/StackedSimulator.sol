@@ -8,6 +8,7 @@ import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {Utils} from "src/libraries/Utils.sol";
 import {console} from "forge-std/console.sol";
 import {VmSafe} from "forge-std/Vm.sol";
+import {TaskConfig} from "src/libraries/MultisigTypes.sol";
 
 /// This script enables stacked simulations. Stacked simulations allow us to simulate a task
 /// that depends on the state of another task that hasn't been executed yet.
@@ -37,7 +38,7 @@ contract StackedSimulator is Script {
     function simulateStack(string memory network, string memory task, address[] memory optionalOwnerAddresses) public {
         TaskManager taskManager = new TaskManager();
         TaskInfo[] memory tasks = getNonTerminalTasks(network, task);
-        TaskManager.TaskConfig[] memory taskConfigs = new TaskManager.TaskConfig[](tasks.length);
+        TaskConfig[] memory taskConfigs = new TaskConfig[](tasks.length);
         require(
             optionalOwnerAddresses.length == 0 || optionalOwnerAddresses.length == tasks.length,
             "StackedSimulator: Invalid owner addresses array length. Must be empty or match the number of tasks being simulated."
