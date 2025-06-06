@@ -326,7 +326,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         });
         require(encodedTxData.length == 66, "MultisigTask: encodedTxData length is not 66 bytes.");
     }
-    
+
     /// ==================================================
     /// =============== Internal Functions ===============
     /// ==================================================
