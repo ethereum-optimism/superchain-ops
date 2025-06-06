@@ -67,8 +67,16 @@ contract DisableModule is SimpleTaskBase {
         (address[] memory modules, address nextModule) =
             ModuleManager(parentMultisig).getModulesPaginated(SENTINEL_MODULE, 100);
         if (keccak256(abi.encodePacked(ISafe(parentMultisig).VERSION())) == keccak256(abi.encodePacked("1.1.1"))) {
-            console.log("[INFO] Old version of safe detected 1.1.1.");
-            revert("Older versions of the Gnosis Safe are not yet supported by this template.");
+            // console.log("[INFO] Old version of safe detected 1.1.1.");
+            (address[] memory array, address next) = ModuleManager(parentMultisig).getModulesPaginated(SENTINEL_MODULE, 100);
+            if(next != SENTINEL_MODULE) {
+                revert("More than 100 modules found, what are you even doing?");
+            }
+            for(uint256 i = 0; i < array.length; i++) {
+                if(array[i] == moduleToDisable) {
+                    revert("Module not disabled");
+                }
+            }
         } else {
             assertFalse(ModuleManager(parentMultisig).isModuleEnabled(moduleToDisable), "Module not disabled");
         }
