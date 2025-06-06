@@ -37,14 +37,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// This state variable is always set in the `_taskSetup` function
     address public parentMultisig;
 
-    /// @notice struct to store the addresses that are expected to have storage accesses
-    EnumerableSet.AddressSet internal _allowedStorageAccesses;
-
-    /// @notice struct to store the addresses that are expected to have balance changes
-    EnumerableSet.AddressSet internal _allowedBalanceChanges;
-
     /// @notice starting snapshot of the contract state before the calls are made
-    uint256 internal _startSnapshot;
+    uint256 public startSnapshot;
 
     /// @notice configuration set at initialization
     TaskConfig public config;
@@ -55,6 +49,12 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @notice The address of the multicall target for this task
     address public multicallTarget;
 
+    /// @notice struct to store the addresses that are expected to have storage accesses
+    EnumerableSet.AddressSet internal _allowedStorageAccesses;
+
+    /// @notice struct to store the addresses that are expected to have balance changes
+    EnumerableSet.AddressSet internal _allowedBalanceChanges;
+
     /// @notice Address of the child multisig. Required for nested multisig tasks; optional otherwise.
     address private childMultisig;
 
@@ -64,7 +64,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     // ==================================================
     // ======== Virtual, Unimplemented Functions ========
     // ==================================================
-    // These are functions have no default implementation and MUST be implemented by the inheriting contract.
 
     /// @notice Returns the type of task. L2TaskBase, SimpleTaskBase or OPCMTaskBase.
     function taskType() public pure virtual returns (TaskType);
@@ -814,7 +813,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     function _startBuild() private {
         _prankMultisig();
 
-        _startSnapshot = vm.snapshotState();
+        startSnapshot = vm.snapshotState();
 
         vm.startStateDiffRecording();
     }
@@ -827,8 +826,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
 
         // Roll back state changes.
         require(
-            vm.revertToState(_startSnapshot),
-            "MultisigTask: failed to revert back to snapshot, unsafe state to run task"
+            vm.revertToState(startSnapshot), "MultisigTask: failed to revert back to snapshot, unsafe state to run task"
         );
         require(accesses.length > 0, "MultisigTask: no account accesses found");
 
