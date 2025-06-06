@@ -10,7 +10,7 @@
 
 This repo contains execution code and artifacts related to superchain deployments and other tasks.
 
-This repo is structured with each network having a high level directory which contains sub directories of any "tasks" which have occured on that network.
+This repo is structured with each network having a high level directory which contains sub directories of any "tasks" which have occurred on that network.
 
 Tasks include:
 
