@@ -19,7 +19,7 @@ interface IFetcher {
     function addressManager() external view returns (address);
     function PORTAL() external view returns (address);
     function portal() external view returns (address);
-    function l1ERC721BridgeProxy() external view returns (address);
+    function l1ERC721Bridge() external view returns (address);
     function optimismMintableERC20Factory() external view returns (address);
     function gameImpls(GameType _gameType) external view returns (address);
     function anchorStateRegistry() external view returns (address);
@@ -369,8 +369,8 @@ contract SuperchainAddressRegistry is StdChains {
         view
         returns (address)
     {
-        try IFetcher(systemConfigProxy).l1ERC721BridgeProxy() returns (address l1ERC721BridgeProxy) {
-            return l1ERC721BridgeProxy;
+        try IFetcher(systemConfigProxy).l1ERC721Bridge() returns (address l1ERC721Bridge) {
+            return l1ERC721Bridge;
         } catch {
             return parseContractAddress(chainAddressesContent, chainId, "L1ERC721BridgeProxy");
         }
