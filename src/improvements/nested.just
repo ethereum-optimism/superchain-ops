@@ -32,7 +32,7 @@ simulate whichSafe hdPath='0':
   
   export FOUNDRY_PROFILE="${FOUNDRY_PROFILE:-default}"
   echo "Current Foundry profile: $FOUNDRY_PROFILE"
-  echo "RPC: ${rpcUrl} (see correct Foundry profile in foundry.toml)"
+  echo "RPC: ${rpcUrl} (find URL by looking at the Foundry profile in foundry.toml)"
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
 
