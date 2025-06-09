@@ -29,7 +29,7 @@ new COMMAND="" TASK_TYPE="":
         echo "    e.g.: https://github.com/ethereum-optimism/superchain-ops/blob/main/src/improvements/template/OPCMUpgradeV200.sol"
         echo
     }
-    
+
     # shellcheck disable=SC2050
     case "{{COMMAND}}" in
         "")
@@ -118,17 +118,30 @@ simulate-all-templates:
     forge build
 
     # If the task is nested then we only simulate as the foundation.
-    # In the future we could simulate as other nested safes. 
+    # In the future we could simulate as other nested safes.
     # For testing purposes, we do not gain anything by simulating as other nested safes.
     nested_safe_name="foundation"
     simulation_count=0
-    for task in ${root_dir}/test/tasks/example/*/*; do
+
+    # Collect PIDs of each background simulation.
+    declare -a pids=()
+
+    for task in "${root_dir}/test/tasks/example/"*/*; do
         if [ -d "$task" ]; then
-            ${root_dir}/src/improvements/script/simulate-task.sh $task $nested_safe_name
-            simulation_count=$((simulation_count + 1))
+            # Launch each simulation in background.
+            "${root_dir}/src/improvements/script/simulate-task.sh" "$task" "$nested_safe_name" & pids+=( "$!" )
         fi
     done
+
+    # Wait for every simulation to finish, count successes.
+    for pid in "${pids[@]}"; do
+        wait "$pid"
+        simulation_count=$((simulation_count + 1))
+    done
+
     echo "$simulation_count simulations run."
+
+    # Count template files (excluding *.template.sol and boilerplate dir).
     template_count=$(find "${root_dir}/src/improvements/template" -type f ! -name "*.template.sol" ! -path "*/boilerplate/*" | wc -l | xargs)
 
     # Verify that every template file is referenced by at least one example task config.
@@ -158,7 +171,7 @@ simulate-verify-task TASK="":
     forge build
 
     # If the task is nested then we only simulate as the foundation.
-    # In the future we could simulate as other nested safes. 
+    # In the future we could simulate as other nested safes.
     # For testing purposes, we do not gain anything by simulating as other nested safes.
     nested_safe_name="foundation"
 
@@ -198,7 +211,7 @@ simulate-stack NETWORK="" TASK="" OWNER_ADDRESSES="[]":
             exit 1
             ;;
     esac
-    
+
     echo -e "\n⏳ Stacked Task simulation in progress. This may take a while..."
     if [ -z "{{TASK}}" ]; then
         echo -e "⏳ You are simulating all tasks for network: {{NETWORK}}\n"
@@ -209,7 +222,7 @@ simulate-stack NETWORK="" TASK="" OWNER_ADDRESSES="[]":
         just list-stack {{NETWORK}} {{TASK}}
         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address[])" "{{NETWORK}}" "{{TASK}}" "{{OWNER_ADDRESSES}}" --ffi --rpc-url $ETH_RPC_URL
     fi
-    echo -e "\n⚠️ Please note: Some Tenderly links may not work when running a stacked simulation.⚠️"
+    echo -e "\n⚠️ Please note: Some Tenderly links may not work when running a stacked simulation. Check out Tenderly's Virtual TestNets as a workaround.⚠️"
 
 list-stack NETWORK="" TASK="":
     #!/usr/bin/env bash

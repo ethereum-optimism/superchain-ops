@@ -4,7 +4,7 @@ set dotenv-load
 # Export variables in uppercase for shell script usage
 export TASK_PATH := invocation_directory()
 export SCRIPT_PATH := justfile_directory()
-
+export JUSTFILE_PATH := justfile()
 # Get RPC URL based on task path
 rpc_cmd := SCRIPT_PATH + "/script/get-rpc-url.sh \"" + TASK_PATH + "\""
 export rpcUrl := shell(rpc_cmd)
@@ -16,6 +16,9 @@ export signatures := env_var_or_default('SIGNATURES', '')
 export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 export forkBlockNumber := env_var_or_default('FORK_BLOCK_NUMBER', '-1')
 
+# Keystore variables
+export keystorePathBase := "~/.foundry/keystores/"
+
 # Simulate sequence execution variables
 export ANVIL_LOCALHOST_RPC :="http://localhost:8545"
 export PRIVATE_KEY_OWNER := "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
@@ -26,9 +29,7 @@ simulate whichSafe hdPath='0':
   #!/usr/bin/env bash
   # Get the appropriate safe address based on whichSafe
   safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
-
   echo "RPC URL: ${rpcUrl}"
-
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
 
@@ -65,7 +66,7 @@ simulate whichSafe hdPath='0':
     ${config} \
     ${safe}
 
-sign whichSafe hdPath='0':
+sign whichSafe hdPath='0' ledger='true':
   #!/usr/bin/env bash
   # Get the appropriate safe address based on whichSafe
   safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
@@ -75,9 +76,16 @@ sign whichSafe hdPath='0':
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
   echo "getting signer address..."
-  signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  if {{ledger}}; then
+    signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+    signer_args="--ledger --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
+  else
+    cd ${TASK_PATH}
+    signer_private_key=$(just --justfile=${JUSTFILE_PATH} get-keystore-private-key)
+    signer=$(cast wallet address --private-key ${signer_private_key})
+    signer_args="--private-key ${signer_private_key#0x}"
+  fi
   echo "Signing with: ${signer}"
-  echo ""
 
   # Reverts if signer is not an owner on the safe.
   forge script TaskManager --rpc-url ${rpcUrl} --sig "requireSignerOnSafe(address,address)" $signer $safe
@@ -85,42 +93,53 @@ sign whichSafe hdPath='0':
   echo "⏳ Task signing in progress. Some tasks take longer than others..."
   forge build
   # Using the eip712sign within the repo folder since eip712sign was installed there in ./justfile.
-  $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
+  $(git rev-parse --show-toplevel)/bin/eip712sign ${signer_args} -- \
   forge script ${script} \
     --rpc-url ${rpcUrl} \
     --sig "signFromChildMultisig(string,address)" \
     ${config} \
     "${safe}"
 
-approve whichSafe hdPath='0':
+approve whichSafe hdPath='0' ledger='true':
   #!/usr/bin/env bash
   # Get the appropriate safe address based on whichSafe
   safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
-
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
-  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  if {{ledger}}; then
+    sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+    signer_args="--ledger --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
+  else
+    cd ${TASK_PATH}
+    signer_private_key=$(just --justfile=${JUSTFILE_PATH} get-keystore-private-key)
+    sender=$(cast wallet address --private-key ${signer_private_key})
+    signer_args="--private-key ${signer_private_key}"
+  fi
+  echo "Approving with sender: ${sender}"
 
   forge build
   forge script ${script} \
     --fork-url ${rpcUrl} \
-    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
     --broadcast \
     --sender ${sender} \
     --sig "approveFromChildMultisig(string,address,bytes)" \
+    ${signer_args} \
     ${config} \
     ${safe} \
     ${signatures}
 
 approve_in_anvil whichSafe signature:
   #!/usr/bin/env bash
-  # set -x
+  #set -x
+  echo "{{whichSafe}}"
+  echo "{{signature}}"
+
   # Get the appropriate safe address based on whichSafe
   safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
   threshold=$(cast call $safe "getThreshold()(uint256)" --rpc-url ${ANVIL_LOCALHOST_RPC})
-  echo "Threshold: $threshold"
+  # echo "Threshold: $threshold"
   getOwners=$(cast call $safe "getOwners()(address[])" --rpc-url ${ANVIL_LOCALHOST_RPC})
-  echo "Owners: $getOwners"
+  # echo "Owners: $getOwners"
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
   sender=$(cast wallet address --private-key ${PRIVATE_KEY_EXECUTOR})
@@ -159,22 +178,30 @@ simulate-approve whichSafe hdPath='0':
     ${safe} \
     ${signatures}
 
-execute hdPath='0':
+execute hdPath='0' ledger='true':
   #!/usr/bin/env bash
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
 
   echo "Using script ${script}"
-  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  if {{ledger}}; then
+    sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+    signer_args="--ledger --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
+  else
+    cd ${TASK_PATH}
+    signer_private_key=$(just --justfile=${JUSTFILE_PATH} get-keystore-private-key)
+    sender=$(cast wallet address --private-key ${signer_private_key})
+    signer_args="--private-key ${signer_private_key}"
+  fi
+  echo "Executing with sender: ${sender}"
 
-  echo "⏳ Task execution in progress. Some tasks take longer than others..."
   forge build
   forge script ${script} \
     --fork-url ${rpcUrl} \
-    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
     --broadcast \
     --sender ${sender} \
     --sig "executeRun(string,bytes)" \
+    ${signer_args} \
     ${config} \
     "0x"
 
@@ -194,9 +221,11 @@ simulated-run hdPath='0':
     "0x"
 
 
-approvehash_in_anvil2 whichSafe parentSafe:
+sign_and_approve_in_anvil whichSafe parentSafe:
   #!/usr/bin/env bash
-  #set -x
+
+  # set -x
+  export DISABLE_OVERRIDE_NONCE_CHECK=1
   # Disable exit on error temporarily
 
   # Get the appropriate safe address based on whichSafe
@@ -238,7 +267,6 @@ approvehash_in_anvil2 whichSafe parentSafe:
     --sig "signFromChildMultisig(string,address)" \
     ${config} \
     "${safe}")
-
   signature=$(echo "$res_sig" | grep -o 'Signature: [a-fA-F0-9]\{130\}' | cut -d' ' -f2)
 
   # Check if the signature is not empty
@@ -275,3 +303,21 @@ execute_in_anvil:
     --private-key ${PRIVATE_KEY_EXECUTOR} \
     ${config} \
     "0x"
+
+
+# Helper function to handle keystore selection and private key extraction
+get-keystore-private-key:
+  #!/usr/bin/env bash
+  echo "Enter your foundry keystore path (e.g. ~/.foundry/keystores/sep-test-private-key):" >&2
+  keystorePath=$keystorePathBase$(cd ~/.foundry/keystores/ && fzf --header="Searching your keystore in $PWD" --prompt="Keystore for signing:")
+  cd ${taskPath}
+  echo "Keystore path: ${keystorePath}" >&2
+  # Expand the home directory in the path
+  keystorePath=$(echo ${keystorePath} | sed "s|^~|$HOME|")
+  signer_private_key=$(cast wallet pk --keystore ${keystorePath})
+  sender=$(cast wallet address --private-key ${signer_private_key})
+  if [ -z "${signer_private_key}" ]; then
+    echo "Error: Failed to get private key for keystore ${keystorePath}" >&2
+    exit 1
+  fi
+  echo "${signer_private_key}"

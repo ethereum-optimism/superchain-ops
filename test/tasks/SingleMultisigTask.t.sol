@@ -10,6 +10,7 @@ import {Test} from "forge-std/Test.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 
 import {MultisigTaskPrinter} from "src/libraries/MultisigTaskPrinter.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {GasConfigTemplate} from "test/tasks/mock/template/GasConfigTemplate.sol";
@@ -39,12 +40,9 @@ contract SingleMultisigTaskTest is Test {
         vm.createSelectFork("mainnet");
     }
 
-    function runTask()
-        public
-        returns (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions)
-    {
+    function runTask() public returns (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) {
         multisigTask = new GasConfigTemplate();
-        (accountAccesses, actions) = multisigTask.simulateRun(taskConfigFilePath);
+        (accountAccesses, actions,) = multisigTask.simulateRun(taskConfigFilePath);
     }
 
     function toSuperchainAddrRegistry(AddressRegistry _addrRegistry)
@@ -96,13 +94,13 @@ contract SingleMultisigTaskTest is Test {
 
     function testBuild() public {
         MultisigTask localMultisigTask = new GasConfigTemplate();
-        MultisigTask.Action[] memory actions;
+        Action[] memory actions;
         VmSafe.AccountAccess[] memory accountAccesses;
 
         vm.expectRevert("No actions found");
         localMultisigTask.processTaskActions(actions);
 
-        (accountAccesses, actions) = localMultisigTask.simulateRun(taskConfigFilePath);
+        (accountAccesses, actions,) = localMultisigTask.simulateRun(taskConfigFilePath);
 
         addrRegistry = localMultisigTask.addrRegistry();
 
@@ -129,7 +127,7 @@ contract SingleMultisigTaskTest is Test {
     }
 
     function testGetCallData() public {
-        (, MultisigTask.Action[] memory actions) = runTask();
+        (, Action[] memory actions) = runTask();
 
         (address[] memory targets, uint256[] memory values, bytes[] memory arguments) =
             multisigTask.processTaskActions(actions);
@@ -153,7 +151,7 @@ contract SingleMultisigTaskTest is Test {
     }
 
     function testGetDataToSign() public {
-        (, MultisigTask.Action[] memory actions) = runTask();
+        (, Action[] memory actions) = runTask();
         addrRegistry = multisigTask.addrRegistry();
         bytes memory callData = multisigTask.getMulticall3Calldata(actions);
         bytes memory dataToSign = multisigTask.getEncodedTransactionData(multisigTask.parentMultisig(), callData);
@@ -176,7 +174,7 @@ contract SingleMultisigTaskTest is Test {
     }
 
     function testHashToApprove() public {
-        (, MultisigTask.Action[] memory actions) = runTask();
+        (, Action[] memory actions) = runTask();
         bytes memory callData = multisigTask.getMulticall3Calldata(actions);
         bytes32 hash = multisigTask.getHash(callData, multisigTask.parentMultisig());
         bytes32 expectedHash = IGnosisSafe(multisigTask.parentMultisig()).getTransactionHash(
@@ -253,7 +251,7 @@ contract SingleMultisigTaskTest is Test {
 
     function testExecuteWithSignatures() public {
         uint256 snapshotId = vm.snapshotState();
-        (, MultisigTask.Action[] memory actions) = runTask();
+        (, Action[] memory actions) = runTask();
         addrRegistry = multisigTask.addrRegistry();
         multisigTask.processTaskActions(actions);
         bytes memory callData = multisigTask.getMulticall3Calldata(actions);

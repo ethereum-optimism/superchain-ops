@@ -117,6 +117,7 @@ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../sin
 
 6. Fill out the `README.md` and `VALIDATION.md` files.
     - If your task status is not `EXECUTED` or `CANCELLED`, it is considered non-terminal and will automatically be included in stacked simulations (which run on the main branch).
+    - If your task has a `VALIDATION.md` file, you must fill out the `Normalized State Diff Hash Attestation` section. This is so that we can detect if the normalized state diff hash changes unexpectedly.
 
 ### How do I run a task that depends on another task?
 
