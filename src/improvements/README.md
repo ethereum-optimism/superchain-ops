@@ -103,6 +103,7 @@ But **do not** pass the decimal value as a string—this will cause undefined be
 ]
 ```
 
+
 5. Simulate the task:
 ```bash
 # Nested
@@ -190,6 +191,21 @@ The addresses in this file are loaded into two different address registry contra
 Both registries load addresses based on the network the task is running on. For example, when running a task on Ethereum mainnet, addresses from the `[eth]` section of `addresses.toml` will be loaded. You can only access addresses for the network you are working on.
 
 By adding an address to `addresses.toml`, you ensure it's available in your task's context, whether you're using the simple or the superchain address registry.
+
+### What if the chain I want to upgrade is not in the superchain-registry?
+
+If the chain you want to upgrade is not in the [superchain-registry](https://github.com/ethereum-optimism/superchain-registry), you can manually provide an `addresses.json` file to your task's `config.toml`. 
+
+> **Note**: Your `config.toml` must contain either the `l2chains` or `l2ChainsLocal` key, but not both. We use a JSON file for local addresses because this is the format of the canonical addresses file in the superchain-registry, see [here](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/addresses.json).
+
+```toml
+l2ChainsLocal = [{name = "Unichain", chainId = 1333330, path = "test/tasks/example/eth/010-transfer-owners-local/addresses.json"}]
+templateName = "TransferOwners"
+```
+
+See: [example/eth/010-transfer-owners-local/config.toml](../../test/tasks/example/eth/010-transfer-owners-local/config.toml) for an example.
+
+When the task runs, it will use the `addresses.json` file provided in the `path` to get the addresses of the contracts on the chain, indexed by its `chainId`.
 
 ## Available Templates
 
