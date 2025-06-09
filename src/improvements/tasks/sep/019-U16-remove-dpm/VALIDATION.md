@@ -28,3 +28,10 @@
 **<TODO: Slot was not automatically decoded. Please provide a summary with thorough detail then remove this line.>**
   
 **<TODO: Insert links for this state change then remove this line.>**
+
+## Normalized State Diff Hash Attestation
+
+The normalized state diff hash MUST match the hash created by the state changes attested to in the state diff audit report.
+As a signer, you are responsible for making sure this hash is correct. Please compare the hash below with the hash in the audit report.
+
+**Normalized hash:** `0xe8483eb5042b04bf0e41e7b763ac747f03f484a8af6ba9773cf11041fd8b94a4`
