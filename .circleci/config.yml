@@ -1,8 +1,14 @@
 version: 2.1
 
 orbs:
-  utils: ethereum-optimism/circleci-utils@1.0.8
+  utils: ethereum-optimism/circleci-utils@1.0.19
   slack: circleci/slack@4.10.1
+  github-cli: circleci/github-cli@2.7.0
+
+executors:
+  default:
+    machine:
+      image: ubuntu-2204:2024.08.1
 
 parameters:
   default_docker_image:
@@ -23,9 +29,18 @@ parameters:
   time_diff_threshold:
     type: integer
     default: 5
+  github-event-type:
+    type: string
+    default: "__not_set__"
+  github-event-action:
+    type: string
+    default: "__not_set__"
+  github-event-base64:
+    type: string
+    default: "__not_set__"
 
 commands:
-  notify-failures-on-develop:
+  notify-failures-on-main:
     description: "Notify Slack"
     parameters:
       channel:
@@ -43,64 +58,6 @@ commands:
           mentions: "<< parameters.mentions >>"
 
 jobs:
-  check_sepolia_rpc_endpoints:
-    circleci_ip_ranges: true
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: Check Sepolia RPC Endpoints
-          command: |
-            if ./ops/verify-geth-endpoint.sh "<< pipeline.parameters.l1_sepolia_rpc_url >>"; then
-              if ops/verify-geth-endpoint.sh "<< pipeline.parameters.l2_sepolia_rpc_url >>"; then
-                echo "Both RPC endpoints are up to date and not syncing."
-                echo "L1_RPC_SEPOLIA=<< pipeline.parameters.l1_sepolia_rpc_url >>" >> $BASH_ENV
-                echo "L2_RPC_SEPOLIA=<< pipeline.parameters.l2_sepolia_rpc_url >>" >> $BASH_ENV
-              else
-                echo "L2 RPC endpoint failed the checks."
-                exit 1
-              fi
-            else
-              echo "L1 RPC endpoint failed the checks."
-              exit 1
-            fi
-      - run: |
-          cp $BASH_ENV bash.env
-      - persist_to_workspace:
-          root: .
-          paths:
-            - bash.env
-
-  check_mainnet_rpc_endpoints:
-    circleci_ip_ranges: true
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: Check Mainnet RPC Endpoints
-          command: |
-            if ops/verify-geth-endpoint.sh "<< pipeline.parameters.l1_mainnet_rpc_url >>"; then
-              if ops/verify-geth-endpoint.sh "<< pipeline.parameters.l2_mainnet_rpc_url >>"; then
-                echo "Both RPC endpoints are up to date and not syncing."
-                echo "L1_RPC_MAINNET=<< pipeline.parameters.l1_mainnet_rpc_url >>" >> $BASH_ENV
-                echo "L2_RPC_MAINNET=<< pipeline.parameters.l2_mainnet_rpc_url >>" >> $BASH_ENV
-              else
-                echo "L2 RPC endpoint failed the checks."
-                exit 1
-              fi
-            else
-              echo "L1 RPC endpoint failed the checks."
-              exit 1
-            fi
-      - run: |
-          cp $BASH_ENV bash.env
-      - persist_to_workspace:
-          root: .
-          paths:
-            - bash.env
-
   check_task_statuses:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -135,30 +92,8 @@ jobs:
           command: |
             just install
             (cd src/improvements && just check-superchain-registry-latest)
-      - notify-failures-on-develop:
-          mentions: "@security-team"
-
-  # TODO: remove/replace when there are real consumers of the RPC URLs
-  example_mainnet_job:
-    circleci_ip_ranges: true
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - attach_workspace:
-          at: .
-      - run: |
-          cat bash.env >> $BASH_ENV
-      - run:
-          name: Use RPC URLs
-          command: |
-            if [ -z "$L1_RPC_MAINNET" ] || [ -z "$L2_RPC_MAINNET" ]; then
-                echo "Required RPC URLs are not available."
-            fi
-              L1_RPC_URL=$L1_RPC_MAINNET
-              L2_RPC_URL=$L2_RPC_MAINNET
-              echo "L1 RPC URL: $L1_RPC_URL"
-              echo "L2 RPC URL: $L2_RPC_URL"
-              # Use L1_RPC_URL and L2_RPC_URL here.
+      - notify-failures-on-main:
+          mentions: "@evm-safety-team"
 
   just_simulate_sc_rehearsal_1:
     circleci_ip_ranges: true
@@ -221,6 +156,30 @@ jobs:
             just prepare-json
             just simulate-council # simulate again to make sure the json is still valid
 
+  stacked_simulation:
+    description: "Runs a stacked simulation"
+    parameters:
+      network:
+        type: string
+    circleci_ip_ranges: true
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    resource_class: xlarge
+    environment:
+      FOUNDRY_PROFILE: ci
+    steps:
+      - utils/checkout-with-mise
+      - run:
+          name: "Run stacked simulation for network: <<parameters.network>>"
+          command: |
+            just install
+            cd src/improvements
+            just simulate-stack <<parameters.network>> > stack-simulation-output.txt
+      - store_artifacts:
+          path: src/improvements/stack-simulation-output.txt
+      - notify-failures-on-main:
+          mentions: "@evm-safety-team"
+
   just_simulate_nested:
     description: "Runs simulations of a nested task"
     docker:
@@ -245,54 +204,6 @@ jobs:
               --dotenv-path $(pwd)/.env \
               --justfile ../../../nested.just \
               simulate council
-
-  # TODO: Remove this job once we have stacked simulations for non-terminal tasks implemented.
-  just_simulate_nested_improvements:
-    circleci_ip_ranges: true
-    description: "Runs simulations of a nested task (new superchain-ops improvements)"
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    parameters:
-      task:
-        type: string
-      signer:
-        type: string
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: "simulate nested << parameters.task >>"
-          environment:
-            FOUNDRY_PROFILE: ci
-          command: |
-            just install
-            cd src/improvements/tasks/<< parameters.task >>
-            SIMULATE_WITHOUT_LEDGER=true just \
-              --dotenv-path $(pwd)/.env \
-              --justfile ../../../nested.just \
-              simulate << parameters.signer >>
-
-  # TODO: Remove this job once we have stacked simulations for non-terminal tasks implemented.
-  just_simulate_single_improvements:
-    circleci_ip_ranges: true
-    description: "Runs simulations of a single task (new superchain-ops improvements)"
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    parameters:
-      task:
-        type: string
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: "simulate single << parameters.task >>"
-          environment:
-            FOUNDRY_PROFILE: ci
-          command: |
-            just install
-            cd src/improvements/tasks/<< parameters.task >>
-            SIMULATE_WITHOUT_LEDGER=true just \
-              --dotenv-path $(pwd)/.env \
-              --justfile ../../../single.just \
-              simulate
 
   just_simulate_op_sep_prestate_update:
     docker:
@@ -346,6 +257,7 @@ jobs:
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
+    resource_class: xlarge
     environment:
       FOUNDRY_PROFILE: ci
     steps:
@@ -353,6 +265,7 @@ jobs:
       - run:
           name: forge test
           command: |
+            just install
             forge --version
             forge test -vvv
 
@@ -368,6 +281,8 @@ jobs:
           name: Make sure all templates can be simulated.
           command: |
             (cd src/improvements && just simulate-all-templates)
+      - notify-failures-on-main:
+          mentions: "@evm-safety-team"
 
   just_new_recipe_tests:
     circleci_ip_ranges: true
@@ -402,6 +317,39 @@ jobs:
           command:
             | # Justfiles are not shell scripts and should not be checked with shellcheck
             (cd src/improvements/script && shellcheck -x *.sh)
+  # Check that all task directories have valid names and there are no duplicate prefixes.
+  check_task_names:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - utils/checkout-with-mise
+      - run:
+          name: check task names
+          command: (cd src/improvements/script && ./check-task-names.sh)
+  close-issue:
+    machine:
+      image: ubuntu-2204:2024.08.1
+    parameters:
+      label_name:
+        type: string
+      message:
+        type: string
+    steps:
+      - github-cli/install
+      - utils/github-event-handler-setup:
+          github_event_base64: << pipeline.parameters.github-event-base64 >>
+          env_prefix: "github_"
+      - run:
+          name: Close issue if label is added
+          command: |
+            echo "Closing issue $github_pull_request_number if label $github_label_name is added on repository ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
+            if [ ! -z "$github_pull_request_number" ] && [ "$github_label_name" = "$LABEL_NAME" ]; then
+                export GH_TOKEN=$GITHUB_TOKEN_GOVERNANCE
+                gh issue close --repo "${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}" "$github_pull_request_number" --comment "$MESSAGE"
+            fi
+          environment:
+            MESSAGE: << parameters.message >>
+            LABEL_NAME: << parameters.label_name >>
 
 workflows:
   main:
@@ -424,23 +372,14 @@ workflows:
       - forge_test:
           context:
             - circleci-repo-readonly-authenticated-github-token
-      - template_regression_tests
+      - template_regression_tests:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
       - just_new_recipe_tests
       - shellcheck:
           context:
             - circleci-repo-readonly-authenticated-github-token
-      # RPC endpoint checks.
-      - check_sepolia_rpc_endpoints:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-      - check_mainnet_rpc_endpoints:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-      - example_mainnet_job:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-          requires:
-            - check_mainnet_rpc_endpoints
+      - check_task_names
       # Verify that all tasks have a valid status in their README.
       - check_task_statuses:
           context:
@@ -465,46 +404,25 @@ workflows:
       # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
       # - just_simulate_sc_rehearsal_1
 
-      # U13 Mainnet Unichain Upgrade - Child-Safe-1
-      - just_simulate_nested_improvements:
-          name: "simulate nested eth/002-opcm-upgrade-v200 child-safe-1"
-          task: "/eth/002-opcm-upgrade-v200"
-          signer: "child-safe-1"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-
-      # U13 Mainnet Unichain Upgrade - Child-Safe-2
-      - just_simulate_nested_improvements:
-          name: "simulate nested eth/002-opcm-upgrade-v200 child-safe-2"
-          task: "/eth/002-opcm-upgrade-v200"
-          signer: "child-safe-2"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-
-      # U13 Mainnet Unichain Upgrade - Child-Safe-3
-      - just_simulate_nested_improvements:
-          name: "simulate nested eth/002-opcm-upgrade-v200 child-safe-3"
-          task: "/eth/002-opcm-upgrade-v200"
-          signer: "child-safe-3"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-
-      - just_simulate_nested:
-          task: "/eth/zora-002-fp-upgrade"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-
       - just_simulate_sc_rehearsal_2:
           context:
             - circleci-repo-readonly-authenticated-github-token
       - just_simulate_sc_rehearsal_4:
           context:
             - circleci-repo-readonly-authenticated-github-token
+      - just_simulate_nested:
+          task: "/eth/metal-002-fp-upgrade"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+      - just_simulate_nested:
+          task: "/eth/mode-002-fp-upgrade"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
 
       - simulate_sequence:
           name: simulate_sequence_eth
           network: "eth"
-          tasks: "zora-002"
+          tasks: "metal-002 mode-002"
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
@@ -512,7 +430,37 @@ workflows:
       - simulate_sequence:
           name: simulate_sequence_sep
           network: "sep"
-          tasks: "ink-003 ink-004"
+          tasks: ""
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
+
+      # Stacked simulations for superchain-ops on Mainnet.
+      - stacked_simulation:
+          name: stacked_simulation_eth
+          network: "eth"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
+      # Stacked simulations for superchain-ops on Sepolia.
+      - stacked_simulation:
+          name: stacked_simulation_sep
+          network: "sep"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
+  close-issue-workflow:
+    when:
+      and:
+        - equal: [<< pipeline.trigger_source >>, "api"]
+        - equal: [<< pipeline.parameters.github-event-type >>, "pull_request"]
+        - equal: [<< pipeline.parameters.github-event-action >>, "labeled"]
+    jobs:
+      - close-issue:
+          label_name: "auto-close-trivial-contribution"
+          message: "Thank you for your interest in contributing!
+            At this time, we are not accepting contributions that primarily fix spelling, stylistic, or grammatical errors in documentation, code, or elsewhere.
+            Please check our [contribution guidelines](https://github.com/ethereum-optimism/optimism/blob/develop/CONTRIBUTING.md#contributions-related-to-spelling-and-grammar) for more information.
+            This issue will be closed now."
+          context:
+            - circleci-repo-superchain-ops

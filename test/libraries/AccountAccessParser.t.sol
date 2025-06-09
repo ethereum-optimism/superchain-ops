@@ -6,6 +6,8 @@ import {Test} from "forge-std/Test.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {IERC20} from "forge-std/interfaces/IERC20.sol";
 import {Proxy} from "@eth-optimism-bedrock/src/universal/Proxy.sol";
+import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {IResourceMetering} from "@eth-optimism-bedrock/interfaces/L1/IResourceMetering.sol";
 
 // Solady
 import {LibString} from "solady/utils/LibString.sol";
@@ -13,8 +15,8 @@ import {LibString} from "solady/utils/LibString.sol";
 // Libraries
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
-// This is a simple implementation of a contract used in the "test_commonProxyArchitecture_succeeds" test.
-// DO NOT use in production.
+/// This is a simple implementation of a contract used in the "test_commonProxyArchitecture_succeeds" test.
+/// DO NOT use in production.
 contract Impl {
     uint256 public num;
     address public proxyA;
@@ -38,8 +40,19 @@ contract Impl {
     }
 }
 
+/// @notice A simple implementation that can send ETH to another address.
+contract Impl2 {
+    function sendEther(address to) public payable {
+        (bool success,) = payable(to).call{value: msg.value}("");
+        require(success, "Transfer failed");
+    }
+
+    receive() external payable {}
+}
+
 contract AccountAccessParser_decodeAndPrint_Test is Test {
     using AccountAccessParser for VmSafe.AccountAccess[];
+    using AccountAccessParser for VmSafe.AccountAccess;
 
     bool constant isWrite = true;
     bool constant reverted = true;
@@ -95,7 +108,7 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
 
         (, AccountAccessParser.DecodedStateDiff[] memory stateDiffs) = accountAccesses.decode(true);
         _assertStateDiffsAscending(stateDiffs);
-        accountAccesses.decodeAndPrint();
+        accountAccesses.decodeAndPrint(address(0), bytes32(0));
 
         AccountAccessParser.StateDiff[] memory firstProxyDiffs = accountAccesses.getStateDiffFor(address(proxy1), false);
         assertEq(firstProxyDiffs.length, 1, "10");
@@ -121,6 +134,32 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         assertEq(uniqueAccounts[0], address(proxyA), "140");
         assertEq(uniqueAccounts[1], address(proxy1), "150");
         assertEq(uniqueAccounts[2], address(proxyB), "160");
+    }
+
+    /// @notice Test that a single ETH transfer is recorded correctly. The Foundry account access that
+    /// has an access kind of DelegateCall is not a valid ETH transfer and should be ignored.
+    function testSingleEtherTransfer() external {
+        Proxy sourceProxy = new Proxy(msg.sender);
+        Impl2 sourceImpl = new Impl2();
+        vm.prank(msg.sender);
+        sourceProxy.upgradeTo(address(sourceImpl));
+
+        Proxy destinationProxy = new Proxy(msg.sender);
+        Impl2 destinationImpl = new Impl2();
+        vm.prank(msg.sender);
+        destinationProxy.upgradeTo(address(destinationImpl));
+
+        vm.startStateDiffRecording();
+        Impl2(payable(address(sourceProxy))).sendEther{value: 1 ether}(address(destinationProxy));
+        VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
+
+        uint256 balanceChanges = 0;
+        for (uint256 i = 0; i < accountAccesses.length; i++) {
+            if (accountAccesses[i].containsValueTransfer()) {
+                balanceChanges++;
+            }
+        }
+        assertEq(balanceChanges, 1);
     }
 
     function test_getUniqueWrites_succeeds() public pure {
@@ -344,6 +383,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess memory access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
             access.value = 100;
             access.accessor = addr2;
+            access.oldBalance = 0;
+            access.newBalance = 100;
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getETHTransfer(access);
             assertEq(transfer.from, addr2, "10");
@@ -384,6 +425,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess memory access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
             access.value = type(uint256).max;
             access.accessor = addr2;
+            access.oldBalance = 0;
+            access.newBalance = type(uint256).max;
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getETHTransfer(access);
             assertEq(transfer.from, addr2, "130");
@@ -397,6 +440,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess memory access = accountAccess(addr0, new VmSafe.StorageAccess[](0));
             access.value = 100;
             access.accessor = addr0;
+            access.oldBalance = 0;
+            access.newBalance = 100;
 
             AccountAccessParser.DecodedTransfer memory transfer = AccountAccessParser.getETHTransfer(access);
             assertEq(transfer.from, addr0, "170");
@@ -533,6 +578,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             accesses[0] = accountAccess(addr1, new VmSafe.StorageAccess[](0));
             accesses[0].accessor = addr2;
             accesses[0].value = 100;
+            accesses[0].oldBalance = 0;
+            accesses[0].newBalance = 100;
 
             (
                 AccountAccessParser.DecodedTransfer[] memory transfers,
@@ -648,6 +695,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](2);
             accesses[0] = accountAccess(addr1, storageAccesses);
             accesses[0].value = 100; // ETH transfer
+            accesses[0].oldBalance = 0;
+            accesses[0].newBalance = 100;
             accesses[1] = accountAccess(addr2, new VmSafe.StorageAccess[](0));
             accesses[1].data = abi.encodeWithSelector(IERC20.transfer.selector, addr3, 200); // ERC20 transfer
 
@@ -687,6 +736,8 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
             VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](2);
             accesses[0] = accountAccess(addr1, storageAccesses);
             accesses[0].value = 100; // ETH transfer
+            accesses[0].oldBalance = 0;
+            accesses[0].newBalance = 100;
             accesses[1] = accountAccess(addr2, new VmSafe.StorageAccess[](0));
             accesses[1].data = abi.encodeWithSelector(IERC20.transfer.selector, addr3, 200); // ERC20 transfer
             accesses[1].reverted = reverted;
@@ -903,6 +954,334 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
         assertTrue(sortedDiffs[0].raw.slot < sortedDiffs[1].raw.slot, "Slots should be sorted");
     }
 
+    /// forge-config: default.allow_internal_expect_revert = true
+    function test_containsValueTransfer_revertsWithCreateAccessKind() public {
+        VmSafe.AccountAccess memory access;
+        // Case 13: ETH transfer with Create access kind
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.value = 100;
+        access.oldBalance = 0;
+        access.newBalance = 100;
+        access.kind = VmSafe.AccountAccessKind.Create;
+        vm.expectRevert("ETH transfer with Create is not yet supported");
+        access.containsValueTransfer();
+    }
+
+    /// forge-config: default.allow_internal_expect_revert = true
+    function test_containsValueTransfer_revertsWithSelfDestructAccessKind() public {
+        // Case 14: ETH transfer with SelfDestruct access kind
+        VmSafe.AccountAccess memory access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.value = 100;
+        access.oldBalance = 0;
+        access.newBalance = 100;
+        access.kind = VmSafe.AccountAccessKind.SelfDestruct;
+        vm.expectRevert("ETH transfer with SelfDestruct is not yet supported");
+        access.containsValueTransfer();
+    }
+
+    /// forge-config: default.allow_internal_expect_revert = true
+    function test_containsValueTransfer_revertsWithUnexpectedAccessKind() public {
+        // Case 15: ETH transfer with Unexpected access kind
+        VmSafe.AccountAccess memory access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.value = 100;
+        access.oldBalance = 0;
+        access.newBalance = 100;
+        access.kind = VmSafe.AccountAccessKind.Resume;
+        vm.expectRevert("Expected kind to be DelegateCall.");
+        access.containsValueTransfer();
+    }
+
+    function test_containsValueTransfer_succeeds() public pure {
+        VmSafe.AccountAccess memory access;
+
+        // Case 1: ETH Transfer
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.value = 100;
+        access.oldBalance = 0;
+        access.newBalance = 100;
+        assertTrue(access.containsValueTransfer(), "10");
+
+        // Case 2: Reverted ETH Transfer
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.value = 100;
+        access.oldBalance = 0;
+        access.newBalance = 0; // Balance doesn't change due to revert
+        access.reverted = true;
+        assertFalse(access.containsValueTransfer(), "20");
+
+        // Case 3: ERC20 transfer
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0)); // addr1 is token address
+        access.accessor = addr2; // from
+        access.data = abi.encodeWithSelector(IERC20.transfer.selector, addr3, 100); // to, value
+        assertTrue(access.containsValueTransfer(), "30");
+
+        // Case 4: Reverted ERC20 transfer
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.accessor = addr2;
+        access.data = abi.encodeWithSelector(IERC20.transfer.selector, addr3, 100);
+        access.reverted = true;
+        assertFalse(access.containsValueTransfer(), "40");
+
+        // Case 5: ERC20 transferFrom
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0)); // addr1 is token address
+        access.accessor = addr2; // spender
+        access.data = abi.encodeWithSelector(IERC20.transferFrom.selector, addr3, addr4, 100); // from, to, value
+        assertTrue(access.containsValueTransfer(), "50");
+
+        // Case 6: Reverted ERC20 transferFrom
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.accessor = addr2;
+        access.data = abi.encodeWithSelector(IERC20.transferFrom.selector, addr3, addr4, 100);
+        access.reverted = true;
+        assertFalse(access.containsValueTransfer(), "60");
+
+        // Case 7: No transfer (simple call, no value, no relevant data)
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.data = abi.encodeWithSelector(bytes4(keccak256("someOtherFunction()")));
+        assertFalse(access.containsValueTransfer(), "70");
+
+        // Case 8: No transfer (storage write only)
+        VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
+        storageAccesses[0] = storageAccess(addr1, slot0, isWrite, val0, val1);
+        access = accountAccess(addr1, storageAccesses);
+        assertFalse(access.containsValueTransfer(), "80");
+
+        // Case 9: Both ETH and ERC20 transfer (valid)
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0)); // addr1 is token address
+        access.value = 50;
+        access.oldBalance = 0;
+        access.newBalance = 50;
+        access.accessor = addr2; // from for ERC20, accessor for ETH
+        access.data = abi.encodeWithSelector(IERC20.transfer.selector, addr3, 100); // to, value for ERC20
+        assertTrue(access.containsValueTransfer(), "90");
+
+        // Case 10: ETH transfer indicated by value, but oldBalance == newBalance (getETHTransfer should filter out)
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.value = 100;
+        access.oldBalance = 500;
+        access.newBalance = 500;
+        access.accessor = addr2;
+        assertFalse(access.containsValueTransfer(), "100");
+
+        // Case 11: ETH transfer with value, oldBalance != newBalance, but access.reverted is true
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.value = 100;
+        access.oldBalance = 0;
+        access.newBalance = 100;
+        access.reverted = true;
+        // Even though newBalance is set as if the transfer happened, getETHTransfer checks for access.reverted
+        // and also checks oldBalance != newBalance for the *actual* final state if not reverted.
+        assertFalse(access.containsValueTransfer(), "110");
+
+        // Case 12: ETH transfer with delegatecall access kind
+        access = accountAccess(addr1, new VmSafe.StorageAccess[](0));
+        access.value = 100;
+        access.oldBalance = 0;
+        access.newBalance = 100;
+        access.kind = VmSafe.AccountAccessKind.DelegateCall;
+        assertFalse(access.containsValueTransfer(), "120");
+    }
+
+    function test_tight_variable_packing_extractions_uint() public pure {
+        // [offset: 12, bytes: 4, value: 0x000f79c5, name: blobbasefeeScalar][offset: 8, bytes: 4, value: 0x0000146b, name: basefeeScalar] [offset: 0, bytes: 8, value: 60_000_000, name: gasLimit]
+        // Example taken from: lib/optimism/packages/contracts-bedrock/snapshots/storageLayout/SystemConfig.json (slot: 104)
+        bytes32 slotValue = bytes32(uint256(0x00000000000000000000000000000000000f79c50000146b0000000003938700));
+        string memory gasLimit = AccountAccessParser.toUint64(slotValue, 0);
+        assertEq(gasLimit, "60000000", "Failed to extract uint64 from bytes32");
+        string memory basefeeScalar = AccountAccessParser.toUint32(slotValue, 8);
+        assertEq(basefeeScalar, "5227", "Failed to extract uint32 from bytes32");
+        string memory blobbasefeeScalar = AccountAccessParser.toUint32(slotValue, 12);
+        assertEq(blobbasefeeScalar, "1014213", "Failed to extract uint32 from bytes32");
+    }
+
+    /// The retirementTimestamp is introduced in the AnchorStateRegistry post op-contracts/v3.0.0-rc.2
+    function test_normalizeTimestamp_AnchorStateRegistry_retirementTimestamp() public {
+        vm.createSelectFork("mainnet", 22319975);
+        address anchorStateRegistry = address(0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b); // op mainnet AnchorStateRegistryProxy
+        // [offset: 8, bytes: 8, value: 0xFFFFFFFFFFFFFFFF, name: retirementTimestamp]
+        bytes32 newValue1 = bytes32(uint256(0x0000000000000000000000000000000000000000FFFFFFFFFFFFFFFF00000000));
+        AccountAccessParser.StateDiff memory diff1 = AccountAccessParser.StateDiff({
+            slot: bytes32(uint256(6)),
+            oldValue: bytes32(uint256(0)),
+            newValue: newValue1
+        });
+        AccountAccessParser.normalizeTimestamp(anchorStateRegistry, diff1);
+        assertEq(diff1.newValue, bytes32(uint256(0)));
+
+        bytes32 newValue2 = bytes32(uint256(0x0000000000000000000000000000000000000000000000000000000000000000));
+        AccountAccessParser.StateDiff memory diff2 = AccountAccessParser.StateDiff({
+            slot: bytes32(uint256(6)),
+            oldValue: bytes32(uint256(0)),
+            newValue: newValue2
+        });
+        AccountAccessParser.normalizeTimestamp(anchorStateRegistry, diff2);
+        assertEq(diff2.newValue, bytes32(uint256(0)), "Value changed for op mainnet AnchorStateRegistryProxy");
+
+        bytes32 newValue3 = bytes32(uint256(0x0000000000000000000000000000000000000000FFFFFF0FFFFFFFFF00000000));
+        AccountAccessParser.StateDiff memory diff3 = AccountAccessParser.StateDiff({
+            slot: bytes32(uint256(6)),
+            oldValue: bytes32(uint256(0)),
+            newValue: newValue3
+        });
+        AccountAccessParser.normalizeTimestamp(anchorStateRegistry, diff3);
+        assertEq(diff3.newValue, bytes32(uint256(0)), "Value changed for op mainnet AnchorStateRegistryProxy");
+
+        bytes32 newValue4 = bytes32(uint256(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000010000000FFFFFFFF));
+        AccountAccessParser.StateDiff memory diff4 = AccountAccessParser.StateDiff({
+            slot: bytes32(uint256(6)),
+            oldValue: bytes32(uint256(0)),
+            newValue: newValue4
+        });
+        AccountAccessParser.normalizeTimestamp(anchorStateRegistry, diff4);
+        assertEq(
+            diff4.newValue,
+            bytes32(uint256(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000000000000FFFFFFFF)),
+            "Value changed for op mainnet AnchorStateRegistryProxy"
+        );
+    }
+
+    function test_normalizeTimestamp_noChangeOnWrongContract() public view {
+        bytes32 original = bytes32(uint256(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF));
+
+        AccountAccessParser.StateDiff memory diff =
+            AccountAccessParser.StateDiff({slot: bytes32(uint256(6)), oldValue: bytes32(0), newValue: original});
+
+        diff = AccountAccessParser.normalizeTimestamp(address(0x1234), diff); // wrong contract
+
+        // Should remain unchanged because contract doesn't match
+        assertEq(diff.newValue, original, "Value changed for wrong contract");
+    }
+
+    function test_normalizeTimestamp_noChangeOnWrongSlot() public view {
+        bytes32 original = bytes32(uint256(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF));
+
+        AccountAccessParser.StateDiff memory diff = AccountAccessParser.StateDiff({
+            slot: bytes32(uint256(999)), // wrong slot
+            oldValue: bytes32(0),
+            newValue: original
+        });
+
+        diff = AccountAccessParser.normalizeTimestamp(address(0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b), diff);
+
+        // Should remain unchanged because slot doesn't match
+        assertEq(diff.newValue, original, "Value changed for wrong slot");
+    }
+
+    function test_EmptyLayout() public pure {
+        AccountAccessParser.JsonStorageLayout[] memory layout = new AccountAccessParser.JsonStorageLayout[](0);
+        assertEq(AccountAccessParser.isSlotShared(layout, 0), false);
+    }
+
+    function test_SingleSlotNotShared() public pure {
+        AccountAccessParser.JsonStorageLayout[] memory layout = new AccountAccessParser.JsonStorageLayout[](1);
+        layout[0] = AccountAccessParser.JsonStorageLayout("32", "a", 0, "0", "uint256");
+        assertEq(AccountAccessParser.isSlotShared(layout, 0), false);
+    }
+
+    function test_SharedSlot() public pure {
+        AccountAccessParser.JsonStorageLayout[] memory layout = new AccountAccessParser.JsonStorageLayout[](2);
+        layout[0] = AccountAccessParser.JsonStorageLayout("32", "a", 0, "0", "uint256");
+        layout[1] = AccountAccessParser.JsonStorageLayout("32", "b", 32, "0", "uint256");
+        assertEq(AccountAccessParser.isSlotShared(layout, 0), true);
+    }
+
+    function test_HexSlotFormat() public pure {
+        AccountAccessParser.JsonStorageLayout[] memory layout = new AccountAccessParser.JsonStorageLayout[](2);
+        layout[0] = AccountAccessParser.JsonStorageLayout("32", "a", 0, "0x0", "uint256");
+        layout[1] = AccountAccessParser.JsonStorageLayout("32", "b", 32, "0x0", "uint256");
+        assertEq(AccountAccessParser.isSlotShared(layout, 0), true);
+    }
+
+    function test_NonExistentSlot() public pure {
+        AccountAccessParser.JsonStorageLayout[] memory layout = new AccountAccessParser.JsonStorageLayout[](2);
+        layout[0] = AccountAccessParser.JsonStorageLayout("32", "a", 0, "1", "uint256");
+        layout[1] = AccountAccessParser.JsonStorageLayout("32", "b", 32, "2", "uint256");
+        assertEq(AccountAccessParser.isSlotShared(layout, 0), false);
+    }
+
+    function test_MultipleOccurrences() public pure {
+        AccountAccessParser.JsonStorageLayout[] memory layout = new AccountAccessParser.JsonStorageLayout[](3);
+        layout[0] = AccountAccessParser.JsonStorageLayout("32", "a", 0, "0", "uint256");
+        layout[1] = AccountAccessParser.JsonStorageLayout("32", "b", 32, "0", "uint256");
+        layout[2] = AccountAccessParser.JsonStorageLayout("32", "c", 64, "0", "uint256");
+        assertEq(AccountAccessParser.isSlotShared(layout, 0), true);
+    }
+
+    function test_ReturnsSingleMatch() public pure {
+        AccountAccessParser.JsonStorageLayout[] memory input = new AccountAccessParser.JsonStorageLayout[](1);
+        input[0] = AccountAccessParser.JsonStorageLayout("32", "label1", 0, "123", "uint256");
+
+        AccountAccessParser.JsonStorageLayout[] memory result =
+            AccountAccessParser.getSharedSlotLayouts(input, bytes32(uint256(123)));
+
+        assertEq(result.length, 1);
+        assertEq(result[0]._slot, "123");
+    }
+
+    function test_ReturnsMultipleMatches() public pure {
+        AccountAccessParser.JsonStorageLayout[] memory input = new AccountAccessParser.JsonStorageLayout[](3);
+        input[0] = AccountAccessParser.JsonStorageLayout("32", "label1", 0, "456", "uint256");
+        input[1] = AccountAccessParser.JsonStorageLayout("32", "label2", 32, "456", "address");
+        input[2] = AccountAccessParser.JsonStorageLayout("32", "label3", 64, "456", "bytes32");
+
+        AccountAccessParser.JsonStorageLayout[] memory result =
+            AccountAccessParser.getSharedSlotLayouts(input, bytes32(uint256(456)));
+
+        assertEq(result.length, 3);
+        for (uint256 i = 0; i < 3; i++) {
+            assertEq(result[i]._slot, "456");
+        }
+    }
+
+    function test_ReturnsEmptyForNoMatches() public pure {
+        AccountAccessParser.JsonStorageLayout[] memory input = new AccountAccessParser.JsonStorageLayout[](2);
+        input[0] = AccountAccessParser.JsonStorageLayout("32", "label1", 0, "789", "uint256");
+        input[1] = AccountAccessParser.JsonStorageLayout("32", "label2", 32, "999", "address");
+
+        AccountAccessParser.JsonStorageLayout[] memory result =
+            AccountAccessParser.getSharedSlotLayouts(input, bytes32(uint256(111)));
+
+        assertEq(result.length, 0);
+    }
+
+    function test_FiltersNonMatchingEntries() public pure {
+        AccountAccessParser.JsonStorageLayout[] memory input = new AccountAccessParser.JsonStorageLayout[](5);
+        input[0] = AccountAccessParser.JsonStorageLayout("32", "match1", 0, "0x123", "uint256");
+        input[1] = AccountAccessParser.JsonStorageLayout("20", "nonmatch", 32, "456", "address");
+        input[2] = AccountAccessParser.JsonStorageLayout("32", "match2", 64, "0x123", "bytes32");
+        input[3] = AccountAccessParser.JsonStorageLayout("1", "nonmatch", 96, "789", "bool");
+        input[4] = AccountAccessParser.JsonStorageLayout("32", "match3", 128, "0x123", "string");
+
+        AccountAccessParser.JsonStorageLayout[] memory result =
+            AccountAccessParser.getSharedSlotLayouts(input, bytes32(uint256(0x123)));
+
+        assertEq(result.length, 3);
+        assertEq(result[0]._label, "match1");
+        assertEq(result[1]._label, "match2");
+        assertEq(result[2]._label, "match3");
+    }
+
+    function test_HandlesEmptyInput() public pure {
+        AccountAccessParser.JsonStorageLayout[] memory input = new AccountAccessParser.JsonStorageLayout[](0);
+
+        AccountAccessParser.JsonStorageLayout[] memory result =
+            AccountAccessParser.getSharedSlotLayouts(input, bytes32(uint256(123)));
+
+        assertEq(result.length, 0);
+    }
+
+    function test_MatchesZeroSlot() public pure {
+        AccountAccessParser.JsonStorageLayout[] memory input = new AccountAccessParser.JsonStorageLayout[](2);
+        input[0] = AccountAccessParser.JsonStorageLayout("32", "zero1", 0, "0", "uint256");
+        input[1] = AccountAccessParser.JsonStorageLayout("32", "nonzero", 32, "1", "address");
+
+        AccountAccessParser.JsonStorageLayout[] memory result =
+            AccountAccessParser.getSharedSlotLayouts(input, bytes32(uint256(0)));
+
+        assertEq(result.length, 1);
+        assertEq(result[0]._label, "zero1");
+    }
+
     function accountAccess(address _account, VmSafe.StorageAccess[] memory _storageAccesses)
         internal
         pure
@@ -970,5 +1349,357 @@ contract AccountAccessParser_decodeAndPrint_Test is Test {
                 );
             }
         }
+    }
+}
+
+// TODO Add integration tests in a follow up PR that actually send transactions and use the recorded state diff.
+contract AccountAccessParser_normalizedStateDiffHash_Test is Test {
+    using AccountAccessParser for VmSafe.AccountAccess[];
+
+    bytes32 internal constant GNOSIS_SAFE_NONCE_SLOT = bytes32(uint256(5));
+    bytes32 internal constant GNOSIS_SAFE_APPROVE_HASHES_SLOT = bytes32(uint256(8));
+    bytes32 internal constant LIVENESS_GUARD_LAST_LIVE_SLOT = bytes32(uint256(0));
+    bytes32 internal constant OPTIMISM_PORTAL_RESOURCE_PARAMS_SLOT = bytes32(uint256(1));
+
+    bool constant isWrite = true;
+    bool constant reverted = true;
+
+    bytes32 constant slot0 = bytes32(uint256(0));
+    bytes32 constant slot1 = bytes32(uint256(1));
+    bytes32 constant slot2 = bytes32(uint256(2));
+
+    bytes32 constant val0 = bytes32(uint256(0));
+    bytes32 constant val1 = bytes32(uint256(1));
+    bytes32 constant val2 = bytes32(uint256(2));
+
+    address constant EOA_ADDR = address(0x1111);
+    address constant SAFE_ADDR = address(0x2222);
+    address constant RANDOM_CONTRACT_ADDR = address(0x3333);
+
+    function setupTests() public {
+        bytes memory safeCode = hex"01";
+        vm.etch(SAFE_ADDR, safeCode);
+        vm.mockCall(SAFE_ADDR, abi.encodeWithSignature("getThreshold()"), abi.encode(uint256(1)));
+
+        assertTrue(AccountAccessParser.isGnosisSafe(SAFE_ADDR), "SAFE_ADDR should be detected as a Gnosis Safe");
+        assertEq(EOA_ADDR.code.length, 0, "EOA_ADDR should have no code");
+    }
+
+    function test_normalizedStateDiffHash_EOANonceIncrement() public {
+        setupTests();
+
+        // Create a state diff for an EOA nonce increment (should be removed)
+        VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
+        storageAccesses[0] = storageAccess(EOA_ADDR, slot0, isWrite, val0, val1); // nonce 0 -> 1
+
+        VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
+        accesses[0] = accountAccess(EOA_ADDR, storageAccesses);
+
+        // Get the normalized hash
+        bytes32 hash = accesses.normalizedStateDiffHash(address(0), bytes32(0));
+
+        // Since this is just an EOA nonce increment, the normalized array should be empty
+        // and the hash should match an empty array
+        AccountAccessParser.AccountStateDiff[] memory emptyArray = new AccountAccessParser.AccountStateDiff[](0);
+        bytes32 expectedHash = keccak256(abi.encode(emptyArray));
+
+        assertEq(hash, expectedHash, "EOA nonce increment should be removed");
+    }
+
+    function test_normalizedStateDiffHash_GnosisSafeNonceIncrement() public {
+        setupTests();
+
+        // Create a state diff for a Gnosis Safe nonce increment (should be removed)
+        VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
+        storageAccesses[0] = storageAccess(SAFE_ADDR, GNOSIS_SAFE_NONCE_SLOT, isWrite, val0, val1); // nonce 0 -> 1
+
+        VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
+        accesses[0] = accountAccess(SAFE_ADDR, storageAccesses);
+
+        // Get the normalized hash
+        bytes32 hash = accesses.normalizedStateDiffHash(address(0), bytes32(0));
+
+        // Since this is just a Safe nonce increment, the normalized array should be empty
+        // and the hash should match an empty array
+        AccountAccessParser.AccountStateDiff[] memory emptyArray = new AccountAccessParser.AccountStateDiff[](0);
+        bytes32 expectedHash = keccak256(abi.encode(emptyArray));
+
+        assertEq(hash, expectedHash, "Gnosis Safe nonce increment should be removed");
+    }
+
+    /// This test uses a real transaction that was approved on mainnet.
+    /// Find more details here: https://github.com/ethereum-optimism/superchain-ops/blob/main/src/improvements/tasks/eth/003-opcm-upgrade-v300-op-ink-soneium/VALIDATION.md
+    function test_normalizedStateDiffHash_GnosisSafeApproveHash() public {
+        vm.createSelectFork("mainnet", 22319975);
+
+        address multisig = address(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A);
+        bytes32 approveHashSlot = 0xb83cd9f113d329914a61adce818feb77eb750bf02115fdb71f059425216265be;
+
+        // Create a state diff for a Gnosis Safe approve hash (should be removed)
+        VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
+        storageAccesses[0] = storageAccess(multisig, approveHashSlot, isWrite, val0, val1); // approve hash
+
+        VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
+        accesses[0] = accountAccess(multisig, storageAccesses);
+
+        bytes32 txHash = 0x0d1a3b425e64a0c9bd90f6933632c1cc0042896a1c5831ac8ef290cab8205e83;
+        bytes32 hash = accesses.normalizedStateDiffHash(multisig, txHash);
+
+        // Since this is just a Safe approve hash, the normalized array should be empty
+        // and the hash should match an empty array
+        AccountAccessParser.AccountStateDiff[] memory emptyArray = new AccountAccessParser.AccountStateDiff[](0);
+        bytes32 expectedHash = keccak256(abi.encode(emptyArray));
+
+        assertEq(hash, expectedHash, "Gnosis Safe approve hash should be removed");
+    }
+
+    function test_normalizedStateDiffHash_OtherChanges() public {
+        setupTests();
+
+        // Create a state diff for a regular contract (should be included)
+        VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
+        storageAccesses[0] = storageAccess(RANDOM_CONTRACT_ADDR, slot1, isWrite, val0, val2); // some random change
+
+        VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
+        accesses[0] = accountAccess(RANDOM_CONTRACT_ADDR, storageAccesses);
+
+        // Get the normalized hash
+        bytes32 hash = accesses.normalizedStateDiffHash(address(0), bytes32(0));
+
+        // This should be included in the normalized array
+        AccountAccessParser.AccountStateDiff[] memory emptyArray = new AccountAccessParser.AccountStateDiff[](0);
+        assertNotEq(hash, keccak256(abi.encode(emptyArray)), "Regular state change should be included");
+
+        // Create the expected AccountStateDiff array
+        AccountAccessParser.AccountStateDiff[] memory expectedArray = new AccountAccessParser.AccountStateDiff[](1);
+        expectedArray[0] = AccountAccessParser.AccountStateDiff({
+            who: RANDOM_CONTRACT_ADDR,
+            slot: slot1,
+            firstOld: val0,
+            lastNew: val2
+        });
+
+        bytes32 expectedHash = keccak256(abi.encode(expectedArray));
+        assertEq(hash, expectedHash, "Hash should match the expected AccountStateDiff");
+    }
+
+    function test_normalizedStateDiffHash_MixedChanges() public {
+        vm.createSelectFork("mainnet", 22319975);
+        setupTests();
+
+        address multisig = address(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A);
+        bytes32 txHash = keccak256("fake tx hash");
+        bytes32 ownerSlot = keccak256(abi.encode(IGnosisSafe(multisig).getOwners()[0], GNOSIS_SAFE_APPROVE_HASHES_SLOT));
+        bytes32 fakeApproveHashSlot = keccak256(abi.encode(txHash, ownerSlot));
+        // Create the combined account accesses array with all our test cases
+        VmSafe.AccountAccess[] memory allAccesses = new VmSafe.AccountAccess[](3);
+
+        // 1. EOA nonce increment (should be filtered out)
+        VmSafe.StorageAccess[] memory eoaStorageAccesses = new VmSafe.StorageAccess[](1);
+        eoaStorageAccesses[0] = storageAccess(EOA_ADDR, slot0, isWrite, val0, val1);
+        allAccesses[0] = accountAccess(EOA_ADDR, eoaStorageAccesses);
+
+        // 2. Gnosis Safe changes (should be filtered out)
+        VmSafe.StorageAccess[] memory safeStorageAccesses = new VmSafe.StorageAccess[](2);
+        safeStorageAccesses[0] = storageAccess(multisig, GNOSIS_SAFE_NONCE_SLOT, isWrite, val0, val1); // nonce increment
+        safeStorageAccesses[1] = storageAccess(multisig, fakeApproveHashSlot, isWrite, val0, val1); // approve hash
+        allAccesses[1] = accountAccess(multisig, safeStorageAccesses);
+
+        // 3. Regular contract change (should be kept)
+        VmSafe.StorageAccess[] memory regularStorageAccesses = new VmSafe.StorageAccess[](1);
+        regularStorageAccesses[0] = storageAccess(RANDOM_CONTRACT_ADDR, slot1, isWrite, val0, val2);
+        allAccesses[2] = accountAccess(RANDOM_CONTRACT_ADDR, regularStorageAccesses);
+
+        // Get the normalized hash
+        bytes32 hash = allAccesses.normalizedStateDiffHash(multisig, txHash);
+
+        // Manually construct what we expect the normalized state to be using AccountStateDiff
+        AccountAccessParser.AccountStateDiff[] memory expectedArray = new AccountAccessParser.AccountStateDiff[](1);
+        expectedArray[0] = AccountAccessParser.AccountStateDiff({
+            who: RANDOM_CONTRACT_ADDR,
+            slot: slot1,
+            firstOld: val0,
+            lastNew: val2
+        });
+
+        bytes32 expectedHash = keccak256(abi.encode(expectedArray));
+
+        // Now let's check that the regular contract write is included and other writes are excluded
+        AccountAccessParser.AccountStateDiff[] memory emptyArray = new AccountAccessParser.AccountStateDiff[](0);
+        assertTrue(
+            hash != keccak256(abi.encode(emptyArray)),
+            "Hash should not be of an empty array (regular writes should be included)"
+        );
+
+        assertEq(hash, expectedHash, "Normalized hash should match expected state with only regular contract changes");
+    }
+
+    /// This test uses data from a real liveness guard timestamp update on mainnet.
+    /// Find more details here: https://github.com/ethereum-optimism/superchain-ops/blob/main/src/improvements/tasks/eth/003-opcm-upgrade-v300-op-ink-soneium/VALIDATION.md
+    function test_normalizedStateDiffHash_LivenessGuardTimestamp() public {
+        vm.createSelectFork("mainnet", 22319975);
+        setupTests();
+
+        address livenessGuard = address(0x24424336F04440b1c28685a38303aC33C9D14a25);
+        address firstOwnerOnSecurityCouncil = address(0x07dC0893cAfbF810e3E72505041f2865726Fd073);
+        bytes32 lastLiveSlot = keccak256(abi.encode(firstOwnerOnSecurityCouncil, LIVENESS_GUARD_LAST_LIVE_SLOT));
+
+        VmSafe.AccountAccess[] memory allAccesses = new VmSafe.AccountAccess[](1);
+        // Create a state diff for a LivenessGuard timestamp (should be removed)
+        VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
+        storageAccesses[0] = storageAccess(livenessGuard, lastLiveSlot, isWrite, val0, val1);
+        allAccesses[0] = accountAccess(livenessGuard, storageAccesses);
+
+        address parentMultisig = address(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A);
+        bytes32 hash = allAccesses.normalizedStateDiffHash(parentMultisig, bytes32(0));
+
+        // Since this is just a LivenessGuard timestamp update, the normalized array should be empty
+        // and the hash should match an empty array
+        AccountAccessParser.AccountStateDiff[] memory emptyArray = new AccountAccessParser.AccountStateDiff[](0);
+        bytes32 expectedHash = keccak256(abi.encode(emptyArray));
+
+        assertEq(hash, expectedHash, "LivenessGuard timestamp update should be removed");
+    }
+
+    function test_normalizedStateDiffHash_AnchorStateRegistryRetirementTimestamp() public {
+        vm.createSelectFork("mainnet", 22319975);
+        setupTests();
+
+        address anchorStateRegistry = address(0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b);
+        bytes32 retirementTimestampSlot = bytes32(uint256(6));
+        bytes32 retirementTimestamp =
+            bytes32(uint256(0x0000000000000000000000000000000000000000FFFFFFFFFFFFFFFF00000000));
+        VmSafe.AccountAccess[] memory allAccesses = new VmSafe.AccountAccess[](1);
+        VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
+        storageAccesses[0] =
+            storageAccess(anchorStateRegistry, retirementTimestampSlot, isWrite, val0, retirementTimestamp);
+        allAccesses[0] = accountAccess(anchorStateRegistry, storageAccesses);
+
+        address parentMultisig = address(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A);
+        bytes32 hash = allAccesses.normalizedStateDiffHash(parentMultisig, bytes32(0));
+        bytes32 expectedHash = bytes32(0x241e6b7219e7929518322ed65cbe52a5d3f6c3e61439ae8fdae8e842d3f8f500);
+
+        assertEq(hash, expectedHash, "AnchorStateRegistry should match the expected hash");
+
+        bytes32 retirementTimestamp2 =
+            bytes32(uint256(0x0000000000000000000000000000000000000000AAAAAAAAAAAAAAAA00000000));
+        storageAccesses[0] =
+            storageAccess(anchorStateRegistry, retirementTimestampSlot, isWrite, val0, retirementTimestamp2);
+        allAccesses[0] = accountAccess(anchorStateRegistry, storageAccesses);
+
+        bytes32 hash2 = allAccesses.normalizedStateDiffHash(parentMultisig, bytes32(0));
+        assertEq(hash2, expectedHash, "AnchorStateRegistry should still match the expected hash");
+    }
+
+    function test_normalizedStateDiffHash_AnchorStateRegistryProposal() public {
+        vm.createSelectFork("mainnet", 22319975);
+        setupTests();
+
+        address anchorStateRegistry = address(0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b);
+        bytes32 proposalRootSlot = bytes32(uint256(3));
+        bytes32 proposalRoot = bytes32(uint256(0x08ce0a407e15a1776bd43cd669328edc6825fcab988b8e2052258774251c25d2));
+        bytes32 proposalL2SequenceNumberSlot = bytes32(uint256(4));
+        bytes32 proposalL2SequenceNumber =
+            bytes32(uint256(0x0000000000000000000000000000000000000000000000000000000001287b8d));
+
+        VmSafe.AccountAccess[] memory allAccesses = new VmSafe.AccountAccess[](1);
+        VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](2);
+        storageAccesses[0] = storageAccess(anchorStateRegistry, proposalRootSlot, isWrite, val0, proposalRoot);
+        storageAccesses[1] =
+            storageAccess(anchorStateRegistry, proposalL2SequenceNumberSlot, isWrite, val0, proposalL2SequenceNumber);
+        allAccesses[0] = accountAccess(anchorStateRegistry, storageAccesses);
+
+        address parentMultisig = address(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A);
+        bytes32 hash = allAccesses.normalizedStateDiffHash(parentMultisig, bytes32(0));
+
+        AccountAccessParser.AccountStateDiff[] memory emptyArray = new AccountAccessParser.AccountStateDiff[](0);
+        bytes32 expectedHash = keccak256(abi.encode(emptyArray));
+
+        assertEq(hash, expectedHash, "AnchorStateRegistry proposal should be removed");
+    }
+
+    /// It's possible for there to be more storage writes than accesses.
+    /// This test checks that the function handles this case correctly.
+    function test_more_storage_writes_than_accesses_passes() public pure {
+        address who = address(0xabcd);
+        VmSafe.AccountAccess[] memory accesses = new VmSafe.AccountAccess[](1);
+        VmSafe.StorageAccess[] memory sa = new VmSafe.StorageAccess[](2);
+        sa[0] = storageAccess(who, bytes32(uint256(0x1)), isWrite, val0, val1);
+        sa[1] = storageAccess(who, bytes32(uint256(0x2)), isWrite, val0, val1);
+        accesses[0] = accountAccess(who, sa);
+
+        AccountAccessParser.StateDiff[] memory diffs = AccountAccessParser.getStateDiffFor(accesses, who, false);
+        assertEq(diffs.length, sa.length, "The number of diffs should be equal to the number of storage writes");
+    }
+
+    function test_normalizedStateDiffHash_OptimismPortalResourceMetering() public {
+        setupTests();
+        vm.createSelectFork("mainnet", 22319975); // Use a realistic block number
+        VmSafe.AccountAccess[] memory allAccesses = new VmSafe.AccountAccess[](1);
+        // Create a state diff for OptimismPortal ResourceMetering
+        address who = address(0xabcd);
+        VmSafe.StorageAccess[] memory storageAccesses = new VmSafe.StorageAccess[](1);
+        IResourceMetering.ResourceParams memory resourceParams = IResourceMetering.ResourceParams({
+            prevBaseFee: uint128(5),
+            prevBoughtGas: uint64(6),
+            prevBlockNum: uint64(block.number)
+        });
+        bytes32 resourceParamsSlot = packResourceParams(resourceParams);
+        storageAccesses[0] =
+            storageAccess(who, OPTIMISM_PORTAL_RESOURCE_PARAMS_SLOT, isWrite, bytes32(uint256(0)), resourceParamsSlot);
+        allAccesses[0] = accountAccess(who, storageAccesses);
+        bytes32 hash = allAccesses.normalizedStateDiffHash(address(1), bytes32(0));
+
+        AccountAccessParser.AccountStateDiff[] memory emptyArray = new AccountAccessParser.AccountStateDiff[](0);
+        bytes32 expectedHash = keccak256(abi.encode(emptyArray));
+        assertEq(hash, expectedHash, "OptimismPortal ResourceParams update should be removed");
+    }
+
+    /// @notice Packs the resource params into a bytes32. Where prevBlockNum is the most significant 64 bits, prevBoughtGas is the next 64 bits, and prevBaseFee is the least significant 128 bits.
+    function packResourceParams(IResourceMetering.ResourceParams memory _resourceParams)
+        internal
+        pure
+        returns (bytes32)
+    {
+        return (bytes32(uint256(_resourceParams.prevBlockNum)) << (128 + 64))
+            | (bytes32(uint256(_resourceParams.prevBoughtGas)) << 128) | (bytes32(uint256(_resourceParams.prevBaseFee)));
+    }
+
+    /// Helper functions similar to those in AccountAccessParser.t.sol
+    function accountAccess(address _account, VmSafe.StorageAccess[] memory _storageAccesses)
+        internal
+        pure
+        returns (VmSafe.AccountAccess memory)
+    {
+        return VmSafe.AccountAccess({
+            chainInfo: VmSafe.ChainInfo({chainId: 1, forkId: 1}),
+            kind: VmSafe.AccountAccessKind.Call,
+            account: _account,
+            accessor: address(0),
+            initialized: true,
+            oldBalance: 0,
+            newBalance: 0,
+            deployedCode: new bytes(0),
+            value: 0,
+            data: new bytes(0),
+            reverted: false,
+            storageAccesses: _storageAccesses,
+            depth: 0
+        });
+    }
+
+    function storageAccess(address _account, bytes32 _slot, bool _isWrite, bytes32 _previousValue, bytes32 _newValue)
+        internal
+        pure
+        returns (VmSafe.StorageAccess memory)
+    {
+        return VmSafe.StorageAccess({
+            account: _account,
+            slot: _slot,
+            isWrite: _isWrite,
+            previousValue: _previousValue,
+            newValue: _newValue,
+            reverted: false
+        });
     }
 }

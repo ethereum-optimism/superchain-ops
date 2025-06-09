@@ -1,6 +1,6 @@
 # 001-opcm-upgrade-v200: Mainnet OPCM v2.0.0: Base
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://etherscan.io/tx/0x0351fede2eca409c36da1996944ef02aabaa989637ca1bfacd2f3f07547d1134)
 
 Executes [Upgrade 13](https://gov.optimism.io/t/upgrade-proposal-13-opcm-and-incident-response-improvements/9739) on Base Mainnet.
 
@@ -25,9 +25,9 @@ Navigate to the correct task directory then run the simulate command.
 ```
 cd eth/001-opcm-upgrade-v200
 
-# Nested safe 1: 0x9855054731540A48b28990B63DcF4f33d8AE46A1 (Base)
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate child-safe-1
+# Base Operations Safe: 0x9855054731540A48b28990B63DcF4f33d8AE46A1 (Base)
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate base-operations
 
-# Nested safe 2: 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A (Optimism Foundation)
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate child-safe-2
+# Foundation Operations Safe: 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A (Optimism Foundation)
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate foundation-operations
 ```

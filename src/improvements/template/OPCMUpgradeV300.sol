@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {OPCMTaskBase} from "../tasks/types/OPCMTaskBase.sol";
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {
     IOPContractsManager,
     ISystemConfig,
@@ -14,6 +12,10 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
 
+import {OPCMTaskBase} from "../tasks/types/OPCMTaskBase.sol";
+import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
+
 /// @notice This template supports OPCMV300 upgrade tasks.
 contract OPCMUpgradeV300 is OPCMTaskBase {
     using stdToml for string;
@@ -22,14 +24,15 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
     /// @notice The StandardValidatorV300 address
     IStandardValidatorV300 public STANDARD_VALIDATOR_V300;
 
-    /// @notice Struct to store inputs for OPCM.upgrade() function per L2 chain.
+    /// @notice Struct to store inputs data for each L2 chain.
     struct OPCMUpgrade {
         Claim absolutePrestate;
         uint256 chainId;
+        string expectedValidationErrors;
     }
 
-    /// @notice Mapping of L2 chain IDs to their respective prestates.
-    mapping(uint256 => Claim) public absolutePrestates;
+    /// @notice Mapping of L2 chain IDs to their respective OPCMUpgrade structs.
+    mapping(uint256 => OPCMUpgrade) public upgrades;
 
     /// @notice Returns the storage write permissions required for this task.
     function _taskStorageWrites() internal view virtual override returns (string[] memory) {
@@ -50,11 +53,10 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
         super._templateSetup(taskConfigFilePath);
         string memory tomlContent = vm.readFile(taskConfigFilePath);
 
-        // For OPCMUpgradeV300, the OPCMUpgrade struct is used to store the absolutePrestate for each l2 chain.
-        OPCMUpgrade[] memory upgrades =
-            abi.decode(tomlContent.parseRaw(".opcmUpgrades.absolutePrestates"), (OPCMUpgrade[]));
-        for (uint256 i = 0; i < upgrades.length; i++) {
-            absolutePrestates[upgrades[i].chainId] = upgrades[i].absolutePrestate;
+        // For OPCMUpgradeV300, the OPCMUpgrade struct is used to store the absolutePrestate and expectedValidationErrors for each l2 chain.
+        OPCMUpgrade[] memory _upgrades = abi.decode(tomlContent.parseRaw(".opcmUpgrades"), (OPCMUpgrade[]));
+        for (uint256 i = 0; i < _upgrades.length; i++) {
+            upgrades[_upgrades[i].chainId] = _upgrades[i];
         }
 
         OPCM = tomlContent.readAddress(".addresses.OPCM");
@@ -85,16 +87,16 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
             new IOPContractsManager.OpChainConfig[](chains.length);
 
         for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
             opChainConfigs[i] = IOPContractsManager.OpChainConfig({
-                systemConfigProxy: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chains[i].chainId)),
-                proxyAdmin: IProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chains[i].chainId)),
-                absolutePrestate: absolutePrestates[chains[i].chainId]
+                systemConfigProxy: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
+                proxyAdmin: IProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chainId)),
+                absolutePrestate: upgrades[chainId].absolutePrestate
             });
         }
 
-        // See: template/OPCMUpgradeV200.sol for more information on why we expect a revert here.
-        (bool success,) = OPCM.call(abi.encodeCall(IOPContractsManager.upgrade, (opChainConfigs)));
-        require(!success, "OPCMUpgradeV300: Call unexpectedly succeeded; expected revert due to non-delegatecall.");
+        (bool success,) = OPCM.delegatecall(abi.encodeCall(IOPContractsManager.upgrade, (opChainConfigs)));
+        require(success, "OPCMUpgradeV300: upgrade call failed in _build.");
     }
 
     /// @notice Validate the task for a given L2 chain.
@@ -103,24 +105,21 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
 
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
-            bytes32 currentAbsolutePrestate = Claim.unwrap(absolutePrestates[chainId]);
+            bytes32 expAbsolutePrestate = Claim.unwrap(upgrades[chainId].absolutePrestate);
+            string memory expErrors = upgrades[chainId].expectedValidationErrors;
             address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
             address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
 
             IStandardValidatorV300.InputV300 memory input = IStandardValidatorV300.InputV300({
                 proxyAdmin: proxyAdmin,
                 sysCfg: sysCfg,
-                absolutePrestate: currentAbsolutePrestate,
+                absolutePrestate: expAbsolutePrestate,
                 l2ChainID: chainId
             });
 
-            string memory reasons = STANDARD_VALIDATOR_V300.validate({_input: input, _allowFailure: true});
+            string memory errors = STANDARD_VALIDATOR_V300.validate({_input: input, _allowFailure: true});
 
-            // PDDG-ANCHORP-40: The anchor state registry's permissioned root is not 0xdead000000000000000000000000000000000000000000000000000000000000
-            // PLDG-ANCHORP-40: The anchor state registry's permissionless root is not 0xdead000000000000000000000000000000000000000000000000000000000000
-            string memory expectedErrors_11155420 = "PDDG-ANCHORP-40,PLDG-ANCHORP-40";
-
-            require(reasons.eq(expectedErrors_11155420), string.concat("Unexpected errors: ", reasons));
+            require(errors.eq(expErrors), string.concat("Unexpected errors: ", errors, "; expected: ", expErrors));
         }
     }
 

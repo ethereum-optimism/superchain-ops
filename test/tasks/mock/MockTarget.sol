@@ -5,7 +5,7 @@ import {Test} from "forge-std/Test.sol";
 
 contract MockTarget is Test {
     address public task;
-    bytes32 public START_SNAPSHOT_SLOT = bytes32(uint256(46));
+    bytes32 public START_SNAPSHOT_SLOT = bytes32(uint256(44));
 
     function setTask(address _task) public {
         task = _task;

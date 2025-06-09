@@ -23,12 +23,12 @@ Additionally, please verify that for each contract:
 > ### Security Council
 >
 > - Domain Hash: `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
-> - Message Hash: `0xbe97205c6515952baed5c1a4fba2d6598654b5e909affa117fe9664c79498653`
+> - Message Hash: `0x2aad820ae16105867ec9cddf51a1fdbfdc771635ff7605e0dbd6639fc419bf44`
 >
 > ### Optimism Foundation
 >
 > - Domain Hash: `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0xf715627716306b639e9c2cfe9685ff147889862c04b8f878e0d1aaaf2aa485ff`
+> - Message Hash: `0x44a80fb9661c9682ee398183198b43fc05a04b8bc6eedd3787e8f82876c20a2b`
 
 ## Nested Safe State Overrides and Changes
 
@@ -69,7 +69,7 @@ cast index bytes32 0x496364fd87984d3d8d051b8205944ea153d9bede161b06b4653fc85b84a
   DisputeGameFactoryProxy deployed via upgrade script
 
 - **Key**: `0xe52a667f71ec761b9b381c7b76ca9b852adf7e8905da0e0ad49986a0a6871815`
-- **Before**: `0x0000000000000000000000002615b481bd3e5a1c0c7ca3da1bdc663e8615ade9`
+- **Before**: `0x0000000000000000000000009e6204f750cd866b299594e2ac9ea824e2e5f95c`
 - **After**: `0x0000000000000000000000000000000000000000000000000000000000000000`
 - **Meaning**: Slot at keccak(systemconfig.l2outputoracle)-1 deleted
 

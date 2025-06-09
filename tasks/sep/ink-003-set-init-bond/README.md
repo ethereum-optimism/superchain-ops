@@ -1,6 +1,6 @@
 # ProxyAdminOwner - Set Dispute Game Implementation
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x2da222585b59cdb3fa10d031c6198be120dcfb23291155d354a43527ff508adc)
 
 ## Objective
 

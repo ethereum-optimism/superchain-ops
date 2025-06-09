@@ -3,7 +3,7 @@
 new COMMAND="" TASK_TYPE="":
     #!/usr/bin/env bash
     set -euo pipefail
-    
+
     echo -e "\033[42m                          \033[0m"
     echo -e "\033[42m    superchain-ops cli    \033[0m"
     echo -e "\033[42m                          \033[0m"
@@ -29,7 +29,7 @@ new COMMAND="" TASK_TYPE="":
         echo "    e.g.: https://github.com/ethereum-optimism/superchain-ops/blob/main/src/improvements/template/OPCMUpgradeV200.sol"
         echo
     }
-    
+
     # shellcheck disable=SC2050
     case "{{COMMAND}}" in
         "")
@@ -118,21 +118,48 @@ simulate-all-templates:
     forge build
 
     # If the task is nested then we only simulate as the foundation.
-    # In the future we could simulate as other nested safes. 
+    # In the future we could simulate as other nested safes.
     # For testing purposes, we do not gain anything by simulating as other nested safes.
     nested_safe_name="foundation"
     simulation_count=0
-    for task in ${root_dir}/test/tasks/example/*/*; do
+
+    # Collect PIDs of each background simulation.
+    declare -a pids=()
+
+    for task in "${root_dir}/test/tasks/example/"*/*; do
         if [ -d "$task" ]; then
-            ${root_dir}/src/improvements/script/simulate-task.sh $task $nested_safe_name
-            simulation_count=$((simulation_count + 1))
+            # Launch each simulation in background.
+            "${root_dir}/src/improvements/script/simulate-task.sh" "$task" "$nested_safe_name" & pids+=( "$!" )
         fi
     done
-    echo "$simulation_count simulations run."
-    template_count=$(find "${root_dir}/src/improvements/template" -type f ! -name "*.template.sol" | wc -l)
 
-    if [ "$simulation_count" -ne "$template_count" ]; then
-        echo "Not all templates files have a corresponding task. Please add a task for a template in ${root_dir}/src/improvements/tasks/example" >&2
+    # Wait for every simulation to finish, count successes.
+    for pid in "${pids[@]}"; do
+        wait "$pid"
+        simulation_count=$((simulation_count + 1))
+    done
+
+    echo "$simulation_count simulations run."
+
+    # Count template files (excluding *.template.sol and boilerplate dir).
+    template_count=$(find "${root_dir}/src/improvements/template" -type f ! -name "*.template.sol" ! -path "*/boilerplate/*" | wc -l | xargs)
+
+    # Verify that every template file is referenced by at least one example task config.
+    missing_templates=()
+    while IFS= read -r template_file; do
+        tmpl_name=$(basename "$template_file" .sol)
+        if ! grep -R --quiet "templateName = \"${tmpl_name}\"" "${root_dir}/test/tasks/example"/*/*/config.toml 2>/dev/null; then
+            missing_templates+=("$tmpl_name")
+        fi
+    done < <(find "${root_dir}/src/improvements/template" -type f ! -name "*.template.sol" ! -path "*/boilerplate/*")
+
+    echo ""
+    if [ ${#missing_templates[@]} -ne 0 ]; then
+        echo -e "\033[31mError: The following template(s) do not have an example task referencing them:\033[0m" >&2
+        for t in "${missing_templates[@]}"; do
+            echo -e "\033[31m  • $t\033[0m" >&2
+        done
+        echo -e "\033[32mSuccess: All templates have a corresponding task.\033[0m"
         exit 1
     fi
 
@@ -144,8 +171,91 @@ simulate-verify-task TASK="":
     forge build
 
     # If the task is nested then we only simulate as the foundation.
-    # In the future we could simulate as other nested safes. 
+    # In the future we could simulate as other nested safes.
     # For testing purposes, we do not gain anything by simulating as other nested safes.
     nested_safe_name="foundation"
 
     ${root_dir}/src/improvements/script/simulate-verify-task.sh {{TASK}} $nested_safe_name
+
+simulate-stack NETWORK="" TASK="" OWNER_ADDRESSES="[]":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+
+    echo -e "\033[42m                                         \033[0m"
+    echo -e "\033[42m    superchain-ops stacked simulation    \033[0m"
+    echo -e "\033[42m                                         \033[0m"
+
+    show_usage() {
+        echo
+        echo "Usage: just simulate-stack <network> [task] [owner-addresses]"
+        echo "Available arguments:"
+        echo "  • <network> - The network to simulate the stack for (e.g. 'sep', 'eth')"
+        echo "  • [task]    - The task to simulate the stack for (e.g. '001-task-name')"
+        echo "  • [owner-addresses] - A comma-separated list of parent-multisig owner addresses. The list must match the number of tasks being simulated. Use the zero address (0x0000000000000000000000000000000000000000) to simulate the task using the first owner on the parent multisig. If the list is left empty, each task will default to its first owner. For example, use '[0x0000000000000000000000000000000000000000,0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B,0x0000000000000000000000000000000000000000]' to explicitly simulate the second task as a specific owner, while defaulting the first and third."
+        echo
+    }
+
+    export FOUNDRY_PROFILE="${FOUNDRY_PROFILE:-default}"
+
+    case "{{NETWORK}}" in
+        sep)
+            ETH_RPC_URL=$(yq eval ".profile.\"${FOUNDRY_PROFILE}\".rpc_endpoints.sepolia" "${root_dir}/foundry.toml")
+            ;;
+        eth)
+            ETH_RPC_URL=$(yq eval ".profile.\"${FOUNDRY_PROFILE}\".rpc_endpoints.mainnet" "${root_dir}/foundry.toml")
+            ;;
+        *)
+            echo -e "\n\033[31mError: Invalid network '{{NETWORK}}'\033[0m"
+            show_usage
+            exit 1
+            ;;
+    esac
+
+    echo -e "\n⏳ Stacked Task simulation in progress. This may take a while..."
+    if [ -z "{{TASK}}" ]; then
+        echo -e "⏳ You are simulating all tasks for network: {{NETWORK}}\n"
+        just list-stack {{NETWORK}}
+        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string)" {{NETWORK}} --ffi --rpc-url $ETH_RPC_URL
+    else
+        echo -e "⏳ You are simulating the task: {{TASK}} for network: {{NETWORK}}\n"
+        just list-stack {{NETWORK}} {{TASK}}
+        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address[])" "{{NETWORK}}" "{{TASK}}" "{{OWNER_ADDRESSES}}" --ffi --rpc-url $ETH_RPC_URL
+    fi
+    echo -e "\n⚠️ Please note: Some Tenderly links may not work when running a stacked simulation. Check out Tenderly's Virtual TestNets as a workaround.⚠️"
+
+list-stack NETWORK="" TASK="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+
+    show_usage() {
+        echo
+        echo "Usage: just list-stack <network> [task]"
+        echo "This command will list all the tasks that can be simulated for a given network."
+        echo "Available arguments:"
+        echo "  • <network> - The network to simulate the stack for (e.g. 'sep', 'eth')"
+        echo "  • [task]    - The task to simulate the stack for (e.g. '001-task-name')"
+        echo
+    }
+
+    # Check if network arg exists
+    if [ -z "{{NETWORK}}" ]; then
+        echo -e "\n\033[31mError: No network specified\033[0m"
+        show_usage
+        exit 1
+    fi
+
+    # Check if task arg exists
+    if [ -z "{{TASK}}" ]; then
+        echo "Listing all tasks for network: {{NETWORK}}"
+        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string)" {{NETWORK}}
+    else
+        echo "Listing all tasks for network: {{NETWORK}} up to task: {{TASK}}"
+        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string,string)" {{NETWORK}} {{TASK}}
+    fi
+
+test:
+    forge build
+    forge test
+    just simulate-all-templates

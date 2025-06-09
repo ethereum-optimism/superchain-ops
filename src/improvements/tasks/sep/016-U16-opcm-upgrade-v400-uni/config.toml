@@ -1,0 +1,27 @@
+l2chains = [
+    {name = "Unichain Sepolia Testnet", chainId = 1301}
+]
+
+templateName = "OPCMUpgradeV400"
+
+# Unichain Sepolia Testnet
+[[opcmUpgrades]]
+chainId = 1301
+# prestates."1.6.1-rc.1
+# https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/validation/standard/standard-prestates.toml#L6
+absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
+# PROXYA-10: The PAO is not the standard one
+# DF-30: The PAO is not the standard one
+# PDDG-DWETH-30: The PAO is not the standard one
+# PDDG-130: The challenger is not the standard one
+# PLDG-DWETH-30: The PAO is not the standard one
+expectedValidationErrors = "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-130,PLDG-DWETH-30"
+
+[addresses]
+OPCM = "0x44c191ce5ce35131e703532af75fa9ca221e2398" # Freshly deployed on Sepolia
+StandardValidatorV400 = "0xA8a1529547306FEC7A32a001705160f2110451aE" # Freshly deployed on Sepolia
+
+[stateOverrides]
+0xd363339eE47775888Df411A163c586a8BdEA9dbf = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 32}
+]

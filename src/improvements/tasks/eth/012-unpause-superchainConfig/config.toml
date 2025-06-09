@@ -1,0 +1,9 @@
+l2chains = [{name = "OP Mainnet", chainId = 10}]
+
+templateName = "UnPauseSuperchainConfigTemplate"
+
+[stateOverrides]
+0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A = [ # FoundationOperationSafe: 106
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = "0x000000000000000000000000000000000000000000000000000000000000006a" }
+]
+ 0x95703e0982140d16f8eba6d158fccede42f04a4c = [{key = "0x54176ff9944c4784e5857ec4e5ef560a462c483bf534eda43f91bb01a470b1b6", value = 1}]

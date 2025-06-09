@@ -6,8 +6,8 @@ optimizer = false
 solc_version = "0.8.15"
 evm_version = "cancun"
 fs_permissions = [{ access = "read-write", path = "./" }]
-# Enable FFI for reading lib/superchain-registry files in scripts SignFromJson.s.sol, NestedSignFromJson.s.sol within tasks
-ffi = true
+gas_limit = "18446744073709551615" # max allowable value, which is max uint64
+ffi = true # Enable FFI for reading lib/superchain-registry files in scripts SignFromJson.s.sol, NestedSignFromJson.s.sol within tasks
 
 remappings = [
   '@openzeppelin/contracts-upgradeable/=lib/optimism/packages/contracts-bedrock/lib/openzeppelin-contracts-upgradeable/contracts/',
@@ -32,5 +32,5 @@ sepolia = "https://ci-sepolia-l1-archive.optimism.io" # Must have 'circleci_ip_r
 [profile.default.rpc_endpoints]
 localhost = "http://127.0.0.1:8545"
 mainnet = "https://ethereum.publicnode.com"
-sepolia = "https://gateway.tenderly.co/public/sepolia"
+sepolia = "https://sepolia.gateway.tenderly.co"
 opMainnet = "https://mainnet.optimism.io"

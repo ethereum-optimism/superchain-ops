@@ -11,7 +11,12 @@ create_task() {
     templates=()
     while IFS= read -r line; do templates+=("$line"); done < <(ls -1 template/)
     for i in "${!templates[@]}"; do
-        templates["$i"]="${templates[$i]%.sol}"
+        # Don't add directories to the list of templates i.e. boilerplate/ directory.
+        if [[ -d "template/${templates[$i]}" ]]; then
+            unset 'templates[$i]'
+        else
+            templates["$i"]="${templates[$i]%.sol}"
+        fi
     done
 
     PS3="Select template name: "
@@ -30,16 +35,32 @@ create_task() {
         done
     done
 
-    # This is an ordered list of all the tasks for a given network.
-    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    sorted_existing_dirs=$("$script_dir/sorted-tasks.sh" "$network")
+    echo ""
+    # Prompt the user (Enter → No by default)
+    read -r -p "Is this a test task (i.e. lives in test/tasks/example/$network directory)? Type 'y' to confirm, or press Enter for No: " is_test_task
 
     echo ""
-    if [[ -z "$sorted_existing_dirs" || $(echo "$sorted_existing_dirs" | wc -l) -eq 1 ]]; then
-        suggestion="Note: this is the first task for this network. Please choose a name that's lexicographically sensible"
-    else
-        most_recent_task_dir=$(echo "$sorted_existing_dirs" | tail -n1)
-        suggestion="lexicographically after: $most_recent_task_dir"
+    if [[ "$is_test_task" == "Y" || "$is_test_task" == "y" || "$is_test_task" == "yes" ]]; then
+        echo -e "\033[32mYou selected: Yes\033[0m"
+        dest_dir="../../test/tasks/example"
+        suggestion="This is a test task"
+        is_test_task="true"
+        echo ""
+    else 
+        echo -e "\033[32mYou selected: No\033[0m"
+        dest_dir="tasks"
+        # This is an ordered list of all the tasks for a given network.
+        script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+        sorted_existing_dirs=$("$script_dir/sorted-tasks.sh" "$network")
+
+        echo ""
+        if [[ -z "$sorted_existing_dirs" || $(echo "$sorted_existing_dirs" | wc -l) -eq 1 ]]; then
+            suggestion="Note: this is the first task for this network. Please choose a name that's lexicographically sensible"
+        else
+            most_recent_task_dir=$(echo "$sorted_existing_dirs" | tail -n1)
+            suggestion="lexicographically after: $(basename "$most_recent_task_dir")"
+        fi
+        is_test_task="false"
     fi
 
     while true; do
@@ -59,37 +80,45 @@ create_task() {
         fi
     done
 
-    task_path="tasks/${network}/${dirname}"
+
+    echo ""
+    read -r -p "Enter optional short description of the task (hit enter to leave blank): " short_description
+    if [[ -n "$short_description" ]]; then
+        short_description=": $short_description"
+    fi
+
+    task_path="${dest_dir}/${network}/${dirname}"
     mkdir -p "$task_path"
     config_path="$task_path/config.toml"
-    readme_path="$task_path/README.md" # TODO: Each template should have a README.md
-
-
+    
     echo -e "l2chains = [] # e.g. [{name = \"OP Mainnet\", chainId = 10}]\ntemplateName = \"${template%.sol}\"" >"${config_path}"
-    echo "# ${dirname}" >"${readme_path}"
 
-    cat > "$readme_path" <<EOL
-# ${dirname} TBD: Update the task description
+    # Don't write the readme and validation files for test tasks.
+    if [[ "$is_test_task" == "false" ]]; then
+        # copy the readme template to readme_path
+        readme_path="$task_path/README.md" 
+        cp "template/boilerplate/README.template.md" "$readme_path"
+        
+        navigate_to_task_command="cd src/improvements/${dest_dir}/${network}/${dirname}"
+        sed -e "s|<task-name>|$dirname|g" \
+        -e "s|<short-description>|$short_description|g" \
+        -e "s|<navigate-to-simulation-command>|$navigate_to_task_command|g" \
+        -e "s|<navigate-to-signing-command>|$navigate_to_task_command|g" \
+        "$readme_path" > "${readme_path}.tmp" \
+        && mv "${readme_path}.tmp" "$readme_path"
 
-Status: [DRAFT]()
+        # copy the validation template to validation_path
+        validation_path="$task_path/VALIDATION.md"
+        cp "template/boilerplate/VALIDATION.template.md" "$validation_path"
+    fi
 
-## Objective
-
-Todo: Describe the objective of the task
-
-### Timing
-
-Example transaction
-
-## Transaction creation
-
-TODO
-
-## Signing and execution
-
-Status - TODO
-
-EOL
+    # Make .env file with TENDERLY_GAS set to 10000000 
+    env_path="$task_path/.env"
+    echo "TENDERLY_GAS=10000000" > "$env_path"
+    if [[ "$is_test_task" == "true" ]]; then
+        # Only add a fork block number if this is a test task. We want the test task to consistently use the same block number.
+        echo "FORK_BLOCK_NUMBER=" >> "$env_path"
+    fi
 
     echo "Created task directory '${dirname}' for network: ${network}"
     absolute_path=$(realpath "$task_path")
