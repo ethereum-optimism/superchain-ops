@@ -58,64 +58,6 @@ commands:
           mentions: "<< parameters.mentions >>"
 
 jobs:
-  check_sepolia_rpc_endpoints:
-    circleci_ip_ranges: true
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: Check Sepolia RPC Endpoints
-          command: |
-            if ./ops/verify-geth-endpoint.sh "<< pipeline.parameters.l1_sepolia_rpc_url >>"; then
-              if ops/verify-geth-endpoint.sh "<< pipeline.parameters.l2_sepolia_rpc_url >>"; then
-                echo "Both RPC endpoints are up to date and not syncing."
-                echo "L1_RPC_SEPOLIA=<< pipeline.parameters.l1_sepolia_rpc_url >>" >> $BASH_ENV
-                echo "L2_RPC_SEPOLIA=<< pipeline.parameters.l2_sepolia_rpc_url >>" >> $BASH_ENV
-              else
-                echo "L2 RPC endpoint failed the checks."
-                exit 1
-              fi
-            else
-              echo "L1 RPC endpoint failed the checks."
-              exit 1
-            fi
-      - run: |
-          cp $BASH_ENV bash.env
-      - persist_to_workspace:
-          root: .
-          paths:
-            - bash.env
-
-  check_mainnet_rpc_endpoints:
-    circleci_ip_ranges: true
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: Check Mainnet RPC Endpoints
-          command: |
-            if ops/verify-geth-endpoint.sh "<< pipeline.parameters.l1_mainnet_rpc_url >>"; then
-              if ops/verify-geth-endpoint.sh "<< pipeline.parameters.l2_mainnet_rpc_url >>"; then
-                echo "Both RPC endpoints are up to date and not syncing."
-                echo "L1_RPC_MAINNET=<< pipeline.parameters.l1_mainnet_rpc_url >>" >> $BASH_ENV
-                echo "L2_RPC_MAINNET=<< pipeline.parameters.l2_mainnet_rpc_url >>" >> $BASH_ENV
-              else
-                echo "L2 RPC endpoint failed the checks."
-                exit 1
-              fi
-            else
-              echo "L1 RPC endpoint failed the checks."
-              exit 1
-            fi
-      - run: |
-          cp $BASH_ENV bash.env
-      - persist_to_workspace:
-          root: .
-          paths:
-            - bash.env
-
   check_task_statuses:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -152,28 +94,6 @@ jobs:
             (cd src/improvements && just check-superchain-registry-latest)
       - notify-failures-on-main:
           mentions: "@evm-safety-team"
-
-  # TODO: remove/replace when there are real consumers of the RPC URLs
-  example_mainnet_job:
-    circleci_ip_ranges: true
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - attach_workspace:
-          at: .
-      - run: |
-          cat bash.env >> $BASH_ENV
-      - run:
-          name: Use RPC URLs
-          command: |
-            if [ -z "$L1_RPC_MAINNET" ] || [ -z "$L2_RPC_MAINNET" ]; then
-                echo "Required RPC URLs are not available."
-            fi
-              L1_RPC_URL=$L1_RPC_MAINNET
-              L2_RPC_URL=$L2_RPC_MAINNET
-              echo "L1 RPC URL: $L1_RPC_URL"
-              echo "L2 RPC URL: $L2_RPC_URL"
-              # Use L1_RPC_URL and L2_RPC_URL here.
 
   just_simulate_sc_rehearsal_1:
     circleci_ip_ranges: true
@@ -466,18 +386,6 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
       - check_task_names
-      # RPC endpoint checks.
-      - check_sepolia_rpc_endpoints:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-      - check_mainnet_rpc_endpoints:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-      - example_mainnet_job:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-          requires:
-            - check_mainnet_rpc_endpoints
       # Verify that all tasks have a valid status in their README.
       - check_task_statuses:
           context:
