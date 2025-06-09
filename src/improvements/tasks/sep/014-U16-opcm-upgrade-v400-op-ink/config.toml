@@ -1,4 +1,4 @@
-l2chains = [    
+l2chains = [
     {name = "OP Sepolia Testnet", chainId = 11155420},
     {name = "Ink Sepolia Testnet", chainId = 763373}
 ]
@@ -23,4 +23,15 @@ expectedValidationErrors = ""
 
 [addresses]
 OPCM = "0x44c191ce5ce35131e703532af75fa9ca221e2398" # Freshly deployed on Sepolia
-StandardValidatorV400 = "0x482160a136b7aA13d05441cDB6f09a61AF36b935" # Freshly deployed on Sepolia
+StandardValidatorV400 = "0xA8a1529547306FEC7A32a001705160f2110451aE" # Freshly deployed on Sepolia
+
+[stateOverrides]
+0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 30}
+]
+0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 40}
+]
+0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 44}
+]
