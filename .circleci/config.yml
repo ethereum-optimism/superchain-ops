@@ -449,15 +449,9 @@ workflows:
       - forge_test:
           context:
             - circleci-repo-readonly-authenticated-github-token
-      # This is a long running job, so we only run it on the main branch. It's encouraged that task
-      # developers run this locally before pushing changes. We should keep this job running on main
-      # until we have performance improvements to the job (e.g. https://github.com/foundry-rs/foundry/issues/5363).
       - template_regression_tests:
           context:
             - circleci-repo-readonly-authenticated-github-token
-          filters:
-            branches:
-              only: main
       - just_new_recipe_tests
       - shellcheck:
           context:
