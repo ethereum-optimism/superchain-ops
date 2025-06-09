@@ -5,3 +5,9 @@ newModule = "0x76fc2f971fb355d0453cf9f64d3f9e4f640e1754"
 safeAddressString = "GuardianSafe"
 foundationSafeString = "FoundationUpgradeSafe"
 deputyPauseModuleVersion = "2.1.0"
+
+[stateOverrides]
+
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [
+  {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 32}
+]
