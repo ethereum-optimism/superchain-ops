@@ -1,0 +1,607 @@
+{
+  "version": "1.0",
+  "chainId": "1",
+  "createdAt": 1746482765906,
+  "meta": {
+    "name": "Transactions Batch",
+    "description": "",
+    "txBuilderVersion": "1.17.0",
+    "createdFromSafeAddress": "",
+    "createdFromOwnerAddress": ""
+  },
+  "transactions": [
+    {
+      "to": "0x37Ff0ae34dadA1A95A4251d10ef7Caa868c7AC99",
+      "value": "0",
+      "data": "0x99a88ec40000000000000000000000003f37abde2c6b5b2ed6f8045787df1ed1e3753956000000000000000000000000d81f43edbcacb4c29a9ba38a13ee5d79278270cc",
+      "contractMethod": {
+        "inputs": [
+          {
+            "name": "_proxy",
+            "type": "address",
+            "internalType": "address payable"
+          },
+          {
+            "name": "_implementation",
+            "type": "address",
+            "internalType": "address"
+          }
+        ],
+        "name": "upgrade",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_proxy": "0x3F37aBdE2C6b5B2ed6F8045787Df1ED1E3753956",
+        "_implementation": "0xd81f43edbcacb4c29a9ba38a13ee5d79278270cc"
+      }
+    },
+    {
+      "to": "0x3F37aBdE2C6b5B2ed6F8045787Df1ED1E3753956",
+      "value": "0",
+      "data": "0x4e91db0800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "contractMethod": {
+        "inputs": [
+          {
+            "name": "_slot",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "_value",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          }
+        ],
+        "name": "setBytes32",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "_value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "to": "0x3F37aBdE2C6b5B2ed6F8045787Df1ED1E3753956",
+      "value": "0",
+      "data": "0x4e91db0800000000000000000000000000000000000000000000000000000000000000320000000000000000000000000000000000000000000000000000000000000000",
+      "contractMethod": {
+        "inputs": [
+          {
+            "name": "_slot",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "_value",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          }
+        ],
+        "name": "setBytes32",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_slot": "0x0000000000000000000000000000000000000000000000000000000000000032",
+        "_value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "to": "0x37Ff0ae34dadA1A95A4251d10ef7Caa868c7AC99",
+      "value": "0",
+      "data": "0x99a88ec40000000000000000000000003f37abde2c6b5b2ed6f8045787df1ed1e3753956000000000000000000000000e2f826324b2faf99e513d16d266c3f80ae87832b",
+      "contractMethod": {
+        "inputs": [
+          {
+            "name": "_proxy",
+            "type": "address",
+            "internalType": "address payable"
+          },
+          {
+            "name": "_implementation",
+            "type": "address",
+            "internalType": "address"
+          }
+        ],
+        "name": "upgrade",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_proxy": "0x3F37aBdE2C6b5B2ed6F8045787Df1ED1E3753956",
+        "_implementation": "0xe2F826324b2faf99E513D16D266c3F80aE87832B"
+      }
+    },
+    {
+      "to": "0x3F37aBdE2C6b5B2ed6F8045787Df1ED1E3753956",
+      "value": "0",
+      "data": "0x8e819e540000000000000000000000007bfff391a2dbbdc68a259792ac9748f50fcde93e0000000000000000000000007bd909970b0eedcf078de6aeff23ce571663b8aa00000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c0000000000000000000000000000000000000000000000000000000000000001",
+      "contractMethod": {
+        "inputs": [
+          {
+            "name": "_disputeGameFactory",
+            "type": "address",
+            "internalType": "contract DisputeGameFactory"
+          },
+          {
+            "name": "_systemConfig",
+            "type": "address",
+            "internalType": "contract SystemConfig"
+          },
+          {
+            "name": "_superchainConfig",
+            "type": "address",
+            "internalType": "contract SuperchainConfig"
+          },
+          {
+            "name": "_initialRespectedGameType",
+            "type": "uint32",
+            "internalType": "GameType"
+          }
+        ],
+        "name": "initialize",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_disputeGameFactory": "0x7BFfF391A2dbbDc68A259792AC9748F50FcDE93E",
+        "_systemConfig": "0x7BD909970B0EEdcF078De6Aeff23ce571663b8aA",
+        "_superchainConfig": "0x95703e0982140D16f8ebA6d158FccEde42f04a4C",
+        "_initialRespectedGameType": "1"
+      }
+    },
+    {
+      "to": "0x37Ff0ae34dadA1A95A4251d10ef7Caa868c7AC99",
+      "value": "0",
+      "data": "0x99a88ec40000000000000000000000007bd909970b0eedcf078de6aeff23ce571663b8aa000000000000000000000000d81f43edbcacb4c29a9ba38a13ee5d79278270cc",
+      "contractMethod": {
+        "inputs": [
+          {
+            "name": "_proxy",
+            "type": "address",
+            "internalType": "address payable"
+          },
+          {
+            "name": "_implementation",
+            "type": "address",
+            "internalType": "address"
+          }
+        ],
+        "name": "upgrade",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_proxy": "0x7BD909970B0EEdcF078De6Aeff23ce571663b8aA",
+        "_implementation": "0xd81f43edbcacb4c29a9ba38a13ee5d79278270cc"
+      }
+    },
+    {
+      "to": "0x7BD909970B0EEdcF078De6Aeff23ce571663b8aA",
+      "value": "0",
+      "data": "0x4e91db08e52a667f71ec761b9b381c7b76ca9b852adf7e8905da0e0ad49986a0a68718150000000000000000000000000000000000000000000000000000000000000000",
+      "contractMethod": {
+        "inputs": [
+          {
+            "name": "_slot",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "_value",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          }
+        ],
+        "name": "setBytes32",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_slot": "0xe52a667f71ec761b9b381c7b76ca9b852adf7e8905da0e0ad49986a0a6871815",
+        "_value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "to": "0x7BD909970B0EEdcF078De6Aeff23ce571663b8aA",
+      "value": "0",
+      "data": "0xca446dd952322a25d9f59ea17656545543306b7aef62bc0cc53a0e65ccfa0c75b97aa9060000000000000000000000007bfff391a2dbbdc68a259792ac9748f50fcde93e",
+      "contractMethod": {
+        "inputs": [
+          {
+            "name": "_slot",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "_address",
+            "type": "address",
+            "internalType": "address"
+          }
+        ],
+        "name": "setAddress",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_slot": "0x52322a25d9f59ea17656545543306b7aef62bc0cc53a0e65ccfa0c75b97aa906",
+        "_address": "0x7BFfF391A2dbbDc68A259792AC9748F50FcDE93E"
+      }
+    },
+    {
+      "to": "0x7BD909970B0EEdcF078De6Aeff23ce571663b8aA",
+      "value": "0",
+      "data": "0x4e91db0800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "contractMethod": {
+        "inputs": [
+          {
+            "name": "_slot",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "_value",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          }
+        ],
+        "name": "setBytes32",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "_value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "to": "0x37Ff0ae34dadA1A95A4251d10ef7Caa868c7AC99",
+      "value": "0",
+      "data": "0x9623609d0000000000000000000000007bd909970b0eedcf078de6aeff23ce571663b8aa000000000000000000000000ab9d6cb7a427c0765163a7f45bb91cafe5f2d37500000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000284db9040fa0000000000000000000000004a4962275df8c60a80d3a25faec5aa7de116a74600000000000000000000000000000000000000000000000000000000000a6fe00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c94c243f8fb37223f3eb2f7961f7072602a51b8b0000000000000000000000000000000000000000000000000000000001c9c3800000000000000000000000004a65f5da5e80deffea844eaa15ce130e80605dc50000000000000000000000000000000000000000000000000000000001312d00000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000003b9aca0000000000000000000000000000000000000000000000000000000000000f424000000000000000000000000000000000ffffffffffffffffffffffffffffffff000000000000000000000000c83f7d9f2d4a76e81145849381aba026023737230000000000000000000000000a47a44f1b2bb753474f8c830322554a96c9934d00000000000000000000000050d700e97967f9115e3f999bdb263d69f67046800000000000000000000000006d0f65d59b55b0fec5d2d15365154dcadc140bf30000000000000000000000007bfff391a2dbbdc68a259792ac9748f50fcde93e0000000000000000000000003f37abde2c6b5b2ed6f8045787df1ed1e37539560000000000000000000000001aaab4e20d2e4bb992b5bca2125e8bd3588c8730000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "contractMethod": {
+        "inputs": [
+          {
+            "name": "_proxy",
+            "type": "address",
+            "internalType": "address payable"
+          },
+          {
+            "name": "_implementation",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "internalType": "bytes",
+            "name": "_data",
+            "type": "bytes"
+          }
+        ],
+        "name": "upgradeAndCall",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_data": "0xdb9040fa0000000000000000000000004a4962275df8c60a80d3a25faec5aa7de116a74600000000000000000000000000000000000000000000000000000000000a6fe00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c94c243f8fb37223f3eb2f7961f7072602a51b8b0000000000000000000000000000000000000000000000000000000001c9c3800000000000000000000000004a65f5da5e80deffea844eaa15ce130e80605dc50000000000000000000000000000000000000000000000000000000001312d00000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000003b9aca0000000000000000000000000000000000000000000000000000000000000f424000000000000000000000000000000000ffffffffffffffffffffffffffffffff000000000000000000000000c83f7d9f2d4a76e81145849381aba026023737230000000000000000000000000a47a44f1b2bb753474f8c830322554a96c9934d00000000000000000000000050d700e97967f9115e3f999bdb263d69f67046800000000000000000000000006d0f65d59b55b0fec5d2d15365154dcadc140bf30000000000000000000000007bfff391a2dbbdc68a259792ac9748f50fcde93e0000000000000000000000003f37abde2c6b5b2ed6f8045787df1ed1e37539560000000000000000000000001aaab4e20d2e4bb992b5bca2125e8bd3588c87300000000000000000000000000000000000000000000000000000000000000000",
+        "_proxy": "0x7BD909970B0EEdcF078De6Aeff23ce571663b8aA",
+        "_implementation": "0xAB9d6cB7A427c0765163A7f45BB91cAfe5f2D375"
+      }
+    },
+    {
+      "to": "0x37Ff0ae34dadA1A95A4251d10ef7Caa868c7AC99",
+      "value": "0",
+      "data": "0x99a88ec40000000000000000000000000a47a44f1b2bb753474f8c830322554a96c9934d000000000000000000000000d81f43edbcacb4c29a9ba38a13ee5d79278270cc",
+      "contractMethod": {
+        "inputs": [
+          {
+            "name": "_proxy",
+            "type": "address",
+            "internalType": "address payable"
+          },
+          {
+            "name": "_implementation",
+            "type": "address",
+            "internalType": "address"
+          }
+        ],
+        "name": "upgrade",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_proxy": "0x0a47A44f1B2bb753474f8c830322554A96C9934D",
+        "_implementation": "0xd81f43edbcacb4c29a9ba38a13ee5d79278270cc"
+      }
+    },
+    {
+      "to": "0x0a47A44f1B2bb753474f8c830322554A96C9934D",
+      "value": "0",
+      "data": "0x4e91db0800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "contractMethod": {
+        "inputs": [
+          {
+            "name": "_slot",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "_value",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          }
+        ],
+        "name": "setBytes32",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "_value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "to": "0x37Ff0ae34dadA1A95A4251d10ef7Caa868c7AC99",
+      "value": "0",
+      "data": "0x99a88ec40000000000000000000000000a47a44f1b2bb753474f8c830322554a96c9934d000000000000000000000000d3494713a5cfad3f5359379dfa074e2ac8c6fd65",
+      "contractMethod": {
+        "inputs": [
+          {
+            "name": "_proxy",
+            "type": "address",
+            "internalType": "address payable"
+          },
+          {
+            "name": "_implementation",
+            "type": "address",
+            "internalType": "address"
+          }
+        ],
+        "name": "upgrade",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_proxy": "0x0a47A44f1B2bb753474f8c830322554A96C9934D",
+        "_implementation": "0xD3494713A5cfaD3F5359379DfA074E2Ac8C6Fd65"
+      }
+    },
+    {
+      "to": "0x0a47A44f1B2bb753474f8c830322554A96C9934D",
+      "value": "0",
+      "data": "0x485cc95500000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c0000000000000000000000003f37abde2c6b5b2ed6f8045787df1ed1e3753956",
+      "contractMethod": {
+        "inputs": [
+          {
+            "internalType": "contract SuperchainConfig",
+            "name": "_superchainConfig",
+            "type": "address"
+          },
+          {
+            "internalType": "contract OptimismPortal",
+            "name": "_portal",
+            "type": "address"
+          }
+        ],
+        "name": "initialize",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_superchainConfig": "0x95703e0982140D16f8ebA6d158FccEde42f04a4C",
+        "_portal": "0x3F37aBdE2C6b5B2ed6F8045787Df1ED1E3753956"
+      }
+    },
+    {
+      "to": "0x37Ff0ae34dadA1A95A4251d10ef7Caa868c7AC99",
+      "value": "0",
+      "data": "0x99a88ec40000000000000000000000006d0f65d59b55b0fec5d2d15365154dcadc140bf3000000000000000000000000d81f43edbcacb4c29a9ba38a13ee5d79278270cc",
+      "contractMethod": {
+        "inputs": [
+          {
+            "name": "_proxy",
+            "type": "address",
+            "internalType": "address payable"
+          },
+          {
+            "name": "_implementation",
+            "type": "address",
+            "internalType": "address"
+          }
+        ],
+        "name": "upgrade",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_proxy": "0x6d0f65D59b55B0FEC5d2d15365154DcADC140BF3",
+        "_implementation": "0xd81f43edbcacb4c29a9ba38a13ee5d79278270cc"
+      }
+    },
+    {
+      "to": "0x6d0f65D59b55B0FEC5d2d15365154DcADC140BF3",
+      "value": "0",
+      "data": "0x4e91db0800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "contractMethod": {
+        "inputs": [
+          {
+            "name": "_slot",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "_value",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          }
+        ],
+        "name": "setBytes32",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "_value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "to": "0x37Ff0ae34dadA1A95A4251d10ef7Caa868c7AC99",
+      "value": "0",
+      "data": "0x99a88ec40000000000000000000000006d0f65d59b55b0fec5d2d15365154dcadc140bf300000000000000000000000064b5a5ed26dcb17370ff4d33a8d503f0fbd06cff",
+      "contractMethod": {
+        "inputs": [
+          {
+            "name": "_proxy",
+            "type": "address",
+            "internalType": "address payable"
+          },
+          {
+            "name": "_implementation",
+            "type": "address",
+            "internalType": "address"
+          }
+        ],
+        "name": "upgrade",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_proxy": "0x6d0f65D59b55B0FEC5d2d15365154DcADC140BF3",
+        "_implementation": "0x64B5a5Ed26DCb17370Ff4d33a8D503f0fbD06CfF"
+      }
+    },
+    {
+      "to": "0x6d0f65D59b55B0FEC5d2d15365154DcADC140BF3",
+      "value": "0",
+      "data": "0x485cc9550000000000000000000000000a47a44f1b2bb753474f8c830322554a96c9934d00000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c",
+      "contractMethod": {
+        "inputs": [
+          {
+            "internalType": "contract CrossDomainMessenger",
+            "name": "_messenger",
+            "type": "address"
+          },
+          {
+            "internalType": "contract SuperchainConfig",
+            "name": "_superchainConfig",
+            "type": "address"
+          }
+        ],
+        "name": "initialize",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_messenger": "0x0a47A44f1B2bb753474f8c830322554A96C9934D",
+        "_superchainConfig": "0x95703e0982140D16f8ebA6d158FccEde42f04a4C"
+      }
+    },
+    {
+      "to": "0x37Ff0ae34dadA1A95A4251d10ef7Caa868c7AC99",
+      "value": "0",
+      "data": "0x99a88ec400000000000000000000000050d700e97967f9115e3f999bdb263d69f6704680000000000000000000000000d81f43edbcacb4c29a9ba38a13ee5d79278270cc",
+      "contractMethod": {
+        "inputs": [
+          {
+            "name": "_proxy",
+            "type": "address",
+            "internalType": "address payable"
+          },
+          {
+            "name": "_implementation",
+            "type": "address",
+            "internalType": "address"
+          }
+        ],
+        "name": "upgrade",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_proxy": "0x50D700e97967F9115e3f999bDB263d69F6704680",
+        "_implementation": "0xd81f43edbcacb4c29a9ba38a13ee5d79278270cc"
+      }
+    },
+    {
+      "to": "0x50D700e97967F9115e3f999bDB263d69F6704680",
+      "value": "0",
+      "data": "0x4e91db0800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "contractMethod": {
+        "inputs": [
+          {
+            "name": "_slot",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "_value",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          }
+        ],
+        "name": "setBytes32",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_slot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "_value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "to": "0x37Ff0ae34dadA1A95A4251d10ef7Caa868c7AC99",
+      "value": "0",
+      "data": "0x99a88ec400000000000000000000000050d700e97967f9115e3f999bdb263d69f6704680000000000000000000000000ae2af01232a6c4a4d3012c5ec5b1b35059caf10d",
+      "contractMethod": {
+        "inputs": [
+          {
+            "name": "_proxy",
+            "type": "address",
+            "internalType": "address payable"
+          },
+          {
+            "name": "_implementation",
+            "type": "address",
+            "internalType": "address"
+          }
+        ],
+        "name": "upgrade",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_proxy": "0x50D700e97967F9115e3f999bDB263d69F6704680",
+        "_implementation": "0xAE2AF01232a6c4a4d3012C5eC5b1b35059caF10d"
+      }
+    },
+    {
+      "to": "0x50D700e97967F9115e3f999bDB263d69F6704680",
+      "value": "0",
+      "data": "0x485cc9550000000000000000000000000a47a44f1b2bb753474f8c830322554a96c9934d00000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c",
+      "contractMethod": {
+        "inputs": [
+          {
+            "name": "_messenger",
+            "type": "address",
+            "internalType": "contract CrossDomainMessenger"
+          },
+          {
+            "name": "_superchainConfig",
+            "type": "address",
+            "internalType": "contract SuperchainConfig"
+          }
+        ],
+        "name": "initialize",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_messenger": "0x0a47A44f1B2bb753474f8c830322554A96C9934D",
+        "_superchainConfig": "0x95703e0982140D16f8ebA6d158FccEde42f04a4C"
+      }
+    },
+    {
+      "to": "0x37Ff0ae34dadA1A95A4251d10ef7Caa868c7AC99",
+      "value": "0",
+      "data": "0x99a88ec40000000000000000000000001aaab4e20d2e4bb992b5bca2125e8bd3588c8730000000000000000000000000e01efbeb1089d1d1db9c6c8b135c934c0734c846",
+      "contractMethod": {
+        "inputs": [
+          {
+            "name": "_proxy",
+            "type": "address",
+            "internalType": "address payable"
+          },
+          {
+            "name": "_implementation",
+            "type": "address",
+            "internalType": "address"
+          }
+        ],
+        "name": "upgrade",
+        "payable": false
+      },
+      "contractInputsValues": {
+        "_proxy": "0x1aaab4E20d2e4Bb992b5BCA2125e8bd3588c8730",
+        "_implementation": "0xE01efbeb1089D1d1dB9c6c8b135C934C0734c846"
+      }
+    }
+  ]
+}
