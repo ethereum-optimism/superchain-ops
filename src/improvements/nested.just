@@ -29,7 +29,10 @@ simulate whichSafe hdPath='0':
   #!/usr/bin/env bash
   # Get the appropriate safe address based on whichSafe
   safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
-  echo "RPC URL: ${rpcUrl}"
+  
+  export FOUNDRY_PROFILE="${FOUNDRY_PROFILE:-default}"
+  echo "Current Foundry profile: $FOUNDRY_PROFILE"
+  echo "RPC: ${rpcUrl} (see correct Foundry profile in foundry.toml)"
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
 

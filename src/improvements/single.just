@@ -35,7 +35,9 @@ simulate hdPath='0':
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
 
-  echo "RPC URL: ${rpcUrl}"
+  export FOUNDRY_PROFILE="${FOUNDRY_PROFILE:-default}"
+  echo "Current Foundry profile: $FOUNDRY_PROFILE"
+  echo "RPC: ${rpcUrl} (see correct Foundry profile in foundry.toml)"
   echo "Using script ${script}"
 
   echo "Setting signer address..."
