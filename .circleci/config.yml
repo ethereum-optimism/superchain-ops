@@ -528,7 +528,7 @@ workflows:
       - simulate_sequence:
           name: simulate_sequence_sep
           network: "sep"
-          tasks: "013-U16-enable-dpm 014-U16-opcm-upgrade-v400-op-ink 015-U16-opcm-upgrade-v400-soneium 016-U16-opcm-upgrade-v400-uni 017-U16-opcm-upgrade-v400-base 018-U16-remove-dgm 019-U16-remove-dpm"
+          tasks: ""
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
