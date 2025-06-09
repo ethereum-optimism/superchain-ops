@@ -103,7 +103,10 @@ contract GnosisSafeApproveHash is L2TaskBase {
 
         bytes memory encodedTxData =
             GnosisSafeHashes.getEncodedTransactionData(l1PAO, multicall3, taskCalldata, parentMultisigNonce);
-        require(keccak256(encodedTxData) == safeTxHash, "safeTxHash is not the same as the encoded transaction data");
+        require(
+            keccak256(encodedTxData) == safeTxHash,
+            string.concat("safeTxHash is not the same as the encoded transaction data. Got: ", vm.toString(keccak256(encodedTxData)), " Expected: ", vm.toString(safeTxHash))
+        );
     }
 
     /// @notice Builds the actions for executing the operations

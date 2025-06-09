@@ -9,6 +9,7 @@ The steps are:
 2. [Verifying the state changes via the normalized state diff hash](#normalized-state-diff-hash-attestation)
 3. [Verifying the transaction input](#understanding-task-calldata)
 4. [Verifying the state changes](#task-state-changes)
+5. [Creating the safeTxHash](#creating-the-safetxhash)
 
 ## Expected Domain and Message Hashes
 
@@ -161,3 +162,26 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 - The remaining nonce increments are for the Safes and EOAs that are involved in the simulation.
   The details are described in the generic [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md) document.
   - <sender-address> - Sender address of the Tenderly transaction (Your ledger or first owner on the nested safe (if you're simulating)).
+
+### Creating the safeTxHash
+
+Open chisel in the terminal and run the following command to create the `safeTxHash`:
+```bash
+bytes32 domainSeparator = keccak256(abi.encode(0x47e79534a245952e8b16893a336b85a3d9ea9fa8c573f3d803afb92a79469218, 11155111, 0x0fe884546476dDd290eC46318785046ef68a0BA9));
+bytes32 safeTxHash = keccak256(
+        abi.encode(
+            0xbb8310d486368db6bd6f849402fdd73ad53d316b5a4b2644ad6efe0f941286d8,
+            0x93dc480940585D9961bfcEab58124fFD3d60f76a,
+            0,
+            keccak256(hex"82ad56cb00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000044c191ce5ce35131e703532af75fa9ca221e23980000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a4ff2dd5a100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000f272670eb55e895584501d564afeb048bed261940000000000000000000000000389e59aa0a41e4a413ae70f0008e76caa34b1f303eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc800000000000000000000000000000000000000000000000000000000"),
+            uint8(1),
+            0,
+            0,
+            0,
+            address(0),
+            address(0),
+            24
+        )
+);
+keccak256(abi.encodePacked(bytes1(0x19), bytes1(0x01), domainSeparator, safeTxHash))
+```
