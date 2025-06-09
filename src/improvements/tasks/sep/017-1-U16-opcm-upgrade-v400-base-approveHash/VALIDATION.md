@@ -134,9 +134,9 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 - **Key:**      `0x4270791d90a3ce723467026915723e93d9ea66471005bd4708981f33b95fc76f`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
-  - **Summary:** `approveHash(bytes32)` called on the BaseNestedSafe by the Base Security Council Safe.
+  - **Summary:** `approveHash(bytes32)` called on the BaseNestedSafe by the Base Operations Safe.
   - **Detail:** This slot change reflects an update to the `approvedHashes` mapping.
-    Specifically, this simulation was ran as the Base Security Council Safe `0x6AF0674791925f767060Dd52f7fB20984E8639d8`. To verify the slot yourself, run:
+    Specifically, this simulation was ran as the Base Operations Safe `0x6AF0674791925f767060Dd52f7fB20984E8639d8`. To verify the slot yourself, run:
     - `res=$(cast index address 0x6AF0674791925f767060Dd52f7fB20984E8639d8 8)`
     - `cast index bytes32 0x20fbba77794fb96cb7d0e3be668f05d1a3852ade7eb3e595ff6a4165a444a5a7 $res`
     - Please note: `0x20fbba77794fb96cb7d0e3be668f05d1a3852ade7eb3e595ff6a4165a444a5a7` is the hash to approve on the Base Nested Safe. It's denoted as `Parent hashToApprove` in the task: `017-2-U16-opcm-upgrade-v400-base`'s terminal output.
