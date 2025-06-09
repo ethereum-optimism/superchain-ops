@@ -66,10 +66,7 @@ contract DisableModule is SimpleTaskBase {
     function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory) internal view override {
         (address[] memory modules, address nextModule) =
             ModuleManager(parentMultisig).getModulesPaginated(SENTINEL_MODULE, 100);
-        if (keccak256(abi.encodePacked(ISafe(parentMultisig).VERSION())) == keccak256(abi.encodePacked("1.1.1"))) {
-            console.log("[INFO] Old version of safe detected 1.1.1.");
-            revert("Older versions of the Gnosis Safe are not yet supported by this template.");
-        } else {
+        if (keccak256(abi.encodePacked(ISafe(parentMultisig).VERSION())) != keccak256(abi.encodePacked("1.1.1"))) {
             assertFalse(ModuleManager(parentMultisig).isModuleEnabled(moduleToDisable), "Module not disabled");
         }
         assertEq(nextModule, SENTINEL_MODULE, "Next module not correct");
