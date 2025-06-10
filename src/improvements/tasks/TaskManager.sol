@@ -108,16 +108,13 @@ contract TaskManager is Script {
             vm.isFile(string.concat(taskPath, "/", "README.md")),
             string.concat("TaskManager: README.md file does not exist: ", taskPath)
         );
-        require(
-            vm.isFile(string.concat(taskPath, "/", "VALIDATION.md")),
-            string.concat("TaskManager: VALIDATION.md file does not exist: ", taskPath)
-        );
+        // Don't require a VALIDATION markdown file.
     }
 
     /// @notice Executes a task based on its configuration.
     function executeTask(TaskConfig memory config, address optionalOwnerAddress)
         public
-        returns (VmSafe.AccountAccess[] memory accesses)
+        returns (VmSafe.AccountAccess[] memory accesses_, bytes32 normalizedHash_)
     {
         // Deploy and run the template
         string memory templatePath = string.concat("out/", config.templateName, ".sol/", config.templateName, ".json");
@@ -155,15 +152,46 @@ contract TaskManager is Script {
                     vm.toString(config.parentMultisig)
                 )
             );
-            (accesses,) = task.signFromChildMultisig(config.configPath, ownerAddress);
+            (accesses_,, normalizedHash_) = task.signFromChildMultisig(config.configPath, ownerAddress);
         } else {
             // forgefmt: disable-start
             console.log(string.concat("SIMULATING SINGLE TASK: ", taskName, " ON ", formattedParentMultisig));
             console.log(line.green().bold());
             console.log("");
             // forgefmt: disable-end
-            (accesses,) = task.simulateRun(config.configPath);
+            (accesses_,, normalizedHash_) = task.simulateRun(config.configPath);
         }
+        require(
+            checkNormalizedHash(normalizedHash_, config),
+            string.concat(
+                "TaskManager: Normalized hash for task: ",
+                taskName,
+                " does not match. Got: ",
+                vm.toString(normalizedHash_)
+            )
+        );
+    }
+
+    /// @notice Cross check most recent normalized hash with normalized hash stored in VALIDATION markdown file.
+    /// @return 'false' when VALIDATION file is empty or contains the wrong hash. 'true' when VALIDATION file does not exist or contains the correct hash.
+    function checkNormalizedHash(bytes32 _normalizedHash, TaskConfig memory _config) public view returns (bool) {
+        string memory validationFilePath = string.concat(_config.basePath, "/VALIDATION.md");
+        // If no VALIDATION file exists then we assume this is intentional and skip the check e.g. test tasks.
+        if (!vm.isFile(validationFilePath)) return true;
+
+        string memory currentHashStr = vm.toString(_normalizedHash);
+        string memory validations = vm.readFile(validationFilePath);
+        string[] memory lines = vm.split(validations, "\n");
+        for (uint256 i = 0; i < lines.length; i++) {
+            if (lines[i].contains(currentHashStr)) {
+                return true;
+            }
+        }
+        console.log(
+            vm.toUppercase("[INFO]").green().bold(),
+            " Normalized hash does not match. Please check that you've added it to the VALIDATION markdown file."
+        );
+        return false;
     }
 
     /// @notice Requires that a signer is an owner on a safe.

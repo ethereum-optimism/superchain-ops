@@ -122,13 +122,26 @@ simulate-all-templates:
     # For testing purposes, we do not gain anything by simulating as other nested safes.
     nested_safe_name="foundation"
     simulation_count=0
-    for task in ${root_dir}/test/tasks/example/*/*; do
+
+    # Collect PIDs of each background simulation.
+    declare -a pids=()
+
+    for task in "${root_dir}/test/tasks/example/"*/*; do
         if [ -d "$task" ]; then
-            ${root_dir}/src/improvements/script/simulate-task.sh $task $nested_safe_name
-            simulation_count=$((simulation_count + 1))
+            # Launch each simulation in background.
+            "${root_dir}/src/improvements/script/simulate-task.sh" "$task" "$nested_safe_name" & pids+=( "$!" )
         fi
     done
+
+    # Wait for every simulation to finish, count successes.
+    for pid in "${pids[@]}"; do
+        wait "$pid"
+        simulation_count=$((simulation_count + 1))
+    done
+
     echo "$simulation_count simulations run."
+
+    # Count template files (excluding *.template.sol and boilerplate dir).
     template_count=$(find "${root_dir}/src/improvements/template" -type f ! -name "*.template.sol" ! -path "*/boilerplate/*" | wc -l | xargs)
 
     # Verify that every template file is referenced by at least one example task config.
@@ -209,7 +222,7 @@ simulate-stack NETWORK="" TASK="" OWNER_ADDRESSES="[]":
         just list-stack {{NETWORK}} {{TASK}}
         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address[])" "{{NETWORK}}" "{{TASK}}" "{{OWNER_ADDRESSES}}" --ffi --rpc-url $ETH_RPC_URL
     fi
-    echo -e "\n⚠️ Please note: Some Tenderly links may not work when running a stacked simulation.⚠️"
+    echo -e "\n⚠️ Please note: Some Tenderly links may not work when running a stacked simulation. Check out Tenderly's Virtual TestNets as a workaround.⚠️"
 
 list-stack NETWORK="" TASK="":
     #!/usr/bin/env bash
