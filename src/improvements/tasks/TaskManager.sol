@@ -10,6 +10,7 @@ import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
+import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {StdStyle} from "forge-std/StdStyle.sol";
@@ -111,14 +112,14 @@ contract TaskManager is Script {
         // Don't require a VALIDATION markdown file.
     }
 
-    /// @notice Executes a task based on its configuration.
     function executeTask(TaskConfig memory config, address optionalOwnerAddress)
         public
-        returns (VmSafe.AccountAccess[] memory accesses_, bytes32 normalizedHash_)
+        returns (VmSafe.AccountAccess[] memory accesses_, bytes32 normalizedHash_, bytes memory dataToSign_)
     {
         // Deploy and run the template
         string memory templatePath = string.concat("out/", config.templateName, ".sol/", config.templateName, ".json");
         MultisigTask task = getCachedTask(config.configPath, templatePath);
+
         string memory formattedParentMultisig = vm.toString(config.parentMultisig).green().bold();
 
         setTenderlyGasEnv(config.basePath);
@@ -126,6 +127,36 @@ contract TaskManager is Script {
         string[] memory parts = vm.split(config.basePath, "/");
         string memory taskName = parts[parts.length - 1];
 
+        (accesses_, normalizedHash_, dataToSign_) =
+            execute(config, task, optionalOwnerAddress, taskName, formattedParentMultisig);
+        require(
+            checkNormalizedHash(normalizedHash_, config),
+            string.concat(
+                "TaskManager: Normalized hash for task: ",
+                taskName,
+                " does not match. Got: ",
+                vm.toString(normalizedHash_)
+            )
+        );
+        require(
+            checkDataToSign(dataToSign_, config),
+            string.concat(
+                "TaskManager: Data to sign for task: ",
+                taskName,
+                " does not match Domain and Message hashes in VALIDATION.md. Got: ",
+                vm.toString(dataToSign_)
+            )
+        );
+    }
+
+    /// @notice Executes a task based on its configuration.
+    function execute(
+        TaskConfig memory config,
+        MultisigTask task,
+        address optionalOwnerAddress,
+        string memory taskName,
+        string memory formattedParentMultisig
+    ) private returns (VmSafe.AccountAccess[] memory accesses_, bytes32 normalizedHash_, bytes memory dataToSign_) {
         string memory line =
             unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
         if (config.isNested) {
@@ -148,50 +179,70 @@ contract TaskManager is Script {
             require(
                 contains(owners, ownerAddress),
                 string.concat(
-                    "TaskManager: ownerAddress must be an owner of the parent multisig: ",
+                    "TaskManager: ownerAddress (",
+                    vm.toString(ownerAddress),
+                    ") must be an owner of the parent multisig: ",
                     vm.toString(config.parentMultisig)
                 )
             );
-            (accesses_,, normalizedHash_) = task.signFromChildMultisig(config.configPath, ownerAddress);
+            (accesses_,, normalizedHash_, dataToSign_) = task.signFromChildMultisig(config.configPath, ownerAddress);
         } else {
             // forgefmt: disable-start
             console.log(string.concat("SIMULATING SINGLE TASK: ", taskName, " ON ", formattedParentMultisig));
             console.log(line.green().bold());
             console.log("");
             // forgefmt: disable-end
-            (accesses_,, normalizedHash_) = task.simulateRun(config.configPath);
+            (accesses_,, normalizedHash_, dataToSign_) = task.simulateRun(config.configPath);
         }
-        require(
-            checkNormalizedHash(normalizedHash_, config),
-            string.concat(
-                "TaskManager: Normalized hash for task: ",
-                taskName,
-                " does not match. Got: ",
-                vm.toString(normalizedHash_)
-            )
-        );
+    }
+
+    /// @notice Generic logic to check for the existence of target bytes in the VALIDATION markdown file.
+    /// @return 'false' when VALIDATION file is empty or does not contain the target bytes. 'true' when VALIDATION file does not exist or contains the target bytes.
+    function checkValidationFile(bytes memory _target, TaskConfig memory _config, string memory customMessage)
+        public
+        view
+        returns (bool)
+    {
+        string memory validationFilePath = string.concat(_config.basePath, "/VALIDATION.md");
+        // If no VALIDATION file exists then we assume this is intentional and skip the check e.g. test tasks.
+        if (!vm.isFile(validationFilePath)) return true;
+
+        string memory targetStr = vm.toString(_target);
+        string memory validations = vm.readFile(validationFilePath);
+        string[] memory lines = vm.split(validations, "\n");
+        for (uint256 i = 0; i < lines.length; i++) {
+            if (lines[i].contains(targetStr)) {
+                return true;
+            }
+        }
+        console.log(string.concat(vm.toUppercase("[ERROR]").red().bold(), " ", customMessage, " ", targetStr));
+        return false;
     }
 
     /// @notice Cross check most recent normalized hash with normalized hash stored in VALIDATION markdown file.
     /// @return 'false' when VALIDATION file is empty or contains the wrong hash. 'true' when VALIDATION file does not exist or contains the correct hash.
     function checkNormalizedHash(bytes32 _normalizedHash, TaskConfig memory _config) public view returns (bool) {
-        string memory validationFilePath = string.concat(_config.basePath, "/VALIDATION.md");
-        // If no VALIDATION file exists then we assume this is intentional and skip the check e.g. test tasks.
-        if (!vm.isFile(validationFilePath)) return true;
-
-        string memory currentHashStr = vm.toString(_normalizedHash);
-        string memory validations = vm.readFile(validationFilePath);
-        string[] memory lines = vm.split(validations, "\n");
-        for (uint256 i = 0; i < lines.length; i++) {
-            if (lines[i].contains(currentHashStr)) {
-                return true;
-            }
-        }
-        console.log(
-            vm.toUppercase("[INFO]").green().bold(),
-            " Normalized hash does not match. Please check that you've added it to the VALIDATION markdown file."
+        bytes memory normalizedHashBytes = abi.encodePacked(_normalizedHash);
+        return checkValidationFile(
+            normalizedHashBytes,
+            _config,
+            "Normalized hash does not match. Please check that you've added it to the VALIDATION markdown file."
         );
-        return false;
+    }
+
+    /// @notice Cross check most recent data to sign with the domain and message hashes stored in VALIDATION markdown file.
+    /// @return 'false' when VALIDATION file is empty or contains the wrong data to sign. 'true' when VALIDATION file does not exist or contains the correct data to sign.
+    function checkDataToSign(bytes memory _dataToSign, TaskConfig memory _config) public view returns (bool) {
+        string memory message = "Please check that you've added it to the VALIDATION markdown file.";
+        (bytes32 domainSeparator, bytes32 messageHash) =
+            GnosisSafeHashes.getDomainAndMessageHashFromEncodedTransactionData(_dataToSign);
+        bytes memory domainHashBytes = abi.encodePacked(domainSeparator);
+        bytes memory messageHashBytes = abi.encodePacked(messageHash);
+        bool containsDomainHash =
+            checkValidationFile(domainHashBytes, _config, string.concat("Domain hash does not match. ", message));
+        bool containsMessageHash =
+            checkValidationFile(messageHashBytes, _config, string.concat("Message hash does not match. ", message));
+        return containsDomainHash && containsMessageHash;
     }
 
     /// @notice Requires that a signer is an owner on a safe.

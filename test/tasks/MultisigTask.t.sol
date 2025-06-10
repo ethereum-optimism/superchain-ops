@@ -179,7 +179,7 @@ contract MultisigTaskUnitTest is Test {
         public
         returns (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions)
     {
-        (accountAccesses, actions,) = task.signFromChildMultisig(taskConfigFilePath, childMultisig);
+        (accountAccesses, actions,,) = task.signFromChildMultisig(taskConfigFilePath, childMultisig);
 
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);
 

@@ -117,7 +117,7 @@ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../sin
 
 6. Fill out the `README.md` and `VALIDATION.md` files.
     - If your task status is not `EXECUTED` or `CANCELLED`, it is considered non-terminal and will automatically be included in stacked simulations (which run on the main branch).
-    - If your task has a `VALIDATION.md` file, you must fill out the `Normalized State Diff Hash Attestation` section. This is so that we can detect if the normalized state diff hash changes unexpectedly.
+    - If your task has a `VALIDATION.md` file, you **must** fill out the `Normalized State Diff Hash Attestation` section. This is so that we can detect if the normalized state diff hash changes unexpectedly. You **must** also fill out the `Expected Domain and Message Hashes` section. This is so that we can detect if the domain and message hashes change unexpectedly.
 
 ### How do I run a task that depends on another task?
 
@@ -150,6 +150,30 @@ just list-stack eth
 # OR if you want to list the tasks up to and including a specific task.
 just list-stack eth <your-task-name>
 ```
+
+### How do I sign a task that depends on another task?
+
+> **Note**: Only ledger signing is supported for stacked signing.
+
+To sign a task, you can use the `sign` command. This command will simulate all tasks up to and including the specified task, and then prompt you to sign the transaction for the final task in the stack using your Ledger device.
+
+```bash
+just sign <network> <task> [owner-safe-name] [hd-path]
+```
+
+**Example:**
+
+To sign the `002-opcm-upgrade-v200` task on the Ethereum mainnet as the `foundation` safe, you would run:
+
+```bash
+just sign eth 002-opcm-upgrade-v200 foundation
+```
+
+The command will then:
+1. List all the tasks that will be simulated in the stack.
+2. Simulate the tasks in order.
+3. Prompt you to approve the transaction on your Ledger device for the final task (`002-opcm-upgrade-v200` in this example).
+
 
 ## Available Templates
 
