@@ -77,7 +77,6 @@ sign whichSafe hdPath='0' ledger='true':
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
   echo "getting signer address..."
   if {{ledger}}; then
-    
     hdpaths="m/44'/60'/{{hdPath}}'/0/0"
     signer=$(cast wallet address --ledger --mnemonic-derivation-path $hdpaths)
     signer_args="--ledger --hd-paths $hdpaths"
