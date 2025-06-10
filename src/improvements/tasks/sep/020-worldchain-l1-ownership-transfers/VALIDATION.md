@@ -101,7 +101,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   - **Decoded Kind:** `address`
   - **Before:** `0xe78a0A96C5D6aE6C606418ED4A9Ced378cb030A0`
   - **After:** [`0x1Eb2fFc903729a0F03966B917003800b145F56E2`](https://github.com/ethereum-optimism/superchain-registry/blob/93c5073d233cb9011a95aebf275270fd00346400/validation/standard/standard-config-roles-sepolia.toml#L3)
-  - **Summary:** Permissionless DelayedWETH owner update to new Superchain L1PAO
+  - **Summary:** Permissioned DelayedWETH owner update to new Superchain L1PAO
   - **Detail:** Verify the slot `0x0000000000000000000000000000000000000000000000000000000000000033` is correct by running the following command and observing that the output is the same as the `Before` value:
     ```bash
     cast storage 0xaeb3cfd5aaba01cfd12e6017a9a307a218cdd7e2 0x0000000000000000000000000000000000000000000000000000000000000033 --rpc-url sepolia
