@@ -88,7 +88,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:** `uint256`
-  - **Before:** `44`
+  - **Before:** `44` - (`cast --to-dec 0x2c` is `44`)
   - **After:** `45` - (`cast --to-dec 0x2d` is `45`)
   - **Summary:** nonce
   - **Detail:** Nonce update for the parent multisig.
