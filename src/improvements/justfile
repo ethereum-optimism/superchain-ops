@@ -163,20 +163,6 @@ simulate-all-templates:
         exit 1
     fi
 
-simulate-verify-task TASK="":
-    #!/usr/bin/env bash
-    set -euo pipefail
-    root_dir=$(git rev-parse --show-toplevel)
-
-    forge build
-
-    # If the task is nested then we only simulate as the foundation.
-    # In the future we could simulate as other nested safes.
-    # For testing purposes, we do not gain anything by simulating as other nested safes.
-    nested_safe_name="foundation"
-
-    ${root_dir}/src/improvements/script/simulate-verify-task.sh {{TASK}} $nested_safe_name
-
 simulate-stack NETWORK="" TASK="" OWNER_ADDRESSES="[]":
     #!/usr/bin/env bash
     set -euo pipefail
@@ -196,21 +182,7 @@ simulate-stack NETWORK="" TASK="" OWNER_ADDRESSES="[]":
         echo
     }
 
-    export FOUNDRY_PROFILE="${FOUNDRY_PROFILE:-default}"
-
-    case "{{NETWORK}}" in
-        sep)
-            ETH_RPC_URL=$(yq eval ".profile.\"${FOUNDRY_PROFILE}\".rpc_endpoints.sepolia" "${root_dir}/foundry.toml")
-            ;;
-        eth)
-            ETH_RPC_URL=$(yq eval ".profile.\"${FOUNDRY_PROFILE}\".rpc_endpoints.mainnet" "${root_dir}/foundry.toml")
-            ;;
-        *)
-            echo -e "\n\033[31mError: Invalid network '{{NETWORK}}'\033[0m"
-            show_usage
-            exit 1
-            ;;
-    esac
+    ETH_RPC_URL=$(just _fetch-rpc-url "{{NETWORK}}")
 
     echo -e "\n⏳ Stacked Task simulation in progress. This may take a while..."
     if [ -z "{{TASK}}" ]; then
@@ -224,7 +196,54 @@ simulate-stack NETWORK="" TASK="" OWNER_ADDRESSES="[]":
     fi
     echo -e "\n⚠️ Please note: Some Tenderly links may not work when running a stacked simulation. Check out Tenderly's Virtual TestNets as a workaround.⚠️"
 
-list-stack NETWORK="" TASK="":
+sign NETWORK="" TASK="" OWNER_SAFE_NAME="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+    
+    echo -e "\033[42m                                         \033[0m"
+    echo -e "\033[42m       superchain-ops sign task          \033[0m"
+    echo -e "\033[42m                                         \033[0m"
+
+    show_usage() {
+        echo
+        echo "Usage: just sign <network> <task> <owner-safe-name>"
+        echo "Available arguments:"
+        echo "  • <network>         - The network to sign the stack for (e.g. 'sep', 'eth')"
+        echo "  • <task>            - The task to sign the stack for (e.g. '001-task-name')"
+        echo "  • [owner-safe-name] - The owner safe name to sign the task for (e.g. 'foundation', 'council', 'foundation-operations', 'chain-governor' etc.) - may be left empty for single safes."
+        echo
+    }
+
+    if [ -z "{{NETWORK}}" ] || [ -z "{{TASK}}" ]; then
+        show_usage
+        exit 0
+    fi
+
+    ETH_RPC_URL=$(just _fetch-rpc-url "{{NETWORK}}")
+    echo $ETH_RPC_URL
+    safe=$(just --justfile="$root_dir/src/improvements/justfile" _fetch-safe "{{NETWORK}}" "{{TASK}}" "{{OWNER_SAFE_NAME}}")
+
+    echo -e "⏳ You are signing the task: {{TASK}} for network: {{NETWORK}}\n"
+    just list-stack {{NETWORK}} {{TASK}}
+    count=$(just list-stack {{NETWORK}} {{TASK}} "true") # return the count of tasks.
+
+    # Make an array where the first count-1 items are the zero address and the last item is the safe address.
+    owner_addresses=()
+    if (( count > 1 )); then
+      for i in $(seq 1 $((count-1))); do
+          owner_addresses+=("0x0000000000000000000000000000000000000000")
+      done
+    fi
+    owner_addresses+=("$safe")
+    
+    # Format the bash array into a string for forge script
+    signer_args=$(just _get-signer-args)
+    formatted_addresses=$(IFS=,; echo "[${owner_addresses[*]}]")
+    $(git rev-parse --show-toplevel)/bin/eip712sign ${signer_args} -- \
+     forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address[])" "{{NETWORK}}" "{{TASK}}" "$formatted_addresses" --ffi --rpc-url $ETH_RPC_URL
+
+list-stack NETWORK="" TASK="" COUNT_ONLY="false":
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
@@ -246,16 +265,102 @@ list-stack NETWORK="" TASK="":
         exit 1
     fi
 
-    # Check if task arg exists
-    if [ -z "{{TASK}}" ]; then
-        echo "Listing all tasks for network: {{NETWORK}}"
-        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string)" {{NETWORK}}
-    else
-        echo "Listing all tasks for network: {{NETWORK}} up to task: {{TASK}}"
-        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string,string)" {{NETWORK}} {{TASK}}
-    fi
+    just _list-stack-util {{NETWORK}} {{TASK}} {{COUNT_ONLY}}
 
 test:
     forge build
     forge test
     just simulate-all-templates
+
+
+########################
+## Helper functions ##
+########################
+# not intended for end users
+_fetch-rpc-url NETWORK="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    profile="${FOUNDRY_PROFILE:-default}"
+    case "{{NETWORK}}" in
+      sep)  yq eval ".profile.\"${profile}\".rpc_endpoints.sepolia" "$(git rev-parse --show-toplevel)/foundry.toml" ;;
+      eth)  yq eval ".profile.\"${profile}\".rpc_endpoints.mainnet" "$(git rev-parse --show-toplevel)/foundry.toml" ;;
+      *)    echo "Error: Must provide a valid network, '{{NETWORK}}' is not valid." >&2; exit 1 ;;
+    esac
+
+[no-cd] 
+_fetch-safe NETWORK TASK OWNER_SAFE_NAME:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+    safe="0x0000000000000000000000000000000000000000" # Default to zero address for non-nested safes
+    taskPath=${root_dir}/src/improvements/tasks/{{NETWORK}}/{{TASK}}
+    if [ -n "{{OWNER_SAFE_NAME}}" ]; then
+        safe=$(bash ${root_dir}/src/improvements/script/get-safe.sh $taskPath "{{OWNER_SAFE_NAME}}")
+        echo "⏳ You're signing as safe: $safe ({{OWNER_SAFE_NAME}})" >&2
+    fi
+    echo "${safe}"
+
+[no-cd] 
+_count-pending-tasks NETWORK TASK="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+    just list-stack {{NETWORK}} {{TASK}} true
+
+_list-stack-util NETWORK TASK="" COUNT_ONLY="false":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+
+    if [ "{{COUNT_ONLY}}" = "true" ]; then
+        if [ -z "{{TASK}}" ]; then
+            count=$(forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string)" {{NETWORK}} --json | jq -r '.returns["0"].value')
+            echo "$count"
+        else
+            count=$(forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string,string)" {{NETWORK}} {{TASK}} --json | jq -r '.returns["0"].value')
+            echo "$count"
+        fi
+    else
+        if [ -z "{{TASK}}" ]; then
+            echo "Listing all tasks for network: {{NETWORK}}"
+            forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string)" {{NETWORK}}
+        else
+            echo "Listing all tasks for network: {{NETWORK}} up to task: {{TASK}}"
+            forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string,string)" {{NETWORK}} {{TASK}}
+        fi
+    fi
+
+[no-cd]
+_get-signer-args hdPath='0' ledger='true':
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+    if {{ledger}}; then
+        hdpaths="m/44'/60'/{{hdPath}}'/0/0"
+        signer=$(cast wallet address --ledger --mnemonic-derivation-path $hdpaths)
+        signer_args="--ledger --hd-paths $hdpaths"
+    else
+        cd ${TASK_PATH}
+        signer_private_key=$(just _get-keystore-private-key)
+        signer=$(cast wallet address --private-key ${signer_private_key})
+        signer_args="--private-key ${signer_private_key#0x}"
+    fi
+    echo $signer_args
+
+# Helper function to handle keystore selection and private key extraction
+[no-cd]
+_get-keystore-private-key:
+  #!/usr/bin/env bash
+  echo "Enter your foundry keystore path (e.g. ~/.foundry/keystores/sep-test-private-key):" >&2
+  keystorePath=$keystorePathBase$(cd ~/.foundry/keystores/ && fzf --header="Searching your keystore in $PWD" --prompt="Keystore for signing:")
+  cd ${taskPath}
+  echo "Keystore path: ${keystorePath}" >&2
+  # Expand the home directory in the path
+  keystorePath=$(echo ${keystorePath} | sed "s|^~|$HOME|")
+  signer_private_key=$(cast wallet pk --keystore ${keystorePath})
+  sender=$(cast wallet address --private-key ${signer_private_key})
+  if [ -z "${signer_private_key}" ]; then
+    echo "Error: Failed to get private key for keystore ${keystorePath}" >&2
+    exit 1
+  fi
+  echo "${signer_private_key}"

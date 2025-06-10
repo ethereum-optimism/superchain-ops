@@ -74,6 +74,7 @@ sign hdPath='0' ledger='true':
   echo "script path: ${SCRIPT_PATH}"
 
   export SIGNING_MODE_IN_PROGRESS=true
+  export PRINT_DATA_TO_SIGN=true
 
   echo "Using script ${script}"
   echo "getting signer address..."
