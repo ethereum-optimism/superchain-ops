@@ -21,7 +21,7 @@ the values printed to the terminal when you run the task.
 > ### Worldchain Mainnet Proxy Admin Owner (`0xA4fB12D15Eb85dc9284a7df0AdBC8B696EdbbF1d`)
 >
 > - Domain Hash:  `0xb38a131bd7616105e60b1765f40d80d946e7ccf096e2a816236d7d819746a870`
-> - Message Hash: `0x39f691c44cb53e74cf120455d0319a0062e895f4fa56a7c6e97ef615f645366a`
+> - Message Hash: `0x81d3099974746e13c138abe69f0cc37051234f6159178d999634af366ef0ea7f`
 
 ## Normalized State Diff Hash Attestation
 
@@ -92,10 +92,9 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 ### [`0xa4fb12d15eb85dc9284a7df0adbc8b696edbbf1d`](https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/mainnet/worldchain.toml#L43C14-L43C15) (ProxyAdminOwner (GnosisSafe)) - Chain ID: 480
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
-  
   - **Decoded Kind:** `uint256`
-  - **Before:** `28`
-  - **After:** `29`
+  - **Before:** `29`
+  - **After:** `30`
   - **Summary:** nonce
   - **Detail:** Nonce update for the parent multisig.
   
