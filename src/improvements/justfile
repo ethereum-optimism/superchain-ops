@@ -196,7 +196,7 @@ simulate-stack NETWORK="" TASK="" OWNER_ADDRESSES="[]":
     fi
     echo -e "\n⚠️ Please note: Some Tenderly links may not work when running a stacked simulation. Check out Tenderly's Virtual TestNets as a workaround.⚠️"
 
-sign NETWORK="" TASK="" OWNER_SAFE_NAME="":
+sign NETWORK="" TASK="" OWNER_SAFE_NAME="" HD_PATH="0":
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
@@ -208,11 +208,12 @@ sign NETWORK="" TASK="" OWNER_SAFE_NAME="":
 
     show_usage() {
         echo
-        echo "Usage: just sign <network> <task> <owner-safe-name>"
+        echo "Usage: just sign <network> <task> [owner-safe-name] [hd-path]"
         echo "Available arguments:"
         echo "  • <network>         - The network to sign the stack for (e.g. 'sep', 'eth')"
         echo "  • <task>            - The task to sign the stack for (e.g. '001-task-name')"
         echo "  • [owner-safe-name] - The owner safe name to sign the task for (e.g. 'foundation', 'council', 'foundation-operations', 'chain-governor' etc.) - may be left empty for single safes."
+        echo "  • [hd-path]         - This is the hd path of the signer. If not provided, the default is 0."
         echo
     }
 
@@ -220,21 +221,22 @@ sign NETWORK="" TASK="" OWNER_SAFE_NAME="":
         show_usage
         exit 0
     fi
-
-    ETH_RPC_URL=$(just _fetch-rpc-url "{{NETWORK}}")
-    echo $ETH_RPC_URL
-    safe=$(just --justfile="$root_just_file" _fetch-safe "{{NETWORK}}" "{{TASK}}" "{{OWNER_SAFE_NAME}}")
+    
+    export SIGNING_MODE_IN_PROGRESS=true
+    ETH_RPC_URL=$(just --justfile "$root_just_file" _fetch-rpc-url "{{NETWORK}}")
+    safe=$(just --justfile "$root_just_file" _fetch-safe "{{NETWORK}}" "{{TASK}}" "{{OWNER_SAFE_NAME}}")
 
     echo -e "⏳ You are signing the task: {{TASK}} for network: {{NETWORK}}\n"
     just --justfile "$root_just_file" list-stack {{NETWORK}} {{TASK}}
     count=$(just --justfile "$root_just_file" _count-pending-tasks {{NETWORK}} {{TASK}}) # return the count of tasks.
     formatted_addresses=$(just --justfile "$root_just_file" _get-owner-addresses-string "$count" "$safe")
 
-    signer_args=$(just --justfile "$root_just_file" _get-signer-args)
-    $(git rev-parse --show-toplevel)/bin/eip712sign ${signer_args} -- \
+    # We only support signing with ledger for now.
+    signer_args=$(just --justfile "$root_just_file" _get-signer-args {{HD_PATH}})
+    ${root_dir}/bin/eip712sign ${signer_args} -- \
      forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address[])" "{{NETWORK}}" "{{TASK}}" "$formatted_addresses" --ffi --rpc-url $ETH_RPC_URL
 
-list-stack NETWORK="" TASK="" COUNT_ONLY="false":
+list-stack NETWORK="" TASK="":
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
@@ -311,40 +313,16 @@ _count-pending-tasks NETWORK TASK="":
     fi
     echo "$count"
 
+# Helper function to get the signer arguments for a given hdPath. We do not need to support signing with keystores.
 [no-cd]
-_get-signer-args hdPath='0' ledger='true':
+_get-signer-args hdPath='0':
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
-    if {{ledger}}; then
-        hdpaths="m/44'/60'/{{hdPath}}'/0/0"
-        signer=$(cast wallet address --ledger --mnemonic-derivation-path $hdpaths)
-        signer_args="--ledger --hd-paths $hdpaths"
-    else
-        cd ${TASK_PATH}
-        signer_private_key=$(just _get-keystore-private-key)
-        signer=$(cast wallet address --private-key ${signer_private_key})
-        signer_args="--private-key ${signer_private_key#0x}"
-    fi
+    hdpaths="m/44'/60'/{{hdPath}}'/0/0"
+    signer=$(cast wallet address --ledger --mnemonic-derivation-path $hdpaths)
+    signer_args="--ledger --hd-paths $hdpaths"
     echo $signer_args
-
-# Helper function to handle keystore selection and private key extraction
-[no-cd]
-_get-keystore-private-key:
-  #!/usr/bin/env bash
-  echo "Enter your foundry keystore path (e.g. ~/.foundry/keystores/sep-test-private-key):" >&2
-  keystorePath=$keystorePathBase$(cd ~/.foundry/keystores/ && fzf --header="Searching your keystore in $PWD" --prompt="Keystore for signing:")
-  cd ${taskPath}
-  echo "Keystore path: ${keystorePath}" >&2
-  # Expand the home directory in the path
-  keystorePath=$(echo ${keystorePath} | sed "s|^~|$HOME|")
-  signer_private_key=$(cast wallet pk --keystore ${keystorePath})
-  sender=$(cast wallet address --private-key ${signer_private_key})
-  if [ -z "${signer_private_key}" ]; then
-    echo "Error: Failed to get private key for keystore ${keystorePath}" >&2
-    exit 1
-  fi
-  echo "${signer_private_key}"
 
 # Helper function to get the owner addresses string for a given count and safe address.
 [no-cd]

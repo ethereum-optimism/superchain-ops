@@ -96,8 +96,9 @@ library MultisigTaskPrinter {
         // NOTE: Do not change the vvvvvvvv and ^^^^^^^^ lines, as the eip712sign tool explicitly
         // looks for those specific lines to identify the data to sign.
         printTitle("DATA TO SIGN");
-        // 'PRINT_DATA_TO_SIGN' is set when the task is the last task in the stack.
-        if (Utils.isFeatureEnabled("PRINT_DATA_TO_SIGN")) {
+        // 'SUPPRESS_PRINTING_DATA_TO_SIGN' is true only when using stacked signing and the task is not the last task in the stack.
+        bool shouldPrintDataToSign = !Utils.isFeatureEnabled("SUPPRESS_PRINTING_DATA_TO_SIGN");
+        if (shouldPrintDataToSign) {
             console.log("vvvvvvvv");
             console.logBytes(dataToSign);
             console.log("^^^^^^^^\n");

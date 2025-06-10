@@ -72,7 +72,6 @@ sign whichSafe hdPath='0' ledger='true':
   safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
 
   export SIGNING_MODE_IN_PROGRESS=true
-  export PRINT_DATA_TO_SIGN=true
 
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
