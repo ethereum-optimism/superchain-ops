@@ -200,6 +200,7 @@ sign NETWORK="" TASK="" OWNER_SAFE_NAME="":
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
+    root_just_file="${root_dir}/src/improvements/justfile"
     
     echo -e "\033[42m                                         \033[0m"
     echo -e "\033[42m       superchain-ops sign task          \033[0m"
@@ -222,24 +223,14 @@ sign NETWORK="" TASK="" OWNER_SAFE_NAME="":
 
     ETH_RPC_URL=$(just _fetch-rpc-url "{{NETWORK}}")
     echo $ETH_RPC_URL
-    safe=$(just --justfile="$root_dir/src/improvements/justfile" _fetch-safe "{{NETWORK}}" "{{TASK}}" "{{OWNER_SAFE_NAME}}")
+    safe=$(just --justfile="$root_just_file" _fetch-safe "{{NETWORK}}" "{{TASK}}" "{{OWNER_SAFE_NAME}}")
 
     echo -e "⏳ You are signing the task: {{TASK}} for network: {{NETWORK}}\n"
-    just list-stack {{NETWORK}} {{TASK}}
-    count=$(just list-stack {{NETWORK}} {{TASK}} "true") # return the count of tasks.
+    just --justfile "$root_just_file" list-stack {{NETWORK}} {{TASK}}
+    count=$(just --justfile "$root_just_file" _count-pending-tasks {{NETWORK}} {{TASK}}) # return the count of tasks.
+    formatted_addresses=$(just --justfile "$root_just_file" _get-owner-addresses-string "$count" "$safe")
 
-    # Make an array where the first count-1 items are the zero address and the last item is the safe address.
-    owner_addresses=()
-    if (( count > 1 )); then
-      for i in $(seq 1 $((count-1))); do
-          owner_addresses+=("0x0000000000000000000000000000000000000000")
-      done
-    fi
-    owner_addresses+=("$safe")
-    
-    # Format the bash array into a string for forge script
-    signer_args=$(just _get-signer-args)
-    formatted_addresses=$(IFS=,; echo "[${owner_addresses[*]}]")
+    signer_args=$(just --justfile "$root_just_file" _get-signer-args)
     $(git rev-parse --show-toplevel)/bin/eip712sign ${signer_args} -- \
      forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address[])" "{{NETWORK}}" "{{TASK}}" "$formatted_addresses" --ffi --rpc-url $ETH_RPC_URL
 
@@ -265,7 +256,13 @@ list-stack NETWORK="" TASK="" COUNT_ONLY="false":
         exit 1
     fi
 
-    just _list-stack-util {{NETWORK}} {{TASK}} {{COUNT_ONLY}}
+    if [ -z "{{TASK}}" ]; then
+        echo "Listing all tasks for network: {{NETWORK}}"
+        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string)" {{NETWORK}}
+    else
+        echo "Listing all tasks for network: {{NETWORK}} up to task: {{TASK}}"
+        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string,string)" {{NETWORK}} {{TASK}}
+    fi
 
 test:
     forge build
@@ -274,7 +271,7 @@ test:
 
 
 ########################
-## Helper functions ##
+### Helper functions ###
 ########################
 # not intended for end users
 _fetch-rpc-url NETWORK="":
@@ -287,6 +284,7 @@ _fetch-rpc-url NETWORK="":
       *)    echo "Error: Must provide a valid network, '{{NETWORK}}' is not valid." >&2; exit 1 ;;
     esac
 
+# Helper function to fetch the safe address for a given network and task.
 [no-cd] 
 _fetch-safe NETWORK TASK OWNER_SAFE_NAME:
     #!/usr/bin/env bash
@@ -300,35 +298,18 @@ _fetch-safe NETWORK TASK OWNER_SAFE_NAME:
     fi
     echo "${safe}"
 
+# Helper function to count the number of pending tasks for a given network.
 [no-cd] 
 _count-pending-tasks NETWORK TASK="":
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
-    just list-stack {{NETWORK}} {{TASK}} true
-
-_list-stack-util NETWORK TASK="" COUNT_ONLY="false":
-    #!/usr/bin/env bash
-    set -euo pipefail
-    root_dir=$(git rev-parse --show-toplevel)
-
-    if [ "{{COUNT_ONLY}}" = "true" ]; then
-        if [ -z "{{TASK}}" ]; then
-            count=$(forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string)" {{NETWORK}} --json | jq -r '.returns["0"].value')
-            echo "$count"
-        else
-            count=$(forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string,string)" {{NETWORK}} {{TASK}} --json | jq -r '.returns["0"].value')
-            echo "$count"
-        fi
+    if [ -z "{{TASK}}" ]; then
+        count=$(forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string)" {{NETWORK}} --json | jq -r '.returns["0"].value')
     else
-        if [ -z "{{TASK}}" ]; then
-            echo "Listing all tasks for network: {{NETWORK}}"
-            forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string)" {{NETWORK}}
-        else
-            echo "Listing all tasks for network: {{NETWORK}} up to task: {{TASK}}"
-            forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string,string)" {{NETWORK}} {{TASK}}
-        fi
+        count=$(forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string,string)" {{NETWORK}} {{TASK}} --json | jq -r '.returns["0"].value')
     fi
+    echo "$count"
 
 [no-cd]
 _get-signer-args hdPath='0' ledger='true':
@@ -364,3 +345,21 @@ _get-keystore-private-key:
     exit 1
   fi
   echo "${signer_private_key}"
+
+# Helper function to get the owner addresses string for a given count and safe address.
+[no-cd]
+_get-owner-addresses-string COUNT SAFE_ADDRESS:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    
+    owner_addresses=()
+    if (( {{COUNT}} > 1 )); then
+      for i in $(seq 1 $(({{COUNT}}-1))); do
+          owner_addresses+=("0x0000000000000000000000000000000000000000")
+      done
+    fi
+    owner_addresses+=("{{SAFE_ADDRESS}}")
+    
+    # Format the bash array into a string for forge script
+    formatted_addresses=$(IFS=,; echo "[${owner_addresses[*]}]")
+    echo "$formatted_addresses"
