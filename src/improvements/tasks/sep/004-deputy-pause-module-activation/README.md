@@ -1,6 +1,6 @@
 # DeputyPauseModule Installation - OP Sepolia
 
-Status: READY TO SIGN
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xdac9f9c25f851ae3b617fe4bef4f87a8a6f8dd5ac59d1e1d34ae18abe38598ed)
 
 ## Objective
 

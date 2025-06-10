@@ -1,3 +1,11 @@
+> 🚨 Deprecation Notice (Effective Q1 2025)
+> We’re migrating all task definitions from the old superchain-ops repo (`tasks/`) into the new improvements repo (`src/improvements/tasks/`).
+>
+> • New tasks: please use the [improvements flow](./src/improvements) and refer to the [README](./src/improvements/README.md) for more information.
+> • Need help? Reach out in [#superchain-ops](https://discord.com/channels/1244729134312198194/1342572064175030293) on Discord.
+>
+> The old flow will be retired as soon as we don't need the old tasks anymore.
+
 # superchain-ops
 
 This repo contains execution code and artifacts related to superchain deployments and other tasks.
@@ -32,6 +40,10 @@ The following instructions are for MacOS, but should be similar for other operat
 
 For each of these steps, if you already have some version of the software installed, it should be safe to skip it.
 
+### Installing mise
+
+Make sure you have `mise` installed. Follow the [CONTRIBUTING.md](./CONTRIBUTING.md) guide to install mise. We use mise to install the other required tools (go, just, foundry, etc).
+
 ### Installing git
 
 Very likely you have git on your system. To verify this, open a Terminal and type `git --version`.
@@ -42,17 +54,6 @@ If an error message shows, these are the steps to download and install it:
 1. Run the installer and follow the instructions.
 1. Once the installation is complete, open a command prompt or Git Bash and type `git --version`. You should see the version number of Git that you just installed.
 
-### Installing Go
-
-1. Go to the official Go website at https://golang.org/dl/
-1. Download the appropriate installer for your operating system.
-1. Run the installer and follow the instructions.
-
-From the command prompt:
-Type `go version`.
-
-You should see the version number of Go that you just installed.
-
 ### Installing the Rust Toolchain
 
 1. Visit the rust toolchain installer website at https://rustup.rs
@@ -60,34 +61,6 @@ You should see the version number of Go that you just installed.
 1. Verify the installation from the command prompt:
   Type `cargo --version`.
   You should see a version number.
-
-### Installing `mikefarah/yq`
-
-We’ll use `mikefarah/yq` to parse `.yaml` files:
-
-1. From the command prompt run:
-  `go install github.com/mikefarah/yq/v4@latest`
-2. Verify the installation by typing `$(go env GOPATH)/bin/yq --version`
-3. You should see the version number printed. This repo has been tested with version `4.43.1`.
-
-### Installing foundry
-
-We’ll use foundry to simulate the transaction we’re approving:
-
-1. From the command prompt run:
-  `curl -L https://foundry.paradigm.xyz | bash`
-1. Run foundryup
-1. Verify the installation by typing `cast --version`
-1. You should see the version number printed.
-
-### Installing just
-
-Just is a command runner, which is similar to `make`.
-
-1. From the command prompt run either:
-  `cargo install just` or `brew install just`
-1. Verify the installation by typing `just --version`
-1. You should see the version number printed. This repo has been tested with version `1.28.0`.
 
 ### Cloning the superchain-ops repo
 

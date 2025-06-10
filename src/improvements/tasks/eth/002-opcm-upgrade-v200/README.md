@@ -1,6 +1,6 @@
 # 002-opcm-upgrade-v200: Mainnet OPCM v2.0.0: Unichain
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://etherscan.io/tx/0x7e5e478cafbe30293645e6972a477f77dcfdc006c4cf1dd248a94e6386d04159)
 
 ## Objective
 
@@ -34,12 +34,12 @@ When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>
 Navigate to the correct task directory then run the simulate command.
 ```
 cd eth/002-opcm-upgrade-v200
-# Nested safe 1: 0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC (Unichain)
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate child-safe-1
+# Chain Governor Safe: 0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC (Unichain)
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate chain-governor
 
-# Nested safe 2: 0x847B5c174615B1B7fDF770882256e2D3E95b9D92 (OptimismFoundation)
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate child-safe-2
+# Foundation Upgrade Safe: 0x847B5c174615B1B7fDF770882256e2D3E95b9D92
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate foundation
 
-# Nested safe 3: 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 (Security Council)
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate child-safe-3
+# Security Council Safe: 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate council
 ```

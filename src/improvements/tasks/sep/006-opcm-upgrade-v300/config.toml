@@ -15,8 +15,8 @@ OPCM = "0xfbceed4de885645fbded164910e10f52febfab35" # https://github.com/ethereu
 StandardValidatorV300 = "0x2d56022cb84ce6b961c3b4288ca36386bcd9024c" # https://github.com/ethereum-optimism/optimism/blob/develop/op-validator/pkg/validations/addresses.go#L30
 # Base Sepolia ProxyAdminOwner: 0x0fe884546476dDd290eC46318785046ef68a0BA9
 # The get-safe.sh script will extract these addresses when signing for each owner fo the safe.
-ChildSafe1 = "0x6AF0674791925f767060Dd52f7fB20984E8639d8" # First owner on the proxy admin owner (i.e. child-safe-1)
-ChildSafe2 = "0x646132A1667ca7aD00d36616AFBA1A28116C770A" # Second owner on the proxy admin owner (i.e. child-safe-2)
+NestedSafe1 = "0x6AF0674791925f767060Dd52f7fB20984E8639d8" # First owner on the proxy admin owner
+NestedSafe2 = "0x646132A1667ca7aD00d36616AFBA1A28116C770A" # Second owner on the proxy admin owner
 
 [stateOverrides]
 # Base Sepolia ProxyAdminOwner: https://github.com/ethereum-optimism/superchain-registry/blob/fb900358ab5016de86f37a23265bd94ce927c9c0/superchain/configs/sepolia/base.toml#L46

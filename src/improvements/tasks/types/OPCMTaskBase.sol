@@ -7,12 +7,13 @@ import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {stdStorage, StdStorage} from "forge-std/Test.sol";
 import {IOPContractsManager} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
-import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
+import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 
-/// @notice base task for making calls to the Optimism Contracts Manager
+/// @notice This contract is used for all OPCM task types. It overrides various functions in the L2TaskBase contract.
 abstract contract OPCMTaskBase is L2TaskBase {
     using stdStorage for StdStorage;
     using AccountAccessParser for VmSafe.AccountAccess[];
@@ -49,12 +50,7 @@ abstract contract OPCMTaskBase is L2TaskBase {
     /// calldata has been loaded up to storage. This function uses aggregate3
     /// instead of aggregate3Value because OPCM tasks use Multicall3DelegateCall.
     /// @return data The calldata to be executed
-    function getMulticall3Calldata(MultisigTask.Action[] memory actions)
-        public
-        pure
-        override
-        returns (bytes memory data)
-    {
+    function getMulticall3Calldata(Action[] memory actions) public pure override returns (bytes memory data) {
         (address[] memory targets,, bytes[] memory arguments) = processTaskActions(actions);
 
         IMulticall3.Call3[] memory calls = new IMulticall3.Call3[](targets.length);
@@ -67,7 +63,7 @@ abstract contract OPCMTaskBase is L2TaskBase {
         data = abi.encodeWithSignature("aggregate3((address,bool,bytes)[])", calls);
     }
 
-    function validate(VmSafe.AccountAccess[] memory accesses, MultisigTask.Action[] memory actions) public override {
+    function validate(VmSafe.AccountAccess[] memory accesses, Action[] memory actions) public override {
         (address[] memory targets,,) = processTaskActions(actions);
         require(targets.length == 1 && targets[0] == OPCM, "OPCMTaskBase: only OPCM is allowed as target");
         super.validate(accesses, actions);
@@ -107,6 +103,13 @@ abstract contract OPCMTaskBase is L2TaskBase {
         // The only thing we change is overriding the multicall target.
         (addrRegistry_, parentMultisig_, multicallTarget_) = super._configureTask(taskConfigFilePath);
         multicallTarget_ = MULTICALL3_DELEGATECALL_ADDRESS;
+    }
+
+    /// @notice Prank as the multisig.
+    function _prankMultisig() internal override {
+        // If delegateCall value is true then sets msg.sender for all subsequent delegate calls.
+        // We want this functionality for OPCM tasks.
+        vm.startPrank(parentMultisig, true);
     }
 
     /// @notice this function must be overridden in the inheriting contract to run assertions on the state changes.

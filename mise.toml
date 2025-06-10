@@ -11,11 +11,10 @@ yq = "4.44.5"
 # GitHub release, so we need to use the aliasing trick to get mise to not error
 # The git ref here should be on the `stable` branch.
 # WARNING: DO NOT CHANGE FORGE/CAST/ANVIL VERSIONS UNLESS ABSOLUTELY NECESSARY!
-# https://github.com/foundry-rs/foundry/releases/tag/nightly-23191fbeccfcf901f7c28590cb962d9693373c21
-# fix(forge): stack pranks, restore pranks at earlier call depths.
-forge = "nightly-23191fbeccfcf901f7c28590cb962d9693373c21"
-cast = "v1.0.0"
-anvil = "v1.0.0"
+# The forge release below includes a fix for: https://github.com/foundry-rs/foundry/issues/10302
+forge = "v1.1.0" # https://github.com/foundry-rs/foundry/releases/tag/v1.1.0
+cast = "v1.1.0"
+anvil = "v1.1.0"
 
 [alias]
 forge = "ubi:foundry-rs/foundry[exe=forge]"

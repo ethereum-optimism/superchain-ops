@@ -6,14 +6,15 @@ import {stdToml} from "forge-std/StdToml.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {CommonBase} from "forge-std/Base.sol";
+import {Utils} from "src/libraries/Utils.sol";
 
 /// @notice Manages state overrides for transaction simulation.
 /// This contract is used by MultisigTask to simulate transactions
 /// with specific state conditions.
 abstract contract StateOverrideManager is CommonBase {
     using stdToml for string;
-
     /// @notice The state overrides for the local and tenderly simulation
+
     Simulation.StateOverride[] private _stateOverrides;
 
     /// @notice Get all state overrides for simulation. Combines default Tenderly overrides
@@ -44,9 +45,7 @@ abstract contract StateOverrideManager is CommonBase {
 
     /// @notice Apply state overrides to the current VM state.
     /// Must be called before any function that expects the overridden state.
-    function _applyStateOverrides(string memory taskConfigFilePath) internal {
-        _readStateOverridesFromConfig(taskConfigFilePath);
-
+    function _applyStateOverrides() internal {
         // Apply each override to the VM state
         for (uint256 i = 0; i < _stateOverrides.length; i++) {
             address targetContract = address(_stateOverrides[i].contractAddress);
@@ -63,7 +62,11 @@ abstract contract StateOverrideManager is CommonBase {
 
     /// @notice Get the nonce for a Safe, preferring overridden values if available.
     /// Checks if nonce is overridden in the state overrides, otherwise gets from contract.
+    /// An important part of this function is to perform nonce safety checks. It ensures that
+    /// user-defined nonces are not less than the current actual nonce.
     function _getNonceOrOverride(address safeAddress) internal view returns (uint256 nonce_) {
+        uint256 currentActualNonce = IGnosisSafe(safeAddress).nonce();
+
         uint256 GNOSIS_SAFE_NONCE_SLOT = 0x5;
         // Check if nonce is overridden in state overrides
         for (uint256 i = 0; i < _stateOverrides.length; i++) {
@@ -74,14 +77,29 @@ abstract contract StateOverrideManager is CommonBase {
 
             for (uint256 j = 0; j < _stateOverrides[i].overrides.length; j++) {
                 if (_stateOverrides[i].overrides[j].key == nonceSlot) {
-                    // Return the overridden nonce value
-                    return uint256(_stateOverrides[i].overrides[j].value);
+                    uint256 userDefinedNonce = uint256(_stateOverrides[i].overrides[j].value);
+                    // This feature is used to disable the nonce check, by setting the environment variable (DISABLE_OVERRIDE_NONCE_CHECK) to 1 from `sim-sequence.sh` script.
+                    if (!Utils.isFeatureEnabled("DISABLE_OVERRIDE_NONCE_CHECK")) {
+                        // This is an important safety check. Users should not be able to set the nonce to a value less than the current actual nonce.
+                        require(
+                            userDefinedNonce >= currentActualNonce,
+                            string.concat(
+                                "StateOverrideManager: User-defined nonce (",
+                                vm.toString(userDefinedNonce),
+                                ") is less than current actual nonce (",
+                                vm.toString(currentActualNonce),
+                                ") for contract: ",
+                                vm.toString(safeAddress)
+                            )
+                        );
+                    }
+                    return userDefinedNonce;
                 }
             }
         }
 
-        // No override found, get nonce directly from the contract
-        return IGnosisSafe(safeAddress).nonce();
+        // No override found, use the current actual nonce.
+        return currentActualNonce;
     }
 
     /// @notice Parent multisig override for single execution.
@@ -119,7 +137,7 @@ abstract contract StateOverrideManager is CommonBase {
 
     /// @notice Read state overrides from a TOML config file.
     /// Parses the TOML file and extracts state overrides for specific contracts.
-    function _readStateOverridesFromConfig(string memory taskConfigFilePath)
+    function _setStateOverridesFromConfig(string memory taskConfigFilePath)
         internal
         returns (Simulation.StateOverride[] memory)
     {
@@ -140,8 +158,17 @@ abstract contract StateOverrideManager is CommonBase {
         Simulation.StateOverride[] memory parsedOverrides = new Simulation.StateOverride[](targetAddresses.length);
         for (uint256 i = 0; i < targetAddresses.length; i++) {
             string memory overridesPath = string.concat(stateOverridesKey, ".", targetStrings[i]);
+            bytes memory tomlOverrides = vm.parseToml(toml, overridesPath);
             Simulation.StorageOverride[] memory storageOverrides =
-                abi.decode(vm.parseToml(toml, overridesPath), (Simulation.StorageOverride[]));
+                abi.decode(tomlOverrides, (Simulation.StorageOverride[]));
+
+            // Reencode the overrides back to bytes and ensure that the roundtrip encoding is the same as the original.
+            // This is a hacky form of type safety to make up for the lack of it in the toml parser.
+            bytes memory reencoded = abi.encode(storageOverrides);
+            require(
+                keccak256(reencoded) == keccak256(tomlOverrides),
+                "StateOverrideManager: Failed to reencode overrides, ensure any decimal numbers are not in quotes"
+            );
 
             parsedOverrides[i] =
                 Simulation.StateOverride({contractAddress: targetAddresses[i], overrides: storageOverrides});

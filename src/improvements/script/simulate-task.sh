@@ -19,7 +19,7 @@ simulate_task() {
     
     rpcUrl=$("$root_dir"/src/improvements/script/get-rpc-url.sh "$task")
     echo "Task: $task"
-    is_nested=$(forge script "$root_dir"/src/improvements/tasks/TaskRunner.sol --sig "isNestedTask(string)" "$task/config.toml" --rpc-url "$rpcUrl" --json | jq -r '.returns["0"].value')
+    is_nested=$(forge script "$root_dir"/src/improvements/tasks/TaskManager.sol --sig "isNestedTask(string)" "$task/config.toml" --rpc-url "$rpcUrl" --json | jq -r '.returns["0"].value')
     echo "Is nested: $is_nested"
     pushd "$task" > /dev/null
     if [ "$is_nested" = "true" ]; then
@@ -35,6 +35,7 @@ simulate_task() {
     fi
 
     echo -e "\n\nDone simulating task: $task"
+    echo ""
     popd > /dev/null
 }
 

@@ -1,0 +1,23 @@
+templateName = "OPCMUpdatePrestateV300"
+
+[[l2chains]]
+chainId = 1301
+name = "Unichain Sepolia Testnet"
+
+[[opcmUpgrades]]
+chainId = 1301
+absolutePrestate = "0x03682932cec7ce0a3874b19675a6bbc923054a7b321efc7d3835187b172494b6"  # op-program/v1.6.0-rc.2-64 - https://www.notion.so/oplabs/Isthmus-Sepolia-Mainnet-1d2f153ee162800880abe1b47910c071
+# The following are expected errors related to Base Sepolia having a different L1PAO
+#    PROXYA-10: ProxyAdmin owner is not set to L1 PAO multisig - expected
+#    DF-30: DisputeGameFactory owner is not set to L1 PAO multisig - expected
+#    PDDG-DWETH-30: Permissioned dispute game delayed WETH owner mismatch - expected
+#    PLDG-DWETH-30: Permissionless dispute game delayed WETH owner mismatch
+# PDDG-120: Permissioned dispute game challenger address mismatch - expected, each chain has a different challenger
+# PDDG-ANCHORP-40: Permissioned dispute game anchor state registry root hash mismatch - expected, this is not a fresh ASR
+# PLDG-ANCHORP-40: Permissionless dispute game anchor state registry root hash mismatch - expected, this is not a fresh ASR
+expectedValidationErrors = "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-ANCHORP-40,PDDG-120,PLDG-DWETH-30,PLDG-ANCHORP-40"
+
+
+[addresses]
+OPCM = "0xfbceed4de885645fbded164910e10f52febfab35" # Sepolia op-contracts/v3.0.0-rc.2 https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L22
+StandardValidatorV300 = "0x2d56022cb84ce6b961c3b4288ca36386bcd9024c" # Sepolia https://github.com/ethereum-optimism/optimism/blob/f79ed8b9c9cbdbf8bb492074f3f98da7f072e21a/op-validator/pkg/validations/addresses.go#L30

@@ -1,0 +1,43 @@
+l2chains = [
+    {name = "Base Sepolia Testnet", chainId = 84532}
+]
+templateName = "OPCMUpdatePrestateV300"
+
+
+[[opcmUpgrades]]
+chainId = 84532
+# Absolute prestate pulled from https://github.com/ethereum-optimism/superchain-registry/blob/712a84f44501322ca61901c2729aa3a56726a602/validation/standard/standard-prestates.toml#L10
+# op-program/v1.6.0-rc.2-64 - https://www.notion.so/oplabs/Isthmus-Sepolia-Mainnet-1d2f153ee162800880abe1b47910c071
+absolutePrestate = "0x03682932cec7ce0a3874b19675a6bbc923054a7b321efc7d3835187b172494b6"
+
+# The following are expected errors related to Base Sepolia having a different L1PAO
+#    PROXYA-10: ProxyAdmin owner is not set to L1 PAO multisig - expected
+#    DF-30: DisputeGameFactory owner is not set to L1 PAO multisig - expected
+#    PDDG-DWETH-30: Permissioned dispute game delayed WETH owner mismatch - expected
+#    PLDG-DWETH-30: Permissionless dispute game delayed WETH owner mismatch
+# PDDG-120: Permissioned dispute game challenger address mismatch - expected, each chain has a different challenger
+# PDDG-ANCHORP-40: Permissioned dispute game anchor state registry root hash mismatch - expected, this is not a fresh ASR
+# PLDG-ANCHORP-40: Permissionless dispute game anchor state registry root hash mismatch - expected, this is not a fresh ASR
+expectedValidationErrors = "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-ANCHORP-40,PDDG-120,PLDG-DWETH-30,PLDG-ANCHORP-40"
+
+[addresses]
+# Base Sepolia ProxyAdminOwner: 0x0fe884546476dDd290eC46318785046ef68a0BA9
+# The get-safe.sh script will extract these addresses when signing for each owner fo the safe.
+NestedSafe1 = "0x6AF0674791925f767060Dd52f7fB20984E8639d8" # First owner on the proxy admin owner 
+NestedSafe2 = "0x646132A1667ca7aD00d36616AFBA1A28116C770A" # Second owner on the proxy admin owner 
+OPCM = "0xfbceed4de885645fbded164910e10f52febfab35" # Sepolia op-contracts/v3.0.0-rc.2 https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L22
+StandardValidatorV300 = "0x2d56022cb84ce6b961c3b4288ca36386bcd9024c" # Sepolia https://github.com/ethereum-optimism/optimism/blob/f79ed8b9c9cbdbf8bb492074f3f98da7f072e21a/op-validator/pkg/validations/addresses.go#L30
+
+[stateOverrides]
+# Base Sepolia ProxyAdminOwner: https://github.com/ethereum-optimism/superchain-registry/blob/fb900358ab5016de86f37a23265bd94ce927c9c0/superchain/configs/sepolia/base.toml#L46
+0x0fe884546476dDd290eC46318785046ef68a0BA9 = [ # L1PAO
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = "0x0000000000000000000000000000000000000000000000000000000000000015"}
+]
+# First owner on the proxy admin owner (i.e. child-safe-1)
+0x6AF0674791925f767060Dd52f7fB20984E8639d8 = [ # Child Safe 1
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = "0x0000000000000000000000000000000000000000000000000000000000000003"}
+]
+# Second owner on the proxy admin owner (i.e. child-safe-2)
+0x646132A1667ca7aD00d36616AFBA1A28116C770A = [ # Child Safe 2
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = "0x0000000000000000000000000000000000000000000000000000000000000003"}
+]
