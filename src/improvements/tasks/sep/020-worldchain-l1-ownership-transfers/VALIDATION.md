@@ -19,7 +19,7 @@ First, we need to validate the domain and message hashes. These values should ma
 > ### Worldchain Proxy Admin Owner (`0x945185C01fb641bA3E63a9bdF66575e35a407837`)
 >
 > - Domain Hash:  `0x6faec9c52949ba8274340008df12c69faedd5c44e77f77c956d2ca8e4bcd877e`
-> - Message Hash: `0x951a744a86282fdc087f8c69c0269d3198603818a2db87eb94a1191686c8eb28`
+> - Message Hash: `0x55faea00e974897c5afad9bdece6e4239df3b44a54dc03bab2f9172c5ab91c9c`
 
 ## Normalized State Diff Hash Attestation
 
@@ -87,10 +87,9 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 ### [`0x945185c01fb641ba3e63a9bdf66575e35a407837`](https://github.com/ethereum-optimism/superchain-registry/blob/1ff0df40c7602761c55ab2cb693614ca0382bd64/superchain/configs/sepolia/worldchain.toml#L44) (Proxy Admin Owner & Challenger GnosisSafe) - Chain ID: 4801
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
-  
   - **Decoded Kind:** `uint256`
-  - **Before:** `42`
-  - **After:** `43`
+  - **Before:** `44`
+  - **After:** `45`
   - **Summary:** nonce
   - **Detail:** Nonce update for the parent multisig.
   
