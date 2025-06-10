@@ -49,6 +49,11 @@ contract StackedSimulator is Script {
         }
 
         for (uint256 i = 0; i < tasks.length; i++) {
+            // eip712sign will sign the first occurrence of the data to sign in the terminal.
+            // Because of this, we only want to print the data to sign for the last task (i.e. the task that is being signed).
+            bool isLastTask = i == tasks.length - 1;
+            vm.setEnv("SUPPRESS_PRINTING_DATA_TO_SIGN", isLastTask ? "false" : "true");
+
             taskConfigs[i] = taskManager.parseConfig(tasks[i].path);
             // If we wanted to ensure that all Tenderly links worked for each task, we would need to build a cumulative list of all state overrides
             // and append them to the next task's config.toml file. For now, we are skipping this functionality.
@@ -83,19 +88,21 @@ contract StackedSimulator is Script {
     }
 
     /// @notice Lists the execution order for a stack of tasks for a given network.
-    function listStack(string memory network) public {
+    function listStack(string memory network) public returns (uint256) {
         TaskInfo[] memory tasks = getNonTerminalTasks(network);
         if (tasks.length == 0) {
             console.log("No non-terminal tasks found for network: %s", network);
-            return;
+            return 0;
         }
         printStack(tasks, network);
+        return tasks.length;
     }
 
     /// @notice Lists the execution order for a stack of tasks for a given network and task.
-    function listStack(string memory network, string memory task) public {
+    function listStack(string memory network, string memory task) public returns (uint256) {
         TaskInfo[] memory tasks = getNonTerminalTasks(network, task);
         printStack(tasks, network);
+        return tasks.length;
     }
 
     function printStack(TaskInfo[] memory tasks, string memory network) public pure {
