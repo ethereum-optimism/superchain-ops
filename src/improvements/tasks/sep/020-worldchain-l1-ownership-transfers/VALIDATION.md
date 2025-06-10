@@ -26,17 +26,6 @@ The normalized state diff hash **MUST** match the hash produced by the state cha
 
 **Normalized hash:** `0x468b869284297f167bc8a9e7589ccbd096c1fab043792a6e461b5ad8d30d556b`
 
-## Understanding Task Calldata
-
-The commands to encode the calldata is:
-
-First lets define all the contracts that will have their ownership transferred:
-
-- DisputeGameFactoryProxy: [`0x8Ec1111f67Dad6b6A93B3F42DfBC92D81c98449A`](https://github.com/ethereum-optimism/superchain-registry/blob/1ff0df40c7602761c55ab2cb693614ca0382bd64/superchain/configs/sepolia/worldchain.toml#L64C30-L64C72)
-
-- Permissioned DelayedWETHProxy: [`0xAEB3CfD5aAba01cfd12E6017a9a307a218cdD7E2`](https://sepolia.etherscan.io/address/0x552334Bf0B124bD89BFF744f33Ca7e49d44a80Ac#readContract#F37)
-
-- ProxyAdmin: [`0x3a987FE1cb587B0A1808cf9bB7Cbe0E341838319`](https://github.com/ethereum-optimism/superchain-registry/blob/1ff0df40c7602761c55ab2cb693614ca0382bd64/superchain/configs/sepolia/worldchain.toml#L60C17-L60C59)
 
 
 # State Validations
