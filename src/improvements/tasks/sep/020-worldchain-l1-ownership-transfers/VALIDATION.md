@@ -5,8 +5,7 @@ This document can be used to validate the inputs and result of the execution of 
 The steps are:
 1. [Validate the Domain and Message Hashes](#expected-domain-and-message-hashes)
 2. [Verifying the state changes via the normalized state diff hash](#normalized-state-diff-hash-attestation)
-3. [Verifying the transaction input](#understanding-task-calldata)
-4. [Verifying the state changes](#task-state-changes)
+3. [Verifying the state changes](#task-state-changes)
 
 ## Expected Domain and Message Hashes
 
