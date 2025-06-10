@@ -250,7 +250,7 @@ contract RegressionTest is Test {
         MultisigTask multisigTask = new OPCMUpgradeV400();
         address foundationChildMultisig = 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B; // sepolia
         Action[] memory actions =
-            _setupAndSimulateRun(taskConfigFilePath, 8368038, "sepolia", multisigTask, foundationChildMultisig);
+            _setupAndSimulateRun(taskConfigFilePath, 8469737, "sepolia", multisigTask, foundationChildMultisig);
 
         _assertCallData(multisigTask, actions, expectedCallData);
 
@@ -481,9 +481,9 @@ contract RegressionTest is Test {
     ) internal returns (Action[] memory actions) {
         vm.createSelectFork(network, blockNumber);
         if (childMultisig != address(0)) {
-            (, actions) = multisigTask.signFromChildMultisig(taskConfigFilePath, childMultisig);
+            (, actions,) = multisigTask.signFromChildMultisig(taskConfigFilePath, childMultisig);
         } else {
-            (, actions) = multisigTask.simulateRun(taskConfigFilePath);
+            (, actions,) = multisigTask.simulateRun(taskConfigFilePath);
         }
     }
 
