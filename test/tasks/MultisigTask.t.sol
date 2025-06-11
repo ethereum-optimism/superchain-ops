@@ -87,7 +87,7 @@ contract MultisigTaskUnitTest is Test {
         );
 
         // Set 'buildStarted' flag in MultisigTask contract to true, this allows us to hit the revert.
-        bytes32 buildStartedSlot = bytes32(uint256(stdstore.target(address(task)).sig("buildStarted()").find()));
+        bytes32 buildStartedSlot = bytes32(uint256(stdstore.target(address(task)).sig("getBuildStarted()").find()));
         vm.store(address(task), buildStartedSlot, bytes32(uint256(1)));
 
         task.addrRegistry();
