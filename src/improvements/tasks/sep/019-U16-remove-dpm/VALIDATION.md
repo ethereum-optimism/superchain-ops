@@ -101,31 +101,15 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   - **Summary:** nonce
   - **Detail:** 
   
-**<TODO: Insert links for this state change then remove this line.>**
-  
 - **Key:**          `0x3f5c1ee1d80a78eda1e233ed173406be4155e5d8a5edbebf8f522080d34dc1e3`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000000`
-  - **Summary:** 
-  - **Detail:** 
-  
-**<TODO: Slot was not automatically decoded. Please provide a summary with thorough detail then remove this line.>**
-  
-**<TODO: Insert links for this state change then remove this line.>**
-  
+  - **Summary:** Removing the DPM from the linked list.
+  - **Detail:**  Setting the previous cursor to the zero address as the DPM was the last module in the linked list.
+
 - **Key:**          `0xcc69885fda6bcc1a4ace058b4a62bf5e179ea78fd58a1ccd71c22cc9b688792f`
   - **Before:** `0x000000000000000000000000c6f7c07047ba37116a3fdc444afb5018f6df5758`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
-  - **Summary:** 
-  - **Detail:** 
+  - **Summary:** Removing the DPM from the linked list.
+  - **Detail:** Setting the cursor to the SENTINEL_MODULE (0x1) where the DPM was previously located.
   
-**<TODO: Slot was not automatically decoded. Please provide a summary with thorough detail then remove this line.>**
-  
-**<TODO: Insert links for this state change then remove this line.>**
-
-## Normalized State Diff Hash Attestation
-
-The normalized state diff hash MUST match the hash created by the state changes attested to in the state diff audit report.
-As a signer, you are responsible for making sure this hash is correct. Please compare the hash below with the hash in the audit report.
-
-**Normalized hash:** `0xe8483eb5042b04bf0e41e7b763ac747f03f484a8af6ba9773cf11041fd8b94a4`
