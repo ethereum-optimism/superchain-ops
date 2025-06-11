@@ -169,7 +169,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @param taskConfigFilePath The path to the task configuration file.
     function simulateRun(string memory taskConfigFilePath, bytes memory signatures, address optionalChildMultisig)
         internal
-        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32 normalizedHash_)
+        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32 normalizedHash_, bytes memory dataToSign_)
     {
         // Sets safe to the safe specified by the current template from addresses.json
         _taskSetup(taskConfigFilePath, optionalChildMultisig);
@@ -181,7 +181,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         Action[] memory actions = build();
         (VmSafe.AccountAccess[] memory accountAccesses, bytes32 txHash) = simulate(signatures, actions);
         validate(accountAccesses, actions);
-        normalizedHash_ = print(actions, accountAccesses, true, txHash);
+        (normalizedHash_, dataToSign_) = print(actions, accountAccesses, true, txHash);
 
         // Revert with meaningful error message if the user is trying to simulate with the wrong command.
         if (optionalChildMultisig != address(0)) {
@@ -190,13 +190,13 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             require(!isNestedSafe(parentMultisig), "MultisigTask: multisig must be a single safe.");
         }
 
-        return (accountAccesses, actions, normalizedHash_);
+        return (accountAccesses, actions, normalizedHash_, dataToSign_);
     }
 
     /// @notice Runs the task with the given configuration file path.
     function simulateRun(string memory taskConfigFilePath, bytes memory signatures)
         public
-        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32)
+        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32, bytes memory)
     {
         return simulateRun(taskConfigFilePath, signatures, address(0));
     }
@@ -204,7 +204,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @notice Runs the task with the given configuration file path.
     function simulateRun(string memory taskConfigFilePath)
         public
-        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32)
+        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32, bytes memory)
     {
         return simulateRun(taskConfigFilePath, "", address(0));
     }
@@ -251,7 +251,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// given child multisig. Prints the 'data to sign' which is used to sign with the eip712sign binary.
     function signFromChildMultisig(string memory taskConfigFilePath, address _childMultisig)
         public
-        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32)
+        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32, bytes memory)
     {
         return simulateRun(taskConfigFilePath, "", _childMultisig);
     }
@@ -330,8 +330,10 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         console.log("Safe Transaction Hash: ", vm.toString(safeTxHash));
 
         bytes memory encodedTxData = getEncodedTransactionData(parentMultisig, callData);
-        bytes32 domainSeparator = GnosisSafeHashes.calculateDomainSeparator(block.chainid, parentMultisig);
-        bytes32 messageHash = GnosisSafeHashes.getMessageHashFromEncodedTransactionData(encodedTxData);
+        bytes32 computedDomainSeparator = GnosisSafeHashes.calculateDomainSeparator(block.chainid, parentMultisig);
+        (bytes32 domainSeparator, bytes32 messageHash) =
+            GnosisSafeHashes.getDomainAndMessageHashFromEncodedTransactionData(encodedTxData);
+        require(domainSeparator == computedDomainSeparator, "Domain separator mismatch");
         console.log("Domain Hash:    ", vm.toString(domainSeparator));
         console.log("Message Hash:   ", vm.toString(messageHash));
 
@@ -602,7 +604,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         VmSafe.AccountAccess[] memory accountAccesses,
         bool isSimulate,
         bytes32 txHash
-    ) public view returns (bytes32 normalizedHash_) {
+    ) public view returns (bytes32 normalizedHash_, bytes memory dataToSign_) {
         console.log("");
         MultisigTaskPrinter.printWelcomeMessage();
 
@@ -617,16 +619,16 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         VmSafe.AccountAccess[] memory accountAccesses,
         bool isSimulate,
         bytes32 txHash
-    ) private view returns (bytes32 normalizedHash_) {
+    ) private view returns (bytes32 normalizedHash_, bytes memory dataToSign_) {
         // Print calldata to be executed within the Safe.
         MultisigTaskPrinter.printTaskCalldata(getMulticall3Calldata(actions));
 
         // Only print data if the task is being simulated.
         if (isSimulate) {
             if (isNestedSafe(parentMultisig)) {
-                printNestedData(actions);
+                dataToSign_ = printNestedData(actions);
             } else {
-                printSingleData(actions);
+                dataToSign_ = printSingleData(actions);
             }
 
             printTenderlySimulationData(actions);
@@ -636,12 +638,13 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     }
 
     /// @notice Helper function to print nested calldata.
-    function printNestedData(Action[] memory actions) private view {
+    function printNestedData(Action[] memory actions) private view returns (bytes memory dataToSign_) {
         require(
             childMultisig != address(0),
             "MultisigTask: Child multisig cannot be zero address when printing nested data to sign."
         );
         (, bytes memory dataToSign, bytes32 domainSeparator, bytes32 messageHash) = getApproveTransactionInfo(actions);
+        dataToSign_ = dataToSign;
         bytes memory parentCallDataForLink = getMulticall3Calldata(actions); // For OPVerifyLink and hash display
         bytes32 parentHashToApprove = getHash(parentCallDataForLink, parentMultisig);
 
@@ -668,13 +671,11 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     }
 
     /// @notice Helper function to print non-nested safe calldata.
-    function printSingleData(Action[] memory actions) private view {
+    function printSingleData(Action[] memory actions) private view returns (bytes memory dataToSign_) {
         bytes memory taskCallData = getMulticall3Calldata(actions);
-        bytes memory dataToSign = getEncodedTransactionData(parentMultisig, taskCallData);
-
+        dataToSign_ = getEncodedTransactionData(parentMultisig, taskCallData);
         // eip712sign tool looks for the output of this command.
-        MultisigTaskPrinter.printEncodedTransactionData(dataToSign);
-
+        MultisigTaskPrinter.printEncodedTransactionData(dataToSign_);
         MultisigTaskPrinter.printTitle("SINGLE MULTISIG EOA HASH TO APPROVE");
         _printParentHash(taskCallData);
     }
@@ -839,7 +840,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     {
         callData = generateApproveMulticallData(actions);
         encodedTxData = getEncodedTransactionData(childMultisig, callData);
-        messageHash = GnosisSafeHashes.getMessageHashFromEncodedTransactionData(encodedTxData);
+        (, messageHash) = GnosisSafeHashes.getDomainAndMessageHashFromEncodedTransactionData(encodedTxData);
         domainSeparator = GnosisSafeHashes.calculateDomainSeparator(block.chainid, childMultisig);
         return (callData, encodedTxData, domainSeparator, messageHash);
     }

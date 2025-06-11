@@ -1,3 +1,17 @@
+## Expected Domain and Message Hashes
+
+First, we need to validate the domain and message hashes. These values should match both the values on your ledger and
+the values printed to the terminal when you run the task.
+
+> [!CAUTION]
+>
+> Before signing, ensure the below hashes match what is on your ledger.
+>
+> ### Nested Safe 1 (FoundationOperationsSafe): `0x837DE453AD5F21E89771e3c06239d8236c0EFd5E`
+>
+> - Domain Hash: `0xe84ad8db37faa1651b140c17c70e4c48eaa47a635e0db097ddf4ce1cc14b9ecb`
+> - Message Hash: `0xa5b581bbbdd908f535d8a3ba49d91fa41e828e735a918fe3832179e85359dfef`
+
 ### `0x837de453ad5f21e89771e3c06239d8236c0efd5e` (Unknown (GnosisSafe)) 
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`

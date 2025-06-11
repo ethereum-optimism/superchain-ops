@@ -208,7 +208,13 @@ contract StackedSimulatorUnitTest is Test {
             createSimpleStorageTaskWithNonce(network, address(simpleStorage), 100, 2000, 0, 1, 12, 20, 22);
         StackedSimulator ss = new StackedSimulator();
         vm.expectRevert(
-            "TaskManager: ownerAddress must be an owner of the parent multisig: 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
+            bytes(
+                string.concat(
+                    "TaskManager: ownerAddress (",
+                    vm.toString(owners[0]),
+                    ") must be an owner of the parent multisig: 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
+                )
+            )
         );
         ss.simulateStack(network, taskName, owners);
     }
