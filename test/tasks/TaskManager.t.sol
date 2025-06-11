@@ -130,7 +130,6 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
 
         // Doesn't have a VALIDATION markdown file.
         assertTrue(tm.checkDataToSign(dataToSign, config));
-        assertTrue(tm.checkDataToSign(dataToSign, config));
 
         // Does have a VALIDATION markdown file and domain and message hash matches.
         config.basePath = "src/improvements/tasks/eth/013-gas-params-op";
