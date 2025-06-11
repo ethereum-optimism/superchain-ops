@@ -11,10 +11,8 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 import {DisputeGameFactory} from "lib/optimism/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol";
 import {GameTypes} from "lib/optimism/packages/contracts-bedrock/src/dispute/lib/Types.sol";
 
-import {
-    IFaultDisputeGame,
-    IPermissionedDisputeGame
-} from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
+import {IFaultDisputeGame} from "lib/optimism/packages/contracts-bedrock/interfaces/dispute/IFaultDisputeGame.sol";
+import {IPermissionedDisputeGame} from "lib/optimism/packages/contracts-bedrock/interfaces/dispute/IPermissionedDisputeGame.sol";
 
 contract SetGameImplementations is L2TaskBase {
     using stdToml for string;
