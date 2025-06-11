@@ -300,15 +300,21 @@ contract SuperchainAddressRegistry is StdChains {
                 allowFailure: true,
                 callData: abi.encodeWithSelector(IFetcher.GUARDIAN.selector)
             });
-            calls[5] =
-                IMulticall3.Call3({target: systemConfigProxy, allowFailure: true, callData: abi.encodeWithSelector(IFetcher.batcherHash.selector)});
+            calls[5] = IMulticall3.Call3({
+                target: systemConfigProxy,
+                allowFailure: true,
+                callData: abi.encodeWithSelector(IFetcher.batcherHash.selector)
+            });
             calls[6] = IMulticall3.Call3({
                 target: systemConfigProxy,
                 allowFailure: true,
                 callData: abi.encodeWithSelector(IFetcher.unsafeBlockSigner.selector)
             });
-            calls[7] =
-                IMulticall3.Call3({target: optimismPortalProxy, allowFailure: true, callData: abi.encodeWithSelector(IFetcher.L2_ORACLE.selector)});
+            calls[7] = IMulticall3.Call3({
+                target: optimismPortalProxy,
+                allowFailure: true,
+                callData: abi.encodeWithSelector(IFetcher.L2_ORACLE.selector)
+            });
 
             IMulticall3.Result[] memory results = multicall3.aggregate3(calls);
 
@@ -490,8 +496,9 @@ contract SuperchainAddressRegistry is StdChains {
 
             if (results[1].success && results[1].returnData.length == 32) {
                 address anchorStateRegistryProxy = abi.decode(results[1].returnData, (address));
-                if (anchorStateRegistryProxy != address(0))
+                if (anchorStateRegistryProxy != address(0)) {
                     saveAddress("AnchorStateRegistryProxy", chain, anchorStateRegistryProxy);
+                }
             }
 
             if (results[2].success && results[2].returnData.length == 32) {
