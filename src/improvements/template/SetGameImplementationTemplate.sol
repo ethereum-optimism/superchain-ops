@@ -3,12 +3,18 @@ pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
+
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
+
 import {DisputeGameFactory} from "lib/optimism/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol";
 import {GameTypes} from "lib/optimism/packages/contracts-bedrock/src/dispute/lib/Types.sol";
-import {IDisputeGame} from "lib/optimism/packages/contracts-bedrock/interfaces/dispute/IDisputeGame.sol";
+
+import {
+    IFaultDisputeGame,
+    IPermissionedDisputeGame
+} from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
 
 contract SetGameImplementations is L2TaskBase {
     using stdToml for string;
@@ -50,10 +56,10 @@ contract SetGameImplementations is L2TaskBase {
             address dgf = superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId);
 
             if (c.fdgImpl != address(0)) {
-                DisputeGameFactory(dgf).setImplementation(GameTypes.CANNON, IDisputeGame(c.fdgImpl));
+                DisputeGameFactory(dgf).setImplementation(GameTypes.CANNON, IFaultDisputeGame(c.fdgImpl));
             }
             if (c.pdgImpl != address(0)) {
-                DisputeGameFactory(dgf).setImplementation(GameTypes.PERMISSIONED_CANNON, IDisputeGame(c.pdgImpl));
+                DisputeGameFactory(dgf).setImplementation(GameTypes.PERMISSIONED_CANNON, IPermissionedDisputeGame(c.pdgImpl));
             }
         }
     }
