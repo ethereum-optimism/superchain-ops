@@ -4,6 +4,7 @@ pragma solidity 0.8.15;
 import {Vm} from "forge-std/Vm.sol";
 import {StdChains} from "forge-std/StdChains.sol";
 import {stdToml} from "forge-std/StdToml.sol";
+import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {GameTypes, GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 
 /// @notice Contains getters for arbitrary methods from all L1 contracts, including legacy getters
@@ -44,6 +45,9 @@ contract SuperchainAddressRegistry is StdChains {
 
     address private constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
     Vm private constant vm = Vm(VM_ADDRESS);
+
+    /// @notice Multicall3 helper for batching L1 calls.
+    IMulticall3 public immutable multicall3;
 
     /// @notice Structure for reading chain list details from toml file
     struct ChainInfo {
@@ -86,6 +90,8 @@ contract SuperchainAddressRegistry is StdChains {
             block.chainid == getChain("mainnet").chainId || block.chainid == getChain("sepolia").chainId,
             string.concat("SuperchainAddressRegistry: Unsupported task chain ID ", vm.toString(block.chainid))
         );
+
+        multicall3 = IMulticall3(0xcA11bde05977b3631167028862bE2a173976CA11);
 
         string memory toml = vm.readFile(configPath);
         bytes memory chainListContent = toml.parseRaw(".l2chains");
@@ -228,44 +234,142 @@ contract SuperchainAddressRegistry is StdChains {
 
         address optimismPortalProxy = _fetchAndSaveInitialContracts(chain, chainAddressesContent);
 
-        address superchainConfig = getSuperchainConfig(optimismPortalProxy);
-        saveAddress("SuperchainConfig", chain, superchainConfig);
+        address systemConfigProxy;
+        {
+            IMulticall3.Call3[] memory portalCalls = new IMulticall3.Call3[](3);
+            portalCalls[0] = IMulticall3.Call3({
+                target: optimismPortalProxy,
+                allowFailure: true,
+                callData: abi.encodeWithSelector(IFetcher.superchainConfig.selector)
+            });
+            portalCalls[1] = IMulticall3.Call3({
+                target: optimismPortalProxy,
+                allowFailure: true,
+                callData: abi.encodeWithSelector(IFetcher.systemConfig.selector)
+            });
+            portalCalls[2] = IMulticall3.Call3({
+                target: optimismPortalProxy,
+                allowFailure: true,
+                callData: abi.encodeWithSelector(IFetcher.SYSTEM_CONFIG.selector)
+            });
 
-        address systemConfigProxy = getSystemConfigProxy(optimismPortalProxy);
-        saveAddress("SystemConfigProxy", chain, systemConfigProxy);
+            IMulticall3.Result[] memory portalResults = multicall3.aggregate3(portalCalls);
+
+            if (portalResults[0].success && portalResults[0].returnData.length == 32) {
+                address superchainConfig = abi.decode(portalResults[0].returnData, (address));
+                if (superchainConfig != address(0)) {
+                    saveAddress("SuperchainConfig", chain, superchainConfig);
+                }
+            }
+
+            if (portalResults[1].success && portalResults[1].returnData.length == 32) {
+                systemConfigProxy = abi.decode(portalResults[1].returnData, (address));
+            } else if (portalResults[2].success && portalResults[2].returnData.length == 32) {
+                systemConfigProxy = abi.decode(portalResults[2].returnData, (address));
+            }
+            require(systemConfigProxy != address(0), "SuperchainAddressRegistry: SystemConfigProxy not found");
+            saveAddress("SystemConfigProxy", chain, systemConfigProxy);
+        }
 
         _saveProxyAdminEntries(chain, systemConfigProxy);
 
-        address l1ERC721BridgeProxy = getL1ERC721BridgeProxy(systemConfigProxy, chainAddressesContent, chainId);
-        saveAddress("L1ERC721BridgeProxy", chain, l1ERC721BridgeProxy);
+        {
+            IMulticall3.Call3[] memory calls = new IMulticall3.Call3[](8);
+            calls[0] = IMulticall3.Call3({
+                target: systemConfigProxy,
+                allowFailure: true,
+                callData: abi.encodeWithSelector(IFetcher.l1ERC721Bridge.selector)
+            });
+            calls[1] = IMulticall3.Call3({
+                target: systemConfigProxy,
+                allowFailure: true,
+                callData: abi.encodeWithSelector(IFetcher.optimismMintableERC20Factory.selector)
+            });
+            calls[2] = IMulticall3.Call3({
+                target: systemConfigProxy,
+                allowFailure: true,
+                callData: abi.encodeWithSelector(IFetcher.disputeGameFactory.selector)
+            });
+            calls[3] = IMulticall3.Call3({
+                target: optimismPortalProxy,
+                allowFailure: true,
+                callData: abi.encodeWithSelector(IFetcher.guardian.selector)
+            });
+            calls[4] = IMulticall3.Call3({
+                target: optimismPortalProxy,
+                allowFailure: true,
+                callData: abi.encodeWithSelector(IFetcher.GUARDIAN.selector)
+            });
+            calls[5] =
+                IMulticall3.Call3({target: systemConfigProxy, allowFailure: true, callData: abi.encodeWithSelector(IFetcher.batcherHash.selector)});
+            calls[6] = IMulticall3.Call3({
+                target: systemConfigProxy,
+                allowFailure: true,
+                callData: abi.encodeWithSelector(IFetcher.unsafeBlockSigner.selector)
+            });
+            calls[7] =
+                IMulticall3.Call3({target: optimismPortalProxy, allowFailure: true, callData: abi.encodeWithSelector(IFetcher.L2_ORACLE.selector)});
 
-        address optimismMintableERC20FactoryProxy =
-            getOptimismMintableERC20FactoryProxy(systemConfigProxy, chainAddressesContent, chainId);
-        saveAddress("OptimismMintableERC20FactoryProxy", chain, optimismMintableERC20FactoryProxy);
+            IMulticall3.Result[] memory results = multicall3.aggregate3(calls);
 
-        // Some older chains don't have a DisputeGameFactory.
-        address disputeGameFactoryProxy = getDisputeGameFactoryProxy(systemConfigProxy);
-        if (disputeGameFactoryProxy != address(0)) {
-            _saveDisputeGameEntries(chain, disputeGameFactoryProxy);
-        } else {
-            // Older chains have an L2OutputOracleProxy.
-            address l2OutputOracleProxy = IFetcher(optimismPortalProxy).L2_ORACLE();
-            saveAddress("L2OutputOracleProxy", chain, l2OutputOracleProxy);
-            address proposer = IFetcher(l2OutputOracleProxy).PROPOSER();
-            saveAddress("Proposer", chain, proposer);
+            address l1ERC721BridgeProxy;
+            if (results[0].success && results[0].returnData.length == 32) {
+                l1ERC721BridgeProxy = abi.decode(results[0].returnData, (address));
+            } else {
+                l1ERC721BridgeProxy = parseContractAddress(chainAddressesContent, chainId, "L1ERC721BridgeProxy");
+            }
+            saveAddress("L1ERC721BridgeProxy", chain, l1ERC721BridgeProxy);
+
+            address optimismMintableERC20FactoryProxy;
+            if (results[1].success && results[1].returnData.length == 32) {
+                optimismMintableERC20FactoryProxy = abi.decode(results[1].returnData, (address));
+            } else {
+                optimismMintableERC20FactoryProxy =
+                    parseContractAddress(chainAddressesContent, chainId, "OptimismMintableERC20FactoryProxy");
+            }
+            saveAddress("OptimismMintableERC20FactoryProxy", chain, optimismMintableERC20FactoryProxy);
+
+            address disputeGameFactoryProxy;
+            if (results[2].success && results[2].returnData.length == 32) {
+                disputeGameFactoryProxy = abi.decode(results[2].returnData, (address));
+            }
+
+            if (disputeGameFactoryProxy != address(0)) {
+                _saveDisputeGameEntries(chain, disputeGameFactoryProxy);
+            } else {
+                if (results[7].success && results[7].returnData.length == 32) {
+                    address l2OutputOracleProxy = abi.decode(results[7].returnData, (address));
+                    if (l2OutputOracleProxy != address(0)) {
+                        saveAddress("L2OutputOracleProxy", chain, l2OutputOracleProxy);
+                        address proposer = IFetcher(l2OutputOracleProxy).PROPOSER();
+                        saveAddress("Proposer", chain, proposer);
+                    }
+                }
+            }
+
+            address guardian;
+            if (results[3].success && results[3].returnData.length == 32) {
+                guardian = abi.decode(results[3].returnData, (address));
+            } else if (results[4].success && results[4].returnData.length == 32) {
+                guardian = abi.decode(results[4].returnData, (address));
+            }
+            if (guardian != address(0)) {
+                saveAddress("Guardian", chain, guardian);
+            }
+
+            if (results[5].success && results[5].returnData.length == 32) {
+                bytes32 batcherHash = abi.decode(results[5].returnData, (bytes32));
+                address batchSubmitter = address(uint160(uint256(batcherHash)));
+                saveAddress("BatchSubmitter", chain, batchSubmitter);
+            }
+
+            if (results[6].success && results[6].returnData.length == 32) {
+                address unsafeBlockSigner = abi.decode(results[6].returnData, (address));
+                if (unsafeBlockSigner != address(0)) {
+                    saveAddress("UnsafeBlockSigner", chain, unsafeBlockSigner);
+                }
+            }
         }
-
-        address guardian = getGuardian(optimismPortalProxy);
-        saveAddress("Guardian", chain, guardian);
-
-        address batchSubmitter = getBatchSubmitter(systemConfigProxy);
-        saveAddress("BatchSubmitter", chain, batchSubmitter);
-
-        address systemConfigOwner = IFetcher(systemConfigProxy).owner();
-        saveAddress("SystemConfigOwner", chain, systemConfigOwner);
-
-        address unsafeBlockSigner = IFetcher(systemConfigProxy).unsafeBlockSigner();
-        saveAddress("UnsafeBlockSigner", chain, unsafeBlockSigner);
     }
 
     function _fetchAndSaveInitialContracts(ChainInfo memory chain, string memory chainAddressesContent)
@@ -279,49 +383,138 @@ contract SuperchainAddressRegistry is StdChains {
         address l1CrossDomainMessengerProxy = IFetcher(l1StandardBridgeProxy).messenger();
         saveAddress("L1CrossDomainMessengerProxy", chain, l1CrossDomainMessengerProxy);
 
-        address addressManager = getAddressManager(l1CrossDomainMessengerProxy);
-        saveAddress("AddressManager", chain, addressManager);
-
         optimismPortalProxy = getOptimismPortalProxy(l1CrossDomainMessengerProxy);
         saveAddress("OptimismPortalProxy", chain, optimismPortalProxy);
+
+        address addressManager = getAddressManager(l1CrossDomainMessengerProxy);
+        saveAddress("AddressManager", chain, addressManager);
     }
 
     function _saveProxyAdminEntries(ChainInfo memory chain, address systemConfigProxy) internal {
         address proxyAdmin = getProxyAdmin(systemConfigProxy);
         saveAddress("ProxyAdmin", chain, proxyAdmin);
-        address proxyAdminOwner = IFetcher(proxyAdmin).owner();
+
+        IMulticall3.Call3[] memory calls = new IMulticall3.Call3[](2);
+        calls[0] = IMulticall3.Call3({
+            target: proxyAdmin,
+            allowFailure: true,
+            callData: abi.encodeWithSelector(IFetcher.owner.selector)
+        });
+        calls[1] = IMulticall3.Call3({
+            target: systemConfigProxy,
+            allowFailure: true,
+            callData: abi.encodeWithSelector(IFetcher.owner.selector)
+        });
+
+        IMulticall3.Result[] memory results = multicall3.aggregate3(calls);
+
+        address proxyAdminOwner = abi.decode(results[0].returnData, (address));
         saveAddress("ProxyAdminOwner", chain, proxyAdminOwner);
+
+        address systemConfigOwner = abi.decode(results[1].returnData, (address));
+        saveAddress("SystemConfigOwner", chain, systemConfigOwner);
     }
 
     /// @dev Saves all dispute game related registry entries.
     function _saveDisputeGameEntries(ChainInfo memory chain, address disputeGameFactoryProxy) internal {
         saveAddress("DisputeGameFactoryProxy", chain, disputeGameFactoryProxy);
 
-        address faultDisputeGame = getFaultDisputeGame(disputeGameFactoryProxy);
-        if (faultDisputeGame != address(0)) {
-            saveAddress("FaultDisputeGame", chain, faultDisputeGame);
-            saveAddress("PermissionlessWETH", chain, getDelayedWETHProxy(faultDisputeGame));
+        IMulticall3.Call3[] memory gameImplCalls = new IMulticall3.Call3[](2);
+        gameImplCalls[0] = IMulticall3.Call3({
+            target: disputeGameFactoryProxy,
+            allowFailure: true,
+            callData: abi.encodeWithSelector(IFetcher.gameImpls.selector, GameTypes.CANNON)
+        });
+        gameImplCalls[1] = IMulticall3.Call3({
+            target: disputeGameFactoryProxy,
+            allowFailure: true,
+            callData: abi.encodeWithSelector(IFetcher.gameImpls.selector, GameTypes.PERMISSIONED_CANNON)
+        });
+
+        IMulticall3.Result[] memory gameImplResults = multicall3.aggregate3(gameImplCalls);
+
+        address faultDisputeGame;
+        if (gameImplResults[0].success && gameImplResults[0].returnData.length == 32) {
+            faultDisputeGame = abi.decode(gameImplResults[0].returnData, (address));
         }
 
-        address permissionedDisputeGame = getPermissionedDisputeGame(disputeGameFactoryProxy);
-        saveAddress("PermissionedDisputeGame", chain, permissionedDisputeGame);
+        address permissionedDisputeGame;
+        if (gameImplResults[1].success && gameImplResults[1].returnData.length == 32) {
+            permissionedDisputeGame = abi.decode(gameImplResults[1].returnData, (address));
+        }
 
-        address challenger = IFetcher(permissionedDisputeGame).challenger();
-        saveAddress("Challenger", chain, challenger);
+        if (faultDisputeGame != address(0)) {
+            saveAddress("FaultDisputeGame", chain, faultDisputeGame);
+            address weth = getDelayedWETHProxy(faultDisputeGame);
+            if (weth != address(0)) {
+                saveAddress("PermissionlessWETH", chain, weth);
+            }
+        }
 
-        address anchorStateRegistryProxy = getAnchorStateRegistryProxy(permissionedDisputeGame);
-        saveAddress("AnchorStateRegistryProxy", chain, anchorStateRegistryProxy);
+        if (permissionedDisputeGame != address(0)) {
+            saveAddress("PermissionedDisputeGame", chain, permissionedDisputeGame);
 
-        saveAddress("PermissionedWETH", chain, getDelayedWETHProxy(permissionedDisputeGame));
+            IMulticall3.Call3[] memory calls = new IMulticall3.Call3[](5);
+            calls[0] = IMulticall3.Call3({
+                target: permissionedDisputeGame,
+                allowFailure: true,
+                callData: abi.encodeWithSelector(IFetcher.challenger.selector)
+            });
+            calls[1] = IMulticall3.Call3({
+                target: permissionedDisputeGame,
+                allowFailure: true,
+                callData: abi.encodeWithSelector(IFetcher.anchorStateRegistry.selector)
+            });
+            calls[2] = IMulticall3.Call3({
+                target: permissionedDisputeGame,
+                allowFailure: true,
+                callData: abi.encodeWithSelector(IFetcher.weth.selector)
+            });
+            calls[3] = IMulticall3.Call3({
+                target: permissionedDisputeGame,
+                allowFailure: true,
+                callData: abi.encodeWithSelector(IFetcher.vm.selector)
+            });
+            calls[4] = IMulticall3.Call3({
+                target: permissionedDisputeGame,
+                allowFailure: true,
+                callData: abi.encodeWithSelector(IFetcher.proposer.selector)
+            });
 
-        address mips = getMips(permissionedDisputeGame);
-        saveAddress("MIPS", chain, mips);
+            IMulticall3.Result[] memory results = multicall3.aggregate3(calls);
 
-        address preimageOracle = IFetcher(mips).oracle();
-        saveAddress("PreimageOracle", chain, preimageOracle);
+            if (results[0].success && results[0].returnData.length == 32) {
+                address challenger = abi.decode(results[0].returnData, (address));
+                if (challenger != address(0)) saveAddress("Challenger", chain, challenger);
+            }
 
-        address proposer = IFetcher(permissionedDisputeGame).proposer();
-        saveAddress("Proposer", chain, proposer);
+            if (results[1].success && results[1].returnData.length == 32) {
+                address anchorStateRegistryProxy = abi.decode(results[1].returnData, (address));
+                if (anchorStateRegistryProxy != address(0))
+                    saveAddress("AnchorStateRegistryProxy", chain, anchorStateRegistryProxy);
+            }
+
+            if (results[2].success && results[2].returnData.length == 32) {
+                address permissionedWeth = abi.decode(results[2].returnData, (address));
+                if (permissionedWeth != address(0)) saveAddress("PermissionedWETH", chain, permissionedWeth);
+            }
+
+            if (results[3].success && results[3].returnData.length == 32) {
+                address mips = abi.decode(results[3].returnData, (address));
+                if (mips != address(0)) {
+                    saveAddress("MIPS", chain, mips);
+                    address preimageOracle = IFetcher(mips).oracle();
+                    if (preimageOracle != address(0)) {
+                        saveAddress("PreimageOracle", chain, preimageOracle);
+                    }
+                }
+            }
+
+            if (results[4].success && results[4].returnData.length == 32) {
+                address proposer = abi.decode(results[4].returnData, (address));
+                if (proposer != address(0)) saveAddress("Proposer", chain, proposer);
+            }
+        }
     }
 
     function parseContractAddress(
@@ -332,22 +525,6 @@ contract SuperchainAddressRegistry is StdChains {
         return vm.parseJsonAddress(
             chainAddressesContent, string.concat("$.", vm.toString(chainId), ".", contractIdentifier)
         );
-    }
-
-    function getGuardian(address portal) internal view returns (address) {
-        try IFetcher(portal).guardian() returns (address guardian) {
-            return guardian;
-        } catch {
-            return IFetcher(portal).GUARDIAN();
-        }
-    }
-
-    function getSystemConfigProxy(address portal) internal view returns (address) {
-        try IFetcher(portal).systemConfig() returns (address systemConfig) {
-            return systemConfig;
-        } catch {
-            return IFetcher(portal).SYSTEM_CONFIG();
-        }
     }
 
     function getOptimismPortalProxy(address l1CrossDomainMessengerProxy) internal view returns (address) {
@@ -364,40 +541,6 @@ contract SuperchainAddressRegistry is StdChains {
         addressManager = address(uint160(uint256((vm.load(l1CrossDomainMessengerProxy, slot)))));
     }
 
-    function getL1ERC721BridgeProxy(address systemConfigProxy, string memory chainAddressesContent, uint256 chainId)
-        internal
-        view
-        returns (address)
-    {
-        try IFetcher(systemConfigProxy).l1ERC721Bridge() returns (address l1ERC721Bridge) {
-            return l1ERC721Bridge;
-        } catch {
-            return parseContractAddress(chainAddressesContent, chainId, "L1ERC721BridgeProxy");
-        }
-    }
-
-    function getOptimismMintableERC20FactoryProxy(
-        address systemConfigProxy,
-        string memory chainAddressesContent,
-        uint256 chainId
-    ) internal view returns (address) {
-        try IFetcher(systemConfigProxy).optimismMintableERC20Factory() returns (
-            address optimismMintableERC20FactoryProxy
-        ) {
-            return optimismMintableERC20FactoryProxy;
-        } catch {
-            return parseContractAddress(chainAddressesContent, chainId, "OptimismMintableERC20FactoryProxy");
-        }
-    }
-
-    function getDisputeGameFactoryProxy(address systemConfigProxy) internal view returns (address) {
-        try IFetcher(systemConfigProxy).disputeGameFactory() returns (address disputeGameFactoryProxy) {
-            return disputeGameFactoryProxy;
-        } catch {
-            return address(0); // Older chains don't have a dispute game factory, they have the L2OutputOracle
-        }
-    }
-
     function getSuperchainConfig(address optimismPortalProxy) internal view returns (address) {
         try IFetcher(optimismPortalProxy).superchainConfig() returns (address superchainConfig) {
             return superchainConfig;
@@ -406,41 +549,10 @@ contract SuperchainAddressRegistry is StdChains {
         }
     }
 
-    function getFaultDisputeGame(address disputeGameFactoryProxy) internal view returns (address) {
-        try IFetcher(disputeGameFactoryProxy).gameImpls(GameTypes.CANNON) returns (address faultDisputeGame) {
-            return faultDisputeGame;
-        } catch {
-            return address(0);
-        }
-    }
-
-    function getPermissionedDisputeGame(address disputeGameFactoryProxy) internal view returns (address) {
-        try IFetcher(disputeGameFactoryProxy).gameImpls(GameTypes.PERMISSIONED_CANNON) returns (
-            address permissionedDisputeGame
-        ) {
-            return permissionedDisputeGame;
-        } catch {
-            return address(0);
-        }
-    }
-
-    function getAnchorStateRegistryProxy(address permissionedDisputeGame) internal view returns (address) {
-        return IFetcher(permissionedDisputeGame).anchorStateRegistry();
-    }
-
     function getDelayedWETHProxy(address disputeGame) internal view returns (address) {
         (bool ok, bytes memory data) = address(disputeGame).staticcall(abi.encodeWithSelector(IFetcher.weth.selector));
         if (ok && data.length == 32) return abi.decode(data, (address));
         else return address(0);
-    }
-
-    function getMips(address permissionedDisputeGame) internal view returns (address) {
-        return IFetcher(permissionedDisputeGame).vm();
-    }
-
-    function getBatchSubmitter(address systemConfigProxy) internal view returns (address) {
-        bytes32 batcherHash = IFetcher(systemConfigProxy).batcherHash();
-        return address(uint160(uint256(batcherHash)));
     }
 
     function getProxyAdmin(address systemConfigProxy) internal returns (address) {
