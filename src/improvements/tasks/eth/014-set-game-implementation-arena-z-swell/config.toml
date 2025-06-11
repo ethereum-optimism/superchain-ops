@@ -1,0 +1,12 @@
+l2chains = [
+    {name = "Arena-Z", chainId = 7897},
+    {name = "Swell", chainId = 1923}
+]
+
+templateName = "SetGameImplementationTemplate"
+
+[gameImpls]
+configs = [
+    {chainId = 7897, fdgImpl = "0x0000000000000000000000000000000000000000"},
+    {chainId = 1923, fdgImpl = "0x0000000000000000000000000000000000000000"}
+]
