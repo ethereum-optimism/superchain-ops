@@ -78,7 +78,7 @@ library MultisigTaskPrinter {
         bytes memory dataToSign,
         bytes32 domainSeparator,
         bytes32 messageHash
-    ) internal pure {
+    ) internal view {
         console.log("");
         printTitle("NESTED MULTISIG CHILD'S HASH TO APPROVE");
         console.log("Parent multisig: %s", parentMultisigLabel);
@@ -92,19 +92,25 @@ library MultisigTaskPrinter {
 
     /// @notice Prints encoded transaction data with formatted header and footer and instructions for signers.
     /// @param dataToSign The encoded transaction data to sign.
-    function printEncodedTransactionData(bytes memory dataToSign) internal pure {
+    function printEncodedTransactionData(bytes memory dataToSign) internal view {
         // NOTE: Do not change the vvvvvvvv and ^^^^^^^^ lines, as the eip712sign tool explicitly
         // looks for those specific lines to identify the data to sign.
         printTitle("DATA TO SIGN");
-        console.log("vvvvvvvv");
-        console.logBytes(dataToSign);
-        console.log("^^^^^^^^\n");
+        // 'SUPPRESS_PRINTING_DATA_TO_SIGN' is true only when using stacked signing and the task is not the last task in the stack.
+        bool shouldPrintDataToSign = !Utils.isFeatureEnabled("SUPPRESS_PRINTING_DATA_TO_SIGN");
+        if (shouldPrintDataToSign) {
+            console.log("vvvvvvvv");
+            console.logBytes(dataToSign);
+            console.log("^^^^^^^^\n");
 
-        printTitle("ATTENTION SIGNERS");
-        console.log("Please verify that the 'Data to sign' displayed above matches:");
-        console.log("1. The data shown in the Tenderly simulation.");
-        console.log("2. The data shown on your hardware wallet.");
-        console.log("This is a critical step. Do not skip this verification.");
+            printTitle("ATTENTION SIGNERS");
+            console.log("Please verify that the 'Data to sign' displayed above matches:");
+            console.log("1. The data shown in the Tenderly simulation.");
+            console.log("2. The data shown on your hardware wallet.");
+            console.log("This is a critical step. Do not skip this verification.");
+        } else {
+            console.log("This task is not intended to be signed. Not printing data to sign.");
+        }
     }
 
     /// @notice Prints the Tenderly simulation payload with the state overrides.

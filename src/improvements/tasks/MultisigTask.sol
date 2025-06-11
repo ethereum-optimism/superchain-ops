@@ -659,6 +659,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     function printSingleData(Action[] memory actions) private view {
         bytes memory taskCallData = getMulticall3Calldata(actions);
         bytes memory dataToSign = getEncodedTransactionData(parentMultisig, taskCallData);
+
+        // eip712sign tool looks for the output of this command.
         MultisigTaskPrinter.printEncodedTransactionData(dataToSign);
 
         MultisigTaskPrinter.printTitle("SINGLE MULTISIG EOA HASH TO APPROVE");
