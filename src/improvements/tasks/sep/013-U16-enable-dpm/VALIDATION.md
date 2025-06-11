@@ -23,11 +23,6 @@ the values printed to the terminal when you run the task.
 >
 > - Domain Hash: `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
 > - Message Hash: `0x1eab8883c23edf382da09a20eac27d29c032ed793183b7c1750dcb8a67da7756`
->
-> ### Nested Safe 2 (Foundation): `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`
->
-> - Domain Hash: `0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
-> - Message Hash: `0xac9761d0cd16b19a1a400fd186b9eb22000b6d2d3767f17b6a6bee9b1447954f`
 
 ## Normalized State Diff Hash Attestation
 

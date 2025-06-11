@@ -1,4 +1,98 @@
-### `0x837de453ad5f21e89771e3c06239d8236c0efd5e` (Unknown (GnosisSafe)) 
+# Validation
+
+This document can be used to validate the inputs and result of the execution of the transaction which you are
+signing.
+
+The steps are:
+
+1. [Validate the Domain and Message Hashes](#expected-domain-and-message-hashes)
+2. [Verifying the state changes via the normalized state diff hash](#normalized-state-diff-hash-attestation)
+3. [Verifying the transaction input](#understanding-task-calldata)
+4. [Verifying the state changes](#task-state-changes)
+
+## Expected Domain and Message Hashes
+
+First, we need to validate the domain and message hashes. These values should match both the values on your ledger and
+the values printed to the terminal when you run the task.
+
+> [!CAUTION]
+>
+> Before signing, ensure the below hashes match what is on your ledger.
+>
+> ### Nested Safe 1 (Council): `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`
+>
+> - Domain Hash: `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
+> - Message Hash: `0x0940f3eb4482e4b53804964ae4fbc8833c44e607f8c305e623099b649e6e2b05`
+
+## Normalized State Diff Hash Attestation
+
+The normalized state diff hash **MUST** match the hash produced by the state changes attested to in the state diff audit report. As a signer, you are responsible for verifying that this hash is correct. Please compare the hash below with the one in the audit report. If no audit report is available for this task, you must still ensure that the normalized state diff hash matches the output in your terminal.
+
+**Normalized hash:** `0x2921c53259eb3d6f4e37d4f10662630dc392f0daad4aac93162ce992cf26af54`
+
+## Understanding Task Calldata
+
+This document provides a detailed analysis of the final calldata executed on-chain for the new deputy pause module to be enabled.
+
+By reconstructing the calldata, we can confirm that the execution precisely implements the approved upgrade plan with no unexpected modifications or side effects.
+
+### Inputs to `safe.disableModule()`
+
+`safe.disableModule()` function is called with the address to be removed and the previous module:
+
+The address of the module to be removed: 0xfd7E6Ef1f6c9e4cC34F54065Bf8496cE41A4e2e8
+The address of the previous module: 0xc10dac07d477215a1ebebae1dd0221c1f5d241d2
+
+Thus, the command to encode the calldata is:
+
+```bash
+cast calldata 'disableModule(address, address)' "0xc10dac07d477215a1ebebae1dd0221c1f5d241d2" "0xfd7E6Ef1f6c9e4cC34F54065Bf8496cE41A4e2e8"
+```
+
+### Inputs to `Multicall3DelegateCall`
+
+The output from the previous section becomes the `data` in the argument to the `Multicall3DelegateCall.aggregate3Value()` function.
+
+This function is called with a tuple of four elements:
+
+Call3 struct for Multicall3DelegateCall:
+
+- `target`: [0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E](https://github.com/ethereum-optimism/superchain-registry/blob/744d7764c475f85b5abbaa70c6c461279c195190/validation/standard/standard-config-roles-sepolia.toml#L1) - Sepolia Guardian Safe
+- `allowFailure`: false
+- `value`: 0
+- `callData`: `0xe009cfde000000000000000000000000c10dac07d477215a1ebebae1dd0221c1f5d241d2000000000000000000000000fd7e6ef1f6c9e4cc34f54065bf8496ce41a4e2e8` (output from the previous section)
+
+Command to encode:
+
+```bash
+cast calldata 'aggregate3Value((address,bool,uint256,bytes)[])' "[(0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E,false,0,0xe009cfde000000000000000000000000c10dac07d477215a1ebebae1dd0221c1f5d241d2000000000000000000000000fd7e6ef1f6c9e4cc34f54065bf8496ce41a4e2e8)]"
+```
+
+The resulting calldata sent from the ProxyAdminOwner safe is thus:
+
+```
+0x174dea710000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000007a50f00e8d05b95f98fe38d8bee366a7324dcf7e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000044e009cfde000000000000000000000000c10dac07d477215a1ebebae1dd0221c1f5d241d2000000000000000000000000fd7e6ef1f6c9e4cc34f54065bf8496ce41a4e2e800000000000000000000000000000000000000000000000000000000
+```
+
+In mainnet runbooks, this calldata should appear in Action Plan section of the Governance proposal.
+
+# State Validations
+
+For each contract listed in the state diff, please verify that no contracts or state changes shown in the Tenderly diff are missing from this document. Additionally, please verify that for each contract:
+
+- The following state changes (and none others) are made to that contract. This validates that no unexpected state
+  changes occur.
+- All addresses (in section headers and storage values) match the provided name, using the Etherscan and Superchain
+  Registry links provided. This validates the bytecode deployed at the addresses contains the correct logic.
+- All key values match the semantic meaning provided, which can be validated using the storage layout links provided.
+
+### State Overrides
+
+Note: The changes listed below do not include threshold, nonce and owner mapping overrides. These changes are listed and explained in the [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md) file.
+
+### Task State Changes
+
+### `0x837de453ad5f21e89771e3c06239d8236c0efd5e` (FoundationOperationsSafe (GnosisSafe)) 
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:** `uint256`
