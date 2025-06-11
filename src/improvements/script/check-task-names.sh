@@ -18,7 +18,7 @@ set -eo pipefail
 #   src/improvements/tasks/eth/
 #     ├── abc-invalid-name    <-- ❌ invalid prefix format
 #     └── 001-duplicate-task
-#     └── 001-duplicate-task  <-- ❌ duplicate full prefix
+#     └── 001-another-thing   <-- ❌ duplicate full prefix
 #
 # Usage: Run from any directory inside the git repo.
 # ---------------------------------------------
