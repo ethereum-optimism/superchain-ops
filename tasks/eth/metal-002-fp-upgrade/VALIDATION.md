@@ -31,12 +31,12 @@ Additionally, please verify that for each contract:
 > ### Security Council
 >
 > - Domain Hash: `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
-> - Message Hash: `0x6e4b8104d1fa100896d3c6be742be00b5fb1c923ed7696fa8213692977922aa5`
+> - Message Hash: `0x27d70ccc7da26274fa4470df0426343f1979199b593135af157db9815e54ff80`
 >
 > ### Optimism Foundation
 >
 > - Domain Hash: `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
-> - Message Hash: `0x2e9b9c8942a41bb7417c475995a68eccf31980e45f57260f6d1a81c4b459eb77`
+> - Message Hash: `0x27d70ccc7da26274fa4470df0426343f1979199b593135af157db9815e54ff80`
 
 ## Nested Safe State Overrides and Changes
 
