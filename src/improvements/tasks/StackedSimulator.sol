@@ -5,6 +5,7 @@ import {Script} from "forge-std/Script.sol";
 import {TaskManager} from "src/improvements/tasks/TaskManager.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
+import {Utils} from "src/libraries/Utils.sol";
 import {console} from "forge-std/console.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 
@@ -52,7 +53,10 @@ contract StackedSimulator is Script {
             // eip712sign will sign the first occurrence of the data to sign in the terminal.
             // Because of this, we only want to print the data to sign for the last task (i.e. the task that is being signed).
             bool isLastTask = i == tasks.length - 1;
-            vm.setEnv("SUPPRESS_PRINTING_DATA_TO_SIGN", isLastTask ? "false" : "true");
+            if (Utils.isFeatureEnabled("STACKED_SIGNING_MODE")) {
+                // Only ever suppress printing data to sign for stacked signing.
+                vm.setEnv("SUPPRESS_PRINTING_DATA_TO_SIGN", isLastTask ? "false" : "true");
+            }
 
             taskConfigs[i] = taskManager.parseConfig(tasks[i].path);
             // If we wanted to ensure that all Tenderly links worked for each task, we would need to build a cumulative list of all state overrides

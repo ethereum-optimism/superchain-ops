@@ -119,7 +119,9 @@ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../sin
     - If your task status is not `EXECUTED` or `CANCELLED`, it is considered non-terminal and will automatically be included in stacked simulations (which run on the main branch).
     - If your task has a `VALIDATION.md` file, you **must** fill out the `Normalized State Diff Hash Attestation` section. This is so that we can detect if the normalized state diff hash changes unexpectedly. You **must** also fill out the `Expected Domain and Message Hashes` section. This is so that we can detect if the domain and message hashes change unexpectedly.
 
-### How do I run a task that depends on another task?
+## FAQ
+
+### How do I simulate a task that depends on another task?
 
 > Note:
 > Tasks get executed in the order they are defined in the `tasks/<network>/` directory. We use 3 digit prefixes to order the tasks e.g. `001-` is executed before `002-`, etc.
@@ -155,7 +157,7 @@ just list-stack eth <your-task-name>
 
 > **Note**: Only ledger signing is supported for stacked signing.
 
-To sign a task, you can use the `sign` command. This command will simulate all tasks up to and including the specified task, and then prompt you to sign the transaction for the final task in the stack using your Ledger device.
+To sign a task, you can use the `just sign` command in `src/improvements/justfile`. This command will simulate all tasks up to and including the specified task, and then prompt you to sign the transaction for the final task in the stack using your Ledger device.
 
 ```bash
 just sign <network> <task> [owner-safe-name] [hd-path]

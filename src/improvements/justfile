@@ -222,7 +222,9 @@ sign NETWORK="" TASK="" OWNER_SAFE_NAME="" HD_PATH="0":
         exit 0
     fi
     
-    export SIGNING_MODE_IN_PROGRESS=true
+    export SIGNING_MODE_IN_PROGRESS=true # This environment variable is typically used to reduce logging. TODO: Should consolidate this in the future.
+    export STACKED_SIGNING_MODE=true # This environment variable is only ever set to true in this sign command. 
+
     ETH_RPC_URL=$(just --justfile "$root_just_file" _fetch-rpc-url "{{NETWORK}}")
     safe=$(just --justfile "$root_just_file" _fetch-safe "{{NETWORK}}" "{{TASK}}" "{{OWNER_SAFE_NAME}}")
 
