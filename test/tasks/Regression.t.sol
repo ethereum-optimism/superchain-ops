@@ -481,9 +481,9 @@ contract RegressionTest is Test {
     ) internal returns (Action[] memory actions) {
         vm.createSelectFork(network, blockNumber);
         if (childMultisig != address(0)) {
-            (, actions) = multisigTask.signFromChildMultisig(taskConfigFilePath, childMultisig);
+            (, actions,,) = multisigTask.signFromChildMultisig(taskConfigFilePath, childMultisig);
         } else {
-            (, actions) = multisigTask.simulateRun(taskConfigFilePath);
+            (, actions,,) = multisigTask.simulateRun(taskConfigFilePath);
         }
     }
 

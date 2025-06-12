@@ -122,13 +122,26 @@ simulate-all-templates:
     # For testing purposes, we do not gain anything by simulating as other nested safes.
     nested_safe_name="foundation"
     simulation_count=0
-    for task in ${root_dir}/test/tasks/example/*/*; do
+
+    # Collect PIDs of each background simulation.
+    declare -a pids=()
+
+    for task in "${root_dir}/test/tasks/example/"*/*; do
         if [ -d "$task" ]; then
-            ${root_dir}/src/improvements/script/simulate-task.sh $task $nested_safe_name
-            simulation_count=$((simulation_count + 1))
+            # Launch each simulation in background.
+            "${root_dir}/src/improvements/script/simulate-task.sh" "$task" "$nested_safe_name" & pids+=( "$!" )
         fi
     done
+
+    # Wait for every simulation to finish, count successes.
+    for pid in "${pids[@]}"; do
+        wait "$pid"
+        simulation_count=$((simulation_count + 1))
+    done
+
     echo "$simulation_count simulations run."
+
+    # Count template files (excluding *.template.sol and boilerplate dir).
     template_count=$(find "${root_dir}/src/improvements/template" -type f ! -name "*.template.sol" ! -path "*/boilerplate/*" | wc -l | xargs)
 
     # Verify that every template file is referenced by at least one example task config.
@@ -150,20 +163,6 @@ simulate-all-templates:
         exit 1
     fi
 
-simulate-verify-task TASK="":
-    #!/usr/bin/env bash
-    set -euo pipefail
-    root_dir=$(git rev-parse --show-toplevel)
-
-    forge build
-
-    # If the task is nested then we only simulate as the foundation.
-    # In the future we could simulate as other nested safes.
-    # For testing purposes, we do not gain anything by simulating as other nested safes.
-    nested_safe_name="foundation"
-
-    ${root_dir}/src/improvements/script/simulate-verify-task.sh {{TASK}} $nested_safe_name
-
 simulate-stack NETWORK="" TASK="" OWNER_ADDRESSES="[]":
     #!/usr/bin/env bash
     set -euo pipefail
@@ -183,21 +182,7 @@ simulate-stack NETWORK="" TASK="" OWNER_ADDRESSES="[]":
         echo
     }
 
-    export FOUNDRY_PROFILE="${FOUNDRY_PROFILE:-default}"
-
-    case "{{NETWORK}}" in
-        sep)
-            ETH_RPC_URL=$(yq eval ".profile.\"${FOUNDRY_PROFILE}\".rpc_endpoints.sepolia" "${root_dir}/foundry.toml")
-            ;;
-        eth)
-            ETH_RPC_URL=$(yq eval ".profile.\"${FOUNDRY_PROFILE}\".rpc_endpoints.mainnet" "${root_dir}/foundry.toml")
-            ;;
-        *)
-            echo -e "\n\033[31mError: Invalid network '{{NETWORK}}'\033[0m"
-            show_usage
-            exit 1
-            ;;
-    esac
+    ETH_RPC_URL=$(just _fetch-rpc-url "{{NETWORK}}")
 
     echo -e "\n⏳ Stacked Task simulation in progress. This may take a while..."
     if [ -z "{{TASK}}" ]; then
@@ -209,7 +194,49 @@ simulate-stack NETWORK="" TASK="" OWNER_ADDRESSES="[]":
         just list-stack {{NETWORK}} {{TASK}}
         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address[])" "{{NETWORK}}" "{{TASK}}" "{{OWNER_ADDRESSES}}" --ffi --rpc-url $ETH_RPC_URL
     fi
-    echo -e "\n⚠️ Please note: Some Tenderly links may not work when running a stacked simulation.⚠️"
+    echo -e "\n⚠️ Please note: Some Tenderly links may not work when running a stacked simulation. Check out Tenderly's Virtual TestNets as a workaround.⚠️"
+
+sign NETWORK="" TASK="" OWNER_SAFE_NAME="" HD_PATH="0":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+    root_just_file="${root_dir}/src/improvements/justfile"
+    
+    echo -e "\033[42m                                         \033[0m"
+    echo -e "\033[42m       superchain-ops sign task          \033[0m"
+    echo -e "\033[42m                                         \033[0m"
+
+    show_usage() {
+        echo
+        echo "Usage: just sign <network> <task> [owner-safe-name] [hd-path]"
+        echo "Available arguments:"
+        echo "  • <network>         - The network to sign the stack for (e.g. 'sep', 'eth')"
+        echo "  • <task>            - The task to sign the stack for (e.g. '001-task-name')"
+        echo "  • [owner-safe-name] - The owner safe name to sign the task for (e.g. 'foundation', 'council', 'foundation-operations', 'chain-governor' etc.) - may be left empty for single safes."
+        echo "  • [hd-path]         - This is the hd path of the signer. If not provided, the default is 0."
+        echo
+    }
+
+    if [ -z "{{NETWORK}}" ] || [ -z "{{TASK}}" ]; then
+        show_usage
+        exit 0
+    fi
+    
+    export SIGNING_MODE_IN_PROGRESS=true # This environment variable is typically used to reduce logging. TODO: Should consolidate this in the future.
+    export STACKED_SIGNING_MODE=true # This environment variable is only ever set to true in this sign command. 
+
+    ETH_RPC_URL=$(just --justfile "$root_just_file" _fetch-rpc-url "{{NETWORK}}")
+    safe=$(just --justfile "$root_just_file" _fetch-safe "{{NETWORK}}" "{{TASK}}" "{{OWNER_SAFE_NAME}}")
+
+    echo -e "⏳ You are signing the task: {{TASK}} for network: {{NETWORK}}\n"
+    just --justfile "$root_just_file" list-stack {{NETWORK}} {{TASK}}
+    count=$(just --justfile "$root_just_file" _count-pending-tasks {{NETWORK}} {{TASK}}) # return the count of tasks.
+    formatted_addresses=$(just --justfile "$root_just_file" _get-owner-addresses-string "$count" "$safe")
+
+    # We only support signing with ledger for now.
+    signer_args=$(just --justfile "$root_just_file" _get-signer-args {{HD_PATH}})
+    ${root_dir}/bin/eip712sign ${signer_args} -- \
+     forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address[])" "{{NETWORK}}" "{{TASK}}" "$formatted_addresses" --ffi --rpc-url $ETH_RPC_URL
 
 list-stack NETWORK="" TASK="":
     #!/usr/bin/env bash
@@ -233,7 +260,6 @@ list-stack NETWORK="" TASK="":
         exit 1
     fi
 
-    # Check if task arg exists
     if [ -z "{{TASK}}" ]; then
         echo "Listing all tasks for network: {{NETWORK}}"
         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string)" {{NETWORK}}
@@ -246,3 +272,74 @@ test:
     forge build
     forge test
     just simulate-all-templates
+
+
+########################
+### Helper functions ###
+########################
+# not intended for end users
+_fetch-rpc-url NETWORK="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    profile="${FOUNDRY_PROFILE:-default}"
+    case "{{NETWORK}}" in
+      sep)  yq eval ".profile.\"${profile}\".rpc_endpoints.sepolia" "$(git rev-parse --show-toplevel)/foundry.toml" ;;
+      eth)  yq eval ".profile.\"${profile}\".rpc_endpoints.mainnet" "$(git rev-parse --show-toplevel)/foundry.toml" ;;
+      *)    echo "Error: Must provide a valid network, '{{NETWORK}}' is not valid." >&2; exit 1 ;;
+    esac
+
+# Helper function to fetch the safe address for a given network and task.
+[no-cd] 
+_fetch-safe NETWORK TASK OWNER_SAFE_NAME:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+    safe="0x0000000000000000000000000000000000000000" # Default to zero address for non-nested safes
+    taskPath=${root_dir}/src/improvements/tasks/{{NETWORK}}/{{TASK}}
+    if [ -n "{{OWNER_SAFE_NAME}}" ]; then
+        safe=$(bash ${root_dir}/src/improvements/script/get-safe.sh $taskPath "{{OWNER_SAFE_NAME}}")
+        echo "⏳ You're signing as safe: $safe ({{OWNER_SAFE_NAME}})" >&2
+    fi
+    echo "${safe}"
+
+# Helper function to count the number of pending tasks for a given network.
+[no-cd] 
+_count-pending-tasks NETWORK TASK="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+    if [ -z "{{TASK}}" ]; then
+        count=$(forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string)" {{NETWORK}} --json | jq -r '.returns["0"].value')
+    else
+        count=$(forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string,string)" {{NETWORK}} {{TASK}} --json | jq -r '.returns["0"].value')
+    fi
+    echo "$count"
+
+# Helper function to get the signer arguments for a given hdPath. We do not need to support signing with keystores.
+[no-cd]
+_get-signer-args hdPath='0':
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+    hdpaths="m/44'/60'/{{hdPath}}'/0/0"
+    signer=$(cast wallet address --ledger --mnemonic-derivation-path $hdpaths)
+    signer_args="--ledger --hd-paths $hdpaths"
+    echo $signer_args
+
+# Helper function to get the owner addresses string for a given count and safe address.
+[no-cd]
+_get-owner-addresses-string COUNT SAFE_ADDRESS:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    
+    owner_addresses=()
+    if (( {{COUNT}} > 1 )); then
+      for i in $(seq 1 $(({{COUNT}}-1))); do
+          owner_addresses+=("0x0000000000000000000000000000000000000000")
+      done
+    fi
+    owner_addresses+=("{{SAFE_ADDRESS}}")
+    
+    # Format the bash array into a string for forge script
+    formatted_addresses=$(IFS=,; echo "[${owner_addresses[*]}]")
+    echo "$formatted_addresses"

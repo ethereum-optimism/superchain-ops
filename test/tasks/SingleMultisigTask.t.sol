@@ -42,7 +42,7 @@ contract SingleMultisigTaskTest is Test {
 
     function runTask() public returns (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) {
         multisigTask = new GasConfigTemplate();
-        (accountAccesses, actions) = multisigTask.simulateRun(taskConfigFilePath);
+        (accountAccesses, actions,,) = multisigTask.simulateRun(taskConfigFilePath);
     }
 
     function toSuperchainAddrRegistry(AddressRegistry _addrRegistry)
@@ -100,7 +100,7 @@ contract SingleMultisigTaskTest is Test {
         vm.expectRevert("No actions found");
         localMultisigTask.processTaskActions(actions);
 
-        (accountAccesses, actions) = localMultisigTask.simulateRun(taskConfigFilePath);
+        (accountAccesses, actions,,) = localMultisigTask.simulateRun(taskConfigFilePath);
 
         addrRegistry = localMultisigTask.addrRegistry();
 

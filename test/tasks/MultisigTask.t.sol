@@ -25,11 +25,6 @@ contract MultisigTaskUnitTest is Test {
         "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n" "templateName = \"MockMultisigTask\"\n" "\n";
     address securityCouncilChildMultisig = 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03;
 
-    /// @notice variables that store the storage offset of different variables in the MultisigTask contract
-
-    /// @notice storage slot for the build started flag. Used because _buildStarted is private.
-    bytes32 public constant BUILD_STARTED_SLOT = bytes32(uint256(48));
-
     /// Test Philosophy:
     /// We want these tests to function as much as possible as unit tests.
     /// In order to achieve this we have to put the contract in states that it
@@ -83,7 +78,7 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testBuildFailsAddressRegistrySetBuildStarted() public {
-        // set multisig storage slot in MultisigTask.sol to a non zero address
+        // Set multisig storage slot in MultisigTask.sol to a non zero address
         // we have to do this because we do not call the run function, which
         // sets the address registry contract variable to a new instance of the
         // address registry object.
@@ -91,14 +86,9 @@ contract MultisigTaskUnitTest is Test {
             addrRegistry.getAddress("SystemConfigOwner", getChain("optimism").chainId)
         );
 
-        // set _buildStarted flag in MultisigTask contract to true, this
-        // allows us to hit the revert in the build function of:
-        //     "Build already started"
-        // TODO: Replace with stdStorage if possible, or find slot and use vm.store if necessary.
-        // We may also be able to simply read the storage layout JSON like we do in the monorepo.
-        // For now, keeping vm.store for _buildStarted as it's a private variable without a getter.
-        // stdStorage relies on getters to find slots typically.
-        vm.store(address(task), BUILD_STARTED_SLOT, bytes32(uint256(1)));
+        // Set 'buildStarted' flag in MultisigTask contract to true, this allows us to hit the revert.
+        bytes32 buildStartedSlot = bytes32(uint256(stdstore.target(address(task)).sig("getBuildStarted()").find()));
+        vm.store(address(task), buildStartedSlot, bytes32(uint256(1)));
 
         task.addrRegistry();
 
@@ -179,7 +169,7 @@ contract MultisigTaskUnitTest is Test {
         public
         returns (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions)
     {
-        (accountAccesses, actions) = task.signFromChildMultisig(taskConfigFilePath, childMultisig);
+        (accountAccesses, actions,,) = task.signFromChildMultisig(taskConfigFilePath, childMultisig);
 
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);
 

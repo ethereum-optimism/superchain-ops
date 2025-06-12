@@ -48,7 +48,7 @@ contract NestedMultisigTaskTest is Test {
     {
         multisigTask = new DisputeGameUpgradeTemplate();
         string memory configFilePath = MultisigTaskTestHelper.createTempTomlFile(taskConfigToml);
-        (accountAccesses, actions) = multisigTask.signFromChildMultisig(configFilePath, childMultisig);
+        (accountAccesses, actions,,) = multisigTask.signFromChildMultisig(configFilePath, childMultisig);
         MultisigTaskTestHelper.removeFile(configFilePath);
         addrRegistry = multisigTask.addrRegistry();
         superchainAddrRegistry = SuperchainAddressRegistry(AddressRegistry.unwrap(addrRegistry));
@@ -232,7 +232,7 @@ contract NestedMultisigTaskTest is Test {
         uint256 newSnapshot = vm.snapshotState();
 
         string memory config = MultisigTaskTestHelper.createTempTomlFile(taskConfigToml);
-        (accountAccesses, actions) = multisigTask.signFromChildMultisig(config, SECURITY_COUNCIL_CHILD_MULTISIG);
+        (accountAccesses, actions,,) = multisigTask.signFromChildMultisig(config, SECURITY_COUNCIL_CHILD_MULTISIG);
         MultisigTaskTestHelper.removeFile(config);
 
         // Check that the implementation is upgraded correctly
@@ -270,7 +270,7 @@ contract NestedMultisigTaskTest is Test {
         uint256 snapshotId = vm.snapshotState();
         multisigTask = new OPCMUpgradeV200();
         string memory opcmTaskConfigFilePath = "test/tasks/example/sep/002-opcm-upgrade-v200/config.toml";
-        (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) =
+        (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions,,) =
             multisigTask.signFromChildMultisig(opcmTaskConfigFilePath, foundationChildMultisig);
 
         addrRegistry = multisigTask.addrRegistry();
@@ -352,7 +352,8 @@ contract NestedMultisigTaskTest is Test {
         // Snapshot before running the task so we can roll back to this pre-state
         uint256 newSnapshot = vm.snapshotState();
 
-        (accountAccesses, actions) = multisigTask.signFromChildMultisig(opcmTaskConfigFilePath, foundationChildMultisig);
+        (accountAccesses, actions,,) =
+            multisigTask.signFromChildMultisig(opcmTaskConfigFilePath, foundationChildMultisig);
         bytes32 taskHash =
             multisigTask.getHash(multisigTask.getMulticall3Calldata(actions), multisigTask.parentMultisig());
 

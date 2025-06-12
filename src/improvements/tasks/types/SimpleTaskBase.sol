@@ -5,6 +5,7 @@ import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {TaskType} from "src/libraries/MultisigTypes.sol";
 
 /// @notice This contract is used for all simple task types. It overrides various functions in the MultisigTask contract.
 abstract contract SimpleTaskBase is MultisigTask {
@@ -32,18 +33,18 @@ abstract contract SimpleTaskBase is MultisigTask {
         simpleAddrRegistry = new SimpleAddressRegistry(taskConfigFilePath);
         addrRegistry_ = AddressRegistry.wrap(address(simpleAddrRegistry));
 
-        parentMultisig_ = IGnosisSafe(simpleAddrRegistry.get(config.safeAddressString));
+        parentMultisig_ = IGnosisSafe(simpleAddrRegistry.get(templateConfig.safeAddressString));
     }
 
     /// @notice We use this function to add allowed storage accesses.
     /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
     function _templateSetup(string memory) internal virtual override {
-        for (uint256 i = 0; i < config.allowedStorageKeys.length; i++) {
-            _allowedStorageAccesses.add(simpleAddrRegistry.get(config.allowedStorageKeys[i]));
+        for (uint256 i = 0; i < templateConfig.allowedStorageKeys.length; i++) {
+            _allowedStorageAccesses.add(simpleAddrRegistry.get(templateConfig.allowedStorageKeys[i]));
         }
 
-        for (uint256 i = 0; i < config.allowedBalanceChanges.length; i++) {
-            _allowedBalanceChanges.add(simpleAddrRegistry.get(config.allowedBalanceChanges[i]));
+        for (uint256 i = 0; i < templateConfig.allowedBalanceChanges.length; i++) {
+            _allowedBalanceChanges.add(simpleAddrRegistry.get(templateConfig.allowedBalanceChanges[i]));
         }
     }
 }

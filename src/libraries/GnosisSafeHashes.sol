@@ -161,10 +161,10 @@ library GnosisSafeHashes {
     }
 
     /// @notice Reads the result of a call to Safe.encodeTransactionData and returns the message hash.
-    function getMessageHashFromEncodedTransactionData(bytes memory _encodedTxData)
+    function getDomainAndMessageHashFromEncodedTransactionData(bytes memory _encodedTxData)
         internal
         pure
-        returns (bytes32 messageHash_)
+        returns (bytes32 domainSeparator_, bytes32 messageHash_)
     {
         require(_encodedTxData.length == 66, "GnosisSafeHashes: Invalid encoded transaction data length.");
         require(_encodedTxData[0] == bytes1(0x19), "GnosisSafeHashes: Expected prefix byte 0x19.");
@@ -177,6 +177,9 @@ library GnosisSafeHashes {
         //   [0x19][0x01][32-byte domainSeparator][32-byte messageHash]
         // The message hash begins at offset: 32 (skip length) + 34 = 66.
         assembly {
+            // Domain separator starts after 2-byte prefix (offset 34 in bytes array)
+            domainSeparator_ := mload(add(_encodedTxData, 34))
+            // Message hash starts at offset 66 (after domain separator)
             messageHash_ := mload(add(_encodedTxData, 66))
         }
     }

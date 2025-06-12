@@ -11,12 +11,13 @@ The repository is organized as follows:
 ```
 superchain-ops/
 └── src/
-    └── improvements/
+    └── improvements/ 
        ├── template/     # Solidity template contracts (Template developers create templates here)
        └── doc/          # Detailed documentation
        └── tasks/        # Network-specific tasks
             ├── eth/     # Ethereum mainnet tasks (Task developers create tasks here)
             └── sep/     # Sepolia testnet tasks  (Task developers create tasks here)
+
 ```
 
 ## Quick Start
@@ -116,9 +117,12 @@ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../sin
 ```
 
 6. Fill out the `README.md` and `VALIDATION.md` files.
-    - If your task status is not `EXECUTED` or `CANCELLED`, it is considered non-terminal and will automatically be included in stacked simulations (which run on the main branch).
+    - If your task status is not `EXECUTED` or `CANCELLED`, it is considered non-terminal and will automatically be included in stacked simulations.
+    - If your task has a `VALIDATION.md` file, you **must** fill out the `Normalized State Diff Hash Attestation` section. This is so that we can detect if the normalized state diff hash changes unexpectedly. You **must** also fill out the `Expected Domain and Message Hashes` section. This is so that we can detect if the domain and message hashes change unexpectedly. Any mismatches will cause the task to revert.
 
-### How do I run a task that depends on another task?
+## FAQ
+
+### How do I simulate a task that depends on another task?
 
 > Note:
 > Tasks get executed in the order they are defined in the `tasks/<network>/` directory. We use 3 digit prefixes to order the tasks e.g. `001-` is executed before `002-`, etc.
@@ -149,6 +153,43 @@ just list-stack eth
 # OR if you want to list the tasks up to and including a specific task.
 just list-stack eth <your-task-name>
 ```
+
+### How do I sign a task that depends on another task?
+
+> **Note**: Only ledger signing is supported for stacked signing.
+
+To sign a task, you can use the `just sign` command in `src/improvements/justfile`. This command will simulate all tasks up to and including the specified task, and then prompt you to sign the transaction for the final task in the stack using your Ledger device.
+
+```bash
+just sign <network> <task> [owner-safe-name] [hd-path]
+```
+
+**Example:**
+
+To sign the `002-opcm-upgrade-v200` task on the Ethereum mainnet as the `foundation` safe, you would run:
+
+```bash
+just sign eth 002-opcm-upgrade-v200 foundation
+```
+
+The command will then:
+1. List all the tasks that will be simulated in the stack.
+2. Simulate the tasks in order.
+3. Prompt you to approve the transaction on your Ledger device for the final task (`002-opcm-upgrade-v200` in this example).
+
+### How do I make sure an address is universally available to any task?
+
+We have provided the `addresses.toml` file to help you do this. This file is used to store commonly used addresses involved in an upgrade. You can access any of these addresses by name in your task's template.
+
+The addresses in this file are loaded into two different address registry contracts, depending on the needs of your task: `SimpleAddressRegistry.sol` and `SuperchainAddressRegistry.sol`.
+
+- **`SimpleAddressRegistry.sol`**: This is a straightforward key-value store for addresses. It's used for tasks that require a simple way to look up addresses by a human-readable name.
+
+- **`SuperchainAddressRegistry.sol`**: This is a more advanced registry that automatically discovers addresses for contracts deployed across various chains in the Superchain. However, some addresses, like multisig safes or contracts not part of the standard deployment, cannot be discovered automatically. For these cases, `SuperchainAddressRegistry.sol` also loads addresses from `addresses.toml` to make them available.
+
+Both registries load addresses based on the network the task is running on. For example, when running a task on Ethereum mainnet, addresses from the `[eth]` section of `addresses.toml` will be loaded. You can only access addresses for the network you are working on.
+
+By adding an address to `addresses.toml`, you ensure it's available in your task's context, whether you're using the simple or the superchain address registry.
 
 ## Available Templates
 
