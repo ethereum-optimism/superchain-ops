@@ -36,7 +36,7 @@ contract SetGameImplementationsTemplate is L2TaskBase {
     }
 
     /// @notice Returns string identifiers for addresses that are expected to have their storage written to.
-    function _taskStorageWrites() internal pure override returns (string[] memory) {
+    function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
         string[] memory storageWrites = new string[](1);
         storageWrites[0] = "DisputeGameFactoryProxy";
         return storageWrites;
@@ -55,31 +55,6 @@ contract SetGameImplementationsTemplate is L2TaskBase {
 
     /// @notice Write the calls that you want to execute for the task.
     function _build() internal override {
-        
-        // Iterate over the chains and set the implementation of FDG and/or PDG according to what is specified in the TOML.
-        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-        for (uint256 i = 0; i < chains.length; i++) {
-            uint256 chainId = chains[i].chainId;
-            
-            // Skip chains that don't have a configuration
-            if (cfg[chainId].chainId == 0) continue;
-            
-            GameImplConfig memory c = cfg[chainId];
-
-            address dgf = superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId);
-
-            if (c.fdgImpl != address(0)) {
-                DisputeGameFactory(dgf).setImplementation(GameTypes.CANNON, IFaultDisputeGame(c.fdgImpl));
-            }
-            if (c.pdgImpl != address(0)) {
-                DisputeGameFactory(dgf).setImplementation(GameTypes.PERMISSIONED_CANNON, IPermissionedDisputeGame(c.pdgImpl));
-            }
-        }
-    }
-
-    /// @notice This method performs all validations and assertions that verify the calls executed as expected.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
-        // Iterate over the chains and validate the respected game type.
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
@@ -88,12 +63,37 @@ contract SetGameImplementationsTemplate is L2TaskBase {
             address dgf = superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId);
             DisputeGameFactory factory = DisputeGameFactory(dgf);
 
-            if (c.fdgImpl != address(0)) {
-                assertEq(address(factory.gameImpls(GameTypes.CANNON)), c.fdgImpl);
+            // Set FDG (CANNON) implementation if TOML is different from current on-chain
+            address currentFDG = address(factory.gameImpls(GameTypes.CANNON));
+
+            if (currentFDG != c.fdgImpl) {
+                factory.setImplementation(GameTypes.CANNON, IFaultDisputeGame(c.fdgImpl));
             }
-            if (c.pdgImpl != address(0)) {
-                assertEq(address(factory.gameImpls(GameTypes.PERMISSIONED_CANNON)), c.pdgImpl);
+
+            // Set PDG (PERMISSIONED_CANNON) implementation if TOML is different from current on-chain
+            address currentPDG = address(factory.gameImpls(GameTypes.PERMISSIONED_CANNON));
+
+            if (currentPDG != c.pdgImpl) {
+                factory.setImplementation(GameTypes.PERMISSIONED_CANNON, IPermissionedDisputeGame(c.pdgImpl));
             }
+        }
+    }
+
+        /// @notice This method performs all validations and assertions that verify the calls executed as expected.
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            GameImplConfig memory c = cfg[chainId];
+
+            address dgf = superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId);
+            DisputeGameFactory factory = DisputeGameFactory(dgf);
+
+            // Assert FDG (CANNON) implementation matches TOML
+            assertEq(address(factory.gameImpls(GameTypes.CANNON)), c.fdgImpl);
+
+            // Assert PDG (PERMISSIONED_CANNON) implementation matches TOML
+            assertEq(address(factory.gameImpls(GameTypes.PERMISSIONED_CANNON)), c.pdgImpl);
         }
     }
 
