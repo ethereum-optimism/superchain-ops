@@ -59,20 +59,18 @@ contract SetGameImplementationsTemplate is L2TaskBase {
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
             GameImplConfig memory c = cfg[chainId];
-
+            
             address dgf = superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId);
             DisputeGameFactory factory = DisputeGameFactory(dgf);
 
             // Set FDG (CANNON) implementation if TOML is different from current on-chain
             address currentFDG = address(factory.gameImpls(GameTypes.CANNON));
-
             if (currentFDG != c.fdgImpl) {
                 factory.setImplementation(GameTypes.CANNON, IFaultDisputeGame(c.fdgImpl));
             }
 
             // Set PDG (PERMISSIONED_CANNON) implementation if TOML is different from current on-chain
             address currentPDG = address(factory.gameImpls(GameTypes.PERMISSIONED_CANNON));
-
             if (currentPDG != c.pdgImpl) {
                 factory.setImplementation(GameTypes.PERMISSIONED_CANNON, IPermissionedDisputeGame(c.pdgImpl));
             }
