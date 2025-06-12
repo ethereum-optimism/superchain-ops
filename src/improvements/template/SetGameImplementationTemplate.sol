@@ -59,7 +59,7 @@ contract SetGameImplementationTemplate is L2TaskBase {
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
             GameImplConfig memory c = cfg[chainId];
-            
+
             address dgf = superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId);
             DisputeGameFactory factory = DisputeGameFactory(dgf);
 
@@ -77,7 +77,7 @@ contract SetGameImplementationTemplate is L2TaskBase {
         }
     }
 
-        /// @notice This method performs all validations and assertions that verify the calls executed as expected.
+    /// @notice This method performs all validations and assertions that verify the calls executed as expected.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
