@@ -14,7 +14,7 @@ import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.so
 
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
-import {Action, Call3Value} from "src/libraries/MultisigTypes.sol";
+import {Action, Call3Value, TaskConfig, TaskType} from "src/libraries/MultisigTypes.sol";
 import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
 import {Utils} from "src/libraries/Utils.sol";
 import {MultisigTaskPrinter} from "src/libraries/MultisigTaskPrinter.sol";
@@ -37,66 +37,23 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// This state variable is always set in the `_taskSetup` function
     address public parentMultisig;
 
+    /// @notice configuration set at initialization
+    TaskConfig public config;
+
+    /// @notice The address of the multicall target for this task
+    address public multicallTarget;
+
     /// @notice struct to store the addresses that are expected to have storage accesses
     EnumerableSet.AddressSet internal _allowedStorageAccesses;
 
     /// @notice struct to store the addresses that are expected to have balance changes
     EnumerableSet.AddressSet internal _allowedBalanceChanges;
 
-    /// @notice Struct to store information about a token/Eth transfer
-    /// @param to The address of the recipient
-    /// @param value The amount of tokens/Eth to transfer
-    /// @param tokenAddress The address of the token contract
-    struct TransferInfo {
-        address to;
-        uint256 value;
-        address tokenAddress;
-    }
-
-    /// @notice Struct to store information about a state change
-    /// @param slot The storage slot that is being updated
-    /// @param oldValue The old value of the storage slot
-    /// @param newValue The new value of the storage slot
-    struct StateInfo {
-        bytes32 slot;
-        bytes32 oldValue;
-        bytes32 newValue;
-    }
-
-    /// @notice Enum to determine the type of task
-    enum TaskType {
-        L2TaskBase,
-        SimpleTaskBase,
-        OPCMTaskBase
-    }
-
-    /// @notice state changes during task execution
-    mapping(address => StateInfo[]) internal _stateInfos;
-
-    /// @notice addresses whose state is updated in task execution
-    EnumerableSet.AddressSet internal _taskStateChangeAddresses;
-
-    /// @notice stores the gnosis safe accesses for the task
-    VmSafe.StorageAccess[] internal _accountAccesses;
-
-    /// @notice starting snapshot of the contract state before the calls are made
-    uint256 internal _startSnapshot;
-
-    /// @notice Task TOML config file values
-    struct TaskConfig {
-        string[] allowedStorageKeys;
-        string[] allowedBalanceChanges;
-        string safeAddressString;
-    }
-
-    /// @notice configuration set at initialization
-    TaskConfig public config;
+    /// @notice Starting snapshot of the contract state before the calls are made
+    uint256 private _startSnapshot;
 
     /// @notice flag to determine if the task is being simulated
     uint256 private _buildStarted;
-
-    /// @notice The address of the multicall target for this task
-    address public multicallTarget;
 
     /// @notice Address of the child multisig. Required for nested multisig tasks; optional otherwise.
     address private childMultisig;
@@ -107,7 +64,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     // ==================================================
     // ======== Virtual, Unimplemented Functions ========
     // ==================================================
-    // These are functions have no default implementation and MUST be implemented by the inheriting contract.
 
     /// @notice Returns the type of task. L2TaskBase, SimpleTaskBase or OPCMTaskBase.
     function taskType() public pure virtual returns (TaskType);
@@ -520,9 +476,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
     /// @notice Execute post-task checks. e.g. read state variables of the deployed contracts to make
     /// sure they are deployed and initialized correctly, or read states that are expected to have changed during the simulate step.
     function validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) public virtual {
-        // write all state changes to storage
-        _processStateDiffChanges(accountAccesses);
-
         address[] memory accountsWithWrites = accountAccesses.getUniqueWrites(false);
         // By default, we allow storage accesses to newly created contracts.
         address[] memory newContracts = accountAccesses.getNewContracts();
@@ -530,7 +483,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         for (uint256 i; i < accountsWithWrites.length; i++) {
             address addr = accountsWithWrites[i];
             require(
-                _allowedStorageAccesses.contains(addr) || _isNewContract(addr, newContracts),
+                _allowedStorageAccesses.contains(addr) || Utils.contains(newContracts, addr),
                 string(
                     abi.encodePacked(
                         "MultisigTask: address ",
@@ -887,12 +840,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         // First pass: count valid actions.
         uint256 validCount = 0;
         for (uint256 i = 0; i < accesses.length; i++) {
-            // Record storage accesses if applicable.
-            for (uint256 j = 0; j < accesses[i].storageAccesses.length; j++) {
-                if (accesses[i].account == parentMultisig && accesses[i].storageAccesses[j].isWrite) {
-                    _accountAccesses.push(accesses[i].storageAccesses[j]);
-                }
-            }
             if (_isValidAction(accesses[i], topLevelDepth)) {
                 validCount++;
             }
@@ -942,17 +889,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
         }
         // We must do this after setting the nonces above. It allows us to make sure we're reading the correct network state when setting the nonces.
         _applyStateOverrides(); // Applies '_stateOverrides' to the current state.
-    }
-
-    /// @notice Returns true if the given address is a new contract.
-    function _isNewContract(address addr, address[] memory newContracts) private pure returns (bool isNewContract_) {
-        isNewContract_ = false;
-        for (uint256 j; j < newContracts.length; j++) {
-            if (newContracts[j] == addr) {
-                isNewContract_ = true;
-                break;
-            }
-        }
     }
 
     /// @notice Returns true if the given account access should be recorded as an action. This function is used to filter out
@@ -1038,7 +974,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
             if (!_allowedBalanceChanges.contains(accountAccess.account)) {
                 // Skip balance change checks for newly deployed contracts.
                 // Ensure that existing contracts, that haven't been allow listed, do not contain a value transfer.
-                if (!_isNewContract(accountAccess.account, newContracts)) {
+                if (!Utils.contains(newContracts, accountAccess.account)) {
                     require(
                         !accountAccess.containsValueTransfer(),
                         string.concat("Unexpected balance change: ", vm.toString(accountAccess.account))
@@ -1055,97 +991,37 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager {
                 if (!storageAccess.isWrite) continue; // Skip SLOADs.
                 uint256 value = uint256(storageAccess.newValue);
                 address account = storageAccess.account;
-                if (isLikelyAddressThatShouldHaveCode(value)) {
+                if (Utils.isLikelyAddressThatShouldHaveCode(value, getCodeExceptions())) {
                     // Log account, slot, and value if there is no code.
-                    string memory err = string.concat(
-                        "Likely address in storage has no code\n",
-                        "  account: ",
-                        vm.toString(account),
-                        "\n  slot:    ",
-                        vm.toString(storageAccess.slot),
-                        "\n  value:   ",
-                        vm.toString(bytes32(value))
-                    );
+                    // forgefmt: disable-start
+                    string memory err = string.concat("Likely address in storage has no code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
+                    // forgefmt: disable-end
                     require(address(uint160(value)).code.length != 0, err);
                 } else {
                     // Log account, slot, and value if there is code.
-                    string memory err = string.concat(
-                        "Likely address in storage has unexpected code\n",
-                        "  account: ",
-                        vm.toString(account),
-                        "\n  slot:    ",
-                        vm.toString(storageAccess.slot),
-                        "\n  value:   ",
-                        vm.toString(bytes32(value))
-                    );
+                    // forgefmt: disable-start
+                    string memory err = string.concat("Likely address in storage has unexpected code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
+                    // forgefmt: disable-end
                     require(address(uint160(value)).code.length == 0, err);
                 }
                 require(account.code.length != 0, string.concat("Storage account has no code: ", vm.toString(account)));
                 require(!storageAccess.reverted, string.concat("Storage access reverted: ", vm.toString(account)));
                 bool allowed;
                 for (uint256 k; k < allowedAccesses.length; k++) {
-                    allowed = allowed || (account == allowedAccesses[k]) || _isNewContract(account, newContracts);
+                    allowed = allowed || (account == allowedAccesses[k]) || Utils.contains(newContracts, account);
                 }
                 require(allowed, string.concat("Unallowed Storage access: ", vm.toString(account)));
             }
         }
     }
 
-    /// @notice helper method to get transfers and state changes of task affected addresses
-    function _processStateDiffChanges(VmSafe.AccountAccess[] memory accountAccesses) private {
-        for (uint256 i = 0; i < accountAccesses.length; i++) {
-            // TODO Once `validate` is updated to use `accountAccesses` instead of
-            // `_taskStateChangeAddresses`, we can delete the  `_processStateDiffChanges`
-            // and `_processStateChanges` methods.
-            _processStateChanges(accountAccesses[i].storageAccesses);
-        }
+    /// @notice Get the build started flag. Useful for finding slot number of state variable using StdStorage.
+    function getBuildStarted() public view returns (uint256) {
+        return _buildStarted;
     }
 
-    /// @notice helper method to get state changes of task affected addresses
-    function _processStateChanges(VmSafe.StorageAccess[] memory storageAccess) private {
-        for (uint256 i; i < storageAccess.length; i++) {
-            address account = storageAccess[i].account;
-
-            // get only state changes for write storage access
-            if (storageAccess[i].isWrite) {
-                _stateInfos[account].push(
-                    StateInfo({
-                        slot: storageAccess[i].slot,
-                        oldValue: storageAccess[i].previousValue,
-                        newValue: storageAccess[i].newValue
-                    })
-                );
-            }
-
-            // add address to task state change addresses array only if not already added
-            if (!_taskStateChangeAddresses.contains(account) && _stateInfos[account].length != 0) {
-                _taskStateChangeAddresses.add(account);
-            }
-        }
-    }
-
-    /// @notice Checks that values have code on this chain.
-    /// This method is not storage-layout-aware and therefore is not perfect. It may return erroneous
-    /// results for cases like packed slots, and silently show that things are okay when they are not.
-    function isLikelyAddressThatShouldHaveCode(uint256 value) internal view virtual returns (bool) {
-        // If out of range (fairly arbitrary lower bound), return false.
-        if (value > type(uint160).max) return false;
-        if (value < uint256(uint160(0x00000000fFFFffffffFfFfFFffFfFffFFFfFffff))) return false;
-        // If the value is a L2 predeploy address it won't have code on this chain, so return false.
-        if (
-            value >= uint256(uint160(0x4200000000000000000000000000000000000000))
-                && value <= uint256(uint160(0x420000000000000000000000000000000000FffF))
-        ) return false;
-        // Allow known EOAs.
-        address[] memory exceptions = getCodeExceptions();
-        for (uint256 i; i < exceptions.length; i++) {
-            require(
-                exceptions[i] != address(0),
-                "getCodeExceptions includes the zero address, please make sure all entries are populated."
-            );
-            if (address(uint160(value)) == exceptions[i]) return false;
-        }
-        // Otherwise, this value looks like an address that we'd expect to have code.
-        return true;
+    /// @notice Get the start snapshot. Useful for finding slot number of state variable using StdStorage.
+    function getStartSnapshot() public view returns (uint256) {
+        return _startSnapshot;
     }
 }

@@ -15,6 +15,8 @@ import {LibString} from "@solady/utils/LibString.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {StdStyle} from "forge-std/StdStyle.sol";
 import {console} from "forge-std/console.sol";
+import {TaskType} from "src/libraries/MultisigTypes.sol";
+import {Utils} from "src/libraries/Utils.sol";
 
 /// This script provides a collection of functions that can be used to manage tasks.
 /// This file can only simulate tasks for one network at a time (see: script/fetch-tasks.sh).
@@ -177,7 +179,7 @@ contract TaskManager is Script {
             console.log(line.green().bold());
             console.log("");
             require(
-                contains(owners, ownerAddress),
+                Utils.contains(owners, ownerAddress),
                 string.concat(
                     "TaskManager: ownerAddress (",
                     vm.toString(ownerAddress),
@@ -255,7 +257,7 @@ contract TaskManager is Script {
     function requireSignerOnSafe(address signer, address safe) public view {
         address[] memory owners = IGnosisSafe(safe).getOwners();
         require(
-            contains(owners, signer),
+            Utils.contains(owners, signer),
             string.concat(
                 "TaskManager: signer ", vm.toString(signer), " is not an owner on the safe: ", vm.toString(safe)
             )
@@ -291,9 +293,9 @@ contract TaskManager is Script {
         string memory templatePath = string.concat("out/", templateName, ".sol/", templateName, ".json");
         MultisigTask task = getCachedTask(taskConfigFilePath, templatePath);
         string memory safeAddressString = task.loadSafeAddressString(taskConfigFilePath);
-        MultisigTask.TaskType taskType = task.taskType();
+        TaskType taskType = task.taskType();
 
-        if (taskType == MultisigTask.TaskType.SimpleTaskBase) {
+        if (taskType == TaskType.SimpleTaskBase) {
             SimpleAddressRegistry _simpleAddrRegistry = new SimpleAddressRegistry(taskConfigFilePath);
             parentMultisig = _simpleAddrRegistry.get(safeAddressString);
         } else {
@@ -317,13 +319,5 @@ contract TaskManager is Script {
             task = MultisigTask(deployCode(templatePath));
             taskCache[taskPath] = task;
         }
-    }
-
-    /// @notice Returns true if a list contains an address.
-    function contains(address[] memory list, address addr) public pure returns (bool) {
-        for (uint256 i = 0; i < list.length; i++) {
-            if (list[i] == addr) return true;
-        }
-        return false;
     }
 }
