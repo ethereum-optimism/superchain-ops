@@ -67,6 +67,9 @@ contract DisableModule is SimpleTaskBase {
         (address[] memory modules, address nextModule) =
             ModuleManager(parentMultisig).getModulesPaginated(SENTINEL_MODULE, 100);
         if (keccak256(abi.encodePacked(ISafe(parentMultisig).VERSION())) != keccak256(abi.encodePacked("1.1.1"))) {
+			// Older versions of the Safe do not have the isModuleEnabled function.
+			// Its OK to skip this check because we still check below if the module is 
+			// included in the array returned by getModulesPaginated().
             assertFalse(ModuleManager(parentMultisig).isModuleEnabled(moduleToDisable), "Module not disabled");
         }
         assertEq(nextModule, SENTINEL_MODULE, "Next module not correct");
