@@ -135,8 +135,10 @@ contract MultisigTaskUnitTest is Test {
             abi.encode(bytes32(uint256(100)))
         );
 
+        address[] memory safes = new address[](1);
+        safes[0] = multisig;
         vm.expectRevert("MultisigTask: hash mismatch");
-        task.simulate("", actions);
+        task.simulate("", actions, safes);
     }
 
     function testBuildFailsRevertPreviousSnapshotFails() public {
@@ -167,9 +169,9 @@ contract MultisigTaskUnitTest is Test {
 
     function runTestSimulation(string memory taskConfigFilePath, address childMultisig)
         public
-        returns (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions)
+        returns (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions, address[] memory safes)
     {
-        (accountAccesses, actions,,) = task.signFromChildMultisig(taskConfigFilePath, childMultisig);
+        (accountAccesses, actions,,, safes) = task.signFromChildMultisig(taskConfigFilePath, childMultisig);
 
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);
 
@@ -198,12 +200,12 @@ contract MultisigTaskUnitTest is Test {
 
     function testSimulateFailsTxAlreadyExecuted() public {
         string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml);
-        (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) =
+        (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions, address[] memory safes) =
             runTestSimulation(fileName, securityCouncilChildMultisig);
         MultisigTaskTestHelper.removeFile(fileName);
 
         vm.expectRevert("MultisigTask: execute failed");
-        task.simulate("", actions);
+        task.simulate("", actions, safes);
 
         /// validations should pass after a successful run
         task.validate(accountAccesses, actions);
@@ -211,7 +213,7 @@ contract MultisigTaskUnitTest is Test {
 
     function testGetCalldata() public {
         string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml);
-        (, Action[] memory actions) = runTestSimulation(fileName, securityCouncilChildMultisig);
+        (, Action[] memory actions,) = runTestSimulation(fileName, securityCouncilChildMultisig);
         MultisigTaskTestHelper.removeFile(fileName);
 
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);

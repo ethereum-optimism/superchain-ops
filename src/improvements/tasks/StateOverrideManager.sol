@@ -13,8 +13,8 @@ import {Utils} from "src/libraries/Utils.sol";
 /// with specific state conditions.
 abstract contract StateOverrideManager is CommonBase {
     using stdToml for string;
-    /// @notice The state overrides for the local and tenderly simulation
 
+    /// @notice The state overrides for the local and tenderly simulation
     Simulation.StateOverride[] private _stateOverrides;
 
     /// @notice Get all state overrides for simulation. Combines default Tenderly overrides
