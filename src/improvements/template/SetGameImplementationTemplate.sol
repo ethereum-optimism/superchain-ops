@@ -60,6 +60,10 @@ contract SetGameImplementationsTemplate is L2TaskBase {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
+            
+            // Skip chains that don't have a configuration
+            if (cfg[chainId].chainId == 0) continue;
+            
             GameImplConfig memory c = cfg[chainId];
 
             address dgf = superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId);
