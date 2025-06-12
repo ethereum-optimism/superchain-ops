@@ -109,11 +109,11 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 - **Key:**          `0x122c127b258a6e22748d3f3c38ae3a4c32252b46d3ad49e5d85acb3626c15d39`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000000`
-  - **Summary:** 
-  - **Detail:** 
+  - **Summary:** Removing the DGM from the linked list.
+  - **Detail:** Setting the previous cursor to the zero address as the DGM was the last module in the linked list.
   
 - **Key:**          `0xb59c18a81816f359656b617dbda1931931bffeb43b6469ce9d2b68e62ad8ff33`
   - **Before:** `0x000000000000000000000000c6901f65369fc59fc1b4d6d6be7a2318ff38db5b`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
-  - **Summary:** 
-  - **Detail:** 
+  - **Summary:** Removing the DGM from the linked list.
+  - **Detail:** Setting the cursor to the SENTINEL_MODULE (0x1) where the DGM was previously located.
