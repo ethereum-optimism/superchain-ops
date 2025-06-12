@@ -56,9 +56,26 @@ enum TaskType {
     OPCMTaskBase
 }
 
-/// @notice Task TOML config file values
-struct TaskConfig {
+/// @notice Struct to store information about a L2 chain
+struct L2Chain {
+    uint256 chainId;
+    string name;
+}
+
+/// @notice Config that is defined by the template of a given task.
+struct TemplateConfig {
     string[] allowedStorageKeys;
     string[] allowedBalanceChanges;
     string safeAddressString;
+}
+
+/// @notice Detailed task configuration.
+struct TaskConfig {
+    L2Chain[] optionalL2Chains;
+    string basePath;
+    string configPath;
+    string templateName;
+    address parentMultisig;
+    bool isNested;
+    address task; // MultisigTask address
 }

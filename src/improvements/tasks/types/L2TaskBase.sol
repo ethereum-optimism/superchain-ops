@@ -43,22 +43,22 @@ abstract contract L2TaskBase is MultisigTask {
         // Try to get the parentMultisig globally first. If it exists globally, return it.
         // Otherwise we assume that the safe address is defined per-chain and we need to check for
         // each chain that all of the addresses are the same.
-        try superchainAddrRegistry.get(config.safeAddressString) returns (address addr) {
+        try superchainAddrRegistry.get(templateConfig.safeAddressString) returns (address addr) {
             parentMultisig_ = IGnosisSafe(addr);
         } catch {
             parentMultisig_ =
-                IGnosisSafe(superchainAddrRegistry.getAddress(config.safeAddressString, chains[0].chainId));
+                IGnosisSafe(superchainAddrRegistry.getAddress(templateConfig.safeAddressString, chains[0].chainId));
             // Ensure that all chains have the same parentMultisig.
             for (uint256 i = 1; i < chains.length; i++) {
                 require(
                     address(parentMultisig_)
-                        == superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId),
+                        == superchainAddrRegistry.getAddress(templateConfig.safeAddressString, chains[i].chainId),
                     string.concat(
                         "MultisigTask: safe address mismatch. Caller: ",
                         MultisigTaskPrinter.getAddressLabel(address(parentMultisig_)),
                         ". Actual address: ",
                         MultisigTaskPrinter.getAddressLabel(
-                            superchainAddrRegistry.getAddress(config.safeAddressString, chains[i].chainId)
+                            superchainAddrRegistry.getAddress(templateConfig.safeAddressString, chains[i].chainId)
                         )
                     )
                 );
@@ -72,19 +72,22 @@ abstract contract L2TaskBase is MultisigTask {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
         // Add allowed storage accesses
-        for (uint256 i = 0; i < config.allowedStorageKeys.length; i++) {
+        for (uint256 i = 0; i < templateConfig.allowedStorageKeys.length; i++) {
             for (uint256 j = 0; j < chains.length; j++) {
                 _tryAddAddress(
-                    config.allowedStorageKeys[i], chains[j], _allowedStorageAccesses, "allowed storage accesses"
+                    templateConfig.allowedStorageKeys[i], chains[j], _allowedStorageAccesses, "allowed storage accesses"
                 );
             }
         }
 
         // Add allowed balance changes
-        for (uint256 i = 0; i < config.allowedBalanceChanges.length; i++) {
+        for (uint256 i = 0; i < templateConfig.allowedBalanceChanges.length; i++) {
             for (uint256 j = 0; j < chains.length; j++) {
                 _tryAddAddress(
-                    config.allowedBalanceChanges[i], chains[j], _allowedBalanceChanges, "allowed balance changes"
+                    templateConfig.allowedBalanceChanges[i],
+                    chains[j],
+                    _allowedBalanceChanges,
+                    "allowed balance changes"
                 );
             }
         }
