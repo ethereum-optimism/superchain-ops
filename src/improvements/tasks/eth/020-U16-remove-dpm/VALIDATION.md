@@ -97,7 +97,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
 ### Task State Changes
 
-### `0x9ba6e03d8b90de867373db8cf1a58d2f7f006b3a` (Challenger (GnosisSafe)) - Chain ID: 10
+### `0x9ba6e03d8b90de867373db8cf1a58d2f7f006b3a` (Foundation Operations Safe (GnosisSafe)) - Chain ID: 10
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:** `uint256`
@@ -110,43 +110,43 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Summary:** Removing the DPM from the linked list.
-  - **Detail:** 
+  - **Detail:** Setting the previous cursor to the zero address as the DPM was the last module in the linked list.
 
   
 - **Key:**          `0x700b351de228cfc99db606e17c0e124fc1b4424739bc368d7087151d67f1fec6`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Summary:** Removing the DPM from the linked list.
-  - **Detail:** 
+  - **Detail:** Setting the previous cursor to the zero address as the DPM was the last module in the linked list.
 
   
 - **Key:**          `0x72524c5f4c3db4bf005b429ccfc4e864f1577d3c25909f510c6a4f9fa4c5783a`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Summary:** Removing the DPM from the linked list.
-  - **Detail:** 
+  - **Detail:** Setting the previous cursor to the zero address as the DPM was the last module in the linked list.
   
   
 - **Key:**          `0x7ea41762f7940b135f6d5ee34075184c2041876c3409de61c06467893c303bfe`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Summary:** Removing the DPM from the linked list.
-  - **Detail:** 
+  - **Detail:** Setting the previous cursor to the zero address as the DPM was the last module in the linked list.
   
 - **Key:**          `0x811b1441380d8d34096f635ee0e46a12068ba2f6ddea67a716660ca3849f1047`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Summary:** Removing the DPM from the linked list.
-  - **Detail:** 
+  - **Detail:** Setting the previous cursor to the zero address as the DPM was the last module in the linked list.
   
 - **Key:**          `0xa7777578c2b0bc610d785b46a3d370471188f08dc27201b1fb2710177bf41e8b`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Summary:** Removing the DPM from the linked list.
-  - **Detail:** 
+  - **Detail:** Setting the previous cursor to the zero address as the DPM was the last module in the linked list.
   
 - **Key:**          `0xcc69885fda6bcc1a4ace058b4a62bf5e179ea78fd58a1ccd71c22cc9b688792f`
   - **Before:** `0x000000000000000000000000126a736b18e0a64fba19d421647a530e327e112c`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Summary:** Removing the DPM from the linked list.
-  - **Detail:** 
+  - **Detail:** Setting the cursor to the SENTINEL_MODULE (0x1) where the DPM was previously located.
