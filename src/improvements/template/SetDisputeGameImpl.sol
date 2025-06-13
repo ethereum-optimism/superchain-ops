@@ -49,7 +49,6 @@ contract SetDisputeGameImpl is L2TaskBase {
         return storageWrites;
     }
 
-
     /// @notice Sets up the template with implementation configurations from a TOML file.
     function _templateSetup(string memory taskConfigFilePath) internal override {
         super._templateSetup(taskConfigFilePath);
