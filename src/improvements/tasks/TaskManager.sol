@@ -15,6 +15,8 @@ import {LibString} from "@solady/utils/LibString.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {StdStyle} from "forge-std/StdStyle.sol";
 import {console} from "forge-std/console.sol";
+import {TaskType, TaskConfig, L2Chain} from "src/libraries/MultisigTypes.sol";
+import {Utils} from "src/libraries/Utils.sol";
 
 /// This script provides a collection of functions that can be used to manage tasks.
 /// This file can only simulate tasks for one network at a time (see: script/fetch-tasks.sh).
@@ -25,23 +27,7 @@ contract TaskManager is Script {
     using AccountAccessParser for VmSafe.AccountAccess[];
     using StdStyle for string;
 
-    struct L2Chain {
-        uint256 chainId;
-        string name;
-    }
-
-    struct TaskConfig {
-        L2Chain[] optionalL2Chains;
-        string basePath;
-        string configPath;
-        string templateName;
-        address parentMultisig;
-        bool isNested;
-    }
-
-    /// @notice Cache of MultisigTask instances for each task indexed by the tasks config path.
-    mapping(string => MultisigTask) public taskCache;
-
+    /// @notice Parses the config.toml file for a given task and returns a TaskConfig struct.
     function parseConfig(string memory basePath) public returns (TaskConfig memory) {
         string memory configPath = string.concat(basePath, "/", "config.toml");
         string memory toml = vm.readFile(configPath);
@@ -53,7 +39,7 @@ contract TaskManager is Script {
 
         string memory templateName = toml.readString(".templateName");
 
-        (bool isNested, address parentMultisig) = isNestedTask(configPath);
+        (bool isNested, address parentMultisig, MultisigTask task) = isNestedTask(configPath);
 
         return TaskConfig({
             templateName: templateName,
@@ -61,7 +47,8 @@ contract TaskManager is Script {
             basePath: basePath,
             configPath: configPath,
             isNested: isNested,
-            parentMultisig: parentMultisig
+            parentMultisig: parentMultisig,
+            task: address(task)
         });
     }
 
@@ -118,7 +105,7 @@ contract TaskManager is Script {
     {
         // Deploy and run the template
         string memory templatePath = string.concat("out/", config.templateName, ".sol/", config.templateName, ".json");
-        MultisigTask task = getCachedTask(config.configPath, templatePath);
+        MultisigTask task = getMultisigTask(templatePath, config.task);
 
         string memory formattedParentMultisig = vm.toString(config.parentMultisig).green().bold();
 
@@ -177,7 +164,7 @@ contract TaskManager is Script {
             console.log(line.green().bold());
             console.log("");
             require(
-                contains(owners, ownerAddress),
+                Utils.contains(owners, ownerAddress),
                 string.concat(
                     "TaskManager: ownerAddress (",
                     vm.toString(ownerAddress),
@@ -255,7 +242,7 @@ contract TaskManager is Script {
     function requireSignerOnSafe(address signer, address safe) public view {
         address[] memory owners = IGnosisSafe(safe).getOwners();
         require(
-            contains(owners, signer),
+            Utils.contains(owners, signer),
             string.concat(
                 "TaskManager: signer ", vm.toString(signer), " is not an owner on the safe: ", vm.toString(safe)
             )
@@ -284,16 +271,19 @@ contract TaskManager is Script {
     }
 
     /// @notice Useful function to tell if a task is nested or not based on the task config.
-    function isNestedTask(string memory taskConfigFilePath) public returns (bool, address parentMultisig) {
+    function isNestedTask(string memory taskConfigFilePath)
+        public
+        returns (bool, address parentMultisig, MultisigTask task)
+    {
         string memory configContent = vm.readFile(taskConfigFilePath);
         string memory templateName = configContent.readString(".templateName");
 
         string memory templatePath = string.concat("out/", templateName, ".sol/", templateName, ".json");
-        MultisigTask task = getCachedTask(taskConfigFilePath, templatePath);
-        string memory safeAddressString = task.loadSafeAddressString(taskConfigFilePath);
-        MultisigTask.TaskType taskType = task.taskType();
+        task = MultisigTask(deployCode(templatePath));
+        string memory safeAddressString = task.loadSafeAddressString(task, taskConfigFilePath);
+        TaskType taskType = task.taskType();
 
-        if (taskType == MultisigTask.TaskType.SimpleTaskBase) {
+        if (taskType == TaskType.SimpleTaskBase) {
             SimpleAddressRegistry _simpleAddrRegistry = new SimpleAddressRegistry(taskConfigFilePath);
             parentMultisig = _simpleAddrRegistry.get(safeAddressString);
         } else {
@@ -307,23 +297,29 @@ contract TaskManager is Script {
                 parentMultisig = _addrRegistry.getAddress(safeAddressString, chains[0].chainId);
             }
         }
-        return (task.isNestedSafe(parentMultisig), parentMultisig);
+        return (isNestedSafe(parentMultisig), parentMultisig, task);
     }
 
     /// @notice Returns a cached MultisigTask instance for a given template path or deploys a new one.
-    function getCachedTask(string memory taskPath, string memory templatePath) internal returns (MultisigTask task) {
-        task = taskCache[taskPath];
-        if (address(task) == address(0)) {
+    function getMultisigTask(string memory templatePath, address optionalTask) internal returns (MultisigTask task) {
+        if (optionalTask == address(0)) {
             task = MultisigTask(deployCode(templatePath));
-            taskCache[taskPath] = task;
+        } else {
+            task = MultisigTask(optionalTask);
         }
     }
 
-    /// @notice Returns true if a list contains an address.
-    function contains(address[] memory list, address addr) public pure returns (bool) {
-        for (uint256 i = 0; i < list.length; i++) {
-            if (list[i] == addr) return true;
+    /// @notice Helper function to determine if the given safe is a nested multisig.
+    function isNestedSafe(address safe) public view returns (bool) {
+        // Assume safe is nested unless there is an EOA owner
+        bool nested = true;
+
+        address[] memory owners = IGnosisSafe(safe).getOwners();
+        for (uint256 i = 0; i < owners.length; i++) {
+            if (owners[i].code.length == 0) {
+                nested = false;
+            }
         }
-        return false;
+        return nested;
     }
 }
