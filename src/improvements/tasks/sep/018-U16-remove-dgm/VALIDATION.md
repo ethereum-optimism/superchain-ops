@@ -19,12 +19,7 @@ the values printed to the terminal when you run the task.
 >
 > Before signing, ensure the below hashes match what is on your ledger.
 >
-> ### Nested Safe 1 (Foundation): `0x837DE453AD5F21E89771e3c06239d8236c0EFd5E`
->
-> - Domain Hash: `0xe84ad8db37faa1651b140c17c70e4c48eaa47a635e0db097ddf4ce1cc14b9ecb`
-> - Message Hash: `0xa5b581bbbdd908f535d8a3ba49d91fa41e828e735a918fe3832179e85359dfef`
->
-> ### Nested Safe 2 (Security Council): `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`
+> ### Nested Safe (Security Council): `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`
 >
 > - Domain Hash: `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
 > - Message Hash: `0x0940f3eb4482e4b53804964ae4fbc8833c44e607f8c305e623099b649e6e2b05`
@@ -98,20 +93,20 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 ### Task State Changes
 
 ### `0x7a50f00e8d05b95f98fe38d8bee366a7324dcf7e` (Guardian (GnosisSafe)) - Chain ID: 11011
-  
+
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:** `uint256`
   - **Before:** `6`
   - **After:** `7`
   - **Summary:** nonce
-  - **Detail:** 
-  
+  - **Detail:**
+
 - **Key:**          `0x3c0fd4a741fac9f87a3981260ff5d3f2c60447651f289d77ba537ae52c3aa5ef`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Summary:**  Removing the DGM from the linked list.
   - **Detail:** Setting the previous cursor to the zero address as the DGM was the last module in the linked list.
-  
+
 - **Key:**          `0xcc69885fda6bcc1a4ace058b4a62bf5e179ea78fd58a1ccd71c22cc9b688792f`
   - **Before:** `0x000000000000000000000000fd7e6ef1f6c9e4cc34f54065bf8496ce41a4e2e8`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
