@@ -16,6 +16,6 @@ cd src/improvements/tasks/eth/015-set-game-implementation-arena-z-swell
 
 Signing commands for each safe:
 ```bash
-cd src/improvements/tasks/eth/015-set-game-implementation-arena-z-swell
+cd src/improvements/tasks/eth/014-set-game-implementation-arena-z-swell
 <TODO-add-signing-commands-for-each-safe>
 ```
