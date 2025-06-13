@@ -659,7 +659,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         (normalizedHash_, dataToSign_) = print(actions, accountAccesses, true, txHash);
 
         // Revert with meaningful error message if the user is trying to simulate with the wrong command.
-        if (_optionalChildMultisig != address(0)) {
+        if (allSafes.length > 1) {
             require(isNestedSafe(parentMultisig), "MultisigTask: multisig must be a nested safe.");
         } else {
             require(!isNestedSafe(parentMultisig), "MultisigTask: multisig must be a single safe.");
