@@ -55,7 +55,7 @@ contract SingleMultisigTaskTest is Test {
 
     function testTemplateSetup() public {
         runTask();
-        assertEq(multisigTask.isNestedSafe(multisigTask.parentMultisig()), false, "Expected isNestedSafe to be false");
+        assertEq(multisigTask.isNestedSafe(multisigTask.rootSafe()), false, "Expected isNestedSafe to be false");
         assertEq(GasConfigTemplate(address(multisigTask)).gasLimits(34443), 100000000, "Expected gas limit for 34443");
         assertEq(GasConfigTemplate(address(multisigTask)).gasLimits(1750), 100000000, "Expected gas limit for 1750");
     }
@@ -64,16 +64,16 @@ contract SingleMultisigTaskTest is Test {
         runTask();
         addrRegistry = multisigTask.addrRegistry();
         assertEq(
-            multisigTask.parentMultisig(),
+            multisigTask.rootSafe(),
             toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigOwner", 34443),
             "Wrong safe address string"
         );
         assertEq(
-            multisigTask.parentMultisig(),
+            multisigTask.rootSafe(),
             toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigOwner", 1750),
             "Wrong safe address string"
         );
-        assertEq(multisigTask.isNestedSafe(multisigTask.parentMultisig()), false, "Expected isNestedSafe to be false");
+        assertEq(multisigTask.isNestedSafe(multisigTask.rootSafe()), false, "Expected isNestedSafe to be false");
     }
 
     function testAllowedStorageWrites() public {
@@ -154,13 +154,13 @@ contract SingleMultisigTaskTest is Test {
         (, Action[] memory actions) = runTask();
         addrRegistry = multisigTask.addrRegistry();
         bytes memory callData = multisigTask.getMulticall3Calldata(actions);
-        uint256 originalNonce = IGnosisSafe(multisigTask.parentMultisig()).nonce() - 1;
+        uint256 originalNonce = IGnosisSafe(multisigTask.rootSafe()).nonce() - 1;
         bytes memory dataToSign =
-            multisigTask.getEncodedTransactionData(multisigTask.parentMultisig(), callData, 0, originalNonce);
+            multisigTask.getEncodedTransactionData(multisigTask.rootSafe(), callData, 0, originalNonce);
 
         // The nonce is decremented by 1 because we want to recreate the data to sign with the same nonce
         // that was used in the simulation. The nonce was incremented as part of running the simulation.
-        bytes memory expectedDataToSign = IGnosisSafe(multisigTask.parentMultisig()).encodeTransactionData({
+        bytes memory expectedDataToSign = IGnosisSafe(multisigTask.rootSafe()).encodeTransactionData({
             to: MULTICALL3_ADDRESS,
             value: 0,
             data: callData,
@@ -178,9 +178,9 @@ contract SingleMultisigTaskTest is Test {
     function testHashToApprove() public {
         (, Action[] memory actions) = runTask();
         bytes memory callData = multisigTask.getMulticall3Calldata(actions);
-        uint256 originalNonce = IGnosisSafe(multisigTask.parentMultisig()).nonce() - 1;
-        bytes32 hash = multisigTask.getHash(callData, multisigTask.parentMultisig(), 0, originalNonce);
-        bytes32 expectedHash = IGnosisSafe(multisigTask.parentMultisig()).getTransactionHash(
+        uint256 originalNonce = IGnosisSafe(multisigTask.rootSafe()).nonce() - 1;
+        bytes32 hash = multisigTask.getHash(callData, multisigTask.rootSafe(), 0, originalNonce);
+        bytes32 expectedHash = IGnosisSafe(multisigTask.rootSafe()).getTransactionHash(
             MULTICALL3_ADDRESS, 0, callData, Enum.Operation.DelegateCall, 0, 0, 0, address(0), address(0), originalNonce
         );
         assertEq(hash, expectedHash, "Wrong hash to approve");
@@ -249,10 +249,11 @@ contract SingleMultisigTaskTest is Test {
         addrRegistry = multisigTask.addrRegistry();
         multisigTask.processTaskActions(actions);
         bytes memory callData = multisigTask.getMulticall3Calldata(actions);
-        uint256 originalNonce = IGnosisSafe(multisigTask.parentMultisig()).nonce() - 1;
+
+        uint256 originalNonce = IGnosisSafe(multisigTask.rootSafe()).nonce() - 1;
         bytes memory dataToSign =
-            multisigTask.getEncodedTransactionData(multisigTask.parentMultisig(), callData, 0, originalNonce);
-        address multisig = multisigTask.parentMultisig();
+            multisigTask.getEncodedTransactionData(multisigTask.rootSafe(), callData, 0, originalNonce);
+        address multisig = multisigTask.rootSafe();
         address systemConfigMode = toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigProxy", 34443);
         address systemConfigMetal = toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigProxy", 1750);
         // revert to snapshot so that the safe is in the same state as before the task was run
@@ -326,6 +327,6 @@ contract SingleMultisigTaskTest is Test {
         assertEq(systemConfig.gasLimit(), 100000000, "l2 gas limit not set for Mode");
         systemConfig = SystemConfig(systemConfigMetal);
         assertEq(systemConfig.gasLimit(), 100000000, "l2 gas limit not set for Metal");
-        assertEq(multisigTask.isNestedSafe(multisigTask.parentMultisig()), false, "Expected isNestedSafe to be false");
+        assertEq(multisigTask.isNestedSafe(multisigTask.rootSafe()), false, "Expected isNestedSafe to be false");
     }
 }

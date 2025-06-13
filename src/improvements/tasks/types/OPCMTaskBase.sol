@@ -38,8 +38,8 @@ abstract contract OPCMTaskBase is L2TaskBase {
         bytes32 absolutePrestate;
     }
 
-    /// @notice Returns the parent multisig address string identifier
-    /// the parent multisig address should be same for all the l2chains in the task
+    /// @notice Returns the root safe address string identifier.
+    /// The root safe address should be same for all the l2chains in the task.
     /// @return The string "ProxyAdminOwner"
     function safeAddressString() public pure override returns (string memory) {
         return "ProxyAdminOwner";
@@ -63,10 +63,8 @@ abstract contract OPCMTaskBase is L2TaskBase {
         (address[] memory targets,,) = processTaskActions(actions);
         require(targets.length == 1 && targets[0] == OPCM, "OPCMTaskBase: only OPCM is allowed as target");
         super.validate(accesses, actions);
-        AccountAccessParser.StateDiff[] memory parentMultisigDiffs = accesses.getStateDiffFor(parentMultisig, false);
-        require(
-            parentMultisigDiffs.length == 1, "OPCMTaskBase: only nonce should be updated on upgrade controller multisig"
-        );
+        AccountAccessParser.StateDiff[] memory rootSafeDiffs = accesses.getStateDiffFor(rootSafe, false);
+        require(rootSafeDiffs.length == 1, "OPCMTaskBase: only nonce should be updated on upgrade controller multisig");
 
         AccountAccessParser.StateDiff[] memory opcmDiffs = accesses.getStateDiffFor(OPCM, false);
         bytes32 opcmStateSlot = bytes32(uint256(stdstore.target(OPCM).sig(IOPContractsManager.isRC.selector).find()));
@@ -82,22 +80,22 @@ abstract contract OPCMTaskBase is L2TaskBase {
     }
 
     /// @notice get the multicall address for the given safe
-    /// if the safe is the parent multisig, return the delegatecall multicall address
+    /// if the safe is the root safe, return the delegatecall multicall address
     /// otherwise if the safe is a child multisig, return the regular multicall address
     /// @param safe The address of the safe
     /// @return The address of the multicall
     function _getMulticallAddress(address safe) internal view override returns (address) {
         require(safe != address(0), "Safe address cannot be zero address");
-        return (safe == parentMultisig) ? MULTICALL3_DELEGATECALL_ADDRESS : MULTICALL3_ADDRESS;
+        return (safe == rootSafe) ? MULTICALL3_DELEGATECALL_ADDRESS : MULTICALL3_ADDRESS;
     }
 
     function _configureTask(string memory taskConfigFilePath)
         internal
         override
-        returns (AddressRegistry addrRegistry_, IGnosisSafe parentMultisig_, address multicallTarget_)
+        returns (AddressRegistry addrRegistry_, IGnosisSafe rootSafe_, address multicallTarget_)
     {
         // The only thing we change is overriding the multicall target.
-        (addrRegistry_, parentMultisig_, multicallTarget_) = super._configureTask(taskConfigFilePath);
+        (addrRegistry_, rootSafe_, multicallTarget_) = super._configureTask(taskConfigFilePath);
         multicallTarget_ = MULTICALL3_DELEGATECALL_ADDRESS;
     }
 
@@ -105,7 +103,7 @@ abstract contract OPCMTaskBase is L2TaskBase {
     function _prankMultisig() internal override {
         // If delegateCall value is true then sets msg.sender for all subsequent delegate calls.
         // We want this functionality for OPCM tasks.
-        vm.startPrank(parentMultisig, true);
+        vm.startPrank(rootSafe, true);
     }
 
     /// @notice this function must be overridden in the inheriting contract to run assertions on the state changes.

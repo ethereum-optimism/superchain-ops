@@ -34,7 +34,7 @@ contract StackedSimulator is Script {
     }
 
     /// The optionalOwnerAddresses array is used to specify the owner addresses for each nested task. It must be either empty or
-    /// have the same length as the number of tasks. If it is empty, the first owner on the parent multisig will be used for each task.
+    /// have the same length as the number of tasks. If it is empty, the first owner on the root multisig will be used for each task.
     function simulateStack(string memory _network, string memory _task, address[] memory _optionalOwnerAddresses)
         public
     {

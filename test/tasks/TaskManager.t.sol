@@ -85,7 +85,7 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
             basePath: "test/tasks/example/eth/004-fp-set-respected-game-type",
             configPath: "",
             templateName: "",
-            parentMultisig: address(0),
+            rootSafe: address(0),
             isNested: true,
             task: address(0)
         });
@@ -109,7 +109,7 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
             basePath: "src/improvements/tasks/eth/013-gas-params-op",
             configPath: "",
             templateName: "",
-            parentMultisig: address(0),
+            rootSafe: address(0),
             isNested: true,
             task: address(0)
         });
@@ -125,7 +125,7 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
             basePath: "test/tasks/example/eth/004-fp-set-respected-game-type",
             configPath: "",
             templateName: "",
-            parentMultisig: address(0x847B5c174615B1B7fDF770882256e2D3E95b9D92),
+            rootSafe: address(0x847B5c174615B1B7fDF770882256e2D3E95b9D92),
             isNested: true,
             task: address(0)
         });
@@ -147,7 +147,7 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
             basePath: "src/improvements/tasks/eth/013-gas-params-op",
             configPath: "",
             templateName: "",
-            parentMultisig: address(0x847B5c174615B1B7fDF770882256e2D3E95b9D92),
+            rootSafe: address(0x847B5c174615B1B7fDF770882256e2D3E95b9D92),
             isNested: true,
             task: address(0)
         });

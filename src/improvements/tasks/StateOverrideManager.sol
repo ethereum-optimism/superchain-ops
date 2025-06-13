@@ -22,7 +22,7 @@ abstract contract StateOverrideManager is CommonBase {
     /// default overrides.
     /// If a child multisig is provided then we are working with a nested safe.
     /// In this case we need additional state overrides.
-    function getStateOverrides(address parentMultisig, address optionalChildMultisig)
+    function getStateOverrides(address rootSafe, address optionalChildMultisig)
         public
         view
         returns (Simulation.StateOverride[] memory allOverrides_)
@@ -31,10 +31,10 @@ abstract contract StateOverrideManager is CommonBase {
             optionalChildMultisig != address(0) ? new Simulation.StateOverride[](2) : new Simulation.StateOverride[](1);
 
         if (optionalChildMultisig != address(0)) {
-            defaultOverrides[0] = _parentMultisigTenderlyOverride(parentMultisig);
+            defaultOverrides[0] = _rootSafeTenderlyOverride(rootSafe);
             defaultOverrides[1] = _childMultisigTenderlyOverride(optionalChildMultisig);
         } else {
-            defaultOverrides[0] = _parentMultisigTenderlyOverride(parentMultisig, msg.sender);
+            defaultOverrides[0] = _rootSafeTenderlyOverride(rootSafe, msg.sender);
         }
 
         allOverrides_ = defaultOverrides;
@@ -102,25 +102,25 @@ abstract contract StateOverrideManager is CommonBase {
         return currentActualNonce;
     }
 
-    /// @notice Parent multisig override for single execution.
-    function _parentMultisigTenderlyOverride(address parentMultisig, address owner)
+    /// @notice Root multisig override for single execution.
+    function _rootSafeTenderlyOverride(address rootSafe, address owner)
         private
         view
         returns (Simulation.StateOverride memory defaultOverride)
     {
-        defaultOverride.contractAddress = parentMultisig;
+        defaultOverride.contractAddress = rootSafe;
         defaultOverride = Simulation.addThresholdOverride(defaultOverride.contractAddress, defaultOverride);
-        // We need to override the owner on the parent multisig to ensure single safes can execute.
-        defaultOverride = Simulation.addOwnerOverride(parentMultisig, defaultOverride, owner);
+        // We need to override the owner on the root multisig to ensure single safes can execute.
+        defaultOverride = Simulation.addOwnerOverride(rootSafe, defaultOverride, owner);
     }
 
-    /// @notice Parent multisig override for nested execution.
-    function _parentMultisigTenderlyOverride(address parentMultisig)
+    /// @notice Root multisig override for nested execution.
+    function _rootSafeTenderlyOverride(address rootSafe)
         private
         view
         returns (Simulation.StateOverride memory defaultOverride)
     {
-        defaultOverride.contractAddress = parentMultisig;
+        defaultOverride.contractAddress = rootSafe;
         defaultOverride = Simulation.addThresholdOverride(defaultOverride.contractAddress, defaultOverride);
     }
 

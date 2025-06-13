@@ -234,14 +234,12 @@ contract StateOverrideManagerUnitTest is Test {
             allOverrides[0].overrides[1].value, bytes32(uint256(9999)), "First address user override must be applied"
         );
         assertEq(
-            allOverrides[2].overrides.length,
-            1,
-            "Third address is not the parent multisig so it should only have 1 override"
+            allOverrides[2].overrides.length, 1, "Third address is not the root safe so it should only have 1 override"
         );
         assertEq(
             allOverrides[0].contractAddress,
             address(0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A),
-            "First address must be the parent multisig"
+            "First address must be the root safe"
         );
         assertEq(
             allOverrides[1].contractAddress,
@@ -263,8 +261,8 @@ contract StateOverrideManagerUnitTest is Test {
     }
 
     /// @notice This test uses the 'Base Sepolia Testnet' at a block where the ProxyAdminOwner is known to be a single safe.
-    /// It verifies that the StateOverrideManager applies only the parent overrides when the child multisig is not set.
-    function testOnlyParentOverridesAppliedWhenSingleMultisig() public {
+    /// It verifies that the StateOverrideManager applies only the root safe overrides when the child multisig is not set.
+    function testOnlyRootSafeOverridesAppliedWhenSingleMultisig() public {
         vm.createSelectFork("sepolia", 7944829);
         string memory nonNestedSafeToml = "l2chains = [{name = \"Base Sepolia Testnet\", chainId = 84532}]\n" "\n"
             "templateName = \"DisputeGameUpgradeTemplate\"\n" "\n"
@@ -273,9 +271,9 @@ contract StateOverrideManagerUnitTest is Test {
         MockDisputeGameTask dgt = new MockDisputeGameTask();
         dgt.simulateRun(fileName);
 
-        // Only parent overrides will be checked because child multisig is not set.
+        // Only root safe overrides will be checked because child multisig is not set.
         Simulation.StateOverride[] memory allOverrides = assertDefaultStateOverrides(1, dgt, address(0));
-        assertEq(allOverrides.length, 1, "Only parent overrides should be applied");
+        assertEq(allOverrides.length, 1, "Only root safe overrides should be applied");
         helper.removeFile(fileName);
     }
 
@@ -459,31 +457,31 @@ contract StateOverrideManagerUnitTest is Test {
 
     function assertNonceIncremented(uint256 expectedNonce, MultisigTask task) internal view {
         assertEq(task.nonce(), expectedNonce, string.concat("Expected nonce ", LibString.toString(expectedNonce)));
-        uint256 actualNonce = uint256(vm.load(address(task.parentMultisig()), bytes32(uint256(0x5))));
+        uint256 actualNonce = uint256(vm.load(address(task.rootSafe()), bytes32(uint256(0x5))));
         assertEq(actualNonce, expectedNonce + 1, "Nonce must be incremented by 1 in memory after task is run");
     }
 
-    /// @notice This function is used to assert the default state overrides for the parent multisig.
-    /// Specifically, it verifies that the parent state overrides contain a threshold and nonce override.
+    /// @notice This function is used to assert the default state overrides for the root safe.
+    /// Specifically, it verifies that the root safe state overrides contain a threshold and nonce override.
     function assertDefaultStateOverrides(uint256 expectedTotalOverrides, MultisigTask task, address childMultisig)
         internal
         view
         returns (Simulation.StateOverride[] memory allOverrides_)
     {
-        allOverrides_ = task.getStateOverrides(address(task.parentMultisig()), childMultisig);
+        allOverrides_ = task.getStateOverrides(address(task.rootSafe()), childMultisig);
 
-        assertTrue(allOverrides_.length >= 1, "Must be at least 1 override (parent default)");
+        assertTrue(allOverrides_.length >= 1, "Must be at least 1 override (root safe default)");
         assertEq(
             allOverrides_.length,
             expectedTotalOverrides,
             string.concat("Total number of overrides must be ", LibString.toString(expectedTotalOverrides))
         );
 
-        Simulation.StateOverride memory parentDefaultOverride = allOverrides_[0];
+        Simulation.StateOverride memory rootSafeDefaultOverride = allOverrides_[0];
         assertEq(
-            parentDefaultOverride.contractAddress,
-            address(task.parentMultisig()),
-            "Contract address must be the parent multisig"
+            rootSafeDefaultOverride.contractAddress,
+            address(task.rootSafe()),
+            "Contract address must be the root multisig"
         );
         // 4 possible overrides: <threshold>, [owner count], [owner mapping], [owner mapping 2]
         // 1 required overrides: <threshold>
@@ -491,33 +489,33 @@ contract StateOverrideManagerUnitTest is Test {
         if (childMultisig != address(0)) {
             // Nested execution
             assertTrue(
-                parentDefaultOverride.overrides.length >= 1,
+                rootSafeDefaultOverride.overrides.length >= 1,
                 string.concat(
-                    "Parent default override must have >=1 overrides, found: ",
-                    LibString.toString(parentDefaultOverride.overrides.length)
+                    "Root default override must have >=1 overrides, found: ",
+                    LibString.toString(rootSafeDefaultOverride.overrides.length)
                 )
             );
         } else {
             // Single execution
             assertTrue(
-                parentDefaultOverride.overrides.length == 4,
+                rootSafeDefaultOverride.overrides.length == 4,
                 string.concat(
-                    "Parent default override must have 4 overrides, found: ",
-                    LibString.toString(parentDefaultOverride.overrides.length)
+                    "Root default override must have 4 overrides, found: ",
+                    LibString.toString(rootSafeDefaultOverride.overrides.length)
                 )
             );
-            // address(this) should be the owner override for the parent multisig in a single execution.
-            assertOwnerOverrides(parentDefaultOverride, address(this));
+            // address(this) should be the owner override for the root multisig in a single execution.
+            assertOwnerOverrides(rootSafeDefaultOverride, address(this));
         }
         assertEq(
-            parentDefaultOverride.overrides[0].key,
+            rootSafeDefaultOverride.overrides[0].key,
             bytes32(uint256(0x4)),
-            "ParentDefaultOverride: Must contain a threshold override"
+            "RootSafeDefaultOverride: Must contain a threshold override"
         );
         assertEq(
-            parentDefaultOverride.overrides[0].value,
+            rootSafeDefaultOverride.overrides[0].value,
             bytes32(uint256(0x1)),
-            "ParentDefaultOverride: Threshold override must be 1"
+            "RootSafeDefaultOverride: Threshold override must be 1"
         );
 
         // If child multisig is not set, we don't need to assert the child overrides.
@@ -534,7 +532,7 @@ contract StateOverrideManagerUnitTest is Test {
     {
         assertTrue(
             allOverrides.length >= 2,
-            "ChildDefaultOverride: Must be at least 2 overrides (parent default + child default)"
+            "ChildDefaultOverride: Must be at least 2 overrides (root safe default + child default)"
         );
         Simulation.StateOverride memory childDefaultOverride = allOverrides[1];
 

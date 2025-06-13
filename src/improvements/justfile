@@ -184,7 +184,7 @@ simulate-stack NETWORK="" TASK="" OWNER_ADDRESSES="[]":
         echo "Available arguments:"
         echo "  • <network> - The network to simulate the stack for (e.g. 'sep', 'eth')"
         echo "  • [task]    - The task to simulate the stack for (e.g. '001-task-name')"
-        echo "  • [owner-addresses] - A comma-separated list of parent-multisig owner addresses. The list must match the number of tasks being simulated. Use the zero address (0x0000000000000000000000000000000000000000) to simulate the task using the first owner on the parent multisig. If the list is left empty, each task will default to its first owner. For example, use '[0x0000000000000000000000000000000000000000,0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B,0x0000000000000000000000000000000000000000]' to explicitly simulate the second task as a specific owner, while defaulting the first and third."
+        echo "  • [owner-addresses] - A comma-separated list of root safe owner addresses. The list must match the number of tasks being simulated. Use the zero address (0x0000000000000000000000000000000000000000) to simulate the task using the first owner on the root safe. If the list is left empty, each task will default to its first owner. For example, use '[0x0000000000000000000000000000000000000000,0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B,0x0000000000000000000000000000000000000000]' to explicitly simulate the second task as a specific owner, while defaulting the first and third."
         echo
     }
 

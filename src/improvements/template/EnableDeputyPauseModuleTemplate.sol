@@ -68,18 +68,18 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
 
     /// @notice Builds the action for enabling the module in the Safe
     function _build() internal override {
-        ModuleManager(parentMultisig).enableModule(newModule);
+        ModuleManager(rootSafe).enableModule(newModule);
     }
 
     /// @notice Validates that the module was enabled correctly.
     function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory) internal view override {
         (address[] memory modules, address nextModule) =
-            ModuleManager(parentMultisig).getModulesPaginated(SENTINEL_MODULE, 100);
-        if (keccak256(abi.encodePacked(ISafe(parentMultisig).VERSION())) == keccak256(abi.encodePacked("1.1.1"))) {
+            ModuleManager(rootSafe).getModulesPaginated(SENTINEL_MODULE, 100);
+        if (keccak256(abi.encodePacked(ISafe(rootSafe).VERSION())) == keccak256(abi.encodePacked("1.1.1"))) {
             console.log("[INFO] Old version of safe detected 1.1.1.");
             assertTrue(modules[0] == newModule, "Module not enabled"); // version 1.1.1 doesn't support isModuleEnabled.
         } else {
-            assertTrue(ModuleManager(parentMultisig).isModuleEnabled(newModule), "Module not enabled");
+            assertTrue(ModuleManager(rootSafe).isModuleEnabled(newModule), "Module not enabled");
         }
         assertEq(nextModule, SENTINEL_MODULE, "Next module not correct");
 
@@ -111,13 +111,13 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
 
         address[] memory uniqueWrites = accountAccesses.getUniqueWrites(false);
         assertEq(uniqueWrites.length, 1, "should only write to foundation ops safe");
-        assertEq(uniqueWrites[0], parentMultisig, "should only write to foundation ops safe address");
+        assertEq(uniqueWrites[0], rootSafe, "should only write to foundation ops safe address");
 
-        AccountAccessParser.StateDiff[] memory accountWrites = accountAccesses.getStateDiffFor(parentMultisig, false);
+        AccountAccessParser.StateDiff[] memory accountWrites = accountAccesses.getStateDiffFor(rootSafe, false);
 
         for (uint256 i = 0; i < accountWrites.length; i++) {
             AccountAccessParser.StateDiff memory storageAccess = accountWrites[i];
-            if (keccak256(abi.encodePacked(ISafe(parentMultisig).VERSION())) != keccak256(abi.encodePacked("1.1.1"))) {
+            if (keccak256(abi.encodePacked(ISafe(rootSafe).VERSION())) != keccak256(abi.encodePacked("1.1.1"))) {
                 assertTrue(
                     storageAccess.slot == NONCE_STORAGE_OFFSET || storageAccess.slot == moduleSlot
                         || storageAccess.slot == sentinelSlot,
@@ -131,7 +131,7 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
                     "new module not correct"
                 );
 
-                bytes32 sentinelModuleValue = vm.load(parentMultisig, sentinelSlot);
+                bytes32 sentinelModuleValue = vm.load(rootSafe, sentinelSlot);
                 assertEq(
                     sentinelModuleValue, bytes32(uint256(uint160(newModule))), "sentinel does not point to new module"
                 );

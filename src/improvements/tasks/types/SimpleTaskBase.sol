@@ -26,14 +26,14 @@ abstract contract SimpleTaskBase is MultisigTask {
         internal
         virtual
         override
-        returns (AddressRegistry addrRegistry_, IGnosisSafe parentMultisig_, address multicallTarget_)
+        returns (AddressRegistry addrRegistry_, IGnosisSafe rootSafe_, address multicallTarget_)
     {
         multicallTarget_ = MULTICALL3_ADDRESS;
 
         simpleAddrRegistry = new SimpleAddressRegistry(taskConfigFilePath);
         addrRegistry_ = AddressRegistry.wrap(address(simpleAddrRegistry));
 
-        parentMultisig_ = IGnosisSafe(simpleAddrRegistry.get(templateConfig.safeAddressString));
+        rootSafe_ = IGnosisSafe(simpleAddrRegistry.get(templateConfig.safeAddressString));
     }
 
     /// @notice We use this function to add allowed storage accesses.

@@ -57,21 +57,21 @@ contract NestedMultisigTaskTest is Test {
     function testSafeNested() public {
         vm.createSelectFork("mainnet");
         runTask(SECURITY_COUNCIL_CHILD_MULTISIG);
-        assertEq(multisigTask.isNestedSafe(multisigTask.parentMultisig()), true, "Expected isNestedSafe to be true");
+        assertEq(multisigTask.isNestedSafe(multisigTask.rootSafe()), true, "Expected isNestedSafe to be true");
     }
 
     function testNestedDataToSignAndHashToApprove() public {
         vm.createSelectFork("mainnet");
         (, Action[] memory actions) = runTask(SECURITY_COUNCIL_CHILD_MULTISIG);
-        IGnosisSafe parentMultisig = IGnosisSafe(multisigTask.parentMultisig());
-        address[] memory childOwnerMultisigs = parentMultisig.getOwners();
+        IGnosisSafe rootSafe = IGnosisSafe(multisigTask.rootSafe());
+        address[] memory childOwnerMultisigs = rootSafe.getOwners();
 
-        // child multisigs have to approve the transaction that the parent multisig is going to execute.
-        // hashToApproveByChildMultisig is the hash of the transaction that the parent multisig is going
+        // child multisigs have to approve the transaction that the root multisig is going to execute.
+        // hashToApproveByChildMultisig is the hash of the transaction that the root multisig is going
         // to execute which the child multisigs have to approve.
         // nonce is decremented by 1 because when we ran the task, in simulation, execTransaction is called
         // which increments the nonce by 1 and we want to generate the hash by using the nonce before it was incremented.
-        bytes32 hashToApproveByChildMultisig = parentMultisig.getTransactionHash(
+        bytes32 hashToApproveByChildMultisig = rootSafe.getTransactionHash(
             MULTICALL3_ADDRESS,
             0,
             multisigTask.getMulticall3Calldata(actions),
@@ -81,21 +81,21 @@ contract NestedMultisigTaskTest is Test {
             0,
             address(0),
             address(0),
-            parentMultisig.nonce() - 1
+            rootSafe.nonce() - 1
         );
 
         IMulticall3.Call3Value memory call = IMulticall3.Call3Value({
-            target: address(parentMultisig),
+            target: address(rootSafe),
             allowFailure: false,
             value: 0,
-            callData: abi.encodeCall(parentMultisig.approveHash, (hashToApproveByChildMultisig))
+            callData: abi.encodeCall(rootSafe.approveHash, (hashToApproveByChildMultisig))
         });
 
         IMulticall3.Call3Value[] memory calls = new IMulticall3.Call3Value[](1);
         calls[0] = call;
 
         // callDataToApprove is the data that the child multisig has to execute to
-        // approve the transaction that the parent multisig is going to execute.
+        // approve the transaction that the root safe is going to execute.
         bytes memory callDataToApprove =
             abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
         assertEq(callDataToApprove, multisigTask.generateApproveMulticallData(actions), "Wrong callDataToApprove");
@@ -146,14 +146,15 @@ contract NestedMultisigTaskTest is Test {
         uint256 snapshotId = vm.snapshotState();
         (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) =
             runTask(SECURITY_COUNCIL_CHILD_MULTISIG);
-        address parentMultisig = multisigTask.parentMultisig();
-        uint256 originalParentMultisigNonce = IGnosisSafe(parentMultisig).nonce();
-        address[] memory parentMultisigOwners = IGnosisSafe(parentMultisig).getOwners();
-        bytes[] memory childMultisigDatasToSign = new bytes[](parentMultisigOwners.length);
+
+        address rootSafe = multisigTask.rootSafe();
+        uint256 originalRootSafeNonce = IGnosisSafe(rootSafe).nonce();
+        address[] memory rootSafeOwners = IGnosisSafe(rootSafe).getOwners();
+        bytes[] memory childMultisigDatasToSign = new bytes[](rootSafeOwners.length);
 
         // store the data to sign for each child multisig
-        for (uint256 i = 0; i < parentMultisigOwners.length; i++) {
-            childMultisigDatasToSign[i] = getNestedDataToSign(parentMultisigOwners[i], actions);
+        for (uint256 i = 0; i < rootSafeOwners.length; i++) {
+            childMultisigDatasToSign[i] = getNestedDataToSign(rootSafeOwners[i], actions);
         }
         IDisputeGameFactory disputeGameFactory =
             IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", 10));
@@ -176,8 +177,8 @@ contract NestedMultisigTaskTest is Test {
             privateKeyForOwner[newOwners[i].walletAddress] = newOwners[i].privateKey;
         }
 
-        for (uint256 i = 0; i < parentMultisigOwners.length; i++) {
-            address childMultisig = parentMultisigOwners[i];
+        for (uint256 i = 0; i < rootSafeOwners.length; i++) {
+            address childMultisig = rootSafeOwners[i];
 
             {
                 // set the new owners for the child multisig
@@ -244,13 +245,14 @@ contract NestedMultisigTaskTest is Test {
         );
 
         bytes memory callData = multisigTask.getMulticall3Calldata(actions);
+
         // TODO: pass correct nonce in here.
-        bytes32 taskHash = multisigTask.getHash(callData, parentMultisig, 0, originalParentMultisigNonce);
+        bytes32 taskHash = multisigTask.getHash(callData, rootSafe, 0, originalRootSafeNonce);
 
         /// Now run the executeRun flow
         vm.revertToState(newSnapshot);
         string memory taskConfigFilePath = MultisigTaskTestHelper.createTempTomlFile(taskConfigToml);
-        multisigTask.executeRun(taskConfigFilePath, prepareSignatures(parentMultisig, taskHash));
+        multisigTask.executeRun(taskConfigFilePath, prepareSignatures(rootSafe, taskHash));
         MultisigTaskTestHelper.removeFile(taskConfigFilePath);
         addrRegistry = multisigTask.addrRegistry();
 
@@ -276,13 +278,13 @@ contract NestedMultisigTaskTest is Test {
             multisigTask.signFromChildMultisig(opcmTaskConfigFilePath, foundationChildMultisig);
 
         addrRegistry = multisigTask.addrRegistry();
-        address parentMultisig = multisigTask.parentMultisig();
-        uint256 originalParentMultisigNonce = IGnosisSafe(parentMultisig).nonce();
-        address[] memory parentMultisigOwners = IGnosisSafe(parentMultisig).getOwners();
-        bytes[] memory childMultisigDatasToSign = new bytes[](parentMultisigOwners.length);
+        address rootSafe = multisigTask.rootSafe();
+        uint256 originalRootSafeNonce = IGnosisSafe(rootSafe).nonce();
+        address[] memory rootSafeOwners = IGnosisSafe(rootSafe).getOwners();
+        bytes[] memory childMultisigDatasToSign = new bytes[](rootSafeOwners.length);
         // Store the data to sign for each child multisig
-        for (uint256 i = 0; i < parentMultisigOwners.length; i++) {
-            childMultisigDatasToSign[i] = getNestedDataToSign(parentMultisigOwners[i], actions);
+        for (uint256 i = 0; i < rootSafeOwners.length; i++) {
+            childMultisigDatasToSign[i] = getNestedDataToSign(rootSafeOwners[i], actions);
         }
         // Revert to snapshot so that the safe is in the same state as before the task was run
         vm.revertToState(snapshotId);
@@ -302,8 +304,8 @@ contract NestedMultisigTaskTest is Test {
             privateKeyForOwner[newOwners[i].walletAddress] = newOwners[i].privateKey;
         }
 
-        for (uint256 i = 0; i < parentMultisigOwners.length; i++) {
-            address childMultisig = parentMultisigOwners[i];
+        for (uint256 i = 0; i < rootSafeOwners.length; i++) {
+            address childMultisig = rootSafeOwners[i];
 
             {
                 // Set the new owners for the child multisig
@@ -358,11 +360,11 @@ contract NestedMultisigTaskTest is Test {
         (accountAccesses, actions,,) =
             multisigTask.signFromChildMultisig(opcmTaskConfigFilePath, foundationChildMultisig);
         bytes32 taskHash = multisigTask.getHash(
-            multisigTask.getMulticall3Calldata(actions), multisigTask.parentMultisig(), 0, originalParentMultisigNonce
+            multisigTask.getMulticall3Calldata(actions), multisigTask.rootSafe(), 0, originalRootSafeNonce
         );
 
         vm.revertToState(newSnapshot);
-        multisigTask.executeRun(opcmTaskConfigFilePath, prepareSignatures(parentMultisig, taskHash));
+        multisigTask.executeRun(opcmTaskConfigFilePath, prepareSignatures(rootSafe, taskHash));
     }
 
     function testMockDisputeGameWithCodeExceptionsWorks() public {
@@ -370,7 +372,7 @@ contract NestedMultisigTaskTest is Test {
         string memory configFilePath = "test/tasks/mock/configs/MockDisputeGameUpgradesToEOA.toml";
         multisigTask = new MockDisputeGameTask();
         multisigTask.signFromChildMultisig(configFilePath, SECURITY_COUNCIL_CHILD_MULTISIG);
-        assertEq(multisigTask.isNestedSafe(multisigTask.parentMultisig()), true, "Expected isNestedSafe to be true");
+        assertEq(multisigTask.isNestedSafe(multisigTask.rootSafe()), true, "Expected isNestedSafe to be true");
     }
 
     function testSimulateRunDisputeGameWithoutCodeExceptionsFails() public {
