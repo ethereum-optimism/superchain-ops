@@ -70,7 +70,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// @notice Runs the task with the given configuration file path.
     function simulateRun(string memory taskConfigFilePath, bytes memory signatures)
         public
-        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32, bytes memory, address[] memory)
+        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32, bytes memory)
     {
         return simulateRun(taskConfigFilePath, signatures, address(0));
     }
@@ -78,7 +78,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// @notice Runs the task with the given configuration file path.
     function simulateRun(string memory taskConfigFilePath)
         public
-        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32, bytes memory, address[] memory)
+        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32, bytes memory)
     {
         return simulateRun(taskConfigFilePath, "", address(0));
     }
@@ -121,7 +121,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// given child multisig. Prints the 'data to sign' which is used to sign with the eip712sign binary.
     function signFromChildMultisig(string memory taskConfigFilePath, address _childMultisig)
         public
-        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32, bytes memory, address[] memory)
+        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32, bytes memory)
     {
         return simulateRun(taskConfigFilePath, "", _childMultisig);
     }
@@ -640,13 +640,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// For nested multisig, prints the data to sign and the hash to approve for each of the child multisigs.
     function simulateRun(string memory _taskConfigFilePath, bytes memory _signatures, address _optionalChildMultisig)
         internal
-        returns (
-            VmSafe.AccountAccess[] memory,
-            Action[] memory,
-            bytes32 normalizedHash_,
-            bytes memory dataToSign_,
-            address[] memory
-        )
+        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32 normalizedHash_, bytes memory dataToSign_)
     {
         // TODO: Remove this when the interface tasks an array of safes.
         address[] memory safes;
@@ -671,7 +665,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             require(!isNestedSafe(parentMultisig), "MultisigTask: multisig must be a single safe.");
         }
 
-        return (accountAccesses, actions, normalizedHash_, dataToSign_, safes);
+        return (accountAccesses, actions, normalizedHash_, dataToSign_);
     }
 
     /// @notice Using the tasks config.toml file, this function configures the task.

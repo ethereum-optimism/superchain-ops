@@ -166,9 +166,9 @@ contract MultisigTaskUnitTest is Test {
 
     function runTestSimulation(string memory taskConfigFilePath, address childMultisig)
         public
-        returns (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions, address[] memory safes)
+        returns (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions)
     {
-        (accountAccesses, actions,,, safes) = task.signFromChildMultisig(taskConfigFilePath, childMultisig);
+        (accountAccesses, actions,,) = task.signFromChildMultisig(taskConfigFilePath, childMultisig);
 
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);
 
@@ -197,7 +197,7 @@ contract MultisigTaskUnitTest is Test {
 
     function testSimulateFailsTxAlreadyExecuted() public {
         string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml);
-        (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions, address[] memory safes) =
+        (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) =
             runTestSimulation(fileName, securityCouncilChildMultisig);
 
         vm.expectRevert("MultisigTask: execute failed");
@@ -210,7 +210,7 @@ contract MultisigTaskUnitTest is Test {
 
     function testGetCalldata() public {
         string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml);
-        (, Action[] memory actions,) = runTestSimulation(fileName, securityCouncilChildMultisig);
+        (, Action[] memory actions) = runTestSimulation(fileName, securityCouncilChildMultisig);
         MultisigTaskTestHelper.removeFile(fileName);
 
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);
