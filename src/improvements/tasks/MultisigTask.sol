@@ -379,7 +379,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             for (uint256 i = 0; i < owners.length; i++) {
                 vm.prank(owners[i]);
                 IGnosisSafe(rootSafe).approveHash(hash);
-                // Manualy increment the nonce for each owner. If we executed the approveHash function from the owner directly (contract or EOA),
+                // Manually increment the nonce for each owner. If we executed the approveHash function from the owner directly (contract or EOA),
                 // the nonce would be incremented by 1 and we wouldn't have to do this manually.
                 _incrementOwnerNonce(owners[i]);
             }
