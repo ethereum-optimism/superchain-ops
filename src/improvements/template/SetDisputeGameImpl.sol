@@ -103,7 +103,8 @@ contract SetDisputeGameImpl is L2TaskBase {
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
     function getCodeExceptions() internal pure override returns (address[] memory) {
-        address[] memory codeExceptions = new address[](0);
+        address[] memory codeExceptions = new address[](1);
+        codeExceptions[0] = address(0);
         return codeExceptions;
     }
 }
