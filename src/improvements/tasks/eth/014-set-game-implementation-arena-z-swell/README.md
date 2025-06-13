@@ -10,7 +10,7 @@ Todo: Describe the objective of the task
 
 Simulation commands for each safe:
 ```bash
-cd src/improvements/tasks/eth/015-set-game-implementation-arena-z-swell
+cd src/improvements/tasks/eth/014-set-game-implementation-arena-z-swell
 <TODO-add-simulation-commands-for-each-safe>
 ```
 
