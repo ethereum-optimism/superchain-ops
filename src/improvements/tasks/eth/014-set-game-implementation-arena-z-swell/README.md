@@ -16,18 +16,12 @@ SIMULATE_WITHOUT_LEDGER=1 just \
    --dotenv-path $(pwd)/.env \
    --justfile ../../../nested.just \
    simulate \
-   foundation 0
-
-```
-
-Signing commands for each safe:
-```bash
-cd src/improvements/tasks/eth/014-set-game-implementation-arena-z-swell
+   council 0
 
 SIMULATE_WITHOUT_LEDGER=1 just \
    --dotenv-path $(pwd)/.env \
    --justfile ../../../nested.just \
    simulate \
-   council 0
+   foundation 0
 
 ```
