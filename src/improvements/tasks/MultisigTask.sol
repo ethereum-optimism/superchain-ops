@@ -403,14 +403,18 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     }
 
     /// @notice Validate that the safes are in the correct order.
-    function validateSafes(address[] memory _safes) internal view {
+    function validateSafes(address[] memory _allSafes) internal view {
+        require(_allSafes.length > 0, "MultisigTask: no safes provided");
         // TODO: remove this check once we support an arbitrary number of safes in the future.
-        require(_safes.length <= 2, "MultisigTask: currently only supports 1 level of nesting.");
-        for (uint256 i = 1; i < _safes.length; i++) {
+        require(_allSafes.length <= 2, "MultisigTask: currently only supports 1 level of nesting.");
+        for (uint256 i = 1; i < _allSafes.length; i++) {
             require(
-                IGnosisSafe(_safes[i]).isOwner(_safes[i - 1]),
+                IGnosisSafe(_allSafes[i]).isOwner(_allSafes[i - 1]),
                 string.concat(
-                    "MultisigTask: Safe ", vm.toString(_safes[i - 1]), " is not an owner of ", vm.toString(_safes[i])
+                    "MultisigTask: Safe ",
+                    vm.toString(_allSafes[i - 1]),
+                    " is not an owner of ",
+                    vm.toString(_allSafes[i])
                 )
             );
         }
