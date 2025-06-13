@@ -105,8 +105,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         public
     {
         // TODO: Remove this when the interface tasks an array of safes.
-        address[] memory safes = new address[](1);
-        safes[0] = _childMultisig;
+        address[] memory safes = Solarray.addresses(_childMultisig);
 
         _taskSetup(taskConfigFilePath, safes);
         Action[] memory actions = build();
@@ -169,45 +168,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         execTransaction(parentMultisig, multicallTarget, 0, callData, Enum.Operation.DelegateCall, signatures);
 
         return (vm.stopAndReturnStateDiff(), txHash_);
-    }
-
-    /// @notice Simulate the task by approving from owners and then executing.
-    function simulate(bytes memory _signatures, Action[] memory _actions, address[] memory _safes)
-        public
-        returns (VmSafe.AccountAccess[] memory, bytes32 txHash_)
-    {
-        address root = _safes[_safes.length - 1];
-        bytes memory callData = getMulticall3Calldata(_actions);
-        bytes32 hash = getHash(callData, root);
-        bytes memory signatures;
-
-        // Approve the hash from each owner
-        address[] memory owners = IGnosisSafe(parentMultisig).getOwners();
-        if (_signatures.length == 0) {
-            for (uint256 i = 0; i < owners.length; i++) {
-                vm.prank(owners[i]);
-                IGnosisSafe(parentMultisig).approveHash(hash);
-                // Manualy increment the nonce for each owner. If we executed the approveHash function from the owner directly (contract or EOA),
-                // the nonce would be incremented by 1 and we wouldn't have to do this manually.
-                _incrementOwnerNonce(owners[i]);
-            }
-            // Gather signatures after approval hashes have been made
-            signatures = prepareSignatures(parentMultisig, hash);
-        } else {
-            signatures = Signatures.prepareSignatures(parentMultisig, hash, _signatures);
-        }
-
-        txHash_ = IGnosisSafe(parentMultisig).getTransactionHash(
-            multicallTarget, 0, callData, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), nonce
-        );
-
-        require(hash == txHash_, "MultisigTask: hash mismatch");
-
-        vm.startStateDiffRecording();
-        execTransaction(parentMultisig, multicallTarget, 0, callData, Enum.Operation.DelegateCall, signatures);
-        VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
-
-        return (accountAccesses, txHash_);
     }
 
     /// ==================================================
@@ -401,6 +361,60 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// ==================================================
     /// =============== Internal Functions ===============
     /// ==================================================
+
+    /// @notice Simulate the task by approving from owners and then executing.
+    function simulate(bytes memory _signatures, Action[] memory _actions, address[] memory _safes)
+        internal
+        returns (VmSafe.AccountAccess[] memory, bytes32 txHash_)
+    {
+        validateSafes(_safes);
+        address root = _safes[_safes.length - 1];
+        bytes memory callData = getMulticall3Calldata(_actions);
+        bytes32 hash = getHash(callData, root);
+        bytes memory signatures;
+
+        // Approve the hash from each owner
+        address[] memory owners = IGnosisSafe(parentMultisig).getOwners();
+        if (_signatures.length == 0) {
+            for (uint256 i = 0; i < owners.length; i++) {
+                vm.prank(owners[i]);
+                IGnosisSafe(parentMultisig).approveHash(hash);
+                // Manualy increment the nonce for each owner. If we executed the approveHash function from the owner directly (contract or EOA),
+                // the nonce would be incremented by 1 and we wouldn't have to do this manually.
+                _incrementOwnerNonce(owners[i]);
+            }
+            // Gather signatures after approval hashes have been made
+            signatures = prepareSignatures(parentMultisig, hash);
+        } else {
+            signatures = Signatures.prepareSignatures(parentMultisig, hash, _signatures);
+        }
+
+        txHash_ = IGnosisSafe(parentMultisig).getTransactionHash(
+            multicallTarget, 0, callData, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), nonce
+        );
+
+        require(hash == txHash_, "MultisigTask: hash mismatch");
+
+        vm.startStateDiffRecording();
+        execTransaction(parentMultisig, multicallTarget, 0, callData, Enum.Operation.DelegateCall, signatures);
+        VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
+
+        return (accountAccesses, txHash_);
+    }
+
+    /// @notice Validate that the safes are in the correct order.
+    function validateSafes(address[] memory _safes) internal view {
+        // TODO: remove this check once we support an arbitrary number of safes in the future.
+        require(_safes.length <= 2, "MultisigTask: currently only supports 1 level of nesting.");
+        for (uint256 i = 1; i < _safes.length; i++) {
+            require(
+                IGnosisSafe(_safes[i]).isOwner(_safes[i - 1]),
+                string.concat(
+                    "MultisigTask: Safe ", vm.toString(_safes[i - 1]), " is not an owner of ", vm.toString(_safes[i])
+                )
+            );
+        }
+    }
 
     /// @notice Prank as the multisig.
     /// Override to prank with delegatecall flag set to true
@@ -674,6 +688,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         if (_safes.length > 0) childMultisig = _safes[0]; // TODO: remove this when childMultisig state variable is removed.
         // Appends the root safe. The earlier a safe address appears in the array, the deeper its level of nesting.
         _safes = Solarray.extend(_safes, Solarray.addresses(parentMultisig));
+        validateSafes(_safes);
 
         templateConfig.allowedStorageKeys = _taskStorageWrites();
         templateConfig.allowedStorageKeys.push(templateConfig.safeAddressString);
@@ -838,7 +853,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     {
         _setStateOverridesFromConfig(_taskConfigFilePath); // Sets global '_stateOverrides' variable.
         originalNonces_ = new uint256[](_safes.length);
-        require(_safes.length <= 2, "MultisigTask: currently only support 1 level of nesting."); // TODO: we will support an arbitrary number of safes in the future.
         for (uint256 i = 0; i < _safes.length; i++) {
             originalNonces_[i] = _getNonceOrOverride(_safes[i]);
             address[] memory owners = IGnosisSafe(_safes[i]).getOwners();
