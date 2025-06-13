@@ -51,9 +51,7 @@ contract RegressionTest is Test {
         string memory expectedDataToSign =
             "0x19010f634ad56005ddbd68dc52233931a858f740b8ab706671c42b055efef561257e5ba28ec1e58ea69211eb8e875f10ae165fb3fb4052b15ca2516486f4b059135f";
         string memory dataToSign = vm.toString(
-            multisigTask.getEncodedTransactionData(
-                multisigTask.parentMultisig(), multisigTask.getMulticall3Calldata(actions)
-            )
+            multisigTask.getEncodedTransactionData(multisigTask.rootSafe(), multisigTask.getMulticall3Calldata(actions))
         );
         // assert that the data to sign generated in simulateRun is the same as the expected data to sign
         assertEq(keccak256(bytes(dataToSign)), keccak256(bytes(expectedDataToSign)));
@@ -503,9 +501,7 @@ contract RegressionTest is Test {
         string memory expectedDataToSign
     ) internal view {
         string memory dataToSign = vm.toString(
-            multisigTask.getEncodedTransactionData(
-                multisigTask.parentMultisig(), multisigTask.getMulticall3Calldata(actions)
-            )
+            multisigTask.getEncodedTransactionData(multisigTask.rootSafe(), multisigTask.getMulticall3Calldata(actions))
         );
         assertEq(keccak256(bytes(dataToSign)), keccak256(bytes(expectedDataToSign)));
     }
@@ -517,7 +513,7 @@ contract RegressionTest is Test {
         Action[] memory actions,
         string[] memory expectedDataToSign
     ) internal {
-        address[] memory owners = IGnosisSafe(multisigTask.parentMultisig()).getOwners();
+        address[] memory owners = IGnosisSafe(multisigTask.rootSafe()).getOwners();
         for (uint256 i = 0; i < owners.length; i++) {
             // Decrement the nonces by 1 because in task simulation child multisig nonces are incremented.
             MultisigTaskTestHelper.decrementNonceAfterSimulation(owners[i]);

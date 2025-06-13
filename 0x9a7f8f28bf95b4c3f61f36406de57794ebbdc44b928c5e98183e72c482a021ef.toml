@@ -1,0 +1,9 @@
+l2chains = [{name = "OP Mainnet", chainId = 10}]
+
+templateName = "DisputeGameUpgradeTemplate"
+
+implementations = [{gameType = 0, implementation = "0xf691F8A6d908B58C534B624cF16495b491E633BA", l2ChainId = 10}]
+[stateOverrides]
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [
+    {key = 5, value = "101"}
+]

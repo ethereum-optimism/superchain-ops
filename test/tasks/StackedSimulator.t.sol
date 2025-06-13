@@ -212,7 +212,7 @@ contract StackedSimulatorUnitTest is Test {
                 string.concat(
                     "TaskManager: ownerAddress (",
                     vm.toString(owners[0]),
-                    ") must be an owner of the parent multisig: 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
+                    ") must be an owner of the root safe: 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
                 )
             )
         );
