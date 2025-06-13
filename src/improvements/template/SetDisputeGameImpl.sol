@@ -12,7 +12,8 @@ import {DisputeGameFactory} from "lib/optimism/packages/contracts-bedrock/src/di
 import {GameTypes} from "lib/optimism/packages/contracts-bedrock/src/dispute/lib/Types.sol";
 
 import {IFaultDisputeGame} from "lib/optimism/packages/contracts-bedrock/interfaces/dispute/IFaultDisputeGame.sol";
-import {IPermissionedDisputeGame} from "lib/optimism/packages/contracts-bedrock/interfaces/dispute/IPermissionedDisputeGame.sol";
+import {IPermissionedDisputeGame} from 
+    "lib/optimism/packages/contracts-bedrock/interfaces/dispute/IPermissionedDisputeGame.sol";
 
 /// @title SetDisputeGameImpl
 /// @notice This template sets the FaultDisputeGame (FDG) and PermissionedDisputeGame (PDG) implementation addresses
@@ -54,8 +55,7 @@ contract SetDisputeGameImpl is L2TaskBase {
         super._templateSetup(taskConfigFilePath);
         string memory toml = vm.readFile(taskConfigFilePath);
 
-        GameImplConfig[] memory configs = 
-            abi.decode(toml.parseRaw(".gameImpls.configs"), (GameImplConfig[]));
+        GameImplConfig[] memory configs = abi.decode(toml.parseRaw(".gameImpls.configs"), (GameImplConfig[]));
         for (uint256 i = 0; i < configs.length; i++) {
             cfg[configs[i].chainId] = configs[i];
         }
