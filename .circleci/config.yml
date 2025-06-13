@@ -422,7 +422,7 @@ workflows:
       - simulate_sequence:
           name: simulate_sequence_eth
           network: "eth"
-          tasks: "metal-002 mode-002"
+          tasks: ""
           block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token

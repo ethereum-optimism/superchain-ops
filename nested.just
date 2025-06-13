@@ -117,7 +117,7 @@ sign whichSafe hdPath='0' ledger='true':
     safe="{{chainGovernorSafe}}"
   fi
   echo "getting signer address..."
-  
+
   if {{ledger}}; then
     hdpaths="m/44'/60'/{{hdPath}}'/0/0"
     signer=$(cast wallet address --ledger --mnemonic-derivation-path $hdpaths)
@@ -190,13 +190,13 @@ approvehash_in_anvil whichSafe hdPath='0':
   # cast index address 0x0000000000000000000000000000000000000001 2 => 0xe90b7bceb6e7df5418fb78d8ee546e97c83a08bbccc01a0644d599ccd2a7c2e0 expected owner mapping: {0x1 -> 0xf39..., 0xf39 -> 0x1}
   echo "3. Insert the address 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 as the sole owner of the safe."
   cast rpc anvil_setStorageAt ${safe} 0xe90b7bceb6e7df5418fb78d8ee546e97c83a08bbccc01a0644d599ccd2a7c2e0 0x000000000000000000000000f39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --rpc-url ${ANVIL_LOCALHOST_RPC}
-  
+
   echo "4. Close the mapping of the owners to the sentinel address."
   # cast index address 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 2 => 0xbc40fbf4394cd00f78fae9763b0c2c71b21ea442c42fdadc5b720537240ebac1
   cast rpc anvil_setStorageAt ${safe} 0xbc40fbf4394cd00f78fae9763b0c2c71b21ea442c42fdadc5b720537240ebac1  0x0000000000000000000000000000000000000000000000000000000000000001 --rpc-url ${ANVIL_LOCALHOST_RPC}
   echo "The sole Owner of the \"${safe}\" is: $(cast call ${safe}  "getOwners()(address[])" --rpc-url http://localhost:8545)"
   echo "================================================"
-  
+
   forge build
   outputforge=$(forge script ${script} \
     --rpc-url ${ANVIL_LOCALHOST_RPC} \
@@ -206,7 +206,7 @@ approvehash_in_anvil whichSafe hdPath='0':
     ${safe})
   tempfile=$(mktemp)
   echo "tmp file located to:" > $tempfile
-  echo "Outputforge: $outputforge" > $tempfile   
+  echo "Outputforge: $outputforge" > $tempfile
   ## 1. Generate hash for the SC and FND
   hash=$(cat $tempfile | grep -A 1 "If submitting onchain, call Safe.approveHash on " | cut -d ':' -f 2 | tr -d '[:space:]')
 
@@ -218,9 +218,9 @@ approvehash_in_anvil whichSafe hdPath='0':
   fi
 
   ## 2. Approval of this hash in the SC and FND respectively.
-  cast send ${safe} "approveHash(bytes32)" ${hash} --rpc-url ${ANVIL_LOCALHOST_RPC} --private-key {{PRIVATE_KEY_OWNER}} 2>&1 /dev/null 
+  cast send ${safe} "approveHash(bytes32)" ${hash} --rpc-url ${ANVIL_LOCALHOST_RPC} --private-key {{PRIVATE_KEY_OWNER}} 2>&1 /dev/null
 
-  ## 3. Execute the Approval from another private-key `PRIVATE_KEY_EXECUTOR` on the L1PAO. 
+  ## 3. Execute the Approval from another private-key `PRIVATE_KEY_EXECUTOR` on the L1PAO.
   # This will revert, if there is an error with the nonce here and throw the GS025 error on the logs.
   forge script ${script} \
     --rpc-url ${ANVIL_LOCALHOST_RPC} \
@@ -230,7 +230,7 @@ approvehash_in_anvil whichSafe hdPath='0':
     ${bundlePath} \
     ${safe} \
     ${FAKE_SIG} 2>&1 /dev/null
-  
+
 ## execute_in_anvil is a function to execute hash in anvil dedicated for simulation.
 execute_in_anvil hdPath='0':
   #!/usr/bin/env bash
@@ -286,6 +286,7 @@ approve whichSafe hdPath='0' ledger='true':
     signer_args="--ledger --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
   else
     signer_private_key=$(just --justfile={{justfile()}} get-keystore-private-key)
+    sender=$(cast wallet address --private-key ${signer_private_key})
     signer_args="--private-key ${signer_private_key}"
   fi
 
