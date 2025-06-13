@@ -844,22 +844,22 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     }
 
     /// @notice Applies user-defined state overrides to the current state and stores the original nonces before simulation.
-    function _overrideState(string memory _taskConfigFilePath, address[] memory _safes)
+    function _overrideState(string memory _taskConfigFilePath, address[] memory _allSafes)
         private
         returns (uint256[] memory originalNonces_)
     {
         _setStateOverridesFromConfig(_taskConfigFilePath); // Sets global '_stateOverrides' variable.
-        originalNonces_ = new uint256[](_safes.length);
-        for (uint256 i = 0; i < _safes.length; i++) {
-            originalNonces_[i] = _getNonceOrOverride(_safes[i]);
-            address[] memory owners = IGnosisSafe(_safes[i]).getOwners();
+        originalNonces_ = new uint256[](_allSafes.length);
+        for (uint256 i = 0; i < _allSafes.length; i++) {
+            originalNonces_[i] = _getNonceOrOverride(_allSafes[i]);
+            address[] memory owners = IGnosisSafe(_allSafes[i]).getOwners();
             for (uint256 j = 0; j < owners.length; j++) {
                 if (owners[j].code.length > 0) _getNonceOrOverride(owners[j]); // Nonce safety checks performed for each owner that is a safe.
             }
         }
         // TODO: remove when these state variables are removed.
         nonce = originalNonces_[originalNonces_.length - 1];
-        if (_safes.length == 2) {
+        if (_allSafes.length == 2) {
             childNonce = originalNonces_[0];
         }
         // We must do this after setting the nonces above. It allows us to make sure we're reading the correct network state when setting the nonces.
