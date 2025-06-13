@@ -4,18 +4,30 @@ Status: [DRAFT]()
 
 ## Objective
 
-Todo: Describe the objective of the task
+This task resets the FaultDisputeGame implementation on the DisputeGameFactory contract to the zero address for Arena-Z and Swell Mainnet
 
 ## Simulation & Signing
 
 Simulation commands for each safe:
 ```bash
 cd src/improvements/tasks/eth/014-set-game-implementation-arena-z-swell
-<TODO-add-simulation-commands-for-each-safe>
+
+SIMULATE_WITHOUT_LEDGER=1 just \
+   --dotenv-path $(pwd)/.env \
+   --justfile ../../../nested.just \
+   simulate \
+   foundation 0
+
 ```
 
 Signing commands for each safe:
 ```bash
 cd src/improvements/tasks/eth/014-set-game-implementation-arena-z-swell
-<TODO-add-signing-commands-for-each-safe>
+
+SIMULATE_WITHOUT_LEDGER=1 just \
+   --dotenv-path $(pwd)/.env \
+   --justfile ../../../nested.just \
+   simulate \
+   council 0
+
 ```
