@@ -48,10 +48,12 @@ contract SetDisputeGameImpl is L2TaskBase {
         return storageWrites;
     }
 
+
     /// @notice Sets up the template with implementation configurations from a TOML file.
-    function _templateSetup(string memory taskConfigFilePath) internal override {
-        super._templateSetup(taskConfigFilePath);
-        string memory toml = vm.readFile(taskConfigFilePath);
+    function _templateSetup(string memory _taskConfigFilePath) internal override {
+        super._templateSetup(_taskConfigFilePath);
+        string memory toml = vm.readFile(_taskConfigFilePath);
+
         GameImplConfig[] memory configs = 
             abi.decode(toml.parseRaw(".gameImpls.configs"), (GameImplConfig[]));
         for (uint256 i = 0; i < configs.length; i++) {
