@@ -9,7 +9,7 @@ import {IOPContractsManager} from "lib/optimism/packages/contracts-bedrock/inter
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
-import {Action} from "src/libraries/MultisigTypes.sol";
+import {Action, TaskType} from "src/libraries/MultisigTypes.sol";
 import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 

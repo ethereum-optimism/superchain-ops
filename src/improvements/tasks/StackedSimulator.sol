@@ -8,6 +8,7 @@ import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {Utils} from "src/libraries/Utils.sol";
 import {console} from "forge-std/console.sol";
 import {VmSafe} from "forge-std/Vm.sol";
+import {TaskConfig} from "src/libraries/MultisigTypes.sol";
 
 /// This script enables stacked simulations. Stacked simulations allow us to simulate a task
 /// that depends on the state of another task that hasn't been executed yet.
@@ -34,12 +35,14 @@ contract StackedSimulator is Script {
 
     /// The optionalOwnerAddresses array is used to specify the owner addresses for each nested task. It must be either empty or
     /// have the same length as the number of tasks. If it is empty, the first owner on the parent multisig will be used for each task.
-    function simulateStack(string memory network, string memory task, address[] memory optionalOwnerAddresses) public {
+    function simulateStack(string memory _network, string memory _task, address[] memory _optionalOwnerAddresses)
+        public
+    {
         TaskManager taskManager = new TaskManager();
-        TaskInfo[] memory tasks = getNonTerminalTasks(network, task);
-        TaskManager.TaskConfig[] memory taskConfigs = new TaskManager.TaskConfig[](tasks.length);
+        TaskInfo[] memory tasks = getNonTerminalTasks(_network, _task);
+        TaskConfig[] memory taskConfigs = new TaskConfig[](tasks.length);
         require(
-            optionalOwnerAddresses.length == 0 || optionalOwnerAddresses.length == tasks.length,
+            _optionalOwnerAddresses.length == 0 || _optionalOwnerAddresses.length == tasks.length,
             "StackedSimulator: Invalid owner addresses array length. Must be empty or match the number of tasks being simulated."
         );
 
@@ -62,7 +65,7 @@ contract StackedSimulator is Script {
             // If we wanted to ensure that all Tenderly links worked for each task, we would need to build a cumulative list of all state overrides
             // and append them to the next task's config.toml file. For now, we are skipping this functionality.
             address ownerAddress =
-                optionalOwnerAddresses.length == tasks.length ? optionalOwnerAddresses[i] : address(0);
+                _optionalOwnerAddresses.length == tasks.length ? _optionalOwnerAddresses[i] : address(0);
             taskManager.executeTask(taskConfigs[i], ownerAddress);
         }
     }
