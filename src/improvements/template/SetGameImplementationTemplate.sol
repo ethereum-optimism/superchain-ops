@@ -14,7 +14,7 @@ import {GameTypes} from "lib/optimism/packages/contracts-bedrock/src/dispute/lib
 import {IFaultDisputeGame} from "lib/optimism/packages/contracts-bedrock/interfaces/dispute/IFaultDisputeGame.sol";
 import {IPermissionedDisputeGame} from "lib/optimism/packages/contracts-bedrock/interfaces/dispute/IPermissionedDisputeGame.sol";
 
-/// @title SetGameImplementationTemplate
+/// @title SetDisputeGameImpl
 /// @notice This template is used to set the implementation of FDG and PDG in the DisputeGameFactory contract
 ///         for a given chain or set of chains.
 contract SetGameImplementationTemplate is L2TaskBase {
