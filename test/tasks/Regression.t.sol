@@ -485,9 +485,13 @@ contract RegressionTest is Test {
 
         _assertCallData(multisigTask, actions, expectedCallData);
 
-        string memory expectedDataToSign =
+        string[] memory expectedDataToSign = new string[](2);
+        // Foundation
+        expectedDataToSign[0] =
             "0x190137e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb1849636fc224f670e6159a8700e54129a6c793e35b5cc46d07cfe8c1768762c4";
-
+        // Security Council
+        expectedDataToSign[1] =
+            "0x1901be081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b853308cc5d5eb2ecadf283d1cebcd213b735ade7ff6421031b44cb5c1ed71471dffb";
         _assertDataToSignNestedMultisig(multisigTask, actions, expectedDataToSign);
     }
 
