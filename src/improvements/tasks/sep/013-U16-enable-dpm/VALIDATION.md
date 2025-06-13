@@ -116,3 +116,14 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   - **After:** `0x000000000000000000000000c10dac07d477215a1ebebae1dd0221c1f5d241d2`
   - **Summary:** Adding the new Deputy Pause Module to the linked list.
   - **Detail:** We are adding the new Deputy Pause Module to the linked list by replacing the previous module with the new one.
+
+### Nonce increments
+
+The only other state change are two nonce increments:
+
+- `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977` - Security Council
+- `0xf13D09eD3cbdD1C930d4de74808de1f33B6b3D4f` - Sender address of the Tenderly transaction (Your ledger or first owner on the nested safe).
+
+And one liveness guard update update as we are doing a transaction:
+
+- `0xc26977310bC89DAee5823C2e2a73195E85382cC7` - LivenessGuard
