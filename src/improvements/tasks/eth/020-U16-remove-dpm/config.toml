@@ -1,0 +1,14 @@
+templateName = "DisableModule"
+
+safeAddressString = "FoundationOperationsSafe"
+moduleToDisable = "0x126a736B18E0a64fBA19D421647A530E327E112C"
+
+# This is the module in the list of modules returned by calling the getModulesPaginated function
+# on the Safe contract. If there is only one module in the list, then this can be set to the
+# SENTINEL_MODULE address (0x1).
+previousModule = "0x0000000000000000000000000000000000000001"
+
+[stateOverrides]
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 107}
+]
