@@ -128,7 +128,7 @@ contract FinanceTemplate is SimpleTaskBase {
             Operation memory operation = operations[i];
             (address token, address target) = _getTokenAndTarget(operation.token, operation.target);
             tokens.add(token);
-            initialAllowances[token][target] = IERC20(token).allowance(address(parentMultisig), target);
+            initialAllowances[token][target] = IERC20(token).allowance(address(rootSafe), target);
             initialBalances[token][target] = IERC20(token).balanceOf(target);
             if (operationTypeEnum == OperationType.Transfer) {
                 tokensTransferred[token] += operations[i].amount;
@@ -139,7 +139,7 @@ contract FinanceTemplate is SimpleTaskBase {
         // Also, add each token identifier to the allowed storage keys
         for (uint256 i = 0; i < tokens.length(); i++) {
             address token = tokens.at(i);
-            initialBalances[token][address(parentMultisig)] = IERC20(token).balanceOf(address(parentMultisig));
+            initialBalances[token][address(rootSafe)] = IERC20(token).balanceOf(address(rootSafe));
             templateConfig.allowedStorageKeys.push(simpleAddrRegistry.get(token));
         }
 
@@ -186,12 +186,12 @@ contract FinanceTemplate is SimpleTaskBase {
         }
 
         if (operationTypeEnum == OperationType.Transfer) {
-            // validate that parentMultisig balance decreased by the correct amount of tokens transferred
+            // validate that rootSafe balance decreased by the correct amount of tokens transferred
             for (uint256 i = 0; i < tokens.length(); i++) {
                 address token = tokens.at(i);
                 assertEq(
-                    IERC20(token).balanceOf(address(parentMultisig)),
-                    initialBalances[token][address(parentMultisig)] - tokensTransferred[token]
+                    IERC20(token).balanceOf(address(rootSafe)),
+                    initialBalances[token][address(rootSafe)] - tokensTransferred[token]
                 );
             }
         }
@@ -216,25 +216,25 @@ contract FinanceTemplate is SimpleTaskBase {
 
     /// @notice Validates approve operations
     function _validateApprove(address token, address target, uint256 amount) internal view {
-        assertEq(IERC20(token).allowance(address(parentMultisig), target), amount);
+        assertEq(IERC20(token).allowance(address(rootSafe), target), amount);
         assertEq(IERC20(token).balanceOf(target), initialBalances[token][target]);
     }
 
     /// @notice Validates increase allowance operations
     function _validateIncreaseAllowance(address token, address target, uint256 amount) internal view {
-        assertEq(IERC20(token).allowance(address(parentMultisig), target), initialAllowances[token][target] + amount);
+        assertEq(IERC20(token).allowance(address(rootSafe), target), initialAllowances[token][target] + amount);
         assertEq(IERC20(token).balanceOf(target), initialBalances[token][target]);
     }
 
     /// @notice Validates decrease allowance operations
     function _validateDecreaseAllowance(address token, address target, uint256 amount) internal view {
-        assertEq(IERC20(token).allowance(address(parentMultisig), target), initialAllowances[token][target] - amount);
+        assertEq(IERC20(token).allowance(address(rootSafe), target), initialAllowances[token][target] - amount);
         assertEq(IERC20(token).balanceOf(target), initialBalances[token][target]);
     }
 
     /// @notice Validates transfer operations
     function _validateTransfer(address token, address target, uint256 amount) internal view {
-        assertEq(IERC20(token).allowance(address(parentMultisig), target), initialAllowances[token][target]);
+        assertEq(IERC20(token).allowance(address(rootSafe), target), initialAllowances[token][target]);
         assertEq(IERC20(token).balanceOf(target), initialBalances[token][target] + amount);
     }
 

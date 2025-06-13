@@ -65,24 +65,24 @@ library MultisigTaskPrinter {
     }
 
     /// @notice Prints all information related to nested multisig transactions
-    /// @param parentMultisigLabel The label of the parent multisig
+    /// @param rootSafeLabel The label of the root safe
     /// @param childMultisigLabel The label of the child multisig
-    /// @param parentHashToApprove The hash that the child multisig needs to approve
+    /// @param rootSafeHashToApprove The hash that the child multisig needs to approve
     /// @param dataToSign The encoded transaction data for the child to sign
     /// @param domainSeparator The domain separator for the child multisig
     /// @param messageHash The message hash for the child multisig
     function printNestedDataInfo(
-        string memory parentMultisigLabel,
+        string memory rootSafeLabel,
         string memory childMultisigLabel,
-        bytes32 parentHashToApprove,
+        bytes32 rootSafeHashToApprove,
         bytes memory dataToSign,
         bytes32 domainSeparator,
         bytes32 messageHash
     ) internal view {
         console.log("");
         printTitle("NESTED MULTISIG CHILD'S HASH TO APPROVE");
-        console.log("Parent multisig: %s", parentMultisigLabel);
-        console.log("Parent hashToApprove: %s", vm.toString(parentHashToApprove));
+        console.log("Root safe: %s", rootSafeLabel);
+        console.log("Root safe hashToApprove: %s", vm.toString(rootSafeHashToApprove));
         printEncodedTransactionData(dataToSign);
 
         console.log("");
@@ -154,40 +154,40 @@ library MultisigTaskPrinter {
     }
 
     /// @notice Prints an OP-TxVerify link for transaction verification.
-    /// @param parentMultisig The address of the parent multisig.
+    /// @param rootSafe The address of the root safe.
     /// @param chainId The chain ID.
     /// @param childMultisig The address of the child multisig (can be address(0) if not nested).
-    /// @param parentCalldata The calldata for the parent multisig.
+    /// @param rootSafeCalldata The calldata for the root safe.
     /// @param optionalChildCallData The calldata for the child multisig (can be empty if not nested)
-    /// @param parentNonce The nonce of the parent multisig
+    /// @param rootSafeNonce The nonce of the root safe
     /// @param childNonce The nonce of the child multisig (can be 0 if not nested)
-    /// @param parentMulticallTarget The target address for the parent multicall
-    /// @param childMulticallTarget The target address for the child multicall (can be address(0) if not nested and matches parentMulticallTarget behavior
+    /// @param rootSafeMulticallTarget The target address for the root safe multicall
+    /// @param childMulticallTarget The target address for the child multicall (can be address(0) if not nested and matches rootSafeMulticallTarget behavior
     function printOPTxVerifyLink(
-        address parentMultisig,
+        address rootSafe,
         uint256 chainId,
         address childMultisig, // Can be address(0) if not nested
-        bytes memory parentCalldata,
+        bytes memory rootSafeCalldata,
         bytes memory optionalChildCallData, // Can be empty if not nested
-        uint256 parentNonce,
+        uint256 rootSafeNonce,
         uint256 childNonce, // Can be 0 if not nested
-        address parentMulticallTarget,
-        address childMulticallTarget // Can be address(0) if not nested and matches parentMulticallTarget behavior
+        address rootSafeMulticallTarget,
+        address childMulticallTarget // Can be address(0) if not nested and matches rootSafeMulticallTarget behavior
     ) internal view {
         bool isNested = childMultisig != address(0);
         string memory json = string.concat(
             '{\n   "safe": "',
-            vm.toString(parentMultisig),
+            vm.toString(rootSafe),
             '",\n    "safe_version": "',
-            IGnosisSafe(parentMultisig).VERSION(),
+            IGnosisSafe(rootSafe).VERSION(),
             '",\n   "chain": ',
             vm.toString(chainId),
             ',\n   "to": "',
-            vm.toString(parentMulticallTarget),
+            vm.toString(rootSafeMulticallTarget),
             '",\n   "value": ',
             vm.toString(uint256(0)),
             ',\n   "data": "',
-            vm.toString(parentCalldata)
+            vm.toString(rootSafeCalldata)
         );
 
         json = string.concat(
@@ -209,7 +209,7 @@ library MultisigTaskPrinter {
         json = string.concat(
             json,
             '",\n   "nonce": ',
-            vm.toString(parentNonce),
+            vm.toString(rootSafeNonce),
             isNested
                 ? string.concat(
                     ',\n   "nested": ',

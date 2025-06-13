@@ -153,7 +153,7 @@ graph TD
     end
   end
 
-  subgraph Parent Multisig
+  subgraph Root Multisig
     D1[approveHash 0xa6a4f14c]
     D2[execTransaction 0x6a761202]
     subgraph PMS State Overrides

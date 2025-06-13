@@ -31,7 +31,7 @@ abstract contract L2TaskBase is MultisigTask {
         internal
         virtual
         override
-        returns (AddressRegistry addrRegistry_, IGnosisSafe parentMultisig_, address multicallTarget_)
+        returns (AddressRegistry addrRegistry_, IGnosisSafe rootSafe_, address multicallTarget_)
     {
         multicallTarget_ = MULTICALL3_ADDRESS;
 
@@ -40,22 +40,22 @@ abstract contract L2TaskBase is MultisigTask {
 
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
-        // Try to get the parentMultisig globally first. If it exists globally, return it.
+        // Try to get the root safe globally first. If it exists globally, return it.
         // Otherwise we assume that the safe address is defined per-chain and we need to check for
         // each chain that all of the addresses are the same.
         try superchainAddrRegistry.get(templateConfig.safeAddressString) returns (address addr) {
-            parentMultisig_ = IGnosisSafe(addr);
+            rootSafe_ = IGnosisSafe(addr);
         } catch {
-            parentMultisig_ =
+            rootSafe_ =
                 IGnosisSafe(superchainAddrRegistry.getAddress(templateConfig.safeAddressString, chains[0].chainId));
-            // Ensure that all chains have the same parentMultisig.
+            // Ensure that all chains have the same root safe.
             for (uint256 i = 1; i < chains.length; i++) {
                 require(
-                    address(parentMultisig_)
+                    address(rootSafe_)
                         == superchainAddrRegistry.getAddress(templateConfig.safeAddressString, chains[i].chainId),
                     string.concat(
                         "MultisigTask: safe address mismatch. Caller: ",
-                        MultisigTaskPrinter.getAddressLabel(address(parentMultisig_)),
+                        MultisigTaskPrinter.getAddressLabel(address(rootSafe_)),
                         ". Actual address: ",
                         MultisigTaskPrinter.getAddressLabel(
                             superchainAddrRegistry.getAddress(templateConfig.safeAddressString, chains[i].chainId)

@@ -58,9 +58,9 @@ contract UniFix is L2TaskBase {
     function _configureTask(string memory configPath)
         internal
         override
-        returns (AddressRegistry addrRegistry_, IGnosisSafe parentMultisig_, address multicallTarget_)
+        returns (AddressRegistry addrRegistry_, IGnosisSafe rootSafe_, address multicallTarget_)
     {
-        (addrRegistry_, parentMultisig_, multicallTarget_) = super._configureTask(configPath);
+        (addrRegistry_, rootSafe_, multicallTarget_) = super._configureTask(configPath);
     }
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
