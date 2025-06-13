@@ -17,7 +17,7 @@ import {IPermissionedDisputeGame} from "lib/optimism/packages/contracts-bedrock/
 /// @title SetDisputeGameImpl
 /// @notice This template is used to set the implementation of FDG and PDG in the DisputeGameFactory contract
 ///         for a given chain or set of chains.
-contract SetGameImplementationTemplate is L2TaskBase {
+contract SetDisputeGameImpl is L2TaskBase {
     using stdToml for string;
 
     /// @notice Struct representing configuration for the task.
