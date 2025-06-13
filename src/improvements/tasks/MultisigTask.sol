@@ -363,40 +363,40 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// ==================================================
 
     /// @notice Simulate the task by approving from owners and then executing.
-    function simulate(bytes memory _signatures, Action[] memory _actions, address[] memory _safes)
+    function simulate(bytes memory _signatures, Action[] memory _actions, address[] memory _allSafes)
         internal
         returns (VmSafe.AccountAccess[] memory, bytes32 txHash_)
     {
-        validateSafes(_safes);
-        address root = _safes[_safes.length - 1];
+        validateSafes(_allSafes);
+        address rootSafe = _allSafes[_allSafes.length - 1];
         bytes memory callData = getMulticall3Calldata(_actions);
-        bytes32 hash = getHash(callData, root);
+        bytes32 hash = getHash(callData, rootSafe);
         bytes memory signatures;
 
         // Approve the hash from each owner
-        address[] memory owners = IGnosisSafe(parentMultisig).getOwners();
+        address[] memory owners = IGnosisSafe(rootSafe).getOwners();
         if (_signatures.length == 0) {
             for (uint256 i = 0; i < owners.length; i++) {
                 vm.prank(owners[i]);
-                IGnosisSafe(parentMultisig).approveHash(hash);
+                IGnosisSafe(rootSafe).approveHash(hash);
                 // Manualy increment the nonce for each owner. If we executed the approveHash function from the owner directly (contract or EOA),
                 // the nonce would be incremented by 1 and we wouldn't have to do this manually.
                 _incrementOwnerNonce(owners[i]);
             }
             // Gather signatures after approval hashes have been made
-            signatures = prepareSignatures(parentMultisig, hash);
+            signatures = prepareSignatures(rootSafe, hash);
         } else {
-            signatures = Signatures.prepareSignatures(parentMultisig, hash, _signatures);
+            signatures = Signatures.prepareSignatures(rootSafe, hash, _signatures);
         }
 
-        txHash_ = IGnosisSafe(parentMultisig).getTransactionHash(
+        txHash_ = IGnosisSafe(rootSafe).getTransactionHash(
             multicallTarget, 0, callData, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), nonce
         );
 
         require(hash == txHash_, "MultisigTask: hash mismatch");
 
         vm.startStateDiffRecording();
-        execTransaction(parentMultisig, multicallTarget, 0, callData, Enum.Operation.DelegateCall, signatures);
+        execTransaction(rootSafe, multicallTarget, 0, callData, Enum.Operation.DelegateCall, signatures);
         VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
 
         return (accountAccesses, txHash_);
