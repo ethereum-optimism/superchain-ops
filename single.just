@@ -152,8 +152,9 @@ sign hdPath='0' ledger='true':
   echo "Using script ${script}"
   echo "getting signer address..."
   if {{ledger}}; then
-    signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-    signer_args="--ledger --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
+    hdpaths="m/44'/60'/{{hdPath}}'/0/0"
+    signer=$(cast wallet address --ledger --mnemonic-derivation-path $hdpaths)
+    signer_args="--ledger --hd-paths $hdpaths"
   else
     signer_private_key=$(just --justfile={{justfile()}} get-keystore-private-key)
     signer=$(cast wallet address --private-key ${signer_private_key})
