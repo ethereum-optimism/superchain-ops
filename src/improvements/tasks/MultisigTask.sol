@@ -105,9 +105,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         public
     {
         // TODO: Remove this when the interface tasks an array of safes.
-        address[] memory safes = Solarray.addresses(_childMultisig);
+        address[] memory childSafes = Solarray.addresses(_childMultisig);
+        _taskSetup(taskConfigFilePath, childSafes);
 
-        _taskSetup(taskConfigFilePath, safes);
         Action[] memory actions = build();
         approve(_childMultisig, signatures, actions);
         console.log(
@@ -643,18 +643,18 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32 normalizedHash_, bytes memory dataToSign_)
     {
         // TODO: Remove this when the interface tasks an array of safes.
-        address[] memory safes;
+        address[] memory childSafes;
         if (_optionalChildMultisig != address(0)) {
-            safes = new address[](1);
-            safes[0] = _optionalChildMultisig;
+            childSafes = new address[](1);
+            childSafes[0] = _optionalChildMultisig;
         } else {
-            safes = new address[](0);
+            childSafes = new address[](0);
         }
 
-        safes = _taskSetup(_taskConfigFilePath, safes);
+        address[] memory allSafes = _taskSetup(_taskConfigFilePath, childSafes);
 
         Action[] memory actions = build();
-        (VmSafe.AccountAccess[] memory accountAccesses, bytes32 txHash) = simulate(_signatures, actions, safes);
+        (VmSafe.AccountAccess[] memory accountAccesses, bytes32 txHash) = simulate(_signatures, actions, allSafes);
         validate(accountAccesses, actions);
         (normalizedHash_, dataToSign_) = print(actions, accountAccesses, true, txHash);
 
@@ -669,9 +669,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     }
 
     /// @notice Using the tasks config.toml file, this function configures the task.
-    function _taskSetup(string memory _taskConfigFilePath, address[] memory _safes)
+    function _taskSetup(string memory _taskConfigFilePath, address[] memory _childSafes)
         internal
-        returns (address[] memory)
+        returns (address[] memory allSafes_)
     {
         require(parentMultisig == address(0), "MultisigTask: already initialized");
         templateConfig.safeAddressString = loadSafeAddressString(MultisigTask(address(this)), _taskConfigFilePath);
@@ -679,21 +679,20 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         (addrRegistry, _parentMultisig, multicallTarget) = _configureTask(_taskConfigFilePath);
 
         parentMultisig = address(_parentMultisig);
-        if (_safes.length > 0) childMultisig = _safes[0]; // TODO: remove this when childMultisig state variable is removed.
+        if (_childSafes.length > 0) childMultisig = _childSafes[0]; // TODO: remove this when childMultisig state variable is removed.
         // Appends the root safe. The earlier a safe address appears in the array, the deeper its level of nesting.
-        _safes = Solarray.extend(_safes, Solarray.addresses(parentMultisig));
-        validateSafes(_safes);
+        allSafes_ = Solarray.extend(_childSafes, Solarray.addresses(parentMultisig));
+        validateSafes(allSafes_);
 
         templateConfig.allowedStorageKeys = _taskStorageWrites();
         templateConfig.allowedStorageKeys.push(templateConfig.safeAddressString);
         templateConfig.allowedBalanceChanges = _taskBalanceChanges();
 
         _templateSetup(_taskConfigFilePath);
-        _overrideState(_taskConfigFilePath, _safes); // Overrides only matter for simulation and signing.
+        _overrideState(_taskConfigFilePath, allSafes_); // Overrides only matter for simulation and signing.
 
         vm.label(AddressRegistry.unwrap(addrRegistry), "AddrRegistry");
         vm.label(address(this), "MultisigTask");
-        return _safes;
     }
 
     /// @notice Print the hash to approve by EOA for parent/root multisig.
