@@ -488,7 +488,7 @@ contract RegressionTest is Test {
         string memory expectedDataToSign =
             "0x190137e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb1849636fc224f670e6159a8700e54129a6c793e35b5cc46d07cfe8c1768762c4";
 
-        _assertDataToSignSingleMultisig(multisigTask, actions, expectedDataToSign);
+        _assertDataToSignNestedMultisig(multisigTask, actions, expectedDataToSign);
     }
 
     /// @notice Internal function to set up the fork and run the simulateRun method
