@@ -97,46 +97,45 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testSimulateFailsHashMismatch() public {
-        // skip the run function call so we need to write to all storage variables manually
-        address multisig = addrRegistry.getAddress("SystemConfigOwner", getChain("optimism").chainId);
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml);
+        MultisigTask taskHashMismatch = MultisigTask(new MockMultisigTask());
 
-        // set multisig variable in MultisigTask to the actual multisig address
-        // so that the simulate function does not revert and can run and create
-        // calldata by calling the multisig functions
-        stdstore.target(address(task)).sig("parentMultisig()").checked_write(multisig);
+        address rootSafe = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
+        stdstore.target(address(taskHashMismatch)).sig("addrRegistry()").checked_write(address(addrRegistry));
+        stdstore.target(address(taskHashMismatch)).sig("superchainAddrRegistry()").checked_write(address(addrRegistry));
+        stdstore.target(address(taskHashMismatch)).sig("multicallTarget()").checked_write(MULTICALL3_ADDRESS);
 
-        // set AddressRegistry in MultisigTask contract to a deployed address registry
-        // contract so that these calls work
-        stdstore.target(address(task)).sig("addrRegistry()").checked_write(address(addrRegistry));
-
-        // set the target multicall address in MultisigTask contract to the
-        // multicall address
-        stdstore.target(address(task)).sig("multicallTarget()").checked_write(MULTICALL3_ADDRESS);
-
-        MockTarget mock = new MockTarget();
-        bytes memory callData = abi.encodeWithSelector(MockTarget.foobar.selector);
-        Action[] memory actions = createActions(address(mock), callData, 0, Enum.Operation.Call, "");
-        vm.mockCall(
-            multisig,
-            abi.encodeWithSelector(
-                IGnosisSafe.getTransactionHash.selector,
-                MULTICALL3_ADDRESS,
-                0,
-                task.getMulticall3Calldata(actions),
-                Enum.Operation.DelegateCall,
-                0,
-                0,
-                0,
-                address(0),
-                payable(address(0)),
-                task.nonce()
-            ),
-            // return a hash that cannot possibly be what is returned by the GnosisSafe
-            abi.encode(bytes32(uint256(100)))
-        );
+        uint256 nonce = IGnosisSafe(rootSafe).nonce();
+        // Set rootSafe in MultisigTask so that the build() function works.
+        stdstore.target(address(taskHashMismatch)).sig("parentMultisig()").checked_write(rootSafe);
+        Action[] memory actions = taskHashMismatch.build();
+        {
+            vm.mockCall(
+                rootSafe,
+                abi.encodeWithSelector(
+                    IGnosisSafe.getTransactionHash.selector,
+                    MULTICALL3_ADDRESS,
+                    0,
+                    taskHashMismatch.getMulticall3Calldata(actions),
+                    Enum.Operation.DelegateCall,
+                    0,
+                    0,
+                    0,
+                    address(0),
+                    payable(address(0)),
+                    nonce
+                ),
+                // return a hash that cannot possibly be what is returned by the GnosisSafe
+                abi.encode(bytes32(uint256(100)))
+            );
+        }
+        // Unset rootSafe and buildStarted so that simulateAsSigner does not revert.
+        stdstore.target(address(taskHashMismatch)).sig("parentMultisig()").checked_write(address(0));
+        stdstore.target(address(taskHashMismatch)).sig("getBuildStarted()").checked_write(uint256(0));
 
         vm.expectRevert("MultisigTask: hash mismatch");
-        task.simulate("", actions);
+        taskHashMismatch.simulateAsSigner(fileName, securityCouncilChildMultisig);
+        MultisigTaskTestHelper.removeFile(fileName);
     }
 
     function testBuildFailsRevertPreviousSnapshotFails() public {
@@ -200,13 +199,13 @@ contract MultisigTaskUnitTest is Test {
         string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml);
         (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) =
             runTestSimulation(fileName, securityCouncilChildMultisig);
-        MultisigTaskTestHelper.removeFile(fileName);
 
         vm.expectRevert("MultisigTask: execute failed");
-        task.simulate("", actions);
+        task.execute(new bytes(0), actions);
 
         /// validations should pass after a successful run
         task.validate(accountAccesses, actions);
+        MultisigTaskTestHelper.removeFile(fileName);
     }
 
     function testGetCalldata() public {
