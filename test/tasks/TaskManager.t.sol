@@ -6,6 +6,7 @@ import {LibString} from "@solady/utils/LibString.sol";
 import {TaskManager} from "src/improvements/tasks/TaskManager.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
+import {TaskConfig, L2Chain} from "src/libraries/MultisigTypes.sol";
 import {Vm} from "forge-std/Vm.sol";
 
 contract TaskManagerUnitTest is StateOverrideManager, Test {
@@ -79,13 +80,14 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
 
     function testNormalizedHashCheck_Passes() public {
         TaskManager tm = new TaskManager();
-        TaskManager.TaskConfig memory config = TaskManager.TaskConfig({
-            optionalL2Chains: new TaskManager.L2Chain[](0),
+        TaskConfig memory config = TaskConfig({
+            optionalL2Chains: new L2Chain[](0),
             basePath: "test/tasks/example/eth/004-fp-set-respected-game-type",
             configPath: "",
             templateName: "",
             parentMultisig: address(0),
-            isNested: true
+            isNested: true,
+            task: address(0)
         });
         // Doesn't have a VALIDATION markdown file.
         assertTrue(tm.checkNormalizedHash(bytes32(hex"1230"), config));
@@ -102,13 +104,14 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
 
     function testNormalizedHashCheck_Fails() public {
         TaskManager tm = new TaskManager();
-        TaskManager.TaskConfig memory config = TaskManager.TaskConfig({
-            optionalL2Chains: new TaskManager.L2Chain[](0),
+        TaskConfig memory config = TaskConfig({
+            optionalL2Chains: new L2Chain[](0),
             basePath: "src/improvements/tasks/eth/013-gas-params-op",
             configPath: "",
             templateName: "",
             parentMultisig: address(0),
-            isNested: true
+            isNested: true,
+            task: address(0)
         });
         // Does have a VALIDATION markdown file and hash does not match.
         assertFalse(tm.checkNormalizedHash(bytes32(hex"10"), config));
@@ -117,13 +120,14 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
     function testDataToSignCheck_Passes() public {
         vm.createSelectFork("mainnet"); // Pinning to a block.
         TaskManager tm = new TaskManager();
-        TaskManager.TaskConfig memory config = TaskManager.TaskConfig({
-            optionalL2Chains: new TaskManager.L2Chain[](0),
+        TaskConfig memory config = TaskConfig({
+            optionalL2Chains: new L2Chain[](0),
             basePath: "test/tasks/example/eth/004-fp-set-respected-game-type",
             configPath: "",
             templateName: "",
             parentMultisig: address(0x847B5c174615B1B7fDF770882256e2D3E95b9D92),
-            isNested: true
+            isNested: true,
+            task: address(0)
         });
         bytes memory dataToSign =
             hex"1901a4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672f654f4cec87ea0aee5f1632a35fe9184a0ab53cd9a6c3d86fdcd0fdb446abf76";
@@ -138,13 +142,14 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
 
     function testDataToSignCheck_Fails() public {
         TaskManager tm = new TaskManager();
-        TaskManager.TaskConfig memory config = TaskManager.TaskConfig({
-            optionalL2Chains: new TaskManager.L2Chain[](0),
+        TaskConfig memory config = TaskConfig({
+            optionalL2Chains: new L2Chain[](0),
             basePath: "src/improvements/tasks/eth/013-gas-params-op",
             configPath: "",
             templateName: "",
             parentMultisig: address(0x847B5c174615B1B7fDF770882256e2D3E95b9D92),
-            isNested: true
+            isNested: true,
+            task: address(0)
         });
         bytes memory fakeDataToSign =
             hex"190111111111111111111111111111111111111111111111111111111111111111110000000000000000000000000000000000000000000000000000000000000000";
