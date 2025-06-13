@@ -12,7 +12,7 @@ import {DisputeGameFactory} from "lib/optimism/packages/contracts-bedrock/src/di
 import {GameTypes} from "lib/optimism/packages/contracts-bedrock/src/dispute/lib/Types.sol";
 
 import {IFaultDisputeGame} from "lib/optimism/packages/contracts-bedrock/interfaces/dispute/IFaultDisputeGame.sol";
-import {IPermissionedDisputeGame} from 
+import {IPermissionedDisputeGame} from
     "lib/optimism/packages/contracts-bedrock/interfaces/dispute/IPermissionedDisputeGame.sol";
 
 /// @title SetDisputeGameImpl
