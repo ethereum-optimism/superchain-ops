@@ -1,6 +1,6 @@
 # Metal Mainnet Permissioned Fault Proofs
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0xc43aa8d8362bf9b97a23818fd8eb62452543057ba81c2b803be18e0ff36610f5)
 
 ## Objective
 
