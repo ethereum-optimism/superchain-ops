@@ -108,11 +108,22 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 - **Key:**          `0x076f3dda6ab776db8482d7489f57d7a476c42f834ef63e2337ab108dc39e16be`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x000000000000000000000000fd7e6ef1f6c9e4cc34f54065bf8496ce41a4e2e8`
-  - **Summary:** 
-  - **Detail:** 
-  
+  - **Summary:**  Adding the new Deputy Pause Module to the linked list.
+  - **Detail:**  We are adding the previous module to the linked list again as we replace the old reference with the new DPM.
+
 - **Key:**          `0xcc69885fda6bcc1a4ace058b4a62bf5e179ea78fd58a1ccd71c22cc9b688792f`
   - **Before:** `0x000000000000000000000000fd7e6ef1f6c9e4cc34f54065bf8496ce41a4e2e8`
   - **After:** `0x000000000000000000000000c10dac07d477215a1ebebae1dd0221c1f5d241d2`
-  - **Summary:** 
-  - **Detail:** 
+  - **Summary:** Adding the new Deputy Pause Module to the linked list.
+  - **Detail:** We are adding the new Deputy Pause Module to the linked list by replacing the previous module with the new one.
+
+### Nonce increments
+
+The only other state change are two nonce increments:
+
+- `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977` - Security Council
+- `0xf13D09eD3cbdD1C930d4de74808de1f33B6b3D4f` - Sender address of the Tenderly transaction (Your ledger or first owner on the nested safe).
+
+And one liveness guard update update as we are doing a transaction:
+
+- `0xc26977310bC89DAee5823C2e2a73195E85382cC7` - LivenessGuard
