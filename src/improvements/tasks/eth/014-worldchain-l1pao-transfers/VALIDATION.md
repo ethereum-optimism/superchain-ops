@@ -20,7 +20,7 @@ the values printed to the terminal when you run the task.
 > ### Worldchain Mainnet Proxy Admin Owner (`0xA4fB12D15Eb85dc9284a7df0AdBC8B696EdbbF1d`)
 >
 > - Domain Hash:  `0xb38a131bd7616105e60b1765f40d80d946e7ccf096e2a816236d7d819746a870`
-> - Message Hash: `0x81d3099974746e13c138abe69f0cc37051234f6159178d999634af366ef0ea7f`
+> - Message Hash: `0x43d626041d9a39ac1bd75e6b1fbdb8363f79dc8344b04ebb6680a2bf63cc49e5`
 
 ## Normalized State Diff Hash Attestation
 
@@ -81,8 +81,8 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:** `uint256`
-  - **Before:** `29` - (`cast --to-dec 0x1d` is `29`)
-  - **After:** `30` - (`cast --to-dec 0x1e` is `30`)
+  - **Before:** `30` - (`cast --to-dec 0x1e` is `30`)
+  - **After:** `31` - (`cast --to-dec 0x1f` is `31`)
   - **Summary:** nonce
   - **Detail:** Nonce update for the parent multisig.
   
