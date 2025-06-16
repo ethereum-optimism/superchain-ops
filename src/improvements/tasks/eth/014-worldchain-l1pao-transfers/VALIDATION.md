@@ -20,13 +20,13 @@ the values printed to the terminal when you run the task.
 > ### Worldchain Mainnet Proxy Admin Owner (`0xA4fB12D15Eb85dc9284a7df0AdBC8B696EdbbF1d`)
 >
 > - Domain Hash:  `0xb38a131bd7616105e60b1765f40d80d946e7ccf096e2a816236d7d819746a870`
-> - Message Hash: `0x43d626041d9a39ac1bd75e6b1fbdb8363f79dc8344b04ebb6680a2bf63cc49e5`
+> - Message Hash: `0x01cd30d5be302086544671edb964406e29b4e022221db0ba64c91a093164e66a`
 
 ## Normalized State Diff Hash Attestation
 
 The normalized state diff hash **MUST** match the hash produced by the state changes attested to in the state diff audit report. As a signer, you are responsible for verifying that this hash is correct. Please compare the hash below with the one in the audit report. If no audit report is available for this task, you must still ensure that the normalized state diff hash matches the output in your terminal.
 
-**Normalized hash:** `0x9f6161b6824fe0e61690575dafac8d998222aa6c44bb1bbc700ff397d7d850df`
+**Normalized hash:** `0x8c952d2fc9d43fd9012320e999a692d41d83ff9fdfbfffb530ce64644378a36a`
 
 # State Validations
 
@@ -48,7 +48,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000033`
   - **Decoded Kind:** `address`
   - **Before:** [`0xA4fB12D15Eb85dc9284a7df0AdBC8B696EdbbF1d`](https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/mainnet/worldchain.toml#L43)
-  - **After:** [`0x6aACd82e5D5A41aC508D456a151Ec53d2b1Fd7ab`](https://oplabs-pbc.slack.com/archives/C088FSUEWGK/p1748899817792179?thread_ts=1747234632.149739&cid=C088FSUEWGK)
+  - **After:** [`0xFD29D82d18086413B7f217D5D2f8E277e3dd34a8`](https://github.com/ethereum-optimism/world-chain-phase-1-safe?tab=readme-ov-file#validation)
   - **Summary:** DisputeGameFactory owner update to new 2-of-2 OP Foundation-Worldchain Safe
   - **Detail:** Verify the slot `0x0000000000000000000000000000000000000000000000000000000000000033` is correct by running the following command and observing that the output is the same as the `Before` value:
     
@@ -65,7 +65,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000033`
   - **Decoded Kind:** `address`
   - **Before:** [`0xB2aa0C2C4fD6BFCBF699d4c787CD6Cc0dC461a9d`](https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/mainnet/worldchain.toml#L42)
-  - **After:** [`0x6aACd82e5D5A41aC508D456a151Ec53d2b1Fd7ab`](https://oplabs-pbc.slack.com/archives/C088FSUEWGK/p1748899817792179?thread_ts=1747234632.149739&cid=C088FSUEWGK)
+  - **After:** [`0xFD29D82d18086413B7f217D5D2f8E277e3dd34a8`](https://github.com/ethereum-optimism/world-chain-phase-1-safe?tab=readme-ov-file#validation)
   - **Summary:** Permissioned DelayedWETH owner update to new 2-of-2 OP Foundation-Worldchain Safe
   - **Detail:** Verify the slot `0x0000000000000000000000000000000000000000000000000000000000000033` is correct by running the following command and observing that the output is the same as the `Before` value:
     
@@ -93,7 +93,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Decoded Kind:** `address`
   - **Before:** [`0xA4fB12D15Eb85dc9284a7df0AdBC8B696EdbbF1d`](https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/mainnet/worldchain.toml#L43C14-L43C15)
-  - **After:** [`0x6aACd82e5D5A41aC508D456a151Ec53d2b1Fd7ab`](https://oplabs-pbc.slack.com/archives/C088FSUEWGK/p1748899817792179?thread_ts=1747234632.149739&cid=C088FSUEWGK)
+  - **After:** [`0xFD29D82d18086413B7f217D5D2f8E277e3dd34a8`](https://github.com/ethereum-optimism/world-chain-phase-1-safe?tab=readme-ov-file#validation)
   - **Summary:** DisputeGameFactory owner update to new 2-of-2 OP Foundation-Worldchain Safe
   - **Detail:** Verify the slot `0x0000000000000000000000000000000000000000000000000000000000000033` is correct by running the following command and observing that the output is the same as the `Before` value:
     
