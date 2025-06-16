@@ -6,6 +6,7 @@ import {LibString} from "@solady/utils/LibString.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
+import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 import {MockMultisigTask} from "test/tasks/mock/MockMultisigTask.sol";
 import {MockDisputeGameTask} from "test/tasks/mock/MockDisputeGameTask.sol";
@@ -23,6 +24,7 @@ contract StateOverrideManagerUnitTest is Test {
     string constant commonToml = "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n"
         "templateName = \"DisputeGameUpgradeTemplate\"\n" "\n"
         "implementations = [{gameType = 0, implementation = \"0xf691F8A6d908B58C534B624cF16495b491E633BA\", l2ChainId = 10}]\n";
+    address constant ROOT_SAFE = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A;
     address constant SECURITY_COUNCIL_CHILD_MULTISIG = 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03;
 
     function testThresholdStateOverrideAppliedReverts() public {
@@ -142,8 +144,8 @@ contract StateOverrideManagerUnitTest is Test {
     /// @notice This test verifies that user-defined overrides take precedence over default overrides.
     function testUserTenderlyStateOverridesTakePrecedence() public {
         string memory noStateOverridesFileName = helper.createTempTomlFile(commonToml, TESTING_DIRECTORY, "007");
+        uint256 expectedNonce = IGnosisSafe(ROOT_SAFE).nonce();
         MultisigTask noStateOverridesTask = createAndRunTask(noStateOverridesFileName, SECURITY_COUNCIL_CHILD_MULTISIG);
-        uint256 expectedNonce = noStateOverridesTask.nonce();
         assertDefaultStateOverrides(2, noStateOverridesTask, SECURITY_COUNCIL_CHILD_MULTISIG);
 
         string memory toml = string.concat(
@@ -461,8 +463,7 @@ contract StateOverrideManagerUnitTest is Test {
     }
 
     function assertNonceIncremented(uint256 expectedNonce, MultisigTask task) internal view {
-        assertEq(task.nonce(), expectedNonce, string.concat("Expected nonce ", LibString.toString(expectedNonce)));
-        uint256 actualNonce = uint256(vm.load(address(task.parentMultisig()), bytes32(uint256(0x5))));
+        uint256 actualNonce = uint256(vm.load(address(task.root()), bytes32(uint256(0x5))));
         assertEq(actualNonce, expectedNonce + 1, "Nonce must be incremented by 1 in memory after task is run");
     }
 
@@ -473,7 +474,7 @@ contract StateOverrideManagerUnitTest is Test {
         view
         returns (Simulation.StateOverride[] memory allOverrides_)
     {
-        allOverrides_ = task.getStateOverrides(address(task.parentMultisig()), childMultisig);
+        allOverrides_ = task.getStateOverrides(address(task.root()), childMultisig);
 
         assertTrue(allOverrides_.length >= 1, "Must be at least 1 override (parent default)");
         assertEq(
@@ -484,9 +485,7 @@ contract StateOverrideManagerUnitTest is Test {
 
         Simulation.StateOverride memory parentDefaultOverride = allOverrides_[0];
         assertEq(
-            parentDefaultOverride.contractAddress,
-            address(task.parentMultisig()),
-            "Contract address must be the parent multisig"
+            parentDefaultOverride.contractAddress, address(task.root()), "Contract address must be the parent multisig"
         );
         // 4 possible overrides: <threshold>, [owner count], [owner mapping], [owner mapping 2]
         // 1 required overrides: <threshold>

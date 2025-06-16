@@ -49,20 +49,20 @@ contract StackSimulationTestTemplate is SimpleTaskBase {
         return storageWrites;
     }
 
-    function _templateSetup(string memory taskConfigFilePath) internal override {
-        super._templateSetup(taskConfigFilePath);
+    function _templateSetup(string memory taskConfigFilePath, address rootSafe) internal override {
+        super._templateSetup(taskConfigFilePath, rootSafe);
         string memory toml = vm.readFile(taskConfigFilePath);
         oldValue = toml.readUint(".oldValue");
         newValue = toml.readUint(".newValue");
         firstValue = toml.readUint(".firstValue");
     }
 
-    function _build() internal override {
+    function _build(address) internal override {
         SimpleStorage simpleStorage = SimpleStorage(simpleAddrRegistry.get("SimpleStorage"));
         simpleStorage.set(firstValue, oldValue, newValue);
     }
 
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
         SimpleStorage simpleStorage = SimpleStorage(simpleAddrRegistry.get("SimpleStorage"));
         assertEq(simpleStorage.current(), newValue);
         assertEq(simpleStorage.first(), firstValue);
