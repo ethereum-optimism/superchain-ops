@@ -45,8 +45,8 @@ contract TransferOwners is L2TaskBase {
     }
 
     /// @notice Sets up the template with the new owner from a TOML file.
-    function _templateSetup(string memory _taskConfigFilePath) internal override {
-        super._templateSetup(_taskConfigFilePath);
+    function _templateSetup(string memory _taskConfigFilePath, address rootSafe) internal override {
+        super._templateSetup(_taskConfigFilePath, rootSafe);
         string memory toml = vm.readFile(_taskConfigFilePath);
         newOwner = toml.readAddress(".newOwner");
 
@@ -66,7 +66,7 @@ contract TransferOwners is L2TaskBase {
     }
 
     /// @notice Builds the actions for transferring ownership of the DisputeGameFactory, DWETH contracts and ProxyAdmin.
-    function _build() internal override {
+    function _build(address) internal override {
         IDisputeGameFactory disputeGameFactory =
             IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", activeChainInfo.chainId));
         IDelayedWETH permissionedWETH = _getDWETH("PermissionedWETH", activeChainInfo.chainId);
@@ -100,7 +100,7 @@ contract TransferOwners is L2TaskBase {
     }
 
     /// @notice Validates that the owner was transferred correctly.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
         IDisputeGameFactory disputeGameFactory =
             IDisputeGameFactory(superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", activeChainInfo.chainId));
         IDelayedWETH permissionedWETH = _getDWETH("PermissionedWETH", activeChainInfo.chainId);

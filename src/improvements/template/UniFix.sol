@@ -64,8 +64,8 @@ contract UniFix is L2TaskBase {
     }
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
-    function _templateSetup(string memory taskConfigFilePath) internal override {
-        super._templateSetup(taskConfigFilePath);
+    function _templateSetup(string memory taskConfigFilePath, address rootSafe) internal override {
+        super._templateSetup(taskConfigFilePath, rootSafe);
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         assertEq(chains.length, 1);
         assertEq(chains[0].chainId, 1301);
@@ -85,7 +85,7 @@ contract UniFix is L2TaskBase {
     }
 
     /// @notice Write the calls that you want to execute for the task.
-    function _build() internal override {
+    function _build(address) internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         // We are only operating on Uni Sepolia.
         assertEq(chains.length, 1);
@@ -143,7 +143,7 @@ contract UniFix is L2TaskBase {
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         assertEq(chains.length, 1);
         assertEq(chains[0].chainId, 1301);
