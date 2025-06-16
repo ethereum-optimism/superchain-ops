@@ -45,14 +45,10 @@ abstract contract OPCMTaskBase is L2TaskBase {
         return "ProxyAdminOwner";
     }
 
-    /// @notice get the calldata to be executed by safe
-    /// @dev callable only after the build function has been run and the
-    /// calldata has been loaded up to storage. This function uses aggregate3
-    /// instead of aggregate3Value because OPCM tasks use Multicall3DelegateCall.
-    /// @return data The calldata to be executed
+    /// @notice Get the calldata to be executed by the root safe.
+    /// This function uses aggregate3 instead of aggregate3Value because OPCM tasks use Multicall3DelegateCall.
     function getMulticall3Calldata(Action[] memory actions) public pure override returns (bytes memory data) {
         (address[] memory targets,, bytes[] memory arguments) = processTaskActions(actions);
-
         IMulticall3.Call3[] memory calls = new IMulticall3.Call3[](targets.length);
 
         for (uint256 i; i < calls.length; i++) {
@@ -60,7 +56,7 @@ abstract contract OPCMTaskBase is L2TaskBase {
             calls[i] = IMulticall3.Call3({target: targets[i], allowFailure: false, callData: arguments[i]});
         }
 
-        data = abi.encodeWithSignature("aggregate3((address,bool,bytes)[])", calls);
+        data = abi.encodeCall(IMulticall3.aggregate3, (calls));
     }
 
     function validate(VmSafe.AccountAccess[] memory accesses, Action[] memory actions) public override {

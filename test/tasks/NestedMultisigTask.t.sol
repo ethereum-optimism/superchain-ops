@@ -147,6 +147,7 @@ contract NestedMultisigTaskTest is Test {
         (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) =
             runTask(SECURITY_COUNCIL_CHILD_MULTISIG);
         address parentMultisig = multisigTask.parentMultisig();
+        uint256 originalParentMultisigNonce = IGnosisSafe(parentMultisig).nonce();
         address[] memory parentMultisigOwners = IGnosisSafe(parentMultisig).getOwners();
         bytes[] memory childMultisigDatasToSign = new bytes[](parentMultisigOwners.length);
 
@@ -243,7 +244,8 @@ contract NestedMultisigTaskTest is Test {
         );
 
         bytes memory callData = multisigTask.getMulticall3Calldata(actions);
-        bytes32 taskHash = multisigTask.getHash(callData, parentMultisig);
+        // TODO: pass correct nonce in here.
+        bytes32 taskHash = multisigTask.getHash(callData, parentMultisig, 0, originalParentMultisigNonce);
 
         /// Now run the executeRun flow
         vm.revertToState(newSnapshot);
@@ -275,6 +277,7 @@ contract NestedMultisigTaskTest is Test {
 
         addrRegistry = multisigTask.addrRegistry();
         address parentMultisig = multisigTask.parentMultisig();
+        uint256 originalParentMultisigNonce = IGnosisSafe(parentMultisig).nonce();
         address[] memory parentMultisigOwners = IGnosisSafe(parentMultisig).getOwners();
         bytes[] memory childMultisigDatasToSign = new bytes[](parentMultisigOwners.length);
         // Store the data to sign for each child multisig
@@ -354,8 +357,9 @@ contract NestedMultisigTaskTest is Test {
 
         (accountAccesses, actions,,) =
             multisigTask.signFromChildMultisig(opcmTaskConfigFilePath, foundationChildMultisig);
-        bytes32 taskHash =
-            multisigTask.getHash(multisigTask.getMulticall3Calldata(actions), multisigTask.parentMultisig());
+        bytes32 taskHash = multisigTask.getHash(
+            multisigTask.getMulticall3Calldata(actions), multisigTask.parentMultisig(), 0, originalParentMultisigNonce
+        );
 
         vm.revertToState(newSnapshot);
         multisigTask.executeRun(opcmTaskConfigFilePath, prepareSignatures(parentMultisig, taskHash));
@@ -402,7 +406,7 @@ contract NestedMultisigTaskTest is Test {
         // Decrement the nonces by 1 because in task simulation child multisig nonces are incremented.
         MultisigTaskTestHelper.decrementNonceAfterSimulation(owner);
         bytes memory callData = multisigTask.generateApproveMulticallData(actions);
-        return multisigTask.getEncodedTransactionData(owner, callData);
+        return multisigTask.getEncodedTransactionData(owner, callData, 0, IGnosisSafe(owner).nonce());
     }
 
     function prepareSignatures(address _safe, bytes32 hash) internal view returns (bytes memory) {

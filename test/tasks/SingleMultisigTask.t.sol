@@ -154,7 +154,9 @@ contract SingleMultisigTaskTest is Test {
         (, Action[] memory actions) = runTask();
         addrRegistry = multisigTask.addrRegistry();
         bytes memory callData = multisigTask.getMulticall3Calldata(actions);
-        bytes memory dataToSign = multisigTask.getEncodedTransactionData(multisigTask.parentMultisig(), callData);
+        uint256 originalNonce = IGnosisSafe(multisigTask.parentMultisig()).nonce() - 1;
+        bytes memory dataToSign =
+            multisigTask.getEncodedTransactionData(multisigTask.parentMultisig(), callData, 0, originalNonce);
 
         // The nonce is decremented by 1 because we want to recreate the data to sign with the same nonce
         // that was used in the simulation. The nonce was incremented as part of running the simulation.
@@ -168,7 +170,7 @@ contract SingleMultisigTaskTest is Test {
             gasPrice: 0,
             gasToken: address(0),
             refundReceiver: address(0),
-            _nonce: IGnosisSafe(multisigTask.parentMultisig()).nonce() - 1
+            _nonce: originalNonce
         });
         assertEq(dataToSign, expectedDataToSign, "Wrong data to sign");
     }
@@ -176,18 +178,10 @@ contract SingleMultisigTaskTest is Test {
     function testHashToApprove() public {
         (, Action[] memory actions) = runTask();
         bytes memory callData = multisigTask.getMulticall3Calldata(actions);
-        bytes32 hash = multisigTask.getHash(callData, multisigTask.parentMultisig());
+        uint256 originalNonce = IGnosisSafe(multisigTask.parentMultisig()).nonce() - 1;
+        bytes32 hash = multisigTask.getHash(callData, multisigTask.parentMultisig(), 0, originalNonce);
         bytes32 expectedHash = IGnosisSafe(multisigTask.parentMultisig()).getTransactionHash(
-            MULTICALL3_ADDRESS,
-            0,
-            callData,
-            Enum.Operation.DelegateCall,
-            0,
-            0,
-            0,
-            address(0),
-            address(0),
-            IGnosisSafe(multisigTask.parentMultisig()).nonce() - 1
+            MULTICALL3_ADDRESS, 0, callData, Enum.Operation.DelegateCall, 0, 0, 0, address(0), address(0), originalNonce
         );
         assertEq(hash, expectedHash, "Wrong hash to approve");
     }
@@ -255,7 +249,9 @@ contract SingleMultisigTaskTest is Test {
         addrRegistry = multisigTask.addrRegistry();
         multisigTask.processTaskActions(actions);
         bytes memory callData = multisigTask.getMulticall3Calldata(actions);
-        bytes memory dataToSign = multisigTask.getEncodedTransactionData(multisigTask.parentMultisig(), callData);
+        uint256 originalNonce = IGnosisSafe(multisigTask.parentMultisig()).nonce() - 1;
+        bytes memory dataToSign =
+            multisigTask.getEncodedTransactionData(multisigTask.parentMultisig(), callData, 0, originalNonce);
         address multisig = multisigTask.parentMultisig();
         address systemConfigMode = toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigProxy", 34443);
         address systemConfigMetal = toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigProxy", 1750);
