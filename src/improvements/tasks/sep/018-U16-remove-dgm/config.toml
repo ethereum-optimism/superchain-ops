@@ -12,3 +12,9 @@ previousModule = "0xc10dac07d477215a1ebebae1dd0221c1f5d241d2"
 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [
      {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 42}
 ]
+# Insert the new DPM into the linked list. This is necessary for the call to
+# disableModule(previousModule, moduleToDisable) to be successful.
+0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E = [
+     {key = "0x076f3dda6ab776db8482d7489f57d7a476c42f834ef63e2337ab108dc39e16be", value = "0x000000000000000000000000fd7e6ef1f6c9e4cc34f54065bf8496ce41a4e2e8"},
+     {key = "0xcc69885fda6bcc1a4ace058b4a62bf5e179ea78fd58a1ccd71c22cc9b688792f", value = "0x000000000000000000000000c10dac07d477215a1ebebae1dd0221c1f5d241d2"}
+]
