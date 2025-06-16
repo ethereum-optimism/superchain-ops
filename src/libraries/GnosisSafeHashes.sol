@@ -4,6 +4,7 @@ pragma solidity ^0.8.15;
 import {LibString} from "@solady/utils/LibString.sol";
 import {JSONParserLib} from "@solady/utils/JSONParserLib.sol";
 import {GnosisSafe} from "lib/safe-contracts/contracts/GnosisSafe.sol";
+import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 
 /// @title GnosisSafeHashes
 /// @notice Library for calculating domain separators and message hashes for Gnosis Safe transactions
@@ -182,5 +183,28 @@ library GnosisSafeHashes {
             // Message hash starts at offset 66 (after domain separator)
             messageHash_ := mload(add(_encodedTxData, 66))
         }
+    }
+
+    /// @notice Helper to decode multicall calldata and extract approveHash parameter.
+    function decodeMulticallApproveHash(bytes memory _calldata) internal pure returns (bytes32) {
+        require(_calldata.length >= 4, "GnosisSafeHashes: calldata too short");
+
+        // Create a new bytes array without the function selector
+        bytes memory dataWithoutSelector = new bytes(_calldata.length - 4);
+        for (uint256 i = 0; i < dataWithoutSelector.length; i++) {
+            dataWithoutSelector[i] = _calldata[i + 4];
+        }
+
+        IMulticall3.Call3Value[] memory calls = abi.decode(dataWithoutSelector, (IMulticall3.Call3Value[]));
+        require(calls.length == 1, "GnosisSafeHashes: expected single approval call");
+        bytes memory approveCalldata = calls[0].callData;
+        require(approveCalldata.length == 36, "GnosisSafeHashes: invalid approveHash calldata length");
+
+        // Extract the hash parameter using assembly to skip the selector
+        bytes32 hash;
+        assembly {
+            hash := mload(add(approveCalldata, 36)) // 32 (length) + 4 (selector) = 36
+        }
+        return hash;
     }
 }

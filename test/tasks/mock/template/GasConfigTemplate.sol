@@ -39,8 +39,8 @@ contract GasConfigTemplate is L2TaskBase {
 
     /// @notice Sets up the template with gas configurations from a TOML file
     /// @param taskConfigFilePath Path to the TOML configuration file
-    function _templateSetup(string memory taskConfigFilePath) internal override {
-        super._templateSetup(taskConfigFilePath);
+    function _templateSetup(string memory taskConfigFilePath, address rootSafe) internal override {
+        super._templateSetup(taskConfigFilePath, rootSafe);
         GasConfig[] memory gasConfig =
             abi.decode(vm.parseToml(vm.readFile(taskConfigFilePath), ".gasConfigs.gasLimits"), (GasConfig[]));
 
@@ -50,7 +50,7 @@ contract GasConfigTemplate is L2TaskBase {
     }
 
     /// @notice Builds the actions for setting gas limits.
-    function _build() internal override {
+    function _build(address) internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {
@@ -64,7 +64,7 @@ contract GasConfigTemplate is L2TaskBase {
     }
 
     /// @notice Validates that gas limits were set correctly for the specified chain ID
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;

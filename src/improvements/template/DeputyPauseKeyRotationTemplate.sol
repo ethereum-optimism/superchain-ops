@@ -30,8 +30,8 @@ contract DeputyPauseKeyRotationTemplate is SimpleTaskBase {
     }
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
-    function _templateSetup(string memory taskConfigFilePath) internal override {
-        super._templateSetup(taskConfigFilePath);
+    function _templateSetup(string memory taskConfigFilePath, address rootSafe) internal override {
+        super._templateSetup(taskConfigFilePath, rootSafe);
 
         string memory file = vm.readFile(taskConfigFilePath);
 
@@ -41,7 +41,7 @@ contract DeputyPauseKeyRotationTemplate is SimpleTaskBase {
     }
 
     /// @notice Write the calls that you want to execute for the task.
-    function _build() internal override {
+    function _build(address) internal override {
         // Load the DeputyPauseModule contract.
         IDeputyPauseModule dpm = IDeputyPauseModule(simpleAddrRegistry.get("DeputyPauseModule"));
         // 1. In the future task we need to check that the DeputyPauseModule address is the one that is enabled in the foundation safe since in U13 task we will execute this task before activation this is different.
@@ -61,7 +61,7 @@ contract DeputyPauseKeyRotationTemplate is SimpleTaskBase {
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
         IDeputyPauseModule dpm = IDeputyPauseModule(simpleAddrRegistry.get("DeputyPauseModule"));
         assertEq(dpm.deputy(), newDeputy, "ERR103: DeputyPauseModule should have a the new deputy set");
         // check the foundation has the DPM enabled.

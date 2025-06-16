@@ -72,8 +72,8 @@ contract GnosisSafeApproveHash is L2TaskBase {
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
     /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
-    function _templateSetup(string memory _taskConfigFilePath) internal override {
-        super._templateSetup(_taskConfigFilePath);
+    function _templateSetup(string memory _taskConfigFilePath, address rootSafe) internal override {
+        super._templateSetup(_taskConfigFilePath, rootSafe);
 
         // Only allow one chain to be modified at a time with this template.
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
@@ -91,12 +91,12 @@ contract GnosisSafeApproveHash is L2TaskBase {
     }
 
     /// @notice Builds the actions for executing the operations
-    function _build() internal override {
+    function _build(address) internal override {
         IGnosisSafe(l1PAO).approveHash(safeTxHash);
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
         require(isHashApprovedOnL1PAO(safeTxHash), "safeTxHash is not approved");
     }
 

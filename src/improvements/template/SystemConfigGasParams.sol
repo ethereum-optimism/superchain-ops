@@ -42,8 +42,8 @@ contract SystemConfigGasParams is L2TaskBase {
     }
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
-    function _templateSetup(string memory taskConfigFilePath) internal override {
-        super._templateSetup(taskConfigFilePath);
+    function _templateSetup(string memory taskConfigFilePath, address rootSafe) internal override {
+        super._templateSetup(taskConfigFilePath, rootSafe);
 
         string memory tomlContent = vm.readFile(taskConfigFilePath);
         SuperchainAddressRegistry.ChainInfo[] memory _chains = superchainAddrRegistry.getChains();
@@ -65,7 +65,7 @@ contract SystemConfigGasParams is L2TaskBase {
     }
 
     /// @notice Update the gas limit and EIP1559 parameters for the SystemConfig contract.
-    function _build() internal override {
+    function _build(address) internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
@@ -77,7 +77,7 @@ contract SystemConfigGasParams is L2TaskBase {
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
