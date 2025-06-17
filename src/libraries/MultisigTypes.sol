@@ -75,3 +75,10 @@ struct TaskPayload {
     bytes[] calldatas;
     uint256[] originalNonces;
 }
+
+/// @notice Struct to store information about a safe
+struct SafeData {
+    address addr;
+    bytes callData;
+    uint256 nonce;
+}
