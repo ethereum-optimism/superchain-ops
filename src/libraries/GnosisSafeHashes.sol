@@ -5,6 +5,8 @@ import {LibString} from "@solady/utils/LibString.sol";
 import {JSONParserLib} from "@solady/utils/JSONParserLib.sol";
 import {GnosisSafe} from "lib/safe-contracts/contracts/GnosisSafe.sol";
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
+import {VmSafe} from "forge-std/Vm.sol";
+import {Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 /// @title GnosisSafeHashes
 /// @notice Library for calculating domain separators and message hashes for Gnosis Safe transactions
@@ -206,5 +208,21 @@ library GnosisSafeHashes {
             hash := mload(add(approveCalldata, 36)) // 32 (length) + 4 (selector) = 36
         }
         return hash;
+    }
+
+    function getOperationDetails(VmSafe.AccountAccessKind kind)
+        internal
+        pure
+        returns (string memory opStr, Enum.Operation op)
+    {
+        if (kind == VmSafe.AccountAccessKind.Call) {
+            opStr = "Call";
+            op = Enum.Operation.Call;
+        } else if (kind == VmSafe.AccountAccessKind.DelegateCall) {
+            opStr = "DelegateCall";
+            op = Enum.Operation.DelegateCall;
+        } else {
+            revert("Unknown account access kind");
+        }
     }
 }
