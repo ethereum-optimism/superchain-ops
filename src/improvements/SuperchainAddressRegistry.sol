@@ -48,13 +48,6 @@ contract SuperchainAddressRegistry is StdChains {
     address private constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
     Vm private constant vm = Vm(VM_ADDRESS);
 
-    /// @notice Structure for parsing .l2ChainsLocal entries from TOML.
-    struct LocalChainInfo {
-        uint256 chainId;
-        string name;
-        string path;
-    }
-
     /// @notice Structure for reading chain list details from toml file
     struct ChainInfo {
         uint256 chainId;
@@ -99,46 +92,14 @@ contract SuperchainAddressRegistry is StdChains {
 
         string memory toml = vm.readFile(configPath);
         bool l2ChainsKeyExists = toml.keyExists(".l2chains");
-        bool l2ChainsLocalKeyExists = toml.keyExists(".l2ChainsLocal");
-        _validateL2ChainsConfig(l2ChainsKeyExists, l2ChainsLocalKeyExists);
+        require(l2ChainsKeyExists, "SuperchainAddressRegistry: .l2chains must be present in the config.toml file.");
 
         ChainInfo[] memory _chainsMemory;
-        bool fromLocalConfigOnly = false;
-        LocalChainInfo[] memory localChainInfosForProcessing; // To hold localChainInfos if needed in the second loop
+        string memory fallbackAddressesJsonPath = toml.readStringOr(".fallbackAddressesJsonPath", "");
+        bytes memory chainListContent = toml.parseRaw(".l2chains");
+        _chainsMemory = abi.decode(chainListContent, (ChainInfo[]));
+        require(_chainsMemory.length > 0, "SuperchainAddressRegistry: .l2chains list is empty");
 
-        if (l2ChainsLocalKeyExists) {
-            bytes memory chainListContent = toml.parseRaw(".l2ChainsLocal");
-            LocalChainInfo[] memory localChainInfos = abi.decode(chainListContent, (LocalChainInfo[]));
-
-            require(localChainInfos.length > 0, "SuperchainAddressRegistry: .l2ChainsLocal list is empty");
-            _chainsMemory = new ChainInfo[](localChainInfos.length);
-            for (uint256 i = 0; i < localChainInfos.length; i++) {
-                require(
-                    localChainInfos[i].chainId != 0,
-                    "SuperchainAddressRegistry: Invalid chain ID in .l2ChainsLocal config"
-                );
-                require(
-                    bytes(localChainInfos[i].name).length > 0,
-                    "SuperchainAddressRegistry: Empty name in .l2ChainsLocal config"
-                );
-                require(
-                    bytes(localChainInfos[i].path).length > 0,
-                    "SuperchainAddressRegistry: Empty path in .l2ChainsLocal config"
-                );
-
-                // ChainInfo now only has chainId and name. Path is handled separately.
-                _chainsMemory[i] = ChainInfo({chainId: localChainInfos[i].chainId, name: localChainInfos[i].name});
-            }
-            localChainInfosForProcessing = localChainInfos; // Keep for the processing loop
-            fromLocalConfigOnly = true;
-        } else {
-            // l2ChainsKeyExists must be true
-            bytes memory chainListContent = toml.parseRaw(".l2chains");
-            _chainsMemory = abi.decode(chainListContent, (ChainInfo[]));
-            require(_chainsMemory.length > 0, "SuperchainAddressRegistry: .l2chains list is empty");
-        }
-
-        require(_chainsMemory.length > 0, "SuperchainAddressRegistry: no chains found in config");
         for (uint256 i = 0; i < _chainsMemory.length; i++) {
             require(_chainsMemory[i].chainId != 0, "SuperchainAddressRegistry: Invalid chain ID in config");
             require(bytes(_chainsMemory[i].name).length > 0, "SuperchainAddressRegistry: Empty name in config");
@@ -154,34 +115,25 @@ contract SuperchainAddressRegistry is StdChains {
         for (uint256 i = 0; i < chains.length; i++) {
             // Create a copy of the chain info from storage.
             ChainInfo memory currentChain = chains[i];
-
-            if (fromLocalConfigOnly) {
-                // All chains came from .l2ChainsLocal. Path is mandatory.
-                require(
-                    i < localChainInfosForProcessing.length,
-                    "SuperchainAddressRegistry: Mismatch in local config processing index"
-                );
-                string memory currentLocalAddressesPath = localChainInfosForProcessing[i].path;
-                require(
-                    bytes(currentLocalAddressesPath).length > 0,
-                    "SuperchainAddressRegistry: Empty path retrieved for local chain config"
-                );
-
+            bool chainExists =
+                vm.keyExistsJson(superchainRegistryChainAddrs, string.concat("$.", vm.toString(currentChain.chainId)));
+            if (!chainExists) {
                 console.log(
                     string.concat(
-                        string("[INFO]").green().bold(),
-                        " Using local addresses for ",
+                        "SuperchainAddressRegistry: Chain ",
                         currentChain.name,
-                        " (chainId: ",
-                        vm.toString(currentChain.chainId),
-                        ") reading from ",
-                        currentLocalAddressesPath
+                        " not found in superchain registry, using fallback path ",
+                        fallbackAddressesJsonPath
                     )
                 );
-                string memory customAddresses = vm.readFile(currentLocalAddressesPath);
-                _processAddresses(currentChain, customAddresses, false); // false = skip discovery, load from file
+                require(
+                    bytes(fallbackAddressesJsonPath).length > 0,
+                    "SuperchainAddressRegistry: Chain does not exist in superchain registry and fallback path is empty."
+                );
+                string memory customAddresses = vm.readFile(fallbackAddressesJsonPath);
+                saveAllAddressesLocal(customAddresses, currentChain);
             } else {
-                _processAddresses(currentChain, superchainRegistryChainAddrs, true); // true = perform discovery
+                _processAddresses(currentChain, superchainRegistryChainAddrs);
             }
         }
 
@@ -201,18 +153,6 @@ contract SuperchainAddressRegistry is StdChains {
             address who = toml.readAddress(string.concat(".addresses.", key));
             saveAddress(key, sentinelChain, who);
         }
-    }
-
-    /// @notice Validates the presence and exclusivity of .l2chains and .l2ChainsLocal keys in the config.
-    function _validateL2ChainsConfig(bool l2ChainsKeyExists, bool l2ChainsLocalKeyExists) internal pure {
-        require(
-            !(l2ChainsKeyExists && l2ChainsLocalKeyExists),
-            "SuperchainAddressRegistry: .l2chains and .l2ChainsLocal cannot coexist in the config.toml file"
-        );
-        require(
-            l2ChainsKeyExists || l2ChainsLocalKeyExists,
-            "SuperchainAddressRegistry: Either .l2chains or .l2ChainsLocal must be present in the config.toml file"
-        );
     }
 
     /// @notice Reads in hardcoded addresses from the addresses.toml file.
@@ -303,18 +243,13 @@ contract SuperchainAddressRegistry is StdChains {
     /// This makes addresses on these chains available by using the getAddress function.
     function discoverNewChain(ChainInfo memory chain) public {
         string memory chainAddressesContent = vm.readFile(SUPERCHAIN_REGISTRY_ADDRESSES_PATH);
-        _processAddresses(chain, chainAddressesContent, true);
+        _processAddresses(chain, chainAddressesContent);
         chains.push(chain);
     }
 
     /// @dev Processes all configurations for a given chain.
-    function _processAddresses(ChainInfo memory chain, string memory chainAddressesContent, bool discovery) internal {
+    function _processAddresses(ChainInfo memory chain, string memory chainAddressesContent) internal {
         uint256 chainId = chain.chainId; // L2 chain ID.
-
-        if (!discovery) {
-            saveAllAddressesLocal(chainAddressesContent, chain);
-            return;
-        }
 
         address optimismPortalProxy = _fetchAndSaveInitialContracts(chain, chainAddressesContent);
 

@@ -213,30 +213,7 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
         MultisigTaskTestHelper.removeFile(fileName);
     }
 
-    function testMustContainEitherL2ChainsOrL2ChainsLocal() public {
-        string memory invalidToml = "\n" "templateName = \"RandomTemplate\"\n";
-        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(invalidToml);
-        vm.expectRevert(
-            "SuperchainAddressRegistry: Either .l2chains or .l2ChainsLocal must be present in the config.toml file"
-        );
-        new SuperchainAddressRegistry(fileName);
-        MultisigTaskTestHelper.removeFile(fileName);
-    }
-
-    function testRunFailsWhenBothL2ChainsAndL2ChainsLocalAreDefined() public {
-        string memory invalidToml = "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n"
-            "l2ChainsLocal = [{name = \"Unichain\", chainId = 130}]\n" "\n";
-        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(invalidToml);
-        vm.expectRevert(
-            "SuperchainAddressRegistry: .l2chains and .l2ChainsLocal cannot coexist in the config.toml file"
-        );
-        new SuperchainAddressRegistry(fileName);
-        MultisigTaskTestHelper.removeFile(fileName);
-    }
-
-    /// .l2ChainsLocal tests
-
-    function testConstructor_WithValidL2ChainsLocal_LoadsAddresses() public {
+    function testConstructor_WithValidNonExistentChain_UsesFallbackPath() public {
         vm.createSelectFork("mainnet");
         string memory localJsonContent =
             '{ \
@@ -248,12 +225,14 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
         string memory localJsonPath = "my-local-addresses.json";
         vm.writeFile(localJsonPath, localJsonContent);
 
-        string memory tomlContent =
-            string.concat('l2ChainsLocal = [{name = "MyLocalChain", chainId = 12345, path = "', localJsonPath, '"}]');
+        string memory tomlContent = string.concat(
+            'l2chains = [{name = "MyLocalChain", chainId = 12345}]\n',
+            'fallbackAddressesJsonPath = "',
+            localJsonPath,
+            '"'
+        );
         string memory configFileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent);
-
         SuperchainAddressRegistry localRegistry = new SuperchainAddressRegistry(configFileName);
-
         assertTrue(localRegistry.seenL2ChainIds(12345), "Local chain ID 12345 not seen");
 
         SuperchainAddressRegistry.ChainInfo[] memory chains = localRegistry.getChains();
@@ -281,73 +260,22 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
         MultisigTaskTestHelper.removeFile(localJsonPath);
     }
 
-    function testConstructor_L2ChainsLocal_EmptyListReverts() public {
+    function testConstructor_WithEmptyFallbackPath_Reverts() public {
         vm.createSelectFork("mainnet");
-        string memory tomlContent = "l2ChainsLocal = []";
+        string memory tomlContent =
+            string.concat('l2chains = [{name = "MyLocalChain", chainId = 12345}]\n', 'fallbackAddressesJsonPath = ""');
         string memory configFileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent);
-        vm.expectRevert("SuperchainAddressRegistry: .l2ChainsLocal list is empty");
+        vm.expectRevert(
+            "SuperchainAddressRegistry: Chain does not exist in superchain registry and fallback path is empty."
+        );
         new SuperchainAddressRegistry(configFileName);
         MultisigTaskTestHelper.removeFile(configFileName);
     }
 
-    function testConstructor_L2ChainsLocal_MissingPathReverts() public {
-        vm.createSelectFork("mainnet");
-        string memory tomlContent = 'l2ChainsLocal = [{name = "MyLocalChain", chainId = 12345}]';
-        string memory configFileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent);
-        vm.expectRevert();
-        new SuperchainAddressRegistry(configFileName);
-        MultisigTaskTestHelper.removeFile(configFileName);
-    }
-
-    function testConstructor_L2ChainsLocal_ItemWithEmptyPathReverts() public {
-        vm.createSelectFork("mainnet");
-        string memory tomlContent = 'l2ChainsLocal = [{name = "MyLocalChain", chainId = 12345, path = ""}]';
-        string memory configFileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent);
-        vm.expectRevert("SuperchainAddressRegistry: Empty path in .l2ChainsLocal config");
-        new SuperchainAddressRegistry(configFileName);
-        MultisigTaskTestHelper.removeFile(configFileName);
-    }
-
-    function testConstructor_L2ChainsLocal_MissingChainIdReverts() public {
-        vm.createSelectFork("mainnet");
-        string memory tomlContent = 'l2ChainsLocal = [{name = "MyLocalChain", path = "some/path.json"}]';
-        string memory configFileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent);
-        vm.expectRevert();
-        new SuperchainAddressRegistry(configFileName);
-        MultisigTaskTestHelper.removeFile(configFileName);
-    }
-
-    function testConstructor_L2ChainsLocal_ItemWithZeroChainIdReverts() public {
-        vm.createSelectFork("mainnet");
-        string memory tomlContent = 'l2ChainsLocal = [{name = "MyLocalChain", chainId = 0, path = "some/path.json"}]';
-        string memory configFileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent);
-        vm.expectRevert("SuperchainAddressRegistry: Invalid chain ID in .l2ChainsLocal config");
-        new SuperchainAddressRegistry(configFileName);
-        MultisigTaskTestHelper.removeFile(configFileName);
-    }
-
-    function testConstructor_L2ChainsLocal_MissingNameReverts() public {
-        vm.createSelectFork("mainnet");
-        string memory tomlContent = 'l2ChainsLocal = [{chainId = 12345, path = "some/path.json"}]';
-        string memory configFileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent);
-        vm.expectRevert();
-        new SuperchainAddressRegistry(configFileName);
-        MultisigTaskTestHelper.removeFile(configFileName);
-    }
-
-    function testConstructor_L2ChainsLocal_ItemWithEmptyNameReverts() public {
-        vm.createSelectFork("mainnet");
-        string memory tomlContent = 'l2ChainsLocal = [{name = "", chainId = 12345, path = "some/path.json"}]';
-        string memory configFileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent);
-        vm.expectRevert("SuperchainAddressRegistry: Empty name in .l2ChainsLocal config");
-        new SuperchainAddressRegistry(configFileName);
-        MultisigTaskTestHelper.removeFile(configFileName);
-    }
-
-    function testConstructor_L2ChainsLocal_InvalidJsonPathReverts() public {
-        string memory nonExistentJsonPath = "test/registry/non-existent-file.json";
+    function testConstructor_WithInvalidFallbackPath_Reverts() public {
         string memory tomlContent = string.concat(
-            'l2ChainsLocal = [{name = "MyLocalChain", chainId = 12345, path = "', nonExistentJsonPath, '"}]'
+            'l2chains = [{name = "MyLocalChain", chainId = 12345}]\n',
+            'fallbackAddressesJsonPath = "test/registry/non-existent-file.json"'
         );
         string memory configFileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent);
         vm.expectRevert();
