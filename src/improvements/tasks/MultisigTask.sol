@@ -36,7 +36,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// @notice AddressesRegistry contract
     AddressRegistry public addrRegistry;
 
-    /// @notice configuration set by a tasks template
+    /// @notice Configuration set by the task's template
     TemplateConfig public templateConfig;
 
     /// @notice The address of the multicall target for this task
@@ -79,18 +79,19 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         public
         returns (VmSafe.AccountAccess[] memory)
     {
-        (address[] memory allSafes, uint256[] memory originalNonces) = _taskSetup(taskConfigFilePath, new address[](0));
+        (address[] memory allSafes, uint256[] memory allOriginalNonces) =
+            _taskSetup(taskConfigFilePath, new address[](0));
         address rootSafe = allSafes[allSafes.length - 1];
-        uint256 rootSafeNonce = originalNonces[originalNonces.length - 1];
+        uint256 rootSafeNonce = allOriginalNonces[allOriginalNonces.length - 1];
         Action[] memory actions = build(rootSafe);
-        bytes[] memory allCalldatas = calldatas(actions, allSafes, originalNonces);
+        bytes[] memory allCalldatas = calldatas(actions, allSafes, allOriginalNonces);
 
         (VmSafe.AccountAccess[] memory accountAccesses, bytes32 txHash) =
-            execute(signatures, allSafes, allCalldatas, originalNonces);
+            execute(signatures, allSafes, allCalldatas, allOriginalNonces);
 
         validate(accountAccesses, actions, rootSafe, rootSafeNonce);
 
-        print(accountAccesses, false, txHash, allSafes, allCalldatas, originalNonces);
+        print(accountAccesses, false, txHash, allSafes, allCalldatas, allOriginalNonces);
         return accountAccesses;
     }
 
@@ -125,7 +126,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     }
 
     /// @notice This function performs the same functionality as signFromChildMultisig but
-    /// to keep the terminal output clean, we don't want to return the account accesses and actions.
+    /// to keep the terminal output clean, we don't return the account accesses and actions.
     function simulateAsSigner(string memory taskConfigFilePath, address _childMultisig) public {
         simulateRun(taskConfigFilePath, "", _childMultisig);
     }
@@ -553,26 +554,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         return accountNotRegistryOrVm && accessorNotRegistry && (isCall || isTopLevelDelegateCall) && accessorIsRootSafe;
     }
 
-    /// @notice Composes a description string for the given access using the provided operation string.
-    function _composeDescription(VmSafe.AccountAccess memory access, string memory opStr)
-        internal
-        view
-        returns (string memory)
-    {
-        return string(
-            abi.encodePacked(
-                opStr,
-                " ",
-                MultisigTaskPrinter.getAddressLabel(access.account),
-                " with ",
-                vm.toString(access.value),
-                " eth and ",
-                vm.toString(access.data),
-                " data."
-            )
-        );
-    }
-
     /// @notice This function performs basic checks on the state diff.
     /// It checks that all touched accounts have code, that the balances are unchanged if not expected, and that no self-destructs occurred.
     function checkStateDiff(VmSafe.AccountAccess[] memory accountAccesses) internal view {
@@ -580,58 +561,90 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         address[] memory allowedAccesses = getAllowedStorageAccess();
         address[] memory newContracts = accountAccesses.getNewContracts();
         for (uint256 i; i < accountAccesses.length; i++) {
-            VmSafe.AccountAccess memory accountAccess = accountAccesses[i];
-            // All touched accounts should have code, with the exception of precompiles.
-            bool isPrecompile = accountAccess.account >= address(0x1) && accountAccess.account <= address(0xa);
-            if (!isPrecompile) {
+            _validateAccountAccess(accountAccesses[i], newContracts);
+            _validateStorageAccesses(accountAccesses[i], newContracts, allowedAccesses);
+        }
+    }
+
+    /// @notice Validates the basic properties of a single account access record.
+    function _validateAccountAccess(VmSafe.AccountAccess memory accountAccess, address[] memory newContracts)
+        private
+        view
+    {
+        // All touched accounts should have code, with the exception of precompiles.
+        bool isPrecompile = accountAccess.account >= address(0x1) && accountAccess.account <= address(0xa);
+        if (!isPrecompile) {
+            require(
+                accountAccess.account.code.length != 0,
+                string.concat("Account has no code: ", vm.toString(accountAccess.account))
+            );
+        }
+
+        if (!_allowedBalanceChanges.contains(accountAccess.account)) {
+            // Skip balance change checks for newly deployed contracts.
+            // Ensure that existing contracts, that haven't been allow listed, do not contain a value transfer.
+            if (!Utils.contains(newContracts, accountAccess.account)) {
                 require(
-                    accountAccess.account.code.length != 0,
-                    string.concat("Account has no code: ", vm.toString(accountAccess.account))
+                    !accountAccess.containsValueTransfer(),
+                    string.concat("Unexpected balance change: ", vm.toString(accountAccess.account))
                 );
             }
+        }
 
-            if (!_allowedBalanceChanges.contains(accountAccess.account)) {
-                // Skip balance change checks for newly deployed contracts.
-                // Ensure that existing contracts, that haven't been allow listed, do not contain a value transfer.
-                if (!Utils.contains(newContracts, accountAccess.account)) {
-                    require(
-                        !accountAccess.containsValueTransfer(),
-                        string.concat("Unexpected balance change: ", vm.toString(accountAccess.account))
-                    );
-                }
-            }
+        require(
+            accountAccess.kind != VmSafe.AccountAccessKind.SelfDestruct,
+            string.concat("Self-destructed account: ", vm.toString(accountAccess.account))
+        );
+    }
 
-            require(
-                accountAccess.kind != VmSafe.AccountAccessKind.SelfDestruct,
-                string.concat("Self-destructed account: ", vm.toString(accountAccess.account))
-            );
-            for (uint256 j; j < accountAccess.storageAccesses.length; j++) {
-                VmSafe.StorageAccess memory storageAccess = accountAccess.storageAccesses[j];
-                if (!storageAccess.isWrite) continue; // Skip SLOADs.
-                uint256 value = uint256(storageAccess.newValue);
-                address account = storageAccess.account;
-                if (Utils.isLikelyAddressThatShouldHaveCode(value, getCodeExceptions())) {
-                    // Log account, slot, and value if there is no code.
-                    // forgefmt: disable-start
-                    string memory err = string.concat("Likely address in storage has no code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
-                    // forgefmt: disable-end
-                    require(address(uint160(value)).code.length != 0, err);
-                } else {
-                    // Log account, slot, and value if there is code.
-                    // forgefmt: disable-start
-                    string memory err = string.concat("Likely address in storage has unexpected code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
-                    // forgefmt: disable-end
-                    require(address(uint160(value)).code.length == 0, err);
-                }
-                require(account.code.length != 0, string.concat("Storage account has no code: ", vm.toString(account)));
-                require(!storageAccess.reverted, string.concat("Storage access reverted: ", vm.toString(account)));
-                bool allowed;
-                for (uint256 k; k < allowedAccesses.length; k++) {
-                    allowed = allowed || (account == allowedAccesses[k]) || Utils.contains(newContracts, account);
-                }
-                require(allowed, string.concat("Unallowed Storage access: ", vm.toString(account)));
+    /// @notice Validates all storage write operations within a single account access record.
+    function _validateStorageAccesses(
+        VmSafe.AccountAccess memory accountAccess,
+        address[] memory newContracts,
+        address[] memory allowedAccesses
+    ) private view {
+        for (uint256 j; j < accountAccess.storageAccesses.length; j++) {
+            VmSafe.StorageAccess memory storageAccess = accountAccess.storageAccesses[j];
+            if (storageAccess.isWrite) {
+                _validateStorageWrite(storageAccess, newContracts, allowedAccesses);
             }
         }
+    }
+
+    /// @notice Validates a single storage write operation.
+    function _validateStorageWrite(
+        VmSafe.StorageAccess memory storageAccess,
+        address[] memory newContracts,
+        address[] memory allowedAccesses
+    ) private view {
+        address account = storageAccess.account;
+        uint256 value = uint256(storageAccess.newValue);
+
+        if (Utils.isLikelyAddressThatShouldHaveCode(value, getCodeExceptions())) {
+            // forgefmt: disable-start
+            string memory err = string.concat("Likely address in storage has no code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
+            // forgefmt: disable-end
+            require(address(uint160(value)).code.length != 0, err);
+        } else {
+            // forgefmt: disable-start
+            string memory err = string.concat("Likely address in storage has unexpected code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
+            // forgefmt: disable-end
+            require(address(uint160(value)).code.length == 0, err);
+        }
+
+        require(account.code.length != 0, string.concat("Storage account has no code: ", vm.toString(account)));
+        require(!storageAccess.reverted, string.concat("Storage access reverted: ", vm.toString(account)));
+
+        bool isAllowed = Utils.contains(newContracts, account);
+        if (!isAllowed) {
+            for (uint256 k; k < allowedAccesses.length; k++) {
+                if (account == allowedAccesses[k]) {
+                    isAllowed = true;
+                    break;
+                }
+            }
+        }
+        require(isAllowed, string.concat("Unallowed Storage access: ", vm.toString(account)));
     }
 
     /// @notice Helper function that returns whether or not the current context is a broadcast context.
@@ -801,59 +814,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         }
     }
 
-    /// @notice Print the hash to approve by EOA for parent/root multisig.
-    function _printParentHash(
-        address[] memory _allSafes,
-        bytes[] memory allCalldatas,
-        uint256[] memory allOriginalNonces
-    ) internal view {
-        address rootSafe = _allSafes[_allSafes.length - 1];
-        uint256 rootSafeNonce = allOriginalNonces[_allSafes.length - 1];
-        bytes memory rootSafeCalldata = allCalldatas[_allSafes.length - 1];
-        console.log("Parent Multisig: ", MultisigTaskPrinter.getAddressLabel(rootSafe));
-        bytes32 safeTxHash = getHash(rootSafeCalldata, rootSafe, 0, rootSafeNonce, _allSafes);
-        console.log("Safe Transaction Hash: ", vm.toString(safeTxHash));
-        bytes memory encodedTxData = getEncodedTransactionData(rootSafe, rootSafeCalldata, 0, rootSafeNonce, _allSafes);
-        bytes32 computedDomainSeparator = GnosisSafeHashes.calculateDomainSeparator(block.chainid, rootSafe);
-        (bytes32 domainSeparator, bytes32 messageHash) =
-            GnosisSafeHashes.getDomainAndMessageHashFromEncodedTransactionData(encodedTxData);
-        require(domainSeparator == computedDomainSeparator, "Domain separator mismatch");
-        console.log("Domain Hash:    ", vm.toString(domainSeparator));
-        console.log("Message Hash:   ", vm.toString(messageHash));
-
-        address rootMulticallTarget = _getMulticallAddress(rootSafe, _allSafes);
-        MultisigTaskPrinter.printOPTxVerifyLink(
-            rootSafe,
-            block.chainid,
-            address(0), // No child multisig for single parent hash context
-            rootSafeCalldata,
-            hex"", // No child calldata
-            rootSafeNonce,
-            0, // No child nonce
-            rootMulticallTarget,
-            address(0) // No child multicall target
-        );
-    }
-
     /// ==================================================
     /// =============== Private Functions ================
     /// ==================================================
-
-    function _getOperationDetails(VmSafe.AccountAccessKind kind)
-        private
-        pure
-        returns (string memory opStr, Enum.Operation op)
-    {
-        if (kind == VmSafe.AccountAccessKind.Call) {
-            opStr = "Call";
-            op = Enum.Operation.Call;
-        } else if (kind == VmSafe.AccountAccessKind.DelegateCall) {
-            opStr = "DelegateCall";
-            op = Enum.Operation.DelegateCall;
-        } else {
-            revert("Unknown account access kind");
-        }
-    }
 
     /// @notice Increments the nonce of the given owner.
     /// If the owner is a contract, we need to increment the nonce manually.
@@ -913,15 +876,25 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                 // Ensure action uniqueness.
                 validateAction(accesses[i].account, accesses[i].value, accesses[i].data, validActions);
 
-                (string memory opStr, Enum.Operation op) = _getOperationDetails(accesses[i].kind);
-                string memory desc = _composeDescription(accesses[i], opStr);
+                (string memory opStr, Enum.Operation op) = GnosisSafeHashes.getOperationDetails(accesses[i].kind);
 
                 validActions[index] = Action({
                     value: accesses[i].value,
                     target: accesses[i].account,
                     arguments: accesses[i].data,
                     operation: op,
-                    description: desc
+                    description: string(
+                        abi.encodePacked(
+                            opStr,
+                            " ",
+                            MultisigTaskPrinter.getAddressLabel(accesses[i].account),
+                            " with ",
+                            vm.toString(accesses[i].value),
+                            " eth and ",
+                            vm.toString(accesses[i].data),
+                            " data."
+                        )
+                    )
                 });
                 index++;
             }
@@ -933,12 +906,12 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// @notice Applies user-defined state overrides to the current state and stores the original nonces before simulation.
     function _overrideState(string memory _taskConfigFilePath, address[] memory _allSafes)
         private
-        returns (uint256[] memory originalNonces_)
+        returns (uint256[] memory allOriginalNonces_)
     {
         _setStateOverridesFromConfig(_taskConfigFilePath); // Sets global '_stateOverrides' variable.
-        originalNonces_ = new uint256[](_allSafes.length);
+        allOriginalNonces_ = new uint256[](_allSafes.length);
         for (uint256 i = 0; i < _allSafes.length; i++) {
-            originalNonces_[i] = _getNonceOrOverride(_allSafes[i]);
+            allOriginalNonces_[i] = _getNonceOrOverride(_allSafes[i]);
             address[] memory owners = IGnosisSafe(_allSafes[i]).getOwners();
             for (uint256 j = 0; j < owners.length; j++) {
                 if (owners[j].code.length > 0) _getNonceOrOverride(owners[j]); // Nonce safety checks performed for each owner that is a safe.
@@ -1106,7 +1079,31 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         // eip712sign tool looks for the output of this command.
         MultisigTaskPrinter.printEncodedTransactionData(dataToSign_);
         MultisigTaskPrinter.printTitle("SINGLE MULTISIG EOA HASH TO APPROVE");
-        _printParentHash(allSafes, allCalldatas, allOriginalNonces);
+
+        // Inlined from _printParentHash
+        console.log("Parent Multisig: ", MultisigTaskPrinter.getAddressLabel(rootSafe));
+        bytes32 safeTxHash = getHash(rootSafeCalldata, rootSafe, 0, rootSafeNonce, allSafes);
+        console.log("Safe Transaction Hash: ", vm.toString(safeTxHash));
+
+        bytes32 computedDomainSeparator = GnosisSafeHashes.calculateDomainSeparator(block.chainid, rootSafe);
+        (bytes32 domainSeparator, bytes32 messageHash) =
+            GnosisSafeHashes.getDomainAndMessageHashFromEncodedTransactionData(dataToSign_);
+        require(domainSeparator == computedDomainSeparator, "Domain separator mismatch");
+        console.log("Domain Hash:    ", vm.toString(domainSeparator));
+        console.log("Message Hash:   ", vm.toString(messageHash));
+
+        address rootMulticallTarget = _getMulticallAddress(rootSafe, allSafes);
+        MultisigTaskPrinter.printOPTxVerifyLink(
+            rootSafe,
+            block.chainid,
+            address(0), // No child multisig for single parent hash context
+            rootSafeCalldata,
+            hex"", // No child calldata
+            rootSafeNonce,
+            0, // No child nonce
+            rootMulticallTarget,
+            address(0) // No child multicall target
+        );
     }
 
     /// ==================================================
