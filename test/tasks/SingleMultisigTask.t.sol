@@ -18,7 +18,7 @@ import {IncorrectGasConfigTemplate1} from "test/tasks/mock/template/IncorrectGas
 import {IncorrectGasConfigTemplate2} from "test/tasks/mock/template/IncorrectGasConfigTemplate2.sol";
 import {MultisigTaskTestHelper} from "test/tasks/MultisigTask.t.sol";
 import {Utils} from "src/libraries/Utils.sol";
-import {TaskPayload} from "src/libraries/MultisigTypes.sol";
+import {TaskPayload, SafeData} from "src/libraries/MultisigTypes.sol";
 import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
 
 contract SingleMultisigTaskTest is Test {
@@ -161,23 +161,23 @@ contract SingleMultisigTaskTest is Test {
         TaskPayload memory payload =
             TaskPayload({safes: allSafes, calldatas: allCalldatas, originalNonces: allOriginalNonces});
 
-        (, bytes memory rootSafeCalldata, uint256 rootSafeNonce) = Utils.getSafeData(payload, payload.safes.length - 1);
+        SafeData memory rootSafeData = Utils.getSafeData(payload, payload.safes.length - 1);
 
         bytes memory dataToSign = GnosisSafeHashes.getEncodedTransactionData(
-            multisigTask.root(), rootSafeCalldata, 0, rootSafeNonce, MULTICALL3_ADDRESS
+            multisigTask.root(), rootSafeData.callData, 0, rootSafeData.nonce, MULTICALL3_ADDRESS
         );
 
         bytes memory expectedDataToSign = IGnosisSafe(multisigTask.root()).encodeTransactionData({
             to: MULTICALL3_ADDRESS,
             value: 0,
-            data: rootSafeCalldata,
+            data: rootSafeData.callData,
             operation: Enum.Operation.DelegateCall,
             safeTxGas: 0,
             baseGas: 0,
             gasPrice: 0,
             gasToken: address(0),
             refundReceiver: address(0),
-            _nonce: rootSafeNonce
+            _nonce: rootSafeData.nonce
         });
         assertEq(dataToSign, expectedDataToSign, "Wrong data to sign");
     }
@@ -190,21 +190,20 @@ contract SingleMultisigTaskTest is Test {
         TaskPayload memory payload =
             TaskPayload({safes: allSafes, calldatas: allCalldatas, originalNonces: allOriginalNonces});
 
-        (address rootSafe, bytes memory rootSafeCalldata, uint256 rootSafeNonce) =
-            Utils.getSafeData(payload, payload.safes.length - 1);
+        SafeData memory rootSafeData = Utils.getSafeData(payload, payload.safes.length - 1);
 
-        bytes32 hash = multisigTask.getHash(rootSafeCalldata, rootSafe, 0, rootSafeNonce, allSafes);
+        bytes32 hash = multisigTask.getHash(rootSafeData.callData, rootSafeData.addr, 0, rootSafeData.nonce, allSafes);
         bytes32 expectedHash = IGnosisSafe(multisigTask.root()).getTransactionHash(
             MULTICALL3_ADDRESS,
             0,
-            rootSafeCalldata,
+            rootSafeData.callData,
             Enum.Operation.DelegateCall,
             0,
             0,
             0,
             address(0),
             address(0),
-            rootSafeNonce
+            rootSafeData.nonce
         );
         assertEq(hash, expectedHash, "Wrong hash to approve");
     }
@@ -278,12 +277,11 @@ contract SingleMultisigTaskTest is Test {
         TaskPayload memory payload =
             TaskPayload({safes: allSafes, calldatas: allCalldatas, originalNonces: allOriginalNonces});
 
-        (address rootSafe, bytes memory rootSafeCalldata, uint256 rootSafeNonce) =
-            Utils.getSafeData(payload, payload.safes.length - 1);
-        rootSafeNonce = rootSafeNonce - 1; // The task has already run so we decrement the nonce by 1.
+        SafeData memory rootSafeData = Utils.getSafeData(payload, payload.safes.length - 1);
+        rootSafeData.nonce = rootSafeData.nonce - 1; // The task has already run so we decrement the nonce by 1.
 
         bytes memory dataToSign = GnosisSafeHashes.getEncodedTransactionData(
-            multisigTask.root(), rootSafeCalldata, 0, rootSafeNonce, MULTICALL3_ADDRESS
+            multisigTask.root(), rootSafeData.callData, 0, rootSafeData.nonce, MULTICALL3_ADDRESS
         );
         address systemConfigMode = toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigProxy", 34443);
         address systemConfigMetal = toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigProxy", 1750);
@@ -316,28 +314,28 @@ contract SingleMultisigTaskTest is Test {
                 // 2 is the slot for the owners mapping
                 // variable slot is the slot for a key in the owners mapping
                 slot = keccak256(abi.encode(currentOwner, OWNER_MAPPING_STORAGE_OFFSET));
-                vm.store(rootSafe, slot, bytes32(uint256(uint160(newOwners[i].walletAddress))));
+                vm.store(rootSafeData.addr, slot, bytes32(uint256(uint160(newOwners[i].walletAddress))));
                 currentOwner = newOwners[i].walletAddress;
             }
 
             // link the last owner to the sentinel owner
             slot = keccak256(abi.encode(currentOwner, OWNER_MAPPING_STORAGE_OFFSET));
-            vm.store(rootSafe, slot, bytes32(uint256(uint160(0x1))));
+            vm.store(rootSafeData.addr, slot, bytes32(uint256(uint160(0x1))));
         }
 
         // set the owners count to 9
-        vm.store(rootSafe, bytes32(OWNER_COUNT_STORAGE_OFFSET), bytes32(uint256(9)));
+        vm.store(rootSafeData.addr, bytes32(OWNER_COUNT_STORAGE_OFFSET), bytes32(uint256(9)));
         // set the threshold to 4
-        vm.store(rootSafe, bytes32(THRESHOLD_STORAGE_OFFSET), bytes32(uint256(4)));
+        vm.store(rootSafeData.addr, bytes32(THRESHOLD_STORAGE_OFFSET), bytes32(uint256(4)));
 
-        address[] memory getNewOwners = IGnosisSafe(rootSafe).getOwners();
+        address[] memory getNewOwners = IGnosisSafe(rootSafeData.addr).getOwners();
         assertEq(getNewOwners.length, 9, "Expected 9 owners");
         for (uint256 i = 0; i < newOwners.length; i++) {
             // check that the new owners are set correctly
             assertEq(getNewOwners[i], newOwners[i].walletAddress, "Expected owner");
         }
 
-        uint256 threshold = IGnosisSafe(rootSafe).getThreshold();
+        uint256 threshold = IGnosisSafe(rootSafeData.addr).getThreshold();
         assertEq(threshold, 4, "Expected threshold should be updated to mocked value");
 
         LibSort.sort(getNewOwners);
