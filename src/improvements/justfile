@@ -108,19 +108,12 @@ check-superchain-registry-latest:
     root_dir=$(git rev-parse --show-toplevel)
     bash ${root_dir}/src/improvements/script/check-superchain-latest.sh
 
-# this is command is mainly for CI testing purposes and not task developers
-# task developers can run this locally, however it is expected that this
-# command will be run mostly by CI.
+# This command simulates tasks in the example directory. There should be a corresponding task for each template.
 simulate-all-templates:
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
     forge build
-
-    # If the task is nested then we only simulate as the foundation.
-    # In the future we could simulate as other nested safes.
-    # For testing purposes, we do not gain anything by simulating as other nested safes.
-    nested_safe_name="foundation"
     simulation_count=0
 
     # Collect PIDs of each background simulation.
@@ -128,6 +121,19 @@ simulate-all-templates:
 
     for task in "${root_dir}/test/tasks/example/"*/*; do
         if [ -d "$task" ]; then
+            # Extract nested_safe_name with fail-safe default of foundation.
+            nested_safe_name="foundation"
+            if [ -f "$task/.env" ]; then
+                # Check if NESTED_SAFE_NAME exists in the file and extract it
+                if grep -q "NESTED_SAFE_NAME" "$task/.env"; then
+                    extracted_value=$(grep "NESTED_SAFE_NAME" "$task/.env" | cut -d '=' -f 2)
+                    # Only use the extracted value if its not empty and not null
+                    if [ -n "$extracted_value" ] && [ "$extracted_value" != "null" ]; then
+                        nested_safe_name="$extracted_value"
+                    fi
+                fi
+            fi
+
             # Launch each simulation in background.
             "${root_dir}/src/improvements/script/simulate-task.sh" "$task" "$nested_safe_name" & pids+=( "$!" )
         fi

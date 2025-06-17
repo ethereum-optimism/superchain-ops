@@ -19,6 +19,7 @@ import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.
 import {Utils} from "src/libraries/Utils.sol";
 import {MultisigTaskPrinter} from "src/libraries/MultisigTaskPrinter.sol";
 import {TaskManager} from "src/improvements/tasks/TaskManager.sol";
+import {Solarray} from "lib/optimism/packages/contracts-bedrock/scripts/libraries/Solarray.sol";
 
 type AddressRegistry is address;
 
@@ -87,7 +88,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         public
         returns (VmSafe.AccountAccess[] memory)
     {
-        _taskSetup(taskConfigFilePath, address(0));
+        _taskSetup(taskConfigFilePath, new address[](0));
         Action[] memory actions = build();
 
         (VmSafe.AccountAccess[] memory accountAccesses, bytes32 txHash) = execute(signatures, actions);
@@ -103,7 +104,10 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     function approveFromChildMultisig(string memory taskConfigFilePath, address _childMultisig, bytes memory signatures)
         public
     {
-        _taskSetup(taskConfigFilePath, _childMultisig);
+        // TODO: Remove this when the interface tasks an array of safes.
+        address[] memory childSafes = Solarray.addresses(_childMultisig);
+        _taskSetup(taskConfigFilePath, childSafes);
+
         Action[] memory actions = build();
         approve(_childMultisig, signatures, actions);
         console.log(
@@ -164,45 +168,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         execTransaction(parentMultisig, multicallTarget, 0, callData, Enum.Operation.DelegateCall, signatures);
 
         return (vm.stopAndReturnStateDiff(), txHash_);
-    }
-
-    /// @notice Simulate the task by approving from owners and then executing.
-    function simulate(bytes memory _signatures, Action[] memory actions)
-        public
-        returns (VmSafe.AccountAccess[] memory, bytes32 txHash_)
-    {
-        bytes memory callData = getMulticall3Calldata(actions);
-        bytes32 hash = getHash(callData, parentMultisig);
-        bytes memory signatures;
-
-        // Approve the hash from each owner
-        address[] memory owners = IGnosisSafe(parentMultisig).getOwners();
-        if (_signatures.length == 0) {
-            for (uint256 i = 0; i < owners.length; i++) {
-                vm.prank(owners[i]);
-                IGnosisSafe(parentMultisig).approveHash(hash);
-                // Manualy increment the nonce for each owner. If we executed the approveHash function from the owner directly (contract or EOA),
-                // the nonce would be incremented by 1 and we wouldn't have to do this manually.
-                _incrementOwnerNonce(owners[i]);
-            }
-            // Gather signatures after approval hashes have been made
-            signatures = prepareSignatures(parentMultisig, hash);
-        } else {
-            signatures = Signatures.prepareSignatures(parentMultisig, hash, _signatures);
-        }
-
-        txHash_ = IGnosisSafe(parentMultisig).getTransactionHash(
-            multicallTarget, 0, callData, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), nonce
-        );
-
-        require(hash == txHash_, "MultisigTask: hash mismatch");
-
-        vm.startStateDiffRecording();
-
-        // Execute the transaction
-        execTransaction(parentMultisig, multicallTarget, 0, callData, Enum.Operation.DelegateCall, signatures);
-        VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
-        return (accountAccesses, txHash_);
     }
 
     /// ==================================================
@@ -396,6 +361,64 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// ==================================================
     /// =============== Internal Functions ===============
     /// ==================================================
+
+    /// @notice Simulate the task by approving from owners and then executing.
+    function simulate(bytes memory _signatures, Action[] memory _actions, address[] memory _allSafes)
+        internal
+        returns (VmSafe.AccountAccess[] memory, bytes32 txHash_)
+    {
+        validateSafes(_allSafes);
+        address rootSafe = _allSafes[_allSafes.length - 1];
+        bytes memory callData = getMulticall3Calldata(_actions);
+        bytes32 hash = getHash(callData, rootSafe);
+        bytes memory signatures;
+
+        // Approve the hash from each owner
+        address[] memory owners = IGnosisSafe(rootSafe).getOwners();
+        if (_signatures.length == 0) {
+            for (uint256 i = 0; i < owners.length; i++) {
+                vm.prank(owners[i]);
+                IGnosisSafe(rootSafe).approveHash(hash);
+                // Manually increment the nonce for each owner. If we executed the approveHash function from the owner directly (contract or EOA),
+                // the nonce would be incremented by 1 and we wouldn't have to do this manually.
+                _incrementOwnerNonce(owners[i]);
+            }
+            // Gather signatures after approval hashes have been made
+            signatures = prepareSignatures(rootSafe, hash);
+        } else {
+            signatures = Signatures.prepareSignatures(rootSafe, hash, _signatures);
+        }
+
+        txHash_ = IGnosisSafe(rootSafe).getTransactionHash(
+            multicallTarget, 0, callData, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), nonce
+        );
+
+        require(hash == txHash_, "MultisigTask: hash mismatch");
+
+        vm.startStateDiffRecording();
+        execTransaction(rootSafe, multicallTarget, 0, callData, Enum.Operation.DelegateCall, signatures);
+        VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
+
+        return (accountAccesses, txHash_);
+    }
+
+    /// @notice Validate that the safes are in the correct order.
+    function validateSafes(address[] memory _allSafes) internal view {
+        require(_allSafes.length > 0, "MultisigTask: no safes provided");
+        // TODO: remove this check once we support an arbitrary number of safes in the future.
+        require(_allSafes.length <= 2, "MultisigTask: currently only supports 1 level of nesting.");
+        for (uint256 i = 1; i < _allSafes.length; i++) {
+            require(
+                IGnosisSafe(_allSafes[i]).isOwner(_allSafes[i - 1]),
+                string.concat(
+                    "MultisigTask: Safe ",
+                    vm.toString(_allSafes[i - 1]),
+                    " is not an owner of ",
+                    vm.toString(_allSafes[i])
+                )
+            );
+        }
+    }
 
     /// @notice Prank as the multisig.
     /// Override to prank with delegatecall flag set to true
@@ -619,25 +642,28 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// as well as the nested multisig. For single multisig,
     /// prints the data to sign and the hash to approve which is used to sign with the eip712sign binary.
     /// For nested multisig, prints the data to sign and the hash to approve for each of the child multisigs.
-    /// @param taskConfigFilePath The path to the task configuration file.
-    function simulateRun(string memory taskConfigFilePath, bytes memory signatures, address optionalChildMultisig)
+    function simulateRun(string memory _taskConfigFilePath, bytes memory _signatures, address _optionalChildMultisig)
         internal
         returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32 normalizedHash_, bytes memory dataToSign_)
     {
-        // Sets safe to the safe specified by the current template from addresses.json
-        _taskSetup(taskConfigFilePath, optionalChildMultisig);
+        // TODO: Remove this when the interface tasks an array of safes.
+        address[] memory childSafes;
+        if (_optionalChildMultisig != address(0)) {
+            childSafes = new address[](1);
+            childSafes[0] = _optionalChildMultisig;
+        } else {
+            childSafes = new address[](0);
+        }
 
-        // Overrides only get applied when simulating
-        _overrideState(taskConfigFilePath);
+        address[] memory allSafes = _taskSetup(_taskConfigFilePath, childSafes);
 
-        // now execute task actions
         Action[] memory actions = build();
-        (VmSafe.AccountAccess[] memory accountAccesses, bytes32 txHash) = simulate(signatures, actions);
+        (VmSafe.AccountAccess[] memory accountAccesses, bytes32 txHash) = simulate(_signatures, actions, allSafes);
         validate(accountAccesses, actions);
         (normalizedHash_, dataToSign_) = print(actions, accountAccesses, true, txHash);
 
         // Revert with meaningful error message if the user is trying to simulate with the wrong command.
-        if (optionalChildMultisig != address(0)) {
+        if (allSafes.length > 1) {
             require(isNestedSafe(parentMultisig), "MultisigTask: multisig must be a nested safe.");
         } else {
             require(!isNestedSafe(parentMultisig), "MultisigTask: multisig must be a single safe.");
@@ -647,28 +673,27 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     }
 
     /// @notice Using the tasks config.toml file, this function configures the task.
-    /// by performing various setup functions e.g. setting the address registry and multicall target.
-    function _taskSetup(string memory taskConfigFilePath, address optionalChildMultisig) internal {
+    function _taskSetup(string memory _taskConfigFilePath, address[] memory _childSafes)
+        internal
+        returns (address[] memory allSafes_)
+    {
         require(parentMultisig == address(0), "MultisigTask: already initialized");
-        templateConfig.safeAddressString = loadSafeAddressString(MultisigTask(address(this)), taskConfigFilePath);
+        templateConfig.safeAddressString = loadSafeAddressString(MultisigTask(address(this)), _taskConfigFilePath);
         IGnosisSafe _parentMultisig; // TODO parentMultisig should be of type IGnosisSafe
-        (addrRegistry, _parentMultisig, multicallTarget) = _configureTask(taskConfigFilePath);
+        (addrRegistry, _parentMultisig, multicallTarget) = _configureTask(_taskConfigFilePath);
 
         parentMultisig = address(_parentMultisig);
-        childMultisig = optionalChildMultisig;
+        if (_childSafes.length > 0) childMultisig = _childSafes[0]; // TODO: remove this when childMultisig state variable is removed.
+        // Appends the root safe. The earlier a safe address appears in the array, the deeper its level of nesting.
+        allSafes_ = Solarray.extend(_childSafes, Solarray.addresses(parentMultisig));
+        validateSafes(allSafes_);
 
         templateConfig.allowedStorageKeys = _taskStorageWrites();
         templateConfig.allowedStorageKeys.push(templateConfig.safeAddressString);
         templateConfig.allowedBalanceChanges = _taskBalanceChanges();
 
-        _templateSetup(taskConfigFilePath);
-        // Both parent and child nonce are set here.
-        // They may be overridden later by user-defined state overrides.
-        // See: '_overrideState(string memory taskConfigFilePath)'
-        nonce = IGnosisSafe(parentMultisig).nonce();
-        if (childMultisig != address(0)) {
-            childNonce = IGnosisSafe(childMultisig).nonce();
-        }
+        _templateSetup(_taskConfigFilePath);
+        _overrideState(_taskConfigFilePath, allSafes_); // Overrides only matter for simulation and signing.
 
         vm.label(AddressRegistry.unwrap(addrRegistry), "AddrRegistry");
         vm.label(address(this), "MultisigTask");
@@ -818,22 +843,24 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         return validActions;
     }
 
-    /// @notice Stores the state of the task prior to local simulation.
-    /// Sets the parent and child nonces to their current values,
-    /// ensuring subsequent calldata generation uses the correct
-    /// nonce values even after the task has been executed locally.
-    function _overrideState(string memory taskConfigFilePath) private {
-        _setStateOverridesFromConfig(taskConfigFilePath); // Sets global '_stateOverrides' variable.
-        nonce = _getNonceOrOverride(address(parentMultisig));
-        if (childMultisig != address(0)) {
-            address[] memory owners = IGnosisSafe(parentMultisig).getOwners();
-            for (uint256 i = 0; i < owners.length; i++) {
-                if (owners[i] == childMultisig) {
-                    childNonce = _getNonceOrOverride(address(childMultisig));
-                } else {
-                    _getNonceOrOverride(owners[i]); // Nonce safety checks must be performed for each owner.
-                }
+    /// @notice Applies user-defined state overrides to the current state and stores the original nonces before simulation.
+    function _overrideState(string memory _taskConfigFilePath, address[] memory _allSafes)
+        private
+        returns (uint256[] memory originalNonces_)
+    {
+        _setStateOverridesFromConfig(_taskConfigFilePath); // Sets global '_stateOverrides' variable.
+        originalNonces_ = new uint256[](_allSafes.length);
+        for (uint256 i = 0; i < _allSafes.length; i++) {
+            originalNonces_[i] = _getNonceOrOverride(_allSafes[i]);
+            address[] memory owners = IGnosisSafe(_allSafes[i]).getOwners();
+            for (uint256 j = 0; j < owners.length; j++) {
+                if (owners[j].code.length > 0) _getNonceOrOverride(owners[j]); // Nonce safety checks performed for each owner that is a safe.
             }
+        }
+        // TODO: remove when these state variables are removed.
+        nonce = originalNonces_[originalNonces_.length - 1];
+        if (_allSafes.length == 2) {
+            childNonce = originalNonces_[0];
         }
         // We must do this after setting the nonces above. It allows us to make sure we're reading the correct network state when setting the nonces.
         _applyStateOverrides(); // Applies '_stateOverrides' to the current state.

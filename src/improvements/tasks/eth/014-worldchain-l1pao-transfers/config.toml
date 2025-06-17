@@ -1,0 +1,11 @@
+l2chains = [{name = "Worldchain Mainnet", chainId = 480}]
+templateName = "TransferOwners"
+
+# Mainnet L1PAO - https://oplabs-pbc.slack.com/archives/C088FSUEWGK/p1748899817792179?thread_ts=1747234632.149739&cid=C088FSUEWGK
+newOwner = "0x6aACd82e5D5A41aC508D456a151Ec53d2b1Fd7ab"
+
+[stateOverrides]
+# https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/superchain/configs/mainnet/worldchain.toml#L43C22-L43C64
+0xA4fB12D15Eb85dc9284a7df0AdBC8B696EdbbF1d = [ # Current owner of the ProxyAdmin before this task is executed
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 30}
+]

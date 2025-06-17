@@ -1,6 +1,6 @@
 # Mode Mainnet Permissioned Fault Proofs
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0xd8fd08e0a66a0f5c0e5aed4e078e77bf8c3e50c27d09db458e2b04e7c6b2f5e7)
 
 ## Objective
 
