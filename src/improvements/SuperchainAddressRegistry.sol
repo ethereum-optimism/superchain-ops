@@ -120,7 +120,8 @@ contract SuperchainAddressRegistry is StdChains {
             if (!chainExists) {
                 console.log(
                     string.concat(
-                        "SuperchainAddressRegistry: Chain ",
+                        string("[INFO]").green().bold(),
+                        " SuperchainAddressRegistry: Chain ",
                         currentChain.name,
                         " not found in superchain registry, using fallback path ",
                         fallbackAddressesJsonPath
@@ -350,13 +351,14 @@ contract SuperchainAddressRegistry is StdChains {
     }
 
     /// @notice Saves all addresses for a given chain from the addresses.json file. This does not perform any onchain discovery.
-    function saveAllAddressesLocal(string memory chainAddressesContent, ChainInfo memory chain) internal {
-        string[] memory keys = vm.parseJsonKeys(chainAddressesContent, string.concat("$.", vm.toString(chain.chainId)));
+    function saveAllAddressesLocal(string memory _chainAddressesContent, ChainInfo memory _chain) internal {
+        string[] memory keys =
+            vm.parseJsonKeys(_chainAddressesContent, string.concat("$.", vm.toString(_chain.chainId)));
         for (uint256 j = 0; j < keys.length; j++) {
             string memory key = keys[j];
             address addr =
-                vm.parseJsonAddress(chainAddressesContent, string.concat("$.", vm.toString(chain.chainId), ".", key));
-            saveAddress(key, chain, addr);
+                vm.parseJsonAddress(_chainAddressesContent, string.concat("$.", vm.toString(_chain.chainId), ".", key));
+            saveAddress(key, _chain, addr);
         }
     }
 

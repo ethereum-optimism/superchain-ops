@@ -192,20 +192,23 @@ Both registries load addresses based on the network the task is running on. For 
 
 By adding an address to `addresses.toml`, you ensure it's available in your task's context, whether you're using the simple or the superchain address registry.
 
-### What if the chain I want to upgrade is not in the superchain-registry?
+### What if I want to upgrade a chain that is not in the superchain-registry?
 
-If the chain you want to upgrade is not in the [superchain-registry](https://github.com/ethereum-optimism/superchain-registry), you can manually provide an `addresses.json` file to your task's `config.toml`. 
-
-> **Note**: Your `config.toml` must contain either the `l2chains` or `l2ChainsLocal` key, but not both. We use a JSON file for local addresses because this is the format of the canonical addresses file in the superchain-registry, see [here](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/addresses.json).
+If the chain you want to upgrade is not in the [superchain-registry](https://github.com/ethereum-optimism/superchain-registry), you can manually provide a fallback JSON file in your task's `config.toml` (as `fallbackAddressesJsonPath`). 
 
 ```toml
-l2ChainsLocal = [{name = "Unichain", chainId = 1333330, path = "test/tasks/example/eth/010-transfer-owners-local/addresses.json"}]
+l2chains = [{name = "Unichain", chainId = 1333330}]
+fallbackAddressesJsonPath = "test/tasks/example/eth/010-transfer-owners-local/addresses.json"
 templateName = "TransferOwners"
 ```
 
 See: [example/eth/010-transfer-owners-local/config.toml](../../test/tasks/example/eth/010-transfer-owners-local/config.toml) for an example.
 
-When the task runs, it will use the `addresses.json` file provided in the `path` to get the addresses of the contracts on the chain, indexed by its `chainId`.
+The fallback JSON file must be structured with the chain ID as the top-level key, containing all contract addresses for that chain. It takes the same structure as the superchain-registry's [addresses.json](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/addresses.json) file.
+
+When the task runs, it will first attempt to use the superchain-registry. If the chain is not found, it will load addresses directly from your fallback JSON file instead of performing automatic onchain discovery.
+
+> ⚠️ **Note**: You must manually provide all contract addresses required by your task template in the fallback JSON file.
 
 ## Available Templates
 
