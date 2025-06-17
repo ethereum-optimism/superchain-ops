@@ -16,6 +16,7 @@ import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegis
 import {GasConfigTemplate} from "test/tasks/mock/template/GasConfigTemplate.sol";
 import {IncorrectGasConfigTemplate1} from "test/tasks/mock/template/IncorrectGasConfigTemplate1.sol";
 import {IncorrectGasConfigTemplate2} from "test/tasks/mock/template/IncorrectGasConfigTemplate2.sol";
+import {MultisigTaskTestHelper} from "test/tasks/MultisigTask.t.sol";
 
 contract SingleMultisigTaskTest is Test {
     struct MultiSigOwner {
@@ -127,14 +128,11 @@ contract SingleMultisigTaskTest is Test {
         assertEq(arguments[1], abi.encodeWithSignature("setGasLimit(uint64)", uint64(100000000)), "Wrong calldata");
     }
 
-    function testGetCallData() public {
+    function testGetRootSafeCallData() public {
         (, Action[] memory actions) = runTask();
-
         (address[] memory targets, uint256[] memory values, bytes[] memory arguments) =
             multisigTask.processTaskActions(actions);
-
         IMulticall3.Call3Value[] memory calls = new IMulticall3.Call3Value[](targets.length);
-
         for (uint256 i = 0; i < targets.length; i++) {
             calls[i] = IMulticall3.Call3Value({
                 target: targets[i],
@@ -143,26 +141,27 @@ contract SingleMultisigTaskTest is Test {
                 callData: arguments[i]
             });
         }
-
         bytes memory expectedCallData =
             abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
 
-        bytes memory callData = multisigTask.getMulticall3Calldata(actions);
-        assertEq(callData, expectedCallData, "Wrong calldata");
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(multisigTask.root());
+        uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(multisigTask.root());
+        bytes[] memory allCalldatas = multisigTask.calldatas(actions, allSafes, allOriginalNonces);
+        bytes memory rootSafeCallData = allCalldatas[allCalldatas.length - 1];
+        assertEq(rootSafeCallData, expectedCallData, "Wrong calldata");
     }
 
     function testGetDataToSign() public {
         (, Action[] memory actions) = runTask();
         addrRegistry = multisigTask.addrRegistry();
-        bytes memory rootSafeCalldata = multisigTask.getMulticall3Calldata(actions);
-        uint256 originalNonce = IGnosisSafe(multisigTask.root()).nonce() - 1;
-        address[] memory allSafes = new address[](1);
-        allSafes[0] = multisigTask.root();
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(multisigTask.root());
+        uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(multisigTask.root());
+        bytes[] memory allCalldatas = multisigTask.calldatas(actions, allSafes, allOriginalNonces);
+        bytes memory rootSafeCalldata = allCalldatas[allCalldatas.length - 1];
+        uint256 rootSafeNonce = allOriginalNonces[allOriginalNonces.length - 1];
         bytes memory dataToSign =
-            multisigTask.getEncodedTransactionData(multisigTask.root(), rootSafeCalldata, 0, originalNonce, allSafes);
+            multisigTask.getEncodedTransactionData(multisigTask.root(), rootSafeCalldata, 0, rootSafeNonce, allSafes);
 
-        // The nonce is decremented by 1 because we want to recreate the data to sign with the same nonce
-        // that was used in the simulation. The nonce was incremented as part of running the simulation.
         bytes memory expectedDataToSign = IGnosisSafe(multisigTask.root()).encodeTransactionData({
             to: MULTICALL3_ADDRESS,
             value: 0,
@@ -173,18 +172,19 @@ contract SingleMultisigTaskTest is Test {
             gasPrice: 0,
             gasToken: address(0),
             refundReceiver: address(0),
-            _nonce: originalNonce
+            _nonce: rootSafeNonce
         });
         assertEq(dataToSign, expectedDataToSign, "Wrong data to sign");
     }
 
     function testHashToApprove() public {
         (, Action[] memory actions) = runTask();
-        bytes memory rootSafeCalldata = multisigTask.getMulticall3Calldata(actions);
-        uint256 originalNonce = IGnosisSafe(multisigTask.root()).nonce() - 1;
-        address[] memory allSafes = new address[](1);
-        allSafes[0] = multisigTask.root();
-        bytes32 hash = multisigTask.getHash(rootSafeCalldata, multisigTask.root(), 0, originalNonce, allSafes);
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(multisigTask.root());
+        uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(multisigTask.root());
+        bytes[] memory allCalldatas = multisigTask.calldatas(actions, allSafes, allOriginalNonces);
+        bytes memory rootSafeCalldata = allCalldatas[allCalldatas.length - 1];
+        uint256 rootSafeNonce = allOriginalNonces[allOriginalNonces.length - 1];
+        bytes32 hash = multisigTask.getHash(rootSafeCalldata, multisigTask.root(), 0, rootSafeNonce, allSafes);
         bytes32 expectedHash = IGnosisSafe(multisigTask.root()).getTransactionHash(
             MULTICALL3_ADDRESS,
             0,
@@ -195,7 +195,7 @@ contract SingleMultisigTaskTest is Test {
             0,
             address(0),
             address(0),
-            originalNonce
+            rootSafeNonce
         );
         assertEq(hash, expectedHash, "Wrong hash to approve");
     }
@@ -262,13 +262,17 @@ contract SingleMultisigTaskTest is Test {
         (, Action[] memory actions) = runTask();
         addrRegistry = multisigTask.addrRegistry();
         multisigTask.processTaskActions(actions);
-        bytes memory callData = multisigTask.getMulticall3Calldata(actions);
-        uint256 originalNonce = IGnosisSafe(multisigTask.root()).nonce() - 1;
-        address[] memory allSafes = new address[](1);
-        allSafes[0] = multisigTask.root();
+
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(multisigTask.root());
+        uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(multisigTask.root());
+        bytes[] memory allCalldatas = multisigTask.calldatas(actions, allSafes, allOriginalNonces);
+
+        address rootSafe = allSafes[allSafes.length - 1];
+        bytes memory rootSafeCalldata = allCalldatas[allCalldatas.length - 1];
+        uint256 rootSafeNonce = allOriginalNonces[allOriginalNonces.length - 1] - 1; // The task has already run so we decrement the nonce by 1.
+
         bytes memory dataToSign =
-            multisigTask.getEncodedTransactionData(multisigTask.root(), callData, 0, originalNonce, allSafes);
-        address multisig = multisigTask.root();
+            multisigTask.getEncodedTransactionData(multisigTask.root(), rootSafeCalldata, 0, rootSafeNonce, allSafes);
         address systemConfigMode = toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigProxy", 34443);
         address systemConfigMetal = toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigProxy", 1750);
         // revert to snapshot so that the safe is in the same state as before the task was run
@@ -300,28 +304,28 @@ contract SingleMultisigTaskTest is Test {
                 // 2 is the slot for the owners mapping
                 // variable slot is the slot for a key in the owners mapping
                 slot = keccak256(abi.encode(currentOwner, OWNER_MAPPING_STORAGE_OFFSET));
-                vm.store(multisig, slot, bytes32(uint256(uint160(newOwners[i].walletAddress))));
+                vm.store(rootSafe, slot, bytes32(uint256(uint160(newOwners[i].walletAddress))));
                 currentOwner = newOwners[i].walletAddress;
             }
 
             // link the last owner to the sentinel owner
             slot = keccak256(abi.encode(currentOwner, OWNER_MAPPING_STORAGE_OFFSET));
-            vm.store(multisig, slot, bytes32(uint256(uint160(0x1))));
+            vm.store(rootSafe, slot, bytes32(uint256(uint160(0x1))));
         }
 
         // set the owners count to 9
-        vm.store(multisig, bytes32(OWNER_COUNT_STORAGE_OFFSET), bytes32(uint256(9)));
+        vm.store(rootSafe, bytes32(OWNER_COUNT_STORAGE_OFFSET), bytes32(uint256(9)));
         // set the threshold to 4
-        vm.store(multisig, bytes32(THRESHOLD_STORAGE_OFFSET), bytes32(uint256(4)));
+        vm.store(rootSafe, bytes32(THRESHOLD_STORAGE_OFFSET), bytes32(uint256(4)));
 
-        address[] memory getNewOwners = IGnosisSafe(multisig).getOwners();
+        address[] memory getNewOwners = IGnosisSafe(rootSafe).getOwners();
         assertEq(getNewOwners.length, 9, "Expected 9 owners");
         for (uint256 i = 0; i < newOwners.length; i++) {
             // check that the new owners are set correctly
             assertEq(getNewOwners[i], newOwners[i].walletAddress, "Expected owner");
         }
 
-        uint256 threshold = IGnosisSafe(multisig).getThreshold();
+        uint256 threshold = IGnosisSafe(rootSafe).getThreshold();
         assertEq(threshold, 4, "Expected threshold should be updated to mocked value");
 
         LibSort.sort(getNewOwners);
