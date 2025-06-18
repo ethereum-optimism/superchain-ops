@@ -22,7 +22,6 @@ import {MultisigTaskPrinter} from "src/libraries/MultisigTaskPrinter.sol";
 import {TaskManager} from "src/improvements/tasks/TaskManager.sol";
 import {Solarray} from "lib/optimism/packages/contracts-bedrock/scripts/libraries/Solarray.sol";
 
-
 type AddressRegistry is address;
 
 abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManager {
@@ -317,7 +316,12 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
         for (uint256 i; i < calls.length; i++) {
             require(targets[i] != address(0), "Invalid target for multisig");
-            calls[i] = IMulticall3.Call3Value({target: targets[i], allowFailure: false, value: values[i], callData: arguments[i]});
+            calls[i] = IMulticall3.Call3Value({
+                target: targets[i],
+                allowFailure: false,
+                value: values[i],
+                callData: arguments[i]
+            });
         }
 
         // Generate calldata
@@ -626,7 +630,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             Signatures.genPrevalidatedSignature(MULTICALL3_ADDRESS),
             MULTICALL3_ADDRESS
         );
-        calls[0] = IMulticall3.Call3Value({target: childMultisig, allowFailure: false, value: 0, callData: approveHashExec});
+        calls[0] =
+            IMulticall3.Call3Value({target: childMultisig, allowFailure: false, value: 0, callData: approveHashExec});
 
         bytes memory customExec = _execTransactionCalldata(
             parentMultisig,
