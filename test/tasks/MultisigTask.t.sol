@@ -198,52 +198,49 @@ contract MultisigTaskUnitTest is Test {
         );
     }
 
-    // function testSimulateFailsTxAlreadyExecuted() public {
-    //     address[] memory allSafes = new address[](2);
-    //     allSafes[0] = securityCouncilChildMultisig;
-    //     allSafes[1] = root;
-    //     uint256[] memory originalNonces = new uint256[](2);
-    //     originalNonces[0] = IGnosisSafe(securityCouncilChildMultisig).nonce();
-    //     originalNonces[1] = IGnosisSafe(root).nonce();
+    function testSimulateFailsTxAlreadyExecuted() public {
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(root, securityCouncilChildMultisig);
+        uint256[] memory originalNonces =
+            MultisigTaskTestHelper.getAllOriginalNonces(root, securityCouncilChildMultisig);
 
-    //     string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml);
-    //     (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) =
-    //         runTestSimulation(fileName, securityCouncilChildMultisig);
-    //     bytes[] memory calldatas = new bytes[](1);
-    //     calldatas[0] = actions[0].arguments;
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml, TESTING_DIRECTORY, "002");
+        (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) =
+            runTestSimulation(fileName, securityCouncilChildMultisig);
+        bytes[] memory calldatas = new bytes[](1);
+        calldatas[0] = actions[0].arguments;
 
-    //     vm.expectRevert("MultisigTask: execute failed");
-    //     task.execute(new bytes(0), allSafes, calldatas, originalNonces);
+        vm.expectRevert("MultisigTask: execute failed");
+        task.execute(new bytes(0), allSafes, calldatas, originalNonces);
 
-    //     // Validations should pass after a successful run.
-    //     task.validate(accountAccesses, actions, allSafes[1], originalNonces[1]);
-    //     MultisigTaskTestHelper.removeFile(fileName);
-    // }
+        // Validations should pass after a successful run.
+        task.validate(accountAccesses, actions, allSafes[1], originalNonces[1]);
+        MultisigTaskTestHelper.removeFile(fileName);
+    }
 
-    // function testGetCalldata() public {
-    //     string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml);
-    //     (, Action[] memory actions) = runTestSimulation(fileName, securityCouncilChildMultisig);
-    //     MultisigTaskTestHelper.removeFile(fileName);
+    function testGetCalldata() public {
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(root, securityCouncilChildMultisig);
+        uint256[] memory allOriginalNonces =
+            MultisigTaskTestHelper.getAllOriginalNonces(root, securityCouncilChildMultisig);
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml, TESTING_DIRECTORY, "003");
+        (, Action[] memory actions) = runTestSimulation(fileName, securityCouncilChildMultisig);
+        MultisigTaskTestHelper.removeFile(fileName);
 
-    //     (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);
+        (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);
+        IMulticall3.Call3Value[] memory calls = new IMulticall3.Call3Value[](targets.length);
+        for (uint256 i; i < calls.length; i++) {
+            calls[i] = IMulticall3.Call3Value({
+                target: targets[i],
+                allowFailure: false,
+                value: values[i],
+                callData: calldatas[i]
+            });
+        }
 
-    //     IMulticall3.Call3Value[] memory calls = new IMulticall3.Call3Value[](targets.length);
-
-    //     for (uint256 i; i < calls.length; i++) {
-    //         calls[i] = IMulticall3.Call3Value({
-    //             target: targets[i],
-    //             allowFailure: false,
-    //             value: values[i],
-    //             callData: calldatas[i]
-    //         });
-    //     }
-
-    //     bytes memory expectedData = abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
-
-    //     bytes memory data = task.getMulticall3Calldata(actions);
-
-    //     assertEq(data, expectedData, "Wrong aggregate calldata");
-    // }
+        bytes memory expectedData = abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
+        bytes[] memory expectedCalldatas = task.calldatas(actions, allSafes, allOriginalNonces);
+        bytes memory rootSafeCalldata = expectedCalldatas[expectedCalldatas.length - 1];
+        assertEq(rootSafeCalldata, expectedData, "Wrong aggregate calldata");
+    }
 
     function testFuzz_ValidActionConditions(bool isCall, address randomAccount) public {
         vm.assume(randomAccount != address(addrRegistry));
