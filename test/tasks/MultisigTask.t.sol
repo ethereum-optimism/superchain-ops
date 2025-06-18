@@ -107,8 +107,7 @@ contract MultisigTaskUnitTest is Test {
         stdstore.target(address(taskHashMismatch)).sig("root()").checked_write(rootSafe);
         Action[] memory actions = taskHashMismatch.build(rootSafe);
         address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe, securityCouncilChildMultisig);
-        uint256[] memory allOriginalNonces =
-            MultisigTaskTestHelper.getAllOriginalNonces(rootSafe, securityCouncilChildMultisig);
+        uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
         bytes[] memory allCalldatas = taskHashMismatch.calldatas(actions, allSafes, allOriginalNonces);
         bytes memory rootSafeCalldata = allCalldatas[allCalldatas.length - 1];
         uint256 rootSafeNonce = allOriginalNonces[allOriginalNonces.length - 1];
@@ -200,8 +199,7 @@ contract MultisigTaskUnitTest is Test {
 
     function testSimulateFailsTxAlreadyExecuted() public {
         address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(root, securityCouncilChildMultisig);
-        uint256[] memory originalNonces =
-            MultisigTaskTestHelper.getAllOriginalNonces(root, securityCouncilChildMultisig);
+        uint256[] memory originalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
 
         string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml, TESTING_DIRECTORY, "002");
         (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) =
@@ -219,8 +217,7 @@ contract MultisigTaskUnitTest is Test {
 
     function testRootSafeGetCalldata() public {
         address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(root, securityCouncilChildMultisig);
-        uint256[] memory allOriginalNonces =
-            MultisigTaskTestHelper.getAllOriginalNonces(root, securityCouncilChildMultisig);
+        uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
         string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml, TESTING_DIRECTORY, "003");
         (, Action[] memory actions) = runTestSimulation(fileName, securityCouncilChildMultisig);
         MultisigTaskTestHelper.removeFile(fileName);
@@ -410,6 +407,68 @@ contract MultisigTaskUnitTest is Test {
             Action({target: target, value: value, arguments: data, operation: operation, description: description});
         return actions;
     }
+
+    function testCalldatas_singleSafe() public view {
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(root);
+        uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
+        Action[] memory actions = createActions(address(0xbeef), hex"dead", 1 ether, Enum.Operation.Call, "Test Action");
+
+        bytes[] memory result = task.calldatas(actions, allSafes, allOriginalNonces);
+        assertEq(result.length, 1, "Incorrect calldata array length for single safe");
+        assertRootCalldata(result[0], actions[0].target, actions[0].value, actions[0].arguments);
+    }
+
+    function testCalldatas_nestedSafes() public view {
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(root, securityCouncilChildMultisig);
+        uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
+        Action[] memory actions = createActions(address(0xbeef), hex"dead", 1 ether, Enum.Operation.Call, "Test Action");
+        bytes[] memory result = task.calldatas(actions, allSafes, allOriginalNonces);
+        assertEq(result.length, 2, "Incorrect calldata array length for nested safes");
+        assertRootCalldata(result[result.length - 1], actions[0].target, actions[0].value, actions[0].arguments);
+        // Generate the hash for the root safe that's used in the approveHash call on the nested safe.
+        bytes32 hash =
+            task.getHash(result[result.length - 1], root, 0, allOriginalNonces[allOriginalNonces.length - 1], allSafes);
+        assertNestedCalldata(result[0], root, abi.encodeCall(IGnosisSafe(root).approveHash, (hash)));
+    }
+
+    /// @notice Asserts that the root safe calldata is correct.
+    function assertRootCalldata(bytes memory data, address target, uint256 value, bytes memory callData)
+        internal
+        pure
+    {
+        bytes4 selector = bytes4(data);
+        assertEq(selector, IMulticall3.aggregate3Value.selector, "Incorrect calldata for root safe");
+        bytes memory params = getParams(data);
+        (IMulticall3.Call3Value[] memory calls) = abi.decode(params, (IMulticall3.Call3Value[]));
+        assertEq(calls.length, 1, "Incorrect number of calls for root safe");
+        assertEq(calls[0].target, target, "Incorrect target for root safe");
+        assertEq(calls[0].value, value, "Incorrect value for root safe");
+        assertEq(calls[0].callData, callData, "Incorrect call data for root safe");
+        assertEq(calls[0].allowFailure, false, "Incorrect allow failure for root safe");
+    }
+
+    /// @notice Asserts that the nested safe calldata is correct.
+    function assertNestedCalldata(bytes memory data, address target, bytes memory callData) internal pure {
+        bytes4 selector = bytes4(data);
+        assertEq(selector, IMulticall3.aggregate3Value.selector, "Incorrect calldata for single safe");
+        bytes memory params = getParams(data);
+        (IMulticall3.Call3Value[] memory calls) = abi.decode(params, (IMulticall3.Call3Value[]));
+        assertEq(calls.length, 1, "Incorrect number of calls for nested safes");
+        assertEq(calls[0].target, target, "Incorrect target for nested safes");
+        assertEq(calls[0].value, 0, "Incorrect value for nested safes");
+        assertEq(calls[0].callData, callData, "Incorrect call data for nested safes");
+        assertEq(calls[0].allowFailure, false, "Incorrect allow failure for nested safes");
+    }
+
+    /// @notice This function is used to get the params from the calldata.
+    function getParams(bytes memory data) internal pure returns (bytes memory) {
+        uint256 selectorLength = 4;
+        bytes memory params = new bytes(data.length - selectorLength);
+        for (uint256 j = 0; j < data.length - selectorLength; j++) {
+            params[j] = data[j + selectorLength];
+        }
+        return params;
+    }
 }
 
 library MultisigTaskTestHelper {
@@ -463,22 +522,11 @@ library MultisigTaskTestHelper {
     }
 
     /// @notice This function is used to get all the original nonces in the task.
-    function getAllOriginalNonces(address rootSafe) internal view returns (uint256[] memory allOriginalNonces) {
-        allOriginalNonces = new uint256[](1);
-        allOriginalNonces[0] = IGnosisSafe(rootSafe).nonce();
-        return allOriginalNonces;
-    }
-
-    /// @notice This function is used to get all the original nonces in the task for a nested multisig task.
-    function getAllOriginalNonces(address rootSafe, address childSafe)
-        internal
-        view
-        returns (uint256[] memory allOriginalNonces)
-    {
-        // TODO: Update this function when we support more than 1 level of nesting.
-        allOriginalNonces = new uint256[](2);
-        allOriginalNonces[0] = IGnosisSafe(childSafe).nonce();
-        allOriginalNonces[1] = IGnosisSafe(rootSafe).nonce();
+    function getAllOriginalNonces(address[] memory safes) internal view returns (uint256[] memory allOriginalNonces) {
+        allOriginalNonces = new uint256[](safes.length);
+        for (uint256 i = 0; i < safes.length; i++) {
+            allOriginalNonces[i] = IGnosisSafe(safes[i]).nonce();
+        }
         return allOriginalNonces;
     }
 }
