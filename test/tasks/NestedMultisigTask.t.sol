@@ -36,6 +36,8 @@ contract NestedMultisigTaskTest is Test {
     uint256 public constant OWNER_COUNT_STORAGE_OFFSET = 3;
     uint256 public constant THRESHOLD_STORAGE_OFFSET = 4;
 
+    string constant TESTING_DIRECTORY = "nested-multisig-task-testing";
+
     /// @notice ProxyAdminOwner safe for the task below is a nested multisig for Op mainnet L2 chain.
     string constant taskConfigToml = "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n"
         "templateName = \"DisputeGameUpgradeTemplate\"\n" "\n"
@@ -47,7 +49,8 @@ contract NestedMultisigTaskTest is Test {
         returns (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions)
     {
         multisigTask = new DisputeGameUpgradeTemplate();
-        string memory configFilePath = MultisigTaskTestHelper.createTempTomlFile(taskConfigToml);
+        string memory configFilePath =
+            MultisigTaskTestHelper.createTempTomlFile(taskConfigToml, TESTING_DIRECTORY, "000");
         (accountAccesses, actions,,) = multisigTask.signFromChildMultisig(configFilePath, childMultisig);
         MultisigTaskTestHelper.removeFile(configFilePath);
         addrRegistry = multisigTask.addrRegistry();
@@ -220,7 +223,8 @@ contract NestedMultisigTaskTest is Test {
 
             // execute the approve hash call with the signatures
             multisigTask = new DisputeGameUpgradeTemplate();
-            string memory configFilePath = MultisigTaskTestHelper.createTempTomlFile(taskConfigToml);
+            string memory configFilePath =
+                MultisigTaskTestHelper.createTempTomlFile(taskConfigToml, TESTING_DIRECTORY, "001");
             multisigTask.approveFromChildMultisig(configFilePath, childMultisig, packedSignaturesChild);
             MultisigTaskTestHelper.removeFile(configFilePath);
         }
@@ -231,7 +235,7 @@ contract NestedMultisigTaskTest is Test {
         /// snapshot before running the task so we can roll back to this pre-state
         uint256 newSnapshot = vm.snapshotState();
 
-        string memory config = MultisigTaskTestHelper.createTempTomlFile(taskConfigToml);
+        string memory config = MultisigTaskTestHelper.createTempTomlFile(taskConfigToml, TESTING_DIRECTORY, "002");
         (accountAccesses, actions,,) = multisigTask.signFromChildMultisig(config, SECURITY_COUNCIL_CHILD_MULTISIG);
         MultisigTaskTestHelper.removeFile(config);
 
@@ -247,7 +251,8 @@ contract NestedMultisigTaskTest is Test {
 
         /// Now run the executeRun flow
         vm.revertToState(newSnapshot);
-        string memory taskConfigFilePath = MultisigTaskTestHelper.createTempTomlFile(taskConfigToml);
+        string memory taskConfigFilePath =
+            MultisigTaskTestHelper.createTempTomlFile(taskConfigToml, TESTING_DIRECTORY, "003");
         multisigTask.executeRun(taskConfigFilePath, prepareSignatures(parentMultisig, taskHash));
         MultisigTaskTestHelper.removeFile(taskConfigFilePath);
         addrRegistry = multisigTask.addrRegistry();
