@@ -561,90 +561,58 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         address[] memory allowedAccesses = getAllowedStorageAccess();
         address[] memory newContracts = accountAccesses.getNewContracts();
         for (uint256 i; i < accountAccesses.length; i++) {
-            _validateAccountAccess(accountAccesses[i], newContracts);
-            _validateStorageAccesses(accountAccesses[i], newContracts, allowedAccesses);
-        }
-    }
-
-    /// @notice Validates the basic properties of a single account access record.
-    function _validateAccountAccess(VmSafe.AccountAccess memory accountAccess, address[] memory newContracts)
-        private
-        view
-    {
-        // All touched accounts should have code, with the exception of precompiles.
-        bool isPrecompile = accountAccess.account >= address(0x1) && accountAccess.account <= address(0xa);
-        if (!isPrecompile) {
-            require(
-                accountAccess.account.code.length != 0,
-                string.concat("Account has no code: ", vm.toString(accountAccess.account))
-            );
-        }
-
-        if (!_allowedBalanceChanges.contains(accountAccess.account)) {
-            // Skip balance change checks for newly deployed contracts.
-            // Ensure that existing contracts, that haven't been allow listed, do not contain a value transfer.
-            if (!Utils.contains(newContracts, accountAccess.account)) {
+            VmSafe.AccountAccess memory accountAccess = accountAccesses[i];
+            // All touched accounts should have code, with the exception of precompiles.
+            bool isPrecompile = accountAccess.account >= address(0x1) && accountAccess.account <= address(0xa);
+            if (!isPrecompile) {
                 require(
-                    !accountAccess.containsValueTransfer(),
-                    string.concat("Unexpected balance change: ", vm.toString(accountAccess.account))
+                    accountAccess.account.code.length != 0,
+                    string.concat("Account has no code: ", vm.toString(accountAccess.account))
                 );
             }
-        }
 
-        require(
-            accountAccess.kind != VmSafe.AccountAccessKind.SelfDestruct,
-            string.concat("Self-destructed account: ", vm.toString(accountAccess.account))
-        );
-    }
-
-    /// @notice Validates all storage write operations within a single account access record.
-    function _validateStorageAccesses(
-        VmSafe.AccountAccess memory accountAccess,
-        address[] memory newContracts,
-        address[] memory allowedAccesses
-    ) private view {
-        for (uint256 j; j < accountAccess.storageAccesses.length; j++) {
-            VmSafe.StorageAccess memory storageAccess = accountAccess.storageAccesses[j];
-            if (storageAccess.isWrite) {
-                _validateStorageWrite(storageAccess, newContracts, allowedAccesses);
-            }
-        }
-    }
-
-    /// @notice Validates a single storage write operation.
-    function _validateStorageWrite(
-        VmSafe.StorageAccess memory storageAccess,
-        address[] memory newContracts,
-        address[] memory allowedAccesses
-    ) private view {
-        address account = storageAccess.account;
-        uint256 value = uint256(storageAccess.newValue);
-
-        if (Utils.isLikelyAddressThatShouldHaveCode(value, getCodeExceptions())) {
-            // forgefmt: disable-start
-            string memory err = string.concat("Likely address in storage has no code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
-            // forgefmt: disable-end
-            require(address(uint160(value)).code.length != 0, err);
-        } else {
-            // forgefmt: disable-start
-            string memory err = string.concat("Likely address in storage has unexpected code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
-            // forgefmt: disable-end
-            require(address(uint160(value)).code.length == 0, err);
-        }
-
-        require(account.code.length != 0, string.concat("Storage account has no code: ", vm.toString(account)));
-        require(!storageAccess.reverted, string.concat("Storage access reverted: ", vm.toString(account)));
-
-        bool isAllowed = Utils.contains(newContracts, account);
-        if (!isAllowed) {
-            for (uint256 k; k < allowedAccesses.length; k++) {
-                if (account == allowedAccesses[k]) {
-                    isAllowed = true;
-                    break;
+            if (!_allowedBalanceChanges.contains(accountAccess.account)) {
+                // Skip balance change checks for newly deployed contracts.
+                // Ensure that existing contracts, that haven't been allow listed, do not contain a value transfer.
+                if (!Utils.contains(newContracts, accountAccess.account)) {
+                    require(
+                        !accountAccess.containsValueTransfer(),
+                        string.concat("Unexpected balance change: ", vm.toString(accountAccess.account))
+                    );
                 }
             }
+
+            require(
+                accountAccess.kind != VmSafe.AccountAccessKind.SelfDestruct,
+                string.concat("Self-destructed account: ", vm.toString(accountAccess.account))
+            );
+            for (uint256 j; j < accountAccess.storageAccesses.length; j++) {
+                VmSafe.StorageAccess memory storageAccess = accountAccess.storageAccesses[j];
+                if (!storageAccess.isWrite) continue; // Skip SLOADs.
+                uint256 value = uint256(storageAccess.newValue);
+                address account = storageAccess.account;
+                if (Utils.isLikelyAddressThatShouldHaveCode(value, getCodeExceptions())) {
+                    // Log account, slot, and value if there is no code.
+                    // forgefmt: disable-start
+                    string memory err = string.concat("Likely address in storage has no code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
+                    // forgefmt: disable-end
+                    require(address(uint160(value)).code.length != 0, err);
+                } else {
+                    // Log account, slot, and value if there is code.
+                    // forgefmt: disable-start
+                    string memory err = string.concat("Likely address in storage has unexpected code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
+                    // forgefmt: disable-end
+                    require(address(uint160(value)).code.length == 0, err);
+                }
+                require(account.code.length != 0, string.concat("Storage account has no code: ", vm.toString(account)));
+                require(!storageAccess.reverted, string.concat("Storage access reverted: ", vm.toString(account)));
+                bool allowed;
+                for (uint256 k; k < allowedAccesses.length; k++) {
+                    allowed = allowed || (account == allowedAccesses[k]) || Utils.contains(newContracts, account);
+                }
+                require(allowed, string.concat("Unallowed Storage access: ", vm.toString(account)));
+            }
         }
-        require(isAllowed, string.concat("Unallowed Storage access: ", vm.toString(account)));
     }
 
     /// @notice Helper function that returns whether or not the current context is a broadcast context.
