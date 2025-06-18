@@ -205,7 +205,15 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
         }
     }
 
-    function testRunFailsNoChains() public {
+    function testRunFailsNoL2ChainsKey() public {
+        string memory invalidToml = "templateName = \"RandomTemplate\"\n";
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(invalidToml);
+        vm.expectRevert("SuperchainAddressRegistry: .l2chains must be present in the config.toml file.");
+        new SuperchainAddressRegistry(fileName);
+        MultisigTaskTestHelper.removeFile(fileName);
+    }
+
+    function testRunFailsEmptyL2ChainsKey() public {
         string memory invalidToml = "l2chains = [] \n" "templateName = \"RandomTemplate\"\n";
         string memory fileName = MultisigTaskTestHelper.createTempTomlFile(invalidToml);
         vm.expectRevert("SuperchainAddressRegistry: .l2chains list is empty");

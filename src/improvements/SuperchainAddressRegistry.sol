@@ -118,6 +118,10 @@ contract SuperchainAddressRegistry is StdChains {
             bool chainExists =
                 vm.keyExistsJson(superchainRegistryChainAddrs, string.concat("$.", vm.toString(currentChain.chainId)));
             if (!chainExists) {
+                require(
+                    bytes(fallbackAddressesJsonPath).length > 0,
+                    "SuperchainAddressRegistry: Chain does not exist in superchain registry and fallback path is empty."
+                );
                 console.log(
                     string.concat(
                         string("[INFO]").green().bold(),
@@ -126,10 +130,6 @@ contract SuperchainAddressRegistry is StdChains {
                         " not found in superchain registry, using fallback path ",
                         fallbackAddressesJsonPath
                     )
-                );
-                require(
-                    bytes(fallbackAddressesJsonPath).length > 0,
-                    "SuperchainAddressRegistry: Chain does not exist in superchain registry and fallback path is empty."
                 );
                 string memory customAddresses = vm.readFile(fallbackAddressesJsonPath);
                 saveAllAddressesLocal(customAddresses, currentChain);
