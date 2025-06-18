@@ -217,7 +217,7 @@ contract MultisigTaskUnitTest is Test {
         MultisigTaskTestHelper.removeFile(fileName);
     }
 
-    function testGetCalldata() public {
+    function testRootSafeGetCalldata() public {
         address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(root, securityCouncilChildMultisig);
         uint256[] memory allOriginalNonces =
             MultisigTaskTestHelper.getAllOriginalNonces(root, securityCouncilChildMultisig);
@@ -236,7 +236,7 @@ contract MultisigTaskUnitTest is Test {
             });
         }
 
-        bytes memory expectedData = abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
+        bytes memory expectedData = abi.encodeCall(IMulticall3.aggregate3Value, calls);
         bytes[] memory expectedCalldatas = task.calldatas(actions, allSafes, allOriginalNonces);
         bytes memory rootSafeCalldata = expectedCalldatas[expectedCalldatas.length - 1];
         assertEq(rootSafeCalldata, expectedData, "Wrong aggregate calldata");
