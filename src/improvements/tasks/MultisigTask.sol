@@ -413,29 +413,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         return Signatures.genPrevalidatedSignatures(approvers);
     }
 
-    function _execTransactionCalldata(
-        address _safe,
-        bytes memory _data,
-        bytes memory _signatures,
-        address _multicallTarget
-    ) internal pure returns (bytes memory) {
-        return abi.encodeCall(
-            IGnosisSafe(_safe).execTransaction,
-            (
-                _multicallTarget,
-                0,
-                _data,
-                Enum.Operation.DelegateCall,
-                0,
-                0,
-                0,
-                address(0),
-                payable(address(0)),
-                _signatures
-            )
-        );
-    }
-
     /// @notice Returns true if the given account access should be recorded as an action. This function is used to filter out
     /// actions that we defined in the `_build` function of our template. The actions selected by this function will get executed
     /// by the relevant Multicall3 contract (e.g. `Multicall3` or `Multicall3DelegateCall`).
@@ -573,14 +550,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
         address childSafe = allSafes[0];
         bytes memory childSafeCalldata = allCalldatas[0];
-        bytes memory approveHashExec = _execTransactionCalldata(
+        bytes memory approveHashExec = GnosisSafeHashes.encodeExecTransactionCalldata(
             childSafe, childSafeCalldata, Signatures.genPrevalidatedSignature(MULTICALL3_ADDRESS), MULTICALL3_ADDRESS
         );
         calls[0] = IMulticall3.Call3Value({target: childSafe, allowFailure: false, value: 0, callData: approveHashExec});
 
         address rootSafe = allSafes[allSafes.length - 1];
         bytes memory rootSafeCalldata = allCalldatas[allCalldatas.length - 1];
-        bytes memory customExec = _execTransactionCalldata(
+        bytes memory customExec = GnosisSafeHashes.encodeExecTransactionCalldata(
             rootSafe,
             rootSafeCalldata,
             Signatures.genPrevalidatedSignature(childSafe),
@@ -876,7 +853,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             childSafe = payload.safes[0];
         } else {
             targetAddress = rootSafe;
-            finalExec = _execTransactionCalldata(
+            finalExec = GnosisSafeHashes.encodeExecTransactionCalldata(
                 targetAddress,
                 payload.calldatas[payload.calldatas.length - 1],
                 Signatures.genPrevalidatedSignature(msg.sender),
