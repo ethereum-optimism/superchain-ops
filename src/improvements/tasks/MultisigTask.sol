@@ -927,7 +927,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         uint256[] memory allOriginalNonces
     ) private view returns (bytes32 normalizedHash_, bytes memory dataToSign_) {
         (address rootSafe, bytes memory rootSafeCalldata,) =
-            getSafeData(allSafes, allCalldatas, allOriginalNonces, allSafes.length - 1);
+            Utils.getSafeData(allSafes, allCalldatas, allOriginalNonces, allSafes.length - 1);
         MultisigTaskPrinter.printTaskCalldata(rootSafeCalldata);
 
         // Only print data if the task is being simulated.
@@ -944,18 +944,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         MultisigTaskPrinter.printAuditReportInfo(normalizedHash_);
     }
 
-    /// @notice Helper function to get the safe, call data, and original nonce for a given index.
-    function getSafeData(
-        address[] memory allSafes,
-        bytes[] memory allCalldatas,
-        uint256[] memory allOriginalNonces,
-        uint256 index
-    ) private pure returns (address safe, bytes memory callData, uint256 originalNonce) {
-        safe = allSafes[index];
-        callData = allCalldatas[index];
-        originalNonce = allOriginalNonces[index];
-    }
-
     /// @notice Helper function to print nested calldata.
     function printNestedData(address[] memory allSafes, bytes[] memory allCalldatas, uint256[] memory allOriginalNonces)
         private
@@ -968,9 +956,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             "MultisigTask: Child multisig cannot be zero address when printing nested data to sign."
         );
         (address rootSafe, bytes memory rootSafeCalldata, uint256 rootSafeNonce) =
-            getSafeData(allSafes, allCalldatas, allOriginalNonces, allSafes.length - 1);
+            Utils.getSafeData(allSafes, allCalldatas, allOriginalNonces, allSafes.length - 1);
         (address childSafe, bytes memory childSafeCalldata, uint256 childSafeNonce) =
-            getSafeData(allSafes, allCalldatas, allOriginalNonces, 0);
+            Utils.getSafeData(allSafes, allCalldatas, allOriginalNonces, 0);
 
         bytes32 rootSafeHashToApprove = getHash(rootSafeCalldata, rootSafe, 0, rootSafeNonce, allSafes);
         dataToSign_ = getEncodedTransactionData(childSafe, childSafeCalldata, 0, childSafeNonce, allSafes);
@@ -995,9 +983,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         uint256[] memory allOriginalNonces
     ) private view {
         (address rootSafe, bytes memory rootSafeCalldata, uint256 rootSafeNonce) =
-            getSafeData(allSafes, allCalldatas, allOriginalNonces, allSafes.length - 1);
+            Utils.getSafeData(allSafes, allCalldatas, allOriginalNonces, allSafes.length - 1);
         (address childSafe, bytes memory childSafeCalldata, uint256 childSafeNonce) =
-            getSafeData(allSafes, allCalldatas, allOriginalNonces, 0);
+            Utils.getSafeData(allSafes, allCalldatas, allOriginalNonces, 0);
         address rootMulticallTarget = _getMulticallAddress(rootSafe, allSafes);
         address childMulticallTarget = _getMulticallAddress(childSafe, allSafes);
         MultisigTaskPrinter.printOPTxVerifyLink(
@@ -1020,7 +1008,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         returns (bytes memory dataToSign_)
     {
         (address rootSafe, bytes memory rootSafeCalldata, uint256 rootSafeNonce) =
-            getSafeData(allSafes, allCalldatas, allOriginalNonces, allSafes.length - 1);
+            Utils.getSafeData(allSafes, allCalldatas, allOriginalNonces, allSafes.length - 1);
 
         dataToSign_ = getEncodedTransactionData(rootSafe, rootSafeCalldata, 0, rootSafeNonce, allSafes);
         // eip712sign tool looks for the output of this command.

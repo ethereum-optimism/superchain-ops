@@ -48,4 +48,16 @@ library Utils {
         }
         return false;
     }
+
+    /// @notice Helper function to get the safe, call data, and original nonce for a given index.
+    function getSafeData(
+        address[] memory allSafes,
+        bytes[] memory allCalldatas,
+        uint256[] memory allOriginalNonces,
+        uint256 index
+    ) internal pure returns (address safe, bytes memory callData, uint256 originalNonce) {
+        safe = allSafes[index];
+        callData = allCalldatas[index];
+        originalNonce = allOriginalNonces[index];
+    }
 }
