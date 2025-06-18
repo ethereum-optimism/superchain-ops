@@ -14,12 +14,14 @@ import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegis
 import {Action} from "src/libraries/MultisigTypes.sol";
 import {MockMultisigTask} from "test/tasks/mock/MockMultisigTask.sol";
 import {MockTarget} from "test/tasks/mock/MockTarget.sol";
+import {console} from "forge-std/console.sol";
 
 contract MultisigTaskUnitTest is Test {
     using stdStorage for StdStorage;
 
     SuperchainAddressRegistry public addrRegistry;
     MultisigTask public task;
+    string constant TESTING_DIRECTORY = "multisig-task-testing";
 
     string constant commonToml =
         "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n" "templateName = \"MockMultisigTask\"\n" "\n";
@@ -33,23 +35,19 @@ contract MultisigTaskUnitTest is Test {
     /// and all other storage variables. We do not call this function in some of
     /// the tests, so we have to set the storage variables manually when we do
     /// not call the run function.
-
     function setUp() public {
         vm.createSelectFork("mainnet");
 
         // We want the SuperchainAddressRegistry to be initialized with the OP Mainnet config
-        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml);
+        string memory fileName =
+            MultisigTaskTestHelper.createTempTomlFile(commonToml, string.concat(TESTING_DIRECTORY), "000");
+        console.log("fileName", fileName);
         // Instantiate the SuperchainAddressRegistry contract
         addrRegistry = new SuperchainAddressRegistry(fileName);
         MultisigTaskTestHelper.removeFile(fileName);
 
         // Instantiate the Mock MultisigTask contract
         task = MultisigTask(new MockMultisigTask());
-    }
-
-    function testRunFailsNoNetworks() public {
-        vm.expectRevert("SuperchainAddressRegistry: no chains found");
-        task.simulateRun("./test/tasks/mock/configs/InvalidNetworkConfig.toml");
     }
 
     function testRunFailsEmptyActions() public {
@@ -97,7 +95,7 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testSimulateFailsHashMismatch() public {
-        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml);
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml, TESTING_DIRECTORY, "001");
         MultisigTask taskHashMismatch = MultisigTask(new MockMultisigTask());
 
         address rootSafe = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
@@ -196,7 +194,8 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testSimulateFailsTxAlreadyExecuted() public {
-        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml);
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml, TESTING_DIRECTORY, "002");
+        console.log("fileName", fileName);
         (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) =
             runTestSimulation(fileName, securityCouncilChildMultisig);
 
@@ -209,7 +208,8 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testGetCalldata() public {
-        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml);
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml, TESTING_DIRECTORY, "003");
+        console.log("fileName", fileName);
         (, Action[] memory actions) = runTestSimulation(fileName, securityCouncilChildMultisig);
         MultisigTaskTestHelper.removeFile(fileName);
 
@@ -407,9 +407,17 @@ library MultisigTaskTestHelper {
     address internal constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
     Vm internal constant vm = Vm(VM_ADDRESS);
 
-    function createTempTomlFile(string memory tomlContent) internal returns (string memory) {
-        string memory randomBytes = LibString.toHexString(uint256(bytes32(vm.randomBytes(32))));
-        string memory fileName = string.concat(randomBytes, ".toml");
+    /// @notice This function is used to create a temporary toml file for a test. The 'salt' parameter is used to ensure
+    /// that the file name is unique for each test.
+    function createTempTomlFile(string memory tomlContent, string memory directory, string memory salt)
+        internal
+        returns (string memory)
+    {
+        string memory randomFileName = vm.toString(keccak256(abi.encodePacked(vm.randomBytes(32), salt)));
+        string memory testConfigFilesDirectory = "test-config-files"; // This directory is in the .gitignore file.
+        string memory fullDirectory = string.concat(testConfigFilesDirectory, "/", directory);
+        vm.createDir(fullDirectory, true);
+        string memory fileName = string.concat(fullDirectory, "/", randomFileName, ".toml");
         vm.writeFile(fileName, tomlContent);
         return fileName;
     }

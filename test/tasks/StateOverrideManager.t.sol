@@ -14,6 +14,8 @@ import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.
 import {MultisigTaskTestHelper as helper} from "test/tasks/MultisigTask.t.sol";
 
 contract StateOverrideManagerUnitTest is Test {
+    string constant TESTING_DIRECTORY = "state-override-manager-testing";
+
     function setUp() public {
         vm.createSelectFork("mainnet");
     }
@@ -32,7 +34,7 @@ contract StateOverrideManagerUnitTest is Test {
             "    {key = \"0x0000000000000000000000000000000000000000000000000000000000000004\", value = \"0x0000000000000000000000000000000000000000000000000000000000000002\"}\n",
             "]"
         );
-        string memory fileName = helper.createTempTomlFile(toml);
+        string memory fileName = helper.createTempTomlFile(toml, TESTING_DIRECTORY, "000");
 
         MultisigTask task = new MockMultisigTask();
         vm.expectRevert(
@@ -52,7 +54,7 @@ contract StateOverrideManagerUnitTest is Test {
             "    {key = \"0x0000000000000000000000000000000000000000000000000000000000000005\", value = \"0x0000000000000000000000000000000000000000000000000000000000000AAA\"}\n",
             "]"
         );
-        string memory fileName = helper.createTempTomlFile(toml);
+        string memory fileName = helper.createTempTomlFile(toml, TESTING_DIRECTORY, "001");
         MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
         assertNonceIncremented(2730, task);
         helper.removeFile(fileName);
@@ -67,7 +69,7 @@ contract StateOverrideManagerUnitTest is Test {
             "    {key = \"0x0000000000000000000000000000000000000000000000000000000000000005\", value = \"0x0000000000000000000000000000000000000000000000000000000000000001\"}\n",
             "]"
         );
-        string memory fileName = helper.createTempTomlFile(toml);
+        string memory fileName = helper.createTempTomlFile(toml, TESTING_DIRECTORY, "002");
         MultisigTask task = new MockMultisigTask();
         vm.expectRevert();
         task.simulateRun(fileName);
@@ -84,7 +86,7 @@ contract StateOverrideManagerUnitTest is Test {
             "    {key = 5, value = \"0x000000000000000000000000000000000000000000000000000000000000000c\"}\n",
             "]"
         );
-        string memory fileName = helper.createTempTomlFile(toml);
+        string memory fileName = helper.createTempTomlFile(toml, TESTING_DIRECTORY, "003");
         MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
         assertNonceIncremented(12, task);
         helper.removeFile(fileName);
@@ -104,7 +106,7 @@ contract StateOverrideManagerUnitTest is Test {
             "\"}\n",
             "]"
         );
-        string memory fileName = helper.createTempTomlFile(toml);
+        string memory fileName = helper.createTempTomlFile(toml, TESTING_DIRECTORY, "004");
         createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
         address actualImplAddr = address(
             uint160(
@@ -124,14 +126,14 @@ contract StateOverrideManagerUnitTest is Test {
             "    {key = 5, value = 101}\n",
             "]"
         );
-        string memory fileName = helper.createTempTomlFile(toml);
+        string memory fileName = helper.createTempTomlFile(toml, TESTING_DIRECTORY, "005");
         MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
         assertNonceIncremented(101, task);
         helper.removeFile(fileName);
     }
 
     function testOnlyDefaultTenderlyStateOverridesApplied() public {
-        string memory fileName = helper.createTempTomlFile(commonToml);
+        string memory fileName = helper.createTempTomlFile(commonToml, TESTING_DIRECTORY, "006");
         MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
         assertDefaultStateOverrides(2, task, SECURITY_COUNCIL_CHILD_MULTISIG);
         helper.removeFile(fileName);
@@ -139,7 +141,7 @@ contract StateOverrideManagerUnitTest is Test {
 
     /// @notice This test verifies that user-defined overrides take precedence over default overrides.
     function testUserTenderlyStateOverridesTakePrecedence() public {
-        string memory noStateOverridesFileName = helper.createTempTomlFile(commonToml);
+        string memory noStateOverridesFileName = helper.createTempTomlFile(commonToml, TESTING_DIRECTORY, "007");
         MultisigTask noStateOverridesTask = createAndRunTask(noStateOverridesFileName, SECURITY_COUNCIL_CHILD_MULTISIG);
         uint256 expectedNonce = noStateOverridesTask.nonce();
         assertDefaultStateOverrides(2, noStateOverridesTask, SECURITY_COUNCIL_CHILD_MULTISIG);
@@ -152,7 +154,7 @@ contract StateOverrideManagerUnitTest is Test {
             "    {key = 6, value = 1025}\n",
             "]"
         );
-        string memory fileName = helper.createTempTomlFile(toml);
+        string memory fileName = helper.createTempTomlFile(toml, TESTING_DIRECTORY, "008");
         MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
 
         uint256 expectedUserOverrideNonce = 1024;
@@ -192,7 +194,7 @@ contract StateOverrideManagerUnitTest is Test {
             "\", value = 9999}\n",
             "]"
         );
-        string memory fileName = helper.createTempTomlFile(toml);
+        string memory fileName = helper.createTempTomlFile(toml, TESTING_DIRECTORY, "009");
         MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
 
         uint256 expectedTotalOverrides = 2;
@@ -220,7 +222,7 @@ contract StateOverrideManagerUnitTest is Test {
             "\", value = 8888}\n",
             "]"
         );
-        string memory fileName = helper.createTempTomlFile(toml);
+        string memory fileName = helper.createTempTomlFile(toml, TESTING_DIRECTORY, "010");
         MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
 
         uint256 expectedTotalOverrides = 3; // i.e. (2 default + 1 user defined)
@@ -269,7 +271,7 @@ contract StateOverrideManagerUnitTest is Test {
         string memory nonNestedSafeToml = "l2chains = [{name = \"Base Sepolia Testnet\", chainId = 84532}]\n" "\n"
             "templateName = \"DisputeGameUpgradeTemplate\"\n" "\n"
             "implementations = [{gameType = 0, implementation = \"0x0000000FFfFFfffFffFfFffFFFfffffFffFFffFf\", l2ChainId = 84532}]\n";
-        string memory fileName = helper.createTempTomlFile(nonNestedSafeToml);
+        string memory fileName = helper.createTempTomlFile(nonNestedSafeToml, TESTING_DIRECTORY, "011");
         MockDisputeGameTask dgt = new MockDisputeGameTask();
         dgt.simulateRun(fileName);
 
@@ -426,12 +428,13 @@ contract StateOverrideManagerUnitTest is Test {
             "    {key = 5, value = \"101\"}\n",
             "]"
         );
-        string memory fileName = helper.createTempTomlFile(toml);
+        string memory fileName = helper.createTempTomlFile(toml, TESTING_DIRECTORY, "012");
         MultisigTask task = new MockMultisigTask();
         vm.expectRevert(
             "StateOverrideManager: Failed to reencode overrides, ensure any decimal numbers are not in quotes"
         );
         task.signFromChildMultisig(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
+        helper.removeFile(fileName);
     }
 
     /// @notice Helper function to convert strings to bytes32
