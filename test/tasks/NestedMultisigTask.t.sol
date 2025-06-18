@@ -77,8 +77,8 @@ contract NestedMultisigTaskTest is Test {
 
     function testNestedDataToSignAndHashToApprove() public {
         vm.createSelectFork("mainnet");
-        uint256[] memory allOriginalNonces =
-            MultisigTaskTestHelper.getAllOriginalNonces(ROOT_SAFE, SECURITY_COUNCIL_CHILD_MULTISIG);
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(ROOT_SAFE, SECURITY_COUNCIL_CHILD_MULTISIG);
+        uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
 
         (, Action[] memory actions) = runTask(SECURITY_COUNCIL_CHILD_MULTISIG);
 
@@ -122,8 +122,8 @@ contract NestedMultisigTaskTest is Test {
     function testNestedExecuteWithSignatures() public {
         vm.createSelectFork("mainnet");
         uint256 snapshotId = vm.snapshotState();
-        uint256[] memory allOriginalNonces =
-            MultisigTaskTestHelper.getAllOriginalNonces(ROOT_SAFE, SECURITY_COUNCIL_CHILD_MULTISIG);
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(ROOT_SAFE, SECURITY_COUNCIL_CHILD_MULTISIG);
+        uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
 
         (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) =
             runTask(SECURITY_COUNCIL_CHILD_MULTISIG);
@@ -172,8 +172,8 @@ contract NestedMultisigTaskTest is Test {
         multisigTask = new OPCMUpgradeV200();
         string memory opcmTaskConfigFilePath = "test/tasks/example/sep/002-opcm-upgrade-v200/config.toml";
 
-        uint256[] memory allOriginalNonces =
-            MultisigTaskTestHelper.getAllOriginalNonces(rootSafe, foundationChildMultisig);
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe, foundationChildMultisig);
+        uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
 
         (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions,,) =
             multisigTask.signFromChildMultisig(opcmTaskConfigFilePath, foundationChildMultisig);
@@ -251,7 +251,7 @@ contract NestedMultisigTaskTest is Test {
     /// @notice Validate the data to sign for the child multisig.
     function _validateNestedDataToSign(address childMultisig, bytes memory callDataToApprove) internal view {
         address[] memory tmpAllSafes = MultisigTaskTestHelper.getAllSafes(ROOT_SAFE, childMultisig);
-        uint256[] memory tmpAllOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(ROOT_SAFE, childMultisig);
+        uint256[] memory tmpAllOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(tmpAllSafes);
         uint256 childSafeNonce = tmpAllOriginalNonces[0];
         bytes memory dataToSign =
             multisigTask.getEncodedTransactionData(childMultisig, callDataToApprove, 0, childSafeNonce, tmpAllSafes);
@@ -310,8 +310,7 @@ contract NestedMultisigTaskTest is Test {
             MultisigTaskTestHelper.decrementNonceAfterSimulation(testData.childOwnerMultisigs[i]);
             address[] memory tmpAllSafes =
                 MultisigTaskTestHelper.getAllSafes(address(testData.rootSafe), testData.childOwnerMultisigs[i]);
-            uint256[] memory tmpAllOriginalNonces =
-                MultisigTaskTestHelper.getAllOriginalNonces(address(testData.rootSafe), testData.childOwnerMultisigs[i]);
+            uint256[] memory tmpAllOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(tmpAllSafes);
             bytes[] memory tmpAllCalldatas = multisigTask.calldatas(actions, tmpAllSafes, tmpAllOriginalNonces);
             bytes memory childSafeCalldata = tmpAllCalldatas[0];
             uint256 childSafeNonce = tmpAllOriginalNonces[0];

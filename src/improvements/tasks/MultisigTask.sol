@@ -257,20 +257,22 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
     /// @notice Creates calldata for a safe to pre-approve a transaction that will be
     /// executed by a safe higher in the hierarchy chain.
-    function _generateApproveCall(
+    function _generateApproveCalldata(
         address _safe,
         bytes memory _data,
         uint256 _value,
         uint256 _originalNonce,
         address[] memory allSafes
-    ) internal view returns (IMulticall3.Call3Value memory) {
+    ) internal view returns (bytes memory) {
         bytes32 hash = getHash(_data, _safe, _value, _originalNonce, allSafes);
-        return IMulticall3.Call3Value({
+        IMulticall3.Call3Value[] memory approvalCall = new IMulticall3.Call3Value[](1);
+        approvalCall[0] = IMulticall3.Call3Value({
             target: _safe,
             allowFailure: false,
             value: _value,
             callData: abi.encodeCall(IGnosisSafe(_safe).approveHash, (hash))
         });
+        return abi.encodeCall(IMulticall3.aggregate3Value, (approvalCall));
     }
 
     /// @notice Get the data to sign by EOA.
@@ -710,21 +712,19 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         }
 
         (address[] memory allSafes, uint256[] memory allOriginalNonces) = _taskSetup(_taskConfigFilePath, childSafes);
-        address rootSafe = allSafes[allSafes.length - 1];
-        uint256 rootSafeNonce = allOriginalNonces[allOriginalNonces.length - 1];
-        Action[] memory actions = build(rootSafe);
+        Action[] memory actions = build(root);
         bytes[] memory allCalldatas = calldatas(actions, allSafes, allOriginalNonces);
         validateCalldatas(allCalldatas, allSafes, allOriginalNonces);
 
         (VmSafe.AccountAccess[] memory accountAccesses, bytes32 txHash) =
             simulate(_signatures, allSafes, allCalldatas, allOriginalNonces);
 
-        validate(accountAccesses, actions, rootSafe, rootSafeNonce);
+        validate(accountAccesses, actions, root, allOriginalNonces[allOriginalNonces.length - 1]);
         (normalizedHash_, dataToSign_) = print(accountAccesses, true, txHash, allSafes, allCalldatas, allOriginalNonces);
 
         // Revert with meaningful error message if the user is trying to simulate with the wrong command.
         if (allSafes.length > 1) {
-            require(isNestedSafe(rootSafe), "MultisigTask: multisig must be a nested safe.");
+            require(isNestedSafe(root), "MultisigTask: multisig must be a nested safe.");
         } else {
             require(!isNestedSafe(allSafes[0]), "MultisigTask: multisig must be a single safe.");
         }
@@ -776,9 +776,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             address targetSafe = _allSafes[i];
             bytes memory callToApprove = calldatas_[i];
 
-            IMulticall3.Call3Value[] memory approvalCall = new IMulticall3.Call3Value[](1);
-            approvalCall[0] = _generateApproveCall(targetSafe, callToApprove, 0, _originalNonces[i], _allSafes);
-            calldatas_[i - 1] = abi.encodeCall(IMulticall3.aggregate3Value, (approvalCall));
+            calldatas_[i - 1] = _generateApproveCalldata(targetSafe, callToApprove, 0, _originalNonces[i], _allSafes);
         }
     }
 
@@ -916,7 +914,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         address targetAddress;
         bytes memory finalExec;
         address rootSafe = allSafes[allSafes.length - 1];
-        bytes memory rootSafeCalldata = allCalldatas[allCalldatas.length - 1];
         address childSafe;
         if (allSafes.length > 1) {
             targetAddress = MULTICALL3_ADDRESS;
@@ -926,7 +923,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             targetAddress = rootSafe;
             finalExec = _execTransactionCalldata(
                 targetAddress,
-                rootSafeCalldata,
+                allCalldatas[allCalldatas.length - 1],
                 Signatures.genPrevalidatedSignature(msg.sender),
                 _getMulticallAddress(rootSafe, allSafes)
             );
@@ -1039,9 +1036,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         view
         returns (bytes memory dataToSign_)
     {
-        address rootSafe = allSafes[allSafes.length - 1];
-        bytes memory rootSafeCalldata = allCalldatas[allCalldatas.length - 1];
-        uint256 rootSafeNonce = allOriginalNonces[allOriginalNonces.length - 1];
+        (address rootSafe, bytes memory rootSafeCalldata, uint256 rootSafeNonce) =
+            getSafeData(allSafes, allCalldatas, allOriginalNonces, allSafes.length - 1);
 
         dataToSign_ = getEncodedTransactionData(rootSafe, rootSafeCalldata, 0, rootSafeNonce, allSafes);
         // eip712sign tool looks for the output of this command.

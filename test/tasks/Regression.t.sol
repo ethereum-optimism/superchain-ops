@@ -516,14 +516,13 @@ contract RegressionTest is Test {
         address[] memory allSafes
     ) internal returns (Action[] memory actions, uint256[] memory allOriginalNonces) {
         vm.createSelectFork(network, blockNumber);
-        address rootSafe = allSafes[allSafes.length - 1];
         if (allSafes.length > 1) {
             // TODO: fix when we support > 1 level of nesting.
             address childSafe = allSafes[0];
-            allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(rootSafe, childSafe);
+            allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
             (, actions,,) = multisigTask.signFromChildMultisig(taskConfigFilePath, childSafe);
         } else {
-            allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(rootSafe);
+            allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
             (, actions,,) = multisigTask.simulateRun(taskConfigFilePath);
         }
     }
@@ -569,8 +568,7 @@ contract RegressionTest is Test {
             // Decrement the nonces by 1 because in the task simulation, child multisig nonces are incremented.
             MultisigTaskTestHelper.decrementNonceAfterSimulation(owners[i]);
             address[] memory tmpAllSafes = MultisigTaskTestHelper.getAllSafes(address(multisigTask.root()), owners[i]);
-            uint256[] memory tmpAllOriginalNonces =
-                MultisigTaskTestHelper.getAllOriginalNonces(address(multisigTask.root()), owners[i]);
+            uint256[] memory tmpAllOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(tmpAllSafes);
             bytes[] memory tmpAllCalldatas = multisigTask.calldatas(actions, tmpAllSafes, tmpAllOriginalNonces);
             bytes memory childSafeCalldata = tmpAllCalldatas[0];
             uint256 childSafeNonce = tmpAllOriginalNonces[0];
