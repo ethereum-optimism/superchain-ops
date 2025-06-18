@@ -182,30 +182,29 @@ contract SetDisputeGameImpl is L2TaskBase {
     }
 }
 
-    // ----- GAME TYPE CONSTANTS ----- //
-    uint32 constant CANNON = 0;
-    uint32 constant PERMISSIONED_CANNON = 1;
+// ----- GAME TYPE CONSTANTS ----- //
+uint32 constant CANNON = 0;
+uint32 constant PERMISSIONED_CANNON = 1;
 
-    /// ----- INTERFACES ----- ///
+/// ----- INTERFACES ----- ///
+interface IDisputeGameFactory {
+    function gameImpls(uint32 gameType) external view returns (address);
+    function setImplementation(uint32 gameType, address impl) external;
+}
 
-    interface IDisputeGameFactory {
-        function gameImpls(uint32 gameType) external view returns (address);
-        function setImplementation(uint32 gameType, address impl) external;
-    }
+interface IFaultDisputeGame {
+    function gameType() external view returns (uint32);
+    function l2ChainId() external view returns (uint256);
+    function version() external view returns (string memory);
+    function anchorStateRegistry() external view returns (address);
+    function maxGameDepth() external view returns (uint256);
+    function splitDepth() external view returns (uint256);
+    function maxClockDuration() external view returns (uint64);
+    function clockExtension() external view returns (uint64);
+    function vm() external view returns (address);
+}
 
-    interface IFaultDisputeGame {
-        function gameType() external view returns (uint32);
-        function l2ChainId() external view returns (uint256);
-        function version() external view returns (string memory);
-        function anchorStateRegistry() external view returns (address);
-        function maxGameDepth() external view returns (uint256);
-        function splitDepth() external view returns (uint256);
-        function maxClockDuration() external view returns (uint64);
-        function clockExtension() external view returns (uint64);
-        function vm() external view returns (address);
-    }
-
-    interface IPermissionedDisputeGame is IFaultDisputeGame {
-        function proposer() external view returns (address);
-        function challenger() external view returns (address);
-    }
+interface IPermissionedDisputeGame is IFaultDisputeGame {
+    function proposer() external view returns (address);
+    function challenger() external view returns (address);
+}
