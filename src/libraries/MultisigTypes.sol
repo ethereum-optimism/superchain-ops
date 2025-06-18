@@ -17,18 +17,6 @@ struct Action {
     string description;
 }
 
-/// @notice This type is from the Multicall3 contract.
-/// @param target The address of the target contract to call.
-/// @param allowFailure When true, the call is allowed to fail without reverting the entire transaction.
-/// @param value The amount of ETH to send with the call.
-/// @param callData The calldata to call on the target contract.
-struct Call3Value {
-    address target;
-    bool allowFailure;
-    uint256 value;
-    bytes callData;
-}
-
 /// @notice Struct to store information about a token/Eth transfer
 /// @param to The address of the recipient
 /// @param value The amount of tokens/Eth to transfer

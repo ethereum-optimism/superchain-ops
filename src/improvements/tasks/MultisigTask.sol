@@ -7,6 +7,7 @@ import {Script} from "forge-std/Script.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {Test} from "forge-std/Test.sol";
 import {StdStyle} from "forge-std/StdStyle.sol";
+import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 
 import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
@@ -14,12 +15,13 @@ import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.so
 
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
-import {Action, Call3Value, TemplateConfig, TaskType} from "src/libraries/MultisigTypes.sol";
+import {Action, TemplateConfig, TaskType} from "src/libraries/MultisigTypes.sol";
 import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
 import {Utils} from "src/libraries/Utils.sol";
 import {MultisigTaskPrinter} from "src/libraries/MultisigTaskPrinter.sol";
 import {TaskManager} from "src/improvements/tasks/TaskManager.sol";
 import {Solarray} from "lib/optimism/packages/contracts-bedrock/scripts/libraries/Solarray.sol";
+
 
 type AddressRegistry is address;
 
@@ -244,14 +246,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     function generateApproveMulticallData(Action[] memory actions) public view returns (bytes memory) {
         bytes memory callData = getMulticall3Calldata(actions);
         bytes32 hash = getHash(callData, parentMultisig);
-        Call3Value memory call = Call3Value({
+        IMulticall3.Call3Value memory call = IMulticall3.Call3Value({
             target: parentMultisig,
             allowFailure: false,
             value: 0,
             callData: abi.encodeCall(IGnosisSafe(parentMultisig).approveHash, (hash))
         });
 
-        Call3Value[] memory calls = new Call3Value[](1);
+        IMulticall3.Call3Value[] memory calls = new IMulticall3.Call3Value[](1);
         calls[0] = call;
         return abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
     }
@@ -311,11 +313,11 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         (address[] memory targets, uint256[] memory values, bytes[] memory arguments) = processTaskActions(actions);
 
         // Create calls array with targets and arguments.
-        Call3Value[] memory calls = new Call3Value[](targets.length);
+        IMulticall3.Call3Value[] memory calls = new IMulticall3.Call3Value[](targets.length);
 
         for (uint256 i; i < calls.length; i++) {
             require(targets[i] != address(0), "Invalid target for multisig");
-            calls[i] = Call3Value({target: targets[i], allowFailure: false, value: values[i], callData: arguments[i]});
+            calls[i] = IMulticall3.Call3Value({target: targets[i], allowFailure: false, value: values[i], callData: arguments[i]});
         }
 
         // Generate calldata
@@ -615,7 +617,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// that shows both the child multisig approving the hash, as well as the parent multisig
     /// executing the task. This is only used when simulating a nested multisig.
     function getNestedSimulationMulticall3Calldata(Action[] memory actions) internal view returns (bytes memory data) {
-        Call3Value[] memory calls = new Call3Value[](2);
+        IMulticall3.Call3Value[] memory calls = new IMulticall3.Call3Value[](2);
 
         (bytes memory approveHashCallData,,,) = getApproveTransactionInfo(actions);
         bytes memory approveHashExec = _execTransactionCalldata(
@@ -624,7 +626,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             Signatures.genPrevalidatedSignature(MULTICALL3_ADDRESS),
             MULTICALL3_ADDRESS
         );
-        calls[0] = Call3Value({target: childMultisig, allowFailure: false, value: 0, callData: approveHashExec});
+        calls[0] = IMulticall3.Call3Value({target: childMultisig, allowFailure: false, value: 0, callData: approveHashExec});
 
         bytes memory customExec = _execTransactionCalldata(
             parentMultisig,
@@ -632,7 +634,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             Signatures.genPrevalidatedSignature(childMultisig),
             _getMulticallAddress(parentMultisig)
         );
-        calls[1] = Call3Value({target: parentMultisig, allowFailure: false, value: 0, callData: customExec});
+        calls[1] = IMulticall3.Call3Value({target: parentMultisig, allowFailure: false, value: 0, callData: customExec});
 
         return abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
     }
