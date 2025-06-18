@@ -6,6 +6,7 @@ import {LibString} from "@solady/utils/LibString.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 
 import {SimpleAddressRegistryTest} from "./SimpleAddressRegistry.t.sol";
+import {MultisigTaskTestHelper} from "../tasks/MultisigTask.t.sol";
 
 abstract contract SuperchainAddressRegistryTest_Base is Test {
     using LibString for string;
@@ -202,6 +203,92 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
             assertNotEq(addrRegistry.getAddress("SystemConfigOwner", chainId), address(0), "330");
             assertNotEq(addrRegistry.getAddress("UnsafeBlockSigner", chainId), address(0), "340");
         }
+    }
+
+    function testRunFailsNoL2ChainsKey() public {
+        string memory invalidToml = "templateName = \"RandomTemplate\"\n";
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(invalidToml);
+        vm.expectRevert("SuperchainAddressRegistry: .l2chains must be present in the config.toml file.");
+        new SuperchainAddressRegistry(fileName);
+        MultisigTaskTestHelper.removeFile(fileName);
+    }
+
+    function testRunFailsEmptyL2ChainsKey() public {
+        string memory invalidToml = "l2chains = [] \n" "templateName = \"RandomTemplate\"\n";
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(invalidToml);
+        vm.expectRevert("SuperchainAddressRegistry: .l2chains list is empty");
+        new SuperchainAddressRegistry(fileName);
+        MultisigTaskTestHelper.removeFile(fileName);
+    }
+
+    function testConstructor_WithValidNonExistentChain_UsesFallbackPath() public {
+        vm.createSelectFork("mainnet");
+        string memory localJsonContent =
+            '{ \
+                "12345": { \
+                    "L1StandardBridgeProxy": "0x1111111111111111111111111111111111111111", \
+                    "MyCustomContract": "0x2222222222222222222222222222222222222222" \
+                } \
+            }';
+        string memory localJsonPath = "my-local-addresses.json";
+        vm.writeFile(localJsonPath, localJsonContent);
+
+        string memory tomlContent = string.concat(
+            'l2chains = [{name = "MyLocalChain", chainId = 12345}]\n',
+            'fallbackAddressesJsonPath = "',
+            localJsonPath,
+            '"'
+        );
+        string memory configFileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent);
+        SuperchainAddressRegistry localRegistry = new SuperchainAddressRegistry(configFileName);
+        assertTrue(localRegistry.seenL2ChainIds(12345), "Local chain ID 12345 not seen");
+
+        SuperchainAddressRegistry.ChainInfo[] memory chains = localRegistry.getChains();
+        assertEq(chains.length, 1, "Incorrect number of chains loaded");
+        assertEq(chains[0].chainId, 12345, "Incorrect chainId for loaded chain");
+        assertEq(chains[0].name, "MyLocalChain", "Incorrect name for loaded chain");
+
+        assertEq(
+            localRegistry.getAddress("L1StandardBridgeProxy", 12345),
+            address(0x1111111111111111111111111111111111111111),
+            "L1StandardBridgeProxy address mismatch"
+        );
+        assertEq(
+            localRegistry.getAddress("MyCustomContract", 12345),
+            address(0x2222222222222222222222222222222222222222),
+            "MyCustomContract address mismatch"
+        );
+
+        string memory errNotFound =
+            unicode"SuperchainAddressRegistry: address not found for NonExistentContract on chain 12345";
+        vm.expectRevert(bytes(errNotFound));
+        localRegistry.getAddress("NonExistentContract", 12345);
+
+        MultisigTaskTestHelper.removeFile(configFileName);
+        MultisigTaskTestHelper.removeFile(localJsonPath);
+    }
+
+    function testConstructor_WithEmptyFallbackPath_Reverts() public {
+        vm.createSelectFork("mainnet");
+        string memory tomlContent =
+            string.concat('l2chains = [{name = "MyLocalChain", chainId = 12345}]\n', 'fallbackAddressesJsonPath = ""');
+        string memory configFileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent);
+        vm.expectRevert(
+            "SuperchainAddressRegistry: Chain does not exist in superchain registry and fallback path is empty."
+        );
+        new SuperchainAddressRegistry(configFileName);
+        MultisigTaskTestHelper.removeFile(configFileName);
+    }
+
+    function testConstructor_WithInvalidFallbackPath_Reverts() public {
+        string memory tomlContent = string.concat(
+            'l2chains = [{name = "MyLocalChain", chainId = 12345}]\n',
+            'fallbackAddressesJsonPath = "test/registry/non-existent-file.json"'
+        );
+        string memory configFileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent);
+        vm.expectRevert();
+        new SuperchainAddressRegistry(configFileName);
+        MultisigTaskTestHelper.removeFile(configFileName);
     }
 
     // Helper function to get optional addresses without reverting.

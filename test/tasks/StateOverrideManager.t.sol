@@ -432,6 +432,7 @@ contract StateOverrideManagerUnitTest is Test {
             "StateOverrideManager: Failed to reencode overrides, ensure any decimal numbers are not in quotes"
         );
         task.signFromChildMultisig(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
+        helper.removeFile(fileName);
     }
 
     /// @notice Helper function to convert strings to bytes32

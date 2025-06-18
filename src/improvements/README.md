@@ -103,6 +103,7 @@ But **do not** pass the decimal value as a string—this will cause undefined be
 ]
 ```
 
+
 5. Simulate the task:
 ```bash
 # Nested
@@ -185,11 +186,29 @@ The addresses in this file are loaded into two different address registry contra
 
 - **`SimpleAddressRegistry.sol`**: This is a straightforward key-value store for addresses. It's used for tasks that require a simple way to look up addresses by a human-readable name.
 
-- **`SuperchainAddressRegistry.sol`**: This is a more advanced registry that automatically discovers addresses for contracts deployed across various chains in the Superchain. However, some addresses, like multisig safes or contracts not part of the standard deployment, cannot be discovered automatically. For these cases, `SuperchainAddressRegistry.sol` also loads addresses from `addresses.toml` to make them available.
+- **`SuperchainAddressRegistry.sol`**: An advanced registry designed to automatically discover contract addresses deployed across chains in the Superchain. For this to work, the target chain must be listed in the [superchain-registry](https://github.com/ethereum-optimism/superchain-registry). While standard deployments can be discovered automatically, some addresses such as multisig safes or custom contracts require manual inclusion. In these cases, `SuperchainAddressRegistry.sol` also loads entries from `addresses.toml` to ensure availability. If you're working with a chain not yet included in the Superchain registry, you can manually provide a fallback JSON file via `fallbackAddressesJsonPath` in your task's `config.toml`. See the section [below](#what-if-i-want-to-upgrade-a-chain-that-is-not-in-the-superchain-registry) for details.
 
 Both registries load addresses based on the network the task is running on. For example, when running a task on Ethereum mainnet, addresses from the `[eth]` section of `addresses.toml` will be loaded. You can only access addresses for the network you are working on.
 
 By adding an address to `addresses.toml`, you ensure it's available in your task's context, whether you're using the simple or the superchain address registry.
+
+### What if I want to upgrade a chain that is not in the superchain-registry?
+
+If the chain you want to upgrade is not in the [superchain-registry](https://github.com/ethereum-optimism/superchain-registry), you can manually provide a fallback JSON file in your task's `config.toml` (as `fallbackAddressesJsonPath`). 
+
+```toml
+l2chains = [{name = "Unichain", chainId = 1333330}]
+fallbackAddressesJsonPath = "test/tasks/example/eth/010-transfer-owners-local/addresses.json"
+templateName = "TransferOwners"
+```
+
+See: [example/eth/010-transfer-owners-local/config.toml](../../test/tasks/example/eth/010-transfer-owners-local/config.toml) for an example.
+
+The fallback JSON file must be structured with the chain ID as the top-level key, containing all contract addresses for that chain. It takes the same structure as the superchain-registry's [addresses.json](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/addresses.json) file.
+
+When the task runs, it will first attempt to use the superchain-registry. If the chain is not found, it will load addresses directly from your fallback JSON file instead of performing automatic onchain discovery.
+
+> ⚠️ **Note**: You must manually provide all contract addresses required by your task template in the fallback JSON file.
 
 ## Available Templates
 
