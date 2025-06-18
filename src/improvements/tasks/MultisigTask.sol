@@ -521,23 +521,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         );
     }
 
-    /// @notice Helper function to get the approve hash transaction Domain Separator and Message Hash.
-    function computeNestedApproveHashInfo(
-        address[] memory allSafes,
-        bytes[] memory allCalldatas,
-        uint256[] memory allOriginalNonces
-    ) internal view returns (bytes memory encodedTxData, bytes32 domainSeparator, bytes32 messageHash) {
-        require(allSafes.length == 2, "MultisigTask: only supports 1 level of nesting.");
-        require(allSafes.length == allCalldatas.length, "MultisigTask: allSafes and calldatas length mismatch");
-        address childSafe = allSafes[0];
-        bytes memory childSafeCalldata = allCalldatas[0];
-        uint256 childSafeNonce = allOriginalNonces[0];
-        encodedTxData = getEncodedTransactionData(childSafe, childSafeCalldata, 0, childSafeNonce, allSafes);
-        (domainSeparator, messageHash) =
-            GnosisSafeHashes.getDomainAndMessageHashFromEncodedTransactionData(encodedTxData);
-        return (encodedTxData, domainSeparator, messageHash);
-    }
-
     /// @notice Returns true if the given account access should be recorded as an action. This function is used to filter out
     /// actions that we defined in the `_build` function of our template. The actions selected by this function will get executed
     /// by the relevant Multicall3 contract (e.g. `Multicall3` or `Multicall3DelegateCall`).
@@ -986,19 +969,19 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         );
         (address rootSafe, bytes memory rootSafeCalldata, uint256 rootSafeNonce) =
             getSafeData(allSafes, allCalldatas, allOriginalNonces, allSafes.length - 1);
-        (address childSafe,,) = getSafeData(allSafes, allCalldatas, allOriginalNonces, 0);
+        (address childSafe, bytes memory childSafeCalldata, uint256 childSafeNonce) =
+            getSafeData(allSafes, allCalldatas, allOriginalNonces, 0);
 
         bytes32 rootSafeHashToApprove = getHash(rootSafeCalldata, rootSafe, 0, rootSafeNonce, allSafes);
-
-        (bytes memory dataToSign, bytes32 domainSeparator, bytes32 messageHash) =
-            computeNestedApproveHashInfo(allSafes, allCalldatas, allOriginalNonces);
-        dataToSign_ = dataToSign;
+        dataToSign_ = getEncodedTransactionData(childSafe, childSafeCalldata, 0, childSafeNonce, allSafes);
 
         {
             string memory rootSafeLabel = MultisigTaskPrinter.getAddressLabel(rootSafe);
             string memory childSafeLabel = MultisigTaskPrinter.getAddressLabel(childSafe);
+            (bytes32 domainSeparator, bytes32 messageHash) =
+                GnosisSafeHashes.getDomainAndMessageHashFromEncodedTransactionData(dataToSign_);
             MultisigTaskPrinter.printNestedDataInfo(
-                rootSafeLabel, childSafeLabel, rootSafeHashToApprove, dataToSign, domainSeparator, messageHash
+                rootSafeLabel, childSafeLabel, rootSafeHashToApprove, dataToSign_, domainSeparator, messageHash
             );
         }
 
