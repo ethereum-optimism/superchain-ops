@@ -8,13 +8,6 @@ import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
-import {DisputeGameFactory} from "lib/optimism/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol";
-import {GameTypes} from "lib/optimism/packages/contracts-bedrock/src/dispute/lib/Types.sol";
-
-import {IFaultDisputeGame} from "lib/optimism/packages/contracts-bedrock/interfaces/dispute/IFaultDisputeGame.sol";
-import {IPermissionedDisputeGame} from
-    "lib/optimism/packages/contracts-bedrock/interfaces/dispute/IPermissionedDisputeGame.sol";
-
 /// @title SetDisputeGameImpl
 /// @notice This template sets the FaultDisputeGame (FDG) and PermissionedDisputeGame (PDG) implementation addresses
 ///         in the DisputeGameFactory contract for one or more chains, using values specified in a TOML configuration file.
@@ -68,18 +61,18 @@ contract SetDisputeGameImpl is L2TaskBase {
             GameImplConfig memory c = cfg[chainId];
 
             address dgf = superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId);
-            DisputeGameFactory factory = DisputeGameFactory(dgf);
+            IDisputeGameFactory factory = IDisputeGameFactory(dgf);
 
             // Set FDG (CANNON) implementation if TOML is different from current on-chain
-            address currentFDG = address(factory.gameImpls(GameTypes.CANNON));
+            address currentFDG = address(factory.gameImpls(CANNON));
             if (currentFDG != c.fdgImpl) {
-                factory.setImplementation(GameTypes.CANNON, IFaultDisputeGame(c.fdgImpl));
+                factory.setImplementation(CANNON, c.fdgImpl);
             }
 
             // Set PDG (PERMISSIONED_CANNON) implementation if TOML is different from current on-chain
-            address currentPDG = address(factory.gameImpls(GameTypes.PERMISSIONED_CANNON));
+            address currentPDG = address(factory.gameImpls(PERMISSIONED_CANNON));
             if (currentPDG != c.pdgImpl) {
-                factory.setImplementation(GameTypes.PERMISSIONED_CANNON, IPermissionedDisputeGame(c.pdgImpl));
+                factory.setImplementation(PERMISSIONED_CANNON, c.pdgImpl);
             }
         }
     }
@@ -97,28 +90,28 @@ contract SetDisputeGameImpl is L2TaskBase {
             GameImplConfig memory c = cfg[chainId];
 
             address dgf = superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId);
-            DisputeGameFactory factory = DisputeGameFactory(dgf);
+            IDisputeGameFactory factory = IDisputeGameFactory(dgf);
 
             // Always check that DisputeGameFactory points to the expected new implementations from TOML config file
-            assertEq(address(factory.gameImpls(GameTypes.CANNON)), c.fdgImpl, "FDG implementation mismatch");
-            assertEq(address(factory.gameImpls(GameTypes.PERMISSIONED_CANNON)), c.pdgImpl, "PDG implementation mismatch");
+            assertEq(address(factory.gameImpls(CANNON)), c.fdgImpl, "FDG implementation mismatch");
+            assertEq(address(factory.gameImpls(PERMISSIONED_CANNON)), c.pdgImpl, "PDG implementation mismatch");
 
             // Always check basic invariants on any nonzero FDG new implementation
             if (c.fdgImpl != address(0)) {
                 IFaultDisputeGame newFdg = IFaultDisputeGame(c.fdgImpl);
-                require(newFdg.gameType().raw() == GameTypes.CANNON.raw(), "FDG: gameType not CANNON");
+                require(newFdg.gameType() == CANNON, "FDG: gameType not CANNON");
                 require(newFdg.l2ChainId() == chainId, "FDG: l2ChainId mismatch");
             }
 
             // Always check basic invariants on any nonzero PDG new implementation
             if (c.pdgImpl != address(0)) {
                 IPermissionedDisputeGame newPdg = IPermissionedDisputeGame(c.pdgImpl);
-                require(newPdg.gameType().raw() == GameTypes.PERMISSIONED_CANNON.raw(), "PDG: gameType not PERMISSIONED_CANNON");
+                require(newPdg.gameType() == PERMISSIONED_CANNON, "PDG: gameType not PERMISSIONED_CANNON");
                 require(newPdg.l2ChainId() == chainId, "PDG: l2ChainId mismatch");
             }
 
             // -- FDG detailed check (only for impl->impl upgrade, not 0->impl or impl->0) --
-            address prevFdgAddr = address(factory.gameImpls(GameTypes.CANNON));
+            address prevFdgAddr = address(factory.gameImpls(CANNON));
             address newFdgAddr = c.fdgImpl;
             if (prevFdgAddr != address(0) && newFdgAddr != address(0) && prevFdgAddr != newFdgAddr) {
                 IFaultDisputeGame prevFdg = IFaultDisputeGame(prevFdgAddr);
@@ -133,8 +126,8 @@ contract SetDisputeGameImpl is L2TaskBase {
                     keccak256(bytes(prevFdg.version())) == keccak256(bytes(newFdg.version())) &&
                     prevFdg.maxGameDepth() == newFdg.maxGameDepth() &&
                     prevFdg.splitDepth() == newFdg.splitDepth() &&
-                    prevFdg.maxClockDuration().raw() == newFdg.maxClockDuration().raw() &&
-                    prevFdg.clockExtension().raw() == newFdg.clockExtension().raw();
+                    prevFdg.maxClockDuration() == newFdg.maxClockDuration() &&
+                    prevFdg.clockExtension() == newFdg.clockExtension();
 
                 // Acceptable: prestate-only update or prestate+vm update
                 if (prestateChanged && !vmChanged) {
@@ -147,7 +140,7 @@ contract SetDisputeGameImpl is L2TaskBase {
             }
 
             // -- PDG detailed check (only for impl->impl upgrade, not 0->impl or impl->0) --
-            address prevPdgAddr = address(factory.gameImpls(GameTypes.PERMISSIONED_CANNON));
+            address prevPdgAddr = address(factory.gameImpls(PERMISSIONED_CANNON));
             address newPdgAddr = c.pdgImpl;
             if (prevPdgAddr != address(0) && newPdgAddr != address(0) && prevPdgAddr != newPdgAddr) {
                 IPermissionedDisputeGame prevPdg = IPermissionedDisputeGame(prevPdgAddr);
@@ -162,8 +155,8 @@ contract SetDisputeGameImpl is L2TaskBase {
                     keccak256(bytes(prevPdg.version())) == keccak256(bytes(newPdg.version())) &&
                     prevPdg.maxGameDepth() == newPdg.maxGameDepth() &&
                     prevPdg.splitDepth() == newPdg.splitDepth() &&
-                    prevPdg.maxClockDuration().raw() == newPdg.maxClockDuration().raw() &&
-                    prevPdg.clockExtension().raw() == newPdg.clockExtension().raw() &&
+                    prevPdg.maxClockDuration() == newPdg.maxClockDuration() &&
+                    prevPdg.clockExtension() == newPdg.clockExtension() &&
                     prevPdg.proposer() == newPdg.proposer() &&
                     prevPdg.challenger() == newPdg.challenger();
 
@@ -188,3 +181,31 @@ contract SetDisputeGameImpl is L2TaskBase {
         return codeExceptions;
     }
 }
+
+    // ----- GAME TYPE CONSTANTS ----- //
+    uint32 constant CANNON = 0;
+    uint32 constant PERMISSIONED_CANNON = 1;
+
+    /// ----- INTERFACES ----- ///
+
+    interface IDisputeGameFactory {
+        function gameImpls(uint32 gameType) external view returns (address);
+        function setImplementation(uint32 gameType, address impl) external;
+    }
+
+    interface IFaultDisputeGame {
+        function gameType() external view returns (uint32);
+        function l2ChainId() external view returns (uint256);
+        function version() external view returns (string memory);
+        function anchorStateRegistry() external view returns (address);
+        function maxGameDepth() external view returns (uint256);
+        function splitDepth() external view returns (uint256);
+        function maxClockDuration() external view returns (uint64);
+        function clockExtension() external view returns (uint64);
+        function vm() external view returns (address);
+    }
+
+    interface IPermissionedDisputeGame is IFaultDisputeGame {
+        function proposer() external view returns (address);
+        function challenger() external view returns (address);
+    }
