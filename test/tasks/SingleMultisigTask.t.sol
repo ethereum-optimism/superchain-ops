@@ -56,8 +56,7 @@ contract SingleMultisigTaskTest is Test {
 
     function testTemplateSetup() public {
         runTask();
-        // TODO: Blaine fix this.
-        // assertEq(multisigTask.isNestedSafe(multisigTask.parentMultisig()), false, "Expected isNestedSafe to be false");
+        assertEq(multisigTask.isNestedSafe(multisigTask.root()), false, "Expected isNestedSafe to be false");
         assertEq(GasConfigTemplate(address(multisigTask)).gasLimits(34443), 100000000, "Expected gas limit for 34443");
         assertEq(GasConfigTemplate(address(multisigTask)).gasLimits(1750), 100000000, "Expected gas limit for 1750");
     }
