@@ -6,7 +6,7 @@ import {JSONParserLib} from "@solady/utils/JSONParserLib.sol";
 import {GnosisSafe} from "lib/safe-contracts/contracts/GnosisSafe.sol";
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {VmSafe} from "forge-std/Vm.sol";
-import {Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 /// @title GnosisSafeHashes
 /// @notice Library for calculating domain separators and message hashes for Gnosis Safe transactions
@@ -137,8 +137,8 @@ library GnosisSafeHashes {
     }
 
     // Helper function to get minimum of two values
-    function min(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a < b ? a : b;
+    function min(uint256 _a, uint256 _b) internal pure returns (uint256) {
+        return _a < _b ? _a : _b;
     }
 
     /// @notice Checks if the version is below 1.3.0. We are ignoring tags such as beta, rc, etc.
@@ -188,41 +188,90 @@ library GnosisSafeHashes {
     }
 
     /// @notice Helper to decode multicall calldata and extract approveHash parameter.
-    function decodeMulticallApproveHash(bytes memory _calldata) internal pure returns (bytes32) {
-        require(_calldata.length >= 4, "GnosisSafeHashes: calldata too short");
+    function decodeMulticallApproveHash(bytes memory _multicallCalldata) internal pure returns (bytes32) {
+        uint256 selectorLength = 4;
+        uint256 approveHashLength = 36; // 32 (length of hash) + 4 (selector) = 36
+        require(_multicallCalldata.length >= selectorLength, "GnosisSafeHashes: calldata too short");
 
         // Create a new bytes array without the function selector
-        bytes memory dataWithoutSelector = new bytes(_calldata.length - 4);
+        bytes memory dataWithoutSelector = new bytes(_multicallCalldata.length - selectorLength);
         for (uint256 i = 0; i < dataWithoutSelector.length; i++) {
-            dataWithoutSelector[i] = _calldata[i + 4];
+            dataWithoutSelector[i] = _multicallCalldata[i + selectorLength];
         }
 
         IMulticall3.Call3Value[] memory calls = abi.decode(dataWithoutSelector, (IMulticall3.Call3Value[]));
         require(calls.length == 1, "GnosisSafeHashes: expected single approval call");
         bytes memory approveCalldata = calls[0].callData;
-        require(approveCalldata.length == 36, "GnosisSafeHashes: invalid approveHash calldata length");
+        require(approveCalldata.length == approveHashLength, "GnosisSafeHashes: invalid approveHash calldata length");
 
         // Extract the hash parameter using assembly to skip the selector
         bytes32 hash;
         assembly {
-            hash := mload(add(approveCalldata, 36)) // 32 (length) + 4 (selector) = 36
+            hash := mload(add(approveCalldata, approveHashLength))
         }
         return hash;
     }
 
-    function getOperationDetails(VmSafe.AccountAccessKind kind)
+    function getOperationDetails(VmSafe.AccountAccessKind _kind)
         internal
         pure
         returns (string memory opStr, Enum.Operation op)
     {
-        if (kind == VmSafe.AccountAccessKind.Call) {
+        if (_kind == VmSafe.AccountAccessKind.Call) {
             opStr = "Call";
             op = Enum.Operation.Call;
-        } else if (kind == VmSafe.AccountAccessKind.DelegateCall) {
+        } else if (_kind == VmSafe.AccountAccessKind.DelegateCall) {
             opStr = "DelegateCall";
             op = Enum.Operation.DelegateCall;
         } else {
             revert("Unknown account access kind");
         }
+    }
+
+    /// @notice Returns the bytes that are hashed before signing by EOA. This function is used by MultisigTask.
+    function getEncodedTransactionData(
+        address _safe,
+        bytes memory _data,
+        uint256 _value,
+        uint256 _originalNonce,
+        address _multicallAddress
+    ) internal view returns (bytes memory encodedTxData) {
+        encodedTxData = IGnosisSafe(_safe).encodeTransactionData({
+            to: _multicallAddress,
+            value: _value,
+            data: _data,
+            operation: Enum.Operation.DelegateCall,
+            safeTxGas: 0,
+            baseGas: 0,
+            gasPrice: 0,
+            gasToken: address(0),
+            refundReceiver: address(0),
+            _nonce: _originalNonce
+        });
+        require(encodedTxData.length == 66, "GnosisSafeHashes: encodedTxData length is not 66 bytes.");
+    }
+
+    /// @notice Encodes the calldata for the Gnosis Safe execTransaction function.
+    function encodeExecTransactionCalldata(
+        address _safe,
+        bytes memory _data,
+        bytes memory _signatures,
+        address _multicallTarget
+    ) internal pure returns (bytes memory) {
+        return abi.encodeCall(
+            IGnosisSafe(_safe).execTransaction,
+            (
+                _multicallTarget,
+                0,
+                _data,
+                Enum.Operation.DelegateCall,
+                0,
+                0,
+                0,
+                address(0),
+                payable(address(0)),
+                _signatures
+            )
+        );
     }
 }
