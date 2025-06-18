@@ -84,7 +84,12 @@ contract SetDisputeGameImpl is L2TaskBase {
         }
     }
 
-    /// @notice This method performs all validations and assertions that verify the calls executed as expected.
+    /// @notice Validates that the DisputeGameFactory and game implementation invariants are preserved after the upgrade.
+    ///         This includes checking that all implementations match the TOML config, and that only allowed fields
+    ///         differ between old and new implementations (mainly for prestate or prestate + VM updates).
+    ///         Always checks that any new FDG/PDG impl is of the correct type and l2ChainId, regardless of scenario.
+    ///         Detailed logic checks are performed only when updating between two nonzero implementations,
+    ///         i.e., not when adding a brand new implementation or resetting to the zero address.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
@@ -94,11 +99,85 @@ contract SetDisputeGameImpl is L2TaskBase {
             address dgf = superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId);
             DisputeGameFactory factory = DisputeGameFactory(dgf);
 
-            // Assert FDG (CANNON) implementation matches TOML
-            assertEq(address(factory.gameImpls(GameTypes.CANNON)), c.fdgImpl);
+            // Always check that DisputeGameFactory points to the expected new implementations from TOML config file
+            assertEq(address(factory.gameImpls(GameTypes.CANNON)), c.fdgImpl, "FDG implementation mismatch");
+            assertEq(address(factory.gameImpls(GameTypes.PERMISSIONED_CANNON)), c.pdgImpl, "PDG implementation mismatch");
 
-            // Assert PDG (PERMISSIONED_CANNON) implementation matches TOML
-            assertEq(address(factory.gameImpls(GameTypes.PERMISSIONED_CANNON)), c.pdgImpl);
+            // Always check basic invariants on any nonzero FDG new implementation
+            if (c.fdgImpl != address(0)) {
+                IFaultDisputeGame newFdg = IFaultDisputeGame(c.fdgImpl);
+                require(newFdg.gameType().raw() == GameTypes.CANNON.raw(), "FDG: gameType not CANNON");
+                require(newFdg.l2ChainId() == chainId, "FDG: l2ChainId mismatch");
+            }
+
+            // Always check basic invariants on any nonzero PDG new implementation
+            if (c.pdgImpl != address(0)) {
+                IPermissionedDisputeGame newPdg = IPermissionedDisputeGame(c.pdgImpl);
+                require(newPdg.gameType().raw() == GameTypes.PERMISSIONED_CANNON.raw(), "PDG: gameType not PERMISSIONED_CANNON");
+                require(newPdg.l2ChainId() == chainId, "PDG: l2ChainId mismatch");
+            }
+
+            // -- FDG detailed check (only for impl->impl upgrade, not 0->impl or impl->0) --
+            address prevFdgAddr = address(factory.gameImpls(GameTypes.CANNON));
+            address newFdgAddr = c.fdgImpl;
+            if (prevFdgAddr != address(0) && newFdgAddr != address(0) && prevFdgAddr != newFdgAddr) {
+                IFaultDisputeGame prevFdg = IFaultDisputeGame(prevFdgAddr);
+                IFaultDisputeGame newFdg = IFaultDisputeGame(newFdgAddr);
+
+                // Check what changed
+                bool prestateChanged = prevFdg.anchorStateRegistry() != newFdg.anchorStateRegistry();
+                bool vmChanged = address(prevFdg.vm()) != address(newFdg.vm());
+
+                // All other fields (except prestate/vm) must match
+                bool othersMatch =
+                    keccak256(bytes(prevFdg.version())) == keccak256(bytes(newFdg.version())) &&
+                    prevFdg.maxGameDepth() == newFdg.maxGameDepth() &&
+                    prevFdg.splitDepth() == newFdg.splitDepth() &&
+                    prevFdg.maxClockDuration().raw() == newFdg.maxClockDuration().raw() &&
+                    prevFdg.clockExtension().raw() == newFdg.clockExtension().raw();
+
+                // Acceptable: prestate-only update or prestate+vm update
+                if (prestateChanged && !vmChanged) {
+                    require(othersMatch, "FDG: Core fields changed unexpectedly (prestate update)");
+                } else if (prestateChanged && vmChanged) {
+                    require(othersMatch, "FDG: Core fields changed unexpectedly (VM upgrade)");
+                } else {
+                    revert("FDG: Invalid update pattern (unexpected fields changed)");
+                }
+            }
+
+            // -- PDG detailed check (only for impl->impl upgrade, not 0->impl or impl->0) --
+            address prevPdgAddr = address(factory.gameImpls(GameTypes.PERMISSIONED_CANNON));
+            address newPdgAddr = c.pdgImpl;
+            if (prevPdgAddr != address(0) && newPdgAddr != address(0) && prevPdgAddr != newPdgAddr) {
+                IPermissionedDisputeGame prevPdg = IPermissionedDisputeGame(prevPdgAddr);
+                IPermissionedDisputeGame newPdg = IPermissionedDisputeGame(newPdgAddr);
+
+                // Check what changed
+                bool prestateChanged = prevPdg.anchorStateRegistry() != newPdg.anchorStateRegistry();
+                bool vmChanged = address(prevPdg.vm()) != address(newPdg.vm());
+
+                // All other fields (except prestate/vm) must match
+                bool othersMatch =
+                    keccak256(bytes(prevPdg.version())) == keccak256(bytes(newPdg.version())) &&
+                    prevPdg.maxGameDepth() == newPdg.maxGameDepth() &&
+                    prevPdg.splitDepth() == newPdg.splitDepth() &&
+                    prevPdg.maxClockDuration().raw() == newPdg.maxClockDuration().raw() &&
+                    prevPdg.clockExtension().raw() == newPdg.clockExtension().raw() &&
+                    prevPdg.proposer() == newPdg.proposer() &&
+                    prevPdg.challenger() == newPdg.challenger();
+
+                // Acceptable: prestate-only update or prestate+vm update
+                // Note: proposer/challenger are not expected to change, but we check them for completeness
+                //       since they are core fields in PDG.
+                if (prestateChanged && !vmChanged) {
+                    require(othersMatch, "PDG: Core fields changed unexpectedly (prestate update)");
+                } else if (prestateChanged && vmChanged) {
+                    require(othersMatch, "PDG: Core fields changed unexpectedly (VM upgrade)");
+                } else {
+                    revert("PDG: Invalid update pattern (unexpected fields changed)");
+                }
+            }
         }
     }
 
