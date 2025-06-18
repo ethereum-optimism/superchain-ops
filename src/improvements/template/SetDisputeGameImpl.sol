@@ -122,12 +122,11 @@ contract SetDisputeGameImpl is L2TaskBase {
                 bool vmChanged = address(prevFdg.vm()) != address(newFdg.vm());
 
                 // All other fields (except prestate/vm) must match
-                bool othersMatch =
-                    keccak256(bytes(prevFdg.version())) == keccak256(bytes(newFdg.version())) &&
-                    prevFdg.maxGameDepth() == newFdg.maxGameDepth() &&
-                    prevFdg.splitDepth() == newFdg.splitDepth() &&
-                    prevFdg.maxClockDuration() == newFdg.maxClockDuration() &&
-                    prevFdg.clockExtension() == newFdg.clockExtension();
+                bool othersMatch = keccak256(bytes(prevFdg.version())) == keccak256(bytes(newFdg.version())) 
+                    && prevFdg.maxGameDepth() == newFdg.maxGameDepth()
+                    && prevFdg.splitDepth() == newFdg.splitDepth()
+                    && prevFdg.maxClockDuration() == newFdg.maxClockDuration()
+                    && prevFdg.clockExtension() == newFdg.clockExtension();
 
                 // Acceptable: prestate-only update or prestate+vm update
                 if (prestateChanged && !vmChanged) {
@@ -151,14 +150,13 @@ contract SetDisputeGameImpl is L2TaskBase {
                 bool vmChanged = address(prevPdg.vm()) != address(newPdg.vm());
 
                 // All other fields (except prestate/vm) must match
-                bool othersMatch =
-                    keccak256(bytes(prevPdg.version())) == keccak256(bytes(newPdg.version())) &&
-                    prevPdg.maxGameDepth() == newPdg.maxGameDepth() &&
-                    prevPdg.splitDepth() == newPdg.splitDepth() &&
-                    prevPdg.maxClockDuration() == newPdg.maxClockDuration() &&
-                    prevPdg.clockExtension() == newPdg.clockExtension() &&
-                    prevPdg.proposer() == newPdg.proposer() &&
-                    prevPdg.challenger() == newPdg.challenger();
+                bool othersMatch = keccak256(bytes(prevPdg.version())) == keccak256(bytes(newPdg.version())) 
+                    && prevPdg.maxGameDepth() == newPdg.maxGameDepth()
+                    && prevPdg.splitDepth() == newPdg.splitDepth()
+                    && prevPdg.maxClockDuration() == newPdg.maxClockDuration()
+                    && prevPdg.clockExtension() == newPdg.clockExtension()
+                    && prevPdg.proposer() == newPdg.proposer()
+                    && prevPdg.challenger() == newPdg.challenger();
 
                 // Acceptable: prestate-only update or prestate+vm update
                 // Note: proposer/challenger are not expected to change, but we check them for completeness
