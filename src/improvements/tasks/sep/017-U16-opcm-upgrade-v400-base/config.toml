@@ -30,3 +30,8 @@ StandardValidatorV400 = "0xA8a1529547306FEC7A32a001705160f2110451aE" # Freshly d
 0x646132A1667ca7aD00d36616AFBA1A28116C770A = [
      {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 7}
 ]
+# Override the SuperchainConfig implementation address. This is necessary to prevent an attempt to
+# upgrade the SuperchainConfig by the wrong L1 ProxyAdmin owner.
+0xC2Be75506d5724086DEB7245bd260Cc9753911Be = [
+    {key = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc", value = "0x000000000000000000000000ce28685eb204186b557133766eca00334eb441e4"}
+]
