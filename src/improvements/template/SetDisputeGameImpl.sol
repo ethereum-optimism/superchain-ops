@@ -123,8 +123,7 @@ contract SetDisputeGameImpl is L2TaskBase {
 
                 // All other fields (except prestate/vm) must match
                 bool othersMatch = keccak256(bytes(prevFdg.version())) == keccak256(bytes(newFdg.version())) 
-                    && prevFdg.maxGameDepth() == newFdg.maxGameDepth()
-                    && prevFdg.splitDepth() == newFdg.splitDepth()
+                    && prevFdg.maxGameDepth() == newFdg.maxGameDepth() && prevFdg.splitDepth() == newFdg.splitDepth()
                     && prevFdg.maxClockDuration() == newFdg.maxClockDuration()
                     && prevFdg.clockExtension() == newFdg.clockExtension();
 
@@ -151,11 +150,9 @@ contract SetDisputeGameImpl is L2TaskBase {
 
                 // All other fields (except prestate/vm) must match
                 bool othersMatch = keccak256(bytes(prevPdg.version())) == keccak256(bytes(newPdg.version())) 
-                    && prevPdg.maxGameDepth() == newPdg.maxGameDepth()
-                    && prevPdg.splitDepth() == newPdg.splitDepth()
+                    && prevPdg.maxGameDepth() == newPdg.maxGameDepth() && prevPdg.splitDepth() == newPdg.splitDepth()
                     && prevPdg.maxClockDuration() == newPdg.maxClockDuration()
-                    && prevPdg.clockExtension() == newPdg.clockExtension()
-                    && prevPdg.proposer() == newPdg.proposer()
+                    && prevPdg.clockExtension() == newPdg.clockExtension() && prevPdg.proposer() == newPdg.proposer()
                     && prevPdg.challenger() == newPdg.challenger();
 
                 // Acceptable: prestate-only update or prestate+vm update
