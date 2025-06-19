@@ -535,7 +535,7 @@ contract RegressionTest is Test {
         uint256[] memory allOriginalNonces,
         string memory expectedCallData
     ) internal view returns (bytes memory rootSafeCalldata) {
-        bytes[] memory allCalldatas = multisigTask.calldatas(actions, allSafes, allOriginalNonces);
+        bytes[] memory allCalldatas = multisigTask.transactionDatas(actions, allSafes, allOriginalNonces);
         rootSafeCalldata = allCalldatas[allCalldatas.length - 1];
         assertEq(keccak256(bytes(vm.toString(rootSafeCalldata))), keccak256(bytes(expectedCallData)));
     }
@@ -569,7 +569,7 @@ contract RegressionTest is Test {
             MultisigTaskTestHelper.decrementNonceAfterSimulation(owners[i]);
             address[] memory tmpAllSafes = MultisigTaskTestHelper.getAllSafes(address(multisigTask.root()), owners[i]);
             uint256[] memory tmpAllOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(tmpAllSafes);
-            bytes[] memory tmpAllCalldatas = multisigTask.calldatas(actions, tmpAllSafes, tmpAllOriginalNonces);
+            bytes[] memory tmpAllCalldatas = multisigTask.transactionDatas(actions, tmpAllSafes, tmpAllOriginalNonces);
             bytes memory childSafeCalldata = tmpAllCalldatas[0];
             uint256 childSafeNonce = tmpAllOriginalNonces[0];
             string memory dataToSign = vm.toString(

@@ -292,7 +292,7 @@ contract NestedMultisigTaskTest is Test {
         returns (TestData memory testData)
     {
         testData.allSafes = MultisigTaskTestHelper.getAllSafes(multisigTask.root(), SECURITY_COUNCIL_CHILD_MULTISIG);
-        testData.allCalldatas = multisigTask.calldatas(actions, testData.allSafes, allOriginalNonces);
+        testData.allCalldatas = multisigTask.transactionDatas(actions, testData.allSafes, allOriginalNonces);
         testData.rootSafe = IGnosisSafe(testData.allSafes[testData.allSafes.length - 1]);
         testData.rootSafeCalldata = testData.allCalldatas[testData.allCalldatas.length - 1];
         testData.originalRootSafeNonce = allOriginalNonces[allOriginalNonces.length - 1];
@@ -311,7 +311,7 @@ contract NestedMultisigTaskTest is Test {
             address[] memory tmpAllSafes =
                 MultisigTaskTestHelper.getAllSafes(address(testData.rootSafe), testData.childOwnerMultisigs[i]);
             uint256[] memory tmpAllOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(tmpAllSafes);
-            bytes[] memory tmpAllCalldatas = multisigTask.calldatas(actions, tmpAllSafes, tmpAllOriginalNonces);
+            bytes[] memory tmpAllCalldatas = multisigTask.transactionDatas(actions, tmpAllSafes, tmpAllOriginalNonces);
             bytes memory childSafeCalldata = tmpAllCalldatas[0];
             uint256 childSafeNonce = tmpAllOriginalNonces[0];
             childMultisigDatasToSign[i] = multisigTask.getEncodedTransactionData(
