@@ -675,24 +675,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         }
     }
 
-    /// @notice Creates calldata for a safe to pre-approve a transaction that will be
-    /// executed by a safe higher in the hierarchy chain.
-    function _generateApproveCall(
-        address _safe,
-        bytes memory _data,
-        uint256 _value,
-        uint256 _originalNonce,
-        address[] memory allSafes
-    ) internal view returns (IMulticall3.Call3Value memory) {
-        bytes32 hash = getHash(_data, _safe, _value, _originalNonce, allSafes);
-        return IMulticall3.Call3Value({
-            target: _safe,
-            allowFailure: false,
-            value: _value,
-            callData: abi.encodeCall(IGnosisSafe(_safe).approveHash, (hash))
-        });
-    }
-
     /// @notice to be used by the build function to capture the state changes applied by a given task.
     /// These state changes will inform whether or not the task will be executed onchain.
     function _startBuild(address rootSafe) private {
