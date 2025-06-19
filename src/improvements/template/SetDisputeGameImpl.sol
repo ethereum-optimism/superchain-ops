@@ -124,7 +124,8 @@ contract SetDisputeGameImpl is L2TaskBase {
                 bool vmChanged = address(prevFdg.vm()) != address(newFdg.vm());
 
                 // All other fields must match
-                bool othersMatch = prevFdg.maxGameDepth() == newFdg.maxGameDepth() && prevFdg.splitDepth() == newFdg.splitDepth()
+                bool othersMatch = prevFdg.maxGameDepth() == newFdg.maxGameDepth()
+                    && prevFdg.splitDepth() == newFdg.splitDepth()
                     && prevFdg.maxClockDuration() == newFdg.maxClockDuration()
                     && prevFdg.clockExtension() == newFdg.clockExtension();
 
@@ -149,7 +150,8 @@ contract SetDisputeGameImpl is L2TaskBase {
                 bool vmChanged = address(prevPdg.vm()) != address(newPdg.vm());
 
                 // All other fields must match
-                bool othersMatch = prevPdg.maxGameDepth() == newPdg.maxGameDepth() && prevPdg.splitDepth() == newPdg.splitDepth()
+                bool othersMatch = prevPdg.maxGameDepth() == newPdg.maxGameDepth()
+                    && prevPdg.splitDepth() == newPdg.splitDepth()
                     && prevPdg.maxClockDuration() == newPdg.maxClockDuration()
                     && prevPdg.clockExtension() == newPdg.clockExtension() && prevPdg.proposer() == newPdg.proposer()
                     && prevPdg.challenger() == newPdg.challenger();
