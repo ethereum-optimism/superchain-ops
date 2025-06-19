@@ -145,7 +145,7 @@ contract SingleMultisigTaskTest is Test {
 
         address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(multisigTask.root());
         uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
-        bytes[] memory allCalldatas = multisigTask.calldatas(actions, allSafes, allOriginalNonces);
+        bytes[] memory allCalldatas = multisigTask.transactionDatas(actions, allSafes, allOriginalNonces);
         bytes memory rootSafeCallData = allCalldatas[allCalldatas.length - 1];
         assertEq(rootSafeCallData, expectedCallData, "Wrong calldata");
     }
@@ -155,7 +155,7 @@ contract SingleMultisigTaskTest is Test {
         addrRegistry = multisigTask.addrRegistry();
         address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(multisigTask.root());
         uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
-        bytes[] memory allCalldatas = multisigTask.calldatas(actions, allSafes, allOriginalNonces);
+        bytes[] memory allCalldatas = multisigTask.transactionDatas(actions, allSafes, allOriginalNonces);
         bytes memory rootSafeCalldata = allCalldatas[allCalldatas.length - 1];
         uint256 rootSafeNonce = allOriginalNonces[allOriginalNonces.length - 1];
         bytes memory dataToSign =
@@ -180,7 +180,7 @@ contract SingleMultisigTaskTest is Test {
         (, Action[] memory actions) = runTask();
         address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(multisigTask.root());
         uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
-        bytes[] memory allCalldatas = multisigTask.calldatas(actions, allSafes, allOriginalNonces);
+        bytes[] memory allCalldatas = multisigTask.transactionDatas(actions, allSafes, allOriginalNonces);
         bytes memory rootSafeCalldata = allCalldatas[allCalldatas.length - 1];
         uint256 rootSafeNonce = allOriginalNonces[allOriginalNonces.length - 1];
         bytes32 hash = multisigTask.getHash(rootSafeCalldata, multisigTask.root(), 0, rootSafeNonce, allSafes);
@@ -264,7 +264,7 @@ contract SingleMultisigTaskTest is Test {
 
         address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(multisigTask.root());
         uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
-        bytes[] memory allCalldatas = multisigTask.calldatas(actions, allSafes, allOriginalNonces);
+        bytes[] memory allCalldatas = multisigTask.transactionDatas(actions, allSafes, allOriginalNonces);
 
         address rootSafe = allSafes[allSafes.length - 1];
         bytes memory rootSafeCalldata = allCalldatas[allCalldatas.length - 1];
