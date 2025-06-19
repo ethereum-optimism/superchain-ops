@@ -25,6 +25,8 @@ contract SetDisputeGameImpl is L2TaskBase {
         uint256 chainId;
         address fdgImpl;
         address pdgImpl;
+        address prevFdgImpl;
+        address prevPdgImpl;
     }
 
     /// @notice Mapping of chain ID to configuration for the task.
@@ -93,8 +95,8 @@ contract SetDisputeGameImpl is L2TaskBase {
             IDisputeGameFactory factory = IDisputeGameFactory(dgf);
 
             // Always check that DisputeGameFactory points to the expected new implementations from TOML config file
-            assertEq(address(factory.gameImpls(CANNON)), c.fdgImpl, "FDG implementation mismatch");
-            assertEq(address(factory.gameImpls(PERMISSIONED_CANNON)), c.pdgImpl, "PDG implementation mismatch");
+            require(address(factory.gameImpls(CANNON)) == c.fdgImpl, "FDG implementation mismatch");
+            require(address(factory.gameImpls(PERMISSIONED_CANNON)) == c.pdgImpl, "PDG implementation mismatch");
 
             // Always check basic invariants on any nonzero FDG new implementation
             if (c.fdgImpl != address(0)) {
@@ -111,59 +113,53 @@ contract SetDisputeGameImpl is L2TaskBase {
             }
 
             // -- FDG detailed check (only for impl->impl upgrade, not 0->impl or impl->0) --
-            address prevFdgAddr = address(factory.gameImpls(CANNON));
+            address prevFdgAddr = c.prevFdgImpl;
             address newFdgAddr = c.fdgImpl;
             if (prevFdgAddr != address(0) && newFdgAddr != address(0) && prevFdgAddr != newFdgAddr) {
                 IFaultDisputeGame prevFdg = IFaultDisputeGame(prevFdgAddr);
                 IFaultDisputeGame newFdg = IFaultDisputeGame(newFdgAddr);
 
-                // Check what changed
+                // Check if prestate or vm changed
                 bool prestateChanged = prevFdg.anchorStateRegistry() != newFdg.anchorStateRegistry();
                 bool vmChanged = address(prevFdg.vm()) != address(newFdg.vm());
 
-                // All other fields (except prestate/vm) must match
-                bool othersMatch = keccak256(bytes(prevFdg.version())) == keccak256(bytes(newFdg.version()))
-                    && prevFdg.maxGameDepth() == newFdg.maxGameDepth() && prevFdg.splitDepth() == newFdg.splitDepth()
+                // All other fields must match
+                bool othersMatch = prevFdg.maxGameDepth() == newFdg.maxGameDepth() && prevFdg.splitDepth() == newFdg.splitDepth()
                     && prevFdg.maxClockDuration() == newFdg.maxClockDuration()
                     && prevFdg.clockExtension() == newFdg.clockExtension();
 
                 // Acceptable: prestate-only update or prestate+vm update
-                if (prestateChanged && !vmChanged) {
-                    require(othersMatch, "FDG: Core fields changed unexpectedly (prestate update)");
-                } else if (prestateChanged && vmChanged) {
-                    require(othersMatch, "FDG: Core fields changed unexpectedly (VM upgrade)");
+                if (prestateChanged || vmChanged) {
+                    require(othersMatch, "FDG: Core fields changed unexpectedly (allowed prestate/vm update)");
                 } else {
-                    revert("FDG: Invalid update pattern (unexpected fields changed)");
+                    // No prestate/vm changed but allow only if all fields match
+                    require(othersMatch, "FDG: Core fields mismatch");
                 }
             }
 
             // -- PDG detailed check (only for impl->impl upgrade, not 0->impl or impl->0) --
-            address prevPdgAddr = address(factory.gameImpls(PERMISSIONED_CANNON));
+            address prevPdgAddr = c.prevPdgImpl;
             address newPdgAddr = c.pdgImpl;
             if (prevPdgAddr != address(0) && newPdgAddr != address(0) && prevPdgAddr != newPdgAddr) {
                 IPermissionedDisputeGame prevPdg = IPermissionedDisputeGame(prevPdgAddr);
                 IPermissionedDisputeGame newPdg = IPermissionedDisputeGame(newPdgAddr);
 
-                // Check what changed
+                // Check if prestate or vm changed
                 bool prestateChanged = prevPdg.anchorStateRegistry() != newPdg.anchorStateRegistry();
                 bool vmChanged = address(prevPdg.vm()) != address(newPdg.vm());
 
-                // All other fields (except prestate/vm) must match
-                bool othersMatch = keccak256(bytes(prevPdg.version())) == keccak256(bytes(newPdg.version()))
-                    && prevPdg.maxGameDepth() == newPdg.maxGameDepth() && prevPdg.splitDepth() == newPdg.splitDepth()
+                // All other fields must match
+                bool othersMatch = prevPdg.maxGameDepth() == newPdg.maxGameDepth() && prevPdg.splitDepth() == newPdg.splitDepth()
                     && prevPdg.maxClockDuration() == newPdg.maxClockDuration()
                     && prevPdg.clockExtension() == newPdg.clockExtension() && prevPdg.proposer() == newPdg.proposer()
                     && prevPdg.challenger() == newPdg.challenger();
 
                 // Acceptable: prestate-only update or prestate+vm update
-                // Note: proposer/challenger are not expected to change, but we check them for completeness
-                //       since they are core fields in PDG.
-                if (prestateChanged && !vmChanged) {
-                    require(othersMatch, "PDG: Core fields changed unexpectedly (prestate update)");
-                } else if (prestateChanged && vmChanged) {
-                    require(othersMatch, "PDG: Core fields changed unexpectedly (VM upgrade)");
+                if (prestateChanged || vmChanged) {
+                    require(othersMatch, "PDG: Core fields changed unexpectedly (allowed prestate/vm update)");
                 } else {
-                    revert("PDG: Invalid update pattern (unexpected fields changed)");
+                    // No prestate/vm changed but allow only if all fields match
+                    require(othersMatch, "PDG: Core fields mismatch");
                 }
             }
         }
@@ -198,7 +194,16 @@ interface IFaultDisputeGame {
     function vm() external view returns (address);
 }
 
-interface IPermissionedDisputeGame is IFaultDisputeGame {
+interface IPermissionedDisputeGame {
+    function gameType() external view returns (uint32);
+    function l2ChainId() external view returns (uint256);
+    function version() external view returns (string memory);
+    function anchorStateRegistry() external view returns (address);
+    function maxGameDepth() external view returns (uint256);
+    function splitDepth() external view returns (uint256);
+    function maxClockDuration() external view returns (uint64);
+    function clockExtension() external view returns (uint64);
+    function vm() external view returns (address);
     function proposer() external view returns (address);
     function challenger() external view returns (address);
 }
