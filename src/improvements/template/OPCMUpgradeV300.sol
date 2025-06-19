@@ -124,7 +124,7 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
     }
 
     /// @notice No code exceptions for this template.
-    function getCodeExceptions() internal view virtual override returns (address[] memory) {
+    function _getCodeExceptions() internal view virtual override returns (address[] memory) {
         return new address[](0);
     }
 }

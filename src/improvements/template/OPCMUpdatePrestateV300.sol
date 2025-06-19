@@ -124,7 +124,7 @@ contract OPCMUpdatePrestateV300 is OPCMTaskBase {
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function getCodeExceptions() internal view virtual override returns (address[] memory) {
+    function _getCodeExceptions() internal view virtual override returns (address[] memory) {
         return new address[](0);
     }
 }
