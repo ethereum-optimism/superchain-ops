@@ -7,10 +7,15 @@ the values printed to the terminal when you run the task.
 >
 > Before signing, ensure the below hashes match what is on your ledger.
 >
-> ### Nested Safe 1 (BaseOperationSafe): `0x6AF0674791925f767060Dd52f7fB20984E8639d8`
+> ### Nested Safe 1: `0x6AF0674791925f767060Dd52f7fB20984E8639d8`
 >
 > - Domain Hash: `0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa`
 > - Message Hash: `0xa2ee651b40adf1e6777d8212dad3f25e3f33ca60884538433b5641941dc05697`
+>
+> ### Nested Safe 2: `0x646132A1667ca7aD00d36616AFBA1A28116C770A`
+>
+> - Domain Hash: `0x1d3f2566fd7b1bf017258b03d4d4d435d326d9cb051d5b7993d7c65e7ec78d0e`
+> - Message Hash: `0x7133b38df611165edee8669b9a974d749d004e814b66511719e4ab5c9cf7218e`
 
 ## Normalized State Diff Hash Attestation
 
