@@ -12,7 +12,7 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 /// @notice This template sets the FaultDisputeGame (FDG) and PermissionedDisputeGame (PDG) implementation addresses
 ///         in the DisputeGameFactory contract for one or more chains, using values specified in a TOML configuration file.
 ///
-/// IMPORTANT: For each chain you wish to update, you MUST provide both FDG and PDG implementation addresses in the TOML file.
+/// IMPORTANT: For each chain you wish to update, you MUST provide both FDG and PDG implementation addresses (old and new) in the TOML file.
 ///         - If the provided address matches the current on-chain implementation, the contract will SKIP updating it.
 ///         - You are REQUIRED to explicitly specify both addresses for each chain, even if you do not intend to change both.
 ///         - To reset an implementation to the zero address, provide "0x000...0" as the value in the TOML.
