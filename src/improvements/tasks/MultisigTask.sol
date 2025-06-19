@@ -908,8 +908,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         bytes32 txHash,
         TaskPayload memory payload
     ) private view returns (bytes32 normalizedHash_, bytes memory dataToSign_) {
-        (address rootSafe, bytes memory rootSafeCalldata,) =
-            Utils.getSafeData(payload.safes, payload.calldatas, payload.originalNonces, payload.safes.length - 1);
+        (address rootSafe, bytes memory rootSafeCalldata,) = Utils.getSafeData(payload, payload.safes.length - 1);
         MultisigTaskPrinter.printTaskCalldata(rootSafeCalldata);
 
         // Only print data if the task is being simulated.
@@ -934,9 +933,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             "MultisigTask: Child multisig cannot be zero address when printing nested data to sign."
         );
         (address rootSafe, bytes memory rootSafeCalldata, uint256 rootSafeNonce) =
-            Utils.getSafeData(payload.safes, payload.calldatas, payload.originalNonces, payload.safes.length - 1);
-        (address childSafe, bytes memory childSafeCalldata, uint256 childSafeNonce) =
-            Utils.getSafeData(payload.safes, payload.calldatas, payload.originalNonces, 0);
+            Utils.getSafeData(payload, payload.safes.length - 1);
+        (address childSafe, bytes memory childSafeCalldata, uint256 childSafeNonce) = Utils.getSafeData(payload, 0);
 
         bytes32 rootSafeHashToApprove = getHash(rootSafeCalldata, rootSafe, 0, rootSafeNonce, payload.safes);
         dataToSign_ = getEncodedTransactionData(childSafe, childSafeCalldata, 0, childSafeNonce, payload.safes);
@@ -957,9 +955,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// @notice Helper function to print nested verify link.
     function _printNestedVerifyLink(TaskPayload memory payload) private view {
         (address rootSafe, bytes memory rootSafeCalldata, uint256 rootSafeNonce) =
-            Utils.getSafeData(payload.safes, payload.calldatas, payload.originalNonces, payload.safes.length - 1);
-        (address childSafe, bytes memory childSafeCalldata, uint256 childSafeNonce) =
-            Utils.getSafeData(payload.safes, payload.calldatas, payload.originalNonces, 0);
+            Utils.getSafeData(payload, payload.safes.length - 1);
+        (address childSafe, bytes memory childSafeCalldata, uint256 childSafeNonce) = Utils.getSafeData(payload, 0);
         address rootMulticallTarget = _getMulticallAddress(rootSafe, payload.safes);
         address childMulticallTarget = _getMulticallAddress(childSafe, payload.safes);
         MultisigTaskPrinter.printOPTxVerifyLink(
@@ -978,7 +975,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// @notice Helper function to print non-nested safe calldata.
     function printSingleData(TaskPayload memory payload) private view returns (bytes memory dataToSign_) {
         (address rootSafe, bytes memory rootSafeCalldata, uint256 rootSafeNonce) =
-            Utils.getSafeData(payload.safes, payload.calldatas, payload.originalNonces, payload.safes.length - 1);
+            Utils.getSafeData(payload, payload.safes.length - 1);
 
         dataToSign_ = getEncodedTransactionData(rootSafe, rootSafeCalldata, 0, rootSafeNonce, payload.safes);
         // eip712sign tool looks for the output of this command.
