@@ -7,7 +7,7 @@ import {DisputeGameUpgradeTemplate} from "test/tasks/mock/template/DisputeGameUp
 /// to an example implementation address without code
 contract MockDisputeGameTask is DisputeGameUpgradeTemplate {
     /// @notice code exceptions for this template is address 0x0000000FFfFFfffFffFfFffFFFfffffFffFFffFf
-    function getCodeExceptions() internal view virtual override returns (address[] memory) {
+    function _getCodeExceptions() internal view virtual override returns (address[] memory) {
         address[] memory addresses = new address[](1);
         addresses[0] = address(0x0000000FFfFFfffFffFfFffFFFfffffFffFFffFf);
 
