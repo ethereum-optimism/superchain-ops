@@ -12,7 +12,7 @@ import {Solarray} from "lib/optimism/packages/contracts-bedrock/scripts/librarie
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
-import {Action} from "src/libraries/MultisigTypes.sol";
+import {Action, TaskPayload} from "src/libraries/MultisigTypes.sol";
 import {MockMultisigTask} from "test/tasks/mock/MockMultisigTask.sol";
 import {MockTarget} from "test/tasks/mock/MockTarget.sol";
 
@@ -108,7 +108,7 @@ contract MultisigTaskUnitTest is Test {
         Action[] memory actions = taskHashMismatch.build(rootSafe);
         address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe, securityCouncilChildMultisig);
         uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
-        bytes[] memory allCalldatas = taskHashMismatch.calldatas(actions, allSafes, allOriginalNonces);
+        bytes[] memory allCalldatas = taskHashMismatch.transactionDatas(actions, allSafes, allOriginalNonces);
         bytes memory rootSafeCalldata = allCalldatas[allCalldatas.length - 1];
         uint256 rootSafeNonce = allOriginalNonces[allOriginalNonces.length - 1];
         {
@@ -207,8 +207,10 @@ contract MultisigTaskUnitTest is Test {
         bytes[] memory calldatas = new bytes[](1);
         calldatas[0] = actions[0].arguments;
 
+        TaskPayload memory payload =
+            TaskPayload({safes: allSafes, calldatas: calldatas, originalNonces: originalNonces});
         vm.expectRevert("MultisigTask: execute failed");
-        task.execute(new bytes(0), allSafes, calldatas, originalNonces);
+        task.execute(new bytes(0), payload);
 
         // Validations should pass after a successful run.
         task.validate(accountAccesses, actions, allSafes[1], originalNonces[1]);
@@ -234,7 +236,7 @@ contract MultisigTaskUnitTest is Test {
         }
 
         bytes memory expectedData = abi.encodeCall(IMulticall3.aggregate3Value, calls);
-        bytes[] memory expectedCalldatas = task.calldatas(actions, allSafes, allOriginalNonces);
+        bytes[] memory expectedCalldatas = task.transactionDatas(actions, allSafes, allOriginalNonces);
         bytes memory rootSafeCalldata = expectedCalldatas[expectedCalldatas.length - 1];
         assertEq(rootSafeCalldata, expectedData, "Wrong aggregate calldata");
     }
@@ -413,7 +415,7 @@ contract MultisigTaskUnitTest is Test {
         uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
         Action[] memory actions = createActions(address(0xbeef), hex"dead", 1 ether, Enum.Operation.Call, "Test Action");
 
-        bytes[] memory result = task.calldatas(actions, allSafes, allOriginalNonces);
+        bytes[] memory result = task.transactionDatas(actions, allSafes, allOriginalNonces);
         assertEq(result.length, 1, "Incorrect calldata array length for single safe");
         assertRootCalldata(result[0], actions[0].target, actions[0].value, actions[0].arguments);
     }
@@ -422,7 +424,7 @@ contract MultisigTaskUnitTest is Test {
         address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(root, securityCouncilChildMultisig);
         uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
         Action[] memory actions = createActions(address(0xbeef), hex"dead", 1 ether, Enum.Operation.Call, "Test Action");
-        bytes[] memory result = task.calldatas(actions, allSafes, allOriginalNonces);
+        bytes[] memory result = task.transactionDatas(actions, allSafes, allOriginalNonces);
         assertEq(result.length, 2, "Incorrect calldata array length for nested safes");
         assertRootCalldata(result[result.length - 1], actions[0].target, actions[0].value, actions[0].arguments);
         // Generate the hash for the root safe that's used in the approveHash call on the nested safe.
