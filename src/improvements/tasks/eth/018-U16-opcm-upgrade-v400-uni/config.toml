@@ -17,9 +17,8 @@ absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b7
 expectedValidationErrors = "PROXYA-10,DF-30,PDDG-DWETH-30,PLDG-DWETH-30"
 
 [addresses]
-# https://github.com/ethereum-optimism/superchain-registry/blob/a0e62ab68db1d6e0f0fc2e449747146f3d9b312e/validation/standard/standard-versions-mainnet.toml#L22
-OPCM = "0x4fefd0c327d08143be8037c45f8a29fa0d711e50"
-StandardValidatorV400 = "0x3dfc5e44043DC5998928E0b8280136b7352d3F70"
+OPCM = "0x56ebc5c4870f5367b836081610592241ad3e0734"
+StandardValidatorV400 = "0xbb43313d206a9b02032c749ca0828a07c962b4b5"
 
 [stateOverrides]
 0x6d5B183F538ABB8572F5cD17109c617b994D5833 = [
