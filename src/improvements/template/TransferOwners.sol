@@ -200,7 +200,7 @@ contract TransferOwners is L2TaskBase {
     }
 
     /// @notice no code exceptions for this template
-    function getCodeExceptions() internal view virtual override returns (address[] memory) {}
+    function _getCodeExceptions() internal view virtual override returns (address[] memory) {}
 }
 
 interface IOwnable {

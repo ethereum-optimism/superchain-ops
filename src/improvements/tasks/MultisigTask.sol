@@ -559,7 +559,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                 if (!storageAccess.isWrite) continue; // Skip SLOADs.
                 uint256 value = uint256(storageAccess.newValue);
                 address account = storageAccess.account;
-                if (Utils.isLikelyAddressThatShouldHaveCode(value, getCodeExceptions())) {
+                if (Utils.isLikelyAddressThatShouldHaveCode(value, _getCodeExceptions())) {
                     // Log account, slot, and value if there is no code.
                     // forgefmt: disable-start
                     string memory err = string.concat("Likely address in storage has no code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
@@ -877,7 +877,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     }
 
     /// @notice Print the Tenderly simulation payload with the state overrides.
-    function printTenderlySimulationData(address[] memory allSafes, bytes[] memory allCalldatas) internal view {
+    function _printTenderlySimulationData(address[] memory allSafes, bytes[] memory allCalldatas) internal view {
         address targetAddress;
         bytes memory finalExec;
         address rootSafe = allSafes[allSafes.length - 1];
@@ -919,7 +919,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                 dataToSign_ = printSingleData(payload);
             }
 
-            printTenderlySimulationData(payload.safes, payload.calldatas);
+            _printTenderlySimulationData(payload.safes, payload.calldatas);
         }
         normalizedHash_ = AccountAccessParser.normalizedStateDiffHash(accountAccesses, rootSafe, txHash);
         MultisigTaskPrinter.printAuditReportInfo(normalizedHash_);
@@ -1033,7 +1033,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// @notice By default, any value written to storage that looks like an address is expected to
     /// have code. Sometimes, accounts without code are expected, and this function allows you to
     /// specify a list of those addresses.
-    function getCodeExceptions() internal view virtual returns (address[] memory);
+    function _getCodeExceptions() internal view virtual returns (address[] memory);
 
     /// @notice Different tasks have different inputs. A task template will create the appropriate
     /// storage structures for storing and accessing these inputs. In this method, you read in the
