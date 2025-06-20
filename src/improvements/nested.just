@@ -62,7 +62,7 @@ simulate whichSafe hdPath='0':
     ${fork_block_arg} \
     --rpc-url ${rpcUrl} \
     --sender ${signer} \
-    --sig "simulateAsSigner(string,address)" \
+    --sig "simulate(string,address)" \
     ${config} \
     ${safe}
 
@@ -97,7 +97,7 @@ sign whichSafe hdPath='0' ledger='true':
   $(git rev-parse --show-toplevel)/bin/eip712sign ${signer_args} -- \
   forge script ${script} \
     --rpc-url ${rpcUrl} \
-    --sig "signFromChildMultisig(string,address)" \
+    --sig "simulateNoLogs(string,address)" \
     ${config} \
     "${safe}"
 
@@ -123,7 +123,7 @@ approve whichSafe hdPath='0' ledger='true':
     --fork-url ${rpcUrl} \
     --broadcast \
     --sender ${sender} \
-    --sig "approveFromChildMultisig(string,address,bytes)" \
+    --sig "approve(string,address,bytes)" \
     ${signer_args} \
     ${config} \
     ${safe} \
@@ -150,7 +150,7 @@ approve_in_anvil whichSafe signature:
     --fork-url ${ANVIL_LOCALHOST_RPC} \
     --broadcast \
     --sender ${sender} \
-    --sig "approveFromChildMultisig(string,address,bytes)" \
+    --sig "approve(string,address,bytes)" \
     --private-key ${PRIVATE_KEY_EXECUTOR} \
     ${config} \
     ${safe} \
@@ -174,7 +174,7 @@ simulate-approve whichSafe hdPath='0':
   forge script ${script} \
     --fork-url ${rpcUrl} \
     --sender ${sender} \
-    --sig "approveFromChildMultisig(string,address,bytes)" \
+    --sig "approve(string,address,bytes)" \
     ${config} \
     ${safe} \
     ${signatures}
@@ -201,7 +201,7 @@ execute hdPath='0' ledger='true':
     --fork-url ${rpcUrl} \
     --broadcast \
     --sender ${sender} \
-    --sig "executeRun(string,bytes)" \
+    --sig "execute(string,bytes)" \
     ${signer_args} \
     ${config} \
     "0x"
@@ -217,7 +217,7 @@ simulated-run hdPath='0':
   forge script ${script} \
     --fork-url ${rpcUrl} \
     --sender ${randomPersonEoa} \
-    --sig "executeRun(string,bytes)" \
+    --sig "execute(string,bytes)" \
     ${config} \
     "0x"
 
@@ -265,7 +265,7 @@ sign_and_approve_in_anvil whichSafe parentSafe:
   res_sig=$($(git rev-parse --show-toplevel)/bin/eip712sign --private-key ${privateKey}  -- \
   forge script ${script} \
     --rpc-url ${ANVIL_LOCALHOST_RPC} \
-    --sig "signFromChildMultisig(string,address)" \
+    --sig "simulate(string,address)" \
     ${config} \
     "${safe}")
   signature=$(echo "$res_sig" | grep -o 'Signature: [a-fA-F0-9]\{130\}' | cut -d' ' -f2)
@@ -274,7 +274,7 @@ sign_and_approve_in_anvil whichSafe parentSafe:
   if [ -n "$signature" ]; then
       echo "Signature found: $signature"
   else
-      echo "[ERROR] No signature found extracted from signFromChildMultisig(string,address)"
+      echo "[ERROR] No signature found extracted from simulate(string,address)"
       exit 1
   fi
   cd ${TASK_PATH}
@@ -300,7 +300,7 @@ execute_in_anvil:
     --fork-url ${ANVIL_LOCALHOST_RPC} \
     --broadcast \
     --sender ${sender} \
-    --sig "executeRun(string,bytes)" \
+    --sig "execute(string,bytes)" \
     --private-key ${PRIVATE_KEY_EXECUTOR} \
     ${config} \
     "0x"

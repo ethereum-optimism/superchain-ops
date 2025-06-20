@@ -50,27 +50,31 @@ contract DisableModule is SimpleTaskBase {
 
     /// @notice Sets up the template with module configuration from a TOML file
     /// @param taskConfigFilePath Path to the TOML configuration file
-    function _templateSetup(string memory taskConfigFilePath) internal override {
-        super._templateSetup(taskConfigFilePath);
+    function _templateSetup(string memory taskConfigFilePath, address rootSafe) internal override {
+        super._templateSetup(taskConfigFilePath, rootSafe);
         string memory file = vm.readFile(taskConfigFilePath);
         moduleToDisable = vm.parseTomlAddress(file, ".moduleToDisable");
         previousModule = vm.parseTomlAddress(file, ".previousModule");
     }
 
     /// @notice Builds the action for enabling the module in the Safe
-    function _build() internal override {
-        ModuleManager(parentMultisig).disableModule(previousModule, moduleToDisable);
+    function _build(address rootSafe) internal override {
+        ModuleManager(rootSafe).disableModule(previousModule, moduleToDisable);
     }
 
     /// @notice Validates that the module was enabled correctly.
-    function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory) internal view override {
+    function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory, address rootSafe)
+        internal
+        view
+        override
+    {
         (address[] memory modules, address nextModule) =
-            ModuleManager(parentMultisig).getModulesPaginated(SENTINEL_MODULE, 100);
-        if (keccak256(abi.encodePacked(ISafe(parentMultisig).VERSION())) == keccak256(abi.encodePacked("1.1.1"))) {
+            ModuleManager(rootSafe).getModulesPaginated(SENTINEL_MODULE, 100);
+        if (keccak256(abi.encodePacked(ISafe(rootSafe).VERSION())) == keccak256(abi.encodePacked("1.1.1"))) {
             console.log("[INFO] Old version of safe detected 1.1.1.");
             revert("Older versions of the Gnosis Safe are not yet supported by this template.");
         } else {
-            assertFalse(ModuleManager(parentMultisig).isModuleEnabled(moduleToDisable), "Module not disabled");
+            assertFalse(ModuleManager(rootSafe).isModuleEnabled(moduleToDisable), "Module not disabled");
         }
         assertEq(nextModule, SENTINEL_MODULE, "Next module not correct");
 
@@ -91,13 +95,13 @@ contract DisableModule is SimpleTaskBase {
 
         address[] memory uniqueWrites = accountAccesses.getUniqueWrites(false);
         assertEq(uniqueWrites.length, 1, "should only write to the safe");
-        assertEq(uniqueWrites[0], parentMultisig, "should only write to the safe");
+        assertEq(uniqueWrites[0], rootSafe, "should only write to the safe");
 
-        AccountAccessParser.StateDiff[] memory accountWrites = accountAccesses.getStateDiffFor(parentMultisig, false);
+        AccountAccessParser.StateDiff[] memory accountWrites = accountAccesses.getStateDiffFor(rootSafe, false);
 
         for (uint256 i = 0; i < accountWrites.length; i++) {
             AccountAccessParser.StateDiff memory storageAccess = accountWrites[i];
-            if (keccak256(abi.encodePacked(ISafe(parentMultisig).VERSION())) != keccak256(abi.encodePacked("1.1.1"))) {
+            if (keccak256(abi.encodePacked(ISafe(rootSafe).VERSION())) != keccak256(abi.encodePacked("1.1.1"))) {
                 assertTrue(
                     storageAccess.slot == NONCE_STORAGE_OFFSET || storageAccess.slot == moduleSlot
                         || storageAccess.slot == sentinelSlot || storageAccess.slot == previousModuleSlot,
@@ -107,7 +111,7 @@ contract DisableModule is SimpleTaskBase {
             if (storageAccess.slot == moduleSlot) {
                 assertEq(address(uint160(uint256(storageAccess.newValue))), address(0), "module not disabled");
 
-                bytes32 sentinelModuleValue = vm.load(parentMultisig, sentinelSlot);
+                bytes32 sentinelModuleValue = vm.load(rootSafe, sentinelSlot);
                 assertEq(
                     sentinelModuleValue,
                     bytes32(uint256(uint160(previousModule))),
@@ -123,5 +127,5 @@ contract DisableModule is SimpleTaskBase {
     }
 
     /// @notice No code exceptions for this template
-    function getCodeExceptions() internal view override returns (address[] memory) {}
+    function _getCodeExceptions() internal view override returns (address[] memory) {}
 }

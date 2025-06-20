@@ -72,8 +72,8 @@ contract GnosisSafeApproveHash is L2TaskBase {
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
     /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
-    function _templateSetup(string memory _taskConfigFilePath) internal override {
-        super._templateSetup(_taskConfigFilePath);
+    function _templateSetup(string memory _taskConfigFilePath, address rootSafe) internal override {
+        super._templateSetup(_taskConfigFilePath, rootSafe);
 
         // Only allow one chain to be modified at a time with this template.
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
@@ -87,26 +87,26 @@ contract GnosisSafeApproveHash is L2TaskBase {
         string memory toml = vm.readFile(_taskConfigFilePath);
         safeTxHash = toml.readBytes32(".safeTxHash");
         require(safeTxHash != bytes32(0), "safeTxHash is required");
-        require(!isHashApprovedOnL1PAO(safeTxHash), "safeTxHash is already approved");
+        require(!_isHashApprovedOnL1PAO(safeTxHash), "safeTxHash is already approved");
     }
 
     /// @notice Builds the actions for executing the operations
-    function _build() internal override {
+    function _build(address) internal override {
         IGnosisSafe(l1PAO).approveHash(safeTxHash);
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
-        require(isHashApprovedOnL1PAO(safeTxHash), "safeTxHash is not approved");
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
+        require(_isHashApprovedOnL1PAO(safeTxHash), "safeTxHash is not approved");
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function getCodeExceptions() internal view virtual override returns (address[] memory) {
+    function _getCodeExceptions() internal view virtual override returns (address[] memory) {
         return new address[](0);
     }
 
     /// @notice Helper method to return whether or not a given hash is already approved.
-    function isHashApprovedOnL1PAO(bytes32 _hash) internal view returns (bool) {
+    function _isHashApprovedOnL1PAO(bytes32 _hash) internal view returns (bool) {
         require(l1PAO != address(0), "l1PAO is not set");
         require(baseNested != address(0), "baseNested is not set");
         return IGnosisSafe(l1PAO).approvedHashes(baseNested, _hash) == 1;

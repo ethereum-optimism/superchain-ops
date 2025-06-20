@@ -53,8 +53,8 @@ contract OPCMTaskBaseTemplate is OPCMTaskBase {
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
     /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
-    function _templateSetup(string memory taskConfigFilePath) internal override {
-        super._templateSetup(taskConfigFilePath);
+    function _templateSetup(string memory taskConfigFilePath, address rootSafe) internal override {
+        super._templateSetup(taskConfigFilePath, rootSafe);
         string memory tomlContent = vm.readFile(taskConfigFilePath);
 
         // OPCMUpgrade struct is used to store the absolutePrestate and expectedValidationErrors for each l2 chain.
@@ -86,7 +86,7 @@ contract OPCMTaskBaseTemplate is OPCMTaskBase {
     ///   `(bool success,) = OPCM.delegatecall(abi.encodeWithSelector(IOPContractsManager.upgrade, opChainConfigs));
     /// WARNING: Any state written to in this function will be reverted after the build function has been run.
     /// Do not rely on setting global variables in this function.
-    function _build() internal override {
+    function _build(address) internal override {
         // Do not set global variables in this function, see natspec above.
         require(false, "TODO: Implement with the correct build logic.");
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
@@ -110,7 +110,7 @@ contract OPCMTaskBaseTemplate is OPCMTaskBase {
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
@@ -129,7 +129,7 @@ contract OPCMTaskBaseTemplate is OPCMTaskBase {
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function getCodeExceptions() internal view virtual override returns (address[] memory) {
+    function _getCodeExceptions() internal view virtual override returns (address[] memory) {
         require(
             false, "TODO: Implement the logic to return a list of addresses that should not be checked for code length."
         );
