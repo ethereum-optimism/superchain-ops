@@ -74,7 +74,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Summary:** FaultDisputeGame Implementation
   - **Detail:** Resets the FDG implementation on Arena-Z Mainnet DisputeGameFactory to the zero address
- 
+  - **Detail:** Resets the FDG implementation on Arena-Z Mainnet DisputeGameFactory to the zero address. You can verify the current implementation with `cast call 0x658656a14afdf9c507096ac406564497d13ec754 "gameImpls(uint32)(address)" 0`, where `0` is the [`CANNON` game type](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28).
 ### `0x87690676786cdc8cca75a472e483af7c8f2f0f57` (DisputeGameFactory) - Chain ID: 1923
   
 - **Key:**          `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
