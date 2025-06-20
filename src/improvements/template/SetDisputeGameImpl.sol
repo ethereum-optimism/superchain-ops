@@ -186,6 +186,7 @@ interface IDisputeGameFactory {
     function setImplementation(uint32 gameType, address impl) external;
 }
 
+
 interface IFaultDisputeGame {
     function gameType() external view returns (uint32);
     function l2ChainId() external view returns (uint256);
@@ -196,7 +197,9 @@ interface IFaultDisputeGame {
     function maxClockDuration() external view returns (uint64);
     function clockExtension() external view returns (uint64);
     function vm() external view returns (address);
+    function absolutePrestate() external view returns (bytes32);
 }
+
 
 interface IPermissionedDisputeGame {
     function gameType() external view returns (uint32);
