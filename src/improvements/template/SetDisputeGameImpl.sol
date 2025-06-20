@@ -87,7 +87,7 @@ contract SetDisputeGameImpl is L2TaskBase {
             }
 
             // Set PDG bond if not already set or needs update
-            if (pdgBond != 0 && factory.initBonds(PERMISSIONED_CANNON) != pdgBond) {
+            if (c.pdgImpl != 0 && factory.initBonds(PERMISSIONED_CANNON) != pdgBond) {
                 factory.setInitBond(PERMISSIONED_CANNON, pdgBond);
             }
         }
