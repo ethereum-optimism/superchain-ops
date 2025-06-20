@@ -187,9 +187,7 @@ interface IDisputeGameFactory {
     function gameImpls(uint32 gameType) external view returns (address);
     function setImplementation(uint32 gameType, address impl) external;
     function initBonds(uint32 gameType) external view returns (uint256);
-
 }
-
 
 interface IFaultDisputeGame {
     function gameType() external view returns (uint32);
@@ -203,7 +201,6 @@ interface IFaultDisputeGame {
     function vm() external view returns (address);
     function absolutePrestate() external view returns (bytes32);
 }
-
 
 interface IPermissionedDisputeGame {
     function gameType() external view returns (uint32);
