@@ -146,7 +146,7 @@ contract SetDisputeGameImpl is L2TaskBase {
                 IPermissionedDisputeGame newPdg = IPermissionedDisputeGame(newPdgAddr);
 
                 // Check if prestate or vm changed
-                bool prestateChanged = prevPdg.anchorStateRegistry() != newPdg.anchorStateRegistry();
+                bool prestateChanged = prevPdg.absolutePrestate() != newPdg.absolutePrestate();
                 bool vmChanged = address(prevPdg.vm()) != address(newPdg.vm());
 
                 // All other fields must match
