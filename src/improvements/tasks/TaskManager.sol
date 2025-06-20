@@ -172,8 +172,7 @@ contract TaskManager is Script {
                     vm.toString(config.parentMultisig)
                 )
             );
-            (accesses_,, normalizedHash_, dataToSign_) =
-                task.signFromChildMultisig(config.configPath, ownerAddress, false);
+            (accesses_,, normalizedHash_, dataToSign_) = task.simulate(config.configPath, ownerAddress);
         } else {
             // forgefmt: disable-start
             console.log(string.concat("SIMULATING SINGLE TASK: ", taskName, " ON ", formattedParentMultisig));
