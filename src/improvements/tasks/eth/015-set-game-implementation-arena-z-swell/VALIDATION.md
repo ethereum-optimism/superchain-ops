@@ -72,7 +72,7 @@ The details are explained in [NESTED-VALIDATION.md](../../../../../NESTED-VALIDA
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:** `uint256`
   - **Before:** `19`
-  - **After:** `20`
+  - **After:** `20` - `cast --to-hex 20` -> `0x14`
   - **Summary:** Nonce
   - **Detail:** Updates the nonce of the ProxyAdminOwner
   
