@@ -1,0 +1,30 @@
+l2chains = [
+    {name = "Soneium", chainId = 1868}
+]
+
+templateName = "OPCMUpgradeV400"
+
+# Soneium
+[[opcmUpgrades]]
+chainId = 1868
+#prestates."1.6.1-rc.1
+# https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/validation/standard/standard-prestates.toml#L6
+absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
+
+# PLDG-10: There is no permissionless dispute game on Soneium
+expectedValidationErrors = "PLDG-10"
+
+[addresses]
+OPCM = "0x56ebc5c4870f5367b836081610592241ad3e0734"
+StandardValidatorV400 = "0xbb43313d206a9b02032c749ca0828a07c962b4b5"
+
+[stateOverrides]
+0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 21}
+]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 33}
+]
+0xc2819DC788505Aac350142A7A707BF9D03E3Bd03 = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 34}
+]
