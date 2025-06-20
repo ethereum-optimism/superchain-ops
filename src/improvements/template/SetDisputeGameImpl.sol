@@ -120,7 +120,7 @@ contract SetDisputeGameImpl is L2TaskBase {
                 IFaultDisputeGame newFdg = IFaultDisputeGame(newFdgAddr);
 
                 // Check if prestate or vm changed
-                bool prestateChanged = prevFdg.anchorStateRegistry() != newFdg.anchorStateRegistry();
+                bool prestateChanged = prevFdg.absolutePrestate() != newFdg.absolutePrestate();
                 bool vmChanged = address(prevFdg.vm()) != address(newFdg.vm());
 
                 // All other fields must match
