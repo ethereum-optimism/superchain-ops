@@ -51,7 +51,7 @@ contract SetDisputeGameImpl is L2TaskBase {
         super._templateSetup(taskConfigFilePath);
         string memory toml = vm.readFile(taskConfigFilePath);
 
-        GameImplConfig[] memory configs = abi.decode(toml.parseRaw(".gameImplsConfig"), (GameImplConfig[]));
+        GameImplConfig[] memory configs = abi.decode(toml.parseRaw(".gameImplConfig"), (GameImplConfig[]));
         for (uint256 i = 0; i < configs.length; i++) {
             cfg[configs[i].chainId] = configs[i];
         }
