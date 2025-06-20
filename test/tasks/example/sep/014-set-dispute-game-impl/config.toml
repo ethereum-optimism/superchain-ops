@@ -1,10 +1,10 @@
 l2chains = [
-    {name = "Ink Sepolia", chainId = 763373}
+  { name = "Ink Sepolia", chainId = 763373 }
 ]
 
 templateName = "SetDisputeGameImpl"
 
 [gameImpls]
 configs = [
-    {chainId = 763373, fdgImpl = "0x323d727A1a147869cEC0C02dE1d4195d1b71F2eB", pdgImpl = "0x39228E51A12662d78DE478BFa1930fc7595337D8", prevFdgImpl = "0x0000000000000000000000000000000000000000", prevPdgImpl = "0xa8808360f7bc16da81938e5c29400d18bea651c4"}
+  {chainId = 763373, fdgImpl = "0x323d727A1a147869cEC0C02dE1d4195d1b71F2eB", pdgImpl = "0x39228E51A12662d78DE478BFa1930fc7595337D8", prevFdgImpl = "0x0000000000000000000000000000000000000000", prevPdgImpl = "0xa8808360f7bc16da81938e5c29400d18bea651c4", fdgBond = "80000000000000000", pdgBond = "80000000000000000"}
 ]

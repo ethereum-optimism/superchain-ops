@@ -27,6 +27,8 @@ contract SetDisputeGameImpl is L2TaskBase {
         address pdgImpl;
         address prevFdgImpl;
         address prevPdgImpl;
+        uint256 fdgBond;
+        uint256 pdgBond;
     }
 
     /// @notice Mapping of chain ID to configuration for the task.
@@ -75,6 +77,16 @@ contract SetDisputeGameImpl is L2TaskBase {
             address currentPDG = address(factory.gameImpls(PERMISSIONED_CANNON));
             if (currentPDG != c.pdgImpl) {
                 factory.setImplementation(PERMISSIONED_CANNON, c.pdgImpl);
+            }
+
+            // Set FDG bond if not already set or needs update
+            if (c.fdgBond != 0 && factory.initBonds(CANNON) != c.fdgBond) {
+                factory.setInitBond(CANNON, c.fdgBond);
+            }
+
+            // Set PDG bond if not already set or needs update
+            if (c.pdgBond != 0 && factory.initBonds(PERMISSIONED_CANNON) != c.pdgBond) {
+                factory.setInitBond(PERMISSIONED_CANNON, c.pdgBond);
             }
         }
     }
@@ -188,6 +200,7 @@ interface IDisputeGameFactory {
     function gameImpls(uint32 gameType) external view returns (address);
     function setImplementation(uint32 gameType, address impl) external;
     function initBonds(uint32 gameType) external view returns (uint256);
+    function setInitBond(uint32 gameType, uint256 amount) external;
 }
 
 interface IFaultDisputeGame {
