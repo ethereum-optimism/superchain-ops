@@ -58,12 +58,26 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// ============== EntryPoint Functions ==============
     /// ==================================================
 
-    /// @notice Simulates the root safe transaction of the task with the given configuration file path.
+    /// @notice Simulates the root safe transaction of the task.
     function simulate(string memory taskConfigFilePath)
         public
         returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32, bytes memory)
     {
         return _runTask(taskConfigFilePath, "", address(0), true);
+    }
+
+    /// @notice Simulates the nested safe transaction of the task.
+    /// This works by printing the 'data to sign' for the nested safe which is then passed to the eip712sign binary for signing.
+    function simulate(string memory taskConfigFilePath, address _childMultisig)
+        public
+        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32, bytes memory)
+    {
+        return _runTask(taskConfigFilePath, "", _childMultisig, true);
+    }
+
+    /// @notice Simulates the nested safe transaction of the task without logging.
+    function simulateNoLogs(string memory taskConfigFilePath, address _childMultisig) public {
+        _runTask(taskConfigFilePath, "", _childMultisig, true);
     }
 
     /// @notice Executes the root safe transaction of the task with the given configuration file path and signatures.
@@ -75,15 +89,13 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         return accountAccesses;
     }
 
-    /// @notice Child multisig of a nested multisig approves the task to be executed with the given
-    /// configuration file path and signatures.
-    function approveFromChildMultisig(string memory taskConfigFilePath, address _childMultisig, bytes memory signatures)
-        public
-    {
+    /// @notice Approves the the root safe transaction from a nested safe.
+    function approve(string memory taskConfigFilePath, address _childMultisig, bytes memory signatures) public {
         // TODO: Remove this when the interface tasks an array of safes.
         address[] memory childSafes = Solarray.addresses(_childMultisig);
         (TaskPayload memory payload,) = _taskSetup(taskConfigFilePath, childSafes);
 
+        // TODO: in the future this index may be different. Any safe that is not the root safe will be eligible to approve.
         uint256 childSafeIndex = 0;
         execute(signatures, payload, childSafeIndex);
         console.log(
@@ -91,26 +103,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             _isBroadcastContext() ? "Broadcasted" : "Simulated",
             _childMultisig
         );
-    }
-
-    /// @notice Simulates a nested multisig task with the given configuration file path for a
-    /// given child multisig. Prints the 'data to sign' which is used to sign with the eip712sign binary.
-    function signFromChildMultisig(string memory taskConfigFilePath, address _childMultisig, bool isSigner)
-        public
-        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32, bytes memory)
-    {
-        (
-            VmSafe.AccountAccess[] memory accountAccesses,
-            Action[] memory actions,
-            bytes32 txHash,
-            bytes memory dataToSign
-        ) = _runTask(taskConfigFilePath, "", _childMultisig, true);
-        // If we are a signer, we don't want to return any data. This is to make sure the log output is clean.
-        if (isSigner) {
-            return (new VmSafe.AccountAccess[](0), new Action[](0), bytes32(0), new bytes(0));
-        } else {
-            return (accountAccesses, actions, txHash, dataToSign);
-        }
     }
 
     /// @notice Executes a task for a given safe. The 'safeIndex' is the index of the safe in the payload.safes array.

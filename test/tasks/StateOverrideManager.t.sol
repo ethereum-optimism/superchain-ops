@@ -42,7 +42,7 @@ contract StateOverrideManagerUnitTest is Test {
         vm.expectRevert(
             "StateOverrideManager: User-defined override is attempting to overwrite an existing default override for contract: 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
         );
-        task.signFromChildMultisig(fileName, SECURITY_COUNCIL_CHILD_MULTISIG, false);
+        task.simulate(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
         helper.removeFile(fileName);
     }
 
@@ -435,7 +435,7 @@ contract StateOverrideManagerUnitTest is Test {
         vm.expectRevert(
             "StateOverrideManager: Failed to reencode overrides, ensure any decimal numbers are not in quotes"
         );
-        task.signFromChildMultisig(fileName, SECURITY_COUNCIL_CHILD_MULTISIG, false);
+        task.simulate(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
         helper.removeFile(fileName);
     }
 
@@ -447,7 +447,7 @@ contract StateOverrideManagerUnitTest is Test {
     /// @notice Helper function to create and run a task.
     function createAndRunTask(string memory fileName, address childMultisig) internal returns (MultisigTask) {
         MultisigTask task = new MockMultisigTask();
-        task.signFromChildMultisig(fileName, childMultisig, false);
+        task.simulate(fileName, childMultisig);
         return task;
     }
 

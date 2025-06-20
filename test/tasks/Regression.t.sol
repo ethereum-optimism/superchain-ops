@@ -520,7 +520,7 @@ contract RegressionTest is Test {
             // TODO: fix when we support > 1 level of nesting.
             address childSafe = allSafes[0];
             allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
-            (, actions,,) = multisigTask.signFromChildMultisig(taskConfigFilePath, childSafe, false);
+            (, actions,,) = multisigTask.simulate(taskConfigFilePath, childSafe);
         } else {
             allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
             (, actions,,) = multisigTask.simulate(taskConfigFilePath);
