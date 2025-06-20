@@ -20,8 +20,8 @@ the values printed to the terminal when you run the task.
 >
 > ### Security Council - `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`
 >
-> - Domain Hash: ``
-> - Message Hash: ``
+> - Domain Hash: `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
+> - Message Hash: `0xce40e3decaa02589fcdb44bcc57e7f4dc9f20453b6a789f7851a202d8c9931ae`
 >
 > ### Optimism Foundation - `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`
 >
