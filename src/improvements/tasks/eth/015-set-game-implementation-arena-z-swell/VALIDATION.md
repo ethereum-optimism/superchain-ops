@@ -58,6 +58,15 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
 ### Task State Changes
 
+### [`0x24424336F04440b1c28685a38303aC33C9D14a25`](https://github.com/ethereum-optimism/superchain-ops/blob/2b33763cbae24bf5af1467f510e66a31b1b98b4a/NESTED-VALIDATION.md?plain=1#L106) (LivenessGuard)
+
+> [!IMPORTANT]
+> Security Council Only
+
+**THIS STATE DIFF ONLY APPEARS WHEN SIGNING FOR THE COUNCIL AND DOES NOT NEED TO BE CHECKED BY SIGNERS.**
+
+The details are explained in [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md#liveness-guard).
+
 ### [`0x5a0aae59d09fccbddb6c6cceb07b7279367c3d2a`](https://github.com/ethereum-optimism/superchain-registry/blob/6b65f330434d46e24abc9ef78852ac3fa1cba4ec/superchain/configs/mainnet/arena-z.toml#L45) (ProxyAdminOwner (GnosisSafe)) - Chain ID: 10
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
@@ -92,11 +101,11 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Summary:** FaultDisputeGame Implementation
   - **Detail:** Resets the FDG implementation on Arena-Z Mainnet DisputeGameFactory to the zero address
- 
-### `0x87690676786cdc8cca75a472e483af7c8f2f0f57` (DisputeGameFactory) - Chain ID: 1923
+  - **Detail:** Resets the FDG implementation on Arena-Z Mainnet DisputeGameFactory to the zero address. You can verify the current implementation with `cast call 0x658656a14afdf9c507096ac406564497d13ec754 "gameImpls(uint32)(address)" 0`, where `0` is the [`CANNON` game type](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28).
+### [`0x87690676786cdc8cca75a472e483af7c8f2f0f57`](https://github.com/ethereum-optimism/superchain-registry/blob/6b65f330434d46e24abc9ef78852ac3fa1cba4ec/superchain/configs/mainnet/swell.toml#L61) (DisputeGameFactory) - Chain ID: 1923
   
 - **Key:**          `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
   - **Before:** `0x0000000000000000000000002dabff87a9a634f6c769b983afbbf4d856add0bf`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Summary:** FaultDisputeGame Implementation
-  - **Detail:** Resets the FDG implementation on Swell Mainnet DisputeGameFactory to the zero address
+  - **Detail:** Resets the FDG implementation on Swell Mainnet DisputeGameFactory to the zero address. You can verify the current implementation with `cast call 0x87690676786cdc8cca75a472e483af7c8f2f0f57 "gameImpls(uint32)(address)" 0`, where `0` is the [`CANNON` game type](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28).
