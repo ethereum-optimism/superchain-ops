@@ -154,6 +154,7 @@ contract SetDisputeGameImpl is L2TaskBase {
                     && prevPdg.splitDepth() == newPdg.splitDepth()
                     && prevPdg.maxClockDuration() == newPdg.maxClockDuration()
                     && prevPdg.clockExtension() == newPdg.clockExtension() && prevPdg.proposer() == newPdg.proposer()
+                    && prevPdg.anchorStateRegistry () == newPdg.anchorStateRegistry()
                     && prevPdg.challenger() == newPdg.challenger();
 
                 // Acceptable: prestate-only update or prestate+vm update
