@@ -54,11 +54,11 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ### State Overrides
 
-Note: The changes listed below do not include threshold, nonce and owner mapping overrides. These changes are listed and explained in the [<TODO NESTED OR SINGLE>-VALIDATION.md](../../../../../<TODO>) file.
+Note: The changes listed below do not include threshold, nonce and owner mapping overrides. These changes are listed and explained in the [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md) file.
 
 ### Task State Changes
 
-### `0x5a0aae59d09fccbddb6c6cceb07b7279367c3d2a` (ProxyAdminOwner (GnosisSafe)) - Chain ID: 10
+### [`0x5a0aae59d09fccbddb6c6cceb07b7279367c3d2a`](https://github.com/ethereum-optimism/superchain-registry/blob/6b65f330434d46e24abc9ef78852ac3fa1cba4ec/superchain/configs/mainnet/arena-z.toml#L45) (ProxyAdminOwner (GnosisSafe)) - Chain ID: 10
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:** `uint256`
@@ -85,7 +85,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   - **Summary:** Nonce
   - **Detail:** Updates the nonce of the Foundation Safe
   
-### `0x658656a14afdf9c507096ac406564497d13ec754` (DisputeGameFactory) - Chain ID: 7897
+### [`0x658656a14afdf9c507096ac406564497d13ec754`](https://github.com/ethereum-optimism/superchain-registry/blob/6b65f330434d46e24abc9ef78852ac3fa1cba4ec/superchain/configs/mainnet/arena-z.toml#L64) (DisputeGameFactory) - Chain ID: 7897
   
 - **Key:**          `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
   - **Before:** `0x000000000000000000000000733a80ce3baec1f27869b6e4c8bc0e358c121045`
