@@ -103,6 +103,7 @@ contract SetDisputeGameImpl is L2TaskBase {
                 IFaultDisputeGame newFdg = IFaultDisputeGame(c.fdgImpl);
                 require(newFdg.gameType() == CANNON, "FDG: gameType not CANNON");
                 require(newFdg.l2ChainId() == chainId, "FDG: l2ChainId mismatch");
+                require(factory.initBonds(CANNON) != 0, "FDG: initBonds not set");
             }
 
             // Always check basic invariants on any nonzero PDG new implementation
@@ -110,6 +111,7 @@ contract SetDisputeGameImpl is L2TaskBase {
                 IPermissionedDisputeGame newPdg = IPermissionedDisputeGame(c.pdgImpl);
                 require(newPdg.gameType() == PERMISSIONED_CANNON, "PDG: gameType not PERMISSIONED_CANNON");
                 require(newPdg.l2ChainId() == chainId, "PDG: l2ChainId mismatch");
+                require(factory.initBonds(PERMISSIONED_CANNON) != 0, "PDG: initBonds not set");
             }
 
             // -- FDG detailed check (only for impl->impl upgrade, not 0->impl or impl->0) --
@@ -184,6 +186,8 @@ uint32 constant PERMISSIONED_CANNON = 1;
 interface IDisputeGameFactory {
     function gameImpls(uint32 gameType) external view returns (address);
     function setImplementation(uint32 gameType, address impl) external;
+    function initBonds(uint32 gameType) external view returns (uint256);
+
 }
 
 
@@ -211,6 +215,7 @@ interface IPermissionedDisputeGame {
     function maxClockDuration() external view returns (uint64);
     function clockExtension() external view returns (uint64);
     function vm() external view returns (address);
+    function absolutePrestate() external view returns (bytes32);
     function proposer() external view returns (address);
     function challenger() external view returns (address);
 }
