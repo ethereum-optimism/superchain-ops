@@ -90,6 +90,7 @@ contract SetDisputeGameImpl is L2TaskBase {
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
             GameImplConfig memory c = cfg[chainId];
+            if (c.chainId == 0) continue; // Skip chains without configurations
 
             address dgf = superchainAddrRegistry.getAddress("DisputeGameFactoryProxy", chainId);
             IDisputeGameFactory factory = IDisputeGameFactory(dgf);
