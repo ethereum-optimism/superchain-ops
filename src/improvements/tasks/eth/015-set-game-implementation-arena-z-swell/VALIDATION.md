@@ -58,7 +58,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
 ### Task State Changes
 
-### `0x5a0aae59d09fccbddb6c6cceb07b7279367c3d2a` (ProxyAdminOwner (GnosisSafe)) - Chain ID: 10
+### [`0x5a0aae59d09fccbddb6c6cceb07b7279367c3d2a`](https://github.com/ethereum-optimism/superchain-registry/blob/6b65f330434d46e24abc9ef78852ac3fa1cba4ec/superchain/configs/mainnet/arena-z.toml#L45) (ProxyAdminOwner (GnosisSafe)) - Chain ID: 10
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:** `uint256`
