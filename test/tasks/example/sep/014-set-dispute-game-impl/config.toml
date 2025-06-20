@@ -4,7 +4,7 @@ l2chains = [
 
 templateName = "SetDisputeGameImpl"
 
-[[gameImplsConfig]]
+[[gameImplConfig]]
 chainId = 763373
 fdgBond = 80000000000000000
 pdgBond = 80000000000000000
