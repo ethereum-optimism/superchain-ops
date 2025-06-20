@@ -58,8 +58,8 @@ contract SetDisputeGameImpl is L2TaskBase {
     /// @notice Write the calls that you want to execute for the task.
     function _build() internal override {
         // Default values for FDG and PDG bonds
-        uint256 fdgBond = 0.08 ether;
-        uint256 pdgBond = 0.08 ether;
+        uint256 constant fdgBond = 0.08 ether;
+        uint256 constant pdgBond = 0.08 ether;
 
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
