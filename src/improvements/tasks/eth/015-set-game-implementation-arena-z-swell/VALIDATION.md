@@ -66,6 +66,24 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   - **After:** `20`
   - **Summary:** Nonce
   - **Detail:** Updates the nonce of the ProxyAdminOwner
+
+### `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03` (Security Council Safe (GnosisSafe)) - Chain ID: 10
+  
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Decoded Kind:** `uint256`
+  - **Before:** `31`
+  - **After:** `32`
+  - **Summary:** Nonce
+  - **Detail:** Updates the nonce of the Security Council Safe
+
+### `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (Foundation Safe (GnosisSafe)) - Chain ID: 10
+  
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Decoded Kind:** `uint256`
+  - **Before:** `31`
+  - **After:** `32`
+  - **Summary:** Nonce
+  - **Detail:** Updates the nonce of the Foundation Safe
   
 ### `0x658656a14afdf9c507096ac406564497d13ec754` (DisputeGameFactory) - Chain ID: 7897
   
