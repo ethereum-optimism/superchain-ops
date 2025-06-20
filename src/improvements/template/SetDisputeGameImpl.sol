@@ -127,7 +127,8 @@ contract SetDisputeGameImpl is L2TaskBase {
                 bool othersMatch = prevFdg.maxGameDepth() == newFdg.maxGameDepth()
                     && prevFdg.splitDepth() == newFdg.splitDepth()
                     && prevFdg.maxClockDuration() == newFdg.maxClockDuration()
-                    && prevFdg.clockExtension() == newFdg.clockExtension();
+                    && prevFdg.clockExtension() == newFdg.clockExtension()
+                    && prevFdg.anchorStateRegistry() == newFdg.anchorStateRegistry();
 
                 // Acceptable: prestate-only update or prestate+vm update
                 if (prestateChanged || vmChanged) {
