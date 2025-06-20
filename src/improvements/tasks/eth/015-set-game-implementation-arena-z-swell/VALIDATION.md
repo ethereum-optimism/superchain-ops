@@ -81,4 +81,4 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   - **Before:** `0x0000000000000000000000002dabff87a9a634f6c769b983afbbf4d856add0bf`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Summary:** FaultDisputeGame Implementation
-  - **Detail:** Resets the FDG implementation on Swell Mainnet DisputeGameFactory to the zero address
+  - **Detail:** Resets the FDG implementation on Swell Mainnet DisputeGameFactory to the zero address. You can verify the current implementation with `cast call 0x87690676786cdc8cca75a472e483af7c8f2f0f57 "gameImpls(uint32)(address)" 0`, where `0` is the [`CANNON` game type](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.4.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L28).
