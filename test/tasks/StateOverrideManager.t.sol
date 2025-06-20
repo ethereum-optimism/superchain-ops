@@ -42,7 +42,7 @@ contract StateOverrideManagerUnitTest is Test {
         vm.expectRevert(
             "StateOverrideManager: User-defined override is attempting to overwrite an existing default override for contract: 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
         );
-        task.signFromChildMultisig(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
+        task.signFromChildMultisig(fileName, SECURITY_COUNCIL_CHILD_MULTISIG, false);
         helper.removeFile(fileName);
     }
 
@@ -74,7 +74,7 @@ contract StateOverrideManagerUnitTest is Test {
         string memory fileName = helper.createTempTomlFile(toml, TESTING_DIRECTORY, "002");
         MultisigTask task = new MockMultisigTask();
         vm.expectRevert();
-        task.simulateRun(fileName);
+        task.simulate(fileName);
         helper.removeFile(fileName);
     }
 
@@ -275,7 +275,7 @@ contract StateOverrideManagerUnitTest is Test {
             "implementations = [{gameType = 0, implementation = \"0x0000000FFfFFfffFffFfFffFFFfffffFffFFffFf\", l2ChainId = 84532}]\n";
         string memory fileName = helper.createTempTomlFile(nonNestedSafeToml, TESTING_DIRECTORY, "011");
         MockDisputeGameTask dgt = new MockDisputeGameTask();
-        dgt.simulateRun(fileName);
+        dgt.simulate(fileName);
 
         // Only parent overrides will be checked because child multisig is not set.
         Simulation.StateOverride[] memory allOverrides = assertDefaultStateOverrides(1, dgt, address(0));
@@ -435,7 +435,7 @@ contract StateOverrideManagerUnitTest is Test {
         vm.expectRevert(
             "StateOverrideManager: Failed to reencode overrides, ensure any decimal numbers are not in quotes"
         );
-        task.signFromChildMultisig(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
+        task.signFromChildMultisig(fileName, SECURITY_COUNCIL_CHILD_MULTISIG, false);
         helper.removeFile(fileName);
     }
 
@@ -447,7 +447,7 @@ contract StateOverrideManagerUnitTest is Test {
     /// @notice Helper function to create and run a task.
     function createAndRunTask(string memory fileName, address childMultisig) internal returns (MultisigTask) {
         MultisigTask task = new MockMultisigTask();
-        task.signFromChildMultisig(fileName, childMultisig);
+        task.signFromChildMultisig(fileName, childMultisig, false);
         return task;
     }
 
