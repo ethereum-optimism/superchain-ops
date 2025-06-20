@@ -1,4 +1,4 @@
-# 017-U16-opcm-upgrade-v400-uni: Upgrade 16: Unichain
+# 018-U16-opcm-upgrade-v400-uni: Upgrade 16: Unichain
 
 Status: [DRAFT]()
 
@@ -34,12 +34,12 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/improvements/template/OPCMUpgradeV400.sol`.
 Navigate to the correct task directory then run the simulate command.
 ```
-cd src/improvements/tasks/eth/017-U16-opcm-upgrade-v400-uni
+cd src/improvements/tasks/eth/018-U16-opcm-upgrade-v400-uni
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate foundation
 ```
 
 Keep in mind that to simulate this task correctly using the previous command, the op and ink task in this same upgrade must have been executed successfully. To test this if the previous task has not been executed yet, you can run the following command:
 ```
 cd src/improvements
-just simulate-stack eth 017-U16-opcm-upgrade-v400-uni
+just simulate-stack eth 018-U16-opcm-upgrade-v400-uni
 ```

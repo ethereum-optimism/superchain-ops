@@ -1,4 +1,4 @@
-# 015-U16-opcm-upgrade-v400-op-ink: Upgrade 16: OP Mainnet and Ink
+# 016-U16-opcm-upgrade-v400-op-ink: Upgrade 16: OP Mainnet and Ink
 
 Status: [DRAFT]()
 
@@ -35,6 +35,6 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/improvements/template/OPCMUpgradeV400.sol`.
 Navigate to the correct task directory then run the simulate command.
 ```
-cd src/improvements/tasks/eth/015-U16-opcm-upgrade-v400-op-ink
+cd src/improvements/tasks/eth/016-U16-opcm-upgrade-v400-op-ink
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate foundation
 ```

@@ -1,4 +1,4 @@
-# 019-U16-remove-dgm: Remove Deputy Guardian Module on Ethereum Mainnet
+# 020-U16-remove-dgm: Remove Deputy Guardian Module on Ethereum Mainnet
 
 Status: [DRAFT]()
 
@@ -29,6 +29,6 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 
 Navigate to the correct task directory then run the simulate command.
 ```
-cd src/improvements/tasks/eth/019-U16-remove-dgm
+cd src/improvements/tasks/eth/020-U16-remove-dgm
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate 
 ```

@@ -1,4 +1,4 @@
-# 014-U16-enable-dpm: Enable New Deputy Pause Module on Ethereum Mainnet
+# 015-U16-enable-dpm: Enable New Deputy Pause Module on Ethereum Mainnet
 
 Status: [DRAFT]()
 
@@ -29,6 +29,6 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 
 Navigate to the correct task directory then run the simulate command.
 ```
-cd src/improvements/tasks/eth/014-U16-enable-dpm
+cd src/improvements/tasks/eth/015-U16-enable-dpm
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate foundation
 ```
