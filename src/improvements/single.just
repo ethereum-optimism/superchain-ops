@@ -63,7 +63,7 @@ simulate hdPath='0':
     ${fork_block_arg} \
     --rpc-url ${rpcUrl} \
     --sender ${signer} \
-    --sig "simulateRun(string)" ${config}
+    --sig "simulate(string)" ${config}
 
 sign hdPath='0' ledger='true':
   #!/usr/bin/env bash
@@ -98,7 +98,7 @@ sign hdPath='0' ledger='true':
   $(git rev-parse --show-toplevel)/bin/eip712sign ${signer_args} -- \
   forge script ${script} \
     --rpc-url ${rpcUrl} \
-    --sig "simulateRun(string)" ${config}
+    --sig "simulate(string)" ${config}
 
 execute hdPath='0' ledger='true':
   #!/usr/bin/env bash
@@ -120,7 +120,7 @@ execute hdPath='0' ledger='true':
 
   forge build
   forge script --fork-url ${rpcUrl} ${script} \
-    --sig "executeRun(string,bytes)" ${config} ${signatures} \
+    --sig "execute(string,bytes)" ${config} ${signatures} \
     --broadcast \
     --sender ${sender} \
     ${signer_args}
@@ -165,11 +165,11 @@ sign_and_execute_in_anvil parentSafe:
   signature=$($(git rev-parse --show-toplevel)/bin/eip712sign --private-key ${PRIVATE_KEY_OWNER:2} -- \
   forge script ${script} \
     --rpc-url ${ANVIL_LOCALHOST_RPC} \
-    --sig "simulateRun(string)" ${config})
+    --sig "simulate(string)" ${config})
   signature=$(echo "${signature}" | grep -o "Signature: [0-9a-f]\{130\}" | cut -d' ' -f2)
 
   forge script ${script} \
-    --sig "executeRun(string,bytes)" ${config} ${signature} \
+    --sig "execute(string,bytes)" ${config} ${signature} \
     --broadcast \
     --sender ${signer} \
     --private-key  ${PRIVATE_KEY_EXECUTOR} \

@@ -136,7 +136,7 @@ contract MultisigTaskUnitTest is Test {
         stdstore.target(address(taskHashMismatch)).sig("getBuildStarted()").checked_write(uint256(0));
 
         vm.expectRevert("MultisigTask: hash mismatch");
-        taskHashMismatch.simulateAsSigner(fileName, securityCouncilChildMultisig);
+        taskHashMismatch.signFromChildMultisig(fileName, securityCouncilChildMultisig, false);
         MultisigTaskTestHelper.removeFile(fileName);
     }
 
@@ -170,7 +170,7 @@ contract MultisigTaskUnitTest is Test {
         public
         returns (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions)
     {
-        (accountAccesses, actions,,) = task.signFromChildMultisig(taskConfigFilePath, childMultisig);
+        (accountAccesses, actions,,) = task.signFromChildMultisig(taskConfigFilePath, childMultisig, false);
 
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);
 
@@ -204,13 +204,13 @@ contract MultisigTaskUnitTest is Test {
         string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml, TESTING_DIRECTORY, "002");
         (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) =
             runTestSimulation(fileName, securityCouncilChildMultisig);
-        bytes[] memory calldatas = new bytes[](1);
-        calldatas[0] = actions[0].arguments;
+        bytes[] memory calldatas = task.transactionDatas(actions, allSafes, originalNonces);
 
         TaskPayload memory payload =
             TaskPayload({safes: allSafes, calldatas: calldatas, originalNonces: originalNonces});
+        uint256 rootSafeIndex = payload.safes.length - 1;
         vm.expectRevert("MultisigTask: execute failed");
-        task.execute(new bytes(0), payload);
+        task.execute(new bytes(0), payload, rootSafeIndex);
 
         // Validations should pass after a successful run.
         task.validate(accountAccesses, actions, allSafes[1], originalNonces[1]);
