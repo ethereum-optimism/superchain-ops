@@ -82,7 +82,7 @@ contract SetDisputeGameImpl is L2TaskBase {
             }
 
             // Set FDG bond if not already set or needs update
-            if (fdgBond != 0 && factory.initBonds(CANNON) != fdgBond) {
+            if (c.fdgImpl != 0 && factory.initBonds(CANNON) != fdgBond) {
                 factory.setInitBond(CANNON, fdgBond);
             }
 
