@@ -23,7 +23,9 @@ contract SetDisputeGameImpl is L2TaskBase {
     /// @notice Struct representing configuration for the task.
     struct GameImplConfig {
         uint256 chainId;
+        uint256 fdgBond;
         address fdgImpl;
+        uint256 pdgBond;
         address pdgImpl;
         address prevFdgImpl;
         address prevPdgImpl;
@@ -49,7 +51,7 @@ contract SetDisputeGameImpl is L2TaskBase {
         super._templateSetup(taskConfigFilePath);
         string memory toml = vm.readFile(taskConfigFilePath);
 
-        GameImplConfig[] memory configs = abi.decode(toml.parseRaw(".gameImpls.configs"), (GameImplConfig[]));
+        GameImplConfig[] memory configs = abi.decode(toml.parseRaw(".gameImpls"), (GameImplConfig[]));
         for (uint256 i = 0; i < configs.length; i++) {
             cfg[configs[i].chainId] = configs[i];
         }
