@@ -12,7 +12,7 @@ pdgBond = 0
 fdgImpl = "0x0000000000000000000000000000000000000000"
 pdgImpl = "0x80533687a66a1bb366094a9b622873a6ca8415a5"
 prevFdgImpl = "0x733a80Ce3bAec1f27869b6e4C8bc0E358C121045"
-prevPdgImpl = "0x80533687a66A1bB366094A9B622873a6CA8415a5"
+prevPdgImpl = "0x80533687a66A1bB366094A9B622873a6CA8415a5" https://github.com/ethereum-optimism/superchain-registry/blob/6b65f330434d46e24abc9ef78852ac3fa1cba4ec/superchain/extra/addresses/addresses.json#L1123
 
 [[gameImplConfig]]
 chainId = 1923
@@ -21,7 +21,7 @@ pdgBond = 0
 fdgImpl = "0x0000000000000000000000000000000000000000"
 pdgImpl = "0x1380cc0e11bfe6b5b399d97995a6b3d158ed61a6"
 prevFdgImpl = "0x2DabFf87A9a634f6c769b983aFBbF4D856aDD0bF"
-prevPdgImpl = "0x1380Cc0E11Bfe6b5b399D97995a6B3D158Ed61a6"
+prevPdgImpl = "0x1380Cc0E11Bfe6b5b399D97995a6B3D158Ed61a6" https://github.com/ethereum-optimism/superchain-registry/blob/6b65f330434d46e24abc9ef78852ac3fa1cba4ec/superchain/extra/addresses/addresses.json#L373
 
 [stateOverrides]
 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A = [
