@@ -297,9 +297,11 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     function validate(
         VmSafe.AccountAccess[] memory accountAccesses,
         Action[] memory actions,
-        address rootSafe,
-        uint256 originalRootSafeNonce
+        TaskPayload memory payload
     ) public virtual {
+        uint256 rootSafeIndex = payload.safes.length - 1;
+        address rootSafe = payload.safes[rootSafeIndex];
+        uint256 originalRootSafeNonce = payload.originalNonces[rootSafeIndex];
         address[] memory accountsWithWrites = accountAccesses.getUniqueWrites(false);
         // By default, we allow storage accesses to newly created contracts.
         address[] memory newContracts = accountAccesses.getNewContracts();
@@ -632,7 +634,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         uint256 rootSafeIndex = payload.safes.length - 1;
         (VmSafe.AccountAccess[] memory accountAccesses, bytes32 txHash) = execute(_signatures, payload, rootSafeIndex);
 
-        validate(accountAccesses, actions, root, payload.originalNonces[rootSafeIndex]);
+        validate(accountAccesses, actions, payload);
         (normalizedHash_, dataToSign_) = print(accountAccesses, isSimulate, txHash, payload);
 
         // Sanity check that the root safe is a nested safe.
