@@ -27,8 +27,6 @@ contract SetDisputeGameImpl is L2TaskBase {
         address pdgImpl;
         address prevFdgImpl;
         address prevPdgImpl;
-        uint256 fdgBond;
-        uint256 pdgBond;
     }
 
     /// @notice Mapping of chain ID to configuration for the task.
@@ -59,6 +57,10 @@ contract SetDisputeGameImpl is L2TaskBase {
 
     /// @notice Write the calls that you want to execute for the task.
     function _build() internal override {
+
+        uint256 fdgBond = 0.08 ether;
+        uint256 pdgBond = 0.08 ether;
+
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
@@ -80,13 +82,13 @@ contract SetDisputeGameImpl is L2TaskBase {
             }
 
             // Set FDG bond if not already set or needs update
-            if (c.fdgBond != 0 && factory.initBonds(CANNON) != c.fdgBond) {
-                factory.setInitBond(CANNON, c.fdgBond);
+            if (fdgBond != 0 && factory.initBonds(CANNON) != fdgBond) {
+                factory.setInitBond(CANNON, fdgBond);
             }
 
             // Set PDG bond if not already set or needs update
-            if (c.pdgBond != 0 && factory.initBonds(PERMISSIONED_CANNON) != c.pdgBond) {
-                factory.setInitBond(PERMISSIONED_CANNON, c.pdgBond);
+            if (pdgBond != 0 && factory.initBonds(PERMISSIONED_CANNON) != pdgBond) {
+                factory.setInitBond(PERMISSIONED_CANNON, pdgBond);
             }
         }
     }
