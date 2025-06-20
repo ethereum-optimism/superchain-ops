@@ -60,7 +60,7 @@ This function is called with a tuple of three elements:
 
 
 Call3 struct for Multicall3DelegateCall:
-- `target`: [0x56ebc5c4870f5367b836081610592241ad3e0734](https://github.com/ethereum-optimism/superchain-registry/blob/1a5d7a208cea9b0ea175df1fe71bdc4da7f4c04c/validation/standard/standard-versions-mainnet.toml#L22) - Mainnet OPContractsManager v3.0.0
+- `target`: [0x56ebc5c4870f5367b836081610592241ad3e0734](https://github.com/ethereum-optimism/superchain-registry/blob/88bed19aadb11d22e34aa1a1236530c061fb747b/validation/standard/standard-versions-mainnet.toml#L22) - Mainnet OPContractsManager v3.0.0
 - `allowFailure`: false
 - `callData`: `0xff2dd5a1...` (output from the previous section)
 
