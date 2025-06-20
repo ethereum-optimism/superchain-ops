@@ -117,7 +117,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
         // If we are simulating, we need to approve the hash from each owner.
         // Otherwise, we are executing the task and all approvals are already done.
-        // No signatures means we are simulating.
+        // No signatures means we are simulating the root safe transaction.
         if (signatures.length == 0) {
             address[] memory owners = IGnosisSafe(safe).getOwners();
             for (uint256 i = 0; i < owners.length; i++) {
