@@ -54,7 +54,7 @@ For each contract listed in the state diff, please verify that no contracts or s
 
 ### State Overrides
 
-Note: The changes listed below do not include threshold, nonce and owner mapping overrides. These changes are listed and explained in the [<TODO NESTED OR SINGLE>-VALIDATION.md](../../../../../<TODO>) file.
+Note: The changes listed below do not include threshold, nonce and owner mapping overrides. These changes are listed and explained in the [NESTED-VALIDATION.md](../../../../../NESTED-VALIDATION.md) file.
 
 ### Task State Changes
 
