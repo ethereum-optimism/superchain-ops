@@ -51,7 +51,7 @@ contract SetDisputeGameImpl is L2TaskBase {
         super._templateSetup(taskConfigFilePath);
         string memory toml = vm.readFile(taskConfigFilePath);
 
-        GameImplConfig[] memory configs = abi.decode(toml.parseRaw(".gameImpls"), (GameImplConfig[]));
+        GameImplConfig[] memory configs = abi.decode(toml.parseRaw(".gameImplsConfig"), (GameImplConfig[]));
         for (uint256 i = 0; i < configs.length; i++) {
             cfg[configs[i].chainId] = configs[i];
         }
@@ -59,10 +59,6 @@ contract SetDisputeGameImpl is L2TaskBase {
 
     /// @notice Write the calls that you want to execute for the task.
     function _build() internal override {
-        // Default values for FDG and PDG bonds
-        uint256 constant fdgBond = 0.08 ether;
-        uint256 constant pdgBond = 0.08 ether;
-
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
@@ -84,13 +80,13 @@ contract SetDisputeGameImpl is L2TaskBase {
             }
 
             // Set FDG bond if not already set or needs update
-            if (c.fdgImpl != 0 && factory.initBonds(CANNON) != fdgBond) {
-                factory.setInitBond(CANNON, fdgBond);
+            if (c.fdgBond != 0 && factory.initBonds(CANNON) != c.fdgBond) {
+                factory.setInitBond(CANNON, c.fdgBond);
             }
 
             // Set PDG bond if not already set or needs update
-            if (c.pdgImpl != 0 && factory.initBonds(PERMISSIONED_CANNON) != pdgBond) {
-                factory.setInitBond(PERMISSIONED_CANNON, pdgBond);
+            if (c.pdgBond != 0 && factory.initBonds(PERMISSIONED_CANNON) != c.pdgBond) {
+                factory.setInitBond(PERMISSIONED_CANNON, c.pdgBond);
             }
         }
     }
