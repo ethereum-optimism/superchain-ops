@@ -112,7 +112,7 @@ contract SetDisputeGameImpl is L2TaskBase {
             require(address(factory.gameImpls(PERMISSIONED_CANNON)) == c.pdgImpl, "PDG implementation mismatch");
 
             // Always check basic invariants on any nonzero FDG new implementation
-            if (c.fdgImpl != address(0)) {
+            if (c.fdgImpl != address(0) && c.fdgImpl != c.prevFdgImpl) {
                 IFaultDisputeGame newFdg = IFaultDisputeGame(c.fdgImpl);
                 require(newFdg.gameType() == CANNON, "FDG: gameType not CANNON");
                 require(newFdg.l2ChainId() == chainId, "FDG: l2ChainId mismatch");
@@ -120,7 +120,7 @@ contract SetDisputeGameImpl is L2TaskBase {
             }
 
             // Always check basic invariants on any nonzero PDG new implementation
-            if (c.pdgImpl != address(0)) {
+            if (c.pdgImpl != address(0) && c.pdgImpl != c.prevPdgImpl) {
                 IPermissionedDisputeGame newPdg = IPermissionedDisputeGame(c.pdgImpl);
                 require(newPdg.gameType() == PERMISSIONED_CANNON, "PDG: gameType not PERMISSIONED_CANNON");
                 require(newPdg.l2ChainId() == chainId, "PDG: l2ChainId mismatch");
