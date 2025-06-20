@@ -213,7 +213,7 @@ contract MultisigTaskUnitTest is Test {
         task.execute(new bytes(0), payload, rootSafeIndex);
 
         // Validations should pass after a successful run.
-        task.validate(accountAccesses, actions, allSafes[1], originalNonces[1]);
+        task.validate(accountAccesses, actions, payload);
         MultisigTaskTestHelper.removeFile(fileName);
     }
 

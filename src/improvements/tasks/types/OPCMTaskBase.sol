@@ -9,7 +9,7 @@ import {IOPContractsManager} from "lib/optimism/packages/contracts-bedrock/inter
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
-import {Action, TaskType} from "src/libraries/MultisigTypes.sol";
+import {Action, TaskType, TaskPayload} from "src/libraries/MultisigTypes.sol";
 import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 
@@ -59,15 +59,14 @@ abstract contract OPCMTaskBase is L2TaskBase {
         data = abi.encodeCall(IMulticall3.aggregate3, (calls));
     }
 
-    function validate(
-        VmSafe.AccountAccess[] memory accesses,
-        Action[] memory actions,
-        address rootSafe,
-        uint256 rootSafeNonce
-    ) public override {
+    function validate(VmSafe.AccountAccess[] memory accesses, Action[] memory actions, TaskPayload memory payload)
+        public
+        override
+    {
         (address[] memory targets,,) = processTaskActions(actions);
         require(targets.length == 1 && targets[0] == OPCM, "OPCMTaskBase: only OPCM is allowed as target");
-        super.validate(accesses, actions, rootSafe, rootSafeNonce);
+        super.validate(accesses, actions, payload);
+        address rootSafe = payload.safes[payload.safes.length - 1];
         AccountAccessParser.StateDiff[] memory rootSafeDiffs = accesses.getStateDiffFor(rootSafe, false);
         require(rootSafeDiffs.length == 1, "OPCMTaskBase: only nonce should be updated on upgrade controller multisig");
 
