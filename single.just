@@ -53,7 +53,7 @@ approvehash_in_anvil hdPath='0':
   fi
   echo "Simulating with: ${signer}"
   echo ""
-  
+
   echo "============ OVERRIDE SAFE SETTINGS '${ownerSafe}' ============"
   echo "1. Set the threshold to 1."
   cast rpc anvil_setStorageAt ${ownerSafe} 0x0000000000000000000000000000000000000000000000000000000000000004 0x0000000000000000000000000000000000000000000000000000000000000001 --rpc-url ${localrpcUrl}
@@ -73,7 +73,7 @@ approvehash_in_anvil hdPath='0':
   echo "the sole Owner of the ${ownerSafe} is: $(cast call ${ownerSafe}  "getOwners()(address[])" --rpc-url http://localhost:8545)"
   echo "================================================"
   # sender=$(cast wallet address --private-key  0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80)
-  
+
   forge build
 
   signer_tenderly=$(cast call ${ownerSafe} "getOwners()(address[])" -r ${rpcUrl} | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
@@ -83,7 +83,7 @@ approvehash_in_anvil hdPath='0':
     --sig "signJson(string)" \
     ${bundlePath})
 
-  echo "Tenderly link: $tenderly_link" 
+  echo "Tenderly link: $tenderly_link"
 
   outputforge=$(forge script ${script} \
     --rpc-url ${localrpcUrl} \
@@ -91,7 +91,7 @@ approvehash_in_anvil hdPath='0':
     --sender ${signer})
   tempfile=$(mktemp)
   echo "tmp file located to:" > $tempfile
-  echo "Outputforge: $outputforge" > $tempfile   
+  echo "Outputforge: $outputforge" > $tempfile
 
   hash=$(cat $tempfile | grep -A 1 "If submitting onchain, call Safe.approveHash on " | cut -d ':' -f 2 | tr -d '[:space:]')
   # hash=$(echo $outputforge | grep -A 1 "If submitting onchain, call Safe.approveHash" "$file_path" | tail -n 1 | awk '{print $2}')
@@ -106,7 +106,7 @@ approvehash_in_anvil hdPath='0':
 
   ## 5. Approve the hash with the well-known private key that is the first owner of anvil selection.
   cast send ${ownerSafe} "approveHash(bytes32)" ${hash} --rpc-url ${localrpcUrl} --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 # &> /dev/null
- 
+
 simulate hdPath='0':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
@@ -142,7 +142,8 @@ simulate hdPath='0':
     --rpc-url ${rpcUrl} \
     --sig "signJson(string)" ${bundlePath} \
     --sender ${signer}
-sign hdPath='0' ledger='true':
+
+sign hdPath='0' wallet='ledger':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
   script=SignFromJson
@@ -151,14 +152,21 @@ sign hdPath='0' ledger='true':
   fi
   echo "Using script ${script}"
   echo "getting signer address..."
-  if {{ledger}}; then
+  if [ '{{wallet}}' = 'ledger' ]; then
     hdpaths="m/44'/60'/{{hdPath}}'/0/0"
     signer=$(cast wallet address --ledger --mnemonic-derivation-path $hdpaths)
     signer_args="--ledger --hd-paths $hdpaths"
-  else
+  elif [ '{{wallet}}' = 'trezor' ]; then
+    hdpaths="m/44'/60'/{{hdPath}}'/0/0"
+    signer=$(cast wallet address --trezor --mnemonic-derivation-path $hdpaths)
+    signer_args="--trezor --hd-paths $hdpaths"
+  elif [ '{{wallet}}' = 'keystore' ]; then
     signer_private_key=$(just --justfile={{justfile()}} get-keystore-private-key)
     signer=$(cast wallet address --private-key ${signer_private_key})
     signer_args="--private-key ${signer_private_key#0x}"
+  else
+    echo "Error: Invalid wallet option '{{wallet}}'. Supported options are 'ledger', 'keystore', 'trezor'." >&2
+    exit 1
   fi
   echo "Signing with: ${signer}"
 
@@ -194,7 +202,7 @@ execute_in_anvil hdPath='0':
   echo $execution
 
 
-execute hdPath='0' ledger='true':
+execute hdPath='0' wallet='ledger':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
   script=SignFromJson
@@ -202,13 +210,19 @@ execute hdPath='0' ledger='true':
     script="${taskPath}/SignFromJson.s.sol"
   fi
   echo "Using script ${script}"
-  if {{ledger}}; then
+  if [ '{{wallet}}' = 'ledger' ]; then
     sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
     signer_args="--ledger --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
-  else
+  elif [ '{{wallet}}' = 'trezor' ]; then
+    sender=$(cast wallet address --trezor --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+    signer_args="--trezor --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
+  elif [ '{{wallet}}' = 'keystore' ]; then
     signer_private_key=$(just --justfile={{justfile()}} get-keystore-private-key)
     sender=$(cast wallet address --private-key ${signer_private_key})
     signer_args="--private-key ${signer_private_key}"
+  else
+    echo "Error: Invalid wallet option '{{wallet}}'. Supported options are 'ledger', 'keystore', 'trezor'." >&2
+    exit 1
   fi
   echo "Executing with sender: ${sender}"
 

@@ -66,7 +66,7 @@ simulate whichSafe hdPath='0':
     ${config} \
     ${safe}
 
-sign whichSafe hdPath='0' ledger='true':
+sign whichSafe hdPath='0' wallet='ledger':
   #!/usr/bin/env bash
   # Get the appropriate safe address based on whichSafe
   safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
@@ -76,15 +76,23 @@ sign whichSafe hdPath='0' ledger='true':
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
   echo "getting signer address..."
-  if {{ledger}}; then
+  if [ '{{wallet}}' = 'ledger' ]; then
     hdpaths="m/44'/60'/{{hdPath}}'/0/0"
     signer=$(cast wallet address --ledger --mnemonic-derivation-path $hdpaths)
     signer_args="--ledger --hd-paths $hdpaths"
-  else
+  elif [ '{{wallet}}' = 'trezor' ]; then
+    signer=$(cast wallet address --trezor --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  elif [ '{{wallet}}' = 'keystore' ]; then
     cd ${TASK_PATH}
     signer_private_key=$(just --justfile=${JUSTFILE_PATH} get-keystore-private-key)
     signer=$(cast wallet address --private-key ${signer_private_key})
     signer_args="--private-key ${signer_private_key#0x}"
+  elif [ '{{wallet}}' = 'trezor' ]; then
+    signer=$(cast wallet address --trezor --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+    signer_args="--trezor --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
+  else
+    echo "Error: Invalid wallet option '{{wallet}}'. Supported options are 'ledger', 'keystore', 'trezor'." >&2
+    exit 1
   fi
   echo "Signing with: ${signer}"
 
@@ -101,20 +109,26 @@ sign whichSafe hdPath='0' ledger='true':
     ${config} \
     "${safe}"
 
-approve whichSafe hdPath='0' ledger='true':
+approve whichSafe hdPath='0' wallet='ledger':
   #!/usr/bin/env bash
   # Get the appropriate safe address based on whichSafe
   safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
-  if {{ledger}}; then
+  if [ '{{wallet}}' = 'ledger' ]; then
     sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
     signer_args="--ledger --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
-  else
+  elif [ '{{wallet}}' = 'keystore' ]; then
     cd ${TASK_PATH}
     signer_private_key=$(just --justfile=${JUSTFILE_PATH} get-keystore-private-key)
     sender=$(cast wallet address --private-key ${signer_private_key})
     signer_args="--private-key ${signer_private_key}"
+  elif [ '{{wallet}}' = 'trezor' ]; then
+    sender=$(cast wallet address --trezor --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+    signer_args="--trezor --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
+  else
+    echo "Error: Invalid wallet option '{{wallet}}'. Supported options are 'ledger', 'keystore', 'trezor'." >&2
+    exit 1
   fi
   echo "Approving with sender: ${sender}"
 
@@ -179,20 +193,26 @@ simulate-approve whichSafe hdPath='0':
     ${safe} \
     ${signatures}
 
-execute hdPath='0' ledger='true':
+execute hdPath='0' wallet='ledger':
   #!/usr/bin/env bash
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
 
   echo "Using script ${script}"
-  if {{ledger}}; then
+  if [ '{{wallet}}' = 'ledger' ]; then
     sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
     signer_args="--ledger --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
-  else
+  elif [ '{{wallet}}' = 'keystore' ]; then
     cd ${TASK_PATH}
     signer_private_key=$(just --justfile=${JUSTFILE_PATH} get-keystore-private-key)
     sender=$(cast wallet address --private-key ${signer_private_key})
     signer_args="--private-key ${signer_private_key}"
+  elif [ '{{wallet}}' = 'trezor' ]; then
+    sender=$(cast wallet address --trezor --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+    signer_args="--trezor --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
+  else
+    echo "Error: Invalid wallet option '{{wallet}}'. Supported options are 'ledger', 'keystore', 'trezor'." >&2
+    exit 1
   fi
   echo "Executing with sender: ${sender}"
 
