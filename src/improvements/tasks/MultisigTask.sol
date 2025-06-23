@@ -589,6 +589,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         view
         returns (bytes memory data)
     {
+        // TODO: support arbitrary number of safes.
         IMulticall3.Call3Value[] memory calls = new IMulticall3.Call3Value[](2);
 
         address childSafe = allSafes[0];
@@ -829,22 +830,24 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     }
 
     /// @notice Print the Tenderly simulation payload with the state overrides.
-    function _printTenderlySimulationData(address[] memory allSafes, bytes[] memory allCalldatas) internal view {
+    function _printTenderlySimulationData(TaskPayload memory payload) internal view {
         address targetAddress;
         bytes memory finalExec;
-        address rootSafe = allSafes[allSafes.length - 1];
+        address rootSafe = payload.safes[payload.safes.length - 1];
         address childSafe;
-        if (allSafes.length > 1) {
+        if (payload.safes.length > 1) {
+            // Transaction involves multiple safes.
             targetAddress = MULTICALL3_ADDRESS;
-            finalExec = _getNestedSimulationMulticall3Calldata(allSafes, allCalldatas);
-            childSafe = allSafes[0];
+            finalExec = _getNestedSimulationMulticall3Calldata(payload.safes, payload.calldatas);
+            childSafe = payload.safes[0];
         } else {
+            // Transaction involves a single safe.
             targetAddress = rootSafe;
             finalExec = _execTransactionCalldata(
                 targetAddress,
-                allCalldatas[allCalldatas.length - 1],
+                payload.calldatas[payload.calldatas.length - 1],
                 Signatures.genPrevalidatedSignature(msg.sender),
-                _getMulticallAddress(rootSafe, allSafes)
+                _getMulticallAddress(rootSafe, payload.safes)
             );
         }
 
@@ -871,7 +874,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                 dataToSign_ = printSingleData(payload);
             }
 
-            _printTenderlySimulationData(payload.safes, payload.calldatas);
+            _printTenderlySimulationData(payload);
         }
         normalizedHash_ = AccountAccessParser.normalizedStateDiffHash(accountAccesses, rootSafe, txHash);
         MultisigTaskPrinter.printAuditReportInfo(normalizedHash_);
