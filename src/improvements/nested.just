@@ -97,7 +97,7 @@ sign whichSafe hdPath='0' ledger='true':
   $(git rev-parse --show-toplevel)/bin/eip712sign ${signer_args} -- \
   forge script ${script} \
     --rpc-url ${rpcUrl} \
-    --sig "simulateNoLogs(string,address)" \
+    --sig "simulateQuietly(string,address)" \
     ${config} \
     "${safe}"
 

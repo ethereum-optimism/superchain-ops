@@ -210,7 +210,7 @@ contract MultisigTaskUnitTest is Test {
             TaskPayload({safes: allSafes, calldatas: calldatas, originalNonces: originalNonces});
         uint256 rootSafeIndex = payload.safes.length - 1;
         vm.expectRevert("MultisigTask: execute failed");
-        task.execute(new bytes(0), payload, rootSafeIndex);
+        task.executeTaskStep(new bytes(0), payload, rootSafeIndex);
 
         // Validations should pass after a successful run.
         task.validate(accountAccesses, actions, payload);

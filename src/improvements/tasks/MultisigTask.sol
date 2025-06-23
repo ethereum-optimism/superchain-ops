@@ -31,7 +31,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     using StdStyle for string;
 
     /// @notice The root safe address for the task
-    address public root;
+    address public root; // TODO: remove this in preference of passing it as a parameter.
 
     /// @notice AddressesRegistry contract
     AddressRegistry public addrRegistry;
@@ -75,8 +75,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         return _runTask(taskConfigFilePath, "", _childMultisig, true);
     }
 
-    /// @notice Simulates the nested safe transaction of the task without logging.
-    function simulateNoLogs(string memory taskConfigFilePath, address _childMultisig) public {
+    /// @notice Simulates the nested safe transaction of the task without logging the return values to the console.
+    function simulateQuietly(string memory taskConfigFilePath, address _childMultisig) public {
         _runTask(taskConfigFilePath, "", _childMultisig, true);
     }
 
@@ -97,7 +97,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
         // TODO: in the future this index may be different. Any safe that is not the root safe will be eligible to approve.
         uint256 childSafeIndex = 0;
-        execute(signatures, payload, childSafeIndex);
+        executeTaskStep(signatures, payload, childSafeIndex);
         console.log(
             "--------- Successfully %s Child Multisig %s Approval ---------",
             _isBroadcastContext() ? "Broadcasted" : "Simulated",
@@ -105,14 +105,12 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         );
     }
 
-    /// @notice Executes a task for a given safe. The 'safeIndex' is the index of the safe in the payload.safes array.
-    function execute(bytes memory signatures, TaskPayload memory payload, uint256 safeIndex)
+    /// @notice Executes a task for a given safe. The 'executionSafeIdx' is the index of the safe in the payload.safes array.
+    function executeTaskStep(bytes memory signatures, TaskPayload memory payload, uint256 executionSafeIdx)
         public
         returns (VmSafe.AccountAccess[] memory, bytes32 txHash_)
     {
-        address safe = payload.safes[safeIndex];
-        bytes memory safeCalldata = payload.calldatas[safeIndex];
-        uint256 safeNonce = payload.originalNonces[safeIndex];
+        (address safe, bytes memory safeCalldata, uint256 safeNonce) = Utils.getSafeData(payload, executionSafeIdx);
         txHash_ = getHash(safeCalldata, safe, 0, safeNonce, payload.safes);
 
         // If we are simulating, we need to approve the hash from each owner.
@@ -136,7 +134,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         }
 
         address safeMulticallTarget;
-        if (safeIndex == payload.safes.length - 1) {
+        if (executionSafeIdx == payload.safes.length - 1) {
             safeMulticallTarget = _getMulticallAddress(safe, payload.safes);
         } else {
             safeMulticallTarget = MULTICALL3_ADDRESS; // For any non-root safe, we use the multicall3 address.
@@ -633,7 +631,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
         (TaskPayload memory payload, Action[] memory actions) = _taskSetup(_taskConfigFilePath, childSafes);
         uint256 rootSafeIndex = payload.safes.length - 1;
-        (VmSafe.AccountAccess[] memory accountAccesses, bytes32 txHash) = execute(_signatures, payload, rootSafeIndex);
+        (VmSafe.AccountAccess[] memory accountAccesses, bytes32 txHash) =
+            executeTaskStep(_signatures, payload, rootSafeIndex);
 
         validate(accountAccesses, actions, payload);
         (normalizedHash_, dataToSign_) = print(accountAccesses, isSimulate, txHash, payload);
