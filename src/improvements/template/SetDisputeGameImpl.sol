@@ -58,7 +58,7 @@ contract SetDisputeGameImpl is L2TaskBase {
     }
 
     /// @notice Write the calls that you want to execute for the task.
-    function _build(address _rootSafe) internal override {
+    function _build(address) internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
@@ -97,11 +97,7 @@ contract SetDisputeGameImpl is L2TaskBase {
     ///         Always checks that any new FDG/PDG impl is of the correct type and l2ChainId, regardless of scenario.
     ///         Detailed logic checks are performed only when updating between two nonzero implementations,
     ///         i.e., not when adding a brand new implementation or resetting to the zero address.
-    function _validate(VmSafe.AccountAccess[] memory _accountAccesses, Action[] memory, address _rootSafe)
-        internal
-        view
-        override
-    {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
