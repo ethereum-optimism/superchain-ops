@@ -161,8 +161,7 @@ contract SingleMultisigTaskTest is Test {
         TaskPayload memory payload =
             TaskPayload({safes: allSafes, calldatas: allCalldatas, originalNonces: allOriginalNonces});
 
-        (, bytes memory rootSafeCalldata, uint256 rootSafeNonce) =
-            Utils.getSafeData(payload, payload.safes.length - 1);
+        (, bytes memory rootSafeCalldata, uint256 rootSafeNonce) = Utils.getSafeData(payload, payload.safes.length - 1);
 
         bytes memory dataToSign =
             multisigTask.getEncodedTransactionData(multisigTask.root(), rootSafeCalldata, 0, rootSafeNonce, allSafes);
