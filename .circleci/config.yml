@@ -410,14 +410,6 @@ workflows:
       - just_simulate_sc_rehearsal_4:
           context:
             - circleci-repo-readonly-authenticated-github-token
-      - just_simulate_nested:
-          task: "/eth/metal-002-fp-upgrade"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-      - just_simulate_nested:
-          task: "/eth/mode-002-fp-upgrade"
-          context:
-            - circleci-repo-readonly-authenticated-github-token
 
       - simulate_sequence:
           name: simulate_sequence_eth
