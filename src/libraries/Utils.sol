@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {VmSafe} from "lib/forge-std/src/Vm.sol";
-import {SafeData, TaskPayload} from "src/libraries/MultisigTypes.sol";
+import {Vm} from "lib/forge-std/src/Vm.sol";
+import {SafeData, TaskPayload} from "./MultisigTypes.sol";
+import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 library Utils {
-    VmSafe private constant vm = VmSafe(address(uint160(uint256(keccak256("hevm cheat code")))));
+    Vm private constant vm = Vm(address(uint160(uint256(keccak256("hevm cheat code")))));
 
     /// @notice Helper function to simplify feature-flagging by reading an environment variable
     /// @param _feature The name of the feature flag environment variable to check
@@ -55,5 +56,18 @@ library Utils {
         safeData.addr = payload.safes[index];
         safeData.callData = payload.calldatas[index];
         safeData.nonce = payload.originalNonces[index];
+    }
+
+    /// @notice Increments the nonce of a safe.
+    /// If the safe is a contract, we assume it is a Gnosis Safe and increment the nonce manually.
+    /// This is in lieu of executing approveHash from the owner contract.
+    function incrementOwnerNonce(address safe) internal {
+        if (address(safe).code.length > 0) {
+            uint256 currentSafeNonce = IGnosisSafe(safe).nonce();
+            vm.store(safe, bytes32(uint256(0x5)), bytes32(uint256(currentSafeNonce + 1)));
+        } else {
+            uint256 currentSafeNonce = vm.getNonce(safe);
+            vm.setNonce(safe, uint64(currentSafeNonce + 1));
+        }
     }
 }
