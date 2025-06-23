@@ -91,7 +91,7 @@ simulate whichSafe hdPath='0':
     ${bundlePath} \
     "${safe}"
 
-sign whichSafe hdPath='0' wallet='ledger':
+sign whichSafe hdPath='0' ledger='true':
   #!/usr/bin/env bash
   set -x
   bundlePath=${taskPath}/${bundleName}.json
@@ -118,21 +118,14 @@ sign whichSafe hdPath='0' wallet='ledger':
   fi
   echo "getting signer address..."
 
-  if [ '{{wallet}}' = 'ledger' ]; then
+  if {{ledger}}; then
     hdpaths="m/44'/60'/{{hdPath}}'/0/0"
     signer=$(cast wallet address --ledger --mnemonic-derivation-path $hdpaths)
     signer_args="--ledger --hd-paths $hdpaths"
-  elif [ '{{wallet}}' = 'trezor' ]; then
-    hdpaths="m/44'/60'/{{hdPath}}'/0/0"
-    signer=$(cast wallet address --trezor --mnemonic-derivation-path $hdpaths)
-    signer_args="--trezor --hd-paths $hdpaths"
-  elif [ '{{wallet}}' = 'keystore' ]; then
+  else
     signer_private_key=$(just --justfile={{justfile()}} get-keystore-private-key)
     signer=$(cast wallet address --private-key ${signer_private_key})
     signer_args="--private-key ${signer_private_key#0x}"
-  else
-    echo "Error: Invalid wallet option '{{wallet}}'. Supported options are 'ledger', 'keystore', 'trezor'." >&2
-    exit 1
   fi
   echo "Signing with: ${signer}"
 
@@ -148,6 +141,7 @@ sign whichSafe hdPath='0' wallet='ledger':
 ## approvehash_in_anvil is a function to generate the nested hash and approve the hash for the given safes (SC, or FND) for later executing during the simulation using the execute_in_anvil function.
 approvehash_in_anvil whichSafe hdPath='0':
   #!/usr/bin/env bash
+  # set -x
   ANVIL_LOCALHOST_RPC="http://localhost:8545"
   bundlePath=${taskPath}/${bundleName}.json
   script=NestedSignFromJson
@@ -240,6 +234,7 @@ approvehash_in_anvil whichSafe hdPath='0':
 ## execute_in_anvil is a function to execute hash in anvil dedicated for simulation.
 execute_in_anvil hdPath='0':
   #!/usr/bin/env bash
+  # set -x
   bundlePath=${taskPath}/${bundleName}.json
   script=NestedSignFromJson
   if [ -f "${taskPath}/NestedSignFromJson.s.sol" ]; then
@@ -262,7 +257,7 @@ execute_in_anvil hdPath='0':
     --sig "runJson(string)" \
     ${bundlePath} 2>&1)
 
-approve whichSafe hdPath='0' wallet='ledger':
+approve whichSafe hdPath='0' ledger='true':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
   script=NestedSignFromJson
@@ -286,19 +281,13 @@ approve whichSafe hdPath='0' wallet='ledger':
     fi
     safe="{{chainGovernorSafe}}"
   fi
-  if [ '{{wallet}}' = 'ledger' ]; then
+  if {{ledger}}; then
     sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
     signer_args="--ledger --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
-  elif [ '{{wallet}}' = 'trezor' ]; then
-    sender=$(cast wallet address --trezor --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-    signer_args="--trezor --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
-  elif [ '{{wallet}}' = 'keystore' ]; then
+  else
     signer_private_key=$(just --justfile={{justfile()}} get-keystore-private-key)
     sender=$(cast wallet address --private-key ${signer_private_key})
     signer_args="--private-key ${signer_private_key}"
-  else
-    echo "Error: Invalid wallet option '{{wallet}}'. Supported options are 'ledger', 'keystore', 'trezor'." >&2
-    exit 1
   fi
 
   forge build
@@ -312,7 +301,7 @@ approve whichSafe hdPath='0' wallet='ledger':
     ${safe} \
     ${signatures}
 
-execute hdPath='0' wallet='ledger':
+execute hdPath='0' ledger='true':
   #!/usr/bin/env bash
   bundlePath=${taskPath}/${bundleName}.json
   script=NestedSignFromJson
@@ -321,19 +310,13 @@ execute hdPath='0' wallet='ledger':
     echo "Running script with assertions"
   fi
   echo "Using script ${script}"
-  if [ '{{wallet}}' = 'ledger' ]; then
+  if {{ledger}}; then
     sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
     signer_args="--ledger --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
-  elif [ '{{wallet}}' = 'trezor' ]; then
-    sender=$(cast wallet address --trezor --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-    signer_args="--trezor --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
-  elif [ '{{wallet}}' = 'keystore' ]; then
+  else
     signer_private_key=$(just --justfile={{justfile()}} get-keystore-private-key)
     sender=$(cast wallet address --private-key ${signer_private_key})
     signer_args="--private-key ${signer_private_key}"
-  else
-    echo "Error: Invalid wallet option '{{wallet}}'. Supported options are 'ledger', 'keystore', 'trezor'." >&2
-    exit 1
   fi
   echo "Executed with sender: ${sender}"
 
