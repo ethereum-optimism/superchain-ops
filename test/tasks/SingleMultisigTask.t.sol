@@ -17,6 +17,8 @@ import {GasConfigTemplate} from "test/tasks/mock/template/GasConfigTemplate.sol"
 import {IncorrectGasConfigTemplate1} from "test/tasks/mock/template/IncorrectGasConfigTemplate1.sol";
 import {IncorrectGasConfigTemplate2} from "test/tasks/mock/template/IncorrectGasConfigTemplate2.sol";
 import {MultisigTaskTestHelper} from "test/tasks/MultisigTask.t.sol";
+import {Utils} from "src/libraries/Utils.sol";
+import {TaskPayload} from "src/libraries/MultisigTypes.sol";
 
 contract SingleMultisigTaskTest is Test {
     struct MultiSigOwner {
@@ -156,8 +158,12 @@ contract SingleMultisigTaskTest is Test {
         address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(multisigTask.root());
         uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
         bytes[] memory allCalldatas = multisigTask.transactionDatas(actions, allSafes, allOriginalNonces);
-        bytes memory rootSafeCalldata = allCalldatas[allCalldatas.length - 1];
-        uint256 rootSafeNonce = allOriginalNonces[allOriginalNonces.length - 1];
+        TaskPayload memory payload =
+            TaskPayload({safes: allSafes, calldatas: allCalldatas, originalNonces: allOriginalNonces});
+
+        (, bytes memory rootSafeCalldata, uint256 rootSafeNonce) =
+            Utils.getSafeData(payload, payload.safes.length - 1);
+
         bytes memory dataToSign =
             multisigTask.getEncodedTransactionData(multisigTask.root(), rootSafeCalldata, 0, rootSafeNonce, allSafes);
 
@@ -181,9 +187,13 @@ contract SingleMultisigTaskTest is Test {
         address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(multisigTask.root());
         uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
         bytes[] memory allCalldatas = multisigTask.transactionDatas(actions, allSafes, allOriginalNonces);
-        bytes memory rootSafeCalldata = allCalldatas[allCalldatas.length - 1];
-        uint256 rootSafeNonce = allOriginalNonces[allOriginalNonces.length - 1];
-        bytes32 hash = multisigTask.getHash(rootSafeCalldata, multisigTask.root(), 0, rootSafeNonce, allSafes);
+        TaskPayload memory payload =
+            TaskPayload({safes: allSafes, calldatas: allCalldatas, originalNonces: allOriginalNonces});
+
+        (address rootSafe, bytes memory rootSafeCalldata, uint256 rootSafeNonce) =
+            Utils.getSafeData(payload, payload.safes.length - 1);
+
+        bytes32 hash = multisigTask.getHash(rootSafeCalldata, rootSafe, 0, rootSafeNonce, allSafes);
         bytes32 expectedHash = IGnosisSafe(multisigTask.root()).getTransactionHash(
             MULTICALL3_ADDRESS,
             0,
@@ -265,10 +275,12 @@ contract SingleMultisigTaskTest is Test {
         address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(multisigTask.root());
         uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
         bytes[] memory allCalldatas = multisigTask.transactionDatas(actions, allSafes, allOriginalNonces);
+        TaskPayload memory payload =
+            TaskPayload({safes: allSafes, calldatas: allCalldatas, originalNonces: allOriginalNonces});
 
-        address rootSafe = allSafes[allSafes.length - 1];
-        bytes memory rootSafeCalldata = allCalldatas[allCalldatas.length - 1];
-        uint256 rootSafeNonce = allOriginalNonces[allOriginalNonces.length - 1] - 1; // The task has already run so we decrement the nonce by 1.
+        (address rootSafe, bytes memory rootSafeCalldata, uint256 rootSafeNonce) =
+            Utils.getSafeData(payload, payload.safes.length - 1);
+        rootSafeNonce = rootSafeNonce - 1; // The task has already run so we decrement the nonce by 1.
 
         bytes memory dataToSign =
             multisigTask.getEncodedTransactionData(multisigTask.root(), rootSafeCalldata, 0, rootSafeNonce, allSafes);
