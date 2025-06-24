@@ -7,10 +7,15 @@ import {GnosisSafe} from "lib/safe-contracts/contracts/GnosisSafe.sol";
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {Vm} from "forge-std/Vm.sol";
+import {console} from "forge-std/console.sol";
 
 /// @title GnosisSafeHashes
 /// @notice Library for calculating domain separators and message hashes for Gnosis Safe transactions
 library GnosisSafeHashes {
+    address internal constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
+    Vm internal constant vm = Vm(VM_ADDRESS);
+
     // Safe transaction type hash
     bytes32 constant SAFE_TX_TYPEHASH = keccak256(
         "SafeTx(address to,uint256 value,bytes data,uint8 operation,uint256 safeTxGas,uint256 baseGas,uint256 gasPrice,address gasToken,address refundReceiver,uint256 nonce)"
@@ -271,6 +276,69 @@ library GnosisSafeHashes {
                 address(0),
                 payable(address(0)),
                 _signatures
+            )
+        );
+    }
+
+    /// @notice Struct for a Safe transaction. Used as the EIP-712 hash struct.
+    struct SafeTransaction {
+        address to;
+        uint256 value;
+        bytes data;
+        uint8 operation;
+        uint256 safeTxGas;
+        uint256 baseGas;
+        uint256 gasPrice;
+        address gasToken;
+        address refundReceiver;
+        uint256 nonce;
+    }
+
+    /// @notice Generates a JSON string for the EIP-712 typed data. This string that is logged must be passed as an arg
+    /// to cast e.g. 'cast wallet sign --ledger --data "$(forge script EIP712 --json | jq -r '.logs[0]')"'.
+    function generateTypedDataJson(uint256 chainId, address verifyingContract, SafeTransaction memory safeTx)
+        external
+        pure
+    {
+        console.log(
+            string.concat(
+                "{\n",
+                '  "types": {\n',
+                '    "EIP712Domain": [\n',
+                '      { "name": "chainId", "type": "uint256" }, \n',
+                '      { "name": "verifyingContract", "type": "address" }\n',
+                "    ],\n",
+                '    "SafeTx": [\n',
+                '      { "name": "to", "type": "address" },\n',
+                '      { "name": "value", "type": "uint256" },\n',
+                '      { "name": "data", "type": "bytes" },\n',
+                '      { "name": "operation", "type": "uint8" },\n',
+                '      { "name": "safeTxGas", "type": "uint256" },\n',
+                '      { "name": "baseGas", "type": "uint256" },\n',
+                '      { "name": "gasPrice", "type": "uint256" },\n',
+                '      { "name": "gasToken", "type": "address" },\n',
+                '      { "name": "refundReceiver", "type": "address" },\n',
+                '      { "name": "nonce", "type": "uint256" }\n',
+                "    ]\n",
+                "  },\n",
+                '  "primaryType": "SafeTx",\n',
+                '  "domain": {\n',
+                string.concat('    "chainId": ', vm.toString(chainId), ",\n"),
+                string.concat('    "verifyingContract": "', vm.toString(verifyingContract), '"\n'),
+                "  },\n",
+                '  "message": {\n',
+                string.concat('    "to": "', vm.toString(safeTx.to), '",\n'),
+                string.concat('    "value": ', vm.toString(safeTx.value), ",\n"),
+                string.concat('    "data": "', vm.toString(safeTx.data), '",\n'),
+                string.concat('    "operation": ', vm.toString(uint256(safeTx.operation)), ",\n"),
+                string.concat('    "safeTxGas": ', vm.toString(safeTx.safeTxGas), ",\n"),
+                string.concat('    "baseGas": ', vm.toString(safeTx.baseGas), ",\n"),
+                string.concat('    "gasPrice": ', vm.toString(safeTx.gasPrice), ",\n"),
+                string.concat('    "gasToken": "', vm.toString(safeTx.gasToken), '",\n'),
+                string.concat('    "refundReceiver": "', vm.toString(safeTx.refundReceiver), '",\n'),
+                string.concat('    "nonce": ', vm.toString(safeTx.nonce), "\n"),
+                "  }\n",
+                "}\n"
             )
         );
     }
