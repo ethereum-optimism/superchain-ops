@@ -65,7 +65,7 @@ simulate hdPath='0':
     --sender ${signer} \
     --sig "simulateRun(string)" ${config}
 
-sign hdPath='0' wallet='ledger':
+sign hdPath='0' ledger='true':
   #!/usr/bin/env bash
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
@@ -77,22 +77,15 @@ sign hdPath='0' wallet='ledger':
 
   echo "Using script ${script}"
   echo "getting signer address..."
-  if [ '{{wallet}}' = 'ledger' ]; then
+  if {{ledger}}; then
     hdpaths="m/44'/60'/{{hdPath}}'/0/0"
     signer=$(cast wallet address --ledger --mnemonic-derivation-path $hdpaths)
     signer_args="--ledger --hd-paths $hdpaths"
-  elif [ '{{wallet}}' = 'trezor' ]; then
-    hdpaths="m/44'/60'/{{hdPath}}'/0/0"
-    signer=$(cast wallet address --trezor --mnemonic-derivation-path $hdpaths)
-    signer_args="--trezor --hd-paths $hdpaths"
-  elif [ '{{wallet}}' = 'keystore' ]; then
+  else
     cd ${TASK_PATH}
     signer_private_key=$(just --justfile={{justfile()}} get-keystore-private-key)
     signer=$(cast wallet address --private-key ${signer_private_key})
     signer_args="--private-key ${signer_private_key}"
-  else
-    echo "Error: Invalid wallet option '{{wallet}}'. Supported options are 'ledger', 'keystore', 'trezor'." >&2
-    exit 1
   fi
   echo "Signing with: ${signer}"
 
@@ -107,26 +100,20 @@ sign hdPath='0' wallet='ledger':
     --rpc-url ${rpcUrl} \
     --sig "simulateRun(string)" ${config}
 
-execute hdPath='0' wallet='ledger':
+execute hdPath='0' ledger='true':
   #!/usr/bin/env bash
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
 
   echo "Using script ${script}"
-  if [ '{{wallet}}' = 'ledger' ]; then
+  if {{ledger}}; then
     sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
     signer_args="--ledger --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
-  elif [ '{{wallet}}' = 'trezor' ]; then
-    sender=$(cast wallet address --trezor --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-    signer_args="--trezor --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
-  elif [ '{{wallet}}' = 'keystore' ]; then
+  else
     cd ${TASK_PATH}
     signer_private_key=$(just --justfile={{justfile()}} get-keystore-private-key)
     sender=$(cast wallet address --private-key ${signer_private_key})
     signer_args="--private-key ${signer_private_key}"
-  else
-    echo "Error: Invalid wallet option '{{wallet}}'. Supported options are 'ledger', 'keystore', 'trezor'." >&2
-    exit 1
   fi
   echo "Executing with sender: ${sender}"
 
