@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
 
 contract EIP712 is Script {
-    function run() public {
+    function run() public pure {
         bytes memory data =
             hex"1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111";
         GnosisSafeHashes.SafeTransaction memory safeTx = GnosisSafeHashes.SafeTransaction({
