@@ -23,3 +23,611 @@ The normalized state diff hash MUST match the hash created by the state changes 
 As a signer, you are responsible for making sure this hash is correct. Please compare the hash below with the hash in the audit report.
 
 **Normalized hash:** `0xf21c08ee68df610b38634605eee5395ba375c61f84898dbc5e72a8697ed65610`
+
+## Task Transfers
+
+#### Decoded Transfer 0
+  - **From:**              [`0x16Fc5058F25648194471939df75CF27A2fdC48BC`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L59) (OP Sepolia OptimismPortal2)
+  - **To:**                `0xC38de74A8B0F6C671669cfB36e160548Fb4A0c05` (OP Sepolia ETHLockbox - newly deployed)
+  - **Value:**             `913121708389850874698556`
+  - **Token Address:**     `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` (ETH)
+
+#### Decoded Transfer 1
+  - **From:**              [`0x5c1d29C6c9C8b0800692acC95D700bcb4966A1d7`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L59) (Ink OptimismPortal2)
+  - **To:**                `0x636F1E307CAE86C0f93Ef7E1443A0Fcf01947b2c` (Ink ETHLockbox - newly deployed)
+  - **Value:**             `96495691258514667389802`
+  - **Token Address:**     `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` (ETH)
+
+## Task State Changes
+
+### [`0x034edd2a225f7f429a63e0f1d2084b9e0a93b538`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L60) (SystemConfig) - Chain ID: 11155420
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
+  - **Summary:** `reinitVersion` incremented from 1 to 2.
+
+- **Key:**          `0x000000000000000000000000000000000000000000000000000000000000006b`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000000aa37dc`
+  - **Summary:** `l2ChainId` set to 11155420.
+
+- **Key:**          `0x000000000000000000000000000000000000000000000000000000000000006c`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** [`0x000000000000000000000000c2be75506d5724086deb7245bd260cc9753911be`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L62)
+  - **Summary:** `superchainConfig` address added to SystemConfig.
+
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x340f923E5c7cbB2171146f64169EC9d5a9FfE647`
+  - **After:** `0xFaA660bf783CBAa55e1B7F3475C20Db74a53b9Fa`
+  - **Summary:** ERC-1967 implementation address updated to [`0xFaA660bf783CBAa55e1B7F3475C20Db74a53b9Fa`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L8).
+
+- **Key:**          `0x52322a25d9f59ea17656545543306b7aef62bc0cc53a0e65ccfa0c75b97aa906`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1`
+  - **After:** `0x0000000000000000000000000000000000000000`
+  - **Summary:** DisputeGameFactory proxy address is [deleted](https://github.com/ethereum-optimism/optimism/pull/14820) from the SystemConfig.
+
+  ---
+
+### [`0x05c993e60179f28bf649a2bb5b00b5f4283bd525`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L60) (SystemConfig) - Chain ID: 763373
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
+  - **Summary:** `reinitVersion` incremented from 1 to 2.
+
+- **Key:**          `0x000000000000000000000000000000000000000000000000000000000000006b`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x00000000000000000000000000000000000000000000000000000000000ba5ed`
+  - **Summary:** `l2ChainId` set to 763373.
+
+- **Key:**          `0x000000000000000000000000000000000000000000000000000000000000006c`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** [`0x000000000000000000000000c2be75506d5724086deb7245bd260cc9753911be`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L62)
+  - **Summary:** `superchainConfig` address added to SystemConfig.
+
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x340f923E5c7cbB2171146f64169EC9d5a9FfE647`
+  - **After:** [`0xFaA660bf783CBAa55e1B7F3475C20Db74a53b9Fa`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L8)
+  - **Summary:** ERC-1967 implementation address updated.
+
+- **Key:**          `0x52322a25d9f59ea17656545543306b7aef62bc0cc53a0e65ccfa0c75b97aa906`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x860e626c700AF381133D9f4aF31412A2d1DB3D5d`
+  - **After:** `0x0000000000000000000000000000000000000000`
+  - **Summary:** DisputeGameFactory proxy address is [deleted](https://github.com/ethereum-optimism/optimism/pull/14820) from the SystemConfig.
+
+  ---
+
+### `0x05f9613adb30026ffd634f38e5c4dfd30a197fa1` ([DisputeGameFactory](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L64)) - Chain ID: 11155420
+
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x4bbA758F006Ef09402eF31724203F316ab74e4a0`
+  - **After:** [`0x33D1e8571a85a538ed3D5A4d88f46C112383439D`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L16)
+  - **Summary:** ERC-1967 implementation slot updated upgraded to DisputeGameFactory v1.2.0
+
+- **Key:**          `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
+  - **Decoded Kind:** `gameImpls[1]` (FaultDisputeGame mapping)
+  - **Before:** `0x0000000000000000000000003dbfb370be95eb598c8b89b45d7c101dc1679ab9`
+  - **After:** `0x000000000000000000000000984819b8db68a36fa19bd0e86fa354ce49fca9b1` (newly deployed contract - FLAG for review)
+  - **Summary:** Updated FaultDisputeGame implementation for game type 1
+
+- **Key:**          `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
+  - **Decoded Kind:** `gameImpls[0]` (FaultDisputeGame mapping)
+  - **Before:** `0x00000000000000000000000038c2b9a214cdc3bbbc4915dae8c2f0a7917952dd`
+  - **After:** `0x00000000000000000000000092fe1d14575409dc6865e650452910c337d9be82` (newly deployed contract - FLAG for review)
+  - **Summary:** Updated FaultDisputeGame implementation for game type 0
+
+  ---
+
+### `0x16fc5058f25648194471939df75cf27a2fdc48bc` ([OptimismPortal2](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L59)) - Chain ID: 11155420
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
+  - **Summary:** Contract reinitialized during upgrade (_initialized incremented from 1 to 2)
+
+- **Key:**          `0x000000000000000000000000000000000000000000000000000000000000003e`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x000000000000000000000000a1cec548926eb5d69aa3b7b57d371edbdd03e64b` (newly deployed contract - FLAG for review)
+  - **Summary:** Previously unused storage gap slot now populated during upgrade
+
+- **Key:**          `0x000000000000000000000000000000000000000000000000000000000000003f`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x000000000000000000000000c38de74a8b0f6c671669cfb36e160548fb4a0c05` (newly deployed contract - FLAG for review)
+  - **Summary:** Previously unused storage gap slot now populated during upgrade
+
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:** `address`
+  - **Before:** `0xB443Da3e07052204A02d630a8933dAc05a0d6fB4`
+  - **After:** [`0xEFEd7F38BB9BE74bBa583a1A5B7D0fe7C9D5787a`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L12)
+  - **Summary:** ERC-1967 implementation slot updated upgraded to OptimismPortal2 v4.6.0
+
+  ---
+
+### `0x1e4578692cd39faad678f5d78b65b584b355bc69` (DelayedWETH Proxy - newly deployed for Ink chain)
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **Summary:** Initializer version incremented from 0 to 1 Contract initialized (_initialized set to 1)
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000004`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** [`0x00000000000000000000000005c993e60179f28bf649a2bb5b00b5f4283bd525`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L60)
+  - **Summary:** Configuration reference set to Ink chain SystemConfig
+
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x0000000000000000000000000000000000000000`
+  - **After:** [`0x33Dadc2d1aA9BB613A7AE6B28425eA00D44c6998`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L14)
+  - **Summary:** ERC-1967 implementation slot updated set to DelayedWETH v1.5.0
+
+- **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x0000000000000000000000000000000000000000`
+  - **After:** [`0xd7dB319a49362b2328cf417a934300cCcB442C8d`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L61)
+  - **Summary:** Proxy owner address set set to Ink chain ProxyAdmin
+
+  ---
+
+### `0x1eb2ffc903729a0f03966b917003800b145f56e2` ([ProxyAdminOwner (GnosisSafe)](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-config-roles-sepolia.toml#L3)) - Chain ID: 11155420
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Decoded Kind:** `uint256`
+  - **Before:** `30`
+  - **After:** `31`
+  - **Summary:** nonce incremented (transaction executed)
+
+  ---
+
+### `0x299d7ea9f0b584cfaf2a5341d151b44967594ca9` (AnchorStateRegistry Proxy - newly deployed for Ink chain)
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x0000000000000000000005c993e60179f28bf649a2bb5b00b5f4283bd5250001`
+  - **Summary:** Packed slot with superchainConfig ([`0x05c993e60179f28bf649a2bb5b00b5f4283bd525`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L60)) and _initialized=1
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x000000000000000000000000860e626c700af381133d9f4af31412a2d1db3d5d`
+  - **Summary:** disputeGameFactory set to [`0x860e626c700af381133d9f4af31412a2d1db3d5d`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L65) (DisputeGameFactoryProxy for Ink)
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000003`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x269d89e7b7e7fc214dee16c3eb62cde71e1b3797ae64f0c73defd4e051f6d26c`
+  - **Summary:** anchors mapping key set to specific anchor state hash (dispute game result) FLAG for review
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000004`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x00000000000000000000000000000000000000000000000000000000013b06c7`
+  - **Summary:** startingBlockNumber set to 1291975
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000006`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x0000000000000000000000000000000000000000000000006852c88800000000`
+  - **Summary:** retirementTimestamp set to 1737122952
+
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x0000000000000000000000000000000000000000`
+  - **After:** [`0xeb69cC681E8D4a557b30DFFBAd85aFfD47a2CF2E`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L13)
+  - **Summary:** ERC-1967 implementation slot updated set to AnchorStateRegistry v3.5.0
+
+- **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x0000000000000000000000000000000000000000`
+  - **After:** [`0xd7dB319a49362b2328cf417a934300cCcB442C8d`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L61)
+  - **Summary:** Proxy owner set to ProxyAdminOwner for Ink
+
+  ---
+
+### `0x33f60714bbd74d62b66d79213c348614de51901c` ([L1StandardBridgeProxy](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L57)) - Chain ID: 763373
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
+  - **Summary:** _initialized flag incremented from 1 to 2 (initialization completed)
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000034`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x00000000000000000000000005c993e60179f28bf649a2bb5b00b5f4283bd525`
+  - **Summary:** superchainConfig set to [`0x05c993e60179f28bf649a2bb5b00b5f4283bd525`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L60) (SystemConfigProxy for Ink)
+
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x0b09ba359A106C9ea3b181CBc5F394570c7d2a7A`
+  - **After:** [`0x44AfB7722AF276A601D524F429016A18B6923df0`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L20)
+  - **Summary:** ERC-1967 implementation upgraded to L1StandardBridge v2.6.0
+
+  ---
+
+### `0x3454f9df5e750f1383e58c1cb001401e7a4f3197` ([AddressManager](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L54)) - Chain ID: 763373
+
+- **Key:**          `0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e`
+  - **Before:** [`0x0000000000000000000000005d5a095665886119693f0b41d8dfee78da033e8b`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L38)
+  - **After:** [`0x000000000000000000000000d26bb3aaaa4cb5638a8581a4c4b1d937d8e05c54`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L18)
+  - **Summary:** L1CrossDomainMessenger implementation upgraded to v2.9.0
+
+  ---
+
+### `0x44c191ce5ce35131e703532af75fa9ca221e2398` (OP Contracts Manager) FLAG: needs to be updated with proper registry link
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **Summary:** paused flag set to false (contract unpaused)
+
+  ---
+
+### `0x58cc85b8d04ea49cc6dbd3cbffd00b4b8d6cb3ef` ([L1CrossDomainMessengerProxy](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L55)) - Chain ID: 11155420
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **Before:** `0x0000000000000000000000010000000000000000000000000000000000000000`
+  - **After:** `0x0000000000000000000000020000000000000000000000000000000000000000`
+  - **Summary:** _initialized flag incremented from 1 to 2 (initialization completed)
+
+- **Key:**          `0x00000000000000000000000000000000000000000000000000000000000000fe`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x000000000000000000000000034edd2a225f7f429a63e0f1d2084b9e0a93b538`
+  - **Summary:** systemConfig set to [`0x034edd2a225f7f429a63e0f1d2084b9e0a93b538`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L60) (SystemConfigProxy for OP)
+
+  ---
+
+### `0x5c1d29c6c9c8b0800692acc95d700bcb4966a1d7` ([OptimismPortalProxy](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L59)) - Chain ID: 763373
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
+  - **Summary:** Contract reinitialized during upgrade (_initialized incremented from 1 to 2)
+
+- **Key:**          `0x000000000000000000000000000000000000000000000000000000000000003e`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** [`0x000000000000000000000000299d7ea9f0b584cfaf2a5341d151b44967594ca9`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L66)
+  - **Summary:** `anchorStateRegistry` (slot 62) set to AnchorStateRegistryProxy for Ink
+
+- **Key:**          `0x000000000000000000000000000000000000000000000000000000000000003f`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x000000000000000000000000636f1e307cae86c0f93ef7e1443a0fcf01947b2c`
+  - **Summary:** systemConfig (slot 55) set to newly deployed ETHLockbox proxy `0x636f1e307cae86c0f93ef7e1443a0fcf01947b2c` FLAG for registry update
+
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:** `address`
+  - **Before:** `0xB443Da3e07052204A02d630a8933dAc05a0d6fB4`
+  - **After:** [`0xEFEd7F38BB9BE74bBa583a1A5B7D0fe7C9D5787a`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L12)
+  - **Summary:** ERC-1967 implementation upgraded to OptimismPortal v4.6.0
+
+  ---
+
+### `0x636f1e307cae86c0f93ef7e1443a0fcf01947b2c` (ETHLockbox Proxy - newly deployed contract) FLAG for registry update
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x0000000000000000000005c993e60179f28bf649a2bb5b00b5f4283bd5250001`
+  - **Summary:** Packed slot with systemConfig ([`0x05c993e60179f28bf649a2bb5b00b5f4283bd525`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L60)) and _initialized=1
+
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x0000000000000000000000000000000000000000`
+  - **After:** [`0x784d2F03593A42A6E4676A012762F18775ecbBe6`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L15)
+  - **Summary:** ERC-1967 implementation slot updated set to ETHLockbox v1.2.0
+
+- **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x0000000000000000000000000000000000000000`
+  - **After:** [`0xd7dB319a49362b2328cf417a934300cCcB442C8d`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L61)
+  - **Summary:** Proxy owner address set set to Ink chain ProxyAdmin
+
+- **Key:**          `0xea0b22f73ed4c3337cef1435de18103db664e6ae0b7570fc56ea0ff4b86cba57`
+  - **Decoded Kind:** `authorizedPortals[0x5c1d29c6c9c8b0800692acc95d700bcb4966a1d7]` (mapping)
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **Summary:** [`0x5c1d29c6c9c8b0800692acc95d700bcb4966a1d7`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L59) (OptimismPortalProxy for Ink) authorized in ETHLockbox authorizedPortals mapping
+
+  ---
+
+### [`0x860e626c700af381133d9f4af31412a2d1db3d5d`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L65) (DisputeGameFactory) - Chain ID: 763373
+
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x4bbA758F006Ef09402eF31724203F316ab74e4a0`
+  - **After:** [`0x33D1e8571a85a538ed3D5A4d88f46C112383439D`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L16)
+  - **Summary:** ERC-1967 implementation slot updated upgraded to DisputeGameFactory v1.2.0
+
+- **Key:**          `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
+  - **Decoded Kind:** `gameImpls[1]` (FaultDisputeGame mapping)
+  - **Before:** [`0x00000000000000000000000097766954baf17e3a2bfa43728830f0fa647f7546`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L68)
+  - **After:** `0x0000000000000000000000002e81b9f38b9cc2637536955dd6b22f2af1b8aa02` (newly deployed contract - FLAG for review)
+  - **Summary:** Updated FaultDisputeGame implementation for game type 1
+
+- **Key:**          `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
+  - **Decoded Kind:** `gameImpls[0]` (FaultDisputeGame mapping)
+  - **Before:** [`0x000000000000000000000000bd72dd2fb74a537b9b47b454614a15b066cc464a`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L66)
+  - **After:** `0x0000000000000000000000003c700af5be4ca23b9c2f8e39aab4a98d628ef883` (newly deployed contract - FLAG for review)
+  - **Summary:** Updated FaultDisputeGame implementation for game type 0
+
+  ---
+
+### `0x88403997654873cb54082a881f14fbe48dd68609` ([DelayedWETH](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L64))
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **Summary:** Initializer version incremented from 0 to 1 Initializer version incremented from 0 to 1
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000004`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** [`0x00000000000000000000000005c993e60179f28bf649a2bb5b00b5f4283bd525`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L60)
+  - **Summary:** SystemConfig address set to Ink chain SystemConfig
+
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x0000000000000000000000000000000000000000`
+  - **After:** [`0x33Dadc2d1aA9BB613A7AE6B28425eA00D44c6998`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L14)
+  - **Summary:** ERC-1967 implementation slot updated set to DelayedWETH v1.5.0
+
+- **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x0000000000000000000000000000000000000000`
+  - **After:** [`0xd7dB319a49362b2328cf417a934300cCcB442C8d`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L61)
+  - **Summary:** Proxy owner address set set to Ink ProxyAdmin
+
+  ---
+
+### [`0x9bfe9c5609311df1c011c47642253b78a4f33f4b`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L54) (AddressManager) - Chain ID: 11155420
+
+- **Key:**          `0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e`
+  - **Before:** [`0x0000000000000000000000005d5a095665886119693f0b41d8dfee78da033e8b`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L38)
+  - **After:** [`0x000000000000000000000000d26bb3aaaa4cb5638a8581a4c4b1d937d8e05c54`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L18)
+  - **Summary:** L1CrossDomainMessenger implementation updated from v2.6.0 to v2.9.0
+
+  ---
+
+### [`0x9fe1d3523f5342535e6e7770ed09ed85dbc1acc2`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L55) (L1CrossDomainMessenger) - Chain ID: 763373
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **Before:** `0x0000000000000000000000010000000000000000000000000000000000000000`
+  - **After:** `0x0000000000000000000000020000000000000000000000000000000000000000`
+  - **Summary:** Initializer version incremented from 1 to 2
+
+- **Key:**          `0x00000000000000000000000000000000000000000000000000000000000000fe`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** [`0x00000000000000000000000005c993e60179f28bf649a2bb5b00b5f4283bd525`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L60)
+  - **Summary:** SystemConfig address set to Ink chain SystemConfig
+
+  ---
+
+### `0xa1cec548926eb5d69aa3b7b57d371edbdd03e64b` ([AnchorStateRegistry](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L63))
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x00000000000000000000034edd2a225f7f429a63e0f1d2084b9e0a93b5380001`
+  - **Summary:** SystemConfig address set to [`0x034edd2a225f7f429a63e0f1d2084b9e0a93b538`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L60) and initializer version incremented to 1
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** [`0x00000000000000000000000005f9613adb30026ffd634f38e5c4dfd30a197fa1`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L64)
+  - **Summary:** DisputeGameFactory address set to OP Sepolia DisputeGameFactory
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000003`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0xe90c894a71b4599aafad8019a22925aa02b8cbe9f25376c3861b7cd6fafa40a4`
+  - **Summary:** Starting anchor root hash set for initial state
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000004`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000001b958a0`
+  - **Summary:** Starting anchor root L2 block number set to 28691616
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000006`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x0000000000000000000000000000000000000000000000006852c88800000000`
+  - **Summary:** Respected game type set to 0 with retirement timestamp 1736176264
+
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x0000000000000000000000000000000000000000`
+  - **After:** [`0xeb69cC681E8D4a557b30DFFBAd85aFfD47a2CF2E`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L13)
+  - **Summary:** ERC-1967 implementation slot updated set to AnchorStateRegistry v3.5.0
+
+- **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x0000000000000000000000000000000000000000`
+  - **After:** [`0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L61)
+  - **Summary:** Proxy owner address set set to OP Sepolia ProxyAdmin
+
+  ---
+
+### [`0xc2be75506d5724086deb7245bd260cc9753911be`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/superchain.toml#L5) (SuperchainConfig) - Chain ID: 11011
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **After:** `0x000000000000000000007a50f00e8d05b95f98fe38d8bee366a7324dcf7e0002`
+  - **Summary:** Guardian set to [`0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L47) and initializer version incremented to 2
+
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:** `address`
+  - **Before:** [`0x4da82a327773965b8d4D85Fa3dB8249b387458E7`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L43)
+  - **After:** [`0xCe28685EB204186b557133766eCA00334EB441E4`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L23)
+  - **Summary:** ERC-1967 implementation slot updated updated from SuperchainConfig v1.2.0 to v2.3.0
+
+- **Key:**          `0xd30e835d3f35624761057ff5b27d558f97bd5be034621e62240e5c0b784abe68`
+  - **Decoded Kind:** `address`
+  - **Before:** [`0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L47)
+  - **After:** `0x0000000000000000000000000000000000000000`
+  - **Summary:** Guardian address cleared from pause timestamps mapping
+
+  ---
+
+### `0xc350c54c484ac9111fc61c247580abcc5fcc365f` ([DelayedWETH](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L63))
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **Summary:** Initializer version incremented from 0 to 1
+
+
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000004`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** [`0x000000000000000000000000034edd2a225f7f429a63e0f1d2084b9e0a93b538`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L60)
+  - **Summary:** SystemConfig address set to OP Sepolia SystemConfig
+
+
+
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x0000000000000000000000000000000000000000`
+  - **After:** [`0x33Dadc2d1aA9BB613A7AE6B28425eA00D44c6998`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L14)
+  - **Summary:** ERC-1967 implementation slot updated
+
+
+- **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x0000000000000000000000000000000000000000`
+  - **After:** [`0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L61)
+  - **Summary:** Proxy owner address set
+
+
+  ---
+
+### `0xc38de74a8b0f6c671669cfb36e160548fb4a0c05` ([ETHLockbox](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L115))
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x00000000000000000000034edd2a225f7f429a63e0f1d2084b9e0a93b5380001`
+  - **Summary:** SystemConfig address set to [`0x034edd2a225f7f429a63e0f1d2084b9e0a93b538`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L60) and initializer version incremented to 1
+
+
+
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x0000000000000000000000000000000000000000`
+  - **After:** [`0x784d2F03593A42A6E4676A012762F18775ecbBe6`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L15)
+  - **Summary:** ERC-1967 implementation slot updated
+
+
+- **Key:**          `0x5ebb8b440881cb51b1c7cd664fb2730eb6b54aa75b0ba6e2be9b5aad1c9a869b`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **Summary:** ETH authorization state initialized
+
+
+
+- **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x0000000000000000000000000000000000000000`
+  - **After:** [`0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L61)
+  - **Summary:** Proxy owner address set
+
+
+  ---
+
+### [`0xd1c901bbd7796546a7ba2492e0e199911fae68c7`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L56) (L1ERC721Bridge) - Chain ID: 763373
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
+  - **Summary:** Initializer version incremented from 1 to 2
+
+
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000033`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** [`0x00000000000000000000000005c993e60179f28bf649a2bb5b00b5f4283bd525`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L60)
+  - **Summary:** SystemConfig address set to Ink chain SystemConfig
+
+
+
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x7aE1d3BD877a4C5CA257404ce26BE93A02C98013`
+  - **After:** [`0x25d6CeDEB277Ad7ebEe71226eD7877768E0B7A2F`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L19)
+  - **Summary:** ERC-1967 implementation slot updated
+
+
+  ---
+
+### [`0xd83e03d576d23c9aeab8cc44fa98d058d2176d1f`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L56) (L1ERC721Bridge) - Chain ID: 11155420
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
+  - **Summary:** Initializer version incremented from 1 to 2
+
+
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000033`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** [`0x000000000000000000000000034edd2a225f7f429a63e0f1d2084b9e0a93b538`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L60)
+  - **Summary:** SystemConfig address set to OP Sepolia SystemConfig
+
+
+
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x7aE1d3BD877a4C5CA257404ce26BE93A02C98013`
+  - **After:** [`0x25d6CeDEB277Ad7ebEe71226eD7877768E0B7A2F`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L19)
+  - **Summary:** ERC-1967 implementation slot updated
+
+
+  ---
+
+### `0xf8d7b42e1ad39f0e321cf8bf913e0e4cd1c1f571` ([DelayedWETH](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L63))
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **Summary:** Initializer version incremented from 0 to 1
+
+
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000004`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** [`0x000000000000000000000000034edd2a225f7f429a63e0f1d2084b9e0a93b538`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L60)
+  - **Summary:** SystemConfig address set to OP Sepolia SystemConfig
+
+
+
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x0000000000000000000000000000000000000000`
+  - **After:** [`0x33Dadc2d1aA9BB613A7AE6B28425eA00D44c6998`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L14)
+  - **Summary:** ERC-1967 implementation slot updated
+
+
+- **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x0000000000000000000000000000000000000000`
+  - **After:** [`0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L61)
+  - **Summary:** Proxy owner address set
+
+
+  ---
+
+### [`0xfbb0621e0b23b5478b630bd55a5f21f67730b0f1`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L57) (L1StandardBridge) - Chain ID: 11155420
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
+  - **Summary:** Initializer version incremented from 1 to 2
+
+
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000034`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** [`0x000000000000000000000000034edd2a225f7f429a63e0f1d2084b9e0a93b538`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L60)
+  - **Summary:** SystemConfig address set to OP Sepolia SystemConfig
+
+
+
+- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+  - **Decoded Kind:** `address`
+  - **Before:** `0x0b09ba359A106C9ea3b181CBc5F394570c7d2a7A`
+  - **After:** [`0x44AfB7722AF276A601D524F429016A18B6923df0`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L20)
+  - **Summary:** ERC-1967 implementation slot updated
+
