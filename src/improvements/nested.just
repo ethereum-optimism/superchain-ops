@@ -108,8 +108,9 @@ approve whichSafe hdPath='0' ledger='true':
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
   if {{ledger}}; then
+    hdpaths="m/44'/60'/{{hdPath}}'/0/0"
     sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-    signer_args="--ledger --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
+    signer_args="--ledger --hd-paths $hdpaths"
   else
     cd ${TASK_PATH}
     signer_private_key=$(just --justfile=${JUSTFILE_PATH} get-keystore-private-key)
@@ -186,8 +187,9 @@ execute hdPath='0' ledger='true':
 
   echo "Using script ${script}"
   if {{ledger}}; then
+    hdpaths="m/44'/60'/{{hdPath}}'/0/0"
     sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-    signer_args="--ledger --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
+    signer_args="--ledger --hd-paths $hdpaths"
   else
     cd ${TASK_PATH}
     signer_private_key=$(just --justfile=${JUSTFILE_PATH} get-keystore-private-key)

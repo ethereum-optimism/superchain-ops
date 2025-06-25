@@ -107,8 +107,9 @@ execute hdPath='0' ledger='true':
 
   echo "Using script ${script}"
   if {{ledger}}; then
+    hdpaths="m/44'/60'/{{hdPath}}'/0/0"
     sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-    signer_args="--ledger --hd-paths \"m/44'/60'/{{hdPath}}'/0/0\""
+    signer_args="--ledger --hd-paths $hdpaths"
   else
     cd ${TASK_PATH}
     signer_private_key=$(just --justfile={{justfile()}} get-keystore-private-key)
