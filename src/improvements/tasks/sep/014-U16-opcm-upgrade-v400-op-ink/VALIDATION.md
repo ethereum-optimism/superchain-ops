@@ -214,12 +214,12 @@ As a signer, you are responsible for making sure this hash is correct. Please co
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000004`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x00000000000000000000000000000000000000000000000000000000013b06c7`
-  - **Summary:** startingBlockNumber set to 1291975
+  - **Summary:** startingBlockNumber set.
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000006`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x0000000000000000000000000000000000000000000000006852c88800000000`
-  - **Summary:** retirementTimestamp set to 1737122952
+  - **Summary:** retirementTimestamp set.
 
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
@@ -421,12 +421,12 @@ As a signer, you are responsible for making sure this hash is correct. Please co
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000004`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000001b958a0`
-  - **Summary:** Starting anchor root L2 block number set to 28691616
+  - **Summary:** Starting anchor root L2 block number set
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000006`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x0000000000000000000000000000000000000000000000006852c88800000000`
-  - **Summary:** Respected game type set to 0 with retirement timestamp 1736176264
+  - **Summary:** Respected game type set to 0 with retirement timestamp
 
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
@@ -470,14 +470,10 @@ As a signer, you are responsible for making sure this hash is correct. Please co
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Summary:** Initializer version incremented from 0 to 1
 
-
-
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000004`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** [`0x000000000000000000000000034edd2a225f7f429a63e0f1d2084b9e0a93b538`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L60)
   - **Summary:** SystemConfig address set to OP Sepolia SystemConfig
-
-
 
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
@@ -485,13 +481,11 @@ As a signer, you are responsible for making sure this hash is correct. Please co
   - **After:** [`0x33Dadc2d1aA9BB613A7AE6B28425eA00D44c6998`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L14)
   - **Summary:** ERC-1967 implementation slot updated
 
-
 - **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
   - **Decoded Kind:** `address`
   - **Before:** `0x0000000000000000000000000000000000000000`
   - **After:** [`0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L61)
   - **Summary:** Proxy owner address set
-
 
   ---
 
@@ -502,21 +496,16 @@ As a signer, you are responsible for making sure this hash is correct. Please co
   - **After:** `0x00000000000000000000034edd2a225f7f429a63e0f1d2084b9e0a93b5380001`
   - **Summary:** SystemConfig address set to [`0x034edd2a225f7f429a63e0f1d2084b9e0a93b538`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L60) and initializer version incremented to 1
 
-
-
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
   - **Before:** `0x0000000000000000000000000000000000000000`
   - **After:** [`0x784d2F03593A42A6E4676A012762F18775ecbBe6`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L15)
   - **Summary:** ERC-1967 implementation slot updated
 
-
 - **Key:**          `0x5ebb8b440881cb51b1c7cd664fb2730eb6b54aa75b0ba6e2be9b5aad1c9a869b`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Summary:** ETH authorization state initialized
-
-
 
 - **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
   - **Decoded Kind:** `address`
@@ -534,21 +523,16 @@ As a signer, you are responsible for making sure this hash is correct. Please co
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
   - **Summary:** Initializer version incremented from 1 to 2
 
-
-
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000033`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** [`0x00000000000000000000000005c993e60179f28bf649a2bb5b00b5f4283bd525`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L60)
   - **Summary:** SystemConfig address set to Ink chain SystemConfig
-
-
 
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
   - **Before:** `0x7aE1d3BD877a4C5CA257404ce26BE93A02C98013`
   - **After:** [`0x25d6CeDEB277Ad7ebEe71226eD7877768E0B7A2F`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L19)
   - **Summary:** ERC-1967 implementation slot updated
-
 
   ---
 
@@ -559,13 +543,10 @@ As a signer, you are responsible for making sure this hash is correct. Please co
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
   - **Summary:** Initializer version incremented from 1 to 2
 
-
-
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000033`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** [`0x000000000000000000000000034edd2a225f7f429a63e0f1d2084b9e0a93b538`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L60)
   - **Summary:** SystemConfig address set to OP Sepolia SystemConfig
-
 
 
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
@@ -584,14 +565,10 @@ As a signer, you are responsible for making sure this hash is correct. Please co
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Summary:** Initializer version incremented from 0 to 1
 
-
-
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000004`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** [`0x000000000000000000000000034edd2a225f7f429a63e0f1d2084b9e0a93b538`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L60)
   - **Summary:** SystemConfig address set to OP Sepolia SystemConfig
-
-
 
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
@@ -599,13 +576,11 @@ As a signer, you are responsible for making sure this hash is correct. Please co
   - **After:** [`0x33Dadc2d1aA9BB613A7AE6B28425eA00D44c6998`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L14)
   - **Summary:** ERC-1967 implementation slot updated
 
-
 - **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
   - **Decoded Kind:** `address`
   - **Before:** `0x0000000000000000000000000000000000000000`
   - **After:** [`0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L61)
   - **Summary:** Proxy owner address set
-
 
   ---
 
@@ -616,14 +591,10 @@ As a signer, you are responsible for making sure this hash is correct. Please co
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
   - **Summary:** Initializer version incremented from 1 to 2
 
-
-
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000034`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** [`0x000000000000000000000000034edd2a225f7f429a63e0f1d2084b9e0a93b538`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L60)
   - **Summary:** SystemConfig address set to OP Sepolia SystemConfig
-
-
 
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
