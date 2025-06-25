@@ -163,7 +163,7 @@ contract SingleMultisigTaskTest is Test {
 
         (, bytes memory rootSafeCalldata, uint256 rootSafeNonce) = Utils.getSafeData(payload, payload.safes.length - 1);
 
-        bytes memory dataToSign = multisigTask.getEncodedTransactionData(
+        bytes memory dataToSign = GnosisSafeHashes.getEncodedTransactionData(
             multisigTask.root(), rootSafeCalldata, 0, rootSafeNonce, MULTICALL3_ADDRESS
         );
 

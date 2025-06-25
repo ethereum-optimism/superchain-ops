@@ -162,7 +162,7 @@ contract GnosisSafeHashes_Test is Test {
     /// Test to make sure the opinionated nature of getEncodedTransactionData remains.
     /// This function is specifically designed to be opinionated and work with MultisigTask.sol.
     function testGetEncodedTransactionDataAndExecCalldata() public {
-        vm.createSelectFork("mainnet");
+        vm.createSelectFork("mainnet", 22696253); // Expected encoded data will be reproducible at this block.
         address safe = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A; // Use a real GnosisSafe address.
         bytes32 hash = keccak256("txHash");
         bytes memory data = abi.encodeWithSelector(bytes4(keccak256("approveHash(bytes32)")), hash);
