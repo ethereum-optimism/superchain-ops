@@ -113,13 +113,13 @@ As a signer, you are responsible for making sure this hash is correct. Please co
 - **Key:**          `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
   - **Decoded Kind:** `gameImpls[1]` (FaultDisputeGame mapping)
   - **Before:** `0x0000000000000000000000003dbfb370be95eb598c8b89b45d7c101dc1679ab9`
-  - **After:** `0x000000000000000000000000984819b8db68a36fa19bd0e86fa354ce49fca9b1` (newly deployed contract)
+  - **After:** `0x000000000000000000000000af5d8df055ff00a51fae4bc141182fbd65225f27` (newly deployed contract)
   - **Summary:** Updated FaultDisputeGame implementation for game type 1
 
 - **Key:**          `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
   - **Decoded Kind:** `gameImpls[0]` (FaultDisputeGame mapping)
   - **Before:** `0x00000000000000000000000038c2b9a214cdc3bbbc4915dae8c2f0a7917952dd`
-  - **After:** `0x00000000000000000000000092fe1d14575409dc6865e650452910c337d9be82` (newly deployed contract)
+  - **After:** `0x0000000000000000000000000cd0bcdba5978d4e0258e23abbd5216a36a2177c` (newly deployed contract)
   - **Summary:** Updated FaultDisputeGame implementation for game type 0
 
   ---
@@ -341,13 +341,13 @@ As a signer, you are responsible for making sure this hash is correct. Please co
 - **Key:**          `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
   - **Decoded Kind:** `gameImpls[1]` (FaultDisputeGame mapping)
   - **Before:** [`0x00000000000000000000000097766954baf17e3a2bfa43728830f0fa647f7546`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L68)
-  - **After:** `0x0000000000000000000000002e81b9f38b9cc2637536955dd6b22f2af1b8aa02` (newly deployed contract)
+  - **After:** `0x000000000000000000000000d1195498324cff527e17b725f2f5c49e86585128` (newly deployed contract)
   - **Summary:** Updated FaultDisputeGame implementation for game type 1
 
 - **Key:**          `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
   - **Decoded Kind:** `gameImpls[0]` (FaultDisputeGame mapping)
   - **Before:** [`0x000000000000000000000000bd72dd2fb74a537b9b47b454614a15b066cc464a`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L66)
-  - **After:** `0x0000000000000000000000003c700af5be4ca23b9c2f8e39aab4a98d628ef883` (newly deployed contract)
+  - **After:** `0x0000000000000000000000001248811b4d2c8eea7c8a7f8e3702bc2c47eb1672` (newly deployed contract)
   - **Summary:** Updated FaultDisputeGame implementation for game type 0
 
   ---
