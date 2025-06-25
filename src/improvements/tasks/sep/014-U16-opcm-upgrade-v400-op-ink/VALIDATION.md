@@ -113,13 +113,13 @@ As a signer, you are responsible for making sure this hash is correct. Please co
 - **Key:**          `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
   - **Decoded Kind:** `gameImpls[1]` (FaultDisputeGame mapping)
   - **Before:** `0x0000000000000000000000003dbfb370be95eb598c8b89b45d7c101dc1679ab9`
-  - **After:** `0x000000000000000000000000984819b8db68a36fa19bd0e86fa354ce49fca9b1` (newly deployed contract - FLAG for review)
+  - **After:** `0x000000000000000000000000984819b8db68a36fa19bd0e86fa354ce49fca9b1` (newly deployed contract)
   - **Summary:** Updated FaultDisputeGame implementation for game type 1
 
 - **Key:**          `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
   - **Decoded Kind:** `gameImpls[0]` (FaultDisputeGame mapping)
   - **Before:** `0x00000000000000000000000038c2b9a214cdc3bbbc4915dae8c2f0a7917952dd`
-  - **After:** `0x00000000000000000000000092fe1d14575409dc6865e650452910c337d9be82` (newly deployed contract - FLAG for review)
+  - **After:** `0x00000000000000000000000092fe1d14575409dc6865e650452910c337d9be82` (newly deployed contract)
   - **Summary:** Updated FaultDisputeGame implementation for game type 0
 
   ---
@@ -133,12 +133,12 @@ As a signer, you are responsible for making sure this hash is correct. Please co
 
 - **Key:**          `0x000000000000000000000000000000000000000000000000000000000000003e`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
-  - **After:** `0x000000000000000000000000a1cec548926eb5d69aa3b7b57d371edbdd03e64b` (newly deployed contract - FLAG for review)
+  - **After:** `0x000000000000000000000000a1cec548926eb5d69aa3b7b57d371edbdd03e64b` (newly deployed contract)
   - **Summary:** Previously unused storage gap slot now populated during upgrade
 
 - **Key:**          `0x000000000000000000000000000000000000000000000000000000000000003f`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
-  - **After:** `0x000000000000000000000000c38de74a8b0f6c671669cfb36e160548fb4a0c05` (newly deployed contract - FLAG for review)
+  - **After:** `0x000000000000000000000000c38de74a8b0f6c671669cfb36e160548fb4a0c05` (newly deployed contract)
   - **Summary:** Previously unused storage gap slot now populated during upgrade
 
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
@@ -146,6 +146,15 @@ As a signer, you are responsible for making sure this hash is correct. Please co
   - **Before:** `0xB443Da3e07052204A02d630a8933dAc05a0d6fB4`
   - **After:** [`0xEFEd7F38BB9BE74bBa583a1A5B7D0fe7C9D5787a`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L12)
   - **Summary:** ERC-1967 implementation slot updated upgraded to OptimismPortal2 v4.6.0
+
+  ---
+
+### `0x1ac76f0833bbfccc732cadcc3ba8a3bbd0e89c3d` ([OPContractsManager](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/validation/standard/standard-versions-sepolia.toml#L42))
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **Summary:** isRC flag set to false
 
   ---
 
@@ -200,7 +209,7 @@ As a signer, you are responsible for making sure this hash is correct. Please co
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000003`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x269d89e7b7e7fc214dee16c3eb62cde71e1b3797ae64f0c73defd4e051f6d26c`
-  - **Summary:** anchors mapping key set to specific anchor state hash (dispute game result) FLAG for review
+  - **Summary:** anchor state mapping key set to specific anchor state hash (dispute game result)
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000004`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -255,15 +264,6 @@ As a signer, you are responsible for making sure this hash is correct. Please co
 
   ---
 
-### `0x44c191ce5ce35131e703532af75fa9ca221e2398` (OP Contracts Manager) FLAG: needs to be updated with proper registry link
-
-- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000001`
-  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
-  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000000`
-  - **Summary:** paused flag set to false (contract unpaused)
-
-  ---
-
 ### `0x58cc85b8d04ea49cc6dbd3cbffd00b4b8d6cb3ef` ([L1CrossDomainMessengerProxy](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L55)) - Chain ID: 11155420
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -293,7 +293,7 @@ As a signer, you are responsible for making sure this hash is correct. Please co
 - **Key:**          `0x000000000000000000000000000000000000000000000000000000000000003f`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x000000000000000000000000636f1e307cae86c0f93ef7e1443a0fcf01947b2c`
-  - **Summary:** systemConfig (slot 55) set to newly deployed ETHLockbox proxy `0x636f1e307cae86c0f93ef7e1443a0fcf01947b2c` FLAG for registry update
+  - **Summary:** systemConfig (slot 55) set to newly deployed ETHLockbox proxy `0x636f1e307cae86c0f93ef7e1443a0fcf01947b2c`
 
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
@@ -303,7 +303,7 @@ As a signer, you are responsible for making sure this hash is correct. Please co
 
   ---
 
-### `0x636f1e307cae86c0f93ef7e1443a0fcf01947b2c` (ETHLockbox Proxy - newly deployed contract) FLAG for registry update
+### `0x636f1e307cae86c0f93ef7e1443a0fcf01947b2c` (ETHLockbox Proxy - newly deployed contract)
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -341,13 +341,13 @@ As a signer, you are responsible for making sure this hash is correct. Please co
 - **Key:**          `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
   - **Decoded Kind:** `gameImpls[1]` (FaultDisputeGame mapping)
   - **Before:** [`0x00000000000000000000000097766954baf17e3a2bfa43728830f0fa647f7546`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L68)
-  - **After:** `0x0000000000000000000000002e81b9f38b9cc2637536955dd6b22f2af1b8aa02` (newly deployed contract - FLAG for review)
+  - **After:** `0x0000000000000000000000002e81b9f38b9cc2637536955dd6b22f2af1b8aa02` (newly deployed contract)
   - **Summary:** Updated FaultDisputeGame implementation for game type 1
 
 - **Key:**          `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
   - **Decoded Kind:** `gameImpls[0]` (FaultDisputeGame mapping)
   - **Before:** [`0x000000000000000000000000bd72dd2fb74a537b9b47b454614a15b066cc464a`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L66)
-  - **After:** `0x0000000000000000000000003c700af5be4ca23b9c2f8e39aab4a98d628ef883` (newly deployed contract - FLAG for review)
+  - **After:** `0x0000000000000000000000003c700af5be4ca23b9c2f8e39aab4a98d628ef883` (newly deployed contract)
   - **Summary:** Updated FaultDisputeGame implementation for game type 0
 
   ---
