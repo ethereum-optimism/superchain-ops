@@ -67,3 +67,11 @@ struct TaskConfig {
     bool isNested;
     address task; // MultisigTask address
 }
+
+/// @notice This struct contains all the data needed to execute a task.
+/// All safes involved in the task must be represented in this struct.
+struct TaskPayload {
+    address[] safes;
+    bytes[] calldatas;
+    uint256[] originalNonces;
+}

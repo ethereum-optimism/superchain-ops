@@ -16,6 +16,9 @@ import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegis
 import {GasConfigTemplate} from "test/tasks/mock/template/GasConfigTemplate.sol";
 import {IncorrectGasConfigTemplate1} from "test/tasks/mock/template/IncorrectGasConfigTemplate1.sol";
 import {IncorrectGasConfigTemplate2} from "test/tasks/mock/template/IncorrectGasConfigTemplate2.sol";
+import {MultisigTaskTestHelper} from "test/tasks/MultisigTask.t.sol";
+import {Utils} from "src/libraries/Utils.sol";
+import {TaskPayload} from "src/libraries/MultisigTypes.sol";
 
 contract SingleMultisigTaskTest is Test {
     struct MultiSigOwner {
@@ -42,7 +45,7 @@ contract SingleMultisigTaskTest is Test {
 
     function runTask() public returns (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) {
         multisigTask = new GasConfigTemplate();
-        (accountAccesses, actions,,) = multisigTask.simulateRun(taskConfigFilePath);
+        (accountAccesses, actions,,) = multisigTask.simulate(taskConfigFilePath);
     }
 
     function toSuperchainAddrRegistry(AddressRegistry _addrRegistry)
@@ -55,7 +58,7 @@ contract SingleMultisigTaskTest is Test {
 
     function testTemplateSetup() public {
         runTask();
-        assertEq(multisigTask.isNestedSafe(multisigTask.parentMultisig()), false, "Expected isNestedSafe to be false");
+        assertEq(multisigTask.isNestedSafe(multisigTask.root()), false, "Expected isNestedSafe to be false");
         assertEq(GasConfigTemplate(address(multisigTask)).gasLimits(34443), 100000000, "Expected gas limit for 34443");
         assertEq(GasConfigTemplate(address(multisigTask)).gasLimits(1750), 100000000, "Expected gas limit for 1750");
     }
@@ -64,16 +67,16 @@ contract SingleMultisigTaskTest is Test {
         runTask();
         addrRegistry = multisigTask.addrRegistry();
         assertEq(
-            multisigTask.parentMultisig(),
+            multisigTask.root(),
             toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigOwner", 34443),
             "Wrong safe address string"
         );
         assertEq(
-            multisigTask.parentMultisig(),
+            multisigTask.root(),
             toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigOwner", 1750),
             "Wrong safe address string"
         );
-        assertEq(multisigTask.isNestedSafe(multisigTask.parentMultisig()), false, "Expected isNestedSafe to be false");
+        assertEq(multisigTask.isNestedSafe(multisigTask.root()), false, "Expected isNestedSafe to be false");
     }
 
     function testAllowedStorageWrites() public {
@@ -100,7 +103,7 @@ contract SingleMultisigTaskTest is Test {
         vm.expectRevert("No actions found");
         localMultisigTask.processTaskActions(actions);
 
-        (accountAccesses, actions,,) = localMultisigTask.simulateRun(taskConfigFilePath);
+        (accountAccesses, actions,,) = localMultisigTask.simulate(taskConfigFilePath);
 
         addrRegistry = localMultisigTask.addrRegistry();
 
@@ -126,14 +129,11 @@ contract SingleMultisigTaskTest is Test {
         assertEq(arguments[1], abi.encodeWithSignature("setGasLimit(uint64)", uint64(100000000)), "Wrong calldata");
     }
 
-    function testGetCallData() public {
+    function testGetRootSafeCallData() public {
         (, Action[] memory actions) = runTask();
-
         (address[] memory targets, uint256[] memory values, bytes[] memory arguments) =
             multisigTask.processTaskActions(actions);
-
         IMulticall3.Call3Value[] memory calls = new IMulticall3.Call3Value[](targets.length);
-
         for (uint256 i = 0; i < targets.length; i++) {
             calls[i] = IMulticall3.Call3Value({
                 target: targets[i],
@@ -142,52 +142,68 @@ contract SingleMultisigTaskTest is Test {
                 callData: arguments[i]
             });
         }
-
         bytes memory expectedCallData =
             abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
 
-        bytes memory callData = multisigTask.getMulticall3Calldata(actions);
-        assertEq(callData, expectedCallData, "Wrong calldata");
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(multisigTask.root());
+        uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
+        bytes[] memory allCalldatas = multisigTask.transactionDatas(actions, allSafes, allOriginalNonces);
+        bytes memory rootSafeCallData = allCalldatas[allCalldatas.length - 1];
+        assertEq(rootSafeCallData, expectedCallData, "Wrong calldata");
     }
 
     function testGetDataToSign() public {
         (, Action[] memory actions) = runTask();
         addrRegistry = multisigTask.addrRegistry();
-        bytes memory callData = multisigTask.getMulticall3Calldata(actions);
-        bytes memory dataToSign = multisigTask.getEncodedTransactionData(multisigTask.parentMultisig(), callData);
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(multisigTask.root());
+        uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
+        bytes[] memory allCalldatas = multisigTask.transactionDatas(actions, allSafes, allOriginalNonces);
+        TaskPayload memory payload =
+            TaskPayload({safes: allSafes, calldatas: allCalldatas, originalNonces: allOriginalNonces});
 
-        // The nonce is decremented by 1 because we want to recreate the data to sign with the same nonce
-        // that was used in the simulation. The nonce was incremented as part of running the simulation.
-        bytes memory expectedDataToSign = IGnosisSafe(multisigTask.parentMultisig()).encodeTransactionData({
+        (, bytes memory rootSafeCalldata, uint256 rootSafeNonce) = Utils.getSafeData(payload, payload.safes.length - 1);
+
+        bytes memory dataToSign =
+            multisigTask.getEncodedTransactionData(multisigTask.root(), rootSafeCalldata, 0, rootSafeNonce, allSafes);
+
+        bytes memory expectedDataToSign = IGnosisSafe(multisigTask.root()).encodeTransactionData({
             to: MULTICALL3_ADDRESS,
             value: 0,
-            data: callData,
+            data: rootSafeCalldata,
             operation: Enum.Operation.DelegateCall,
             safeTxGas: 0,
             baseGas: 0,
             gasPrice: 0,
             gasToken: address(0),
             refundReceiver: address(0),
-            _nonce: IGnosisSafe(multisigTask.parentMultisig()).nonce() - 1
+            _nonce: rootSafeNonce
         });
         assertEq(dataToSign, expectedDataToSign, "Wrong data to sign");
     }
 
     function testHashToApprove() public {
         (, Action[] memory actions) = runTask();
-        bytes memory callData = multisigTask.getMulticall3Calldata(actions);
-        bytes32 hash = multisigTask.getHash(callData, multisigTask.parentMultisig());
-        bytes32 expectedHash = IGnosisSafe(multisigTask.parentMultisig()).getTransactionHash(
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(multisigTask.root());
+        uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
+        bytes[] memory allCalldatas = multisigTask.transactionDatas(actions, allSafes, allOriginalNonces);
+        TaskPayload memory payload =
+            TaskPayload({safes: allSafes, calldatas: allCalldatas, originalNonces: allOriginalNonces});
+
+        (address rootSafe, bytes memory rootSafeCalldata, uint256 rootSafeNonce) =
+            Utils.getSafeData(payload, payload.safes.length - 1);
+
+        bytes32 hash = multisigTask.getHash(rootSafeCalldata, rootSafe, 0, rootSafeNonce, allSafes);
+        bytes32 expectedHash = IGnosisSafe(multisigTask.root()).getTransactionHash(
             MULTICALL3_ADDRESS,
             0,
-            callData,
+            rootSafeCalldata,
             Enum.Operation.DelegateCall,
             0,
             0,
             0,
             address(0),
             address(0),
-            IGnosisSafe(multisigTask.parentMultisig()).nonce() - 1
+            rootSafeNonce
         );
         assertEq(hash, expectedHash, "Wrong hash to approve");
     }
@@ -195,14 +211,14 @@ contract SingleMultisigTaskTest is Test {
     function testRevertIfReInitialised() public {
         runTask();
         vm.expectRevert("MultisigTask: already initialized");
-        multisigTask.simulateRun(taskConfigFilePath);
+        multisigTask.simulate(taskConfigFilePath);
     }
 
     function testRevertIfUnsupportedChain() public {
         vm.chainId(10);
         MultisigTask localMultisigTask = new GasConfigTemplate();
         vm.expectRevert("SuperchainAddressRegistry: Unsupported task chain ID 10");
-        localMultisigTask.simulateRun(taskConfigFilePath);
+        localMultisigTask.simulate(taskConfigFilePath);
     }
 
     function testRevertIfDifferentL2SafeAddresses() public {
@@ -218,7 +234,7 @@ contract SingleMultisigTaskTest is Test {
             )
         );
         vm.expectRevert(expectedRevertMessage);
-        localMultisigTask.simulateRun(incorrectTaskConfigFilePath);
+        localMultisigTask.simulate(incorrectTaskConfigFilePath);
     }
 
     function testRevertIfIncorrectAllowedStorageWrite() public {
@@ -232,7 +248,7 @@ contract SingleMultisigTaskTest is Test {
             )
         );
         vm.expectRevert(expectedRevertMessage);
-        localMultisigTask.simulateRun(taskConfigFilePath);
+        localMultisigTask.simulate(taskConfigFilePath);
     }
 
     function testRevertIfAllowedStorageNotWritten() public {
@@ -246,7 +262,7 @@ contract SingleMultisigTaskTest is Test {
             )
         );
         vm.expectRevert(expectedRevertMessage);
-        localMultisigTask.simulateRun(taskConfigFilePath);
+        localMultisigTask.simulate(taskConfigFilePath);
     }
 
     function testExecuteWithSignatures() public {
@@ -254,9 +270,19 @@ contract SingleMultisigTaskTest is Test {
         (, Action[] memory actions) = runTask();
         addrRegistry = multisigTask.addrRegistry();
         multisigTask.processTaskActions(actions);
-        bytes memory callData = multisigTask.getMulticall3Calldata(actions);
-        bytes memory dataToSign = multisigTask.getEncodedTransactionData(multisigTask.parentMultisig(), callData);
-        address multisig = multisigTask.parentMultisig();
+
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(multisigTask.root());
+        uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
+        bytes[] memory allCalldatas = multisigTask.transactionDatas(actions, allSafes, allOriginalNonces);
+        TaskPayload memory payload =
+            TaskPayload({safes: allSafes, calldatas: allCalldatas, originalNonces: allOriginalNonces});
+
+        (address rootSafe, bytes memory rootSafeCalldata, uint256 rootSafeNonce) =
+            Utils.getSafeData(payload, payload.safes.length - 1);
+        rootSafeNonce = rootSafeNonce - 1; // The task has already run so we decrement the nonce by 1.
+
+        bytes memory dataToSign =
+            multisigTask.getEncodedTransactionData(multisigTask.root(), rootSafeCalldata, 0, rootSafeNonce, allSafes);
         address systemConfigMode = toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigProxy", 34443);
         address systemConfigMetal = toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigProxy", 1750);
         // revert to snapshot so that the safe is in the same state as before the task was run
@@ -288,28 +314,28 @@ contract SingleMultisigTaskTest is Test {
                 // 2 is the slot for the owners mapping
                 // variable slot is the slot for a key in the owners mapping
                 slot = keccak256(abi.encode(currentOwner, OWNER_MAPPING_STORAGE_OFFSET));
-                vm.store(multisig, slot, bytes32(uint256(uint160(newOwners[i].walletAddress))));
+                vm.store(rootSafe, slot, bytes32(uint256(uint160(newOwners[i].walletAddress))));
                 currentOwner = newOwners[i].walletAddress;
             }
 
             // link the last owner to the sentinel owner
             slot = keccak256(abi.encode(currentOwner, OWNER_MAPPING_STORAGE_OFFSET));
-            vm.store(multisig, slot, bytes32(uint256(uint160(0x1))));
+            vm.store(rootSafe, slot, bytes32(uint256(uint160(0x1))));
         }
 
         // set the owners count to 9
-        vm.store(multisig, bytes32(OWNER_COUNT_STORAGE_OFFSET), bytes32(uint256(9)));
+        vm.store(rootSafe, bytes32(OWNER_COUNT_STORAGE_OFFSET), bytes32(uint256(9)));
         // set the threshold to 4
-        vm.store(multisig, bytes32(THRESHOLD_STORAGE_OFFSET), bytes32(uint256(4)));
+        vm.store(rootSafe, bytes32(THRESHOLD_STORAGE_OFFSET), bytes32(uint256(4)));
 
-        address[] memory getNewOwners = IGnosisSafe(multisig).getOwners();
+        address[] memory getNewOwners = IGnosisSafe(rootSafe).getOwners();
         assertEq(getNewOwners.length, 9, "Expected 9 owners");
         for (uint256 i = 0; i < newOwners.length; i++) {
             // check that the new owners are set correctly
             assertEq(getNewOwners[i], newOwners[i].walletAddress, "Expected owner");
         }
 
-        uint256 threshold = IGnosisSafe(multisig).getThreshold();
+        uint256 threshold = IGnosisSafe(rootSafe).getThreshold();
         assertEq(threshold, 4, "Expected threshold should be updated to mocked value");
 
         LibSort.sort(getNewOwners);
@@ -323,13 +349,13 @@ contract SingleMultisigTaskTest is Test {
 
         // execute the task with the signatures
         multisigTask = new GasConfigTemplate();
-        multisigTask.simulateRun(taskConfigFilePath, packedSignatures);
+        multisigTask.execute(taskConfigFilePath, packedSignatures);
 
         // check that the gas limits are set correctly after the task is executed
         SystemConfig systemConfig = SystemConfig(systemConfigMode);
         assertEq(systemConfig.gasLimit(), 100000000, "l2 gas limit not set for Mode");
         systemConfig = SystemConfig(systemConfigMetal);
         assertEq(systemConfig.gasLimit(), 100000000, "l2 gas limit not set for Metal");
-        assertEq(multisigTask.isNestedSafe(multisigTask.parentMultisig()), false, "Expected isNestedSafe to be false");
+        assertEq(multisigTask.isNestedSafe(multisigTask.root()), false, "Expected isNestedSafe to be false");
     }
 }

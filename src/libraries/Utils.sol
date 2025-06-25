@@ -2,6 +2,7 @@
 pragma solidity 0.8.15;
 
 import {VmSafe} from "lib/forge-std/src/Vm.sol";
+import {TaskPayload} from "src/libraries/MultisigTypes.sol";
 
 library Utils {
     VmSafe private constant vm = VmSafe(address(uint160(uint256(keccak256("hevm cheat code")))));
@@ -47,5 +48,16 @@ library Utils {
             if (list[i] == addr) return true;
         }
         return false;
+    }
+
+    /// @notice Helper function to get the safe, call data, and original nonce for a given index.
+    function getSafeData(TaskPayload memory payload, uint256 index)
+        internal
+        pure
+        returns (address safe, bytes memory callData, uint256 originalNonce)
+    {
+        safe = payload.safes[index];
+        callData = payload.calldatas[index];
+        originalNonce = payload.originalNonces[index];
     }
 }
