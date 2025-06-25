@@ -247,21 +247,22 @@ contract NestedMultisigTaskTest is Test {
     }
 
     /// @notice Validate the data to sign for the child multisig.
-    function _validateNestedDataToSign(address childMultisig, bytes memory callDataToApprove, address multicallAddress)
-        internal
-        view
-    {
-        address[] memory tmpAllSafes = MultisigTaskTestHelper.getAllSafes(ROOT_SAFE, childMultisig);
+    function _validateNestedDataToSign(
+        address _childMultisig,
+        bytes memory _callDataToApprove,
+        address _multicallAddress
+    ) internal view {
+        address[] memory tmpAllSafes = MultisigTaskTestHelper.getAllSafes(ROOT_SAFE, _childMultisig);
         uint256[] memory tmpAllOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(tmpAllSafes);
         uint256 childSafeNonce = tmpAllOriginalNonces[0];
         bytes memory dataToSign = GnosisSafeHashes.getEncodedTransactionData(
-            childMultisig, callDataToApprove, 0, childSafeNonce, multicallAddress
+            _childMultisig, _callDataToApprove, 0, childSafeNonce, _multicallAddress
         );
 
-        bytes memory expectedDataToSign = IGnosisSafe(childMultisig).encodeTransactionData({
+        bytes memory expectedDataToSign = IGnosisSafe(_childMultisig).encodeTransactionData({
             to: MULTICALL3_ADDRESS,
             value: 0,
-            data: callDataToApprove,
+            data: _callDataToApprove,
             operation: Enum.Operation.DelegateCall,
             safeTxGas: 0,
             baseGas: 0,
@@ -273,10 +274,10 @@ contract NestedMultisigTaskTest is Test {
         assertEq(dataToSign, expectedDataToSign, "Wrong data to sign");
 
         bytes32 nestedHashToApprove = keccak256(dataToSign);
-        bytes32 expectedNestedHashToApprove = IGnosisSafe(childMultisig).getTransactionHash(
+        bytes32 expectedNestedHashToApprove = IGnosisSafe(_childMultisig).getTransactionHash(
             MULTICALL3_ADDRESS,
             0,
-            callDataToApprove,
+            _callDataToApprove,
             Enum.Operation.DelegateCall,
             0,
             0,
