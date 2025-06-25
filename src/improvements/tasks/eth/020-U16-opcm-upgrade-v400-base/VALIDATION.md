@@ -21,13 +21,13 @@ the values printed to the terminal when you run the task.
 > ### BaseNestedSafe - `0x9855054731540A48b28990B63DcF4f33d8AE46A1`
 >
 > - Domain Hash: `0x88aac3dc27cc1618ec43a87b3df21482acd24d172027ba3fbb5a5e625d895a0b`
-> - Message Hash: `0x80f76222385682a9b2f5ff6e7b0da391c0973822cd40ca394ce22aa8a045a9c9`
+> - Message Hash: `0x1e067c965ae83d1dc729fbbb7f0beb273f4c6db149bf95897e99e61442e94abd`
 
 ## Normalized State Diff Hash Attestation
 
 The normalized state diff hash **MUST** match the hash produced by the state changes attested to in the state diff audit report. As a signer, you are responsible for verifying that this hash is correct. Please compare the hash below with the one in the audit report. If no audit report is available for this task, you must still ensure that the normalized state diff hash matches the output in your terminal.
 
-**Normalized hash:** `0x38b061958d1145c8a422e8b4d3f7b3cdd20c900952183891f5bc20815234c301`
+**Normalized hash:** `0x391016260c6ded1eb1941302ce1f379db2f70c0030c4093024e73b13bf510e4b`
 
 ## Understanding Task Calldata
 
