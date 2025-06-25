@@ -352,7 +352,7 @@ As a signer, you are responsible for making sure this hash is correct. Please co
 
   ---
 
-### `0x88403997654873cb54082a881f14fbe48dd68609` ([DelayedWETH](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L64))
+### `0x88403997654873cb54082a881f14fbe48dd68609` (DelayedWETH Proxy - newly deployed for Ink chain)
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -463,7 +463,7 @@ As a signer, you are responsible for making sure this hash is correct. Please co
 
   ---
 
-### `0xc350c54c484ac9111fc61c247580abcc5fcc365f` ([DelayedWETH](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L63))
+### `0xc350c54c484ac9111fc61c247580abcc5fcc365f` (DelayedWETH Proxy - newly deployed for OP)
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -558,7 +558,7 @@ As a signer, you are responsible for making sure this hash is correct. Please co
 
   ---
 
-### `0xf8d7b42e1ad39f0e321cf8bf913e0e4cd1c1f571` ([DelayedWETH](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L63))
+### `0xf8d7b42e1ad39f0e321cf8bf913e0e4cd1c1f571` (DelayedWETH Proxy - newly deployed for OP)
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
