@@ -1,6 +1,6 @@
 # 015-set-game-implementation-arena-z-swell
 
-Status: [READY TO SIGN]
+Status: [EXECUTED](https://etherscan.io/tx/0x7d2a05b891c480b91a472a135e867e6a94ba196439e47e76cc08954401a9b224)
 
 ## Objective
 
