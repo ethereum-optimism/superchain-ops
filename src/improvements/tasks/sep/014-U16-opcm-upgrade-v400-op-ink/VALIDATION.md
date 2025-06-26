@@ -24,6 +24,58 @@ As a signer, you are responsible for making sure this hash is correct. Please co
 
 **Normalized hash:** `0xf21c08ee68df610b38634605eee5395ba375c61f84898dbc5e72a8697ed65610`
 
+## Understanding Task Calldata
+
+This document provides a detailed analysis of the final calldata executed on-chain for the OPCM upgrade to v4.0.0.
+
+By reconstructing the calldata, we can confirm that the execution precisely implements the approved upgrade plan with no unexpected modifications or side effects.
+
+### Inputs to `opcm.upgrade()`
+
+For each chain being upgraded, the `opcm.upgrade()` function is called with a tuple of three elements:
+
+1. OP Sepolia Testnet:
+
+- SystemConfigProxy: [0x034EdD2A225f7f429a63E0f1d2084B9E0a93b538](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L60)
+- ProxyAdmin: [0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L61)
+- AbsolutePrestate: [0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8](https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/validation/standard/standard-prestates.toml#L6)
+
+2. Ink Sepolia Testnet:
+
+- SystemConfigProxy: [0x05c993e60179f28bf649a2bb5b00b5f4283bd525](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L60)
+- ProxyAdmin: [0xd7dB319a49362b2328cf417a934300cCcB442C8d](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/ink.toml#L61)
+- AbsolutePrestate: [0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8](https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/validation/standard/standard-prestates.toml#L6)
+
+Thus, the command to encode the calldata is:
+
+```bash
+cast calldata 'upgrade((address,address,bytes32)[])' "[(0x034EdD2A225f7f429a63E0f1d2084B9E0a93b538,0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc,0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8),(0x05c993e60179f28bf649a2bb5b00b5f4283bd525,0xd7dB319a49362b2328cf417a934300cCcB442C8d,0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8)]"
+```
+
+### Inputs to `Multicall3DelegateCall`
+
+The output from the previous section becomes the `data` in the argument to the `Multicall3DelegateCall.aggregate3()` function.
+
+This function is called with a tuple of three elements:
+
+Call3 struct for Multicall3DelegateCall:
+
+- `target`: [0x1ac76f0833bbfccc732cadcc3ba8a3bbd0e89c3d](https://oplabs.notion.site/Sepolia-Release-Checklist-op-contracts-v4-0-0-rc-8-216f153ee1628095ba5be322a0bf9364) - Sepolia OPContractsManager v4.0.0
+- `allowFailure`: false
+- `callData`: `0xff2dd5a1...` (output from the previous section)
+
+Command to encode:
+
+```bash
+cast calldata 'aggregate3((address,bool,bytes)[])' "[(0x1ac76f0833bbfccc732cadcc3ba8a3bbd0e89c3d,false,0xff2dd5a100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000034edd2a225f7f429a63e0f1d2084b9e0a93b538000000000000000000000000189abaaaa82dfc015a588a7dbad6f13b1d3485bc03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc800000000000000000000000005c993e60179f28bf649a2bb5b00b5f4283bd525000000000000000000000000d7db319a49362b2328cf417a934300cccb442c8d03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8)]"
+```
+
+The resulting calldata sent from the ProxyAdminOwner safe is thus:
+
+```
+0x82ad56cb0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000001ac76f0833bbfccc732cadcc3ba8a3bbd0e89c3d000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000104ff2dd5a100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000034edd2a225f7f429a63e0f1d2084b9e0a93b538000000000000000000000000189abaaaa82dfc015a588a7dbad6f13b1d3485bc03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc800000000000000000000000005c993e60179f28bf649a2bb5b00b5f4283bd525000000000000000000000000d7db319a49362b2328cf417a934300cccb442c8d03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc800000000000000000000000000000000000000000000000000000000
+```
+
 ## Task Transfers
 
 #### Decoded Transfer 0
