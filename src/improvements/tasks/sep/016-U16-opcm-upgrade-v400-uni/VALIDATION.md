@@ -23,14 +23,14 @@ As a signer, you are responsible for making sure this hash is correct. Please co
 ## Task Transfers
 
 #### Decoded Transfer 0
-  - **From:**              `0x0d83dab629f0e0F9d36c0Cbc89B69a489f0751bD`
-  - **To:**                `0x62D47fd9256248D33A38A22ac4F0336Da1cfdfe4`
+  - **From:**              [`0x0d83dab629f0e0F9d36c0Cbc89B69a489f0751bD`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/unichain.toml#L59) (OptimismPortalProxy)
+  - **To:**                `0x62D47fd9256248D33A38A22ac4F0336Da1cfdfe4` (EthLockboxProxy - newly deployed)
   - **Value:**             `344792481010589432510077`
-  - **Token Address:**     `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE`
+  - **Token Address:**     `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` (ETH)
 
 ## Task State Changes
 
-### `0x0b0bde7ac8ffd654dbd0db92fdbcc2f9fd73fc6b` (DelayedWETHProxy) - FLAG: newly deployed, not in superchain-registry yet
+### `0x0b0bde7ac8ffd654dbd0db92fdbcc2f9fd73fc6b` (DelayedWETH Proxy - newly deployed)
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -66,12 +66,12 @@ As a signer, you are responsible for making sure this hash is correct. Please co
 - **Key:**          `0x000000000000000000000000000000000000000000000000000000000000003e`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x000000000000000000000000bb6ca820978442750b682663efa851ad4131127b`
-  - **Summary:** anchorStateRegistry set to newly deployed AnchorStateRegistryProxy `0xbb6ca820978442750b682663efa851ad4131127b` FLAG for registry update
+  - **Summary:** anchorStateRegistry set to newly deployed AnchorStateRegistryProxy `0xbb6ca820978442750b682663efa851ad4131127b`
 
 - **Key:**          `0x000000000000000000000000000000000000000000000000000000000000003f`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x00000000000000000000000062d47fd9256248d33a38a22ac4f0336da1cfdfe4`
-  - **Summary:** ethLockbox set to newly deployed EthLockboxProxy `0x62d47fd9256248d33a38a22ac4f0336da1cfdfe4` FLAG for registry update
+  - **Summary:** ethLockbox set to newly deployed EthLockboxProxy `0x62d47fd9256248d33a38a22ac4f0336da1cfdfe4`
 
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
@@ -81,7 +81,7 @@ As a signer, you are responsible for making sure this hash is correct. Please co
 
   ---
 
-### `0x184d2cad90506337aad35afc674ef48095717d3d` (DelayedWETHProxy #2) - FLAG: newly deployed, not in superchain-registry yet
+### `0x184d2cad90506337aad35afc674ef48095717d3d` (DelayedWETH Proxy - newly deployed)
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -198,7 +198,7 @@ As a signer, you are responsible for making sure this hash is correct. Please co
 
   ---
 
-### `0xbb6ca820978442750b682663efa851ad4131127b` (AnchorStateRegistryProxy) - FLAG: newly deployed, not in superchain-registry yet
+### `0xbb6ca820978442750b682663efa851ad4131127b` (AnchorStateRegistryProxy - newly deployed)
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -272,7 +272,7 @@ As a signer, you are responsible for making sure this hash is correct. Please co
 ### `0xef1295ed471dfec101691b946fb6b4654e88f98a` (AddressManager) - Chain ID: 1301
 
 - **Key:**          `0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e`
-  - **Before:** [`0x0000000000000000000000005d5a095665886119693f0b41d8dfee78da033e8b`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L38)
+  - **Before:** `0x0000000000000000000000005d5a095665886119693f0b41d8dfee78da033e8b`
   - **After:** [`0x000000000000000000000000d26bb3aaaa4cb5638a8581a4c4b1d937d8e05c54`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L18)
   - **Summary:** L1CrossDomainMessenger implementation updated from v2.6.0 to v2.9.0
 
