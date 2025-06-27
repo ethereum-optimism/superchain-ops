@@ -111,13 +111,12 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   
   ---
   
-### `0x1ac76f0833bbfccc732cadcc3ba8a3bbd0e89c3d` (Unknown Contract FLAG)
+### `0x1ac76f0833bbfccc732cadcc3ba8a3bbd0e89c3d` ([OP Contracts Manager](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/validation/standard/standard-versions-sepolia.toml#L42))
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000000`
-  - **Summary:** Storage slot 1 value changed from 1 to 0 FLAG
-  - **Detail:** Contract not found in superchain-registry, requires registry update
+  - **Summary:** isRC set to false
   
   ---
   
@@ -191,7 +190,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   
   ---
   
-### `0x5aae0449931b90258f8ceb414658e0b79b6c6e2d` (ETHLockboxProxy FLAG) 
+### `0x5aae0449931b90258f8ceb414658e0b79b6c6e2d` (ETHLockboxProxy) 
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -268,7 +267,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 - **Key:**          `0x000000000000000000000000000000000000000000000000000000000000003e`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x00000000000000000000000090066735ee774b405c4f54bfec05b07f16d67188`
-  - **Summary:** anchorStateRegistry set to AnchorStateRegistryProxy FLAG
+  - **Summary:** anchorStateRegistry set to AnchorStateRegistryProxy
   - **Detail:** Storage slot 62 corresponds to anchorStateRegistry in OptimismPortal2 storage layout 
   
   
@@ -276,7 +275,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 - **Key:**          `0x000000000000000000000000000000000000000000000000000000000000003f`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x0000000000000000000000008757a0f58d7151c1c3dbab07cfec7888d3465ee1`
-  - **Summary:** ethLockbox set to DelayedWETHProxy FLAG
+  - **Summary:** ethLockbox set to DelayedWETHProxy
   - **Detail:** Storage slot 63 corresponds to ethLockbox in OptimismPortal2 storage layout 
   
   
@@ -303,7 +302,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   
   ---
   
-### `0x8757a0f58d7151c1c3dbab07cfec7888d3465ee1` (DelayedWETHProxy FLAG) 
+### `0x8757a0f58d7151c1c3dbab07cfec7888d3465ee1` (DelayedWETHProxy) 
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -339,7 +338,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   
   ---
   
-### `0x90066735ee774b405c4f54bfec05b07f16d67188` (AnchorStateRegistryProxy FLAG) 
+### `0x90066735ee774b405c4f54bfec05b07f16d67188` (AnchorStateRegistryProxy) 
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -412,7 +411,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 - **Key:**          `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
   - **Before:** [`0x000000000000000000000000697a4684576d8a76d4b11e83e9b6f3b61bf04755`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/soneium-minato.toml#L69)
   - **After:** `0x000000000000000000000000383fbf071b8aad992e30ebdd56b22eec06c401c0`
-  - **Summary:** Game implementation mapping updated for GameType FLAG
+  - **Summary:** Game implementation mapping updated
   - **Detail:** gameImpls mapping slot updated from PermissionedDisputeGame to new implementation address
   
   
