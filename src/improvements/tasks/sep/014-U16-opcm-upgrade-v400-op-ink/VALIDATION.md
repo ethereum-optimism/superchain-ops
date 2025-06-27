@@ -619,6 +619,28 @@ The resulting calldata sent from the ProxyAdminOwner safe is thus:
 
   ---
 
+  ### `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B` (GnosisSafe) - Sepolia Foundation Safe
+
+**Note: You'll only see this state diff if signer is on foundation safe: `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`. Ignore if you're signing for the council safe: `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`.**
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Before:** `44`
+  - **After:** `45`
+  - **Summary:**  Nonce update
+
+  ---
+
+  ### `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977` (GnosisSafe) - Sepolia Council Safe
+
+**Note: You'll only see this state diff if signer is on council safe: `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`. Ignore if you're signing for the foundation safe: `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`.**
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
+  - **Before:** `40`
+  - **After:** `41`
+  - **Summary:**  Nonce update
+
+---
+
 ### `0xf8d7b42e1ad39f0e321cf8bf913e0e4cd1c1f571` (DelayedWETH Proxy - newly deployed for OP)
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
