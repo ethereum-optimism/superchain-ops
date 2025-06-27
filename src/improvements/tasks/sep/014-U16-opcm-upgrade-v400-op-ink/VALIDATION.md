@@ -238,6 +238,15 @@ The resulting calldata sent from the ProxyAdminOwner safe is thus:
 
 ### `0x1eb2ffc903729a0f03966b917003800b145f56e2` ([ProxyAdminOwner (GnosisSafe)](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-config-roles-sepolia.toml#L3)) - Chain ID: 11155420
 
+- **Account Nonce in State:**
+  - **Before:** 27
+  - **After:** 39
+  - **Detail:** 12 new contracts were deployed, including the following for both OP and Ink chains:
+    - Two dispute games
+    - Two new delayed WETH proxies
+    - A new ETHLockbox proxy
+    - A new AnchorStateRegistry proxy
+
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:** `uint256`
   - **Before:** `30`
