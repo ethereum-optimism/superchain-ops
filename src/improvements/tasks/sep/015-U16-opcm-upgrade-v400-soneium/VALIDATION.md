@@ -24,7 +24,7 @@ The normalized state diff hash MUST match the hash created by the state changes 
 As a signer, you are responsible for making sure this hash is correct. Please compare the hash below with the hash in the audit report.
 
 
-**Normalized hash:** `0x3024562366058e2ccfb5578c5396b5a8d7c1bebbc1943d558f869b7315ee2bf9`
+**Normalized hash:** `0xa0e4e0b77250520faf7057e117d834a646791fc847bf443c8d42d54c3ea8460e`
 
 
 ## Understanding Task Calldata
@@ -444,3 +444,11 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
   - **Summary:** Guardian address cleared (reset to zero)
   - **Detail:** Unstructured storage slot for the address of the superchain guardian (GUARDIAN_SLOT).
   
+
+### Nonce increments
+
+- `0x90066735EE774b405C4f54bfeC05b07f16D67188` - AnchorStateRegistryProxy
+- `0xB3Ad2c38E6e0640d7ce6aA952AB3A60E81bf7a01` - DisputeGameFactoryProxy
+- `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B` - FoundationOperationsSafe
+- `0xA03DaFadE71F1544f4b0120145eEC9b89105951f` - Sender Address of the Tenderly transaction (Your ledger or first owner on the nested safe).
+- `0x383FbF071b8aad992E30ebdd56B22Eec06C401c0` - 
