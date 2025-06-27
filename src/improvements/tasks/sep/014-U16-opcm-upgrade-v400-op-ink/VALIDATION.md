@@ -588,6 +588,27 @@ The resulting calldata sent from the ProxyAdminOwner safe is thus:
 
   ---
 
+### [`0xd363339ee47775888df411a163c586a8bdea9dbf`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/unichain.toml#L46)  (ProxyAdminOwner (GnosisSafe)) - Chain ID: 1301
+
+- **Account Nonce in State:**
+  - **Before:** 8
+  - **After:** 14
+  - **Detail:** Six new contracts were deployed, including:
+    - Two dispute games
+    - Two new delayed WETH proxies
+    - A new ETHLockbox proxy
+    - A new AnchorStateRegistry proxy
+
+- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
+
+  - **Decoded Kind:** `uint256`
+  - **Before:** `33`
+  - **After:** `34`
+  - **Summary:** nonce
+  - **Detail:**  The nonce of the ProxyAdminOwner contract is updated.
+
+---
+
 ### [`0xd83e03d576d23c9aeab8cc44fa98d058d2176d1f`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/sepolia/op.toml#L56) (L1ERC721Bridge) - Chain ID: 11155420
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
