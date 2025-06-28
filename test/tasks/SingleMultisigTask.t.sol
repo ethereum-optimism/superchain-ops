@@ -19,6 +19,7 @@ import {IncorrectGasConfigTemplate2} from "test/tasks/mock/template/IncorrectGas
 import {MultisigTaskTestHelper} from "test/tasks/MultisigTask.t.sol";
 import {Utils} from "src/libraries/Utils.sol";
 import {TaskPayload} from "src/libraries/MultisigTypes.sol";
+import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
 
 contract SingleMultisigTaskTest is Test {
     struct MultiSigOwner {
@@ -31,7 +32,6 @@ contract SingleMultisigTaskTest is Test {
     mapping(address => uint256) private privateKeyForOwner;
 
     /// @notice constants that describe the owner storage offsets in Gnosis Safe
-
     uint256 public constant OWNER_MAPPING_STORAGE_OFFSET = 2;
     uint256 public constant OWNER_COUNT_STORAGE_OFFSET = 3;
     uint256 public constant THRESHOLD_STORAGE_OFFSET = 4;
@@ -163,8 +163,9 @@ contract SingleMultisigTaskTest is Test {
 
         (, bytes memory rootSafeCalldata, uint256 rootSafeNonce) = Utils.getSafeData(payload, payload.safes.length - 1);
 
-        bytes memory dataToSign =
-            multisigTask.getEncodedTransactionData(multisigTask.root(), rootSafeCalldata, 0, rootSafeNonce, allSafes);
+        bytes memory dataToSign = GnosisSafeHashes.getEncodedTransactionData(
+            multisigTask.root(), rootSafeCalldata, 0, rootSafeNonce, MULTICALL3_ADDRESS
+        );
 
         bytes memory expectedDataToSign = IGnosisSafe(multisigTask.root()).encodeTransactionData({
             to: MULTICALL3_ADDRESS,
@@ -281,8 +282,9 @@ contract SingleMultisigTaskTest is Test {
             Utils.getSafeData(payload, payload.safes.length - 1);
         rootSafeNonce = rootSafeNonce - 1; // The task has already run so we decrement the nonce by 1.
 
-        bytes memory dataToSign =
-            multisigTask.getEncodedTransactionData(multisigTask.root(), rootSafeCalldata, 0, rootSafeNonce, allSafes);
+        bytes memory dataToSign = GnosisSafeHashes.getEncodedTransactionData(
+            multisigTask.root(), rootSafeCalldata, 0, rootSafeNonce, MULTICALL3_ADDRESS
+        );
         address systemConfigMode = toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigProxy", 34443);
         address systemConfigMetal = toSuperchainAddrRegistry(addrRegistry).getAddress("SystemConfigProxy", 1750);
         // revert to snapshot so that the safe is in the same state as before the task was run
