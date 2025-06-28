@@ -66,7 +66,32 @@ contract StackedSimulator is Script {
             // and append them to the next task's config.toml file. For now, we are skipping this functionality.
             address ownerAddress =
                 _optionalOwnerAddresses.length == tasks.length ? _optionalOwnerAddresses[i] : address(0);
-            taskManager.executeTask(taskConfigs[i], ownerAddress);
+            VmSafe.AccountAccess[] memory accesses = taskManager.executeTask(taskConfigs[i], ownerAddress);
+            (, AccountAccessParser.DecodedStateDiff[] memory stateDiffs) = accesses.decode(false);
+            address[] memory uniqueWrites = accesses.getUniqueWrites(false);
+            for (uint256 a = 0; a < uniqueWrites.length; a++) {
+                string memory keyPart = string.concat(vm.toString(uniqueWrites[a]), " = [");
+                string memory middlePart = "";
+                bool isFirst = true;
+                for (uint256 b = 0; b < stateDiffs.length; b++) {
+                    if (stateDiffs[b].who == uniqueWrites[a]) {
+                        string memory optComma = isFirst ? "" : ",";
+                        middlePart = string.concat(
+                            middlePart,
+                            optComma,
+                            "{key = \"",
+                            vm.toString(stateDiffs[b].raw.slot),
+                            "\", value = \"",
+                            vm.toString(stateDiffs[b].raw.newValue),
+                            "\"",
+                            "}"
+                        );
+                        isFirst = false;
+                    }
+                }
+                string memory endPart = "]";
+                console.log(string.concat(keyPart, middlePart, endPart));
+            }
         }
     }
 
