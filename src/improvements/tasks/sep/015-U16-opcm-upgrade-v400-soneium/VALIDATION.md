@@ -88,10 +88,10 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 ## Task Transfers
 
 #### Decoded Transfer 0
-  - **From:**              `0x65ea1489741A5D72fFdD8e6485B216bBdcC15Af3`
-  - **To:**                `0x8757A0F58D7151c1c3dbaB07cFec7888D3465ee1`
-  - **Value:**             `176676906466144167650175`
-  - **Token Address:**     `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE`
+  - **From:**              [`0x65ea1489741A5D72fFdD8e6485B216bBdcC15Af3`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/superchain/configs/sepolia/soneium-minato.toml#L60) (Soneium Minato OptimismPortal2)
+  - **To:**                `0x8757A0F58D7151c1c3dbaB07cFec7888D3465ee1` (Soneium Minato ETHLockbox - newly deployed)
+  - **Value:**             `176676906466144167650175` (All funds)
+  - **Token Address:**     `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` (ETH)
   
 ## Task State Changes
 
