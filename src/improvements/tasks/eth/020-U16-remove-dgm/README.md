@@ -1,4 +1,4 @@
-# 018-U16-remove-dgm: Remove Deputy Guardian Module on Sepolia
+# 020-U16-remove-dgm: Remove Deputy Guardian Module on Ethereum Mainnet
 
 Status: [DRAFT]()
 
@@ -8,7 +8,7 @@ Disabling the legacy Deputy Guardian module due to its deprecation in U16.
 
 ### Timing
 
-Expected to be executed on or around 2025-05-29.
+Expected to be executed on or around 2025-07-17.
 
 ## Transaction creation
 
@@ -29,6 +29,6 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 
 Navigate to the correct task directory then run the simulate command.
 ```
-cd src/improvements/tasks/sep/018-U16-remove-dgm
-just simulate-stack sep 018-U16-remove-dgm
+cd src/improvements/tasks/eth/020-U16-remove-dgm
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate 
 ```
