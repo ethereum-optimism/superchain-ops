@@ -86,10 +86,10 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 ## Task Transfers
 
 ### Decoded Transfer 0
-  - **From:**              `0x88e529A6ccd302c948689Cd5156C83D4614FAE92`
-  - **To:**                `0x67B4de6FfA66EF201Ea6099A89cA397D56622E31`
-  - **Value:**             `9327163640386103948987`
-  - **Token Address:**     `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE`
+  - **From:**              [`0x88e529A6ccd302c948689Cd5156C83D4614FAE92`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/soneium.toml#L58) (OptimismPortal2 - Soneium)
+  - **To:**                `0x67B4de6FfA66EF201Ea6099A89cA397D56622E31` (Newly deployed ETHLockboxProxy)
+  - **Value:**             `9327163640386103948987` (All the funds)
+  - **Token Address:**     `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` (Ether)
 
 
 ## Task State Changes
@@ -100,7 +100,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Summary:** _initialized flag set to 1 (initialization completed)
-  - **Detail:** OpenZeppelin Initializable pattern - marks contract as initialized
+  - **Detail:** Reinitializable pattern - marks contract as initialized
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000004`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -195,7 +195,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Summary:** _initializing flag reset to false (initialization process completed)
-  - **Detail:** OpenZeppelin Initializable pattern - marks initialization process as complete
+  - **Detail:** Reinitializable pattern - marks initialization process as complete
   
   ---
   
@@ -205,7 +205,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
   - **Summary:** _initialized flag incremented from 1 to 2 (re-initialization completed)
-  - **Detail:** OpenZeppelin Initializable pattern - packed slot with _initialized and _initializing flags
+  - **Detail:** Version change for re-initialization
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000033`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -269,7 +269,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
   - **Summary:** _initialized flag incremented from 1 to 2 (re-initialization completed)
-  - **Detail:** OpenZeppelin Initializable pattern - packed slot with _initialized and _initializing flags
+  - **Detail:** Version change for re-initialization
   
 - **Key:**          `0x000000000000000000000000000000000000000000000000000000000000006b`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -305,7 +305,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
   - **Summary:** _initialized flag incremented from 1 to 2 (re-initialization completed)
-  - **Detail:** OpenZeppelin Initializable pattern - packed slot with _initialized and _initializing flags
+  - **Detail:** Version change for re-initialization
   
 - **Key:**          `0x000000000000000000000000000000000000000000000000000000000000003e`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -384,7 +384,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
   - **Summary:** _initialized flag incremented from 1 to 2 (re-initialization completed)
-  - **Detail:** OpenZeppelin Initializable pattern - packed slot with _initialized, _initializing flags and spacer
+  - **Detail:** Version change for re-initialization
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000034`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -398,3 +398,13 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   - **After:** [`0x44AfB7722AF276A601D524F429016A18B6923df0`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L20)
   - **Summary:** ERC-1967 implementation upgraded to L1StandardBridge v2.6.0
   - **Detail:** Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
+
+** Nonce Increments **
+
+- `0x372dC0B87b790D6e1308CF9e7f73F0F1fcbD3754` (Newly deployed DelayedWETH)
+- `0x4890928941e62e273dA359374b105F803329F473` (Newly deployed AnchorStateRegistryProxy)
+- `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` (L1 PAO on GnosisSafe)
+- `0x67B4de6FfA66EF201Ea6099A89cA397D56622E31` (Newly deployed ETHLockboxProxy)
+- `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` (FoundationOperationSafe)
+- `0x3c12f1F4F0702CB7fC83e2e5594331c10b9e39b4` (Newly deployed DisputeGameFactory)
+- `0x42d27eEA1AD6e22Af6284F609847CB3Cd56B9c64` (Sender of the Tenderly transaction)
