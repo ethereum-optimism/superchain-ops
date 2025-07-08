@@ -182,10 +182,10 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   - **Detail:** Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
   
 - **Key:**          `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
-  - **Before:** `0x0000000000000000000000003d56d47b9e7e34a46612badc70377f74051e6b17`
+  - **Before:** [`0x0000000000000000000000003d56d47b9e7e34a46612badc70377f74051e6b17`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/superchain/configs/mainnet/soneium.toml#L67)
   - **After:** `0x0000000000000000000000003c12f1f4f0702cb7fc83e2e5594331c10b9e39b4`
   - **Summary:** gameImpls mapping updated - GameType 1 implementation changed
-  - **Detail:** Mapping slot derivation for gameImpls[GameType(1)] - updated game implementation address for GameType 1 (FLAG for registry update needed)
+  - **Detail:** Mapping slot derivation for gameImpls[GameType(1)] - updated game implementation address for GameType 1
   
   ---
   
@@ -205,7 +205,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
   - **Summary:** _initialized flag incremented from 1 to 2 (re-initialization completed)
-  - **Detail:** Version change for re-initialization
+  - **Detail:** Reinitializable pattern - packed slot with _initialized and _initializing flags
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000033`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -269,7 +269,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
   - **Summary:** _initialized flag incremented from 1 to 2 (re-initialization completed)
-  - **Detail:** Version change for re-initialization
+  - **Detail:** Reinitializable pattern - packed slot with _initialized and _initializing flags
   
 - **Key:**          `0x000000000000000000000000000000000000000000000000000000000000006b`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -285,7 +285,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
-  - **Before:** `0x340f923E5c7cbB2171146f64169EC9d5a9FfE647`
+  - **Before:** [`0x340f923E5c7cbB2171146f64169EC9d5a9FfE647`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/validation/standard/standard-versions-mainnet.toml#L69)
   - **After:** [`0xFaA660bf783CBAa55e1B7F3475C20Db74a53b9Fa`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L8)
   - **Summary:** ERC-1967 implementation upgraded to SystemConfig v3.4.0
   - **Detail:** Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
@@ -305,7 +305,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
   - **Summary:** _initialized flag incremented from 1 to 2 (re-initialization completed)
-  - **Detail:** Version change for re-initialization
+  - **Detail:** Reinitializable pattern - packed slot with _initialized and _initializing flags
   
 - **Key:**          `0x000000000000000000000000000000000000000000000000000000000000003e`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -321,7 +321,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
-  - **Before:** `0xB443Da3e07052204A02d630a8933dAc05a0d6fB4`
+  - **Before:** [`0xB443Da3e07052204A02d630a8933dAc05a0d6fB4`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/validation/standard/standard-versions-sepolia.toml#L73)
   - **After:** [`0xEFEd7F38BB9BE74bBa583a1A5B7D0fe7C9D5787a`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L12)
   - **Summary:** ERC-1967 implementation upgraded to OptimismPortal v4.6.0
   - **Detail:** Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
@@ -338,7 +338,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
-  - **Before:** `0x4da82a327773965b8d4D85Fa3dB8249b387458E7`
+  - **Before:** [`0x4da82a327773965b8d4D85Fa3dB8249b387458E7`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/validation/standard/standard-versions-sepolia.toml#L83)
   - **After:** [`0xCe28685EB204186b557133766eCA00334EB441E4`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L23)
   - **Summary:** ERC-1967 implementation upgraded to SuperchainConfig v2.3.0
   - **Detail:** Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
@@ -371,7 +371,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 ### `0xb24bfeece1b3b7a44559f4cbc21bed312b130b70` ([AddressManager](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/soneium.toml#L52)) - Chain ID: 1868
   
 - **Key:**          `0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e`
-  - **Before:** `0x0000000000000000000000005d5a095665886119693f0b41d8dfee78da033e8b`
+  - **Before:** [`0x0000000000000000000000005d5a095665886119693f0b41d8dfee78da033e8b`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/validation/standard/standard-versions-mainnet.toml#L98)
   - **After:** [`0x000000000000000000000000d26bb3aaaa4cb5638a8581a4c4b1d937d8e05c54`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L18)
   - **Summary:** addresses mapping updated - L1CrossDomainMessenger implementation address changed
   - **Detail:** Mapping slot for addresses["L1CrossDomainMessenger"] - updated to L1CrossDomainMessenger v2.9.0 implementation
@@ -384,7 +384,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
   - **Summary:** _initialized flag incremented from 1 to 2 (re-initialization completed)
-  - **Detail:** Version change for re-initialization
+  - **Detail:** Reinitializable pattern - packed slot with _initialized, _initializing flags and spacer
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000034`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -394,7 +394,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
-  - **Before:** `0x0b09ba359A106C9ea3b181CBc5F394570c7d2a7A`
+  - **Before:** [`0x0b09ba359A106C9ea3b181CBc5F394570c7d2a7A`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/validation/standard/standard-versions-mainnet.toml#L100)
   - **After:** [`0x44AfB7722AF276A601D524F429016A18B6923df0`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L20)
   - **Summary:** ERC-1967 implementation upgraded to L1StandardBridge v2.6.0
   - **Detail:** Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
