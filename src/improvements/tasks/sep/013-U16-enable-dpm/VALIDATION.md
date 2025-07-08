@@ -23,11 +23,6 @@ the values printed to the terminal when you run the task.
 >
 > - Domain Hash: `0xbe081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533`
 > - Message Hash: `0xd08ffd9e319bd742ca7bf58356c145ec07c6068a671d3d8ed92bf89fe25c3411`
->
-> ### Nested Safe 2 (Foundation): `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`
->
-> - Domain Hash: `0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
-> - Message Hash: `0xac9761d0cd16b19a1a400fd186b9eb22000b6d2d3767f17b6a6bee9b1447954f`
 
 ## Normalized State Diff Hash Attestation
 
@@ -96,7 +91,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
 ### Task State Changes
 
-### `0x7a50f00e8d05b95f98fe38d8bee366a7324dcf7e` (Guardian (GnosisSafe)) - Chain ID: 11011
+### `0x7a50f00e8d05b95f98fe38d8bee366a7324dcf7e` (Guardian (GnosisSafe)) - Chain ID: 11155111
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:** `uint256`

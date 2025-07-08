@@ -92,7 +92,7 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 
 ### Task State Changes
 
-### `0x7a50f00e8d05b95f98fe38d8bee366a7324dcf7e` (Guardian (GnosisSafe)) - Chain ID: 11011
+### `0x7a50f00e8d05b95f98fe38d8bee366a7324dcf7e` (Guardian (GnosisSafe)) - Chain ID: 11155111
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:** `uint256`
