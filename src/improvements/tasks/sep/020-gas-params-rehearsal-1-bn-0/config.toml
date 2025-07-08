@@ -1,0 +1,13 @@
+l2chains = [ {name = "rehearsal-1-bn-0", chainId = 420120011} ]
+fallbackAddressesJsonPath = "src/improvements/tasks/sep/020-gas-params-rehearsal-1-bn-0/addresses.json"
+templateName = "SystemConfigGasParams"
+
+[gasParams]
+gasLimit = 60000000
+eip1559Elasticity = 6
+eip1559Denominator = 250
+
+[stateOverrides]
+0x015BfF7dA797Ad476841c0bb20fe065168de3792 = [
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 1 }
+]
