@@ -1,6 +1,6 @@
 # 018-U16-remove-dpm: Remove Old Deputy Pause Module on Sepolia
 
-Status: [DRAFT]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
