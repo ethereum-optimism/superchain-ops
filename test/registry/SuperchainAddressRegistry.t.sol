@@ -316,8 +316,6 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
         MultisigTaskTestHelper.removeFile(configFileName);
     }
 
-    function testOverwritesAllowed() public {}
-
     // Helper function to get optional addresses without reverting.
     function getOptionalAddress(string memory identifier, uint256 chainId) internal view returns (address) {
         require(gasleft() > 500_000, "insufficient gas for getAddress() call"); // Ensure try/catch is EIP-150 safe.
