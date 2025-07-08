@@ -41,13 +41,16 @@ By reconstructing the calldata, we can confirm that the execution precisely impl
 `safe.disableModule()` function is called with the address to be removed and the previous module:
 
 The address of the module to be removed: 0xc6f7C07047ba37116A3FdC444Afb5018f6Df5758
-The address of the previous module: 0x0000000000000000000000000000000000000001
+The address of the previous module: 0xc10dac07d477215a1ebebae1dd0221c1f5d241d2
 
 Thus, the command to encode the calldata is:
 
 ```bash
-cast calldata 'disableModule(address, address)' "0x0000000000000000000000000000000000000001" "0xc6f7C07047ba37116A3FdC444Afb5018f6Df5758"
+cast calldata 'disableModule(address, address)' "0xc10dac07d477215a1ebebae1dd0221c1f5d241d2" "0xc6f7C07047ba37116A3FdC444Afb5018f6Df5758"
+# Returns:
+# 0xe009cfde000000000000000000000000c10dac07d477215a1ebebae1dd0221c1f5d241d2000000000000000000000000c6f7c07047ba37116a3fdc444afb5018f6df5758
 ```
+
 
 ### Inputs to `Multicall3DelegateCall`
 
