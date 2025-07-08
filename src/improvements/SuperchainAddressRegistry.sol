@@ -152,7 +152,9 @@ contract SuperchainAddressRegistry is StdChains {
         for (uint256 i = 0; i < _identifiers.length; i++) {
             string memory key = _identifiers[i];
             address who = toml.readAddress(string.concat(".addresses.", key));
-            saveAddress(key, sentinelChain, who);
+            // Using the private `save` function here because we are allowing overwrites when setting
+            // any addresses in the `[addresses]` section of the config file.
+            save(key, sentinelChain, who);
         }
     }
 
@@ -176,16 +178,21 @@ contract SuperchainAddressRegistry is StdChains {
         }
     }
 
+    /// @notice Saves an address to the registry. Ensures that duplicates are not allowed.
     function saveAddress(string memory identifier, ChainInfo memory chain, address addr) internal {
-        require(addr != address(0), string.concat("SuperchainAddressRegistry: zero address for ", identifier));
-        require(bytes(identifier).length > 0, "SuperchainAddressRegistry: empty key");
         require(
             registry[identifier][chain.chainId] == address(0),
             string.concat(
                 "SuperchainAddressRegistry: duplicate key ", identifier, " for chain ", vm.toString(chain.chainId)
             )
         );
+        save(identifier, chain, addr);
+    }
 
+    /// @notice Saves an address to the registry. This function does not check for duplicates.
+    function save(string memory identifier, ChainInfo memory chain, address addr) private {
+        require(addr != address(0), string.concat("SuperchainAddressRegistry: zero address for ", identifier));
+        require(bytes(identifier).length > 0, "SuperchainAddressRegistry: empty key");
         registry[identifier][chain.chainId] = addr;
         addressInfo[addr] = AddressInfo(identifier, chain);
 
