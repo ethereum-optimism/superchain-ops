@@ -293,6 +293,31 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
         MultisigTaskTestHelper.removeFile(configFileName);
     }
 
+    /// Test that overwrites are allowed when using the `saveAddressUnchecked` function and not allowed when using the `saveAddress` function.
+    function testOverwrites() public {
+        vm.createSelectFork("mainnet");
+        string memory tomlContent = "l2chains = [{name = \"MyLocalChain\", chainId = 10}]\n";
+        string memory configFileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent, TESTING_DIRECTORY, "005");
+        SuperchainAddressRegistry superchainRegistry = new SuperchainAddressRegistry(configFileName);
+        address fus = superchainRegistry.get("FoundationUpgradeSafe");
+        (uint256 chainId, string memory name) = superchainRegistry.sentinelChain();
+        SuperchainAddressRegistry.ChainInfo memory sentinelChain =
+            SuperchainAddressRegistry.ChainInfo({chainId: chainId, name: name});
+        string memory errorMessage = string.concat(
+            "SuperchainAddressRegistry: duplicate key FoundationUpgradeSafe for chain ", vm.toString(chainId)
+        );
+
+        // Overwrites not allowed.
+        vm.expectRevert(bytes(errorMessage));
+        superchainRegistry.saveAddress("FoundationUpgradeSafe", sentinelChain, fus);
+        // Overwrites allowed.
+        superchainRegistry.saveAddressUnchecked("FoundationUpgradeSafe", sentinelChain, fus);
+
+        MultisigTaskTestHelper.removeFile(configFileName);
+    }
+
+    function testOverwritesAllowed() public {}
+
     // Helper function to get optional addresses without reverting.
     function getOptionalAddress(string memory identifier, uint256 chainId) internal view returns (address) {
         require(gasleft() > 500_000, "insufficient gas for getAddress() call"); // Ensure try/catch is EIP-150 safe.
