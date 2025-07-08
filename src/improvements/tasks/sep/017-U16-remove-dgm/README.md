@@ -1,6 +1,6 @@
 # 017-U16-remove-dgm: Remove Deputy Guardian Module on Sepolia
 
-Status: [DRAFT]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
