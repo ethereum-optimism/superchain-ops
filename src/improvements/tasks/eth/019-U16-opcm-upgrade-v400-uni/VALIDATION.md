@@ -172,7 +172,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
   - **Decoded Kind:** `address`
   - **Before:** `0x0000000000000000000000000000000000000000`
-  - **After:** `0x3B73Fa8d82f511A3caE17B5a26E4E1a2d5E2f2A4`
+  - **After:** [`0x3B73Fa8d82f511A3caE17B5a26E4E1a2d5E2f2A4`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/superchain/configs/mainnet/unichain.toml#L60) - ProxyAdmin
   - **Summary:** Proxy owner set to ProxyAdmin for Unichain
   
   
@@ -189,12 +189,12 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
   - **Before:** `0x000000000000000000000000485272c0703020e1354328a1aba3ca767997bed3`
   - **After:** `0x000000000000000000000000c56ef9c3f3e9fd6713055b4577ac4af8303e63e1`
-  - **Summary:** gameImpls mapping updated - new game implementation for game type 0 (FLAG: `0xc56ef9c3f3e9fd6713055b4577ac4af8303e63e1` not found in superchain-registry)
+  - **Summary:** gameImpls mapping updated - new game implementation for game type 0 (PermissionedDisputeGame)
   
 - **Key:**          `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
   - **Before:** `0x00000000000000000000000057a3b42698dc1e4fb905c9ab970154e178296991`
   - **After:** `0x0000000000000000000000004f0f6b7877a174a4fd41df80db80def8883bc772`
-  - **Summary:** gameImpls mapping updated - new game implementation for game type 1 (FLAG: `0x4f0f6b7877a174a4fd41df80db80def8883bc772` not found in superchain-registry)
+  - **Summary:** gameImpls mapping updated - new game implementation for game type 1 (PermissionlessDisputeGame)
   
   ---
   
@@ -211,7 +211,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 ### `0x8098f676033a377b9defe302e9fe6877cd63d575` (AddressManager) - Chain ID: 1301
   
 - **Key:**          `0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e`
-  - **Before:** `0x0000000000000000000000005d5a095665886119693f0b41d8dfee78da033e8b`
+  - **Before:** [`0x0000000000000000000000005d5a095665886119693f0b41d8dfee78da033e8b`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/validation/standard/standard-versions-mainnet.toml#L78) - L1CrossDomainMessenger 2.6.0
   - **After:** `0x000000000000000000000000d26bb3aaaa4cb5638a8581a4c4b1d937d8e05c54`
   - **Summary:** AddressManager mapping "Proxy__OVM_L1CrossDomainMessenger" updated to L1CrossDomainMessenger v2.9.0 ([`0xd26bb3aaaa4cb5638a8581a4c4b1d937d8e05c54`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L18))
   
@@ -235,7 +235,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
-  - **Before:** `0x0b09ba359A106C9ea3b181CBc5F394570c7d2a7A`
+  - **Before:** [`0x0b09ba359A106C9ea3b181CBc5F394570c7d2a7A`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/validation/standard/standard-versions-mainnet.toml#L80) - L1StandardBridge 2.3.0
   - **After:** [`0x44AfB7722AF276A601D524F429016A18B6923df0`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L20)
   - **Summary:** ERC-1967 implementation upgraded to L1StandardBridge v2.6.0
   
@@ -265,7 +265,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
-  - **Summary:** _initialized flag set to 1 (initialization completed) - FLAG: New DelayedWETHProxy contract not found in superchain-registry
+  - **Summary:** _initialized flag set to 1 (initialization completed)
   
   
   
@@ -286,7 +286,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
   - **Decoded Kind:** `address`
   - **Before:** `0x0000000000000000000000000000000000000000`
-  - **After:** `0x3B73Fa8d82f511A3caE17B5a26E4E1a2d5E2f2A4`
+  - **After:** [`0x3B73Fa8d82f511A3caE17B5a26E4E1a2d5E2f2A4`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/superchain/configs/mainnet/unichain.toml#L60) - ProxyAdmin
   - **Summary:** Proxy owner set to ProxyAdmin for Unichain
   
   
@@ -297,7 +297,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
-  - **Summary:** _initialized flag set to 1 (initialization completed) - FLAG: New DelayedWETHProxy contract not found in superchain-registry
+  - **Summary:** _initialized flag set to 1 (initialization completed)
   
   
   
@@ -318,7 +318,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
   - **Decoded Kind:** `address`
   - **Before:** `0x0000000000000000000000000000000000000000`
-  - **After:** `0x3B73Fa8d82f511A3caE17B5a26E4E1a2d5E2f2A4`
+  - **After:** [`0x3B73Fa8d82f511A3caE17B5a26E4E1a2d5E2f2A4`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/superchain/configs/mainnet/unichain.toml#L60) - ProxyAdmin
   - **Summary:** Proxy owner set to ProxyAdmin for Unichain
   
   
@@ -349,14 +349,14 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
-  - **Before:** `0x340f923E5c7cbB2171146f64169EC9d5a9FfE647`
-  - **After:** [`0xFaA660bf783CBAa55e1B7F3475C20Db74a53b9Fa`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L8)
-  - **Summary:** ERC-1967 implementation upgraded to SystemConfig v3.4.0
+  - **Before:** [`0x340f923E5c7cbB2171146f64169EC9d5a9FfE647`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/validation/standard/standard-versions-mainnet.toml#L69) - SystemConfigProxy 3.0.0
+  - **After:** [`0xFaA660bf783CBAa55e1B7F3475C20Db74a53b9Fa`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L8) - SystemConfigProxy 3.0.0
+  - **Summary:** ERC-1967 implementation upgraded to SystemConfig v4.0.0
   
   
 - **Key:**          `0x52322a25d9f59ea17656545543306b7aef62bc0cc53a0e65ccfa0c75b97aa906`
   - **Decoded Kind:** `address`
-  - **Before:** `0x2F12d621a16e2d3285929C9996f478508951dFe4`
+  - **Before:** [`0x2F12d621a16e2d3285929C9996f478508951dFe4`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/superchain/configs/mainnet/unichain.toml#L64) - DisputeGameFactoryProxy
   - **After:** `0x0000000000000000000000000000000000000000`
   - **Summary:** DisputeGameFactory proxy address cleared (legacy field removed in v3.4.0)
   
@@ -385,3 +385,15 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   - **After:** [`0x25d6CeDEB277Ad7ebEe71226eD7877768E0B7A2F`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L19)
   - **Summary:** ERC-1967 implementation upgraded to L1ERC721Bridge v2.7.0
   
+
+### Nonce increments
+
+- `0x08bA0023eD60C7Bd040716dD13C45fA0062df5C5` - Newly deployed ETHLockbox
+- `0x27Cf508E4E3Aa8d30b3226aC3b5Ea0e8bcaCAFF9` - AnchorStateRegistryProxy
+- `0x6d5B183F538ABB8572F5cD17109c617b994D5833` - ProxyAdminOwner
+- `0xa0157F0730Dea8d1a5c358Dc1d340a05D8796C23` - DelayedWETHProxy
+- `0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC` - ChainGovernorSafe
+- `0xBcEA39a1F75D7AC8004982efBA85F92A693386CB` - DelayedWETHProxy
+- `0x4F0f6B7877A174A4fd41DF80dB80DeF8883bc772` - PermissionedDisputeGame
+- `0xC56EF9c3F3e9fD6713055b4577AC4AF8303E63e1` - PermissionlessDisputeGame
+- `0xf13D09eD3cbdD1C930d4de74808de1f33B6b3D4f` - Sender address of the Tenderly transaction (Your ledger or first owner on the nested safe).
