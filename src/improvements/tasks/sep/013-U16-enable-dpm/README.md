@@ -1,6 +1,6 @@
 # 013-U16-enable-dpm: Enable New Deputy Pause Module on Sepolia
 
-Status: [DRAFT]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
