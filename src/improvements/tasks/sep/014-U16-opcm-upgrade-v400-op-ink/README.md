@@ -1,6 +1,6 @@
 # 014-U16-opcm-upgrade-v400-op-ink: Upgrade 16: OP Sepolia Testnet and Ink Sepolia Testnet
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xd99336d28116c644264ee7bfb051225178aa379f268c16060a929055ac443131)
 
 ## Objective
 
