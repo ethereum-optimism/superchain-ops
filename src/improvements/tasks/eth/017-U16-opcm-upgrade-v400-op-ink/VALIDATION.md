@@ -89,17 +89,17 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 
 ## Task Transfers
   
-#### Decoded Transfer 0
-  - **From:**              `0xbEb5Fc579115071764c7423A4f12eDde41f106Ed`
-  - **To:**                `0x322b47Ff1FA8D5611F761e3E275C45B71b294D43`
-  - **Value:**             `239697858685983334945689`
-  - **Token Address:**     `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE`
+#### Decoded Transfer 0 (OP Mainnet)
+  - **From:**              `0xbEb5Fc579115071764c7423A4f12eDde41f106Ed` - OptimismPortal
+  - **To:**                `0x322b47Ff1FA8D5611F761e3E275C45B71b294D43` - ETHLockbox
+  - **Value:**             `239697858685983334945689` - All funds
+  - **Token Address:**     `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` - ETH
   
-#### Decoded Transfer 1
-  - **From:**              `0x5d66C1782664115999C47c9fA5cd031f495D3e4F`
-  - **To:**                `0xbd4AbB321138e8Eddc399cE64E66451294325a14`
-  - **Value:**             `7312493031515086142193`
-  - **Token Address:**     `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE`
+#### Decoded Transfer 1 (Ink)
+  - **From:**              `0x5d66C1782664115999C47c9fA5cd031f495D3e4F` - OptimismPortal
+  - **To:**                `0xbd4AbB321138e8Eddc399cE64E66451294325a14` - ETHLockbox
+  - **Value:**             `7312493031515086142193` - All funds
+  - **Token Address:**     `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` - ETH
 
 ## Task State Changes
 
@@ -107,7 +107,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
-  - **Before:** `0x4bbA758F006Ef09402eF31724203F316ab74e4a0`
+  - **Before:** [`0x4bbA758F006Ef09402eF31724203F316ab74e4a0`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L76) - DisputeGameFactory v1.0.1
   - **After:** [`0x33D1e8571a85a538ed3D5A4d88f46C112383439D`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L16)
   - **Summary:** ERC-1967 implementation upgraded to DisputeGameFactory v1.2.0
   
@@ -142,7 +142,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
-  - **Before:** `0x340f923E5c7cbB2171146f64169EC9d5a9FfE647`
+  - **Before:** [`0x340f923E5c7cbB2171146f64169EC9d5a9FfE647`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L69) - SystemConfig 2.5.0
   - **After:** [`0xFaA660bf783CBAa55e1B7F3475C20Db74a53b9Fa`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L8)
   - **Summary:** ERC-1967 implementation upgraded to SystemConfig v3.4.0
   
@@ -195,7 +195,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
   - **Decoded Kind:** `address`
   - **Before:** `0x0000000000000000000000000000000000000000`
-  - **After:** `0x543bA4AADBAb8f9025686Bd03993043599c6fB04`
+  - **After:** [`0x543bA4AADBAb8f9025686Bd03993043599c6fB04`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L60) - OP ProxyAdmin
   - **Summary:** ERC-1967 admin slot set to ProxyAdmin address
   
   ---
@@ -233,7 +233,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
   - **Decoded Kind:** `address`
   - **Before:** `0x0000000000000000000000000000000000000000`
-  - **After:** `0x543bA4AADBAb8f9025686Bd03993043599c6fB04`
+  - **After:** [`0x543bA4AADBAb8f9025686Bd03993043599c6fB04`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L60) - OP ProxyAdmin
   - **Summary:** ERC-1967 admin slot set to ProxyAdmin address
   
 - **Key:**          `0xe94ce3e921cb2e9e760f8bafe43e7e1899b19b06eaa1979629b096fe61892398`
@@ -269,7 +269,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
   - **Decoded Kind:** `address`
   - **Before:** `0x0000000000000000000000000000000000000000`
-  - **After:** `0xd56045E68956FCe2576E680c95a4750cf8241f79`
+  - **After:** [`0xd56045E68956FCe2576E680c95a4750cf8241f79`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/superchain/configs/mainnet/ink.toml#L60) - Ink ProxyAdmin
   - **Summary:** ERC-1967 admin slot set to ProxyAdmin address
   
   ---
@@ -314,9 +314,9 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
-  - **Before:** `0x7aE1d3BD877a4C5CA257404ce26BE93A02C98013`
+  - **Before:** [`0x7aE1d3BD877a4C5CA257404ce26BE93A02C98013`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/validation/standard/standard-versions-mainnet.toml#L79) - L1ERC721Bridge 2.4.0
   - **After:** [`0x25d6CeDEB277Ad7ebEe71226eD7877768E0B7A2F`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L19)
-  - **Summary:** ERC-1967 implementation upgraded to AnchorStateRegistry v3.5.0
+  - **Summary:** ERC-1967 implementation upgraded to L1ERC721Bridge v2.7.0
   
   ---
   
@@ -342,9 +342,9 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
-  - **Before:** `0xB443Da3e07052204A02d630a8933dAc05a0d6fB4`
+  - **Before:** [`0xB443Da3e07052204A02d630a8933dAc05a0d6fB4`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/validation/standard/standard-versions-mainnet.toml#L73) - OptimismPortal 3.14.0
   - **After:** [`0xEFEd7F38BB9BE74bBa583a1A5B7D0fe7C9D5787a`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L12)
-  - **Summary:** ERC-1967 implementation upgraded to AnchorStateRegistry v3.5.0
+  - **Summary:** ERC-1967 implementation upgraded to OptimismPortal v4.6.0
   
   ---
   
@@ -370,9 +370,9 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
-  - **Before:** `0x340f923E5c7cbB2171146f64169EC9d5a9FfE647`
+  - **Before:** [`0x340f923E5c7cbB2171146f64169EC9d5a9FfE647`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/validation/standard/standard-versions-mainnet.toml#L69) - SystemConfig 2.5.0
   - **After:** [`0xFaA660bf783CBAa55e1B7F3475C20Db74a53b9Fa`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L8)
-  - **Summary:** ERC-1967 implementation upgraded to AnchorStateRegistry v3.5.0
+  - **Summary:** ERC-1967 implementation upgraded to SystemConfig v3.4.0
   
 - **Key:**          `0x52322a25d9f59ea17656545543306b7aef62bc0cc53a0e65ccfa0c75b97aa906`
   - **Decoded Kind:** `address`
@@ -400,9 +400,9 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
-  - **Before:** `0x7aE1d3BD877a4C5CA257404ce26BE93A02C98013`
+  - **Before:** [`0x7aE1d3BD877a4C5CA257404ce26BE93A02C98013`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/validation/standard/standard-versions-mainnet.toml#L79) - L1ERC721Bridge 2.4.0
   - **After:** [`0x25d6CeDEB277Ad7ebEe71226eD7877768E0B7A2F`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L19)
-  - **Summary:** ERC-1967 implementation upgraded to AnchorStateRegistry v3.5.0
+  - **Summary:** ERC-1967 implementation upgraded to L1ERC721Bridge v2.7.0
   
   ---
   
@@ -438,9 +438,9 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
-  - **Before:** `0x0b09ba359A106C9ea3b181CBc5F394570c7d2a7A`
+  - **Before:** [`0x0b09ba359A106C9ea3b181CBc5F394570c7d2a7A`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/validation/standard/standard-versions-mainnet.toml#L80) - L1StandardBridge 2.3.0
   - **After:** [`0x44AfB7722AF276A601D524F429016A18B6923df0`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L20)
-  - **Summary:** ERC-1967 implementation upgraded to AnchorStateRegistry v3.5.0
+  - **Summary:** ERC-1967 implementation upgraded to L1StandardBridge v2.6.0
   
   ---
   
@@ -454,16 +454,16 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
-  - **Before:** `0x4da82a327773965b8d4D85Fa3dB8249b387458E7`
+  - **Before:** [`0x4da82a327773965b8d4D85Fa3dB8249b387458E7`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/validation/standard/standard-versions-mainnet.toml#L83) - SuperchainConfig 1.2.0
   - **After:** [`0xCe28685EB204186b557133766eCA00334EB441E4`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L23)
-  - **Summary:** ERC-1967 implementation upgraded to AnchorStateRegistry v3.5.0
+  - **Summary:** ERC-1967 implementation upgraded to SuperchainConfig v2.3.0
   
 - **Key:**          `0xd30e835d3f35624761057ff5b27d558f97bd5be034621e62240e5c0b784abe68`
   - **Decoded Kind:** `address`
   - **Before:** `0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2`
   - **After:** `0x0000000000000000000000000000000000000000`
   - **Summary:** Guardian address
-  - **Detail:** Unstructured storage slot for the address of the superchain guardian.
+  - **Detail:** Unstructured storage slot for the address of the superchain guardian, removed as one of the main goals of U16.
   
   
   ---
@@ -480,13 +480,13 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x000000000000000000000000229047fed2591dbec1ef1118d64f7af3db9eb290`
   - **Summary:** systemConfig address set to OP SystemConfig proxy
-  - **Detail:** Storage slot 52 holds the [SystemConfig proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L58)
+  - **Detail:** Storage slot 52 holds the [SystemConfig proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L59)
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
-  - **Before:** `0x0b09ba359A106C9ea3b181CBc5F394570c7d2a7A`
+  - **Before:** [`0x0b09ba359A106C9ea3b181CBc5F394570c7d2a7A`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/validation/standard/standard-versions-mainnet.toml#L80) - L1StandardBridge 2.3.0
   - **After:** [`0x44AfB7722AF276A601D524F429016A18B6923df0`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L20)
-  - **Summary:** ERC-1967 implementation upgraded to AnchorStateRegistry v3.5.0
+  - **Summary:** ERC-1967 implementation upgraded to L1StandardBridge v2.6.0
   
   ---
   
@@ -517,7 +517,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
   - **Decoded Kind:** `address`
   - **Before:** `0x0000000000000000000000000000000000000000`
-  - **After:** `0xd56045E68956FCe2576E680c95a4750cf8241f79`
+  - **After:** [`0xd56045E68956FCe2576E680c95a4750cf8241f79`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/superchain/configs/mainnet/ink.toml#L60) - Ink ProxyAdmin
   - **Summary:** ERC-1967 admin slot set to ProxyAdmin address
   
 - **Key:**          `0xca399a74a2e45bc1100aefaa1dae30d0ae51000e349d60206e57bc5c12355f1e`
@@ -550,9 +550,9 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
-  - **Before:** `0xB443Da3e07052204A02d630a8933dAc05a0d6fB4`
+  - **Before:** [`0xB443Da3e07052204A02d630a8933dAc05a0d6fB4`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/validation/standard/standard-versions-mainnet.toml#L73) - OptimismPortal v3.14.0
   - **After:** [`0xEFEd7F38BB9BE74bBa583a1A5B7D0fe7C9D5787a`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L12)
-  - **Summary:** ERC-1967 implementation upgraded to AnchorStateRegistry v3.5.0
+  - **Summary:** ERC-1967 implementation upgraded to OptimismPortal v4.6.0
   
   ---
   
@@ -581,7 +581,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
   - **Decoded Kind:** `address`
   - **Before:** `0x0000000000000000000000000000000000000000`
-  - **After:** `0x543bA4AADBAb8f9025686Bd03993043599c6fB04`
+  - **After:** [`0x543bA4AADBAb8f9025686Bd03993043599c6fB04`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/superchain/configs/mainnet/op.toml#L60) - OP ProxyAdmin
   - **Summary:** ERC-1967 admin slot set to ProxyAdmin address
   
   ---
@@ -611,7 +611,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
   - **Decoded Kind:** `address`
   - **Before:** `0x0000000000000000000000000000000000000000`
-  - **After:** `0xd56045E68956FCe2576E680c95a4750cf8241f79`
+  - **After:** [`0xd56045E68956FCe2576E680c95a4750cf8241f79`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/superchain/configs/mainnet/ink.toml#L60) - Ink ProxyAdmin
   - **Summary:** ERC-1967 admin slot set to ProxyAdmin address
   
   ---
@@ -651,7 +651,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
   - **Decoded Kind:** `address`
   - **Before:** `0x0000000000000000000000000000000000000000`
-  - **After:** `0x543bA4AADBAb8f9025686Bd03993043599c6fB04`
+  - **After:** [`0x543bA4AADBAb8f9025686Bd03993043599c6fB04`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/superchain/configs/mainnet/op.toml#L60) - OP ProxyAdmin
   - **Summary:** ERC-1967 admin slot set to ProxyAdmin address
   
   ---
@@ -660,7 +660,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
-  - **Before:** `0x4bbA758F006Ef09402eF31724203F316ab74e4a0`
+  - **Before:** [`0x4bbA758F006Ef09402eF31724203F316ab74e4a0`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/validation/standard/standard-versions-mainnet.toml#L76) - DisputeGameFactory v1.0.1
   - **After:** [`0x33D1e8571a85a538ed3D5A4d88f46C112383439D`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L16)
   - **Summary:** ERC-1967 implementation upgraded to AnchorStateRegistry v3.5.0
   
@@ -719,5 +719,23 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
   - **Decoded Kind:** `address`
   - **Before:** `0x0000000000000000000000000000000000000000`
-  - **After:** `0xd56045E68956FCe2576E680c95a4750cf8241f79`
+  - **After:** [`0xd56045E68956FCe2576E680c95a4750cf8241f79`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/superchain/configs/mainnet/ink.toml#L60) - Ink ProxyAdmin
   - **Summary:** ERC-1967 admin slot set to ProxyAdmin address
+
+### Nonce increments
+
+- `0x23B2C62946350F4246f9f9D027e071f0264FD113` - AnchorStateRegistry (Chain ID: 10)
+- `0x322b47Ff1FA8D5611F761e3E275C45B71b294D43` - ETHLockbox (Chain ID: 10)
+- `0x3F7b07A5D638024a37A776FA228fE90b317aF6dE` - DelayedWETH (Chain ID: 57073)
+- `0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A` - ProxyAdminOwner (Chain ID: 10)
+- `0x847B5c174615B1B7fDF770882256e2D3E95b9D92` - FoundationOperationsSafe
+- `0xbd4AbB321138e8Eddc399cE64E66451294325a14` - ETHLockbox (Chain ID: 57073)
+- `0xc5f54F934075677FBA99b5E43468439cbdE88ca7` - DelayedWETH (Chain ID: 10)
+- `0xD5d9Eb5B1edce381C9f3377264e05c31f3036F32` - DelayedWETH (Chain ID: 57073)
+- `0xe214879aD573693A4C49f7654449Caa455cdE34f` - DelayedWETH (Chain ID: 10)
+- `0xEe018bAf058227872540AC60eFbd38b023d9dAe2` - AnchorStateRegistry (Chain ID: 57073)
+- `0x1a20c06a80260AA45adA0F9F59b334560eE3FEf1` - PermissionedDisputeGame (Chain ID: 10)
+- `0x46DDe051eb4561694DC1F0286eBe940d9E90fbe9` - PermissionlessDisputeGame (Chain ID: 10)
+- `0xEcca4BFbD017002abf25Aeebf2B21b903A5fC124` - PermissionedDisputeGame (Chain ID: 57073)
+- `0xd73Dd0F5665055B03eA0bFcac49bd4d26F1FFA4F` - PermissionlessDisupteGame (Chain ID: 57073)
+- `0xf13D09eD3cbdD1C930d4de74808de1f33B6b3D4f` - Sender address of the Tenderly transaction (Your ledger or first owner on the nested safe).
