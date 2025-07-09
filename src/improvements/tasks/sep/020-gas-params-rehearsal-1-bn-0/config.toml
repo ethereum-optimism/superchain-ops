@@ -10,9 +10,9 @@ eip1559Denominator = 250
 [addresses]
 # Overwrite the FoundationUpgradeSafe address. 
 # It's automatically set from the addresses.toml file, but we need to override it for this devnet.
-FoundationUpgradeSafe = "0x015BfF7dA797Ad476841c0bb20fe065168de3792"
+FoundationUpgradeSafe = "0x1A18bd2A868898EDDe75C54013baCc1938d399aC"
 
 [stateOverrides]
-0x015BfF7dA797Ad476841c0bb20fe065168de3792 = [
-    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 1 }
+0x1A18bd2A868898EDDe75C54013baCc1938d399aC = [
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 0 }
 ]
