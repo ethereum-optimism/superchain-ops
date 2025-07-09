@@ -18,7 +18,7 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice A template contract for configuring OPCMTaskBase templates.
 /// Supports: op-contracts/v4.0.0-rc.2>
-contract OPCMUpgradeV400 is OPCMTaskBase {
+contract OPCMUpgrade_v400 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
 

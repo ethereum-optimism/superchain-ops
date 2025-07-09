@@ -13,7 +13,7 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {DisputeGameUpgradeTemplate} from "test/tasks/mock/template/DisputeGameUpgradeTemplate.sol";
-import {OPCMUpgradeV200} from "src/improvements/template/OPCMUpgradeV200.sol";
+import {OPCMUpgrade_v200} from "src/improvements/template/OPCMUpgrade_v200.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 import {MockDisputeGameTask} from "test/tasks/mock/MockDisputeGameTask.sol";
 import {DisputeGameUpgradeTemplate} from "test/tasks/mock/template/DisputeGameUpgradeTemplate.sol";
@@ -167,7 +167,7 @@ contract NestedMultisigTaskTest is Test {
         // Which meant this test failed. We're forking at the block before to continue to test this.
         vm.createSelectFork("sepolia", 7972616);
         uint256 snapshotId = vm.snapshotState();
-        multisigTask = new OPCMUpgradeV200();
+        multisigTask = new OPCMUpgrade_v200();
         string memory opcmTaskConfigFilePath = "test/tasks/example/sep/002-opcm-upgrade-v200/config.toml";
 
         address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe, foundationChildMultisig);
@@ -190,12 +190,12 @@ contract NestedMultisigTaskTest is Test {
                 _packSignaturesForChildMultisig(rootSafeOwners[i], childMultisigDataToSign[i]);
 
             // execute the approve hash call with the signatures
-            multisigTask = new OPCMUpgradeV200();
+            multisigTask = new OPCMUpgrade_v200();
             multisigTask.approve(opcmTaskConfigFilePath, rootSafeOwners[i], packedSignaturesChild);
         }
 
         // Execute the task
-        multisigTask = new OPCMUpgradeV200();
+        multisigTask = new OPCMUpgrade_v200();
         // Snapshot before running the task so we can roll back to this pre-state
         uint256 newSnapshot = vm.snapshotState();
 

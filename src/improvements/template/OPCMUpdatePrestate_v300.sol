@@ -15,7 +15,7 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice This template provides OPCM-based absolute prestate updates.
 /// Supports: op-contracts/v3.0.0
-contract OPCMUpdatePrestateV300 is OPCMTaskBase {
+contract OPCMUpdatePrestate_v300 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
 

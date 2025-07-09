@@ -19,11 +19,12 @@ create_template() {
     while true; do
         if [ -t 0 ]; then
             echo ""
-            echo -e "Enter template file name (e.g.\033[33m <template_name>.sol\033[0m)."
+            echo -e "Enter template file name (e.g.\033[33m <template_name>_v<major><minor><patch>.sol\033[0m)."
             echo "    - Make the name generic enough so that other developers know it is reusable."
-            echo "    - Follow single responsibility: one task per template (see: TransferL1PAO and TransferL2PAO)."
+            echo "    - Follow single responsibility: one task per template (see: TransferL1PAO_v100 and TransferL2PAO_v100)."
             echo "    - Ideally, the name should start with a verb like 'Transfer', 'Update', 'Set'."
             echo "    - Avoid using 'Template' in the name."
+            echo "    - The version included in the file name i.e. '_v<major><minor><patch>' should be an 'op-contracts' release version. e.g. https://github.com/ethereum-optimism/optimism/releases/tag/op-contracts%2Fv4.0.0-rc.2"
             echo -e "\033[33mTip: Name with future reuse in mind.\033[0m"
             echo ""
             read -r -p "Filename: " filename
@@ -33,6 +34,13 @@ create_template() {
 
         if [[ "$filename" == *.sol ]]; then
             contract_name="${filename%.sol}"
+
+            if [[ ! "$contract_name" =~ _v[0-9]+$ ]]; then
+                echo -e "\n\033[31mFilename must contain a version number in the format '_v<major><minor><patch>' (e.g., '_v100' for version 1.0.0).\033[0m"
+                echo -e "\033[31mExample: MyTemplate_v100.sol\033[0m"
+                continue
+            fi
+
             template_path="${root_dir}/src/improvements/template/${filename}"
             mkdir -p "$(dirname "$template_path")"
             
