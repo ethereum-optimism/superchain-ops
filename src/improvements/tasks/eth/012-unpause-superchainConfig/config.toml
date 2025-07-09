@@ -1,6 +1,6 @@
 l2chains = [{name = "OP Mainnet", chainId = 10}]
 
-templateName = "UnPauseSuperchainConfigTemplateV300"
+templateName = "UnPauseSuperchainConfig"
 
 [stateOverrides]
 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A = [ # FoundationOperationSafe: 106
