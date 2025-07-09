@@ -37,9 +37,3 @@ Navigate to the correct task directory then run the simulate command.
 cd src/improvements/tasks/eth/019-U16-opcm-upgrade-v400-uni
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate foundation
 ```
-
-Keep in mind that to simulate this task correctly using the previous command, the op and ink task in this same upgrade must have been executed successfully. To test this if the previous task has not been executed yet, you can run the following command:
-```
-cd src/improvements
-just simulate-stack eth 019-U16-opcm-upgrade-v400-uni
-```
