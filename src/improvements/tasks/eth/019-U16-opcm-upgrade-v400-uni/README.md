@@ -1,6 +1,6 @@
 # 019-U16-opcm-upgrade-v400-uni: Upgrade 16: Unichain
 
-Status: [DRAFT]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
