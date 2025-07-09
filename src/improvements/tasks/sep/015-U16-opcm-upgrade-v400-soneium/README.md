@@ -1,6 +1,6 @@
 # 015-U16-opcm-upgrade-v400-soneium: Upgrade 16: Soneium Testnet Minato
 
-Status: [DRAFT]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
