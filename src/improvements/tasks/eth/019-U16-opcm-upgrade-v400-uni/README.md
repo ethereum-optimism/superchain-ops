@@ -12,7 +12,7 @@ This task uses `op-contract/v4.0.0` [OPContractsManager](https://github.com/ethe
 
 ### Timing
 
-Expected to be executed on or around 2025-07-17.
+Expected to be executed on or around 2025-07-24.
 
 ## Transaction creation
 
