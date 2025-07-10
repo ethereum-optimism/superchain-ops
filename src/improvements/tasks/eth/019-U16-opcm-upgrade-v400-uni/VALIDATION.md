@@ -22,6 +22,17 @@ the values printed to the terminal when you run the task.
 >
 > - Domain Hash: `0x4f0b6efb6c01fa7e127a0ff87beefbeb53e056d30d3216c5ac70371b909ca66d`
 > - Message Hash: `0xefa479616f22394c003a3d519d2d17265b9d72814c6cc363d980aeb4975765c1`
+>
+> ### FoundationUpgradeSafe - `0x847B5c174615B1B7fDF770882256e2D3E95b9D92`
+>
+> - Domain Hash: `0xa4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b732672`
+> - Message Hash: `0xf8d89eb1c1001a101376f1ed71979a3e69fd264a4ad450a7daf1324f9d6e3bf6`
+>
+> ### Security Council - `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`
+>
+> - Domain Hash: `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
+> - Message Hash: `0x3cd4e1e20ed9799317d3d89134e07f3ba10b518aa7a4a1b2468e6bdfc99c20a9`
+
 
 ## Normalized State Diff Hash Attestation
 
