@@ -18,7 +18,7 @@ getSortedTaskForNetwork() {
         fi
     fi
 
-    find "tasks/$network" -maxdepth 1 -type d 2>/dev/null | sort
+    find "tasks/$network" -maxdepth 1 -type d -not -name "rehearsals" 2>/dev/null | sort
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

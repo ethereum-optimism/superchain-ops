@@ -46,9 +46,22 @@ create_task() {
         suggestion="This is a test task"
         is_test_task="true"
         echo ""
-    else 
+    else
         echo -e "\033[32mYou selected: No\033[0m"
-        dest_dir="tasks"
+        echo ""
+        read -r -p "Is this a security council rehearsal task? Type 'y' to confirm, or press Enter for No: " is_rehearsal_task
+        if [[ "$is_rehearsal_task" == "Y" || "$is_rehearsal_task" == "y" || "$is_rehearsal_task" == "yes" ]]; then
+            echo ""
+            echo -e "\033[32mYou selected: Yes\033[0m"
+            suggestion="This is a security council rehearsal task"
+            is_rehearsal_task="true"
+            dest_dir="tasks"
+            echo ""
+        else
+            echo ""
+            echo -e "\033[32mYou selected: No\033[0m"
+            dest_dir="tasks"
+        fi
         # This is an ordered list of all the tasks for a given network.
         script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
         sorted_existing_dirs=$("$script_dir/sorted-tasks.sh" "$network")
@@ -87,14 +100,18 @@ create_task() {
         short_description=": $short_description"
     fi
 
-    task_path="${dest_dir}/${network}/${dirname}"
+    if [[ "$is_rehearsal_task" == "true" ]]; then
+        task_path="${dest_dir}/${network}/rehearsals/${dirname}"
+    else
+        task_path="${dest_dir}/${network}/${dirname}"
+    fi
     mkdir -p "$task_path"
     config_path="$task_path/config.toml"
     
     echo -e "l2chains = [] # e.g. [{name = \"OP Mainnet\", chainId = 10}]\ntemplateName = \"${template%.sol}\"" >"${config_path}"
 
-    # Don't write the readme and validation files for test tasks.
-    if [[ "$is_test_task" == "false" ]]; then
+    # Don't write the readme and validation files for test tasks and rehearsal tasks.
+    if [[ "$is_test_task" == "false" && "$is_rehearsal_task" == "false" ]]; then
         # copy the readme template to readme_path
         readme_path="$task_path/README.md" 
         cp "template/boilerplate/README.template.md" "$readme_path"
