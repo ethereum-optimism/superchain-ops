@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import {Test} from "forge-std/Test.sol";
 import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
+import {MultisigTaskTestHelper} from "../tasks/MultisigTask.t.sol";
 
 contract SimpleAddressRegistryTest is Test {
     // Test addresses
@@ -17,6 +18,8 @@ contract SimpleAddressRegistryTest is Test {
     string idReturnKind; // "identifier" or "AddressInfo"
 
     bool isSimpleAddressRegistry;
+
+    string constant TESTING_DIRECTORY = "simple-address-registry-testing";
 
     function setUp() public virtual {
         registryName = "SimpleAddressRegistry";
@@ -108,5 +111,25 @@ contract SimpleAddressRegistryTest is Test {
         assertEq(registry.get("FoundationOperationsSafe"), 0x837DE453AD5F21E89771e3c06239d8236c0EFd5E, "10");
         assertEq(registry.get("FoundationUpgradeSafe"), 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B, "20");
         assertEq(registry.get("SecurityCouncil"), 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977, "30");
+    }
+
+    function test_allowOverwrite_passes() public {
+        vm.createSelectFork("sepolia", 8763261);
+        string memory tomlContent =
+            "templateName = \"WelcomeToSuperchainOps\"\nname = \"Satoshi\"\nallowOverwrite = [\"SecurityCouncil\"]\n[addresses]\nSecurityCouncil = \"0x799F5202AEBB41eC779e046e46a4D033d367d877\"";
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent, TESTING_DIRECTORY, "000");
+        SimpleAddressRegistry registry = new SimpleAddressRegistry(fileName);
+        assertEq(registry.get("SecurityCouncil"), 0x799F5202AEBB41eC779e046e46a4D033d367d877, "10");
+        MultisigTaskTestHelper.removeFile(fileName);
+    }
+
+    function test_allowOverwrite_fails() public {
+        vm.createSelectFork("sepolia", 8763261);
+        string memory tomlContent =
+            "templateName = \"WelcomeToSuperchainOps\"\nname = \"Satoshi\"\n[addresses]\nSecurityCouncil = \"0x799F5202AEBB41eC779e046e46a4D033d367d877\"";
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent, TESTING_DIRECTORY, "001");
+        vm.expectRevert(bytes("SimpleAddressRegistry: duplicate key SecurityCouncil"));
+        new SimpleAddressRegistry(fileName);
+        MultisigTaskTestHelper.removeFile(fileName);
     }
 }

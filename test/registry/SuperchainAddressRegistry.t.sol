@@ -293,27 +293,28 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
         MultisigTaskTestHelper.removeFile(configFileName);
     }
 
-    /// Test that overwrites are allowed when using the `saveAddressUnchecked` function and not allowed when using the `saveAddress` function.
-    function testOverwrites() public {
-        vm.createSelectFork("mainnet");
-        string memory tomlContent = "l2chains = [{name = \"MyLocalChain\", chainId = 10}]\n";
-        string memory configFileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent, TESTING_DIRECTORY, "005");
-        SuperchainAddressRegistry superchainRegistry = new SuperchainAddressRegistry(configFileName);
-        address fus = superchainRegistry.get("FoundationUpgradeSafe");
-        (uint256 chainId, string memory name) = superchainRegistry.sentinelChain();
-        SuperchainAddressRegistry.ChainInfo memory sentinelChain =
-            SuperchainAddressRegistry.ChainInfo({chainId: chainId, name: name});
+    function test_allowOverwrite_passes() public {
+        vm.createSelectFork("mainnet", 22919060);
+        string memory tomlContent =
+            "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\ntemplateName = \"WelcomeToSuperchainOps\"\nname = \"Satoshi\"\nallowOverwrite = [\"SecurityCouncil\"]\n[addresses]\nSecurityCouncil = \"0x1111111111111111111111111111111111111111\"";
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent, TESTING_DIRECTORY, "005");
+        SuperchainAddressRegistry registry = new SuperchainAddressRegistry(fileName);
+        assertEq(registry.get("SecurityCouncil"), address(0x1111111111111111111111111111111111111111), "10");
+        MultisigTaskTestHelper.removeFile(fileName);
+    }
+
+    function test_allowOverwrite_fails() public {
+        vm.createSelectFork("mainnet", 22919060);
+        string memory tomlContent =
+            "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\ntemplateName = \"WelcomeToSuperchainOps\"\nname = \"Satoshi\"\n[addresses]\nSecurityCouncil = \"0x1111111111111111111111111111111111111111\"";
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent, TESTING_DIRECTORY, "006");
         string memory errorMessage = string.concat(
-            "SuperchainAddressRegistry: duplicate key FoundationUpgradeSafe for chain ", vm.toString(chainId)
+            "SuperchainAddressRegistry: duplicate key SecurityCouncil for chain ",
+            vm.toString(uint256(keccak256("SuperchainAddressRegistry")))
         );
-
-        // Overwrites not allowed.
         vm.expectRevert(bytes(errorMessage));
-        superchainRegistry.saveAddress("FoundationUpgradeSafe", sentinelChain, fus);
-        // Overwrites allowed.
-        superchainRegistry.saveAddressUnchecked("FoundationUpgradeSafe", sentinelChain, fus);
-
-        MultisigTaskTestHelper.removeFile(configFileName);
+        new SuperchainAddressRegistry(fileName);
+        MultisigTaskTestHelper.removeFile(fileName);
     }
 
     // Helper function to get optional addresses without reverting.

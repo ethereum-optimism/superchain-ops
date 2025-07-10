@@ -402,24 +402,41 @@ library AccountAccessParser {
         view
         returns (bool)
     {
-        if (isLivenessGuard(_account)) {
-            address[] memory owners = IGnosisSafe(_parentMultisig).getOwners();
-            for (uint256 i = 0; i < owners.length; i++) {
-                if (isGnosisSafe(owners[i])) {
-                    // Get the owners of the nested Gnosis Safe.
-                    address[] memory nestedSafeOwners = IGnosisSafe(owners[i]).getOwners();
-                    for (uint256 j = 0; j < nestedSafeOwners.length; j++) {
-                        // Check if the slot matches any liveness guard timestamp for the nested safe owners.
-                        bytes32 ownerSlot =
-                            keccak256(abi.encode(address(nestedSafeOwners[j]), LIVENESS_GUARD_LAST_LIVE_SLOT));
-                        if (_diff.slot == ownerSlot) {
-                            return true;
-                        }
+        if (!isLivenessGuard(_account)) {
+            return false;
+        }
+
+        return _checkOwnersForLivenessSlot(_parentMultisig, _diff.slot);
+    }
+
+    /// @notice Checks if the given slot matches any liveness guard timestamp for owners and nested safe owners
+    function _checkOwnersForLivenessSlot(address _multisig, bytes32 _slot) internal view returns (bool) {
+        address[] memory owners = IGnosisSafe(_multisig).getOwners();
+
+        for (uint256 i = 0; i < owners.length; i++) {
+            // Check if this owner's liveness slot matches
+            if (_isOwnerLivenessSlot(owners[i], _slot)) {
+                return true;
+            }
+
+            // If this owner is a nested safe, check its owners too
+            if (isGnosisSafe(owners[i])) {
+                address[] memory nestedOwners = IGnosisSafe(owners[i]).getOwners();
+                for (uint256 j = 0; j < nestedOwners.length; j++) {
+                    if (_isOwnerLivenessSlot(nestedOwners[j], _slot)) {
+                        return true;
                     }
                 }
             }
         }
+
         return false;
+    }
+
+    /// @notice Checks if the given slot matches the liveness guard timestamp slot for a specific owner
+    function _isOwnerLivenessSlot(address _owner, bytes32 _slot) internal pure returns (bool) {
+        bytes32 ownerSlot = keccak256(abi.encode(_owner, LIVENESS_GUARD_LAST_LIVE_SLOT));
+        return _slot == ownerSlot;
     }
 
     function isAnchorStateRegistryProposal(address _account, StateDiff memory _diff) internal view returns (bool) {
