@@ -24,7 +24,7 @@ StandardValidatorV400 = "0xaaabe70a4198ab9e99e1a22b1afa0a43cc7f2c79"
 
 [stateOverrides]
 0xd363339eE47775888Df411A163c586a8BdEA9dbf = [
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 33}
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 34}
 ]
 # Override the SuperchainConfig implementation address. This is necessary to prevent an attempt to
 # upgrade the SuperchainConfig by the wrong L1 ProxyAdmin owner.
