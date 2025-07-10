@@ -1,6 +1,6 @@
 # 015-U16-opcm-upgrade-v400-soneium: Upgrade 16: Soneium Testnet Minato
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xe05423c945b384da19b4a48c89b2cfe3610540003ff5dc1aa22bf7c0c7243bb8)
 
 ## Objective
 

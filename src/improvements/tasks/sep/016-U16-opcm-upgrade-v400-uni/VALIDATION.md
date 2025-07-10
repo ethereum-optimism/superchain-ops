@@ -10,7 +10,7 @@ the values printed to the terminal when you run the task.
 > ### Safe (L1ProxyAdminOwner): `0xd363339eE47775888Df411A163c586a8BdEA9dbf` - This safe is not nested.
 >
 > - Domain Hash: `0x2fedecce87979400ff00d5cec4c77da942d43ab3b9db4a5ffc51bb2ef498f30b`
-> - Message Hash: `0x0664b06c2fd13236ac557f5115f6c73fc72405593648f58ab48cf198d4f1c3dc`
+> - Message Hash: `0x033bfb0599c44b6c3c23866b4ad20ef88708f0c5e8ede528ecd0b131292d6bb8`
 
 ## Normalized State Diff Hash Attestation
 
