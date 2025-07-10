@@ -684,4 +684,3 @@ The resulting calldata sent from the ProxyAdminOwner safe is thus:
   - **Before:** `0x0b09ba359A106C9ea3b181CBc5F394570c7d2a7A`
   - **After:** [`0x44AfB7722AF276A601D524F429016A18B6923df0`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L20)
   - **Summary:** ERC-1967 implementation slot updated
-
