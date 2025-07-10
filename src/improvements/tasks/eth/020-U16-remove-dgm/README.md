@@ -1,6 +1,6 @@
 # 020-U16-remove-dgm: Remove Deputy Guardian Module on Ethereum Mainnet
 
-Status: [DRAFT]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
@@ -8,7 +8,7 @@ Disabling the legacy Deputy Guardian module due to its deprecation in U16.
 
 ### Timing
 
-Expected to be executed on or around 2025-07-17.
+Expected to be executed on or around 2025-07-24.
 
 ## Transaction creation
 

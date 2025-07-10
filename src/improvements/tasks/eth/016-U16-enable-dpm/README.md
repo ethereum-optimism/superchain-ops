@@ -1,6 +1,6 @@
 # 016-U16-enable-dpm: Enable New Deputy Pause Module on Ethereum Mainnet
 
-Status: [DRAFT]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
@@ -8,7 +8,7 @@ Enabling the new Deputy Pause Module introduced in U16.
 
 ### Timing
 
-Expected to be executed on or around 2025-07-17.
+Expected to be executed on or around 2025-07-24.
 
 ## Transaction creation
 
