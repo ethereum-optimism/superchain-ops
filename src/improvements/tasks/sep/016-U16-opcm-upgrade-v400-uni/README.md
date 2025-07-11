@@ -1,6 +1,5 @@
-# 016-U16-opcm-upgrade-v400-uni: Upgrade 16: Unichain Sepolia Testnet and Soneium Testnet Minato
-
-Status: [READY TO SIGN]()
+# 016-U16-opcm-upgrade-v400-uni: Upgrade 16: Unichain Sepolia Testnet
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x9e13e9e73a218189d7c2b5a025fcc39f94b702b58d618eaab6fc83ca80667ab3)
 
 ## Objective
 
