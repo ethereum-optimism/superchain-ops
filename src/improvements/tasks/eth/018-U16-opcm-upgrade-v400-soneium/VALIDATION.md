@@ -135,7 +135,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x000000000000000000000000512a3d2c7a43bd9261d2b8e8c9c70d4bd4d503c0`
-  - **Summary:** disputeGameFactory set to [`0x512a3d2c7a43bd9261d2b8e8c9c70d4bd4d503c0`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/soneium.toml#L53)
+  - **Summary:** disputeGameFactory set to [`0x512a3d2c7a43bd9261d2b8e8c9c70d4bd4d503c0`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/soneium.toml#L64)
   - **Detail:** Points to DisputeGameFactoryProxy for Soneium
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000003`
@@ -153,7 +153,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000006`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x000000000000000000000000000000000000000000000000686be86300000001`
-  - **Summary:** Packed slot with respectedGameType=1 and retirementTimestamp=1,748,000,000,000
+  - **Summary:** Packed slot with respectedGameType=1 and retirementTimestamp (the actual timestamp value will vary based on when the simulation is run). 
   - **Detail:** Game type and retirement timestamp packed in single slot
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
@@ -172,7 +172,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
   ---
   
-### `0x512a3d2c7a43bd9261d2b8e8c9c70d4bd4d503c0` ([DisputeGameFactoryProxy](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/soneium.toml#L53)) - Chain ID: 1868
+### `0x512a3d2c7a43bd9261d2b8e8c9c70d4bd4d503c0` ([DisputeGameFactoryProxy](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/soneium.toml#L64)) - Chain ID: 1868
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
@@ -189,13 +189,6 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
   ---
   
-### `0x56ebc5c4870f5367b836081610592241ad3e0734` ([OPContractsManager](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L22)) - Chain ID: 1
-  
-- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000001`
-  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
-  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000000`
-  - **Summary:** _initializing flag reset to false (initialization process completed)
-  - **Detail:** Reinitializable pattern - marks initialization process as complete
   
   ---
   
@@ -222,7 +215,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
   ---
   
-### `0x5a0aae59d09fccbddb6c6cceb07b7279367c3d2a` (ProxyAdminOwner (GnosisSafe)) - Chain ID: 10
+### `0x5a0aae59d09fccbddb6c6cceb07b7279367c3d2a` ([ProxyAdminOwner](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/soneium.toml#L45) (GnosisSafe)) - Chain ID: 10
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:** `uint256`
@@ -280,7 +273,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0x000000000000000000000000000000000000000000000000000000000000006c`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x00000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c`
-  - **Summary:** superchainConfig set to [`0x95703e0982140d16f8eba6d158fccede42f04a4c`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/superchain.toml#L10)
+  - **Summary:** superchainConfig set to [`0x95703e0982140d16f8eba6d158fccede42f04a4c`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/soneium.toml#L61)
   - **Detail:** Points to SuperchainConfigProxy on mainnet
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
@@ -292,7 +285,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
 - **Key:**          `0x52322a25d9f59ea17656545543306b7aef62bc0cc53a0e65ccfa0c75b97aa906`
   - **Decoded Kind:** `address`
-  - **Before:** [`0x512A3d2c7a43BD9261d2B8E8C9c70D4bd4D503C0`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/soneium.toml#L53)
+  - **Before:** [`0x512A3d2c7a43BD9261d2B8E8C9c70D4bd4D503C0`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/soneium.toml#L64)
   - **After:** `0x0000000000000000000000000000000000000000`
   - **Summary:** disputeGameFactory cleared (set to zero address)
   - **Detail:** Unstructured storage slot for the address of the DisputeGameFactory proxy - temporarily cleared during upgrade process
@@ -310,13 +303,13 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0x000000000000000000000000000000000000000000000000000000000000003e`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x0000000000000000000000004890928941e62e273da359374b105f803329f473`
-  - **Summary:** anchorStateRegistry set to AnchorStateRegistryProxy for Soneium
+  - **Summary:** anchorStateRegistry set to newly deployed AnchorStateRegistryProxy for Soneium
   - **Detail:** Points to the newly deployed AnchorStateRegistryProxy
   
 - **Key:**          `0x000000000000000000000000000000000000000000000000000000000000003f`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x00000000000000000000000067b4de6ffa66ef201ea6099a89ca397d56622e31`
-  - **Summary:** ethLockbox set to ETHLockboxProxy for Soneium
+  - **Summary:** ethLockbox set to newly deployed ETHLockboxProxy for Soneium
   - **Detail:** Points to the newly deployed ETHLockboxProxy
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
@@ -333,7 +326,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000009f7150d8c019bef34450d6920f6b3608cefdaf20002`
-  - **Summary:** Packed slot with guardian ([`0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/superchain.toml#L11)) and _initialized=2
+  - **Summary:** Packed slot with guardian ([`0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/soneium.toml#L46)) and _initialized=2
   - **Detail:** SuperchainConfig packed storage - guardian address + re-initialization flag
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
@@ -345,7 +338,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
 - **Key:**          `0xd30e835d3f35624761057ff5b27d558f97bd5be034621e62240e5c0b784abe68`
   - **Decoded Kind:** `address`
-  - **Before:** [`0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/superchain.toml#L11)
+  - **Before:** [`0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/soneium.toml#L46)
   - **After:** `0x0000000000000000000000000000000000000000`
   - **Summary:** pauseTimestamps mapping entry cleared for guardian
   - **Detail:** Mapping slot for pauseTimestamps[guardian] - cleared during upgrade process
