@@ -1,6 +1,6 @@
 # 020-gas-params-rehearsal-1-bn-0: Testing task against a devnet with local addresses.json
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0x226dcb3fd84115a0fd4e8762bb9f916e6bc6229e801ac9cbf0ec3d83353443c9)
 
 ## Objective
 
