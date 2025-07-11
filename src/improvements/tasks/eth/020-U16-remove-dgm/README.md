@@ -8,7 +8,7 @@ Disabling the legacy Deputy Guardian module due to its deprecation in U16.
 
 ### Timing
 
-Expected to be executed on or around 2025-07-17.
+Expected to be executed on or around 2025-07-24.
 
 ## Transaction creation
 
@@ -30,5 +30,5 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 Navigate to the correct task directory then run the simulate command.
 ```
 cd src/improvements/tasks/eth/020-U16-remove-dgm
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate 
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate council
 ```
