@@ -1,6 +1,6 @@
 # 020-gas-params-rehearsal-1-bn-0: Testing task against a devnet with local addresses.json
 
-Status: [READY FOR REVIEW]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
