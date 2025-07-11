@@ -70,6 +70,20 @@ struct TaskConfig {
 
 /// @notice This struct contains all the data needed to execute a task.
 /// All safes involved in the task must be represented in this struct.
+///
+/// The `safes` array is ordered from the highest-depth safe (left) to the root safe (right, depth 0).
+/// The `calldatas` and `originalNonces` arrays correspond to the `safes` array at each index.
+/// A safe at any given index is an owner of the safe at the next index.
+///
+///   Example with 3 safes:
+///
+///      Depth 2              Depth 1              Depth 0
+///   +----------------+   +----------------+   +----------------+
+///   |    safes[0]    |-->|    safes[1]    |-->|    safes[2]    |
+///   +----------------+   +----------------+   +----------------+
+///     (Owner on          (Owner on            (Root Safe,
+///      safes[1])           safes[2])            executes tx)
+///
 struct TaskPayload {
     address[] safes;
     bytes[] calldatas;

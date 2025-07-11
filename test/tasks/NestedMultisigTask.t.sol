@@ -18,6 +18,7 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 import {MockDisputeGameTask} from "test/tasks/mock/MockDisputeGameTask.sol";
 import {DisputeGameUpgradeTemplate} from "test/tasks/mock/template/DisputeGameUpgradeTemplate.sol";
 import {MultisigTaskTestHelper} from "test/tasks/MultisigTask.t.sol";
+import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
 
 /// @notice This test is used to test the nested multisig task.
 contract NestedMultisigTaskTest is Test {
@@ -114,7 +115,7 @@ contract NestedMultisigTaskTest is Test {
 
         for (uint256 i; i < testData.childOwnerMultisigs.length; i++) {
             // Validate the data to sign for the child multisig.
-            _validateNestedDataToSign(testData.childOwnerMultisigs[i], callDataToApprove);
+            _validateNestedDataToSign(testData.childOwnerMultisigs[i], callDataToApprove, MULTICALL3_ADDRESS);
         }
     }
 
@@ -132,7 +133,7 @@ contract NestedMultisigTaskTest is Test {
         TestData memory testData = _prepareTestData(allOriginalNonces, actions);
 
         // Step 2: Prepare child multisig signatures
-        bytes[] memory childMultisigDatasToSign = _prepareChildMultisigSignatures(testData, actions);
+        bytes[] memory childMultisigDatasToSign = _prepareChildMultisigSignatures(testData, actions, MULTICALL3_ADDRESS);
 
         // Step 3: Setup mock owners and execute approvals
         vm.revertToState(snapshotId);
@@ -178,7 +179,7 @@ contract NestedMultisigTaskTest is Test {
 
         TestData memory testData = _prepareTestData(allOriginalNonces, actions);
         address[] memory rootSafeOwners = testData.rootSafe.getOwners();
-        bytes[] memory childMultisigDataToSign = _prepareChildMultisigSignatures(testData, actions);
+        bytes[] memory childMultisigDataToSign = _prepareChildMultisigSignatures(testData, actions, MULTICALL3_ADDRESS);
         // Revert to snapshot so that the safe is in the same state as before the task was run
         vm.revertToState(snapshotId);
 
@@ -246,17 +247,22 @@ contract NestedMultisigTaskTest is Test {
     }
 
     /// @notice Validate the data to sign for the child multisig.
-    function _validateNestedDataToSign(address childMultisig, bytes memory callDataToApprove) internal view {
-        address[] memory tmpAllSafes = MultisigTaskTestHelper.getAllSafes(ROOT_SAFE, childMultisig);
+    function _validateNestedDataToSign(
+        address _childMultisig,
+        bytes memory _callDataToApprove,
+        address _multicallAddress
+    ) internal view {
+        address[] memory tmpAllSafes = MultisigTaskTestHelper.getAllSafes(ROOT_SAFE, _childMultisig);
         uint256[] memory tmpAllOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(tmpAllSafes);
         uint256 childSafeNonce = tmpAllOriginalNonces[0];
-        bytes memory dataToSign =
-            multisigTask.getEncodedTransactionData(childMultisig, callDataToApprove, 0, childSafeNonce, tmpAllSafes);
+        bytes memory dataToSign = GnosisSafeHashes.getEncodedTransactionData(
+            _childMultisig, _callDataToApprove, 0, childSafeNonce, _multicallAddress
+        );
 
-        bytes memory expectedDataToSign = IGnosisSafe(childMultisig).encodeTransactionData({
+        bytes memory expectedDataToSign = IGnosisSafe(_childMultisig).encodeTransactionData({
             to: MULTICALL3_ADDRESS,
             value: 0,
-            data: callDataToApprove,
+            data: _callDataToApprove,
             operation: Enum.Operation.DelegateCall,
             safeTxGas: 0,
             baseGas: 0,
@@ -268,10 +274,10 @@ contract NestedMultisigTaskTest is Test {
         assertEq(dataToSign, expectedDataToSign, "Wrong data to sign");
 
         bytes32 nestedHashToApprove = keccak256(dataToSign);
-        bytes32 expectedNestedHashToApprove = IGnosisSafe(childMultisig).getTransactionHash(
+        bytes32 expectedNestedHashToApprove = IGnosisSafe(_childMultisig).getTransactionHash(
             MULTICALL3_ADDRESS,
             0,
-            callDataToApprove,
+            _callDataToApprove,
             Enum.Operation.DelegateCall,
             0,
             0,
@@ -296,10 +302,11 @@ contract NestedMultisigTaskTest is Test {
         testData.childOwnerMultisigs = testData.rootSafe.getOwners();
     }
 
-    function _prepareChildMultisigSignatures(TestData memory testData, Action[] memory actions)
-        internal
-        returns (bytes[] memory childMultisigDatasToSign)
-    {
+    function _prepareChildMultisigSignatures(
+        TestData memory testData,
+        Action[] memory actions,
+        address multicallAddress
+    ) internal returns (bytes[] memory childMultisigDatasToSign) {
         childMultisigDatasToSign = new bytes[](testData.childOwnerMultisigs.length);
         MultisigTaskTestHelper.decrementNonceAfterSimulation(address(testData.rootSafe));
         // Store the data to sign for each child multisig.
@@ -311,8 +318,8 @@ contract NestedMultisigTaskTest is Test {
             bytes[] memory tmpAllCalldatas = multisigTask.transactionDatas(actions, tmpAllSafes, tmpAllOriginalNonces);
             bytes memory childSafeCalldata = tmpAllCalldatas[0];
             uint256 childSafeNonce = tmpAllOriginalNonces[0];
-            childMultisigDatasToSign[i] = multisigTask.getEncodedTransactionData(
-                testData.childOwnerMultisigs[i], childSafeCalldata, 0, childSafeNonce, tmpAllSafes
+            childMultisigDatasToSign[i] = GnosisSafeHashes.getEncodedTransactionData(
+                testData.childOwnerMultisigs[i], childSafeCalldata, 0, childSafeNonce, multicallAddress
             );
         }
     }
