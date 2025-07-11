@@ -1,0 +1,6 @@
+templateName = "WelcomeToSuperchainOps"
+
+name = "Satoshi"
+
+[addresses]
+TargetContract = "0x0fb11b4164894912f079de62699f4cc5a2271f0c" # Mainnet deployment of WelcomeToSuperchainOps.
