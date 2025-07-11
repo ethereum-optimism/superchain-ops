@@ -1,6 +1,6 @@
 # 018-U16-opcm-upgrade-v400-soneium: Upgrade 16: Soneium
 
-Status: [DRAFT]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
@@ -12,7 +12,7 @@ This task uses `op-contract/v4.0.0` [OPContractsManager](https://github.com/ethe
 
 ### Timing
 
-Expected to be executed on or around 2025-07-17.
+Expected to be executed on or around 2025-07-24.
 
 ## Transaction creation
 
@@ -36,10 +36,4 @@ Navigate to the correct task directory then run the simulate command.
 ```
 cd src/improvements/tasks/eth/018-U16-opcm-upgrade-v400-soneium
 SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate foundation
-```
-
-Keep in mind that to simulate this task correctly using the previous command, the op and ink task in this same upgrade must have been executed successfully. To test this if the previous task has not been executed yet, you can run the following command:
-```
-cd src/improvements
-just simulate-stack eth 018-U16-opcm-upgrade-v400-soneium
 ```
