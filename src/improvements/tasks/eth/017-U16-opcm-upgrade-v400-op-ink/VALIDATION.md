@@ -298,7 +298,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
   ---
   
-### `0x5a7749f83b81b301cab5f48eb8516b986daef23d` (L1ERC721Bridge) - Chain ID: 10
+### `0x5a7749f83b81b301cab5f48eb8516b986daef23d` ([L1ERC721Bridge](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L56)) - Chain ID: 10
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
@@ -490,7 +490,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
   ---
   
-### `0x9b7c9bbd6d540a8a4dedd935819fc4408ba71153` (AddressManager) - Chain ID: 57073
+### `0x9b7c9bbd6d540a8a4dedd935819fc4408ba71153` ([AddressManager](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml#L53)) - Chain ID: 57073
   
 - **Key:**          `0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e`
   - **Before:** `0x0000000000000000000000005d5a095665886119693f0b41d8dfee78da033e8b`
@@ -701,13 +701,13 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000004`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x00000000000000000000000000000000000000000000000000000000010f3b79`
-  - **Summary:** respectedGameTypeUpdatedAt set to block number 17,784,697
+  - **Summary:** respectedGameTypeUpdatedAt set to block number 17,775,481
   - **Detail:** Storage slot 4 holds the block number when the respected game type was last updated for Ink
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000006`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x000000000000000000000000000000000000000000000000686bde0700000000`
-  - **Summary:** _initialized flag set to 1 and systemConfig address packed in slot 0
+  - **Summary:** Anchor state timestamp set to 1751899655 (0x686bde07) for Ink  
   - **Detail:** Packed storage slot containing initialization flag and SystemConfig address
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
