@@ -328,7 +328,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
   ---
   
-### `0x95703e0982140d16f8eba6d158fccede42f04a4c` ([SuperchainConfigProxy](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/superchain.toml#L10)) - Chain ID: 10
+### `0x95703e0982140d16f8eba6d158fccede42f04a4c` ([SuperchainConfigProxy](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/superchain/configs/mainnet/soneium.toml#L61)) - Chain ID: 10
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
