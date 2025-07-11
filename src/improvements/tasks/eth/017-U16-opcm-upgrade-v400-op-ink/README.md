@@ -1,6 +1,6 @@
 # 017-U16-opcm-upgrade-v400-op-ink: Upgrade 16: OP Mainnet and Ink
 
-Status: [READY TO SIGN]()
+Status: [DRAFT]()
 
 ## Objective
 

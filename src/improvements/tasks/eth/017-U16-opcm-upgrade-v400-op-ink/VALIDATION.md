@@ -90,13 +90,13 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 ## Task Transfers
   
 #### Decoded Transfer 0 (OP Mainnet)
-  - **From:**              `0xbEb5Fc579115071764c7423A4f12eDde41f106Ed` - OptimismPortal
+  - **From:**              `0xbEb5Fc579115071764c7423A4f12eDde41f106Ed` - [OptimismPortal](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L58)
   - **To:**                `0x322b47Ff1FA8D5611F761e3E275C45B71b294D43` - ETHLockbox
   - **Value:**             `239697858685983334945689` - All funds
   - **Token Address:**     `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` - ETH
   
 #### Decoded Transfer 1 (Ink)
-  - **From:**              `0x5d66C1782664115999C47c9fA5cd031f495D3e4F` - OptimismPortal
+  - **From:**              `0x5d66C1782664115999C47c9fA5cd031f495D3e4F` - [OptimismPortal](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml#L58)
   - **To:**                `0xbd4AbB321138e8Eddc399cE64E66451294325a14` - ETHLockbox
   - **Value:**             `7312493031515086142193` - All funds
   - **Token Address:**     `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` - ETH
@@ -123,7 +123,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
   ---
   
-### `0x229047fed2591dbec1ef1118d64f7af3db9eb290` ([SystemConfigProxy](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L58)) - Chain ID: 10
+### `0x229047fed2591dbec1ef1118d64f7af3db9eb290` ([SystemConfigProxy](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L59)) - Chain ID: 10
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
@@ -160,7 +160,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x00000000000000000000229047fed2591dbec1ef1118d64f7af3db9eb2900001`
   - **Summary:** _initialized flag set to 1 and systemConfig address packed in slot 0
-  - **Detail:** Packed storage slot containing initialization flag and SystemConfig address
+  - **Detail:** Packed storage slot containing initialization flag and [SystemConfig](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L58) address
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -171,19 +171,19 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000003`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0xc13f2b5128708cefa7a4ff464a545d4d7baacdad10fff6f5149314089de0b924`
-  - **Summary:** _initialized flag set to 1 and systemConfig address packed in slot 0
+  - **Summary:** Anchor state hash set to initial value for OP Mainnet chain configuration
   - **Detail:** Packed storage slot containing initialization flag and SystemConfig address
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000004`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x00000000000000000000000000000000000000000000000000000000083761a6`
-  - **Summary:** _initialized flag set to 1 and systemConfig address packed in slot 0
+  - **Summary:** Anchor state L2 block number set to 137847206 (0x83761a6) for OP Mainnet
   - **Detail:** Packed storage slot containing initialization flag and SystemConfig address
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000006`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x000000000000000000000000000000000000000000000000686bde0700000000`
-  - **Summary:** _initialized flag set to 1 and systemConfig address packed in slot 0
+  - **Summary:** Anchor state timestamp set to 1751899655 (0x686bf11b) for OP Mainnet
   - **Detail:** Packed storage slot containing initialization flag and SystemConfig address
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
@@ -200,7 +200,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
   ---
   
-### `0x25ace71c97b33cc4729cf772ae268934f7ab5fa1` (L1CrossDomainMessenger) - Chain ID: 10
+### `0x25ace71c97b33cc4729cf772ae268934f7ab5fa1` ([L1CrossDomainMessenger](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L54)) - Chain ID: 10
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000010000000000000000000000000000000000000000`
@@ -212,7 +212,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x000000000000000000000000229047fed2591dbec1ef1118d64f7af3db9eb290`
   - **Summary:** systemConfig address set to OP SystemConfig proxy
-  - **Detail:** Storage slot 254 holds the [SystemConfig proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L58)
+  - **Detail:** Storage slot 254 holds the [SystemConfig proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L59)
   
   ---
   
@@ -222,13 +222,13 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x00000000000000000000229047fed2591dbec1ef1118d64f7af3db9eb2900001`
   - **Summary:** _initialized flag set to 1 and systemConfig address packed in slot 0
-  - **Detail:** Packed storage slot containing initialization flag and SystemConfig address
+  - **Detail:** Packed storage slot containing initialization flag and [SystemConfig proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L59) address
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
   - **Before:** `0x0000000000000000000000000000000000000000`
   - **After:** [`0x784d2F03593A42A6E4676A012762F18775ecbBe6`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L15)
-  - **Summary:** ERC-1967 implementation upgraded to AnchorStateRegistry v3.5.0
+  - **Summary:** ERC-1967 implementation upgraded to ETHLockbox v1.2.0
   
 - **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
   - **Decoded Kind:** `address`
@@ -257,14 +257,14 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000004`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x00000000000000000000000062c0a111929fa32cec2f76adba54c16afb6e8364`
-  - **Summary:** _initialized flag set to 1 and systemConfig address packed in slot 0
-  - **Detail:** Packed storage slot containing initialization flag and SystemConfig address
+  - **Summary:** Set systemConfig to the [SystemConfig proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L59)
+  - **Detail:** Slot containing SystemConfig address
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
   - **Before:** `0x0000000000000000000000000000000000000000`
   - **After:** [`0x33Dadc2d1aA9BB613A7AE6B28425eA00D44c6998`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L14)
-  - **Summary:** ERC-1967 implementation upgraded to AnchorStateRegistry v3.5.0
+  - **Summary:** ERC-1967 implementation upgraded to DelayedWETH v1.5.0
   
 - **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
   - **Decoded Kind:** `address`
@@ -279,14 +279,14 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000000`
-  - **Summary:** _initializing flag cleared from 1 to 0 (initialization complete)
+  - **Summary:** The `isRC` flag is set to zero.
   - **Detail:** Storage slot 1 contains the _initializing flag which is cleared after initialization completes
   
   
   
   ---
   
-### `0x5a0aae59d09fccbddb6c6cceb07b7279367c3d2a` (ProxyAdminOwner (GnosisSafe)) - Chain ID: 10
+### `0x5a0aae59d09fccbddb6c6cceb07b7279367c3d2a` ([ProxyAdminOwner](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L45) (GnosisSafe)) - Chain ID: 10
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:** `uint256`
@@ -303,14 +303,14 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
-  - **Summary:** _initialized flag incremented from 1 to 2 (initialization completed)
+  - **Summary:** _initialized flag incremented from 1 to 2 (re-initialization completed)
   - **Detail:** Packed storage slot 0 contains the initialization flag, incremented during contract upgrade
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000033`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x000000000000000000000000229047fed2591dbec1ef1118d64f7af3db9eb290`
   - **Summary:** systemConfig address set to OP SystemConfig proxy
-  - **Detail:** Storage slot 51 holds the [SystemConfig proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L58)
+  - **Detail:** Storage slot 51 holds the [SystemConfig proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L59)
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
@@ -320,12 +320,12 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
   ---
   
-### `0x5d66c1782664115999c47c9fa5cd031f495d3e4f` (OptimismPortal2) - Chain ID: 57073
+### `0x5d66c1782664115999c47c9fa5cd031f495d3e4f` ([OptimismPortal2](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml#L58)) - Chain ID: 57073
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
-  - **Summary:** _initialized flag incremented from 1 to 2 (initialization completed)
+  - **Summary:** _initialized flag incremented from 1 to 2 (re-initialization completed)
   - **Detail:** Packed storage slot 0 contains the initialization flag, incremented during contract upgrade
   
 - **Key:**          `0x000000000000000000000000000000000000000000000000000000000000003e`
@@ -348,12 +348,12 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
   ---
   
-### `0x62c0a111929fa32cec2f76adba54c16afb6e8364` (SystemConfig) - Chain ID: 57073
+### `0x62c0a111929fa32cec2f76adba54c16afb6e8364` ([SystemConfig](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml#L59)) - Chain ID: 57073
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
-  - **Summary:** _initialized flag incremented from 1 to 2 (initialization completed)
+  - **Summary:** _initialized flag incremented from 1 to 2 (re-initialization completed)
   - **Detail:** Packed storage slot 0 contains the initialization flag, incremented during contract upgrade
   
 - **Key:**          `0x000000000000000000000000000000000000000000000000000000000000006b`
@@ -366,7 +366,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x00000000000000000000000095703e0982140d16f8eba6d158fccede42f04a4c`
   - **Summary:** superchainConfig set to SuperchainConfig proxy
-  - **Detail:** Storage slot 108 holds the [SuperchainConfig proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/superchain.toml#L3)
+  - **Detail:** Storage slot 108 holds the [SuperchainConfig proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml#L61)
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
@@ -384,19 +384,19 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
   ---
   
-### `0x661235a238b11191211fa95d4dd9e423d521e0be` (L1ERC721Bridge) - Chain ID: 57073
+### `0x661235a238b11191211fa95d4dd9e423d521e0be` ([L1ERC721Bridge](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml#L51)) - Chain ID: 57073
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
-  - **Summary:** _initialized flag incremented from 1 to 2 (initialization completed)
+  - **Summary:** _initialized flag incremented from 1 to 2 (re-initialization completed)
   - **Detail:** Packed storage slot 0 contains the initialization flag, incremented during contract upgrade
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000033`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x00000000000000000000000062c0a111929fa32cec2f76adba54c16afb6e8364`
   - **Summary:** systemConfig address set to Ink SystemConfig proxy
-  - **Detail:** Storage slot 51 holds the [SystemConfig proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml#L58)
+  - **Detail:** Storage slot 51 holds the [SystemConfig proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml#L59)
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
@@ -406,7 +406,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
   ---
   
-### `0x69d3cf86b2bf1a9e99875b7e2d9b6a84426c171f` (L1CrossDomainMessenger) - Chain ID: 57073
+### `0x69d3cf86b2bf1a9e99875b7e2d9b6a84426c171f` ([L1CrossDomainMessenger](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml#L54)) - Chain ID: 57073
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000010000000000000000000000000000000000000000`
@@ -418,23 +418,23 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x00000000000000000000000062c0a111929fa32cec2f76adba54c16afb6e8364`
   - **Summary:** systemConfig address set to Ink SystemConfig proxy
-  - **Detail:** Storage slot 254 holds the [SystemConfig proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml#L58)
+  - **Detail:** Storage slot 254 holds the [SystemConfig proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml#L59)
   
   ---
   
-### `0x88ff1e5b602916615391f55854588efcbb7663f0` (L1StandardBridge) - Chain ID: 57073
+### `0x88ff1e5b602916615391f55854588efcbb7663f0` ([L1StandardBridge](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml#L56)) - Chain ID: 57073
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
-  - **Summary:** _initialized flag incremented from 1 to 2 (initialization completed)
+  - **Summary:** _initialized flag incremented from 1 to 2 (re-initialization completed)
   - **Detail:** Packed storage slot 0 contains the initialization flag, incremented during contract upgrade
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000034`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x00000000000000000000000062c0a111929fa32cec2f76adba54c16afb6e8364`
   - **Summary:** systemConfig address set to Ink SystemConfig proxy
-  - **Detail:** Storage slot 52 holds the [SystemConfig proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml#L58)
+  - **Detail:** Storage slot 52 holds the [SystemConfig proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml#L59)
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
@@ -444,13 +444,13 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
   ---
   
-### `0x95703e0982140d16f8eba6d158fccede42f04a4c` (SuperchainConfig) - Chain ID: 10
+### `0x95703e0982140d16f8eba6d158fccede42f04a4c` ([SuperchainConfig](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml#L61)) - Chain ID: 10
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000009f7150d8c019bef34450d6920f6b3608cefdaf20002`
   - **Summary:** _initialized flag incremented from 1 to 2 and guardian address packed in slot 0
-  - **Detail:** Packed storage slot containing initialization flag and guardian address [0x09f7150d8c019bef34450d6920f6b3608cefdaf2](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/superchain.toml#L4)
+  - **Detail:** Packed storage slot containing initialization flag and guardian address [0x09f7150d8c019bef34450d6920f6b3608cefdaf2](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml#L46)
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
@@ -468,12 +468,12 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
   ---
   
-### `0x99c9fc46f92e8a1c0dec1b1747d010903e884be1` (L1StandardBridge) - Chain ID: 10
+### `0x99c9fc46f92e8a1c0dec1b1747d010903e884be1` ([L1StandardBridge](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L56)) - Chain ID: 10
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
-  - **Summary:** _initialized flag incremented from 1 to 2 (initialization completed)
+  - **Summary:** _initialized flag incremented from 1 to 2 (re-initialization completed)
   - **Detail:** Packed storage slot 0 contains the initialization flag, incremented during contract upgrade
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000034`
@@ -505,14 +505,14 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x0000000000000000000062c0a111929fa32cec2f76adba54c16afb6e83640001`
-  - **Summary:** _initialized flag set to 1 and systemConfig address packed in slot 0
+  - **Summary:** _initialized flag set to 1 and [SystemConfig proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/superchain/configs/mainnet/ink.toml#L59) address packed in slot 0
   - **Detail:** Packed storage slot containing initialization flag and SystemConfig address
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
   - **Before:** `0x0000000000000000000000000000000000000000`
   - **After:** [`0x784d2F03593A42A6E4676A012762F18775ecbBe6`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L15)
-  - **Summary:** ERC-1967 implementation upgraded to AnchorStateRegistry v3.5.0
+  - **Summary:** ERC-1967 implementation upgraded to ETHLockbox v1.2.0
   
 - **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
   - **Decoded Kind:** `address`
@@ -528,12 +528,12 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
   ---
   
-### `0xbeb5fc579115071764c7423a4f12edde41f106ed` (OptimismPortal2) - Chain ID: 10
+### `0xbeb5fc579115071764c7423a4f12edde41f106ed` ([OptimismPortal2](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/superchain/configs/mainnet/op.toml#L58)) - Chain ID: 10
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **After:** `0x0000000000000000000000000000000000000000000000000000000000000002`
-  - **Summary:** _initialized flag incremented from 1 to 2 (initialization completed)
+  - **Summary:** _initialized flag incremented from 1 to 2 (re-initialization completed)
   - **Detail:** Packed storage slot 0 contains the initialization flag, incremented during contract upgrade
   
 - **Key:**          `0x000000000000000000000000000000000000000000000000000000000000003e`
@@ -569,7 +569,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000004`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x000000000000000000000000229047fed2591dbec1ef1118d64f7af3db9eb290`
-  - **Summary:** _initialized flag set to 1 and systemConfig address packed in slot 0
+  - **Summary:** systemConfig set to the [SystemConfig proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L59)
   - **Detail:** Packed storage slot containing initialization flag and SystemConfig address
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
@@ -599,14 +599,14 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000004`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x00000000000000000000000062c0a111929fa32cec2f76adba54c16afb6e8364`
-  - **Summary:** _initialized flag set to 1 and systemConfig address packed in slot 0
+  - **Summary:** systemConfig set to the [SystemConfig proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml#L59)
   - **Detail:** Packed storage slot containing initialization flag and SystemConfig address
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
   - **Before:** `0x0000000000000000000000000000000000000000`
   - **After:** [`0x33Dadc2d1aA9BB613A7AE6B28425eA00D44c6998`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L14)
-  - **Summary:** ERC-1967 implementation upgraded to AnchorStateRegistry v3.5.0
+  - **Summary:** ERC-1967 implementation upgraded to DelayedWETH v1.5.0
   
 - **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
   - **Decoded Kind:** `address`
@@ -616,12 +616,12 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
   ---
   
-### `0xde1fcfb0851916ca5101820a69b13a4e276bd81f` (AddressManager) - Chain ID: 10
+### `0xde1fcfb0851916ca5101820a69b13a4e276bd81f` ([AddressManager](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/superchain/configs/mainnet/op.toml#L53)) - Chain ID: 10
   
 - **Key:**          `0x515216935740e67dfdda5cf8e248ea32b3277787818ab59153061ac875c9385e`
   - **Before:** `0x0000000000000000000000005d5a095665886119693f0b41d8dfee78da033e8b`
   - **After:** `0x000000000000000000000000d26bb3aaaa4cb5638a8581a4c4b1d937d8e05c54`
-  - **Summary:** _initialized flag set to 1 and systemConfig address packed in slot 0
+  - **Summary:** AddressManager mapping "Proxy__OVM_L1CrossDomainMessenger" updated to L1CrossDomainMessenger v2.9.0
   - **Detail:** Packed storage slot containing initialization flag and SystemConfig address
   
   ---
@@ -639,14 +639,14 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000004`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x000000000000000000000000229047fed2591dbec1ef1118d64f7af3db9eb290`
-  - **Summary:** _initialized flag set to 1 and systemConfig address packed in slot 0
+  - **Summary:** systemConfig set to the [SystemConfig proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L59)
   - **Detail:** Packed storage slot containing initialization flag and SystemConfig address
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
   - **Before:** `0x0000000000000000000000000000000000000000`
   - **After:** [`0x33Dadc2d1aA9BB613A7AE6B28425eA00D44c6998`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L14)
-  - **Summary:** ERC-1967 implementation upgraded to AnchorStateRegistry v3.5.0
+  - **Summary:** ERC-1967 implementation upgraded to DelayedWETH v1.5.0
   
 - **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
   - **Decoded Kind:** `address`
@@ -656,24 +656,24 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
   ---
   
-### `0xe5965ab5962edc7477c8520243a95517cd252fa9` (DisputeGameFactory) - Chain ID: 10
+### `0xe5965ab5962edc7477c8520243a95517cd252fa9` ([DisputeGameFactory](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L64)) - Chain ID: 10
   
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
   - **Before:** [`0x4bbA758F006Ef09402eF31724203F316ab74e4a0`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/validation/standard/standard-versions-mainnet.toml#L76) - DisputeGameFactory v1.0.1
   - **After:** [`0x33D1e8571a85a538ed3D5A4d88f46C112383439D`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L16)
-  - **Summary:** ERC-1967 implementation upgraded to AnchorStateRegistry v3.5.0
+  - **Summary:** ERC-1967 implementation upgraded to DisputeGameFactory v1.2.0
   
 - **Key:**          `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
   - **Before:** `0x000000000000000000000000a1e0bacde89d899b3f24eef3d179cc335a24e777`
   - **After:** `0x000000000000000000000000ecca4bfbd017002abf25aeebf2b21b903a5fc124`
-  - **Summary:** _initialized flag set to 1 and systemConfig address packed in slot 0
+  - **Summary:** gameImpls mapping - FaultDisputeGame implementation updated (slot calculated from mapping key)
   - **Detail:** Packed storage slot containing initialization flag and SystemConfig address
   
 - **Key:**          `0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b`
   - **Before:** `0x00000000000000000000000089d68b1d63aaa0db4af1163e81f56b76934292f8`
   - **After:** `0x000000000000000000000000d73dd0f5665055b03ea0bfcac49bd4d26f1ffa4f`
-  - **Summary:** _initialized flag set to 1 and systemConfig address packed in slot 0
+  - **Summary:** gameImpls mapping - PermissionedDisputeGame implementation updated (slot calculated from mapping key)
   - **Detail:** Packed storage slot containing initialization flag and SystemConfig address
   
   ---
@@ -683,7 +683,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x0000000000000000000062c0a111929fa32cec2f76adba54c16afb6e83640001`
-  - **Summary:** _initialized flag set to 1 and systemConfig address packed in slot 0
+  - **Summary:** _initialized flag set to 1 and [SystemConfig proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/superchain/configs/mainnet/ink.toml#L59) packed in slot 0
   - **Detail:** Packed storage slot containing initialization flag and SystemConfig address
   
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000001`
