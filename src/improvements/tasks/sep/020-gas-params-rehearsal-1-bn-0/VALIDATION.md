@@ -22,7 +22,7 @@ the values printed to the terminal when you run the task.
 > ### SystemConfigOwner (`0x1A18bd2A868898EDDe75C54013baCc1938d399aC`)
 >
 > - Domain Hash:  `0xc74dc80f1d9c49ad237fba0d91fa570b6c5132c0472e23ecef5f5b6de1aa33c7`
-> - Message Hash: `0x94af9ca7ef2c0c725db84140a902b5705d5209e9ad221dbb6189e0c55cac008c`
+> - Message Hash: `0x771bd1bbd603451c2a4e378054daa168c353d10b3fa6fa97306dbb2597ca3d73`
 
 ## Normalized State Diff Hash Attestation
 
