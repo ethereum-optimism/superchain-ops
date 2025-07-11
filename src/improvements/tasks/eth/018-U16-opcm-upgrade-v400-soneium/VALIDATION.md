@@ -183,7 +183,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   
 - **Key:**          `0x4d5a9bd2e41301728d41c8e705190becb4e74abe869f75bdb405b63716a35f9e`
   - **Before:** [`0x0000000000000000000000003d56d47b9e7e34a46612badc70377f74051e6b17`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/superchain/configs/mainnet/soneium.toml#L67)
-  - **After:** `0x0000000000000000000000003c12f1f4f0702cb7fc83e2e5594331c10b9e39b4`
+  - **After:** `0x0000000000000000000000003c12f1f4f0702cb7fc83e2e5594331c10b9e39b4` (Newly deployed DisputeGameFactory)
   - **Summary:** gameImpls mapping updated - GameType 1 implementation changed
   - **Detail:** Mapping slot derivation for gameImpls[GameType(1)] - updated game implementation address for GameType 1
   
