@@ -19,7 +19,7 @@ the values printed to the terminal when you run the task.
 >
 > Before signing, ensure the below hashes match what is on your ledger.
 >
-> ### Nested Safe 2 (Security Council): `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`
+> ### Nested Safe 1 (Security Council): `0xc2819DC788505Aac350142A7A707BF9D03E3Bd03`
 >
 > - Domain Hash: `0xdf53d510b56e539b90b369ef08fce3631020fbf921e3136ea5f8747c20bce967`
 > - Message Hash: `0x9e3baeb8786481819d3029bcd634468b3a07b387a7542a03d214a3cdfd402d65`
