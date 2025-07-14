@@ -48,8 +48,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// @notice struct to store the addresses that are expected to have balance changes
     EnumerableSet.AddressSet internal _allowedBalanceChanges;
 
-    /// @notice starting snapshot of the contract state before the calls are made
-    uint256 private _startSnapshot;
+    /// @notice Snapshot of the chain state before the tasks transaction is executed.
+    uint256 private _preExecutionSnapshot;
 
     /// @notice flag to determine if the task is being simulated
     uint256 private _buildStarted;
@@ -156,7 +156,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         require(recomputedHash == txHash_, "MultisigTask: hash mismatch");
 
         // Snapshot state before executing the transaction. After validation, we revert to this snapshot.
-        _startSnapshot = vm.snapshotState();
+        _preExecutionSnapshot = vm.snapshotState();
         vm.startStateDiffRecording();
 
         _execTransaction(
@@ -304,9 +304,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         return _buildStarted;
     }
 
-    /// @notice Get the start snapshot. Useful for finding slot number of state variable using StdStorage.
-    function getStartSnapshot() public view returns (uint256) {
-        return _startSnapshot;
+    /// @notice Get the pre-execution snapshot. Useful for finding slot number of state variable using StdStorage.
+    function getPreExecutionSnapshot() public view returns (uint256) {
+        return _preExecutionSnapshot;
     }
 
     /// @notice This function builds a series of nested transactions where each safe in the chain
@@ -685,7 +685,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     function _startBuild(address rootSafe) private {
         _prankMultisig(rootSafe);
 
-        _startSnapshot = vm.snapshotState();
+        _preExecutionSnapshot = vm.snapshotState();
 
         vm.startStateDiffRecording();
     }
@@ -698,7 +698,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
         // Roll back state changes.
         require(
-            vm.revertToState(_startSnapshot),
+            vm.revertToState(_preExecutionSnapshot),
             "MultisigTask: failed to revert back to snapshot, unsafe state to run task"
         );
         require(accesses.length > 0, "MultisigTask: no account accesses found");
@@ -851,11 +851,11 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         }
 
         uint256 postExecuteSnapshot = vm.snapshotState();
-        // Roll back state changes. Some operations later rely on the original state being restored.
-        // For example, the tenderly link generation checks owners for overrides. We should ensure the original owners are present (e.g. if an owner was removed as part of the task).
+        // Roll back state changes. The Tenderly link generation checks owners for overrides and expects pre-execution state.
+        // We should ensure the original owners are present (e.g. if an owner was removed as part of the task).
         require(
-            vm.revertToState(_startSnapshot),
-            "MultisigTask: failed to revert back to snapshot in printTenderlySimulationData."
+            vm.revertToState(_preExecutionSnapshot),
+            "MultisigTask: failed to revert back to _preExecutionSnapshot before printing Tenderly simulation data."
         );
         MultisigTaskPrinter.printTenderlySimulationData(
             targetAddress, finalExec, msg.sender, getStateOverrides(rootSafe, childSafe)
@@ -864,7 +864,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         // Apply the post execution state changes. Many tests rely on the assumption that the transaction was executed.
         require(
             vm.revertToState(postExecuteSnapshot),
-            "MultisigTask: failed to revert back to snapshot in printTenderlySimulationData."
+            "MultisigTask: failed to revert back to post-execution snapshot after printing Tenderly simulation data."
         );
     }
 

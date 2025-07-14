@@ -14,7 +14,8 @@ contract MockTarget is Test {
     }
 
     function setSnapshotIdTask(uint256 id) public {
-        bytes32 startSnapshotSlot = bytes32(uint256(stdstore.target(address(task)).sig("getStartSnapshot()").find()));
+        bytes32 startSnapshotSlot =
+            bytes32(uint256(stdstore.target(address(task)).sig("getPreExecutionSnapshot()").find()));
         vm.store(task, startSnapshotSlot, bytes32(id));
     }
 
