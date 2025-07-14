@@ -155,6 +155,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
         require(recomputedHash == txHash_, "MultisigTask: hash mismatch");
 
+        // Snapshot state before executing the transaction. After validation, we revert to this snapshot.
+        _startSnapshot = vm.snapshotState();
         vm.startStateDiffRecording();
 
         _execTransaction(
@@ -437,6 +439,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         require(accountAccesses.length > 0, "No account accesses");
         address[] memory allowedAccesses = getAllowedStorageAccess();
         address[] memory newContracts = accountAccesses.getNewContracts();
+        address[] memory codeExceptions = _getCodeExceptions();
         for (uint256 i; i < accountAccesses.length; i++) {
             VmSafe.AccountAccess memory accountAccess = accountAccesses[i];
             // All touched accounts should have code, with the exception of precompiles.
@@ -468,7 +471,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                 if (!storageAccess.isWrite) continue; // Skip SLOADs.
                 uint256 value = uint256(storageAccess.newValue);
                 address account = storageAccess.account;
-                if (Utils.isLikelyAddressThatShouldHaveCode(value, _getCodeExceptions())) {
+                if (Utils.isLikelyAddressThatShouldHaveCode(value, codeExceptions)) {
                     // Log account, slot, and value if there is no code.
                     // forgefmt: disable-start
                     string memory err = string.concat("Likely address in storage has no code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
@@ -777,7 +780,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         bool isSimulate,
         bytes32 txHash,
         TaskPayload memory payload
-    ) public view returns (bytes32 normalizedHash_, bytes memory dataToSign_) {
+    ) public returns (bytes32 normalizedHash_, bytes memory dataToSign_) {
         console.log("");
         MultisigTaskPrinter.printWelcomeMessage();
 
@@ -826,7 +829,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     }
 
     /// @notice Print the Tenderly simulation payload with the state overrides.
-    function _printTenderlySimulationData(TaskPayload memory payload) internal view {
+    function _printTenderlySimulationData(TaskPayload memory payload) internal {
         address targetAddress;
         bytes memory finalExec;
         address rootSafe = payload.safes[payload.safes.length - 1];
@@ -847,8 +850,21 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             );
         }
 
+        uint256 postExecuteSnapshot = vm.snapshotState();
+        // Roll back state changes. Some operations later rely on the original state being restored.
+        // For example, the tenderly link generation checks owners for overrides. We should ensure the original owners are present (e.g. if an owner was removed as part of the task).
+        require(
+            vm.revertToState(_startSnapshot),
+            "MultisigTask: failed to revert back to snapshot in printTenderlySimulationData."
+        );
         MultisigTaskPrinter.printTenderlySimulationData(
             targetAddress, finalExec, msg.sender, getStateOverrides(rootSafe, childSafe)
+        );
+
+        // Apply the post execution state changes. Many tests rely on the assumption that the transaction was executed.
+        require(
+            vm.revertToState(postExecuteSnapshot),
+            "MultisigTask: failed to revert back to snapshot in printTenderlySimulationData."
         );
     }
 
