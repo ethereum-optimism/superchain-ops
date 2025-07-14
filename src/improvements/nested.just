@@ -185,6 +185,11 @@ execute hdPath='0' ledger='true':
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
 
+  # For nested tasks, the 'just approve' command will have been called previously, which will
+  # update the nonces of the child safes. Therefore we disable the nonce check in order to
+  # prevent failures of the `just execute` command.
+  DISABLE_OVERRIDE_NONCE_CHECK=1
+
   echo "Using script ${script}"
   if {{ledger}}; then
     hdpaths="m/44'/60'/{{hdPath}}'/0/0"
