@@ -785,7 +785,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         accountAccesses.decodeAndPrint(rootSafe.safe, txHash);
         MultisigTaskPrinter.printTaskCalldata(rootSafe.callData);
 
-        // Only safe and execution data if the task is being simulated.
+        // Only print safe and execution data if the task is being simulated.
         if (isSimulate) {
             for (uint256 i = payload.safes.length - 1; i >= 0; i--) {
                 bytes32 safeHash =
