@@ -127,7 +127,7 @@ library MultisigTaskPrinter {
             _getPrintVerifyLinkData(payload);
 
         printOPTxVerifyLink(
-            rootSafe.addr,
+            rootSafe.safe,
             chainId,
             childSafeAddress,
             rootSafe.callData,
@@ -153,7 +153,7 @@ library MultisigTaskPrinter {
         bool isNested = payload.safes.length > 1;
         rootSafe = Utils.getSafeData(payload, payload.safes.length - 1);
         SafeData memory childSafe = Utils.getSafeData(payload, 0);
-        childSafeAddress = isNested ? childSafe.addr : address(0);
+        childSafeAddress = isNested ? childSafe.safe : address(0);
         childSafeCalldata = isNested ? childSafe.callData : new bytes(0);
         childSafeNonce = isNested ? childSafe.nonce : 0;
     }

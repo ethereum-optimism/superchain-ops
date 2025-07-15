@@ -111,36 +111,36 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         returns (VmSafe.AccountAccess[] memory, bytes32 txHash_)
     {
         SafeData memory safeData = Utils.getSafeData(payload, executionSafeIdx);
-        txHash_ = getHash(safeData.callData, safeData.addr, 0, safeData.nonce, payload.safes);
+        txHash_ = getHash(safeData.callData, safeData.safe, 0, safeData.nonce, payload.safes);
 
         // If we are simulating, we need to approve the hash from each owner.
         // Otherwise, we are executing the task and all approvals are already done.
         // No signatures means we are simulating.
         if (signatures.length == 0) {
-            address[] memory owners = IGnosisSafe(safeData.addr).getOwners();
+            address[] memory owners = IGnosisSafe(safeData.safe).getOwners();
             for (uint256 i = 0; i < owners.length; i++) {
                 vm.prank(owners[i]);
-                IGnosisSafe(safeData.addr).approveHash(txHash_);
+                IGnosisSafe(safeData.safe).approveHash(txHash_);
                 // Manually increment the nonce for each owner. If we executed the approveHash function from the owner directly (contract or EOA),
                 // the nonce would be incremented by 1 and we wouldn't have to do this manually.
                 _incrementOwnerNonce(owners[i]);
             }
-            signatures = _prepareSignatures(safeData.addr, txHash_);
+            signatures = _prepareSignatures(safeData.safe, txHash_);
         } else {
             // If signatures are attached, this means EOA's have signed, so we order the signatures.
             signatures = Signatures.sortUniqueSignatures(
-                safeData.addr, signatures, txHash_, IGnosisSafe(safeData.addr).getThreshold(), signatures.length
+                safeData.safe, signatures, txHash_, IGnosisSafe(safeData.safe).getThreshold(), signatures.length
             );
         }
 
         address safeMulticallTarget;
         if (executionSafeIdx == payload.safes.length - 1) {
-            safeMulticallTarget = _getMulticallAddress(safeData.addr, payload.safes);
+            safeMulticallTarget = _getMulticallAddress(safeData.safe, payload.safes);
         } else {
             safeMulticallTarget = MULTICALL3_ADDRESS; // For any non-root safe, we use the multicall3 address.
         }
 
-        bytes32 recomputedHash = IGnosisSafe(safeData.addr).getTransactionHash(
+        bytes32 recomputedHash = IGnosisSafe(safeData.safe).getTransactionHash(
             safeMulticallTarget,
             0,
             safeData.callData,
@@ -158,7 +158,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         vm.startStateDiffRecording();
 
         _execTransaction(
-            safeData.addr, safeMulticallTarget, 0, safeData.callData, Enum.Operation.DelegateCall, signatures
+            safeData.safe, safeMulticallTarget, 0, safeData.callData, Enum.Operation.DelegateCall, signatures
         );
 
         return (vm.stopAndReturnStateDiff(), txHash_);
@@ -782,10 +782,10 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         MultisigTaskPrinter.printWelcomeMessage();
 
         SafeData memory rootSafe = Utils.getSafeData(payload, payload.safes.length - 1);
-        accountAccesses.decodeAndPrint(rootSafe.addr, txHash);
+        accountAccesses.decodeAndPrint(rootSafe.safe, txHash);
         MultisigTaskPrinter.printTaskCalldata(rootSafe.callData);
 
-        // Only print data if the task is being simulated.
+        // Only print safe and execution data if the task is being simulated.
         if (isSimulate) {
             for (uint256 i = payload.safes.length - 1; i >= 0; i--) {
                 bytes32 safeHash =
@@ -802,13 +802,13 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
                 bool isLastTask = i == 0;
                 if (isLastTask) {
-                    _printLastSafe(dataToSign_, rootSafe.addr, payload);
+                    _printLastSafe(dataToSign_, rootSafe.safe, payload);
                     break;
                 }
             }
             _printTenderlySimulationData(payload);
         }
-        normalizedHash_ = AccountAccessParser.normalizedStateDiffHash(accountAccesses, rootSafe.addr, txHash);
+        normalizedHash_ = AccountAccessParser.normalizedStateDiffHash(accountAccesses, rootSafe.safe, txHash);
         MultisigTaskPrinter.printAuditReportInfo(normalizedHash_);
     }
 
