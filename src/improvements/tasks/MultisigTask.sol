@@ -621,11 +621,15 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         // Appends the root safe. The earlier a safe address appears in the array, the deeper its level of nesting.
         address[] memory allSafes = Solarray.extend(_childSafes, Solarray.addresses(root));
 
+        _templateSetup(_taskConfigFilePath, root); // May set variables used in '_taskStorageWrites'.
+
         templateConfig.allowedStorageKeys = _taskStorageWrites();
         templateConfig.allowedStorageKeys.push(templateConfig.safeAddressString);
         templateConfig.allowedBalanceChanges = _taskBalanceChanges();
 
-        _templateSetup(_taskConfigFilePath, root);
+        _setAllowedStorageAccesses();
+        _setAllowedBalanceChanges();
+
         (uint256[] memory allOriginalNonces) = _overrideState(_taskConfigFilePath, allSafes); // Overrides only matter for simulation and signing.
 
         vm.label(AddressRegistry.unwrap(addrRegistry), "AddrRegistry");
@@ -901,6 +905,12 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
     function _templateSetup(string memory taskConfigFilePath, address rootSafe) internal virtual;
 
+    /// @notice Sets the allowed storage accesses.
+    function _setAllowedStorageAccesses() internal virtual;
+
+    /// @notice Sets the allowed balance changes.
+    function _setAllowedBalanceChanges() internal virtual;
+
     /// @notice This method is responsible for deploying the required address registry, defining
     /// the root safe address, and setting the multicall target address.
     /// This method may also set any allowed and expected storage accesses that are expected in all
@@ -919,6 +929,5 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// state diffs. This function is how you obtain confidence the transaction does what it's supposed to do.
     function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions, address rootSafe)
         internal
-        view
         virtual;
 }

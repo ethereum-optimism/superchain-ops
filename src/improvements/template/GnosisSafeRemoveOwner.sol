@@ -61,7 +61,7 @@ contract GnosisSafeRemoveOwner is SimpleTaskBase {
         require(totalOwnersBefore - 1 >= thresholdBefore, "Safe after removal must have at least threshold owners.");
 
         previousOwner = getPreviousOwner(_rootSafe);
-        require(previousOwner != address(0), "previousOwner must be set in the config file.");
+        require(previousOwner != address(0), "previousOwner must be set.");
         checkSupportedVersions(_rootSafe);
     }
 

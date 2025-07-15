@@ -1,0 +1,13 @@
+l2chains = [
+    {name = "Rehearsal Chain", chainId = 10101010101010} # Create a fake chain
+]
+fallbackAddressesJsonPath = "test/tasks/example/sep/018-set-eip1967-impl/addresses.json" # You're going to create this file in the next step
+
+templateName = "SetEIP1967Implementation"
+
+contractIdentifier = "OptimismPortalProxy"
+newImplementation = "0x2D7e764a0D9919e16983a46595CfA81fc34fa7Cd" # This is an old OptimismPortalProxy implementation. You can change this if you like. 
+
+[addresses]
+TestRehearsalCouncil = "0xa05269513e77a322Da08ca426f8F49100b033303" # This is the address of the Safe that you already created.
+TestRehearsalFoundation = "0x6e632787ceAA94e0D0E4e4aCE4C143cbc463920D" # This is the address of the Safe that you already created.

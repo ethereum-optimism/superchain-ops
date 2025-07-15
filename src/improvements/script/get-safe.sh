@@ -34,6 +34,12 @@ elif [[ "$SAFE_NAME" == "base-operations" ]]; then
 elif [[ "$SAFE_NAME" == "base-council" ]]; then
     # This is Base's Security Council safe, which is the other signer on the BaseNestedSafe 2/2.
     SAFE_NAME="BaseSCSafe"
+elif [[ "$SAFE_NAME" == "test-rehearsal-council" ]]; then
+    # This is a test rehearsal safe for the Security Council.
+    SAFE_NAME="TestRehearsalCouncil"
+elif [[ "$SAFE_NAME" == "test-rehearsal-foundation" ]]; then
+    # This is a test rehearsal safe for the Optimism Foundation.
+    SAFE_NAME="TestRehearsalFoundation"
 fi
 
 root_dir=$(git rev-parse --show-toplevel)

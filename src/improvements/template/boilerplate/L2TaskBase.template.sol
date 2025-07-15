@@ -2,6 +2,7 @@
 pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
+import {stdToml} from "lib/forge-std/src/StdToml.sol";
 
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
@@ -14,6 +15,8 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 /// @notice A template contract for configuring L2TaskBase templates.
 /// Supports: <TODO: add supported tags: e.g. op-contracts/v*.*.*>
 contract L2TaskBaseTemplate is L2TaskBase {
+    using stdToml for string;
+
     /// @notice Optional: struct representing configuration for the task.
     struct ExampleTaskConfig {
         uint256 chainId;
@@ -45,8 +48,8 @@ contract L2TaskBaseTemplate is L2TaskBase {
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
     /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
-    function _templateSetup(string memory taskConfigFilePath, address rootSafe) internal override {
-        super._templateSetup(taskConfigFilePath, rootSafe);
+    function _templateSetup(string memory _taskConfigFilePath, address _rootSafe) internal override {
+        super._templateSetup(_taskConfigFilePath, _rootSafe);
         SuperchainAddressRegistry.ChainInfo[] memory _chains = superchainAddrRegistry.getChains();
         _chains;
 
