@@ -92,7 +92,7 @@ struct TaskPayload {
 
 /// @notice Struct to store information about a safe
 struct SafeData {
-    address addr;
+    address safe;
     bytes callData;
     uint256 nonce;
 }

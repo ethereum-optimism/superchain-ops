@@ -52,7 +52,7 @@ library Utils {
 
     /// @notice Helper function to get the safe, call data, and original nonce for a given index.
     function getSafeData(TaskPayload memory payload, uint256 index) internal pure returns (SafeData memory safeData) {
-        safeData.addr = payload.safes[index];
+        safeData.safe = payload.safes[index];
         safeData.callData = payload.calldatas[index];
         safeData.nonce = payload.originalNonces[index];
     }

@@ -192,7 +192,7 @@ contract SingleMultisigTaskTest is Test {
 
         SafeData memory rootSafeData = Utils.getSafeData(payload, payload.safes.length - 1);
 
-        bytes32 hash = multisigTask.getHash(rootSafeData.callData, rootSafeData.addr, 0, rootSafeData.nonce, allSafes);
+        bytes32 hash = multisigTask.getHash(rootSafeData.callData, rootSafeData.safe, 0, rootSafeData.nonce, allSafes);
         bytes32 expectedHash = IGnosisSafe(multisigTask.root()).getTransactionHash(
             MULTICALL3_ADDRESS,
             0,
@@ -314,28 +314,28 @@ contract SingleMultisigTaskTest is Test {
                 // 2 is the slot for the owners mapping
                 // variable slot is the slot for a key in the owners mapping
                 slot = keccak256(abi.encode(currentOwner, OWNER_MAPPING_STORAGE_OFFSET));
-                vm.store(rootSafeData.addr, slot, bytes32(uint256(uint160(newOwners[i].walletAddress))));
+                vm.store(rootSafeData.safe, slot, bytes32(uint256(uint160(newOwners[i].walletAddress))));
                 currentOwner = newOwners[i].walletAddress;
             }
 
             // link the last owner to the sentinel owner
             slot = keccak256(abi.encode(currentOwner, OWNER_MAPPING_STORAGE_OFFSET));
-            vm.store(rootSafeData.addr, slot, bytes32(uint256(uint160(0x1))));
+            vm.store(rootSafeData.safe, slot, bytes32(uint256(uint160(0x1))));
         }
 
         // set the owners count to 9
-        vm.store(rootSafeData.addr, bytes32(OWNER_COUNT_STORAGE_OFFSET), bytes32(uint256(9)));
+        vm.store(rootSafeData.safe, bytes32(OWNER_COUNT_STORAGE_OFFSET), bytes32(uint256(9)));
         // set the threshold to 4
-        vm.store(rootSafeData.addr, bytes32(THRESHOLD_STORAGE_OFFSET), bytes32(uint256(4)));
+        vm.store(rootSafeData.safe, bytes32(THRESHOLD_STORAGE_OFFSET), bytes32(uint256(4)));
 
-        address[] memory getNewOwners = IGnosisSafe(rootSafeData.addr).getOwners();
+        address[] memory getNewOwners = IGnosisSafe(rootSafeData.safe).getOwners();
         assertEq(getNewOwners.length, 9, "Expected 9 owners");
         for (uint256 i = 0; i < newOwners.length; i++) {
             // check that the new owners are set correctly
             assertEq(getNewOwners[i], newOwners[i].walletAddress, "Expected owner");
         }
 
-        uint256 threshold = IGnosisSafe(rootSafeData.addr).getThreshold();
+        uint256 threshold = IGnosisSafe(rootSafeData.safe).getThreshold();
         assertEq(threshold, 4, "Expected threshold should be updated to mocked value");
 
         LibSort.sort(getNewOwners);
