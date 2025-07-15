@@ -57,7 +57,7 @@ contract GnosisSafeRemoveOwner is SimpleTaskBase {
         require(IGnosisSafe(_rootSafe).isOwner(ownerToRemove), "ownerToRemove must be an owner of the safe.");
 
         thresholdBefore = IGnosisSafe(_rootSafe).getThreshold();
-        // Don't want to accidentally brick the safe.
+        // Don't want to accidentally brick the safe. Gnosis Safe already enforces this but keeping this check for safety.
         require(totalOwnersBefore - 1 >= thresholdBefore, "Safe after removal must have at least threshold owners.");
 
         previousOwner = getPreviousOwner(_rootSafe);
