@@ -2,24 +2,16 @@
 
 ## Objective
 
-In this rehearsal we will be removing one of the owners of the Safe.
+In this rehearsal, we will be removing one of the owners from the Safe.
 
 Once completed:
-- There will be 1 fewer owner
-- The threshold should be unchanged
+- The Safe will have one fewer owner
+- The threshold will remain unchanged
 
-The call that will be executed by the Safe contract is defined in a
-json file. This will be the standard approach for all transactions.
+The call executed by the Safe contract is defined in the `build` function of the [`GnosisSafeRemoveOwner`](../../src/improvements/template/GnosisSafeRemoveOwner.sol) template.
 
-Note that no onchain actions will be taking place during this
-signing. You won’t be submitting a transaction and your address
-doesn’t even need to be funded. These are offchain signatures produced
-with your wallet which will be collected by a Facilitator will execute
-the contract, submitting all signatures for its execution.
-
-Execution can be finalized by anyone once a threshold of signatures
-are collected, so a Facilitator will do the final execution for
-convenience.
+Note: No onchain actions will occur during this rehearsal. You are not submitting a transaction, and your wallet does not need to be funded. You will simply sign an offchain message with your wallet. These signatures will be collected by a Facilitator, who will submit them for execution.
+Once the required number of signatures is collected, anyone can finalize the execution. For convenience, a Facilitator will handle this step.
 
 ## Approving the transaction
 
@@ -28,9 +20,11 @@ convenience.
 ```
 cd superchain-ops
 git pull
-just install
-cd security-council-rehearsals/$(REPLACE_WITH_REHEARSAL_FOLDER)
+# Make sure you've installed the dependencies for the repository.
+cd src/improvements/tasks/<network>/rehearsals/<rehearsal-task-name> # This path should be shared with you by the Facilitator.
 ```
+
+See the [README](../../src/improvements/README.md) for more information on how to install the dependencies for the repository.
 
 ### 2. Setup Ledger
 
@@ -42,18 +36,15 @@ is ready”.
 
 Make sure your ledger is still unlocked and run the following.
 
-Remember that by default `just` is running with the address derived
-from `/0` (first nonce). If you wish to use a different account, run
-`just simulate [X]`, where X is the derivation path of the address
-that you want to use.
-
 ``` shell
-just simulate
+cd src/improvements/tasks/<network>/rehearsals/<rehearsal-task-name>
+just --dotenv-path $(pwd)/.env --justfile ../../../../single.just simulate 0
+# You may change the integer from '0' to your own specific derivation path value.
 ```
 
-You will see a "Simulation link" from the output.
+You will see a "Simulation link" URL in the output.
 
-Paste this URL in your browser. A prompt may ask you to choose a
+Copy this URL from the output and and open it with your browser. A prompt may ask you to choose a
 project, any project will do. You can create one if necessary.
 
 Click "Simulate Transaction".
@@ -68,8 +59,7 @@ Ledger:
 
 #### 3.1. Validate integrity of the simulation.
 
-Make sure you are on the "Overview" tab of the tenderly simulation, to
-validate integrity of the simulation, we need to
+To validate integrity of the simulation, we need to check the following:
 
 1. "Network": Check the network is Ethereum Mainnet.
 2. "Timestamp": Check the simulation is performed on a block with a
@@ -77,14 +67,12 @@ validate integrity of the simulation, we need to
 3. "Sender": Check the address shown is your signer account. If not,
    you will need to determine which “number” it is in the list of
    addresses on your ledger. By default the script will assume the
-   derivation path is m/44'/60'/0'/0/0. By calling the script with
-   `just simulate 1` it will derive the address using
-   m/44'/60'/1'/0/0 instead.
+   derivation path is `m/44'/60'/0'/0/0`.
 
 Here is an example screenshot, note that the Timestamp and Sender
 might be different in your simulation:
 
-![](./images/tenderly-overview-network.png)
+![](./images/1-simulation-success.png)
 
 #### 3.2. Validate correctness of the state diff.
 
@@ -96,7 +84,8 @@ Now click on the "State" tab. Verify that:
    only exists in the simulation and is safe to ignore as long as the
    new value is equal to the actual threshold of the Safe.
 3. There are no other significant state changes except for 2 nonce
-   changes from the Safe and the signer address.
+   changes from the Safe and the signer address. The screenshot below contains LivenessGuard state changes
+   because we simulated with the production Security Council safe which has LivenessGuard enabled. You can ignore these changes.
 4. You will see a state override (not a state change). This is
    expected and its purpose is to generate a successful Safe execution
    simulation without collecting any signatures.
@@ -104,7 +93,7 @@ Now click on the "State" tab. Verify that:
 Here is an example screenshot. Note that the addresses may be
 different:
 
-![](./images/tenderly-state-changes.png)
+![](./images/2-state-diff.png)
 
 #### 3.3. Extract the domain hash and the message hash to approve.
 
@@ -119,7 +108,7 @@ the domain hash that will show up in your Ledger.
 Here is an example screenshot. Note that the hash value may be
 different:
 
-![](./images/tenderly-hashes-1.png)
+![](./images/3-tenderly-hashes.png)
 
 Right before the `GnosisSafe.domainSeparator` call, you will see a
 call to `GnosisSafe.encodeTransactionData`. Its return value will be a
@@ -129,10 +118,10 @@ concatenation of `0x1901`, the domain hash, and the message hash:
 Here is an example screenshot. Note that the hash value may be
 different:
 
-![](./images/tenderly-hashes-2.png)
+![](./images/4-tenderly-hashes.png)
 
 Note down both the domain hash and the message hash. You will need to
-compare them with the ones displayed on the Ledger screen at signing.
+compare them with the ones displayed in your terminal AND on the Ledger screen at signing.
 
 ### 4. Approve the signature on your ledger
 
@@ -141,20 +130,19 @@ transaction. Make sure your ledger is still unlocked and run the
 following:
 
 ``` shell
-just sign # or just sign <hdPath>
+cd src/improvements/tasks/<network>/rehearsals/<rehearsal-task-name>
+just --dotenv-path $(pwd)/.env --justfile ../../../../single.just sign 0 # Again, you may change the integer from '0' to your own specific derivation path value.
 ```
 
 > [!IMPORTANT] This is the most security critical part of the
 > playbook: make sure the domain hash and message hash in the
-> following two places match:
+> following three places match:
 
-1. on your Ledger screen.
-2. in the Tenderly simulation. You should use the same Tenderly
+1. In your terminal output.
+2. On your Ledger screen.
+3. In the Tenderly simulation. You should use the same Tenderly
    simulation as the one you used to verify the state diffs, instead
    of opening the new one printed in the console.
-
-There is no need to verify anything printed in the console. There is
-no need to open the new Tenderly simulation link either.
 
 After verification, sign the transaction. You will see the `Data`,
 `Signer` and `Signature` printed in the console. Format should be
@@ -190,38 +178,38 @@ congrats, you are done!
 
 ### [Before the rehearsal] Prepare the rehearsal
 
-#### 1. Update .env file
+#### 1. Create a new task in the `sep` directory:
 
-1. Set the `COUNCIL_SAFE` address in `.env` to the same one used in
-   `r1-hello-council`.
-2. The `removeOwner` method on the multisig requires three parameters:
-   the `preOwner` address, the `owner` address to remove, and the new
-   `_threshold`. To find out the right `preOwner` address, run `just
-   get-owners` to get the list of owners. The address before the owner
-   to remove should be the right `preOwner` to use in the call. If the
-   owner to remove is the first one in the list, use
-   `0x0000000000000000000000000000000000000001`.
-3. Update the `SIGNER_TO_REMOVE` and `PREVIOUS_OWNER` addresses in
-   `.env`.
-4. Run `just prepare`.
-5. Test the newly created rehearsal by following the security council
+```bash
+cd superchain-ops/src/improvements
+just new task # Follow the prompts to create a new rehearsals task. 
+# (a) choose 'sep' 
+# (b) choose 'GnosisSafeRemoveOwner' 
+# (c) press enter to answer 'no' to 'Is this a test task?'
+# (d) press 'y' for 'Is this a security council rehearsal task?'
+# (e) enter a name of the task in the format of '<yyyy-mm-dd>-<task-name>'
+
+# This creates a new directory in the `src/improvements/tasks/sep/rehearsals` directory.
+```
+
+Next, make sure your `config.toml` is correct. You should use the TOML below as a starting point.
+
+```toml
+templateName = "GnosisSafeRemoveOwner"
+
+safeAddressString = "SecurityCouncil"
+allowOverwrite = ["SecurityCouncil"] # We know that we want to overwrite the default SecurityCouncil address in [addresses].
+ownerToRemove = "<enter-the-owner-address-to-remove>" # This address must exist on the Gnosis Safe below.
+
+[addresses]
+SecurityCouncil = "<enter-your-multisig-address>" # This should be the address of the Gnosis Safe that you created.
+```
+
+#### 2. Test the rehearsal and commit the files to Github
+
+1. Test the newly created rehearsal by following the security council
    steps in the `Approving the transaction` section above.
-6. Update the rehearsal folder name in the `1. Update repo and move to
-   the appropriate folder for this rehearsal task` section and the
-   addresses in the `3.2. Validate correctness of the state diff`
-   section above.
-7. Commit the newly created files to Github.
-
-#### 2. Update input.json
-
-1. Run `just prepare-json` to update the `input.json` file.
-2. Test the newly created rehearsal by following the security council
-   steps in the `Approving the transaction` section above.
-3. Update the rehearsal folder name in the `1. Update repo and move to
-   the appropriate folder for this rehearsal task` section and the
-   address in the `3.2. Validate correctness of the state diff`
-   section above.
-4. Commit the newly created files to Github.
+2. Commit the newly created files to Github.
 
 ### [After the rehearsal] Execute the output
 
@@ -229,7 +217,7 @@ congrats, you are done!
 2. Concatenate all signatures and export it as the `SIGNATURES`
    environment variable, i.e. `export
    SIGNATURES="0x[SIGNATURE1][SIGNATURE2]..."`.
-3. Run `just execute 0 # or 1 or ...` to execute the transaction onchain.
+3. Execute the transaction onchain.
 
 For example, if the quorum is 2 and you get the following outputs:
 
@@ -249,5 +237,6 @@ Then you should run
 
 ``` shell
 export SIGNATURES="0xAAAABBBB"
-just execute 0 # or 1 or ...
+cd src/improvements/tasks/<network>/rehearsals/<rehearsal-task-name>
+just --dotenv-path $(pwd)/.env --justfile ../../../../single.just execute
 ```
