@@ -85,7 +85,7 @@ Now click on the "State" tab. Verify that:
    new value is equal to the actual threshold of the Safe.
 3. There are no other significant state changes except for 2 nonce
    changes from the Safe and the signer address.
-   because we simulated with the production Security Council safe which has LivenessGuard enabled. You can ignore these changes.
+   There are some LivenessGuard state changes which are safe to ignore, as per the screenshot below. These are a result of using the production Security Council safe for the simulation, which has LivenessGuard enabled.
 4. You will see a state override (not a state change). This is
    expected and its purpose is to generate a successful Safe execution
    simulation without collecting any signatures.
