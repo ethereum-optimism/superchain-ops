@@ -123,6 +123,6 @@ contract GnosisSafeRemoveOwner is SimpleTaskBase {
         }
         // If the version is not in the supported list of versions it may not support removing owners. Please manually check if your safe version supports removing owners.
         // If it does and the removeOwner function does not contain any breaking changes, please update the supported versions list above to include the new version.
-        revert(string.concat("Safe must version is not in the supported list of versions. Current version: ", version));
+        revert(string.concat("Safe version is not in the supported list of versions. Current version: ", version));
     }
 }
