@@ -23,7 +23,7 @@ contract CouncilFoundationNestedSign is VerificationBase, CommonBase {
         address[] memory securityCouncilSafeOwners = councilSafe.getOwners();
         for (uint256 i = 0; i < securityCouncilSafeOwners.length; i++) {
             address owner = securityCouncilSafeOwners[i];
-            if (securityCouncilSafeOwners[i].code.length == 0) {
+            if (owner.code.length == 0) {
                 addCodeException(owner);
             }
         }
@@ -60,7 +60,7 @@ contract CouncilFoundationGovernorNestedSign is CouncilFoundationNestedSign {
         address[] memory securityCouncilSafeOwners = safe.getOwners();
         for (uint256 i = 0; i < securityCouncilSafeOwners.length; i++) {
             address owner = securityCouncilSafeOwners[i];
-            if (securityCouncilSafeOwners[i].code.length == 0) {
+            if (owner.code.length == 0) {
                 addCodeException(owner);
             }
         }
