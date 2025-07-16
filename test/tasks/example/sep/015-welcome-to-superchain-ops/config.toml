@@ -1,0 +1,10 @@
+templateName = "WelcomeToSuperchainOps"
+
+name = "Satoshi" # Enter your name here if you like.
+
+allowOverwrite = ["SecurityCouncil"] # We know that we want to overwrite the default SecurityCouncil address in [addresses].
+
+[addresses]
+TargetContract = "0x5c6623738B2a3a54edF1d46B2A85f959fe6b1f6b" # This is the sepolia deployment. Mainnet deployment of target contract: 0x0fb11b4164894912f079de62699f4cc5a2271f0c.
+SecurityCouncil = "0x799F5202AEBB41eC779e046e46a4D033d367d877" # This safe address was created via the safe UI.
+

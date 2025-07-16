@@ -3,6 +3,7 @@ pragma solidity 0.8.15;
 
 import {VmSafe} from "lib/forge-std/src/Vm.sol";
 import {SafeData, TaskPayload} from "src/libraries/MultisigTypes.sol";
+import {LibString} from "@solady/utils/LibString.sol";
 
 library Utils {
     VmSafe private constant vm = VmSafe(address(uint160(uint256(keccak256("hevm cheat code")))));
@@ -43,17 +44,29 @@ library Utils {
     }
 
     /// @notice Returns true if a list contains an address.
-    function contains(address[] memory list, address addr) internal pure returns (bool) {
-        for (uint256 i = 0; i < list.length; i++) {
-            if (list[i] == addr) return true;
+    function contains(address[] memory _list, address _addr) internal pure returns (bool) {
+        for (uint256 i = 0; i < _list.length; i++) {
+            if (_list[i] == _addr) return true;
+        }
+        return false;
+    }
+
+    /// @notice Returns true if a list contains a string.
+    function contains(string[] memory _list, string memory _str) internal pure returns (bool) {
+        for (uint256 i = 0; i < _list.length; i++) {
+            if (LibString.eq(_list[i], _str)) return true;
         }
         return false;
     }
 
     /// @notice Helper function to get the safe, call data, and original nonce for a given index.
-    function getSafeData(TaskPayload memory payload, uint256 index) internal pure returns (SafeData memory safeData) {
-        safeData.safe = payload.safes[index];
-        safeData.callData = payload.calldatas[index];
-        safeData.nonce = payload.originalNonces[index];
+    function getSafeData(TaskPayload memory _payload, uint256 _index)
+        internal
+        pure
+        returns (SafeData memory safeData_)
+    {
+        safeData_.safe = _payload.safes[_index];
+        safeData_.callData = _payload.calldatas[_index];
+        safeData_.nonce = _payload.originalNonces[_index];
     }
 }

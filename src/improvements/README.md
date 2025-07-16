@@ -63,6 +63,8 @@ Follow the interactive prompts from the `just new task` command to create a new 
 l2chains = [{"name": "OP Mainnet", "chainId": 10}]
 templateName = "<TEMPLATE_NAME>" # e.g. OPCMUpgradeV200
 
+allowOverwrite = ["<enter-address-name-here>"] # We may want to overwrite an address that is loaded from addresses.toml. e.g. 'SecurityCouncil'.
+
 # Add template-specific config here.
 
 [addresses]
@@ -72,6 +74,8 @@ templateName = "<TEMPLATE_NAME>" # e.g. OPCMUpgradeV200
 [stateOverrides]
 # State overrides (e.g. specify a Safe nonce).
 ```
+
+The `allowOverwrite` TOML [array](https://toml.io/en/v1.0.0#array) is optional. It can be used to specify the addresses that we want to overwrite. You can see an example of its use in this [task](./tasks/sep/020-gas-params-rehearsal-1-bn-0/config.toml). It's used when the user is adding an address to the `[addresses]` table that is already defined in the `addresses.toml` file.
 
 The `[addresses]` TOML [table](https://toml.io/en/v1.0.0#table) is optional. It can be used to specify the addresses of the contracts involved in an upgrade. You can see an example of its use in this [task](./tasks/eth/009-opcm-update-prestate-v300-op+ink/config.toml).
 

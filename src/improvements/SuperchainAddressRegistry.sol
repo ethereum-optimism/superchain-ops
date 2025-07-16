@@ -7,6 +7,7 @@ import {stdToml} from "forge-std/StdToml.sol";
 import {GameTypes, GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {console} from "forge-std/console.sol";
 import {StdStyle} from "forge-std/StdStyle.sol";
+import {Utils} from "src/libraries/Utils.sol";
 
 /// @notice Contains getters for arbitrary methods from all L1 contracts, including legacy getters
 /// that have since been deprecated.
@@ -148,13 +149,17 @@ contract SuperchainAddressRegistry is StdChains {
         // Lastly, we read in addresses from the `[addresses]` section of the config file.
         if (!toml.keyExists(".addresses")) return; // If the addresses section is missing, do nothing.
 
+        string memory allowOverwriteKey = ".allowOverwrite";
+        string[] memory allowOverwrite;
+        if (toml.keyExists(allowOverwriteKey)) {
+            allowOverwrite = toml.readStringArray(allowOverwriteKey);
+        }
+
         string[] memory _identifiers = vm.parseTomlKeys(toml, ".addresses");
         for (uint256 i = 0; i < _identifiers.length; i++) {
             string memory key = _identifiers[i];
             address who = toml.readAddress(string.concat(".addresses.", key));
-            // Using the `saveAddressUnchecked` function here because we are allowing overwrites when setting
-            // any addresses in the `[addresses]` section of the config file.
-            saveAddressUnchecked(key, sentinelChain, who);
+            saveAddress(key, sentinelChain, who, allowOverwrite);
         }
     }
 
@@ -178,21 +183,25 @@ contract SuperchainAddressRegistry is StdChains {
         }
     }
 
-    /// @notice Saves an address to the registry. Ensures that duplicates are not allowed.
     function saveAddress(string memory identifier, ChainInfo memory chain, address addr) public {
-        require(
-            registry[identifier][chain.chainId] == address(0),
-            string.concat(
-                "SuperchainAddressRegistry: duplicate key ", identifier, " for chain ", vm.toString(chain.chainId)
-            )
-        );
-        saveAddressUnchecked(identifier, chain, addr);
+        saveAddress(identifier, chain, addr, new string[](0));
     }
 
-    /// @notice Saves an address to the registry. This function does not check for duplicates.
-    function saveAddressUnchecked(string memory identifier, ChainInfo memory chain, address addr) public {
+    /// @notice Saves an address to the registry.
+    function saveAddress(string memory identifier, ChainInfo memory chain, address addr, string[] memory allowOverwrite)
+        public
+    {
         require(addr != address(0), string.concat("SuperchainAddressRegistry: zero address for ", identifier));
         require(bytes(identifier).length > 0, "SuperchainAddressRegistry: empty key");
+        // If we have overwrites, then we should check if we are allowed to overwrite the current address.
+        if (!Utils.contains(allowOverwrite, identifier)) {
+            require(
+                registry[identifier][chain.chainId] == address(0),
+                string.concat(
+                    "SuperchainAddressRegistry: duplicate key ", identifier, " for chain ", vm.toString(chain.chainId)
+                )
+            );
+        }
         registry[identifier][chain.chainId] = addr;
         addressInfo[addr] = AddressInfo(identifier, chain);
 
