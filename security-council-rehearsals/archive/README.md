@@ -1,0 +1,1 @@
+This directory contains rehearsals that where performed with the old `superchain-ops` system. They're archived here for reference.

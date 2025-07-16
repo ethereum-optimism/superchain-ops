@@ -95,67 +95,6 @@ jobs:
       - notify-failures-on-main:
           mentions: "@evm-safety-team"
 
-  just_simulate_sc_rehearsal_1:
-    circleci_ip_ranges: true
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: just simulate r1-hello-council
-          environment:
-            FOUNDRY_PROFILE: ci
-          command: |
-            just install
-            cd security-council-rehearsals
-            just setup r1-hello-council tmp-ci
-            cd *r1-hello-council-tmp-ci
-            export SIMULATE_WITHOUT_LEDGER=1
-            just simulate
-            just prepare-json
-            just simulate # simulate again to make sure the json is still valid
-
-  just_simulate_sc_rehearsal_2:
-    circleci_ip_ranges: true
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    environment:
-      FOUNDRY_PROFILE: ci
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: just simulate r2-remove-signer
-          command: |
-            just install
-            cd security-council-rehearsals
-            just setup r2-remove-signer tmp-ci
-            cd *r2-remove-signer-tmp-ci
-            export SIMULATE_WITHOUT_LEDGER=1
-            just simulate
-            just get-owners
-            just prepare
-            just simulate # simulate again to make sure the json is still valid
-
-  just_simulate_sc_rehearsal_4:
-    circleci_ip_ranges: true
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    environment:
-      FOUNDRY_PROFILE: ci
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: just simulate r4-jointly-upgrade
-          command: |
-            just install
-            cd security-council-rehearsals
-            just setup r4-jointly-upgrade tmp-ci
-            cd *r4-jointly-upgrade-tmp-ci
-            export SIMULATE_WITHOUT_LEDGER=1
-            just simulate-council
-            just prepare-json
-            just simulate-council # simulate again to make sure the json is still valid
-
   stacked_simulation:
     description: "Runs a stacked simulation"
     parameters:
@@ -392,24 +331,6 @@ workflows:
             - circleci-repo-readonly-authenticated-github-token
       # check that superchain-registry is up to date
       - check_superchain_registry:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-      # Task simulations.
-      # Please add an invocation to `just simulate` if a ceremony is
-      # active (e.g. it is the next ceremony to perform or you
-      # expect the ceremony to work continuously), and remove it once
-      # the ceremony is for historical archive only (e.g. the
-      # ceremony is done).
-      #
-      # We skip rehearsal 1 because we already have completed this rehearsal (https://github.com/ethereum-optimism/superchain-ops/pull/459),
-      # and now it fails with stack too deep after https://github.com/ethereum-optimism/superchain-ops/pull/528.
-      # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
-      # - just_simulate_sc_rehearsal_1
-
-      - just_simulate_sc_rehearsal_2:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-      - just_simulate_sc_rehearsal_4:
           context:
             - circleci-repo-readonly-authenticated-github-token
 

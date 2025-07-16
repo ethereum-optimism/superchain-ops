@@ -9,4 +9,4 @@ To create a new rehearsal ceremony, follow the instructions in the _Facilitator_
 2. [step-2-remove-signer](./step-2-remove-signer/README.md)
 3. [step-3-nested-upgrade](./step-3-jointly-upgrade/README.md)
 
-If you're a signer, you can find instructions for how to sign the rehearsals in the top sections of the same README files.
+If you're a signer, you can find instructions for signing the rehearsals in the top sections of the same README files.
