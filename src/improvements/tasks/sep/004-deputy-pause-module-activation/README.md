@@ -8,7 +8,7 @@ Installs the `DeputyPauseModule` into the Optimism Foundation Operations Safe fo
 
 ## Pre-deployments
 
-- `DeputyPauseModule` - `0x62f3972c56733aB078F0764d2414DfCaa99d574c`
+- `DeputyPauseModule` - `0xc6f7c07047ba37116a3fdc444afb5018f6df5758`
   - Deployed at version [`1.0.0-beta.2`](https://github.com/ethereum-optimism/optimism/blob/cf7a37b6b9f46e259b4ecf5c709f465f63a5e0fd/packages/contracts-bedrock/src/safe/DeputyPauseModule.sol#L90).
 
 ## Simulation
@@ -25,4 +25,4 @@ Please see the instructions for [validation](./VALIDATION.md).
 
 This upgrade:
 
-- Installs the `DeputyPauseModule` into the Optimism Foundation Operations Safe that is [deployed here](https://sepolia.etherscan.io/address/0x62f3972c56733aB078F0764d2414DfCaa99d574c#code).
+- Installs the `DeputyPauseModule` into the Optimism Foundation Operations Safe that is [deployed here](https://sepolia.etherscan.io/address/0xc6f7c07047ba37116a3fdc444afb5018f6df5758#code).
