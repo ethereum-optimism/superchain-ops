@@ -10,13 +10,11 @@ import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
-
 /// @notice A template contract for setting the EIP-1967 implementation address across 'n' number of chains where all
 /// chains share the same ProxyAdminOwner.
 /// NOTE: This template calls the `upgrade` function on the ProxyAdmin contract. It does not provide reinitialization
 /// of the implementation via the `upgradeToAndCall` function. For that, you'll need to use a different template.
 contract SetEIP1967Implementation is L2TaskBase {
-
     using stdToml for string;
 
     /// @notice The new implementation address.
