@@ -178,7 +178,7 @@ congrats, you are done!
 
 To simulate our production Safe configuration (i.e. 2-of-2 between the Security Council and the Optimism Foundation), we need to create 2 more Safe contracts. We are assuming you have already created the Security Council Safe in the [previous rehearsal](../step-1-welcome/README.md). You should create the safes in the following order:
 1. Fake Foundation Safe: You can set the owner on this safe to your EOA and the threshold to 1.
-2. Owner Safe: This safe will have two owners (fake security council and the fake foundation safe). It's important they're both Safe contracts. The simulation will fail if they're not.
+2. Owner Safe: This safe will have two owners (fake security council and the fake foundation safe). It's important they're both Safe contracts. The simulation will fail if they're not. Set the threshold to 2.
 
 You should leverage the [Safe UI](https://app.safe.global/new-safe/create?chain=eth) to do that.
 
