@@ -1,0 +1,4 @@
+templateName = "GnosisSafeRemoveOwner"
+
+safeAddressString = "SecurityCouncil"
+ownerToRemove = "0x07dC0893cAfbF810e3E72505041f2865726Fd073"

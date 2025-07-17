@@ -14,17 +14,12 @@ cmd := "yq '.templateName' " + TASK_PATH + "/config.toml"
 export SCRIPT_NAME := shell(cmd)
 export signatures := env_var_or_default('SIGNATURES', '')
 export forkBlockNumber := env_var_or_default('FORK_BLOCK_NUMBER', '-1')
-# The 'signerAddress' will be the 'from' field in the Tenderly simulation.
-# Default signer: address(uint160(uint256(keccak256("foundry default caller"))))
-export signerAddress := env_var_or_default('SIGNER_ADDRESS', '0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38')
-
 
 # Simulate sequence execution variables
 export ANVIL_LOCALHOST_RPC :="http://localhost:8545"
 export PRIVATE_KEY_OWNER := "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
 export PRIVATE_KEY_EXECUTOR :="0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
 export FAKE_SIG :="11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
-
 
 # Keystore variables
 export keystorePathBase := "~/.foundry/keystores/"
@@ -43,8 +38,9 @@ simulate hdPath='0':
     signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
     echo "Simulating with ledger account: ${signer}"
   else
-    signer="{{signerAddress}}"
-    echo "Using 'signerAddress' as signer: ${signer}"
+    ownerSafe=$(forge script TaskManager --sig "getRootSafe(string)" $config --rpc-url "$rpcUrl" --json | jq -r '.returns["0"].value')
+    signer=$(cast call ${ownerSafe} "getOwners()(address[])" -r ${rpcUrl} | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
+    echo "Simulating with first owner on tasks root safe: ${signer}"
   fi
   echo ""
 

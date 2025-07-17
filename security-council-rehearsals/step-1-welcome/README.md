@@ -8,7 +8,7 @@ to execute an onchain action.
 
 Once completed, you can be sure that if the task is executed, the WelcomeToSuperchainOps contract will return `"Welcome to SuperchainOps, <name>"` from its [`welcome()`](https://etherscan.io/address/0x0fb11b4164894912f079de62699f4cc5a2271f0c#readContract#F2) method.
 
-The call that will be executed can be found in the `build` function of the `WelcomeToSuperchainOps` template.
+The call that will be executed can be found in the `build` function of the [`WelcomeToSuperchainOps`](../../src/improvements/template/WelcomeToSuperchainOps.sol) template.
 
 Note that no onchain actions will be taking place during this
 signing. You won’t be submitting a transaction and your address

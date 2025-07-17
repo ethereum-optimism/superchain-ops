@@ -110,8 +110,11 @@ abstract contract StateOverrideManager is CommonBase {
     {
         defaultOverride.contractAddress = parentMultisig;
         defaultOverride = Simulation.addThresholdOverride(defaultOverride.contractAddress, defaultOverride);
-        // We need to override the owner on the parent multisig to ensure single safes can execute.
-        defaultOverride = Simulation.addOwnerOverride(parentMultisig, defaultOverride, owner);
+
+        // We need to override the owner on the parent multisig to ensure single safes can execute but only if the owner is not already an owner.
+        if (!IGnosisSafe(parentMultisig).isOwner(owner)) {
+            defaultOverride = Simulation.addOwnerOverride(parentMultisig, defaultOverride, owner);
+        }
     }
 
     /// @notice Parent multisig override for nested execution.
