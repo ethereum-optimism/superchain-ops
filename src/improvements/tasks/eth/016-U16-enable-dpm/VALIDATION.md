@@ -92,20 +92,24 @@ Note: The changes listed below do not include threshold, nonce and owner mapping
 ### Task State Changes
 
 ### `0x09f7150d8c019bef34450d6920f6b3608cefdaf2` (Guardian (GnosisSafe)) - Chain ID: 10
-  
+
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000005`
   - **Decoded Kind:** `uint256`
   - **Before:** `4`
   - **After:** `5`
   - **Summary:** nonce
-  - **Detail:** 
-  
+
+- **Key:**          `0x9aa2f775f06b15da64722388b04e9c862ff8f8786aa109cece7e9650e4102c33`
+  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
+  - **After:** `0x0000000000000000000000000000000000000000000000000000000000000001`
+  - **Summary:** The `approvedHashes` mapping is updated.
+
 - **Key:**          `0xb59c18a81816f359656b617dbda1931931bffeb43b6469ce9d2b68e62ad8ff33`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x000000000000000000000000c6901f65369fc59fc1b4d6d6be7a2318ff38db5b`
   - **Summary:** Adding the new Deputy Pause Module to the linked list.
   - **Detail:** We are adding the previous module to the linked list again as we replace the old reference with the new DPM.
-  
+
 - **Key:**          `0xcc69885fda6bcc1a4ace058b4a62bf5e179ea78fd58a1ccd71c22cc9b688792f`
   - **Before:** `0x000000000000000000000000c6901f65369fc59fc1b4d6d6be7a2318ff38db5b`
   - **After:** `0x00000000000000000000000076fc2f971fb355d0453cf9f64d3f9e4f640e1754`
