@@ -36,13 +36,18 @@ abstract contract SimpleTaskBase is MultisigTask {
         parentMultisig_ = IGnosisSafe(simpleAddrRegistry.get(templateConfig.safeAddressString));
     }
 
-    /// @notice We use this function to add allowed storage accesses.
-    /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
-    function _templateSetup(string memory, address) internal virtual override {
+    /// @notice Empty override to satisfy the MultisigTask contract. May include common logic at a later date.
+    function _templateSetup(string memory, address) internal virtual override {}
+
+    /// @notice Sets the allowed storage keys.
+    function _setAllowedStorageAccesses() internal virtual override {
         for (uint256 i = 0; i < templateConfig.allowedStorageKeys.length; i++) {
             _allowedStorageAccesses.add(simpleAddrRegistry.get(templateConfig.allowedStorageKeys[i]));
         }
+    }
 
+    /// @notice Sets the allowed balance changes.
+    function _setAllowedBalanceChanges() internal virtual override {
         for (uint256 i = 0; i < templateConfig.allowedBalanceChanges.length; i++) {
             _allowedBalanceChanges.add(simpleAddrRegistry.get(templateConfig.allowedBalanceChanges[i]));
         }

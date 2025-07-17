@@ -1,0 +1,7 @@
+{
+  "10101010101010": { 
+    "ProxyAdminOwner": "0x22A8dA5cC81B0e8FbcD80bf5632fC37748AA54B9", 
+    "ProxyAdmin": "0x3f096542fA6f082D09748eB43CB2FB4394E211a1", 
+    "OptimismPortalProxy": "0xa88D1b67dee50d0f1465868628a145FE828694f7" 
+  }
+}

@@ -115,6 +115,10 @@ simulate-all-templates:
     root_dir=$(git rev-parse --show-toplevel)
     forge build
     simulation_count=0
+    # When we spawn too many concurrent processes, the simulation fails with 'solc exited with signal: 9 (SIGKILL)'.
+    # The batch size should be low enough to not cause issues, but high enough to not make the simulation too slow.
+    batch_size=13
+    current_batch=0
 
     # Collect PIDs of each background simulation.
     declare -a pids=()
@@ -136,14 +140,33 @@ simulate-all-templates:
 
             # Launch each simulation in background.
             "${root_dir}/src/improvements/script/simulate-task.sh" "$task" "$nested_safe_name" & pids+=( "$!" )
+            current_batch=$((current_batch + 1))
+
+            # If we have reached the batch size, wait for this batch to complete
+            if [ $current_batch -eq $batch_size ]; then
+                echo "Waiting for batch of $batch_size simulations to complete..."
+                # Wait for current batch to finish
+                for pid in "${pids[@]}"; do
+                    wait "$pid"
+                    simulation_count=$((simulation_count + 1))
+                done
+                
+                # Reset for next batch
+                pids=()
+                current_batch=0
+                echo "Batch completed. Starting next batch..."
+            fi
         fi
     done
 
-    # Wait for every simulation to finish, count successes.
-    for pid in "${pids[@]}"; do
-        wait "$pid"
-        simulation_count=$((simulation_count + 1))
-    done
+    # Wait for any remaining simulations in the final batch
+    if [ ${#pids[@]} -gt 0 ]; then
+        echo "Waiting for final batch of ${#pids[@]} simulations to complete..."
+        for pid in "${pids[@]}"; do
+            wait "$pid"
+            simulation_count=$((simulation_count + 1))
+        done
+    fi
 
     echo "$simulation_count simulations run."
 

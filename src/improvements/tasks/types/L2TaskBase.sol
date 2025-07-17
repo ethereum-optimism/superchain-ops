@@ -66,9 +66,11 @@ abstract contract L2TaskBase is MultisigTask {
         }
     }
 
-    /// @notice We use this function to add allowed storage accesses and allowed balance changes.
-    /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
-    function _templateSetup(string memory, address) internal virtual override {
+    /// @notice Empty override to satisfy the MultisigTask contract. May include common logic at a later date.
+    function _templateSetup(string memory, address) internal virtual override {}
+
+    /// @notice Sets the allowed storage keys.
+    function _setAllowedStorageAccesses() internal virtual override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
         // Add allowed storage accesses
@@ -79,7 +81,11 @@ abstract contract L2TaskBase is MultisigTask {
                 );
             }
         }
+    }
 
+    /// @notice Sets the allowed balance changes.
+    function _setAllowedBalanceChanges() internal virtual override {
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         // Add allowed balance changes
         for (uint256 i = 0; i < templateConfig.allowedBalanceChanges.length; i++) {
             for (uint256 j = 0; j < chains.length; j++) {

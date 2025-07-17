@@ -136,14 +136,20 @@ contract FinanceTemplate is SimpleTaskBase {
         }
 
         // Store initial balances of the safe to send from
-        // Also, add each token identifier to the allowed storage keys
         for (uint256 i = 0; i < tokens.length(); i++) {
             address token = tokens.at(i);
             initialBalances[token][address(rootSafe)] = IERC20(token).balanceOf(address(rootSafe));
+        }
+    }
+
+    /// @notice Sets the allowed storage accesses. Perform necessary additions of storage keys before setting the allowed storage accesses.
+    function _setAllowedStorageAccesses() internal override {
+        // Add each token identifier to the allowed storage keys before.
+        for (uint256 i = 0; i < tokens.length(); i++) {
+            address token = tokens.at(i);
             templateConfig.allowedStorageKeys.push(simpleAddrRegistry.get(token));
         }
-
-        super._templateSetup(taskConfigFilePath, rootSafe);
+        super._setAllowedStorageAccesses(); // Place at the end to ensure that the allowed storage keys are set correctly.
     }
 
     /// @notice Builds the actions for executing the operations

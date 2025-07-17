@@ -178,18 +178,18 @@ congrats, you are done!
 
 ### [Before the rehearsal] Prepare the rehearsal
 
-#### 1. Create a new task in the `sep` directory:
+#### 1. Create a new task in the `eth` directory:
 
 ```bash
 cd superchain-ops/src/improvements
 just new task # Follow the prompts to create a new rehearsals task. 
-# (a) choose 'sep' 
+# (a) choose 'eth' 
 # (b) choose 'GnosisSafeRemoveOwner' 
 # (c) press enter to answer 'no' to 'Is this a test task?'
 # (d) press 'y' for 'Is this a security council rehearsal task?'
 # (e) enter a name of the task in the format of '<yyyy-mm-dd>-<task-name>'
 
-# This creates a new directory in the `src/improvements/tasks/sep/rehearsals` directory.
+# This creates a new directory in the `src/improvements/tasks/eth/rehearsals` directory.
 ```
 
 Next, make sure your `config.toml` is correct. You should use the TOML below as a starting point.

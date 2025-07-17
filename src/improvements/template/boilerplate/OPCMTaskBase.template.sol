@@ -53,9 +53,9 @@ contract OPCMTaskBaseTemplate is OPCMTaskBase {
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
     /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
-    function _templateSetup(string memory taskConfigFilePath, address rootSafe) internal override {
-        super._templateSetup(taskConfigFilePath, rootSafe);
-        string memory tomlContent = vm.readFile(taskConfigFilePath);
+    function _templateSetup(string memory _taskConfigFilePath, address _rootSafe) internal override {
+        super._templateSetup(_taskConfigFilePath, _rootSafe);
+        string memory tomlContent = vm.readFile(_taskConfigFilePath);
 
         // OPCMUpgrade struct is used to store the absolutePrestate and expectedValidationErrors for each l2 chain.
         OPCMUpgrade[] memory _upgrades = abi.decode(tomlContent.parseRaw(".opcmUpgrades"), (OPCMUpgrade[]));
