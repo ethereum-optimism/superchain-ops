@@ -9,8 +9,6 @@ import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
 interface IETHLockbox {
-    // function systemConfig() external view returns (ISystemConfig);
-
     function paused() external view returns (bool);
 }
 
