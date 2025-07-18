@@ -41,9 +41,8 @@ contract UnPauseSuperchainConfigAfterU16 is L2TaskBase {
 
     /// @notice Returns string identifiers for addresses that are expected to have their storage written to.
     function _taskStorageWrites() internal pure override returns (string[] memory) {
-        string[] memory storageWrites = new string[](2);
+        string[] memory storageWrites = new string[](1);
         storageWrites[0] = "SuperchainConfig";
-        storageWrites[1] = safeAddressString();
         return storageWrites;
     }
 
