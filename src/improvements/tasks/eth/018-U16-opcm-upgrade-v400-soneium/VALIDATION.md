@@ -36,7 +36,7 @@ The normalized state diff hash **MUST** match the hash produced by the state cha
 
 ## Understanding Task Calldata
 
-This document provides a detailed analysis of the final calldata executed on-chain for the OPCM upgrade to v3.0.0.
+This document provides a detailed analysis of the final calldata executed on-chain for the OPCM upgrade to v4.0.0.
 
 By reconstructing the calldata, we can confirm that the execution precisely implements the approved upgrade plan with no unexpected modifications or side effects.
 
