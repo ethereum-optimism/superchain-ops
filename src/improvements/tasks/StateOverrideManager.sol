@@ -6,6 +6,7 @@ import {stdToml} from "forge-std/StdToml.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {CommonBase} from "forge-std/Base.sol";
+import {Utils} from "src/libraries/Utils.sol";
 
 /// @notice Manages state overrides for transaction simulation.
 /// This contract is used by MultisigTask to simulate transactions
@@ -77,18 +78,21 @@ abstract contract StateOverrideManager is CommonBase {
             for (uint256 j = 0; j < _stateOverrides[i].overrides.length; j++) {
                 if (_stateOverrides[i].overrides[j].key == nonceSlot) {
                     uint256 userDefinedNonce = uint256(_stateOverrides[i].overrides[j].value);
-                    // This is an important safety check. Users should not be able to set the nonce to a value less than the current actual nonce.
-                    require(
-                        userDefinedNonce >= currentActualNonce,
-                        string.concat(
-                            "StateOverrideManager: User-defined nonce (",
-                            vm.toString(userDefinedNonce),
-                            ") is less than current actual nonce (",
-                            vm.toString(currentActualNonce),
-                            ") for contract: ",
-                            vm.toString(safeAddress)
-                        )
-                    );
+                    // This feature is used to disable the nonce check, by setting the environment variable (DISABLE_OVERRIDE_NONCE_CHECK) to 1 from `sim-sequence.sh` script.
+                    if (!Utils.isFeatureEnabled("DISABLE_OVERRIDE_NONCE_CHECK")) {
+                        // This is an important safety check. Users should not be able to set the nonce to a value less than the current actual nonce.
+                        require(
+                            userDefinedNonce >= currentActualNonce,
+                            string.concat(
+                                "StateOverrideManager: User-defined nonce (",
+                                vm.toString(userDefinedNonce),
+                                ") is less than current actual nonce (",
+                                vm.toString(currentActualNonce),
+                                ") for contract: ",
+                                vm.toString(safeAddress)
+                            )
+                        );
+                    }
                     return userDefinedNonce;
                 }
             }
@@ -106,8 +110,11 @@ abstract contract StateOverrideManager is CommonBase {
     {
         defaultOverride.contractAddress = parentMultisig;
         defaultOverride = Simulation.addThresholdOverride(defaultOverride.contractAddress, defaultOverride);
-        // We need to override the owner on the parent multisig to ensure single safes can execute.
-        defaultOverride = Simulation.addOwnerOverride(parentMultisig, defaultOverride, owner);
+
+        // We need to override the owner on the parent multisig to ensure single safes can execute but only if the owner is not already an owner.
+        if (!IGnosisSafe(parentMultisig).isOwner(owner)) {
+            defaultOverride = Simulation.addOwnerOverride(parentMultisig, defaultOverride, owner);
+        }
     }
 
     /// @notice Parent multisig override for nested execution.

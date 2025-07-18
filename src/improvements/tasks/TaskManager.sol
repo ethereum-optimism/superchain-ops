@@ -10,10 +10,13 @@ import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {SimpleAddressRegistry} from "src/improvements/SimpleAddressRegistry.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
+import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {StdStyle} from "forge-std/StdStyle.sol";
 import {console} from "forge-std/console.sol";
+import {TaskType, TaskConfig, L2Chain} from "src/libraries/MultisigTypes.sol";
+import {Utils} from "src/libraries/Utils.sol";
 
 /// This script provides a collection of functions that can be used to manage tasks.
 /// This file can only simulate tasks for one network at a time (see: script/fetch-tasks.sh).
@@ -24,23 +27,7 @@ contract TaskManager is Script {
     using AccountAccessParser for VmSafe.AccountAccess[];
     using StdStyle for string;
 
-    struct L2Chain {
-        uint256 chainId;
-        string name;
-    }
-
-    struct TaskConfig {
-        L2Chain[] optionalL2Chains;
-        string basePath;
-        string configPath;
-        string templateName;
-        address parentMultisig;
-        bool isNested;
-    }
-
-    /// @notice Cache of MultisigTask instances for each task indexed by the tasks config path.
-    mapping(string => MultisigTask) public taskCache;
-
+    /// @notice Parses the config.toml file for a given task and returns a TaskConfig struct.
     function parseConfig(string memory basePath) public returns (TaskConfig memory) {
         string memory configPath = string.concat(basePath, "/", "config.toml");
         string memory toml = vm.readFile(configPath);
@@ -52,7 +39,7 @@ contract TaskManager is Script {
 
         string memory templateName = toml.readString(".templateName");
 
-        (bool isNested, address parentMultisig) = isNestedTask(configPath);
+        (bool isNested, address parentMultisig, MultisigTask task) = isNestedTask(configPath);
 
         return TaskConfig({
             templateName: templateName,
@@ -60,7 +47,8 @@ contract TaskManager is Script {
             basePath: basePath,
             configPath: configPath,
             isNested: isNested,
-            parentMultisig: parentMultisig
+            parentMultisig: parentMultisig,
+            task: address(task)
         });
     }
 
@@ -108,20 +96,17 @@ contract TaskManager is Script {
             vm.isFile(string.concat(taskPath, "/", "README.md")),
             string.concat("TaskManager: README.md file does not exist: ", taskPath)
         );
-        require(
-            vm.isFile(string.concat(taskPath, "/", "VALIDATION.md")),
-            string.concat("TaskManager: VALIDATION.md file does not exist: ", taskPath)
-        );
+        // Don't require a VALIDATION markdown file.
     }
 
-    /// @notice Executes a task based on its configuration.
     function executeTask(TaskConfig memory config, address optionalOwnerAddress)
         public
-        returns (VmSafe.AccountAccess[] memory accesses)
+        returns (VmSafe.AccountAccess[] memory accesses_, bytes32 normalizedHash_, bytes memory dataToSign_)
     {
         // Deploy and run the template
         string memory templatePath = string.concat("out/", config.templateName, ".sol/", config.templateName, ".json");
-        MultisigTask task = getCachedTask(config.configPath, templatePath);
+        MultisigTask task = getMultisigTask(templatePath, config.task);
+
         string memory formattedParentMultisig = vm.toString(config.parentMultisig).green().bold();
 
         setTenderlyGasEnv(config.basePath);
@@ -129,6 +114,36 @@ contract TaskManager is Script {
         string[] memory parts = vm.split(config.basePath, "/");
         string memory taskName = parts[parts.length - 1];
 
+        (accesses_, normalizedHash_, dataToSign_) =
+            execute(config, task, optionalOwnerAddress, taskName, formattedParentMultisig);
+        require(
+            checkNormalizedHash(normalizedHash_, config),
+            string.concat(
+                "TaskManager: Normalized hash for task: ",
+                taskName,
+                " does not match. Got: ",
+                vm.toString(normalizedHash_)
+            )
+        );
+        require(
+            checkDataToSign(dataToSign_, config),
+            string.concat(
+                "TaskManager: Data to sign for task: ",
+                taskName,
+                " does not match Domain and Message hashes in VALIDATION.md. Got: ",
+                vm.toString(dataToSign_)
+            )
+        );
+    }
+
+    /// @notice Executes a task based on its configuration.
+    function execute(
+        TaskConfig memory config,
+        MultisigTask task,
+        address optionalOwnerAddress,
+        string memory taskName,
+        string memory formattedParentMultisig
+    ) private returns (VmSafe.AccountAccess[] memory accesses_, bytes32 normalizedHash_, bytes memory dataToSign_) {
         string memory line =
             unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
         if (config.isNested) {
@@ -149,21 +164,72 @@ contract TaskManager is Script {
             console.log(line.green().bold());
             console.log("");
             require(
-                contains(owners, ownerAddress),
+                Utils.contains(owners, ownerAddress),
                 string.concat(
-                    "TaskManager: ownerAddress must be an owner of the parent multisig: ",
+                    "TaskManager: ownerAddress (",
+                    vm.toString(ownerAddress),
+                    ") must be an owner of the parent multisig: ",
                     vm.toString(config.parentMultisig)
                 )
             );
-            (accesses,) = task.signFromChildMultisig(config.configPath, ownerAddress);
+            (accesses_,, normalizedHash_, dataToSign_) = task.simulate(config.configPath, ownerAddress);
         } else {
             // forgefmt: disable-start
             console.log(string.concat("SIMULATING SINGLE TASK: ", taskName, " ON ", formattedParentMultisig));
             console.log(line.green().bold());
             console.log("");
             // forgefmt: disable-end
-            (accesses,) = task.simulateRun(config.configPath);
+            (accesses_,, normalizedHash_, dataToSign_) = task.simulate(config.configPath);
         }
+    }
+
+    /// @notice Generic logic to check for the existence of target bytes in the VALIDATION markdown file.
+    /// @return 'false' when VALIDATION file is empty or does not contain the target bytes. 'true' when VALIDATION file does not exist or contains the target bytes.
+    function checkValidationFile(bytes memory _target, TaskConfig memory _config, string memory customMessage)
+        public
+        view
+        returns (bool)
+    {
+        string memory validationFilePath = string.concat(_config.basePath, "/VALIDATION.md");
+        // If no VALIDATION file exists then we assume this is intentional and skip the check e.g. test tasks.
+        if (!vm.isFile(validationFilePath)) return true;
+
+        string memory targetStr = vm.toString(_target);
+        string memory validations = vm.readFile(validationFilePath);
+        string[] memory lines = vm.split(validations, "\n");
+        for (uint256 i = 0; i < lines.length; i++) {
+            if (lines[i].contains(targetStr)) {
+                return true;
+            }
+        }
+        console.log(string.concat(vm.toUppercase("[ERROR]").red().bold(), " ", customMessage, " ", targetStr));
+        return false;
+    }
+
+    /// @notice Cross check most recent normalized hash with normalized hash stored in VALIDATION markdown file.
+    /// @return 'false' when VALIDATION file is empty or contains the wrong hash. 'true' when VALIDATION file does not exist or contains the correct hash.
+    function checkNormalizedHash(bytes32 _normalizedHash, TaskConfig memory _config) public view returns (bool) {
+        bytes memory normalizedHashBytes = abi.encodePacked(_normalizedHash);
+        return checkValidationFile(
+            normalizedHashBytes,
+            _config,
+            "Normalized hash does not match. Please check that you've added it to the VALIDATION markdown file."
+        );
+    }
+
+    /// @notice Cross check most recent data to sign with the domain and message hashes stored in VALIDATION markdown file.
+    /// @return 'false' when VALIDATION file is empty or contains the wrong data to sign. 'true' when VALIDATION file does not exist or contains the correct data to sign.
+    function checkDataToSign(bytes memory _dataToSign, TaskConfig memory _config) public view returns (bool) {
+        string memory message = "Please check that you've added it to the VALIDATION markdown file.";
+        (bytes32 domainSeparator, bytes32 messageHash) =
+            GnosisSafeHashes.getDomainAndMessageHashFromEncodedTransactionData(_dataToSign);
+        bytes memory domainHashBytes = abi.encodePacked(domainSeparator);
+        bytes memory messageHashBytes = abi.encodePacked(messageHash);
+        bool containsDomainHash =
+            checkValidationFile(domainHashBytes, _config, string.concat("Domain hash does not match. ", message));
+        bool containsMessageHash =
+            checkValidationFile(messageHashBytes, _config, string.concat("Message hash does not match. ", message));
+        return containsDomainHash && containsMessageHash;
     }
 
     /// @notice Requires that a signer is an owner on a safe.
@@ -176,7 +242,7 @@ contract TaskManager is Script {
     function requireSignerOnSafe(address signer, address safe) public view {
         address[] memory owners = IGnosisSafe(safe).getOwners();
         require(
-            contains(owners, signer),
+            Utils.contains(owners, signer),
             string.concat(
                 "TaskManager: signer ", vm.toString(signer), " is not an owner on the safe: ", vm.toString(safe)
             )
@@ -205,16 +271,19 @@ contract TaskManager is Script {
     }
 
     /// @notice Useful function to tell if a task is nested or not based on the task config.
-    function isNestedTask(string memory taskConfigFilePath) public returns (bool, address parentMultisig) {
+    function isNestedTask(string memory taskConfigFilePath)
+        public
+        returns (bool, address parentMultisig, MultisigTask task)
+    {
         string memory configContent = vm.readFile(taskConfigFilePath);
         string memory templateName = configContent.readString(".templateName");
 
         string memory templatePath = string.concat("out/", templateName, ".sol/", templateName, ".json");
-        MultisigTask task = getCachedTask(taskConfigFilePath, templatePath);
-        string memory safeAddressString = task.loadSafeAddressString(taskConfigFilePath);
-        MultisigTask.TaskType taskType = task.taskType();
+        task = MultisigTask(deployCode(templatePath));
+        string memory safeAddressString = task.loadSafeAddressString(task, taskConfigFilePath);
+        TaskType taskType = task.taskType();
 
-        if (taskType == MultisigTask.TaskType.SimpleTaskBase) {
+        if (taskType == TaskType.SimpleTaskBase) {
             SimpleAddressRegistry _simpleAddrRegistry = new SimpleAddressRegistry(taskConfigFilePath);
             parentMultisig = _simpleAddrRegistry.get(safeAddressString);
         } else {
@@ -228,23 +297,35 @@ contract TaskManager is Script {
                 parentMultisig = _addrRegistry.getAddress(safeAddressString, chains[0].chainId);
             }
         }
-        return (task.isNestedSafe(parentMultisig), parentMultisig);
+        return (isNestedSafe(parentMultisig), parentMultisig, task);
     }
 
     /// @notice Returns a cached MultisigTask instance for a given template path or deploys a new one.
-    function getCachedTask(string memory taskPath, string memory templatePath) internal returns (MultisigTask task) {
-        task = taskCache[taskPath];
-        if (address(task) == address(0)) {
+    function getMultisigTask(string memory templatePath, address optionalTask) internal returns (MultisigTask task) {
+        if (optionalTask == address(0)) {
             task = MultisigTask(deployCode(templatePath));
-            taskCache[taskPath] = task;
+        } else {
+            task = MultisigTask(optionalTask);
         }
     }
 
-    /// @notice Returns true if a list contains an address.
-    function contains(address[] memory list, address addr) public pure returns (bool) {
-        for (uint256 i = 0; i < list.length; i++) {
-            if (list[i] == addr) return true;
+    /// @notice Helper function to determine if the given safe is a nested multisig.
+    function isNestedSafe(address safe) public view returns (bool) {
+        // Assume safe is nested unless there is an EOA owner
+        bool nested = true;
+
+        address[] memory owners = IGnosisSafe(safe).getOwners();
+        for (uint256 i = 0; i < owners.length; i++) {
+            if (owners[i].code.length == 0) {
+                nested = false;
+            }
         }
-        return false;
+        return nested;
+    }
+
+    /// @notice Returns the root safe address for a given task config file path.
+    function getRootSafe(string memory taskConfigFilePath) public returns (address) {
+        (, address parentMultisig,) = isNestedTask(taskConfigFilePath);
+        return parentMultisig;
     }
 }

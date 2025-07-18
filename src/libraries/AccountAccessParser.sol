@@ -135,7 +135,12 @@ library AccountAccessParser {
 
     bytes32 internal constant LIVENESS_GUARD_LAST_LIVE_SLOT = bytes32(uint256(0));
 
+    bytes32 internal constant ANCHOR_STATE_REGISTRY_RETIREMENT_TIMESTAMP_SLOT = bytes32(uint256(6));
+    bytes32 internal constant ANCHOR_STATE_REGISTRY_PROPOSAL_ROOT_SLOT = bytes32(uint256(3));
+    bytes32 internal constant ANCHOR_STATE_REGISTRY_PROPOSAL_L2_SEQUENCE_NUMBER_SLOT = bytes32(uint256(4));
+
     bytes32 internal constant OPTIMISM_PORTAL_RESOURCE_PARAMS_SLOT = bytes32(uint256(1));
+
     // forgefmt: disable-end
 
     modifier noGasMetering() {
@@ -271,7 +276,8 @@ library AccountAccessParser {
     ///           1. This will have to be informed by knowing the storage layouts, which is ok
     ///           2. We should only normalize the specific section of the slot corresponding to the
     ///              timestamp, since some timestamps are packed into slots with other data.
-    ///   4. The hash to return is computed as `keccak256(abi.encode(normalizedArray))`.
+    ///       4. If the slot is on the LivenessGuard, remove it.
+    ///   5. The hash to return is computed as `keccak256(abi.encode(normalizedArray))`.
     /// @return bytes32 hash of the normalized state diff
     function normalizedStateDiffHash(
         VmSafe.AccountAccess[] memory _accountAccesses,
@@ -294,6 +300,7 @@ library AccountAccessParser {
             for (uint256 j = 0; j < diffs.length; j++) {
                 StateDiff memory diff = diffs[j];
                 if (shouldIncludeDiff(account, diff, _parentMultisig, _txHash)) {
+                    diff = normalizeTimestamp(account, diff); // Normalize the timestamp if present.
                     normalizedChanges[normalizedCount] = AccountStateDiff({
                         who: account,
                         slot: diff.slot,
@@ -330,14 +337,14 @@ library AccountAccessParser {
                 // 2.1 Nonce increment or 2.2 Setting an approve hash in storage.
                 return false;
             }
-        } else if (slotContainsTimestamp(account, diff)) {
-            // 3. If the slot contains a timestamp, normalize it to zeroes.
-            diff = normalizeTimestamp(diff);
         } else if (isLivenessGuardTimestamp(account, diff, _parentMultisig)) {
             // 4. If the slot is on the LivenessGuard, don't include it.
             return false;
         } else if (isOptimismPortalResourceMetering(diff)) {
             // 5. If the slot is on the OptimismPortalResourceParams, don't include it.
+            return false;
+        } else if (isAnchorStateRegistryProposal(account, diff)) {
+            // 6. If the diff is an AnchorStateRegistry Proposal, don't include it.
             return false;
         }
         return true;
@@ -395,39 +402,63 @@ library AccountAccessParser {
         view
         returns (bool)
     {
-        if (isLivenessGuard(_account)) {
-            address[] memory owners = IGnosisSafe(_parentMultisig).getOwners();
-            for (uint256 i = 0; i < owners.length; i++) {
-                if (isGnosisSafe(owners[i])) {
-                    // Get the owners of the nested Gnosis Safe.
-                    address[] memory nestedSafeOwners = IGnosisSafe(owners[i]).getOwners();
-                    for (uint256 j = 0; j < nestedSafeOwners.length; j++) {
-                        // Check if the slot matches any liveness guard timestamp for the nested safe owners.
-                        bytes32 ownerSlot =
-                            keccak256(abi.encode(address(nestedSafeOwners[j]), LIVENESS_GUARD_LAST_LIVE_SLOT));
-                        if (_diff.slot == ownerSlot) {
-                            return true;
-                        }
+        if (!isLivenessGuard(_account)) {
+            return false;
+        }
+
+        return _checkOwnersForLivenessSlot(_parentMultisig, _diff.slot);
+    }
+
+    /// @notice Checks if the given slot matches any liveness guard timestamp for owners and nested safe owners
+    function _checkOwnersForLivenessSlot(address _multisig, bytes32 _slot) internal view returns (bool) {
+        address[] memory owners = IGnosisSafe(_multisig).getOwners();
+
+        for (uint256 i = 0; i < owners.length; i++) {
+            // Check if this owner's liveness slot matches
+            if (_isOwnerLivenessSlot(owners[i], _slot)) {
+                return true;
+            }
+
+            // If this owner is a nested safe, check its owners too
+            if (isGnosisSafe(owners[i])) {
+                address[] memory nestedOwners = IGnosisSafe(owners[i]).getOwners();
+                for (uint256 j = 0; j < nestedOwners.length; j++) {
+                    if (_isOwnerLivenessSlot(nestedOwners[j], _slot)) {
+                        return true;
                     }
                 }
             }
         }
+
         return false;
     }
 
-    /// @notice Checks if the storage slot contains a timestamp that should be normalized
-    function slotContainsTimestamp(address _account, StateDiff memory _diff) internal pure returns (bool) {
-        // TODO Check out the storage layout snapshots and hardcode the slots that contain timestamps.
-        // We will have to call getter methods on _account to infer what protocol contract it is.
-        _account;
-        _diff;
+    /// @notice Checks if the given slot matches the liveness guard timestamp slot for a specific owner
+    function _isOwnerLivenessSlot(address _owner, bytes32 _slot) internal pure returns (bool) {
+        bytes32 ownerSlot = keccak256(abi.encode(_owner, LIVENESS_GUARD_LAST_LIVE_SLOT));
+        return _slot == ownerSlot;
+    }
+
+    function isAnchorStateRegistryProposal(address _account, StateDiff memory _diff) internal view returns (bool) {
+        if (isAnchorStateRegistry(_account)) {
+            // The proposal is stored in slot 3 and 4.
+            return _diff.slot == ANCHOR_STATE_REGISTRY_PROPOSAL_ROOT_SLOT
+                || _diff.slot == ANCHOR_STATE_REGISTRY_PROPOSAL_L2_SEQUENCE_NUMBER_SLOT;
+        }
         return false;
     }
 
-    /// @notice Normalizes a timestamp in a storage slot by zeroing out only the timestamp portion
-    function normalizeTimestamp(StateDiff memory _diff) internal pure returns (StateDiff memory) {
-        // This is a placeholder that should be implemented based on specific contract knowledge
-        // For now, just return the original diff unchanged
+    /// @notice Normalizes a timestamp in a storage slot by zeroing out only the timestamp portion if present.
+    function normalizeTimestamp(address _account, StateDiff memory _diff) internal view returns (StateDiff memory) {
+        if (_diff.slot == ANCHOR_STATE_REGISTRY_RETIREMENT_TIMESTAMP_SLOT) {
+            if (isAnchorStateRegistry(_account)) {
+                // The retirementTimestamp is introduced in the AnchorStateRegistry post op-contracts/v3.0.0-rc.2.
+                // Define a static mask to zero out 64 bits at offset 4 in little-endian format
+                bytes32 MASK = bytes32(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000000000000FFFFFFFF);
+                // Apply the static mask to zero out the specified bytes in the new value
+                _diff.newValue &= MASK;
+            }
+        }
         return _diff;
     }
 
@@ -1136,6 +1167,13 @@ library AccountAccessParser {
         bytes memory callData = abi.encodeWithSelector(bytes4(keccak256("ownershipTransferredToFallback()")));
         (bool ok, bytes memory data) = _who.staticcall(callData);
         return ok && data.length == 32;
+    }
+
+    /// @notice Probabilistically check if an address is an AnchorStateRegistry.
+    function isAnchorStateRegistry(address _who) internal view returns (bool) {
+        bytes memory callData = abi.encodeWithSelector(bytes4(keccak256("getAnchorRoot()")));
+        (bool ok, bytes memory data) = _who.staticcall(callData);
+        return ok && data.length == 64;
     }
 
     /// @notice Pre-calculate all hash approval slots for a given multisig and hash.

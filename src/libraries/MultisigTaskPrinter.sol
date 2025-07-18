@@ -9,6 +9,7 @@ import {Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {Utils} from "src/libraries/Utils.sol";
+import {TaskPayload, SafeData} from "src/libraries/MultisigTypes.sol";
 
 /// @notice A library for handling all console output related to MultisigTask operations.
 /// This library centralizes UI formatting, transaction data printing, and status message logging
@@ -64,47 +65,27 @@ library MultisigTaskPrinter {
         console.logBytes(taskCalldata);
     }
 
-    /// @notice Prints all information related to nested multisig transactions
-    /// @param parentMultisigLabel The label of the parent multisig
-    /// @param childMultisigLabel The label of the child multisig
-    /// @param parentHashToApprove The hash that the child multisig needs to approve
-    /// @param dataToSign The encoded transaction data for the child to sign
-    /// @param domainSeparator The domain separator for the child multisig
-    /// @param messageHash The message hash for the child multisig
-    function printNestedDataInfo(
-        string memory parentMultisigLabel,
-        string memory childMultisigLabel,
-        bytes32 parentHashToApprove,
-        bytes memory dataToSign,
-        bytes32 domainSeparator,
-        bytes32 messageHash
-    ) internal pure {
-        console.log("");
-        printTitle("NESTED MULTISIG CHILD'S HASH TO APPROVE");
-        console.log("Parent multisig: %s", parentMultisigLabel);
-        console.log("Parent hashToApprove: %s", vm.toString(parentHashToApprove));
-        printEncodedTransactionData(dataToSign);
-
-        console.log("");
-        printTitle("NESTED MULTISIG EOAS HASH TO APPROVE");
-        printChildSafeHashInfo(childMultisigLabel, domainSeparator, messageHash);
-    }
-
     /// @notice Prints encoded transaction data with formatted header and footer and instructions for signers.
     /// @param dataToSign The encoded transaction data to sign.
-    function printEncodedTransactionData(bytes memory dataToSign) internal pure {
+    function printEncodedTransactionData(bytes memory dataToSign) internal view {
         // NOTE: Do not change the vvvvvvvv and ^^^^^^^^ lines, as the eip712sign tool explicitly
         // looks for those specific lines to identify the data to sign.
         printTitle("DATA TO SIGN");
-        console.log("vvvvvvvv");
-        console.logBytes(dataToSign);
-        console.log("^^^^^^^^\n");
+        // 'SUPPRESS_PRINTING_DATA_TO_SIGN' is true only when using stacked signing and the task is not the last task in the stack.
+        bool shouldPrintDataToSign = !Utils.isFeatureEnabled("SUPPRESS_PRINTING_DATA_TO_SIGN");
+        if (shouldPrintDataToSign) {
+            console.log("vvvvvvvv");
+            console.logBytes(dataToSign);
+            console.log("^^^^^^^^\n");
 
-        printTitle("ATTENTION SIGNERS");
-        console.log("Please verify that the 'Data to sign' displayed above matches:");
-        console.log("1. The data shown in the Tenderly simulation.");
-        console.log("2. The data shown on your hardware wallet.");
-        console.log("This is a critical step. Do not skip this verification.");
+            printTitle("ATTENTION SIGNERS");
+            console.log("Please verify that the 'Data to sign' displayed above matches:");
+            console.log("1. The data shown in the Tenderly simulation.");
+            console.log("2. The data shown on your hardware wallet.");
+            console.log("This is a critical step. Do not skip this verification.");
+        } else {
+            console.log("This task is not intended to be signed. Not printing data to sign.");
+        }
     }
 
     /// @notice Prints the Tenderly simulation payload with the state overrides.
@@ -123,18 +104,6 @@ library MultisigTaskPrinter {
     // ======= Verification Information ========
     // ==========================================
 
-    /// @notice Prints the hash information for a child safe transaction.
-    function printChildSafeHashInfo(string memory childMultisigLabel, bytes32 domainSeparator, bytes32 messageHash)
-        internal
-        pure
-    {
-        bytes32 safeTxHash = keccak256(abi.encodePacked(hex"1901", domainSeparator, messageHash));
-        console.log("Child multisig: %s", childMultisigLabel);
-        console.log("Safe Transaction Hash: ", vm.toString(safeTxHash));
-        console.log("Domain Hash:           ", vm.toString(domainSeparator));
-        console.log("Message Hash:          ", vm.toString(messageHash));
-    }
-
     /// @notice Prints audit report information with normalized state diff hash.
     function printAuditReportInfo(bytes32 normalizedStateDiffHash) internal pure {
         printTitle("AUDIT REPORT INFORMATION");
@@ -148,40 +117,72 @@ library MultisigTaskPrinter {
     }
 
     /// @notice Prints an OP-TxVerify link for transaction verification.
-    /// @param parentMultisig The address of the parent multisig.
-    /// @param chainId The chain ID.
-    /// @param childMultisig The address of the child multisig (can be address(0) if not nested).
-    /// @param parentCalldata The calldata for the parent multisig.
-    /// @param optionalChildCallData The calldata for the child multisig (can be empty if not nested)
-    /// @param parentNonce The nonce of the parent multisig
-    /// @param childNonce The nonce of the child multisig (can be 0 if not nested)
-    /// @param parentMulticallTarget The target address for the parent multicall
-    /// @param childMulticallTarget The target address for the child multicall (can be address(0) if not nested and matches parentMulticallTarget behavior
     function printOPTxVerifyLink(
-        address parentMultisig,
         uint256 chainId,
-        address childMultisig, // Can be address(0) if not nested
-        bytes memory parentCalldata,
-        bytes memory optionalChildCallData, // Can be empty if not nested
-        uint256 parentNonce,
-        uint256 childNonce, // Can be 0 if not nested
-        address parentMulticallTarget,
-        address childMulticallTarget // Can be address(0) if not nested and matches parentMulticallTarget behavior
+        TaskPayload memory payload,
+        address rootMulticallTarget,
+        address childMulticallTarget
     ) internal view {
-        bool isNested = childMultisig != address(0);
+        (SafeData memory rootSafe, address childSafeAddress, bytes memory childSafeCalldata, uint256 childSafeNonce) =
+            _getPrintVerifyLinkData(payload);
+
+        printOPTxVerifyLink(
+            rootSafe.safe,
+            chainId,
+            childSafeAddress,
+            rootSafe.callData,
+            childSafeCalldata,
+            rootSafe.nonce,
+            childSafeNonce,
+            rootMulticallTarget,
+            childMulticallTarget
+        );
+    }
+
+    /// @notice Gets the data required to print the OP T_x verify link.
+    function _getPrintVerifyLinkData(TaskPayload memory payload)
+        internal
+        pure
+        returns (
+            SafeData memory rootSafe,
+            address childSafeAddress,
+            bytes memory childSafeCalldata,
+            uint256 childSafeNonce
+        )
+    {
+        bool isNested = payload.safes.length > 1;
+        rootSafe = Utils.getSafeData(payload, payload.safes.length - 1);
+        SafeData memory childSafe = Utils.getSafeData(payload, 0);
+        childSafeAddress = isNested ? childSafe.safe : address(0);
+        childSafeCalldata = isNested ? childSafe.callData : new bytes(0);
+        childSafeNonce = isNested ? childSafe.nonce : 0;
+    }
+
+    /// @notice Prints a link to the OP T_x Verify tool. This tool can be used to verify transactions on Gnosis Safes.
+    function printOPTxVerifyLink(
+        address rootSafe,
+        uint256 chainId,
+        address childSafeAddress,
+        bytes memory rootSafeCalldata,
+        bytes memory childSafeCalldata,
+        uint256 rootSafeNonce,
+        uint256 childSafeNonce,
+        address rootMulticallTarget,
+        address childMulticallTarget
+    ) internal view {
         string memory json = string.concat(
             '{\n   "safe": "',
-            vm.toString(parentMultisig),
+            vm.toString(rootSafe),
             '",\n    "safe_version": "',
-            IGnosisSafe(parentMultisig).VERSION(),
+            IGnosisSafe(rootSafe).VERSION(),
             '",\n   "chain": ',
             vm.toString(chainId),
             ',\n   "to": "',
-            vm.toString(parentMulticallTarget),
+            vm.toString(rootMulticallTarget),
             '",\n   "value": ',
             vm.toString(uint256(0)),
             ',\n   "data": "',
-            vm.toString(parentCalldata)
+            vm.toString(rootSafeCalldata)
         );
 
         json = string.concat(
@@ -203,20 +204,20 @@ library MultisigTaskPrinter {
         json = string.concat(
             json,
             '",\n   "nonce": ',
-            vm.toString(parentNonce),
-            isNested
+            vm.toString(rootSafeNonce),
+            childSafeAddress != address(0)
                 ? string.concat(
                     ',\n   "nested": ',
                     '{\n    "safe": "',
-                    vm.toString(childMultisig),
+                    vm.toString(childSafeAddress),
                     '",\n    "safe_version": "',
-                    IGnosisSafe(childMultisig).VERSION(),
+                    IGnosisSafe(childSafeAddress).VERSION(),
                     '",\n    "nonce": ',
-                    vm.toString(childNonce),
+                    vm.toString(childSafeNonce),
                     ',\n    "operation": ',
                     vm.toString(uint8(Enum.Operation.DelegateCall)),
                     ',\n    "data": "',
-                    vm.toString(optionalChildCallData),
+                    vm.toString(childSafeCalldata),
                     '",\n    "to": "',
                     vm.toString(childMulticallTarget),
                     '"\n   }'

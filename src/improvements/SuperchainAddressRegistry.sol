@@ -5,6 +5,9 @@ import {Vm} from "forge-std/Vm.sol";
 import {StdChains} from "forge-std/StdChains.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {GameTypes, GameType} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
+import {console} from "forge-std/console.sol";
+import {StdStyle} from "forge-std/StdStyle.sol";
+import {Utils} from "src/libraries/Utils.sol";
 
 /// @notice Contains getters for arbitrary methods from all L1 contracts, including legacy getters
 /// that have since been deprecated.
@@ -19,7 +22,7 @@ interface IFetcher {
     function addressManager() external view returns (address);
     function PORTAL() external view returns (address);
     function portal() external view returns (address);
-    function l1ERC721BridgeProxy() external view returns (address);
+    function l1ERC721Bridge() external view returns (address);
     function optimismMintableERC20Factory() external view returns (address);
     function gameImpls(GameType _gameType) external view returns (address);
     function anchorStateRegistry() external view returns (address);
@@ -41,6 +44,7 @@ interface IFetcher {
 /// (EOAs) while ensuring correctness and uniqueness.
 contract SuperchainAddressRegistry is StdChains {
     using stdToml for string;
+    using StdStyle for string;
 
     address private constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
     Vm private constant vm = Vm(VM_ADDRESS);
@@ -88,28 +92,51 @@ contract SuperchainAddressRegistry is StdChains {
         );
 
         string memory toml = vm.readFile(configPath);
+        bool l2ChainsKeyExists = toml.keyExists(".l2chains");
+        require(l2ChainsKeyExists, "SuperchainAddressRegistry: .l2chains must be present in the config.toml file.");
+
+        ChainInfo[] memory _chainsMemory;
+        string memory fallbackAddressesJsonPath = toml.readStringOr(".fallbackAddressesJsonPath", "");
         bytes memory chainListContent = toml.parseRaw(".l2chains");
+        _chainsMemory = abi.decode(chainListContent, (ChainInfo[]));
+        require(_chainsMemory.length > 0, "SuperchainAddressRegistry: .l2chains list is empty");
 
-        // Read in the list of OP chains from the config file.
-        // Cannot assign the abi.decode result to `chains` directly because it's a storage array, so
-        // compiling without via-ir will fail with:
-        //    Unimplemented feature (/solidity/libsolidity/codegen/ArrayUtils.cpp:228):Copying of type struct AddressRegistry.ChainInfo memory[] memory to storage not yet supported.
-        ChainInfo[] memory _chains = abi.decode(chainListContent, (ChainInfo[]));
-        require(_chains.length > 0, "SuperchainAddressRegistry: no chains found");
-        for (uint256 i = 0; i < _chains.length; i++) {
-            require(_chains[i].chainId != 0, "SuperchainAddressRegistry: Invalid chain ID in config");
-            require(bytes(_chains[i].name).length > 0, "SuperchainAddressRegistry: Empty name in config");
-            require(!seenL2ChainIds[_chains[i].chainId], "SuperchainAddressRegistry: Duplicate chain ID");
+        for (uint256 i = 0; i < _chainsMemory.length; i++) {
+            require(_chainsMemory[i].chainId != 0, "SuperchainAddressRegistry: Invalid chain ID in config");
+            require(bytes(_chainsMemory[i].name).length > 0, "SuperchainAddressRegistry: Empty name in config");
+            require(!seenL2ChainIds[_chainsMemory[i].chainId], "SuperchainAddressRegistry: Duplicate chain ID");
 
-            seenL2ChainIds[_chains[i].chainId] = true;
-            chains.push(_chains[i]);
+            seenL2ChainIds[_chainsMemory[i].chainId] = true;
+            chains.push(_chainsMemory[i]);
         }
 
-        // For each OP chain, read in all addresses for that OP Chain.
-        string memory chainAddrs = vm.readFile(SUPERCHAIN_REGISTRY_ADDRESSES_PATH);
+        // For each chain, read in all addresses.
+        string memory superchainRegistryChainAddrs = vm.readFile(SUPERCHAIN_REGISTRY_ADDRESSES_PATH);
 
         for (uint256 i = 0; i < chains.length; i++) {
-            _processAddresses(chains[i], chainAddrs);
+            // Create a copy of the chain info from storage.
+            ChainInfo memory currentChain = chains[i];
+            bool chainExists =
+                vm.keyExistsJson(superchainRegistryChainAddrs, string.concat("$.", vm.toString(currentChain.chainId)));
+            if (!chainExists) {
+                require(
+                    bytes(fallbackAddressesJsonPath).length > 0,
+                    "SuperchainAddressRegistry: Chain does not exist in superchain registry and fallback path is empty."
+                );
+                console.log(
+                    string.concat(
+                        string("[INFO]").green().bold(),
+                        " SuperchainAddressRegistry: Chain ",
+                        currentChain.name,
+                        " not found in superchain registry, using fallback path ",
+                        fallbackAddressesJsonPath
+                    )
+                );
+                string memory customAddresses = vm.readFile(fallbackAddressesJsonPath);
+                saveAllAddressesLocal(customAddresses, currentChain);
+            } else {
+                _processAddresses(currentChain, superchainRegistryChainAddrs);
+            }
         }
 
         string memory chainKey;
@@ -122,11 +149,17 @@ contract SuperchainAddressRegistry is StdChains {
         // Lastly, we read in addresses from the `[addresses]` section of the config file.
         if (!toml.keyExists(".addresses")) return; // If the addresses section is missing, do nothing.
 
+        string memory allowOverwriteKey = ".allowOverwrite";
+        string[] memory allowOverwrite;
+        if (toml.keyExists(allowOverwriteKey)) {
+            allowOverwrite = toml.readStringArray(allowOverwriteKey);
+        }
+
         string[] memory _identifiers = vm.parseTomlKeys(toml, ".addresses");
         for (uint256 i = 0; i < _identifiers.length; i++) {
             string memory key = _identifiers[i];
             address who = toml.readAddress(string.concat(".addresses.", key));
-            saveAddress(key, sentinelChain, who);
+            saveAddress(key, sentinelChain, who, allowOverwrite);
         }
     }
 
@@ -150,16 +183,25 @@ contract SuperchainAddressRegistry is StdChains {
         }
     }
 
-    function saveAddress(string memory identifier, ChainInfo memory chain, address addr) internal {
+    function saveAddress(string memory identifier, ChainInfo memory chain, address addr) public {
+        saveAddress(identifier, chain, addr, new string[](0));
+    }
+
+    /// @notice Saves an address to the registry.
+    function saveAddress(string memory identifier, ChainInfo memory chain, address addr, string[] memory allowOverwrite)
+        public
+    {
         require(addr != address(0), string.concat("SuperchainAddressRegistry: zero address for ", identifier));
         require(bytes(identifier).length > 0, "SuperchainAddressRegistry: empty key");
-        require(
-            registry[identifier][chain.chainId] == address(0),
-            string.concat(
-                "SuperchainAddressRegistry: duplicate key ", identifier, " for chain ", vm.toString(chain.chainId)
-            )
-        );
-
+        // If we have overwrites, then we should check if we are allowed to overwrite the current address.
+        if (!Utils.contains(allowOverwrite, identifier)) {
+            require(
+                registry[identifier][chain.chainId] == address(0),
+                string.concat(
+                    "SuperchainAddressRegistry: duplicate key ", identifier, " for chain ", vm.toString(chain.chainId)
+                )
+            );
+        }
         registry[identifier][chain.chainId] = addr;
         addressInfo[addr] = AddressInfo(identifier, chain);
 
@@ -324,6 +366,18 @@ contract SuperchainAddressRegistry is StdChains {
         saveAddress("Proposer", chain, proposer);
     }
 
+    /// @notice Saves all addresses for a given chain from the addresses.json file. This does not perform any onchain discovery.
+    function saveAllAddressesLocal(string memory _chainAddressesContent, ChainInfo memory _chain) internal {
+        string[] memory keys =
+            vm.parseJsonKeys(_chainAddressesContent, string.concat("$.", vm.toString(_chain.chainId)));
+        for (uint256 j = 0; j < keys.length; j++) {
+            string memory key = keys[j];
+            address addr =
+                vm.parseJsonAddress(_chainAddressesContent, string.concat("$.", vm.toString(_chain.chainId), ".", key));
+            saveAddress(key, _chain, addr);
+        }
+    }
+
     function parseContractAddress(
         string memory chainAddressesContent,
         uint256 chainId,
@@ -369,8 +423,8 @@ contract SuperchainAddressRegistry is StdChains {
         view
         returns (address)
     {
-        try IFetcher(systemConfigProxy).l1ERC721BridgeProxy() returns (address l1ERC721BridgeProxy) {
-            return l1ERC721BridgeProxy;
+        try IFetcher(systemConfigProxy).l1ERC721Bridge() returns (address l1ERC721Bridge) {
+            return l1ERC721Bridge;
         } catch {
             return parseContractAddress(chainAddressesContent, chainId, "L1ERC721BridgeProxy");
         }

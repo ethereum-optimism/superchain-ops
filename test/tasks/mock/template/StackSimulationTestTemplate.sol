@@ -2,9 +2,11 @@
 pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
-import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
-import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
 import {stdToml} from "forge-std/StdToml.sol";
+import "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
+
+import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice A simple contract that's used to test stacked simulations.
 /// It's setup in such a way that later tasks in the stack depend on the state changes
@@ -47,24 +49,24 @@ contract StackSimulationTestTemplate is SimpleTaskBase {
         return storageWrites;
     }
 
-    function _templateSetup(string memory taskConfigFilePath) internal override {
-        super._templateSetup(taskConfigFilePath);
+    function _templateSetup(string memory taskConfigFilePath, address rootSafe) internal override {
+        super._templateSetup(taskConfigFilePath, rootSafe);
         string memory toml = vm.readFile(taskConfigFilePath);
         oldValue = toml.readUint(".oldValue");
         newValue = toml.readUint(".newValue");
         firstValue = toml.readUint(".firstValue");
     }
 
-    function _build() internal override {
+    function _build(address) internal override {
         SimpleStorage simpleStorage = SimpleStorage(simpleAddrRegistry.get("SimpleStorage"));
         simpleStorage.set(firstValue, oldValue, newValue);
     }
 
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
         SimpleStorage simpleStorage = SimpleStorage(simpleAddrRegistry.get("SimpleStorage"));
         assertEq(simpleStorage.current(), newValue);
         assertEq(simpleStorage.first(), firstValue);
     }
 
-    function getCodeExceptions() internal view virtual override returns (address[] memory) {}
+    function _getCodeExceptions() internal view virtual override returns (address[] memory) {}
 }

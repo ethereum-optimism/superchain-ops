@@ -3,15 +3,15 @@ pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
-
-import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
-
 import {
     IDeputyGuardianModule,
     IOptimismPortal2
 } from "lib/optimism/packages/contracts-bedrock/interfaces/safe/IDeputyGuardianModule.sol";
 import {GameType} from "lib/optimism/packages/contracts-bedrock/src/dispute/lib/Types.sol";
+
+import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
+import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @title UpdateRetirementTimestampTemplate
 /// @notice This template is used to update the retirement timestamp in the OptimismPortal2
@@ -34,7 +34,7 @@ contract UpdateRetirementTimestampTemplate is L2TaskBase {
     }
 
     /// @notice Write the calls that you want to execute for the task.
-    function _build() internal override {
+    function _build(address) internal override {
         // Load the DeputyGuardianModule contract.
         IDeputyGuardianModule dgm = IDeputyGuardianModule(superchainAddrRegistry.get("DeputyGuardianModule"));
 
@@ -48,7 +48,7 @@ contract UpdateRetirementTimestampTemplate is L2TaskBase {
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
         // Iterate over the chains and validate the retirement timestamp.
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
@@ -60,7 +60,7 @@ contract UpdateRetirementTimestampTemplate is L2TaskBase {
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function getCodeExceptions() internal pure override returns (address[] memory) {
+    function _getCodeExceptions() internal pure override returns (address[] memory) {
         address[] memory codeExceptions = new address[](0);
         return codeExceptions;
     }

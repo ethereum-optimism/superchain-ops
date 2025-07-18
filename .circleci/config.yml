@@ -58,64 +58,6 @@ commands:
           mentions: "<< parameters.mentions >>"
 
 jobs:
-  check_sepolia_rpc_endpoints:
-    circleci_ip_ranges: true
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: Check Sepolia RPC Endpoints
-          command: |
-            if ./ops/verify-geth-endpoint.sh "<< pipeline.parameters.l1_sepolia_rpc_url >>"; then
-              if ops/verify-geth-endpoint.sh "<< pipeline.parameters.l2_sepolia_rpc_url >>"; then
-                echo "Both RPC endpoints are up to date and not syncing."
-                echo "L1_RPC_SEPOLIA=<< pipeline.parameters.l1_sepolia_rpc_url >>" >> $BASH_ENV
-                echo "L2_RPC_SEPOLIA=<< pipeline.parameters.l2_sepolia_rpc_url >>" >> $BASH_ENV
-              else
-                echo "L2 RPC endpoint failed the checks."
-                exit 1
-              fi
-            else
-              echo "L1 RPC endpoint failed the checks."
-              exit 1
-            fi
-      - run: |
-          cp $BASH_ENV bash.env
-      - persist_to_workspace:
-          root: .
-          paths:
-            - bash.env
-
-  check_mainnet_rpc_endpoints:
-    circleci_ip_ranges: true
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: Check Mainnet RPC Endpoints
-          command: |
-            if ops/verify-geth-endpoint.sh "<< pipeline.parameters.l1_mainnet_rpc_url >>"; then
-              if ops/verify-geth-endpoint.sh "<< pipeline.parameters.l2_mainnet_rpc_url >>"; then
-                echo "Both RPC endpoints are up to date and not syncing."
-                echo "L1_RPC_MAINNET=<< pipeline.parameters.l1_mainnet_rpc_url >>" >> $BASH_ENV
-                echo "L2_RPC_MAINNET=<< pipeline.parameters.l2_mainnet_rpc_url >>" >> $BASH_ENV
-              else
-                echo "L2 RPC endpoint failed the checks."
-                exit 1
-              fi
-            else
-              echo "L1 RPC endpoint failed the checks."
-              exit 1
-            fi
-      - run: |
-          cp $BASH_ENV bash.env
-      - persist_to_workspace:
-          root: .
-          paths:
-            - bash.env
-
   check_task_statuses:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -151,90 +93,7 @@ jobs:
             just install
             (cd src/improvements && just check-superchain-registry-latest)
       - notify-failures-on-main:
-          mentions: "@security-team"
-
-  # TODO: remove/replace when there are real consumers of the RPC URLs
-  example_mainnet_job:
-    circleci_ip_ranges: true
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - attach_workspace:
-          at: .
-      - run: |
-          cat bash.env >> $BASH_ENV
-      - run:
-          name: Use RPC URLs
-          command: |
-            if [ -z "$L1_RPC_MAINNET" ] || [ -z "$L2_RPC_MAINNET" ]; then
-                echo "Required RPC URLs are not available."
-            fi
-              L1_RPC_URL=$L1_RPC_MAINNET
-              L2_RPC_URL=$L2_RPC_MAINNET
-              echo "L1 RPC URL: $L1_RPC_URL"
-              echo "L2 RPC URL: $L2_RPC_URL"
-              # Use L1_RPC_URL and L2_RPC_URL here.
-
-  just_simulate_sc_rehearsal_1:
-    circleci_ip_ranges: true
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: just simulate r1-hello-council
-          environment:
-            FOUNDRY_PROFILE: ci
-          command: |
-            just install
-            cd security-council-rehearsals
-            just setup r1-hello-council tmp-ci
-            cd *r1-hello-council-tmp-ci
-            export SIMULATE_WITHOUT_LEDGER=1
-            just simulate
-            just prepare-json
-            just simulate # simulate again to make sure the json is still valid
-
-  just_simulate_sc_rehearsal_2:
-    circleci_ip_ranges: true
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    environment:
-      FOUNDRY_PROFILE: ci
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: just simulate r2-remove-signer
-          command: |
-            just install
-            cd security-council-rehearsals
-            just setup r2-remove-signer tmp-ci
-            cd *r2-remove-signer-tmp-ci
-            export SIMULATE_WITHOUT_LEDGER=1
-            just simulate
-            just get-owners
-            just prepare
-            just simulate # simulate again to make sure the json is still valid
-
-  just_simulate_sc_rehearsal_4:
-    circleci_ip_ranges: true
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    environment:
-      FOUNDRY_PROFILE: ci
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: just simulate r4-jointly-upgrade
-          command: |
-            just install
-            cd security-council-rehearsals
-            just setup r4-jointly-upgrade tmp-ci
-            cd *r4-jointly-upgrade-tmp-ci
-            export SIMULATE_WITHOUT_LEDGER=1
-            just simulate-council
-            just prepare-json
-            just simulate-council # simulate again to make sure the json is still valid
+          mentions: "@evm-safety-team"
 
   stacked_simulation:
     description: "Runs a stacked simulation"
@@ -251,11 +110,16 @@ jobs:
       - utils/checkout-with-mise
       - run:
           name: "Run stacked simulation for network: <<parameters.network>>"
+          # This may need to be increased in the future. We should focus on fixing the performance first before bumping this.
+          no_output_timeout: 30m 
           command: |
             just install
-            (cd src/improvements && just simulate-stack <<parameters.network>>)
+            cd src/improvements
+            just simulate-stack <<parameters.network>> > stack-simulation-output.txt
+      - store_artifacts:
+          path: src/improvements/stack-simulation-output.txt
       - notify-failures-on-main:
-          mentions: "@security-team"
+          mentions: "@evm-safety-team"
 
   just_simulate_nested:
     description: "Runs simulations of a nested task"
@@ -334,6 +198,7 @@ jobs:
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
+    resource_class: xlarge
     environment:
       FOUNDRY_PROFILE: ci
     steps:
@@ -341,6 +206,7 @@ jobs:
       - run:
           name: forge test
           command: |
+            just install
             forge --version
             forge test -vvv
 
@@ -357,7 +223,7 @@ jobs:
           command: |
             (cd src/improvements && just simulate-all-templates)
       - notify-failures-on-main:
-          mentions: "@security-team"
+          mentions: "@evm-safety-team"
 
   just_new_recipe_tests:
     circleci_ip_ranges: true
@@ -447,32 +313,14 @@ workflows:
       - forge_test:
           context:
             - circleci-repo-readonly-authenticated-github-token
-      # This is a long running job, so we only run it on the main branch. It's encouraged that task
-      # developers run this locally before pushing changes. We should keep this job running on main 
-      # until we have performance improvements to the job (e.g. https://github.com/foundry-rs/foundry/issues/5363).
       - template_regression_tests:
           context:
             - circleci-repo-readonly-authenticated-github-token
-          filters:
-            branches:
-              only: main
       - just_new_recipe_tests
       - shellcheck:
           context:
             - circleci-repo-readonly-authenticated-github-token
       - check_task_names
-      # RPC endpoint checks.
-      - check_sepolia_rpc_endpoints:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-      - check_mainnet_rpc_endpoints:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-      - example_mainnet_job:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-          requires:
-            - check_mainnet_rpc_endpoints
       # Verify that all tasks have a valid status in their README.
       - check_task_statuses:
           context:
@@ -483,24 +331,6 @@ workflows:
             - circleci-repo-readonly-authenticated-github-token
       # check that superchain-registry is up to date
       - check_superchain_registry:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-      # Task simulations.
-      # Please add an invocation to `just simulate` if a ceremony is
-      # active (e.g. it is the next ceremony to perform or you
-      # expect the ceremony to work continuously), and remove it once
-      # the ceremony is for historical archive only (e.g. the
-      # ceremony is done).
-      #
-      # We skip rehearsal 1 because we already have completed this rehearsal (https://github.com/ethereum-optimism/superchain-ops/pull/459),
-      # and now it fails with stack too deep after https://github.com/ethereum-optimism/superchain-ops/pull/528.
-      # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
-      # - just_simulate_sc_rehearsal_1
-
-      - just_simulate_sc_rehearsal_2:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-      - just_simulate_sc_rehearsal_4:
           context:
             - circleci-repo-readonly-authenticated-github-token
 
@@ -526,9 +356,6 @@ workflows:
           network: "eth"
           context:
             - circleci-repo-readonly-authenticated-github-token
-          filters:
-            branches:
-              only: main
 
       # Stacked simulations for superchain-ops on Sepolia.
       - stacked_simulation:
@@ -536,9 +363,6 @@ workflows:
           network: "sep"
           context:
             - circleci-repo-readonly-authenticated-github-token
-          filters:
-            branches:
-              only: main
 
   close-issue-workflow:
     when:
@@ -555,4 +379,3 @@ workflows:
             This issue will be closed now."
           context:
             - circleci-repo-superchain-ops
-            

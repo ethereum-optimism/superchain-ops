@@ -2,13 +2,9 @@
 pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
+import {stdToml} from "forge-std/StdToml.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {IStandardValidatorV180} from "@eth-optimism-bedrock/interfaces/L1/IStandardValidator.sol";
-
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
-import {AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
-import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
-
 import {
     IOptimismPortal2,
     IProxyAdmin,
@@ -19,9 +15,12 @@ import {
     Claim
 } from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {StorageSetter} from "@eth-optimism-bedrock/src/universal/StorageSetter.sol";
-
-import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
+
+import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
+import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice A template contract for configuring protocol parameters.
 ///         This file is intentionally stripped down; please add your logic where indicated.
@@ -65,8 +64,8 @@ contract UniFix is L2TaskBase {
     }
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
-    function _templateSetup(string memory taskConfigFilePath) internal override {
-        super._templateSetup(taskConfigFilePath);
+    function _templateSetup(string memory taskConfigFilePath, address rootSafe) internal override {
+        super._templateSetup(taskConfigFilePath, rootSafe);
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         assertEq(chains.length, 1);
         assertEq(chains[0].chainId, 1301);
@@ -86,7 +85,7 @@ contract UniFix is L2TaskBase {
     }
 
     /// @notice Write the calls that you want to execute for the task.
-    function _build() internal override {
+    function _build(address) internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         // We are only operating on Uni Sepolia.
         assertEq(chains.length, 1);
@@ -144,7 +143,7 @@ contract UniFix is L2TaskBase {
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         assertEq(chains.length, 1);
         assertEq(chains[0].chainId, 1301);
@@ -180,7 +179,7 @@ contract UniFix is L2TaskBase {
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function getCodeExceptions() internal pure override returns (address[] memory) {
+    function _getCodeExceptions() internal pure override returns (address[] memory) {
         return new address[](0);
     }
 }

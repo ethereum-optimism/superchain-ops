@@ -2,14 +2,15 @@
 pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
-
-import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
 import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {ERC20} from "@solady/tokens/ERC20.sol";
 import {stdToml} from "lib/forge-std/src/StdToml.sol";
 import {EnumerableSet} from "lib/openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
+
+import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 import {DecimalNormalization} from "src/libraries/DecimalNormalization.sol";
 
 /// @notice Template contract for enabling finance transactions
@@ -101,7 +102,7 @@ contract FinanceTemplate is SimpleTaskBase {
 
     /// @notice Sets up the template with module configuration from a TOML file
     /// @param taskConfigFilePath Path to the TOML configuration file
-    function _templateSetup(string memory taskConfigFilePath) internal override {
+    function _templateSetup(string memory taskConfigFilePath, address rootSafe) internal override {
         string memory toml = vm.readFile(taskConfigFilePath);
         operationType = toml.readString(".operationType");
         operationTypeEnum = _getOperationType();
@@ -127,7 +128,7 @@ contract FinanceTemplate is SimpleTaskBase {
             Operation memory operation = operations[i];
             (address token, address target) = _getTokenAndTarget(operation.token, operation.target);
             tokens.add(token);
-            initialAllowances[token][target] = IERC20(token).allowance(address(parentMultisig), target);
+            initialAllowances[token][target] = IERC20(token).allowance(address(rootSafe), target);
             initialBalances[token][target] = IERC20(token).balanceOf(target);
             if (operationTypeEnum == OperationType.Transfer) {
                 tokensTransferred[token] += operations[i].amount;
@@ -135,18 +136,24 @@ contract FinanceTemplate is SimpleTaskBase {
         }
 
         // Store initial balances of the safe to send from
-        // Also, add each token identifier to the allowed storage keys
         for (uint256 i = 0; i < tokens.length(); i++) {
             address token = tokens.at(i);
-            initialBalances[token][address(parentMultisig)] = IERC20(token).balanceOf(address(parentMultisig));
-            config.allowedStorageKeys.push(simpleAddrRegistry.get(token));
+            initialBalances[token][address(rootSafe)] = IERC20(token).balanceOf(address(rootSafe));
         }
+    }
 
-        super._templateSetup(taskConfigFilePath);
+    /// @notice Sets the allowed storage accesses. Perform necessary additions of storage keys before setting the allowed storage accesses.
+    function _setAllowedStorageAccesses() internal override {
+        // Add each token identifier to the allowed storage keys before.
+        for (uint256 i = 0; i < tokens.length(); i++) {
+            address token = tokens.at(i);
+            templateConfig.allowedStorageKeys.push(simpleAddrRegistry.get(token));
+        }
+        super._setAllowedStorageAccesses(); // Place at the end to ensure that the allowed storage keys are set correctly.
     }
 
     /// @notice Builds the actions for executing the operations
-    function _build() internal override {
+    function _build(address) internal override {
         for (uint256 i = 0; i < operations.length; i++) {
             Operation memory operation = operations[i];
             (address token, address target) = _getTokenAndTarget(operation.token, operation.target);
@@ -166,19 +173,19 @@ contract FinanceTemplate is SimpleTaskBase {
     }
 
     /// @notice Validates that the module was enabled correctly.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address rootSafe) internal view override {
         for (uint256 i = 0; i < operations.length; i++) {
             Operation memory operation = operations[i];
             (address token, address target) = _getTokenAndTarget(operation.token, operation.target);
 
             if (operationTypeEnum == OperationType.Approve) {
-                _validateApprove(token, target, operation.amount);
+                _validateApprove(token, target, operation.amount, rootSafe);
             } else if (operationTypeEnum == OperationType.IncreaseAllowance) {
-                _validateIncreaseAllowance(token, target, operation.amount);
+                _validateIncreaseAllowance(token, target, operation.amount, rootSafe);
             } else if (operationTypeEnum == OperationType.DecreaseAllowance) {
-                _validateDecreaseAllowance(token, target, operation.amount);
+                _validateDecreaseAllowance(token, target, operation.amount, rootSafe);
             } else if (operationTypeEnum == OperationType.Transfer) {
-                _validateTransfer(token, target, operation.amount);
+                _validateTransfer(token, target, operation.amount, rootSafe);
             } else {
                 revert("invalid operation type");
             }
@@ -189,15 +196,15 @@ contract FinanceTemplate is SimpleTaskBase {
             for (uint256 i = 0; i < tokens.length(); i++) {
                 address token = tokens.at(i);
                 assertEq(
-                    IERC20(token).balanceOf(address(parentMultisig)),
-                    initialBalances[token][address(parentMultisig)] - tokensTransferred[token]
+                    IERC20(token).balanceOf(address(rootSafe)),
+                    initialBalances[token][address(rootSafe)] - tokensTransferred[token]
                 );
             }
         }
     }
 
     /// @notice No code exceptions for this template
-    function getCodeExceptions() internal view override returns (address[] memory) {}
+    function _getCodeExceptions() internal view override returns (address[] memory) {}
 
     /// @notice Returns the operation type enum
     function _getOperationType() internal view returns (OperationType) {
@@ -214,26 +221,32 @@ contract FinanceTemplate is SimpleTaskBase {
     }
 
     /// @notice Validates approve operations
-    function _validateApprove(address token, address target, uint256 amount) internal view {
-        assertEq(IERC20(token).allowance(address(parentMultisig), target), amount);
+    function _validateApprove(address token, address target, uint256 amount, address rootSafe) internal view {
+        assertEq(IERC20(token).allowance(address(rootSafe), target), amount);
         assertEq(IERC20(token).balanceOf(target), initialBalances[token][target]);
     }
 
     /// @notice Validates increase allowance operations
-    function _validateIncreaseAllowance(address token, address target, uint256 amount) internal view {
-        assertEq(IERC20(token).allowance(address(parentMultisig), target), initialAllowances[token][target] + amount);
+    function _validateIncreaseAllowance(address token, address target, uint256 amount, address rootSafe)
+        internal
+        view
+    {
+        assertEq(IERC20(token).allowance(address(rootSafe), target), initialAllowances[token][target] + amount);
         assertEq(IERC20(token).balanceOf(target), initialBalances[token][target]);
     }
 
     /// @notice Validates decrease allowance operations
-    function _validateDecreaseAllowance(address token, address target, uint256 amount) internal view {
-        assertEq(IERC20(token).allowance(address(parentMultisig), target), initialAllowances[token][target] - amount);
+    function _validateDecreaseAllowance(address token, address target, uint256 amount, address rootSafe)
+        internal
+        view
+    {
+        assertEq(IERC20(token).allowance(address(rootSafe), target), initialAllowances[token][target] - amount);
         assertEq(IERC20(token).balanceOf(target), initialBalances[token][target]);
     }
 
     /// @notice Validates transfer operations
-    function _validateTransfer(address token, address target, uint256 amount) internal view {
-        assertEq(IERC20(token).allowance(address(parentMultisig), target), initialAllowances[token][target]);
+    function _validateTransfer(address token, address target, uint256 amount, address rootSafe) internal view {
+        assertEq(IERC20(token).allowance(address(rootSafe), target), initialAllowances[token][target]);
         assertEq(IERC20(token).balanceOf(target), initialBalances[token][target] + amount);
     }
 

@@ -8,26 +8,25 @@ import {stdStorage, StdStorage} from "forge-std/StdStorage.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {Vm} from "forge-std/Vm.sol";
+import {Solarray} from "lib/optimism/packages/contracts-bedrock/scripts/libraries/Solarray.sol";
 
-import {MockTarget} from "test/tasks/mock/MockTarget.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {Action, TaskPayload} from "src/libraries/MultisigTypes.sol";
 import {MockMultisigTask} from "test/tasks/mock/MockMultisigTask.sol";
+import {MockTarget} from "test/tasks/mock/MockTarget.sol";
 
 contract MultisigTaskUnitTest is Test {
     using stdStorage for StdStorage;
 
     SuperchainAddressRegistry public addrRegistry;
     MultisigTask public task;
+    string constant TESTING_DIRECTORY = "multisig-task-testing";
 
     string constant commonToml =
         "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n" "templateName = \"MockMultisigTask\"\n" "\n";
+    address root = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A;
     address securityCouncilChildMultisig = 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03;
-
-    /// @notice variables that store the storage offset of different variables in the MultisigTask contract
-
-    /// @notice storage slot for the build started flag. Used because _buildStarted is private.
-    bytes32 public constant BUILD_STARTED_SLOT = bytes32(uint256(48));
 
     /// Test Philosophy:
     /// We want these tests to function as much as possible as unit tests.
@@ -42,7 +41,7 @@ contract MultisigTaskUnitTest is Test {
         vm.createSelectFork("mainnet");
 
         // We want the SuperchainAddressRegistry to be initialized with the OP Mainnet config
-        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml);
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml, TESTING_DIRECTORY, "000");
         // Instantiate the SuperchainAddressRegistry contract
         addrRegistry = new SuperchainAddressRegistry(fileName);
         MultisigTaskTestHelper.removeFile(fileName);
@@ -51,13 +50,8 @@ contract MultisigTaskUnitTest is Test {
         task = MultisigTask(new MockMultisigTask());
     }
 
-    function testRunFailsNoNetworks() public {
-        vm.expectRevert("SuperchainAddressRegistry: no chains found");
-        task.simulateRun("./test/tasks/mock/configs/InvalidNetworkConfig.toml");
-    }
-
     function testRunFailsEmptyActions() public {
-        MultisigTask.Action[] memory actions = new MultisigTask.Action[](0);
+        Action[] memory actions = new Action[](0);
         vm.expectRevert("No actions found");
         task.processTaskActions(actions);
     }
@@ -71,89 +65,87 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testRunFailsDuplicateAction() public {
-        MultisigTask.Action[] memory actions = createActions(address(1), "", 0, Enum.Operation.Call, "");
+        Action[] memory actions = createActions(address(1), "", 0, Enum.Operation.Call, "");
         vm.expectRevert("Duplicated action found");
         task.validateAction(actions[0].target, actions[0].value, actions[0].arguments, actions);
     }
 
     function testBuildFailsAddressRegistryNotSet() public {
         vm.expectRevert("Must set address registry for multisig address to be set");
-        task.build();
+        task.build(address(0));
     }
 
     function testBuildFailsAddressRegistrySetBuildStarted() public {
-        // set multisig storage slot in MultisigTask.sol to a non zero address
+        // Set multisig storage slot in MultisigTask.sol to a non zero address
         // we have to do this because we do not call the run function, which
         // sets the address registry contract variable to a new instance of the
         // address registry object.
-        stdstore.target(address(task)).sig("parentMultisig()").checked_write(
+        stdstore.target(address(task)).sig("root()").checked_write(
             addrRegistry.getAddress("SystemConfigOwner", getChain("optimism").chainId)
         );
 
-        // set _buildStarted flag in MultisigTask contract to true, this
-        // allows us to hit the revert in the build function of:
-        //     "Build already started"
-        // TODO: Replace with stdStorage if possible, or find slot and use vm.store if necessary.
-        // We may also be able to simply read the storage layout JSON like we do in the monorepo.
-        // For now, keeping vm.store for _buildStarted as it's a private variable without a getter.
-        // stdStorage relies on getters to find slots typically.
-        vm.store(address(task), BUILD_STARTED_SLOT, bytes32(uint256(1)));
+        // Set 'buildStarted' flag in MultisigTask contract to true, this allows us to hit the revert.
+        bytes32 buildStartedSlot = bytes32(uint256(stdstore.target(address(task)).sig("getBuildStarted()").find()));
+        vm.store(address(task), buildStartedSlot, bytes32(uint256(1)));
 
         task.addrRegistry();
 
         vm.expectRevert("Build already started");
-        task.build();
+        task.build(root);
     }
 
     function testSimulateFailsHashMismatch() public {
-        // skip the run function call so we need to write to all storage variables manually
-        address multisig = addrRegistry.getAddress("SystemConfigOwner", getChain("optimism").chainId);
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml, TESTING_DIRECTORY, "001");
+        MultisigTask taskHashMismatch = MultisigTask(new MockMultisigTask());
 
-        // set multisig variable in MultisigTask to the actual multisig address
-        // so that the simulate function does not revert and can run and create
-        // calldata by calling the multisig functions
-        stdstore.target(address(task)).sig("parentMultisig()").checked_write(multisig);
+        address rootSafe = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
+        stdstore.target(address(taskHashMismatch)).sig("addrRegistry()").checked_write(address(addrRegistry));
+        stdstore.target(address(taskHashMismatch)).sig("superchainAddrRegistry()").checked_write(address(addrRegistry));
+        stdstore.target(address(taskHashMismatch)).sig("multicallTarget()").checked_write(MULTICALL3_ADDRESS);
 
-        // set AddressRegistry in MultisigTask contract to a deployed address registry
-        // contract so that these calls work
-        stdstore.target(address(task)).sig("addrRegistry()").checked_write(address(addrRegistry));
-
-        // set the target multicall address in MultisigTask contract to the
-        // multicall address
-        stdstore.target(address(task)).sig("multicallTarget()").checked_write(MULTICALL3_ADDRESS);
-
-        MockTarget mock = new MockTarget();
-        bytes memory callData = abi.encodeWithSelector(MockTarget.foobar.selector);
-        MultisigTask.Action[] memory actions = createActions(address(mock), callData, 0, Enum.Operation.Call, "");
-        vm.mockCall(
-            multisig,
-            abi.encodeWithSelector(
-                IGnosisSafe.getTransactionHash.selector,
-                MULTICALL3_ADDRESS,
-                0,
-                task.getMulticall3Calldata(actions),
-                Enum.Operation.DelegateCall,
-                0,
-                0,
-                0,
-                address(0),
-                payable(address(0)),
-                task.nonce()
-            ),
-            // return a hash that cannot possibly be what is returned by the GnosisSafe
-            abi.encode(bytes32(uint256(100)))
-        );
+        // Set rootSafe in MultisigTask so that the build() function works.
+        stdstore.target(address(taskHashMismatch)).sig("root()").checked_write(rootSafe);
+        Action[] memory actions = taskHashMismatch.build(rootSafe);
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe, securityCouncilChildMultisig);
+        uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
+        bytes[] memory allCalldatas = taskHashMismatch.transactionDatas(actions, allSafes, allOriginalNonces);
+        bytes memory rootSafeCalldata = allCalldatas[allCalldatas.length - 1];
+        uint256 rootSafeNonce = allOriginalNonces[allOriginalNonces.length - 1];
+        {
+            vm.mockCall(
+                rootSafe,
+                abi.encodeWithSelector(
+                    IGnosisSafe.getTransactionHash.selector,
+                    MULTICALL3_ADDRESS,
+                    0,
+                    rootSafeCalldata,
+                    Enum.Operation.DelegateCall,
+                    0,
+                    0,
+                    0,
+                    address(0),
+                    payable(address(0)),
+                    rootSafeNonce
+                ),
+                // return a hash that cannot possibly be what is returned by the GnosisSafe
+                abi.encode(bytes32(uint256(100)))
+            );
+        }
+        // Unset rootSafe and buildStarted so that simulateAsSigner does not revert.
+        stdstore.target(address(taskHashMismatch)).sig("root()").checked_write(address(0));
+        stdstore.target(address(taskHashMismatch)).sig("getBuildStarted()").checked_write(uint256(0));
 
         vm.expectRevert("MultisigTask: hash mismatch");
-        task.simulate("", actions);
+        taskHashMismatch.simulate(fileName, securityCouncilChildMultisig);
+        MultisigTaskTestHelper.removeFile(fileName);
     }
 
     function testBuildFailsRevertPreviousSnapshotFails() public {
         address multisig = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
-        // Set parentMultisig variable in MultisigTask to the actual multisig address
+        // Set rootSafe variable in MultisigTask to the actual multisig address
         // so that the simulate function does not revert and can run and create
         // calldata by calling the multisig functions.
-        stdstore.target(address(task)).sig("parentMultisig()").checked_write(multisig);
+        stdstore.target(address(task)).sig("root()").checked_write(multisig);
 
         // Set AddressRegistry in MultisigTask contract to a deployed addrRegistry contract
         // so that these calls work. These two getters are the same value, just different types.
@@ -171,14 +163,14 @@ contract MultisigTaskUnitTest is Test {
         stdstore.target(address(task)).sig("mockTarget()").checked_write(address(target));
 
         vm.expectRevert("MultisigTask: failed to revert back to snapshot, unsafe state to run task");
-        task.build();
+        task.build(root);
     }
 
     function runTestSimulation(string memory taskConfigFilePath, address childMultisig)
         public
-        returns (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions)
+        returns (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions)
     {
-        (accountAccesses, actions) = task.signFromChildMultisig(taskConfigFilePath, childMultisig);
+        (accountAccesses, actions,,) = task.simulate(taskConfigFilePath, childMultisig);
 
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);
 
@@ -206,27 +198,34 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testSimulateFailsTxAlreadyExecuted() public {
-        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml);
-        (VmSafe.AccountAccess[] memory accountAccesses, MultisigTask.Action[] memory actions) =
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(root, securityCouncilChildMultisig);
+        uint256[] memory originalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
+
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml, TESTING_DIRECTORY, "002");
+        (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) =
             runTestSimulation(fileName, securityCouncilChildMultisig);
-        MultisigTaskTestHelper.removeFile(fileName);
+        bytes[] memory calldatas = task.transactionDatas(actions, allSafes, originalNonces);
 
+        TaskPayload memory payload =
+            TaskPayload({safes: allSafes, calldatas: calldatas, originalNonces: originalNonces});
+        uint256 rootSafeIndex = payload.safes.length - 1;
         vm.expectRevert("MultisigTask: execute failed");
-        task.simulate("", actions);
+        task.executeTaskStep(new bytes(0), payload, rootSafeIndex);
 
-        /// validations should pass after a successful run
-        task.validate(accountAccesses, actions);
+        // Validations should pass after a successful run.
+        task.validate(accountAccesses, actions, payload);
+        MultisigTaskTestHelper.removeFile(fileName);
     }
 
-    function testGetCalldata() public {
-        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml);
-        (, MultisigTask.Action[] memory actions) = runTestSimulation(fileName, securityCouncilChildMultisig);
+    function testRootSafeGetCalldata() public {
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(root, securityCouncilChildMultisig);
+        uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(commonToml, TESTING_DIRECTORY, "003");
+        (, Action[] memory actions) = runTestSimulation(fileName, securityCouncilChildMultisig);
         MultisigTaskTestHelper.removeFile(fileName);
 
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);
-
         IMulticall3.Call3Value[] memory calls = new IMulticall3.Call3Value[](targets.length);
-
         for (uint256 i; i < calls.length; i++) {
             calls[i] = IMulticall3.Call3Value({
                 target: targets[i],
@@ -236,11 +235,10 @@ contract MultisigTaskUnitTest is Test {
             });
         }
 
-        bytes memory expectedData = abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
-
-        bytes memory data = task.getMulticall3Calldata(actions);
-
-        assertEq(data, expectedData, "Wrong aggregate calldata");
+        bytes memory expectedData = abi.encodeCall(IMulticall3.aggregate3Value, calls);
+        bytes[] memory expectedCalldatas = task.transactionDatas(actions, allSafes, allOriginalNonces);
+        bytes memory rootSafeCalldata = expectedCalldatas[expectedCalldatas.length - 1];
+        assertEq(rootSafeCalldata, expectedData, "Wrong aggregate calldata");
     }
 
     function testFuzz_ValidActionConditions(bool isCall, address randomAccount) public {
@@ -248,82 +246,82 @@ contract MultisigTaskUnitTest is Test {
         vm.assume(randomAccount != VM_ADDRESS);
         uint256 topLevelDepth = 1;
 
-        address parentMultisig = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
+        address rootSafe = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
         MockMultisigTask harness = new MockMultisigTask();
-        stdstore.target(address(harness)).sig("parentMultisig()").checked_write(parentMultisig);
+        stdstore.target(address(harness)).sig("root()").checked_write(rootSafe);
         stdstore.target(address(harness)).sig("addrRegistry()").checked_write(address(addrRegistry));
 
         VmSafe.AccountAccessKind kind = isCall ? VmSafe.AccountAccessKind.Call : VmSafe.AccountAccessKind.DelegateCall;
 
-        VmSafe.AccountAccess memory access = createAccess(kind, randomAccount, parentMultisig, uint64(topLevelDepth));
+        VmSafe.AccountAccess memory access = createAccess(kind, randomAccount, rootSafe, uint64(topLevelDepth));
 
-        assertTrue(harness.wrapperIsValidAction(access, topLevelDepth));
+        assertTrue(harness.wrapperIsValidAction(access, topLevelDepth, rootSafe));
     }
 
     function test_validAction_validCall() public {
         MockMultisigTask harness = new MockMultisigTask();
-        address parentMultisig = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
-        stdstore.target(address(harness)).sig("parentMultisig()").checked_write(parentMultisig);
+        address rootSafe = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
+        stdstore.target(address(harness)).sig("root()").checked_write(rootSafe);
         uint256 topLevelDepth = 1;
         VmSafe.AccountAccess memory access = createAccess(
             VmSafe.AccountAccessKind.Call,
             address(0x5678), // Random account
-            parentMultisig, // Valid accessor
+            rootSafe, // Valid accessor
             uint64(topLevelDepth)
         );
-        assertTrue(harness.wrapperIsValidAction(access, topLevelDepth));
+        assertTrue(harness.wrapperIsValidAction(access, topLevelDepth, rootSafe));
     }
 
     function test_validAction_validDelegateCall() public {
         MockMultisigTask harness = new MockMultisigTask();
-        address parentMultisig = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
-        stdstore.target(address(harness)).sig("parentMultisig()").checked_write(parentMultisig);
+        address rootSafe = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
+        stdstore.target(address(harness)).sig("root()").checked_write(rootSafe);
         uint256 topLevelDepth = 1;
         VmSafe.AccountAccess memory access = createAccess(
             VmSafe.AccountAccessKind.DelegateCall,
             address(0x5678), // Random account
-            parentMultisig, // Valid accessor
+            rootSafe, // Valid accessor
             uint64(topLevelDepth)
         );
-        assertTrue(harness.wrapperIsValidAction(access, topLevelDepth));
+        assertTrue(harness.wrapperIsValidAction(access, topLevelDepth, rootSafe));
     }
 
     function test_invalidAction_accountIsRegistry() public {
         MockMultisigTask harness = new MockMultisigTask();
-        address parentMultisig = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
+        address rootSafe = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
         address registryAddr = address(0xcafe1234);
         stdstore.target(address(harness)).sig("addrRegistry()").checked_write(address(registryAddr));
-        stdstore.target(address(harness)).sig("parentMultisig()").checked_write(parentMultisig);
+        stdstore.target(address(harness)).sig("root()").checked_write(rootSafe);
         uint256 topLevelDepth = 1;
         VmSafe.AccountAccess memory access = createAccess(
             VmSafe.AccountAccessKind.Call,
             registryAddr, // Invalid account
-            parentMultisig,
+            rootSafe,
             uint64(topLevelDepth)
         );
-        assertFalse(harness.wrapperIsValidAction(access, topLevelDepth));
+        assertFalse(harness.wrapperIsValidAction(access, topLevelDepth, rootSafe));
     }
 
     function test_invalidAction_accountIsVm() public {
         MockMultisigTask harness = new MockMultisigTask();
-        address parentMultisig = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
-        stdstore.target(address(harness)).sig("parentMultisig()").checked_write(parentMultisig);
+        address rootSafe = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
+        stdstore.target(address(harness)).sig("root()").checked_write(rootSafe);
         uint256 topLevelDepth = 1;
         VmSafe.AccountAccess memory access = createAccess(
             VmSafe.AccountAccessKind.Call,
             VM_ADDRESS, // Invalid account
-            parentMultisig,
+            rootSafe,
             uint64(topLevelDepth)
         );
-        assertFalse(harness.wrapperIsValidAction(access, topLevelDepth));
+        assertFalse(harness.wrapperIsValidAction(access, topLevelDepth, rootSafe));
     }
 
     function test_invalidAction_accessorIsRegistry() public {
         MockMultisigTask harness = new MockMultisigTask();
-        address parentMultisig = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
+        address rootSafe = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
         address registryAddr = address(0xcafe1234);
         stdstore.target(address(harness)).sig("addrRegistry()").checked_write(address(registryAddr));
-        stdstore.target(address(harness)).sig("parentMultisig()").checked_write(parentMultisig);
+        stdstore.target(address(harness)).sig("root()").checked_write(rootSafe);
         uint256 topLevelDepth = 1;
         VmSafe.AccountAccess memory access = createAccess(
             VmSafe.AccountAccessKind.Call,
@@ -331,13 +329,13 @@ contract MultisigTaskUnitTest is Test {
             registryAddr, // Invalid accessor
             uint64(topLevelDepth)
         );
-        assertFalse(harness.wrapperIsValidAction(access, topLevelDepth));
+        assertFalse(harness.wrapperIsValidAction(access, topLevelDepth, rootSafe));
     }
 
     function test_invalidAction_wrongAccessor() public {
         MockMultisigTask harness = new MockMultisigTask();
-        address parentMultisig = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
-        stdstore.target(address(harness)).sig("parentMultisig()").checked_write(parentMultisig);
+        address rootSafe = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
+        stdstore.target(address(harness)).sig("root()").checked_write(rootSafe);
         uint256 topLevelDepth = 1;
         VmSafe.AccountAccess memory access = createAccess(
             VmSafe.AccountAccessKind.Call,
@@ -345,35 +343,35 @@ contract MultisigTaskUnitTest is Test {
             address(0x9999), // Wrong accessor
             uint64(topLevelDepth)
         );
-        assertFalse(harness.wrapperIsValidAction(access, topLevelDepth));
+        assertFalse(harness.wrapperIsValidAction(access, topLevelDepth, rootSafe));
     }
 
     function test_invalidAction_wrongDepth() public {
         MockMultisigTask harness = new MockMultisigTask();
-        address parentMultisig = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
-        stdstore.target(address(harness)).sig("parentMultisig()").checked_write(parentMultisig);
+        address rootSafe = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
+        stdstore.target(address(harness)).sig("root()").checked_write(rootSafe);
         uint256 topLevelDepth = 1;
         VmSafe.AccountAccess memory access = createAccess(
             VmSafe.AccountAccessKind.Call,
             address(0x5678),
-            parentMultisig,
+            rootSafe,
             uint64(topLevelDepth + 1) // Wrong depth
         );
-        assertFalse(harness.wrapperIsValidAction(access, topLevelDepth));
+        assertFalse(harness.wrapperIsValidAction(access, topLevelDepth, rootSafe));
     }
 
     function test_invalidAction_wrongKind() public {
         MockMultisigTask harness = new MockMultisigTask();
-        address parentMultisig = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
-        stdstore.target(address(harness)).sig("parentMultisig()").checked_write(parentMultisig);
+        address rootSafe = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
+        stdstore.target(address(harness)).sig("root()").checked_write(rootSafe);
         uint256 topLevelDepth = 1;
         VmSafe.AccountAccess memory access = createAccess(
             VmSafe.AccountAccessKind.StaticCall, // Invalid kind
             address(0x5678),
-            parentMultisig,
+            rootSafe,
             uint64(topLevelDepth)
         );
-        assertFalse(harness.wrapperIsValidAction(access, topLevelDepth));
+        assertFalse(harness.wrapperIsValidAction(access, topLevelDepth, rootSafe));
     }
 
     // Helper to create AccountAccess struct
@@ -405,16 +403,73 @@ contract MultisigTaskUnitTest is Test {
         uint256 value,
         Enum.Operation operation,
         string memory description
-    ) internal pure returns (MultisigTask.Action[] memory actions) {
-        actions = new MultisigTask.Action[](1);
-        actions[0] = MultisigTask.Action({
-            target: target,
-            value: value,
-            arguments: data,
-            operation: operation,
-            description: description
-        });
+    ) internal pure returns (Action[] memory actions) {
+        actions = new Action[](1);
+        actions[0] =
+            Action({target: target, value: value, arguments: data, operation: operation, description: description});
         return actions;
+    }
+
+    function testCalldatas_singleSafe() public view {
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(root);
+        uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
+        Action[] memory actions = createActions(address(0xbeef), hex"dead", 1 ether, Enum.Operation.Call, "Test Action");
+
+        bytes[] memory result = task.transactionDatas(actions, allSafes, allOriginalNonces);
+        assertEq(result.length, 1, "Incorrect calldata array length for single safe");
+        assertRootCalldata(result[0], actions[0].target, actions[0].value, actions[0].arguments);
+    }
+
+    function testCalldatas_nestedSafes() public view {
+        address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(root, securityCouncilChildMultisig);
+        uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
+        Action[] memory actions = createActions(address(0xbeef), hex"dead", 1 ether, Enum.Operation.Call, "Test Action");
+        bytes[] memory result = task.transactionDatas(actions, allSafes, allOriginalNonces);
+        assertEq(result.length, 2, "Incorrect calldata array length for nested safes");
+        assertRootCalldata(result[result.length - 1], actions[0].target, actions[0].value, actions[0].arguments);
+        // Generate the hash for the root safe that's used in the approveHash call on the nested safe.
+        bytes32 hash =
+            task.getHash(result[result.length - 1], root, 0, allOriginalNonces[allOriginalNonces.length - 1], allSafes);
+        assertNestedCalldata(result[0], root, abi.encodeCall(IGnosisSafe(root).approveHash, (hash)));
+    }
+
+    /// @notice Asserts that the root safe calldata is correct.
+    function assertRootCalldata(bytes memory data, address target, uint256 value, bytes memory callData)
+        internal
+        pure
+    {
+        bytes4 selector = bytes4(data);
+        assertEq(selector, IMulticall3.aggregate3Value.selector, "Incorrect calldata for root safe");
+        bytes memory params = getParams(data);
+        (IMulticall3.Call3Value[] memory calls) = abi.decode(params, (IMulticall3.Call3Value[]));
+        assertEq(calls.length, 1, "Incorrect number of calls for root safe");
+        assertEq(calls[0].target, target, "Incorrect target for root safe");
+        assertEq(calls[0].value, value, "Incorrect value for root safe");
+        assertEq(calls[0].callData, callData, "Incorrect call data for root safe");
+        assertEq(calls[0].allowFailure, false, "Incorrect allow failure for root safe");
+    }
+
+    /// @notice Asserts that the nested safe calldata is correct.
+    function assertNestedCalldata(bytes memory data, address target, bytes memory callData) internal pure {
+        bytes4 selector = bytes4(data);
+        assertEq(selector, IMulticall3.aggregate3Value.selector, "Incorrect calldata for single safe");
+        bytes memory params = getParams(data);
+        (IMulticall3.Call3Value[] memory calls) = abi.decode(params, (IMulticall3.Call3Value[]));
+        assertEq(calls.length, 1, "Incorrect number of calls for nested safes");
+        assertEq(calls[0].target, target, "Incorrect target for nested safes");
+        assertEq(calls[0].value, 0, "Incorrect value for nested safes");
+        assertEq(calls[0].callData, callData, "Incorrect call data for nested safes");
+        assertEq(calls[0].allowFailure, false, "Incorrect allow failure for nested safes");
+    }
+
+    /// @notice This function is used to get the params from the calldata.
+    function getParams(bytes memory data) internal pure returns (bytes memory) {
+        uint256 selectorLength = 4;
+        bytes memory params = new bytes(data.length - selectorLength);
+        for (uint256 j = 0; j < data.length - selectorLength; j++) {
+            params[j] = data[j + selectorLength];
+        }
+        return params;
     }
 }
 
@@ -422,9 +477,17 @@ library MultisigTaskTestHelper {
     address internal constant VM_ADDRESS = address(uint160(uint256(keccak256("hevm cheat code"))));
     Vm internal constant vm = Vm(VM_ADDRESS);
 
-    function createTempTomlFile(string memory tomlContent) internal returns (string memory) {
-        string memory randomBytes = LibString.toHexString(uint256(bytes32(vm.randomBytes(32))));
-        string memory fileName = string.concat(randomBytes, ".toml");
+    /// @notice This function is used to create a temporary toml file for a test. The 'salt' parameter is used to ensure
+    /// that the file name is unique for each test.
+    function createTempTomlFile(string memory tomlContent, string memory directory, string memory salt)
+        internal
+        returns (string memory)
+    {
+        string memory randomFileName = vm.toString(keccak256(abi.encodePacked(vm.randomBytes(32), salt)));
+        string memory testConfigFilesDirectory = "test-config-files"; // This directory is in the .gitignore file.
+        string memory fullDirectory = string.concat(testConfigFilesDirectory, "/", directory);
+        vm.createDir(fullDirectory, true);
+        string memory fileName = string.concat(fullDirectory, "/", randomFileName, ".toml");
         vm.writeFile(fileName, tomlContent);
         return fileName;
     }
@@ -447,5 +510,25 @@ library MultisigTaskTestHelper {
             uint256 currentOwnerNonce = vm.getNonce(owner);
             vm.setNonce(owner, uint64(--currentOwnerNonce));
         }
+    }
+
+    /// @notice This function is used to get all the safes in the task for a single multisig task.
+    function getAllSafes(address rootSafe) internal pure returns (address[] memory allSafes) {
+        return Solarray.addresses(rootSafe);
+    }
+
+    /// @notice This function is used to get all the safes in the task for a nested multisig task.
+    function getAllSafes(address rootSafe, address childSafe) internal pure returns (address[] memory allSafes) {
+        // TODO: Update this function when we support more than 1 level of nesting.
+        return Solarray.addresses(childSafe, rootSafe);
+    }
+
+    /// @notice This function is used to get all the original nonces in the task.
+    function getAllOriginalNonces(address[] memory safes) internal view returns (uint256[] memory allOriginalNonces) {
+        allOriginalNonces = new uint256[](safes.length);
+        for (uint256 i = 0; i < safes.length; i++) {
+            allOriginalNonces[i] = IGnosisSafe(safes[i]).nonce();
+        }
+        return allOriginalNonces;
     }
 }

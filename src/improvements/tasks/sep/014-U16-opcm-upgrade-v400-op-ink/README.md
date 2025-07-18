@@ -1,6 +1,6 @@
 # 014-U16-opcm-upgrade-v400-op-ink: Upgrade 16: OP Sepolia Testnet and Ink Sepolia Testnet
 
-Status: [DRAFT]()
+Status: [EXECUTED](https://sepolia.etherscan.io/tx/0xd99336d28116c644264ee7bfb051225178aa379f268c16060a929055ac443131)
 
 ## Objective
 
@@ -33,8 +33,9 @@ Then follow the instructions in the [Validation](./VALIDATION.md) guide.
 ## Simulation
 
 When simulating, ensure the logs say `Using script <your_path_to_superchain_ops>/superchain-ops/src/improvements/template/OPCMUpgradeV400.sol`.
+
 Navigate to the correct task directory then run the simulate command.
 ```
 cd src/improvements/tasks/sep/014-U16-opcm-upgrade-v400-op-ink
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate foundation
+just simulate-stack sep 014-U16-opcm-upgrade-v400-op-ink
 ```

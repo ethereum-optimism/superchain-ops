@@ -1,0 +1,37 @@
+l2chains = [
+    {name = "Unichain Sepolia Testnet", chainId = 1301}
+]
+
+templateName = "OPCMUpgradeV400"
+
+# Unichain Sepolia Testnet
+[[opcmUpgrades]]
+chainId = 1301
+# prestates."1.6.1-rc.1
+# https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/validation/standard/standard-prestates.toml#L6
+absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
+# PROXYA-10: The PAO is not the standard one
+# DF-30: The PAO is not the standard one
+# PDDG-DWETH-30: The PAO is not the standard one
+# PDDG-130: The challenger is not the standard one
+# PLDG-DWETH-30: The PAO is not the standard one
+expectedValidationErrors = "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-130,PLDG-DWETH-30"
+
+[addresses]
+# https://oplabs.notion.site/Sepolia-Release-Checklist-op-contracts-v4-0-0-rc-8-216f153ee1628095ba5be322a0bf9364
+OPCM = "0x1ac76f0833bbfccc732cadcc3ba8a3bbd0e89c3d"
+StandardValidatorV400 = "0xaaabe70a4198ab9e99e1a22b1afa0a43cc7f2c79"
+
+[stateOverrides]
+0xd363339eE47775888Df411A163c586a8BdEA9dbf = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 34}
+]
+# Override the SuperchainConfig implementation address. This is necessary to prevent an attempt to
+# upgrade the SuperchainConfig by the wrong L1 ProxyAdmin owner.
+0xC2Be75506d5724086DEB7245bd260Cc9753911Be = [
+    {key = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc", value = "0x000000000000000000000000ce28685eb204186b557133766eca00334eb441e4"}
+]
+# 'isRC' flag on OPCM needs to be set here because 014-U16-opcm-upgrade-v400-op-ink sets it.
+0x1ac76f0833bbfccc732cadcc3ba8a3bbd0e89c3d = [
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000001", value = "0x0000000000000000000000000000000000000000000000000000000000000000"}
+]

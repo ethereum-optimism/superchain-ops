@@ -14,16 +14,15 @@ cmd := "yq '.templateName' " + TASK_PATH + "/config.toml"
 export SCRIPT_NAME := shell(cmd)
 export signatures := env_var_or_default('SIGNATURES', '')
 export forkBlockNumber := env_var_or_default('FORK_BLOCK_NUMBER', '-1')
-# The 'signerAddress' will be the 'from' field in the Tenderly simulation.
-# Default signer: address(uint160(uint256(keccak256("foundry default caller"))))
-export signerAddress := env_var_or_default('SIGNER_ADDRESS', '0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38')
-
 
 # Simulate sequence execution variables
 export ANVIL_LOCALHOST_RPC :="http://localhost:8545"
 export PRIVATE_KEY_OWNER := "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
 export PRIVATE_KEY_EXECUTOR :="0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
 export FAKE_SIG :="11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
+
+# Keystore variables
+export keystorePathBase := "~/.foundry/keystores/"
 
 simulate hdPath='0':
   #!/usr/bin/env bash
@@ -39,8 +38,9 @@ simulate hdPath='0':
     signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
     echo "Simulating with ledger account: ${signer}"
   else
-    signer="{{signerAddress}}"
-    echo "Using 'signerAddress' as signer: ${signer}"
+    ownerSafe=$(forge script TaskManager --sig "getRootSafe(string)" $config --rpc-url "$rpcUrl" --json | jq -r '.returns["0"].value')
+    signer=$(cast call ${ownerSafe} "getOwners()(address[])" -r ${rpcUrl} | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
+    echo "Simulating with first owner on tasks root safe: ${signer}"
   fi
   echo ""
 
@@ -59,9 +59,9 @@ simulate hdPath='0':
     ${fork_block_arg} \
     --rpc-url ${rpcUrl} \
     --sender ${signer} \
-    --sig "simulateRun(string)" ${config}
+    --sig "simulate(string)" ${config}
 
-sign hdPath='0':
+sign hdPath='0' ledger='true':
   #!/usr/bin/env bash
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
@@ -73,35 +73,53 @@ sign hdPath='0':
 
   echo "Using script ${script}"
   echo "getting signer address..."
-  signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  if {{ledger}}; then
+    hdpaths="m/44'/60'/{{hdPath}}'/0/0"
+    signer=$(cast wallet address --ledger --mnemonic-derivation-path $hdpaths)
+    signer_args="--ledger --hd-paths $hdpaths"
+  else
+    cd ${TASK_PATH}
+    signer_private_key=$(just --justfile={{justfile()}} get-keystore-private-key)
+    signer=$(cast wallet address --private-key ${signer_private_key})
+    signer_args="--private-key ${signer_private_key}"
+  fi
   echo "Signing with: ${signer}"
-  echo ""
 
   # Reverts if signer is not an owner on the safe which executes this transaction.
-  forge script TaskManager --rpc-url ${rpcUrl} --sig "requireSignerOnSafe(address,string)" $signer $TASK_PATH
+  # forge script TaskManager --rpc-url ${rpcUrl} --sig "requireSignerOnSafe(address,string)" $signer $TASK_PATH
 
   echo "⏳ Task signing in progress. Some tasks take longer than others..."
   forge build
   # Using the eip712sign within the repo folder since eip712sign was installed there in ./justfile.
-  $(git rev-parse --show-toplevel)/bin/eip712sign --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" -- \
+  $(git rev-parse --show-toplevel)/bin/eip712sign ${signer_args} -- \
   forge script ${script} \
     --rpc-url ${rpcUrl} \
-    --sig "simulateRun(string)" ${config}
+    --sig "simulate(string)" ${config}
 
-execute hdPath='0':
+execute hdPath='0' ledger='true':
   #!/usr/bin/env bash
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
 
   echo "Using script ${script}"
-  sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  if {{ledger}}; then
+    hdpaths="m/44'/60'/{{hdPath}}'/0/0"
+    sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+    signer_args="--ledger --hd-paths $hdpaths"
+  else
+    cd ${TASK_PATH}
+    signer_private_key=$(just --justfile={{justfile()}} get-keystore-private-key)
+    sender=$(cast wallet address --private-key ${signer_private_key})
+    signer_args="--private-key ${signer_private_key}"
+  fi
+  echo "Executing with sender: ${sender}"
 
-  echo "⏳ Task execution in progress. Some tasks take longer than others..."
   forge build
   forge script --fork-url ${rpcUrl} ${script} \
-    --sig "executeRun(string,bytes)" ${config} ${signatures} \
-    --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" --broadcast \
-    --sender ${sender}
+    --sig "execute(string,bytes)" ${config} ${signatures} \
+    --broadcast \
+    --sender ${sender} \
+    ${signer_args}
 
 sign_and_execute_in_anvil parentSafe:
   #!/usr/bin/env bash
@@ -143,12 +161,30 @@ sign_and_execute_in_anvil parentSafe:
   signature=$($(git rev-parse --show-toplevel)/bin/eip712sign --private-key ${PRIVATE_KEY_OWNER:2} -- \
   forge script ${script} \
     --rpc-url ${ANVIL_LOCALHOST_RPC} \
-    --sig "simulateRun(string)" ${config})
+    --sig "simulate(string)" ${config})
   signature=$(echo "${signature}" | grep -o "Signature: [0-9a-f]\{130\}" | cut -d' ' -f2)
 
   forge script ${script} \
-    --sig "executeRun(string,bytes)" ${config} ${signature} \
+    --sig "execute(string,bytes)" ${config} ${signature} \
     --broadcast \
     --sender ${signer} \
     --private-key  ${PRIVATE_KEY_EXECUTOR} \
     --rpc-url ${ANVIL_LOCALHOST_RPC}
+
+# Helper function to handle keystore selection and private key extraction
+get-keystore-private-key:
+  #!/usr/bin/env bash
+  echo "Enter your foundry keystore path (e.g. ~/.foundry/keystores/sep-test-private-key):" >&2
+  keystorePath=$keystorePathBase$(cd ~/.foundry/keystores/ && fzf --header="Searching your keystore in $PWD" --prompt="Keystore for signing:")
+  cd ${taskPath}
+  echo "Keystore path: ${keystorePath}" >&2
+  # Expand the home directory in the path
+  keystorePath=$(echo ${keystorePath} | sed "s|^~|$HOME|")
+  signer_private_key=$(cast wallet pk --keystore ${keystorePath})
+  sender=$(cast wallet address --private-key ${signer_private_key})
+  echo "Signing with the signer: ${sender}" >&2
+  if [ -z "${signer_private_key}" ]; then
+    echo "Error: Failed to get private key for keystore ${keystorePath}" >&2
+    exit 1
+  fi
+  echo "${signer_private_key}"

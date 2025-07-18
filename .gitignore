@@ -30,3 +30,6 @@ broadcast/*
 
 # Stacked simulation test files
 test/tasks/stacked-sim-testing/
+
+# tmp config.toml files for testing
+test-config-files/

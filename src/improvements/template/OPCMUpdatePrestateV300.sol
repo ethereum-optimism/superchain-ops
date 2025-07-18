@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {OPCMTaskBase} from "src/improvements/tasks/types/OPCMTaskBase.sol";
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {ISystemConfig, IProxyAdmin} from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {IOPContractsManager} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
@@ -10,6 +8,10 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {console2 as console} from "forge-std/console2.sol";
 import {LibString} from "solady/utils/LibString.sol";
+
+import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {OPCMTaskBase} from "src/improvements/tasks/types/OPCMTaskBase.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice This template provides OPCM-based absolute prestate updates.
 /// Supports: op-contracts/v3.0.0
@@ -38,8 +40,8 @@ contract OPCMUpdatePrestateV300 is OPCMTaskBase {
     }
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
-    function _templateSetup(string memory taskConfigFilePath) internal override {
-        super._templateSetup(taskConfigFilePath);
+    function _templateSetup(string memory taskConfigFilePath, address rootSafe) internal override {
+        super._templateSetup(taskConfigFilePath, rootSafe);
         string memory tomlContent = vm.readFile(taskConfigFilePath);
 
         OPCMUpgrade[] memory _upgrades = abi.decode(tomlContent.parseRaw(".opcmUpgrades"), (OPCMUpgrade[]));
@@ -78,7 +80,7 @@ contract OPCMUpdatePrestateV300 is OPCMTaskBase {
     ///   If the template inherits from `OPCMTaskBase`, it uses the `Multicall3Delegatecall` contract.
     ///   In this case, calls to the target **must** use `delegatecall`, e.g.:
     ///   `(bool success,) = OPCM.delegatecall(abi.encodeWithSelector(IOPCMPrestateUpdate.upgrade.selector, opChainConfigs));`
-    function _build() internal override {
+    function _build(address) internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         IOPContractsManager.OpChainConfig[] memory opChainConfigs =
             new IOPContractsManager.OpChainConfig[](chains.length);
@@ -98,7 +100,7 @@ contract OPCMUpdatePrestateV300 is OPCMTaskBase {
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {
@@ -122,7 +124,7 @@ contract OPCMUpdatePrestateV300 is OPCMTaskBase {
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function getCodeExceptions() internal view virtual override returns (address[] memory) {
+    function _getCodeExceptions() internal view virtual override returns (address[] memory) {
         return new address[](0);
     }
 }

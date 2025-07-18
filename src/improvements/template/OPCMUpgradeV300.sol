@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {OPCMTaskBase} from "../tasks/types/OPCMTaskBase.sol";
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {
     IOPContractsManager,
     ISystemConfig,
@@ -13,6 +11,10 @@ import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
+
+import {OPCMTaskBase} from "../tasks/types/OPCMTaskBase.sol";
+import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice This template supports OPCMV300 upgrade tasks.
 contract OPCMUpgradeV300 is OPCMTaskBase {
@@ -47,8 +49,8 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
     }
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
-    function _templateSetup(string memory taskConfigFilePath) internal override {
-        super._templateSetup(taskConfigFilePath);
+    function _templateSetup(string memory taskConfigFilePath, address rootSafe) internal override {
+        super._templateSetup(taskConfigFilePath, rootSafe);
         string memory tomlContent = vm.readFile(taskConfigFilePath);
 
         // For OPCMUpgradeV300, the OPCMUpgrade struct is used to store the absolutePrestate and expectedValidationErrors for each l2 chain.
@@ -79,7 +81,7 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
 
     /// @notice Build the task action for all L2 chains in the task.
     /// A single call to OPCM.upgrade() is made for all L2 chains.
-    function _build() internal override {
+    function _build(address) internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         IOPContractsManager.OpChainConfig[] memory opChainConfigs =
             new IOPContractsManager.OpChainConfig[](chains.length);
@@ -98,7 +100,7 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
     }
 
     /// @notice Validate the task for a given L2 chain.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {
@@ -122,7 +124,7 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
     }
 
     /// @notice No code exceptions for this template.
-    function getCodeExceptions() internal view virtual override returns (address[] memory) {
+    function _getCodeExceptions() internal view virtual override returns (address[] memory) {
         return new address[](0);
     }
 }

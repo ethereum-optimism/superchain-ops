@@ -1,0 +1,10 @@
+l2chains = [{name = "Worldchain Sepolia", chainId = 4801}] 
+templateName = "TransferOwners"
+
+# Standard Sepolia L1PAO - https://github.com/ethereum-optimism/superchain-registry/blob/93c5073d233cb9011a95aebf275270fd00346400/validation/standard/standard-config-roles-sepolia.toml#L3
+newOwner = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
+
+[stateOverrides]
+0x945185c01fb641ba3e63a9bdf66575e35a407837 = [ # Worldchain L1PAO
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 44}
+]

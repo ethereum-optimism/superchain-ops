@@ -1,0 +1,8 @@
+templateName = "GnosisSafeRemoveOwner"
+
+safeAddressString = "SecurityCouncil"
+allowOverwrite = ["SecurityCouncil"] # We know that we want to overwrite the default SecurityCouncil address in [addresses].
+ownerToRemove = "0x95E774787A63f145f7B05028a1479bDc9D055f3d"
+
+[addresses]
+SecurityCouncil = "0xa05269513e77a322Da08ca426f8F49100b033303" # Test 1 of 3 safe deployed to sepolia.

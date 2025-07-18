@@ -8,7 +8,7 @@ import {VmSafe} from "forge-std/Vm.sol";
 
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
-
+import {Action} from "src/libraries/MultisigTypes.sol";
 import {MockTarget} from "test/tasks/mock/MockTarget.sol";
 
 /// Mock task that upgrades the L1ERC721BridgeProxy implementation
@@ -34,11 +34,11 @@ contract MockMultisigTask is L2TaskBase {
         return storageWrites;
     }
 
-    function _templateSetup(string memory) internal override {
-        super._templateSetup("");
+    function _templateSetup(string memory, address rootSafe) internal override {
+        super._templateSetup("", rootSafe);
     }
 
-    function _build() internal override {
+    function _build(address) internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {
@@ -58,7 +58,7 @@ contract MockMultisigTask is L2TaskBase {
     }
 
     /// @notice Validates that the proxy implementation was set correctly.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
 
         for (uint256 i = 0; i < chains.length; i++) {
@@ -70,14 +70,14 @@ contract MockMultisigTask is L2TaskBase {
     }
 
     /// @notice no code exceptions for this template
-    function getCodeExceptions() internal view virtual override returns (address[] memory) {}
+    function _getCodeExceptions() internal view virtual override returns (address[] memory) {}
 
     /// @notice Wrapper function to call the internal _isValidAction function. This is used to test the internal function.
-    function wrapperIsValidAction(VmSafe.AccountAccess memory access, uint256 topLevelDepth)
+    function wrapperIsValidAction(VmSafe.AccountAccess memory access, uint256 topLevelDepth, address rootSafe)
         public
         view
         returns (bool isValid)
     {
-        return super._isValidAction(access, topLevelDepth);
+        return super._isValidAction(access, topLevelDepth, rootSafe);
     }
 }

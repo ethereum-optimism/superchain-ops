@@ -8,6 +8,7 @@ import {Predeploys} from "@eth-optimism-bedrock/src/libraries/Predeploys.sol";
 
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice Template contract to transfer ownership of the L2 ProxyAdmin to the aliased L1 ProxyAdmin owner.
 /// The user provides the unaliased L1 PAO owner, and this template aliases the address and transfers ownership.
@@ -47,8 +48,8 @@ contract TransferL2PAOFromL1 is L2TaskBase {
     }
 
     /// @notice Sets up the template with the new owner from a TOML file.
-    function _templateSetup(string memory taskConfigFilePath) internal override {
-        super._templateSetup(taskConfigFilePath);
+    function _templateSetup(string memory taskConfigFilePath, address rootSafe) internal override {
+        super._templateSetup(taskConfigFilePath, rootSafe);
         string memory toml = vm.readFile(taskConfigFilePath);
 
         // New owner address. This address is unaliased.
@@ -63,7 +64,7 @@ contract TransferL2PAOFromL1 is L2TaskBase {
 
     /// @notice Builds the actions for transferring ownership of the proxy admin on the L2. It does this by calling the L1
     /// OptimismPortal's depositTransaction function.
-    function _build() internal override {
+    function _build(address) internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         // Verify that the new owner is the current L1PAO owner. This template assumes that all L1 ownership transfers have already been completed.
         ProxyAdmin proxyAdmin = ProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chains[0].chainId));
@@ -83,7 +84,7 @@ contract TransferL2PAOFromL1 is L2TaskBase {
     }
 
     /// @notice Validates that the owner was transferred correctly.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
         // We can't currently perform an assertion on the L2 because the transaction is only simulated and not actually executed,
         // so it's up to the user to manually assert that. See the manual post-execution checks documented in the comments
         // at the top of this file.
@@ -91,7 +92,7 @@ contract TransferL2PAOFromL1 is L2TaskBase {
     }
 
     /// @notice Aliased new owner is a code exception. This is because the aliased address is not a contract.
-    function getCodeExceptions() internal view virtual override returns (address[] memory) {
+    function _getCodeExceptions() internal view virtual override returns (address[] memory) {
         address[] memory codeExceptions = new address[](0);
         return codeExceptions;
     }

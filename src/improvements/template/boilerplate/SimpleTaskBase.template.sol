@@ -2,13 +2,14 @@
 pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
-
-import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
 import {IERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {ERC20} from "@solady/tokens/ERC20.sol";
 import {stdToml} from "lib/forge-std/src/StdToml.sol";
+
+import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// TODO: If you need any interfaces from the Optimism monorepo submodule. Define them here instead of importing them.
 /// Doing this avoids tight coupling to the monorepo submodule and allows you to update the monorepo submodule
@@ -47,8 +48,8 @@ contract SimpleTaskBaseTemplate is SimpleTaskBase {
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
     /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
-    function _templateSetup(string memory taskConfigFilePath) internal override {
-        super._templateSetup(taskConfigFilePath);
+    function _templateSetup(string memory _taskConfigFilePath, address _rootSafe) internal override {
+        super._templateSetup(_taskConfigFilePath, _rootSafe);
         simpleAddrRegistry;
         require(false, "TODO: Implement with the correct template setup.");
     }
@@ -64,19 +65,19 @@ contract SimpleTaskBaseTemplate is SimpleTaskBase {
     ///  ` dgm.setRespectedGameType(IOptimismPortal2(payable(portalAddress)), cfg[chainId].gameType);`
     /// WARNING: Any state written to in this function will be reverted after the build function has been run.
     /// Do not rely on setting global variables in this function.
-    function _build() internal override {
+    function _build(address) internal override {
         simpleAddrRegistry;
         exampleVariable = 1; // Do not set global variables in this function, see natspec above.
         require(false, "TODO: Implement with the correct build logic.");
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal pure override {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal pure override {
         require(false, "TODO: Implement with the correct validation logic.");
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function getCodeExceptions() internal view virtual override returns (address[] memory) {
+    function _getCodeExceptions() internal view virtual override returns (address[] memory) {
         require(
             false, "TODO: Implement the logic to return a list of addresses that should not be checked for code length."
         );

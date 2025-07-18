@@ -5,8 +5,10 @@ import {Script} from "forge-std/Script.sol";
 import {TaskManager} from "src/improvements/tasks/TaskManager.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
+import {Utils} from "src/libraries/Utils.sol";
 import {console} from "forge-std/console.sol";
 import {VmSafe} from "forge-std/Vm.sol";
+import {TaskConfig} from "src/libraries/MultisigTypes.sol";
 
 /// This script enables stacked simulations. Stacked simulations allow us to simulate a task
 /// that depends on the state of another task that hasn't been executed yet.
@@ -33,12 +35,14 @@ contract StackedSimulator is Script {
 
     /// The optionalOwnerAddresses array is used to specify the owner addresses for each nested task. It must be either empty or
     /// have the same length as the number of tasks. If it is empty, the first owner on the parent multisig will be used for each task.
-    function simulateStack(string memory network, string memory task, address[] memory optionalOwnerAddresses) public {
+    function simulateStack(string memory _network, string memory _task, address[] memory _optionalOwnerAddresses)
+        public
+    {
         TaskManager taskManager = new TaskManager();
-        TaskInfo[] memory tasks = getNonTerminalTasks(network, task);
-        TaskManager.TaskConfig[] memory taskConfigs = new TaskManager.TaskConfig[](tasks.length);
+        TaskInfo[] memory tasks = getNonTerminalTasks(_network, _task);
+        TaskConfig[] memory taskConfigs = new TaskConfig[](tasks.length);
         require(
-            optionalOwnerAddresses.length == 0 || optionalOwnerAddresses.length == tasks.length,
+            _optionalOwnerAddresses.length == 0 || _optionalOwnerAddresses.length == tasks.length,
             "StackedSimulator: Invalid owner addresses array length. Must be empty or match the number of tasks being simulated."
         );
 
@@ -49,11 +53,19 @@ contract StackedSimulator is Script {
         }
 
         for (uint256 i = 0; i < tasks.length; i++) {
+            // eip712sign will sign the first occurrence of the data to sign in the terminal.
+            // Because of this, we only want to print the data to sign for the last task (i.e. the task that is being signed).
+            bool isLastTask = i == tasks.length - 1;
+            if (Utils.isFeatureEnabled("STACKED_SIGNING_MODE")) {
+                // Only ever suppress printing data to sign for stacked signing.
+                vm.setEnv("SUPPRESS_PRINTING_DATA_TO_SIGN", isLastTask ? "false" : "true");
+            }
+
             taskConfigs[i] = taskManager.parseConfig(tasks[i].path);
             // If we wanted to ensure that all Tenderly links worked for each task, we would need to build a cumulative list of all state overrides
             // and append them to the next task's config.toml file. For now, we are skipping this functionality.
             address ownerAddress =
-                optionalOwnerAddresses.length == tasks.length ? optionalOwnerAddresses[i] : address(0);
+                _optionalOwnerAddresses.length == tasks.length ? _optionalOwnerAddresses[i] : address(0);
             taskManager.executeTask(taskConfigs[i], ownerAddress);
         }
     }
@@ -83,25 +95,28 @@ contract StackedSimulator is Script {
     }
 
     /// @notice Lists the execution order for a stack of tasks for a given network.
-    function listStack(string memory network) public {
+    function listStack(string memory network) public returns (uint256) {
         TaskInfo[] memory tasks = getNonTerminalTasks(network);
         if (tasks.length == 0) {
             console.log("No non-terminal tasks found for network: %s", network);
-            return;
+            return 0;
         }
         printStack(tasks, network);
+        return tasks.length;
     }
 
     /// @notice Lists the execution order for a stack of tasks for a given network and task.
-    function listStack(string memory network, string memory task) public {
+    function listStack(string memory network, string memory task) public returns (uint256) {
         TaskInfo[] memory tasks = getNonTerminalTasks(network, task);
         printStack(tasks, network);
+        return tasks.length;
     }
 
     function printStack(TaskInfo[] memory tasks, string memory network) public pure {
         console.log("StackedSimulator");
         console.log("Non-terminal tasks will be executed in the order they are listed below:\n");
         console.log("  Network: %s", network);
+        // TODO: @blmalone Add the safe that's signing for each to this list too.
         for (uint256 i = 0; i < tasks.length; i++) {
             console.log("    %s: %s", i + 1, tasks[i].name);
         }

@@ -7,8 +7,9 @@ import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import {stdStorage, StdStorage} from "forge-std/Test.sol";
 import {IOPContractsManager} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
-import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 
+import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
+import {Action, TaskType, TaskPayload} from "src/libraries/MultisigTypes.sol";
 import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 
@@ -44,19 +45,10 @@ abstract contract OPCMTaskBase is L2TaskBase {
         return "ProxyAdminOwner";
     }
 
-    /// @notice get the calldata to be executed by safe
-    /// @dev callable only after the build function has been run and the
-    /// calldata has been loaded up to storage. This function uses aggregate3
-    /// instead of aggregate3Value because OPCM tasks use Multicall3DelegateCall.
-    /// @return data The calldata to be executed
-    function getMulticall3Calldata(MultisigTask.Action[] memory actions)
-        public
-        pure
-        override
-        returns (bytes memory data)
-    {
+    /// @notice Get the calldata to be executed by the root safe.
+    /// This function uses aggregate3 instead of aggregate3Value because OPCM tasks use Multicall3DelegateCall.
+    function _getMulticall3Calldata(Action[] memory actions) internal pure override returns (bytes memory data) {
         (address[] memory targets,, bytes[] memory arguments) = processTaskActions(actions);
-
         IMulticall3.Call3[] memory calls = new IMulticall3.Call3[](targets.length);
 
         for (uint256 i; i < calls.length; i++) {
@@ -64,17 +56,19 @@ abstract contract OPCMTaskBase is L2TaskBase {
             calls[i] = IMulticall3.Call3({target: targets[i], allowFailure: false, callData: arguments[i]});
         }
 
-        data = abi.encodeWithSignature("aggregate3((address,bool,bytes)[])", calls);
+        data = abi.encodeCall(IMulticall3.aggregate3, (calls));
     }
 
-    function validate(VmSafe.AccountAccess[] memory accesses, MultisigTask.Action[] memory actions) public override {
+    function validate(VmSafe.AccountAccess[] memory accesses, Action[] memory actions, TaskPayload memory payload)
+        public
+        override
+    {
         (address[] memory targets,,) = processTaskActions(actions);
         require(targets.length == 1 && targets[0] == OPCM, "OPCMTaskBase: only OPCM is allowed as target");
-        super.validate(accesses, actions);
-        AccountAccessParser.StateDiff[] memory parentMultisigDiffs = accesses.getStateDiffFor(parentMultisig, false);
-        require(
-            parentMultisigDiffs.length == 1, "OPCMTaskBase: only nonce should be updated on upgrade controller multisig"
-        );
+        super.validate(accesses, actions, payload);
+        address rootSafe = payload.safes[payload.safes.length - 1];
+        AccountAccessParser.StateDiff[] memory rootSafeDiffs = accesses.getStateDiffFor(rootSafe, false);
+        require(rootSafeDiffs.length == 1, "OPCMTaskBase: only nonce should be updated on upgrade controller multisig");
 
         AccountAccessParser.StateDiff[] memory opcmDiffs = accesses.getStateDiffFor(OPCM, false);
         bytes32 opcmStateSlot = bytes32(uint256(stdstore.target(OPCM).sig(IOPContractsManager.isRC.selector).find()));
@@ -89,14 +83,12 @@ abstract contract OPCMTaskBase is L2TaskBase {
         }
     }
 
-    /// @notice get the multicall address for the given safe
-    /// if the safe is the parent multisig, return the delegatecall multicall address
-    /// otherwise if the safe is a child multisig, return the regular multicall address
-    /// @param safe The address of the safe
-    /// @return The address of the multicall
-    function _getMulticallAddress(address safe) internal view override returns (address) {
+    /// @notice Get the multicall address for the given safe if the safe is the parent multisig, return the delegatecall multicall address
+    /// otherwise if the safe is a child multisig, return the regular multicall address.
+    function _getMulticallAddress(address safe, address[] memory allSafes) internal pure override returns (address) {
         require(safe != address(0), "Safe address cannot be zero address");
-        return (safe == parentMultisig) ? MULTICALL3_DELEGATECALL_ADDRESS : MULTICALL3_ADDRESS;
+        address rootSafe = allSafes[allSafes.length - 1];
+        return (safe == rootSafe) ? MULTICALL3_DELEGATECALL_ADDRESS : MULTICALL3_ADDRESS;
     }
 
     function _configureTask(string memory taskConfigFilePath)
@@ -110,14 +102,14 @@ abstract contract OPCMTaskBase is L2TaskBase {
     }
 
     /// @notice Prank as the multisig.
-    function _prankMultisig() internal override {
+    function _prankMultisig(address rootSafe) internal override {
         // If delegateCall value is true then sets msg.sender for all subsequent delegate calls.
         // We want this functionality for OPCM tasks.
-        vm.startPrank(parentMultisig, true);
+        vm.startPrank(rootSafe, true);
     }
 
     /// @notice this function must be overridden in the inheriting contract to run assertions on the state changes.
-    function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions)
+    function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions, address rootSafe)
         internal
         view
         virtual
@@ -125,6 +117,7 @@ abstract contract OPCMTaskBase is L2TaskBase {
     {
         accountAccesses; // No-ops to silence unused variable compiler warnings.
         actions;
+        rootSafe;
         require(false, "You must implement the _validate function");
     }
 

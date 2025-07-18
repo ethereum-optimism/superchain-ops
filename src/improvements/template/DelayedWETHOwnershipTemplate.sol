@@ -5,6 +5,7 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 
 import {SimpleTaskBase} from "src/improvements/tasks/types/SimpleTaskBase.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 import {IDelayedWETH} from "lib/optimism/packages/contracts-bedrock/interfaces/dispute/IDelayedWETH.sol";
 
@@ -26,7 +27,7 @@ contract DelayedWETHOwnershipTemplate is SimpleTaskBase {
     }
 
     /// @notice Write the calls that you want to execute for the task.
-    function _build() internal override {
+    function _build(address) internal override {
         // Load the DelayedWETH contract.
         IDelayedWETH delayedWeth = IDelayedWETH(payable(simpleAddrRegistry.get("DelayedWETH")));
 
@@ -44,7 +45,7 @@ contract DelayedWETHOwnershipTemplate is SimpleTaskBase {
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
         // Load the DelayedWETH contract.
         IDelayedWETH delayedWeth = IDelayedWETH(payable(simpleAddrRegistry.get("DelayedWETH")));
 
@@ -62,7 +63,7 @@ contract DelayedWETHOwnershipTemplate is SimpleTaskBase {
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function getCodeExceptions() internal pure override returns (address[] memory) {
+    function _getCodeExceptions() internal pure override returns (address[] memory) {
         address[] memory codeExceptions = new address[](0);
         return codeExceptions;
     }

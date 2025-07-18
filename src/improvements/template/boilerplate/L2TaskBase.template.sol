@@ -2,9 +2,11 @@
 pragma solidity 0.8.15;
 
 import {VmSafe} from "forge-std/Vm.sol";
+import {stdToml} from "lib/forge-std/src/StdToml.sol";
 
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// TODO: If you need any interfaces from the Optimism monorepo submodule. Define them here instead of importing them.
 /// Doing this avoids tight coupling to the monorepo submodule and allows you to update the monorepo submodule
@@ -13,6 +15,8 @@ import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegis
 /// @notice A template contract for configuring L2TaskBase templates.
 /// Supports: <TODO: add supported tags: e.g. op-contracts/v*.*.*>
 contract L2TaskBaseTemplate is L2TaskBase {
+    using stdToml for string;
+
     /// @notice Optional: struct representing configuration for the task.
     struct ExampleTaskConfig {
         uint256 chainId;
@@ -44,8 +48,8 @@ contract L2TaskBaseTemplate is L2TaskBase {
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
     /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
-    function _templateSetup(string memory taskConfigFilePath) internal override {
-        super._templateSetup(taskConfigFilePath);
+    function _templateSetup(string memory _taskConfigFilePath, address _rootSafe) internal override {
+        super._templateSetup(_taskConfigFilePath, _rootSafe);
         SuperchainAddressRegistry.ChainInfo[] memory _chains = superchainAddrRegistry.getChains();
         _chains;
 
@@ -63,7 +67,7 @@ contract L2TaskBaseTemplate is L2TaskBase {
     ///  ` dgm.setRespectedGameType(IOptimismPortal2(payable(portalAddress)), cfg[chainId].gameType);`
     /// WARNING: Any state written to in this function will be reverted after the build function has been run.
     /// Do not rely on setting global variables in this function.
-    function _build() internal override {
+    function _build(address) internal override {
         // Do not set global variables in this function, see natspec above.
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
@@ -75,7 +79,7 @@ contract L2TaskBaseTemplate is L2TaskBase {
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory) internal view override {
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         for (uint256 i = 0; i < chains.length; i++) {
             require(false, "TODO: Implement with the correct validation logic.");
@@ -83,7 +87,7 @@ contract L2TaskBaseTemplate is L2TaskBase {
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function getCodeExceptions() internal view virtual override returns (address[] memory) {
+    function _getCodeExceptions() internal view virtual override returns (address[] memory) {
         require(
             false, "TODO: Implement the logic to return a list of addresses that should not be checked for code length."
         );
