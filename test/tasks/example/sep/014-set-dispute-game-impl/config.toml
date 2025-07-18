@@ -2,7 +2,8 @@ l2chains = [
   { name = "Ink Sepolia", chainId = 763373 }
 ]
 
-fallbackAddressesJsonPath = "lib/superchain-registry/superchain/extra/addresses/addresses.json"
+# Contains the addresses of Ink Sepolia at block 7798424.
+fallbackAddressesJsonPath = "test/tasks/example/sep/014-set-dispute-game-impl/addresses.json"
 forceFallbackUsage = true
 
 templateName = "SetDisputeGameImpl"
