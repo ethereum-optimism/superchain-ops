@@ -1,6 +1,7 @@
 l2chains = [{name = "Unichain", chainId = 130}]
 
 fallbackAddressesJsonPath = "lib/superchain-registry/superchain/extra/addresses/addresses.json"
+forceFallbackUsage = true
 
 templateName = "TransferOwners"
 

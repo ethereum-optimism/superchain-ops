@@ -3,6 +3,7 @@ l2chains = [
 ]
 
 fallbackAddressesJsonPath = "lib/superchain-registry/superchain/extra/addresses/addresses.json"
+forceFallbackUsage = true
 
 templateName = "OPCMUpgradeV400"
 

@@ -210,7 +210,7 @@ See: [example/eth/010-transfer-owners-local/config.toml](../../test/tasks/exampl
 
 The fallback JSON file must be structured with the chain ID as the top-level key, containing all contract addresses for that chain. It takes the same structure as the superchain-registry's [addresses.json](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/addresses.json) file.
 
-When the task runs, it will first attempt to use the superchain-registry. If the chain is not found, it will load addresses directly from your fallback JSON file instead of performing automatic onchain discovery.
+When the task runs, it will first attempt to use the superchain-registry. If the chain is not found, it will load addresses directly from your fallback JSON file instead of performing automatic onchain discovery. To force the task to use the fallback JSON file, set `forceFallbackUsage` to `true` in your task's `config.toml`.
 
 > ⚠️ **Note**: You must manually provide all contract addresses required by your task template in the fallback JSON file.
 

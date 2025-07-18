@@ -10,6 +10,7 @@ absolutePrestate = "0x03682932cec7ce0a3874b19675a6bbc923054a7b321efc7d3835187b17
 expectedValidationErrors = "PDDG-ANCHORP-40,PLDG-ANCHORP-40" # not a fresh ASR
 
 fallbackAddressesJsonPath = "lib/superchain-registry/superchain/extra/addresses/addresses.json"
+forceFallbackUsage = true
 
 [addresses]
 OPCM = "0xfbceed4de885645fbded164910e10f52febfab35" # Sepolia op-contracts/v3.0.0-rc.2 https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L22

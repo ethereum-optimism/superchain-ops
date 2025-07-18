@@ -97,6 +97,7 @@ contract SuperchainAddressRegistry is StdChains {
 
         ChainInfo[] memory _chainsMemory;
         string memory fallbackAddressesJsonPath = toml.readStringOr(".fallbackAddressesJsonPath", "");
+        bool forceFallbackUsage = toml.readBoolOr(".forceFallbackUsage", false);
         bytes memory chainListContent = toml.parseRaw(".l2chains");
         _chainsMemory = abi.decode(chainListContent, (ChainInfo[]));
         require(_chainsMemory.length > 0, "SuperchainAddressRegistry: .l2chains list is empty");
@@ -118,7 +119,8 @@ contract SuperchainAddressRegistry is StdChains {
             ChainInfo memory currentChain = chains[i];
             bool chainExists =
                 vm.keyExistsJson(superchainRegistryChainAddrs, string.concat("$.", vm.toString(currentChain.chainId)));
-            if (!chainExists) {
+            // If we're forcing fallback usage, or the chain doesn't exist in the superchain registry, we use the fallback path.
+            if (forceFallbackUsage || !chainExists) { 
                 require(
                     bytes(fallbackAddressesJsonPath).length > 0,
                     "SuperchainAddressRegistry: Chain does not exist in superchain registry and fallback path is empty."

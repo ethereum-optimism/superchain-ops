@@ -5,6 +5,7 @@ chainId = 11155420
 name = "OP Sepolia Testnet"
 
 fallbackAddressesJsonPath = "lib/superchain-registry/superchain/extra/addresses/addresses.json"
+forceFallbackUsage = true
 
 [[opcmUpgrades]]
 chainId = 11155420

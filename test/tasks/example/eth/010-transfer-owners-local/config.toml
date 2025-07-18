@@ -1,5 +1,7 @@
 l2chains = [{name = "Unichain", chainId = 1333330}]
 fallbackAddressesJsonPath = "test/tasks/example/eth/010-transfer-owners-local/addresses.json"
+forceFallbackUsage = true
+
 templateName = "TransferOwners"
 
 newOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"

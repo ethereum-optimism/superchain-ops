@@ -1,6 +1,7 @@
 l2chains = [{name = "Unichain Sepolia", chainId = 1301}]
 
 fallbackAddressesJsonPath = "lib/superchain-registry/superchain/extra/addresses/addresses.json"
+forceFallbackUsage = true
 
 templateName = "UniFix"
 

@@ -2,6 +2,7 @@ l2chains = [
     {name = "Rehearsal Chain", chainId = 10101010101010} # Create a fake chain
 ]
 fallbackAddressesJsonPath = "test/tasks/example/sep/018-set-eip1967-impl/addresses.json" # You're going to create this file in the next step
+forceFallbackUsage = true
 
 templateName = "SetEIP1967Implementation"
 
