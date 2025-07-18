@@ -9,22 +9,15 @@ import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegis
 
 import {ISuperchainConfig} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/ISuperchainConfig.sol";
 
-import {IETHLockbox} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/IETHLockbox.sol";
-import {I} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/ISuperchainConfig.sol";
 import {IOptimismPortal2} from "lib/optimism/packages/contracts-bedrock/interfaces/safe/IDeputyGuardianModule.sol";
 
-interface IDeputyGuardianModuleU16 {
-    error ExecutionFailed(string);
-    error Unauthorized();
+interface IETHLockbox {
+    // function systemConfig() external view returns (ISystemConfig);
 
-    function version() external view returns (string memory);
-
-    function pause() external;
-
-    function unpause(address) external;
+    function paused() external view returns (bool);
 }
 
-/// @title UnPauseSuperchainConfig
+/// @title UnPauseSuperchainConfigTemplateAfterU16 template.
 contract UnPauseSuperchainConfigTemplateAfterU16 is L2TaskBase {
     using stdToml for string;
 
@@ -65,9 +58,7 @@ contract UnPauseSuperchainConfigTemplateAfterU16 is L2TaskBase {
     /// @notice Write the calls that you want to execute for the task.
     function _build() internal override {
         // 1. Load the SuperchainConfig contract.
-        ISuperchainConfig sc = ISuperchainConfig(
-            superchainAddrRegistry.get("SuperchainConfig")
-        );
+        sc = ISuperchainConfig(superchainAddrRegistry.get("SuperchainConfig"));
         // 2. UnPause the SuperchainConfig contract through the identifier.
         sc.unpause(identifier);
     }
@@ -75,7 +66,8 @@ contract UnPauseSuperchainConfigTemplateAfterU16 is L2TaskBase {
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
     function _validate(
         VmSafe.AccountAccess[] memory,
-        Action[] memory
+        Action[] memory,
+        address
     ) internal view override {
         // Validate that the SuperchainConfig contract is unpaused.
         // 1. check that the Superchain Config is not paused anymore with the identifier provided.
