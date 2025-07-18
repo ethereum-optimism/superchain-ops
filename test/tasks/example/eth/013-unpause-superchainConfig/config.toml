@@ -1,6 +1,6 @@
 l2chains = [{name = "OP Mainnet", chainId = 10}]
  
-templateName = "UnPauseSuperchainConfig"
+templateName = "UnPauseSuperchainConfigTemplateAfterU16"
 
 identifier=0x0000000000000000000000000000000000000000
 
