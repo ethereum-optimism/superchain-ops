@@ -120,7 +120,7 @@ contract SuperchainAddressRegistry is StdChains {
             bool chainExists =
                 vm.keyExistsJson(superchainRegistryChainAddrs, string.concat("$.", vm.toString(currentChain.chainId)));
             // If we're forcing fallback usage, or the chain doesn't exist in the superchain registry, we use the fallback path.
-            if (forceFallbackUsage || !chainExists) { 
+            if (forceFallbackUsage || !chainExists) {
                 require(
                     bytes(fallbackAddressesJsonPath).length > 0,
                     "SuperchainAddressRegistry: Chain does not exist in superchain registry and fallback path is empty."
