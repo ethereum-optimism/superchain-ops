@@ -2,6 +2,8 @@ l2chains = [
   { name = "Ink Sepolia", chainId = 763373 }
 ]
 
+fallbackAddressesJsonPath = "lib/superchain-registry/superchain/extra/addresses/addresses.json"
+
 templateName = "SetDisputeGameImpl"
 
 [[gameImplConfig]]

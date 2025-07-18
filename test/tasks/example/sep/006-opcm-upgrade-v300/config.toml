@@ -4,6 +4,8 @@ templateName = "OPCMUpgradeV300"
 chainId = 11155420
 name = "OP Sepolia Testnet"
 
+fallbackAddressesJsonPath = "lib/superchain-registry/superchain/extra/addresses/addresses.json"
+
 [[opcmUpgrades]]
 chainId = 11155420
 absolutePrestate = "0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405"

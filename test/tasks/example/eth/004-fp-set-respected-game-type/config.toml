@@ -2,6 +2,8 @@ l2chains = [
   {name = "OP Mainnet", chainId = 10}
 ]
 
+fallbackAddressesJsonPath = "lib/superchain-registry/superchain/extra/addresses/addresses.json"
+
 templateName = "SetRespectedGameTypeTemplate"
 
 [gameTypes]

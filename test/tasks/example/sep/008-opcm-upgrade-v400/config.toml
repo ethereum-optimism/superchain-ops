@@ -2,6 +2,8 @@ l2chains = [
     {name = "OP Sepolia Testnet", chainId = 11155420}
 ]
 
+fallbackAddressesJsonPath = "lib/superchain-registry/superchain/extra/addresses/addresses.json"
+
 templateName = "OPCMUpgradeV400"
 
 # OP Sepolia Testnet
