@@ -1,6 +1,7 @@
 l2chains = [{name = "Unichain Sepolia", chainId = 1301}]
 
-fallbackAddressesJsonPath = "lib/superchain-registry/superchain/extra/addresses/addresses.json"
+# Contains the addresses of Unichain Sepolia at block 8029861.
+fallbackAddressesJsonPath = "test/tasks/example/sep/004-replace-superchain-config/addresses.json" 
 forceFallbackUsage = true
 
 templateName = "UniFix"
