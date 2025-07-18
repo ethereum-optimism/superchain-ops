@@ -30,7 +30,7 @@ interface ISuperchainConfig {
 }
 
 /// @title UnPauseSuperchainConfigTemplateAfterU16 template.
-contract UnPauseSuperchainConfigTemplateAfterU16 is L2TaskBase {
+contract UnPauseSuperchainConfigAfterU16 is L2TaskBase {
     using stdToml for string;
 
     /// @notice Identifier of the eth_lockbox used in the SuperchainConfig loaded from TOML
