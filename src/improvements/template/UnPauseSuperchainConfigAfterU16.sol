@@ -7,14 +7,26 @@ import {stdToml} from "forge-std/StdToml.sol";
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 
-import {ISuperchainConfig} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/ISuperchainConfig.sol";
-
 import {IOptimismPortal2} from "lib/optimism/packages/contracts-bedrock/interfaces/safe/IDeputyGuardianModule.sol";
+
+import {Action} from "src/libraries/MultisigTypes.sol";
 
 interface IETHLockbox {
     // function systemConfig() external view returns (ISystemConfig);
 
     function paused() external view returns (bool);
+}
+
+interface ISuperchainConfig {
+    function guardian() external view returns (address);
+
+    function pause(address _identifier) external;
+
+    function unpause(address _identifier) external;
+
+    function paused() external view returns (bool);
+
+    function paused(address _identifier) external view returns (bool);
 }
 
 /// @title UnPauseSuperchainConfigTemplateAfterU16 template.
@@ -47,16 +59,17 @@ contract UnPauseSuperchainConfigTemplateAfterU16 is L2TaskBase {
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
     function _templateSetup(
-        string memory taskConfigFilePath
+        string memory _taskConfigFilePath,
+        address _rootSafe
     ) internal override {
-        super._templateSetup(taskConfigFilePath);
-        string memory file = vm.readFile(taskConfigFilePath);
+        super._templateSetup(_taskConfigFilePath, _rootSafe);
+        string memory file = vm.readFile(_taskConfigFilePath);
         identifier = vm.parseTomlAddress(file, ".identifier"); // Get the identifier of the eth_lockbox from the TOML file
         sc = ISuperchainConfig(superchainAddrRegistry.get("SuperchainConfig"));
     }
 
     /// @notice Write the calls that you want to execute for the task.
-    function _build() internal override {
+    function _build(address) internal override {
         // 1. Load the SuperchainConfig contract.
         sc = ISuperchainConfig(superchainAddrRegistry.get("SuperchainConfig"));
         // 2. UnPause the SuperchainConfig contract through the identifier.
@@ -88,9 +101,10 @@ contract UnPauseSuperchainConfigTemplateAfterU16 is L2TaskBase {
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function getCodeExceptions()
+    function _getCodeExceptions()
         internal
-        pure
+        view
+        virtual
         override
         returns (address[] memory)
     {
