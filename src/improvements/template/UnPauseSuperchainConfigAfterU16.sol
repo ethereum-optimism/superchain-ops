@@ -54,13 +54,13 @@ contract UnPauseSuperchainConfigAfterU16 is L2TaskBase {
         super._templateSetup(_taskConfigFilePath, _rootSafe);
         string memory file = vm.readFile(_taskConfigFilePath);
         identifier = vm.parseTomlAddress(file, ".identifier"); // Get the identifier of the eth_lockbox from the TOML file
+
+        // 1. Load the SuperchainConfig contract.
         sc = ISuperchainConfig(superchainAddrRegistry.get("SuperchainConfig"));
     }
 
     /// @notice Write the calls that you want to execute for the task.
     function _build(address) internal override {
-        // 1. Load the SuperchainConfig contract.
-        sc = ISuperchainConfig(superchainAddrRegistry.get("SuperchainConfig"));
         // 2. UnPause the SuperchainConfig contract through the identifier.
         sc.unpause(identifier);
     }
