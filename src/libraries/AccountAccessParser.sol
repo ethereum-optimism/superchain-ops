@@ -171,6 +171,7 @@ library AccountAccessParser {
     }
 
     /// @notice Decodes the provided AccountAccess array into decoded transfers and state diffs.
+    /// @notice Decodes the provided AccountAccess array into decoded transfers and state diffs.
     function decode(VmSafe.AccountAccess[] memory _accountAccesses, bool _sort)
         internal
         view
@@ -285,69 +286,42 @@ library AccountAccessParser {
         address _parentMultisig,
         bytes32 _txHash
     ) internal view noGasMetering returns (bytes32) {
-        // Single-pass optimization: combine unique address finding and state diff extraction
-        // This eliminates the O(n²) duplicate checking in getUniqueWrites and getStateDiffFor
+        // Get all storage writes as a state diff.
+        address[] memory uniqueAddresses = getUniqueWrites({accesses: _accountAccesses, _sort: false});
 
+        // Create a temporary array to store normalized state changes.
         AccountStateDiff[] memory normalizedChanges = new AccountStateDiff[](MAX_STATE_CHANGES);
         uint256 normalizedCount = 0;
 
-        // Track processed (address, slot) pairs to avoid duplicates
-        // Using a linear search but only within our results (much smaller than input)
+        // Process each account with storage writes.
+        for (uint256 i = 0; i < uniqueAddresses.length; i++) {
+            address account = uniqueAddresses[i];
+            StateDiff[] memory diffs = getStateDiffFor({accesses: _accountAccesses, who: account, _sort: false});
 
-        // Single pass through all account accesses
-        for (uint256 i = 0; i < _accountAccesses.length; i++) {
-            if (_accountAccesses[i].reverted) continue;
-
-            for (uint256 j = 0; j < _accountAccesses[i].storageAccesses.length; j++) {
-                VmSafe.StorageAccess memory sa = _accountAccesses[i].storageAccesses[j];
-
-                // Only process writes with actual value changes
-                if (!sa.isWrite || sa.reverted || sa.previousValue == sa.newValue) {
-                    continue;
-                }
-
-                // Check if we've already processed this (account, slot) pair
-                bool alreadyProcessed = false;
-                for (uint256 k = 0; k < normalizedCount; k++) {
-                    if (normalizedChanges[k].who == sa.account && normalizedChanges[k].slot == sa.slot) {
-                        // Update the final value for this slot (keep first old, update last new)
-                        normalizedChanges[k].lastNew = sa.newValue;
-                        alreadyProcessed = true;
-                        break;
-                    }
-                }
-
-                if (!alreadyProcessed) {
-                    // Create a StateDiff for filtering
-                    StateDiff memory diff =
-                        StateDiff({slot: sa.slot, oldValue: sa.previousValue, newValue: sa.newValue});
-
-                    if (shouldIncludeDiff(sa.account, diff, _parentMultisig, _txHash)) {
-                        diff = normalizeTimestamp(sa.account, diff);
-                        normalizedChanges[normalizedCount] = AccountStateDiff({
-                            who: sa.account,
-                            slot: diff.slot,
-                            firstOld: diff.oldValue,
-                            lastNew: diff.newValue
-                        });
-                        normalizedCount++;
-                        require(normalizedCount < MAX_STATE_CHANGES, "AccountAccessParser: Max state changes reached");
-                    }
+            // Process each diff and apply normalization logic.
+            for (uint256 j = 0; j < diffs.length; j++) {
+                StateDiff memory diff = diffs[j];
+                if (shouldIncludeDiff(account, diff, _parentMultisig, _txHash)) {
+                    diff = normalizeTimestamp(account, diff); // Normalize the timestamp if present.
+                    normalizedChanges[normalizedCount] = AccountStateDiff({
+                        who: account,
+                        slot: diff.slot,
+                        firstOld: diff.oldValue,
+                        lastNew: diff.newValue
+                    });
+                    normalizedCount++;
+                    require(normalizedCount < MAX_STATE_CHANGES, "AccountAccessParser: Max state changes reached");
                 }
             }
         }
 
-        // Avoid final array copy if we used the entire array
-        if (normalizedCount == MAX_STATE_CHANGES) {
-            return keccak256(abi.encode(normalizedChanges));
-        }
-
-        // Only copy to final array if we need to resize
+        // Create the final array with the correct size.
         AccountStateDiff[] memory finalArray = new AccountStateDiff[](normalizedCount);
         for (uint256 i = 0; i < normalizedCount; i++) {
             finalArray[i] = normalizedChanges[i];
         }
 
+        // Return keccak256 hash of the abi-encoded normalized array.
         return keccak256(abi.encode(finalArray));
     }
 
