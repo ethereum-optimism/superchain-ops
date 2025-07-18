@@ -8,22 +8,6 @@ import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 
 import {Action} from "src/libraries/MultisigTypes.sol";
 
-interface IETHLockbox {
-    function paused() external view returns (bool);
-}
-
-interface ISuperchainConfig {
-    function guardian() external view returns (address);
-
-    function pause(address _identifier) external;
-
-    function unpause(address _identifier) external;
-
-    function paused() external view returns (bool);
-
-    function paused(address _identifier) external view returns (bool);
-}
-
 /// @title UnPauseSuperchainConfigAfterU16 template designed to unpause the SuperchainConfig contract.
 contract UnPauseSuperchainConfigAfterU16 is L2TaskBase {
     using stdToml for string;
@@ -85,4 +69,20 @@ contract UnPauseSuperchainConfigAfterU16 is L2TaskBase {
         address[] memory codeExceptions = new address[](0);
         return codeExceptions;
     }
+}
+
+interface IETHLockbox {
+    function paused() external view returns (bool);
+}
+
+interface ISuperchainConfig {
+    function guardian() external view returns (address);
+
+    function pause(address _identifier) external;
+
+    function unpause(address _identifier) external;
+
+    function paused() external view returns (bool);
+
+    function paused(address _identifier) external view returns (bool);
 }
