@@ -1,7 +1,0 @@
-l2chains = [{name = "OP Sepolia Testnet", chainId = 11155420}] # e.g. [{name = "OP Mainnet", chainId = 10}]
-
-templateName = "UnPauseSuperchainConfigTemplateU16"
-
-[addresses]
-securityCouncilU16="0xf7256865A7C27da427056A8e8F3df248deFCd128"
-
