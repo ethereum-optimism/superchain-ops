@@ -5,9 +5,6 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
-import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
-
-import {IOptimismPortal2} from "lib/optimism/packages/contracts-bedrock/interfaces/safe/IDeputyGuardianModule.sol";
 
 import {Action} from "src/libraries/MultisigTypes.sol";
 
