@@ -41,7 +41,7 @@ contract UnPauseSuperchainConfigAfterU16 is L2TaskBase {
 
     /// @notice Returns the string identifier for the safe executing this transaction.
     function safeAddressString() public pure override returns (string memory) {
-        return "SecurityCouncil";
+        return "Guardian";
     }
 
     /// @notice Returns string identifiers for addresses that are expected to have their storage written to.
