@@ -207,27 +207,28 @@ library AccountAccessParser {
         // The order of 'uniqueAccounts' informs the order that the account state diffs get processed.
         address[] memory uniqueAccounts = getUniqueWrites(_accountAccesses, _sort);
         uint256 totalDiffCount = 0;
+        StateDiff[][] memory accountDiffs = new StateDiff[][](uniqueAccounts.length);
         // Count the total number of net state diffs.
         for (uint256 i = 0; i < uniqueAccounts.length; i++) {
-            StateDiff[] memory accountDiffs = getStateDiffFor(_accountAccesses, uniqueAccounts[i], false); // no need to sort here
-            totalDiffCount += accountDiffs.length;
+            accountDiffs[i] = getStateDiffFor(_accountAccesses, uniqueAccounts[i], _sort);
+            totalDiffCount += accountDiffs[i].length;
         }
 
         // Aggregate all the diffs and decode each one.
         stateDiffs = new DecodedStateDiff[](totalDiffCount);
         uint256 index = 0;
         for (uint256 i = 0; i < uniqueAccounts.length; i++) {
-            StateDiff[] memory accountDiffs = getStateDiffFor(_accountAccesses, uniqueAccounts[i], _sort);
-            for (uint256 j = 0; j < accountDiffs.length; j++) {
+            for (uint256 j = 0; j < accountDiffs[i].length; j++) {
                 address who = uniqueAccounts[i];
                 (uint256 l2ChainId, string memory contractName) = getContractInfo(who);
-                DecodedSlot memory decoded =
-                    tryDecode(contractName, accountDiffs[j].slot, accountDiffs[j].oldValue, accountDiffs[j].newValue);
+                DecodedSlot memory decoded = tryDecode(
+                    contractName, accountDiffs[i][j].slot, accountDiffs[i][j].oldValue, accountDiffs[i][j].newValue
+                );
                 stateDiffs[index] = DecodedStateDiff({
                     who: who,
                     l2ChainId: l2ChainId,
                     contractName: contractName,
-                    raw: accountDiffs[j],
+                    raw: accountDiffs[i][j],
                     decoded: decoded
                 });
                 index++;
