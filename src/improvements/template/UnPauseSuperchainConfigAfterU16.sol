@@ -9,6 +9,8 @@ import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegis
 
 import {ISuperchainConfig} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/ISuperchainConfig.sol";
 
+import {IETHLockbox} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/IETHLockbox.sol";
+import {I} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/ISuperchainConfig.sol";
 import {IOptimismPortal2} from "lib/optimism/packages/contracts-bedrock/interfaces/safe/IDeputyGuardianModule.sol";
 
 interface IDeputyGuardianModuleU16 {
@@ -23,14 +25,18 @@ interface IDeputyGuardianModuleU16 {
 }
 
 /// @title UnPauseSuperchainConfig
-contract UnPauseSuperchainConfigTemplate is L2TaskBase {
+contract UnPauseSuperchainConfigTemplateAfterU16 is L2TaskBase {
     using stdToml for string;
 
-    // /// @notice Mapping of chain ID to configuration for the task.
-    //
+    /// @notice Identifier of the eth_lockbox used in the SuperchainConfig loaded from TOML
+    address public identifier;
+
+    /// @notice SuperchainConfig SC contract instance
+    ISuperchainConfig public sc;
+
     /// @notice Returns the string identifier for the safe executing this transaction.
     function safeAddressString() public pure override returns (string memory) {
-        return "securityCouncilU16";
+        return "SecurityCouncil";
     }
 
     /// @notice Returns string identifiers for addresses that are expected to have their storage written to.
@@ -41,7 +47,7 @@ contract UnPauseSuperchainConfigTemplate is L2TaskBase {
         returns (string[] memory)
     {
         string[] memory storageWrites = new string[](2);
-        storageWrites[0] = "securityCouncilU16";
+        storageWrites[0] = "SuperchainConfig";
         storageWrites[1] = safeAddressString();
         return storageWrites;
     }
@@ -51,15 +57,19 @@ contract UnPauseSuperchainConfigTemplate is L2TaskBase {
         string memory taskConfigFilePath
     ) internal override {
         super._templateSetup(taskConfigFilePath);
+        string memory file = vm.readFile(taskConfigFilePath);
+        identifier = vm.parseTomlAddress(file, ".identifier"); // Get the identifier of the eth_lockbox from the TOML file
+        sc = ISuperchainConfig(superchainAddrRegistry.get("SuperchainConfig"));
     }
 
     /// @notice Write the calls that you want to execute for the task.
     function _build() internal override {
-        // Load the DeputyGuardianModule contract.
-        IDeputyGuardianModuleU16 dpm = IDeputyGuardianModuleU16(
-            0xEB4e480de616FEDe3D03597e42c013282BF9bEcF
+        // 1. Load the SuperchainConfig contract.
+        ISuperchainConfig sc = ISuperchainConfig(
+            superchainAddrRegistry.get("SuperchainConfig")
         );
-        dpm.unpause(address(0)); // Unpause the SuperchainConfig contract through the DeputyGuardianModule.
+        // 2. UnPause the SuperchainConfig contract through the identifier.
+        sc.unpause(identifier);
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
@@ -68,34 +78,21 @@ contract UnPauseSuperchainConfigTemplate is L2TaskBase {
         Action[] memory
     ) internal view override {
         // Validate that the SuperchainConfig contract is unpaused.
-        // SuperchainAddressRegistry.ChainInfo[]
-        //     memory chains = superchainAddrRegistry.getChains();
-        // ISuperchainConfig sc = ISuperchainConfig(
-        //     (
-        //         superchainAddrRegistry.getAddress(
-        //             "SuperchainConfig",
-        //             chains[0].chainId
-        //         )
-        //     )
-        // );
-        // IOptimismPortal2 portal2 = IOptimismPortal2(
-        //     payable(
-        //         superchainAddrRegistry.getAddress(
-        //             "OptimismPortalProxy",
-        //             chains[0].chainId
-        //         )
-        //     )
-        // );
-        // assertEq(
-        //     portal2.paused(),
-        //     false,
-        //     "ERR101: OptimismPortal2 should be unpaused."
-        // );
-        // assertEq(
-        //     sc.paused(),
-        //     false,
-        //     "ERR102: SuperchainConfig should be unpaused."
-        // );
+        // 1. check that the Superchain Config is not paused anymore with the identifier provided.
+        assertEq(
+            sc.paused(identifier),
+            false,
+            "ERR100: SuperchainConfig should be unpaused for the identifier provided."
+        );
+        if (
+            identifier != address(0) // If the identifier is 0 this indicates a superchain-wide pause so we don't need to check the lockbox associated
+        ) {
+            assertEq(
+                IETHLockbox(identifier).paused(),
+                false,
+                "ERR103: ETHLockbox should be unpaused for the identifier provided."
+            );
+        }
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
