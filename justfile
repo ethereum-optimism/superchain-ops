@@ -52,3 +52,7 @@ deploy-multicall3-delegatecall *ARGS:
 
 compare-games before-game='' after-game='':
   bash script/utils/compareGames.sh {{before-game}} {{after-game}}
+
+
+test-coverage:
+  forge coverage --no-match-coverage "(src/improvements/template/boilerplate/|script/|src/JsonTxBuilderBase.sol|src/HelloWorld.sol)"
