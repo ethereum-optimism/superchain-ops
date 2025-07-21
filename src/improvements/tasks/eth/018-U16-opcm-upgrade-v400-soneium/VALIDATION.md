@@ -124,37 +124,46 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 
   ---
 
-### `0x4890928941e62e273da359374b105f803329f473` (AnchorStateRegistryProxy) - Chain ID: 1868
+### `0x4890928941e62e273da359374b105f803329f473` ([AnchorStateRegistryProxy](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/soneium.toml#L62)) - Chain ID: 1868 (Newly Deployed)
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x000000000000000000007a8ed66b319911a0f3e7288bddab30d9c0c875c30001`
-  - **Summary:** Packed slot with systemConfig ([`0x7a8ed66b319911a0f3e7288bddab30d9c0c875c3`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/soneium.toml#L59)) and _initialized=1
-  - **Detail:** AnchorStateRegistry packed storage - SystemConfigProxy address + initialization flag
+  - **Summary:** _initialized flag set to 1 and systemConfig address packed in slot 0
+  - **Detail:** Packed storage slot containing initialization flag and [SystemConfig](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/soneium.toml#L58) address
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x000000000000000000000000512a3d2c7a43bd9261d2b8e8c9c70d4bd4d503c0`
-  - **Summary:** disputeGameFactory set to [`0x512a3d2c7a43bd9261d2b8e8c9c70d4bd4d503c0`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/soneium.toml#L64)
-  - **Detail:** Points to DisputeGameFactoryProxy for Soneium
+  - **Summary:** disputeGameFactory set to Soneium DisputeGameFactory proxy
+  - **Detail:** Storage slot 1 holds the [DisputeGameFactory proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/soneium.toml#L64) for Soneium
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000003`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x17ce11194e3dd58b940485ebc70141f3654183ceb2700d590a6bc57c4cc7f68c`
-  - **Summary:** startingAnchorRoot proposal hash (first 32 bytes)
-  - **Detail:** First part of the starting anchor root proposal struct
+  - **Summary:** startingAnchorRoot struct first half initialized for Soneium
+  - **Detail:** Storage slot 3 contains the first 32 bytes of the 64-byte startingAnchorRoot [Proposal struct](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.0.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44-L47), which is a Hash.
+    The actual value MAY differ based on the most recently finalized L2 output.
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000004`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x00000000000000000000000000000000000000000000000000000000004d946d`
-  - **Summary:** startingAnchorRoot proposal timestamp (5,084,269 blocks)
-  - **Detail:** Second part of the starting anchor root proposal struct - L2 block number
+  - **Summary:** startingAnchorRoot struct second half initialized for Soneium
+  - **Detail:** Storage slot 4 contains the second 32 bytes of the 64-byte startingAnchorRoot [Proposal struct](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.0.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44-L47), which is an L2 block number.
+    The actual value MAY differ based on the most recently finalized L2 output.
+    The following command should return values that match this value and the value in slot 3,
+    however if it does not, please repeat the tenderly simulation, as it may have been updated
+    on chain:
+
+    ```
+    cast call 0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1 'anchors(uint32)(bytes32,bytes32)' 0
+    ```
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000006`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x000000000000000000000000000000000000000000000000686be86300000001`
-  - **Summary:** Packed slot with respectedGameType=1 and retirementTimestamp (the actual timestamp value will vary based on when the simulation is run).
-  - **Detail:** Game type and retirement timestamp packed in single slot
+  - **Summary:** Packed slot with respectedGameType and retirementTimestamp initialized for Soneium
+  - **Detail:** The non-zero values should correspond to recent timestamp values, as [set](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.0.0/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L106) in the AnchorStateRegistry's initialize function.
 
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
