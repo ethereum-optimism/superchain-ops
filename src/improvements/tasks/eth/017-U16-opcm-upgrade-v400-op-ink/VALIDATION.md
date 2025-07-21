@@ -576,7 +576,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   - **Decoded Kind:** `address`
   - **Before:** `0x0000000000000000000000000000000000000000`
   - **After:** [`0x33Dadc2d1aA9BB613A7AE6B28425eA00D44c6998`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L14)
-  - **Summary:** ERC-1967 implementation upgraded to AnchorStateRegistry v3.5.0
+  - **Summary:** ERC-1967 implementation upgraded to DelayedWETH v1.5.0
 
 - **Key:**          `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
   - **Decoded Kind:** `address`
