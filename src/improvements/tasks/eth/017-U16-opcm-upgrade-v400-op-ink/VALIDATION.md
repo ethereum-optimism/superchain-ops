@@ -154,7 +154,7 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 
   ---
 
-### `0x23b2c62946350f4246f9f9d027e071f0264fd113` (AnchorStateRegistry) - Chain ID: 10
+### `0x23b2c62946350f4246f9f9d027e071f0264fd113` (AnchorStateRegistry) - Chain ID: 10 (Newly Deployed)
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
@@ -165,26 +165,35 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x000000000000000000000000e5965ab5962edc7477c8520243a95517cd252fa9`
-  - **Summary:** _initialized flag set to 1 and systemConfig address packed in slot 0
-  - **Detail:** Packed storage slot containing initialization flag and SystemConfig address
+  - **Summary:** disputeGameFactory set to OP DisputeGameFactory proxy
+  - **Detail:** Storage slot 1 holds the [DisputeGameFactory proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/op.toml#L63) for OP Mainnet
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000003`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0xc13f2b5128708cefa7a4ff464a545d4d7baacdad10fff6f5149314089de0b924`
-  - **Summary:** Anchor state hash set to initial value for OP Mainnet chain configuration
-  - **Detail:** Packed storage slot containing initialization flag and SystemConfig address
+  - **Summary:** startingAnchorRoot struct first half initialized for OP Mainnet
+  - **Detail:** Storage slot 3 contains the first 32 bytes of the 64-byte startingAnchorRoot [Proposal struct](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.0.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44-L47), which is a Hash.
+    The actual value MAY differ based on the most recently finalized L2 output.
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000004`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x00000000000000000000000000000000000000000000000000000000083761a6`
-  - **Summary:** Anchor state L2 block number set to 137847206 (0x83761a6) for OP Mainnet
-  - **Detail:** Packed storage slot containing initialization flag and SystemConfig address
+  - **Summary:** startingAnchorRoot struct second half initialized for OP Mainnet
+  - **Detail:** Storage slot 4 contains the second 32 bytes of the 64-byte startingAnchorRoot [Proposal struct](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.0.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44-L47), which is an L2 block number.
+    The actual value MAY differ based on the most recently finalized L2 output.
+    The following command should return values that match this value and the value in slot 3,
+    however if it does not, please repeat the tenderly simulation, as it may have been updated
+    on chain:
+
+    ```
+    cast call 0x1c68ECfbf9C8B1E6C0677965b3B9Ecf9A104305b 'anchors(uint32)(bytes32,bytes32)' 0
+    ```
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000006`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x000000000000000000000000000000000000000000000000686bde0700000000`
-  - **Summary:** Anchor state timestamp set to 1751899655 (0x686bf11b) for OP Mainnet
-  - **Detail:** Packed storage slot containing initialization flag and SystemConfig address
+  - **Summary:** Packed slot with respectedGameType and retirementTimestamp initialized for OP Mainnet
+  - **Detail:** The non-zero values should correspond to recent timestamp values, as [set](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.0.0/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L106) in the AnchorStateRegistry's initialize function.
 
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
@@ -678,37 +687,47 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 
   ---
 
-### `0xee018baf058227872540ac60efbd38b023d9dae2` (AnchorStateRegistry) - Chain ID: 57073
+
+### `0xee018baf058227872540ac60efbd38b023d9dae2` (AnchorStateRegistry) - Chain ID: 57073 (Newly Deployed)
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x0000000000000000000062c0a111929fa32cec2f76adba54c16afb6e83640001`
-  - **Summary:** _initialized flag set to 1 and [SystemConfig proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/superchain/configs/mainnet/ink.toml#L59) packed in slot 0
-  - **Detail:** Packed storage slot containing initialization flag and SystemConfig address
+  - **Summary:** _initialized flag set to 1 and systemConfig address packed in slot 0
+  - **Detail:** Packed storage slot containing initialization flag and [SystemConfig](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml#L59) address
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000001`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x00000000000000000000000010d7b35078d3baabb96dd45a9143b94be65b12cd`
-  - **Summary:** disputeGameFactory address set to Ink DisputeGameFactory proxy
-  - **Detail:** Storage slot 1 holds the [DisputeGameFactory proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml#L64)
+  - **Summary:** disputeGameFactory set to Ink DisputeGameFactory proxy
+  - **Detail:** Storage slot 1 holds the [DisputeGameFactory proxy address](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/ink.toml#L64) for Ink
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000003`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x1c71ef6e228027cbce1ab684ac9709be901aeddaa66b2fc16ecbe0c0b0fe5ed3`
-  - **Summary:** respectedGameType set to hash value for Ink game type configuration
-  - **Detail:** Storage slot 3 holds the hash representing the respected game type configuration for Ink
+  - **Summary:** startingAnchorRoot struct first half initialized for Ink
+  - **Detail:** Storage slot 3 contains the first 32 bytes of the 64-byte startingAnchorRoot [Proposal struct](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.0.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44-L47), which is a Hash.
+    The actual value MAY differ based on the most recently finalized L2 output.
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000004`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x00000000000000000000000000000000000000000000000000000000010f3b79`
-  - **Summary:** respectedGameTypeUpdatedAt set to block number 17,775,481
-  - **Detail:** Storage slot 4 holds the block number when the respected game type was last updated for Ink
+  - **Summary:** startingAnchorRoot struct second half initialized for Ink
+  - **Detail:** Storage slot 4 contains the second 32 bytes of the 64-byte startingAnchorRoot [Proposal struct](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.0.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44-L47), which is an L2 block number.
+    The actual value MAY differ based on the most recently finalized L2 output.
+    The following command should return values that match this value and the value in slot 3,
+    however if it does not, please repeat the tenderly simulation, as it may have been updated
+    on chain:
+
+    ```
+    cast call 0x2fc99fd16D8D3F6F66d164aA84E244c567E58A3d 'anchors(uint32)(bytes32,bytes32)' 0
+    ```
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000006`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
   - **After:** `0x000000000000000000000000000000000000000000000000686bde0700000000`
-  - **Summary:** Anchor state timestamp set to 1751899655 (0x686bde07) for Ink
-  - **Detail:** Packed storage slot containing initialization flag and SystemConfig address
+  - **Summary:** Packed slot with respectedGameType and retirementTimestamp initialized for Ink
+  - **Detail:** The non-zero values should correspond to recent timestamp values, as [set](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.0.0/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L106) in the AnchorStateRegistry's initialize function.
 
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
