@@ -41,7 +41,7 @@ while IFS= read -r -d $'\0' dir; do
         # Extract prefix and track for duplicates
         prefix="${subdir_name%%-*}"
         prefix_map+=("$prefix")
-    done < <(find "$dir" -maxdepth 1 -mindepth 1 -type d -print0)
+    done < <(find "$dir" -maxdepth 1 -mindepth 1 -type d ! -name '*rehearsal*' -print0)
 
     # Report invalid directories
     if [ ${#invalid_dirs[@]} -gt 0 ]; then
