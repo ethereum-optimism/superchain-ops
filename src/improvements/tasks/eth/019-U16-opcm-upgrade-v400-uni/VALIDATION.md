@@ -162,30 +162,36 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000003`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
-  - **After:** `0x27e725b2cc8fb15b340f1c8dce901b487f2678f9d12b3f438008e1c66471d087`
+  - **After:** See validation instructions below the next slot
   - **Summary:** startingAnchorRoot struct first half initialized for Unichain
   - **Detail:** Storage slot 3 contains the first 32 bytes of the 64-byte startingAnchorRoot [Proposal struct](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.0.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44-L47), which is a Hash.
     The actual value MAY differ based on the most recently finalized L2 output.
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000004`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
-  - **After:** `0x0000000000000000000000000000000000000000000000000000000001398631`
+  - **After:** See validation instructions below
   - **Summary:** startingAnchorRoot struct second half initialized for Unichain
   - **Detail:** Storage slot 4 contains the second 32 bytes of the 64-byte startingAnchorRoot [Proposal struct](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.0.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44-L47), which is an L2 block number.
-    The actual value MAY differ based on the most recently finalized L2 output.
-    The following command should return values that match this value and the value in slot 3,
-    however if it does not, please repeat the tenderly simulation, as it may have been updated
-    on chain:
+
+    **VALIDATION:** To verify the correct values for slots 3 and 4, run the following command using the same block number as your simulation.
+      It should return two values, the first being the hash (slot 3) and the second being the block number (slot 4).
 
     ```
-    cast call 0xD5D0e176be44E61eaB3Cf1FA8153758dF603376f 'anchors(uint32)(bytes32,bytes32)' 0
+    cast call --block <simulation-block-number> 0xD5D0e176be44E61eaB3Cf1FA8153758dF603376f 'anchors(uint32)(bytes32,bytes32)' 0
     ```
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000006`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
-  - **After:** `0x000000000000000000000000000000000000000000000000686bf11b00000000`
+  - **After:** See validation instructions below
   - **Summary:** Packed slot with respectedGameType and retirementTimestamp initialized for Unichain
-  - **Detail:** The non-zero values should correspond to recent timestamp values, as [set](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.0.0/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L106) in the AnchorStateRegistry's initialize function.
+  - **Detail:** The non-zero values should correspond to a recent timestamp values, as [set](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.0.0/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L106) in the AnchorStateRegistry's initialize function.
+
+    **VALIDATION:** The value in slots 6 will differ from simulation to simulation based on chain state. The following cast command should return a value
+      matching the timestamp of the simulation:
+
+      ```
+      cast to-dec $(cast shr <after-value> 32)
+      ```
 
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`

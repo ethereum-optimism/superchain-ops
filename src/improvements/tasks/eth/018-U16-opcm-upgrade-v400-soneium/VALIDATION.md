@@ -140,30 +140,36 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000003`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
-  - **After:** `0x17ce11194e3dd58b940485ebc70141f3654183ceb2700d590a6bc57c4cc7f68c`
+  - **After:** See validation instructions below
   - **Summary:** startingAnchorRoot struct first half initialized for Soneium
   - **Detail:** Storage slot 3 contains the first 32 bytes of the 64-byte startingAnchorRoot [Proposal struct](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.0.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44-L47), which is a Hash.
     The actual value MAY differ based on the most recently finalized L2 output.
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000004`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
-  - **After:** `0x00000000000000000000000000000000000000000000000000000000004d946d`
+  - **After:** See validation instructions below
   - **Summary:** startingAnchorRoot struct second half initialized for Soneium
   - **Detail:** Storage slot 4 contains the second 32 bytes of the 64-byte startingAnchorRoot [Proposal struct](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.0.0/packages/contracts-bedrock/src/dispute/lib/Types.sol#L44-L47), which is an L2 block number.
-    The actual value MAY differ based on the most recently finalized L2 output.
-    The following command should return values that match this value and the value in slot 3,
-    however if it does not, please repeat the tenderly simulation, as it may have been updated
-    on chain:
+
+    **VALIDATION:** To verify the correct values for slots 3 and 4, run the following command using the same block number as your simulation.
+      It should return two values, the first being the hash (slot 3) and the second being the block number (slot 4).
 
     ```
-    cast call 0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1 'anchors(uint32)(bytes32,bytes32)' 0
+    cast call --block <simulation-block-number> 0x190B6ecEE5A2ddF39669288B9B8daEa4641ae8b1 'anchors(uint32)(bytes32,bytes32)' 0
     ```
 
 - **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000006`
   - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000000`
-  - **After:** `0x000000000000000000000000000000000000000000000000686be86300000001`
+  - **After:** See validation instructions below
   - **Summary:** Packed slot with respectedGameType and retirementTimestamp initialized for Soneium
   - **Detail:** The non-zero values should correspond to recent timestamp values, as [set](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v4.0.0/packages/contracts-bedrock/src/dispute/AnchorStateRegistry.sol#L106) in the AnchorStateRegistry's initialize function.
+
+    **VALIDATION:** The value in slot 6 will differ from simulation to simulation based on chain state. The following cast command should return a value
+      matching the timestamp of the simulation:
+
+      ```
+      cast to-dec $(cast shr <after-value> 32)
+      ```
 
 - **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
   - **Decoded Kind:** `address`
@@ -327,30 +333,6 @@ In mainnet runbooks, this calldata should appear in [Action Plan](https://gov.op
   - **After:** [`0xEFEd7F38BB9BE74bBa583a1A5B7D0fe7C9D5787a`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L12)
   - **Summary:** ERC-1967 implementation upgraded to OptimismPortal v4.6.0
   - **Detail:** Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-
-  ---
-
-### `0x95703e0982140d16f8eba6d158fccede42f04a4c` ([SuperchainConfigProxy](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/superchain/configs/mainnet/soneium.toml#L61)) - Chain ID: 10
-
-- **Key:**          `0x0000000000000000000000000000000000000000000000000000000000000000`
-  - **Before:** `0x0000000000000000000000000000000000000000000000000000000000000001`
-  - **After:** `0x0000000000000000000009f7150d8c019bef34450d6920f6b3608cefdaf20002`
-  - **Summary:** Packed slot with guardian ([`0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/soneium.toml#L46)) and _initialized=2
-  - **Detail:** SuperchainConfig packed storage - guardian address + re-initialization flag
-
-- **Key:**          `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
-  - **Decoded Kind:** `address`
-  - **Before:** [`0x4da82a327773965b8d4D85Fa3dB8249b387458E7`](https://github.com/ethereum-optimism/superchain-registry/blob/6621a0f13ce523fe1bb8deea739fe37abe20f90d/validation/standard/standard-versions-sepolia.toml#L83)
-  - **After:** [`0xCe28685EB204186b557133766eCA00334EB441E4`](https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-mainnet.toml#L23)
-  - **Summary:** ERC-1967 implementation upgraded to SuperchainConfig v2.3.0
-  - **Detail:** Standard slot for storing the implementation address in a proxy contract that follows the ERC-1967 standard.
-
-- **Key:**          `0xd30e835d3f35624761057ff5b27d558f97bd5be034621e62240e5c0b784abe68`
-  - **Decoded Kind:** `address`
-  - **Before:** [`0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2`](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/configs/mainnet/soneium.toml#L46)
-  - **After:** `0x0000000000000000000000000000000000000000`
-  - **Summary:** pauseTimestamps mapping entry cleared for guardian
-  - **Detail:** Mapping slot for pauseTimestamps[guardian] - cleared during upgrade process
 
   ---
 
