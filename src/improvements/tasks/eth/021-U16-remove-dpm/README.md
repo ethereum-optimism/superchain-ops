@@ -1,6 +1,6 @@
-# 018-U16-remove-dpm: Remove Old Deputy Pause Module on Sepolia
+# 021-U16-remove-dpm: Remove Old Deputy Pause Module on Ethereum Mainnet
 
-Status: [DRAFT]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
