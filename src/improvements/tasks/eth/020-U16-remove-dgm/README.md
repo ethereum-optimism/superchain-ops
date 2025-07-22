@@ -1,6 +1,6 @@
 # 020-U16-remove-dgm: Remove Deputy Guardian Module on Ethereum Mainnet
 
-Status: [DRAFT]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
