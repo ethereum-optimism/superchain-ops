@@ -194,8 +194,6 @@ contract U13_to_U16 is OPCMTaskBase {
     function _getCodeExceptions() internal view virtual override returns (address[] memory) {
         return new address[](0);
     }
-
-
 }
 
 interface IOPCMPrestateUpdate {
