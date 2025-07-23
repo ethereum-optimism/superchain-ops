@@ -11,7 +11,7 @@ import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegis
 import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @title UnPauseSuperchainConfig before contract version 4.0.0. After version 4.0.0 please refer to the template UnpauseSuperchainConfigv400.
-contract UnPauseSuperchainConfig is L2TaskBase {
+contract UnpauseSuperchainConfig is L2TaskBase {
     using stdToml for string;
 
     // /// @notice Mapping of chain ID to configuration for the task.
