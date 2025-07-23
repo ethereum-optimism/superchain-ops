@@ -8,8 +8,8 @@ import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 
 import {Action} from "src/libraries/MultisigTypes.sol";
 
-/// @title UnpauseSuperchainConfigv400 template designed to unpause the SuperchainConfig contract after the U16 upgrade.
-contract UnpauseSuperchainConfigv400 is L2TaskBase {
+/// @title UnpauseSuperchainConfigV400 template designed to unpause the SuperchainConfig contract after the U16 upgrade.
+contract UnpauseSuperchainConfigV400 is L2TaskBase {
     using stdToml for string;
 
     /// @notice Identifier of the eth_lockbox used in the SuperchainConfig loaded from TOML and identifier is an address of 20 bytes that has an lockbox contract associated.

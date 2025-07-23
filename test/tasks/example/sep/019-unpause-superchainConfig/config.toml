@@ -1,6 +1,6 @@
 l2chains = [{name = "OP Sepolia Testnet", chainId = 11155420}] # e.g. [{name = "OP Mainnet", chainId = 10}]
 
-templateName = "UnpauseSuperchainConfigv400"
+templateName = "UnpauseSuperchainConfigV400"
 
 identifier="0x0000000000000000000000000000000000000000"
 
