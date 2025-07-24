@@ -86,16 +86,19 @@ contract U13_to_U16 is OPCMTaskBase {
 
         // === OPCM for U13 ===
         OPCM_V200 = tomlContent.readAddress(".addresses.OPCMUpgradeV200");
+        OPCM_TARGETS.push(OPCM_V200);
         require(IOPContractsManager(OPCM_V200).version().eq("1.6.0"), "Incorrect OPCM - - expected version 1.6.0");
         vm.label(OPCM_V200, "OPCMUpgradeV200");
 
         // === Upgrade to U14 and U15 ===
         OPCM_V300 = tomlContent.readAddress(".addresses.OPCMUpgradeV300");
+        OPCM_TARGETS.push(OPCM_V300);
         require(IOPContractsManager(OPCM_V300).version().eq("1.9.0"), "Incorrect OPCM - expected version 1.9.0");
         vm.label(OPCM_V300, "OPCMUpgradeV300");
 
         // === Upgrade to U16 ===
         OPCM_V400 = tomlContent.readAddress(".addresses.OPCMUpgradeV400");
+        OPCM_TARGETS.push(OPCM_V400);
         require(IOPContractsManager(OPCM_V400).version().eq("2.4.0"), "Incorrect OPCM - expected version 2.4.0");
         vm.label(OPCM_V400, "OPCMUpgradeV400");
 
@@ -137,34 +140,34 @@ contract U13_to_U16 is OPCMTaskBase {
         (bool success2,) = OPCM_V300.delegatecall(abi.encodeCall(IOPContractsManager.upgrade, (opChainConfigs)));
         require(success2, "OPCMUpgradeV300: upgrade call failed in _build.");
 
-        // === Upgrade to U15 ===
-        for (uint256 i = 0; i < chains.length; i++) {
-            uint256 chainId = chains[i].chainId;
-            opChainConfigs[i] = IOPContractsManager.OpChainConfig({
-                systemConfigProxy: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
-                proxyAdmin: IProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chainId)),
-                absolutePrestate: upgrades[chainId].absolutePrestate
-            });
-        }
+        // // === Upgrade to U15 ===
+        // for (uint256 i = 0; i < chains.length; i++) {
+        //     uint256 chainId = chains[i].chainId;
+        //     opChainConfigs[i] = IOPContractsManager.OpChainConfig({
+        //         systemConfigProxy: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
+        //         proxyAdmin: IProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chainId)),
+        //         absolutePrestate: upgrades[chainId].absolutePrestate
+        //     });
+        // }
 
-        (bool success3,) =
-            OPCM_V300.delegatecall(abi.encodeWithSelector(IOPCMPrestateUpdate.updatePrestate.selector, opChainConfigs));
-        require(success3, "OPCM.updatePrestate() failed");
+        // (bool success3,) =
+        //     OPCM_V300.delegatecall(abi.encodeWithSelector(IOPCMPrestateUpdate.updatePrestate.selector, opChainConfigs));
+        // require(success3, "OPCM.updatePrestate() failed");
 
-        // === Upgrade to U16 ===
-        for (uint256 i = 0; i < chains.length; i++) {
-            uint256 chainId = chains[i].chainId;
-            opChainConfigs[i] = IOPContractsManager.OpChainConfig({
-                systemConfigProxy: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
-                proxyAdmin: IProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chainId)),
-                absolutePrestate: upgrades[chainId].absolutePrestate
-            });
-        }
+        // // === Upgrade to U16 ===
+        // for (uint256 i = 0; i < chains.length; i++) {
+        //     uint256 chainId = chains[i].chainId;
+        //     opChainConfigs[i] = IOPContractsManager.OpChainConfig({
+        //         systemConfigProxy: ISystemConfig(superchainAddrRegistry.getAddress("SystemConfigProxy", chainId)),
+        //         proxyAdmin: IProxyAdmin(superchainAddrRegistry.getAddress("ProxyAdmin", chainId)),
+        //         absolutePrestate: upgrades[chainId].absolutePrestate
+        //     });
+        // }
 
-        // Delegatecall the OPCM.upgrade() function
-        (bool success4,) =
-            OPCM_V400.delegatecall(abi.encodeWithSelector(IOPContractsManager.upgrade.selector, opChainConfigs));
-        require(success4, "OPCMUpgradeV400: Delegatecall failed in _build.");
+        // // Delegatecall the OPCM.upgrade() function
+        // (bool success4,) =
+        //     OPCM_V400.delegatecall(abi.encodeWithSelector(IOPContractsManager.upgrade.selector, opChainConfigs));
+        // require(success4, "OPCMUpgradeV400: Delegatecall failed in _build.");
     }
 
     /// @notice Validates final post-upgrade state
