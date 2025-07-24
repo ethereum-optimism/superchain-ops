@@ -12,7 +12,6 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 contract UnpauseSuperchainConfigV400 is L2TaskBase {
     using stdToml for string;
 
-
     /// @notice Identifier of the eth_lockbox used in the SuperchainConfig
     /// @dev Address (20 bytes) that has an associated lockbox contract, loaded from TOML
 
