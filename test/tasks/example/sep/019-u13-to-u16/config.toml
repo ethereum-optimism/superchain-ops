@@ -21,6 +21,7 @@ OPCMUpgradeV200 = "0x1b25f566336f47bc5e0036d66e142237dcf4640b" # version 1.6.0 h
 OPCMUpgradeV300 = "0xfBceeD4DE885645fBdED164910E10F52fEBFAB35" # version 1.9.0 https://github.com/ethereum-optimism/superchain-registry/blob/212c60902834aba05d73d33bc2fcefc21fc3a7af/validation/standard/standard-versions-mainnet.toml#L82
 # StandardValidatorV300 = "0xf989Df70FB46c581ba6157Ab335c0833bA60e1f0" # 
 
+# https://oplabs.notion.site/Sepolia-Release-Checklist-op-contracts-v4-0-0-rc-8-216f153ee1628095ba5be322a0bf9364
 OPCMUpgradeV400 = "0x1ac76f0833bbfccc732cadcc3ba8a3bbd0e89c3d" # version 2.4.0 https://github.com/ethereum-optimism/superchain-registry/blob/212c60902834aba05d73d33bc2fcefc21fc3a7af/validation/standard/standard-versions-mainnet.toml#L22
 StandardValidatorV400 = "0xaaabe70a4198ab9e99e1a22b1afa0a43cc7f2c79" # 
 
