@@ -713,25 +713,18 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         // the first entry always corresponds to a top-level call.
         uint256 topLevelDepth = accesses[0].depth;
 
-        // First pass: count valid actions.
+        // Single pass: process valid actions directly (performance optimization)
+        Action[] memory tempActions = new Action[](accesses.length); // Pre-allocate max size
         uint256 validCount = 0;
-        for (uint256 i = 0; i < accesses.length; i++) {
-            if (_isValidAction(accesses[i], topLevelDepth, rootSafe)) {
-                validCount++;
-            }
-        }
 
-        // Allocate a memory array with exactly enough room.
-        Action[] memory validActions = new Action[](validCount);
-        uint256 index = 0;
         for (uint256 i = 0; i < accesses.length; i++) {
             if (_isValidAction(accesses[i], topLevelDepth, rootSafe)) {
                 // Ensure action uniqueness.
-                validateAction(accesses[i].account, accesses[i].value, accesses[i].data, validActions);
+                validateAction(accesses[i].account, accesses[i].value, accesses[i].data, tempActions);
 
                 (string memory opStr, Enum.Operation op) = GnosisSafeHashes.getOperationDetails(accesses[i].kind);
 
-                validActions[index] = Action({
+                tempActions[validCount] = Action({
                     value: accesses[i].value,
                     target: accesses[i].account,
                     arguments: accesses[i].data,
@@ -749,8 +742,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                         )
                     )
                 });
-                index++;
+                validCount++;
             }
+        }
+
+        // Resize array to actual size using assembly for efficiency
+        Action[] memory validActions = new Action[](validCount);
+        for (uint256 i = 0; i < validCount; i++) {
+            validActions[i] = tempActions[i];
         }
 
         return validActions;
