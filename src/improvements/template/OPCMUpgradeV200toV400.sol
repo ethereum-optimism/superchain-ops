@@ -18,6 +18,8 @@ import {OPCMTaskBase} from "src/improvements/tasks/types/OPCMTaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
+/// @notice Use this template for chains that are on U12 and need to be upgraded to U16 (inclusive).
+///         The template applies each required OPCM upgrade step (U13, U14, U15, U16) in sequence.
 contract OPCMUpgradeV200toV400 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
