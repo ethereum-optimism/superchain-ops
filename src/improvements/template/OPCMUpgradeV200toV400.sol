@@ -18,7 +18,7 @@ import {OPCMTaskBase} from "src/improvements/tasks/types/OPCMTaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
-contract U13_to_U16 is OPCMTaskBase {
+contract OPCMUpgradeV200toV400 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
 
