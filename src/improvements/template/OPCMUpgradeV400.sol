@@ -71,7 +71,8 @@ contract OPCMUpgradeV400 is OPCMTaskBase {
             upgrades[_upgrades[i].chainId] = _upgrades[i];
         }
 
-        OPCM = tomlContent.readAddress(".addresses.OPCM");
+        address OPCM = tomlContent.readAddress(".addresses.OPCM");
+        OPCM_TARGETS.push(OPCM);
         require(IOPContractsManager(OPCM).version().eq("2.4.0"), "Incorrect OPCM");
         vm.label(OPCM, "OPCM");
 
@@ -107,7 +108,7 @@ contract OPCMUpgradeV400 is OPCMTaskBase {
 
         // Delegatecall the OPCM.upgrade() function
         (bool success,) =
-            OPCM.delegatecall(abi.encodeWithSelector(IOPContractsManager.upgrade.selector, opChainConfigs));
+            OPCM_TARGETS[0].delegatecall(abi.encodeWithSelector(IOPContractsManager.upgrade.selector, opChainConfigs));
         require(success, "OPCMUpgradeV400: Delegatecall failed in _build.");
     }
 
