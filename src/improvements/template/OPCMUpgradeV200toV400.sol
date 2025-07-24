@@ -29,7 +29,8 @@ contract OPCMUpgradeV200toV400 is OPCMTaskBase {
 
     /// @notice Address of the OPCM for U13, U14, U15 and U16.
     address public OPCM_V200;
-    address public OPCM_V300; // This address is used for U14 and U15.
+    /// @notice Address used for U14 and U15 upgrades.
+    address public OPCM_V300;
     address public OPCM_V400;
 
     /// @notice Prestates for the OPCM upgrades.
