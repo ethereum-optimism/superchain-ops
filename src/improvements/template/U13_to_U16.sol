@@ -87,7 +87,7 @@ contract U13_to_U16 is OPCMTaskBase {
         // === OPCM for U13 ===
         OPCM_V200 = tomlContent.readAddress(".addresses.OPCMUpgradeV200");
         OPCM_TARGETS.push(OPCM_V200);
-        require(IOPContractsManager(OPCM_V200).version().eq("1.6.0"), "Incorrect OPCM - - expected version 1.6.0");
+        require(IOPContractsManager(OPCM_V200).version().eq("1.6.0"), "Incorrect OPCM - expected version 1.6.0");
         vm.label(OPCM_V200, "OPCMUpgradeV200");
 
         // === Upgrade to U14 and U15 ===
