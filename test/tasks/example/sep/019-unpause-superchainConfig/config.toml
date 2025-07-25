@@ -2,7 +2,6 @@ l2chains = [{name = "OP Sepolia Testnet", chainId = 11155420}] # e.g. [{name = "
 
 templateName = "UnpauseSuperchainConfigV400"
 
-safeAddressString = "SecurityCouncil"
 identifier="0x0000000000000000000000000000000000000000"
 
 
