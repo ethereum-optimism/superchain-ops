@@ -134,17 +134,15 @@ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../sin
 
 Stacked simulations are supported. To use this feature, you can use the following command:
 ```bash
-just simulate-stack <network> [task] [owner-address]
+just simulate-stack <network> [task] [child-safe-name-depth-1] [child-safe-name-depth-2]
 ```
 
 e.g. 
 ```bash
-# Simulate all tasks up to and including the latest non-terminal task.
-just simulate-stack eth
-# OR to simulate up to and including a specific task. Useful if you don't care about simulating tasks after a certain point.
-just simulate-stack eth 002-opcm-upgrade-v200
-# OR to simulate up to and including a specific task, and specify the owner address to simulate as (useful for getting the correct domain and message hash).
-just simulate-stack eth 002-opcm-upgrade-v200 0x847B5c174615B1B7fDF770882256e2D3E95b9D92
+just simulate-stack eth                                       # Simulate all tasks for ethereum
+just simulate-stack eth 001-example                           # Simulate specific task on root safe
+just simulate-stack eth 001-example foundation                # Simulate on foundation child safe
+just simulate-stack eth 001-example base-nested base-council  # Simulate on nested architecture
 ```
 
 Another useful command is to list the tasks that will be simulated in a stacked simulation:
@@ -163,10 +161,10 @@ just list-stack eth <your-task-name>
 
 > **Note**: Only ledger signing is supported for stacked signing.
 
-To sign a task, you can use the `just sign` command in `src/improvements/justfile`. This command will simulate all tasks up to and including the specified task, and then prompt you to sign the transaction for the final task in the stack using your Ledger device.
+To sign a task, you can use the `just sign-stack` command in `src/improvements/justfile`. This command will simulate all tasks up to and including the specified task, and then prompt you to sign the transaction for the final task in the stack using your Ledger device.
 
 ```bash
-just sign <network> <task> [owner-safe-name] [hd-path]
+just sign-stack <network> <task> [child-safe-name-depth-1] [child-safe-name-depth-2] [hd-path]
 ```
 
 **Example:**
@@ -174,7 +172,7 @@ just sign <network> <task> [owner-safe-name] [hd-path]
 To sign the `002-opcm-upgrade-v200` task on the Ethereum mainnet as the `foundation` safe, you would run:
 
 ```bash
-just sign eth 002-opcm-upgrade-v200 foundation
+just sign-stack eth 002-opcm-upgrade-v200 foundation
 ```
 
 The command will then:
