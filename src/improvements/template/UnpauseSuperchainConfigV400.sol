@@ -43,7 +43,7 @@ contract UnpauseSuperchainConfigV400 is L2TaskBase {
     /// @notice Write the calls that you want to execute for the task.
     function _build(address) internal override {
         // Make sure that the SuperchainConfig is paused before unpausing for the identifier.
-        assertEq(sc.paused(identifier), true, "ERR100: SuperchainConfig should be Paused for the identifier provided.");
+        assertEq(sc.paused(identifier), true, "ERR100: SuperchainConfig should be paused for the identifier provided.");
 
         /// Unpause the SuperchainConfig contract through the identifier.
         sc.unpause(identifier);
