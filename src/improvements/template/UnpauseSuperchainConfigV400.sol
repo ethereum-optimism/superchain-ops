@@ -14,7 +14,6 @@ contract UnpauseSuperchainConfigV400 is L2TaskBase {
 
     /// @notice Identifier of the eth_lockbox used in the SuperchainConfig
     /// @dev Address (20 bytes) that has an associated lockbox contract, loaded from TOML
-
     address public identifier;
 
     /// @notice SuperchainConfig SC contract instance
