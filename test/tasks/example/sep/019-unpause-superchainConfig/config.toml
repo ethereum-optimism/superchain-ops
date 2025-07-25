@@ -6,7 +6,7 @@ identifier="0x0000000000000000000000000000000000000000"
 
 
 [stateOverrides]
-# Override the state of the superchain wide pause to 1 to unpause during the task. 
+# Override the state of the superchain wide pause to timestamp in the future,  to make the unpausing during this task. 
 "0xC2Be75506d5724086DEB7245bd260Cc9753911Be" = [ # Slot calculation by cast index address 0x0000000000000000000000000000000000000000 1
      {key = "0xa6eef7e35abe7026729641147f7915573c7e97b47efa546f5f6e3230263bcb49", value = "0x000000000000000000000000000000000000000000000000ffffffffff87b31e"} # 0xffffffffff87b31e represent the max timestamp possible - 1 to make sure this always paused. 
 ]
