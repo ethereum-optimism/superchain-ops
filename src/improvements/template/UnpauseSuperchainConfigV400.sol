@@ -38,13 +38,12 @@ contract UnpauseSuperchainConfigV400 is L2TaskBase {
         identifier = vm.parseTomlAddress(file, ".identifier"); // Get the identifier of the eth_lockbox from the TOML file
         // Load the SuperchainConfig contract.
         sc = ISuperchainConfig(superchainAddrRegistry.get("SuperchainConfig"));
+        // Make sure that the SuperchainConfig is paused before unpausing for the identifier.
+        assertEq(sc.paused(identifier), true, "ERR100: SuperchainConfig should be paused for the identifier provided.");
     }
 
     /// @notice Write the calls that you want to execute for the task.
     function _build(address) internal override {
-        // Make sure that the SuperchainConfig is paused before unpausing for the identifier.
-        assertEq(sc.paused(identifier), true, "ERR100: SuperchainConfig should be paused for the identifier provided.");
-
         /// Unpause the SuperchainConfig contract through the identifier.
         sc.unpause(identifier);
     }
