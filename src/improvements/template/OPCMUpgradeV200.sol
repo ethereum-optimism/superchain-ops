@@ -65,7 +65,8 @@ contract OPCMUpgradeV200 is OPCMTaskBase {
             absolutePrestates[upgrades[i].chainId] = upgrades[i].absolutePrestate;
         }
 
-        OPCM = tomlContent.readAddress(".addresses.OPCM");
+        address OPCM = tomlContent.readAddress(".addresses.OPCM");
+        OPCM_TARGETS.push(OPCM);
         require(IOPContractsManager(OPCM).version().eq("1.6.0"), "Incorrect OPCM");
         vm.label(OPCM, "OPCM");
 
@@ -89,7 +90,7 @@ contract OPCMUpgradeV200 is OPCMTaskBase {
             });
         }
 
-        (bool success,) = OPCM.delegatecall(abi.encodeCall(IOPContractsManager.upgrade, (opChainConfigs)));
+        (bool success,) = OPCM_TARGETS[0].delegatecall(abi.encodeCall(IOPContractsManager.upgrade, (opChainConfigs)));
         require(success, "OPCMUpgradeV200: upgrade call failed in _build.");
     }
 

@@ -63,7 +63,8 @@ contract OPCMTaskBaseTemplate is OPCMTaskBase {
             upgrades[_upgrades[i].chainId] = _upgrades[i];
         }
 
-        OPCM = tomlContent.readAddress(".addresses.OPCM");
+        address OPCM = tomlContent.readAddress(".addresses.OPCM");
+        OPCM_TARGETS.push(OPCM);
         require(false, "TODO: Perform an OPCM version check e.g. see comments below.");
         // require(IOPContractsManager(OPCM).version().eq("1.6.0"), "Incorrect OPCM");
         vm.label(OPCM, "OPCM");
@@ -105,7 +106,7 @@ contract OPCMTaskBaseTemplate is OPCMTaskBase {
         // TODO: This may execute the OPCM.upgrade() function or a different OPCM function.
         // We're using the OPCM.upgrade() function as an example here.
         (bool success,) =
-            OPCM.delegatecall(abi.encodeWithSelector(IOPContractsManager.upgrade.selector, opChainConfigs));
+            OPCM_TARGETS[0].delegatecall(abi.encodeWithSelector(IOPContractsManager.upgrade.selector, opChainConfigs));
         require(success, "OPCMTaskBaseTemplate: Delegatecall failed in _build.");
     }
 
