@@ -3,6 +3,7 @@ pragma solidity 0.8.15;
 
 import {Test} from "forge-std/Test.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {Solarray} from "lib/optimism/packages/contracts-bedrock/scripts/libraries/Solarray.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {GasConfigTemplate} from "test/tasks/mock/template/GasConfigTemplate.sol";
@@ -642,10 +643,10 @@ contract RegressionTest is Test {
             // TODO: fix when we support > 1 level of nesting.
             address childSafe = allSafes[0];
             allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
-            (, actions,,,) = multisigTask.simulate(taskConfigFilePath, childSafe);
+            (, actions,,,) = multisigTask.simulate(taskConfigFilePath, Solarray.addresses(childSafe));
         } else {
             allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
-            (, actions,,,) = multisigTask.simulate(taskConfigFilePath);
+            (, actions,,,) = multisigTask.simulate(taskConfigFilePath, new address[](0));
         }
     }
 

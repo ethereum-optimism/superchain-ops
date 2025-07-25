@@ -99,7 +99,7 @@ contract TaskManager is Script {
         // Don't require a VALIDATION markdown file.
     }
 
-    function executeTask(TaskConfig memory config, address optionalOwnerAddress)
+    function executeTask(TaskConfig memory config, address[] memory _childSafes)
         public
         returns (VmSafe.AccountAccess[] memory accesses_, bytes32 normalizedHash_, bytes memory dataToSign_)
     {
@@ -115,7 +115,7 @@ contract TaskManager is Script {
         string memory taskName = parts[parts.length - 1];
 
         (accesses_, normalizedHash_, dataToSign_) =
-            execute(config, task, optionalOwnerAddress, taskName, formattedParentMultisig);
+            execute(config, task, _childSafes, taskName, formattedParentMultisig);
         require(
             checkNormalizedHash(normalizedHash_, config),
             string.concat(
@@ -138,48 +138,51 @@ contract TaskManager is Script {
 
     /// @notice Executes a task based on its configuration.
     function execute(
-        TaskConfig memory config,
-        MultisigTask task,
-        address optionalOwnerAddress,
-        string memory taskName,
-        string memory formattedParentMultisig
+        TaskConfig memory _config,
+        MultisigTask _task,
+        address[] memory _childSafes,
+        string memory _taskName,
+        string memory _formattedParentMultisig
     ) private returns (VmSafe.AccountAccess[] memory accesses_, bytes32 normalizedHash_, bytes memory dataToSign_) {
         string memory line =
             unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
-        if (config.isNested) {
-            IGnosisSafe parentMultisig = IGnosisSafe(config.parentMultisig);
+        if (_config.isNested) {
+            IGnosisSafe parentMultisig = IGnosisSafe(_config.parentMultisig);
             address[] memory owners = parentMultisig.getOwners();
             require(
                 owners.length > 0,
                 string.concat(
                     "TaskManager: No owners found for parent multisig: ",
-                    Strings.toHexString(uint256(uint160(config.parentMultisig)), 20)
+                    Strings.toHexString(uint256(uint160(_config.parentMultisig)), 20)
                 )
             );
 
-            address ownerAddress = optionalOwnerAddress != address(0) ? optionalOwnerAddress : owners[0];
+            address leafChildSafe = _childSafes.length > 0 ? _childSafes[0] : owners[0];
             // forgefmt: disable-start
-            console.log(string.concat("SIMULATING NESTED TASK (", taskName, ") FOR OWNER: ", vm.toString(ownerAddress), " ON ", formattedParentMultisig));
+            console.log(string.concat("SIMULATING NESTED TASK (", _taskName, ") ON NESTED SAFE: ", vm.toString(leafChildSafe), " ON ", _formattedParentMultisig));
             // forgefmt: disable-end
             console.log(line.green().bold());
             console.log("");
             require(
-                Utils.contains(owners, ownerAddress),
+                Utils.contains(owners, leafChildSafe),
                 string.concat(
-                    "TaskManager: ownerAddress (",
-                    vm.toString(ownerAddress),
+                    "TaskManager: child safe address (",
+                    vm.toString(leafChildSafe),
                     ") must be an owner of the parent multisig: ",
-                    vm.toString(config.parentMultisig)
+                    vm.toString(_config.parentMultisig)
                 )
             );
-            (accesses_,, normalizedHash_, dataToSign_,) = task.simulate(config.configPath, ownerAddress);
+            (accesses_,, normalizedHash_, dataToSign_,) = _task.simulate(_config.configPath, _childSafes);
         } else {
             // forgefmt: disable-start
-            console.log(string.concat("SIMULATING SINGLE TASK: ", taskName, " ON ", formattedParentMultisig));
+            console.log(string.concat("SIMULATING SINGLE TASK: ", _taskName, " ON ", _formattedParentMultisig));
             console.log(line.green().bold());
             console.log("");
             // forgefmt: disable-end
-            (accesses_,, normalizedHash_, dataToSign_,) = task.simulate(config.configPath);
+            require(
+                _childSafes.length == 0, "TaskManager: child safes provided but not expected for a single safe task."
+            );
+            (accesses_,, normalizedHash_, dataToSign_,) = _task.simulate(_config.configPath, new address[](0));
         }
     }
 

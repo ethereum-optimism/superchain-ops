@@ -7,6 +7,7 @@ import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {Solarray} from "lib/optimism/packages/contracts-bedrock/scripts/libraries/Solarray.sol";
 
 import {MockMultisigTask} from "test/tasks/mock/MockMultisigTask.sol";
 import {MockDisputeGameTask} from "test/tasks/mock/MockDisputeGameTask.sol";
@@ -42,7 +43,7 @@ contract StateOverrideManagerUnitTest is Test {
         vm.expectRevert(
             "StateOverrideManager: User-defined override is attempting to overwrite an existing default override for contract: 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
         );
-        task.simulate(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
+        task.simulate(fileName, Solarray.addresses(SECURITY_COUNCIL_CHILD_MULTISIG));
         helper.removeFile(fileName);
     }
 
@@ -74,7 +75,7 @@ contract StateOverrideManagerUnitTest is Test {
         string memory fileName = helper.createTempTomlFile(toml, TESTING_DIRECTORY, "002");
         MultisigTask task = new MockMultisigTask();
         vm.expectRevert();
-        task.simulate(fileName);
+        task.simulate(fileName, new address[](0));
         helper.removeFile(fileName);
     }
 
@@ -275,8 +276,9 @@ contract StateOverrideManagerUnitTest is Test {
             "templateName = \"DisputeGameUpgradeTemplate\"\n" "\n"
             "implementations = [{gameType = 0, implementation = \"0x0000000FFfFFfffFffFfFffFFFfffffFffFFffFf\", l2ChainId = 84532}]\n";
         string memory fileName = helper.createTempTomlFile(nonNestedSafeToml, TESTING_DIRECTORY, "011");
+
         MockDisputeGameTask dgt = new MockDisputeGameTask();
-        (,,,, address rootSafe) = dgt.simulate(fileName);
+        (,,,, address rootSafe) = dgt.simulate(fileName, new address[](0));
 
         // Only parent overrides will be checked because child multisig is not set.
         Simulation.StateOverride[] memory allOverrides = assertDefaultStateOverrides(1, dgt, address(0), rootSafe);
@@ -436,7 +438,7 @@ contract StateOverrideManagerUnitTest is Test {
         vm.expectRevert(
             "StateOverrideManager: Failed to reencode overrides, ensure any decimal numbers are not in quotes"
         );
-        task.simulate(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
+        task.simulate(fileName, Solarray.addresses(SECURITY_COUNCIL_CHILD_MULTISIG));
         helper.removeFile(fileName);
     }
 
@@ -451,7 +453,7 @@ contract StateOverrideManagerUnitTest is Test {
         returns (MultisigTask task, address rootSafe)
     {
         task = new MockMultisigTask();
-        (,,,, rootSafe) = task.simulate(fileName, childMultisig);
+        (,,,, rootSafe) = task.simulate(fileName, Solarray.addresses(childMultisig));
         return (task, rootSafe);
     }
 

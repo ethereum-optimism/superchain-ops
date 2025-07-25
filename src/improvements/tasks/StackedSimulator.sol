@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-import {Script} from "forge-std/Script.sol";
 import {TaskManager} from "src/improvements/tasks/TaskManager.sol";
-import {LibString} from "@solady/utils/LibString.sol";
 import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {Utils} from "src/libraries/Utils.sol";
+import {TaskConfig} from "src/libraries/MultisigTypes.sol";
+import {LibString} from "@solady/utils/LibString.sol";
 import {console} from "forge-std/console.sol";
 import {VmSafe} from "forge-std/Vm.sol";
-import {TaskConfig} from "src/libraries/MultisigTypes.sol";
+import {Script} from "forge-std/Script.sol";
+import {Solarray} from "lib/optimism/packages/contracts-bedrock/scripts/libraries/Solarray.sol";
 
 /// This script enables stacked simulations. Stacked simulations allow us to simulate a task
 /// that depends on the state of another task that hasn't been executed yet.
@@ -23,6 +24,43 @@ contract StackedSimulator is Script {
         string name;
     }
 
+    /// @notice Simulate a task that has nested safe architecture with a child safe at depth 2, a child safe at depth 1, and a root safe.
+    /// If childSafeDepth2 is not provided, the task will be simulated on the childSafeDepth1 safe.
+    function simulateStack(string memory network, string memory task, address childSafeDepth2, address childSafeDepth1)
+        public
+    {
+        require(
+            childSafeDepth1 != address(0) || childSafeDepth2 != address(0),
+            "StackedSimulator: At least one child safe must be provided."
+        );
+        address[] memory childSafes;
+        if (childSafeDepth2 != address(0)) {
+            require(
+                childSafeDepth1 != address(0),
+                "StackedSimulator: childSafeDepth1 must be provided when childSafeDepth2 is specified."
+            );
+            childSafes = Solarray.addresses(childSafeDepth2, childSafeDepth1);
+        } else {
+            childSafes = Solarray.addresses(childSafeDepth1);
+        }
+        _simulateStack(network, task, childSafes);
+    }
+
+    /// @notice Simulate a task that has nested safe architecture with a child safe at depth 1 and a root safe.
+    /// If childSafeDepth1 is not provided, the task will be simulated on the root safe.
+    function simulateStack(string memory network, string memory task, address childSafeDepth1) public {
+        if (childSafeDepth1 != address(0)) {
+            _simulateStack(network, task, Solarray.addresses(childSafeDepth1));
+        } else {
+            simulateStack(network, task);
+        }
+    }
+
+    /// @notice Simulate a task that only has a root safe and no nested safes.
+    function simulateStack(string memory network, string memory task) public {
+        _simulateStack(network, task, new address[](0));
+    }
+
     /// @notice Simulates the execution of all non-terminal tasks for a given network. No gas metering is used.
     function simulateStack(string memory network) public noGasMetering {
         TaskInfo[] memory tasks = getNonTerminalTasks(network);
@@ -30,21 +68,16 @@ contract StackedSimulator is Script {
             console.log("No non-terminal tasks found for network: %s", network);
             return;
         }
-        simulateStack(network, tasks[tasks.length - 1].name, new address[](0));
+        _simulateStack(network, tasks[tasks.length - 1].name, new address[](0));
     }
 
-    /// The optionalOwnerAddresses array is used to specify the owner addresses for each nested task. It must be either empty or
-    /// have the same length as the number of tasks. If it is empty, the first owner on the parent multisig will be used for each task.
-    function simulateStack(string memory _network, string memory _task, address[] memory _optionalOwnerAddresses)
-        public
+    /// @notice Simulates a stack of tasks with a given network, task, and child safes. The child safes can be empty.
+    function _simulateStack(string memory _network, string memory _task, address[] memory _targetTaskChildSafes)
+        private
     {
         TaskManager taskManager = new TaskManager();
         TaskInfo[] memory tasks = getNonTerminalTasks(_network, _task);
         TaskConfig[] memory taskConfigs = new TaskConfig[](tasks.length);
-        require(
-            _optionalOwnerAddresses.length == 0 || _optionalOwnerAddresses.length == tasks.length,
-            "StackedSimulator: Invalid owner addresses array length. Must be empty or match the number of tasks being simulated."
-        );
 
         // Setting this env variable to true by default to reduce logging for stack simulations.
         // Use SIGNING_MODE_IN_PROGRESS=false to see print the full output.
@@ -53,20 +86,19 @@ contract StackedSimulator is Script {
         }
 
         for (uint256 i = 0; i < tasks.length; i++) {
-            // eip712sign will sign the first occurrence of the data to sign in the terminal.
-            // Because of this, we only want to print the data to sign for the last task (i.e. the task that is being signed).
-            bool isLastTask = i == tasks.length - 1;
-            if (Utils.isFeatureEnabled("STACKED_SIGNING_MODE")) {
-                // Only ever suppress printing data to sign for stacked signing.
-                vm.setEnv("SUPPRESS_PRINTING_DATA_TO_SIGN", isLastTask ? "false" : "true");
-            }
-
             taskConfigs[i] = taskManager.parseConfig(tasks[i].path);
-            // If we wanted to ensure that all Tenderly links worked for each task, we would need to build a cumulative list of all state overrides
-            // and append them to the next task's config.toml file. For now, we are skipping this functionality.
-            address ownerAddress =
-                _optionalOwnerAddresses.length == tasks.length ? _optionalOwnerAddresses[i] : address(0);
-            taskManager.executeTask(taskConfigs[i], ownerAddress);
+            bool isLastTask = i == tasks.length - 1;
+            if (isLastTask) {
+                // eip712sign will sign the first occurrence of the data to sign in the terminal.
+                // Because of this, we only want to print the data to sign for the last task (i.e. the task that is being signed).
+                if (Utils.isFeatureEnabled("STACKED_SIGNING_MODE")) {
+                    // Only ever suppress printing data to sign for stacked signing.
+                    vm.setEnv("SUPPRESS_PRINTING_DATA_TO_SIGN", "false");
+                }
+                taskManager.executeTask(taskConfigs[i], _targetTaskChildSafes);
+            } else {
+                taskManager.executeTask(taskConfigs[i], new address[](0)); // Empty array because child safes are only used for the last task.
+            }
         }
     }
 

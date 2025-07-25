@@ -52,14 +52,14 @@ simulate hdPath='0':
     echo "Using fork block number from env: ${forkBlockNumber}"
     fork_block_arg="--fork-block-number ${forkBlockNumber}"
   fi
-
+  
   echo "⏳ Task simulation in progress. Some tasks take longer than others..."
   forge build
   forge script ${script} \
     ${fork_block_arg} \
     --rpc-url ${rpcUrl} \
     --sender ${signer} \
-    --sig "simulate(string)" ${config}
+    --sig "simulate(string,address[])" ${config} "[]"
 
 sign hdPath='0' ledger='true':
   #!/usr/bin/env bash
@@ -94,7 +94,7 @@ sign hdPath='0' ledger='true':
   $(git rev-parse --show-toplevel)/bin/eip712sign ${signer_args} -- \
   forge script ${script} \
     --rpc-url ${rpcUrl} \
-    --sig "simulate(string)" ${config}
+    --sig "simulate(string)" ${config} "[]"
 
 execute hdPath='0' ledger='true':
   #!/usr/bin/env bash
@@ -116,7 +116,7 @@ execute hdPath='0' ledger='true':
 
   forge build
   forge script --fork-url ${rpcUrl} ${script} \
-    --sig "execute(string,bytes)" ${config} ${signatures} \
+    --sig "execute(string,bytes,address[])" ${config} ${signatures} "[]" \
     --broadcast \
     --sender ${sender} \
     ${signer_args}

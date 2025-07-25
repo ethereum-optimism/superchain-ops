@@ -125,7 +125,7 @@ contract MultisigTaskUnitTest is Test {
         stdstore.target(address(taskHashMismatch)).sig("getBuildStarted()").checked_write(uint256(0));
 
         vm.expectRevert("MultisigTask: hash mismatch");
-        taskHashMismatch.simulate(fileName, securityCouncilChildMultisig);
+        taskHashMismatch.simulate(fileName, Solarray.addresses(securityCouncilChildMultisig));
         MultisigTaskTestHelper.removeFile(fileName);
     }
 
@@ -153,7 +153,7 @@ contract MultisigTaskUnitTest is Test {
         public
         returns (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions)
     {
-        (accountAccesses, actions,,,) = task.simulate(taskConfigFilePath, childMultisig);
+        (accountAccesses, actions,,,) = task.simulate(taskConfigFilePath, Solarray.addresses(childMultisig));
 
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);
 

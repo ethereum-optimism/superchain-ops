@@ -9,6 +9,7 @@ import {GameTypes} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {LibSort} from "@solady/utils/LibSort.sol";
 import {Test} from "forge-std/Test.sol";
 import {VmSafe} from "forge-std/Vm.sol";
+import {Solarray} from "lib/optimism/packages/contracts-bedrock/scripts/libraries/Solarray.sol";
 
 import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
@@ -64,7 +65,10 @@ contract NestedMultisigTaskTest is Test {
         multisigTask = new DisputeGameUpgradeTemplate();
         string memory configFilePath =
             MultisigTaskTestHelper.createTempTomlFile(taskConfigToml, TESTING_DIRECTORY, "000");
-        (accountAccesses, actions,,, rootSafe) = multisigTask.simulate(configFilePath, childMultisig);
+
+        (accountAccesses, actions,,, rootSafe) =
+            multisigTask.simulate(configFilePath, Solarray.addresses(childMultisig));
+
         MultisigTaskTestHelper.removeFile(configFilePath);
         addrRegistry = multisigTask.addrRegistry();
         superchainAddrRegistry = SuperchainAddressRegistry(AddressRegistry.unwrap(addrRegistry));
@@ -170,8 +174,10 @@ contract NestedMultisigTaskTest is Test {
         multisigTask = new OPCMUpgradeV200();
         string memory opcmTaskConfigFilePath = "test/tasks/example/sep/002-opcm-upgrade-v200/config.toml";
 
+        address[] memory childSafes = Solarray.addresses(foundationChildMultisig);
+
         (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions,,, address rootSafe) =
-            multisigTask.simulate(opcmTaskConfigFilePath, foundationChildMultisig);
+            multisigTask.simulate(opcmTaskConfigFilePath, childSafes);
 
         address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe, foundationChildMultisig);
         uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
@@ -199,20 +205,24 @@ contract NestedMultisigTaskTest is Test {
         // Snapshot before running the task so we can roll back to this pre-state
         uint256 newSnapshot = vm.snapshotState();
 
-        (accountAccesses, actions,,,) = multisigTask.simulate(opcmTaskConfigFilePath, foundationChildMultisig);
+        (accountAccesses, actions,,,) = multisigTask.simulate(opcmTaskConfigFilePath, childSafes);
         bytes32 taskHash = multisigTask.getHash(
             testData.rootSafeCalldata, address(testData.rootSafe), 0, testData.originalRootSafeNonce, testData.allSafes
         );
 
         vm.revertToState(newSnapshot);
-        multisigTask.execute(opcmTaskConfigFilePath, prepareSignatures(address(testData.rootSafe), taskHash));
+        multisigTask.execute(
+            opcmTaskConfigFilePath, prepareSignatures(address(testData.rootSafe), taskHash), childSafes
+        );
     }
 
     function testMockDisputeGameWithCodeExceptionsWorks() public {
         vm.createSelectFork("mainnet");
         string memory configFilePath = "test/tasks/mock/configs/MockDisputeGameUpgradesToEOA.toml";
         multisigTask = new MockDisputeGameTask();
-        (,,,, address rootSafe) = multisigTask.simulate(configFilePath, SECURITY_COUNCIL_CHILD_MULTISIG);
+
+        (,,,, address rootSafe) =
+            multisigTask.simulate(configFilePath, Solarray.addresses(SECURITY_COUNCIL_CHILD_MULTISIG));
         assertEq(multisigTask.isNestedSafe(rootSafe), true, "Expected isNestedSafe to be true");
     }
 
@@ -224,7 +234,8 @@ contract NestedMultisigTaskTest is Test {
         uint256 start = vm.snapshotState();
 
         multisigTask.simulate(
-            "test/tasks/mock/configs/DisputeGameUpgradeCodeException.toml", SECURITY_COUNCIL_CHILD_MULTISIG
+            "test/tasks/mock/configs/DisputeGameUpgradeCodeException.toml",
+            Solarray.addresses(SECURITY_COUNCIL_CHILD_MULTISIG)
         );
         addrRegistry = multisigTask.addrRegistry();
         SuperchainAddressRegistry superchainAddrReg = SuperchainAddressRegistry(AddressRegistry.unwrap(addrRegistry));
@@ -242,7 +253,7 @@ contract NestedMultisigTaskTest is Test {
             vm.toString(bytes32(0x0000000000000000000000000000000fffffffffffffffffffffffffffffffff))
         );
         vm.expectRevert(bytes(err));
-        multisigTask.simulate(configFilePath, SECURITY_COUNCIL_CHILD_MULTISIG);
+        multisigTask.simulate(configFilePath, Solarray.addresses(SECURITY_COUNCIL_CHILD_MULTISIG));
     }
 
     /// @notice Validate the data to sign for the child multisig.
@@ -416,7 +427,10 @@ contract NestedMultisigTaskTest is Test {
         uint256 newSnapshot = vm.snapshotState();
 
         string memory config = MultisigTaskTestHelper.createTempTomlFile(taskConfigToml, TESTING_DIRECTORY, "002");
-        (accountAccesses, actions,,,) = multisigTask.simulate(config, SECURITY_COUNCIL_CHILD_MULTISIG);
+
+        (accountAccesses, actions,,,) =
+            multisigTask.simulate(config, Solarray.addresses(SECURITY_COUNCIL_CHILD_MULTISIG));
+
         MultisigTaskTestHelper.removeFile(config);
 
         // Check that the implementation is upgraded correctly
@@ -434,7 +448,11 @@ contract NestedMultisigTaskTest is Test {
         vm.revertToState(newSnapshot);
         string memory taskConfigFilePath =
             MultisigTaskTestHelper.createTempTomlFile(taskConfigToml, TESTING_DIRECTORY, "003");
-        multisigTask.execute(taskConfigFilePath, prepareSignatures(address(testData.rootSafe), taskHash));
+        multisigTask.execute(
+            taskConfigFilePath,
+            prepareSignatures(address(testData.rootSafe), taskHash),
+            Solarray.addresses(SECURITY_COUNCIL_CHILD_MULTISIG)
+        );
         MultisigTaskTestHelper.removeFile(taskConfigFilePath);
 
         // Check that the implementation is upgraded correctly for a second time

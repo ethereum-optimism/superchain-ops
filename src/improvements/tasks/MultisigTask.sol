@@ -55,35 +55,27 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// ============== EntryPoint Functions ==============
     /// ==================================================
 
-    /// @notice Simulates the root safe transaction of the task.
-    function simulate(string memory taskConfigFilePath)
-        public
-        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32, bytes memory, address)
-    {
-        return _runTask(taskConfigFilePath, "", address(0), true);
-    }
-
     /// @notice Simulates the nested safe transaction of the task.
     /// This works by printing the 'data to sign' for the nested safe which is then passed to the eip712sign binary for signing.
-    function simulate(string memory taskConfigFilePath, address _childMultisig)
+    function simulate(string memory taskConfigFilePath, address[] memory _childSafes)
         public
         returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32, bytes memory, address)
     {
-        return _runTask(taskConfigFilePath, "", _childMultisig, true);
+        return _runTask(taskConfigFilePath, "", _childSafes, true);
     }
 
     /// @notice Simulates the nested safe transaction of the task without logging the return values to the console.
-    function simulateQuietly(string memory taskConfigFilePath, address _childMultisig) public {
-        _runTask(taskConfigFilePath, "", _childMultisig, true);
+    function simulateQuietly(string memory taskConfigFilePath, address[] memory _childSafes) public {
+        _runTask(taskConfigFilePath, "", _childSafes, true);
     }
 
     /// @notice Executes the root safe transaction of the task with the given configuration file path and signatures.
-    function execute(string memory taskConfigFilePath, bytes memory signatures)
+    function execute(string memory taskConfigFilePath, bytes memory signatures, address[] memory _childSafes)
         public
         returns (VmSafe.AccountAccess[] memory)
     {
         (VmSafe.AccountAccess[] memory accountAccesses,,,,) =
-            _runTask(taskConfigFilePath, signatures, address(0), false);
+            _runTask(taskConfigFilePath, signatures, _childSafes, false);
         return accountAccesses;
     }
 
@@ -574,8 +566,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     function _runTask(
         string memory _taskConfigFilePath,
         bytes memory _signatures,
-        address _optionalChildMultisig,
-        bool isSimulate
+        address[] memory _childSafes,
+        bool _isSimulate
     )
         internal
         returns (
@@ -586,23 +578,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             address rootSafe
         )
     {
-        // TODO: Remove this when the interface tasks an array of safes.
-        address[] memory childSafes;
-        if (_optionalChildMultisig != address(0)) {
-            childSafes = new address[](1);
-            childSafes[0] = _optionalChildMultisig;
-        } else {
-            childSafes = new address[](0);
-        }
-
-        (TaskPayload memory payload, Action[] memory actions) = _taskSetup(_taskConfigFilePath, childSafes);
+        (TaskPayload memory payload, Action[] memory actions) = _taskSetup(_taskConfigFilePath, _childSafes);
         uint256 rootSafeIndex = payload.safes.length - 1;
         rootSafe = payload.safes[rootSafeIndex];
         (VmSafe.AccountAccess[] memory accountAccesses, bytes32 txHash) =
             executeTaskStep(_signatures, payload, rootSafeIndex);
 
         validate(accountAccesses, actions, payload);
-        (normalizedHash_, dataToSign_) = print(accountAccesses, isSimulate, txHash, payload);
+        (normalizedHash_, dataToSign_) = print(accountAccesses, _isSimulate, txHash, payload);
 
         // Sanity check that the root safe is a nested safe.
         if (payload.safes.length > 1) {
