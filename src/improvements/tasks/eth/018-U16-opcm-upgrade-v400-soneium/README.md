@@ -1,6 +1,6 @@
 # 018-U16-opcm-upgrade-v400-soneium: Upgrade 16: Soneium
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://etherscan.io/tx/0xdd89a3933dea0f44e1a461441f3c78e341702e9a4148784780644cdac90148c2)
 
 ## Objective
 

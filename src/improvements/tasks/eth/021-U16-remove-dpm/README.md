@@ -1,6 +1,6 @@
 # 021-U16-remove-dpm: Remove Old Deputy Pause Module on Ethereum Mainnet
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://etherscan.io/tx/0xd770166ff63183dae868ca11852268115035d2f74574b55b8e1ecd552da80378)
 
 ## Objective
 
