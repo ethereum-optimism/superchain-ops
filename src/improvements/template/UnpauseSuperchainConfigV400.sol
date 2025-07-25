@@ -45,7 +45,7 @@ contract UnpauseSuperchainConfigV400 is L2TaskBase {
         // Make sure that the SuperchainConfig is paused before unpausing for the identifier.
         assertEq(sc.paused(identifier), true, "ERR100: SuperchainConfig should be Paused for the identifier provided.");
 
-        // UnPause the SuperchainConfig contract through the identifier.
+        /// UnPause the SuperchainConfig contract through the identifier.
         sc.unpause(identifier);
     }
 
