@@ -204,7 +204,7 @@ contract FinanceTemplate is SimpleTaskBase {
     }
 
     /// @notice No code exceptions for this template
-    function _getCodeExceptions() internal view override returns (address[] memory) {}
+    function _getCodeExceptions(address) internal view override returns (address[] memory) {}
 
     /// @notice Returns the operation type enum
     function _getOperationType() internal view returns (OperationType) {

@@ -81,12 +81,12 @@ contract GnosisSafeRemoveOwner is SimpleTaskBase {
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function _getCodeExceptions() internal view virtual override returns (address[] memory) {
+    function _getCodeExceptions(address _rootSafe) internal view virtual override returns (address[] memory) {
         // The SecurityCouncils's LivenessGuard stores the list of owner addresses in the `ownersBefore` set.
         // They are then removed in the same execution inside the `checkAfterExecution` function (this is why we don't see them in the state diff).
         // The original writes get analyzed in our `_checkStateDiff` function.
         // Therefore, we have to add the SecurityCouncil's owners addresses as code exceptions.
-        address[] memory owners = IGnosisSafe(root).getOwners();
+        address[] memory owners = IGnosisSafe(_rootSafe).getOwners();
         address[] memory codeExceptions = new address[](owners.length + 1);
         for (uint256 i = 0; i < owners.length; i++) {
             codeExceptions[i] = owners[i];

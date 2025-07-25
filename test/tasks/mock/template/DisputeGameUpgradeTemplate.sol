@@ -89,5 +89,5 @@ contract DisputeGameUpgradeTemplate is L2TaskBase {
     }
 
     /// @notice no code exceptions for this template
-    function _getCodeExceptions() internal view virtual override returns (address[] memory) {}
+    function _getCodeExceptions(address) internal view virtual override returns (address[] memory) {}
 }

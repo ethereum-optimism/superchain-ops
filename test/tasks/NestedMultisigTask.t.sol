@@ -59,12 +59,12 @@ contract NestedMultisigTaskTest is Test {
 
     function runTask(address childMultisig)
         internal
-        returns (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions)
+        returns (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions, address rootSafe)
     {
         multisigTask = new DisputeGameUpgradeTemplate();
         string memory configFilePath =
             MultisigTaskTestHelper.createTempTomlFile(taskConfigToml, TESTING_DIRECTORY, "000");
-        (accountAccesses, actions,,) = multisigTask.simulate(configFilePath, childMultisig);
+        (accountAccesses, actions,,, rootSafe) = multisigTask.simulate(configFilePath, childMultisig);
         MultisigTaskTestHelper.removeFile(configFilePath);
         addrRegistry = multisigTask.addrRegistry();
         superchainAddrRegistry = SuperchainAddressRegistry(AddressRegistry.unwrap(addrRegistry));
@@ -72,8 +72,8 @@ contract NestedMultisigTaskTest is Test {
 
     function testSafeNested() public {
         vm.createSelectFork("mainnet");
-        runTask(SECURITY_COUNCIL_CHILD_MULTISIG);
-        assertEq(multisigTask.isNestedSafe(multisigTask.root()), true, "Expected isNestedSafe to be true");
+        (,, address rootSafe) = runTask(SECURITY_COUNCIL_CHILD_MULTISIG);
+        assertEq(multisigTask.isNestedSafe(rootSafe), true, "Expected isNestedSafe to be true");
     }
 
     function testNestedDataToSignAndHashToApprove() public {
@@ -81,10 +81,10 @@ contract NestedMultisigTaskTest is Test {
         address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(ROOT_SAFE, SECURITY_COUNCIL_CHILD_MULTISIG);
         uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
 
-        (, Action[] memory actions) = runTask(SECURITY_COUNCIL_CHILD_MULTISIG);
+        (, Action[] memory actions, address rootSafe) = runTask(SECURITY_COUNCIL_CHILD_MULTISIG);
 
         // Step 1: Prepare test data
-        TestData memory testData = _prepareTestData(allOriginalNonces, actions);
+        TestData memory testData = _prepareTestData(allOriginalNonces, actions, rootSafe);
 
         // Get the hash of the transaction that the root safe is going to execute which the child multisigs have to approve.
         bytes32 hashToApproveByChildMultisig = testData.rootSafe.getTransactionHash(
@@ -126,11 +126,11 @@ contract NestedMultisigTaskTest is Test {
         address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(ROOT_SAFE, SECURITY_COUNCIL_CHILD_MULTISIG);
         uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
 
-        (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions) =
+        (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions, address rootSafe) =
             runTask(SECURITY_COUNCIL_CHILD_MULTISIG);
 
         // Step 1: Prepare test data
-        TestData memory testData = _prepareTestData(allOriginalNonces, actions);
+        TestData memory testData = _prepareTestData(allOriginalNonces, actions, rootSafe);
 
         // Step 2: Prepare child multisig signatures
         bytes[] memory childMultisigDatasToSign = _prepareChildMultisigSignatures(testData, actions, MULTICALL3_ADDRESS);
@@ -162,7 +162,6 @@ contract NestedMultisigTaskTest is Test {
     /// @notice Test that the 'data to sign' generated in simulate for the child multisigs
     /// is correct for OPCMTaskBase. This test uses the OPCMUpgradeV200 template as a way to test OPCMTaskBase.
     function testNestedExecuteWithSignaturesOPCM() public {
-        address rootSafe = 0x1Eb2fFc903729a0F03966B917003800b145F56E2;
         address foundationChildMultisig = 0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B;
         // In block 7972617, an upgrade occurred at: https://sepolia.etherscan.io/tx/0x12b76ef5c31145a3bf6bb71b9c3c7ddd3cd7f182011187353e3ceb1830891fb7
         // Which meant this test failed. We're forking at the block before to continue to test this.
@@ -171,13 +170,13 @@ contract NestedMultisigTaskTest is Test {
         multisigTask = new OPCMUpgradeV200();
         string memory opcmTaskConfigFilePath = "test/tasks/example/sep/002-opcm-upgrade-v200/config.toml";
 
+        (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions,,, address rootSafe) =
+            multisigTask.simulate(opcmTaskConfigFilePath, foundationChildMultisig);
+
         address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe, foundationChildMultisig);
         uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
 
-        (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions,,) =
-            multisigTask.simulate(opcmTaskConfigFilePath, foundationChildMultisig);
-
-        TestData memory testData = _prepareTestData(allOriginalNonces, actions);
+        TestData memory testData = _prepareTestData(allOriginalNonces, actions, rootSafe);
         address[] memory rootSafeOwners = testData.rootSafe.getOwners();
         bytes[] memory childMultisigDataToSign = _prepareChildMultisigSignatures(testData, actions, MULTICALL3_ADDRESS);
         // Revert to snapshot so that the safe is in the same state as before the task was run
@@ -200,7 +199,7 @@ contract NestedMultisigTaskTest is Test {
         // Snapshot before running the task so we can roll back to this pre-state
         uint256 newSnapshot = vm.snapshotState();
 
-        (accountAccesses, actions,,) = multisigTask.simulate(opcmTaskConfigFilePath, foundationChildMultisig);
+        (accountAccesses, actions,,,) = multisigTask.simulate(opcmTaskConfigFilePath, foundationChildMultisig);
         bytes32 taskHash = multisigTask.getHash(
             testData.rootSafeCalldata, address(testData.rootSafe), 0, testData.originalRootSafeNonce, testData.allSafes
         );
@@ -213,8 +212,8 @@ contract NestedMultisigTaskTest is Test {
         vm.createSelectFork("mainnet");
         string memory configFilePath = "test/tasks/mock/configs/MockDisputeGameUpgradesToEOA.toml";
         multisigTask = new MockDisputeGameTask();
-        multisigTask.simulate(configFilePath, SECURITY_COUNCIL_CHILD_MULTISIG);
-        assertEq(multisigTask.isNestedSafe(multisigTask.root()), true, "Expected isNestedSafe to be true");
+        (,,,, address rootSafe) = multisigTask.simulate(configFilePath, SECURITY_COUNCIL_CHILD_MULTISIG);
+        assertEq(multisigTask.isNestedSafe(rootSafe), true, "Expected isNestedSafe to be true");
     }
 
     function testSimulateDisputeGameWithoutCodeExceptionsFails() public {
@@ -289,12 +288,12 @@ contract NestedMultisigTaskTest is Test {
         assertEq(nestedHashToApprove, expectedNestedHashToApprove, "Wrong nested hash to approve");
     }
 
-    function _prepareTestData(uint256[] memory allOriginalNonces, Action[] memory actions)
+    function _prepareTestData(uint256[] memory allOriginalNonces, Action[] memory actions, address rootSafe)
         internal
         view
         returns (TestData memory testData)
     {
-        testData.allSafes = MultisigTaskTestHelper.getAllSafes(multisigTask.root(), SECURITY_COUNCIL_CHILD_MULTISIG);
+        testData.allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe, SECURITY_COUNCIL_CHILD_MULTISIG);
         testData.allCalldatas = multisigTask.transactionDatas(actions, testData.allSafes, allOriginalNonces);
         testData.rootSafe = IGnosisSafe(testData.allSafes[testData.allSafes.length - 1]);
         testData.rootSafeCalldata = testData.allCalldatas[testData.allCalldatas.length - 1];
@@ -417,7 +416,7 @@ contract NestedMultisigTaskTest is Test {
         uint256 newSnapshot = vm.snapshotState();
 
         string memory config = MultisigTaskTestHelper.createTempTomlFile(taskConfigToml, TESTING_DIRECTORY, "002");
-        (accountAccesses, actions,,) = multisigTask.simulate(config, SECURITY_COUNCIL_CHILD_MULTISIG);
+        (accountAccesses, actions,,,) = multisigTask.simulate(config, SECURITY_COUNCIL_CHILD_MULTISIG);
         MultisigTaskTestHelper.removeFile(config);
 
         // Check that the implementation is upgraded correctly

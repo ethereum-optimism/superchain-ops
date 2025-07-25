@@ -101,9 +101,7 @@ contract GnosisSafeApproveHash is L2TaskBase {
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function _getCodeExceptions() internal view virtual override returns (address[] memory) {
-        return new address[](0);
-    }
+    function _getCodeExceptions(address) internal view virtual override returns (address[] memory) {}
 
     /// @notice Helper method to return whether or not a given hash is already approved.
     function _isHashApprovedOnL1PAO(bytes32 _hash) internal view returns (bool) {

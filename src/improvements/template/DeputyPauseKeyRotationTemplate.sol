@@ -69,10 +69,9 @@ contract DeputyPauseKeyRotationTemplate is SimpleTaskBase {
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function _getCodeExceptions() internal view override returns (address[] memory) {
+    function _getCodeExceptions(address) internal view override returns (address[] memory) {
         address[] memory codeExceptions = new address[](1);
         codeExceptions[0] = newDeputy;
-
         return codeExceptions;
     }
 }
