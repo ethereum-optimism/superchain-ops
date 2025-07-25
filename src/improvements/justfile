@@ -192,10 +192,11 @@ simulate-all-templates:
         exit 1
     fi
 
-simulate-stack NETWORK="" TASK="" OWNER_ADDRESSES="[]":
+simulate-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
+    root_just_file="${root_dir}/src/improvements/justfile"
 
     echo -e "\033[42m                                         \033[0m"
     echo -e "\033[42m    superchain-ops stacked simulation    \033[0m"
@@ -203,13 +204,36 @@ simulate-stack NETWORK="" TASK="" OWNER_ADDRESSES="[]":
 
     show_usage() {
         echo
-        echo "Usage: just simulate-stack <network> [task] [owner-addresses]"
-        echo "Available arguments:"
-        echo "  • <network> - The network to simulate the stack for (e.g. 'sep', 'eth')"
-        echo "  • [task]    - The task to simulate the stack for (e.g. '001-task-name')"
-        echo "  • [owner-addresses] - A comma-separated list of parent-multisig owner addresses. The list must match the number of tasks being simulated. Use the zero address (0x0000000000000000000000000000000000000000) to simulate the task using the first owner on the parent multisig. If the list is left empty, each task will default to its first owner. For example, use '[0x0000000000000000000000000000000000000000,0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B,0x0000000000000000000000000000000000000000]' to explicitly simulate the second task as a specific owner, while defaulting the first and third."
+        echo "Usage: just simulate-stack <network> [task] [child-safe-name-depth-1] [child-safe-name-depth-2]"
+        echo "Simulates the execution of tasks in a stacked manner, accounting for dependencies and nested safe architectures."
+        echo
+        echo "Required arguments:"
+        echo "  • <network>                    - The network to simulate on (e.g. 'sep', 'eth')"
+        echo
+        echo "Optional arguments:"
+        echo "  • [task]                       - Specific task to simulate (e.g. '001-task-name')"
+        echo "                                   If omitted, simulates all non-terminal tasks for the network"
+        echo "  • [child-safe-name-depth-1]    - Name of child safe at depth 1 (owned by root safe)"
+        echo "                                   Examples: 'foundation', 'council', 'foundation-operations'"
+        echo "  • [child-safe-name-depth-2]    - Name of child safe at depth 2 (owned by depth 1 safe)"
+        echo "                                   Only used for deeply nested safe architectures e.g. Base"
+        echo
+        echo "Examples:"
+        echo "  just simulate-stack eth                             # Simulate all tasks for ethereum"
+        echo "  just simulate-stack eth 001-example                # Simulate specific task on root safe"
+        echo "  just simulate-stack eth 001-example foundation     # Simulate on foundation child safe"
+        echo "  just simulate-stack eth 001-example council foundation  # Simulate on nested architecture"
+        echo
+        echo "Note: Stacked simulation executes all prerequisite non-terminal tasks in dependency order."
         echo
     }
+
+    # Check if network arg exists
+    if [ -z "{{NETWORK}}" ]; then
+        echo -e "\n\033[31mError: No network specified\033[0m"
+        show_usage
+        exit 1
+    fi
 
     ETH_RPC_URL=$(just _fetch-rpc-url "{{NETWORK}}")
 
@@ -219,13 +243,21 @@ simulate-stack NETWORK="" TASK="" OWNER_ADDRESSES="[]":
         just list-stack {{NETWORK}}
         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string)" {{NETWORK}} --ffi --rpc-url $ETH_RPC_URL
     else
-        echo -e "⏳ You are simulating the task: {{TASK}} for network: {{NETWORK}}\n"
+        child_safe_depth_1=$(just --justfile "$root_just_file" _fetch-safe "{{NETWORK}}" "{{TASK}}" "{{CHILD_SAFE_NAME_DEPTH_1}}")
+        child_safe_depth_2=$(just --justfile "$root_just_file" _fetch-safe "{{NETWORK}}" "{{TASK}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")
+        task_info="⏳ You are simulating the task: {{TASK}} for network: '{{NETWORK}}'"
+        if [ "$child_safe_depth_2" != "0x0000000000000000000000000000000000000000" ]; then
+            task_info="$task_info on the nested safe: $child_safe_depth_2"
+        else
+            task_info="$task_info on the nested safe: $child_safe_depth_1"
+        fi
+        echo $task_info
         just list-stack {{NETWORK}} {{TASK}}
-        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address[])" "{{NETWORK}}" "{{TASK}}" "{{OWNER_ADDRESSES}}" --ffi --rpc-url $ETH_RPC_URL
+        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_1" "$child_safe_depth_2" --ffi --rpc-url $ETH_RPC_URL
     fi
     echo -e "\n⚠️ Please note: Some Tenderly links may not work when running a stacked simulation. Check out Tenderly's Virtual TestNets as a workaround.⚠️"
 
-sign NETWORK="" TASK="" OWNER_SAFE_NAME="" HD_PATH="0":
+sign NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="" HD_PATH="0":
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
@@ -237,12 +269,24 @@ sign NETWORK="" TASK="" OWNER_SAFE_NAME="" HD_PATH="0":
 
     show_usage() {
         echo
-        echo "Usage: just sign <network> <task> [owner-safe-name] [hd-path]"
-        echo "Available arguments:"
-        echo "  • <network>         - The network to sign the stack for (e.g. 'sep', 'eth')"
-        echo "  • <task>            - The task to sign the stack for (e.g. '001-task-name')"
-        echo "  • [owner-safe-name] - The owner safe name to sign the task for (e.g. 'foundation', 'council', 'foundation-operations', 'chain-governor' etc.) - may be left empty for single safes."
-        echo "  • [hd-path]         - This is the hd path of the signer. If not provided, the default is 0."
+        echo "Usage: just sign <network> <task> [child-safe-name-depth-1] [child-safe-name-depth-2] [hd-path]"
+        echo "Signs a task for execution on the specified network and safe architecture."
+        echo
+        echo "Required arguments:"
+        echo "  • <network>                    - The network to sign for (e.g. 'sep', 'eth')"
+        echo "  • <task>                       - The task to sign (e.g. '001-task-name')"
+        echo
+        echo "Optional arguments:"
+        echo "  • [child-safe-name-depth-1]    - Name of child safe at depth 1 (owned by root safe)"
+        echo "                                   Examples: 'foundation', 'council', 'foundation-operations'"
+        echo "  • [child-safe-name-depth-2]    - Name of child safe at depth 2 (owned by depth 1 safe)"
+        echo "                                   Only used for deeply nested safe architectures e.g. Base"
+        echo "  • [hd-path]                    - Hardware wallet derivation path (default: 0)"
+        echo
+        echo "Examples:"
+        echo "  just sign eth 001-example                          # Sign for root safe only"
+        echo "  just sign eth 001-example foundation               # Sign for foundation child safe"
+        echo "  just sign eth 001-example council foundation       # Sign for council->foundation nested"
         echo
     }
 
@@ -255,17 +299,21 @@ sign NETWORK="" TASK="" OWNER_SAFE_NAME="" HD_PATH="0":
     export STACKED_SIGNING_MODE=true # This environment variable is only ever set to true in this sign command. 
 
     ETH_RPC_URL=$(just --justfile "$root_just_file" _fetch-rpc-url "{{NETWORK}}")
-    safe=$(just --justfile "$root_just_file" _fetch-safe "{{NETWORK}}" "{{TASK}}" "{{OWNER_SAFE_NAME}}")
+    child_safe_depth_1=$(just --justfile "$root_just_file" _fetch-safe "{{NETWORK}}" "{{TASK}}" "{{CHILD_SAFE_NAME_DEPTH_1}}")
+    child_safe_depth_2=$(just --justfile "$root_just_file" _fetch-safe "{{NETWORK}}" "{{TASK}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")
 
-    echo -e "⏳ You are signing the task: {{TASK}} for network: {{NETWORK}}\n"
-    just --justfile "$root_just_file" list-stack {{NETWORK}} {{TASK}}
-    count=$(just --justfile "$root_just_file" _count-pending-tasks {{NETWORK}} {{TASK}}) # return the count of tasks.
-    formatted_addresses=$(just --justfile "$root_just_file" _get-owner-addresses-string "$count" "$safe")
+    task_info="⏳ You are signing the task: {{TASK}} for network: '{{NETWORK}}'"
+    if [ "$child_safe_depth_2" != "0x0000000000000000000000000000000000000000" ]; then
+        task_info="$task_info on the nested safe: $child_safe_depth_2"
+    else
+        task_info="$task_info on the nested safe: $child_safe_depth_1"
+    fi
+    echo $task_info
 
     # We only support signing with ledger for now.
     signer_args=$(just --justfile "$root_just_file" _get-signer-args {{HD_PATH}})
     ${root_dir}/bin/eip712sign ${signer_args} -- \
-     forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address[])" "{{NETWORK}}" "{{TASK}}" "$formatted_addresses" --ffi --rpc-url $ETH_RPC_URL
+     forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_2" "$child_safe_depth_1" --ffi --rpc-url $ETH_RPC_URL
 
 list-stack NETWORK="" TASK="":
     #!/usr/bin/env bash
@@ -327,22 +375,8 @@ _fetch-safe NETWORK TASK OWNER_SAFE_NAME:
     taskPath=${root_dir}/src/improvements/tasks/{{NETWORK}}/{{TASK}}
     if [ -n "{{OWNER_SAFE_NAME}}" ]; then
         safe=$(bash ${root_dir}/src/improvements/script/get-safe.sh $taskPath "{{OWNER_SAFE_NAME}}")
-        echo "⏳ You're signing as safe: $safe ({{OWNER_SAFE_NAME}})" >&2
     fi
     echo "${safe}"
-
-# Helper function to count the number of pending tasks for a given network.
-[no-cd] 
-_count-pending-tasks NETWORK TASK="":
-    #!/usr/bin/env bash
-    set -euo pipefail
-    root_dir=$(git rev-parse --show-toplevel)
-    if [ -z "{{TASK}}" ]; then
-        count=$(forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string)" {{NETWORK}} --json | jq -r '.returns["0"].value')
-    else
-        count=$(forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string,string)" {{NETWORK}} {{TASK}} --json | jq -r '.returns["0"].value')
-    fi
-    echo "$count"
 
 # Helper function to get the signer arguments for a given hdPath. We do not need to support signing with keystores.
 [no-cd]
@@ -354,21 +388,3 @@ _get-signer-args hdPath='0':
     signer=$(cast wallet address --ledger --mnemonic-derivation-path $hdpaths)
     signer_args="--ledger --hd-paths $hdpaths"
     echo $signer_args
-
-# Helper function to get the owner addresses string for a given count and safe address.
-[no-cd]
-_get-owner-addresses-string COUNT SAFE_ADDRESS:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    
-    owner_addresses=()
-    if (( {{COUNT}} > 1 )); then
-      for i in $(seq 1 $(({{COUNT}}-1))); do
-          owner_addresses+=("0x0000000000000000000000000000000000000000")
-      done
-    fi
-    owner_addresses+=("{{SAFE_ADDRESS}}")
-    
-    # Format the bash array into a string for forge script
-    formatted_addresses=$(IFS=,; echo "[${owner_addresses[*]}]")
-    echo "$formatted_addresses"

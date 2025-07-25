@@ -23,8 +23,6 @@ contract StackedSimulatorUnitTest is Test {
     address internal childMultisig = 0x847B5c174615B1B7fDF770882256e2D3E95b9D92; // foundation
     address internal childMultisig2 = 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03; // security council
 
-    address[] internal EMPTY_ADDRESS_ARRAY = new address[](0);
-
     /// @notice Invoked before each test case is run.
     function setUp() public {
         testDirectory = "test/tasks/stacked-sim-testing";
@@ -35,7 +33,7 @@ contract StackedSimulatorUnitTest is Test {
     function testSimulateStackedTasks_SomeTasks() public {
         StackedSimulator ss = new StackedSimulator();
         createTestTasks("eth_000", 3, 0);
-        ss.simulateStack("eth_000", "001-task-name", EMPTY_ADDRESS_ARRAY);
+        ss.simulateStack("eth_000", "001-task-name");
 
         // Assert that the last tasks state change is the latest state change.
         address expectedImpl = makeAddr("001-task-name");
@@ -46,7 +44,7 @@ contract StackedSimulatorUnitTest is Test {
         StackedSimulator ss = new StackedSimulator();
         createTestTasks("eth_001", 3, 100);
         console.log("StackedSimulatorUnitTest: testSimulateStackedTasks_AllTasks");
-        ss.simulateStack("eth_001", "101-task-name", EMPTY_ADDRESS_ARRAY);
+        ss.simulateStack("eth_001", "101-task-name");
 
         // Assert that the last tasks state change is the latest state change.
         address expectedImpl = makeAddr("101-task-name");
@@ -89,7 +87,7 @@ contract StackedSimulatorUnitTest is Test {
 
         StackedSimulator ss = new StackedSimulator();
         vm.expectRevert("SimpleStorage: oldValue != current");
-        ss.simulateStack(network, taskName2, EMPTY_ADDRESS_ARRAY);
+        ss.simulateStack(network, taskName2);
     }
 
     function testSimulateStackedTasks_SimpleStoragePasses() public {
@@ -102,7 +100,7 @@ contract StackedSimulatorUnitTest is Test {
             createSimpleStorageTaskWithoutNonce(network, address(simpleStorage), 102, firstValue, 2, 3);
 
         StackedSimulator ss = new StackedSimulator();
-        ss.simulateStack(network, taskName3, EMPTY_ADDRESS_ARRAY);
+        ss.simulateStack(network, taskName3);
 
         assertEq(simpleStorage.current(), 3);
     }
@@ -126,7 +124,7 @@ contract StackedSimulatorUnitTest is Test {
         vm.expectRevert(
             "StateOverrideManager: User-defined nonce (12) is less than current actual nonce (13) for contract: 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
         );
-        ss.simulateStack(network, taskName2, EMPTY_ADDRESS_ARRAY);
+        ss.simulateStack(network, taskName2);
     }
 
     function testSimulateStackedTasks_SimpleStorageFailsWithFirstChildNonceMismanagement() public {
@@ -149,7 +147,7 @@ contract StackedSimulatorUnitTest is Test {
         vm.expectRevert(
             "StateOverrideManager: User-defined nonce (20) is less than current actual nonce (21) for contract: 0x847B5c174615B1B7fDF770882256e2D3E95b9D92"
         );
-        ss.simulateStack(network, taskName2, EMPTY_ADDRESS_ARRAY);
+        ss.simulateStack(network, taskName2);
     }
 
     function testSimulateStackedTasks_SimpleStorageFailsWithSecondChildNonceMismanagement2() public {
@@ -172,7 +170,7 @@ contract StackedSimulatorUnitTest is Test {
         vm.expectRevert(
             "StateOverrideManager: User-defined nonce (22) is less than current actual nonce (23) for contract: 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03"
         );
-        ss.simulateStack(network, taskName2, EMPTY_ADDRESS_ARRAY);
+        ss.simulateStack(network, taskName2);
     }
 
     function testSimulateStackedTasks_SimpleStoragePassesWithNonceManagement() public {
@@ -191,7 +189,7 @@ contract StackedSimulatorUnitTest is Test {
         );
 
         StackedSimulator ss = new StackedSimulator();
-        ss.simulateStack(network, taskName2, EMPTY_ADDRESS_ARRAY);
+        ss.simulateStack(network, taskName2);
         assertEq(simpleStorage.current(), 2);
         assertEq(IGnosisSafe(parentMultisig).nonce(), 14);
         assertEq(IGnosisSafe(childMultisig).nonce(), 22);
@@ -202,36 +200,24 @@ contract StackedSimulatorUnitTest is Test {
         vm.createSelectFork("mainnet", 22306611); // We know the owners and nonces at this point.
         string memory network = "eth_010";
         SimpleStorage simpleStorage = new SimpleStorage();
-        address[] memory owners = new address[](1);
-        owners[0] = makeAddr("addr0");
+        address owner = makeAddr("addr0");
         string memory taskName =
             createSimpleStorageTaskWithNonce(network, address(simpleStorage), 100, 2000, 0, 1, 12, 20, 22);
         StackedSimulator ss = new StackedSimulator();
         vm.expectRevert(
             bytes(
                 string.concat(
-                    "TaskManager: ownerAddress (",
-                    vm.toString(owners[0]),
+                    "TaskManager: child safe address (",
+                    vm.toString(owner),
                     ") must be an owner of the parent multisig: 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
                 )
             )
         );
-        ss.simulateStack(network, taskName, owners);
+        ss.simulateStack(network, taskName, owner);
     }
     /// #############################################################
     /// #############################################################
     /// #############################################################
-
-    function testSimulateStackedTasks_RevertsWithInvalidOwnerAddresses() public {
-        StackedSimulator ss = new StackedSimulator();
-        createTestTasks("eth_011", 3, 0);
-        address[] memory ownerAddresses = new address[](1);
-        ownerAddresses[0] = makeAddr("addr0");
-        vm.expectRevert(
-            "StackedSimulator: Invalid owner addresses array length. Must be empty or match the number of tasks being simulated."
-        );
-        ss.simulateStack("eth_011", "001-task-name", ownerAddresses);
-    }
 
     function testGetNonTerminalTasks_NoTasks() public {
         StackedSimulator ss = new StackedSimulator();
