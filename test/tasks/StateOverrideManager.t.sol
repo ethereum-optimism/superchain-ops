@@ -57,8 +57,8 @@ contract StateOverrideManagerUnitTest is Test {
             "]"
         );
         string memory fileName = helper.createTempTomlFile(toml, TESTING_DIRECTORY, "001");
-        MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
-        assertNonceIncremented(2730, task);
+        (, address rootSafe) = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
+        assertNonceIncremented(2730, rootSafe);
         helper.removeFile(fileName);
     }
 
@@ -89,8 +89,8 @@ contract StateOverrideManagerUnitTest is Test {
             "]"
         );
         string memory fileName = helper.createTempTomlFile(toml, TESTING_DIRECTORY, "003");
-        MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
-        assertNonceIncremented(12, task);
+        (, address rootSafe) = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
+        assertNonceIncremented(12, rootSafe);
         helper.removeFile(fileName);
     }
 
@@ -129,15 +129,15 @@ contract StateOverrideManagerUnitTest is Test {
             "]"
         );
         string memory fileName = helper.createTempTomlFile(toml, TESTING_DIRECTORY, "005");
-        MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
-        assertNonceIncremented(101, task);
+        (, address rootSafe) = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
+        assertNonceIncremented(101, rootSafe);
         helper.removeFile(fileName);
     }
 
     function testOnlyDefaultTenderlyStateOverridesApplied() public {
         string memory fileName = helper.createTempTomlFile(commonToml, TESTING_DIRECTORY, "006");
-        MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
-        assertDefaultStateOverrides(2, task, SECURITY_COUNCIL_CHILD_MULTISIG);
+        (MultisigTask task, address rootSafe) = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
+        assertDefaultStateOverrides(2, task, SECURITY_COUNCIL_CHILD_MULTISIG, rootSafe);
         helper.removeFile(fileName);
     }
 
@@ -145,8 +145,9 @@ contract StateOverrideManagerUnitTest is Test {
     function testUserTenderlyStateOverridesTakePrecedence() public {
         string memory noStateOverridesFileName = helper.createTempTomlFile(commonToml, TESTING_DIRECTORY, "007");
         uint256 expectedNonce = IGnosisSafe(ROOT_SAFE).nonce();
-        MultisigTask noStateOverridesTask = createAndRunTask(noStateOverridesFileName, SECURITY_COUNCIL_CHILD_MULTISIG);
-        assertDefaultStateOverrides(2, noStateOverridesTask, SECURITY_COUNCIL_CHILD_MULTISIG);
+        (MultisigTask noStateOverridesTask, address rootSafe) =
+            createAndRunTask(noStateOverridesFileName, SECURITY_COUNCIL_CHILD_MULTISIG);
+        assertDefaultStateOverrides(2, noStateOverridesTask, SECURITY_COUNCIL_CHILD_MULTISIG, rootSafe);
 
         string memory toml = string.concat(
             commonToml,
@@ -157,12 +158,12 @@ contract StateOverrideManagerUnitTest is Test {
             "]"
         );
         string memory fileName = helper.createTempTomlFile(toml, TESTING_DIRECTORY, "008");
-        MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
+        (MultisigTask task,) = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
 
         uint256 expectedUserOverrideNonce = 1024;
         uint256 expectedRandomEntry = 1025;
         Simulation.StateOverride[] memory allOverrides =
-            assertDefaultStateOverrides(2, task, SECURITY_COUNCIL_CHILD_MULTISIG);
+            assertDefaultStateOverrides(2, task, SECURITY_COUNCIL_CHILD_MULTISIG, rootSafe);
         // User defined override must be applied last
         assertEq(allOverrides.length, 2, "Incorrect number of overrides");
         assertEq(allOverrides[0].overrides[1].key, bytes32(uint256(5)), "User defined override key must be 5");
@@ -197,11 +198,11 @@ contract StateOverrideManagerUnitTest is Test {
             "]"
         );
         string memory fileName = helper.createTempTomlFile(toml, TESTING_DIRECTORY, "009");
-        MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
+        (MultisigTask task, address rootSafe) = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
 
         uint256 expectedTotalOverrides = 2;
         Simulation.StateOverride[] memory allOverrides =
-            assertDefaultStateOverrides(expectedTotalOverrides, task, SECURITY_COUNCIL_CHILD_MULTISIG);
+            assertDefaultStateOverrides(expectedTotalOverrides, task, SECURITY_COUNCIL_CHILD_MULTISIG, rootSafe);
         assertEq(allOverrides[0].overrides[1].key, overrideKey, "User override key must match expected value");
         assertEq(allOverrides[0].overrides[1].value, bytes32(uint256(9999)), "User override must be applied last");
         helper.removeFile(fileName);
@@ -225,11 +226,11 @@ contract StateOverrideManagerUnitTest is Test {
             "]"
         );
         string memory fileName = helper.createTempTomlFile(toml, TESTING_DIRECTORY, "010");
-        MultisigTask task = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
+        (MultisigTask task, address rootSafe) = createAndRunTask(fileName, SECURITY_COUNCIL_CHILD_MULTISIG);
 
         uint256 expectedTotalOverrides = 3; // i.e. (2 default + 1 user defined)
         Simulation.StateOverride[] memory allOverrides =
-            assertDefaultStateOverrides(expectedTotalOverrides, task, SECURITY_COUNCIL_CHILD_MULTISIG);
+            assertDefaultStateOverrides(expectedTotalOverrides, task, SECURITY_COUNCIL_CHILD_MULTISIG, rootSafe);
 
         assertEq(
             allOverrides[0].overrides[1].key, overrideKey, "First address user override key must match expected value"
@@ -275,10 +276,10 @@ contract StateOverrideManagerUnitTest is Test {
             "implementations = [{gameType = 0, implementation = \"0x0000000FFfFFfffFffFfFffFFFfffffFffFFffFf\", l2ChainId = 84532}]\n";
         string memory fileName = helper.createTempTomlFile(nonNestedSafeToml, TESTING_DIRECTORY, "011");
         MockDisputeGameTask dgt = new MockDisputeGameTask();
-        dgt.simulate(fileName);
+        (,,,, address rootSafe) = dgt.simulate(fileName);
 
         // Only parent overrides will be checked because child multisig is not set.
-        Simulation.StateOverride[] memory allOverrides = assertDefaultStateOverrides(1, dgt, address(0));
+        Simulation.StateOverride[] memory allOverrides = assertDefaultStateOverrides(1, dgt, address(0), rootSafe);
         assertEq(allOverrides.length, 1, "Only parent overrides should be applied");
         helper.removeFile(fileName);
     }
@@ -445,10 +446,13 @@ contract StateOverrideManagerUnitTest is Test {
     }
 
     /// @notice Helper function to create and run a task.
-    function createAndRunTask(string memory fileName, address childMultisig) internal returns (MultisigTask) {
-        MultisigTask task = new MockMultisigTask();
-        task.simulate(fileName, childMultisig);
-        return task;
+    function createAndRunTask(string memory fileName, address childMultisig)
+        internal
+        returns (MultisigTask task, address rootSafe)
+    {
+        task = new MockMultisigTask();
+        (,,,, rootSafe) = task.simulate(fileName, childMultisig);
+        return (task, rootSafe);
     }
 
     /// @notice Helper function to create storage overrides.
@@ -462,19 +466,20 @@ contract StateOverrideManagerUnitTest is Test {
         return overrides;
     }
 
-    function assertNonceIncremented(uint256 expectedNonce, MultisigTask task) internal view {
-        uint256 actualNonce = uint256(vm.load(address(task.root()), bytes32(uint256(0x5))));
+    function assertNonceIncremented(uint256 expectedNonce, address rootSafe) internal view {
+        uint256 actualNonce = uint256(vm.load(rootSafe, bytes32(uint256(0x5))));
         assertEq(actualNonce, expectedNonce + 1, "Nonce must be incremented by 1 in memory after task is run");
     }
 
     /// @notice This function is used to assert the default state overrides for the parent multisig.
     /// Specifically, it verifies that the parent state overrides contain a threshold and nonce override.
-    function assertDefaultStateOverrides(uint256 expectedTotalOverrides, MultisigTask task, address childMultisig)
-        internal
-        view
-        returns (Simulation.StateOverride[] memory allOverrides_)
-    {
-        allOverrides_ = task.getStateOverrides(address(task.root()), childMultisig);
+    function assertDefaultStateOverrides(
+        uint256 expectedTotalOverrides,
+        MultisigTask task,
+        address childMultisig,
+        address rootSafe
+    ) internal view returns (Simulation.StateOverride[] memory allOverrides_) {
+        allOverrides_ = task.getStateOverrides(rootSafe, childMultisig);
 
         assertTrue(allOverrides_.length >= 1, "Must be at least 1 override (parent default)");
         assertEq(
@@ -484,9 +489,7 @@ contract StateOverrideManagerUnitTest is Test {
         );
 
         Simulation.StateOverride memory parentDefaultOverride = allOverrides_[0];
-        assertEq(
-            parentDefaultOverride.contractAddress, address(task.root()), "Contract address must be the parent multisig"
-        );
+        assertEq(parentDefaultOverride.contractAddress, rootSafe, "Contract address must be the parent multisig");
         // 4 possible overrides: <threshold>, [owner count], [owner mapping], [owner mapping 2]
         // 1 required overrides: <threshold>
         // 3 optional overrides: [owner count], [owner mapping], [owner mapping 2] (Only present for nested execution)

@@ -92,10 +92,7 @@ contract TransferL2PAOFromL1 is L2TaskBase {
     }
 
     /// @notice Aliased new owner is a code exception. This is because the aliased address is not a contract.
-    function _getCodeExceptions() internal view virtual override returns (address[] memory) {
-        address[] memory codeExceptions = new address[](0);
-        return codeExceptions;
-    }
+    function _getCodeExceptions(address) internal view virtual override returns (address[] memory) {}
 }
 
 interface OptimismPortal {

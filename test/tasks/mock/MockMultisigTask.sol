@@ -70,7 +70,7 @@ contract MockMultisigTask is L2TaskBase {
     }
 
     /// @notice no code exceptions for this template
-    function _getCodeExceptions() internal view virtual override returns (address[] memory) {}
+    function _getCodeExceptions(address) internal view virtual override returns (address[] memory) {}
 
     /// @notice Wrapper function to call the internal _isValidAction function. This is used to test the internal function.
     function wrapperIsValidAction(VmSafe.AccountAccess memory access, uint256 topLevelDepth, address rootSafe)
