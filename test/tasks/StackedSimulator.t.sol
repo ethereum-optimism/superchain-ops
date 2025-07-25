@@ -19,7 +19,7 @@ contract StackedSimulatorUnitTest is Test {
     /// https://github.com/ethereum-optimism/superchain-registry/blob/5f5334768fd1dab6e31132020c374e575c632074/superchain/configs/mainnet/op.toml#L62
     address internal disputeGameFactory = 0xe5965Ab5962eDc7477C8520243A95517CD252fA9;
 
-    address internal parentMultisig = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A;
+    address internal rootSafe = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A;
     address internal childMultisig = 0x847B5c174615B1B7fDF770882256e2D3E95b9D92; // foundation
     address internal childMultisig2 = 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03; // security council
 
@@ -191,7 +191,7 @@ contract StackedSimulatorUnitTest is Test {
         StackedSimulator ss = new StackedSimulator();
         ss.simulateStack(network, taskName2);
         assertEq(simpleStorage.current(), 2);
-        assertEq(IGnosisSafe(parentMultisig).nonce(), 14);
+        assertEq(IGnosisSafe(rootSafe).nonce(), 14);
         assertEq(IGnosisSafe(childMultisig).nonce(), 22);
         assertEq(IGnosisSafe(childMultisig2).nonce(), 24);
     }
@@ -200,16 +200,14 @@ contract StackedSimulatorUnitTest is Test {
         vm.createSelectFork("mainnet", 22306611); // We know the owners and nonces at this point.
         string memory network = "eth_010";
         SimpleStorage simpleStorage = new SimpleStorage();
-        address owner = makeAddr("addr0");
+        address owner = address(0xb0c4C487C5cf6d67807Bc2008c66fa7e2cE744EC); // Safe but not an owner of the root safe.
         string memory taskName =
             createSimpleStorageTaskWithNonce(network, address(simpleStorage), 100, 2000, 0, 1, 12, 20, 22);
         StackedSimulator ss = new StackedSimulator();
         vm.expectRevert(
             bytes(
                 string.concat(
-                    "TaskManager: child safe address (",
-                    vm.toString(owner),
-                    ") must be an owner of the parent multisig: 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
+                    "TaskManager: child safe address (", vm.toString(owner), ") is not an owner of any other safe."
                 )
             )
         );
@@ -414,7 +412,7 @@ contract StackedSimulatorUnitTest is Test {
             LibString.toHexString(simpleStorage),
             "\"\n",
             "SimpleStorageOwner = \"",
-            LibString.toHexString(parentMultisig),
+            LibString.toHexString(rootSafe),
             "\"\n"
         );
     }
@@ -438,7 +436,7 @@ contract StackedSimulatorUnitTest is Test {
         string memory toml = string.concat(
             _buildBaseToml(simpleStorage, firstValue, oldValue, newValue),
             "\n[stateOverrides]\n",
-            LibString.toHexString(parentMultisig),
+            LibString.toHexString(rootSafe),
             " = [\n",
             "    {key = 5, value = ",
             vm.toString(parentNonce),

@@ -347,8 +347,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// @notice Validate that the safes are in the correct order.
     function _validateSafes(address[] memory _allSafes) private view {
         require(_allSafes.length > 0, "MultisigTask: no safes provided");
-        // TODO: remove this check once we support an arbitrary number of safes in the future.
-        require(_allSafes.length <= 2, "MultisigTask: currently only supports 1 level of nesting.");
         for (uint256 i = 1; i < _allSafes.length; i++) {
             require(
                 IGnosisSafe(_allSafes[i]).isOwner(_allSafes[i - 1]),
@@ -370,8 +368,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             payload.calldatas.length == payload.originalNonces.length, "MultisigTask: datas and nonces length mismatch"
         );
         require(payload.calldatas.length > 0, "MultisigTask: no calldatas provided");
-        // TODO: remove this check once we support an arbitrary number of safes in the future.
-        require(payload.calldatas.length <= 2, "MultisigTask: currently only supports 1 level of nesting.");
         _validateSafes(payload.safes);
 
         // For nested calls, validate that each predecessor contains the hash of its successor

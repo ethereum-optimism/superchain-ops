@@ -25,35 +25,20 @@ contract StackedSimulator is Script {
     }
 
     /// @notice Simulate a task that has nested safe architecture with a child safe at depth 2, a child safe at depth 1, and a root safe.
-    /// If childSafeDepth2 is not provided, the task will be simulated on the childSafeDepth1 safe.
     function simulateStack(string memory network, string memory task, address childSafeDepth2, address childSafeDepth1)
         public
     {
         require(
-            childSafeDepth1 != address(0) || childSafeDepth2 != address(0),
-            "StackedSimulator: At least one child safe must be provided."
+            childSafeDepth1 != address(0) && childSafeDepth2 != address(0),
+            "StackedSimulator: Both child safes must be provided."
         );
-        address[] memory childSafes;
-        if (childSafeDepth2 != address(0)) {
-            require(
-                childSafeDepth1 != address(0),
-                "StackedSimulator: childSafeDepth1 must be provided when childSafeDepth2 is specified."
-            );
-            childSafes = Solarray.addresses(childSafeDepth2, childSafeDepth1);
-        } else {
-            childSafes = Solarray.addresses(childSafeDepth1);
-        }
-        _simulateStack(network, task, childSafes);
+        _simulateStack(network, task, Solarray.addresses(childSafeDepth2, childSafeDepth1));
     }
 
     /// @notice Simulate a task that has nested safe architecture with a child safe at depth 1 and a root safe.
-    /// If childSafeDepth1 is not provided, the task will be simulated on the root safe.
     function simulateStack(string memory network, string memory task, address childSafeDepth1) public {
-        if (childSafeDepth1 != address(0)) {
-            _simulateStack(network, task, Solarray.addresses(childSafeDepth1));
-        } else {
-            simulateStack(network, task);
-        }
+        require(childSafeDepth1 != address(0), "StackedSimulator: Child safe must be provided.");
+        _simulateStack(network, task, Solarray.addresses(childSafeDepth1));
     }
 
     /// @notice Simulate a task that only has a root safe and no nested safes.
