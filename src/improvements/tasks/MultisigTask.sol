@@ -478,7 +478,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                 } else {
                     // Log account, slot, and value if there is code.
                     // forgefmt: disable-start
-                    string memory err = string.concat("Likely address in storage has unexpected code\n", " account: ", vm.toString(account), "\n slot: ", vm.toString(storageAccess.slot), "\n value: ", vm.toString(bytes32(value)));
+                    string memory err = string.concat("Likely address in storage has unexpected code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
                     // forgefmt: disable-end
                     require(address(uint160(value)).code.length == 0, err);
                 }
