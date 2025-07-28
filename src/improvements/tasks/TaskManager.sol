@@ -53,7 +53,7 @@ contract TaskManager is Script {
     }
 
     /// @notice Fetches all non-terminal tasks for a given network.
-    function getNonTerminalTasks(string memory network) public returns (string[] memory taskPaths_) {
+    function getNonTerminalTaskPaths(string memory network) public returns (string[] memory taskPaths_) {
         string[] memory commands = new string[](2);
         commands[0] = "./src/improvements/script/fetch-tasks.sh";
         commands[1] = network;
@@ -86,17 +86,23 @@ contract TaskManager is Script {
         }
     }
 
+    /// @notice Returns the path to a task for a given network and task name.
+    function getTaskPath(string memory network, string memory task) public returns (string memory) {
+        string[] memory taskPaths = getNonTerminalTaskPaths(network);
+        for (uint256 i = 0; i < taskPaths.length; i++) {
+            if (taskPaths[i].contains(task)) {
+                return taskPaths[i];
+            }
+        }
+        revert(string.concat("TaskManager: Task not found: ", task));
+    }
+
     /// @notice Basic sanity checks to ensure the task is well-formed.
     function validateTask(string memory taskPath) public view {
         require(
             vm.isFile(string.concat(taskPath, "/", "config.toml")),
             string.concat("TaskManager: config.toml file does not exist: ", taskPath)
         );
-        require(
-            vm.isFile(string.concat(taskPath, "/", "README.md")),
-            string.concat("TaskManager: README.md file does not exist: ", taskPath)
-        );
-        // Don't require a VALIDATION markdown file.
     }
 
     function executeTask(TaskConfig memory config, address[] memory _childSafes)
@@ -150,12 +156,12 @@ contract TaskManager is Script {
             require(
                 rootSafeOwners.length > 0,
                 string.concat(
-                    "TaskManager: No owners found for parent multisig: ",
+                    "TaskManager: No owners found for root safe: ",
                     Strings.toHexString(uint256(uint160(_config.rootSafe)), 20)
                 )
             );
             if (_childSafes.length == 0) {
-                // Set defaults
+                // Set the first owner of the root safe as the default child safe.
                 _childSafes = new address[](1);
                 _childSafes[0] = rootSafeOwners[0];
             }

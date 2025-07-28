@@ -44,12 +44,18 @@ task_dir="$root_dir/src/improvements/tasks/$network"
 
 if [[ -n "$test_dir" ]]; then
   task_dir="$test_dir/$network"
+  # For test directories, return all tasks without checking status
+  config_files=$(find "$task_dir" -type f -name 'config.toml')
+  for config_file in $config_files; do
+    tasks_to_run+=("$config_file")
+  done
+else
+  # For production directories, check status before adding tasks
+  files=$(find "$task_dir" -type f -name 'README.md' -not -path '*/rehearsals/*')
+  for file in $files; do
+    check_status "$file"
+  done
 fi
-
-files=$(find "$task_dir" -type f -name 'README.md' -not -path '*/rehearsals/*')
-for file in $files; do
-  check_status "$file"
-done
 
 # Output the list of tasks to run in a suitable format for consuming contracts.
 printf '%s\n' "${tasks_to_run[@]+"${tasks_to_run[@]}"}"

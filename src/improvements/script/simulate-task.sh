@@ -6,14 +6,14 @@ set -euo pipefail
 # simulate it with the appropriate justfile. 
 simulate_task() {
     task=$1
-    nested_safe_name=$2
+    nested_safe_name_depth_1=$2
+    nested_safe_name_depth_2=$3
     root_dir=$(git rev-parse --show-toplevel)
-    nested_just_file="${root_dir}/src/improvements/nested.just"
-    single_just_file="${root_dir}/src/improvements/single.just"
+    just_file="${root_dir}/src/improvements/justfile"
 
     if [ -z "$task" ]; then
         echo "Error: task path is required"
-        echo "Usage: $0 <task_path> [nested_safe_name]"
+        echo "Usage: $0 <task_path> [nested_safe_name_depth_1] [nested_safe_name_depth_2]"
         exit 1
     fi
     
@@ -24,14 +24,15 @@ simulate_task() {
     pushd "$task" > /dev/null
     if [ "$is_nested" = "true" ]; then
         echo "Simulating nested task: $task"
-        if [ -z "$nested_safe_name" ]; then
+        if [ -z "$nested_safe_name_depth_1" ]; then
             echo "Error: this task requires a nested safe name e.g. foundation, council, chain-governor."
             exit 1
         fi
-        SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile "$nested_just_file" simulate "$nested_safe_name"
+        # TODO: If there is another level of nesting we should check and make sure the nested safe name depth 2 is set.
+        SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile "$just_file" simulate "$nested_safe_name_depth_1" "$nested_safe_name_depth_2"
     else
         echo "Simulating single task: $task"
-        SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile "$single_just_file" simulate
+        SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path "$(pwd)"/.env --justfile "$just_file" simulate
     fi
 
     echo -e "\n\nDone simulating task: $task"
@@ -39,4 +40,5 @@ simulate_task() {
     popd > /dev/null
 }
 
-simulate_task "$1" "$2"
+# Arguments: 1. task path, 2. nested safe name depth 1, 3. nested safe name depth 2
+simulate_task "$1" "$2" "$3"

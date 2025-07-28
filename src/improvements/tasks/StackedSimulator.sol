@@ -24,6 +24,34 @@ contract StackedSimulator is Script {
         string name;
     }
 
+    /// @notice Simulate a task in isolation that has nested safe architecture with a child safe at depth 2, a child safe at depth 1, and a root safe.
+    function simulate(string memory network, string memory task, address childSafeDepth2, address childSafeDepth1)
+        public
+    {
+        require(
+            childSafeDepth1 != address(0) && childSafeDepth2 != address(0),
+            "StackedSimulator: Both child safes must be provided."
+        );
+        _simulate(network, task, Solarray.addresses(childSafeDepth2, childSafeDepth1));
+    }
+
+    /// @notice Simulate a task in isolation that has nested safe architecture with a child safe at depth 1 and a root safe.
+    function simulate(string memory network, string memory task, address childSafeDepth1) public {
+        require(childSafeDepth1 != address(0), "StackedSimulator: Child safe must be provided.");
+        _simulate(network, task, Solarray.addresses(childSafeDepth1));
+    }
+
+    /// @notice Simulate a task in isolation that only has a root safe and no nested safes.
+    function simulate(string memory network, string memory task) public {
+        _simulate(network, task, new address[](0));
+    }
+
+    /// @notice Simulate a task in isolation without simulating the full stack before it.
+    function _simulate(string memory network, string memory task, address[] memory childSafes) private {
+        TaskManager taskManager = new TaskManager();
+        taskManager.executeTask(taskManager.parseConfig(taskManager.getTaskPath(network, task)), childSafes);
+    }
+
     /// @notice Simulate a task that has nested safe architecture with a child safe at depth 2, a child safe at depth 1, and a root safe.
     function simulateStack(string memory network, string memory task, address childSafeDepth2, address childSafeDepth1)
         public
@@ -100,11 +128,11 @@ contract StackedSimulator is Script {
     /// @notice Returns an ordered list of non-terminal tasks for a given network.
     function getNonTerminalTasks(string memory network) public returns (TaskInfo[] memory tasks_) {
         TaskManager taskManager = new TaskManager();
-        string[] memory nonTerminalTasks = taskManager.getNonTerminalTasks(network);
-        tasks_ = new TaskInfo[](nonTerminalTasks.length);
-        for (uint256 i = 0; i < nonTerminalTasks.length; i++) {
-            string[] memory parts = vm.split(nonTerminalTasks[i], "/");
-            tasks_[i] = TaskInfo({path: nonTerminalTasks[i], network: network, name: parts[parts.length - 1]});
+        string[] memory nonTerminalTasksPaths = taskManager.getNonTerminalTaskPaths(network);
+        tasks_ = new TaskInfo[](nonTerminalTasksPaths.length);
+        for (uint256 i = 0; i < nonTerminalTasksPaths.length; i++) {
+            string[] memory parts = vm.split(nonTerminalTasksPaths[i], "/");
+            tasks_[i] = TaskInfo({path: nonTerminalTasksPaths[i], network: network, name: parts[parts.length - 1]});
         }
 
         // Sort the taskNames in ascending order based on the uint value of their first three characters.

@@ -1,5 +1,9 @@
-# Create a new template or task
-# e.g. just new [template|task]
+export TASK_PATH := invocation_directory()
+
+###################################
+## Create a new template or task ##
+## e.g. just new [template|task] ##
+###################################
 new COMMAND="" TASK_TYPE="":
     #!/usr/bin/env bash
     set -euo pipefail
@@ -77,121 +81,13 @@ new COMMAND="" TASK_TYPE="":
             ;;
     esac
 
-task COMMAND="" NETWORK="":
-    #!/usr/bin/env bash
-    set -euo pipefail
 
-    echo -e "\033[42m                          \033[0m"
-    echo -e "\033[42m    superchain-ops cli    \033[0m"
-    echo -e "\033[42m                          \033[0m"
 
-    if [ "{{COMMAND}}" = "" ]; then
-        echo -e "\n\033[31mError: No command specified\033[0m\n"
-        exit 1
-    fi
 
-    # shellcheck disable=SC2194
-    case "{{COMMAND}}" in
-        ls)
-            echo ""
-            ./script/sorted-tasks.sh {{NETWORK}}
-            ;;
-        *)
-            echo -e "\n\033[31mError: Invalid command '{{COMMAND}}'\033[0m\n"
-            exit 1
-            ;;
-    esac
-
-check-superchain-registry-latest:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    root_dir=$(git rev-parse --show-toplevel)
-    bash ${root_dir}/src/improvements/script/check-superchain-latest.sh
-
-# This command simulates tasks in the example directory. There should be a corresponding task for each template.
-simulate-all-templates:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    root_dir=$(git rev-parse --show-toplevel)
-    forge build
-    simulation_count=0
-    # When we spawn too many concurrent processes, the simulation fails with 'solc exited with signal: 9 (SIGKILL)'.
-    # The batch size should be low enough to not cause issues, but high enough to not make the simulation too slow.
-    batch_size=13
-    current_batch=0
-
-    # Collect PIDs of each background simulation.
-    declare -a pids=()
-
-    for task in "${root_dir}/test/tasks/example/"*/*; do
-        if [ -d "$task" ]; then
-            # Extract nested_safe_name with fail-safe default of foundation.
-            nested_safe_name="foundation"
-            if [ -f "$task/.env" ]; then
-                # Check if NESTED_SAFE_NAME exists in the file and extract it
-                if grep -q "NESTED_SAFE_NAME" "$task/.env"; then
-                    extracted_value=$(grep "NESTED_SAFE_NAME" "$task/.env" | cut -d '=' -f 2)
-                    # Only use the extracted value if its not empty and not null
-                    if [ -n "$extracted_value" ] && [ "$extracted_value" != "null" ]; then
-                        nested_safe_name="$extracted_value"
-                    fi
-                fi
-            fi
-
-            # Launch each simulation in background.
-            "${root_dir}/src/improvements/script/simulate-task.sh" "$task" "$nested_safe_name" & pids+=( "$!" )
-            current_batch=$((current_batch + 1))
-
-            # If we have reached the batch size, wait for this batch to complete
-            if [ $current_batch -eq $batch_size ]; then
-                echo "Waiting for batch of $batch_size simulations to complete..."
-                # Wait for current batch to finish
-                for pid in "${pids[@]}"; do
-                    wait "$pid"
-                    simulation_count=$((simulation_count + 1))
-                done
-                
-                # Reset for next batch
-                pids=()
-                current_batch=0
-                echo "Batch completed. Starting next batch..."
-            fi
-        fi
-    done
-
-    # Wait for any remaining simulations in the final batch
-    if [ ${#pids[@]} -gt 0 ]; then
-        echo "Waiting for final batch of ${#pids[@]} simulations to complete..."
-        for pid in "${pids[@]}"; do
-            wait "$pid"
-            simulation_count=$((simulation_count + 1))
-        done
-    fi
-
-    echo "$simulation_count simulations run."
-
-    # Count template files (excluding *.template.sol and boilerplate dir).
-    template_count=$(find "${root_dir}/src/improvements/template" -type f ! -name "*.template.sol" ! -path "*/boilerplate/*" | wc -l | xargs)
-
-    # Verify that every template file is referenced by at least one example task config.
-    missing_templates=()
-    while IFS= read -r template_file; do
-        tmpl_name=$(basename "$template_file" .sol)
-        if ! grep -R --quiet "templateName = \"${tmpl_name}\"" "${root_dir}/test/tasks/example"/*/*/config.toml 2>/dev/null; then
-            missing_templates+=("$tmpl_name")
-        fi
-    done < <(find "${root_dir}/src/improvements/template" -type f ! -name "*.template.sol" ! -path "*/boilerplate/*")
-
-    echo ""
-    if [ ${#missing_templates[@]} -ne 0 ]; then
-        echo -e "\033[31mError: The following template(s) do not have an example task referencing them:\033[0m" >&2
-        for t in "${missing_templates[@]}"; do
-            echo -e "\033[31m  • $t\033[0m" >&2
-        done
-        echo -e "\033[32mSuccess: All templates have a corresponding task.\033[0m"
-        exit 1
-    fi
-
+#################################################
+##                Stack Commands               ##
+## e.g. simulate-stack, sign-stack, list-stack ##
+#################################################
 simulate-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     #!/usr/bin/env bash
     set -euo pipefail
@@ -259,7 +155,7 @@ simulate-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEP
     fi
     echo -e "\n⚠️ Please note: Some Tenderly links may not work when running a stacked simulation. Check out Tenderly's Virtual TestNets as a workaround.⚠️"
 
-sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="" HD_PATH="0":
+sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
@@ -271,7 +167,7 @@ sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2
 
     show_usage() {
         echo
-        echo "Usage: just sign <network> <task> [child-safe-name-depth-1] [child-safe-name-depth-2] [hd-path]"
+        echo "Usage: just sign-stack <network> <task> [child-safe-name-depth-1] [child-safe-name-depth-2]"
         echo "Signs a task for execution on the specified network and safe architecture."
         echo
         echo "Required arguments:"
@@ -283,12 +179,15 @@ sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2
         echo "                                   Examples: 'foundation', 'council', 'foundation-operations'"
         echo "  • [child-safe-name-depth-2]    - Name of child safe at depth 2 (owned by depth 1 safe)"
         echo "                                   Only used for deeply nested safe architectures e.g. Base"
-        echo "  • [hd-path]                    - Hardware wallet derivation path (default: 0)"
+        echo
+        echo "Environment variables:"
+        echo "  • HD_PATH                      - Hardware wallet derivation path (default: 0)"
         echo
         echo "Examples:"
-        echo "  just sign eth 001-example                          # Sign for root safe only"
-        echo "  just sign eth 001-example foundation               # Sign for foundation child safe"
-        echo "  just sign eth 001-example council foundation       # Sign for council->foundation nested"
+        echo "  just sign-stack eth 001-example                          # Sign for root safe only"
+        echo "  just sign-stack eth 001-example foundation               # Sign for foundation child safe"
+        echo "  just sign-stack eth 001-example council foundation       # Sign for council->foundation nested"
+        echo "  HD_PATH=1 just sign-stack eth 001-example                # Sign with HD path 1"
         echo
     }
 
@@ -305,7 +204,8 @@ sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2
     child_safe_depth_2=$(just --justfile "$root_just_file" _fetch-safe "{{NETWORK}}" "{{TASK}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")
 
     # We only support signing with ledger for now.
-    signer_args=$(just --justfile "$root_just_file" _get-signer-args {{HD_PATH}})
+    HD_PATH=${HD_PATH:-0}  # Default to 0 if not set
+    signer_args=$(just --justfile "$root_just_file" _get-signer-args ${HD_PATH})
 
     # Determine which function signature to use based on provided child safes
     if [ "$child_safe_depth_2" != "0x0000000000000000000000000000000000000000" ]; then
@@ -317,7 +217,6 @@ sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2
         ${root_dir}/bin/eip712sign ${signer_args} -- \
          forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_1" --ffi --rpc-url $ETH_RPC_URL
     fi
-    
 
 list-stack NETWORK="" TASK="":
     #!/usr/bin/env bash
@@ -349,11 +248,198 @@ list-stack NETWORK="" TASK="":
         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string,string)" {{NETWORK}} {{TASK}}
     fi
 
-test:
-    forge build
-    forge test
-    just simulate-all-templates
 
+#  ┌────────────────────┐      
+#  │ Child Safe Depth 2 │
+#  │ e.g. 'base-council'│
+#  └────────────────────┘      
+#             │                
+#             └─────────────────┬
+#                               ▼     
+#                           ┌────────────────────┐
+#                           │ Child Safe Depth 1 │
+#                           │  e.g. 'foundation' │
+#                           └────────────────────┘
+#                                      │          
+#                                      └──────────┬
+#                                                 ▼
+#                                          ┌─────────────────┐
+#                                          │ ProxyAdminOwner │
+#                                          └─────────────────┘
+########################################
+##          Non-Stacked Commands      ##
+## e.g. simulate, sign                ##
+########################################
+simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+    root_just_file="${root_dir}/src/improvements/justfile"
+
+    echo -e "\033[42m                                         \033[0m"
+    echo -e "\033[42m        superchain-ops simulation        \033[0m"
+    echo -e "\033[42m                                         \033[0m"
+
+    show_usage() {
+        echo
+        echo "Usage: just simulate <network> <task> [child-safe-name-depth-1] [child-safe-name-depth-2]"
+        echo "Simulates a single task execution on the specified network and safe architecture."
+        echo
+        echo "Required arguments:"
+        echo "  • <network>                    - The network to simulate on (e.g. 'sep', 'eth')"
+        echo "  • <task>                       - The task to simulate (e.g. '001-task-name')"
+        echo
+        echo "Optional arguments:"
+        echo "  • [child-safe-name-depth-1]    - Name of child safe at depth 1 (owned by root safe)"
+        echo "  • [child-safe-name-depth-2]    - Name of child safe at depth 2 (owned by depth 1 safe)"
+        echo
+        echo "Environment variables:"
+        echo "  • SIMULATE_WITHOUT_LEDGER      - If set, uses first safe owner instead of ledger"
+        echo "  • HD_PATH                      - Hardware wallet derivation path (default: 0)"
+        echo "  • FORK_BLOCK_NUMBER            - Specific block number to fork from (default: latest)"
+        echo "                                   Set to -1 to use latest block explicitly"
+        echo
+        echo "Examples:"
+        echo "  just simulate eth 001-example                            # Simulate on root safe"
+        echo "  just simulate eth 001-example foundation                 # Simulate on foundation child safe"
+        echo "  SIMULATE_WITHOUT_LEDGER=1 just simulate eth 001-example  # Simulate without ledger"
+        echo "  HD_PATH=1 just simulate eth 001-example                  # Use HD path 1"
+        echo "  FORK_BLOCK_NUMBER=12345 just simulate eth 001-example    # Fork from specific block"
+        echo
+    }
+
+    # Make sure to set the FETCH_TASKS_TEST_DIR environment variable if we are running a test task. See: fetch-tasks.sh for more details.
+    if [[ "$TASK_PATH" == *"test/tasks/example"* ]]; then
+        export FETCH_TASKS_TEST_DIR="test/tasks/example"
+    fi
+
+    task_name=$(basename "$TASK_PATH")
+    network=$(basename "$(dirname "$TASK_PATH")")
+    ETH_RPC_URL=$(just _fetch-rpc-url "$network")
+    ZERO_ADDRESS="0x0000000000000000000000000000000000000000"
+
+    HD_PATH=${HD_PATH:-0}  # Default to 0 if not set
+
+    echo "Child safe depth 1: {{CHILD_SAFE_NAME_DEPTH_1}}"
+    echo "Child safe depth 2: {{CHILD_SAFE_NAME_DEPTH_2}}"
+    
+    child_safe_depth_1=$(just --justfile "$root_just_file" _fetch-safe "{{TASK_PATH}}" "{{CHILD_SAFE_NAME_DEPTH_1}}")
+    child_safe_depth_2=$(just --justfile "$root_just_file" _fetch-safe "{{TASK_PATH}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")
+
+    # Get function signature and arguments using helper
+    eval "$(just --justfile "$root_just_file" _build-simulator-args "$network" "$TASK_PATH" "{{CHILD_SAFE_NAME_DEPTH_1}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")"
+    
+    config_path=${TASK_PATH}/config.toml
+
+    # Configure signer for simulation
+    if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
+        signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/${HD_PATH}/0/0")
+        echo "Simulating with ledger account: ${signer}"
+    else
+        # Get the appropriate safe to extract signer from
+        if [ "$child_safe_depth_2" != "$ZERO_ADDRESS" ]; then
+            safe_for_signer="$child_safe_depth_2"
+        elif [ "$child_safe_depth_1" != "$ZERO_ADDRESS" ]; then
+            safe_for_signer="$child_safe_depth_1" 
+        else
+            # Get root safe from task
+            safe_for_signer=$(forge script TaskManager --sig "getRootSafe(string)" $config_path --rpc-url $ETH_RPC_URL --json | jq -r '.returns["0"].value')
+        fi
+        signer=$(cast call ${safe_for_signer} "getOwners()(address[])" -r $ETH_RPC_URL | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
+        echo "Simulating without ledger using first owner from safe ${safe_for_signer}: ${signer}"
+    fi
+    
+    # Get fork block arguments
+    fork_block_args=$(just --justfile "$root_just_file" _get-fork-block-args)
+    
+    echo -e "⏳ You are simulating the task: $task_name for network: '$network' on $target_safe\n"
+    forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "$sig" "${args[@]}" --ffi --rpc-url $ETH_RPC_URL --sender ${signer} ${fork_block_args}
+
+sign NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+    root_just_file="${root_dir}/src/improvements/justfile"
+    
+    echo -e "\033[42m                                         \033[0m"
+    echo -e "\033[42m       superchain-ops sign task          \033[0m"
+    echo -e "\033[42m                                         \033[0m"
+
+    show_usage() {
+        echo
+        echo "Usage: just sign <network> <task> [child-safe-name-depth-1] [child-safe-name-depth-2]"
+        echo "Signs a task for execution on the specified network and safe architecture."
+        echo
+        echo "Required arguments:"
+        echo "  • <network>                    - The network to sign for (e.g. 'sep', 'eth')"
+        echo "  • <task>                       - The task to sign (e.g. '001-task-name')"
+        echo
+        echo "Optional arguments:"
+        echo "  • [child-safe-name-depth-1]    - Name of child safe at depth 1 (owned by root safe)"
+        echo "                                   Examples: 'foundation', 'council', 'foundation-operations'"
+        echo "  • [child-safe-name-depth-2]    - Name of child safe at depth 2 (owned by depth 1 safe)"
+        echo "                                   Only used for deeply nested safe architectures e.g. Base"
+        echo
+        echo "Environment variables:"
+        echo "  • HD_PATH                      - Hardware wallet derivation path (default: 0)"
+        echo "  • USE_KEYSTORE                 - If set, uses keystore instead of ledger"
+        echo
+        echo "Examples:"
+        echo "  just sign eth 001-example                          # Sign for root safe only"
+        echo "  just sign eth 001-example foundation               # Sign for foundation child safe"
+        echo "  just sign eth 001-example council foundation       # Sign for council->foundation nested"
+        echo "  HD_PATH=1 just sign eth 001-example                # Sign with HD path 1"
+        echo "  USE_KEYSTORE=1 just sign eth 001-example           # Sign with keystore"
+        echo
+    }
+
+    if [ -z "{{NETWORK}}" ] || [ -z "{{TASK}}" ]; then
+        show_usage
+        exit 0
+    fi
+    
+    export SIGNING_MODE_IN_PROGRESS=true
+
+    ETH_RPC_URL=$(just --justfile "$root_just_file" _fetch-rpc-url "{{NETWORK}}")
+    HD_PATH=${HD_PATH:-0}  # Default to 0 if not set
+    
+    # Get function signature and arguments using helper
+    eval "$(just --justfile "$root_just_file" _build-simulator-args "{{NETWORK}}" "{{TASK}}" "{{CHILD_SAFE_NAME_DEPTH_1}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")"
+    
+    # Determine which safe to validate signer against
+    if [ "$child_safe_depth_2" != "0x0000000000000000000000000000000000000000" ]; then
+        target_safe_for_validation="$child_safe_depth_2"
+    elif [ "$child_safe_depth_1" != "0x0000000000000000000000000000000000000000" ]; then
+        target_safe_for_validation="$child_safe_depth_1"
+    else
+        # Get root safe from task
+        task_path=${root_dir}/src/improvements/tasks/{{NETWORK}}/{{TASK}}/config.toml
+        target_safe_for_validation=$(forge script TaskManager --sig "getRootSafe(string)" $task_path --rpc-url $ETH_RPC_URL --json | jq -r '.returns["0"].value')
+    fi
+    
+    # Configure signer (ledger or keystore)
+    echo "getting signer address..."
+    if [ -z "${USE_KEYSTORE:-}" ]; then
+        hdpaths="m/44'/60'/${HD_PATH}'/0/0"
+        echo "Using ledger"
+        signer=$(cast wallet address --ledger --mnemonic-derivation-path $hdpaths)
+        signer_args="--ledger --hd-paths $hdpaths"
+    else
+        echo "Using keystore"
+        signer_private_key=$(just --justfile "$root_just_file" _get-keystore-private-key "{{NETWORK}}" "{{TASK}}")
+        signer=$(cast wallet address --private-key ${signer_private_key})
+        signer_args="--private-key ${signer_private_key#0x}"
+    fi
+    echo "Signing with: ${signer}"
+    
+    # Validate that signer is an owner on the target safe
+    echo "Validating signer is an owner on the safe..."
+    # forge script TaskManager --rpc-url $ETH_RPC_URL --sig "requireSignerOnSafe(address,address)" $signer $target_safe_for_validation
+    
+    echo "⏳ Task signing in progress. Some tasks take longer than others..."
+    forge build
+    ${root_dir}/bin/eip712sign ${signer_args} -- \
+     forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "$sig" "${args[@]}" --ffi --rpc-url $ETH_RPC_URL
 
 ########################
 ### Helper functions ###
@@ -371,14 +457,13 @@ _fetch-rpc-url NETWORK="":
 
 # Helper function to fetch the safe address for a given network and task.
 [no-cd] 
-_fetch-safe NETWORK TASK OWNER_SAFE_NAME:
+_fetch-safe TASK_DIR_PATH OWNER_SAFE_NAME:
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
     safe="0x0000000000000000000000000000000000000000" # Default to zero address for non-nested safes
-    taskPath=${root_dir}/src/improvements/tasks/{{NETWORK}}/{{TASK}}
     if [ -n "{{OWNER_SAFE_NAME}}" ]; then
-        safe=$(bash ${root_dir}/src/improvements/script/get-safe.sh $taskPath "{{OWNER_SAFE_NAME}}")
+        safe=$(bash ${root_dir}/src/improvements/script/get-safe.sh "{{TASK_DIR_PATH}}" "{{OWNER_SAFE_NAME}}")
     fi
     echo "${safe}"
 
@@ -392,3 +477,76 @@ _get-signer-args hdPath='0':
     signer=$(cast wallet address --ledger --mnemonic-derivation-path $hdpaths)
     signer_args="--ledger --hd-paths $hdpaths"
     echo $signer_args
+
+# Helper function to get fork block arguments based on FORK_BLOCK_NUMBER environment variable
+[no-cd]
+_get-fork-block-args:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    
+    # Allow simulating from a specific block by setting FORK_BLOCK_NUMBER environment variable.
+    # If not set (or set to -1), default to using the latest block.
+    if [ "${FORK_BLOCK_NUMBER:-"-1"}" = "-1" ]; then
+        echo ""  # Return empty string for no additional args
+    else
+        echo "Using fork block number from env: ${FORK_BLOCK_NUMBER}" >&2
+        echo "--fork-block-number ${FORK_BLOCK_NUMBER}"
+    fi
+
+# Helper function to handle keystore selection and private key extraction
+[no-cd]
+_get-keystore-private-key NETWORK TASK:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+    task_path=${root_dir}/src/improvements/tasks/{{NETWORK}}/{{TASK}}
+    
+    echo "Enter your foundry keystore path (e.g. ~/.foundry/keystores/sep-test-private-key):" >&2
+    keystorePath=$(cd ~/.foundry/keystores/ && fzf --header="Searching your keystore in $PWD" --prompt="Keystore for signing:")
+    
+    cd ${task_path}
+    echo "Keystore path: ${keystorePath}" >&2
+    # Build full keystore path
+    full_keystore_path="$HOME/.foundry/keystores/${keystorePath}"
+    signer_private_key=$(cast wallet pk --keystore ${full_keystore_path})
+    sender=$(cast wallet address --private-key ${signer_private_key})
+    echo "Signing with the signer: ${sender}" >&2
+    if [ -z "${signer_private_key}" ]; then
+        echo "Error: Failed to get private key for keystore ${full_keystore_path}" >&2
+        exit 1
+    fi
+    echo "${signer_private_key}"
+
+# Helper function to build simulator function signature and arguments. It's expected that the caller will eval the output.
+[no-cd]
+_build-simulator-args NETWORK TASK_DIR_PATH CHILD_SAFE_NAME_DEPTH_1 CHILD_SAFE_NAME_DEPTH_2:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    root_dir=$(git rev-parse --show-toplevel)
+    root_just_file="${root_dir}/src/improvements/justfile"
+    ZERO_ADDRESS="0x0000000000000000000000000000000000000000"
+    
+    child_safe_depth_1=$(just --justfile "$root_just_file" _fetch-safe "{{TASK_DIR_PATH}}" "{{CHILD_SAFE_NAME_DEPTH_1}}")
+    child_safe_depth_2=$(just --justfile "$root_just_file" _fetch-safe "{{TASK_DIR_PATH}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")
+    task_name=$(basename "{{TASK_DIR_PATH}}")
+    
+    # Export child safe addresses for use by caller
+    echo "child_safe_depth_1=\"$child_safe_depth_1\""
+    echo "child_safe_depth_2=\"$child_safe_depth_2\""
+    
+    # Build function signature and arguments dynamically
+    if [ "$child_safe_depth_2" != "$ZERO_ADDRESS" ]; then
+        echo "sig=\"simulate(string,string,address,address)\""
+        echo "args=(\"{{NETWORK}}\" \"$task_name\" \"$child_safe_depth_2\" \"$child_safe_depth_1\")"
+        echo "target_safe=\"nested safe: $child_safe_depth_2\""
+    elif [ "$child_safe_depth_1" != "$ZERO_ADDRESS" ]; then
+        echo "sig=\"simulate(string,string,address)\""
+        echo "args=(\"{{NETWORK}}\" \"$task_name\" \"$child_safe_depth_1\")"
+        echo "target_safe=\"nested safe: $child_safe_depth_1\""
+    else 
+        echo "sig=\"simulate(string,string)\""
+        echo "args=(\"{{NETWORK}}\" \"$task_name\")"
+        echo "target_safe=\"default safes\""
+    fi
+
+
