@@ -30,9 +30,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     using AccountAccessParser for VmSafe.AccountAccess;
     using StdStyle for string;
 
-    /// @notice The root safe address for the task
-    address public root; // TODO: remove this in preference of passing it as a parameter.
-
     /// @notice AddressesRegistry contract
     AddressRegistry public addrRegistry;
 
@@ -61,7 +58,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// @notice Simulates the root safe transaction of the task.
     function simulate(string memory taskConfigFilePath)
         public
-        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32, bytes memory)
+        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32, bytes memory, address)
     {
         return _runTask(taskConfigFilePath, "", address(0), true);
     }
@@ -70,7 +67,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// This works by printing the 'data to sign' for the nested safe which is then passed to the eip712sign binary for signing.
     function simulate(string memory taskConfigFilePath, address _childMultisig)
         public
-        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32, bytes memory)
+        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32, bytes memory, address)
     {
         return _runTask(taskConfigFilePath, "", _childMultisig, true);
     }
@@ -85,7 +82,8 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         public
         returns (VmSafe.AccountAccess[] memory)
     {
-        (VmSafe.AccountAccess[] memory accountAccesses,,,) = _runTask(taskConfigFilePath, signatures, address(0), false);
+        (VmSafe.AccountAccess[] memory accountAccesses,,,,) =
+            _runTask(taskConfigFilePath, signatures, address(0), false);
         return accountAccesses;
     }
 
@@ -580,7 +578,13 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         bool isSimulate
     )
         internal
-        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32 normalizedHash_, bytes memory dataToSign_)
+        returns (
+            VmSafe.AccountAccess[] memory,
+            Action[] memory,
+            bytes32 normalizedHash_,
+            bytes memory dataToSign_,
+            address rootSafe
+        )
     {
         // TODO: Remove this when the interface tasks an array of safes.
         address[] memory childSafes;
@@ -593,6 +597,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
         (TaskPayload memory payload, Action[] memory actions) = _taskSetup(_taskConfigFilePath, childSafes);
         uint256 rootSafeIndex = payload.safes.length - 1;
+        rootSafe = payload.safes[rootSafeIndex];
         (VmSafe.AccountAccess[] memory accountAccesses, bytes32 txHash) =
             executeTaskStep(_signatures, payload, rootSafeIndex);
 
@@ -601,10 +606,10 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
         // Sanity check that the root safe is a nested safe.
         if (payload.safes.length > 1) {
-            require(isNestedSafe(payload.safes[rootSafeIndex]), "MultisigTask: multisig must be a nested safe.");
+            require(isNestedSafe(rootSafe), "MultisigTask: multisig must be a nested safe.");
         }
 
-        return (accountAccesses, actions, normalizedHash_, dataToSign_);
+        return (accountAccesses, actions, normalizedHash_, dataToSign_, rootSafe);
     }
 
     /// @notice Using the tasks config.toml file, this function configures the task.
@@ -612,16 +617,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         internal
         returns (TaskPayload memory payload_, Action[] memory actions_)
     {
-        require(root == address(0), "MultisigTask: already initialized");
+        require(_preExecutionSnapshot == 0, "MultisigTask: already initialized");
         templateConfig.safeAddressString = loadSafeAddressString(MultisigTask(address(this)), _taskConfigFilePath);
         IGnosisSafe _root;
         (addrRegistry, _root, multicallTarget) = _configureTask(_taskConfigFilePath);
-        root = address(_root);
 
         // Appends the root safe. The earlier a safe address appears in the array, the deeper its level of nesting.
-        address[] memory allSafes = Solarray.extend(_childSafes, Solarray.addresses(root));
-
-        _templateSetup(_taskConfigFilePath, root); // May set variables used in '_taskStorageWrites'.
+        address[] memory allSafes = Solarray.extend(_childSafes, Solarray.addresses(address(_root)));
+        _templateSetup(_taskConfigFilePath, address(_root)); // May set variables used in '_taskStorageWrites'.
 
         templateConfig.allowedStorageKeys = _taskStorageWrites();
         templateConfig.allowedStorageKeys.push(templateConfig.safeAddressString);
@@ -635,7 +638,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         vm.label(AddressRegistry.unwrap(addrRegistry), "AddrRegistry");
         vm.label(address(this), "MultisigTask");
 
-        actions_ = build(root);
+        actions_ = build(address(_root));
         bytes[] memory allCalldatas = transactionDatas(actions_, allSafes, allOriginalNonces);
         payload_ = TaskPayload({safes: allSafes, calldatas: allCalldatas, originalNonces: allOriginalNonces});
         _validatePayload(payload_);

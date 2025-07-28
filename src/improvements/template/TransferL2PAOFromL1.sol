@@ -91,11 +91,8 @@ contract TransferL2PAOFromL1 is L2TaskBase {
         // assertEq(ProxyAdmin(l2ProxyAdminPredeploy).owner(), aliasedNewOwner, "aliased new owner not set correctly");
     }
 
-    /// @notice Aliased new owner is a code exception. This is because the aliased address is not a contract.
-    function _getCodeExceptions() internal view virtual override returns (address[] memory) {
-        address[] memory codeExceptions = new address[](0);
-        return codeExceptions;
-    }
+    /// @notice No code exceptions for this template.
+    function _getCodeExceptions() internal view virtual override returns (address[] memory) {}
 }
 
 interface OptimismPortal {
