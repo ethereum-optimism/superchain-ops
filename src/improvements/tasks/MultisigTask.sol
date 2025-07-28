@@ -472,7 +472,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                 if (Utils.isLikelyAddressThatShouldHaveCode(value, codeExceptions)) {
                     // Log account, slot, and value if there is no code.
                     // forgefmt: disable-start
-                    string memory err = string.concat("Likely address in storage has no code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
+                    string memory err = string.concat("Likely address in storage has no code\n", " account: ", vm.toString(account), "\n slot:    ", vm.toString(storageAccess.slot), "\n value:  ", vm.toString(bytes32(value)));
                     // forgefmt: disable-end
                     require(address(uint160(value)).code.length != 0, err);
                 } else {
