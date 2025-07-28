@@ -68,5 +68,6 @@ contract StackSimulationTestTemplate is SimpleTaskBase {
         assertEq(simpleStorage.first(), firstValue);
     }
 
+    /// @notice No code exceptions for this template.
     function _getCodeExceptions() internal view virtual override returns (address[] memory) {}
 }

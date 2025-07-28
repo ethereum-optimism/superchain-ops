@@ -1,6 +1,6 @@
 # 017-U16-opcm-upgrade-v400-op-ink: Upgrade 16: OP Mainnet and Ink
 
-Status: [READY TO SIGN]()
+Status: [EXECUTED](https://etherscan.io/tx/0x46acdce174c8d83ebe2f208d8c76c867e75617483d64c3e407f69ae2f9868716)
 
 ## Objective
 
