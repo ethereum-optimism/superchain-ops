@@ -34,6 +34,9 @@ contract GnosisSafeRemoveOwner is SimpleTaskBase {
     /// @notice The address of the first owner in the linked list of owners.
     address internal constant SENTINEL_OWNERS = address(0x1);
 
+    /// @notice Additional code exceptions to add to the task.
+    address[] internal additionalCodeExceptions;
+
     /// @notice Returns the safe address string identifier.
     function safeAddressString() public pure override returns (string memory) {
         revert("safeAddressString must be set in the config file");
@@ -63,6 +66,11 @@ contract GnosisSafeRemoveOwner is SimpleTaskBase {
         previousOwner = getPreviousOwner(_rootSafe);
         require(previousOwner != address(0), "previousOwner must be set.");
         checkSupportedVersions(_rootSafe);
+
+        address[] memory owners = IGnosisSafe(_rootSafe).getOwners();
+        for (uint256 i = 0; i < owners.length; i++) {
+            additionalCodeExceptions.push(owners[i]);
+        }
     }
 
     /// @notice Builds the actions for executing the operations.
@@ -81,19 +89,12 @@ contract GnosisSafeRemoveOwner is SimpleTaskBase {
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function _getCodeExceptions(address _rootSafe) internal view virtual override returns (address[] memory) {
+    function _getCodeExceptions() internal view virtual override returns (address[] memory) {
         // The SecurityCouncils's LivenessGuard stores the list of owner addresses in the `ownersBefore` set.
         // They are then removed in the same execution inside the `checkAfterExecution` function (this is why we don't see them in the state diff).
         // The original writes get analyzed in our `_checkStateDiff` function.
         // Therefore, we have to add the SecurityCouncil's owners addresses as code exceptions.
-        address[] memory owners = IGnosisSafe(_rootSafe).getOwners();
-        address[] memory codeExceptions = new address[](owners.length + 1);
-        for (uint256 i = 0; i < owners.length; i++) {
-            codeExceptions[i] = owners[i];
-        }
-        // We must add the owner to be removed as a code exception. It's not available in the getOwners() invocation because it was removed at this point.
-        codeExceptions[codeExceptions.length - 1] = ownerToRemove;
-        return codeExceptions;
+        return additionalCodeExceptions;
     }
 
     /// @notice Returns the owner that pointed to the owner to be removed in the linked list.

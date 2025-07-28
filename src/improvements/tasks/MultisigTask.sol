@@ -294,7 +294,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
         _validate(accountAccesses, actions, rootSafe);
 
-        _checkStateDiff(accountAccesses, rootSafe);
+        _checkStateDiff(accountAccesses);
     }
 
     /// @notice Get the build started flag. Useful for finding slot number of state variable using StdStorage.
@@ -433,11 +433,11 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
     /// @notice This function performs basic checks on the state diff.
     /// It checks that all touched accounts have code, that the balances are unchanged if not expected, and that no self-destructs occurred.
-    function _checkStateDiff(VmSafe.AccountAccess[] memory accountAccesses, address rootSafe) internal view {
+    function _checkStateDiff(VmSafe.AccountAccess[] memory accountAccesses) internal view {
         require(accountAccesses.length > 0, "No account accesses");
         address[] memory allowedAccesses = getAllowedStorageAccess();
         address[] memory newContracts = accountAccesses.getNewContracts();
-        address[] memory codeExceptions = _getCodeExceptions(rootSafe);
+        address[] memory codeExceptions = _getCodeExceptions();
         for (uint256 i; i < accountAccesses.length; i++) {
             VmSafe.AccountAccess memory accountAccess = accountAccesses[i];
             // All touched accounts should have code, with the exception of precompiles.
@@ -900,7 +900,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// @notice By default, any value written to storage that looks like an address is expected to
     /// have code. Sometimes, accounts without code are expected, and this function allows you to
     /// specify a list of those addresses.
-    function _getCodeExceptions(address _rootSafe) internal view virtual returns (address[] memory);
+    function _getCodeExceptions() internal view virtual returns (address[] memory);
 
     /// @notice Different tasks have different inputs. A task template will create the appropriate
     /// storage structures for storing and accessing these inputs. In this method, you read in the

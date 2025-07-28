@@ -149,5 +149,5 @@ contract EnableDeputyPauseModuleTemplate is SimpleTaskBase {
     }
 
     /// @notice No code exceptions for this template
-    function _getCodeExceptions(address) internal view override returns (address[] memory) {}
+    function _getCodeExceptions() internal view override returns (address[] memory) {}
 }

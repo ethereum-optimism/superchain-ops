@@ -80,5 +80,5 @@ contract SetRespectedGameTypeTemplate is L2TaskBase {
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function _getCodeExceptions(address) internal pure override returns (address[] memory) {}
+    function _getCodeExceptions() internal pure override returns (address[] memory) {}
 }

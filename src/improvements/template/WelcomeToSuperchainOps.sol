@@ -24,6 +24,9 @@ contract WelcomeToSuperchainOps is SimpleTaskBase {
     /// @notice The address of the TargetContract contract.
     ITargetContract public targetContract;
 
+    /// @notice Additional code exceptions to add to the task.
+    address[] internal additionalCodeExceptions;
+
     /// @notice Returns the safe address string identifier.
     function safeAddressString() public pure override returns (string memory) {
         return "SecurityCouncil";
@@ -53,6 +56,11 @@ contract WelcomeToSuperchainOps is SimpleTaskBase {
         string memory toml = vm.readFile(_taskConfigFilePath);
         name = abi.decode(vm.parseToml(toml, ".name"), (string));
         targetContract = ITargetContract(payable(simpleAddrRegistry.get("TargetContract")));
+
+        address[] memory owners = IGnosisSafe(_rootSafe).getOwners();
+        for (uint256 i = 0; i < owners.length; i++) {
+            additionalCodeExceptions.push(owners[i]);
+        }
     }
 
     /// @notice Builds the template. Actions to perform on the target contract.
@@ -67,17 +75,12 @@ contract WelcomeToSuperchainOps is SimpleTaskBase {
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function _getCodeExceptions(address _rootSafe) internal view virtual override returns (address[] memory) {
+    function _getCodeExceptions() internal view virtual override returns (address[] memory) {
         // The SecurityCouncils's LivenessGuard stores the list of owner addresses in the `ownersBefore` set.
         // They are then removed in the same execution inside the `checkAfterExecution` function (this is why we don't see them in the state diff).
         // The original writes get analyzed in our `_checkStateDiff` function.
         // Therefore, we have to add the SecurityCouncil's owners addresses as code exceptions.
-        address[] memory owners = IGnosisSafe(_rootSafe).getOwners();
-        address[] memory codeExceptions = new address[](owners.length);
-        for (uint256 i = 0; i < owners.length; i++) {
-            codeExceptions[i] = owners[i];
-        }
-        return codeExceptions;
+        return additionalCodeExceptions;
     }
 }
 

@@ -77,7 +77,7 @@ contract SimpleTaskBaseTemplate is SimpleTaskBase {
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function _getCodeExceptions(address) internal view virtual override returns (address[] memory) {
+    function _getCodeExceptions() internal view virtual override returns (address[] memory) {
         require(
             false, "TODO: Implement the logic to return a list of addresses that should not be checked for code length."
         );
