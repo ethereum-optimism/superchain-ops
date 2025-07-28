@@ -319,9 +319,6 @@ simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     ZERO_ADDRESS="0x0000000000000000000000000000000000000000"
 
     HD_PATH=${HD_PATH:-0}  # Default to 0 if not set
-
-    echo "Child safe depth 1: {{CHILD_SAFE_NAME_DEPTH_1}}"
-    echo "Child safe depth 2: {{CHILD_SAFE_NAME_DEPTH_2}}"
     
     child_safe_depth_1=$(just --justfile "$root_just_file" _fetch-safe "{{TASK_PATH}}" "{{CHILD_SAFE_NAME_DEPTH_1}}")
     child_safe_depth_2=$(just --justfile "$root_just_file" _fetch-safe "{{TASK_PATH}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")
