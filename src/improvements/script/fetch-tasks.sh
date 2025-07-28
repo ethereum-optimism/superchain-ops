@@ -46,7 +46,7 @@ if [[ -n "$test_dir" ]]; then
   task_dir="$test_dir/$network"
 fi
 
-files=$(find "$task_dir" -type f -name 'README.md')
+files=$(find "$task_dir" -type f -name 'README.md' -not -path '*/rehearsals/*')
 for file in $files; do
   check_status "$file"
 done
