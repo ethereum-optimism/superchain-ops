@@ -8,9 +8,7 @@ new COMMAND="" TASK_TYPE="":
     #!/usr/bin/env bash
     set -euo pipefail
 
-    echo -e "\033[42m                          \033[0m"
-    echo -e "\033[42m    superchain-ops cli    \033[0m"
-    echo -e "\033[42m                          \033[0m"
+    just _print-welcome-message
 
     show_usage() {
         echo
@@ -94,9 +92,7 @@ simulate-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEP
     root_dir=$(git rev-parse --show-toplevel)
     root_just_file="${root_dir}/src/improvements/justfile"
 
-    echo -e "\033[42m                                         \033[0m"
-    echo -e "\033[42m    superchain-ops stacked simulation    \033[0m"
-    echo -e "\033[42m                                         \033[0m"
+    just _print-welcome-message
 
     show_usage() {
         echo
@@ -161,9 +157,7 @@ sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2
     root_dir=$(git rev-parse --show-toplevel)
     root_just_file="${root_dir}/src/improvements/justfile"
     
-    echo -e "\033[42m                                         \033[0m"
-    echo -e "\033[42m       superchain-ops sign task          \033[0m"
-    echo -e "\033[42m                                         \033[0m"
+    just _print-welcome-message
 
     show_usage() {
         echo
@@ -276,18 +270,12 @@ simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     root_dir=$(git rev-parse --show-toplevel)
     root_just_file="${root_dir}/src/improvements/justfile"
 
-    echo -e "\033[42m                                         \033[0m"
-    echo -e "\033[42m        superchain-ops simulation        \033[0m"
-    echo -e "\033[42m                                         \033[0m"
+    just _print-welcome-message
 
     show_usage() {
         echo
-        echo "Usage: just simulate <network> <task> [child-safe-name-depth-1] [child-safe-name-depth-2]"
+        echo "Usage: just simulate [child-safe-name-depth-1] [child-safe-name-depth-2]"
         echo "Simulates a single task execution on the specified network and safe architecture."
-        echo
-        echo "Required arguments:"
-        echo "  • <network>                    - The network to simulate on (e.g. 'sep', 'eth')"
-        echo "  • <task>                       - The task to simulate (e.g. '001-task-name')"
         echo
         echo "Optional arguments:"
         echo "  • [child-safe-name-depth-1]    - Name of child safe at depth 1 (owned by root safe)"
@@ -299,13 +287,6 @@ simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
         echo "  • FORK_BLOCK_NUMBER            - Specific block number to fork from (default: latest)"
         echo "                                   Set to -1 to use latest block explicitly"
         echo
-        echo "Examples:"
-        echo "  just simulate eth 001-example                            # Simulate on root safe"
-        echo "  just simulate eth 001-example foundation                 # Simulate on foundation child safe"
-        echo "  SIMULATE_WITHOUT_LEDGER=1 just simulate eth 001-example  # Simulate without ledger"
-        echo "  HD_PATH=1 just simulate eth 001-example                  # Use HD path 1"
-        echo "  FORK_BLOCK_NUMBER=12345 just simulate eth 001-example    # Fork from specific block"
-        echo
     }
 
     # Make sure to set the FETCH_TASKS_TEST_DIR environment variable if we are running a test task. See: fetch-tasks.sh for more details.
@@ -316,35 +297,15 @@ simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     task_name=$(basename "$TASK_PATH")
     network=$(basename "$(dirname "$TASK_PATH")")
     ETH_RPC_URL=$(just _fetch-rpc-url "$network")
-    ZERO_ADDRESS="0x0000000000000000000000000000000000000000"
 
     HD_PATH=${HD_PATH:-0}  # Default to 0 if not set
-    
-    child_safe_depth_1=$(just --justfile "$root_just_file" _fetch-safe "{{TASK_PATH}}" "{{CHILD_SAFE_NAME_DEPTH_1}}")
-    child_safe_depth_2=$(just --justfile "$root_just_file" _fetch-safe "{{TASK_PATH}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")
 
     # Get function signature and arguments using helper
     eval "$(just --justfile "$root_just_file" _build-simulator-args "$network" "$TASK_PATH" "{{CHILD_SAFE_NAME_DEPTH_1}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")"
     
-    config_path=${TASK_PATH}/config.toml
-
     # Configure signer for simulation
-    if [ -z "$SIMULATE_WITHOUT_LEDGER" ]; then
-        signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/${HD_PATH}/0/0")
-        echo "Simulating with ledger account: ${signer}"
-    else
-        # Get the appropriate safe to extract signer from
-        if [ "$child_safe_depth_2" != "$ZERO_ADDRESS" ]; then
-            safe_for_signer="$child_safe_depth_2"
-        elif [ "$child_safe_depth_1" != "$ZERO_ADDRESS" ]; then
-            safe_for_signer="$child_safe_depth_1" 
-        else
-            # Get root safe from task
-            safe_for_signer=$(forge script TaskManager --sig "getRootSafe(string)" $config_path --rpc-url $ETH_RPC_URL --json | jq -r '.returns["0"].value')
-        fi
-        signer=$(cast call ${safe_for_signer} "getOwners()(address[])" -r $ETH_RPC_URL | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
-        echo "Simulating without ledger using first owner from safe ${safe_for_signer}: ${signer}"
-    fi
+    config_path=${TASK_PATH}/config.toml
+    signer=$(just --justfile "$root_just_file" _get-simulation-signer "$config_path" "$ETH_RPC_URL" "$child_safe_depth_1" "$child_safe_depth_2")
     
     # Get fork block arguments
     fork_block_args=$(just --justfile "$root_just_file" _get-fork-block-args)
@@ -352,24 +313,18 @@ simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     echo -e "⏳ You are simulating the task: $task_name for network: '$network' on $target_safe\n"
     forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "$sig" "${args[@]}" --ffi --rpc-url $ETH_RPC_URL --sender ${signer} ${fork_block_args}
 
-sign NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
+sign CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
     root_just_file="${root_dir}/src/improvements/justfile"
     
-    echo -e "\033[42m                                         \033[0m"
-    echo -e "\033[42m       superchain-ops sign task          \033[0m"
-    echo -e "\033[42m                                         \033[0m"
+    just _print-welcome-message
 
     show_usage() {
         echo
-        echo "Usage: just sign <network> <task> [child-safe-name-depth-1] [child-safe-name-depth-2]"
+        echo "Usage: just sign [child-safe-name-depth-1] [child-safe-name-depth-2]"
         echo "Signs a task for execution on the specified network and safe architecture."
-        echo
-        echo "Required arguments:"
-        echo "  • <network>                    - The network to sign for (e.g. 'sep', 'eth')"
-        echo "  • <task>                       - The task to sign (e.g. '001-task-name')"
         echo
         echo "Optional arguments:"
         echo "  • [child-safe-name-depth-1]    - Name of child safe at depth 1 (owned by root safe)"
@@ -381,38 +336,20 @@ sign NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
         echo "  • HD_PATH                      - Hardware wallet derivation path (default: 0)"
         echo "  • USE_KEYSTORE                 - If set, uses keystore instead of ledger"
         echo
-        echo "Examples:"
-        echo "  just sign eth 001-example                          # Sign for root safe only"
-        echo "  just sign eth 001-example foundation               # Sign for foundation child safe"
-        echo "  just sign eth 001-example council foundation       # Sign for council->foundation nested"
-        echo "  HD_PATH=1 just sign eth 001-example                # Sign with HD path 1"
-        echo "  USE_KEYSTORE=1 just sign eth 001-example           # Sign with keystore"
-        echo
     }
-
-    if [ -z "{{NETWORK}}" ] || [ -z "{{TASK}}" ]; then
-        show_usage
-        exit 0
-    fi
     
     export SIGNING_MODE_IN_PROGRESS=true
+    task_name=$(basename "$TASK_PATH")
+    network=$(basename "$(dirname "$TASK_PATH")")
+    ETH_RPC_URL=$(just _fetch-rpc-url "$network")
 
-    ETH_RPC_URL=$(just --justfile "$root_just_file" _fetch-rpc-url "{{NETWORK}}")
     HD_PATH=${HD_PATH:-0}  # Default to 0 if not set
     
     # Get function signature and arguments using helper
-    eval "$(just --justfile "$root_just_file" _build-simulator-args "{{NETWORK}}" "{{TASK}}" "{{CHILD_SAFE_NAME_DEPTH_1}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")"
-    
-    # Determine which safe to validate signer against
-    if [ "$child_safe_depth_2" != "0x0000000000000000000000000000000000000000" ]; then
-        target_safe_for_validation="$child_safe_depth_2"
-    elif [ "$child_safe_depth_1" != "0x0000000000000000000000000000000000000000" ]; then
-        target_safe_for_validation="$child_safe_depth_1"
-    else
-        # Get root safe from task
-        task_path=${root_dir}/src/improvements/tasks/{{NETWORK}}/{{TASK}}/config.toml
-        target_safe_for_validation=$(forge script TaskManager --sig "getRootSafe(string)" $task_path --rpc-url $ETH_RPC_URL --json | jq -r '.returns["0"].value')
-    fi
+    eval "$(just --justfile "$root_just_file" _build-simulator-args "$network" "$TASK_PATH" "{{CHILD_SAFE_NAME_DEPTH_1}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")"
+
+    # Configure signer for simulation
+    config_path=${TASK_PATH}/config.toml
     
     # Configure signer (ledger or keystore)
     echo "getting signer address..."
@@ -423,7 +360,7 @@ sign NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
         signer_args="--ledger --hd-paths $hdpaths"
     else
         echo "Using keystore"
-        signer_private_key=$(just --justfile "$root_just_file" _get-keystore-private-key "{{NETWORK}}" "{{TASK}}")
+        signer_private_key=$(just --justfile "$root_just_file" _get-keystore-private-key "$network" "$task_name")
         signer=$(cast wallet address --private-key ${signer_private_key})
         signer_args="--private-key ${signer_private_key#0x}"
     fi
@@ -490,6 +427,33 @@ _get-fork-block-args:
         echo "--fork-block-number ${FORK_BLOCK_NUMBER}"
     fi
 
+# Helper function to configure signer for simulation (ledger or safe owner)
+[no-cd]
+_get-simulation-signer CONFIG_PATH ETH_RPC_URL CHILD_SAFE_DEPTH_1 CHILD_SAFE_DEPTH_2:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    ZERO_ADDRESS="0x0000000000000000000000000000000000000000"
+    HD_PATH=${HD_PATH:-0}
+    
+    # Configure signer for simulation
+    if [ -z "${SIMULATE_WITHOUT_LEDGER:-}" ]; then
+        signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/${HD_PATH}/0/0")
+        echo "Simulating with ledger account: ${signer}" >&2
+    else
+        # Get the appropriate safe to extract signer from
+        if [ "{{CHILD_SAFE_DEPTH_2}}" != "$ZERO_ADDRESS" ]; then
+            safe_for_signer="{{CHILD_SAFE_DEPTH_2}}"
+        elif [ "{{CHILD_SAFE_DEPTH_1}}" != "$ZERO_ADDRESS" ]; then
+            safe_for_signer="{{CHILD_SAFE_DEPTH_1}}" 
+        else
+            safe_for_signer=$(forge script TaskManager --sig "getRootSafe(string)" "{{CONFIG_PATH}}" --rpc-url "{{ETH_RPC_URL}}" --json | jq -r '.returns["0"].value')
+        fi
+        signer=$(cast call ${safe_for_signer} "getOwners()(address[])" -r "{{ETH_RPC_URL}}" | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
+        echo "Simulating without ledger using first owner from safe ${safe_for_signer}: ${signer}" >&2
+    fi
+    
+    echo "${signer}"
+
 # Helper function to handle keystore selection and private key extraction
 [no-cd]
 _get-keystore-private-key NETWORK TASK:
@@ -546,4 +510,11 @@ _build-simulator-args NETWORK TASK_DIR_PATH CHILD_SAFE_NAME_DEPTH_1 CHILD_SAFE_N
         echo "target_safe=\"default safes\""
     fi
 
+[no-cd]
+_print-welcome-message:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo -e "\033[42m                              \033[0m"
+    echo -e "\033[42m        superchain-ops        \033[0m"
+    echo -e "\033[42m                              \033[0m"
 

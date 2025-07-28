@@ -339,7 +339,7 @@ contract TaskManager is Script {
 
     /// @notice Returns the root safe address for a given task config file path.
     function getRootSafe(string memory taskConfigFilePath) public returns (address) {
-        (, address parentMultisig,) = isNestedTask(taskConfigFilePath);
-        return parentMultisig;
+        (, address rootSafe,) = isNestedTask(taskConfigFilePath);
+        return rootSafe;
     }
 }
