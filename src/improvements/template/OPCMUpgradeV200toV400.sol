@@ -7,6 +7,7 @@ import {
     IProxyAdmin
 } from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
 
+import {IStandardValidatorV200} from "@eth-optimism-bedrock/interfaces/L1/IStandardValidator.sol";
 import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
@@ -24,12 +25,13 @@ contract OPCMUpgradeV200toV400 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
 
-    /// @notice Validator for final state
+    /// @notice Validators
+    IStandardValidatorV200 public STANDARD_VALIDATOR_V200;
+    IStandardValidatorV300 public STANDARD_VALIDATOR_V300;
     IStandardValidatorV400 public STANDARD_VALIDATOR_V400;
 
     /// @notice Address of the OPCM for U13, U14, U15 and U16.
     address public OPCM_V200;
-    /// @notice Address used for U14 and U15 upgrades.
     address public OPCM_V300;
     address public OPCM_V400;
 
@@ -101,7 +103,7 @@ contract OPCMUpgradeV200toV400 is OPCMTaskBase {
         require(IOPContractsManager(OPCM_V200).version().eq("1.6.0"), "Incorrect OPCM - expected version 1.6.0");
         vm.label(OPCM_V200, "OPCMUpgradeV200");
 
-        // === Upgrade to U14 and U15 ===
+        // === OPCM for U14 and U15 ===
         OPCM_V300 = tomlContent.readAddress(".addresses.OPCMUpgradeV300");
         OPCM_V300_PRESTATE = tomlContent.readBytes32(".OPCMUpgradeV300_PRESTATE");
         OPCM_V300_UPDATE_PRESTATE = tomlContent.readBytes32(".OPCMUpgradeV300_UPDATE_PRESTATE");
@@ -109,11 +111,21 @@ contract OPCMUpgradeV200toV400 is OPCMTaskBase {
         require(IOPContractsManager(OPCM_V300).version().eq("1.9.0"), "Incorrect OPCM - expected version 1.9.0");
         vm.label(OPCM_V300, "OPCMUpgradeV300");
 
-        // === Upgrade to U16 ===
+        // === OPCM for U16 ===
         OPCM_V400 = tomlContent.readAddress(".addresses.OPCMUpgradeV400");
         OPCM_TARGETS.push(OPCM_V400);
         require(IOPContractsManager(OPCM_V400).version().eq("2.4.0"), "Incorrect OPCM - expected version 2.4.0");
         vm.label(OPCM_V400, "OPCMUpgradeV400");
+
+        // === Standard Validator for U13 ===
+        STANDARD_VALIDATOR_V200 = IStandardValidatorV200(tomlContent.readAddress(".addresses.StandardValidatorV200"));
+        require(address(STANDARD_VALIDATOR_V200).code.length > 0, "ValidatorV200 not deployed");
+        vm.label(address(STANDARD_VALIDATOR_V200), "StandardValidatorV200");
+
+        // === Standard Validator for U14 and U15 ===
+        STANDARD_VALIDATOR_V300 = IStandardValidatorV300(tomlContent.readAddress(".addresses.StandardValidatorV300"));
+        require(address(STANDARD_VALIDATOR_V300).code.length > 0, "ValidatorV300 not deployed");
+        vm.label(address(STANDARD_VALIDATOR_V300), "StandardValidatorV300");
 
         // === Standard Validator for U16 ===
         STANDARD_VALIDATOR_V400 = IStandardValidatorV400(tomlContent.readAddress(".addresses.StandardValidatorV400"));
@@ -139,6 +151,23 @@ contract OPCMUpgradeV200toV400 is OPCMTaskBase {
         (bool success1,) = OPCM_V200.delegatecall(abi.encodeCall(IOPContractsManager.upgrade, (opChainConfigs)));
         require(success1, "OPCMUpgradeV200: upgrade call failed in _build.");
 
+        // === Validator for U13 ===
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
+            address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
+
+            IStandardValidatorV200.InputV200 memory input = IStandardValidatorV200.InputV200({
+                proxyAdmin: proxyAdmin,
+                sysCfg: sysCfg,
+                absolutePrestate: OPCM_V200_PRESTATE,
+                l2ChainID: chainId
+            });
+
+            string memory errors = STANDARD_VALIDATOR_V200.validate(input, true);
+            require(bytes(errors).length == 0, string.concat("U13 validation failed: ", errors));
+        }
+
         // === Upgrade to U14 ===
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
@@ -151,6 +180,23 @@ contract OPCMUpgradeV200toV400 is OPCMTaskBase {
 
         (bool success2,) = OPCM_V300.delegatecall(abi.encodeCall(IOPContractsManager.upgrade, (opChainConfigs)));
         require(success2, "OPCMUpgradeV300: upgrade call failed in _build.");
+
+        // === Validator for U14 ===
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
+            address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
+
+            IStandardValidatorV300.InputV300 memory input = IStandardValidatorV300.InputV300({
+                proxyAdmin: proxyAdmin,
+                sysCfg: sysCfg,
+                absolutePrestate: OPCM_V300_PRESTATE,
+                l2ChainID: chainId
+            });
+
+            string memory errors = STANDARD_VALIDATOR_V300.validate(input, true);
+            require(bytes(errors).length == 0, string.concat("U14 validation failed: ", errors));
+        }
 
         // === Upgrade to U15 ===
         for (uint256 i = 0; i < chains.length; i++) {
@@ -165,6 +211,23 @@ contract OPCMUpgradeV200toV400 is OPCMTaskBase {
         (bool success3,) =
             OPCM_V300.delegatecall(abi.encodeWithSelector(IOPCMPrestateUpdate.updatePrestate.selector, opChainConfigs));
         require(success3, "OPCM.updatePrestate() failed");
+
+        // === Validator for U15 ===
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
+            address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
+
+            IStandardValidatorV300.InputV300 memory input = IStandardValidatorV300.InputV300({
+                proxyAdmin: proxyAdmin,
+                sysCfg: sysCfg,
+                absolutePrestate: OPCM_V300_UPDATE_PRESTATE,
+                l2ChainID: chainId
+            });
+
+            string memory errors = STANDARD_VALIDATOR_V300.validate(input, true);
+            require(bytes(errors).length == 0, string.concat("U15 validation failed: ", errors));
+        }
 
         // === Upgrade to U16 ===
         for (uint256 i = 0; i < chains.length; i++) {
@@ -215,7 +278,23 @@ interface IOPCMPrestateUpdate {
     function updatePrestate(IOPContractsManager.OpChainConfig[] memory _prestateUpdateInputs) external;
 }
 
-/// @notice Final validator interface
+/// @notice Validator interfaces
+
+interface IStandardValidatorV300 {
+    struct InputV300 {
+        address proxyAdmin;
+        address sysCfg;
+        bytes32 absolutePrestate;
+        uint256 l2ChainID;
+    }
+
+    function validate(InputV300 memory _input, bool _allowFailure) external view returns (string memory);
+
+    function mipsVersion() external pure returns (string memory);
+
+    function systemConfigVersion() external pure returns (string memory);
+}
+
 interface IStandardValidatorV400 {
     struct InputV400 {
         address proxyAdmin;
