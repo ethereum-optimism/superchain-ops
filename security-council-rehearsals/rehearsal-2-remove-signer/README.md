@@ -78,17 +78,12 @@ might be different in your simulation:
 
 Now click on the "State" tab. Verify that:
 
-1. The rehearsal Safe's `ownerCount` is reduced by one, and a signer
-   is being removed from the `owners` mapping.
-2. You will see a `threshold` change from `1` to a new value. This
-   only exists in the simulation and is safe to ignore as long as the
-   new value is equal to the actual threshold of the Safe.
-3. There are no other significant state changes except for 2 nonce
-   changes from the Safe and the signer address.
-   There are some LivenessGuard state changes which are safe to ignore, as per the screenshot below. These are a result of using the production Security Council safe for the simulation, which has LivenessGuard enabled.
-4. You will see a state override (not a state change). This is
-   expected and its purpose is to generate a successful Safe execution
-   simulation without collecting any signatures.
+1. The rehearsal Safe's `ownerCount` is reduced by one.
+2. The `owners` mapping will have one less entry. You'll see 2 state changes that represent the removal of the signer from the `owners` mapping.
+3. You will see a `threshold` change from `1` to a new value. This only exists in the simulation and is safe to ignore as long as the new value is equal to the actual threshold of the Safe.
+4. You'll see 2 nonce changes from the Safe and the signer address.
+5. You may see some LivenessGuard state changes which are safe to ignore, as per the screenshot below. These are a result of using the production Security Council safe for the simulation, which has LivenessGuard enabled.
+6. You will see a state override (not a state change). This is expected and its purpose is to generate a successful Safe execution simulation without collecting any signatures.
 
 Here is an example screenshot. Note that the addresses may be
 different:
@@ -240,3 +235,5 @@ export SIGNATURES="0xAAAABBBB"
 cd src/improvements/tasks/<network>/rehearsals/<rehearsal-task-name>
 just --dotenv-path $(pwd)/.env --justfile ../../../../single.just execute
 ```
+
+For posterity, you should make a `README.md` file in the tasks directory that contains a link to the executed transaction e.g. see [here](../../src/improvements/tasks/eth/rehearsals/2025-11-28-R2-remove-signer/README.md).

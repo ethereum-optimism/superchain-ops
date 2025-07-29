@@ -269,3 +269,5 @@ export SIGNATURES="0xAAAABBBB"
 cd src/improvements/tasks/<network>/rehearsals/<rehearsal-task-name>
 just --dotenv-path $(pwd)/.env --justfile ../../../../single.just execute
 ```
+
+For posterity, you should make a `README.md` file in the tasks directory that contains a link to the executed transaction e.g. see [here](../../src/improvements/tasks/eth/rehearsals/2025-07-21-R1-welcome/README.md).

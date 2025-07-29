@@ -72,7 +72,6 @@ contract DeputyPauseKeyRotationTemplate is SimpleTaskBase {
     function _getCodeExceptions() internal view override returns (address[] memory) {
         address[] memory codeExceptions = new address[](1);
         codeExceptions[0] = newDeputy;
-
         return codeExceptions;
     }
 }
