@@ -161,12 +161,8 @@ contract TaskManager is Script {
                 )
             );
             if (_childSafes.length == 0) {
-                // Set the first owner of the root safe as the default child safe.
-                _childSafes = new address[](1);
-                _childSafes[0] = rootSafeOwners[0];
+                _childSafes = setupDefaultChildSafes(_childSafes, rootSafeOwners);
             }
-            require(_childSafes.length <= 2, "TaskManager: currently only supports 2 levels of nesting.");
-
             address[] memory childSafeDepth1Owners = IGnosisSafe(_childSafes[_childSafes.length - 1]).getOwners();
             address leafChildSafe = _childSafes[0];
             // forgefmt: disable-start
@@ -341,5 +337,25 @@ contract TaskManager is Script {
     function getRootSafe(string memory taskConfigFilePath) public returns (address) {
         (, address rootSafe,) = isNestedTask(taskConfigFilePath);
         return rootSafe;
+    }
+
+    /// @notice If a task is nested but the user hasn't provided any child safes, then we need to setup the default child safes so the simulation can run.
+    function setupDefaultChildSafes(address[] memory _childSafes, address[] memory _rootSafeOwners)
+        internal
+        view
+        returns (address[] memory)
+    {
+        // If the first owner of the nested safe is nested itself, then we assume this is a nested-nested execution.
+        if (isNestedSafe(_rootSafeOwners[0])) {
+            _childSafes = new address[](2);
+            address leafChildSafe = IGnosisSafe(_rootSafeOwners[0]).getOwners()[0];
+            _childSafes[0] = leafChildSafe; // See MultisigTypes.sol for an explanation of the ordering.
+            _childSafes[1] = _rootSafeOwners[0];
+        } else {
+            _childSafes = new address[](1);
+            _childSafes[0] = _rootSafeOwners[0];
+        }
+        require(_childSafes.length <= 2, "TaskManager: currently only supports 2 levels of nesting.");
+        return _childSafes;
     }
 }

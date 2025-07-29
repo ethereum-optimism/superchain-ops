@@ -1,4 +1,5 @@
 export TASK_PATH := invocation_directory()
+export ZERO_ADDRESS := "0x0000000000000000000000000000000000000000"
 
 ###################################
 ## Create a new template or task ##
@@ -79,9 +80,6 @@ new COMMAND="" TASK_TYPE="":
             ;;
     esac
 
-
-
-
 #################################################
 ##                Stack Commands               ##
 ## e.g. simulate-stack, sign-stack, list-stack ##
@@ -134,13 +132,17 @@ simulate-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEP
         echo -e "⏳ You are simulating all tasks for network: {{NETWORK}}\n"
         just list-stack {{NETWORK}}
         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string)" {{NETWORK}} --ffi --rpc-url $ETH_RPC_URL
+    elif [ -z "{{CHILD_SAFE_NAME_DEPTH_1}}" ] && [ -z "{{CHILD_SAFE_NAME_DEPTH_2}}" ]; then
+        echo -e "⏳ You are simulating the task: {{TASK}} for network: '{{NETWORK}}' on the root safe\n"
+        just list-stack {{NETWORK}} {{TASK}}
+        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string)" "{{NETWORK}}" "{{TASK}}" --ffi --rpc-url $ETH_RPC_URL
     else
         child_safe_depth_1=$(just --justfile "$root_just_file" _fetch-safe "{{NETWORK}}" "{{TASK}}" "{{CHILD_SAFE_NAME_DEPTH_1}}")
         child_safe_depth_2=$(just --justfile "$root_just_file" _fetch-safe "{{NETWORK}}" "{{TASK}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")
         just list-stack {{NETWORK}} {{TASK}}
         
         # Determine which function signature to use based on provided child safes
-        if [ "$child_safe_depth_2" != "0x0000000000000000000000000000000000000000" ]; then
+        if [ "$child_safe_depth_2" != "$ZERO_ADDRESS" ]; then
             echo -e "⏳ You are simulating the task: {{TASK}} for network: '{{NETWORK}}' on the nested safe: $child_safe_depth_2\n"
             forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_2" "$child_safe_depth_1" --ffi --rpc-url $ETH_RPC_URL
         else
@@ -202,10 +204,14 @@ sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2
     signer_args=$(just --justfile "$root_just_file" _get-signer-args ${HD_PATH})
 
     # Determine which function signature to use based on provided child safes
-    if [ "$child_safe_depth_2" != "0x0000000000000000000000000000000000000000" ]; then
+    if [ "$child_safe_depth_2" != "$ZERO_ADDRESS" ]; then
         echo -e "⏳ You are signing the task: {{TASK}} for network: '{{NETWORK}}' on the nested safe: $child_safe_depth_2\n"
         ${root_dir}/bin/eip712sign ${signer_args} -- \
          forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_2" "$child_safe_depth_1" --ffi --rpc-url $ETH_RPC_URL
+    elif [ -z "{{CHILD_SAFE_NAME_DEPTH_1}}" ] && [ -z "{{CHILD_SAFE_NAME_DEPTH_2}}" ]; then
+        echo -e "⏳ You are signing the task: {{TASK}} for network: '{{NETWORK}}' on the root safe\n"
+        just list-stack {{NETWORK}} {{TASK}}
+        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string)" "{{NETWORK}}" "{{TASK}}" --ffi --rpc-url $ETH_RPC_URL
     else
         echo -e "⏳ You are signing the task: {{TASK}} for network: '{{NETWORK}}' on the nested safe: $child_safe_depth_1\n"
         ${root_dir}/bin/eip712sign ${signer_args} -- \
@@ -337,13 +343,19 @@ sign CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
         echo "  • USE_KEYSTORE                 - If set, uses keystore instead of ledger"
         echo
     }
-    
+
+    # Make sure to set the FETCH_TASKS_TEST_DIR environment variable if we are running a test task. See: fetch-tasks.sh for more details.
+    if [[ "$TASK_PATH" == *"test/tasks/example"* ]]; then
+        export FETCH_TASKS_TEST_DIR="test/tasks/example"
+    fi
     export SIGNING_MODE_IN_PROGRESS=true
+
     task_name=$(basename "$TASK_PATH")
     network=$(basename "$(dirname "$TASK_PATH")")
     ETH_RPC_URL=$(just _fetch-rpc-url "$network")
 
     HD_PATH=${HD_PATH:-0}  # Default to 0 if not set
+    USE_KEYSTORE=${USE_KEYSTORE:-} # Default to empty if not set
     
     # Get function signature and arguments using helper
     eval "$(just --justfile "$root_just_file" _build-simulator-args "$network" "$TASK_PATH" "{{CHILD_SAFE_NAME_DEPTH_1}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")"
@@ -351,20 +363,10 @@ sign CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     # Configure signer for simulation
     config_path=${TASK_PATH}/config.toml
     
-    # Configure signer (ledger or keystore)
-    echo "getting signer address..."
-    if [ -z "${USE_KEYSTORE:-}" ]; then
-        hdpaths="m/44'/60'/${HD_PATH}'/0/0"
-        echo "Using ledger"
-        signer=$(cast wallet address --ledger --mnemonic-derivation-path $hdpaths)
-        signer_args="--ledger --hd-paths $hdpaths"
-    else
-        echo "Using keystore"
-        signer_private_key=$(just --justfile "$root_just_file" _get-keystore-private-key "$network" "$task_name")
-        signer=$(cast wallet address --private-key ${signer_private_key})
-        signer_args="--private-key ${signer_private_key#0x}"
-    fi
-    echo "Signing with: ${signer}"
+    # Get signer address and arguments using helper function
+    signer_info=$(just --justfile "$root_just_file" _get-signer-args "$HD_PATH" "$USE_KEYSTORE")
+    signer=$(echo "$signer_info" | sed -n '1p')
+    signer_args=$(echo "$signer_info" | sed -n '2p')
     
     # Validate that signer is an owner on the target safe
     echo "Validating signer is an owner on the safe..."
@@ -395,22 +397,37 @@ _fetch-safe TASK_DIR_PATH OWNER_SAFE_NAME:
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
-    safe="0x0000000000000000000000000000000000000000" # Default to zero address for non-nested safes
+    safe="$ZERO_ADDRESS" # Default to zero address for non-nested safes
     if [ -n "{{OWNER_SAFE_NAME}}" ]; then
         safe=$(bash ${root_dir}/src/improvements/script/get-safe.sh "{{TASK_DIR_PATH}}" "{{OWNER_SAFE_NAME}}")
     fi
     echo "${safe}"
 
-# Helper function to get the signer arguments for a given hdPath. We do not need to support signing with keystores.
+# Helper function to get the signer address and arguments. Supports both ledger and keystore configurations.
+# Returns two lines: first line is signer address, second line is signer arguments
 [no-cd]
-_get-signer-args hdPath='0':
+_get-signer-args hdPath='0' use_keystore_flag='':
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
-    hdpaths="m/44'/60'/{{hdPath}}'/0/0"
-    signer=$(cast wallet address --ledger --mnemonic-derivation-path $hdpaths)
-    signer_args="--ledger --hd-paths $hdpaths"
-    echo $signer_args
+    root_just_file="${root_dir}/src/improvements/justfile"
+    
+    # Configure signer (ledger or keystore)
+    if [ -z "{{use_keystore_flag}}" ]; then
+        hdpaths="m/44'/60'/{{hdPath}}'/0/0"
+        echo "Using ledger" >&2
+        signer=$(cast wallet address --ledger --mnemonic-derivation-path $hdpaths)
+        signer_args="--ledger --hd-paths $hdpaths"
+    else
+        echo "Using keystore" >&2
+        signer_private_key=$(just --justfile "$root_just_file" _get-keystore-private-key)
+        signer=$(cast wallet address --private-key ${signer_private_key})
+        signer_args="--private-key ${signer_private_key#0x}"
+    fi
+    
+    echo "Signing with: ${signer}" >&2
+    echo "${signer}"
+    echo "${signer_args}"
 
 # Helper function to get fork block arguments based on FORK_BLOCK_NUMBER environment variable
 [no-cd]
@@ -432,7 +449,6 @@ _get-fork-block-args:
 _get-simulation-signer CONFIG_PATH ETH_RPC_URL CHILD_SAFE_DEPTH_1 CHILD_SAFE_DEPTH_2:
     #!/usr/bin/env bash
     set -euo pipefail
-    ZERO_ADDRESS="0x0000000000000000000000000000000000000000"
     HD_PATH=${HD_PATH:-0}
     
     # Configure signer for simulation
@@ -456,16 +472,14 @@ _get-simulation-signer CONFIG_PATH ETH_RPC_URL CHILD_SAFE_DEPTH_1 CHILD_SAFE_DEP
 
 # Helper function to handle keystore selection and private key extraction
 [no-cd]
-_get-keystore-private-key NETWORK TASK:
+_get-keystore-private-key:
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
-    task_path=${root_dir}/src/improvements/tasks/{{NETWORK}}/{{TASK}}
     
     echo "Enter your foundry keystore path (e.g. ~/.foundry/keystores/sep-test-private-key):" >&2
     keystorePath=$(cd ~/.foundry/keystores/ && fzf --header="Searching your keystore in $PWD" --prompt="Keystore for signing:")
     
-    cd ${task_path}
     echo "Keystore path: ${keystorePath}" >&2
     # Build full keystore path
     full_keystore_path="$HOME/.foundry/keystores/${keystorePath}"
@@ -485,7 +499,6 @@ _build-simulator-args NETWORK TASK_DIR_PATH CHILD_SAFE_NAME_DEPTH_1 CHILD_SAFE_N
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
     root_just_file="${root_dir}/src/improvements/justfile"
-    ZERO_ADDRESS="0x0000000000000000000000000000000000000000"
     
     child_safe_depth_1=$(just --justfile "$root_just_file" _fetch-safe "{{TASK_DIR_PATH}}" "{{CHILD_SAFE_NAME_DEPTH_1}}")
     child_safe_depth_2=$(just --justfile "$root_just_file" _fetch-safe "{{TASK_DIR_PATH}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")
