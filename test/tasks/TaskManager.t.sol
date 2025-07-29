@@ -164,7 +164,7 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         address rootSafe = 0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c;
         address[] memory rootSafeOwners = IGnosisSafe(rootSafe).getOwners();
         address[] memory emptyChildSafes = new address[](0);
-        address[] memory resultChildSafes = tmHarness.exposed_setupDefaultChildSafes(emptyChildSafes, rootSafeOwners);
+        address[] memory resultChildSafes = tmHarness.exposed_setupDefaultChildSafes(emptyChildSafes, rootSafe);
         // Should return 2-element array for nested-nested execution
         assertEq(resultChildSafes.length, 2, "Should have 2 child safes for nested-nested execution");
         address[] memory firstOwnerOwners = IGnosisSafe(rootSafeOwners[0]).getOwners();
@@ -180,7 +180,7 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         address rootSafe = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A;
         address[] memory rootSafeOwners = IGnosisSafe(rootSafe).getOwners();
         address[] memory emptyChildSafes = new address[](0);
-        address[] memory resultChildSafes = tmHarness.exposed_setupDefaultChildSafes(emptyChildSafes, rootSafeOwners);
+        address[] memory resultChildSafes = tmHarness.exposed_setupDefaultChildSafes(emptyChildSafes, rootSafe);
         bool isFirstOwnerNested = tmHarness.exposed_isNestedSafe(rootSafeOwners[0]);
         // Should return 1-element array for single-level nested execution
         assertEq(resultChildSafes.length, 1, "Should have 1 child safe for single-level nested execution");
@@ -188,19 +188,43 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         assertFalse(isFirstOwnerNested, "First owner should not be nested for single-level nesting");
         assertTrue(resultChildSafes.length == 1, "Should have 1 child safe for single-level nested execution");
     }
+
+    /// Note: This test is intentionally not pinned to a block. If it fails, it means Base has updated their safe architecture.
+    function testIsNestedNestedSafe() public {
+        vm.createSelectFork("mainnet");
+        TaskManagerHarness tmHarness = new TaskManagerHarness();
+
+        // Test the nested-nested safe (should return true)
+        address nestedNestedSafe = 0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c;
+        assertTrue(
+            tmHarness.exposed_isNestedNestedSafe(nestedNestedSafe),
+            "0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c should be nested-nested"
+        );
+
+        // Test the single-level nested safe (should return false)
+        address singleNestedSafe = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A;
+        assertFalse(
+            tmHarness.exposed_isNestedNestedSafe(singleNestedSafe),
+            "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A should not be nested-nested"
+        );
+    }
 }
 
 // Test harness to expose internal functions
 contract TaskManagerHarness is TaskManager {
-    function exposed_setupDefaultChildSafes(address[] memory _childSafes, address[] memory _rootSafeOwners)
+    function exposed_setupDefaultChildSafes(address[] memory _childSafes, address _rootSafe)
         public
         view
         returns (address[] memory)
     {
-        return setupDefaultChildSafes(_childSafes, _rootSafeOwners);
+        return setupDefaultChildSafes(_childSafes, _rootSafe);
     }
 
     function exposed_isNestedSafe(address safe) public view returns (bool) {
         return isNestedSafe(safe);
+    }
+
+    function exposed_isNestedNestedSafe(address safe) public view returns (bool) {
+        return isNestedNestedSafe(safe);
     }
 }

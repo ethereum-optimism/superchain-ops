@@ -344,22 +344,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         data = abi.encodeCall(IMulticall3.aggregate3Value, (calls));
     }
 
-    /// @notice Validate that the safes are in the correct order.
-    function _validateSafes(address[] memory _allSafes) private view {
-        require(_allSafes.length > 0, "MultisigTask: no safes provided");
-        for (uint256 i = 1; i < _allSafes.length; i++) {
-            require(
-                IGnosisSafe(_allSafes[i]).isOwner(_allSafes[i - 1]),
-                string.concat(
-                    "MultisigTask: Safe ",
-                    vm.toString(_allSafes[i - 1]),
-                    " is not an owner of ",
-                    vm.toString(_allSafes[i])
-                )
-            );
-        }
-    }
-
     /// @notice Validate that the payload is valid.
     function _validatePayload(TaskPayload memory payload) internal view {
         // All arrays must be the same length.
@@ -368,7 +352,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             payload.calldatas.length == payload.originalNonces.length, "MultisigTask: datas and nonces length mismatch"
         );
         require(payload.calldatas.length > 0, "MultisigTask: no calldatas provided");
-        _validateSafes(payload.safes);
+        Utils.validateSafesOrder(payload.safes);
 
         // For nested calls, validate that each predecessor contains the hash of its successor
         if (payload.calldatas.length > 1) {

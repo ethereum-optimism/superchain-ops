@@ -5,6 +5,7 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {Script} from "forge-std/Script.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {Solarray} from "lib/optimism/packages/contracts-bedrock/scripts/libraries/Solarray.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
@@ -152,32 +153,17 @@ contract TaskManager is Script {
         string memory line =
             unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
         if (_config.isNested) {
-            address[] memory rootSafeOwners = IGnosisSafe(_config.rootSafe).getOwners();
-            require(
-                rootSafeOwners.length > 0,
-                string.concat(
-                    "TaskManager: No owners found for root safe: ",
-                    Strings.toHexString(uint256(uint160(_config.rootSafe)), 20)
-                )
-            );
             if (_childSafes.length == 0) {
-                _childSafes = setupDefaultChildSafes(_childSafes, rootSafeOwners);
+                _childSafes = setupDefaultChildSafes(_childSafes, _config.rootSafe);
             }
-            address[] memory childSafeDepth1Owners = IGnosisSafe(_childSafes[_childSafes.length - 1]).getOwners();
             address leafChildSafe = _childSafes[0];
             // forgefmt: disable-start
             console.log(string.concat("SIMULATING NESTED TASK (", _taskName, ") ON NESTED SAFE: ", vm.toString(leafChildSafe), " FOR ROOT SAFE: ", _formattedParentMultisig));
             // forgefmt: disable-end
             console.log(line.green().bold());
             console.log("");
-            require(
-                Utils.contains(rootSafeOwners, leafChildSafe) || Utils.contains(childSafeDepth1Owners, leafChildSafe),
-                string.concat(
-                    "TaskManager: child safe address (",
-                    vm.toString(leafChildSafe),
-                    ") is not an owner of any other safe."
-                )
-            );
+            address[] memory allSafes = Solarray.extend(_childSafes, Solarray.addresses(address(_config.rootSafe)));
+            Utils.validateSafesOrder(allSafes);
             (accesses_,, normalizedHash_, dataToSign_,) = _task.simulate(_config.configPath, _childSafes);
         } else {
             // forgefmt: disable-start
@@ -333,6 +319,17 @@ contract TaskManager is Script {
         return nested;
     }
 
+    /// @notice Helper function to determine if the given safe is a nested-nested multisig (e.g. Base safe architecture).
+    function isNestedNestedSafe(address safe) public view returns (bool) {
+        address[] memory owners = IGnosisSafe(safe).getOwners();
+        for (uint256 i = 0; i < owners.length; i++) {
+            if (isNestedSafe(owners[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /// @notice Returns the root safe address for a given task config file path.
     function getRootSafe(string memory taskConfigFilePath) public returns (address) {
         (, address rootSafe,) = isNestedTask(taskConfigFilePath);
@@ -340,20 +337,21 @@ contract TaskManager is Script {
     }
 
     /// @notice If a task is nested but the user hasn't provided any child safes, then we need to setup the default child safes so the simulation can run.
-    function setupDefaultChildSafes(address[] memory _childSafes, address[] memory _rootSafeOwners)
+    function setupDefaultChildSafes(address[] memory _childSafes, address _rootSafe)
         internal
         view
         returns (address[] memory)
     {
-        // If the first owner of the nested safe is nested itself, then we assume this is a nested-nested execution.
-        if (isNestedSafe(_rootSafeOwners[0])) {
+        address depth1ChildSafe = IGnosisSafe(_rootSafe).getOwners()[0];
+        // If the root safe has a nested-nested safe setup, then we need to setup the default child safes so the simulation can run.
+        if (isNestedNestedSafe(_rootSafe)) {
             _childSafes = new address[](2);
-            address leafChildSafe = IGnosisSafe(_rootSafeOwners[0]).getOwners()[0];
-            _childSafes[0] = leafChildSafe; // See MultisigTypes.sol for an explanation of the ordering.
-            _childSafes[1] = _rootSafeOwners[0];
+            address depth2ChildSafe = IGnosisSafe(depth1ChildSafe).getOwners()[0];
+            _childSafes[0] = depth2ChildSafe; // See MultisigTypes.sol for an explanation of the ordering.
+            _childSafes[1] = depth1ChildSafe;
         } else {
             _childSafes = new address[](1);
-            _childSafes[0] = _rootSafeOwners[0];
+            _childSafes[0] = depth1ChildSafe;
         }
         require(_childSafes.length <= 2, "TaskManager: currently only supports 2 levels of nesting.");
         return _childSafes;

@@ -205,11 +205,7 @@ contract StackedSimulatorUnitTest is Test {
             createSimpleStorageTaskWithNonce(network, address(simpleStorage), 100, 2000, 0, 1, 12, 20, 22);
         StackedSimulator ss = new StackedSimulator();
         vm.expectRevert(
-            bytes(
-                string.concat(
-                    "TaskManager: child safe address (", vm.toString(owner), ") is not an owner of any other safe."
-                )
-            )
+            bytes(string.concat("Utils: Safe ", vm.toString(owner), " is not an owner of ", vm.toString(rootSafe)))
         );
         ss.simulateStack(network, taskName, owner);
     }
