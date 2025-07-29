@@ -137,8 +137,9 @@ simulate-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEP
         just list-stack {{NETWORK}} {{TASK}}
         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string)" "{{NETWORK}}" "{{TASK}}" --ffi --rpc-url $ETH_RPC_URL
     else
-        child_safe_depth_1=$(just --justfile "$root_just_file" _fetch-safe "{{NETWORK}}" "{{TASK}}" "{{CHILD_SAFE_NAME_DEPTH_1}}")
-        child_safe_depth_2=$(just --justfile "$root_just_file" _fetch-safe "{{NETWORK}}" "{{TASK}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")
+        task_dir_path="${root_dir}/src/improvements/tasks/{{NETWORK}}/{{TASK}}"
+        child_safe_depth_1=$(just --justfile "$root_just_file" _fetch-safe "$task_dir_path" "{{CHILD_SAFE_NAME_DEPTH_1}}")
+        child_safe_depth_2=$(just --justfile "$root_just_file" _fetch-safe "$task_dir_path" "{{CHILD_SAFE_NAME_DEPTH_2}}")
         just list-stack {{NETWORK}} {{TASK}}
         
         # Determine which function signature to use based on provided child safes
@@ -196,12 +197,17 @@ sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2
     export STACKED_SIGNING_MODE=true # This environment variable is only ever set to true in this sign command. 
 
     ETH_RPC_URL=$(just --justfile "$root_just_file" _fetch-rpc-url "{{NETWORK}}")
-    child_safe_depth_1=$(just --justfile "$root_just_file" _fetch-safe "{{NETWORK}}" "{{TASK}}" "{{CHILD_SAFE_NAME_DEPTH_1}}")
-    child_safe_depth_2=$(just --justfile "$root_just_file" _fetch-safe "{{NETWORK}}" "{{TASK}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")
+    task_dir_path="${root_dir}/src/improvements/tasks/{{NETWORK}}/{{TASK}}"
+    child_safe_depth_1=$(just --justfile "$root_just_file" _fetch-safe "$task_dir_path" "{{CHILD_SAFE_NAME_DEPTH_1}}")
+    child_safe_depth_2=$(just --justfile "$root_just_file" _fetch-safe "$task_dir_path" "{{CHILD_SAFE_NAME_DEPTH_2}}")
 
     # We only support signing with ledger for now.
     HD_PATH=${HD_PATH:-0}  # Default to 0 if not set
-    signer_args=$(just --justfile "$root_just_file" _get-signer-args ${HD_PATH})
+    USE_KEYSTORE=${USE_KEYSTORE:-} # Default to empty if not set
+    
+    # Get signer address and arguments using helper function
+    signer_info=$(just --justfile "$root_just_file" _get-signer-args "$HD_PATH" "$USE_KEYSTORE")
+    signer_args=$(echo "$signer_info" | sed -n '2p')
 
     # Determine which function signature to use based on provided child safes
     if [ "$child_safe_depth_2" != "$ZERO_ADDRESS" ]; then
@@ -211,12 +217,14 @@ sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2
     elif [ -z "{{CHILD_SAFE_NAME_DEPTH_1}}" ] && [ -z "{{CHILD_SAFE_NAME_DEPTH_2}}" ]; then
         echo -e "⏳ You are signing the task: {{TASK}} for network: '{{NETWORK}}' on the root safe\n"
         just list-stack {{NETWORK}} {{TASK}}
-        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string)" "{{NETWORK}}" "{{TASK}}" --ffi --rpc-url $ETH_RPC_URL
+        ${root_dir}/bin/eip712sign ${signer_args} -- \
+         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string)" "{{NETWORK}}" "{{TASK}}" --ffi --rpc-url $ETH_RPC_URL
     else
         echo -e "⏳ You are signing the task: {{TASK}} for network: '{{NETWORK}}' on the nested safe: $child_safe_depth_1\n"
         ${root_dir}/bin/eip712sign ${signer_args} -- \
          forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_1" --ffi --rpc-url $ETH_RPC_URL
     fi
+    echo -e "\n⚠️ Please note: Some Tenderly links may not work when running a stacked simulation. Check out Tenderly's Virtual TestNets as a workaround.⚠️"
 
 list-stack NETWORK="" TASK="":
     #!/usr/bin/env bash

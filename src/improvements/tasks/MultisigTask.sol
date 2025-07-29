@@ -80,18 +80,14 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     }
 
     /// @notice Approves the the root safe transaction from a nested safe.
-    function approve(string memory taskConfigFilePath, address _childMultisig, bytes memory signatures) public {
-        // TODO: Remove this when the interface tasks an array of safes.
-        address[] memory childSafes = Solarray.addresses(_childMultisig);
-        (TaskPayload memory payload,) = _taskSetup(taskConfigFilePath, childSafes);
-
-        // TODO: in the future this index may be different. Any safe that is not the root safe will be eligible to approve.
+    function approve(string memory taskConfigFilePath, address[] memory _childSafes, bytes memory signatures) public {
+        (TaskPayload memory payload,) = _taskSetup(taskConfigFilePath, _childSafes);
         uint256 childSafeIndex = 0;
         executeTaskStep(signatures, payload, childSafeIndex);
         console.log(
             "--------- Successfully %s Child Multisig %s Approval ---------",
             _isBroadcastContext() ? "Broadcasted" : "Simulated",
-            _childMultisig
+            _childSafes[childSafeIndex]
         );
     }
 

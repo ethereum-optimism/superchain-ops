@@ -143,6 +143,7 @@ contract NestedMultisigTaskTest is Test {
         vm.revertToState(snapshotId);
         MultiSigOwner[] memory newOwners = _setupMockOwners(testData.childOwnerMultisigs);
         for (uint256 i = 0; i < testData.childOwnerMultisigs.length; i++) {
+            address[] memory childSafes = Solarray.addresses(testData.childOwnerMultisigs[i]);
             _configureChildMultisig(testData.childOwnerMultisigs[i], newOwners);
             bytes memory packedSignaturesChild =
                 _packSignaturesForChildMultisig(testData.childOwnerMultisigs[i], childMultisigDatasToSign[i]);
@@ -150,7 +151,7 @@ contract NestedMultisigTaskTest is Test {
             multisigTask = new DisputeGameUpgradeTemplate();
             string memory configFilePath =
                 MultisigTaskTestHelper.createTempTomlFile(taskConfigToml, TESTING_DIRECTORY, "001");
-            multisigTask.approve(configFilePath, testData.childOwnerMultisigs[i], packedSignaturesChild);
+            multisigTask.approve(configFilePath, childSafes, packedSignaturesChild);
             MultisigTaskTestHelper.removeFile(configFilePath);
         }
 
@@ -161,6 +162,10 @@ contract NestedMultisigTaskTest is Test {
         _executeDisputeGameUpgradeTaskAndVerify(
             testData, accountAccesses, actions, disputeGameFactory, 0xf691F8A6d908B58C534B624cF16495b491E633BA
         );
+    }
+
+    function testNestedNestedExecuteWithSignatures() public {
+        // TODO: @blmalone implement this test.
     }
 
     /// @notice Test that the 'data to sign' generated in simulate for the child multisigs
@@ -190,6 +195,7 @@ contract NestedMultisigTaskTest is Test {
 
         MultiSigOwner[] memory newOwners = _createMockOwners();
         for (uint256 i = 0; i < rootSafeOwners.length; i++) {
+            address[] memory tmpChildSafes = Solarray.addresses(rootSafeOwners[i]);
             _configureChildMultisig(rootSafeOwners[i], newOwners);
             // sign the approve hash call data to sign with the private keys of the new owners of the child multisig
             bytes memory packedSignaturesChild =
@@ -197,7 +203,7 @@ contract NestedMultisigTaskTest is Test {
 
             // execute the approve hash call with the signatures
             multisigTask = new OPCMUpgradeV200();
-            multisigTask.approve(opcmTaskConfigFilePath, rootSafeOwners[i], packedSignaturesChild);
+            multisigTask.approve(opcmTaskConfigFilePath, tmpChildSafes, packedSignaturesChild);
         }
 
         // Execute the task

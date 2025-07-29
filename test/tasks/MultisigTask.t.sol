@@ -493,9 +493,17 @@ library MultisigTaskTestHelper {
     }
 
     /// @notice This function is used to get all the safes in the task for a nested multisig task.
-    function getAllSafes(address rootSafe, address childSafe) internal pure returns (address[] memory allSafes) {
-        // TODO: Update this function when we support more than 1 level of nesting.
-        return Solarray.addresses(childSafe, rootSafe);
+    function getAllSafes(address rootSafe, address childSafeDepth1) internal pure returns (address[] memory allSafes) {
+        return Solarray.addresses(childSafeDepth1, rootSafe);
+    }
+
+    /// @notice This function is used to get all the safes in the task for a nested-nested multisig task.
+    function getAllSafes(address rootSafe, address childSafeDepth1, address childSafeDepth2)
+        internal
+        pure
+        returns (address[] memory allSafes)
+    {
+        return Solarray.addresses(childSafeDepth2, childSafeDepth1, rootSafe);
     }
 
     /// @notice This function is used to get all the original nonces in the task.
