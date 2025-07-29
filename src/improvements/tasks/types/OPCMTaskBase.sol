@@ -12,14 +12,16 @@ import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {Action, TaskType, TaskPayload} from "src/libraries/MultisigTypes.sol";
 import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
 import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
+import {Utils} from "src/libraries/Utils.sol";
 
 /// @notice This contract is used for all OPCM task types. It overrides various functions in the L2TaskBase contract.
 abstract contract OPCMTaskBase is L2TaskBase {
     using stdStorage for StdStorage;
     using AccountAccessParser for VmSafe.AccountAccess[];
 
-    /// @notice The OPContractsManager address
-    address public OPCM;
+    /// @notice The allowed targets for the OPCM task. Some OPCM templates invoked multiple OPCMs so
+    /// we use an array to capture all the OPCMs that are allowed to be targeted.
+    address[] public OPCM_TARGETS;
 
     /// @notice Optimism Contracts Manager Multicall3DelegateCall contract reference
     address public constant MULTICALL3_DELEGATECALL_ADDRESS = 0x93dc480940585D9961bfcEab58124fFD3d60f76a;
@@ -59,27 +61,32 @@ abstract contract OPCMTaskBase is L2TaskBase {
         data = abi.encodeCall(IMulticall3.aggregate3, (calls));
     }
 
+    /// @notice Performs base validations for the OPCM task.
     function validate(VmSafe.AccountAccess[] memory accesses, Action[] memory actions, TaskPayload memory payload)
         public
         override
     {
         (address[] memory targets,,) = processTaskActions(actions);
-        require(targets.length == 1 && targets[0] == OPCM, "OPCMTaskBase: only OPCM is allowed as target");
+        requireAllowedTarget(targets, OPCM_TARGETS);
         super.validate(accesses, actions, payload);
         address rootSafe = payload.safes[payload.safes.length - 1];
         AccountAccessParser.StateDiff[] memory rootSafeDiffs = accesses.getStateDiffFor(rootSafe, false);
         require(rootSafeDiffs.length == 1, "OPCMTaskBase: only nonce should be updated on upgrade controller multisig");
 
-        AccountAccessParser.StateDiff[] memory opcmDiffs = accesses.getStateDiffFor(OPCM, false);
-        bytes32 opcmStateSlot = bytes32(uint256(stdstore.target(OPCM).sig(IOPContractsManager.isRC.selector).find()));
-        require(opcmDiffs.length <= 1, "OPCMTaskBase: OPCM must have at most 1 state change");
-        // Not all invocations of OPCM upgrade will have the isRC state change. This is because it only happens when
-        // address(this) is equal to the OPCMs 'upgradeController' address (which is an immutable).
-        if (opcmDiffs.length == 1) {
-            AccountAccessParser.StateDiff memory opcmDiff = opcmDiffs[0];
-            require(opcmDiff.slot == opcmStateSlot, "OPCMTaskBase: Incorrect OPCM isRc slot");
-            require(opcmDiff.oldValue == bytes32(uint256(1)), "OPCMTaskBase: Incorrect OPCM isRc old value");
-            require(opcmDiff.newValue == bytes32(uint256(0)), "OPCMTaskBase: Incorrect OPCM isRc new value");
+        for (uint256 i = 0; i < OPCM_TARGETS.length; i++) {
+            address OPCM = OPCM_TARGETS[i];
+            AccountAccessParser.StateDiff[] memory opcmDiffs = accesses.getStateDiffFor(OPCM, false);
+            bytes32 opcmStateSlot =
+                bytes32(uint256(stdstore.target(OPCM).sig(IOPContractsManager.isRC.selector).find()));
+            require(opcmDiffs.length <= 1, "OPCMTaskBase: OPCM must have at most 1 state change");
+            // Not all invocations of OPCM upgrade will have the isRC state change. This is because it only happens when
+            // address(this) is equal to the OPCMs 'upgradeController' address (which is an immutable).
+            if (opcmDiffs.length == 1) {
+                AccountAccessParser.StateDiff memory opcmDiff = opcmDiffs[0];
+                require(opcmDiff.slot == opcmStateSlot, "OPCMTaskBase: Incorrect OPCM isRc slot");
+                require(opcmDiff.oldValue == bytes32(uint256(1)), "OPCMTaskBase: Incorrect OPCM isRc old value");
+                require(opcmDiff.newValue == bytes32(uint256(0)), "OPCMTaskBase: Incorrect OPCM isRc new value");
+            }
         }
     }
 
@@ -124,5 +131,12 @@ abstract contract OPCMTaskBase is L2TaskBase {
     /// @notice Returns the type of task.
     function taskType() public pure override returns (TaskType) {
         return TaskType.OPCMTaskBase;
+    }
+
+    /// @notice Checks if the targets are allowed based on the preconfigured allowed targets.
+    function requireAllowedTarget(address[] memory _targets, address[] memory _allowedTargets) internal pure {
+        for (uint256 i = 0; i < _targets.length; i++) {
+            require(Utils.contains(_allowedTargets, _targets[i]), "OPCMTaskBase: target is not allowed.");
+        }
     }
 }
