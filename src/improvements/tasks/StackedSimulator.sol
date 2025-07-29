@@ -24,34 +24,6 @@ contract StackedSimulator is Script {
         string name;
     }
 
-    /// @notice Simulate a task in isolation that has nested safe architecture with a child safe at depth 2, a child safe at depth 1, and a root safe.
-    function simulate(string memory network, string memory task, address childSafeDepth2, address childSafeDepth1)
-        public
-    {
-        require(
-            childSafeDepth1 != address(0) && childSafeDepth2 != address(0),
-            "StackedSimulator: Both child safes must be provided."
-        );
-        _simulate(network, task, Solarray.addresses(childSafeDepth2, childSafeDepth1));
-    }
-
-    /// @notice Simulate a task in isolation that has nested safe architecture with a child safe at depth 1 and a root safe.
-    function simulate(string memory network, string memory task, address childSafeDepth1) public {
-        require(childSafeDepth1 != address(0), "StackedSimulator: Child safe must be provided.");
-        _simulate(network, task, Solarray.addresses(childSafeDepth1));
-    }
-
-    /// @notice Simulate a task in isolation that only has a root safe and no nested safes.
-    function simulate(string memory network, string memory task) public {
-        _simulate(network, task, new address[](0));
-    }
-
-    /// @notice Simulate a task in isolation without simulating the full stack before it.
-    function _simulate(string memory network, string memory task, address[] memory childSafes) private {
-        TaskManager taskManager = new TaskManager();
-        taskManager.executeTask(taskManager.parseConfig(taskManager.getTaskPath(network, task)), childSafes);
-    }
-
     /// @notice Simulate a task that has nested safe architecture with a child safe at depth 2, a child safe at depth 1, and a root safe.
     function simulateStack(string memory network, string memory task, address childSafeDepth2, address childSafeDepth1)
         public
@@ -101,13 +73,14 @@ contract StackedSimulator is Script {
         for (uint256 i = 0; i < tasks.length; i++) {
             taskConfigs[i] = taskManager.parseConfig(tasks[i].path);
             bool isLastTask = i == tasks.length - 1;
+            // eip712sign will sign the first occurrence of the data to sign in the terminal.
+            // Because of this, we only want to print the data to sign for the last task (i.e. the task that is being signed).
+            if (Utils.isFeatureEnabled("STACKED_SIGNING_MODE")) {
+                // Only ever suppress printing data to sign for stacked signing.
+                vm.setEnv("SUPPRESS_PRINTING_DATA_TO_SIGN", isLastTask ? "false" : "true");
+            }
+
             if (isLastTask) {
-                // eip712sign will sign the first occurrence of the data to sign in the terminal.
-                // Because of this, we only want to print the data to sign for the last task (i.e. the task that is being signed).
-                if (Utils.isFeatureEnabled("STACKED_SIGNING_MODE")) {
-                    // Only ever suppress printing data to sign for stacked signing.
-                    vm.setEnv("SUPPRESS_PRINTING_DATA_TO_SIGN", "false");
-                }
                 taskManager.executeTask(taskConfigs[i], _targetTaskChildSafes);
             } else {
                 taskManager.executeTask(taskConfigs[i], new address[](0)); // Empty array because child safes are only used for the last task.

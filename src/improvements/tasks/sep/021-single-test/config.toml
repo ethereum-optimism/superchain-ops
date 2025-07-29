@@ -1,0 +1,14 @@
+templateName = "WelcomeToSuperchainOps"
+
+name = "Satoshi" # Enter your name here if you like.
+
+allowOverwrite = ["SecurityCouncil"] # We know that we want to overwrite the default SecurityCouncil address in [addresses].
+
+[addresses]
+TargetContract = "0x5c6623738B2a3a54edF1d46B2A85f959fe6b1f6b"
+SecurityCouncil = "0xbefe941b3C4a6AaEe1eb050358064F0bA326975a" # This is a freshly deployed multisig that only has one signer (0x95E774787A63f145f7B05028a1479bDc9D055f3d).
+
+[stateOverrides]
+0xbefe941b3C4a6AaEe1eb050358064F0bA326975a = [ # Single Safe
+     {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 0}
+]

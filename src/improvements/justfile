@@ -1,5 +1,6 @@
 export TASK_PATH := invocation_directory()
 export ZERO_ADDRESS := "0x0000000000000000000000000000000000000000"
+export signatures := env_var_or_default('SIGNATURES', '')
 
 ###################################
 ## Create a new template or task ##
@@ -192,9 +193,6 @@ sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2
         show_usage
         exit 0
     fi
-    
-    export SIGNING_MODE_IN_PROGRESS=true # This environment variable is typically used to reduce logging. TODO: Should consolidate this in the future.
-    export STACKED_SIGNING_MODE=true # This environment variable is only ever set to true in this sign command. 
 
     ETH_RPC_URL=$(just --justfile "$root_just_file" _fetch-rpc-url "{{NETWORK}}")
     task_dir_path="${root_dir}/src/improvements/tasks/{{NETWORK}}/{{TASK}}"
@@ -209,6 +207,9 @@ sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2
     signer_info=$(just --justfile "$root_just_file" _get-signer-args "$HD_PATH" "$USE_KEYSTORE")
     signer_args=$(echo "$signer_info" | sed -n '2p')
 
+    export SIGNING_MODE_IN_PROGRESS=true # This environment variable is typically used to reduce logging. TODO: Should consolidate this in the future.
+    export STACKED_SIGNING_MODE=true # This environment variable is only ever set to true in this sign command. 
+    
     # Determine which function signature to use based on provided child safes
     if [ "$child_safe_depth_2" != "$ZERO_ADDRESS" ]; then
         echo -e "⏳ You are signing the task: {{TASK}} for network: '{{NETWORK}}' on the nested safe: $child_safe_depth_2\n"
@@ -283,6 +284,8 @@ simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
     root_just_file="${root_dir}/src/improvements/justfile"
+    config_path=${TASK_PATH}/config.toml
+    script_name=$(yq '.templateName' ${config_path})
 
     just _print-welcome-message
 
@@ -315,23 +318,25 @@ simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     HD_PATH=${HD_PATH:-0}  # Default to 0 if not set
 
     # Get function signature and arguments using helper
-    eval "$(just --justfile "$root_just_file" _build-simulator-args "$network" "$TASK_PATH" "{{CHILD_SAFE_NAME_DEPTH_1}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")"
+    eval "$(just --justfile "$root_just_file" _build-simulate-args "$TASK_PATH" "$config_path" "{{CHILD_SAFE_NAME_DEPTH_1}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")"
     
     # Configure signer for simulation
-    config_path=${TASK_PATH}/config.toml
     signer=$(just --justfile "$root_just_file" _get-simulation-signer "$config_path" "$ETH_RPC_URL" "$child_safe_depth_1" "$child_safe_depth_2")
+    echo "signer: $signer"
     
     # Get fork block arguments
     fork_block_args=$(just --justfile "$root_just_file" _get-fork-block-args)
     
     echo -e "⏳ You are simulating the task: $task_name for network: '$network' on $target_safe\n"
-    forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "$sig" "${args[@]}" --ffi --rpc-url $ETH_RPC_URL --sender ${signer} ${fork_block_args}
+    forge script ${script_name} --sig "$sig" "${args[@]}" --ffi --rpc-url $ETH_RPC_URL --sender ${signer} ${fork_block_args}
 
 sign CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
     root_just_file="${root_dir}/src/improvements/justfile"
+    config_path=${TASK_PATH}/config.toml
+    script_name=$(yq '.templateName' ${config_path})
     
     just _print-welcome-message
 
@@ -366,10 +371,7 @@ sign CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     USE_KEYSTORE=${USE_KEYSTORE:-} # Default to empty if not set
     
     # Get function signature and arguments using helper
-    eval "$(just --justfile "$root_just_file" _build-simulator-args "$network" "$TASK_PATH" "{{CHILD_SAFE_NAME_DEPTH_1}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")"
-
-    # Configure signer for simulation
-    config_path=${TASK_PATH}/config.toml
+    eval "$(just --justfile "$root_just_file" _build-simulate-args "$TASK_PATH" "$config_path" "{{CHILD_SAFE_NAME_DEPTH_1}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")"
     
     # Get signer address and arguments using helper function
     signer_info=$(just --justfile "$root_just_file" _get-signer-args "$HD_PATH" "$USE_KEYSTORE")
@@ -383,7 +385,76 @@ sign CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     echo "⏳ Task signing in progress. Some tasks take longer than others..."
     forge build
     ${root_dir}/bin/eip712sign ${signer_args} -- \
-     forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "$sig" "${args[@]}" --ffi --rpc-url $ETH_RPC_URL
+     forge script ${script_name} --sig "$sig" "${args[@]}" --ffi --rpc-url $ETH_RPC_URL
+
+approve CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
+  #!/usr/bin/env bash
+  set -euo pipefail
+  root_dir=$(git rev-parse --show-toplevel)
+  root_just_file="${root_dir}/src/improvements/justfile"
+  config_path=${TASK_PATH}/config.toml
+  script_name=$(yq '.templateName' $config_path)
+  
+  # Build child safe array based on provided parameters
+  child_safes=()
+  if [ -n "{{CHILD_SAFE_NAME_DEPTH_1}}" ]; then
+    child_safe_depth_1=$(just --justfile "$root_just_file" _fetch-safe "$TASK_PATH" "{{CHILD_SAFE_NAME_DEPTH_1}}")
+    child_safes+=("$child_safe_depth_1")
+    echo "Added child safe depth 1: $child_safe_depth_1"
+  fi
+  if [ -n "{{CHILD_SAFE_NAME_DEPTH_2}}" ]; then
+    child_safe_depth_2=$(just --justfile "$root_just_file" _fetch-safe "$TASK_PATH" "{{CHILD_SAFE_NAME_DEPTH_2}}")
+    child_safes+=("$child_safe_depth_2")
+    echo "Added child safe depth 2: $child_safe_depth_2"
+  fi
+
+  # Calculate count and determine target safe
+  count=${#child_safes[@]}
+  
+  if [ $count -eq 0 ]; then
+    # No child safes - use empty array
+    formatted_addresses="[]"
+    echo "Using empty child safes array"
+  else
+    # Use the last (deepest) child safe as the target
+    safe="${child_safes[$((count-1))]}"
+    formatted_addresses=$(just --justfile "$root_just_file" _get-owner-addresses-string "$count" "$safe")
+    echo "Using formatted addresses: $formatted_addresses"
+  fi
+  
+  # Use environment variables for HD_PATH and USE_KEYSTORE
+  HD_PATH=${HD_PATH:-0}  # Default to 0 if not set
+  USE_KEYSTORE=${USE_KEYSTORE:-} # Default to empty if not set
+  task_name=$(basename "$TASK_PATH")
+  network=$(basename "$(dirname "$TASK_PATH")")
+  ETH_RPC_URL=$(just _fetch-rpc-url "$network")
+  echo "ETH_RPC_URL: $ETH_RPC_URL"
+  
+  # Configure signer (ledger or keystore)
+  if [ -z "$USE_KEYSTORE" ]; then
+    hdpaths="m/44'/60'/${HD_PATH}/0/0"
+    echo "Using ledger with HD path: ${HD_PATH}"
+    sender=$(cast wallet address --ledger --mnemonic-derivation-path "$hdpaths")
+    signer_args="--ledger --hd-paths $hdpaths"
+  else
+    echo "Using keystore"
+    signer_private_key=$(just --justfile="$root_just_file" _get-keystore-private-key)
+    sender=$(cast wallet address --private-key ${signer_private_key})
+    signer_args="--private-key ${signer_private_key#0x}"
+  fi
+  
+  echo "Approving with sender: ${sender}"
+
+  forge build
+  forge script ${script_name} \
+    --rpc-url ${ETH_RPC_URL} \
+    --broadcast \
+    --sender ${sender} \
+    --sig "approve(string,address[],bytes)" \
+    ${signer_args} \
+    ${config_path} \
+    ${formatted_addresses} \
+    ${signatures}
 
 ########################
 ### Helper functions ###
@@ -461,7 +532,7 @@ _get-simulation-signer CONFIG_PATH ETH_RPC_URL CHILD_SAFE_DEPTH_1 CHILD_SAFE_DEP
     
     # Configure signer for simulation
     if [ -z "${SIMULATE_WITHOUT_LEDGER:-}" ]; then
-        signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/${HD_PATH}/0/0")
+        signer=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/${HD_PATH}'/0/0")
         echo "Simulating with ledger account: ${signer}" >&2
     else
         # Get the appropriate safe to extract signer from
@@ -502,7 +573,7 @@ _get-keystore-private-key:
 
 # Helper function to build simulator function signature and arguments. It's expected that the caller will eval the output.
 [no-cd]
-_build-simulator-args NETWORK TASK_DIR_PATH CHILD_SAFE_NAME_DEPTH_1 CHILD_SAFE_NAME_DEPTH_2:
+_build-simulate-args TASK_DIR_PATH CONFIG_PATH CHILD_SAFE_NAME_DEPTH_1 CHILD_SAFE_NAME_DEPTH_2:
     #!/usr/bin/env bash
     set -euo pipefail
     root_dir=$(git rev-parse --show-toplevel)
@@ -518,16 +589,16 @@ _build-simulator-args NETWORK TASK_DIR_PATH CHILD_SAFE_NAME_DEPTH_1 CHILD_SAFE_N
     
     # Build function signature and arguments dynamically
     if [ "$child_safe_depth_2" != "$ZERO_ADDRESS" ]; then
-        echo "sig=\"simulate(string,string,address,address)\""
-        echo "args=(\"{{NETWORK}}\" \"$task_name\" \"$child_safe_depth_2\" \"$child_safe_depth_1\")"
+        echo "sig=\"simulate(string,address,address)\""
+        echo "args=(\"{{CONFIG_PATH}}\" \"$child_safe_depth_2\" \"$child_safe_depth_1\")"
         echo "target_safe=\"nested safe: $child_safe_depth_2\""
     elif [ "$child_safe_depth_1" != "$ZERO_ADDRESS" ]; then
-        echo "sig=\"simulate(string,string,address)\""
-        echo "args=(\"{{NETWORK}}\" \"$task_name\" \"$child_safe_depth_1\")"
+        echo "sig=\"simulate(string,address)\""
+        echo "args=(\"{{CONFIG_PATH}}\" \"$child_safe_depth_1\")"
         echo "target_safe=\"nested safe: $child_safe_depth_1\""
     else 
-        echo "sig=\"simulate(string,string)\""
-        echo "args=(\"{{NETWORK}}\" \"$task_name\")"
+        echo "sig=\"simulate(string)\""
+        echo "args=(\"{{CONFIG_PATH}}\")"
         echo "target_safe=\"default safes\""
     fi
 
@@ -539,3 +610,32 @@ _print-welcome-message:
     echo -e "\033[42m        superchain-ops        \033[0m"
     echo -e "\033[42m                              \033[0m"
 
+# Helper function to get the owner addresses string for a given count and safe address.
+[no-cd]
+_get-owner-addresses-string COUNT SAFE_ADDRESS:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    
+    owner_addresses=()
+    if (( {{COUNT}} > 1 )); then
+      for i in $(seq 1 $(({{COUNT}}-1))); do
+          owner_addresses+=("0x0000000000000000000000000000000000000000")
+      done
+    fi
+    owner_addresses+=("{{SAFE_ADDRESS}}")
+    
+    # Format the bash array into JSON format for forge script
+    if [ ${#owner_addresses[@]} -eq 0 ]; then
+        echo "[]"
+    else
+        # Build JSON array: ["0x123...", "0x456..."]
+        formatted_addresses="["
+        for i in "${!owner_addresses[@]}"; do
+            if [ $i -gt 0 ]; then
+                formatted_addresses+=","
+            fi
+            formatted_addresses+="\"${owner_addresses[$i]}\""
+        done
+        formatted_addresses+="]"
+        echo "$formatted_addresses"
+    fi

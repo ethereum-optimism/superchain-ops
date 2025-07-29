@@ -25,35 +25,6 @@ export PRIVATE_KEY_OWNER := "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efca
 export PRIVATE_KEY_EXECUTOR :="0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
 export FAKE_SIG :="11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
 
-approve whichSafe hdPath='0' ledger='true':
-  #!/usr/bin/env bash
-  # Get the appropriate safe address based on whichSafe
-  safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
-  config=${TASK_PATH}/config.toml
-  script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
-  if {{ledger}}; then
-    hdpaths="m/44'/60'/{{hdPath}}'/0/0"
-    sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-    signer_args="--ledger --hd-paths $hdpaths"
-  else
-    cd ${TASK_PATH}
-    signer_private_key=$(just --justfile=${JUSTFILE_PATH} get-keystore-private-key)
-    sender=$(cast wallet address --private-key ${signer_private_key})
-    signer_args="--private-key ${signer_private_key}"
-  fi
-  echo "Approving with sender: ${sender}"
-
-  forge build
-  forge script ${script} \
-    --fork-url ${rpcUrl} \
-    --broadcast \
-    --sender ${sender} \
-    --sig "approve(string,address,bytes)" \
-    ${signer_args} \
-    ${config} \
-    ${safe} \
-    ${signatures}
-
 approve_in_anvil whichSafe signature:
   #!/usr/bin/env bash
   #set -x
@@ -104,7 +75,7 @@ simulate-approve whichSafe hdPath='0':
     ${safe} \
     ${signatures}
 
-execute hdPath='0' ledger='true':
+execute:
   #!/usr/bin/env bash
   config=${TASK_PATH}/config.toml
   script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
@@ -114,16 +85,23 @@ execute hdPath='0' ledger='true':
   # prevent failures of the `just execute` command.
   DISABLE_OVERRIDE_NONCE_CHECK=1
 
+  # Use environment variables for HD_PATH and USE_KEYSTORE
+  HD_PATH=${HD_PATH:-0}  # Default to 0 if not set
+  USE_KEYSTORE=${USE_KEYSTORE:-} # Default to empty if not set
+
   echo "Using script ${script}"
-  if {{ledger}}; then
-    hdpaths="m/44'/60'/{{hdPath}}'/0/0"
-    sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
+  # Configure signer (ledger or keystore)
+  if [ -z "$USE_KEYSTORE" ]; then
+    hdpaths="m/44'/60'/${HD_PATH}/0/0"
+    echo "Using ledger with HD path: ${HD_PATH}"
+    sender=$(cast wallet address --ledger --mnemonic-derivation-path "$hdpaths")
     signer_args="--ledger --hd-paths $hdpaths"
   else
+    echo "Using keystore"
     cd ${TASK_PATH}
     signer_private_key=$(just --justfile=${JUSTFILE_PATH} get-keystore-private-key)
     sender=$(cast wallet address --private-key ${signer_private_key})
-    signer_args="--private-key ${signer_private_key}"
+    signer_args="--private-key ${signer_private_key#0x}"
   fi
   echo "Executing with sender: ${sender}"
 

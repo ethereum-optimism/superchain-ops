@@ -55,6 +55,26 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     /// ============== EntryPoint Functions ==============
     /// ==================================================
 
+    /// @notice Simulate a task in isolation that has nested safe architecture with a child safe at depth 2, a child safe at depth 1, and a root safe.
+    function simulate(string memory taskConfigFilePath, address childSafeDepth2, address childSafeDepth1) public {
+        require(
+            childSafeDepth1 != address(0) && childSafeDepth2 != address(0),
+            "MultisigTask: Both child safes must be provided."
+        );
+        simulate(taskConfigFilePath, Solarray.addresses(childSafeDepth2, childSafeDepth1));
+    }
+
+    /// @notice Simulate a task in isolation that has nested safe architecture with a child safe at depth 1 and a root safe.
+    function simulate(string memory taskConfigFilePath, address childSafeDepth1) public {
+        require(childSafeDepth1 != address(0), "MultisigTask: Child safe must be provided.");
+        simulate(taskConfigFilePath, Solarray.addresses(childSafeDepth1));
+    }
+
+    /// @notice Simulate a task in isolation that only has a root safe and no nested safes.
+    function simulate(string memory taskConfigFilePath) public {
+        simulate(taskConfigFilePath, new address[](0));
+    }
+
     /// @notice Simulates the nested safe transaction of the task.
     /// This works by printing the 'data to sign' for the nested safe which is then passed to the eip712sign binary for signing.
     function simulate(string memory taskConfigFilePath, address[] memory _childSafes)
@@ -62,11 +82,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32, bytes memory, address)
     {
         return _runTask(taskConfigFilePath, "", _childSafes, true);
-    }
-
-    /// @notice Simulates the nested safe transaction of the task without logging the return values to the console.
-    function simulateQuietly(string memory taskConfigFilePath, address[] memory _childSafes) public {
-        _runTask(taskConfigFilePath, "", _childSafes, true);
     }
 
     /// @notice Executes the root safe transaction of the task with the given configuration file path and signatures.
