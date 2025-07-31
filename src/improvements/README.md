@@ -125,7 +125,7 @@ SIMULATE_WITHOUT_LEDGER=1 just simulate
 **For stacked simulation** (recommended - simulates dependencies):
 ```bash
 cd src/improvements/
-just simulate-stack <network> <task-name> [child-safe-name]
+just simulate-stack <network> <task-name> [child-safe-name-depth-1] [child-safe-name-depth-2]
 ```
 
 6. Fill out the `README.md` and `VALIDATION.md` files.
