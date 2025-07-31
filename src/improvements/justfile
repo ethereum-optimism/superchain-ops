@@ -395,53 +395,27 @@ approve CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
   config_path=${TASK_PATH}/config.toml
   script_name=$(yq '.templateName' $config_path)
   
-  # Build child safe array based on provided parameters
+  # Build child safe addresses and determine target
   child_safes=()
-  if [ -n "{{CHILD_SAFE_NAME_DEPTH_1}}" ]; then
-    child_safe_depth_1=$(just --justfile "$root_just_file" _fetch-safe "$TASK_PATH" "{{CHILD_SAFE_NAME_DEPTH_1}}")
-    child_safes+=("$child_safe_depth_1")
-    echo "Added child safe depth 1: $child_safe_depth_1"
-  fi
-  if [ -n "{{CHILD_SAFE_NAME_DEPTH_2}}" ]; then
-    child_safe_depth_2=$(just --justfile "$root_just_file" _fetch-safe "$TASK_PATH" "{{CHILD_SAFE_NAME_DEPTH_2}}")
-    child_safes+=("$child_safe_depth_2")
-    echo "Added child safe depth 2: $child_safe_depth_2"
-  fi
-
-  # Calculate count and determine target safe
+  [ -n "{{CHILD_SAFE_NAME_DEPTH_1}}" ] && child_safes+=($(just --justfile "$root_just_file" _fetch-safe "$TASK_PATH" "{{CHILD_SAFE_NAME_DEPTH_1}}"))
+  [ -n "{{CHILD_SAFE_NAME_DEPTH_2}}" ] && child_safes+=($(just --justfile "$root_just_file" _fetch-safe "$TASK_PATH" "{{CHILD_SAFE_NAME_DEPTH_2}}"))
+  
   count=${#child_safes[@]}
-  
   if [ $count -eq 0 ]; then
-    # No child safes - use empty array
     formatted_addresses="[]"
-    echo "Using empty child safes array"
   else
-    # Use the last (deepest) child safe as the target
-    safe="${child_safes[$((count-1))]}"
-    formatted_addresses=$(just --justfile "$root_just_file" _get-owner-addresses-string "$count" "$safe")
-    echo "Using formatted addresses: $formatted_addresses"
+    formatted_addresses=$(just --justfile "$root_just_file" _get-owner-addresses-string "$count" "${child_safes[$((count-1))]}")
   fi
   
-  # Use environment variables for HD_PATH and USE_KEYSTORE
-  HD_PATH=${HD_PATH:-0}  # Default to 0 if not set
-  USE_KEYSTORE=${USE_KEYSTORE:-} # Default to empty if not set
-  task_name=$(basename "$TASK_PATH")
+  # Setup environment and signer
+  HD_PATH=${HD_PATH:-0}
+  USE_KEYSTORE=${USE_KEYSTORE:-}
   network=$(basename "$(dirname "$TASK_PATH")")
   ETH_RPC_URL=$(just _fetch-rpc-url "$network")
-  echo "ETH_RPC_URL: $ETH_RPC_URL"
   
-  # Configure signer (ledger or keystore)
-  if [ -z "$USE_KEYSTORE" ]; then
-    hdpaths="m/44'/60'/${HD_PATH}/0/0"
-    echo "Using ledger with HD path: ${HD_PATH}"
-    sender=$(cast wallet address --ledger --mnemonic-derivation-path "$hdpaths")
-    signer_args="--ledger --hd-paths $hdpaths"
-  else
-    echo "Using keystore"
-    signer_private_key=$(just --justfile="$root_just_file" _get-keystore-private-key)
-    sender=$(cast wallet address --private-key ${signer_private_key})
-    signer_args="--private-key ${signer_private_key#0x}"
-  fi
+  signer_info=$(just --justfile "$root_just_file" _get-signer-args "$HD_PATH" "$USE_KEYSTORE")
+  sender=$(echo "$signer_info" | sed -n '1p')
+  signer_args=$(echo "$signer_info" | sed -n '2p')
   
   echo "Approving with sender: ${sender}"
 
@@ -455,6 +429,42 @@ approve CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     ${config_path} \
     ${formatted_addresses} \
     ${signatures}
+
+execute:
+  #!/usr/bin/env bash
+  set -euo pipefail
+  root_dir=$(git rev-parse --show-toplevel)
+  root_just_file="${root_dir}/src/improvements/justfile"
+  config_path=${TASK_PATH}/config.toml
+  script_name=$(yq '.templateName' $config_path)
+
+  # For nested tasks, the 'just approve' command will have been called previously, which will
+  # update the nonces of the child safes. Therefore we disable the nonce check in order to
+  # prevent failures of the `just execute` command.
+  DISABLE_OVERRIDE_NONCE_CHECK=1
+  # Setup environment and signer
+  HD_PATH=${HD_PATH:-0}
+  USE_KEYSTORE=${USE_KEYSTORE:-}
+  network=$(basename "$(dirname "$TASK_PATH")")
+  ETH_RPC_URL=$(just _fetch-rpc-url "$network")
+  SIGNATURES=${SIGNATURES:-"0x"}
+  
+  signer_info=$(just --justfile "$root_just_file" _get-signer-args "$HD_PATH" "$USE_KEYSTORE")
+  sender=$(echo "$signer_info" | sed -n '1p')
+  signer_args=$(echo "$signer_info" | sed -n '2p')
+  
+  echo "Executing with sender: ${sender}"
+
+  forge build
+  forge script ${script_name} \
+    --rpc-url ${ETH_RPC_URL} \
+    --broadcast \
+    --sender ${sender} \
+    --sig "execute(string,bytes,address[])" \
+    ${signer_args} \
+    ${config_path} \
+    ${SIGNATURES} \
+    "[]"
 
 ########################
 ### Helper functions ###
@@ -624,17 +634,17 @@ _get-owner-addresses-string COUNT SAFE_ADDRESS:
     fi
     owner_addresses+=("{{SAFE_ADDRESS}}")
     
-    # Format the bash array into JSON format for forge script
+    # Format the bash array for forge script (addresses without quotes)
     if [ ${#owner_addresses[@]} -eq 0 ]; then
         echo "[]"
     else
-        # Build JSON array: ["0x123...", "0x456..."]
+        # Build array: [0x123..., 0x456...] - no quotes around addresses
         formatted_addresses="["
         for i in "${!owner_addresses[@]}"; do
             if [ $i -gt 0 ]; then
                 formatted_addresses+=","
             fi
-            formatted_addresses+="\"${owner_addresses[$i]}\""
+            formatted_addresses+="${owner_addresses[$i]}"
         done
         formatted_addresses+="]"
         echo "$formatted_addresses"

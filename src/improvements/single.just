@@ -24,31 +24,6 @@ export FAKE_SIG :="1111111111111111111111111111111111111111111111111111111111111
 # Keystore variables
 export keystorePathBase := "~/.foundry/keystores/"
 
-execute hdPath='0' ledger='true':
-  #!/usr/bin/env bash
-  config=${TASK_PATH}/config.toml
-  script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
-
-  echo "Using script ${script}"
-  if {{ledger}}; then
-    hdpaths="m/44'/60'/{{hdPath}}'/0/0"
-    sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-    signer_args="--ledger --hd-paths $hdpaths"
-  else
-    cd ${TASK_PATH}
-    signer_private_key=$(just --justfile={{justfile()}} get-keystore-private-key)
-    sender=$(cast wallet address --private-key ${signer_private_key})
-    signer_args="--private-key ${signer_private_key}"
-  fi
-  echo "Executing with sender: ${sender}"
-
-  forge build
-  forge script --fork-url ${rpcUrl} ${script} \
-    --sig "execute(string,bytes,address[])" ${config} ${signatures} "[]" \
-    --broadcast \
-    --sender ${sender} \
-    ${signer_args}
-
 sign_and_execute_in_anvil parentSafe:
   #!/usr/bin/env bash
   config=${TASK_PATH}/config.toml
@@ -98,21 +73,3 @@ sign_and_execute_in_anvil parentSafe:
     --sender ${signer} \
     --private-key  ${PRIVATE_KEY_EXECUTOR} \
     --rpc-url ${ANVIL_LOCALHOST_RPC}
-
-# Helper function to handle keystore selection and private key extraction
-get-keystore-private-key:
-  #!/usr/bin/env bash
-  echo "Enter your foundry keystore path (e.g. ~/.foundry/keystores/sep-test-private-key):" >&2
-  keystorePath=$keystorePathBase$(cd ~/.foundry/keystores/ && fzf --header="Searching your keystore in $PWD" --prompt="Keystore for signing:")
-  cd ${taskPath}
-  echo "Keystore path: ${keystorePath}" >&2
-  # Expand the home directory in the path
-  keystorePath=$(echo ${keystorePath} | sed "s|^~|$HOME|")
-  signer_private_key=$(cast wallet pk --keystore ${keystorePath})
-  sender=$(cast wallet address --private-key ${signer_private_key})
-  echo "Signing with the signer: ${sender}" >&2
-  if [ -z "${signer_private_key}" ]; then
-    echo "Error: Failed to get private key for keystore ${keystorePath}" >&2
-    exit 1
-  fi
-  echo "${signer_private_key}"

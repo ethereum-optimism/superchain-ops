@@ -75,46 +75,6 @@ simulate-approve whichSafe hdPath='0':
     ${safe} \
     ${signatures}
 
-execute:
-  #!/usr/bin/env bash
-  config=${TASK_PATH}/config.toml
-  script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
-
-  # For nested tasks, the 'just approve' command will have been called previously, which will
-  # update the nonces of the child safes. Therefore we disable the nonce check in order to
-  # prevent failures of the `just execute` command.
-  DISABLE_OVERRIDE_NONCE_CHECK=1
-
-  # Use environment variables for HD_PATH and USE_KEYSTORE
-  HD_PATH=${HD_PATH:-0}  # Default to 0 if not set
-  USE_KEYSTORE=${USE_KEYSTORE:-} # Default to empty if not set
-
-  echo "Using script ${script}"
-  # Configure signer (ledger or keystore)
-  if [ -z "$USE_KEYSTORE" ]; then
-    hdpaths="m/44'/60'/${HD_PATH}/0/0"
-    echo "Using ledger with HD path: ${HD_PATH}"
-    sender=$(cast wallet address --ledger --mnemonic-derivation-path "$hdpaths")
-    signer_args="--ledger --hd-paths $hdpaths"
-  else
-    echo "Using keystore"
-    cd ${TASK_PATH}
-    signer_private_key=$(just --justfile=${JUSTFILE_PATH} get-keystore-private-key)
-    sender=$(cast wallet address --private-key ${signer_private_key})
-    signer_args="--private-key ${signer_private_key#0x}"
-  fi
-  echo "Executing with sender: ${sender}"
-
-  forge build
-  forge script ${script} \
-    --fork-url ${rpcUrl} \
-    --broadcast \
-    --sender ${sender} \
-    --sig "execute(string,bytes)" \
-    ${signer_args} \
-    ${config} \
-    "0x"
-
 simulated-run hdPath='0':
   #!/usr/bin/env bash
   config=${TASK_PATH}/config.toml
@@ -129,7 +89,6 @@ simulated-run hdPath='0':
     --sig "execute(string,bytes)" \
     ${config} \
     "0x"
-
 
 sign_and_approve_in_anvil whichSafe parentSafe:
   #!/usr/bin/env bash
@@ -213,21 +172,3 @@ execute_in_anvil:
     --private-key ${PRIVATE_KEY_EXECUTOR} \
     ${config} \
     "0x"
-
-
-# Helper function to handle keystore selection and private key extraction
-get-keystore-private-key:
-  #!/usr/bin/env bash
-  echo "Enter your foundry keystore path (e.g. ~/.foundry/keystores/sep-test-private-key):" >&2
-  keystorePath=$keystorePathBase$(cd ~/.foundry/keystores/ && fzf --header="Searching your keystore in $PWD" --prompt="Keystore for signing:")
-  cd ${taskPath}
-  echo "Keystore path: ${keystorePath}" >&2
-  # Expand the home directory in the path
-  keystorePath=$(echo ${keystorePath} | sed "s|^~|$HOME|")
-  signer_private_key=$(cast wallet pk --keystore ${keystorePath})
-  sender=$(cast wallet address --private-key ${signer_private_key})
-  if [ -z "${signer_private_key}" ]; then
-    echo "Error: Failed to get private key for keystore ${keystorePath}" >&2
-    exit 1
-  fi
-  echo "${signer_private_key}"
