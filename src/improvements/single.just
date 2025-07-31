@@ -1,28 +1,20 @@
 set dotenv-load
 
-# Common variables used across multiple recipes
-# Export variables in uppercase for shell script usage
+# Common variables
 export TASK_PATH := invocation_directory()
 export SCRIPT_PATH := justfile_directory()
 
-# Get RPC URL based on task path
+# Get RPC URL and template name
 rpc_cmd := SCRIPT_PATH + "/script/get-rpc-url.sh \"" + TASK_PATH + "\""
 export rpcUrl := shell(rpc_cmd)
-
-# Fetch the template name from the config.toml file
 cmd := "yq '.templateName' " + TASK_PATH + "/config.toml"
 export SCRIPT_NAME := shell(cmd)
 export signatures := env_var_or_default('SIGNATURES', '')
-export forkBlockNumber := env_var_or_default('FORK_BLOCK_NUMBER', '-1')
 
-# Simulate sequence execution variables
+# Anvil simulation variables
 export ANVIL_LOCALHOST_RPC :="http://localhost:8545"
 export PRIVATE_KEY_OWNER := "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
 export PRIVATE_KEY_EXECUTOR :="0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
-export FAKE_SIG :="11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
-
-# Keystore variables
-export keystorePathBase := "~/.foundry/keystores/"
 
 sign_and_execute_in_anvil parentSafe:
   #!/usr/bin/env bash

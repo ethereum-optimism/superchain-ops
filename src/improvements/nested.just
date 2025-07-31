@@ -1,29 +1,20 @@
 set dotenv-load
 
-# Common variables used across multiple recipes
-# Export variables in uppercase for shell script usage
+# Common variables
 export TASK_PATH := invocation_directory()
 export SCRIPT_PATH := justfile_directory()
-export JUSTFILE_PATH := justfile()
-# Get RPC URL based on task path
+
+# Get RPC URL and template name
 rpc_cmd := SCRIPT_PATH + "/script/get-rpc-url.sh \"" + TASK_PATH + "\""
 export rpcUrl := shell(rpc_cmd)
-
-# Fetch the template name from the config.toml file
 cmd := "yq '.templateName' " + TASK_PATH + "/config.toml"
 export SCRIPT_NAME := shell(cmd)
 export signatures := env_var_or_default('SIGNATURES', '')
-export randomPersonEoa := "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
-export forkBlockNumber := env_var_or_default('FORK_BLOCK_NUMBER', '-1')
 
-# Keystore variables
-export keystorePathBase := "~/.foundry/keystores/"
-
-# Simulate sequence execution variables
+# Anvil simulation variables
 export ANVIL_LOCALHOST_RPC :="http://localhost:8545"
 export PRIVATE_KEY_OWNER := "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
 export PRIVATE_KEY_EXECUTOR :="0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
-export FAKE_SIG :="11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
 
 approve_in_anvil whichSafe signature:
   #!/usr/bin/env bash
@@ -51,44 +42,6 @@ approve_in_anvil whichSafe signature:
     ${config} \
     ${safe} \
     {{signature}}
-
-simulate-approve whichSafe hdPath='0':
-  #!/usr/bin/env bash
-  # Get the appropriate safe address based on whichSafe
-  safe=$(bash ${SCRIPT_PATH}/script/get-safe.sh ${TASK_PATH} "{{whichSafe}}")
-
-  config=${TASK_PATH}/config.toml
-  script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
-
-  if [ ! -z "$SIMULATE_WITHOUT_LEDGER" ]; then
-    sender=$(cast call ${safe} "getOwners()(address[])" -r ${rpcUrl} | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
-  else
-    sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
-  fi
-
-  forge build
-  forge script ${script} \
-    --fork-url ${rpcUrl} \
-    --sender ${sender} \
-    --sig "approve(string,address,bytes)" \
-    ${config} \
-    ${safe} \
-    ${signatures}
-
-simulated-run hdPath='0':
-  #!/usr/bin/env bash
-  config=${TASK_PATH}/config.toml
-  script=${SCRIPT_PATH}/template/${SCRIPT_NAME}.sol
-
-  echo "Using script ${script}"
-
-  forge build
-  forge script ${script} \
-    --fork-url ${rpcUrl} \
-    --sender ${randomPersonEoa} \
-    --sig "execute(string,bytes)" \
-    ${config} \
-    "0x"
 
 sign_and_approve_in_anvil whichSafe parentSafe:
   #!/usr/bin/env bash
@@ -153,7 +106,6 @@ sign_and_approve_in_anvil whichSafe parentSafe:
     echo "Signature is incorrect"
     exit 100
   fi
-
 
 execute_in_anvil:
   #!/usr/bin/env bash
