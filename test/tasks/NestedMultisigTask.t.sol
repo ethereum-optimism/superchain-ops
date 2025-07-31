@@ -92,7 +92,7 @@ contract NestedMultisigTaskTest is Test {
 
         (, Action[] memory actions,) = runTask(childSafes, taskConfigToml, "001");
 
-        // Step 1: Prepare test data
+        // Prepare test data
         TestData memory testData = _prepareTestData(allOriginalNonces, actions, allSafes, childSafes);
 
         // Get the hash of the transaction that the root safe is going to execute which the child multisigs have to approve.
@@ -139,14 +139,14 @@ contract NestedMultisigTaskTest is Test {
         (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions,) =
             runTask(childSafes, taskConfigToml, "002");
 
-        // Step 1: Prepare test data
+        // Prepare test data
         TestData memory testData = _prepareTestData(allOriginalNonces, actions, allSafes, childSafes);
 
-        // Step 2: Prepare child multisig signatures
+        // Prepare child multisig signatures
         LeafSafeSigningData[] memory leafSafeSigningData =
             _prepareDataToSignForLeafSafes(testData, actions, MULTICALL3_ADDRESS);
 
-        // Step 3: Setup mock owners and execute approvals
+        // Setup mock owners and execute approvals
         vm.revertToState(snapshotId);
 
         // Extract leaf safe addresses for mock owner setup
@@ -167,7 +167,7 @@ contract NestedMultisigTaskTest is Test {
             MultisigTaskTestHelper.removeFile(configFilePath);
         }
 
-        // Step 4: Execute final task and verify results
+        // Execute final task and verify results
         addrRegistry = multisigTask.addrRegistry();
         SuperchainAddressRegistry superchainAddrReg = SuperchainAddressRegistry(AddressRegistry.unwrap(addrRegistry));
         address disputeGameFactory = superchainAddrReg.getAddress("DisputeGameFactoryProxy", 10);
@@ -201,14 +201,14 @@ contract NestedMultisigTaskTest is Test {
         (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions,) =
             runTask(childSafes, baseTaskConfigToml, "003");
 
-        // Step 1: Prepare test data
+        // Prepare test data
         TestData memory testData = _prepareTestData(allOriginalNonces, actions, allSafes, childSafes);
 
-        // Step 2: Prepare child multisig signatures
+        // Prepare child multisig signatures
         LeafSafeSigningData[] memory leafSafeSigningData =
             _prepareDataToSignForLeafSafes(testData, actions, MULTICALL3_ADDRESS);
 
-        // Step 3: Setup mock owners and execute approvals in correct order (depth 2 first, then depth 1)
+        // Setup mock owners and execute approvals in correct order (depth 2 first, then depth 1)
         vm.revertToState(snapshotId);
         MultiSigOwner[] memory newOwners = _createMockOwners();
 
@@ -235,6 +235,9 @@ contract NestedMultisigTaskTest is Test {
             MultisigTaskTestHelper.removeFile(configFilePath);
         }
 
+        // Approve depth 1 safes (direct children of root). These safes have already been
+        // pre-approved by their leaf safe owners in the previous step, so we call approve
+        // with empty signatures to mark them as ready for the final root safe execution.
         for (uint256 i = 0; i < testData.childDepth1OwnerMultisigs.length; i++) {
             multisigTask = new DisputeGameUpgradeTemplate();
             string memory configFilePath =
@@ -243,7 +246,7 @@ contract NestedMultisigTaskTest is Test {
             MultisigTaskTestHelper.removeFile(configFilePath);
         }
 
-        // Step 4: Execute final task and verify results
+        // Execute final task and verify results
         addrRegistry = multisigTask.addrRegistry();
         SuperchainAddressRegistry superchainAddrReg = SuperchainAddressRegistry(AddressRegistry.unwrap(addrRegistry));
         address disputeGameFactory = superchainAddrReg.getAddress("DisputeGameFactoryProxy", 8453); // Base chain ID
