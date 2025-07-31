@@ -267,14 +267,20 @@ approve CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
   
   # Build child safe addresses and determine target
   child_safes=()
-  [ -n "{{CHILD_SAFE_NAME_DEPTH_1}}" ] && child_safes+=($(just --justfile "$root_just_file" _fetch-safe "$TASK_PATH" "{{CHILD_SAFE_NAME_DEPTH_1}}"))
   [ -n "{{CHILD_SAFE_NAME_DEPTH_2}}" ] && child_safes+=($(just --justfile "$root_just_file" _fetch-safe "$TASK_PATH" "{{CHILD_SAFE_NAME_DEPTH_2}}"))
+  [ -n "{{CHILD_SAFE_NAME_DEPTH_1}}" ] && child_safes+=($(just --justfile "$root_just_file" _fetch-safe "$TASK_PATH" "{{CHILD_SAFE_NAME_DEPTH_1}}"))
   
   count=${#child_safes[@]}
   if [ $count -eq 0 ]; then
     formatted_addresses="[]"
   else
-    formatted_addresses=$(just --justfile "$root_just_file" _get-owner-addresses-string "$count" "${child_safes[$((count-1))]}")
+    # Build formatted addresses array with all child safes
+    formatted_addresses="["
+    for i in "${!child_safes[@]}"; do
+        [ $i -gt 0 ] && formatted_addresses+=","
+        formatted_addresses+="${child_safes[$i]}"
+    done
+    formatted_addresses+="]"
   fi
   
   # Setup environment and signer
@@ -356,6 +362,7 @@ _fetch-safe TASK_DIR_PATH OWNER_SAFE_NAME:
     if [ -n "{{OWNER_SAFE_NAME}}" ]; then
         safe=$(bash ${root_dir}/src/improvements/script/get-safe.sh "{{TASK_DIR_PATH}}" "{{OWNER_SAFE_NAME}}")
     fi
+    echo "safe: ${safe}" >&2
     echo "${safe}"
 
 # Get signer address and arguments (supports ledger and keystore)
@@ -481,28 +488,3 @@ _print-welcome-message:
     echo -e "\033[42m                              \033[0m"
     echo -e "\033[42m        superchain-ops        \033[0m"
     echo -e "\033[42m                              \033[0m"
-
-# Get owner addresses string for given count and safe address
-[no-cd]
-_get-owner-addresses-string COUNT SAFE_ADDRESS:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    
-    owner_addresses=()
-    if (( {{COUNT}} > 1 )); then
-      for i in $(seq 1 $(({{COUNT}}-1))); do
-          owner_addresses+=("${ZERO_ADDRESS}")
-      done
-    fi
-    owner_addresses+=("{{SAFE_ADDRESS}}")
-    
-    # Format array for forge script (addresses without quotes)
-    [ ${#owner_addresses[@]} -eq 0 ] && { echo "[]"; return; }
-    
-    formatted_addresses="["
-    for i in "${!owner_addresses[@]}"; do
-        [ $i -gt 0 ] && formatted_addresses+=","
-        formatted_addresses+="${owner_addresses[$i]}"
-    done
-    formatted_addresses+="]"
-    echo "$formatted_addresses"
