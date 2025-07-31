@@ -134,7 +134,6 @@ contract StackedSimulator is Script {
         console.log("StackedSimulator");
         console.log("Non-terminal tasks will be executed in the order they are listed below:\n");
         console.log("  Network: %s", network);
-        // TODO: @blmalone Add the safe that's signing for each to this list too.
         for (uint256 i = 0; i < tasks.length; i++) {
             console.log("    %s: %s", i + 1, tasks[i].name);
         }
