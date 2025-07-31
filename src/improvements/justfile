@@ -380,7 +380,7 @@ sign CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     
     # Validate that signer is an owner on the target safe
     echo "Validating signer is an owner on the safe..."
-    # forge script TaskManager --rpc-url $ETH_RPC_URL --sig "requireSignerOnSafe(address,address)" $signer $target_safe_for_validation
+    forge script TaskManager --rpc-url $ETH_RPC_URL --sig "requireSignerOnSafe(address,address)" $signer $target_safe_for_validation
     
     echo "⏳ Task signing in progress. Some tasks take longer than others..."
     forge build
