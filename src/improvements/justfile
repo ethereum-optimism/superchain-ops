@@ -311,7 +311,7 @@ execute:
   # For nested tasks, the 'just approve' command will have been called previously, which will
   # update the nonces of the child safes. Therefore we disable the nonce check in order to
   # prevent failures of the `just execute` command.
-  DISABLE_OVERRIDE_NONCE_CHECK=1
+  export DISABLE_OVERRIDE_NONCE_CHECK=1
   HD_PATH=${HD_PATH:-0}
   USE_KEYSTORE=${USE_KEYSTORE:-}
   network=$(basename "$(dirname "$TASK_PATH")")
@@ -491,7 +491,7 @@ _get-owner-addresses-string COUNT SAFE_ADDRESS:
     owner_addresses=()
     if (( {{COUNT}} > 1 )); then
       for i in $(seq 1 $(({{COUNT}}-1))); do
-          owner_addresses+=("0x0000000000000000000000000000000000000000")
+          owner_addresses+=("${ZERO_ADDRESS}")
       done
     fi
     owner_addresses+=("{{SAFE_ADDRESS}}")
