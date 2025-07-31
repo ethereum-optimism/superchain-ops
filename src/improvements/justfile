@@ -283,7 +283,7 @@ approve CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     formatted_addresses+="]"
   fi
   
-  # Setup environment and signer
+  export DISABLE_OVERRIDE_NONCE_CHECK=1
   HD_PATH=${HD_PATH:-0}
   USE_KEYSTORE=${USE_KEYSTORE:-}
   network=$(basename "$(dirname "$TASK_PATH")")
