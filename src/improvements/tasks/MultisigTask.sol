@@ -601,6 +601,10 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
         // Appends the root safe. The earlier a safe address appears in the array, the deeper its level of nesting.
         address[] memory allSafes = Solarray.extend(_childSafes, Solarray.addresses(address(_root)));
+
+        // Overrides only matter for simulation and signing. It's important this happens before '_templateSetup' so that
+        // template developers can assert that the state overrides are applied correctly.
+        uint256[] memory allOriginalNonces = _overrideState(_taskConfigFilePath, allSafes);
         _templateSetup(_taskConfigFilePath, address(_root)); // May set variables used in '_taskStorageWrites'.
 
         templateConfig.allowedStorageKeys = _taskStorageWrites();
@@ -609,8 +613,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
         _setAllowedStorageAccesses();
         _setAllowedBalanceChanges();
-
-        (uint256[] memory allOriginalNonces) = _overrideState(_taskConfigFilePath, allSafes); // Overrides only matter for simulation and signing.
 
         vm.label(AddressRegistry.unwrap(addrRegistry), "AddrRegistry");
         vm.label(address(this), "MultisigTask");
