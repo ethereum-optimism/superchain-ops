@@ -111,13 +111,28 @@ But **do not** pass the decimal value as a string—this will cause undefined be
 5. Simulate the task:
 
 **For individual task simulation** (from the task directory):
-```bash
-# Nested safes
-SIMULATE_WITHOUT_LEDGER=1 just simulate <foundation|council|chain-governor|foundation-operations|base-operations|[custom-safe-name]>
 
-# Root safe only  
-SIMULATE_WITHOUT_LEDGER=1 just simulate
+```bash
+just --dotenv-path $(pwd)/.env simulate [child-safe-name-depth-1] [child-safe-name-depth-2]
 ```
+
+**Examples:**
+- **Single Safe Operations** (most common - see [SINGLE.md](src/improvements/SINGLE.md)):
+  ```bash
+  just --dotenv-path $(pwd)/.env simulate
+  ```
+
+- **Nested Safe Operations** (see [NESTED.md](src/improvements/NESTED.md)):
+  ```bash
+  just --dotenv-path $(pwd)/.env simulate foundation
+  just --dotenv-path $(pwd)/.env simulate council  
+  just --dotenv-path $(pwd)/.env simulate chain-governor
+  ```
+
+- **Deeply Nested Safes** (child safe owned by another child safe):
+  ```bash
+  just --dotenv-path $(pwd)/.env simulate base-nested base-council
+  ```
 
 > ℹ️ [custom-safe-name] refers to a Safe name defined manually by the task developer under the `[addresses]` table in the config.toml file.
 > Example: NestedSafe1 in [sep/001-opcm-upgrade-v200/config.toml](./tasks/sep/001-opcm-upgrade-v200/config.toml).
