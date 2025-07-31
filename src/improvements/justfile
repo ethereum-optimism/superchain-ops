@@ -288,6 +288,7 @@ approve CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
   USE_KEYSTORE=${USE_KEYSTORE:-}
   network=$(basename "$(dirname "$TASK_PATH")")
   ETH_RPC_URL=$(just _fetch-rpc-url "$network")
+  SIGNATURES=${SIGNATURES:-"0x"}
   
   signer_info=$(just --justfile "$root_just_file" _get-signer-args "$HD_PATH" "$USE_KEYSTORE")
   sender=$(echo "$signer_info" | sed -n '1p')
@@ -304,7 +305,7 @@ approve CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     ${signer_args} \
     ${config_path} \
     ${formatted_addresses} \
-    ${signatures}
+    ${SIGNATURES}
 
 execute:
   #!/usr/bin/env bash
