@@ -91,7 +91,7 @@ jobs:
           name: Check superchain registry
           command: |
             just install
-            (cd src/improvements && just check-superchain-registry-latest)
+            (cd src/improvements && just --justfile ci.just check-superchain-registry-latest)
       - notify-failures-on-main:
           mentions: "@evm-safety-team"
 
@@ -221,7 +221,7 @@ jobs:
       - run:
           name: Make sure all templates can be simulated.
           command: |
-            (cd src/improvements && just simulate-all-templates)
+            (cd src/improvements && just --justfile ci.just simulate-all-templates)
       - notify-failures-on-main:
           mentions: "@evm-safety-team"
 

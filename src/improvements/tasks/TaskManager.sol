@@ -5,6 +5,7 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {Script} from "forge-std/Script.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {Solarray} from "lib/optimism/packages/contracts-bedrock/scripts/libraries/Solarray.sol";
 
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
@@ -39,7 +40,7 @@ contract TaskManager is Script {
 
         string memory templateName = toml.readString(".templateName");
 
-        (bool isNested, address parentMultisig, MultisigTask task) = isNestedTask(configPath);
+        (bool isNested, address rootSafe, MultisigTask task) = isNestedTask(configPath);
 
         return TaskConfig({
             templateName: templateName,
@@ -47,13 +48,13 @@ contract TaskManager is Script {
             basePath: basePath,
             configPath: configPath,
             isNested: isNested,
-            parentMultisig: parentMultisig,
+            rootSafe: rootSafe,
             task: address(task)
         });
     }
 
     /// @notice Fetches all non-terminal tasks for a given network.
-    function getNonTerminalTasks(string memory network) public returns (string[] memory taskPaths_) {
+    function getNonTerminalTaskPaths(string memory network) public returns (string[] memory taskPaths_) {
         string[] memory commands = new string[](2);
         commands[0] = "./src/improvements/script/fetch-tasks.sh";
         commands[1] = network;
@@ -86,20 +87,26 @@ contract TaskManager is Script {
         }
     }
 
+    /// @notice Returns the path to a task for a given network and task name.
+    function getTaskPath(string memory network, string memory task) public returns (string memory) {
+        string[] memory taskPaths = getNonTerminalTaskPaths(network);
+        for (uint256 i = 0; i < taskPaths.length; i++) {
+            if (taskPaths[i].contains(task)) {
+                return taskPaths[i];
+            }
+        }
+        revert(string.concat("TaskManager: Task not found: ", task));
+    }
+
     /// @notice Basic sanity checks to ensure the task is well-formed.
     function validateTask(string memory taskPath) public view {
         require(
             vm.isFile(string.concat(taskPath, "/", "config.toml")),
             string.concat("TaskManager: config.toml file does not exist: ", taskPath)
         );
-        require(
-            vm.isFile(string.concat(taskPath, "/", "README.md")),
-            string.concat("TaskManager: README.md file does not exist: ", taskPath)
-        );
-        // Don't require a VALIDATION markdown file.
     }
 
-    function executeTask(TaskConfig memory config, address optionalOwnerAddress)
+    function executeTask(TaskConfig memory config, address[] memory _childSafes)
         public
         returns (VmSafe.AccountAccess[] memory accesses_, bytes32 normalizedHash_, bytes memory dataToSign_)
     {
@@ -107,15 +114,14 @@ contract TaskManager is Script {
         string memory templatePath = string.concat("out/", config.templateName, ".sol/", config.templateName, ".json");
         MultisigTask task = getMultisigTask(templatePath, config.task);
 
-        string memory formattedParentMultisig = vm.toString(config.parentMultisig).green().bold();
+        string memory formattedRootSafe = vm.toString(config.rootSafe).green().bold();
 
         setTenderlyGasEnv(config.basePath);
 
         string[] memory parts = vm.split(config.basePath, "/");
         string memory taskName = parts[parts.length - 1];
 
-        (accesses_, normalizedHash_, dataToSign_) =
-            execute(config, task, optionalOwnerAddress, taskName, formattedParentMultisig);
+        (accesses_, normalizedHash_, dataToSign_) = execute(config, task, _childSafes, taskName, formattedRootSafe);
         require(
             checkNormalizedHash(normalizedHash_, config),
             string.concat(
@@ -138,48 +144,38 @@ contract TaskManager is Script {
 
     /// @notice Executes a task based on its configuration.
     function execute(
-        TaskConfig memory config,
-        MultisigTask task,
-        address optionalOwnerAddress,
-        string memory taskName,
-        string memory formattedParentMultisig
+        TaskConfig memory _config,
+        MultisigTask _task,
+        address[] memory _childSafes,
+        string memory _taskName,
+        string memory _formattedParentMultisig
     ) private returns (VmSafe.AccountAccess[] memory accesses_, bytes32 normalizedHash_, bytes memory dataToSign_) {
         string memory line =
             unicode"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
-        if (config.isNested) {
-            IGnosisSafe parentMultisig = IGnosisSafe(config.parentMultisig);
-            address[] memory owners = parentMultisig.getOwners();
-            require(
-                owners.length > 0,
-                string.concat(
-                    "TaskManager: No owners found for parent multisig: ",
-                    Strings.toHexString(uint256(uint160(config.parentMultisig)), 20)
-                )
-            );
-
-            address ownerAddress = optionalOwnerAddress != address(0) ? optionalOwnerAddress : owners[0];
+        if (_config.isNested) {
+            if (_childSafes.length == 0) {
+                _childSafes = setupDefaultChildSafes(_childSafes, _config.rootSafe);
+            }
+            address leafChildSafe = _childSafes[0];
             // forgefmt: disable-start
-            console.log(string.concat("SIMULATING NESTED TASK (", taskName, ") FOR OWNER: ", vm.toString(ownerAddress), " ON ", formattedParentMultisig));
+            console.log(string.concat("SIMULATING NESTED TASK (", _taskName, ") ON NESTED SAFE: ", vm.toString(leafChildSafe), " FOR ROOT SAFE: ", _formattedParentMultisig));
             // forgefmt: disable-end
             console.log(line.green().bold());
             console.log("");
-            require(
-                Utils.contains(owners, ownerAddress),
-                string.concat(
-                    "TaskManager: ownerAddress (",
-                    vm.toString(ownerAddress),
-                    ") must be an owner of the parent multisig: ",
-                    vm.toString(config.parentMultisig)
-                )
-            );
-            (accesses_,, normalizedHash_, dataToSign_) = task.simulate(config.configPath, ownerAddress);
+            address[] memory allSafes = Solarray.extend(_childSafes, Solarray.addresses(address(_config.rootSafe)));
+            Utils.validateSafesOrder(allSafes);
+            (accesses_,, normalizedHash_, dataToSign_,) = _task.simulate(_config.configPath, _childSafes);
         } else {
             // forgefmt: disable-start
-            console.log(string.concat("SIMULATING SINGLE TASK: ", taskName, " ON ", formattedParentMultisig));
+            console.log(string.concat("SIMULATING SINGLE TASK: ", _taskName, " FOR ROOT SAFE: ", _formattedParentMultisig));
             console.log(line.green().bold());
             console.log("");
             // forgefmt: disable-end
-            (accesses_,, normalizedHash_, dataToSign_) = task.simulate(config.configPath);
+            require(
+                _childSafes.length == 0, "TaskManager: child safes provided but not expected for a single safe task."
+            );
+
+            (accesses_,, normalizedHash_, dataToSign_,) = _task.simulate(_config.configPath, new address[](0));
         }
     }
 
@@ -235,7 +231,7 @@ contract TaskManager is Script {
     /// @notice Requires that a signer is an owner on a safe.
     function requireSignerOnSafe(address signer, string memory taskPath) public {
         TaskConfig memory config = parseConfig(taskPath);
-        requireSignerOnSafe(signer, config.parentMultisig);
+        requireSignerOnSafe(signer, config.rootSafe);
     }
 
     /// @notice Requires that a signer is an owner on a safe.
@@ -273,7 +269,7 @@ contract TaskManager is Script {
     /// @notice Useful function to tell if a task is nested or not based on the task config.
     function isNestedTask(string memory taskConfigFilePath)
         public
-        returns (bool, address parentMultisig, MultisigTask task)
+        returns (bool, address rootSafe, MultisigTask task)
     {
         string memory configContent = vm.readFile(taskConfigFilePath);
         string memory templateName = configContent.readString(".templateName");
@@ -285,19 +281,19 @@ contract TaskManager is Script {
 
         if (taskType == TaskType.SimpleTaskBase) {
             SimpleAddressRegistry _simpleAddrRegistry = new SimpleAddressRegistry(taskConfigFilePath);
-            parentMultisig = _simpleAddrRegistry.get(safeAddressString);
+            rootSafe = _simpleAddrRegistry.get(safeAddressString);
         } else {
             SuperchainAddressRegistry _addrRegistry = new SuperchainAddressRegistry(taskConfigFilePath);
             SuperchainAddressRegistry.ChainInfo[] memory chains = _addrRegistry.getChains();
 
             // Try loading the address without the chain id, then try loading with it.
             try _addrRegistry.get(safeAddressString) returns (address addr) {
-                parentMultisig = addr;
+                rootSafe = addr;
             } catch {
-                parentMultisig = _addrRegistry.getAddress(safeAddressString, chains[0].chainId);
+                rootSafe = _addrRegistry.getAddress(safeAddressString, chains[0].chainId);
             }
         }
-        return (isNestedSafe(parentMultisig), parentMultisig, task);
+        return (isNestedSafe(rootSafe), rootSafe, task);
     }
 
     /// @notice Returns a cached MultisigTask instance for a given template path or deploys a new one.
@@ -323,9 +319,41 @@ contract TaskManager is Script {
         return nested;
     }
 
+    /// @notice Helper function to determine if the given safe is a nested-nested multisig (e.g. Base safe architecture).
+    function isNestedNestedSafe(address safe) public view returns (bool) {
+        address[] memory owners = IGnosisSafe(safe).getOwners();
+        for (uint256 i = 0; i < owners.length; i++) {
+            if (isNestedSafe(owners[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /// @notice Returns the root safe address for a given task config file path.
     function getRootSafe(string memory taskConfigFilePath) public returns (address) {
-        (, address parentMultisig,) = isNestedTask(taskConfigFilePath);
-        return parentMultisig;
+        (, address rootSafe,) = isNestedTask(taskConfigFilePath);
+        return rootSafe;
+    }
+
+    /// @notice If a task is nested but the user hasn't provided any child safes, then we need to setup the default child safes so the simulation can run.
+    function setupDefaultChildSafes(address[] memory _childSafes, address _rootSafe)
+        internal
+        view
+        returns (address[] memory)
+    {
+        address depth1ChildSafe = IGnosisSafe(_rootSafe).getOwners()[0];
+        // If the root safe has a nested-nested safe setup, then we need to setup the default child safes so the simulation can run.
+        if (isNestedNestedSafe(_rootSafe)) {
+            _childSafes = new address[](2);
+            address depth2ChildSafe = IGnosisSafe(depth1ChildSafe).getOwners()[0];
+            _childSafes[0] = depth2ChildSafe; // See MultisigTypes.sol for an explanation of the ordering.
+            _childSafes[1] = depth1ChildSafe;
+        } else {
+            _childSafes = new address[](1);
+            _childSafes[0] = depth1ChildSafe;
+        }
+        require(_childSafes.length <= 2, "TaskManager: currently only supports 2 levels of nesting.");
+        return _childSafes;
     }
 }

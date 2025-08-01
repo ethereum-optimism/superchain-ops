@@ -10,7 +10,6 @@ contract MockDisputeGameTask is DisputeGameUpgradeTemplate {
     function _getCodeExceptions() internal view virtual override returns (address[] memory) {
         address[] memory addresses = new address[](1);
         addresses[0] = address(0x0000000FFfFFfffFffFfFffFFFfffffFffFFffFf);
-
         return addresses;
     }
 }
