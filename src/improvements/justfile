@@ -58,9 +58,9 @@ simulate-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEP
         echo
         echo "Usage: just simulate-stack <network> [task] [child-safe-name-depth-1] [child-safe-name-depth-2]"
         echo "Examples:"
-        echo "  just simulate-stack eth                        # All tasks"
-        echo "  just simulate-stack eth 001-example           # Specific task"
-        echo "  just simulate-stack eth 001-example foundation # On child safe"
+        echo "  just simulate-stack eth                                      # All tasks"
+        echo "  just simulate-stack eth 001-example                          # Specific task"
+        echo "  just simulate-stack eth 001-example foundation               # On child safe"
         echo "  just simulate-stack eth 001-example base-nested base-council # Multiple child safes"
     }
 
@@ -161,7 +161,7 @@ list-stack NETWORK="" TASK="":
         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string,string)" {{NETWORK}} {{TASK}}
     fi
 
-
+# Example of 'depth' as a concept when using nested safes:
 #  ┌────────────────────┐      
 #  │ Child Safe Depth 2 │
 #  │ e.g. 'base-council'│
@@ -171,7 +171,7 @@ list-stack NETWORK="" TASK="":
 #                               ▼     
 #                           ┌────────────────────┐
 #                           │ Child Safe Depth 1 │
-#                           │  e.g. 'foundation' │
+#                           │  e.g. 'base-nested'│
 #                           └────────────────────┘
 #                                      │          
 #                                      └──────────┬
