@@ -8,6 +8,7 @@ import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
 import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
 import {TaskConfig, L2Chain} from "src/libraries/MultisigTypes.sol";
 import {Vm} from "forge-std/Vm.sol";
+import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 contract TaskManagerUnitTest is StateOverrideManager, Test {
     using LibString for string;
@@ -85,7 +86,7 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
             basePath: "test/tasks/example/eth/004-fp-set-respected-game-type",
             configPath: "",
             templateName: "",
-            parentMultisig: address(0),
+            rootSafe: address(0),
             isNested: true,
             task: address(0)
         });
@@ -109,7 +110,7 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
             basePath: "src/improvements/tasks/eth/013-gas-params-op",
             configPath: "",
             templateName: "",
-            parentMultisig: address(0),
+            rootSafe: address(0),
             isNested: true,
             task: address(0)
         });
@@ -125,7 +126,7 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
             basePath: "test/tasks/example/eth/004-fp-set-respected-game-type",
             configPath: "",
             templateName: "",
-            parentMultisig: address(0x847B5c174615B1B7fDF770882256e2D3E95b9D92),
+            rootSafe: address(0x847B5c174615B1B7fDF770882256e2D3E95b9D92),
             isNested: true,
             task: address(0)
         });
@@ -147,7 +148,7 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
             basePath: "src/improvements/tasks/eth/013-gas-params-op",
             configPath: "",
             templateName: "",
-            parentMultisig: address(0x847B5c174615B1B7fDF770882256e2D3E95b9D92),
+            rootSafe: address(0x847B5c174615B1B7fDF770882256e2D3E95b9D92),
             isNested: true,
             task: address(0)
         });
@@ -155,5 +156,75 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
             hex"190111111111111111111111111111111111111111111111111111111111111111110000000000000000000000000000000000000000000000000000000000000000";
         // Does have a VALIDATION markdown file and data to sign does not match.
         assertFalse(tm.checkDataToSign(fakeDataToSign, config));
+    }
+
+    function testSetupDefaultChildSafes_RootSafeHasMultiLevelNesting() public {
+        vm.createSelectFork("mainnet", 23025164);
+        TaskManagerHarness tmHarness = new TaskManagerHarness();
+        address rootSafe = 0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c;
+        address[] memory rootSafeOwners = IGnosisSafe(rootSafe).getOwners();
+        address[] memory emptyChildSafes = new address[](0);
+        address[] memory resultChildSafes = tmHarness.exposed_setupDefaultChildSafes(emptyChildSafes, rootSafe);
+        // Should return 2-element array for nested-nested execution
+        assertEq(resultChildSafes.length, 2, "Should have 2 child safes for nested-nested execution");
+        address[] memory firstOwnerOwners = IGnosisSafe(rootSafeOwners[0]).getOwners();
+        address leafChildSafe = firstOwnerOwners[0];
+        assertEq(resultChildSafes[0], leafChildSafe, "First element should be leaf child safe");
+        assertEq(resultChildSafes[1], rootSafeOwners[0], "Second element should be first root safe owner");
+        assertTrue(resultChildSafes.length == 2, "Should have 2 child safes for nested-nested execution");
+    }
+
+    function testSetupDefaultChildSafes_RootSafeHasOneLevelOfNesting() public {
+        vm.createSelectFork("mainnet", 23025164);
+        TaskManagerHarness tmHarness = new TaskManagerHarness();
+        address rootSafe = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A;
+        address[] memory rootSafeOwners = IGnosisSafe(rootSafe).getOwners();
+        address[] memory emptyChildSafes = new address[](0);
+        address[] memory resultChildSafes = tmHarness.exposed_setupDefaultChildSafes(emptyChildSafes, rootSafe);
+        bool isFirstOwnerNested = tmHarness.exposed_isNestedSafe(rootSafeOwners[0]);
+        // Should return 1-element array for single-level nested execution
+        assertEq(resultChildSafes.length, 1, "Should have 1 child safe for single-level nested execution");
+        assertEq(resultChildSafes[0], rootSafeOwners[0], "First element should be first root safe owner");
+        assertFalse(isFirstOwnerNested, "First owner should not be nested for single-level nesting");
+        assertTrue(resultChildSafes.length == 1, "Should have 1 child safe for single-level nested execution");
+    }
+
+    /// Note: This test is intentionally not pinned to a block. If it fails, it means Base has updated their safe architecture.
+    function testIsNestedNestedSafe() public {
+        vm.createSelectFork("mainnet");
+        TaskManagerHarness tmHarness = new TaskManagerHarness();
+
+        // Test the nested-nested safe (should return true)
+        address nestedNestedSafe = 0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c;
+        assertTrue(
+            tmHarness.exposed_isNestedNestedSafe(nestedNestedSafe),
+            "0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c should be nested-nested"
+        );
+
+        // Test the single-level nested safe (should return false)
+        address singleNestedSafe = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A;
+        assertFalse(
+            tmHarness.exposed_isNestedNestedSafe(singleNestedSafe),
+            "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A should not be nested-nested"
+        );
+    }
+}
+
+// Test harness to expose internal functions
+contract TaskManagerHarness is TaskManager {
+    function exposed_setupDefaultChildSafes(address[] memory _childSafes, address _rootSafe)
+        public
+        view
+        returns (address[] memory)
+    {
+        return setupDefaultChildSafes(_childSafes, _rootSafe);
+    }
+
+    function exposed_isNestedSafe(address safe) public view returns (bool) {
+        return isNestedSafe(safe);
+    }
+
+    function exposed_isNestedNestedSafe(address safe) public view returns (bool) {
+        return isNestedNestedSafe(safe);
     }
 }

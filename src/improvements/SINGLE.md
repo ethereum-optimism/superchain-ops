@@ -43,15 +43,20 @@ is ready".
 
 Make sure your ledger is still unlocked and run the following command.
 
+**Note:** The default simulation requires a connected ledger. For development/testing purposes, you can simulate without a ledger by adding `SIMULATE_WITHOUT_LEDGER=1` to your command or `.env` file.
+
 **Note:** Remember that by default the script will assume the derivation path of your address is `m/44'/60'/0'/0/0`.
-If you wish to use a different account, append an `X` to the command to set the derivation path of the address that you want to use. For example by adding a `1` to the end, it will derive the address using `m/44'/60'/1'/0/0` instead.
+If you wish to use a different account, set the `HD_PATH` environment variable. For example, `HD_PATH=1` will derive the address using `m/44'/60'/1'/0/0` instead.
 
 ```shell
-just \
-   --dotenv-path $(pwd)/.env \
-   --justfile ../../../single.just \
-   simulate \
-   0 # or 1 or ...
+# Default: simulate with ledger
+just --dotenv-path $(pwd)/.env simulate
+
+# To use a different HD derivation path (e.g. path 1):
+HD_PATH=1 just --dotenv-path $(pwd)/.env simulate
+
+# Alternative: simulate without ledger (useful for development/testing):
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate
 ```
 
 **This will generate an op-txverify link with instructions on how to verify the domain and message hashes. Follow and complete the instructions before proceeding.**
@@ -116,11 +121,13 @@ transaction. Make sure your ledger is still unlocked and run the
 following:
 
 ```shell
-just \
-   --dotenv-path $(pwd)/.env \
-   --justfile ../../../single.just \
-   sign \
-   0 # or 1 or ...
+just --dotenv-path $(pwd)/.env sign
+
+# To use a different HD derivation path (e.g. path 1):
+HD_PATH=1 just --dotenv-path $(pwd)/.env sign
+
+# To use keystore instead of ledger:
+USE_KEYSTORE=1 just --dotenv-path $(pwd)/.env sign
 ```
 
 > [!WARNING]
@@ -165,7 +172,7 @@ congrats, you are done!
 2. Concatenate all signatures and export it as the `SIGNATURES`
    environment variable, i.e. `export
    SIGNATURES="0x[SIGNATURE1][SIGNATURE2]..."`.
-3. Run `just execute 0 # or 1 or ...` to execute the transaction onchain.
+3. Run `just execute` to execute the transaction onchain.
 
 For example, if the quorum is 2 and you get the following outputs:
 
@@ -185,9 +192,5 @@ Then you should run:
 
 ```shell
 export SIGNATURES="0xAAAABBBB"
-just \
-   --dotenv-path $(pwd)/.env \
-   --justfile ../../../single.just \
-    execute \
-    0 # or 1 or ...
+just --dotenv-path $(pwd)/.env execute
 ```

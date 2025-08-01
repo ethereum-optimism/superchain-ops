@@ -41,8 +41,8 @@ Make sure your ledger is still unlocked and run the following.
 
 ``` shell
 cd src/improvements/tasks/<network>/rehearsals/<rehearsal-task-name>
-just --dotenv-path $(pwd)/.env --justfile ../../../../nested.just simulate test-rehearsal-council 0
-# You may change the integer from '0' to your own specific derivation path value.
+just --dotenv-path $(pwd)/.env simulate test-rehearsal-council
+# For a different derivation path, use: HD_PATH=1 just --dotenv-path $(pwd)/.env simulate test-rehearsal-council
 # 'test-rehearsal-council' maps to the test rehearsal security council safe in the tasks 'config.toml' file. Denoted as 'TestRehearsalCouncil'.
 ```
 
@@ -126,7 +126,8 @@ following:
 
 ``` shell
 cd src/improvements/tasks/<network>/rehearsals/<rehearsal-task-name>
-just --dotenv-path $(pwd)/.env --justfile ../../../../nested.just sign test-rehearsal-council 0 # Again, you may change the integer from '0' to your own specific derivation path value.
+just --dotenv-path $(pwd)/.env sign test-rehearsal-council
+# For a different derivation path, use: HD_PATH=1 just --dotenv-path $(pwd)/.env sign test-rehearsal-council
 # 'test-rehearsal-council' maps to the test rehearsal security council safe in the tasks 'config.toml' file.
 ```
 
@@ -270,14 +271,14 @@ Commit the newly created files to Github.
 ```bash
 # These should be the signatures from the signers on the security council safe.
 export SIGNATURES="0x[SIGNATURE1]..."
-just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/nested.just approve test-rehearsal-council 0 
+just --dotenv-path $(pwd)/.env approve test-rehearsal-council
 # 'test-rehearsal-council' maps to the test rehearsal security council safe in the tasks 'config.toml' file. Denoted as 'TestRehearsalCouncil'.
 ```
 4. Run the approval for the Foundation Safe. Note that `SIGNATURES` will now contain signatures from the foundation safe, not the security council safe.
 ```bash
 # These should be the signatures from the signers on the foundation safe.
 export SIGNATURES="0x[SIGNATURE1]..."
-just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/nested.just approve test-rehearsal-foundation 0 
+just --dotenv-path $(pwd)/.env approve test-rehearsal-foundation
 # 'test-rehearsal-foundation' maps to the test rehearsal foundation safe in the tasks 'config.toml' file. Denoted as 'TestRehearsalFoundation'.
 ```
 5. Perform the final execution:

@@ -63,7 +63,7 @@ struct TaskConfig {
     string basePath;
     string configPath;
     string templateName;
-    address parentMultisig;
+    address rootSafe;
     bool isNested;
     address task; // MultisigTask address
 }
