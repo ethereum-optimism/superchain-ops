@@ -44,8 +44,8 @@ Make sure your ledger is still unlocked and run the following.
 
 ``` shell
 cd src/improvements/tasks/<network>/rehearsals/<rehearsal-task-name>
-just --dotenv-path $(pwd)/.env --justfile ../../../../single.just simulate 0
-# You may change the integer from '0' to your own specific derivation path value.
+just --dotenv-path $(pwd)/.env simulate
+# For a different derivation path, use: HD_PATH=1 just --dotenv-path $(pwd)/.env simulate
 ```
 
 You will see a "Simulation link" URL in the output.
@@ -72,8 +72,8 @@ To validate integrity of the simulation, we need to check the following:
    recent timestamp (i.e. close to when you run the script).
 3. "Sender": Check the address shown is your signer account. If not,
    you will need to determine which “number” it is in the list of
-   addresses on your ledger. By default the script will assume the
-   derivation path is `m/44'/60'/0'/0/0`.
+   addresses on your ledger. By default the script uses derivation path 0
+   (`m/44'/60'/0'/0/0`). You can set the HD_PATH environment variable to use a different path.
 
 Here is an example screenshot, note that the Timestamp and Sender might be different in your simulation:
 
@@ -144,7 +144,8 @@ following:
 
 ``` shell
 cd src/improvements/tasks/<network>/rehearsals/<rehearsal-task-name>
-just --dotenv-path $(pwd)/.env --justfile ../../../../single.just sign 0 # Again, you may change the integer from '0' to your own specific derivation path value.
+just --dotenv-path $(pwd)/.env sign
+# For a different derivation path, use: HD_PATH=1 just --dotenv-path $(pwd)/.env sign
 ```
 
 > [!IMPORTANT] This is the most security critical part of the
@@ -267,7 +268,7 @@ Then you should run
 ``` shell
 export SIGNATURES="0xAAAABBBB"
 cd src/improvements/tasks/<network>/rehearsals/<rehearsal-task-name>
-just --dotenv-path $(pwd)/.env --justfile ../../../../single.just execute
+just --dotenv-path $(pwd)/.env execute
 ```
 
 For posterity, you should make a `README.md` file in the tasks directory that contains a link to the executed transaction e.g. see [here](../../src/improvements/tasks/eth/rehearsals/2025-07-21-R1-welcome/README.md).
