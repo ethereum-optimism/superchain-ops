@@ -61,6 +61,7 @@ simulate-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEP
         echo "  just simulate-stack eth                        # All tasks"
         echo "  just simulate-stack eth 001-example           # Specific task"
         echo "  just simulate-stack eth 001-example foundation # On child safe"
+        echo "  just simulate-stack eth 001-example base-nested base-council # Multiple child safes"
     }
 
     [ -z "{{NETWORK}}" ] && { echo -e "\n\033[31mError: No network specified\033[0m"; show_usage; exit 1; }
