@@ -207,7 +207,6 @@ simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     
     # Configure signer for simulation
     signer=$(just --justfile "$root_just_file" _get-simulation-signer "$config_path" "$ETH_RPC_URL" "$child_safe_depth_1" "$child_safe_depth_2")
-    echo "signer: $signer"
     
     # Get fork block arguments
     fork_block_args=$(just --justfile "$root_just_file" _get-fork-block-args)
@@ -371,8 +370,8 @@ _fetch-safe TASK_DIR_PATH OWNER_SAFE_NAME:
     safe="$ZERO_ADDRESS" # Default to zero address for non-nested safes
     if [ -n "{{OWNER_SAFE_NAME}}" ]; then
         safe=$(bash ${root_dir}/src/improvements/script/get-safe.sh "{{TASK_DIR_PATH}}" "{{OWNER_SAFE_NAME}}")
+        echo "Retrieved safe for '{{OWNER_SAFE_NAME}}': ${safe}" >&2
     fi
-    echo "safe: ${safe}" >&2
     echo "${safe}"
 
 # Get signer address and arguments (supports ledger and keystore)
