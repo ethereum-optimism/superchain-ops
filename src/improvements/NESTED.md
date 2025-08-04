@@ -1,4 +1,8 @@
-# Nested Execution
+# Nested Safe Execution
+
+This document provides instructions for signing and executing transactions on **nested safe architectures** where child safes (like Foundation, Security Council, or Chain Governor) are owned by a root safe.
+
+For single safe operations (root safe only), please use [SINGLE.md](./SINGLE.md) instead.
 
 - [Approving the transaction](#approving-the-transaction)
    - [1. Update repo:](#1-update-repo)
@@ -16,7 +20,7 @@
 
 ## Approving the transaction
 
-### 1. Update repo:
+### 1. Update repo and move to the appropriate folder for this task
 
 ```shell
 cd superchain-ops/src/improvements
@@ -36,39 +40,27 @@ is ready".
 
 Make sure your ledger is still unlocked and run the following commands depending on which Safe you are signing on behalf of.
 
-Note: during development of the Solidity script, simulations can be run without any Ledger by exporting `SIMULATE_WITHOUT_LEDGER=1` in your shell, or by adding it to the `.env` file.
+**Note:** The default simulation requires a connected ledger. For development/testing purposes, you can simulate without a ledger by adding `SIMULATE_WITHOUT_LEDGER=1` to your command or `.env` file.
 
 **Note:** Remember that by default the script will assume the derivation path of your address is `m/44'/60'/0'/0/0`.
-If you wish to use a different account, append an `X` to the command to set the derivation path of the address that you want to use. For example by adding a `1` to the end, it will derive the address using `m/44'/60'/1'/0/0` instead.
+If you wish to use a different account, set the `HD_PATH` environment variable. For example, `HD_PATH=1` will derive the address using `m/44'/60'/1'/0/0` instead.
 
 For the Security Council:
 
 ```shell
-just \
-   --dotenv-path $(pwd)/.env \
-   --justfile ../../../nested.just \
-   simulate \
-   council # 0 or 1 or ...
+just --dotenv-path $(pwd)/.env simulate council
 ```
 
 For the Foundation:
 
 ```shell
-just \
-   --dotenv-path $(pwd)/.env \
-   --justfile ../../../nested.just \
-   simulate \
-   foundation # 0 or 1 or ...
+just --dotenv-path $(pwd)/.env simulate foundation
 ```
 
 For the Chain Governor:
 
 ```shell
-just \
-   --dotenv-path $(pwd)/.env \
-   --justfile ../../../nested.just \
-   simulate \
-   chain-governor # 0 or 1 or ...
+just --dotenv-path $(pwd)/.env simulate chain-governor
 ```
 
 **This will generate an op-txverify link with instructions on how to verify the domain and message hashes. Follow and complete the instructions before proceeding.**
@@ -133,32 +125,22 @@ Once the validations are done, it's time to actually sign the
 transaction. Make sure your ledger is still unlocked and run the
 following:
 
+For the Security Council:
+
 ```shell
-just \
-   --dotenv-path $(pwd)/.env \
-   --justfile ../../../nested.just \
-   sign \
-   council # 0 or 1 or ...
+just --dotenv-path $(pwd)/.env sign council
 ```
 
-or
+For the Foundation:
 
 ```shell
-just \
-   --dotenv-path $(pwd)/.env \
-   --justfile ../../../nested.just \
-   sign \
-   foundation # 0 or 1 or ...
+just --dotenv-path $(pwd)/.env sign foundation
 ```
 
-or
+For the Chain Governor:
 
 ```shell
-just \
-   --dotenv-path $(pwd)/.env \
-   --justfile ../../../nested.just \
-   sign \
-   chain-governor # 0 or 1 or ...
+just --dotenv-path $(pwd)/.env sign chain-governor
 ```
 
 > [!WARNING]
@@ -221,14 +203,22 @@ Signature: BBBB
 
 Then you should run:
 
+For the Foundation:
 ```shell
 export SIGNATURES="0xAAAABBBB"
-just \
-   --dotenv-path $(pwd)/.env \
-   --justfile ../../../nested.just \
-   approve \
-   foundation \ # or council or chain-governor
-   0 # or 1 or ...
+just --dotenv-path $(pwd)/.env approve foundation
+```
+
+For the Security Council:
+```shell
+export SIGNATURES="0xAAAABBBB"  
+just --dotenv-path $(pwd)/.env approve council
+```
+
+For the Chain Governor:
+```shell
+export SIGNATURES="0xAAAABBBB"
+just --dotenv-path $(pwd)/.env approve chain-governor
 ```
 
 ### Execute the transaction
@@ -236,9 +226,5 @@ just \
 Once the signatures have been submitted approving the transaction for all nested Safes run:
 
 ```shell
-just \
-   --dotenv-path $(pwd)/.env \
-   --justfile ../../../nested.just \
-   execute \
-   0 # or 1 or ...
+just --dotenv-path $(pwd)/.env execute
 ```

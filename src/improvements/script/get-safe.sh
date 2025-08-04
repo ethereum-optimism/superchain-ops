@@ -6,7 +6,7 @@ TASK_PATH="$1"
 SAFE_NAME="$2"
 
 if [[ -z "$SAFE_NAME" || "$SAFE_NAME" == "null" ]]; then
-    echo "Error: Invalid safe name: ${SAFE_NAME}" >&2
+    echo "Error (get-safe.sh): Invalid safe name: ${SAFE_NAME}" >&2
     echo "Valid safe names: foundation, council, chain-governor, foundation-operations, base-operations, <custom-safe-name>" >&2
     exit 1
 fi
@@ -61,21 +61,21 @@ case "$TASK_PATH" in
         ;;
     *"/sep/"*)
         if [[ "$SAFE_NAME" == "ChainGovernorSafe" ]]; then
-            echo "Error: chain-governor does not exist on sepolia" >&2
+            echo "Error (get-safe.sh): chain-governor does not exist on sepolia" >&2
             exit 1
         fi
         safe=$(yq ".sep.\"$SAFE_NAME\"" "${root_dir}/src/improvements/addresses.toml")
         [[ -z "$safe" || "$safe" == "null" ]] && safe=$(get_safe_fallback "${TASK_PATH}/config.toml" "$SAFE_NAME")
         ;;
     *)
-        echo "Error: Task path must contain either /eth/ or /sep/" >&2
+        echo "Error (get-safe.sh): Task path must contain either /eth/ or /sep/" >&2
         exit 1
         ;;
 esac
 
 # Ensure a value was found for the safe
 if [[ -z "$safe" || "$safe" == "null" ]]; then
-    echo "Error: SAFE_NAME '$SAFE_NAME' not found in ${TASK_PATH}/config.toml" >&2
+    echo "Error (get-safe.sh): SAFE_NAME '$SAFE_NAME' not found in ${TASK_PATH}/config.toml" >&2
     exit 1
 fi
 

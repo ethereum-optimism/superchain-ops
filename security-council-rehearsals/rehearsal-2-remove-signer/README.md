@@ -38,8 +38,8 @@ Make sure your ledger is still unlocked and run the following.
 
 ``` shell
 cd src/improvements/tasks/<network>/rehearsals/<rehearsal-task-name>
-just --dotenv-path $(pwd)/.env --justfile ../../../../single.just simulate 0
-# You may change the integer from '0' to your own specific derivation path value.
+just --dotenv-path $(pwd)/.env simulate
+# For a different derivation path, use: HD_PATH=1 just --dotenv-path $(pwd)/.env simulate
 ```
 
 You will see a "Simulation link" URL in the output.
@@ -126,7 +126,8 @@ following:
 
 ``` shell
 cd src/improvements/tasks/<network>/rehearsals/<rehearsal-task-name>
-just --dotenv-path $(pwd)/.env --justfile ../../../../single.just sign 0 # Again, you may change the integer from '0' to your own specific derivation path value.
+just --dotenv-path $(pwd)/.env sign
+# For a different derivation path, use: HD_PATH=1 just --dotenv-path $(pwd)/.env sign
 ```
 
 > [!IMPORTANT] This is the most security critical part of the
@@ -233,7 +234,7 @@ Then you should run
 ``` shell
 export SIGNATURES="0xAAAABBBB"
 cd src/improvements/tasks/<network>/rehearsals/<rehearsal-task-name>
-just --dotenv-path $(pwd)/.env --justfile ../../../../single.just execute
+just --dotenv-path $(pwd)/.env execute
 ```
 
 For posterity, you should make a `README.md` file in the tasks directory that contains a link to the executed transaction e.g. see [here](../../src/improvements/tasks/eth/rehearsals/2025-11-28-R2-remove-signer/README.md).

@@ -4,6 +4,7 @@ pragma solidity 0.8.15;
 import {VmSafe} from "lib/forge-std/src/Vm.sol";
 import {SafeData, TaskPayload} from "src/libraries/MultisigTypes.sol";
 import {LibString} from "@solady/utils/LibString.sol";
+import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 library Utils {
     VmSafe private constant vm = VmSafe(address(uint160(uint256(keccak256("hevm cheat code")))));
@@ -57,6 +58,19 @@ library Utils {
             if (LibString.eq(_list[i], _str)) return true;
         }
         return false;
+    }
+
+    /// @notice Validate that the safes are in the correct order.
+    function validateSafesOrder(address[] memory _allSafes) internal view {
+        require(_allSafes.length > 0, "Utils: no safes provided");
+        for (uint256 i = 1; i < _allSafes.length; i++) {
+            require(
+                IGnosisSafe(_allSafes[i]).isOwner(_allSafes[i - 1]),
+                string.concat(
+                    "Utils: Safe ", vm.toString(_allSafes[i - 1]), " is not an owner of ", vm.toString(_allSafes[i])
+                )
+            );
+        }
     }
 
     /// @notice Helper function to get the safe, call data, and original nonce for a given index.
