@@ -18,15 +18,13 @@ First, we need to validate the domain and message hashes. These values should ma
 > ### Worldchain Proxy Admin Owner (`0x945185C01fb641bA3E63a9bdF66575e35a407837`)
 >
 > - Domain Hash:  `0x6faec9c52949ba8274340008df12c69faedd5c44e77f77c956d2ca8e4bcd877e`
-> - Message Hash: `0x55faea00e974897c5afad9bdece6e4239df3b44a54dc03bab2f9172c5ab91c9c`
+> - Message Hash: `0x20556e9d7d2847116caef0b79cdcd207b399adcdb01776e368fcbc9011559a4e`
 
 ## Normalized State Diff Hash Attestation
 
 The normalized state diff hash **MUST** match the hash produced by the state changes attested to in the state diff audit report. As a signer, you are responsible for verifying that this hash is correct. Please compare the hash below with the one in the audit report. If no audit report is available for this task, you must still ensure that the normalized state diff hash matches the output in your terminal.
 
 **Normalized hash:** `0x468b869284297f167bc8a9e7589ccbd096c1fab043792a6e461b5ad8d30d556b`
-
-
 
 # State Validations
 
