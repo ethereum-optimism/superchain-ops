@@ -45,7 +45,6 @@ just test # Run this command before asking for a review on any PR.
 Run individual test suites:
 ```bash
 forge test # Run solidity tests.
-just simulate-all-templates # Run template regression tests.
 ```
 
 3. Create a new task:
