@@ -695,7 +695,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         // the first entry always corresponds to a top-level call.
         uint256 topLevelDepth = accesses[0].depth;
 
-        // Single pass: process valid actions directly (performance optimization)
+        // Process valid actions
         Action[] memory tempActions = new Action[](accesses.length); // Pre-allocate max size
         uint256 validCount = 0;
 
