@@ -728,7 +728,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             }
         }
 
-        // Resize array to actual size using assembly for efficiency
         Action[] memory validActions = new Action[](validCount);
         for (uint256 i = 0; i < validCount; i++) {
             validActions[i] = tempActions[i];
