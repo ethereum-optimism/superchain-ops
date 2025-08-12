@@ -179,7 +179,5 @@ contract UniFix is L2TaskBase {
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function _getCodeExceptions() internal pure override returns (address[] memory) {
-        return new address[](0);
-    }
+    function _getCodeExceptions() internal pure override returns (address[] memory) {}
 }

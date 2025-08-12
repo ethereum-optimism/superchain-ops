@@ -13,8 +13,8 @@ import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
-/// @title UnPauseSuperchainConfig
-contract UnPauseSuperchainConfig is L2TaskBase {
+/// @title UnpauseSuperchainConfig before contract version 4.0.0. After version 4.0.0 please refer to the template UnpauseSuperchainConfigV400.
+contract UnpauseSuperchainConfig is L2TaskBase {
     using stdToml for string;
 
     // /// @notice Mapping of chain ID to configuration for the task.
@@ -57,8 +57,5 @@ contract UnPauseSuperchainConfig is L2TaskBase {
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function _getCodeExceptions() internal pure override returns (address[] memory) {
-        address[] memory codeExceptions = new address[](0);
-        return codeExceptions;
-    }
+    function _getCodeExceptions() internal pure override returns (address[] memory) {}
 }

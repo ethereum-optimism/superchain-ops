@@ -76,14 +76,6 @@ contract MultisigTaskUnitTest is Test {
     }
 
     function testBuildFailsAddressRegistrySetBuildStarted() public {
-        // Set multisig storage slot in MultisigTask.sol to a non zero address
-        // we have to do this because we do not call the run function, which
-        // sets the address registry contract variable to a new instance of the
-        // address registry object.
-        stdstore.target(address(task)).sig("root()").checked_write(
-            addrRegistry.getAddress("SystemConfigOwner", getChain("optimism").chainId)
-        );
-
         // Set 'buildStarted' flag in MultisigTask contract to true, this allows us to hit the revert.
         bytes32 buildStartedSlot = bytes32(uint256(stdstore.target(address(task)).sig("getBuildStarted()").find()));
         vm.store(address(task), buildStartedSlot, bytes32(uint256(1)));
@@ -103,8 +95,6 @@ contract MultisigTaskUnitTest is Test {
         stdstore.target(address(taskHashMismatch)).sig("superchainAddrRegistry()").checked_write(address(addrRegistry));
         stdstore.target(address(taskHashMismatch)).sig("multicallTarget()").checked_write(MULTICALL3_ADDRESS);
 
-        // Set rootSafe in MultisigTask so that the build() function works.
-        stdstore.target(address(taskHashMismatch)).sig("root()").checked_write(rootSafe);
         Action[] memory actions = taskHashMismatch.build(rootSafe);
         address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe, securityCouncilChildMultisig);
         uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
@@ -131,22 +121,15 @@ contract MultisigTaskUnitTest is Test {
                 abi.encode(bytes32(uint256(100)))
             );
         }
-        // Unset rootSafe and buildStarted so that simulateAsSigner does not revert.
-        stdstore.target(address(taskHashMismatch)).sig("root()").checked_write(address(0));
+        // Unset buildStarted so that simulateAsSigner does not revert.
         stdstore.target(address(taskHashMismatch)).sig("getBuildStarted()").checked_write(uint256(0));
 
         vm.expectRevert("MultisigTask: hash mismatch");
-        taskHashMismatch.simulate(fileName, securityCouncilChildMultisig);
+        taskHashMismatch.simulate(fileName, Solarray.addresses(securityCouncilChildMultisig));
         MultisigTaskTestHelper.removeFile(fileName);
     }
 
     function testBuildFailsRevertPreviousSnapshotFails() public {
-        address multisig = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
-        // Set rootSafe variable in MultisigTask to the actual multisig address
-        // so that the simulate function does not revert and can run and create
-        // calldata by calling the multisig functions.
-        stdstore.target(address(task)).sig("root()").checked_write(multisig);
-
         // Set AddressRegistry in MultisigTask contract to a deployed addrRegistry contract
         // so that these calls work. These two getters are the same value, just different types.
         stdstore.target(address(task)).sig("addrRegistry()").checked_write(address(addrRegistry));
@@ -170,7 +153,7 @@ contract MultisigTaskUnitTest is Test {
         public
         returns (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions)
     {
-        (accountAccesses, actions,,) = task.simulate(taskConfigFilePath, childMultisig);
+        (accountAccesses, actions,,,) = task.simulate(taskConfigFilePath, Solarray.addresses(childMultisig));
 
         (address[] memory targets, uint256[] memory values, bytes[] memory calldatas) = task.processTaskActions(actions);
 
@@ -248,7 +231,7 @@ contract MultisigTaskUnitTest is Test {
 
         address rootSafe = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
         MockMultisigTask harness = new MockMultisigTask();
-        stdstore.target(address(harness)).sig("root()").checked_write(rootSafe);
+        // stdstore.target(address(harness)).sig("root()").checked_write(rootSafe);
         stdstore.target(address(harness)).sig("addrRegistry()").checked_write(address(addrRegistry));
 
         VmSafe.AccountAccessKind kind = isCall ? VmSafe.AccountAccessKind.Call : VmSafe.AccountAccessKind.DelegateCall;
@@ -261,7 +244,6 @@ contract MultisigTaskUnitTest is Test {
     function test_validAction_validCall() public {
         MockMultisigTask harness = new MockMultisigTask();
         address rootSafe = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
-        stdstore.target(address(harness)).sig("root()").checked_write(rootSafe);
         uint256 topLevelDepth = 1;
         VmSafe.AccountAccess memory access = createAccess(
             VmSafe.AccountAccessKind.Call,
@@ -275,7 +257,6 @@ contract MultisigTaskUnitTest is Test {
     function test_validAction_validDelegateCall() public {
         MockMultisigTask harness = new MockMultisigTask();
         address rootSafe = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
-        stdstore.target(address(harness)).sig("root()").checked_write(rootSafe);
         uint256 topLevelDepth = 1;
         VmSafe.AccountAccess memory access = createAccess(
             VmSafe.AccountAccessKind.DelegateCall,
@@ -291,7 +272,6 @@ contract MultisigTaskUnitTest is Test {
         address rootSafe = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
         address registryAddr = address(0xcafe1234);
         stdstore.target(address(harness)).sig("addrRegistry()").checked_write(address(registryAddr));
-        stdstore.target(address(harness)).sig("root()").checked_write(rootSafe);
         uint256 topLevelDepth = 1;
         VmSafe.AccountAccess memory access = createAccess(
             VmSafe.AccountAccessKind.Call,
@@ -305,7 +285,6 @@ contract MultisigTaskUnitTest is Test {
     function test_invalidAction_accountIsVm() public {
         MockMultisigTask harness = new MockMultisigTask();
         address rootSafe = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
-        stdstore.target(address(harness)).sig("root()").checked_write(rootSafe);
         uint256 topLevelDepth = 1;
         VmSafe.AccountAccess memory access = createAccess(
             VmSafe.AccountAccessKind.Call,
@@ -321,7 +300,6 @@ contract MultisigTaskUnitTest is Test {
         address rootSafe = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
         address registryAddr = address(0xcafe1234);
         stdstore.target(address(harness)).sig("addrRegistry()").checked_write(address(registryAddr));
-        stdstore.target(address(harness)).sig("root()").checked_write(rootSafe);
         uint256 topLevelDepth = 1;
         VmSafe.AccountAccess memory access = createAccess(
             VmSafe.AccountAccessKind.Call,
@@ -335,7 +313,6 @@ contract MultisigTaskUnitTest is Test {
     function test_invalidAction_wrongAccessor() public {
         MockMultisigTask harness = new MockMultisigTask();
         address rootSafe = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
-        stdstore.target(address(harness)).sig("root()").checked_write(rootSafe);
         uint256 topLevelDepth = 1;
         VmSafe.AccountAccess memory access = createAccess(
             VmSafe.AccountAccessKind.Call,
@@ -349,7 +326,6 @@ contract MultisigTaskUnitTest is Test {
     function test_invalidAction_wrongDepth() public {
         MockMultisigTask harness = new MockMultisigTask();
         address rootSafe = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
-        stdstore.target(address(harness)).sig("root()").checked_write(rootSafe);
         uint256 topLevelDepth = 1;
         VmSafe.AccountAccess memory access = createAccess(
             VmSafe.AccountAccessKind.Call,
@@ -363,7 +339,6 @@ contract MultisigTaskUnitTest is Test {
     function test_invalidAction_wrongKind() public {
         MockMultisigTask harness = new MockMultisigTask();
         address rootSafe = addrRegistry.getAddress("ProxyAdminOwner", getChain("optimism").chainId);
-        stdstore.target(address(harness)).sig("root()").checked_write(rootSafe);
         uint256 topLevelDepth = 1;
         VmSafe.AccountAccess memory access = createAccess(
             VmSafe.AccountAccessKind.StaticCall, // Invalid kind
@@ -518,9 +493,17 @@ library MultisigTaskTestHelper {
     }
 
     /// @notice This function is used to get all the safes in the task for a nested multisig task.
-    function getAllSafes(address rootSafe, address childSafe) internal pure returns (address[] memory allSafes) {
-        // TODO: Update this function when we support more than 1 level of nesting.
-        return Solarray.addresses(childSafe, rootSafe);
+    function getAllSafes(address rootSafe, address childSafeDepth1) internal pure returns (address[] memory allSafes) {
+        return Solarray.addresses(childSafeDepth1, rootSafe);
+    }
+
+    /// @notice This function is used to get all the safes in the task for a nested-nested multisig task.
+    function getAllSafes(address rootSafe, address childSafeDepth1, address childSafeDepth2)
+        internal
+        pure
+        returns (address[] memory allSafes)
+    {
+        return Solarray.addresses(childSafeDepth2, childSafeDepth1, rootSafe);
     }
 
     /// @notice This function is used to get all the original nonces in the task.
