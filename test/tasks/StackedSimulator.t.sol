@@ -330,6 +330,115 @@ contract StackedSimulatorUnitTest is Test {
         assertEq(sorted.length, 0);
     }
 
+    function testListStack_NoTasks() public {
+        StackedSimulator ss = new StackedSimulator();
+        uint256 taskCount = ss.listStack("fake-network");
+        assertEq(taskCount, 0);
+    }
+
+    function testListStack_WithTasks() public {
+        StackedSimulator ss = new StackedSimulator();
+        createTestTasks("eth_011", 2, 400);
+        uint256 taskCount = ss.listStack("eth_011");
+        assertEq(taskCount, 2);
+    }
+
+    function testListStack_WithSpecificTask() public {
+        StackedSimulator ss = new StackedSimulator();
+        createTestTasks("eth_012", 3, 500);
+        uint256 taskCount = ss.listStack("eth_012", "501-task-name");
+        assertEq(taskCount, 2); // Should return tasks 500 and 501
+    }
+
+    function testListStack_WithSpecificTaskNotFound() public {
+        StackedSimulator ss = new StackedSimulator();
+        createTestTasks("eth_013", 2, 600);
+        vm.expectRevert("StackedSimulator: Task not found in non-terminal tasks");
+        ss.listStack("eth_013", "999-task-name");
+    }
+
+    function testSimulateStack_WithChildSafe() public {
+        StackedSimulator ss = new StackedSimulator();
+        createTestTasks("eth_014", 1, 700);
+        ss.simulateStack("eth_014", "700-task-name", childMultisig);
+    }
+
+    function testSimulateStack_WithZeroAddressChildSafe() public {
+        StackedSimulator ss = new StackedSimulator();
+        createTestTasks("eth_016", 1, 900);
+        vm.expectRevert("StackedSimulator: Child safe must be provided.");
+        ss.simulateStack("eth_016", "900-task-name", address(0));
+    }
+
+    function testSimulateStack_WithZeroAddressChildSafes() public {
+        StackedSimulator ss = new StackedSimulator();
+        createTestTasks("eth_017", 1, 950);
+        vm.expectRevert("StackedSimulator: Both child safes must be provided.");
+        ss.simulateStack("eth_017", "950-task-name", address(0), address(0));
+    }
+
+    function testSimulateStack_WithOneZeroAddressChildSafe() public {
+        StackedSimulator ss = new StackedSimulator();
+        createTestTasks("eth_018", 1, 960);
+        vm.expectRevert("StackedSimulator: Both child safes must be provided.");
+        ss.simulateStack("eth_018", "960-task-name", address(1), address(0));
+    }
+
+    function testConvertPrefixToUint_ExactThreeCharacters() public {
+        StackedSimulator ss = new StackedSimulator();
+        uint256 result = ss.convertPrefixToUint("123-task-name");
+        assertEq(result, 123, "Should handle exactly 3 characters");
+    }
+
+    function testConvertPrefixToUint_LeadingZeros() public {
+        StackedSimulator ss = new StackedSimulator();
+        uint256 result = ss.convertPrefixToUint("007-task-name");
+        assertEq(result, 7, "Should handle leading zeros correctly");
+    }
+
+    function testConvertPrefixToUint_ZeroPrefix() public {
+        StackedSimulator ss = new StackedSimulator();
+        uint256 result = ss.convertPrefixToUint("000-task-name");
+        assertEq(result, 0, "Should handle zero prefix correctly");
+    }
+
+    function testConvertPrefixToUint_MaxValidPrefix() public {
+        StackedSimulator ss = new StackedSimulator();
+        uint256 result = ss.convertPrefixToUint("999-task-name");
+        assertEq(result, 999, "Should handle maximum valid prefix");
+    }
+
+    function testConvertPrefixToUint_InvalidLength() public {
+        StackedSimulator ss = new StackedSimulator();
+        vm.expectRevert("StackedSimulator: Prefix must have 3 characters.");
+        ss.convertPrefixToUint("12-task-name"); // Only 2 characters
+    }
+
+    function testConvertPrefixToUint_TooLongPrefix() public {
+        StackedSimulator ss = new StackedSimulator();
+        vm.expectRevert("StackedSimulator: Prefix must have 3 characters.");
+        ss.convertPrefixToUint("1234-task-name"); // 4 characters
+    }
+
+    function testConvertPrefixToUint_NoHyphen() public {
+        StackedSimulator ss = new StackedSimulator();
+        // The validation order is: length check first, then hyphen check
+        vm.expectRevert("StackedSimulator: Prefix must have 3 characters.");
+        ss.convertPrefixToUint("123taskname"); // No hyphen, but also wrong length
+    }
+
+    function testConvertPrefixToUint_EmptyString() public {
+        StackedSimulator ss = new StackedSimulator();
+        vm.expectRevert("StackedSimulator: Task name must not be empty.");
+        ss.convertPrefixToUint(""); // Empty string
+    }
+
+    function testConvertPrefixToUint_HexString() public {
+        StackedSimulator ss = new StackedSimulator();
+        vm.expectRevert("StackedSimulator: Does not support hex strings.");
+        ss.convertPrefixToUint("0x1-task-name"); // Hex string
+    }
+
     function testSortTasksLargeNumbers() public {
         StackedSimulator ss = new StackedSimulator();
         StackedSimulator.TaskInfo[] memory input = new StackedSimulator.TaskInfo[](3);
