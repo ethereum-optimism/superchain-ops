@@ -1,54 +1,59 @@
 version: 2.1
+
 orbs:
   utils: ethereum-optimism/circleci-utils@1.0.19
   slack: circleci/slack@4.10.1
   github-cli: circleci/github-cli@2.7.0
+
 executors:
   default:
     machine:
-      image: 'ubuntu-2204:2024.08.1'
+      image: ubuntu-2204:2024.08.1
+
 parameters:
   default_docker_image:
     type: string
-    default: 'cimg/base:2024.01'
+    default: cimg/base:2024.01
   l1_mainnet_rpc_url:
     type: string
-    default: 'https://ci-mainnet-l1-archive.optimism.io'
+    default: "https://ci-mainnet-l1-archive.optimism.io"
   l1_sepolia_rpc_url:
     type: string
-    default: 'https://ci-sepolia-l1.optimism.io'
+    default: "https://ci-sepolia-l1.optimism.io"
   l2_mainnet_rpc_url:
     type: string
-    default: 'https://mainnet.optimism.io'
+    default: "https://mainnet.optimism.io"
   l2_sepolia_rpc_url:
     type: string
-    default: 'https://sepolia.optimism.io'
+    default: "https://sepolia.optimism.io"
   github-event-type:
     type: string
-    default: __not_set__
+    default: "__not_set__"
   github-event-action:
     type: string
-    default: __not_set__
+    default: "__not_set__"
   github-event-base64:
     type: string
-    default: __not_set__
+    default: "__not_set__"
+
 commands:
   notify-failures-on-main:
-    description: Notify Slack
+    description: "Notify Slack"
     parameters:
       channel:
         type: string
         default: C03N11M0BBN
       mentions:
         type: string
-        default: ''
+        default: ""
     steps:
       - slack/notify:
           channel: << parameters.channel >>
           event: fail
           template: basic_fail_1
           branch_pattern: main
-          mentions: << parameters.mentions >>
+          mentions: "<< parameters.mentions >>"
+
 jobs:
   check_task_statuses:
     docker:
@@ -60,6 +65,7 @@ jobs:
       - run:
           name: Check task statuses
           command: bash ./src/improvements/script/check-task-statuses.sh
+
   check_superchain_registry:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -69,15 +75,14 @@ jobs:
           at: .
       - run:
           name: Check superchain registry
-          command: >
+          command: |
             just install
-
-            (cd src/improvements && just --justfile ci.just
-            check-superchain-registry-latest)
+            (cd src/improvements && just --justfile ci.just check-superchain-registry-latest)
       - notify-failures-on-main:
-          mentions: '@evm-safety-team'
+          mentions: "@evm-safety-team"
+
   stacked_simulation:
-    description: Runs a stacked simulation
+    description: "Runs a stacked simulation"
     parameters:
       network:
         type: string
@@ -90,19 +95,18 @@ jobs:
     steps:
       - utils/checkout-with-mise
       - run:
-          name: 'Run stacked simulation for network: <<parameters.network>>'
-          no_output_timeout: 30m
-          command: >
+          name: "Run stacked simulation for network: <<parameters.network>>"
+          # This may need to be increased in the future. We should focus on fixing the performance first before bumping this.
+          no_output_timeout: 30m 
+          command: |
             just install
-
             cd src/improvements
-
-            just simulate-stack <<parameters.network>> >
-            stack-simulation-output.txt
+            just simulate-stack <<parameters.network>> > stack-simulation-output.txt
       - store_artifacts:
           path: src/improvements/stack-simulation-output.txt
       - notify-failures-on-main:
-          mentions: '@evm-safety-team'
+          mentions: "@evm-safety-team"
+
   forge_build:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -114,6 +118,7 @@ jobs:
             just install
             forge --version
             forge build --deny-warnings
+
   forge_fmt:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -125,6 +130,7 @@ jobs:
             just install
             forge --version
             forge fmt --check
+
   forge_test:
     circleci_ip_ranges: true
     docker:
@@ -140,6 +146,7 @@ jobs:
             just install
             forge --version
             forge test -vvv
+
   template_regression_tests:
     circleci_ip_ranges: true
     docker:
@@ -150,11 +157,11 @@ jobs:
       - utils/checkout-with-mise
       - run:
           name: Make sure all templates can be simulated.
-          command: >
-            (cd src/improvements && just --justfile ci.just
-            simulate-all-templates)
+          command: |
+            (cd src/improvements && just --justfile ci.just simulate-all-templates)
       - notify-failures-on-main:
-          mentions: '@evm-safety-team'
+          mentions: "@evm-safety-team"
+
   just_new_recipe_tests:
     circleci_ip_ranges: true
     docker:
@@ -165,6 +172,7 @@ jobs:
           name: just new recipe tests
           command: |
             (cd src/improvements && bash script/test-just-new.sh)
+
   print_versions:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -176,6 +184,7 @@ jobs:
             just --version
             yq --version
             forge --version
+
   shellcheck:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -183,8 +192,10 @@ jobs:
       - utils/checkout-with-mise
       - run:
           name: shellcheck
-          command: |
+          command:
+            | # Justfiles are not shell scripts and should not be checked with shellcheck
             (cd src/improvements/script && shellcheck -x *.sh)
+  # Check that all task directories have valid names and there are no duplicate prefixes.
   check_task_names:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -195,7 +206,7 @@ jobs:
           command: (cd src/improvements/script && ./check-task-names.sh)
   close-issue:
     machine:
-      image: 'ubuntu-2204:2024.08.1'
+      image: ubuntu-2204:2024.08.1
     parameters:
       label_name:
         type: string
@@ -205,36 +216,31 @@ jobs:
       - github-cli/install
       - utils/github-event-handler-setup:
           github_event_base64: << pipeline.parameters.github-event-base64 >>
-          env_prefix: github_
+          env_prefix: "github_"
       - run:
           name: Close issue if label is added
-          command: >
-            echo "Closing issue $github_pull_request_number if label
-            $github_label_name is added on repository
-            ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
-
-            if [ ! -z "$github_pull_request_number" ] && [ "$github_label_name"
-            = "$LABEL_NAME" ]; then
+          command: |
+            echo "Closing issue $github_pull_request_number if label $github_label_name is added on repository ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
+            if [ ! -z "$github_pull_request_number" ] && [ "$github_label_name" = "$LABEL_NAME" ]; then
                 export GH_TOKEN=$GITHUB_TOKEN_GOVERNANCE
                 gh issue close --repo "${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}" "$github_pull_request_number" --comment "$MESSAGE"
             fi
           environment:
             MESSAGE: << parameters.message >>
             LABEL_NAME: << parameters.label_name >>
+
 workflows:
   main:
     when:
       or:
-        - equal:
-            - webhook
-            - << pipeline.trigger_source >>
-        - equal:
-            - build_four_hours
-            - <<pipeline.schedule.name>>
+        # Trigger on new commits
+        - equal: [webhook, << pipeline.trigger_source >>]
+        - equal: ["build_four_hours", <<pipeline.schedule.name>>]
     jobs:
       - print_versions:
           context:
             - circleci-repo-readonly-authenticated-github-token
+      # Forge checks.
       - forge_build:
           context:
             - circleci-repo-readonly-authenticated-github-token
@@ -252,46 +258,45 @@ workflows:
           context:
             - circleci-repo-readonly-authenticated-github-token
       - check_task_names
+      # Verify that all tasks have a valid status in their README.
       - check_task_statuses:
           context:
             - circleci-repo-readonly-authenticated-github-token
+      # Verify that all tasks have correctly uppercased nonce overrides.
       - check_nonce_overrides:
           context:
             - circleci-repo-readonly-authenticated-github-token
+      # check that superchain-registry is up to date
       - check_superchain_registry:
           context:
             - circleci-repo-readonly-authenticated-github-token
+
+      # Stacked simulations for superchain-ops on Mainnet.
       - stacked_simulation:
           name: stacked_simulation_eth
-          network: eth
+          network: "eth"
           context:
             - circleci-repo-readonly-authenticated-github-token
+
+      # Stacked simulations for superchain-ops on Sepolia.
       - stacked_simulation:
           name: stacked_simulation_sep
-          network: sep
+          network: "sep"
           context:
             - circleci-repo-readonly-authenticated-github-token
+
   close-issue-workflow:
     when:
       and:
-        - equal:
-            - << pipeline.trigger_source >>
-            - api
-        - equal:
-            - << pipeline.parameters.github-event-type >>
-            - pull_request
-        - equal:
-            - << pipeline.parameters.github-event-action >>
-            - labeled
+        - equal: [<< pipeline.trigger_source >>, "api"]
+        - equal: [<< pipeline.parameters.github-event-type >>, "pull_request"]
+        - equal: [<< pipeline.parameters.github-event-action >>, "labeled"]
     jobs:
       - close-issue:
-          label_name: auto-close-trivial-contribution
-          message: >-
-            Thank you for your interest in contributing! At this time, we are
-            not accepting contributions that primarily fix spelling, stylistic,
-            or grammatical errors in documentation, code, or elsewhere. Please
-            check our [contribution
-            guidelines](https://github.com/ethereum-optimism/optimism/blob/develop/CONTRIBUTING.md#contributions-related-to-spelling-and-grammar)
-            for more information. This issue will be closed now.
+          label_name: "auto-close-trivial-contribution"
+          message: "Thank you for your interest in contributing!
+            At this time, we are not accepting contributions that primarily fix spelling, stylistic, or grammatical errors in documentation, code, or elsewhere.
+            Please check our [contribution guidelines](https://github.com/ethereum-optimism/optimism/blob/develop/CONTRIBUTING.md#contributions-related-to-spelling-and-grammar) for more information.
+            This issue will be closed now."
           context:
             - circleci-repo-superchain-ops
