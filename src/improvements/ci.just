@@ -21,7 +21,7 @@ simulate-all-templates:
     # Collect PIDs of each background simulation.
     declare -a pids=()
 
-    for task in "${root_dir}/test/tasks/example/sep/004-replace-superchain-config"; do
+    for task in "${root_dir}/test/tasks/example/"*/*; do
         if [ -d "$task" ]; then
             echo "Task: $task"
             nested_safe_name_depth_1=""
