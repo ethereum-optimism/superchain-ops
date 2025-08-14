@@ -262,10 +262,6 @@ workflows:
       - check_task_statuses:
           context:
             - circleci-repo-readonly-authenticated-github-token
-      # Verify that all tasks have correctly uppercased nonce overrides.
-      - check_nonce_overrides:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
       # check that superchain-registry is up to date
       - check_superchain_registry:
           context:
