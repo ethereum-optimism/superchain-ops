@@ -26,9 +26,6 @@ parameters:
   l2_sepolia_rpc_url:
     type: string
     default: "https://sepolia.optimism.io"
-  time_diff_threshold:
-    type: integer
-    default: 5
   github-event-type:
     type: string
     default: "__not_set__"
@@ -67,18 +64,7 @@ jobs:
           at: .
       - run:
           name: Check task statuses
-          command: bash ./script/utils/check-task-statuses.sh
-
-  check_nonce_overrides:
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - utils/checkout-with-mise
-      - attach_workspace:
-          at: .
-      - run:
-          name: Check nonce overrides
-          command: bash ./script/utils/check-nonce-overrides.sh
+          command: bash ./src/improvements/script/check-task-statuses.sh
 
   check_superchain_registry:
     docker:
@@ -120,38 +106,6 @@ jobs:
           path: src/improvements/stack-simulation-output.txt
       - notify-failures-on-main:
           mentions: "@evm-safety-team"
-
-  just_simulate_nested:
-    description: "Runs simulations of a nested task"
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    parameters:
-      task:
-        type: string
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: "simulate nested << parameters.task >>"
-          environment:
-            FOUNDRY_PROFILE: ci
-          command: |
-            just install
-            cd tasks/<< parameters.task >>
-            SIMULATE_WITHOUT_LEDGER=true just \
-              --dotenv-path $(pwd)/.env \
-              --justfile ../../../nested.just \
-              simulate foundation
-            SIMULATE_WITHOUT_LEDGER=true just \
-              --dotenv-path $(pwd)/.env \
-              --justfile ../../../nested.just \
-              simulate council
-
-  just_simulate_op_sep_prestate_update:
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - simulate_nested:
-          task: "/sep/032-op-pectra-defence"
 
   forge_build:
     docker:
@@ -306,10 +260,6 @@ workflows:
       - check_task_names
       # Verify that all tasks have a valid status in their README.
       - check_task_statuses:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-      # Verify that all tasks have correctly uppercased nonce overrides.
-      - check_nonce_overrides:
           context:
             - circleci-repo-readonly-authenticated-github-token
       # check that superchain-registry is up to date
