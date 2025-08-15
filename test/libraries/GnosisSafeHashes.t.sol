@@ -4,7 +4,8 @@ pragma solidity ^0.8.15;
 import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 import "forge-std/Test.sol";
 import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
-import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {VmSafe} from "forge-std/Vm.sol";
 
 contract GnosisSafeHashes_Test is Test {
     using GnosisSafeHashes for bytes;
@@ -276,6 +277,43 @@ contract GnosisSafeHashes_Test is Test {
         assertEq(keccak256(execCalldata), keccak256(expectedExecCalldata));
     }
 
+    /// @notice Test the min helper function
+    function testMinFunction() public pure {
+        // Test basic functionality
+        assertEq(GnosisSafeHashes.min(5, 10), 5, "min(5, 10) should return 5");
+        assertEq(GnosisSafeHashes.min(10, 5), 5, "min(10, 5) should return 5");
+        assertEq(GnosisSafeHashes.min(7, 7), 7, "min(7, 7) should return 7");
+
+        // Test edge cases
+        assertEq(GnosisSafeHashes.min(0, 100), 0, "min(0, 100) should return 0");
+        assertEq(GnosisSafeHashes.min(100, 0), 0, "min(100, 0) should return 0");
+        assertEq(GnosisSafeHashes.min(0, 0), 0, "min(0, 0) should return 0");
+
+        // Test large numbers
+        assertEq(GnosisSafeHashes.min(type(uint256).max, 1000), 1000, "min(max, 1000) should return 1000");
+        assertEq(GnosisSafeHashes.min(1000, type(uint256).max), 1000, "min(1000, max) should return 1000");
+    }
+
+    /// @notice Test getOperationDetails with all valid operation kinds and invalid ones
+    function testGetOperationDetails() public {
+        GnosisSafeHashes_Harness gnosisSafeHashesHarness = new GnosisSafeHashes_Harness();
+
+        (string memory opStr1, Enum.Operation op1) = GnosisSafeHashes.getOperationDetails(VmSafe.AccountAccessKind.Call);
+        assertEq(opStr1, "Call", "Call operation should return 'Call' string");
+        assertTrue(op1 == Enum.Operation.Call, "Call operation should return Call enum");
+        (string memory opStr2, Enum.Operation op2) =
+            GnosisSafeHashes.getOperationDetails(VmSafe.AccountAccessKind.DelegateCall);
+        assertEq(opStr2, "DelegateCall", "DelegateCall operation should return 'DelegateCall' string");
+        assertTrue(op2 == Enum.Operation.DelegateCall, "DelegateCall operation should return DelegateCall enum");
+
+        // Test invalid operation kind (should revert)
+        // We need to cast an invalid value to trigger the revert
+        VmSafe.AccountAccessKind invalidKind = VmSafe.AccountAccessKind(uint8(10)); // Invalid enum value
+
+        vm.expectRevert("Unknown account access kind");
+        gnosisSafeHashesHarness.getOperationDetails(invalidKind);
+    }
+
     /// @notice Helper to create valid Safe transaction calldata
     function createSafeTxCalldata(
         address to,
@@ -304,5 +342,9 @@ contract GnosisSafeHashes_Harness is Test {
 
     function isOldDomainSeparatorVersion(address _safeAddress) public view returns (bool isOldVersion_) {
         return GnosisSafeHashes.isOldDomainSeparatorVersion(_safeAddress);
+    }
+
+    function getOperationDetails(VmSafe.AccountAccessKind _kind) public pure returns (string memory, Enum.Operation) {
+        return GnosisSafeHashes.getOperationDetails(_kind);
     }
 }

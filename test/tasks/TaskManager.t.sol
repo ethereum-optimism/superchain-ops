@@ -9,6 +9,7 @@ import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.
 import {TaskConfig, L2Chain} from "src/libraries/MultisigTypes.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
+import {SystemConfigGasParams} from "src/improvements/template/SystemConfigGasParams.sol";
 
 contract TaskManagerUnitTest is StateOverrideManager, Test {
     using LibString for string;
@@ -207,6 +208,55 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
             tmHarness.exposed_isNestedNestedSafe(singleNestedSafe),
             "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A should not be nested-nested"
         );
+    }
+
+    /// @notice Test that the root safe is correctly retrieved for a given task.
+    function testGetRootSafe() public {
+        vm.createSelectFork("mainnet", 23025164); // Pinning to a block for consistency
+        TaskManager tm = new TaskManager();
+        string memory taskConfigPath = "src/improvements/tasks/eth/000-opcm-upgrade-v200/config.toml";
+        address rootSafe = tm.getRootSafe(taskConfigPath);
+
+        assertTrue(rootSafe != address(0), "Root safe should not be zero address");
+        address[] memory owners = IGnosisSafe(rootSafe).getOwners();
+        assertTrue(owners.length > 0, "Root safe should have owners");
+        assertEq(rootSafe, 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A); // OP Mainnet's L1PAO
+
+        string memory anotherTaskConfigPath = "src/improvements/tasks/eth/002-opcm-upgrade-v200/config.toml";
+        address anotherRootSafe = tm.getRootSafe(anotherTaskConfigPath);
+        assertTrue(anotherRootSafe != address(0), "Another root safe should not be zero address");
+        address[] memory owners2 = IGnosisSafe(anotherRootSafe).getOwners();
+        assertTrue(owners2.length > 0, "Another root safe should have owners");
+        assertEq(anotherRootSafe, 0x6d5B183F538ABB8572F5cD17109c617b994D5833); // Unichain's L1PAO
+    }
+
+    function testValidateTaskFails() public {
+        TaskManager tm = new TaskManager();
+        vm.expectRevert("TaskManager: config.toml file does not exist: test");
+        tm.validateTask("test");
+    }
+
+    function testExecuteViaTaskManager() public {
+        vm.createSelectFork("mainnet", 22283936);
+        SystemConfigGasParams gasTemplate = new SystemConfigGasParams();
+        TaskManager tm = new TaskManager();
+        L2Chain[] memory l2Chains = new L2Chain[](1);
+        l2Chains[0] = L2Chain({chainId: 10, name: "OP Mainnet"});
+        (,, bytes memory dataToSign) = tm.executeTask(
+            TaskConfig({
+                optionalL2Chains: l2Chains,
+                basePath: "test/tasks/example/eth/006-system-config-gas-params",
+                configPath: "test/tasks/example/eth/006-system-config-gas-params/config.toml",
+                templateName: "SystemConfigGasParams",
+                rootSafe: 0x847B5c174615B1B7fDF770882256e2D3E95b9D92,
+                isNested: false,
+                task: address(gasTemplate)
+            }),
+            new address[](0)
+        );
+        bytes memory expectedDataToSign =
+            hex"1901a4a9c312badf3fcaa05eafe5dc9bee8bd9316c78ee8b0bebe3115bb21b73267249771935e440b6212f2f0a8302967dcac81b52ea7573563fd25b9b7ee33d8b3e";
+        assertEq(keccak256(dataToSign), keccak256(expectedDataToSign));
     }
 }
 
