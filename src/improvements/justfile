@@ -202,6 +202,7 @@ simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     network=$(just --justfile "$root_just_file" _get-network-from-task-path "$TASK_PATH")
     ETH_RPC_URL=$(just _fetch-rpc-url "$network")
     HD_PATH=${HD_PATH:-0}
+    FORGE_RETRIES=5
 
     # Get function signature and arguments using helper
     eval "$(just --justfile "$root_just_file" _build-simulate-args "$TASK_PATH" "$config_path" "{{CHILD_SAFE_NAME_DEPTH_1}}" "{{CHILD_SAFE_NAME_DEPTH_2}}")"
@@ -213,7 +214,7 @@ simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     fork_block_args=$(just --justfile "$root_just_file" _get-fork-block-args)
     
     echo -e "⏳ Simulating task: $task_name for network: '$network' on $target_safe\n"
-    forge script ${script_name} --sig "$sig" "${args[@]}" --ffi --rpc-url $ETH_RPC_URL --sender ${signer} ${fork_block_args}
+    forge script ${script_name} --sig "$sig" "${args[@]}" --ffi --rpc-url $ETH_RPC_URL --sender ${signer} ${fork_block_args} --fork-retries $FORGE_RETRIES
 
 sign CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     #!/usr/bin/env bash
