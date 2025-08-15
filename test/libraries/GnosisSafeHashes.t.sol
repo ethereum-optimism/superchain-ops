@@ -84,6 +84,25 @@ contract GnosisSafeHashes_Test is Test {
         assertTrue(actualDomainSeparator != bytes32(0), "Domain separator should not be zero");
     }
 
+    /// @notice Test isOldDomainSeparatorVersion with invalid version formats
+    function testIsOldDomainSeparatorVersion_InvalidVersionFormats() public {
+        vm.createSelectFork("mainnet", 23147844);
+        address foundationOperationsSafe = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A;
+        GnosisSafeHashes_Harness gnosisSafeHashesHarness = new GnosisSafeHashes_Harness();
+        // Test with version missing dots (should revert)
+        vm.mockCall(
+            foundationOperationsSafe, abi.encodeWithSelector(IGnosisSafe.VERSION.selector), abi.encode("invalidversion")
+        );
+        vm.expectRevert("GnosisSafeHashes: Invalid version format");
+        gnosisSafeHashesHarness.isOldDomainSeparatorVersion(foundationOperationsSafe);
+
+        // Test with version missing second dot (should revert)
+        vm.mockCall(foundationOperationsSafe, abi.encodeWithSelector(IGnosisSafe.VERSION.selector), abi.encode("1.2"));
+
+        vm.expectRevert("GnosisSafeHashes: Invalid version format");
+        gnosisSafeHashesHarness.isOldDomainSeparatorVersion(foundationOperationsSafe);
+    }
+
     /// @notice Test with valid input. The encoded data is constructed as:
     /// [0x19, 0x01, 32 bytes domain separator (zeros), 32 bytes message hash].
     function testGetMessageHashFromEncodedTransactionData_ValidInput() public pure {
@@ -277,5 +296,13 @@ contract GnosisSafeHashes_Test is Test {
             abi.encode(to, value, data, operation, safeTxGas, baseGas, gasPrice, gasToken, refundReceiver);
 
         return abi.encodePacked(selector, encodedParams);
+    }
+}
+
+contract GnosisSafeHashes_Harness is Test {
+    using GnosisSafeHashes for address;
+
+    function isOldDomainSeparatorVersion(address _safeAddress) public view returns (bool isOldVersion_) {
+        return GnosisSafeHashes.isOldDomainSeparatorVersion(_safeAddress);
     }
 }
