@@ -4,10 +4,10 @@ pragma solidity 0.8.15;
 import {Test} from "forge-std/Test.sol";
 import {StackedSimulator} from "src/improvements/tasks/StackedSimulator.sol";
 import {LibString} from "@solady/utils/LibString.sol";
-import {IDisputeGameFactory, GameType} from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {SimpleStorage} from "test/tasks/mock/template/StackSimulationTestTemplate.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {console} from "forge-std/console.sol";
+import {Proxy} from "@eth-optimism-bedrock/src/universal/Proxy.sol";
 
 contract StackedSimulatorUnitTest is Test {
     using LibString for string;
@@ -15,9 +15,8 @@ contract StackedSimulatorUnitTest is Test {
     /// @notice The directory containing the test tasks.
     string internal testDirectory;
 
-    /// @notice The op mainnet address of the dispute game factory (block 22162525).
-    /// https://github.com/ethereum-optimism/superchain-registry/blob/5f5334768fd1dab6e31132020c374e575c632074/superchain/configs/mainnet/op.toml#L62
-    address internal disputeGameFactory = 0xe5965Ab5962eDc7477C8520243A95517CD252fA9;
+    /// @notice The op mainnet address of the optimism portal proxy.
+    address internal optimismPortalProxy = 0xbEb5Fc579115071764c7423A4f12eDde41f106Ed;
 
     address internal rootSafe = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A;
     address internal childMultisig = 0x847B5c174615B1B7fDF770882256e2D3E95b9D92; // foundation
@@ -37,18 +36,19 @@ contract StackedSimulatorUnitTest is Test {
 
         // Assert that the last tasks state change is the latest state change.
         address expectedImpl = makeAddr("001-task-name");
-        assertEq(address(IDisputeGameFactory(disputeGameFactory).gameImpls(GameType.wrap(0))), expectedImpl);
+        vm.prank(address(0));
+        assertEq(address(Proxy(payable(optimismPortalProxy)).implementation()), expectedImpl);
     }
 
     function testSimulateStackedTasks_AllTasks() public {
         StackedSimulator ss = new StackedSimulator();
         createTestTasks("eth_001", 3, 100);
-        console.log("StackedSimulatorUnitTest: testSimulateStackedTasks_AllTasks");
         ss.simulateStack("eth_001", "101-task-name");
 
         // Assert that the last tasks state change is the latest state change.
         address expectedImpl = makeAddr("101-task-name");
-        assertEq(address(IDisputeGameFactory(disputeGameFactory).gameImpls(GameType.wrap(0))), expectedImpl);
+        vm.prank(address(0));
+        assertEq(address(Proxy(payable(optimismPortalProxy)).implementation()), expectedImpl);
     }
 
     function testGetNonTerminalTasks_NoTask() public {
@@ -384,6 +384,12 @@ contract StackedSimulatorUnitTest is Test {
         ss.simulateStack("eth_018", "960-task-name", address(1), address(0));
     }
 
+    function testSimulateStack_WithOnlyNetwork() public {
+        StackedSimulator ss = new StackedSimulator();
+        createTestTasks("eth_019", 1, 970);
+        ss.simulateStack("eth_019");
+    }
+
     function testConvertPrefixToUint_ExactThreeCharacters() public {
         StackedSimulator ss = new StackedSimulator();
         uint256 result = ss.convertPrefixToUint("123-task-name");
@@ -460,15 +466,15 @@ contract StackedSimulatorUnitTest is Test {
     }
 
     /// @notice Creates a set of tasks that can be used to test the StackedSimulator.
-    /// These tasks use the DisputeGameUpgradeTemplate. For each task, a different implementation is created.
     /// This helps asserting that the StackedSimulator is correctly simulating the tasks in the correct order.
     function createTestTasks(string memory network, uint256 amount, uint256 startTaskIndex)
         internal
         returns (string[] memory taskNames_)
     {
         string memory commonToml = "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n"
-            "templateName = \"DisputeGameUpgradeTemplate\"\n" "\n";
-        bytes memory fdpCode = address(IDisputeGameFactory(disputeGameFactory).gameImpls(GameType.wrap(0))).code;
+            "templateName = \"SetEIP1967Implementation\"\n contractIdentifier = \"OptimismPortalProxy\"\n";
+        vm.prank(address(0));
+        bytes memory portalImplCode = address(Proxy(payable(optimismPortalProxy)).implementation()).code;
 
         taskNames_ = new string[](amount);
         for (uint256 i = 0; i < amount; i++) {
@@ -477,14 +483,11 @@ contract StackedSimulatorUnitTest is Test {
             taskNames_[i] = taskName;
             _setupTaskDir(taskDir);
 
-            address customImplAddr = makeAddr(taskName); // Predictable address for testing assertions.
-            vm.etch(customImplAddr, fdpCode); // Etch fault dispute game code to the custom impl address.
-            string memory toml = string.concat(
-                commonToml,
-                "implementations = [{gameType = 0, implementation = \"",
-                LibString.toHexString(customImplAddr),
-                "\", l2ChainId = 10}]\n"
-            );
+            address newImplementation = makeAddr(taskName);
+            console.log("newImplementation", newImplementation);
+            vm.etch(newImplementation, portalImplCode);
+            string memory toml =
+                string.concat(commonToml, "newImplementation = \"", LibString.toHexString(newImplementation), "\"\n");
             vm.writeFile(string.concat(taskDir, "/config.toml"), toml);
         }
     }
