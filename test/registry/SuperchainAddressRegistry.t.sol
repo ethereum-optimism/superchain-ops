@@ -317,6 +317,18 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
         MultisigTaskTestHelper.removeFile(fileName);
     }
 
+    function test_constructor_reverts_withUnknownTaskChainId() public {
+        vm.chainId(999); // Use an arbitrary chain ID
+        string memory tomlContent = "l2chains = [{name = \"TestChain\", chainId = 999}]\n" "[addresses]\n"
+            "TestContract = \"0x0000000000000000000000000000000000000001\"";
+
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent, TESTING_DIRECTORY, "007");
+
+        vm.expectRevert("SuperchainAddressRegistry: Unsupported task chain ID 999");
+        new SuperchainAddressRegistry(fileName);
+        MultisigTaskTestHelper.removeFile(fileName);
+    }
+
     // Helper function to get optional addresses without reverting.
     function getOptionalAddress(string memory identifier, uint256 chainId) internal view returns (address) {
         require(gasleft() > 500_000, "insufficient gas for getAddress() call"); // Ensure try/catch is EIP-150 safe.

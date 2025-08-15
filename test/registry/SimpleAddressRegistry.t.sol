@@ -132,4 +132,16 @@ contract SimpleAddressRegistryTest is Test {
         new SimpleAddressRegistry(fileName);
         MultisigTaskTestHelper.removeFile(fileName);
     }
+
+    function test_initialize_reverts_withAddressAlreadyRegistered() public {
+        string memory tomlContent = "[addresses]\n" "Alice = \"0x0000000000000000000000000000000000000001\"\n"
+            "Bob = \"0x0000000000000000000000000000000000000001\""; // Same address as Alice
+
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent, TESTING_DIRECTORY, "002");
+
+        // Expect the revert with the specific error message
+        vm.expectRevert(bytes("SimpleAddressRegistry: address already registered Bob"));
+        new SimpleAddressRegistry(fileName);
+        MultisigTaskTestHelper.removeFile(fileName);
+    }
 }

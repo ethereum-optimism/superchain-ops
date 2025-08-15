@@ -10,16 +10,18 @@ import {LibSort} from "@solady/utils/LibSort.sol";
 import {Test} from "forge-std/Test.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {Solarray} from "lib/optimism/packages/contracts-bedrock/scripts/libraries/Solarray.sol";
-import {TaskManager} from "src/improvements/tasks/TaskManager.sol";
+import {Proxy} from "@eth-optimism-bedrock/src/universal/Proxy.sol";
+import {Constants} from "@eth-optimism-bedrock/src/libraries/Constants.sol";
 
 import {MultisigTask, AddressRegistry} from "src/improvements/tasks/MultisigTask.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {OPCMUpgradeV200} from "src/improvements/template/OPCMUpgradeV200.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
-import {MockDisputeGameTask} from "test/tasks/mock/MockDisputeGameTask.sol";
-import {DisputeGameUpgradeTemplate} from "test/tasks/mock/template/DisputeGameUpgradeTemplate.sol";
+import {MockSetEIP1967ImplTask} from "test/tasks/mock/MockSetEIP1967ImplTask.sol";
+import {SetEIP1967Implementation} from "src/improvements/template/SetEIP1967Implementation.sol";
 import {MultisigTaskTestHelper} from "test/tasks/MultisigTask.t.sol";
 import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
+import {TaskManager} from "src/improvements/tasks/TaskManager.sol";
 
 /// @notice This test is used to test the nested multisig task.
 contract NestedMultisigTaskTest is Test {
@@ -54,10 +56,9 @@ contract NestedMultisigTaskTest is Test {
 
     string constant TESTING_DIRECTORY = "nested-multisig-task-testing";
 
-    /// @notice ProxyAdminOwner safe for the task below is a nested multisig for Op mainnet L2 chain.
+    /// @notice Set the implementation of the OptimismPortalProxy to an old implementation.
     string constant taskConfigToml = "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n"
-        "templateName = \"DisputeGameUpgradeTemplate\"\n" "\n"
-        "implementations = [{gameType = 0, implementation = \"0xf691F8A6d908B58C534B624cF16495b491E633BA\", l2ChainId = 10}]\n";
+        "templateName = \"SetEIP1967Implementation\"\n contractIdentifier = \"OptimismPortalProxy\"\n newImplementation = \"0xB443Da3e07052204A02d630a8933dAc05a0d6fB4\"\n";
 
     /// Addresses used for the above config.toml file.
     address constant ROOT_SAFE = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A;
@@ -67,7 +68,7 @@ contract NestedMultisigTaskTest is Test {
         internal
         returns (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions, address rootSafe)
     {
-        multisigTask = new DisputeGameUpgradeTemplate();
+        multisigTask = new SetEIP1967Implementation();
         string memory configFilePath =
             MultisigTaskTestHelper.createTempTomlFile(_taskConfigFilePath, TESTING_DIRECTORY, _salt);
 
@@ -160,7 +161,7 @@ contract NestedMultisigTaskTest is Test {
             bytes memory packedSignaturesChild =
                 _packSignaturesForChildMultisig(leafSafeSigningData[i].leafSafe, leafSafeSigningData[i].dataToSign);
             // execute the approve hash call with the signatures
-            multisigTask = new DisputeGameUpgradeTemplate();
+            multisigTask = new SetEIP1967Implementation();
             string memory configFilePath =
                 MultisigTaskTestHelper.createTempTomlFile(taskConfigToml, TESTING_DIRECTORY, "001");
             multisigTask.approve(configFilePath, singleChildSafe, packedSignaturesChild);
@@ -170,14 +171,14 @@ contract NestedMultisigTaskTest is Test {
         // Execute final task and verify results
         addrRegistry = multisigTask.addrRegistry();
         SuperchainAddressRegistry superchainAddrReg = SuperchainAddressRegistry(AddressRegistry.unwrap(addrRegistry));
-        address disputeGameFactory = superchainAddrReg.getAddress("DisputeGameFactoryProxy", 10);
-        _executeDisputeGameUpgradeTaskAndVerify(
+        address optimismPortalProxy = superchainAddrReg.getAddress("OptimismPortalProxy", 10);
+        _executeSetEIP1967ImplementationTaskAndVerify(
             testData,
             accountAccesses,
             actions,
             taskConfigToml,
-            disputeGameFactory,
-            0xf691F8A6d908B58C534B624cF16495b491E633BA
+            optimismPortalProxy,
+            0xB443Da3e07052204A02d630a8933dAc05a0d6fB4
         );
     }
 
@@ -195,8 +196,7 @@ contract NestedMultisigTaskTest is Test {
         uint256[] memory allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
 
         string memory baseTaskConfigToml = "l2chains = [{name = \"Base\", chainId = 8453}]\n" "\n"
-            "templateName = \"DisputeGameUpgradeTemplate\"\n" "\n"
-            "implementations = [{gameType = 0, implementation = \"0xf691F8A6d908B58C534B624cF16495b491E633BA\", l2ChainId = 8453}]\n";
+            "templateName = \"SetEIP1967Implementation\"\n contractIdentifier = \"DisputeGameFactoryProxy\"\n newImplementation = \"0xf691F8A6d908B58C534B624cF16495b491E633BA\"\n";
 
         (VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions,) =
             runTask(childSafes, baseTaskConfigToml, "003");
@@ -227,7 +227,7 @@ contract NestedMultisigTaskTest is Test {
                 _packSignaturesForChildMultisig(leafSafeSigningData[i].leafSafe, leafSafeSigningData[i].dataToSign);
 
             // Execute the approve call for this leaf safe
-            multisigTask = new DisputeGameUpgradeTemplate();
+            multisigTask = new SetEIP1967Implementation();
             string memory configFilePath =
                 MultisigTaskTestHelper.createTempTomlFile(baseTaskConfigToml, TESTING_DIRECTORY, "004");
             multisigTask.approve(configFilePath, tmpChildSafes, packedSignaturesChild);
@@ -239,7 +239,7 @@ contract NestedMultisigTaskTest is Test {
         // pre-approved by their leaf safe owners in the previous step, so we call approve
         // with empty signatures to mark them as ready for the final root safe execution.
         for (uint256 i = 0; i < testData.childDepth1OwnerMultisigs.length; i++) {
-            multisigTask = new DisputeGameUpgradeTemplate();
+            multisigTask = new SetEIP1967Implementation();
             string memory configFilePath =
                 MultisigTaskTestHelper.createTempTomlFile(baseTaskConfigToml, TESTING_DIRECTORY, "004");
             multisigTask.approve(configFilePath, Solarray.addresses(testData.childDepth1OwnerMultisigs[i]), bytes(""));
@@ -249,14 +249,14 @@ contract NestedMultisigTaskTest is Test {
         // Execute final task and verify results
         addrRegistry = multisigTask.addrRegistry();
         SuperchainAddressRegistry superchainAddrReg = SuperchainAddressRegistry(AddressRegistry.unwrap(addrRegistry));
-        address disputeGameFactory = superchainAddrReg.getAddress("DisputeGameFactoryProxy", 8453); // Base chain ID
-        _executeDisputeGameUpgradeTaskAndVerify(
+        address optimismPortalProxy = superchainAddrReg.getAddress("OptimismPortalProxy", 8453); // Base chain ID
+        _executeSetEIP1967ImplementationTaskAndVerify(
             testData,
             accountAccesses,
             actions,
             baseTaskConfigToml,
-            disputeGameFactory,
-            0xf691F8A6d908B58C534B624cF16495b491E633BA
+            optimismPortalProxy,
+            0xB443Da3e07052204A02d630a8933dAc05a0d6fB4
         );
     }
 
@@ -314,39 +314,31 @@ contract NestedMultisigTaskTest is Test {
         );
     }
 
-    function testMockDisputeGameWithCodeExceptionsWorks() public {
+    function testSimulateCodeExceptionsCheckCircumvented() public {
         vm.createSelectFork("mainnet");
-        string memory configFilePath = "test/tasks/mock/configs/MockDisputeGameUpgradesToEOA.toml";
-        multisigTask = new MockDisputeGameTask();
-
+        multisigTask = new MockSetEIP1967ImplTask();
+        string memory toml = "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n"
+            "templateName = \"SetEIP1967Implementation\"\n contractIdentifier = \"OptimismPortalProxy\"\n newImplementation = \"0x0000000FFfFFfffFffFfFffFFFfffffFffFFffFf\"\n";
+        string memory configFilePath = MultisigTaskTestHelper.createTempTomlFile(toml, TESTING_DIRECTORY, "005");
         (,,,, address rootSafe) =
             multisigTask.simulate(configFilePath, Solarray.addresses(SECURITY_COUNCIL_CHILD_MULTISIG));
         assertEq(multisigTask.isNestedSafe(rootSafe), true, "Expected isNestedSafe to be true");
+        MultisigTaskTestHelper.removeFile(configFilePath);
     }
 
-    function testSimulateDisputeGameWithoutCodeExceptionsFails() public {
-        vm.createSelectFork("mainnet");
-        string memory configFilePath = "test/tasks/mock/configs/MockDisputeGameUpgradesToEOA.toml";
-        multisigTask = new DisputeGameUpgradeTemplate();
-
-        uint256 start = vm.snapshotState();
-
-        multisigTask.simulate(
-            "test/tasks/mock/configs/DisputeGameUpgradeCodeException.toml",
-            Solarray.addresses(SECURITY_COUNCIL_CHILD_MULTISIG)
-        );
-        addrRegistry = multisigTask.addrRegistry();
-        SuperchainAddressRegistry superchainAddrReg = SuperchainAddressRegistry(AddressRegistry.unwrap(addrRegistry));
-        address account = superchainAddrReg.getAddress("DisputeGameFactoryProxy", getChain("optimism").chainId);
-
-        vm.revertToState(start);
+    function testSimulateCodeExceptionsCheckReverts() public {
+        vm.createSelectFork("mainnet", 23149345);
+        multisigTask = new SetEIP1967Implementation();
+        string memory toml = "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n"
+            "templateName = \"SetEIP1967Implementation\"\n contractIdentifier = \"OptimismPortalProxy\"\n newImplementation = \"0x0000000FFfFFfffFffFfFffFFFfffffFffFFffFf\"\n";
+        string memory configFilePath = MultisigTaskTestHelper.createTempTomlFile(toml, TESTING_DIRECTORY, "006");
 
         string memory err = string.concat(
             "Likely address in storage has no code\n",
             "  account: ",
-            vm.toString(account),
+            vm.toString(address(0xbEb5Fc579115071764c7423A4f12eDde41f106Ed)), // OptimismPortalProxy address at block 23149345
             "\n  slot:    ",
-            vm.toString(bytes32(0xffdfc1249c027f9191656349feb0761381bb32c9f557e01f419fd08754bf5a1b)),
+            vm.toString(bytes32(Constants.PROXY_IMPLEMENTATION_ADDRESS)),
             "\n  value:   ",
             vm.toString(bytes32(0x0000000000000000000000000000000fffffffffffffffffffffffffffffffff))
         );
@@ -585,17 +577,17 @@ contract NestedMultisigTaskTest is Test {
         }
     }
 
-    /// @notice Execute the DisputeGameUpgradeTask and verify the implementation is upgraded correctly.
-    function _executeDisputeGameUpgradeTaskAndVerify(
+    /// @notice Execute the SetEIP1967ImplementationTask and verify the implementation is upgraded correctly.
+    function _executeSetEIP1967ImplementationTaskAndVerify(
         TestData memory _testData,
         VmSafe.AccountAccess[] memory _accountAccesses,
         Action[] memory _actions,
         string memory _taskConfigToml,
-        address _disputeGameFactory,
+        address _proxy,
         address _expectedImplementation
     ) internal {
         // execute the task
-        multisigTask = new DisputeGameUpgradeTemplate();
+        multisigTask = new SetEIP1967Implementation();
 
         /// snapshot before running the task so we can roll back to this pre-state
         uint256 newSnapshot = vm.snapshotState();
@@ -607,11 +599,8 @@ contract NestedMultisigTaskTest is Test {
         MultisigTaskTestHelper.removeFile(config);
 
         // Check that the implementation is upgraded correctly
-        assertEq(
-            address(IDisputeGameFactory(_disputeGameFactory).gameImpls(GameTypes.CANNON)),
-            _expectedImplementation,
-            "implementation not set"
-        );
+        vm.prank(address(0));
+        assertEq(address(Proxy(payable(_proxy)).implementation()), _expectedImplementation, "implementation not set");
 
         bytes32 taskHash = multisigTask.getHash(
             _testData.rootSafeCalldata,
@@ -631,11 +620,8 @@ contract NestedMultisigTaskTest is Test {
         MultisigTaskTestHelper.removeFile(taskConfigFilePath);
 
         // Check that the implementation is upgraded correctly for a second time
-        assertEq(
-            address(IDisputeGameFactory(_disputeGameFactory).gameImpls(GameTypes.CANNON)),
-            _expectedImplementation,
-            "implementation not set"
-        );
+        vm.prank(address(0));
+        assertEq(address(Proxy(payable(_proxy)).implementation()), _expectedImplementation, "implementation not set");
     }
 
     function prepareSignatures(address _safe, bytes32 hash) internal view returns (bytes memory) {

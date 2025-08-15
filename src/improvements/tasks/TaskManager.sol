@@ -87,17 +87,6 @@ contract TaskManager is Script {
         }
     }
 
-    /// @notice Returns the path to a task for a given network and task name.
-    function getTaskPath(string memory network, string memory task) public returns (string memory) {
-        string[] memory taskPaths = getNonTerminalTaskPaths(network);
-        for (uint256 i = 0; i < taskPaths.length; i++) {
-            if (taskPaths[i].contains(task)) {
-                return taskPaths[i];
-            }
-        }
-        revert(string.concat("TaskManager: Task not found: ", task));
-    }
-
     /// @notice Basic sanity checks to ensure the task is well-formed.
     function validateTask(string memory taskPath) public view {
         require(

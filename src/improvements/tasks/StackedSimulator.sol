@@ -176,10 +176,4 @@ contract StackedSimulator is Script {
         }
         revert("StackedSimulator: Task not found in non-terminal tasks");
     }
-
-    /// @notice This function is used to remove a directory. The reason we use a try catch
-    /// is because sometimes the directory may not exist and this leads to flaky tests.
-    function removeDir(string memory dirName) internal {
-        try vm.removeDir(dirName, true) {} catch {}
-    }
 }
