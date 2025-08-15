@@ -9,6 +9,81 @@ import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 contract GnosisSafeHashes_Test is Test {
     using GnosisSafeHashes for bytes;
 
+    /// @notice Test calculateMessageHashFromCalldata with valid input
+    function testCalculateMessageHashFromCalldata_ValidInput() public pure {
+        address to = address(0x1234567890123456789012345678901234567890);
+        uint256 value = 0;
+        bytes memory data = hex"12345678";
+        uint8 operation = 0;
+        uint256 safeTxGas = 100000;
+        uint256 baseGas = 50000;
+        uint256 gasPrice = 20000000000;
+        address gasToken = address(0);
+        address refundReceiver = address(0);
+        uint256 nonce = 42;
+
+        bytes memory callData =
+            createSafeTxCalldata(to, value, data, operation, safeTxGas, baseGas, gasPrice, gasToken, refundReceiver);
+
+        // Calculate the expected message hash manually
+        bytes32 dataHash = keccak256(data);
+        bytes32 expectedHash = keccak256(
+            abi.encode(
+                GnosisSafeHashes.SAFE_TX_TYPEHASH,
+                to,
+                value,
+                dataHash,
+                operation,
+                safeTxGas,
+                baseGas,
+                gasPrice,
+                gasToken,
+                refundReceiver,
+                nonce
+            )
+        );
+
+        // Test the function
+        bytes32 actualHash = callData.calculateMessageHashFromCalldata(nonce);
+        assertEq(actualHash, expectedHash, "Message hash should match expected value");
+    }
+
+    /// @notice Test calculateDomainSeparator for old Safe version (< 1.3.0) - Our FoundationOperationsSafe is old.
+    function testCalculateDomainSeparator_OldVersion() public {
+        vm.createSelectFork("mainnet", 23147844);
+        address foundationOperationsSafe = 0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A;
+
+        // Calculate domain separator using the library
+        bytes32 actualDomainSeparator = GnosisSafeHashes.calculateDomainSeparator(1, foundationOperationsSafe);
+        bytes32 expectedDomainSeparator = IGnosisSafe(foundationOperationsSafe).domainSeparator();
+
+        assertEq(IGnosisSafe(foundationOperationsSafe).VERSION(), "1.1.1"); // Asserting that this is an old version.
+        assertEq(
+            actualDomainSeparator,
+            expectedDomainSeparator,
+            "Domain separator should match expected value for old Safe version"
+        );
+        assertTrue(actualDomainSeparator != bytes32(0), "Domain separator should not be zero");
+    }
+
+    /// @notice Test calculateDomainSeparator for old Safe version (< 1.3.0) - Our FoundationOperationsSafe is old.
+    function testCalculateDomainSeparator_NewVersion() public {
+        vm.createSelectFork("mainnet", 23147844);
+        address guardianSafe = 0x09f7150D8c019BeF34450d6920f6B3608ceFdAf2;
+
+        // Calculate domain separator using the library
+        bytes32 actualDomainSeparator = GnosisSafeHashes.calculateDomainSeparator(1, guardianSafe);
+        bytes32 expectedDomainSeparator = IGnosisSafe(guardianSafe).domainSeparator();
+
+        assertEq(IGnosisSafe(guardianSafe).VERSION(), "1.3.0"); // Asserting that this is an new version.
+        assertEq(
+            actualDomainSeparator,
+            expectedDomainSeparator,
+            "Domain separator should match expected value for new Safe version"
+        );
+        assertTrue(actualDomainSeparator != bytes32(0), "Domain separator should not be zero");
+    }
+
     /// @notice Test with valid input. The encoded data is constructed as:
     /// [0x19, 0x01, 32 bytes domain separator (zeros), 32 bytes message hash].
     function testGetMessageHashFromEncodedTransactionData_ValidInput() public pure {
@@ -180,5 +255,27 @@ contract GnosisSafeHashes_Test is Test {
         bytes memory expectedExecCalldata =
             hex"6a761202000000000000000000000000ca11bde05977b3631167028862be2a173976ca110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001a00000000000000000000000000000000000000000000000000000000000000024d4d9bdcd7e1975a6bf513022a8cc382a3cdb1e1dbcd58ebb1cb9abf11e64aadb21262516000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
         assertEq(keccak256(execCalldata), keccak256(expectedExecCalldata));
+    }
+
+    /// @notice Helper to create valid Safe transaction calldata
+    function createSafeTxCalldata(
+        address to,
+        uint256 value,
+        bytes memory data,
+        uint8 operation,
+        uint256 safeTxGas,
+        uint256 baseGas,
+        uint256 gasPrice,
+        address gasToken,
+        address refundReceiver
+    ) internal pure returns (bytes memory) {
+        // Function selector for execTransaction (0x6a761202)
+        bytes4 selector = bytes4(0x6a761202);
+
+        // Encode the parameters
+        bytes memory encodedParams =
+            abi.encode(to, value, data, operation, safeTxGas, baseGas, gasPrice, gasToken, refundReceiver);
+
+        return abi.encodePacked(selector, encodedParams);
     }
 }
