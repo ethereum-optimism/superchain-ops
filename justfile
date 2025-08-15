@@ -38,17 +38,5 @@ add-transaction bundlePath to sig *params:
 clean:
   forge clean
 
-# Deploy the Multicall3Delegatecall contract to 0x93dc480940585d9961bfceab58124ffd3d60f76a, as is
-# the case on Mainnet and Sepolia.
-# Will fail if the contract is already deployed.
-# ARGS must include --private-key or --keystore in order to deploy successfully.
-deploy-multicall3-delegatecall *ARGS:
-  forge script DeployMulticall3Delegatecall \
-     --rpc-url {{rpcUrl}} \
-     --verify \
-     --verifier-api-key {{etherscanApiKey}} \
-      --broadcast \
-     {{ARGS}}
-
 compare-games before-game='' after-game='':
-  bash script/utils/compareGames.sh {{before-game}} {{after-game}}
+  bash src/improvements/script/compareGames.sh {{before-game}} {{after-game}}
