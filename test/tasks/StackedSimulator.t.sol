@@ -6,7 +6,6 @@ import {StackedSimulator} from "src/improvements/tasks/StackedSimulator.sol";
 import {LibString} from "@solady/utils/LibString.sol";
 import {SimpleStorage} from "test/tasks/mock/template/StackSimulationTestTemplate.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
-import {console} from "forge-std/console.sol";
 import {Proxy} from "@eth-optimism-bedrock/src/universal/Proxy.sol";
 
 contract StackedSimulatorUnitTest is Test {
@@ -484,7 +483,6 @@ contract StackedSimulatorUnitTest is Test {
             _setupTaskDir(taskDir);
 
             address newImplementation = makeAddr(taskName);
-            console.log("newImplementation", newImplementation);
             vm.etch(newImplementation, portalImplCode);
             string memory toml =
                 string.concat(commonToml, "newImplementation = \"", LibString.toHexString(newImplementation), "\"\n");
