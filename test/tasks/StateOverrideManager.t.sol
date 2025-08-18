@@ -10,7 +10,7 @@ import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 import {Solarray} from "lib/optimism/packages/contracts-bedrock/scripts/libraries/Solarray.sol";
 
 import {MockMultisigTask} from "test/tasks/mock/MockMultisigTask.sol";
-import {MockDisputeGameTask} from "test/tasks/mock/MockDisputeGameTask.sol";
+import {MockSetEIP1967ImplTask} from "test/tasks/mock/MockSetEIP1967ImplTask.sol";
 import {MultisigTask} from "src/improvements/tasks/MultisigTask.sol";
 import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
 import {MultisigTaskTestHelper as helper} from "test/tasks/MultisigTask.t.sol";
@@ -23,8 +23,8 @@ contract StateOverrideManagerUnitTest is Test {
     }
 
     string constant commonToml = "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n"
-        "templateName = \"DisputeGameUpgradeTemplate\"\n" "\n"
-        "implementations = [{gameType = 0, implementation = \"0xf691F8A6d908B58C534B624cF16495b491E633BA\", l2ChainId = 10}]\n";
+        "templateName = \"SetEIP1967Implementation\"\n" "\n" "contractIdentifier = \"OptimismPortalProxy\"\n" "\n"
+        "newImplementation = \"0xf691F8A6d908B58C534B624cF16495b491E633BA\"\n";
     address constant ROOT_SAFE = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A;
     address constant SECURITY_COUNCIL_CHILD_MULTISIG = 0xc2819DC788505Aac350142A7A707BF9D03E3Bd03;
 
@@ -273,15 +273,15 @@ contract StateOverrideManagerUnitTest is Test {
     function testOnlyParentOverridesAppliedWhenSingleMultisig() public {
         vm.createSelectFork("sepolia", 7944829);
         string memory nonNestedSafeToml = "l2chains = [{name = \"Base Sepolia Testnet\", chainId = 84532}]\n" "\n"
-            "templateName = \"DisputeGameUpgradeTemplate\"\n" "\n"
-            "implementations = [{gameType = 0, implementation = \"0x0000000FFfFFfffFffFfFffFFFfffffFffFFffFf\", l2ChainId = 84532}]\n";
+            "templateName = \"SetEIP1967Implementation\"\n" "\n" "contractIdentifier = \"OptimismPortalProxy\"\n" "\n"
+            "newImplementation = \"0x0000000FFfFFfffFffFfFffFFFfffffFffFFffFf\"\n";
         string memory fileName = helper.createTempTomlFile(nonNestedSafeToml, TESTING_DIRECTORY, "011");
 
-        MockDisputeGameTask dgt = new MockDisputeGameTask();
-        (,,,, address rootSafe) = dgt.simulate(fileName, new address[](0));
+        MockSetEIP1967ImplTask si = new MockSetEIP1967ImplTask();
+        (,,,, address rootSafe) = si.simulate(fileName, new address[](0));
 
         // Only parent overrides will be checked because child multisig is not set.
-        Simulation.StateOverride[] memory allOverrides = assertDefaultStateOverrides(1, dgt, address(0), rootSafe);
+        Simulation.StateOverride[] memory allOverrides = assertDefaultStateOverrides(1, si, address(0), rootSafe);
         assertEq(allOverrides.length, 1, "Only parent overrides should be applied");
         helper.removeFile(fileName);
     }
