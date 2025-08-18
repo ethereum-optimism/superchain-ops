@@ -14,7 +14,7 @@ interface IOptimismPortal2 {
 }
 
 /// @notice A template contract to blacklist dispute games
-/// Supports: op-contracts/v1.6.0
+/// Supports: op-contracts/v1.4.0 through op-contracts/v3.0.0 (inclusive)
 contract BlacklistGamesV140 is L2TaskBase {
     using stdToml for string;
 
