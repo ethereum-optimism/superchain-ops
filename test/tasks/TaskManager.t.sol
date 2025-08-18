@@ -14,6 +14,8 @@ import {SystemConfigGasParams} from "src/improvements/template/SystemConfigGasPa
 contract TaskManagerUnitTest is StateOverrideManager, Test {
     using LibString for string;
 
+    address public constant OP_MAINNET_L1PAO = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A;
+
     function setUp() public {}
 
     function testSetTenderlyGasEnv() public {
@@ -178,7 +180,7 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
     function testSetupDefaultChildSafes_RootSafeHasOneLevelOfNesting() public {
         vm.createSelectFork("mainnet", 23025164);
         TaskManagerHarness tmHarness = new TaskManagerHarness();
-        address rootSafe = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A;
+        address rootSafe = OP_MAINNET_L1PAO;
         address[] memory rootSafeOwners = IGnosisSafe(rootSafe).getOwners();
         address[] memory emptyChildSafes = new address[](0);
         address[] memory resultChildSafes = tmHarness.exposed_setupDefaultChildSafes(emptyChildSafes, rootSafe);
@@ -203,10 +205,10 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         );
 
         // Test the single-level nested safe (should return false)
-        address singleNestedSafe = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A;
+        address singleNestedSafe = OP_MAINNET_L1PAO;
         assertFalse(
             tmHarness.exposed_isNestedNestedSafe(singleNestedSafe),
-            "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A should not be nested-nested"
+            string.concat(vm.toString(singleNestedSafe), " should not be nested-nested")
         );
     }
 
@@ -220,7 +222,7 @@ contract TaskManagerUnitTest is StateOverrideManager, Test {
         assertTrue(rootSafe != address(0), "Root safe should not be zero address");
         address[] memory owners = IGnosisSafe(rootSafe).getOwners();
         assertTrue(owners.length > 0, "Root safe should have owners");
-        assertEq(rootSafe, 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A); // OP Mainnet's L1PAO
+        assertEq(rootSafe, OP_MAINNET_L1PAO); // OP Mainnet's L1PAO
 
         string memory anotherTaskConfigPath = "src/improvements/tasks/eth/002-opcm-upgrade-v200/config.toml";
         address anotherRootSafe = tm.getRootSafe(anotherTaskConfigPath);
