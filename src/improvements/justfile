@@ -58,9 +58,10 @@ simulate-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEP
         echo
         echo "Usage: just simulate-stack <network> [task] [child-safe-name-depth-1] [child-safe-name-depth-2]"
         echo "Examples:"
-        echo "  just simulate-stack eth                        # All tasks"
-        echo "  just simulate-stack eth 001-example           # Specific task"
-        echo "  just simulate-stack eth 001-example foundation # On child safe"
+        echo "  just simulate-stack eth                                      # All tasks"
+        echo "  just simulate-stack eth 001-example                          # Specific task"
+        echo "  just simulate-stack eth 001-example foundation               # On child safe"
+        echo "  just simulate-stack eth 001-example base-nested base-council # Multiple child safes"
     }
 
     [ -z "{{NETWORK}}" ] && { echo -e "\n\033[31mError: No network specified\033[0m"; show_usage; exit 1; }
@@ -160,7 +161,7 @@ list-stack NETWORK="" TASK="":
         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "listStack(string,string)" {{NETWORK}} {{TASK}}
     fi
 
-
+# Example of 'depth' as a concept when using nested safes:
 #  ┌────────────────────┐      
 #  │ Child Safe Depth 2 │
 #  │ e.g. 'base-council'│
@@ -170,7 +171,7 @@ list-stack NETWORK="" TASK="":
 #                               ▼     
 #                           ┌────────────────────┐
 #                           │ Child Safe Depth 1 │
-#                           │  e.g. 'foundation' │
+#                           │  e.g. 'base-nested'│
 #                           └────────────────────┘
 #                                      │          
 #                                      └──────────┬
@@ -198,7 +199,7 @@ simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     [[ "$TASK_PATH" == *"test/tasks/example"* ]] && export FETCH_TASKS_TEST_DIR="test/tasks/example"
 
     task_name=$(basename "$TASK_PATH")
-    network=$(basename "$(dirname "$TASK_PATH")")
+    network=$(just --justfile "$root_just_file" _get-network-from-task-path "$TASK_PATH")
     ETH_RPC_URL=$(just _fetch-rpc-url "$network")
     HD_PATH=${HD_PATH:-0}
 
@@ -207,7 +208,6 @@ simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     
     # Configure signer for simulation
     signer=$(just --justfile "$root_just_file" _get-simulation-signer "$config_path" "$ETH_RPC_URL" "$child_safe_depth_1" "$child_safe_depth_2")
-    echo "signer: $signer"
     
     # Get fork block arguments
     fork_block_args=$(just --justfile "$root_just_file" _get-fork-block-args)
@@ -235,7 +235,7 @@ sign CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     export SIGNING_MODE_IN_PROGRESS=true
 
     task_name=$(basename "$TASK_PATH")
-    network=$(basename "$(dirname "$TASK_PATH")")
+    network=$(just --justfile "$root_just_file" _get-network-from-task-path "$TASK_PATH")
     ETH_RPC_URL=$(just _fetch-rpc-url "$network")
     HD_PATH=${HD_PATH:-0}
     USE_KEYSTORE=${USE_KEYSTORE:-}
@@ -286,7 +286,7 @@ approve CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
   export DISABLE_OVERRIDE_NONCE_CHECK=1
   HD_PATH=${HD_PATH:-0}
   USE_KEYSTORE=${USE_KEYSTORE:-}
-  network=$(basename "$(dirname "$TASK_PATH")")
+  network=$(just --justfile "$root_just_file" _get-network-from-task-path "$TASK_PATH")
   ETH_RPC_URL=$(just _fetch-rpc-url "$network")
   SIGNATURES=${SIGNATURES:-"0x"}
   
@@ -321,7 +321,7 @@ execute:
   export DISABLE_OVERRIDE_NONCE_CHECK=1
   HD_PATH=${HD_PATH:-0}
   USE_KEYSTORE=${USE_KEYSTORE:-}
-  network=$(basename "$(dirname "$TASK_PATH")")
+  network=$(just --justfile "$root_just_file" _get-network-from-task-path "$TASK_PATH")
   ETH_RPC_URL=$(just _fetch-rpc-url "$network")
   SIGNATURES=${SIGNATURES:-"0x"}
   
@@ -343,6 +343,15 @@ execute:
     "[]"
 
 # Helper functions - internal use only
+_get-network-from-task-path TASK_PATH:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [[ "{{TASK_PATH}}" == *"rehearsals"* ]]; then
+        basename "$(dirname "$(dirname "{{TASK_PATH}}")")"
+    else
+        basename "$(dirname "{{TASK_PATH}}")"
+    fi
+
 _fetch-rpc-url NETWORK="":
     #!/usr/bin/env bash
     set -euo pipefail
@@ -362,8 +371,8 @@ _fetch-safe TASK_DIR_PATH OWNER_SAFE_NAME:
     safe="$ZERO_ADDRESS" # Default to zero address for non-nested safes
     if [ -n "{{OWNER_SAFE_NAME}}" ]; then
         safe=$(bash ${root_dir}/src/improvements/script/get-safe.sh "{{TASK_DIR_PATH}}" "{{OWNER_SAFE_NAME}}")
+        echo "Retrieved safe for '{{OWNER_SAFE_NAME}}': ${safe}" >&2
     fi
-    echo "safe: ${safe}" >&2
     echo "${safe}"
 
 # Get signer address and arguments (supports ledger and keystore)

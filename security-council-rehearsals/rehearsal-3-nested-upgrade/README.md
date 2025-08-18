@@ -278,10 +278,14 @@ just --dotenv-path $(pwd)/.env approve test-rehearsal-council
 ```bash
 # These should be the signatures from the signers on the foundation safe.
 export SIGNATURES="0x[SIGNATURE1]..."
+# Remember, if you're using a different HD_PATH to set the env var e.g. 'export HD_PATH=1'
 just --dotenv-path $(pwd)/.env approve test-rehearsal-foundation
 # 'test-rehearsal-foundation' maps to the test rehearsal foundation safe in the tasks 'config.toml' file. Denoted as 'TestRehearsalFoundation'.
 ```
 5. Perform the final execution:
 ```bash
-just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/nested.just execute 0 
+# Reset the SIGNATURES env var as it can sometimes interact with the execute function.
+export SIGNATURES=""
+# Remember, if you're using a different HD_PATH to set the env var e.g. 'export HD_PATH=1'
+just --dotenv-path $(pwd)/.env execute
 ```

@@ -153,23 +153,6 @@ jobs:
       - simulate_nested:
           task: "/sep/032-op-pectra-defence"
 
-  simulate_sequence:
-    description: "Runs a sequence of simulations"
-    parameters:
-      network:
-        type: string
-      tasks:
-        type: string
-      block_number:
-        type: string
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - utils/checkout-with-mise
-      - run:
-          name: "Run simulation sequence for network: <<parameters.network>> | tasks: <<parameters.tasks>>"
-          command: git submodule update; just clean; just install && echo "yes" | bash ./script/utils/sim-sequence.sh <<parameters.network>> "<<parameters.tasks>>" "<<parameters.block_number>>"
-
   forge_build:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -331,22 +314,6 @@ workflows:
             - circleci-repo-readonly-authenticated-github-token
       # check that superchain-registry is up to date
       - check_superchain_registry:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-
-      - simulate_sequence:
-          name: simulate_sequence_eth
-          network: "eth"
-          tasks: ""
-          block_number: "" # If not specified, the latest block number is used.
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-
-      - simulate_sequence:
-          name: simulate_sequence_sep
-          network: "sep"
-          tasks: ""
-          block_number: "" # If not specified, the latest block number is used.
           context:
             - circleci-repo-readonly-authenticated-github-token
 
