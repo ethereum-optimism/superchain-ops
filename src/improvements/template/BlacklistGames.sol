@@ -59,7 +59,7 @@ contract BlacklistGames is L2TaskBase {
         for (uint256 i = 0; i < chains.length; i++) {
             // Get config for this chain
             uint256 chainId = chains[i].chainId;
-            BlacklistGamesTaskConfig config = cfg[chainId];
+            BlacklistGamesTaskConfig memory config = cfg[chainId];
             
             // Get portal
             address portalAddr = superchainAddrRegistry.getAddress("OptimismPortalProxy", chainId);
@@ -78,7 +78,7 @@ contract BlacklistGames is L2TaskBase {
         for (uint256 i = 0; i < chains.length; i++) {
             // Get config for this chain
             uint256 chainId = chains[i].chainId;
-            BlacklistGamesTaskConfig config = cfg[chainId];
+            BlacklistGamesTaskConfig memory config = cfg[chainId];
 
             // Get portal
             address portalAddr = superchainAddrRegistry.getAddress("OptimismPortalProxy", chainId);
