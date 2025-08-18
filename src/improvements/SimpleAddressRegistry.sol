@@ -26,7 +26,6 @@ contract SimpleAddressRegistry is StdChains {
         string memory chainKey;
         if (block.chainid == getChain("mainnet").chainId) chainKey = ".eth";
         else if (block.chainid == getChain("sepolia").chainId) chainKey = ".sep";
-        else if (block.chainid == getChain("optimism").chainId) chainKey = ".oeth";
 
         if (bytes(chainKey).length > 0) _loadHardcodedAddresses(chainKey);
 
