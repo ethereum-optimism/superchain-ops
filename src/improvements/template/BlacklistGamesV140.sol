@@ -18,13 +18,13 @@ interface IOptimismPortal2 {
 contract BlacklistGamesV140 is L2TaskBase {
     using stdToml for string;
 
-    /// @notice Optional: struct representing configuration for the task.
+    /// @notice struct representing configuration for the task.
     struct BlacklistGamesTaskConfig {
         uint256 chainId;
         address[] games;
     }
 
-    /// @notice Optional: mapping of chain ID to configuration for the task.
+    /// @notice mapping of chain ID to configuration for the task.
     mapping(uint256 => BlacklistGamesTaskConfig) public cfg;
 
     /// @notice Returns the safe address string identifier.
@@ -41,7 +41,6 @@ contract BlacklistGamesV140 is L2TaskBase {
     }
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
-    /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
     function _templateSetup(string memory _taskConfigFilePath, address _rootSafe) internal override {
         super._templateSetup(_taskConfigFilePath, _rootSafe);
         string memory tomlContent = vm.readFile(_taskConfigFilePath);
@@ -92,8 +91,5 @@ contract BlacklistGamesV140 is L2TaskBase {
     }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
-    function _getCodeExceptions() internal view virtual override returns (address[] memory) {
-        address[] memory codeExceptions = new address[](0);
-        return codeExceptions;
-    }
+    function _getCodeExceptions() internal pure override returns (address[] memory) {}
 }
