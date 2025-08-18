@@ -46,8 +46,8 @@ contract BlacklistGamesV140 is L2TaskBase {
         super._templateSetup(_taskConfigFilePath, _rootSafe);
         string memory tomlContent = vm.readFile(_taskConfigFilePath);
         BlacklistGamesTaskConfig[] memory configs =
-                            abi.decode(tomlContent.parseRaw(".blacklistGames.configs"), (BlacklistGamesTaskConfig[]));
-        
+            abi.decode(tomlContent.parseRaw(".blacklistGames.configs"), (BlacklistGamesTaskConfig[]));
+
         for (uint256 i = 0; i < configs.length; i++) {
             cfg[configs[i].chainId] = configs[i];
         }
@@ -60,11 +60,11 @@ contract BlacklistGamesV140 is L2TaskBase {
             // Get config for this chain
             uint256 chainId = chains[i].chainId;
             BlacklistGamesTaskConfig memory config = cfg[chainId];
-            
+
             // Get portal
             address portalAddr = superchainAddrRegistry.getAddress("OptimismPortalProxy", chainId);
             IOptimismPortal2 portal = IOptimismPortal2(portalAddr);
-            
+
             // Blacklist each game on the portal
             for (uint256 j = 0; j < config.games.length; j++) {
                 portal.blacklistDisputeGame(config.games[j]);
