@@ -1,0 +1,8 @@
+l2chains = [{name = "OP Sepolia Testnet", chainId = 11155420}] 
+
+templateName = "BlacklistGamesV400"
+
+[blacklistGames]
+configs = [
+  {chainId = 11155420, games = ["0xB723b7a3e95D10C5bB997bE18CfFcd48C90EcB68", "0x4Ef511AFa4D8e3ebae1E9eE4a97d51f8C79F4813"]}
+]
