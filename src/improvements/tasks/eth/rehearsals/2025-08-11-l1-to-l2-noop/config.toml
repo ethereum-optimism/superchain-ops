@@ -1,0 +1,20 @@
+templateName = "L1PortalExecuteL2Call"
+
+# L2 chain context for address labels (fake chain for rehearsal or Sepolia)
+l2chains = [{ name = "Rehearsal Chain", chainId = 10101010101010 }]
+
+# Portal + L2 call params
+portal = "0x0000000000000000000000000000000000000001" # replace with real L1 OptimismPortal
+l2Target = "0x0000000000000000000000000000000000000002" # replace with L2 target
+l2Data = "0x" # replace with encoded no-op data (e.g., upgradeTo(currentImpl) or a read-only call)
+gasLimit = 500000
+value = 0
+isCreation = false
+
+[addresses]
+TestRehearsalCouncil = "0x0000000000000000000000000000000000000003"
+TestRehearsalFoundation = "0x0000000000000000000000000000000000000004"
+ProxyAdminOwner = "0x0000000000000000000000000000000000000005" # 2-of-2 between council and foundation
+OptimismPortal = "0x0000000000000000000000000000000000000001"
+
+
