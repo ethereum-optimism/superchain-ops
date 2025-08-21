@@ -13,7 +13,7 @@ import {L2TaskBase} from "src/improvements/tasks/types/L2TaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
-/// @title UpdateRetirementTimestampTemplate
+/// @title UpdateRetirementTimestampV200
 /// @notice This template is used to update the retirement timestamp in the OptimismPortal2
 ///         contract for a given chain or set of chains.
 /// Supports: op-contracts/v2.0.0 through op-contracts/v3.0.0 (inclusive)
