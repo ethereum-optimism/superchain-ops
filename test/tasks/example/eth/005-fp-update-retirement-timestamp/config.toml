@@ -2,4 +2,4 @@ l2chains = [
   {name = "OP Mainnet", chainId = 10}
 ]
 
-templateName = "UpdateRetirementTimestampTemplate"
+templateName = "UpdateRetirementTimestampV200"
