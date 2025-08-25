@@ -100,7 +100,7 @@ contract OPCMUpgradeV200toV400 is OPCMTaskBase {
         OPCM_V200 = tomlContent.readAddress(".addresses.OPCMUpgradeV200");
         OPCM_V200_PRESTATE = tomlContent.readBytes32(".OPCMUpgradeV200_PRESTATE");
         OPCM_TARGETS.push(OPCM_V200);
-        require(IOPContractsManager(OPCM_V200).version().eq("1.6.0"), "Incorrect OPCM - expected version 1.6.0");
+        require(IOPContractsManager(OPCM_V200).version().eq("1.7.0"), "Incorrect OPCM - expected version 1.7.0");
         vm.label(OPCM_V200, "OPCMUpgradeV200");
 
         // === OPCM for U14 and U15 ===

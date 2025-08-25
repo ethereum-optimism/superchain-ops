@@ -16,7 +16,7 @@ absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b7
 expectedValidationErrors = ""
 
 [addresses]
-OPCMUpgradeV200 = "0x6b6f9129efb1b7a48f84e3b787333d1dca02ee34" # version 1.6.0 https://github.com/ethereum-optimism/superchain-registry/blob/212c60902834aba05d73d33bc2fcefc21fc3a7af/validation/standard/standard-versions-mainnet.toml#L140C26-L140C43
+OPCMUpgradeV200 = "0x6b6f9129efb1b7a48f84e3b787333d1dca02ee34" # version 1.7.0 https://github.com/ethereum-optimism/superchain-registry/blob/7857e9f87f5834af33c47d9aef5effdc9ef9573c/validation/standard/standard-versions-sepolia.toml#L160
 StandardValidatorV200 = "0x37739a6b0a3F1E7429499a4eC4A0685439Daff5C"
 
 OPCMUpgradeV300 = "0xfBceeD4DE885645fBdED164910E10F52fEBFAB35" # version 1.9.0 https://github.com/ethereum-optimism/superchain-registry/blob/212c60902834aba05d73d33bc2fcefc21fc3a7af/validation/standard/standard-versions-mainnet.toml#L82
