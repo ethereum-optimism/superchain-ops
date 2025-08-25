@@ -43,7 +43,7 @@ check_status_and_hyperlinks() {
 }
 
 # Find README.md files for all tasks and process them.
-files=$(find ./tasks -type f -path './tasks/*/*/README.md')
+files=$(find ../tasks -type f -path '../tasks/*/*/README.md')
 for file in $files; do
   check_status_and_hyperlinks "$file"
 done
