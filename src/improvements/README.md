@@ -36,16 +36,9 @@ just --justfile ../../justfile install
 > For more information on `mise`, please refer to the [CONTRIBUTING.md](../../CONTRIBUTING.md) guide.
 
 2. Run tests:
-Run all tests:
 ```bash
 cd src/improvements/
-just test # Run this command before asking for a review on any PR.
-```
-
-Run individual test suites:
-```bash
 forge test # Run solidity tests.
-just simulate-all-templates # Run template regression tests.
 ```
 
 3. Create a new task:
@@ -109,16 +102,38 @@ But **do not** pass the decimal value as a string—this will cause undefined be
 
 
 5. Simulate the task:
+
+**For individual task simulation** (from the task directory):
+
 ```bash
-# Nested
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../nested.just simulate <foundation|council|chain-governor|foundation-operations|base-operations|[custom-safe-name]>
+just --dotenv-path $(pwd)/.env simulate [child-safe-name-depth-1] [child-safe-name-depth-2]
 ```
+
+**Examples:**
+- **Single Safe Operations** (most common - see [SINGLE.md](src/improvements/SINGLE.md)):
+  ```bash
+  just --dotenv-path $(pwd)/.env simulate
+  ```
+
+- **Nested Safe Operations** (see [NESTED.md](src/improvements/NESTED.md)):
+  ```bash
+  just --dotenv-path $(pwd)/.env simulate foundation
+  just --dotenv-path $(pwd)/.env simulate council  
+  just --dotenv-path $(pwd)/.env simulate chain-governor
+  ```
+
+- **Deeply Nested Safes** (child safe owned by another child safe):
+  ```bash
+  just --dotenv-path $(pwd)/.env simulate base-nested base-council
+  ```
+
 > ℹ️ [custom-safe-name] refers to a Safe name defined manually by the task developer under the `[addresses]` table in the config.toml file.
 > Example: NestedSafe1 in [sep/001-opcm-upgrade-v200/config.toml](./tasks/sep/001-opcm-upgrade-v200/config.toml).
 
+**For stacked simulation** (recommended - simulates dependencies):
 ```bash
-# Single 
-SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../single.just simulate
+cd src/improvements/
+just simulate-stack <network> <task-name> [child-safe-name-depth-1] [child-safe-name-depth-2]
 ```
 
 6. Fill out the `README.md` and `VALIDATION.md` files.
@@ -134,18 +149,18 @@ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../sin
 
 Stacked simulations are supported. To use this feature, you can use the following command:
 ```bash
-just simulate-stack <network> [task] [owner-address]
+just simulate-stack <network> [task] [child-safe-name-depth-1] [child-safe-name-depth-2]
 ```
 
 e.g. 
 ```bash
-# Simulate all tasks up to and including the latest non-terminal task.
-just simulate-stack eth
-# OR to simulate up to and including a specific task. Useful if you don't care about simulating tasks after a certain point.
-just simulate-stack eth 002-opcm-upgrade-v200
-# OR to simulate up to and including a specific task, and specify the owner address to simulate as (useful for getting the correct domain and message hash).
-just simulate-stack eth 002-opcm-upgrade-v200 0x847B5c174615B1B7fDF770882256e2D3E95b9D92
+just simulate-stack eth                                       # Simulate all tasks for ethereum
+just simulate-stack eth 001-example                           # Simulate specific task on root safe
+just simulate-stack eth 001-example foundation                # Simulate on foundation child safe
+just simulate-stack eth 001-example base-nested base-council  # Simulate on nested architecture
 ```
+
+> **Note**: For nested architectures, specify child safes in ownership order: depth-1 safe (owned by root) then depth-2 safe (owned by depth-1).
 
 Another useful command is to list the tasks that will be simulated in a stacked simulation:
 ```bash
@@ -161,20 +176,34 @@ just list-stack eth <your-task-name>
 
 ### How do I sign a task that depends on another task?
 
-> **Note**: Only ledger signing is supported for stacked signing.
-
-To sign a task, you can use the `just sign` command in `src/improvements/justfile`. This command will simulate all tasks up to and including the specified task, and then prompt you to sign the transaction for the final task in the stack using your Ledger device.
+To sign a task, you can use the `just sign-stack` command in `src/improvements/justfile`. This command will simulate all tasks up to and including the specified task, and then prompt you to sign the transaction for the final task in the stack using your signing device.
 
 ```bash
-just sign <network> <task> [owner-safe-name] [hd-path]
+just sign-stack <network> <task> [child-safe-name-depth-1] [child-safe-name-depth-2]
 ```
 
-**Example:**
+**Environment variables:**
+- `HD_PATH` - Hardware wallet derivation path (default: 0)
+- `USE_KEYSTORE` - If set, uses keystore instead of ledger
 
-To sign the `002-opcm-upgrade-v200` task on the Ethereum mainnet as the `foundation` safe, you would run:
+**Examples:**
+
+To sign the `002-opcm-upgrade-v200` task on the Ethereum mainnet as the `foundation` safe:
 
 ```bash
-just sign eth 002-opcm-upgrade-v200 foundation
+just sign-stack eth 002-opcm-upgrade-v200 foundation
+```
+
+To use a custom HD path:
+
+```bash
+HD_PATH=1 just sign-stack eth 002-opcm-upgrade-v200 foundation
+```
+
+To use keystore instead of ledger:
+
+```bash
+USE_KEYSTORE=1 just sign-stack eth 002-opcm-upgrade-v200 foundation
 ```
 
 The command will then:
