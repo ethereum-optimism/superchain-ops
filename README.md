@@ -1,6 +1,6 @@
 > **⚠️ Important Notice: System Upgrade (August 2025)**
 > 
-> The Superchain-ops system has undergone a significant upgrade. For access to historical executed tasks and previous system documentation, please refer to the [archived tasks repository](<enter_tag_link_here>).
+> The Superchain-ops system has undergone a significant upgrade. For access to historical executed tasks and previous system documentation, please refer to this [tag](https://github.com/ethereum-optimism/superchain-ops/tree/legacy-superchain-ops) for the archived tasks repository.
 
 # Superchain-ops Task System
 
