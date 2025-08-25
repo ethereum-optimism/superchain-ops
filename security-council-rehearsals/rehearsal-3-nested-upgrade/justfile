@@ -8,7 +8,7 @@ deploy-contracts hdPath='0':
   #!/usr/bin/env bash
   sender=$(cast wallet address --ledger --mnemonic-derivation-path "m/44'/60'/{{hdPath}}'/0/0")
   forge build
-  forge script DeployNestedRehearsal --ffi \
+  forge script DeployNestedRehearsal.sol --ffi \
     --fork-url ${rpcUrl} \
     --ledger --hd-paths "m/44'/60'/{{hdPath}}'/0/0" \
     --broadcast \
