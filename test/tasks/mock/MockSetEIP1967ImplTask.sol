@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity 0.8.15;
 
-import {DisputeGameUpgradeTemplate} from "test/tasks/mock/template/DisputeGameUpgradeTemplate.sol";
+import {SetEIP1967Implementation} from "src/improvements/template/SetEIP1967Implementation.sol";
 
-/// Mock task that upgrades the Dispute Game implementation
+/// Mock task that sets the implementation of a EIP1967 compliant proxy
 /// to an example implementation address without code
-contract MockDisputeGameTask is DisputeGameUpgradeTemplate {
+contract MockSetEIP1967ImplTask is SetEIP1967Implementation {
     /// @notice code exceptions for this template is address 0x0000000FFfFFfffFffFfFffFFFfffffFffFFffFf
     function _getCodeExceptions() internal view virtual override returns (address[] memory) {
         address[] memory addresses = new address[](1);

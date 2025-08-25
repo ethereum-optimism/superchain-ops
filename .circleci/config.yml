@@ -103,6 +103,7 @@ jobs:
           path: src/improvements/stack-simulation-output.txt
       - notify-failures-on-main:
           mentions: '@evm-safety-team'
+
   forge_build:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
@@ -253,9 +254,6 @@ workflows:
             - circleci-repo-readonly-authenticated-github-token
       - check_task_names
       - check_task_statuses:
-          context:
-            - circleci-repo-readonly-authenticated-github-token
-      - check_nonce_overrides:
           context:
             - circleci-repo-readonly-authenticated-github-token
       - check_superchain_registry:
