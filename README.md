@@ -140,7 +140,9 @@ cd src/improvements/
 just simulate-stack <network> <task-name> [child-safe-name-depth-1] [child-safe-name-depth-2]
 ```
 
-6. Fill out the `README.md` and `VALIDATION.md` files.
+6. Create a Tenderly account. Once a user simulates a task, we print a Tenderly link. This allows us to compare our local simulation with Tenderly's simulation state changes. If you don’t already have a Tenderly account, go to https://dashboard.tenderly.co/login and sign up. The free account is sufficient.
+
+7. Fill out the `README.md` and `VALIDATION.md` files.
     - If your task status is not `EXECUTED` or `CANCELLED`, it is considered non-terminal and will automatically be included in stacked simulations.
     - If your task has a `VALIDATION.md` file, you **must** fill out the `Normalized State Diff Hash Attestation` section. This is so that we can detect if the normalized state diff hash changes unexpectedly. You **must** also fill out the `Expected Domain and Message Hashes` section. This is so that we can detect if the domain and message hashes change unexpectedly. Any mismatches will cause the task to revert.
 
@@ -217,17 +219,17 @@ The command will then:
 
 ### How do I make sure an address is universally available to any task?
 
-We have provided the `addresses.toml` file to help you do this. This file is used to store commonly used addresses involved in an upgrade. You can access any of these addresses by name in your task's template.
+We have provided the [`addresses.toml`](./src/improvements/addresses.toml) file to help you do this. This file is used to store commonly used addresses involved in an upgrade. You can access any of these addresses by name in your task's template.
 
 The addresses in this file are loaded into two different address registry contracts, depending on the needs of your task: `SimpleAddressRegistry.sol` and `SuperchainAddressRegistry.sol`.
 
 - **`SimpleAddressRegistry.sol`**: This is a straightforward key-value store for addresses. It's used for tasks that require a simple way to look up addresses by a human-readable name.
 
-- **`SuperchainAddressRegistry.sol`**: An advanced registry designed to automatically discover contract addresses deployed across chains in the Superchain. For this to work, the target chain must be listed in the [superchain-registry](https://github.com/ethereum-optimism/superchain-registry). While standard deployments can be discovered automatically, some addresses such as multisig safes or custom contracts require manual inclusion. In these cases, `SuperchainAddressRegistry.sol` also loads entries from `addresses.toml` to ensure availability. If you're working with a chain not yet included in the Superchain registry, you can manually provide a fallback JSON file via `fallbackAddressesJsonPath` in your task's `config.toml`. See the section [below](#what-if-i-want-to-upgrade-a-chain-that-is-not-in-the-superchain-registry) for details.
+- **`SuperchainAddressRegistry.sol`**: An advanced registry designed to automatically discover contract addresses deployed across chains in the Superchain. For this to work, the target chain must be listed in the [superchain-registry](https://github.com/ethereum-optimism/superchain-registry). While standard deployments can be discovered automatically, some addresses such as multisig safes or custom contracts require manual inclusion. In these cases, `SuperchainAddressRegistry.sol` also loads entries from [`addresses.toml`](./src/improvements/addresses.toml) to ensure availability. If you're working with a chain not yet included in the Superchain registry, you can manually provide a fallback JSON file via `fallbackAddressesJsonPath` in your task's `config.toml`. See the section [below](#what-if-i-want-to-upgrade-a-chain-that-is-not-in-the-superchain-registry) for details.
 
-Both registries load addresses based on the network the task is running on. For example, when running a task on Ethereum mainnet, addresses from the `[eth]` section of `addresses.toml` will be loaded. You can only access addresses for the network you are working on.
+Both registries load addresses based on the network the task is running on. For example, when running a task on Ethereum mainnet, addresses from the `[eth]` section of [`addresses.toml`](./src/improvements/addresses.toml) will be loaded. You can only access addresses for the network you are working on.
 
-By adding an address to `addresses.toml`, you ensure it's available in your task's context, whether you're using the simple or the superchain address registry.
+By adding an address to [`addresses.toml`](./src/improvements/addresses.toml), you ensure it's available in your task's context, whether you're using the simple or the superchain address registry.
 
 ### What if I want to upgrade a chain that is not in the superchain-registry?
 
