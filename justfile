@@ -1,6 +1,3 @@
-export rpcUrl := env_var_or_default('ETH_RPC_URL', 'https://ethereum.publicnode.com')
-export etherscanApiKey := env_var_or_default('ETHERSCAN_API_KEY', '')
-
 install: install-contracts install-eip712sign
 
 # install dependencies
@@ -16,24 +13,6 @@ install-eip712sign:
   cd $REPO_ROOT
   mkdir -p bin || true
   GOBIN="$REPO_ROOT/bin" go install github.com/base/eip712sign@v0.0.11
-
-# Bundle path should be provided including the .json file extension.
-add-transaction bundlePath to sig *params:
-  #!/usr/bin/env bash
-  bundleBaseName=$(echo {{bundlePath}} | xargs -I{} basename {} .json)
-  dirname=$(echo {{bundlePath}} | xargs -I{} dirname {})
-  # bundleBasePath is the path to the bundle without the .json extension
-  bundleBasePath=${dirname}/${bundleBaseName}
-  newBundlePath=${bundleBasePath}-new.json
-  backupBundlePath=${bundleBasePath}-$(date -u '+%Y-%m-%d_%H-%M-%S').json
-  DATA=$(cast calldata '{{sig}}' {{params}})
-  echo DATA: $DATA
-  echo bundlePath: {{bundlePath}}
-  echo newBundlePath: $newBundlePath
-  jq --arg to {{to}} --arg data ${DATA} '.transactions += [{"to": $to, "data": $data}]' {{bundlePath}} > ${newBundlePath}
-  mv {{bundlePath}} ${backupBundlePath}
-  mv ${newBundlePath} {{bundlePath}}
-  echo "Old bundle backed up to ${backupBundlePath}."
 
 clean:
   forge clean

@@ -1,99 +1,252 @@
-> 🚨 Deprecation Notice (Effective Q1 2025)
-> We’re migrating all task definitions from the old superchain-ops repo (`tasks/`) into the new improvements repo (`src/improvements/tasks/`).
->
-> • New tasks: please use the [improvements flow](./src/improvements) and refer to the [README](./src/improvements/README.md) for more information.
-> • Need help? Reach out in [#superchain-ops](https://discord.com/channels/1244729134312198194/1342572064175030293) on Discord.
->
-> The old flow will be retired as soon as we don't need the old tasks anymore.
+> **⚠️ Important Notice: System Upgrade (August 2025)**
+> 
+> The Superchain-ops system has undergone a significant upgrade. For access to historical executed tasks and previous system documentation, please refer to the [archived tasks repository](<enter_tag_link_here>).
 
-# superchain-ops
+# Superchain-ops Task System
 
-This repo contains execution code and artifacts related to superchain deployments and other tasks.
+A tooling system for developers to write, test, and simulate onchain state changes safely before execution.
 
-This repo is structured with each network having a high level directory which contains sub directories of any "tasks" which have occured on that network.
+> 📚 More detailed documentation can be found in the [doc](src/improvements/doc/) directory.
 
-Tasks include:
+## Repository Structure
 
-- new contract deployments
-- contract upgrades
-- onchain configuration changes
+The repository is organized as follows:
 
-Effectively any significant change to the state of the network, requiring authorization to execute, should be considered a task.
+```
+superchain-ops/
+└── src/
+    └── improvements/ 
+       ├── template/     # Solidity template contracts (Template developers create templates here)
+       └── doc/          # Detailed documentation
+       └── tasks/        # Network-specific tasks
+            ├── eth/     # Ethereum mainnet tasks (Task developers create tasks here)
+            └── sep/     # Sepolia testnet tasks  (Task developers create tasks here)
 
-## Directory structure
+```
 
-Top level directory names should be the [EIP-3770](https://eips.ethereum.org/EIPS/eip-3770) short name for the network (see [shortNameMapping.json](https://chainid.network/shortNameMapping.json))
+## Quick Start
 
-Each task should contain the following:
+> ⚠️ **IMPORTANT**: **Do not** update `mise` to a newer version unless you're told to do so by the maintainers of this repository. We pin to specific allowed versions of `mise` to reduce the likelihood of installing a vulnerable version of `mise`. You **must** use the `install-mise.sh` script to install `mise`.
 
-- `README.md`: A brief markdown file describing the task to be executed.
-- `Validation.md`: A markdown file describing and justifying the expected state changes for manual validation by multisig signers.
-- A foundry script that implements post upgrade assertions, depending on the nature of the ceremony it should be called either:
-  - `SignFromJson.s.sol`: If the ceremony is for a Safe owned by EOA signers.
-  - `NestedSignFromJson.s.sol`: If the ceremony is for a Safe owned by other Safe's.
-- `input.json`: A JSON file which defines the specific transaction for the task to be executed. This file may either be generated automatically or manually created.
-- `.env`: a place to store environment variables specific to this task.
+1. Install dependencies:
+```bash
+cd src/improvements/
+./script/install-mise.sh # Follow the instructions in the log output from this command to activate mise in your shell.
+mise trust ../../mise.toml
+mise install
+just --justfile ../../justfile install
+```
 
-## Installation
+> For more information on `mise`, please refer to the [CONTRIBUTING.md](./CONTRIBUTING.md) guide.
 
-The following instructions are for MacOS, but should be similar for other operating systems.
+2. Run tests:
+```bash
+cd src/improvements/
+forge test # Run solidity tests.
+```
 
-For each of these steps, if you already have some version of the software installed, it should be safe to skip it.
+3. Create a new task:
+```bash
+cd src/improvements/
+just new task
+```
 
-### Installing mise
+Follow the interactive prompts from the `just new task` command to create a new task. This will create a new directory in the `tasks/` directory with the task name you provided. Please make sure to complete all the TODOs in the created files before submitting your task for review.
 
-Make sure you have `mise` installed. Follow the [CONTRIBUTING.md](./CONTRIBUTING.md) guide to install mise. We use mise to install the other required tools (go, just, foundry, etc).
+> Note: An `.env` file will be created in the new tasks directory. Please make sure to fill out the `TENDERLY_GAS` variable with a high enough value to simulate the task.
 
-### Installing git
+4. Configure the task in `config.toml` e.g.
+```toml
+l2chains = [{"name": "OP Mainnet", "chainId": 10}]
+templateName = "<TEMPLATE_NAME>" # e.g. OPCMUpgradeV200
 
-Very likely you have git on your system. To verify this, open a Terminal and type `git --version`.
-If an error message shows, these are the steps to download and install it:
+allowOverwrite = ["<enter-address-name-here>"] # We may want to overwrite an address that is loaded from addresses.toml. e.g. 'SecurityCouncil'.
 
-1. Go to the official Git website at https://git-scm.com/downloads
-1. Download the appropriate installer for your operating system.
-1. Run the installer and follow the instructions.
-1. Once the installation is complete, open a command prompt or Git Bash and type `git --version`. You should see the version number of Git that you just installed.
+# Add template-specific config here.
 
-### Installing the Rust Toolchain
+[addresses]
+# Addresses that are not discovered automatically (e.g. OPCM, StandardValidator, or safes missing from addresses.toml).
+# IMPORTANT: If an address is defined here and also discovered onchain, this value takes precedence (e.g. ProxyAdminOwner).
 
-1. Visit the rust toolchain installer website at https://rustup.rs
-1. Follow the instructions for your operating system to install `rustup`, and use `rustup` to install the Rust toolchain.
-1. Verify the installation from the command prompt:
-  Type `cargo --version`.
-  You should see a version number.
+[stateOverrides]
+# State overrides (e.g. specify a Safe nonce).
+```
 
-### Cloning the superchain-ops repo
+The `allowOverwrite` TOML [array](https://toml.io/en/v1.0.0#array) is optional. It can be used to specify the addresses that we want to overwrite. You can see an example of its use in this [task](src/improvements/tasks/sep/020-gas-params-rehearsal-1-bn-0/config.toml). It's used when the user is adding an address to the `[addresses]` table that is already defined in the `addresses.toml` file.
 
-The superchain-ops repo holds the tools and artifacts that define any on-chain actions taken to
-either upgrade our system, or modify its configuration.
+The `[addresses]` TOML [table](https://toml.io/en/v1.0.0#table) is optional. It can be used to specify the addresses of the contracts involved in an upgrade. You can see an example of its use in this [task](src/improvements/tasks/eth/009-opcm-upgrade-v300-op+ink/config.toml).
 
-1. Clone the superchain-ops repo
-  `git clone https://github.com/ethereum-optimism/superchain-ops.git`
-1. Or if you’ve already cloned, just pull the main branch:
-  `git checkout main`
- 	`git pull`
+The `[stateOverrides]` TOML table is optional, but in most cases we use it to specify the nonces of the multisig safes involved in an upgrade. Selecting the correct nonce is important and requires careful consideration. You can see an example of its use in this [task](src/improvements/tasks/eth/009-opcm-upgrade-v300-op+ink/config.toml). If you're unsure about the format of the `key` and `value` fields, you must default to using 66-character hex strings (i.e. `0x` followed by 64 hex characters). For example, setting the nonce for a Safe to `23` would look like:
 
-Move into the repo and install the contract dependencies
+```toml
+# USE HEX ENCODED STRINGS WHEN POSSIBLE.
+[stateOverrides]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ 
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = "0x0000000000000000000000000000000000000000000000000000000000000017" }
+]
+```
 
-`just install-contracts`
+However, in some cases it's possible to use the decimal value directly:
+```toml
+# IN SOME CASES, YOU CAN USE THE DECIMAL VALUE DIRECTLY.
+[stateOverrides]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ 
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 23 }
+]
+```
 
-### Create a Tenderly account
+But **do not** pass the decimal value as a string—this will cause undefined behavior:
+```toml
+# ❌ INCORRECT: DO NOT USE STRINGIFIED DECIMALS.
+[stateOverrides]
+0x847B5c174615B1B7fDF770882256e2D3E95b9D92 = [ 
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = "23" }
+]
+```
 
-Tenderly is used to simulate transactions.
-If you don’t already have a Tenderly account, go to https://dashboard.tenderly.co/login and sign up.
-The free account is sufficient.
 
-## Creating a Task
+5. Simulate the task:
 
-Each task in the `tasks` directory should contain all of the information required to both validate
-and perform the network interaction. To validate that the intention of the network interaction is
-correct, specific contextual information must be included in `Validation.md` that enables signers
-to double check the correctness. This includes linking to authoritative sources such as the
-[superchain-registry](https://github.com/ethereum-optimism/superchain-registry), the [Optimism monorepo](https://github.com/ethereum-optimism/optimism), and
-[Etherscan](https://etherscan.io) to prove the correctness of particular configuration values.
+**For individual task simulation** (from the task directory):
 
-The base scripts for performing network interactions found in the `script` directory should be
-inherited by the `SignFromJson.s.sol` or `NestedSignFromJson.s.sol` file where the `_postCheck` hook
-is implemented. This function must make assertions on the post-transaction state of the network
-interaction. It will run each time that a signer generates a signature, giving additional automation
-on validating the correctness of the network interaction.
+```bash
+just --dotenv-path $(pwd)/.env simulate [child-safe-name-depth-1] [child-safe-name-depth-2]
+```
+
+**Examples:**
+- **Single Safe Operations** (most common - see [SINGLE.md](src/improvements/SINGLE.md)):
+  ```bash
+  just --dotenv-path $(pwd)/.env simulate
+  ```
+
+- **Nested Safe Operations** (see [NESTED.md](src/improvements/NESTED.md)):
+  ```bash
+  just --dotenv-path $(pwd)/.env simulate foundation
+  just --dotenv-path $(pwd)/.env simulate council  
+  just --dotenv-path $(pwd)/.env simulate chain-governor
+  ```
+
+- **Deeply Nested Safes** (child safe owned by another child safe):
+  ```bash
+  just --dotenv-path $(pwd)/.env simulate base-nested base-council
+  ```
+
+> ℹ️ [custom-safe-name] refers to a Safe name defined manually by the task developer under the `[addresses]` table in the config.toml file.
+> Example: NestedSafe1 in [sep/001-opcm-upgrade-v200/config.toml](src/improvements/tasks/sep/001-opcm-upgrade-v200/config.toml).
+
+**For stacked simulation** (recommended - simulates dependencies):
+```bash
+cd src/improvements/
+just simulate-stack <network> <task-name> [child-safe-name-depth-1] [child-safe-name-depth-2]
+```
+
+6. Fill out the `README.md` and `VALIDATION.md` files.
+    - If your task status is not `EXECUTED` or `CANCELLED`, it is considered non-terminal and will automatically be included in stacked simulations.
+    - If your task has a `VALIDATION.md` file, you **must** fill out the `Normalized State Diff Hash Attestation` section. This is so that we can detect if the normalized state diff hash changes unexpectedly. You **must** also fill out the `Expected Domain and Message Hashes` section. This is so that we can detect if the domain and message hashes change unexpectedly. Any mismatches will cause the task to revert.
+
+## FAQ
+
+### How do I simulate a task that depends on another task?
+
+> Note:
+> Tasks get executed in the order they are defined in the `tasks/<network>/` directory. We use 3 digit prefixes to order the tasks e.g. `001-` is executed before `002-`, etc.
+
+Stacked simulations are supported. To use this feature, you can use the following command:
+```bash
+just simulate-stack <network> [task] [child-safe-name-depth-1] [child-safe-name-depth-2]
+```
+
+e.g. 
+```bash
+just simulate-stack eth                                       # Simulate all tasks for ethereum
+just simulate-stack eth 001-example                           # Simulate specific task on root safe
+just simulate-stack eth 001-example foundation                # Simulate on foundation child safe
+just simulate-stack eth 001-example base-nested base-council  # Simulate on nested architecture
+```
+
+> **Note**: For nested architectures, specify child safes in ownership order: depth-1 safe (owned by root) then depth-2 safe (owned by depth-1).
+
+Another useful command is to list the tasks that will be simulated in a stacked simulation:
+```bash
+just list-stack <network> [task]
+```
+
+e.g.
+```bash
+just list-stack eth
+# OR if you want to list the tasks up to and including a specific task.
+just list-stack eth <your-task-name>
+```
+
+### How do I sign a task that depends on another task?
+
+To sign a task, you can use the `just sign-stack` command in `src/improvements/justfile`. This command will simulate all tasks up to and including the specified task, and then prompt you to sign the transaction for the final task in the stack using your signing device.
+
+```bash
+just sign-stack <network> <task> [child-safe-name-depth-1] [child-safe-name-depth-2]
+```
+
+**Environment variables:**
+- `HD_PATH` - Hardware wallet derivation path (default: 0)
+- `USE_KEYSTORE` - If set, uses keystore instead of ledger
+
+**Examples:**
+
+To sign the `002-opcm-upgrade-v200` task on the Ethereum mainnet as the `foundation` safe:
+
+```bash
+just sign-stack eth 002-opcm-upgrade-v200 foundation
+```
+
+To use a custom HD path:
+
+```bash
+HD_PATH=1 just sign-stack eth 002-opcm-upgrade-v200 foundation
+```
+
+To use keystore instead of ledger:
+
+```bash
+USE_KEYSTORE=1 just sign-stack eth 002-opcm-upgrade-v200 foundation
+```
+
+The command will then:
+1. List all the tasks that will be simulated in the stack.
+2. Simulate the tasks in order.
+3. Prompt you to approve the transaction on your Ledger device for the final task (`002-opcm-upgrade-v200` in this example).
+
+### How do I make sure an address is universally available to any task?
+
+We have provided the `addresses.toml` file to help you do this. This file is used to store commonly used addresses involved in an upgrade. You can access any of these addresses by name in your task's template.
+
+The addresses in this file are loaded into two different address registry contracts, depending on the needs of your task: `SimpleAddressRegistry.sol` and `SuperchainAddressRegistry.sol`.
+
+- **`SimpleAddressRegistry.sol`**: This is a straightforward key-value store for addresses. It's used for tasks that require a simple way to look up addresses by a human-readable name.
+
+- **`SuperchainAddressRegistry.sol`**: An advanced registry designed to automatically discover contract addresses deployed across chains in the Superchain. For this to work, the target chain must be listed in the [superchain-registry](https://github.com/ethereum-optimism/superchain-registry). While standard deployments can be discovered automatically, some addresses such as multisig safes or custom contracts require manual inclusion. In these cases, `SuperchainAddressRegistry.sol` also loads entries from `addresses.toml` to ensure availability. If you're working with a chain not yet included in the Superchain registry, you can manually provide a fallback JSON file via `fallbackAddressesJsonPath` in your task's `config.toml`. See the section [below](#what-if-i-want-to-upgrade-a-chain-that-is-not-in-the-superchain-registry) for details.
+
+Both registries load addresses based on the network the task is running on. For example, when running a task on Ethereum mainnet, addresses from the `[eth]` section of `addresses.toml` will be loaded. You can only access addresses for the network you are working on.
+
+By adding an address to `addresses.toml`, you ensure it's available in your task's context, whether you're using the simple or the superchain address registry.
+
+### What if I want to upgrade a chain that is not in the superchain-registry?
+
+If the chain you want to upgrade is not in the [superchain-registry](https://github.com/ethereum-optimism/superchain-registry), you can manually provide a fallback JSON file in your task's `config.toml` (as `fallbackAddressesJsonPath`). 
+
+```toml
+l2chains = [{name = "Unichain", chainId = 1333330}]
+fallbackAddressesJsonPath = "test/tasks/example/eth/010-transfer-owners-local/addresses.json"
+templateName = "TransferOwners"
+```
+
+See: [example/eth/010-transfer-owners-local/config.toml](../../test/tasks/example/eth/010-transfer-owners-local/config.toml) for an example.
+
+The fallback JSON file must be structured with the chain ID as the top-level key, containing all contract addresses for that chain. It takes the same structure as the superchain-registry's [addresses.json](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/addresses.json) file.
+
+When the task runs, it will first attempt to use the superchain-registry. If the chain is not found, it will load addresses directly from your fallback JSON file instead of performing automatic onchain discovery.
+
+> ⚠️ **Note**: You must manually provide all contract addresses required by your task template in the fallback JSON file.
+
+## Available Templates
+
+All available templates can be found in the [template](src/improvements/template/) directory. 
