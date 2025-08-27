@@ -43,7 +43,9 @@ check_status_and_hyperlinks() {
 }
 
 # Find README.md files for all tasks and process them.
-files=$(find ./tasks -type f -path './tasks/*/*/README.md')
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TASKS_DIR="$SCRIPT_DIR/../tasks"
+files=$(find "$TASKS_DIR" -type f -path "$TASKS_DIR/*/*/README.md")
 for file in $files; do
   check_status_and_hyperlinks "$file"
 done
