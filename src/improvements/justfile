@@ -2,6 +2,9 @@ export TASK_PATH := invocation_directory()
 export ZERO_ADDRESS := "0x0000000000000000000000000000000000000000"
 export signatures := env_var_or_default('SIGNATURES', '')
 
+forge_fork_retries := "10"
+forge_fork_retry_backoff := "1000"
+
 # Create a new template or task
 new COMMAND="" TASK_TYPE="":
     #!/usr/bin/env bash
@@ -72,11 +75,11 @@ simulate-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEP
     if [ -z "{{TASK}}" ]; then
         echo -e "⏳ You are simulating all tasks for network: {{NETWORK}}\n"
         just list-stack {{NETWORK}}
-        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string)" {{NETWORK}} --ffi --rpc-url $ETH_RPC_URL
+        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string)" {{NETWORK}} --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} 
     elif [ -z "{{CHILD_SAFE_NAME_DEPTH_1}}" ] && [ -z "{{CHILD_SAFE_NAME_DEPTH_2}}" ]; then
         echo -e "⏳ You are simulating the task: {{TASK}} for network: '{{NETWORK}}' on the root safe\n"
         just list-stack {{NETWORK}} {{TASK}}
-        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string)" "{{NETWORK}}" "{{TASK}}" --ffi --rpc-url $ETH_RPC_URL
+        forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string)" "{{NETWORK}}" "{{TASK}}" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}}
     else
         task_dir_path="${root_dir}/src/improvements/tasks/{{NETWORK}}/{{TASK}}"
         child_safe_depth_1=$(just --justfile "$root_just_file" _fetch-safe "$task_dir_path" "{{CHILD_SAFE_NAME_DEPTH_1}}")
@@ -85,10 +88,10 @@ simulate-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEP
         
         if [ "$child_safe_depth_2" != "$ZERO_ADDRESS" ]; then
             echo -e "⏳ You are simulating the task: {{TASK}} for network: '{{NETWORK}}' on the nested safe: $child_safe_depth_2\n"
-            forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_2" "$child_safe_depth_1" --ffi --rpc-url $ETH_RPC_URL
+            forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_2" "$child_safe_depth_1" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}}
         else
             echo -e "⏳ You are simulating the task: {{TASK}} for network: '{{NETWORK}}' on the nested safe: $child_safe_depth_1\n"
-            forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_1" --ffi --rpc-url $ETH_RPC_URL
+            forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_1" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}}
         fi
     fi
     echo -e "\n⚠️ Please note: Some Tenderly links may not work when running a stacked simulation. Check out Tenderly's Virtual TestNets as a workaround.⚠️"
@@ -127,16 +130,16 @@ sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2
     if [ "$child_safe_depth_2" != "$ZERO_ADDRESS" ]; then
         echo -e "⏳ You are signing the task: {{TASK}} for network: '{{NETWORK}}' on the nested safe: $child_safe_depth_2\n"
         ${root_dir}/bin/eip712sign ${signer_args} -- \
-         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_2" "$child_safe_depth_1" --ffi --rpc-url $ETH_RPC_URL
+         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_2" "$child_safe_depth_1" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}}
     elif [ -z "{{CHILD_SAFE_NAME_DEPTH_1}}" ] && [ -z "{{CHILD_SAFE_NAME_DEPTH_2}}" ]; then
         echo -e "⏳ You are signing the task: {{TASK}} for network: '{{NETWORK}}' on the root safe\n"
         just list-stack {{NETWORK}} {{TASK}}
         ${root_dir}/bin/eip712sign ${signer_args} -- \
-         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string)" "{{NETWORK}}" "{{TASK}}" --ffi --rpc-url $ETH_RPC_URL
+         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string)" "{{NETWORK}}" "{{TASK}}" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}}
     else
         echo -e "⏳ You are signing the task: {{TASK}} for network: '{{NETWORK}}' on the nested safe: $child_safe_depth_1\n"
         ${root_dir}/bin/eip712sign ${signer_args} -- \
-         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_1" --ffi --rpc-url $ETH_RPC_URL
+         forge script ${root_dir}/src/improvements/tasks/StackedSimulator.sol:StackedSimulator --sig "simulateStack(string,string,address)" "{{NETWORK}}" "{{TASK}}" "$child_safe_depth_1" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}}
     fi
     echo -e "\n⚠️ Please note: Some Tenderly links may not work when running a stacked simulation. Check out Tenderly's Virtual TestNets as a workaround.⚠️"
 
@@ -213,7 +216,7 @@ simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     fork_block_args=$(just --justfile "$root_just_file" _get-fork-block-args)
     
     echo -e "⏳ Simulating task: $task_name for network: '$network' on $target_safe\n"
-    forge script ${script_name} --sig "$sig" "${args[@]}" --ffi --rpc-url $ETH_RPC_URL --sender ${signer} ${fork_block_args}
+    forge script ${script_name} --sig "$sig" "${args[@]}" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} --sender ${signer} ${fork_block_args}
 
 sign CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     #!/usr/bin/env bash
@@ -250,12 +253,12 @@ sign CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
     
     # Validate that signer is an owner on the target safe
     echo "Validating signer is an owner on the safe..."
-    forge script TaskManager --rpc-url $ETH_RPC_URL --sig "requireSignerOnSafe(address,address)" $signer $target_safe_for_validation
+    forge script TaskManager --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} --sig "requireSignerOnSafe(address,address)" $signer $target_safe_for_validation
     
     echo "⏳ Task signing in progress..."
     forge build
     ${root_dir}/bin/eip712sign ${signer_args} -- \
-     forge script ${script_name} --sig "$sig" "${args[@]}" --ffi --rpc-url $ETH_RPC_URL
+     forge script ${script_name} --sig "$sig" "${args[@]}" --ffi --fork-url $ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} 
 
 approve CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
   #!/usr/bin/env bash
@@ -298,7 +301,9 @@ approve CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
 
   forge build
   forge script ${script_name} \
-    --rpc-url ${ETH_RPC_URL} \
+    --fork-url ${ETH_RPC_URL} \
+    --fork-retries {{forge_fork_retries}} \
+    --fork-retry-backoff {{forge_fork_retry_backoff}} \
     --broadcast \
     --sender ${sender} \
     --sig "approve(string,address[],bytes)" \
@@ -333,7 +338,9 @@ execute:
 
   forge build
   forge script ${script_name} \
-    --rpc-url ${ETH_RPC_URL} \
+    --fork-url ${ETH_RPC_URL} \
+    --fork-retries {{forge_fork_retries}} \
+    --fork-retry-backoff {{forge_fork_retry_backoff}} \
     --broadcast \
     --sender ${sender} \
     --sig "execute(string,bytes,address[])" \
@@ -430,7 +437,7 @@ _get-simulation-signer CONFIG_PATH ETH_RPC_URL CHILD_SAFE_DEPTH_1 CHILD_SAFE_DEP
         elif [ "{{CHILD_SAFE_DEPTH_1}}" != "$ZERO_ADDRESS" ]; then
             safe_for_signer="{{CHILD_SAFE_DEPTH_1}}" 
         else
-            safe_for_signer=$(forge script TaskManager --sig "getRootSafe(string)" "{{CONFIG_PATH}}" --rpc-url "{{ETH_RPC_URL}}" --json | jq -r '.returns["0"].value')
+            safe_for_signer=$(forge script TaskManager --sig "getRootSafe(string)" "{{CONFIG_PATH}}" --fork-url "{{ETH_RPC_URL}}" --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}}  --json | jq -r '.returns["0"].value')
         fi
         signer=$(cast call ${safe_for_signer} "getOwners()(address[])" -r "{{ETH_RPC_URL}}" | grep -oE '0x[a-fA-F0-9]{40}' | head -n1)
         echo "Simulating without ledger using first owner from safe ${safe_for_signer}: ${signer}" >&2
@@ -488,7 +495,7 @@ _build-simulate-args TASK_DIR_PATH CONFIG_PATH CHILD_SAFE_NAME_DEPTH_1 CHILD_SAF
         echo "sig=\"simulate(string)\""
         echo "args=(\"{{CONFIG_PATH}}\")"
         echo "target_safe=\"default safes\""
-        echo "target_safe_for_validation=\"\$(forge script TaskManager --sig 'getRootSafe(string)' '{{CONFIG_PATH}}' --rpc-url \$ETH_RPC_URL --json | jq -r '.returns[\"0\"].value')\""
+        echo "target_safe_for_validation=\"\$(forge script TaskManager --sig 'getRootSafe(string)' '{{CONFIG_PATH}}' --fork-url \$ETH_RPC_URL --fork-retries {{forge_fork_retries}} --fork-retry-backoff {{forge_fork_retry_backoff}} --json | jq -r '.returns[\"0\"].value')\""
     fi
 
 [no-cd]
