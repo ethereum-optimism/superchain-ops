@@ -1,6 +1,8 @@
 > **⚠️ Important Notice: System Upgrade (August 2025)**
 > 
 > The Superchain-ops system has undergone a significant upgrade. For access to historical executed tasks and previous system documentation, please refer to this [tag](https://github.com/ethereum-optimism/superchain-ops/tree/legacy-superchain-ops) for the archived tasks repository.
+>
+> • Need help? Reach out in [#superchain-ops](https://discord.com/channels/1244729134312198194/1342572064175030293) on Discord.
 
 # Superchain-ops Task System
 
@@ -41,13 +43,15 @@ just --justfile ../../justfile install
 
 2. Run tests:
 ```bash
-cd src/improvements/
+# Ensure you're in 'src/improvements/'
+# cd src/improvements/
 forge test # Run solidity tests.
 ```
 
 3. Create a new task:
 ```bash
-cd src/improvements/
+# Ensure you're in 'src/improvements/'
+# cd src/improvements/
 just new task
 ```
 
@@ -131,7 +135,7 @@ just --dotenv-path $(pwd)/.env simulate [child-safe-name-depth-1] [child-safe-na
   just --dotenv-path $(pwd)/.env simulate base-nested base-council
   ```
 
-> ℹ️ [custom-safe-name] refers to a Safe name defined manually by the task developer under the `[addresses]` table in the config.toml file.
+> ℹ️ [child-safe-name-depth-1] or [child-safe-name-depth-2] refers to a safe name defined manually by the task developer under the `[addresses]` table in the tasks config.toml file or under a given network (e.g. `[sep]`) in [`addresses.toml`](./src/improvements/addresses.toml) file.
 > Example: NestedSafe1 in [sep/001-opcm-upgrade-v200/config.toml](src/improvements/tasks/sep/001-opcm-upgrade-v200/config.toml).
 
 **For stacked simulation** (recommended - simulates dependencies):
