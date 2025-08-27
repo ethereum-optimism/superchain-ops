@@ -45,7 +45,9 @@ contract OPCMUpgradeV220toV400 is OPCMTaskBase {
     struct OPCMUpgrade {
         Claim absolutePrestate;
         uint256 chainId;
-        string expectedValidationErrors;
+        string expectedErrorsV220; // Expected Validation Errors for U13
+        string expectedErrorsV300; // Expected Validation Errors for U14/U15
+        string expectedErrorsV400; // Expected Validation Errors for U16
     }
 
     /// @notice Mapping from chain ID to upgrade parameters
@@ -92,7 +94,9 @@ contract OPCMUpgradeV220toV400 is OPCMTaskBase {
         for (uint256 i = 0; i < parsedUpgrades.length; i++) {
             console.log("Adding upgrade - chainID: %s", parsedUpgrades[i].chainId);
             console.logBytes32(Claim.unwrap(parsedUpgrades[i].absolutePrestate));
-            console.log("Expected errors: %s", parsedUpgrades[i].expectedValidationErrors);
+            console.log("Expected V220 errors: %s", parsedUpgrades[i].expectedErrorsV220);
+            console.log("Expected V300 errors: %s", parsedUpgrades[i].expectedErrorsV300);
+            console.log("Expected V400 errors: %s", parsedUpgrades[i].expectedErrorsV400);
             upgrades[parsedUpgrades[i].chainId] = parsedUpgrades[i];
         }
 
@@ -152,21 +156,22 @@ contract OPCMUpgradeV220toV400 is OPCMTaskBase {
         require(success1, "OPCMUpgradeV220: upgrade call failed in _build.");
 
         // === Validator for U13 ===
-        // for (uint256 i = 0; i < chains.length; i++) {
-        //     uint256 chainId = chains[i].chainId;
-        //     address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
-        //     address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            string memory expErrors = upgrades[chainId].expectedErrorsV220;
+            address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
+            address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
 
-        //     IStandardValidatorV200.InputV200 memory input = IStandardValidatorV200.InputV200({
-        //         proxyAdmin: proxyAdmin,
-        //         sysCfg: sysCfg,
-        //         absolutePrestate: OPCM_V220_PRESTATE,
-        //         l2ChainID: chainId
-        //     });
+            IStandardValidatorV200.InputV200 memory input = IStandardValidatorV200.InputV200({
+                proxyAdmin: proxyAdmin,
+                sysCfg: sysCfg,
+                absolutePrestate: OPCM_V220_PRESTATE,
+                l2ChainID: chainId
+            });
 
-        //     string memory errors = STANDARD_VALIDATOR_V200.validate(input, true);
-        //     require(bytes(errors).length == 0, string.concat("U13 validation failed: ", errors));
-        // }
+            string memory errors = STANDARD_VALIDATOR_V200.validate(input, true);
+            require(errors.eq(expErrors), string.concat("U13 validation failed: ", errors, "; expected: ", expErrors));
+        }
 
         // === Upgrade to U14 ===
         for (uint256 i = 0; i < chains.length; i++) {
@@ -182,21 +187,22 @@ contract OPCMUpgradeV220toV400 is OPCMTaskBase {
         require(success2, "OPCMUpgradeV300: upgrade call failed in _build.");
 
         // === Validator for U14 ===
-        // for (uint256 i = 0; i < chains.length; i++) {
-        //     uint256 chainId = chains[i].chainId;
-        //     address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
-        //     address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            string memory expErrors = upgrades[chainId].expectedErrorsV300;
+            address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
+            address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
 
-        //     IStandardValidatorV300.InputV300 memory input = IStandardValidatorV300.InputV300({
-        //         proxyAdmin: proxyAdmin,
-        //         sysCfg: sysCfg,
-        //         absolutePrestate: OPCM_V300_PRESTATE,
-        //         l2ChainID: chainId
-        //     });
+            IStandardValidatorV300.InputV300 memory input = IStandardValidatorV300.InputV300({
+                proxyAdmin: proxyAdmin,
+                sysCfg: sysCfg,
+                absolutePrestate: OPCM_V300_PRESTATE,
+                l2ChainID: chainId
+            });
 
-        //     string memory errors = STANDARD_VALIDATOR_V300.validate(input, true);
-        //     require(bytes(errors).length == 0, string.concat("U14 validation failed: ", errors));
-        // }
+            string memory errors = STANDARD_VALIDATOR_V300.validate(input, true);
+            require(errors.eq(expErrors), string.concat("U14 validation failed: ", errors, "; expected: ", expErrors));
+        }
 
         // === Upgrade to U15 ===
         for (uint256 i = 0; i < chains.length; i++) {
@@ -213,21 +219,22 @@ contract OPCMUpgradeV220toV400 is OPCMTaskBase {
         require(success3, "OPCM.updatePrestate() failed");
 
         // === Validator for U15 ===
-        // for (uint256 i = 0; i < chains.length; i++) {
-        //     uint256 chainId = chains[i].chainId;
-        //     address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
-        //     address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            string memory expErrors = upgrades[chainId].expectedErrorsV300;
+            address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
+            address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
 
-        //     IStandardValidatorV300.InputV300 memory input = IStandardValidatorV300.InputV300({
-        //         proxyAdmin: proxyAdmin,
-        //         sysCfg: sysCfg,
-        //         absolutePrestate: OPCM_V300_UPDATE_PRESTATE,
-        //         l2ChainID: chainId
-        //     });
+            IStandardValidatorV300.InputV300 memory input = IStandardValidatorV300.InputV300({
+                proxyAdmin: proxyAdmin,
+                sysCfg: sysCfg,
+                absolutePrestate: OPCM_V300_UPDATE_PRESTATE,
+                l2ChainID: chainId
+            });
 
-        //     string memory errors = STANDARD_VALIDATOR_V300.validate(input, true);
-        //     require(bytes(errors).length == 0, string.concat("U15 validation failed: ", errors));
-        // }
+            string memory errors = STANDARD_VALIDATOR_V300.validate(input, true);
+            require(errors.eq(expErrors), string.concat("U15 validation failed: ", errors, "; expected: ", expErrors));
+        }
 
         // === Upgrade to U16 ===
         for (uint256 i = 0; i < chains.length; i++) {
@@ -247,25 +254,24 @@ contract OPCMUpgradeV220toV400 is OPCMTaskBase {
 
     /// @notice Validates final post-upgrade state
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
-        // SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
-        // for (uint256 i = 0; i < chains.length; i++) {
-        //     uint256 chainId = chains[i].chainId;
-        //     bytes32 expAbsolutePrestate = Claim.unwrap(upgrades[chainId].absolutePrestate);
-        //     string memory expErrors = upgrades[chainId].expectedValidationErrors;
-        //     address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
-        //     address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
+        SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
+        for (uint256 i = 0; i < chains.length; i++) {
+            uint256 chainId = chains[i].chainId;
+            bytes32 expAbsolutePrestate = Claim.unwrap(upgrades[chainId].absolutePrestate);
+            string memory expErrors = upgrades[chainId].expectedErrorsV400;
+            address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
+            address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
 
-        //     IStandardValidatorV400.InputV400 memory input = IStandardValidatorV400.InputV400({
-        //         proxyAdmin: proxyAdmin,
-        //         sysCfg: sysCfg,
-        //         absolutePrestate: expAbsolutePrestate,
-        //         l2ChainID: chainId
-        //     });
+            IStandardValidatorV400.InputV400 memory input = IStandardValidatorV400.InputV400({
+                proxyAdmin: proxyAdmin,
+                sysCfg: sysCfg,
+                absolutePrestate: expAbsolutePrestate,
+                l2ChainID: chainId
+            });
 
-        //     string memory errors = STANDARD_VALIDATOR_V400.validate({_input: input, _allowFailure: true});
-
-        //     require(errors.eq(expErrors), string.concat("Unexpected errors: ", errors, "; expected: ", expErrors));
-        // }
+            string memory errors = STANDARD_VALIDATOR_V400.validate(input, true);
+            require(errors.eq(expErrors), string.concat("U16 validation failed: ", errors, "; expected: ", expErrors));
+        }
     }
 
     /// @notice No code exceptions for this template
