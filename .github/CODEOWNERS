@@ -2,10 +2,4 @@
 
 /runbooks @ethereum-optimism/devrel @ethereum-optimism/evm-safety
 
-/tasks/eth          @ethereum-optimism/evm-safety
-/tasks/oeth         @ethereum-optimism/evm-safety
-
-/tasks/sep*    @ethereum-optimism/contract-reviewers @ethereum-optimism/evm-safety @ethereum-optimism/coinbase @ethereum-optimism/devrel
-
-/script             @ethereum-optimism/contract-reviewers @ethereum-optimism/evm-safety
 /src                @ethereum-optimism/contract-reviewers @ethereum-optimism/evm-safety
