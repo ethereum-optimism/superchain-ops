@@ -2,7 +2,7 @@
 > 
 > The Superchain-ops system has undergone a significant upgrade. For access to historical executed tasks and previous system documentation, please refer to this [tag](https://github.com/ethereum-optimism/superchain-ops/tree/legacy-superchain-ops) for the archived tasks repository.
 >
-> • Need help? Reach out in [#superchain-ops](https://discord.com/channels/1244729134312198194/1342572064175030293) on Discord.
+> • Need help? [Create an issue](https://github.com/ethereum-optimism/superchain-ops/issues) on this repo.
 
 # Superchain-ops Task System
 
