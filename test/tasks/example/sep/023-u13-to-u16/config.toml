@@ -28,7 +28,6 @@ StandardValidatorV300 = "0x2d56022cb84ce6b961c3b4288ca36386bcd9024c"
 OPCMUpgradeV400 = "0x1ac76f0833bbfccc732cadcc3ba8a3bbd0e89c3d" # version 2.4.0 https://github.com/ethereum-optimism/superchain-registry/blob/212c60902834aba05d73d33bc2fcefc21fc3a7af/validation/standard/standard-versions-mainnet.toml#L22
 StandardValidatorV400 = "0xaaabe70a4198ab9e99e1a22b1afa0a43cc7f2c79"
 
-
 [stateOverrides]
 0x1Eb2fFc903729a0F03966B917003800b145F56E2 = [
     { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 32 }
@@ -40,14 +39,4 @@ StandardValidatorV400 = "0xaaabe70a4198ab9e99e1a22b1afa0a43cc7f2c79"
 
 0xf64bc17485f0B4Ea5F06A96514182FC4cB561977 = [
     { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 43 }
-]
-
-# Override the SuperchainConfig implementation address. This is necessary to prevent an attempt to
-# upgrade the SuperchainConfig by the wrong L1 ProxyAdmin owner.
-0xC2Be75506d5724086DEB7245bd260Cc9753911Be = [
-    {key = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc", value = "0x000000000000000000000000ce28685eb204186b557133766eca00334eb441e4"}
-]
-# 'isRC' flag on OPCM needs to be set here because 014-U16-opcm-upgrade-v400-op-ink sets it.
-0x1ac76f0833bbfccc732cadcc3ba8a3bbd0e89c3d = [
-     {key = "0x0000000000000000000000000000000000000000000000000000000000000001", value = "0x0000000000000000000000000000000000000000000000000000000000000000"}
 ]

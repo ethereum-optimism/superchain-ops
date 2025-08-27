@@ -18,6 +18,7 @@ import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegis
 import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice This template supports OPCMV200 upgrade tasks.
+/// Supports: op-contracts/v1.8.0
 contract OPCMUpgradeV200 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;

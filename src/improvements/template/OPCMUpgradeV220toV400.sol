@@ -6,14 +6,11 @@ import {
     ISystemConfig,
     IProxyAdmin
 } from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
-
 import {IStandardValidatorV200} from "@eth-optimism-bedrock/interfaces/L1/IStandardValidator.sol";
 import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
-
-import {console2 as console} from "forge-std/console2.sol";
 
 import {OPCMTaskBase} from "src/improvements/tasks/types/OPCMTaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
@@ -21,6 +18,7 @@ import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice Use this template for chains that are on U12 and need to be upgraded to U16 (inclusive).
 ///         The template applies each required OPCM upgrade step (U13, U14, U15, U16) in sequence.
+/// Supports: op-contracts/v1.8.0
 contract OPCMUpgradeV220toV400 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
@@ -92,11 +90,6 @@ contract OPCMUpgradeV220toV400 is OPCMTaskBase {
 
         OPCMUpgrade[] memory parsedUpgrades = abi.decode(tomlContent.parseRaw(".opcmUpgrades"), (OPCMUpgrade[]));
         for (uint256 i = 0; i < parsedUpgrades.length; i++) {
-            console.log("Adding upgrade - chainID: %s", parsedUpgrades[i].chainId);
-            console.logBytes32(Claim.unwrap(parsedUpgrades[i].absolutePrestate));
-            console.log("Expected V220 errors: %s", parsedUpgrades[i].expectedErrorsV220);
-            console.log("Expected V300 errors: %s", parsedUpgrades[i].expectedErrorsV300);
-            console.log("Expected V400 errors: %s", parsedUpgrades[i].expectedErrorsV400);
             upgrades[parsedUpgrades[i].chainId] = parsedUpgrades[i];
         }
 
@@ -159,14 +152,11 @@ contract OPCMUpgradeV220toV400 is OPCMTaskBase {
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
             string memory expErrors = upgrades[chainId].expectedErrorsV220;
-            address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
-            address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
-
             IStandardValidatorV200.InputV200 memory input = IStandardValidatorV200.InputV200({
-                proxyAdmin: proxyAdmin,
-                sysCfg: sysCfg,
+                proxyAdmin: superchainAddrRegistry.getAddress("ProxyAdmin", chainId),
+                sysCfg: superchainAddrRegistry.getAddress("SystemConfigProxy", chainId),
                 absolutePrestate: OPCM_V220_PRESTATE,
-                l2ChainID: chainId
+                l2ChainID: chains[i].chainId
             });
 
             string memory errors = STANDARD_VALIDATOR_V200.validate(input, true);
@@ -190,12 +180,9 @@ contract OPCMUpgradeV220toV400 is OPCMTaskBase {
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
             string memory expErrors = upgrades[chainId].expectedErrorsV300;
-            address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
-            address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
-
             IStandardValidatorV300.InputV300 memory input = IStandardValidatorV300.InputV300({
-                proxyAdmin: proxyAdmin,
-                sysCfg: sysCfg,
+                proxyAdmin: superchainAddrRegistry.getAddress("ProxyAdmin", chainId),
+                sysCfg: superchainAddrRegistry.getAddress("SystemConfigProxy", chainId),
                 absolutePrestate: OPCM_V300_PRESTATE,
                 l2ChainID: chainId
             });
@@ -216,18 +203,16 @@ contract OPCMUpgradeV220toV400 is OPCMTaskBase {
 
         (bool success3,) =
             OPCM_V300.delegatecall(abi.encodeWithSelector(IOPCMPrestateUpdate.updatePrestate.selector, opChainConfigs));
-        require(success3, "OPCM.updatePrestate() failed");
+        require(success3, "OPCMUpgradeV300: updatePrestate call failed in _build.");
 
         // === Validator for U15 ===
         for (uint256 i = 0; i < chains.length; i++) {
             uint256 chainId = chains[i].chainId;
             string memory expErrors = upgrades[chainId].expectedErrorsV300;
-            address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
-            address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
 
             IStandardValidatorV300.InputV300 memory input = IStandardValidatorV300.InputV300({
-                proxyAdmin: proxyAdmin,
-                sysCfg: sysCfg,
+                proxyAdmin: superchainAddrRegistry.getAddress("ProxyAdmin", chainId),
+                sysCfg: superchainAddrRegistry.getAddress("SystemConfigProxy", chainId),
                 absolutePrestate: OPCM_V300_UPDATE_PRESTATE,
                 l2ChainID: chainId
             });
@@ -249,7 +234,7 @@ contract OPCMUpgradeV220toV400 is OPCMTaskBase {
         // Delegatecall the OPCM.upgrade() function
         (bool success4,) =
             OPCM_V400.delegatecall(abi.encodeWithSelector(IOPContractsManager.upgrade.selector, opChainConfigs));
-        require(success4, "OPCMUpgradeV400: Delegatecall failed in _build.");
+        require(success4, "OPCMUpgradeV400: upgrade call failed in _build.");
     }
 
     /// @notice Validates final post-upgrade state
@@ -259,12 +244,10 @@ contract OPCMUpgradeV220toV400 is OPCMTaskBase {
             uint256 chainId = chains[i].chainId;
             bytes32 expAbsolutePrestate = Claim.unwrap(upgrades[chainId].absolutePrestate);
             string memory expErrors = upgrades[chainId].expectedErrorsV400;
-            address proxyAdmin = superchainAddrRegistry.getAddress("ProxyAdmin", chainId);
-            address sysCfg = superchainAddrRegistry.getAddress("SystemConfigProxy", chainId);
 
             IStandardValidatorV400.InputV400 memory input = IStandardValidatorV400.InputV400({
-                proxyAdmin: proxyAdmin,
-                sysCfg: sysCfg,
+                proxyAdmin: superchainAddrRegistry.getAddress("ProxyAdmin", chainId),
+                sysCfg: superchainAddrRegistry.getAddress("SystemConfigProxy", chainId),
                 absolutePrestate: expAbsolutePrestate,
                 l2ChainID: chainId
             });
@@ -283,7 +266,6 @@ interface IOPCMPrestateUpdate {
 }
 
 /// @notice Validator interfaces
-
 interface IStandardValidatorV300 {
     struct InputV300 {
         address proxyAdmin;
