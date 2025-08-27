@@ -33,3 +33,6 @@ test/tasks/stacked-sim-testing/
 
 # tmp config.toml files for testing
 test-config-files/
+
+# lcov.info files from 'forge coverage --report lcov'
+lcov.info

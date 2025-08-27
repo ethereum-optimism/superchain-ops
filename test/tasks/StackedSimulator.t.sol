@@ -4,10 +4,9 @@ pragma solidity 0.8.15;
 import {Test} from "forge-std/Test.sol";
 import {StackedSimulator} from "src/improvements/tasks/StackedSimulator.sol";
 import {LibString} from "@solady/utils/LibString.sol";
-import {IDisputeGameFactory, GameType} from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {SimpleStorage} from "test/tasks/mock/template/StackSimulationTestTemplate.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
-import {console} from "forge-std/console.sol";
+import {Proxy} from "@eth-optimism-bedrock/src/universal/Proxy.sol";
 
 contract StackedSimulatorUnitTest is Test {
     using LibString for string;
@@ -15,9 +14,8 @@ contract StackedSimulatorUnitTest is Test {
     /// @notice The directory containing the test tasks.
     string internal testDirectory;
 
-    /// @notice The op mainnet address of the dispute game factory (block 22162525).
-    /// https://github.com/ethereum-optimism/superchain-registry/blob/5f5334768fd1dab6e31132020c374e575c632074/superchain/configs/mainnet/op.toml#L62
-    address internal disputeGameFactory = 0xe5965Ab5962eDc7477C8520243A95517CD252fA9;
+    /// @notice The op mainnet address of the optimism portal proxy.
+    address internal optimismPortalProxy = 0xbEb5Fc579115071764c7423A4f12eDde41f106Ed;
 
     address internal rootSafe = 0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A;
     address internal childMultisig = 0x847B5c174615B1B7fDF770882256e2D3E95b9D92; // foundation
@@ -37,18 +35,19 @@ contract StackedSimulatorUnitTest is Test {
 
         // Assert that the last tasks state change is the latest state change.
         address expectedImpl = makeAddr("001-task-name");
-        assertEq(address(IDisputeGameFactory(disputeGameFactory).gameImpls(GameType.wrap(0))), expectedImpl);
+        vm.prank(address(0));
+        assertEq(address(Proxy(payable(optimismPortalProxy)).implementation()), expectedImpl);
     }
 
     function testSimulateStackedTasks_AllTasks() public {
         StackedSimulator ss = new StackedSimulator();
         createTestTasks("eth_001", 3, 100);
-        console.log("StackedSimulatorUnitTest: testSimulateStackedTasks_AllTasks");
         ss.simulateStack("eth_001", "101-task-name");
 
         // Assert that the last tasks state change is the latest state change.
         address expectedImpl = makeAddr("101-task-name");
-        assertEq(address(IDisputeGameFactory(disputeGameFactory).gameImpls(GameType.wrap(0))), expectedImpl);
+        vm.prank(address(0));
+        assertEq(address(Proxy(payable(optimismPortalProxy)).implementation()), expectedImpl);
     }
 
     function testGetNonTerminalTasks_NoTask() public {
@@ -330,6 +329,121 @@ contract StackedSimulatorUnitTest is Test {
         assertEq(sorted.length, 0);
     }
 
+    function testListStack_NoTasks() public {
+        StackedSimulator ss = new StackedSimulator();
+        uint256 taskCount = ss.listStack("fake-network");
+        assertEq(taskCount, 0);
+    }
+
+    function testListStack_WithTasks() public {
+        StackedSimulator ss = new StackedSimulator();
+        createTestTasks("eth_011", 2, 400);
+        uint256 taskCount = ss.listStack("eth_011");
+        assertEq(taskCount, 2);
+    }
+
+    function testListStack_WithSpecificTask() public {
+        StackedSimulator ss = new StackedSimulator();
+        createTestTasks("eth_012", 3, 500);
+        uint256 taskCount = ss.listStack("eth_012", "501-task-name");
+        assertEq(taskCount, 2); // Should return tasks 500 and 501
+    }
+
+    function testListStack_WithSpecificTaskNotFound() public {
+        StackedSimulator ss = new StackedSimulator();
+        createTestTasks("eth_013", 2, 600);
+        vm.expectRevert("StackedSimulator: Task not found in non-terminal tasks");
+        ss.listStack("eth_013", "999-task-name");
+    }
+
+    function testSimulateStack_WithChildSafe() public {
+        StackedSimulator ss = new StackedSimulator();
+        createTestTasks("eth_014", 1, 700);
+        ss.simulateStack("eth_014", "700-task-name", childMultisig);
+    }
+
+    function testSimulateStack_WithZeroAddressChildSafe() public {
+        StackedSimulator ss = new StackedSimulator();
+        createTestTasks("eth_016", 1, 900);
+        vm.expectRevert("StackedSimulator: Child safe must be provided.");
+        ss.simulateStack("eth_016", "900-task-name", address(0));
+    }
+
+    function testSimulateStack_WithZeroAddressChildSafes() public {
+        StackedSimulator ss = new StackedSimulator();
+        createTestTasks("eth_017", 1, 950);
+        vm.expectRevert("StackedSimulator: Both child safes must be provided.");
+        ss.simulateStack("eth_017", "950-task-name", address(0), address(0));
+    }
+
+    function testSimulateStack_WithOneZeroAddressChildSafe() public {
+        StackedSimulator ss = new StackedSimulator();
+        createTestTasks("eth_018", 1, 960);
+        vm.expectRevert("StackedSimulator: Both child safes must be provided.");
+        ss.simulateStack("eth_018", "960-task-name", address(1), address(0));
+    }
+
+    function testSimulateStack_WithOnlyNetwork() public {
+        StackedSimulator ss = new StackedSimulator();
+        createTestTasks("eth_019", 1, 970);
+        ss.simulateStack("eth_019");
+    }
+
+    function testConvertPrefixToUint_ExactThreeCharacters() public {
+        StackedSimulator ss = new StackedSimulator();
+        uint256 result = ss.convertPrefixToUint("123-task-name");
+        assertEq(result, 123, "Should handle exactly 3 characters");
+    }
+
+    function testConvertPrefixToUint_LeadingZeros() public {
+        StackedSimulator ss = new StackedSimulator();
+        uint256 result = ss.convertPrefixToUint("007-task-name");
+        assertEq(result, 7, "Should handle leading zeros correctly");
+    }
+
+    function testConvertPrefixToUint_ZeroPrefix() public {
+        StackedSimulator ss = new StackedSimulator();
+        uint256 result = ss.convertPrefixToUint("000-task-name");
+        assertEq(result, 0, "Should handle zero prefix correctly");
+    }
+
+    function testConvertPrefixToUint_MaxValidPrefix() public {
+        StackedSimulator ss = new StackedSimulator();
+        uint256 result = ss.convertPrefixToUint("999-task-name");
+        assertEq(result, 999, "Should handle maximum valid prefix");
+    }
+
+    function testConvertPrefixToUint_InvalidLength() public {
+        StackedSimulator ss = new StackedSimulator();
+        vm.expectRevert("StackedSimulator: Prefix must have 3 characters.");
+        ss.convertPrefixToUint("12-task-name"); // Only 2 characters
+    }
+
+    function testConvertPrefixToUint_TooLongPrefix() public {
+        StackedSimulator ss = new StackedSimulator();
+        vm.expectRevert("StackedSimulator: Prefix must have 3 characters.");
+        ss.convertPrefixToUint("1234-task-name"); // 4 characters
+    }
+
+    function testConvertPrefixToUint_NoHyphen() public {
+        StackedSimulator ss = new StackedSimulator();
+        // The validation order is: length check first, then hyphen check
+        vm.expectRevert("StackedSimulator: Prefix must have 3 characters.");
+        ss.convertPrefixToUint("123taskname"); // No hyphen, but also wrong length
+    }
+
+    function testConvertPrefixToUint_EmptyString() public {
+        StackedSimulator ss = new StackedSimulator();
+        vm.expectRevert("StackedSimulator: Task name must not be empty.");
+        ss.convertPrefixToUint(""); // Empty string
+    }
+
+    function testConvertPrefixToUint_HexString() public {
+        StackedSimulator ss = new StackedSimulator();
+        vm.expectRevert("StackedSimulator: Does not support hex strings.");
+        ss.convertPrefixToUint("0x1-task-name"); // Hex string
+    }
+
     function testSortTasksLargeNumbers() public {
         StackedSimulator ss = new StackedSimulator();
         StackedSimulator.TaskInfo[] memory input = new StackedSimulator.TaskInfo[](3);
@@ -351,15 +465,15 @@ contract StackedSimulatorUnitTest is Test {
     }
 
     /// @notice Creates a set of tasks that can be used to test the StackedSimulator.
-    /// These tasks use the DisputeGameUpgradeTemplate. For each task, a different implementation is created.
     /// This helps asserting that the StackedSimulator is correctly simulating the tasks in the correct order.
     function createTestTasks(string memory network, uint256 amount, uint256 startTaskIndex)
         internal
         returns (string[] memory taskNames_)
     {
         string memory commonToml = "l2chains = [{name = \"OP Mainnet\", chainId = 10}]\n" "\n"
-            "templateName = \"DisputeGameUpgradeTemplate\"\n" "\n";
-        bytes memory fdpCode = address(IDisputeGameFactory(disputeGameFactory).gameImpls(GameType.wrap(0))).code;
+            "templateName = \"SetEIP1967Implementation\"\n contractIdentifier = \"OptimismPortalProxy\"\n";
+        vm.prank(address(0));
+        bytes memory portalImplCode = address(Proxy(payable(optimismPortalProxy)).implementation()).code;
 
         taskNames_ = new string[](amount);
         for (uint256 i = 0; i < amount; i++) {
@@ -368,14 +482,10 @@ contract StackedSimulatorUnitTest is Test {
             taskNames_[i] = taskName;
             _setupTaskDir(taskDir);
 
-            address customImplAddr = makeAddr(taskName); // Predictable address for testing assertions.
-            vm.etch(customImplAddr, fdpCode); // Etch fault dispute game code to the custom impl address.
-            string memory toml = string.concat(
-                commonToml,
-                "implementations = [{gameType = 0, implementation = \"",
-                LibString.toHexString(customImplAddr),
-                "\", l2ChainId = 10}]\n"
-            );
+            address newImplementation = makeAddr(taskName);
+            vm.etch(newImplementation, portalImplCode);
+            string memory toml =
+                string.concat(commonToml, "newImplementation = \"", LibString.toHexString(newImplementation), "\"\n");
             vm.writeFile(string.concat(taskDir, "/config.toml"), toml);
         }
     }
