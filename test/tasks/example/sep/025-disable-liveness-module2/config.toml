@@ -1,0 +1,7 @@
+templateName = "DisableLivenessModule2Template"
+
+livenessModule2 = "0xbeccf462fdbae7fc68eb83d4139a6c9d3d305e67"
+safeAddressString = "SecurityCouncilSafe"
+
+[addresses]
+"SecurityCouncilSafe" = "0xcBC62730b54BFE94173B1182FA56Db1393451d4e"
