@@ -18,6 +18,10 @@ This will create a new Solidity file in `src/improvements/template/` with the ba
 Once a new template has been created and tested from the command line as a forge script, it should be tested in the [regression test suite](../../../test/tasks/Regression.t.sol). Follow the existing examples to add a new test case for the template. 
 
 1. Create a new task that uses the new template in the `test/tasks/example/sep` directory.
+   1. Make sure the test task has a `.env` file with the following environment variables included:
+      1. `FORK_BLOCK_NUMBER` *(required)* is the block number on the given network that the task will be simulated on.
+      2. `NESTED_SAFE_NAME_DEPTH_1` *(optional)* if the task is nested. This must be a safe name e.g. `foundation`, `council` or `chain-governor`, etc.
+      3. `NESTED_SAFE_NAME_DEPTH_2` *(optional)* if the task is has multiple levels of nesting. This must be a safe name e.g. `base-council`, etc.
 2. Copy an existing test case inside `Regression.t.sol` that uses a similar template as a starting point.
 3. Make sure your new test case uses the new example task that you created in step 1.
 4. Make sure to pin the block number in the test case to avoid intermittent failures (you can do this using the `.env` file).

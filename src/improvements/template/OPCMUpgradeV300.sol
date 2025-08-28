@@ -17,6 +17,7 @@ import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegis
 import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice This template supports OPCMV300 upgrade tasks.
+/// Supports: op-contracts/v2.0.0
 contract OPCMUpgradeV300 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
@@ -59,7 +60,8 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
             upgrades[_upgrades[i].chainId] = _upgrades[i];
         }
 
-        OPCM = tomlContent.readAddress(".addresses.OPCM");
+        address OPCM = tomlContent.readAddress(".addresses.OPCM");
+        OPCM_TARGETS.push(OPCM);
         require(OPCM.code.length > 0, "Incorrect OPCM - no code at address");
         require(IOPContractsManager(OPCM).version().eq("1.9.0"), "Incorrect OPCM - expected version 1.9.0");
         vm.label(OPCM, "OPCM");
@@ -95,7 +97,7 @@ contract OPCMUpgradeV300 is OPCMTaskBase {
             });
         }
 
-        (bool success,) = OPCM.delegatecall(abi.encodeCall(IOPContractsManager.upgrade, (opChainConfigs)));
+        (bool success,) = OPCM_TARGETS[0].delegatecall(abi.encodeCall(IOPContractsManager.upgrade, (opChainConfigs)));
         require(success, "OPCMUpgradeV300: upgrade call failed in _build.");
     }
 

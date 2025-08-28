@@ -17,7 +17,7 @@ import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegis
 import {Action} from "src/libraries/MultisigTypes.sol";
 
 /// @notice A template contract for configuring OPCMTaskBase templates.
-/// Supports: op-contracts/v4.0.0-rc.2>
+/// Supports: op-contracts/v4.0.0-rc.2
 contract OPCMUpgradeV400 is OPCMTaskBase {
     using stdToml for string;
     using LibString for string;
@@ -71,7 +71,8 @@ contract OPCMUpgradeV400 is OPCMTaskBase {
             upgrades[_upgrades[i].chainId] = _upgrades[i];
         }
 
-        OPCM = tomlContent.readAddress(".addresses.OPCM");
+        address OPCM = tomlContent.readAddress(".addresses.OPCM");
+        OPCM_TARGETS.push(OPCM);
         require(IOPContractsManager(OPCM).version().eq("2.4.0"), "Incorrect OPCM");
         vm.label(OPCM, "OPCM");
 
@@ -107,7 +108,7 @@ contract OPCMUpgradeV400 is OPCMTaskBase {
 
         // Delegatecall the OPCM.upgrade() function
         (bool success,) =
-            OPCM.delegatecall(abi.encodeWithSelector(IOPContractsManager.upgrade.selector, opChainConfigs));
+            OPCM_TARGETS[0].delegatecall(abi.encodeWithSelector(IOPContractsManager.upgrade.selector, opChainConfigs));
         require(success, "OPCMUpgradeV400: Delegatecall failed in _build.");
     }
 
