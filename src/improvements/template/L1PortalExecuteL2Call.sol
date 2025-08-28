@@ -91,24 +91,13 @@ contract L1PortalExecuteL2Call is SimpleTaskBase {
     /// @notice Build the portal deposit action. WARNING: State changes here are reverted after capture.
     function _build(address) internal override {
         // Record the L1 portal call with value for action extraction.
-        IOptimismPortal2(portal).depositTransaction{value: valueWei}(
-            l2Target,
-            valueWei,
-            gasLimit,
-            isCreation,
-            l2Data
-        );
+        IOptimismPortal2(portal).depositTransaction{value: valueWei}(l2Target, valueWei, gasLimit, isCreation, l2Data);
     }
 
     /// @notice Validate that exactly one action to the portal with the expected calldata and value was captured.
     function _validate(VmSafe.AccountAccess[] memory, Action[] memory _actions, address) internal override {
         bytes memory _expected = abi.encodeWithSelector(
-            IOptimismPortal2.depositTransaction.selector,
-            l2Target,
-            valueWei,
-            gasLimit,
-            isCreation,
-            l2Data
+            IOptimismPortal2.depositTransaction.selector, l2Target, valueWei, gasLimit, isCreation, l2Data
         );
 
         bool _found;
