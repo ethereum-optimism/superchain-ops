@@ -6,7 +6,6 @@ import {
     ISystemConfig,
     IProxyAdmin
 } from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
-import {IStandardValidatorV200} from "@eth-optimism-bedrock/interfaces/L1/IStandardValidator.sol";
 import {IOPContractsManager} from "lib/optimism/packages/contracts-bedrock/interfaces/L1/IOPContractsManager.sol";
 import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {VmSafe} from "forge-std/Vm.sol";
@@ -16,6 +15,103 @@ import {LibString} from "solady/utils/LibString.sol";
 import {OPCMTaskBase} from "../tasks/types/OPCMTaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
+
+interface ISuperchainConfig {
+    enum UpdateType {
+        GUARDIAN
+    }
+
+    event ConfigUpdate(UpdateType indexed updateType, bytes data);
+    event Initialized(uint8 version);
+    event Paused(address identifier);
+    event Unpaused(address identifier);
+
+    error SuperchainConfig_OnlyGuardian();
+    error SuperchainConfig_AlreadyPaused(address identifier);
+    error ReinitializableBase_ZeroInitVersion();
+
+    function guardian() external view returns (address);
+    function initialize(address _guardian) external;
+    function upgrade() external;
+    function pause(address _identifier) external;
+    function unpause(address _identifier) external;
+    function pausable(address _identifier) external view returns (bool);
+    function paused(address _identifier) external view returns (bool);
+    function expiration(address _identifier) external view returns (uint256);
+    function extend(address _identifier) external;
+    function version() external view returns (string memory);
+    function pauseTimestamps(address) external view returns (uint256);
+    function pauseExpiry() external view returns (uint256);
+    function initVersion() external view returns (uint8);
+
+    function __constructor__() external;
+}
+
+interface IStandardValidatorBase {
+    struct ImplementationsBase {
+        address l1ERC721BridgeImpl;
+        address optimismPortalImpl;
+        address systemConfigImpl;
+        address optimismMintableERC20FactoryImpl;
+        address l1CrossDomainMessengerImpl;
+        address l1StandardBridgeImpl;
+        address disputeGameFactoryImpl;
+        address anchorStateRegistryImpl;
+        address delayedWETHImpl;
+        address mipsImpl;
+    }
+
+    function anchorStateRegistryImpl() external view returns (address);
+    function anchorStateRegistryVersion() external pure returns (string memory);
+    function challenger() external view returns (address);
+    function delayedWETHImpl() external view returns (address);
+    function delayedWETHVersion() external pure returns (string memory);
+    function disputeGameFactoryImpl() external view returns (address);
+    function disputeGameFactoryVersion() external pure returns (string memory);
+    function l1CrossDomainMessengerImpl() external view returns (address);
+    function l1CrossDomainMessengerVersion() external pure returns (string memory);
+    function l1ERC721BridgeImpl() external view returns (address);
+    function l1ERC721BridgeVersion() external pure returns (string memory);
+    function l1PAOMultisig() external view returns (address);
+    function l1StandardBridgeImpl() external view returns (address);
+    function l1StandardBridgeVersion() external pure returns (string memory);
+    function mipsImpl() external view returns (address);
+    function mipsVersion() external pure returns (string memory);
+    function optimismMintableERC20FactoryImpl() external view returns (address);
+    function optimismMintableERC20FactoryVersion() external pure returns (string memory);
+    function optimismPortalImpl() external view returns (address);
+    function optimismPortalVersion() external pure returns (string memory);
+    function permissionedDisputeGameVersion() external pure returns (string memory);
+    function preimageOracleVersion() external pure returns (string memory);
+    function protocolVersions() external view returns (address);
+    function protocolVersionsImpl() external view returns (address);
+    function protocolVersionsVersion() external pure returns (string memory);
+    function superchainConfig() external view returns (address);
+    function superchainConfigImpl() external view returns (address);
+    function superchainConfigVersion() external pure returns (string memory);
+    function systemConfigImpl() external view returns (address);
+    function systemConfigVersion() external pure returns (string memory);
+    function withdrawalDelaySeconds() external view returns (uint256);
+}
+
+interface IStandardValidatorV200 is IStandardValidatorBase {
+    struct InputV200 {
+        address proxyAdmin;
+        address sysCfg;
+        bytes32 absolutePrestate;
+        uint256 l2ChainID;
+    }
+
+    function validate(InputV200 memory _input, bool _allowFailure) external view returns (string memory);
+
+    function __constructor__(
+        IStandardValidatorBase.ImplementationsBase memory _implementations,
+        ISuperchainConfig _superchainConfig,
+        address _l1PAOMultisig,
+        address _challenger,
+        uint256 _withdrawalDelaySeconds
+    ) external;
+}
 
 /// @notice This template supports OPCMV200 upgrade tasks.
 /// Supports: op-contracts/v1.8.0
