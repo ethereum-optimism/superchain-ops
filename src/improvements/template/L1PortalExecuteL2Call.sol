@@ -78,13 +78,9 @@ contract L1PortalExecuteL2Call is SimpleTaskBase {
 
         // Optional fields
         valueWei = 0;
-        try vm.parseTomlString(_toml, ".value") returns (string memory) {
-            // If present as string, prefer numeric below; keep compatibility.
-        } catch {
-            try vm.parseTomlUint(_toml, ".value") returns (uint256 _v) {
-                valueWei = _v;
-            } catch {}
-        }
+        try vm.parseTomlUint(_toml, ".value") returns (uint256 _v) {
+            valueWei = _v;
+        } catch {}
 
         isCreation = false;
         try vm.parseTomlBool(_toml, ".isCreation") returns (bool _b) {
@@ -134,4 +130,3 @@ contract L1PortalExecuteL2Call is SimpleTaskBase {
         return new address[](0);
     }
 }
-
