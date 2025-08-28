@@ -12,7 +12,6 @@ name = "Mode Testnet"
 chainId = 919
 # prestates."1.6.1-rc.1
 # https://github.com/ethereum-optimism/superchain-registry/blob/d82a61168fd1d7ef522ed8e213ce23c853031495/validation/standard/standard-prestates.toml#L6
-# Expected errors mapping can be found here: https://github.com/ethereum-optimism/optimism/blob/95ce6f1805c751ec8ce4729e99681bdc09929b94/op-validator/pkg/validations/codes.go#L3C5-L14C10
 absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
 expectedErrorsV220 = "SYSCON-20,PDDG-50,PDDG-DWETH-40,PDDG-ANCHORP-40,PLDG-10"
 expectedErrorsV300 = "PDDG-ANCHORP-40,PLDG-10"
