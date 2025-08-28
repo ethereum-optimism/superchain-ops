@@ -1,0 +1,13 @@
+templateName = "L1PortalExecuteL2Call"
+
+# Portal + L2 call params
+portal = "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed" # L1 OptimismPortal
+l2Target = "0x1234567890123456789012345678901234567890" # replace with real OptimismGovernor Proxy
+l2Data = "0x3659cfe60000000000000000000000000000000000000000000000000000000000001234" # upgradeTo(0x00..1234)
+gasLimit = 500000
+value = 0
+isCreation = false
+
+[addresses]
+ProxyAdminOwner = "0x5a0Aae59D09fccBdDb6C6CcEB07B7279367C3d2A"
+OptimismPortal = "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed"
