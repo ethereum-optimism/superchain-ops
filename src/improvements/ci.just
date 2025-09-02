@@ -15,7 +15,7 @@ simulate-all-templates:
     simulation_count=0
     # When we spawn too many concurrent processes, the simulation fails with 'solc exited with signal: 9 (SIGKILL)'.
     # The batch size should be low enough to not cause issues, but high enough to not make the simulation too slow.
-    batch_size=13
+    batch_size=7
     current_batch=0
 
     # Collect PIDs of each background simulation.

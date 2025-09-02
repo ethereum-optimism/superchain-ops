@@ -7,6 +7,8 @@ import {LibString} from "@solady/utils/LibString.sol";
 import {IGnosisSafe} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
 library Utils {
+    using LibString for string;
+
     VmSafe private constant vm = VmSafe(address(uint160(uint256(keccak256("hevm cheat code")))));
 
     /// @notice Helper function to simplify feature-flagging by reading an environment variable
@@ -14,6 +16,10 @@ library Utils {
     /// @return bool True if the feature is enabled (env var is true or 1), false otherwise
     function isFeatureEnabled(string memory _feature) internal view returns (bool) {
         return vm.envOr(_feature, false) || vm.envOr(_feature, uint256(0)) == 1;
+    }
+
+    function isCiFoundryProfile() internal view returns (bool) {
+        return vm.envOr("FOUNDRY_PROFILE", string("")).eq("ci");
     }
 
     /// @notice Checks that values have code on this chain.

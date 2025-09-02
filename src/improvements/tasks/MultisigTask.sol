@@ -767,9 +767,12 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     ) public returns (bytes32 normalizedHash_, bytes memory dataToSign_) {
         console.log("");
         MultisigTaskPrinter.printWelcomeMessage();
-
         SafeData memory rootSafe = Utils.getSafeData(payload, payload.safes.length - 1);
-        accountAccesses.decodeAndPrint(rootSafe.safe, txHash);
+        // Decoding account accesses and printing to the console significantly impacts performance.
+        // Performance only becomes a concern when we're running many tasks in CI.
+        if (!Utils.isCiFoundryProfile()) {
+            accountAccesses.decodeAndPrint(rootSafe.safe, txHash);
+        }
         MultisigTaskPrinter.printTaskCalldata(rootSafe.callData);
 
         // Only print safe and execution data if the task is being simulated.
