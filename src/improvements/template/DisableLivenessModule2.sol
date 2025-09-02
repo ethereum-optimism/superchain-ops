@@ -82,7 +82,7 @@ contract DisableLivenessModule2 is SimpleTaskBase {
     function _build(address _rootSafe) internal override {
         // First disable the module from the Safe
         ModuleManager(_rootSafe).disableModule(previousModule, moduleToDisable);
-        
+
         // Then clear the module configuration
         ILivenessModule2(moduleToDisable).clear();
     }
@@ -129,7 +129,7 @@ contract DisableLivenessModule2 is SimpleTaskBase {
 
         address[] memory uniqueWrites = _accountAccesses.getUniqueWrites(false);
         assertTrue(uniqueWrites.length >= 1, "should write to at least the safe");
-        
+
         bool safeWriteFound;
         bool moduleClearWriteFound;
         for (uint256 i = 0; i < uniqueWrites.length; i++) {

@@ -90,7 +90,7 @@ contract EnableLivenessModule2 is SimpleTaskBase {
     function _build(address rootSafe) internal override {
         // First enable the module
         ModuleManager(rootSafe).enableModule(newModule);
-        
+
         // Then configure the module
         ILivenessModule2.ModuleConfig memory config = ILivenessModule2.ModuleConfig({
             livenessResponsePeriod: livenessResponsePeriod,
@@ -133,7 +133,7 @@ contract EnableLivenessModule2 is SimpleTaskBase {
     function _validateModuleConfiguration(address rootSafe) internal view {
         ILivenessModule2 livenessModule = ILivenessModule2(newModule);
         assertEq(livenessModule.version(), livenessModuleVersion, "LivenessModule2 version not correct");
-        
+
         (uint256 configuredPeriod, address configuredFallback) = livenessModule.safeConfigs(rootSafe);
         assertEq(configuredPeriod, livenessResponsePeriod, "Liveness response period not configured correctly");
         assertEq(configuredFallback, fallbackOwner, "Fallback owner not configured correctly");
@@ -145,7 +145,7 @@ contract EnableLivenessModule2 is SimpleTaskBase {
 
         address[] memory uniqueWrites = accountAccesses.getUniqueWrites(false);
         assertTrue(uniqueWrites.length >= 1, "should write to at least the safe");
-        
+
         bool safeWriteFound;
         bool moduleConfigWriteFound;
         for (uint256 i = 0; i < uniqueWrites.length; i++) {
