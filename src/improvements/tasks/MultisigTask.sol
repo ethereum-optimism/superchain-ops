@@ -21,7 +21,6 @@ import {Utils} from "src/libraries/Utils.sol";
 import {MultisigTaskPrinter} from "src/libraries/MultisigTaskPrinter.sol";
 import {TaskManager} from "src/improvements/tasks/TaskManager.sol";
 import {Solarray} from "lib/optimism/packages/contracts-bedrock/scripts/libraries/Solarray.sol";
-import {LibString} from "@solady/utils/LibString.sol";
 
 type AddressRegistry is address;
 
@@ -30,7 +29,6 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     using AccountAccessParser for VmSafe.AccountAccess[];
     using AccountAccessParser for VmSafe.AccountAccess;
     using StdStyle for string;
-    using LibString for string;
 
     /// @notice AddressesRegistry contract
     AddressRegistry public addrRegistry;
@@ -798,9 +796,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                     break;
                 }
             }
-            if (!Utils.isCiFoundryProfile()) {
-                _printTenderlySimulationData(payload);
-            }
+            _printTenderlySimulationData(payload);
         }
         normalizedHash_ = AccountAccessParser.normalizedStateDiffHash(accountAccesses, rootSafe.safe, txHash);
         MultisigTaskPrinter.printAuditReportInfo(normalizedHash_);
