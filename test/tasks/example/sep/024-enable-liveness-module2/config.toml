@@ -1,0 +1,23 @@
+# Configuration for enabling LivenessModule2
+templateName = "EnableLivenessModule2"
+
+# LivenessModule2 address on Sepolia
+newModule = "0xBF83aCe11Fa979b90C1e914cC5565271f22C6615"
+
+# Safe to enable the module on
+safeAddressString = "GuardianSafe"
+
+# LivenessModule2 configuration parameters
+livenessResponsePeriod = 2592000  # 30 days in seconds
+fallbackOwner = "0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B"  # FoundationOpsSafe on Sepolia
+
+# Expected version of LivenessModule2
+livenessModuleVersion = "2.0.0"
+
+# State overrides for testing
+[stateOverrides]
+
+# Guardian Safe - override nonce for testing
+0x7a50f00e8d05b95f98fe38d8bee366a7324dcf7e = [
+  {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 10}
+]

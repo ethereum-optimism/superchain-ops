@@ -1,0 +1,38 @@
+# Configuration for disabling LivenessModule2
+templateName = "DisableLivenessModule2"
+
+# Safe to disable the module on
+safeAddressString = "GuardianSafe"
+
+# LivenessModule2 address on Sepolia
+moduleToDisable = "0xBF83aCe11Fa979b90C1e914cC5565271f22C6615"
+
+# This is the module in the list of modules returned by calling the getModulesPaginated function
+# on the Safe contract. If there is only one module in the list, then this can be set to the
+# SENTINEL_MODULE address (0x1).
+# NOTE: This needs to be determined at execution time based on the current module list
+previousModule = "0x0000000000000000000000000000000000000001"
+
+# State overrides for testing
+[stateOverrides]
+
+# Guardian Safe - override nonce and module configuration for testing
+0x7a50f00e8d05b95f98fe38d8bee366a7324dcf7e = [
+  # Nonce
+  {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 11},
+  # Module mapping slot for LivenessModule2 (keccak256(abi.encode(moduleAddress, 1)))
+  # This makes the module appear as enabled in the Safe's module list
+  {key = "0x6c37208c20770aee145ac485c3f1164759d91258b94165662659978db5be749d", value = "0x0000000000000000000000000000000000000000000000000000000000000001"},
+  # Sentinel module slot (keccak256(abi.encode(0x1, 1))) pointing to LivenessModule2
+  {key = "0xcc69885fda6bcc1a4ace058b4a62bf5e179ea78fd58a1ccd71c22cc9b688792f", value = "0x000000000000000000000000BF83aCe11Fa979b90C1e914cC5565271f22C6615"}
+]
+
+# LivenessModule2 - add configuration as if it was already set up
+0xBF83aCe11Fa979b90C1e914cC5565271f22C6615 = [
+  # safeConfigs mapping for Guardian Safe
+  # slot = keccak256(abi.encode(0x7a50f00e8d05b95f98fe38d8bee366a7324dcf7e, 0))
+  # livenessResponsePeriod (first part of the struct)
+  {key = "0xb0a5040b8f27d8ca30072d0ea62ff8c10360eb842eb5525a2d3ed35897d6f432", value = "0x0000000000000000000000000000000000000000000000000000000000278d00"}, # 2592000 seconds (30 days)
+  # fallbackOwner (second part of the struct)
+  {key = "0xb0a5040b8f27d8ca30072d0ea62ff8c10360eb842eb5525a2d3ed35897d6f433", value = "0x000000000000000000000000DEe57160aAfCF04c34C887B5962D0a69676d3C8B"}
+]
