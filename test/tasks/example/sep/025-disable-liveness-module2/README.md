@@ -39,13 +39,9 @@ This task will:
 
 1. Verify and update `previousModule` in `config.toml` as described above
 
-2. Set up environment variables in `.env`:
-   - `RPC_URL`: Sepolia RPC endpoint
-   - `PRIVATE_KEY`: Private key for signing
-
-3. Run the task:
+2. Run the task:
    ```bash
-   just run-task sep 025-disable-liveness-module2
+   SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/justfile simulate
    ```
 
 ## Validation

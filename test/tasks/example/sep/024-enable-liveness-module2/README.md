@@ -23,13 +23,9 @@ This task will:
 
 ## Execution
 
-1. Set up environment variables in `.env`:
-   - `RPC_URL`: Sepolia RPC endpoint
-   - `PRIVATE_KEY`: Private key for signing
-
-2. Run the task:
+1. Run the task:
    ```bash
-   just run-task sep 024-enable-liveness-module2
+   SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/justfile simulate
    ```
 
 ## Validation

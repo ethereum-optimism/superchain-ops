@@ -18,8 +18,8 @@ previousModule = "0x0000000000000000000000000000000000000001"
 
 # Guardian Safe - override nonce and module configuration for testing
 0x7a50f00e8d05b95f98fe38d8bee366a7324dcf7e = [
-  # Nonce
-  {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 11},
+  # Set nonce to what regression test expects
+  {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 31},
   # Module mapping slot for LivenessModule2 (keccak256(abi.encode(moduleAddress, 1)))
   # This makes the module appear as enabled in the Safe's module list
   {key = "0x6c37208c20770aee145ac485c3f1164759d91258b94165662659978db5be749d", value = "0x0000000000000000000000000000000000000000000000000000000000000001"},
