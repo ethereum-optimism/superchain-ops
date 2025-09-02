@@ -772,7 +772,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         SafeData memory rootSafe = Utils.getSafeData(payload, payload.safes.length - 1);
         // Decoding account accesses and printing to the console significantly impacts performance.
         // Performance only becomes a concern when we're running many tasks in CI.
-        if (!vm.envOr("FOUNDRY_PROFILE", string("")).eq("ci")) {
+        if (!Utils.isCiFoundryProfile()) {
             accountAccesses.decodeAndPrint(rootSafe.safe, txHash);
         }
         MultisigTaskPrinter.printTaskCalldata(rootSafe.callData);
@@ -798,7 +798,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                     break;
                 }
             }
-            _printTenderlySimulationData(payload);
+            if (!Utils.isCiFoundryProfile()) {
+                _printTenderlySimulationData(payload);
+            }
         }
         normalizedHash_ = AccountAccessParser.normalizedStateDiffHash(accountAccesses, rootSafe.safe, txHash);
         MultisigTaskPrinter.printAuditReportInfo(normalizedHash_);
