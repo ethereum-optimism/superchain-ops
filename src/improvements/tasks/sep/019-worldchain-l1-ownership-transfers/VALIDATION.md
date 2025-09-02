@@ -18,7 +18,7 @@ First, we need to validate the domain and message hashes. These values should ma
 > ### Worldchain Proxy Admin Owner (`0x945185C01fb641bA3E63a9bdF66575e35a407837`)
 >
 > - Domain Hash:  `0x6faec9c52949ba8274340008df12c69faedd5c44e77f77c956d2ca8e4bcd877e`
-> - Message Hash: `0x20556e9d7d2847116caef0b79cdcd207b399adcdb01776e368fcbc9011559a4e`
+> - Message Hash: `0x78d5750374da1b428f471ae39f6bc61a90a91e1c59388197fee59384333d3564`
 
 ## Normalized State Diff Hash Attestation
 
