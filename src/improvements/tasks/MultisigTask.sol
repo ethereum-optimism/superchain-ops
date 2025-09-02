@@ -21,6 +21,7 @@ import {Utils} from "src/libraries/Utils.sol";
 import {MultisigTaskPrinter} from "src/libraries/MultisigTaskPrinter.sol";
 import {TaskManager} from "src/improvements/tasks/TaskManager.sol";
 import {Solarray} from "lib/optimism/packages/contracts-bedrock/scripts/libraries/Solarray.sol";
+import {LibString} from "@solady/utils/LibString.sol";
 
 type AddressRegistry is address;
 
@@ -29,6 +30,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     using AccountAccessParser for VmSafe.AccountAccess[];
     using AccountAccessParser for VmSafe.AccountAccess;
     using StdStyle for string;
+    using LibString for string;
 
     /// @notice AddressesRegistry contract
     AddressRegistry public addrRegistry;
@@ -767,9 +769,12 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
     ) public returns (bytes32 normalizedHash_, bytes memory dataToSign_) {
         console.log("");
         MultisigTaskPrinter.printWelcomeMessage();
-
         SafeData memory rootSafe = Utils.getSafeData(payload, payload.safes.length - 1);
-        accountAccesses.decodeAndPrint(rootSafe.safe, txHash);
+        // Decoding account accesses and printing to the console significantly impacts performance.
+        // Performance only becomes a concern when we're running many tasks in CI.
+        if (!vm.envOr("FOUNDRY_PROFILE", string("")).eq("ci")) {
+            accountAccesses.decodeAndPrint(rootSafe.safe, txHash);
+        }
         MultisigTaskPrinter.printTaskCalldata(rootSafe.callData);
 
         // Only print safe and execution data if the task is being simulated.
