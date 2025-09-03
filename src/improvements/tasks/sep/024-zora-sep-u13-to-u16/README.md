@@ -1,6 +1,6 @@
 # 024-zora-u13-to-u16
 
-Status: [DRAFT]()
+Status: [DRAFT, NOT READY TO SIGN]()
 
 ## Objective
 
