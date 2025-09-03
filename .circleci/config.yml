@@ -20,7 +20,7 @@ parameters:
   github-event-action:
     type: string
     default: "__not_set__"
-  github-event-action:
+  github-event-base64:
     type: string
     default: "__not_set__"
 
