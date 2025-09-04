@@ -1,0 +1,103 @@
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.15;
+
+import {
+    IOPContractsManager,
+    ISuperchainConfig,
+    ISystemConfig,
+    IProxyAdmin
+} from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
+import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
+import {VmSafe} from "forge-std/Vm.sol";
+import {stdToml} from "forge-std/StdToml.sol";
+import {LibString} from "solady/utils/LibString.sol";
+
+import {OPCMTaskBase} from "src/improvements/tasks/types/OPCMTaskBase.sol";
+import {Action} from "src/libraries/MultisigTypes.sol";
+
+/// @notice A template contract for configuring OPCMTaskBase templates.
+/// Supports: op-contracts/v4.1.0
+contract OPCMUpgradeSuperchainConfigV410 is OPCMTaskBase {
+    using stdToml for string;
+    using LibString for string;
+
+    ISuperchainConfig public SUPERCHAIN_CONFIG;
+    IProxyAdmin public SUPERCHAIN_CONFIG_PROXY_ADMIN;
+
+    /// @notice Struct to store inputs data for each L2 chain.
+    struct OPCMUpgrade {
+        Claim absolutePrestate;
+        uint256 chainId;
+        string expectedValidationErrors;
+    }
+
+    /// @notice Mapping of L2 chain IDs to their respective OPCMUpgrade structs.
+    mapping(uint256 => OPCMUpgrade) public upgrades;
+
+    /// @notice Returns the storage write permissions required for this task. This is an array of
+    /// contract names that are expected to be written to during the execution of the task.
+    function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
+        string[] memory storageWrites = new string[](1);
+        storageWrites[0] = "SuperchainConfig";
+        return storageWrites;
+    }
+
+    /// @notice Returns an array of strings that refer to contract names in the address registry.
+    /// Contracts with these names are expected to have their balance changes during the task.
+    /// By default returns an empty array. Override this function if your task expects balance changes.
+    function _taskBalanceChanges() internal view virtual override returns (string[] memory) {}
+
+    /// @notice Sets up the template with implementation configurations from a TOML file.
+    /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
+    function _templateSetup(string memory _taskConfigFilePath, address _rootSafe) internal override {
+        super._templateSetup(_taskConfigFilePath, _rootSafe);
+        string memory tomlContent = vm.readFile(_taskConfigFilePath);
+
+        address OPCM = tomlContent.readAddress(".addresses.OPCM");
+        OPCM_TARGETS.push(OPCM);
+        require(IOPContractsManager(OPCM).version().eq("3.0.0"), "Incorrect OPCM");
+        vm.label(OPCM, "OPCM");
+
+        SUPERCHAIN_CONFIG = ISuperchainConfig(tomlContent.readAddress(".addresses.SuperchainConfig"));
+        require(address(SUPERCHAIN_CONFIG).code.length > 0, "Incorrect SuperchainConfig - no code at address");
+        vm.label(address(SUPERCHAIN_CONFIG), "SuperchainConfig");
+
+        SUPERCHAIN_CONFIG_PROXY_ADMIN = IProxyAdmin(tomlContent.readAddress(".addresses.SuperchainConfigProxyAdmin"));
+        require(
+            address(SUPERCHAIN_CONFIG_PROXY_ADMIN).code.length > 0,
+            "Incorrect SuperchainConfigProxyAdmin - no code at address"
+        );
+        vm.label(address(SUPERCHAIN_CONFIG_PROXY_ADMIN), "SuperchainConfigProxyAdmin");
+    }
+
+    /// @notice Before implementing the `_build` function, task developers must consider the following:
+    /// 1. Which Multicall contract does this template use — `Multicall3` or `Multicall3Delegatecall`?
+    /// 2. Based on the contract, should the target be called using `call` or `delegatecall`?
+    /// 3. Ensure that the call to the target uses the appropriate method (`call` or `delegatecall`) accordingly.
+    /// Guidelines:
+    /// - `Multicall3Delegatecall`:
+    ///   If the template inherits from `OPCMTaskBase`, it uses the `Multicall3Delegatecall` contract.
+    ///   In this case, calls to the target **must** use `delegatecall`, e.g.:
+    ///   `(bool success,) = OPCM.delegatecall(abi.encodeWithSelector(IOPContractsManager.upgrade, opChainConfigs));
+    /// WARNING: Any state written to in this function will be reverted after the build function has been run.
+    /// Do not rely on setting global variables in this function.
+    function _build(address) internal override {
+        (bool success,) = OPCM_TARGETS[0].delegatecall(
+            abi.encodeCall(
+                IOPContractManagerV410.upgradeSuperchainConfig, (SUPERCHAIN_CONFIG, SUPERCHAIN_CONFIG_PROXY_ADMIN)
+            )
+        );
+        require(success, "OPCMUpgradeSuperchainConfigV410: Delegatecall failed in _build.");
+    }
+
+    /// @notice This method performs all validations and assertions that verify the calls executed as expected.
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {}
+
+    /// @notice Override to return a list of addresses that should not be checked for code length.
+    function _getCodeExceptions() internal view virtual override returns (address[] memory) {}
+}
+
+interface IOPContractManagerV410 {
+    function upgradeSuperchainConfig(ISuperchainConfig _superchainConfig, IProxyAdmin _superchainConfigProxyAdmin)
+        external;
+}
