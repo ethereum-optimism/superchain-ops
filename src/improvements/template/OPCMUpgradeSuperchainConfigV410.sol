@@ -15,7 +15,8 @@ import {LibString} from "solady/utils/LibString.sol";
 import {OPCMTaskBase} from "src/improvements/tasks/types/OPCMTaskBase.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
-/// @notice A template contract for configuring OPCMTaskBase templates.
+/// @notice OPCM SuperchainConfig V4.1.0 upgrade template.
+/// @dev This template is used to upgrade the SuperchainConfig contract from V3.0.0 or v4.0.0 to V4.1.0.
 /// Supports: op-contracts/v4.1.0
 contract OPCMUpgradeSuperchainConfigV410 is OPCMTaskBase {
     using stdToml for string;
@@ -70,7 +71,7 @@ contract OPCMUpgradeSuperchainConfigV410 is OPCMTaskBase {
         vm.label(address(SUPERCHAIN_CONFIG_PROXY_ADMIN), "SuperchainConfigProxyAdmin");
     }
 
-/// @notice Builds the actions for executing the operations.
+    /// @notice Builds the actions for executing the operations.
     function _build(address) internal override {
         (bool success,) = OPCM_TARGETS[0].delegatecall(
             abi.encodeCall(

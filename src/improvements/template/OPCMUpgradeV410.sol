@@ -15,7 +15,11 @@ import {OPCMTaskBase} from "src/improvements/tasks/types/OPCMTaskBase.sol";
 import {SuperchainAddressRegistry} from "src/improvements/SuperchainAddressRegistry.sol";
 import {Action} from "src/libraries/MultisigTypes.sol";
 
-/// @notice A template contract for configuring OPCMTaskBase templates.
+/// @notice OPCM V4.1.0 upgrade template.
+/// @dev This template is used to upgrade OPCMs from V3.0.0 or v4.0.0 to V4.1.0.
+/// @dev For any OP Chain being upgraded by this template, it is expected that it's superchainConfig
+///      is already upgraded since this OPCM does not also upgrade the SuperchainConfig contract like past OPCMs.
+/// @dev To upgrade the SuperchainConfig contract, use the OPCMUpgradeSuperchainConfigV410 template.
 /// Supports: op-contracts/v4.1.0
 contract OPCMUpgradeV410 is OPCMTaskBase {
     using stdToml for string;
