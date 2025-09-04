@@ -70,17 +70,7 @@ contract OPCMUpgradeSuperchainConfigV410 is OPCMTaskBase {
         vm.label(address(SUPERCHAIN_CONFIG_PROXY_ADMIN), "SuperchainConfigProxyAdmin");
     }
 
-    /// @notice Before implementing the `_build` function, task developers must consider the following:
-    /// 1. Which Multicall contract does this template use — `Multicall3` or `Multicall3Delegatecall`?
-    /// 2. Based on the contract, should the target be called using `call` or `delegatecall`?
-    /// 3. Ensure that the call to the target uses the appropriate method (`call` or `delegatecall`) accordingly.
-    /// Guidelines:
-    /// - `Multicall3Delegatecall`:
-    ///   If the template inherits from `OPCMTaskBase`, it uses the `Multicall3Delegatecall` contract.
-    ///   In this case, calls to the target **must** use `delegatecall`, e.g.:
-    ///   `(bool success,) = OPCM.delegatecall(abi.encodeWithSelector(IOPContractsManager.upgrade, opChainConfigs));
-    /// WARNING: Any state written to in this function will be reverted after the build function has been run.
-    /// Do not rely on setting global variables in this function.
+/// @notice Builds the actions for executing the operations.
     function _build(address) internal override {
         (bool success,) = OPCM_TARGETS[0].delegatecall(
             abi.encodeCall(
