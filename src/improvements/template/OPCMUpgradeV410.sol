@@ -85,7 +85,7 @@ contract OPCMUpgradeV410 is OPCMTaskBase {
         vm.label(address(STANDARD_VALIDATOR_V410), "StandardValidatorV410");
     }
 
-/// @notice Builds the actions for executing the operations.
+    /// @notice Builds the actions for executing the operations.
     function _build(address) internal override {
         SuperchainAddressRegistry.ChainInfo[] memory chains = superchainAddrRegistry.getChains();
         IOPContractsManager.OpChainConfig[] memory opChainConfigs =
