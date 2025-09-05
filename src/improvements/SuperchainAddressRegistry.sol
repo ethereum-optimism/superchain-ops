@@ -108,7 +108,10 @@ contract SuperchainAddressRegistry is StdChains {
         require(_chainsMemory.length > 0, "SuperchainAddressRegistry: .l2chains list is empty");
 
         if (isL2Chain) {
-            require(bytes(fallbackAddressesJsonPath).length > 0, "SuperchainAddressRegistry: Must provide a fallback addresses JSON path for L2 contract upgrades.");
+            require(
+                bytes(fallbackAddressesJsonPath).length > 0,
+                "SuperchainAddressRegistry: Must provide a fallback addresses JSON path for L2 contract upgrades."
+            );
         }
 
         for (uint256 i = 0; i < _chainsMemory.length; i++) {

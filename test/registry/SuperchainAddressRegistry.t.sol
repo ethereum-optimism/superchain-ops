@@ -317,6 +317,28 @@ abstract contract SuperchainAddressRegistryTest_Base is Test {
         MultisigTaskTestHelper.removeFile(fileName);
     }
 
+    function test_constructor_onL2WithoutFallback_reverts() public {
+        vm.createSelectFork("opSepolia");
+        string memory tomlContent =
+            'l2chains = [{name = "MyLocalChain", chainId = 12345}]\n' 'fallbackAddressesJsonPath = ""';
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent, TESTING_DIRECTORY, "l2-000");
+
+        vm.expectRevert(
+            "SuperchainAddressRegistry: Must provide a fallback addresses JSON path for L2 contract upgrades."
+        );
+        new SuperchainAddressRegistry(fileName);
+        MultisigTaskTestHelper.removeFile(fileName);
+    }
+
+    function test_constructor_onL2WithFallback_passes() public {
+        vm.createSelectFork("opSepolia");
+        string memory tomlContent = 'l2chains = [{name = "MyLocalChain", chainId = 10101010101010}]\n'
+            'fallbackAddressesJsonPath = "test/tasks/example/opsep/001-set-eip1967-impl/addresses.json"';
+        string memory fileName = MultisigTaskTestHelper.createTempTomlFile(tomlContent, TESTING_DIRECTORY, "l2-001");
+        new SuperchainAddressRegistry(fileName);
+        MultisigTaskTestHelper.removeFile(fileName);
+    }
+
     function test_constructor_reverts_withUnknownTaskChainId() public {
         vm.chainId(999); // Use an arbitrary chain ID
         string memory tomlContent = "l2chains = [{name = \"TestChain\", chainId = 999}]\n" "[addresses]\n"
