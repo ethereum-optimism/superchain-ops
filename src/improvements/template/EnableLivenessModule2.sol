@@ -110,24 +110,24 @@ contract EnableLivenessModule2 is SimpleTaskBase {
         _validateStorageWrites(accountAccesses, rootSafe);
     }
 
-    function _validateModuleEnabled(address rootSafe) internal view {
+    function _validateNewModuleEnabled(address rootSafe) internal view {
         (address[] memory modules, address nextModule) =
             ModuleManager(rootSafe).getModulesPaginated(SENTINEL_MODULE, 100);
+
         if (keccak256(abi.encodePacked(ISafe(rootSafe).VERSION())) == keccak256(abi.encodePacked("1.1.1"))) {
             console.log("[INFO] Old version of safe detected 1.1.1.");
-            assertTrue(modules[0] == newModule, "Module not enabled");
+
+            bool moduleFound;
+            for (uint256 i = 0; i < modules.length; i++) {
+                if (modules[i] == newModule) {
+                    moduleFound = true;
+                }
+            }
+            assertTrue(moduleFound, "New module not found in modules list");
         } else {
-            assertTrue(ModuleManager(rootSafe).isModuleEnabled(newModule), "Module not enabled");
+            assertTrue(ModuleManager(rootSafe).isModuleEnabled(newModule), "New module not enabled");
         }
         assertEq(nextModule, SENTINEL_MODULE, "Next module not correct");
-
-        bool moduleFound;
-        for (uint256 i = 0; i < modules.length; i++) {
-            if (modules[i] == newModule) {
-                moduleFound = true;
-            }
-        }
-        assertTrue(moduleFound, "Module not found in new modules list");
     }
 
     function _validateModuleConfiguration(address rootSafe) internal view {

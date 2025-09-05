@@ -188,19 +188,18 @@ contract TransitionToLivenessModule2 is SimpleTaskBase {
 
         if (keccak256(abi.encodePacked(ISafe(rootSafe).VERSION())) == keccak256(abi.encodePacked("1.1.1"))) {
             console.log("[INFO] Old version of safe detected 1.1.1.");
-            assertTrue(modules[0] == newModule, "New module not enabled");
+
+            bool moduleFound;
+            for (uint256 i = 0; i < modules.length; i++) {
+                if (modules[i] == newModule) {
+                    moduleFound = true;
+                }
+            }
+            assertTrue(moduleFound, "New module not found in modules list");
         } else {
             assertTrue(ModuleManager(rootSafe).isModuleEnabled(newModule), "New module not enabled");
         }
         assertEq(nextModule, SENTINEL_MODULE, "Next module not correct");
-
-        bool moduleFound;
-        for (uint256 i = 0; i < modules.length; i++) {
-            if (modules[i] == newModule) {
-                moduleFound = true;
-            }
-        }
-        assertTrue(moduleFound, "New module not found in modules list");
     }
 
     function _validateNewModuleConfiguration(address rootSafe) internal view {
