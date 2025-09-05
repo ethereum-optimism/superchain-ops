@@ -141,8 +141,4 @@ interface IStandardValidatorV410 {
     }
 
     function validate(InputV410 memory _input, bool _allowFailure) external view returns (string memory);
-
-    function mipsVersion() external pure returns (string memory);
-
-    function systemConfigVersion() external pure returns (string memory);
 }

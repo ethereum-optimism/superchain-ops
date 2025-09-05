@@ -7,7 +7,6 @@ import {
     ISystemConfig,
     IProxyAdmin
 } from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
-import {Claim} from "@eth-optimism-bedrock/src/dispute/lib/Types.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
@@ -24,16 +23,6 @@ contract OPCMUpgradeSuperchainConfigV410 is OPCMTaskBase {
 
     ISuperchainConfig public SUPERCHAIN_CONFIG;
     IProxyAdmin public SUPERCHAIN_CONFIG_PROXY_ADMIN;
-
-    /// @notice Struct to store inputs data for each L2 chain.
-    struct OPCMUpgrade {
-        Claim absolutePrestate;
-        uint256 chainId;
-        string expectedValidationErrors;
-    }
-
-    /// @notice Mapping of L2 chain IDs to their respective OPCMUpgrade structs.
-    mapping(uint256 => OPCMUpgrade) public upgrades;
 
     /// @notice Returns the storage write permissions required for this task. This is an array of
     /// contract names that are expected to be written to during the execution of the task.
@@ -56,7 +45,7 @@ contract OPCMUpgradeSuperchainConfigV410 is OPCMTaskBase {
 
         address OPCM = tomlContent.readAddress(".addresses.OPCM");
         OPCM_TARGETS.push(OPCM);
-        require(IOPContractsManager(OPCM).version().eq("3.0.0"), "Incorrect OPCM");
+        require(IOPContractsManager(OPCM).version().eq("3.1.0"), "Incorrect OPCM");
         vm.label(OPCM, "OPCM");
 
         SUPERCHAIN_CONFIG = ISuperchainConfig(tomlContent.readAddress(".addresses.SuperchainConfig"));
