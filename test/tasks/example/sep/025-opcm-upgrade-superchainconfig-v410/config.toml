@@ -2,7 +2,7 @@ l2chains = [
     {name = "OP Sepolia Testnet", chainId = 11155420}
 ]
 
-templateName = "OPCMUpgradeV410"
+templateName = "OPCMUpgradeSuperchainConfigV410"
 
 # OP Sepolia Testnet
 [[opcmUpgrades]]
