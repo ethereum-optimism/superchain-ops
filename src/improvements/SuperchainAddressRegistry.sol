@@ -87,9 +87,15 @@ contract SuperchainAddressRegistry is StdChains {
     /// @param configPath the path to the TOML file containing the network configuration(s)
     constructor(string memory configPath) {
         require(
-            block.chainid == getChain("mainnet").chainId || block.chainid == getChain("sepolia").chainId,
+            block.chainid == getChain("mainnet").chainId || block.chainid == getChain("sepolia").chainId
+                || block.chainid == getChain("optimism_sepolia").chainId,
             string.concat("SuperchainAddressRegistry: Unsupported task chain ID ", vm.toString(block.chainid))
         );
+
+        bool isL2Chain = false;
+        if (block.chainid == getChain("optimism_sepolia").chainId) {
+            isL2Chain = true;
+        }
 
         string memory toml = vm.readFile(configPath);
         bool l2ChainsKeyExists = toml.keyExists(".l2chains");
@@ -100,6 +106,10 @@ contract SuperchainAddressRegistry is StdChains {
         bytes memory chainListContent = toml.parseRaw(".l2chains");
         _chainsMemory = abi.decode(chainListContent, (ChainInfo[]));
         require(_chainsMemory.length > 0, "SuperchainAddressRegistry: .l2chains list is empty");
+
+        if (isL2Chain) {
+            require(bytes(fallbackAddressesJsonPath).length > 0, "SuperchainAddressRegistry: Must provide a fallback addresses JSON path for L2 contract upgrades.");
+        }
 
         for (uint256 i = 0; i < _chainsMemory.length; i++) {
             require(_chainsMemory[i].chainId != 0, "SuperchainAddressRegistry: Invalid chain ID in config");
@@ -142,6 +152,7 @@ contract SuperchainAddressRegistry is StdChains {
         string memory chainKey;
         if (block.chainid == getChain("mainnet").chainId) chainKey = ".eth";
         else if (block.chainid == getChain("sepolia").chainId) chainKey = ".sep";
+        else if (block.chainid == getChain("optimism_sepolia").chainId) chainKey = ".opsep";
         else revert(string.concat("SuperchainAddressRegistry: Unknown task chain ID ", vm.toString(block.chainid)));
 
         _loadHardcodedAddresses(chainKey);
@@ -167,7 +178,6 @@ contract SuperchainAddressRegistry is StdChains {
     function _loadHardcodedAddresses(string memory chainKey) internal {
         string memory toml = vm.readFile("./src/improvements/addresses.toml");
         string[] memory keys = vm.parseTomlKeys(toml, chainKey);
-        require(keys.length > 0, string.concat("SuperchainAddressRegistry: no keys found for ", chainKey));
 
         for (uint256 i = 0; i < keys.length; i++) {
             string memory identifier = keys[i];

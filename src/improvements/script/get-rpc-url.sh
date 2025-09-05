@@ -10,9 +10,9 @@ if [[ "$TASK_PATH" == *"/eth/"* ]]; then
     echo "mainnet"
 elif [[ "$TASK_PATH" == *"/sep/"* ]]; then
     echo "sepolia"
-elif [[ "$TASK_PATH" == *"/oeth/"* ]]; then
-    echo "opMainnet"
+elif [[ "$TASK_PATH" == *"/opsep/"* ]]; then
+    echo "opSepolia"
 else
-    echo "Error: Task path must contain either /eth/ or /sep/ or /oeth/" >&2
+    echo "Error: Task path must contain either /eth/ or /sep/ or /opsep/" >&2
     exit 1
 fi

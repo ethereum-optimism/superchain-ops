@@ -67,8 +67,12 @@ case "$TASK_PATH" in
         safe=$(yq ".sep.\"$SAFE_NAME\"" "${root_dir}/src/improvements/addresses.toml")
         [[ -z "$safe" || "$safe" == "null" ]] && safe=$(get_safe_fallback "${TASK_PATH}/config.toml" "$SAFE_NAME")
         ;;
+    *"/opsep/"*)
+        safe=$(yq ".opsep.\"$SAFE_NAME\"" "${root_dir}/src/improvements/addresses.toml")
+        [[ -z "$safe" || "$safe" == "null" ]] && safe=$(get_safe_fallback "${TASK_PATH}/config.toml" "$SAFE_NAME")
+        ;;
     *)
-        echo "Error (get-safe.sh): Task path must contain either /eth/ or /sep/" >&2
+        echo "Error (get-safe.sh): Task path must contain either /eth/ or /sep/ or /opsep/" >&2
         exit 1
         ;;
 esac
