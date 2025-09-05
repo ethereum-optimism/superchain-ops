@@ -1,0 +1,24 @@
+# Configuration for transitioning to LivenessModule2
+templateName = "TransitionToLivenessModule2"
+
+# Current LivenessModule address to disable (Sepolia LivenessModule)
+currentModule = "0xEB3eF34ACF1a6C1630807495bCC07ED3e7B0177e"
+
+# Previous module in the linked list (use SENTINEL_MODULE address if current module is first)
+previousModule = "0x0000000000000000000000000000000000000001"
+
+# New LivenessModule2 address on Sepolia
+newModule = "0xBF83aCe11Fa979b90C1e914cC5565271f22C6615"
+
+# Safe to perform the transition on
+safeAddressString = "SecurityCouncil"
+
+# LivenessModule2 configuration parameters
+livenessResponsePeriod = 2592000  # 30 days in seconds
+fallbackOwner = "0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B"  # FoundationUpgradeSafe on Sepolia
+
+# Expected version of LivenessModule2
+livenessModuleVersion = "2.0.0"
+
+# Address of the current LivenessGuard
+currentGuard = "0xc26977310bC89DAee5823C2e2a73195E85382cC7"
