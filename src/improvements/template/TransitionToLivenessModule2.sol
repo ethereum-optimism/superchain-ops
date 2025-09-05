@@ -122,7 +122,7 @@ contract TransitionToLivenessModule2 is SimpleTaskBase {
 
         // Current guard is required
         currentGuard = vm.parseTomlAddress(file, ".currentGuard");
-        require(currentGuard != address(0), "currentGuard is required and cannot be address(0)");
+        assertNotEq(currentGuard, address(0), "currentGuard is required and cannot be address(0)");
 
         assertNotEq(newModule.code.length, 0, "new module must have code");
     }
