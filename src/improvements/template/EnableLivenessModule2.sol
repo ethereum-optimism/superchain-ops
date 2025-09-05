@@ -110,7 +110,7 @@ contract EnableLivenessModule2 is SimpleTaskBase {
         _validateStorageWrites(accountAccesses, rootSafe);
     }
 
-    function _validateNewModuleEnabled(address rootSafe) internal view {
+    function _validateModuleEnabled(address rootSafe) internal view {
         (address[] memory modules, address nextModule) =
             ModuleManager(rootSafe).getModulesPaginated(SENTINEL_MODULE, 100);
 

@@ -74,17 +74,18 @@ contract DisableModule is SimpleTaskBase {
             // Its OK to skip this check because we still check below if the module is
             // included in the array returned by getModulesPaginated().
             assertFalse(ModuleManager(_rootSafe).isModuleEnabled(moduleToDisable), "Module not disabled");
-        }
-        assertEq(nextModule, SENTINEL_MODULE, "Next module not correct");
-
-        // Ensure the module is not in the list of modules
-        bool moduleFound;
-        for (uint256 i = 0; i < modules.length; i++) {
-            if (modules[i] == moduleToDisable) {
-                moduleFound = true;
+        } else {
+            // Ensure the module is not in the list of modules
+            bool moduleFound;
+            for (uint256 i = 0; i < modules.length; i++) {
+                if (modules[i] == moduleToDisable) {
+                    moduleFound = true;
+                }
             }
+            assertFalse(moduleFound, "Module is still found in new modules list");
         }
-        assertFalse(moduleFound, "Module is still found in new modules list");
+
+        assertEq(nextModule, SENTINEL_MODULE, "Next module not correct");
 
         bytes32 moduleSlot = keccak256(abi.encode(moduleToDisable, MODULE_MAPPING_STORAGE_OFFSET));
         bytes32 sentinelSlot = keccak256(abi.encode(SENTINEL_MODULE, MODULE_MAPPING_STORAGE_OFFSET));
