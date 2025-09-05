@@ -617,6 +617,9 @@ contract RegressionTest is Test {
     /// Simulate from task directory (test/tasks/example/sep/023-u13-to-u16) with:
     /// SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/justfile simulate <foundation|council>
     function testRegressionCallDataMatches_OPCMUpgradeV220toV400() public {
+        // Particularly gas guzzling template that can sometimes error with OOG. Manually pausing gas usage to circumvent OOG errors.
+        // Note: Running 'forge test' alone usually passes but when ran with verbosity flags ('-vvv'), errors occur.
+        vm.pauseGasMetering();
         string memory taskConfigFilePath = "test/tasks/example/sep/023-u13-to-u16/config.toml";
         string memory expectedCallData =
             "0x82ad56cb00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000001c0000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000004400000000000000000000000006b6f9129efb1b7a48f84e3b787333d1dca02ee340000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a4ff2dd5a10000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000015cd4f6e0ce3b4832b33cb9c6f6fe6fc246754c2000000000000000000000000e7413127f29e050df65ac3fc9335f85bb10091ae039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d900000000000000000000000000000000000000000000000000000000000000000000000000000000fbceed4de885645fbded164910e10f52febfab350000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a4ff2dd5a10000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000015cd4f6e0ce3b4832b33cb9c6f6fe6fc246754c2000000000000000000000000e7413127f29e050df65ac3fc9335f85bb10091ae03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee40500000000000000000000000000000000000000000000000000000000000000000000000000000000fbceed4de885645fbded164910e10f52febfab350000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a49a72745b0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000015cd4f6e0ce3b4832b33cb9c6f6fe6fc246754c2000000000000000000000000e7413127f29e050df65ac3fc9335f85bb10091ae03682932cec7ce0a3874b19675a6bbc923054a7b321efc7d3835187b172494b6000000000000000000000000000000000000000000000000000000000000000000000000000000001ac76f0833bbfccc732cadcc3ba8a3bbd0e89c3d0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a4ff2dd5a10000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000015cd4f6e0ce3b4832b33cb9c6f6fe6fc246754c2000000000000000000000000e7413127f29e050df65ac3fc9335f85bb10091ae03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc800000000000000000000000000000000000000000000000000000000";
@@ -624,11 +627,8 @@ contract RegressionTest is Test {
         address rootSafe = address(0x1Eb2fFc903729a0F03966B917003800b145F56E2);
         address nestedSafe = address(0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B); // sepolia
         address[] memory allSafes = MultisigTaskTestHelper.getAllSafes(rootSafe, nestedSafe);
-        // Particularly gas guzzling template that can sometimes error with OOG. Manually passing a high amount of gas to the simulate function.
-        // This number was chosen through trial and error.
-        uint256 gas = 350_000_000;
         (Action[] memory actions, uint256[] memory allOriginalNonces) =
-            _setupAndSimulateWithGas(taskConfigFilePath, 9068770, "sepolia", multisigTask, allSafes, gas);
+            _setupAndSimulate(taskConfigFilePath, 9068770, "sepolia", multisigTask, allSafes);
 
         _assertCallDataMatches(multisigTask, actions, allSafes, allOriginalNonces, expectedCallData);
 
@@ -640,6 +640,7 @@ contract RegressionTest is Test {
         expectedDataToSign[1] =
             "0x1901be081970e9fc104bd1ea27e375cd21ec7bb1eec56bfe43347c3e36c5d27b8533092c9f45e0c8818668b9d570f66b7a73ba1196a017bc2695c88886e539d3691a";
         _assertDataToSignNestedMultisig(multisigTask, actions, expectedDataToSign, MULTICALL3_ADDRESS, rootSafe);
+        vm.resumeGasMetering();
     }
 
     /// @notice expected call data and data to sign generated by manually running the WelcomeToSuperchainOps at block 22884610 on mainnet using script:
@@ -781,25 +782,13 @@ contract RegressionTest is Test {
         );
     }
 
-    /// @notice Internal function to set up the fork and run the simulate method.
+    /// @notice Internal function to set up the fork and run the simulate method. Requires a gas limit to be passed to it.
     function _setupAndSimulate(
         string memory taskConfigFilePath,
         uint256 blockNumber,
         string memory network,
         MultisigTask multisigTask,
         address[] memory allSafes
-    ) internal returns (Action[] memory actions, uint256[] memory allOriginalNonces) {
-        return _setupAndSimulateWithGas(taskConfigFilePath, blockNumber, network, multisigTask, allSafes, gasleft());
-    }
-
-    /// @notice Internal function to set up the fork and run the simulate method. Requires a gas limit to be passed to it.
-    function _setupAndSimulateWithGas(
-        string memory taskConfigFilePath,
-        uint256 blockNumber,
-        string memory network,
-        MultisigTask multisigTask,
-        address[] memory allSafes,
-        uint256 gas
     ) internal returns (Action[] memory actions, uint256[] memory allOriginalNonces) {
         vm.createSelectFork(network, blockNumber);
         address[] memory childSafes;
@@ -814,7 +803,7 @@ contract RegressionTest is Test {
             childSafes = new address[](0);
         }
         allOriginalNonces = MultisigTaskTestHelper.getAllOriginalNonces(allSafes);
-        (, actions,,,) = multisigTask.simulate{gas: gas}(taskConfigFilePath, childSafes);
+        (, actions,,,) = multisigTask.simulate(taskConfigFilePath, childSafes);
     }
 
     /// @notice Assert that the call data generated by the multisig task matches the expected call data.
