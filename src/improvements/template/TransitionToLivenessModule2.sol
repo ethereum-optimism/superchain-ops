@@ -164,15 +164,15 @@ contract TransitionToLivenessModule2 is SimpleTaskBase {
 
         if (keccak256(abi.encodePacked(ISafe(rootSafe).VERSION())) != keccak256(abi.encodePacked("1.1.1"))) {
             assertFalse(ModuleManager(rootSafe).isModuleEnabled(currentModule), "Current module not disabled");
-        }
-
-        bool moduleFound;
-        for (uint256 i = 0; i < modules.length; i++) {
-            if (modules[i] == currentModule) {
-                moduleFound = true;
+        } else {
+            bool moduleFound;
+            for (uint256 i = 0; i < modules.length; i++) {
+                if (modules[i] == currentModule) {
+                    moduleFound = true;
+                }
             }
+            assertFalse(moduleFound, "Current module is still found in modules list");
         }
-        assertFalse(moduleFound, "Current module is still found in modules list");
     }
 
     function _validateGuardDisabled(address rootSafe) internal view {

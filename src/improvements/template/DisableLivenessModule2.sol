@@ -103,16 +103,16 @@ contract DisableLivenessModule2 is SimpleTaskBase {
             ModuleManager(_rootSafe).getModulesPaginated(SENTINEL_MODULE, 100);
         if (keccak256(abi.encodePacked(ISafe(_rootSafe).VERSION())) != keccak256(abi.encodePacked("1.1.1"))) {
             assertFalse(ModuleManager(_rootSafe).isModuleEnabled(moduleToDisable), "Module not disabled");
+        } else {
+            bool moduleFound;
+            for (uint256 i = 0; i < modules.length; i++) {
+                if (modules[i] == moduleToDisable) {
+                    moduleFound = true;
+                }
+            }
+            assertFalse(moduleFound, "Module is still found in new modules list");
         }
         assertEq(nextModule, SENTINEL_MODULE, "Next module not correct");
-
-        bool moduleFound;
-        for (uint256 i = 0; i < modules.length; i++) {
-            if (modules[i] == moduleToDisable) {
-                moduleFound = true;
-            }
-        }
-        assertFalse(moduleFound, "Module is still found in new modules list");
     }
 
     function _validateModuleCleared(address _rootSafe) internal view {
