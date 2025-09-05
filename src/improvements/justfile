@@ -366,6 +366,7 @@ _fetch-rpc-url NETWORK="":
     case "{{NETWORK}}" in
       sep)  yq eval ".profile.\"${profile}\".rpc_endpoints.sepolia" "$(git rev-parse --show-toplevel)/foundry.toml" ;;
       eth)  yq eval ".profile.\"${profile}\".rpc_endpoints.mainnet" "$(git rev-parse --show-toplevel)/foundry.toml" ;;
+      opsep) yq eval ".profile.\"${profile}\".rpc_endpoints.opSepolia" "$(git rev-parse --show-toplevel)/foundry.toml" ;;
       *)    echo "Error: Must provide a valid network, '{{NETWORK}}' is not valid." >&2; exit 1 ;;
     esac
 
