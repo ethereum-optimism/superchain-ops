@@ -6,7 +6,7 @@ OPCMUpgradeV300_UPDATE_PRESTATE = "0x03682932cec7ce0a3874b19675a6bbc923054a7b321
 
 [[l2chains]]
 chainId = 1740
-name = "Metal L2 Testnet"
+name = "Metal L2 Testnett"
 
 [[opcmUpgrades]]
 chainId = 1740
