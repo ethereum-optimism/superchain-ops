@@ -27,7 +27,7 @@ expectedErrorsV400 = "PLDG-10"
 
 [addresses]
 OPCMUpgradeV220 = "0x6b6f9129efb1b7a48f84e3b787333d1dca02ee34" # version 1.7.0 https://github.com/ethereum-optimism/superchain-registry/blob/7857e9f87f5834af33c47d9aef5effdc9ef9573c/validation/standard/standard-versions-sepolia.toml#L160
-StandardValidatorV200 = "0x12a9e38628e5a5b24d18b1956ed68a24fe4e3dc0"
+StandardValidatorV200 = "0x37739a6b0a3F1E7429499a4eC4A0685439Daff5C"
 
 OPCMUpgradeV300 = "0xfBceeD4DE885645fBdED164910E10F52fEBFAB35" # version 1.9.0 https://github.com/ethereum-optimism/superchain-registry/blob/212c60902834aba05d73d33bc2fcefc21fc3a7af/validation/standard/standard-versions-mainnet.toml#L82
 StandardValidatorV300 = "0x2d56022cb84ce6b961c3b4288ca36386bcd9024c"
