@@ -1,5 +1,3 @@
-TODO: Please address all TODOs in this file before submitting your task to be reviewed.
-
 # Validation
 
 This document can be used to validate the inputs and result of the execution of the upgrade transaction which you are
