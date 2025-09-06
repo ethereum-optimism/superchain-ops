@@ -1,6 +1,6 @@
 # 024-mode-main-u13-to-u16/.env
 
-Status: [DRAFT]()
+Status: [DRAFT, NOT READY TO SIGN]()
 
 ## Objective
 
