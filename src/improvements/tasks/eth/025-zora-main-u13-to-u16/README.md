@@ -1,21 +1,21 @@
 # 025-zora-main-u13-to-u16
 
-Status: [DRAFT]()
+Status: [DRAFT, NOT READY TO SIGN]()
 
 ## Objective
 
-Todo: Describe the objective of the task
+This task upgrades Zora Mainnet to U16, executing U13, U14, U15 sequentially.
 
 ## Simulation & Signing
 
 Simulation commands for each safe:
 ```bash
 cd src/improvements/tasks/eth/025-zora-main-u13-to-u16
-<TODO-add-simulation-commands-for-each-safe>
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/justfile simulate council
 ```
 
 Signing commands for each safe:
 ```bash
 cd src/improvements/tasks/eth/025-zora-main-u13-to-u16
-<TODO-add-signing-commands-for-each-safe>
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env --justfile ../../../../../src/improvements/justfile simulate foundation
 ```
