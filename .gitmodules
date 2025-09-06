@@ -16,7 +16,7 @@
 	url = https://github.com/transmissions11/solmate
 [submodule "lib/base-contracts"]
 	path = lib/base-contracts
-	url = https://github.com/base-org/contracts
+	url = https://github.com/ethereum-optimism/base-org-contracts
 [submodule "lib/solady"]
 	path = lib/solady
 	url = https://github.com/Vectorized/solady

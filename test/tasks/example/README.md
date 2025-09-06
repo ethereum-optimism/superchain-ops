@@ -1,0 +1,1 @@
+This `example` directory contains example tasks that are used to make sure templates can always be simulated. When adding a new template, you MUST add a new task in this directory. This will make sure that it is simulated via the `template_regression_tests` job in the `circleci/config.yml` file.

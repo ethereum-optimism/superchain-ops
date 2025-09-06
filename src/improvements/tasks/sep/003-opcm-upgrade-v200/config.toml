@@ -1,0 +1,15 @@
+l2chains = [
+    {name = "Unichain Sepolia Testnet", chainId = 1301}
+]
+
+templateName = "OPCMUpgradeV200"
+
+[opcmUpgrades]
+absolutePrestates = [
+    {absolutePrestate = "0x0354eee87a1775d96afee8977ef6d5d6bd3612b256170952a01bf1051610ee01", chainId = 1301},
+]
+
+[addresses]
+OPCM = "0x1B25F566336F47BC5E0036D66E142237DcF4640b"
+# Deployed March 27, 2025: https://sepolia.etherscan.io/tx/0xe44c3b8e8de58c5a31018f70e3c87890066092a05d91dca6db4e6f453ebb14cf
+StandardValidatorV200 = "0x1330cd53a7510437c88b1a9d392237f1d925465e"

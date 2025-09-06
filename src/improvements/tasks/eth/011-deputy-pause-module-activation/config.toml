@@ -1,0 +1,13 @@
+l2chains = [{name = "OP Mainnet", chainId = 10}] # e.g. [{name = "OP Mainnet", chainId = 10}]
+
+templateName = "EnableDeputyPauseModuleTemplate"
+
+newModule = "0x126a736b18e0a64fba19d421647a530e327e112c"
+
+safeAddressString = "FoundationOperationsSafe"
+foundationSafeString = "FoundationOperationsSafe"
+deputyPauseModuleVersion = "1.0.0-beta.2"
+[stateOverrides]
+0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A = [ # FoundationOperationSafe: 104
+    { key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = "0x0000000000000000000000000000000000000000000000000000000000000068" }
+]

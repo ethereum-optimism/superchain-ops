@@ -1,7 +1,7 @@
 [tools]
 
 # Core dependencies
-go = "1.22.7"
+go = "1.24.6"
 just = "1.37.0"
 shellcheck = "0.10.0"
 yq = "4.44.5"
@@ -10,9 +10,11 @@ yq = "4.44.5"
 # Foundry is a special case because it supplies multiple binaries at the same
 # GitHub release, so we need to use the aliasing trick to get mise to not error
 # The git ref here should be on the `stable` branch.
-forge = "nightly-5d16800a64e5357fbb2493e4cae061756d145981"
-cast = "nightly-5d16800a64e5357fbb2493e4cae061756d145981"
-anvil = "nightly-5d16800a64e5357fbb2493e4cae061756d145981"
+# WARNING: DO NOT CHANGE FORGE/CAST/ANVIL VERSIONS UNLESS ABSOLUTELY NECESSARY!
+# The forge release below includes a fix for: https://github.com/foundry-rs/foundry/issues/10302
+forge = "v1.1.0" # https://github.com/foundry-rs/foundry/releases/tag/v1.1.0
+cast = "v1.1.0"
+anvil = "v1.1.0"
 
 [alias]
 forge = "ubi:foundry-rs/foundry[exe=forge]"

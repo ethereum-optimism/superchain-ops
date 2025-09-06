@@ -1,0 +1,6 @@
+# l2Chains is only here so we can reuse this fixture for both SimpleAddressRegistry and SuperchainAddressRegistry tests.
+l2chains = [{ name = "Base", chainId = 8453 }]
+
+[addresses]
+  Alice = "0x0000000000000000000000000000000000000001"
+  Alice = "0x0000000000000000000000000000000000000002"

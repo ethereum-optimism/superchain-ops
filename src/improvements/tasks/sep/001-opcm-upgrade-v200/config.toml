@@ -1,0 +1,18 @@
+l2chains = [
+    {name = "Base Sepolia Testnet", chainId = 84532}
+]
+
+templateName = "OPCMUpgradeV200"
+
+[opcmUpgrades]
+absolutePrestates = [
+    {absolutePrestate = "0x0354eee87a1775d96afee8977ef6d5d6bd3612b256170952a01bf1051610ee01", chainId = 84532},
+]
+
+[addresses]
+OPCM = "0x1B25F566336F47BC5E0036D66E142237DcF4640b"
+StandardValidatorV200 = "0x37739a6b0a3F1E7429499a4eC4A0685439Daff5C"
+# Base Sepolia ProxyAdminOwner: 0x0fe884546476dDd290eC46318785046ef68a0BA9
+# The get-safe.sh script will extract these addresses when signing for each owner fo the safe.
+NestedSafe1 = "0x6AF0674791925f767060Dd52f7fB20984E8639d8" # First owner on the proxy admin owner 
+NestedSafe2 = "0x646132A1667ca7aD00d36616AFBA1A28116C770A" # Second owner on the proxy admin owner

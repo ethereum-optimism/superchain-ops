@@ -1,0 +1,26 @@
+templateName = "OPCMUpgradeV300"
+
+[[l2chains]]
+chainId = 8453
+name = "Base"
+
+[[opcmUpgrades]]
+chainId = 8453
+# https://www.notion.so/oplabs/Upgrade-14-MTCannon-1d6f153ee1628024af26cd0098d3bdfe
+absolutePrestate = "0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405"
+expectedValidationErrors = "PROXYA-10,DF-30,PDDG-DWETH-30,PDDG-ANCHORP-40,PDDG-120,PLDG-DWETH-30,PLDG-ANCHORP-40"
+
+[addresses]
+OPCM = "0x3a1f523a4bc09cd344a2745a108bb0398288094f" # https://github.com/ethereum-optimism/superchain-registry/blob/b3d020de42abeebeb5786ea5508aa08d12bdf4cd/validation/standard/standard-versions-mainnet.toml#L22C56-L22C98
+StandardValidatorV300 = "0xf989Df70FB46c581ba6157Ab335c0833bA60e1f0" 
+
+[stateOverrides]
+0x7bB41C3008B3f03FE483B28b8DB90e19Cf07595c = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 7}
+]
+0x9855054731540A48b28990B63DcF4f33d8AE46A1 = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 19}
+]
+0x9BA6e03D8B90dE867373Db8cF1A58d2F7F006b3A = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 102}
+]

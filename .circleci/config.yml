@@ -1,300 +1,105 @@
 version: 2.1
 
+orbs:
+  utils: ethereum-optimism/circleci-utils@1.0.19
+  slack: circleci/slack@4.10.1
+  github-cli: circleci/github-cli@2.7.0
+
+executors:
+  default:
+    machine:
+      image: ubuntu-2204:2024.08.1
+
 parameters:
   default_docker_image:
     type: string
     default: cimg/base:2024.01
-  l1_mainnet_rpc_url:
+  github-event-type:
     type: string
-    default: "https://ci-mainnet-l1-archive.optimism.io"
-  l1_sepolia_rpc_url:
+    default: "__not_set__"
+  github-event-action:
     type: string
-    default: "https://ci-sepolia-l1.optimism.io"
-  l2_mainnet_rpc_url:
+    default: "__not_set__"
+  github-event-base64:
     type: string
-    default: "https://mainnet.optimism.io"
-  l2_sepolia_rpc_url:
-    type: string
-    default: "https://sepolia.optimism.io"
-  time_diff_threshold:
-    type: integer
-    default: 5
+    default: "__not_set__"
 
 commands:
-  checkout-with-mise:
-    steps:
-      - checkout
-      - run:
-          name: Initialize mise environment
-          command: |
-            # This is used to create a per-user cache key to preserve permissions across different
-            # executor types.
-            user=$(whoami)
-            echo "$user" > .executor-user
-            echo "Set executor user to $user."
-
-            if [[ "$user" == "root" ]]; then
-              # Self-hosted runners will persist this cache between runs. Cleaning it up means that we
-              # preserve the semantics of the cache regardless of executor type. It's also much faster
-              # to delete the cache and recreate it than it is to overwrite it in place.
-              rm -rf /data/mise-data
-              echo "Cleaned up cache data."
-
-              mkdir -p /data/mise-data
-              echo "Created Mise data dir."
-              mkdir -p ~/.cache
-              echo "Created Mise cache dir."
-            else
-              sudo rm -rf /data/mise-data
-              echo "Cleaned up cache data."
-              sudo mkdir -p /data/mise-data
-              sudo chown -R "$user:$user" /data/mise-data
-              echo "Created Mise data dir."
-              sudo mkdir -p ~/.cache
-              sudo chown -R "$user:$user" ~/.cache
-              echo "Created Mise cache dir."
-            fi
-      - restore_cache:
-          name: Restore mise cache
-          keys:
-            - mise-v5-{{ checksum ".executor-user" }}-{{ checksum "mise.toml" }}
-      - run:
-          name: Install mise
-          command: |
-            if command -v mise &> /dev/null; then
-              echo "mise already installed at $(command -v mise)"
-            else
-              curl https://mise.run | sh
-            fi
-
-            echo "export PATH=\"$HOME/.local/bin:\$PATH\"" >> "$BASH_ENV"
-            echo "export MISE_DATA_DIR=/data/mise-data" >> "$BASH_ENV"
-            echo "export MISE_JOBS=$(nproc)" >> "$BASH_ENV"
-            echo "eval \"\$($HOME/.local/bin/mise activate --shims)\"" >> "$BASH_ENV"
-      - run:
-          name: Install mise deps
-          command: |
-            mise install -v -y
-      - save_cache:
-          name: Save mise cache
-          key: mise-v5-{{ checksum ".executor-user" }}-{{ checksum "mise.toml" }}
-          paths:
-            - /data/mise-data
-  
-  simulate:
-    description: "Runs simulations of a task"
+  notify-failures-on-main:
+    description: "Notify Slack"
     parameters:
-      task:
+      channel:
         type: string
-    steps:
-      - checkout
-      - run:
-          name: "simulate << parameters.task >>"
-          command: |
-            just install
-            cd tasks/<< parameters.task >>
-            SIMULATE_WITHOUT_LEDGER=true just \
-              --dotenv-path $(pwd)/.env \
-              --justfile ../../../single.just \
-              simulate
-
-  simulate_nested:
-    description: "Runs simulations of a nested task"
-    parameters:
-      task:
+        default: C03N11M0BBN
+      mentions:
         type: string
+        default: ""
     steps:
-      - checkout
-      - run:
-          name: "simulate nested << parameters.task >>"
-          command: |
-            just install
-            cd tasks/<< parameters.task >>
-            SIMULATE_WITHOUT_LEDGER=true just \
-              --dotenv-path $(pwd)/.env \
-              --justfile ../../../nested.just \
-              simulate foundation
-            SIMULATE_WITHOUT_LEDGER=true just \
-              --dotenv-path $(pwd)/.env \
-              --justfile ../../../nested.just \
-              simulate council
+      - slack/notify:
+          channel: << parameters.channel >>
+          event: fail
+          template: basic_fail_1
+          branch_pattern: main
+          mentions: "<< parameters.mentions >>"
 
 jobs:
-  check_sepolia_rpc_endpoints:
-    circleci_ip_ranges: true
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - checkout-with-mise
-      - run:
-          name: Check Sepolia RPC Endpoints
-          command: |
-            if ./ops/verify-geth-endpoint.sh "<< pipeline.parameters.l1_sepolia_rpc_url >>"; then
-              if ops/verify-geth-endpoint.sh "<< pipeline.parameters.l2_sepolia_rpc_url >>"; then
-                echo "Both RPC endpoints are up to date and not syncing."
-                echo "L1_RPC_SEPOLIA=<< pipeline.parameters.l1_sepolia_rpc_url >>" >> $BASH_ENV
-                echo "L2_RPC_SEPOLIA=<< pipeline.parameters.l2_sepolia_rpc_url >>" >> $BASH_ENV
-              else
-                echo "L2 RPC endpoint failed the checks."
-                exit 1
-              fi
-            else
-              echo "L1 RPC endpoint failed the checks."
-              exit 1
-            fi
-      - run: |
-          cp $BASH_ENV bash.env
-      - persist_to_workspace:
-          root: .
-          paths:
-            - bash.env
-
-  check_mainnet_rpc_endpoints:
-    circleci_ip_ranges: true
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - checkout-with-mise
-      - run:
-          name: Check Mainnet RPC Endpoints
-          command: |
-            if ops/verify-geth-endpoint.sh "<< pipeline.parameters.l1_mainnet_rpc_url >>"; then
-              if ops/verify-geth-endpoint.sh "<< pipeline.parameters.l2_mainnet_rpc_url >>"; then
-                echo "Both RPC endpoints are up to date and not syncing."
-                echo "L1_RPC_MAINNET=<< pipeline.parameters.l1_mainnet_rpc_url >>" >> $BASH_ENV
-                echo "L2_RPC_MAINNET=<< pipeline.parameters.l2_mainnet_rpc_url >>" >> $BASH_ENV
-              else
-                echo "L2 RPC endpoint failed the checks."
-                exit 1
-              fi
-            else
-              echo "L1 RPC endpoint failed the checks."
-              exit 1
-            fi
-      - run: |
-          cp $BASH_ENV bash.env
-      - persist_to_workspace:
-          root: .
-          paths:
-            - bash.env
-
   check_task_statuses:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - attach_workspace:
           at: .
       - run:
           name: Check task statuses
-          command: bash ./script/utils/check-task-statuses.sh
+          command: bash ./src/improvements/script/check-task-statuses.sh
 
-  check_nonce_overrides:
+  check_superchain_registry:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - attach_workspace:
           at: .
       - run:
-          name: Check nonce overrides
-          command: bash ./script/utils/check-nonce-overrides.sh
+          name: Check superchain registry
+          command: |
+            just install
+            (cd src/improvements && just --justfile ci.just check-superchain-registry-latest)
+      - notify-failures-on-main:
+          mentions: "@evm-safety-team"
 
-  # TODO: remove/replace when there are real consumers of the RPC URLs
-  example_mainnet_job:
+  stacked_simulation:
+    description: "Runs a stacked simulation"
+    parameters:
+      network:
+        type: string
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
+    resource_class: xlarge
+    environment:
+      FOUNDRY_PROFILE: ci
     steps:
-      - attach_workspace:
-          at: .
-      - run: |
-          cat bash.env >> $BASH_ENV
+      - utils/checkout-with-mise
       - run:
-          name: Use RPC URLs
-          command: |
-            if [ -z "$L1_RPC_MAINNET" ] || [ -z "$L2_RPC_MAINNET" ]; then
-                echo "Required RPC URLs are not available."
-            fi
-              L1_RPC_URL=$L1_RPC_MAINNET
-              L2_RPC_URL=$L2_RPC_MAINNET
-              echo "L1 RPC URL: $L1_RPC_URL"
-              echo "L2 RPC URL: $L2_RPC_URL"
-              # Use L1_RPC_URL and L2_RPC_URL here.
-
-  just_simulate_sc_rehearsal_1:
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - checkout-with-mise
-      - run:
-          name: just simulate r1-hello-council
+          name: "Run stacked simulation for network: <<parameters.network>>"
+          # This may need to be increased in the future. We should focus on fixing the performance first before bumping this.
+          no_output_timeout: 30m 
           command: |
             just install
-            cd security-council-rehearsals
-            just setup r1-hello-council tmp-ci
-            cd *r1-hello-council-tmp-ci
-            export SIMULATE_WITHOUT_LEDGER=1
-            just simulate
-            just prepare-json
-            just simulate # simulate again to make sure the json is still valid
-
-  just_simulate_sc_rehearsal_2:
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - checkout-with-mise
-      - run:
-          name: just simulate r2-remove-signer
-          command: |
-            just install
-            cd security-council-rehearsals
-            just setup r2-remove-signer tmp-ci
-            cd *r2-remove-signer-tmp-ci
-            export SIMULATE_WITHOUT_LEDGER=1
-            just simulate
-            just get-owners
-            just prepare
-            just simulate # simulate again to make sure the json is still valid
-
-  just_simulate_sc_rehearsal_4:
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - checkout-with-mise
-      - run:
-          name: just simulate r4-jointly-upgrade
-          command: |
-            just install
-            cd security-council-rehearsals
-            just setup r4-jointly-upgrade tmp-ci
-            cd *r4-jointly-upgrade-tmp-ci
-            export SIMULATE_WITHOUT_LEDGER=1
-            just simulate-council
-            just prepare-json
-            just simulate-council # simulate again to make sure the json is still valid
-
-  just_simulate_ink_respected_game_type:
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - checkout-with-mise
-      - simulate:
-          task: "/eth/ink-002-set-respected-game-type"
-
-  just_simulate_zora_002_fp_upgrade:
-    docker:
-      - image: <<pipeline.parameters.default_docker_image>>
-    steps:
-      - checkout-with-mise
-      - simulate_nested:
-          task: "/sep/zora-002-fp-upgrade"
+            cd src/improvements
+            just simulate-stack <<parameters.network>> > stack-simulation-output.txt
+      - store_artifacts:
+          path: src/improvements/stack-simulation-output.txt
+      - notify-failures-on-main:
+          mentions: "@evm-safety-team"
 
   forge_build:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: forge build
           command: |
@@ -306,42 +111,63 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: forge fmt
           command: |
             just install
             forge --version
             forge fmt --check
-  
+
   forge_test:
+    circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
+    resource_class: xlarge
+    environment:
+      FOUNDRY_PROFILE: ci
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: forge test
           command: |
+            just install
             forge --version
             forge test -vvv
-  
-  monorepo_integration_test:
+      - notify-failures-on-main:
+          mentions: "@evm-safety-team"
+
+  template_regression_tests:
+    circleci_ip_ranges: true
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    environment:
+      FOUNDRY_PROFILE: ci
+    steps:
+      - utils/checkout-with-mise
+      - run:
+          name: Make sure all templates can be simulated.
+          command: |
+            (cd src/improvements && just --justfile ci.just simulate-all-templates)
+      - notify-failures-on-main:
+          mentions: "@evm-safety-team"
+
+  just_new_recipe_tests:
     circleci_ip_ranges: true
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
-          name: monorepo integration tests
-          environment:
-            ETH_RPC_URL: << pipeline.parameters.l1_mainnet_rpc_url >>
+          name: just new recipe tests
           command: |
-            (cd src/improvements && just monorepo-integration-test)
+            (cd src/improvements && bash script/test-just-new.sh)
+
   print_versions:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: print versions
           command: |
@@ -353,11 +179,45 @@ jobs:
     docker:
       - image: <<pipeline.parameters.default_docker_image>>
     steps:
-      - checkout-with-mise
+      - utils/checkout-with-mise
       - run:
           name: shellcheck
-          command: | # Justfiles are not shell scripts and should not be checked with shellcheck
-            (cd src/improvements/script && shellcheck -x *)
+          command:
+            | # Justfiles are not shell scripts and should not be checked with shellcheck
+            (cd src/improvements/script && shellcheck -x *.sh)
+  # Check that all task directories have valid names and there are no duplicate prefixes.
+  check_task_names:
+    docker:
+      - image: <<pipeline.parameters.default_docker_image>>
+    steps:
+      - utils/checkout-with-mise
+      - run:
+          name: check task names
+          command: (cd src/improvements/script && ./check-task-names.sh)
+  close-issue:
+    machine:
+      image: ubuntu-2204:2024.08.1
+    parameters:
+      label_name:
+        type: string
+      message:
+        type: string
+    steps:
+      - github-cli/install
+      - utils/github-event-handler-setup:
+          github_event_base64: << pipeline.parameters.github-event-base64 >>
+          env_prefix: "github_"
+      - run:
+          name: Close issue if label is added
+          command: |
+            echo "Closing issue $github_pull_request_number if label $github_label_name is added on repository ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
+            if [ ! -z "$github_pull_request_number" ] && [ "$github_label_name" = "$LABEL_NAME" ]; then
+                export GH_TOKEN=$GITHUB_TOKEN_GOVERNANCE
+                gh issue close --repo "${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}" "$github_pull_request_number" --comment "$MESSAGE"
+            fi
+          environment:
+            MESSAGE: << parameters.message >>
+            LABEL_NAME: << parameters.label_name >>
 
 workflows:
   main:
@@ -367,41 +227,62 @@ workflows:
         - equal: [webhook, << pipeline.trigger_source >>]
         - equal: ["build_four_hours", <<pipeline.schedule.name>>]
     jobs:
-      - print_versions
+      - print_versions:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
       # Forge checks.
-      - forge_build
-      - forge_fmt
-      - forge_test
-      # This is a long running job, so we only run it on the main branch.
-      - monorepo_integration_test:
-          filters:
-            branches:
-              only: main
-      - shellcheck
-      # RPC endpoint checks.
-      - check_sepolia_rpc_endpoints
-      - check_mainnet_rpc_endpoints
-      - example_mainnet_job:
-          requires:
-            - check_mainnet_rpc_endpoints
+      - forge_build:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+      - forge_fmt:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+      - forge_test:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+      - template_regression_tests:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+      - just_new_recipe_tests
+      - shellcheck:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+      - check_task_names
       # Verify that all tasks have a valid status in their README.
-      - check_task_statuses
-      # Verify that all tasks have correctly uppercased nonce overrides.
-      - check_nonce_overrides
-      # Task simulations.
-      # Please add an invocation to `just simulate` if a ceremony is
-      # active (e.g. it is the next ceremony to perform or you
-      # expect the ceremony to work continuously), and remove it once
-      # the ceremony is for historical archive only (e.g. the
-      # ceremony is done).
-      #
-      # We skip rehearsal 1 because we already have completed this rehearsal (https://github.com/ethereum-optimism/superchain-ops/pull/459),
-      # and now it fails with stack too deep after https://github.com/ethereum-optimism/superchain-ops/pull/528.
-      # We wll need to rewrite the rehearsals with the new superchain-ops structure anyway, so this is ok.
-      # - just_simulate_sc_rehearsal_1
-      - just_simulate_sc_rehearsal_2
-      - just_simulate_sc_rehearsal_4
-      - just_simulate_ink_respected_game_type
-      # sepolia
-      - just_simulate_zora_002_fp_upgrade
+      - check_task_statuses:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+      # check that superchain-registry is up to date
+      - check_superchain_registry:
+          context:
+            - circleci-repo-readonly-authenticated-github-token
 
+      # Stacked simulations for superchain-ops on Mainnet.
+      - stacked_simulation:
+          name: stacked_simulation_eth
+          network: "eth"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
+      # Stacked simulations for superchain-ops on Sepolia.
+      - stacked_simulation:
+          name: stacked_simulation_sep
+          network: "sep"
+          context:
+            - circleci-repo-readonly-authenticated-github-token
+
+  close-issue-workflow:
+    when:
+      and:
+        - equal: [<< pipeline.trigger_source >>, "api"]
+        - equal: [<< pipeline.parameters.github-event-type >>, "pull_request"]
+        - equal: [<< pipeline.parameters.github-event-action >>, "labeled"]
+    jobs:
+      - close-issue:
+          label_name: "auto-close-trivial-contribution"
+          message: "Thank you for your interest in contributing!
+            At this time, we are not accepting contributions that primarily fix spelling, stylistic, or grammatical errors in documentation, code, or elsewhere.
+            Please check our [contribution guidelines](https://github.com/ethereum-optimism/optimism/blob/develop/CONTRIBUTING.md#contributions-related-to-spelling-and-grammar) for more information.
+            This issue will be closed now."
+          context:
+            - circleci-repo-superchain-ops

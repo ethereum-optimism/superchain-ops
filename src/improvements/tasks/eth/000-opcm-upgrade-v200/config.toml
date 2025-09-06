@@ -1,0 +1,18 @@
+l2chains = [
+    {name = "OP Mainnet", chainId = 10},
+    {name = "Soneium", chainId = 1868},
+    {name = "Ink", chainId = 57073}
+]
+
+templateName = "OPCMUpgradeV200"
+
+[opcmUpgrades]
+absolutePrestates = [
+    {absolutePrestate = "0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9", chainId = 10},
+    {absolutePrestate = "0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9", chainId = 1868},
+    {absolutePrestate = "0x039facea52b20c605c05efb0a33560a92de7074218998f75bcdf61e8989cb5d9", chainId = 57073}
+]
+
+[addresses]
+OPCM = "0x026b2F158255Beac46c1E7c6b8BbF29A4b6A7B76"
+StandardValidatorV200 = "0xecabaeaa1d58261f1579232520c5b460ca58a164"

@@ -1,0 +1,16 @@
+templateName = "OPCMUpgradeV300"
+
+[[l2chains]]
+chainId = 11155420
+name = "OP Sepolia Testnet"
+
+[[opcmUpgrades]]
+chainId = 11155420
+absolutePrestate = "0x03ee2917da962ec266b091f4b62121dc9682bb0db534633707325339f99ee405"
+# PDDG-ANCHORP-40: The anchor state registry's permissionless root is not 0xdead000000000000000000000000000000000000000000000000000000000000
+# PLDG-ANCHORP-40: The anchor state registry's permissionless root is not 0xdead000000000000000000000000000000000000000000000000000000000000
+expectedValidationErrors = "PDDG-ANCHORP-40,PLDG-ANCHORP-40"
+
+[addresses]
+OPCM = "0xfbceed4de885645fbded164910e10f52febfab35" # Sepolia op-contracts/v3.0.0-rc.2 https://github.com/ethereum-optimism/superchain-registry/blob/main/validation/standard/standard-versions-sepolia.toml#L22
+StandardValidatorV300 = "0x2d56022cb84ce6b961c3b4288ca36386bcd9024c" # Sepolia https://github.com/ethereum-optimism/optimism/blob/f79ed8b9c9cbdbf8bb492074f3f98da7f072e21a/op-validator/pkg/validations/addresses.go#L30

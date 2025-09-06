@@ -15,6 +15,26 @@ contract MockContract {
     }
 }
 
+/// @notice Library to expose the internal functions, to avoid tests stopping after hitting an expected revert.
+/// https://book.getfoundry.sh/cheatcodes/expect-revert
+library BytecodeComparisonHarness {
+    function compare(address _contractA, address _contractB, BytecodeComparison.Diff[] memory _allowed)
+        external
+        view
+        returns (bool)
+    {
+        return BytecodeComparison.compare(_contractA, _contractB, _allowed);
+    }
+
+    function compare(bytes memory _bytecodeA, bytes memory _bytecodeB, BytecodeComparison.Diff[] memory _allowed)
+        external
+        pure
+        returns (bool)
+    {
+        return BytecodeComparison.compare(_bytecodeA, _bytecodeB, _allowed);
+    }
+}
+
 contract VeryDifferentContract {
     bytes public constant WOW =
         hex"00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF";
@@ -38,7 +58,7 @@ contract BytecodeComparison_compare_Test is Test {
 
         BytecodeComparison.Diff[] memory allowed = new BytecodeComparison.Diff[](0);
         vm.expectRevert("BytecodeComparison: diff in bytecode length");
-        BytecodeComparison.compare(address(contractA), address(contractB), allowed);
+        BytecodeComparisonHarness.compare(address(contractA), address(contractB), allowed);
     }
 
     /// @notice Test that a single allowed diff matches.
@@ -62,7 +82,7 @@ contract BytecodeComparison_compare_Test is Test {
         BytecodeComparison.Diff[] memory allowed = new BytecodeComparison.Diff[](0);
 
         vm.expectRevert("BytecodeComparison: unexpected diff found at index:2, byte:0xff");
-        BytecodeComparison.compare(bytecodeA, bytecodeB, allowed);
+        BytecodeComparisonHarness.compare(bytecodeA, bytecodeB, allowed);
     }
 
     /// @notice Test that multiple allowed diffs match.
@@ -102,7 +122,7 @@ contract BytecodeComparison_compare_Test is Test {
         });
 
         vm.expectRevert("BytecodeComparison: unexpected diff found at index:2, byte:0xff");
-        BytecodeComparison.compare(bytecodeA, bytecodeB, allowed);
+        BytecodeComparisonHarness.compare(bytecodeA, bytecodeB, allowed);
     }
 
     /// @notice Test that a wrong diff content reverts.
@@ -117,6 +137,6 @@ contract BytecodeComparison_compare_Test is Test {
         });
 
         vm.expectRevert("BytecodeComparison: unexpected diff found at index:2, byte:0xff");
-        BytecodeComparison.compare(bytecodeA, bytecodeB, allowed);
+        BytecodeComparisonHarness.compare(bytecodeA, bytecodeB, allowed);
     }
 }

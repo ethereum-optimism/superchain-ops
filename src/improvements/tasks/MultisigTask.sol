@@ -2,479 +2,187 @@
 pragma solidity 0.8.15;
 
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import {LibSort} from "@solady/utils/LibSort.sol";
 import {console} from "forge-std/console.sol";
 import {Script} from "forge-std/Script.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {Test} from "forge-std/Test.sol";
+import {StdStyle} from "forge-std/StdStyle.sol";
+import {IMulticall3} from "forge-std/interfaces/IMulticall3.sol";
 
 import {Signatures} from "@base-contracts/script/universal/Signatures.sol";
 import {Simulation} from "@base-contracts/script/universal/Simulation.sol";
 import {IGnosisSafe, Enum} from "@base-contracts/script/universal/IGnosisSafe.sol";
 
-import {ITask} from "src/improvements/tasks/ITask.sol";
-import {AddressRegistry as Addresses} from "src/improvements/AddressRegistry.sol";
+import {AccountAccessParser} from "src/libraries/AccountAccessParser.sol";
+import {GnosisSafeHashes} from "src/libraries/GnosisSafeHashes.sol";
+import {Action, TemplateConfig, TaskType, TaskPayload, SafeData} from "src/libraries/MultisigTypes.sol";
+import {StateOverrideManager} from "src/improvements/tasks/StateOverrideManager.sol";
+import {Utils} from "src/libraries/Utils.sol";
+import {MultisigTaskPrinter} from "src/libraries/MultisigTaskPrinter.sol";
+import {TaskManager} from "src/improvements/tasks/TaskManager.sol";
+import {Solarray} from "lib/optimism/packages/contracts-bedrock/scripts/libraries/Solarray.sol";
 
-abstract contract MultisigTask is Test, Script, ITask {
+type AddressRegistry is address;
+
+abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManager {
     using EnumerableSet for EnumerableSet.AddressSet;
+    using AccountAccessParser for VmSafe.AccountAccess[];
+    using AccountAccessParser for VmSafe.AccountAccess;
+    using StdStyle for string;
 
-    /// @notice nonce used for generating the safe transaction
-    /// will be set to the value specified in the config file
-    uint256 public nonce;
+    /// @notice AddressesRegistry contract
+    AddressRegistry public addrRegistry;
 
-    /// @notice flag to determine if the safe is nested multisig
-    bool public isNestedSafe;
+    /// @notice Configuration set by the task's template
+    TemplateConfig public templateConfig;
 
-    /// @notice owners the safe started with
-    address[] public startingOwners;
+    /// @notice The address of the multicall target for this task
+    address public multicallTarget;
 
-    /// @notice array of L2 ChainIds this task will interface with
-    uint256[] public l2ChainIds;
+    /// @notice struct to store the addresses that are expected to have storage accesses
+    EnumerableSet.AddressSet internal _allowedStorageAccesses;
 
-    /// @notice configured chain id
-    uint256 public configChainId;
+    /// @notice struct to store the addresses that are expected to have balance changes
+    EnumerableSet.AddressSet internal _allowedBalanceChanges;
 
-    /// @notice Addresses contract
-    Addresses public addresses;
-
-    /// @notice The address of the multisig for this task
-    address public multisig;
-
-    /// @notice struct to store allowed storage accesses read in from config file
-    /// uses OpenZeppelin EnumerableSet for allowed storage accesses
-    EnumerableSet.AddressSet private _allowedStorageAccesses;
-
-    /// @notice Struct to store information about an action
-    /// @param target The address of the target contract
-    /// @param value The amount of ETH to send with the action
-    /// @param arguments The calldata to send with the action
-    /// @param description A description of the action
-    struct Action {
-        address target;
-        uint256 value;
-        bytes arguments;
-        string description;
-    }
-
-    /// @notice Struct to store information about a token/Eth transfer
-    /// @param to The address of the recipient
-    /// @param value The amount of tokens/Eth to transfer
-    /// @param tokenAddress The address of the token contract
-    struct TransferInfo {
-        address to;
-        uint256 value;
-        address tokenAddress;
-    }
-
-    /// @notice Struct to store information about a state change
-    /// @param slot The storage slot that is being updated
-    /// @param oldValue The old value of the storage slot
-    /// @param newValue The new value of the storage slot
-    struct StateInfo {
-        bytes32 slot;
-        bytes32 oldValue;
-        bytes32 newValue;
-    }
-
-    /// @notice transfers during task execution
-    mapping(address => TransferInfo[]) private _taskTransfers;
-
-    /// @notice state changes during task execution
-    mapping(address => StateInfo[]) private _stateInfos;
-
-    /// @notice addresses involved in state changes or token transfers
-    EnumerableSet.AddressSet private _taskTransferFromAddresses;
-
-    /// @notice addresses whose state is updated in task execution
-    EnumerableSet.AddressSet internal _taskStateChangeAddresses;
-
-    /// @notice stores the gnosis safe accesses for the task
-    VmSafe.StorageAccess[] internal _accountAccesses;
-
-    /// @notice starting snapshot of the contract state before the calls are made
-    uint256 private _startSnapshot;
-
-    /// @notice list of actions to be executed, regardless of task type
-    /// they all follow the same structure
-    Action[] public actions;
-
-    /// @notice Multicall3 call data struct
-    /// @param target The address of the target contract
-    /// @param allowFailure Flag to determine if the call should be allowed to fail
-    /// @param value The amount of ETH to send with the call
-    /// @param callData The calldata to send with the call
-    struct Call3Value {
-        address target;
-        bool allowFailure;
-        uint256 value;
-        bytes callData;
-    }
-
-    /// @notice Task TOML config file values
-    struct TaskConfig {
-        string[] allowedStorageWriteAccesses;
-        string safeAddressString;
-    }
-
-    /// @notice configuration set at initialization
-    TaskConfig public config;
+    /// @notice Snapshot of the chain state before the tasks transaction is executed.
+    uint256 private _preExecutionSnapshot;
 
     /// @notice flag to determine if the task is being simulated
-    bool private _buildStarted;
+    uint256 private _buildStarted;
 
-    /// @notice The address of the child multisig for this task
-    address public childMultisig;
+    /// ==================================================
+    /// ============== EntryPoint Functions ==============
+    /// ==================================================
 
-    /// @notice buildModifier to be used by the build function to populate the
-    /// actions array
-    modifier buildModifier() {
-        require(multisig != address(0), "Must set addresses object for multisig address to be set");
-
-        require(!_buildStarted, "Build already started");
-        _buildStarted = true;
-
-        _startBuild();
-        _;
-        _endBuild();
-
-        _buildStarted = false;
+    /// @notice Simulate a task in isolation that has nested safe architecture with a child safe at depth 2, a child safe at depth 1, and a root safe.
+    function simulate(string memory taskConfigFilePath, address childSafeDepth2, address childSafeDepth1) public {
+        require(
+            childSafeDepth1 != address(0) && childSafeDepth2 != address(0),
+            "MultisigTask: Both child safes must be provided."
+        );
+        simulate(taskConfigFilePath, Solarray.addresses(childSafeDepth2, childSafeDepth1));
     }
 
-    /// @notice abstract function to be implemented by the inheriting contract
-    /// specifies the safe address string to run the template from
-    function safeAddressString() public pure virtual returns (string memory);
-
-    /// @notice abstract function to be implemented by the inheriting contract
-    /// specifies the addresses that must have their storage written to
-    function _taskStorageWrites() internal pure virtual returns (string[] memory);
-
-    /// @notice Runs the task with the given configuration file path.
-    /// Sets the address registry, initializes and simulates the single multisig
-    /// as well as the nested multisig. For single multisig,
-    /// prints the data to sign and the hash to approve which is used to sign with the eip712sign binary.
-    /// For nested multisig, prints the data to sign and the hash to approve for each of the child multisigs.
-    /// @param taskConfigFilePath The path to the task configuration file.
-    function simulateRun(string memory taskConfigFilePath) public override {
-        _taskSetup(taskConfigFilePath);
-        /// now execute task actions
-        build();
-        simulate();
-        validate();
-        print();
+    /// @notice Simulate a task in isolation that has nested safe architecture with a child safe at depth 1 and a root safe.
+    function simulate(string memory taskConfigFilePath, address childSafeDepth1) public {
+        require(childSafeDepth1 != address(0), "MultisigTask: Child safe must be provided.");
+        simulate(taskConfigFilePath, Solarray.addresses(childSafeDepth1));
     }
 
-    /// @notice Executes the task with the given configuration file path and signatures.
-    /// Sets the address registry, initializes and executes the task the single multisig
-    /// as well as the nested multisig.
-    /// @param taskConfigFilePath The path to the task configuration file.
-    /// @param signatures The signatures to execute the task.
-    function executeRun(string memory taskConfigFilePath, bytes memory signatures) public {
-        _taskSetup(taskConfigFilePath);
-        /// now execute task actions
-        build();
-        execute(signatures);
-        validate();
+    /// @notice Simulate a task in isolation that only has a root safe and no nested safes.
+    function simulate(string memory taskConfigFilePath) public {
+        simulate(taskConfigFilePath, new address[](0));
     }
 
-    /// @notice Child multisig of a nested multisig approves the task to be executed with the given
-    /// configuration file path and signatures.
-    /// @param taskConfigFilePath The path to the task configuration file.
-    /// @param _childMultisig The address of the child multisig that is approving the task.
-    /// @param signatures The signatures to approve the task transaction hash.
-    function approveFromChildMultisig(string memory taskConfigFilePath, address _childMultisig, bytes memory signatures)
+    /// @notice Simulates the nested safe transaction of the task.
+    /// This works by printing the 'data to sign' for the nested safe which is then passed to the eip712sign binary for signing.
+    function simulate(string memory taskConfigFilePath, address[] memory _childSafes)
         public
+        returns (VmSafe.AccountAccess[] memory, Action[] memory, bytes32, bytes memory, address)
     {
-        _taskSetup(taskConfigFilePath);
-        build();
-        approve(_childMultisig, signatures);
+        return _runTask(taskConfigFilePath, "", _childSafes, true);
     }
 
-    /// @notice Simulates a nested multisig task with the given configuration file path for a
-    /// given child multisig. Prints the data to sign and the hash to approve corresponding to
-    /// the _childMultisig, printed data to sign is used to sign with the eip712sign binary.
-    /// @param taskConfigFilePath The path to the task configuration file.
-    /// @param _childMultisig The address of the child multisig.
-    function signFromChildMultisig(string memory taskConfigFilePath, address _childMultisig) public {
-        childMultisig = _childMultisig;
-        simulateRun(taskConfigFilePath);
-        require(isNestedSafe, "MultisigTask: multisig must be nested");
+    /// @notice Executes the root safe transaction of the task with the given configuration file path and signatures.
+    function execute(string memory taskConfigFilePath, bytes memory signatures, address[] memory _childSafes)
+        public
+        returns (VmSafe.AccountAccess[] memory)
+    {
+        (VmSafe.AccountAccess[] memory accountAccesses,,,,) =
+            _runTask(taskConfigFilePath, signatures, _childSafes, false);
+        return accountAccesses;
     }
 
-    /// @notice Sets the address registry, initializes the task.
-    /// @param taskConfigFilePath The path to the task configuration file.
-    function _taskSetup(string memory taskConfigFilePath) internal {
-        Addresses _addresses = new Addresses(taskConfigFilePath);
-
-        _templateSetup(taskConfigFilePath);
-
-        /// set the task config
-        require(
-            bytes(config.safeAddressString).length == 0 && address(addresses) == address(0x0),
-            "MultisigTask: already initialized"
+    /// @notice Approves the the root safe transaction from a nested safe.
+    function approve(string memory taskConfigFilePath, address[] memory _childSafes, bytes memory signatures) public {
+        (TaskPayload memory payload,) = _taskSetup(taskConfigFilePath, _childSafes);
+        // TODO: blmalone add test for this.
+        require(payload.safes.length > 1, "MultisigTask: approve call must have at least 1 child safe.");
+        uint256 childSafeIndex = 0;
+        executeTaskStep(signatures, payload, childSafeIndex);
+        address approvalSafe = payload.safes[childSafeIndex];
+        console.log(
+            "--------- Successfully %s Child Multisig %s Approval ---------",
+            _isBroadcastContext() ? "Broadcasted" : "Simulated",
+            approvalSafe
         );
-        require(
-            block.chainid == getChain("mainnet").chainId || block.chainid == getChain("sepolia").chainId,
-            string.concat("Unsupported network: ", vm.toString(block.chainid))
-        );
+    }
 
-        config.safeAddressString = safeAddressString();
-        config.allowedStorageWriteAccesses = _taskStorageWrites();
+    /// @notice Executes a task for a given safe. The 'executionSafeIdx' is the index of the safe in the payload.safes array.
+    function executeTaskStep(bytes memory signatures, TaskPayload memory payload, uint256 executionSafeIdx)
+        public
+        returns (VmSafe.AccountAccess[] memory, bytes32 txHash_)
+    {
+        SafeData memory safeData = Utils.getSafeData(payload, executionSafeIdx);
+        txHash_ = getHash(safeData.callData, safeData.safe, 0, safeData.nonce, payload.safes);
 
-        /// set the addresses object
-        addresses = _addresses;
-
-        /// assume safe is nested unless there is an EOA owner
-        isNestedSafe = true;
-
-        /// get chains
-        Addresses.ChainInfo[] memory chains = addresses.getChains();
-        require(chains.length > 0, "MultisigTask: no chains found");
-
-        /// check that the safe address is the same for all chains and then set safe in storage
-        multisig = addresses.getAddress(config.safeAddressString, chains[0].chainId);
-
-        /// TODO change this once we implement task stacking
-        nonce = IGnosisSafe(multisig).nonce();
-
-        address[] memory owners = IGnosisSafe(multisig).getOwners();
-        for (uint256 i = 0; i < owners.length; i++) {
-            if (owners[i].code.length == 0) {
-                isNestedSafe = false;
+        // If we are simulating, we need to approve the hash from each owner.
+        // Otherwise, we are executing the task and all approvals are already done.
+        // No signatures means we are simulating.
+        if (signatures.length == 0) {
+            address[] memory owners = IGnosisSafe(safeData.safe).getOwners();
+            for (uint256 i = 0; i < owners.length; i++) {
+                vm.prank(owners[i]);
+                IGnosisSafe(safeData.safe).approveHash(txHash_);
+                // Manually increment the nonce for each owner. If we executed the approveHash function from the owner directly (contract or EOA),
+                // the nonce would be incremented by 1 and we wouldn't have to do this manually.
+                _incrementOwnerNonce(owners[i]);
             }
-        }
-
-        for (uint256 i = 1; i < chains.length; i++) {
-            require(
-                multisig == addresses.getAddress(config.safeAddressString, chains[i].chainId),
-                string.concat(
-                    "MultisigTask: safe address mismatch. Caller: ",
-                    getAddressLabel(multisig),
-                    ". Actual address: ",
-                    getAddressLabel(addresses.getAddress(config.safeAddressString, chains[i].chainId))
-                )
+            signatures = _prepareSignatures(safeData.safe, txHash_);
+        } else {
+            // If signatures are attached, this means EOA's have signed, so we order the signatures.
+            signatures = Signatures.sortUniqueSignatures(
+                safeData.safe, signatures, txHash_, IGnosisSafe(safeData.safe).getThreshold(), signatures.length
             );
         }
 
-        /// Fetch starting owners
-        IGnosisSafe safe = IGnosisSafe(multisig);
-        startingOwners = safe.getOwners();
-
-        /// this loads the allowed storage write accesses to storage for this task
-        /// if this task changes storage slots outside of the allowed write accesses,
-        /// then the task will fail at runtime and the task developer will need to
-        /// update the config to include the addresses whose storage slots changed,
-        /// or figure out why the storage slots are being changed when they should not be.
-        for (uint256 i = 0; i < config.allowedStorageWriteAccesses.length; i++) {
-            for (uint256 j = 0; j < chains.length; j++) {
-                _allowedStorageAccesses.add(
-                    addresses.getAddress(config.allowedStorageWriteAccesses[i], chains[j].chainId)
-                );
-            }
-        }
-    }
-
-    /// @notice abstract function to be implemented by the inheriting contract to setup the template
-    function _templateSetup(string memory taskConfigFilePath) internal virtual;
-
-    /// @notice get the calldata to be executed by safe
-    /// @dev callable only after the build function has been run and the
-    /// calldata has been loaded up to storage
-    /// @return data The calldata to be executed
-    function getCalldata() public view override returns (bytes memory data) {
-        /// get task actions
-        (address[] memory targets, uint256[] memory values, bytes[] memory arguments) = getTaskActions();
-
-        /// create calls array with targets and arguments
-        Call3Value[] memory calls = new Call3Value[](targets.length);
-
-        for (uint256 i; i < calls.length; i++) {
-            require(targets[i] != address(0), "Invalid target for multisig");
-            calls[i] = Call3Value({target: targets[i], allowFailure: false, value: values[i], callData: arguments[i]});
+        address safeMulticallTarget;
+        if (executionSafeIdx == payload.safes.length - 1) {
+            safeMulticallTarget = _getMulticallAddress(safeData.safe, payload.safes);
+        } else {
+            safeMulticallTarget = MULTICALL3_ADDRESS; // For any non-root safe, we use the multicall3 address.
         }
 
-        /// generate calldata
-        data = abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
-    }
-
-    /// @notice print the data to sig by EOA for single multisig
-    function printDataToSign() public view {
-        // logs required for using eip712sign binary to sign the data to sign with Ledger
-        console.log("vvvvvvvv");
-        console.logBytes(getDataToSign(multisig, getCalldata()));
-        console.log("^^^^^^^^\n");
-    }
-
-    /// @notice print the hash to approve by EOA for single multisig
-    function printHashToApprove() public view {
-        console.logBytes32(getHash());
-    }
-
-    function _getNonce(address safe) internal view returns (uint256) {
-        return (safe == multisig) ? nonce : IGnosisSafe(safe).nonce();
-    }
-
-    /// @notice get the data to sign by EOA for single multisig
-    /// @param data The calldata to be executed
-    /// @return The data to sign
-    function getDataToSign(address safe, bytes memory data) public view returns (bytes memory) {
-        return IGnosisSafe(safe).encodeTransactionData({
-            to: MULTICALL3_ADDRESS,
-            value: 0,
-            data: data,
-            operation: Enum.Operation.DelegateCall,
-            safeTxGas: 0,
-            baseGas: 0,
-            gasPrice: 0,
-            gasToken: address(0),
-            refundReceiver: address(0),
-            _nonce: _getNonce(safe)
-        });
-    }
-
-    /// @notice simulate the task by approving from owners and then executing
-    function simulate() public override {
-        bytes memory data = getCalldata();
-        bytes32 hash = getHash();
-
-        // Approve the hash from each owner
-        address[] memory owners = IGnosisSafe(multisig).getOwners();
-        for (uint256 i = 0; i < owners.length; i++) {
-            vm.prank(owners[i]);
-            IGnosisSafe(multisig).approveHash(hash);
-        }
-
-        bytes memory signatures = prepareSignatures(multisig, hash);
-
-        bytes32 txHash = IGnosisSafe(multisig).getTransactionHash(
-            MULTICALL3_ADDRESS, 0, data, Enum.Operation.DelegateCall, 0, 0, 0, address(0), payable(address(0)), nonce
-        );
-
-        require(hash == txHash, "MultisigTask: hash mismatch");
-
-        // Execute the transaction
-        (bool success) = IGnosisSafe(multisig).execTransaction(
-            MULTICALL3_ADDRESS,
+        bytes32 recomputedHash = IGnosisSafe(safeData.safe).getTransactionHash(
+            safeMulticallTarget,
             0,
-            data,
+            safeData.callData,
             Enum.Operation.DelegateCall,
             0,
             0,
             0,
             address(0),
             payable(address(0)),
-            signatures
+            safeData.nonce
         );
 
-        require(success, "MultisigTask: simulateActions failed");
-    }
+        require(recomputedHash == txHash_, "MultisigTask: hash mismatch");
 
-    /// @notice child multisig approves the task to be executed.
-    /// @param _childMultisig The address of the child multisig that is approving the task.
-    /// @param signatures The signatures to approve the task transaction hash.
-    function approve(address _childMultisig, bytes memory signatures) public {
-        bytes memory approveCalldata = generateApproveMulticallData();
-        bytes32 hash = keccak256(getDataToSign(_childMultisig, approveCalldata));
-        signatures = Signatures.prepareSignatures(_childMultisig, hash, signatures);
+        // Snapshot state before executing the transaction. After validation, we revert to this snapshot.
+        _preExecutionSnapshot = vm.snapshotState();
+        vm.startStateDiffRecording();
 
-        bool success = IGnosisSafe(_childMultisig).execTransaction(
-            MULTICALL3_ADDRESS,
-            0,
-            approveCalldata,
-            Enum.Operation.DelegateCall,
-            0,
-            0,
-            0,
-            address(0),
-            payable(address(0)),
-            signatures
+        _execTransaction(
+            safeData.safe, safeMulticallTarget, 0, safeData.callData, Enum.Operation.DelegateCall, signatures
         );
 
-        require(success, "MultisigTask: approval failed");
+        return (vm.stopAndReturnStateDiff(), txHash_);
     }
 
-    /// @notice Executes the task with the given signatures.
-    /// @param signatures The signatures to execute the task.
-    function execute(bytes memory signatures) public {
-        bytes memory data = getCalldata();
-        bytes32 hash = getHash();
+    /// ==================================================
+    /// ============== Public Misc Functions =============
+    /// ==================================================
 
-        signatures = Signatures.prepareSignatures(multisig, hash, signatures);
-
-        (bool success) = IGnosisSafe(multisig).execTransaction(
-            MULTICALL3_ADDRESS,
-            0,
-            data,
-            Enum.Operation.DelegateCall,
-            0,
-            0,
-            0,
-            address(0),
-            payable(address(0)),
-            signatures
-        );
-
-        require(success, "MultisigTask: execute failed");
-    }
-
-    /// @notice returns the allowed storage accesses
-    /// @return _allowedStorageAccesses The allowed storage accesses
-    function getAllowedStorageAccess() public view override returns (address[] memory) {
+    /// @notice Returns the allowed storage accesses.
+    function getAllowedStorageAccess() public view returns (address[] memory) {
         return _allowedStorageAccesses.values();
     }
 
-    /// @notice execute post-task checks.
-    ///          e.g. read state variables of the deployed contracts to make
-    ///          sure they are deployed and initialized correctly, or read
-    ///          states that are expected to have changed during the simulate step.
-    function validate() public view override {
-        /// check that all state change addresses are in allowed storage accesses
-        for (uint256 i; i < _taskStateChangeAddresses.length(); i++) {
-            address addr = _taskStateChangeAddresses.at(i);
-            require(
-                _allowedStorageAccesses.contains(addr),
-                string(
-                    abi.encodePacked(
-                        "MultisigTask: address ", getAddressLabel(addr), " not in allowed storage accesses"
-                    )
-                )
-            );
-        }
-
-        /// check that all allowed storage accesses are in task state change addresses
-        for (uint256 i; i < _allowedStorageAccesses.length(); i++) {
-            address addr = _allowedStorageAccesses.at(i);
-            require(
-                _taskStateChangeAddresses.contains(addr),
-                string(
-                    abi.encodePacked(
-                        "MultisigTask: address ", getAddressLabel(addr), " not in task state change addresses"
-                    )
-                )
-            );
-        }
-
-        require(IGnosisSafe(multisig).nonce() == nonce + 1, "MultisigTask: nonce not incremented");
-
-        Addresses.ChainInfo[] memory chains = addresses.getChains();
-
-        for (uint256 i = 0; i < chains.length; i++) {
-            _validate(chains[i].chainId);
-        }
-    }
-
-    /// @notice task specific validations
-    /// @dev override to add additional task specific validations
-    /// @param chainId The l2chainId
-    function _validate(uint256 chainId) internal view virtual;
-
-    /// @notice get task actions
-    /// @return targets The targets of the actions
-    /// @return values The values of the actions
-    /// @return arguments The arguments of the actions
-    function getTaskActions()
+    /// @notice Get task actions. Splits the actions into targets, values, and arguments.
+    function processTaskActions(Action[] memory actions)
         public
-        view
-        override
+        pure
         returns (address[] memory targets, uint256[] memory values, bytes[] memory arguments)
     {
         uint256 actionsLength = actions.length;
@@ -486,7 +194,7 @@ abstract contract MultisigTask is Test, Script, ITask {
 
         for (uint256 i; i < actionsLength; i++) {
             require(actions[i].target != address(0), "Invalid target for task");
-            /// if there are no args and no eth, the action is not valid
+            // if there are no args and no eth, the action is not valid
             require(
                 (actions[i].arguments.length == 0 && actions[i].value > 0) || actions[i].arguments.length > 0,
                 "Invalid arguments for task"
@@ -497,171 +205,25 @@ abstract contract MultisigTask is Test, Script, ITask {
         }
     }
 
-    /// --------------------------------------------------------------------
-    /// --------------------------------------------------------------------
-    /// --------------------------- Public functions -----------------------
-    /// --------------------------------------------------------------------
-    /// --------------------------------------------------------------------
+    /// @notice Build the task actions for all l2chains in the task.
+    /// Contract calls must be performed in plain solidity.
+    function build(address rootSafe) public returns (Action[] memory actions) {
+        require(rootSafe != address(0), "Must set address registry for multisig address to be set");
+        require(_buildStarted == uint256(0), "Build already started");
 
-    /// @notice build the task actions for all l2chains in the task
-    /// @dev contract calls must be perfomed in plain solidity.
-    ///      overriden requires using buildModifier modifier to leverage
-    ///      foundry snapshot and state diff recording to populate the actions array.
-    function build() public override buildModifier {
-        Addresses.ChainInfo[] memory chains = addresses.getChains();
+        _buildStarted = 1;
 
-        for (uint256 i = 0; i < chains.length; i++) {
-            _build(chains[i].chainId);
-        }
+        _startBuild(rootSafe);
+        _build(rootSafe);
+        actions = _endBuild(rootSafe);
+
+        _buildStarted = 0;
+
+        return actions;
     }
 
-    /// @notice build the task actions for a given l2chain
-    /// @dev override to add additional task specific build logic
-    function _build(uint256 chainId) internal virtual;
-
-    /// @notice print task description, actions, transfers, state changes and EOAs datas to sign
-    function print() public virtual override {
-        console.log("\n------------------ Task Actions ------------------");
-        for (uint256 i; i < actions.length; i++) {
-            console.log("%d). %s", i + 1, actions[i].description);
-            console.log("target: %s\npayload", getAddressLabel(actions[i].target));
-            console.logBytes(actions[i].arguments);
-            console.log("\n");
-        }
-
-        console.log("\n----------------- Task Transfers -------------------");
-        if (_taskTransferFromAddresses.length() == 0) {
-            console.log("\nNo Transfers\n");
-        }
-        for (uint256 i; i < _taskTransferFromAddresses.length(); i++) {
-            address account = _taskTransferFromAddresses.at(i);
-
-            console.log("\n\n", string.concat(getAddressLabel(account), ":"));
-
-            // print token transfers
-            TransferInfo[] memory transfers = _taskTransfers[account];
-            if (transfers.length > 0) {
-                console.log("\n Transfers:");
-            }
-            for (uint256 j; j < transfers.length; j++) {
-                if (transfers[j].tokenAddress == address(0)) {
-                    console.log(
-                        string(
-                            abi.encodePacked(
-                                "Sent ", vm.toString(transfers[j].value), " ETH to ", getAddressLabel(transfers[j].to)
-                            )
-                        )
-                    );
-                } else {
-                    console.log(
-                        string(
-                            abi.encodePacked(
-                                "Sent ",
-                                vm.toString(transfers[j].value),
-                                " ",
-                                getAddressLabel(transfers[j].tokenAddress),
-                                " to ",
-                                getAddressLabel(transfers[j].to)
-                            )
-                        )
-                    );
-                }
-            }
-        }
-
-        console.log("\n----------------- Task State Changes -------------------");
-        // print state changes
-        for (uint256 k; k < _taskStateChangeAddresses.length(); k++) {
-            address account = _taskStateChangeAddresses.at(k);
-            StateInfo[] memory stateChanges = _stateInfos[account];
-            if (stateChanges.length > 0) {
-                console.log("\n State Changes for account:", getAddressLabel(account));
-            }
-            for (uint256 j; j < stateChanges.length; j++) {
-                console.log("Slot:", vm.toString(stateChanges[j].slot));
-                console.log("- ", vm.toString(stateChanges[j].oldValue));
-                console.log("+ ", vm.toString(stateChanges[j].newValue));
-            }
-        }
-
-        /// print calldata to be executed within the Safe
-        console.log("\n\n------------------ Task Calldata ------------------");
-        console.logBytes(getCalldata());
-
-        if (isNestedSafe) {
-            console.log("\n\n------------------ Nested Multisig EOAs Data to Sign ------------------");
-            printNestedDataToSign();
-            console.log("\n\n------------------ Nested Multisig EOAs Hash to Approve ------------------");
-            printNestedHashToApprove();
-        } else {
-            console.log("\n\n------------------ Single Multisig EOA Data to Sign ------------------");
-            printDataToSign();
-            console.log("\n\n------------------ Single Multisig EOA Hash to Approve ------------------");
-            printHashToApprove();
-        }
-        console.log("\n\n------------------ Tenderly Simulation Link ------------------");
-        printTenderlySimulationLink();
-    }
-
-    /// @notice print the data to sign by EOA for nested multisig
-    function printNestedDataToSign() public view {
-        bytes memory callData = generateApproveMulticallData();
-
-        if (childMultisig != address(0)) {
-            console.log("Child multisig: %s", getAddressLabel(childMultisig));
-            // logs required for using eip712sign binary to sign the data to sign with Ledger
-            console.log("vvvvvvvv");
-            console.logBytes(getDataToSign(childMultisig, callData));
-            console.log("^^^^^^^^\n");
-        } else {
-            for (uint256 i; i < startingOwners.length; i++) {
-                console.log("Nested multisig: %s", getAddressLabel(startingOwners[i]));
-                console.logBytes(getDataToSign(startingOwners[i], callData));
-            }
-        }
-    }
-
-    /// @notice print the hash to approve by EOA for nested multisig
-    function printNestedHashToApprove() public view {
-        bytes memory callData = generateApproveMulticallData();
-
-        if (childMultisig != address(0)) {
-            console.log("Nested multisig: %s", getAddressLabel(childMultisig));
-            console.logBytes32(keccak256(getDataToSign(childMultisig, callData)));
-        } else {
-            for (uint256 i; i < startingOwners.length; i++) {
-                bytes32 hash = keccak256(getDataToSign(startingOwners[i], callData));
-                console.log("Nested multisig: %s", getAddressLabel(startingOwners[i]));
-                console.logBytes32(hash);
-            }
-        }
-    }
-
-    /// @notice print the tenderly simulation link with the state overrides
-    function printTenderlySimulationLink() internal view {
-        Simulation.StateOverride[] memory overrides = new Simulation.StateOverride[](1);
-        overrides[0] = Simulation.overrideSafeThresholdOwnerAndNonce(multisig, msg.sender, _getNonce(multisig));
-        bytes memory txData =
-            _execTransationCalldata(multisig, getCalldata(), Signatures.genPrevalidatedSignature(msg.sender));
-        Simulation.logSimulationLink({_to: multisig, _data: txData, _from: msg.sender, _overrides: overrides});
-    }
-
-    /// --------------------------------------------------------------------
-    /// --------------------------------------------------------------------
-    /// ------------------------- Internal functions -----------------------
-    /// --------------------------------------------------------------------
-    /// --------------------------------------------------------------------
-
-    /// @notice get the hash for this safe transaction
-    /// can only be called after the build function, otherwise it reverts
-    function getHash() public view returns (bytes32) {
-        bytes memory data = getCalldata();
-        return keccak256(getDataToSign(multisig, data));
-    }
-
-    /// @notice validate actions inclusion
-    /// default implementation check for duplicate actions
-    function _validateAction(address target, uint256 value, bytes memory data) internal virtual {
+    /// @notice Validate actions inclusion. Default implementation checks for duplicate actions.
+    function validateAction(address target, uint256 value, bytes memory data, Action[] memory actions) public pure {
         uint256 actionsLength = actions.length;
         for (uint256 i = 0; i < actionsLength; i++) {
             // Check if the target, arguments and value matches with other existing actions.
@@ -673,241 +235,682 @@ abstract contract MultisigTask is Test, Script, ITask {
         }
     }
 
-    /// @notice helper function to generate the approveHash calldata to be executed by child multisig owner on parent multisig
-    function generateApproveMulticallData() public view returns (bytes memory) {
-        bytes32 hash = getHash();
-        Call3Value memory call = Call3Value({
-            target: multisig,
-            allowFailure: false,
-            value: 0,
-            callData: abi.encodeCall(IGnosisSafe(multisig).approveHash, (hash))
-        });
-
-        Call3Value[] memory calls = new Call3Value[](1);
-        calls[0] = call;
-        return abi.encodeWithSignature("aggregate3Value((address,bool,uint256,bytes)[])", calls);
+    /// @notice Get the hash for this safe transaction.
+    function getHash(
+        bytes memory callData,
+        address safe,
+        uint256 value,
+        uint256 originalNonce,
+        address[] memory allSafes
+    ) public view returns (bytes32) {
+        address multicallAddress = _getMulticallAddress(safe, allSafes);
+        return keccak256(
+            GnosisSafeHashes.getEncodedTransactionData(safe, callData, value, originalNonce, multicallAddress)
+        );
     }
 
-    /// @notice helper function to prepare the signatures to be executed
-    /// @param _safe The address of the parent multisig
-    /// @param hash The hash to be approved
-    /// @return The signatures to be executed
-    function prepareSignatures(address _safe, bytes32 hash) internal view returns (bytes memory) {
+    /// @notice Get the safe address string from the config file. If the string is not found, use the value from the template.
+    function loadSafeAddressString(MultisigTask task, string memory taskConfigFilePath)
+        public
+        view
+        returns (string memory)
+    {
+        string memory file = vm.readFile(taskConfigFilePath);
+        try vm.parseTomlString(file, ".safeAddressString") returns (string memory _safeAddressString) {
+            console.log(
+                vm.toUppercase("[INFO]").green().bold(),
+                "Safe address string found in config file, this takes precedence over the template value:",
+                _safeAddressString
+            );
+            return _safeAddressString;
+        } catch (bytes memory) {
+            return task.safeAddressString();
+        }
+    }
+
+    /// @notice Execute post-task checks. e.g. read state variables of the deployed contracts to make
+    /// sure they are deployed and initialized correctly, or read states that are expected to have changed during the simulate step.
+    function validate(
+        VmSafe.AccountAccess[] memory accountAccesses,
+        Action[] memory actions,
+        TaskPayload memory payload
+    ) public virtual {
+        uint256 rootSafeIndex = payload.safes.length - 1;
+        address rootSafe = payload.safes[rootSafeIndex];
+        uint256 originalRootSafeNonce = payload.originalNonces[rootSafeIndex];
+        address[] memory accountsWithWrites = accountAccesses.getUniqueWrites(false);
+        // By default, we allow storage accesses to newly created contracts.
+        address[] memory newContracts = accountAccesses.getNewContracts();
+
+        for (uint256 i; i < accountsWithWrites.length; i++) {
+            address addr = accountsWithWrites[i];
+            require(
+                _allowedStorageAccesses.contains(addr) || Utils.contains(newContracts, addr),
+                string(
+                    abi.encodePacked(
+                        "MultisigTask: address ",
+                        MultisigTaskPrinter.getAddressLabel(addr),
+                        " not in allowed storage accesses"
+                    )
+                )
+            );
+        }
+
+        require(IGnosisSafe(rootSafe).nonce() == originalRootSafeNonce + 1, "MultisigTask: nonce not incremented");
+
+        _validate(accountAccesses, actions, rootSafe);
+
+        _checkStateDiff(accountAccesses);
+    }
+
+    /// @notice Get the build started flag. Useful for finding slot number of state variable using StdStorage.
+    function getBuildStarted() public view returns (uint256) {
+        return _buildStarted;
+    }
+
+    /// @notice Get the pre-execution snapshot. Useful for finding slot number of state variable using StdStorage.
+    function getPreExecutionSnapshot() public view returns (uint256) {
+        return _preExecutionSnapshot;
+    }
+
+    /// @notice This function builds a series of nested transactions where each safe in the chain
+    /// must approve the transaction of the next safe, creating a left-to-right execution
+    /// dependency. The rightmost safe executes the actual actions, while all preceding
+    /// safes generate approval transactions for their successor.
+    /// Vendored from: https://github.com/base/contracts/blob/ea4a921ba601b1c385a363777d6fc52b7392327b/script/universal/MultisigScript.sol#L335-L358
+    function transactionDatas(Action[] memory _actions, address[] memory _allSafes, uint256[] memory _originalNonces)
+        public
+        view
+        returns (bytes[] memory calldatas_)
+    {
+        // The very last call is the actual (aggregated) call to execute
+        calldatas_ = new bytes[](_allSafes.length);
+        calldatas_[calldatas_.length - 1] = _getMulticall3Calldata(_actions);
+
+        // The first n-1 calls are the nested approval calls
+        for (uint256 i = _allSafes.length - 1; i > 0; i--) {
+            address targetSafe = _allSafes[i];
+            bytes memory callToApprove = calldatas_[i];
+
+            calldatas_[i - 1] = _generateApproveCalldata(targetSafe, callToApprove, 0, _originalNonces[i], _allSafes);
+        }
+    }
+
+    /// ==================================================
+    /// =============== Internal Functions ===============
+    /// ==================================================
+
+    /// @notice Get the calldata to be executed by the root safe.
+    function _getMulticall3Calldata(Action[] memory actions) internal view virtual returns (bytes memory data) {
+        (address[] memory targets, uint256[] memory values, bytes[] memory arguments) = processTaskActions(actions);
+        IMulticall3.Call3Value[] memory calls = new IMulticall3.Call3Value[](targets.length);
+
+        for (uint256 i; i < calls.length; i++) {
+            require(targets[i] != address(0), "Invalid target for multisig");
+            calls[i] = IMulticall3.Call3Value({
+                target: targets[i],
+                allowFailure: false,
+                value: values[i],
+                callData: arguments[i]
+            });
+        }
+
+        data = abi.encodeCall(IMulticall3.aggregate3Value, (calls));
+    }
+
+    /// @notice Validate that the payload is valid.
+    function _validatePayload(TaskPayload memory payload) internal view {
+        // All arrays must be the same length.
+        require(payload.calldatas.length == payload.safes.length, "MultisigTask: datas and safes length mismatch");
+        require(
+            payload.calldatas.length == payload.originalNonces.length, "MultisigTask: datas and nonces length mismatch"
+        );
+        require(payload.calldatas.length > 0, "MultisigTask: no calldatas provided");
+        Utils.validateSafesOrder(payload.safes);
+
+        // For nested calls, validate that each predecessor contains the hash of its successor
+        if (payload.calldatas.length > 1) {
+            for (uint256 i = 0; i < payload.calldatas.length - 1; i++) {
+                bytes memory predecessorCalldata = payload.calldatas[i];
+                bytes memory successorCalldata = payload.calldatas[i + 1];
+                address successorSafe = payload.safes[i + 1];
+                uint256 successorNonce = payload.originalNonces[i + 1];
+
+                bytes32 hashFromPredecessor = GnosisSafeHashes.decodeMulticallApproveHash(predecessorCalldata);
+                bytes32 expectedSuccessorHash =
+                    getHash(successorCalldata, successorSafe, 0, successorNonce, payload.safes);
+                require(
+                    hashFromPredecessor == expectedSuccessorHash,
+                    "MultisigTask: predecessor hash does not match successor hash"
+                );
+            }
+        }
+    }
+
+    /// @notice Prank as the multisig. Override to prank with delegatecall flag set to true in case of OPCM tasks.
+    function _prankMultisig(address rootSafe) internal virtual {
+        vm.startPrank(rootSafe);
+    }
+
+    /// @notice Helper function to prepare the signatures to be executed.
+    function _prepareSignatures(address _safe, bytes32 hash) internal view returns (bytes memory) {
         // prepend the prevalidated signatures to the signatures
         address[] memory approvers = Signatures.getApprovers(_safe, hash);
         return Signatures.genPrevalidatedSignatures(approvers);
     }
 
-    function _execTransationCalldata(address _safe, bytes memory _data, bytes memory _signatures)
+    /// @notice Returns true if the given account access should be recorded as an action. This function is used to filter out
+    /// actions that we defined in the `_build` function of our template. The actions selected by this function will get executed
+    /// by the relevant Multicall3 contract (e.g. `Multicall3` or `Multicall3DelegateCall`).
+    function _isValidAction(VmSafe.AccountAccess memory access, uint256 topLevelDepth, address rootSafe)
         internal
-        pure
-        returns (bytes memory)
+        view
+        returns (bool)
     {
-        return abi.encodeCall(
-            IGnosisSafe(_safe).execTransaction,
-            (
-                MULTICALL3_ADDRESS,
-                0,
-                _data,
-                Enum.Operation.DelegateCall,
-                0,
-                0,
-                0,
-                address(0),
-                payable(address(0)),
-                _signatures
-            )
-        );
+        bool accountNotRegistryOrVm =
+            (access.account != AddressRegistry.unwrap(addrRegistry) && access.account != address(vm));
+        bool accessorNotRegistry = access.accessor != AddressRegistry.unwrap(addrRegistry);
+        bool isCall = (access.kind == VmSafe.AccountAccessKind.Call && access.depth == topLevelDepth);
+        bool isTopLevelDelegateCall =
+            (access.kind == VmSafe.AccountAccessKind.DelegateCall && access.depth == topLevelDepth);
+        bool accessorIsRootSafe = (access.accessor == rootSafe);
+        return accountNotRegistryOrVm && accessorNotRegistry && (isCall || isTopLevelDelegateCall) && accessorIsRootSafe;
     }
 
-    /// --------------------------------------------------------------------
-    /// --------------------------------------------------------------------
-    /// ------------------------- Private functions ------------------------
-    /// --------------------------------------------------------------------
-    /// --------------------------------------------------------------------
+    /// @notice This function performs basic checks on the state diff.
+    /// It checks that all touched accounts have code, that the balances are unchanged if not expected, and that no self-destructs occurred.
+    function _checkStateDiff(VmSafe.AccountAccess[] memory accountAccesses) internal view {
+        require(accountAccesses.length > 0, "No account accesses");
+        address[] memory allowedAccesses = getAllowedStorageAccess();
+        address[] memory newContracts = accountAccesses.getNewContracts();
+        address[] memory codeExceptions = _getCodeExceptions();
+        for (uint256 i; i < accountAccesses.length; i++) {
+            VmSafe.AccountAccess memory accountAccess = accountAccesses[i];
+            // All touched accounts should have code, with the exception of precompiles.
+            bool isPrecompile = accountAccess.account >= address(0x1) && accountAccess.account <= address(0xa);
+            if (!isPrecompile) {
+                require(
+                    accountAccess.account.code.length != 0,
+                    string.concat("Account has no code: ", vm.toString(accountAccess.account))
+                );
+            }
+
+            if (!_allowedBalanceChanges.contains(accountAccess.account)) {
+                // Skip balance change checks for newly deployed contracts.
+                // Ensure that existing contracts, that haven't been allow listed, do not contain a value transfer.
+                if (!Utils.contains(newContracts, accountAccess.account)) {
+                    require(
+                        !accountAccess.containsValueTransfer(),
+                        string.concat("Unexpected balance change: ", vm.toString(accountAccess.account))
+                    );
+                }
+            }
+
+            require(
+                accountAccess.kind != VmSafe.AccountAccessKind.SelfDestruct,
+                string.concat("Self-destructed account: ", vm.toString(accountAccess.account))
+            );
+            for (uint256 j; j < accountAccess.storageAccesses.length; j++) {
+                VmSafe.StorageAccess memory storageAccess = accountAccess.storageAccesses[j];
+                if (!storageAccess.isWrite) continue; // Skip SLOADs.
+                uint256 value = uint256(storageAccess.newValue);
+                address account = storageAccess.account;
+                if (Utils.isLikelyAddressThatShouldHaveCode(value, codeExceptions)) {
+                    // Log account, slot, and value if there is no code.
+                    // forgefmt: disable-start
+                    string memory err = string.concat("Likely address in storage has no code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
+                    // forgefmt: disable-end
+                    require(address(uint160(value)).code.length != 0, err);
+                } else {
+                    // Log account, slot, and value if there is code.
+                    // forgefmt: disable-start
+                    string memory err = string.concat("Likely address in storage has unexpected code\n", "  account: ", vm.toString(account), "\n  slot:    ", vm.toString(storageAccess.slot), "\n  value:   ", vm.toString(bytes32(value)));
+                    // forgefmt: disable-end
+                    require(address(uint160(value)).code.length == 0, err);
+                }
+                require(account.code.length != 0, string.concat("Storage account has no code: ", vm.toString(account)));
+                require(!storageAccess.reverted, string.concat("Storage access reverted: ", vm.toString(account)));
+                bool allowed;
+                for (uint256 k; k < allowedAccesses.length; k++) {
+                    allowed = allowed || (account == allowedAccesses[k]) || Utils.contains(newContracts, account);
+                }
+                require(allowed, string.concat("Unallowed Storage access: ", vm.toString(account)));
+            }
+        }
+    }
+
+    /// @notice Helper function that returns whether or not the current context is a broadcast context.
+    function _isBroadcastContext() internal view returns (bool) {
+        return vm.isContext(VmSafe.ForgeContext.ScriptBroadcast) || vm.isContext(VmSafe.ForgeContext.ScriptResume);
+    }
+
+    /// @notice Executes a transaction to the target multisig.
+    function _execTransaction(
+        address multisig,
+        address target,
+        uint256 value,
+        bytes memory data,
+        Enum.Operation operationType,
+        bytes memory signatures
+    ) internal {
+        if (_isBroadcastContext()) {
+            vm.broadcast();
+        }
+
+        bytes memory callData = abi.encodeWithSelector(
+            IGnosisSafe.execTransaction.selector,
+            target,
+            value,
+            data,
+            operationType,
+            0,
+            0,
+            0,
+            address(0),
+            payable(address(0)),
+            signatures
+        );
+
+        // Use the TENDERLY_GAS environment variable to set a specific gas limit, if provided.
+        // Otherwise, default to the remaining gas. This helps surface out-of-gas errors earlier,
+        // before they would show up in Tenderly's simulation results.
+        uint256 gas = vm.envOr("TENDERLY_GAS", gasleft());
+        MultisigTaskPrinter.printGasForExecTransaction(gas);
+
+        (bool success, bytes memory returnData) = multisig.call{gas: gas}(callData);
+
+        if (!success) {
+            MultisigTaskPrinter.printErrorExecutingMultisigTransaction(returnData);
+            revert("MultisigTask: execute failed");
+        }
+    }
+
+    /// @notice To show the full transaction trace in Tenderly, we build custom calldata
+    /// that shows both the child multisig approving the hash, as well as the root safe
+    /// executing the task. This is only used when simulating a nested multisig.
+    function _getNestedSimulationMulticall3Calldata(address[] memory allSafes, bytes[] memory allCalldatas)
+        internal
+        view
+        returns (bytes memory data)
+    {
+        // TODO: support arbitrary number of safes.
+        IMulticall3.Call3Value[] memory calls = new IMulticall3.Call3Value[](2);
+
+        address childSafe = allSafes[0];
+        bytes memory childSafeCalldata = allCalldatas[0];
+        bytes memory approveHashExec = GnosisSafeHashes.encodeExecTransactionCalldata(
+            childSafe, childSafeCalldata, Signatures.genPrevalidatedSignature(MULTICALL3_ADDRESS), MULTICALL3_ADDRESS
+        );
+        calls[0] = IMulticall3.Call3Value({target: childSafe, allowFailure: false, value: 0, callData: approveHashExec});
+
+        address rootSafe = allSafes[allSafes.length - 1];
+        bytes memory rootSafeCalldata = allCalldatas[allCalldatas.length - 1];
+        bytes memory customExec = GnosisSafeHashes.encodeExecTransactionCalldata(
+            rootSafe,
+            rootSafeCalldata,
+            Signatures.genPrevalidatedSignature(childSafe),
+            _getMulticallAddress(rootSafe, allSafes)
+        );
+        calls[1] = IMulticall3.Call3Value({target: rootSafe, allowFailure: false, value: 0, callData: customExec});
+
+        return abi.encodeCall(IMulticall3.aggregate3Value, (calls));
+    }
+
+    /// @notice Runs the task with the given configuration file path.
+    function _runTask(
+        string memory _taskConfigFilePath,
+        bytes memory _signatures,
+        address[] memory _childSafes,
+        bool _isSimulate
+    )
+        internal
+        returns (
+            VmSafe.AccountAccess[] memory,
+            Action[] memory,
+            bytes32 normalizedHash_,
+            bytes memory dataToSign_,
+            address rootSafe
+        )
+    {
+        (TaskPayload memory payload, Action[] memory actions) = _taskSetup(_taskConfigFilePath, _childSafes);
+        uint256 rootSafeIndex = payload.safes.length - 1;
+        rootSafe = payload.safes[rootSafeIndex];
+        (VmSafe.AccountAccess[] memory accountAccesses, bytes32 txHash) =
+            executeTaskStep(_signatures, payload, rootSafeIndex);
+
+        validate(accountAccesses, actions, payload);
+        (normalizedHash_, dataToSign_) = print(accountAccesses, _isSimulate, txHash, payload);
+
+        // Sanity check that the root safe is a nested safe.
+        if (payload.safes.length > 1) {
+            require(isNestedSafe(rootSafe), "MultisigTask: multisig must be a nested safe.");
+        }
+
+        return (accountAccesses, actions, normalizedHash_, dataToSign_, rootSafe);
+    }
+
+    /// @notice Using the tasks config.toml file, this function configures the task.
+    function _taskSetup(string memory _taskConfigFilePath, address[] memory _childSafes)
+        internal
+        returns (TaskPayload memory payload_, Action[] memory actions_)
+    {
+        require(_preExecutionSnapshot == 0, "MultisigTask: already initialized");
+        templateConfig.safeAddressString = loadSafeAddressString(MultisigTask(address(this)), _taskConfigFilePath);
+        IGnosisSafe _root;
+        (addrRegistry, _root, multicallTarget) = _configureTask(_taskConfigFilePath);
+
+        // Appends the root safe. The earlier a safe address appears in the array, the deeper its level of nesting.
+        address[] memory allSafes = Solarray.extend(_childSafes, Solarray.addresses(address(_root)));
+
+        // Overrides only matter for simulation and signing. It's important this happens before '_templateSetup' so that
+        // template developers can assert that the state overrides are applied correctly.
+        uint256[] memory allOriginalNonces = _overrideState(_taskConfigFilePath, allSafes);
+        _templateSetup(_taskConfigFilePath, address(_root)); // May set variables used in '_taskStorageWrites'.
+
+        templateConfig.allowedStorageKeys = _taskStorageWrites();
+        templateConfig.allowedStorageKeys.push(templateConfig.safeAddressString);
+        templateConfig.allowedBalanceChanges = _taskBalanceChanges();
+
+        _setAllowedStorageAccesses();
+        _setAllowedBalanceChanges();
+
+        vm.label(AddressRegistry.unwrap(addrRegistry), "AddrRegistry");
+        vm.label(address(this), "MultisigTask");
+
+        actions_ = build(address(_root));
+        bytes[] memory allCalldatas = transactionDatas(actions_, allSafes, allOriginalNonces);
+        payload_ = TaskPayload({safes: allSafes, calldatas: allCalldatas, originalNonces: allOriginalNonces});
+        _validatePayload(payload_);
+    }
+
+    /// @notice Get the multicall address for the given safe. Override to return required multicall address.
+    function _getMulticallAddress(address safe, address[] memory) internal view virtual returns (address) {
+        require(safe != address(0), "Safe address cannot be zero address");
+        return multicallTarget;
+    }
+
+    /// @notice Creates calldata for a safe to pre-approve a transaction that will be
+    /// executed by a safe higher in the hierarchy chain.
+    function _generateApproveCalldata(
+        address _safe,
+        bytes memory _data,
+        uint256 _value,
+        uint256 _originalNonce,
+        address[] memory allSafes
+    ) internal view returns (bytes memory) {
+        bytes32 hash = getHash(_data, _safe, _value, _originalNonce, allSafes);
+        IMulticall3.Call3Value[] memory approvalCall = new IMulticall3.Call3Value[](1);
+        approvalCall[0] = IMulticall3.Call3Value({
+            target: _safe,
+            allowFailure: false,
+            value: _value,
+            callData: abi.encodeCall(IGnosisSafe(_safe).approveHash, (hash))
+        });
+        return abi.encodeCall(IMulticall3.aggregate3Value, (approvalCall));
+    }
+
+    /// ==================================================
+    /// =============== Private Functions ================
+    /// ==================================================
+
+    /// @notice Increments the nonce of the given owner.
+    /// If the owner is a contract, we need to increment the nonce manually.
+    /// This is in lieu of executing approveHash from the owner contract.
+    function _incrementOwnerNonce(address owner) private {
+        if (address(owner).code.length > 0) {
+            uint256 currentOwnerNonce = IGnosisSafe(owner).nonce();
+            vm.store(owner, bytes32(uint256(0x5)), bytes32(uint256(currentOwnerNonce + 1)));
+        } else {
+            uint256 currentOwnerNonce = vm.getNonce(owner);
+            vm.setNonce(owner, uint64(currentOwnerNonce + 1));
+        }
+    }
 
     /// @notice to be used by the build function to capture the state changes applied by a given task.
     /// These state changes will inform whether or not the task will be executed onchain.
-    /// steps:
-    ///  1). take a snapshot of the current state of the contract
-    ///  2). start prank as the multisig
-    ///  3). start a recording of all calls created during the task
-    function _startBuild() private {
-        vm.startPrank(multisig);
+    function _startBuild(address rootSafe) private {
+        _prankMultisig(rootSafe);
 
-        _startSnapshot = vm.snapshot();
+        _preExecutionSnapshot = vm.snapshotState();
 
         vm.startStateDiffRecording();
     }
 
-    /// @notice to be used at the end of the build function to snapshot
-    /// the actions performed by the task and revert these changes
-    /// then, stop the prank and record the state diffs and actions that
-    /// were taken by the task.
-    function _endBuild() private {
-        VmSafe.AccountAccess[] memory accountAccesses = vm.stopAndReturnStateDiff();
-
+    /// @notice To be used at the end of the build function to snapshot the actions performed by the task and revert these changes
+    /// then, stop the prank and record the state diffs and actions that were taken by the task.
+    function _endBuild(address rootSafe) private returns (Action[] memory) {
+        VmSafe.AccountAccess[] memory accesses = vm.stopAndReturnStateDiff();
         vm.stopPrank();
 
-        /// roll back all state changes made during the task
-        require(vm.revertTo(_startSnapshot), "failed to revert back to snapshot, unsafe state to run task");
+        // Roll back state changes.
+        require(
+            vm.revertToState(_preExecutionSnapshot),
+            "MultisigTask: failed to revert back to snapshot, unsafe state to run task"
+        );
+        require(accesses.length > 0, "MultisigTask: no account accesses found");
 
-        _processStateDiffChanges(accountAccesses);
+        // Determine the minimum call depth to isolate top-level calls only.
+        // This ensures subcalls are excluded when counting actions.
+        // Since account accesses are ordered by call execution (in Foundry),
+        // the first entry always corresponds to a top-level call.
+        uint256 topLevelDepth = accesses[0].depth;
 
-        for (uint256 i = 0; i < accountAccesses.length; i++) {
-            /// store all gnosis safe storage accesses that are writes
-            for (uint256 j = 0; j < accountAccesses[i].storageAccesses.length; j++) {
-                if (accountAccesses[i].account == multisig && accountAccesses[i].storageAccesses[j].isWrite) {
-                    _accountAccesses.push(accountAccesses[i].storageAccesses[j]);
+        // Process valid actions
+        Action[] memory tempActions = new Action[](accesses.length); // Pre-allocate max size
+        uint256 validCount = 0;
+
+        for (uint256 i = 0; i < accesses.length; i++) {
+            if (_isValidAction(accesses[i], topLevelDepth, rootSafe)) {
+                // Ensure action uniqueness.
+                validateAction(accesses[i].account, accesses[i].value, accesses[i].data, tempActions);
+
+                (string memory opStr, Enum.Operation op) = GnosisSafeHashes.getOperationDetails(accesses[i].kind);
+
+                tempActions[validCount] = Action({
+                    value: accesses[i].value,
+                    target: accesses[i].account,
+                    arguments: accesses[i].data,
+                    operation: op,
+                    description: string(
+                        abi.encodePacked(
+                            opStr,
+                            " ",
+                            MultisigTaskPrinter.getAddressLabel(accesses[i].account),
+                            " with ",
+                            vm.toString(accesses[i].value),
+                            " eth and ",
+                            vm.toString(accesses[i].data),
+                            " data."
+                        )
+                    )
+                });
+                validCount++;
+            }
+        }
+
+        Action[] memory validActions = new Action[](validCount);
+        for (uint256 i = 0; i < validCount; i++) {
+            validActions[i] = tempActions[i];
+        }
+
+        return validActions;
+    }
+
+    /// @notice Applies user-defined state overrides to the current state and stores the original nonces before simulation.
+    function _overrideState(string memory _taskConfigFilePath, address[] memory _allSafes)
+        private
+        returns (uint256[] memory allOriginalNonces_)
+    {
+        _setStateOverridesFromConfig(_taskConfigFilePath); // Sets global '_stateOverrides' variable.
+        allOriginalNonces_ = new uint256[](_allSafes.length);
+        for (uint256 i = 0; i < _allSafes.length; i++) {
+            allOriginalNonces_[i] = _getNonceOrOverride(_allSafes[i]);
+            address[] memory owners = IGnosisSafe(_allSafes[i]).getOwners();
+            for (uint256 j = 0; j < owners.length; j++) {
+                if (owners[j].code.length > 0) _getNonceOrOverride(owners[j]); // Nonce safety checks performed for each owner that is a safe.
+            }
+        }
+        // We must do this after setting the nonces above. It allows us to make sure we're reading the correct network state when setting the nonces.
+        _applyStateOverrides(); // Applies '_stateOverrides' to the current state.
+    }
+
+    /// ==================================================
+    /// =============== Print Functions ==================
+    /// ==================================================
+
+    /// @notice Print task related data for task developers and signers.
+    function print(
+        VmSafe.AccountAccess[] memory accountAccesses,
+        bool isSimulate,
+        bytes32 txHash,
+        TaskPayload memory payload
+    ) public returns (bytes32 normalizedHash_, bytes memory dataToSign_) {
+        console.log("");
+        MultisigTaskPrinter.printWelcomeMessage();
+        SafeData memory rootSafe = Utils.getSafeData(payload, payload.safes.length - 1);
+        // Decoding account accesses and printing to the console significantly impacts performance.
+        // Performance only becomes a concern when we're running many tasks in CI.
+        if (!Utils.isCiFoundryProfile()) {
+            accountAccesses.decodeAndPrint(rootSafe.safe, txHash);
+        }
+        MultisigTaskPrinter.printTaskCalldata(rootSafe.callData);
+
+        // Only print safe and execution data if the task is being simulated.
+        if (isSimulate) {
+            for (uint256 i = payload.safes.length - 1; i >= 0; i--) {
+                bytes32 safeHash =
+                    getHash(payload.calldatas[i], payload.safes[i], 0, payload.originalNonces[i], payload.safes);
+                console.log("");
+                uint256 level = payload.safes.length - i - 1;
+                MultisigTaskPrinter.printTitle(string.concat("Safe (Depth: ", vm.toString(level), ")"));
+                console.log("Safe Address:   ", MultisigTaskPrinter.getAddressLabel(payload.safes[i]));
+                console.log("Safe Hash:      ", vm.toString(safeHash));
+                address multicallAddress = _getMulticallAddress(payload.safes[i], payload.safes);
+                dataToSign_ = GnosisSafeHashes.getEncodedTransactionData(
+                    payload.safes[i], payload.calldatas[i], 0, payload.originalNonces[i], multicallAddress
+                );
+
+                bool isLastTask = i == 0;
+                if (isLastTask) {
+                    _printLastSafe(dataToSign_, rootSafe.safe, payload);
+                    break;
                 }
             }
-
-            /// only care about top level calls from the multisig,
-            /// static calls are ignored,
-            /// calls to and from Addresses and the vm contract are ignored
-            /// ignore calls to vm in the build function
-            if (
-                accountAccesses[i].account != address(addresses) && accountAccesses[i].account != address(vm)
-                    && accountAccesses[i].accessor != address(addresses)
-                    && accountAccesses[i].kind == VmSafe.AccountAccessKind.Call && accountAccesses[i].accessor == multisig
-            ) {
-                /// caller is multisig, not a subcall, check that this action is not duplicated
-                _validateAction(accountAccesses[i].account, accountAccesses[i].value, accountAccesses[i].data);
-
-                actions.push(
-                    Action({
-                        value: accountAccesses[i].value,
-                        target: accountAccesses[i].account,
-                        arguments: accountAccesses[i].data,
-                        description: string(
-                            abi.encodePacked(
-                                "calling ",
-                                getAddressLabel(accountAccesses[i].account),
-                                " with ",
-                                vm.toString(accountAccesses[i].value),
-                                " eth and ",
-                                vm.toString(accountAccesses[i].data),
-                                " data."
-                            )
-                        )
-                    })
-                );
-            }
+            _printTenderlySimulationData(payload);
         }
+        normalizedHash_ = AccountAccessParser.normalizedStateDiffHash(accountAccesses, rootSafe.safe, txHash);
+        MultisigTaskPrinter.printAuditReportInfo(normalizedHash_);
     }
 
-    /// @notice helper method to get transfers and state changes of task affected addresses
-    function _processStateDiffChanges(VmSafe.AccountAccess[] memory accountAccesses) internal {
-        for (uint256 i = 0; i < accountAccesses.length; i++) {
-            // process ETH transfer changes
-            _processETHTransferChanges(accountAccesses[i]);
-
-            // process ERC20 transfer changes
-            _processERC20TransferChanges(accountAccesses[i]);
-
-            // process state changes
-            _processStateChanges(accountAccesses[i].storageAccesses);
-        }
+    /// @notice Helper function to print the final safe information.
+    function _printLastSafe(bytes memory dataToSign, address rootSafe, TaskPayload memory payload) private view {
+        (bytes32 domainSeparator, bytes32 messageHash) =
+            GnosisSafeHashes.getDomainAndMessageHashFromEncodedTransactionData(dataToSign);
+        console.log("Domain Hash:    ", vm.toString(domainSeparator));
+        console.log("Message Hash:   ", vm.toString(messageHash));
+        MultisigTaskPrinter.printEncodedTransactionData(dataToSign);
+        address rootMulticallTarget = _getMulticallAddress(rootSafe, payload.safes);
+        address childMulticallTarget =
+            payload.safes.length > 1 ? _getMulticallAddress(payload.safes[0], payload.safes) : address(0);
+        MultisigTaskPrinter.printOPTxVerifyLink(block.chainid, payload, rootMulticallTarget, childMulticallTarget);
     }
 
-    /// @notice helper method to get eth transfers of task affected addresses
-    function _processETHTransferChanges(VmSafe.AccountAccess memory accountAccess) internal {
-        address account = accountAccess.account;
-        // get eth transfers
-        if (accountAccess.value != 0) {
-            // add address to task transfer from addresses array only if not already added
-            if (!_taskTransferFromAddresses.contains(accountAccess.accessor)) {
-                _taskTransferFromAddresses.add(accountAccess.accessor);
-            }
-            _taskTransfers[accountAccess.accessor].push(
-                TransferInfo({to: account, value: accountAccess.value, tokenAddress: address(0)})
+    /// @notice Print the Tenderly simulation payload with the state overrides.
+    function _printTenderlySimulationData(TaskPayload memory payload) internal {
+        address targetAddress;
+        bytes memory finalExec;
+        address rootSafe = payload.safes[payload.safes.length - 1];
+        address childSafe;
+        if (payload.safes.length > 1) {
+            // Transaction involves multiple safes.
+            targetAddress = MULTICALL3_ADDRESS;
+            finalExec = _getNestedSimulationMulticall3Calldata(payload.safes, payload.calldatas);
+            childSafe = payload.safes[0];
+        } else {
+            // Transaction involves a single safe.
+            targetAddress = rootSafe;
+            finalExec = GnosisSafeHashes.encodeExecTransactionCalldata(
+                targetAddress,
+                payload.calldatas[payload.calldatas.length - 1],
+                Signatures.genPrevalidatedSignature(msg.sender),
+                _getMulticallAddress(rootSafe, payload.safes)
             );
         }
+
+        uint256 postExecuteSnapshot = vm.snapshotState();
+        // Roll back state changes. The Tenderly link generation checks owners for overrides and expects pre-execution state.
+        // We should ensure the original owners are present (e.g. if an owner was removed as part of the task).
+        require(
+            vm.revertToState(_preExecutionSnapshot),
+            "MultisigTask: failed to revert back to _preExecutionSnapshot before printing Tenderly simulation data."
+        );
+        MultisigTaskPrinter.printTenderlySimulationData(
+            targetAddress, finalExec, msg.sender, getStateOverrides(rootSafe, childSafe)
+        );
+
+        // Apply the post execution state changes. Many tests rely on the assumption that the transaction was executed.
+        require(
+            vm.revertToState(postExecuteSnapshot),
+            "MultisigTask: failed to revert back to post-execution snapshot after printing Tenderly simulation data."
+        );
     }
 
-    /// @notice helper method to get ERC20 token transfers of task affected addresses
-    function _processERC20TransferChanges(VmSafe.AccountAccess memory accountAccess) internal {
-        bytes memory data = accountAccess.data;
-        if (data.length <= 4) {
-            return;
-        }
+    /// ==================================================
+    /// ============ Functions To Implement ==============
+    /// ==================================================
 
-        // get function selector from calldata
-        bytes4 selector = bytes4(data);
+    /// @notice Returns the type of task. L2TaskBase, SimpleTaskBase or OPCMTaskBase.
+    function taskType() public pure virtual returns (TaskType);
 
-        // get function params
-        bytes memory params = new bytes(data.length - 4);
-        for (uint256 j = 0; j < data.length - 4; j++) {
-            params[j] = data[j + 4];
-        }
+    /// @notice Specifies the safe address string to run the template from. This string refers
+    /// to a named contract, where the name is read from an address registry contract.
+    function safeAddressString() public view virtual returns (string memory);
 
-        address from;
-        address to;
-        uint256 value;
-        // 'transfer' selector in ERC20 token
-        if (selector == 0xa9059cbb) {
-            (to, value) = abi.decode(params, (address, uint256));
-            from = accountAccess.accessor;
-        }
-        // 'transferFrom' selector in ERC20 token
-        else if (selector == 0x23b872dd) {
-            (from, to, value) = abi.decode(params, (address, address, uint256));
-        } else {
-            return;
-        }
+    /// @notice Returns an array of strings that refer to contract names in the address registry.
+    /// Contracts with these names are expected to have their storage written to during the task.
+    function _taskStorageWrites() internal view virtual returns (string[] memory);
 
-        // add address to task transfer from addresses array only if not already added
-        if (!_taskTransferFromAddresses.contains(from)) {
-            _taskTransferFromAddresses.add(from);
-        }
-
-        _taskTransfers[from].push(TransferInfo({to: to, value: value, tokenAddress: accountAccess.account}));
+    /// @notice Returns an array of strings that refer to contract names in the address registry.
+    /// Contracts with these names are expected to have their balance changes during the task.
+    /// By default returns an empty array. Override this function if your task expects balance changes.
+    function _taskBalanceChanges() internal view virtual returns (string[] memory) {
+        return new string[](0);
     }
 
-    /// @notice helper method to get state changes of task affected addresses
-    function _processStateChanges(VmSafe.StorageAccess[] memory storageAccess) internal {
-        for (uint256 i; i < storageAccess.length; i++) {
-            address account = storageAccess[i].account;
+    /// @notice By default, any value written to storage that looks like an address is expected to
+    /// have code. Sometimes, accounts without code are expected, and this function allows you to
+    /// specify a list of those addresses.
+    function _getCodeExceptions() internal view virtual returns (address[] memory);
 
-            // get only state changes for write storage access
-            if (storageAccess[i].isWrite) {
-                _stateInfos[account].push(
-                    StateInfo({
-                        slot: storageAccess[i].slot,
-                        oldValue: storageAccess[i].previousValue,
-                        newValue: storageAccess[i].newValue
-                    })
-                );
-            }
+    /// @notice Different tasks have different inputs. A task template will create the appropriate
+    /// storage structures for storing and accessing these inputs. In this method, you read in the
+    /// task config file, parse the inputs from the TOML as needed, and save them off.
+    /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
+    function _templateSetup(string memory taskConfigFilePath, address rootSafe) internal virtual;
 
-            // add address to task state change addresses array only if not already added
-            if (!_taskStateChangeAddresses.contains(account) && _stateInfos[account].length != 0) {
-                _taskStateChangeAddresses.add(account);
-            }
-        }
-    }
+    /// @notice Sets the allowed storage accesses.
+    function _setAllowedStorageAccesses() internal virtual;
 
-    /// @notice helper method to get labels for addresses
-    function getAddressLabel(address contractAddress) public view returns (string memory) {
-        string memory label = vm.getLabel(contractAddress);
+    /// @notice Sets the allowed balance changes.
+    function _setAllowedBalanceChanges() internal virtual;
 
-        bytes memory prefix = bytes("unlabeled:");
-        bytes memory strBytes = bytes(label);
+    /// @notice This method is responsible for deploying the required address registry, defining
+    /// the root safe address, and setting the multicall target address.
+    /// This method may also set any allowed and expected storage accesses that are expected in all
+    /// use cases of the template.
+    function _configureTask(string memory configPath)
+        internal
+        virtual
+        returns (AddressRegistry, IGnosisSafe, address);
 
-        if (strBytes.length >= prefix.length) {
-            // check if address is unlabeled
-            for (uint256 i = 0; i < prefix.length; i++) {
-                if (strBytes[i] != prefix[i]) {
-                    // return "{LABEL} @{ADDRESS}" if address is labeled
-                    return string(abi.encodePacked(label, " @", vm.toString(contractAddress)));
-                }
-            }
-        } else {
-            // return "{LABEL} @{ADDRESS}" if address is labeled
-            return string(abi.encodePacked(label, " @", vm.toString(contractAddress)));
-        }
+    /// @notice This is a solidity script of the calls you want to make, and its
+    /// contents are extracted into calldata for the task. WARNING: Any state written to in this function will be reverted
+    /// after the build function has been run.
+    function _build(address rootSafe) internal virtual;
 
-        // return "UNLABELED @{ADDRESS}" if address is unlabeled
-        return string(abi.encodePacked("UNLABELED @", vm.toString(contractAddress)));
-    }
+    /// @notice Called after the build function has been run, to execute assertions on the calls and
+    /// state diffs. This function is how you obtain confidence the transaction does what it's supposed to do.
+    function _validate(VmSafe.AccountAccess[] memory accountAccesses, Action[] memory actions, address rootSafe)
+        internal
+        virtual;
 }

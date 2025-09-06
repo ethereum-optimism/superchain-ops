@@ -1,0 +1,24 @@
+# This is a test config file that is used to attempt to discover all the chain addresses for a
+# range of chains by the AddressRegistry. When it can't find an address by discovery, it will use
+# the address provided by the superchain-registry dependency.
+
+templateName = "GasConfigTemplate"
+
+l2chains = [
+  { name = "Metal", chainId = 1750 },
+  { name = "Base", chainId = 8453 },
+  { name = "OP Mainnet", chainId = 10 },
+  { name = "Zora", chainId = 7777777 },
+  { name = "Mode", chainId = 34443 },
+  { name = "World Chain", chainId = 480 },
+]
+
+[gasConfigs]
+  gasLimits = [
+    { chainId = 291, gasLimit = 100000000 },
+    { chainId = 1750, gasLimit = 100000000 },
+    { chainId = 8453, gasLimit = 100000000 },
+    { chainId = 10, gasLimit = 100000000 },
+    { chainId = 7777777, gasLimit = 100000000 },
+    { chainId = 480, gasLimit = 100000000 },
+  ]
