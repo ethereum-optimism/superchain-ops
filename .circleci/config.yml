@@ -14,18 +14,6 @@ parameters:
   default_docker_image:
     type: string
     default: cimg/base:2024.01
-  l1_mainnet_rpc_url:
-    type: string
-    default: "https://ci-mainnet-l1-archive.optimism.io"
-  l1_sepolia_rpc_url:
-    type: string
-    default: "https://ci-sepolia-l1.optimism.io"
-  l2_mainnet_rpc_url:
-    type: string
-    default: "https://mainnet.optimism.io"
-  l2_sepolia_rpc_url:
-    type: string
-    default: "https://sepolia.optimism.io"
   github-event-type:
     type: string
     default: "__not_set__"
@@ -146,6 +134,8 @@ jobs:
             just install
             forge --version
             forge test -vvv
+      - notify-failures-on-main:
+          mentions: "@evm-safety-team"
 
   template_regression_tests:
     circleci_ip_ranges: true
