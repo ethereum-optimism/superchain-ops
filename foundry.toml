@@ -29,6 +29,8 @@ deny_warnings = true
 [profile.ci.rpc_endpoints]
 mainnet = "https://ci-mainnet-l1-archive.optimism.io" # Must have 'circleci_ip_ranges = true' in .circleci/config.yml
 sepolia = "https://ci-sepolia-l1-archive.optimism.io" # Must have 'circleci_ip_ranges = true' in .circleci/config.yml
+opSepolia = "https://proxyd-l2-consensus.primary.sepolia.prod.oplabs.cloud"
+opMainnet = "https://proxyd-l2-consensus.primary.mainnet.prod.oplabs.cloud"
 
 [profile.default.rpc_endpoints]
 localhost = "http://127.0.0.1:8545"
