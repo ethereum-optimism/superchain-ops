@@ -29,8 +29,8 @@ deny_warnings = true
 [profile.ci.rpc_endpoints]
 mainnet = "https://ci-mainnet-l1-archive.optimism.io" 
 sepolia = "https://ci-sepolia-l1-archive.optimism.io" 
-opSepolia = "https://ci-sepolia-l2.optimism.io"
-opMainnet = "https://op-mainnet-rpc.optimism.io"
+opSepolia = "https://sepolia.optimism.io"
+opMainnet = "https://mainnet.optimism.io"
 
 [profile.default.rpc_endpoints]
 localhost = "http://127.0.0.1:8545"
