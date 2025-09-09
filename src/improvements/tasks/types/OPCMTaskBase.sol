@@ -81,6 +81,9 @@ abstract contract OPCMTaskBase is L2TaskBase {
             // address(this) is equal to the OPCMs 'upgradeController' address (which is an immutable).
             if (opcmDiffs.length == 1) {
                 AccountAccessParser.StateDiff memory opcmDiff = opcmDiffs[0];
+                bytes32 opcmStateSlot =
+                    bytes32(uint256(stdstore.target(OPCM).sig(IOPContractsManager.isRC.selector).find()));
+                require(opcmDiff.slot == opcmStateSlot, "OPCMTaskBase: Incorrect OPCM isRc slot");
                 require(opcmDiff.oldValue == bytes32(uint256(1)), "OPCMTaskBase: Incorrect OPCM isRc old value");
                 require(opcmDiff.newValue == bytes32(uint256(0)), "OPCMTaskBase: Incorrect OPCM isRc new value");
             }
