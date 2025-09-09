@@ -56,6 +56,7 @@ case "$TASK_PATH" in
     *"/eth/"*) network="eth" ;;
     *"/sep/"*) network="sep" ;;
     *"/opsep/"*) network="opsep" ;;
+    *"/oeth/"*) network="oeth" ;;
     *)
         echo "Error (get-safe.sh): Task path must contain either /eth/ or /sep/ or /opsep/" >&2
         exit 1

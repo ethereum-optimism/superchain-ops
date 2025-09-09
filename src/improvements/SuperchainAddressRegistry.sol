@@ -88,12 +88,15 @@ contract SuperchainAddressRegistry is StdChains {
     constructor(string memory configPath) {
         require(
             block.chainid == getChain("mainnet").chainId || block.chainid == getChain("sepolia").chainId
-                || block.chainid == getChain("optimism_sepolia").chainId,
+                || block.chainid == getChain("optimism_sepolia").chainId || block.chainid == getChain("optimism").chainId,
             string.concat("SuperchainAddressRegistry: Unsupported task chain ID ", vm.toString(block.chainid))
         );
 
         bool isL2Chain = false;
-        if (block.chainid == getChain("optimism_sepolia").chainId) {
+        if (
+            block.chainid == getChain("optimism_sepolia").chainId
+                || block.chainid == getChain("optimism_mainnet").chainId
+        ) {
             isL2Chain = true;
         }
 
@@ -156,6 +159,7 @@ contract SuperchainAddressRegistry is StdChains {
         if (block.chainid == getChain("mainnet").chainId) chainKey = ".eth";
         else if (block.chainid == getChain("sepolia").chainId) chainKey = ".sep";
         else if (block.chainid == getChain("optimism_sepolia").chainId) chainKey = ".opsep";
+        else if (block.chainid == getChain("optimism").chainId) chainKey = ".oeth";
         else revert(string.concat("SuperchainAddressRegistry: Unknown task chain ID ", vm.toString(block.chainid)));
 
         _loadHardcodedAddresses(chainKey);
