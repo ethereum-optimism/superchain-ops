@@ -97,7 +97,6 @@ contract OPCMUpgradeV410 is OPCMTaskBase {
             });
         }
 
-        // We're using the OPCM.upgrade() function as an example here.
         (bool success,) = OPCM_TARGETS[0].delegatecall(abi.encodeCall(IOPContractsManager.upgrade, (opChainConfigs)));
         require(success, "OPCMUpgradeV410: Delegatecall failed in _build.");
     }
