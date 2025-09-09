@@ -7,6 +7,7 @@ import {
     ISystemConfig,
     IProxyAdmin
 } from "@eth-optimism-bedrock/interfaces/L1/IOPContractsManager.sol";
+import {EIP1967Helper} from "@eth-optimism-bedrock/test/mocks/EIP1967Helper.sol";
 import {VmSafe} from "forge-std/Vm.sol";
 import {stdToml} from "forge-std/StdToml.sol";
 import {LibString} from "solady/utils/LibString.sol";
@@ -71,7 +72,17 @@ contract OPCMUpgradeSuperchainConfigV410 is OPCMTaskBase {
     }
 
     /// @notice This method performs all validations and assertions that verify the calls executed as expected.
-    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {}
+    function _validate(VmSafe.AccountAccess[] memory, Action[] memory, address) internal view override {
+        require(
+            EIP1967Helper.getImplementation(address(SUPERCHAIN_CONFIG))
+                == IOPContractsManager(OPCM_TARGETS[0]).implementations().superchainConfigImpl,
+            "OPCMUpgradeSuperchainConfigV410: Incorrect SuperchainConfig implementation after upgradeSuperchainConfig"
+        );
+        require(
+            SUPERCHAIN_CONFIG.version().eq("2.3.0"),
+            "OPCMUpgradeSuperchainConfigV410: Incorrect SuperchainConfig version after upgradeSuperchainConfig"
+        );
+    }
 
     /// @notice Override to return a list of addresses that should not be checked for code length.
     function _getCodeExceptions() internal view virtual override returns (address[] memory) {}
