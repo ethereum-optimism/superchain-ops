@@ -17,5 +17,5 @@ expectedValidationErrors = ""
 [addresses]
 OPCM = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78"
 StandardValidatorV410 = "0x7b4d2a02d5fa6c7c98d835d819956ebb876ff439"
-SuperchainConfig = "0xC2Be75506d5724086DEB7245bd260Cc9753911Be"
-SuperchainConfigProxyAdmin = "0x1Eb2fFc903729a0F03966B917003800b145F56E2"
+SuperchainConfig = "0x75435c995B5bb0bbF866fA968F67a0d6a40982DA" # This is a custom OPCM that is at a version < 2.3.0 to enable the regression test to pass.
+SuperchainConfigProxyAdmin = "0x189aBAAaa82DfC015A588A7dbaD6F13b1D3485Bc"
