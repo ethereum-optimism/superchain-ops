@@ -1,0 +1,26 @@
+# Using OP Sepolia Testnet as the reference chain even though it's the eris betanet with overriden addresses on the scr
+l2chains = [
+    {name = "freya-0", chainId = 420110013},
+    {name = "freya-1", chainId = 420110014}
+]
+
+fallbackAddressesJsonPath = "src/improvements/tasks/sep/124-opcm-upgrade-v410-freya-u15/addresses.json"
+templateName = "OPCMUpgradeV410"
+
+[[opcmUpgrades]]
+chainId = 420110013
+# Freya prestate, to get:
+absolutePrestate = "0x039fb00f964358d326de5804afb4e70a1ca34f9e56c60350b6c8a41fff302490"
+#PDDG-130: The challenger is not the standard one
+#PLDG-10: Permissionless dispute game implementation not found
+expectedValidationErrors = "PDDG-130,PLDG-10"
+
+[[opcmUpgrades]]
+chainId = 420110014
+# Freya prestate, to get:
+absolutePrestate = "0x039fb00f964358d326de5804afb4e70a1ca34f9e56c60350b6c8a41fff302490"
+expectedValidationErrors = ""
+
+[addresses]
+OPCM = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78" # Freshly deployed on Sepolia
+StandardValidatorV410 = "0x7b4d2a02d5fa6c7c98d835d819956ebb876ff439" # Freshly deployed on Sepolia

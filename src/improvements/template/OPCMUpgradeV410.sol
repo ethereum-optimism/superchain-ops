@@ -75,7 +75,7 @@ contract OPCMUpgradeV410 is OPCMTaskBase {
 
         address OPCM = tomlContent.readAddress(".addresses.OPCM");
         OPCM_TARGETS.push(OPCM);
-        require(IOPContractsManager(OPCM).version().eq("3.1.0"), "Incorrect OPCM");
+        require(IOPContractsManager(OPCM).version().eq("3.2.0"), "Incorrect OPCM");
         vm.label(OPCM, "OPCM");
 
         STANDARD_VALIDATOR_V410 = IStandardValidatorV410(tomlContent.readAddress(".addresses.StandardValidatorV410"));
