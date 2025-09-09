@@ -93,10 +93,7 @@ contract SuperchainAddressRegistry is StdChains {
         );
 
         bool isL2Chain = false;
-        if (
-            block.chainid == getChain("optimism_sepolia").chainId
-                || block.chainid == getChain("optimism").chainId
-        ) {
+        if (block.chainid == getChain("optimism_sepolia").chainId || block.chainid == getChain("optimism").chainId) {
             isL2Chain = true;
         }
 

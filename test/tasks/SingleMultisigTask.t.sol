@@ -218,9 +218,9 @@ contract SingleMultisigTaskTest is Test {
     }
 
     function testRevertIfUnsupportedChain() public {
-        vm.chainId(10);
+        vm.chainId(20101010); // non-existent chain ID
         MultisigTask localMultisigTask = new GasConfigTemplate();
-        vm.expectRevert("SuperchainAddressRegistry: Unsupported task chain ID 10");
+        vm.expectRevert("SuperchainAddressRegistry: Unsupported task chain ID 20101010");
         localMultisigTask.simulate(taskConfigFilePath, new address[](0));
     }
 
