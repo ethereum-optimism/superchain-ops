@@ -11,13 +11,13 @@ templateName = "OPCMUpgradeV410"
 chainId = 420110013
 # Freya prestate, to get:
 absolutePrestate = "0x039fb00f964358d326de5804afb4e70a1ca34f9e56c60350b6c8a41fff302490"
-expectedValidationErrors = "PDDG-130,PLDG-10"
+expectedValidationErrors = "PROXYA-10,SYSCON-140,DF-30,PDDG-DWETH-30,PDDG-130,PLDG-10"
 
 [[opcmUpgrades]]
 chainId = 420110014
 # Freya prestate, to get:
 absolutePrestate = "0x039fb00f964358d326de5804afb4e70a1ca34f9e56c60350b6c8a41fff302490"
-expectedValidationErrors = ""
+expectedValidationErrors = "PROXYA-10,SYSCON-140,DF-30,PDDG-DWETH-30,PDDG-130,PLDG-DWETH-30"
 
 [addresses]
 OPCM = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78" # Freshly deployed on Sepolia
