@@ -76,13 +76,13 @@ abstract contract OPCMTaskBase is L2TaskBase {
         for (uint256 i = 0; i < OPCM_TARGETS.length; i++) {
             address OPCM = OPCM_TARGETS[i];
             AccountAccessParser.StateDiff[] memory opcmDiffs = accesses.getStateDiffFor(OPCM, false);
-            bytes32 opcmStateSlot =
-                bytes32(uint256(stdstore.target(OPCM).sig(IOPContractsManager.isRC.selector).find()));
             require(opcmDiffs.length <= 1, "OPCMTaskBase: OPCM must have at most 1 state change");
             // Not all invocations of OPCM upgrade will have the isRC state change. This is because it only happens when
             // address(this) is equal to the OPCMs 'upgradeController' address (which is an immutable).
             if (opcmDiffs.length == 1) {
                 AccountAccessParser.StateDiff memory opcmDiff = opcmDiffs[0];
+                bytes32 opcmStateSlot =
+                    bytes32(uint256(stdstore.target(OPCM).sig(IOPContractsManager.isRC.selector).find()));
                 require(opcmDiff.slot == opcmStateSlot, "OPCMTaskBase: Incorrect OPCM isRc slot");
                 require(opcmDiff.oldValue == bytes32(uint256(1)), "OPCMTaskBase: Incorrect OPCM isRc old value");
                 require(opcmDiff.newValue == bytes32(uint256(0)), "OPCMTaskBase: Incorrect OPCM isRc new value");

@@ -40,7 +40,7 @@ contract OPCMUpgradeV410 is OPCMTaskBase {
     /// @notice Returns the storage write permissions required for this task. This is an array of
     /// contract names that are expected to be written to during the execution of the task.
     function _taskStorageWrites() internal pure virtual override returns (string[] memory) {
-        string[] memory storageWrites = new string[](8);
+        string[] memory storageWrites = new string[](9);
         storageWrites[0] = "ProxyAdminOwner";
         storageWrites[1] = "DisputeGameFactoryProxy";
         storageWrites[2] = "SystemConfigProxy";
@@ -49,17 +49,14 @@ contract OPCMUpgradeV410 is OPCMTaskBase {
         storageWrites[5] = "L1CrossDomainMessengerProxy";
         storageWrites[6] = "L1StandardBridgeProxy";
         storageWrites[7] = "L1ERC721BridgeProxy";
+        storageWrites[8] = "AnchorStateRegistryProxy";
         return storageWrites;
     }
 
     /// @notice Returns an array of strings that refer to contract names in the address registry.
     /// Contracts with these names are expected to have their balance changes during the task.
     /// By default returns an empty array. Override this function if your task expects balance changes.
-    function _taskBalanceChanges() internal view virtual override returns (string[] memory) {
-        string[] memory balanceChanges = new string[](1);
-        balanceChanges[0] = "OptimismPortalProxy";
-        return balanceChanges;
-    }
+    function _taskBalanceChanges() internal view virtual override returns (string[] memory) {}
 
     /// @notice Sets up the template with implementation configurations from a TOML file.
     /// State overrides are not applied yet. Keep this in mind when performing various pre-simulation assertions in this function.
@@ -100,7 +97,6 @@ contract OPCMUpgradeV410 is OPCMTaskBase {
             });
         }
 
-        // We're using the OPCM.upgrade() function as an example here.
         (bool success,) = OPCM_TARGETS[0].delegatecall(abi.encodeCall(IOPContractsManager.upgrade, (opChainConfigs)));
         require(success, "OPCMUpgradeV410: Delegatecall failed in _build.");
     }
