@@ -8,6 +8,7 @@ simulate_task() {
     task=$1
     nested_safe_name_depth_1=$2
     nested_safe_name_depth_2=$3
+    network=$4
     root_dir=$(git rev-parse --show-toplevel)
     just_file="${root_dir}/src/improvements/justfile"
 
@@ -17,7 +18,7 @@ simulate_task() {
         exit 1
     fi
     
-    rpcUrl=$("$root_dir"/src/improvements/script/get-rpc-url.sh "$task")
+    rpcUrl=$("$root_dir"/src/improvements/script/get-rpc-url.sh "$network")
     echo "Task: $task"
     is_nested=$(forge script "$root_dir"/src/improvements/tasks/TaskManager.sol --sig "isNestedTask(string)" "$task/config.toml" --fork-url "$rpcUrl" --fork-retries 10 --fork-retry-backoff 1000 --json | jq -r '.returns["0"].value')
     echo "Is nested: $is_nested"
@@ -39,5 +40,5 @@ simulate_task() {
     popd > /dev/null
 }
 
-# Arguments: 1. task path, 2. nested safe name depth 1, 3. nested safe name depth 2
-simulate_task "$1" "$2" "$3"
+# Arguments: 1. task path, 2. nested safe name depth 1, 3. nested safe name depth 2, 4. network
+simulate_task "$1" "$2" "$3" "$4"

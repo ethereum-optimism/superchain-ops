@@ -69,7 +69,7 @@ simulate-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEP
 
     [ -z "{{NETWORK}}" ] && { echo -e "\n\033[31mError: No network specified\033[0m"; show_usage; exit 1; }
 
-    ETH_RPC_URL=$(just _fetch-rpc-url "{{NETWORK}}")
+    ETH_RPC_URL=$("$root_dir"/src/improvements/script/get-rpc-url.sh "{{NETWORK}}")
     echo -e "\n⏳ Stacked Task simulation in progress..."
 
     if [ -z "{{TASK}}" ]; then
@@ -114,7 +114,7 @@ sign-stack NETWORK="" TASK="" CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2
         exit 0
     fi
 
-    ETH_RPC_URL=$(just --justfile "$root_just_file" _fetch-rpc-url "{{NETWORK}}")
+    ETH_RPC_URL=$("$root_dir"/src/improvements/script/get-rpc-url.sh "{{NETWORK}}")
     task_dir_path="${root_dir}/src/improvements/tasks/{{NETWORK}}/{{TASK}}"
     child_safe_depth_1=$(just --justfile "$root_just_file" _fetch-safe "$task_dir_path" "{{CHILD_SAFE_NAME_DEPTH_1}}")
     child_safe_depth_2=$(just --justfile "$root_just_file" _fetch-safe "$task_dir_path" "{{CHILD_SAFE_NAME_DEPTH_2}}")
@@ -203,7 +203,7 @@ simulate CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
 
     task_name=$(basename "$TASK_PATH")
     network=$(just --justfile "$root_just_file" _get-network-from-task-path "$TASK_PATH")
-    ETH_RPC_URL=$(just _fetch-rpc-url "$network")
+    ETH_RPC_URL=$("$root_dir"/src/improvements/script/get-rpc-url.sh "$network")
     HD_PATH=${HD_PATH:-0}
 
     # Get function signature and arguments using helper
@@ -239,7 +239,7 @@ sign CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
 
     task_name=$(basename "$TASK_PATH")
     network=$(just --justfile "$root_just_file" _get-network-from-task-path "$TASK_PATH")
-    ETH_RPC_URL=$(just _fetch-rpc-url "$network")
+    ETH_RPC_URL=$("$root_dir"/src/improvements/script/get-rpc-url.sh "$network")
     HD_PATH=${HD_PATH:-0}
     USE_KEYSTORE=${USE_KEYSTORE:-}
     
@@ -290,7 +290,7 @@ approve CHILD_SAFE_NAME_DEPTH_1="" CHILD_SAFE_NAME_DEPTH_2="":
   HD_PATH=${HD_PATH:-0}
   USE_KEYSTORE=${USE_KEYSTORE:-}
   network=$(just --justfile "$root_just_file" _get-network-from-task-path "$TASK_PATH")
-  ETH_RPC_URL=$(just _fetch-rpc-url "$network")
+  ETH_RPC_URL=$("$root_dir"/src/improvements/script/get-rpc-url.sh "$network")
   SIGNATURES=${SIGNATURES:-"0x"}
   
   signer_info=$(just --justfile "$root_just_file" _get-signer-args "$HD_PATH" "$USE_KEYSTORE")
@@ -327,7 +327,7 @@ execute:
   HD_PATH=${HD_PATH:-0}
   USE_KEYSTORE=${USE_KEYSTORE:-}
   network=$(just --justfile "$root_just_file" _get-network-from-task-path "$TASK_PATH")
-  ETH_RPC_URL=$(just _fetch-rpc-url "$network")
+  ETH_RPC_URL=$("$root_dir"/src/improvements/script/get-rpc-url.sh "$network")
   SIGNATURES=${SIGNATURES:-"0x"}
   
   signer_info=$(just --justfile "$root_just_file" _get-signer-args "$HD_PATH" "$USE_KEYSTORE")
@@ -358,17 +358,6 @@ _get-network-from-task-path TASK_PATH:
     else
         basename "$(dirname "{{TASK_PATH}}")"
     fi
-
-_fetch-rpc-url NETWORK="":
-    #!/usr/bin/env bash
-    set -euo pipefail
-    profile="${FOUNDRY_PROFILE:-default}"
-    case "{{NETWORK}}" in
-      sep)  yq eval ".profile.\"${profile}\".rpc_endpoints.sepolia" "$(git rev-parse --show-toplevel)/foundry.toml" ;;
-      eth)  yq eval ".profile.\"${profile}\".rpc_endpoints.mainnet" "$(git rev-parse --show-toplevel)/foundry.toml" ;;
-      opsep) yq eval ".profile.\"${profile}\".rpc_endpoints.opSepolia" "$(git rev-parse --show-toplevel)/foundry.toml" ;;
-      *)    echo "Error: Must provide a valid network, '{{NETWORK}}' is not valid." >&2; exit 1 ;;
-    esac
 
 # Fetch safe address for given network and task
 [no-cd] 

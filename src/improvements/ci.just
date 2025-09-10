@@ -54,7 +54,7 @@ simulate-all-templates:
             task_path="$root_dir/test/tasks/example/$network/$task_name"
 
             # Launch each simulation in background.
-            "${root_dir}/src/improvements/script/simulate-task.sh" "$task_path" "$nested_safe_name_depth_1" "$nested_safe_name_depth_2" & pids+=( "$!" )
+            "${root_dir}/src/improvements/script/simulate-task.sh" "$task_path" "$nested_safe_name_depth_1" "$nested_safe_name_depth_2" "$network" & pids+=( "$!" )
             current_batch=$((current_batch + 1))
 
             # If we have reached the batch size, wait for this batch to complete
