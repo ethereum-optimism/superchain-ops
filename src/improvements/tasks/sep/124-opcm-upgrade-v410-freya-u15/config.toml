@@ -1,7 +1,7 @@
-# Using OP Sepolia Testnet as the reference chain even though it's the eris betanet with overriden addresses on the scr
+# Freya Devnet on u15
 l2chains = [
-    {name = "freya-0", chainId = 420110013},
-    {name = "freya-1", chainId = 420110014}
+    {name = "freya-u15-0", chainId = 420110013},
+    {name = "freya-u15-1", chainId = 420110014}
 ]
 
 fallbackAddressesJsonPath = "src/improvements/tasks/sep/124-opcm-upgrade-v410-freya-u15/addresses.json"
