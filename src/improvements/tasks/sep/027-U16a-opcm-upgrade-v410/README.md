@@ -1,6 +1,6 @@
 # 027-U16a-opcm-upgrade-v410: This task upgrades Base Sepolia to `op-contracts/v4.1.0` (i.e. U16a). It uses OPCM to perform the upgrade.
 
-Status: [DRAFT]()
+Status: [DRAFT, NOT READY TO SIGN]()
 
 ## Objective
 
