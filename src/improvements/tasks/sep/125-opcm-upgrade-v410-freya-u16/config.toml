@@ -11,8 +11,6 @@ templateName = "OPCMUpgradeV410"
 chainId = 420110015
 # Freya prestate, to get:
 absolutePrestate = "0x039fb00f964358d326de5804afb4e70a1ca34f9e56c60350b6c8a41fff302490"
-#PDDG-130: The challenger is not the standard one
-#PLDG-10: Permissionless dispute game implementation not found
 expectedValidationErrors = "PROXYA-10,SYSCON-140,DF-30,PDDG-DWETH-30,PDDG-130,PLDG-10"
 
 [[opcmUpgrades]]
