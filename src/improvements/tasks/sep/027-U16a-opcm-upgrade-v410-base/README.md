@@ -29,7 +29,8 @@ cd src/improvements/tasks/sep/027-U16a-opcm-upgrade-v410-base
 #                                          ┌─────────────────┐
 #                                          │ ProxyAdminOwner │
 #                                          └─────────────────┘
-SIMULATE_WITHOUT_LEDGER=1 just simulate base-nested base-council 
+ SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-nested base-council
+ # https://dashboard.tenderly.co/oplabs/sepolia/simulator/7c75688d-1a8a-4929-ace9-005daa6cd9b3
 
 #  ┌────────────────────┐      
 #  │ Child Safe Depth 2 │
@@ -48,7 +49,21 @@ SIMULATE_WITHOUT_LEDGER=1 just simulate base-nested base-council
 #                                          ┌─────────────────┐
 #                                          │ ProxyAdminOwner │
 #                                          └─────────────────┘
-SIMULATE_WITHOUT_LEDGER=1 just simulate base-nested base-operations
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-nested base-operations
+# https://dashboard.tenderly.co/oplabs/sepolia/simulator/224344cb-326d-4a81-9344-6574b5e79af1
+
+#                           ┌────────────────────┐
+#                           │ Child Safe Depth 1 │
+#                           │ 'base-operations'  │
+#                           └────────────────────┘
+#                                      │          
+#                                      └──────────┬
+#                                                 ▼
+#                                          ┌─────────────────┐
+#                                          │ ProxyAdminOwner │
+#                                          └─────────────────┘
+SIMULATE_WITHOUT_LEDGER=1 just --dotenv-path $(pwd)/.env simulate base-operations
+# https://dashboard.tenderly.co/oplabs/sepolia/simulator/61c228b1-3169-455f-9cbf-e04aef2bc017
 ```
 
 Signing commands for each safe:
@@ -56,12 +71,14 @@ Signing commands for each safe:
 cd src/improvements/tasks/sep/027-U16a-opcm-upgrade-v410-base
 just sign base-nested base-council 
 just sign base-nested base-operations
+just sign base-operations
 ```
 
 Approve commands:
 ```bash
 just approve base-nested base-council
 just approve base-nested base-operations
+just approve base-operations
 ```
 
 Execute command: 

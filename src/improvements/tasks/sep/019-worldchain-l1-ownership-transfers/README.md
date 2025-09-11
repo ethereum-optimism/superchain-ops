@@ -1,6 +1,6 @@
 # 019-worldchain-l1-ownership-transfers: Transfer L1 owners for Worldchain Sepolia (DGF, PermissionlessWETH, PermissionedWETH and L1PAO)
 
-Status: [EXECUTED]()
+Status: [READY TO SIGN]()
 
 ## Objective
 
