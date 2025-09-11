@@ -538,10 +538,9 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
         IMulticall3.Call3Value[] memory calls = new IMulticall3.Call3Value[](numSafes);
 
-        // Non-root safes approve successors (all safes except root safe depth 0).
+        // Non-root safes approve successors (all safes except the root).
         for (uint256 i = 0; i < numSafes - 1; i++) {
             address currentSafe = allSafes[i];
-            console.log("Current safe: ", currentSafe);
             bytes memory currentCalldata = allCalldatas[i];
             bytes memory approveExec = GnosisSafeHashes.encodeExecTransactionCalldata(
                 currentSafe,
