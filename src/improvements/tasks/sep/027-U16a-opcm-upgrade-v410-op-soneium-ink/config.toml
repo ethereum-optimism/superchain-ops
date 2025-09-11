@@ -8,7 +8,7 @@ l2chains = [
 templateName = "OPCMUpgradeV410"
 
 
-# The absoule prestate does come from https://www.notion.so/oplabs/U16a-25bf153ee16280aa9050e03ddb4bbaf5
+# The absolute prestate does come from https://www.notion.so/oplabs/U16a-25bf153ee16280aa9050e03ddb4bbaf5
 
 # OP Sepolia Testnet (Permissionless)
 [[opcmUpgrades]]
