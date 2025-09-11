@@ -309,14 +309,15 @@ contract TaskManager is Script {
     }
 
     /// @notice Helper function to determine if the given safe is a nested-nested multisig (e.g. Base safe architecture).
-    function isNestedNestedSafe(address safe) public view returns (bool) {
+    /// This function will return the first owner that is a nested safe.
+    function isNestedNestedSafe(address safe) public view returns (bool, address) {
         address[] memory owners = IGnosisSafe(safe).getOwners();
         for (uint256 i = 0; i < owners.length; i++) {
             if (isNestedSafe(owners[i])) {
-                return true;
+                return (true, owners[i]);
             }
         }
-        return false;
+        return (false, address(0));
     }
 
     /// @notice Returns the root safe address for a given task config file path.
@@ -331,15 +332,16 @@ contract TaskManager is Script {
         view
         returns (address[] memory)
     {
-        address depth1ChildSafe = IGnosisSafe(_rootSafe).getOwners()[0];
         // If the root safe has a nested-nested safe setup, then we need to setup the default child safes so the simulation can run.
-        if (isNestedNestedSafe(_rootSafe)) {
+        (bool isNestedNested, address depth1ChildSafe) = isNestedNestedSafe(_rootSafe);
+        if (isNestedNested) {
             _childSafes = new address[](2);
             address depth2ChildSafe = IGnosisSafe(depth1ChildSafe).getOwners()[0];
             _childSafes[0] = depth2ChildSafe; // See MultisigTypes.sol for an explanation of the ordering.
             _childSafes[1] = depth1ChildSafe;
         } else {
             _childSafes = new address[](1);
+            depth1ChildSafe = IGnosisSafe(_rootSafe).getOwners()[0];
             _childSafes[0] = depth1ChildSafe;
         }
         require(_childSafes.length <= 2, "TaskManager: currently only supports 2 levels of nesting.");

@@ -98,4 +98,13 @@ library Utils {
         safeData_.callData = _payload.calldatas[_index];
         safeData_.nonce = _payload.originalNonces[_index];
     }
+
+    /// @notice Returns all child safes except the root safe.
+    function getChildSafes(TaskPayload memory _payload) internal pure returns (address[] memory) {
+        address[] memory childSafes = new address[](_payload.safes.length - 1);
+        for (uint256 i = 0; i < _payload.safes.length - 1; i++) {
+            childSafes[i] = _payload.safes[i];
+        }
+        return childSafes;
+    }
 }
