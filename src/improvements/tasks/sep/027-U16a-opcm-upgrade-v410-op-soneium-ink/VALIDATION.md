@@ -9,8 +9,8 @@ the values printed to the terminal when you run the task.
 >
 > ### Nested Safe 1 (Foundation): `0xDEe57160aAfCF04c34C887B5962D0a69676d3C8B`
 >
-> - Domain Hash: `0x260bd5f92cfcb40d079b1c6f6a7ff07df436553ba65d01934e15aabe1b88657f`
-> - Message Hash: `0x87fa77b8c9b86b872ab3c4bf0cdfa5065d2f17ac9953cb5c6b08bee0e67e540e`
+> - Domain Hash: `0x37e1f5dd3b92a004a23589b741196c8a214629d4ea3a690ec8e41ae45c689cbb`
+> - Message Hash: `0x7af4de2481b7c28d99a905e151759aa2ab15206295c7b90a5a789702997f3d25`
 
 > ### Nested Safe 2 (Security Council): `0xf64bc17485f0B4Ea5F06A96514182FC4cB561977`
 >
