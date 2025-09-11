@@ -76,9 +76,13 @@ just sign base-operations
 
 Approve commands:
 ```bash
-just approve base-nested base-council
-just approve base-nested base-operations
-just approve base-operations
+# Approval for nested-nested safes
+SIGNATURES=0x just approve base-nested base-council
+SIGNATURES=0x just approve base-nested base-operations
+
+# Approval for nested safes
+SIGNATURES=0x just approve base-nested
+SIGNATURES=0x just approve base-operations
 ```
 
 Execute command: 
