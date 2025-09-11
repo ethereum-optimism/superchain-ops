@@ -36,3 +36,8 @@ expectedValidationErrors = "PROXYA-10,SYSCON-140,DF-30,PDDG-DWETH-30,PDDG-130,PL
 [addresses]
 OPCM = "0x3bb6437aba031afbf9cb3538fa064161e2bf2d78" # Freshly deployed on Sepolia
 StandardValidatorV410 = "0x7b4d2a02d5fa6c7c98d835d819956ebb876ff439" # Freshly deployed on Sepolia
+
+[stateOverrides]
+0xe934Dc97E347C6aCef74364B50125bb8689c40ff = [
+    {key = "0x0000000000000000000000000000000000000000000000000000000000000005", value = 37}
+]
