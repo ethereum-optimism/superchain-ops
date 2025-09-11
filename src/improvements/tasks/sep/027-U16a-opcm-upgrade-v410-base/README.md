@@ -1,4 +1,4 @@
-# 027-U16a-opcm-upgrade-v410: Upgrades Base Sepolia to `op-contracts/v4.1.0` (i.e. U16a)
+# 027-U16a-opcm-upgrade-v410-base: Upgrades Base Sepolia to `op-contracts/v4.1.0` (i.e. U16a)
 
 Status: [DRAFT, NOT READY TO SIGN]()
 
@@ -10,7 +10,7 @@ Todo: Describe the objective of the task
 
 Simulation commands for each safe:
 ```bash
-cd src/improvements/tasks/sep/027-U16a-opcm-upgrade-v410
+cd src/improvements/tasks/sep/027-U16a-opcm-upgrade-v410-base
 
 #  ┌────────────────────┐      
 #  │ Child Safe Depth 2 │
@@ -53,7 +53,7 @@ SIMULATE_WITHOUT_LEDGER=1 just simulate base-nested base-operations
 
 Signing commands for each safe:
 ```bash
-cd src/improvements/tasks/sep/027-U16a-opcm-upgrade-v410
+cd src/improvements/tasks/sep/027-U16a-opcm-upgrade-v410-base
 just sign base-nested base-council 
 just sign base-nested base-operations
 ```

@@ -23,14 +23,14 @@ the values printed to the terminal when you run the task.
 >
 > ### <TODO-enter-safe-name> (`<TODO-enter-safe-address>`)
 >
-> - Domain Hash:  `<TODO-enter-domain-hash>`
-> - Message Hash: `<TODO-enter-message-hash>`
+> - Domain Hash:  `0x6f25427e79742a1eb82c103e2bf43c85fc59509274ec258ad6ed841c4a0048aa`
+> - Message Hash: `0x8b952db91f6bd118dcc0c011d1dc6965fb754f6cbf7c8dc6c565bef31dab4c81`
 
 ## Normalized State Diff Hash Attestation
 
 The normalized state diff hash **MUST** match the hash produced by the state changes attested to in the state diff audit report. As a signer, you are responsible for verifying that this hash is correct. Please compare the hash below with the one in the audit report. If no audit report is available for this task, you must still ensure that the normalized state diff hash matches the output in your terminal.
 
-**Normalized hash:** `<TODO-enter-normalized-hash>`
+**Normalized hash:** `0x2b3f64abf5d23abe68d847d53532878885af39d26ddf432293ba93a2a9a56b4d`
 
 ## Understanding Task Calldata
 
