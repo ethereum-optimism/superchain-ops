@@ -43,6 +43,30 @@ abstract contract StateOverrideManager is CommonBase {
         }
     }
 
+    /// @notice Get all state overrides when simulating arbitrarily nested safes.
+    /// Applies threshold=1 to parent and all child safes, and adds MULTICALL3_ADDRESS as an owner to each child safe.
+    function getStateOverridesForNested(address parentMultisig, address[] memory childSafes)
+        public
+        view
+        returns (Simulation.StateOverride[] memory allOverrides_)
+    {
+        uint256 childCount = childSafes.length;
+        Simulation.StateOverride[] memory defaultOverrides = new Simulation.StateOverride[](1 + childCount);
+
+        // Parent (root) override: set threshold to 1
+        defaultOverrides[0] = _parentMultisigTenderlyOverride(parentMultisig);
+
+        // For each child: threshold=1 and add MULTICALL3_ADDRESS as owner
+        for (uint256 i = 0; i < childCount; i++) {
+            defaultOverrides[1 + i] = _childMultisigTenderlyOverride(childSafes[i]);
+        }
+
+        allOverrides_ = defaultOverrides;
+        for (uint256 j = 0; j < _stateOverrides.length; j++) {
+            allOverrides_ = _appendUserDefinedOverrides(allOverrides_, _stateOverrides[j]);
+        }
+    }
+
     /// @notice Apply state overrides to the current VM state.
     /// Must be called before any function that expects the overridden state.
     function _applyStateOverrides() internal {

@@ -527,31 +527,44 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
 
     /// @notice To show the full transaction trace in Tenderly, we build custom calldata
     /// that shows both the child multisig approving the hash, as well as the root safe
-    /// executing the task. This is only used when simulating a nested multisig.
+    /// executing the task. This is only used when simulating a nested multisig and a nested-nested multisig.
     function _getNestedSimulationMulticall3Calldata(address[] memory allSafes, bytes[] memory allCalldatas)
         internal
         view
         returns (bytes memory data)
     {
-        // TODO: support arbitrary number of safes.
-        IMulticall3.Call3Value[] memory calls = new IMulticall3.Call3Value[](2);
+        uint256 numSafes = allSafes.length;
+        require(numSafes >= 2, "MultisigTask: at least two safes expected for nested simulation");
 
-        address childSafe = allSafes[0];
-        bytes memory childSafeCalldata = allCalldatas[0];
-        bytes memory approveHashExec = GnosisSafeHashes.encodeExecTransactionCalldata(
-            childSafe, childSafeCalldata, Signatures.genPrevalidatedSignature(MULTICALL3_ADDRESS), MULTICALL3_ADDRESS
-        );
-        calls[0] = IMulticall3.Call3Value({target: childSafe, allowFailure: false, value: 0, callData: approveHashExec});
+        IMulticall3.Call3Value[] memory calls = new IMulticall3.Call3Value[](numSafes);
 
-        address rootSafe = allSafes[allSafes.length - 1];
-        bytes memory rootSafeCalldata = allCalldatas[allCalldatas.length - 1];
-        bytes memory customExec = GnosisSafeHashes.encodeExecTransactionCalldata(
+        // Non-root safes approve successors (all safes except root safe depth 0).
+        for (uint256 i = 0; i < numSafes - 1; i++) {
+            address currentSafe = allSafes[i];
+            console.log("Current safe: ", currentSafe);
+            bytes memory currentCalldata = allCalldatas[i];
+            bytes memory approveExec = GnosisSafeHashes.encodeExecTransactionCalldata(
+                currentSafe,
+                currentCalldata,
+                Signatures.genPrevalidatedSignature(MULTICALL3_ADDRESS),
+                MULTICALL3_ADDRESS
+            );
+            calls[i] =
+                IMulticall3.Call3Value({target: currentSafe, allowFailure: false, value: 0, callData: approveExec});
+        }
+
+        // Root safe executes final aggregated actions with immediate child's prevalidated signature
+        address rootSafe = allSafes[numSafes - 1];
+        bytes memory rootSafeCalldata = allCalldatas[numSafes - 1];
+        address immediateChild = allSafes[numSafes - 2];
+        bytes memory rootExec = GnosisSafeHashes.encodeExecTransactionCalldata(
             rootSafe,
             rootSafeCalldata,
-            Signatures.genPrevalidatedSignature(childSafe),
+            Signatures.genPrevalidatedSignature(immediateChild),
             _getMulticallAddress(rootSafe, allSafes)
         );
-        calls[1] = IMulticall3.Call3Value({target: rootSafe, allowFailure: false, value: 0, callData: customExec});
+        calls[numSafes - 1] =
+            IMulticall3.Call3Value({target: rootSafe, allowFailure: false, value: 0, callData: rootExec});
 
         return abi.encodeCall(IMulticall3.aggregate3Value, (calls));
     }
@@ -820,12 +833,13 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
         address targetAddress;
         bytes memory finalExec;
         address rootSafe = payload.safes[payload.safes.length - 1];
-        address childSafe;
+        Simulation.StateOverride[] memory overrides;
         if (payload.safes.length > 1) {
             // Transaction involves multiple safes.
             targetAddress = MULTICALL3_ADDRESS;
             finalExec = _getNestedSimulationMulticall3Calldata(payload.safes, payload.calldatas);
-            childSafe = payload.safes[0];
+            address[] memory childSafes = Utils.getChildSafes(payload);
+            overrides = getStateOverridesForNested(rootSafe, childSafes);
         } else {
             // Transaction involves a single safe.
             targetAddress = rootSafe;
@@ -835,6 +849,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                 Signatures.genPrevalidatedSignature(msg.sender),
                 _getMulticallAddress(rootSafe, payload.safes)
             );
+            overrides = getStateOverrides(rootSafe, address(0));
         }
 
         uint256 postExecuteSnapshot = vm.snapshotState();
@@ -844,9 +859,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             vm.revertToState(_preExecutionSnapshot),
             "MultisigTask: failed to revert back to _preExecutionSnapshot before printing Tenderly simulation data."
         );
-        MultisigTaskPrinter.printTenderlySimulationData(
-            targetAddress, finalExec, msg.sender, getStateOverrides(rootSafe, childSafe)
-        );
+        MultisigTaskPrinter.printTenderlySimulationData(targetAddress, finalExec, msg.sender, overrides);
 
         // Apply the post execution state changes. Many tests rely on the assumption that the transaction was executed.
         require(
