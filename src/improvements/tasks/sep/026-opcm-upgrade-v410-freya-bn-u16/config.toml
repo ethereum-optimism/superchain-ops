@@ -9,14 +9,28 @@ templateName = "OPCMUpgradeV410"
 
 [[opcmUpgrades]]
 chainId = 420110015
-# Freya prestate, to get:
-absolutePrestate = "0x039fb00f964358d326de5804afb4e70a1ca34f9e56c60350b6c8a41fff302490"
+# Freya prestate:
+absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
+
+# PROXYA-10: The PAO is not the standard one
+# SYSCON-140: The SYSCON is not the standard one
+# DF-30: The DF is not the standard one
+# PDDG-DWETH-30: The PDDG is not the standard one
+# PDDG-130: The PDDG is not the standard one
+# PLDG-10: The PLDG is not the standard one
 expectedValidationErrors = "PROXYA-10,SYSCON-140,DF-30,PDDG-DWETH-30,PDDG-130,PLDG-10"
 
 [[opcmUpgrades]]
 chainId = 420110016
-# Freya prestate, to get:
-absolutePrestate = "0x039fb00f964358d326de5804afb4e70a1ca34f9e56c60350b6c8a41fff302490"
+# Freya prestate:
+absolutePrestate = "0x03eb07101fbdeaf3f04d9fb76526362c1eea2824e4c6e970bdb19675b72e4fc8"
+
+# PROXYA-10: The PAO is not the standard one
+# SYSCON-140: The SYSCON is not the standard one
+# DF-30: The DF is not the standard one
+# PDDG-DWETH-30: The PDDG is not the standard one
+# PDDG-130: The PDDG is not the standard one
+# PLDG-DWETH-30: The PLDG is not the standard one
 expectedValidationErrors = "PROXYA-10,SYSCON-140,DF-30,PDDG-DWETH-30,PDDG-130,PLDG-DWETH-30"
 
 [addresses]
