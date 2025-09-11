@@ -67,7 +67,7 @@ This function is called with a tuple of three elements:
 
 Call3 struct for Multicall3DelegateCall:
 
-- `target`: [0x3bb6437aba031afbf9cb3538fa064161e2bf2d78](TODO RELEASE CHECKLIST OPCM & VERIFY OPCM) - Sepolia OPContractsManager v4.0.0
+- `target`: [0x3bb6437aba031afbf9cb3538fa064161e2bf2d78](https://sepolia.etherscan.io/address/0x3bb6437aba031afbf9cb3538fa064161e2bf2d78) - Sepolia OPContractsManager v4.1.0
 - `allowFailure`: false
 - `callData`: `0xff2dd5a1...` (output from the previous section)
 
