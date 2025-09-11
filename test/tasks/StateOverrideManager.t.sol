@@ -487,8 +487,7 @@ contract StateOverrideManagerUnitTest is Test {
     ) internal view returns (Simulation.StateOverride[] memory allOverrides_) {
         bool isNested = childSafes.length > 0;
 
-        allOverrides_ =
-            isNested ? task.getStateOverridesForNested(rootSafe, childSafes) : task.getStateOverrides(rootSafe);
+        allOverrides_ = task.getStateOverrides(rootSafe, childSafes);
 
         // Basic shape checks
         assertTrue(allOverrides_.length >= 1, "Must be at least 1 override (parent default)");

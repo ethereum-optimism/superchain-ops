@@ -838,7 +838,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
             targetAddress = MULTICALL3_ADDRESS;
             finalExec = _getNestedSimulationMulticall3Calldata(payload.safes, payload.calldatas);
             address[] memory childSafes = Utils.getChildSafes(payload);
-            overrides = getStateOverridesForNested(rootSafe, childSafes);
+            overrides = getStateOverrides(rootSafe, childSafes);
         } else {
             // Transaction involves a single safe.
             targetAddress = rootSafe;
@@ -848,7 +848,7 @@ abstract contract MultisigTask is Test, Script, StateOverrideManager, TaskManage
                 Signatures.genPrevalidatedSignature(msg.sender),
                 _getMulticallAddress(rootSafe, payload.safes)
             );
-            overrides = getStateOverrides(rootSafe);
+            overrides = getStateOverrides(rootSafe, new address[](0));
         }
 
         uint256 postExecuteSnapshot = vm.snapshotState();
