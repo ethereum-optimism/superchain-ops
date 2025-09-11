@@ -341,6 +341,7 @@ contract TaskManager is Script {
             _childSafes[1] = depth1ChildSafe;
         } else {
             _childSafes = new address[](1);
+            depth1ChildSafe = IGnosisSafe(_rootSafe).getOwners()[0];
             _childSafes[0] = depth1ChildSafe;
         }
         require(_childSafes.length <= 2, "TaskManager: currently only supports 2 levels of nesting.");
